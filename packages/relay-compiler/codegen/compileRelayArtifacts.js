@@ -1,10 +1,10 @@
 /**
- * Copyright (c) 2013-present, Facebook, Inc.
+ * Copyright (c) Facebook, Inc. and its affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @flow strict-local
+ * @flow
  * @format
  */
 
@@ -12,12 +12,10 @@
 
 const RelayCodeGenerator = require('./RelayCodeGenerator');
 
-const requestsForOperation = require('./requestsForOperation');
+const {Printer, Profiler, filterContextForNode} = require('graphql-compiler');
 
-const {Profiler} = require('graphql-compiler');
-
-import type {GeneratedNode} from 'RelayRuntime';
 import type {CompilerContext, IRTransform, Reporter} from 'graphql-compiler';
+import type {GeneratedNode} from 'relay-runtime';
 
 export type RelayCompilerTransforms = {
   commonTransforms: Array<IRTransform>,
@@ -47,7 +45,7 @@ function compileRelayArtifacts(
   context: CompilerContext,
   transforms: RelayCompilerTransforms,
   reporter?: Reporter,
-): Array<GeneratedNode> {
+): $ReadOnlyArray<GeneratedNode> {
   return Profiler.run('GraphQLCompiler.compile', () => {
     // The fragment is used for reading data from the normalized store.
     const fragmentContext = context.applyTransforms(
@@ -77,32 +75,53 @@ function compileRelayArtifacts(
       reporter,
     );
 
-    return fragmentContext.documents().map(node =>
-      RelayCodeGenerator.generate(
-        node.kind === 'Fragment'
-          ? node
-          : {
-              kind: 'Batch',
-              metadata: codeGenContext.getRoot(node.name).metadata || {},
-              name: node.name,
-              fragment: {
-                kind: 'Fragment',
-                argumentDefinitions: (node.argumentDefinitions: $FlowFixMe),
-                directives: node.directives,
-                metadata: null,
-                name: node.name,
-                selections: node.selections,
-                type: node.type,
-              },
-              requests: requestsForOperation(
-                printContext,
-                codeGenContext,
-                node.name,
-              ),
+    const results = [];
+
+    // Add everything from codeGenContext, these are the operations as well as
+    // SplitOperations from @match.
+    for (const node of codeGenContext.documents()) {
+      if (node.kind === 'Root') {
+        const fragNode = fragmentContext.getRoot(node.name);
+        results.push(
+          RelayCodeGenerator.generate({
+            kind: 'Request',
+            fragment: {
+              kind: 'Fragment',
+              argumentDefinitions: fragNode.argumentDefinitions,
+              directives: fragNode.directives,
+              metadata: null,
+              name: fragNode.name,
+              selections: fragNode.selections,
+              type: fragNode.type,
             },
-      ),
-    );
+            id: null,
+            metadata: node.metadata || {},
+            name: fragNode.name,
+            root: node,
+            text: printOperation(printContext, fragNode.name),
+          }),
+        );
+      } else {
+        results.push(RelayCodeGenerator.generate(node));
+      }
+    }
+
+    // Add all the Fragments from the fragmentContext for the reader ASTs.
+    for (const node of fragmentContext.documents()) {
+      if (node.kind === 'Fragment') {
+        results.push(RelayCodeGenerator.generate(node));
+      }
+    }
+    return results;
   });
+}
+
+function printOperation(printContext: CompilerContext, name: string): string {
+  const printableRoot = printContext.getRoot(name);
+  return filterContextForNode(printableRoot, printContext)
+    .documents()
+    .map(Printer.print)
+    .join('\n');
 }
 
 module.exports = compileRelayArtifacts;

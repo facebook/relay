@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2013-present, Facebook, Inc.
+ * Copyright (c) Facebook, Inc. and its affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -73,7 +73,9 @@ export type Scope = {[key: string]: ArgumentValue};
  * assume that this could be overridden at runtime. The value cannot be decided
  * statically and therefore is set to a variable.
  */
-function getRootScope(definitions: Array<LocalArgumentDefinition>): Scope {
+function getRootScope(
+  definitions: $ReadOnlyArray<LocalArgumentDefinition>,
+): Scope {
   const scope = {};
   definitions.forEach(definition => {
     scope[definition.name] = {
@@ -127,8 +129,8 @@ function getRootScope(definitions: Array<LocalArgumentDefinition>): Scope {
  * }
  */
 function getFragmentScope(
-  definitions: Array<ArgumentDefinition>,
-  args: Array<Argument>,
+  definitions: $ReadOnlyArray<ArgumentDefinition>,
+  args: $ReadOnlyArray<Argument>,
   parentScope: Scope,
   fragmentName: string,
 ): Scope {

@@ -1,10 +1,10 @@
 /**
- * Copyright (c) 2013-present, Facebook, Inc.
+ * Copyright (c) Facebook, Inc. and its affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @flow
+ * @flow strict-local
  * @format
  */
 
@@ -12,35 +12,36 @@
 
 const invariant = require('invariant');
 
-import type GraphQLCompilerContext from './GraphQLCompilerContext';
+import type GraphQLCompilerContext, {
+  CompilerContextDocument,
+} from './GraphQLCompilerContext';
 import type {
   Argument,
-  Batch,
   Condition,
-  DeferrableFragmentSpread,
   Directive,
   Fragment,
   FragmentSpread,
-  IR,
   InlineFragment,
+  IR,
   LinkedField,
   ListValue,
   Literal,
   LocalArgumentDefinition,
+  MatchBranch,
+  MatchField,
   ObjectFieldValue,
   ObjectValue,
   Request,
   Root,
   RootArgumentDefinition,
   ScalarField,
+  SplitOperation,
   Variable,
 } from './GraphQLIR';
 
 type NodeVisitor<S> = {
   Argument?: NodeVisitorFunction<Argument, S>,
-  Batch?: NodeVisitorFunction<Batch, S>,
   Condition?: NodeVisitorFunction<Condition, S>,
-  DeferrableFragmentSpread?: NodeVisitorFunction<DeferrableFragmentSpread, S>,
   Directive?: NodeVisitorFunction<Directive, S>,
   Fragment?: NodeVisitorFunction<Fragment, S>,
   FragmentSpread?: NodeVisitorFunction<FragmentSpread, S>,
@@ -49,12 +50,15 @@ type NodeVisitor<S> = {
   ListValue?: NodeVisitorFunction<ListValue, S>,
   Literal?: NodeVisitorFunction<Literal, S>,
   LocalArgumentDefinition?: NodeVisitorFunction<LocalArgumentDefinition, S>,
+  MatchBranch?: NodeVisitorFunction<MatchBranch, S>,
+  MatchField?: NodeVisitorFunction<MatchField, S>,
   ObjectFieldValue?: NodeVisitorFunction<ObjectFieldValue, S>,
   ObjectValue?: NodeVisitorFunction<ObjectValue, S>,
   Request?: NodeVisitorFunction<Request, S>,
   Root?: NodeVisitorFunction<Root, S>,
   RootArgumentDefinition?: NodeVisitorFunction<RootArgumentDefinition, S>,
   ScalarField?: NodeVisitorFunction<ScalarField, S>,
+  SplitOperation?: NodeVisitorFunction<SplitOperation, S>,
   Variable?: NodeVisitorFunction<Variable, S>,
 };
 type NodeVisitorFunction<N: IR, S> = (node: N, state: S) => ?N;
@@ -103,10 +107,11 @@ type NodeVisitorFunction<N: IR, S> = (node: N, state: S) => ?N;
 function transform<S>(
   context: GraphQLCompilerContext,
   visitor: NodeVisitor<S>,
-  stateInitializer: void | ((Fragment | Root) => ?S),
+  stateInitializer: void | (CompilerContextDocument => ?S),
 ): GraphQLCompilerContext {
   const transformer = new Transformer(context, visitor);
-  return context.withMutations(nextContext => {
+  return context.withMutations(ctx => {
+    let nextContext = ctx;
     context.forEachDocument(prevNode => {
       let nextNode;
       if (stateInitializer === undefined) {
@@ -203,9 +208,6 @@ class Transformer<S> {
       case 'Argument':
         nextNode = this._traverseChildren(prevNode, null, ['value']);
         break;
-      case 'Batch':
-        nextNode = this._traverseChildren(prevNode, ['requests'], ['fragment']);
-        break;
       case 'Literal':
       case 'LocalArgumentDefinition':
       case 'RootArgumentDefinition':
@@ -214,6 +216,12 @@ class Transformer<S> {
         break;
       case 'Directive':
         nextNode = this._traverseChildren(prevNode, ['args']);
+        break;
+      case 'MatchBranch':
+        nextNode = this._traverseChildren(prevNode, ['selections']);
+        if (!nextNode.selections.length) {
+          nextNode = null;
+        }
         break;
       case 'FragmentSpread':
       case 'ScalarField':
@@ -231,6 +239,13 @@ class Transformer<S> {
         break;
       case 'ListValue':
         nextNode = this._traverseChildren(prevNode, ['items']);
+        break;
+      case 'MatchField':
+        nextNode = this._traverseChildren(prevNode, [
+          'args',
+          'directives',
+          'selections',
+        ]);
         break;
       case 'ObjectFieldValue':
         nextNode = this._traverseChildren(prevNode, null, ['value']);
@@ -257,13 +272,6 @@ class Transformer<S> {
           nextNode = null;
         }
         break;
-      case 'DeferrableFragmentSpread':
-        nextNode = this._traverseChildren(prevNode, [
-          'args',
-          'fragmentArgs',
-          'directives',
-        ]);
-        break;
       case 'Fragment':
       case 'Root':
         nextNode = this._traverseChildren(prevNode, [
@@ -273,9 +281,13 @@ class Transformer<S> {
         ]);
         break;
       case 'Request':
-        nextNode = this._traverseChildren(prevNode, null, ['root']);
+        nextNode = this._traverseChildren(prevNode, null, ['fragment', 'root']);
+        break;
+      case 'SplitOperation':
+        nextNode = this._traverseChildren(prevNode, ['selections']);
         break;
       default:
+        (prevNode: empty);
         invariant(
           false,
           'GraphQLIRTransformer: Unknown kind `%s`.',

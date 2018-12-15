@@ -1,91 +1,65 @@
 /**
- * Copyright (c) 2013-present, Facebook, Inc.
+ * Copyright (c) Facebook, Inc. and its affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
  * @format
+ * @flow
  * @emails oncall+relay
  */
 
 'use strict';
 
-const GraphQLCompilerContext = require('GraphQLCompilerContext');
-const RelayCodeGenerator = require('RelayCodeGenerator');
+const CodeMarker = require('../../util/CodeMarker');
+const RelayCodeGenerator = require('../RelayCodeGenerator');
+const RelayMatchTransform = require('../../transforms/RelayMatchTransform');
+const RelayRelayDirectiveTransform = require('../../transforms/RelayRelayDirectiveTransform');
 const RelayTestSchema = require('RelayTestSchema');
 
 const parseGraphQLText = require('parseGraphQLText');
 
 const {generateTestsFromFixtures} = require('RelayModernTestUtils');
+const {ASTConvert, CompilerContext} = require('graphql-compiler');
 
 describe('RelayCodeGenerator', () => {
+  const schema = ASTConvert.transformASTSchema(RelayTestSchema, [
+    RelayMatchTransform.SCHEMA_EXTENSION,
+    RelayRelayDirectiveTransform.SCHEMA_EXTENSION,
+  ]);
+
   generateTestsFromFixtures(`${__dirname}/fixtures/code-generator`, text => {
     try {
-      const {definitions} = parseGraphQLText(RelayTestSchema, text);
-      const context = new GraphQLCompilerContext(RelayTestSchema).addAll(
-        definitions,
-      );
-      return context
+      const {definitions} = parseGraphQLText(schema, text);
+      return new CompilerContext(RelayTestSchema, schema)
+        .addAll(definitions)
+        .applyTransforms([
+          // Requires Relay directive transform first.
+          RelayRelayDirectiveTransform.transform,
+          RelayMatchTransform.transform,
+        ])
         .documents()
         .map(doc => {
           const node =
             doc.kind === 'Fragment'
               ? doc
               : {
-                  fragment: null,
-                  kind: 'Batch',
+                  kind: 'Request',
+                  fragment: (null: $FlowFixMe),
+                  id: null,
                   metadata: {},
                   name: doc.name,
-                  requests: [
-                    {
-                      kind: 'Request',
-                      name: doc.name,
-                      id: null,
-                      text: null,
-                      argumentDependencies: [],
-                      root: doc,
-                    },
-                  ],
+                  root: doc,
+                  text: null,
                 };
-          return JSON.stringify(RelayCodeGenerator.generate(node), null, 2);
+          return CodeMarker.postProcess(
+            JSON.stringify(RelayCodeGenerator.generate(node), null, 2),
+            moduleName => `require('${moduleName}')`,
+          );
         })
         .join('\n\n');
     } catch (e) {
       return 'ERROR:\n' + e;
     }
   });
-
-  generateTestsFromFixtures(
-    `${__dirname}/fixtures/code-generator-batch`,
-    text => {
-      try {
-        const {definitions} = parseGraphQLText(RelayTestSchema, text);
-        const context = new GraphQLCompilerContext(RelayTestSchema).addAll(
-          definitions,
-        );
-        return context
-          .documents()
-          .map(doc => {
-            const node = {
-              fragment: null,
-              kind: 'Batch',
-              metadata: {},
-              name: doc.name,
-              requests: [1, 2, 3].map(() => ({
-                kind: 'Request',
-                name: doc.name,
-                id: null,
-                text: null,
-                argumentDependencies: [],
-                root: doc,
-              })),
-            };
-            return JSON.stringify(RelayCodeGenerator.generate(node), null, 2);
-          })
-          .join('\n\n');
-      } catch (e) {
-        return 'ERROR:\n' + e.stack;
-      }
-    },
-  );
 });

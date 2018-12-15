@@ -1,0 +1,75 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`RelayMatchTransform matches expected output: relay-match-transform.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment NameRendererFragment on User {
+  id
+  nameRenderer @match {
+    ...PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
+    ...MarkdownUserNameRenderer_name
+      @module(name: "MarkdownUserNameRenderer.react")
+  }
+}
+
+fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
+  plaintext
+  data {
+    text
+  }
+}
+
+fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+  markdown
+  data {
+    markup
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+fragment NameRendererFragment on User {
+  id
+  nameRenderer(supported: ["PlainUserNameRenderer", "MarkdownUserNameRenderer"]) {
+    ...PlainUserNameRenderer_name
+    ... on PlainUserNameRenderer {
+      __match_component: js(module: "PlainUserNameRenderer.react")
+      __match_fragment: js(module: "PlainUserNameRenderer_name$normalization.graphql")
+    }
+    ...MarkdownUserNameRenderer_name
+    ... on MarkdownUserNameRenderer {
+      __match_component: js(module: "MarkdownUserNameRenderer.react")
+      __match_fragment: js(module: "MarkdownUserNameRenderer_name$normalization.graphql")
+    }
+  }
+}
+
+fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
+  plaintext
+  data {
+    text
+  }
+}
+
+fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+  markdown
+  data {
+    markup
+  }
+}
+
+SplitOperation PlainUserNameRenderer_name$normalization {
+  ...PlainUserNameRenderer_name
+  ... on PlainUserNameRenderer {
+    __match_component: js(module: "PlainUserNameRenderer.react")
+    __match_fragment: js(module: "PlainUserNameRenderer_name$normalization.graphql")
+  }
+}
+
+SplitOperation MarkdownUserNameRenderer_name$normalization {
+  ...MarkdownUserNameRenderer_name
+  ... on MarkdownUserNameRenderer {
+    __match_component: js(module: "MarkdownUserNameRenderer.react")
+    __match_fragment: js(module: "MarkdownUserNameRenderer_name$normalization.graphql")
+  }
+}
+
+`;

@@ -1,3 +1,5 @@
+# Copyright (c) Facebook, Inc. and its affiliates. All Rights Reserved.
+
 schema {
   query: Query
   mutation: Mutation
@@ -154,6 +156,16 @@ input CheckinSearchInput {
   inputs: [CheckinSearchInput]
 }
 
+type PlainCommentBody {
+  text: Text
+}
+
+type MarkdownCommentBody {
+  text: Text
+}
+
+union CommentBody = PlainCommentBody | MarkdownCommentBody
+
 type Comment implements Node {
   actor: Actor
   actors: [Actor]
@@ -166,6 +178,7 @@ type Comment implements Node {
   body: Text
   canViewerComment: Boolean
   canViewerLike: Boolean
+  commentBody(supported: [String!]!): CommentBody
   comments(first: Int, last: Int, orderby: String): CommentsConnection
   doesViewerLike: Boolean
   emailAddresses: [String]
@@ -638,6 +651,40 @@ type UnfriendResponsePayload {
   formerFriend: User
 }
 
+scalar JSDependency
+
+interface HasJsField {
+  js(module: String): JSDependency
+}
+
+type PlainUserNameRenderer implements HasJsField {
+  plaintext: String
+  data: PlainUserNameData
+  js(module: String): JSDependency
+}
+
+type PlainUserNameData {
+  id: ID
+  text: String
+}
+
+type MarkdownUserNameRenderer implements HasJsField {
+  markdown: String
+  data: MarkdownUserNameData
+  js(module: String): JSDependency
+}
+
+type MarkdownUserNameData {
+  id: ID
+  markup: String
+}
+
+type CustomNameRenderer {
+  customField: String
+}
+
+union UserNameRenderer = PlainUserNameRenderer | MarkdownUserNameRenderer | CustomNameRenderer
+
 type User implements Named & Node & Actor {
   actor: Actor
   actors: [Actor]
@@ -677,6 +724,7 @@ type User implements Named & Node & Actor {
   likeSentence: Text
   message: Text
   name: String
+  nameRenderer(supported: [String!]!): UserNameRenderer
   storySearch(query: StorySearchInput): [Story]
   storyCommentSearch(query: StoryCommentSearchInput): [Comment]
   profilePicture(size: [Int], preset: PhotoSize): Image

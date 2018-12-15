@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2013-present, Facebook, Inc.
+ * Copyright (c) Facebook, Inc. and its affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -17,33 +17,23 @@ const invariant = require('invariant');
 
 import type {InlineFragment, Fragment, FragmentSpread} from '../core/GraphQLIR';
 
-type State = {};
-const STATE = {};
-
 /**
  * A transform that inlines all fragments and removes them.
  */
 function inlineFragmentsTransform(
   context: GraphQLCompilerContext,
 ): GraphQLCompilerContext {
-  return GraphQLIRTransformer.transform(
-    context,
-    {
-      Fragment: visitFragment,
-      FragmentSpread: visitFragmentSpread,
-    },
-    () => STATE,
-  );
+  return GraphQLIRTransformer.transform(context, {
+    Fragment: visitFragment,
+    FragmentSpread: visitFragmentSpread,
+  });
 }
 
-function visitFragment(fragment: Fragment, state: State): ?Fragment {
+function visitFragment(fragment: Fragment): ?Fragment {
   return null;
 }
 
-function visitFragmentSpread(
-  fragmentSpread: FragmentSpread,
-  state: State,
-): FragmentSpread {
+function visitFragmentSpread(fragmentSpread: FragmentSpread): ?FragmentSpread {
   invariant(
     fragmentSpread.args.length === 0,
     'InlineFragmentsTransform: Cannot flatten fragment spread `%s` with ' +
@@ -59,7 +49,7 @@ function visitFragmentSpread(
     typeCondition: fragment.type,
   };
 
-  return this.traverse(result, state);
+  return this.traverse(result);
 }
 
 module.exports = {

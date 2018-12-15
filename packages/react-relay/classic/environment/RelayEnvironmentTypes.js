@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2013-present, Facebook, Inc.
+ * Copyright (c) Facebook, Inc. and its affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -18,9 +18,10 @@ import type {
 import type {
   CEnvironment,
   CFragmentMap,
+  CNormalizationSelector,
   COperationSelector,
+  CReaderSelector,
   CRelayContext,
-  CSelector,
   CSnapshot,
   CUnstableEnvironmentCore,
 } from './RelayCombinedEnvironmentTypes';
@@ -35,23 +36,28 @@ import type {
 type TEnvironment = Environment;
 type TFragment = ConcreteFragmentDefinition;
 type TGraphQLTaggedNode = GraphQLTaggedNode;
-type TNode = ConcreteFragment;
+type TReaderNode = ConcreteFragment;
+type TNormalizationNode = ConcreteFragment;
+type TPayload = ReaderSelector;
 type TRequest = ConcreteOperationDefinition;
-type TPayload = Selector;
-type TOperationCompat = any; // unused type for compat with Modern API
 
 export type FragmentMap = CFragmentMap<TFragment>;
-export type OperationSelector = COperationSelector<TNode, TRequest>;
+export type OperationSelector = COperationSelector<
+  TReaderNode,
+  TNormalizationNode,
+  TRequest,
+>;
 export type RelayContext = CRelayContext<TEnvironment>;
-export type Selector = CSelector<TNode>;
-export type Snapshot = CSnapshot<TNode>;
+export type ReaderSelector = CReaderSelector<TReaderNode>;
+export type NormalizationSelector = CNormalizationSelector<TNormalizationNode>;
+export type Snapshot = CSnapshot<TReaderNode>;
 export type UnstableEnvironmentCore = CUnstableEnvironmentCore<
   TEnvironment,
   TFragment,
   TGraphQLTaggedNode,
-  TNode,
+  TReaderNode,
+  TNormalizationNode,
   TRequest,
-  TOperationCompat,
 >;
 
 /**
@@ -63,10 +69,10 @@ export interface Environment
     TEnvironment,
     TFragment,
     TGraphQLTaggedNode,
-    TNode,
+    TReaderNode,
+    TNormalizationNode,
     TRequest,
     TPayload,
-    TOperationCompat,
   > {
   /**
    * Applies an optimistic mutation to the store without committing it to the

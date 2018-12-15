@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2013-present, Facebook, Inc.
+ * Copyright (c) Facebook, Inc. and its affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -11,19 +11,19 @@
 'use strict';
 
 const React = require('React');
+const ReactRelayContext = require('./ReactRelayContext');
 const ReactRelayQueryFetcher = require('./ReactRelayQueryFetcher');
-const RelayPropTypes = require('../classic/container/RelayPropTypes');
 
 const areEqual = require('areEqual');
 const buildReactRelayContainer = require('./buildReactRelayContainer');
+const warning = require('warning');
 
-const {assertRelayContext} = require('../classic/environment/RelayContext');
 const {profileContainer} = require('./ReactRelayContainerProfiler');
 const {getContainerName} = require('./ReactRelayContainerUtils');
+const {assertRelayContext} = require('./RelayContext');
 const {Observable, RelayProfiler, isScalarAndEqual} = require('relay-runtime');
 
 import type {FragmentSpecResolver} from '../classic/environment/RelayCombinedEnvironmentTypes';
-import type {RelayEnvironmentInterface as ClassicEnvironment} from '../classic/store/RelayEnvironment';
 import type {
   $RelayProps,
   ObserverOrCallback,
@@ -35,7 +35,6 @@ import type {
   Disposable,
   FragmentMap,
   GraphQLTaggedNode,
-  IEnvironment,
   RelayContext,
   Subscription,
   Variables,
@@ -47,15 +46,10 @@ type ContainerState = {
   data: {[key: string]: mixed},
   prevProps: ContainerProps,
   localVariables: ?Variables,
-  relay: RelayContext,
-  relayContext: RelayContext,
-  relayEnvironment: IEnvironment | ClassicEnvironment,
+  prevPropsContext: RelayContext,
   relayProp: RelayRefetchProp,
-  relayVariables: Variables,
   resolver: FragmentSpecResolver,
-};
-const containerContextTypes = {
-  relay: RelayPropTypes.Relay,
+  contextForChildren: RelayContext,
 };
 
 /**
@@ -71,28 +65,30 @@ function createContainerWithFragments<
   fragments: FragmentMap,
   taggedNode: GraphQLTaggedNode,
 ): React.ComponentType<
-  $RelayProps<React.ElementConfig<TComponent>, RelayRefetchProp>,
+  $RelayProps<React$ElementConfig<TComponent>, RelayRefetchProp>,
 > {
   const containerName = getContainerName(Component);
 
   class Container extends React.Component<ContainerProps, ContainerState> {
     static displayName = containerName;
-    static contextTypes = containerContextTypes;
 
     _refetchSubscription: ?Subscription;
     _queryFetcher: ?ReactRelayQueryFetcher;
+    _isUnmounted: boolean;
 
-    constructor(props, context) {
-      super(props, context);
-      const relay = assertRelayContext(context.relay);
-      const {createFragmentSpecResolver} = relay.environment.unstable_internal;
+    constructor(props) {
+      super(props);
+      const relayContext = assertRelayContext(props.__relayContext);
       this._refetchSubscription = null;
+      const {
+        createFragmentSpecResolver,
+      } = relayContext.environment.unstable_internal;
       // Do not provide a subscription/callback here.
       // It is possible for this render to be interrupted or aborted,
       // In which case the subscription would cause a leak.
       // We will add the subscription in componentDidMount().
       const resolver = createFragmentSpecResolver(
-        relay,
+        relayContext,
         containerName,
         fragments,
         props,
@@ -100,20 +96,13 @@ function createContainerWithFragments<
       this.state = {
         data: resolver.resolve(),
         localVariables: null,
-        relay,
-        relayContext: {
-          environment: relay.environment,
-          variables: relay.variables,
-        },
-        relayEnvironment: relay.environment,
-        relayProp: {
-          environment: relay.environment,
-          refetch: this._refetch,
-        },
-        prevProps: this.props,
-        relayVariables: relay.variables,
+        prevProps: props,
+        prevPropsContext: relayContext,
+        contextForChildren: relayContext,
+        relayProp: getRelayProp(relayContext.environment, this._refetch),
         resolver,
       };
+      this._isUnmounted = false;
     }
 
     componentDidMount() {
@@ -146,12 +135,12 @@ function createContainerWithFragments<
       // Any props change could impact the query, so we mirror props in state.
       // This is an unusual pattern, but necessary for this container usecase.
       const {prevProps} = prevState;
-      const relay = assertRelayContext(prevState.relay);
+      const relayContext = assertRelayContext(nextProps.__relayContext);
 
       const {
         createFragmentSpecResolver,
         getDataIDsFromObject,
-      } = relay.environment.unstable_internal;
+      } = relayContext.environment.unstable_internal;
       const prevIDs = getDataIDsFromObject(fragments, prevProps);
       const nextIDs = getDataIDsFromObject(fragments, nextProps);
 
@@ -163,21 +152,16 @@ function createContainerWithFragments<
       // - Existing references are based on old variables.
       // - Pending fetches are for the previous records.
       if (
-        prevState.relayEnvironment !== relay.environment ||
-        prevState.relayVariables !== relay.variables ||
+        prevState.prevPropsContext.environment !== relayContext.environment ||
+        prevState.prevPropsContext.variables !== relayContext.variables ||
         !areEqual(prevIDs, nextIDs)
       ) {
-        // Child containers rely on context.relay being mutated (for gDSFP).
-        const mutatedRelayContext = prevState.relayContext;
-        mutatedRelayContext.environment = relay.environment;
-        mutatedRelayContext.variables = relay.variables;
-
         // Do not provide a subscription/callback here.
         // It is possible for this render to be interrupted or aborted,
         // In which case the subscription would cause a leak.
         // We will add the subscription in componentDidUpdate().
         resolver = createFragmentSpecResolver(
-          relay,
+          relayContext,
           containerName,
           fragments,
           nextProps,
@@ -186,14 +170,12 @@ function createContainerWithFragments<
           data: resolver.resolve(),
           localVariables: null,
           prevProps: nextProps,
-          relayContext: mutatedRelayContext,
-          relayEnvironment: relay.environment,
-          relayProp: {
-            environment: relay.environment,
-            // refetch should never really change
-            refetch: prevState.relayProp.refetch,
-          },
-          relayVariables: relay.variables,
+          prevPropsContext: relayContext,
+          contextForChildren: relayContext,
+          relayProp: getRelayProp(
+            relayContext.environment,
+            prevState.relayProp.refetch,
+          ),
           resolver,
         };
       } else if (!prevState.localVariables) {
@@ -210,12 +192,13 @@ function createContainerWithFragments<
     }
 
     componentWillUnmount() {
+      this._isUnmounted = true;
       this.state.resolver.dispose();
       this._queryFetcher && this._queryFetcher.dispose();
       this._refetchSubscription && this._refetchSubscription.unsubscribe();
     }
 
-    shouldComponentUpdate(nextProps, nextState, nextContext): boolean {
+    shouldComponentUpdate(nextProps, nextState): boolean {
       // Short-circuit if any Relay-related data has changed
       if (
         nextState.data !== this.state.data ||
@@ -228,10 +211,12 @@ function createContainerWithFragments<
       const keys = Object.keys(nextProps);
       for (let ii = 0; ii < keys.length; ii++) {
         const key = keys[ii];
-        if (key === 'relay') {
+        if (key === '__relayContext') {
           if (
-            nextState.relayEnvironment !== this.state.relayEnvironment ||
-            nextState.relayVariables !== this.state.relayVariables
+            this.state.prevPropsContext.environment !==
+              nextState.prevPropsContext.environment ||
+            this.state.prevPropsContext.variables !==
+              nextState.prevPropsContext.variables
           ) {
             return true;
           }
@@ -286,9 +271,9 @@ function createContainerWithFragments<
     _getFragmentVariables(): Variables {
       const {
         getVariablesFromObject,
-      } = this.context.relay.environment.unstable_internal;
+      } = this.props.__relayContext.environment.unstable_internal;
       return getVariablesFromObject(
-        this.context.relay.variables,
+        this.props.__relayContext.variables,
         fragments,
         this.props,
       );
@@ -309,8 +294,23 @@ function createContainerWithFragments<
       observerOrCallback: ?ObserverOrCallback,
       options: ?RefetchOptions,
     ): Disposable => {
+      if (this._isUnmounted) {
+        warning(
+          false,
+          'ReactRelayRefetchContainer: Unexpected call of `refetch` ' +
+            'on unmounted container `%s`. It looks like some instances ' +
+            'of your container still trying to refetch the data but they already ' +
+            'unmounted. Please make sure you clear all timers, intervals, async ' +
+            'calls, etc that may trigger `refetch`.',
+          containerName,
+        );
+        return {
+          dispose() {},
+        };
+      }
+
       const {environment, variables: rootVariables} = assertRelayContext(
-        this.context.relay,
+        this.props.__relayContext,
       );
       let fetchVariables =
         typeof refetchVariables === 'function'
@@ -335,7 +335,7 @@ function createContainerWithFragments<
       const {
         createOperationSelector,
         getRequest,
-      } = this.context.relay.environment.unstable_internal;
+      } = this.props.__relayContext.environment.unstable_internal;
       const query = getRequest(taggedNode);
       const operation = createOperationSelector(query, fetchVariables);
 
@@ -350,6 +350,33 @@ function createContainerWithFragments<
       // Declare refetchSubscription before assigning it in .start(), since
       // synchronous completion may call callbacks .subscribe() returns.
       let refetchSubscription;
+
+      if (options?.fetchPolicy === 'store-or-network') {
+        const storeSnapshot = this._getQueryFetcher().lookupInStore(
+          environment,
+          operation,
+        );
+        if (storeSnapshot != null) {
+          this.state.resolver.setVariables(fragmentVariables);
+          this.setState(
+            latestState => ({
+              data: latestState.resolver.resolve(),
+              contextForChildren: {
+                environment: this.props.__relayContext.environment,
+                variables: fragmentVariables,
+              },
+            }),
+            () => {
+              observer.next && observer.next();
+              observer.complete && observer.complete();
+            },
+          );
+          return {
+            dispose() {},
+          };
+        }
+      }
+
       this._getQueryFetcher()
         .execute({
           environment,
@@ -359,18 +386,21 @@ function createContainerWithFragments<
           preservePreviousReferences: true,
         })
         .mergeMap(response => {
-          // Child containers rely on context.relay being mutated (for gDSFP).
-          // TODO: T26288752 find a better way
-          /* eslint-disable lint/react-state-props-mutation */
-          this.state.relayContext.environment = this.context.relay.environment;
-          this.state.relayContext.variables = fragmentVariables;
-          /* eslint-enable lint/react-state-props-mutation */
           this.state.resolver.setVariables(fragmentVariables);
           return Observable.create(sink =>
-            this.setState({data: this.state.resolver.resolve()}, () => {
-              sink.next();
-              sink.complete();
-            }),
+            this.setState(
+              latestState => ({
+                data: latestState.resolver.resolve(),
+                contextForChildren: {
+                  environment: this.props.__relayContext.environment,
+                  variables: fragmentVariables,
+                },
+              }),
+              () => {
+                sink.next();
+                sink.complete();
+              },
+            ),
           );
         })
         .finally(() => {
@@ -395,23 +425,31 @@ function createContainerWithFragments<
       };
     };
 
-    getChildContext(): Object {
-      return {relay: this.state.relayContext};
-    }
-
     render() {
-      const {componentRef, ...props} = this.props;
-      return React.createElement(Component, {
-        ...props,
-        ...this.state.data,
-        ref: componentRef,
-        relay: this.state.relayProp,
-      });
+      const {componentRef, __relayContext, ...props} = this.props;
+      const {relayProp, contextForChildren} = this.state;
+      return (
+        <ReactRelayContext.Provider value={contextForChildren}>
+          <Component
+            {...props}
+            {...this.state.data}
+            ref={componentRef}
+            relay={relayProp}
+          />
+        </ReactRelayContext.Provider>
+      );
     }
   }
   profileContainer(Container, 'ReactRelayRefetchContainer');
 
   return Container;
+}
+
+function getRelayProp(environment, refetch): RelayRefetchProp {
+  return {
+    environment,
+    refetch,
+  };
 }
 
 /**
@@ -426,14 +464,13 @@ function createContainer<Props: {}, TComponent: React.ComponentType<Props>>(
   fragmentSpec: GraphQLTaggedNode | GeneratedNodeMap,
   taggedNode: GraphQLTaggedNode,
 ): React.ComponentType<
-  $RelayProps<React.ElementConfig<TComponent>, RelayRefetchProp>,
+  $RelayProps<React$ElementConfig<TComponent>, RelayRefetchProp>,
 > {
   return buildReactRelayContainer(
     Component,
     fragmentSpec,
     (ComponentClass, fragments) =>
       createContainerWithFragments(ComponentClass, fragments, taggedNode),
-    /* provides child context */ true,
   );
 }
 

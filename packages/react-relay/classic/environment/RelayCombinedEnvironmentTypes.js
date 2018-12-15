@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2013-present, Facebook, Inc.
+ * Copyright (c) Facebook, Inc. and its affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -38,18 +38,24 @@ export type RecordMap = {[dataID: DataID]: ?Record};
  * A selector defines the starting point for a traversal into the graph for the
  * purposes of targeting a subgraph.
  */
-export type CSelector<TNode> = {
+export type CNormalizationSelector<TNormalizationNode> = {
   dataID: DataID,
-  node: TNode,
+  node: TNormalizationNode,
+  variables: Variables,
+};
+export type CReaderSelector<TReaderNode> = {
+  dataID: DataID,
+  node: TReaderNode,
   variables: Variables,
 };
 
 /**
  * A representation of a selector and its results at a particular point in time.
  */
-export type CSnapshot<TNode> = CSelector<TNode> & {
+export type CSnapshot<TReaderNode> = CReaderSelector<TReaderNode> & {
   data: ?SelectorData,
   seenRecords: RecordMap,
+  isMissingData: boolean,
 };
 
 /**
@@ -102,8 +108,6 @@ export interface FragmentSpecResolver {
    * Overrides existing callback (if one has been specified).
    */
   setCallback(callback: () => void): void;
-
-  isLoading(): boolean;
 }
 
 export type CFragmentMap<TFragment> = {[key: string]: TFragment};
@@ -117,10 +121,10 @@ export type CFragmentMap<TFragment> = {[key: string]: TFragment};
  * - `fragment`: a selector intended for use in reading or subscribing to
  *   the results of the the operation.
  */
-export type COperationSelector<TNode, TRequest> = {
-  fragment: CSelector<TNode>,
+export type COperationSelector<TReaderNode, TNormalizationNode, TRequest> = {
+  fragment: CReaderSelector<TReaderNode>,
   node: TRequest,
-  root: CSelector<TNode>,
+  root: CNormalizationSelector<TNormalizationNode>,
   variables: Variables,
 };
 
@@ -132,10 +136,10 @@ export interface CEnvironment<
   TEnvironment,
   TFragment,
   TGraphQLTaggedNode,
-  TNode,
+  TReaderNode,
+  TNormalizationNode,
   TRequest,
   TPayload,
-  TOperation,
 > {
   /**
    * Determine if the selector can be resolved with data in the store (i.e. no
@@ -145,12 +149,12 @@ export interface CEnvironment<
    * cache and therefore takes time proportional to the size/complexity of the
    * selector.
    */
-  check(selector: CSelector<TNode>): boolean;
+  check(selector: CNormalizationSelector<TNormalizationNode>): boolean;
 
   /**
    * Read the results of a selector from in-memory records in the store.
    */
-  lookup(selector: CSelector<TNode>): CSnapshot<TNode>;
+  lookup(selector: CReaderSelector<TReaderNode>): CSnapshot<TReaderNode>;
 
   /**
    * Subscribe to changes to the results of a selector. The callback is called
@@ -158,8 +162,8 @@ export interface CEnvironment<
    * the snapshot's selector to change.
    */
   subscribe(
-    snapshot: CSnapshot<TNode>,
-    callback: (snapshot: CSnapshot<TNode>) => void,
+    snapshot: CSnapshot<TReaderNode>,
+    callback: (snapshot: CSnapshot<TReaderNode>) => void,
   ): Disposable;
 
   /**
@@ -169,7 +173,7 @@ export interface CEnvironment<
    *
    * Note: This is a no-op in the classic core.
    */
-  retain(selector: CSelector<TNode>): Disposable;
+  retain(selector: CNormalizationSelector<TNormalizationNode>): Disposable;
 
   /**
    * Send a query to the server with Observer semantics: one or more
@@ -183,7 +187,7 @@ export interface CEnvironment<
    * the result is subscribed to: environment.execute({...}).subscribe({...}).
    */
   execute(config: {|
-    operation: COperationSelector<TNode, TRequest>,
+    operation: COperationSelector<TReaderNode, TNormalizationNode, TRequest>,
     cacheConfig?: ?CacheConfig,
     updater?: ?SelectorStoreUpdater,
   |}): Observable<TPayload>;
@@ -192,9 +196,9 @@ export interface CEnvironment<
     TEnvironment,
     TFragment,
     TGraphQLTaggedNode,
-    TNode,
+    TReaderNode,
+    TNormalizationNode,
     TRequest,
-    TOperation,
   >;
 }
 
@@ -202,9 +206,9 @@ export interface CUnstableEnvironmentCore<
   TEnvironment,
   TFragment,
   TGraphQLTaggedNode,
-  TNode,
+  TReaderNode,
+  TNormalizationNode,
   TRequest,
-  TOperation,
 > {
   /**
    * Create an instance of a FragmentSpecResolver.
@@ -230,8 +234,7 @@ export interface CUnstableEnvironmentCore<
   createOperationSelector: (
     request: TRequest,
     variables: Variables,
-    operation?: TOperation,
-  ) => COperationSelector<TNode, TRequest>;
+  ) => COperationSelector<TReaderNode, TNormalizationNode, TRequest>;
 
   /**
    * Given a graphql`...` tagged template, extract a fragment definition usable
@@ -247,11 +250,26 @@ export interface CUnstableEnvironmentCore<
   getRequest: (node: TGraphQLTaggedNode) => TRequest;
 
   /**
+   * Given a graphql`...` tagged template, returns true if the value is a
+   * fragment definiton, or false otherwise.
+   */
+  isFragment: (node: TGraphQLTaggedNode) => boolean;
+
+  /**
+   * Given a graphql`...` tagged template, returns true if the value is an
+   * operation or batch request (i.e. query), or false otherwise.
+   */
+  isRequest: (node: TGraphQLTaggedNode) => boolean;
+
+  /**
    * Determine if two selectors are equal (represent the same selection). Note
    * that this function returns `false` when the two queries/fragments are
    * different objects, even if they select the same fields.
    */
-  areEqualSelectors: (a: CSelector<TNode>, b: CSelector<TNode>) => boolean;
+  areEqualSelectors: (
+    a: CReaderSelector<TReaderNode>,
+    b: CReaderSelector<TReaderNode>,
+  ) => boolean;
 
   /**
    * Given the result `item` from a parent that fetched `fragment`, creates a
@@ -284,7 +302,7 @@ export interface CUnstableEnvironmentCore<
     operationVariables: Variables,
     fragment: TFragment,
     prop: mixed,
-  ) => ?CSelector<TNode>;
+  ) => ?CReaderSelector<TReaderNode>;
 
   /**
    * Given the result `items` from a parent that fetched `fragment`, creates a
@@ -296,7 +314,7 @@ export interface CUnstableEnvironmentCore<
     operationVariables: Variables,
     fragment: TFragment,
     props: Array<mixed>,
-  ) => ?Array<CSelector<TNode>>;
+  ) => ?Array<CReaderSelector<TReaderNode>>;
 
   /**
    * Given a mapping of keys -> results and a mapping of keys -> fragments,
@@ -310,7 +328,12 @@ export interface CUnstableEnvironmentCore<
     operationVariables: Variables,
     fragments: CFragmentMap<TFragment>,
     props: Props,
-  ) => {[key: string]: ?(CSelector<TNode> | Array<CSelector<TNode>>)};
+  ) => {
+    [key: string]: ?(
+      | CReaderSelector<TReaderNode>
+      | Array<CReaderSelector<TReaderNode>>
+    ),
+  };
 
   /**
    * Given a mapping of keys -> results and a mapping of keys -> fragments,

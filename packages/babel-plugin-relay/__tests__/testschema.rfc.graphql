@@ -1,3 +1,5 @@
+# Copyright (c) Facebook, Inc. and its affiliates. All Rights Reserved.
+
 type Root {
   customScalar(arg: JSON): [SearchResult]
   node(id: ID!): Node

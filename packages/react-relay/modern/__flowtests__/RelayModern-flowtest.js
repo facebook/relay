@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2013-present, Facebook, Inc.
+ * Copyright (c) Facebook, Inc. and its affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -143,7 +143,7 @@ function cb(): void {}
 // $FlowExpectedError - can't pass non-user ref for user
 <SingularTest onClick={cb} string="x" user={nonUserRef} nullableUser={null} />;
 // $FlowExpectedError - `cb` prop is not a function
-<SingularTest onClick={'cb'} string="x" user={aUserRef} nullableUser={null} />;
+<SingularTest onClick="cb" string="x" user={aUserRef} nullableUser={null} />;
 // $FlowExpectedError - `string` prop is not a string
 <SingularTest onClick={cb} string={1} user={aUserRef} nullableUser={null} />;
 

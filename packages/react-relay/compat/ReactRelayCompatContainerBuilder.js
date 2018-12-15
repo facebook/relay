@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2013-present, Facebook, Inc.
+ * Copyright (c) Facebook, Inc. and its affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -11,12 +11,13 @@
 'use strict';
 
 const React = require('React');
+const ReactRelayContext = require('../modern/ReactRelayContext');
 const RelayGraphQLTag = require('../classic/query/RelayGraphQLTag');
-const RelayPropTypes = require('../classic/container/RelayPropTypes');
 
 const assertFragmentMap = require('../modern/assertFragmentMap');
 const invariant = require('invariant');
 const mapObject = require('mapObject');
+const readContext = require('../modern/readContext');
 
 const {
   getComponentName,
@@ -27,10 +28,6 @@ import type {ConcreteFragmentSpread} from '../classic/query/ConcreteQuery';
 import type {VariableMapping} from '../classic/query/RelayFragmentReference';
 import type {GeneratedNodeMap} from '../modern/ReactRelayTypes';
 import type {Variables} from 'relay-runtime';
-
-const containerContextTypes = {
-  relay: RelayPropTypes.Relay,
-};
 
 type ContainerCreator = (
   Component: React$ComponentType<any>,
@@ -72,7 +69,6 @@ function buildCompatContainer(
   ComponentClass: React$ComponentType<any>,
   fragmentSpec: GeneratedNodeMap,
   createContainerWithFragments: ContainerCreator,
-  providesChildContext: boolean,
 ): any {
   // Sanity-check user-defined fragment input
   const containerName = getContainerName(ComponentClass);
@@ -130,9 +126,10 @@ function buildCompatContainer(
   // Memoize a container for the last environment instance encountered
   let environment;
   let Container;
-  function ContainerConstructor(props, context) {
-    if (Container == null || context.relay.environment !== environment) {
-      environment = context.relay.environment;
+  function ContainerConstructor(props) {
+    if (Container == null || props.__relayContext.environment !== environment) {
+      environment = props.__relayContext.environment;
+
       const {getFragment: getFragmentFromTag} = environment.unstable_internal;
       const fragments = mapObject(fragmentSpec, getFragmentFromTag);
       Container = createContainerWithFragments(ComponentClass, fragments);
@@ -141,32 +138,45 @@ function buildCompatContainer(
       ContainerConstructor.getDerivedStateFromProps = (Container: any).getDerivedStateFromProps;
     }
     // $FlowFixMe
-    return new Container(props, context);
-  }
-  ContainerConstructor.contextTypes = containerContextTypes;
-  if (providesChildContext) {
-    ContainerConstructor.childContextTypes = containerContextTypes;
+    return new Container(props);
   }
 
   function forwardRef(props, ref) {
+    const context = readContext(ReactRelayContext);
+    invariant(
+      context,
+      `${containerName} tried to render a context that was ` +
+        `not valid this means that ${containerName} was rendered outside of a ` +
+        'query renderer.',
+    );
     return (
       <ContainerConstructor
         {...props}
+        __relayContext={context}
         componentRef={props.componentRef || ref}
       />
     );
   }
   forwardRef.displayName = containerName;
-  // $FlowFixMe
   const ForwardContainer = React.forwardRef(forwardRef);
 
   // Classic container static methods
+  /* $FlowFixMe(>=0.89.0 site=www,mobile,react_native_fb,oss) Suppressing errors
+   * found while preparing to upgrade to 0.89.0 */
   ForwardContainer.getFragment = getFragment;
+  /* $FlowFixMe(>=0.89.0 site=www,mobile,react_native_fb,oss) Suppressing errors
+   * found while preparing to upgrade to 0.89.0 */
   ForwardContainer.getFragmentNames = () => Object.keys(fragmentSpec);
+  /* $FlowFixMe(>=0.89.0 site=www,mobile,react_native_fb,oss) Suppressing errors
+   * found while preparing to upgrade to 0.89.0 */
   ForwardContainer.hasFragment = name => fragmentSpec.hasOwnProperty(name);
+  /* $FlowFixMe(>=0.89.0 site=www,mobile,react_native_fb,oss) Suppressing errors
+   * found while preparing to upgrade to 0.89.0 */
   ForwardContainer.hasVariable = hasVariable;
 
   if (__DEV__) {
+    /* $FlowFixMe(>=0.89.0 site=www,mobile,react_native_fb,oss) Suppressing
+     * errors found while preparing to upgrade to 0.89.0 */
     ForwardContainer.__ComponentClass = ComponentClass;
   }
 

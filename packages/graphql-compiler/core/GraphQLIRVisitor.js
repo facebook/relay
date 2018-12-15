@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2013-present, Facebook, Inc.
+ * Copyright (c) Facebook, Inc. and its affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -7,13 +7,13 @@
  * @flow
  * @format
  */
+
 'use strict';
 
 const visit = require('graphql').visit;
 
 import type {
   Argument,
-  Batch,
   Condition,
   Directive,
   Fragment,
@@ -22,16 +22,18 @@ import type {
   LinkedField,
   Literal,
   LocalArgumentDefinition,
+  MatchField,
+  MatchBranch,
   Request,
   Root,
   RootArgumentDefinition,
   ScalarField,
+  SplitOperation,
   Variable,
 } from './GraphQLIR';
 
 const NodeKeys = {
   Argument: ['value'],
-  Batch: ['requests', 'fragment'],
   Condition: ['condition', 'selections'],
   Directive: ['args'],
   Fragment: ['argumentDefinitions', 'directives', 'selections'],
@@ -40,17 +42,18 @@ const NodeKeys = {
   LinkedField: ['args', 'directives', 'selections'],
   Literal: [],
   LocalArgumentDefinition: [],
-  Request: ['root'],
+  MatchField: ['args', 'directives', 'selections'],
+  MatchBranch: ['selections'],
+  Request: ['fragment', 'root'],
   Root: ['argumentDefinitions', 'directives', 'selections'],
   RootArgumentDefinition: [],
   ScalarField: ['args', 'directives'],
+  SplitOperation: ['selections'],
   Variable: [],
-  DeferrableFragmentSpread: ['args', 'directives', 'fragmentArgs'],
 };
 
 export type VisitNode =
   | Argument
-  | Batch
   | Condition
   | Directive
   | Fragment
@@ -59,10 +62,12 @@ export type VisitNode =
   | LinkedField
   | Literal
   | LocalArgumentDefinition
+  | MatchField
   | Request
   | Root
   | RootArgumentDefinition
   | ScalarField
+  | SplitOperation
   | Variable;
 
 export type VisitFn<T: VisitNode> = (
@@ -83,13 +88,14 @@ export type NodeVisitor =
   | NodeVisitorObject<VisitNode>
   | {
       Argument?: NodeVisitorObject<Argument>,
-      Batch?: NodeVisitorObject<Batch>,
       Condition?: NodeVisitorObject<Condition>,
       Directive?: NodeVisitorObject<Directive>,
       Fragment?: NodeVisitorObject<Fragment>,
       FragmentSpread?: NodeVisitorObject<FragmentSpread>,
       InlineFragment?: NodeVisitorObject<InlineFragment>,
       LinkedField?: NodeVisitorObject<LinkedField>,
+      MatchField?: NodeVisitorObject<MatchField>,
+      MatchBranch?: NodeVisitorObject<MatchBranch>,
       Literal?: NodeVisitorObject<Literal>,
       LocalArgumentDefinition?: NodeVisitorObject<LocalArgumentDefinition>,
       Request?: NodeVisitorObject<Request>,

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2013-present, Facebook, Inc.
+ * Copyright (c) Facebook, Inc. and its affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -18,7 +18,7 @@ const {
   SchemaUtils,
 } = require('graphql-compiler');
 
-import type {LinkedField, ScalarField} from 'graphql-compiler';
+import type {LinkedField, MatchField, ScalarField} from 'graphql-compiler';
 
 const {isAbstractType} = SchemaUtils;
 
@@ -53,13 +53,17 @@ function relayGenerateTypeNameTransform(
   return IRTransformer.transform(
     context,
     {
-      LinkedField: visitLinkedField,
+      LinkedField: visitLinkedOrMatchField,
+      MatchField: visitLinkedOrMatchField,
     },
     () => state,
   );
 }
 
-function visitLinkedField(field: LinkedField, state: State): LinkedField {
+function visitLinkedOrMatchField<T: LinkedField | MatchField>(
+  field: T,
+  state: State,
+): T {
   const transformedNode = this.traverse(field, state);
   if (
     isAbstractType(transformedNode.type) &&

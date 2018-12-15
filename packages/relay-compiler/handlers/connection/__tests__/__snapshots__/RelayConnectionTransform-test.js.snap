@@ -444,6 +444,106 @@ query NodeQuery(
 }
 `;
 
+exports[`RelayConnectionTransform matches expected output: connection-with-custom-handler.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query NodeQuery(
+  $id: ID!
+) {
+  node(id: $id) {
+    id
+    ... on Story {
+      comments(first: 10) @connection(key: "NodeQuery_comments", handler: "my_comments_handler") {
+        edges {
+          node {
+            actor {
+              name
+              friends(first: 10) @connection(key: "NodeQuery_friends", handler: "my_friends_handler") {
+                edges {
+                  node {
+                    name
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+query NodeQuery(
+  $id: ID!
+) {
+  node(id: $id) {
+    id
+    ... on Story {
+      comments(first: 10) @__clientField(handle: "my_comments_handler", key: "NodeQuery_comments") {
+        edges {
+          node {
+            actor {
+              name
+              friends(first: 10) @__clientField(handle: "my_friends_handler", key: "NodeQuery_friends") {
+                edges {
+                  node {
+                    name
+                  }
+                }
+                ... on FriendsConnection {
+                  edges {
+                    cursor
+                    node {
+                      __typename
+                    }
+                  }
+                  pageInfo {
+                    endCursor
+                    hasNextPage
+                  }
+                }
+              }
+            }
+          }
+        }
+        ... on CommentsConnection {
+          edges {
+            cursor
+            node {
+              __typename
+            }
+          }
+          pageInfo {
+            endCursor
+            hasNextPage
+          }
+        }
+      }
+    }
+  }
+}
+# Metadata:
+{
+  "connection": [
+    {
+      "count": null,
+      "cursor": null,
+      "direction": "forward",
+      "path": null
+    },
+    {
+      "count": null,
+      "cursor": null,
+      "direction": "forward",
+      "path": [
+        "node",
+        "comments"
+      ]
+    }
+  ]
+}
+`;
+
 exports[`RelayConnectionTransform matches expected output: connection-with-page-info.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 fragment Example on User {
@@ -560,6 +660,84 @@ fragment Example on User {
     }
   ]
 }
+`;
+
+exports[`RelayConnectionTransform matches expected output: invalid-connection-key-name.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query NodeQuery(
+  $id: ID!
+) {
+  node(id: $id) {
+    id
+    ... on Story {
+      comments(first: 10) @connection(key: "invalid") {
+        edges {
+          node {
+            id
+          }
+        }
+      }
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+RelayConnectionTransform: Expected the key argument to @connection to be of form <SomeName>_comments, got 'invalid'. For detailed explanation, check out https://facebook.github.io/relay/docs/en/pagination-container.html#connection
+`;
+
+exports[`RelayConnectionTransform matches expected output: invalid-connection-key-type.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query NodeQuery(
+  $id: ID!
+) {
+  node(id: $id) {
+    id
+    ... on Story {
+      comments(first: 10) @connection(key: 10) {
+        edges {
+          node {
+            id
+          }
+        }
+      }
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+RelayConnectionTransform: Expected the key argument to @connection to be a string literal for field comments.
+`;
+
+exports[`RelayConnectionTransform matches expected output: invalid-connection-with-custom-handler.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query NodeQuery(
+  $id: ID!
+) {
+  node(id: $id) {
+    id
+    ... on Story {
+      comments(first: 10) @connection(key: "NodeQuery_comments", handler: 10) {
+        edges {
+          node {
+            actor {
+              name
+              friends(first: 10) @connection(key: "NodeQuery_friends", handler: false) {
+                edges {
+                  node {
+                    name
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+RelayConnectionTransform: Expected the handler argument to @connection to be a string literal for field friends.
 `;
 
 exports[`RelayConnectionTransform matches expected output: invalid-type.graphql 1`] = `

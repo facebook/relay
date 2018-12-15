@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2013-present, Facebook, Inc.
+ * Copyright (c) Facebook, Inc. and its affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -34,7 +34,6 @@ function stripUnusedVariablesTransform(
     let fragmentFragmentSpreads;
     let rootVariables;
     let rootFragmentSpreads;
-    let insideDeferrableFragmentSpread = false;
     GraphQLIRVisitor.visit(document, {
       Root: {
         enter(root) {
@@ -61,24 +60,12 @@ function stripUnusedVariablesTransform(
         },
       },
       Variable(variable) {
-        if (!insideDeferrableFragmentSpread) {
-          fragmentVariables && fragmentVariables.add(variable.variableName);
-          rootVariables && rootVariables.add(variable.variableName);
-        }
+        fragmentVariables && fragmentVariables.add(variable.variableName);
+        rootVariables && rootVariables.add(variable.variableName);
       },
       FragmentSpread(spread) {
-        if (!insideDeferrableFragmentSpread) {
-          fragmentFragmentSpreads && fragmentFragmentSpreads.add(spread.name);
-          rootFragmentSpreads && rootFragmentSpreads.add(spread.name);
-        }
-      },
-      DeferrableFragmentSpread: {
-        enter() {
-          insideDeferrableFragmentSpread = true;
-        },
-        leave() {
-          insideDeferrableFragmentSpread = false;
-        },
+        fragmentFragmentSpreads && fragmentFragmentSpreads.add(spread.name);
+        rootFragmentSpreads && rootFragmentSpreads.add(spread.name);
       },
     });
   });

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2013-present, Facebook, Inc.
+ * Copyright (c) Facebook, Inc. and its affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -97,7 +97,12 @@ it('should error when parsing fragment that references undeclared variables are 
       title
     }
   }`;
-  expect(() => GraphQLParser.parse(RelayTestSchema, text)).not.toThrowError(
-    /Variable `\\$id` was used in locations expecting the conflicting types `ID` and `Int`/,
-  );
+  let error;
+  try {
+    GraphQLParser.parse(RelayTestSchema, text);
+  } catch (error_) {
+    error = error_;
+  }
+  expect(error).not.toBe(null);
+  expect(error?.message).toMatchSnapshot();
 });

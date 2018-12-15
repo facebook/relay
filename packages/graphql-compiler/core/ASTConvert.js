@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2013-present, Facebook, Inc.
+ * Copyright (c) Facebook, Inc. and its affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -28,20 +28,21 @@ import type {
   GraphQLSchema,
   OperationDefinitionNode,
   TypeSystemDefinitionNode,
+  TypeSystemExtensionNode,
 } from 'graphql';
 
 type ASTDefinitionNode = FragmentDefinitionNode | OperationDefinitionNode;
 type TransformFn = (
   schema: GraphQLSchema,
-  definition: ASTDefinitionNode,
-) => Root | Fragment;
+  definitions: $ReadOnlyArray<ASTDefinitionNode>,
+) => $ReadOnlyArray<Root | Fragment>;
 
 function convertASTDocuments(
   schema: GraphQLSchema,
-  documents: Array<DocumentNode>,
-  validationRules: Array<Function>,
+  documents: $ReadOnlyArray<DocumentNode>,
+  validationRules: $ReadOnlyArray<Function>,
   transform: TransformFn,
-): Array<Fragment | Root> {
+): $ReadOnlyArray<Fragment | Root> {
   return Profiler.run('ASTConvert.convertASTDocuments', () => {
     const definitions = definitionsFromDocuments(documents);
 
@@ -65,11 +66,11 @@ function convertASTDocuments(
 
 function convertASTDocumentsWithBase(
   schema: GraphQLSchema,
-  baseDocuments: Array<DocumentNode>,
-  documents: Array<DocumentNode>,
-  validationRules: Array<Function>,
+  baseDocuments: $ReadOnlyArray<DocumentNode>,
+  documents: $ReadOnlyArray<DocumentNode>,
+  validationRules: $ReadOnlyArray<Function>,
   transform: TransformFn,
-): Array<Fragment | Root> {
+): $ReadOnlyArray<Fragment | Root> {
   return Profiler.run('ASTConvert.convertASTDocumentsWithBase', () => {
     const baseDefinitions = definitionsFromDocuments(baseDocuments);
     const definitions = definitionsFromDocuments(documents);
@@ -135,10 +136,10 @@ function convertASTDocumentsWithBase(
 
 function convertASTDefinitions(
   schema: GraphQLSchema,
-  definitions: Array<DefinitionNode>,
-  validationRules: Array<Function>,
+  definitions: $ReadOnlyArray<DefinitionNode>,
+  validationRules: $ReadOnlyArray<Function>,
   transform: TransformFn,
-): Array<Fragment | Root> {
+): $ReadOnlyArray<Fragment | Root> {
   const operationDefinitions: Array<ASTDefinitionNode> = [];
   definitions.forEach(definition => {
     if (isExecutableDefinitionAST(definition)) {
@@ -148,18 +149,16 @@ function convertASTDefinitions(
 
   const validationAST = {
     kind: 'Document',
-    // DocumentNode doesn't accept that a node of type
-    // FragmentDefinitionNode | OperationDefinitionNode is a DefinitionNode
-    definitions: (operationDefinitions: Array<$FlowFixMe>),
+    definitions: operationDefinitions,
   };
   // Will throw an error if there are validation issues
   GraphQLValidator.validate(validationAST, schema, validationRules);
-  return operationDefinitions.map(definition => transform(schema, definition));
+  return transform(schema, operationDefinitions);
 }
 
 function definitionsFromDocuments(
-  documents: Array<DocumentNode>,
-): Array<DefinitionNode> {
+  documents: $ReadOnlyArray<DocumentNode>,
+): $ReadOnlyArray<DefinitionNode> {
   const definitions = [];
   documents.forEach(doc => {
     doc.definitions.forEach(definition => definitions.push(definition));
@@ -190,10 +189,12 @@ function transformASTSchema(
  */
 function extendASTSchema(
   baseSchema: GraphQLSchema,
-  documents: Array<DocumentNode>,
+  documents: $ReadOnlyArray<DocumentNode>,
 ): GraphQLSchema {
   return Profiler.run('ASTConvert.extendASTSchema', () => {
-    const schemaExtensions: Array<TypeSystemDefinitionNode> = [];
+    const schemaExtensions: Array<
+      TypeSystemDefinitionNode | TypeSystemExtensionNode,
+    > = [];
     documents.forEach(doc => {
       doc.definitions.forEach(definition => {
         if (isSchemaDefinitionAST(definition)) {

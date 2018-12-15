@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2013-present, Facebook, Inc.
+ * Copyright (c) Facebook, Inc. and its affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -30,10 +30,11 @@ const {Observable, deepFreeze, recycleNodesInto} = require('relay-runtime');
 
 import type {
   Environment,
+  NormalizationSelector,
   OperationSelector,
-  UnstableEnvironmentCore,
-  Selector,
+  ReaderSelector,
   Snapshot,
+  UnstableEnvironmentCore,
 } from '../environment/RelayEnvironmentTypes';
 import type RelayMutation from '../mutation/RelayMutation';
 import type RelayMutationTransaction from '../mutation/RelayMutationTransaction';
@@ -83,7 +84,7 @@ export interface RelayEnvironmentInterface {
     onNext: () => void,
   ): FragmentResolver;
   getStoreData(): RelayStoreData;
-  lookup(selector: Selector): Snapshot;
+  lookup(selector: ReaderSelector): Snapshot;
   primeCache(
     querySet: RelayQuerySet,
     onReadyStateChange: ReadyStateChangeCallback,
@@ -160,7 +161,7 @@ class RelayEnvironment implements Environment, RelayEnvironmentInterface {
     };
   }
 
-  check(selector: Selector): boolean {
+  check(selector: NormalizationSelector): boolean {
     return false;
   }
 
@@ -189,7 +190,7 @@ class RelayEnvironment implements Environment, RelayEnvironmentInterface {
    * and `subscribe()`. Note that `subscribe()` cannot use `lookup()` directly,
    * since the former may modify the result data before freezing it.
    */
-  _lookup(selector: Selector): Snapshot {
+  _lookup(selector: ReaderSelector): Snapshot {
     const fragment = RelayQuery.Fragment.create(
       selector.node,
       RelayMetaRoute.get('$RelayEnvironment'),
@@ -207,10 +208,11 @@ class RelayEnvironment implements Environment, RelayEnvironmentInterface {
       ...selector,
       data,
       seenRecords: (dataIDs: any),
+      isMissingData: false,
     };
   }
 
-  lookup(selector: Selector): Snapshot {
+  lookup(selector: ReaderSelector): Snapshot {
     const snapshot = this._lookup(selector);
     if (__DEV__) {
       deepFreezeSnapshot(snapshot);
@@ -329,7 +331,7 @@ class RelayEnvironment implements Environment, RelayEnvironmentInterface {
     };
   }
 
-  retain(selector: Selector): Disposable {
+  retain(selector: NormalizationSelector): Disposable {
     return {
       dispose() {},
     };
@@ -345,7 +347,7 @@ class RelayEnvironment implements Environment, RelayEnvironmentInterface {
     cacheConfig?: ?CacheConfig,
     onCompleted?: ?() => void,
     onError?: ?(error: Error) => void,
-    onNext?: ?(selector: Selector) => void,
+    onNext?: ?(selector: NormalizationSelector) => void,
     operation: OperationSelector,
   }): Disposable {
     let isDisposed = false;
@@ -358,7 +360,7 @@ class RelayEnvironment implements Environment, RelayEnvironmentInterface {
       operation.variables,
     );
     const request = new RelayQueryRequest(query);
-    request.then(
+    request.getPromise().then(
       payload => {
         if (isDisposed) {
           return;
@@ -387,21 +389,6 @@ class RelayEnvironment implements Environment, RelayEnvironmentInterface {
     return {dispose};
   }
 
-  streamQuery(config: {
-    cacheConfig?: ?CacheConfig,
-    onCompleted?: ?() => void,
-    onError?: ?(error: Error) => void,
-    onNext?: ?(selector: Selector) => void,
-    operation: OperationSelector,
-  }): Disposable {
-    warning(
-      false,
-      'environment.streamQuery() is deprecated. Update to the latest ' +
-        'version of react-relay, and use environment.execute().',
-    );
-    return this.sendQuery(config);
-  }
-
   execute({
     operation,
     cacheConfig,
@@ -410,7 +397,7 @@ class RelayEnvironment implements Environment, RelayEnvironmentInterface {
     operation: OperationSelector,
     cacheConfig?: ?CacheConfig,
     updater?: ?SelectorStoreUpdater,
-  }): Observable<Selector> {
+  }): Observable<NormalizationSelector> {
     return Observable.fromLegacy(observer =>
       this.sendQuery({operation, cacheConfig, ...observer}),
     );

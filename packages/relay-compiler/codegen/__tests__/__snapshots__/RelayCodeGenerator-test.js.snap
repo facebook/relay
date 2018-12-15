@@ -1,160 +1,5 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`RelayCodeGenerator matches expected output: batched-operations.graphql 1`] = `
-~~~~~~~~~~ INPUT ~~~~~~~~~~
-query TestQuery($id: ID!) {
-  node(id: $id) {
-    id
-  }
-}
-
-~~~~~~~~~~ OUTPUT ~~~~~~~~~~
-{
-  "kind": "BatchRequest",
-  "operationKind": "query",
-  "name": "TestQuery",
-  "metadata": {},
-  "fragment": null,
-  "requests": [
-    {
-      "name": "TestQuery",
-      "id": null,
-      "text": null,
-      "argumentDependencies": [],
-      "operation": {
-        "kind": "Operation",
-        "name": "TestQuery",
-        "argumentDefinitions": [
-          {
-            "kind": "LocalArgument",
-            "name": "id",
-            "type": "ID!",
-            "defaultValue": null
-          }
-        ],
-        "selections": [
-          {
-            "kind": "LinkedField",
-            "alias": null,
-            "name": "node",
-            "storageKey": null,
-            "args": [
-              {
-                "kind": "Variable",
-                "name": "id",
-                "variableName": "id",
-                "type": "ID"
-              }
-            ],
-            "concreteType": null,
-            "plural": false,
-            "selections": [
-              {
-                "kind": "ScalarField",
-                "alias": null,
-                "name": "id",
-                "args": null,
-                "storageKey": null
-              }
-            ]
-          }
-        ]
-      }
-    },
-    {
-      "name": "TestQuery",
-      "id": null,
-      "text": null,
-      "argumentDependencies": [],
-      "operation": {
-        "kind": "Operation",
-        "name": "TestQuery",
-        "argumentDefinitions": [
-          {
-            "kind": "LocalArgument",
-            "name": "id",
-            "type": "ID!",
-            "defaultValue": null
-          }
-        ],
-        "selections": [
-          {
-            "kind": "LinkedField",
-            "alias": null,
-            "name": "node",
-            "storageKey": null,
-            "args": [
-              {
-                "kind": "Variable",
-                "name": "id",
-                "variableName": "id",
-                "type": "ID"
-              }
-            ],
-            "concreteType": null,
-            "plural": false,
-            "selections": [
-              {
-                "kind": "ScalarField",
-                "alias": null,
-                "name": "id",
-                "args": null,
-                "storageKey": null
-              }
-            ]
-          }
-        ]
-      }
-    },
-    {
-      "name": "TestQuery",
-      "id": null,
-      "text": null,
-      "argumentDependencies": [],
-      "operation": {
-        "kind": "Operation",
-        "name": "TestQuery",
-        "argumentDefinitions": [
-          {
-            "kind": "LocalArgument",
-            "name": "id",
-            "type": "ID!",
-            "defaultValue": null
-          }
-        ],
-        "selections": [
-          {
-            "kind": "LinkedField",
-            "alias": null,
-            "name": "node",
-            "storageKey": null,
-            "args": [
-              {
-                "kind": "Variable",
-                "name": "id",
-                "variableName": "id",
-                "type": "ID"
-              }
-            ],
-            "concreteType": null,
-            "plural": false,
-            "selections": [
-              {
-                "kind": "ScalarField",
-                "alias": null,
-                "name": "id",
-                "args": null,
-                "storageKey": null
-              }
-            ]
-          }
-        ]
-      }
-    }
-  ]
-}
-`;
-
 exports[`RelayCodeGenerator matches expected output: complex-arguments.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query TestQuery($date: String) {
@@ -182,6 +27,147 @@ Error: RelayCodeGenerator: Complex argument values (Lists or InputObjects with n
     }
   ]
 }\`. Source: document undefined.
+`;
+
+exports[`RelayCodeGenerator matches expected output: fragment-with-match-directive.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment NameRendererFragment on User {
+  id
+  nameRenderer @match {
+    ...PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
+    ...MarkdownUserNameRenderer_name
+      @module(name: "MarkdownUserNameRenderer.react")
+  }
+}
+
+fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
+  plaintext
+  data {
+    text
+  }
+}
+
+fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+  markdown
+  data {
+    markup
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+{
+  "kind": "Fragment",
+  "name": "NameRendererFragment",
+  "type": "User",
+  "metadata": null,
+  "argumentDefinitions": [],
+  "selections": [
+    {
+      "kind": "ScalarField",
+      "alias": null,
+      "name": "id",
+      "args": null,
+      "storageKey": null
+    },
+    {
+      "kind": "MatchField",
+      "alias": null,
+      "name": "nameRenderer",
+      "storageKey": "nameRenderer(MarkdownUserNameRenderer_name:MarkdownUserNameRenderer.react,PlainUserNameRenderer_name:PlainUserNameRenderer.react)",
+      "args": [
+        {
+          "kind": "Literal",
+          "name": "supported",
+          "value": [
+            "PlainUserNameRenderer",
+            "MarkdownUserNameRenderer"
+          ],
+          "type": "[String!]!"
+        }
+      ],
+      "matchesByType": {
+        "PlainUserNameRenderer": {
+          "fragmentPropName": "name",
+          "fragmentName": "PlainUserNameRenderer_name"
+        },
+        "MarkdownUserNameRenderer": {
+          "fragmentPropName": "name",
+          "fragmentName": "MarkdownUserNameRenderer_name"
+        }
+      }
+    }
+  ]
+}
+
+{
+  "kind": "Fragment",
+  "name": "PlainUserNameRenderer_name",
+  "type": "PlainUserNameRenderer",
+  "metadata": null,
+  "argumentDefinitions": [],
+  "selections": [
+    {
+      "kind": "ScalarField",
+      "alias": null,
+      "name": "plaintext",
+      "args": null,
+      "storageKey": null
+    },
+    {
+      "kind": "LinkedField",
+      "alias": null,
+      "name": "data",
+      "storageKey": null,
+      "args": null,
+      "concreteType": "PlainUserNameData",
+      "plural": false,
+      "selections": [
+        {
+          "kind": "ScalarField",
+          "alias": null,
+          "name": "text",
+          "args": null,
+          "storageKey": null
+        }
+      ]
+    }
+  ]
+}
+
+{
+  "kind": "Fragment",
+  "name": "MarkdownUserNameRenderer_name",
+  "type": "MarkdownUserNameRenderer",
+  "metadata": null,
+  "argumentDefinitions": [],
+  "selections": [
+    {
+      "kind": "ScalarField",
+      "alias": null,
+      "name": "markdown",
+      "args": null,
+      "storageKey": null
+    },
+    {
+      "kind": "LinkedField",
+      "alias": null,
+      "name": "data",
+      "storageKey": null,
+      "args": null,
+      "concreteType": "MarkdownUserNameData",
+      "plural": false,
+      "selections": [
+        {
+          "kind": "ScalarField",
+          "alias": null,
+          "name": "markup",
+          "args": null,
+          "storageKey": null
+        }
+      ]
+    }
+  ]
+}
 `;
 
 exports[`RelayCodeGenerator matches expected output: linked-handle-field.graphql 1`] = `
@@ -224,22 +210,6 @@ fragment LinkedHandleField on User {
           "storageKey": null
         }
       ]
-    },
-    {
-      "kind": "LinkedHandle",
-      "alias": null,
-      "name": "friends",
-      "args": [
-        {
-          "kind": "Literal",
-          "name": "first",
-          "value": 10,
-          "type": "Int"
-        }
-      ],
-      "handle": "clientFriends",
-      "key": "",
-      "filters": null
     }
   ]
 }
@@ -332,28 +302,10 @@ fragment Profile on User @argumentDefinitions(
             "storageKey": null
           },
           {
-            "kind": "FragmentSpread",
-            "name": "Profile",
-            "args": [
-              {
-                "kind": "Variable",
-                "name": "pictureSize",
-                "variableName": "pictureSize",
-                "type": null
-              }
-            ]
-          },
-          {
             "kind": "Condition",
             "passingValue": true,
             "condition": "cond",
-            "selections": [
-              {
-                "kind": "FragmentSpread",
-                "name": "ProfileFriends",
-                "args": null
-              }
-            ]
+            "selections": []
           }
         ]
       }
@@ -472,6 +424,194 @@ fragment Profile on User @argumentDefinitions(
 }
 `;
 
+exports[`RelayCodeGenerator matches expected output: query-with-match-directive.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query NameRendererQuery($id: ID!) {
+  node(id: $id) {
+    ...NameRendererFragment
+  }
+}
+
+fragment NameRendererFragment on User {
+  id
+  nameRenderer @match {
+    ...PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
+    ...MarkdownUserNameRenderer_name
+      @module(name: "MarkdownUserNameRenderer.react")
+  }
+}
+
+fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
+  plaintext
+  data {
+    text
+  }
+}
+
+fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+  markdown
+  data {
+    markup
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+{
+  "kind": "Request",
+  "operationKind": "query",
+  "name": "NameRendererQuery",
+  "id": null,
+  "text": null,
+  "metadata": {},
+  "fragment": null,
+  "operation": {
+    "kind": "Operation",
+    "name": "NameRendererQuery",
+    "argumentDefinitions": [
+      {
+        "kind": "LocalArgument",
+        "name": "id",
+        "type": "ID!",
+        "defaultValue": null
+      }
+    ],
+    "selections": [
+      {
+        "kind": "LinkedField",
+        "alias": null,
+        "name": "node",
+        "storageKey": null,
+        "args": [
+          {
+            "kind": "Variable",
+            "name": "id",
+            "variableName": "id",
+            "type": "ID"
+          }
+        ],
+        "concreteType": null,
+        "plural": false,
+        "selections": []
+      }
+    ]
+  }
+}
+
+{
+  "kind": "Fragment",
+  "name": "NameRendererFragment",
+  "type": "User",
+  "metadata": null,
+  "argumentDefinitions": [],
+  "selections": [
+    {
+      "kind": "ScalarField",
+      "alias": null,
+      "name": "id",
+      "args": null,
+      "storageKey": null
+    },
+    {
+      "kind": "MatchField",
+      "alias": null,
+      "name": "nameRenderer",
+      "storageKey": "nameRenderer(MarkdownUserNameRenderer_name:MarkdownUserNameRenderer.react,PlainUserNameRenderer_name:PlainUserNameRenderer.react)",
+      "args": [
+        {
+          "kind": "Literal",
+          "name": "supported",
+          "value": [
+            "PlainUserNameRenderer",
+            "MarkdownUserNameRenderer"
+          ],
+          "type": "[String!]!"
+        }
+      ],
+      "matchesByType": {
+        "PlainUserNameRenderer": {
+          "fragmentPropName": "name",
+          "fragmentName": "PlainUserNameRenderer_name"
+        },
+        "MarkdownUserNameRenderer": {
+          "fragmentPropName": "name",
+          "fragmentName": "MarkdownUserNameRenderer_name"
+        }
+      }
+    }
+  ]
+}
+
+{
+  "kind": "Fragment",
+  "name": "PlainUserNameRenderer_name",
+  "type": "PlainUserNameRenderer",
+  "metadata": null,
+  "argumentDefinitions": [],
+  "selections": [
+    {
+      "kind": "ScalarField",
+      "alias": null,
+      "name": "plaintext",
+      "args": null,
+      "storageKey": null
+    },
+    {
+      "kind": "LinkedField",
+      "alias": null,
+      "name": "data",
+      "storageKey": null,
+      "args": null,
+      "concreteType": "PlainUserNameData",
+      "plural": false,
+      "selections": [
+        {
+          "kind": "ScalarField",
+          "alias": null,
+          "name": "text",
+          "args": null,
+          "storageKey": null
+        }
+      ]
+    }
+  ]
+}
+
+{
+  "kind": "Fragment",
+  "name": "MarkdownUserNameRenderer_name",
+  "type": "MarkdownUserNameRenderer",
+  "metadata": null,
+  "argumentDefinitions": [],
+  "selections": [
+    {
+      "kind": "ScalarField",
+      "alias": null,
+      "name": "markdown",
+      "args": null,
+      "storageKey": null
+    },
+    {
+      "kind": "LinkedField",
+      "alias": null,
+      "name": "data",
+      "storageKey": null,
+      "args": null,
+      "concreteType": "MarkdownUserNameData",
+      "plural": false,
+      "selections": [
+        {
+          "kind": "ScalarField",
+          "alias": null,
+          "name": "markup",
+          "args": null,
+          "storageKey": null
+        }
+      ]
+    }
+  ]
+}
+`;
+
 exports[`RelayCodeGenerator matches expected output: scalar-handle-field.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 fragment ScalarHandleField on User {
@@ -492,15 +632,6 @@ fragment ScalarHandleField on User {
       "name": "name",
       "args": null,
       "storageKey": null
-    },
-    {
-      "kind": "ScalarHandle",
-      "alias": null,
-      "name": "name",
-      "args": null,
-      "handle": "clientName",
-      "key": "",
-      "filters": null
     }
   ]
 }

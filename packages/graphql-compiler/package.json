@@ -1,15 +1,15 @@
 {
   "name": "graphql-compiler",
-  "version": "1.6.1",
+  "version": "2.0.0-rc.1",
   "license": "MIT",
   "description": "A Code-generation toolkit for GraphQL",
   "main": "GraphQLCompilerPublic.js",
   "dependencies": {
-    "chalk": "^1.1.1",
+    "chalk": "^2.4.1",
     "fb-watchman": "^2.0.0",
     "immutable": "~3.7.6"
   },
   "peerDependencies": {
-    "graphql": "^0.13.0"
+    "graphql": "^14.0.0"
   }
 }

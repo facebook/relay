@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2013-present, Facebook, Inc.
+ * Copyright (c) Facebook, Inc. and its affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -20,16 +20,15 @@ const {
   GraphQLNonNull,
 } = require('graphql');
 
+import type {CompilerContextDocument} from './GraphQLCompilerContext';
 import type {
   Argument,
   ArgumentDefinition,
   ArgumentValue,
   Directive,
   Field,
-  Fragment,
   LocalArgumentDefinition,
   Node,
-  Root,
   Selection,
 } from './GraphQLIR';
 import type {GraphQLInputType} from 'graphql';
@@ -42,25 +41,33 @@ const INDENT = '  ';
  * variables or fragment spreads with arguments, transform the node
  * prior to printing.
  */
-function print(node: Root | Fragment): string {
-  if (node.kind === 'Fragment') {
-    return (
-      `fragment ${node.name} on ${String(node.type)}` +
-      printFragmentArgumentDefinitions(node.argumentDefinitions) +
-      printDirectives(node.directives) +
-      printSelections(node, '') +
-      '\n'
-    );
-  } else if (node.kind === 'Root') {
-    return (
-      `${node.operation} ${node.name}` +
-      printArgumentDefinitions(node.argumentDefinitions) +
-      printDirectives(node.directives) +
-      printSelections(node, '') +
-      '\n'
-    );
-  } else {
-    invariant(false, 'GraphQLIRPrinter: Unsupported IR node `%s`.', node.kind);
+function print(node: CompilerContextDocument): string {
+  switch (node.kind) {
+    case 'Fragment':
+      return (
+        `fragment ${node.name} on ${String(node.type)}` +
+        printFragmentArgumentDefinitions(node.argumentDefinitions) +
+        printDirectives(node.directives) +
+        printSelections(node, '') +
+        '\n'
+      );
+    case 'Root':
+      return (
+        `${node.operation} ${node.name}` +
+        printArgumentDefinitions(node.argumentDefinitions) +
+        printDirectives(node.directives) +
+        printSelections(node, '') +
+        '\n'
+      );
+    case 'SplitOperation':
+      return `SplitOperation ${node.name}` + printSelections(node, '') + '\n';
+    default:
+      (node: empty);
+      invariant(
+        false,
+        'GraphQLIRPrinter: Unsupported IR node `%s`.',
+        node.kind,
+      );
   }
 }
 
@@ -99,13 +106,19 @@ function printField(field: Field, parentCondition: string = ''): string {
 function printSelection(
   selection: Selection,
   indent: string,
-  parentCondition?: string,
+  parentCondition?: string = '',
 ): string {
-  parentCondition = parentCondition || '';
   let str;
   if (selection.kind === 'LinkedField') {
     str = printField(selection, parentCondition);
     str += printSelections(selection, indent + INDENT);
+  } else if (selection.kind === 'MatchField') {
+    str = printField(selection, parentCondition);
+    str += printSelections(selection, indent + INDENT);
+  } else if (selection.kind === 'MatchBranch') {
+    str = selection.selections
+      .map(matchSelection => printSelection(matchSelection, indent))
+      .join('\n' + indent + INDENT);
   } else if (selection.kind === 'ScalarField') {
     str = printField(selection, parentCondition);
   } else if (selection.kind === 'InlineFragment') {
@@ -118,8 +131,6 @@ function printSelection(
     str += parentCondition;
     str += printFragmentArguments(selection.args);
     str += printDirectives(selection.directives);
-  } else if (selection.kind === 'DeferrableFragmentSpread') {
-    str = `${selection.alias}: ${selection.storageKey}`;
   } else if (selection.kind === 'Condition') {
     const value = printValue(selection.condition);
     // For Flow
@@ -136,6 +147,7 @@ function printSelection(
     );
     str = subSelections.join('\n' + INDENT);
   } else {
+    (selection: empty);
     invariant(
       false,
       'GraphQLIRPrinter: Unknown selection kind `%s`.',
@@ -146,7 +158,7 @@ function printSelection(
 }
 
 function printArgumentDefinitions(
-  argumentDefinitions: Array<LocalArgumentDefinition>,
+  argumentDefinitions: $ReadOnlyArray<LocalArgumentDefinition>,
 ): string {
   const printed = argumentDefinitions.map(def => {
     let str = `$${def.name}: ${def.type.toString()}`;
@@ -159,7 +171,7 @@ function printArgumentDefinitions(
 }
 
 function printFragmentArgumentDefinitions(
-  argumentDefinitions: Array<ArgumentDefinition>,
+  argumentDefinitions: $ReadOnlyArray<ArgumentDefinition>,
 ): string {
   let printed;
   argumentDefinitions.forEach(def => {
@@ -190,20 +202,20 @@ function printHandles(field: Field): string {
     const filters =
       handle.filters == null
         ? ''
-        : `, filters: ${JSON.stringify(handle.filters.sort())}`;
+        : `, filters: ${JSON.stringify(Array.from(handle.filters).sort())}`;
     return `@__clientField(handle: "${handle.name}"${key}${filters})`;
   });
   return printed.length ? ' ' + printed.join(' ') : '';
 }
 
-function printDirectives(directives: Array<Directive>): string {
+function printDirectives(directives: $ReadOnlyArray<Directive>): string {
   const printed = directives.map(directive => {
     return '@' + directive.name + printArguments(directive.args);
   });
   return printed.length ? ' ' + printed.join(' ') : '';
 }
 
-function printFragmentArguments(args: Array<Argument>) {
+function printFragmentArguments(args: $ReadOnlyArray<Argument>) {
   const printedArgs = printArguments(args);
   if (!printedArgs.length) {
     return '';
@@ -211,7 +223,7 @@ function printFragmentArguments(args: Array<Argument>) {
   return ` @arguments${printedArgs}`;
 }
 
-function printArguments(args: Array<Argument>): string {
+function printArguments(args: $ReadOnlyArray<Argument>): string {
   const printed = [];
   args.forEach(arg => {
     const printedValue = printValue(arg.value, arg.type);
@@ -279,7 +291,7 @@ function printLiteral(value: mixed, type: ?GraphQLInputType): string {
     return (
       '[' + value.map(item => printLiteral(item, itemType)).join(', ') + ']'
     );
-  } else if (typeof value === 'object' && value) {
+  } else if (typeof value === 'object' && value != null) {
     const fields = [];
     invariant(
       type instanceof GraphQLInputObjectType,

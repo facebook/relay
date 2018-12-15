@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2013-present, Facebook, Inc.
+ * Copyright (c) Facebook, Inc. and its affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -15,7 +15,6 @@ const RelayParser = require('../../core/RelayParser');
 const invariant = require('invariant');
 
 const {AFTER, BEFORE, FIRST, KEY, LAST} = require('./RelayConnectionConstants');
-const {ConnectionInterface} = require('RelayRuntime');
 const {
   assertCompositeType,
   GraphQLInterfaceType,
@@ -30,17 +29,19 @@ const {
   IRTransformer,
   SchemaUtils,
 } = require('graphql-compiler');
+const {ConnectionInterface} = require('relay-runtime');
 
-import type {ConnectionMetadata} from 'RelayRuntime';
 import type {
   Argument,
   Fragment,
   InlineFragment,
   LinkedField,
+  MatchField,
   Root,
   CompilerContext,
 } from 'graphql-compiler';
 import type {GraphQLType} from 'graphql';
+import type {ConnectionMetadata} from 'relay-runtime';
 
 type Options = {
   // The current path
@@ -51,6 +52,7 @@ type Options = {
 };
 
 const CONNECTION = 'connection';
+const HANDLER = 'handler';
 
 /**
  * @public
@@ -67,7 +69,8 @@ function relayConnectionTransform(context: CompilerContext): CompilerContext {
     context,
     {
       Fragment: visitFragmentOrRoot,
-      LinkedField: visitLinkedField,
+      LinkedField: visitLinkedOrMatchField,
+      MatchField: visitLinkedOrMatchField,
       Root: visitFragmentOrRoot,
     },
     node => ({
@@ -79,7 +82,7 @@ function relayConnectionTransform(context: CompilerContext): CompilerContext {
 }
 
 const SCHEMA_EXTENSION =
-  'directive @connection(key: String!, filters: [String]) on FIELD';
+  'directive @connection(key: String!, filters: [String], handler: String) on FIELD';
 
 /**
  * @internal
@@ -105,7 +108,10 @@ function visitFragmentOrRoot<N: Fragment | Root>(
 /**
  * @internal
  */
-function visitLinkedField(field: LinkedField, options: Options): LinkedField {
+function visitLinkedOrMatchField<T: LinkedField | MatchField>(
+  field: T,
+  options: Options,
+): T {
   const isPlural =
     SchemaUtils.getNullableType(field.type) instanceof GraphQLList;
   options.path.push(isPlural ? null : field.alias || field.name);
@@ -155,26 +161,30 @@ function visitLinkedField(field: LinkedField, options: Options): LinkedField {
   });
   options.path.pop();
 
-  const {key, filters} = getLiteralArgumentValues(connectionDirective.args);
-  invariant(
-    typeof key === 'string',
-    'RelayConnectionTransform: Expected the %s argument to @%s to ' +
-      'be a string literal for field %s',
-    KEY,
-    CONNECTION,
-    field.name,
+  const {handler, key, filters} = getLiteralArgumentValues(
+    connectionDirective.args,
   );
-  const postfix = `${field.alias || field.name}`;
-  invariant(
-    key.endsWith('_' + postfix),
-    'RelayConnectionTransform: Expected the %s argument to @%s to ' +
-      'be of form <SomeName>_%s, but get %s. For detailed explanation, check out the dex page ' +
-      'https://facebook.github.io/relay/docs/pagination-container.html#connection-directive',
-    KEY,
-    CONNECTION,
-    postfix,
-    key,
-  );
+  if (handler != null && typeof handler !== 'string') {
+    throw new Error(
+      `RelayConnectionTransform: Expected the ${HANDLER} argument to ` +
+        `@${CONNECTION} to be a string literal for field ${field.name}.`,
+    );
+  }
+  if (typeof key !== 'string') {
+    throw new Error(
+      `RelayConnectionTransform: Expected the ${KEY} argument to ` +
+        `@${CONNECTION} to be a string literal for field ${field.name}.`,
+    );
+  }
+  const postfix = field.alias || field.name;
+  if (!key.endsWith('_' + postfix)) {
+    throw new Error(
+      `RelayConnectionTransform: Expected the ${KEY} argument to ` +
+        `@${CONNECTION} to be of form <SomeName>_${postfix}, got '${key}'. ` +
+        'For detailed explanation, check out ' +
+        'https://facebook.github.io/relay/docs/en/pagination-container.html#connection',
+    );
+  }
 
   const generateFilters = () => {
     const filteredVariableArgs = field.args
@@ -190,7 +200,7 @@ function visitLinkedField(field: LinkedField, options: Options): LinkedField {
   };
 
   const handle = {
-    name: CONNECTION,
+    name: handler ?? CONNECTION,
     key,
     filters: filters || generateFilters(),
   };
@@ -281,7 +291,9 @@ function generateConnectionFragment(
     fragmentAST && fragmentAST.kind === 'FragmentDefinition',
     'RelayConnectionTransform: Expected a fragment definition AST.',
   );
-  const fragment = RelayParser.transform(context.clientSchema, fragmentAST);
+  const fragment = RelayParser.transform(context.clientSchema, [
+    fragmentAST,
+  ])[0];
   invariant(
     fragment && fragment.kind === 'Fragment',
     'RelayConnectionTransform: Expected a connection fragment.',

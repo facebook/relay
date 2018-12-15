@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2013-present, Facebook, Inc.
+ * Copyright (c) Facebook, Inc. and its affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -22,7 +22,7 @@ const {Map: ImmutableMap} = require('immutable');
 
 import type ASTCache from '../core/ASTCache';
 import type {GraphQLReporter} from '../reporters/GraphQLReporter';
-import type {CompileResult, File, FileWriterInterface} from './CodegenTypes';
+import type {CompileResult, File} from './CodegenTypes';
 import type {FileFilter, WatchmanExpression} from './CodegenWatcher';
 import type {SourceControl} from './SourceControl';
 import type {DocumentNode, GraphQLSchema} from 'graphql';
@@ -44,18 +44,18 @@ type Parsers = {
   [parser: string]: ASTCache,
 };
 
-export type WriterConfig = {
+export type WriterConfig = {|
   parser: string,
   baseParsers?: Array<string>,
   isGeneratedFile: (filePath: string) => boolean,
-  getWriter: GetWriter,
-};
+  writeFiles: WriteFiles,
+|};
 
 type WriterConfigs = {
   [writer: string]: WriterConfig,
 };
 
-export type GetWriterOptions = {|
+export type WriteFilesOptions = {|
   onlyValidate: boolean,
   schema: GraphQLSchema,
   documents: ImmutableMap<string, DocumentNode>,
@@ -63,15 +63,25 @@ export type GetWriterOptions = {|
   sourceControl: ?SourceControl,
   reporter: GraphQLReporter,
   generatedDirectories?: Array<string>,
+  experimental_noDeleteExtraFiles?: boolean,
+  experimental_extraFilesPatternToKeep?: RegExp,
 |};
 
-export type GetWriter = GetWriterOptions => FileWriterInterface;
+export type WriteFiles = WriteFilesOptions => Promise<
+  Map<string, CodegenDirectory>,
+>;
+
+type OnCompleteCallback = (
+  codegenDirs: $ReadOnlyArray<CodegenDirectory>,
+) => void;
 
 class CodegenRunner {
   parserConfigs: ParserConfigs;
   writerConfigs: WriterConfigs;
   onlyValidate: boolean;
   parsers: Parsers;
+  onComplete: ?OnCompleteCallback;
+
   // parser => writers that are affected by it
   parserWriters: {[parser: string]: Set<string>};
   _reporter: GraphQLReporter;
@@ -83,11 +93,13 @@ class CodegenRunner {
     onlyValidate: boolean,
     reporter: GraphQLReporter,
     sourceControl: ?SourceControl,
+    onComplete?: OnCompleteCallback,
   }) {
     this.parsers = {};
     this.parserConfigs = options.parserConfigs;
     this.writerConfigs = options.writerConfigs;
     this.onlyValidate = options.onlyValidate;
+    this.onComplete = options.onComplete;
     this._reporter = options.reporter;
     this._sourceControl = options.sourceControl;
 
@@ -252,7 +264,7 @@ class CodegenRunner {
       try {
         this._reporter.reportMessage(`\nWriting ${writerName}`);
         const {
-          getWriter,
+          writeFiles,
           parser,
           baseParsers,
           isGeneratedFile,
@@ -285,7 +297,8 @@ class CodegenRunner {
         const schema = Profiler.run('getSchema', () =>
           this.parserConfigs[parser].getSchema(),
         );
-        const writer = getWriter({
+
+        const outputDirectories = await writeFiles({
           onlyValidate: this.onlyValidate,
           schema,
           documents,
@@ -294,8 +307,6 @@ class CodegenRunner {
           sourceControl: this._sourceControl,
           reporter: this._reporter,
         });
-
-        const outputDirectories = await writer.writeAll();
 
         for (const dir of outputDirectories.values()) {
           const all = [
@@ -313,6 +324,11 @@ class CodegenRunner {
               filePath,
             );
           }
+        }
+
+        const onCompleteCallback = this.onComplete;
+        if (onCompleteCallback != null) {
+          onCompleteCallback(Array.from(outputDirectories.values()));
         }
 
         const combinedChanges = CodegenDirectory.combineChanges(

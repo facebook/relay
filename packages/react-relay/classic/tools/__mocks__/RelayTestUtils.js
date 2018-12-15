@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2013-present, Facebook, Inc.
+ * Copyright (c) Facebook, Inc. and its affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -9,8 +9,9 @@
 
 'use strict';
 
-const diff = require('jest-diff');
+const ReactRelayContext = require('../../../modern/ReactRelayContext');
 
+const diff = require('jest-diff');
 jest.dontMock('react-test-renderer').mock('../../route/RelayRoute');
 const ReactTestRenderer = require('react-test-renderer');
 
@@ -37,22 +38,45 @@ const RelayTestUtils = {
     const React = require('React');
     const ReactDOM = require('ReactDOM');
     const RelayEnvironment = require('../../store/RelayEnvironment');
-    const RelayPropTypes = require('../../container/RelayPropTypes');
     const RelayRoute = require('../../route/RelayRoute');
     const invariant = require('invariant');
 
     class ContextSetter extends React.Component {
-      getChildContext() {
-        return this.props.context;
+      constructor(props) {
+        super();
+
+        this.__relayContext = {
+          environment: props.context.environment,
+          variables: props.context.variables,
+          route: props.context.route,
+          useFakeData: props.context.useFakeData,
+        };
+
+        this.state = {
+          props: null,
+        };
       }
+      UNSAFE_componentWillReceiveProps(nextProps) {
+        // eslint-disable-next-line no-shadow
+        const {environment, variables, route, useFakeData} = nextProps.context;
+        if (
+          environment !== this.__relayContext.environment ||
+          variables !== this.__relayContext.variables ||
+          route !== this.__relayContext.route ||
+          useFakeData !== this.__relayContext.useFakeData
+        ) {
+          this.__relayContext = {environment, variables, route, useFakeData};
+        }
+      }
+
       render() {
-        return this.props.render();
+        return (
+          <ReactRelayContext.Provider value={this.__relayContext}>
+            {this.props.render()}
+          </ReactRelayContext.Provider>
+        );
       }
     }
-    ContextSetter.childContextTypes = {
-      relay: RelayPropTypes.ClassicRelay,
-      route: RelayPropTypes.QueryConfig.isRequired,
-    };
 
     class MockPointer {
       constructor(dataID) {
@@ -66,7 +90,7 @@ const RelayTestUtils = {
     let relay;
 
     return {
-      render(render, environment, route) {
+      render(render, environment, route, context) {
         invariant(
           environment == null || environment instanceof RelayEnvironment,
           'render(): Expected an instance of `RelayEnvironment`.',
@@ -88,7 +112,7 @@ const RelayTestUtils = {
 
         const node = (
           <ContextSetter
-            context={{relay, route}}
+            context={context || {...relay, route}}
             render={() => {
               const element = render(dataID => new MockPointer(dataID));
               const pointers = {};

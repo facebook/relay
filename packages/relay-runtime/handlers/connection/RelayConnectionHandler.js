@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2013-present, Facebook, Inc.
+ * Copyright (c) Facebook, Inc. and its affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -20,6 +20,7 @@ const warning = require('warning');
 import type {
   HandleFieldPayload,
   RecordProxy,
+  ReadOnlyRecordProxy,
   RecordSourceProxy,
 } from '../../store/RelayStoreTypes';
 import type {DataID, Variables} from '../../util/RelayRuntimeTypes';
@@ -244,7 +245,7 @@ function update(store: RecordSourceProxy, payload: HandleFieldPayload): void {
  * that returns an array of the connections under the same `key` regardless of the variables.
  */
 function getConnection(
-  record: RecordProxy,
+  record: ReadOnlyRecordProxy,
   key: string,
   filters?: ?Variables,
 ): ?RecordProxy {

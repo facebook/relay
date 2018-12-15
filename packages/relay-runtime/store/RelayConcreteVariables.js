@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2013-present, Facebook, Inc.
+ * Copyright (c) Facebook, Inc. and its affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -13,10 +13,8 @@
 const invariant = require('invariant');
 const warning = require('warning');
 
-import type {
-  ConcreteOperation,
-  ConcreteFragment,
-} from '../util/RelayConcreteNode';
+import type {NormalizationOperation} from '../util/NormalizationNode';
+import type {ReaderFragment} from '../util/ReaderNode';
 import type {Variables} from '../util/RelayRuntimeTypes';
 
 /**
@@ -27,7 +25,7 @@ import type {Variables} from '../util/RelayRuntimeTypes';
  * Note that this is analagous to determining function arguments given a function call.
  */
 function getFragmentVariables(
-  fragment: ConcreteFragment,
+  fragment: ReaderFragment,
   rootVariables: Variables,
   argumentVariables: Variables,
 ): Variables {
@@ -71,7 +69,7 @@ function getFragmentVariables(
  * operation's definition).
  */
 function getOperationVariables(
-  operation: ConcreteOperation,
+  operation: NormalizationOperation,
   variables: Variables,
 ): Variables {
   const operationVariables = {};

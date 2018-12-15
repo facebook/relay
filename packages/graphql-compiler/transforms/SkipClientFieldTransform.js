@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2013-present, Facebook, Inc.
+ * Copyright (c) Facebook, Inc. and its affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -26,13 +26,8 @@ const {
   TypeNameMetaFieldDef,
 } = require('graphql');
 
-import type {
-  Field,
-  Fragment,
-  FragmentSpread,
-  InlineFragment,
-  Root,
-} from '../core/GraphQLIR';
+import type {CompilerContextDocument} from '../core/GraphQLCompilerContext';
+import type {Field, FragmentSpread, InlineFragment} from '../core/GraphQLIR';
 import type {GraphQLType} from 'graphql';
 
 /**
@@ -95,6 +90,7 @@ function skipClientFieldTransform(
       FragmentSpread: visitFragmentSpread,
       InlineFragment: visitInlineFragment,
       LinkedField: visitField,
+      MatchField: visitField,
       ScalarField: visitField,
     },
     node => buildState(context, node),
@@ -109,19 +105,28 @@ function skipClientFieldTransform(
  */
 function buildState(
   context: GraphQLCompilerContext,
-  node: Fragment | Root,
+  node: CompilerContextDocument,
 ): ?GraphQLType {
   const schema = context.serverSchema;
-  if (node.kind === 'Fragment') {
-    return schema.getType(node.type.name);
-  }
-  switch (node.operation) {
-    case 'query':
-      return schema.getQueryType();
-    case 'mutation':
-      return schema.getMutationType();
-    case 'subscription':
-      return schema.getSubscriptionType();
+  switch (node.kind) {
+    case 'Fragment':
+      return schema.getType(node.type.name);
+    case 'Root':
+      switch (node.operation) {
+        case 'query':
+          return schema.getQueryType();
+        case 'mutation':
+          return schema.getMutationType();
+        case 'subscription':
+          return schema.getSubscriptionType();
+        default:
+          (node.operation: empty);
+      }
+      break;
+    case 'SplitOperation':
+      return schema.getType(node.type.name);
+    default:
+      (node: empty);
   }
   return null;
 }

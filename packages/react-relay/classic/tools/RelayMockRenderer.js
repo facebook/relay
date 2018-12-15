@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2013-present, Facebook, Inc.
+ * Copyright (c) Facebook, Inc. and its affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -10,11 +10,9 @@
 
 'use strict';
 
-const PropTypes = require('prop-types');
 const React = require('React');
+const ReactRelayContext = require('../../modern/ReactRelayContext');
 const RelayEnvironment = require('../store/RelayEnvironment');
-const RelayPropTypes = require('../container/RelayPropTypes');
-
 /**
  * A helper for rendering RelayContainers with mock data, outside of a
  * RelayRootContainer/RelayRenderer. This is intended for use in unit tests or
@@ -29,38 +27,27 @@ const RelayPropTypes = require('../container/RelayPropTypes');
  * Currently ReactDOM and ReactTestRenderer cannot both be loaded in the same
  * test, and Relay transitively includes ReactDOM under its default settings.
  */
+
+// this should be deprecated
 class RelayMockRenderer extends React.Component<$FlowFixMeProps> {
-  mockContext: any;
-
-  static childContextTypes = {
-    relay: RelayPropTypes.ClassicRelay,
-    route: RelayPropTypes.QueryConfig.isRequired,
-    useFakeData: PropTypes.bool,
+  // TODO t16225453
+  mockContext: $FlowFixMe = {
+    environment: new RelayEnvironment(),
+    variables: {},
+    route: {
+      name: '$RelayMockRenderer',
+      params: {},
+      queries: {},
+      useMockData: true,
+    },
+    useFakeData: true,
   };
-
-  constructor() {
-    super();
-    this.mockContext = {
-      relay: {
-        environment: new RelayEnvironment(),
-        variables: {},
-      },
-      route: {
-        name: '$RelayMockRenderer',
-        params: {},
-        queries: {},
-        useMockData: true,
-      },
-      useFakeData: true,
-    };
-  }
-
-  getChildContext() {
-    return this.mockContext;
-  }
-
   render() {
-    return this.props.render();
+    return (
+      <ReactRelayContext.Provider value={this.mockContext}>
+        {this.props.render()}
+      </ReactRelayContext.Provider>
+    );
   }
 }
 

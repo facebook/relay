@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2013-present, Facebook, Inc.
+ * Copyright (c) Facebook, Inc. and its affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -21,16 +21,17 @@ describe('cloneRelayHandleSourceField()', () => {
 
   beforeEach(() => {
     expect.extend(matchers);
-    const input = generateWithTransforms(
-      `
-      fragment A on User {
-        address @__clientField(handle: "test") {
-          street
+    const {TestQuery} = generateWithTransforms(`
+      query TestQuery {
+        me {
+          address @__clientField(handle: "test") {
+            street
+          }
         }
       }
-    `,
-    );
-    selections = input.A.selections;
+    `);
+    // Get the selections on `me`.
+    selections = TestQuery.operation.selections[0].selections;
   });
 
   it('returns a clone of the source, with the same name as the handle', () => {

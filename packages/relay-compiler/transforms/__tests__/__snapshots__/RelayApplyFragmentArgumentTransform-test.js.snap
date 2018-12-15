@@ -148,3 +148,83 @@ fragment ProfileFriends on User {
 }
 
 `;
+
+exports[`RelayApplyFragmentArgumentTransform matches expected output: rejects-cyclic-fragments.invalid.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query TestQuery(
+  $id: ID!
+  $pictureSize: [Int] = [128]
+) {
+  node(id: $id) {
+    id
+    ...Profile
+  }
+}
+
+fragment Profile on User {
+  id
+  name
+  profilePicture(size: $pictureSize) {
+    uri
+  }
+  friends(first: 10) {
+    edges {
+      node {
+        ...Profile
+      }
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+THROWN EXCEPTION:
+
+RelayApplyFragmentArgumentTransform: Found a circular reference from fragment 'Profile'. Path:
+- Query 'TestQuery'
+- Field 'node'
+- Fragment 'Profile'
+- Field 'friends'
+- Field 'edges'
+- Field 'node'
+- Fragment 'Profile'
+`;
+
+exports[`RelayApplyFragmentArgumentTransform matches expected output: rejects-unknown-query-variables.invalid.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query TestQuery(
+  $id: ID!
+  $pictureSize: [Int] = [128]
+  $includeFriends: Boolean = true
+) {
+  node(id: $id) {
+    id
+    ...Profile @arguments(pictureSize: $pictureSize, includeFriends: $includeFriends2)
+  }
+}
+
+fragment Profile on User @argumentDefinitions(
+  pictureSize: {type: "[Int]", nonNull: true}
+  includeFriends: {type: "Boolean!", defaultValue: false}
+) {
+  id
+  name
+  profilePicture(size: $pictureSize) {
+    uri
+  }
+  friends(first: 10) @include(if: $includeFriends) {
+    edges {
+      node {
+        ...Profile @arguments(pictureSize: $pictureSize)
+      }
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+THROWN EXCEPTION:
+
+RelayApplyFragmentArgumentTransform: variable '$includeFriends2' is not in scope. Path:
+- Query 'TestQuery'
+- Field 'node'
+- Fragment 'Profile'
+`;

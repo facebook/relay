@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2013-present, Facebook, Inc.
+ * Copyright (c) Facebook, Inc. and its affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -12,8 +12,8 @@
 
 const ErrorUtils = require('ErrorUtils');
 const RelayInMemoryRecordSource = require('../RelayInMemoryRecordSource');
-const RelayMarkSweepStore = require('../RelayMarkSweepStore');
 const RelayModernRecord = require('../RelayModernRecord');
+const RelayModernStore = require('../RelayModernStore');
 const RelayModernTestUtils = require('RelayModernTestUtils');
 const RelayPublishQueue = require('../RelayPublishQueue');
 const RelayStoreUtils = require('../RelayStoreUtils');
@@ -36,12 +36,13 @@ describe('RelayPublishQueue', () => {
     ErrorUtils.applyWithGuard = jest.fn((callback, context, params) => {
       try {
         callback.apply(context, params);
-      } catch (guarded) {}
+      } catch (guarded) {} // eslint-disable-line lint/no-unused-catch-bindings
     });
   });
 
   describe('applyUpdate()/revertUpdate()', () => {
     let operationSelector;
+    let operationSelectorAliased;
     let initialData;
     let sourceData;
     let source;
@@ -84,8 +85,7 @@ describe('RelayPublishQueue', () => {
       };
       sourceData = simpleClone(initialData);
       source = new RelayInMemoryRecordSource(sourceData);
-      store = new RelayMarkSweepStore(source);
-
+      store = new RelayModernStore(source);
       const mutationQuery = generateAndCompile(
         `
         mutation ChangeNameMutation(
@@ -99,6 +99,21 @@ describe('RelayPublishQueue', () => {
         }
       `,
       ).ChangeNameMutation;
+
+      const mutationQueryAliased = generateAndCompile(
+        `
+        mutation ChangeNameMutation(
+          $input: ActorNameChangeInput!
+        ) {
+          changeName: actorNameChange(input: $input) {
+            actor {
+              name
+            }
+          }
+        }
+      `,
+      ).ChangeNameMutation;
+
       const variables = {
         input: {
           clientMutationId: '0',
@@ -106,6 +121,10 @@ describe('RelayPublishQueue', () => {
         },
       };
       operationSelector = createOperationSelector(mutationQuery, variables);
+      operationSelectorAliased = createOperationSelector(
+        mutationQueryAliased,
+        variables,
+      );
     });
 
     it('runs an `storeUpdater` and applies the changes to the store', () => {
@@ -134,6 +153,26 @@ describe('RelayPublishQueue', () => {
         operation: operationSelector,
         response: {
           actorNameChange: {
+            actor: {
+              id: '4',
+              name: 'zuck',
+              __typename: 'Actor',
+            },
+          },
+        },
+      };
+      queue.applyUpdate(optimisticUpdate);
+      expect(sourceData).toEqual(initialData);
+      queue.run();
+      expect(sourceData['4'].name).toEqual('zuck');
+    });
+
+    it('handles aliases correctly when used with optimistic update', () => {
+      const queue = new RelayPublishQueue(store);
+      const optimisticUpdate = {
+        operation: operationSelectorAliased,
+        response: {
+          changeName: {
             actor: {
               id: '4',
               name: 'zuck',
@@ -392,7 +431,7 @@ describe('RelayPublishQueue', () => {
       };
       sourceData = simpleClone(initialData);
       source = new RelayInMemoryRecordSource(sourceData);
-      store = new RelayMarkSweepStore(source);
+      store = new RelayModernStore(source);
     });
 
     it('reverts executed changes', () => {
@@ -535,7 +574,12 @@ describe('RelayPublishQueue', () => {
       const notify = jest.fn();
       const publish = jest.fn();
       const source = new RelayInMemoryRecordSource();
-      const store = {getSource: () => source, notify, publish};
+      const store = {
+        getSource: () => source,
+        notify,
+        publish,
+        holdGC: jest.fn(),
+      };
       const queue = new RelayPublishQueue(store);
       const publishSource = new RelayInMemoryRecordSource();
       const {ActorQuery} = generateAndCompile(
@@ -563,7 +607,12 @@ describe('RelayPublishQueue', () => {
       const notify = jest.fn();
       const publish = jest.fn();
       const source = new RelayInMemoryRecordSource();
-      const store = {getSource: () => source, notify, publish};
+      const store = {
+        getSource: () => source,
+        notify,
+        publish,
+        holdGC: jest.fn(),
+      };
       const queue = new RelayPublishQueue(store);
       const {ActorQuery} = generateAndCompile(
         `
@@ -636,7 +685,12 @@ describe('RelayPublishQueue', () => {
       const notify = jest.fn();
       const publish = jest.fn();
       const source = new RelayInMemoryRecordSource();
-      const store = {getSource: () => source, notify, publish};
+      const store = {
+        getSource: () => source,
+        notify,
+        publish,
+        holdGC: jest.fn(),
+      };
       const ScreennameHandler = {
         update(storeProxy, payload) {
           const record = storeProxy.get(payload.dataID);
@@ -778,7 +832,7 @@ describe('RelayPublishQueue', () => {
       };
       const initialData = simpleClone(sourceData);
       const source = new RelayInMemoryRecordSource(sourceData);
-      const store = new RelayMarkSweepStore(source);
+      const store = new RelayModernStore(source);
       const queue = new RelayPublishQueue(store);
       // Set name to 'MARK' *without* running the update
       queue.applyUpdate({
@@ -837,7 +891,7 @@ describe('RelayPublishQueue', () => {
       };
       const initialData = simpleClone(sourceData);
       const source = new RelayInMemoryRecordSource(sourceData);
-      const store = new RelayMarkSweepStore(source);
+      const store = new RelayModernStore(source);
       const queue = new RelayPublishQueue(store);
       // Set name to 'MARK', running the update immediately
       queue.applyUpdate({
@@ -897,7 +951,7 @@ describe('RelayPublishQueue', () => {
       };
       const initialData = simpleClone(sourceData);
       const source = new RelayInMemoryRecordSource(sourceData);
-      const store = new RelayMarkSweepStore(source);
+      const store = new RelayModernStore(source);
       const queue = new RelayPublishQueue(store);
       // Set name to 'MARK'
       const mutation = {
@@ -958,7 +1012,7 @@ describe('RelayPublishQueue', () => {
         },
       };
       const source = new RelayInMemoryRecordSource(sourceData);
-      const store = new RelayMarkSweepStore(source);
+      const store = new RelayModernStore(source);
       const queue = new RelayPublishQueue(store);
 
       const increaseVolumeUpdater = {
@@ -1005,7 +1059,7 @@ describe('RelayPublishQueue', () => {
       };
       const initialData = simpleClone(sourceData);
       const source = new RelayInMemoryRecordSource(sourceData);
-      const store = new RelayMarkSweepStore(source);
+      const store = new RelayModernStore(source);
       const queue = new RelayPublishQueue(store);
       const buggyUpdater = storeProxy => {
         invariant(false, 'buggy updater throwing error');
@@ -1060,7 +1114,12 @@ describe('RelayPublishQueue', () => {
       const notify = jest.fn();
       const publish = jest.fn();
       const store_source = new RelayInMemoryRecordSource();
-      const store = {getSource: () => store_source, notify, publish};
+      const store = {
+        getSource: () => store_source,
+        notify,
+        publish,
+        holdGC: jest.fn(),
+      };
       const queue = new RelayPublishQueue(store);
 
       const source = new RelayInMemoryRecordSource();
@@ -1085,7 +1144,7 @@ describe('RelayPublishQueue', () => {
       let namePayload, nameSelector, nameSource, sourceData, queue;
       beforeEach(() => {
         sourceData = {};
-        const store = new RelayMarkSweepStore(
+        const store = new RelayModernStore(
           new RelayInMemoryRecordSource(sourceData),
         );
         queue = new RelayPublishQueue(store);
@@ -1168,7 +1227,7 @@ describe('RelayPublishQueue', () => {
       };
       const initialData = simpleClone(sourceData);
       const storeSource = new RelayInMemoryRecordSource(sourceData);
-      const store = new RelayMarkSweepStore(storeSource);
+      const store = new RelayModernStore(storeSource);
       const queue = new RelayPublishQueue(store);
       // Set name to 'MARK', running the update immediately
       queue.applyUpdate({
@@ -1208,7 +1267,7 @@ describe('RelayPublishQueue', () => {
       };
       const initialData = simpleClone(sourceData);
       const storeSource = new RelayInMemoryRecordSource(sourceData);
-      const store = new RelayMarkSweepStore(storeSource);
+      const store = new RelayModernStore(storeSource);
       const queue = new RelayPublishQueue(store);
       // Set name to 'MARK'
       const mutation = {
@@ -1246,7 +1305,12 @@ describe('RelayPublishQueue', () => {
       const notify = jest.fn();
       const publish = jest.fn();
       const source = new RelayInMemoryRecordSource();
-      const store = {getSource: () => source, notify, publish};
+      const store = {
+        getSource: () => source,
+        notify,
+        publish,
+        holdGC: jest.fn(),
+      };
       const queue = new RelayPublishQueue(store);
       queue.commitUpdate(storeProxy => {
         const user = storeProxy.create('1364586419', 'User');
@@ -1271,7 +1335,12 @@ describe('RelayPublishQueue', () => {
       const notify = jest.fn();
       const publish = jest.fn();
       const source = new RelayInMemoryRecordSource();
-      const store = {getSource: () => source, notify, publish};
+      const store = {
+        getSource: () => source,
+        notify,
+        publish,
+        holdGC: jest.fn(),
+      };
       const queue = new RelayPublishQueue(store);
       queue.run();
       expect(publish).not.toBeCalled();
@@ -1282,7 +1351,12 @@ describe('RelayPublishQueue', () => {
       const notify = jest.fn();
       const publish = jest.fn();
       const source = new RelayInMemoryRecordSource();
-      const store = {getSource: () => source, notify, publish};
+      const store = {
+        getSource: () => source,
+        notify,
+        publish,
+        holdGC: jest.fn(),
+      };
       const queue = new RelayPublishQueue(store);
       queue.applyUpdate({
         storeUpdater: storeProxy => {
@@ -1298,7 +1372,12 @@ describe('RelayPublishQueue', () => {
       const notify = jest.fn();
       const publish = jest.fn();
       const source = new RelayInMemoryRecordSource();
-      const store = {getSource: () => source, notify, publish};
+      const store = {
+        getSource: () => source,
+        notify,
+        publish,
+        holdGC: jest.fn(),
+      };
       const queue = new RelayPublishQueue(store);
       const mutation = {
         storeUpdater: storeProxy => {
@@ -1320,7 +1399,12 @@ describe('RelayPublishQueue', () => {
       const notify = jest.fn();
       const publish = jest.fn();
       const source = new RelayInMemoryRecordSource();
-      const store = {getSource: () => source, notify, publish};
+      const store = {
+        getSource: () => source,
+        notify,
+        publish,
+        holdGC: jest.fn(),
+      };
       const queue = new RelayPublishQueue(store);
 
       const {NameQuery} = generateAndCompile(
@@ -1345,6 +1429,71 @@ describe('RelayPublishQueue', () => {
       queue.run();
       expect(publish).toBeCalled();
       expect(notify).toBeCalled();
+    });
+
+    it('should disable CG if there are any applied optimistic updates', () => {
+      const holdGC = jest.fn();
+      const source = new RelayInMemoryRecordSource();
+      const store = {
+        getSource: () => source,
+        notify: jest.fn(),
+        publish: jest.fn(),
+        holdGC,
+      };
+      const queue = new RelayPublishQueue(store);
+      const mutation = {
+        storeUpdater: storeProxy => {
+          storeProxy.create('4', 'User');
+        },
+      };
+      queue.applyUpdate(mutation);
+      queue.run();
+      expect(holdGC).toBeCalled();
+    });
+
+    it('should not disable GC if there are no optimistic updates', () => {
+      const holdGC = jest.fn();
+      const source = new RelayInMemoryRecordSource();
+      const store = {
+        getSource: () => source,
+        notify: jest.fn(),
+        publish: jest.fn(),
+        holdGC,
+      };
+      const queue = new RelayPublishQueue(store);
+      queue.run();
+      expect(holdGC).not.toBeCalled();
+    });
+
+    it('should dispose gc hold, when there are no optimistic updates are in the queue', () => {
+      const disposeGC = jest.fn();
+      const holdGC = jest.fn(() => ({
+        dispose: disposeGC,
+      }));
+      const source = new RelayInMemoryRecordSource();
+      const store = {
+        getSource: () => source,
+        notify: jest.fn(),
+        publish: jest.fn(),
+        holdGC,
+      };
+      const queue = new RelayPublishQueue(store);
+      const mutation = {
+        storeUpdater: storeProxy => {
+          storeProxy.create('4', 'User');
+        },
+      };
+      queue.applyUpdate(mutation);
+      queue.run();
+      expect(holdGC).toBeCalled();
+      expect(disposeGC).not.toBeCalled();
+      queue.run();
+      expect(disposeGC).not.toBeCalled(); // Exactly! We should not dispose GC on each run
+      // Let's revert all updates
+      queue.revertAll();
+      queue.run();
+      // Now, it's time to release GC
+      expect(disposeGC).toBeCalled();
     });
   });
 });

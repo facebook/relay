@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2013-present, Facebook, Inc.
+ * Copyright (c) Facebook, Inc. and its affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -11,11 +11,9 @@
 'use strict';
 
 const React = require('React');
-const RelayPropTypes = require('../../classic/container/RelayPropTypes');
+const ReactRelayContext = require('../ReactRelayContext');
 
 const invariant = require('invariant');
-
-const {RelayConcreteNode} = require('relay-runtime');
 
 import type {Variables, Snapshot} from 'relay-runtime';
 
@@ -45,26 +43,11 @@ class RelayTestRenderer extends React.Component<Props, $FlowFixMe> {
     const {createOperationSelector, getRequest} = environment.unstable_internal;
 
     const operation = getRequest((query: $FlowFixMe));
-    if (operation.kind === RelayConcreteNode.BATCH_REQUEST) {
-      throw new Error(
-        'RelayTestRender: Batch request not yet implemented (T22955102)',
-      );
-    }
     const operationSelector = createOperationSelector(operation, variables);
     const snapshot = environment.lookup(operationSelector.fragment);
 
     this.state = {data: snapshot.data};
     environment.subscribe(snapshot, this._onChange);
-  }
-
-  getChildContext() {
-    return {
-      relay: {
-        environment:
-          this.props.environment || this.props.children.props.environment,
-        variables: this.props.variables || this.props.children.props.variables,
-      },
-    };
   }
 
   _onChange = (snapshot: Snapshot): void => {
@@ -74,17 +57,23 @@ class RelayTestRenderer extends React.Component<Props, $FlowFixMe> {
   render() {
     const childProps = this.props.children.props;
     const newProps = {...childProps, ...this.state.data};
-    return React.cloneElement(
-      this.props.children,
-      newProps,
-      // $FlowFixMe: error found when enabling flow for this file.
-      this.props.children.children,
+    return (
+      <ReactRelayContext.Provider
+        value={{
+          environment:
+            this.props.environment || this.props.children.props.environment,
+          variables:
+            this.props.variables || this.props.children.props.variables,
+        }}>
+        {React.cloneElement(
+          this.props.children,
+          newProps,
+          // $FlowFixMe: error found when enabling flow for this file.
+          this.props.children.children,
+        )}
+      </ReactRelayContext.Provider>
     );
   }
 }
-
-RelayTestRenderer.childContextTypes = {
-  relay: RelayPropTypes.Relay,
-};
 
 module.exports = RelayTestRenderer;

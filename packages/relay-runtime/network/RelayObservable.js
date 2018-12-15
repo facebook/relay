@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2013-present, Facebook, Inc.
+ * Copyright (c) Facebook, Inc. and its affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -321,7 +321,23 @@ class RelayObservable<+T> implements Subscribable<T> {
    * the mapping function.
    */
   map<U>(fn: T => U): RelayObservable<U> {
-    return this.mergeMap(value => fromValue(fn(value)));
+    return RelayObservable.create(sink => {
+      const subscription = this.subscribe({
+        complete: sink.complete,
+        error: sink.error,
+        next: value => {
+          try {
+            const mapValue = fn(value);
+            sink.next(mapValue);
+          } catch (error) {
+            sink.error(error, true /* isUncaughtThrownError */);
+          }
+        },
+      });
+      return () => {
+        subscription.unsubscribe();
+      };
+    });
   }
 
   /**

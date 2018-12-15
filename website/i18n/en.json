@@ -4,50 +4,407 @@
     "next": "Next",
     "previous": "Previous",
     "tagline": "A JavaScript framework for building data-driven React applications",
-    "graphql-server-specification": "GraphQL Server Specification",
-    "installation-and-setup": "Installation and Setup",
-    "introduction-to-relay": "Introduction to Relay",
-    "prerequisites": "Prerequisites",
-    "quick-start-guide": "Quick Start Guide",
-    "api-cheatsheet": "API Cheatsheet",
-    "compatibility-cheatsheet": "Compatibility Cheatsheet",
-    "conversion-playbook": "Conversion Playbook",
-    "conversion-scripts": "Conversion Scripts",
-    "converting-mutations": "Converting Mutations",
-    "relay-debugging": "Debugging",
-    "fetch-query": "fetchQuery",
-    "fragment-container": "Fragment Container",
-    "graphql-in-relay": "GraphQL in Relay",
-    "migration-setup": "Migration Setup",
-    "mutations": "Mutations",
-    "network-layer": "Network Layer",
-    "new-in-relay-modern": "New in Relay Modern",
-    "pagination-container": "Pagination Container",
-    "query-renderer": "<QueryRenderer />",
-    "refetch-container": "Refetch Container",
-    "relay-compat": "Compatibility Mode",
-    "relay-environment": "Relay Environment",
-    "relay-store": "Relay Store",
-    "routing": "Routing",
-    "subscriptions": "Subscriptions",
-    "upgrading-setvariables": "Upgrading setVariables",
-    "compiler-architecture": "Compiler Architecture",
-    "architecture-overview": "Architecture Overview",
-    "runtime-architecture": "Runtime Architecture",
-    "thinking-in-graphql": "Thinking in GraphQL",
-    "thinking-in-relay": "Thinking In Relay",
-    "videos": "Videos",
-    "Docs": "Docs",
-    "Support": "Support",
-    "GitHub": "GitHub",
-    "Introduction": "Introduction",
-    "API Reference": "API Reference",
-    "Guides": "Guides",
-    "Migration Guides": "Migration Guides",
-    "Principles & Architecture": "Principles & Architecture",
-    "Relay Classic Guides": "Relay Classic Guides",
-    "Relay Classic API": "Relay Classic API",
-    "Relay Classic Interfaces": "Relay Classic Interfaces"
+    "docs": {
+      "graphql-server-specification": {
+        "title": "GraphQL Server Specification"
+      },
+      "installation-and-setup": {
+        "title": "Installation and Setup"
+      },
+      "introduction-to-relay": {
+        "title": "Introduction to Relay"
+      },
+      "prerequisites": {
+        "title": "Prerequisites"
+      },
+      "quick-start-guide": {
+        "title": "Quick Start Guide"
+      },
+      "api-cheatsheet": {
+        "title": "API Cheatsheet"
+      },
+      "compatibility-cheatsheet": {
+        "title": "Compatibility Cheatsheet"
+      },
+      "conversion-playbook": {
+        "title": "Conversion Playbook"
+      },
+      "conversion-scripts": {
+        "title": "Conversion Scripts"
+      },
+      "converting-mutations": {
+        "title": "Converting Mutations"
+      },
+      "relay-debugging": {
+        "title": "Debugging"
+      },
+      "fetch-query": {
+        "title": "fetchQuery"
+      },
+      "fragment-container": {
+        "title": "Fragment Container"
+      },
+      "graphql-in-relay": {
+        "title": "GraphQL in Relay"
+      },
+      "migration-setup": {
+        "title": "Migration Setup"
+      },
+      "mutations": {
+        "title": "Mutations"
+      },
+      "network-layer": {
+        "title": "Network Layer"
+      },
+      "new-in-relay-modern": {
+        "title": "New in Relay Modern"
+      },
+      "pagination-container": {
+        "title": "Pagination Container"
+      },
+      "query-renderer": {
+        "title": "<QueryRenderer />"
+      },
+      "refetch-container": {
+        "title": "Refetch Container"
+      },
+      "relay-compat": {
+        "title": "Compatibility Mode"
+      },
+      "relay-environment": {
+        "title": "Relay Environment"
+      },
+      "relay-store": {
+        "title": "Relay Store"
+      },
+      "routing": {
+        "title": "Routing"
+      },
+      "subscriptions": {
+        "title": "Subscriptions"
+      },
+      "upgrading-setvariables": {
+        "title": "Upgrading setVariables"
+      },
+      "compiler-architecture": {
+        "title": "Compiler Architecture"
+      },
+      "architecture-overview": {
+        "title": "Architecture Overview"
+      },
+      "runtime-architecture": {
+        "title": "Runtime Architecture"
+      },
+      "thinking-in-graphql": {
+        "title": "Thinking in GraphQL"
+      },
+      "thinking-in-relay": {
+        "title": "Thinking In Relay"
+      },
+      "videos": {
+        "title": "Videos"
+      },
+      "version-1.5.0-installation-and-setup": {
+        "title": "Installation and Setup"
+      },
+      "version-1.5.0-quick-start-guide": {
+        "title": "Quick Start Guide"
+      },
+      "version-1.5.0-converting-mutations": {
+        "title": "Converting Mutations"
+      },
+      "version-1.5.0-mutations": {
+        "title": "Mutations"
+      },
+      "version-1.5.0-network-layer": {
+        "title": "Network Layer"
+      },
+      "version-1.5.0-pagination-container": {
+        "title": "Pagination Container"
+      },
+      "version-1.5.0-query-renderer": {
+        "title": "<QueryRenderer />"
+      },
+      "version-1.5.0-refetch-container": {
+        "title": "Refetch Container"
+      },
+      "version-1.5.0-relay-store": {
+        "title": "Relay Store"
+      },
+      "version-1.5.0-subscriptions": {
+        "title": "Subscriptions"
+      },
+      "version-1.5.0-thinking-in-graphql": {
+        "title": "Thinking in GraphQL"
+      },
+      "version-1.6.0-installation-and-setup": {
+        "title": "Installation and Setup"
+      },
+      "version-1.6.0-quick-start-guide": {
+        "title": "Quick Start Guide"
+      },
+      "version-1.6.0-fetch-query": {
+        "title": "fetchQuery"
+      },
+      "version-1.6.0-graphql-in-relay": {
+        "title": "GraphQL in Relay"
+      },
+      "version-1.6.0-mutations": {
+        "title": "Mutations"
+      },
+      "version-1.6.0-pagination-container": {
+        "title": "Pagination Container"
+      },
+      "version-1.6.0-query-renderer": {
+        "title": "<QueryRenderer />"
+      },
+      "version-1.6.0-thinking-in-relay": {
+        "title": "Thinking In Relay"
+      },
+      "version-1.6.1-installation-and-setup": {
+        "title": "Installation and Setup"
+      },
+      "version-1.6.1-graphql-in-relay": {
+        "title": "GraphQL in Relay"
+      },
+      "version-1.6.1-network-layer": {
+        "title": "Network Layer"
+      },
+      "version-1.6.1-pagination-container": {
+        "title": "Pagination Container"
+      },
+      "version-1.6.1-query-renderer": {
+        "title": "<QueryRenderer />"
+      },
+      "version-1.6.1-relay-store": {
+        "title": "Relay Store"
+      },
+      "version-1.6.2-mutations": {
+        "title": "Mutations"
+      },
+      "version-classic-classic-api-reference-relay-container": {
+        "title": "RelayContainer"
+      },
+      "version-classic-classic-api-reference-relay-graphql-mutation": {
+        "title": "Relay.GraphQLMutation"
+      },
+      "version-classic-classic-api-reference-relay-mutation": {
+        "title": "Relay.Mutation"
+      },
+      "version-classic-classic-api-reference-relay-proptypes": {
+        "title": "Relay.PropTypes"
+      },
+      "version-classic-classic-api-reference-relay-ql": {
+        "title": "Relay.QL"
+      },
+      "version-classic-classic-api-reference-relay": {
+        "title": "Relay"
+      },
+      "version-classic-classic-api-reference-relay-renderer": {
+        "title": "Relay.Renderer"
+      },
+      "version-classic-classic-api-reference-relay-root-container": {
+        "title": "Relay.RootContainer"
+      },
+      "version-classic-classic-api-reference-relay-route": {
+        "title": "Relay.Route"
+      },
+      "version-classic-classic-api-reference-relay-store": {
+        "title": "Relay.Store"
+      },
+      "version-classic-classic-guides-containers": {
+        "title": "Containers"
+      },
+      "version-classic-classic-guides-mutations": {
+        "title": "Mutations"
+      },
+      "version-classic-classic-guides-network-layer": {
+        "title": "Network Layer"
+      },
+      "version-classic-classic-guides-ready-state": {
+        "title": "Ready State"
+      },
+      "version-classic-classic-guides-root-container": {
+        "title": "Root Container"
+      },
+      "version-classic-classic-guides-routes": {
+        "title": "Routes"
+      },
+      "version-classic-classic-interfaces-relay-mutation-request": {
+        "title": "RelayMutationRequest"
+      },
+      "version-classic-classic-interfaces-relay-network-layer": {
+        "title": "RelayNetworkLayer"
+      },
+      "version-classic-classic-interfaces-relay-query-request": {
+        "title": "RelayQueryRequest"
+      },
+      "version-classic-graphql-server-specification": {
+        "title": "GraphQL Server Specification"
+      },
+      "version-classic-installation-and-setup": {
+        "title": "Installation and Setup"
+      },
+      "version-classic-introduction-to-relay": {
+        "title": "Introduction to Relay"
+      },
+      "version-classic-prerequisites": {
+        "title": "Prerequisites"
+      },
+      "version-classic-quick-start-guide": {
+        "title": "Quick Start Guide"
+      },
+      "version-classic-api-cheatsheet": {
+        "title": "API Cheatsheet"
+      },
+      "version-classic-compatibility-cheatsheet": {
+        "title": "Compatibility Cheatsheet"
+      },
+      "version-classic-conversion-playbook": {
+        "title": "Conversion Playbook"
+      },
+      "version-classic-conversion-scripts": {
+        "title": "Conversion Scripts"
+      },
+      "version-classic-converting-mutations": {
+        "title": "Converting Mutations"
+      },
+      "version-classic-relay-debugging": {
+        "title": "Debugging"
+      },
+      "version-classic-fragment-container": {
+        "title": "Fragment Container"
+      },
+      "version-classic-graphql-in-relay": {
+        "title": "GraphQL in Relay"
+      },
+      "version-classic-migration-setup": {
+        "title": "Migration Setup"
+      },
+      "version-classic-mutations": {
+        "title": "Mutations"
+      },
+      "version-classic-network-layer": {
+        "title": "Network Layer"
+      },
+      "version-classic-new-in-relay-modern": {
+        "title": "New in Relay Modern"
+      },
+      "version-classic-pagination-container": {
+        "title": "Pagination Container"
+      },
+      "version-classic-query-renderer": {
+        "title": "<QueryRenderer />"
+      },
+      "version-classic-refetch-container": {
+        "title": "Refetch Container"
+      },
+      "version-classic-relay-compat": {
+        "title": "Compatibility Mode"
+      },
+      "version-classic-relay-environment": {
+        "title": "Relay Environment"
+      },
+      "version-classic-relay-store": {
+        "title": "Relay Store"
+      },
+      "version-classic-routing": {
+        "title": "Routing"
+      },
+      "version-classic-subscriptions": {
+        "title": "Subscriptions"
+      },
+      "version-classic-upgrading-setvariables": {
+        "title": "Upgrading setVariables"
+      },
+      "version-classic-compiler-architecture": {
+        "title": "Compiler Architecture"
+      },
+      "version-classic-architecture-overview": {
+        "title": "Architecture Overview"
+      },
+      "version-classic-runtime-architecture": {
+        "title": "Runtime Architecture"
+      },
+      "version-classic-thinking-in-graphql": {
+        "title": "Thinking in GraphQL"
+      },
+      "version-classic-thinking-in-relay": {
+        "title": "Thinking In Relay"
+      },
+      "version-classic-videos": {
+        "title": "Videos"
+      },
+      "version-v1.7.0-installation-and-setup": {
+        "title": "Installation and Setup"
+      },
+      "version-v1.7.0-quick-start-guide": {
+        "title": "Quick Start Guide"
+      },
+      "version-v1.7.0-converting-mutations": {
+        "title": "Converting Mutations"
+      },
+      "version-v1.7.0-fetch-query": {
+        "title": "fetchQuery"
+      },
+      "version-v1.7.0-graphql-in-relay": {
+        "title": "GraphQL in Relay"
+      },
+      "version-v1.7.0-mutations": {
+        "title": "Mutations"
+      },
+      "version-v1.7.0-network-layer": {
+        "title": "Network Layer"
+      },
+      "version-v1.7.0-pagination-container": {
+        "title": "Pagination Container"
+      },
+      "version-v1.7.0-query-renderer": {
+        "title": "<QueryRenderer />"
+      },
+      "version-v1.7.0-refetch-container": {
+        "title": "Refetch Container"
+      },
+      "version-v1.7.0-relay-store": {
+        "title": "Relay Store"
+      },
+      "version-v1.7.0-subscriptions": {
+        "title": "Subscriptions"
+      },
+      "version-v1.7.0-architecture-overview": {
+        "title": "Architecture Overview"
+      },
+      "version-v1.7.0-runtime-architecture": {
+        "title": "Runtime Architecture"
+      },
+      "version-v1.7.0-thinking-in-graphql": {
+        "title": "Thinking in GraphQL"
+      },
+      "version-v1.7.0-thinking-in-relay": {
+        "title": "Thinking In Relay"
+      },
+      "version-v1.7.0-videos": {
+        "title": "Videos"
+      },
+      "version-v1.7.1-relay-debugging": {
+        "title": "Debugging"
+      }
+    },
+    "links": {
+      "Docs": "Docs",
+      "Support": "Support",
+      "GitHub": "GitHub"
+    },
+    "categories": {
+      "Introduction": "Introduction",
+      "API Reference": "API Reference",
+      "Guides": "Guides",
+      "Migration Guides": "Migration Guides",
+      "Principles & Architecture": "Principles & Architecture",
+      "Relay Classic Guides": "Relay Classic Guides",
+      "Relay Classic API": "Relay Classic API",
+      "Relay Classic Interfaces": "Relay Classic Interfaces"
+    }
   },
   "pages-strings": {
     "Help Translate|recruit community translators for your project": "Help Translate",

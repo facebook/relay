@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2013-present, Facebook, Inc.
+ * Copyright (c) Facebook, Inc. and its affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -9,8 +9,8 @@
 
 'use strict';
 
-const RelayEnvironment = require.requireActual('../RelayEnvironment');
-const RelayStoreData = require.requireActual('../RelayStoreData');
+const RelayEnvironment = jest.requireActual('../RelayEnvironment');
+const RelayStoreData = jest.requireActual('../RelayStoreData');
 const RelayRecordStore = require('../RelayRecordStore');
 
 const resolveImmediate = require('resolveImmediate');

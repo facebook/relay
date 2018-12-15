@@ -1,0 +1,19 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should error when parsing fragment that references undeclared variables are used with differing types 1`] = `
+"GraphQLParser: Encountered 1 error(s):
+- Variable '$id' was used in locations expecting the conflicting types 'ID' and 'Int'. Source: document \`TestFragment\` file: \`GraphQL request\`
+  
+  GraphQL request (2:14)
+  1: fragment TestFragment on Query {
+  2:     node(id: $id) {
+                  ^
+  3:       id
+  
+  GraphQL request (5:18)
+  4:     }
+  5:     task(number: $id) {
+                      ^
+  6:       title
+  "
+`;

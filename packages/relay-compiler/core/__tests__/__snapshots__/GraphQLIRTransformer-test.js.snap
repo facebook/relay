@@ -47,5 +47,9 @@ Array [
   "LocalArgumentDefinition",
   "LocalArgumentDefinition",
   "ScalarField",
+  "init state: Fragment Foo",
+  "Fragment",
+  "LocalArgumentDefinition",
+  "ScalarField",
 ]
 `;

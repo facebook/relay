@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2013-present, Facebook, Inc.
+ * Copyright (c) Facebook, Inc. and its affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -17,10 +17,11 @@ const invariant = require('invariant');
 const stableCopy = require('../util/stableCopy');
 
 import type {
-  ConcreteArgument,
-  ConcreteField,
-  ConcreteHandle,
-} from '../util/RelayConcreteNode';
+  NormalizationHandle,
+  NormalizationArgument,
+  NormalizationField,
+} from '../util/NormalizationNode';
+import type {ReaderArgument, ReaderField} from '../util/ReaderNode';
 import type {Variables} from '../util/RelayRuntimeTypes';
 
 export type Arguments = {[argName: string]: mixed};
@@ -32,7 +33,7 @@ const {VARIABLE} = RelayConcreteNode;
  * names. Guaranteed to return a result with stable ordered nested values.
  */
 function getArgumentValues(
-  args: Array<ConcreteArgument>,
+  args: $ReadOnlyArray<NormalizationArgument | ReaderArgument>,
   variables: Variables,
 ): Arguments {
   const values = {};
@@ -58,7 +59,7 @@ function getArgumentValues(
  * used here for consistency.
  */
 function getHandleStorageKey(
-  handleField: ConcreteHandle,
+  handleField: NormalizationHandle,
   variables: Variables,
 ): string {
   const {handle, key, name, args, filters} = handleField;
@@ -80,7 +81,7 @@ function getHandleStorageKey(
  * used here for consistency.
  */
 function getStorageKey(
-  field: ConcreteField | ConcreteHandle,
+  field: NormalizationField | NormalizationHandle | ReaderField,
   variables: Variables,
 ): string {
   if (field.storageKey) {
@@ -145,7 +146,11 @@ function getStableVariableValue(name: string, variables: Variables): mixed {
  */
 const RelayStoreUtils = {
   FRAGMENTS_KEY: '__fragments',
+  FRAGMENT_PROP_NAME_KEY: '__fragmentPropName',
+  MATCH_COMPONENT_KEY: '__match_component',
+  MATCH_FRAGMENT_KEY: '__match_fragment',
   ID_KEY: '__id',
+  MODULE_KEY: '__module',
   REF_KEY: '__ref',
   REFS_KEY: '__refs',
   ROOT_ID: 'client:root',

@@ -1,5 +1,5 @@
 fragment TestFragment on User @argumentDefinitions(
-  id: {type: "ID", nonNull: true}
+  id: {type: "ID!"}
   size: {type: "[Int]", defaultValue: [100]}
 ) {
   profilePicture(size: $PictureSize) {
@@ -9,4 +9,8 @@ fragment TestFragment on User @argumentDefinitions(
     uri
   }
   ...Foo @arguments(localId: $id)
+}
+
+fragment Foo on User @argumentDefinitions(localId: {type: "ID!"}){
+  id
 }

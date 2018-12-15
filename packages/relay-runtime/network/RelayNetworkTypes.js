@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2013-present, Facebook, Inc.
+ * Copyright (c) Facebook, Inc. and its affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -10,7 +10,7 @@
 
 'use strict';
 
-import type {ConcreteOperation, RequestNode} from '../util/RelayConcreteNode';
+import type {ConcreteRequest} from '../util/RelayConcreteNode';
 import type {
   CacheConfig,
   Disposable,
@@ -34,7 +34,10 @@ export type PayloadError = {
     line: number,
     column: number,
   }>,
+  severity?: 'CRITICAL' | 'ERROR' | 'WARNING', // Not officially part of the spec, but used at Facebook
 };
+
+export type PayloadExtensions = {[key: string]: mixed};
 
 /**
  * The shape of a GraphQL response as dictated by the
@@ -44,37 +47,24 @@ export type GraphQLResponse =
   | {
       data: PayloadData,
       errors?: Array<PayloadError>,
+      extensions?: PayloadExtensions,
     }
   | {
       data?: ?PayloadData,
       errors: Array<PayloadError>,
+      extensions?: PayloadExtensions,
     };
-
-/**
- * The data returned from Relay's execute function, which includes both the
- * raw GraphQL network response as well as any related client metadata.
- */
-export type ExecutePayload = {|
-  // The operation executed
-  operation: ConcreteOperation,
-  // The variables which were used during this execution.
-  variables: Variables,
-  // The response from GraphQL execution
-  response: GraphQLResponse,
-  // Default is false
-  isOptimistic?: boolean,
-|};
 
 /**
  * A function that returns an Observable representing the response of executing
  * a GraphQL operation.
  */
 export type ExecuteFunction = (
-  request: RequestNode,
+  request: ConcreteRequest,
   variables: Variables,
   cacheConfig: CacheConfig,
   uploadables?: ?UploadableMap,
-) => RelayObservable<ExecutePayload>;
+) => RelayObservable<GraphQLResponse>;
 
 /**
  * A function that executes a GraphQL operation with request/response semantics.
@@ -83,11 +73,11 @@ export type ExecuteFunction = (
  * a composed ExecutePayload object supporting additional metadata.
  */
 export type FetchFunction = (
-  request: RequestNode,
+  request: ConcreteRequest,
   variables: Variables,
   cacheConfig: CacheConfig,
   uploadables: ?UploadableMap,
-) => ObservableFromValue<ExecutePayload> | ObservableFromValue<GraphQLResponse>;
+) => ObservableFromValue<GraphQLResponse>;
 
 /**
  * A function that executes a GraphQL subscription operation, returning one or
@@ -97,16 +87,13 @@ export type FetchFunction = (
  * fourth parameter.
  */
 export type SubscribeFunction = (
-  request: RequestNode,
+  request: ConcreteRequest,
   variables: Variables,
   cacheConfig: CacheConfig,
   observer?: LegacyObserver<GraphQLResponse>,
-) =>
-  | RelayObservable<ExecutePayload>
-  | RelayObservable<GraphQLResponse>
-  | Disposable;
+) => RelayObservable<GraphQLResponse> | Disposable;
 
-// $FlowFixMe this is compatible with classic api see D4658012
+// $FlowFixMe(site=react_native_fb) this is compatible with classic api see D4658012
 export type Uploadable = File | Blob;
 // $FlowFixMe this is compatible with classic api see D4658012
 export type UploadableMap = {[key: string]: Uploadable};

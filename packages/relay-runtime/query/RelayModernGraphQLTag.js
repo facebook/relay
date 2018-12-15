@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2013-present, Facebook, Inc.
+ * Copyright (c) Facebook, Inc. and its affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -14,7 +14,8 @@ const RelayConcreteNode = require('../util/RelayConcreteNode');
 
 const invariant = require('invariant');
 
-import type {ConcreteFragment, RequestNode} from '../util/RelayConcreteNode';
+import type {ReaderFragment} from '../util/ReaderNode';
+import type {ConcreteRequest} from '../util/RelayConcreteNode';
 import type {
   ConcreteFragmentDefinition,
   ConcreteOperationDefinition,
@@ -23,9 +24,9 @@ import typeof RelayQL from 'react-relay/classic/query/RelayQL';
 
 // The type of a graphql`...` tagged template expression.
 export type GraphQLTaggedNode =
-  | (() => ConcreteFragment | RequestNode)
+  | (() => ReaderFragment | ConcreteRequest)
   | {
-      modern: () => ConcreteFragment | RequestNode,
+      modern: () => ReaderFragment | ConcreteRequest,
       classic: RelayQL =>
         | ConcreteFragmentDefinition
         | ConcreteOperationDefinition,
@@ -50,28 +51,43 @@ function getNode(taggedNode) {
   if (typeof fn !== 'function') {
     return (taggedNode: any);
   }
-  return fn();
+  const data: any = fn();
+  // Support for languages that work (best) with ES6 modules, such as TypeScript.
+  return data.default ? data.default : data;
 }
 
-function getFragment(taggedNode: GraphQLTaggedNode): ConcreteFragment {
+function isFragment(node: GraphQLTaggedNode) {
+  const fragment = getNode(node);
+  return (
+    typeof fragment === 'object' &&
+    fragment !== null &&
+    fragment.kind === RelayConcreteNode.FRAGMENT
+  );
+}
+
+function isRequest(node: GraphQLTaggedNode) {
+  const request = getNode(node);
+  return (
+    typeof request === 'object' &&
+    request !== null &&
+    request.kind === RelayConcreteNode.REQUEST
+  );
+}
+
+function getFragment(taggedNode: GraphQLTaggedNode): ReaderFragment {
   const fragment = getNode(taggedNode);
   invariant(
-    typeof fragment === 'object' &&
-      fragment !== null &&
-      fragment.kind === RelayConcreteNode.FRAGMENT,
+    isFragment(fragment),
     'RelayModernGraphQLTag: Expected a fragment, got `%s`.',
     JSON.stringify(fragment),
   );
   return (fragment: any);
 }
 
-function getRequest(taggedNode: GraphQLTaggedNode): RequestNode {
+function getRequest(taggedNode: GraphQLTaggedNode): ConcreteRequest {
   const request = getNode(taggedNode);
   invariant(
-    typeof request === 'object' &&
-      request !== null &&
-      (request.kind === RelayConcreteNode.REQUEST ||
-        request.kind === RelayConcreteNode.BATCH_REQUEST),
+    isRequest(request),
     'RelayModernGraphQLTag: Expected a request, got `%s`.',
     JSON.stringify(request),
   );
@@ -82,4 +98,6 @@ module.exports = {
   getFragment,
   getRequest,
   graphql,
+  isFragment,
+  isRequest,
 };

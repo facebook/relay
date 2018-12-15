@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2013-present, Facebook, Inc.
+ * Copyright (c) Facebook, Inc. and its affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -18,7 +18,6 @@ const getValidRelayQLTag = require('./getValidRelayQLTag');
 const invariant = require('./invariant');
 
 import type {Validator} from './RelayQLTransformer';
-import typeof BabelTypes from 'babel-types';
 
 export type RelayPluginOptions = {
   // The command to run to compile Relay files, used for error messages.
@@ -39,6 +38,8 @@ export type RelayPluginOptions = {
   snakeCase?: boolean,
   substituteVariables?: boolean,
   validator?: Validator<any>,
+  // Directory as specified by outputDir when running relay-compiler
+  artifactDirectory?: string,
 };
 
 export type BabelState = {
@@ -64,7 +65,7 @@ export type BabelState = {
  *     }
  *
  */
-module.exports = function BabelPluginRelay(context: {types: BabelTypes}): any {
+module.exports = function BabelPluginRelay(context: {types: $FlowFixMe}): any {
   const {types: t} = context;
   if (!t) {
     throw new Error(

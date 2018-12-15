@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2013-present, Facebook, Inc.
+ * Copyright (c) Facebook, Inc. and its affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -145,6 +145,42 @@ describe('Configs: NODE_DELETE', () => {
     jest.runAllTimers();
     expect(updater).toBeCalled();
     expect(callback.mock.calls.length).toBe(0);
+  });
+  it('throws error with classic environment', () => {
+    const RelayEnvironment = jest.requireActual(
+      'react-relay/classic/store/__mocks__/RelayEnvironment',
+    );
+    const environment = new RelayEnvironment();
+    const mutation = generateAndCompile(`
+      mutation CommentDeleteMutation(
+        $input: CommentDeleteInput
+      ) {
+        __typename
+      }
+    `).CommentDeleteMutation;
+
+    const firstCommentID = 'comment456';
+
+    const variables = {
+      input: {
+        clientMutationId: '0',
+        deletedCommentId: firstCommentID,
+      },
+    };
+
+    expect(() =>
+      commitRelayModernMutation(environment, {
+        mutation,
+        variables,
+      }),
+    ).toThrowError(
+      'commitRelayModernMutation: expected `environment` to be an instance of ' +
+        '`RelayModernEnvironment`.\n' +
+        'When using Relay Modern and Relay Classic in the same ' +
+        'application, ensure mutations use Relay Compat to work in ' +
+        'both environments.\n' +
+        'See: http://facebook.github.io/relay/docs/relay-compat.html',
+    );
   });
 });
 
@@ -846,5 +882,47 @@ describe('Configs: RANGE_ADD', () => {
     // Does not need to fire again since server data should be the same
     expect(updater).toBeCalled();
     expect(callback.mock.calls.length).toBe(0);
+  });
+});
+
+describe('Aliased mutation roots', () => {
+  beforeEach(() => jest.mock('warning'));
+  it('does not present a warning when mutation uses an aliased in combination with a optimistcResponse', () => {
+    const environment = createMockEnvironment();
+    const mutation = generateAndCompile(`
+      mutation CommentDeleteMutation(
+        $input: CommentDeleteInput
+      ) {
+        alias: commentDelete(input: $input) {
+          deletedCommentId
+          feedback {
+            id
+            topLevelComments {
+              count
+            }
+          }
+        }
+      }
+    `).CommentDeleteMutation;
+    commitMutation(environment, {
+      mutation,
+      variables: {},
+      optimisticResponse: {
+        alias: {
+          deletedCommentId: 'oo ahh zippy do wah',
+          feedback: {
+            id: 'the feedback id',
+            topLevelComments: {
+              count: '>9000',
+            },
+          },
+        },
+      },
+    });
+    expect(require('warning')).not.toHaveBeenCalledWith(
+      undefined,
+      expect.anything(),
+      expect.anything(),
+    );
   });
 });

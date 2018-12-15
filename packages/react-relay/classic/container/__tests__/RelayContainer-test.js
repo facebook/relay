@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2013-present, Facebook, Inc.
+ * Copyright (c) Facebook, Inc. and its affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -28,7 +28,6 @@ const RelayMutation = require('../../mutation/RelayMutation');
 const RelayQuery = require('../../query/RelayQuery');
 const RelayRoute = require('../../route/RelayRoute');
 const RelayTestUtils = require('RelayTestUtils');
-const ShallowRenderer = require('react-test-renderer/shallow');
 
 const warning = require('warning');
 
@@ -43,14 +42,11 @@ describe('RelayContainer', function() {
   let mockFooPointer;
   let mockRoute;
   let render;
-  let shallowRenderer;
 
   const {getNode, getPointer} = RelayTestUtils;
 
   beforeEach(function() {
     jest.resetModules();
-
-    shallowRenderer = new ShallowRenderer();
 
     render = jest.fn(function() {
       // Make it easier to expect prop values.
@@ -328,22 +324,15 @@ describe('RelayContainer', function() {
     });
   });
 
-  it('throws if rendered without a relay context', () => {
-    expect(() =>
-      shallowRenderer.render(<MockContainer foo={mockFooPointer} />),
-    ).toFailInvariant(
-      'RelayContainer: `Relay(MockComponent)` was rendered with invalid ' +
-        'Relay context `undefined`. Make sure the `relay` property on the ' +
-        'React context conforms to the `RelayEnvironment` interface.',
-    );
-  });
-
   it('throws if rendered with an invalid relay context', () => {
     const fakeContext = {};
     expect(() =>
-      shallowRenderer.render(<MockContainer foo={mockFooPointer} />, {
-        relay: fakeContext,
-      }),
+      RelayTestRenderer.render(
+        () => <MockContainer foo={mockFooPointer} />,
+        null,
+        null,
+        fakeContext,
+      ),
     ).toFailInvariant(
       'RelayContainer: `Relay(MockComponent)` was rendered with invalid ' +
         'Relay context `[object Object]`. Make sure the `relay` property on ' +
@@ -357,7 +346,12 @@ describe('RelayContainer', function() {
       variables: {},
     };
     expect(() =>
-      shallowRenderer.render(<MockContainer foo={mockFooPointer} />, {relay}),
+      RelayTestRenderer.render(
+        () => <MockContainer foo={mockFooPointer} />,
+        null,
+        null,
+        relay,
+      ),
     ).toFailInvariant(
       'RelayContainer: `Relay(MockComponent)` was rendered without a valid ' +
         'route. Make sure the route is valid, and make sure that it is ' +
@@ -880,7 +874,7 @@ describe('RelayContainer', function() {
 
   it('warns if a fragment prop is not an object', () => {
     RelayTestRenderer.render(
-      () => <MockContainer foo={''} />,
+      () => <MockContainer foo="" />,
       environment,
       mockRoute,
     );
@@ -1066,7 +1060,9 @@ describe('RelayContainer', function() {
     expect(propNamesA.sort()).toEqual(propNamesB.sort());
 
     propNamesA.forEach(propName => {
-      expect(propsA[propName]).toBe(propsB[propName]);
+      if (propName !== '__relayContext') {
+        expect(propsA[propName]).toBe(propsB[propName]);
+      }
     });
   });
 

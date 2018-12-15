@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2013-present, Facebook, Inc.
+ * Copyright (c) Facebook, Inc. and its affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -66,18 +66,7 @@ function transformNode<T: Node>(
           nextSelection = transformNode(context, fragments, selection);
         }
         break;
-      case 'DeferrableFragmentSpread':
-        // Skip deferred fragment spreads if the referenced fragment is empty
-        if (!fragments.has(selection.name)) {
-          const fragment = context.getFragment(selection.name);
-          const nextFragment = transformNode(context, fragments, fragment);
-          fragments.set(selection.name, nextFragment);
-        }
-        if (fragments.get(selection.name)) {
-          nextSelection = selection;
-        }
-        break;
-      case 'FragmentSpread':
+      case 'FragmentSpread': {
         // Skip fragment spreads if the referenced fragment is empty
         if (!fragments.has(selection.name)) {
           const fragment = context.getFragment(selection.name);
@@ -88,6 +77,10 @@ function transformNode<T: Node>(
           nextSelection = selection;
         }
         break;
+      }
+      case 'MatchBranch':
+        nextSelection = transformNode(context, fragments, selection);
+        break;
       case 'LinkedField':
         nextSelection = transformNode(context, fragments, selection);
         break;
@@ -97,6 +90,9 @@ function transformNode<T: Node>(
         break;
       case 'ScalarField':
         nextSelection = selection;
+        break;
+      case 'MatchField':
+        nextSelection = transformNode(context, fragments, selection);
         break;
       default:
         (selection.kind: empty);

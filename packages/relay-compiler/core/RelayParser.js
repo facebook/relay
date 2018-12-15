@@ -1,10 +1,10 @@
 /**
- * Copyright (c) 2013-present, Facebook, Inc.
+ * Copyright (c) Facebook, Inc. and its affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @flow
+ * @flow strict-local
  * @format
  */
 
@@ -13,7 +13,11 @@
 const invariant = require('invariant');
 
 const {assertAbstractType, isAbstractType} = require('graphql');
-const {Parser, SchemaUtils} = require('graphql-compiler');
+const {
+  Parser,
+  SchemaUtils,
+  defaultGetFieldDefinition,
+} = require('graphql-compiler');
 
 import type {
   FieldNode,
@@ -28,52 +32,41 @@ import type {
 const {getRawType} = SchemaUtils;
 
 class RelayParser extends Parser {
-  _definition: OperationDefinitionNode | FragmentDefinitionNode;
-  _schema: GraphQLSchema;
-
   constructor(
     schema: GraphQLSchema,
-    definition: OperationDefinitionNode | FragmentDefinitionNode,
+    definitions: $ReadOnlyArray<
+      OperationDefinitionNode | FragmentDefinitionNode,
+    >,
   ) {
-    super(schema, definition);
-    this._definition = definition;
-    this._schema = schema;
-  }
-
-  /**
-   * Find the definition of a field of the specified type.
-   */
-  getFieldDefinition(
-    parentType: GraphQLOutputType,
-    fieldName: string,
-    fieldAST: FieldNode,
-  ): ?GraphQLField<*, *> {
-    let schemaFieldDef = super.getFieldDefinition(
-      parentType,
-      fieldName,
-      fieldAST,
-    );
-    if (!schemaFieldDef) {
-      const type = getRawType(parentType);
-      schemaFieldDef = getClassicFieldDefinition(
-        this._schema,
-        type,
-        fieldName,
-        fieldAST,
-      );
-    }
-    return schemaFieldDef || null;
+    super(schema, definitions, getFieldDefinition);
   }
 }
 
-function getName(ast): string {
-  const name = ast.name ? ast.name.value : null;
-  invariant(
-    typeof name === 'string',
-    'RelayParser: Expected ast node `%s` to have a name.',
-    ast,
+/**
+ * Find the definition of a field of the specified type.
+ */
+function getFieldDefinition(
+  schema: GraphQLSchema,
+  parentType: GraphQLOutputType,
+  fieldName: string,
+  fieldAST: FieldNode,
+): ?GraphQLField<mixed, mixed> {
+  let schemaFieldDef = defaultGetFieldDefinition(
+    schema,
+    parentType,
+    fieldName,
+    fieldAST,
   );
-  return name;
+  if (!schemaFieldDef) {
+    const type = getRawType(parentType);
+    schemaFieldDef = getClassicFieldDefinition(
+      schema,
+      type,
+      fieldName,
+      fieldAST,
+    );
+  }
+  return schemaFieldDef || null;
 }
 
 function getClassicFieldDefinition(
@@ -81,7 +74,7 @@ function getClassicFieldDefinition(
   type: GraphQLType,
   fieldName: string,
   fieldAST: FieldNode,
-): ?GraphQLField<*, *> {
+): ?GraphQLField<mixed, mixed> {
   if (
     isAbstractType(type) &&
     fieldAST &&
@@ -113,6 +106,16 @@ function getClassicFieldDefinition(
     }
     return schemaFieldDef;
   }
+}
+
+function getName(ast): string {
+  const name = ast.name ? ast.name.value : null;
+  invariant(
+    typeof name === 'string',
+    'RelayParser: Expected ast node `%s` to have a name.',
+    ast,
+  );
+  return name;
 }
 
 module.exports = RelayParser;

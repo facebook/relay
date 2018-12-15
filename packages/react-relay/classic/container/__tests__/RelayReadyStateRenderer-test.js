@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2013-present, Facebook, Inc.
+ * Copyright (c) Facebook, Inc. and its affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -21,6 +21,8 @@ const RelayReadyStateRenderer = require('../RelayReadyStateRenderer');
 const RelayStaticContainer = require('../RelayStaticContainer');
 const prettyFormat = require('pretty-format');
 const ReactTestRenderer = require('react-test-renderer');
+const ReactRelayContext = require('../../../modern/ReactRelayContext');
+const readContext = require('../../../modern/readContext');
 
 describe('RelayReadyStateRenderer', () => {
   /**
@@ -35,8 +37,8 @@ describe('RelayReadyStateRenderer', () => {
    */
   const anyRecord = requirements => {
     const expected = {
-      __dataID__: jasmine.any(String),
-      __fragments__: jasmine.any(Object),
+      __dataID__: expect.any(String),
+      __fragments__: expect.any(Object),
     };
     if (requirements.hasOwnProperty('dataID')) {
       expected.__dataID__ = requirements.dataID;
@@ -44,7 +46,7 @@ describe('RelayReadyStateRenderer', () => {
     if (requirements.hasOwnProperty('fragment')) {
       const concreteFragmentID = requirements.fragment.getFragment({}).id;
       expected.__fragments__ = jasmine.objectContaining({
-        [concreteFragmentID]: [jasmine.any(Object)],
+        [concreteFragmentID]: [expect.any(Object)],
       });
     }
     return jasmine.objectContaining(expected);
@@ -535,15 +537,10 @@ describe('RelayReadyStateRenderer', () => {
 
   describe('context', () => {
     it('sets environment and query config on the React context', () => {
-      class TestComponent extends React.Component {
-        static contextTypes = {
-          relay: Relay.PropTypes.Relay,
-          route: Relay.PropTypes.QueryConfig.isRequired,
-        };
-        render() {
-          this.props.onRenderContext(this.context);
-          return null;
-        }
+      function TestComponent({onRenderContext}) {
+        const context = readContext(ReactRelayContext);
+        onRenderContext(context);
+        return null;
       }
 
       const onRenderContext = jest.fn();
@@ -555,10 +552,8 @@ describe('RelayReadyStateRenderer', () => {
         />,
       );
       expect(onRenderContext).toBeCalledWith({
-        relay: {
-          environment: defaultProps.environment,
-          variables: {},
-        },
+        environment: defaultProps.environment,
+        variables: {},
         route: defaultProps.queryConfig,
       });
     });

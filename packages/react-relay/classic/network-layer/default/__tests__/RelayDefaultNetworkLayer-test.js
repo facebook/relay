@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2013-present, Facebook, Inc.
+ * Copyright (c) Facebook, Inc. and its affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -104,7 +104,10 @@ describe('RelayDefaultNetworkLayer', () => {
         {inputType: 'FeedbackLikeInput'},
       );
       request = new RelayMutationRequest(mutation);
-      request.then(responseCallback).catch(rejectCallback);
+      request
+        .getPromise()
+        .then(responseCallback)
+        .catch(rejectCallback);
     });
 
     it('sends correct data to server', () => {
@@ -345,8 +348,22 @@ describe('RelayDefaultNetworkLayer', () => {
       const resolveACallback = jest.fn();
       const resolveBCallback = jest.fn();
       networkLayer.sendQueries([requestA, requestB]);
-      requestA.done(resolveACallback);
-      requestB.done(resolveBCallback);
+      requestA
+        .getPromise()
+        .then(resolveACallback)
+        .catch(error => {
+          setTimeout(() => {
+            throw error;
+          }, 0);
+        });
+      requestB
+        .getPromise()
+        .then(resolveBCallback)
+        .catch(error => {
+          setTimeout(() => {
+            throw error;
+          }, 0);
+        });
       jest.runAllTimers();
 
       const payloadA = {
@@ -372,7 +389,7 @@ describe('RelayDefaultNetworkLayer', () => {
     it('rejects invalid JSON response payloads', () => {
       const rejectCallback = jest.fn();
       networkLayer.sendQueries([requestA]);
-      requestA.catch(rejectCallback);
+      requestA.getPromise().catch(rejectCallback);
       jest.runAllTimers();
 
       fetchWithRetries.mock.deferreds[0].resolve({
@@ -391,7 +408,7 @@ describe('RelayDefaultNetworkLayer', () => {
     it('rejects errors in query responses', () => {
       const rejectCallback = jest.fn();
       networkLayer.sendQueries([requestA]);
-      requestA.catch(rejectCallback);
+      requestA.getPromise().catch(rejectCallback);
       jest.runAllTimers();
 
       const payloadA = {
@@ -431,8 +448,15 @@ describe('RelayDefaultNetworkLayer', () => {
       const rejectACallback = jest.fn();
       const resolveBCallback = jest.fn();
       networkLayer.sendQueries([requestA, requestB]);
-      requestA.catch(rejectACallback);
-      requestB.done(resolveBCallback);
+      requestA.getPromise().catch(rejectACallback);
+      requestB
+        .getPromise()
+        .then(resolveBCallback)
+        .catch(error => {
+          setTimeout(() => {
+            throw error;
+          }, 0);
+        });
       jest.runAllTimers();
 
       const payload = {

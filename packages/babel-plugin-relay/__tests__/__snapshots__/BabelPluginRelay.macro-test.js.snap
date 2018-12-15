@@ -1,0 +1,37 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`BabelPluginRelayMacro works: works 1`] = `
+"
+'use strict';
+
+const {graphql} = require('../BabelPluginRelay.macro');
+const ProfilePic = require('ProfilePic');
+
+const ViewerQuery = graphql\`
+  query ViewerQuery($id: ID!, $scale: Float = 1.5) {
+    node(id: $id) {
+      ... on User {
+        id
+        ...ProfilePic_user
+      }
+    }
+  }
+\`;
+
+      ↓ ↓ ↓ ↓ ↓ ↓
+
+'use strict';
+
+const ProfilePic = require('ProfilePic');
+
+const ViewerQuery = function () {
+  const node = require(\\"./__generated__/ViewerQuery.graphql\\");
+
+  if (node.hash && node.hash !== \\"b046a97b7823510c05083ebb114377f4\\") {
+    console.error(\\"The definition of 'ViewerQuery' appears to have changed. Run \`relay-compiler\` to update the generated files to receive the expected data.\\");
+  }
+
+  return require(\\"./__generated__/ViewerQuery.graphql\\");
+};
+"
+`;

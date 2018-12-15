@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2013-present, Facebook, Inc.
+ * Copyright (c) Facebook, Inc. and its affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -31,9 +31,7 @@ describe('RelayMutation', function() {
 
   function applyUpdate(mutation) {
     /* eslint-disable no-shadow */
-    const RelayEnvironment = require.requireActual(
-      '../../store/RelayEnvironment',
-    );
+    const RelayEnvironment = jest.requireActual('../../store/RelayEnvironment');
     const environment = new RelayEnvironment();
     environment.applyUpdate(mutation);
     /* eslint-enable no-shadow */

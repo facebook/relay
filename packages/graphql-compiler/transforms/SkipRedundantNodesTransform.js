@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2013-present, Facebook, Inc.
+ * Copyright (c) Facebook, Inc. and its affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -153,7 +153,6 @@ function transformNode<T: Node>(
     const identifier = getIdentifierForSelection(selection);
     switch (selection.kind) {
       case 'ScalarField':
-      case 'DeferrableFragmentSpread':
       case 'FragmentSpread': {
         if (!selectionMap.has(identifier)) {
           selections.push(selection);
@@ -161,6 +160,8 @@ function transformNode<T: Node>(
         }
         break;
       }
+      case 'MatchBranch':
+      case 'MatchField':
       case 'LinkedField': {
         const transformed = transformNode(
           selection,
@@ -187,6 +188,7 @@ function transformNode<T: Node>(
         break;
       }
       default:
+        (selection: empty);
         invariant(
           false,
           'SkipRedundantNodesTransform: Unexpected node kind `%s`.',
@@ -201,7 +203,9 @@ function transformNode<T: Node>(
 /**
  * Sort inline fragments and conditions after other selections.
  */
-function sortSelections(selections: Array<Selection>): Array<Selection> {
+function sortSelections(
+  selections: $ReadOnlyArray<Selection>,
+): $ReadOnlyArray<Selection> {
   return [...selections].sort((a, b) => {
     return a.kind === 'InlineFragment' || a.kind === 'Condition'
       ? 1

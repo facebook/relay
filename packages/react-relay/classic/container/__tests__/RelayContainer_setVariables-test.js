@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2013-present, Facebook, Inc.
+ * Copyright (c) Facebook, Inc. and its affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -612,7 +612,7 @@ describe('RelayContainer.setVariables', function() {
         prepared: false,
       });
       expect(calls[1]).toBe(
-        RelayMetaRoute.get(mockInstance.context.route.name),
+        RelayMetaRoute.get(mockInstance.props.__relayContext.route.name),
       );
 
       // `prepareVariables` output is used to prime the cache...

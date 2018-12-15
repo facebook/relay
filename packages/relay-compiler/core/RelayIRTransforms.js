@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2013-present, Facebook, Inc.
+ * Copyright (c) Facebook, Inc. and its affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -12,13 +12,14 @@
 
 const RelayApplyFragmentArgumentTransform = require('../transforms/RelayApplyFragmentArgumentTransform');
 const RelayConnectionTransform = require('../handlers/connection//RelayConnectionTransform');
-const RelayDeferrableFragmentTransform = require('../transforms/RelayDeferrableFragmentTransform');
 const RelayFieldHandleTransform = require('../transforms/RelayFieldHandleTransform');
 const RelayGenerateIDFieldTransform = require('../transforms/RelayGenerateIDFieldTransform');
 const RelayGenerateTypeNameTransform = require('../transforms/RelayGenerateTypeNameTransform');
 const RelayMaskTransform = require('../transforms/RelayMaskTransform');
+const RelayMatchTransform = require('../transforms/RelayMatchTransform');
 const RelayRelayDirectiveTransform = require('../transforms/RelayRelayDirectiveTransform');
 const RelaySkipHandleFieldTransform = require('../transforms/RelaySkipHandleFieldTransform');
+const RelaySplitMatchTransform = require('../transforms/RelaySplitMatchTransform');
 const RelayViewerHandleTransform = require('../handlers/viewer/RelayViewerHandleTransform');
 
 const {
@@ -36,6 +37,7 @@ import type {IRTransform} from 'graphql-compiler';
 // Transforms applied to the code used to process a query response.
 const relaySchemaExtensions: Array<string> = [
   RelayConnectionTransform.SCHEMA_EXTENSION,
+  RelayMatchTransform.SCHEMA_EXTENSION,
   RelayRelayDirectiveTransform.SCHEMA_EXTENSION,
 ];
 
@@ -46,7 +48,7 @@ const relayCommonTransforms: Array<IRTransform> = [
   RelayViewerHandleTransform.transform,
   RelayRelayDirectiveTransform.transform,
   RelayMaskTransform.transform,
-  RelayDeferrableFragmentTransform.transform,
+  RelayMatchTransform.transform,
 ];
 
 // Transforms applied to fragments used for reading data from a store
@@ -67,6 +69,7 @@ const relayQueryTransforms: Array<IRTransform> = [
 
 // Transforms applied to the code used to process a query response.
 const relayCodegenTransforms: Array<IRTransform> = [
+  RelaySplitMatchTransform.transform,
   InlineFragmentsTransform.transform,
   FlattenTransform.transformWithOptions({flattenAbstractTypes: true}),
   SkipRedundantNodesTransform.transform,

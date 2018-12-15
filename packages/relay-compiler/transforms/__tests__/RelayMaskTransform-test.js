@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2013-present, Facebook, Inc.
+ * Copyright (c) Facebook, Inc. and its affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -40,6 +40,27 @@ describe('RelayMaskTransform', () => {
         .documents()
         .map(doc => GraphQLIRPrinter.print(doc))
         .join('\n');
+    },
+  );
+
+  generateTestsFromFixtures(
+    `${__dirname}/fixtures/relay-mask-transform-variables`,
+    text => {
+      const {definitions} = parseGraphQLText(schema, text);
+      return new GraphQLCompilerContext(RelayTestSchema, schema)
+        .addAll(definitions)
+        .applyTransforms([
+          // Requires Relay directive transform first.
+          RelayRelayDirectiveTransform.transform,
+          RelayMaskTransform.transform,
+        ])
+        .documents()
+        .map(doc => {
+          const printed = GraphQLIRPrinter.print(doc);
+          const json = JSON.stringify(doc.argumentDefinitions, null, 2);
+          return printed + json;
+        })
+        .join('\n\n');
     },
   );
 });

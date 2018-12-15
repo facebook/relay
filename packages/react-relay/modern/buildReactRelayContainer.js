@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2013-present, Facebook, Inc.
+ * Copyright (c) Facebook, Inc. and its affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -11,10 +11,12 @@
 'use strict';
 
 const React = require('React');
-const RelayPropTypes = require('../classic/container/RelayPropTypes');
+const ReactRelayContext = require('../modern/ReactRelayContext');
 
 const assertFragmentMap = require('./assertFragmentMap');
+const invariant = require('invariant');
 const mapObject = require('mapObject');
+const readContext = require('./readContext');
 
 const {
   getComponentName,
@@ -23,10 +25,6 @@ const {
 
 import type {GeneratedNodeMap} from './ReactRelayTypes';
 import type {GraphQLTaggedNode, FragmentMap} from 'relay-runtime';
-
-const containerContextTypes = {
-  relay: RelayPropTypes.Relay,
-};
 
 type ContainerCreator = (
   Component: React$ComponentType<any>,
@@ -43,7 +41,6 @@ function buildReactRelayContainer<TBase: React$ComponentType<*>>(
   ComponentClass: TBase,
   fragmentSpec: GraphQLTaggedNode | GeneratedNodeMap,
   createContainerWithFragments: ContainerCreator,
-  providesChildContext: boolean,
 ): TBase {
   // Sanity-check user-defined fragment input
   const containerName = getContainerName(ComponentClass);
@@ -52,9 +49,9 @@ function buildReactRelayContainer<TBase: React$ComponentType<*>>(
   // Memoize a container for the last environment instance encountered
   let environment;
   let Container;
-  function ContainerConstructor(props, context) {
-    if (Container == null || context.relay.environment !== environment) {
-      environment = context.relay.environment;
+  function ContainerConstructor(props) {
+    if (Container == null || props.__relayContext.environment !== environment) {
+      environment = props.__relayContext.environment;
       if (__DEV__) {
         const {isRelayModernEnvironment} = require('relay-runtime');
         if (!isRelayModernEnvironment(environment)) {
@@ -76,28 +73,36 @@ function buildReactRelayContainer<TBase: React$ComponentType<*>>(
       ContainerConstructor.getDerivedStateFromProps = (Container: any).getDerivedStateFromProps;
     }
     // $FlowFixMe
-    return new Container(props, context);
-  }
-  ContainerConstructor.contextTypes = containerContextTypes;
-  if (providesChildContext) {
-    ContainerConstructor.childContextTypes = containerContextTypes;
+    return new Container(props);
   }
 
   function forwardRef(props, ref) {
+    const context = readContext(ReactRelayContext);
+    invariant(
+      context,
+      `${containerName} tried to render a context that was ` +
+        `not valid this means that ${containerName} was rendered outside of a ` +
+        'query renderer.',
+    );
+
     return (
       <ContainerConstructor
         {...props}
+        __relayContext={context}
         componentRef={props.componentRef || ref}
       />
     );
   }
   forwardRef.displayName = containerName;
-  // $FlowFixMe
   const ForwardContainer = React.forwardRef(forwardRef);
 
   if (__DEV__) {
+    /* $FlowFixMe(>=0.89.0 site=www,mobile,react_native_fb,oss) Suppressing
+     * errors found while preparing to upgrade to 0.89.0 */
     ForwardContainer.__ComponentClass = ComponentClass;
     // Classic container static methods.
+    /* $FlowFixMe(>=0.89.0 site=www,mobile,react_native_fb,oss) Suppressing
+     * errors found while preparing to upgrade to 0.89.0 */
     ForwardContainer.getFragment = function getFragmentOnModernContainer() {
       throw new Error(
         `RelayModernContainer: ${containerName}.getFragment() was called on ` +
@@ -111,6 +116,8 @@ function buildReactRelayContainer<TBase: React$ComponentType<*>>(
     };
   }
 
+  /* $FlowFixMe(>=0.89.0 site=www,mobile,react_native_fb,oss) Suppressing errors
+   * found while preparing to upgrade to 0.89.0 */
   return ForwardContainer;
 }
 

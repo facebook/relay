@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2013-present, Facebook, Inc.
+ * Copyright (c) Facebook, Inc. and its affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -26,13 +26,20 @@ function getIdentifierForSelection(node: Selection): string {
     return node.directives.length === 0
       ? node.alias || node.name
       : (node.alias || node.name) + printDirectives(node.directives);
-  } else if (
-    node.kind === 'FragmentSpread' ||
-    node.kind === 'DeferrableFragmentSpread'
-  ) {
+  } else if (node.kind === 'FragmentSpread') {
     return node.args.length === 0
       ? '...' + node.name
       : '...' + node.name + printArguments(node.args);
+  } else if (node.kind === 'MatchField') {
+    const storageKey = node.metadata?.storageKey;
+    invariant(
+      typeof storageKey === 'string',
+      'getIdentifierForSelection: Expected MatchField `%s` to have a precomputed storageKey.',
+      node.name,
+    );
+    return 'M:' + storageKey;
+  } else if (node.kind === 'MatchBranch') {
+    return 'B:' + node.name + '$' + node.module;
   } else if (node.kind === 'InlineFragment') {
     return 'I:' + node.typeCondition.name;
   } else if (node.kind === 'Condition') {

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2013-present, Facebook, Inc.
+ * Copyright (c) Facebook, Inc. and its affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -10,11 +10,11 @@
 
 'use strict';
 
-const {DEFAULT_HANDLE_KEY} = require('RelayRuntime');
 const {GraphQLObjectType} = require('graphql');
 const {IRTransformer, SchemaUtils} = require('graphql-compiler');
+const {DEFAULT_HANDLE_KEY} = require('relay-runtime');
 
-import type {CompilerContext, LinkedField} from 'graphql-compiler';
+import type {CompilerContext, LinkedField, MatchField} from 'graphql-compiler';
 
 const {getRawType} = SchemaUtils;
 
@@ -35,11 +35,12 @@ function relayViewerHandleTransform(context: CompilerContext): CompilerContext {
     return context;
   }
   return IRTransformer.transform(context, {
-    LinkedField: visitLinkedField,
+    LinkedField: visitLinkedOrMatchField,
+    MatchField: visitLinkedOrMatchField,
   });
 }
 
-function visitLinkedField(field: LinkedField): ?LinkedField {
+function visitLinkedOrMatchField<T: LinkedField | MatchField>(field: T): ?T {
   const transformedNode = this.traverse(field);
   if (getRawType(field.type).name !== VIEWER_TYPE) {
     return transformedNode;

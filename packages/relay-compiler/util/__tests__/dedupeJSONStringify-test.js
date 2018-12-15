@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2013-present, Facebook, Inc.
+ * Copyright (c) Facebook, Inc. and its affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -74,8 +74,8 @@ test('empty arrays', () => {
     return {
       "args": [],
       "values": [],
-      "dupe1": v0,
-      "dupe2": v0
+      "dupe1": (v0/*: any*/),
+      "dupe2": (v0/*: any*/)
     };
     })()`,
   );
@@ -90,10 +90,10 @@ test('extract duplicates', () => {
     };
     return [
       1,
-      v0,
+      (v0/*: any*/),
       {
         "friend": [
-          v0
+          (v0/*: any*/)
         ]
       }
     ];
@@ -110,8 +110,8 @@ test('extract identical references', () => {
       "name": "id"
     };
     return [
-      v0,
-      v0
+      (v0/*: any*/),
+      (v0/*: any*/)
     ];
     })()`,
   );
@@ -139,15 +139,15 @@ test('extract recursive duplicates', () => {
       {
         "name": "id"
       },
-      v1
+      (v1/*: any*/)
     ];
     return [
-      v0,
-      v0,
-      v2,
-      v2,
+      (v0/*: any*/),
+      (v0/*: any*/),
+      (v2/*: any*/),
+      (v2/*: any*/),
       [
-        v1
+        (v1/*: any*/)
       ]
     ];
     })()`,

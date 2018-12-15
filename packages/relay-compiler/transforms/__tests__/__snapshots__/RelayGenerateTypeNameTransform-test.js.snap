@@ -50,7 +50,6 @@ fragment CommentFragment_comment on Comment {
   "operation": "query",
   "metadata": null,
   "name": "EasyTypeNameNotExistsQuery",
-  "dependentRequests": [],
   "argumentDefinitions": [],
   "directives": [],
   "selections": [
@@ -187,7 +186,6 @@ fragment CommentFragment_comment on Comment {
   "operation": "query",
   "metadata": null,
   "name": "TypeNameNotExistsWithFlattenTransformQuery",
-  "dependentRequests": [],
   "argumentDefinitions": [],
   "directives": [],
   "selections": [
@@ -356,7 +354,6 @@ fragment CommentFragment_comment on Comment {
   "operation": "query",
   "metadata": null,
   "name": "EasyTypeNameExistsQuery",
-  "dependentRequests": [],
   "argumentDefinitions": [],
   "directives": [],
   "selections": [
@@ -491,7 +488,6 @@ fragment CommentFragment_comment on Comment {
   "operation": "query",
   "metadata": null,
   "name": "TypeNameExistsWithFlattenTransformQuery",
-  "dependentRequests": [],
   "argumentDefinitions": [],
   "directives": [],
   "selections": [

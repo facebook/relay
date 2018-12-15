@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2013-present, Facebook, Inc.
+ * Copyright (c) Facebook, Inc. and its affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -17,10 +17,10 @@ const {LINKED_FIELD} = require('../util/RelayConcreteNode');
 const {getHandleStorageKey} = require('./RelayStoreUtils');
 
 import type {
-  ConcreteLinkedField,
-  ConcreteLinkedHandle,
-  ConcreteSelection,
-} from '../util/RelayConcreteNode';
+  NormalizationLinkedField,
+  NormalizationSelection,
+} from '../util/NormalizationNode';
+import type {NormalizationLinkedHandle} from '../util/NormalizationNode';
 import type {Variables} from '../util/RelayRuntimeTypes';
 
 /**
@@ -31,10 +31,10 @@ import type {Variables} from '../util/RelayRuntimeTypes';
  * copying its selections into the clone.
  */
 function cloneRelayHandleSourceField(
-  handleField: ConcreteLinkedHandle,
-  selections: Array<ConcreteSelection>,
+  handleField: NormalizationLinkedHandle,
+  selections: $ReadOnlyArray<NormalizationSelection>,
   variables: Variables,
-): ConcreteLinkedField {
+): NormalizationLinkedField {
   const sourceField = selections.find(
     source =>
       source.kind === LINKED_FIELD &&

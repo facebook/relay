@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2013-present, Facebook, Inc.
+ * Copyright (c) Facebook, Inc. and its affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -131,7 +131,7 @@ class Index extends React.Component {
           </Container>
 
           <div className="productShowcaseSection paddingBottom">
-            <h2>{"Who's Using Relay?"}</h2>
+            <h2>Who's Using Relay?</h2>
             <p>Relay is building websites for these projects</p>
             <div className="logos">{showcase}</div>
             <div className="more-users">

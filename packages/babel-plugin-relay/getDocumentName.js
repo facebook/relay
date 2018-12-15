@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2013-present, Facebook, Inc.
+ * Copyright (c) Facebook, Inc. and its affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -41,7 +41,11 @@ function getDocumentName(path: any, state: BabelState): string {
         }
       }
     }
-    const basename = state.file && getBaseName(state.file.opts.filename);
+    const basename =
+      state.file &&
+      state.file.opts &&
+      state.file.opts.filename &&
+      getBaseName(state.file.opts.filename);
     if (basename && !documentName) {
       const captures = basename.match(/^[_A-Za-z][_0-9A-Za-z]*/);
       if (captures) {

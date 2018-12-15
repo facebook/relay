@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2013-present, Facebook, Inc.
+ * Copyright (c) Facebook, Inc. and its affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -10,81 +10,68 @@
 
 'use strict';
 
+const CodeMarker = require('../util/CodeMarker');
+
 const crypto = require('crypto');
 const dedupeJSONStringify = require('../util/dedupeJSONStringify');
 const deepMergeAssignments = require('./deepMergeAssignments');
 const nullthrows = require('nullthrows');
 
-const {RelayConcreteNode} = require('RelayRuntime');
 const {Profiler} = require('graphql-compiler');
+const {RelayConcreteNode} = require('relay-runtime');
 
-import type {GeneratedNode} from 'RelayRuntime';
+import type {FormatModule} from '../language/RelayLanguagePluginInterface';
 import type {CodegenDirectory} from 'graphql-compiler';
+import type {GeneratedNode} from 'relay-runtime';
 
-/**
- * Generate a module for the given document name/text.
- */
-export type FormatModule = ({|
-  moduleName: string,
-  documentType:
-    | typeof RelayConcreteNode.FRAGMENT
-    | typeof RelayConcreteNode.REQUEST
-    | typeof RelayConcreteNode.BATCH_REQUEST,
-  docText: ?string,
-  concreteText: string,
-  flowText: string,
-  hash: ?string,
-  devOnlyAssignments: ?string,
-  relayRuntimeModule: string,
-  sourceHash: string,
-|}) => string;
+function printRequireModuleDependency(moduleName: string): string {
+  return `require('${moduleName}')`;
+}
 
 async function writeRelayGeneratedFile(
   codegenDir: CodegenDirectory,
   generatedNode: GeneratedNode,
   formatModule: FormatModule,
-  flowText: string,
+  typeText: string,
   _persistQuery: ?(text: string) => Promise<string>,
   platform: ?string,
-  relayRuntimeModule: string,
   sourceHash: string,
+  extension: string,
+  printModuleDependency: (
+    moduleName: string,
+  ) => string = printRequireModuleDependency,
 ): Promise<?GeneratedNode> {
   // Copy to const so Flow can refine.
   const persistQuery = _persistQuery;
   const moduleName = generatedNode.name + '.graphql';
   const platformName = platform ? moduleName + '.' + platform : moduleName;
-  const filename = platformName + '.js';
-  const flowTypeName =
+  const filename = platformName + '.' + extension;
+  const typeName =
     generatedNode.kind === RelayConcreteNode.FRAGMENT
-      ? 'ConcreteFragment'
+      ? 'ReaderFragment'
       : generatedNode.kind === RelayConcreteNode.REQUEST
         ? 'ConcreteRequest'
-        : generatedNode.kind === RelayConcreteNode.BATCH_REQUEST
-          ? 'ConcreteBatchRequest'
-          : 'empty';
+        : generatedNode.kind === RelayConcreteNode.SPLIT_OPERATION
+          ? 'NormalizationSplitOperation'
+          : null;
   const devOnlyProperties = {};
 
   let docText;
   if (generatedNode.kind === RelayConcreteNode.REQUEST) {
     docText = generatedNode.text;
-  } else if (generatedNode.kind === RelayConcreteNode.BATCH_REQUEST) {
-    docText = generatedNode.requests.map(request => request.text).join('\n\n');
   }
 
   let hash = null;
-  if (
-    generatedNode.kind === RelayConcreteNode.REQUEST ||
-    generatedNode.kind === RelayConcreteNode.BATCH_REQUEST
-  ) {
+  if (generatedNode.kind === RelayConcreteNode.REQUEST) {
     const oldHash = Profiler.run('RelayFileWriter:compareHash', () => {
       const oldContent = codegenDir.read(filename);
       // Hash the concrete node including the query text.
       const hasher = crypto.createHash('md5');
-      hasher.update('cache-breaker-7');
+      hasher.update('cache-breaker-9');
       hasher.update(JSON.stringify(generatedNode));
       hasher.update(sourceHash);
-      if (flowText) {
-        hasher.update(flowText);
+      if (typeText) {
+        hasher.update(typeText);
       }
       if (persistQuery) {
         hasher.update('persisted');
@@ -110,21 +97,6 @@ async function writeRelayGeneratedFile(
             id: await persistQuery(nullthrows(generatedNode.text)),
           };
           break;
-        case RelayConcreteNode.BATCH_REQUEST:
-          devOnlyProperties.requests = generatedNode.requests.map(request => ({
-            text: request.text,
-          }));
-          generatedNode = {
-            ...generatedNode,
-            requests: await Promise.all(
-              generatedNode.requests.map(async request => ({
-                ...request,
-                text: null,
-                id: await persistQuery(nullthrows(request.text)),
-              })),
-            ),
-          };
-          break;
         case RelayConcreteNode.FRAGMENT:
           // Do not persist fragments.
           break;
@@ -138,13 +110,16 @@ async function writeRelayGeneratedFile(
 
   const moduleText = formatModule({
     moduleName,
-    documentType: flowTypeName,
+    documentType: typeName,
+    kind: generatedNode.kind,
     docText,
-    flowText,
+    typeText,
     hash: hash ? `@relayHash ${hash}` : null,
-    concreteText: dedupeJSONStringify(generatedNode),
+    concreteText: CodeMarker.postProcess(
+      dedupeJSONStringify(generatedNode),
+      printModuleDependency,
+    ),
     devOnlyAssignments,
-    relayRuntimeModule,
     sourceHash,
   });
 

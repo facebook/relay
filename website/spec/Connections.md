@@ -251,6 +251,9 @@ The server should use those two arguments to modify the edges returned by
 the connection, returning edges after the `after` cursor, and returning at
 most `first` edges.
 
+You should generally pass the `cursor` of the last edge in the previous page for
+`after`.
+
 ## Backward pagination arguments
 
 To enable backward pagination, two arguments are required.
@@ -261,6 +264,23 @@ To enable backward pagination, two arguments are required.
 The server should use those two arguments to modify the edges returned by
 the connection, returning edges before the `before` cursor, and returning at
 most `last` edges.
+
+You should generally pass the `cursor` of the first edge in the next page for
+`before`.
+
+## Edge order
+
+You may order the edges however your business logic dictates, and may determine
+the ordering based upon additional arguments not covered by this specification.
+But the ordering must be consistent from page to page, and importantly,
+*The ordering of edges should be the same when using `first`/`after` as when using
+`last`/`before`, all other arguments being equal.*  It should not be reversed when
+using `last`/`before`.  More formally:
+
+* When `before: cursor` is used, the edge closest to `cursor` must come **last**
+  in the result `edges`.
+* When `after: cursor` is used, the edge closest to `cursor` must come **first**
+  in the result `edges`.
 
 ## Pagination algorithm
 
@@ -307,7 +327,8 @@ The server must provide a type called `PageInfo`.
 ## Fields
 
 `PageInfo` must contain fields `hasPreviousPage` and `hasNextPage`, both
-of which return non-null booleans.
+of which return non-null booleans.  It must also contain fields `startCursor`
+and `endCursor`, both of which return non-null opaque strings.
 
 `hasPreviousPage` is used to indicate whether more edges exist prior to the set
 defined by the clients arguments. If the client is paginating with 
@@ -343,6 +364,14 @@ NOTE When both `first` and `last` are included, both of the fields should be set
 according to the above algorithms, but their meaning as it relates to pagination
 becomes unclear. This is among the reasons that pagination with both `first` and
 `last` is discouraged.
+
+`startCursor` and `endCursor` must be the cursors corresponding to the first and
+last nodes in `edges`, respectively.
+
+NOTE Relay Legacy did not define `startCursor` and `endCursor`, and relied on
+selecting the `cursor` of each edge; Relay Modern began selecting
+`startCursor` and `endCursor` instead to save bandwidth (since it doesn't use any
+cursors in between).
 
 ## Introspection
 
@@ -393,6 +422,28 @@ returns
             "kind": "NON_NULL",
             "ofType": {
               "name": "Boolean",
+              "kind": "SCALAR"
+            }
+          }
+        },
+        {
+          "name": "startCursor",
+          "type": {
+            "name": null,
+            "kind": "NON_NULL",
+            "ofType": {
+              "name": "String",
+              "kind": "SCALAR"
+            }
+          }
+        },
+        {
+          "name": "endCursor",
+          "type": {
+            "name": null,
+            "kind": "NON_NULL",
+            "ofType": {
+              "name": "String",
               "kind": "SCALAR"
             }
           }

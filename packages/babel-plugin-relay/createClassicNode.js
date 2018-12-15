@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2013-present, Facebook, Inc.
+ * Copyright (c) Facebook, Inc. and its affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -18,14 +18,13 @@ const getFragmentNameParts = require('./getFragmentNameParts');
 const invariant = require('./invariant');
 
 import type {BabelState} from './BabelPluginRelay';
-import typeof BabelTypes from 'babel-types';
 import type {DefinitionNode} from 'graphql';
 
 /**
  * Relay Classic transforms to inline generated content.
  */
 function createClassicNode(
-  t: BabelTypes,
+  t: $FlowFixMe,
   path: Object,
   graphqlDefinition: DefinitionNode,
   state: BabelState,

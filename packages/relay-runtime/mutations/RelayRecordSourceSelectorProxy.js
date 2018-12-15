@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2013-present, Facebook, Inc.
+ * Copyright (c) Facebook, Inc. and its affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -16,11 +16,11 @@ const {getStorageKey} = require('../store/RelayStoreUtils');
 
 import type {
   RecordProxy,
-  Selector,
+  ReaderSelector,
   RecordSourceProxy,
   RecordSourceSelectorProxy,
 } from '../store/RelayStoreTypes';
-import type {ConcreteLinkedField} from '../util/RelayConcreteNode';
+import type {ReaderLinkedField} from '../util/ReaderNode';
 import type {DataID} from '../util/RelayRuntimeTypes';
 
 /**
@@ -33,9 +33,9 @@ import type {DataID} from '../util/RelayRuntimeTypes';
  */
 class RelayRecordSourceSelectorProxy implements RecordSourceSelectorProxy {
   __recordSource: RecordSourceProxy;
-  _readSelector: Selector;
+  _readSelector: ReaderSelector;
 
-  constructor(recordSource: RecordSourceProxy, readSelector: Selector) {
+  constructor(recordSource: RecordSourceProxy, readSelector: ReaderSelector) {
     this.__recordSource = recordSource;
     this._readSelector = readSelector;
   }
@@ -57,10 +57,10 @@ class RelayRecordSourceSelectorProxy implements RecordSourceSelectorProxy {
   }
 
   _getRootField(
-    selector: Selector,
+    selector: ReaderSelector,
     fieldName: string,
     plural: boolean,
-  ): ConcreteLinkedField {
+  ): ReaderLinkedField {
     const field = selector.node.selections.find(
       selection =>
         selection.kind === 'LinkedField' && selection.name === fieldName,

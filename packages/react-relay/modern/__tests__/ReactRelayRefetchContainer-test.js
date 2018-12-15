@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2013-present, Facebook, Inc.
+ * Copyright (c) Facebook, Inc. and its affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -11,10 +11,12 @@
 'use strict';
 
 const React = require('React');
-const ReactRelayPropTypes = require('../ReactRelayPropTypes');
+const ReactRelayContext = require('../ReactRelayContext');
 const ReactRelayRefetchContainer = require('../ReactRelayRefetchContainer');
 const ReactTestRenderer = require('ReactTestRenderer');
 const RelayModernTestUtils = require('RelayModernTestUtils');
+
+const readContext = require('../readContext');
 
 const {createMockEnvironment} = require('RelayModernMockEnvironment');
 const {createOperationSelector, ROOT_ID} = require('relay-runtime');
@@ -29,49 +31,53 @@ describe('ReactRelayRefetchContainer', () => {
   let refetch;
   let render;
   let variables;
-  let ContextGetter;
   let relayContext;
 
   class ContextSetter extends React.Component {
     constructor(props) {
       super();
-      // eslint-disable-next-line no-shadow
-      const {environment, variables} = props;
-      this.relay = {environment, variables};
-      this.state = {props: null};
+
+      this.__relayContext = {
+        environment: props.environment,
+        variables: props.variables,
+      };
+
+      this.state = {
+        props: null,
+      };
     }
     UNSAFE_componentWillReceiveProps(nextProps) {
       // eslint-disable-next-line no-shadow
       const {environment, variables} = nextProps;
       if (
-        environment !== this.relay.environment ||
-        variables !== this.relay.variables
+        environment !== this.__relayContext.environment ||
+        variables !== this.__relayContext.variables
       ) {
-        this.relay = {environment, variables};
+        this.__relayContext = {environment, variables};
       }
-    }
-    getChildContext() {
-      return {relay: this.relay};
     }
     setProps(props) {
       this.setState({props});
     }
     setContext(env, vars) {
-      this.relay = {environment: env, variables: vars};
-      this.setState({context: {environment: env, variables: vars}});
+      this.__relayContext = {
+        environment: env,
+        variables: vars,
+      };
+      this.setProps({});
     }
     render() {
-      const child = React.Children.only(this.props.children);
+      let child = React.Children.only(this.props.children);
       if (this.state.props) {
-        return React.cloneElement(child, this.state.props);
+        child = React.cloneElement(child, this.state.props);
       }
-      return child;
+      return (
+        <ReactRelayContext.Provider value={this.__relayContext}>
+          {child}
+        </ReactRelayContext.Provider>
+      );
     }
   }
-  ContextSetter.childContextTypes = {
-    relay: ReactRelayPropTypes.Relay,
-  };
-
   beforeEach(() => {
     jest.resetModules();
     expect.extend(RelayModernTestUtils.matchers);
@@ -96,20 +102,10 @@ describe('ReactRelayRefetchContainer', () => {
     `,
     ));
 
-    ContextGetter = class extends React.Component {
-      componentDidMount() {
-        relayContext = this.context.relay;
-      }
-      componentDidUpdate() {
-        relayContext = this.context.relay;
-      }
-      render() {
-        return <div />;
-      }
-    };
-    ContextGetter.contextTypes = {
-      relay: ReactRelayPropTypes.Relay,
-    };
+    function ContextGetter() {
+      relayContext = readContext(ReactRelayContext);
+      return null;
+    }
 
     render = jest.fn(props => {
       refetch = props.relay.refetch;
@@ -166,7 +162,7 @@ describe('ReactRelayRefetchContainer', () => {
   it('passes non-fragment props to the component', () => {
     ReactTestRenderer.create(
       <ContextSetter environment={environment} variables={variables}>
-        <TestContainer bar={1} foo={'foo'} />
+        <TestContainer bar={1} foo="foo" />
       </ContextSetter>,
     );
     expect(render.mock.calls.length).toBe(1);
@@ -174,8 +170,8 @@ describe('ReactRelayRefetchContainer', () => {
       bar: 1,
       foo: 'foo',
       relay: {
-        environment: jasmine.any(Object),
-        refetch: jasmine.any(Function),
+        environment: expect.any(Object),
+        refetch: expect.any(Function),
       },
       user: null,
     });
@@ -193,8 +189,8 @@ describe('ReactRelayRefetchContainer', () => {
     expect(render.mock.calls.length).toBe(1);
     expect(render.mock.calls[0][0]).toEqual({
       relay: {
-        environment: jasmine.any(Object),
-        refetch: jasmine.any(Function),
+        environment: expect.any(Object),
+        refetch: expect.any(Function),
       },
       user: null,
     });
@@ -232,8 +228,8 @@ describe('ReactRelayRefetchContainer', () => {
         name: 'Zuck',
       },
       relay: {
-        environment: jasmine.any(Object),
-        refetch: jasmine.any(Function),
+        environment: expect.any(Object),
+        refetch: expect.any(Function),
       },
     });
     // Subscribes for updates
@@ -245,8 +241,9 @@ describe('ReactRelayRefetchContainer', () => {
         name: 'Zuck',
       },
       node: UserFragment,
-      seenRecords: jasmine.any(Object),
+      seenRecords: expect.any(Object),
       variables: {cond: true},
+      isMissingData: false,
     });
   });
 
@@ -289,8 +286,8 @@ describe('ReactRelayRefetchContainer', () => {
         name: 'Mark',
       },
       relay: {
-        environment: jasmine.any(Object),
-        refetch: jasmine.any(Function),
+        environment: expect.any(Object),
+        refetch: expect.any(Function),
       },
     });
   });
@@ -327,8 +324,8 @@ describe('ReactRelayRefetchContainer', () => {
         name: 'Joe',
       },
       relay: {
-        environment: jasmine.any(Object),
-        refetch: jasmine.any(Function),
+        environment: expect.any(Object),
+        refetch: expect.any(Function),
       },
     });
     // Container subscribes for updates on new props
@@ -340,8 +337,9 @@ describe('ReactRelayRefetchContainer', () => {
         name: 'Joe',
       },
       node: UserFragment,
-      seenRecords: jasmine.any(Object),
+      seenRecords: expect.any(Object),
       variables: {cond: true},
+      isMissingData: false,
     });
   });
 
@@ -362,9 +360,8 @@ describe('ReactRelayRefetchContainer', () => {
 
     // Update the variables in context
     // Context object should be mutated (for compat with gDSFP).
-    const context = instance.getInstance().getChildContext();
-    context.relay.variables = {id: '4'};
-    instance.getInstance().setProps({});
+    const newVariables = {id: '4'};
+    instance.getInstance().setContext(environment, newVariables);
 
     // New data & variables are passed to component
     expect(render.mock.calls.length).toBe(1);
@@ -374,8 +371,8 @@ describe('ReactRelayRefetchContainer', () => {
         name: 'Zuck',
       },
       relay: {
-        environment: jasmine.any(Object),
-        refetch: jasmine.any(Function),
+        environment: expect.any(Object),
+        refetch: expect.any(Function),
       },
     });
     // Container subscribes for updates on new props
@@ -387,8 +384,9 @@ describe('ReactRelayRefetchContainer', () => {
         name: 'Zuck',
       },
       node: UserFragment,
-      seenRecords: jasmine.any(Object),
+      seenRecords: expect.any(Object),
       variables: {cond: true},
+      isMissingData: false,
     });
   });
 
@@ -848,6 +846,26 @@ describe('ReactRelayRefetchContainer', () => {
       expect(references[0].dispose).toBeCalled();
     });
 
+    it('releases refetch results if unmounted', () => {
+      expect.assertions(2);
+      variables = {
+        cond: false,
+        id: '4',
+      };
+      refetch(variables, null, jest.fn());
+      environment.mock.resolve(UserQuery, {
+        data: {
+          node: {
+            id: '4',
+            __typename: 'User',
+          },
+        },
+      });
+      instance.unmount();
+      expect(references.length).toBe(1);
+      expect(references[0].dispose).toBeCalled();
+    });
+
     it('updates child context if updated with new variables', () => {
       expect.assertions(2);
       const refetchVariables = {
@@ -869,11 +887,7 @@ describe('ReactRelayRefetchContainer', () => {
         cond: true,
         id: '842472',
       };
-      // Update the variables in context.
-      // Context object should be mutated (for compat with gDSFP).
-      const context = instance.getInstance().getChildContext();
-      context.relay.variables = updateVariables;
-      instance.getInstance().setProps({});
+      instance.getInstance().setContext(environment, updateVariables);
 
       expect(relayContext.environment).toBe(environment);
       expect(relayContext.variables).toEqual(updateVariables);
@@ -924,7 +938,42 @@ describe('ReactRelayRefetchContainer', () => {
       expect(subscription1.closed).toBe(true);
       expect(subscription2.closed).toBe(true);
     });
+
+    it('should not refetch data is container unmounted', () => {
+      const userPointer = environment.lookup({
+        dataID: ROOT_ID,
+        node: UserQuery.fragment,
+        variables: {id: '4'},
+      }).data.node;
+
+      class TestContainerWrapper extends React.Component {
+        state = {
+          mounted: true,
+        };
+        componentDidMount() {
+          setTimeout(() => {
+            this.setState({mounted: false});
+          }, 1);
+        }
+        render() {
+          return this.state.mounted ? (
+            <TestContainer user={userPointer} />
+          ) : null;
+        }
+      }
+
+      instance = ReactTestRenderer.create(
+        <ContextSetter environment={environment} variables={variables}>
+          <TestContainerWrapper />
+        </ContextSetter>,
+      );
+      jest.runOnlyPendingTimers();
+      const callback = jest.fn();
+      refetch({}, null, callback);
+      expect(callback).not.toBeCalled();
+    });
   });
+
   it('can be unwrapped in tests', () => {
     class TestUnwrapping extends React.Component {
       render() {

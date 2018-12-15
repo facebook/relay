@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2013-present, Facebook, Inc.
+ * Copyright (c) Facebook, Inc. and its affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -38,8 +38,12 @@ function applyRelayModernOptimisticMutation(
 ): Disposable {
   invariant(
     isRelayModernEnvironment(environment),
-    'commitRelayModernMutation: expect `environment` to be an instance of ' +
-      '`RelayModernEnvironment`.',
+    'commitRelayModernMutation: expected `environment` to be an instance of ' +
+      '`RelayModernEnvironment`.\n' +
+      'When using Relay Modern and Relay Classic in the same ' +
+      'application, ensure mutations use Relay Compat to work in ' +
+      'both environments.\n' +
+      'See: http://facebook.github.io/relay/docs/relay-compat.html',
   );
   const {createOperationSelector, getRequest} = environment.unstable_internal;
   const mutation = getRequest(config.mutation);

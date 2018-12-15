@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2013-present, Facebook, Inc.
+ * Copyright (c) Facebook, Inc. and its affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -20,7 +20,7 @@ const warning = require('warning');
 
 import type {ConcreteFragmentDefinition} from '../query/ConcreteQuery';
 import type {Props} from './RelayCombinedEnvironmentTypes';
-import type {FragmentMap, Selector} from './RelayEnvironmentTypes';
+import type {FragmentMap, ReaderSelector} from './RelayEnvironmentTypes';
 import type {DataID, Variables} from 'relay-runtime';
 
 /**
@@ -30,7 +30,7 @@ function getSelector(
   operationVariables: Variables,
   fragment: ConcreteFragmentDefinition,
   item: mixed,
-): ?Selector {
+): ?ReaderSelector {
   invariant(
     typeof item === 'object' && item !== null && !Array.isArray(item),
     'RelaySelector: Expected value for fragment `%s` to be an object, got ' +
@@ -72,7 +72,7 @@ function getSelectorList(
   operationVariables: Variables,
   fragment: ConcreteFragmentDefinition,
   items: Array<mixed>,
-): ?Array<Selector> {
+): ?Array<ReaderSelector> {
   let selectors = null;
   items.forEach(item => {
     const selector =
@@ -92,7 +92,7 @@ function getSelectorsFromObject(
   operationVariables: Variables,
   fragments: FragmentMap,
   object: Props,
-): {[key: string]: ?(Selector | Array<Selector>)} {
+): {[key: string]: ?(ReaderSelector | Array<ReaderSelector>)} {
   const selectors = {};
   forEachObject(fragments, (fragment, key) => {
     const item = object[key];
@@ -288,8 +288,8 @@ function getVariables(
  * @public
  */
 function areEqualSelectors(
-  thisSelector: Selector,
-  thatSelector: Selector,
+  thisSelector: ReaderSelector,
+  thatSelector: ReaderSelector,
 ): boolean {
   return (
     thisSelector.dataID === thatSelector.dataID &&

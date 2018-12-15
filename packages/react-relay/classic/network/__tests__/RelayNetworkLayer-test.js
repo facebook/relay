@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2013-present, Facebook, Inc.
+ * Copyright (c) Facebook, Inc. and its affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -151,7 +151,14 @@ describe('RelayNetworkLayer', () => {
       resolvedCallback = jest.fn();
       rejectedCallback = jest.fn();
       deferred = new Deferred();
-      deferred.done(resolvedCallback, rejectedCallback);
+      deferred
+        .getPromise()
+        .then(resolvedCallback, rejectedCallback)
+        .catch(error => {
+          setTimeout(() => {
+            throw error;
+          }, 0);
+        });
     });
 
     it('throws when no network layer is injected', () => {
@@ -226,7 +233,14 @@ describe('RelayNetworkLayer', () => {
 
       const request1 = new RelayQueryRequest(new RelayQuery.Root());
       const request2 = new RelayQueryRequest(new RelayQuery.Root());
-      request2.done(jest.fn(), jest.fn());
+      request2
+        .getPromise()
+        .then(jest.fn(), jest.fn())
+        .catch(error => {
+          setTimeout(() => {
+            throw error;
+          }, 0);
+        });
       networkLayer.sendQueries([request1, request2]);
       const pendingQueries = injectedNetworkLayer.sendQueries.mock.calls[0][0];
       const response = 'response';

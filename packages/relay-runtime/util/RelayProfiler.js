@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2013-present, Facebook, Inc.
+ * Copyright (c) Facebook, Inc. and its affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -14,7 +14,7 @@ const emptyFunction = require('emptyFunction');
 const removeFromArray = require('removeFromArray');
 
 type Handler = (name: string, callback: () => void) => void;
-type ProfileHandler = (name: string, state?: any) => () => void;
+type ProfileHandler = (name: string, state?: any) => (error?: Error) => void;
 
 const aggregateHandlersByName: {[name: string]: Array<Handler>} = {
   '*': [],
@@ -220,7 +220,7 @@ const RelayProfiler = {
    * Arbitrary state can also be passed into `profile` as a second argument. The
    * attached profile handlers will receive this as the second argument.
    */
-  profile(name: string, state?: any): {stop: () => void} {
+  profile(name: string, state?: any): {stop: (error?: Error) => void} {
     const hasCatchAllHandlers = profileHandlersByName['*'].length > 0;
     const hasNamedHandlers = profileHandlersByName.hasOwnProperty(name);
     if (hasNamedHandlers || hasCatchAllHandlers) {
@@ -238,9 +238,9 @@ const RelayProfiler = {
         stopHandlers.unshift(stopHandler);
       }
       return {
-        stop(): void {
+        stop(error?: Error): void {
           if (stopHandlers) {
-            stopHandlers.forEach(stopHandler => stopHandler());
+            stopHandlers.forEach(stopHandler => stopHandler(error));
           }
         },
       };

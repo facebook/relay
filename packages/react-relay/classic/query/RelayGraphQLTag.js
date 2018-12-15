@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2013-present, Facebook, Inc.
+ * Copyright (c) Facebook, Inc. and its affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -10,6 +10,7 @@
 
 'use strict';
 
+const QueryBuilder = require('./QueryBuilder');
 const RelayQL = require('./RelayQL');
 
 const invariant = require('invariant');
@@ -33,6 +34,20 @@ function graphql(): GraphQLTaggedNode {
   );
 }
 
+function isClassicFragment(taggedNode: GraphQLTaggedNode) {
+  return (
+    QueryBuilder.getFragmentDefinition(RelayQL.__getClassicNode(taggedNode)) !=
+    null
+  );
+}
+
+function isClassicOperation(taggedNode: GraphQLTaggedNode) {
+  return (
+    QueryBuilder.getOperationDefinition(RelayQL.__getClassicNode(taggedNode)) !=
+    null
+  );
+}
+
 function getClassicFragment(
   taggedNode: GraphQLTaggedNode,
 ): ConcreteFragmentDefinition {
@@ -49,4 +64,6 @@ module.exports = {
   getClassicFragment,
   getClassicOperation,
   graphql,
+  isClassicFragment,
+  isClassicOperation,
 };

@@ -1,10 +1,11 @@
 /**
- * Copyright (c) 2014-present, Facebook, Inc.
+ * Copyright (c) Facebook, Inc. and its affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
  * @flow
+ * @noformat
  */
 
 'use strict';
@@ -15,11 +16,12 @@ const ROOT = path.join(__dirname, '..', '..');
 
 const BLACKLISTED_PATTERNS/*: Array<RegExp>*/ = [
   /.*\/__(mocks|tests)__\/.*/,
-  /^packages\/babel-plugin-relay\/invariant\.js/,
 ];
 
 const WHITELISTED_PREFIXES/*: Array<string>*/ = [
-  'packages'
+  'packages/graphql-compiler',
+  'packages/relay-compiler',
+  'packages/relay-test-utils',
 ];
 
 const NAME_REDUCERS/*: Array<[RegExp, string]>*/ = [

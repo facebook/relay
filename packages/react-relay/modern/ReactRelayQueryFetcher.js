@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2013-present, Facebook, Inc.
+ * Copyright (c) Facebook, Inc. and its affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -15,21 +15,31 @@ const invariant = require('invariant');
 import type {
   CacheConfig,
   Disposable,
-  ExecutePayload,
+  GraphQLResponse,
   IEnvironment,
   Observable,
   OperationSelector,
   Snapshot,
 } from 'relay-runtime';
 
-type OnDataChange = null | (({error?: Error, snapshot?: Snapshot}) => void);
+type OnDataChange = ({error?: Error, snapshot?: Snapshot}) => void;
 
+/** The external API of 'fetch' **/
 export type FetchOptions = {
   cacheConfig?: ?CacheConfig,
   environment: IEnvironment,
-  onDataChange: OnDataChange,
+  onDataChange?: null | OnDataChange,
   operation: OperationSelector,
 };
+
+// Internally we keep an array of onDataChange callbacks, to support reusing
+// the queryRenderer for multiple components.
+type FetchOptionsInternal = {|
+  cacheConfig?: ?CacheConfig,
+  environment: IEnvironment,
+  onDataChangeCallbacks: Array<OnDataChange>,
+  operation: OperationSelector,
+|};
 
 export type ExecuteConfig = {|
   environment: IEnvironment,
@@ -40,7 +50,7 @@ export type ExecuteConfig = {|
 |};
 
 class ReactRelayQueryFetcher {
-  _fetchOptions: ?FetchOptions;
+  _fetchOptions: ?FetchOptionsInternal;
   _pendingRequest: ?Disposable;
   _rootSubscription: ?Disposable;
   _selectionReferences: Array<Disposable> = [];
@@ -48,6 +58,23 @@ class ReactRelayQueryFetcher {
   _error: ?Error; // fetch error
   _cacheSelectionReference: ?Disposable;
   _callOnDataChangeWhenSet: boolean = false;
+
+  constructor(args?: {
+    cacheSelectionReference: ?Disposable,
+    selectionReferences: Array<Disposable>,
+  }) {
+    if (args != null) {
+      this._cacheSelectionReference = args.cacheSelectionReference;
+      this._selectionReferences = args.selectionReferences;
+    }
+  }
+
+  getSelectionReferences() {
+    return {
+      cacheSelectionReference: this._cacheSelectionReference,
+      selectionReferences: this._selectionReferences,
+    };
+  }
 
   lookupInStore(
     environment: IEnvironment,
@@ -65,45 +92,26 @@ class ReactRelayQueryFetcher {
     operation,
     cacheConfig,
     preservePreviousReferences = false,
-  }: ExecuteConfig): Observable<ExecutePayload> {
-    const {createOperationSelector} = environment.unstable_internal;
-    const nextReferences = [];
-
-    return environment
-      .execute({operation, cacheConfig})
-      .map(payload => {
-        const operationForPayload = createOperationSelector(
-          operation.node,
-          payload.variables,
-          payload.operation,
-        );
-        nextReferences.push(environment.retain(operationForPayload.root));
-        return payload;
-      })
-      .do({
-        error: () => {
-          // We may have partially fulfilled the request, so let the next request
-          // or the unmount dispose of the references.
-          this._selectionReferences = this._selectionReferences.concat(
-            nextReferences,
-          );
-        },
-        complete: () => {
-          if (!preservePreviousReferences) {
-            this._disposeSelectionReferences();
-          }
-          this._selectionReferences = this._selectionReferences.concat(
-            nextReferences,
-          );
-        },
-        unsubscribe: () => {
-          // Let the next request or the unmount code dispose of the references.
-          // We may have partially fulfilled the request.
-          this._selectionReferences = this._selectionReferences.concat(
-            nextReferences,
-          );
-        },
-      });
+  }: ExecuteConfig): Observable<GraphQLResponse> {
+    const reference = environment.retain(operation.root);
+    return environment.execute({operation, cacheConfig}).do({
+      error: () => {
+        // We may have partially fulfilled the request, so let the next request
+        // or the unmount dispose of the references.
+        this._selectionReferences = this._selectionReferences.concat(reference);
+      },
+      complete: () => {
+        if (!preservePreviousReferences) {
+          this.disposeSelectionReferences();
+        }
+        this._selectionReferences = this._selectionReferences.concat(reference);
+      },
+      unsubscribe: () => {
+        // Let the next request or the unmount code dispose of the references.
+        // We may have partially fulfilled the request.
+        this._selectionReferences = this._selectionReferences.concat(reference);
+      },
+    });
   }
 
   setOnDataChange(onDataChange: OnDataChange): void {
@@ -112,16 +120,20 @@ class ReactRelayQueryFetcher {
       'ReactRelayQueryFetcher: `setOnDataChange` should have been called after having called `fetch`',
     );
 
-    // Mutate the most recent fetchOptions in place,
-    // So that in-progress requests can access the updated callback.
-    this._fetchOptions.onDataChange = onDataChange;
+    if (typeof onDataChange === 'function') {
+      // Mutate the most recent fetchOptions in place,
+      // So that in-progress requests can access the updated callback.
+      this._fetchOptions.onDataChangeCallbacks =
+        this._fetchOptions.onDataChangeCallbacks || [];
+      this._fetchOptions.onDataChangeCallbacks.push(onDataChange);
 
-    if (this._callOnDataChangeWhenSet && typeof onDataChange === 'function') {
-      this._callOnDataChangeWhenSet = false;
-      if (this._error != null) {
-        onDataChange({error: this._error});
-      } else if (this._snapshot != null) {
-        onDataChange({snapshot: this._snapshot});
+      if (this._callOnDataChangeWhenSet) {
+        // We don't reset '_callOnDataChangeWhenSet' because another callback may be set
+        if (this._error != null) {
+          onDataChange({error: this._error});
+        } else if (this._snapshot != null) {
+          onDataChange({snapshot: this._snapshot});
+        }
       }
     }
   }
@@ -136,12 +148,26 @@ class ReactRelayQueryFetcher {
    * and then subsequently whenever the data changes.
    */
   fetch(fetchOptions: FetchOptions): ?Snapshot {
-    const {cacheConfig, environment, operation} = fetchOptions;
+    const {cacheConfig, environment, operation, onDataChange} = fetchOptions;
     let fetchHasReturned = false;
     let error;
 
-    this._disposeRequest();
-    this._fetchOptions = fetchOptions;
+    this.disposeRequest();
+    const oldOnDataChangeCallbacks =
+      this._fetchOptions && this._fetchOptions.onDataChangeCallbacks;
+    this._fetchOptions = {
+      cacheConfig,
+      environment,
+      onDataChangeCallbacks: oldOnDataChangeCallbacks || [],
+      operation,
+    };
+
+    if (
+      onDataChange &&
+      this._fetchOptions.onDataChangeCallbacks.indexOf(onDataChange) === -1
+    ) {
+      this._fetchOptions.onDataChangeCallbacks.push(onDataChange);
+    }
 
     const request = this.execute({
       environment,
@@ -153,13 +179,9 @@ class ReactRelayQueryFetcher {
       })
       .subscribe({
         next: () => {
-          const onDataChange = this._fetchOptions
-            ? this._fetchOptions.onDataChange
-            : null;
-
-          // If we received a response when we didn't have a change callback,
+          // If we received a response,
           // Make a note that to notify the callback when it's later added.
-          this._callOnDataChangeWhenSet = typeof onDataChange !== 'function';
+          this._callOnDataChangeWhenSet = true;
           this._error = null;
 
           // Only notify of the first result if `next` is being called **asynchronously**
@@ -167,21 +189,22 @@ class ReactRelayQueryFetcher {
           this._onQueryDataAvailable({notifyFirstResult: fetchHasReturned});
         },
         error: err => {
-          const onDataChange = this._fetchOptions
-            ? this._fetchOptions.onDataChange
-            : null;
-
           // If we received a response when we didn't have a change callback,
           // Make a note that to notify the callback when it's later added.
-          this._callOnDataChangeWhenSet = typeof onDataChange !== 'function';
+          this._callOnDataChangeWhenSet = true;
           this._error = err;
           this._snapshot = null;
+
+          const onDataChangeCallbacks =
+            this._fetchOptions && this._fetchOptions.onDataChangeCallbacks;
 
           // Only notify of error if `error` is being called **asynchronously**
           // (i.e. after `fetch` has returned).
           if (fetchHasReturned) {
-            if (typeof onDataChange === 'function') {
-              onDataChange({error: err});
+            if (onDataChangeCallbacks) {
+              onDataChangeCallbacks.forEach(onDataChange => {
+                onDataChange({error: err});
+              });
             }
           } else {
             error = err;
@@ -209,15 +232,20 @@ class ReactRelayQueryFetcher {
       this._fetchOptions,
       'ReactRelayQueryFetcher: `retry` should be called after having called `fetch`',
     );
-    return this.fetch(this._fetchOptions);
+    return this.fetch({
+      cacheConfig: this._fetchOptions.cacheConfig,
+      environment: this._fetchOptions.environment,
+      operation: this._fetchOptions.operation,
+      onDataChange: null, // If there are onDataChangeCallbacks they will be reused
+    });
   }
 
   dispose() {
-    this._disposeRequest();
-    this._disposeSelectionReferences();
+    this.disposeRequest();
+    this.disposeSelectionReferences();
   }
 
-  _disposeRequest() {
+  disposeRequest() {
     this._error = null;
     this._snapshot = null;
 
@@ -244,7 +272,7 @@ class ReactRelayQueryFetcher {
     this._cacheSelectionReference = null;
   }
 
-  _disposeSelectionReferences() {
+  disposeSelectionReferences() {
     this._disposeCacheSelectionReference();
     this._selectionReferences.forEach(r => r.dispose());
     this._selectionReferences = [];
@@ -255,7 +283,7 @@ class ReactRelayQueryFetcher {
       this._fetchOptions,
       'ReactRelayQueryFetcher: `_onQueryDataAvailable` should have been called after having called `fetch`',
     );
-    const {environment, onDataChange, operation} = this._fetchOptions;
+    const {environment, onDataChangeCallbacks, operation} = this._fetchOptions;
 
     // `_onQueryDataAvailable` can be called synchronously the first time and can be called
     // multiple times by network layers that support data subscriptions.
@@ -270,9 +298,12 @@ class ReactRelayQueryFetcher {
     this._rootSubscription = environment.subscribe(this._snapshot, snapshot => {
       // Read from this._fetchOptions in case onDataChange() was lazily added.
       if (this._fetchOptions != null) {
-        const maybeNewOnDataChange = this._fetchOptions.onDataChange;
-        if (typeof maybeNewOnDataChange === 'function') {
-          maybeNewOnDataChange({snapshot});
+        const maybeNewOnDataChangeCallbacks = this._fetchOptions
+          .onDataChangeCallbacks;
+        if (Array.isArray(maybeNewOnDataChangeCallbacks)) {
+          maybeNewOnDataChangeCallbacks.forEach(onDataChange =>
+            onDataChange({snapshot}),
+          );
         }
       }
     });
@@ -280,9 +311,10 @@ class ReactRelayQueryFetcher {
     if (
       this._snapshot &&
       notifyFirstResult &&
-      typeof onDataChange === 'function'
+      Array.isArray(onDataChangeCallbacks)
     ) {
-      onDataChange({snapshot: this._snapshot});
+      const snapshot = this._snapshot;
+      onDataChangeCallbacks.forEach(onDataChange => onDataChange({snapshot}));
     }
   }
 }

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2013-present, Facebook, Inc.
+ * Copyright (c) Facebook, Inc. and its affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -331,6 +331,189 @@ describe('RelayResponseNormalizer', () => {
       handle: 'bestFriends',
       handleKey:
         '__UserFriends_friends_bestFriends(isViewerFriend:true,orderby:["first name"])',
+    });
+  });
+
+  describe('when using a @match field', () => {
+    let BarQuery;
+
+    beforeEach(() => {
+      const nodes = generateAndCompile(`
+        fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
+          plaintext
+          data {
+            text
+          }
+        }
+
+        fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+          markdown
+          data {
+            markup
+          }
+        }
+
+        fragment BarFragment on User {
+          id
+          nameRenderer @match {
+            ...PlainUserNameRenderer_name
+              @module(name: "PlainUserNameRenderer.react")
+            ...MarkdownUserNameRenderer_name
+              @module(name: "MarkdownUserNameRenderer.react")
+          }
+        }
+
+        query BarQuery($id: ID!) {
+          node(id: $id) {
+            ...BarFragment
+          }
+        }
+      `);
+      BarQuery = nodes.BarQuery;
+    });
+
+    it('normalizes queries correctly', () => {
+      const payload = {
+        node: {
+          id: '1',
+          __typename: 'User',
+          nameRenderer: {
+            __typename: 'MarkdownUserNameRenderer',
+            __match_component: 'MarkdownUserNameRenderer.react',
+            __match_fragment:
+              'MarkdownUserNameRenderer_name$normalization.graphql',
+            markdown: 'markdown payload',
+            data: {
+              markup: '<markup/>',
+            },
+          },
+        },
+      };
+
+      const recordSource = new RelayInMemoryRecordSource();
+      recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
+      const {matchPayloads} = normalize(
+        recordSource,
+        {
+          dataID: ROOT_ID,
+          node: BarQuery.operation,
+          variables: {id: '1'},
+        },
+        payload,
+      );
+      expect(recordSource.toJSON()).toEqual({
+        '1': {
+          __id: '1',
+          id: '1',
+          __typename: 'User',
+          'nameRenderer(MarkdownUserNameRenderer_name:MarkdownUserNameRenderer.react,PlainUserNameRenderer_name:PlainUserNameRenderer.react)': {
+            __ref:
+              'client:1:nameRenderer(MarkdownUserNameRenderer_name:MarkdownUserNameRenderer.react,PlainUserNameRenderer_name:PlainUserNameRenderer.react)',
+          },
+        },
+        'client:1:nameRenderer(MarkdownUserNameRenderer_name:MarkdownUserNameRenderer.react,PlainUserNameRenderer_name:PlainUserNameRenderer.react)': {
+          __id:
+            'client:1:nameRenderer(MarkdownUserNameRenderer_name:MarkdownUserNameRenderer.react,PlainUserNameRenderer_name:PlainUserNameRenderer.react)',
+          __typename: 'MarkdownUserNameRenderer',
+        },
+        'client:root': {
+          __id: 'client:root',
+          __typename: '__Root',
+          'node(id:"1")': {__ref: '1'},
+        },
+      });
+      expect(matchPayloads).toEqual([
+        {
+          operationReference:
+            'MarkdownUserNameRenderer_name$normalization.graphql',
+          dataID:
+            'client:1:nameRenderer(MarkdownUserNameRenderer_name:MarkdownUserNameRenderer.react,PlainUserNameRenderer_name:PlainUserNameRenderer.react)',
+          data: {
+            __typename: 'MarkdownUserNameRenderer',
+            __match_component: 'MarkdownUserNameRenderer.react',
+            __match_fragment:
+              'MarkdownUserNameRenderer_name$normalization.graphql',
+            markdown: 'markdown payload',
+            data: {
+              markup: '<markup/>',
+            },
+          },
+          variables: {id: '1'},
+          typeName: 'MarkdownUserNameRenderer',
+        },
+      ]);
+    });
+
+    it('normalizes queries correctly when the resolved type does not match any of the specified cases', () => {
+      const payload = {
+        node: {
+          id: '1',
+          __typename: 'User',
+          nameRenderer: {
+            __typename: 'CustomNameRenderer',
+          },
+        },
+      };
+
+      const recordSource = new RelayInMemoryRecordSource();
+      recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
+      normalize(
+        recordSource,
+        {
+          dataID: ROOT_ID,
+          node: BarQuery.operation,
+          variables: {id: '1'},
+        },
+        payload,
+      );
+      expect(recordSource.toJSON()).toEqual({
+        '1': {
+          __id: '1',
+          id: '1',
+          __typename: 'User',
+          'nameRenderer(MarkdownUserNameRenderer_name:MarkdownUserNameRenderer.react,PlainUserNameRenderer_name:PlainUserNameRenderer.react)': null,
+        },
+        'client:root': {
+          __id: 'client:root',
+          __typename: '__Root',
+          'node(id:"1")': {__ref: '1'},
+        },
+      });
+    });
+
+    it('normalizes queries correctly when the @match field is null', () => {
+      const payload = {
+        node: {
+          id: '1',
+          __typename: 'User',
+          nameRenderer: null,
+        },
+      };
+
+      const recordSource = new RelayInMemoryRecordSource();
+      recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
+      normalize(
+        recordSource,
+        {
+          dataID: ROOT_ID,
+          node: BarQuery.operation,
+          variables: {id: '1'},
+        },
+        payload,
+      );
+      expect(recordSource.toJSON()).toEqual({
+        '1': {
+          __id: '1',
+          id: '1',
+          __typename: 'User',
+          'nameRenderer(MarkdownUserNameRenderer_name:MarkdownUserNameRenderer.react,PlainUserNameRenderer_name:PlainUserNameRenderer.react)': null,
+        },
+        'client:root': {
+          __id: 'client:root',
+          __typename: '__Root',
+          'node(id:"1")': {__ref: '1'},
+        },
+      });
     });
   });
 

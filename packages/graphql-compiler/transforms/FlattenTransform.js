@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2013-present, Facebook, Inc.
+ * Copyright (c) Facebook, Inc. and its affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -30,6 +30,7 @@ import type {
   Root,
   ScalarField,
   LinkedField,
+  MatchField,
   Selection,
 } from '../core/GraphQLIR';
 import type {GraphQLType} from 'graphql';
@@ -47,7 +48,13 @@ type State = {
   parentType: ?GraphQLType,
 };
 
-type HasSelections = Root | Fragment | Condition | InlineFragment | LinkedField;
+type HasSelections =
+  | Root
+  | Fragment
+  | Condition
+  | InlineFragment
+  | LinkedField
+  | MatchField;
 
 /**
  * Transform that flattens inline fragments, fragment spreads, and conditionals.
@@ -76,6 +83,7 @@ function flattenTransformImpl(
       Condition: flattenSelections,
       InlineFragment: flattenSelections,
       LinkedField: flattenSelections,
+      MatchField: flattenSelections,
     },
     () => state,
   );
@@ -162,11 +170,13 @@ function flattenSelectionsInto(
         ...flattenedSelection,
         selections: mergeSelections(flattenedSelection, selection, state, type),
       });
-    } else if (
-      flattenedSelection.kind === 'FragmentSpread' ||
-      flattenedSelection.kind === 'DeferrableFragmentSpread'
-    ) {
+    } else if (flattenedSelection.kind === 'FragmentSpread') {
       // Ignore duplicate fragment spreads.
+    } else if (
+      flattenedSelection.kind === 'MatchField' ||
+      flattenedSelection.kind === 'MatchBranch'
+    ) {
+      // Ignore duplicate matches that select the same fragments and modules (encoded in the identifier)
     } else if (flattenedSelection.kind === 'LinkedField') {
       invariant(
         selection.kind === 'LinkedField',
@@ -279,7 +289,7 @@ function areEqualFields(thisField: Field, thatField: Field): boolean {
 function mergeHandles<T: LinkedField | ScalarField>(
   nodeA: T,
   nodeB: T,
-): ?Array<Handle> {
+): ?$ReadOnlyArray<Handle> {
   if (!nodeA.handles) {
     return nodeB.handles;
   }

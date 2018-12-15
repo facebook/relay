@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2013-present, Facebook, Inc.
+ * Copyright (c) Facebook, Inc. and its affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -48,6 +48,18 @@ const users = [
     caption: 'Parabol',
     image: '/relay/img/logos/parabol.png',
     infoLink: 'https://www.parabol.co/',
+    pinned: false,
+  },
+  {
+    caption: 'Entria',
+    image: '/relay/img/logos/entria.png',
+    infoLink: 'https://github.com/entria',
+    pinned: false,
+  },
+  {
+    caption: 'itDAGENE',
+    image: '/relay/img/logos/itdagene.png',
+    infoLink: 'https://github.com/itdagene-ntnu/itdagene-webapp',
     pinned: false,
   },
 ];

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2013-present, Facebook, Inc.
+ * Copyright (c) Facebook, Inc. and its affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -18,10 +18,12 @@ const {createUserError} = require('./GraphQLCompilerUserError');
 const {OrderedMap: ImmutableOrderedMap} = require('immutable');
 
 import type {GraphQLReporter} from '../reporters/GraphQLReporter';
-import type {Fragment, Root} from './GraphQLIR';
+import type {Fragment, Root, SplitOperation} from './GraphQLIR';
 import type {GraphQLSchema} from 'graphql';
 
 export type IRTransform = GraphQLCompilerContext => GraphQLCompilerContext;
+
+export type CompilerContextDocument = Fragment | Root | SplitOperation;
 
 /**
  * An immutable representation of a corpus of documents being compiled together.
@@ -29,7 +31,7 @@ export type IRTransform = GraphQLCompilerContext => GraphQLCompilerContext;
  */
 class GraphQLCompilerContext {
   _isMutable: boolean;
-  _documents: ImmutableOrderedMap<string, Fragment | Root>;
+  _documents: ImmutableOrderedMap<string, CompilerContextDocument>;
   _withTransform: WeakMap<IRTransform, GraphQLCompilerContext>;
   +serverSchema: GraphQLSchema;
   +clientSchema: GraphQLSchema;
@@ -46,15 +48,15 @@ class GraphQLCompilerContext {
   /**
    * Returns the documents for the context in the order they were added.
    */
-  documents(): Array<Fragment | Root> {
+  documents(): $ReadOnlyArray<CompilerContextDocument> {
     return this._documents.toArray();
   }
 
-  forEachDocument(fn: (Fragment | Root) => void): void {
+  forEachDocument(fn: CompilerContextDocument => void): void {
     this._documents.forEach(fn);
   }
 
-  replace(node: Fragment | Root): GraphQLCompilerContext {
+  replace(node: CompilerContextDocument): GraphQLCompilerContext {
     return this._update(
       this._documents.update(node.name, existing => {
         invariant(
@@ -68,7 +70,7 @@ class GraphQLCompilerContext {
     );
   }
 
-  add(node: Fragment | Root): GraphQLCompilerContext {
+  add(node: CompilerContextDocument): GraphQLCompilerContext {
     return this._update(
       this._documents.update(node.name, existing => {
         invariant(
@@ -82,7 +84,9 @@ class GraphQLCompilerContext {
     );
   }
 
-  addAll(nodes: Array<Fragment | Root>): GraphQLCompilerContext {
+  addAll(
+    nodes: $ReadOnlyArray<CompilerContextDocument>,
+  ): GraphQLCompilerContext {
     return this.withMutations(mutable =>
       nodes.reduce((ctx, definition) => ctx.add(definition), mutable),
     );
@@ -125,7 +129,7 @@ class GraphQLCompilerContext {
     return transformed;
   }
 
-  get(name: string): ?(Fragment | Root) {
+  get(name: string): ?CompilerContextDocument {
     return this._documents.get(name);
   }
 
@@ -169,14 +173,14 @@ class GraphQLCompilerContext {
     return this._documents === result._documents ? this : result;
   }
 
-  _get(name: string): Fragment | Root {
+  _get(name: string): CompilerContextDocument {
     const document = this._documents.get(name);
     invariant(document, 'GraphQLCompilerContext: Unknown document `%s`.', name);
     return document;
   }
 
   _update(
-    documents: ImmutableOrderedMap<string, Fragment | Root>,
+    documents: ImmutableOrderedMap<string, CompilerContextDocument>,
   ): GraphQLCompilerContext {
     const context = this._isMutable
       ? this

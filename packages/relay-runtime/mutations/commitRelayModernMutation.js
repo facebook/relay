@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2013-present, Facebook, Inc.
+ * Copyright (c) Facebook, Inc. and its affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -14,6 +14,7 @@ const RelayDeclarativeMutationConfig = require('./RelayDeclarativeMutationConfig
 
 const invariant = require('invariant');
 const isRelayModernEnvironment = require('../store/isRelayModernEnvironment');
+const validateMutation = require('./validateMutation');
 const warning = require('warning');
 
 import type {PayloadError, UploadableMap} from '../network/RelayNetworkTypes';
@@ -44,13 +45,22 @@ function commitRelayModernMutation<T>(
 ): Disposable {
   invariant(
     isRelayModernEnvironment(environment),
-    'commitRelayModernMutation: expect `environment` to be an instance of ' +
-      '`RelayModernEnvironment`.',
+    'commitRelayModernMutation: expected `environment` to be an instance of ' +
+      '`RelayModernEnvironment`.\n' +
+      'When using Relay Modern and Relay Classic in the same ' +
+      'application, ensure mutations use Relay Compat to work in ' +
+      'both environments.\n' +
+      'See: http://facebook.github.io/relay/docs/relay-compat.html',
   );
   const {createOperationSelector, getRequest} = environment.unstable_internal;
   const mutation = getRequest(config.mutation);
   if (mutation.operationKind !== 'mutation') {
     throw new Error('commitRelayModernMutation: Expected mutation operation');
+  }
+  if (mutation.kind !== 'Request') {
+    throw new Error(
+      'commitRelayModernMutation: Expected mutation to be of type request',
+    );
   }
   let {optimisticResponse, optimisticUpdater, updater} = config;
   const {configs, onError, variables, uploadables} = config;
@@ -64,19 +74,10 @@ function commitRelayModernMutation<T>(
         'received a function.',
     );
   }
-  if (
-    optimisticResponse &&
-    mutation.fragment.selections &&
-    mutation.fragment.selections.length === 1 &&
-    mutation.fragment.selections[0].kind === 'LinkedField'
-  ) {
-    const mutationRoot = mutation.fragment.selections[0].name;
-    warning(
-      optimisticResponse[mutationRoot],
-      'commitRelayModernMutation: Expected `optimisticResponse` to be wrapped ' +
-        'in mutation name `%s`',
-      mutationRoot,
-    );
+  if (__DEV__) {
+    if (optimisticResponse instanceof Object) {
+      validateMutation(optimisticResponse, mutation, config.variables);
+    }
   }
   if (configs) {
     ({optimisticUpdater, updater} = RelayDeclarativeMutationConfig.convert(
@@ -102,7 +103,7 @@ function commitRelayModernMutation<T>(
         const {onCompleted} = config;
         if (onCompleted) {
           const snapshot = environment.lookup(operation.fragment);
-          onCompleted((snapshot.data: $FlowFixMe), payload.response.errors);
+          onCompleted((snapshot.data: $FlowFixMe), payload.errors);
         }
       },
       onError,

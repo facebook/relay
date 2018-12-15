@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2013-present, Facebook, Inc.
+ * Copyright (c) Facebook, Inc. and its affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -10,7 +10,6 @@
 'use strict';
 
 const RelayModernTestUtils = require('RelayModernTestUtils');
-const RelayRuntime = require('RelayRuntime');
 const RelayTestSchema = require('RelayTestSchema');
 
 const areEqual = require('areEqual');
@@ -88,7 +87,7 @@ function createMockEnvironment(options: {
     Observable,
     Environment,
     Network,
-  } = RelayRuntime; // destructure here to make jest and inline-requires work
+  } = require('relay-runtime');
   const schema = options && options.schema;
   const handlerProvider = options && options.handlerProvider;
   const source = new RecordSource();
@@ -125,16 +124,23 @@ function createMockEnvironment(options: {
     });
   };
 
-  function getRequest(request) {
-    const foundRequest = pendingRequests.find(
+  // The same request may be made by multiple query renderers
+  function getRequests(request) {
+    const foundRequests = pendingRequests.filter(
       pending => pending.request === request,
     );
     invariant(
-      foundRequest && foundRequest.sink,
-      'MockEnvironment: Cannot respond to `%s`, it has not been requested yet.',
-      request.name,
+      foundRequests.length,
+      'MockEnvironment: Cannot respond to request, it has not been requested yet.',
     );
-    return foundRequest;
+    foundRequests.forEach(foundRequest => {
+      invariant(
+        foundRequest.sink,
+        'MockEnvironment: Cannot respond to `%s`, it has not been requested yet.',
+        foundRequest.name,
+      );
+    });
+    return foundRequests;
   }
 
   function ensureValidPayload(payload) {
@@ -185,30 +191,28 @@ function createMockEnvironment(options: {
     if (typeof error === 'string') {
       error = new Error(error);
     }
-    getRequest(request).sink.error(error);
+    getRequests(request).forEach(foundRequest =>
+      foundRequest.sink.error(error),
+    );
   };
 
   const nextValue = (request, payload) => {
-    const {sink, variables} = getRequest(request);
-    sink.next({
-      operation: request.operation,
-      variables: variables,
-      response: ensureValidPayload(payload),
+    getRequests(request).forEach(foundRequest => {
+      const {sink} = foundRequest;
+      sink.next(ensureValidPayload(payload));
     });
   };
 
   const complete = request => {
-    getRequest(request).sink.complete();
+    getRequests(request).forEach(foundRequest => foundRequest.sink.complete());
   };
 
   const resolve = (request, payload) => {
-    const {sink, variables} = getRequest(request);
-    sink.next({
-      operation: request.operation,
-      variables: variables,
-      response: ensureValidPayload(payload),
+    getRequests(request).forEach(foundRequest => {
+      const {sink} = foundRequest;
+      sink.next(ensureValidPayload(payload));
+      sink.complete();
     });
-    sink.complete();
   };
 
   // Mock instance

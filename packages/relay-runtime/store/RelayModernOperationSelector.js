@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2013-present, Facebook, Inc.
+ * Copyright (c) Facebook, Inc. and its affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -10,12 +10,10 @@
 
 'use strict';
 
-const RelayConcreteNode = require('../util/RelayConcreteNode');
-
 const {getOperationVariables} = require('./RelayConcreteVariables');
 const {ROOT_ID} = require('./RelayStoreUtils');
 
-import type {RequestNode, ConcreteOperation} from '../util/RelayConcreteNode';
+import type {ConcreteRequest} from '../util/RelayConcreteNode';
 import type {Variables} from '../util/RelayRuntimeTypes';
 import type {OperationSelector} from './RelayStoreTypes';
 
@@ -26,16 +24,10 @@ import type {OperationSelector} from './RelayStoreTypes';
  * operation, and default values are populated for null values.
  */
 function createOperationSelector(
-  request: RequestNode,
+  request: ConcreteRequest,
   variables: Variables,
-  operationFromBatch?: ConcreteOperation,
 ): OperationSelector {
-  const operation =
-    operationFromBatch ||
-    (request.kind === RelayConcreteNode.BATCH_REQUEST
-      ? request.requests[0].operation
-      : request.operation);
-
+  const operation = request.operation;
   const operationVariables = getOperationVariables(operation, variables);
   const dataID = ROOT_ID;
   return {

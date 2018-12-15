@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2013-present, Facebook, Inc.
+ * Copyright (c) Facebook, Inc. and its affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -18,7 +18,7 @@ import type {
   RecordSourceSelectorProxy,
   SelectorStoreUpdater,
 } from '../store/RelayStoreTypes';
-import type {RequestNode} from '../util/RelayConcreteNode';
+import type {ConcreteRequest} from '../util/RelayConcreteNode';
 import type {DataID, Variables} from '../util/RelayRuntimeTypes';
 import type {SelectorData} from 'react-relay/classic/environment/RelayCombinedEnvironmentTypes';
 import type {RelayConcreteNode} from 'react-relay/classic/query/RelayQL';
@@ -105,7 +105,7 @@ export type DeclarativeMutationConfig =
 
 function convert(
   configs: Array<DeclarativeMutationConfig>,
-  request: RequestNode,
+  request: ConcreteRequest,
   optimisticUpdater?: ?SelectorStoreUpdater,
   updater?: ?SelectorStoreUpdater,
 ): {
@@ -158,7 +158,7 @@ function convert(
 
 function nodeDelete(
   config: NodeDeleteConfig,
-  request: RequestNode,
+  request: ConcreteRequest,
 ): ?SelectorStoreUpdater {
   const {deletedIDFieldName} = config;
   const rootField = getRootField(request);
@@ -182,7 +182,7 @@ function nodeDelete(
 
 function rangeAdd(
   config: RangeAddConfig,
-  request: RequestNode,
+  request: ConcreteRequest,
 ): ?SelectorStoreUpdater {
   const {parentID, connectionInfo, edgeName} = config;
   if (!parentID) {
@@ -253,7 +253,7 @@ function rangeAdd(
 
 function rangeDelete(
   config: RangeDeleteConfig,
-  request: RequestNode,
+  request: ConcreteRequest,
 ): ?SelectorStoreUpdater {
   const {
     parentID,
@@ -382,7 +382,7 @@ function deleteNode(
   }
 }
 
-function getRootField(request: RequestNode): ?string {
+function getRootField(request: ConcreteRequest): ?string {
   if (
     request.fragment.selections &&
     request.fragment.selections.length > 0 &&

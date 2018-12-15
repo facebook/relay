@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2013-present, Facebook, Inc.
+ * Copyright (c) Facebook, Inc. and its affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -16,12 +16,12 @@ const invariant = require('invariant');
 
 const {convertFetch, convertSubscribe} = require('./ConvertToExecuteFunction');
 
-import type {RequestNode} from '../util/RelayConcreteNode';
+import type {ConcreteRequest} from '../util/RelayConcreteNode';
 import type {CacheConfig, Variables} from '../util/RelayRuntimeTypes';
 import type {
   FetchFunction,
+  GraphQLResponse,
   Network,
-  ExecutePayload,
   SubscribeFunction,
   UploadableMap,
 } from './RelayNetworkTypes';
@@ -41,11 +41,11 @@ function create(
     : undefined;
 
   function execute(
-    request: RequestNode,
+    request: ConcreteRequest,
     variables: Variables,
     cacheConfig: CacheConfig,
     uploadables?: ?UploadableMap,
-  ): RelayObservable<ExecutePayload> {
+  ): RelayObservable<GraphQLResponse> {
     if (request.operationKind === 'subscription') {
       invariant(
         observeSubscribe,

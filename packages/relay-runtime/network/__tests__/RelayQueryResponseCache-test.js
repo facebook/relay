@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2013-present, Facebook, Inc.
+ * Copyright (c) Facebook, Inc. and its affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -41,10 +41,12 @@ describe('RelayQueryResponseCache', () => {
   describe('get()', () => {
     it('returns known entries', () => {
       const cache = new RelayQueryResponseCache({size: 1, ttl: 1000});
-      const result = {};
+      const payload = {};
       const variables = {id: 1};
-      cache.set(queryID, variables, result);
-      expect(cache.get(queryID, variables)).toBe(result);
+      const result = {...payload, extensions: {cacheTimestamp: 5}};
+      Date.now = () => 5;
+      cache.set(queryID, variables, payload);
+      expect(cache.get(queryID, variables)).toEqual(result);
     });
 
     it('returns null for unknown entries', () => {
@@ -55,13 +57,14 @@ describe('RelayQueryResponseCache', () => {
 
     it('expires entries', () => {
       const cache = new RelayQueryResponseCache({size: 1, ttl: 9});
-      const result = {};
+      const payload = {};
       const variables = {id: 1};
-      Date.now = () => 0;
-      cache.set(queryID, variables, result);
-      Date.now = () => 9;
-      expect(cache.get(queryID, variables)).toBe(result);
+      const result = {...payload, extensions: {cacheTimestamp: 1}};
+      Date.now = () => 1;
+      cache.set(queryID, variables, payload);
       Date.now = () => 10;
+      expect(cache.get(queryID, variables)).toEqual(result);
+      Date.now = () => 11;
       expect(cache.get(queryID, variables)).toBe(null);
     });
   });
@@ -76,7 +79,7 @@ describe('RelayQueryResponseCache', () => {
       expect(cache.get(queryID, {id: 1})).toBe(null);
       expect(cache.get(queryID, {id: 2})).not.toBe(null);
 
-      cache.set(queryID, {id: 1});
+      cache.set(queryID, {id: 1}, {});
       expect(cache.get(queryID, {id: 2})).toBe(null);
       expect(cache.get(queryID, {id: 1})).not.toBe(null);
     });

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2013-present, Facebook, Inc.
+ * Copyright (c) Facebook, Inc. and its affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -15,6 +15,8 @@ const RelayFragmentSpecResolver = require('./RelayFragmentSpecResolver');
 const {
   getClassicFragment,
   getClassicOperation,
+  isClassicFragment,
+  isClassicOperation,
 } = require('../query/RelayGraphQLTag');
 const {createOperationSelector} = require('./RelayOperationSelector');
 const {
@@ -57,4 +59,6 @@ module.exports = {
   getSelectorList,
   getSelectorsFromObject,
   getVariablesFromObject,
+  isFragment: isClassicFragment,
+  isRequest: isClassicOperation,
 };

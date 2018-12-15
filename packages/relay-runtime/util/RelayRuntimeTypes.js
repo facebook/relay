@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2013-present, Facebook, Inc.
+ * Copyright (c) Facebook, Inc. and its affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -32,16 +32,10 @@ export type Variables = {[name: string]: $FlowFixMe};
  * Generated operation flow types are subtypes of this.
  */
 export type OperationType = {|
-  +variables: mixed,
+  // TODO(T33395812) Make this an open object type
+  +variables: Variables,
   +response: mixed,
 |};
-
-export type RerunParam = {
-  param: string,
-  import?: ?string,
-  target?: ?string,
-  max_runs: number,
-};
 
 /**
  * Settings for how a query response may be cached.
@@ -52,14 +46,14 @@ export type RerunParam = {
  *   in milliseconds. (This value will be passed to setTimeout.)
  * - `liveConfigId`: causes a query to live update by calling GraphQLLiveQuery,
  *   it represents a configuration of gateway when doing live query
- * - `rerunParamExperimental`: causes the query to be run with the experimental
- *   batch API on Network interfaces and GraphQL servers that support it.
  * - `metadata`: user-supplied metadata.
+ * - `transactionId`: a user-supplied value, intended for use as a unique id for
+ *   a given instance of executing an operation.
  */
 export type CacheConfig = {
   force?: ?boolean,
   poll?: ?number,
   liveConfigId?: ?string,
-  rerunParamExperimental?: ?RerunParam,
   metadata?: {[key: string]: mixed},
+  transactionId?: ?string,
 };

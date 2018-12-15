@@ -35,6 +35,12 @@ Babel's [documentation on this topic](https://babeljs.io/docs/plugins/#pluginpre
 
 See the [Migration Setup](./migration-setup.html) guide if upgrading an existing Relay app.
 
+Alternatively, instead of using `babel-plugin-relay`, you can use Relay with [babel-plugin-macros](https://github.com/kentcdodds/babel-plugin-macros). After installing `babel-plugin-macros` and adding it to your Babel config:
+
+```javascript
+const graphql = require('babel-plugin-relay/macro');
+```
+
 ## Set up relay-compiler
 
 Relay's ahead-of-time compilation requires the [Relay Compiler](./graphql-in-relay.html#relay-compiler.html), which you can install via `yarn` or `npm`:
@@ -83,7 +89,7 @@ However, Relay Modern expects modern JavaScript global types (`Map`, `Set`,
 `Promise`, `Object.assign`) to be defined. If you support older browsers and
 devices which may not yet provide these natively, consider including a global
 polyfill in your bundled application, such as [core-js][] or
-[babel-polyfill](https://babeljs.io/docs/usage/polyfill/).
+[@babel/polyfill](https://babeljs.io/docs/usage/polyfill/).
 
 A polyfilled environment for Relay using [core-js][] to support older browsers
 might look like:

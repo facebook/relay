@@ -10,10 +10,11 @@
 
 'use strict';
 
-const RelayConcreteNode = require('../../relay-runtime/util/RelayConcreteNode');
+const {RelayConcreteNode} = require('relay-runtime');
 
 import type {ScalarTypeMapping} from './javascript/RelayFlowTypeTransformers';
-import type {IRTransform, Root, Fragment} from 'graphql-compiler';
+import type {IRTransform} from '../core/GraphQLCompilerContext';
+import type {Root, Fragment} from '../core/GraphQLIR';
 
 /**
  * A language plugin allows relay-compiler to both read and write files for any

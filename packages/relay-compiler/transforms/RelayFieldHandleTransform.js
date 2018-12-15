@@ -16,7 +16,7 @@ const CompilerContext = require('../core/GraphQLCompilerContext');
 const IRTransformer = require('../core/GraphQLIRTransformer');
 const {getRelayHandleKey} = require('relay-runtime');
 
-import type {Field} from 'graphql-compiler';
+import type {Field} from '../core/GraphQLIR';
 
 function relayFieldHandleTransform(context: CompilerContext): CompilerContext {
   return IRTransformer.transform(context, {

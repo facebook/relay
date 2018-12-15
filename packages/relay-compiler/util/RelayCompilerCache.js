@@ -15,7 +15,7 @@ const fs = require('fs');
 const os = require('os');
 const path = require('path');
 
-const {Profiler} = require('graphql-compiler');
+const Profiler = require('../core/GraphQLCompilerProfiler');
 
 /**
  * A file backed cache. Values are JSON encoded on disk, so only JSON

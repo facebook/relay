@@ -21,10 +21,10 @@ const path = require('path');
 const writeRelayGeneratedFile = require('./writeRelayGeneratedFile');
 
 const ASTConvert = require('../core/ASTConvert');
-const CodegenDirectory = require('../core/CodegenDirectory');
-const CompilerContext = require('../core/CompilerContext');
+const CodegenDirectory = require('../codegen/CodegenDirectory');
+const CompilerContext = require('../core/GraphQLCompilerContext');
 const Profiler = require('../core/GraphQLCompilerProfiler');
-const SplitNaming = require('../core/SplitNaming');
+const SplitNaming = require('../core/GraphQLIRSplitNaming');
 const SchemaUtils = require('../core/GraphQLSchemaUtils');
 const {Map: ImmutableMap} = require('immutable');
 
@@ -34,7 +34,8 @@ import type {
 } from '../language/RelayLanguagePluginInterface';
 import type {ScalarTypeMapping} from '../language/javascript/RelayFlowTypeTransformers';
 import type {RelayCompilerTransforms} from './compileRelayArtifacts';
-import type {Reporter, SourceControl} from 'graphql-compiler';
+import type {GraphQLReporter as Reporter} from '../reporters/GraphQLReporter';
+import type {SourceControl} from './SourceControl';
 import type {DocumentNode, GraphQLSchema, ValidationContext} from 'graphql';
 
 const {isExecutableDefinitionAST} = SchemaUtils;

@@ -16,7 +16,7 @@ const CompilerContext = require('../core/GraphQLCompilerContext');
 const SchemaUtils = require('../core/GraphQLSchemaUtils');
 const IRTransformer = require('../core/GraphQLIRTransformer');
 
-import type {LinkedField, MatchField, ScalarField} from 'graphql-compiler';
+import type {LinkedField, MatchField, ScalarField} from '../core/GraphQLIR';
 
 const {isAbstractType} = SchemaUtils;
 

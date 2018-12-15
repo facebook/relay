@@ -36,8 +36,8 @@ import type {
   LinkedField,
   MatchField,
   Root,
-  CompilerContext,
-} from 'graphql-compiler';
+} from '../../core/GraphQLIR';
+import type CompilerContext from '../../core/GraphQLCompilerContext';
 import type {GraphQLType} from 'graphql';
 import type {ConnectionMetadata} from 'relay-runtime';
 

@@ -29,7 +29,7 @@ import type {
   LinkedField,
   MatchField,
   ScalarField,
-} from 'graphql-compiler';
+} from '../core/GraphQLIR';
 import type {GraphQLCompositeType, GraphQLType} from 'graphql';
 
 const SUPPORTED_ARGUMENT_NAME = 'supported';

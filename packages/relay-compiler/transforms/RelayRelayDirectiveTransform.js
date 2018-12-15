@@ -16,7 +16,7 @@ const CompilerContext = require('../core/GraphQLCompilerContext');
 const IRTransformer = require('../core/GraphQLIRTransformer');
 const getLiteralArgumentValues = require('../core/getLiteralArgumentValues');
 
-import type {Fragment, FragmentSpread} from 'graphql-compiler';
+import type {Fragment, FragmentSpread} from '../core/GraphQLIR';
 
 const RELAY = 'relay';
 const SCHEMA_EXTENSION = `

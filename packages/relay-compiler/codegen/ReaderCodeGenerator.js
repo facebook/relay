@@ -17,7 +17,7 @@ const SchemaUtils = require('../core/GraphQLSchemaUtils');
 const IRVisitor = require('../core/GraphQLIRVisitor');
 const {getStorageKey, stableCopy} = require('relay-runtime');
 
-import type {Metadata, Fragment} from 'graphql-compiler';
+import type {Metadata, Fragment} from '../core/GraphQLIR';
 import type {
   ReaderArgument,
   ReaderArgumentDefinition,

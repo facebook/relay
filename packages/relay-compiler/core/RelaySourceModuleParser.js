@@ -21,7 +21,8 @@ const ASTCache = require('./ASTCache');
 const Profiler = require('./GraphQLCompilerProfiler');
 
 import type {GraphQLTagFinder} from '../language/RelayLanguagePluginInterface';
-import type {File, FileFilter} from 'graphql-compiler';
+import type {File} from '../codegen/CodegenTypes';
+import type {FileFilter} from '../codegen/CodegenWatcher';
 import type {DocumentNode} from 'graphql';
 
 const parseGraphQL = Profiler.instrument(GraphQL.parse, 'GraphQL.parse');

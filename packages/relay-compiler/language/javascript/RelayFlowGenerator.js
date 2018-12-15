@@ -41,7 +41,8 @@ const {isAbstractType} = require('../../core/GraphQLSchemaUtils');
 const Profiler = require('../../core/GraphQLCompilerProfiler');
 
 import type {TypeGeneratorOptions} from '../RelayLanguagePluginInterface';
-import type {IRTransform, Fragment, Root} from 'graphql-compiler';
+import type {IRTransform} from '../../core/GraphQLCompilerContext';
+import type {Fragment, Root} from '../../core/GraphQLIR';
 import type {GraphQLEnumType} from 'graphql';
 
 export type State = {|

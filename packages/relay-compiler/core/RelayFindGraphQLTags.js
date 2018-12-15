@@ -21,7 +21,7 @@ import type {
   GraphQLTag,
   GraphQLTagFinder,
 } from '../language/RelayLanguagePluginInterface';
-import type {File} from 'graphql-compiler';
+import type {File} from '../codegen/CodegenTypes';
 
 export type GraphQLTagFinderOptions = {|
   validateNames: boolean,

@@ -30,7 +30,7 @@ const SkipRedundantNodesTransform = require('../transforms/SkipRedundantNodesTra
 const SkipUnreachableNodeTransform = require('../transforms/SkipUnreachableNodeTransform');
 const StripUnusedVariablesTransform = require('../transforms/StripUnusedVariablesTransform');
 
-import type {IRTransform} from 'graphql-compiler';
+import type {IRTransform} from './GraphQLCompilerContext';
 
 // Transforms applied to the code used to process a query response.
 const relaySchemaExtensions: Array<string> = [

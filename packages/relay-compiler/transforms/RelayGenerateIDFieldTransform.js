@@ -25,7 +25,7 @@ import type {
   LinkedField,
   MatchField,
   ScalarField,
-} from 'graphql-compiler';
+} from '../core/GraphQLIR';
 import type {GraphQLCompositeType} from 'graphql';
 const {
   canHaveSelections,

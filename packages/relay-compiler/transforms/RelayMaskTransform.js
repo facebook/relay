@@ -23,7 +23,7 @@ import type {
   FragmentSpread,
   InlineFragment,
   ArgumentDefinition,
-} from 'graphql-compiler';
+} from '../core/GraphQLIR';
 
 type State = {
   reachableArguments: Array<{

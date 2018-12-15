@@ -19,18 +19,18 @@ const IRTransformer = require('../core/GraphQLIRTransformer');
 const getIdentifierForArgumentValue = require('../core/getIdentifierForArgumentValue');
 
 import type {Scope} from '../core/RelayCompilerScope';
+import type CompilerContext from '../core/GraphQLCompilerContext';
 import type {
   Argument,
   ArgumentValue,
   Condition,
-  CompilerContext,
   Directive,
   Field,
   Fragment,
   FragmentSpread,
   Node,
   Selection,
-} from 'graphql-compiler';
+} from '../core/GraphQLIR';
 
 const {getFragmentScope, getRootScope} = RelayCompilerScope;
 

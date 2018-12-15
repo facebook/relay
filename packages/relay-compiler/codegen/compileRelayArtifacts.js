@@ -16,7 +16,9 @@ const Printer = require('../core/GraphQLIRPrinter');
 const Profiler = require('../core/GraphQLCompilerProfiler');
 const filterContextForNode = require('../core/filterContextForNode');
 
-import type {CompilerContext, IRTransform, Reporter} from 'graphql-compiler';
+import type {GraphQLReporter as Reporter} from '../reporters/GraphQLReporter';
+import type {IRTransform} from '../core/GraphQLCompilerContext';
+import type CompilerContext from '../core/GraphQLCompilerContext';
 import type {GeneratedNode} from 'relay-runtime';
 
 export type RelayCompilerTransforms = {

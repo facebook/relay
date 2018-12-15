@@ -15,7 +15,8 @@ const IRTransformer = require('../../core/GraphQLIRTransformer');
 const SchemaUtils = require('../../core/GraphQLSchemaUtils');
 const {DEFAULT_HANDLE_KEY} = require('relay-runtime');
 
-import type {CompilerContext, LinkedField, MatchField} from 'graphql-compiler';
+import CompilerContext from '../../core/GraphQLCompilerContext';
+import type {LinkedField, MatchField} from '../../core/GraphQLIR';
 
 const {getRawType} = SchemaUtils;
 

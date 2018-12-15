@@ -19,12 +19,11 @@ const {
   GraphQLString,
   getNullableType,
 } = require('graphql');
-const {
-  CompilerContext,
-  IRTransformer,
-  getLiteralArgumentValues,
-  SplitNaming,
-} = require('graphql-compiler');
+const CompilerContext=require('../core/GraphQLCompilerContext')
+const SplitNaming=require('../core/GraphQLIRSplitNaming')
+const IRTransformer=require('../core/GraphQLIRTransformer')
+const getLiteralArgumentValues=require('../core/getLiteralArgumentValues')
+
 
 import type {
   InlineFragment,

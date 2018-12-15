@@ -10,11 +10,9 @@
 
 'use strict';
 
-const {Validator} = require('graphql-compiler');
-
 import type {FieldNode, ValidationContext} from 'graphql';
 
-const {GLOBAL_RULES, LOCAL_RULES, validate} = Validator;
+const {GLOBAL_RULES, LOCAL_RULES, validate} = require('./GraphQLValidator');
 
 function DisallowIdAsAliasValidationRule(context: ValidationContext) {
   return {

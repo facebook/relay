@@ -13,11 +13,9 @@
 const invariant = require('invariant');
 
 const {assertAbstractType, isAbstractType} = require('graphql');
-const {
-  Parser,
-  SchemaUtils,
-  defaultGetFieldDefinition,
-} = require('graphql-compiler');
+const GraphQLParser = require('./GraphQLParser')
+const SchemaUtils = require('./GraphQLSchemaUtils')
+const defaultGetFieldDefinition=require('./defaultGetFieldDefinition')
 
 import type {
   FieldNode,
@@ -31,7 +29,7 @@ import type {
 
 const {getRawType} = SchemaUtils;
 
-class RelayParser extends Parser {
+class RelayParser extends GraphQLParser {
   constructor(
     schema: GraphQLSchema,
     definitions: $ReadOnlyArray<

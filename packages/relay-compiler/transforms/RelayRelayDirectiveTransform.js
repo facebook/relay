@@ -12,11 +12,9 @@
 
 const invariant = require('invariant');
 
-const {
-  CompilerContext,
-  IRTransformer,
-  getLiteralArgumentValues,
-} = require('graphql-compiler');
+const CompilerContext=require('../core/GraphQLCompilerContext')
+const IRTransformer=require('../core/GraphQLIRTransformer')
+const getLiteralArgumentValues=require('../core/getLiteralArgumentValues')
 
 import type {Fragment, FragmentSpread} from 'graphql-compiler';
 

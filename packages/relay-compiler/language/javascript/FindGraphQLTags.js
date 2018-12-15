@@ -13,7 +13,7 @@
 const babylon = require('@babel/parser');
 const util = require('util');
 
-const {Profiler} = require('graphql-compiler');
+const Profiler = require('../../core/GraphQLCompilerProfiler');
 
 import type {GraphQLTag} from '../RelayLanguagePluginInterface';
 

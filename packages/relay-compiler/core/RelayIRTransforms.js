@@ -22,15 +22,13 @@ const RelaySkipHandleFieldTransform = require('../transforms/RelaySkipHandleFiel
 const RelaySplitMatchTransform = require('../transforms/RelaySplitMatchTransform');
 const RelayViewerHandleTransform = require('../handlers/viewer/RelayViewerHandleTransform');
 
-const {
-  FilterDirectivesTransform,
-  FlattenTransform,
-  InlineFragmentsTransform,
-  SkipClientFieldTransform,
-  SkipRedundantNodesTransform,
-  SkipUnreachableNodeTransform,
-  StripUnusedVariablesTransform,
-} = require('graphql-compiler');
+const FilterDirectivesTransform = require('../transforms/FilterDirectivesTransform');
+const FlattenTransform = require('../transforms/FlattenTransform');
+const InlineFragmentsTransform = require('../transforms/InlineFragmentsTransform');
+const SkipClientFieldTransform = require('../transforms/SkipClientFieldTransform');
+const SkipRedundantNodesTransform = require('../transforms/SkipRedundantNodesTransform');
+const SkipUnreachableNodeTransform = require('../transforms/SkipUnreachableNodeTransform');
+const StripUnusedVariablesTransform = require('../transforms/StripUnusedVariablesTransform');
 
 import type {IRTransform} from 'graphql-compiler';
 

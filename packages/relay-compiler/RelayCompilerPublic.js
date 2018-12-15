@@ -136,7 +136,6 @@ module.exports = {
   isEquivalentType,
   nullthrows,
 
-  ConsoleReporter,
   Parser: RelayParser,
   Validator: RelayValidator,
   CodeGenerator: RelayCodeGenerator,
@@ -150,7 +149,7 @@ module.exports = {
   FileWriter: RelayFileWriter,
   IRTransforms: RelayIRTransforms,
   JSModuleParser: RelayJSModuleParser,
-  MultiReporter,
+  MultiReporter: GraphQLMultiReporter,
   Runner: CodegenRunner,
   compileRelayArtifacts,
   formatGeneratedModule,

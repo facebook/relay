@@ -35,18 +35,15 @@ const {
   transformInputType,
 } = require('./RelayFlowTypeTransformers');
 const {GraphQLInputObjectType, GraphQLNonNull} = require('graphql');
-const {
-  FlattenTransform,
-  IRVisitor,
-  Profiler,
-  SchemaUtils,
-} = require('graphql-compiler');
+const FlattenTransform=require('../../transforms/FlattenTransform')
+const IRVisitor = require('../../core/GraphQLIRVisitor')
+const {isAbstractType} =  require('../../core/GraphQLSchemaUtils')
+const Profiler = require('../../core/GraphQLCompilerProfiler')
 
 import type {TypeGeneratorOptions} from '../RelayLanguagePluginInterface';
 import type {IRTransform, Fragment, Root} from 'graphql-compiler';
 import type {GraphQLEnumType} from 'graphql';
 
-const {isAbstractType} = SchemaUtils;
 
 export type State = {|
   ...TypeGeneratorOptions,

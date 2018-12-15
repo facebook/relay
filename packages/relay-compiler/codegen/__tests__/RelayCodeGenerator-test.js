@@ -20,7 +20,8 @@ const RelayTestSchema = require('RelayTestSchema');
 const parseGraphQLText = require('parseGraphQLText');
 
 const {generateTestsFromFixtures} = require('RelayModernTestUtils');
-const {ASTConvert, CompilerContext} = require('graphql-compiler');
+const ASTConvert = require('../../core/ASTConvert');
+const CompilerContext = require('../../core/GraphQLCompilerContext');
 
 describe('RelayCodeGenerator', () => {
   const schema = ASTConvert.transformASTSchema(RelayTestSchema, [

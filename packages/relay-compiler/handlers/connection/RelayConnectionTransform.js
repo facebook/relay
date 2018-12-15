@@ -24,9 +24,9 @@ const {
   GraphQLUnionType,
   parse,
 } = require('graphql');
-const SchemaUtils=require('../../core/GraphQLSchemaUtils')
-const IRTransformer=require('../../core/GraphQLIRTransformer')
-const getLiteralArgumentValues=require('../../core/getLiteralArgumentValues')
+const SchemaUtils = require('../../core/GraphQLSchemaUtils');
+const IRTransformer = require('../../core/GraphQLIRTransformer');
+const getLiteralArgumentValues = require('../../core/getLiteralArgumentValues');
 const {ConnectionInterface} = require('relay-runtime');
 
 import type {

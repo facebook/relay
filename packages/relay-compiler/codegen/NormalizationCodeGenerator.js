@@ -13,8 +13,8 @@
 const invariant = require('invariant');
 
 const {GraphQLList} = require('graphql');
-const SchemaUtils=require('../core/GraphQLSchemaUtils')
-const IRVisitor=require('../core/GraphQLIRVisitor')
+const SchemaUtils = require('../core/GraphQLSchemaUtils');
+const IRVisitor = require('../core/GraphQLIRVisitor');
 const {getStorageKey, stableCopy} = require('relay-runtime');
 
 import type {Metadata, Root, SplitOperation} from 'graphql-compiler';

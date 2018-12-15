@@ -12,8 +12,8 @@
 
 const invariant = require('invariant');
 
-const CompilerContext=require('../core/GraphQLCompilerContext')
-const IRTransformer=require('../core/GraphQLIRTransformer')
+const CompilerContext = require('../core/GraphQLCompilerContext');
+const IRTransformer = require('../core/GraphQLIRTransformer');
 const {getRelayHandleKey} = require('relay-runtime');
 
 import type {Field} from 'graphql-compiler';

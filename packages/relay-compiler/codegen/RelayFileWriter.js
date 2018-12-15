@@ -20,12 +20,12 @@ const invariant = require('invariant');
 const path = require('path');
 const writeRelayGeneratedFile = require('./writeRelayGeneratedFile');
 
-const ASTConvert =require('../core/ASTConvert')
-const CodegenDirectory =require('../core/CodegenDirectory')
-const CompilerContext =require('../core/CompilerContext')
-const Profiler =require('../core/GraphQLCompilerProfiler')
-const SplitNaming =require('../core/SplitNaming')
-const SchemaUtils =require('../core/GraphQLSchemaUtils')
+const ASTConvert = require('../core/ASTConvert');
+const CodegenDirectory = require('../core/CodegenDirectory');
+const CompilerContext = require('../core/CompilerContext');
+const Profiler = require('../core/GraphQLCompilerProfiler');
+const SplitNaming = require('../core/SplitNaming');
+const SchemaUtils = require('../core/GraphQLSchemaUtils');
 const {Map: ImmutableMap} = require('immutable');
 
 import type {

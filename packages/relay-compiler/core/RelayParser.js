@@ -13,9 +13,9 @@
 const invariant = require('invariant');
 
 const {assertAbstractType, isAbstractType} = require('graphql');
-const GraphQLParser = require('./GraphQLParser')
-const SchemaUtils = require('./GraphQLSchemaUtils')
-const defaultGetFieldDefinition=require('./defaultGetFieldDefinition')
+const GraphQLParser = require('./GraphQLParser');
+const SchemaUtils = require('./GraphQLSchemaUtils');
+const defaultGetFieldDefinition = require('./defaultGetFieldDefinition');
 
 import type {
   FieldNode,

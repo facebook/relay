@@ -10,8 +10,8 @@
 
 'use strict';
 
-const CompilerContext=require('../core/GraphQLCompilerContext')
-const IRTransformer=require('../core/GraphQLIRTransformer')
+const CompilerContext = require('../core/GraphQLCompilerContext');
+const IRTransformer = require('../core/GraphQLIRTransformer');
 
 import type {Field} from 'graphql-compiler';
 

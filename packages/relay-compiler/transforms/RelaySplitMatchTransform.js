@@ -10,9 +10,9 @@
 
 'use strict';
 
-const CompilerContext=require('../core/GraphQLCompilerContext')
-const IRTransformer=require('../core/GraphQLIRTransformer')
-const SplitNaming=require('../core/GraphQLIRSplitNaming')
+const CompilerContext = require('../core/GraphQLCompilerContext');
+const IRTransformer = require('../core/GraphQLIRTransformer');
+const SplitNaming = require('../core/GraphQLIRSplitNaming');
 
 import type {MatchBranch, SplitOperation} from 'graphql-compiler';
 

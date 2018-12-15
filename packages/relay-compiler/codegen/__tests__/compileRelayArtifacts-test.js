@@ -21,8 +21,8 @@ const compileRelayArtifacts = require('../compileRelayArtifacts');
 const parseGraphQLText = require('parseGraphQLText');
 
 const {generateTestsFromFixtures} = require('RelayModernTestUtils');
-const ASTConvert=require('../../core/ASTConvert')
-const CompilerContext=require('../../core/GraphQLCompilerContext')
+const ASTConvert = require('../../core/ASTConvert');
+const CompilerContext = require('../../core/GraphQLCompilerContext');
 
 describe('compileRelayArtifacts', () => {
   generateTestsFromFixtures(

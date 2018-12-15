@@ -15,8 +15,8 @@ const RelayCompilerScope = require('../core/RelayCompilerScope');
 const murmurHash = require('../util/murmurHash');
 
 const {GraphQLError} = require('graphql');
-const IRTransformer=require('../core/GraphQLIRTransformer')
-const getIdentifierForArgumentValue=require('../core/getIdentifierForArgumentValue')
+const IRTransformer = require('../core/GraphQLIRTransformer');
+const getIdentifierForArgumentValue = require('../core/getIdentifierForArgumentValue');
 
 import type {Scope} from '../core/RelayCompilerScope';
 import type {

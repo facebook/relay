@@ -16,9 +16,9 @@ const {
   assertCompositeType,
   assertLeafType,
 } = require('graphql');
-const CompilerContext = require('../core/GraphQLCompilerContext')
-const SchemaUtils = require('../core/GraphQLSchemaUtils')
-const IRTransformer = require('../core/GraphQLIRTransformer')
+const CompilerContext = require('../core/GraphQLCompilerContext');
+const SchemaUtils = require('../core/GraphQLSchemaUtils');
+const IRTransformer = require('../core/GraphQLIRTransformer');
 
 import type {
   InlineFragment,

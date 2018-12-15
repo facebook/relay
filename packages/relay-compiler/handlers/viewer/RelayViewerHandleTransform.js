@@ -11,8 +11,8 @@
 'use strict';
 
 const {GraphQLObjectType} = require('graphql');
-const IRTransformer = require('../../core/GraphQLIRTransformer')
-const SchemaUtils = require('../../core/GraphQLSchemaUtils')
+const IRTransformer = require('../../core/GraphQLIRTransformer');
+const SchemaUtils = require('../../core/GraphQLSchemaUtils');
 const {DEFAULT_HANDLE_KEY} = require('relay-runtime');
 
 import type {CompilerContext, LinkedField, MatchField} from 'graphql-compiler';

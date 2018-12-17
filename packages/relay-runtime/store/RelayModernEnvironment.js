@@ -485,6 +485,10 @@ class RelayModernEnvironment implements Environment {
       onCompleted,
     });
   }
+
+  toJSON(): mixed {
+    return `RelayModernEnvironment(${this.configName ?? ''})`;
+  }
 }
 
 /**

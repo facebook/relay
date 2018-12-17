@@ -163,6 +163,10 @@ class RelayModernStore implements Store {
     return {dispose};
   }
 
+  toJSON(): mixed {
+    return 'RelayModernStore()';
+  }
+
   // Internal API
   __getUpdatedRecordIDs(): UpdatedRecords {
     return this._updatedRecordIDs;

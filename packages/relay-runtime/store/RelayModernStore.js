@@ -54,7 +54,6 @@ type Subscription = {
  * is also enforced in development mode by freezing all records passed to a store.
  */
 class RelayModernStore implements Store {
-  _gcEnabled: boolean;
   _gcScheduler: Scheduler;
   _hasScheduledGC: boolean;
   _index: number;
@@ -81,7 +80,6 @@ class RelayModernStore implements Store {
         }
       }
     }
-    this._gcEnabled = true;
     this._gcScheduler = gcScheduler;
     this._hasScheduledGC = false;
     this._index = 0;
@@ -198,7 +196,7 @@ class RelayModernStore implements Store {
       this._shouldScheduleGC = true;
       return;
     }
-    if (!this._gcEnabled || this._hasScheduledGC) {
+    if (this._hasScheduledGC) {
       return;
     }
     this._hasScheduledGC = true;
@@ -232,15 +230,6 @@ class RelayModernStore implements Store {
         this._recordSource.remove(dataID);
       }
     }
-  }
-
-  // Internal hooks to enable/disable garbage collection for experimentation
-  __enableGC(): void {
-    this._gcEnabled = true;
-  }
-
-  __disableGC(): void {
-    this._gcEnabled = false;
   }
 }
 

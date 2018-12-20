@@ -27,6 +27,7 @@ const {
   extendSchema,
   getNamedType,
   GraphQLEnumType,
+  GraphQLID,
   GraphQLError,
   GraphQLInputObjectType,
   GraphQLList,
@@ -73,9 +74,24 @@ import type {
   SelectionSetNode,
   ValueNode,
   VariableNode,
+  IntValueNode,
+  FloatValueNode,
+  StringValueNode,
+  BooleanValueNode,
+  EnumValueNode,
+  ListValueNode,
+  ObjectValueNode,
 } from 'graphql';
 
 type ASTDefinitionNode = FragmentDefinitionNode | OperationDefinitionNode;
+type NonNullLiteralValueNode =
+  | IntValueNode
+  | FloatValueNode
+  | StringValueNode
+  | BooleanValueNode
+  | EnumValueNode
+  | ListValueNode
+  | ObjectValueNode;
 type GetFieldDefinitionFn = (
   schema: GraphQLSchema,
   parentType: GraphQLOutputType,
@@ -1007,147 +1023,166 @@ class GraphQLDefinitionParser {
   }
 
   /**
-   * Transforms AST values into IR values, extracting the literal JS values of any
-   * subtree of the AST that does not contain a variable.
+   * Transforms and validates argument values according to the expected
+   * type.
    */
   _transformValue(ast: ValueNode, type: GraphQLInputType): ArgumentValue {
-    switch (ast.kind) {
-      case 'IntValue':
+    if (ast.kind === 'Variable') {
+      // Special case variables since there is no value to parse
+      return this._transformVariable(ast, type);
+    } else if (ast.kind === 'NullValue') {
+      // Special case null literals since there is no value to parse
+      if (type instanceof GraphQLNonNull) {
+        throw new GraphQLError(
+          `Expected a value matching type '${String(type)}'.`,
+          [ast],
+        );
+      }
+      return {
+        kind: 'Literal',
+        metadata: null,
+        value: null,
+      };
+    } else {
+      return this._transformNonNullLiteral(ast, type);
+    }
+  }
+
+  /**
+   * Transforms and validates non-null literal (non-variable) values
+   * according to the expected type.
+   */
+  _transformNonNullLiteral(
+    ast: NonNullLiteralValueNode,
+    type: GraphQLInputType,
+  ): ArgumentValue {
+    const nullableType = getNullableType(type);
+    if (nullableType instanceof GraphQLList) {
+      if (ast.kind !== 'ListValue') {
+        // Parse singular (non-list) values flowing into a list type
+        // as scalars, ie without wrapping them in an array.
+        return this._transformValue(ast, nullableType.ofType);
+      }
+      const itemType = assertInputType(nullableType.ofType);
+      const literalList = [];
+      const items = [];
+      let areAllItemsScalar = true;
+      ast.values.forEach(item => {
+        const itemValue = this._transformValue(item, itemType);
+        if (itemValue.kind === 'Literal') {
+          literalList.push(itemValue.value);
+        }
+        items.push(itemValue);
+        areAllItemsScalar = areAllItemsScalar && itemValue.kind === 'Literal';
+      });
+      if (areAllItemsScalar) {
+        return {
+          kind: 'Literal',
+          metadata: null,
+          value: literalList,
+        };
+      } else {
+        return {
+          kind: 'ListValue',
+          metadata: null,
+          items,
+        };
+      }
+    } else if (nullableType instanceof GraphQLInputObjectType) {
+      const objectType = nullableType;
+      if (ast.kind !== 'ObjectValue') {
+        throw new GraphQLError(
+          `Expected a value matching type '${String(type)}'.`,
+          [ast],
+        );
+      }
+      const literalObject = {};
+      const fields = [];
+      let areAllFieldsScalar = true;
+      ast.fields.forEach(field => {
+        const fieldName = getName(field);
+        const fieldConfig = objectType.getFields()[fieldName];
+        if (fieldConfig == null) {
+          throw new GraphQLError(
+            `Uknown field '${fieldName}' on type '${String(type)}'.`,
+            [field],
+          );
+        }
+        const fieldType = assertInputType(fieldConfig.type);
+        const fieldValue = this._transformValue(field.value, fieldType);
+        if (fieldValue.kind === 'Literal') {
+          literalObject[field.name.value] = fieldValue.value;
+        }
+        fields.push({
+          kind: 'ObjectFieldValue',
+          metadata: null,
+          name: fieldName,
+          value: fieldValue,
+        });
+        areAllFieldsScalar =
+          areAllFieldsScalar && fieldValue.kind === 'Literal';
+      });
+      if (areAllFieldsScalar) {
+        return {
+          kind: 'Literal',
+          metadata: null,
+          value: literalObject,
+        };
+      } else {
+        return {
+          kind: 'ObjectValue',
+          metadata: null,
+          fields,
+        };
+      }
+    } else if (nullableType === GraphQLID) {
+      // GraphQLID's parseLiteral() always returns the string value. However
+      // the int/string distinction may be important at runtime, so this
+      // transform parses int/string literals into the corresponding JS types.
+      if (ast.kind === 'IntValue') {
         return {
           kind: 'Literal',
           metadata: null,
           value: parseInt(ast.value, 10),
         };
-      case 'FloatValue':
-        return {
-          kind: 'Literal',
-          metadata: null,
-          value: parseFloat(ast.value),
-        };
-      case 'StringValue':
+      } else if (ast.kind === 'StringValue') {
         return {
           kind: 'Literal',
           metadata: null,
           value: ast.value,
         };
-      case 'BooleanValue':
-        // Note: duplicated because Flow does not understand fall-through cases
-        return {
-          kind: 'Literal',
-          metadata: null,
-          value: ast.value,
-        };
-      case 'EnumValue':
-        // Note: duplicated because Flow does not understand fall-through cases
-        return {
-          kind: 'Literal',
-          metadata: null,
-          value: ast.value,
-        };
-      case 'ListValue':
-        const listType = getNullableType(type);
-        // The user entered a list, a `type` was expected; this is only valid
-        // if `type` is a List.
-        if (!(listType instanceof GraphQLList)) {
-          throw new GraphQLError(
-            `Expected a value matching type '${String(
-              type || 'GraphQLList<_>',
-            )}'. Source: ${this._getErrorContext()}`,
-            [ast],
-          );
-        }
-        const itemType = assertInputType(listType.ofType);
-        const literalList = [];
-        const items = [];
-        let areAllItemsScalar = true;
-        ast.values.forEach(item => {
-          const itemValue = this._transformValue(item, itemType);
-          if (itemValue.kind === 'Literal') {
-            literalList.push(itemValue.value);
-          }
-          items.push(itemValue);
-          areAllItemsScalar = areAllItemsScalar && itemValue.kind === 'Literal';
-        });
-        if (areAllItemsScalar) {
-          return {
-            kind: 'Literal',
-            metadata: null,
-            value: literalList,
-          };
-        } else {
-          return {
-            kind: 'ListValue',
-            metadata: null,
-            items,
-          };
-        }
-      case 'NullValue':
-        return {
-          kind: 'Literal',
-          metadata: null,
-          value: null,
-        };
-      case 'ObjectValue':
-        const literalObject = {};
-        const fields = [];
-        let areAllFieldsScalar = true;
-        ast.fields.forEach(field => {
-          const fieldName = getName(field);
-          const objectType = getNullableType(type);
-          // The user entered an object, a `type` was expected; this is only
-          // valid if `type` is an Object.
-          if (!(objectType instanceof GraphQLInputObjectType)) {
-            throw new GraphQLError(
-              `Expected a value matching type '${String(
-                type || 'GraphQLInputObjectType<_>',
-              )}'. Source: ${this._getErrorContext()}`,
-              [ast],
-            );
-          }
-          const fieldConfig = objectType.getFields()[fieldName];
-          if (fieldConfig == null) {
-            throw new GraphQLError(
-              `Uknown field '${fieldName}' on type '${String(
-                type,
-              )}'. Source: ${this._getErrorContext()}`,
-              [field],
-            );
-          }
-          const fieldType = assertInputType(fieldConfig.type);
-          const fieldValue = this._transformValue(field.value, fieldType);
-          if (fieldValue.kind === 'Literal') {
-            literalObject[field.name.value] = fieldValue.value;
-          }
-          fields.push({
-            kind: 'ObjectFieldValue',
-            metadata: null,
-            name: fieldName,
-            value: fieldValue,
-          });
-          areAllFieldsScalar =
-            areAllFieldsScalar && fieldValue.kind === 'Literal';
-        });
-        if (areAllFieldsScalar) {
-          return {
-            kind: 'Literal',
-            metadata: null,
-            value: literalObject,
-          };
-        } else {
-          return {
-            kind: 'ObjectValue',
-            metadata: null,
-            fields,
-          };
-        }
-      case 'Variable':
-        return this._transformVariable(ast, type);
-      default:
-        (ast.kind: empty);
+      } else {
         throw new GraphQLError(
-          `Unknown ast kind '${ast.kind}'. Source: ${this._getErrorContext()}.`,
+          `Invalid value, expected a value matching type '${String(type)}'.`,
           [ast],
         );
+      }
+    } else if (
+      nullableType instanceof GraphQLScalarType ||
+      nullableType instanceof GraphQLEnumType
+    ) {
+      const value = nullableType.parseLiteral(ast);
+      if (value == null) {
+        // parseLiteral() should return a non-null JavaScript value
+        // if the ast value is valid for the type.
+        throw new GraphQLError(
+          `Expected a value matching type '${String(type)}'.`,
+          [ast],
+        );
+      }
+      return {
+        kind: 'Literal',
+        metadata: null,
+        value,
+      };
+    } else {
+      // todo: compiler error
+      throw new GraphQLError(
+        `Unsupported type '${String(
+          type,
+        )}' for input value, expected a GraphQLList, GraphQLInputObjectType, GraphQLEnumType, or GraphQLScalarType.`,
+        [ast],
+      );
     }
   }
 }

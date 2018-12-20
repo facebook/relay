@@ -1,0 +1,7 @@
+query EnumValueQuery {
+  me {
+    profilePicture(preset: LARGE) {
+      uri
+    }
+  }
+}

@@ -91,6 +91,70 @@ fragment Profile_4CNNX6 on User {
 
 `;
 
+exports[`RelayApplyFragmentArgumentTransform matches expected output: inlines-literal-fragment-arguments.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query TestQuery(
+  $id: ID!
+) {
+  node(id: $id) {
+    id
+    ...Profile @arguments(pictureSize: [128], includeFriends: true)
+  }
+}
+
+fragment Profile on User @argumentDefinitions(
+  pictureSize: {type: "[Int]", nonNull: true}
+  includeFriends: {type: "Boolean!", defaultValue: false}
+) {
+  id
+  name
+  profilePicture(size: $pictureSize) {
+    uri
+  }
+  friends(first: 10) @include(if: $includeFriends) {
+    edges {
+      node {
+        ...Profile @arguments(pictureSize: $pictureSize)
+      }
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+query TestQuery(
+  $id: ID!
+) {
+  node(id: $id) {
+    id
+    ...Profile_4cg4Po
+  }
+}
+
+fragment Profile_4cg4Po on User {
+  id
+  name
+  profilePicture(size: [128]) {
+    uri
+  }
+  friends(first: 10) {
+    edges {
+      node {
+        ...Profile_17y1Ti
+      }
+    }
+  }
+}
+
+fragment Profile_17y1Ti on User {
+  id
+  name
+  profilePicture(size: [128]) {
+    uri
+  }
+}
+
+`;
+
 exports[`RelayApplyFragmentArgumentTransform matches expected output: merges-identical-fragments.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query TestQuery($id: ID!, $pictureSize: [Int] = [128]) {
@@ -142,6 +206,63 @@ fragment ProfileFriends on User {
     edges {
       node {
         ...Profile_4CNNX6
+      }
+    }
+  }
+}
+
+`;
+
+exports[`RelayApplyFragmentArgumentTransform matches expected output: merges-identical-fragments-literal-arguments.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query TestQuery($id: ID!) {
+  node(id: $id) {
+    id
+    ...Profile @arguments(pictureSize: [128])
+    ...ProfileFriends
+  }
+}
+
+fragment ProfileFriends on User @argumentDefinitions(pictureSize: {type: "[Int]", defaultValue: [128]}){
+  friends(first: 10) {
+    edges {
+      node {
+        ...Profile @arguments(pictureSize: $pictureSize)
+      }
+    }
+  }
+}
+
+fragment Profile on User @argumentDefinitions(
+  pictureSize: {type: "[Int]", nonNull: true}
+) {
+  profilePicture(size: $pictureSize) {
+    uri
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+query TestQuery(
+  $id: ID!
+) {
+  node(id: $id) {
+    id
+    ...Profile_17y1Ti
+    ...ProfileFriends
+  }
+}
+
+fragment Profile_17y1Ti on User {
+  profilePicture(size: [128]) {
+    uri
+  }
+}
+
+fragment ProfileFriends on User {
+  friends(first: 10) {
+    edges {
+      node {
+        ...Profile_17y1Ti
       }
     }
   }
@@ -232,4 +353,61 @@ Error: GraphQLParser: Encountered 1 error(s):
                                                                           ^
   9:   }
   
+`;
+
+exports[`RelayApplyFragmentArgumentTransform matches expected output: uses-defaults-for-literal-null-arguments.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query TestQuery($id: ID!) {
+  node(id: $id) {
+    id
+    ...Profile @arguments(pictureSize: [128])
+    ...ProfileFriends @arguments(pictureSize: null) # should be equivalent to passing the default value
+  }
+}
+
+fragment ProfileFriends on User @argumentDefinitions(pictureSize: {type: "[Int]", defaultValue: [128]}){
+  friends(first: 10) {
+    edges {
+      node {
+        ...Profile @arguments(pictureSize: $pictureSize)
+      }
+    }
+  }
+}
+
+fragment Profile on User @argumentDefinitions(
+  pictureSize: {type: "[Int]"}
+) {
+  profilePicture(size: $pictureSize) {
+    uri
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+query TestQuery(
+  $id: ID!
+) {
+  node(id: $id) {
+    id
+    ...Profile_17y1Ti
+    ...ProfileFriends_48REbJ
+  }
+}
+
+fragment Profile_17y1Ti on User {
+  profilePicture(size: [128]) {
+    uri
+  }
+}
+
+fragment ProfileFriends_48REbJ on User {
+  friends(first: 10) {
+    edges {
+      node {
+        ...Profile_17y1Ti
+      }
+    }
+  }
+}
+
 `;

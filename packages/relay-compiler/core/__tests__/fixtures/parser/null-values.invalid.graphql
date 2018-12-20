@@ -1,0 +1,5 @@
+query NullValuesQuery {
+  node_id_required(id: null) {
+    id
+  }
+}

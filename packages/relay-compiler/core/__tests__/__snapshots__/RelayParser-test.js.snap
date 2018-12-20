@@ -415,6 +415,130 @@ fragment TestFragment on User {
 ]
 `;
 
+exports[`RelayParser matches expected output: enum-values.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query EnumValueQuery {
+  me {
+    profilePicture(preset: LARGE) {
+      uri
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+[
+  {
+    "kind": "Root",
+    "operation": "query",
+    "metadata": null,
+    "name": "EnumValueQuery",
+    "argumentDefinitions": [],
+    "directives": [],
+    "selections": [
+      {
+        "kind": "LinkedField",
+        "alias": null,
+        "args": [],
+        "directives": [],
+        "metadata": null,
+        "name": "me",
+        "selections": [
+          {
+            "kind": "LinkedField",
+            "alias": null,
+            "args": [
+              {
+                "kind": "Argument",
+                "metadata": null,
+                "name": "preset",
+                "value": {
+                  "kind": "Literal",
+                  "metadata": null,
+                  "value": "LARGE"
+                },
+                "type": "PhotoSize"
+              }
+            ],
+            "directives": [],
+            "metadata": null,
+            "name": "profilePicture",
+            "selections": [
+              {
+                "kind": "ScalarField",
+                "alias": null,
+                "args": [],
+                "directives": [],
+                "metadata": null,
+                "name": "uri",
+                "type": "String"
+              }
+            ],
+            "type": "Image"
+          }
+        ],
+        "type": "User"
+      }
+    ],
+    "type": "Query"
+  }
+]
+`;
+
+exports[`RelayParser matches expected output: enum-values.invalid.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query EnumValueQuery1 {
+  me {
+    profilePicture(preset: "LARGE") { # error: string not enum
+      uri
+    }
+  }
+}
+
+query EnumValueQuery2 {
+  me {
+    profilePicture(preset: 128) { # error: int not enum
+      uri
+    }
+  }
+}
+
+query EnumValueQuery3 {
+  me {
+    profilePicture(preset: [LARGE]) { # error: list of enum, not enum
+      uri
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+ERROR:
+Error: GraphQLParser: Encountered 3 error(s):
+- Expected a value matching type 'PhotoSize'.
+  
+  GraphQL request (3:28)
+  2:   me {
+  3:     profilePicture(preset: "LARGE") { # error: string not enum
+                                ^
+  4:       uri
+  
+- Expected a value matching type 'PhotoSize'.
+  
+  GraphQL request (11:28)
+  10:   me {
+  11:     profilePicture(preset: 128) { # error: int not enum
+                                 ^
+  12:       uri
+  
+- Expected a value matching type 'PhotoSize'.
+  
+  GraphQL request (19:28)
+  18:   me {
+  19:     profilePicture(preset: [LARGE]) { # error: list of enum, not enum
+                                 ^
+  20:       uri
+  
+`;
+
 exports[`RelayParser matches expected output: field-arguments.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query TestQuery {
@@ -2100,6 +2224,64 @@ query LiteralListArgumentQuery {
 ]
 `;
 
+exports[`RelayParser matches expected output: literal-list-argument.invalid.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query LiteralListArgumentQuery1 {
+  route(waypoints: [{
+    lat: 0.0 # error: float not string
+    lon: "0.0"
+  }]) {
+    steps {
+      note
+    }
+  }
+}
+
+query LiteralListArgumentQuery2 {
+  route(waypoints: ["waypoint"]) { # error: string not input object
+    steps {
+      note
+    }
+  }
+}
+
+query LiteralListArgumentQuery3 {
+  route(waypoints: "waypoint") { # error: string not list
+    steps {
+      note
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+ERROR:
+Error: GraphQLParser: Encountered 3 error(s):
+- Expected a value matching type 'String'.
+  
+  GraphQL request (3:10)
+  2:   route(waypoints: [{
+  3:     lat: 0.0 # error: float not string
+              ^
+  4:     lon: "0.0"
+  
+- Expected a value matching type 'WayPoint!'.
+  
+  GraphQL request (13:21)
+  12: query LiteralListArgumentQuery2 {
+  13:   route(waypoints: ["waypoint"]) { # error: string not input object
+                          ^
+  14:     steps {
+  
+- Expected a value matching type 'WayPoint!'.
+  
+  GraphQL request (21:20)
+  20: query LiteralListArgumentQuery3 {
+  21:   route(waypoints: "waypoint") { # error: string not list
+                         ^
+  22:     steps {
+  
+`;
+
 exports[`RelayParser matches expected output: literal-object-argument.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query LiteralObjectArgument {
@@ -2160,6 +2342,59 @@ query LiteralObjectArgument {
 ]
 `;
 
+exports[`RelayParser matches expected output: literal-object-argument.invalid.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query LiteralObjectArgument1 {
+  checkinSearchQuery(query: {
+    unknownField: "Facebook" # error: unknown field
+  }) {
+    query
+  }
+}
+
+query LiteralObjectArgument2 {
+  checkinSearchQuery(query: {
+    query: FACEBOOK # error: enum not string
+  }) {
+    query
+  }
+}
+
+query LiteralObjectArgument3 {
+  checkinSearchQuery(query: FACEBOOK) { # error: enum not object
+    query
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+ERROR:
+Error: GraphQLParser: Encountered 3 error(s):
+- Uknown field 'unknownField' on type 'CheckinSearchInput'.
+  
+  GraphQL request (3:5)
+  2:   checkinSearchQuery(query: {
+  3:     unknownField: "Facebook" # error: unknown field
+         ^
+  4:   }) {
+  
+- Expected a value matching type 'String'.
+  
+  GraphQL request (11:12)
+  10:   checkinSearchQuery(query: {
+  11:     query: FACEBOOK # error: enum not string
+                 ^
+  12:   }) {
+  
+- Expected a value matching type 'CheckinSearchInput'.
+  
+  GraphQL request (18:29)
+  17: query LiteralObjectArgument3 {
+  18:   checkinSearchQuery(query: FACEBOOK) { # error: enum not object
+                                  ^
+  19:     query
+  
+`;
+
 exports[`RelayParser matches expected output: null-values.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query NullValuesQuery {
@@ -2216,6 +2451,27 @@ query NullValuesQuery {
     "type": "Query"
   }
 ]
+`;
+
+exports[`RelayParser matches expected output: null-values.invalid.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query NullValuesQuery {
+  node_id_required(id: null) {
+    id
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+ERROR:
+Error: GraphQLParser: Encountered 1 error(s):
+- Expected a value matching type 'ID!'.
+  
+  GraphQL request (2:24)
+  1: query NullValuesQuery {
+  2:   node_id_required(id: null) {
+                            ^
+  3:     id
+  
 `;
 
 exports[`RelayParser matches expected output: object-argument.graphql 1`] = `

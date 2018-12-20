@@ -522,7 +522,7 @@ describe('Configs: RANGE_ADD', () => {
         node(id:"feedback123") {
           ...on Feedback {
             topLevelComments(first: 1) @connection(
-              key: Feedback_topLevelComments
+              key: "Feedback_topLevelComments"
             ) {
               edges {
                 node {
@@ -843,8 +843,8 @@ describe('Configs: RANGE_ADD', () => {
       query CommentQuery {
         node(id:"feedback123") {
           ...on Feedback {
-            topLevelComments(orderBy: "chronological", first: 1) @connection(
-              key: Feedback_topLevelComments
+            topLevelComments(orderBy: chronological, first: 1) @connection(
+              key: "Feedback_topLevelComments"
             ) {
               count
               edges {

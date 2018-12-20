@@ -15,7 +15,7 @@ const ReaderCodeGenerator = require('./ReaderCodeGenerator');
 
 const invariant = require('invariant');
 
-import type {Fragment, Request, SplitOperation} from 'graphql-compiler';
+import type {Fragment, Request, SplitOperation} from '../core/GraphQLIR';
 import type {
   ReaderFragment,
   ConcreteRequest,

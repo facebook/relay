@@ -60,7 +60,6 @@ const babelOptions = require('./scripts/getBabelOptions')({
     'fb-watchman': 'fb-watchman',
     fs: 'fs',
     graphql: 'graphql',
-    'graphql-compiler': 'graphql-compiler',
     immutable: 'immutable',
     iterall: 'iterall',
     net: 'net',
@@ -233,22 +232,6 @@ const builds = [
         output: 'relay-compiler',
         libraryTarget: 'commonjs2',
         target: 'node',
-      },
-    ],
-  },
-  {
-    package: 'graphql-compiler',
-    exports: {
-      index: 'GraphQLCompilerPublic.js',
-    },
-    bundles: [
-      {
-        entry: 'GraphQLCompilerPublic.js',
-        output: 'graphql-compiler',
-        libraryName: 'GraphQLCompiler',
-        libraryTarget: 'commonjs2',
-        target: 'node',
-        noMinify: true, // Note: uglify can't yet handle modern JS
       },
     ],
   },

@@ -10,10 +10,10 @@
 
 'use strict';
 
+const Profiler = require('../../core/GraphQLCompilerProfiler');
+
 const babylon = require('@babel/parser');
 const util = require('util');
-
-const {Profiler} = require('graphql-compiler');
 
 import type {GraphQLTag} from '../RelayLanguagePluginInterface';
 

@@ -11,6 +11,9 @@
 'use strict';
 
 const babelGenerator = require('@babel/generator').default;
+const FlattenTransform = require('../../transforms/FlattenTransform');
+const IRVisitor = require('../../core/GraphQLIRVisitor');
+const Profiler = require('../../core/GraphQLCompilerProfiler');
 const RelayMaskTransform = require('../../transforms/RelayMaskTransform');
 const RelayMatchTransform = require('../../transforms/RelayMatchTransform');
 const RelayRelayDirectiveTransform = require('../../transforms/RelayRelayDirectiveTransform');
@@ -19,6 +22,7 @@ const invariant = require('invariant');
 const nullthrows = require('nullthrows');
 const t = require('@babel/types');
 
+const {isAbstractType} = require('../../core/GraphQLSchemaUtils');
 const {
   anyTypeAlias,
   exactObjectTypeAnnotation,
@@ -35,18 +39,11 @@ const {
   transformInputType,
 } = require('./RelayFlowTypeTransformers');
 const {GraphQLInputObjectType, GraphQLNonNull} = require('graphql');
-const {
-  FlattenTransform,
-  IRVisitor,
-  Profiler,
-  SchemaUtils,
-} = require('graphql-compiler');
 
+import type {IRTransform} from '../../core/GraphQLCompilerContext';
+import type {Fragment, Root} from '../../core/GraphQLIR';
 import type {TypeGeneratorOptions} from '../RelayLanguagePluginInterface';
-import type {IRTransform, Fragment, Root} from 'graphql-compiler';
 import type {GraphQLEnumType} from 'graphql';
-
-const {isAbstractType} = SchemaUtils;
 
 export type State = {|
   ...TypeGeneratorOptions,

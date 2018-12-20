@@ -10,17 +10,19 @@
 
 'use strict';
 
+const ASTCache = require('./ASTCache');
 const GraphQL = require('graphql');
+const Profiler = require('./GraphQLCompilerProfiler');
 
 const fs = require('fs');
 const invariant = require('invariant');
 const path = require('path');
 
 const {memoizedFind} = require('./RelayFindGraphQLTags');
-const {ASTCache, Profiler} = require('graphql-compiler');
 
+import type {File} from '../codegen/CodegenTypes';
+import type {FileFilter} from '../codegen/CodegenWatcher';
 import type {GraphQLTagFinder} from '../language/RelayLanguagePluginInterface';
-import type {File, FileFilter} from 'graphql-compiler';
 import type {DocumentNode} from 'graphql';
 
 const parseGraphQL = Profiler.instrument(GraphQL.parse, 'GraphQL.parse');

@@ -11,7 +11,9 @@
 
 'use strict';
 
+const ASTConvert = require('../../core/ASTConvert');
 const CodeMarker = require('../../util/CodeMarker');
+const CompilerContext = require('../../core/GraphQLCompilerContext');
 const RelayCodeGenerator = require('../RelayCodeGenerator');
 const RelayMatchTransform = require('../../transforms/RelayMatchTransform');
 const RelayRelayDirectiveTransform = require('../../transforms/RelayRelayDirectiveTransform');
@@ -20,7 +22,6 @@ const RelayTestSchema = require('RelayTestSchema');
 const parseGraphQLText = require('parseGraphQLText');
 
 const {generateTestsFromFixtures} = require('RelayModernTestUtils');
-const {ASTConvert, CompilerContext} = require('graphql-compiler');
 
 describe('RelayCodeGenerator', () => {
   const schema = ASTConvert.transformASTSchema(RelayTestSchema, [

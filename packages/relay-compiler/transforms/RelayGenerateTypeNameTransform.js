@@ -10,15 +10,14 @@
 
 'use strict';
 
+const CompilerContext = require('../core/GraphQLCompilerContext');
+const IRTransformer = require('../core/GraphQLIRTransformer');
+const SchemaUtils = require('../core/GraphQLSchemaUtils');
+
 const {hasUnaliasedSelection} = require('./RelayTransformUtils');
 const {assertLeafType} = require('graphql');
-const {
-  CompilerContext,
-  IRTransformer,
-  SchemaUtils,
-} = require('graphql-compiler');
 
-import type {LinkedField, MatchField, ScalarField} from 'graphql-compiler';
+import type {LinkedField, MatchField, ScalarField} from '../core/GraphQLIR';
 
 const {isAbstractType} = SchemaUtils;
 

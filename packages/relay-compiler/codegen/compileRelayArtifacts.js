@@ -10,11 +10,15 @@
 
 'use strict';
 
+const Printer = require('../core/GraphQLIRPrinter');
+const Profiler = require('../core/GraphQLCompilerProfiler');
 const RelayCodeGenerator = require('./RelayCodeGenerator');
 
-const {Printer, Profiler, filterContextForNode} = require('graphql-compiler');
+const filterContextForNode = require('../core/filterContextForNode');
 
-import type {CompilerContext, IRTransform, Reporter} from 'graphql-compiler';
+import type CompilerContext from '../core/GraphQLCompilerContext';
+import type {IRTransform} from '../core/GraphQLCompilerContext';
+import type {GraphQLReporter as Reporter} from '../reporters/GraphQLReporter';
 import type {GeneratedNode} from 'relay-runtime';
 
 export type RelayCompilerTransforms = {

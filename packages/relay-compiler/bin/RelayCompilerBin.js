@@ -12,12 +12,10 @@
 
 require('@babel/polyfill');
 
-const {
-  CodegenRunner,
-  ConsoleReporter,
-  WatchmanClient,
-  DotGraphQLParser,
-} = require('graphql-compiler');
+const CodegenRunner = require('../codegen/CodegenRunner');
+const ConsoleReporter = require('../reporters/GraphQLConsoleReporter');
+const DotGraphQLParser = require('../core/DotGraphQLParser');
+const WatchmanClient = require('../core/GraphQLWatchmanClient');
 
 const RelaySourceModuleParser = require('../core/RelaySourceModuleParser');
 const RelayFileWriter = require('../codegen/RelayFileWriter');
@@ -44,7 +42,7 @@ const {
   schemaExtensions,
 } = RelayIRTransforms;
 
-import type {WriteFilesOptions} from 'graphql-compiler';
+import type {WriteFilesOptions} from '../codegen/CodegenRunner';
 import type {GraphQLSchema} from 'graphql';
 import type {
   PluginInitializer,

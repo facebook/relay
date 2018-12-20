@@ -10,29 +10,27 @@
 
 'use strict';
 
+const IRTransformer = require('../core/GraphQLIRTransformer');
 const RelayCompilerScope = require('../core/RelayCompilerScope');
 
+const getIdentifierForArgumentValue = require('../core/getIdentifierForArgumentValue');
 const murmurHash = require('../util/murmurHash');
 
 const {GraphQLError} = require('graphql');
-const {
-  getIdentifierForArgumentValue,
-  IRTransformer,
-} = require('graphql-compiler');
 
-import type {Scope} from '../core/RelayCompilerScope';
+import type CompilerContext from '../core/GraphQLCompilerContext';
 import type {
   Argument,
   ArgumentValue,
   Condition,
-  CompilerContext,
   Directive,
   Field,
   Fragment,
   FragmentSpread,
   Node,
   Selection,
-} from 'graphql-compiler';
+} from '../core/GraphQLIR';
+import type {Scope} from '../core/RelayCompilerScope';
 
 const {getFragmentScope, getRootScope} = RelayCompilerScope;
 

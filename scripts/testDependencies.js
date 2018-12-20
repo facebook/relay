@@ -76,7 +76,6 @@ function testPackageDependencies(topLevelPackagePath, packagePath) {
   );
 
   const requiredRepoPackages = new Set([
-    'graphql-compiler',
     'relay-compiler',
     'relay-runtime',
     'react-relay',

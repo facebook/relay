@@ -12,17 +12,19 @@
 
 'use strict';
 
+const CompilerContext = require('../core/GraphQLCompilerContext');
+const IRTransformer = require('../core/GraphQLIRTransformer');
+
 const invariant = require('invariant');
 
 const {isTypeSubTypeOf, GraphQLSchema} = require('graphql');
-const {CompilerContext, IRTransformer} = require('graphql-compiler');
 
 import type {
   Fragment,
   FragmentSpread,
   InlineFragment,
   ArgumentDefinition,
-} from 'graphql-compiler';
+} from '../core/GraphQLIR';
 
 type State = {
   reachableArguments: Array<{

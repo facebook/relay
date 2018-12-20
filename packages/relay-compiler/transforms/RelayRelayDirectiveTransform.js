@@ -10,15 +10,13 @@
 
 'use strict';
 
+const CompilerContext = require('../core/GraphQLCompilerContext');
+const IRTransformer = require('../core/GraphQLIRTransformer');
+
+const getLiteralArgumentValues = require('../core/getLiteralArgumentValues');
 const invariant = require('invariant');
 
-const {
-  CompilerContext,
-  IRTransformer,
-  getLiteralArgumentValues,
-} = require('graphql-compiler');
-
-import type {Fragment, FragmentSpread} from 'graphql-compiler';
+import type {Fragment, FragmentSpread} from '../core/GraphQLIR';
 
 const RELAY = 'relay';
 const SCHEMA_EXTENSION = `

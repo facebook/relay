@@ -10,13 +10,15 @@
 
 'use strict';
 
+const IRVisitor = require('../core/GraphQLIRVisitor');
+const SchemaUtils = require('../core/GraphQLSchemaUtils');
+
 const invariant = require('invariant');
 
 const {GraphQLList} = require('graphql');
-const {IRVisitor, SchemaUtils} = require('graphql-compiler');
 const {getStorageKey, stableCopy} = require('relay-runtime');
 
-import type {Metadata, Root, SplitOperation} from 'graphql-compiler';
+import type {Metadata, Root, SplitOperation} from '../core/GraphQLIR';
 import type {
   NormalizationArgument,
   NormalizationArgumentDefinition,

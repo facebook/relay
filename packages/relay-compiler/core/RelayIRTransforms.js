@@ -10,6 +10,9 @@
 
 'use strict';
 
+const FilterDirectivesTransform = require('../transforms/FilterDirectivesTransform');
+const FlattenTransform = require('../transforms/FlattenTransform');
+const InlineFragmentsTransform = require('../transforms/InlineFragmentsTransform');
 const RelayApplyFragmentArgumentTransform = require('../transforms/RelayApplyFragmentArgumentTransform');
 const RelayConnectionTransform = require('../handlers/connection//RelayConnectionTransform');
 const RelayFieldHandleTransform = require('../transforms/RelayFieldHandleTransform');
@@ -21,18 +24,12 @@ const RelayRelayDirectiveTransform = require('../transforms/RelayRelayDirectiveT
 const RelaySkipHandleFieldTransform = require('../transforms/RelaySkipHandleFieldTransform');
 const RelaySplitMatchTransform = require('../transforms/RelaySplitMatchTransform');
 const RelayViewerHandleTransform = require('../handlers/viewer/RelayViewerHandleTransform');
+const SkipClientFieldTransform = require('../transforms/SkipClientFieldTransform');
+const SkipRedundantNodesTransform = require('../transforms/SkipRedundantNodesTransform');
+const SkipUnreachableNodeTransform = require('../transforms/SkipUnreachableNodeTransform');
+const StripUnusedVariablesTransform = require('../transforms/StripUnusedVariablesTransform');
 
-const {
-  FilterDirectivesTransform,
-  FlattenTransform,
-  InlineFragmentsTransform,
-  SkipClientFieldTransform,
-  SkipRedundantNodesTransform,
-  SkipUnreachableNodeTransform,
-  StripUnusedVariablesTransform,
-} = require('graphql-compiler');
-
-import type {IRTransform} from 'graphql-compiler';
+import type {IRTransform} from './GraphQLCompilerContext';
 
 // Transforms applied to the code used to process a query response.
 const relaySchemaExtensions: Array<string> = [

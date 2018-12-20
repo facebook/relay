@@ -10,12 +10,12 @@
 
 'use strict';
 
+const Profiler = require('../core/GraphQLCompilerProfiler');
+
 const crypto = require('crypto');
 const fs = require('fs');
 const os = require('os');
 const path = require('path');
-
-const {Profiler} = require('graphql-compiler');
 
 /**
  * A file backed cache. Values are JSON encoded on disk, so only JSON

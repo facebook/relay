@@ -10,7 +10,7 @@
 
 'use strict';
 
-import type {LinkedField, MatchField} from 'graphql-compiler';
+import type {LinkedField, MatchField} from '../core/GraphQLIR';
 
 function hasUnaliasedSelection(
   field: LinkedField | MatchField,

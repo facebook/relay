@@ -11,17 +11,17 @@
 'use strict';
 
 const CodeMarker = require('../util/CodeMarker');
+const Profiler = require('../core/GraphQLCompilerProfiler');
 
 const crypto = require('crypto');
 const dedupeJSONStringify = require('../util/dedupeJSONStringify');
 const deepMergeAssignments = require('./deepMergeAssignments');
 const nullthrows = require('nullthrows');
 
-const {Profiler} = require('graphql-compiler');
 const {RelayConcreteNode} = require('relay-runtime');
 
 import type {FormatModule} from '../language/RelayLanguagePluginInterface';
-import type {CodegenDirectory} from 'graphql-compiler';
+import type CodegenDirectory from './CodegenDirectory';
 import type {GeneratedNode} from 'relay-runtime';
 
 function printRequireModuleDependency(moduleName: string): string {

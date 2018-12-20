@@ -19,7 +19,7 @@ import type {
   ArgumentDefinition,
   ArgumentValue,
   LocalArgumentDefinition,
-} from 'graphql-compiler';
+} from './GraphQLIR';
 
 /**
  * A scope is a mapping of the values for each argument defined by the nearest

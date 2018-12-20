@@ -26,7 +26,6 @@
     "fast-glob": "^2.2.2",
     "fb-watchman": "^2.0.0",
     "fbjs": "^1.0.0",
-    "graphql-compiler": "2.0.0-rc.1",
     "immutable": "~3.7.6",
     "nullthrows": "^1.1.0",
     "relay-runtime": "2.0.0-rc.1",

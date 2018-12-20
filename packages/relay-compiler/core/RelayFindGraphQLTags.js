@@ -17,11 +17,11 @@ const graphql = require('graphql');
 const path = require('path');
 const util = require('util');
 
+import type {File} from '../codegen/CodegenTypes';
 import type {
   GraphQLTag,
   GraphQLTagFinder,
 } from '../language/RelayLanguagePluginInterface';
-import type {File} from 'graphql-compiler';
 
 export type GraphQLTagFinderOptions = {|
   validateNames: boolean,

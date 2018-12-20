@@ -10,12 +10,14 @@
 
 'use strict';
 
+const CompilerContext = require('../core/GraphQLCompilerContext');
+const IRTransformer = require('../core/GraphQLIRTransformer');
+
 const invariant = require('invariant');
 
-const {CompilerContext, IRTransformer} = require('graphql-compiler');
 const {getRelayHandleKey} = require('relay-runtime');
 
-import type {Field} from 'graphql-compiler';
+import type {Field} from '../core/GraphQLIR';
 
 function relayFieldHandleTransform(context: CompilerContext): CompilerContext {
   return IRTransformer.transform(context, {

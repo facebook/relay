@@ -16,7 +16,7 @@ const RelayParser = require('RelayParser');
 const RelayTestSchema = require('RelayTestSchema');
 const {generateTestsFromFixtures} = require('RelayModernTestUtils');
 const RelayMatchTransform = require('../../transforms/RelayMatchTransform');
-const {ASTConvert} = require('graphql-compiler');
+const ASTConvert = require('../ASTConvert');
 
 describe('RelayParser', () => {
   const schema = ASTConvert.transformASTSchema(RelayTestSchema, [

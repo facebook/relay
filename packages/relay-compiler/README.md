@@ -1,6 +1,6 @@
-# GraphQL-Compiler
+# Relay Compiler
 
-GraphQL-Compiler is a code-generation toolkit for GraphQL. It contains the core functionalities of GraphQL code-gen, including file parsing, validation, syntax tree parsing and transformation. The intended audience are developers wanting to use components of GraphQL-Compiler to build their own GraphQL code-gen pipelines.
+Relay-Compiler is a code-generation toolkit for GraphQL. It contains the core functionalities of GraphQL code-gen, including file parsing, validation, syntax tree parsing and transformation.
 
 The GraphQL-Compiler package [exports library code](./GraphQLCompilerPublic.js) which you may use to find the modules you need, or to extend the compiler with your own custom input and output. Note, the internal APIs of the GraphQL-Compiler are under constant iteration, so rolling your own version may lead to incompatibilities with future releases.
 

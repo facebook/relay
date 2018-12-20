@@ -10,9 +10,10 @@
 
 'use strict';
 
-const {CompilerContext, IRTransformer} = require('graphql-compiler');
+const CompilerContext = require('../core/GraphQLCompilerContext');
+const IRTransformer = require('../core/GraphQLIRTransformer');
 
-import type {Field} from 'graphql-compiler';
+import type {Field} from '../core/GraphQLIR';
 
 /**
  * A transform that removes field `handles`. Intended for use when e.g.

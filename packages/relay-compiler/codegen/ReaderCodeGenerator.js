@@ -10,13 +10,15 @@
 
 'use strict';
 
+const IRVisitor = require('../core/GraphQLIRVisitor');
+const SchemaUtils = require('../core/GraphQLSchemaUtils');
+
 const invariant = require('invariant');
 
 const {GraphQLList} = require('graphql');
-const {IRVisitor, SchemaUtils} = require('graphql-compiler');
 const {getStorageKey, stableCopy} = require('relay-runtime');
 
-import type {Metadata, Fragment} from 'graphql-compiler';
+import type {Metadata, Fragment} from '../core/GraphQLIR';
 import type {
   ReaderArgument,
   ReaderArgumentDefinition,
@@ -296,10 +298,7 @@ function getErrorMessage(node: any): string {
  * generated for fields with supplied arguments that are all statically known
  * (ie. literals, no variables) at build time.
  */
-function getStaticStorageKey(
-  field: ReaderField,
-  metadata: Metadata,
-): ?string {
+function getStaticStorageKey(field: ReaderField, metadata: Metadata): ?string {
   const metadataStorageKey = metadata?.storageKey;
   if (typeof metadataStorageKey === 'string') {
     return metadataStorageKey;

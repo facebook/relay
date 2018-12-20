@@ -10,6 +10,12 @@
 
 'use strict';
 
+const CompilerContext = require('../core/GraphQLCompilerContext');
+const IRTransformer = require('../core/GraphQLIRTransformer');
+const SplitNaming = require('../core/GraphQLIRSplitNaming');
+
+const getLiteralArgumentValues = require('../core/getLiteralArgumentValues');
+
 const {
   GraphQLObjectType,
   GraphQLScalarType,
@@ -19,19 +25,13 @@ const {
   GraphQLString,
   getNullableType,
 } = require('graphql');
-const {
-  CompilerContext,
-  IRTransformer,
-  getLiteralArgumentValues,
-  SplitNaming,
-} = require('graphql-compiler');
 
 import type {
   InlineFragment,
   LinkedField,
   MatchField,
   ScalarField,
-} from 'graphql-compiler';
+} from '../core/GraphQLIR';
 import type {GraphQLCompositeType, GraphQLType} from 'graphql';
 
 const SUPPORTED_ARGUMENT_NAME = 'supported';

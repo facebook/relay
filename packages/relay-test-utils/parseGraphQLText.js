@@ -13,8 +13,8 @@
 const {extendSchema, parse} = require('graphql');
 const {Parser, convertASTDocuments} = require('relay-compiler');
 
-import type {Fragment, Root} from 'graphql-compiler';
 import type {GraphQLSchema} from 'graphql';
+import type {Fragment, Root} from 'relay-compiler';
 
 function parseGraphQLText(
   schema: GraphQLSchema,

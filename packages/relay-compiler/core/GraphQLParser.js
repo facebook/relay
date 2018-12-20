@@ -198,7 +198,12 @@ class GraphQLParser {
         const variableDefinitions = this._buildArgumentDefinitions(definition);
         entries.set(name, {definition, variableDefinitions});
       } catch (error) {
-        errors.push(error);
+        if (error instanceof GraphQLError) {
+          errors.push(error);
+        } else {
+          // Fail fast for non-user errors
+          throw error;
+        }
       }
     }
     // Convert the ASTs to IR.
@@ -214,7 +219,12 @@ class GraphQLParser {
           );
           nodes.push(node);
         } catch (error) {
-          errors.push(error);
+          if (error instanceof GraphQLError) {
+            errors.push(error);
+          } else {
+            // Fail fast for non-user errors
+            throw error;
+          }
         }
       }
     }
@@ -248,7 +258,7 @@ class GraphQLParser {
         return this._buildFragmentArgumentDefinitions(definition);
       default:
         (definition: empty);
-        throw new GraphQLError(`Unexpected ast kind '${definition.kind}'.`, [
+        throw createCompilerError(`Unexpected ast kind '${definition.kind}'.`, [
           definition,
         ]);
     }
@@ -444,7 +454,7 @@ class GraphQLDefinitionParser {
         return this._transformFragment(definition);
       default:
         (definition: empty);
-        throw new GraphQLError(
+        throw createCompilerError(
           `Unsupported definition type ${definition.kind}`,
           [definition],
         );
@@ -589,7 +599,7 @@ class GraphQLDefinitionParser {
         break;
       default:
         (definition.operation: empty);
-        throw new GraphQLError(
+        throw createCompilerError(
           `Unknown ast kind '${
             definition.operation
           }'. Source: ${this._getErrorContext()}.`,
@@ -641,7 +651,7 @@ class GraphQLDefinitionParser {
         node = this._transformInlineFragment(selection, parentType);
       } else {
         (selection.kind: empty);
-        throw new GraphQLError(
+        throw createCompilerError(
           `Unknown ast kind '${
             selection.kind
           }'. Source: ${this._getErrorContext()}.`,
@@ -655,7 +665,7 @@ class GraphQLDefinitionParser {
         [{...node, directives}],
       );
       if (conditionalNodes.length !== 1) {
-        throw new GraphQLError(
+        throw createCompilerError(
           `Expected exactly one condition node. Source: ${this._getErrorContext()}`,
           selection.directives,
         );
@@ -1056,6 +1066,11 @@ class GraphQLDefinitionParser {
     ast: NonNullLiteralValueNode,
     type: GraphQLInputType,
   ): ArgumentValue {
+    // Transform the value based on the type without a non-null wrapper.
+    // Note that error messages should still use the original `type`
+    // since that accurately describes to the user what the expected
+    // type is (using nullableType would suggest that `null` is legal
+    // even when it may not be, for example).
     const nullableType = getNullableType(type);
     if (nullableType instanceof GraphQLList) {
       if (ast.kind !== 'ListValue') {
@@ -1176,11 +1191,12 @@ class GraphQLDefinitionParser {
         value,
       };
     } else {
-      // todo: compiler error
-      throw new GraphQLError(
+      (nullableType: empty);
+      throw createCompilerError(
         `Unsupported type '${String(
           type,
-        )}' for input value, expected a GraphQLList, GraphQLInputObjectType, GraphQLEnumType, or GraphQLScalarType.`,
+        )}' for input value, expected a GraphQLList, ` +
+          'GraphQLInputObjectType, GraphQLEnumType, or GraphQLScalarType.',
         [ast],
       );
     }
@@ -1221,7 +1237,7 @@ function transformLiteralValue(ast: ValueNode, context: ASTNode): mixed {
       );
     default:
       (ast.kind: empty);
-      throw new GraphQLError(`Unknown ast kind '${ast.kind}'.`, [ast]);
+      throw createCompilerError(`Unknown ast kind '${ast.kind}'.`, [ast]);
   }
 }
 
@@ -1275,7 +1291,7 @@ function applyConditions(
 function getName(ast): string {
   const name = ast.name?.value;
   if (typeof name !== 'string') {
-    throw new GraphQLError("Expected ast node to have a 'name'.", [ast]);
+    throw createCompilerError("Expected ast node to have a 'name'.", [ast]);
   }
   return name;
 }
@@ -1300,6 +1316,16 @@ function partitionArray<Tv>(
     }
   }
   return [first, second];
+}
+
+function createCompilerError(
+  message: string,
+  nodes?: ?$ReadOnlyArray<ASTNode>,
+): Error {
+  // Use GraphQLError to format the source of the error, but return a
+  // plain Error to indicate that this is not an expected condition.
+  const error = new GraphQLError(message, nodes ?? []);
+  return new Error(`Internal Error: ${String(error)}`);
 }
 
 module.exports = GraphQLParser;

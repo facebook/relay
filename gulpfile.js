@@ -4,7 +4,6 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- *
  * @noformat
  */
 
@@ -93,7 +92,6 @@ const babelOptions = require('./scripts/getBabelOptions')({
 });
 const del = require('del');
 const derequire = require('gulp-derequire');
-const es = require('event-stream');
 const flatten = require('gulp-flatten');
 const fs = require('fs');
 const gulp = require('gulp');
@@ -242,7 +240,7 @@ const builds = [
     },
     bundles: [
       {
-        entry: 'RelayRuntime.js',
+        entry: 'index.js',
         output: 'relay-runtime',
         libraryName: 'RelayRuntime',
         libraryTarget: 'umd',
@@ -270,9 +268,10 @@ gulp.task('clean', function() {
   return del(DIST);
 });
 
-gulp.task('modules', function() {
-  return es.merge(
-    builds.map(build =>
+gulp.task(
+  'modules',
+  gulp.parallel(
+    ...builds.map(build => () =>
       gulp
         .src([
           '*' + PACKAGES + '/' + build.package + '/**/*.js',
@@ -281,44 +280,57 @@ gulp.task('modules', function() {
         ])
         .pipe(babel(babelOptions))
         .pipe(flatten())
-        .pipe(gulp.dest(path.join(DIST, build.package, 'lib')))
-    )
-  );
-});
+        .pipe(gulp.dest(path.join(DIST, build.package, 'lib'))),
+    ),
+  ),
+);
 
-gulp.task('copy-files', function() {
-  return es.merge(
-    builds.map(build =>
-      es.merge([
-        gulp
-          .src([
-            'LICENSE',
-            '*' + PACKAGES + '/' + build.package + '/*',
-            '!' + PACKAGES + '/' + build.package + '/*.graphql',
-            '!' + PACKAGES + '/' + build.package + '/**/*.js',
-          ])
-          .pipe(flatten())
-          .pipe(gulp.dest(path.join(DIST, build.package))),
-        gulp // Move *.graphql files directly to lib without going through babel
-          .src(['*' + PACKAGES + '/' + build.package + '/*.graphql'])
-          .pipe(flatten())
-          .pipe(gulp.dest(path.join(DIST, build.package, 'lib'))),
-      ])
-    )
-  );
-});
+gulp.task(
+  'copy-files',
+  gulp.parallel(
+    ...builds.map(build =>
+      gulp.parallel(
+        () =>
+          gulp
+            .src([
+              'LICENSE',
+              '*' + PACKAGES + '/' + build.package + '/*',
+              '!' + PACKAGES + '/' + build.package + '/*.graphql',
+              '!' + PACKAGES + '/' + build.package + '/**/*.js',
+            ])
+            .pipe(flatten())
+            .pipe(gulp.dest(path.join(DIST, build.package))),
+        () =>
+          gulp // Move *.graphql files directly to lib without going through babel
+            .src(['*' + PACKAGES + '/' + build.package + '/*.graphql'])
+            .pipe(flatten())
+            .pipe(gulp.dest(path.join(DIST, build.package, 'lib'))),
+      ),
+    ),
+  ),
+);
 
-gulp.task('exports', ['copy-files', 'modules'], function() {
-  builds.map(build =>
-    Object.keys(build.exports).map(exportName =>
-      fs.writeFileSync(
-        path.join(DIST, build.package, exportName + '.js'),
-        PRODUCTION_HEADER +
-          `\nmodule.exports = require('./lib/${build.exports[exportName]}');\n`
-      )
-    )
-  );
-});
+gulp.task(
+  'exports',
+  gulp.series(
+    'copy-files',
+    'modules',
+    gulp.parallel(
+      ...builds.map(build => done => {
+        Object.keys(build.exports).map(exportName =>
+          fs.writeFileSync(
+            path.join(DIST, build.package, exportName + '.js'),
+            PRODUCTION_HEADER +
+              `\nmodule.exports = require('./lib/${
+                build.exports[exportName]
+              }');\n`,
+          ),
+        );
+        done();
+      }),
+    ),
+  ),
+);
 
 gulp.task('bins', function() {
   const runBin = (build, bin) => {
@@ -354,7 +366,7 @@ gulp.task('bundles', function() {
       gulp
         .src(path.join(DIST, build.package, 'lib', bundle.entry))
         .pipe(
-          buildDist(bundle.output + '.js', bundle, /* isProduction */ false)
+          buildDist(bundle.output + '.js', bundle, /* isProduction */ false),
         )
         .pipe(derequire())
         .pipe(header(DEVELOPMENT_HEADER))
@@ -383,7 +395,7 @@ gulp.task('bundles:min', function() {
       gulp
         .src(path.join(DIST, build.package, 'lib', bundle.entry))
         .pipe(
-          buildDist(bundle.output + '.min.js', bundle, /* isProduction */ true)
+          buildDist(bundle.output + '.min.js', bundle, /* isProduction */ true),
         )
         .pipe(header(PRODUCTION_HEADER))
         .pipe(gulp.dest(path.join(DIST, build.package)))
@@ -405,14 +417,10 @@ gulp.task('bundles:min', function() {
   return buildsPromise;
 });
 
-gulp.task('dist', ['modules'], function(cb) {
-  runSequence('bins', 'bundles', 'bundles:min', cb);
-});
+gulp.task('dist', gulp.series('modules', 'bins', 'bundles', 'bundles:min'));
 
 gulp.task('watch', function() {
   gulp.watch(PACKAGES + '/**/*.js', ['exports', 'bundles']);
 });
 
-gulp.task('default', function(cb) {
-  runSequence('clean', ['exports', 'dist'], cb);
-});
+gulp.task('default', gulp.series('clean', 'exports', 'dist'));

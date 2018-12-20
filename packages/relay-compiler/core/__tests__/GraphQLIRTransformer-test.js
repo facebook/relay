@@ -21,7 +21,7 @@ describe('GraphQLIRTransformer', () => {
     const {definitions} = parseGraphQLText(
       RelayTestSchema,
       `
-   query TestQuery($id: ID!) {
+   query TestQuery($id: ID!, $condition: Boolean = false) {
      node(id: $id) {
        ...on User {
          id

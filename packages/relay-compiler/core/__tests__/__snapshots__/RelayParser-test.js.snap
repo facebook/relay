@@ -12,7 +12,7 @@ fragment TestFragment on User @argumentDefinitions(
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 ERROR:
 Error: GraphQLParser: Encountered 1 error(s):
-- Expected definition for variable '$size' to be an object with the following shape: '{type: string, defaultValue?: mixed, nonNull?: boolean, list?: boolean}', got unknown key(s) 'defaultValu'. Source: document \`TestFragment\` file: \`GraphQL request\`.
+- Expected definition for variable '$size' to be an object with the following shape: '{type: string, defaultValue?: mixed, nonNull?: boolean, list?: boolean}', got unknown key(s) 'defaultValu'.
   
   GraphQL request (3:3)
   2:   id: {type: "ID", nonNull: true}
@@ -78,8 +78,8 @@ type Foo {
         "kind": "LocalArgumentDefinition",
         "metadata": null,
         "name": "id",
-        "defaultValue": null,
-        "type": "ID!"
+        "type": "ID!",
+        "defaultValue": null
       }
     ],
     "directives": [],
@@ -646,7 +646,8 @@ fragment Foo on User @argumentDefinitions(localId: {type: "ID!"}){
             "value": {
               "kind": "Variable",
               "metadata": null,
-              "variableName": "id"
+              "variableName": "id",
+              "type": null
             },
             "type": null
           }
@@ -660,19 +661,19 @@ fragment Foo on User @argumentDefinitions(localId: {type: "ID!"}){
     "argumentDefinitions": [
       {
         "kind": "LocalArgumentDefinition",
-        "defaultValue": null,
         "metadata": null,
         "name": "id",
-        "type": "ID!"
+        "type": "ID!",
+        "defaultValue": null
       },
       {
         "kind": "LocalArgumentDefinition",
-        "defaultValue": [
-          100
-        ],
         "metadata": null,
         "name": "size",
-        "type": "[Int]"
+        "type": "[Int]",
+        "defaultValue": [
+          100
+        ]
       },
       {
         "kind": "RootArgumentDefinition",
@@ -702,10 +703,10 @@ fragment Foo on User @argumentDefinitions(localId: {type: "ID!"}){
     "argumentDefinitions": [
       {
         "kind": "LocalArgumentDefinition",
-        "defaultValue": null,
         "metadata": null,
         "name": "localId",
-        "type": "ID!"
+        "type": "ID!",
+        "defaultValue": null
       }
     ]
   }
@@ -1059,8 +1060,8 @@ query ListArgumentQuery($waypoint: WayPoint!) {
         "kind": "LocalArgumentDefinition",
         "metadata": null,
         "name": "waypoint",
-        "defaultValue": null,
-        "type": "WayPoint!"
+        "type": "WayPoint!",
+        "defaultValue": null
       }
     ],
     "directives": [],
@@ -1376,8 +1377,8 @@ query ObjectArgument($text: String!) {
         "kind": "LocalArgumentDefinition",
         "metadata": null,
         "name": "text",
-        "defaultValue": null,
-        "type": "String!"
+        "type": "String!",
+        "defaultValue": null
       }
     ],
     "directives": [],
@@ -1524,8 +1525,8 @@ query TestQuery($id: ID!) {
         "kind": "LocalArgumentDefinition",
         "metadata": null,
         "name": "id",
-        "defaultValue": null,
-        "type": "ID!"
+        "type": "ID!",
+        "defaultValue": null
       }
     ],
     "directives": [],

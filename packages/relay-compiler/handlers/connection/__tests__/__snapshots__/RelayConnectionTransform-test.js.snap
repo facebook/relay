@@ -104,6 +104,8 @@ exports[`RelayConnectionTransform matches expected output: connection-directions
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query NodeQuery(
   $id: ID!
+  $last: Int,
+  $first: Int,
 ) {
   node(id: $id) {
     id
@@ -136,6 +138,8 @@ query NodeQuery(
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 query NodeQuery(
   $id: ID!
+  $last: Int
+  $first: Int
 ) {
   node(id: $id) {
     id

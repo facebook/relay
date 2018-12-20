@@ -150,7 +150,7 @@ query SkipNestedFields {
 
 exports[`SkipRedundantNodesTransform matches expected output: skips-with-outer-fields-first.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
-query SkipWithOuterFieldFirst($cond: Boolean, $notCond: Boolean) {
+query SkipWithOuterFieldFirst($cond: Boolean!, $notCond: Boolean!) {
   viewer {
     actor {
       id
@@ -173,8 +173,8 @@ query SkipWithOuterFieldFirst($cond: Boolean, $notCond: Boolean) {
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 query SkipWithOuterFieldFirst(
-  $cond: Boolean
-  $notCond: Boolean
+  $cond: Boolean!
+  $notCond: Boolean!
 ) {
   viewer {
     actor {

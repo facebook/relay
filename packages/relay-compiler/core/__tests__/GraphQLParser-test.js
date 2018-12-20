@@ -47,6 +47,18 @@ it("should correctly parse query when input is a non-null type and it's passed t
   expect(() => GraphQLParser.parse(RelayTestSchema, text)).not.toThrowError();
 });
 
+it('should parse fragment spread arguments', () => {
+  const text = `
+    fragment TestFragment on Query {
+      ...TestChild @arguments(foo: $foo)
+    }
+    fragment TestChild on Query {
+      viewer { actor { id } }
+    }
+  `;
+  expect(() => GraphQLParser.parse(RelayTestSchema, text)).not.toThrowError();
+});
+
 it("should correctly parse fragment when input is a non-null type and it's passed to calls expecting both null and non-null types, regardless of order", () => {
   let text;
   // Should work with the call requiring an ID! placed first in the query

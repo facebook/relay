@@ -13,7 +13,6 @@
 const Profiler = require('./GraphQLCompilerProfiler');
 
 const defaultGetFieldDefinition = require('./defaultGetFieldDefinition');
-const invariant = require('invariant');
 
 const {DEFAULT_HANDLE_KEY} = require('../util/DefaultHandleKey');
 const {
@@ -31,6 +30,7 @@ const {
   GraphQLError,
   GraphQLInputObjectType,
   GraphQLList,
+  GraphQLNonNull,
   GraphQLScalarType,
   isLeafType,
   isTypeSubTypeOf,
@@ -41,7 +41,6 @@ const {
 
 import type {
   Argument,
-  ArgumentDefinition,
   ArgumentValue,
   Condition,
   Directive,
@@ -57,6 +56,7 @@ import type {
   Variable,
 } from './GraphQLIR';
 import type {
+  ASTNode,
   ArgumentNode,
   DirectiveNode,
   FieldNode,
@@ -72,7 +72,6 @@ import type {
   OperationDefinitionNode,
   SelectionSetNode,
   ValueNode,
-  VariableDefinitionNode,
   VariableNode,
 } from 'graphql';
 
@@ -83,6 +82,15 @@ type GetFieldDefinitionFn = (
   fieldName: string,
   fieldAST: FieldNode,
 ) => ?GraphQLField<mixed, mixed>;
+
+type VariableDefinitions = Map<string, VariableDefinition>;
+type VariableDefinition = {|
+  ast: ASTNode,
+  name: string,
+  defaultValue: mixed,
+  type: GraphQLInputType,
+  defined: boolean,
+|};
 
 const ARGUMENT_DEFINITIONS = 'argumentDefinitions';
 const ARGUMENTS = 'arguments';
@@ -167,9 +175,11 @@ class GraphQLParser {
     const nodes = [];
     for (const definition of this._definitions.values()) {
       try {
+        const variableDefinitions = this._buildArgumentDefinitions(definition);
         const node = parseDefinition(
           this._schema,
           definition,
+          variableDefinitions,
           this._getFieldDefinition,
         );
         nodes.push(node);
@@ -192,16 +202,160 @@ class GraphQLParser {
     }
     return nodes;
   }
+
+  /**
+   * Constructs a mapping of variable names to definitions for the given
+   * operation/fragment definition.
+   */
+  _buildArgumentDefinitions(
+    definition: ASTDefinitionNode,
+  ): VariableDefinitions {
+    switch (definition.kind) {
+      case 'OperationDefinition':
+        return this._buildOperationArgumentDefinitions(definition);
+      case 'FragmentDefinition':
+        return this._buildFragmentArgumentDefinitions(definition);
+      default:
+        (definition: empty);
+        throw new GraphQLError(`Unexpected ast kind '${definition.kind}'.`, [
+          definition,
+        ]);
+    }
+  }
+
+  /**
+   * Constructs a mapping of variable names to definitions using the
+   * variables defined in `@argumentDefinitions`.
+   */
+  _buildFragmentArgumentDefinitions(
+    fragment: FragmentDefinitionNode,
+  ): VariableDefinitions {
+    const variableDirectives = (fragment.directives || []).filter(
+      directive => getName(directive) === ARGUMENT_DEFINITIONS,
+    );
+    if (!variableDirectives.length) {
+      return new Map();
+    }
+    if (variableDirectives.length !== 1) {
+      throw new GraphQLError(
+        `Directive @${ARGUMENT_DEFINITIONS} may be defined at most once per ` +
+          'fragment.',
+        variableDirectives,
+      );
+    }
+    const variableDirective = variableDirectives[0];
+    // $FlowIssue: refining directly on `variableDirective.arguments` doesn't
+    // work, below accesses all report arguments could still be null/undefined.
+    const args = variableDirective.arguments;
+    if (variableDirective == null || !Array.isArray(args)) {
+      return new Map();
+    }
+    if (!args.length) {
+      throw new GraphQLError(
+        `Directive @${ARGUMENT_DEFINITIONS} requires arguments: remove the ` +
+          'directive to skip defining local variables for this fragment.',
+        [variableDirective],
+      );
+    }
+    const variables = new Map();
+    args.forEach(arg => {
+      const argName = getName(arg);
+      const previousVariable = variables.get(argName);
+      if (previousVariable != null) {
+        throw new GraphQLError(
+          `Duplicate definition for variable '\$${argName}'.`,
+          [previousVariable.ast, arg],
+        );
+      }
+      const value = transformLiteralValue(arg.value, arg);
+      if (
+        Array.isArray(value) ||
+        typeof value !== 'object' ||
+        value === null ||
+        typeof value.type !== 'string'
+      ) {
+        throw new GraphQLError(
+          `Expected definition for variable '\$${argName}' to be an object ` +
+            "with the shape: '{type: string, defaultValue?: mixed, nonNull?: " +
+            "boolean, list?: boolean}'.",
+          [arg.value],
+        );
+      }
+
+      const unknownKeys = Object.keys(value).filter(
+        key =>
+          key !== 'type' &&
+          key !== 'defaultValue' &&
+          key !== 'nonNull' &&
+          key !== 'list',
+      );
+      if (unknownKeys.length !== 0) {
+        const unknownKeysString = "'" + unknownKeys.join("', '") + "'";
+        throw new GraphQLError(
+          `Expected definition for variable '\$${argName}' to be an object ` +
+            "with the following shape: '{type: string, defaultValue?: mixed, " +
+            "nonNull?: boolean, list?: boolean}', got unknown key(s) " +
+            `${unknownKeysString}.`,
+          [arg],
+        );
+      }
+
+      const typeAST = parseType(String(value.type));
+      const type = assertInputType(getTypeFromAST(this._schema, typeAST));
+      variables.set(argName, {
+        ast: arg,
+        defaultValue: value.defaultValue != null ? value.defaultValue : null,
+        defined: true,
+        name: argName,
+        type,
+      });
+    });
+    return variables;
+  }
+
+  /**
+   * Constructs a mapping of variable names to definitions using the
+   * standard GraphQL syntax for variable definitions.
+   */
+  _buildOperationArgumentDefinitions(
+    operation: OperationDefinitionNode,
+  ): VariableDefinitions {
+    const variableDefinitions = new Map();
+    (operation.variableDefinitions || []).forEach(def => {
+      const name = getName(def.variable);
+      const type = assertInputType(getTypeFromAST(this._schema, def.type));
+      const defaultValue = def.defaultValue
+        ? transformLiteralValue(def.defaultValue, def)
+        : null;
+      const previousDefinition = variableDefinitions.get(name);
+      if (previousDefinition != null) {
+        throw new GraphQLError(
+          `Duplicate definition for variable '\$${name}'.`,
+          [previousDefinition.ast, def],
+        );
+      }
+      variableDefinitions.set(name, {
+        ast: def,
+        defaultValue,
+        defined: true,
+        name,
+        type,
+      });
+    });
+    return variableDefinitions;
+  }
 }
 
 function parseDefinition(
   schema: GraphQLSchema,
   definition: ASTDefinitionNode,
+  variableDefinitions: VariableDefinitions,
   getFieldDefinition: GetFieldDefinitionFn,
 ): Fragment | Root {
   const parser = new GraphQLDefinitionParser(
     schema,
     definition,
+    variableDefinitions,
     getFieldDefinition,
   );
   return parser.transform();
@@ -213,20 +367,21 @@ function parseDefinition(
 class GraphQLDefinitionParser {
   _definition: ASTDefinitionNode;
   _getFieldDefinition: GetFieldDefinitionFn;
-  _referencedVariableTypesByName: {
-    [name: string]: {ast: VariableNode, type: ?GraphQLInputType},
-  };
   _schema: GraphQLSchema;
+  _variableDefinitions: VariableDefinitions;
+  _unknownVariables: Map<string, {ast: VariableNode, type: ?GraphQLInputType}>;
 
   constructor(
     schema: GraphQLSchema,
     definition: ASTDefinitionNode,
+    variableDefinitions: VariableDefinitions,
     getFieldDefinition: GetFieldDefinitionFn,
   ): void {
     this._definition = definition;
     this._getFieldDefinition = getFieldDefinition;
-    this._referencedVariableTypesByName = {};
     this._schema = schema;
+    this._variableDefinitions = variableDefinitions;
+    this._unknownVariables = new Map();
   }
 
   transform(): Root | Fragment {
@@ -237,6 +392,7 @@ class GraphQLDefinitionParser {
       case 'FragmentDefinition':
         return this._transformFragment(definition);
       default:
+        (definition: empty);
         throw new GraphQLError(
           `Unsupported definition type ${definition.kind}`,
           [definition],
@@ -257,43 +413,79 @@ class GraphQLDefinitionParser {
     name: string,
     usedAsType: ?GraphQLInputType,
   ): void {
-    const previous = this._referencedVariableTypesByName[name];
-
-    if (!previous || !previous.type) {
-      // No previous usage, current type is strongest
-      this._referencedVariableTypesByName[name] = {
-        ast: variable,
-        type: usedAsType,
-      };
-    } else if (usedAsType) {
-      const {type: previousType, ast: previousVariable} = previous;
+    // Special case for variables used in @arguments where we currently
+    // aren't guaranteed to be able to resolve the type.
+    if (usedAsType == null) {
       if (
-        !(
-          isTypeSubTypeOf(this._schema, usedAsType, previousType) ||
-          isTypeSubTypeOf(this._schema, previousType, usedAsType)
-        )
+        !this._variableDefinitions.has(name) &&
+        !this._unknownVariables.has(name)
       ) {
+        this._unknownVariables.set(name, {
+          ast: variable,
+          type: null,
+        });
+      }
+      return;
+    }
+    const variableDefinition = this._variableDefinitions.get(name);
+    if (variableDefinition != null) {
+      // If the variable is defined, all usages must be compatible
+      let effectiveType = variableDefinition.type;
+      if (variableDefinition.defaultValue != null) {
+        // If a default value is defined then it is guaranteed to be used
+        // at runtime such that the effective type of the variable is non-null
+        effectiveType = new GraphQLNonNull(getNullableType(effectiveType));
+      }
+      if (!isTypeSubTypeOf(this._schema, effectiveType, usedAsType)) {
         throw new GraphQLError(
-          `Variable '\$${name}' was used in locations expecting the conflicting types '${String(
-            previousType,
-          )}' and '${String(usedAsType)}'. Source: ${this._getErrorContext()}`,
-          [previousVariable, variable],
+          `Variable '\$${name}' was defined as type '${String(
+            variableDefinition.type,
+          )}' but used in a location expecting the type '${String(
+            usedAsType,
+          )}'`,
+          [variableDefinition.ast, variable],
         );
       }
+    } else {
+      const previous = this._unknownVariables.get(name);
 
-      // If the new used type has stronger requirements, use that type as reference,
-      // otherwise keep referencing the previous type
-      if (isTypeSubTypeOf(this._schema, usedAsType, previousType)) {
-        this._referencedVariableTypesByName[name] = {
+      if (!previous || !previous.type) {
+        // No previous usage, current type is strongest
+        this._unknownVariables.set(name, {
           ast: variable,
           type: usedAsType,
-        };
+        });
+      } else {
+        const {type: previousType, ast: previousVariable} = previous;
+        if (
+          !(
+            isTypeSubTypeOf(this._schema, usedAsType, previousType) ||
+            isTypeSubTypeOf(this._schema, previousType, usedAsType)
+          )
+        ) {
+          throw new GraphQLError(
+            `Variable '\$${name}' was used in locations expecting the conflicting types '${String(
+              previousType,
+            )}' and '${String(
+              usedAsType,
+            )}'. Source: ${this._getErrorContext()}`,
+            [previousVariable, variable],
+          );
+        }
+
+        // If the new used type has stronger requirements, use that type as reference,
+        // otherwise keep referencing the previous type
+        if (isTypeSubTypeOf(this._schema, usedAsType, previousType)) {
+          this._unknownVariables.set(name, {
+            ast: variable,
+            type: usedAsType,
+          });
+        }
       }
     }
   }
 
   _transformFragment(fragment: FragmentDefinitionNode): Fragment {
-    const argumentDefinitions = this._buildArgumentDefinitions(fragment);
     const directives = this._transformDirectives(
       (fragment.directives || []).filter(
         directive => getName(directive) !== ARGUMENT_DEFINITIONS,
@@ -303,41 +495,17 @@ class GraphQLDefinitionParser {
       getTypeFromAST(this._schema, fragment.typeCondition),
     );
     const selections = this._transformSelections(fragment.selectionSet, type);
-    for (const name in this._referencedVariableTypesByName) {
-      if (this._referencedVariableTypesByName.hasOwnProperty(name)) {
-        const variableReference = this._referencedVariableTypesByName[name];
-        const localArgument = argumentDefinitions.find(
-          argDef => argDef.name === name,
-        );
-        if (localArgument) {
-          if (
-            variableReference != null &&
-            variableReference.type != null &&
-            !isTypeSubTypeOf(
-              this._schema,
-              localArgument.type,
-              variableReference.type,
-            )
-          ) {
-            throw new GraphQLError(
-              `Variable '\$${name}' was defined as type '${String(
-                localArgument.type,
-              )}' but used in a location that expects type '${String(
-                variableReference.type,
-              )}'. Source: ${this._getErrorContext()}`,
-              [variableReference.ast],
-            );
-          }
-        } else {
-          argumentDefinitions.push({
-            kind: 'RootArgumentDefinition',
-            metadata: null,
-            name,
-            // $FlowFixMe - could be null
-            type: variableReference ? variableReference.type : null,
-          });
-        }
-      }
+    const argumentDefinitions = [
+      ...buildArgumentDefinitions(this._variableDefinitions),
+    ];
+    for (const [name, variableReference] of this._unknownVariables) {
+      argumentDefinitions.push({
+        kind: 'RootArgumentDefinition',
+        metadata: null,
+        name,
+        // $FlowFixMe - could be null
+        type: variableReference.type,
+      });
     }
     return {
       kind: 'Fragment',
@@ -350,105 +518,8 @@ class GraphQLDefinitionParser {
     };
   }
 
-  /**
-   * Polyfills suport for fragment variable definitions via the
-   * @argumentDefinitions directive. Returns the equivalent AST
-   * to the `argumentDefinitions` property on queries/mutations/etc.
-   */
-  _buildArgumentDefinitions(
-    fragment: FragmentDefinitionNode,
-  ): Array<ArgumentDefinition> {
-    const variableDirectives = (fragment.directives || []).filter(
-      directive => getName(directive) === ARGUMENT_DEFINITIONS,
-    );
-    if (!variableDirectives.length) {
-      return [];
-    }
-    if (variableDirectives.length !== 1) {
-      throw new GraphQLError(
-        `Directive @${ARGUMENT_DEFINITIONS} may be defined at most once per ` +
-          `fragment. Source: ${this._getErrorContext()}.`,
-        variableDirectives,
-      );
-    }
-    const variableDirective = variableDirectives[0];
-    // $FlowIssue: refining directly on `variableDirective.arguments` doesn't
-    // work, below accesses all report arguments could still be null/undefined.
-    const args = variableDirective.arguments;
-    if (variableDirective == null || !Array.isArray(args)) {
-      return [];
-    }
-    if (!args.length) {
-      throw new GraphQLError(
-        `Directive @${ARGUMENT_DEFINITIONS} requires arguments: remove the ` +
-          'directive to skip defining local variables for this fragment. ' +
-          `Source: ${this._getErrorContext()}.`,
-        [variableDirective],
-      );
-    }
-    return args.map(arg => {
-      const argName = getName(arg);
-      const argValue = this._transformValue(arg.value);
-      if (argValue.kind !== 'Literal') {
-        throw new GraphQLError(
-          `Expected definition for variable '\$${argName}' to be an object ` +
-            "with the following shape: '{type: string, defaultValue: mixed}'. " +
-            `Source: ${this._getErrorContext()}`,
-          [arg.value],
-        );
-      }
-      const value = argValue.value;
-      if (
-        Array.isArray(value) ||
-        typeof value !== 'object' ||
-        value === null ||
-        typeof value.type !== 'string'
-      ) {
-        throw new GraphQLError(
-          `Expected definition for variable '\$${argName}' to be an object ` +
-            "with the shape: '{type: string, defaultValue?: mixed, nonNull?: " +
-            `boolean, list?: boolean}'. Source: ${this._getErrorContext()}.`,
-          [arg.value],
-        );
-      }
-
-      const valueType = value.type;
-
-      const unknownKeys = Object.keys(value).filter(
-        key =>
-          key !== 'type' &&
-          key !== 'defaultValue' &&
-          key !== 'nonNull' &&
-          key !== 'list',
-      );
-      if (unknownKeys.length !== 0) {
-        const unknownKeysString = "'" + unknownKeys.join("', '") + "'";
-        throw new GraphQLError(
-          `Expected definition for variable '\$${argName}' to be an object ` +
-            "with the following shape: '{type: string, defaultValue?: mixed, " +
-            "nonNull?: boolean, list?: boolean}', got unknown key(s) " +
-            `${unknownKeysString}. Source: ${this._getErrorContext()}.`,
-          [arg],
-        );
-      }
-
-      const typeAST = parseType(valueType);
-      const type = assertInputType(getTypeFromAST(this._schema, typeAST));
-      return {
-        kind: 'LocalArgumentDefinition',
-        defaultValue: value.defaultValue != null ? value.defaultValue : null,
-        metadata: null,
-        name: argName,
-        type,
-      };
-    });
-  }
-
   _transformOperation(definition: OperationDefinitionNode): Root {
     const name = getName(definition);
-    const argumentDefinitions = this._transformArgumentDefinitions(
-      definition.variableDefinitions || [],
-    );
     const directives = this._transformDirectives(definition.directives || []);
     let type;
     let operation;
@@ -481,6 +552,18 @@ class GraphQLDefinitionParser {
       );
     }
     const selections = this._transformSelections(definition.selectionSet, type);
+    const argumentDefinitions = buildArgumentDefinitions(
+      this._variableDefinitions,
+    );
+    if (this._unknownVariables.size !== 0) {
+      throw new GraphQLError(
+        `Query '${name}' references undefined variables.`,
+        Array.from(
+          this._unknownVariables.values(),
+          variableReference => variableReference.ast,
+        ),
+      );
+    }
     return {
       kind: 'Root',
       operation,
@@ -491,49 +574,6 @@ class GraphQLDefinitionParser {
       selections,
       type,
     };
-  }
-
-  _transformArgumentDefinitions(
-    argumentDefinitions: $ReadOnlyArray<VariableDefinitionNode>,
-  ): Array<LocalArgumentDefinition> {
-    return argumentDefinitions.map(def => {
-      const name = getName(def.variable);
-      const type = assertInputType(getTypeFromAST(this._schema, def.type));
-      const defaultLiteral = def.defaultValue
-        ? this._transformValue(def.defaultValue, type)
-        : null;
-      if (this._referencedVariableTypesByName.hasOwnProperty(name)) {
-        const variableReference = this._referencedVariableTypesByName[name];
-        if (
-          variableReference != null &&
-          variableReference.type != null &&
-          !isTypeSubTypeOf(this._schema, type, variableReference.type)
-        ) {
-          throw new GraphQLError(
-            `Variable '\$${name}' was defined as type '${String(
-              type,
-            )}' but used in a location that expects type '${String(
-              variableReference.type,
-            )}'. Source: ${this._getErrorContext()}`,
-            [def, variableReference.ast],
-          );
-        }
-      }
-      if (defaultLiteral != null && defaultLiteral.kind !== 'Literal') {
-        throw new GraphQLError(
-          "Expected argument default value to be a literal or 'null'. " +
-            `Source: ${this._getErrorContext()}`,
-          [def.defaultValue ?? def],
-        );
-      }
-      return {
-        kind: 'LocalArgumentDefinition',
-        metadata: null,
-        name,
-        defaultValue: defaultLiteral ? defaultLiteral.value : null,
-        type,
-      };
-    });
   }
 
   _transformSelections(
@@ -627,7 +667,7 @@ class GraphQLDefinitionParser {
           kind: 'Argument',
           metadata: null,
           name: argName,
-          value: this._transformVariable(argValue),
+          value: this._transformVariable(argValue, null),
           type: null,
         };
       });
@@ -729,47 +769,51 @@ class GraphQLDefinitionParser {
         let name = null;
         let key = DEFAULT_HANDLE_KEY;
         let filters = null;
-        const maybeHandle = this._transformValue(handleArgument.value);
-        if (
-          maybeHandle.kind !== 'Literal' ||
-          typeof maybeHandle.value !== 'string'
-        ) {
+        const maybeHandle = transformLiteralValue(
+          handleArgument.value,
+          handleArgument,
+        );
+        if (typeof maybeHandle !== 'string') {
           throw new GraphQLError(
             `Expected a string literal argument for the @${CLIENT_FIELD} directive. ` +
               `Source: ${this._getErrorContext()}`,
             [handleArgument.value],
           );
         }
-        name = maybeHandle.value;
+        name = maybeHandle;
 
         const keyArgument = (clientFieldDirective.arguments || []).find(
           arg => getName(arg) === CLIENT_FIELD_KEY,
         );
         if (keyArgument) {
-          const maybeKey = this._transformValue(keyArgument.value);
-          if (
-            maybeKey.kind !== 'Literal' ||
-            typeof maybeKey.value !== 'string'
-          ) {
+          const maybeKey = transformLiteralValue(
+            keyArgument.value,
+            keyArgument,
+          );
+          if (typeof maybeKey !== 'string') {
             throw new GraphQLError(
               `Expected a string literal argument for the @${CLIENT_FIELD} directive. ` +
                 `Source: ${this._getErrorContext()}`,
               [keyArgument.value],
             );
           }
-          key = maybeKey.value;
+          key = maybeKey;
         }
         const filtersArgument = (clientFieldDirective.arguments || []).find(
           arg => getName(arg) === CLIENT_FIELD_FILTERS,
         );
         if (filtersArgument) {
-          const maybeFilters = this._transformValue(filtersArgument.value);
+          const maybeFilters = transformLiteralValue(
+            filtersArgument.value,
+            filtersArgument,
+          );
           if (
             !(
-              maybeFilters.kind === 'Literal' &&
-              Array.isArray(maybeFilters.value) &&
-              maybeFilters.value.every(filter =>
-                fieldArgs.some(fieldArg => fieldArg.name === filter),
+              Array.isArray(maybeFilters) &&
+              maybeFilters.every(
+                filter =>
+                  typeof filter === 'string' &&
+                  fieldArgs.some(fieldArg => fieldArg.name === filter),
               )
             )
           ) {
@@ -780,7 +824,7 @@ class GraphQLDefinitionParser {
             );
           }
           // $FlowFixMe
-          filters = (maybeFilters.value: Array<string>);
+          filters = (maybeFilters: Array<string>);
         }
         handles = handles || [];
         handles.push({name, key, filters});
@@ -891,14 +935,17 @@ class GraphQLDefinitionParser {
     return [sortedConditions, otherDirectives];
   }
 
-  _transformVariable(ast: VariableNode, type?: ?GraphQLInputType): Variable {
+  _transformVariable(
+    ast: VariableNode,
+    usedAsType: ?GraphQLInputType,
+  ): Variable {
     const variableName = getName(ast);
-    this._recordAndVerifyVariableReference(ast, variableName, type);
+    this._recordAndVerifyVariableReference(ast, variableName, usedAsType);
     return {
       kind: 'Variable',
       metadata: null,
       variableName,
-      type,
+      type: usedAsType,
     };
   }
 
@@ -906,7 +953,7 @@ class GraphQLDefinitionParser {
    * Transforms AST values into IR values, extracting the literal JS values of any
    * subtree of the AST that does not contain a variable.
    */
-  _transformValue(ast: ValueNode, type?: ?GraphQLInputType): ArgumentValue {
+  _transformValue(ast: ValueNode, type: GraphQLInputType): ArgumentValue {
     switch (ast.kind) {
       case 'IntValue':
         return {
@@ -941,21 +988,18 @@ class GraphQLDefinitionParser {
           value: ast.value,
         };
       case 'ListValue':
-        let itemType;
-        if (type) {
-          const listType = getNullableType(type);
-          // The user entered a list, a `type` was expected; this is only valid
-          // if `type` is a List.
-          if (!(listType instanceof GraphQLList)) {
-            throw new GraphQLError(
-              `Expected a value matching type '${String(
-                type || 'GraphQLList<_>',
-              )}'. Source: ${this._getErrorContext()}`,
-              [ast],
-            );
-          }
-          itemType = assertInputType(listType.ofType);
+        const listType = getNullableType(type);
+        // The user entered a list, a `type` was expected; this is only valid
+        // if `type` is a List.
+        if (!(listType instanceof GraphQLList)) {
+          throw new GraphQLError(
+            `Expected a value matching type '${String(
+              type || 'GraphQLList<_>',
+            )}'. Source: ${this._getErrorContext()}`,
+            [ast],
+          );
         }
+        const itemType = assertInputType(listType.ofType);
         const literalList = [];
         const items = [];
         let areAllItemsScalar = true;
@@ -992,30 +1036,27 @@ class GraphQLDefinitionParser {
         let areAllFieldsScalar = true;
         ast.fields.forEach(field => {
           const fieldName = getName(field);
-          let fieldType;
-          if (type) {
-            const objectType = getNullableType(type);
-            // The user entered an object, a `type` was expected; this is only
-            // valid if `type` is an Object.
-            if (!(objectType instanceof GraphQLInputObjectType)) {
-              throw new GraphQLError(
-                `Expected a value matching type '${String(
-                  type || 'GraphQLInputObjectType<_>',
-                )}'. Source: ${this._getErrorContext()}`,
-                [ast],
-              );
-            }
-            const fieldConfig = objectType.getFields()[fieldName];
-            if (fieldConfig == null) {
-              throw new GraphQLError(
-                `Uknown field '${fieldName}' on type '${String(
-                  type,
-                )}'. Source: ${this._getErrorContext()}`,
-                [field],
-              );
-            }
-            fieldType = assertInputType(fieldConfig.type);
+          const objectType = getNullableType(type);
+          // The user entered an object, a `type` was expected; this is only
+          // valid if `type` is an Object.
+          if (!(objectType instanceof GraphQLInputObjectType)) {
+            throw new GraphQLError(
+              `Expected a value matching type '${String(
+                type || 'GraphQLInputObjectType<_>',
+              )}'. Source: ${this._getErrorContext()}`,
+              [ast],
+            );
           }
+          const fieldConfig = objectType.getFields()[fieldName];
+          if (fieldConfig == null) {
+            throw new GraphQLError(
+              `Uknown field '${fieldName}' on type '${String(
+                type,
+              )}'. Source: ${this._getErrorContext()}`,
+              [field],
+            );
+          }
+          const fieldType = assertInputType(fieldConfig.type);
           const fieldValue = this._transformValue(field.value, fieldType);
           if (fieldValue.kind === 'Literal') {
             literalObject[field.name.value] = fieldValue.value;
@@ -1052,6 +1093,58 @@ class GraphQLDefinitionParser {
         );
     }
   }
+}
+
+function transformLiteralValue(ast: ValueNode, context: ASTNode): mixed {
+  switch (ast.kind) {
+    case 'IntValue':
+      return parseInt(ast.value, 10);
+    case 'FloatValue':
+      return parseFloat(ast.value);
+    case 'StringValue':
+      return ast.value;
+    case 'BooleanValue':
+      // Note: duplicated because Flow does not understand fall-through cases
+      return ast.value;
+    case 'EnumValue':
+      // Note: duplicated because Flow does not understand fall-through cases
+      return ast.value;
+    case 'ListValue':
+      return ast.values.map(item => transformLiteralValue(item, context));
+    case 'NullValue':
+      return null;
+    case 'ObjectValue': {
+      const objectValue = {};
+      ast.fields.forEach(field => {
+        const fieldName = getName(field);
+        const value = transformLiteralValue(field.value, context);
+        objectValue[fieldName] = value;
+      });
+      return objectValue;
+    }
+    case 'Variable':
+      throw new GraphQLError(
+        'Unexpected variable where a literal (static) value is required.',
+        [ast, context],
+      );
+    default:
+      (ast.kind: empty);
+      throw new GraphQLError(`Unknown ast kind '${ast.kind}'.`, [ast]);
+  }
+}
+
+function buildArgumentDefinitions(
+  variables: VariableDefinitions,
+): Array<LocalArgumentDefinition> {
+  return Array.from(variables.values(), ({name, type, defaultValue}) => {
+    return {
+      kind: 'LocalArgumentDefinition',
+      metadata: null,
+      name,
+      type,
+      defaultValue,
+    };
+  });
 }
 
 function isScalarFieldType(type: GraphQLOutputType): boolean {

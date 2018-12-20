@@ -223,8 +223,13 @@ fragment Profile on User @argumentDefinitions(
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-RelayApplyFragmentArgumentTransform: variable '$includeFriends2' is not in scope. Path:
-- Query 'TestQuery'
-- Field 'node'
-- Fragment 'Profile'
+Error: GraphQLParser: Encountered 1 error(s):
+- Query 'TestQuery' references undefined variables.
+  
+  GraphQL request (8:70)
+  7:     id
+  8:     ...Profile @arguments(pictureSize: $pictureSize, includeFriends: $includeFriends2)
+                                                                          ^
+  9:   }
+  
 `;

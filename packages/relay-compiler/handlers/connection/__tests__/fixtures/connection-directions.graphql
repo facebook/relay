@@ -1,5 +1,7 @@
 query NodeQuery(
   $id: ID!
+  $last: Int,
+  $first: Int,
 ) {
   node(id: $id) {
     id

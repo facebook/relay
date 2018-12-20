@@ -5,6 +5,7 @@ Array [
   "init state: Root TestQuery",
   "Root",
   "LocalArgumentDefinition",
+  "LocalArgumentDefinition",
   "LinkedField",
   "Argument",
   "Variable",

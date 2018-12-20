@@ -218,7 +218,7 @@ describe('RelayReader', () => {
     ]);
   });
 
-  it('creates fragment pointers', () => {
+  it('creates fragment pointers with variable @arguments', () => {
     const {UserProfile} = generateAndCompile(`
       fragment UserProfile on User @argumentDefinitions(
         size: {type: "[Int]"}
@@ -240,6 +240,39 @@ describe('RelayReader', () => {
       dataID: '1',
       node: UserProfile,
       variables: {size: 42},
+    });
+    expect(data).toEqual({
+      id: '1',
+      __id: '1',
+      __fragments: {
+        UserProfilePicture: {
+          size: 42,
+        },
+      },
+    });
+    expect(Object.keys(seenRecords)).toEqual(['1']);
+  });
+
+  it('creates fragment pointers with literal @arguments', () => {
+    const {UserProfile} = generateAndCompile(`
+      fragment UserProfile on User {
+        id
+        ...UserProfilePicture @arguments(size: 42)
+      }
+
+      fragment UserProfilePicture on User @argumentDefinitions(
+        size: {type: "[Int]"}
+      ) {
+        profilePicture(size: $size) {
+          uri
+        }
+      }
+    `);
+
+    const {data, seenRecords} = read(source, {
+      dataID: '1',
+      node: UserProfile,
+      variables: {},
     });
     expect(data).toEqual({
       id: '1',

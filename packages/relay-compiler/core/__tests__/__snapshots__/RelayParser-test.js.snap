@@ -713,6 +713,869 @@ fragment Foo on User @argumentDefinitions(localId: {type: "ID!"}){
 ]
 `;
 
+exports[`RelayParser matches expected output: fragment-with-literal-arguments.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment ParentFragment on User {
+  ...ChildFragment @arguments(pictureSize: [42])
+}
+
+fragment ChildFragment on User @argumentDefinitions(pictureSize: {type: "[Int]"}){
+  profilePicture(size: $pictureSize) {
+    uri
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+[
+  {
+    "kind": "Fragment",
+    "directives": [],
+    "metadata": null,
+    "name": "ParentFragment",
+    "selections": [
+      {
+        "kind": "FragmentSpread",
+        "args": [
+          {
+            "kind": "Argument",
+            "metadata": null,
+            "name": "pictureSize",
+            "value": {
+              "kind": "Literal",
+              "metadata": null,
+              "value": [
+                42
+              ]
+            },
+            "type": "[Int]"
+          }
+        ],
+        "metadata": null,
+        "name": "ChildFragment",
+        "directives": []
+      }
+    ],
+    "type": "User",
+    "argumentDefinitions": []
+  },
+  {
+    "kind": "Fragment",
+    "directives": [],
+    "metadata": null,
+    "name": "ChildFragment",
+    "selections": [
+      {
+        "kind": "LinkedField",
+        "alias": null,
+        "args": [
+          {
+            "kind": "Argument",
+            "metadata": null,
+            "name": "size",
+            "value": {
+              "kind": "Variable",
+              "metadata": null,
+              "variableName": "pictureSize",
+              "type": "[Int]"
+            },
+            "type": "[Int]"
+          }
+        ],
+        "directives": [],
+        "metadata": null,
+        "name": "profilePicture",
+        "selections": [
+          {
+            "kind": "ScalarField",
+            "alias": null,
+            "args": [],
+            "directives": [],
+            "metadata": null,
+            "name": "uri",
+            "type": "String"
+          }
+        ],
+        "type": "Image"
+      }
+    ],
+    "type": "User",
+    "argumentDefinitions": [
+      {
+        "kind": "LocalArgumentDefinition",
+        "metadata": null,
+        "name": "pictureSize",
+        "type": "[Int]",
+        "defaultValue": null
+      }
+    ]
+  }
+]
+`;
+
+exports[`RelayParser matches expected output: fragment-with-literal-enum-arguments.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment ParentFragment on Query {
+  mobile_settings: settings(environment: MOBILE) {
+    cache_id
+  }
+  ...ChildFragment @arguments(environment: WEB)
+}
+
+fragment ChildFragment on Query @argumentDefinitions(environment: {type: "Environment!"}){
+  settings(environment: $environment) {
+    cache_id
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+[
+  {
+    "kind": "Fragment",
+    "directives": [],
+    "metadata": null,
+    "name": "ParentFragment",
+    "selections": [
+      {
+        "kind": "LinkedField",
+        "alias": "mobile_settings",
+        "args": [
+          {
+            "kind": "Argument",
+            "metadata": null,
+            "name": "environment",
+            "value": {
+              "kind": "Literal",
+              "metadata": null,
+              "value": "MOBILE"
+            },
+            "type": "Environment"
+          }
+        ],
+        "directives": [],
+        "metadata": null,
+        "name": "settings",
+        "selections": [
+          {
+            "kind": "ScalarField",
+            "alias": null,
+            "args": [],
+            "directives": [],
+            "metadata": null,
+            "name": "cache_id",
+            "type": "ID"
+          }
+        ],
+        "type": "Settings"
+      },
+      {
+        "kind": "FragmentSpread",
+        "args": [
+          {
+            "kind": "Argument",
+            "metadata": null,
+            "name": "environment",
+            "value": {
+              "kind": "Literal",
+              "metadata": null,
+              "value": "WEB"
+            },
+            "type": "Environment!"
+          }
+        ],
+        "metadata": null,
+        "name": "ChildFragment",
+        "directives": []
+      }
+    ],
+    "type": "Query",
+    "argumentDefinitions": []
+  },
+  {
+    "kind": "Fragment",
+    "directives": [],
+    "metadata": null,
+    "name": "ChildFragment",
+    "selections": [
+      {
+        "kind": "LinkedField",
+        "alias": null,
+        "args": [
+          {
+            "kind": "Argument",
+            "metadata": null,
+            "name": "environment",
+            "value": {
+              "kind": "Variable",
+              "metadata": null,
+              "variableName": "environment",
+              "type": "Environment"
+            },
+            "type": "Environment"
+          }
+        ],
+        "directives": [],
+        "metadata": null,
+        "name": "settings",
+        "selections": [
+          {
+            "kind": "ScalarField",
+            "alias": null,
+            "args": [],
+            "directives": [],
+            "metadata": null,
+            "name": "cache_id",
+            "type": "ID"
+          }
+        ],
+        "type": "Settings"
+      }
+    ],
+    "type": "Query",
+    "argumentDefinitions": [
+      {
+        "kind": "LocalArgumentDefinition",
+        "metadata": null,
+        "name": "environment",
+        "type": "Environment!",
+        "defaultValue": null
+      }
+    ]
+  }
+]
+`;
+
+exports[`RelayParser matches expected output: fragment-with-literal-enum-arguments-into-enum-list.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment ParentFragment on User {
+  mobile_checkins: checkins(environments: [MOBILE]) {
+    query
+  }
+  ...ChildFragment @arguments(environments: WEB)
+}
+
+fragment ChildFragment on User @argumentDefinitions(environments: {type: "[Environment!]!"}){
+  checkins(environments: $environments) {
+    query
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+[
+  {
+    "kind": "Fragment",
+    "directives": [],
+    "metadata": null,
+    "name": "ParentFragment",
+    "selections": [
+      {
+        "kind": "LinkedField",
+        "alias": "mobile_checkins",
+        "args": [
+          {
+            "kind": "Argument",
+            "metadata": null,
+            "name": "environments",
+            "value": {
+              "kind": "Literal",
+              "metadata": null,
+              "value": [
+                "MOBILE"
+              ]
+            },
+            "type": "[Environment!]!"
+          }
+        ],
+        "directives": [],
+        "metadata": null,
+        "name": "checkins",
+        "selections": [
+          {
+            "kind": "ScalarField",
+            "alias": null,
+            "args": [],
+            "directives": [],
+            "metadata": null,
+            "name": "query",
+            "type": "String"
+          }
+        ],
+        "type": "CheckinSearchResult"
+      },
+      {
+        "kind": "FragmentSpread",
+        "args": [
+          {
+            "kind": "Argument",
+            "metadata": null,
+            "name": "environments",
+            "value": {
+              "kind": "Literal",
+              "metadata": null,
+              "value": "WEB"
+            },
+            "type": "[Environment!]!"
+          }
+        ],
+        "metadata": null,
+        "name": "ChildFragment",
+        "directives": []
+      }
+    ],
+    "type": "User",
+    "argumentDefinitions": []
+  },
+  {
+    "kind": "Fragment",
+    "directives": [],
+    "metadata": null,
+    "name": "ChildFragment",
+    "selections": [
+      {
+        "kind": "LinkedField",
+        "alias": null,
+        "args": [
+          {
+            "kind": "Argument",
+            "metadata": null,
+            "name": "environments",
+            "value": {
+              "kind": "Variable",
+              "metadata": null,
+              "variableName": "environments",
+              "type": "[Environment!]!"
+            },
+            "type": "[Environment!]!"
+          }
+        ],
+        "directives": [],
+        "metadata": null,
+        "name": "checkins",
+        "selections": [
+          {
+            "kind": "ScalarField",
+            "alias": null,
+            "args": [],
+            "directives": [],
+            "metadata": null,
+            "name": "query",
+            "type": "String"
+          }
+        ],
+        "type": "CheckinSearchResult"
+      }
+    ],
+    "type": "User",
+    "argumentDefinitions": [
+      {
+        "kind": "LocalArgumentDefinition",
+        "metadata": null,
+        "name": "environments",
+        "type": "[Environment!]!",
+        "defaultValue": null
+      }
+    ]
+  }
+]
+`;
+
+exports[`RelayParser matches expected output: fragment-with-literal-enum-arguments-into-enum-list-indirect.invalid.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment ParentFragment on User {
+  mobile_checkins: checkins(environments: [MOBILE]) {
+    query
+  }
+  ...ChildFragment @arguments(environment: WEB) # OK: matches defined type
+}
+
+fragment ChildFragment on User @argumentDefinitions(environment: {type: "Environment!"}){
+  # variables of a non-list type cannot flow into list types,
+  # the singular -> list promotion only works for literal values
+  checkins(environments: $environment) { # expected error
+    query
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+ERROR:
+Error: GraphQLParser: Encountered 1 error(s):
+- Variable '$environment' was defined as type 'Environment!' but used in a location expecting the type '[Environment!]!'
+  
+  GraphQL request (8:53)
+  7: 
+  8: fragment ChildFragment on User @argumentDefinitions(environment: {type: "Environment!"}){
+                                                         ^
+  9:   # variables of a non-list type cannot flow into list types,
+  
+  GraphQL request (11:26)
+  10:   # the singular -> list promotion only works for literal values
+  11:   checkins(environments: $environment) { # expected error
+                               ^
+  12:     query
+  
+`;
+
+exports[`RelayParser matches expected output: fragment-with-literal-enum-list-arguments.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment ParentFragment on User {
+  mobile_checkins: checkins(environments: [MOBILE]) {
+    query
+  }
+  ...ChildFragment @arguments(environments: [WEB])
+}
+
+fragment ChildFragment on User @argumentDefinitions(environments: {type: "[Environment!]!"}){
+  checkins(environments: $environments) {
+    query
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+[
+  {
+    "kind": "Fragment",
+    "directives": [],
+    "metadata": null,
+    "name": "ParentFragment",
+    "selections": [
+      {
+        "kind": "LinkedField",
+        "alias": "mobile_checkins",
+        "args": [
+          {
+            "kind": "Argument",
+            "metadata": null,
+            "name": "environments",
+            "value": {
+              "kind": "Literal",
+              "metadata": null,
+              "value": [
+                "MOBILE"
+              ]
+            },
+            "type": "[Environment!]!"
+          }
+        ],
+        "directives": [],
+        "metadata": null,
+        "name": "checkins",
+        "selections": [
+          {
+            "kind": "ScalarField",
+            "alias": null,
+            "args": [],
+            "directives": [],
+            "metadata": null,
+            "name": "query",
+            "type": "String"
+          }
+        ],
+        "type": "CheckinSearchResult"
+      },
+      {
+        "kind": "FragmentSpread",
+        "args": [
+          {
+            "kind": "Argument",
+            "metadata": null,
+            "name": "environments",
+            "value": {
+              "kind": "Literal",
+              "metadata": null,
+              "value": [
+                "WEB"
+              ]
+            },
+            "type": "[Environment!]!"
+          }
+        ],
+        "metadata": null,
+        "name": "ChildFragment",
+        "directives": []
+      }
+    ],
+    "type": "User",
+    "argumentDefinitions": []
+  },
+  {
+    "kind": "Fragment",
+    "directives": [],
+    "metadata": null,
+    "name": "ChildFragment",
+    "selections": [
+      {
+        "kind": "LinkedField",
+        "alias": null,
+        "args": [
+          {
+            "kind": "Argument",
+            "metadata": null,
+            "name": "environments",
+            "value": {
+              "kind": "Variable",
+              "metadata": null,
+              "variableName": "environments",
+              "type": "[Environment!]!"
+            },
+            "type": "[Environment!]!"
+          }
+        ],
+        "directives": [],
+        "metadata": null,
+        "name": "checkins",
+        "selections": [
+          {
+            "kind": "ScalarField",
+            "alias": null,
+            "args": [],
+            "directives": [],
+            "metadata": null,
+            "name": "query",
+            "type": "String"
+          }
+        ],
+        "type": "CheckinSearchResult"
+      }
+    ],
+    "type": "User",
+    "argumentDefinitions": [
+      {
+        "kind": "LocalArgumentDefinition",
+        "metadata": null,
+        "name": "environments",
+        "type": "[Environment!]!",
+        "defaultValue": null
+      }
+    ]
+  }
+]
+`;
+
+exports[`RelayParser matches expected output: fragment-with-literal-object-arguments.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment ParentFragment on Query {
+  mobile_checkins: checkinSearchQuery(query: {query: "mobile"}) {
+    query
+  }
+  ...ChildFragment @arguments(query: {query: "web"})
+}
+
+fragment ChildFragment on Query @argumentDefinitions(query: {type: "CheckinSearchInput!"}){
+  checkinSearchQuery(query: $query) {
+    query
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+[
+  {
+    "kind": "Fragment",
+    "directives": [],
+    "metadata": null,
+    "name": "ParentFragment",
+    "selections": [
+      {
+        "kind": "LinkedField",
+        "alias": "mobile_checkins",
+        "args": [
+          {
+            "kind": "Argument",
+            "metadata": null,
+            "name": "query",
+            "value": {
+              "kind": "Literal",
+              "metadata": null,
+              "value": {
+                "query": "mobile"
+              }
+            },
+            "type": "CheckinSearchInput"
+          }
+        ],
+        "directives": [],
+        "metadata": null,
+        "name": "checkinSearchQuery",
+        "selections": [
+          {
+            "kind": "ScalarField",
+            "alias": null,
+            "args": [],
+            "directives": [],
+            "metadata": null,
+            "name": "query",
+            "type": "String"
+          }
+        ],
+        "type": "CheckinSearchResult"
+      },
+      {
+        "kind": "FragmentSpread",
+        "args": [
+          {
+            "kind": "Argument",
+            "metadata": null,
+            "name": "query",
+            "value": {
+              "kind": "Literal",
+              "metadata": null,
+              "value": {
+                "query": "web"
+              }
+            },
+            "type": "CheckinSearchInput!"
+          }
+        ],
+        "metadata": null,
+        "name": "ChildFragment",
+        "directives": []
+      }
+    ],
+    "type": "Query",
+    "argumentDefinitions": []
+  },
+  {
+    "kind": "Fragment",
+    "directives": [],
+    "metadata": null,
+    "name": "ChildFragment",
+    "selections": [
+      {
+        "kind": "LinkedField",
+        "alias": null,
+        "args": [
+          {
+            "kind": "Argument",
+            "metadata": null,
+            "name": "query",
+            "value": {
+              "kind": "Variable",
+              "metadata": null,
+              "variableName": "query",
+              "type": "CheckinSearchInput"
+            },
+            "type": "CheckinSearchInput"
+          }
+        ],
+        "directives": [],
+        "metadata": null,
+        "name": "checkinSearchQuery",
+        "selections": [
+          {
+            "kind": "ScalarField",
+            "alias": null,
+            "args": [],
+            "directives": [],
+            "metadata": null,
+            "name": "query",
+            "type": "String"
+          }
+        ],
+        "type": "CheckinSearchResult"
+      }
+    ],
+    "type": "Query",
+    "argumentDefinitions": [
+      {
+        "kind": "LocalArgumentDefinition",
+        "metadata": null,
+        "name": "query",
+        "type": "CheckinSearchInput!",
+        "defaultValue": null
+      }
+    ]
+  }
+]
+`;
+
+exports[`RelayParser matches expected output: fragment-with-literal-object-list-arguments.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment ParentFragment on Query {
+  mobile_checkins: checkinSearchQuery(query: {query: "mobile"}) {
+    query
+  }
+  ...ChildFragment @arguments(inputs: [{query: "web"}])
+}
+
+fragment ChildFragment on Query @argumentDefinitions(inputs: {type: "[CheckinSearchInput!]!"}){
+  checkinSearchQuery(query: {query: "foo", inputs: $inputs}) {
+    query
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+[
+  {
+    "kind": "Fragment",
+    "directives": [],
+    "metadata": null,
+    "name": "ParentFragment",
+    "selections": [
+      {
+        "kind": "LinkedField",
+        "alias": "mobile_checkins",
+        "args": [
+          {
+            "kind": "Argument",
+            "metadata": null,
+            "name": "query",
+            "value": {
+              "kind": "Literal",
+              "metadata": null,
+              "value": {
+                "query": "mobile"
+              }
+            },
+            "type": "CheckinSearchInput"
+          }
+        ],
+        "directives": [],
+        "metadata": null,
+        "name": "checkinSearchQuery",
+        "selections": [
+          {
+            "kind": "ScalarField",
+            "alias": null,
+            "args": [],
+            "directives": [],
+            "metadata": null,
+            "name": "query",
+            "type": "String"
+          }
+        ],
+        "type": "CheckinSearchResult"
+      },
+      {
+        "kind": "FragmentSpread",
+        "args": [
+          {
+            "kind": "Argument",
+            "metadata": null,
+            "name": "inputs",
+            "value": {
+              "kind": "Literal",
+              "metadata": null,
+              "value": [
+                {
+                  "query": "web"
+                }
+              ]
+            },
+            "type": "[CheckinSearchInput!]!"
+          }
+        ],
+        "metadata": null,
+        "name": "ChildFragment",
+        "directives": []
+      }
+    ],
+    "type": "Query",
+    "argumentDefinitions": []
+  },
+  {
+    "kind": "Fragment",
+    "directives": [],
+    "metadata": null,
+    "name": "ChildFragment",
+    "selections": [
+      {
+        "kind": "LinkedField",
+        "alias": null,
+        "args": [
+          {
+            "kind": "Argument",
+            "metadata": null,
+            "name": "query",
+            "value": {
+              "kind": "ObjectValue",
+              "metadata": null,
+              "fields": [
+                {
+                  "kind": "ObjectFieldValue",
+                  "metadata": null,
+                  "name": "query",
+                  "value": {
+                    "kind": "Literal",
+                    "metadata": null,
+                    "value": "foo"
+                  }
+                },
+                {
+                  "kind": "ObjectFieldValue",
+                  "metadata": null,
+                  "name": "inputs",
+                  "value": {
+                    "kind": "Variable",
+                    "metadata": null,
+                    "variableName": "inputs",
+                    "type": "[CheckinSearchInput]"
+                  }
+                }
+              ]
+            },
+            "type": "CheckinSearchInput"
+          }
+        ],
+        "directives": [],
+        "metadata": null,
+        "name": "checkinSearchQuery",
+        "selections": [
+          {
+            "kind": "ScalarField",
+            "alias": null,
+            "args": [],
+            "directives": [],
+            "metadata": null,
+            "name": "query",
+            "type": "String"
+          }
+        ],
+        "type": "CheckinSearchResult"
+      }
+    ],
+    "type": "Query",
+    "argumentDefinitions": [
+      {
+        "kind": "LocalArgumentDefinition",
+        "metadata": null,
+        "name": "inputs",
+        "type": "[CheckinSearchInput!]!",
+        "defaultValue": null
+      }
+    ]
+  }
+]
+`;
+
+exports[`RelayParser matches expected output: fragment-with-undefined-literal-arguments.invalid.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment ParentFragment on User {
+  ...ChildFragment @arguments(pictureSize: 42) # error: $pictureSize not defined
+}
+
+fragment ChildFragment on User {
+  profilePicture(size: $pictureSize) {
+    uri
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+ERROR:
+Error: GraphQLParser: Encountered 1 error(s):
+- Literal @arguments values are only supported when the argument is defined with @argumentDefinitions. Check the definition of fragment 'ChildFragment'.
+  
+  GraphQL request (2:44)
+  1: fragment ParentFragment on User {
+  2:   ...ChildFragment @arguments(pictureSize: 42) # error: $pictureSize not defined
+                                                ^
+  3: }
+  
+  GraphQL request (5:1)
+  4: 
+  5: fragment ChildFragment on User {
+     ^
+  6:   profilePicture(size: $pictureSize) {
+  
+`;
+
 exports[`RelayParser matches expected output: inline-untyped-fragment.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 fragment InlineUntypedFragment on User {

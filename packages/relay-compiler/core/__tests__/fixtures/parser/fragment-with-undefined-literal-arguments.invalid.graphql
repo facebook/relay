@@ -1,0 +1,9 @@
+fragment ParentFragment on User {
+  ...ChildFragment @arguments(pictureSize: 42) # error: $pictureSize not defined
+}
+
+fragment ChildFragment on User {
+  profilePicture(size: $pictureSize) {
+    uri
+  }
+}

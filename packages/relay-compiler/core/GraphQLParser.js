@@ -173,18 +173,33 @@ class GraphQLParser {
   transform(): Array<Root | Fragment> {
     const errors = [];
     const nodes = [];
-    for (const definition of this._definitions.values()) {
+    const entries = new Map();
+    // Construct a mapping of name to definition ast + variable definitions.
+    // This allows the subsequent AST -> IR tranformation to reference the
+    // defined arguments of referenced fragments.
+    for (const [name, definition] of this._definitions) {
       try {
         const variableDefinitions = this._buildArgumentDefinitions(definition);
-        const node = parseDefinition(
-          this._schema,
-          definition,
-          variableDefinitions,
-          this._getFieldDefinition,
-        );
-        nodes.push(node);
+        entries.set(name, {definition, variableDefinitions});
       } catch (error) {
         errors.push(error);
+      }
+    }
+    // Convert the ASTs to IR.
+    if (errors.length === 0) {
+      for (const {definition, variableDefinitions} of entries.values()) {
+        try {
+          const node = parseDefinition(
+            this._schema,
+            this._getFieldDefinition,
+            entries,
+            definition,
+            variableDefinitions,
+          );
+          nodes.push(node);
+        } catch (error) {
+          errors.push(error);
+        }
       }
     }
     if (errors.length !== 0) {
@@ -348,15 +363,20 @@ class GraphQLParser {
 
 function parseDefinition(
   schema: GraphQLSchema,
+  getFieldDefinition: GetFieldDefinitionFn,
+  entries: Map<
+    string,
+    {|definition: ASTDefinitionNode, variableDefinitions: VariableDefinitions|},
+  >,
   definition: ASTDefinitionNode,
   variableDefinitions: VariableDefinitions,
-  getFieldDefinition: GetFieldDefinitionFn,
 ): Fragment | Root {
   const parser = new GraphQLDefinitionParser(
     schema,
+    getFieldDefinition,
+    entries,
     definition,
     variableDefinitions,
-    getFieldDefinition,
   );
   return parser.transform();
 }
@@ -366,6 +386,13 @@ function parseDefinition(
  */
 class GraphQLDefinitionParser {
   _definition: ASTDefinitionNode;
+  _entries: Map<
+    string,
+    {|
+      definition: ASTDefinitionNode,
+      variableDefinitions: VariableDefinitions,
+    |},
+  >;
   _getFieldDefinition: GetFieldDefinitionFn;
   _schema: GraphQLSchema;
   _variableDefinitions: VariableDefinitions;
@@ -373,11 +400,19 @@ class GraphQLDefinitionParser {
 
   constructor(
     schema: GraphQLSchema,
+    getFieldDefinition: GetFieldDefinitionFn,
+    entries: Map<
+      string,
+      {|
+        definition: ASTDefinitionNode,
+        variableDefinitions: VariableDefinitions,
+      |},
+    >,
     definition: ASTDefinitionNode,
     variableDefinitions: VariableDefinitions,
-    getFieldDefinition: GetFieldDefinitionFn,
   ): void {
     this._definition = definition;
+    this._entries = entries;
     this._getFieldDefinition = getFieldDefinition;
     this._schema = schema;
     this._variableDefinitions = variableDefinitions;
@@ -652,24 +687,46 @@ class GraphQLDefinitionParser {
         argumentDirectives,
       );
     }
+    const fragmentDefinitions = this._entries.get(fragmentName);
+    const fragmentVariables = fragmentDefinitions?.variableDefinitions;
     let args;
     if (argumentDirectives.length) {
       args = (argumentDirectives[0].arguments || []).map(arg => {
         const argName = getName(arg);
         const argValue = arg.value;
-        if (argValue.kind !== 'Variable') {
-          throw new GraphQLError(
-            `All @${ARGUMENTS} values must be variables. Source: ${this._getErrorContext()}`,
-            [arg.value],
-          );
+        const argumentDefinition =
+          fragmentVariables != null ? fragmentVariables.get(argName) : null;
+        const type = argumentDefinition?.type ?? null;
+
+        if (argValue.kind === 'Variable') {
+          // TODO: check the type of the variable and use the type
+          return {
+            kind: 'Argument',
+            metadata: null,
+            name: argName,
+            value: this._transformVariable(argValue, null),
+            type: null,
+          };
+        } else {
+          if (type == null) {
+            throw new GraphQLError(
+              `Literal @${ARGUMENTS} values are only supported when the ` +
+                `argument is defined with @${ARGUMENT_DEFINITIONS}. Check ` +
+                `the definition of fragment '${fragmentName}'.`,
+              [arg.value, this._entries.get(fragmentName)?.definition].filter(
+                Boolean,
+              ),
+            );
+          }
+          const value = this._transformValue(argValue, type);
+          return {
+            kind: 'Argument',
+            metadata: null,
+            name: argName,
+            value,
+            type,
+          };
         }
-        return {
-          kind: 'Argument',
-          metadata: null,
-          name: argName,
-          value: this._transformVariable(argValue, null),
-          type: null,
-        };
       });
     }
     const directives = this._transformDirectives(otherDirectives);

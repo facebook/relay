@@ -47,12 +47,24 @@ it("should correctly parse query when input is a non-null type and it's passed t
   expect(() => GraphQLParser.parse(RelayTestSchema, text)).not.toThrowError();
 });
 
-it('should parse fragment spread arguments', () => {
+it('should parse fragment spread arguments with variable values', () => {
   const text = `
     fragment TestFragment on Query {
       ...TestChild @arguments(foo: $foo)
     }
     fragment TestChild on Query {
+      viewer { actor { id } }
+    }
+  `;
+  expect(() => GraphQLParser.parse(RelayTestSchema, text)).not.toThrowError();
+});
+
+it('should parse fragment spread arguments with literal values', () => {
+  const text = `
+    fragment TestFragment on Query {
+      ...TestChild @arguments(foo: 42)
+    }
+    fragment TestChild on Query @argumentDefinitions(foo: {type: "Int"}) {
       viewer { actor { id } }
     }
   `;

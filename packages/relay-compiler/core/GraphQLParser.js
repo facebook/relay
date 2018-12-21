@@ -21,6 +21,12 @@ const {
   isExecutableDefinitionAST,
 } = require('./GraphQLSchemaUtils');
 const {
+  createCombinedError,
+  createCompilerError,
+  createUserError,
+  eachWithErrors,
+} = require('./RelayCompilerError');
+const {
   assertCompositeType,
   assertInputType,
   assertOutputType,
@@ -28,7 +34,6 @@ const {
   getNamedType,
   GraphQLEnumType,
   GraphQLID,
-  GraphQLError,
   GraphQLInputObjectType,
   GraphQLList,
   GraphQLNonNull,
@@ -187,29 +192,21 @@ class GraphQLParser {
   }
 
   transform(): Array<Root | Fragment> {
-    const errors = [];
+    let errors;
     const nodes = [];
     const entries = new Map();
     // Construct a mapping of name to definition ast + variable definitions.
     // This allows the subsequent AST -> IR tranformation to reference the
     // defined arguments of referenced fragments.
-    for (const [name, definition] of this._definitions) {
-      try {
-        const variableDefinitions = this._buildArgumentDefinitions(definition);
-        entries.set(name, {definition, variableDefinitions});
-      } catch (error) {
-        if (error instanceof GraphQLError) {
-          errors.push(error);
-        } else {
-          // Fail fast for non-user errors
-          throw error;
-        }
-      }
-    }
+    errors = eachWithErrors(this._definitions, ([name, definition]) => {
+      const variableDefinitions = this._buildArgumentDefinitions(definition);
+      entries.set(name, {definition, variableDefinitions});
+    });
     // Convert the ASTs to IR.
-    if (errors.length === 0) {
-      for (const {definition, variableDefinitions} of entries.values()) {
-        try {
+    if (errors == null) {
+      errors = eachWithErrors(
+        entries.values(),
+        ({definition, variableDefinitions}) => {
           const node = parseDefinition(
             this._schema,
             this._getFieldDefinition,
@@ -218,28 +215,11 @@ class GraphQLParser {
             variableDefinitions,
           );
           nodes.push(node);
-        } catch (error) {
-          if (error instanceof GraphQLError) {
-            errors.push(error);
-          } else {
-            // Fail fast for non-user errors
-            throw error;
-          }
-        }
-      }
-    }
-    if (errors.length !== 0) {
-      throw new Error(
-        `GraphQLParser: Encountered ${errors.length} error(s):\n` +
-          errors
-            .map(error =>
-              String(error)
-                .split('\n')
-                .map((line, index) => (index === 0 ? `- ${line}` : `  ${line}`))
-                .join('\n'),
-            )
-            .join('\n'),
+        },
       );
+    }
+    if (errors != null && errors.length !== 0) {
+      throw createCombinedError(errors, 'GraphQLParser');
     }
     return nodes;
   }
@@ -278,7 +258,7 @@ class GraphQLParser {
       return new Map();
     }
     if (variableDirectives.length !== 1) {
-      throw new GraphQLError(
+      throw createUserError(
         `Directive @${ARGUMENT_DEFINITIONS} may be defined at most once per ` +
           'fragment.',
         variableDirectives,
@@ -292,7 +272,7 @@ class GraphQLParser {
       return new Map();
     }
     if (!args.length) {
-      throw new GraphQLError(
+      throw createUserError(
         `Directive @${ARGUMENT_DEFINITIONS} requires arguments: remove the ` +
           'directive to skip defining local variables for this fragment.',
         [variableDirective],
@@ -303,7 +283,7 @@ class GraphQLParser {
       const argName = getName(arg);
       const previousVariable = variables.get(argName);
       if (previousVariable != null) {
-        throw new GraphQLError(
+        throw createUserError(
           `Duplicate definition for variable '\$${argName}'.`,
           [previousVariable.ast, arg],
         );
@@ -315,7 +295,7 @@ class GraphQLParser {
         value === null ||
         typeof value.type !== 'string'
       ) {
-        throw new GraphQLError(
+        throw createUserError(
           `Expected definition for variable '\$${argName}' to be an object ` +
             "with the shape: '{type: string, defaultValue?: mixed, nonNull?: " +
             "boolean, list?: boolean}'.",
@@ -332,7 +312,7 @@ class GraphQLParser {
       );
       if (unknownKeys.length !== 0) {
         const unknownKeysString = "'" + unknownKeys.join("', '") + "'";
-        throw new GraphQLError(
+        throw createUserError(
           `Expected definition for variable '\$${argName}' to be an object ` +
             "with the following shape: '{type: string, defaultValue?: mixed, " +
             "nonNull?: boolean, list?: boolean}', got unknown key(s) " +
@@ -370,7 +350,7 @@ class GraphQLParser {
         : null;
       const previousDefinition = variableDefinitions.get(name);
       if (previousDefinition != null) {
-        throw new GraphQLError(
+        throw createUserError(
           `Duplicate definition for variable '\$${name}'.`,
           [previousDefinition.ast, def],
         );
@@ -498,7 +478,7 @@ class GraphQLDefinitionParser {
         effectiveType = new GraphQLNonNull(getNullableType(effectiveType));
       }
       if (!isTypeSubTypeOf(this._schema, effectiveType, usedAsType)) {
-        throw new GraphQLError(
+        throw createUserError(
           `Variable '\$${name}' was defined as type '${String(
             variableDefinition.type,
           )}' but used in a location expecting the type '${String(
@@ -524,7 +504,7 @@ class GraphQLDefinitionParser {
             isTypeSubTypeOf(this._schema, previousType, usedAsType)
           )
         ) {
-          throw new GraphQLError(
+          throw createUserError(
             `Variable '\$${name}' was used in locations expecting the conflicting types '${String(
               previousType,
             )}' and '${String(
@@ -607,7 +587,7 @@ class GraphQLDefinitionParser {
         );
     }
     if (!definition.selectionSet) {
-      throw new GraphQLError(
+      throw createUserError(
         `Expected operation to have selections. Source: ${this._getErrorContext()}`,
         [definition],
       );
@@ -617,7 +597,7 @@ class GraphQLDefinitionParser {
       this._variableDefinitions,
     );
     if (this._unknownVariables.size !== 0) {
-      throw new GraphQLError(
+      throw createUserError(
         `Query '${name}' references undefined variables.`,
         Array.from(
           this._unknownVariables.values(),
@@ -707,22 +687,24 @@ class GraphQLDefinitionParser {
       directive => getName(directive) !== ARGUMENTS,
     );
     if (argumentDirectives.length > 1) {
-      throw new GraphQLError(
+      throw createUserError(
         `Directive @${ARGUMENTS} may be used at most once per a fragment spread. ` +
           `Source: ${this._getErrorContext()}`,
         argumentDirectives,
       );
     }
-    const fragmentDefinitions = this._entries.get(fragmentName);
-    const fragmentVariables = fragmentDefinitions?.variableDefinitions;
+    const fragmentDefinition = this._entries.get(fragmentName);
+    const fragmentArgumentDefinitions = fragmentDefinition?.variableDefinitions;
     let args;
     if (argumentDirectives.length) {
       args = (argumentDirectives[0].arguments || []).map(arg => {
         const argName = getName(arg);
         const argValue = arg.value;
         const argumentDefinition =
-          fragmentVariables != null ? fragmentVariables.get(argName) : null;
-        const type = argumentDefinition?.type ?? null;
+          fragmentArgumentDefinitions != null
+            ? fragmentArgumentDefinitions.get(argName)
+            : null;
+        const argumentType = argumentDefinition?.type ?? null;
 
         if (argValue.kind === 'Variable') {
           // TODO: check the type of the variable and use the type
@@ -734,8 +716,8 @@ class GraphQLDefinitionParser {
             type: null,
           };
         } else {
-          if (type == null) {
-            throw new GraphQLError(
+          if (argumentType == null) {
+            throw createUserError(
               `Literal @${ARGUMENTS} values are only supported when the ` +
                 `argument is defined with @${ARGUMENT_DEFINITIONS}. Check ` +
                 `the definition of fragment '${fragmentName}'.`,
@@ -744,13 +726,13 @@ class GraphQLDefinitionParser {
               ),
             );
           }
-          const value = this._transformValue(argValue, type);
+          const value = this._transformValue(argValue, argumentType);
           return {
             kind: 'Argument',
             metadata: null,
             name: argName,
             value,
-            type,
+            type: argumentType,
           };
         }
       });
@@ -775,7 +757,7 @@ class GraphQLDefinitionParser {
     );
 
     if (fieldDef == null) {
-      throw new GraphQLError(
+      throw createUserError(
         `Unknown field '${name}' on type '${String(
           parentType,
         )}'. Source: ${this._getErrorContext()}`,
@@ -797,7 +779,7 @@ class GraphQLDefinitionParser {
         field.selectionSet.selections &&
         field.selectionSet.selections.length
       ) {
-        throw new GraphQLError(
+        throw createUserError(
           `Expected no selections for scalar field '${name}'. Source: ${this._getErrorContext()}`,
           [field],
         );
@@ -817,7 +799,7 @@ class GraphQLDefinitionParser {
         ? this._transformSelections(field.selectionSet, type)
         : null;
       if (selections == null || selections.length === 0) {
-        throw new GraphQLError(
+        throw createUserError(
           `Expected at least one selection for non-scalar field '${name}' on type '${String(
             type,
           )}'. Source: ${this._getErrorContext()}.`,
@@ -857,7 +839,7 @@ class GraphQLDefinitionParser {
           handleArgument,
         );
         if (typeof maybeHandle !== 'string') {
-          throw new GraphQLError(
+          throw createUserError(
             `Expected a string literal argument for the @${CLIENT_FIELD} directive. ` +
               `Source: ${this._getErrorContext()}`,
             [handleArgument.value],
@@ -874,7 +856,7 @@ class GraphQLDefinitionParser {
             keyArgument,
           );
           if (typeof maybeKey !== 'string') {
-            throw new GraphQLError(
+            throw createUserError(
               `Expected a string literal argument for the @${CLIENT_FIELD} directive. ` +
                 `Source: ${this._getErrorContext()}`,
               [keyArgument.value],
@@ -900,7 +882,7 @@ class GraphQLDefinitionParser {
               )
             )
           ) {
-            throw new GraphQLError(
+            throw createUserError(
               `Expected an array of argument names on field '${fieldName}'. ` +
                 `Source: ${this._getErrorContext()}`,
               [filtersArgument.value],
@@ -923,7 +905,7 @@ class GraphQLDefinitionParser {
       const name = getName(directive);
       const directiveDef = this._schema.getDirective(name);
       if (directiveDef == null) {
-        throw new GraphQLError(
+        throw createUserError(
           `Unknown directive '${name}'. Source: ${this._getErrorContext()}`,
           [directive],
         );
@@ -949,7 +931,7 @@ class GraphQLDefinitionParser {
       const argName = getName(arg);
       const argDef = argumentDefinitions.find(def => def.name === argName);
       if (argDef == null) {
-        throw new GraphQLError(
+        throw createUserError(
           `Unknown argument '${argName}'. Source: ${this._getErrorContext()}`,
           [arg],
         );
@@ -976,7 +958,7 @@ class GraphQLDefinitionParser {
       const passingValue = directive.name === INCLUDE;
       const arg = directive.args[0];
       if (arg == null || arg.name !== IF) {
-        throw new GraphQLError(
+        throw createUserError(
           `Expected an 'if' argument to @${
             directive.name
           }. Source: ${this._getErrorContext()}`,
@@ -984,7 +966,7 @@ class GraphQLDefinitionParser {
         );
       }
       if (!(arg.value.kind === 'Variable' || arg.value.kind === 'Literal')) {
-        throw new GraphQLError(
+        throw createUserError(
           `Expected the 'if' argument to @${
             directive.name
           } to be a variable or literal. Source: ${this._getErrorContext()}`,
@@ -1043,7 +1025,7 @@ class GraphQLDefinitionParser {
     } else if (ast.kind === 'NullValue') {
       // Special case null literals since there is no value to parse
       if (type instanceof GraphQLNonNull) {
-        throw new GraphQLError(
+        throw createUserError(
           `Expected a value matching type '${String(type)}'.`,
           [ast],
         );
@@ -1106,7 +1088,7 @@ class GraphQLDefinitionParser {
     } else if (nullableType instanceof GraphQLInputObjectType) {
       const objectType = nullableType;
       if (ast.kind !== 'ObjectValue') {
-        throw new GraphQLError(
+        throw createUserError(
           `Expected a value matching type '${String(type)}'.`,
           [ast],
         );
@@ -1118,7 +1100,7 @@ class GraphQLDefinitionParser {
         const fieldName = getName(field);
         const fieldConfig = objectType.getFields()[fieldName];
         if (fieldConfig == null) {
-          throw new GraphQLError(
+          throw createUserError(
             `Uknown field '${fieldName}' on type '${String(type)}'.`,
             [field],
           );
@@ -1167,7 +1149,7 @@ class GraphQLDefinitionParser {
           value: ast.value,
         };
       } else {
-        throw new GraphQLError(
+        throw createUserError(
           `Invalid value, expected a value matching type '${String(type)}'.`,
           [ast],
         );
@@ -1180,7 +1162,7 @@ class GraphQLDefinitionParser {
       if (value == null) {
         // parseLiteral() should return a non-null JavaScript value
         // if the ast value is valid for the type.
-        throw new GraphQLError(
+        throw createUserError(
           `Expected a value matching type '${String(type)}'.`,
           [ast],
         );
@@ -1231,7 +1213,7 @@ function transformLiteralValue(ast: ValueNode, context: ASTNode): mixed {
       return objectValue;
     }
     case 'Variable':
-      throw new GraphQLError(
+      throw createUserError(
         'Unexpected variable where a literal (static) value is required.',
         [ast, context],
       );
@@ -1265,7 +1247,7 @@ function isScalarFieldType(type: GraphQLOutputType): boolean {
 
 function assertScalarFieldType(type: GraphQLOutputType): ScalarFieldType {
   if (!isScalarFieldType(type)) {
-    throw new GraphQLError(
+    throw createUserError(
       `Expected a scalar field type, got type '${String(type)}'.`,
     );
   }
@@ -1316,16 +1298,6 @@ function partitionArray<Tv>(
     }
   }
   return [first, second];
-}
-
-function createCompilerError(
-  message: string,
-  nodes?: ?$ReadOnlyArray<ASTNode>,
-): Error {
-  // Use GraphQLError to format the source of the error, but return a
-  // plain Error to indicate that this is not an expected condition.
-  const error = new GraphQLError(message, nodes ?? []);
-  return new Error(`Internal Error: ${String(error)}`);
 }
 
 module.exports = GraphQLParser;

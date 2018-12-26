@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @format
+ * @noformat
  */
 
 'use strict';
@@ -138,7 +138,7 @@ const buildDist = function(filename, opts, isProduction) {
     plugins: [
       new webpackStream.webpack.DefinePlugin({
         'process.env.NODE_ENV': JSON.stringify(
-          isProduction ? 'production' : 'development',
+          isProduction ? 'production' : 'development'
         ),
       }),
       new webpackStream.webpack.optimize.OccurrenceOrderPlugin(),
@@ -281,8 +281,8 @@ const modules = gulp.parallel(
           .pipe(babel(babelOptions))
           .pipe(flatten())
           .pipe(gulp.dest(path.join(DIST, build.package, 'lib')));
-      },
-  ),
+      }
+  )
 );
 
 const copyFilesTasks = [];
@@ -320,13 +320,13 @@ const exportsFiles = gulp.series(
               PRODUCTION_HEADER +
                 `\nmodule.exports = require('./lib/${
                   build.exports[exportName]
-                }');\n`,
-            ),
+                }');\n`
+            )
           );
           done();
-        },
-    ),
-  ),
+        }
+    )
+  )
 );
 
 const binsTasks = [];
@@ -353,7 +353,7 @@ builds.forEach(build => {
       return gulp
         .src(path.join(DIST, build.package, 'lib', bundle.entry))
         .pipe(
-          buildDist(bundle.output + '.js', bundle, /* isProduction */ false),
+          buildDist(bundle.output + '.js', bundle, /* isProduction */ false)
         )
         .pipe(derequire())
         .pipe(header(DEVELOPMENT_HEADER))
@@ -370,7 +370,7 @@ builds.forEach(build => {
       return gulp
         .src(path.join(DIST, build.package, 'lib', bundle.entry))
         .pipe(
-          buildDist(bundle.output + '.min.js', bundle, /* isProduction */ true),
+          buildDist(bundle.output + '.min.js', bundle, /* isProduction */ true)
         )
         .pipe(header(PRODUCTION_HEADER))
         .pipe(gulp.dest(path.join(DIST, build.package)));

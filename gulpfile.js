@@ -417,10 +417,10 @@ gulp.task('bundles:min', function() {
   return buildsPromise;
 });
 
-gulp.task('dist', gulp.series('modules', 'bins', 'bundles', 'bundles:min'));
+gulp.task('dist', gulp.series('exports', 'bins', 'bundles', 'bundles:min'));
 
 gulp.task('watch', function() {
   gulp.watch(PACKAGES + '/**/*.js', ['exports', 'bundles']);
 });
 
-gulp.task('default', gulp.series('clean', 'exports', 'dist'));
+gulp.task('default', gulp.series('clean', 'dist'));

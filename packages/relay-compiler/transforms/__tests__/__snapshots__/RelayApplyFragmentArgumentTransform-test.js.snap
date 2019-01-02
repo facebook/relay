@@ -300,7 +300,7 @@ fragment Profile on User {
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-RelayApplyFragmentArgumentTransform: Found a circular reference from fragment 'Profile'. Path:
+Error: RelayApplyFragmentArgumentTransform: Found a circular reference from fragment 'Profile'. Path:
 - Query 'TestQuery'
 - Field 'node'
 - Fragment 'Profile'

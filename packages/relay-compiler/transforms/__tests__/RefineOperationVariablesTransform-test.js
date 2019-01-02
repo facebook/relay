@@ -12,21 +12,21 @@
 
 const GraphQLCompilerContext = require('GraphQLCompilerContext');
 const GraphQLIRPrinter = require('GraphQLIRPrinter');
+const RefineOperationVariablesTransform = require('RefineOperationVariablesTransform');
 const RelayTestSchema = require('RelayTestSchema');
-const StripUnusedVariablesTransform = require('StripUnusedVariablesTransform');
 
 const parseGraphQLText = require('parseGraphQLText');
 
 const {generateTestsFromFixtures} = require('RelayModernTestUtils');
 
-describe('StripUnusedVariablesTransform', () => {
+describe('RefineOperationVariablesTransform', () => {
   generateTestsFromFixtures(
-    `${__dirname}/fixtures/strip-unused-variables-transform`,
+    `${__dirname}/fixtures/refine-operation-variables-transform`,
     text => {
       const {definitions} = parseGraphQLText(RelayTestSchema, text);
       return new GraphQLCompilerContext(RelayTestSchema)
         .addAll(definitions)
-        .applyTransforms([StripUnusedVariablesTransform.transform])
+        .applyTransforms([RefineOperationVariablesTransform.transform])
         .documents()
         .map(GraphQLIRPrinter.print)
         .join('\n');

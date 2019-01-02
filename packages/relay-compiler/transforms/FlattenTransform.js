@@ -16,12 +16,15 @@ const GraphQLSchemaUtils = require('../core/GraphQLSchemaUtils');
 
 const areEqual = require('../util/areEqualOSS');
 const getIdentifierForSelection = require('../core/getIdentifierForSelection');
-const invariant = require('invariant');
 
-const {createUserError} = require('../core/GraphQLCompilerUserError');
 const {printField} = require('../core/GraphQLIRPrinter');
+const {
+  createUserError,
+  createCompilerError,
+} = require('../core/RelayCompilerError');
 
 import type {
+  Argument,
   Condition,
   Field,
   Fragment,
@@ -90,7 +93,7 @@ function flattenTransformImpl(
 }
 
 /**
- * @internal
+ * @private
  */
 function flattenSelections<T: HasSelections>(node: T, state: State): T {
   // Determine the current type.
@@ -101,7 +104,9 @@ function flattenSelections<T: HasSelections>(node: T, state: State): T {
       : node.kind === 'InlineFragment'
         ? node.typeCondition
         : node.type;
-  invariant(type, 'FlattenTransform: Expected parent type.');
+  if (type == null) {
+    throw createCompilerError('FlattenTransform: Expected a parent type.');
+  }
 
   // Flatten the selections in this node, creating a new node with flattened
   // selections if possible, then deeply traverse the flattened node, while
@@ -118,7 +123,7 @@ function flattenSelections<T: HasSelections>(node: T, state: State): T {
 }
 
 /**
- * @internal
+ * @private
  */
 function flattenSelectionsInto(
   flattenedSelections: Map<string, Selection>,
@@ -146,11 +151,13 @@ function flattenSelectionsInto(
     // Otherwise a similar selection exists which should be merged.
     hasFlattened = true;
     if (flattenedSelection.kind === 'InlineFragment') {
-      invariant(
-        selection.kind === 'InlineFragment',
-        'FlattenTransform: Expected a ScalarField, got a %s',
-        selection.kind,
-      );
+      if (selection.kind !== 'InlineFragment') {
+        throw createCompilerError(
+          `FlattenTransform: Expected an InlineFragment, got a '${
+            selection.kind
+          }'`,
+        );
+      }
       flattenedSelections.set(nodeIdentifier, {
         ...flattenedSelection,
         selections: mergeSelections(
@@ -161,11 +168,11 @@ function flattenSelectionsInto(
         ),
       });
     } else if (flattenedSelection.kind === 'Condition') {
-      invariant(
-        selection.kind === 'Condition',
-        'FlattenTransform: Expected a Condition, got a %s',
-        selection.kind,
-      );
+      if (selection.kind !== 'Condition') {
+        throw createCompilerError(
+          `FlattenTransform: Expected a Condition, got a '${selection.kind}'`,
+        );
+      }
       flattenedSelections.set(nodeIdentifier, {
         ...flattenedSelection,
         selections: mergeSelections(flattenedSelection, selection, state, type),
@@ -178,11 +185,11 @@ function flattenSelectionsInto(
     ) {
       // Ignore duplicate matches that select the same fragments and modules (encoded in the identifier)
     } else if (flattenedSelection.kind === 'LinkedField') {
-      invariant(
-        selection.kind === 'LinkedField',
-        'FlattenTransform: Expected a LinkedField, got a %s',
-        selection.kind,
-      );
+      if (selection.kind !== 'LinkedField') {
+        throw createCompilerError(
+          `FlattenTransform: Expected a LinkedField, got a '${selection.kind}'`,
+        );
+      }
       // Note: arguments are intentionally reversed to avoid rebuilds
       assertUniqueArgsForAlias(selection, flattenedSelection);
       flattenedSelections.set(nodeIdentifier, {
@@ -197,11 +204,11 @@ function flattenSelectionsInto(
         ),
       });
     } else if (flattenedSelection.kind === 'ScalarField') {
-      invariant(
-        selection.kind === 'ScalarField',
-        'FlattenTransform: Expected a ScalarField, got a %s',
-        selection.kind,
-      );
+      if (selection.kind !== 'ScalarField') {
+        throw createCompilerError(
+          `FlattenTransform: Expected a ScalarField, got a '${selection.kind}'`,
+        );
+      }
       // Note: arguments are intentionally reversed to avoid rebuilds
       assertUniqueArgsForAlias(selection, flattenedSelection);
       flattenedSelections.set(nodeIdentifier, {
@@ -211,10 +218,9 @@ function flattenSelectionsInto(
         handles: mergeHandles(selection, flattenedSelection),
       });
     } else {
-      invariant(
-        false,
-        'FlattenTransform: Unknown kind `%s`.',
-        (flattenedSelection.kind: empty),
+      (flattenedSelection.kind: empty);
+      throw createCompilerError(
+        `FlattenTransform: Unknown kind '${flattenedSelection.kind}'`,
       );
     }
   });
@@ -222,7 +228,7 @@ function flattenSelectionsInto(
 }
 
 /**
- * @internal
+ * @private
  */
 function mergeSelections(
   nodeA: HasSelections,
@@ -237,24 +243,24 @@ function mergeSelections(
 }
 
 /**
- * @internal
+ * @private
  * TODO(T19327202) This is redundant with OverlappingFieldsCanBeMergedRule once
  * it can be enabled.
  */
 function assertUniqueArgsForAlias(field: Field, otherField: Field): void {
   if (!areEqualFields(field, otherField)) {
     throw createUserError(
-      'Expected all fields on the same parent with the name or alias `%s` ' +
-        'to have the same name and arguments. Got `%s` and `%s`.',
-      field.alias || field.name,
-      printField(field),
-      printField(otherField),
+      'Expected all fields on the same parent with ' +
+        `the name or alias '${field.alias ??
+          field.name}' to have the same name and arguments. Got '${printField(
+          field,
+        )}' and '${printField(otherField)}'.`,
     );
   }
 }
 
 /**
- * @internal
+ * @private
  */
 function shouldFlattenInlineFragment(
   fragment: InlineFragment,
@@ -269,7 +275,7 @@ function shouldFlattenInlineFragment(
 }
 
 /**
- * @internal
+ * @private
  *
  * Verify that two fields are equal in all properties other than their
  * selections.
@@ -279,12 +285,36 @@ function areEqualFields(thisField: Field, thatField: Field): boolean {
     thisField.kind === thatField.kind &&
     thisField.name === thatField.name &&
     thisField.alias === thatField.alias &&
-    areEqual(thisField.args, thatField.args)
+    areEqualArgs(thisField.args, thatField.args)
   );
 }
 
 /**
- * @internal
+ * Verify that two sets of arguments are equivalent - same argument names
+ * and values. Notably this ignores the types of arguments and values, which
+ * may not always be inferred identically.
+ */
+function areEqualArgs(
+  thisArgs: $ReadOnlyArray<Argument>,
+  thatArgs: $ReadOnlyArray<Argument>,
+): boolean {
+  return (
+    thisArgs.length === thatArgs.length &&
+    thisArgs.every((thisArg, index) => {
+      const thatArg = thatArgs[index];
+      return (
+        thisArg.name === thatArg.name &&
+        thisArg.value.kind === thatArg.value.kind &&
+        (thisArg.value: any).variableName ===
+          (thatArg.value: any).variableName &&
+        areEqual((thisArg.value: any).value, (thatArg.value: any).value)
+      );
+    })
+  );
+}
+
+/**
+ * @private
  */
 function mergeHandles<T: LinkedField | ScalarField>(
   nodeA: T,

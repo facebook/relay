@@ -278,6 +278,8 @@ describe('scope', () => {
       expect(innerScope).toEqual({
         size: {
           kind: 'Variable',
+          metadata: null,
+          type: requiredIntType,
           variableName: 'size',
         },
       });

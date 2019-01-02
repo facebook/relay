@@ -13,6 +13,7 @@
 const FilterDirectivesTransform = require('../transforms/FilterDirectivesTransform');
 const FlattenTransform = require('../transforms/FlattenTransform');
 const InlineFragmentsTransform = require('../transforms/InlineFragmentsTransform');
+const RefineOperationVariablesTransform = require('../transforms/RefineOperationVariablesTransform');
 const RelayApplyFragmentArgumentTransform = require('../transforms/RelayApplyFragmentArgumentTransform');
 const RelayConnectionTransform = require('../handlers/connection//RelayConnectionTransform');
 const RelayFieldHandleTransform = require('../transforms/RelayFieldHandleTransform');
@@ -27,7 +28,6 @@ const RelayViewerHandleTransform = require('../handlers/viewer/RelayViewerHandle
 const SkipClientFieldTransform = require('../transforms/SkipClientFieldTransform');
 const SkipRedundantNodesTransform = require('../transforms/SkipRedundantNodesTransform');
 const SkipUnreachableNodeTransform = require('../transforms/SkipUnreachableNodeTransform');
-const StripUnusedVariablesTransform = require('../transforms/StripUnusedVariablesTransform');
 
 import type {IRTransform} from './GraphQLCompilerContext';
 
@@ -80,7 +80,7 @@ const relayPrintTransforms: Array<IRTransform> = [
   RelayGenerateTypeNameTransform.transform,
   RelaySkipHandleFieldTransform.transform,
   FilterDirectivesTransform.transform,
-  StripUnusedVariablesTransform.transform,
+  RefineOperationVariablesTransform.transform,
 ];
 
 module.exports = {

@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`StripUnusedVariablesTransform matches expected output: kitchen-sink.graphql 1`] = `
+exports[`RefineOperationVariablesTransform matches expected output: kitchen-sink.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 fragment TestFragment on Actor {
   id @skip(if: $usedInDirective)

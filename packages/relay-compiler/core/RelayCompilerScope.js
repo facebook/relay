@@ -80,7 +80,9 @@ function getRootScope(
   definitions.forEach(definition => {
     scope[definition.name] = {
       kind: 'Variable',
+      metadata: null,
       variableName: definition.name,
+      type: definition.type,
     };
   });
   return scope;
@@ -156,7 +158,9 @@ function getFragmentScope(
       );
       fragmentScope[definition.name] = {
         kind: 'Variable',
+        metadata: null,
         variableName: definition.name,
+        type: definition.type,
       };
     } else {
       const arg = argMap[definition.name];

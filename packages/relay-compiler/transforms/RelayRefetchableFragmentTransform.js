@@ -10,7 +10,7 @@
 
 'use strict';
 
-const inferFragmentGlobalVariables = require('../core/inferFragmentGlobalVariables');
+const inferRootArgumentDefinitions = require('../core/inferRootArgumentDefinitions');
 const isEquivalentType = require('../core/isEquivalentType');
 const nullthrows = require('nullthrows');
 
@@ -166,10 +166,7 @@ function buildRefetchMap(
   if (errors != null && errors.length !== 0) {
     throw createCombinedError(errors, 'RelayRefetchableFragmentTransform');
   }
-  const transformed = inferFragmentGlobalVariables(
-    context,
-    Array.from(refetchOperations.values()),
-  );
+  const transformed = inferRootArgumentDefinitions(context);
   return new Map(
     Array.from(refetchOperations.entries(), ([name, fragment]) => {
       return [name, transformed.getFragment(fragment.name)];

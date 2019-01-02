@@ -16,7 +16,7 @@ const RelayCompilerScope = require('../core/RelayCompilerScope');
 const getIdentifierForArgumentValue = require('../core/getIdentifierForArgumentValue');
 const murmurHash = require('../util/murmurHash');
 
-const {GraphQLError} = require('graphql');
+const {createNonRecoverableUserError} = require('../core/RelayCompilerError');
 
 import type CompilerContext from '../core/GraphQLCompilerContext';
 import type {
@@ -193,7 +193,10 @@ function transformCondition(
 ): ?$ReadOnlyArray<Selection> {
   const condition = transformValue(scope, node.condition, errorContext);
   if (!(condition.kind === 'Literal' || condition.kind === 'Variable')) {
-    throw new GraphQLError(
+    // This transform does whole-program optimization, errors in
+    // a single document could break invariants and/or cause
+    // additional spurious errors.
+    throw createNonRecoverableUserError(
       'RelayApplyFragmentArgumentTransform: A non-scalar value was applied to ' +
         'an @include or @skip directive, the `if` argument value must be a ' +
         `variable or a Boolean, got '${condition.kind}'. ${printErrorContext(
@@ -319,7 +322,10 @@ function transformValue(
   if (value.kind === 'Variable') {
     const scopeValue = scope[value.variableName];
     if (scopeValue == null) {
-      throw new GraphQLError(
+      // This transform does whole-program optimization, errors in
+      // a single document could break invariants and/or cause
+      // additional spurious errors.
+      throw createNonRecoverableUserError(
         `RelayApplyFragmentArgumentTransform: variable '\$${
           value.variableName
         }' is not in scope. ${printErrorContext(errorContext)}`,
@@ -370,7 +376,10 @@ function transformFragment(
     fragment.name,
   );
   if (fragments.get(fragmentName) === null) {
-    throw new GraphQLError(
+    // This transform does whole-program optimization, errors in
+    // a single document could break invariants and/or cause
+    // additional spurious errors.
+    throw createNonRecoverableUserError(
       'RelayApplyFragmentArgumentTransform: Found a circular reference from ' +
         `fragment '${fragment.name}'. ${printErrorContext(errorContext)}`,
     );
@@ -413,7 +422,10 @@ function hashArguments(
       if (arg.value.kind === 'Variable') {
         value = scope[arg.value.variableName];
         if (value == null) {
-          throw new GraphQLError(
+          // This transform does whole-program optimization, errors in
+          // a single document could break invariants and/or cause
+          // additional spurious errors.
+          throw createNonRecoverableUserError(
             `RelayApplyFragmentArgumentTransform: variable '\$${
               arg.value.variableName
             }' is not in scope. ${printErrorContext(errorContext)}`,

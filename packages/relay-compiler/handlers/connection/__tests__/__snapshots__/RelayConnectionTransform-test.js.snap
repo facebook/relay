@@ -709,7 +709,7 @@ query NodeQuery(
 }
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
-GraphQLParser: Encountered 1 error(s):
+RelayParser: Encountered 1 error(s):
 - Expected a value matching type 'String!'.
   
   GraphQL request (7:44)
@@ -749,7 +749,7 @@ query NodeQuery(
 }
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
-GraphQLParser: Encountered 1 error(s):
+RelayParser: Encountered 1 error(s):
 - Expected a value matching type 'String'.
   
   GraphQL request (7:75)

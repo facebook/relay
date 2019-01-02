@@ -36,7 +36,6 @@ const RelaySourceModuleParser = require('./core/RelaySourceModuleParser');
 const RelayValidator = require('./core/RelayValidator');
 
 const compileRelayArtifacts = require('./codegen/compileRelayArtifacts');
-const defaultGetFieldDefinition = require('./core/defaultGetFieldDefinition');
 const filterContextForNode = require('./core/filterContextForNode');
 const formatGeneratedModule = require('./language/javascript/formatGeneratedModule');
 const getIdentifierForArgumentValue = require('./core/getIdentifierForArgumentValue');
@@ -116,7 +115,6 @@ module.exports = {
   SourceControlMercurial,
   SplitNaming: GraphQLIRSplitNaming,
   WatchmanClient: GraphQLWatchmanClient,
-  defaultGetFieldDefinition,
   filterContextForNode,
   getIdentifierForArgumentValue,
   getLiteralArgumentValues,

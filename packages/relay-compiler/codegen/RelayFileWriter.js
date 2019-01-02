@@ -134,7 +134,7 @@ function compileAll({
     baseDocuments,
     documents,
     validationRules,
-    RelayParser.transform.bind(RelayParser),
+    RelayParser.transform,
   );
 
   const compilerContext = new CompilerContext(

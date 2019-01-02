@@ -11,7 +11,7 @@ fragment TestFragment on User @argumentDefinitions(
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 ERROR:
-Error: GraphQLParser: Encountered 1 error(s):
+Error: RelayParser: Encountered 1 error(s):
 - Expected definition for variable '$size' to be an object with the following shape: '{type: string, defaultValue?: mixed, nonNull?: boolean, list?: boolean}', got unknown key(s) 'defaultValu'.
   
   GraphQL request (3:3)
@@ -512,7 +512,7 @@ query EnumValueQuery3 {
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 ERROR:
-Error: GraphQLParser: Encountered 3 error(s):
+Error: RelayParser: Encountered 3 error(s):
 - Expected a value matching type 'PhotoSize'.
   
   GraphQL request (3:28)
@@ -1221,7 +1221,7 @@ fragment ChildFragment on User @argumentDefinitions(environment: {type: "Environ
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 ERROR:
-Error: GraphQLParser: Encountered 1 error(s):
+Error: RelayParser: Encountered 1 error(s):
 - Variable '$environment' was defined as type 'Environment!' but used in a location expecting the type '[Environment!]!'
   
   GraphQL request (8:53)
@@ -1683,7 +1683,7 @@ fragment ChildFragment on User {
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 ERROR:
-Error: GraphQLParser: Encountered 1 error(s):
+Error: RelayParser: Encountered 1 error(s):
 - Literal @arguments values are only supported when the argument is defined with @argumentDefinitions. Check the definition of fragment 'ChildFragment'.
   
   GraphQL request (2:44)
@@ -2255,7 +2255,7 @@ query LiteralListArgumentQuery3 {
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 ERROR:
-Error: GraphQLParser: Encountered 3 error(s):
+Error: RelayParser: Encountered 3 error(s):
 - Expected a value matching type 'String'.
   
   GraphQL request (3:10)
@@ -2368,7 +2368,7 @@ query LiteralObjectArgument3 {
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 ERROR:
-Error: GraphQLParser: Encountered 3 error(s):
+Error: RelayParser: Encountered 3 error(s):
 - Uknown field 'unknownField' on type 'CheckinSearchInput'.
   
   GraphQL request (3:5)
@@ -2463,7 +2463,7 @@ query NullValuesQuery {
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 ERROR:
-Error: GraphQLParser: Encountered 1 error(s):
+Error: RelayParser: Encountered 1 error(s):
 - Expected a value matching type 'ID!'.
   
   GraphQL request (2:24)
@@ -2687,4 +2687,22 @@ query TestQuery($id: ID!) {
     "type": "Query"
   }
 ]
+`;
+
+exports[`RelayParser should error when parsing fragment that references undeclared variables are used with differing types 1`] = `
+"RelayParser: Encountered 1 error(s):
+- Variable '$id' was used in locations expecting the conflicting types 'ID' and 'Int'. Source: document \`TestFragment\` file: \`GraphQL request\`
+  
+  GraphQL request (2:14)
+  1: fragment TestFragment on Query {
+  2:     node(id: $id) {
+                  ^
+  3:       id
+  
+  GraphQL request (5:18)
+  4:     }
+  5:     task(number: $id) {
+                      ^
+  6:       title
+  "
 `;

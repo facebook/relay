@@ -37,7 +37,7 @@ fragment NameRendererFragment on User {
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-Error: GraphQLParser: Encountered 1 error(s):
+Error: RelayParser: Encountered 1 error(s):
 - Expected at least one selection for non-scalar field 'nameRenderer' on type 'UserNameRenderer'. Source: document \`NameRendererFragment\` file: \`GraphQL request\`.
   
   GraphQL request (3:3)

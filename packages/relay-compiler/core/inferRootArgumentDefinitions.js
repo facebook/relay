@@ -79,7 +79,7 @@ function inferRootArgumentDefinitions(
         }
         default: {
           (node: empty);
-          throw new createCompilerError(
+          throw createCompilerError(
             `inferRootArgumentDefinitions: Unsupported kind '${node.kind}'.`,
           );
         }

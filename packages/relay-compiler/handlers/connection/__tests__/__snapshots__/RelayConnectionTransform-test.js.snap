@@ -686,7 +686,8 @@ query NodeQuery(
 }
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
-RelayConnectionTransform: Expected the key argument to @connection to be of form <SomeName>_comments, got 'invalid'. For detailed explanation, check out https://facebook.github.io/relay/docs/en/pagination-container.html#connection
+Encountered 1 error(s):
+- Expected the key argument to @connection to be of form <SomeName>_comments, got 'invalid'. For detailed explanation, check out https://facebook.github.io/relay/docs/en/pagination-container.html#connection
 `;
 
 exports[`RelayConnectionTransform matches expected output: invalid-connection-key-type.graphql 1`] = `
@@ -776,7 +777,8 @@ query NodeQuery(
 }
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
-RelayConnectionTransform: Expected field \`actors: [Actor]\` to have a first or last argument in document \`NodeQuery\`.
+Encountered 1 error(s):
+- Expected field \`actors: [Actor]\` to have a first or last argument in document \`NodeQuery\`.
 `;
 
 exports[`RelayConnectionTransform matches expected output: missing-first-arg.graphql 1`] = `
@@ -801,5 +803,6 @@ query NodeQuery(
 }
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
-RelayConnectionTransform: Expected field \`comments: CommentsConnection\` to have a first or last argument in document \`NodeQuery\`.
+Encountered 1 error(s):
+- Expected field \`comments: CommentsConnection\` to have a first or last argument in document \`NodeQuery\`.
 `;

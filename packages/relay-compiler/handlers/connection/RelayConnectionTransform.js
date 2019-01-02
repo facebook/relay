@@ -15,8 +15,11 @@ const RelayParser = require('../../core/RelayParser');
 const SchemaUtils = require('../../core/GraphQLSchemaUtils');
 
 const getLiteralArgumentValues = require('../../core/getLiteralArgumentValues');
-const invariant = require('invariant');
 
+const {
+  createCompilerError,
+  createUserError,
+} = require('../../core/RelayCompilerError');
 const {AFTER, BEFORE, FIRST, KEY, LAST} = require('./RelayConnectionConstants');
 const {
   assertCompositeType,
@@ -163,21 +166,21 @@ function visitLinkedOrMatchField<T: LinkedField | MatchField>(
     connectionDirective.args,
   );
   if (handler != null && typeof handler !== 'string') {
-    throw new Error(
-      `RelayConnectionTransform: Expected the ${HANDLER} argument to ` +
+    throw createUserError(
+      `Expected the ${HANDLER} argument to ` +
         `@${CONNECTION} to be a string literal for field ${field.name}.`,
     );
   }
   if (typeof key !== 'string') {
-    throw new Error(
-      `RelayConnectionTransform: Expected the ${KEY} argument to ` +
+    throw createUserError(
+      `Expected the ${KEY} argument to ` +
         `@${CONNECTION} to be a string literal for field ${field.name}.`,
     );
   }
   const postfix = field.alias || field.name;
   if (!key.endsWith('_' + postfix)) {
-    throw new Error(
-      `RelayConnectionTransform: Expected the ${KEY} argument to ` +
+    throw createUserError(
+      `Expected the ${KEY} argument to ` +
         `@${CONNECTION} to be of form <SomeName>_${postfix}, got '${key}'. ` +
         'For detailed explanation, check out ' +
         'https://facebook.github.io/relay/docs/en/pagination-container.html#connection',
@@ -285,17 +288,19 @@ function generateConnectionFragment(
 
   const ast = parse(fragmentString);
   const fragmentAST = ast.definitions[0];
-  invariant(
-    fragmentAST && fragmentAST.kind === 'FragmentDefinition',
-    'RelayConnectionTransform: Expected a fragment definition AST.',
-  );
+  if (fragmentAST == null || fragmentAST.kind !== 'FragmentDefinition') {
+    throw createCompilerError(
+      'RelayConnectionTransform: Expected a fragment definition AST.',
+    );
+  }
   const fragment = RelayParser.transform(context.clientSchema, [
     fragmentAST,
   ])[0];
-  invariant(
-    fragment && fragment.kind === 'Fragment',
-    'RelayConnectionTransform: Expected a connection fragment.',
-  );
+  if (fragment == null || fragment.kind !== 'Fragment') {
+    throw createCompilerError(
+      'RelayConnectionTransform: Expected a connection fragment.',
+    );
+  }
   return {
     directives: [],
     kind: 'InlineFragment',
@@ -329,8 +334,8 @@ function validateConnectionSelection(
   const {EDGES} = ConnectionInterface.get();
 
   if (!findArg(field, FIRST) && !findArg(field, LAST)) {
-    throw new Error(
-      `RelayConnectionTransform: Expected field \`${field.name}: ` +
+    throw createUserError(
+      `Expected field \`${field.name}: ` +
         `${String(field.type)}\` to have a ${FIRST} or ${LAST} argument in ` +
         `document \`${definitionName}\`.`,
     );
@@ -340,8 +345,8 @@ function validateConnectionSelection(
       selection => selection.kind === 'LinkedField' && selection.name === EDGES,
     )
   ) {
-    throw new Error(
-      `RelayConnectionTransform: Expected field \`${field.name}: ` +
+    throw createUserError(
+      `Expected field \`${field.name}: ` +
         `${String(field.type)}\` to have a ${EDGES} selection in document ` +
         `\`${definitionName}\`.`,
     );
@@ -378,101 +383,99 @@ function validateConnectionType(
   const typeFields = typeWithFields.getFields();
   const edges = typeFields[EDGES];
 
-  invariant(
-    edges,
-    'RelayConnectionTransform: Expected type `%s` to have an %s field in ' +
-      'document `%s`.',
-    type,
-    EDGES,
-    definitionName,
-  );
+  if (edges == null) {
+    throw createUserError(
+      `Expected type '${String(
+        type,
+      )}' to have an '${EDGES}' field in document '${definitionName}'.`,
+    );
+  }
 
   const edgesType = SchemaUtils.getNullableType(edges.type);
-  invariant(
-    edgesType instanceof GraphQLList,
-    'RelayConnectionTransform: Expected `%s` field on type `%s` to be a ' +
-      'list type in document `%s`.',
-    EDGES,
-    type,
-    definitionName,
-  );
+  if (!(edgesType instanceof GraphQLList)) {
+    throw createUserError(
+      `Expected '${EDGES}' field on type '${String(
+        type,
+      )}' to be a list type in document '${definitionName}'.`,
+    );
+  }
   const edgeType = SchemaUtils.getNullableType(edgesType.ofType);
-  invariant(
-    edgeType instanceof GraphQLObjectType,
-    'RelayConnectionTransform: Expected %s field on type `%s` to be a list ' +
-      'of objects in document `%s`.',
-    EDGES,
-    type,
-    definitionName,
-  );
+  if (!(edgeType instanceof GraphQLObjectType)) {
+    throw createUserError(
+      `Expected '${EDGES}' field on type '${String(
+        type,
+      )}' to be a list of objects in document '${definitionName}'.`,
+    );
+  }
 
   const node = edgeType.getFields()[NODE];
-  invariant(
-    node,
-    'RelayConnectionTransform: Expected type `%s` to have an %s.%s field in ' +
-      'document `%s`.',
-    type,
-    EDGES,
-    NODE,
-    definitionName,
-  );
+  if (node == null) {
+    throw createUserError(
+      `Expected type '${String(
+        type,
+      )}' to have have a '${EDGES} { ${NODE} }' field in in document '${definitionName}'.`,
+    );
+  }
   const nodeType = SchemaUtils.getNullableType(node.type);
-  invariant(
-    nodeType instanceof GraphQLInterfaceType ||
+  if (
+    !(
+      nodeType instanceof GraphQLInterfaceType ||
       nodeType instanceof GraphQLUnionType ||
-      nodeType instanceof GraphQLObjectType,
-    'RelayConnectionTransform: Expected type `%s` to have an %s.%s field' +
-      'for which the type is an interface, object, or union in document `%s`.',
-    type,
-    EDGES,
-    NODE,
-    definitionName,
-  );
+      nodeType instanceof GraphQLObjectType
+    )
+  ) {
+    throw createUserError(
+      `Expected type '${String(
+        type,
+      )}' to have a '${EDGES} { ${NODE} }' field for which the type is an interface, object, or union in document '${definitionName}'.`,
+    );
+  }
 
   const cursor = edgeType.getFields()[CURSOR];
-  invariant(
-    cursor &&
-      SchemaUtils.getNullableType(cursor.type) instanceof GraphQLScalarType,
-    'RelayConnectionTransform: Expected type `%s` to have an ' +
-      '%s.%s field for which the type is a scalar in document `%s`.',
-    type,
-    EDGES,
-    CURSOR,
-    definitionName,
-  );
+  if (
+    cursor == null ||
+    !(SchemaUtils.getNullableType(cursor.type) instanceof GraphQLScalarType)
+  ) {
+    throw createUserError(
+      `Expected type '${String(
+        type,
+      )}' to have a '${EDGES} { ${CURSOR} }' scalar field in document '${definitionName}'.`,
+    );
+  }
 
   const pageInfo = typeFields[PAGE_INFO];
-  invariant(
-    pageInfo,
-    'RelayConnectionTransform: Expected type `%s` to have a %s field ' +
-      'in document `%s`.',
-    type,
-    PAGE_INFO,
-    definitionName,
-  );
+  if (pageInfo == null) {
+    throw createUserError(
+      `Expected type '${String(
+        type,
+      )}' to have a '${EDGES} { ${PAGE_INFO} }' field in document '${definitionName}'.`,
+    );
+  }
   const pageInfoType = SchemaUtils.getNullableType(pageInfo.type);
-  invariant(
-    pageInfoType instanceof GraphQLObjectType,
-    'RelayConnectionTransform: Expected type `%s` to have a %s field for ' +
-      'which the type is an object in document `%s`.',
-    type,
-    PAGE_INFO,
-    definitionName,
-  );
+  if (!(pageInfoType instanceof GraphQLObjectType)) {
+    throw createUserError(
+      `Expected type '${String(
+        type,
+      )}' to have a '${EDGES} { ${PAGE_INFO} }' field with object type in document '${definitionName}'.`,
+    );
+  }
 
   [END_CURSOR, HAS_NEXT_PAGE, HAS_PREV_PAGE, START_CURSOR].forEach(
     fieldName => {
       const pageInfoField = pageInfoType.getFields()[fieldName];
-      invariant(
-        pageInfoField &&
+      if (
+        pageInfoField == null ||
+        !(
           SchemaUtils.getNullableType(pageInfoField.type) instanceof
-            GraphQLScalarType,
-        'RelayConnectionTransform: Expected type `%s` to have an ' +
-          '%s field for which the type is an scalar in document `%s`.',
-        pageInfo.type,
-        fieldName,
-        definitionName,
-      );
+          GraphQLScalarType
+        )
+      ) {
+        throw createUserError(
+          `Expected type '${String(
+            pageInfo.type,
+          )}' to have a '${fieldName}' scalar field in document '${definitionName}'.`,
+        );
+      }
     },
   );
 }

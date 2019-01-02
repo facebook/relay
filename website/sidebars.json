@@ -42,6 +42,9 @@
       "compiler-architecture",
       "runtime-architecture",
       "videos"
+    ],
+    "Community": [
+      "community-learning-resources"
     ]
   }
 }

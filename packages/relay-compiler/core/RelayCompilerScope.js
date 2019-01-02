@@ -10,8 +10,11 @@
 
 'use strict';
 
-const invariant = require('invariant');
-
+const {
+  createCombinedError,
+  createUserError,
+  eachWithErrors,
+} = require('./RelayCompilerError');
 const {GraphQLNonNull} = require('graphql');
 
 import type {
@@ -136,26 +139,25 @@ function getFragmentScope(
   parentScope: Scope,
   fragmentName: string,
 ): Scope {
-  const argMap = {};
+  const argMap = new Map();
   args.forEach(arg => {
     if (arg.value.kind === 'Literal') {
-      argMap[arg.name] = arg.value;
+      argMap.set(arg.name, arg.value);
     } else if (arg.value.kind === 'Variable') {
-      argMap[arg.name] = parentScope[arg.value.variableName];
+      argMap.set(arg.name, parentScope[arg.value.variableName]);
     }
   });
 
   const fragmentScope = {};
-  definitions.forEach(definition => {
+  const errors = eachWithErrors(definitions, definition => {
     if (definition.kind === 'RootArgumentDefinition') {
-      invariant(
-        !argMap.hasOwnProperty(definition.name),
-        'RelayCompilerScope: Unexpected argument for global variable `%s` ' +
-          'for `%s`. @arguments may only be provided for variables ' +
-          "defined in the fragment's @argumentDefinitions list.",
-        definition.name,
-        fragmentName,
-      );
+      if (argMap.has(definition.name)) {
+        throw createUserError(
+          `Unexpected argument '${
+            definition.name
+          }' supplied to fragment '${fragmentName}'. @arguments may only be provided for variables defined in the fragment's @argumentDefinitions.`,
+        );
+      }
       fragmentScope[definition.name] = {
         kind: 'Variable',
         metadata: null,
@@ -163,19 +165,20 @@ function getFragmentScope(
         type: definition.type,
       };
     } else {
-      const arg = argMap[definition.name];
+      const arg = argMap.get(definition.name);
       if (arg == null || (arg.kind === 'Literal' && arg.value == null)) {
         // No variable or literal null was passed, fall back to default
         // value.
-        invariant(
-          definition.defaultValue != null ||
-            !(definition.type instanceof GraphQLNonNull),
-          'RelayCompilerScope: No value found for required argument ' +
-            '`$%s: %s` in `%s`.',
-          definition.name,
-          definition.type.toString(),
-          fragmentName,
-        );
+        if (
+          definition.defaultValue == null &&
+          definition.type instanceof GraphQLNonNull
+        ) {
+          throw createUserError(
+            `No value found for required argument '${definition.name}: ${String(
+              definition.type,
+            )}' on fragment '${fragmentName}'.`,
+          );
+        }
         fragmentScope[definition.name] = {
           kind: 'Literal',
           value: definition.defaultValue,
@@ -186,6 +189,9 @@ function getFragmentScope(
       }
     }
   });
+  if (errors != null && errors.length) {
+    throw createCombinedError(errors, 'RelayCompilerScope');
+  }
   return fragmentScope;
 }
 

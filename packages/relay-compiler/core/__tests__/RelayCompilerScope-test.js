@@ -247,8 +247,8 @@ describe('scope', () => {
       expect(() => {
         getFragmentScope(definitions, calls, outerScope, fragmentName);
       }).toThrow(
-        'RelayCompilerScope: No value found for required argument ' +
-          '`$size: Int!` in `FragmentName`.',
+        `RelayCompilerScope: Encountered 1 error(s):
+- No value found for required argument 'size: Int!' on fragment 'FragmentName'.`,
       );
     });
 
@@ -315,9 +315,10 @@ describe('scope', () => {
       expect(() => {
         getFragmentScope(definitions, calls, outerScope, fragmentName);
       }).toThrow(
-        'RelayCompilerScope: Unexpected argument for global variable `size` ' +
-          'for `FragmentName`. @arguments may only be provided for ' +
-          "variables defined in the fragment's @argumentDefinitions list.",
+        `RelayCompilerScope: Encountered 1 error(s):
+- Unexpected argument 'size' supplied to fragment 'FragmentName'. ` +
+          `@arguments may only be provided for variables defined ` +
+          `in the fragment's @argumentDefinitions.`,
       );
     });
 

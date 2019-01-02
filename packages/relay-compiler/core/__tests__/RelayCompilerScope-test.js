@@ -318,5 +318,47 @@ describe('scope', () => {
           "variables defined in the fragment's @argumentDefinitions list.",
       );
     });
+
+    /**
+     * defs: size: Int = 42
+     * args: unknown: 42
+     * parentScope: n/a
+     * => {size: 42} // ignore unknown variables
+     */
+    it('ignores unknown arguments', () => {
+      const definitions = [
+        {
+          kind: 'LocalArgumentDefinition',
+          name: 'size',
+          type: requiredIntType,
+          defaultValue: 42,
+        },
+      ];
+      const calls = [
+        {
+          kind: 'Argument',
+          name: 'unknown',
+          value: {
+            kind: 'Literal',
+            value: 42,
+          },
+          type: requiredIntType,
+        },
+      ];
+      const outerScope = {};
+      const fragmentName = 'FragmentName';
+      const innerScope = getFragmentScope(
+        definitions,
+        calls,
+        outerScope,
+        fragmentName,
+      );
+      expect(innerScope).toEqual({
+        size: {
+          kind: 'Literal',
+          value: 42,
+        },
+      });
+    });
   });
 });

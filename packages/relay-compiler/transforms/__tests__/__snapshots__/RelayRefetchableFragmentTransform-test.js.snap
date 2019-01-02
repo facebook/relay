@@ -1,0 +1,259 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`RelayRefetchableFragmentTransform matches expected output: fragment-on-node-interface.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment RefetchableFragment on Node @refetchable(queryName: "RefetchableFragmentQuery") {
+  id
+  ... on User {
+    name
+    ...ProfilePicture
+  }
+}
+
+fragment ProfilePicture on User {
+  profilePicture(size: $size) {
+    uri
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+fragment RefetchableFragment on Node @refetchable(queryName: "RefetchableFragmentQuery") {
+  id
+  ... on User {
+    name
+    ...ProfilePicture
+  }
+}
+
+fragment ProfilePicture on User {
+  profilePicture(size: $size) {
+    uri
+  }
+}
+
+query RefetchableFragmentQuery(
+  $size: [Int]
+  $id: ID!
+) {
+  node(id: $id) {
+    id
+    ... on User {
+      name
+      ...ProfilePicture
+    }
+  }
+}
+
+`;
+
+exports[`RelayRefetchableFragmentTransform matches expected output: fragment-on-object-implementing-node-interface.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment RefetchableFragment on User @refetchable(queryName: "RefetchableFragmentQuery") {
+  id
+  name
+  ...ProfilePicture
+}
+
+fragment ProfilePicture on User {
+  profilePicture(size: $size) {
+    uri
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+fragment RefetchableFragment on User @refetchable(queryName: "RefetchableFragmentQuery") {
+  id
+  name
+  ...ProfilePicture
+}
+
+fragment ProfilePicture on User {
+  profilePicture(size: $size) {
+    uri
+  }
+}
+
+query RefetchableFragmentQuery(
+  $size: [Int]
+  $id: ID!
+) {
+  node(id: $id) {
+    ... on User {
+      id
+      name
+      ...ProfilePicture
+    }
+  }
+}
+
+`;
+
+exports[`RelayRefetchableFragmentTransform matches expected output: fragment-on-query.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment RefetchableFragment on Query @refetchable(queryName: "RefetchableFragmentQuery") @argumentDefinitions(id: {type: "ID!"}) {
+  node(id: $id) {
+    ... on User {
+      id
+      name
+      ...ProfilePicture
+    }
+  }
+}
+
+fragment ProfilePicture on User {
+  profilePicture(size: $size) {
+    uri
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+fragment RefetchableFragment on Query @argumentDefinitions(
+  id: {type: "ID!"}
+) @refetchable(queryName: "RefetchableFragmentQuery") {
+  node(id: $id) {
+    ... on User {
+      id
+      name
+      ...ProfilePicture
+    }
+  }
+}
+
+fragment ProfilePicture on User {
+  profilePicture(size: $size) {
+    uri
+  }
+}
+
+query RefetchableFragmentQuery(
+  $id: ID!
+  $size: [Int]
+) {
+  node(id: $id) {
+    ... on User {
+      id
+      name
+      ...ProfilePicture
+    }
+  }
+}
+
+`;
+
+exports[`RelayRefetchableFragmentTransform matches expected output: fragment-on-query-with-cycle.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment RefetchableFragment on Query @refetchable(queryName: "RefetchableFragmentQuery") @argumentDefinitions(id: {type: "ID!"}) {
+  node(id: $id) {
+    ... on User {
+      id
+      name
+      ...Profile @arguments(includeProfile: true)
+    }
+  }
+}
+
+fragment Profile on User @argumentDefinitions(includeProfile: {type: "Boolean!", defaultValue: false}) {
+  id
+  name
+  profilePicture(size: $pictureSize) {
+    uri
+  }
+  friends(first: $count) {
+    edges {
+      node {
+        ...Profile
+      }
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+fragment RefetchableFragment on Query @argumentDefinitions(
+  id: {type: "ID!"}
+) @refetchable(queryName: "RefetchableFragmentQuery") {
+  node(id: $id) {
+    ... on User {
+      id
+      name
+      ...Profile @arguments(includeProfile: true)
+    }
+  }
+}
+
+fragment Profile on User @argumentDefinitions(
+  includeProfile: {type: "Boolean!", defaultValue: false}
+) {
+  id
+  name
+  profilePicture(size: $pictureSize) {
+    uri
+  }
+  friends(first: $count) {
+    edges {
+      node {
+        ...Profile
+      }
+    }
+  }
+}
+
+query RefetchableFragmentQuery(
+  $id: ID!
+  $pictureSize: [Int]
+  $count: Int
+) {
+  node(id: $id) {
+    ... on User {
+      id
+      name
+      ...Profile @arguments(includeProfile: true)
+    }
+  }
+}
+
+`;
+
+exports[`RelayRefetchableFragmentTransform matches expected output: fragment-on-viewer.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment RefetchableFragment on Viewer @refetchable(queryName: "RefetchableFragmentQuery") {
+  actor {
+    id
+    name
+    ...ProfilePicture
+  }
+}
+
+fragment ProfilePicture on User {
+  profilePicture(size: $size) {
+    uri
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+fragment RefetchableFragment on Viewer @refetchable(queryName: "RefetchableFragmentQuery") {
+  actor {
+    id
+    name
+    ...ProfilePicture
+  }
+}
+
+fragment ProfilePicture on User {
+  profilePicture(size: $size) {
+    uri
+  }
+}
+
+query RefetchableFragmentQuery(
+  $size: [Int]
+) {
+  viewer {
+    actor {
+      id
+      name
+      ...ProfilePicture
+    }
+  }
+}
+
+`;

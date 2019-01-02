@@ -10,6 +10,18 @@ fragment PluralFragment on User @relay(plural: true) {
 {
   "kind": "Fragment",
   "directives": [],
+  "loc": {
+    "start": 0,
+    "end": 63,
+    "source": {
+      "body": "fragment PluralFragment on User @relay(plural: true) {\\n  name\\n}\\n",
+      "name": "GraphQL request",
+      "locationOffset": {
+        "line": 1,
+        "column": 1
+      }
+    }
+  },
   "metadata": {
     "plural": true
   },
@@ -20,6 +32,18 @@ fragment PluralFragment on User @relay(plural: true) {
       "alias": null,
       "args": [],
       "directives": [],
+      "loc": {
+        "start": 57,
+        "end": 61,
+        "source": {
+          "body": "fragment PluralFragment on User @relay(plural: true) {\\n  name\\n}\\n",
+          "name": "GraphQL request",
+          "locationOffset": {
+            "line": 1,
+            "column": 1
+          }
+        }
+      },
       "metadata": null,
       "name": "name",
       "type": "String"
@@ -42,6 +66,18 @@ fragment UserProfile on User {
 {
   "kind": "Fragment",
   "directives": [],
+  "loc": {
+    "start": 0,
+    "end": 96,
+    "source": {
+      "body": "fragment UserProfile on User {\\n  profilePicture {\\n    ...PhotoFragment @relay(mask: false)\\n  }\\n}\\n",
+      "name": "GraphQL request",
+      "locationOffset": {
+        "line": 1,
+        "column": 1
+      }
+    }
+  },
   "metadata": null,
   "name": "UserProfile",
   "selections": [
@@ -50,6 +86,18 @@ fragment UserProfile on User {
       "alias": null,
       "args": [],
       "directives": [],
+      "loc": {
+        "start": 33,
+        "end": 94,
+        "source": {
+          "body": "fragment UserProfile on User {\\n  profilePicture {\\n    ...PhotoFragment @relay(mask: false)\\n  }\\n}\\n",
+          "name": "GraphQL request",
+          "locationOffset": {
+            "line": 1,
+            "column": 1
+          }
+        }
+      },
       "metadata": null,
       "name": "profilePicture",
       "selections": [
@@ -58,6 +106,18 @@ fragment UserProfile on User {
           "args": [],
           "metadata": {
             "mask": false
+          },
+          "loc": {
+            "start": 54,
+            "end": 90,
+            "source": {
+              "body": "fragment UserProfile on User {\\n  profilePicture {\\n    ...PhotoFragment @relay(mask: false)\\n  }\\n}\\n",
+              "name": "GraphQL request",
+              "locationOffset": {
+                "line": 1,
+                "column": 1
+              }
+            }
           },
           "name": "PhotoFragment",
           "directives": []

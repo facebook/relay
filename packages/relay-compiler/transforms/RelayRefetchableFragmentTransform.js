@@ -186,6 +186,7 @@ function buildOperationArgumentDefinitions(
         name: argDef.name,
         type: argDef.type,
         defaultValue: null,
+        loc: argDef.loc,
         metadata: null,
       };
     }
@@ -204,6 +205,7 @@ function buildRefetchOperationOnQueryType(
     ),
     directives: [],
     kind: 'Root',
+    loc: {source: fragment.loc},
     metadata: null,
     name: queryName,
     operation: 'query',
@@ -243,6 +245,7 @@ function buildRefetchOperationOnViewerType(
     ),
     directives: [],
     kind: 'Root',
+    loc: {source: fragment.loc},
     metadata: null,
     name: queryName,
     operation: 'query',
@@ -253,6 +256,7 @@ function buildRefetchOperationOnViewerType(
         directives: [],
         handles: null,
         kind: 'LinkedField',
+        loc: {source: fragment.loc},
         metadata: null,
         name: VIEWER_FIELD_NAME,
         selections: fragment.selections,
@@ -326,6 +330,7 @@ function buildRefetchOperationOnNodeType(
     {
       defaultValue: null,
       kind: 'LocalArgumentDefinition',
+      loc: {source: fragment.loc},
       metadata: null,
       name: 'id',
       type: idArgType,
@@ -342,6 +347,7 @@ function buildRefetchOperationOnNodeType(
       {
         directives: [],
         kind: 'InlineFragment',
+        loc: {source: fragment.loc},
         metadata: null,
         selections: fragment.selections,
         typeCondition: fragment.type,
@@ -352,6 +358,7 @@ function buildRefetchOperationOnNodeType(
     argumentDefinitions: argumentDefinitionsWithId,
     directives: [],
     kind: 'Root',
+    loc: {source: fragment.loc},
     metadata: null,
     name: queryName,
     operation: 'query',
@@ -361,11 +368,13 @@ function buildRefetchOperationOnNodeType(
         args: [
           {
             kind: 'Argument',
+            loc: {source: fragment.loc},
             metadata: null,
             name: 'id',
             type: idArgType,
             value: {
               kind: 'Variable',
+              loc: {source: fragment.loc},
               metadata: null,
               variableName: 'id',
               type: idArgType,
@@ -375,6 +384,7 @@ function buildRefetchOperationOnNodeType(
         directives: [],
         handles: null,
         kind: 'LinkedField',
+        loc: {source: fragment.loc},
         metadata: null,
         name: NODE_FIELD_NAME,
         selections,

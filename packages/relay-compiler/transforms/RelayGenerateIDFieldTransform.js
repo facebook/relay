@@ -59,6 +59,7 @@ function relayGenerateIDFieldTransform(
     args: [],
     directives: [],
     handles: null,
+    loc: {generated: true},
     metadata: null,
     name: ID,
     type: idType,
@@ -139,6 +140,7 @@ function buildIDFragment(
   return {
     kind: 'InlineFragment',
     directives: [],
+    loc: {generated: true},
     metadata: null,
     typeCondition: fragmentType,
     selections: [idField],

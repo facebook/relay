@@ -12,14 +12,50 @@ query TestQuery($date: String) {
 ERROR:
 Error: RelayCodeGenerator: Complex argument values (Lists or InputObjects with nested variables) are not supported, argument \`filter\` had value \`{
   "kind": "ObjectValue",
+  "loc": {
+    "start": 49,
+    "end": 62,
+    "source": {
+      "body": "query TestQuery($date: String) {\\n  items(filter: {date: $date}) {\\n    date\\n  }\\n}\\n",
+      "name": "GraphQL request",
+      "locationOffset": {
+        "line": 1,
+        "column": 1
+      }
+    }
+  },
   "metadata": null,
   "fields": [
     {
       "kind": "ObjectFieldValue",
+      "loc": {
+        "start": 50,
+        "end": 61,
+        "source": {
+          "body": "query TestQuery($date: String) {\\n  items(filter: {date: $date}) {\\n    date\\n  }\\n}\\n",
+          "name": "GraphQL request",
+          "locationOffset": {
+            "line": 1,
+            "column": 1
+          }
+        }
+      },
       "metadata": null,
       "name": "date",
       "value": {
         "kind": "Variable",
+        "loc": {
+          "start": 56,
+          "end": 61,
+          "source": {
+            "body": "query TestQuery($date: String) {\\n  items(filter: {date: $date}) {\\n    date\\n  }\\n}\\n",
+            "name": "GraphQL request",
+            "locationOffset": {
+              "line": 1,
+              "column": 1
+            }
+          }
+        },
         "metadata": null,
         "variableName": "date",
         "type": "String"

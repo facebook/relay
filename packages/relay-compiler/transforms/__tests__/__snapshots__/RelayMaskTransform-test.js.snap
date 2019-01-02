@@ -179,6 +179,18 @@ fragment NullableIDFirstFragment on Query {
 [
   {
     "kind": "RootArgumentDefinition",
+    "loc": {
+      "start": 403,
+      "end": 406,
+      "source": {
+        "body": "fragment NullableIDFirstFragment on Query {\\n  ...NullableIDFragment @relay(mask: false)\\n  ...NonNullIDFragment @relay(mask: false)\\n}\\n\\nfragment NonNullableIDFirstFragment on Query {\\n  ...NonNullIDFragment @relay(mask: false)\\n  ...NullableIDFragment @relay(mask: false)\\n}\\n\\nfragment NullableIDFragment on Query {\\n  node(id: $id) {\\n    id\\n  }\\n}\\n\\nfragment NonNullIDFragment on Query {\\n  node_id_required(id: $id) {\\n    id\\n  }\\n}\\n",
+        "name": "GraphQL request",
+        "locationOffset": {
+          "line": 1,
+          "column": 1
+        }
+      }
+    },
     "metadata": null,
     "name": "id",
     "type": "ID!"
@@ -200,6 +212,18 @@ fragment NonNullableIDFirstFragment on Query {
 [
   {
     "kind": "RootArgumentDefinition",
+    "loc": {
+      "start": 403,
+      "end": 406,
+      "source": {
+        "body": "fragment NullableIDFirstFragment on Query {\\n  ...NullableIDFragment @relay(mask: false)\\n  ...NonNullIDFragment @relay(mask: false)\\n}\\n\\nfragment NonNullableIDFirstFragment on Query {\\n  ...NonNullIDFragment @relay(mask: false)\\n  ...NullableIDFragment @relay(mask: false)\\n}\\n\\nfragment NullableIDFragment on Query {\\n  node(id: $id) {\\n    id\\n  }\\n}\\n\\nfragment NonNullIDFragment on Query {\\n  node_id_required(id: $id) {\\n    id\\n  }\\n}\\n",
+        "name": "GraphQL request",
+        "locationOffset": {
+          "line": 1,
+          "column": 1
+        }
+      }
+    },
     "metadata": null,
     "name": "id",
     "type": "ID!"
@@ -214,6 +238,18 @@ fragment NullableIDFragment on Query {
 [
   {
     "kind": "RootArgumentDefinition",
+    "loc": {
+      "start": 321,
+      "end": 324,
+      "source": {
+        "body": "fragment NullableIDFirstFragment on Query {\\n  ...NullableIDFragment @relay(mask: false)\\n  ...NonNullIDFragment @relay(mask: false)\\n}\\n\\nfragment NonNullableIDFirstFragment on Query {\\n  ...NonNullIDFragment @relay(mask: false)\\n  ...NullableIDFragment @relay(mask: false)\\n}\\n\\nfragment NullableIDFragment on Query {\\n  node(id: $id) {\\n    id\\n  }\\n}\\n\\nfragment NonNullIDFragment on Query {\\n  node_id_required(id: $id) {\\n    id\\n  }\\n}\\n",
+        "name": "GraphQL request",
+        "locationOffset": {
+          "line": 1,
+          "column": 1
+        }
+      }
+    },
     "metadata": null,
     "name": "id",
     "type": "ID"
@@ -228,6 +264,18 @@ fragment NonNullIDFragment on Query {
 [
   {
     "kind": "RootArgumentDefinition",
+    "loc": {
+      "start": 403,
+      "end": 406,
+      "source": {
+        "body": "fragment NullableIDFirstFragment on Query {\\n  ...NullableIDFragment @relay(mask: false)\\n  ...NonNullIDFragment @relay(mask: false)\\n}\\n\\nfragment NonNullableIDFirstFragment on Query {\\n  ...NonNullIDFragment @relay(mask: false)\\n  ...NullableIDFragment @relay(mask: false)\\n}\\n\\nfragment NullableIDFragment on Query {\\n  node(id: $id) {\\n    id\\n  }\\n}\\n\\nfragment NonNullIDFragment on Query {\\n  node_id_required(id: $id) {\\n    id\\n  }\\n}\\n",
+        "name": "GraphQL request",
+        "locationOffset": {
+          "line": 1,
+          "column": 1
+        }
+      }
+    },
     "metadata": null,
     "name": "id",
     "type": "ID!"

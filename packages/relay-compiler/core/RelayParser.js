@@ -55,6 +55,7 @@ import type {
   Handle,
   InlineFragment,
   LocalArgumentDefinition,
+  Location,
   Root,
   ScalarFieldType,
   Selection,
@@ -74,6 +75,7 @@ import type {
   GraphQLOutputType,
   GraphQLSchema,
   InlineFragmentNode,
+  Location as ASTLocation,
   OperationDefinitionNode,
   SelectionSetNode,
   ValueNode,
@@ -545,6 +547,7 @@ class GraphQLDefinitionParser {
     for (const [name, variableReference] of this._unknownVariables) {
       argumentDefinitions.push({
         kind: 'RootArgumentDefinition',
+        loc: buildLocation(variableReference.ast.loc),
         metadata: null,
         name,
         // $FlowFixMe - could be null
@@ -554,6 +557,7 @@ class GraphQLDefinitionParser {
     return {
       kind: 'Fragment',
       directives,
+      loc: buildLocation(fragment.loc),
       metadata: null,
       name: getName(fragment),
       selections,
@@ -611,6 +615,7 @@ class GraphQLDefinitionParser {
     return {
       kind: 'Root',
       operation,
+      loc: buildLocation(definition.loc),
       metadata: null,
       name,
       argumentDefinitions,
@@ -674,6 +679,7 @@ class GraphQLDefinitionParser {
     return {
       kind: 'InlineFragment',
       directives,
+      loc: buildLocation(fragment.loc),
       metadata: null,
       selections,
       typeCondition,
@@ -713,6 +719,7 @@ class GraphQLDefinitionParser {
           // TODO: check the type of the variable and use the type
           return {
             kind: 'Argument',
+            loc: buildLocation(arg.loc),
             metadata: null,
             name: argName,
             value: this._transformVariable(argValue, null),
@@ -732,6 +739,7 @@ class GraphQLDefinitionParser {
           const value = this._transformValue(argValue, argumentType);
           return {
             kind: 'Argument',
+            loc: buildLocation(arg.loc),
             metadata: null,
             name: argName,
             value,
@@ -745,6 +753,7 @@ class GraphQLDefinitionParser {
       kind: 'FragmentSpread',
       args: args || [],
       metadata: null,
+      loc: buildLocation(fragmentSpread.loc),
       name: fragmentName,
       directives,
     };
@@ -793,6 +802,7 @@ class GraphQLDefinitionParser {
         args,
         directives,
         handles,
+        loc: buildLocation(field.loc),
         metadata: null,
         name,
         type: assertScalarFieldType(type),
@@ -815,6 +825,7 @@ class GraphQLDefinitionParser {
         args,
         directives,
         handles,
+        loc: buildLocation(field.loc),
         metadata: null,
         name,
         selections,
@@ -919,6 +930,7 @@ class GraphQLDefinitionParser {
       );
       return {
         kind: 'Directive',
+        loc: buildLocation(directive.loc),
         metadata: null,
         name,
         args,
@@ -942,6 +954,7 @@ class GraphQLDefinitionParser {
       const value = this._transformValue(arg.value, argDef.type);
       return {
         kind: 'Argument',
+        loc: buildLocation(arg.loc),
         metadata: null,
         name: argName,
         value,
@@ -979,6 +992,7 @@ class GraphQLDefinitionParser {
       return {
         kind: 'Condition',
         condition: arg.value,
+        loc: directive.loc,
         metadata: null,
         passingValue,
         selections: [],
@@ -1011,6 +1025,7 @@ class GraphQLDefinitionParser {
     this._recordAndVerifyVariableReference(ast, variableName, usedAsType);
     return {
       kind: 'Variable',
+      loc: buildLocation(ast.loc),
       metadata: null,
       variableName,
       type: usedAsType,
@@ -1035,6 +1050,7 @@ class GraphQLDefinitionParser {
       }
       return {
         kind: 'Literal',
+        loc: buildLocation(ast.loc),
         metadata: null,
         value: null,
       };
@@ -1078,12 +1094,14 @@ class GraphQLDefinitionParser {
       if (areAllItemsScalar) {
         return {
           kind: 'Literal',
+          loc: buildLocation(ast.loc),
           metadata: null,
           value: literalList,
         };
       } else {
         return {
           kind: 'ListValue',
+          loc: buildLocation(ast.loc),
           metadata: null,
           items,
         };
@@ -1115,6 +1133,7 @@ class GraphQLDefinitionParser {
         }
         fields.push({
           kind: 'ObjectFieldValue',
+          loc: buildLocation(field.loc),
           metadata: null,
           name: fieldName,
           value: fieldValue,
@@ -1125,12 +1144,14 @@ class GraphQLDefinitionParser {
       if (areAllFieldsScalar) {
         return {
           kind: 'Literal',
+          loc: buildLocation(ast.loc),
           metadata: null,
           value: literalObject,
         };
       } else {
         return {
           kind: 'ObjectValue',
+          loc: buildLocation(ast.loc),
           metadata: null,
           fields,
         };
@@ -1142,12 +1163,14 @@ class GraphQLDefinitionParser {
       if (ast.kind === 'IntValue') {
         return {
           kind: 'Literal',
+          loc: buildLocation(ast.loc),
           metadata: null,
           value: parseInt(ast.value, 10),
         };
       } else if (ast.kind === 'StringValue') {
         return {
           kind: 'Literal',
+          loc: buildLocation(ast.loc),
           metadata: null,
           value: ast.value,
         };
@@ -1172,6 +1195,7 @@ class GraphQLDefinitionParser {
       }
       return {
         kind: 'Literal',
+        loc: buildLocation(ast.loc),
         metadata: null,
         value,
       };
@@ -1235,15 +1259,30 @@ function transformLiteralValue(ast: ValueNode, context: ASTNode): mixed {
 function buildArgumentDefinitions(
   variables: VariableDefinitions,
 ): Array<LocalArgumentDefinition> {
-  return Array.from(variables.values(), ({name, type, defaultValue}) => {
+  return Array.from(variables.values(), ({ast, name, type, defaultValue}) => {
     return {
       kind: 'LocalArgumentDefinition',
+      loc: buildLocation(ast.loc),
       metadata: null,
       name,
       type,
       defaultValue,
     };
   });
+}
+
+/**
+ * @private
+ */
+function buildLocation(loc: ?ASTLocation): Location {
+  if (loc == null) {
+    return {unknown: true};
+  }
+  return {
+    start: loc.start,
+    end: loc.end,
+    source: loc.source,
+  };
 }
 
 /**

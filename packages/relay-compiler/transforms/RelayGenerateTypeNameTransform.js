@@ -42,6 +42,7 @@ function relayGenerateTypeNameTransform(
     args: [],
     directives: [],
     handles: null,
+    loc: {generated: true},
     metadata: null,
     name: TYPENAME_KEY,
     type: stringType,

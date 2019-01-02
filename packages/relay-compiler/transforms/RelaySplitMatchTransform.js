@@ -40,6 +40,7 @@ function visitMatchBranch(node: MatchBranch, state: State): MatchBranch {
     kind: 'SplitOperation',
     name: SplitNaming.getAnnotatedName(transformedNode.name, 'normalization'),
     selections: transformedNode.selections,
+    loc: {source: node.loc},
     metadata: null,
     type: transformedNode.type,
   };

@@ -117,6 +117,7 @@ function transformRoot(
       return {
         defaultValue: localDefinition?.defaultValue ?? null,
         kind: 'LocalArgumentDefinition',
+        loc: argDef.loc,
         metadata: null,
         name: argDef.name,
         type: localDefinition?.type ?? argDef.type,
@@ -178,6 +179,7 @@ function visit(
         ) {
           argumentDefinitions.set(arg.value.variableName, {
             kind: 'RootArgumentDefinition',
+            loc: {source: arg.loc},
             metadata: null,
             name: arg.value.variableName,
             type: argDef.type,
@@ -208,6 +210,7 @@ function visit(
         // root variable
         argumentDefinitions.set(variable.variableName, {
           kind: 'RootArgumentDefinition',
+          loc: {source: argument.loc},
           metadata: null,
           name: variable.variableName,
           type: variable.type || argument.type,
@@ -225,6 +228,7 @@ function visit(
         // root variable
         argumentDefinitions.set(variable.variableName, {
           kind: 'RootArgumentDefinition',
+          loc: {source: condition.loc},
           metadata: null,
           name: variable.variableName,
           type,

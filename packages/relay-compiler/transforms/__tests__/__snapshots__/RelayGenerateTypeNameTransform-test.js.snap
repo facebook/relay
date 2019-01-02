@@ -48,6 +48,18 @@ fragment CommentFragment_comment on Comment {
 {
   "kind": "Root",
   "operation": "query",
+  "loc": {
+    "start": 0,
+    "end": 227,
+    "source": {
+      "body": "query EasyTypeNameNotExistsQuery {\\n  viewer {\\n    newsFeed(first: 10) {\\n      edges {\\n        node {\\n          id\\n          message {\\n            text\\n          }\\n          ...NonNodeStory_feedUnit\\n        }\\n      }\\n    }\\n  }\\n}\\n\\nfragment NonNodeStory_feedUnit on FeedUnit {\\n  id\\n  actor {\\n    name\\n  }\\n}\\n\\nquery TypeNameNotExistsWithFlattenTransformQuery {\\n  node(id: \\"123\\") {\\n    comments(first: 10) {\\n      edges {\\n        node {\\n          id\\n          ...CommentFragment_comment\\n        }\\n      }\\n    }\\n  }\\n}\\n\\nfragment CommentFragment_comment on Comment {\\n  body {\\n    text\\n  }\\n}\\n",
+      "name": "GraphQL request",
+      "locationOffset": {
+        "line": 1,
+        "column": 1
+      }
+    }
+  },
   "metadata": null,
   "name": "EasyTypeNameNotExistsQuery",
   "argumentDefinitions": [],
@@ -58,6 +70,18 @@ fragment CommentFragment_comment on Comment {
       "alias": null,
       "args": [],
       "directives": [],
+      "loc": {
+        "start": 37,
+        "end": 225,
+        "source": {
+          "body": "query EasyTypeNameNotExistsQuery {\\n  viewer {\\n    newsFeed(first: 10) {\\n      edges {\\n        node {\\n          id\\n          message {\\n            text\\n          }\\n          ...NonNodeStory_feedUnit\\n        }\\n      }\\n    }\\n  }\\n}\\n\\nfragment NonNodeStory_feedUnit on FeedUnit {\\n  id\\n  actor {\\n    name\\n  }\\n}\\n\\nquery TypeNameNotExistsWithFlattenTransformQuery {\\n  node(id: \\"123\\") {\\n    comments(first: 10) {\\n      edges {\\n        node {\\n          id\\n          ...CommentFragment_comment\\n        }\\n      }\\n    }\\n  }\\n}\\n\\nfragment CommentFragment_comment on Comment {\\n  body {\\n    text\\n  }\\n}\\n",
+          "name": "GraphQL request",
+          "locationOffset": {
+            "line": 1,
+            "column": 1
+          }
+        }
+      },
       "metadata": null,
       "name": "viewer",
       "selections": [
@@ -67,10 +91,34 @@ fragment CommentFragment_comment on Comment {
           "args": [
             {
               "kind": "Argument",
+              "loc": {
+                "start": 59,
+                "end": 68,
+                "source": {
+                  "body": "query EasyTypeNameNotExistsQuery {\\n  viewer {\\n    newsFeed(first: 10) {\\n      edges {\\n        node {\\n          id\\n          message {\\n            text\\n          }\\n          ...NonNodeStory_feedUnit\\n        }\\n      }\\n    }\\n  }\\n}\\n\\nfragment NonNodeStory_feedUnit on FeedUnit {\\n  id\\n  actor {\\n    name\\n  }\\n}\\n\\nquery TypeNameNotExistsWithFlattenTransformQuery {\\n  node(id: \\"123\\") {\\n    comments(first: 10) {\\n      edges {\\n        node {\\n          id\\n          ...CommentFragment_comment\\n        }\\n      }\\n    }\\n  }\\n}\\n\\nfragment CommentFragment_comment on Comment {\\n  body {\\n    text\\n  }\\n}\\n",
+                  "name": "GraphQL request",
+                  "locationOffset": {
+                    "line": 1,
+                    "column": 1
+                  }
+                }
+              },
               "metadata": null,
               "name": "first",
               "value": {
                 "kind": "Literal",
+                "loc": {
+                  "start": 66,
+                  "end": 68,
+                  "source": {
+                    "body": "query EasyTypeNameNotExistsQuery {\\n  viewer {\\n    newsFeed(first: 10) {\\n      edges {\\n        node {\\n          id\\n          message {\\n            text\\n          }\\n          ...NonNodeStory_feedUnit\\n        }\\n      }\\n    }\\n  }\\n}\\n\\nfragment NonNodeStory_feedUnit on FeedUnit {\\n  id\\n  actor {\\n    name\\n  }\\n}\\n\\nquery TypeNameNotExistsWithFlattenTransformQuery {\\n  node(id: \\"123\\") {\\n    comments(first: 10) {\\n      edges {\\n        node {\\n          id\\n          ...CommentFragment_comment\\n        }\\n      }\\n    }\\n  }\\n}\\n\\nfragment CommentFragment_comment on Comment {\\n  body {\\n    text\\n  }\\n}\\n",
+                    "name": "GraphQL request",
+                    "locationOffset": {
+                      "line": 1,
+                      "column": 1
+                    }
+                  }
+                },
                 "metadata": null,
                 "value": 10
               },
@@ -78,6 +126,18 @@ fragment CommentFragment_comment on Comment {
             }
           ],
           "directives": [],
+          "loc": {
+            "start": 50,
+            "end": 221,
+            "source": {
+              "body": "query EasyTypeNameNotExistsQuery {\\n  viewer {\\n    newsFeed(first: 10) {\\n      edges {\\n        node {\\n          id\\n          message {\\n            text\\n          }\\n          ...NonNodeStory_feedUnit\\n        }\\n      }\\n    }\\n  }\\n}\\n\\nfragment NonNodeStory_feedUnit on FeedUnit {\\n  id\\n  actor {\\n    name\\n  }\\n}\\n\\nquery TypeNameNotExistsWithFlattenTransformQuery {\\n  node(id: \\"123\\") {\\n    comments(first: 10) {\\n      edges {\\n        node {\\n          id\\n          ...CommentFragment_comment\\n        }\\n      }\\n    }\\n  }\\n}\\n\\nfragment CommentFragment_comment on Comment {\\n  body {\\n    text\\n  }\\n}\\n",
+              "name": "GraphQL request",
+              "locationOffset": {
+                "line": 1,
+                "column": 1
+              }
+            }
+          },
           "metadata": null,
           "name": "newsFeed",
           "selections": [
@@ -86,6 +146,18 @@ fragment CommentFragment_comment on Comment {
               "alias": null,
               "args": [],
               "directives": [],
+              "loc": {
+                "start": 78,
+                "end": 215,
+                "source": {
+                  "body": "query EasyTypeNameNotExistsQuery {\\n  viewer {\\n    newsFeed(first: 10) {\\n      edges {\\n        node {\\n          id\\n          message {\\n            text\\n          }\\n          ...NonNodeStory_feedUnit\\n        }\\n      }\\n    }\\n  }\\n}\\n\\nfragment NonNodeStory_feedUnit on FeedUnit {\\n  id\\n  actor {\\n    name\\n  }\\n}\\n\\nquery TypeNameNotExistsWithFlattenTransformQuery {\\n  node(id: \\"123\\") {\\n    comments(first: 10) {\\n      edges {\\n        node {\\n          id\\n          ...CommentFragment_comment\\n        }\\n      }\\n    }\\n  }\\n}\\n\\nfragment CommentFragment_comment on Comment {\\n  body {\\n    text\\n  }\\n}\\n",
+                  "name": "GraphQL request",
+                  "locationOffset": {
+                    "line": 1,
+                    "column": 1
+                  }
+                }
+              },
               "metadata": null,
               "name": "edges",
               "selections": [
@@ -94,6 +166,18 @@ fragment CommentFragment_comment on Comment {
                   "alias": null,
                   "args": [],
                   "directives": [],
+                  "loc": {
+                    "start": 94,
+                    "end": 207,
+                    "source": {
+                      "body": "query EasyTypeNameNotExistsQuery {\\n  viewer {\\n    newsFeed(first: 10) {\\n      edges {\\n        node {\\n          id\\n          message {\\n            text\\n          }\\n          ...NonNodeStory_feedUnit\\n        }\\n      }\\n    }\\n  }\\n}\\n\\nfragment NonNodeStory_feedUnit on FeedUnit {\\n  id\\n  actor {\\n    name\\n  }\\n}\\n\\nquery TypeNameNotExistsWithFlattenTransformQuery {\\n  node(id: \\"123\\") {\\n    comments(first: 10) {\\n      edges {\\n        node {\\n          id\\n          ...CommentFragment_comment\\n        }\\n      }\\n    }\\n  }\\n}\\n\\nfragment CommentFragment_comment on Comment {\\n  body {\\n    text\\n  }\\n}\\n",
+                      "name": "GraphQL request",
+                      "locationOffset": {
+                        "line": 1,
+                        "column": 1
+                      }
+                    }
+                  },
                   "metadata": null,
                   "name": "node",
                   "selections": [
@@ -103,6 +187,9 @@ fragment CommentFragment_comment on Comment {
                       "args": [],
                       "directives": [],
                       "handles": null,
+                      "loc": {
+                        "generated": true
+                      },
                       "metadata": null,
                       "name": "__typename",
                       "type": "String"
@@ -112,6 +199,18 @@ fragment CommentFragment_comment on Comment {
                       "alias": null,
                       "args": [],
                       "directives": [],
+                      "loc": {
+                        "start": 111,
+                        "end": 113,
+                        "source": {
+                          "body": "query EasyTypeNameNotExistsQuery {\\n  viewer {\\n    newsFeed(first: 10) {\\n      edges {\\n        node {\\n          id\\n          message {\\n            text\\n          }\\n          ...NonNodeStory_feedUnit\\n        }\\n      }\\n    }\\n  }\\n}\\n\\nfragment NonNodeStory_feedUnit on FeedUnit {\\n  id\\n  actor {\\n    name\\n  }\\n}\\n\\nquery TypeNameNotExistsWithFlattenTransformQuery {\\n  node(id: \\"123\\") {\\n    comments(first: 10) {\\n      edges {\\n        node {\\n          id\\n          ...CommentFragment_comment\\n        }\\n      }\\n    }\\n  }\\n}\\n\\nfragment CommentFragment_comment on Comment {\\n  body {\\n    text\\n  }\\n}\\n",
+                          "name": "GraphQL request",
+                          "locationOffset": {
+                            "line": 1,
+                            "column": 1
+                          }
+                        }
+                      },
                       "metadata": null,
                       "name": "id",
                       "type": "ID!"
@@ -121,6 +220,18 @@ fragment CommentFragment_comment on Comment {
                       "alias": null,
                       "args": [],
                       "directives": [],
+                      "loc": {
+                        "start": 124,
+                        "end": 162,
+                        "source": {
+                          "body": "query EasyTypeNameNotExistsQuery {\\n  viewer {\\n    newsFeed(first: 10) {\\n      edges {\\n        node {\\n          id\\n          message {\\n            text\\n          }\\n          ...NonNodeStory_feedUnit\\n        }\\n      }\\n    }\\n  }\\n}\\n\\nfragment NonNodeStory_feedUnit on FeedUnit {\\n  id\\n  actor {\\n    name\\n  }\\n}\\n\\nquery TypeNameNotExistsWithFlattenTransformQuery {\\n  node(id: \\"123\\") {\\n    comments(first: 10) {\\n      edges {\\n        node {\\n          id\\n          ...CommentFragment_comment\\n        }\\n      }\\n    }\\n  }\\n}\\n\\nfragment CommentFragment_comment on Comment {\\n  body {\\n    text\\n  }\\n}\\n",
+                          "name": "GraphQL request",
+                          "locationOffset": {
+                            "line": 1,
+                            "column": 1
+                          }
+                        }
+                      },
                       "metadata": null,
                       "name": "message",
                       "selections": [
@@ -129,6 +240,18 @@ fragment CommentFragment_comment on Comment {
                           "alias": null,
                           "args": [],
                           "directives": [],
+                          "loc": {
+                            "start": 146,
+                            "end": 150,
+                            "source": {
+                              "body": "query EasyTypeNameNotExistsQuery {\\n  viewer {\\n    newsFeed(first: 10) {\\n      edges {\\n        node {\\n          id\\n          message {\\n            text\\n          }\\n          ...NonNodeStory_feedUnit\\n        }\\n      }\\n    }\\n  }\\n}\\n\\nfragment NonNodeStory_feedUnit on FeedUnit {\\n  id\\n  actor {\\n    name\\n  }\\n}\\n\\nquery TypeNameNotExistsWithFlattenTransformQuery {\\n  node(id: \\"123\\") {\\n    comments(first: 10) {\\n      edges {\\n        node {\\n          id\\n          ...CommentFragment_comment\\n        }\\n      }\\n    }\\n  }\\n}\\n\\nfragment CommentFragment_comment on Comment {\\n  body {\\n    text\\n  }\\n}\\n",
+                              "name": "GraphQL request",
+                              "locationOffset": {
+                                "line": 1,
+                                "column": 1
+                              }
+                            }
+                          },
                           "metadata": null,
                           "name": "text",
                           "type": "String"
@@ -141,6 +264,18 @@ fragment CommentFragment_comment on Comment {
                       "alias": null,
                       "args": [],
                       "directives": [],
+                      "loc": {
+                        "start": 281,
+                        "end": 301,
+                        "source": {
+                          "body": "query EasyTypeNameNotExistsQuery {\\n  viewer {\\n    newsFeed(first: 10) {\\n      edges {\\n        node {\\n          id\\n          message {\\n            text\\n          }\\n          ...NonNodeStory_feedUnit\\n        }\\n      }\\n    }\\n  }\\n}\\n\\nfragment NonNodeStory_feedUnit on FeedUnit {\\n  id\\n  actor {\\n    name\\n  }\\n}\\n\\nquery TypeNameNotExistsWithFlattenTransformQuery {\\n  node(id: \\"123\\") {\\n    comments(first: 10) {\\n      edges {\\n        node {\\n          id\\n          ...CommentFragment_comment\\n        }\\n      }\\n    }\\n  }\\n}\\n\\nfragment CommentFragment_comment on Comment {\\n  body {\\n    text\\n  }\\n}\\n",
+                          "name": "GraphQL request",
+                          "locationOffset": {
+                            "line": 1,
+                            "column": 1
+                          }
+                        }
+                      },
                       "metadata": null,
                       "name": "actor",
                       "selections": [
@@ -150,6 +285,9 @@ fragment CommentFragment_comment on Comment {
                           "args": [],
                           "directives": [],
                           "handles": null,
+                          "loc": {
+                            "generated": true
+                          },
                           "metadata": null,
                           "name": "__typename",
                           "type": "String"
@@ -159,6 +297,18 @@ fragment CommentFragment_comment on Comment {
                           "alias": null,
                           "args": [],
                           "directives": [],
+                          "loc": {
+                            "start": 293,
+                            "end": 297,
+                            "source": {
+                              "body": "query EasyTypeNameNotExistsQuery {\\n  viewer {\\n    newsFeed(first: 10) {\\n      edges {\\n        node {\\n          id\\n          message {\\n            text\\n          }\\n          ...NonNodeStory_feedUnit\\n        }\\n      }\\n    }\\n  }\\n}\\n\\nfragment NonNodeStory_feedUnit on FeedUnit {\\n  id\\n  actor {\\n    name\\n  }\\n}\\n\\nquery TypeNameNotExistsWithFlattenTransformQuery {\\n  node(id: \\"123\\") {\\n    comments(first: 10) {\\n      edges {\\n        node {\\n          id\\n          ...CommentFragment_comment\\n        }\\n      }\\n    }\\n  }\\n}\\n\\nfragment CommentFragment_comment on Comment {\\n  body {\\n    text\\n  }\\n}\\n",
+                              "name": "GraphQL request",
+                              "locationOffset": {
+                                "line": 1,
+                                "column": 1
+                              }
+                            }
+                          },
                           "metadata": null,
                           "name": "name",
                           "type": "String"
@@ -184,6 +334,18 @@ fragment CommentFragment_comment on Comment {
 {
   "kind": "Root",
   "operation": "query",
+  "loc": {
+    "start": 305,
+    "end": 510,
+    "source": {
+      "body": "query EasyTypeNameNotExistsQuery {\\n  viewer {\\n    newsFeed(first: 10) {\\n      edges {\\n        node {\\n          id\\n          message {\\n            text\\n          }\\n          ...NonNodeStory_feedUnit\\n        }\\n      }\\n    }\\n  }\\n}\\n\\nfragment NonNodeStory_feedUnit on FeedUnit {\\n  id\\n  actor {\\n    name\\n  }\\n}\\n\\nquery TypeNameNotExistsWithFlattenTransformQuery {\\n  node(id: \\"123\\") {\\n    comments(first: 10) {\\n      edges {\\n        node {\\n          id\\n          ...CommentFragment_comment\\n        }\\n      }\\n    }\\n  }\\n}\\n\\nfragment CommentFragment_comment on Comment {\\n  body {\\n    text\\n  }\\n}\\n",
+      "name": "GraphQL request",
+      "locationOffset": {
+        "line": 1,
+        "column": 1
+      }
+    }
+  },
   "metadata": null,
   "name": "TypeNameNotExistsWithFlattenTransformQuery",
   "argumentDefinitions": [],
@@ -195,10 +357,34 @@ fragment CommentFragment_comment on Comment {
       "args": [
         {
           "kind": "Argument",
+          "loc": {
+            "start": 363,
+            "end": 372,
+            "source": {
+              "body": "query EasyTypeNameNotExistsQuery {\\n  viewer {\\n    newsFeed(first: 10) {\\n      edges {\\n        node {\\n          id\\n          message {\\n            text\\n          }\\n          ...NonNodeStory_feedUnit\\n        }\\n      }\\n    }\\n  }\\n}\\n\\nfragment NonNodeStory_feedUnit on FeedUnit {\\n  id\\n  actor {\\n    name\\n  }\\n}\\n\\nquery TypeNameNotExistsWithFlattenTransformQuery {\\n  node(id: \\"123\\") {\\n    comments(first: 10) {\\n      edges {\\n        node {\\n          id\\n          ...CommentFragment_comment\\n        }\\n      }\\n    }\\n  }\\n}\\n\\nfragment CommentFragment_comment on Comment {\\n  body {\\n    text\\n  }\\n}\\n",
+              "name": "GraphQL request",
+              "locationOffset": {
+                "line": 1,
+                "column": 1
+              }
+            }
+          },
           "metadata": null,
           "name": "id",
           "value": {
             "kind": "Literal",
+            "loc": {
+              "start": 367,
+              "end": 372,
+              "source": {
+                "body": "query EasyTypeNameNotExistsQuery {\\n  viewer {\\n    newsFeed(first: 10) {\\n      edges {\\n        node {\\n          id\\n          message {\\n            text\\n          }\\n          ...NonNodeStory_feedUnit\\n        }\\n      }\\n    }\\n  }\\n}\\n\\nfragment NonNodeStory_feedUnit on FeedUnit {\\n  id\\n  actor {\\n    name\\n  }\\n}\\n\\nquery TypeNameNotExistsWithFlattenTransformQuery {\\n  node(id: \\"123\\") {\\n    comments(first: 10) {\\n      edges {\\n        node {\\n          id\\n          ...CommentFragment_comment\\n        }\\n      }\\n    }\\n  }\\n}\\n\\nfragment CommentFragment_comment on Comment {\\n  body {\\n    text\\n  }\\n}\\n",
+                "name": "GraphQL request",
+                "locationOffset": {
+                  "line": 1,
+                  "column": 1
+                }
+              }
+            },
             "metadata": null,
             "value": "123"
           },
@@ -206,6 +392,18 @@ fragment CommentFragment_comment on Comment {
         }
       ],
       "directives": [],
+      "loc": {
+        "start": 358,
+        "end": 508,
+        "source": {
+          "body": "query EasyTypeNameNotExistsQuery {\\n  viewer {\\n    newsFeed(first: 10) {\\n      edges {\\n        node {\\n          id\\n          message {\\n            text\\n          }\\n          ...NonNodeStory_feedUnit\\n        }\\n      }\\n    }\\n  }\\n}\\n\\nfragment NonNodeStory_feedUnit on FeedUnit {\\n  id\\n  actor {\\n    name\\n  }\\n}\\n\\nquery TypeNameNotExistsWithFlattenTransformQuery {\\n  node(id: \\"123\\") {\\n    comments(first: 10) {\\n      edges {\\n        node {\\n          id\\n          ...CommentFragment_comment\\n        }\\n      }\\n    }\\n  }\\n}\\n\\nfragment CommentFragment_comment on Comment {\\n  body {\\n    text\\n  }\\n}\\n",
+          "name": "GraphQL request",
+          "locationOffset": {
+            "line": 1,
+            "column": 1
+          }
+        }
+      },
       "metadata": null,
       "name": "node",
       "selections": [
@@ -215,6 +413,9 @@ fragment CommentFragment_comment on Comment {
           "args": [],
           "directives": [],
           "handles": null,
+          "loc": {
+            "generated": true
+          },
           "metadata": null,
           "name": "__typename",
           "type": "String"
@@ -225,10 +426,34 @@ fragment CommentFragment_comment on Comment {
           "args": [
             {
               "kind": "Argument",
+              "loc": {
+                "start": 389,
+                "end": 398,
+                "source": {
+                  "body": "query EasyTypeNameNotExistsQuery {\\n  viewer {\\n    newsFeed(first: 10) {\\n      edges {\\n        node {\\n          id\\n          message {\\n            text\\n          }\\n          ...NonNodeStory_feedUnit\\n        }\\n      }\\n    }\\n  }\\n}\\n\\nfragment NonNodeStory_feedUnit on FeedUnit {\\n  id\\n  actor {\\n    name\\n  }\\n}\\n\\nquery TypeNameNotExistsWithFlattenTransformQuery {\\n  node(id: \\"123\\") {\\n    comments(first: 10) {\\n      edges {\\n        node {\\n          id\\n          ...CommentFragment_comment\\n        }\\n      }\\n    }\\n  }\\n}\\n\\nfragment CommentFragment_comment on Comment {\\n  body {\\n    text\\n  }\\n}\\n",
+                  "name": "GraphQL request",
+                  "locationOffset": {
+                    "line": 1,
+                    "column": 1
+                  }
+                }
+              },
               "metadata": null,
               "name": "first",
               "value": {
                 "kind": "Literal",
+                "loc": {
+                  "start": 396,
+                  "end": 398,
+                  "source": {
+                    "body": "query EasyTypeNameNotExistsQuery {\\n  viewer {\\n    newsFeed(first: 10) {\\n      edges {\\n        node {\\n          id\\n          message {\\n            text\\n          }\\n          ...NonNodeStory_feedUnit\\n        }\\n      }\\n    }\\n  }\\n}\\n\\nfragment NonNodeStory_feedUnit on FeedUnit {\\n  id\\n  actor {\\n    name\\n  }\\n}\\n\\nquery TypeNameNotExistsWithFlattenTransformQuery {\\n  node(id: \\"123\\") {\\n    comments(first: 10) {\\n      edges {\\n        node {\\n          id\\n          ...CommentFragment_comment\\n        }\\n      }\\n    }\\n  }\\n}\\n\\nfragment CommentFragment_comment on Comment {\\n  body {\\n    text\\n  }\\n}\\n",
+                    "name": "GraphQL request",
+                    "locationOffset": {
+                      "line": 1,
+                      "column": 1
+                    }
+                  }
+                },
                 "metadata": null,
                 "value": 10
               },
@@ -236,6 +461,18 @@ fragment CommentFragment_comment on Comment {
             }
           ],
           "directives": [],
+          "loc": {
+            "start": 380,
+            "end": 504,
+            "source": {
+              "body": "query EasyTypeNameNotExistsQuery {\\n  viewer {\\n    newsFeed(first: 10) {\\n      edges {\\n        node {\\n          id\\n          message {\\n            text\\n          }\\n          ...NonNodeStory_feedUnit\\n        }\\n      }\\n    }\\n  }\\n}\\n\\nfragment NonNodeStory_feedUnit on FeedUnit {\\n  id\\n  actor {\\n    name\\n  }\\n}\\n\\nquery TypeNameNotExistsWithFlattenTransformQuery {\\n  node(id: \\"123\\") {\\n    comments(first: 10) {\\n      edges {\\n        node {\\n          id\\n          ...CommentFragment_comment\\n        }\\n      }\\n    }\\n  }\\n}\\n\\nfragment CommentFragment_comment on Comment {\\n  body {\\n    text\\n  }\\n}\\n",
+              "name": "GraphQL request",
+              "locationOffset": {
+                "line": 1,
+                "column": 1
+              }
+            }
+          },
           "metadata": null,
           "name": "comments",
           "selections": [
@@ -244,6 +481,18 @@ fragment CommentFragment_comment on Comment {
               "alias": null,
               "args": [],
               "directives": [],
+              "loc": {
+                "start": 408,
+                "end": 498,
+                "source": {
+                  "body": "query EasyTypeNameNotExistsQuery {\\n  viewer {\\n    newsFeed(first: 10) {\\n      edges {\\n        node {\\n          id\\n          message {\\n            text\\n          }\\n          ...NonNodeStory_feedUnit\\n        }\\n      }\\n    }\\n  }\\n}\\n\\nfragment NonNodeStory_feedUnit on FeedUnit {\\n  id\\n  actor {\\n    name\\n  }\\n}\\n\\nquery TypeNameNotExistsWithFlattenTransformQuery {\\n  node(id: \\"123\\") {\\n    comments(first: 10) {\\n      edges {\\n        node {\\n          id\\n          ...CommentFragment_comment\\n        }\\n      }\\n    }\\n  }\\n}\\n\\nfragment CommentFragment_comment on Comment {\\n  body {\\n    text\\n  }\\n}\\n",
+                  "name": "GraphQL request",
+                  "locationOffset": {
+                    "line": 1,
+                    "column": 1
+                  }
+                }
+              },
               "metadata": null,
               "name": "edges",
               "selections": [
@@ -252,6 +501,18 @@ fragment CommentFragment_comment on Comment {
                   "alias": null,
                   "args": [],
                   "directives": [],
+                  "loc": {
+                    "start": 424,
+                    "end": 490,
+                    "source": {
+                      "body": "query EasyTypeNameNotExistsQuery {\\n  viewer {\\n    newsFeed(first: 10) {\\n      edges {\\n        node {\\n          id\\n          message {\\n            text\\n          }\\n          ...NonNodeStory_feedUnit\\n        }\\n      }\\n    }\\n  }\\n}\\n\\nfragment NonNodeStory_feedUnit on FeedUnit {\\n  id\\n  actor {\\n    name\\n  }\\n}\\n\\nquery TypeNameNotExistsWithFlattenTransformQuery {\\n  node(id: \\"123\\") {\\n    comments(first: 10) {\\n      edges {\\n        node {\\n          id\\n          ...CommentFragment_comment\\n        }\\n      }\\n    }\\n  }\\n}\\n\\nfragment CommentFragment_comment on Comment {\\n  body {\\n    text\\n  }\\n}\\n",
+                      "name": "GraphQL request",
+                      "locationOffset": {
+                        "line": 1,
+                        "column": 1
+                      }
+                    }
+                  },
                   "metadata": null,
                   "name": "node",
                   "selections": [
@@ -260,6 +521,18 @@ fragment CommentFragment_comment on Comment {
                       "alias": null,
                       "args": [],
                       "directives": [],
+                      "loc": {
+                        "start": 441,
+                        "end": 443,
+                        "source": {
+                          "body": "query EasyTypeNameNotExistsQuery {\\n  viewer {\\n    newsFeed(first: 10) {\\n      edges {\\n        node {\\n          id\\n          message {\\n            text\\n          }\\n          ...NonNodeStory_feedUnit\\n        }\\n      }\\n    }\\n  }\\n}\\n\\nfragment NonNodeStory_feedUnit on FeedUnit {\\n  id\\n  actor {\\n    name\\n  }\\n}\\n\\nquery TypeNameNotExistsWithFlattenTransformQuery {\\n  node(id: \\"123\\") {\\n    comments(first: 10) {\\n      edges {\\n        node {\\n          id\\n          ...CommentFragment_comment\\n        }\\n      }\\n    }\\n  }\\n}\\n\\nfragment CommentFragment_comment on Comment {\\n  body {\\n    text\\n  }\\n}\\n",
+                          "name": "GraphQL request",
+                          "locationOffset": {
+                            "line": 1,
+                            "column": 1
+                          }
+                        }
+                      },
                       "metadata": null,
                       "name": "id",
                       "type": "ID!"
@@ -269,6 +542,18 @@ fragment CommentFragment_comment on Comment {
                       "alias": null,
                       "args": [],
                       "directives": [],
+                      "loc": {
+                        "start": 560,
+                        "end": 579,
+                        "source": {
+                          "body": "query EasyTypeNameNotExistsQuery {\\n  viewer {\\n    newsFeed(first: 10) {\\n      edges {\\n        node {\\n          id\\n          message {\\n            text\\n          }\\n          ...NonNodeStory_feedUnit\\n        }\\n      }\\n    }\\n  }\\n}\\n\\nfragment NonNodeStory_feedUnit on FeedUnit {\\n  id\\n  actor {\\n    name\\n  }\\n}\\n\\nquery TypeNameNotExistsWithFlattenTransformQuery {\\n  node(id: \\"123\\") {\\n    comments(first: 10) {\\n      edges {\\n        node {\\n          id\\n          ...CommentFragment_comment\\n        }\\n      }\\n    }\\n  }\\n}\\n\\nfragment CommentFragment_comment on Comment {\\n  body {\\n    text\\n  }\\n}\\n",
+                          "name": "GraphQL request",
+                          "locationOffset": {
+                            "line": 1,
+                            "column": 1
+                          }
+                        }
+                      },
                       "metadata": null,
                       "name": "body",
                       "selections": [
@@ -277,6 +562,18 @@ fragment CommentFragment_comment on Comment {
                           "alias": null,
                           "args": [],
                           "directives": [],
+                          "loc": {
+                            "start": 571,
+                            "end": 575,
+                            "source": {
+                              "body": "query EasyTypeNameNotExistsQuery {\\n  viewer {\\n    newsFeed(first: 10) {\\n      edges {\\n        node {\\n          id\\n          message {\\n            text\\n          }\\n          ...NonNodeStory_feedUnit\\n        }\\n      }\\n    }\\n  }\\n}\\n\\nfragment NonNodeStory_feedUnit on FeedUnit {\\n  id\\n  actor {\\n    name\\n  }\\n}\\n\\nquery TypeNameNotExistsWithFlattenTransformQuery {\\n  node(id: \\"123\\") {\\n    comments(first: 10) {\\n      edges {\\n        node {\\n          id\\n          ...CommentFragment_comment\\n        }\\n      }\\n    }\\n  }\\n}\\n\\nfragment CommentFragment_comment on Comment {\\n  body {\\n    text\\n  }\\n}\\n",
+                              "name": "GraphQL request",
+                              "locationOffset": {
+                                "line": 1,
+                                "column": 1
+                              }
+                            }
+                          },
                           "metadata": null,
                           "name": "text",
                           "type": "String"
@@ -352,6 +649,18 @@ fragment CommentFragment_comment on Comment {
 {
   "kind": "Root",
   "operation": "query",
+  "loc": {
+    "start": 0,
+    "end": 245,
+    "source": {
+      "body": "query EasyTypeNameExistsQuery {\\n  viewer {\\n    newsFeed(first: 10) {\\n      edges {\\n        node {\\n          id\\n          __typename\\n          message {\\n            text\\n          }\\n          ...NonNodeStory_feedUnit\\n        }\\n      }\\n    }\\n  }\\n}\\n\\nfragment NonNodeStory_feedUnit on FeedUnit {\\n  __typename\\n  id\\n  actor {\\n    name\\n    __typename\\n  }\\n}\\n\\nquery TypeNameExistsWithFlattenTransformQuery {\\n  node(id: \\"123\\") {\\n    comments(first: 10) {\\n      edges {\\n        node {\\n          id\\n          ...CommentFragment_comment\\n        }\\n      }\\n    }\\n  }\\n}\\n\\nfragment CommentFragment_comment on Comment {\\n  body {\\n    text\\n  }\\n}\\n",
+      "name": "GraphQL request",
+      "locationOffset": {
+        "line": 1,
+        "column": 1
+      }
+    }
+  },
   "metadata": null,
   "name": "EasyTypeNameExistsQuery",
   "argumentDefinitions": [],
@@ -362,6 +671,18 @@ fragment CommentFragment_comment on Comment {
       "alias": null,
       "args": [],
       "directives": [],
+      "loc": {
+        "start": 34,
+        "end": 243,
+        "source": {
+          "body": "query EasyTypeNameExistsQuery {\\n  viewer {\\n    newsFeed(first: 10) {\\n      edges {\\n        node {\\n          id\\n          __typename\\n          message {\\n            text\\n          }\\n          ...NonNodeStory_feedUnit\\n        }\\n      }\\n    }\\n  }\\n}\\n\\nfragment NonNodeStory_feedUnit on FeedUnit {\\n  __typename\\n  id\\n  actor {\\n    name\\n    __typename\\n  }\\n}\\n\\nquery TypeNameExistsWithFlattenTransformQuery {\\n  node(id: \\"123\\") {\\n    comments(first: 10) {\\n      edges {\\n        node {\\n          id\\n          ...CommentFragment_comment\\n        }\\n      }\\n    }\\n  }\\n}\\n\\nfragment CommentFragment_comment on Comment {\\n  body {\\n    text\\n  }\\n}\\n",
+          "name": "GraphQL request",
+          "locationOffset": {
+            "line": 1,
+            "column": 1
+          }
+        }
+      },
       "metadata": null,
       "name": "viewer",
       "selections": [
@@ -371,10 +692,34 @@ fragment CommentFragment_comment on Comment {
           "args": [
             {
               "kind": "Argument",
+              "loc": {
+                "start": 56,
+                "end": 65,
+                "source": {
+                  "body": "query EasyTypeNameExistsQuery {\\n  viewer {\\n    newsFeed(first: 10) {\\n      edges {\\n        node {\\n          id\\n          __typename\\n          message {\\n            text\\n          }\\n          ...NonNodeStory_feedUnit\\n        }\\n      }\\n    }\\n  }\\n}\\n\\nfragment NonNodeStory_feedUnit on FeedUnit {\\n  __typename\\n  id\\n  actor {\\n    name\\n    __typename\\n  }\\n}\\n\\nquery TypeNameExistsWithFlattenTransformQuery {\\n  node(id: \\"123\\") {\\n    comments(first: 10) {\\n      edges {\\n        node {\\n          id\\n          ...CommentFragment_comment\\n        }\\n      }\\n    }\\n  }\\n}\\n\\nfragment CommentFragment_comment on Comment {\\n  body {\\n    text\\n  }\\n}\\n",
+                  "name": "GraphQL request",
+                  "locationOffset": {
+                    "line": 1,
+                    "column": 1
+                  }
+                }
+              },
               "metadata": null,
               "name": "first",
               "value": {
                 "kind": "Literal",
+                "loc": {
+                  "start": 63,
+                  "end": 65,
+                  "source": {
+                    "body": "query EasyTypeNameExistsQuery {\\n  viewer {\\n    newsFeed(first: 10) {\\n      edges {\\n        node {\\n          id\\n          __typename\\n          message {\\n            text\\n          }\\n          ...NonNodeStory_feedUnit\\n        }\\n      }\\n    }\\n  }\\n}\\n\\nfragment NonNodeStory_feedUnit on FeedUnit {\\n  __typename\\n  id\\n  actor {\\n    name\\n    __typename\\n  }\\n}\\n\\nquery TypeNameExistsWithFlattenTransformQuery {\\n  node(id: \\"123\\") {\\n    comments(first: 10) {\\n      edges {\\n        node {\\n          id\\n          ...CommentFragment_comment\\n        }\\n      }\\n    }\\n  }\\n}\\n\\nfragment CommentFragment_comment on Comment {\\n  body {\\n    text\\n  }\\n}\\n",
+                    "name": "GraphQL request",
+                    "locationOffset": {
+                      "line": 1,
+                      "column": 1
+                    }
+                  }
+                },
                 "metadata": null,
                 "value": 10
               },
@@ -382,6 +727,18 @@ fragment CommentFragment_comment on Comment {
             }
           ],
           "directives": [],
+          "loc": {
+            "start": 47,
+            "end": 239,
+            "source": {
+              "body": "query EasyTypeNameExistsQuery {\\n  viewer {\\n    newsFeed(first: 10) {\\n      edges {\\n        node {\\n          id\\n          __typename\\n          message {\\n            text\\n          }\\n          ...NonNodeStory_feedUnit\\n        }\\n      }\\n    }\\n  }\\n}\\n\\nfragment NonNodeStory_feedUnit on FeedUnit {\\n  __typename\\n  id\\n  actor {\\n    name\\n    __typename\\n  }\\n}\\n\\nquery TypeNameExistsWithFlattenTransformQuery {\\n  node(id: \\"123\\") {\\n    comments(first: 10) {\\n      edges {\\n        node {\\n          id\\n          ...CommentFragment_comment\\n        }\\n      }\\n    }\\n  }\\n}\\n\\nfragment CommentFragment_comment on Comment {\\n  body {\\n    text\\n  }\\n}\\n",
+              "name": "GraphQL request",
+              "locationOffset": {
+                "line": 1,
+                "column": 1
+              }
+            }
+          },
           "metadata": null,
           "name": "newsFeed",
           "selections": [
@@ -390,6 +747,18 @@ fragment CommentFragment_comment on Comment {
               "alias": null,
               "args": [],
               "directives": [],
+              "loc": {
+                "start": 75,
+                "end": 233,
+                "source": {
+                  "body": "query EasyTypeNameExistsQuery {\\n  viewer {\\n    newsFeed(first: 10) {\\n      edges {\\n        node {\\n          id\\n          __typename\\n          message {\\n            text\\n          }\\n          ...NonNodeStory_feedUnit\\n        }\\n      }\\n    }\\n  }\\n}\\n\\nfragment NonNodeStory_feedUnit on FeedUnit {\\n  __typename\\n  id\\n  actor {\\n    name\\n    __typename\\n  }\\n}\\n\\nquery TypeNameExistsWithFlattenTransformQuery {\\n  node(id: \\"123\\") {\\n    comments(first: 10) {\\n      edges {\\n        node {\\n          id\\n          ...CommentFragment_comment\\n        }\\n      }\\n    }\\n  }\\n}\\n\\nfragment CommentFragment_comment on Comment {\\n  body {\\n    text\\n  }\\n}\\n",
+                  "name": "GraphQL request",
+                  "locationOffset": {
+                    "line": 1,
+                    "column": 1
+                  }
+                }
+              },
               "metadata": null,
               "name": "edges",
               "selections": [
@@ -398,6 +767,18 @@ fragment CommentFragment_comment on Comment {
                   "alias": null,
                   "args": [],
                   "directives": [],
+                  "loc": {
+                    "start": 91,
+                    "end": 225,
+                    "source": {
+                      "body": "query EasyTypeNameExistsQuery {\\n  viewer {\\n    newsFeed(first: 10) {\\n      edges {\\n        node {\\n          id\\n          __typename\\n          message {\\n            text\\n          }\\n          ...NonNodeStory_feedUnit\\n        }\\n      }\\n    }\\n  }\\n}\\n\\nfragment NonNodeStory_feedUnit on FeedUnit {\\n  __typename\\n  id\\n  actor {\\n    name\\n    __typename\\n  }\\n}\\n\\nquery TypeNameExistsWithFlattenTransformQuery {\\n  node(id: \\"123\\") {\\n    comments(first: 10) {\\n      edges {\\n        node {\\n          id\\n          ...CommentFragment_comment\\n        }\\n      }\\n    }\\n  }\\n}\\n\\nfragment CommentFragment_comment on Comment {\\n  body {\\n    text\\n  }\\n}\\n",
+                      "name": "GraphQL request",
+                      "locationOffset": {
+                        "line": 1,
+                        "column": 1
+                      }
+                    }
+                  },
                   "metadata": null,
                   "name": "node",
                   "selections": [
@@ -406,6 +787,18 @@ fragment CommentFragment_comment on Comment {
                       "alias": null,
                       "args": [],
                       "directives": [],
+                      "loc": {
+                        "start": 108,
+                        "end": 110,
+                        "source": {
+                          "body": "query EasyTypeNameExistsQuery {\\n  viewer {\\n    newsFeed(first: 10) {\\n      edges {\\n        node {\\n          id\\n          __typename\\n          message {\\n            text\\n          }\\n          ...NonNodeStory_feedUnit\\n        }\\n      }\\n    }\\n  }\\n}\\n\\nfragment NonNodeStory_feedUnit on FeedUnit {\\n  __typename\\n  id\\n  actor {\\n    name\\n    __typename\\n  }\\n}\\n\\nquery TypeNameExistsWithFlattenTransformQuery {\\n  node(id: \\"123\\") {\\n    comments(first: 10) {\\n      edges {\\n        node {\\n          id\\n          ...CommentFragment_comment\\n        }\\n      }\\n    }\\n  }\\n}\\n\\nfragment CommentFragment_comment on Comment {\\n  body {\\n    text\\n  }\\n}\\n",
+                          "name": "GraphQL request",
+                          "locationOffset": {
+                            "line": 1,
+                            "column": 1
+                          }
+                        }
+                      },
                       "metadata": null,
                       "name": "id",
                       "type": "ID!"
@@ -415,6 +808,18 @@ fragment CommentFragment_comment on Comment {
                       "alias": null,
                       "args": [],
                       "directives": [],
+                      "loc": {
+                        "start": 121,
+                        "end": 131,
+                        "source": {
+                          "body": "query EasyTypeNameExistsQuery {\\n  viewer {\\n    newsFeed(first: 10) {\\n      edges {\\n        node {\\n          id\\n          __typename\\n          message {\\n            text\\n          }\\n          ...NonNodeStory_feedUnit\\n        }\\n      }\\n    }\\n  }\\n}\\n\\nfragment NonNodeStory_feedUnit on FeedUnit {\\n  __typename\\n  id\\n  actor {\\n    name\\n    __typename\\n  }\\n}\\n\\nquery TypeNameExistsWithFlattenTransformQuery {\\n  node(id: \\"123\\") {\\n    comments(first: 10) {\\n      edges {\\n        node {\\n          id\\n          ...CommentFragment_comment\\n        }\\n      }\\n    }\\n  }\\n}\\n\\nfragment CommentFragment_comment on Comment {\\n  body {\\n    text\\n  }\\n}\\n",
+                          "name": "GraphQL request",
+                          "locationOffset": {
+                            "line": 1,
+                            "column": 1
+                          }
+                        }
+                      },
                       "metadata": null,
                       "name": "__typename",
                       "type": "String!"
@@ -424,6 +829,18 @@ fragment CommentFragment_comment on Comment {
                       "alias": null,
                       "args": [],
                       "directives": [],
+                      "loc": {
+                        "start": 142,
+                        "end": 180,
+                        "source": {
+                          "body": "query EasyTypeNameExistsQuery {\\n  viewer {\\n    newsFeed(first: 10) {\\n      edges {\\n        node {\\n          id\\n          __typename\\n          message {\\n            text\\n          }\\n          ...NonNodeStory_feedUnit\\n        }\\n      }\\n    }\\n  }\\n}\\n\\nfragment NonNodeStory_feedUnit on FeedUnit {\\n  __typename\\n  id\\n  actor {\\n    name\\n    __typename\\n  }\\n}\\n\\nquery TypeNameExistsWithFlattenTransformQuery {\\n  node(id: \\"123\\") {\\n    comments(first: 10) {\\n      edges {\\n        node {\\n          id\\n          ...CommentFragment_comment\\n        }\\n      }\\n    }\\n  }\\n}\\n\\nfragment CommentFragment_comment on Comment {\\n  body {\\n    text\\n  }\\n}\\n",
+                          "name": "GraphQL request",
+                          "locationOffset": {
+                            "line": 1,
+                            "column": 1
+                          }
+                        }
+                      },
                       "metadata": null,
                       "name": "message",
                       "selections": [
@@ -432,6 +849,18 @@ fragment CommentFragment_comment on Comment {
                           "alias": null,
                           "args": [],
                           "directives": [],
+                          "loc": {
+                            "start": 164,
+                            "end": 168,
+                            "source": {
+                              "body": "query EasyTypeNameExistsQuery {\\n  viewer {\\n    newsFeed(first: 10) {\\n      edges {\\n        node {\\n          id\\n          __typename\\n          message {\\n            text\\n          }\\n          ...NonNodeStory_feedUnit\\n        }\\n      }\\n    }\\n  }\\n}\\n\\nfragment NonNodeStory_feedUnit on FeedUnit {\\n  __typename\\n  id\\n  actor {\\n    name\\n    __typename\\n  }\\n}\\n\\nquery TypeNameExistsWithFlattenTransformQuery {\\n  node(id: \\"123\\") {\\n    comments(first: 10) {\\n      edges {\\n        node {\\n          id\\n          ...CommentFragment_comment\\n        }\\n      }\\n    }\\n  }\\n}\\n\\nfragment CommentFragment_comment on Comment {\\n  body {\\n    text\\n  }\\n}\\n",
+                              "name": "GraphQL request",
+                              "locationOffset": {
+                                "line": 1,
+                                "column": 1
+                              }
+                            }
+                          },
                           "metadata": null,
                           "name": "text",
                           "type": "String"
@@ -444,6 +873,18 @@ fragment CommentFragment_comment on Comment {
                       "alias": null,
                       "args": [],
                       "directives": [],
+                      "loc": {
+                        "start": 312,
+                        "end": 347,
+                        "source": {
+                          "body": "query EasyTypeNameExistsQuery {\\n  viewer {\\n    newsFeed(first: 10) {\\n      edges {\\n        node {\\n          id\\n          __typename\\n          message {\\n            text\\n          }\\n          ...NonNodeStory_feedUnit\\n        }\\n      }\\n    }\\n  }\\n}\\n\\nfragment NonNodeStory_feedUnit on FeedUnit {\\n  __typename\\n  id\\n  actor {\\n    name\\n    __typename\\n  }\\n}\\n\\nquery TypeNameExistsWithFlattenTransformQuery {\\n  node(id: \\"123\\") {\\n    comments(first: 10) {\\n      edges {\\n        node {\\n          id\\n          ...CommentFragment_comment\\n        }\\n      }\\n    }\\n  }\\n}\\n\\nfragment CommentFragment_comment on Comment {\\n  body {\\n    text\\n  }\\n}\\n",
+                          "name": "GraphQL request",
+                          "locationOffset": {
+                            "line": 1,
+                            "column": 1
+                          }
+                        }
+                      },
                       "metadata": null,
                       "name": "actor",
                       "selections": [
@@ -452,6 +893,18 @@ fragment CommentFragment_comment on Comment {
                           "alias": null,
                           "args": [],
                           "directives": [],
+                          "loc": {
+                            "start": 324,
+                            "end": 328,
+                            "source": {
+                              "body": "query EasyTypeNameExistsQuery {\\n  viewer {\\n    newsFeed(first: 10) {\\n      edges {\\n        node {\\n          id\\n          __typename\\n          message {\\n            text\\n          }\\n          ...NonNodeStory_feedUnit\\n        }\\n      }\\n    }\\n  }\\n}\\n\\nfragment NonNodeStory_feedUnit on FeedUnit {\\n  __typename\\n  id\\n  actor {\\n    name\\n    __typename\\n  }\\n}\\n\\nquery TypeNameExistsWithFlattenTransformQuery {\\n  node(id: \\"123\\") {\\n    comments(first: 10) {\\n      edges {\\n        node {\\n          id\\n          ...CommentFragment_comment\\n        }\\n      }\\n    }\\n  }\\n}\\n\\nfragment CommentFragment_comment on Comment {\\n  body {\\n    text\\n  }\\n}\\n",
+                              "name": "GraphQL request",
+                              "locationOffset": {
+                                "line": 1,
+                                "column": 1
+                              }
+                            }
+                          },
                           "metadata": null,
                           "name": "name",
                           "type": "String"
@@ -461,6 +914,18 @@ fragment CommentFragment_comment on Comment {
                           "alias": null,
                           "args": [],
                           "directives": [],
+                          "loc": {
+                            "start": 333,
+                            "end": 343,
+                            "source": {
+                              "body": "query EasyTypeNameExistsQuery {\\n  viewer {\\n    newsFeed(first: 10) {\\n      edges {\\n        node {\\n          id\\n          __typename\\n          message {\\n            text\\n          }\\n          ...NonNodeStory_feedUnit\\n        }\\n      }\\n    }\\n  }\\n}\\n\\nfragment NonNodeStory_feedUnit on FeedUnit {\\n  __typename\\n  id\\n  actor {\\n    name\\n    __typename\\n  }\\n}\\n\\nquery TypeNameExistsWithFlattenTransformQuery {\\n  node(id: \\"123\\") {\\n    comments(first: 10) {\\n      edges {\\n        node {\\n          id\\n          ...CommentFragment_comment\\n        }\\n      }\\n    }\\n  }\\n}\\n\\nfragment CommentFragment_comment on Comment {\\n  body {\\n    text\\n  }\\n}\\n",
+                              "name": "GraphQL request",
+                              "locationOffset": {
+                                "line": 1,
+                                "column": 1
+                              }
+                            }
+                          },
                           "metadata": null,
                           "name": "__typename",
                           "type": "String!"
@@ -486,6 +951,18 @@ fragment CommentFragment_comment on Comment {
 {
   "kind": "Root",
   "operation": "query",
+  "loc": {
+    "start": 351,
+    "end": 553,
+    "source": {
+      "body": "query EasyTypeNameExistsQuery {\\n  viewer {\\n    newsFeed(first: 10) {\\n      edges {\\n        node {\\n          id\\n          __typename\\n          message {\\n            text\\n          }\\n          ...NonNodeStory_feedUnit\\n        }\\n      }\\n    }\\n  }\\n}\\n\\nfragment NonNodeStory_feedUnit on FeedUnit {\\n  __typename\\n  id\\n  actor {\\n    name\\n    __typename\\n  }\\n}\\n\\nquery TypeNameExistsWithFlattenTransformQuery {\\n  node(id: \\"123\\") {\\n    comments(first: 10) {\\n      edges {\\n        node {\\n          id\\n          ...CommentFragment_comment\\n        }\\n      }\\n    }\\n  }\\n}\\n\\nfragment CommentFragment_comment on Comment {\\n  body {\\n    text\\n  }\\n}\\n",
+      "name": "GraphQL request",
+      "locationOffset": {
+        "line": 1,
+        "column": 1
+      }
+    }
+  },
   "metadata": null,
   "name": "TypeNameExistsWithFlattenTransformQuery",
   "argumentDefinitions": [],
@@ -497,10 +974,34 @@ fragment CommentFragment_comment on Comment {
       "args": [
         {
           "kind": "Argument",
+          "loc": {
+            "start": 406,
+            "end": 415,
+            "source": {
+              "body": "query EasyTypeNameExistsQuery {\\n  viewer {\\n    newsFeed(first: 10) {\\n      edges {\\n        node {\\n          id\\n          __typename\\n          message {\\n            text\\n          }\\n          ...NonNodeStory_feedUnit\\n        }\\n      }\\n    }\\n  }\\n}\\n\\nfragment NonNodeStory_feedUnit on FeedUnit {\\n  __typename\\n  id\\n  actor {\\n    name\\n    __typename\\n  }\\n}\\n\\nquery TypeNameExistsWithFlattenTransformQuery {\\n  node(id: \\"123\\") {\\n    comments(first: 10) {\\n      edges {\\n        node {\\n          id\\n          ...CommentFragment_comment\\n        }\\n      }\\n    }\\n  }\\n}\\n\\nfragment CommentFragment_comment on Comment {\\n  body {\\n    text\\n  }\\n}\\n",
+              "name": "GraphQL request",
+              "locationOffset": {
+                "line": 1,
+                "column": 1
+              }
+            }
+          },
           "metadata": null,
           "name": "id",
           "value": {
             "kind": "Literal",
+            "loc": {
+              "start": 410,
+              "end": 415,
+              "source": {
+                "body": "query EasyTypeNameExistsQuery {\\n  viewer {\\n    newsFeed(first: 10) {\\n      edges {\\n        node {\\n          id\\n          __typename\\n          message {\\n            text\\n          }\\n          ...NonNodeStory_feedUnit\\n        }\\n      }\\n    }\\n  }\\n}\\n\\nfragment NonNodeStory_feedUnit on FeedUnit {\\n  __typename\\n  id\\n  actor {\\n    name\\n    __typename\\n  }\\n}\\n\\nquery TypeNameExistsWithFlattenTransformQuery {\\n  node(id: \\"123\\") {\\n    comments(first: 10) {\\n      edges {\\n        node {\\n          id\\n          ...CommentFragment_comment\\n        }\\n      }\\n    }\\n  }\\n}\\n\\nfragment CommentFragment_comment on Comment {\\n  body {\\n    text\\n  }\\n}\\n",
+                "name": "GraphQL request",
+                "locationOffset": {
+                  "line": 1,
+                  "column": 1
+                }
+              }
+            },
             "metadata": null,
             "value": "123"
           },
@@ -508,6 +1009,18 @@ fragment CommentFragment_comment on Comment {
         }
       ],
       "directives": [],
+      "loc": {
+        "start": 401,
+        "end": 551,
+        "source": {
+          "body": "query EasyTypeNameExistsQuery {\\n  viewer {\\n    newsFeed(first: 10) {\\n      edges {\\n        node {\\n          id\\n          __typename\\n          message {\\n            text\\n          }\\n          ...NonNodeStory_feedUnit\\n        }\\n      }\\n    }\\n  }\\n}\\n\\nfragment NonNodeStory_feedUnit on FeedUnit {\\n  __typename\\n  id\\n  actor {\\n    name\\n    __typename\\n  }\\n}\\n\\nquery TypeNameExistsWithFlattenTransformQuery {\\n  node(id: \\"123\\") {\\n    comments(first: 10) {\\n      edges {\\n        node {\\n          id\\n          ...CommentFragment_comment\\n        }\\n      }\\n    }\\n  }\\n}\\n\\nfragment CommentFragment_comment on Comment {\\n  body {\\n    text\\n  }\\n}\\n",
+          "name": "GraphQL request",
+          "locationOffset": {
+            "line": 1,
+            "column": 1
+          }
+        }
+      },
       "metadata": null,
       "name": "node",
       "selections": [
@@ -517,6 +1030,9 @@ fragment CommentFragment_comment on Comment {
           "args": [],
           "directives": [],
           "handles": null,
+          "loc": {
+            "generated": true
+          },
           "metadata": null,
           "name": "__typename",
           "type": "String"
@@ -527,10 +1043,34 @@ fragment CommentFragment_comment on Comment {
           "args": [
             {
               "kind": "Argument",
+              "loc": {
+                "start": 432,
+                "end": 441,
+                "source": {
+                  "body": "query EasyTypeNameExistsQuery {\\n  viewer {\\n    newsFeed(first: 10) {\\n      edges {\\n        node {\\n          id\\n          __typename\\n          message {\\n            text\\n          }\\n          ...NonNodeStory_feedUnit\\n        }\\n      }\\n    }\\n  }\\n}\\n\\nfragment NonNodeStory_feedUnit on FeedUnit {\\n  __typename\\n  id\\n  actor {\\n    name\\n    __typename\\n  }\\n}\\n\\nquery TypeNameExistsWithFlattenTransformQuery {\\n  node(id: \\"123\\") {\\n    comments(first: 10) {\\n      edges {\\n        node {\\n          id\\n          ...CommentFragment_comment\\n        }\\n      }\\n    }\\n  }\\n}\\n\\nfragment CommentFragment_comment on Comment {\\n  body {\\n    text\\n  }\\n}\\n",
+                  "name": "GraphQL request",
+                  "locationOffset": {
+                    "line": 1,
+                    "column": 1
+                  }
+                }
+              },
               "metadata": null,
               "name": "first",
               "value": {
                 "kind": "Literal",
+                "loc": {
+                  "start": 439,
+                  "end": 441,
+                  "source": {
+                    "body": "query EasyTypeNameExistsQuery {\\n  viewer {\\n    newsFeed(first: 10) {\\n      edges {\\n        node {\\n          id\\n          __typename\\n          message {\\n            text\\n          }\\n          ...NonNodeStory_feedUnit\\n        }\\n      }\\n    }\\n  }\\n}\\n\\nfragment NonNodeStory_feedUnit on FeedUnit {\\n  __typename\\n  id\\n  actor {\\n    name\\n    __typename\\n  }\\n}\\n\\nquery TypeNameExistsWithFlattenTransformQuery {\\n  node(id: \\"123\\") {\\n    comments(first: 10) {\\n      edges {\\n        node {\\n          id\\n          ...CommentFragment_comment\\n        }\\n      }\\n    }\\n  }\\n}\\n\\nfragment CommentFragment_comment on Comment {\\n  body {\\n    text\\n  }\\n}\\n",
+                    "name": "GraphQL request",
+                    "locationOffset": {
+                      "line": 1,
+                      "column": 1
+                    }
+                  }
+                },
                 "metadata": null,
                 "value": 10
               },
@@ -538,6 +1078,18 @@ fragment CommentFragment_comment on Comment {
             }
           ],
           "directives": [],
+          "loc": {
+            "start": 423,
+            "end": 547,
+            "source": {
+              "body": "query EasyTypeNameExistsQuery {\\n  viewer {\\n    newsFeed(first: 10) {\\n      edges {\\n        node {\\n          id\\n          __typename\\n          message {\\n            text\\n          }\\n          ...NonNodeStory_feedUnit\\n        }\\n      }\\n    }\\n  }\\n}\\n\\nfragment NonNodeStory_feedUnit on FeedUnit {\\n  __typename\\n  id\\n  actor {\\n    name\\n    __typename\\n  }\\n}\\n\\nquery TypeNameExistsWithFlattenTransformQuery {\\n  node(id: \\"123\\") {\\n    comments(first: 10) {\\n      edges {\\n        node {\\n          id\\n          ...CommentFragment_comment\\n        }\\n      }\\n    }\\n  }\\n}\\n\\nfragment CommentFragment_comment on Comment {\\n  body {\\n    text\\n  }\\n}\\n",
+              "name": "GraphQL request",
+              "locationOffset": {
+                "line": 1,
+                "column": 1
+              }
+            }
+          },
           "metadata": null,
           "name": "comments",
           "selections": [
@@ -546,6 +1098,18 @@ fragment CommentFragment_comment on Comment {
               "alias": null,
               "args": [],
               "directives": [],
+              "loc": {
+                "start": 451,
+                "end": 541,
+                "source": {
+                  "body": "query EasyTypeNameExistsQuery {\\n  viewer {\\n    newsFeed(first: 10) {\\n      edges {\\n        node {\\n          id\\n          __typename\\n          message {\\n            text\\n          }\\n          ...NonNodeStory_feedUnit\\n        }\\n      }\\n    }\\n  }\\n}\\n\\nfragment NonNodeStory_feedUnit on FeedUnit {\\n  __typename\\n  id\\n  actor {\\n    name\\n    __typename\\n  }\\n}\\n\\nquery TypeNameExistsWithFlattenTransformQuery {\\n  node(id: \\"123\\") {\\n    comments(first: 10) {\\n      edges {\\n        node {\\n          id\\n          ...CommentFragment_comment\\n        }\\n      }\\n    }\\n  }\\n}\\n\\nfragment CommentFragment_comment on Comment {\\n  body {\\n    text\\n  }\\n}\\n",
+                  "name": "GraphQL request",
+                  "locationOffset": {
+                    "line": 1,
+                    "column": 1
+                  }
+                }
+              },
               "metadata": null,
               "name": "edges",
               "selections": [
@@ -554,6 +1118,18 @@ fragment CommentFragment_comment on Comment {
                   "alias": null,
                   "args": [],
                   "directives": [],
+                  "loc": {
+                    "start": 467,
+                    "end": 533,
+                    "source": {
+                      "body": "query EasyTypeNameExistsQuery {\\n  viewer {\\n    newsFeed(first: 10) {\\n      edges {\\n        node {\\n          id\\n          __typename\\n          message {\\n            text\\n          }\\n          ...NonNodeStory_feedUnit\\n        }\\n      }\\n    }\\n  }\\n}\\n\\nfragment NonNodeStory_feedUnit on FeedUnit {\\n  __typename\\n  id\\n  actor {\\n    name\\n    __typename\\n  }\\n}\\n\\nquery TypeNameExistsWithFlattenTransformQuery {\\n  node(id: \\"123\\") {\\n    comments(first: 10) {\\n      edges {\\n        node {\\n          id\\n          ...CommentFragment_comment\\n        }\\n      }\\n    }\\n  }\\n}\\n\\nfragment CommentFragment_comment on Comment {\\n  body {\\n    text\\n  }\\n}\\n",
+                      "name": "GraphQL request",
+                      "locationOffset": {
+                        "line": 1,
+                        "column": 1
+                      }
+                    }
+                  },
                   "metadata": null,
                   "name": "node",
                   "selections": [
@@ -562,6 +1138,18 @@ fragment CommentFragment_comment on Comment {
                       "alias": null,
                       "args": [],
                       "directives": [],
+                      "loc": {
+                        "start": 484,
+                        "end": 486,
+                        "source": {
+                          "body": "query EasyTypeNameExistsQuery {\\n  viewer {\\n    newsFeed(first: 10) {\\n      edges {\\n        node {\\n          id\\n          __typename\\n          message {\\n            text\\n          }\\n          ...NonNodeStory_feedUnit\\n        }\\n      }\\n    }\\n  }\\n}\\n\\nfragment NonNodeStory_feedUnit on FeedUnit {\\n  __typename\\n  id\\n  actor {\\n    name\\n    __typename\\n  }\\n}\\n\\nquery TypeNameExistsWithFlattenTransformQuery {\\n  node(id: \\"123\\") {\\n    comments(first: 10) {\\n      edges {\\n        node {\\n          id\\n          ...CommentFragment_comment\\n        }\\n      }\\n    }\\n  }\\n}\\n\\nfragment CommentFragment_comment on Comment {\\n  body {\\n    text\\n  }\\n}\\n",
+                          "name": "GraphQL request",
+                          "locationOffset": {
+                            "line": 1,
+                            "column": 1
+                          }
+                        }
+                      },
                       "metadata": null,
                       "name": "id",
                       "type": "ID!"
@@ -571,6 +1159,18 @@ fragment CommentFragment_comment on Comment {
                       "alias": null,
                       "args": [],
                       "directives": [],
+                      "loc": {
+                        "start": 603,
+                        "end": 622,
+                        "source": {
+                          "body": "query EasyTypeNameExistsQuery {\\n  viewer {\\n    newsFeed(first: 10) {\\n      edges {\\n        node {\\n          id\\n          __typename\\n          message {\\n            text\\n          }\\n          ...NonNodeStory_feedUnit\\n        }\\n      }\\n    }\\n  }\\n}\\n\\nfragment NonNodeStory_feedUnit on FeedUnit {\\n  __typename\\n  id\\n  actor {\\n    name\\n    __typename\\n  }\\n}\\n\\nquery TypeNameExistsWithFlattenTransformQuery {\\n  node(id: \\"123\\") {\\n    comments(first: 10) {\\n      edges {\\n        node {\\n          id\\n          ...CommentFragment_comment\\n        }\\n      }\\n    }\\n  }\\n}\\n\\nfragment CommentFragment_comment on Comment {\\n  body {\\n    text\\n  }\\n}\\n",
+                          "name": "GraphQL request",
+                          "locationOffset": {
+                            "line": 1,
+                            "column": 1
+                          }
+                        }
+                      },
                       "metadata": null,
                       "name": "body",
                       "selections": [
@@ -579,6 +1179,18 @@ fragment CommentFragment_comment on Comment {
                           "alias": null,
                           "args": [],
                           "directives": [],
+                          "loc": {
+                            "start": 614,
+                            "end": 618,
+                            "source": {
+                              "body": "query EasyTypeNameExistsQuery {\\n  viewer {\\n    newsFeed(first: 10) {\\n      edges {\\n        node {\\n          id\\n          __typename\\n          message {\\n            text\\n          }\\n          ...NonNodeStory_feedUnit\\n        }\\n      }\\n    }\\n  }\\n}\\n\\nfragment NonNodeStory_feedUnit on FeedUnit {\\n  __typename\\n  id\\n  actor {\\n    name\\n    __typename\\n  }\\n}\\n\\nquery TypeNameExistsWithFlattenTransformQuery {\\n  node(id: \\"123\\") {\\n    comments(first: 10) {\\n      edges {\\n        node {\\n          id\\n          ...CommentFragment_comment\\n        }\\n      }\\n    }\\n  }\\n}\\n\\nfragment CommentFragment_comment on Comment {\\n  body {\\n    text\\n  }\\n}\\n",
+                              "name": "GraphQL request",
+                              "locationOffset": {
+                                "line": 1,
+                                "column": 1
+                              }
+                            }
+                          },
                           "metadata": null,
                           "name": "text",
                           "type": "String"

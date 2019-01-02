@@ -48,6 +48,7 @@ describe('RelayCodeGenerator', () => {
                   kind: 'Request',
                   fragment: (null: $FlowFixMe),
                   id: null,
+                  loc: doc.loc,
                   metadata: {},
                   name: doc.name,
                   root: doc,

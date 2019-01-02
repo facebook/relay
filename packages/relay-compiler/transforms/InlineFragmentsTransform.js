@@ -44,6 +44,7 @@ function visitFragmentSpread(fragmentSpread: FragmentSpread): ?FragmentSpread {
   const result: InlineFragment = {
     kind: 'InlineFragment',
     directives: fragmentSpread.directives,
+    loc: {source: fragmentSpread.loc},
     metadata: fragmentSpread.metadata,
     selections: fragment.selections,
     typeCondition: fragment.type,

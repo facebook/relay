@@ -18,12 +18,33 @@ import type {
   GraphQLList,
   GraphQLNonNull,
   GraphQLUnionType,
+  Source,
 } from 'graphql';
 
 export type Metadata = ?{[key: string]: mixed};
 
+export type SourceLocation = {|
+  +start: number,
+  +end: number,
+  +source: Source,
+|};
+export type GeneratedLocation = {|
+  +generated: true,
+|};
+export type DerivedLocation = {|
+  +source: Location,
+|};
+export type UnknownLocation = {|+unknown: true|};
+
+export type Location =
+  | SourceLocation
+  | GeneratedLocation
+  | DerivedLocation
+  | UnknownLocation;
+
 export type Argument = {|
   +kind: 'Argument',
+  +loc: Location,
   +metadata: Metadata,
   +name: string,
   +type: ?GraphQLInputType,
@@ -39,6 +60,7 @@ export type ArgumentValue = ListValue | Literal | ObjectValue | Variable;
 export type Condition = {|
   +kind: 'Condition',
   +condition: Literal | Variable,
+  +loc: Location,
   +metadata: Metadata,
   +passingValue: boolean,
   +selections: $ReadOnlyArray<Selection>,
@@ -47,6 +69,7 @@ export type Condition = {|
 export type Directive = {|
   +args: $ReadOnlyArray<Argument>,
   +kind: 'Directive',
+  +loc: Location,
   +metadata: Metadata,
   +name: string,
 |};
@@ -57,6 +80,7 @@ export type Fragment = {|
   +argumentDefinitions: $ReadOnlyArray<ArgumentDefinition>,
   +directives: $ReadOnlyArray<Directive>,
   +kind: 'Fragment',
+  +loc: Location,
   +metadata: Metadata,
   +name: string,
   +selections: $ReadOnlyArray<Selection>,
@@ -67,6 +91,7 @@ export type FragmentSpread = {|
   +args: $ReadOnlyArray<Argument>,
   +directives: $ReadOnlyArray<Directive>,
   +kind: 'FragmentSpread',
+  +loc: Location,
   +metadata: Metadata,
   +name: string,
 |};
@@ -95,6 +120,7 @@ export type IR =
 
 export type RootArgumentDefinition = {|
   +kind: 'RootArgumentDefinition',
+  +loc: Location,
   +metadata: Metadata,
   +name: string,
   +type: GraphQLInputType,
@@ -103,6 +129,7 @@ export type RootArgumentDefinition = {|
 export type InlineFragment = {|
   +directives: $ReadOnlyArray<Directive>,
   +kind: 'InlineFragment',
+  +loc: Location,
   +metadata: Metadata,
   +selections: $ReadOnlyArray<Selection>,
   +typeCondition: GraphQLCompositeType,
@@ -120,6 +147,7 @@ export type LinkedField = {|
   +directives: $ReadOnlyArray<Directive>,
   +handles: ?$ReadOnlyArray<Handle>,
   +kind: 'LinkedField',
+  +loc: Location,
   +metadata: Metadata,
   +name: string,
   +selections: $ReadOnlyArray<Selection>,
@@ -129,11 +157,13 @@ export type LinkedField = {|
 export type ListValue = {|
   +kind: 'ListValue',
   +items: $ReadOnlyArray<ArgumentValue>,
+  +loc: Location,
   +metadata: Metadata,
 |};
 
 export type Literal = {|
   +kind: 'Literal',
+  +loc: Location,
   +metadata: Metadata,
   +value: mixed,
 |};
@@ -141,6 +171,7 @@ export type Literal = {|
 export type LocalArgumentDefinition = {|
   +defaultValue: mixed,
   +kind: 'LocalArgumentDefinition',
+  +loc: Location,
   +metadata: Metadata,
   +name: string,
   +type: GraphQLInputType,
@@ -148,6 +179,7 @@ export type LocalArgumentDefinition = {|
 
 export type MatchBranch = {|
   +kind: 'MatchBranch',
+  +loc: Location,
   +module: string,
   // the name of the original FragmentSpread from which the branch was created
   +name: string,
@@ -161,6 +193,7 @@ export type MatchField = {|
   +directives: $ReadOnlyArray<Directive>,
   +handles: ?$ReadOnlyArray<Handle>,
   +kind: 'MatchField',
+  +loc: Location,
   +metadata: Metadata,
   +name: string,
   +type: GraphQLUnionType | GraphQLNonNull<GraphQLUnionType>,
@@ -179,6 +212,7 @@ export type Node =
 
 export type ObjectFieldValue = {|
   +kind: 'ObjectFieldValue',
+  +loc: Location,
   +metadata: Metadata,
   +name: string,
   +value: ArgumentValue,
@@ -187,6 +221,7 @@ export type ObjectFieldValue = {|
 export type ObjectValue = {|
   +kind: 'ObjectValue',
   +fields: $ReadOnlyArray<ObjectFieldValue>,
+  +loc: Location,
   +metadata: Metadata,
 |};
 
@@ -194,6 +229,7 @@ export type Request = {|
   +kind: 'Request',
   +fragment: Fragment,
   +id: ?string,
+  +loc: Location,
   +metadata: Metadata,
   +name: string,
   +root: Root,
@@ -204,6 +240,7 @@ export type Root = {|
   +argumentDefinitions: $ReadOnlyArray<LocalArgumentDefinition>,
   +directives: $ReadOnlyArray<Directive>,
   +kind: 'Root',
+  +loc: Location,
   +metadata: Metadata,
   +name: string,
   +operation: 'query' | 'mutation' | 'subscription',
@@ -222,6 +259,7 @@ export type ScalarField = {|
   +directives: $ReadOnlyArray<Directive>,
   +handles: ?$ReadOnlyArray<Handle>,
   +kind: 'ScalarField',
+  +loc: Location,
   +metadata: Metadata,
   +name: string,
   +type: ScalarFieldType,
@@ -240,12 +278,14 @@ export type SplitOperation = {|
   +kind: 'SplitOperation',
   +name: string,
   +selections: $ReadOnlyArray<Selection>,
+  +loc: Location,
   +metadata: Metadata,
   +type: GraphQLCompositeType,
 |};
 
 export type Variable = {|
   +kind: 'Variable',
+  +loc: Location,
   +metadata: Metadata,
   +variableName: string,
   +type: ?GraphQLInputType,

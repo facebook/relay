@@ -224,15 +224,18 @@ function visitLinkedField(
           type: jsFieldArg.type,
           value: {
             kind: 'Literal',
+            loc: moduleDirective.args[0]?.loc ?? moduleDirective.loc,
             metadata: {},
             value: moduleDirectiveArgs.name,
           },
+          loc: moduleDirective.loc,
           metadata: {},
         },
       ],
       directives: [],
       handles: null,
       kind: 'ScalarField',
+      loc: moduleDirective.loc,
       metadata: {
         storageKey: '__match_component',
       },
@@ -248,15 +251,18 @@ function visitLinkedField(
           type: jsFieldArg.type,
           value: {
             kind: 'Literal',
+            loc: matchSelection.loc,
             metadata: {},
             value: normalizationName,
           },
+          loc: matchSelection.loc,
           metadata: {},
         },
       ],
       directives: [],
       handles: null,
       kind: 'ScalarField',
+      loc: matchSelection.loc,
       metadata: {
         storageKey: '__match_fragment',
       },
@@ -266,6 +272,7 @@ function visitLinkedField(
 
     selections.push({
       kind: 'MatchBranch',
+      loc: matchSelection.loc,
       module: moduleDirectiveArgs.name,
       name: matchSelection.name,
       selections: [
@@ -273,12 +280,14 @@ function visitLinkedField(
           args: [],
           directives: [],
           kind: 'FragmentSpread',
+          loc: matchSelection.loc,
           metadata: {},
           name: matchSelection.name,
         },
         {
           directives: [],
           kind: 'InlineFragment',
+          loc: matchSelection.loc,
           metadata: {},
           selections: [moduleField, fragmentField],
           typeCondition: matchedType,
@@ -309,14 +318,17 @@ function visitLinkedField(
         type: supportedArg.type,
         value: {
           kind: 'Literal',
+          loc: node.loc,
           metadata: {},
           value: Array.from(seenTypes.keys()).map(type => type.name),
         },
+        loc: node.loc,
         metadata: {},
       },
     ],
     directives: [],
     handles: null,
+    loc: node.loc,
     metadata: {
       storageKey,
     },

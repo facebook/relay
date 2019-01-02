@@ -38,6 +38,7 @@ import type {
   Fragment,
   InlineFragment,
   LinkedField,
+  Location,
   MatchField,
   Root,
 } from '../../core/GraphQLIR';
@@ -209,6 +210,7 @@ function visitLinkedOrMatchField<T: LinkedField | MatchField>(
   if (direction !== null) {
     const fragment = generateConnectionFragment(
       this.getContext(),
+      transformedField.loc,
       transformedField.type,
       direction,
     );
@@ -236,6 +238,7 @@ function visitLinkedOrMatchField<T: LinkedField | MatchField>(
  */
 function generateConnectionFragment(
   context: CompilerContext,
+  loc: Location,
   type: GraphQLType,
   direction: 'forward' | 'backward' | 'bidirectional',
 ): InlineFragment {
@@ -304,6 +307,7 @@ function generateConnectionFragment(
   return {
     directives: [],
     kind: 'InlineFragment',
+    loc: {source: loc},
     metadata: null,
     selections: fragment.selections,
     typeCondition: compositeType,

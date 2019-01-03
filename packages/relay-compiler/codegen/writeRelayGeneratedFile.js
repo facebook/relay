@@ -33,7 +33,7 @@ async function writeRelayGeneratedFile(
   generatedNode: GeneratedNode,
   formatModule: FormatModule,
   typeText: string,
-  _persistQuery: ?(text: string) => Promise<string>,
+  _persistQuery: ?(text: string, id: string) => Promise<string>,
   platform: ?string,
   sourceHash: string,
   extension: string,
@@ -94,7 +94,7 @@ async function writeRelayGeneratedFile(
           generatedNode = {
             ...generatedNode,
             text: null,
-            id: await persistQuery(nullthrows(generatedNode.text)),
+            id: await persistQuery(nullthrows(generatedNode.text), sourceHash),
           };
           break;
         case RelayConcreteNode.FRAGMENT:

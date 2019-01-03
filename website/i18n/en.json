@@ -5,6 +5,9 @@
     "previous": "Previous",
     "tagline": "A JavaScript framework for building data-driven React applications",
     "docs": {
+      "community-learning-resources": {
+        "title": "Community Learning Resources"
+      },
       "graphql-server-specification": {
         "title": "GraphQL Server Specification"
       },
@@ -401,6 +404,7 @@
       "Guides": "Guides",
       "Migration Guides": "Migration Guides",
       "Principles & Architecture": "Principles & Architecture",
+      "Community": "Community",
       "Relay Classic Guides": "Relay Classic Guides",
       "Relay Classic API": "Relay Classic API",
       "Relay Classic Interfaces": "Relay Classic Interfaces"

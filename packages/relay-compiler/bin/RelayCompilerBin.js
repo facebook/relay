@@ -81,6 +81,7 @@ function getFilepathsFromGlob(
   return glob.sync(patterns, {
     cwd: baseDir,
     ignore: exclude,
+    dot: true,
   });
 }
 

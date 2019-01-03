@@ -13,6 +13,7 @@ ERROR:
 Error: RelayCodeGenerator: Complex argument values (Lists or InputObjects with nested variables) are not supported, argument \`filter\` had value \`{
   "kind": "ObjectValue",
   "loc": {
+    "kind": "Source",
     "start": 49,
     "end": 62,
     "source": {
@@ -29,6 +30,7 @@ Error: RelayCodeGenerator: Complex argument values (Lists or InputObjects with n
     {
       "kind": "ObjectFieldValue",
       "loc": {
+        "kind": "Source",
         "start": 50,
         "end": 61,
         "source": {
@@ -45,6 +47,7 @@ Error: RelayCodeGenerator: Complex argument values (Lists or InputObjects with n
       "value": {
         "kind": "Variable",
         "loc": {
+          "kind": "Source",
           "start": 56,
           "end": 61,
           "source": {

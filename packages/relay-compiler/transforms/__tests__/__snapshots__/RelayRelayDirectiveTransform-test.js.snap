@@ -11,6 +11,7 @@ fragment PluralFragment on User @relay(plural: true) {
   "kind": "Fragment",
   "directives": [],
   "loc": {
+    "kind": "Source",
     "start": 0,
     "end": 63,
     "source": {
@@ -33,6 +34,7 @@ fragment PluralFragment on User @relay(plural: true) {
       "args": [],
       "directives": [],
       "loc": {
+        "kind": "Source",
         "start": 57,
         "end": 61,
         "source": {
@@ -67,6 +69,7 @@ fragment UserProfile on User {
   "kind": "Fragment",
   "directives": [],
   "loc": {
+    "kind": "Source",
     "start": 0,
     "end": 96,
     "source": {
@@ -87,6 +90,7 @@ fragment UserProfile on User {
       "args": [],
       "directives": [],
       "loc": {
+        "kind": "Source",
         "start": 33,
         "end": 94,
         "source": {
@@ -108,6 +112,7 @@ fragment UserProfile on User {
             "mask": false
           },
           "loc": {
+            "kind": "Source",
             "start": 54,
             "end": 90,
             "source": {

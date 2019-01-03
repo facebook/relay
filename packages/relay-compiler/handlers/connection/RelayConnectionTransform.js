@@ -127,7 +127,7 @@ function visitLinkedOrMatchField<T: LinkedField | MatchField>(
   }
   const {definitionName} = options;
   validateConnectionSelection(definitionName, transformedField);
-  validateConnectionType(definitionName, transformedField.type);
+  validateConnectionType(definitionName, transformedField);
 
   const pathHasPlural = options.path.includes(null);
   const firstArg = findArg(transformedField, FIRST);
@@ -167,24 +167,30 @@ function visitLinkedOrMatchField<T: LinkedField | MatchField>(
     connectionDirective.args,
   );
   if (handler != null && typeof handler !== 'string') {
+    const handleArg = connectionDirective.args.find(arg => arg.name === 'key');
     throw createUserError(
       `Expected the ${HANDLER} argument to ` +
         `@${CONNECTION} to be a string literal for field ${field.name}.`,
+      [handleArg?.value?.loc ?? connectionDirective.loc],
     );
   }
   if (typeof key !== 'string') {
+    const keyArg = connectionDirective.args.find(arg => arg.name === 'key');
     throw createUserError(
       `Expected the ${KEY} argument to ` +
         `@${CONNECTION} to be a string literal for field ${field.name}.`,
+      [keyArg?.value?.loc ?? connectionDirective.loc],
     );
   }
   const postfix = field.alias || field.name;
   if (!key.endsWith('_' + postfix)) {
+    const keyArg = connectionDirective.args.find(arg => arg.name === 'key');
     throw createUserError(
       `Expected the ${KEY} argument to ` +
         `@${CONNECTION} to be of form <SomeName>_${postfix}, got '${key}'. ` +
         'For detailed explanation, check out ' +
         'https://facebook.github.io/relay/docs/en/pagination-container.html#connection',
+      [keyArg?.value?.loc ?? connectionDirective.loc],
     );
   }
 
@@ -294,6 +300,8 @@ function generateConnectionFragment(
   if (fragmentAST == null || fragmentAST.kind !== 'FragmentDefinition') {
     throw createCompilerError(
       'RelayConnectionTransform: Expected a fragment definition AST.',
+      null,
+      [fragmentAST].filter(Boolean),
     );
   }
   const fragment = RelayParser.transform(context.clientSchema, [
@@ -302,12 +310,13 @@ function generateConnectionFragment(
   if (fragment == null || fragment.kind !== 'Fragment') {
     throw createCompilerError(
       'RelayConnectionTransform: Expected a connection fragment.',
+      [fragment?.loc].filter(Boolean),
     );
   }
   return {
     directives: [],
     kind: 'InlineFragment',
-    loc: {source: loc},
+    loc: {kind: 'Derived', source: loc},
     metadata: null,
     selections: fragment.selections,
     typeCondition: compositeType,
@@ -342,6 +351,7 @@ function validateConnectionSelection(
       `Expected field \`${field.name}: ` +
         `${String(field.type)}\` to have a ${FIRST} or ${LAST} argument in ` +
         `document \`${definitionName}\`.`,
+      [field.loc],
     );
   }
   if (
@@ -353,6 +363,7 @@ function validateConnectionSelection(
       `Expected field \`${field.name}: ` +
         `${String(field.type)}\` to have a ${EDGES} selection in document ` +
         `\`${definitionName}\`.`,
+      [field.loc],
     );
   }
 }
@@ -368,8 +379,9 @@ function validateConnectionSelection(
  */
 function validateConnectionType(
   definitionName: string,
-  type: GraphQLType,
+  field: LinkedField,
 ): void {
+  const type = field.type;
   const {
     CURSOR,
     EDGES,
@@ -392,6 +404,7 @@ function validateConnectionType(
       `Expected type '${String(
         type,
       )}' to have an '${EDGES}' field in document '${definitionName}'.`,
+      [field.loc],
     );
   }
 
@@ -401,6 +414,7 @@ function validateConnectionType(
       `Expected '${EDGES}' field on type '${String(
         type,
       )}' to be a list type in document '${definitionName}'.`,
+      [field.loc],
     );
   }
   const edgeType = SchemaUtils.getNullableType(edgesType.ofType);
@@ -409,6 +423,7 @@ function validateConnectionType(
       `Expected '${EDGES}' field on type '${String(
         type,
       )}' to be a list of objects in document '${definitionName}'.`,
+      [field.loc],
     );
   }
 
@@ -418,6 +433,7 @@ function validateConnectionType(
       `Expected type '${String(
         type,
       )}' to have have a '${EDGES} { ${NODE} }' field in in document '${definitionName}'.`,
+      [field.loc],
     );
   }
   const nodeType = SchemaUtils.getNullableType(node.type);
@@ -432,6 +448,7 @@ function validateConnectionType(
       `Expected type '${String(
         type,
       )}' to have a '${EDGES} { ${NODE} }' field for which the type is an interface, object, or union in document '${definitionName}'.`,
+      [field.loc],
     );
   }
 
@@ -444,6 +461,7 @@ function validateConnectionType(
       `Expected type '${String(
         type,
       )}' to have a '${EDGES} { ${CURSOR} }' scalar field in document '${definitionName}'.`,
+      [field.loc],
     );
   }
 
@@ -453,6 +471,7 @@ function validateConnectionType(
       `Expected type '${String(
         type,
       )}' to have a '${EDGES} { ${PAGE_INFO} }' field in document '${definitionName}'.`,
+      [field.loc],
     );
   }
   const pageInfoType = SchemaUtils.getNullableType(pageInfo.type);
@@ -461,6 +480,7 @@ function validateConnectionType(
       `Expected type '${String(
         type,
       )}' to have a '${EDGES} { ${PAGE_INFO} }' field with object type in document '${definitionName}'.`,
+      [field.loc],
     );
   }
 
@@ -478,6 +498,7 @@ function validateConnectionType(
           `Expected type '${String(
             pageInfo.type,
           )}' to have a '${fieldName}' scalar field in document '${definitionName}'.`,
+          [field.loc],
         );
       }
     },

@@ -180,6 +180,7 @@ fragment NullableIDFirstFragment on Query {
   {
     "kind": "RootArgumentDefinition",
     "loc": {
+      "kind": "Source",
       "start": 403,
       "end": 406,
       "source": {
@@ -213,6 +214,7 @@ fragment NonNullableIDFirstFragment on Query {
   {
     "kind": "RootArgumentDefinition",
     "loc": {
+      "kind": "Source",
       "start": 403,
       "end": 406,
       "source": {
@@ -239,6 +241,7 @@ fragment NullableIDFragment on Query {
   {
     "kind": "RootArgumentDefinition",
     "loc": {
+      "kind": "Source",
       "start": 321,
       "end": 324,
       "source": {
@@ -265,6 +268,7 @@ fragment NonNullIDFragment on Query {
   {
     "kind": "RootArgumentDefinition",
     "loc": {
+      "kind": "Source",
       "start": 403,
       "end": 406,
       "source": {

@@ -300,14 +300,25 @@ fragment Profile on User {
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-Error: RelayApplyFragmentArgumentTransform: Found a circular reference from fragment 'Profile'. Path:
-- Query 'TestQuery'
-- Field 'node'
-- Fragment 'Profile'
-- Field 'friends'
-- Field 'edges'
-- Field 'node'
-- Fragment 'Profile'
+Error: Found a circular reference from fragment 'Profile'.
+
+Source: GraphQL request (1:1)
+1: query TestQuery(
+   ^
+2:   $id: ID!
+
+Source: GraphQL request (7:5)
+6:     id
+7:     ...Profile
+       ^
+8:   }
+
+Source: GraphQL request (20:9)
+19:       node {
+20:         ...Profile
+            ^
+21:       }
+
 `;
 
 exports[`RelayApplyFragmentArgumentTransform matches expected output: rejects-unknown-query-variables.invalid.graphql 1`] = `

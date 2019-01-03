@@ -93,7 +93,7 @@ function compileRelayArtifacts(
               kind: 'Fragment',
               argumentDefinitions: fragNode.argumentDefinitions,
               directives: fragNode.directives,
-              loc: {source: node.loc},
+              loc: {kind: 'Derived', source: node.loc},
               metadata: null,
               name: fragNode.name,
               selections: fragNode.selections,

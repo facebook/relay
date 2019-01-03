@@ -49,6 +49,7 @@ fragment CommentFragment_comment on Comment {
   "kind": "Root",
   "operation": "query",
   "loc": {
+    "kind": "Source",
     "start": 0,
     "end": 227,
     "source": {
@@ -71,6 +72,7 @@ fragment CommentFragment_comment on Comment {
       "args": [],
       "directives": [],
       "loc": {
+        "kind": "Source",
         "start": 37,
         "end": 225,
         "source": {
@@ -92,6 +94,7 @@ fragment CommentFragment_comment on Comment {
             {
               "kind": "Argument",
               "loc": {
+                "kind": "Source",
                 "start": 59,
                 "end": 68,
                 "source": {
@@ -108,6 +111,7 @@ fragment CommentFragment_comment on Comment {
               "value": {
                 "kind": "Literal",
                 "loc": {
+                  "kind": "Source",
                   "start": 66,
                   "end": 68,
                   "source": {
@@ -127,6 +131,7 @@ fragment CommentFragment_comment on Comment {
           ],
           "directives": [],
           "loc": {
+            "kind": "Source",
             "start": 50,
             "end": 221,
             "source": {
@@ -147,6 +152,7 @@ fragment CommentFragment_comment on Comment {
               "args": [],
               "directives": [],
               "loc": {
+                "kind": "Source",
                 "start": 78,
                 "end": 215,
                 "source": {
@@ -167,6 +173,7 @@ fragment CommentFragment_comment on Comment {
                   "args": [],
                   "directives": [],
                   "loc": {
+                    "kind": "Source",
                     "start": 94,
                     "end": 207,
                     "source": {
@@ -188,7 +195,7 @@ fragment CommentFragment_comment on Comment {
                       "directives": [],
                       "handles": null,
                       "loc": {
-                        "generated": true
+                        "kind": "Generated"
                       },
                       "metadata": null,
                       "name": "__typename",
@@ -200,6 +207,7 @@ fragment CommentFragment_comment on Comment {
                       "args": [],
                       "directives": [],
                       "loc": {
+                        "kind": "Source",
                         "start": 111,
                         "end": 113,
                         "source": {
@@ -221,6 +229,7 @@ fragment CommentFragment_comment on Comment {
                       "args": [],
                       "directives": [],
                       "loc": {
+                        "kind": "Source",
                         "start": 124,
                         "end": 162,
                         "source": {
@@ -241,6 +250,7 @@ fragment CommentFragment_comment on Comment {
                           "args": [],
                           "directives": [],
                           "loc": {
+                            "kind": "Source",
                             "start": 146,
                             "end": 150,
                             "source": {
@@ -265,6 +275,7 @@ fragment CommentFragment_comment on Comment {
                       "args": [],
                       "directives": [],
                       "loc": {
+                        "kind": "Source",
                         "start": 281,
                         "end": 301,
                         "source": {
@@ -286,7 +297,7 @@ fragment CommentFragment_comment on Comment {
                           "directives": [],
                           "handles": null,
                           "loc": {
-                            "generated": true
+                            "kind": "Generated"
                           },
                           "metadata": null,
                           "name": "__typename",
@@ -298,6 +309,7 @@ fragment CommentFragment_comment on Comment {
                           "args": [],
                           "directives": [],
                           "loc": {
+                            "kind": "Source",
                             "start": 293,
                             "end": 297,
                             "source": {
@@ -335,6 +347,7 @@ fragment CommentFragment_comment on Comment {
   "kind": "Root",
   "operation": "query",
   "loc": {
+    "kind": "Source",
     "start": 305,
     "end": 510,
     "source": {
@@ -358,6 +371,7 @@ fragment CommentFragment_comment on Comment {
         {
           "kind": "Argument",
           "loc": {
+            "kind": "Source",
             "start": 363,
             "end": 372,
             "source": {
@@ -374,6 +388,7 @@ fragment CommentFragment_comment on Comment {
           "value": {
             "kind": "Literal",
             "loc": {
+              "kind": "Source",
               "start": 367,
               "end": 372,
               "source": {
@@ -393,6 +408,7 @@ fragment CommentFragment_comment on Comment {
       ],
       "directives": [],
       "loc": {
+        "kind": "Source",
         "start": 358,
         "end": 508,
         "source": {
@@ -414,7 +430,7 @@ fragment CommentFragment_comment on Comment {
           "directives": [],
           "handles": null,
           "loc": {
-            "generated": true
+            "kind": "Generated"
           },
           "metadata": null,
           "name": "__typename",
@@ -427,6 +443,7 @@ fragment CommentFragment_comment on Comment {
             {
               "kind": "Argument",
               "loc": {
+                "kind": "Source",
                 "start": 389,
                 "end": 398,
                 "source": {
@@ -443,6 +460,7 @@ fragment CommentFragment_comment on Comment {
               "value": {
                 "kind": "Literal",
                 "loc": {
+                  "kind": "Source",
                   "start": 396,
                   "end": 398,
                   "source": {
@@ -462,6 +480,7 @@ fragment CommentFragment_comment on Comment {
           ],
           "directives": [],
           "loc": {
+            "kind": "Source",
             "start": 380,
             "end": 504,
             "source": {
@@ -482,6 +501,7 @@ fragment CommentFragment_comment on Comment {
               "args": [],
               "directives": [],
               "loc": {
+                "kind": "Source",
                 "start": 408,
                 "end": 498,
                 "source": {
@@ -502,6 +522,7 @@ fragment CommentFragment_comment on Comment {
                   "args": [],
                   "directives": [],
                   "loc": {
+                    "kind": "Source",
                     "start": 424,
                     "end": 490,
                     "source": {
@@ -522,6 +543,7 @@ fragment CommentFragment_comment on Comment {
                       "args": [],
                       "directives": [],
                       "loc": {
+                        "kind": "Source",
                         "start": 441,
                         "end": 443,
                         "source": {
@@ -543,6 +565,7 @@ fragment CommentFragment_comment on Comment {
                       "args": [],
                       "directives": [],
                       "loc": {
+                        "kind": "Source",
                         "start": 560,
                         "end": 579,
                         "source": {
@@ -563,6 +586,7 @@ fragment CommentFragment_comment on Comment {
                           "args": [],
                           "directives": [],
                           "loc": {
+                            "kind": "Source",
                             "start": 571,
                             "end": 575,
                             "source": {
@@ -650,6 +674,7 @@ fragment CommentFragment_comment on Comment {
   "kind": "Root",
   "operation": "query",
   "loc": {
+    "kind": "Source",
     "start": 0,
     "end": 245,
     "source": {
@@ -672,6 +697,7 @@ fragment CommentFragment_comment on Comment {
       "args": [],
       "directives": [],
       "loc": {
+        "kind": "Source",
         "start": 34,
         "end": 243,
         "source": {
@@ -693,6 +719,7 @@ fragment CommentFragment_comment on Comment {
             {
               "kind": "Argument",
               "loc": {
+                "kind": "Source",
                 "start": 56,
                 "end": 65,
                 "source": {
@@ -709,6 +736,7 @@ fragment CommentFragment_comment on Comment {
               "value": {
                 "kind": "Literal",
                 "loc": {
+                  "kind": "Source",
                   "start": 63,
                   "end": 65,
                   "source": {
@@ -728,6 +756,7 @@ fragment CommentFragment_comment on Comment {
           ],
           "directives": [],
           "loc": {
+            "kind": "Source",
             "start": 47,
             "end": 239,
             "source": {
@@ -748,6 +777,7 @@ fragment CommentFragment_comment on Comment {
               "args": [],
               "directives": [],
               "loc": {
+                "kind": "Source",
                 "start": 75,
                 "end": 233,
                 "source": {
@@ -768,6 +798,7 @@ fragment CommentFragment_comment on Comment {
                   "args": [],
                   "directives": [],
                   "loc": {
+                    "kind": "Source",
                     "start": 91,
                     "end": 225,
                     "source": {
@@ -788,6 +819,7 @@ fragment CommentFragment_comment on Comment {
                       "args": [],
                       "directives": [],
                       "loc": {
+                        "kind": "Source",
                         "start": 108,
                         "end": 110,
                         "source": {
@@ -809,6 +841,7 @@ fragment CommentFragment_comment on Comment {
                       "args": [],
                       "directives": [],
                       "loc": {
+                        "kind": "Source",
                         "start": 121,
                         "end": 131,
                         "source": {
@@ -830,6 +863,7 @@ fragment CommentFragment_comment on Comment {
                       "args": [],
                       "directives": [],
                       "loc": {
+                        "kind": "Source",
                         "start": 142,
                         "end": 180,
                         "source": {
@@ -850,6 +884,7 @@ fragment CommentFragment_comment on Comment {
                           "args": [],
                           "directives": [],
                           "loc": {
+                            "kind": "Source",
                             "start": 164,
                             "end": 168,
                             "source": {
@@ -874,6 +909,7 @@ fragment CommentFragment_comment on Comment {
                       "args": [],
                       "directives": [],
                       "loc": {
+                        "kind": "Source",
                         "start": 312,
                         "end": 347,
                         "source": {
@@ -894,6 +930,7 @@ fragment CommentFragment_comment on Comment {
                           "args": [],
                           "directives": [],
                           "loc": {
+                            "kind": "Source",
                             "start": 324,
                             "end": 328,
                             "source": {
@@ -915,6 +952,7 @@ fragment CommentFragment_comment on Comment {
                           "args": [],
                           "directives": [],
                           "loc": {
+                            "kind": "Source",
                             "start": 333,
                             "end": 343,
                             "source": {
@@ -952,6 +990,7 @@ fragment CommentFragment_comment on Comment {
   "kind": "Root",
   "operation": "query",
   "loc": {
+    "kind": "Source",
     "start": 351,
     "end": 553,
     "source": {
@@ -975,6 +1014,7 @@ fragment CommentFragment_comment on Comment {
         {
           "kind": "Argument",
           "loc": {
+            "kind": "Source",
             "start": 406,
             "end": 415,
             "source": {
@@ -991,6 +1031,7 @@ fragment CommentFragment_comment on Comment {
           "value": {
             "kind": "Literal",
             "loc": {
+              "kind": "Source",
               "start": 410,
               "end": 415,
               "source": {
@@ -1010,6 +1051,7 @@ fragment CommentFragment_comment on Comment {
       ],
       "directives": [],
       "loc": {
+        "kind": "Source",
         "start": 401,
         "end": 551,
         "source": {
@@ -1031,7 +1073,7 @@ fragment CommentFragment_comment on Comment {
           "directives": [],
           "handles": null,
           "loc": {
-            "generated": true
+            "kind": "Generated"
           },
           "metadata": null,
           "name": "__typename",
@@ -1044,6 +1086,7 @@ fragment CommentFragment_comment on Comment {
             {
               "kind": "Argument",
               "loc": {
+                "kind": "Source",
                 "start": 432,
                 "end": 441,
                 "source": {
@@ -1060,6 +1103,7 @@ fragment CommentFragment_comment on Comment {
               "value": {
                 "kind": "Literal",
                 "loc": {
+                  "kind": "Source",
                   "start": 439,
                   "end": 441,
                   "source": {
@@ -1079,6 +1123,7 @@ fragment CommentFragment_comment on Comment {
           ],
           "directives": [],
           "loc": {
+            "kind": "Source",
             "start": 423,
             "end": 547,
             "source": {
@@ -1099,6 +1144,7 @@ fragment CommentFragment_comment on Comment {
               "args": [],
               "directives": [],
               "loc": {
+                "kind": "Source",
                 "start": 451,
                 "end": 541,
                 "source": {
@@ -1119,6 +1165,7 @@ fragment CommentFragment_comment on Comment {
                   "args": [],
                   "directives": [],
                   "loc": {
+                    "kind": "Source",
                     "start": 467,
                     "end": 533,
                     "source": {
@@ -1139,6 +1186,7 @@ fragment CommentFragment_comment on Comment {
                       "args": [],
                       "directives": [],
                       "loc": {
+                        "kind": "Source",
                         "start": 484,
                         "end": 486,
                         "source": {
@@ -1160,6 +1208,7 @@ fragment CommentFragment_comment on Comment {
                       "args": [],
                       "directives": [],
                       "loc": {
+                        "kind": "Source",
                         "start": 603,
                         "end": 622,
                         "source": {
@@ -1180,6 +1229,7 @@ fragment CommentFragment_comment on Comment {
                           "args": [],
                           "directives": [],
                           "loc": {
+                            "kind": "Source",
                             "start": 614,
                             "end": 618,
                             "source": {

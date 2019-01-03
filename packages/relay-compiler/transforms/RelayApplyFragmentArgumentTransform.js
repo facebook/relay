@@ -27,6 +27,7 @@ import type {
   Field,
   Fragment,
   FragmentSpread,
+  IR,
   Node,
   Selection,
 } from '../core/GraphQLIR';
@@ -63,9 +64,7 @@ function relayApplyFragmentArgumentTransform(
   const nextContext = IRTransformer.transform(context, {
     Root: node => {
       const scope = getRootScope(node.argumentDefinitions);
-      return transformNode(context, fragments, scope, node, [
-        `Query '${node.name}'`,
-      ]);
+      return transformNode(context, fragments, scope, node, [node]);
     },
     // Fragments are included below where referenced.
     // Unreferenced fragments are not included.
@@ -83,7 +82,7 @@ function transformNode<T: Node>(
   fragments: Map<string, ?Fragment>,
   scope: Scope,
   node: T,
-  errorContext: $ReadOnlyArray<string>,
+  errorContext: $ReadOnlyArray<IR>,
 ): ?T {
   const selections = transformSelections(
     context,
@@ -119,21 +118,20 @@ function transformFragmentSpread(
   fragments: Map<string, ?Fragment>,
   scope: Scope,
   spread: FragmentSpread,
-  errorContext: $ReadOnlyArray<string>,
+  errorContext: $ReadOnlyArray<IR>,
 ): ?FragmentSpread {
   const directives = transformDirectives(
     scope,
     spread.directives,
     errorContext,
   );
-  const fragment = context.getFragment(spread.name);
   const appliedFragment = transformFragment(
     context,
     fragments,
     scope,
-    fragment,
+    spread,
     spread.args,
-    [...errorContext, `Fragment '${fragment.name}'`],
+    [...errorContext, spread],
   );
   if (!appliedFragment) {
     return null;
@@ -153,7 +151,7 @@ function transformField<T: Field>(
   fragments: Map<string, ?Fragment>,
   scope: Scope,
   field: T,
-  errorContext: $ReadOnlyArray<string>,
+  errorContext: $ReadOnlyArray<IR>,
 ): ?T {
   const args = transformArguments(scope, field.args, errorContext);
   const directives = transformDirectives(scope, field.directives, errorContext);
@@ -189,7 +187,7 @@ function transformCondition(
   fragments: Map<string, ?Fragment>,
   scope: Scope,
   node: Condition,
-  errorContext: $ReadOnlyArray<string>,
+  errorContext: $ReadOnlyArray<IR>,
 ): ?$ReadOnlyArray<Selection> {
   const condition = transformValue(scope, node.condition, errorContext);
   if (!(condition.kind === 'Literal' || condition.kind === 'Variable')) {
@@ -197,11 +195,10 @@ function transformCondition(
     // a single document could break invariants and/or cause
     // additional spurious errors.
     throw createNonRecoverableUserError(
-      'RelayApplyFragmentArgumentTransform: A non-scalar value was applied to ' +
-        'an @include or @skip directive, the `if` argument value must be a ' +
-        `variable or a Boolean, got '${condition.kind}'. ${printErrorContext(
-          errorContext,
-        )}`,
+      'A non-scalar value was applied to an @include or @skip directive, ' +
+        'the `if` argument value must be a ' +
+        'variable or a literal Boolean.',
+      [condition.loc],
     );
   }
   if (condition.kind === 'Literal' && condition.value !== node.passingValue) {
@@ -236,7 +233,7 @@ function transformSelections(
   fragments: Map<string, ?Fragment>,
   scope: Scope,
   selections: $ReadOnlyArray<Selection>,
-  errorContext: $ReadOnlyArray<string>,
+  errorContext: $ReadOnlyArray<IR>,
 ): ?$ReadOnlyArray<Selection> {
   let nextSelections = null;
   selections.forEach(selection => {
@@ -273,10 +270,13 @@ function transformSelections(
         nextSelections.push(...conditionSelections);
       }
     } else {
-      nextSelection = transformField(context, fragments, scope, selection, [
-        ...errorContext,
-        `Field '${selection.name}'`,
-      ]);
+      nextSelection = transformField(
+        context,
+        fragments,
+        scope,
+        selection,
+        errorContext,
+      );
     }
     if (nextSelection) {
       nextSelections = nextSelections || [];
@@ -289,13 +289,10 @@ function transformSelections(
 function transformDirectives(
   scope: Scope,
   directives: $ReadOnlyArray<Directive>,
-  errorContext: $ReadOnlyArray<string>,
+  errorContext: $ReadOnlyArray<IR>,
 ): $ReadOnlyArray<Directive> {
   return directives.map(directive => {
-    const args = transformArguments(scope, directive.args, [
-      ...errorContext,
-      `Directive "${directive.name}"`,
-    ]);
+    const args = transformArguments(scope, directive.args, errorContext);
     return {
       ...directive,
       args,
@@ -306,7 +303,7 @@ function transformDirectives(
 function transformArguments(
   scope: Scope,
   args: $ReadOnlyArray<Argument>,
-  errorContext: $ReadOnlyArray<string>,
+  errorContext: $ReadOnlyArray<IR>,
 ): $ReadOnlyArray<Argument> {
   return args.map(arg => {
     const value = transformValue(scope, arg.value, errorContext);
@@ -317,7 +314,7 @@ function transformArguments(
 function transformValue(
   scope: Scope,
   value: ArgumentValue,
-  errorContext: $ReadOnlyArray<string>,
+  errorContext: $ReadOnlyArray<IR>,
 ): ArgumentValue {
   if (value.kind === 'Variable') {
     const scopeValue = scope[value.variableName];
@@ -326,9 +323,8 @@ function transformValue(
       // a single document could break invariants and/or cause
       // additional spurious errors.
       throw createNonRecoverableUserError(
-        `RelayApplyFragmentArgumentTransform: variable '\$${
-          value.variableName
-        }' is not in scope. ${printErrorContext(errorContext)}`,
+        `Variable '\$${value.variableName}' is not in scope.`,
+        [value.loc],
       );
     }
     return scopeValue;
@@ -357,10 +353,11 @@ function transformFragment(
   context: CompilerContext,
   fragments: Map<string, ?Fragment>,
   parentScope: Scope,
-  fragment: Fragment,
+  spread: FragmentSpread,
   args: $ReadOnlyArray<Argument>,
-  errorContext: $ReadOnlyArray<string>,
+  errorContext: $ReadOnlyArray<IR>,
 ): ?Fragment {
+  const fragment = context.getFragment(spread.name);
   const argumentsHash = hashArguments(args, parentScope, errorContext);
   const fragmentName = argumentsHash
     ? `${fragment.name}_${argumentsHash}`
@@ -373,15 +370,15 @@ function transformFragment(
     fragment.argumentDefinitions,
     args,
     parentScope,
-    fragment.name,
+    spread,
   );
   if (fragments.get(fragmentName) === null) {
     // This transform does whole-program optimization, errors in
     // a single document could break invariants and/or cause
     // additional spurious errors.
     throw createNonRecoverableUserError(
-      'RelayApplyFragmentArgumentTransform: Found a circular reference from ' +
-        `fragment '${fragment.name}'. ${printErrorContext(errorContext)}`,
+      `Found a circular reference from fragment '${fragment.name}'.`,
+      errorContext.map(node => node.loc),
     );
   }
   fragments.set(fragmentName, null); // to detect circular references
@@ -408,7 +405,7 @@ function transformFragment(
 function hashArguments(
   args: $ReadOnlyArray<Argument>,
   scope: Scope,
-  errorContext: $ReadOnlyArray<string>,
+  errorContext: $ReadOnlyArray<IR>,
 ): ?string {
   if (!args.length) {
     return null;
@@ -426,9 +423,8 @@ function hashArguments(
           // a single document could break invariants and/or cause
           // additional spurious errors.
           throw createNonRecoverableUserError(
-            `RelayApplyFragmentArgumentTransform: variable '\$${
-              arg.value.variableName
-            }' is not in scope. ${printErrorContext(errorContext)}`,
+            `Variable '\$${arg.value.variableName}' is not in scope.`,
+            [arg.value.loc],
           );
         }
       } else {
@@ -441,10 +437,6 @@ function hashArguments(
     }),
   );
   return murmurHash(printedArgs);
-}
-
-function printErrorContext(errorContext: $ReadOnlyArray<string>) {
-  return 'Path:\n' + errorContext.map(item => `- ${item}`).join('\n');
 }
 
 module.exports = {

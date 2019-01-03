@@ -12,7 +12,8 @@
 
 const {GraphQLError} = require('graphql');
 
-import type {ASTNode} from 'graphql';
+import type {Location} from './GraphQLIR';
+import type {ASTNode, Source, SourceLocation} from 'graphql';
 
 // Combined results of multiple user errors
 export opaque type CombinedUserError: Error = Error;
@@ -36,9 +37,18 @@ export opaque type CompilerError: Error = Error;
  */
 function createUserError(
   message: string,
+  locations?: ?$ReadOnlyArray<Location>,
   nodes?: ?$ReadOnlyArray<ASTNode>,
 ): UserError {
-  return new GraphQLError(message, nodes ?? []);
+  let messageWithLocations = message;
+  if (locations != null) {
+    const printedLocations = printLocations(locations);
+    messageWithLocations =
+      printedLocations.length === 0
+        ? message
+        : [message, ...printedLocations].join('\n\n') + '\n';
+  }
+  return new GraphQLError(messageWithLocations, nodes ?? []);
 }
 
 /**
@@ -48,12 +58,19 @@ function createUserError(
  */
 function createNonRecoverableUserError(
   message: string,
+  locations?: ?$ReadOnlyArray<Location>,
   nodes?: ?$ReadOnlyArray<ASTNode>,
 ): NonRecoverableUserError {
-  // Use GraphQLError to format the source of the error, but return a
-  // plain Error to indicate that this is not an expected condition.
-  const error = new GraphQLError(message, nodes ?? []);
-  return new Error(String(error));
+  let messageWithLocations = message;
+  if (locations != null) {
+    const printedLocations = printLocations(locations);
+    messageWithLocations =
+      printedLocations.length === 0
+        ? message
+        : [message, ...printedLocations].join('\n\n') + '\n';
+  }
+  const error = new GraphQLError(messageWithLocations, nodes ?? []);
+  return new Error(error.message);
 }
 
 /**
@@ -62,12 +79,22 @@ function createNonRecoverableUserError(
  */
 function createCompilerError(
   message: string,
+  locations?: ?$ReadOnlyArray<Location>,
   nodes?: ?$ReadOnlyArray<ASTNode>,
 ): CompilerError {
-  // Use GraphQLError to format the source of the error, but return a
-  // plain Error to indicate that this is not an expected condition.
-  const error = new GraphQLError(message, nodes ?? []);
-  return new Error(`Internal Error: ${String(error)}`);
+  let messageWithLocations = message;
+  if (locations != null) {
+    const printedLocations = printLocations(locations);
+    messageWithLocations =
+      printedLocations.length === 0
+        ? message
+        : [message, ...printedLocations].join('\n\n') + '\n';
+  }
+  const error = new GraphQLError(
+    `Internal Error: ${messageWithLocations}`,
+    nodes ?? [],
+  );
+  return new Error(error.message);
 }
 
 /**
@@ -121,6 +148,112 @@ function eachWithErrors<T, T2>(
     return errors;
   }
   return null;
+}
+
+function printLocations(locations: $ReadOnlyArray<Location>): Array<string> {
+  const printedLocations = [];
+  for (const location of locations) {
+    let sourceLocation = location;
+    while (sourceLocation.kind === 'Derived') {
+      sourceLocation = sourceLocation.source;
+    }
+    switch (sourceLocation.kind) {
+      case 'Source': {
+        // source location
+        const prefix =
+          sourceLocation === location ? 'Source: ' : 'Source (derived): ';
+        printedLocations.push(
+          prefix +
+            highlightSourceAtLocation(
+              sourceLocation.source,
+              getLocation(sourceLocation.source, sourceLocation.start),
+            ),
+        );
+        break;
+      }
+      case 'Generated': {
+        printedLocations.push('Source: (generated)');
+        break;
+      }
+      case 'Unknown': {
+        printedLocations.push('Source: (unknown)');
+        break;
+      }
+      default: {
+        (sourceLocation: empty);
+        throw createCompilerError(
+          `RelayCompilerError: cannot print location '${String(
+            sourceLocation,
+          )}'.`,
+        );
+      }
+    }
+  }
+  return printedLocations;
+}
+
+/**
+ * Render a helpful description of the location of the error in the GraphQL
+ * Source document.
+ */
+function highlightSourceAtLocation(
+  source: Source,
+  location: SourceLocation,
+): string {
+  const firstLineColumnOffset = source.locationOffset.column - 1;
+  const body = whitespace(firstLineColumnOffset) + source.body;
+
+  const lineIndex = location.line - 1;
+  const lineOffset = source.locationOffset.line - 1;
+  const lineNum = location.line + lineOffset;
+
+  const columnOffset = location.line === 1 ? firstLineColumnOffset : 0;
+  const columnNum = location.column + columnOffset;
+
+  const lines = body.split(/\r\n|[\n\r]/g);
+  return (
+    `${source.name} (${lineNum}:${columnNum})\n` +
+    printPrefixedLines([
+      // Lines specified like this: ["prefix", "string"],
+      [`${lineNum - 1}: `, lines[lineIndex - 1]],
+      [`${lineNum}: `, lines[lineIndex]],
+      ['', whitespace(columnNum - 1) + '^'],
+      [`${lineNum + 1}: `, lines[lineIndex + 1]],
+    ])
+  );
+}
+
+function printPrefixedLines(lines: Array<[string, string]>): string {
+  const existingLines = lines.filter(([_, line]) => line !== undefined);
+
+  let padLen = 0;
+  for (const [prefix] of existingLines) {
+    padLen = Math.max(padLen, prefix.length);
+  }
+
+  return existingLines
+    .map(([prefix, line]) => lpad(padLen, prefix) + line)
+    .join('\n');
+}
+
+function whitespace(len: number): string {
+  return Array(len + 1).join(' ');
+}
+
+function lpad(len: number, str: string): string {
+  return whitespace(len - str.length) + str;
+}
+
+function getLocation(source: Source, position: number): SourceLocation {
+  const lineRegexp = /\r\n|[\n\r]/g;
+  let line = 1;
+  let column = position + 1;
+  let match;
+  while ((match = lineRegexp.exec(source.body)) && match.index < position) {
+    line += 1;
+    column = position + 1 - (match.index + match[0].length);
+  }
+  return {line, column};
 }
 
 module.exports = {

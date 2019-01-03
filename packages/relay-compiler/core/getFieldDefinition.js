@@ -148,7 +148,9 @@ function getFieldDefinitionLegacyImpl(
 function getName(ast): string {
   const name = ast.name ? ast.name.value : null;
   if (typeof name !== 'string') {
-    throw createCompilerError("Expected ast node to have a 'name'.", [ast]);
+    throw createCompilerError("Expected ast node to have a 'name'.", null, [
+      ast,
+    ]);
   }
   return name;
 }

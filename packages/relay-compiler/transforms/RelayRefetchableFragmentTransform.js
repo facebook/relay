@@ -116,6 +116,7 @@ function relayRefetchableFragmentTransform(
           `Invalid use of @refetchable on fragment '${
             fragment.name
           }', only fragments on the Query type, Viewer type, Node type, or types implementing Node are supported.`,
+          [fragment.loc],
         );
       }
       if (operation != null) {
@@ -159,6 +160,7 @@ function buildRefetchMap(
         `Duplicate definition for @refetchable operation '${refetchName}' from fragments '${
           node.name
         }' and '${previousOperation.name}'`,
+        [node.loc, previousOperation.loc],
       );
     }
     refetchOperations.set(refetchName, node);
@@ -205,7 +207,7 @@ function buildRefetchOperationOnQueryType(
     ),
     directives: [],
     kind: 'Root',
-    loc: {source: fragment.loc},
+    loc: {kind: 'Derived', source: fragment.loc},
     metadata: null,
     name: queryName,
     operation: 'query',
@@ -237,6 +239,7 @@ function buildRefetchOperationOnViewerType(
       `Invalid use of @refetchable on fragment '${
         fragment.name
       }', check that your schema defines a 'Viewer' object type and has a 'viewer: Viewer' field on the query type.`,
+      [fragment.loc],
     );
   }
   return {
@@ -245,7 +248,7 @@ function buildRefetchOperationOnViewerType(
     ),
     directives: [],
     kind: 'Root',
-    loc: {source: fragment.loc},
+    loc: {kind: 'Derived', source: fragment.loc},
     metadata: null,
     name: queryName,
     operation: 'query',
@@ -256,7 +259,7 @@ function buildRefetchOperationOnViewerType(
         directives: [],
         handles: null,
         kind: 'LinkedField',
-        loc: {source: fragment.loc},
+        loc: {kind: 'Derived', source: fragment.loc},
         metadata: null,
         name: VIEWER_FIELD_NAME,
         selections: fragment.selections,
@@ -297,6 +300,7 @@ function buildRefetchOperationOnNodeType(
       `Invalid use of @refetchable on fragment '${
         fragment.name
       }', check that your schema defines a 'Node { id: ID }' interface and has a 'node(id: ID): Node' field on the query type (the id argument may also be non-null).`,
+      [fragment.loc],
     );
   }
   const argumentDefinitions = buildOperationArgumentDefinitions(
@@ -308,6 +312,7 @@ function buildRefetchOperationOnNodeType(
       `Invalid use of @refetchable on fragment '${
         fragment.name
       }', this fragment already has an '\$id' variable in scope.`,
+      [idArgument.loc],
     );
   }
   const idSelection = fragment.selections.find(
@@ -322,6 +327,7 @@ function buildRefetchOperationOnNodeType(
       `Invalid use of @refetchable on fragment '${
         fragment.name
       }', refetchable fragments on Node (or types implementing Node) must fetch the 'id' field without an alias.`,
+      [fragment.loc],
     );
   }
   const idArgType = new GraphQLNonNull(GraphQLID);
@@ -330,7 +336,7 @@ function buildRefetchOperationOnNodeType(
     {
       defaultValue: null,
       kind: 'LocalArgumentDefinition',
-      loc: {source: fragment.loc},
+      loc: {kind: 'Derived', source: fragment.loc},
       metadata: null,
       name: 'id',
       type: idArgType,
@@ -347,7 +353,7 @@ function buildRefetchOperationOnNodeType(
       {
         directives: [],
         kind: 'InlineFragment',
-        loc: {source: fragment.loc},
+        loc: {kind: 'Derived', source: fragment.loc},
         metadata: null,
         selections: fragment.selections,
         typeCondition: fragment.type,
@@ -358,7 +364,7 @@ function buildRefetchOperationOnNodeType(
     argumentDefinitions: argumentDefinitionsWithId,
     directives: [],
     kind: 'Root',
-    loc: {source: fragment.loc},
+    loc: {kind: 'Derived', source: fragment.loc},
     metadata: null,
     name: queryName,
     operation: 'query',
@@ -368,13 +374,13 @@ function buildRefetchOperationOnNodeType(
         args: [
           {
             kind: 'Argument',
-            loc: {source: fragment.loc},
+            loc: {kind: 'Derived', source: fragment.loc},
             metadata: null,
             name: 'id',
             type: idArgType,
             value: {
               kind: 'Variable',
-              loc: {source: fragment.loc},
+              loc: {kind: 'Derived', source: fragment.loc},
               metadata: null,
               variableName: 'id',
               type: idArgType,
@@ -384,7 +390,7 @@ function buildRefetchOperationOnNodeType(
         directives: [],
         handles: null,
         kind: 'LinkedField',
-        loc: {source: fragment.loc},
+        loc: {kind: 'Derived', source: fragment.loc},
         metadata: null,
         name: NODE_FIELD_NAME,
         selections,
@@ -405,10 +411,14 @@ function getRefetchQueryName(fragment: Fragment): string | null {
   const refetchArguments = getLiteralArgumentValues(refetchableDirective.args);
   const queryName = refetchArguments.queryName;
   if (typeof queryName !== 'string') {
+    const queryNameArg = refetchableDirective.args.find(
+      arg => arg.name === 'queryName',
+    );
     throw createCompilerError(
       `Expected the 'name' argument of @refetchable to be a string, got '${String(
         queryName,
       )}'.`,
+      [queryNameArg?.loc ?? refetchableDirective.loc],
     );
   }
   return queryName;

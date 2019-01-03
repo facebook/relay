@@ -72,6 +72,7 @@ type Foo {
     "kind": "Root",
     "operation": "query",
     "loc": {
+      "kind": "Source",
       "start": 0,
       "end": 77,
       "source": {
@@ -89,6 +90,7 @@ type Foo {
       {
         "kind": "LocalArgumentDefinition",
         "loc": {
+          "kind": "Source",
           "start": 23,
           "end": 31,
           "source": {
@@ -115,6 +117,7 @@ type Foo {
           {
             "kind": "Argument",
             "loc": {
+              "kind": "Source",
               "start": 42,
               "end": 49,
               "source": {
@@ -131,6 +134,7 @@ type Foo {
             "value": {
               "kind": "Variable",
               "loc": {
+                "kind": "Source",
                 "start": 46,
                 "end": 49,
                 "source": {
@@ -151,6 +155,7 @@ type Foo {
         ],
         "directives": [],
         "loc": {
+          "kind": "Source",
           "start": 37,
           "end": 75,
           "source": {
@@ -170,6 +175,7 @@ type Foo {
             "args": [],
             "metadata": null,
             "loc": {
+              "kind": "Source",
               "start": 57,
               "end": 71,
               "source": {
@@ -194,6 +200,7 @@ type Foo {
     "kind": "Fragment",
     "directives": [],
     "loc": {
+      "kind": "Source",
       "start": 79,
       "end": 465,
       "source": {
@@ -214,6 +221,7 @@ type Foo {
         "args": [],
         "directives": [],
         "loc": {
+          "kind": "Source",
           "start": 171,
           "end": 173,
           "source": {
@@ -235,6 +243,7 @@ type Foo {
         "args": [],
         "directives": [],
         "loc": {
+          "kind": "Source",
           "start": 226,
           "end": 346,
           "source": {
@@ -255,6 +264,7 @@ type Foo {
             "args": [],
             "directives": [],
             "loc": {
+              "kind": "Source",
               "start": 245,
               "end": 303,
               "source": {
@@ -275,6 +285,7 @@ type Foo {
                 "args": [],
                 "directives": [],
                 "loc": {
+                  "kind": "Source",
                   "start": 259,
                   "end": 265,
                   "source": {
@@ -296,6 +307,7 @@ type Foo {
                 "args": [],
                 "directives": [],
                 "loc": {
+                  "kind": "Source",
                   "start": 272,
                   "end": 297,
                   "source": {
@@ -316,6 +328,7 @@ type Foo {
                     "args": [],
                     "directives": [],
                     "loc": {
+                      "kind": "Source",
                       "start": 287,
                       "end": 289,
                       "source": {
@@ -343,6 +356,7 @@ type Foo {
             "args": [],
             "directives": [],
             "loc": {
+              "kind": "Source",
               "start": 308,
               "end": 342,
               "source": {
@@ -363,6 +377,7 @@ type Foo {
                 "args": [],
                 "directives": [],
                 "loc": {
+                  "kind": "Source",
                   "start": 325,
                   "end": 336,
                   "source": {
@@ -388,6 +403,7 @@ type Foo {
         "kind": "InlineFragment",
         "directives": [],
         "loc": {
+          "kind": "Source",
           "start": 349,
           "end": 463,
           "source": {
@@ -406,6 +422,7 @@ type Foo {
             "args": [],
             "metadata": null,
             "loc": {
+              "kind": "Source",
               "start": 413,
               "end": 427,
               "source": {
@@ -424,6 +441,7 @@ type Foo {
             "kind": "InlineFragment",
             "directives": [],
             "loc": {
+              "kind": "Source",
               "start": 432,
               "end": 459,
               "source": {
@@ -443,6 +461,7 @@ type Foo {
                 "args": [],
                 "directives": [],
                 "loc": {
+                  "kind": "Source",
                   "start": 451,
                   "end": 453,
                   "source": {
@@ -472,6 +491,7 @@ type Foo {
     "kind": "Fragment",
     "directives": [],
     "loc": {
+      "kind": "Source",
       "start": 467,
       "end": 503,
       "source": {
@@ -492,6 +512,7 @@ type Foo {
         "args": [],
         "directives": [],
         "loc": {
+          "kind": "Source",
           "start": 499,
           "end": 501,
           "source": {
@@ -526,6 +547,7 @@ fragment TestFragment on User {
     "kind": "Fragment",
     "directives": [],
     "loc": {
+      "kind": "Source",
       "start": 0,
       "end": 66,
       "source": {
@@ -548,6 +570,7 @@ fragment TestFragment on User {
           {
             "kind": "Directive",
             "loc": {
+              "kind": "Source",
               "start": 37,
               "end": 64,
               "source": {
@@ -565,6 +588,7 @@ fragment TestFragment on User {
               {
                 "kind": "Argument",
                 "loc": {
+                  "kind": "Source",
                   "start": 54,
                   "end": 63,
                   "source": {
@@ -581,6 +605,7 @@ fragment TestFragment on User {
                 "value": {
                   "kind": "Literal",
                   "loc": {
+                    "kind": "Source",
                     "start": 61,
                     "end": 63,
                     "source": {
@@ -601,6 +626,7 @@ fragment TestFragment on User {
           }
         ],
         "loc": {
+          "kind": "Source",
           "start": 34,
           "end": 64,
           "source": {
@@ -639,6 +665,7 @@ fragment TestFragment on User {
     "kind": "Fragment",
     "directives": [],
     "loc": {
+      "kind": "Source",
       "start": 0,
       "end": 141,
       "source": {
@@ -658,6 +685,7 @@ fragment TestFragment on User {
         "condition": {
           "kind": "Variable",
           "loc": {
+            "kind": "Source",
             "start": 50,
             "end": 55,
             "source": {
@@ -674,6 +702,7 @@ fragment TestFragment on User {
           "type": "Boolean!"
         },
         "loc": {
+          "kind": "Source",
           "start": 37,
           "end": 56,
           "source": {
@@ -694,6 +723,7 @@ fragment TestFragment on User {
             "args": [],
             "directives": [],
             "loc": {
+              "kind": "Source",
               "start": 34,
               "end": 56,
               "source": {
@@ -716,6 +746,7 @@ fragment TestFragment on User {
         "condition": {
           "kind": "Variable",
           "loc": {
+            "kind": "Source",
             "start": 84,
             "end": 89,
             "source": {
@@ -732,6 +763,7 @@ fragment TestFragment on User {
           "type": "Boolean!"
         },
         "loc": {
+          "kind": "Source",
           "start": 71,
           "end": 90,
           "source": {
@@ -750,6 +782,7 @@ fragment TestFragment on User {
             "kind": "InlineFragment",
             "directives": [],
             "loc": {
+              "kind": "Source",
               "start": 59,
               "end": 110,
               "source": {
@@ -769,6 +802,7 @@ fragment TestFragment on User {
                 "args": [],
                 "directives": [],
                 "loc": {
+                  "kind": "Source",
                   "start": 97,
                   "end": 106,
                   "source": {
@@ -794,6 +828,7 @@ fragment TestFragment on User {
         "condition": {
           "kind": "Variable",
           "loc": {
+            "kind": "Source",
             "start": 133,
             "end": 138,
             "source": {
@@ -810,6 +845,7 @@ fragment TestFragment on User {
           "type": "Boolean!"
         },
         "loc": {
+          "kind": "Source",
           "start": 120,
           "end": 139,
           "source": {
@@ -829,6 +865,7 @@ fragment TestFragment on User {
             "args": [],
             "metadata": null,
             "loc": {
+              "kind": "Source",
               "start": 113,
               "end": 139,
               "source": {
@@ -851,6 +888,7 @@ fragment TestFragment on User {
       {
         "kind": "RootArgumentDefinition",
         "loc": {
+          "kind": "Source",
           "start": 133,
           "end": 138,
           "source": {
@@ -887,6 +925,7 @@ query EnumValueQuery {
     "kind": "Root",
     "operation": "query",
     "loc": {
+      "kind": "Source",
       "start": 0,
       "end": 87,
       "source": {
@@ -909,6 +948,7 @@ query EnumValueQuery {
         "args": [],
         "directives": [],
         "loc": {
+          "kind": "Source",
           "start": 25,
           "end": 85,
           "source": {
@@ -930,6 +970,7 @@ query EnumValueQuery {
               {
                 "kind": "Argument",
                 "loc": {
+                  "kind": "Source",
                   "start": 49,
                   "end": 62,
                   "source": {
@@ -946,6 +987,7 @@ query EnumValueQuery {
                 "value": {
                   "kind": "Literal",
                   "loc": {
+                    "kind": "Source",
                     "start": 57,
                     "end": 62,
                     "source": {
@@ -965,6 +1007,7 @@ query EnumValueQuery {
             ],
             "directives": [],
             "loc": {
+              "kind": "Source",
               "start": 34,
               "end": 81,
               "source": {
@@ -985,6 +1028,7 @@ query EnumValueQuery {
                 "args": [],
                 "directives": [],
                 "loc": {
+                  "kind": "Source",
                   "start": 72,
                   "end": 75,
                   "source": {
@@ -1087,6 +1131,7 @@ query TestQuery {
     "kind": "Root",
     "operation": "query",
     "loc": {
+      "kind": "Source",
       "start": 0,
       "end": 175,
       "source": {
@@ -1110,6 +1155,7 @@ query TestQuery {
           {
             "kind": "Argument",
             "loc": {
+              "kind": "Source",
               "start": 25,
               "end": 36,
               "source": {
@@ -1126,6 +1172,7 @@ query TestQuery {
             "value": {
               "kind": "Literal",
               "loc": {
+                "kind": "Source",
                 "start": 33,
                 "end": 36,
                 "source": {
@@ -1145,6 +1192,7 @@ query TestQuery {
         ],
         "directives": [],
         "loc": {
+          "kind": "Source",
           "start": 20,
           "end": 53,
           "source": {
@@ -1165,6 +1213,7 @@ query TestQuery {
             "args": [],
             "directives": [],
             "loc": {
+              "kind": "Source",
               "start": 44,
               "end": 49,
               "source": {
@@ -1190,6 +1239,7 @@ query TestQuery {
           {
             "kind": "Argument",
             "loc": {
+              "kind": "Source",
               "start": 65,
               "end": 81,
               "source": {
@@ -1206,6 +1256,7 @@ query TestQuery {
             "value": {
               "kind": "Literal",
               "loc": {
+                "kind": "Source",
                 "start": 78,
                 "end": 81,
                 "source": {
@@ -1225,6 +1276,7 @@ query TestQuery {
         ],
         "directives": [],
         "loc": {
+          "kind": "Source",
           "start": 56,
           "end": 111,
           "source": {
@@ -1245,6 +1297,7 @@ query TestQuery {
             "args": [],
             "directives": [],
             "loc": {
+              "kind": "Source",
               "start": 89,
               "end": 107,
               "source": {
@@ -1270,6 +1323,7 @@ query TestQuery {
           {
             "kind": "Argument",
             "loc": {
+              "kind": "Source",
               "start": 133,
               "end": 156,
               "source": {
@@ -1286,6 +1340,7 @@ query TestQuery {
             "value": {
               "kind": "Literal",
               "loc": {
+                "kind": "Source",
                 "start": 140,
                 "end": 156,
                 "source": {
@@ -1307,6 +1362,7 @@ query TestQuery {
         ],
         "directives": [],
         "loc": {
+          "kind": "Source",
           "start": 114,
           "end": 173,
           "source": {
@@ -1327,6 +1383,7 @@ query TestQuery {
             "args": [],
             "directives": [],
             "loc": {
+              "kind": "Source",
               "start": 164,
               "end": 169,
               "source": {
@@ -1376,6 +1433,7 @@ fragment Foo on User @argumentDefinitions(localId: {type: "ID!"}){
     "kind": "Fragment",
     "directives": [],
     "loc": {
+      "kind": "Source",
       "start": 0,
       "end": 267,
       "source": {
@@ -1397,6 +1455,7 @@ fragment Foo on User @argumentDefinitions(localId: {type: "ID!"}){
           {
             "kind": "Argument",
             "loc": {
+              "kind": "Source",
               "start": 138,
               "end": 156,
               "source": {
@@ -1413,6 +1472,7 @@ fragment Foo on User @argumentDefinitions(localId: {type: "ID!"}){
             "value": {
               "kind": "Variable",
               "loc": {
+                "kind": "Source",
                 "start": 144,
                 "end": 156,
                 "source": {
@@ -1433,6 +1493,7 @@ fragment Foo on User @argumentDefinitions(localId: {type: "ID!"}){
         ],
         "directives": [],
         "loc": {
+          "kind": "Source",
           "start": 123,
           "end": 171,
           "source": {
@@ -1453,6 +1514,7 @@ fragment Foo on User @argumentDefinitions(localId: {type: "ID!"}){
             "args": [],
             "directives": [],
             "loc": {
+              "kind": "Source",
               "start": 164,
               "end": 167,
               "source": {
@@ -1478,6 +1540,7 @@ fragment Foo on User @argumentDefinitions(localId: {type: "ID!"}){
           {
             "kind": "Argument",
             "loc": {
+              "kind": "Source",
               "start": 205,
               "end": 216,
               "source": {
@@ -1494,6 +1557,7 @@ fragment Foo on User @argumentDefinitions(localId: {type: "ID!"}){
             "value": {
               "kind": "Variable",
               "loc": {
+                "kind": "Source",
                 "start": 211,
                 "end": 216,
                 "source": {
@@ -1514,6 +1578,7 @@ fragment Foo on User @argumentDefinitions(localId: {type: "ID!"}){
         ],
         "directives": [],
         "loc": {
+          "kind": "Source",
           "start": 174,
           "end": 231,
           "source": {
@@ -1534,6 +1599,7 @@ fragment Foo on User @argumentDefinitions(localId: {type: "ID!"}){
             "args": [],
             "directives": [],
             "loc": {
+              "kind": "Source",
               "start": 224,
               "end": 227,
               "source": {
@@ -1558,6 +1624,7 @@ fragment Foo on User @argumentDefinitions(localId: {type: "ID!"}){
           {
             "kind": "Argument",
             "loc": {
+              "kind": "Source",
               "start": 252,
               "end": 264,
               "source": {
@@ -1574,6 +1641,7 @@ fragment Foo on User @argumentDefinitions(localId: {type: "ID!"}){
             "value": {
               "kind": "Variable",
               "loc": {
+                "kind": "Source",
                 "start": 261,
                 "end": 264,
                 "source": {
@@ -1594,6 +1662,7 @@ fragment Foo on User @argumentDefinitions(localId: {type: "ID!"}){
         ],
         "metadata": null,
         "loc": {
+          "kind": "Source",
           "start": 234,
           "end": 265,
           "source": {
@@ -1614,6 +1683,7 @@ fragment Foo on User @argumentDefinitions(localId: {type: "ID!"}){
       {
         "kind": "LocalArgumentDefinition",
         "loc": {
+          "kind": "Source",
           "start": 54,
           "end": 71,
           "source": {
@@ -1633,6 +1703,7 @@ fragment Foo on User @argumentDefinitions(localId: {type: "ID!"}){
       {
         "kind": "LocalArgumentDefinition",
         "loc": {
+          "kind": "Source",
           "start": 74,
           "end": 116,
           "source": {
@@ -1654,6 +1725,7 @@ fragment Foo on User @argumentDefinitions(localId: {type: "ID!"}){
       {
         "kind": "RootArgumentDefinition",
         "loc": {
+          "kind": "Source",
           "start": 144,
           "end": 156,
           "source": {
@@ -1675,6 +1747,7 @@ fragment Foo on User @argumentDefinitions(localId: {type: "ID!"}){
     "kind": "Fragment",
     "directives": [],
     "loc": {
+      "kind": "Source",
       "start": 269,
       "end": 342,
       "source": {
@@ -1695,6 +1768,7 @@ fragment Foo on User @argumentDefinitions(localId: {type: "ID!"}){
         "args": [],
         "directives": [],
         "loc": {
+          "kind": "Source",
           "start": 338,
           "end": 340,
           "source": {
@@ -1716,6 +1790,7 @@ fragment Foo on User @argumentDefinitions(localId: {type: "ID!"}){
       {
         "kind": "LocalArgumentDefinition",
         "loc": {
+          "kind": "Source",
           "start": 311,
           "end": 333,
           "source": {
@@ -1755,6 +1830,7 @@ fragment ChildFragment on User @argumentDefinitions(pictureSize: {type: "[Int]"}
     "kind": "Fragment",
     "directives": [],
     "loc": {
+      "kind": "Source",
       "start": 0,
       "end": 84,
       "source": {
@@ -1775,6 +1851,7 @@ fragment ChildFragment on User @argumentDefinitions(pictureSize: {type: "[Int]"}
           {
             "kind": "Argument",
             "loc": {
+              "kind": "Source",
               "start": 64,
               "end": 81,
               "source": {
@@ -1791,6 +1868,7 @@ fragment ChildFragment on User @argumentDefinitions(pictureSize: {type: "[Int]"}
             "value": {
               "kind": "Literal",
               "loc": {
+                "kind": "Source",
                 "start": 77,
                 "end": 81,
                 "source": {
@@ -1812,6 +1890,7 @@ fragment ChildFragment on User @argumentDefinitions(pictureSize: {type: "[Int]"}
         ],
         "metadata": null,
         "loc": {
+          "kind": "Source",
           "start": 36,
           "end": 82,
           "source": {
@@ -1834,6 +1913,7 @@ fragment ChildFragment on User @argumentDefinitions(pictureSize: {type: "[Int]"}
     "kind": "Fragment",
     "directives": [],
     "loc": {
+      "kind": "Source",
       "start": 86,
       "end": 221,
       "source": {
@@ -1855,6 +1935,7 @@ fragment ChildFragment on User @argumentDefinitions(pictureSize: {type: "[Int]"}
           {
             "kind": "Argument",
             "loc": {
+              "kind": "Source",
               "start": 186,
               "end": 204,
               "source": {
@@ -1871,6 +1952,7 @@ fragment ChildFragment on User @argumentDefinitions(pictureSize: {type: "[Int]"}
             "value": {
               "kind": "Variable",
               "loc": {
+                "kind": "Source",
                 "start": 192,
                 "end": 204,
                 "source": {
@@ -1891,6 +1973,7 @@ fragment ChildFragment on User @argumentDefinitions(pictureSize: {type: "[Int]"}
         ],
         "directives": [],
         "loc": {
+          "kind": "Source",
           "start": 171,
           "end": 219,
           "source": {
@@ -1911,6 +1994,7 @@ fragment ChildFragment on User @argumentDefinitions(pictureSize: {type: "[Int]"}
             "args": [],
             "directives": [],
             "loc": {
+              "kind": "Source",
               "start": 212,
               "end": 215,
               "source": {
@@ -1935,6 +2019,7 @@ fragment ChildFragment on User @argumentDefinitions(pictureSize: {type: "[Int]"}
       {
         "kind": "LocalArgumentDefinition",
         "loc": {
+          "kind": "Source",
           "start": 138,
           "end": 166,
           "source": {
@@ -1977,6 +2062,7 @@ fragment ChildFragment on Query @argumentDefinitions(environment: {type: "Enviro
     "kind": "Fragment",
     "directives": [],
     "loc": {
+      "kind": "Source",
       "start": 0,
       "end": 152,
       "source": {
@@ -1998,6 +2084,7 @@ fragment ChildFragment on Query @argumentDefinitions(environment: {type: "Enviro
           {
             "kind": "Argument",
             "loc": {
+              "kind": "Source",
               "start": 63,
               "end": 82,
               "source": {
@@ -2014,6 +2101,7 @@ fragment ChildFragment on Query @argumentDefinitions(environment: {type: "Enviro
             "value": {
               "kind": "Literal",
               "loc": {
+                "kind": "Source",
                 "start": 76,
                 "end": 82,
                 "source": {
@@ -2033,6 +2121,7 @@ fragment ChildFragment on Query @argumentDefinitions(environment: {type: "Enviro
         ],
         "directives": [],
         "loc": {
+          "kind": "Source",
           "start": 37,
           "end": 102,
           "source": {
@@ -2053,6 +2142,7 @@ fragment ChildFragment on Query @argumentDefinitions(environment: {type: "Enviro
             "args": [],
             "directives": [],
             "loc": {
+              "kind": "Source",
               "start": 90,
               "end": 98,
               "source": {
@@ -2077,6 +2167,7 @@ fragment ChildFragment on Query @argumentDefinitions(environment: {type: "Enviro
           {
             "kind": "Argument",
             "loc": {
+              "kind": "Source",
               "start": 133,
               "end": 149,
               "source": {
@@ -2093,6 +2184,7 @@ fragment ChildFragment on Query @argumentDefinitions(environment: {type: "Enviro
             "value": {
               "kind": "Literal",
               "loc": {
+                "kind": "Source",
                 "start": 146,
                 "end": 149,
                 "source": {
@@ -2112,6 +2204,7 @@ fragment ChildFragment on Query @argumentDefinitions(environment: {type: "Enviro
         ],
         "metadata": null,
         "loc": {
+          "kind": "Source",
           "start": 105,
           "end": 150,
           "source": {
@@ -2134,6 +2227,7 @@ fragment ChildFragment on Query @argumentDefinitions(environment: {type: "Enviro
     "kind": "Fragment",
     "directives": [],
     "loc": {
+      "kind": "Source",
       "start": 154,
       "end": 303,
       "source": {
@@ -2155,6 +2249,7 @@ fragment ChildFragment on Query @argumentDefinitions(environment: {type: "Enviro
           {
             "kind": "Argument",
             "loc": {
+              "kind": "Source",
               "start": 256,
               "end": 281,
               "source": {
@@ -2171,6 +2266,7 @@ fragment ChildFragment on Query @argumentDefinitions(environment: {type: "Enviro
             "value": {
               "kind": "Variable",
               "loc": {
+                "kind": "Source",
                 "start": 269,
                 "end": 281,
                 "source": {
@@ -2191,6 +2287,7 @@ fragment ChildFragment on Query @argumentDefinitions(environment: {type: "Enviro
         ],
         "directives": [],
         "loc": {
+          "kind": "Source",
           "start": 247,
           "end": 301,
           "source": {
@@ -2211,6 +2308,7 @@ fragment ChildFragment on Query @argumentDefinitions(environment: {type: "Enviro
             "args": [],
             "directives": [],
             "loc": {
+              "kind": "Source",
               "start": 289,
               "end": 297,
               "source": {
@@ -2235,6 +2333,7 @@ fragment ChildFragment on Query @argumentDefinitions(environment: {type: "Enviro
       {
         "kind": "LocalArgumentDefinition",
         "loc": {
+          "kind": "Source",
           "start": 207,
           "end": 242,
           "source": {
@@ -2277,6 +2376,7 @@ fragment ChildFragment on User @argumentDefinitions(environments: {type: "[Envir
     "kind": "Fragment",
     "directives": [],
     "loc": {
+      "kind": "Source",
       "start": 0,
       "end": 152,
       "source": {
@@ -2298,6 +2398,7 @@ fragment ChildFragment on User @argumentDefinitions(environments: {type: "[Envir
           {
             "kind": "Argument",
             "loc": {
+              "kind": "Source",
               "start": 62,
               "end": 84,
               "source": {
@@ -2314,6 +2415,7 @@ fragment ChildFragment on User @argumentDefinitions(environments: {type: "[Envir
             "value": {
               "kind": "Literal",
               "loc": {
+                "kind": "Source",
                 "start": 76,
                 "end": 84,
                 "source": {
@@ -2335,6 +2437,7 @@ fragment ChildFragment on User @argumentDefinitions(environments: {type: "[Envir
         ],
         "directives": [],
         "loc": {
+          "kind": "Source",
           "start": 36,
           "end": 101,
           "source": {
@@ -2355,6 +2458,7 @@ fragment ChildFragment on User @argumentDefinitions(environments: {type: "[Envir
             "args": [],
             "directives": [],
             "loc": {
+              "kind": "Source",
               "start": 92,
               "end": 97,
               "source": {
@@ -2379,6 +2483,7 @@ fragment ChildFragment on User @argumentDefinitions(environments: {type: "[Envir
           {
             "kind": "Argument",
             "loc": {
+              "kind": "Source",
               "start": 132,
               "end": 149,
               "source": {
@@ -2395,6 +2500,7 @@ fragment ChildFragment on User @argumentDefinitions(environments: {type: "[Envir
             "value": {
               "kind": "Literal",
               "loc": {
+                "kind": "Source",
                 "start": 146,
                 "end": 149,
                 "source": {
@@ -2414,6 +2520,7 @@ fragment ChildFragment on User @argumentDefinitions(environments: {type: "[Envir
         ],
         "metadata": null,
         "loc": {
+          "kind": "Source",
           "start": 104,
           "end": 150,
           "source": {
@@ -2436,6 +2543,7 @@ fragment ChildFragment on User @argumentDefinitions(environments: {type: "[Envir
     "kind": "Fragment",
     "directives": [],
     "loc": {
+      "kind": "Source",
       "start": 154,
       "end": 305,
       "source": {
@@ -2457,6 +2565,7 @@ fragment ChildFragment on User @argumentDefinitions(environments: {type: "[Envir
           {
             "kind": "Argument",
             "loc": {
+              "kind": "Source",
               "start": 259,
               "end": 286,
               "source": {
@@ -2473,6 +2582,7 @@ fragment ChildFragment on User @argumentDefinitions(environments: {type: "[Envir
             "value": {
               "kind": "Variable",
               "loc": {
+                "kind": "Source",
                 "start": 273,
                 "end": 286,
                 "source": {
@@ -2493,6 +2603,7 @@ fragment ChildFragment on User @argumentDefinitions(environments: {type: "[Envir
         ],
         "directives": [],
         "loc": {
+          "kind": "Source",
           "start": 250,
           "end": 303,
           "source": {
@@ -2513,6 +2624,7 @@ fragment ChildFragment on User @argumentDefinitions(environments: {type: "[Envir
             "args": [],
             "directives": [],
             "loc": {
+              "kind": "Source",
               "start": 294,
               "end": 299,
               "source": {
@@ -2537,6 +2649,7 @@ fragment ChildFragment on User @argumentDefinitions(environments: {type: "[Envir
       {
         "kind": "LocalArgumentDefinition",
         "loc": {
+          "kind": "Source",
           "start": 206,
           "end": 245,
           "source": {
@@ -2615,6 +2728,7 @@ fragment ChildFragment on User @argumentDefinitions(environments: {type: "[Envir
     "kind": "Fragment",
     "directives": [],
     "loc": {
+      "kind": "Source",
       "start": 0,
       "end": 154,
       "source": {
@@ -2636,6 +2750,7 @@ fragment ChildFragment on User @argumentDefinitions(environments: {type: "[Envir
           {
             "kind": "Argument",
             "loc": {
+              "kind": "Source",
               "start": 62,
               "end": 84,
               "source": {
@@ -2652,6 +2767,7 @@ fragment ChildFragment on User @argumentDefinitions(environments: {type: "[Envir
             "value": {
               "kind": "Literal",
               "loc": {
+                "kind": "Source",
                 "start": 76,
                 "end": 84,
                 "source": {
@@ -2673,6 +2789,7 @@ fragment ChildFragment on User @argumentDefinitions(environments: {type: "[Envir
         ],
         "directives": [],
         "loc": {
+          "kind": "Source",
           "start": 36,
           "end": 101,
           "source": {
@@ -2693,6 +2810,7 @@ fragment ChildFragment on User @argumentDefinitions(environments: {type: "[Envir
             "args": [],
             "directives": [],
             "loc": {
+              "kind": "Source",
               "start": 92,
               "end": 97,
               "source": {
@@ -2717,6 +2835,7 @@ fragment ChildFragment on User @argumentDefinitions(environments: {type: "[Envir
           {
             "kind": "Argument",
             "loc": {
+              "kind": "Source",
               "start": 132,
               "end": 151,
               "source": {
@@ -2733,6 +2852,7 @@ fragment ChildFragment on User @argumentDefinitions(environments: {type: "[Envir
             "value": {
               "kind": "Literal",
               "loc": {
+                "kind": "Source",
                 "start": 146,
                 "end": 151,
                 "source": {
@@ -2754,6 +2874,7 @@ fragment ChildFragment on User @argumentDefinitions(environments: {type: "[Envir
         ],
         "metadata": null,
         "loc": {
+          "kind": "Source",
           "start": 104,
           "end": 152,
           "source": {
@@ -2776,6 +2897,7 @@ fragment ChildFragment on User @argumentDefinitions(environments: {type: "[Envir
     "kind": "Fragment",
     "directives": [],
     "loc": {
+      "kind": "Source",
       "start": 156,
       "end": 307,
       "source": {
@@ -2797,6 +2919,7 @@ fragment ChildFragment on User @argumentDefinitions(environments: {type: "[Envir
           {
             "kind": "Argument",
             "loc": {
+              "kind": "Source",
               "start": 261,
               "end": 288,
               "source": {
@@ -2813,6 +2936,7 @@ fragment ChildFragment on User @argumentDefinitions(environments: {type: "[Envir
             "value": {
               "kind": "Variable",
               "loc": {
+                "kind": "Source",
                 "start": 275,
                 "end": 288,
                 "source": {
@@ -2833,6 +2957,7 @@ fragment ChildFragment on User @argumentDefinitions(environments: {type: "[Envir
         ],
         "directives": [],
         "loc": {
+          "kind": "Source",
           "start": 252,
           "end": 305,
           "source": {
@@ -2853,6 +2978,7 @@ fragment ChildFragment on User @argumentDefinitions(environments: {type: "[Envir
             "args": [],
             "directives": [],
             "loc": {
+              "kind": "Source",
               "start": 296,
               "end": 301,
               "source": {
@@ -2877,6 +3003,7 @@ fragment ChildFragment on User @argumentDefinitions(environments: {type: "[Envir
       {
         "kind": "LocalArgumentDefinition",
         "loc": {
+          "kind": "Source",
           "start": 208,
           "end": 247,
           "source": {
@@ -2919,6 +3046,7 @@ fragment ChildFragment on Query @argumentDefinitions(query: {type: "CheckinSearc
     "kind": "Fragment",
     "directives": [],
     "loc": {
+      "kind": "Source",
       "start": 0,
       "end": 169,
       "source": {
@@ -2940,6 +3068,7 @@ fragment ChildFragment on Query @argumentDefinitions(query: {type: "CheckinSearc
           {
             "kind": "Argument",
             "loc": {
+              "kind": "Source",
               "start": 73,
               "end": 97,
               "source": {
@@ -2956,6 +3085,7 @@ fragment ChildFragment on Query @argumentDefinitions(query: {type: "CheckinSearc
             "value": {
               "kind": "Literal",
               "loc": {
+                "kind": "Source",
                 "start": 80,
                 "end": 97,
                 "source": {
@@ -2977,6 +3107,7 @@ fragment ChildFragment on Query @argumentDefinitions(query: {type: "CheckinSearc
         ],
         "directives": [],
         "loc": {
+          "kind": "Source",
           "start": 37,
           "end": 114,
           "source": {
@@ -2997,6 +3128,7 @@ fragment ChildFragment on Query @argumentDefinitions(query: {type: "CheckinSearc
             "args": [],
             "directives": [],
             "loc": {
+              "kind": "Source",
               "start": 105,
               "end": 110,
               "source": {
@@ -3021,6 +3153,7 @@ fragment ChildFragment on Query @argumentDefinitions(query: {type: "CheckinSearc
           {
             "kind": "Argument",
             "loc": {
+              "kind": "Source",
               "start": 145,
               "end": 166,
               "source": {
@@ -3037,6 +3170,7 @@ fragment ChildFragment on Query @argumentDefinitions(query: {type: "CheckinSearc
             "value": {
               "kind": "Literal",
               "loc": {
+                "kind": "Source",
                 "start": 152,
                 "end": 166,
                 "source": {
@@ -3058,6 +3192,7 @@ fragment ChildFragment on Query @argumentDefinitions(query: {type: "CheckinSearc
         ],
         "metadata": null,
         "loc": {
+          "kind": "Source",
           "start": 117,
           "end": 167,
           "source": {
@@ -3080,6 +3215,7 @@ fragment ChildFragment on Query @argumentDefinitions(query: {type: "CheckinSearc
     "kind": "Fragment",
     "directives": [],
     "loc": {
+      "kind": "Source",
       "start": 171,
       "end": 316,
       "source": {
@@ -3101,6 +3237,7 @@ fragment ChildFragment on Query @argumentDefinitions(query: {type: "CheckinSearc
           {
             "kind": "Argument",
             "loc": {
+              "kind": "Source",
               "start": 284,
               "end": 297,
               "source": {
@@ -3117,6 +3254,7 @@ fragment ChildFragment on Query @argumentDefinitions(query: {type: "CheckinSearc
             "value": {
               "kind": "Variable",
               "loc": {
+                "kind": "Source",
                 "start": 291,
                 "end": 297,
                 "source": {
@@ -3137,6 +3275,7 @@ fragment ChildFragment on Query @argumentDefinitions(query: {type: "CheckinSearc
         ],
         "directives": [],
         "loc": {
+          "kind": "Source",
           "start": 265,
           "end": 314,
           "source": {
@@ -3157,6 +3296,7 @@ fragment ChildFragment on Query @argumentDefinitions(query: {type: "CheckinSearc
             "args": [],
             "directives": [],
             "loc": {
+              "kind": "Source",
               "start": 305,
               "end": 310,
               "source": {
@@ -3181,6 +3321,7 @@ fragment ChildFragment on Query @argumentDefinitions(query: {type: "CheckinSearc
       {
         "kind": "LocalArgumentDefinition",
         "loc": {
+          "kind": "Source",
           "start": 224,
           "end": 260,
           "source": {
@@ -3223,6 +3364,7 @@ fragment ChildFragment on Query @argumentDefinitions(inputs: {type: "[CheckinSea
     "kind": "Fragment",
     "directives": [],
     "loc": {
+      "kind": "Source",
       "start": 0,
       "end": 172,
       "source": {
@@ -3244,6 +3386,7 @@ fragment ChildFragment on Query @argumentDefinitions(inputs: {type: "[CheckinSea
           {
             "kind": "Argument",
             "loc": {
+              "kind": "Source",
               "start": 73,
               "end": 97,
               "source": {
@@ -3260,6 +3403,7 @@ fragment ChildFragment on Query @argumentDefinitions(inputs: {type: "[CheckinSea
             "value": {
               "kind": "Literal",
               "loc": {
+                "kind": "Source",
                 "start": 80,
                 "end": 97,
                 "source": {
@@ -3281,6 +3425,7 @@ fragment ChildFragment on Query @argumentDefinitions(inputs: {type: "[CheckinSea
         ],
         "directives": [],
         "loc": {
+          "kind": "Source",
           "start": 37,
           "end": 114,
           "source": {
@@ -3301,6 +3446,7 @@ fragment ChildFragment on Query @argumentDefinitions(inputs: {type: "[CheckinSea
             "args": [],
             "directives": [],
             "loc": {
+              "kind": "Source",
               "start": 105,
               "end": 110,
               "source": {
@@ -3325,6 +3471,7 @@ fragment ChildFragment on Query @argumentDefinitions(inputs: {type: "[CheckinSea
           {
             "kind": "Argument",
             "loc": {
+              "kind": "Source",
               "start": 145,
               "end": 169,
               "source": {
@@ -3341,6 +3488,7 @@ fragment ChildFragment on Query @argumentDefinitions(inputs: {type: "[CheckinSea
             "value": {
               "kind": "Literal",
               "loc": {
+                "kind": "Source",
                 "start": 153,
                 "end": 169,
                 "source": {
@@ -3364,6 +3512,7 @@ fragment ChildFragment on Query @argumentDefinitions(inputs: {type: "[CheckinSea
         ],
         "metadata": null,
         "loc": {
+          "kind": "Source",
           "start": 117,
           "end": 170,
           "source": {
@@ -3386,6 +3535,7 @@ fragment ChildFragment on Query @argumentDefinitions(inputs: {type: "[CheckinSea
     "kind": "Fragment",
     "directives": [],
     "loc": {
+      "kind": "Source",
       "start": 174,
       "end": 348,
       "source": {
@@ -3407,6 +3557,7 @@ fragment ChildFragment on Query @argumentDefinitions(inputs: {type: "[CheckinSea
           {
             "kind": "Argument",
             "loc": {
+              "kind": "Source",
               "start": 291,
               "end": 329,
               "source": {
@@ -3423,6 +3574,7 @@ fragment ChildFragment on Query @argumentDefinitions(inputs: {type: "[CheckinSea
             "value": {
               "kind": "ObjectValue",
               "loc": {
+                "kind": "Source",
                 "start": 298,
                 "end": 329,
                 "source": {
@@ -3439,6 +3591,7 @@ fragment ChildFragment on Query @argumentDefinitions(inputs: {type: "[CheckinSea
                 {
                   "kind": "ObjectFieldValue",
                   "loc": {
+                    "kind": "Source",
                     "start": 299,
                     "end": 311,
                     "source": {
@@ -3455,6 +3608,7 @@ fragment ChildFragment on Query @argumentDefinitions(inputs: {type: "[CheckinSea
                   "value": {
                     "kind": "Literal",
                     "loc": {
+                      "kind": "Source",
                       "start": 306,
                       "end": 311,
                       "source": {
@@ -3473,6 +3627,7 @@ fragment ChildFragment on Query @argumentDefinitions(inputs: {type: "[CheckinSea
                 {
                   "kind": "ObjectFieldValue",
                   "loc": {
+                    "kind": "Source",
                     "start": 313,
                     "end": 328,
                     "source": {
@@ -3489,6 +3644,7 @@ fragment ChildFragment on Query @argumentDefinitions(inputs: {type: "[CheckinSea
                   "value": {
                     "kind": "Variable",
                     "loc": {
+                      "kind": "Source",
                       "start": 321,
                       "end": 328,
                       "source": {
@@ -3512,6 +3668,7 @@ fragment ChildFragment on Query @argumentDefinitions(inputs: {type: "[CheckinSea
         ],
         "directives": [],
         "loc": {
+          "kind": "Source",
           "start": 272,
           "end": 346,
           "source": {
@@ -3532,6 +3689,7 @@ fragment ChildFragment on Query @argumentDefinitions(inputs: {type: "[CheckinSea
             "args": [],
             "directives": [],
             "loc": {
+              "kind": "Source",
               "start": 337,
               "end": 342,
               "source": {
@@ -3556,6 +3714,7 @@ fragment ChildFragment on Query @argumentDefinitions(inputs: {type: "[CheckinSea
       {
         "kind": "LocalArgumentDefinition",
         "loc": {
+          "kind": "Source",
           "start": 227,
           "end": 267,
           "source": {
@@ -3622,6 +3781,7 @@ fragment InlineUntypedFragment on User {
     "kind": "Fragment",
     "directives": [],
     "loc": {
+      "kind": "Source",
       "start": 0,
       "end": 63,
       "source": {
@@ -3640,6 +3800,7 @@ fragment InlineUntypedFragment on User {
         "kind": "InlineFragment",
         "directives": [],
         "loc": {
+          "kind": "Source",
           "start": 43,
           "end": 61,
           "source": {
@@ -3659,6 +3820,7 @@ fragment InlineUntypedFragment on User {
             "args": [],
             "directives": [],
             "loc": {
+              "kind": "Source",
               "start": 53,
               "end": 57,
               "source": {
@@ -3698,6 +3860,7 @@ fragment LinkedHandleField on User {
     "kind": "Fragment",
     "directives": [],
     "loc": {
+      "kind": "Source",
       "start": 0,
       "end": 156,
       "source": {
@@ -3719,6 +3882,7 @@ fragment LinkedHandleField on User {
           {
             "kind": "Argument",
             "loc": {
+              "kind": "Source",
               "start": 47,
               "end": 56,
               "source": {
@@ -3735,6 +3899,7 @@ fragment LinkedHandleField on User {
             "value": {
               "kind": "Literal",
               "loc": {
+                "kind": "Source",
                 "start": 54,
                 "end": 56,
                 "source": {
@@ -3766,6 +3931,7 @@ fragment LinkedHandleField on User {
           }
         ],
         "loc": {
+          "kind": "Source",
           "start": 39,
           "end": 152,
           "source": {
@@ -3786,6 +3952,7 @@ fragment LinkedHandleField on User {
             "args": [],
             "directives": [],
             "loc": {
+              "kind": "Source",
               "start": 143,
               "end": 148,
               "source": {
@@ -3825,6 +3992,7 @@ fragment LinkedHandleField on User {
     "kind": "Fragment",
     "directives": [],
     "loc": {
+      "kind": "Source",
       "start": 0,
       "end": 165,
       "source": {
@@ -3846,6 +4014,7 @@ fragment LinkedHandleField on User {
           {
             "kind": "Argument",
             "loc": {
+              "kind": "Source",
               "start": 47,
               "end": 56,
               "source": {
@@ -3862,6 +4031,7 @@ fragment LinkedHandleField on User {
             "value": {
               "kind": "Literal",
               "loc": {
+                "kind": "Source",
                 "start": 54,
                 "end": 56,
                 "source": {
@@ -3881,6 +4051,7 @@ fragment LinkedHandleField on User {
           {
             "kind": "Argument",
             "loc": {
+              "kind": "Source",
               "start": 58,
               "end": 75,
               "source": {
@@ -3897,6 +4068,7 @@ fragment LinkedHandleField on User {
             "value": {
               "kind": "Variable",
               "loc": {
+                "kind": "Source",
                 "start": 67,
                 "end": 75,
                 "source": {
@@ -3927,6 +4099,7 @@ fragment LinkedHandleField on User {
           }
         ],
         "loc": {
+          "kind": "Source",
           "start": 39,
           "end": 163,
           "source": {
@@ -3947,6 +4120,7 @@ fragment LinkedHandleField on User {
             "args": [],
             "directives": [],
             "loc": {
+              "kind": "Source",
               "start": 154,
               "end": 159,
               "source": {
@@ -3971,6 +4145,7 @@ fragment LinkedHandleField on User {
       {
         "kind": "RootArgumentDefinition",
         "loc": {
+          "kind": "Source",
           "start": 67,
           "end": 75,
           "source": {
@@ -4005,6 +4180,7 @@ fragment LinkedHandleField on User {
     "kind": "Fragment",
     "directives": [],
     "loc": {
+      "kind": "Source",
       "start": 0,
       "end": 149,
       "source": {
@@ -4026,6 +4202,7 @@ fragment LinkedHandleField on User {
           {
             "kind": "Argument",
             "loc": {
+              "kind": "Source",
               "start": 47,
               "end": 56,
               "source": {
@@ -4042,6 +4219,7 @@ fragment LinkedHandleField on User {
             "value": {
               "kind": "Literal",
               "loc": {
+                "kind": "Source",
                 "start": 54,
                 "end": 56,
                 "source": {
@@ -4068,6 +4246,7 @@ fragment LinkedHandleField on User {
           }
         ],
         "loc": {
+          "kind": "Source",
           "start": 39,
           "end": 147,
           "source": {
@@ -4088,6 +4267,7 @@ fragment LinkedHandleField on User {
             "args": [],
             "directives": [],
             "loc": {
+              "kind": "Source",
               "start": 138,
               "end": 143,
               "source": {
@@ -4127,6 +4307,7 @@ fragment LinkedHandleField on User {
     "kind": "Fragment",
     "directives": [],
     "loc": {
+      "kind": "Source",
       "start": 0,
       "end": 174,
       "source": {
@@ -4148,6 +4329,7 @@ fragment LinkedHandleField on User {
           {
             "kind": "Argument",
             "loc": {
+              "kind": "Source",
               "start": 47,
               "end": 56,
               "source": {
@@ -4164,6 +4346,7 @@ fragment LinkedHandleField on User {
             "value": {
               "kind": "Literal",
               "loc": {
+                "kind": "Source",
                 "start": 54,
                 "end": 56,
                 "source": {
@@ -4197,6 +4380,7 @@ fragment LinkedHandleField on User {
           }
         ],
         "loc": {
+          "kind": "Source",
           "start": 39,
           "end": 172,
           "source": {
@@ -4217,6 +4401,7 @@ fragment LinkedHandleField on User {
             "args": [],
             "directives": [],
             "loc": {
+              "kind": "Source",
               "start": 163,
               "end": 168,
               "source": {
@@ -4261,6 +4446,7 @@ query ListArgumentQuery($waypoint: WayPoint!) {
     "kind": "Root",
     "operation": "query",
     "loc": {
+      "kind": "Source",
       "start": 0,
       "end": 153,
       "source": {
@@ -4278,6 +4464,7 @@ query ListArgumentQuery($waypoint: WayPoint!) {
       {
         "kind": "LocalArgumentDefinition",
         "loc": {
+          "kind": "Source",
           "start": 24,
           "end": 44,
           "source": {
@@ -4304,6 +4491,7 @@ query ListArgumentQuery($waypoint: WayPoint!) {
           {
             "kind": "Argument",
             "loc": {
+              "kind": "Source",
               "start": 56,
               "end": 115,
               "source": {
@@ -4320,6 +4508,7 @@ query ListArgumentQuery($waypoint: WayPoint!) {
             "value": {
               "kind": "ListValue",
               "loc": {
+                "kind": "Source",
                 "start": 67,
                 "end": 115,
                 "source": {
@@ -4336,6 +4525,7 @@ query ListArgumentQuery($waypoint: WayPoint!) {
                 {
                   "kind": "Variable",
                   "loc": {
+                    "kind": "Source",
                     "start": 68,
                     "end": 77,
                     "source": {
@@ -4354,6 +4544,7 @@ query ListArgumentQuery($waypoint: WayPoint!) {
                 {
                   "kind": "Literal",
                   "loc": {
+                    "kind": "Source",
                     "start": 79,
                     "end": 114,
                     "source": {
@@ -4378,6 +4569,7 @@ query ListArgumentQuery($waypoint: WayPoint!) {
         ],
         "directives": [],
         "loc": {
+          "kind": "Source",
           "start": 50,
           "end": 151,
           "source": {
@@ -4398,6 +4590,7 @@ query ListArgumentQuery($waypoint: WayPoint!) {
             "args": [],
             "directives": [],
             "loc": {
+              "kind": "Source",
               "start": 123,
               "end": 147,
               "source": {
@@ -4418,6 +4611,7 @@ query ListArgumentQuery($waypoint: WayPoint!) {
                 "args": [],
                 "directives": [],
                 "loc": {
+                  "kind": "Source",
                   "start": 137,
                   "end": 141,
                   "source": {
@@ -4457,6 +4651,7 @@ fragment TestFragment on User {
     "kind": "Fragment",
     "directives": [],
     "loc": {
+      "kind": "Source",
       "start": 0,
       "end": 69,
       "source": {
@@ -4477,6 +4672,7 @@ fragment TestFragment on User {
         "args": [],
         "directives": [],
         "loc": {
+          "kind": "Source",
           "start": 34,
           "end": 40,
           "source": {
@@ -4518,6 +4714,7 @@ query LiteralListArgumentQuery {
     "kind": "Root",
     "operation": "query",
     "loc": {
+      "kind": "Source",
       "start": 0,
       "end": 127,
       "source": {
@@ -4541,6 +4738,7 @@ query LiteralListArgumentQuery {
           {
             "kind": "Argument",
             "loc": {
+              "kind": "Source",
               "start": 41,
               "end": 89,
               "source": {
@@ -4557,6 +4755,7 @@ query LiteralListArgumentQuery {
             "value": {
               "kind": "Literal",
               "loc": {
+                "kind": "Source",
                 "start": 52,
                 "end": 89,
                 "source": {
@@ -4581,6 +4780,7 @@ query LiteralListArgumentQuery {
         ],
         "directives": [],
         "loc": {
+          "kind": "Source",
           "start": 35,
           "end": 125,
           "source": {
@@ -4601,6 +4801,7 @@ query LiteralListArgumentQuery {
             "args": [],
             "directives": [],
             "loc": {
+              "kind": "Source",
               "start": 97,
               "end": 121,
               "source": {
@@ -4621,6 +4822,7 @@ query LiteralListArgumentQuery {
                 "args": [],
                 "directives": [],
                 "loc": {
+                  "kind": "Source",
                   "start": 111,
                   "end": 115,
                   "source": {
@@ -4722,6 +4924,7 @@ query LiteralObjectArgument {
     "kind": "Root",
     "operation": "query",
     "loc": {
+      "kind": "Source",
       "start": 0,
       "end": 104,
       "source": {
@@ -4745,6 +4948,7 @@ query LiteralObjectArgument {
           {
             "kind": "Argument",
             "loc": {
+              "kind": "Source",
               "start": 51,
               "end": 85,
               "source": {
@@ -4761,6 +4965,7 @@ query LiteralObjectArgument {
             "value": {
               "kind": "Literal",
               "loc": {
+                "kind": "Source",
                 "start": 58,
                 "end": 85,
                 "source": {
@@ -4782,6 +4987,7 @@ query LiteralObjectArgument {
         ],
         "directives": [],
         "loc": {
+          "kind": "Source",
           "start": 32,
           "end": 102,
           "source": {
@@ -4802,6 +5008,7 @@ query LiteralObjectArgument {
             "args": [],
             "directives": [],
             "loc": {
+              "kind": "Source",
               "start": 93,
               "end": 98,
               "source": {
@@ -4893,6 +5100,7 @@ query NullValuesQuery {
     "kind": "Root",
     "operation": "query",
     "loc": {
+      "kind": "Source",
       "start": 0,
       "end": 72,
       "source": {
@@ -4916,6 +5124,7 @@ query NullValuesQuery {
           {
             "kind": "Argument",
             "loc": {
+              "kind": "Source",
               "start": 32,
               "end": 54,
               "source": {
@@ -4932,6 +5141,7 @@ query NullValuesQuery {
             "value": {
               "kind": "Literal",
               "loc": {
+                "kind": "Source",
                 "start": 40,
                 "end": 54,
                 "source": {
@@ -4953,6 +5163,7 @@ query NullValuesQuery {
         ],
         "directives": [],
         "loc": {
+          "kind": "Source",
           "start": 26,
           "end": 70,
           "source": {
@@ -4973,6 +5184,7 @@ query NullValuesQuery {
             "args": [],
             "directives": [],
             "loc": {
+              "kind": "Source",
               "start": 62,
               "end": 66,
               "source": {
@@ -5034,6 +5246,7 @@ query ObjectArgument($text: String!) {
     "kind": "Root",
     "operation": "query",
     "loc": {
+      "kind": "Source",
       "start": 0,
       "end": 108,
       "source": {
@@ -5051,6 +5264,7 @@ query ObjectArgument($text: String!) {
       {
         "kind": "LocalArgumentDefinition",
         "loc": {
+          "kind": "Source",
           "start": 21,
           "end": 35,
           "source": {
@@ -5077,6 +5291,7 @@ query ObjectArgument($text: String!) {
           {
             "kind": "Argument",
             "loc": {
+              "kind": "Source",
               "start": 60,
               "end": 89,
               "source": {
@@ -5093,6 +5308,7 @@ query ObjectArgument($text: String!) {
             "value": {
               "kind": "ObjectValue",
               "loc": {
+                "kind": "Source",
                 "start": 67,
                 "end": 89,
                 "source": {
@@ -5109,6 +5325,7 @@ query ObjectArgument($text: String!) {
                 {
                   "kind": "ObjectFieldValue",
                   "loc": {
+                    "kind": "Source",
                     "start": 73,
                     "end": 85,
                     "source": {
@@ -5125,6 +5342,7 @@ query ObjectArgument($text: String!) {
                   "value": {
                     "kind": "Variable",
                     "loc": {
+                      "kind": "Source",
                       "start": 80,
                       "end": 85,
                       "source": {
@@ -5148,6 +5366,7 @@ query ObjectArgument($text: String!) {
         ],
         "directives": [],
         "loc": {
+          "kind": "Source",
           "start": 41,
           "end": 106,
           "source": {
@@ -5168,6 +5387,7 @@ query ObjectArgument($text: String!) {
             "args": [],
             "directives": [],
             "loc": {
+              "kind": "Source",
               "start": 97,
               "end": 102,
               "source": {
@@ -5204,6 +5424,7 @@ fragment ScalarHandleField on User {
     "kind": "Fragment",
     "directives": [],
     "loc": {
+      "kind": "Source",
       "start": 0,
       "end": 120,
       "source": {
@@ -5236,6 +5457,7 @@ fragment ScalarHandleField on User {
           }
         ],
         "loc": {
+          "kind": "Source",
           "start": 39,
           "end": 118,
           "source": {
@@ -5270,6 +5492,7 @@ fragment TestFragment on User {
     "kind": "Fragment",
     "directives": [],
     "loc": {
+      "kind": "Source",
       "start": 0,
       "end": 38,
       "source": {
@@ -5290,6 +5513,7 @@ fragment TestFragment on User {
         "args": [],
         "directives": [],
         "loc": {
+          "kind": "Source",
           "start": 34,
           "end": 36,
           "source": {
@@ -5326,6 +5550,7 @@ query TestQuery($id: ID!) {
     "kind": "Root",
     "operation": "query",
     "loc": {
+      "kind": "Source",
       "start": 0,
       "end": 63,
       "source": {
@@ -5343,6 +5568,7 @@ query TestQuery($id: ID!) {
       {
         "kind": "LocalArgumentDefinition",
         "loc": {
+          "kind": "Source",
           "start": 16,
           "end": 24,
           "source": {
@@ -5369,6 +5595,7 @@ query TestQuery($id: ID!) {
           {
             "kind": "Argument",
             "loc": {
+              "kind": "Source",
               "start": 40,
               "end": 47,
               "source": {
@@ -5385,6 +5612,7 @@ query TestQuery($id: ID!) {
             "value": {
               "kind": "Variable",
               "loc": {
+                "kind": "Source",
                 "start": 44,
                 "end": 47,
                 "source": {
@@ -5405,6 +5633,7 @@ query TestQuery($id: ID!) {
         ],
         "directives": [],
         "loc": {
+          "kind": "Source",
           "start": 30,
           "end": 61,
           "source": {
@@ -5425,6 +5654,7 @@ query TestQuery($id: ID!) {
             "args": [],
             "directives": [],
             "loc": {
+              "kind": "Source",
               "start": 55,
               "end": 57,
               "source": {

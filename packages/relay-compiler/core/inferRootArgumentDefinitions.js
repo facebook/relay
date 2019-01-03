@@ -111,6 +111,7 @@ function transformRoot(
           `inferRootArgumentDefinitions: Expected inferred variable '\$${
             argDef.name
           }' to be a root variables.`,
+          [argDef.loc],
         );
       }
       const localDefinition = localArgumentDefinitions.get(argDef.name);
@@ -179,7 +180,7 @@ function visit(
         ) {
           argumentDefinitions.set(arg.value.variableName, {
             kind: 'RootArgumentDefinition',
-            loc: {source: arg.loc},
+            loc: {kind: 'Derived', source: arg.loc},
             metadata: null,
             name: arg.value.variableName,
             type: argDef.type,
@@ -210,7 +211,7 @@ function visit(
         // root variable
         argumentDefinitions.set(variable.variableName, {
           kind: 'RootArgumentDefinition',
-          loc: {source: argument.loc},
+          loc: {kind: 'Derived', source: argument.loc},
           metadata: null,
           name: variable.variableName,
           type: variable.type || argument.type,
@@ -228,7 +229,7 @@ function visit(
         // root variable
         argumentDefinitions.set(variable.variableName, {
           kind: 'RootArgumentDefinition',
-          loc: {source: condition.loc},
+          loc: {kind: 'Derived', source: condition.loc},
           metadata: null,
           name: variable.variableName,
           type,

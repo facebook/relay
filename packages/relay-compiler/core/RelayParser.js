@@ -263,6 +263,7 @@ class RelayParser {
       throw createUserError(
         `Directive @${ARGUMENT_DEFINITIONS} may be defined at most once per ` +
           'fragment.',
+        null,
         variableDirectives,
       );
     }
@@ -277,6 +278,7 @@ class RelayParser {
       throw createUserError(
         `Directive @${ARGUMENT_DEFINITIONS} requires arguments: remove the ` +
           'directive to skip defining local variables for this fragment.',
+        null,
         [variableDirective],
       );
     }
@@ -287,6 +289,7 @@ class RelayParser {
       if (previousVariable != null) {
         throw createUserError(
           `Duplicate definition for variable '\$${argName}'.`,
+          null,
           [previousVariable.ast, arg],
         );
       }
@@ -301,6 +304,7 @@ class RelayParser {
           `Expected definition for variable '\$${argName}' to be an object ` +
             "with the shape: '{type: string, defaultValue?: mixed, nonNull?: " +
             "boolean, list?: boolean}'.",
+          null,
           [arg.value],
         );
       }
@@ -319,6 +323,7 @@ class RelayParser {
             "with the following shape: '{type: string, defaultValue?: mixed, " +
             "nonNull?: boolean, list?: boolean}', got unknown key(s) " +
             `${unknownKeysString}.`,
+          null,
           [arg],
         );
       }
@@ -354,6 +359,7 @@ class RelayParser {
       if (previousDefinition != null) {
         throw createUserError(
           `Duplicate definition for variable '\$${name}'.`,
+          null,
           [previousDefinition.ast, def],
         );
       }
@@ -489,6 +495,7 @@ class GraphQLDefinitionParser {
           )}' but used in a location expecting the type '${String(
             usedAsType,
           )}'`,
+          null,
           [variableDefinition.ast, variable],
         );
       }
@@ -515,6 +522,7 @@ class GraphQLDefinitionParser {
             )}' and '${String(
               usedAsType,
             )}'. Source: ${this._getErrorContext()}`,
+            null,
             [previousVariable, variable],
           );
         }
@@ -590,12 +598,14 @@ class GraphQLDefinitionParser {
           `Unknown ast kind '${
             definition.operation
           }'. Source: ${this._getErrorContext()}.`,
+          null,
           [definition],
         );
     }
     if (!definition.selectionSet) {
       throw createUserError(
         `Expected operation to have selections. Source: ${this._getErrorContext()}`,
+        null,
         [definition],
       );
     }
@@ -606,6 +616,7 @@ class GraphQLDefinitionParser {
     if (this._unknownVariables.size !== 0) {
       throw createUserError(
         `Query '${name}' references undefined variables.`,
+        null,
         Array.from(
           this._unknownVariables.values(),
           variableReference => variableReference.ast,
@@ -655,6 +666,7 @@ class GraphQLDefinitionParser {
       if (conditionalNodes.length !== 1) {
         throw createCompilerError(
           `Expected exactly one condition node. Source: ${this._getErrorContext()}`,
+          null,
           selection.directives,
         );
       }
@@ -699,6 +711,7 @@ class GraphQLDefinitionParser {
       throw createUserError(
         `Directive @${ARGUMENTS} may be used at most once per a fragment spread. ` +
           `Source: ${this._getErrorContext()}`,
+        null,
         argumentDirectives,
       );
     }
@@ -731,6 +744,7 @@ class GraphQLDefinitionParser {
               `Literal @${ARGUMENTS} values are only supported when the ` +
                 `argument is defined with @${ARGUMENT_DEFINITIONS}. Check ` +
                 `the definition of fragment '${fragmentName}'.`,
+              null,
               [arg.value, this._entries.get(fragmentName)?.definition].filter(
                 Boolean,
               ),
@@ -773,6 +787,7 @@ class GraphQLDefinitionParser {
         `Unknown field '${name}' on type '${String(
           parentType,
         )}'. Source: ${this._getErrorContext()}`,
+        null,
         [field],
       );
     }
@@ -793,6 +808,7 @@ class GraphQLDefinitionParser {
       ) {
         throw createUserError(
           `Expected no selections for scalar field '${name}'. Source: ${this._getErrorContext()}`,
+          null,
           [field],
         );
       }
@@ -816,6 +832,7 @@ class GraphQLDefinitionParser {
           `Expected at least one selection for non-scalar field '${name}' on type '${String(
             type,
           )}'. Source: ${this._getErrorContext()}.`,
+          null,
           [field],
         );
       }
@@ -856,6 +873,7 @@ class GraphQLDefinitionParser {
           throw createUserError(
             `Expected a string literal argument for the @${CLIENT_FIELD} directive. ` +
               `Source: ${this._getErrorContext()}`,
+            null,
             [handleArgument.value],
           );
         }
@@ -873,6 +891,7 @@ class GraphQLDefinitionParser {
             throw createUserError(
               `Expected a string literal argument for the @${CLIENT_FIELD} directive. ` +
                 `Source: ${this._getErrorContext()}`,
+              null,
               [keyArgument.value],
             );
           }
@@ -899,6 +918,7 @@ class GraphQLDefinitionParser {
             throw createUserError(
               `Expected an array of argument names on field '${fieldName}'. ` +
                 `Source: ${this._getErrorContext()}`,
+              null,
               [filtersArgument.value],
             );
           }
@@ -921,6 +941,7 @@ class GraphQLDefinitionParser {
       if (directiveDef == null) {
         throw createUserError(
           `Unknown directive '${name}'. Source: ${this._getErrorContext()}`,
+          null,
           [directive],
         );
       }
@@ -948,6 +969,7 @@ class GraphQLDefinitionParser {
       if (argDef == null) {
         throw createUserError(
           `Unknown argument '${argName}'. Source: ${this._getErrorContext()}`,
+          null,
           [arg],
         );
       }
@@ -978,7 +1000,7 @@ class GraphQLDefinitionParser {
           `Expected an 'if' argument to @${
             directive.name
           }. Source: ${this._getErrorContext()}`,
-          [], // TODO: get DirectiveNode
+          [directive.loc],
         );
       }
       if (!(arg.value.kind === 'Variable' || arg.value.kind === 'Literal')) {
@@ -986,7 +1008,7 @@ class GraphQLDefinitionParser {
           `Expected the 'if' argument to @${
             directive.name
           } to be a variable or literal. Source: ${this._getErrorContext()}`,
-          [], // TODO: get DirectiveNode
+          [directive.loc],
         );
       }
       return {
@@ -1045,6 +1067,7 @@ class GraphQLDefinitionParser {
       if (type instanceof GraphQLNonNull) {
         throw createUserError(
           `Expected a value matching type '${String(type)}'.`,
+          null,
           [ast],
         );
       }
@@ -1111,6 +1134,7 @@ class GraphQLDefinitionParser {
       if (ast.kind !== 'ObjectValue') {
         throw createUserError(
           `Expected a value matching type '${String(type)}'.`,
+          null,
           [ast],
         );
       }
@@ -1123,6 +1147,7 @@ class GraphQLDefinitionParser {
         if (fieldConfig == null) {
           throw createUserError(
             `Uknown field '${fieldName}' on type '${String(type)}'.`,
+            null,
             [field],
           );
         }
@@ -1177,6 +1202,7 @@ class GraphQLDefinitionParser {
       } else {
         throw createUserError(
           `Invalid value, expected a value matching type '${String(type)}'.`,
+          null,
           [ast],
         );
       }
@@ -1190,6 +1216,7 @@ class GraphQLDefinitionParser {
         // if the ast value is valid for the type.
         throw createUserError(
           `Expected a value matching type '${String(type)}'.`,
+          null,
           [ast],
         );
       }
@@ -1206,6 +1233,7 @@ class GraphQLDefinitionParser {
           type,
         )}' for input value, expected a GraphQLList, ` +
           'GraphQLInputObjectType, GraphQLEnumType, or GraphQLScalarType.',
+        null,
         [ast],
       );
     }
@@ -1245,6 +1273,7 @@ function transformLiteralValue(ast: ValueNode, context: ASTNode): mixed {
     case 'Variable':
       throw createUserError(
         'Unexpected variable where a literal (static) value is required.',
+        null,
         [ast, context],
       );
     default:
@@ -1276,9 +1305,10 @@ function buildArgumentDefinitions(
  */
 function buildLocation(loc: ?ASTLocation): Location {
   if (loc == null) {
-    return {unknown: true};
+    return {kind: 'Unknown'};
   }
   return {
+    kind: 'Source',
     start: loc.start,
     end: loc.end,
     source: loc.source,
@@ -1333,7 +1363,9 @@ function applyConditions(
 function getName(ast): string {
   const name = ast.name?.value;
   if (typeof name !== 'string') {
-    throw createCompilerError("Expected ast node to have a 'name'.", [ast]);
+    throw createCompilerError("Expected ast node to have a 'name'.", null, [
+      ast,
+    ]);
   }
   return name;
 }

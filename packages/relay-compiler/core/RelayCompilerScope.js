@@ -21,6 +21,7 @@ import type {
   Argument,
   ArgumentDefinition,
   ArgumentValue,
+  FragmentSpread,
   LocalArgumentDefinition,
 } from './GraphQLIR';
 
@@ -137,7 +138,7 @@ function getFragmentScope(
   definitions: $ReadOnlyArray<ArgumentDefinition>,
   args: $ReadOnlyArray<Argument>,
   parentScope: Scope,
-  fragmentName: string,
+  spread: FragmentSpread,
 ): Scope {
   const argMap = new Map();
   args.forEach(arg => {
@@ -152,10 +153,12 @@ function getFragmentScope(
   const errors = eachWithErrors(definitions, definition => {
     if (definition.kind === 'RootArgumentDefinition') {
       if (argMap.has(definition.name)) {
+        const argNode = args.find(a => a.name === definition.name);
         throw createUserError(
-          `Unexpected argument '${
-            definition.name
-          }' supplied to fragment '${fragmentName}'. @arguments may only be provided for variables defined in the fragment's @argumentDefinitions.`,
+          `Unexpected argument '${definition.name}' supplied to fragment '${
+            spread.name
+          }'. @arguments may only be provided for variables defined in the fragment's @argumentDefinitions.`,
+          [argNode?.loc ?? spread.loc],
         );
       }
       fragmentScope[definition.name] = {
@@ -173,10 +176,12 @@ function getFragmentScope(
           definition.defaultValue == null &&
           definition.type instanceof GraphQLNonNull
         ) {
+          const argNode = args.find(a => a.name === definition.name);
           throw createUserError(
             `No value found for required argument '${definition.name}: ${String(
               definition.type,
-            )}' on fragment '${fragmentName}'.`,
+            )}' on fragment '${spread.name}'.`,
+            [argNode?.loc ?? spread.loc],
           );
         }
         fragmentScope[definition.name] = {
@@ -190,7 +195,7 @@ function getFragmentScope(
     }
   });
   if (errors != null && errors.length) {
-    throw createCombinedError(errors, 'RelayCompilerScope');
+    throw createCombinedError(errors);
   }
   return fragmentScope;
 }

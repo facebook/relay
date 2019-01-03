@@ -17,7 +17,6 @@ const GraphQLSchemaUtils = require('../core/GraphQLSchemaUtils');
 const areEqual = require('../util/areEqualOSS');
 const getIdentifierForSelection = require('../core/getIdentifierForSelection');
 
-const {printField} = require('../core/GraphQLIRPrinter');
 const {
   createUserError,
   createCompilerError,
@@ -105,7 +104,9 @@ function flattenSelections<T: HasSelections>(node: T, state: State): T {
         ? node.typeCondition
         : node.type;
   if (type == null) {
-    throw createCompilerError('FlattenTransform: Expected a parent type.');
+    throw createCompilerError('FlattenTransform: Expected a parent type.', [
+      node.loc,
+    ]);
   }
 
   // Flatten the selections in this node, creating a new node with flattened
@@ -156,6 +157,7 @@ function flattenSelectionsInto(
           `FlattenTransform: Expected an InlineFragment, got a '${
             selection.kind
           }'`,
+          [selection.loc],
         );
       }
       flattenedSelections.set(nodeIdentifier, {
@@ -171,6 +173,7 @@ function flattenSelectionsInto(
       if (selection.kind !== 'Condition') {
         throw createCompilerError(
           `FlattenTransform: Expected a Condition, got a '${selection.kind}'`,
+          [selection.loc],
         );
       }
       flattenedSelections.set(nodeIdentifier, {
@@ -188,6 +191,7 @@ function flattenSelectionsInto(
       if (selection.kind !== 'LinkedField') {
         throw createCompilerError(
           `FlattenTransform: Expected a LinkedField, got a '${selection.kind}'`,
+          [selection.loc],
         );
       }
       // Note: arguments are intentionally reversed to avoid rebuilds
@@ -207,6 +211,7 @@ function flattenSelectionsInto(
       if (selection.kind !== 'ScalarField') {
         throw createCompilerError(
           `FlattenTransform: Expected a ScalarField, got a '${selection.kind}'`,
+          [selection.loc],
         );
       }
       // Note: arguments are intentionally reversed to avoid rebuilds
@@ -252,9 +257,8 @@ function assertUniqueArgsForAlias(field: Field, otherField: Field): void {
     throw createUserError(
       'Expected all fields on the same parent with ' +
         `the name or alias '${field.alias ??
-          field.name}' to have the same name and arguments. Got '${printField(
-          field,
-        )}' and '${printField(otherField)}'.`,
+          field.name}' to have the same name and arguments.`,
+      [field.loc, otherField.loc],
     );
   }
 }

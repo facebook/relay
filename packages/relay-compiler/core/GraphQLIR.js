@@ -24,17 +24,19 @@ import type {
 export type Metadata = ?{[key: string]: mixed};
 
 export type SourceLocation = {|
+  +kind: 'Source',
   +start: number,
   +end: number,
   +source: Source,
 |};
 export type GeneratedLocation = {|
-  +generated: true,
+  +kind: 'Generated',
 |};
 export type DerivedLocation = {|
+  +kind: 'Derived',
   +source: Location,
 |};
-export type UnknownLocation = {|+unknown: true|};
+export type UnknownLocation = {|+kind: 'Unknown'|};
 
 export type Location =
   | SourceLocation

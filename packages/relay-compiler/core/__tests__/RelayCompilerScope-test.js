@@ -109,12 +109,19 @@ describe('scope', () => {
       const outerScope = {
         outerSize: {kind: 'Variable', name: 'var'},
       };
-      const fragmentName = 'FragmentName';
+      const fragmentSpread = {
+        args: calls,
+        directives: [],
+        kind: 'FragmentSpread',
+        loc: {kind: 'Unknown'},
+        metadata: null,
+        name: '<name>',
+      };
       const innerScope = getFragmentScope(
         definitions,
         calls,
         outerScope,
-        fragmentName,
+        fragmentSpread,
       );
       expect(innerScope).toEqual({
         size: outerScope.outerSize,
@@ -147,12 +154,19 @@ describe('scope', () => {
       const outerScope = {
         outerSize: {kind: 'Literal', value: 42},
       };
-      const fragmentName = 'FragmentName';
+      const fragmentSpread = {
+        args: calls,
+        directives: [],
+        kind: 'FragmentSpread',
+        loc: {kind: 'Unknown'},
+        metadata: null,
+        name: '<name>',
+      };
       const innerScope = getFragmentScope(
         definitions,
         calls,
         outerScope,
-        fragmentName,
+        fragmentSpread,
       );
       expect(innerScope).toEqual({
         size: outerScope.outerSize,
@@ -184,12 +198,19 @@ describe('scope', () => {
         },
       ];
       const outerScope = {};
-      const fragmentName = 'FragmentName';
+      const fragmentSpread = {
+        args: calls,
+        directives: [],
+        kind: 'FragmentSpread',
+        loc: {kind: 'Unknown'},
+        metadata: null,
+        name: '<name>',
+      };
       const innerScope = getFragmentScope(
         definitions,
         calls,
         outerScope,
-        fragmentName,
+        fragmentSpread,
       );
       expect(innerScope).toEqual({
         size: literal,
@@ -214,12 +235,19 @@ describe('scope', () => {
       ];
       const calls = [];
       const outerScope = {};
-      const fragmentName = 'FragmentName';
+      const fragmentSpread = {
+        args: calls,
+        directives: [],
+        kind: 'FragmentSpread',
+        loc: {kind: 'Unknown'},
+        metadata: null,
+        name: '<name>',
+      };
       const innerScope = getFragmentScope(
         definitions,
         calls,
         outerScope,
-        fragmentName,
+        fragmentSpread,
       );
       expect(innerScope).toEqual({
         size: literal,
@@ -243,13 +271,17 @@ describe('scope', () => {
       ];
       const calls = [];
       const outerScope = {};
-      const fragmentName = 'FragmentName';
+      const fragmentSpread = {
+        args: calls,
+        directives: [],
+        kind: 'FragmentSpread',
+        loc: {kind: 'Unknown'},
+        metadata: null,
+        name: '<name>',
+      };
       expect(() => {
-        getFragmentScope(definitions, calls, outerScope, fragmentName);
-      }).toThrow(
-        `RelayCompilerScope: Encountered 1 error(s):
-- No value found for required argument 'size: Int!' on fragment 'FragmentName'.`,
-      );
+        getFragmentScope(definitions, calls, outerScope, fragmentSpread);
+      }).toThrowErrorMatchingSnapshot();
     });
 
     /**
@@ -268,12 +300,19 @@ describe('scope', () => {
       ];
       const calls = [];
       const outerScope = {};
-      const fragmentName = 'FragmentName';
+      const fragmentSpread = {
+        args: calls,
+        directives: [],
+        kind: 'FragmentSpread',
+        loc: {kind: 'Unknown'},
+        metadata: null,
+        name: '<name>',
+      };
       const innerScope = getFragmentScope(
         definitions,
         calls,
         outerScope,
-        fragmentName,
+        fragmentSpread,
       );
       expect(innerScope).toEqual({
         size: {
@@ -311,15 +350,17 @@ describe('scope', () => {
         },
       ];
       const outerScope = {};
-      const fragmentName = 'FragmentName';
+      const fragmentSpread = {
+        args: calls,
+        directives: [],
+        kind: 'FragmentSpread',
+        loc: {kind: 'Unknown'},
+        metadata: null,
+        name: '<name>',
+      };
       expect(() => {
-        getFragmentScope(definitions, calls, outerScope, fragmentName);
-      }).toThrow(
-        `RelayCompilerScope: Encountered 1 error(s):
-- Unexpected argument 'size' supplied to fragment 'FragmentName'. ` +
-          `@arguments may only be provided for variables defined ` +
-          `in the fragment's @argumentDefinitions.`,
-      );
+        getFragmentScope(definitions, calls, outerScope, fragmentSpread);
+      }).toThrowErrorMatchingSnapshot();
     });
 
     /**
@@ -349,12 +390,19 @@ describe('scope', () => {
         },
       ];
       const outerScope = {};
-      const fragmentName = 'FragmentName';
+      const fragmentSpread = {
+        args: calls,
+        directives: [],
+        kind: 'FragmentSpread',
+        loc: {kind: 'Unknown'},
+        metadata: null,
+        name: '<name>',
+      };
       const innerScope = getFragmentScope(
         definitions,
         calls,
         outerScope,
-        fragmentName,
+        fragmentSpread,
       );
       expect(innerScope).toEqual({
         size: {

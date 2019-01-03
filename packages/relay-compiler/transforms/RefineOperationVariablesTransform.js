@@ -11,11 +11,8 @@
 'use strict';
 
 const GraphQLCompilerContext = require('../core/GraphQLCompilerContext');
-const GraphQLIRTransformer = require('../core/GraphQLIRTransformer');
-const GraphQLIRVisitor = require('../core/GraphQLIRVisitor');
 
 const inferRootArgumentDefinitions = require('../core/inferRootArgumentDefinitions');
-const nullthrows = require('../util/nullthrowsOSS');
 
 const {
   createCombinedError,
@@ -60,6 +57,7 @@ function stripUnusedVariablesTransform(
         }' references undefined variable(s):\n${undefinedVariables
           .map(argDef => `- \$${argDef.name}: ${String(argDef.type)}`)
           .join('\n')}.`,
+        undefinedVariables.map(argDef => argDef.loc),
       );
     }
     // Remove unused argument definitions

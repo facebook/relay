@@ -296,11 +296,6 @@ function writeAll({
             // don't add definitions that were part of base context
             return;
           }
-          if (node.metadata && node.metadata.deferred === true) {
-            // don't write deferred operations, the batch request is
-            // responsible for them
-            return;
-          }
 
           const typeNode = transformedTypeContext.get(node.name);
           const typeText = typeNode

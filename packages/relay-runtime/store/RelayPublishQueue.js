@@ -21,6 +21,7 @@ const invariant = require('invariant');
 const normalizeRelayPayload = require('./normalizeRelayPayload');
 
 import type {HandlerProvider} from '../handlers/RelayDefaultHandlerProvider';
+import type {SelectorData} from '../util/RelayCombinedEnvironmentTypes';
 import type {Disposable} from '../util/RelayRuntimeTypes';
 import type {
   HandleFieldPayload,
@@ -34,7 +35,6 @@ import type {
   RecordSource,
   RelayResponsePayload,
 } from './RelayStoreTypes';
-import type {SelectorData} from 'react-relay/classic/environment/RelayCombinedEnvironmentTypes';
 
 type Payload = {
   fieldPayloads: ?Array<HandleFieldPayload>,

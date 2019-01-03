@@ -32,7 +32,6 @@ const {
   isScalarAndEqual,
 } = require('relay-runtime');
 
-import type {FragmentSpecResolver} from '../classic/environment/RelayCombinedEnvironmentTypes';
 import type {
   $RelayProps,
   ObserverOrCallback,
@@ -45,6 +44,7 @@ import type {
   ConnectionMetadata,
   Disposable,
   FragmentMap,
+  FragmentSpecResolver,
   GraphQLTaggedNode,
   Observer,
   PageInfo,

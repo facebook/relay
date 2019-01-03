@@ -41,12 +41,9 @@ import type {
   ReaderSelection,
   ReaderSelectableNode,
 } from '../util/ReaderNode';
+import type {Record, SelectorData} from '../util/RelayCombinedEnvironmentTypes';
 import type {DataID, Variables} from '../util/RelayRuntimeTypes';
 import type {RecordSource, ReaderSelector, Snapshot} from './RelayStoreTypes';
-import type {
-  Record,
-  SelectorData,
-} from 'react-relay/classic/environment/RelayCombinedEnvironmentTypes';
 
 function read(recordSource: RecordSource, selector: ReaderSelector): Snapshot {
   const {dataID, node, variables} = selector;

@@ -29,6 +29,7 @@ import type {
   NormalizationSelection,
   NormalizationField,
 } from '../util/NormalizationNode';
+import type {Record} from '../util/RelayCombinedEnvironmentTypes';
 import type {DataID, Variables} from '../util/RelayRuntimeTypes';
 import type {
   OperationLoader,
@@ -37,7 +38,6 @@ import type {
   RecordSource,
   NormalizationSelector,
 } from './RelayStoreTypes';
-import type {Record} from 'react-relay/classic/environment/RelayCombinedEnvironmentTypes';
 
 const {
   CONDITION,

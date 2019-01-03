@@ -17,12 +17,6 @@ const {areEqualSelectors, getSelectorsFromObject} = require('./RelaySelector');
 const {isScalarAndEqual} = require('relay-runtime');
 
 import type {
-  FragmentSpecResolver,
-  FragmentSpecResults,
-  Props,
-  SelectorData,
-} from './RelayCombinedEnvironmentTypes';
-import type {
   Environment,
   FragmentMap,
   RelayContext,
@@ -30,6 +24,12 @@ import type {
   Snapshot,
 } from './RelayEnvironmentTypes';
 import type {Disposable, Variables} from 'relay-runtime';
+import type {
+  FragmentSpecResolver,
+  FragmentSpecResults,
+  Props,
+  SelectorData,
+} from 'relay-runtime';
 
 type Resolvers = {[key: string]: ?(SelectorListResolver | SelectorResolver)};
 

@@ -43,6 +43,7 @@ import type {
   NormalizationMatchField,
   NormalizationNode,
 } from '../util/NormalizationNode';
+import type {Record} from '../util/RelayCombinedEnvironmentTypes';
 import type {DataID, Variables} from '../util/RelayRuntimeTypes';
 import type {
   HandleFieldPayload,
@@ -50,7 +51,6 @@ import type {
   MutableRecordSource,
   NormalizationSelector,
 } from './RelayStoreTypes';
-import type {Record} from 'react-relay/classic/environment/RelayCombinedEnvironmentTypes';
 
 export type NormalizationOptions = {handleStrippedNulls: boolean};
 

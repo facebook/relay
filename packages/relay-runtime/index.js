@@ -131,6 +131,19 @@ export type {
   ReaderSplitOperation,
 } from './util/ReaderNode';
 export type {ReaderFragment} from './util/ReaderNode';
+export type {
+  CEnvironment,
+  CFragmentMap,
+  CNormalizationSelector,
+  COperationSelector,
+  CReaderSelector,
+  CRelayContext,
+  CSnapshot,
+  CUnstableEnvironmentCore,
+  FragmentSpecResolver,
+  FragmentSpecResults,
+  Props,
+} from './util/RelayCombinedEnvironmentTypes';
 export type {ConcreteRequest, GeneratedNode} from './util/RelayConcreteNode';
 export type {
   CacheConfig,

@@ -26,9 +26,6 @@ import type {
 } from '../util/NormalizationNode';
 import type {ReaderFragment} from '../util/ReaderNode';
 import type {ReaderSelectableNode} from '../util/ReaderNode';
-import type {ConcreteRequest} from '../util/RelayConcreteNode';
-import type {DataID, Disposable, Variables} from '../util/RelayRuntimeTypes';
-import type {RecordState} from './RelayRecordState';
 import type {
   CEnvironment,
   CFragmentMap,
@@ -39,11 +36,12 @@ import type {
   CSnapshot,
   CUnstableEnvironmentCore,
   Record,
-} from 'react-relay/classic/environment/RelayCombinedEnvironmentTypes';
+} from '../util/RelayCombinedEnvironmentTypes';
+import type {ConcreteRequest} from '../util/RelayConcreteNode';
+import type {DataID, Disposable, Variables} from '../util/RelayRuntimeTypes';
+import type {RecordState} from './RelayRecordState';
 
-export type {
-  SelectorData,
-} from 'react-relay/classic/environment/RelayCombinedEnvironmentTypes';
+export type {SelectorData} from '../util/RelayCombinedEnvironmentTypes';
 
 export opaque type FragmentReference = empty;
 

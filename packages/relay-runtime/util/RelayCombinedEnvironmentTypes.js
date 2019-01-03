@@ -10,14 +10,14 @@
 
 'use strict';
 
+import type Observable from '../network/RelayObservable';
+import type {SelectorStoreUpdater} from '../store/RelayStoreTypes';
 import type {
   CacheConfig,
   DataID,
   Disposable,
-  Observable,
-  SelectorStoreUpdater,
   Variables,
-} from 'relay-runtime';
+} from './RelayRuntimeTypes';
 
 /**
  * Arbitrary data e.g. received by a container as props.

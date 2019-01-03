@@ -18,9 +18,9 @@ import type {
   RecordSourceSelectorProxy,
   SelectorStoreUpdater,
 } from '../store/RelayStoreTypes';
+import type {SelectorData} from '../util/RelayCombinedEnvironmentTypes';
 import type {ConcreteRequest} from '../util/RelayConcreteNode';
 import type {DataID, Variables} from '../util/RelayRuntimeTypes';
-import type {SelectorData} from 'react-relay/classic/environment/RelayCombinedEnvironmentTypes';
 import type {RelayConcreteNode} from 'react-relay/classic/query/RelayQL';
 
 const MutationTypes = Object.freeze({

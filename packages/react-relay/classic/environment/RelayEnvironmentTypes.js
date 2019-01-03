@@ -24,7 +24,7 @@ import type {
   CRelayContext,
   CSnapshot,
   CUnstableEnvironmentCore,
-} from './RelayCombinedEnvironmentTypes';
+} from 'relay-runtime';
 import type {
   DeclarativeMutationConfig,
   Disposable,

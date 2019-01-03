@@ -22,8 +22,8 @@ const {
 
 import type {RecordState} from '../store/RelayRecordState';
 import type {MutableRecordSource, RecordSource} from '../store/RelayStoreTypes';
+import type {Record} from '../util/RelayCombinedEnvironmentTypes';
 import type {DataID} from '../util/RelayRuntimeTypes';
-import type {Record} from 'react-relay/classic/environment/RelayCombinedEnvironmentTypes';
 
 /**
  * @internal

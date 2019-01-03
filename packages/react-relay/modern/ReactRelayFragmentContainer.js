@@ -20,9 +20,13 @@ const {getContainerName} = require('./ReactRelayContainerUtils');
 const {assertRelayContext} = require('./RelayContext');
 const {RelayProfiler, isScalarAndEqual} = require('relay-runtime');
 
-import type {FragmentSpecResolver} from '../classic/environment/RelayCombinedEnvironmentTypes';
 import type {$RelayProps, GeneratedNodeMap, RelayProp} from './ReactRelayTypes';
-import type {FragmentMap, GraphQLTaggedNode, RelayContext} from 'relay-runtime';
+import type {
+  FragmentMap,
+  FragmentSpecResolver,
+  GraphQLTaggedNode,
+  RelayContext,
+} from 'relay-runtime';
 
 type ContainerProps = $FlowFixMeProps;
 type ContainerState = {

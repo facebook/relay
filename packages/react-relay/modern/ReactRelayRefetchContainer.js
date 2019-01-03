@@ -23,7 +23,6 @@ const {getContainerName} = require('./ReactRelayContainerUtils');
 const {assertRelayContext} = require('./RelayContext');
 const {Observable, RelayProfiler, isScalarAndEqual} = require('relay-runtime');
 
-import type {FragmentSpecResolver} from '../classic/environment/RelayCombinedEnvironmentTypes';
 import type {
   $RelayProps,
   ObserverOrCallback,
@@ -39,6 +38,7 @@ import type {
   Subscription,
   Variables,
 } from 'relay-runtime';
+import type {FragmentSpecResolver} from 'relay-runtime';
 
 type ContainerProps = $FlowFixMeProps;
 

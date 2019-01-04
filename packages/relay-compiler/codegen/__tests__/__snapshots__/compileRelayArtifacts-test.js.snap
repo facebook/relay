@@ -1008,29 +1008,9 @@ fragment ProfilePicture on User {
         "plural": false,
         "selections": [
           {
-            "kind": "ScalarField",
-            "alias": null,
-            "name": "id",
-            "args": null,
-            "storageKey": null
-          },
-          {
-            "kind": "InlineFragment",
-            "type": "User",
-            "selections": [
-              {
-                "kind": "ScalarField",
-                "alias": null,
-                "name": "name",
-                "args": null,
-                "storageKey": null
-              },
-              {
-                "kind": "FragmentSpread",
-                "name": "ProfilePicture",
-                "args": null
-              }
-            ]
+            "kind": "FragmentSpread",
+            "name": "RefetchableFragment",
+            "args": null
           }
         ]
       }
@@ -1136,11 +1116,16 @@ query RefetchableFragmentQuery(
 ) {
   node(id: $id) {
     __typename
+    ...RefetchableFragment
     id
-    ... on User {
-      name
-      ...ProfilePicture
-    }
+  }
+}
+
+fragment RefetchableFragment on Node {
+  id
+  ... on User {
+    name
+    ...ProfilePicture
   }
 }
 
@@ -1294,29 +1279,9 @@ fragment ProfilePicture on User {
         "plural": false,
         "selections": [
           {
-            "kind": "InlineFragment",
-            "type": "User",
-            "selections": [
-              {
-                "kind": "ScalarField",
-                "alias": null,
-                "name": "id",
-                "args": null,
-                "storageKey": null
-              },
-              {
-                "kind": "ScalarField",
-                "alias": null,
-                "name": "name",
-                "args": null,
-                "storageKey": null
-              },
-              {
-                "kind": "FragmentSpread",
-                "name": "ProfilePicture",
-                "args": null
-              }
-            ]
+            "kind": "FragmentSpread",
+            "name": "RefetchableFragment",
+            "args": null
           }
         ]
       }
@@ -1422,13 +1387,15 @@ query RefetchableFragmentQuery(
 ) {
   node(id: $id) {
     __typename
-    ... on User {
-      id
-      name
-      ...ProfilePicture
-    }
+    ...RefetchableFragment
     id
   }
+}
+
+fragment RefetchableFragment on User {
+  id
+  name
+  ...ProfilePicture
 }
 
 fragment ProfilePicture on User {
@@ -1563,45 +1530,14 @@ fragment ProfilePicture on User {
     ],
     "selections": [
       {
-        "kind": "LinkedField",
-        "alias": null,
-        "name": "node",
-        "storageKey": null,
+        "kind": "FragmentSpread",
+        "name": "RefetchableFragment",
         "args": [
           {
             "kind": "Variable",
             "name": "id",
             "variableName": "id",
-            "type": "ID"
-          }
-        ],
-        "concreteType": null,
-        "plural": false,
-        "selections": [
-          {
-            "kind": "InlineFragment",
-            "type": "User",
-            "selections": [
-              {
-                "kind": "ScalarField",
-                "alias": null,
-                "name": "id",
-                "args": null,
-                "storageKey": null
-              },
-              {
-                "kind": "ScalarField",
-                "alias": null,
-                "name": "name",
-                "args": null,
-                "storageKey": null
-              },
-              {
-                "kind": "FragmentSpread",
-                "name": "ProfilePicture",
-                "args": null
-              }
-            ]
+            "type": "ID!"
           }
         ]
       }
@@ -1705,6 +1641,10 @@ query RefetchableFragmentQuery(
   $id: ID!
   $size: [Int]
 ) {
+  ...RefetchableFragment_1Bmzm5
+}
+
+fragment RefetchableFragment_1Bmzm5 on Query {
   node(id: $id) {
     __typename
     ... on User {
@@ -1869,6 +1809,11 @@ Source (derived): GraphQL request (1:1)
    ^
 2:   node(id: $id) {
 
+Source (derived): GraphQL request (1:1)
+1: fragment RefetchableFragment on Query @refetchable(queryName: "RefetchableFragmentQuery") @argumentDefinitions(id: {type: "ID!"}) {
+   ^
+2:   node(id: $id) {
+
 Source: GraphQL request (6:7)
 5:       name
 6:       ...Profile @arguments(includeProfile: true)
@@ -1936,34 +1881,9 @@ fragment ProfilePicture on User {
         "plural": false,
         "selections": [
           {
-            "kind": "LinkedField",
-            "alias": null,
-            "name": "actor",
-            "storageKey": null,
-            "args": null,
-            "concreteType": null,
-            "plural": false,
-            "selections": [
-              {
-                "kind": "ScalarField",
-                "alias": null,
-                "name": "id",
-                "args": null,
-                "storageKey": null
-              },
-              {
-                "kind": "ScalarField",
-                "alias": null,
-                "name": "name",
-                "args": null,
-                "storageKey": null
-              },
-              {
-                "kind": "FragmentSpread",
-                "name": "ProfilePicture",
-                "args": null
-              }
-            ]
+            "kind": "FragmentSpread",
+            "name": "RefetchableFragment",
+            "args": null
           }
         ]
       }
@@ -2065,12 +1985,16 @@ query RefetchableFragmentQuery(
   $size: [Int]
 ) {
   viewer {
-    actor {
-      __typename
-      id
-      name
-      ...ProfilePicture
-    }
+    ...RefetchableFragment
+  }
+}
+
+fragment RefetchableFragment on Viewer {
+  actor {
+    __typename
+    id
+    name
+    ...ProfilePicture
   }
 }
 

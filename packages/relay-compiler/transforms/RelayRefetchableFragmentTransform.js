@@ -33,6 +33,7 @@ const {CompilerContext, getLiteralArgumentValues} = require('relay-compiler');
 import type {
   ArgumentDefinition,
   Fragment,
+  FragmentSpread,
   GraphQLCompilerContext,
   LocalArgumentDefinition,
   Root,
@@ -195,6 +196,37 @@ function buildOperationArgumentDefinitions(
   });
 }
 
+function buildFragmentSpread(fragment: Fragment): FragmentSpread {
+  const args = [];
+  for (const argDef of fragment.argumentDefinitions) {
+    if (argDef.kind !== 'LocalArgumentDefinition') {
+      continue;
+    }
+    args.push({
+      kind: 'Argument',
+      loc: {kind: 'Derived', source: argDef.loc},
+      metadata: null,
+      name: argDef.name,
+      type: argDef.type,
+      value: {
+        kind: 'Variable',
+        loc: {kind: 'Derived', source: argDef.loc},
+        metadata: null,
+        variableName: argDef.name,
+        type: argDef.type,
+      },
+    });
+  }
+  return {
+    args,
+    directives: [],
+    kind: 'FragmentSpread',
+    loc: {kind: 'Derived', source: fragment.loc},
+    metadata: null,
+    name: fragment.name,
+  };
+}
+
 function buildRefetchOperationOnQueryType(
   schema: GraphQLSchema,
   fragment: Fragment,
@@ -211,7 +243,7 @@ function buildRefetchOperationOnQueryType(
     metadata: null,
     name: queryName,
     operation: 'query',
-    selections: fragment.selections,
+    selections: [buildFragmentSpread(fragment)],
     type: queryType,
   };
 }
@@ -262,7 +294,7 @@ function buildRefetchOperationOnViewerType(
         loc: {kind: 'Derived', source: fragment.loc},
         metadata: null,
         name: VIEWER_FIELD_NAME,
-        selections: fragment.selections,
+        selections: [buildFragmentSpread(fragment)],
         type: viewerType,
       },
     ],
@@ -342,24 +374,6 @@ function buildRefetchOperationOnNodeType(
       type: idArgType,
     },
   ];
-  // If the fragment is on the Node interface then its selections
-  // can be inlined into the node() field, otherwise they have to
-  // be wrapped in an inline fragment.
-  let selections;
-  if (isEquivalentType(fragment.type, nodeType)) {
-    selections = fragment.selections;
-  } else {
-    selections = [
-      {
-        directives: [],
-        kind: 'InlineFragment',
-        loc: {kind: 'Derived', source: fragment.loc},
-        metadata: null,
-        selections: fragment.selections,
-        typeCondition: fragment.type,
-      },
-    ];
-  }
   return {
     argumentDefinitions: argumentDefinitionsWithId,
     directives: [],
@@ -393,7 +407,7 @@ function buildRefetchOperationOnNodeType(
         loc: {kind: 'Derived', source: fragment.loc},
         metadata: null,
         name: NODE_FIELD_NAME,
-        selections,
+        selections: [buildFragmentSpread(fragment)],
         type: nodeType,
       },
     ],

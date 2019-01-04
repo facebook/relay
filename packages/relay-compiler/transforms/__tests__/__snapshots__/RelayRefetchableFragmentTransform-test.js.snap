@@ -36,11 +36,7 @@ query RefetchableFragmentQuery(
   $id: ID!
 ) {
   node(id: $id) {
-    id
-    ... on User {
-      name
-      ...ProfilePicture
-    }
+    ...RefetchableFragment
   }
 }
 
@@ -78,11 +74,7 @@ query RefetchableFragmentQuery(
   $id: ID!
 ) {
   node(id: $id) {
-    ... on User {
-      id
-      name
-      ...ProfilePicture
-    }
+    ...RefetchableFragment
   }
 }
 
@@ -129,13 +121,7 @@ query RefetchableFragmentQuery(
   $id: ID!
   $size: [Int]
 ) {
-  node(id: $id) {
-    ... on User {
-      id
-      name
-      ...ProfilePicture
-    }
-  }
+  ...RefetchableFragment @arguments(id: $id)
 }
 
 `;
@@ -202,13 +188,7 @@ query RefetchableFragmentQuery(
   $pictureSize: [Int]
   $count: Int
 ) {
-  node(id: $id) {
-    ... on User {
-      id
-      name
-      ...Profile @arguments(includeProfile: true)
-    }
-  }
+  ...RefetchableFragment @arguments(id: $id)
 }
 
 `;
@@ -248,11 +228,173 @@ query RefetchableFragmentQuery(
   $size: [Int]
 ) {
   viewer {
-    actor {
+    ...RefetchableFragment
+  }
+}
+
+`;
+
+exports[`RelayRefetchableFragmentTransform matches expected output: fragment-with-args-on-object-implementing-node-interface.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment RefetchableFragment on User
+  @refetchable(queryName: "RefetchableFragmentQuery")
+  @argumentDefinitions(size: {type: "[Int]"}) {
+  id
+  name
+  ...ProfilePicture @arguments(size: $size)
+}
+
+fragment ProfilePicture on User
+  @argumentDefinitions(size: {type: "[Int]"}) {
+  pic: profilePicture(size: $size) {
+    uri
+  }
+  profilePicture(size: $rootSize) {
+    uri
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+fragment RefetchableFragment on User @argumentDefinitions(
+  size: {type: "[Int]"}
+) @refetchable(queryName: "RefetchableFragmentQuery") {
+  id
+  name
+  ...ProfilePicture @arguments(size: $size)
+}
+
+fragment ProfilePicture on User @argumentDefinitions(
+  size: {type: "[Int]"}
+) {
+  pic: profilePicture(size: $size) {
+    uri
+  }
+  profilePicture(size: $rootSize) {
+    uri
+  }
+}
+
+query RefetchableFragmentQuery(
+  $size: [Int]
+  $rootSize: [Int]
+  $id: ID!
+) {
+  node(id: $id) {
+    ...RefetchableFragment @arguments(size: $size)
+  }
+}
+
+`;
+
+exports[`RelayRefetchableFragmentTransform matches expected output: fragment-with-args-on-query.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment RefetchableFragment on Query
+  @refetchable(queryName: "RefetchableFragmentQuery")
+  @argumentDefinitions(id: {type: "ID!"}, size: {type: "[Int]"}) {
+  node(id: $id) {
+    ... on User {
       id
       name
-      ...ProfilePicture
+      ...ProfilePicture @arguments(size: $size)
     }
+  }
+}
+
+fragment ProfilePicture on User
+  @argumentDefinitions(size: {type: "[Int]"}) {
+  pic: profilePicture(size: $size) {
+    uri
+  }
+  profilePicture(size: $rootSize) {
+    uri
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+fragment RefetchableFragment on Query @argumentDefinitions(
+  id: {type: "ID!"}
+  size: {type: "[Int]"}
+) @refetchable(queryName: "RefetchableFragmentQuery") {
+  node(id: $id) {
+    ... on User {
+      id
+      name
+      ...ProfilePicture @arguments(size: $size)
+    }
+  }
+}
+
+fragment ProfilePicture on User @argumentDefinitions(
+  size: {type: "[Int]"}
+) {
+  pic: profilePicture(size: $size) {
+    uri
+  }
+  profilePicture(size: $rootSize) {
+    uri
+  }
+}
+
+query RefetchableFragmentQuery(
+  $id: ID!
+  $size: [Int]
+  $rootSize: [Int]
+) {
+  ...RefetchableFragment @arguments(id: $id, size: $size)
+}
+
+`;
+
+exports[`RelayRefetchableFragmentTransform matches expected output: fragment-with-args-on-viewer.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment RefetchableFragment on Viewer
+  @refetchable(queryName: "RefetchableFragmentQuery")
+  @argumentDefinitions(size: {type: "[Int]"}) {
+  actor {
+    id
+    name
+    ...ProfilePicture @arguments(size: $size)
+  }
+}
+
+fragment ProfilePicture on User
+  @argumentDefinitions(size: {type: "[Int]"}) {
+  pic: profilePicture(size: $size) {
+    uri
+  }
+  profilePicture(size: $rootSize) {
+    uri
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+fragment RefetchableFragment on Viewer @argumentDefinitions(
+  size: {type: "[Int]"}
+) @refetchable(queryName: "RefetchableFragmentQuery") {
+  actor {
+    id
+    name
+    ...ProfilePicture @arguments(size: $size)
+  }
+}
+
+fragment ProfilePicture on User @argumentDefinitions(
+  size: {type: "[Int]"}
+) {
+  pic: profilePicture(size: $size) {
+    uri
+  }
+  profilePicture(size: $rootSize) {
+    uri
+  }
+}
+
+query RefetchableFragmentQuery(
+  $size: [Int]
+  $rootSize: [Int]
+) {
+  viewer {
+    ...RefetchableFragment @arguments(size: $size)
   }
 }
 

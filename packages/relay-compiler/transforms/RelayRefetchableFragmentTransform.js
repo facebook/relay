@@ -10,6 +10,9 @@
 
 'use strict';
 
+const GraphQLCompilerContext = require('../core/GraphQLCompilerContext');
+
+const getLiteralArgumentValues = require('../core/getLiteralArgumentValues');
 const inferRootArgumentDefinitions = require('../core/inferRootArgumentDefinitions');
 const isEquivalentType = require('../core/isEquivalentType');
 const nullthrows = require('nullthrows');
@@ -28,13 +31,11 @@ const {
   GraphQLObjectType,
   GraphQLSchema,
 } = require('graphql');
-const {CompilerContext, getLiteralArgumentValues} = require('relay-compiler');
 
 import type {
   ArgumentDefinition,
   Fragment,
   FragmentSpread,
-  GraphQLCompilerContext,
   LocalArgumentDefinition,
   Root,
 } from 'relay-compiler';
@@ -67,8 +68,8 @@ const SCHEMA_EXTENSION = `
  *    Fragment to Root IR nodes.
  */
 function relayRefetchableFragmentTransform(
-  context: CompilerContext,
-): CompilerContext {
+  context: GraphQLCompilerContext,
+): GraphQLCompilerContext {
   const schema = context.serverSchema;
   const queryType = schema.getQueryType();
   if (queryType == null) {

@@ -149,7 +149,7 @@ function transformFragmentArguments(
   // arguments. If the current fragment is reached again, it won't have
   // any root variables to add to its parents. The traversal below will
   // find any root variables and update the cached version of the
-  // frragment.
+  // fragment.
   transformed.set(name, argumentDefinitions);
   visit(context, transformed, argumentDefinitions, fragment);
   transformed.set(name, argumentDefinitions);
@@ -164,10 +164,25 @@ function visit(
 ): void {
   GraphQLIRVisitor.visit(node, {
     FragmentSpread(fragmentSpread) {
+      let fragment;
+      try {
+        fragment = context.getFragment(fragmentSpread.name);
+      } catch {
+        // Handle cases where a compat fragment references a classic fragment
+        // that is not accessible to Relay compiler
+        // TODO: disallow unknown fragment references
+        // throw createCompilerError(
+        //   `Document '${node.name}' referenced unknown fragment '${
+        //     fragmentSpread.name
+        //   }'.`,
+        //   [fragmentSpread.loc],
+        // );
+        return false;
+      }
       const referencedFragmentArguments = transformFragmentArguments(
         context,
         transformed,
-        context.getFragment(fragmentSpread.name),
+        fragment,
       );
       // Detect root variables being passed as the value of @arguments;
       // recover the expected type from the corresponding argument definitions.

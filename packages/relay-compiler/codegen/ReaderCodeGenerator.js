@@ -10,6 +10,7 @@
 
 'use strict';
 
+const CodeMarker = require('../util/CodeMarker');
 const IRVisitor = require('../core/GraphQLIRVisitor');
 const SchemaUtils = require('../core/GraphQLSchemaUtils');
 
@@ -49,11 +50,33 @@ const ReaderCodeGenVisitor = {
     },
 
     Fragment(node): ReaderFragment {
+      let metadata = null;
+      if (node.metadata != null) {
+        const {mask, plural, connection, refetchOperation} = node.metadata;
+        if (Array.isArray(connection)) {
+          metadata = metadata ?? {};
+          metadata.connection = (connection: any);
+        }
+        if (typeof mask === 'boolean') {
+          metadata = metadata ?? {};
+          metadata.mask = mask;
+        }
+        if (typeof plural === 'boolean') {
+          metadata = metadata ?? {};
+          metadata.plural = plural;
+        }
+        if (typeof refetchOperation === 'string') {
+          metadata = metadata ?? {};
+          metadata.refetchOperation = CodeMarker.moduleDependency(
+            refetchOperation + '.graphql',
+          );
+        }
+      }
       return {
         kind: 'Fragment',
         name: node.name,
         type: node.type.toString(),
-        metadata: node.metadata || null,
+        metadata,
         argumentDefinitions: node.argumentDefinitions,
         selections: node.selections,
       };

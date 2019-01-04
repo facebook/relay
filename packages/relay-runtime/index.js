@@ -124,13 +124,14 @@ export type {
   ReaderArgument,
   ReaderArgumentDefinition,
   ReaderField,
+  ReaderFragment,
+  ReaderRefetchableFragment,
   ReaderLinkedField,
   ReaderMatchField,
   ReaderScalarField,
   ReaderSelection,
   ReaderSplitOperation,
 } from './util/ReaderNode';
-export type {ReaderFragment} from './util/ReaderNode';
 export type {
   CEnvironment,
   CFragmentMap,

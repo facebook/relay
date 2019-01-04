@@ -4,11 +4,14 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @flow strict
+ * @flow strict-local
  * @format
  */
 
 'use strict';
+
+import type {ConcreteRequest} from './RelayConcreteNode';
+import type {ConnectionMetadata} from 'relay-runtime';
 
 export type ReaderFragmentSpread = {|
   +kind: 'FragmentSpread',
@@ -20,9 +23,21 @@ export type ReaderFragment = {|
   +kind: 'Fragment',
   +name: string,
   +type: string,
-  +metadata: ?{+[key: string]: mixed},
+  +metadata: ?{|
+    +connection?: $ReadOnlyArray<ConnectionMetadata>,
+    +mask?: boolean,
+    +plural?: boolean,
+    +refetchOperation?: string | ConcreteRequest,
+  |},
   +argumentDefinitions: $ReadOnlyArray<ReaderArgumentDefinition>,
   +selections: $ReadOnlyArray<ReaderSelection>,
+|};
+
+export type ReaderRefetchableFragment = {|
+  ...ReaderFragment,
+  +metadata: {|
+    +refetchOperation: ConcreteRequest,
+  |},
 |};
 
 export type ReaderArgument = ReaderLiteral | ReaderVariable;

@@ -39,6 +39,12 @@ const users = [
     pinned: false,
   },
   {
+    caption: 'Flexport',
+    image: '/relay/img/logos/flexport.png',
+    infoLink: 'https://flexport.com',
+    pinned: false,
+  },
+  {
     caption: '1stdibs',
     image: '/relay/img/logos/1stdibs.png',
     infoLink: 'https://www.1stdibs.com/',

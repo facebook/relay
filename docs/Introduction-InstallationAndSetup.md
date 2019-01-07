@@ -46,7 +46,7 @@ const graphql = require('babel-plugin-relay/macro');
 Relay's ahead-of-time compilation requires the [Relay Compiler](./graphql-in-relay.html#relay-compiler.html), which you can install via `yarn` or `npm`:
 
 ```sh
-yarn add --dev relay-compiler graphql
+yarn add --dev relay-compiler
 ```
 
 This installs the bin script `relay-compiler` in your node_modules folder. It's recommended to run this from a `yarn`/`npm` script by adding a script to your `package.json` file:

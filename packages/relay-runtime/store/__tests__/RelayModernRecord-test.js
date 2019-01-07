@@ -16,7 +16,13 @@ const RelayStoreUtils = require('../RelayStoreUtils');
 
 const deepFreeze = require('../../util/deepFreeze');
 
-const {ID_KEY, REF_KEY, REFS_KEY, TYPENAME_KEY} = RelayStoreUtils;
+const {
+  ID_KEY,
+  REF_KEY,
+  REFS_KEY,
+  TYPENAME_KEY,
+  UNPUBLISH_FIELD_SENTINEL,
+} = RelayStoreUtils;
 
 describe('RelayModernRecord', () => {
   beforeEach(() => {
@@ -229,6 +235,181 @@ describe('RelayModernRecord', () => {
       expect(() => {
         RelayModernRecord.setValue(record, 'pet', 'Beast');
       }).toThrowTypeError();
+    });
+  });
+
+  describe('update()', () => {
+    it('returns the first record if there are no changes', () => {
+      const prev = RelayModernRecord.create('4', 'User');
+      RelayModernRecord.setValue(prev, 'name', 'Zuck');
+      const next = RelayModernRecord.clone(prev);
+      const updated = RelayModernRecord.update(prev, next);
+      expect(updated).toBe(prev);
+      expect(updated).not.toBe(next);
+      expect(updated).toEqual({
+        [ID_KEY]: '4',
+        [TYPENAME_KEY]: 'User',
+        name: 'Zuck',
+      });
+    });
+
+    it('returns a new record if there are changes', () => {
+      const prev = RelayModernRecord.create('4', 'User');
+      const next = RelayModernRecord.clone(prev);
+      RelayModernRecord.setValue(next, 'name', 'Zuck');
+      const updated = RelayModernRecord.update(prev, next);
+      expect(updated).not.toBe(prev);
+      expect(updated).not.toBe(next);
+      expect(updated).toEqual({
+        [ID_KEY]: '4',
+        [TYPENAME_KEY]: 'User',
+        name: 'Zuck',
+      });
+    });
+
+    it('returns a new record with unpublished fields removed', () => {
+      const prev = RelayModernRecord.create('4', 'User');
+      RelayModernRecord.setValue(prev, 'name', 'Zuck');
+      const next = RelayModernRecord.clone(prev);
+      RelayModernRecord.setValue(next, 'name', UNPUBLISH_FIELD_SENTINEL);
+      const updated = RelayModernRecord.update(prev, next);
+      expect(updated).not.toBe(prev);
+      expect(updated).not.toBe(next);
+      expect(updated).toEqual({
+        [ID_KEY]: '4',
+        [TYPENAME_KEY]: 'User',
+      });
+    });
+
+    it('warns if __id does not match', () => {
+      jest.mock('warning');
+      const prev = RelayModernRecord.create('4', 'User');
+      const next = RelayModernRecord.create('5', 'User');
+      expect(() => RelayModernRecord.update(prev, next)).toWarn([
+        'RelayModernRecord: Invalid record update, expected both versions ' +
+          'of the record to have the same id, got `%s` and `%s`.',
+        '4',
+        '5',
+      ]);
+    });
+
+    it('warns if __typename does not match', () => {
+      jest.mock('warning');
+      const prev = RelayModernRecord.create('42', 'Number');
+      const next = RelayModernRecord.create('42', 'MeaningOfLife');
+      expect(() => RelayModernRecord.update(prev, next)).toWarn([
+        'RelayModernRecord: Invalid record update, expected both versions ' +
+          'of record `%s` to have the same `%s` but got conflicting types ' +
+          '`%s` and `%s`. The GraphQL server likely violated the globally ' +
+          'unique id requirement by returning the same id for different objects.',
+        '42',
+        '__typename',
+        'Number',
+        'MeaningOfLife',
+      ]);
+    });
+  });
+
+  describe('merge()', () => {
+    it('returns a new record even if there are no changes', () => {
+      const prev = RelayModernRecord.create('4', 'User');
+      RelayModernRecord.setValue(prev, 'name', 'Zuck');
+      const next = RelayModernRecord.clone(prev);
+      const updated = RelayModernRecord.merge(prev, next);
+      expect(updated).not.toBe(prev);
+      expect(updated).not.toBe(next);
+      expect(updated).toEqual({
+        [ID_KEY]: '4',
+        [TYPENAME_KEY]: 'User',
+        name: 'Zuck',
+      });
+    });
+
+    it('returns a new record if there are changes', () => {
+      const prev = RelayModernRecord.create('4', 'User');
+      const next = RelayModernRecord.clone(prev);
+      RelayModernRecord.setValue(next, 'name', 'Zuck');
+      const updated = RelayModernRecord.merge(prev, next);
+      expect(updated).not.toBe(prev);
+      expect(updated).not.toBe(next);
+      expect(updated).toEqual({
+        [ID_KEY]: '4',
+        [TYPENAME_KEY]: 'User',
+        name: 'Zuck',
+      });
+    });
+
+    it('includes unpublished field sentinels', () => {
+      const prev = RelayModernRecord.create('4', 'User');
+      RelayModernRecord.setValue(prev, 'name', 'Zuck');
+      const next = RelayModernRecord.clone(prev);
+      RelayModernRecord.setValue(next, 'name', UNPUBLISH_FIELD_SENTINEL);
+      const updated = RelayModernRecord.merge(prev, next);
+      expect(updated).not.toBe(prev);
+      expect(updated).not.toBe(next);
+      expect(updated).toEqual({
+        [ID_KEY]: '4',
+        [TYPENAME_KEY]: 'User',
+        name: UNPUBLISH_FIELD_SENTINEL,
+      });
+    });
+
+    it('warns if __id does not match', () => {
+      jest.mock('warning');
+      const prev = RelayModernRecord.create('4', 'User');
+      const next = RelayModernRecord.create('5', 'User');
+      expect(() => RelayModernRecord.merge(prev, next)).toWarn([
+        'RelayModernRecord: Invalid record merge, expected both versions of ' +
+          'the record to have the same id, got `%s` and `%s`.',
+        '4',
+        '5',
+      ]);
+    });
+
+    it('warns if __typename does not match', () => {
+      jest.mock('warning');
+      const prev = RelayModernRecord.create('42', 'Number');
+      const next = RelayModernRecord.create('42', 'MeaningOfLife');
+      expect(() => RelayModernRecord.merge(prev, next)).toWarn([
+        'RelayModernRecord: Invalid record merge, expected both versions of ' +
+          'record `%s` to have the same `%s` but got conflicting types `%s` ' +
+          'and `%s`. The GraphQL server likely violated the globally unique ' +
+          'id requirement by returning the same id for different objects.',
+        '42',
+        '__typename',
+        'Number',
+        'MeaningOfLife',
+      ]);
+    });
+  });
+
+  describe('setValue()', () => {
+    it('warns if updating to a different __id', () => {
+      jest.mock('warning');
+      const record = RelayModernRecord.create('4', 'User');
+      expect(() => RelayModernRecord.setValue(record, ID_KEY, 'not-4')).toWarn([
+        'RelayModernRecord: Invalid field update, expected both versions of ' +
+          'the record to have the same id, got `%s` and `%s`.',
+        '4',
+        'not-4',
+      ]);
+    });
+
+    it('warns if updating to a different __typename', () => {
+      jest.mock('warning');
+      const record = RelayModernRecord.create('4', 'User');
+      expect(() =>
+        RelayModernRecord.setValue(record, TYPENAME_KEY, 'not-User'),
+      ).toWarn([
+        'RelayModernRecord: Invalid field update, expected both versions of ' +
+          'record `%s` to have the same `%s` but got conflicting types `%s` ' +
+          'and `%s`. The GraphQL server likely violated the globally unique ' +
+          'id requirement by returning the same id for different objects.',
+        '4',
+        '__typename',
+        'User',
+        'not-User',
+      ]);
     });
   });
 });

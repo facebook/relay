@@ -859,8 +859,9 @@ describe('RelayPublishQueue', () => {
             me: {[REF_KEY]: '4'},
           },
           4: {
+            [ID_KEY]: '4',
+            [TYPENAME_KEY]: 'User',
             id: '4',
-            __typename: 'User',
             name: 'zuck',
           },
         }),
@@ -919,8 +920,9 @@ describe('RelayPublishQueue', () => {
             me: {[REF_KEY]: '4'},
           },
           4: {
+            [ID_KEY]: '4',
+            [TYPENAME_KEY]: 'User',
             id: '4',
-            __typename: 'User',
             name: 'zuck',
           },
         }),
@@ -979,8 +981,9 @@ describe('RelayPublishQueue', () => {
             me: {[REF_KEY]: '4'},
           },
           4: {
+            [ID_KEY]: '4',
+            [TYPENAME_KEY]: 'User',
             id: '4',
-            __typename: 'User',
             name: 'zuck',
           },
         }),
@@ -1087,8 +1090,9 @@ describe('RelayPublishQueue', () => {
             me: {[REF_KEY]: '4'},
           },
           4: {
+            [ID_KEY]: '4',
+            [TYPENAME_KEY]: 'User',
             id: '4',
-            __typename: 'User',
             name: 'zuck',
           },
         }),
@@ -1240,8 +1244,9 @@ describe('RelayPublishQueue', () => {
       queue.commitSource(
         new RelayInMemoryRecordSource({
           4: {
+            [ID_KEY]: '4',
+            [TYPENAME_KEY]: 'User',
             id: '4',
-            __typename: 'User',
             name: 'zuck',
           },
         }),
@@ -1280,8 +1285,9 @@ describe('RelayPublishQueue', () => {
       queue.commitSource(
         new RelayInMemoryRecordSource({
           4: {
+            [ID_KEY]: '4',
+            [TYPENAME_KEY]: 'User',
             id: '4',
-            __typename: 'User',
             name: 'zuck',
           },
         }),

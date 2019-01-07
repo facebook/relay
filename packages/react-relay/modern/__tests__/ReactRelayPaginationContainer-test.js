@@ -1255,6 +1255,7 @@ describe('ReactRelayPaginationContainer', () => {
                   {
                     cursor: 'cursor:2',
                     node: {
+                      __typename: 'User',
                       id: 'node:2',
                     },
                   },
@@ -1291,6 +1292,7 @@ describe('ReactRelayPaginationContainer', () => {
                 {
                   cursor: 'cursor:2',
                   node: {
+                    __typename: 'User',
                     id: 'node:2',
                   },
                 },

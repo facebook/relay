@@ -355,6 +355,7 @@ describe('RelayStore', () => {
       let nextSource = new RelayInMemoryRecordSource({
         4: {
           __id: '4',
+          __typename: 'User',
           name: 'Mark',
           emailAddresses: ['a@b.com', 'c@d.net'],
         },

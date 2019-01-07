@@ -15,9 +15,9 @@ The [relay-examples](https://github.com/relayjs/relay-examples) repository conta
 ```
 git clone https://github.com/relayjs/relay-examples.git
 cd relay-examples/todo
-npm install
-npm run build
-npm start
+yarn
+yarn build
+yarn start
 ```
 
 Then, just point your browser at `http://localhost:3000`.

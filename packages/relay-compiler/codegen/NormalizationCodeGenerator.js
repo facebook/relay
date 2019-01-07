@@ -256,7 +256,7 @@ const NormalizationCodeGenVisitor = {
       return {
         kind: 'SplitOperation',
         name: node.name,
-        metadata: null,
+        metadata: node.metadata,
         selections: flattenArray(node.selections),
       };
     },

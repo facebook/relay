@@ -12,9 +12,9 @@
 
 const CompilerContext = require('../core/GraphQLCompilerContext');
 const IRTransformer = require('../core/GraphQLIRTransformer');
-const SplitNaming = require('../core/GraphQLIRSplitNaming');
 
 const getLiteralArgumentValues = require('../core/getLiteralArgumentValues');
+const getNormalizationOperationName = require('../core/getNormalizationOperationName');
 
 const {
   GraphQLObjectType,
@@ -213,8 +213,7 @@ function visitLinkedField(
       fragment: matchSelection.name,
     };
     const normalizationName =
-      SplitNaming.getAnnotatedName(matchSelection.name, 'normalization') +
-      '.graphql';
+      getNormalizationOperationName(matchSelection.name) + '.graphql';
     const moduleField: ScalarField = {
       alias: '__match_component',
       args: [

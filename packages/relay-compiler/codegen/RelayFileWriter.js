@@ -17,12 +17,12 @@ const Profiler = require('../core/GraphQLCompilerProfiler');
 const RelayParser = require('../core/RelayParser');
 const RelayValidator = require('../core/RelayValidator');
 const SchemaUtils = require('../core/GraphQLSchemaUtils');
-const SplitNaming = require('../core/GraphQLIRSplitNaming');
 
 const compileRelayArtifacts = require('./compileRelayArtifacts');
 const crypto = require('crypto');
 const graphql = require('graphql');
 const invariant = require('invariant');
+const nullthrows = require('nullthrows');
 const path = require('path');
 const writeRelayGeneratedFile = require('./writeRelayGeneratedFile');
 
@@ -202,6 +202,10 @@ function writeAll({
       typeGenerator: writerConfig.typeGenerator,
     });
 
+    const artifactMap = new Map(
+      artifacts.map(artifact => [artifact.name, artifact]),
+    );
+
     const existingFragmentNames = new Set(
       definitions.map(definition => definition.name),
     );
@@ -217,9 +221,12 @@ function writeAll({
     });
     const definitionsMeta = new Map();
     const getDefinitionMeta = (definitionName: string) => {
-      const definitionMeta = definitionsMeta.get(
-        SplitNaming.getOriginalName(definitionName),
-      );
+      const artifact = nullthrows(artifactMap.get(definitionName));
+      const derivedFrom =
+        artifact.kind === 'Request' || artifact.kind === 'SplitOperation'
+          ? artifact.metadata?.derivedFrom
+          : null;
+      const definitionMeta = definitionsMeta.get(derivedFrom ?? definitionName);
       invariant(
         definitionMeta,
         'RelayFileWriter: Could not determine source for definition: `%s`.',

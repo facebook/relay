@@ -129,7 +129,13 @@ function relayRefetchableFragmentTransform(
             refetchOperation: refetchName,
           },
         });
-        nextContext = nextContext.add(operation);
+        nextContext = nextContext.add({
+          ...operation,
+          metadata: {
+            ...(operation.metadata || {}),
+            derivedFrom: fragment.name,
+          },
+        });
       }
     },
   );

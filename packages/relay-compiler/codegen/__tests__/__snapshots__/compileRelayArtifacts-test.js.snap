@@ -970,7 +970,9 @@ fragment ProfilePicture on User {
   "operationKind": "query",
   "name": "RefetchableFragmentQuery",
   "id": null,
-  "metadata": {},
+  "metadata": {
+    "derivedFrom": "RefetchableFragment"
+  },
   "fragment": {
     "kind": "Fragment",
     "name": "RefetchableFragmentQuery",
@@ -1241,7 +1243,9 @@ fragment ProfilePicture on User {
   "operationKind": "query",
   "name": "RefetchableFragmentQuery",
   "id": null,
-  "metadata": {},
+  "metadata": {
+    "derivedFrom": "RefetchableFragment"
+  },
   "fragment": {
     "kind": "Fragment",
     "name": "RefetchableFragmentQuery",
@@ -1508,7 +1512,9 @@ fragment ProfilePicture on User {
   "operationKind": "query",
   "name": "RefetchableFragmentQuery",
   "id": null,
-  "metadata": {},
+  "metadata": {
+    "derivedFrom": "RefetchableFragment"
+  },
   "fragment": {
     "kind": "Fragment",
     "name": "RefetchableFragmentQuery",
@@ -1856,7 +1862,9 @@ fragment ProfilePicture on User {
   "operationKind": "query",
   "name": "RefetchableFragmentQuery",
   "id": null,
-  "metadata": {},
+  "metadata": {
+    "derivedFrom": "RefetchableFragment"
+  },
   "fragment": {
     "kind": "Fragment",
     "name": "RefetchableFragmentQuery",
@@ -3248,7 +3256,9 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
 {
   "kind": "SplitOperation",
   "name": "PlainUserNameRenderer_name$normalization",
-  "metadata": null,
+  "metadata": {
+    "derivedFrom": "PlainUserNameRenderer_name"
+  },
   "selections": [
     {
       "kind": "InlineFragment",
@@ -3328,7 +3338,9 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
 {
   "kind": "SplitOperation",
   "name": "MarkdownUserNameRenderer_name$normalization",
-  "metadata": null,
+  "metadata": {
+    "derivedFrom": "MarkdownUserNameRenderer_name"
+  },
   "selections": [
     {
       "kind": "InlineFragment",
@@ -3727,7 +3739,9 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
 {
   "kind": "SplitOperation",
   "name": "PlainUserNameRenderer_name$normalization",
-  "metadata": null,
+  "metadata": {
+    "derivedFrom": "PlainUserNameRenderer_name"
+  },
   "selections": [
     {
       "kind": "InlineFragment",
@@ -3807,7 +3821,9 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
 {
   "kind": "SplitOperation",
   "name": "MarkdownUserNameRenderer_name$normalization",
-  "metadata": null,
+  "metadata": {
+    "derivedFrom": "MarkdownUserNameRenderer_name"
+  },
   "selections": [
     {
       "kind": "InlineFragment",

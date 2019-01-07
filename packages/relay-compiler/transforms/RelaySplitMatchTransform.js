@@ -12,7 +12,8 @@
 
 const CompilerContext = require('../core/GraphQLCompilerContext');
 const IRTransformer = require('../core/GraphQLIRTransformer');
-const SplitNaming = require('../core/GraphQLIRSplitNaming');
+
+const getNormalizationOperationName = require('../core/getNormalizationOperationName');
 
 import type {MatchBranch, SplitOperation} from '../core/GraphQLIR';
 
@@ -38,10 +39,12 @@ function visitMatchBranch(node: MatchBranch, state: State): MatchBranch {
   const transformedNode = this.traverse(node, state);
   const splitOperation: SplitOperation = {
     kind: 'SplitOperation',
-    name: SplitNaming.getAnnotatedName(transformedNode.name, 'normalization'),
+    name: getNormalizationOperationName(transformedNode.name),
     selections: transformedNode.selections,
     loc: {kind: 'Derived', source: node.loc},
-    metadata: null,
+    metadata: {
+      derivedFrom: transformedNode.name,
+    },
     type: transformedNode.type,
   };
   state.set(node.name, splitOperation);

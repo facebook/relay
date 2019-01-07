@@ -21,7 +21,6 @@ const GraphQLCompilerContext = require('./core/GraphQLCompilerContext');
 const GraphQLCompilerProfiler = require('./core/GraphQLCompilerProfiler');
 const GraphQLConsoleReporter = require('./reporters/GraphQLConsoleReporter');
 const GraphQLIRPrinter = require('./core/GraphQLIRPrinter');
-const GraphQLIRSplitNaming = require('./core/GraphQLIRSplitNaming');
 const GraphQLIRTransformer = require('./core/GraphQLIRTransformer');
 const GraphQLIRVisitor = require('./core/GraphQLIRVisitor');
 const GraphQLMultiReporter = require('./reporters/GraphQLMultiReporter');
@@ -113,7 +112,6 @@ module.exports = {
   Profiler: GraphQLCompilerProfiler,
   SchemaUtils: GraphQLSchemaUtils,
   SourceControlMercurial,
-  SplitNaming: GraphQLIRSplitNaming,
   WatchmanClient: GraphQLWatchmanClient,
   filterContextForNode,
   getIdentifierForArgumentValue,

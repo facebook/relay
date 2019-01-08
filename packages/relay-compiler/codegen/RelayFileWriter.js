@@ -26,6 +26,9 @@ const nullthrows = require('nullthrows');
 const path = require('path');
 const writeRelayGeneratedFile = require('./writeRelayGeneratedFile');
 
+const {
+  getReaderSourceDefinitionName,
+} = require('../core/GraphQLDerivedFromMetadata');
 const {Map: ImmutableMap} = require('immutable');
 
 import type {
@@ -186,7 +189,7 @@ function writeAll({
 |}): Promise<Map<string, CodegenDirectory>> {
   return Profiler.asyncContext('RelayFileWriter.writeAll', async () => {
     const {
-      artifacts,
+      artifacts: artifactsWithBase,
       definitions,
       transformedTypeContext,
       transformedQueryContext,
@@ -201,15 +204,6 @@ function writeAll({
       schemaExtensions: writerConfig.schemaExtensions,
       typeGenerator: writerConfig.typeGenerator,
     });
-
-    const artifactMap = new Map(
-      artifacts.map(artifact => [artifact.name, artifact]),
-    );
-
-    const existingFragmentNames = new Set(
-      definitions.map(definition => definition.name),
-    );
-
     // Build a context from all the documents
     const baseDefinitionNames = new Set();
     baseDocuments.forEach(doc => {
@@ -219,14 +213,27 @@ function writeAll({
         }
       });
     });
+
+    // remove nodes that are present in the base or that derive from nodes
+    // in the base
+    const artifacts = artifactsWithBase.filter(node => {
+      const sourceName = getReaderSourceDefinitionName(node);
+      return !baseDefinitionNames.has(sourceName);
+    });
+
+    const artifactMap = new Map(
+      artifacts.map(artifact => [artifact.name, artifact]),
+    );
+
+    const existingFragmentNames = new Set(
+      definitions.map(definition => definition.name),
+    );
+
     const definitionsMeta = new Map();
     const getDefinitionMeta = (definitionName: string) => {
       const artifact = nullthrows(artifactMap.get(definitionName));
-      const derivedFrom =
-        artifact.kind === 'Request' || artifact.kind === 'SplitOperation'
-          ? artifact.metadata?.derivedFrom
-          : null;
-      const definitionMeta = definitionsMeta.get(derivedFrom ?? definitionName);
+      const sourceName = getReaderSourceDefinitionName(artifact);
+      const definitionMeta = definitionsMeta.get(sourceName);
       invariant(
         definitionMeta,
         'RelayFileWriter: Could not determine source for definition: `%s`.',

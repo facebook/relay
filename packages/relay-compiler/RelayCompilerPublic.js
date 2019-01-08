@@ -44,6 +44,10 @@ const nullthrows = require('./util/nullthrowsOSS');
 const writeRelayGeneratedFile = require('./codegen/writeRelayGeneratedFile');
 
 const {SourceControlMercurial} = require('./codegen/SourceControl');
+const {
+  getReaderSourceDefinitionName,
+  getSourceDefinitionName,
+} = require('./core/GraphQLDerivedFromMetadata');
 
 export type {Filesystem} from './codegen/CodegenDirectory';
 export type {
@@ -138,6 +142,9 @@ module.exports = {
   formatGeneratedModule,
   convertASTDocuments: ASTConvert.convertASTDocuments,
   transformASTSchema: ASTConvert.transformASTSchema,
+
+  getReaderSourceDefinitionName,
+  getSourceDefinitionName,
 
   writeRelayGeneratedFile,
 };

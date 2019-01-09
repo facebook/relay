@@ -34,10 +34,22 @@ const FIND_OPTIONS = {
 module.exports = (tagFinder: GraphQLTagFinder) => {
   const memoizedTagFinder = memoizedFind.bind(null, tagFinder);
 
-  // Throws an error if parsing the file fails
   function parseFile(baseDir: string, file: File): ?DocumentNode {
-    const text = fs.readFileSync(path.join(baseDir, file.relPath), 'utf8');
+    const result = parseFileWithSources(baseDir, file);
+    if (result) {
+      return result.document;
+    }
+  }
 
+  // Throws an error if parsing the file fails
+  function parseFileWithSources(
+    baseDir: string,
+    file: File,
+  ): ?{|
+    +document: DocumentNode,
+    +sources: $ReadOnlyArray<string>,
+  |} {
+    const text = fs.readFileSync(path.join(baseDir, file.relPath), 'utf8');
     invariant(
       text.indexOf('graphql') >= 0,
       'RelaySourceModuleParser: Files should be filtered before passed to the ' +
@@ -46,20 +58,26 @@ module.exports = (tagFinder: GraphQLTagFinder) => {
     );
 
     const astDefinitions = [];
+    const sources = [];
     memoizedTagFinder(text, baseDir, file, FIND_OPTIONS).forEach(template => {
-      const ast = parseGraphQL(new GraphQL.Source(template, file.relPath));
+      const source = new GraphQL.Source(template, file.relPath);
+      const ast = parseGraphQL(source);
       invariant(
         ast.definitions.length,
         'RelaySourceModuleParser: Expected GraphQL text to contain at least one ' +
           'definition (fragment, mutation, query, subscription), got `%s`.',
         template,
       );
+      sources.push(source.body);
       astDefinitions.push(...ast.definitions);
     });
 
     return {
-      kind: 'Document',
-      definitions: astDefinitions,
+      document: {
+        kind: 'Document',
+        definitions: astDefinitions,
+      },
+      sources,
     };
   }
 
@@ -81,5 +99,6 @@ module.exports = (tagFinder: GraphQLTagFinder) => {
     getParser,
     getFileFilter,
     parseFile,
+    parseFileWithSources,
   };
 };

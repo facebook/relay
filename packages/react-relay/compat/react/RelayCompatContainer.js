@@ -33,6 +33,7 @@ import type {GraphQLTaggedNode} from 'relay-runtime';
 function createContainer<Props: {}, TComponent: React.ComponentType<Props>>(
   Component: TComponent,
   fragmentSpec: GraphQLTaggedNode | GeneratedNodeMap,
+  compatModuleName?: string,
 ): RelayCompatContainer<
   $RelayProps<React$ElementConfig<TComponent>, RelayProp>,
 > {
@@ -40,6 +41,7 @@ function createContainer<Props: {}, TComponent: React.ComponentType<Props>>(
     Component,
     (fragmentSpec: any),
     ReactRelayFragmentContainer.createContainerWithFragments,
+    compatModuleName,
   );
 }
 

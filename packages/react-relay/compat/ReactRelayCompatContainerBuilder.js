@@ -23,6 +23,7 @@ const {
   getComponentName,
   getContainerName,
 } = require('../modern/ReactRelayContainerUtils');
+const {isRelayModernEnvironment} = require('relay-runtime');
 
 import type {ConcreteFragmentSpread} from '../classic/query/ConcreteQuery';
 import type {VariableMapping} from '../classic/query/RelayFragmentReference';
@@ -53,6 +54,16 @@ function injectDefaultVariablesProvider(variablesProvider: VariablesProvider) {
 }
 
 /**
+ * Sets a logging function that logs wheter a compat container was rendered in
+ * a modern or classic environment.
+ */
+type CompatLoggingFunction = (moduleName: string, isModern: boolean) => void;
+let injectedCompatLoggingFunction: CompatLoggingFunction = () => {};
+function injectCompatLoggingFunction(loggingFunction: CompatLoggingFunction) {
+  injectedCompatLoggingFunction = loggingFunction;
+}
+
+/**
  * Creates a component class whose instances adapt to the
  * `context.relay.environment` in which they are rendered and which have the
  * necessary static methods (`getFragment()` etc) to be composed within classic
@@ -69,6 +80,7 @@ function buildCompatContainer(
   ComponentClass: React$ComponentType<any>,
   fragmentSpec: GeneratedNodeMap,
   createContainerWithFragments: ContainerCreator,
+  compatModuleName: string = 'unknown',
 ): any {
   // Sanity-check user-defined fragment input
   const containerName = getContainerName(ComponentClass);
@@ -90,6 +102,8 @@ function buildCompatContainer(
     fragmentName: string,
     variableMapping?: VariableMapping,
   ): ConcreteFragmentSpread {
+    injectedCompatLoggingFunction(compatModuleName, false);
+
     const taggedNode = fragmentSpec[fragmentName];
     invariant(
       taggedNode,
@@ -129,6 +143,11 @@ function buildCompatContainer(
   function ContainerConstructor(props) {
     if (Container == null || props.__relayContext.environment !== environment) {
       environment = props.__relayContext.environment;
+
+      injectedCompatLoggingFunction(
+        compatModuleName,
+        isRelayModernEnvironment(environment),
+      );
 
       const {getFragment: getFragmentFromTag} = environment.unstable_internal;
       const fragments = mapObject(fragmentSpec, getFragmentFromTag);
@@ -187,4 +206,8 @@ function buildCompatContainer(
   return ForwardContainer;
 }
 
-module.exports = {injectDefaultVariablesProvider, buildCompatContainer};
+module.exports = {
+  injectDefaultVariablesProvider,
+  injectCompatLoggingFunction,
+  buildCompatContainer,
+};

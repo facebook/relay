@@ -36,7 +36,7 @@
     "babel-eslint": "9.0.0",
     "babel-plugin-macros": "^2.0.0",
     "babel-plugin-tester": "^5.5.1",
-    "babel-preset-fbjs": "^3.0.1",
+    "babel-preset-fbjs": "^3.1.1",
     "chalk": "^2.4.1",
     "create-react-class": "^15.6.0",
     "del": "3.0.0",

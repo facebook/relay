@@ -28,12 +28,25 @@ import type {
   OptimisticMutationConfig,
 } from 'relay-runtime';
 
+/**
+ * Sets a logging function that logs whether a compat mutation was executed in
+ * a modern or classic environment.
+ */
+type CompatLoggingFunction = (moduleName: string, isModern: boolean) => void;
+let injectedCompatLoggingFunction: CompatLoggingFunction = () => {};
+function injectCompatLoggingFunction(loggingFunction: CompatLoggingFunction) {
+  injectedCompatLoggingFunction = loggingFunction;
+}
+
 function commitUpdate<T>(
   environment: CompatEnvironment,
   config: MutationConfig<T>,
+  // `moduleName` is used to log the environment type in compat mode
+  moduleName: string = 'unknown',
 ): Disposable {
   const modernEnvironment = getRelayModernEnvironment(environment);
   if (modernEnvironment) {
+    injectedCompatLoggingFunction(moduleName, true);
     return commitMutation(modernEnvironment, config);
   } else {
     const classicEnvironment = getRelayClassicEnvironment(environment);
@@ -43,6 +56,7 @@ function commitUpdate<T>(
         '`RelayEnvironmentInterface`, got `%s`.',
       environment,
     );
+    injectedCompatLoggingFunction(moduleName, false);
     return commitRelayClassicMutation(
       // getRelayClassicEnvironment returns a RelayEnvironmentInterface
       // (classic APIs), but we need the modern APIs on old core here.
@@ -55,9 +69,12 @@ function commitUpdate<T>(
 function applyUpdate(
   environment: CompatEnvironment,
   config: OptimisticMutationConfig,
+  // `moduleName` is used to log the environment type in compat mode
+  moduleName: string = 'unknown',
 ): Disposable {
   const modernEnvironment = getRelayModernEnvironment(environment);
   if (modernEnvironment) {
+    injectedCompatLoggingFunction(moduleName, true);
     return applyOptimisticMutation(modernEnvironment, config);
   } else {
     const classicEnvironment = getRelayClassicEnvironment(environment);
@@ -67,6 +84,7 @@ function applyUpdate(
         '`RelayEnvironmentInterface`, got `%s`.',
       environment,
     );
+    injectedCompatLoggingFunction(moduleName, false);
     return applyRelayClassicMutation(
       // getRelayClassicEnvironment returns a RelayEnvironmentInterface
       // (classic APIs), but we need the modern APIs on old core here.
@@ -172,4 +190,5 @@ function validateOptimisticResponse(
 module.exports = {
   applyUpdate,
   commitUpdate,
+  injectCompatLoggingFunction,
 };

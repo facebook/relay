@@ -28,55 +28,53 @@ import type {
   OptimisticMutationConfig,
 } from 'relay-runtime';
 
-const RelayCompatMutations = {
-  commitUpdate<T>(
-    environment: CompatEnvironment,
-    config: MutationConfig<T>,
-  ): Disposable {
-    const relayStaticEnvironment = getRelayModernEnvironment(environment);
-    if (relayStaticEnvironment) {
-      return commitMutation(relayStaticEnvironment, config);
-    } else {
-      const relayClassicEnvironment = getRelayClassicEnvironment(environment);
-      invariant(
-        relayClassicEnvironment,
-        'RelayCompatMutations: Expected an object that conforms to the ' +
-          '`RelayEnvironmentInterface`, got `%s`.',
-        environment,
-      );
-      return commitRelayClassicMutation(
-        // getRelayClassicEnvironment returns a RelayEnvironmentInterface
-        // (classic APIs), but we need the modern APIs on old core here.
-        (relayClassicEnvironment: $FlowFixMe),
-        config,
-      );
-    }
-  },
+function commitUpdate<T>(
+  environment: CompatEnvironment,
+  config: MutationConfig<T>,
+): Disposable {
+  const modernEnvironment = getRelayModernEnvironment(environment);
+  if (modernEnvironment) {
+    return commitMutation(modernEnvironment, config);
+  } else {
+    const classicEnvironment = getRelayClassicEnvironment(environment);
+    invariant(
+      classicEnvironment,
+      'RelayCompatMutations: Expected an object that conforms to the ' +
+        '`RelayEnvironmentInterface`, got `%s`.',
+      environment,
+    );
+    return commitRelayClassicMutation(
+      // getRelayClassicEnvironment returns a RelayEnvironmentInterface
+      // (classic APIs), but we need the modern APIs on old core here.
+      (classicEnvironment: $FlowFixMe),
+      config,
+    );
+  }
+}
 
-  applyUpdate(
-    environment: CompatEnvironment,
-    config: OptimisticMutationConfig,
-  ): Disposable {
-    const relayStaticEnvironment = getRelayModernEnvironment(environment);
-    if (relayStaticEnvironment) {
-      return applyOptimisticMutation(relayStaticEnvironment, config);
-    } else {
-      const relayClassicEnvironment = getRelayClassicEnvironment(environment);
-      invariant(
-        relayClassicEnvironment,
-        'RelayCompatMutations: Expected an object that conforms to the ' +
-          '`RelayEnvironmentInterface`, got `%s`.',
-        environment,
-      );
-      return applyRelayClassicMutation(
-        // getRelayClassicEnvironment returns a RelayEnvironmentInterface
-        // (classic APIs), but we need the modern APIs on old core here.
-        (relayClassicEnvironment: $FlowFixMe),
-        config,
-      );
-    }
-  },
-};
+function applyUpdate(
+  environment: CompatEnvironment,
+  config: OptimisticMutationConfig,
+): Disposable {
+  const modernEnvironment = getRelayModernEnvironment(environment);
+  if (modernEnvironment) {
+    return applyOptimisticMutation(modernEnvironment, config);
+  } else {
+    const classicEnvironment = getRelayClassicEnvironment(environment);
+    invariant(
+      classicEnvironment,
+      'RelayCompatMutations: Expected an object that conforms to the ' +
+        '`RelayEnvironmentInterface`, got `%s`.',
+      environment,
+    );
+    return applyRelayClassicMutation(
+      // getRelayClassicEnvironment returns a RelayEnvironmentInterface
+      // (classic APIs), but we need the modern APIs on old core here.
+      (classicEnvironment: $FlowFixMe),
+      config,
+    );
+  }
+}
 
 function commitRelayClassicMutation<T>(
   environment: ClassicEnvironment,
@@ -171,4 +169,7 @@ function validateOptimisticResponse(
   return optimisticResponse;
 }
 
-module.exports = RelayCompatMutations;
+module.exports = {
+  applyUpdate,
+  commitUpdate,
+};

@@ -54,7 +54,7 @@ function injectDefaultVariablesProvider(variablesProvider: VariablesProvider) {
 }
 
 /**
- * Sets a logging function that logs wheter a compat container was rendered in
+ * Sets a logging function that logs whether a compat container was rendered in
  * a modern or classic environment.
  */
 type CompatLoggingFunction = (moduleName: string, isModern: boolean) => void;

@@ -184,7 +184,7 @@ type Comment implements Node {
   emailAddresses: [String]
   feedback: Feedback
   firstName(if: Boolean, unless: Boolean): String
-  friends(after: ID, before: ID, first: Int, last: ID, orderby: [String], find: String, isViewerFriend: Boolean, if: Boolean, unless: Boolean, traits: [PersonalityTraits]): FriendsConnection
+  friends(after: ID, before: ID, first: Int, last: Int, orderby: [String], find: String, isViewerFriend: Boolean, if: Boolean, unless: Boolean, traits: [PersonalityTraits]): FriendsConnection
   hometown: Page
   id: ID!
   lastName: String
@@ -268,7 +268,7 @@ type Feedback implements Node {
   emailAddresses: [String]
   feedback: Feedback
   firstName(if: Boolean, unless: Boolean): String
-  friends(after: ID, before: ID, first: Int, last: ID, orderby: [String], find: String, isViewerFriend: Boolean, if: Boolean, unless: Boolean, traits: [PersonalityTraits]): FriendsConnection
+  friends(after: ID, before: ID, first: Int, last: Int, orderby: [String], find: String, isViewerFriend: Boolean, if: Boolean, unless: Boolean, traits: [PersonalityTraits]): FriendsConnection
   hometown: Page
   id: ID!
   lastName: String
@@ -370,7 +370,7 @@ interface Node {
   emailAddresses: [String]
   feedback: Feedback
   firstName(if: Boolean, unless: Boolean): String
-  friends(after: ID, before: ID, first: Int, last: ID, orderby: [String], find: String, isViewerFriend: Boolean, if: Boolean, unless: Boolean, traits: [PersonalityTraits]): FriendsConnection
+  friends(after: ID, before: ID, first: Int, last: Int, orderby: [String], find: String, isViewerFriend: Boolean, if: Boolean, unless: Boolean, traits: [PersonalityTraits]): FriendsConnection
   hometown: Page
   id: ID!
   lastName: String
@@ -397,7 +397,7 @@ interface Actor {
   birthdate: Date
   emailAddresses: [String]
   firstName(if: Boolean, unless: Boolean): String
-  friends(after: ID, before: ID, first: Int, last: ID, orderby: [String], find: String, isViewerFriend: Boolean, if: Boolean, unless: Boolean, traits: [PersonalityTraits]): FriendsConnection
+  friends(after: ID, before: ID, first: Int, last: Int, orderby: [String], find: String, isViewerFriend: Boolean, if: Boolean, unless: Boolean, traits: [PersonalityTraits]): FriendsConnection
   hometown: Page
   id: ID!
   lastName: String
@@ -432,7 +432,7 @@ type Page implements Node & Actor {
   emailAddresses: [String]
   feedback: Feedback
   firstName(if: Boolean, unless: Boolean): String
-  friends(after: ID, before: ID, first: Int, last: ID, orderby: [String], find: String, isViewerFriend: Boolean, if: Boolean, unless: Boolean, traits: [PersonalityTraits]): FriendsConnection
+  friends(after: ID, before: ID, first: Int, last: Int, orderby: [String], find: String, isViewerFriend: Boolean, if: Boolean, unless: Boolean, traits: [PersonalityTraits]): FriendsConnection
   hometown: Page
   id: ID!
   lastName: String
@@ -532,7 +532,7 @@ type PhotoStory implements FeedUnit & Node {
   emailAddresses: [String]
   feedback: Feedback
   firstName(if: Boolean, unless: Boolean): String
-  friends(after: ID, before: ID, first: Int, last: ID, orderby: [String], find: String, isViewerFriend: Boolean, if: Boolean, unless: Boolean, traits: [PersonalityTraits]): FriendsConnection
+  friends(after: ID, before: ID, first: Int, last: Int, orderby: [String], find: String, isViewerFriend: Boolean, if: Boolean, unless: Boolean, traits: [PersonalityTraits]): FriendsConnection
   hometown: Page
   id: ID!
   lastName: String
@@ -577,7 +577,7 @@ type Story implements FeedUnit & Node {
   emailAddresses: [String]
   feedback: Feedback
   firstName(if: Boolean, unless: Boolean): String
-  friends(after: ID, before: ID, first: Int, last: ID, orderby: [String], find: String, isViewerFriend: Boolean, if: Boolean, unless: Boolean, traits: [PersonalityTraits]): FriendsConnection
+  friends(after: ID, before: ID, first: Int, last: Int, orderby: [String], find: String, isViewerFriend: Boolean, if: Boolean, unless: Boolean, traits: [PersonalityTraits]): FriendsConnection
   hometown: Page
   id: ID!
   lastName: String
@@ -707,7 +707,7 @@ type User implements Named & Node & Actor {
     after: ID
     before: ID
     first: Int
-    last: ID
+    last: Int
     orderby: [String]
     named: String
     scale: Float

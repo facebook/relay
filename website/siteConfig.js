@@ -68,6 +68,12 @@ const users = [
     infoLink: 'https://github.com/itdagene-ntnu/itdagene-webapp',
     pinned: false,
   },
+  {
+    caption: 'Jusbrasil',
+    image: '/relay/img/logos/jusbrasil.png',
+    infoLink: 'https://github.com/jusbrasil',
+    pinned: false,
+  },
 ];
 
 const siteConfig = {

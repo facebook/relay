@@ -1520,10 +1520,10 @@ babel-preset-fbjs@^3.0.0:
     "@babel/plugin-transform-template-literals" "^7.0.0"
     babel-plugin-syntax-trailing-function-commas "^7.0.0-beta.0"
 
-babel-preset-fbjs@^3.1.1:
-  version "3.1.1"
-  resolved "https://registry.yarnpkg.com/babel-preset-fbjs/-/babel-preset-fbjs-3.1.1.tgz#1412c70dec67d67c10326a3b56045def72985025"
-  integrity sha512-zg3n3PN6PXOObLCEgJQxLHZXui8S6RJe4uToP7n2grmUSEfgMMolv3x41K4jWzhNkgYNxTwflVlVmd8fketjOg==
+babel-preset-fbjs@^3.1.2:
+  version "3.1.2"
+  resolved "https://registry.yarnpkg.com/babel-preset-fbjs/-/babel-preset-fbjs-3.1.2.tgz#3a067309fed19dd435aeaea56cbf59fdd672bc15"
+  integrity sha512-Bfrc4T3sub3TlXB19SQGKVigAiZpXJh05Cng8Iytn0TODXa86CigTkQnGun1FMQZJHrrpBpbm/IVDj+4K9lwAQ==
   dependencies:
     "@babel/plugin-proposal-class-properties" "^7.0.0"
     "@babel/plugin-proposal-object-rest-spread" "^7.0.0"

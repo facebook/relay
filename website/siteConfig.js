@@ -68,6 +68,12 @@ const users = [
     infoLink: 'https://github.com/itdagene-ntnu/itdagene-webapp',
     pinned: false,
   },
+  {
+    caption: 'Kiwi.com',
+    image: '/relay/img/logos/kiwicom.png',
+    infoLink: 'https://www.kiwi.com/',
+    pinned: false,
+  },
 ];
 
 const siteConfig = {

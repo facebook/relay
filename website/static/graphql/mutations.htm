@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!-- Built with spec-md -->
-<html><head><meta charset="utf-8"><title>Relay Input Object Mutations Specification</title><style>body {
+<html><head><meta charset="utf-8"><title>Relay Classic Input Object Mutations Specification</title><style>body {
   color: #333333;
   font: 13pt/18pt Cambria, "Palatino Linotype", Palatino, "Liberation Serif", serif;
   margin: 6rem auto 3rem;
@@ -796,7 +796,7 @@ document.documentElement.addEventListener('mouseover', function (event) {
 });
 
 document.documentElement.addEventListener('mouseout', removeHighlight);
-})()</script></head><body><header><h1>Relay Input Object Mutations Specification</h1><section id="intro"><p>Relay&rsquo;s support for mutations relies on the GraphQL server exposing mutation fields in a standardized way. These mutations accept and emit a identifier string, which allows Relay to track mutations and responses.</p><p>All mutations may include in their input a <code>clientMutationId</code> string, which is then returned as part of the object returned by the mutation field.</p><p>An example of this is the following query:</p><pre><code><span class="token keyword">mutation</span> M <span class="token punctuation">{</span>
+})()</script></head><body><header><h1>Relay Classic Input Object Mutations Specification</h1><section id="intro"><p>Relay Classic&rsquo;s support for mutations relies on the GraphQL server exposing mutation fields in a standardized way. These mutations accept and emit a identifier string, which allows Relay Classic to track mutations and responses.</p><p>All mutations may include in their input a <code>clientMutationId</code> string, which is then returned as part of the object returned by the mutation field.</p><p>An example of this is the following query:</p><pre><code><span class="token keyword">mutation</span> M <span class="token punctuation">{</span>
   updateStatus<span class="token punctuation">(</span><span class="token attr-name">input</span><span class="token punctuation">:</span> <span class="token variable">$input</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
     clientMutationId
     status <span class="token punctuation">{</span>
@@ -905,7 +905,7 @@ document.documentElement.addEventListener('mouseout', removeHighlight);
     <span class="token punctuation">}</span>
   <span class="token punctuation">}</span>
 <span class="token punctuation">}</span>
-</code></pre></section><footer>Written in <a href="http://leebyron.com/spec-md/" target="_blank">Spec Markdown</a>.</footer><input hidden class="spec-sidebar-toggle" type="checkbox" id="spec-sidebar-toggle" aria-hidden /><label for="spec-sidebar-toggle" aria-hidden>&#x2630;</label><div class="spec-sidebar" aria-hidden><div class="spec-toc"><div class="title"><a href="#">Relay Input Object Mutations Specification</a></div><ol><li id="_sidebar_1"><a href="#sec-Mutation-inputs"><span class="spec-secid">1</span>Mutation inputs</a></li><li id="_sidebar_2"><a href="#sec-Mutation-fields"><span class="spec-secid">2</span>Mutation fields</a></li><li id="_sidebar_3"><a href="#sec-Introspection"><span class="spec-secid">3</span>Introspection</a></li></ol></div><script>(function (){
+</code></pre></section><footer>Written in <a href="http://leebyron.com/spec-md/" target="_blank">Spec Markdown</a>.</footer><input hidden class="spec-sidebar-toggle" type="checkbox" id="spec-sidebar-toggle" aria-hidden /><label for="spec-sidebar-toggle" aria-hidden>&#x2630;</label><div class="spec-sidebar" aria-hidden><div class="spec-toc"><div class="title"><a href="#">Relay Classic Input Object Mutations Specification</a></div><ol><li id="_sidebar_1"><a href="#sec-Mutation-inputs"><span class="spec-secid">1</span>Mutation inputs</a></li><li id="_sidebar_2"><a href="#sec-Mutation-fields"><span class="spec-secid">2</span>Mutation fields</a></li><li id="_sidebar_3"><a href="#sec-Introspection"><span class="spec-secid">3</span>Introspection</a></li></ol></div><script>(function (){
 var currentSection;
 var numberedSections = [];
 

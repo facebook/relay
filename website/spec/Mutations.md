@@ -1,9 +1,9 @@
-Relay Input Object Mutations Specification
+Relay Classic Input Object Mutations Specification
 ------------------------------------------
 
-Relay's support for mutations relies on the GraphQL server exposing
+Relay Classic's support for mutations relies on the GraphQL server exposing
 mutation fields in a standardized way. These mutations accept and emit a
-identifier string, which allows Relay to track mutations and responses.
+identifier string, which allows Relay Classic to track mutations and responses.
 
 All mutations may include in their input a `clientMutationId` string, which is
 then returned as part of the object returned by the mutation field.

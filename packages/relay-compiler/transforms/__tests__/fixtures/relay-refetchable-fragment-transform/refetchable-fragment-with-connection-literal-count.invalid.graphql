@@ -1,0 +1,18 @@
+fragment PaginationFragment on Node
+  @refetchable(queryName: "RefetchableFragmentQuery")
+  @argumentDefinitions(
+    cursor: {type: "ID"},
+  ) {
+  id
+  ... on User {
+    name
+    friends(after: $cursor, first: 10)
+      @connection(key: "PaginationFragment_friends") {
+      edges {
+        node {
+          id
+        }
+      }
+    }
+  }
+}

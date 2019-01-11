@@ -27,17 +27,43 @@ export type ReaderFragment = {|
     +connection?: $ReadOnlyArray<ConnectionMetadata>,
     +mask?: boolean,
     +plural?: boolean,
+    +refetchConnection?: ReaderPaginationMetadata,
     +refetchOperation?: string | ConcreteRequest,
   |},
   +argumentDefinitions: $ReadOnlyArray<ReaderArgumentDefinition>,
   +selections: $ReadOnlyArray<ReaderSelection>,
 |};
 
+// Marker type for a @refetchable fragment
 export type ReaderRefetchableFragment = {|
   ...ReaderFragment,
   +metadata: {|
+    +connection?: [ConnectionMetadata],
+    +refetchConnection?: ReaderPaginationMetadata,
     +refetchOperation: ConcreteRequest,
   |},
+|};
+
+// Marker Type for a @refetchable fragment with a single use of @connection
+export type ReaderPaginationFragment = {|
+  ...ReaderFragment,
+  +metadata: {|
+    +connection: [ConnectionMetadata],
+    +refetchConnection: ReaderPaginationMetadata,
+    +refetchOperation: ConcreteRequest,
+  |},
+|};
+// Stricter form of ConnectionMetadata
+export type ReaderPaginationMetadata = {|
+  +backward: {|
+    +count: string,
+    +cursor: string,
+  |} | null,
+  +forward: {|
+    +count: string,
+    +cursor: string,
+  |} | null,
+  +path: $ReadOnlyArray<string>,
 |};
 
 export type ReaderArgument = ReaderLiteral | ReaderVariable;

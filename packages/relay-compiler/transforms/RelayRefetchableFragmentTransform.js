@@ -11,6 +11,7 @@
 'use strict';
 
 const GraphQLCompilerContext = require('../core/GraphQLCompilerContext');
+const GraphQLIRVisitor = require('../core/GraphQLIRVisitor');
 
 const getLiteralArgumentValues = require('../core/getLiteralArgumentValues');
 const inferRootArgumentDefinitions = require('../core/inferRootArgumentDefinitions');
@@ -27,18 +28,22 @@ const {
   getNullableType,
   GraphQLID,
   GraphQLInterfaceType,
+  GraphQLList,
   GraphQLNonNull,
   GraphQLObjectType,
   GraphQLSchema,
 } = require('graphql');
 
 import type {
+  Argument,
   ArgumentDefinition,
+  Field,
   Fragment,
   FragmentSpread,
   LocalArgumentDefinition,
   Root,
-} from 'relay-compiler';
+} from '../core/GraphQLIR';
+import type {ReaderPaginationMetadata} from 'relay-runtime';
 
 const VIEWER_TYPE_NAME = 'Viewer';
 const VIEWER_FIELD_NAME = 'viewer';
@@ -122,10 +127,12 @@ function relayRefetchableFragmentTransform(
         );
       }
       if (operation != null) {
+        const connectionMetadata = extractConnectionMetadata(fragment);
         nextContext = nextContext.replace({
           ...fragment,
           metadata: {
             ...(fragment.metadata || {}),
+            refetchConnection: connectionMetadata,
             refetchOperation: refetchName,
           },
         });
@@ -182,6 +189,123 @@ function buildRefetchMap(
       return [name, transformed.getFragment(fragment.name)];
     }),
   );
+}
+
+/**
+ * Validate that any @connection usage is valid for refetching:
+ * - Variables are used for both the "count" and "cursor" arguments
+ *   (after/first or before/last)
+ * - Exactly one connection
+ * - Has a stable path to the connection data
+ *
+ * Returns connection metadata to add to the transformed fragment or undefined
+ * if there is no connection.
+ */
+function extractConnectionMetadata(
+  fragment: Fragment,
+): ReaderPaginationMetadata | void {
+  const fields = [];
+  let connectionField = null;
+  let path = null;
+  GraphQLIRVisitor.visit(fragment, {
+    LinkedField: {
+      enter(field) {
+        fields.push(field);
+        if (
+          (field.handles &&
+            field.handles.some(handle => handle.name === 'connection')) ||
+          field.directives.some(directive => directive.name === 'connection')
+        ) {
+          // Disallow multiple @connections
+          if (connectionField != null) {
+            throw createUserError(
+              `Invalid use of @refetchable with @connection in fragment '${
+                fragment.name
+              }', at most once @connection can appear in a refetchable fragment.`,
+              [field.loc],
+            );
+          }
+          // Disallow connections within plurals
+          const pluralOnPath = fields.find(
+            pathField => getNullableType(pathField.type) instanceof GraphQLList,
+          );
+          if (pluralOnPath) {
+            throw createUserError(
+              `Invalid use of @refetchable with @connection in fragment '${
+                fragment.name
+              }', refetchable connections cannot appear inside plural fields.`,
+              [field.loc, pluralOnPath.loc],
+            );
+          }
+          connectionField = field;
+          path = fields.map(pathField => pathField.alias ?? pathField.name);
+        }
+      },
+    },
+    leave() {
+      fields.pop();
+    },
+  });
+  if (connectionField == null || path == null) {
+    return;
+  }
+  // Validate arguments: if either of before/last appear they must both appear
+  // and use variables (not scalar values)
+  let backward = null;
+  const before = findArgument(connectionField, 'before');
+  const last = findArgument(connectionField, 'last');
+  if (before || last) {
+    if (
+      !before ||
+      !last ||
+      before.value.kind !== 'Variable' ||
+      last.value.kind !== 'Variable'
+    ) {
+      throw createUserError(
+        `Invalid use of @refetchable with @connection in fragment '${
+          fragment.name
+        }', refetchable connections must use variables for the before and last arguments.`,
+        [
+          connectionField.loc,
+          before && before.value.kind !== 'Variable' ? before.value.loc : null,
+          last && last.value.kind !== 'Variable' ? last.value.loc : null,
+        ].filter(Boolean),
+      );
+    }
+    backward = {
+      count: last.value.variableName,
+      cursor: before.value.variableName,
+    };
+  }
+  // Validate arguments: if either of after/first appear they must both appear
+  // and use variables (not scalar values)
+  let forward = null;
+  const after = findArgument(connectionField, 'after');
+  const first = findArgument(connectionField, 'first');
+  if (after || first) {
+    if (
+      !after ||
+      !first ||
+      after.value.kind !== 'Variable' ||
+      first.value.kind !== 'Variable'
+    ) {
+      throw createUserError(
+        `Invalid use of @refetchable with @connection in fragment '${
+          fragment.name
+        }', refetchable connections must use variables for the after and first arguments.`,
+        [
+          connectionField.loc,
+          after && after.value.kind !== 'Variable' ? after.value.loc : null,
+          first && first.value.kind !== 'Variable' ? first.value.loc : null,
+        ].filter(Boolean),
+      );
+    }
+    forward = {
+      count: first.value.variableName,
+      cursor: after.value.variableName,
+    };
+  }
+  return {forward, backward, path};
 }
 
 function buildOperationArgumentDefinitions(
@@ -443,6 +567,10 @@ function getRefetchQueryName(fragment: Fragment): string | null {
     );
   }
   return queryName;
+}
+
+function findArgument(field: Field, argumentName: string): Argument | null {
+  return field.args.find(arg => arg.name === argumentName) ?? null;
 }
 
 module.exports = {

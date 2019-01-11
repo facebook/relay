@@ -12,6 +12,7 @@
 
 const GraphQLCompilerContext = require('GraphQLCompilerContext');
 const GraphQLIRPrinter = require('GraphQLIRPrinter');
+const RelayConnectionTransform = require('RelayConnectionTransform');
 const RelayRefetchableFragmentTransform = require('RelayRefetchableFragmentTransform');
 const RelayRelayDirectiveTransform = require('RelayRelayDirectiveTransform');
 const RelayTestSchema = require('RelayTestSchema');
@@ -23,6 +24,7 @@ const {generateTestsFromFixtures} = require('RelayModernTestUtils');
 
 describe('RelayRefetchableFragmentTransform', () => {
   const schema = transformASTSchema(RelayTestSchema, [
+    RelayConnectionTransform.SCHEMA_EXTENSION,
     RelayRefetchableFragmentTransform.SCHEMA_EXTENSION,
   ]);
 
@@ -35,6 +37,7 @@ describe('RelayRefetchableFragmentTransform', () => {
         .applyTransforms([
           // Requires Relay directive transform first.
           RelayRelayDirectiveTransform.transform,
+          RelayConnectionTransform.transform,
           RelayRefetchableFragmentTransform.transform,
         ])
         .documents()

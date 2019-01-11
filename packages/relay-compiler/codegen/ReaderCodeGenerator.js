@@ -52,7 +52,13 @@ const ReaderCodeGenVisitor = {
     Fragment(node): ReaderFragment {
       let metadata = null;
       if (node.metadata != null) {
-        const {mask, plural, connection, refetchOperation} = node.metadata;
+        const {
+          mask,
+          plural,
+          connection,
+          refetchConnection,
+          refetchOperation,
+        } = node.metadata;
         if (Array.isArray(connection)) {
           metadata = metadata ?? {};
           metadata.connection = (connection: any);
@@ -64,6 +70,10 @@ const ReaderCodeGenVisitor = {
         if (typeof plural === 'boolean') {
           metadata = metadata ?? {};
           metadata.plural = plural;
+        }
+        if (typeof refetchConnection === 'object') {
+          metadata = metadata ?? {};
+          metadata.refetchConnection = (refetchConnection: any);
         }
         if (typeof refetchOperation === 'string') {
           metadata = metadata ?? {};

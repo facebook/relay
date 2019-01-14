@@ -12,12 +12,16 @@
 
 const React = require('React');
 
-const ReactCurrentOwner =
-  // $FlowFixMe
-  React.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED.ReactCurrentOwner;
+const {ReactCurrentDispatcher, ReactCurrentOwner} =
+  /* $FlowFixMe Flow doesn't know about React's internals for good reason,
+              but for now, Relay needs the dispatcher to read context. */
+  React.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED;
 
 function readContext<T>(Context: React.Context<T>): T {
-  const dispatcher = ReactCurrentOwner.currentDispatcher;
+  const dispatcher =
+    ReactCurrentDispatcher != null
+      ? ReactCurrentDispatcher.current
+      : ReactCurrentOwner.currentDispatcher;
   return dispatcher.readContext(Context);
 }
 

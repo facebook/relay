@@ -22,25 +22,17 @@ import type {ReaderFragment} from './ReaderNode';
  * results, and a `fragment` derived from that operation to read the response
  * data (masking data from child fragments).
  */
-export type ConcreteRequest =
-  | {|
-      +kind: 'Request',
-      +name: string,
-      +operationKind: 'mutation' | 'query' | 'subscription',
-      +id: ?string,
-      text: ?string,
-      +metadata: {[key: string]: mixed},
-      +fragment: ReaderFragment,
-      +operation: NormalizationOperation,
-      +params?: RequestParameters,
-    |}
-  | {|
-      +kind: 'Request',
-      +fragment: ReaderFragment,
-      +operation: NormalizationOperation,
-      +params: RequestParameters,
-      text?: ?string,
-    |};
+export type ConcreteRequest = {|
+  +kind: 'Request',
+  +name: string,
+  +operationKind: 'mutation' | 'query' | 'subscription',
+  +id: ?string,
+  text: ?string,
+  +metadata: {[key: string]: mixed},
+  +fragment: ReaderFragment,
+  +operation: NormalizationOperation,
+  +params?: RequestParameters,
+|};
 
 /**
  * Contains the `text` (or persisted `id`) required for executing a common

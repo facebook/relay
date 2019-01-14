@@ -61,7 +61,7 @@ async function writeRelayGeneratedFile(
 
   let docText;
   if (generatedNode.kind === RelayConcreteNode.REQUEST) {
-    docText = generatedNode.params?.text;
+    docText = generatedNode.text;
   }
 
   let hash = null;
@@ -93,15 +93,11 @@ async function writeRelayGeneratedFile(
     if (persistQuery) {
       switch (generatedNode.kind) {
         case RelayConcreteNode.REQUEST:
-          const text = nullthrows(generatedNode.params?.text);
-          devOnlyProperties.params = {text};
+          devOnlyProperties.text = generatedNode.text;
           generatedNode = {
             ...generatedNode,
-            params: {
-              ...generatedNode.params,
-              text: null,
-              id: await persistQuery(text, sourceHash),
-            },
+            text: null,
+            id: await persistQuery(nullthrows(generatedNode.text), sourceHash),
           };
           break;
         case RelayConcreteNode.FRAGMENT:
@@ -113,10 +109,7 @@ async function writeRelayGeneratedFile(
     }
   }
 
-  const devOnlyAssignments = deepMergeAssignments(
-    '(node/*: any*/)',
-    devOnlyProperties,
-  );
+  const devOnlyAssignments = deepMergeAssignments('node', devOnlyProperties);
 
   const moduleText = formatModule({
     moduleName,

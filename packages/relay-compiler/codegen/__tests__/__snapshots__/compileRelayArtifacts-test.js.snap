@@ -59,6 +59,10 @@ type Foo implements Named {
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 {
   "kind": "Request",
+  "operationKind": "query",
+  "name": "BestFriendsQuery",
+  "id": null,
+  "metadata": {},
   "fragment": {
     "kind": "Fragment",
     "name": "BestFriendsQuery",
@@ -362,6 +366,28 @@ query NodeQuery($id: ID!) {
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 {
   "kind": "Request",
+  "operationKind": "query",
+  "name": "NodeQuery",
+  "id": null,
+  "metadata": {
+    "connection": [
+      {
+        "count": null,
+        "cursor": null,
+        "direction": "forward",
+        "path": null
+      },
+      {
+        "count": null,
+        "cursor": null,
+        "direction": "forward",
+        "path": [
+          "node",
+          "comments"
+        ]
+      }
+    ]
+  },
   "fragment": {
     "kind": "Fragment",
     "name": "NodeQuery",
@@ -941,6 +967,12 @@ fragment ProfilePicture on User {
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 {
   "kind": "Request",
+  "operationKind": "query",
+  "name": "RefetchableFragmentQuery",
+  "id": null,
+  "metadata": {
+    "derivedFrom": "RefetchableFragment"
+  },
   "fragment": {
     "kind": "Fragment",
     "name": "RefetchableFragmentQuery",
@@ -1208,6 +1240,12 @@ fragment ProfilePicture on User {
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 {
   "kind": "Request",
+  "operationKind": "query",
+  "name": "RefetchableFragmentQuery",
+  "id": null,
+  "metadata": {
+    "derivedFrom": "RefetchableFragment"
+  },
   "fragment": {
     "kind": "Fragment",
     "name": "RefetchableFragmentQuery",
@@ -1471,6 +1509,12 @@ fragment ProfilePicture on User {
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 {
   "kind": "Request",
+  "operationKind": "query",
+  "name": "RefetchableFragmentQuery",
+  "id": null,
+  "metadata": {
+    "derivedFrom": "RefetchableFragment"
+  },
   "fragment": {
     "kind": "Fragment",
     "name": "RefetchableFragmentQuery",
@@ -1815,6 +1859,12 @@ fragment ProfilePicture on User {
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 {
   "kind": "Request",
+  "operationKind": "query",
+  "name": "RefetchableFragmentQuery",
+  "id": null,
+  "metadata": {
+    "derivedFrom": "RefetchableFragment"
+  },
   "fragment": {
     "kind": "Fragment",
     "name": "RefetchableFragmentQuery",
@@ -2236,6 +2286,10 @@ fragment UserFragment on User @argumentDefinitions(
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 {
   "kind": "Request",
+  "operationKind": "query",
+  "name": "NodeQuery",
+  "id": null,
+  "metadata": {},
   "fragment": {
     "kind": "Fragment",
     "name": "NodeQuery",
@@ -2793,6 +2847,10 @@ query LinkedHandleField($id: ID!) {
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 {
   "kind": "Request",
+  "operationKind": "query",
+  "name": "LinkedHandleField",
+  "id": null,
+  "metadata": {},
   "fragment": {
     "kind": "Fragment",
     "name": "LinkedHandleField",
@@ -3025,6 +3083,10 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 {
   "kind": "Request",
+  "operationKind": "query",
+  "name": "NameRendererQuery",
+  "id": null,
+  "metadata": {},
   "fragment": {
     "kind": "Fragment",
     "name": "NameRendererQuery",
@@ -3504,6 +3566,10 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 {
   "kind": "Request",
+  "operationKind": "query",
+  "name": "NameRendererQuery",
+  "id": null,
+  "metadata": {},
   "fragment": {
     "kind": "Fragment",
     "name": "NameRendererQuery",
@@ -3974,6 +4040,12 @@ fragment PaginationFragment on Node
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 {
   "kind": "Request",
+  "operationKind": "query",
+  "name": "RefetchableFragmentQuery",
+  "id": null,
+  "metadata": {
+    "derivedFrom": "PaginationFragment"
+  },
   "fragment": {
     "kind": "Fragment",
     "name": "RefetchableFragmentQuery",
@@ -4430,6 +4502,12 @@ fragment PaginationFragment on Node
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 {
   "kind": "Request",
+  "operationKind": "query",
+  "name": "RefetchableFragmentQuery",
+  "id": null,
+  "metadata": {
+    "derivedFrom": "PaginationFragment"
+  },
   "fragment": {
     "kind": "Fragment",
     "name": "RefetchableFragmentQuery",
@@ -4967,6 +5045,10 @@ query ScalarHandleField($id: ID!) {
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 {
   "kind": "Request",
+  "operationKind": "query",
+  "name": "ScalarHandleField",
+  "id": null,
+  "metadata": {},
   "fragment": {
     "kind": "Fragment",
     "name": "ScalarHandleField",
@@ -5119,6 +5201,10 @@ query UnionQuery {
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 {
   "kind": "Request",
+  "operationKind": "query",
+  "name": "UnionQuery",
+  "id": null,
+  "metadata": {},
   "fragment": {
     "kind": "Fragment",
     "name": "UnionQuery",
@@ -5447,6 +5533,10 @@ fragment UserUtil_user on User {
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 {
   "kind": "Request",
+  "operationKind": "query",
+  "name": "TestQuery",
+  "id": null,
+  "metadata": {},
   "fragment": {
     "kind": "Fragment",
     "name": "TestQuery",
@@ -5722,6 +5812,10 @@ fragment UserUtil2_user on User {
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 {
   "kind": "Request",
+  "operationKind": "query",
+  "name": "TestQuery",
+  "id": null,
+  "metadata": {},
   "fragment": {
     "kind": "Fragment",
     "name": "TestQuery",
@@ -6092,6 +6186,10 @@ query ViewerQuery {
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 {
   "kind": "Request",
+  "operationKind": "query",
+  "name": "ViewerQuery",
+  "id": null,
+  "metadata": {},
   "fragment": {
     "kind": "Fragment",
     "name": "ViewerQuery",

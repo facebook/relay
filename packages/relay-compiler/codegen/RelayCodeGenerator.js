@@ -38,15 +38,13 @@ function generate(node) {
     case 'Request':
       return {
         kind: 'Request',
+        operationKind: node.root.operation,
+        name: node.name,
+        id: node.id,
+        text: node.text,
+        metadata: node.metadata,
         fragment: ReaderCodeGenerator.generate(node.fragment),
         operation: NormalizationCodeGenerator.generate(node.root),
-        params: {
-          operationKind: node.root.operation,
-          name: node.name,
-          id: node.id,
-          text: node.text,
-          metadata: node.metadata,
-        },
       };
     case 'SplitOperation':
       return NormalizationCodeGenerator.generate(node);

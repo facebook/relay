@@ -39,7 +39,16 @@ describe('compileRelayArtifacts', () => {
       return compileRelayArtifacts(compilerContext, RelayIRTransforms)
         .map(node => {
           if (node.kind === 'Request') {
-            const {text: queryText, ...ast} = node;
+            const {
+              params: {
+                /**
+                 * $FlowFixMe: We know `params` isn't undefined. This will be
+                 * fixed in a follow-up diff.
+                 */
+                text: queryText,
+              },
+              ...ast
+            } = node;
             return [stringifyAST(ast), 'QUERY:', queryText].join('\n\n');
           } else {
             return stringifyAST(node);

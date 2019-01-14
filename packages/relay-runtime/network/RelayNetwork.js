@@ -16,7 +16,7 @@ const invariant = require('invariant');
 
 const {convertFetch, convertSubscribe} = require('./ConvertToExecuteFunction');
 
-import type {RequestParameters} from '../util/RelayConcreteNode';
+import type {ConcreteRequest} from '../util/RelayConcreteNode';
 import type {CacheConfig, Variables} from '../util/RelayRuntimeTypes';
 import type {
   FetchFunction,
@@ -41,7 +41,7 @@ function create(
     : undefined;
 
   function execute(
-    request: RequestParameters,
+    request: ConcreteRequest,
     variables: Variables,
     cacheConfig: CacheConfig,
     uploadables?: ?UploadableMap,

@@ -24,7 +24,6 @@ import type {
   IEnvironment,
   OperationSelector,
   PayloadError,
-  RequestParameters,
   Variables,
 } from 'relay-runtime';
 
@@ -41,11 +40,12 @@ export type NetworkWriteConfig = {
 };
 
 type PendingFetch = {
-  request: RequestParameters,
+  request: ConcreteRequest,
   variables?: Variables,
   cacheConfig: ?CacheConfig,
   ident: string,
   deferred: {resolve: Function, reject: Function},
+  operationSelector: OperationSelector,
 };
 
 /**
@@ -101,7 +101,7 @@ class ReactRelayTestMocker {
    * @returns a string which can later be used to uniquely identify this query
    * in the list of pending queries
    */
-  static getIdentifier(request: RequestParameters): string {
+  static getIdentifier(request: ConcreteRequest): string {
     return request.name;
   }
 
@@ -141,6 +141,7 @@ class ReactRelayTestMocker {
 
       const strippedVars = ReactRelayTestMocker.stripUnused(variables);
       const ident = ReactRelayTestMocker.getIdentifier(request);
+      const {createOperationSelector} = env.unstable_internal;
 
       // there's a default value for this query, use it
       if (this._defaults[ident]) {
@@ -148,12 +149,14 @@ class ReactRelayTestMocker {
         return typeof payload === 'function' ? payload(strippedVars) : payload;
       }
 
+      const operationSelector = createOperationSelector(request, variables);
       pendingFetches.push({
         ident,
         cacheConfig,
         deferred: {resolve, reject},
         request,
         variables,
+        operationSelector,
       });
       return promise;
     };
@@ -204,15 +207,8 @@ class ReactRelayTestMocker {
    */
   setDefault(toSet: NetworkWriteConfig): void {
     const {query, payload} = toSet;
-    const ident = ReactRelayTestMocker.getIdentifier(
-      query.params || {
-        name: query.name,
-        operationKind: query.operationKind,
-        id: query.id,
-        text: query.text,
-        metadata: query.metadata,
-      },
-    );
+    const request = query;
+    const ident = ReactRelayTestMocker.getIdentifier(request);
 
     this._defaults[ident] = payload;
   }
@@ -222,15 +218,8 @@ class ReactRelayTestMocker {
    */
   unsetDefault(toUnset: NetworkWriteConfig): void {
     const {query} = toUnset;
-    const ident = ReactRelayTestMocker.getIdentifier(
-      query.params || {
-        name: query.name,
-        operationKind: query.operationKind,
-        id: query.id,
-        text: query.text,
-        metadata: query.metadata,
-      },
-    );
+    const request = query;
+    const ident = ReactRelayTestMocker.getIdentifier(request);
 
     delete this._defaults[ident];
   }
@@ -274,15 +263,7 @@ class ReactRelayTestMocker {
     );
     const {query, variables, payload} = config;
 
-    const ident = ReactRelayTestMocker.getIdentifier(
-      query.params || {
-        name: query.name,
-        operationKind: query.operationKind,
-        id: query.id,
-        text: query.text,
-        metadata: query.metadata,
-      },
-    );
+    const ident = ReactRelayTestMocker.getIdentifier(query);
 
     let usedVars;
 

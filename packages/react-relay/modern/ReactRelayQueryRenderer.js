@@ -21,10 +21,10 @@ const {deepFreeze} = require('relay-runtime');
 import type {RelayEnvironmentInterface as ClassicEnvironment} from '../classic/store/RelayEnvironment';
 import type {
   CacheConfig,
+  ConcreteRequest,
   GraphQLTaggedNode,
   IEnvironment,
   RelayContext,
-  RequestParameters,
   Snapshot,
   Variables,
 } from 'relay-runtime';
@@ -117,16 +117,7 @@ class ReactRelayQueryRenderer extends React.Component<Props, State> {
 
       const {getRequest} = genericEnvironment.unstable_internal;
       const request = getRequest(query);
-      requestCacheKey = getRequestCacheKey(
-        request.params || {
-          name: request.name,
-          operationKind: request.operationKind,
-          id: request.id,
-          text: request.text,
-          metadata: request.metadata,
-        },
-        props.variables,
-      );
+      requestCacheKey = getRequestCacheKey(request, props.variables);
       queryFetcher = requestCache[requestCacheKey]
         ? requestCache[requestCacheKey].queryFetcher
         : new ReactRelayQueryFetcher();
@@ -169,13 +160,7 @@ class ReactRelayQueryRenderer extends React.Component<Props, State> {
         const {getRequest} = genericEnvironment.unstable_internal;
         const request = getRequest(query);
         const requestCacheKey = getRequestCacheKey(
-          request.params || {
-            name: request.name,
-            operationKind: request.operationKind,
-            id: request.id,
-            text: request.text,
-            metadata: request.metadata,
-          },
+          request,
           nextProps.variables,
         );
         queryFetcher = requestCache[requestCacheKey]
@@ -350,7 +335,7 @@ function getRenderProps(
 }
 
 function getRequestCacheKey(
-  request: RequestParameters,
+  request: ConcreteRequest,
   variables: Variables,
 ): string {
   const requestID = request.id || request.text;
@@ -425,17 +410,7 @@ function fetchQueryAndComputeStateFromProps(
 
       // cache the request to avoid duplicate requests
       requestCacheKey =
-        requestCacheKey ||
-        getRequestCacheKey(
-          request.params || {
-            name: request.name,
-            operationKind: request.operationKind,
-            id: request.id,
-            text: request.text,
-            metadata: request.metadata,
-          },
-          props.variables,
-        );
+        requestCacheKey || getRequestCacheKey(request, props.variables);
       requestCache[requestCacheKey] = {queryFetcher, snapshot};
 
       if (!snapshot) {

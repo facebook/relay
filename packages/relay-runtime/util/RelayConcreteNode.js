@@ -24,26 +24,13 @@ import type {ReaderFragment} from './ReaderNode';
  */
 export type ConcreteRequest = {|
   +kind: 'Request',
-  +name: string,
   +operationKind: 'mutation' | 'query' | 'subscription',
+  +name: string,
   +id: ?string,
   text: ?string,
   +metadata: {[key: string]: mixed},
   +fragment: ReaderFragment,
   +operation: NormalizationOperation,
-  +params?: RequestParameters,
-|};
-
-/**
- * Contains the `text` (or persisted `id`) required for executing a common
- * GraphQL request.
- */
-export type RequestParameters = {|
-  +name: string,
-  +operationKind: 'mutation' | 'query' | 'subscription',
-  +id: ?string,
-  +text: ?string,
-  +metadata: {[key: string]: mixed},
 |};
 
 export type GeneratedNode =

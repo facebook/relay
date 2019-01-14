@@ -14,7 +14,7 @@ const RelayConcreteNode = require('../util/RelayConcreteNode');
 
 const {convertFetch, convertSubscribe} = require('./ConvertToExecuteFunction');
 
-import type {RequestParameters} from '../util/RelayConcreteNode';
+import type {ConcreteRequest} from '../util/RelayConcreteNode';
 import type {Variables} from '../util/RelayRuntimeTypes';
 import type {IRelayNetworkLoggerTransaction} from './RelayNetworkLoggerTransaction';
 import type {
@@ -24,7 +24,7 @@ import type {
 } from './RelayNetworkTypes';
 
 export type GraphiQLPrinter = (
-  request: RequestParameters,
+  request: ConcreteRequest,
   variables: Variables,
 ) => string;
 
@@ -72,7 +72,7 @@ function wrapExecute(
 
     function addLogs(error, response, status) {
       // Only print GraphiQL links for non-batch requests.
-      if (graphiQLPrinter) {
+      if (graphiQLPrinter && request.kind === RelayConcreteNode.REQUEST) {
         transaction.addLog('GraphiQL', graphiQLPrinter(request, variables));
       }
       transaction.addLog('Cache Config', cacheConfig);

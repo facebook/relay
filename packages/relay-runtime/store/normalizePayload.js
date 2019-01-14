@@ -27,12 +27,11 @@ function normalizePayload(
       handleStrippedNulls: true,
     });
   }
-  const {node} = operation;
   const error = RelayError.create(
     'RelayNetwork',
     'No data returned for operation `%s`, got error(s):\n%s\n\nSee the error ' +
       '`source` property for more information.',
-    node.params ? node.params.name : node.name,
+    operation.node.name,
     errors ? errors.map(({message}) => message).join('\n') : '(No errors)',
   );
   (error: any).source = {

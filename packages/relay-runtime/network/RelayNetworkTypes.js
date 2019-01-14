@@ -10,7 +10,7 @@
 
 'use strict';
 
-import type {RequestParameters} from '../util/RelayConcreteNode';
+import type {ConcreteRequest} from '../util/RelayConcreteNode';
 import type {
   CacheConfig,
   Disposable,
@@ -60,7 +60,7 @@ export type GraphQLResponse =
  * a GraphQL operation.
  */
 export type ExecuteFunction = (
-  request: RequestParameters,
+  request: ConcreteRequest,
   variables: Variables,
   cacheConfig: CacheConfig,
   uploadables?: ?UploadableMap,
@@ -73,7 +73,7 @@ export type ExecuteFunction = (
  * a composed ExecutePayload object supporting additional metadata.
  */
 export type FetchFunction = (
-  request: RequestParameters,
+  request: ConcreteRequest,
   variables: Variables,
   cacheConfig: CacheConfig,
   uploadables: ?UploadableMap,
@@ -87,7 +87,7 @@ export type FetchFunction = (
  * fourth parameter.
  */
 export type SubscribeFunction = (
-  request: RequestParameters,
+  request: ConcreteRequest,
   variables: Variables,
   cacheConfig: CacheConfig,
   observer?: LegacyObserver<GraphQLResponse>,

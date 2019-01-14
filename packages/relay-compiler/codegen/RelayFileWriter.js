@@ -222,12 +222,7 @@ function writeAll({
     });
 
     const artifactMap = new Map(
-      artifacts.map(artifact => [
-        artifact.kind === 'Request' && artifact.params
-          ? artifact.params.name
-          : artifact.name,
-        artifact,
-      ]),
+      artifacts.map(artifact => [artifact.name, artifact]),
     );
 
     const existingFragmentNames = new Set(
@@ -311,16 +306,12 @@ function writeAll({
     try {
       await Promise.all(
         artifacts.map(async node => {
-          const nodeName =
-            node.kind === 'Request' && node.params
-              ? node.params.name
-              : node.name;
-          if (baseDefinitionNames.has(nodeName)) {
+          if (baseDefinitionNames.has(node.name)) {
             // don't add definitions that were part of base context
             return;
           }
 
-          const typeNode = transformedTypeContext.get(nodeName);
+          const typeNode = transformedTypeContext.get(node.name);
           const typeText = typeNode
             ? writerConfig.typeGenerator.generate(typeNode, {
                 customScalars: writerConfig.customScalars,
@@ -334,11 +325,11 @@ function writeAll({
             : '';
 
           const sourceHash = Profiler.run('hashGraphQL', () =>
-            md5(graphql.print(getDefinitionMeta(nodeName).ast)),
+            md5(graphql.print(getDefinitionMeta(node.name).ast)),
           );
 
           await writeRelayGeneratedFile(
-            getGeneratedDirectory(nodeName),
+            getGeneratedDirectory(node.name),
             node,
             formatModule,
             typeText,

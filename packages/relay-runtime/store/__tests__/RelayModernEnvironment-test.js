@@ -462,7 +462,6 @@ describe('RelayModernEnvironment', () => {
     let next;
     let operation;
     let query;
-    let queryParams;
     let variables;
 
     beforeEach(() => {
@@ -478,13 +477,6 @@ describe('RelayModernEnvironment', () => {
         }
       `,
       ));
-      queryParams = query.params || {
-        id: query.id,
-        metadata: query.metadata,
-        name: query.name,
-        operationKind: query.operationKind,
-        text: query.text,
-      };
       variables = {fetchSize: false};
       operation = createOperationSelector(query, {
         ...variables,
@@ -510,7 +502,7 @@ describe('RelayModernEnvironment', () => {
     it('fetches queries', () => {
       environment.execute({operation}).subscribe(callbacks);
       expect(fetch.mock.calls.length).toBe(1);
-      expect(fetch.mock.calls[0][0]).toEqual(queryParams);
+      expect(fetch.mock.calls[0][0]).toBe(query);
       expect(fetch.mock.calls[0][1]).toEqual({fetchSize: false});
       expect(fetch.mock.calls[0][2]).toEqual({});
     });
@@ -519,7 +511,7 @@ describe('RelayModernEnvironment', () => {
       const cacheConfig = {force: true};
       environment.execute({cacheConfig, operation}).subscribe(callbacks);
       expect(fetch.mock.calls.length).toBe(1);
-      expect(fetch.mock.calls[0][0]).toEqual(queryParams);
+      expect(fetch.mock.calls[0][0]).toBe(query);
       expect(fetch.mock.calls[0][1]).toEqual({fetchSize: false});
       expect(fetch.mock.calls[0][2]).toBe(cacheConfig);
     });
@@ -599,7 +591,6 @@ describe('RelayModernEnvironment', () => {
     let operation;
     let subject;
     let query;
-    let queryParams;
     let variables;
 
     beforeEach(() => {
@@ -615,13 +606,6 @@ describe('RelayModernEnvironment', () => {
         }
       `,
       ));
-      queryParams = query.params || {
-        id: query.id,
-        metadata: query.metadata,
-        name: query.name,
-        operationKind: query.operationKind,
-        text: query.text,
-      };
       variables = {fetchSize: false};
       operation = createOperationSelector(query, {
         ...variables,
@@ -646,7 +630,7 @@ describe('RelayModernEnvironment', () => {
     it('fetches queries', () => {
       environment.execute({operation}).subscribe(callbacks);
       expect(fetch.mock.calls.length).toBe(1);
-      expect(fetch.mock.calls[0][0]).toEqual(queryParams);
+      expect(fetch.mock.calls[0][0]).toBe(query);
       expect(fetch.mock.calls[0][1]).toEqual({fetchSize: false});
       expect(fetch.mock.calls[0][2]).toEqual({});
     });
@@ -655,7 +639,7 @@ describe('RelayModernEnvironment', () => {
       const cacheConfig = {force: true};
       environment.execute({cacheConfig, operation}).subscribe(callbacks);
       expect(fetch.mock.calls.length).toBe(1);
-      expect(fetch.mock.calls[0][0]).toEqual(queryParams);
+      expect(fetch.mock.calls[0][0]).toBe(query);
       expect(fetch.mock.calls[0][1]).toEqual({fetchSize: false});
       expect(fetch.mock.calls[0][2]).toBe(cacheConfig);
     });
@@ -1095,6 +1079,7 @@ describe('RelayModernEnvironment', () => {
             }
           }
       `));
+
       variables = {id: '1'};
       operation = createOperationSelector(query, variables);
 
@@ -1491,7 +1476,6 @@ describe('RelayModernEnvironment', () => {
 
   describe('executeMutation()', () => {
     let CreateCommentMutation;
-    let CreateCommentMutationParams;
     let CreateCommentWithSpreadMutation;
     let CommentFragment;
     let subject;
@@ -1537,13 +1521,6 @@ describe('RelayModernEnvironment', () => {
         }
       `,
       ));
-      CreateCommentMutationParams = CreateCommentMutation.params || {
-        id: CreateCommentMutation.id,
-        metadata: CreateCommentMutation.metadata,
-        name: CreateCommentMutation.name,
-        operationKind: CreateCommentMutation.operationKind,
-        text: CreateCommentMutation.text,
-      };
       variables = {
         input: {
           clientMutationId: '0',
@@ -1569,7 +1546,7 @@ describe('RelayModernEnvironment', () => {
     it('fetches the mutation with the provided fetch function', () => {
       environment.executeMutation({operation});
       expect(fetch.mock.calls.length).toBe(1);
-      expect(fetch.mock.calls[0][0]).toEqual(CreateCommentMutationParams);
+      expect(fetch.mock.calls[0][0]).toBe(CreateCommentMutation);
       expect(fetch.mock.calls[0][1]).toEqual(variables);
       expect(fetch.mock.calls[0][2]).toEqual({force: true});
     });

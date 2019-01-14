@@ -74,6 +74,12 @@ const users = [
     infoLink: 'https://www.kiwi.com/',
     pinned: false,
   },
+  {
+    caption: 'Jusbrasil',
+    image: '/relay/img/logos/jusbrasil.png',
+    infoLink: 'https://github.com/jusbrasil',
+    pinned: false,
+  },
 ];
 
 const siteConfig = {

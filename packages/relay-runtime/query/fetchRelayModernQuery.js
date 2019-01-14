@@ -34,7 +34,10 @@ function fetchRelayModernQuery<T: OperationType>(
   );
   const {createOperationSelector, getRequest} = environment.unstable_internal;
   const query = getRequest(taggedNode);
-  if (query.operationKind !== 'query') {
+  const operationKind = query.params
+    ? query.params.operationKind
+    : query.operationKind;
+  if (operationKind !== 'query') {
     throw new Error('fetchRelayModernQuery: Expected query operation');
   }
   const operation = createOperationSelector(query, variables);

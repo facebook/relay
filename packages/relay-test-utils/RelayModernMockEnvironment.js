@@ -100,7 +100,14 @@ function createMockEnvironment(options: {
   // Mock the network layer
   let pendingRequests = [];
   const execute = (request, variables, cacheConfig) => {
-    const {id, text} = request;
+    const requestParams = request.params || {
+      name: request.name,
+      operationKind: request.operationKind,
+      id: request.id,
+      text: request.text,
+      metadata: request.metadata,
+    };
+    const {id, text} = requestParams;
     const cacheID = id || text;
 
     let cachedPayload = null;
@@ -111,14 +118,14 @@ function createMockEnvironment(options: {
       return Observable.from(cachedPayload);
     }
 
-    const nextRequest = {request, variables, cacheConfig};
+    const nextRequest = {request: requestParams, variables, cacheConfig};
     pendingRequests = pendingRequests.concat([nextRequest]);
 
     return Observable.create(sink => {
       nextRequest.sink = sink;
       return () => {
         pendingRequests = pendingRequests.filter(
-          pending => pending !== nextRequest,
+          pending => !areEqual(pending, nextRequest),
         );
       };
     });
@@ -126,8 +133,15 @@ function createMockEnvironment(options: {
 
   // The same request may be made by multiple query renderers
   function getRequests(request) {
-    const foundRequests = pendingRequests.filter(
-      pending => pending.request === request,
+    const requestParams = request.params || {
+      name: request.name,
+      operationKind: request.operationKind,
+      id: request.id,
+      text: request.text,
+      metadata: request.metadata,
+    };
+    const foundRequests = pendingRequests.filter(pending =>
+      areEqual(pending.request, requestParams),
     );
     invariant(
       foundRequests.length,
@@ -154,7 +168,14 @@ function createMockEnvironment(options: {
   }
 
   const cachePayload = (request, variables, payload) => {
-    const {id, text} = request;
+    const requestParams = request.params || {
+      name: request.name,
+      operationKind: request.operationKind,
+      id: request.id,
+      text: request.text,
+      metadata: request.metadata,
+    };
+    const {id, text} = requestParams;
     const cacheID = id || text;
     cache.set(cacheID, variables, payload);
   };
@@ -178,9 +199,16 @@ function createMockEnvironment(options: {
 
   // Helper to determine if a given query/variables pair is pending
   const isLoading = (request, variables, cacheConfig) => {
+    const requestParams = request.params || {
+      name: request.name,
+      operationKind: request.operationKind,
+      id: request.id,
+      text: request.text,
+      metadata: request.metadata,
+    };
     return pendingRequests.some(
       pending =>
-        pending.request === request &&
+        areEqual(pending.request, requestParams) &&
         areEqual(pending.variables, variables) &&
         areEqual(pending.cacheConfig, cacheConfig || {}),
     );

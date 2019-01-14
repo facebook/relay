@@ -323,8 +323,19 @@ class RelayModernEnvironment implements Environment {
         }
       };
 
+      const {node} = operation;
       this._network
-        .execute(operation.node, operation.variables, cacheConfig || {})
+        .execute(
+          node.params || {
+            name: node.name,
+            operationKind: node.operationKind,
+            id: node.id,
+            text: node.text,
+            metadata: node.metadata,
+          },
+          operation.variables,
+          cacheConfig || {},
+        )
         .subscribe({
           complete,
           next,
@@ -377,8 +388,20 @@ class RelayModernEnvironment implements Environment {
       };
     }
 
+    const {node} = operation;
     return this._network
-      .execute(operation.node, operation.variables, {force: true}, uploadables)
+      .execute(
+        node.params || {
+          name: node.name,
+          operationKind: node.operationKind,
+          id: node.id,
+          text: node.text,
+          metadata: node.metadata,
+        },
+        operation.variables,
+        {force: true},
+        uploadables,
+      )
       .do({
         start: () => {
           if (optimisticUpdate) {

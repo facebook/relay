@@ -146,7 +146,11 @@ export type {
   FragmentSpecResults,
   Props,
 } from './util/RelayCombinedEnvironmentTypes';
-export type {ConcreteRequest, GeneratedNode} from './util/RelayConcreteNode';
+export type {
+  ConcreteRequest,
+  GeneratedNode,
+  RequestParameters,
+} from './util/RelayConcreteNode';
 export type {
   CacheConfig,
   DataID,

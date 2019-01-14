@@ -43,7 +43,10 @@ async function writeRelayGeneratedFile(
 ): Promise<?GeneratedNode> {
   // Copy to const so Flow can refine.
   const persistQuery = _persistQuery;
-  const moduleName = generatedNode.name + '.graphql';
+  const moduleName =
+    (generatedNode.kind === 'Request' && generatedNode.params
+      ? generatedNode.params.name
+      : generatedNode.name) + '.graphql';
   const platformName = platform ? moduleName + '.' + platform : moduleName;
   const filename = platformName + '.' + extension;
   const typeName =

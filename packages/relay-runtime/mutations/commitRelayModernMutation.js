@@ -54,7 +54,10 @@ function commitRelayModernMutation<T>(
   );
   const {createOperationSelector, getRequest} = environment.unstable_internal;
   const mutation = getRequest(config.mutation);
-  if (mutation.operationKind !== 'mutation') {
+  const operationKind = mutation.params
+    ? mutation.params.operationKind
+    : mutation.operationKind;
+  if (operationKind !== 'mutation') {
     throw new Error('commitRelayModernMutation: Expected mutation operation');
   }
   if (mutation.kind !== 'Request') {

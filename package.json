@@ -52,7 +52,7 @@
     "fbjs": "^1.0.0",
     "fbjs-scripts": "^1.0.0",
     "flow-bin": "^0.89.0",
-    "graphql": "^14.0.0",
+    "graphql": "^14.1.0",
     "gulp": "4.0.0",
     "gulp-babel": "8.0.0",
     "gulp-chmod": "2.0.0",

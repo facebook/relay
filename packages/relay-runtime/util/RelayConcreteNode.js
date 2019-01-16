@@ -22,15 +22,36 @@ import type {ReaderFragment} from './ReaderNode';
  * results, and a `fragment` derived from that operation to read the response
  * data (masking data from child fragments).
  */
-export type ConcreteRequest = {|
-  +kind: 'Request',
-  +operationKind: 'mutation' | 'query' | 'subscription',
+export type ConcreteRequest =
+  | {|
+      +kind: 'Request',
+      +name: string,
+      +operationKind: 'mutation' | 'query' | 'subscription',
+      +id: ?string,
+      text: ?string,
+      +metadata: {[key: string]: mixed},
+      +fragment: ReaderFragment,
+      +operation: NormalizationOperation,
+    |}
+  | {|
+      // TODO: (gmonaco) T39154307 Remove this as soon as the RequestParameters migration is finished.
+      +kind: 'Request',
+      text?: ?string,
+      +fragment: ReaderFragment,
+      +operation: NormalizationOperation,
+      +params: RequestParameters,
+    |};
+
+/**
+ * Contains the `text` (or persisted `id`) required for executing a common
+ * GraphQL request.
+ */
+export type RequestParameters = {|
   +name: string,
+  +operationKind: 'mutation' | 'query' | 'subscription',
   +id: ?string,
-  text: ?string,
+  +text: ?string,
   +metadata: {[key: string]: mixed},
-  +fragment: ReaderFragment,
-  +operation: NormalizationOperation,
 |};
 
 export type GeneratedNode =

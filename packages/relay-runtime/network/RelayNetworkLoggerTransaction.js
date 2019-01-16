@@ -12,7 +12,7 @@
 
 const invariant = require('invariant');
 
-import type {ConcreteRequest} from '../util/RelayConcreteNode';
+import type {RequestParameters} from '../util/RelayConcreteNode';
 import type {CacheConfig, Variables} from '../util/RelayRuntimeTypes';
 import type {GraphQLResponse, UploadableMap} from './RelayNetworkTypes';
 
@@ -27,13 +27,13 @@ export interface IRelayNetworkLoggerTransaction {
   getCacheConfig(): ?CacheConfig;
   getIdentifier(): string;
   getLogsToPrint(): Array<RelayNetworkLog>;
-  getRequest(): ConcreteRequest;
+  getRequest(): RequestParameters;
   getUploadables(): ?UploadableMap;
   getVariables(): Variables;
 }
 
 type TransactionConfig = {
-  request: ConcreteRequest,
+  request: RequestParameters,
   variables: Variables,
   cacheConfig: ?CacheConfig,
   uploadables?: ?UploadableMap,
@@ -56,7 +56,7 @@ class RelayNetworkLoggerTransaction implements IRelayNetworkLoggerTransaction {
   _hasCommittedLogs = false;
   _id: number;
   _logs: Array<RelayNetworkLog> = [];
-  _request: ConcreteRequest;
+  _request: RequestParameters;
   _uploadables: ?UploadableMap;
   _variables: Variables;
 
@@ -132,7 +132,7 @@ class RelayNetworkLoggerTransaction implements IRelayNetworkLoggerTransaction {
     return this._logs;
   }
 
-  getRequest(): ConcreteRequest {
+  getRequest(): RequestParameters {
     return this._request;
   }
 

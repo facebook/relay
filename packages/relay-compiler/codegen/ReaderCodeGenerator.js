@@ -52,13 +52,7 @@ const ReaderCodeGenVisitor = {
     Fragment(node): ReaderFragment {
       let metadata = null;
       if (node.metadata != null) {
-        const {
-          mask,
-          plural,
-          connection,
-          refetchConnection,
-          refetchOperation,
-        } = node.metadata;
+        const {mask, plural, connection, refetch} = node.metadata;
         if (Array.isArray(connection)) {
           metadata = metadata ?? {};
           metadata.connection = (connection: any);
@@ -71,15 +65,15 @@ const ReaderCodeGenVisitor = {
           metadata = metadata ?? {};
           metadata.plural = plural;
         }
-        if (typeof refetchConnection === 'object') {
+        if (typeof refetch === 'object') {
           metadata = metadata ?? {};
-          metadata.refetchConnection = (refetchConnection: any);
-        }
-        if (typeof refetchOperation === 'string') {
-          metadata = metadata ?? {};
-          metadata.refetchOperation = CodeMarker.moduleDependency(
-            refetchOperation + '.graphql',
-          );
+          metadata.refetch = {
+            connection: (refetch.connection: any),
+            operation: CodeMarker.moduleDependency(
+              (refetch.operation: any) + '.graphql',
+            ),
+            fragmentPathInResult: (refetch.fragmentPathInResult: any),
+          };
         }
       }
       return {

@@ -108,10 +108,10 @@ Object.assign(RelayQL, {
    * object equality checks to compare fragments (useful, for example, when
    * comparing two `Selector`s to see if they select the same data).
    */
-  __getClassicNode(taggedNode) {
+  __getClassicNode(taggedNode: GraphQLTaggedNode) {
     let concreteNode = (taggedNode: any)[CLASSIC_NODE];
     if (concreteNode == null) {
-      const fn = taggedNode.classic;
+      const fn = (taggedNode: any).classic;
       invariant(
         typeof fn === 'function',
         'RelayQL: Expected a graphql literal, got `%s`.\n' +

@@ -27,8 +27,7 @@ export type ReaderFragment = {|
     +connection?: $ReadOnlyArray<ConnectionMetadata>,
     +mask?: boolean,
     +plural?: boolean,
-    +refetchConnection?: ReaderPaginationMetadata,
-    +refetchOperation?: string | ConcreteRequest,
+    +refetch?: ReaderRefetchMetadata,
   |},
   +argumentDefinitions: $ReadOnlyArray<ReaderArgumentDefinition>,
   +selections: $ReadOnlyArray<ReaderSelection>,
@@ -39,8 +38,7 @@ export type ReaderRefetchableFragment = {|
   ...ReaderFragment,
   +metadata: {|
     +connection?: [ConnectionMetadata],
-    +refetchConnection?: ReaderPaginationMetadata,
-    +refetchOperation: ConcreteRequest,
+    +refetch: ReaderRefetchMetadata,
   |},
 |};
 
@@ -49,10 +47,19 @@ export type ReaderPaginationFragment = {|
   ...ReaderFragment,
   +metadata: {|
     +connection: [ConnectionMetadata],
-    +refetchConnection: ReaderPaginationMetadata,
-    +refetchOperation: ConcreteRequest,
+    +refetch: {|
+      ...ReaderRefetchMetadata,
+      connection: ReaderPaginationMetadata,
+    |},
   |},
 |};
+
+export type ReaderRefetchMetadata = {|
+  +connection: ?ReaderPaginationMetadata,
+  +operation: string | ConcreteRequest,
+  +fragmentPathInResult: Array<string>,
+|};
+
 // Stricter form of ConnectionMetadata
 export type ReaderPaginationMetadata = {|
   +backward: {|

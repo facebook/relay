@@ -16,6 +16,8 @@ const warning = require('warning');
 
 const {
   getFragment,
+  getPaginationFragment,
+  getRefetchableFragment,
   getRequest,
   isFragment,
   isRequest,
@@ -71,6 +73,8 @@ module.exports = {
   createOperationSelector,
   getDataIDsFromObject,
   getFragment,
+  getPaginationFragment,
+  getRefetchableFragment,
   getRequest,
   getSelector,
   getSelectorList,

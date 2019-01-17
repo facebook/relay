@@ -1111,7 +1111,13 @@ fragment ProfilePicture on User {
   "name": "RefetchableFragment",
   "type": "Node",
   "metadata": {
-    "refetchOperation": require('RefetchableFragmentQuery.graphql')
+    "refetch": {
+      "connection": null,
+      "operation": require('RefetchableFragmentQuery.graphql'),
+      "fragmentPathInResult": [
+        "node"
+      ]
+    }
   },
   "argumentDefinitions": [
     {
@@ -1376,7 +1382,13 @@ fragment ProfilePicture on User {
   "name": "RefetchableFragment",
   "type": "User",
   "metadata": {
-    "refetchOperation": require('RefetchableFragmentQuery.graphql')
+    "refetch": {
+      "connection": null,
+      "operation": require('RefetchableFragmentQuery.graphql'),
+      "fragmentPathInResult": [
+        "node"
+      ]
+    }
   },
   "argumentDefinitions": [
     {
@@ -1630,7 +1642,11 @@ fragment ProfilePicture on User {
   "name": "RefetchableFragment",
   "type": "Query",
   "metadata": {
-    "refetchOperation": require('RefetchableFragmentQuery.graphql')
+    "refetch": {
+      "connection": null,
+      "operation": require('RefetchableFragmentQuery.graphql'),
+      "fragmentPathInResult": []
+    }
   },
   "argumentDefinitions": [
     {
@@ -1968,7 +1984,13 @@ fragment ProfilePicture on User {
   "name": "RefetchableFragment",
   "type": "Viewer",
   "metadata": {
-    "refetchOperation": require('RefetchableFragmentQuery.graphql')
+    "refetch": {
+      "connection": null,
+      "operation": require('RefetchableFragmentQuery.graphql'),
+      "fragmentPathInResult": [
+        "viewer"
+      ]
+    }
   },
   "argumentDefinitions": [
     {
@@ -4275,17 +4297,22 @@ fragment PaginationFragment_1G22uz on Node {
         ]
       }
     ],
-    "refetchConnection": {
-      "forward": {
-        "count": "count",
-        "cursor": "cursor"
+    "refetch": {
+      "connection": {
+        "forward": {
+          "count": "count",
+          "cursor": "cursor"
+        },
+        "backward": null,
+        "path": [
+          "friends"
+        ]
       },
-      "backward": null,
-      "path": [
-        "friends"
+      "operation": require('RefetchableFragmentQuery.graphql'),
+      "fragmentPathInResult": [
+        "node"
       ]
-    },
-    "refetchOperation": require('RefetchableFragmentQuery.graphql')
+    }
   },
   "argumentDefinitions": [
     {
@@ -4797,20 +4824,25 @@ fragment PaginationFragment_1G22uz on Node {
         ]
       }
     ],
-    "refetchConnection": {
-      "forward": {
-        "count": "count",
-        "cursor": "cursor"
+    "refetch": {
+      "connection": {
+        "forward": {
+          "count": "count",
+          "cursor": "cursor"
+        },
+        "backward": {
+          "count": "lastCount",
+          "cursor": "beforeCursor"
+        },
+        "path": [
+          "friends"
+        ]
       },
-      "backward": {
-        "count": "lastCount",
-        "cursor": "beforeCursor"
-      },
-      "path": [
-        "friends"
+      "operation": require('RefetchableFragmentQuery.graphql'),
+      "fragmentPathInResult": [
+        "node"
       ]
-    },
-    "refetchOperation": require('RefetchableFragmentQuery.graphql')
+    }
   },
   "argumentDefinitions": [
     {

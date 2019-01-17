@@ -14,7 +14,11 @@ const RelayConcreteNode = require('../util/RelayConcreteNode');
 
 const invariant = require('invariant');
 
-import type {ReaderFragment} from '../util/ReaderNode';
+import type {
+  ReaderFragment,
+  ReaderRefetchableFragment,
+  ReaderPaginationFragment,
+} from '../util/ReaderNode';
 import type {ConcreteRequest} from '../util/RelayConcreteNode';
 import type {
   ConcreteFragmentDefinition,
@@ -24,6 +28,8 @@ import typeof RelayQL from 'react-relay/classic/query/RelayQL';
 
 // The type of a graphql`...` tagged template expression.
 export type GraphQLTaggedNode =
+  | ReaderFragment
+  | ConcreteRequest
   | (() => ReaderFragment | ConcreteRequest)
   | {
       modern: () => ReaderFragment | ConcreteRequest,
@@ -46,9 +52,14 @@ function graphql(strings: Array<string>): GraphQLTaggedNode {
 }
 
 function getNode(taggedNode) {
-  const fn = typeof taggedNode === 'function' ? taggedNode : taggedNode.modern;
+  const fn =
+    typeof taggedNode === 'function'
+      ? taggedNode
+      : typeof taggedNode.modern === 'function'
+        ? taggedNode.modern
+        : null;
   // Support for classic raw nodes (used in test mock)
-  if (typeof fn !== 'function') {
+  if (fn === null) {
     return (taggedNode: any);
   }
   const data: any = fn();
@@ -56,7 +67,7 @@ function getNode(taggedNode) {
   return data.default ? data.default : data;
 }
 
-function isFragment(node: GraphQLTaggedNode) {
+function isFragment(node: GraphQLTaggedNode): boolean {
   const fragment = getNode(node);
   return (
     typeof fragment === 'object' &&
@@ -65,7 +76,7 @@ function isFragment(node: GraphQLTaggedNode) {
   );
 }
 
-function isRequest(node: GraphQLTaggedNode) {
+function isRequest(node: GraphQLTaggedNode): boolean {
   const request = getNode(node);
   return (
     typeof request === 'object' &&
@@ -84,6 +95,34 @@ function getFragment(taggedNode: GraphQLTaggedNode): ReaderFragment {
   return (fragment: any);
 }
 
+function getPaginationFragment(
+  taggedNode: GraphQLTaggedNode,
+): ReaderPaginationFragment | null {
+  const fragment = getFragment(taggedNode);
+  const refetch = fragment.metadata?.refetch;
+  const connection = refetch?.connection;
+  if (
+    refetch === null ||
+    typeof refetch !== 'object' ||
+    connection === null ||
+    typeof connection !== 'object'
+  ) {
+    return null;
+  }
+  return (fragment: any);
+}
+
+function getRefetchableFragment(
+  taggedNode: GraphQLTaggedNode,
+): ReaderRefetchableFragment | null {
+  const fragment = getFragment(taggedNode);
+  const refetch = fragment.metadata?.refetch;
+  if (refetch === null || typeof refetch !== 'object') {
+    return null;
+  }
+  return (fragment: any);
+}
+
 function getRequest(taggedNode: GraphQLTaggedNode): ConcreteRequest {
   const request = getNode(taggedNode);
   invariant(
@@ -96,6 +135,8 @@ function getRequest(taggedNode: GraphQLTaggedNode): ConcreteRequest {
 
 module.exports = {
   getFragment,
+  getPaginationFragment,
+  getRefetchableFragment,
   getRequest,
   graphql,
   isFragment,

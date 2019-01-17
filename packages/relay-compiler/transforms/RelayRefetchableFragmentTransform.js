@@ -45,6 +45,11 @@ import type {
 } from '../core/GraphQLIR';
 import type {ReaderPaginationMetadata} from 'relay-runtime';
 
+type RefetchRoot = {|
+  path: $ReadOnlyArray<string>,
+  node: Root,
+|};
+
 const VIEWER_TYPE_NAME = 'Viewer';
 const VIEWER_FIELD_NAME = 'viewer';
 const NODE_TYPE_NAME = 'Node';
@@ -89,9 +94,9 @@ function relayRefetchableFragmentTransform(
       // the logic here is purely name-based, the actual transform
       // functions provide detailed validation as well as case-specific
       // error messages.
-      let operation;
+      let refetchDescriptor;
       if (isEquivalentType(fragment.type, queryType)) {
-        operation = buildRefetchOperationOnQueryType(
+        refetchDescriptor = buildRefetchOperationOnQueryType(
           schema,
           fragment,
           refetchName,
@@ -99,7 +104,7 @@ function relayRefetchableFragmentTransform(
       } else if (String(fragment.type) === VIEWER_TYPE_NAME) {
         // Validate that the schema conforms to the informal Viewer spec
         // and build the refetch query accordingly.
-        operation = buildRefetchOperationOnViewerType(
+        refetchDescriptor = buildRefetchOperationOnViewerType(
           schema,
           fragment,
           refetchName,
@@ -113,7 +118,7 @@ function relayRefetchableFragmentTransform(
       ) {
         // Validate that the schema conforms to the Object Identity (Node) spec
         // and build the refetch query accordingly.
-        operation = buildRefetchOperationOnNodeType(
+        refetchDescriptor = buildRefetchOperationOnNodeType(
           schema,
           fragment,
           refetchName,
@@ -126,20 +131,24 @@ function relayRefetchableFragmentTransform(
           [fragment.loc],
         );
       }
-      if (operation != null) {
+      if (refetchDescriptor != null) {
+        const {path, node} = refetchDescriptor;
         const connectionMetadata = extractConnectionMetadata(fragment);
         nextContext = nextContext.replace({
           ...fragment,
           metadata: {
             ...(fragment.metadata || {}),
-            refetchConnection: connectionMetadata,
-            refetchOperation: refetchName,
+            refetch: {
+              connection: connectionMetadata ?? null,
+              operation: refetchName,
+              fragmentPathInResult: path,
+            },
           },
         });
         nextContext = nextContext.add({
-          ...operation,
+          ...node,
           metadata: {
-            ...(operation.metadata || {}),
+            ...(node.metadata || {}),
             derivedFrom: fragment.name,
           },
         });
@@ -362,20 +371,23 @@ function buildRefetchOperationOnQueryType(
   schema: GraphQLSchema,
   fragment: Fragment,
   queryName: string,
-): Root {
+): RefetchRoot {
   const queryType = nullthrows(schema.getQueryType());
   return {
-    argumentDefinitions: buildOperationArgumentDefinitions(
-      fragment.argumentDefinitions,
-    ),
-    directives: [],
-    kind: 'Root',
-    loc: {kind: 'Derived', source: fragment.loc},
-    metadata: null,
-    name: queryName,
-    operation: 'query',
-    selections: [buildFragmentSpread(fragment)],
-    type: queryType,
+    path: [],
+    node: {
+      argumentDefinitions: buildOperationArgumentDefinitions(
+        fragment.argumentDefinitions,
+      ),
+      directives: [],
+      kind: 'Root',
+      loc: {kind: 'Derived', source: fragment.loc},
+      metadata: null,
+      name: queryName,
+      operation: 'query',
+      selections: [buildFragmentSpread(fragment)],
+      type: queryType,
+    },
   };
 }
 
@@ -383,7 +395,7 @@ function buildRefetchOperationOnViewerType(
   schema: GraphQLSchema,
   fragment: Fragment,
   queryName: string,
-): Root {
+): RefetchRoot {
   // Handle fragments on viewer
   const queryType = nullthrows(schema.getQueryType());
   const viewerType = schema.getType(VIEWER_TYPE_NAME);
@@ -406,30 +418,33 @@ function buildRefetchOperationOnViewerType(
     );
   }
   return {
-    argumentDefinitions: buildOperationArgumentDefinitions(
-      fragment.argumentDefinitions,
-    ),
-    directives: [],
-    kind: 'Root',
-    loc: {kind: 'Derived', source: fragment.loc},
-    metadata: null,
-    name: queryName,
-    operation: 'query',
-    selections: [
-      {
-        alias: null,
-        args: [],
-        directives: [],
-        handles: null,
-        kind: 'LinkedField',
-        loc: {kind: 'Derived', source: fragment.loc},
-        metadata: null,
-        name: VIEWER_FIELD_NAME,
-        selections: [buildFragmentSpread(fragment)],
-        type: viewerType,
-      },
-    ],
-    type: queryType,
+    path: [VIEWER_FIELD_NAME],
+    node: {
+      argumentDefinitions: buildOperationArgumentDefinitions(
+        fragment.argumentDefinitions,
+      ),
+      directives: [],
+      kind: 'Root',
+      loc: {kind: 'Derived', source: fragment.loc},
+      metadata: null,
+      name: queryName,
+      operation: 'query',
+      selections: [
+        {
+          alias: null,
+          args: [],
+          directives: [],
+          handles: null,
+          kind: 'LinkedField',
+          loc: {kind: 'Derived', source: fragment.loc},
+          metadata: null,
+          name: VIEWER_FIELD_NAME,
+          selections: [buildFragmentSpread(fragment)],
+          type: viewerType,
+        },
+      ],
+      type: queryType,
+    },
   };
 }
 
@@ -437,7 +452,7 @@ function buildRefetchOperationOnNodeType(
   schema: GraphQLSchema,
   fragment: Fragment,
   queryName: string,
-): Root {
+): RefetchRoot {
   const queryType = nullthrows(schema.getQueryType());
   const nodeType = schema.getType(NODE_TYPE_NAME);
   const nodeField = queryType.getFields()[NODE_FIELD_NAME];
@@ -506,43 +521,46 @@ function buildRefetchOperationOnNodeType(
     },
   ];
   return {
-    argumentDefinitions: argumentDefinitionsWithId,
-    directives: [],
-    kind: 'Root',
-    loc: {kind: 'Derived', source: fragment.loc},
-    metadata: null,
-    name: queryName,
-    operation: 'query',
-    selections: [
-      {
-        alias: null,
-        args: [
-          {
-            kind: 'Argument',
-            loc: {kind: 'Derived', source: fragment.loc},
-            metadata: null,
-            name: 'id',
-            type: idArgType,
-            value: {
-              kind: 'Variable',
+    path: [NODE_FIELD_NAME],
+    node: {
+      argumentDefinitions: argumentDefinitionsWithId,
+      directives: [],
+      kind: 'Root',
+      loc: {kind: 'Derived', source: fragment.loc},
+      metadata: null,
+      name: queryName,
+      operation: 'query',
+      selections: [
+        {
+          alias: null,
+          args: [
+            {
+              kind: 'Argument',
               loc: {kind: 'Derived', source: fragment.loc},
               metadata: null,
-              variableName: 'id',
+              name: 'id',
               type: idArgType,
+              value: {
+                kind: 'Variable',
+                loc: {kind: 'Derived', source: fragment.loc},
+                metadata: null,
+                variableName: 'id',
+                type: idArgType,
+              },
             },
-          },
-        ],
-        directives: [],
-        handles: null,
-        kind: 'LinkedField',
-        loc: {kind: 'Derived', source: fragment.loc},
-        metadata: null,
-        name: NODE_FIELD_NAME,
-        selections: [buildFragmentSpread(fragment)],
-        type: nodeType,
-      },
-    ],
-    type: queryType,
+          ],
+          directives: [],
+          handles: null,
+          kind: 'LinkedField',
+          loc: {kind: 'Derived', source: fragment.loc},
+          metadata: null,
+          name: NODE_FIELD_NAME,
+          selections: [buildFragmentSpread(fragment)],
+          type: nodeType,
+        },
+      ],
+      type: queryType,
+    },
   };
 }
 

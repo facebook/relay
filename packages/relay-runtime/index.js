@@ -192,6 +192,8 @@ module.exports = {
   createOperationSelector: RelayCore.createOperationSelector,
   getDataIDsFromObject: RelayCore.getDataIDsFromObject,
   getFragment: RelayModernGraphQLTag.getFragment,
+  getPaginationFragment: RelayModernGraphQLTag.getPaginationFragment,
+  getRefetchableFragment: RelayModernGraphQLTag.getRefetchableFragment,
   getRequest: RelayModernGraphQLTag.getRequest,
   getSelector: RelayCore.getSelector,
   getSelectorList: RelayCore.getSelectorList,

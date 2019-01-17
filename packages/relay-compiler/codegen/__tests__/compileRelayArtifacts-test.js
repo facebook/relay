@@ -39,7 +39,10 @@ describe('compileRelayArtifacts', () => {
       return compileRelayArtifacts(compilerContext, RelayIRTransforms)
         .map(node => {
           if (node.kind === 'Request') {
-            const {text: queryText, ...ast} = node;
+            const {
+              params: {text: queryText},
+              ...ast
+            } = node;
             return [stringifyAST(ast), 'QUERY:', queryText].join('\n\n');
           } else {
             return stringifyAST(node);

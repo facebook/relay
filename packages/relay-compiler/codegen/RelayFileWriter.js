@@ -223,9 +223,7 @@ function writeAll({
 
     const artifactMap = new Map(
       artifacts.map(artifact => [
-        artifact.kind === 'Request' && artifact.params
-          ? artifact.params.name
-          : artifact.name,
+        artifact.kind === 'Request' ? artifact.params.name : artifact.name,
         artifact,
       ]),
     );
@@ -312,9 +310,7 @@ function writeAll({
       await Promise.all(
         artifacts.map(async node => {
           const nodeName =
-            node.kind === 'Request' && node.params
-              ? node.params.name
-              : node.name;
+            node.kind === 'Request' ? node.params.name : node.name;
           if (baseDefinitionNames.has(nodeName)) {
             // don't add definitions that were part of base context
             return;

@@ -117,16 +117,7 @@ class ReactRelayQueryRenderer extends React.Component<Props, State> {
 
       const {getRequest} = genericEnvironment.unstable_internal;
       const request = getRequest(query);
-      requestCacheKey = getRequestCacheKey(
-        request.params || {
-          name: request.name,
-          operationKind: request.operationKind,
-          id: request.id,
-          text: request.text,
-          metadata: request.metadata,
-        },
-        props.variables,
-      );
+      requestCacheKey = getRequestCacheKey(request.params, props.variables);
       queryFetcher = requestCache[requestCacheKey]
         ? requestCache[requestCacheKey].queryFetcher
         : new ReactRelayQueryFetcher();
@@ -169,13 +160,7 @@ class ReactRelayQueryRenderer extends React.Component<Props, State> {
         const {getRequest} = genericEnvironment.unstable_internal;
         const request = getRequest(query);
         const requestCacheKey = getRequestCacheKey(
-          request.params || {
-            name: request.name,
-            operationKind: request.operationKind,
-            id: request.id,
-            text: request.text,
-            metadata: request.metadata,
-          },
+          request.params,
           nextProps.variables,
         );
         queryFetcher = requestCache[requestCacheKey]
@@ -425,17 +410,7 @@ function fetchQueryAndComputeStateFromProps(
 
       // cache the request to avoid duplicate requests
       requestCacheKey =
-        requestCacheKey ||
-        getRequestCacheKey(
-          request.params || {
-            name: request.name,
-            operationKind: request.operationKind,
-            id: request.id,
-            text: request.text,
-            metadata: request.metadata,
-          },
-          props.variables,
-        );
+        requestCacheKey || getRequestCacheKey(request.params, props.variables);
       requestCache[requestCacheKey] = {queryFetcher, snapshot};
 
       if (!snapshot) {

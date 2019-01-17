@@ -204,15 +204,7 @@ class ReactRelayTestMocker {
    */
   setDefault(toSet: NetworkWriteConfig): void {
     const {query, payload} = toSet;
-    const ident = ReactRelayTestMocker.getIdentifier(
-      query.params || {
-        name: query.name,
-        operationKind: query.operationKind,
-        id: query.id,
-        text: query.text,
-        metadata: query.metadata,
-      },
-    );
+    const ident = ReactRelayTestMocker.getIdentifier(query.params);
 
     this._defaults[ident] = payload;
   }
@@ -222,15 +214,7 @@ class ReactRelayTestMocker {
    */
   unsetDefault(toUnset: NetworkWriteConfig): void {
     const {query} = toUnset;
-    const ident = ReactRelayTestMocker.getIdentifier(
-      query.params || {
-        name: query.name,
-        operationKind: query.operationKind,
-        id: query.id,
-        text: query.text,
-        metadata: query.metadata,
-      },
-    );
+    const ident = ReactRelayTestMocker.getIdentifier(query.params);
 
     delete this._defaults[ident];
   }
@@ -274,15 +258,7 @@ class ReactRelayTestMocker {
     );
     const {query, variables, payload} = config;
 
-    const ident = ReactRelayTestMocker.getIdentifier(
-      query.params || {
-        name: query.name,
-        operationKind: query.operationKind,
-        id: query.id,
-        text: query.text,
-        metadata: query.metadata,
-      },
-    );
+    const ident = ReactRelayTestMocker.getIdentifier(query.params);
 
     let usedVars;
 

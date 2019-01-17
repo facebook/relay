@@ -285,11 +285,6 @@ fragment Profile on User @argumentDefinitions(
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 {
   "kind": "Request",
-  "operationKind": "query",
-  "name": "TestQuery",
-  "id": null,
-  "text": null,
-  "metadata": {},
   "fragment": null,
   "operation": {
     "kind": "Operation",
@@ -349,6 +344,13 @@ fragment Profile on User @argumentDefinitions(
         ]
       }
     ]
+  },
+  "params": {
+    "operationKind": "query",
+    "name": "TestQuery",
+    "id": null,
+    "text": null,
+    "metadata": {}
   }
 }
 
@@ -497,11 +499,6 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 {
   "kind": "Request",
-  "operationKind": "query",
-  "name": "NameRendererQuery",
-  "id": null,
-  "text": null,
-  "metadata": {},
   "fragment": null,
   "operation": {
     "kind": "Operation",
@@ -533,6 +530,13 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
         "selections": []
       }
     ]
+  },
+  "params": {
+    "operationKind": "query",
+    "name": "NameRendererQuery",
+    "id": null,
+    "text": null,
+    "metadata": {}
   }
 }
 
@@ -691,11 +695,6 @@ query StableLiteralsTest {
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 {
   "kind": "Request",
-  "operationKind": "query",
-  "name": "StableLiteralsTest",
-  "id": null,
-  "text": null,
-  "metadata": {},
   "fragment": null,
   "operation": {
     "kind": "Operation",
@@ -743,6 +742,13 @@ query StableLiteralsTest {
         ]
       }
     ]
+  },
+  "params": {
+    "operationKind": "query",
+    "name": "StableLiteralsTest",
+    "id": null,
+    "text": null,
+    "metadata": {}
   }
 }
 `;

@@ -100,14 +100,7 @@ function createMockEnvironment(options: {
   // Mock the network layer
   let pendingRequests = [];
   const execute = (request, variables, cacheConfig) => {
-    const requestParams = request.params || {
-      name: request.name,
-      operationKind: request.operationKind,
-      id: request.id,
-      text: request.text,
-      metadata: request.metadata,
-    };
-    const {id, text} = requestParams;
+    const {id, text} = request;
     const cacheID = id || text;
 
     let cachedPayload = null;
@@ -118,7 +111,7 @@ function createMockEnvironment(options: {
       return Observable.from(cachedPayload);
     }
 
-    const nextRequest = {request: requestParams, variables, cacheConfig};
+    const nextRequest = {request: request, variables, cacheConfig};
     pendingRequests = pendingRequests.concat([nextRequest]);
 
     return Observable.create(sink => {
@@ -133,15 +126,8 @@ function createMockEnvironment(options: {
 
   // The same request may be made by multiple query renderers
   function getRequests(request) {
-    const requestParams = request.params || {
-      name: request.name,
-      operationKind: request.operationKind,
-      id: request.id,
-      text: request.text,
-      metadata: request.metadata,
-    };
     const foundRequests = pendingRequests.filter(pending =>
-      areEqual(pending.request, requestParams),
+      areEqual(pending.request, request.params),
     );
     invariant(
       foundRequests.length,
@@ -168,14 +154,7 @@ function createMockEnvironment(options: {
   }
 
   const cachePayload = (request, variables, payload) => {
-    const requestParams = request.params || {
-      name: request.name,
-      operationKind: request.operationKind,
-      id: request.id,
-      text: request.text,
-      metadata: request.metadata,
-    };
-    const {id, text} = requestParams;
+    const {id, text} = request.params;
     const cacheID = id || text;
     cache.set(cacheID, variables, payload);
   };
@@ -199,16 +178,9 @@ function createMockEnvironment(options: {
 
   // Helper to determine if a given query/variables pair is pending
   const isLoading = (request, variables, cacheConfig) => {
-    const requestParams = request.params || {
-      name: request.name,
-      operationKind: request.operationKind,
-      id: request.id,
-      text: request.text,
-      metadata: request.metadata,
-    };
     return pendingRequests.some(
       pending =>
-        areEqual(pending.request, requestParams) &&
+        areEqual(pending.request, request.params) &&
         areEqual(pending.variables, variables) &&
         areEqual(pending.cacheConfig, cacheConfig || {}),
     );

@@ -22,9 +22,9 @@ import type {GeneratedNode} from 'relay-runtime';
 // Version for generated nodes
 function getReaderSourceDefinitionName(node: GeneratedNode): string {
   const [name, derivedFrom] =
-    node.kind === 'Request' && node.params
+    node.kind === 'Request'
       ? [node.params.name, node.params.metadata?.derivedFrom]
-      : node.kind === 'Request' || node.kind === 'SplitOperation'
+      : node.kind === 'SplitOperation'
         ? [node.name, node.metadata?.derivedFrom]
         : [node.name, null];
   return typeof derivedFrom === 'string' ? derivedFrom : name;

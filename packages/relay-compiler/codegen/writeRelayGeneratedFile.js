@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @flow
+ * @flow strict-local
  * @format
  */
 
@@ -30,7 +30,7 @@ function printRequireModuleDependency(moduleName: string): string {
 
 async function writeRelayGeneratedFile(
   codegenDir: CodegenDirectory,
-  generatedNode: GeneratedNode,
+  _generatedNode: GeneratedNode,
   formatModule: FormatModule,
   typeText: string,
   _persistQuery: ?(text: string, id: string) => Promise<string>,
@@ -41,13 +41,17 @@ async function writeRelayGeneratedFile(
     moduleName: string,
   ) => string = printRequireModuleDependency,
 ): Promise<?GeneratedNode> {
+  let generatedNode = _generatedNode;
   // Copy to const so Flow can refine.
   const persistQuery = _persistQuery;
   const moduleName =
-    (generatedNode.kind === 'Request' && generatedNode.params
+    (generatedNode.kind === 'Request'
       ? generatedNode.params.name
       : generatedNode.name) + '.graphql';
-  const platformName = platform ? moduleName + '.' + platform : moduleName;
+  const platformName =
+    platform != null && platform.length > 0
+      ? moduleName + '.' + platform
+      : moduleName;
   const filename = platformName + '.' + extension;
   const typeName =
     generatedNode.kind === RelayConcreteNode.FRAGMENT
@@ -61,10 +65,7 @@ async function writeRelayGeneratedFile(
 
   let docText;
   if (generatedNode.kind === RelayConcreteNode.REQUEST) {
-    docText =
-      generatedNode.params != null
-        ? generatedNode.params.text
-        : generatedNode.text;
+    docText = generatedNode.params.text;
   }
 
   let hash = null;
@@ -96,29 +97,16 @@ async function writeRelayGeneratedFile(
     if (persistQuery) {
       switch (generatedNode.kind) {
         case RelayConcreteNode.REQUEST:
-          if (generatedNode.params) {
-            const text = nullthrows(generatedNode.params.text);
-            devOnlyProperties.params = {text};
-            generatedNode = {
-              ...generatedNode,
-              params: {
-                ...generatedNode.params,
-                text: null,
-                id: await persistQuery(text, sourceHash),
-              },
-            };
-          } else {
-            devOnlyProperties.text = generatedNode.text;
-            generatedNode = {
-              ...generatedNode,
+          const text = nullthrows(generatedNode.params.text);
+          devOnlyProperties.params = {text};
+          generatedNode = {
+            ...generatedNode,
+            params: {
+              ...generatedNode.params,
               text: null,
-              id: await persistQuery(
-                nullthrows(generatedNode.text),
-                sourceHash,
-              ),
-            };
-          }
-
+              id: await persistQuery(text, sourceHash),
+            },
+          };
           break;
         case RelayConcreteNode.FRAGMENT:
           // Do not persist fragments.
@@ -129,10 +117,10 @@ async function writeRelayGeneratedFile(
     }
   }
 
-  const devOnlyAssignments =
-    generatedNode.params != null
-      ? deepMergeAssignments('(node/*: any*/)', devOnlyProperties)
-      : deepMergeAssignments('node', devOnlyProperties);
+  const devOnlyAssignments = deepMergeAssignments(
+    '(node/*: any*/)',
+    devOnlyProperties,
+  );
 
   const moduleText = formatModule({
     moduleName,
@@ -154,7 +142,7 @@ async function writeRelayGeneratedFile(
 }
 
 function extractHash(text: ?string): ?string {
-  if (!text) {
+  if (text == null || text.length === 0) {
     return null;
   }
   if (/<<<<<|>>>>>/.test(text)) {

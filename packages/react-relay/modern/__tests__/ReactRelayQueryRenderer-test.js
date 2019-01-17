@@ -227,6 +227,7 @@ describe('ReactRelayQueryRenderer', () => {
                 __fragments: {
                   TestFragment: {},
                 },
+                __fragmentOwner: null,
                 __id: '4',
               },
             },
@@ -248,6 +249,7 @@ describe('ReactRelayQueryRenderer', () => {
                 __fragments: {
                   TestFragment: {},
                 },
+                __fragmentOwner: null,
                 __id: '4',
               },
             },
@@ -304,6 +306,7 @@ describe('ReactRelayQueryRenderer', () => {
                 __fragments: {
                   TestFragment: {},
                 },
+                __fragmentOwner: null,
                 __id: '4',
               },
             },
@@ -325,6 +328,7 @@ describe('ReactRelayQueryRenderer', () => {
                 __fragments: {
                   TestFragment: {},
                 },
+                __fragmentOwner: null,
                 __id: '4',
               },
             },
@@ -374,6 +378,7 @@ describe('ReactRelayQueryRenderer', () => {
               __fragments: {
                 TestFragment: {},
               },
+              __fragmentOwner: null,
               __id: '4',
             },
           },
@@ -429,6 +434,7 @@ describe('ReactRelayQueryRenderer', () => {
               __fragments: {
                 TestFragment: {},
               },
+              __fragmentOwner: null,
               __id: '6',
             },
           },
@@ -501,6 +507,7 @@ describe('ReactRelayQueryRenderer', () => {
             __fragments: {
               TestFragment: {},
             },
+            __fragmentOwner: null,
             __id: '4',
           },
         },
@@ -532,6 +539,7 @@ describe('ReactRelayQueryRenderer', () => {
             __fragments: {
               TestFragment: {},
             },
+            __fragmentOwner: null,
             __id: '4',
           },
         },
@@ -1005,6 +1013,7 @@ describe('ReactRelayQueryRenderer', () => {
             __fragments: {
               TestFragment: {},
             },
+            __fragmentOwner: null,
             __id: '4',
           },
         },
@@ -1058,6 +1067,7 @@ describe('ReactRelayQueryRenderer', () => {
                   __fragments: {
                     TestFragment: {},
                   },
+                  __fragmentOwner: null,
                   __id: '4',
                 },
               },
@@ -1075,6 +1085,7 @@ describe('ReactRelayQueryRenderer', () => {
                   __fragments: {
                     TestFragment: {},
                   },
+                  __fragmentOwner: null,
                   __id: '4',
                 },
               },
@@ -1125,6 +1136,7 @@ describe('ReactRelayQueryRenderer', () => {
             __fragments: {
               TestFragment: {},
             },
+            __fragmentOwner: null,
             __id: '4',
           },
         },

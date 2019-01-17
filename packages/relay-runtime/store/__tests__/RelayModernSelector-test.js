@@ -31,6 +31,7 @@ describe('RelayModernSelector', () => {
   let environment;
   let zuck;
   let variables;
+  let owner;
 
   beforeEach(() => {
     expect.extend(RelayModernTestUtils.matchers);
@@ -109,7 +110,7 @@ describe('RelayModernSelector', () => {
         getSelector(variables, UserFragment, [zuck]),
       ).toFailInvariant(
         'RelayModernSelector: Expected value for fragment `UserFragment` to be an object, got ' +
-          '`[{"__fragments":{"UserFragment":{},"UsersFragment":{}},"__id":"4"}]`.',
+          '`[{"__fragments":{"UserFragment":{},"UsersFragment":{}},"__id":"4","__fragmentOwner":null}]`.',
       );
     });
 
@@ -131,10 +132,65 @@ describe('RelayModernSelector', () => {
     it('returns a selector', () => {
       const selector = getSelector(variables, UserFragment, zuck);
       expect(selector).toEqual({
-        dataID: '4',
-        node: UserFragment,
-        variables,
+        owner: null,
+        selector: {
+          dataID: '4',
+          node: UserFragment,
+          variables,
+        },
       });
+    });
+
+    it('returns a selector with an owner when owner is present in fragment ref', () => {
+      owner = {
+        request: UserQuery,
+        variables: variables,
+      };
+      zuck = environment.lookup(
+        {
+          dataID: ROOT_ID,
+          node: UserQuery.fragment,
+          variables: {id: '4'},
+        },
+        owner,
+      ).data.node;
+
+      const selector = getSelector(variables, UserFragment, zuck);
+      expect(selector).toEqual({
+        owner: owner,
+        selector: {
+          dataID: '4',
+          node: UserFragment,
+          variables,
+        },
+      });
+      expect(selector.owner).toBe(owner);
+    });
+
+    it('prefers variables from owner when owner is present in fragment ref', () => {
+      owner = {
+        request: UserQuery,
+        variables: variables,
+      };
+      zuck = environment.lookup(
+        {
+          dataID: ROOT_ID,
+          node: UserQuery.fragment,
+          variables: {id: '4'},
+        },
+        owner,
+      ).data.node;
+
+      const selector = getSelector({id: '5'}, UserFragment, zuck);
+      expect(selector).toEqual({
+        owner: owner,
+        selector: {
+          dataID: '4',
+          node: UserFragment,
+          variables,
+        },
+      });
+      expect(selector.owner).toBe(owner);
     });
   });
 
@@ -167,9 +223,39 @@ describe('RelayModernSelector', () => {
       const selectors = getSelectorList(variables, UserFragment, [zuck]);
       expect(selectors).toEqual([
         {
-          dataID: '4',
-          node: UserFragment,
-          variables,
+          owner: null,
+          selector: {
+            dataID: '4',
+            node: UserFragment,
+            variables,
+          },
+        },
+      ]);
+    });
+
+    it('returns selectors with an owner when owner is present in fragment ref', () => {
+      owner = {
+        request: UserQuery,
+        variables: variables,
+      };
+      zuck = environment.lookup(
+        {
+          dataID: ROOT_ID,
+          node: UserQuery.fragment,
+          variables: {id: '4'},
+        },
+        owner,
+      ).data.node;
+
+      const selectors = getSelectorList(variables, UserFragment, [zuck]);
+      expect(selectors).toEqual([
+        {
+          owner: owner,
+          selector: {
+            dataID: '4',
+            node: UserFragment,
+            variables,
+          },
         },
       ]);
     });
@@ -216,9 +302,12 @@ describe('RelayModernSelector', () => {
       );
       expect(selectors).toEqual({
         user: {
-          dataID: '4',
-          node: UserFragment,
-          variables,
+          owner: null,
+          selector: {
+            dataID: '4',
+            node: UserFragment,
+            variables,
+          },
         },
       });
     });
@@ -250,9 +339,12 @@ describe('RelayModernSelector', () => {
       );
       expect(selectors).toEqual({
         user: {
-          dataID: '4',
-          node: UserFragment,
-          variables,
+          owner: null,
+          selector: {
+            dataID: '4',
+            node: UserFragment,
+            variables,
+          },
         },
       });
     });
@@ -266,11 +358,71 @@ describe('RelayModernSelector', () => {
       expect(selectors).toEqual({
         user: [
           {
-            dataID: '4',
-            node: UsersFragment,
-            variables,
+            owner: null,
+            selector: {
+              dataID: '4',
+              node: UsersFragment,
+              variables,
+            },
           },
         ],
+      });
+    });
+
+    describe('when owner is present in fragment ref', () => {
+      let owner;
+
+      beforeEach(() => {
+        owner = {
+          request: UserQuery,
+          variables: variables,
+        };
+        zuck = environment.lookup(
+          {
+            dataID: ROOT_ID,
+            node: UserQuery.fragment,
+            variables: {id: '4'},
+          },
+          owner,
+        ).data.node;
+      });
+
+      it('returns singular selectors with an owner', () => {
+        const selectors = getSelectorsFromObject(
+          variables,
+          {user: UserFragment},
+          {user: zuck},
+        );
+        expect(selectors).toEqual({
+          user: {
+            owner: owner,
+            selector: {
+              dataID: '4',
+              node: UserFragment,
+              variables,
+            },
+          },
+        });
+      });
+
+      it('returns plural selectors with an owner', () => {
+        const selectors = getSelectorsFromObject(
+          variables,
+          {user: UsersFragment},
+          {user: [zuck]},
+        );
+        expect(selectors).toEqual({
+          user: [
+            {
+              owner: owner,
+              selector: {
+                dataID: '4',
+                node: UsersFragment,
+                variables,
+              },
+            },
+          ],
+        });
       });
     });
   });
@@ -436,11 +588,14 @@ describe('RelayModernSelector', () => {
   });
 
   describe('areEqualSelectors()', () => {
-    it('returns trure for equivalent selectors', () => {
+    it('returns true for equivalent selectors', () => {
       const selector = {
-        dataID: '4',
-        node: UserFragment,
-        variables,
+        owner: null,
+        selector: {
+          dataID: '4',
+          node: UserFragment,
+          variables,
+        },
       };
       const clone = {
         ...selector,
@@ -450,15 +605,95 @@ describe('RelayModernSelector', () => {
       expect(areEqualSelectors(selector, clone)).toBe(true);
     });
 
-    it('returns false for different selectors', () => {
+    it('returns true for equivalent selectors with owners', () => {
+      owner = {
+        request: UserQuery,
+        variables: variables,
+      };
       const selector = {
+        owner: owner,
+        selector: {
+          dataID: '4',
+          node: UserFragment,
+          variables,
+        },
+      };
+      const clone = {
+        owner: {...selector.owner},
+        selector: {
+          ...selector.selector,
+          variables: {...selector.selector.variables},
+        },
+      };
+      expect(areEqualSelectors(selector, selector)).toBe(true);
+      expect(areEqualSelectors(selector, clone)).toBe(true);
+
+      // Even if the owner is different, areEqualSelectors should return true
+      // if the 2 selectors represent the same selection
+      const differentOwner = {
+        ...selector,
+        owner: {...owner, variables: {}},
+      };
+      expect(areEqualSelectors(selector, differentOwner)).toBe(true);
+    });
+
+    it('returns false for different selectors', () => {
+      const readerSelector = {
         dataID: '4',
         node: UserFragment,
         variables,
       };
-      const differentID = {...selector, dataID: 'beast'};
-      const differentNode = {...selector, node: {...selector.node}};
-      const differentVars = {...selector, variables: {}};
+      const selector = {
+        owner: null,
+        selector: readerSelector,
+      };
+      const differentID = {
+        ...selector,
+        selector: {...readerSelector, dataID: 'beast'},
+      };
+      const differentNode = {
+        ...selector,
+        selector: {...readerSelector, node: {...selector.node}},
+      };
+      const differentVars = {
+        ...selector,
+        selector: {...readerSelector, variables: {}},
+      };
+      expect(areEqualSelectors(selector, differentID)).toBe(false);
+      expect(areEqualSelectors(selector, differentNode)).toBe(false);
+      expect(areEqualSelectors(selector, differentVars)).toBe(false);
+    });
+
+    it('returns false for different selectors with owners', () => {
+      owner = {
+        request: UserQuery,
+        variables: variables,
+      };
+      const readerSelector = {
+        dataID: '4',
+        node: UserFragment,
+        variables,
+      };
+      const selector = {
+        owner: owner,
+        selector: {
+          dataID: '4',
+          node: UserFragment,
+          variables,
+        },
+      };
+      const differentID = {
+        ...selector,
+        selector: {...readerSelector, dataID: 'beast'},
+      };
+      const differentNode = {
+        ...selector,
+        selector: {...readerSelector, node: {...selector.node}},
+      };
+      const differentVars = {
+        ...selector,
+        selector: {...readerSelector, variables: {}},
+      };
       expect(areEqualSelectors(selector, differentID)).toBe(false);
       expect(areEqualSelectors(selector, differentNode)).toBe(false);
       expect(areEqualSelectors(selector, differentVars)).toBe(false);

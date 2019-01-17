@@ -218,6 +218,52 @@ describe('RelayReader', () => {
     ]);
   });
 
+  it('creates fragment pointers with fragment owner when owner is provided', () => {
+    const {ParentQuery, UserProfile} = generateAndCompile(`
+      query ParentQuery($size: Float!) {
+        me {
+          ...UserProfile
+        }
+      }
+
+      fragment UserProfile on User {
+        id
+        name
+        ...UserProfilePicture
+      }
+
+      fragment UserProfilePicture on User {
+        profilePicture(size: $size) {
+          uri
+        }
+      }
+    `);
+
+    const owner = {
+      request: ParentQuery,
+      variables: {size: 42},
+    };
+    const {data, seenRecords} = read(
+      source,
+      {
+        dataID: '1',
+        node: UserProfile,
+        variables: {size: 42},
+      },
+      owner,
+    );
+    expect(data).toEqual({
+      id: '1',
+      __id: '1',
+      __fragments: {
+        UserProfilePicture: {},
+      },
+      __fragmentOwner: owner,
+    });
+    expect(data.__fragmentOwner).toBe(owner);
+    expect(Object.keys(seenRecords)).toEqual(['1']);
+  });
+
   it('creates fragment pointers with variable @arguments', () => {
     const {UserProfile} = generateAndCompile(`
       fragment UserProfile on User @argumentDefinitions(
@@ -249,6 +295,7 @@ describe('RelayReader', () => {
           size: 42,
         },
       },
+      __fragmentOwner: null,
     });
     expect(Object.keys(seenRecords)).toEqual(['1']);
   });
@@ -282,6 +329,7 @@ describe('RelayReader', () => {
           size: 42,
         },
       },
+      __fragmentOwner: null,
     });
     expect(Object.keys(seenRecords)).toEqual(['1']);
   });
@@ -531,6 +579,7 @@ describe('RelayReader', () => {
           __fragments: {
             PlainUserNameRenderer_name: {},
           },
+          __fragmentOwner: null,
           __fragmentPropName: 'name',
           __module: 'PlainUserNameRenderer.react',
         },
@@ -583,6 +632,7 @@ describe('RelayReader', () => {
           __fragments: {
             MarkdownUserNameRenderer_name: {},
           },
+          __fragmentOwner: null,
           __fragmentPropName: 'name',
           __module: 'MarkdownUserNameRenderer.react',
         },

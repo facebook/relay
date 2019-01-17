@@ -24,6 +24,7 @@ const {
 } = require('../util/RelayConcreteNode');
 const {
   FRAGMENTS_KEY,
+  FRAGMENT_OWNER_KEY,
   FRAGMENT_PROP_NAME_KEY,
   ID_KEY,
   MATCH_COMPONENT_KEY,
@@ -43,11 +44,20 @@ import type {
 } from '../util/ReaderNode';
 import type {Record, SelectorData} from '../util/RelayCombinedEnvironmentTypes';
 import type {DataID, Variables} from '../util/RelayRuntimeTypes';
-import type {RecordSource, ReaderSelector, Snapshot} from './RelayStoreTypes';
+import type {
+  RecordSource,
+  ReaderSelector,
+  FragmentOwner,
+  Snapshot,
+} from './RelayStoreTypes';
 
-function read(recordSource: RecordSource, selector: ReaderSelector): Snapshot {
+function read(
+  recordSource: RecordSource,
+  selector: ReaderSelector,
+  owner?: FragmentOwner,
+): Snapshot {
   const {dataID, node, variables} = selector;
-  const reader = new RelayReader(recordSource, variables);
+  const reader = new RelayReader(recordSource, variables, owner ?? null);
   return reader.read(node, dataID);
 }
 
@@ -59,12 +69,18 @@ class RelayReader {
   _seenRecords: {[dataID: DataID]: ?Record};
   _variables: Variables;
   _isMissingData: boolean;
+  _owner: FragmentOwner | null;
 
-  constructor(recordSource: RecordSource, variables: Variables) {
+  constructor(
+    recordSource: RecordSource,
+    variables: Variables,
+    owner: FragmentOwner | null,
+  ) {
     this._recordSource = recordSource;
     this._seenRecords = {};
     this._isMissingData = false;
     this._variables = variables;
+    this._owner = owner;
   }
 
   read(node: ReaderSelectableNode, dataID: DataID): Snapshot {
@@ -354,6 +370,7 @@ class RelayReader {
     fragmentPointers[fragmentSpread.name] = fragmentSpread.args
       ? getArgumentValues(fragmentSpread.args, variables)
       : {};
+    data[FRAGMENT_OWNER_KEY] = this._owner;
   }
 }
 

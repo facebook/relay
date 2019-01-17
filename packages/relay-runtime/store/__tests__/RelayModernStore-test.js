@@ -132,6 +132,7 @@ describe('RelayStore', () => {
   });
 
   describe('lookup()', () => {
+    let ParentQuery;
     let UserFragment;
     let data;
     let source;
@@ -153,7 +154,7 @@ describe('RelayStore', () => {
       };
       source = new RelayInMemoryRecordSource(data);
       store = new RelayModernStore(source);
-      ({UserFragment} = generateWithTransforms(
+      ({ParentQuery, UserFragment} = generateWithTransforms(
         `
         fragment UserFragment on User {
           name
@@ -179,6 +180,62 @@ describe('RelayStore', () => {
           profilePicture: {
             uri: 'https://photo1.jpg',
           },
+        },
+        seenRecords: {
+          ...data,
+        },
+        isMissingData: false,
+      });
+      for (const id in snapshot.seenRecords) {
+        if (snapshot.seenRecords.hasOwnProperty(id)) {
+          const record = snapshot.seenRecords[id];
+          expect(record).toBe(data[id]);
+        }
+      }
+    });
+
+    it('includes fragment owner in selector data when owner is provided', () => {
+      ({ParentQuery, UserFragment} = generateWithTransforms(
+        `
+        query ParentQuery($size: Float!) {
+          me {
+            ...UserFragment
+          }
+        }
+
+        fragment UserFragment on User {
+          name
+          profilePicture(size: $size) {
+            uri
+          }
+          ...ChildUserFragment
+        }
+
+        fragment ChildUserFragment on User {
+          username
+        }
+      `,
+      ));
+      const owner = {
+        request: ParentQuery,
+        variables: {size: 32},
+      };
+      const selector = {
+        dataID: '4',
+        node: UserFragment,
+        variables: {size: 32},
+      };
+      const snapshot = store.lookup(selector, owner);
+      expect(snapshot).toEqual({
+        ...selector,
+        data: {
+          name: 'Zuck',
+          profilePicture: {
+            uri: 'https://photo1.jpg',
+          },
+          __id: '4',
+          __fragments: {ChildUserFragment: {}},
+          __fragmentOwner: owner,
         },
         seenRecords: {
           ...data,

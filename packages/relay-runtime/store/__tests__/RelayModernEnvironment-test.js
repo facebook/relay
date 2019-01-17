@@ -107,6 +107,7 @@ describe('RelayModernEnvironment', () => {
           me {
             id
             name
+            ...ChildFragment
           }
         }
         fragment ChildFragment on User {
@@ -134,6 +135,33 @@ describe('RelayModernEnvironment', () => {
         me: {
           id: '4',
           name: 'Zuck',
+          __id: '4',
+          __fragments: {ChildFragment: {}},
+          __fragmentOwner: null,
+        },
+      });
+    });
+
+    it('includes fragment owner in result when owner is provided', () => {
+      const owner = {
+        request: ParentQuery,
+        variables: {},
+      };
+      const snapshot = environment.lookup(
+        {
+          dataID: ROOT_ID,
+          node: ParentQuery.fragment,
+          variables: {},
+        },
+        owner,
+      );
+      expect(snapshot.data).toEqual({
+        me: {
+          id: '4',
+          name: 'Zuck',
+          __id: '4',
+          __fragments: {ChildFragment: {}},
+          __fragmentOwner: owner,
         },
       });
     });
@@ -1219,6 +1247,7 @@ describe('RelayModernEnvironment', () => {
             __fragments: {
               MarkdownUserNameRenderer_name: {},
             },
+            __fragmentOwner: null,
             __module: 'MarkdownUserNameRenderer.react',
           },
         },
@@ -1231,7 +1260,7 @@ describe('RelayModernEnvironment', () => {
           (operationData?.node: any)?.nameRenderer,
         ),
       );
-      const snapshot = environment.lookup(fragmentSelector);
+      const snapshot = environment.lookup(fragmentSelector.selector);
       expect(snapshot.data).toEqual({
         __typename: 'MarkdownUserNameRenderer',
         data: {

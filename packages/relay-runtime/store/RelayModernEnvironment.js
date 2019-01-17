@@ -44,6 +44,7 @@ import type {
   RelayResponsePayload,
   NormalizationSelector,
   ReaderSelector,
+  FragmentOwner,
   SelectorStoreUpdater,
   Snapshot,
   Store,
@@ -184,8 +185,8 @@ class RelayModernEnvironment implements Environment {
     this._publishQueue.run();
   }
 
-  lookup(readSelector: ReaderSelector): Snapshot {
-    return this._store.lookup(readSelector);
+  lookup(readSelector: ReaderSelector, owner?: FragmentOwner): Snapshot {
+    return this._store.lookup(readSelector, owner);
   }
 
   subscribe(

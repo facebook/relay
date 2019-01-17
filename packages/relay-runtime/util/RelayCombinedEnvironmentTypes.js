@@ -140,6 +140,7 @@ export interface CEnvironment<
   TNormalizationNode,
   TRequest,
   TPayload,
+  TReaderSelector,
 > {
   /**
    * Determine if the selector can be resolved with data in the store (i.e. no
@@ -199,6 +200,7 @@ export interface CEnvironment<
     TReaderNode,
     TNormalizationNode,
     TRequest,
+    TReaderSelector,
   >;
 }
 
@@ -209,6 +211,7 @@ export interface CUnstableEnvironmentCore<
   TReaderNode,
   TNormalizationNode,
   TRequest,
+  TReaderSelector,
 > {
   /**
    * Create an instance of a FragmentSpecResolver.
@@ -266,10 +269,7 @@ export interface CUnstableEnvironmentCore<
    * that this function returns `false` when the two queries/fragments are
    * different objects, even if they select the same fields.
    */
-  areEqualSelectors: (
-    a: CReaderSelector<TReaderNode>,
-    b: CReaderSelector<TReaderNode>,
-  ) => boolean;
+  areEqualSelectors: (a: TReaderSelector, b: TReaderSelector) => boolean;
 
   /**
    * Given the result `item` from a parent that fetched `fragment`, creates a
@@ -302,7 +302,7 @@ export interface CUnstableEnvironmentCore<
     operationVariables: Variables,
     fragment: TFragment,
     prop: mixed,
-  ) => ?CReaderSelector<TReaderNode>;
+  ) => ?TReaderSelector;
 
   /**
    * Given the result `items` from a parent that fetched `fragment`, creates a
@@ -314,7 +314,7 @@ export interface CUnstableEnvironmentCore<
     operationVariables: Variables,
     fragment: TFragment,
     props: Array<mixed>,
-  ) => ?Array<CReaderSelector<TReaderNode>>;
+  ) => ?Array<TReaderSelector>;
 
   /**
    * Given a mapping of keys -> results and a mapping of keys -> fragments,
@@ -329,10 +329,7 @@ export interface CUnstableEnvironmentCore<
     fragments: CFragmentMap<TFragment>,
     props: Props,
   ) => {
-    [key: string]: ?(
-      | CReaderSelector<TReaderNode>
-      | Array<CReaderSelector<TReaderNode>>
-    ),
+    [key: string]: ?(TReaderSelector | Array<TReaderSelector>),
   };
 
   /**

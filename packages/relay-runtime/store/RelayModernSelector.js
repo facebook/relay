@@ -15,11 +15,15 @@ const invariant = require('invariant');
 const warning = require('warning');
 
 const {getFragmentVariables} = require('./RelayConcreteVariables');
-const {FRAGMENTS_KEY, ID_KEY} = require('./RelayStoreUtils');
+const {
+  FRAGMENT_OWNER_KEY,
+  FRAGMENTS_KEY,
+  ID_KEY,
+} = require('./RelayStoreUtils');
 
 import type {ReaderFragment} from '../util/ReaderNode';
 import type {DataID, Variables} from '../util/RelayRuntimeTypes';
-import type {ReaderSelector} from './RelayStoreTypes';
+import type {FragmentOwner, OwnedReaderSelector} from './RelayStoreTypes';
 
 /**
  * @public
@@ -54,7 +58,7 @@ function getSelector(
   operationVariables: Variables,
   fragment: ReaderFragment,
   item: mixed,
-): ?ReaderSelector {
+): ?OwnedReaderSelector {
   invariant(
     typeof item === 'object' && item !== null && !Array.isArray(item),
     'RelayModernSelector: Expected value for fragment `%s` to be an object, got ' +
@@ -64,6 +68,7 @@ function getSelector(
   );
   const dataID = item[ID_KEY];
   const fragments = item[FRAGMENTS_KEY];
+  const owner = item[FRAGMENT_OWNER_KEY];
   if (
     typeof dataID === 'string' &&
     typeof fragments === 'object' &&
@@ -72,15 +77,38 @@ function getSelector(
     fragments[fragment.name] !== null
   ) {
     const argumentVariables = fragments[fragment.name];
+
+    if (owner != null && typeof owner === 'object') {
+      // $FlowFixMe - TODO T39154660
+      const typedOwner: FragmentOwner = owner;
+      const ownerOperationVariables = typedOwner.variables;
+      const fragmentVariables = getFragmentVariables(
+        fragment,
+        ownerOperationVariables,
+        argumentVariables,
+      );
+      return {
+        owner: typedOwner,
+        selector: {
+          dataID,
+          node: fragment,
+          variables: fragmentVariables,
+        },
+      };
+    }
+
     const fragmentVariables = getFragmentVariables(
       fragment,
       operationVariables,
       argumentVariables,
     );
     return {
-      dataID,
-      node: fragment,
-      variables: fragmentVariables,
+      owner: null,
+      selector: {
+        dataID,
+        node: fragment,
+        variables: fragmentVariables,
+      },
     };
   }
   warning(
@@ -107,7 +135,7 @@ function getSelectorList(
   operationVariables: Variables,
   fragment: ReaderFragment,
   items: Array<mixed>,
-): ?Array<ReaderSelector> {
+): ?Array<OwnedReaderSelector> {
   let selectors = null;
   items.forEach(item => {
     const selector =
@@ -134,7 +162,7 @@ function getSelectorsFromObject(
   operationVariables: Variables,
   fragments: {[key: string]: ReaderFragment},
   object: {[key: string]: mixed},
-): {[key: string]: ?(ReaderSelector | Array<ReaderSelector>)} {
+): {[key: string]: ?(OwnedReaderSelector | Array<OwnedReaderSelector>)} {
   const selectors = {};
   for (const key in fragments) {
     if (fragments.hasOwnProperty(key)) {
@@ -329,8 +357,11 @@ function getVariables(
   fragment: ReaderFragment,
   item: mixed,
 ): ?Variables {
-  const selector = getSelector(operationVariables, fragment, item);
-  return selector ? selector.variables : null;
+  const ownedSelector = getSelector(operationVariables, fragment, item);
+  if (!ownedSelector) {
+    return null;
+  }
+  return ownedSelector.selector.variables;
 }
 
 /**
@@ -341,13 +372,13 @@ function getVariables(
  * different objects, even if they select the same fields.
  */
 function areEqualSelectors(
-  thisSelector: ReaderSelector,
-  thatSelector: ReaderSelector,
+  thisSelector: OwnedReaderSelector,
+  thatSelector: OwnedReaderSelector,
 ): boolean {
   return (
-    thisSelector.dataID === thatSelector.dataID &&
-    thisSelector.node === thatSelector.node &&
-    areEqual(thisSelector.variables, thatSelector.variables)
+    thisSelector.selector.dataID === thatSelector.selector.dataID &&
+    thisSelector.selector.node === thatSelector.selector.node &&
+    areEqual(thisSelector.selector.variables, thatSelector.selector.variables)
   );
 }
 

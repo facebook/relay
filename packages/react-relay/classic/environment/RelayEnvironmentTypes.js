@@ -40,6 +40,7 @@ type TReaderNode = ConcreteFragment;
 type TNormalizationNode = ConcreteFragment;
 type TPayload = ReaderSelector;
 type TRequest = ConcreteOperationDefinition;
+type TReaderSelector = CReaderSelector<TReaderNode>;
 
 export type FragmentMap = CFragmentMap<TFragment>;
 export type OperationSelector = COperationSelector<
@@ -48,7 +49,7 @@ export type OperationSelector = COperationSelector<
   TRequest,
 >;
 export type RelayContext = CRelayContext<TEnvironment>;
-export type ReaderSelector = CReaderSelector<TReaderNode>;
+export type ReaderSelector = TReaderSelector;
 export type NormalizationSelector = CNormalizationSelector<TNormalizationNode>;
 export type Snapshot = CSnapshot<TReaderNode>;
 export type UnstableEnvironmentCore = CUnstableEnvironmentCore<
@@ -58,6 +59,7 @@ export type UnstableEnvironmentCore = CUnstableEnvironmentCore<
   TReaderNode,
   TNormalizationNode,
   TRequest,
+  TReaderSelector,
 >;
 
 /**
@@ -73,6 +75,7 @@ export interface Environment
     TNormalizationNode,
     TRequest,
     TPayload,
+    TReaderSelector,
   > {
   /**
    * Applies an optimistic mutation to the store without committing it to the

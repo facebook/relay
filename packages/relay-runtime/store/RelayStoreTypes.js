@@ -52,15 +52,29 @@ type TReaderNode = ReaderSelectableNode;
 type TNormalizationNode = NormalizationSelectableNode;
 type TPayload = GraphQLResponse;
 type TRequest = ConcreteRequest;
+type TReaderSelector = OwnedReaderSelector;
 
 export type FragmentMap = CFragmentMap<TFragment>;
+
 export type OperationSelector = COperationSelector<
   TReaderNode,
   TNormalizationNode,
   TRequest,
 >;
+
+// TODO(T39154899) - FragmentOwner is a subset of OperationSelector,
+// but we could consider making it a full OperationSelector in the future.
+export type FragmentOwner = {|
+  request: TRequest,
+  variables: Variables,
+|};
+
 export type RelayContext = CRelayContext<TEnvironment>;
 export type ReaderSelector = CReaderSelector<TReaderNode>;
+export type OwnedReaderSelector = {|
+  owner: OperationSelector | null,
+  selector: ReaderSelector,
+|};
 export type NormalizationSelector = CNormalizationSelector<TNormalizationNode>;
 export type Snapshot = CSnapshot<TReaderNode>;
 export type UnstableEnvironmentCore = CUnstableEnvironmentCore<
@@ -70,6 +84,7 @@ export type UnstableEnvironmentCore = CUnstableEnvironmentCore<
   TReaderNode,
   TNormalizationNode,
   TRequest,
+  TReaderSelector,
 >;
 
 /**
@@ -115,8 +130,10 @@ export interface Store {
 
   /**
    * Read the results of a selector from in-memory records in the store.
+   * Optionally takes an owner, corresponding to the operation that
+   * owns this selector (fragment).
    */
-  lookup(selector: ReaderSelector): Snapshot;
+  lookup(selector: ReaderSelector, owner?: FragmentOwner): Snapshot;
 
   /**
    * Notify subscribers (see `subscribe`) of any data that was published
@@ -244,6 +261,7 @@ export interface Environment
     TNormalizationNode,
     TRequest,
     TPayload,
+    TReaderSelector,
   > {
   /**
    * Apply an optimistic update to the environment. The mutation can be reverted
@@ -270,6 +288,16 @@ export interface Environment
    * Get the environment's internal Store.
    */
   getStore(): Store;
+
+  /**
+   * Read the results of a selector from in-memory records in the store.
+   * Optionally takes an owner, corresponding to the operation that
+   * owns this selector (fragment).
+   */
+  lookup(
+    selector: ReaderSelector,
+    owner?: FragmentOwner,
+  ): CSnapshot<TReaderNode>;
 
   /**
    * Returns an Observable of GraphQLResponse resulting from executing the

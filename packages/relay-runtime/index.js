@@ -88,6 +88,7 @@ export type {RecordState} from './store/RelayRecordState';
 export type {
   Environment as IEnvironment,
   FragmentMap,
+  FragmentOwner,
   FragmentReference,
   HandleFieldPayload,
   MatchPointer,
@@ -95,6 +96,7 @@ export type {
   OperationLoader,
   OperationSelector,
   OptimisticUpdate,
+  OwnedReaderSelector,
   RecordProxy,
   RecordSourceProxy,
   RecordSourceSelectorProxy,
@@ -189,6 +191,7 @@ module.exports = {
 
   areEqualSelectors: RelayCore.areEqualSelectors,
   createFragmentSpecResolver: RelayCore.createFragmentSpecResolver,
+  createFragmentOwner: RelayCore.createFragmentOwner,
   createOperationSelector: RelayCore.createOperationSelector,
   getDataIDsFromObject: RelayCore.getDataIDsFromObject,
   getFragment: RelayModernGraphQLTag.getFragment,

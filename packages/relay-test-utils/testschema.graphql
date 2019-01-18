@@ -402,6 +402,7 @@ interface Actor {
   id: ID!
   lastName: String
   name: String
+  nameRenderer(supported: [String!]!): UserNameRenderer
   profilePicture(size: [Int], preset: PhotoSize): Image
   screennames: [Screenname]
   subscribeStatus: String
@@ -440,6 +441,7 @@ type Page implements Node & Actor {
   likeSentence: Text
   message: Text
   name: String
+  nameRenderer(supported: [String!]!): UserNameRenderer
   profilePicture(size: [Int], preset: PhotoSize): Image
   segments(first: Int): Segments
   screennames: [Screenname]

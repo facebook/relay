@@ -2986,6 +2986,160 @@ query LinkedHandleField(
 
 `;
 
+exports[`compileRelayArtifacts matches expected output: match-on-child-of-plural.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment ActorsRendererFragment on Node {
+  id
+  actors {
+    nameRenderer @match {
+      ...PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
+      ...MarkdownUserNameRenderer_name
+        @module(name: "MarkdownUserNameRenderer.react")
+    }
+  }
+}
+
+fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
+  plaintext
+  data {
+    text
+  }
+}
+
+fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+  markdown
+  data {
+    markup
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+{
+  "kind": "Fragment",
+  "name": "ActorsRendererFragment",
+  "type": "Node",
+  "metadata": null,
+  "argumentDefinitions": [],
+  "selections": [
+    {
+      "kind": "ScalarField",
+      "alias": null,
+      "name": "id",
+      "args": null,
+      "storageKey": null
+    },
+    {
+      "kind": "LinkedField",
+      "alias": null,
+      "name": "actors",
+      "storageKey": null,
+      "args": null,
+      "concreteType": null,
+      "plural": true,
+      "selections": [
+        {
+          "kind": "MatchField",
+          "alias": null,
+          "name": "nameRenderer",
+          "storageKey": "nameRenderer(MarkdownUserNameRenderer_name:MarkdownUserNameRenderer.react,PlainUserNameRenderer_name:PlainUserNameRenderer.react)",
+          "args": [
+            {
+              "kind": "Literal",
+              "name": "supported",
+              "value": [
+                "PlainUserNameRenderer",
+                "MarkdownUserNameRenderer"
+              ],
+              "type": "[String!]!"
+            }
+          ],
+          "matchesByType": {
+            "PlainUserNameRenderer": {
+              "fragmentPropName": "name",
+              "fragmentName": "PlainUserNameRenderer_name"
+            },
+            "MarkdownUserNameRenderer": {
+              "fragmentPropName": "name",
+              "fragmentName": "MarkdownUserNameRenderer_name"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
+
+{
+  "kind": "Fragment",
+  "name": "PlainUserNameRenderer_name",
+  "type": "PlainUserNameRenderer",
+  "metadata": null,
+  "argumentDefinitions": [],
+  "selections": [
+    {
+      "kind": "ScalarField",
+      "alias": null,
+      "name": "plaintext",
+      "args": null,
+      "storageKey": null
+    },
+    {
+      "kind": "LinkedField",
+      "alias": null,
+      "name": "data",
+      "storageKey": null,
+      "args": null,
+      "concreteType": "PlainUserNameData",
+      "plural": false,
+      "selections": [
+        {
+          "kind": "ScalarField",
+          "alias": null,
+          "name": "text",
+          "args": null,
+          "storageKey": null
+        }
+      ]
+    }
+  ]
+}
+
+{
+  "kind": "Fragment",
+  "name": "MarkdownUserNameRenderer_name",
+  "type": "MarkdownUserNameRenderer",
+  "metadata": null,
+  "argumentDefinitions": [],
+  "selections": [
+    {
+      "kind": "ScalarField",
+      "alias": null,
+      "name": "markdown",
+      "args": null,
+      "storageKey": null
+    },
+    {
+      "kind": "LinkedField",
+      "alias": null,
+      "name": "data",
+      "storageKey": null,
+      "args": null,
+      "concreteType": "MarkdownUserNameData",
+      "plural": false,
+      "selections": [
+        {
+          "kind": "ScalarField",
+          "alias": null,
+          "name": "markup",
+          "args": null,
+          "storageKey": null
+        }
+      ]
+    }
+  ]
+}
+`;
+
 exports[`compileRelayArtifacts matches expected output: plural-fragment.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 fragment PluralFragment on User @relay(plural: true) {

@@ -16,6 +16,8 @@ const IRTransformer = require('../core/GraphQLIRTransformer');
 const getLiteralArgumentValues = require('../core/getLiteralArgumentValues');
 const getNormalizationOperationName = require('../core/getNormalizationOperationName');
 
+const {getRawType} = require('../core/GraphQLSchemaUtils');
+const {createUserError} = require('../core/RelayCompilerError');
 const {
   GraphQLObjectType,
   GraphQLScalarType,
@@ -84,17 +86,19 @@ function visitLinkedField(
     return transformedNode;
   }
 
+  const rawType = getRawType(parentType);
   if (
     !(
-      parentType instanceof GraphQLInterfaceType ||
-      parentType instanceof GraphQLObjectType
+      rawType instanceof GraphQLInterfaceType ||
+      rawType instanceof GraphQLObjectType
     )
   ) {
-    throw new Error(
-      'RelayMatchTransform: @match may only be used on fields whose parent ' +
-        `type is an interface or object, field '${
-          node.name
-        }' has invalid type '${String(parentType)}'`,
+    throw createUserError(
+      '@match may only be used on fields whose parent type is an interface ' +
+        `or object, field '${node.name}' has invalid type '${String(
+          parentType,
+        )}'`,
+      [node.loc],
     );
   }
 
@@ -107,7 +111,7 @@ function visitLinkedField(
     );
   }
 
-  const currentField = parentType.getFields()[transformedNode.name];
+  const currentField = rawType.getFields()[transformedNode.name];
   const supportedArg = currentField.args.find(
     ({name}) => SUPPORTED_ARGUMENT_NAME,
   );

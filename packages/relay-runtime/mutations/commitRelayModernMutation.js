@@ -52,7 +52,7 @@ function commitRelayModernMutation<T>(
       'both environments.\n' +
       'See: http://facebook.github.io/relay/docs/relay-compat.html',
   );
-  const {createOperationSelector, getRequest} = environment.unstable_internal;
+  const {createOperationDescriptor, getRequest} = environment.unstable_internal;
   const mutation = getRequest(config.mutation);
   if (mutation.params.operationKind !== 'mutation') {
     throw new Error('commitRelayModernMutation: Expected mutation operation');
@@ -64,7 +64,7 @@ function commitRelayModernMutation<T>(
   }
   let {optimisticResponse, optimisticUpdater, updater} = config;
   const {configs, onError, variables, uploadables} = config;
-  const operation = createOperationSelector(mutation, variables);
+  const operation = createOperationDescriptor(mutation, variables);
   // TODO: remove this check after we fix flow.
   if (typeof optimisticResponse === 'function') {
     optimisticResponse = optimisticResponse();

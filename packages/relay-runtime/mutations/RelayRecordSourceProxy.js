@@ -27,7 +27,7 @@ import type {
   RecordProxy,
   RecordSourceProxy,
   RecordSourceSelectorProxy,
-  OperationSelector,
+  OperationDescriptor,
 } from '../store/RelayStoreTypes';
 import type {DataID} from '../util/RelayRuntimeTypes';
 import type RelayRecordSourceMutator from './RelayRecordSourceMutator';
@@ -87,7 +87,7 @@ class RelayRecordSourceProxy implements RecordSourceProxy {
   }
 
   commitPayload(
-    operation: OperationSelector,
+    operation: OperationDescriptor,
     response: ?Object,
   ): RecordSourceSelectorProxy {
     if (!response) {

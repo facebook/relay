@@ -32,12 +32,12 @@ function fetchRelayModernQuery<T: OperationType>(
     'fetchRelayModernQuery: Expected a valid Relay environment, got `%s`.',
     environment,
   );
-  const {createOperationSelector, getRequest} = environment.unstable_internal;
+  const {createOperationDescriptor, getRequest} = environment.unstable_internal;
   const query = getRequest(taggedNode);
   if (query.params.operationKind !== 'query') {
     throw new Error('fetchRelayModernQuery: Expected query operation');
   }
-  const operation = createOperationSelector(query, variables);
+  const operation = createOperationDescriptor(query, variables);
 
   return environment
     .execute({operation, cacheConfig})

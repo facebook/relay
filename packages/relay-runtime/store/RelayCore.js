@@ -23,7 +23,7 @@ const {
   isRequest,
 } = require('../query/RelayModernGraphQLTag');
 const {createFragmentOwner} = require('./RelayModernFragmentOwner');
-const {createOperationSelector} = require('./RelayModernOperationSelector');
+const {createOperationDescriptor} = require('./RelayModernOperationDescriptor');
 const {
   areEqualSelectors,
   getDataIDsFromObject,
@@ -72,7 +72,7 @@ module.exports = {
   areEqualSelectors,
   createFragmentSpecResolver,
   createFragmentOwner,
-  createOperationSelector,
+  createOperationDescriptor,
   getDataIDsFromObject,
   getFragment,
   getPaginationFragment,

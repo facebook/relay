@@ -26,7 +26,7 @@ import type {Disposable} from '../util/RelayRuntimeTypes';
 import type {
   HandleFieldPayload,
   MutableRecordSource,
-  OperationSelector,
+  OperationDescriptor,
   OptimisticUpdate,
   ReaderSelector,
   SelectorStoreUpdater,
@@ -138,7 +138,7 @@ class RelayPublishQueue {
    * Schedule applying a payload to the store on the next `run()`.
    */
   commitPayload(
-    operation: OperationSelector,
+    operation: OperationDescriptor,
     {fieldPayloads, source}: RelayResponsePayload,
     updater?: ?SelectorStoreUpdater,
   ): void {

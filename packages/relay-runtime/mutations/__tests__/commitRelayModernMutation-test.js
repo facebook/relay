@@ -13,8 +13,8 @@
 const commitRelayModernMutation = require('../commitRelayModernMutation');
 
 const {
-  createOperationSelector,
-} = require('../../store/RelayModernOperationSelector');
+  createOperationDescriptor,
+} = require('../../store/RelayModernOperationDescriptor');
 const {ROOT_ID} = require('../../store/RelayStoreUtils');
 const {createMockEnvironment} = require('RelayModernMockEnvironment');
 const {generateAndCompile} = require('RelayModernTestUtils');
@@ -114,8 +114,11 @@ describe('Configs: NODE_DELETE', () => {
       variables: {},
     });
     const callback = jest.fn();
-    const operationSelector = createOperationSelector(FeedbackCommentQuery, {});
-    environment.commitPayload(operationSelector, payload);
+    const operationDescriptor = createOperationDescriptor(
+      FeedbackCommentQuery,
+      {},
+    );
+    environment.commitPayload(operationDescriptor, payload);
     store.subscribe(snapshot, callback);
     commitRelayModernMutation(environment, {
       configs,
@@ -285,8 +288,11 @@ describe('Configs: RANGE_DELETE', () => {
         },
       },
     };
-    const operationSelector = createOperationSelector(FeedbackCommentQuery, {});
-    environment.commitPayload(operationSelector, payload);
+    const operationDescriptor = createOperationDescriptor(
+      FeedbackCommentQuery,
+      {},
+    );
+    environment.commitPayload(operationDescriptor, payload);
     const optimisticUpdater = jest.fn();
     const updater = jest.fn();
     const snapshot = store.lookup({
@@ -402,8 +408,8 @@ describe('Configs: RANGE_DELETE', () => {
         },
       },
     };
-    const operationSelector = createOperationSelector(FriendQuery, {});
-    environment.commitPayload(operationSelector, payload);
+    const operationDescriptor = createOperationDescriptor(FriendQuery, {});
+    environment.commitPayload(operationDescriptor, payload);
     const optimisticResponse = {
       unfriend: {
         clientMutationId: '0',
@@ -590,8 +596,8 @@ describe('Configs: RANGE_ADD', () => {
       node: CommentQuery.fragment,
       variables: {},
     });
-    const operationSelector = createOperationSelector(CommentQuery, {});
-    environment.commitPayload(operationSelector, payload);
+    const operationDescriptor = createOperationDescriptor(CommentQuery, {});
+    environment.commitPayload(operationDescriptor, payload);
     store.subscribe(snapshot, callback);
     commitMutation(environment, {
       configs,
@@ -629,8 +635,8 @@ describe('Configs: RANGE_ADD', () => {
       },
     ];
     // prepare existing data
-    const operationSelector = createOperationSelector(CommentQuery, {});
-    environment.commitPayload(operationSelector, {
+    const operationDescriptor = createOperationDescriptor(CommentQuery, {});
+    environment.commitPayload(operationDescriptor, {
       node: {
         id: feedbackID,
         __typename: 'Feedback',
@@ -800,8 +806,8 @@ describe('Configs: RANGE_ADD', () => {
       node: CommentQuery.fragment,
       variables: {},
     });
-    const operationSelector = createOperationSelector(CommentQuery, {});
-    environment.commitPayload(operationSelector, payload);
+    const operationDescriptor = createOperationDescriptor(CommentQuery, {});
+    environment.commitPayload(operationDescriptor, payload);
     store.subscribe(snapshot, callback);
     commitMutation(environment, {
       configs,
@@ -856,8 +862,8 @@ describe('Configs: RANGE_ADD', () => {
           }
         }
       }`));
-    const operationSelector = createOperationSelector(CommentQuery, {});
-    environment.commitPayload(operationSelector, payload);
+    const operationDescriptor = createOperationDescriptor(CommentQuery, {});
+    environment.commitPayload(operationDescriptor, payload);
     const snapshot = store.lookup({
       dataID: ROOT_ID,
       node: CommentQuery.fragment,

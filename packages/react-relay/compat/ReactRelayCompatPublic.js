@@ -31,7 +31,7 @@ export type {
   GraphQLTaggedNode,
   IEnvironment,
   MutationType,
-  OperationSelector,
+  OperationDescriptor,
   RangeOperation,
   RelayContext,
   ReaderSelector,

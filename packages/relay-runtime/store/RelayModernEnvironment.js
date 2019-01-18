@@ -39,7 +39,7 @@ import type {
   OperationLoader,
   MatchFieldPayload,
   MissingFieldHandler,
-  OperationSelector,
+  OperationDescriptor,
   OptimisticUpdate,
   RelayResponsePayload,
   NormalizationSelector,
@@ -149,7 +149,7 @@ class RelayModernEnvironment implements Environment {
     optimisticResponse,
     optimisticUpdater,
   }: {
-    operation: OperationSelector,
+    operation: OperationDescriptor,
     optimisticUpdater?: ?SelectorStoreUpdater,
     optimisticResponse?: Object,
   }): Disposable {
@@ -171,12 +171,15 @@ class RelayModernEnvironment implements Environment {
   }
 
   commitPayload(
-    operationSelector: OperationSelector,
+    operationDescriptor: OperationDescriptor,
     payload: PayloadData,
   ): void {
     // Do not handle stripped nulls when commiting a payload
-    const relayPayload = normalizeRelayPayload(operationSelector.root, payload);
-    this._publishQueue.commitPayload(operationSelector, relayPayload);
+    const relayPayload = normalizeRelayPayload(
+      operationDescriptor.root,
+      payload,
+    );
+    this._publishQueue.commitPayload(operationDescriptor, relayPayload);
     this._publishQueue.run();
   }
 
@@ -232,7 +235,7 @@ class RelayModernEnvironment implements Environment {
     cacheConfig,
     updater,
   }: {
-    operation: OperationSelector,
+    operation: OperationDescriptor,
     cacheConfig?: ?CacheConfig,
     updater?: ?SelectorStoreUpdater,
   }): RelayObservable<GraphQLResponse> {
@@ -270,7 +273,7 @@ class RelayModernEnvironment implements Environment {
       // on GraphQL queries *disallowing* recursion to ensure termination.
       const processRelayPayload = (
         payload: RelayResponsePayload,
-        operationSelector: OperationSelector | null = null,
+        operationDescriptor: OperationDescriptor | null = null,
         payloadUpdater: SelectorStoreUpdater | null = null,
         isOptimistic: boolean = false,
       ): void => {
@@ -311,9 +314,9 @@ class RelayModernEnvironment implements Environment {
             this._publishQueue.revertUpdate(optimisticResponse);
             optimisticResponse = null;
           }
-          if (operationSelector && payloadUpdater) {
+          if (operationDescriptor && payloadUpdater) {
             this._publishQueue.commitPayload(
-              operationSelector,
+              operationDescriptor,
               payload,
               payloadUpdater,
             );
@@ -364,7 +367,7 @@ class RelayModernEnvironment implements Environment {
     updater,
     uploadables,
   }: {|
-    operation: OperationSelector,
+    operation: OperationDescriptor,
     optimisticUpdater?: ?SelectorStoreUpdater,
     optimisticResponse?: ?Object,
     updater?: ?SelectorStoreUpdater,
@@ -432,7 +435,7 @@ class RelayModernEnvironment implements Environment {
     onCompleted?: ?() => void,
     onError?: ?(error: Error) => void,
     onNext?: ?(payload: GraphQLResponse) => void,
-    operation: OperationSelector,
+    operation: OperationDescriptor,
   }): Disposable {
     warning(
       false,
@@ -460,7 +463,7 @@ class RelayModernEnvironment implements Environment {
   }: {
     onCompleted?: ?(errors: ?Array<PayloadError>) => void,
     onError?: ?(error: Error) => void,
-    operation: OperationSelector,
+    operation: OperationDescriptor,
     optimisticUpdater?: ?SelectorStoreUpdater,
     optimisticResponse?: Object,
     updater?: ?SelectorStoreUpdater,

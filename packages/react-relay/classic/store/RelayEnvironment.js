@@ -31,7 +31,7 @@ const {Observable, deepFreeze, recycleNodesInto} = require('relay-runtime');
 import type {
   Environment,
   NormalizationSelector,
-  OperationSelector,
+  OperationDescriptor,
   ReaderSelector,
   Snapshot,
   UnstableEnvironmentCore,
@@ -166,10 +166,10 @@ class RelayEnvironment implements Environment, RelayEnvironmentInterface {
   }
 
   commitPayload(
-    operationSelector: OperationSelector,
+    operationDescriptor: OperationDescriptor,
     payload: QueryPayload,
   ): void {
-    const selector = operationSelector.root;
+    const selector = operationDescriptor.root;
     const fragment = RelayQuery.Fragment.create(
       selector.node,
       RelayMetaRoute.get('$RelayEnvironment'),
@@ -348,7 +348,7 @@ class RelayEnvironment implements Environment, RelayEnvironmentInterface {
     onCompleted?: ?() => void,
     onError?: ?(error: Error) => void,
     onNext?: ?(selector: NormalizationSelector) => void,
-    operation: OperationSelector,
+    operation: OperationDescriptor,
   }): Disposable {
     let isDisposed = false;
     const dispose = () => {
@@ -394,7 +394,7 @@ class RelayEnvironment implements Environment, RelayEnvironmentInterface {
     cacheConfig,
     updater,
   }: {
-    operation: OperationSelector,
+    operation: OperationDescriptor,
     cacheConfig?: ?CacheConfig,
     updater?: ?SelectorStoreUpdater,
   }): Observable<NormalizationSelector> {

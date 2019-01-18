@@ -333,11 +333,11 @@ function createContainerWithFragments<
           : observerOrCallback || ({}: any);
 
       const {
-        createOperationSelector,
+        createOperationDescriptor,
         getRequest,
       } = this.props.__relayContext.environment.unstable_internal;
       const query = getRequest(taggedNode);
-      const operation = createOperationSelector(query, fetchVariables);
+      const operation = createOperationDescriptor(query, fetchVariables);
 
       // TODO: T26288752 find a better way
       /* eslint-disable lint/react-state-props-mutation */

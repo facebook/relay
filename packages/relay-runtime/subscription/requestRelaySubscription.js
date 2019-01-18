@@ -33,7 +33,7 @@ function requestRelaySubscription(
   environment: Environment,
   config: GraphQLSubscriptionConfig,
 ): Disposable {
-  const {createOperationSelector, getRequest} = environment.unstable_internal;
+  const {createOperationDescriptor, getRequest} = environment.unstable_internal;
   const subscription = getRequest(config.subscription);
   if (subscription.params.operationKind !== 'subscription') {
     throw new Error(
@@ -41,7 +41,7 @@ function requestRelaySubscription(
     );
   }
   const {configs, onCompleted, onError, onNext, variables} = config;
-  const operation = createOperationSelector(subscription, variables);
+  const operation = createOperationDescriptor(subscription, variables);
 
   warning(
     !(config.updater && configs),

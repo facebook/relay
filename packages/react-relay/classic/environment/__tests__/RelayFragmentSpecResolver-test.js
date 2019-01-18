@@ -22,7 +22,7 @@ const {
   getClassicFragment,
   getClassicOperation,
 } = require('../../query/RelayGraphQLTag');
-const {createOperationSelector} = require('../RelayOperationSelector');
+const {createOperationDescriptor} = require('../RelayOperationDescriptor');
 
 describe('RelayFragmentSpecResolver', () => {
   let UserFragment;
@@ -56,7 +56,7 @@ describe('RelayFragmentSpecResolver', () => {
   function setName(id, name) {
     const nodeAlias = generateRQLFieldAlias(`node.id(${id})`);
     environment.commitPayload(
-      createOperationSelector(UserQuery, {
+      createOperationDescriptor(UserQuery, {
         fetchSize: false,
         id,
         size: null,
@@ -78,7 +78,7 @@ describe('RelayFragmentSpecResolver', () => {
     // If name is not specified it will be nulled out
     const name = environment.getStoreData().getNodeData()[id].name;
     environment.commitPayload(
-      createOperationSelector(UserQuery, {
+      createOperationDescriptor(UserQuery, {
         fetchSize: true,
         id,
         size,
@@ -161,7 +161,7 @@ describe('RelayFragmentSpecResolver', () => {
 
     let nodeAlias = generateRQLFieldAlias('node.id(4)');
     environment.commitPayload(
-      createOperationSelector(UserQuery, {
+      createOperationDescriptor(UserQuery, {
         fetchSize: false,
         id: '4',
         size: null,
@@ -176,7 +176,7 @@ describe('RelayFragmentSpecResolver', () => {
     );
     nodeAlias = generateRQLFieldAlias('node.id(beast)');
     environment.commitPayload(
-      createOperationSelector(UserQuery, {
+      createOperationDescriptor(UserQuery, {
         fetchSize: false,
         id: 'beast',
         size: null,

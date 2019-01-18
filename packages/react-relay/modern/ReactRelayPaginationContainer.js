@@ -672,7 +672,7 @@ function createContainerWithFragments<
     ): Subscription {
       const {environment} = assertRelayContext(this.props.__relayContext);
       const {
-        createOperationSelector,
+        createOperationDescriptor,
         getRequest,
         getVariablesFromObject,
       } = environment.unstable_internal;
@@ -716,7 +716,7 @@ function createContainerWithFragments<
         ? {force: !!options.force}
         : undefined;
       const request = getRequest(connectionConfig.query);
-      const operation = createOperationSelector(request, fetchVariables);
+      const operation = createOperationDescriptor(request, fetchVariables);
 
       let refetchSubscription = null;
 

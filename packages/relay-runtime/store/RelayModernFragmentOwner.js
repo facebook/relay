@@ -10,17 +10,17 @@
 
 'use strict';
 
-import type {FragmentOwner, OperationSelector} from './RelayStoreTypes';
+import type {FragmentOwner, OperationDescriptor} from './RelayStoreTypes';
 
 /**
- * Creates an instance of a FragmentOwner based on an OperationSelector.
+ * Creates an instance of a FragmentOwner based on an OperationDescriptor.
  * FragmentOwners are attached to an OwnedReaderSelector and passed down
  * to fragment containers via FragmentPointers
  *
- * TODO(T39154899) - FragmentOwner is a subset of OperationSelector,
- * but we could consider making it a full OperationSelector in the future.
+ * TODO(T39154899) - FragmentOwner is a subset of OperationDescriptor,
+ * but we could consider making it a full OperationDescriptor in the future.
  */
-function createFragmentOwner(operation: OperationSelector): FragmentOwner {
+function createFragmentOwner(operation: OperationDescriptor): FragmentOwner {
   return {
     request: operation.node,
     variables: operation.variables,

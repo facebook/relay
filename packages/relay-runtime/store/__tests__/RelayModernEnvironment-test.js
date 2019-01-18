@@ -20,7 +20,9 @@ const RelayObservable = require('../../network/RelayObservable');
 
 const nullthrows = require('nullthrows');
 
-const {createOperationSelector} = require('../RelayModernOperationSelector');
+const {
+  createOperationDescriptor,
+} = require('../RelayModernOperationDescriptor');
 const {getSelector} = require('../RelayModernSelector');
 const {ROOT_ID} = require('../RelayStoreUtils');
 
@@ -52,7 +54,7 @@ describe('RelayModernEnvironment', () => {
   describe('check()', () => {
     let ParentQuery;
     let environment;
-    let operationSelector;
+    let operationDescriptor;
 
     beforeEach(() => {
       ({ParentQuery} = generateAndCompile(`
@@ -67,11 +69,11 @@ describe('RelayModernEnvironment', () => {
         }
       `));
       environment = new RelayModernEnvironment(config);
-      operationSelector = createOperationSelector(ParentQuery, {size: 32});
+      operationDescriptor = createOperationDescriptor(ParentQuery, {size: 32});
     });
 
     it('returns true if all data exists in the environment', () => {
-      environment.commitPayload(operationSelector, {
+      environment.commitPayload(operationDescriptor, {
         me: {
           id: '4',
           name: 'Zuck',
@@ -80,11 +82,11 @@ describe('RelayModernEnvironment', () => {
           },
         },
       });
-      expect(environment.check(operationSelector.root)).toBe(true);
+      expect(environment.check(operationDescriptor.root)).toBe(true);
     });
 
     it('returns false if data is missing from the environment', () => {
-      environment.commitPayload(operationSelector, {
+      environment.commitPayload(operationDescriptor, {
         me: {
           id: '4',
           name: 'Zuck',
@@ -93,7 +95,7 @@ describe('RelayModernEnvironment', () => {
           },
         },
       });
-      expect(environment.check(operationSelector.root)).toBe(false);
+      expect(environment.check(operationDescriptor.root)).toBe(false);
     });
   });
 
@@ -116,8 +118,8 @@ describe('RelayModernEnvironment', () => {
         }
       `));
       environment = new RelayModernEnvironment(config);
-      const operationSelector = createOperationSelector(ParentQuery, {});
-      environment.commitPayload(operationSelector, {
+      const operationDescriptor = createOperationDescriptor(ParentQuery, {});
+      environment.commitPayload(operationDescriptor, {
         me: {
           id: '4',
           name: 'Zuck',
@@ -197,8 +199,8 @@ describe('RelayModernEnvironment', () => {
         }
       `));
       environment = new RelayModernEnvironment(config);
-      const operationSelector = createOperationSelector(ParentQuery, {});
-      environment.commitPayload(operationSelector, {
+      const operationDescriptor = createOperationDescriptor(ParentQuery, {});
+      environment.commitPayload(operationDescriptor, {
         me: {
           id: '4',
           name: 'Zuck',
@@ -257,8 +259,8 @@ describe('RelayModernEnvironment', () => {
         }
       `));
       environment = new RelayModernEnvironment(config);
-      const operationSelector = createOperationSelector(ParentQuery, {});
-      environment.commitPayload(operationSelector, {
+      const operationDescriptor = createOperationDescriptor(ParentQuery, {});
+      environment.commitPayload(operationDescriptor, {
         me: {
           id: '4',
           name: 'Zuck',
@@ -410,7 +412,7 @@ describe('RelayModernEnvironment', () => {
   describe('commitPayload()', () => {
     let ActorQuery;
     let environment;
-    let operationSelector;
+    let operationDescriptor;
 
     beforeEach(() => {
       ({ActorQuery} = generateAndCompile(`
@@ -420,7 +422,7 @@ describe('RelayModernEnvironment', () => {
           }
         }
       `));
-      operationSelector = createOperationSelector(ActorQuery, {});
+      operationDescriptor = createOperationDescriptor(ActorQuery, {});
       (store: $FlowFixMe).notify = jest.fn(store.notify.bind(store));
       (store: $FlowFixMe).publish = jest.fn(store.publish.bind(store));
       environment = new RelayModernEnvironment(config);
@@ -428,10 +430,10 @@ describe('RelayModernEnvironment', () => {
 
     it('applies server updates', () => {
       const callback = jest.fn();
-      const snapshot = environment.lookup(operationSelector.fragment);
+      const snapshot = environment.lookup(operationDescriptor.fragment);
       environment.subscribe(snapshot, callback);
 
-      environment.commitPayload(operationSelector, {
+      environment.commitPayload(operationDescriptor, {
         me: {
           id: '4',
           __typename: 'User',
@@ -448,7 +450,7 @@ describe('RelayModernEnvironment', () => {
 
     it('rebases optimistic updates', () => {
       const callback = jest.fn();
-      const snapshot = environment.lookup(operationSelector.fragment);
+      const snapshot = environment.lookup(operationDescriptor.fragment);
       environment.subscribe(snapshot, callback);
 
       environment.applyUpdate({
@@ -464,7 +466,7 @@ describe('RelayModernEnvironment', () => {
         },
       });
 
-      environment.commitPayload(operationSelector, {
+      environment.commitPayload(operationDescriptor, {
         me: {
           id: '4',
           __typename: 'User',
@@ -506,7 +508,7 @@ describe('RelayModernEnvironment', () => {
       `,
       ));
       variables = {fetchSize: false};
-      operation = createOperationSelector(query, {
+      operation = createOperationDescriptor(query, {
         ...variables,
         foo: 'bar', // should be filtered from network fetch
       });
@@ -635,7 +637,7 @@ describe('RelayModernEnvironment', () => {
       `,
       ));
       variables = {fetchSize: false};
-      operation = createOperationSelector(query, {
+      operation = createOperationDescriptor(query, {
         ...variables,
         foo: 'bar', // should be filtered from network fetch
       });
@@ -812,7 +814,7 @@ describe('RelayModernEnvironment', () => {
       `,
       ));
       variables = {fetchSize: false};
-      operation = createOperationSelector(query, {
+      operation = createOperationDescriptor(query, {
         ...variables,
         foo: 'bar', // should be filtered from network fetch
       });
@@ -1108,7 +1110,7 @@ describe('RelayModernEnvironment', () => {
           }
       `));
       variables = {id: '1'};
-      operation = createOperationSelector(query, variables);
+      operation = createOperationDescriptor(query, variables);
 
       const MarkupHandler = {
         update(storeProxy, payload) {
@@ -1555,7 +1557,7 @@ describe('RelayModernEnvironment', () => {
           feedbackId: '1',
         },
       };
-      operation = createOperationSelector(CreateCommentMutation, variables);
+      operation = createOperationDescriptor(CreateCommentMutation, variables);
 
       fetch = jest.fn((_query, _variables, _cacheConfig) =>
         RelayObservable.create(sink => {
@@ -1786,7 +1788,7 @@ describe('RelayModernEnvironment', () => {
     });
 
     it('commits optimistic response with fragment spread', () => {
-      operation = createOperationSelector(
+      operation = createOperationDescriptor(
         CreateCommentWithSpreadMutation,
         variables,
       );
@@ -1896,7 +1898,7 @@ describe('RelayModernEnvironment', () => {
           }
         }
       `));
-      operation = createOperationSelector(query, {});
+      operation = createOperationDescriptor(query, {});
 
       complete = jest.fn();
       error = jest.fn();

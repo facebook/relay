@@ -73,14 +73,14 @@ describe('RelayModernSelector', () => {
       node: UserQuery.operation,
       variables,
     };
-    const operationSelector = {
+    const operationDescriptor = {
       fragment,
       root,
       node: UserQuery,
       variables,
     };
 
-    environment.commitPayload(operationSelector, {
+    environment.commitPayload(operationDescriptor, {
       node: {
         id: '4',
         __typename: 'User',

@@ -15,10 +15,13 @@ const RelayError = require('../util/RelayError');
 const normalizeRelayPayload = require('./normalizeRelayPayload');
 
 import type {GraphQLResponse} from '../network/RelayNetworkTypes';
-import type {RelayResponsePayload, OperationSelector} from './RelayStoreTypes';
+import type {
+  RelayResponsePayload,
+  OperationDescriptor,
+} from './RelayStoreTypes';
 
 function normalizePayload(
-  operation: OperationSelector,
+  operation: OperationDescriptor,
   payload: GraphQLResponse,
 ): RelayResponsePayload {
   const {data, errors} = payload;

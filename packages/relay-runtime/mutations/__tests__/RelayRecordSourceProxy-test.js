@@ -20,8 +20,8 @@ const RelayStoreUtils = require('../../store/RelayStoreUtils');
 const simpleClone = require('../../util/simpleClone');
 
 const {
-  createOperationSelector,
-} = require('../../store/RelayModernOperationSelector');
+  createOperationDescriptor,
+} = require('../../store/RelayModernOperationDescriptor');
 
 const {
   ID_KEY,
@@ -200,7 +200,7 @@ describe('RelayRecordSourceProxy', () => {
         }
       `,
       );
-      const operationSelector = createOperationSelector(Query, {});
+      const operationDescriptor = createOperationDescriptor(Query, {});
       const rawPayload = {
         node: {
           id: 'sf',
@@ -208,7 +208,7 @@ describe('RelayRecordSourceProxy', () => {
           name: 'SF',
         },
       };
-      store.commitPayload(operationSelector, rawPayload);
+      store.commitPayload(operationDescriptor, rawPayload);
       expect(sinkData.sf).toEqual({
         [ID_KEY]: 'sf',
         [TYPENAME_KEY]: 'Page',
@@ -229,7 +229,7 @@ describe('RelayRecordSourceProxy', () => {
         }
       `,
       );
-      const operationSelector = createOperationSelector(Query, {});
+      const operationDescriptor = createOperationDescriptor(Query, {});
       const rawPayload = {
         node: {
           id: 'seattle',
@@ -237,7 +237,7 @@ describe('RelayRecordSourceProxy', () => {
           name: 'Seattle',
         },
       };
-      store.commitPayload(operationSelector, rawPayload);
+      store.commitPayload(operationDescriptor, rawPayload);
       expect(sinkData.seattle).toEqual({
         [ID_KEY]: 'seattle',
         [TYPENAME_KEY]: 'Page',
@@ -265,7 +265,7 @@ describe('RelayRecordSourceProxy', () => {
         }
       `,
       );
-      const operationSelector = createOperationSelector(Query, {});
+      const operationDescriptor = createOperationDescriptor(Query, {});
       const rawPayload = {
         node: {
           id: 'sf',
@@ -273,7 +273,7 @@ describe('RelayRecordSourceProxy', () => {
           name: 'SF',
         },
       };
-      store.commitPayload(operationSelector, rawPayload);
+      store.commitPayload(operationDescriptor, rawPayload);
 
       const fieldPayload = {
         args: {},

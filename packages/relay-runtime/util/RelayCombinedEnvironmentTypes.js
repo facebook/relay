@@ -121,7 +121,7 @@ export type CFragmentMap<TFragment> = {[key: string]: TFragment};
  * - `fragment`: a selector intended for use in reading or subscribing to
  *   the results of the the operation.
  */
-export type COperationSelector<TReaderNode, TNormalizationNode, TRequest> = {
+export type COperationDescriptor<TReaderNode, TNormalizationNode, TRequest> = {
   fragment: CReaderSelector<TReaderNode>,
   node: TRequest,
   root: CNormalizationSelector<TNormalizationNode>,
@@ -188,7 +188,7 @@ export interface CEnvironment<
    * the result is subscribed to: environment.execute({...}).subscribe({...}).
    */
   execute(config: {|
-    operation: COperationSelector<TReaderNode, TNormalizationNode, TRequest>,
+    operation: COperationDescriptor<TReaderNode, TNormalizationNode, TRequest>,
     cacheConfig?: ?CacheConfig,
     updater?: ?SelectorStoreUpdater,
   |}): Observable<TPayload>;
@@ -229,15 +229,15 @@ export interface CUnstableEnvironmentCore<
   ) => FragmentSpecResolver;
 
   /**
-   * Creates an instance of an OperationSelector given an operation definition
+   * Creates an instance of an OperationDescriptor given an operation definition
    * (see `getOperation`) and the variables to apply. The input variables are
    * filtered to exclude variables that do not matche defined arguments on the
    * operation, and default values are populated for null values.
    */
-  createOperationSelector: (
+  createOperationDescriptor: (
     request: TRequest,
     variables: Variables,
-  ) => COperationSelector<TReaderNode, TNormalizationNode, TRequest>;
+  ) => COperationDescriptor<TReaderNode, TNormalizationNode, TRequest>;
 
   /**
    * Given a graphql`...` tagged template, extract a fragment definition usable

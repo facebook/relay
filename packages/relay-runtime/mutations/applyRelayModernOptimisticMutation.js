@@ -45,14 +45,14 @@ function applyRelayModernOptimisticMutation(
       'both environments.\n' +
       'See: http://facebook.github.io/relay/docs/relay-compat.html',
   );
-  const {createOperationSelector, getRequest} = environment.unstable_internal;
+  const {createOperationDescriptor, getRequest} = environment.unstable_internal;
   const mutation = getRequest(config.mutation);
   if (mutation.params.operationKind !== 'mutation') {
     throw new Error('commitRelayModernMutation: Expected mutation operation');
   }
   let {optimisticUpdater} = config;
   const {configs, optimisticResponse, variables} = config;
-  const operation = createOperationSelector(mutation, variables);
+  const operation = createOperationDescriptor(mutation, variables);
   if (configs) {
     ({optimisticUpdater} = RelayDeclarativeMutationConfig.convert(
       configs,

@@ -14,7 +14,7 @@ jest.dontMock('GraphQLStoreChangeEmitter').mock('relayUnstableBatchedUpdates');
 
 const RelayClassic = require('../../RelayPublic');
 const RelayEnvironment = require('../RelayEnvironment');
-const RelayOperationSelector = require('../../environment/RelayOperationSelector');
+const RelayOperationDescriptor = require('../../environment/RelayOperationDescriptor');
 const {ROOT_ID} = require('../RelayStoreConstants');
 const RelayTestUtils = require('RelayTestUtils');
 const createRelayQuery = require('../../query/createRelayQuery');
@@ -22,8 +22,8 @@ const generateRQLFieldAlias = require('../../query/generateRQLFieldAlias');
 const mapObject = require('mapObject');
 const {graphql, getClassicOperation} = require('../../query/RelayGraphQLTag');
 const {
-  createOperationSelector,
-} = require('../../environment/RelayOperationSelector');
+  createOperationDescriptor,
+} = require('../../environment/RelayOperationDescriptor');
 
 describe('RelayEnvironment', () => {
   let UserQuery;
@@ -62,7 +62,7 @@ describe('RelayEnvironment', () => {
     nodeAlias = generateRQLFieldAlias('node.user.id(4)');
     photoAlias = generateRQLFieldAlias('profilePicture.size(1)');
     environment.commitPayload(
-      createOperationSelector(UserQuery, {id: '4', size: 1}),
+      createOperationDescriptor(UserQuery, {id: '4', size: 1}),
       {
         [nodeAlias]: {
           id: '4',
@@ -96,7 +96,7 @@ describe('RelayEnvironment', () => {
 
       nodeAlias = generateRQLFieldAlias('node.feedback.id(123)');
       environment.commitPayload(
-        createOperationSelector(FeedbackQuery, {id: '123'}),
+        createOperationDescriptor(FeedbackQuery, {id: '123'}),
         {
           [nodeAlias]: {
             id: '123',
@@ -222,7 +222,7 @@ describe('RelayEnvironment', () => {
 
       nodeAlias = generateRQLFieldAlias('node.feedback.id(123)');
       environment.commitPayload(
-        createOperationSelector(FeedbackQuery, {id: '123'}),
+        createOperationDescriptor(FeedbackQuery, {id: '123'}),
         {
           [nodeAlias]: {
             id: '123',
@@ -418,10 +418,13 @@ describe('RelayEnvironment', () => {
         sendQueries,
         supports: jest.fn(() => false),
       });
-      operation = RelayOperationSelector.createOperationSelector(UserQuery, {
-        id: '4',
-        size: 1,
-      });
+      operation = RelayOperationDescriptor.createOperationDescriptor(
+        UserQuery,
+        {
+          id: '4',
+          size: 1,
+        },
+      );
     });
 
     it('fetches queries', () => {
@@ -537,7 +540,10 @@ describe('RelayEnvironment', () => {
           }
         `,
       );
-      operation = RelayOperationSelector.createOperationSelector(UserQuery, {});
+      operation = RelayOperationDescriptor.createOperationDescriptor(
+        UserQuery,
+        {},
+      );
       const selector = {
         dataID: ROOT_ID,
         node: UserQuery.node,
@@ -607,7 +613,10 @@ describe('RelayEnvironment', () => {
           }
         `,
       );
-      operation = RelayOperationSelector.createOperationSelector(UserQuery, {});
+      operation = RelayOperationDescriptor.createOperationDescriptor(
+        UserQuery,
+        {},
+      );
       const selector = {
         dataID: ROOT_ID,
         node: UserQuery.node,
@@ -657,7 +666,10 @@ describe('RelayEnvironment', () => {
           }
         `,
       );
-      operation = RelayOperationSelector.createOperationSelector(UserQuery, {});
+      operation = RelayOperationDescriptor.createOperationDescriptor(
+        UserQuery,
+        {},
+      );
       const selector = {
         dataID: ROOT_ID,
         node: UserQuery.node,
@@ -730,9 +742,12 @@ describe('RelayEnvironment', () => {
 
       nodeAlias = generateRQLFieldAlias('node.user.id(4)');
       const friendsAlias = generateRQLFieldAlias('friends.first(1)');
-      operation = RelayOperationSelector.createOperationSelector(FriendsQuery, {
-        id: '4',
-      });
+      operation = RelayOperationDescriptor.createOperationDescriptor(
+        FriendsQuery,
+        {
+          id: '4',
+        },
+      );
       environment.commitPayload(operation, {
         [nodeAlias]: {
           id: '4',
@@ -870,10 +885,13 @@ describe('RelayEnvironment', () => {
         sendQueries,
         supports: jest.fn(() => false),
       });
-      operation = environment.unstable_internal.createOperationSelector(Query, {
-        id: '4',
-        size: 1,
-      });
+      operation = environment.unstable_internal.createOperationDescriptor(
+        Query,
+        {
+          id: '4',
+          size: 1,
+        },
+      );
     });
 
     it('resolves fragment data with classic readQuery()', () => {

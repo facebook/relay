@@ -19,7 +19,7 @@ import type {
   CEnvironment,
   CFragmentMap,
   CNormalizationSelector,
-  COperationSelector,
+  COperationDescriptor,
   CReaderSelector,
   CRelayContext,
   CSnapshot,
@@ -43,7 +43,7 @@ type TRequest = ConcreteOperationDefinition;
 type TReaderSelector = CReaderSelector<TReaderNode>;
 
 export type FragmentMap = CFragmentMap<TFragment>;
-export type OperationSelector = COperationSelector<
+export type OperationDescriptor = COperationDescriptor<
   TReaderNode,
   TNormalizationNode,
   TRequest,

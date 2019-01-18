@@ -29,7 +29,7 @@ import type {ReaderSelectableNode} from '../util/ReaderNode';
 import type {
   CEnvironment,
   CFragmentMap,
-  COperationSelector,
+  COperationDescriptor,
   CRelayContext,
   CReaderSelector,
   CNormalizationSelector,
@@ -56,14 +56,14 @@ type TReaderSelector = OwnedReaderSelector;
 
 export type FragmentMap = CFragmentMap<TFragment>;
 
-export type OperationSelector = COperationSelector<
+export type OperationDescriptor = COperationDescriptor<
   TReaderNode,
   TNormalizationNode,
   TRequest,
 >;
 
-// TODO(T39154899) - FragmentOwner is a subset of OperationSelector,
-// but we could consider making it a full OperationSelector in the future.
+// TODO(T39154899) - FragmentOwner is a subset of OperationDescriptor,
+// but we could consider making it a full OperationDescriptor in the future.
 export type FragmentOwner = {|
   request: TRequest,
   variables: Variables,
@@ -72,7 +72,7 @@ export type FragmentOwner = {|
 export type RelayContext = CRelayContext<TEnvironment>;
 export type ReaderSelector = CReaderSelector<TReaderNode>;
 export type OwnedReaderSelector = {|
-  owner: OperationSelector | null,
+  owner: OperationDescriptor | null,
   selector: ReaderSelector,
 |};
 export type NormalizationSelector = CNormalizationSelector<TNormalizationNode>;
@@ -280,7 +280,7 @@ export interface Environment
    * Commit a payload to the environment using the given operation selector.
    */
   commitPayload(
-    operationSelector: OperationSelector,
+    operationDescriptor: OperationDescriptor,
     payload: PayloadData,
   ): void;
 
@@ -310,7 +310,7 @@ export interface Environment
    * environment.executeMutation({...}).subscribe({...}).
    */
   executeMutation({|
-    operation: OperationSelector,
+    operation: OperationDescriptor,
     optimisticUpdater?: ?SelectorStoreUpdater,
     optimisticResponse?: ?Object,
     updater?: ?SelectorStoreUpdater,
@@ -448,7 +448,7 @@ export type OptimisticUpdate =
     |}
   | {|
       selectorStoreUpdater: ?SelectorStoreUpdater,
-      operation: OperationSelector,
+      operation: OperationDescriptor,
       response: ?Object,
     |}
   | {|

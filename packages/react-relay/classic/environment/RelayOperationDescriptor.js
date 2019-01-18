@@ -18,23 +18,23 @@ const {getOperationVariables} = require('../query/RelayVariables');
 const {ROOT_ID} = require('../store/RelayStoreConstants');
 
 import type {ConcreteOperationDefinition} from '../query/ConcreteQuery';
-import type {OperationSelector} from './RelayEnvironmentTypes';
+import type {OperationDescriptor} from './RelayEnvironmentTypes';
 import type {Variables} from 'relay-runtime';
 
 /**
  * @public
  *
- * Implementation of `RelayCore#createOperationSelector()` defined in
+ * Implementation of `RelayCore#createOperationDescriptor()` defined in
  * `RelayEnvironmentTypes` for the classic core.
  */
-function createOperationSelector(
+function createOperationDescriptor(
   operation: ConcreteOperationDefinition,
   variables: Variables,
-): OperationSelector {
+): OperationDescriptor {
   const concreteFragment = QueryBuilder.getFragment(operation.node);
   invariant(
     concreteFragment,
-    'RelayOperationSelector: Expected a query, got %s `%s`.',
+    'RelayOperationDescriptor: Expected a query, got %s `%s`.',
     operation.node.kind,
     operation.name,
   );
@@ -55,5 +55,5 @@ function createOperationSelector(
 }
 
 module.exports = {
-  createOperationSelector,
+  createOperationDescriptor,
 };

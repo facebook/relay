@@ -18,7 +18,7 @@ const RelayModernTestUtils = require('RelayModernTestUtils');
 
 const {createMockEnvironment} = require('RelayModernMockEnvironment');
 const {
-  createOperationSelector,
+  createOperationDescriptor,
   ConnectionHandler,
   ConnectionInterface,
   ROOT_ID,
@@ -167,7 +167,7 @@ describe('ReactRelayPaginationContainer', () => {
     );
 
     // Pre-populate the store with data
-    environment.commitPayload(createOperationSelector(UserQuery, variables), {
+    environment.commitPayload(createOperationDescriptor(UserQuery, variables), {
       node: {
         id: '4',
         __typename: 'User',
@@ -189,7 +189,7 @@ describe('ReactRelayPaginationContainer', () => {
       },
     });
     environment.commitPayload(
-      createOperationSelector(UserQuery, {
+      createOperationDescriptor(UserQuery, {
         ...variables,
         id: '842472',
       }),

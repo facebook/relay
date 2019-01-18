@@ -18,7 +18,7 @@ const {
   isClassicFragment,
   isClassicOperation,
 } = require('../query/RelayGraphQLTag');
-const {createOperationSelector} = require('./RelayOperationSelector');
+const {createOperationDescriptor} = require('./RelayOperationDescriptor');
 const {
   areEqualSelectors,
   getDataIDsFromObject,
@@ -48,7 +48,7 @@ function createFragmentSpecResolver(
 module.exports = {
   areEqualSelectors,
   createFragmentSpecResolver,
-  createOperationSelector,
+  createOperationDescriptor,
   getDataIDsFromObject,
   getFragment: getClassicFragment,
   getRequest: getClassicOperation,

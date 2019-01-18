@@ -15,18 +15,18 @@ const {ROOT_ID} = require('./RelayStoreUtils');
 
 import type {ConcreteRequest} from '../util/RelayConcreteNode';
 import type {Variables} from '../util/RelayRuntimeTypes';
-import type {OperationSelector} from './RelayStoreTypes';
+import type {OperationDescriptor} from './RelayStoreTypes';
 
 /**
- * Creates an instance of the `OperationSelector` type defined in
+ * Creates an instance of the `OperationDescriptor` type defined in
  * `RelayStoreTypes` given an operation and some variables. The input variables
  * are filtered to exclude variables that do not match defined arguments on the
  * operation, and default values are populated for null values.
  */
-function createOperationSelector(
+function createOperationDescriptor(
   request: ConcreteRequest,
   variables: Variables,
-): OperationSelector {
+): OperationDescriptor {
   const operation = request.operation;
   const operationVariables = getOperationVariables(operation, variables);
   const dataID = ROOT_ID;
@@ -47,5 +47,5 @@ function createOperationSelector(
 }
 
 module.exports = {
-  createOperationSelector,
+  createOperationDescriptor,
 };

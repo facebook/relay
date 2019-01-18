@@ -18,7 +18,7 @@ import type {
   GraphQLResponse,
   IEnvironment,
   Observable,
-  OperationSelector,
+  OperationDescriptor,
   Snapshot,
 } from 'relay-runtime';
 
@@ -29,7 +29,7 @@ export type FetchOptions = {
   cacheConfig?: ?CacheConfig,
   environment: IEnvironment,
   onDataChange?: null | OnDataChange,
-  operation: OperationSelector,
+  operation: OperationDescriptor,
 };
 
 // Internally we keep an array of onDataChange callbacks, to support reusing
@@ -38,12 +38,12 @@ type FetchOptionsInternal = {|
   cacheConfig?: ?CacheConfig,
   environment: IEnvironment,
   onDataChangeCallbacks: Array<OnDataChange>,
-  operation: OperationSelector,
+  operation: OperationDescriptor,
 |};
 
 export type ExecuteConfig = {|
   environment: IEnvironment,
-  operation: OperationSelector,
+  operation: OperationDescriptor,
   cacheConfig?: ?CacheConfig,
   // Allows pagination container to retain results from previous queries
   preservePreviousReferences?: boolean,
@@ -78,7 +78,7 @@ class ReactRelayQueryFetcher {
 
   lookupInStore(
     environment: IEnvironment,
-    operation: OperationSelector,
+    operation: OperationDescriptor,
   ): ?Snapshot {
     if (environment.check(operation.root)) {
       this._retainCachedOperation(environment, operation);
@@ -261,7 +261,7 @@ class ReactRelayQueryFetcher {
 
   _retainCachedOperation(
     environment: IEnvironment,
-    operation: OperationSelector,
+    operation: OperationDescriptor,
   ) {
     this._disposeCacheSelectionReference();
     this._cacheSelectionReference = environment.retain(operation.root);

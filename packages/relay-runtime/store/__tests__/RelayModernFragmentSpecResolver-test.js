@@ -13,7 +13,9 @@
 const RelayModernFragmentSpecResolver = require('../RelayModernFragmentSpecResolver');
 const RelayModernTestUtils = require('RelayModernTestUtils');
 
-const {createOperationSelector} = require('../RelayModernOperationSelector');
+const {
+  createOperationDescriptor,
+} = require('../RelayModernOperationDescriptor');
 const {ROOT_ID} = require('../RelayStoreUtils');
 const {createMockEnvironment} = require('RelayModernMockEnvironment');
 
@@ -79,7 +81,7 @@ describe('RelayModernFragmentSpecResolver', () => {
     `,
     ));
     environment.commitPayload(
-      createOperationSelector(UserQuery, {
+      createOperationDescriptor(UserQuery, {
         fetchSize: false,
         id: '4',
         size: null,
@@ -93,7 +95,7 @@ describe('RelayModernFragmentSpecResolver', () => {
       },
     );
     environment.commitPayload(
-      createOperationSelector(UserQuery, {
+      createOperationDescriptor(UserQuery, {
         fetchSize: false,
         id: 'beast',
         size: null,

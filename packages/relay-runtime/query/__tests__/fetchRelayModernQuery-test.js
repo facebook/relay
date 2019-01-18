@@ -15,8 +15,8 @@ const RelayModernTestUtils = require('RelayModernTestUtils');
 const fetchRelayModernQuery = require('../fetchRelayModernQuery');
 
 const {
-  createOperationSelector,
-} = require('../../store/RelayModernOperationSelector');
+  createOperationDescriptor,
+} = require('../../store/RelayModernOperationDescriptor');
 const {createMockEnvironment} = require('RelayModernMockEnvironment');
 
 describe('fetchRelayModernQuery', () => {
@@ -44,7 +44,7 @@ describe('fetchRelayModernQuery', () => {
     `,
     ));
     variables = {fetchSize: false};
-    operation = createOperationSelector(query, variables);
+    operation = createOperationDescriptor(query, variables);
   });
 
   it('fetches the query', () => {

@@ -32,7 +32,7 @@ export type {
   GraphQLTaggedNode,
   MutationType,
   NormalizationSelector,
-  OperationSelector,
+  OperationDescriptor,
   RangeOperation,
   ReaderSelector,
   RelayContext,

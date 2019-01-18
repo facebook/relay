@@ -22,7 +22,6 @@ import type {
   ConcreteRequest,
   GraphQLResponse,
   IEnvironment,
-  OperationSelector,
   PayloadError,
   RequestParameters,
   Variables,
@@ -229,9 +228,9 @@ class ReactRelayTestMocker {
    */
   dataWrite(config: DataWriteConfig): void {
     const {query, variables, payload} = config;
-    const {createOperationSelector} = this._environment.unstable_internal;
+    const {createOperationDescriptor} = this._environment.unstable_internal;
 
-    const operationSelector = createOperationSelector(query, variables);
+    const operationDescriptor = createOperationDescriptor(query, variables);
 
     invariant(
       payload.data != null && payload.errors === undefined,
@@ -239,7 +238,7 @@ class ReactRelayTestMocker {
         'wrap your payload in an object like `{data: payload}`.',
     );
 
-    this._environment.commitPayload(operationSelector, payload.data);
+    this._environment.commitPayload(operationDescriptor, payload.data);
   }
 
   /**
@@ -263,9 +262,11 @@ class ReactRelayTestMocker {
     let usedVars;
 
     if (variables) {
-      const {createOperationSelector} = this._environment.unstable_internal;
-      const operationSelector = createOperationSelector(query, variables);
-      usedVars = ReactRelayTestMocker.stripUnused(operationSelector.variables);
+      const {createOperationDescriptor} = this._environment.unstable_internal;
+      const operationDescriptor = createOperationDescriptor(query, variables);
+      usedVars = ReactRelayTestMocker.stripUnused(
+        operationDescriptor.variables,
+      );
     }
 
     let toResolve;

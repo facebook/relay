@@ -356,11 +356,11 @@ function fetchQueryAndComputeStateFromProps(
   const genericEnvironment = (environment: IEnvironment);
   if (query) {
     const {
-      createOperationSelector,
+      createOperationDescriptor,
       getRequest,
     } = genericEnvironment.unstable_internal;
     const request = getRequest(query);
-    const operation = createOperationSelector(request, variables);
+    const operation = createOperationDescriptor(request, variables);
     const relayContext = getContext(genericEnvironment, operation.variables);
     if (typeof requestCacheKey === 'string' && requestCache[requestCacheKey]) {
       // This same request is already in flight.

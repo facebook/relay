@@ -41,7 +41,7 @@ export type Observer<-T> = {|
  * The methods are to be called to trigger each event. It also contains a closed
  * field to see if the resulting subscription has closed.
  */
-type Sink<-T> = {|
+export type Sink<-T> = {|
   +next: T => void,
   +error: (Error, isUncaughtThrownError?: boolean) => void,
   +complete: () => void,
@@ -54,7 +54,7 @@ type Sink<-T> = {|
  * and may return either a cleanup function or a Subscription instance (for use
  * when composing Observables).
  */
-type Source<+T> = (Sink<T>) => void | Subscription | (() => mixed);
+export type Source<+T> = (Sink<T>) => void | Subscription | (() => mixed);
 
 /**
  * A Subscribable is an interface describing any object which can be subscribed.

@@ -23,7 +23,7 @@ const {
 
 import type {ReaderFragment} from '../util/ReaderNode';
 import type {DataID, Variables} from '../util/RelayRuntimeTypes';
-import type {FragmentOwner, OwnedReaderSelector} from './RelayStoreTypes';
+import type {OperationDescriptor, OwnedReaderSelector} from './RelayStoreTypes';
 
 /**
  * @public
@@ -80,7 +80,7 @@ function getSelector(
 
     if (owner != null && typeof owner === 'object') {
       // $FlowFixMe - TODO T39154660
-      const typedOwner: FragmentOwner = owner;
+      const typedOwner: OperationDescriptor = owner;
       const ownerOperationVariables = typedOwner.variables;
       const fragmentVariables = getFragmentVariables(
         fragment,

@@ -22,6 +22,7 @@ const {
 } = require('../RelayModernSelector');
 const {createMockEnvironment} = require('RelayModernMockEnvironment');
 const {ROOT_ID} = require('../RelayStoreUtils');
+const {getRequest, createOperationDescriptor} = require('../RelayCore');
 const RelayModernTestUtils = require('RelayModernTestUtils');
 
 describe('RelayModernSelector', () => {
@@ -142,10 +143,9 @@ describe('RelayModernSelector', () => {
     });
 
     it('returns a selector with an owner when owner is present in fragment ref', () => {
-      owner = {
-        request: UserQuery,
-        variables: variables,
-      };
+      const queryNode = getRequest(UserQuery);
+      owner = createOperationDescriptor(queryNode, variables);
+
       zuck = environment.lookup(
         {
           dataID: ROOT_ID,
@@ -168,10 +168,8 @@ describe('RelayModernSelector', () => {
     });
 
     it('prefers variables from owner when owner is present in fragment ref', () => {
-      owner = {
-        request: UserQuery,
-        variables: variables,
-      };
+      const queryNode = getRequest(UserQuery);
+      owner = createOperationDescriptor(queryNode, variables);
       zuck = environment.lookup(
         {
           dataID: ROOT_ID,
@@ -234,10 +232,8 @@ describe('RelayModernSelector', () => {
     });
 
     it('returns selectors with an owner when owner is present in fragment ref', () => {
-      owner = {
-        request: UserQuery,
-        variables: variables,
-      };
+      const queryNode = getRequest(UserQuery);
+      owner = createOperationDescriptor(queryNode, variables);
       zuck = environment.lookup(
         {
           dataID: ROOT_ID,
@@ -373,10 +369,8 @@ describe('RelayModernSelector', () => {
       let owner;
 
       beforeEach(() => {
-        owner = {
-          request: UserQuery,
-          variables: variables,
-        };
+        const queryNode = getRequest(UserQuery);
+        owner = createOperationDescriptor(queryNode, variables);
         zuck = environment.lookup(
           {
             dataID: ROOT_ID,
@@ -606,10 +600,8 @@ describe('RelayModernSelector', () => {
     });
 
     it('returns true for equivalent selectors with owners', () => {
-      owner = {
-        request: UserQuery,
-        variables: variables,
-      };
+      const queryNode = getRequest(UserQuery);
+      owner = createOperationDescriptor(queryNode, variables);
       const selector = {
         owner: owner,
         selector: {
@@ -665,10 +657,8 @@ describe('RelayModernSelector', () => {
     });
 
     it('returns false for different selectors with owners', () => {
-      owner = {
-        request: UserQuery,
-        variables: variables,
-      };
+      const queryNode = getRequest(UserQuery);
+      owner = createOperationDescriptor(queryNode, variables);
       const readerSelector = {
         dataID: '4',
         node: UserFragment,

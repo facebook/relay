@@ -20,6 +20,7 @@ const RelayObservable = require('../../network/RelayObservable');
 
 const nullthrows = require('nullthrows');
 
+const {getRequest} = require('../RelayCore');
 const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
@@ -145,10 +146,8 @@ describe('RelayModernEnvironment', () => {
     });
 
     it('includes fragment owner in result when owner is provided', () => {
-      const owner = {
-        request: ParentQuery,
-        variables: {},
-      };
+      const queryNode = getRequest(ParentQuery);
+      const owner = createOperationDescriptor(queryNode, {});
       const snapshot = environment.lookup(
         {
           dataID: ROOT_ID,
@@ -166,6 +165,8 @@ describe('RelayModernEnvironment', () => {
           __fragmentOwner: owner,
         },
       });
+      // $FlowFixMe
+      expect(snapshot.data?.me?.__fragmentOwner).toBe(owner);
     });
   });
 

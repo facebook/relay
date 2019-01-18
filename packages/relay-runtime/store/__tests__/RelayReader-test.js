@@ -17,6 +17,7 @@ const RelayModernTestUtils = require('RelayModernTestUtils');
 
 const {read} = require('../RelayReader');
 const {ROOT_ID} = require('../RelayStoreUtils');
+const {getRequest, createOperationDescriptor} = require('../RelayCore');
 
 describe('RelayReader', () => {
   const {generateAndCompile, generateWithTransforms} = RelayModernTestUtils;
@@ -239,10 +240,8 @@ describe('RelayReader', () => {
       }
     `);
 
-    const owner = {
-      request: ParentQuery,
-      variables: {size: 42},
-    };
+    const queryNode = getRequest(ParentQuery);
+    const owner = createOperationDescriptor(queryNode, {size: 42});
     const {data, seenRecords} = read(
       source,
       {

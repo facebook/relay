@@ -17,6 +17,7 @@ const RelayModernTestUtils = require('RelayModernTestUtils');
 
 const simpleClone = require('../../util/simpleClone');
 
+const {getRequest, createOperationDescriptor} = require('../RelayCore');
 const {
   REF_KEY,
   ROOT_ID,
@@ -216,15 +217,13 @@ describe('RelayStore', () => {
         }
       `,
       ));
-      const owner = {
-        request: ParentQuery,
-        variables: {size: 32},
-      };
       const selector = {
         dataID: '4',
         node: UserFragment,
         variables: {size: 32},
       };
+      const queryNode = getRequest(ParentQuery);
+      const owner = createOperationDescriptor(queryNode, {size: 32});
       const snapshot = store.lookup(selector, owner);
       expect(snapshot).toEqual({
         ...selector,
@@ -242,6 +241,7 @@ describe('RelayStore', () => {
         },
         isMissingData: false,
       });
+      expect(snapshot.data?.__fragmentOwner).toBe(owner);
       for (const id in snapshot.seenRecords) {
         if (snapshot.seenRecords.hasOwnProperty(id)) {
           const record = snapshot.seenRecords[id];

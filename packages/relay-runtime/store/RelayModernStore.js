@@ -29,9 +29,9 @@ import type {
   RecordSource,
   Scheduler,
   ReaderSelector,
-  FragmentOwner,
   NormalizationSelector,
   OperationLoader,
+  OperationDescriptor,
   Snapshot,
   Store,
   UpdatedRecords,
@@ -117,7 +117,7 @@ class RelayModernStore implements Store {
     return {dispose};
   }
 
-  lookup(selector: ReaderSelector, owner?: FragmentOwner): Snapshot {
+  lookup(selector: ReaderSelector, owner?: OperationDescriptor): Snapshot {
     const snapshot = RelayReader.read(this._recordSource, selector, owner);
     if (__DEV__) {
       deepFreeze(snapshot);

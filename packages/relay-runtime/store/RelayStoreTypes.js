@@ -62,13 +62,6 @@ export type OperationDescriptor = COperationDescriptor<
   TRequest,
 >;
 
-// TODO(T39154899) - FragmentOwner is a subset of OperationDescriptor,
-// but we could consider making it a full OperationDescriptor in the future.
-export type FragmentOwner = {|
-  request: TRequest,
-  variables: Variables,
-|};
-
 export type RelayContext = CRelayContext<TEnvironment>;
 export type ReaderSelector = CReaderSelector<TReaderNode>;
 export type OwnedReaderSelector = {|
@@ -133,7 +126,7 @@ export interface Store {
    * Optionally takes an owner, corresponding to the operation that
    * owns this selector (fragment).
    */
-  lookup(selector: ReaderSelector, owner?: FragmentOwner): Snapshot;
+  lookup(selector: ReaderSelector, owner?: OperationDescriptor): Snapshot;
 
   /**
    * Notify subscribers (see `subscribe`) of any data that was published
@@ -296,7 +289,7 @@ export interface Environment
    */
   lookup(
     selector: ReaderSelector,
-    owner?: FragmentOwner,
+    owner?: OperationDescriptor,
   ): CSnapshot<TReaderNode>;
 
   /**

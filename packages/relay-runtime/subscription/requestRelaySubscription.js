@@ -19,19 +19,19 @@ import type {GraphQLTaggedNode} from '../query/RelayModernGraphQLTag';
 import type {Environment, SelectorStoreUpdater} from '../store/RelayStoreTypes';
 import type {Disposable, Variables} from '../util/RelayRuntimeTypes';
 
-export type GraphQLSubscriptionConfig = {|
+export type GraphQLSubscriptionConfig<TSubscriptionPayload> = {|
   configs?: Array<DeclarativeMutationConfig>,
   subscription: GraphQLTaggedNode,
   variables: Variables,
   onCompleted?: ?() => void,
   onError?: ?(error: Error) => void,
-  onNext?: ?(response: ?Object) => void,
+  onNext?: ?(response: ?TSubscriptionPayload) => void,
   updater?: ?SelectorStoreUpdater,
 |};
 
-function requestRelaySubscription(
+function requestRelaySubscription<TSubscriptionPayload>(
   environment: Environment,
-  config: GraphQLSubscriptionConfig,
+  config: GraphQLSubscriptionConfig<TSubscriptionPayload>,
 ): Disposable {
   const {createOperationDescriptor, getRequest} = environment.unstable_internal;
   const subscription = getRequest(config.subscription);
@@ -63,7 +63,11 @@ function requestRelaySubscription(
       updater,
       cacheConfig: {force: true},
     })
-    .map(() => environment.lookup(operation.fragment).data)
+    .map(() => {
+      const data = environment.lookup(operation.fragment).data;
+      // $FlowFixMe
+      return (data: TSubscriptionPayload);
+    })
     .subscribeLegacy({
       onNext,
       onError,

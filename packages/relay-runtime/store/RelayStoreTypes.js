@@ -69,7 +69,7 @@ export type OwnedReaderSelector = {|
   selector: ReaderSelector,
 |};
 export type NormalizationSelector = CNormalizationSelector<TNormalizationNode>;
-export type Snapshot = CSnapshot<TReaderNode>;
+export type Snapshot = CSnapshot<TReaderNode, OperationDescriptor>;
 export type UnstableEnvironmentCore = CUnstableEnvironmentCore<
   TEnvironment,
   TFragment,
@@ -290,7 +290,7 @@ export interface Environment
   lookup(
     selector: ReaderSelector,
     owner?: OperationDescriptor,
-  ): CSnapshot<TReaderNode>;
+  ): CSnapshot<TReaderNode, OperationDescriptor>;
 
   /**
    * Returns an Observable of GraphQLResponse resulting from executing the

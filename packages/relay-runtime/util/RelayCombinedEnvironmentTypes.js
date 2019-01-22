@@ -52,10 +52,11 @@ export type CReaderSelector<TReaderNode> = {
 /**
  * A representation of a selector and its results at a particular point in time.
  */
-export type CSnapshot<TReaderNode> = CReaderSelector<TReaderNode> & {
+export type CSnapshot<TReaderNode, TOwner> = CReaderSelector<TReaderNode> & {
   data: ?SelectorData,
   seenRecords: RecordMap,
   isMissingData: boolean,
+  owner: TOwner | null,
 };
 
 /**
@@ -155,7 +156,12 @@ export interface CEnvironment<
   /**
    * Read the results of a selector from in-memory records in the store.
    */
-  lookup(selector: CReaderSelector<TReaderNode>): CSnapshot<TReaderNode>;
+  lookup(
+    selector: CReaderSelector<TReaderNode>,
+  ): CSnapshot<
+    TReaderNode,
+    COperationDescriptor<TReaderNode, TNormalizationNode, TRequest>,
+  >;
 
   /**
    * Subscribe to changes to the results of a selector. The callback is called
@@ -163,8 +169,16 @@ export interface CEnvironment<
    * the snapshot's selector to change.
    */
   subscribe(
-    snapshot: CSnapshot<TReaderNode>,
-    callback: (snapshot: CSnapshot<TReaderNode>) => void,
+    snapshot: CSnapshot<
+      TReaderNode,
+      COperationDescriptor<TReaderNode, TNormalizationNode, TRequest>,
+    >,
+    callback: (
+      snapshot: CSnapshot<
+        TReaderNode,
+        COperationDescriptor<TReaderNode, TNormalizationNode, TRequest>,
+      >,
+    ) => void,
   ): Disposable;
 
   /**

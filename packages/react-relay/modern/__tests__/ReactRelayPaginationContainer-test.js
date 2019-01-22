@@ -326,6 +326,7 @@ describe('ReactRelayPaginationContainer', () => {
         isViewerFriendLocal: false,
       },
       isMissingData: false,
+      owner: null,
     });
   });
 
@@ -439,6 +440,7 @@ describe('ReactRelayPaginationContainer', () => {
         isViewerFriendLocal: false,
       },
       isMissingData: false,
+      owner: null,
     });
   });
 
@@ -506,6 +508,7 @@ describe('ReactRelayPaginationContainer', () => {
         isViewerFriendLocal: false,
       },
       isMissingData: false,
+      owner: null,
     });
 
     // Data & Variables are passed to component
@@ -551,6 +554,7 @@ describe('ReactRelayPaginationContainer', () => {
         isViewerFriendLocal: false,
       },
       isMissingData: false,
+      owner: null,
     });
   });
 

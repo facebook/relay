@@ -51,7 +51,7 @@ export type OperationDescriptor = COperationDescriptor<
 export type RelayContext = CRelayContext<TEnvironment>;
 export type ReaderSelector = TReaderSelector;
 export type NormalizationSelector = CNormalizationSelector<TNormalizationNode>;
-export type Snapshot = CSnapshot<TReaderNode>;
+export type Snapshot = CSnapshot<TReaderNode, OperationDescriptor>;
 export type UnstableEnvironmentCore = CUnstableEnvironmentCore<
   TEnvironment,
   TFragment,

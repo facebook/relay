@@ -176,7 +176,11 @@ class RelayModernStore implements Store {
     if (!hasOverlappingIDs(snapshot, this._updatedRecordIDs)) {
       return;
     }
-    const {data, seenRecords} = RelayReader.read(this._recordSource, snapshot);
+    const {data, seenRecords} = RelayReader.read(
+      this._recordSource,
+      snapshot,
+      snapshot.owner,
+    );
     const nextData = recycleNodesInto(snapshot.data, data);
     const nextSnapshot = {
       ...snapshot,

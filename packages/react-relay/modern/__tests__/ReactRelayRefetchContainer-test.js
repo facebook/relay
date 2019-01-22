@@ -244,6 +244,7 @@ describe('ReactRelayRefetchContainer', () => {
       seenRecords: expect.any(Object),
       variables: {cond: true},
       isMissingData: false,
+      owner: null,
     });
   });
 
@@ -340,6 +341,7 @@ describe('ReactRelayRefetchContainer', () => {
       seenRecords: expect.any(Object),
       variables: {cond: true},
       isMissingData: false,
+      owner: null,
     });
   });
 
@@ -387,6 +389,7 @@ describe('ReactRelayRefetchContainer', () => {
       seenRecords: expect.any(Object),
       variables: {cond: true},
       isMissingData: false,
+      owner: null,
     });
   });
 

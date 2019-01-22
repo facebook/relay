@@ -54,7 +54,7 @@ import type {
 function read(
   recordSource: RecordSource,
   selector: ReaderSelector,
-  owner?: OperationDescriptor,
+  owner?: ?OperationDescriptor,
 ): Snapshot {
   const {dataID, node, variables} = selector;
   const reader = new RelayReader(recordSource, variables, owner ?? null);
@@ -92,6 +92,7 @@ class RelayReader {
       seenRecords: this._seenRecords,
       variables: this._variables,
       isMissingData: this._isMissingData,
+      owner: this._owner,
     };
   }
 

@@ -155,7 +155,7 @@ describe('RelayStore', () => {
       };
       source = new RelayInMemoryRecordSource(data);
       store = new RelayModernStore(source);
-      ({ParentQuery, UserFragment} = generateWithTransforms(
+      ({UserFragment} = generateWithTransforms(
         `
         fragment UserFragment on User {
           name
@@ -186,6 +186,7 @@ describe('RelayStore', () => {
           ...data,
         },
         isMissingData: false,
+        owner: null,
       });
       for (const id in snapshot.seenRecords) {
         if (snapshot.seenRecords.hasOwnProperty(id)) {
@@ -240,6 +241,7 @@ describe('RelayStore', () => {
           ...data,
         },
         isMissingData: false,
+        owner: owner,
       });
       expect(snapshot.data?.__fragmentOwner).toBe(owner);
       for (const id in snapshot.seenRecords) {
@@ -295,11 +297,13 @@ describe('RelayStore', () => {
           'client:2': nextData['client:2'],
         },
         isMissingData: false,
+        owner: null,
       });
     });
   });
 
   describe('notify/publish/subscribe', () => {
+    let ParentQuery;
     let UserFragment;
     let data;
     let source;
@@ -373,6 +377,68 @@ describe('RelayStore', () => {
           },
         },
       });
+    });
+
+    it('calls subscribers and reads data with fragment owner if one is available in subscription snapshot', () => {
+      // subscribe(), publish(), notify() -> subscriber called
+      ({ParentQuery, UserFragment} = generateWithTransforms(
+        `
+        query ParentQuery($size: Float!) {
+          me {
+            ...UserFragment
+          }
+        }
+
+        fragment UserFragment on User {
+          name
+          profilePicture(size: $size) {
+            uri
+          }
+          emailAddresses
+        }
+      `,
+      ));
+      const selector = {
+        dataID: '4',
+        node: UserFragment,
+        variables: {size: 32},
+      };
+      const queryNode = getRequest(ParentQuery);
+      const owner = createOperationDescriptor(queryNode, {size: 32});
+      const snapshot = store.lookup(selector, owner);
+      expect(snapshot.owner).toBe(owner);
+
+      const callback = jest.fn();
+      store.subscribe(snapshot, callback);
+      // Publish a change to profilePicture.uri
+      const nextSource = new RelayInMemoryRecordSource({
+        'client:1': {
+          __id: 'client:1',
+          uri: 'https://photo2.jpg',
+        },
+      });
+      store.publish(nextSource);
+      expect(callback).not.toBeCalled();
+      store.notify();
+      expect(callback.mock.calls.length).toBe(1);
+      expect(callback.mock.calls[0][0]).toEqual({
+        ...snapshot,
+        data: {
+          name: 'Zuck',
+          profilePicture: {
+            uri: 'https://photo2.jpg', // new uri
+          },
+          emailAddresses: ['a@b.com'],
+        },
+        seenRecords: {
+          ...data,
+          'client:1': {
+            ...data['client:1'],
+            uri: 'https://photo2.jpg',
+          },
+        },
+      });
+      expect(callback.mock.calls[0][0].owner).toBe(owner);
     });
 
     it('vends deeply-frozen objects', () => {

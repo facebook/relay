@@ -232,6 +232,7 @@ describe('ReactRelayFragmentContainer', () => {
       seenRecords: expect.any(Object),
       variables: {cond: true},
       isMissingData: false,
+      owner: null,
     });
   });
 
@@ -326,6 +327,7 @@ describe('ReactRelayFragmentContainer', () => {
       seenRecords: expect.any(Object),
       variables: {cond: true},
       isMissingData: false,
+      owner: null,
     });
   });
 
@@ -369,6 +371,7 @@ describe('ReactRelayFragmentContainer', () => {
       seenRecords: expect.any(Object),
       variables: {cond: true},
       isMissingData: false,
+      owner: null,
     });
   });
 

@@ -209,6 +209,7 @@ class RelayEnvironment implements Environment, RelayEnvironmentInterface {
       data,
       seenRecords: (dataIDs: any),
       isMissingData: false,
+      owner: null,
     };
   }
 

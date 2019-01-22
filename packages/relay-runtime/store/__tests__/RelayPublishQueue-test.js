@@ -618,9 +618,14 @@ describe('RelayPublishQueue', () => {
       const queue = new RelayPublishQueue(store);
       const {ActorQuery} = generateAndCompile(
         `
+        fragment UserFragment on User {
+          username
+        }
+
         query ActorQuery {
           me {
             name
+            ...UserFragment
           }
           nodes(ids: ["4"]) {
             name
@@ -629,18 +634,27 @@ describe('RelayPublishQueue', () => {
       `,
       );
 
+      const operation = createOperationDescriptor(ActorQuery, {});
       const updater = jest.fn((storeProxy, data) => {
         const zuck = storeProxy.getRootField('me');
         const nodes = storeProxy.getPluralRootField('nodes');
         expect(nodes.length).toBe(1);
         expect(nodes[0]).toBe(zuck);
 
-        expect(data).toEqual({me: {name: 'Zuck'}, nodes: [{name: 'Zuck'}]});
+        expect(data).toEqual({
+          me: {
+            __id: '4',
+            __fragments: {UserFragment: {}},
+            __fragmentOwner: operation,
+            name: 'Zuck',
+          },
+          nodes: [{name: 'Zuck'}],
+        });
 
         zuck.setValue(zuck.getValue('name').toUpperCase(), 'name');
       });
       queue.commitPayload(
-        createOperationDescriptor(ActorQuery, {}),
+        operation,
         {
           source: new RelayInMemoryRecordSource({
             '4': {
@@ -648,6 +662,7 @@ describe('RelayPublishQueue', () => {
               __typename: 'User',
               id: '4',
               name: 'Zuck',
+              username: 'zuck',
             },
             'client:root': {
               __id: 'client:root',
@@ -672,6 +687,7 @@ describe('RelayPublishQueue', () => {
           __typename: 'User',
           id: '4',
           name: 'ZUCK',
+          username: 'zuck',
         },
         'client:root': {
           __id: 'client:root',

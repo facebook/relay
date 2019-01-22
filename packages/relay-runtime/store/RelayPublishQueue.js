@@ -38,7 +38,7 @@ import type {
 
 type Payload = {
   fieldPayloads: ?Array<HandleFieldPayload>,
-  selector: ?ReaderSelector,
+  operation: OperationDescriptor | null,
   source: MutableRecordSource,
   updater: ?SelectorStoreUpdater,
 };
@@ -145,7 +145,7 @@ class RelayPublishQueue {
     this._pendingBackupRebase = true;
     this._pendingData.add({
       kind: 'payload',
-      payload: {fieldPayloads, selector: operation.fragment, source, updater},
+      payload: {fieldPayloads, operation, source, updater},
     });
   }
 
@@ -153,7 +153,7 @@ class RelayPublishQueue {
     this._pendingBackupRebase = true;
     this._pendingData.add({
       kind: 'payload',
-      payload: {fieldPayloads, selector: null, source, updater: null},
+      payload: {fieldPayloads, operation: null, source, updater: null},
     });
   }
 
@@ -202,7 +202,7 @@ class RelayPublishQueue {
   }
 
   _getSourceFromPayload(payload: Payload): RecordSource {
-    const {fieldPayloads, selector, source, updater} = payload;
+    const {fieldPayloads, operation, source, updater} = payload;
     const mutator = new RelayRecordSourceMutator(
       this._store.getSource(),
       source,
@@ -222,12 +222,13 @@ class RelayPublishQueue {
       });
     }
     if (updater) {
+      const selector = operation?.fragment;
       invariant(
         selector != null,
         'RelayModernEnvironment: Expected a selector to be provided with updater function.',
       );
       const selectorStore = new RelayRecordSourceSelectorProxy(store, selector);
-      const selectorData = lookupSelector(source, selector);
+      const selectorData = lookupSelector(source, selector, operation);
       updater(selectorStore, selectorData);
     }
     return source;
@@ -299,7 +300,11 @@ class RelayPublishQueue {
             let selectorData, source;
             if (response) {
               ({source} = normalizeRelayPayload(operation.root, response));
-              selectorData = lookupSelector(source, operation.fragment);
+              selectorData = lookupSelector(
+                source,
+                operation.fragment,
+                operation,
+              );
             }
             selectorStoreUpdater &&
               ErrorUtils.applyWithGuard(
@@ -339,7 +344,11 @@ class RelayPublishQueue {
             let selectorData, source;
             if (response) {
               ({source} = normalizeRelayPayload(operation.root, response));
-              selectorData = lookupSelector(source, operation.fragment);
+              selectorData = lookupSelector(
+                source,
+                operation.fragment,
+                operation,
+              );
             }
             selectorStoreUpdater &&
               ErrorUtils.applyWithGuard(
@@ -375,8 +384,9 @@ class RelayPublishQueue {
 function lookupSelector(
   source: RecordSource,
   selector: ReaderSelector,
+  owner: ?OperationDescriptor,
 ): ?SelectorData {
-  const selectorData = RelayReader.read(source, selector).data;
+  const selectorData = RelayReader.read(source, selector, owner).data;
   if (__DEV__) {
     const deepFreeze = require('../util/deepFreeze');
     if (selectorData) {

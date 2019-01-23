@@ -39,8 +39,8 @@ import type {
   ReaderMatchField,
   ReaderNode,
   ReaderScalarField,
-  ReaderSelection,
   ReaderSelectableNode,
+  ReaderSelection,
 } from '../util/ReaderNode';
 import type {Record, SelectorData} from '../util/RelayCombinedEnvironmentTypes';
 import type {DataID, Variables} from '../util/RelayRuntimeTypes';
@@ -367,7 +367,9 @@ class RelayReader {
       'RelayReader: Expected fragment spread data to be an object, got `%s`.',
       fragmentPointers,
     );
-    data[ID_KEY] = data[ID_KEY] ?? RelayModernRecord.getDataID(record);
+    if (data[ID_KEY] == null) {
+      data[ID_KEY] = RelayModernRecord.getDataID(record);
+    }
     fragmentPointers[fragmentSpread.name] = fragmentSpread.args
       ? getArgumentValues(fragmentSpread.args, variables)
       : {};

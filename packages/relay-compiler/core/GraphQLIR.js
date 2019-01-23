@@ -109,8 +109,8 @@ export type IR =
   | ListValue
   | Literal
   | LocalArgumentDefinition
-  | MatchField
   | MatchBranch
+  | MatchField
   | ObjectFieldValue
   | ObjectValue
   | Request

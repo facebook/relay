@@ -38,8 +38,7 @@ describe('RelayModernSelector', () => {
     expect.extend(RelayModernTestUtils.matchers);
 
     environment = createMockEnvironment();
-    ({UserFragment, UserQuery, UsersFragment} = environment.mock.compile(
-      `
+    ({UserFragment, UserQuery, UsersFragment} = environment.mock.compile(`
       query UserQuery($id: ID!, $size: Int, $cond: Boolean!) {
         node(id: $id) {
           ...UserFragment
@@ -60,8 +59,7 @@ describe('RelayModernSelector', () => {
           uri
         }
       }
-    `,
-    ));
+    `));
     const dataID = ROOT_ID;
     variables = {id: '4', size: null, cond: false};
     const fragment = {

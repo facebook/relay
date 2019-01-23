@@ -56,8 +56,7 @@ describe('RelayModernFragmentSpecResolver', () => {
     expect.extend(RelayModernTestUtils.matchers);
 
     environment = createMockEnvironment();
-    ({UserFragment, UserQuery, UsersFragment} = environment.mock.compile(
-      `
+    ({UserFragment, UserQuery, UsersFragment} = environment.mock.compile(`
       query UserQuery($id: ID! $size: Int $fetchSize: Boolean!) {
         node(id: $id) {
           ...UserFragment
@@ -78,8 +77,7 @@ describe('RelayModernFragmentSpecResolver', () => {
           uri
         }
       }
-    `,
-    ));
+    `));
     environment.commitPayload(
       createOperationDescriptor(UserQuery, {
         fetchSize: false,

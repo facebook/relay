@@ -77,8 +77,7 @@ describe('ReactRelayFragmentContainer', () => {
     expect.extend(RelayModernTestUtils.matchers);
 
     environment = createMockEnvironment();
-    ({UserFragment, UserQuery} = environment.mock.compile(
-      `
+    ({UserFragment, UserQuery} = environment.mock.compile(`
       query UserQuery($id: ID!) {
         node(id: $id) {
           ...UserFragment
@@ -91,8 +90,7 @@ describe('ReactRelayFragmentContainer', () => {
         id
         name @include(if: $cond)
       }
-    `,
-    ));
+    `));
 
     render = jest.fn(() => <div />);
     spec = {

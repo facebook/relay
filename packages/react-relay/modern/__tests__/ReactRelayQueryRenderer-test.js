@@ -80,8 +80,7 @@ describe('ReactRelayQueryRenderer', () => {
 
     environment = createMockEnvironment();
     store = environment.getStore();
-    ({TestQuery} = environment.mock.compile(
-      `
+    ({TestQuery} = environment.mock.compile(`
       query TestQuery($id: ID = "<default>") {
         node(id: $id) {
           id
@@ -92,8 +91,7 @@ describe('ReactRelayQueryRenderer', () => {
       fragment TestFragment on User {
         name
       }
-    `,
-    ));
+    `));
 
     render = jest.fn(() => <div />);
     variables = {id: '4'};
@@ -1163,8 +1161,7 @@ describe('ReactRelayQueryRenderer', () => {
     let nextProps;
 
     beforeEach(() => {
-      ({NextQuery} = environment.mock.compile(
-        `
+      ({NextQuery} = environment.mock.compile(`
         query NextQuery($id: ID!) {
           node(id: $id) {
             ... on User {
@@ -1172,8 +1169,7 @@ describe('ReactRelayQueryRenderer', () => {
             }
           }
         }
-      `,
-      ));
+      `));
 
       variables = {id: '4'};
       renderer = ReactTestRenderer.create(
@@ -1267,8 +1263,7 @@ describe('ReactRelayQueryRenderer', () => {
     let nextProps;
 
     beforeEach(() => {
-      ({NextQuery} = environment.mock.compile(
-        `
+      ({NextQuery} = environment.mock.compile(`
         query NextQuery($id: ID!) {
           node(id: $id) {
             ... on User {
@@ -1276,8 +1271,7 @@ describe('ReactRelayQueryRenderer', () => {
             }
           }
         }
-      `,
-      ));
+      `));
 
       variables = {id: '4'};
       renderer = ReactTestRenderer.create(
@@ -1352,8 +1346,7 @@ describe('ReactRelayQueryRenderer', () => {
     let nextProps;
 
     beforeEach(() => {
-      ({NextQuery} = environment.mock.compile(
-        `
+      ({NextQuery} = environment.mock.compile(`
         query NextQuery($id: ID!) {
           node(id: $id) {
             ... on User {
@@ -1361,8 +1354,7 @@ describe('ReactRelayQueryRenderer', () => {
             }
           }
         }
-      `,
-      ));
+      `));
 
       renderer = ReactTestRenderer.create(
         <PropsSetter>
@@ -1505,8 +1497,7 @@ describe('ReactRelayQueryRenderer', () => {
     let nextProps;
 
     beforeEach(() => {
-      ({NextQuery} = environment.mock.compile(
-        `
+      ({NextQuery} = environment.mock.compile(`
         query NextQuery($id: ID!) {
           node(id: $id) {
             ... on User {
@@ -1514,8 +1505,7 @@ describe('ReactRelayQueryRenderer', () => {
             }
           }
         }
-      `,
-      ));
+      `));
 
       renderer = ReactTestRenderer.create(
         <PropsSetter>

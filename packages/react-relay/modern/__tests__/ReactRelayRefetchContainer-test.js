@@ -83,8 +83,7 @@ describe('ReactRelayRefetchContainer', () => {
     expect.extend(RelayModernTestUtils.matchers);
 
     environment = createMockEnvironment();
-    ({UserFragment, UserQuery} = environment.mock.compile(
-      `
+    ({UserFragment, UserQuery} = environment.mock.compile(`
       query UserQuery(
         $id: ID!
       ) {
@@ -99,8 +98,7 @@ describe('ReactRelayRefetchContainer', () => {
         id
         name @include(if: $cond)
       }
-    `,
-    ));
+    `));
 
     function ContextGetter() {
       relayContext = readContext(ReactRelayContext);

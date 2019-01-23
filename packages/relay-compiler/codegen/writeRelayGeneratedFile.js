@@ -16,6 +16,7 @@ const Profiler = require('../core/GraphQLCompilerProfiler');
 const crypto = require('crypto');
 const dedupeJSONStringify = require('../util/dedupeJSONStringify');
 const deepMergeAssignments = require('./deepMergeAssignments');
+const invariant = require('invariant');
 const nullthrows = require('nullthrows');
 
 const {RelayConcreteNode} = require('relay-runtime');
@@ -26,6 +27,20 @@ import type {GeneratedNode} from 'relay-runtime';
 
 function printRequireModuleDependency(moduleName: string): string {
   return `require('${moduleName}')`;
+}
+
+function getConcreteType(node: GeneratedNode): string {
+  switch (node.kind) {
+    case RelayConcreteNode.FRAGMENT:
+      return 'ReaderFragment';
+    case RelayConcreteNode.REQUEST:
+      return 'ConcreteRequest';
+    case RelayConcreteNode.SPLIT_OPERATION:
+      return 'NormalizationSplitOperation';
+    default:
+      (node: empty);
+      invariant(false, 'Unexpected GeneratedNode kind: `%s`.', node.kind);
+  }
 }
 
 async function writeRelayGeneratedFile(
@@ -53,14 +68,8 @@ async function writeRelayGeneratedFile(
       ? moduleName + '.' + platform
       : moduleName;
   const filename = platformName + '.' + extension;
-  const typeName =
-    generatedNode.kind === RelayConcreteNode.FRAGMENT
-      ? 'ReaderFragment'
-      : generatedNode.kind === RelayConcreteNode.REQUEST
-        ? 'ConcreteRequest'
-        : generatedNode.kind === RelayConcreteNode.SPLIT_OPERATION
-          ? 'NormalizationSplitOperation'
-          : null;
+  const typeName = getConcreteType(generatedNode);
+
   const devOnlyProperties = {};
 
   let docText;

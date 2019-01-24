@@ -88,6 +88,12 @@ function transformNode<T: Node>(
         // TODO combine with the LinkedField case when flow supports this
         nextSelection = transformNode(context, fragments, selection);
         break;
+      case 'Defer':
+        nextSelection = transformNode(context, fragments, selection);
+        break;
+      case 'Stream':
+        nextSelection = transformNode(context, fragments, selection);
+        break;
       case 'ScalarField':
         nextSelection = selection;
         break;

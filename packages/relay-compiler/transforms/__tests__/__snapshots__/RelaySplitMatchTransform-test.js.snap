@@ -56,7 +56,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
   }
 }
 
-SplitOperation PlainUserNameRenderer_name$normalization {
+SplitOperation PlainUserNameRenderer_name$normalization on PlainUserNameRenderer {
   ...PlainUserNameRenderer_name
   ... on PlainUserNameRenderer {
     __match_component: js(module: "PlainUserNameRenderer.react")
@@ -64,7 +64,7 @@ SplitOperation PlainUserNameRenderer_name$normalization {
   }
 }
 
-SplitOperation MarkdownUserNameRenderer_name$normalization {
+SplitOperation MarkdownUserNameRenderer_name$normalization on MarkdownUserNameRenderer {
   ...MarkdownUserNameRenderer_name
   ... on MarkdownUserNameRenderer {
     __match_component: js(module: "MarkdownUserNameRenderer.react")

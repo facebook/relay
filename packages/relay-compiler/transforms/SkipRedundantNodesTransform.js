@@ -160,6 +160,8 @@ function transformNode<T: Node>(
         }
         break;
       }
+      case 'Defer':
+      case 'Stream':
       case 'MatchBranch':
       case 'MatchField':
       case 'LinkedField': {

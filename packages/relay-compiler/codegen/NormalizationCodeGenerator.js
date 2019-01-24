@@ -22,6 +22,7 @@ import type {Metadata, Root, SplitOperation} from '../core/GraphQLIR';
 import type {
   NormalizationArgument,
   NormalizationArgumentDefinition,
+  NormalizationDefer,
   NormalizationField,
   NormalizationLinkedField,
   NormalizationMatchField,
@@ -30,6 +31,7 @@ import type {
   NormalizationScalarField,
   NormalizationSelection,
   NormalizationSplitOperation,
+  NormalizationStream,
 } from 'relay-runtime';
 const {getRawType, isAbstractType, getNullableType} = SchemaUtils;
 
@@ -98,6 +100,16 @@ const NormalizationCodeGenVisitor = {
         kind: 'Condition',
         passingValue: node.passingValue,
         condition: node.condition.variableName,
+        selections: flattenArray(node.selections),
+      };
+    },
+
+    Defer(node, key, parent): NormalizationDefer {
+      return {
+        if: node.if,
+        kind: 'Defer',
+        label: node.label,
+        metadata: node.metadata,
         selections: flattenArray(node.selections),
       };
     },
@@ -256,6 +268,16 @@ const NormalizationCodeGenVisitor = {
       return {
         kind: 'SplitOperation',
         name: node.name,
+        metadata: node.metadata,
+        selections: flattenArray(node.selections),
+      };
+    },
+
+    Stream(node, key, parent): NormalizationStream {
+      return {
+        if: node.if,
+        kind: 'Stream',
+        label: node.label,
         metadata: node.metadata,
         selections: flattenArray(node.selections),
       };

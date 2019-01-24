@@ -15,6 +15,7 @@ const visit = require('graphql').visit;
 import type {
   Argument,
   Condition,
+  Defer,
   Directive,
   Fragment,
   FragmentSpread,
@@ -29,12 +30,14 @@ import type {
   RootArgumentDefinition,
   ScalarField,
   SplitOperation,
+  Stream,
   Variable,
 } from './GraphQLIR';
 
 const NodeKeys = {
   Argument: ['value'],
   Condition: ['condition', 'selections'],
+  Defer: ['selections', 'if'],
   Directive: ['args'],
   Fragment: ['argumentDefinitions', 'directives', 'selections'],
   FragmentSpread: ['args', 'directives'],
@@ -49,12 +52,14 @@ const NodeKeys = {
   RootArgumentDefinition: [],
   ScalarField: ['args', 'directives'],
   SplitOperation: ['selections'],
+  Stream: ['selections', 'if', 'initialCount'],
   Variable: [],
 };
 
 export type VisitNode =
   | Argument
   | Condition
+  | Defer
   | Directive
   | Fragment
   | FragmentSpread
@@ -68,6 +73,7 @@ export type VisitNode =
   | RootArgumentDefinition
   | ScalarField
   | SplitOperation
+  | Stream
   | Variable;
 
 export type VisitFn<T: VisitNode> = (
@@ -89,6 +95,7 @@ export type NodeVisitor =
   | {
       Argument?: NodeVisitorObject<Argument>,
       Condition?: NodeVisitorObject<Condition>,
+      Defer?: NodeVisitorObject<Defer>,
       Directive?: NodeVisitorObject<Directive>,
       Fragment?: NodeVisitorObject<Fragment>,
       FragmentSpread?: NodeVisitorObject<FragmentSpread>,
@@ -102,6 +109,8 @@ export type NodeVisitor =
       Root?: NodeVisitorObject<Root>,
       RootArgumentDefinition?: NodeVisitorObject<RootArgumentDefinition>,
       ScalarField?: NodeVisitorObject<ScalarField>,
+      SplitOperation?: NodeVisitorObject<SplitOperation>,
+      Stream?: NodeVisitorObject<Stream>,
       Variable?: NodeVisitorObject<Variable>,
     };
 

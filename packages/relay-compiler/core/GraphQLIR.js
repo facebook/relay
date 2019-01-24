@@ -98,9 +98,29 @@ export type FragmentSpread = {|
   +name: string,
 |};
 
+export type Defer = {|
+  +kind: 'Defer',
+  +loc: Location,
+  +metadata: Metadata,
+  +selections: $ReadOnlyArray<Selection>,
+  +label: string,
+  +if: ArgumentValue | null,
+|};
+
+export type Stream = {|
+  +kind: 'Stream',
+  +loc: Location,
+  +metadata: Metadata,
+  +selections: $ReadOnlyArray<Selection>,
+  +label: string,
+  +if: ArgumentValue | null,
+  +initialCount: ArgumentValue | null,
+|};
+
 export type IR =
   | Argument
   | Condition
+  | Defer
   | Directive
   | Fragment
   | FragmentSpread
@@ -118,6 +138,7 @@ export type IR =
   | RootArgumentDefinition
   | ScalarField
   | SplitOperation
+  | Stream
   | Variable;
 
 export type RootArgumentDefinition = {|
@@ -204,13 +225,15 @@ export type MatchField = {|
 
 export type Node =
   | Condition
+  | Defer
   | Fragment
   | InlineFragment
   | LinkedField
   | MatchField
   | MatchBranch
   | Root
-  | SplitOperation;
+  | SplitOperation
+  | Stream;
 
 export type ObjectFieldValue = {|
   +kind: 'ObjectFieldValue',
@@ -269,12 +292,14 @@ export type ScalarField = {|
 
 export type Selection =
   | Condition
+  | Defer
   | FragmentSpread
   | InlineFragment
   | LinkedField
   | MatchBranch
   | MatchField
-  | ScalarField;
+  | ScalarField
+  | Stream;
 
 export type SplitOperation = {|
   +kind: 'SplitOperation',

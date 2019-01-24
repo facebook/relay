@@ -20,6 +20,7 @@ import type GraphQLCompilerContext, {
 import type {
   Argument,
   Condition,
+  Defer,
   Directive,
   Fragment,
   FragmentSpread,
@@ -38,12 +39,14 @@ import type {
   RootArgumentDefinition,
   ScalarField,
   SplitOperation,
+  Stream,
   Variable,
 } from './GraphQLIR';
 
 type NodeVisitor<S> = {
   Argument?: NodeVisitorFunction<Argument, S>,
   Condition?: NodeVisitorFunction<Condition, S>,
+  Defer?: NodeVisitorFunction<Defer, S>,
   Directive?: NodeVisitorFunction<Directive, S>,
   Fragment?: NodeVisitorFunction<Fragment, S>,
   FragmentSpread?: NodeVisitorFunction<FragmentSpread, S>,
@@ -61,6 +64,7 @@ type NodeVisitor<S> = {
   RootArgumentDefinition?: NodeVisitorFunction<RootArgumentDefinition, S>,
   ScalarField?: NodeVisitorFunction<ScalarField, S>,
   SplitOperation?: NodeVisitorFunction<SplitOperation, S>,
+  Stream?: NodeVisitorFunction<Stream, S>,
   Variable?: NodeVisitorFunction<Variable, S>,
 };
 type NodeVisitorFunction<N: IR, S> = (node: N, state: S) => ?N;
@@ -218,6 +222,16 @@ class Transformer<S> {
       case 'RootArgumentDefinition':
       case 'Variable':
         nextNode = prevNode;
+        break;
+      case 'Defer':
+        nextNode = this._traverseChildren(prevNode, ['selections'], ['if']);
+        break;
+      case 'Stream':
+        nextNode = this._traverseChildren(
+          prevNode,
+          ['selections'],
+          ['if', 'initialCount'],
+        );
         break;
       case 'Directive':
         nextNode = this._traverseChildren(prevNode, ['args']);

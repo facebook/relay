@@ -6,6 +6,19 @@ schema {
   subscription: Subscription
 }
 
+directive @customDirective(level: Int!) on FIELD
+
+directive @defer(
+  label: String!
+  if: Boolean = true
+) on FRAGMENT_SPREAD | INLINE_FRAGMENT
+
+directive @stream(
+  label: String!
+  initial_count: Int!
+  if: Boolean = true
+) on FIELD
+
 type Query {
   checkinSearchQuery(query: CheckinSearchInput): CheckinSearchResult
   defaultSettings: Settings,
@@ -828,5 +841,3 @@ type Settings {
   notificationSounds: Boolean
   notifications(environment: Environment): Boolean
 }
-
-directive @customDirective(level: Int!) on FIELD

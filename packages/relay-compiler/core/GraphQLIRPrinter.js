@@ -60,7 +60,11 @@ function print(node: CompilerContextDocument): string {
         '\n'
       );
     case 'SplitOperation':
-      return `SplitOperation ${node.name}` + printSelections(node, '') + '\n';
+      return (
+        `SplitOperation ${node.name} on ${String(node.type)}` +
+        printSelections(node, '') +
+        '\n'
+      );
     default:
       (node: empty);
       invariant(
@@ -74,14 +78,14 @@ function print(node: CompilerContextDocument): string {
 function printSelections(
   node: Node,
   indent: string,
-  parentCondition?: string,
+  parentDirectives?: string,
 ): string {
   const selections = node.selections;
   if (selections == null) {
     return '';
   }
   const printed = selections.map(selection =>
-    printSelection(selection, indent, parentCondition),
+    printSelection(selection, indent, parentDirectives),
   );
   return printed.length
     ? ` {\n${indent + INDENT}${printed.join(
@@ -93,11 +97,11 @@ function printSelections(
 /**
  * Prints a field without subselections.
  */
-function printField(field: Field, parentCondition: string = ''): string {
+function printField(field: Field, parentDirectives: string = ''): string {
   return (
     (field.alias != null ? field.alias + ': ' + field.name : field.name) +
     printArguments(field.args) +
-    parentCondition +
+    parentDirectives +
     printDirectives(field.directives) +
     printHandles(field)
   );
@@ -106,29 +110,29 @@ function printField(field: Field, parentCondition: string = ''): string {
 function printSelection(
   selection: Selection,
   indent: string,
-  parentCondition?: string = '',
+  parentDirectives?: string = '',
 ): string {
   let str;
   if (selection.kind === 'LinkedField') {
-    str = printField(selection, parentCondition);
+    str = printField(selection, parentDirectives);
     str += printSelections(selection, indent + INDENT);
   } else if (selection.kind === 'MatchField') {
-    str = printField(selection, parentCondition);
+    str = printField(selection, parentDirectives);
     str += printSelections(selection, indent + INDENT);
   } else if (selection.kind === 'MatchBranch') {
     str = selection.selections
       .map(matchSelection => printSelection(matchSelection, indent))
       .join('\n' + indent + INDENT);
   } else if (selection.kind === 'ScalarField') {
-    str = printField(selection, parentCondition);
+    str = printField(selection, parentDirectives);
   } else if (selection.kind === 'InlineFragment') {
     str = '... on ' + selection.typeCondition.toString();
-    str += parentCondition;
+    str += parentDirectives;
     str += printDirectives(selection.directives);
     str += printSelections(selection, indent + INDENT);
   } else if (selection.kind === 'FragmentSpread') {
     str = '...' + selection.name;
-    str += parentCondition;
+    str += parentDirectives;
     str += printFragmentArguments(selection.args);
     str += printDirectives(selection.directives);
   } else if (selection.kind === 'Condition') {
@@ -140,10 +144,36 @@ function printSelection(
     );
     let condStr = selection.passingValue ? ' @include' : ' @skip';
     condStr += '(if: ' + value + ')';
-    condStr += parentCondition;
+    condStr += parentDirectives;
     // For multi-selection conditions, pushes the condition down to each
     const subSelections = selection.selections.map(sel =>
       printSelection(sel, indent, condStr),
+    );
+    str = subSelections.join('\n' + INDENT);
+  } else if (selection.kind === 'Stream') {
+    let streamStr = ` @stream(label: "${selection.label}"`;
+    if (selection.if !== null) {
+      streamStr += `, if: ${printValue(selection.if) ?? ''}`;
+    }
+    if (selection.initialCount !== null) {
+      streamStr += `, initial_count: ${printValue(selection.initialCount) ??
+        ''}`;
+    }
+    streamStr += ')';
+    streamStr += parentDirectives;
+    const subSelections = selection.selections.map(sel =>
+      printSelection(sel, indent, streamStr),
+    );
+    str = subSelections.join('\n' + INDENT);
+  } else if (selection.kind === 'Defer') {
+    let deferStr = ` @defer(label: "${selection.label}"`;
+    if (selection.if !== null) {
+      deferStr += `, if: ${printValue(selection.if) ?? ''}`;
+    }
+    deferStr += ')';
+    deferStr += parentDirectives;
+    const subSelections = selection.selections.map(sel =>
+      printSelection(sel, indent, deferStr),
     );
     str = subSelections.join('\n' + INDENT);
   } else {

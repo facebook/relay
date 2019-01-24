@@ -113,12 +113,14 @@ export type {
 export type {
   NormalizationArgument,
   NormalizationArgumentDefinition,
+  NormalizationDefer,
   NormalizationField,
   NormalizationLinkedField,
   NormalizationMatchField,
   NormalizationScalarField,
   NormalizationSelection,
   NormalizationSplitOperation,
+  NormalizationStream,
 } from './util/NormalizationNode';
 export type {NormalizationOperation} from './util/NormalizationNode';
 export type {

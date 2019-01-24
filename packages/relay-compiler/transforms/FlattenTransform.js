@@ -25,6 +25,7 @@ const {
 import type {
   Argument,
   Condition,
+  Defer,
   Field,
   Fragment,
   Handle,
@@ -34,6 +35,7 @@ import type {
   LinkedField,
   MatchField,
   Selection,
+  Stream,
 } from '../core/GraphQLIR';
 import type {GraphQLType} from 'graphql';
 
@@ -54,9 +56,11 @@ type HasSelections =
   | Root
   | Fragment
   | Condition
+  | Defer
   | InlineFragment
   | LinkedField
-  | MatchField;
+  | MatchField
+  | Stream;
 
 /**
  * Transform that flattens inline fragments, fragment spreads, and conditionals.
@@ -98,7 +102,7 @@ function flattenSelections<T: HasSelections>(node: T, state: State): T {
   // Determine the current type.
   const parentType = state.parentType;
   const type =
-    node.kind === 'Condition'
+    node.kind === 'Condition' || node.kind === 'Defer' || node.kind === 'Stream'
       ? parentType
       : node.kind === 'InlineFragment'
         ? node.typeCondition
@@ -186,7 +190,33 @@ function flattenSelectionsInto(
       flattenedSelection.kind === 'MatchField' ||
       flattenedSelection.kind === 'MatchBranch'
     ) {
-      // Ignore duplicate matches that select the same fragments and modules (encoded in the identifier)
+      // Ignore duplicate matches that select the same fragments and
+      // modules (encoded in the identifier)
+      // Also ignore incremental data placeholders
+    } else if (flattenedSelection.kind === 'Defer') {
+      if (selection.kind !== 'Defer') {
+        throw createCompilerError(
+          `FlattenTransform: Expected a Defer, got a '${selection.kind}'`,
+          [selection.loc],
+        );
+      }
+      flattenedSelections.set(nodeIdentifier, {
+        kind: 'Defer',
+        ...flattenedSelection,
+        selections: mergeSelections(flattenedSelection, selection, state, type),
+      });
+    } else if (flattenedSelection.kind === 'Stream') {
+      if (selection.kind !== 'Stream') {
+        throw createCompilerError(
+          `FlattenTransform: Expected a Stream, got a '${selection.kind}'`,
+          [selection.loc],
+        );
+      }
+      flattenedSelections.set(nodeIdentifier, {
+        kind: 'Stream',
+        ...flattenedSelection,
+        selections: mergeSelections(flattenedSelection, selection, state, type),
+      });
     } else if (flattenedSelection.kind === 'LinkedField') {
       if (selection.kind !== 'LinkedField') {
         throw createCompilerError(

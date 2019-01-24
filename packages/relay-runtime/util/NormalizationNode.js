@@ -138,12 +138,28 @@ export type NormalizationSelection =
   | NormalizationInlineFragment
   | NormalizationMatchField;
 
-export type NormalizationSplitOperation = {
+export type NormalizationSplitOperation = {|
   +kind: 'SplitOperation',
   +name: string,
   +metadata: ?{+[key: string]: mixed},
   +selections: $ReadOnlyArray<NormalizationSelection>,
-};
+|};
+
+export type NormalizationStream = {|
+  +if: NormalizationVariable | null,
+  +kind: 'Stream',
+  +label: string,
+  +metadata: ?{+[key: string]: mixed},
+  +selections: $ReadOnlyArray<NormalizationSelection>,
+|};
+
+export type NormalizationDefer = {|
+  +if: NormalizationVariable | null,
+  +kind: 'Defer',
+  +label: string,
+  +metadata: ?{+[key: string]: mixed},
+  +selections: $ReadOnlyArray<NormalizationSelection>,
+|};
 
 export type NormalizationVariable = {|
   +kind: 'Variable',

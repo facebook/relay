@@ -16,7 +16,10 @@ const RelayCompilerScope = require('../core/RelayCompilerScope');
 const getIdentifierForArgumentValue = require('../core/getIdentifierForArgumentValue');
 const murmurHash = require('../util/murmurHash');
 
-const {createNonRecoverableUserError} = require('../core/RelayCompilerError');
+const {
+  createCompilerError,
+  createNonRecoverableUserError,
+} = require('../core/RelayCompilerError');
 
 import type CompilerContext from '../core/GraphQLCompilerContext';
 import type {
@@ -269,13 +272,30 @@ function transformSelections(
         nextSelections = nextSelections || [];
         nextSelections.push(...conditionSelections);
       }
-    } else {
+    } else if (
+      selection.kind === 'LinkedField' ||
+      selection.kind === 'ScalarField' ||
+      selection.kind === 'MatchField'
+    ) {
       nextSelection = transformField(
         context,
         fragments,
         scope,
         selection,
         errorContext,
+      );
+    } else if (selection.kind === 'Defer' || selection.kind === 'Stream') {
+      throw createCompilerError(
+        'RelayApplyFragmentArgumentTransform: Expected to be applied before processing @defer/@stream.',
+        [selection.loc],
+      );
+    } else {
+      (selection: empty);
+      throw createCompilerError(
+        `RelayApplyFragmentArgumentTransform: Unsupported kind '${
+          selection.kind
+        }'.`,
+        [selection.loc],
       );
     }
     if (nextSelection) {

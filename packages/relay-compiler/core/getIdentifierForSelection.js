@@ -40,6 +40,10 @@ function getIdentifierForSelection(node: Selection): string {
     return 'M:' + storageKey;
   } else if (node.kind === 'MatchBranch') {
     return 'B:' + node.name + '$' + node.module;
+  } else if (node.kind === 'Defer') {
+    return 'D:' + node.label;
+  } else if (node.kind === 'Stream') {
+    return 'S:' + node.label;
   } else if (node.kind === 'InlineFragment') {
     return 'I:' + node.typeCondition.name;
   } else if (node.kind === 'Condition') {

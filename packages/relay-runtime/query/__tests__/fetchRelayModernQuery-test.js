@@ -31,8 +31,7 @@ describe('fetchRelayModernQuery', () => {
     jest.resetModules();
 
     environment = createMockEnvironment();
-    ({ActorQuery: query} = generateAndCompile(
-      `
+    ({ActorQuery: query} = generateAndCompile(`
       query ActorQuery($fetchSize: Boolean!) {
         me {
           name
@@ -41,8 +40,7 @@ describe('fetchRelayModernQuery', () => {
           }
         }
       }
-    `,
-    ));
+    `));
     variables = {fetchSize: false};
     operation = createOperationDescriptor(query, variables);
   });

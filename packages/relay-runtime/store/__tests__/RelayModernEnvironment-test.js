@@ -496,8 +496,7 @@ describe('RelayModernEnvironment', () => {
     let variables;
 
     beforeEach(() => {
-      ({ActorQuery: query} = generateAndCompile(
-        `
+      ({ActorQuery: query} = generateAndCompile(`
         query ActorQuery($fetchSize: Boolean!) {
           me {
             name
@@ -506,8 +505,7 @@ describe('RelayModernEnvironment', () => {
             }
           }
         }
-      `,
-      ));
+      `));
       variables = {fetchSize: false};
       operation = createOperationDescriptor(query, {
         ...variables,
@@ -625,8 +623,7 @@ describe('RelayModernEnvironment', () => {
     let variables;
 
     beforeEach(() => {
-      ({ActorQuery: query} = generateAndCompile(
-        `
+      ({ActorQuery: query} = generateAndCompile(`
         query ActorQuery($fetchSize: Boolean!) {
           me {
             name
@@ -635,8 +632,7 @@ describe('RelayModernEnvironment', () => {
             }
           }
         }
-      `,
-      ));
+      `));
       variables = {fetchSize: false};
       operation = createOperationDescriptor(query, {
         ...variables,
@@ -802,8 +798,7 @@ describe('RelayModernEnvironment', () => {
     let dataSource;
 
     beforeEach(() => {
-      ({ActorQuery: query} = generateAndCompile(
-        `
+      ({ActorQuery: query} = generateAndCompile(`
         query ActorQuery($fetchSize: Boolean!) {
           me {
             name
@@ -812,8 +807,7 @@ describe('RelayModernEnvironment', () => {
             }
           }
         }
-      `,
-      ));
+      `));
       variables = {fetchSize: false};
       operation = createOperationDescriptor(query, {
         ...variables,
@@ -1082,33 +1076,33 @@ describe('RelayModernEnvironment', () => {
         MarkdownUserNameRenderer_name: markdownRendererFragment,
         MarkdownUserNameRenderer_name$normalization: markdownRendererNormalizationFragment,
       } = generateAndCompile(`
-          query UserQuery($id: ID!) {
-            node(id: $id) {
-              ... on User {
-                nameRenderer @match {
-                  ...PlainUserNameRenderer_name
-                    @module(name: "PlainUserNameRenderer.react")
-                  ...MarkdownUserNameRenderer_name
-                    @module(name: "MarkdownUserNameRenderer.react")
-                }
+        query UserQuery($id: ID!) {
+          node(id: $id) {
+            ... on User {
+              nameRenderer @match {
+                ...PlainUserNameRenderer_name
+                  @module(name: "PlainUserNameRenderer.react")
+                ...MarkdownUserNameRenderer_name
+                  @module(name: "MarkdownUserNameRenderer.react")
               }
             }
           }
+        }
 
-          fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
-            plaintext
-            data {
-              text
-            }
+        fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
+          plaintext
+          data {
+            text
           }
+        }
 
-          fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
-            __typename
-            markdown
-            data {
-              markup @__clientField(handle: "markup_handler")
-            }
+        fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+          __typename
+          markdown
+          data {
+            markup @__clientField(handle: "markup_handler")
           }
+        }
       `));
       variables = {id: '1'};
       operation = createOperationDescriptor(query, variables);
@@ -1523,8 +1517,7 @@ describe('RelayModernEnvironment', () => {
         CreateCommentMutation,
         CreateCommentWithSpreadMutation,
         CommentFragment,
-      } = generateAndCompile(
-        `
+      } = generateAndCompile(`
         mutation CreateCommentMutation($input: CommentCreateInput!) {
           commentCreate(input: $input) {
             comment {
@@ -1550,8 +1543,7 @@ describe('RelayModernEnvironment', () => {
             }
           }
         }
-      `,
-      ));
+      `));
       variables = {
         input: {
           clientMutationId: '0',

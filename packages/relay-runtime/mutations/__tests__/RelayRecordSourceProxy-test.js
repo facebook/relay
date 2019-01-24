@@ -189,8 +189,7 @@ describe('RelayRecordSourceProxy', () => {
   describe('commitPayload()', () => {
     const {generateAndCompile} = RelayModernTestUtils;
     it('override current fields ', () => {
-      const {Query} = generateAndCompile(
-        `
+      const {Query} = generateAndCompile(`
         query Query {
           node(id: "sf") {
             id
@@ -198,8 +197,7 @@ describe('RelayRecordSourceProxy', () => {
             name
           }
         }
-      `,
-      );
+      `);
       const operationDescriptor = createOperationDescriptor(Query, {});
       const rawPayload = {
         node: {
@@ -218,8 +216,7 @@ describe('RelayRecordSourceProxy', () => {
     });
 
     it('applies new records ', () => {
-      const {Query} = generateAndCompile(
-        `
+      const {Query} = generateAndCompile(`
         query Query {
           node(id: "seattle") {
             id
@@ -227,8 +224,7 @@ describe('RelayRecordSourceProxy', () => {
             name
           }
         }
-      `,
-      );
+      `);
       const operationDescriptor = createOperationDescriptor(Query, {});
       const rawPayload = {
         node: {
@@ -254,8 +250,7 @@ describe('RelayRecordSourceProxy', () => {
       const handlerProvider = name => handlers[name];
       store = new RelayRecordSourceProxy(mutator, handlerProvider);
 
-      const {Query} = generateAndCompile(
-        `
+      const {Query} = generateAndCompile(`
         query Query {
           node(id: "sf") {
             id
@@ -263,8 +258,7 @@ describe('RelayRecordSourceProxy', () => {
             name @__clientField(handle: "handlerName")
           }
         }
-      `,
-      );
+      `);
       const operationDescriptor = createOperationDescriptor(Query, {});
       const rawPayload = {
         node: {

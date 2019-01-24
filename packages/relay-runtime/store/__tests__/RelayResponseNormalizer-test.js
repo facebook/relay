@@ -154,8 +154,7 @@ describe('RelayResponseNormalizer', () => {
   });
 
   it('normalizes queries with "handle" fields', () => {
-    const {UserFriends} = generateAndCompile(
-      `
+    const {UserFriends} = generateAndCompile(`
       query UserFriends($id: ID!) {
         node(id: $id) {
           id
@@ -173,8 +172,7 @@ describe('RelayResponseNormalizer', () => {
           }
         }
       }
-    `,
-    );
+    `);
 
     const payload = {
       node: {
@@ -223,8 +221,7 @@ describe('RelayResponseNormalizer', () => {
   });
 
   it('normalizes queries with "filters"', () => {
-    const {UserFriends} = generateAndCompile(
-      `
+    const {UserFriends} = generateAndCompile(`
       query UserFriends(
         $id: ID!,
         $orderBy: [String],
@@ -253,8 +250,7 @@ describe('RelayResponseNormalizer', () => {
           }
         }
       }
-    `,
-    );
+    `);
 
     const payload1 = {
       node: {
@@ -570,8 +566,7 @@ describe('RelayResponseNormalizer', () => {
   it('does not warn in __DEV__ if payload data is missing for an abstract field', () => {
     jest.mock('warning');
 
-    const {BarQuery} = generateAndCompile(
-      `
+    const {BarQuery} = generateAndCompile(`
       query BarQuery {
         named {
           name
@@ -580,8 +575,7 @@ describe('RelayResponseNormalizer', () => {
           }
         }
       }
-    `,
-    );
+    `);
     const payload = {
       named: {
         __typename: 'SimpleNamed',

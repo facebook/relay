@@ -87,8 +87,7 @@ describe('ReactRelayPaginationContainer', () => {
     environment = createMockEnvironment({
       handlerProvider: () => ConnectionHandler,
     });
-    ({UserFragment, UserQuery} = generateAndCompile(
-      `
+    ({UserFragment, UserQuery} = generateAndCompile(`
       query UserQuery(
         $after: ID
         $count: Int!
@@ -122,8 +121,7 @@ describe('ReactRelayPaginationContainer', () => {
           }
         }
       }
-    `,
-    ));
+    `));
 
     render = jest.fn(props => {
       ({hasMore, isLoading, loadMore, refetchConnection} = props.relay);
@@ -711,35 +709,33 @@ describe('ReactRelayPaginationContainer', () => {
   });
 
   it('fails if missing @connection directive', () => {
-    ({UserFragment, UserQuery} = generateAndCompile(
-      `
-        query UserQuery(
-          $after: ID
-          $count: Int!
-          $id: ID!
-          $orderby: [String]
-        ) {
-          node(id: $id) {
-            id
-            ...UserFragment
-          }
+    ({UserFragment, UserQuery} = generateAndCompile(`
+      query UserQuery(
+        $after: ID
+        $count: Int!
+        $id: ID!
+        $orderby: [String]
+      ) {
+        node(id: $id) {
+          id
+          ...UserFragment
         }
+      }
 
-        fragment UserFragment on User {
-          friends(after: $after, first: $count, orderby: $orderby) {
-            edges {
-              node {
-                id
-              }
-            }
-            pageInfo {
-              endCursor
-              hasNextPage
+      fragment UserFragment on User {
+        friends(after: $after, first: $count, orderby: $orderby) {
+          edges {
+            node {
+              id
             }
           }
+          pageInfo {
+            endCursor
+            hasNextPage
+          }
         }
-      `,
-    ));
+      }
+    `));
 
     TestContainer = ReactRelayPaginationContainer.createContainer(
       TestComponent,
@@ -771,46 +767,44 @@ describe('ReactRelayPaginationContainer', () => {
 
   it('does not fail invariant if one fragment has a @connection directive', () => {
     let ViewerFragment;
-    ({UserFragment, UserQuery, ViewerFragment} = generateAndCompile(
-      `
-        query UserQuery(
-          $after: ID
-          $count: Int!
-          $id: ID!
-          $orderby: [String]
+    ({UserFragment, UserQuery, ViewerFragment} = generateAndCompile(`
+      query UserQuery(
+        $after: ID
+        $count: Int!
+        $id: ID!
+        $orderby: [String]
+      ) {
+        viewer {
+          ...ViewerFragment
+        }
+        node(id: $id) {
+          id
+          ...UserFragment
+        }
+      }
+
+      fragment ViewerFragment on Viewer {
+        actor{
+          id
+        }
+      }
+
+      fragment UserFragment on User {
+        friends(after: $after, first: $count, orderby: $orderby) @connection(
+          key: "UserFragment_friends"
         ) {
-          viewer {
-            ...ViewerFragment
-          }
-          node(id: $id) {
-            id
-            ...UserFragment
-          }
-        }
-
-        fragment ViewerFragment on Viewer {
-          actor{
-            id
-          }
-        }
-
-        fragment UserFragment on User {
-          friends(after: $after, first: $count, orderby: $orderby) @connection(
-            key: "UserFragment_friends"
-          ) {
-            edges {
-              node {
-                id
-              }
-            }
-            pageInfo {
-              endCursor
-              hasNextPage
+          edges {
+            node {
+              id
             }
           }
+          pageInfo {
+            endCursor
+            hasNextPage
+          }
         }
-      `,
-    ));
+      }
+    `));
 
     TestContainer = ReactRelayPaginationContainer.createContainer(
       TestComponent,

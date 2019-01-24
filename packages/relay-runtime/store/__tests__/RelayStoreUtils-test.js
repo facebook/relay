@@ -18,15 +18,13 @@ const {generateAndCompile} = RelayModernTestUtils;
 describe('RelayStoreUtils', () => {
   describe('getArgumentValues()', () => {
     it('returns argument values', () => {
-      const {UserFragment} = generateAndCompile(
-        `
+      const {UserFragment} = generateAndCompile(`
         fragment UserFragment on User {
           friends(orderby: $order, first: 10) {
             count
           }
         }
-      `,
-      );
+      `);
       const field = UserFragment.selections[0];
       const variables = {order: 'name'};
       expect(RelayStoreUtils.getArgumentValues(field.args, variables)).toEqual({
@@ -38,27 +36,23 @@ describe('RelayStoreUtils', () => {
 
   describe('getStorageKey()', () => {
     it('uses the field name when there are no arguments', () => {
-      const {UserFragment} = generateAndCompile(
-        `
+      const {UserFragment} = generateAndCompile(`
         fragment UserFragment on User {
           name
         }
-      `,
-      );
+      `);
       const field = UserFragment.selections[0];
       expect(RelayStoreUtils.getStorageKey(field, {})).toBe('name');
     });
 
     it('embeds literal argument values', () => {
-      const {UserFragment} = generateAndCompile(
-        `
+      const {UserFragment} = generateAndCompile(`
         fragment UserFragment on User {
           profilePicture(size: 128) {
             uri
           }
         }
-      `,
-      );
+      `);
       const field = UserFragment.selections[0];
       expect(RelayStoreUtils.getStorageKey(field, {})).toBe(
         'profilePicture(size:128)',
@@ -66,8 +60,7 @@ describe('RelayStoreUtils', () => {
     });
 
     it('embeds variable values', () => {
-      const {UserFragment} = generateAndCompile(
-        `
+      const {UserFragment} = generateAndCompile(`
         fragment UserFragment on User @argumentDefinitions(
           size: {type: "[Int]"}
         ) {
@@ -75,8 +68,7 @@ describe('RelayStoreUtils', () => {
             uri
           }
         }
-      `,
-      );
+      `);
       const field = UserFragment.selections[0];
       expect(RelayStoreUtils.getStorageKey(field, {size: 256})).toBe(
         'profilePicture(size:256)',
@@ -84,8 +76,7 @@ describe('RelayStoreUtils', () => {
     });
 
     it('filters out arguments that are unset', () => {
-      const {UserFragment} = generateAndCompile(
-        `
+      const {UserFragment} = generateAndCompile(`
         fragment UserFragment on User @argumentDefinitions(
           preset: {type: "PhotoSize"}
           size: {type: "[Int]"}
@@ -94,8 +85,7 @@ describe('RelayStoreUtils', () => {
             uri
           }
         }
-      `,
-      );
+      `);
       const field = UserFragment.selections[0];
       expect(
         RelayStoreUtils.getStorageKey(field, {preset: null, size: 128}),
@@ -103,8 +93,7 @@ describe('RelayStoreUtils', () => {
     });
 
     it('suppresses the argument list if all values are unset', () => {
-      const {UserFragment} = generateAndCompile(
-        `
+      const {UserFragment} = generateAndCompile(`
         fragment UserFragment on User @argumentDefinitions(
           preset: {type: "PhotoSize"}
           size: {type: "[Int]"}
@@ -113,8 +102,7 @@ describe('RelayStoreUtils', () => {
             uri
           }
         }
-      `,
-      );
+      `);
       const field = UserFragment.selections[0];
       expect(
         RelayStoreUtils.getStorageKey(field, {preset: null, size: null}),
@@ -122,16 +110,14 @@ describe('RelayStoreUtils', () => {
     });
 
     it('imposes a stable ordering within object arguments', () => {
-      const {UserFragment} = generateAndCompile(
-        `
+      const {UserFragment} = generateAndCompile(`
         fragment UserFragment on User {
           # Pass in arguments reverse-lexicographical order.
           storySearch(query: {text: "foo", offset: 100, limit: 10}) {
             id
           }
         }
-      `,
-      );
+      `);
       const field = UserFragment.selections[0];
 
       // Note that storage key employs stable lexicographical ordering anyway.

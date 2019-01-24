@@ -752,4 +752,174 @@ describe('RelayReferenceMarker', () => {
       expect(Array.from(references).sort()).toEqual(['1', 'client:root']);
     });
   });
+
+  describe('when @defer directive is present', () => {
+    let Query;
+
+    beforeEach(() => {
+      const nodes = generateAndCompile(
+        `
+          fragment TestFragment on Feedback {
+            id
+            actors {
+              name
+            }
+          }
+
+          query TestQuery($id: ID!) {
+            node(id: $id) {
+              ...TestFragment @defer(label: "TestFragment")
+            }
+          }`,
+      );
+      Query = nodes.TestQuery;
+    });
+
+    it('marks references when deferred selections are fetched', () => {
+      const storeData = {
+        '1': {
+          __id: '1',
+          __typename: 'Feedback',
+          id: '1',
+          actors: {__refs: ['2']},
+        },
+        '2': {
+          __id: '2',
+          __typename: 'User',
+          id: '2',
+          name: 'Alice',
+        },
+        'client:root': {
+          __id: 'client:root',
+          __typename: '__Root',
+          'node(id:"1")': {__ref: '1'},
+        },
+      };
+      const source = new RelayInMemoryRecordSource(storeData);
+      const references = new Set();
+      mark(
+        source,
+        {
+          dataID: 'client:root',
+          node: Query.operation,
+          variables: {id: '1'},
+        },
+        references,
+      );
+      expect(Array.from(references).sort()).toEqual(['1', '2', 'client:root']);
+    });
+
+    it('marks references when deferred selections are not fetched', () => {
+      const storeData = {
+        '1': {
+          __id: '1',
+          __typename: 'Feedback',
+          id: '1',
+          // actors not fetched
+        },
+        'client:root': {
+          __id: 'client:root',
+          __typename: '__Root',
+          'node(id:"1")': {__ref: '1'},
+        },
+      };
+      const source = new RelayInMemoryRecordSource(storeData);
+      const references = new Set();
+      mark(
+        source,
+        {
+          dataID: 'client:root',
+          node: Query.operation,
+          variables: {id: '1'},
+        },
+        references,
+      );
+      expect(Array.from(references).sort()).toEqual(['1', 'client:root']);
+    });
+  });
+
+  describe('when @stream directive is present', () => {
+    let Query;
+
+    beforeEach(() => {
+      const nodes = generateAndCompile(
+        `
+          fragment TestFragment on Feedback {
+            id
+            actors @stream(label: "TestFragmentActors") {
+              name
+            }
+          }
+
+          query TestQuery($id: ID!) {
+            node(id: $id) {
+              ...TestFragment
+            }
+          }`,
+      );
+      Query = nodes.TestQuery;
+    });
+
+    it('marks references when streamed selections are fetched', () => {
+      const storeData = {
+        '1': {
+          __id: '1',
+          __typename: 'Feedback',
+          id: '1',
+          actors: {__refs: ['2']},
+        },
+        '2': {
+          __id: '2',
+          __typename: 'User',
+          id: '2',
+          name: 'Alice',
+        },
+        'client:root': {
+          __id: 'client:root',
+          __typename: '__Root',
+          'node(id:"1")': {__ref: '1'},
+        },
+      };
+      const source = new RelayInMemoryRecordSource(storeData);
+      const references = new Set();
+      mark(
+        source,
+        {
+          dataID: 'client:root',
+          node: Query.operation,
+          variables: {id: '1'},
+        },
+        references,
+      );
+      expect(Array.from(references).sort()).toEqual(['1', '2', 'client:root']);
+    });
+
+    it('marks references when streamed selections are not fetched', () => {
+      const storeData = {
+        '1': {
+          __id: '1',
+          __typename: 'Feedback',
+          id: '1',
+          // actors not fetched
+        },
+        'client:root': {
+          __id: 'client:root',
+          __typename: '__Root',
+          'node(id:"1")': {__ref: '1'},
+        },
+      };
+      const source = new RelayInMemoryRecordSource(storeData);
+      const references = new Set();
+      mark(
+        source,
+        {
+          dataID: 'client:root',
+          node: Query.operation,
+          variables: {id: '1'},
+        },
+        references,
+      );
+      expect(Array.from(references).sort()).toEqual(['1', 'client:root']);
+    });
+  });
 });

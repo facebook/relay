@@ -33,6 +33,7 @@ import type {
 
 const {
   CONDITION,
+  DEFER,
   FRAGMENT_SPREAD,
   INLINE_FRAGMENT,
   LINKED_FIELD,
@@ -40,6 +41,7 @@ const {
   LINKED_HANDLE,
   SCALAR_FIELD,
   SCALAR_HANDLE,
+  STREAM,
 } = RelayConcreteNode;
 const {getStorageKey, MATCH_FRAGMENT_KEY} = RelayStoreUtils;
 
@@ -155,6 +157,10 @@ class RelayReferenceMarker {
           } else {
             this._traverseLink(handleField, record);
           }
+          break;
+        case DEFER:
+        case STREAM:
+          this._traverseSelections(selection.selections, record);
           break;
         case SCALAR_FIELD:
         case SCALAR_HANDLE:

@@ -393,6 +393,18 @@ export type MatchFieldPayload = {|
 |};
 
 /**
+ * Data emitted after processing a Defer or Stream node during normalization
+ * that describes how to process the corresponding response chunk when it
+ * arrives.
+ */
+export type IncrementalDataPayload = {|
+  +kind: 'defer' | 'stream',
+  +label: string,
+  +path: $ReadOnlyArray<string>,
+  +selector: NormalizationSelector,
+|};
+
+/**
  * A user-supplied object to load a generated operation (SplitOperation) AST
  * by a module reference. The exact format of a module reference is left to
  * the application, but it must be a plain JavaScript value (string, number,
@@ -486,6 +498,7 @@ export type MissingFieldHandler =
  * The shape of data that is returned by normalizePayload for a given query.
  */
 export type RelayResponsePayload = {|
+  incrementalPayloads?: ?Array<IncrementalDataPayload>,
   fieldPayloads?: ?Array<HandleFieldPayload>,
   matchPayloads?: ?Array<MatchFieldPayload>,
   source: MutableRecordSource,

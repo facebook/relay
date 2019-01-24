@@ -19,6 +19,7 @@ const warning = require('warning');
 
 const {
   CONDITION,
+  DEFER,
   FRAGMENT,
   FRAGMENT_SPREAD,
   INLINE_FRAGMENT,
@@ -27,6 +28,7 @@ const {
   MATCH_FIELD,
   SCALAR_FIELD,
   SCALAR_HANDLE,
+  STREAM,
 } = require('../util/RelayConcreteNode');
 const {
   getArgumentValues,
@@ -38,15 +40,18 @@ const {
 
 import type {PayloadData} from '../network/RelayNetworkTypes';
 import type {
+  NormalizationDefer,
   NormalizationField,
   NormalizationLinkedField,
   NormalizationMatchField,
   NormalizationNode,
+  NormalizationStream,
 } from '../util/NormalizationNode';
 import type {Record} from '../util/RelayCombinedEnvironmentTypes';
 import type {DataID, Variables} from '../util/RelayRuntimeTypes';
 import type {
   HandleFieldPayload,
+  IncrementalDataPayload,
   MatchFieldPayload,
   MutableRecordSource,
   NormalizationSelector,
@@ -55,6 +60,7 @@ import type {
 export type NormalizationOptions = {handleStrippedNulls: boolean};
 
 export type NormalizedResponse = {|
+  incrementalPayloads: Array<IncrementalDataPayload>,
   fieldPayloads: Array<HandleFieldPayload>,
   matchPayloads: Array<MatchFieldPayload>,
 |};
@@ -89,7 +95,9 @@ function normalize(
 class RelayResponseNormalizer {
   _handleFieldPayloads: Array<HandleFieldPayload>;
   _handleStrippedNulls: boolean;
+  _incrementalPayloads: Array<IncrementalDataPayload>;
   _matchFieldPayloads: Array<MatchFieldPayload>;
+  _path: Array<string>;
   _recordSource: MutableRecordSource;
   _variables: Variables;
 
@@ -100,7 +108,9 @@ class RelayResponseNormalizer {
   ) {
     this._handleFieldPayloads = [];
     this._handleStrippedNulls = options.handleStrippedNulls;
+    this._incrementalPayloads = [];
     this._matchFieldPayloads = [];
+    this._path = [];
     this._recordSource = recordSource;
     this._variables = variables;
   }
@@ -118,6 +128,7 @@ class RelayResponseNormalizer {
     );
     this._traverseSelections(node, record, data);
     return {
+      incrementalPayloads: this._incrementalPayloads,
       fieldPayloads: this._handleFieldPayloads,
       matchPayloads: this._matchFieldPayloads,
     };
@@ -178,6 +189,10 @@ class RelayResponseNormalizer {
         });
       } else if (selection.kind === MATCH_FIELD) {
         this._normalizeMatchField(node, selection, record, data);
+      } else if (selection.kind === DEFER) {
+        this._normalizeDefer(selection, record, data);
+      } else if (selection.kind === STREAM) {
+        this._normalizeStream(selection, record, data);
       } else if (
         selection.kind === FRAGMENT ||
         selection.kind === FRAGMENT_SPREAD
@@ -196,6 +211,74 @@ class RelayResponseNormalizer {
         );
       }
     });
+  }
+
+  _normalizeDefer(
+    defer: NormalizationDefer,
+    record: Record,
+    data: PayloadData,
+  ) {
+    const isDeferred = defer.if === null || this._getVariableValue(defer.if);
+    if (__DEV__) {
+      warning(
+        typeof isDeferred === 'boolean',
+        'RelayResponseNormalizer: Expected value for @defer `if` argument to ' +
+          'be a boolean, got `%s`.',
+        isDeferred,
+      );
+    }
+    if (isDeferred === false) {
+      // If defer is disabled there will be no additional response chunk:
+      // normalize the data already present.
+      this._traverseSelections(defer, record, data);
+    } else {
+      // Otherwise data *for this selection* should not be present: enqueue
+      // metadata to process the subsequent response chunk.
+      this._incrementalPayloads.push({
+        kind: 'defer',
+        label: defer.label,
+        path: [...this._path],
+        selector: {
+          dataID: RelayModernRecord.getDataID(record),
+          node: defer,
+          variables: this._variables,
+        },
+      });
+    }
+  }
+
+  _normalizeStream(
+    stream: NormalizationStream,
+    record: Record,
+    data: PayloadData,
+  ) {
+    // Always normalize regardless of whether streaming is enabled or not,
+    // this populates the initial array value (including any items when
+    // initial_count > 0).
+    this._traverseSelections(stream, record, data);
+    const isStreamed = stream.if === null || this._getVariableValue(stream.if);
+    if (__DEV__) {
+      warning(
+        typeof isStreamed === 'boolean',
+        'RelayResponseNormalizer: Expected value for @stream `if` argument ' +
+          'to be a boolean, got `%s`.',
+        isStreamed,
+      );
+    }
+    if (isStreamed === true) {
+      // If streaming is enabled, *also* emit metadata to process any
+      // response chunks that may be delivered.
+      this._incrementalPayloads.push({
+        kind: 'stream',
+        label: stream.label,
+        path: [...this._path],
+        selector: {
+          dataID: RelayModernRecord.getDataID(record),
+          node: stream,
+          variables: this._variables,
+        },
+      });
+    }
   }
 
   _normalizeMatchField(
@@ -311,11 +394,13 @@ class RelayResponseNormalizer {
     if (selection.kind === SCALAR_FIELD) {
       RelayModernRecord.setValue(record, storageKey, fieldValue);
     } else if (selection.kind === LINKED_FIELD) {
+      this._path.push(responseKey);
       if (selection.plural) {
         this._normalizePluralLink(selection, record, storageKey, fieldValue);
       } else {
         this._normalizeLink(selection, record, storageKey, fieldValue);
       }
+      this._path.pop();
     } else if (selection.kind === MATCH_FIELD) {
       invariant(
         false,
@@ -385,6 +470,7 @@ class RelayResponseNormalizer {
         nextIDs.push(item);
         return;
       }
+      this._path.push(String(nextIndex));
       invariant(
         typeof item === 'object',
         'RelayResponseNormalizer: Expected elements for field `%s` to be ' +
@@ -417,6 +503,7 @@ class RelayResponseNormalizer {
         this._validateRecordType(nextRecord, field, item);
       }
       this._traverseSelections(field, nextRecord, item);
+      this._path.pop();
     });
     RelayModernRecord.setLinkedRecordIDs(record, storageKey, nextIDs);
   }

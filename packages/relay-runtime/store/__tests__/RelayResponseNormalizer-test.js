@@ -330,7 +330,7 @@ describe('RelayResponseNormalizer', () => {
     });
   });
 
-  describe('when using a @match field', () => {
+  describe('@match', () => {
     let BarQuery;
 
     beforeEach(() => {
@@ -503,6 +503,554 @@ describe('RelayResponseNormalizer', () => {
           id: '1',
           __typename: 'User',
           'nameRenderer(MarkdownUserNameRenderer_name:MarkdownUserNameRenderer.react,PlainUserNameRenderer_name:PlainUserNameRenderer.react)': null,
+        },
+        'client:root': {
+          __id: 'client:root',
+          __typename: '__Root',
+          'node(id:"1")': {__ref: '1'},
+        },
+      });
+    });
+  });
+
+  describe('@defer', () => {
+    it('normalizes when if condition is false', () => {
+      const {Query} = generateAndCompile(
+        `
+          fragment TestFragment on User {
+            id
+            name
+          }
+
+          query Query($id: ID!, $enableDefer: Boolean!) {
+            node(id: $id) {
+              ...TestFragment @defer(label: "TestFragment", if: $enableDefer)
+            }
+          }`,
+      );
+      const payload = {
+        node: {
+          id: '1',
+          __typename: 'User',
+          name: 'Alice',
+        },
+      };
+
+      const recordSource = new RelayInMemoryRecordSource();
+      recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
+      const {incrementalPayloads} = normalize(
+        recordSource,
+        {
+          dataID: ROOT_ID,
+          node: Query.operation,
+          variables: {id: '1', enableDefer: false},
+        },
+        payload,
+      );
+      expect(incrementalPayloads).toEqual([]);
+      expect(recordSource.toJSON()).toEqual({
+        '1': {
+          __id: '1',
+          __typename: 'User',
+          id: '1',
+          name: 'Alice',
+        },
+        'client:root': {
+          __id: 'client:root',
+          __typename: '__Root',
+          'node(id:"1")': {__ref: '1'},
+        },
+      });
+    });
+
+    it('returns metadata when `if` is true (literal value)', () => {
+      const {Query} = generateAndCompile(
+        `
+          fragment TestFragment on User {
+            id
+            name
+          }
+
+          query Query($id: ID!) {
+            node(id: $id) {
+              ...TestFragment @defer(label: "TestFragment", if: true)
+            }
+          }`,
+      );
+      const payload = {
+        node: {
+          id: '1',
+          __typename: 'User',
+          name: 'Alice',
+        },
+      };
+
+      const recordSource = new RelayInMemoryRecordSource();
+      recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
+      const {incrementalPayloads} = normalize(
+        recordSource,
+        {
+          dataID: ROOT_ID,
+          node: Query.operation,
+          variables: {id: '1'},
+        },
+        payload,
+      );
+      expect(incrementalPayloads).toEqual([
+        {
+          kind: 'defer',
+          label: 'Query$defer$TestFragment',
+          path: ['node'],
+          selector: {
+            dataID: '1',
+            variables: {id: '1'},
+            node: expect.objectContaining({kind: 'Defer'}),
+          },
+        },
+      ]);
+      expect(recordSource.toJSON()).toEqual({
+        '1': {
+          __id: '1',
+          __typename: 'User',
+          id: '1',
+          // 'name' not normalized even though its present in the payload
+        },
+        'client:root': {
+          __id: 'client:root',
+          __typename: '__Root',
+          'node(id:"1")': {__ref: '1'},
+        },
+      });
+    });
+
+    it('returns metadata when `if` is true (variable value)', () => {
+      const {Query} = generateAndCompile(
+        `
+          fragment TestFragment on User {
+            id
+            name
+          }
+
+          query Query($id: ID!, $enableDefer: Boolean!) {
+            node(id: $id) {
+              ...TestFragment @defer(label: "TestFragment", if: $enableDefer)
+            }
+          }`,
+      );
+      const payload = {
+        node: {
+          id: '1',
+          __typename: 'User',
+          name: 'Alice',
+        },
+      };
+
+      const recordSource = new RelayInMemoryRecordSource();
+      recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
+      const {incrementalPayloads} = normalize(
+        recordSource,
+        {
+          dataID: ROOT_ID,
+          node: Query.operation,
+          variables: {id: '1', enableDefer: true},
+        },
+        payload,
+      );
+      expect(incrementalPayloads).toEqual([
+        {
+          kind: 'defer',
+          label: 'Query$defer$TestFragment',
+          path: ['node'],
+          selector: {
+            dataID: '1',
+            variables: {id: '1', enableDefer: true},
+            node: expect.objectContaining({kind: 'Defer'}),
+          },
+        },
+      ]);
+      expect(recordSource.toJSON()).toEqual({
+        '1': {
+          __id: '1',
+          __typename: 'User',
+          id: '1',
+          // 'name' not normalized even though its present in the payload
+        },
+        'client:root': {
+          __id: 'client:root',
+          __typename: '__Root',
+          'node(id:"1")': {__ref: '1'},
+        },
+      });
+    });
+
+    it('returns metadata for @defer within a plural', () => {
+      const {Query} = generateAndCompile(
+        `
+          fragment TestFragment on User {
+            name
+          }
+
+          query Query($id: ID!) {
+            node(id: $id) {
+              ... on Feedback {
+                actors {
+                  ...TestFragment @defer(label: "TestFragment", if: true)
+                }
+              }
+            }
+          }`,
+      );
+      const payload = {
+        node: {
+          id: '1',
+          __typename: 'Feedback',
+          actors: [
+            {__typename: 'User', id: '2', name: 'Alice'},
+            {__typename: 'User', id: '3', name: 'Bob'},
+          ],
+        },
+      };
+
+      const recordSource = new RelayInMemoryRecordSource();
+      recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
+      const {incrementalPayloads} = normalize(
+        recordSource,
+        {
+          dataID: ROOT_ID,
+          node: Query.operation,
+          variables: {id: '1'},
+        },
+        payload,
+      );
+      expect(incrementalPayloads).toEqual([
+        {
+          kind: 'defer',
+          label: 'Query$defer$TestFragment',
+          path: ['node', 'actors', '0'],
+          selector: {
+            dataID: '2',
+            variables: {id: '1'},
+            node: expect.objectContaining({kind: 'Defer'}),
+          },
+        },
+        {
+          kind: 'defer',
+          label: 'Query$defer$TestFragment',
+          path: ['node', 'actors', '1'],
+          selector: {
+            dataID: '3',
+            variables: {id: '1'},
+            node: expect.objectContaining({kind: 'Defer'}),
+          },
+        },
+      ]);
+      expect(recordSource.toJSON()).toEqual({
+        '1': {
+          __id: '1',
+          __typename: 'Feedback',
+          id: '1',
+          actors: {__refs: ['2', '3']},
+        },
+        '2': {
+          __id: '2',
+          __typename: 'User',
+          id: '2',
+          // name deferred
+        },
+        '3': {
+          __id: '3',
+          __typename: 'User',
+          id: '3',
+          // name deferred
+        },
+        'client:root': {
+          __id: 'client:root',
+          __typename: '__Root',
+          'node(id:"1")': {__ref: '1'},
+        },
+      });
+    });
+  });
+
+  describe('@stream', () => {
+    it('normalizes when if condition is false', () => {
+      const {Query} = generateAndCompile(
+        `
+          fragment TestFragment on Feedback {
+            id
+            actors @stream(label: "actors", if: $enableStream) {
+              name
+            }
+          }
+
+          query Query($id: ID!, $enableStream: Boolean!) {
+            node(id: $id) {
+              ...TestFragment
+            }
+          }`,
+      );
+      const payload = {
+        node: {
+          id: '1',
+          __typename: 'Feedback',
+          actors: [{__typename: 'User', id: '2', name: 'Alice'}],
+        },
+      };
+
+      const recordSource = new RelayInMemoryRecordSource();
+      recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
+      const {incrementalPayloads} = normalize(
+        recordSource,
+        {
+          dataID: ROOT_ID,
+          node: Query.operation,
+          variables: {id: '1', enableStream: false},
+        },
+        payload,
+      );
+      expect(incrementalPayloads).toEqual([]);
+      expect(recordSource.toJSON()).toEqual({
+        '1': {
+          __id: '1',
+          __typename: 'Feedback',
+          id: '1',
+          actors: {__refs: ['2']},
+        },
+        '2': {
+          __id: '2',
+          __typename: 'User',
+          id: '2',
+          name: 'Alice',
+        },
+        'client:root': {
+          __id: 'client:root',
+          __typename: '__Root',
+          'node(id:"1")': {__ref: '1'},
+        },
+      });
+    });
+
+    it('normalizes and returns metadata when `if` is true (literal value)', () => {
+      const {Query} = generateAndCompile(
+        `
+          fragment TestFragment on Feedback {
+            id
+            actors @stream(label: "actors", if: true) {
+              name
+            }
+          }
+
+          query Query($id: ID!) {
+            node(id: $id) {
+              ...TestFragment
+            }
+          }`,
+      );
+      const payload = {
+        node: {
+          id: '1',
+          __typename: 'Feedback',
+          actors: [{__typename: 'User', id: '2', name: 'Alice'}],
+        },
+      };
+
+      const recordSource = new RelayInMemoryRecordSource();
+      recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
+      const {incrementalPayloads} = normalize(
+        recordSource,
+        {
+          dataID: ROOT_ID,
+          node: Query.operation,
+          variables: {id: '1'},
+        },
+        payload,
+      );
+      expect(incrementalPayloads).toEqual([
+        {
+          kind: 'stream',
+          label: 'TestFragment$stream$actors',
+          path: ['node'],
+          selector: {
+            dataID: '1',
+            variables: {id: '1'},
+            node: expect.objectContaining({kind: 'Stream'}),
+          },
+        },
+      ]);
+      expect(recordSource.toJSON()).toEqual({
+        '1': {
+          __id: '1',
+          __typename: 'Feedback',
+          id: '1',
+          actors: {__refs: ['2']},
+        },
+        '2': {
+          __id: '2',
+          __typename: 'User',
+          id: '2',
+          name: 'Alice',
+        },
+        'client:root': {
+          __id: 'client:root',
+          __typename: '__Root',
+          'node(id:"1")': {__ref: '1'},
+        },
+      });
+    });
+
+    it('normalizes and returns metadata when `if` is true (variable value)', () => {
+      const {Query} = generateAndCompile(
+        `
+          fragment TestFragment on Feedback {
+            id
+            actors @stream(label: "actors", if: $enableStream) {
+              name
+            }
+          }
+
+          query Query($id: ID!, $enableStream: Boolean!) {
+            node(id: $id) {
+              ...TestFragment
+            }
+          }`,
+      );
+      const payload = {
+        node: {
+          id: '1',
+          __typename: 'Feedback',
+          actors: [{__typename: 'User', id: '2', name: 'Alice'}],
+        },
+      };
+
+      const recordSource = new RelayInMemoryRecordSource();
+      recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
+      const {incrementalPayloads} = normalize(
+        recordSource,
+        {
+          dataID: ROOT_ID,
+          node: Query.operation,
+          variables: {id: '1', enableStream: true},
+        },
+        payload,
+      );
+      expect(incrementalPayloads).toEqual([
+        {
+          kind: 'stream',
+          label: 'TestFragment$stream$actors',
+          path: ['node'],
+          selector: {
+            dataID: '1',
+            variables: {id: '1', enableStream: true},
+            node: expect.objectContaining({kind: 'Stream'}),
+          },
+        },
+      ]);
+      expect(recordSource.toJSON()).toEqual({
+        '1': {
+          __id: '1',
+          __typename: 'Feedback',
+          id: '1',
+          actors: {__refs: ['2']},
+        },
+        '2': {
+          __id: '2',
+          __typename: 'User',
+          id: '2',
+          name: 'Alice',
+        },
+        'client:root': {
+          __id: 'client:root',
+          __typename: '__Root',
+          'node(id:"1")': {__ref: '1'},
+        },
+      });
+    });
+
+    it('normalizes and returns metadata for @stream within a plural', () => {
+      const {Query} = generateAndCompile(
+        `
+          fragment TestFragment on Feedback {
+            id
+            actors {
+              ... on User {
+                name
+                actors @stream(label: "actors", if: true) {
+                  name
+                }
+              }
+            }
+          }
+
+          query Query($id: ID!) {
+            node(id: $id) {
+              ...TestFragment
+            }
+          }`,
+      );
+      const payload = {
+        node: {
+          id: '1',
+          __typename: 'Feedback',
+          actors: [
+            {__typename: 'User', id: '2', name: 'Alice', actors: []},
+            {__typename: 'User', id: '3', name: 'Bob', actors: []},
+          ],
+        },
+      };
+
+      const recordSource = new RelayInMemoryRecordSource();
+      recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
+      const {incrementalPayloads} = normalize(
+        recordSource,
+        {
+          dataID: ROOT_ID,
+          node: Query.operation,
+          variables: {id: '1'},
+        },
+        payload,
+      );
+      expect(incrementalPayloads).toEqual([
+        {
+          kind: 'stream',
+          label: 'TestFragment$stream$actors',
+          path: ['node', 'actors', '0'],
+          selector: {
+            dataID: '2',
+            variables: {id: '1'},
+            node: expect.objectContaining({kind: 'Stream'}),
+          },
+        },
+        {
+          kind: 'stream',
+          label: 'TestFragment$stream$actors',
+          path: ['node', 'actors', '1'],
+          selector: {
+            dataID: '3',
+            variables: {id: '1'},
+            node: expect.objectContaining({kind: 'Stream'}),
+          },
+        },
+      ]);
+      expect(recordSource.toJSON()).toEqual({
+        '1': {
+          __id: '1',
+          __typename: 'Feedback',
+          id: '1',
+          actors: {__refs: ['2', '3']},
+        },
+        '2': {
+          __id: '2',
+          __typename: 'User',
+          id: '2',
+          name: 'Alice',
+          actors: {__refs: []},
+        },
+        '3': {
+          __id: '3',
+          __typename: 'User',
+          id: '3',
+          name: 'Bob',
+          actors: {__refs: []},
         },
         'client:root': {
           __id: 'client:root',

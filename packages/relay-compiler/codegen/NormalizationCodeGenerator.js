@@ -104,9 +104,17 @@ const NormalizationCodeGenVisitor = {
       };
     },
 
-    Defer(node, key, parent): NormalizationDefer {
+    Defer(node, key, parent, ancestors): NormalizationDefer {
+      invariant(
+        node.if == null ||
+          node.if.kind === 'Variable' ||
+          (node.if.kind === 'Literal' && node.if.value === true),
+        'RelayCodeGenerator: Expected Defer `if` condition to be ' +
+          'a variable, unspecified, or the literal `true`. Source: %s.',
+        getErrorMessage(ancestors[0]),
+      );
       return {
-        if: node.if,
+        if: node.if?.kind === 'Variable' ? node.if.variableName : null,
         kind: 'Defer',
         label: node.label,
         metadata: node.metadata,
@@ -273,9 +281,17 @@ const NormalizationCodeGenVisitor = {
       };
     },
 
-    Stream(node, key, parent): NormalizationStream {
+    Stream(node, key, parent, ancestors): NormalizationStream {
+      invariant(
+        node.if == null ||
+          node.if.kind === 'Variable' ||
+          (node.if.kind === 'Literal' && node.if.value === true),
+        'RelayCodeGenerator: Expected Stream `if` condition to be ' +
+          'a variable, unspecified, or the literal `true`. Source: %s.',
+        getErrorMessage(ancestors[0]),
+      );
       return {
-        if: node.if,
+        if: node.if?.kind === 'Variable' ? node.if.variableName : null,
         kind: 'Stream',
         label: node.label,
         metadata: node.metadata,

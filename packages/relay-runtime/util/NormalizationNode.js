@@ -118,10 +118,12 @@ export type NormalizationLocalArgument = {|
 
 export type NormalizationNode =
   | NormalizationCondition
+  | NormalizationDefer
   | NormalizationLinkedField
   | NormalizationInlineFragment
   | NormalizationOperation
-  | NormalizationSplitOperation;
+  | NormalizationSplitOperation
+  | NormalizationStream;
 
 export type NormalizationScalarField = {|
   +kind: 'ScalarField',
@@ -146,7 +148,7 @@ export type NormalizationSplitOperation = {|
 |};
 
 export type NormalizationStream = {|
-  +if: NormalizationVariable | null,
+  +if: string | null,
   +kind: 'Stream',
   +label: string,
   +metadata: ?{+[key: string]: mixed},
@@ -154,7 +156,7 @@ export type NormalizationStream = {|
 |};
 
 export type NormalizationDefer = {|
-  +if: NormalizationVariable | null,
+  +if: string | null,
   +kind: 'Defer',
   +label: string,
   +metadata: ?{+[key: string]: mixed},
@@ -169,5 +171,7 @@ export type NormalizationVariable = {|
 |};
 
 export type NormalizationSelectableNode =
+  | NormalizationDefer
   | NormalizationOperation
-  | NormalizationSplitOperation;
+  | NormalizationSplitOperation
+  | NormalizationStream;

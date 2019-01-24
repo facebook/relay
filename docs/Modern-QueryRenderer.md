@@ -28,6 +28,15 @@ import React from 'react';
 import { QueryRenderer, graphql } from 'react-relay';
 
 class Example extends React.Component {
+  renderQuery = ({error, props}) => {
+    if (error) {
+      return <div>{error.message}</div>;
+    } else if (props) {
+      return <div>{props.page.name} is great!</div>;
+    }
+    return <div>Loading</div>;
+  }
+
   render() {
     return (
       <QueryRenderer
@@ -42,14 +51,7 @@ class Example extends React.Component {
         variables={{
           pageID: '110798995619330',
         }}
-        render={({error, props}) => {
-          if (error) {
-            return <div>{error.message}</div>;
-          } else if (props) {
-            return <div>{props.page.name} is great!</div>;
-          }
-          return <div>Loading</div>;
-        }}
+        render={this.renderQuery}
       />
     );
   }

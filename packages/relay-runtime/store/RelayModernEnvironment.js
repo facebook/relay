@@ -15,6 +15,7 @@ const DataChecker = require('./DataChecker');
 const RelayCore = require('./RelayCore');
 const RelayDefaultHandlerProvider = require('../handlers/RelayDefaultHandlerProvider');
 const RelayInMemoryRecordSource = require('./RelayInMemoryRecordSource');
+const RelayModernQueryExecutor = require('./RelayModernQueryExecutor');
 const RelayModernRecord = require('./RelayModernRecord');
 const RelayObservable = require('../network/RelayObservable');
 const RelayPublishQueue = require('./RelayPublishQueue');
@@ -238,114 +239,13 @@ class RelayModernEnvironment implements Environment {
     cacheConfig?: ?CacheConfig,
     updater?: ?SelectorStoreUpdater,
   }): RelayObservable<GraphQLResponse> {
-    return RelayObservable.create(sink => {
-      let optimisticResponse = null;
-      const subscriptions: Set<Subscription> = new Set();
-
-      function start(subscription): void {
-        // NOTE: store the subscription object on the observer so that it
-        // can be cleaned up in complete() or the dispose function.
-        this._subscription = subscription;
-        subscriptions.add(subscription);
-      }
-
-      function complete(): void {
-        subscriptions.delete(this._subscription);
-        if (subscriptions.size === 0) {
-          sink.complete();
-        }
-      }
-
-      // Convert each GraphQLResponse from the network to a RelayResponsePayload
-      // and process it
-      function next(response: GraphQLResponse): void {
-        const payload = normalizePayload(operation, response);
-        const isOptimistic = response.extensions?.isOptimistic === true;
-        processRelayPayload(payload, operation, updater, isOptimistic);
-        sink.next(response);
-      }
-
-      // Each RelayResponsePayload contains both data to publish to the store
-      // immediately, but may also contain matchPayloads that need to be
-      // asynchronously normalized into RelayResponsePayloads, which may
-      // themselves have matchPayloads: this function is recursive and relies
-      // on GraphQL queries *disallowing* recursion to ensure termination.
-      const processRelayPayload = (
-        payload: RelayResponsePayload,
-        operationDescriptor: OperationDescriptor | null = null,
-        payloadUpdater: SelectorStoreUpdater | null = null,
-        isOptimistic: boolean = false,
-      ): void => {
-        const {matchPayloads} = payload;
-        if (matchPayloads && matchPayloads.length) {
-          const operationLoader = this._operationLoader;
-          invariant(
-            operationLoader,
-            'RelayModernEnvironment: Expected an operationLoader to be ' +
-              'configured when using `@match`.',
-          );
-          matchPayloads.forEach(matchPayload => {
-            processMatchPayload(
-              processRelayPayload,
-              operationLoader,
-              matchPayload,
-            ).subscribe({
-              complete,
-              error: sink.error,
-              start,
-            });
-          });
-        }
-        if (isOptimistic) {
-          invariant(
-            optimisticResponse === null,
-            'environment.execute: only support one optimistic response per ' +
-              'execute.',
-          );
-          optimisticResponse = {
-            source: payload.source,
-            fieldPayloads: payload.fieldPayloads,
-          };
-          this._publishQueue.applyUpdate(optimisticResponse);
-          this._publishQueue.run();
-        } else {
-          if (optimisticResponse !== null) {
-            this._publishQueue.revertUpdate(optimisticResponse);
-            optimisticResponse = null;
-          }
-          if (operationDescriptor && payloadUpdater) {
-            this._publishQueue.commitPayload(
-              operationDescriptor,
-              payload,
-              payloadUpdater,
-            );
-          } else {
-            this._publishQueue.commitRelayPayload(payload);
-          }
-          this._publishQueue.run();
-        }
-      };
-
-      const {node} = operation;
-      this._network
-        .execute(node.params, operation.variables, cacheConfig || {})
-        .subscribe({
-          complete,
-          next,
-          error: sink.error,
-          start,
-        });
-      return () => {
-        if (subscriptions.size !== 0) {
-          subscriptions.forEach(sub => sub.unsubscribe());
-          subscriptions.clear();
-        }
-        if (optimisticResponse !== null) {
-          this._publishQueue.revertUpdate(optimisticResponse);
-          optimisticResponse = null;
-          this._publishQueue.run();
-        }
-      };
+    return RelayModernQueryExecutor.execute({
+      operation,
+      cacheConfig,
+      updater,
+      network: this._network,
+      operationLoader: this._operationLoader,
+      publishQueue: this._publishQueue,
     });
   }
 
@@ -494,58 +394,6 @@ class RelayModernEnvironment implements Environment {
   toJSON(): mixed {
     return `RelayModernEnvironment(${this.configName ?? ''})`;
   }
-}
-
-/**
- * Processes a MatchFieldPayload, asynchronously resolving the fragment,
- * using it to normalize the field data into a RelayResponsePayload.
- * Because @match fields may contain other @match fields, the result of
- * normalizing `matchPayload` may contain *other* MatchFieldPayloads:
- * the processRelayPayload() callback is responsible for publishing
- * both the normalize payload's source as well as recursively calling
- * this function for any matchPayloads it contains.
- *
- * @private
- */
-function processMatchPayload(
-  processRelayPayload: RelayResponsePayload => void,
-  operationLoader: OperationLoader,
-  matchPayload: MatchFieldPayload,
-): RelayObservable<void> {
-  return RelayObservable.from(
-    new Promise((resolve, reject) => {
-      operationLoader
-        .load(matchPayload.operationReference)
-        .then(resolve, reject);
-    }),
-  ).map((operation: ?NormalizationSplitOperation) => {
-    if (operation == null) {
-      return;
-    }
-    const selector = {
-      dataID: matchPayload.dataID,
-      variables: matchPayload.variables,
-      node: operation,
-    };
-    const source = new RelayInMemoryRecordSource();
-    const matchRecord = RelayModernRecord.create(
-      matchPayload.dataID,
-      matchPayload.typeName,
-    );
-    source.set(matchPayload.dataID, matchRecord);
-    const normalizeResult = RelayResponseNormalizer.normalize(
-      source,
-      selector,
-      matchPayload.data,
-    );
-    const relayPayload = {
-      errors: null, // Errors are handled as part of the parent GraphQLResponse
-      fieldPayloads: normalizeResult.fieldPayloads,
-      matchPayloads: normalizeResult.matchPayloads,
-      source: source,
-    };
-    processRelayPayload(relayPayload);
-  });
 }
 
 // Add a sigil for detection by `isRelayModernEnvironment()` to avoid a

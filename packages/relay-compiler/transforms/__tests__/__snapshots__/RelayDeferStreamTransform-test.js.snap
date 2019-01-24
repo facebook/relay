@@ -1,0 +1,544 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`RelayDeferStreamTransform matches expected output: fragment-with-defer.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query QueryWithFragmentWithDefer {
+  me {
+    id
+    ...UserFragment
+  }
+}
+
+fragment UserFragment on User {
+  id
+  emailAddresses
+  ...DeferredFragment @defer(label: "DeferredFragmentLabel")
+}
+
+fragment DeferredFragment on User {
+  id
+  name
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+query QueryWithFragmentWithDefer {
+  me {
+    id
+    ...UserFragment
+  }
+}
+
+fragment UserFragment on User {
+  id
+  emailAddresses
+  ...DeferredFragment @defer(label: "UserFragment$defer$DeferredFragmentLabel")
+}
+
+fragment DeferredFragment on User {
+  id
+  name
+}
+
+`;
+
+exports[`RelayDeferStreamTransform matches expected output: fragment-with-defer-arguments.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query QueryWithFragmentWithDefer {
+  me {
+    id
+    ...UserFragment
+  }
+}
+
+fragment UserFragment on User {
+  id
+  emailAddresses
+  ...DeferredFragment @defer(label: "DeferredFragmentLabel") @arguments(scale: 1.5)
+}
+
+fragment DeferredFragment on User
+@argumentDefinitions(scale: {type: "Float"}) {
+  id
+  name
+  profile_picture(scale: $scale) {
+    uri
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+query QueryWithFragmentWithDefer {
+  me {
+    id
+    ...UserFragment
+  }
+}
+
+fragment UserFragment on User {
+  id
+  emailAddresses
+  ...DeferredFragment @defer(label: "UserFragment$defer$DeferredFragmentLabel") @arguments(scale: 1.5)
+}
+
+fragment DeferredFragment on User @argumentDefinitions(
+  scale: {type: "Float"}
+) {
+  id
+  name
+  profile_picture(scale: $scale) {
+    uri
+  }
+}
+
+`;
+
+exports[`RelayDeferStreamTransform matches expected output: fragment-with-defer-if-arg.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query QueryWithFragmentWithDefer($enableDefer: Boolean) {
+  me {
+    id
+    ...UserFragment
+  }
+}
+
+fragment UserFragment on User {
+  id
+  emailAddresses
+  ...DeferredFragment @defer(label: "DeferredFragmentLabel", if: $enableDefer)
+}
+
+fragment DeferredFragment on User {
+  id
+  name
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+query QueryWithFragmentWithDefer(
+  $enableDefer: Boolean
+) {
+  me {
+    id
+    ...UserFragment
+  }
+}
+
+fragment UserFragment on User {
+  id
+  emailAddresses
+  ...DeferredFragment @defer(label: "UserFragment$defer$DeferredFragmentLabel", if: $enableDefer)
+}
+
+fragment DeferredFragment on User {
+  id
+  name
+}
+
+`;
+
+exports[`RelayDeferStreamTransform matches expected output: fragment-with-defer-statically-disabled.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query QueryWithFragmentWithDefer {
+  me {
+    id
+    ...UserFragment
+  }
+}
+
+fragment UserFragment on User {
+  id
+  emailAddresses
+  ...DeferredFragment @defer(label: "DeferredFragmentLabel", if: false)
+}
+
+fragment DeferredFragment on User {
+  id
+  name
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+query QueryWithFragmentWithDefer {
+  me {
+    id
+    ...UserFragment
+  }
+}
+
+fragment UserFragment on User {
+  id
+  emailAddresses
+  ...DeferredFragment
+}
+
+fragment DeferredFragment on User {
+  id
+  name
+}
+
+`;
+
+exports[`RelayDeferStreamTransform matches expected output: fragment-with-stream.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query QueryWithFragmentWithStream($id: ID!) {
+  node(id: $id) {
+    id
+    ...FeedbackFragment
+  }
+}
+
+fragment FeedbackFragment on Feedback {
+  id
+  actors @stream(initial_count: 1, label: "StreamedActorsLabel") {
+    name
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+query QueryWithFragmentWithStream(
+  $id: ID!
+) {
+  node(id: $id) {
+    id
+    ...FeedbackFragment
+  }
+}
+
+fragment FeedbackFragment on Feedback {
+  id
+  actors @stream(label: "FeedbackFragment$stream$StreamedActorsLabel", initial_count: 1) {
+    name
+  }
+}
+
+`;
+
+exports[`RelayDeferStreamTransform matches expected output: fragment-with-stream-if-arg.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query QueryWithFragmentWithStream($id: ID!, $enableStream: Boolean) {
+  node(id: $id) {
+    id
+    ...FeedbackFragment
+  }
+}
+
+fragment FeedbackFragment on Feedback {
+  id
+  actors @stream(initial_count: 1, label: "StreamedActorsLabel", if: $enableStream) {
+    name
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+query QueryWithFragmentWithStream(
+  $id: ID!
+  $enableStream: Boolean
+) {
+  node(id: $id) {
+    id
+    ...FeedbackFragment
+  }
+}
+
+fragment FeedbackFragment on Feedback {
+  id
+  actors @stream(label: "FeedbackFragment$stream$StreamedActorsLabel", if: $enableStream, initial_count: 1) {
+    name
+  }
+}
+
+`;
+
+exports[`RelayDeferStreamTransform matches expected output: fragment-with-stream-initial-count-arg.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query QueryWithFragmentWithStream($id: ID!, $initialCount: Int) {
+  node(id: $id) {
+    id
+    ...FeedbackFragment
+  }
+}
+
+fragment FeedbackFragment on Feedback {
+  id
+  actors @stream(initial_count: $initialCount, label: "StreamedActorsLabel") {
+    name
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+query QueryWithFragmentWithStream(
+  $id: ID!
+  $initialCount: Int
+) {
+  node(id: $id) {
+    id
+    ...FeedbackFragment
+  }
+}
+
+fragment FeedbackFragment on Feedback {
+  id
+  actors @stream(label: "FeedbackFragment$stream$StreamedActorsLabel", initial_count: $initialCount) {
+    name
+  }
+}
+
+`;
+
+exports[`RelayDeferStreamTransform matches expected output: fragment-with-stream-statically-disabled.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query QueryWithFragmentWithStream($id: ID!) {
+  node(id: $id) {
+    id
+    ...FeedbackFragment
+  }
+}
+
+fragment FeedbackFragment on Feedback {
+  id
+  actors @stream(initial_count: 1, label: "StreamedActorsLabel", if: false) {
+    name
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+query QueryWithFragmentWithStream(
+  $id: ID!
+) {
+  node(id: $id) {
+    id
+    ...FeedbackFragment
+  }
+}
+
+fragment FeedbackFragment on Feedback {
+  id
+  actors {
+    name
+  }
+}
+
+`;
+
+exports[`RelayDeferStreamTransform matches expected output: fragment-with-stream-variable-label.invalid.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query QueryWithFragmentWithStream($id: ID!, $label: String!) {
+  node(id: $id) {
+    id
+    ...FeedbackFragment
+  }
+}
+
+fragment FeedbackFragment on Feedback {
+  id
+  actors @stream(initial_count: 1, label: $label) {
+    name
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+THROWN EXCEPTION:
+
+Error: Encountered 1 error(s):
+- Expected the 'label' value to @stream to be a string literal.
+  
+  Source: GraphQL request (10:43)
+   9:   id
+  10:   actors @stream(initial_count: 1, label: $label) {
+                                                ^
+  11:     name
+  
+`;
+
+exports[`RelayDeferStreamTransform matches expected output: fragment-with-variable-label.invalid.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query QueryWithFragmentWithDefer($label: String!) {
+  me {
+    id
+    ...UserFragment
+  }
+}
+
+fragment UserFragment on User {
+  id
+  emailAddresses
+  ...DeferredFragment @defer(label: $label)
+}
+
+fragment DeferredFragment on User {
+  id
+  name
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+THROWN EXCEPTION:
+
+Error: Encountered 1 error(s):
+- Expected the 'label' value to @defer to be a string literal.
+  
+  Source: GraphQL request (11:37)
+  10:   emailAddresses
+  11:   ...DeferredFragment @defer(label: $label)
+                                          ^
+  12: }
+  
+`;
+
+exports[`RelayDeferStreamTransform matches expected output: inline-fragment-with-defer.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query QueryWithFragmentWithDefer {
+  me {
+    id
+    ...UserFragment
+  }
+}
+
+fragment UserFragment on User {
+  id
+  emailAddresses
+  ... on User @defer(label: "DeferredFragmentLabel") {
+    id
+    name
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+query QueryWithFragmentWithDefer {
+  me {
+    id
+    ...UserFragment
+  }
+}
+
+fragment UserFragment on User {
+  id
+  emailAddresses
+  ... on User @defer(label: "UserFragment$defer$DeferredFragmentLabel") {
+    id
+    name
+  }
+}
+
+`;
+
+exports[`RelayDeferStreamTransform matches expected output: inline-fragment-with-defer-statically-disabled.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query QueryWithFragmentWithDefer {
+  me {
+    id
+    ...UserFragment
+  }
+}
+
+fragment UserFragment on User {
+  id
+  emailAddresses
+  ... on User @defer(label: "DeferredFragmentLabel", if: false) {
+    id
+    name
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+query QueryWithFragmentWithDefer {
+  me {
+    id
+    ...UserFragment
+  }
+}
+
+fragment UserFragment on User {
+  id
+  emailAddresses
+  ... on User {
+    id
+    name
+  }
+}
+
+`;
+
+exports[`RelayDeferStreamTransform matches expected output: inline-fragment-with-variable-label.invalid.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query QueryWithFragmentWithDefer($label: String!) {
+  me {
+    id
+    ...UserFragment
+  }
+}
+
+fragment UserFragment on User {
+  id
+  emailAddresses
+  ... on User @defer(label: $label) {
+    id
+    name
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+THROWN EXCEPTION:
+
+Error: Encountered 1 error(s):
+- Expected the 'label' value to @defer to be a string literal.
+  
+  Source: GraphQL request (11:29)
+  10:   emailAddresses
+  11:   ... on User @defer(label: $label) {
+                                  ^
+  12:     id
+  
+`;
+
+exports[`RelayDeferStreamTransform matches expected output: query-with-defer.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query QueryWithDefer {
+  me {
+    id
+    ...DeferredFragment @defer(label: "DeferredFragmentLabel")
+  }
+}
+
+fragment DeferredFragment on User {
+  id
+  name
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+query QueryWithDefer {
+  me {
+    id
+    ...DeferredFragment @defer(label: "QueryWithDefer$defer$DeferredFragmentLabel")
+  }
+}
+
+fragment DeferredFragment on User {
+  id
+  name
+}
+
+`;
+
+exports[`RelayDeferStreamTransform matches expected output: query-with-stream.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query QueryWithStream($id: ID!) {
+  node(id: $id) {
+    ... on Feedback {
+      actors @stream(initial_count: 1, label: "StreamedActorsLabel") {
+        name
+      }
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+query QueryWithStream(
+  $id: ID!
+) {
+  node(id: $id) {
+    ... on Feedback {
+      actors @stream(label: "QueryWithStream$stream$StreamedActorsLabel", initial_count: 1) {
+        name
+      }
+    }
+  }
+}
+
+`;

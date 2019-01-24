@@ -16,6 +16,7 @@ const InlineFragmentsTransform = require('../transforms/InlineFragmentsTransform
 const RefineOperationVariablesTransform = require('../transforms/RefineOperationVariablesTransform');
 const RelayApplyFragmentArgumentTransform = require('../transforms/RelayApplyFragmentArgumentTransform');
 const RelayConnectionTransform = require('../handlers/connection//RelayConnectionTransform');
+const RelayDeferStreamTransform = require('../transforms/RelayDeferStreamTransform');
 const RelayFieldHandleTransform = require('../transforms/RelayFieldHandleTransform');
 const RelayGenerateIDFieldTransform = require('../transforms/RelayGenerateIDFieldTransform');
 const RelayGenerateTypeNameTransform = require('../transforms/RelayGenerateTypeNameTransform');
@@ -70,6 +71,7 @@ const relayQueryTransforms: Array<IRTransform> = [
 // Transforms applied to the code used to process a query response.
 const relayCodegenTransforms: Array<IRTransform> = [
   RelaySplitMatchTransform.transform,
+  RelayDeferStreamTransform.transform,
   InlineFragmentsTransform.transform,
   FlattenTransform.transformWithOptions({flattenAbstractTypes: true}),
   SkipRedundantNodesTransform.transform,

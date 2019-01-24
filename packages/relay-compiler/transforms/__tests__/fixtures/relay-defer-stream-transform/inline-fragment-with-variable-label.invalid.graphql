@@ -1,0 +1,15 @@
+query QueryWithFragmentWithDefer($label: String!) {
+  me {
+    id
+    ...UserFragment
+  }
+}
+
+fragment UserFragment on User {
+  id
+  emailAddresses
+  ... on User @defer(label: $label) {
+    id
+    name
+  }
+}

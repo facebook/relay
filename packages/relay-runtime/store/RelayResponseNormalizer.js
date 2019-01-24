@@ -57,7 +57,10 @@ import type {
   NormalizationSelector,
 } from './RelayStoreTypes';
 
-export type NormalizationOptions = {handleStrippedNulls: boolean};
+export type NormalizationOptions = {|
+  +handleStrippedNulls: boolean,
+  +path?: $ReadOnlyArray<string>,
+|};
 
 export type NormalizedResponse = {|
   incrementalPayloads: Array<IncrementalDataPayload>,
@@ -110,7 +113,7 @@ class RelayResponseNormalizer {
     this._handleStrippedNulls = options.handleStrippedNulls;
     this._incrementalPayloads = [];
     this._matchFieldPayloads = [];
-    this._path = [];
+    this._path = options.path ? [...options.path] : [];
     this._recordSource = recordSource;
     this._variables = variables;
   }
@@ -347,9 +350,10 @@ class RelayResponseNormalizer {
     const operationReference = fieldValue[MATCH_FRAGMENT_KEY];
     if (operationReference != null) {
       this._matchFieldPayloads.push({
-        operationReference,
-        dataID: nextID,
         data: fieldValue,
+        dataID: nextID,
+        operationReference,
+        path: [...this._path, responseKey],
         typeName,
         variables: this._variables,
       });

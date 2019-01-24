@@ -436,6 +436,84 @@ describe('RelayResponseNormalizer', () => {
           },
           variables: {id: '1'},
           typeName: 'MarkdownUserNameRenderer',
+          path: ['node', 'nameRenderer'],
+        },
+      ]);
+    });
+
+    it('returns metadata with prefixed path', () => {
+      const payload = {
+        node: {
+          id: '1',
+          __typename: 'User',
+          nameRenderer: {
+            __typename: 'MarkdownUserNameRenderer',
+            __match_component: 'MarkdownUserNameRenderer.react',
+            __match_fragment:
+              'MarkdownUserNameRenderer_name$normalization.graphql',
+            markdown: 'markdown payload',
+            data: {
+              markup: '<markup/>',
+            },
+          },
+        },
+      };
+
+      const recordSource = new RelayInMemoryRecordSource();
+      recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
+      const {matchPayloads} = normalize(
+        recordSource,
+        {
+          dataID: ROOT_ID,
+          node: BarQuery.operation,
+          variables: {id: '1'},
+        },
+        payload,
+        // simulate a nested @match that appeared, validate that nested payload
+        // path is prefixed with this parent path:
+        {path: ['abc', '0', 'xyz']},
+      );
+      expect(recordSource.toJSON()).toEqual({
+        '1': {
+          __id: '1',
+          id: '1',
+          __typename: 'User',
+          'nameRenderer(MarkdownUserNameRenderer_name:MarkdownUserNameRenderer.react,PlainUserNameRenderer_name:PlainUserNameRenderer.react)': {
+            __ref:
+              'client:1:nameRenderer(MarkdownUserNameRenderer_name:MarkdownUserNameRenderer.react,PlainUserNameRenderer_name:PlainUserNameRenderer.react)',
+          },
+        },
+        'client:1:nameRenderer(MarkdownUserNameRenderer_name:MarkdownUserNameRenderer.react,PlainUserNameRenderer_name:PlainUserNameRenderer.react)': {
+          __id:
+            'client:1:nameRenderer(MarkdownUserNameRenderer_name:MarkdownUserNameRenderer.react,PlainUserNameRenderer_name:PlainUserNameRenderer.react)',
+          __typename: 'MarkdownUserNameRenderer',
+        },
+        'client:root': {
+          __id: 'client:root',
+          __typename: '__Root',
+          'node(id:"1")': {__ref: '1'},
+        },
+      });
+      expect(matchPayloads).toEqual([
+        {
+          operationReference:
+            'MarkdownUserNameRenderer_name$normalization.graphql',
+          dataID:
+            'client:1:nameRenderer(MarkdownUserNameRenderer_name:MarkdownUserNameRenderer.react,PlainUserNameRenderer_name:PlainUserNameRenderer.react)',
+          data: {
+            __typename: 'MarkdownUserNameRenderer',
+            __match_component: 'MarkdownUserNameRenderer.react',
+            __match_fragment:
+              'MarkdownUserNameRenderer_name$normalization.graphql',
+            markdown: 'markdown payload',
+            data: {
+              markup: '<markup/>',
+            },
+          },
+          variables: {id: '1'},
+          typeName: 'MarkdownUserNameRenderer',
+          // parent path followed by local path to @match
+          path: ['abc', '0', 'xyz', 'node', 'nameRenderer'],
         },
       ]);
     });
@@ -770,6 +848,55 @@ describe('RelayResponseNormalizer', () => {
         },
       });
     });
+
+    it('returns metadata with prefixed path', () => {
+      const {Query} = generateAndCompile(
+        `
+          fragment TestFragment on User {
+            id
+            name
+          }
+
+          query Query($id: ID!) {
+            node(id: $id) {
+              ...TestFragment @defer(label: "TestFragment")
+            }
+          }`,
+      );
+      const payload = {
+        node: {
+          id: '1',
+          __typename: 'User',
+        },
+      };
+
+      const recordSource = new RelayInMemoryRecordSource();
+      recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
+      const {incrementalPayloads} = normalize(
+        recordSource,
+        {
+          dataID: ROOT_ID,
+          node: Query.operation,
+          variables: {id: '1'},
+        },
+        payload,
+        // simulate a nested defer payload, verify that the incrementalPayloads
+        // paths are prefixed with this parent path
+        {path: ['abc', '0', 'xyz']},
+      );
+      expect(incrementalPayloads).toEqual([
+        {
+          kind: 'defer',
+          label: 'Query$defer$TestFragment',
+          path: ['abc', '0', 'xyz', 'node'],
+          selector: {
+            dataID: '1',
+            variables: {id: '1'},
+            node: expect.objectContaining({kind: 'Defer'}),
+          },
+        },
+      ]);
+    });
   });
 
   describe('@stream', () => {
@@ -1058,6 +1185,58 @@ describe('RelayResponseNormalizer', () => {
           'node(id:"1")': {__ref: '1'},
         },
       });
+    });
+
+    it('returns metadata with prefixed path', () => {
+      const {Query} = generateAndCompile(
+        `
+          fragment TestFragment on Feedback {
+            id
+            actors @stream(label: "actors") {
+              name
+            }
+          }
+
+          query Query($id: ID!) {
+            node(id: $id) {
+              ...TestFragment
+            }
+          }`,
+      );
+      const payload = {
+        node: {
+          id: '1',
+          __typename: 'Feedback',
+          actors: [{__typename: 'User', id: '2', name: 'Alice'}],
+        },
+      };
+
+      const recordSource = new RelayInMemoryRecordSource();
+      recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
+      const {incrementalPayloads} = normalize(
+        recordSource,
+        {
+          dataID: ROOT_ID,
+          node: Query.operation,
+          variables: {id: '1'},
+        },
+        payload,
+        // simulate a nested @match that appeared, validate that nested payload
+        // path is prefixed with this parent path:
+        {path: ['abc', '0', 'xyz']},
+      );
+      expect(incrementalPayloads).toEqual([
+        {
+          kind: 'stream',
+          label: 'TestFragment$stream$actors',
+          path: ['abc', '0', 'xyz', 'node'],
+          selector: {
+            dataID: '1',
+            variables: {id: '1'},
+            node: expect.objectContaining({kind: 'Stream'}),
+          },
+        },
+      ]);
     });
   });
 

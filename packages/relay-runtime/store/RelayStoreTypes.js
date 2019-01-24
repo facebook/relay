@@ -356,19 +356,19 @@ export type Handler = {
  * A payload that is used to initialize or update a "handle" field with
  * information from the server.
  */
-export type HandleFieldPayload = $Exact<{
+export type HandleFieldPayload = {|
   // The arguments that were fetched.
-  args: Variables,
+  +args: Variables,
   // The __id of the record containing the source/handle field.
-  dataID: DataID,
+  +dataID: DataID,
   // The (storage) key at which the original server data was written.
-  fieldKey: string,
+  +fieldKey: string,
   // The name of the handle.
-  handle: string,
+  +handle: string,
   // The (storage) key at which the handle's data should be written by the
   // handler.
-  handleKey: string,
-}>;
+  +handleKey: string,
+|};
 
 /**
  * A payload that represents data necessary to process the results of a `@match`
@@ -385,11 +385,12 @@ export type HandleFieldPayload = $Exact<{
  * typeName can also be used to construct a root record for normalization.
  */
 export type MatchFieldPayload = {|
-  data: PayloadData,
-  dataID: DataID,
-  operationReference: mixed,
-  typeName: string,
-  variables: Variables,
+  +data: PayloadData,
+  +dataID: DataID,
+  +operationReference: mixed,
+  +path: $ReadOnlyArray<string>,
+  +typeName: string,
+  +variables: Variables,
 |};
 
 /**

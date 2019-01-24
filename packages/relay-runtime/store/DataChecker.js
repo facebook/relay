@@ -22,12 +22,12 @@ const invariant = require('invariant');
 const {EXISTENT, UNKNOWN} = require('./RelayRecordState');
 
 import type {
+  NormalizationField,
   NormalizationLinkedField,
   NormalizationMatchField,
   NormalizationNode,
   NormalizationScalarField,
   NormalizationSelection,
-  NormalizationField,
 } from '../util/NormalizationNode';
 import type {Record} from '../util/RelayCombinedEnvironmentTypes';
 import type {DataID, Variables} from '../util/RelayRuntimeTypes';
@@ -41,6 +41,7 @@ import type {
 
 const {
   CONDITION,
+  DEFER,
   FRAGMENT_SPREAD,
   INLINE_FRAGMENT,
   LINKED_FIELD,
@@ -48,6 +49,7 @@ const {
   MATCH_FIELD,
   SCALAR_FIELD,
   SCALAR_HANDLE,
+  STREAM,
 } = RelayConcreteNode;
 const {getStorageKey, getArgumentValues, MATCH_FRAGMENT_KEY} = RelayStoreUtils;
 
@@ -265,6 +267,10 @@ class DataChecker {
           break;
         case MATCH_FIELD:
           this._checkMatch(selection, dataID);
+          break;
+        case DEFER:
+        case STREAM:
+          this._traverseSelections(selection.selections, dataID);
           break;
         case SCALAR_HANDLE:
         case FRAGMENT_SPREAD:

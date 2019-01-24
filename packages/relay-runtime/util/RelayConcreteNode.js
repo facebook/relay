@@ -48,6 +48,7 @@ export type GeneratedNode =
 
 const RelayConcreteNode = {
   CONDITION: 'Condition',
+  DEFER: 'Defer',
   FRAGMENT: 'Fragment',
   FRAGMENT_SPREAD: 'FragmentSpread',
   INLINE_FRAGMENT: 'InlineFragment',
@@ -62,6 +63,7 @@ const RelayConcreteNode = {
   SCALAR_FIELD: 'ScalarField',
   SCALAR_HANDLE: 'ScalarHandle',
   SPLIT_OPERATION: 'SplitOperation',
+  STREAM: 'Stream',
   VARIABLE: 'Variable',
 };
 

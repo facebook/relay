@@ -643,6 +643,178 @@ describe('check()', () => {
     });
   });
 
+  describe('when @defer directive is present', () => {
+    beforeEach(() => {
+      const nodes = generateAndCompile(
+        `
+          fragment TestFragment on User {
+            id
+            name
+          }
+
+          query TestQuery($id: ID!) {
+            node(id: $id) {
+              ...TestFragment @defer(label: "TestFragment")
+            }
+          }`,
+      );
+      Query = nodes.TestQuery;
+    });
+
+    it('returns true when deferred selections are fetched', () => {
+      const storeData = {
+        '1': {
+          __id: '1',
+          __typename: 'User',
+          id: '1',
+          name: 'Alice',
+        },
+        'client:root': {
+          __id: 'client:root',
+          __typename: '__Root',
+          'node(id:"1")': {__ref: '1'},
+        },
+      };
+      const source = new RelayInMemoryRecordSource(storeData);
+      const target = new RelayInMemoryRecordSource();
+      const status = check(
+        source,
+        target,
+        {
+          dataID: 'client:root',
+          node: Query.operation,
+          variables: {id: '1'},
+        },
+        [],
+      );
+      expect(status).toBe(true);
+      expect(target.size()).toBe(0);
+    });
+
+    it('returns false when deferred selections are not fetched', () => {
+      const storeData = {
+        '1': {
+          __id: '1',
+          __typename: 'User',
+          id: '1',
+          // 'name' not fetched
+        },
+        'client:root': {
+          __id: 'client:root',
+          __typename: '__Root',
+          'node(id:"1")': {__ref: '1'},
+        },
+      };
+      const source = new RelayInMemoryRecordSource(storeData);
+      const target = new RelayInMemoryRecordSource();
+      const status = check(
+        source,
+        target,
+        {
+          dataID: 'client:root',
+          node: Query.operation,
+          variables: {id: '1'},
+        },
+        [],
+      );
+      expect(status).toBe(false);
+      expect(target.size()).toBe(0);
+    });
+  });
+
+  describe('when @stream directive is present', () => {
+    beforeEach(() => {
+      const nodes = generateAndCompile(
+        `
+          fragment TestFragment on Feedback {
+            id
+            actors @stream(label: "TestFragmentActors") {
+              name
+            }
+          }
+
+          query TestQuery($id: ID!) {
+            node(id: $id) {
+              ...TestFragment
+            }
+          }`,
+      );
+      Query = nodes.TestQuery;
+    });
+
+    it('returns true when streamed selections are fetched', () => {
+      const storeData = {
+        '1': {
+          __id: '1',
+          __typename: 'Feedback',
+          id: '1',
+          actors: {__refs: ['2']},
+        },
+        '2': {
+          __id: '2',
+          __typename: 'User',
+          id: '2',
+          name: 'Alice',
+        },
+        'client:root': {
+          __id: 'client:root',
+          __typename: '__Root',
+          'node(id:"1")': {__ref: '1'},
+        },
+      };
+      const source = new RelayInMemoryRecordSource(storeData);
+      const target = new RelayInMemoryRecordSource();
+      const status = check(
+        source,
+        target,
+        {
+          dataID: 'client:root',
+          node: Query.operation,
+          variables: {id: '1'},
+        },
+        [],
+      );
+      expect(status).toBe(true);
+      expect(target.size()).toBe(0);
+    });
+
+    it('returns false when streamed selections are not fetched', () => {
+      const storeData = {
+        '1': {
+          __id: '1',
+          __typename: 'Feedback',
+          id: '1',
+          actors: {__refs: ['2']},
+        },
+        '2': {
+          __id: '2',
+          __typename: 'User',
+          id: '2',
+          // name not fetched
+        },
+        'client:root': {
+          __id: 'client:root',
+          __typename: '__Root',
+          'node(id:"1")': {__ref: '1'},
+        },
+      };
+      const source = new RelayInMemoryRecordSource(storeData);
+      const target = new RelayInMemoryRecordSource();
+      const status = check(
+        source,
+        target,
+        {
+          dataID: 'client:root',
+          node: Query.operation,
+          variables: {id: '1'},
+        },
+        [],
+      );
+      expect(status).toBe(false);
+      expect(target.size()).toBe(0);
+    });
+  });
+
   describe('when the data is complete', () => {
     it('returns `true`', () => {
       const source = new RelayInMemoryRecordSource(sampleData);

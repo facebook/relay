@@ -13,8 +13,10 @@
 const IRVisitor = require('../core/GraphQLIRVisitor');
 const SchemaUtils = require('../core/GraphQLSchemaUtils');
 
-const invariant = require('invariant');
-
+const {
+  createCompilerError,
+  createUserError,
+} = require('../core/RelayCompilerError');
 const {GraphQLList} = require('graphql');
 const {getStorageKey, stableCopy} = require('relay-runtime');
 
@@ -44,12 +46,12 @@ const {getRawType, isAbstractType, getNullableType} = SchemaUtils;
 declare function generate(node: Root): NormalizationOperation;
 declare function generate(node: SplitOperation): NormalizationSplitOperation;
 function generate(node) {
-  invariant(
-    node.kind === 'Root' || node.kind === 'SplitOperation',
-    'RelayCodeGenerator: Unknown AST kind `%s`. Source: %s.',
-    node.kind,
-    getErrorMessage(node),
-  );
+  if (node.kind !== 'Root' && node.kind !== 'SplitOperation') {
+    throw createCompilerError(
+      `NormalizationCodeGenerator: Unsupported AST kind '${node.kind}'.`,
+      [node.loc],
+    );
+  }
   return IRVisitor.visit(node, NormalizationCodeGenVisitor);
 }
 
@@ -65,11 +67,15 @@ const NormalizationCodeGenVisitor = {
     },
 
     Request(node): empty {
-      throw new Error('NormalizationCodeGenerator: unexpected Request node.');
+      throw createCompilerError(
+        'NormalizationCodeGenerator: unexpected Request node.',
+      );
     },
 
     Fragment(node): empty {
-      throw new Error('NormalizationCodeGenerator: unexpected Fragment node.');
+      throw createCompilerError(
+        'NormalizationCodeGenerator: unexpected Fragment node.',
+      );
     },
 
     LocalArgumentDefinition(node): NormalizationArgumentDefinition {
@@ -90,12 +96,13 @@ const NormalizationCodeGenVisitor = {
     },
 
     Condition(node, key, parent, ancestors): NormalizationSelection {
-      invariant(
-        node.condition.kind === 'Variable',
-        'RelayCodeGenerator: Expected static `Condition` node to be ' +
-          'pruned or inlined. Source: %s.',
-        getErrorMessage(ancestors[0]),
-      );
+      if (node.condition.kind !== 'Variable') {
+        throw createCompilerError(
+          "NormalizationCodeGenerator: Expected 'Condition' with static " +
+            'value to be pruned or inlined',
+          [node.condition.loc],
+        );
+      }
       return {
         kind: 'Condition',
         passingValue: node.passingValue,
@@ -105,14 +112,19 @@ const NormalizationCodeGenVisitor = {
     },
 
     Defer(node, key, parent, ancestors): NormalizationDefer {
-      invariant(
-        node.if == null ||
+      if (
+        !(
+          node.if == null ||
           node.if.kind === 'Variable' ||
-          (node.if.kind === 'Literal' && node.if.value === true),
-        'RelayCodeGenerator: Expected Defer `if` condition to be ' +
-          'a variable, unspecified, or the literal `true`. Source: %s.',
-        getErrorMessage(ancestors[0]),
-      );
+          (node.if.kind === 'Literal' && node.if.value === true)
+        )
+      ) {
+        throw createCompilerError(
+          'NormalizationCodeGenerator: Expected @defer `if` condition to be ' +
+            'a variable, unspecified, or the literal `true`.',
+          [node.if?.loc ?? node.loc],
+        );
+      }
       return {
         if: node.if?.kind === 'Variable' ? node.if.variableName : null,
         kind: 'Defer',
@@ -190,31 +202,31 @@ const NormalizationCodeGenVisitor = {
           // to the selections of the match field.
           return;
         }
-        invariant(
-          selection.kind === 'MatchBranch',
-          'RelayCodeGenerator: Expected selection for MatchField %s to be ' +
-            'a `MatchBranch`, but instead got `%s`. Source: `%s`.',
-          node.alias ?? node.name,
-          selection.kind,
-          getErrorMessage(ancestors[0]),
-        );
-        invariant(
-          !matchesByType.hasOwnProperty(selection.type),
-          'RelayCodeGenerator: Each "match" type has to appear at-most once. ' +
-            'Type `%s` was duplicated. Source: %s.',
-          selection.type,
-          getErrorMessage(ancestors[0]),
-        );
+        if (selection.kind !== 'MatchBranch') {
+          throw createCompilerError(
+            `NormalizationCodeGenerator: Expected selection for MatchField '${
+              node.name
+            }' to be a 'MatchBranch', got '${selection.kind}'.`,
+            [selection.loc],
+          );
+        }
+        if (matchesByType.hasOwnProperty(selection.type)) {
+          throw createCompilerError(
+            'NormalizationCodeGenerator: Each @match type can appear at-most ' +
+              `once. Type '${String(selection.type)}' was duplicated.`,
+            selection.type,
+            [selection.loc],
+          );
+        }
         const fragmentName = selection.name;
         const regExpMatch = fragmentName.match(
           /^([a-zA-Z][a-zA-Z0-9]*)(?:_([a-zA-Z][_a-zA-Z0-9]*))?$/,
         );
         if (!regExpMatch) {
-          throw new Error(
-            'RelayMatchTransform: Fragments should be named ' +
-              '`FragmentName_fragmentPropName`, got `' +
-              fragmentName +
-              '`.',
+          throw createCompilerError(
+            'NormalizationCodeGenerator: @match fragments should be named ' +
+              `'FragmentName_propName', got '${fragmentName}'.`,
+            [selection.loc],
           );
         }
         const fragmentPropName = regExpMatch[2] ?? 'matchData';
@@ -282,14 +294,19 @@ const NormalizationCodeGenVisitor = {
     },
 
     Stream(node, key, parent, ancestors): NormalizationStream {
-      invariant(
-        node.if == null ||
+      if (
+        !(
+          node.if == null ||
           node.if.kind === 'Variable' ||
-          (node.if.kind === 'Literal' && node.if.value === true),
-        'RelayCodeGenerator: Expected Stream `if` condition to be ' +
-          'a variable, unspecified, or the literal `true`. Source: %s.',
-        getErrorMessage(ancestors[0]),
-      );
+          (node.if.kind === 'Literal' && node.if.value === true)
+        )
+      ) {
+        throw createCompilerError(
+          'NormalizationCodeGenerator: Expected @stream `if` condition to be ' +
+            'a variable, unspecified, or the literal `true`.',
+          [node.if?.loc ?? node.loc],
+        );
+      }
       return {
         if: node.if?.kind === 'Variable' ? node.if.variableName : null,
         kind: 'Stream',
@@ -319,12 +336,10 @@ const NormalizationCodeGenVisitor = {
 
     Argument(node, key, parent, ancestors): ?NormalizationArgument {
       if (!['Variable', 'Literal'].includes(node.value.kind)) {
-        const valueString = JSON.stringify(node.value, null, 2);
-        throw new Error(
+        throw createUserError(
           'RelayCodeGenerator: Complex argument values (Lists or ' +
-            'InputObjects with nested variables) are not supported, argument ' +
-            `\`${node.name}\` had value \`${valueString}\`. ` +
-            `Source: ${getErrorMessage(ancestors[0])}.`,
+            'InputObjects with nested variables) are not supported.',
+          [node.value.loc],
         );
       }
       return node.value.value !== null ? node.value : null;
@@ -354,10 +369,6 @@ function sortByName<T: {name: string}>(
         .slice()
         .sort((a, b) => (a.name < b.name ? -1 : a.name > b.name ? 1 : 0))
     : array;
-}
-
-function getErrorMessage(node: any): string {
-  return `document ${node.name}`;
 }
 
 /**

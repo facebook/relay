@@ -13,7 +13,7 @@
 const NormalizationCodeGenerator = require('./NormalizationCodeGenerator');
 const ReaderCodeGenerator = require('./ReaderCodeGenerator');
 
-const invariant = require('invariant');
+const {createCompilerError} = require('../core/RelayCompilerError');
 
 import type {Fragment, Request, SplitOperation} from '../core/GraphQLIR';
 import type {
@@ -51,16 +51,10 @@ function generate(node) {
     case 'SplitOperation':
       return NormalizationCodeGenerator.generate(node);
   }
-  invariant(
-    false,
-    'RelayCodeGenerator: Unknown AST kind `%s`. Source: %s.',
-    node.kind,
-    getErrorMessage(node),
+  throw createCompilerError(
+    `RelayCodeGenerator: Unknown AST kind '${node.kind}'.`,
+    [node.loc],
   );
-}
-
-function getErrorMessage(node: any): string {
-  return `document ${node.name}`;
 }
 
 module.exports = {generate};

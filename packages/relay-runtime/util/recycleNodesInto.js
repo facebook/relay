@@ -34,9 +34,15 @@ function recycleNodesInto<T>(prevData: T, nextData: T): T {
         const prevValue = prevArray[ii];
         const nextValue = recycleNodesInto(prevValue, nextItem);
         if (nextValue !== nextArray[ii]) {
-          nextArray[ii] = nextValue;
+          if (__DEV__) {
+            if (!Object.isFrozen(nextArray)) {
+              nextArray[ii] = nextValue;
+            }
+          } else {
+            nextArray[ii] = nextValue;
+          }
         }
-        return wasEqual && nextArray[ii] === prevArray[ii];
+        return wasEqual && nextValue === prevArray[ii];
       }, true) && prevArray.length === nextArray.length;
   } else if (!prevArray && !nextArray) {
     // Assign local variables to preserve Flow type refinement.
@@ -49,9 +55,15 @@ function recycleNodesInto<T>(prevData: T, nextData: T): T {
         const prevValue = prevObject[key];
         const nextValue = recycleNodesInto(prevValue, nextObject[key]);
         if (nextValue !== nextObject[key]) {
-          nextObject[key] = nextValue;
+          if (__DEV__) {
+            if (!Object.isFrozen(nextObject)) {
+              nextObject[key] = nextValue;
+            }
+          } else {
+            nextObject[key] = nextValue;
+          }
         }
-        return wasEqual && nextObject[key] === prevObject[key];
+        return wasEqual && nextValue === prevObject[key];
       }, true) && prevKeys.length === nextKeys.length;
   }
   return canRecycle ? prevData : nextData;

@@ -84,7 +84,7 @@ describe('recycleNodesInto', () => {
       const recycled = recycleNodesInto(prevData, nextData);
 
       expect(recycled).not.toBe(prevData);
-      expect(recycled.bar).toBe(prevData.bar);
+      expect(recycled.foo).toBe(prevData.foo);
     });
 
     it('recycles identical objects', () => {
@@ -103,6 +103,28 @@ describe('recycleNodesInto', () => {
       Object.freeze(nextData);
       const recycled = recycleNodesInto(prevData, nextData);
       expect(recycled).toBe(prevData);
+    });
+
+    it('does not mutate frozen equal parent objects with equal leaf objects', () => {
+      const prevData = {foo: {bar: 1}};
+      const nextData = {foo: {bar: 1}};
+      Object.freeze(nextData);
+      Object.freeze(nextData.foo);
+      const recycled = recycleNodesInto(prevData, nextData);
+
+      expect(recycled).toBe(prevData);
+      expect(recycled.foo).toBe(prevData.foo);
+    });
+
+    it('does not mutate frozen unequal parent objects with equal leaf objects', () => {
+      const prevData = {foo: {bar: 1}, baz: 2};
+      const nextData = {foo: {bar: 1}, baz: 200};
+      Object.freeze(nextData);
+      Object.freeze(nextData.foo);
+      const recycled = recycleNodesInto(prevData, nextData);
+
+      expect(recycled).not.toBe(prevData);
+      expect(recycled.foo).not.toBe(prevData.foo);
     });
 
     it('does not recycle arrays as objects', () => {
@@ -132,6 +154,13 @@ describe('recycleNodesInto', () => {
     it('recycles arrays with equal objects without mutating `prevData`', () => {
       const prevData = [{foo: 1}, {bar: 2}];
       const nextData = [{foo: 1}, {bar: 2}];
+      expect(recycleNodesInto(prevData, nextData)).toBe(prevData);
+    });
+
+    it('recycles arrays with equal objects without mutating frozen `nextData`', () => {
+      const prevData = [{foo: 1}, {bar: 2}];
+      const nextData = [{foo: 1}, {bar: 2}];
+      Object.freeze(nextData);
       expect(recycleNodesInto(prevData, nextData)).toBe(prevData);
     });
 

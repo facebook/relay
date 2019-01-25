@@ -22,7 +22,6 @@ module.exports = function(options) {
   const fbjsPreset = require('babel-preset-fbjs/configure')({
     autoImport: options.autoImport || false,
     objectAssign: false,
-    inlineRequires: true,
     stripDEV: options.env === 'production',
   });
 

@@ -18,7 +18,7 @@ const createCacheKeyFunction = require('fbjs-scripts/jest/createCacheKeyFunction
 const getBabelOptions = require('../getBabelOptions');
 const path = require('path');
 
-const {testSchemaPath} = require('../../dist/relay-test-utils');
+const testSchemaPath = require('../../dist/relay-test-utils/lib/RelayTestSchemaPath');
 
 const babelOptions = getBabelOptions({
   env: 'test',

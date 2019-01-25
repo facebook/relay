@@ -375,6 +375,9 @@ function areEqualSelectors(
   thisSelector: OwnedReaderSelector,
   thatSelector: OwnedReaderSelector,
 ): boolean {
+  // NOTE: areEqualSelectors temporarily ignores fragment ownership when
+  // comparing selectors, to preserve current behavior of RelayFragmentSpecResolver
+  // TODO(T39494051)
   return (
     thisSelector.selector.dataID === thatSelector.selector.dataID &&
     thisSelector.selector.node === thatSelector.selector.node &&

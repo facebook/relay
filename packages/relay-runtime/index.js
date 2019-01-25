@@ -89,6 +89,7 @@ export type {
   Environment as IEnvironment,
   FragmentMap,
   FragmentReference,
+  FragmentSpecResolver,
   HandleFieldPayload,
   MatchPointer,
   MissingFieldHandler,
@@ -145,7 +146,7 @@ export type {
   CRelayContext,
   CSnapshot,
   CUnstableEnvironmentCore,
-  FragmentSpecResolver,
+  CFragmentSpecResolver,
   FragmentSpecResults,
   Props,
 } from './util/RelayCombinedEnvironmentTypes';

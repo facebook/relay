@@ -13,20 +13,22 @@
 const invariant = require('invariant');
 const isScalarAndEqual = require('../util/isScalarAndEqual');
 
+const {createOperationDescriptor} = require('./RelayModernOperationDescriptor');
 const {
   areEqualSelectors,
   getSelectorsFromObject,
 } = require('./RelayModernSelector');
 
 import type {
-  FragmentSpecResolver,
   FragmentSpecResults,
   SelectorData,
 } from '../util/RelayCombinedEnvironmentTypes';
+import type {ConcreteRequest} from '../util/RelayConcreteNode';
 import type {Disposable, Variables} from '../util/RelayRuntimeTypes';
 import type {
   Environment,
   FragmentMap,
+  FragmentSpecResolver,
   OwnedReaderSelector,
   RelayContext,
   ReaderSelector,
@@ -178,12 +180,12 @@ class RelayModernFragmentSpecResolver implements FragmentSpecResolver {
     this._stale = true;
   }
 
-  setVariables(variables: Variables): void {
+  setVariables(variables: Variables, request?: ConcreteRequest): void {
     for (const key in this._resolvers) {
       if (this._resolvers.hasOwnProperty(key)) {
         const resolver = this._resolvers[key];
         if (resolver) {
-          resolver.setVariables(variables);
+          resolver.setVariables(variables, request);
         }
       }
     }
@@ -214,7 +216,10 @@ class SelectorResolver {
     ownedSelector: OwnedReaderSelector,
     callback: () => void,
   ) {
-    const snapshot = environment.lookup(ownedSelector.selector);
+    const snapshot = environment.lookup(
+      ownedSelector.selector,
+      ownedSelector.owner,
+    );
     this._callback = callback;
     this._data = snapshot.data;
     this._environment = environment;
@@ -241,15 +246,18 @@ class SelectorResolver {
       return;
     }
     this.dispose();
-    const snapshot = this._environment.lookup(ownedSelector.selector);
+    const snapshot = this._environment.lookup(
+      ownedSelector.selector,
+      ownedSelector.owner,
+    );
     this._data = snapshot.data;
     this._ownedSelector = ownedSelector;
     this._subscription = this._environment.subscribe(snapshot, this._onChange);
   }
 
-  setVariables(variables: Variables): void {
+  setVariables(variables: Variables, request?: ConcreteRequest): void {
     const ownedSelector = {
-      owner: null,
+      owner: request ? createOperationDescriptor(request, variables) : null,
       selector: {
         ...this._ownedSelector.selector,
         variables,
@@ -334,8 +342,10 @@ class SelectorListResolver {
     this._stale = true;
   }
 
-  setVariables(variables: Variables): void {
-    this._resolvers.forEach(resolver => resolver.setVariables(variables));
+  setVariables(variables: Variables, request?: ConcreteRequest): void {
+    this._resolvers.forEach(resolver =>
+      resolver.setVariables(variables, request),
+    );
     this._stale = true;
   }
 

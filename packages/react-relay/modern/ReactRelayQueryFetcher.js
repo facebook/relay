@@ -82,7 +82,7 @@ class ReactRelayQueryFetcher {
   ): ?Snapshot {
     if (environment.check(operation.root)) {
       this._retainCachedOperation(environment, operation);
-      return environment.lookup(operation.fragment);
+      return environment.lookup(operation.fragment, operation);
     }
     return null;
   }
@@ -292,7 +292,7 @@ class ReactRelayQueryFetcher {
       return;
     }
 
-    this._snapshot = environment.lookup(operation.fragment);
+    this._snapshot = environment.lookup(operation.fragment, operation);
 
     // Subscribe to changes in the data of the root fragment
     this._rootSubscription = environment.subscribe(this._snapshot, snapshot => {

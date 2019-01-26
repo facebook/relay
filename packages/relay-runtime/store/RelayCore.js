@@ -32,12 +32,11 @@ const {
   getVariablesFromObject,
 } = require('./RelayModernSelector');
 
-import type {Props} from '../util/RelayCombinedEnvironmentTypes';
 import type {
-  FragmentMap,
   FragmentSpecResolver,
-  RelayContext,
-} from './RelayStoreTypes';
+  Props,
+} from '../util/RelayCombinedEnvironmentTypes';
+import type {FragmentMap, RelayContext} from './RelayStoreTypes';
 
 function createFragmentSpecResolver(
   context: RelayContext,

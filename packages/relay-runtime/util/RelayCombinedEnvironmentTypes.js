@@ -81,7 +81,7 @@ export type FragmentSpecResults = {[key: string]: mixed};
  * - Creates resolvers for any props that became non-null.
  * - Updates resolvers with the latest props.
  */
-export interface CFragmentSpecResolver<TRequest> {
+export interface FragmentSpecResolver {
   /**
    * Stop watching for changes to the results of the fragments.
    */
@@ -102,7 +102,7 @@ export interface CFragmentSpecResolver<TRequest> {
    * Override the variables used to read the results of the fragments. Call
    * `resolve()` to get the updated results.
    */
-  setVariables(variables: Variables, node?: TRequest): void;
+  setVariables(variables: Variables): void;
 
   /**
    * Subscribe to resolver updates.
@@ -158,7 +158,6 @@ export interface CEnvironment<
    */
   lookup(
     selector: CReaderSelector<TReaderNode>,
-    owner?: ?COperationDescriptor<TReaderNode, TNormalizationNode, TRequest>,
   ): CSnapshot<
     TReaderNode,
     COperationDescriptor<TReaderNode, TNormalizationNode, TRequest>,
@@ -229,9 +228,9 @@ export interface CUnstableEnvironmentCore<
   TReaderSelector,
 > {
   /**
-   * Create an instance of a CFragmentSpecResolver.
+   * Create an instance of a FragmentSpecResolver.
    *
-   * TODO: The CFragmentSpecResolver *can* be implemented via the other methods
+   * TODO: The FragmentSpecResolver *can* be implemented via the other methods
    * defined here, so this could be moved out of core. It's convenient to have
    * separate implementations until the experimental core is in OSS.
    */
@@ -241,7 +240,7 @@ export interface CUnstableEnvironmentCore<
     fragments: CFragmentMap<TFragment>,
     props: Props,
     callback?: () => void,
-  ) => CFragmentSpecResolver<TRequest>;
+  ) => FragmentSpecResolver;
 
   /**
    * Creates an instance of an OperationDescriptor given an operation definition

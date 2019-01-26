@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @format
+ * @format strict-local
  * @emails oncall+relay
  */
 
@@ -18,11 +18,10 @@ const ReactTestRenderer = require('ReactTestRenderer');
 const readContext = require('../readContext');
 
 const {createMockEnvironment} = require('RelayModernMockEnvironment');
+const {Observable} = require('relay-runtime');
 const {
-  createOperationDescriptor,
   Environment,
   Network,
-  Observable,
   RecordSource,
   Store,
   simpleClone,
@@ -214,7 +213,6 @@ describe('ReactRelayQueryRenderer', () => {
           const renderer = ReactTestRenderer.create(<Example />, {
             unstable_isConcurrent: true,
           });
-          const owner = createOperationDescriptor(TestQuery, variables);
 
           // Flush some of the changes, but don't commit
           expect(renderer.unstable_flushNumberOfYields(2)).toEqual(['A', 'B']);
@@ -227,7 +225,7 @@ describe('ReactRelayQueryRenderer', () => {
                 __fragments: {
                   TestFragment: {},
                 },
-                __fragmentOwner: owner,
+                __fragmentOwner: null,
                 __id: '4',
               },
             },
@@ -249,7 +247,7 @@ describe('ReactRelayQueryRenderer', () => {
                 __fragments: {
                   TestFragment: {},
                 },
-                __fragmentOwner: owner,
+                __fragmentOwner: null,
                 __id: '4',
               },
             },
@@ -294,7 +292,6 @@ describe('ReactRelayQueryRenderer', () => {
           const renderer = ReactTestRenderer.create(<Example />, {
             unstable_isConcurrent: true,
           });
-          const owner = createOperationDescriptor(TestQuery, variables);
 
           // Flush some of the changes, but don't commit
           expect(renderer.unstable_flushNumberOfYields(2)).toEqual(['A', 'B']);
@@ -307,7 +304,7 @@ describe('ReactRelayQueryRenderer', () => {
                 __fragments: {
                   TestFragment: {},
                 },
-                __fragmentOwner: owner,
+                __fragmentOwner: null,
                 __id: '4',
               },
             },
@@ -329,7 +326,7 @@ describe('ReactRelayQueryRenderer', () => {
                 __fragments: {
                   TestFragment: {},
                 },
-                __fragmentOwner: owner,
+                __fragmentOwner: null,
                 __id: '4',
               },
             },
@@ -370,7 +367,6 @@ describe('ReactRelayQueryRenderer', () => {
         expect(pendingRequests.length).toEqual(1);
 
         const firstRequest = pendingRequests[0];
-        const firstOwner = firstRequest.request.operation;
         firstRequest.resolve(response);
         expect({
           error: null,
@@ -380,7 +376,7 @@ describe('ReactRelayQueryRenderer', () => {
               __fragments: {
                 TestFragment: {},
               },
-              __fragmentOwner: firstOwner,
+              __fragmentOwner: null,
               __id: '4',
             },
           },
@@ -411,7 +407,6 @@ describe('ReactRelayQueryRenderer', () => {
           },
         };
         const thirdRequest = pendingRequests[2];
-        const thirdOwner = thirdRequest.request.operation;
         const thirdResponse = {
           data: {
             node: {
@@ -437,7 +432,7 @@ describe('ReactRelayQueryRenderer', () => {
               __fragments: {
                 TestFragment: {},
               },
-              __fragmentOwner: thirdOwner,
+              __fragmentOwner: null,
               __id: '6',
             },
           },
@@ -502,7 +497,6 @@ describe('ReactRelayQueryRenderer', () => {
           variables={variables}
         />,
       );
-      const owner = createOperationDescriptor(TestQuery, variables);
       expect({
         error: null,
         props: {
@@ -511,7 +505,7 @@ describe('ReactRelayQueryRenderer', () => {
             __fragments: {
               TestFragment: {},
             },
-            __fragmentOwner: owner,
+            __fragmentOwner: null,
             __id: '4',
           },
         },
@@ -535,7 +529,6 @@ describe('ReactRelayQueryRenderer', () => {
           variables={variables}
         />,
       );
-      const owner = createOperationDescriptor(TestQuery, variables);
       expect({
         error: null,
         props: {
@@ -544,7 +537,7 @@ describe('ReactRelayQueryRenderer', () => {
             __fragments: {
               TestFragment: {},
             },
-            __fragmentOwner: owner,
+            __fragmentOwner: null,
             __id: '4',
           },
         },
@@ -1010,7 +1003,6 @@ describe('ReactRelayQueryRenderer', () => {
 
       render.mockClear();
       environment.mock.resolve(TestQuery, response);
-      const owner = createOperationDescriptor(TestQuery, variables);
       expect({
         error: null,
         props: {
@@ -1019,7 +1011,7 @@ describe('ReactRelayQueryRenderer', () => {
             __fragments: {
               TestFragment: {},
             },
-            __fragmentOwner: owner,
+            __fragmentOwner: null,
             __id: '4',
           },
         },
@@ -1063,7 +1055,6 @@ describe('ReactRelayQueryRenderer', () => {
         environment.mock.resolve(TestQuery, response);
         const mockACalls = mockA.mock.calls;
         const mockBCalls = mockB.mock.calls;
-        const owner = createOperationDescriptor(TestQuery, variables);
         expect(mockACalls).toEqual([
           [
             {
@@ -1074,7 +1065,7 @@ describe('ReactRelayQueryRenderer', () => {
                   __fragments: {
                     TestFragment: {},
                   },
-                  __fragmentOwner: owner,
+                  __fragmentOwner: null,
                   __id: '4',
                 },
               },
@@ -1092,7 +1083,7 @@ describe('ReactRelayQueryRenderer', () => {
                   __fragments: {
                     TestFragment: {},
                   },
-                  __fragmentOwner: owner,
+                  __fragmentOwner: null,
                   __id: '4',
                 },
               },
@@ -1135,7 +1126,6 @@ describe('ReactRelayQueryRenderer', () => {
       expect.assertions(3);
       render.mockClear();
       environment.mock.resolve(TestQuery, response);
-      const owner = createOperationDescriptor(TestQuery, variables);
       expect({
         error: null,
         props: {
@@ -1144,7 +1134,7 @@ describe('ReactRelayQueryRenderer', () => {
             __fragments: {
               TestFragment: {},
             },
-            __fragmentOwner: owner,
+            __fragmentOwner: null,
             __id: '4',
           },
         },

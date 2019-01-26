@@ -29,7 +29,6 @@ import type {ReaderSelectableNode} from '../util/ReaderNode';
 import type {
   CEnvironment,
   CFragmentMap,
-  CFragmentSpecResolver,
   COperationDescriptor,
   CRelayContext,
   CReaderSelector,
@@ -81,8 +80,6 @@ export type UnstableEnvironmentCore = CUnstableEnvironmentCore<
   TReaderSelector,
 >;
 
-export interface FragmentSpecResolver extends CFragmentSpecResolver<TRequest> {}
-
 /**
  * A read-only interface for accessing cached graph data.
  */
@@ -129,7 +126,7 @@ export interface Store {
    * Optionally takes an owner, corresponding to the operation that
    * owns this selector (fragment).
    */
-  lookup(selector: ReaderSelector, owner?: ?OperationDescriptor): Snapshot;
+  lookup(selector: ReaderSelector, owner?: OperationDescriptor): Snapshot;
 
   /**
    * Notify subscribers (see `subscribe`) of any data that was published
@@ -292,7 +289,7 @@ export interface Environment
    */
   lookup(
     selector: ReaderSelector,
-    owner?: ?OperationDescriptor,
+    owner?: OperationDescriptor,
   ): CSnapshot<TReaderNode, OperationDescriptor>;
 
   /**
@@ -321,7 +318,6 @@ export interface Environment
 export type FragmentPointer = {
   __id: DataID,
   __fragments: {[fragmentName: string]: Variables},
-  __fragmentOwner: OperationDescriptor | null,
 };
 
 /**
@@ -330,7 +326,6 @@ export type FragmentPointer = {
 export type MatchPointer = {|
   __id: DataID,
   __fragments: {[fragmentName: string]: Variables},
-  __fragmentOwner: OperationDescriptor | null,
   __fragmentPropName: string,
   __module: mixed,
 |};

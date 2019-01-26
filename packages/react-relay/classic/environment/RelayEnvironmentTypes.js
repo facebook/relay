@@ -18,7 +18,6 @@ import type {
 import type {
   CEnvironment,
   CFragmentMap,
-  CFragmentSpecResolver,
   CNormalizationSelector,
   COperationDescriptor,
   CReaderSelector,
@@ -62,7 +61,6 @@ export type UnstableEnvironmentCore = CUnstableEnvironmentCore<
   TRequest,
   TReaderSelector,
 >;
-export interface FragmentSpecResolver extends CFragmentSpecResolver<TRequest> {}
 
 /**
  * The public API of Relay core. Represents an encapsulated environment with its

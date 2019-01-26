@@ -1,0 +1,151 @@
+<!DOCTYPE html><html lang="en"><head><meta charSet="utf-8"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><title>Relay.RootContainer · Relay</title><meta name="viewport" content="width=device-width"/><meta name="generator" content="Docusaurus"/><meta name="description" content="&lt;p&gt;&lt;strong&gt;Relay.RootContainer&lt;/strong&gt; is a React component that attempts to fulfill the data required in order to render an instance of &lt;code&gt;Component&lt;/code&gt; for a given &lt;code&gt;route&lt;/code&gt;.&lt;/p&gt;
+"/><meta name="docsearch:version" content="v1.7.0"/><meta name="docsearch:language" content="en"/><meta property="og:title" content="Relay.RootContainer · Relay"/><meta property="og:type" content="website"/><meta property="og:url" content="https://facebook.github.io/relay/index.html"/><meta property="og:description" content="&lt;p&gt;&lt;strong&gt;Relay.RootContainer&lt;/strong&gt; is a React component that attempts to fulfill the data required in order to render an instance of &lt;code&gt;Component&lt;/code&gt; for a given &lt;code&gt;route&lt;/code&gt;.&lt;/p&gt;
+"/><meta name="twitter:card" content="summary"/><link rel="shortcut icon" href="/relay/img/favicon.png"/><link rel="stylesheet" href="https://cdn.jsdelivr.net/docsearch.js/1/docsearch.min.css"/><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css"/><link rel="stylesheet" href="/relay/css/main.css"/></head><body class="sideNavVisible"><div class="fixedHeaderContainer"><div class="headerWrapper wrapper"><header><a href="/relay/en"><img class="logo" src="/relay/img/relay-white.svg" alt="Relay"/><h2 class="headerTitleWithLogo">Relay</h2></a><a href="/relay/en/versions.html"><h3>v1.7.0</h3></a><div class="navigationWrapper navigationSlider"><nav class="slidingNav"><ul class="nav-site nav-site-internal"><li class=""><a href="/relay/docs/en/v1.7.0/introduction-to-relay.html" target="_self">Docs</a></li><li class=""><a href="/relay/en/help.html" target="_self">Support</a></li><li class=""><a href="https://github.com/facebook/relay" target="_self">GitHub</a></li><li class=""><a target="_self"></a></li><li class="navSearchWrapper reactNavSearchWrapper"><input type="text" id="search_input_react" placeholder="Search" title="Search"/></li></ul></nav></div></header></div></div><div class="navPusher"><div class="docMainWrapper wrapper"><div class="container mainContainer"><div class="wrapper"><div class="post"><header class="postHeader"><a class="edit-page-link button" href="https://github.com/facebook/relay/edit/master/docs/Classic-APIReference-RootContainer.md" target="_blank" rel="noreferrer noopener">Edit</a><h1 class="postHeaderTitle">Relay.RootContainer</h1></header><article><div><span><p><strong>Relay.RootContainer</strong> is a React component that attempts to fulfill the data required in order to render an instance of <code>Component</code> for a given <code>route</code>.</p>
+<h2><a class="anchor" aria-hidden="true" id="overview"></a><a href="#overview" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Overview</h2>
+<p><em>Props</em></p>
+<ul class="apiIndex">
+  <li>
+    <a href="#component">
+      <pre>Component</pre>
+      Relay container that defines fragments and the view to render.
+    </a>
+  </li>
+  <li>
+    <a href="#route">
+      <pre>route</pre>
+      Route that defines the query roots.
+    </a>
+  </li>
+  <li>
+    <a href="#forcefetch">
+      <pre>forceFetch</pre>
+      Whether to send a server request regardless of data available on the client.
+    </a>
+  </li>
+  <li>
+    <a href="#renderloading">
+      <pre>renderLoading</pre>
+      Called to render when data requirements are being fulfilled.
+    </a>
+  </li>
+  <li>
+    <a href="#renderfetched">
+      <pre>renderFetched</pre>
+      Called to render when data requirements are fulfilled.
+    </a>
+  </li>
+  <li>
+    <a href="#renderfailure">
+      <pre>renderFailure</pre>
+      Called to render when data failed to be fulfilled.
+    </a>
+  </li>
+  <li>
+    <a href="#onreadystatechange">
+      <pre>onReadyStateChange</pre>
+    </a>
+  </li>
+</ul>
+<h2><a class="anchor" aria-hidden="true" id="props"></a><a href="#props" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Props</h2>
+<h3><a class="anchor" aria-hidden="true" id="component"></a><a href="#component" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Component</h3>
+<pre><code class="hljs"><span class="hljs-symbol">Component:</span> RelayContainer
+</code></pre>
+<p>Must be a valid <code>RelayContainer</code>. Relay will attempt to fulfill its data requirements before rendering it.</p>
+<p>See also: <a href="guides-root-container.html#component-and-route">Root Container &gt; Component and Route</a></p>
+<h3><a class="anchor" aria-hidden="true" id="route"></a><a href="#route" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>route</h3>
+<pre><code class="hljs"><span class="hljs-symbol">route:</span> RelayRoute
+</code></pre>
+<p>Either an instance of <code>Relay.Route</code> or an object with the <code>name</code>, <code>queries</code>, and optionally the <code>params</code> properties.</p>
+<p>See also: <a href="guides-root-container.html#component-and-route">Root Container &gt; Component and Route</a></p>
+<h3><a class="anchor" aria-hidden="true" id="forcefetch"></a><a href="#forcefetch" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>forceFetch</h3>
+<pre><code class="hljs"><span class="hljs-string">forceFetch:</span> <span class="hljs-keyword">boolean</span>
+</code></pre>
+<p>If supplied and set to true, a request for data will always be made to the server regardless of whether data on the client is available to immediately fulfill the data requirements.</p>
+<p>See also: <a href="guides-root-container.html#force-fetching">Root Container &gt; Force Fetching</a></p>
+<h3><a class="anchor" aria-hidden="true" id="renderloading"></a><a href="#renderloading" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>renderLoading</h3>
+<pre><code class="hljs">renderLoading(): ?ReactElement
+</code></pre>
+<p>When data requirements have yet to be fulfilled, <code>renderLoading</code> is called to render the view. If this returns <code>undefined</code>, the previously rendered view (or nothing if there is no previous view) is rendered.</p>
+<h4><a class="anchor" aria-hidden="true" id="example"></a><a href="#example" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Example</h4>
+<pre><code class="hljs css language-{4-6}">&lt;Relay.RootContainer
+  Component={ProfilePicture}
+  route={profileRoute}
+  renderLoading={<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+    <span class="hljs-keyword">return</span> <span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">div</span>&gt;</span>Loading...<span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span></span>;
+  }}
+/&gt;
+</code></pre>
+<p>See also: <a href="guides-root-container.html#renderloading">Root Container &gt; renderLoading</a></p>
+<h3><a class="anchor" aria-hidden="true" id="renderfetched"></a><a href="#renderfetched" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>renderFetched</h3>
+<pre><code class="hljs"><span class="hljs-title">renderFetched</span>(
+  <span class="hljs-class"><span class="hljs-keyword">data</span>: {[<span class="hljs-title">propName</span>: <span class="hljs-title">string</span>]: $<span class="hljs-type">RelayData</span>},</span>
+  readyState: {stale: boolean}
+): ?<span class="hljs-type">ReactElement</span>
+</code></pre>
+<p>When all data requirements are fulfilled, <code>renderFetched</code> is called to render the view. This callback is expected to spread <code>data</code> into the supplied <code>Container</code> when rendering it.</p>
+<h4><a class="anchor" aria-hidden="true" id="example-1"></a><a href="#example-1" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Example</h4>
+<pre><code class="hljs css language-{4-10}">&lt;Relay.RootContainer
+  Component={ProfilePicture}
+  route={profileRoute}
+  renderFetched={<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">data</span>) </span>{
+    <span class="hljs-keyword">return</span> (
+      <span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">ScrollView</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">ProfilePicture</span> {<span class="hljs-attr">...data</span>} /&gt;</span>
+      <span class="hljs-tag">&lt;/<span class="hljs-name">ScrollView</span>&gt;</span>
+    );
+  }}
+/&gt;
+</span></code></pre>
+<p>See also: <a href="guides-root-container.html#renderfetched">Root Container &gt; renderFetched</a></p>
+<h3><a class="anchor" aria-hidden="true" id="renderfailure"></a><a href="#renderfailure" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>renderFailure</h3>
+<pre><code class="hljs">renderFailure(<span class="hljs-built_in">error</span>: <span class="hljs-built_in">Error</span>, retry: <span class="hljs-function"><span class="hljs-keyword">Function</span>):</span> ?ReactElement
+</code></pre>
+<p>When data requirements failed to be fulfilled, <code>renderFailure</code> is called to render the view.</p>
+<h4><a class="anchor" aria-hidden="true" id="example-2"></a><a href="#example-2" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Example</h4>
+<pre><code class="hljs css language-{4-11}">&lt;Relay.RootContainer
+  Component={ProfilePicture}
+  route={profileRoute}
+  renderFailure={<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">error, retry</span>) </span>{
+    <span class="hljs-keyword">return</span> (
+      <span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">div</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">p</span>&gt;</span>{error.message}<span class="hljs-tag">&lt;/<span class="hljs-name">p</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">p</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">button</span> <span class="hljs-attr">onClick</span>=<span class="hljs-string">{retry}</span>&gt;</span>Retry?<span class="hljs-tag">&lt;/<span class="hljs-name">button</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">p</span>&gt;</span>
+      <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span></span>
+    );
+  }}
+/&gt;
+</code></pre>
+<p>See also: <a href="guides-root-container.html#renderfailure">Root Container &gt; renderFailure</a></p>
+<h3><a class="anchor" aria-hidden="true" id="onreadystatechange"></a><a href="#onreadystatechange" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>onReadyStateChange</h3>
+<pre><code class="hljs"><span class="hljs-selector-tag">onReadyStateChange</span>(
+  <span class="hljs-selector-tag">readyState</span>: {
+    <span class="hljs-attribute">aborted</span>: boolean;
+    <span class="hljs-attribute">done</span>: boolean;
+    <span class="hljs-attribute">error</span>: ?Error;
+    <span class="hljs-attribute">events</span>: Array&lt;ReadyStateEvent&gt;;
+    <span class="hljs-attribute">ready</span>: boolean;
+    <span class="hljs-attribute">stale</span>: boolean;
+  }
+): <span class="hljs-selector-tag">void</span>
+</code></pre>
+<p>This callback prop is called as the various events of data resolution occurs.</p>
+<p>See also: <a href="guides-ready-state.html">Ready State</a></p>
+</span></div></article></div><div class="docs-prevnext"></div></div></div></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/relay/" class="nav-home"><img src="/relay/img/relay.svg" alt="Relay" width="66" height="58"/></a><div><h5>Docs</h5><a href="/relay/docs/en/introduction-to-relay.html">Introduction</a></div><div><h5>Community</h5><a href="/relay/en/users.html">User Showcase</a></div><div><h5>More</h5><a href="https://github.com/facebook/relay">GitHub</a><a class="github-button" href="https://github.com/facebook/relay" data-icon="octicon-star" data-count-href="/facebook/relay/stargazers" data-count-api="/repos/facebook/relay#stargazers_count" data-count-aria-label="# stargazers on GitHub" aria-label="Star this project on GitHub">Star</a></div></section><a href="https://code.facebook.com/projects/" target="_blank" class="fbOpenSource"><img src="/relay/img/oss_logo.png" alt="Facebook Open Source" width="170" height="45"/></a><section class="copyright">Copyright © 2019 Facebook Inc.</section></footer></div><script type="text/javascript" src="https://cdn.jsdelivr.net/docsearch.js/1/docsearch.min.js"></script><script>
+                document.addEventListener('keyup', function(e) {
+                  if (e.target !== document.body) {
+                    return;
+                  }
+                  // keyCode for '/' (slash)
+                  if (e.keyCode === 191) {
+                    const search = document.getElementById('search_input_react');
+                    search && search.focus();
+                  }
+                });
+              </script><script>
+              var search = docsearch({
+                
+                apiKey: '3d7d5825d50ea36bca0e6ad06c926f06',
+                indexName: 'relay',
+                inputSelector: '#search_input_react'
+              });
+            </script></body></html>

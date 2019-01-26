@@ -174,7 +174,7 @@ class RelayModernEnvironment implements Environment {
     operationDescriptor: OperationDescriptor,
     payload: PayloadData,
   ): void {
-    // Do not handle stripped nulls when commiting a payload
+    // Do not handle stripped nulls when committing a payload
     const relayPayload = normalizeRelayPayload(
       operationDescriptor.root,
       payload,

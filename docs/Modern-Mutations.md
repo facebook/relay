@@ -9,7 +9,7 @@ Table of Contents:
 - [Optimistic Updates](#optimistic-updates)
 - [Updater Configs](#updater-configs)
 - [Using updater and optimisticUpdater](#using-updater-and-optimisticupdater)
-- [Commiting Local Updates](#commiting-local-updates)
+- [Committing Local Updates](#committing-local-updates)
 
 ## `commitMutation`
 
@@ -354,6 +354,6 @@ function commit(environment, text, user) {
 
 For details on how to interact with the Relay Store, please refer to our Relay Store [docs](./relay-store).
 
-## Commiting Local Updates
+## Committing Local Updates
 
 Use `commitLocalUpdate` when you need to update the local store without necessarily executing a mutation (such as in the case of debounced operations). The function takes in a Relay `environment` and an `updater` function.

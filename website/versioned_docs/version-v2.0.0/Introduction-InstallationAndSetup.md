@@ -1,5 +1,5 @@
 ---
-id: version-2.0.0-installation-and-setup
+id: version-v2.0.0-installation-and-setup
 title: Installation and Setup
 original_id: installation-and-setup
 ---

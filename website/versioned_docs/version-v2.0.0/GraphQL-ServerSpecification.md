@@ -1,5 +1,5 @@
 ---
-id: version-2.0.0-graphql-server-specification
+id: version-v2.0.0-graphql-server-specification
 title: GraphQL Server Specification
 original_id: graphql-server-specification
 ---

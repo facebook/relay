@@ -1,5 +1,5 @@
 ---
-id: version-2.0.0-relay-debugging
+id: version-v2.0.0-relay-debugging
 title: Debugging
 original_id: relay-debugging
 ---

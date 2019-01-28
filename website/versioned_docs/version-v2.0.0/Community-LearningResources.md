@@ -1,5 +1,5 @@
 ---
-id: version-2.0.0-community-learning-resources
+id: version-v2.0.0-community-learning-resources
 title: Community Learning Resources
 original_id: community-learning-resources
 ---

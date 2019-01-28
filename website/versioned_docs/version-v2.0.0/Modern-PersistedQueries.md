@@ -1,5 +1,5 @@
 ---
-id: version-2.0.0-persisted-queries
+id: version-v2.0.0-persisted-queries
 title: Persisted Queries
 original_id: persisted-queries
 ---

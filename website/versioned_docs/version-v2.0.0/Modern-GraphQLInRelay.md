@@ -1,5 +1,5 @@
 ---
-id: version-2.0.0-graphql-in-relay
+id: version-v2.0.0-graphql-in-relay
 title: GraphQL in Relay
 original_id: graphql-in-relay
 ---

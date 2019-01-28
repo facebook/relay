@@ -736,6 +736,7 @@ function createContainerWithFragments<
             fragmentVariables,
             paginatingVariables.totalCount,
           ),
+          operation.node,
         );
         const nextData = this._resolver.resolve();
 

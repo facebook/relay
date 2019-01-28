@@ -188,7 +188,7 @@ class RelayModernEnvironment implements Environment {
     this._publishQueue.run();
   }
 
-  lookup(readSelector: ReaderSelector, owner?: OperationDescriptor): Snapshot {
+  lookup(readSelector: ReaderSelector, owner?: ?OperationDescriptor): Snapshot {
     return this._store.lookup(readSelector, owner);
   }
 

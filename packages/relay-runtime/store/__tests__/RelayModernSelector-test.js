@@ -32,6 +32,7 @@ describe('RelayModernSelector', () => {
   let environment;
   let zuck;
   let variables;
+  let operationVariables;
   let owner;
 
   beforeEach(() => {
@@ -62,6 +63,7 @@ describe('RelayModernSelector', () => {
     `));
     const dataID = ROOT_ID;
     variables = {id: '4', size: null, cond: false};
+    operationVariables = variables;
     const fragment = {
       dataID,
       node: UserQuery.fragment,
@@ -140,18 +142,27 @@ describe('RelayModernSelector', () => {
       });
     });
 
+    it('returns a selector with an owner when owner is passed', () => {
+      const queryNode = getRequest(UserQuery);
+      owner = createOperationDescriptor(queryNode, operationVariables);
+      zuck = environment.lookup(owner.fragment, owner).data.node;
+
+      const selector = getSelector(variables, UserFragment, zuck, owner);
+      expect(selector).toEqual({
+        owner: owner,
+        selector: {
+          dataID: '4',
+          node: UserFragment,
+          variables,
+        },
+      });
+      expect(selector.owner).toBe(owner);
+    });
+
     it('returns a selector with an owner when owner is present in fragment ref', () => {
       const queryNode = getRequest(UserQuery);
-      owner = createOperationDescriptor(queryNode, variables);
-
-      zuck = environment.lookup(
-        {
-          dataID: ROOT_ID,
-          node: UserQuery.fragment,
-          variables: {id: '4'},
-        },
-        owner,
-      ).data.node;
+      owner = createOperationDescriptor(queryNode, operationVariables);
+      zuck = environment.lookup(owner.fragment, owner).data.node;
 
       const selector = getSelector(variables, UserFragment, zuck);
       expect(selector).toEqual({
@@ -165,19 +176,39 @@ describe('RelayModernSelector', () => {
       expect(selector.owner).toBe(owner);
     });
 
-    it('prefers variables from owner when owner is present in fragment ref', () => {
+    it('prefers variables from owner when owner is passed', () => {
       const queryNode = getRequest(UserQuery);
-      owner = createOperationDescriptor(queryNode, variables);
-      zuck = environment.lookup(
-        {
-          dataID: ROOT_ID,
-          node: UserQuery.fragment,
-          variables: {id: '4'},
-        },
-        owner,
-      ).data.node;
+      // Pass owner with different variables
+      owner = createOperationDescriptor(queryNode, {
+        id: '4',
+        size: 16,
+        cond: true,
+      });
+      zuck = environment.lookup(owner.fragment, owner).data.node;
 
-      const selector = getSelector({id: '5'}, UserFragment, zuck);
+      const selector = getSelector(variables, UserFragment, zuck, owner);
+      expect(selector).toEqual({
+        owner: owner,
+        selector: {
+          dataID: '4',
+          node: UserFragment,
+          variables: {size: 16, cond: true},
+        },
+      });
+      expect(selector.owner).toBe(owner);
+    });
+
+    it('prefers passed variables when owner is present in fragment ref, but not explicitly passed', () => {
+      const queryNode = getRequest(UserQuery);
+      // Pass owner with different variables
+      owner = createOperationDescriptor(queryNode, {
+        id: '4',
+        size: 16,
+        cond: true,
+      });
+      zuck = environment.lookup(owner.fragment, owner).data.node;
+
+      const selector = getSelector(variables, UserFragment, zuck);
       expect(selector).toEqual({
         owner: owner,
         selector: {
@@ -229,17 +260,74 @@ describe('RelayModernSelector', () => {
       ]);
     });
 
+    it('returns selectors with an owner when owner is passed', () => {
+      const queryNode = getRequest(UserQuery);
+      owner = createOperationDescriptor(queryNode, operationVariables);
+      zuck = environment.lookup(owner.fragment, owner).data.node;
+
+      const selectors = getSelectorList(variables, UserFragment, [zuck], owner);
+      expect(selectors).toEqual([
+        {
+          owner: owner,
+          selector: {
+            dataID: '4',
+            node: UserFragment,
+            variables,
+          },
+        },
+      ]);
+    });
+
     it('returns selectors with an owner when owner is present in fragment ref', () => {
       const queryNode = getRequest(UserQuery);
-      owner = createOperationDescriptor(queryNode, variables);
-      zuck = environment.lookup(
+      owner = createOperationDescriptor(queryNode, operationVariables);
+      zuck = environment.lookup(owner.fragment, owner).data.node;
+
+      const selectors = getSelectorList(variables, UserFragment, [zuck]);
+      expect(selectors).toEqual([
         {
-          dataID: ROOT_ID,
-          node: UserQuery.fragment,
-          variables: {id: '4'},
+          owner: owner,
+          selector: {
+            dataID: '4',
+            node: UserFragment,
+            variables,
+          },
         },
-        owner,
-      ).data.node;
+      ]);
+    });
+
+    it('prefers variables from owner when owner is passed', () => {
+      const queryNode = getRequest(UserQuery);
+      // Pass owner with different variables
+      owner = createOperationDescriptor(queryNode, {
+        id: '4',
+        size: 16,
+        cond: true,
+      });
+      zuck = environment.lookup(owner.fragment, owner).data.node;
+
+      const selectors = getSelectorList(variables, UserFragment, [zuck], owner);
+      expect(selectors).toEqual([
+        {
+          owner: owner,
+          selector: {
+            dataID: '4',
+            node: UserFragment,
+            variables: {size: 16, cond: true},
+          },
+        },
+      ]);
+    });
+
+    it('prefers passed variables when owner is present in fragment ref, but not explicitly passed', () => {
+      const queryNode = getRequest(UserQuery);
+      // Pass owner with different variables
+      owner = createOperationDescriptor(queryNode, {
+        id: '4',
+        size: 16,
+        cond: true,
+      });
+      zuck = environment.lookup(owner.fragment, owner).data.node;
 
       const selectors = getSelectorList(variables, UserFragment, [zuck]);
       expect(selectors).toEqual([
@@ -363,23 +451,33 @@ describe('RelayModernSelector', () => {
       });
     });
 
-    describe('when owner is present in fragment ref', () => {
-      let owner;
-
+    describe('with owner', () => {
       beforeEach(() => {
         const queryNode = getRequest(UserQuery);
-        owner = createOperationDescriptor(queryNode, variables);
-        zuck = environment.lookup(
-          {
-            dataID: ROOT_ID,
-            node: UserQuery.fragment,
-            variables: {id: '4'},
-          },
-          owner,
-        ).data.node;
+        owner = createOperationDescriptor(queryNode, operationVariables);
+        zuck = environment.lookup(owner.fragment, owner).data.node;
       });
 
-      it('returns singular selectors with an owner', () => {
+      it('returns singular selectors with an owner when owner is passed', () => {
+        const selectors = getSelectorsFromObject(
+          variables,
+          {user: UserFragment},
+          {user: zuck},
+          owner,
+        );
+        expect(selectors).toEqual({
+          user: {
+            owner: owner,
+            selector: {
+              dataID: '4',
+              node: UserFragment,
+              variables,
+            },
+          },
+        });
+      });
+
+      it('returns singular selectors with an owner when owner is present in fragment ref', () => {
         const selectors = getSelectorsFromObject(
           variables,
           {user: UserFragment},
@@ -397,7 +495,138 @@ describe('RelayModernSelector', () => {
         });
       });
 
-      it('returns plural selectors with an owner', () => {
+      it('returns singular selector and prefers variables from owner when it is passed', () => {
+        const queryNode = getRequest(UserQuery);
+        // Pass owner with different variables
+        owner = createOperationDescriptor(queryNode, {
+          id: '4',
+          size: 16,
+          cond: true,
+        });
+        zuck = environment.lookup(owner.fragment, owner).data.node;
+        const selectors = getSelectorsFromObject(
+          variables,
+          {user: UserFragment},
+          {user: zuck},
+          owner,
+        );
+        expect(selectors).toEqual({
+          user: {
+            owner: owner,
+            selector: {
+              dataID: '4',
+              node: UserFragment,
+              variables: {size: 16, cond: true},
+            },
+          },
+        });
+      });
+
+      it('returns singular selector and prefers passed variables when owner is present in fragment ref, but not explicitly passed', () => {
+        const queryNode = getRequest(UserQuery);
+        // Pass owner with different variables
+        owner = createOperationDescriptor(queryNode, {
+          id: '4',
+          size: 16,
+          cond: true,
+        });
+        zuck = environment.lookup(owner.fragment, owner).data.node;
+        const selectors = getSelectorsFromObject(
+          variables,
+          {user: UserFragment},
+          {user: zuck},
+        );
+        expect(selectors).toEqual({
+          user: {
+            owner: owner,
+            selector: {
+              dataID: '4',
+              node: UserFragment,
+              variables,
+            },
+          },
+        });
+      });
+
+      it('returns plural selectors with an owner when it is passed', () => {
+        const selectors = getSelectorsFromObject(
+          variables,
+          {user: UsersFragment},
+          {user: [zuck]},
+          owner,
+        );
+        expect(selectors).toEqual({
+          user: [
+            {
+              owner: owner,
+              selector: {
+                dataID: '4',
+                node: UsersFragment,
+                variables,
+              },
+            },
+          ],
+        });
+      });
+
+      it('returns plural selectors with an owner when it is present in fragment ref', () => {
+        const selectors = getSelectorsFromObject(
+          variables,
+          {user: UsersFragment},
+          {user: [zuck]},
+        );
+        expect(selectors).toEqual({
+          user: [
+            {
+              owner: owner,
+              selector: {
+                dataID: '4',
+                node: UsersFragment,
+                variables,
+              },
+            },
+          ],
+        });
+      });
+
+      it('returns plural selectors and prefers variables from owner when it is passed', () => {
+        const queryNode = getRequest(UserQuery);
+        // Pass owner with different variables
+        owner = createOperationDescriptor(queryNode, {
+          id: '4',
+          size: 16,
+          cond: true,
+        });
+        zuck = environment.lookup(owner.fragment, owner).data.node;
+        const selectors = getSelectorsFromObject(
+          variables,
+          {user: UsersFragment},
+          {user: [zuck]},
+          owner,
+        );
+        expect(selectors).toEqual({
+          user: [
+            {
+              owner: owner,
+              selector: {
+                dataID: '4',
+                node: UsersFragment,
+                variables: {size: 16, cond: true},
+              },
+            },
+          ],
+        });
+      });
+
+      it('returns plural selectors and prefers passed variables when owner is present in fragment ref, but not explicitly passed', () => {
+        const queryNode = getRequest(UserQuery);
+        // Pass owner with different variables
+        owner = createOperationDescriptor(queryNode, {
+          id: '4',
+          size: 16,
+          cond: true,
+        });
+        zuck = environment.lookup(owner.fragment, owner).data.node;
         const selectors = getSelectorsFromObject(
           variables,
           {user: UsersFragment},
@@ -599,7 +828,7 @@ describe('RelayModernSelector', () => {
 
     it('returns true for equivalent selectors with owners', () => {
       const queryNode = getRequest(UserQuery);
-      owner = createOperationDescriptor(queryNode, variables);
+      owner = createOperationDescriptor(queryNode, operationVariables);
       const selector = {
         owner: owner,
         selector: {
@@ -656,7 +885,7 @@ describe('RelayModernSelector', () => {
 
     it('returns false for different selectors with owners', () => {
       const queryNode = getRequest(UserQuery);
-      owner = createOperationDescriptor(queryNode, variables);
+      owner = createOperationDescriptor(queryNode, operationVariables);
       const readerSelector = {
         dataID: '4',
         node: UserFragment,

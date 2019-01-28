@@ -316,6 +316,7 @@ export interface CUnstableEnvironmentCore<
     operationVariables: Variables,
     fragment: TFragment,
     prop: mixed,
+    owner?: COperationDescriptor<TReaderNode, TNormalizationNode, TRequest>,
   ) => ?TReaderSelector;
 
   /**
@@ -328,6 +329,7 @@ export interface CUnstableEnvironmentCore<
     operationVariables: Variables,
     fragment: TFragment,
     props: Array<mixed>,
+    owner?: COperationDescriptor<TReaderNode, TNormalizationNode, TRequest>,
   ) => ?Array<TReaderSelector>;
 
   /**
@@ -342,6 +344,7 @@ export interface CUnstableEnvironmentCore<
     operationVariables: Variables,
     fragments: CFragmentMap<TFragment>,
     props: Props,
+    owner?: COperationDescriptor<TReaderNode, TNormalizationNode, TRequest>,
   ) => {
     [key: string]: ?(TReaderSelector | Array<TReaderSelector>),
   };
@@ -370,6 +373,7 @@ export interface CUnstableEnvironmentCore<
     operationVariables: Variables,
     fragments: CFragmentMap<TFragment>,
     props: Props,
+    owner?: COperationDescriptor<TReaderNode, TNormalizationNode, TRequest>,
   ) => Variables;
 }
 

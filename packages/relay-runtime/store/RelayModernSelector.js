@@ -58,6 +58,7 @@ function getSelector(
   operationVariables: Variables,
   fragment: ReaderFragment,
   item: mixed,
+  explicitOwner?: OperationDescriptor,
 ): ?OwnedReaderSelector {
   invariant(
     typeof item === 'object' && item !== null && !Array.isArray(item),
@@ -68,7 +69,6 @@ function getSelector(
   );
   const dataID = item[ID_KEY];
   const fragments = item[FRAGMENTS_KEY];
-  const owner = item[FRAGMENT_OWNER_KEY];
   if (
     typeof dataID === 'string' &&
     typeof fragments === 'object' &&
@@ -78,17 +78,18 @@ function getSelector(
   ) {
     const argumentVariables = fragments[fragment.name];
 
-    if (owner != null && typeof owner === 'object') {
-      // $FlowFixMe - TODO T39154660
-      const typedOwner: OperationDescriptor = owner;
-      const ownerOperationVariables = typedOwner.variables;
+    // We only use the owner to compute the selector variables if an owner
+    // was explicitly passed by the caller, for backwards compatibility.
+    // See TODO(T39494051) for details
+    if (explicitOwner != null && typeof explicitOwner === 'object') {
+      const ownerOperationVariables = explicitOwner.variables;
       const fragmentVariables = getFragmentVariables(
         fragment,
         ownerOperationVariables,
         argumentVariables,
       );
       return {
-        owner: typedOwner,
+        owner: explicitOwner,
         selector: {
           dataID,
           node: fragment,
@@ -97,13 +98,20 @@ function getSelector(
       };
     }
 
+    // For convenience, we read and pass through the owner if one
+    // is present in the fragment reference (`item`), but we only
+    // use the owner to compute the selector variables if an owner was
+    // explicitly passed by the caller, for backwards compatibility.
+    // See TODO(T39494051) for details
+    const owner = explicitOwner ?? item[FRAGMENT_OWNER_KEY];
     const fragmentVariables = getFragmentVariables(
       fragment,
       operationVariables,
       argumentVariables,
     );
     return {
-      owner: null,
+      // $FlowFixMe - TODO T39154660
+      owner: owner,
       selector: {
         dataID,
         node: fragment,
@@ -135,11 +143,14 @@ function getSelectorList(
   operationVariables: Variables,
   fragment: ReaderFragment,
   items: Array<mixed>,
+  owner?: OperationDescriptor,
 ): ?Array<OwnedReaderSelector> {
   let selectors = null;
   items.forEach(item => {
     const selector =
-      item != null ? getSelector(operationVariables, fragment, item) : null;
+      item != null
+        ? getSelector(operationVariables, fragment, item, owner)
+        : null;
     if (selector != null) {
       selectors = selectors || [];
       selectors.push(selector);
@@ -162,6 +173,7 @@ function getSelectorsFromObject(
   operationVariables: Variables,
   fragments: {[key: string]: ReaderFragment},
   object: {[key: string]: mixed},
+  owner?: OperationDescriptor,
 ): {[key: string]: ?(OwnedReaderSelector | Array<OwnedReaderSelector>)} {
   const selectors = {};
   for (const key in fragments) {
@@ -179,7 +191,12 @@ function getSelectorsFromObject(
           JSON.stringify(item),
           fragment.name,
         );
-        selectors[key] = getSelectorList(operationVariables, fragment, item);
+        selectors[key] = getSelectorList(
+          operationVariables,
+          fragment,
+          item,
+          owner,
+        );
       } else {
         invariant(
           !Array.isArray(item),
@@ -189,7 +206,7 @@ function getSelectorsFromObject(
           JSON.stringify(item),
           fragment.name,
         );
-        selectors[key] = getSelector(operationVariables, fragment, item);
+        selectors[key] = getSelector(operationVariables, fragment, item, owner);
       }
     }
   }
@@ -301,6 +318,7 @@ function getVariablesFromObject(
   operationVariables: Variables,
   fragments: {[key: string]: ReaderFragment},
   object: {[key: string]: mixed},
+  owner?: OperationDescriptor,
 ): Variables {
   const variables = {};
   for (const key in fragments) {
@@ -324,6 +342,7 @@ function getVariablesFromObject(
               operationVariables,
               fragment,
               value,
+              owner,
             );
             if (itemVariables) {
               Object.assign(variables, itemVariables);
@@ -339,7 +358,12 @@ function getVariablesFromObject(
           JSON.stringify(item),
           fragment.name,
         );
-        const itemVariables = getVariables(operationVariables, fragment, item);
+        const itemVariables = getVariables(
+          operationVariables,
+          fragment,
+          item,
+          owner,
+        );
         if (itemVariables) {
           Object.assign(variables, itemVariables);
         }
@@ -356,8 +380,9 @@ function getVariables(
   operationVariables: Variables,
   fragment: ReaderFragment,
   item: mixed,
+  owner?: OperationDescriptor,
 ): ?Variables {
-  const ownedSelector = getSelector(operationVariables, fragment, item);
+  const ownedSelector = getSelector(operationVariables, fragment, item, owner);
   if (!ownedSelector) {
     return null;
   }
@@ -375,6 +400,9 @@ function areEqualSelectors(
   thisSelector: OwnedReaderSelector,
   thatSelector: OwnedReaderSelector,
 ): boolean {
+  // NOTE: areEqualSelectors temporarily ignores fragment ownership when
+  // comparing selectors, to preserve current behavior of RelayFragmentSpecResolver
+  // TODO(T39494051)
   return (
     thisSelector.selector.dataID === thatSelector.selector.dataID &&
     thisSelector.selector.node === thatSelector.selector.node &&

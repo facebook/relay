@@ -675,6 +675,7 @@ interface HasJsField {
 type PlainUserNameRenderer implements HasJsField {
   plaintext: String
   data: PlainUserNameData
+  user: User
   js(module: String): JSDependency
 }
 
@@ -686,6 +687,7 @@ type PlainUserNameData {
 type MarkdownUserNameRenderer implements HasJsField {
   markdown: String
   data: MarkdownUserNameData
+  user: User
   js(module: String): JSDependency
 }
 

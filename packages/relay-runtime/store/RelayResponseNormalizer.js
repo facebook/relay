@@ -58,7 +58,7 @@ import type {
 } from './RelayStoreTypes';
 
 export type NormalizationOptions = {|
-  +handleStrippedNulls: boolean,
+  +handleStrippedNulls?: boolean,
   +path?: $ReadOnlyArray<string>,
 |};
 
@@ -110,7 +110,7 @@ class RelayResponseNormalizer {
     options: NormalizationOptions,
   ) {
     this._handleFieldPayloads = [];
-    this._handleStrippedNulls = options.handleStrippedNulls;
+    this._handleStrippedNulls = options.handleStrippedNulls === true;
     this._incrementalPayloads = [];
     this._matchFieldPayloads = [];
     this._path = options.path ? [...options.path] : [];

@@ -23,6 +23,105 @@ query TestQuery(
 
 `;
 
+exports[`RelayApplyFragmentArgumentTransform matches expected output: false-positive-circular-reference.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+
+query TestQuery{
+  viewer {
+    ...MyViewer
+    ...MyOtherViewer
+    isFbEmployee
+  }
+}
+
+fragment MyViewer on Viewer {
+  ...MyNestedViewer
+}
+
+fragment MyOtherViewer on Viewer {
+  ...MyNestedViewer
+}
+
+fragment MyNestedViewer on Viewer @argumentDefinitions(
+  includeEmail: {type: "Boolean!", defaultValue: false}
+) {
+  primaryEmail @include(if: $includeEmail)
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+THROWN EXCEPTION:
+
+Error: Found a circular reference from fragment 'MyNestedViewer'.
+
+Source: GraphQL request (2:1)
+1: 
+2: query TestQuery{
+   ^
+3:   viewer {
+
+Source: GraphQL request (5:5)
+4:     ...MyViewer
+5:     ...MyOtherViewer
+       ^
+6:     isFbEmployee
+
+Source: GraphQL request (15:3)
+14: fragment MyOtherViewer on Viewer {
+15:   ...MyNestedViewer
+      ^
+16: }
+
+`;
+
+exports[`RelayApplyFragmentArgumentTransform matches expected output: false-positive-circular-reference-workaround.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+
+query TestQuery{
+  viewer {
+    ...MyViewer
+    ...MyOtherViewer
+    isFbEmployee
+  }
+}
+
+fragment MyViewer on Viewer {
+  ...MyNestedViewer
+}
+
+fragment MyOtherViewer on Viewer {
+  ...MyNestedViewer
+}
+
+fragment MyNestedViewer on Viewer @argumentDefinitions(
+  includeEmail: {type: "Boolean!", defaultValue: false}
+) {
+  __typename
+  primaryEmail @include(if: $includeEmail)
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+query TestQuery {
+  viewer {
+    ...MyViewer
+    ...MyOtherViewer
+    isFbEmployee
+  }
+}
+
+fragment MyViewer on Viewer {
+  ...MyNestedViewer
+}
+
+fragment MyNestedViewer on Viewer {
+  __typename
+}
+
+fragment MyOtherViewer on Viewer {
+  ...MyNestedViewer
+}
+
+`;
+
 exports[`RelayApplyFragmentArgumentTransform matches expected output: inlines-fragment-arguments.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query TestQuery(

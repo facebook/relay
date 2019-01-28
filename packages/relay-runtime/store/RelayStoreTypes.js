@@ -318,6 +318,7 @@ export interface Environment
 export type FragmentPointer = {
   __id: DataID,
   __fragments: {[fragmentName: string]: Variables},
+  __fragmentOwner: OperationDescriptor | null,
 };
 
 /**
@@ -326,6 +327,7 @@ export type FragmentPointer = {
 export type MatchPointer = {|
   __id: DataID,
   __fragments: {[fragmentName: string]: Variables},
+  __fragmentOwner: OperationDescriptor | null,
   __fragmentPropName: string,
   __module: mixed,
 |};

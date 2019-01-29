@@ -239,13 +239,22 @@ class RelayModernEnvironment implements Environment {
     cacheConfig?: ?CacheConfig,
     updater?: ?SelectorStoreUpdater,
   }): RelayObservable<GraphQLResponse> {
-    return RelayModernQueryExecutor.execute({
-      operation,
-      cacheConfig,
-      updater,
-      network: this._network,
-      operationLoader: this._operationLoader,
-      publishQueue: this._publishQueue,
+    return RelayObservable.create(sink => {
+      const source = this._network.execute(
+        operation.node.params,
+        operation.variables,
+        cacheConfig || {},
+      );
+      const executor = RelayModernQueryExecutor.execute({
+        operation,
+        operationLoader: this._operationLoader,
+        optimisticUpdate: null,
+        publishQueue: this._publishQueue,
+        sink,
+        source,
+        updater,
+      });
+      return () => executor.cancel();
     });
   }
 
@@ -272,52 +281,32 @@ class RelayModernEnvironment implements Environment {
     updater?: ?SelectorStoreUpdater,
     uploadables?: ?UploadableMap,
   |}): RelayObservable<GraphQLResponse> {
-    let optimisticUpdate;
-    if (optimisticResponse || optimisticUpdater) {
-      optimisticUpdate = {
-        operation: operation,
-        selectorStoreUpdater: optimisticUpdater,
-        response: optimisticResponse || null,
-      };
-    }
-
-    const {node} = operation;
-    return this._network
-      .execute(node.params, operation.variables, {force: true}, uploadables)
-      .do({
-        start: () => {
-          if (optimisticUpdate) {
-            this._publishQueue.applyUpdate(optimisticUpdate);
-            this._publishQueue.run();
-          }
-        },
-        next: payload => {
-          if (optimisticUpdate) {
-            this._publishQueue.revertUpdate(optimisticUpdate);
-            optimisticUpdate = undefined;
-          }
-          this._publishQueue.commitPayload(
-            operation,
-            normalizePayload(operation, payload),
-            updater,
-          );
-          this._publishQueue.run();
-        },
-        error: error => {
-          if (optimisticUpdate) {
-            this._publishQueue.revertUpdate(optimisticUpdate);
-            optimisticUpdate = undefined;
-            this._publishQueue.run();
-          }
-        },
-        unsubscribe: () => {
-          if (optimisticUpdate) {
-            this._publishQueue.revertUpdate(optimisticUpdate);
-            optimisticUpdate = undefined;
-            this._publishQueue.run();
-          }
-        },
+    return RelayObservable.create(sink => {
+      let optimisticUpdate;
+      if (optimisticResponse || optimisticUpdater) {
+        optimisticUpdate = {
+          operation: operation,
+          selectorStoreUpdater: optimisticUpdater,
+          response: optimisticResponse ?? null,
+        };
+      }
+      const source = this._network.execute(
+        operation.node.params,
+        operation.variables,
+        {force: true},
+        uploadables,
+      );
+      const executor = RelayModernQueryExecutor.execute({
+        operation,
+        operationLoader: this._operationLoader,
+        optimisticUpdate,
+        publishQueue: this._publishQueue,
+        sink,
+        source,
+        updater,
       });
+      return () => executor.cancel();
+    });
   }
 
   /**

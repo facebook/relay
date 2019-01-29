@@ -2152,7 +2152,7 @@ describe('RelayModernEnvironment', () => {
     });
 
     it('fetches the mutation with the provided fetch function', () => {
-      environment.executeMutation({operation});
+      environment.executeMutation({operation}).subscribe({});
       expect(fetch.mock.calls.length).toBe(1);
       expect(fetch.mock.calls[0][0]).toEqual(CreateCommentMutation.params);
       expect(fetch.mock.calls[0][1]).toEqual(variables);
@@ -2451,6 +2451,348 @@ describe('RelayModernEnvironment', () => {
       expect(error).not.toBeCalled();
       // The optimistic update has already been reverted
       expect(callback.mock.calls.length).toBe(0);
+    });
+  });
+
+  describe('executeMutation() with @match', () => {
+    let callbacks;
+    let complete;
+    let dataSource;
+    let environment;
+    let error;
+    let fragment;
+    let fetch;
+    let markdownRendererFragment;
+    let markdownRendererNormalizationFragment;
+    let mutation;
+    let next;
+    let operationLoader;
+    let operation;
+    let resolveFragment;
+    let selector;
+    let variables;
+
+    beforeEach(() => {
+      ({
+        CreateCommentMutation: mutation,
+        CommentActorFragment: fragment,
+        MarkdownUserNameRenderer_name: markdownRendererFragment,
+        MarkdownUserNameRenderer_name$normalization: markdownRendererNormalizationFragment,
+      } = generateAndCompile(`
+        mutation CreateCommentMutation($input: CommentCreateInput!) {
+          commentCreate(input: $input) {
+            comment {
+              actor {
+                ...CommentActorFragment
+              }
+            }
+          }
+        }
+
+        fragment CommentActorFragment on User {
+          id
+          nameRenderer @match {
+            ...PlainUserNameRenderer_name
+              @module(name: "PlainUserNameRenderer.react")
+            ...MarkdownUserNameRenderer_name
+              @module(name: "MarkdownUserNameRenderer.react")
+          }
+        }
+
+        fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
+          plaintext
+          data {
+            text
+          }
+        }
+
+        fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+          __typename
+          markdown
+          data {
+            markup @__clientField(handle: "markup_handler")
+          }
+        }
+      `));
+      variables = {
+        input: {
+          clientMutationId: '0',
+          feedbackId: '1',
+        },
+      };
+      operation = createOperationDescriptor(mutation, variables);
+      selector = {
+        dataID: '4',
+        node: fragment,
+        variables: {},
+      };
+
+      const MarkupHandler = {
+        update(storeProxy, payload) {
+          const record = storeProxy.get(payload.dataID);
+          if (record != null) {
+            const markup = record.getValue(payload.fieldKey);
+            record.setValue(
+              typeof markup === 'string' ? markup.toUpperCase() : null,
+              payload.handleKey,
+            );
+          }
+        },
+      };
+
+      complete = jest.fn();
+      error = jest.fn();
+      next = jest.fn();
+      callbacks = {complete, error, next};
+      fetch = (_query, _variables, _cacheConfig) => {
+        return RelayObservable.create(sink => {
+          dataSource = sink;
+        });
+      };
+      operationLoader = {
+        load: jest.fn(moduleName => {
+          return new Promise(resolve => {
+            resolveFragment = resolve;
+          });
+        }),
+        get: jest.fn(),
+      };
+      environment = new RelayModernEnvironment({
+        network: RelayNetwork.create(fetch),
+        store,
+        operationLoader,
+        handlerProvider: name => {
+          switch (name) {
+            case 'markup_handler':
+              return MarkupHandler;
+          }
+        },
+      });
+    });
+
+    it('calls next() and publishes the initial payload to the store', () => {
+      const snapshot = environment.lookup(selector);
+      const callback = jest.fn();
+      environment.subscribe(snapshot, callback);
+
+      environment.execute({operation}).subscribe(callbacks);
+      const payload = {
+        data: {
+          commentCreate: {
+            comment: {
+              id: '1',
+              body: {
+                text: 'Gave Relay', // server data is lowercase
+              },
+              actor: {
+                id: '4',
+                __typename: 'User',
+                nameRenderer: {
+                  __typename: 'MarkdownUserNameRenderer',
+                  __match_component: 'MarkdownUserNameRenderer.react',
+                  __match_fragment:
+                    'MarkdownUserNameRenderer_name$normalization.graphql',
+                  markdown: 'markdown payload',
+                  data: {
+                    markup: '<markup/>',
+                  },
+                },
+              },
+            },
+          },
+        },
+      };
+      dataSource.next(payload);
+      jest.runAllTimers();
+
+      expect(next.mock.calls.length).toBe(1);
+      expect(complete).not.toBeCalled();
+      expect(error).not.toBeCalled();
+      expect(callback.mock.calls.length).toBe(1);
+      const data = (callback.mock.calls[0][0].data: any);
+      expect(data).toEqual({
+        id: '4',
+        nameRenderer: null, // match field data hasn't been processed yet
+      });
+    });
+
+    it('loads the @match fragment and normalizes/publishes the field payload', () => {
+      environment.execute({operation}).subscribe(callbacks);
+      const payload = {
+        data: {
+          commentCreate: {
+            comment: {
+              id: '1',
+              body: {
+                text: 'Gave Relay', // server data is lowercase
+              },
+              actor: {
+                id: '4',
+                __typename: 'User',
+                nameRenderer: {
+                  __typename: 'MarkdownUserNameRenderer',
+                  __match_component: 'MarkdownUserNameRenderer.react',
+                  __match_fragment:
+                    'MarkdownUserNameRenderer_name$normalization.graphql',
+                  markdown: 'markdown payload',
+                  data: {
+                    markup: '<markup/>',
+                  },
+                },
+              },
+            },
+          },
+        },
+      };
+      dataSource.next(payload);
+      jest.runAllTimers();
+      next.mockClear();
+
+      expect(operationLoader.load).toBeCalledTimes(1);
+      expect(operationLoader.load.mock.calls[0][0]).toEqual(
+        'MarkdownUserNameRenderer_name$normalization.graphql',
+      );
+
+      const selectorSnapshot = environment.lookup(selector);
+      expect(selectorSnapshot.data).toEqual({
+        id: '4',
+        nameRenderer: null, // match field data hasn't been processed yet
+      });
+      const callback = jest.fn();
+      environment.subscribe(selectorSnapshot, callback);
+
+      resolveFragment(markdownRendererNormalizationFragment);
+      jest.runAllTimers();
+      // next() should not be called when @match resolves, no new GraphQLResponse
+      // was received for this case
+      expect(next).toBeCalledTimes(0);
+      expect(callback).toBeCalledTimes(1);
+      const selectorData = callback.mock.calls[0][0].data;
+      expect(selectorData).toEqual({
+        id: '4',
+        nameRenderer: {
+          __id:
+            'client:4:nameRenderer(MarkdownUserNameRenderer_name:MarkdownUserNameRenderer.react,PlainUserNameRenderer_name:PlainUserNameRenderer.react)',
+          __fragmentPropName: 'name',
+          __fragments: {
+            MarkdownUserNameRenderer_name: {},
+          },
+          __fragmentOwner: null,
+          __module: 'MarkdownUserNameRenderer.react',
+        },
+      });
+
+      const matchSelector = nullthrows(
+        getSelector(
+          variables,
+          markdownRendererFragment,
+          selectorData?.nameRenderer,
+        ),
+      );
+      const matchSnapshot = environment.lookup(matchSelector.selector);
+      expect(matchSnapshot.data).toEqual({
+        __typename: 'MarkdownUserNameRenderer',
+        data: {
+          // NOTE: should be uppercased by the MarkupHandler
+          markup: '<MARKUP/>',
+        },
+        markdown: 'markdown payload',
+      });
+    });
+
+    it('calls complete() only after match payloads are processed (network completes first)', () => {
+      environment.execute({operation}).subscribe(callbacks);
+      const payload = {
+        data: {
+          commentCreate: {
+            comment: {
+              id: '1',
+              body: {
+                text: 'Gave Relay', // server data is lowercase
+              },
+              actor: {
+                id: '4',
+                __typename: 'User',
+                nameRenderer: {
+                  __typename: 'MarkdownUserNameRenderer',
+                  __match_component: 'MarkdownUserNameRenderer.react',
+                  __match_fragment:
+                    'MarkdownUserNameRenderer_name$normalization.graphql',
+                  markdown: 'markdown payload',
+                  data: {
+                    markup: '<markup/>',
+                  },
+                },
+              },
+            },
+          },
+        },
+      };
+      dataSource.next(payload);
+      dataSource.complete();
+      jest.runAllTimers();
+      expect(complete).toBeCalledTimes(0);
+      expect(error).toBeCalledTimes(0);
+      expect(next).toBeCalledTimes(1);
+
+      expect(operationLoader.load).toBeCalledTimes(1);
+      expect(operationLoader.load.mock.calls[0][0]).toEqual(
+        'MarkdownUserNameRenderer_name$normalization.graphql',
+      );
+      resolveFragment(markdownRendererNormalizationFragment);
+      jest.runAllTimers();
+
+      expect(complete).toBeCalledTimes(1);
+      expect(error).toBeCalledTimes(0);
+      expect(next).toBeCalledTimes(1);
+    });
+
+    it('calls complete() only after match payloads are processed (network completes last)', () => {
+      environment.execute({operation}).subscribe(callbacks);
+      const payload = {
+        data: {
+          commentCreate: {
+            comment: {
+              id: '1',
+              body: {
+                text: 'Gave Relay', // server data is lowercase
+              },
+              actor: {
+                id: '4',
+                __typename: 'User',
+                nameRenderer: {
+                  __typename: 'MarkdownUserNameRenderer',
+                  __match_component: 'MarkdownUserNameRenderer.react',
+                  __match_fragment:
+                    'MarkdownUserNameRenderer_name$normalization.graphql',
+                  markdown: 'markdown payload',
+                  data: {
+                    markup: '<markup/>',
+                  },
+                },
+              },
+            },
+          },
+        },
+      };
+      dataSource.next(payload);
+      jest.runAllTimers();
+
+      expect(operationLoader.load).toBeCalledTimes(1);
+      expect(operationLoader.load.mock.calls[0][0]).toEqual(
+        'MarkdownUserNameRenderer_name$normalization.graphql',
+      );
+      resolveFragment(markdownRendererNormalizationFragment);
+      jest.runAllTimers();
+
+      expect(complete).toBeCalledTimes(0);
+      expect(error).toBeCalledTimes(0);
+      expect(next).toBeCalledTimes(1);
+
+      dataSource.complete();
+      expect(complete).toBeCalledTimes(1);
+      expect(error).toBeCalledTimes(0);
+      expect(next).toBeCalledTimes(1);
     });
   });
 

@@ -87,6 +87,7 @@ export type {GraphQLTaggedNode} from './query/RelayModernGraphQLTag';
 export type {RecordState} from './store/RelayRecordState';
 export type {
   Environment as IEnvironment,
+  FragmentPointer,
   FragmentMap,
   FragmentReference,
   FragmentSpecResolver,

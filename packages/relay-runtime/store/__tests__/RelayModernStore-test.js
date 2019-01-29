@@ -520,6 +520,64 @@ describe('RelayStore', () => {
       });
     });
 
+    it('notifies subscribers and sets updated value for isMissingData', () => {
+      data = {
+        '4': {
+          __id: '4',
+          id: '4',
+          __typename: 'User',
+          name: 'Zuck',
+          'profilePicture(size:32)': {[REF_KEY]: 'client:1'},
+        },
+        'client:1': {
+          __id: 'client:1',
+          uri: 'https://photo1.jpg',
+        },
+      };
+      source = new RelayInMemoryRecordSource(data);
+      store = new RelayModernStore(source);
+      const selector = {
+        dataID: '4',
+        node: UserFragment,
+        variables: {size: 32},
+      };
+      const snapshot = store.lookup(selector);
+      expect(snapshot.isMissingData).toEqual(true);
+
+      const callback = jest.fn();
+      // Record does not exist when subscribed
+      store.subscribe(snapshot, callback);
+      const nextSource = new RelayInMemoryRecordSource({
+        4: {
+          __id: '4',
+          __typename: 'User',
+          emailAddresses: ['a@b.com'],
+        },
+      });
+      store.publish(nextSource);
+      store.notify();
+      expect(callback.mock.calls.length).toBe(1);
+      expect(callback.mock.calls[0][0]).toEqual({
+        ...snapshot,
+        isMissingData: false,
+        data: {
+          name: 'Zuck',
+          profilePicture: {
+            uri: 'https://photo1.jpg',
+          },
+          emailAddresses: ['a@b.com'],
+        },
+        seenRecords: {
+          4: {
+            ...data['4'],
+          },
+          'client:1': {
+            ...data['client:1'],
+          },
+        },
+      });
+    });
+
     it('notifies subscribers of changes to unfetched records', () => {
       const selector = {
         dataID: '842472',
@@ -546,6 +604,7 @@ describe('RelayStore', () => {
           name: 'Joe',
           profilePicture: undefined,
         },
+        isMissingData: true,
         seenRecords: nextSource.toJSON(),
       });
     });
@@ -579,6 +638,7 @@ describe('RelayStore', () => {
           name: 'Joe',
           profilePicture: undefined,
         },
+        isMissingData: true,
         seenRecords: nextSource.toJSON(),
       });
     });

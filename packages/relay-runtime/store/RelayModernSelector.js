@@ -58,7 +58,7 @@ function getSelector(
   operationVariables: Variables,
   fragment: ReaderFragment,
   item: mixed,
-  explicitOwner?: OperationDescriptor,
+  explicitOwner?: ?OperationDescriptor,
 ): ?OwnedReaderSelector {
   invariant(
     typeof item === 'object' && item !== null && !Array.isArray(item),
@@ -143,10 +143,24 @@ function getSelectorList(
   operationVariables: Variables,
   fragment: ReaderFragment,
   items: Array<mixed>,
-  owner?: OperationDescriptor,
+  owners?: Array<?OperationDescriptor>,
 ): ?Array<OwnedReaderSelector> {
   let selectors = null;
-  items.forEach(item => {
+  if (__DEV__) {
+    if (owners != null) {
+      warning(
+        items.length !== owners.length,
+        'RelayModernSelector: Expected number of plural values for fragment ' +
+          '`%s` to match number of owners. Received %s values and %s owners.',
+        fragment.name,
+        items.length,
+        owners.length,
+      );
+    }
+  }
+
+  items.forEach((item, ii) => {
+    const owner = owners != null ? owners[ii] : null;
     const selector =
       item != null
         ? getSelector(operationVariables, fragment, item, owner)
@@ -173,7 +187,7 @@ function getSelectorsFromObject(
   operationVariables: Variables,
   fragments: {[key: string]: ReaderFragment},
   object: {[key: string]: mixed},
-  owner?: OperationDescriptor,
+  owners?: {[key: string]: ?OperationDescriptor | Array<?OperationDescriptor>},
 ): {[key: string]: ?(OwnedReaderSelector | Array<OwnedReaderSelector>)} {
   const selectors = {};
   for (const key in fragments) {
@@ -191,12 +205,25 @@ function getSelectorsFromObject(
           JSON.stringify(item),
           fragment.name,
         );
-        selectors[key] = getSelectorList(
-          operationVariables,
-          fragment,
-          item,
-          owner,
-        );
+        if (owners != null) {
+          const owner = owners[key];
+          invariant(
+            Array.isArray(owner),
+            'RelayModernSelector: Expected explcitly provided owner for ' +
+              'fragment `%s` under key `%s` to be an array, got `%s`.',
+            fragment.name,
+            key,
+            JSON.stringify(owner),
+          );
+          selectors[key] = getSelectorList(
+            operationVariables,
+            fragment,
+            item,
+            owner,
+          );
+        } else {
+          selectors[key] = getSelectorList(operationVariables, fragment, item);
+        }
       } else {
         invariant(
           !Array.isArray(item),
@@ -206,7 +233,32 @@ function getSelectorsFromObject(
           JSON.stringify(item),
           fragment.name,
         );
-        selectors[key] = getSelector(operationVariables, fragment, item, owner);
+        if (owners != null) {
+          const owner = owners[key];
+          invariant(
+            owner != null,
+            'RelayModernSelector: Expected explcitly provided owner for ' +
+              'fragment `%s` under key `%s` to be defined.',
+            fragment.name,
+            key,
+          );
+          invariant(
+            !Array.isArray(owner),
+            'RelayModernSelector: Expected explcitly provided owner for ' +
+              'fragment `%s` under key `%s` not to be an array, got `%s`.',
+            fragment.name,
+            key,
+            JSON.stringify(owner),
+          );
+          selectors[key] = getSelector(
+            operationVariables,
+            fragment,
+            item,
+            owner,
+          );
+        } else {
+          selectors[key] = getSelector(operationVariables, fragment, item);
+        }
       }
     }
   }
@@ -318,7 +370,7 @@ function getVariablesFromObject(
   operationVariables: Variables,
   fragments: {[key: string]: ReaderFragment},
   object: {[key: string]: mixed},
-  owner?: OperationDescriptor,
+  owners?: {[key: string]: ?OperationDescriptor | Array<?OperationDescriptor>},
 ): Variables {
   const variables = {};
   for (const key in fragments) {
@@ -336,19 +388,32 @@ function getVariablesFromObject(
           JSON.stringify(item),
           fragment.name,
         );
-        item.forEach(value => {
-          if (value != null) {
-            const itemVariables = getVariables(
-              operationVariables,
-              fragment,
-              value,
-              owner,
-            );
-            if (itemVariables) {
-              Object.assign(variables, itemVariables);
-            }
-          }
-        });
+
+        if (owners != null) {
+          const owner = owners[key];
+          invariant(
+            Array.isArray(owner),
+            'RelayModernSelector: Expected explcitly provided owner for ' +
+              'fragment `%s` under key `%s` to be an array, got `%s`.',
+            fragment.name,
+            key,
+            JSON.stringify(owner),
+          );
+          const itemVariables = getVariablesFromList(
+            operationVariables,
+            fragment,
+            item,
+            owner,
+          );
+          Object.assign(variables, itemVariables);
+        } else {
+          const itemVariables = getVariablesFromList(
+            operationVariables,
+            fragment,
+            item,
+          );
+          Object.assign(variables, itemVariables);
+        }
       } else {
         invariant(
           !Array.isArray(item),
@@ -358,14 +423,42 @@ function getVariablesFromObject(
           JSON.stringify(item),
           fragment.name,
         );
-        const itemVariables = getVariables(
-          operationVariables,
-          fragment,
-          item,
-          owner,
-        );
-        if (itemVariables) {
-          Object.assign(variables, itemVariables);
+        if (owners != null) {
+          const owner = owners[key];
+          invariant(
+            owner != null,
+            'RelayModernSelector: Expected explcitly provided owner for ' +
+              'fragment `%s` under key `%s` to be defined.',
+            fragment.name,
+            key,
+          );
+          invariant(
+            !Array.isArray(owner),
+            'RelayModernSelector: Expected explcitly provided owner for ' +
+              'fragment `%s` under key `%s` not to be an array, got `%s`.',
+            fragment.name,
+            key,
+            JSON.stringify(owner),
+          );
+
+          const itemVariables = getVariables(
+            operationVariables,
+            fragment,
+            item,
+            owner,
+          );
+          if (itemVariables) {
+            Object.assign(variables, itemVariables);
+          }
+        } else {
+          const itemVariables = getVariables(
+            operationVariables,
+            fragment,
+            item,
+          );
+          if (itemVariables) {
+            Object.assign(variables, itemVariables);
+          }
         }
       }
     }
@@ -380,13 +473,40 @@ function getVariables(
   operationVariables: Variables,
   fragment: ReaderFragment,
   item: mixed,
-  owner?: OperationDescriptor,
+  owner?: ?OperationDescriptor,
 ): ?Variables {
   const ownedSelector = getSelector(operationVariables, fragment, item, owner);
   if (!ownedSelector) {
     return null;
   }
   return ownedSelector.selector.variables;
+}
+
+/**
+ * @internal
+ */
+function getVariablesFromList(
+  operationVariables: Variables,
+  fragment: ReaderFragment,
+  items: Array<mixed>,
+  owners?: Array<?OperationDescriptor>,
+): Variables {
+  const variables = {};
+  items.forEach((value, ii) => {
+    if (value != null) {
+      const owner = owners != null ? owners[ii] : null;
+      const itemVariables = getVariables(
+        operationVariables,
+        fragment,
+        value,
+        owner,
+      );
+      if (itemVariables) {
+        Object.assign(variables, itemVariables);
+      }
+    }
+  });
+  return variables;
 }
 
 /**

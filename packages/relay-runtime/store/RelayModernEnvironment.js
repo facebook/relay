@@ -16,13 +16,10 @@ const RelayCore = require('./RelayCore');
 const RelayDefaultHandlerProvider = require('../handlers/RelayDefaultHandlerProvider');
 const RelayInMemoryRecordSource = require('./RelayInMemoryRecordSource');
 const RelayModernQueryExecutor = require('./RelayModernQueryExecutor');
-const RelayModernRecord = require('./RelayModernRecord');
 const RelayObservable = require('../network/RelayObservable');
 const RelayPublishQueue = require('./RelayPublishQueue');
-const RelayResponseNormalizer = require('./RelayResponseNormalizer');
 
 const invariant = require('invariant');
-const normalizePayload = require('./normalizePayload');
 const normalizeRelayPayload = require('./normalizeRelayPayload');
 const warning = require('warning');
 
@@ -34,15 +31,12 @@ import type {
   PayloadError,
   UploadableMap,
 } from '../network/RelayNetworkTypes';
-import type {Subscription} from '../network/RelayObservable';
 import type {
   Environment,
   OperationLoader,
-  MatchFieldPayload,
   MissingFieldHandler,
   OperationDescriptor,
   OptimisticUpdate,
-  RelayResponsePayload,
   NormalizationSelector,
   ReaderSelector,
   SelectorStoreUpdater,
@@ -51,7 +45,6 @@ import type {
   StoreUpdater,
   UnstableEnvironmentCore,
 } from '../store/RelayStoreTypes';
-import type {NormalizationSplitOperation} from '../util/NormalizationNode';
 import type {CacheConfig, Disposable} from '../util/RelayRuntimeTypes';
 
 export type EnvironmentConfig = {|

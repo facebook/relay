@@ -51,7 +51,7 @@ import type {Record} from '../util/RelayCombinedEnvironmentTypes';
 import type {DataID, Variables} from '../util/RelayRuntimeTypes';
 import type {
   HandleFieldPayload,
-  IncrementalDataPayload,
+  IncrementalDataPlaceholder,
   MatchFieldPayload,
   MutableRecordSource,
   NormalizationSelector,
@@ -63,7 +63,7 @@ export type NormalizationOptions = {|
 |};
 
 export type NormalizedResponse = {|
-  incrementalPayloads: Array<IncrementalDataPayload>,
+  incrementalPlaceholders: Array<IncrementalDataPlaceholder>,
   fieldPayloads: Array<HandleFieldPayload>,
   matchPayloads: Array<MatchFieldPayload>,
 |};
@@ -98,7 +98,7 @@ function normalize(
 class RelayResponseNormalizer {
   _handleFieldPayloads: Array<HandleFieldPayload>;
   _handleStrippedNulls: boolean;
-  _incrementalPayloads: Array<IncrementalDataPayload>;
+  _incrementalPlaceholders: Array<IncrementalDataPlaceholder>;
   _matchFieldPayloads: Array<MatchFieldPayload>;
   _path: Array<string>;
   _recordSource: MutableRecordSource;
@@ -111,7 +111,7 @@ class RelayResponseNormalizer {
   ) {
     this._handleFieldPayloads = [];
     this._handleStrippedNulls = options.handleStrippedNulls === true;
-    this._incrementalPayloads = [];
+    this._incrementalPlaceholders = [];
     this._matchFieldPayloads = [];
     this._path = options.path ? [...options.path] : [];
     this._recordSource = recordSource;
@@ -131,7 +131,7 @@ class RelayResponseNormalizer {
     );
     this._traverseSelections(node, record, data);
     return {
-      incrementalPayloads: this._incrementalPayloads,
+      incrementalPlaceholders: this._incrementalPlaceholders,
       fieldPayloads: this._handleFieldPayloads,
       matchPayloads: this._matchFieldPayloads,
     };
@@ -237,7 +237,7 @@ class RelayResponseNormalizer {
     } else {
       // Otherwise data *for this selection* should not be present: enqueue
       // metadata to process the subsequent response chunk.
-      this._incrementalPayloads.push({
+      this._incrementalPlaceholders.push({
         kind: 'defer',
         label: defer.label,
         path: [...this._path],
@@ -246,6 +246,7 @@ class RelayResponseNormalizer {
           node: defer,
           variables: this._variables,
         },
+        typeName: RelayModernRecord.getType(record),
       });
     }
   }
@@ -271,7 +272,7 @@ class RelayResponseNormalizer {
     if (isStreamed === true) {
       // If streaming is enabled, *also* emit metadata to process any
       // response chunks that may be delivered.
-      this._incrementalPayloads.push({
+      this._incrementalPlaceholders.push({
         kind: 'stream',
         label: stream.label,
         path: [...this._path],
@@ -280,6 +281,7 @@ class RelayResponseNormalizer {
           node: stream,
           variables: this._variables,
         },
+        typeName: RelayModernRecord.getType(record),
       });
     }
   }

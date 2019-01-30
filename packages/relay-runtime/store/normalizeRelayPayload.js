@@ -31,15 +31,15 @@ function normalizeRelayPayload(
 ): RelayResponsePayload {
   const source = new RelayInMemoryRecordSource();
   source.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
-  const {fieldPayloads, matchPayloads} = RelayResponseNormalizer.normalize(
-    source,
-    selector,
-    payload,
-    options,
-  );
+  const {
+    fieldPayloads,
+    incrementalPlaceholders,
+    matchPayloads,
+  } = RelayResponseNormalizer.normalize(source, selector, payload, options);
   return {
     errors,
     fieldPayloads,
+    incrementalPlaceholders,
     matchPayloads,
     source,
   };

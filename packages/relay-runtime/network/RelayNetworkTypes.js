@@ -48,11 +48,15 @@ export type GraphQLResponse =
       data: PayloadData,
       errors?: Array<PayloadError>,
       extensions?: PayloadExtensions,
+      label?: string,
+      path?: Array<string | number>,
     }
   | {
       data?: ?PayloadData,
       errors: Array<PayloadError>,
       extensions?: PayloadExtensions,
+      label?: string,
+      path?: Array<string | number>,
     };
 
 /**

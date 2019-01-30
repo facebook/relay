@@ -11,6 +11,7 @@
 
 'use strict';
 
+const RelayError = require('../util/RelayError');
 const RelayInMemoryRecordSource = require('./RelayInMemoryRecordSource');
 const RelayModernRecord = require('./RelayModernRecord');
 const RelayObservable = require('../network/RelayObservable');
@@ -18,17 +19,20 @@ const RelayPublishQueue = require('./RelayPublishQueue');
 const RelayResponseNormalizer = require('./RelayResponseNormalizer');
 
 const invariant = require('invariant');
-const normalizePayload = require('./normalizePayload');
+
+const {ROOT_TYPE} = require('./RelayStoreUtils');
 
 import type {GraphQLResponse} from '../network/RelayNetworkTypes';
 import type {Sink, Subscription} from '../network/RelayObservable';
 import type {
   MatchFieldPayload,
+  NormalizationSelector,
   OperationDescriptor,
   OptimisticUpdate,
   OperationLoader,
   RelayResponsePayload,
   SelectorStoreUpdater,
+  IncrementalDataPlaceholder,
 } from '../store/RelayStoreTypes';
 import type {NormalizationSplitOperation} from '../util/NormalizationNode';
 
@@ -52,6 +56,10 @@ function execute(config: ExecuteConfig): Executor {
  * dependencies, etc.
  */
 class Executor {
+  _incrementalPlaceholders: Map<
+    string,
+    Map<string, IncrementalDataPlaceholder>,
+  >;
   _nextSubscriptionId: number;
   _operation: OperationDescriptor;
   _operationLoader: ?OperationLoader;
@@ -71,6 +79,7 @@ class Executor {
     source,
     updater,
   }: ExecuteConfig): void {
+    this._incrementalPlaceholders = new Map();
     this._nextSubscriptionId = 0;
     this._operation = operation;
     this._operationLoader = operationLoader;
@@ -85,7 +94,13 @@ class Executor {
     source.subscribe({
       complete: () => this._complete(id),
       error: error => this._error(id, error),
-      next: response => this._next(id, response),
+      next: response => {
+        try {
+          this._next(id, response);
+        } catch (error) {
+          sink.error(error);
+        }
+      },
       start: subscription => this._start(id, subscription),
     });
 
@@ -111,6 +126,7 @@ class Executor {
       this._publishQueue.revertUpdate(optimisticResponse);
       this._publishQueue.run();
     }
+    this._incrementalPlaceholders.clear();
   }
 
   _complete(id: number): void {
@@ -141,7 +157,6 @@ class Executor {
       }
       return;
     }
-    const payload = normalizePayload(this._operation, response);
     const isOptimistic = response.extensions?.isOptimistic === true;
     if (isOptimistic && this._state !== 'started') {
       invariant(
@@ -150,38 +165,85 @@ class Executor {
       );
     }
     this._state = 'loading';
-    this._processPayloadFollowups(payload);
     if (isOptimistic) {
-      invariant(
-        this._optimisticUpdate === null,
-        'environment.execute: only support one optimistic response per ' +
-          'execute.',
-      );
-      this._optimisticUpdate = {
-        source: payload.source,
-        fieldPayloads: payload.fieldPayloads,
-      };
-      this._publishQueue.applyUpdate(this._optimisticUpdate);
-      this._publishQueue.run();
+      this._processOptimisticResponse(response);
     } else {
-      if (this._optimisticUpdate !== null) {
-        this._publishQueue.revertUpdate(this._optimisticUpdate);
-        this._optimisticUpdate = null;
+      const {path, label} = response;
+      if (path != null || label != null) {
+        if (typeof label !== 'string' || !Array.isArray(path)) {
+          invariant(
+            false,
+            'RelayModernQueryExecutor: invalid incremental payload, expected ' +
+              '`path` and `label` to either both be null/undefined, or ' +
+              '`path` to be an `Array<string | number>` and `label` to be a ' +
+              '`string`.',
+          );
+        } else {
+          this._processIncrementalResponse(label, path, response);
+        }
+      } else {
+        this._processResponse(response);
       }
-      this._publishQueue.commitPayload(this._operation, payload, this._updater);
-      this._publishQueue.run();
     }
     this._sink.next(response);
   }
 
+  _processOptimisticResponse(response: GraphQLResponse): void {
+    invariant(
+      this._optimisticUpdate === null,
+      'environment.execute: only support one optimistic response per ' +
+        'execute.',
+    );
+    const payload = this._normalizeResponse(
+      response,
+      this._operation.root,
+      ROOT_TYPE,
+      [] /* path */,
+    );
+    const {incrementalPlaceholders, matchPayloads} = payload;
+    if (
+      (incrementalPlaceholders != null &&
+        incrementalPlaceholders.length !== 0) ||
+      (matchPayloads != null && matchPayloads.length !== 0)
+    ) {
+      invariant(
+        false,
+        'RelayModernQueryExecutor: optimistic responses cannot be returned ' +
+          'for operations that use incremental data delivery (@match, ' +
+          '@defer, and @stream).',
+      );
+    }
+    this._optimisticUpdate = {
+      source: payload.source,
+      fieldPayloads: payload.fieldPayloads,
+    };
+    this._publishQueue.applyUpdate(this._optimisticUpdate);
+    this._publishQueue.run();
+  }
+
+  _processResponse(response: GraphQLResponse): void {
+    if (this._optimisticUpdate !== null) {
+      this._publishQueue.revertUpdate(this._optimisticUpdate);
+      this._optimisticUpdate = null;
+    }
+    const payload = this._normalizeResponse(
+      response,
+      this._operation.root,
+      ROOT_TYPE,
+      [] /* path */,
+    );
+    this._processPayloadFollowups(payload);
+    this._publishQueue.commitPayload(this._operation, payload, this._updater);
+    this._publishQueue.run();
+  }
+
   /**
-   * Handles any follow-up actions for a Relay payload. At present this is only
-   * @match payloads, in the future this will also handle incremental data
-   * delivery (@defer/@stream).
+   * Handles any follow-up actions for a Relay payload for @match, @defer,
+   * and (in the future) @stream directives.
    */
   _processPayloadFollowups(payload: RelayResponsePayload): void {
-    const {matchPayloads} = payload;
-    if (matchPayloads && matchPayloads.length) {
+    const {incrementalPlaceholders, matchPayloads} = payload;
+    if (matchPayloads && matchPayloads.length !== 0) {
       const operationLoader = this._operationLoader;
       invariant(
         operationLoader,
@@ -190,6 +252,11 @@ class Executor {
       );
       matchPayloads.forEach(matchPayload => {
         this._processMatchPayload(matchPayload, operationLoader);
+      });
+    }
+    if (incrementalPlaceholders && incrementalPlaceholders.length !== 0) {
+      incrementalPlaceholders.forEach(incrementalPlaceholder => {
+        this._processIncrementalPlaceholder(incrementalPlaceholder);
       });
     }
   }
@@ -225,24 +292,12 @@ class Executor {
           variables: matchPayload.variables,
           node: operation,
         };
-        const source = new RelayInMemoryRecordSource();
-        const matchRecord = RelayModernRecord.create(
-          matchPayload.dataID,
-          matchPayload.typeName,
-        );
-        source.set(matchPayload.dataID, matchRecord);
-        const normalizeResult = RelayResponseNormalizer.normalize(
-          source,
+        const relayPayload = this._normalizeResponse(
+          {data: matchPayload.data},
           selector,
-          matchPayload.data,
-          {path: matchPayload.path},
+          matchPayload.typeName,
+          matchPayload.path,
         );
-        const relayPayload = {
-          errors: null, // Errors are handled as part of the parent GraphQLResponse
-          fieldPayloads: normalizeResult.fieldPayloads,
-          matchPayloads: normalizeResult.matchPayloads,
-          source: source,
-        };
         this._processPayloadFollowups(relayPayload);
         this._publishQueue.commitRelayPayload(relayPayload);
         this._publishQueue.run();
@@ -252,6 +307,104 @@ class Executor {
         error: error => this._error(id, error),
         start: subscription => this._start(id, subscription),
       });
+  }
+
+  /**
+   * Stores a mapping of label => path => placeholder; at this point the
+   * executor knows *how* to process the incremental data and has to save
+   * this until the data is available. The placeholder contains the
+   * normalization selector, path (for nested defer/stream), and other metadata
+   * used to normalize the incremental response.
+   */
+  _processIncrementalPlaceholder(payload: IncrementalDataPlaceholder): void {
+    const {label, path} = payload;
+    const pathKey = path.map(String).join('.');
+    let dataForLabel = this._incrementalPlaceholders.get(label);
+    if (dataForLabel == null) {
+      dataForLabel = new Map();
+      this._incrementalPlaceholders.set(label, dataForLabel);
+    }
+    dataForLabel.set(pathKey, payload);
+  }
+
+  /**
+   * Lookup the placeholder the describes how to process an incremental
+   * response, normalize/publish it, and process any nested defer/match/stream
+   * metadata.
+   */
+  _processIncrementalResponse(
+    label: string,
+    path: $ReadOnlyArray<mixed>,
+    response: GraphQLResponse,
+  ): void {
+    const pathKey = path.map(String).join('.');
+    const dataForLabel = this._incrementalPlaceholders.get(label);
+    if (dataForLabel == null) {
+      invariant(
+        false,
+        `RelayModernEnvironment: Received response for unknown label '${label}'. Known labels: ${Array.from(
+          this._incrementalPlaceholders.keys(),
+        ).join(', ')}.`,
+      );
+    }
+    const dataForPath = dataForLabel.get(pathKey);
+    if (dataForPath == null) {
+      invariant(
+        false,
+        `RelayModernEnvironment: Received response for unknown path '${pathKey}' for label '${label}'. Known paths: ${Array.from(
+          dataForLabel.keys(),
+        ).join(', ')}.`,
+      );
+    }
+    const relayPayload = this._normalizeResponse(
+      response,
+      dataForPath.selector,
+      dataForPath.typeName,
+      dataForPath.path,
+    );
+    this._processPayloadFollowups(relayPayload);
+    this._publishQueue.commitRelayPayload(relayPayload);
+    this._publishQueue.run();
+  }
+
+  _normalizeResponse(
+    response: GraphQLResponse,
+    selector: NormalizationSelector,
+    typeName: string,
+    path: $ReadOnlyArray<string>,
+  ): RelayResponsePayload {
+    const {data, errors} = response;
+    if (data == null) {
+      const error = RelayError.create(
+        'RelayNetwork',
+        'No data returned for operation `%s`, got error(s):\n%s\n\nSee the error ' +
+          '`source` property for more information.',
+        this._operation.node.params.name,
+        errors ? errors.map(({message}) => message).join('\n') : '(No errors)',
+      );
+      (error: $FlowFixMe).source = {
+        errors,
+        operation: selector.node,
+        variables: selector.variables,
+      };
+      throw error;
+    }
+    const source = new RelayInMemoryRecordSource();
+    const record = RelayModernRecord.create(selector.dataID, typeName);
+    source.set(selector.dataID, record);
+    const normalizeResult = RelayResponseNormalizer.normalize(
+      source,
+      selector,
+      data,
+      {handleStrippedNulls: true, path},
+    );
+    return {
+      errors,
+      incrementalPlaceholders: normalizeResult.incrementalPlaceholders,
+      fieldPayloads: normalizeResult.fieldPayloads,
+      matchPayloads: normalizeResult.matchPayloads,
+      source,
+    };
   }
 }
 

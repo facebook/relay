@@ -403,12 +403,21 @@ export type MatchFieldPayload = {|
  * that describes how to process the corresponding response chunk when it
  * arrives.
  */
-export type IncrementalDataPayload = {|
-  +kind: 'defer' | 'stream',
+export type DeferPlaceholder = {|
+  +kind: 'defer',
   +label: string,
   +path: $ReadOnlyArray<string>,
   +selector: NormalizationSelector,
+  +typeName: string,
 |};
+export type StreamPlaceholder = {|
+  +kind: 'stream',
+  +label: string,
+  +path: $ReadOnlyArray<string>,
+  +selector: NormalizationSelector,
+  +typeName: string,
+|};
+export type IncrementalDataPlaceholder = DeferPlaceholder | StreamPlaceholder;
 
 /**
  * A user-supplied object to load a generated operation (SplitOperation) AST
@@ -501,12 +510,12 @@ export type MissingFieldHandler =
     };
 
 /**
- * The shape of data that is returned by normalizePayload for a given query.
+ * The results of normalizing a query.
  */
 export type RelayResponsePayload = {|
-  incrementalPayloads?: ?Array<IncrementalDataPayload>,
-  fieldPayloads?: ?Array<HandleFieldPayload>,
-  matchPayloads?: ?Array<MatchFieldPayload>,
+  incrementalPlaceholders: ?Array<IncrementalDataPlaceholder>,
+  fieldPayloads: ?Array<HandleFieldPayload>,
+  matchPayloads: ?Array<MatchFieldPayload>,
   source: MutableRecordSource,
   errors: ?Array<PayloadError>,
 |};

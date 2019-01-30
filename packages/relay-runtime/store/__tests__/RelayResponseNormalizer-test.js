@@ -616,7 +616,7 @@ describe('RelayResponseNormalizer', () => {
 
       const recordSource = new RelayInMemoryRecordSource();
       recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
-      const {incrementalPayloads} = normalize(
+      const {incrementalPlaceholders} = normalize(
         recordSource,
         {
           dataID: ROOT_ID,
@@ -625,7 +625,7 @@ describe('RelayResponseNormalizer', () => {
         },
         payload,
       );
-      expect(incrementalPayloads).toEqual([]);
+      expect(incrementalPlaceholders).toEqual([]);
       expect(recordSource.toJSON()).toEqual({
         '1': {
           __id: '1',
@@ -665,7 +665,7 @@ describe('RelayResponseNormalizer', () => {
 
       const recordSource = new RelayInMemoryRecordSource();
       recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
-      const {incrementalPayloads} = normalize(
+      const {incrementalPlaceholders} = normalize(
         recordSource,
         {
           dataID: ROOT_ID,
@@ -674,7 +674,7 @@ describe('RelayResponseNormalizer', () => {
         },
         payload,
       );
-      expect(incrementalPayloads).toEqual([
+      expect(incrementalPlaceholders).toEqual([
         {
           kind: 'defer',
           label: 'Query$defer$TestFragment',
@@ -684,6 +684,7 @@ describe('RelayResponseNormalizer', () => {
             variables: {id: '1'},
             node: expect.objectContaining({kind: 'Defer'}),
           },
+          typeName: 'User',
         },
       ]);
       expect(recordSource.toJSON()).toEqual({
@@ -725,7 +726,7 @@ describe('RelayResponseNormalizer', () => {
 
       const recordSource = new RelayInMemoryRecordSource();
       recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
-      const {incrementalPayloads} = normalize(
+      const {incrementalPlaceholders} = normalize(
         recordSource,
         {
           dataID: ROOT_ID,
@@ -734,7 +735,7 @@ describe('RelayResponseNormalizer', () => {
         },
         payload,
       );
-      expect(incrementalPayloads).toEqual([
+      expect(incrementalPlaceholders).toEqual([
         {
           kind: 'defer',
           label: 'Query$defer$TestFragment',
@@ -744,6 +745,7 @@ describe('RelayResponseNormalizer', () => {
             variables: {id: '1', enableDefer: true},
             node: expect.objectContaining({kind: 'Defer'}),
           },
+          typeName: 'User',
         },
       ]);
       expect(recordSource.toJSON()).toEqual({
@@ -791,7 +793,7 @@ describe('RelayResponseNormalizer', () => {
 
       const recordSource = new RelayInMemoryRecordSource();
       recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
-      const {incrementalPayloads} = normalize(
+      const {incrementalPlaceholders} = normalize(
         recordSource,
         {
           dataID: ROOT_ID,
@@ -800,7 +802,7 @@ describe('RelayResponseNormalizer', () => {
         },
         payload,
       );
-      expect(incrementalPayloads).toEqual([
+      expect(incrementalPlaceholders).toEqual([
         {
           kind: 'defer',
           label: 'Query$defer$TestFragment',
@@ -810,6 +812,7 @@ describe('RelayResponseNormalizer', () => {
             variables: {id: '1'},
             node: expect.objectContaining({kind: 'Defer'}),
           },
+          typeName: 'User',
         },
         {
           kind: 'defer',
@@ -820,6 +823,7 @@ describe('RelayResponseNormalizer', () => {
             variables: {id: '1'},
             node: expect.objectContaining({kind: 'Defer'}),
           },
+          typeName: 'User',
         },
       ]);
       expect(recordSource.toJSON()).toEqual({
@@ -872,7 +876,7 @@ describe('RelayResponseNormalizer', () => {
 
       const recordSource = new RelayInMemoryRecordSource();
       recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
-      const {incrementalPayloads} = normalize(
+      const {incrementalPlaceholders} = normalize(
         recordSource,
         {
           dataID: ROOT_ID,
@@ -880,11 +884,11 @@ describe('RelayResponseNormalizer', () => {
           variables: {id: '1'},
         },
         payload,
-        // simulate a nested defer payload, verify that the incrementalPayloads
+        // simulate a nested defer payload, verify that the incrementalPlaceholders
         // paths are prefixed with this parent path
         {path: ['abc', '0', 'xyz']},
       );
-      expect(incrementalPayloads).toEqual([
+      expect(incrementalPlaceholders).toEqual([
         {
           kind: 'defer',
           label: 'Query$defer$TestFragment',
@@ -894,6 +898,7 @@ describe('RelayResponseNormalizer', () => {
             variables: {id: '1'},
             node: expect.objectContaining({kind: 'Defer'}),
           },
+          typeName: 'User',
         },
       ]);
     });
@@ -926,7 +931,7 @@ describe('RelayResponseNormalizer', () => {
 
       const recordSource = new RelayInMemoryRecordSource();
       recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
-      const {incrementalPayloads} = normalize(
+      const {incrementalPlaceholders} = normalize(
         recordSource,
         {
           dataID: ROOT_ID,
@@ -935,7 +940,7 @@ describe('RelayResponseNormalizer', () => {
         },
         payload,
       );
-      expect(incrementalPayloads).toEqual([]);
+      expect(incrementalPlaceholders).toEqual([]);
       expect(recordSource.toJSON()).toEqual({
         '1': {
           __id: '1',
@@ -983,7 +988,7 @@ describe('RelayResponseNormalizer', () => {
 
       const recordSource = new RelayInMemoryRecordSource();
       recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
-      const {incrementalPayloads} = normalize(
+      const {incrementalPlaceholders} = normalize(
         recordSource,
         {
           dataID: ROOT_ID,
@@ -992,7 +997,7 @@ describe('RelayResponseNormalizer', () => {
         },
         payload,
       );
-      expect(incrementalPayloads).toEqual([
+      expect(incrementalPlaceholders).toEqual([
         {
           kind: 'stream',
           label: 'TestFragment$stream$actors',
@@ -1002,6 +1007,7 @@ describe('RelayResponseNormalizer', () => {
             variables: {id: '1'},
             node: expect.objectContaining({kind: 'Stream'}),
           },
+          typeName: 'Feedback',
         },
       ]);
       expect(recordSource.toJSON()).toEqual({
@@ -1051,7 +1057,7 @@ describe('RelayResponseNormalizer', () => {
 
       const recordSource = new RelayInMemoryRecordSource();
       recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
-      const {incrementalPayloads} = normalize(
+      const {incrementalPlaceholders} = normalize(
         recordSource,
         {
           dataID: ROOT_ID,
@@ -1060,7 +1066,7 @@ describe('RelayResponseNormalizer', () => {
         },
         payload,
       );
-      expect(incrementalPayloads).toEqual([
+      expect(incrementalPlaceholders).toEqual([
         {
           kind: 'stream',
           label: 'TestFragment$stream$actors',
@@ -1070,6 +1076,7 @@ describe('RelayResponseNormalizer', () => {
             variables: {id: '1', enableStream: true},
             node: expect.objectContaining({kind: 'Stream'}),
           },
+          typeName: 'Feedback',
         },
       ]);
       expect(recordSource.toJSON()).toEqual({
@@ -1127,7 +1134,7 @@ describe('RelayResponseNormalizer', () => {
 
       const recordSource = new RelayInMemoryRecordSource();
       recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
-      const {incrementalPayloads} = normalize(
+      const {incrementalPlaceholders} = normalize(
         recordSource,
         {
           dataID: ROOT_ID,
@@ -1136,7 +1143,7 @@ describe('RelayResponseNormalizer', () => {
         },
         payload,
       );
-      expect(incrementalPayloads).toEqual([
+      expect(incrementalPlaceholders).toEqual([
         {
           kind: 'stream',
           label: 'TestFragment$stream$actors',
@@ -1146,6 +1153,7 @@ describe('RelayResponseNormalizer', () => {
             variables: {id: '1'},
             node: expect.objectContaining({kind: 'Stream'}),
           },
+          typeName: 'User',
         },
         {
           kind: 'stream',
@@ -1156,6 +1164,7 @@ describe('RelayResponseNormalizer', () => {
             variables: {id: '1'},
             node: expect.objectContaining({kind: 'Stream'}),
           },
+          typeName: 'User',
         },
       ]);
       expect(recordSource.toJSON()).toEqual({
@@ -1213,7 +1222,7 @@ describe('RelayResponseNormalizer', () => {
 
       const recordSource = new RelayInMemoryRecordSource();
       recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
-      const {incrementalPayloads} = normalize(
+      const {incrementalPlaceholders} = normalize(
         recordSource,
         {
           dataID: ROOT_ID,
@@ -1225,7 +1234,7 @@ describe('RelayResponseNormalizer', () => {
         // path is prefixed with this parent path:
         {path: ['abc', '0', 'xyz']},
       );
-      expect(incrementalPayloads).toEqual([
+      expect(incrementalPlaceholders).toEqual([
         {
           kind: 'stream',
           label: 'TestFragment$stream$actors',
@@ -1235,6 +1244,7 @@ describe('RelayResponseNormalizer', () => {
             variables: {id: '1'},
             node: expect.objectContaining({kind: 'Stream'}),
           },
+          typeName: 'Feedback',
         },
       ]);
     });

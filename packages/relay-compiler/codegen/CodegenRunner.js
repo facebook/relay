@@ -273,6 +273,11 @@ class CodegenRunner {
         let baseDocuments = ImmutableMap();
         if (baseParsers) {
           baseParsers.forEach(baseParserName => {
+            invariant(
+              this.parsers[baseParserName],
+              'Trying to access an uncompiled base parser config: %s',
+              baseParserName,
+            );
             baseDocuments = baseDocuments.merge(
               this.parsers[baseParserName].documents(),
             );

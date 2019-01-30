@@ -49,8 +49,8 @@ type RootCallMapCollection = {
 };
 
 export type RangeInfo = {
-  diffCalls: Array<Call>,
-  filterCalls: Array<Call>,
+  diffCalls: $ReadOnlyArray<Call>,
+  filterCalls: $ReadOnlyArray<Call>,
   pageInfo: ?PageInfo,
   requestedEdgeIDs: Array<string>,
   filteredEdges: Array<RangeEdge>,
@@ -325,7 +325,10 @@ class RelayRecordStore {
    * - `filterCalls`: the subset of `calls` that are condition calls
    *   (`orderby`).
    */
-  getRangeMetadata(connectionID: ?DataID, calls: Array<Call>): ?RangeInfo {
+  getRangeMetadata(
+    connectionID: ?DataID,
+    calls: $ReadOnlyArray<Call>,
+  ): ?RangeInfo {
     if (connectionID == null) {
       return connectionID;
     }
@@ -442,7 +445,7 @@ class RelayRecordStore {
  * Filter calls to only those that specify conditions on the returned results
  * (ex: `orderby(TOP_STORIES)`), removing generic calls (ex: `first`, `find`).
  */
-function getFilterCalls(calls: Array<Call>): Array<Call> {
+function getFilterCalls(calls: $ReadOnlyArray<Call>): $ReadOnlyArray<Call> {
   return calls.filter(call => !ConnectionInterface.isConnectionCall(call));
 }
 

@@ -30,7 +30,7 @@ type FinderState = {
   dataID: DataID,
   missingData: boolean,
   path: QueryPath,
-  rangeCalls: ?Array<Call>,
+  rangeCalls: ?$ReadOnlyArray<Call>,
   rangeInfo: ?RangeInfo,
 };
 
@@ -42,7 +42,7 @@ export type NodeState = {
   dataID: ?DataID,
   node: RelayQuery.Node,
   path: QueryPath,
-  rangeCalls: ?Array<Call>,
+  rangeCalls: ?$ReadOnlyArray<Call>,
 };
 
 /**
@@ -62,7 +62,7 @@ function findRelayQueryLeaves(
   queryNode: RelayQuery.Node,
   dataID: DataID,
   path: QueryPath,
-  rangeCalls: ?Array<Call>,
+  rangeCalls: ?$ReadOnlyArray<Call>,
 ): FinderResult {
   const finder = new RelayQueryLeavesFinder(store, cachedRecords);
 

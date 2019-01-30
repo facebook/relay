@@ -17,7 +17,7 @@ import type {DataID, Variables} from 'relay-runtime';
 export type Record = {
   // Records may contain many other fields as [fieldName: string]: mixed
   __dataID__: string,
-  __filterCalls__?: Array<Call>,
+  __filterCalls__?: $ReadOnlyArray<Call>,
   __forceIndex__?: number,
   __mutationIDs__?: Array<ClientMutationID>,
   __mutationStatus__?: string,
@@ -89,6 +89,7 @@ const RelayRecord = {
     }
   },
 
+  // $FlowFixMe
   getDataID(record: Record): string {
     return record.__dataID__;
   },

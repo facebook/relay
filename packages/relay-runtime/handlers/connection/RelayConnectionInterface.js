@@ -10,8 +10,11 @@
 
 'use strict';
 
-import type {Record} from 'react-relay/classic/store/RelayRecord';
-import type {Call} from 'react-relay/classic/tools/RelayInternalTypes';
+import type {Record} from '../../util/RelayCombinedEnvironmentTypes';
+
+type Call = {
+  name: string,
+};
 
 export type EdgeRecord = Record & {
   cursor: mixed,
@@ -83,7 +86,7 @@ const RelayConnectionInterface = {
    * Checks whether a set of calls on a connection supply enough information to
    * fetch the range fields (i.e. `edges` and `page_info`).
    */
-  hasRangeCalls(calls: Array<Call>): boolean {
+  hasRangeCalls(calls: $ReadOnlyArray<Call>): boolean {
     return calls.some(call => REQUIRED_RANGE_CALLS.hasOwnProperty(call.name));
   },
 

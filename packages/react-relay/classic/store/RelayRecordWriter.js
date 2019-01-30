@@ -425,7 +425,7 @@ class RelayRecordWriter {
    */
   putRange(
     connectionID: DataID,
-    calls: Array<Call>,
+    calls: $ReadOnlyArray<Call>,
     forceIndex?: ?number,
   ): void {
     invariant(
@@ -466,7 +466,7 @@ class RelayRecordWriter {
    */
   putRangeEdges(
     connectionID: DataID,
-    calls: Array<Call>,
+    calls: $ReadOnlyArray<Call>,
     pageInfo: PageInfo,
     edges: Array<DataID>,
   ): void {
@@ -520,6 +520,8 @@ class RelayRecordWriter {
     );
     return RelayRecord.createWithFields(edgeID, {
       cursor: this.getField(edgeID, CURSOR),
+
+      // $FlowFixMe
       node: RelayRecord.create(nodeID),
     });
   }
@@ -661,7 +663,7 @@ class RelayRecordWriter {
  * Filter calls to only those that specify conditions on the returned results
  * (ex: `orderby(TOP_STORIES)`), removing generic calls (ex: `first`, `find`).
  */
-function getFilterCalls(calls: Array<Call>): Array<Call> {
+function getFilterCalls(calls: $ReadOnlyArray<Call>): $ReadOnlyArray<Call> {
   return calls.filter(call => !ConnectionInterface.isConnectionCall(call));
 }
 

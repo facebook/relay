@@ -33,11 +33,12 @@ export type ConcreteRequest = {|
  * Contains the `text` (or persisted `id`) required for executing a common
  * GraphQL request.
  */
-export type RequestParameters = {|
+export type RequestParameters =
+  | {|...BaseRequestParameters, +text: null, +id: string|}
+  | {|...BaseRequestParameters, +text: string, +id: null|};
+type BaseRequestParameters = {|
   +name: string,
   +operationKind: 'mutation' | 'query' | 'subscription',
-  +id: ?string,
-  +text: ?string,
   +metadata: {[key: string]: mixed},
 |};
 

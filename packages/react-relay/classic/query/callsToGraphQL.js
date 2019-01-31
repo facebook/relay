@@ -20,7 +20,7 @@ import type {ConcreteCall} from './ConcreteQuery';
  *
  * Convert from plain object `{name, value}` calls to GraphQL call nodes.
  */
-function callsToGraphQL(calls: Array<Call>): Array<ConcreteCall> {
+function callsToGraphQL(calls: $ReadOnlyArray<Call>): Array<ConcreteCall> {
   return calls.map(({name, type, value}) => {
     let concreteValue = null;
     if (Array.isArray(value)) {

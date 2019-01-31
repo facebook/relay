@@ -20,11 +20,6 @@ import type {
   ReaderPaginationFragment,
 } from '../util/ReaderNode';
 import type {ConcreteRequest} from '../util/RelayConcreteNode';
-import type {
-  ConcreteFragmentDefinition,
-  ConcreteOperationDefinition,
-} from 'react-relay/classic/query/ConcreteQuery';
-import typeof RelayQL from 'react-relay/classic/query/RelayQL';
 
 // The type of a graphql`...` tagged template expression.
 export type GraphQLTaggedNode =
@@ -33,9 +28,6 @@ export type GraphQLTaggedNode =
   | (() => ReaderFragment | ConcreteRequest)
   | {
       modern: () => ReaderFragment | ConcreteRequest,
-      classic: RelayQL =>
-        | ConcreteFragmentDefinition
-        | ConcreteOperationDefinition,
     };
 
 /**

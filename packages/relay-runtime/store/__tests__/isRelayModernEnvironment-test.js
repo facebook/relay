@@ -27,8 +27,8 @@ describe('isRelayModernEnvironment()', () => {
   });
 
   it('returns false for classic RelayEnvironment instances', () => {
-    const environment = new RelayEnvironment();
-    expect(isRelayModernEnvironment(environment)).toBe(false);
+    const notARelayModernEnvironment = {};
+    expect(isRelayModernEnvironment(notARelayModernEnvironment)).toBe(false);
   });
 
   it('returns false for plain objects that conform to the interface', () => {

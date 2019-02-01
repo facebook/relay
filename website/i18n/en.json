@@ -89,6 +89,9 @@
       "subscriptions": {
         "title": "Subscriptions"
       },
+      "type-emission": {
+        "title": "Type Emission"
+      },
       "upgrading-setvariables": {
         "title": "Upgrading setVariables"
       },

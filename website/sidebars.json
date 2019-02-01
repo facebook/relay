@@ -23,7 +23,8 @@
       "routing",
       "relay-debugging",
       "graphql-server-specification",
-      "persisted-queries"
+      "persisted-queries",
+      "type-emission"
     ],
     "Migration Guides": [
       "new-in-relay-modern",

@@ -1070,6 +1070,43 @@ describe('commitMutation()', () => {
           },
         },
       },
+    });
+    expect(onCompleted).toBeCalledTimes(0);
+    dataSource.complete();
+
+    expect(onCompleted).toBeCalledTimes(1);
+    expect(onCompleted.mock.calls[0][0]).toEqual({
+      commentCreate: {
+        comment: {
+          id: '1',
+          body: {
+            text: 'Gave Relay',
+          },
+        },
+      },
+    });
+    expect(onCompleted.mock.calls[0][1]).toBe(null);
+    expect(onError).toBeCalledTimes(0);
+  });
+
+  it('calls onCompleted when the mutation completes after one payload with errors', () => {
+    commitMutation(environment, {
+      mutation,
+      variables,
+      onCompleted,
+      onError,
+    });
+    dataSource.next({
+      data: {
+        commentCreate: {
+          comment: {
+            id: '1',
+            body: {
+              text: 'Gave Relay',
+            },
+          },
+        },
+      },
       errors: [
         {
           message: 'wtf',

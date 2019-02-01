@@ -16,8 +16,6 @@ jest
   .mock('../../store/RelayEnvironment')
   .mock('warning');
 
-require('configureForRelayOSS');
-
 const GraphQLStoreQueryResolver = require('../../legacy/store/GraphQLStoreQueryResolver');
 const QueryBuilder = require('../../query/QueryBuilder');
 const React = require('React');

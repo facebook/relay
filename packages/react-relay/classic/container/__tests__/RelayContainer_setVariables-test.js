@@ -18,8 +18,6 @@ jest
   .mock('../../store/RelayEnvironment')
   .useFakeTimers();
 
-require('configureForRelayOSS');
-
 const GraphQLStoreQueryResolver = require('../../legacy/store/GraphQLStoreQueryResolver');
 const QueryBuilder = require('../../query/QueryBuilder');
 const React = require('React');

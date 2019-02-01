@@ -15,6 +15,8 @@ const RelayTestSchema = require('RelayTestSchema');
 const areEqual = require('areEqual');
 const invariant = require('invariant');
 
+/* global jest */
+
 const MAX_SIZE = 10;
 const MAX_TTL = 5 * 60 * 1000; // 5 min
 
@@ -162,10 +164,6 @@ function createMockEnvironment(options: {
   const clearCache = () => {
     cache.clear();
   };
-
-  if (!schema) {
-    global.__RELAYOSS__ = true;
-  }
 
   // Helper to compile a query with the given schema (or the test schema by
   // default).

@@ -18,8 +18,6 @@ jest
   .mock('../../../store/RelayPendingQueryTracker')
   .useFakeTimers();
 
-require('configureForRelayOSS');
-
 const RelayClassic = require('../../../RelayPublic');
 const RelayFetchMode = require('../../../store/RelayFetchMode');
 const RelayStoreData = require('../../../store/RelayStoreData');

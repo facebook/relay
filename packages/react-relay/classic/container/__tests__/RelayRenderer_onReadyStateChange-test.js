@@ -15,8 +15,6 @@ jest
   .mock('../../store/RelayEnvironment')
   .useFakeTimers();
 
-require('configureForRelayOSS');
-
 const React = require('React');
 const ReactTestRenderer = require('react-test-renderer');
 const Relay = require('../../RelayPublic');

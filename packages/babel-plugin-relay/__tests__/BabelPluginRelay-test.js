@@ -10,15 +10,13 @@
 
 'use strict';
 
-require('configureForRelayOSS');
-
 const BabelPluginRelay = require('../BabelPluginRelay');
 
 const babel = require('@babel/core');
-const {generateTestsFromFixtures} = require('RelayModernTestUtils');
 const path = require('path');
 
 const {testSchemaPath} = require('../../relay-test-utils/RelayTestUtilsPublic');
+const {generateTestsFromFixtures} = require('RelayModernTestUtils');
 
 const OLD_SCHEMA_PATH = path.resolve(__dirname, './testschema.rfc.graphql');
 

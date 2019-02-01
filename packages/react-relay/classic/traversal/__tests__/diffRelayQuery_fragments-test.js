@@ -12,8 +12,6 @@
 
 jest.mock('../../store/RelayQueryTracker');
 
-require('configureForRelayOSS');
-
 const Relay = require('../../RelayPublic');
 const RelayFragmentReference = require('../../query/RelayFragmentReference');
 const RelayQueryTracker = require('../../store/RelayQueryTracker');

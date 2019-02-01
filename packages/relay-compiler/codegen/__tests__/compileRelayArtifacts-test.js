@@ -11,9 +11,9 @@
 
 'use strict';
 
-require('configureForRelayOSS');
-
+const ASTConvert = require('../../core/ASTConvert');
 const CodeMarker = require('../../util/CodeMarker');
+const CompilerContext = require('../../core/GraphQLCompilerContext');
 const RelayIRTransforms = require('../../core/RelayIRTransforms');
 const RelayTestSchema = require('RelayTestSchema');
 
@@ -21,8 +21,6 @@ const compileRelayArtifacts = require('../compileRelayArtifacts');
 const parseGraphQLText = require('parseGraphQLText');
 
 const {generateTestsFromFixtures} = require('RelayModernTestUtils');
-const ASTConvert = require('../../core/ASTConvert');
-const CompilerContext = require('../../core/GraphQLCompilerContext');
 
 describe('compileRelayArtifacts', () => {
   generateTestsFromFixtures(

@@ -10,8 +10,6 @@
 
 'use strict';
 
-require('configureForRelayOSS');
-
 const RelayClassic = require('../../RelayPublic');
 const RelayQuery = require('../RelayQuery');
 const RelayQueryVisitor = require('../RelayQueryVisitor');

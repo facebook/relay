@@ -10,10 +10,8 @@
 
 'use strict';
 
-require('configureForRelayOSS');
-
-const RelayClassic = require('../../RelayPublic');
 const RelayChangeTracker = require('../RelayChangeTracker');
+const RelayClassic = require('../../RelayPublic');
 const RelayQueryPath = require('../../query/RelayQueryPath');
 const RelayQueryTracker = require('../RelayQueryTracker');
 const RelayQueryWriter = require('../RelayQueryWriter');

@@ -10,8 +10,6 @@
 
 'use strict';
 
-require('configureForRelayOSS');
-
 const RelayEnvironment = require('../RelayEnvironment');
 
 const isClassicRelayEnvironment = require('../isClassicRelayEnvironment');

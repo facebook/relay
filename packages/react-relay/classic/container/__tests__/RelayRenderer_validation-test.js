@@ -14,8 +14,6 @@ jest
   .mock('../../query-config/RelayQueryConfig')
   .mock('../../store/RelayEnvironment');
 
-require('configureForRelayOSS');
-
 const React = require('React');
 const Relay = require('../../RelayPublic');
 const RelayEnvironment = require('../../store/RelayEnvironment');

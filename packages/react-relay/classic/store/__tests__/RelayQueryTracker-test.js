@@ -10,8 +10,6 @@
 
 'use strict';
 
-require('configureForRelayOSS');
-
 jest.unmock('../RelayQueryTracker');
 
 const Relay = require('react-relay/classic/RelayPublic');

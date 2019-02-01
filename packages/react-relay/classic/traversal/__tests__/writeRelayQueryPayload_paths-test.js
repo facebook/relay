@@ -15,8 +15,6 @@ jest
   .mock('warning')
   .mock('../../store/RelayQueryTracker');
 
-require('configureForRelayOSS');
-
 const RelayClassic = require('../../RelayPublic');
 const RelayQueryPath = require('../../query/RelayQueryPath');
 const RelayQueryTracker = require('../../store/RelayQueryTracker');

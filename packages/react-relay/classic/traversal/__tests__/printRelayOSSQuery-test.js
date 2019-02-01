@@ -10,17 +10,16 @@
 
 'use strict';
 
-require('configureForRelayOSS');
-
 const QueryBuilder = require('../../query/QueryBuilder');
 const RelayClassic = require('../../RelayPublic');
 const RelayNodeInterface = require('../../interface/RelayNodeInterface');
 const RelayQuery = require('../../query/RelayQuery');
 const RelayTestUtils = require('RelayTestUtils');
 
-const {graphql, getClassicOperation} = require('../../query/RelayGraphQLTag');
 const generateRQLFieldAlias = require('../../query/generateRQLFieldAlias');
 const printRelayOSSQuery = require('../printRelayOSSQuery');
+
+const {graphql, getClassicOperation} = require('../../query/RelayGraphQLTag');
 
 describe('printRelayOSSQuery', () => {
   const {getNode} = RelayTestUtils;

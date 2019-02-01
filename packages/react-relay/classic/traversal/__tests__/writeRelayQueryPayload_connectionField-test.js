@@ -12,8 +12,6 @@
 
 jest.mock('../../legacy/store/generateClientID').mock('warning');
 
-require('configureForRelayOSS');
-
 const GraphQLRange = require('../../legacy/store/GraphQLRange');
 const RelayClassic = require('../../RelayPublic');
 const RelayMetaRoute = require('../../route/RelayMetaRoute');

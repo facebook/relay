@@ -12,8 +12,6 @@
 
 jest.mock('../../legacy/store/generateClientID').mock('warning');
 
-require('configureForRelayOSS');
-
 const RelayClassic = require('../../RelayPublic');
 const RelayTestUtils = require('RelayTestUtils');
 

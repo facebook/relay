@@ -10,8 +10,6 @@
 
 'use strict';
 
-require('configureForRelayOSS');
-
 const QueryBuilder = require('../QueryBuilder');
 const RelayTestUtils = require('RelayTestUtils');
 

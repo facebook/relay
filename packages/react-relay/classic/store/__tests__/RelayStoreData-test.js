@@ -14,8 +14,6 @@ jest
   .mock('../../legacy/store/GraphQLStoreChangeEmitter')
   .mock('../../legacy/store/generateClientID');
 
-require('configureForRelayOSS');
-
 const {ConnectionInterface} = require('relay-runtime');
 const RelayQueryPath = require('../../query/RelayQueryPath');
 const RelayStoreData = require('../RelayStoreData');

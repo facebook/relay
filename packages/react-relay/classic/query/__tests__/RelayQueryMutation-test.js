@@ -10,11 +10,10 @@
 
 'use strict';
 
-require('configureForRelayOSS');
-
 const RelayClassic = require('../../RelayPublic');
-const {ConnectionInterface} = require('relay-runtime');
 const RelayTestUtils = require('RelayTestUtils');
+
+const {ConnectionInterface} = require('relay-runtime');
 
 const {CLIENT_MUTATION_ID} = ConnectionInterface.get();
 

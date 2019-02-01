@@ -12,8 +12,6 @@
 
 jest.mock('warning');
 
-require('configureForRelayOSS');
-
 const QueryBuilder = require('../QueryBuilder');
 const RelayClassic = require('../../RelayPublic');
 const RelayFragmentReference = require('../RelayFragmentReference');

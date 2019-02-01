@@ -10,8 +10,6 @@
 
 'use strict';
 
-require('configureForRelayOSS');
-
 jest.useFakeTimers();
 jest.unmock('../RelayNetworkLayer');
 

@@ -10,8 +10,6 @@
 
 'use strict';
 
-require('configureForRelayOSS');
-
 const RelayObservable = require('../RelayObservable');
 
 jest.useFakeTimers();

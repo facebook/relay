@@ -15,8 +15,6 @@ jest
   .mock('../../traversal/writeRelayQueryPayload')
   .useFakeTimers();
 
-require('configureForRelayOSS');
-
 const RelayClassic = require('../../RelayPublic');
 const RelayFetchMode = require('../RelayFetchMode');
 const RelayStoreData = require('../RelayStoreData');

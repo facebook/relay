@@ -10,8 +10,6 @@
 
 'use strict';
 
-require('configureForRelayOSS');
-
 jest.unmock('RelayFragmentPointer');
 
 const RelayClassic = require('../../RelayPublic');

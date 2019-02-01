@@ -10,16 +10,15 @@
 
 'use strict';
 
-require('configureForRelayOSS');
-
 const GraphQLCompilerContext = require('GraphQLCompilerContext');
-const RelayConnectionTransform = require('RelayConnectionTransform');
 const GraphQLIRPrinter = require('GraphQLIRPrinter');
+const RelayConnectionTransform = require('RelayConnectionTransform');
 const RelayTestSchema = require('RelayTestSchema');
-const {generateTestsFromFixtures} = require('RelayModernTestUtils');
+
 const parseGraphQLText = require('parseGraphQLText');
 
 const {transformASTSchema} = require('ASTConvert');
+const {generateTestsFromFixtures} = require('RelayModernTestUtils');
 
 describe('RelayConnectionTransform', () => {
   generateTestsFromFixtures(`${__dirname}/fixtures`, text => {

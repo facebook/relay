@@ -10,14 +10,14 @@
 
 'use strict';
 
-require('configureForRelayOSS');
-
 const GraphQLCompilerContext = require('GraphQLCompilerContext');
 const GraphQLIRPrinter = require('GraphQLIRPrinter');
 const RelayTestSchema = require('RelayTestSchema');
+
 const filterContextForNode = require('filterContextForNode');
-const {generateTestsFromFixtures} = require('RelayModernTestUtils');
 const parseGraphQLText = require('parseGraphQLText');
+
+const {generateTestsFromFixtures} = require('RelayModernTestUtils');
 
 const MAIN_QUERY_NAME = 'MainQuery';
 

@@ -15,8 +15,6 @@ jest
   .mock('../../store/RelayQueryTracker')
   .mock('../../traversal/intersectRelayQuery');
 
-require('configureForRelayOSS');
-
 const Relay = require('../../RelayPublic');
 const RelayMutationQuery = require('../RelayMutationQuery');
 const RelayOptimisticMutationUtils = require('../RelayOptimisticMutationUtils');

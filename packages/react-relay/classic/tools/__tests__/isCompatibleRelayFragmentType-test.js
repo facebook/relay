@@ -10,8 +10,6 @@
 
 'use strict';
 
-require('configureForRelayOSS');
-
 const Relay = require('../../RelayPublic');
 const RelayTestUtils = require('RelayTestUtils');
 

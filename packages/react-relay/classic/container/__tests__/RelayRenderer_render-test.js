@@ -14,8 +14,6 @@ jest
   .mock('../../query-config/RelayQueryConfig')
   .mock('../../store/RelayEnvironment');
 
-require('configureForRelayOSS');
-
 const React = require('React');
 const ReactTestRenderer = require('react-test-renderer');
 const ReactTestUtils = require('ReactTestUtils');

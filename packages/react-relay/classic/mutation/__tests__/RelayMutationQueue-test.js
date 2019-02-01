@@ -17,8 +17,6 @@ jest
   .mock('../../network/RelayNetworkLayer')
   .useFakeTimers();
 
-require('configureForRelayOSS');
-
 const RelayClassic = require('../../RelayPublic');
 const RelayMutation = require('../RelayMutation');
 const RelayMutationQuery = require('../RelayMutationQuery');

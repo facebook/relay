@@ -16,8 +16,6 @@ jest
   .mock('../../mutation/RelayMutation')
   .useFakeTimers();
 
-require('configureForRelayOSS');
-
 const RelayClassic = require('../../RelayPublic');
 const RelayEnvironment = require('../RelayEnvironment');
 const RelayMutation = require('../../mutation/RelayMutation');

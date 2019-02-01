@@ -10,8 +10,6 @@
 
 'use strict';
 
-require('configureForRelayOSS');
-
 const RelayTestUtils = require('RelayTestUtils');
 
 const callsFromGraphQL = require('../callsFromGraphQL');

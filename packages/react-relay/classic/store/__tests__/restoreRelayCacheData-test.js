@@ -15,8 +15,6 @@ jest
   .mock('../../legacy/store/GraphQLRange')
   .useFakeTimers();
 
-require('configureForRelayOSS');
-
 const GraphQLRange = require('../../legacy/store/GraphQLRange');
 const RelayClassic = require('../../RelayPublic');
 const RelayChangeTracker = require('../RelayChangeTracker');

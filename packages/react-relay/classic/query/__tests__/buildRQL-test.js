@@ -10,8 +10,6 @@
 
 'use strict';
 
-require('configureForRelayOSS');
-
 jest.mock('warning');
 
 const QueryBuilder = require('../QueryBuilder');

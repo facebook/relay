@@ -15,8 +15,6 @@ jest
   .mock('fetchWithRetries')
   .useFakeTimers();
 
-require('configureForRelayOSS');
-
 const RelayClassic = require('../../RelayPublic');
 const {ConnectionInterface} = require('relay-runtime');
 const RelayDefaultNetworkLayer = require('../RelayDefaultNetworkLayer');

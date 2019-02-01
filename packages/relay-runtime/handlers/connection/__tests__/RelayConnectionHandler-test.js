@@ -10,17 +10,15 @@
 
 'use strict';
 
-require('configureForRelayOSS');
-
 const RelayConnectionHandler = require('../RelayConnectionHandler');
+const RelayConnectionInterface = require('../RelayConnectionInterface');
 const RelayInMemoryRecordSource = require('../../../store/RelayInMemoryRecordSource');
 const RelayModernStore = require('../../../store/RelayModernStore');
+const RelayModernTestUtils = require('RelayModernTestUtils');
 const RelayRecordSourceMutator = require('../../../mutations/RelayRecordSourceMutator');
 const RelayRecordSourceProxy = require('../../../mutations/RelayRecordSourceProxy');
 const RelayResponseNormalizer = require('../../../store/RelayResponseNormalizer');
 const RelayStoreUtils = require('../../../store/RelayStoreUtils');
-const RelayModernTestUtils = require('RelayModernTestUtils');
-const RelayConnectionInterface = require('../RelayConnectionInterface');
 
 const getRelayHandleKey = require('../../../util/getRelayHandleKey');
 const simpleClone = require('../../../util/simpleClone');

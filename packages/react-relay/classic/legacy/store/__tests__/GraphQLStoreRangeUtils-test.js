@@ -10,10 +10,8 @@
 
 'use strict';
 
-require('configureForRelayOSS');
-
-const QueryBuilder = require('../../../query/QueryBuilder');
 const GraphQLStoreRangeUtils = require('../GraphQLStoreRangeUtils');
+const QueryBuilder = require('../../../query/QueryBuilder');
 
 describe('GraphQLStoreRangeUtils', () => {
   let rangeData;

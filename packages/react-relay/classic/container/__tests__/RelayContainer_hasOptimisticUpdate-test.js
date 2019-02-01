@@ -14,8 +14,6 @@ jest
   .mock('../../legacy/store/GraphQLStoreQueryResolver')
   .mock('../../route/RelayRoute');
 
-require('configureForRelayOSS');
-
 const GraphQLStoreQueryResolver = require('../../legacy/store/GraphQLStoreQueryResolver');
 const React = require('React');
 const RelayClassic = require('../../RelayPublic');

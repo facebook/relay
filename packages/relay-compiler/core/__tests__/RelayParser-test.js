@@ -10,13 +10,12 @@
 
 'use strict';
 
-require('configureForRelayOSS');
-
+const ASTConvert = require('../ASTConvert');
+const RelayMatchTransform = require('../../transforms/RelayMatchTransform');
 const RelayParser = require('RelayParser');
 const RelayTestSchema = require('RelayTestSchema');
+
 const {generateTestsFromFixtures} = require('RelayModernTestUtils');
-const RelayMatchTransform = require('../../transforms/RelayMatchTransform');
-const ASTConvert = require('../ASTConvert');
 
 describe('RelayParser', () => {
   const schema = ASTConvert.transformASTSchema(RelayTestSchema, [

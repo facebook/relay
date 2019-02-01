@@ -10,7 +10,12 @@
 
 'use strict';
 
-require('configureForRelayOSS');
+const GraphQLIRPrinter = require('GraphQLIRPrinter');
+const RelayParser = require('RelayParser');
+const RelayTestSchema = require('RelayTestSchema');
+
+const {visit} = require('GraphQLIRVisitor');
+const {generateTestsFromFixtures} = require('RelayModernTestUtils');
 
 import type {
   Argument,
@@ -25,12 +30,6 @@ import type {
   Root,
   Variable,
 } from 'GraphQLIR';
-
-const RelayParser = require('RelayParser');
-const GraphQLIRPrinter = require('GraphQLIRPrinter');
-const RelayTestSchema = require('RelayTestSchema');
-const {generateTestsFromFixtures} = require('RelayModernTestUtils');
-const {visit} = require('GraphQLIRVisitor');
 
 type VisitNodeWithName =
   | Root

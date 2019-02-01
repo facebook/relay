@@ -10,8 +10,6 @@
 
 'use strict';
 
-require('configureForRelayOSS');
-
 jest
   .mock('../../../store/readRelayQueryData')
   .mock('../GraphQLStoreChangeEmitter')

@@ -10,15 +10,14 @@
 
 'use strict';
 
-require('configureForRelayOSS');
-
 const RelayClassic = require('../../RelayPublic');
-const {ConnectionInterface} = require('relay-runtime');
 const RelayQuery = require('../RelayQuery');
 const RelayTestUtils = require('RelayTestUtils');
 const RelayVariable = require('../RelayVariable');
 
 const generateRQLFieldAlias = require('../generateRQLFieldAlias');
+
+const {ConnectionInterface} = require('relay-runtime');
 
 describe('RelayQueryField', () => {
   const {getNode, getVerbatimNode} = RelayTestUtils;

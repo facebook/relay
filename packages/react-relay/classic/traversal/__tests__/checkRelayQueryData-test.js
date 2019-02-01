@@ -12,8 +12,6 @@
 
 jest.mock('../../legacy/store/GraphQLRange');
 
-require('configureForRelayOSS');
-
 const GraphQLRange = require('../../legacy/store/GraphQLRange');
 const RelayClassic = require('../../RelayPublic');
 const RelayTestUtils = require('RelayTestUtils');

@@ -10,15 +10,14 @@
 
 'use strict';
 
-require('configureForRelayOSS');
-
 const RelayClassic = require('../../RelayPublic');
-const {ConnectionInterface} = require('relay-runtime');
 const RelayOptimisticMutationUtils = require('../RelayOptimisticMutationUtils');
 const RelayQuery = require('../../query/RelayQuery');
 const RelayTestUtils = require('RelayTestUtils');
 
 const flattenRelayQuery = require('../../traversal/flattenRelayQuery');
+
+const {ConnectionInterface} = require('relay-runtime');
 
 describe('RelayOptimisticMutationUtils', () => {
   const {getVerbatimNode, matchers} = RelayTestUtils;

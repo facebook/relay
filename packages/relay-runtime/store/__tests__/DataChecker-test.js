@@ -11,14 +11,14 @@
 
 'use strict';
 
-jest.mock('generateClientID');
+const RelayInMemoryRecordSource = require('../RelayInMemoryRecordSource');
+const RelayModernRecord = require('../RelayModernRecord');
+
+const getRelayHandleKey = require('../../util/getRelayHandleKey');
 
 const {check} = require('../DataChecker');
-const RelayInMemoryRecordSource = require('../RelayInMemoryRecordSource');
 const {ROOT_ID} = require('../RelayStoreUtils');
-const RelayModernRecord = require('../RelayModernRecord');
 const {generateAndCompile} = require('RelayModernTestUtils');
-const getRelayHandleKey = require('../../util/getRelayHandleKey');
 
 beforeEach(() => {
   jest.resetModules();

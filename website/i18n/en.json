@@ -65,6 +65,9 @@
       "pagination-container": {
         "title": "Pagination Container"
       },
+      "persisted-queries": {
+        "title": "Persisted Queries"
+      },
       "query-renderer": {
         "title": "<QueryRenderer />"
       },
@@ -388,6 +391,27 @@
       },
       "version-v1.7.0-videos": {
         "title": "Videos"
+      },
+      "version-v2.0.0-community-learning-resources": {
+        "title": "Community Learning Resources"
+      },
+      "version-v2.0.0-graphql-server-specification": {
+        "title": "GraphQL Server Specification"
+      },
+      "version-v2.0.0-installation-and-setup": {
+        "title": "Installation and Setup"
+      },
+      "version-v2.0.0-relay-debugging": {
+        "title": "Debugging"
+      },
+      "version-v2.0.0-graphql-in-relay": {
+        "title": "GraphQL in Relay"
+      },
+      "version-v2.0.0-mutations": {
+        "title": "Mutations"
+      },
+      "version-v2.0.0-persisted-queries": {
+        "title": "Persisted Queries"
       }
     },
     "links": {

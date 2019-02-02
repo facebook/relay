@@ -12,8 +12,7 @@
 
 jest.mock('warning');
 
-const RelayTestUtils = require('RelayTestUtils');
-const {generateAndCompile} = require('RelayModernTestUtils');
+const {generateAndCompile, matchers} = require('RelayModernTestUtils');
 
 const {createFragmentSpecResolver} = require('../RelayCore');
 
@@ -22,7 +21,7 @@ describe('RelayCore', () => {
     let mockCb;
 
     beforeEach(() => {
-      expect.extend(RelayTestUtils.matchers);
+      expect.extend(matchers);
       jest.resetModules();
       mockCb = jest.fn();
     });

@@ -48,7 +48,11 @@ async function writeRelayGeneratedFile(
   _generatedNode: GeneratedNode,
   formatModule: FormatModule,
   typeText: string,
-  _persistQuery: ?(text: string, id: string) => Promise<string>,
+  _persistQuery: ?(
+    text: string,
+    id: string,
+    filename: string,
+  ) => Promise<string>,
   platform: ?string,
   sourceHash: string,
   extension: string,
@@ -95,6 +99,12 @@ async function writeRelayGeneratedFile(
       hash = hasher.digest('hex');
       return extractHash(oldContent);
     });
+
+    const {text} = generatedNode.params;
+    if (persistQuery && text != null) {
+      await persistQuery(text, sourceHash, filename);
+    }
+
     if (hash === oldHash) {
       codegenDir.markUnchanged(filename);
       return null;
@@ -115,7 +125,7 @@ async function writeRelayGeneratedFile(
           generatedNode = {
             ...generatedNode,
             params: {
-              id: await persistQuery(text, sourceHash),
+              id: sourceHash,
               text: null,
               ...restParams,
             },

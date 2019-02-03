@@ -27,8 +27,8 @@ However, a `QueryRenderer` will not start loading its data until it is mounted, 
 import React from 'react';
 import { QueryRenderer, graphql } from 'react-relay';
 
-class Example extends React.Component {
-  renderQuery = ({error, props}) => {
+const Example = (props) => {
+  const renderQuery = ({error, props}) => {
     if (error) {
       return <div>{error.message}</div>;
     } else if (props) {
@@ -37,23 +37,21 @@ class Example extends React.Component {
     return <div>Loading</div>;
   }
 
-  render() {
-    return (
-      <QueryRenderer
-        environment={environment}
-        query={graphql`
-          query ExampleQuery($pageID: ID!) {
-            page(id: $pageID) {
-              name
-            }
+  return (
+    <QueryRenderer
+      environment={environment}
+      query={graphql`
+        query ExampleQuery($pageID: ID!) {
+          page(id: $pageID) {
+            name
           }
-        `}
-        variables={{
-          pageID: '110798995619330',
-        }}
-        render={this.renderQuery}
-      />
-    );
-  }
+        }
+      `}
+      variables={{
+        pageID: '110798995619330',
+      }}
+      render={renderQuery}
+    />
+  );
 }
 ```

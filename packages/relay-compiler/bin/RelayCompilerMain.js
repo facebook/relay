@@ -143,11 +143,11 @@ async function main(options: {
 }) {
   const schemaPath = path.resolve(process.cwd(), options.schema);
   if (!fs.existsSync(schemaPath)) {
-    throw new Error(`--schema path does not exist: ${schemaPath}.`);
+    throw new Error(`--schema path does not exist: ${schemaPath}`);
   }
   const srcDir = path.resolve(process.cwd(), options.src);
   if (!fs.existsSync(srcDir)) {
-    throw new Error(`--src path does not exist: ${srcDir}.`);
+    throw new Error(`--src path does not exist: ${srcDir}`);
   }
 
   let persistedQueryPath = options.persistOutput;
@@ -156,7 +156,7 @@ async function main(options: {
     const persistOutputDir = path.dirname(persistedQueryPath);
     if (!fs.existsSync(persistOutputDir)) {
       throw new Error(
-        `--persist-output path does not exist: ${persistedQueryPath}.`,
+        `--persist-output path does not exist: ${persistedQueryPath}`,
       );
     }
   }

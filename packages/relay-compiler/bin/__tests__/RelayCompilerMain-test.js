@@ -10,46 +10,44 @@
 
 'use strict';
 
-jest.mock('fs');
+jest.mock('fs', () => ({
+  existsSync(path) {
+    return path.startsWith('/existing/');
+  },
+}));
 
 const {main} = require('../RelayCompilerMain');
 
 describe('RelayCompilerMain', () => {
   it('should throw error when schema path does not exist', async () => {
-    expect(
+    await expect(
       main({
-        schema: './some/path/schema.graphql',
-        src: './',
+        schema: '/nonexisting/schema.graphql',
+        src: '/existing/',
       }),
     ).rejects.toEqual(
-      new Error(
-        "--schema './some/path/schema.graphql' invalid: path does not exist",
-      ),
+      new Error('--schema path does not exist: /nonexisting/schema.graphql'),
     );
   });
 
   it('should throw error when src path does not exist', async () => {
-    expect(
+    await expect(
       main({
-        schema: './',
-        src: './some/path/src',
+        schema: '/existing/schema.graphql',
+        src: '/nonexisting/src',
       }),
-    ).rejects.toEqual(
-      new Error("--src './some/path/src' invalid: path does not exist"),
-    );
+    ).rejects.toEqual(new Error('--src path does not exist: /nonexisting/src'));
   });
 
   it('should throw error when persist-output parent directory does not exist', async () => {
-    expect(
+    await expect(
       main({
-        schema: './',
-        src: './',
-        persistOutput: './some/path/queries.json',
+        schema: '/existing/schema.graphql',
+        src: '/existing/src/',
+        persistOutput: '/nonexisting/output/',
       }),
     ).rejects.toEqual(
-      new Error(
-        "--persist-output './some/path/queries.json' invalid: parent directory does not exist",
-      ),
+      new Error('--persist-output path does not exist: /nonexisting/output'),
     );
   });
 });

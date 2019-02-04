@@ -16,6 +16,7 @@ const IRVisitor = require('../../core/GraphQLIRVisitor');
 const Profiler = require('../../core/GraphQLCompilerProfiler');
 const RelayMaskTransform = require('../../transforms/RelayMaskTransform');
 const RelayMatchTransform = require('../../transforms/RelayMatchTransform');
+const RelayRefetchableFragmentTransform = require('../../transforms/RelayRefetchableFragmentTransform');
 const RelayRelayDirectiveTransform = require('../../transforms/RelayRelayDirectiveTransform');
 
 const invariant = require('invariant');
@@ -553,6 +554,7 @@ const FLOW_TRANSFORMS: Array<IRTransform> = [
   RelayMaskTransform.transform,
   RelayMatchTransform.transform,
   FlattenTransform.transformWithOptions({}),
+  RelayRefetchableFragmentTransform.transform,
 ];
 
 module.exports = {

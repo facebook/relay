@@ -6,7 +6,7 @@ The GraphQL-Compiler package [exports library code](./GraphQLCompilerPublic.js) 
 
 The following graph illustrates the high-level architecture of a complete GraphQL code-generation pipeline:
 
-![CodegenPipeline](https://github.com/facebook/relay/raw/master/packages/graphql-compiler/docs/Architecture.png)
+![CodegenPipeline](https://github.com/facebook/relay/raw/master/packages/relay-compiler/docs/Architecture.png)
 
 To understand the underlying workflow of the core compilation step, which is what happens in the "GraphQL Compiler" block in the above graph, please refer [HERE](./ARCHITECTURE.md).
 

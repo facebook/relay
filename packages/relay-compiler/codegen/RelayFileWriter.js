@@ -61,6 +61,7 @@ export type WriterConfig = {
   outputDir?: ?string,
   generatedDirectories?: Array<string>,
   persistQuery?: ?(text: string, id: string) => Promise<string>,
+  registerQuery?: (text: string, id: string) => void,
   platform?: string,
   schemaExtensions: Array<string>,
   noFutureProofEnums: boolean,
@@ -343,6 +344,7 @@ function writeAll({
             sourceHash,
             writerConfig.extension,
             writerConfig.printModuleDependency,
+            writerConfig.registerQuery,
           );
         }),
       );

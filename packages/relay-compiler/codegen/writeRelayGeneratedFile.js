@@ -55,6 +55,7 @@ async function writeRelayGeneratedFile(
   printModuleDependency: (
     moduleName: string,
   ) => string = printRequireModuleDependency,
+  registerQuery?: (text: string, id: string) => void,
 ): Promise<?GeneratedNode> {
   let generatedNode = _generatedNode;
   // Copy to const so Flow can refine.
@@ -96,10 +97,9 @@ async function writeRelayGeneratedFile(
       return extractHash(oldContent);
     });
 
-    const {text} = generatedNode.params;
-    let persistedQueryId = null;
-    if (persistQuery && text != null) {
-      persistedQueryId = await persistQuery(text, sourceHash);
+    // Register query to map for output, even if unchanged.
+    if (registerQuery && docText != null) {
+      registerQuery(docText, sourceHash);
     }
 
     if (hash === oldHash) {
@@ -118,15 +118,11 @@ async function writeRelayGeneratedFile(
             text != null,
             'writeRelayGeneratedFile: Expected `text` in order to persist query',
           );
-          invariant(
-            persistedQueryId != null,
-            'writeRelayGeneratedFile: Expected `persistedQueryId` in order to persist query',
-          );
           devOnlyProperties.params = {text};
           generatedNode = {
             ...generatedNode,
             params: {
-              id: persistedQueryId,
+              id: await persistQuery(text, sourceHash),
               text: null,
               ...restParams,
             },

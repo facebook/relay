@@ -301,13 +301,18 @@ function getRelayFileWriter(
     sourceControl,
     reporter,
   }: WriteFilesOptions) => {
+    let registerQuery;
     let persistQuery;
     let queryMap;
     if (persistedQueryPath != null) {
       queryMap = new Map();
       persistQuery = (text: string, id: string) => {
-        queryMap.set(id, text);
+        // This function used for FB internal implementation of persistence
         return Promise.resolve(id);
+      };
+      registerQuery = (text: string, id: string) => {
+        // Add query to queryMap for eventual output to disk
+        queryMap.set(id, text);
       };
     }
     const results = RelayFileWriter.writeAll({
@@ -330,6 +335,7 @@ function getRelayFileWriter(
         typeGenerator: languagePlugin.typeGenerator,
         outputDir,
         persistQuery,
+        registerQuery,
       },
       onlyValidate,
       schema,

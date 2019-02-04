@@ -305,8 +305,8 @@ function getRelayFileWriter(
     let queryMap;
     if (persistedQueryPath != null) {
       queryMap = new Map();
-      persistQuery = (text: string, id: string, filename: string) => {
-        queryMap.set(filename, {id, text});
+      persistQuery = (text: string, id: string) => {
+        queryMap.set(id, text);
         return Promise.resolve(id);
       };
     }
@@ -340,7 +340,7 @@ function getRelayFileWriter(
     });
     if (queryMap != null && persistedQueryPath != null) {
       const object = {};
-      for (const {id, text} of queryMap.values()) {
+      for (const [id, text] of queryMap.entries()) {
         object[id] = text;
       }
       const data = JSON.stringify(object, null, 2);

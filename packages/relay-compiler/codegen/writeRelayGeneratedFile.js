@@ -48,11 +48,7 @@ async function writeRelayGeneratedFile(
   _generatedNode: GeneratedNode,
   formatModule: FormatModule,
   typeText: string,
-  _persistQuery: ?(
-    text: string,
-    id: string,
-    filename: string,
-  ) => Promise<string>,
+  _persistQuery: ?(text: string, id: string) => Promise<string>,
   platform: ?string,
   sourceHash: string,
   extension: string,
@@ -101,8 +97,9 @@ async function writeRelayGeneratedFile(
     });
 
     const {text} = generatedNode.params;
+    let persistedQueryId = null;
     if (persistQuery && text != null) {
-      await persistQuery(text, sourceHash, filename);
+      persistedQueryId = await persistQuery(text, sourceHash);
     }
 
     if (hash === oldHash) {
@@ -121,11 +118,15 @@ async function writeRelayGeneratedFile(
             text != null,
             'writeRelayGeneratedFile: Expected `text` in order to persist query',
           );
+          invariant(
+            persistedQueryId != null,
+            'writeRelayGeneratedFile: Expected `persistedQueryId` in order to persist query',
+          );
           devOnlyProperties.params = {text};
           generatedNode = {
             ...generatedNode,
             params: {
-              id: sourceHash,
+              id: persistedQueryId,
               text: null,
               ...restParams,
             },

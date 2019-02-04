@@ -148,7 +148,7 @@ class RelayRecordSourceMutator {
   }
 
   copyFieldsFromRecord(record: Record, sinkID: DataID): void {
-    this.copyFields(RelayModernRecord.getDataID(record), sinkID);
+    this._createBackupRecord(sinkID);
     const sink = this._getSinkRecord(sinkID);
     RelayModernRecord.copyFields(record, sink);
     this._setSentinelFieldsInBackupRecord(sinkID, sink);

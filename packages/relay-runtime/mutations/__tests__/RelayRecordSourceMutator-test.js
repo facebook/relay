@@ -236,7 +236,6 @@ describe('RelayRecordSourceMutator', () => {
         sf: {
           [ID_KEY]: 'sf',
           [TYPENAME_KEY]: 'Page',
-          name: 'San Francisco',
           state: 'California',
         },
       });

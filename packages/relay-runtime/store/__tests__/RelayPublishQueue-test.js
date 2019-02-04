@@ -288,7 +288,7 @@ describe('RelayPublishQueue', () => {
       expect(sourceData['4'].name).toEqual('ZUCK');
     });
 
-    it('applies multiple updaters in subsequent run()s', () => {
+    it('applies updates in subsequent run()s (payload then updater)', () => {
       const queue = new RelayPublishQueue(store);
       queue.applyUpdate({
         operation: operationDescriptor,
@@ -311,6 +311,113 @@ describe('RelayPublishQueue', () => {
       });
       queue.run();
       expect(sourceData['4'].name).toEqual('ZUCK');
+    });
+
+    it('applies updates in subsequent run()s (updater then updater)', () => {
+      const queue = new RelayPublishQueue(store);
+      const optimisticUpdate = {
+        storeUpdater: storeProxy => {
+          const zuck = storeProxy.get('4');
+          zuck.setValue('zuck', 'name');
+        },
+      };
+      const optimisticUpdate2 = {
+        storeUpdater: storeProxy => {
+          const zuck = storeProxy.get('4');
+          zuck.setValue('zuckerberg', 'lastName');
+        },
+      };
+      queue.applyUpdate(optimisticUpdate);
+      queue.applyUpdate(optimisticUpdate2);
+      queue.run();
+      expect(sourceData).toEqual({
+        ...initialData,
+        4: {
+          ...initialData['4'],
+          name: 'zuck', // from first updater
+          lastName: 'zuckerberg', // from second updater
+        },
+      });
+    });
+
+    it('applies updates in subsequent run()s (payload then payload)', () => {
+      const queue = new RelayPublishQueue(store);
+      // First set `name`.
+      const nameMutation = generateAndCompile(`
+        mutation ChangeNameMutation(
+          $input: ActorNameChangeInput!
+        ) {
+          actorNameChange(input: $input) {
+            actor {
+              name
+            }
+          }
+        }
+      `).ChangeNameMutation;
+      const nameMutationDescriptor = createOperationDescriptor(nameMutation, {
+        input: {},
+      });
+      queue.applyUpdate({
+        operation: nameMutationDescriptor,
+        response: {
+          actorNameChange: {
+            actor: {
+              __typename: 'User',
+              id: '4',
+              name: 'zuck',
+            },
+          },
+        },
+      });
+      // Next set `lastName`.
+      const lastNameMutation = generateAndCompile(`
+        mutation ChangeNameMutation(
+          $input: ActorNameChangeInput!
+        ) {
+          actorNameChange(input: $input) {
+            actor {
+              lastName
+            }
+          }
+        }
+      `).ChangeNameMutation;
+      const lastNameMutationDescriptor = createOperationDescriptor(
+        lastNameMutation,
+        {input: {}},
+      );
+      queue.applyUpdate({
+        operation: lastNameMutationDescriptor,
+        response: {
+          actorNameChange: {
+            actor: {
+              __typename: 'User',
+              id: '4',
+              lastName: 'zuckerberg',
+            },
+          },
+        },
+      });
+      queue.run();
+      expect(sourceData).toEqual({
+        ...initialData,
+        [ROOT_ID]: {
+          ...initialData[ROOT_ID],
+          'actorNameChange(input:{})': {
+            __ref: 'client:root:actorNameChange(input:{})',
+          },
+        },
+        'client:root:actorNameChange(input:{})': {
+          __id: 'client:root:actorNameChange(input:{})',
+          __typename: 'ActorNameChangePayload',
+          actor: {__ref: '4'},
+        },
+        4: {
+          ...initialData['4'],
+          id: '4',
+          name: 'zuck', // from first updater
+          lastName: 'zuckerberg', // from second updater
+        },
+      });
     });
 
     it('rebases changes when an earlier change is reverted', () => {

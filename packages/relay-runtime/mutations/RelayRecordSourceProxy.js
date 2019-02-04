@@ -65,7 +65,6 @@ class RelayRecordSourceProxy implements RecordSourceProxy {
             this.create(dataID, RelayModernRecord.getType(sourceRecord));
           }
           this.__mutator.copyFieldsFromRecord(sourceRecord, dataID);
-          delete this._proxies[dataID];
         }
       } else if (status === NONEXISTENT) {
         this.delete(dataID);

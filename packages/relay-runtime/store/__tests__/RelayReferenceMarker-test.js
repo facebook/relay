@@ -10,8 +10,6 @@
 
 'use strict';
 
-jest.mock('generateClientID');
-
 const RelayInMemoryRecordSource = require('../RelayInMemoryRecordSource');
 const RelayModernTestUtils = require('RelayModernTestUtils');
 

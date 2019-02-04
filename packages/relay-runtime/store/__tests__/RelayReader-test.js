@@ -10,14 +10,12 @@
 
 'use strict';
 
-jest.mock('generateClientID');
-
 const RelayInMemoryRecordSource = require('../RelayInMemoryRecordSource');
 const RelayModernTestUtils = require('RelayModernTestUtils');
 
+const {getRequest, createOperationDescriptor} = require('../RelayCore');
 const {read} = require('../RelayReader');
 const {ROOT_ID} = require('../RelayStoreUtils');
-const {getRequest, createOperationDescriptor} = require('../RelayCore');
 
 describe('RelayReader', () => {
   const {generateAndCompile, generateWithTransforms} = RelayModernTestUtils;

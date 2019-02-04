@@ -135,6 +135,7 @@ function validateMutationConfig(
       });
       break;
 
+    // $FlowFixMe no longer part of the flow type from RelayModern
     case 'REQUIRED_CHILDREN':
       assertValid({
         children: REQUIRED,

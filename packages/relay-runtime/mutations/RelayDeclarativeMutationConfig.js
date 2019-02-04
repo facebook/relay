@@ -21,7 +21,6 @@ import type {
 import type {SelectorData} from '../util/RelayCombinedEnvironmentTypes';
 import type {ConcreteRequest} from '../util/RelayConcreteNode';
 import type {DataID, Variables} from '../util/RelayRuntimeTypes';
-import type {RelayConcreteNode} from 'react-relay/classic/query/RelayQL';
 
 const MutationTypes = Object.freeze({
   RANGE_ADD: 'RANGE_ADD',
@@ -90,18 +89,11 @@ type LegacyFieldsChangeConfig = {|
   fieldIDs: {[fieldName: string]: DataID | Array<DataID>},
 |};
 
-// Unused in Relay Modern
-type LegacyRequiredChildrenConfig = {|
-  type: 'REQUIRED_CHILDREN',
-  children: Array<RelayConcreteNode>,
-|};
-
 export type DeclarativeMutationConfig =
   | RangeAddConfig
   | RangeDeleteConfig
   | NodeDeleteConfig
-  | LegacyFieldsChangeConfig
-  | LegacyRequiredChildrenConfig;
+  | LegacyFieldsChangeConfig;
 
 function convert(
   configs: Array<DeclarativeMutationConfig>,

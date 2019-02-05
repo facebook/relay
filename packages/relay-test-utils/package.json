@@ -13,6 +13,7 @@
   "dependencies": {
     "@babel/runtime": "^7.0.0",
     "fbjs": "^1.0.0",
+    "graphql-compose": "^5.8.0",
     "iterall": "^1.2.1",
     "prop-types": "^15.5.8",
     "relay-compiler": "2.0.0",

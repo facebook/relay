@@ -34,7 +34,7 @@ fragment UserFragment on User @argumentDefinitions(
   }
   name @include(if: $cond)
   otherName: name @customDirective(level: 3)
-  thumbnail: profilePicture(size: 32) {
+  thumbnail: profilePicture(size: 32, cropPosition: CENTER, fileExtension: PNG) {
     height
     width
     src: uri

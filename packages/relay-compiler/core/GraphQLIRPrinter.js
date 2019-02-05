@@ -304,13 +304,14 @@ function printLiteral(value: mixed, type: ?GraphQLInputType): string {
     type = type.ofType;
   }
   if (type instanceof GraphQLEnumType) {
+    const result = type.serialize(value);
     invariant(
-      typeof value === 'string',
-      'GraphQLIRPrinter: Expected value of type %s to be a string, got `%s`.',
+      typeof result === 'string',
+      'GraphQLIRPrinter: Expected value of type %s to be a valid enum value, got `%s`.',
       type.name,
       value,
     );
-    return value;
+    return result;
   }
   if (Array.isArray(value)) {
     invariant(

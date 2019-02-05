@@ -744,7 +744,12 @@ type User implements Named & Node & Actor {
   nameRenderer(supported: [String!]!): UserNameRenderer
   storySearch(query: StorySearchInput): [Story]
   storyCommentSearch(query: StoryCommentSearchInput): [Comment]
-  profilePicture(size: [Int], preset: PhotoSize): Image
+  profilePicture(
+    size: [Int],
+    preset: PhotoSize,
+    cropPosition: CropPosition,
+    fileExtension: FileExtension
+  ): Image
   profile_picture(scale: Float): Image
   segments(first: Int): Segments
   screennames: [Screenname]
@@ -836,6 +841,19 @@ enum TopLevelCommentsOrdering {
   ranked_threaded
   recent_activity
   toplevel
+}
+
+enum CropPosition {
+  TOP
+  CENTER
+  BOTTOM
+  LEFT
+  RIGHT
+}
+
+enum FileExtension {
+  JPG
+  PNG
 }
 
 type Settings {

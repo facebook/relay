@@ -708,8 +708,8 @@ function createContainerWithFragments<
         componentName,
       );
       fetchVariables = {
-        ...fetchVariables,
         ...this._refetchVariables,
+        ...fetchVariables,
       };
 
       const cacheConfig: ?CacheConfig = options

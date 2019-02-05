@@ -18,7 +18,6 @@ const areEqual = require('areEqual');
 
 const {deepFreeze} = require('relay-runtime');
 
-import type {RelayEnvironmentInterface as ClassicEnvironment} from '../classic/store/RelayEnvironment';
 import type {
   CacheConfig,
   GraphQLTaggedNode,
@@ -59,11 +58,10 @@ const DataFromEnum = {
   STORE_THEN_NETWORK,
 };
 type DataFrom = $Keys<typeof DataFromEnum>;
-type CompatEnvironment = IEnvironment | ClassicEnvironment;
 export type Props = {
   cacheConfig?: ?CacheConfig,
   dataFrom?: DataFrom,
-  environment: CompatEnvironment,
+  environment: IEnvironment,
   query: ?GraphQLTaggedNode,
   render: (renderProps: RenderProps) => React.Node,
   variables: Variables,
@@ -71,7 +69,7 @@ export type Props = {
 
 type State = {
   error: Error | null,
-  prevPropsEnvironment: CompatEnvironment,
+  prevPropsEnvironment: IEnvironment,
   prevPropsVariables: Variables,
   prevQuery: ?GraphQLTaggedNode,
   queryFetcher: ReactRelayQueryFetcher,
@@ -112,10 +110,7 @@ class ReactRelayQueryRenderer extends React.Component<Props, State> {
     if (props.query) {
       const {query} = props;
 
-      // $FlowFixMe TODO t16225453 QueryRenderer works with old+new environment.
-      const genericEnvironment = (props.environment: IEnvironment);
-
-      const {getRequest} = genericEnvironment.unstable_internal;
+      const {getRequest} = props.environment.unstable_internal;
       const request = getRequest(query);
       requestCacheKey = getRequestCacheKey(request.params, props.variables);
       queryFetcher = requestCache[requestCacheKey]
@@ -155,9 +150,7 @@ class ReactRelayQueryRenderer extends React.Component<Props, State> {
 
       let queryFetcher;
       if (query) {
-        // $FlowFixMe TODO t16225453 QueryRenderer works with old+new environment.
-        const genericEnvironment = (nextProps.environment: IEnvironment);
-        const {getRequest} = genericEnvironment.unstable_internal;
+        const {getRequest} = nextProps.environment.unstable_internal;
         const request = getRequest(query);
         const requestCacheKey = getRequestCacheKey(
           request.params,

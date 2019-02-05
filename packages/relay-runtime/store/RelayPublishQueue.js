@@ -142,7 +142,11 @@ class RelayPublishQueue implements PublishQueue {
     operation: OperationDescriptor,
     {fieldPayloads, source}: RelayResponsePayload,
     updater?: ?SelectorStoreUpdater,
+    optimisticUpdate?: OptimisticUpdate | null
   ): void {
+    if (optimisticUpdate) {
+      this.revertUpdate(optimisticUpdate);
+    }
     this._pendingBackupRebase = true;
     this._pendingData.add({
       kind: 'payload',

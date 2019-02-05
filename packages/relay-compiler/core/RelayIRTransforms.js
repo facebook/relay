@@ -25,7 +25,7 @@ const RelayMatchTransform = require('../transforms/RelayMatchTransform');
 const RelayRefetchableFragmentTransform = require('../transforms/RelayRefetchableFragmentTransform');
 const RelayRelayDirectiveTransform = require('../transforms/RelayRelayDirectiveTransform');
 const RelaySkipHandleFieldTransform = require('../transforms/RelaySkipHandleFieldTransform');
-const RelaySplitMatchTransform = require('../transforms/RelaySplitMatchTransform');
+const RelaySplitModuleImportTransform = require('../transforms/RelaySplitModuleImportTransform');
 const RelayViewerHandleTransform = require('../handlers/viewer/RelayViewerHandleTransform');
 const SkipClientFieldTransform = require('../transforms/SkipClientFieldTransform');
 const SkipRedundantNodesTransform = require('../transforms/SkipRedundantNodesTransform');
@@ -70,7 +70,7 @@ const relayQueryTransforms: Array<IRTransform> = [
 
 // Transforms applied to the code used to process a query response.
 const relayCodegenTransforms: Array<IRTransform> = [
-  RelaySplitMatchTransform.transform,
+  RelaySplitModuleImportTransform.transform,
   RelayDeferStreamTransform.transform,
   InlineFragmentsTransform.transform,
   FlattenTransform.transformWithOptions({flattenAbstractTypes: true}),

@@ -116,10 +116,7 @@ function printSelection(
   if (selection.kind === 'LinkedField') {
     str = printField(selection, parentDirectives);
     str += printSelections(selection, indent + INDENT);
-  } else if (selection.kind === 'MatchField') {
-    str = printField(selection, parentDirectives);
-    str += printSelections(selection, indent + INDENT);
-  } else if (selection.kind === 'MatchBranch') {
+  } else if (selection.kind === 'ModuleImport') {
     str = selection.selections
       .map(matchSelection => printSelection(matchSelection, indent))
       .join('\n' + indent + INDENT);

@@ -21,12 +21,7 @@ const {
   assertLeafType,
 } = require('graphql');
 
-import type {
-  InlineFragment,
-  LinkedField,
-  MatchField,
-  ScalarField,
-} from '../core/GraphQLIR';
+import type {InlineFragment, LinkedField, ScalarField} from '../core/GraphQLIR';
 import type {GraphQLCompositeType} from 'graphql';
 const {
   canHaveSelections,
@@ -70,17 +65,13 @@ function relayGenerateIDFieldTransform(
   return IRTransformer.transform(
     context,
     {
-      LinkedField: visitLinkedOrMatchField,
-      MatchField: visitLinkedOrMatchField,
+      LinkedField: visitLinkedField,
     },
     () => state,
   );
 }
 
-function visitLinkedOrMatchField<T: LinkedField | MatchField>(
-  field: T,
-  state: State,
-): T {
+function visitLinkedField(field: LinkedField, state: State): LinkedField {
   const transformedNode = this.traverse(field, state);
 
   // If the field already has an unaliased `id` field, do nothing

@@ -310,11 +310,15 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 type MarkdownUserNameRenderer_name$ref = any;
 type PlainUserNameRenderer_name$ref = any;
-import type { FragmentReference, MatchPointer } from "relay-runtime";
+import type { FragmentReference } from "relay-runtime";
 declare export opaque type NameRendererFragment$ref: FragmentReference;
 export type NameRendererFragment = {|
   +id: string,
-  +nameRenderer: ?MatchPointer,
+  +nameRenderer: ?{|
+    +__fragmentPropName?: ?string,
+    +__module_component?: ?string,
+    +$fragmentRefs: PlainUserNameRenderer_name$ref & MarkdownUserNameRenderer_name$ref,
+  |},
   +$refType: NameRendererFragment$ref,
 |};
 
@@ -368,11 +372,14 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 type MarkdownUserNameRenderer_name$ref = any;
 type PlainUserNameRenderer_name$ref = any;
-import type { MatchPointer } from "relay-runtime";
 export type NameRendererQueryVariables = {||};
 export type NameRendererQueryResponse = {|
   +me: ?{|
-    +nameRenderer: ?MatchPointer
+    +nameRenderer: ?{|
+      +__fragmentPropName?: ?string,
+      +__module_component?: ?string,
+      +$fragmentRefs: PlainUserNameRenderer_name$ref & MarkdownUserNameRenderer_name$ref,
+    |}
   |}
 |};
 export type NameRendererQuery = {|

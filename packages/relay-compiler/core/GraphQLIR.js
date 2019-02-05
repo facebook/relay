@@ -17,7 +17,6 @@ import type {
   GraphQLLeafType,
   GraphQLList,
   GraphQLNonNull,
-  GraphQLUnionType,
   Source,
 } from 'graphql';
 
@@ -76,7 +75,7 @@ export type Directive = {|
   +name: string,
 |};
 
-export type Field = LinkedField | ScalarField | MatchField;
+export type Field = LinkedField | ScalarField;
 
 export type Fragment = {|
   +argumentDefinitions: $ReadOnlyArray<ArgumentDefinition>,
@@ -129,8 +128,7 @@ export type IR =
   | ListValue
   | Literal
   | LocalArgumentDefinition
-  | MatchBranch
-  | MatchField
+  | ModuleImport
   | ObjectFieldValue
   | ObjectValue
   | Request
@@ -200,26 +198,13 @@ export type LocalArgumentDefinition = {|
   +type: GraphQLInputType,
 |};
 
-export type MatchBranch = {|
-  +kind: 'MatchBranch',
+export type ModuleImport = {|
+  +kind: 'ModuleImport',
   +loc: Location,
+  // the name of the module to require
   +module: string,
-  // the name of the original FragmentSpread from which the branch was created
+  // the name of the original FragmentSpread on which @module was applied
   +name: string,
-  +type: GraphQLCompositeType,
-  +selections: $ReadOnlyArray<Selection>,
-|};
-
-export type MatchField = {|
-  +alias: ?string,
-  +args: $ReadOnlyArray<Argument>,
-  +directives: $ReadOnlyArray<Directive>,
-  +handles: ?$ReadOnlyArray<Handle>,
-  +kind: 'MatchField',
-  +loc: Location,
-  +metadata: Metadata,
-  +name: string,
-  +type: GraphQLUnionType | GraphQLNonNull<GraphQLUnionType>,
   +selections: $ReadOnlyArray<Selection>,
 |};
 
@@ -229,8 +214,7 @@ export type Node =
   | Fragment
   | InlineFragment
   | LinkedField
-  | MatchField
-  | MatchBranch
+  | ModuleImport
   | Root
   | SplitOperation
   | Stream;
@@ -296,8 +280,7 @@ export type Selection =
   | FragmentSpread
   | InlineFragment
   | LinkedField
-  | MatchBranch
-  | MatchField
+  | ModuleImport
   | ScalarField
   | Stream;
 

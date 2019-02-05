@@ -27,9 +27,8 @@ import type {
   NormalizationDefer,
   NormalizationField,
   NormalizationLinkedField,
-  NormalizationMatchField,
+  NormalizationModuleImport,
   NormalizationOperation,
-  ConcreteRequest,
   NormalizationScalarField,
   NormalizationSelection,
   NormalizationSplitOperation,
@@ -190,65 +189,31 @@ const NormalizationCodeGenVisitor = {
       return [field].concat(handles);
     },
 
-    MatchField(node, key, parent, ancestors): NormalizationMatchField {
-      const selections = flattenArray(node.selections);
-      const matchesByType = {};
-      selections.forEach(selection => {
-        if (
-          selection.kind === 'ScalarField' &&
-          selection.name === '__typename'
-        ) {
-          // The RelayGenerateTypename transform will add a __typename selection
-          // to the selections of the match field.
-          return;
-        }
-        if (selection.kind !== 'MatchBranch') {
-          throw createCompilerError(
-            `NormalizationCodeGenerator: Expected selection for MatchField '${
-              node.name
-            }' to be a 'MatchBranch', got '${selection.kind}'.`,
-            [selection.loc],
-          );
-        }
-        if (matchesByType.hasOwnProperty(selection.type)) {
-          throw createCompilerError(
-            'NormalizationCodeGenerator: Each @match type can appear at-most ' +
-              `once. Type '${String(selection.type)}' was duplicated.`,
-            selection.type,
-            [selection.loc],
-          );
-        }
-        const fragmentName = selection.name;
-        const regExpMatch = fragmentName.match(
-          /^([a-zA-Z][a-zA-Z0-9]*)(?:_([a-zA-Z][_a-zA-Z0-9]*))?$/,
+    ModuleImport(node, key, parent, ancestors): NormalizationModuleImport {
+      const fragmentName = node.name;
+      const regExpMatch = fragmentName.match(
+        /^([a-zA-Z][a-zA-Z0-9]*)(?:_([a-zA-Z][_a-zA-Z0-9]*))?$/,
+      );
+      if (!regExpMatch) {
+        throw createCompilerError(
+          'NormalizationCodeGenerator: @module fragments should be named ' +
+            `'FragmentName_propName', got '${fragmentName}'.`,
+          [node.loc],
         );
-        if (!regExpMatch) {
-          throw createCompilerError(
-            'NormalizationCodeGenerator: @match fragments should be named ' +
-              `'FragmentName_propName', got '${fragmentName}'.`,
-            [selection.loc],
-          );
-        }
-        const fragmentPropName = regExpMatch[2] ?? 'matchData';
-        matchesByType[selection.type] = {
-          fragmentPropName,
-          fragmentName,
-        };
-      });
-      let field: NormalizationMatchField = {
-        kind: 'MatchField',
-        alias: node.alias,
-        name: node.name,
-        storageKey: null,
-        args: valuesOrNull(sortByName(node.args)),
-        matchesByType,
-      };
-      // Precompute storageKey if possible
-      const storageKey = getStaticStorageKey(field, node.metadata);
-      if (storageKey) {
-        field = {...field, storageKey};
       }
-      return field;
+      const fragmentPropName = regExpMatch[2];
+      if (typeof fragmentPropName !== 'string') {
+        throw createCompilerError(
+          'NormalizationCodeGenerator: @module fragments should be named ' +
+            `'FragmentName_propName', got '${fragmentName}'.`,
+          [node.loc],
+        );
+      }
+      return {
+        kind: 'ModuleImport',
+        fragmentPropName,
+        fragmentName,
+      };
     },
 
     ScalarField(node): Array<NormalizationSelection> {

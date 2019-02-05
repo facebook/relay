@@ -39,7 +39,11 @@ const {
   transformScalarType,
   transformInputType,
 } = require('./RelayFlowTypeTransformers');
-const {GraphQLInputObjectType, GraphQLNonNull} = require('graphql');
+const {
+  GraphQLInputObjectType,
+  GraphQLNonNull,
+  GraphQLString,
+} = require('graphql');
 
 import type {IRTransform} from '../../core/GraphQLCompilerContext';
 import type {Fragment, Root} from '../../core/GraphQLIR';
@@ -260,7 +264,6 @@ function createVisitor(options: TypeGeneratorOptions) {
     useSingleArtifactDirectory: options.useSingleArtifactDirectory,
     noFutureProofEnums: options.noFutureProofEnums,
   };
-  let hasMatchField = false;
 
   return {
     leave: {
@@ -284,23 +287,14 @@ function createVisitor(options: TypeGeneratorOptions) {
             ),
           ]),
         );
-        const importedTypes = [];
-        if (hasMatchField) {
-          importedTypes.push('MatchPointer');
-        }
-        return t.program(
-          [
-            ...getFragmentImports(state),
-            ...getEnumDefinitions(state),
-            importedTypes.length
-              ? importTypes(importedTypes, 'relay-runtime')
-              : null,
-            ...inputObjectTypes,
-            inputVariablesType,
-            responseType,
-            operationType,
-          ].filter(Boolean),
-        );
+        return t.program([
+          ...getFragmentImports(state),
+          ...getEnumDefinitions(state),
+          ...inputObjectTypes,
+          inputVariablesType,
+          responseType,
+          operationType,
+        ]);
       },
       Fragment(node) {
         let selections = flattenArray(node.selections);
@@ -339,9 +333,6 @@ function createVisitor(options: TypeGeneratorOptions) {
         );
         const type = isPlural(node) ? readOnlyArrayOfType(baseType) : baseType;
         const importedTypes = ['FragmentReference'];
-        if (hasMatchField) {
-          importedTypes.push('MatchPointer');
-        }
         return t.program([
           ...getFragmentImports(state),
           ...getEnumDefinitions(state),
@@ -391,15 +382,21 @@ function createVisitor(options: TypeGeneratorOptions) {
           },
         ];
       },
-      MatchField(node) {
-        hasMatchField = true;
+      ModuleImport(node) {
         return [
           {
-            key: node.alias ?? node.name,
-            schemaName: node.name,
-            value: t.nullableTypeAnnotation(
-              t.genericTypeAnnotation(t.identifier('MatchPointer')),
-            ),
+            key: '__fragmentPropName',
+            conditional: true,
+            value: transformScalarType(GraphQLString, state),
+          },
+          {
+            key: '__module_component',
+            conditional: true,
+            value: transformScalarType(GraphQLString, state),
+          },
+          {
+            key: '__fragments_' + node.name,
+            ref: node.name,
           },
         ];
       },

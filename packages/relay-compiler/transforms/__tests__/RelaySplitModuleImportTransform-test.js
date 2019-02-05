@@ -14,7 +14,7 @@ const GraphQLCompilerContext = require('GraphQLCompilerContext');
 const GraphQLIRPrinter = require('GraphQLIRPrinter');
 const RelayMatchTransform = require('../RelayMatchTransform');
 const RelayRelayDirectiveTransform = require('../RelayRelayDirectiveTransform');
-const RelaySplitMatchTransform = require('../RelaySplitMatchTransform');
+const RelaySplitModuleImportTransform = require('../RelaySplitModuleImportTransform');
 const RelayTestSchema = require('RelayTestSchema');
 
 const parseGraphQLText = require('parseGraphQLText');
@@ -28,7 +28,7 @@ describe('RelayMatchTransform', () => {
   ]);
 
   generateTestsFromFixtures(
-    `${__dirname}/fixtures/relay-split-match-transform`,
+    `${__dirname}/fixtures/relay-split-module-import-transform`,
     text => {
       const {definitions} = parseGraphQLText(schema, text);
       return new GraphQLCompilerContext(RelayTestSchema, schema)
@@ -37,7 +37,7 @@ describe('RelayMatchTransform', () => {
           // Requires Relay directive transform first.
           RelayRelayDirectiveTransform.transform,
           RelayMatchTransform.transform,
-          RelaySplitMatchTransform.transform,
+          RelaySplitModuleImportTransform.transform,
         ])
         .documents()
         .map(doc => GraphQLIRPrinter.print(doc))

@@ -30,11 +30,12 @@ import type {
   Fragment,
   Handle,
   InlineFragment,
+  ModuleImport,
   Root,
   ScalarField,
   LinkedField,
-  MatchField,
   Selection,
+  SplitOperation,
   Stream,
 } from '../core/GraphQLIR';
 import type {GraphQLType} from 'graphql';
@@ -59,7 +60,8 @@ type HasSelections =
   | Defer
   | InlineFragment
   | LinkedField
-  | MatchField
+  | ModuleImport
+  | SplitOperation
   | Stream;
 
 /**
@@ -89,7 +91,7 @@ function flattenTransformImpl(
       Condition: flattenSelections,
       InlineFragment: flattenSelections,
       LinkedField: flattenSelections,
-      MatchField: flattenSelections,
+      SplitOperation: flattenSelections,
     },
     () => state,
   );
@@ -102,11 +104,14 @@ function flattenSelections<T: HasSelections>(node: T, state: State): T {
   // Determine the current type.
   const parentType = state.parentType;
   const type =
-    node.kind === 'Condition' || node.kind === 'Defer' || node.kind === 'Stream'
-      ? parentType
+    node.kind === 'LinkedField' ||
+    node.kind === 'Fragment' ||
+    node.kind === 'Root' ||
+    node.kind === 'SplitOperation'
+      ? node.type
       : node.kind === 'InlineFragment'
         ? node.typeCondition
-        : node.type;
+        : parentType;
   if (type == null) {
     throw createCompilerError('FlattenTransform: Expected a parent type.', [
       node.loc,
@@ -186,13 +191,29 @@ function flattenSelectionsInto(
       });
     } else if (flattenedSelection.kind === 'FragmentSpread') {
       // Ignore duplicate fragment spreads.
-    } else if (
-      flattenedSelection.kind === 'MatchField' ||
-      flattenedSelection.kind === 'MatchBranch'
-    ) {
-      // Ignore duplicate matches that select the same fragments and
-      // modules (encoded in the identifier)
-      // Also ignore incremental data placeholders
+    } else if (flattenedSelection.kind === 'ModuleImport') {
+      if (selection.kind !== 'ModuleImport') {
+        throw createCompilerError(
+          `FlattenTransform: Expected a ModuleImport, got a '${
+            selection.kind
+          }'`,
+          [selection.loc],
+        );
+      }
+      if (
+        selection.name !== flattenedSelection.name ||
+        selection.module !== flattenedSelection.module
+      ) {
+        throw createUserError(
+          'Found conflicting @module selections: use a unique alias on the ' +
+            'parent fields.',
+          [selection.loc, flattenedSelection.loc],
+        );
+      }
+      flattenedSelections.set(nodeIdentifier, {
+        ...flattenedSelection,
+        selections: mergeSelections(flattenedSelection, selection, state, type),
+      });
     } else if (flattenedSelection.kind === 'Defer') {
       if (selection.kind !== 'Defer') {
         throw createCompilerError(

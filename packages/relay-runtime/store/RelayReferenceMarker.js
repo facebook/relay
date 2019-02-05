@@ -19,7 +19,7 @@ const invariant = require('invariant');
 
 import type {
   NormalizationLinkedField,
-  NormalizationMatchField,
+  NormalizationModuleImport,
   NormalizationNode,
   NormalizationSelection,
 } from '../util/NormalizationNode';
@@ -37,13 +37,13 @@ const {
   FRAGMENT_SPREAD,
   INLINE_FRAGMENT,
   LINKED_FIELD,
-  MATCH_FIELD,
+  MODULE_IMPORT,
   LINKED_HANDLE,
   SCALAR_FIELD,
   SCALAR_HANDLE,
   STREAM,
 } = RelayConcreteNode;
-const {getStorageKey, MATCH_FRAGMENT_KEY} = RelayStoreUtils;
+const {getStorageKey, MODULE_OPERATION_KEY} = RelayStoreUtils;
 
 function mark(
   recordSource: RecordSource,
@@ -165,8 +165,8 @@ class RelayReferenceMarker {
         case SCALAR_FIELD:
         case SCALAR_HANDLE:
           break;
-        case MATCH_FIELD:
-          this._traverseMatch(selection, record);
+        case MODULE_IMPORT:
+          this._traverseModuleImport(selection, record);
           break;
         default:
           (selection: empty);
@@ -179,42 +179,29 @@ class RelayReferenceMarker {
     });
   }
 
-  _traverseMatch(field: NormalizationMatchField, record: Record): void {
-    const storageKey = getStorageKey(field, this._variables);
-    const linkedID = RelayModernRecord.getLinkedRecordID(record, storageKey);
-
-    if (linkedID == null) {
+  _traverseModuleImport(
+    moduleImport: NormalizationModuleImport,
+    record: Record,
+  ): void {
+    const operationLoader = this._operationLoader;
+    invariant(
+      operationLoader !== null,
+      'RelayReferenceMarker: Expected an operationLoader to be configured when using `@module`.',
+    );
+    const operationReference = RelayModernRecord.getValue(
+      record,
+      MODULE_OPERATION_KEY,
+    );
+    if (operationReference == null) {
       return;
     }
-    this._references.add(linkedID);
-    const linkedRecord = this._recordSource.get(linkedID);
-    if (linkedRecord == null) {
-      return;
+    const operation = operationLoader.get(operationReference);
+    if (operation != null) {
+      this._traverseSelections(operation.selections, record);
     }
-    const typeName = RelayModernRecord.getType(linkedRecord);
-    const match = field.matchesByType[typeName];
-    if (match != null) {
-      const operationLoader = this._operationLoader;
-      invariant(
-        operationLoader !== null,
-        'RelayReferenceMarker: Expected an operationLoader to be configured when using `@match`.',
-      );
-      const operationReference = RelayModernRecord.getValue(
-        linkedRecord,
-        MATCH_FRAGMENT_KEY,
-      );
-      if (operationReference == null) {
-        return;
-      }
-      const operation = operationLoader.get(operationReference);
-      if (operation != null) {
-        this._traverseSelections(operation.selections, linkedRecord);
-      }
-      // If the operation is not available, we assume that the data cannot have been
-      // processed yet and therefore isn't in the store to begin with.
-    } else {
-      // TODO: warn: store is corrupt: the field should be null if the typename did not match
-    }
+    // Otherwise, if the operation is not available, we assume that the data
+    // cannot have been processed yet and therefore isn't in the store to
+    // begin with.
   }
 
   _traverseLink(field: NormalizationLinkedField, record: Record): void {

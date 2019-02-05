@@ -24,7 +24,7 @@ const {EXISTENT, UNKNOWN} = require('./RelayRecordState');
 import type {
   NormalizationField,
   NormalizationLinkedField,
-  NormalizationMatchField,
+  NormalizationModuleImport,
   NormalizationNode,
   NormalizationScalarField,
   NormalizationSelection,
@@ -46,12 +46,16 @@ const {
   INLINE_FRAGMENT,
   LINKED_FIELD,
   LINKED_HANDLE,
-  MATCH_FIELD,
+  MODULE_IMPORT,
   SCALAR_FIELD,
   SCALAR_HANDLE,
   STREAM,
 } = RelayConcreteNode;
-const {getStorageKey, getArgumentValues, MATCH_FRAGMENT_KEY} = RelayStoreUtils;
+const {
+  getStorageKey,
+  getArgumentValues,
+  MODULE_OPERATION_KEY,
+} = RelayStoreUtils;
 
 /**
  * Synchronously check whether the records required to fulfill the given
@@ -265,8 +269,8 @@ class DataChecker {
             this._checkLink(handleField, dataID);
           }
           break;
-        case MATCH_FIELD:
-          this._checkMatch(selection, dataID);
+        case MODULE_IMPORT:
+          this._checkModuleImport(selection, dataID);
           break;
         case DEFER:
         case STREAM:
@@ -292,50 +296,32 @@ class DataChecker {
     });
   }
 
-  _checkMatch(field: NormalizationMatchField, dataID: DataID): void {
-    const storageKey = getStorageKey(field, this._variables);
-    const linkedID = this._mutator.getLinkedRecordID(dataID, storageKey);
-
-    if (linkedID === undefined) {
-      this._handleMissing();
-    } else if (linkedID !== null) {
-      const status = this._mutator.getStatus(linkedID);
-      if (status === UNKNOWN) {
+  _checkModuleImport(
+    moduleImport: NormalizationModuleImport,
+    dataID: DataID,
+  ): void {
+    const operationLoader = this._operationLoader;
+    invariant(
+      operationLoader !== null,
+      'DataChecker: Expected an operationLoader to be configured when using `@module`.',
+    );
+    const operationReference = this._mutator.getValue(
+      dataID,
+      MODULE_OPERATION_KEY,
+    );
+    if (operationReference == null) {
+      if (operationReference === undefined) {
         this._handleMissing();
-        return;
       }
-      if (status !== EXISTENT) {
-        return;
-      }
-      const typeName = this._mutator.getType(linkedID);
-      const match = typeName != null ? field.matchesByType[typeName] : null;
-      if (match != null) {
-        const operationLoader = this._operationLoader;
-        invariant(
-          operationLoader !== null,
-          'DataChecker: Expected an operationLoader to be configured when using `@match`.',
-        );
-        const operationReference = this._mutator.getValue(
-          linkedID,
-          MATCH_FRAGMENT_KEY,
-        );
-        if (operationReference === undefined) {
-          this._handleMissing();
-          return;
-        } else if (operationReference === null) {
-          return;
-        }
-        const operation = operationLoader.get(operationReference);
-        if (operation != null) {
-          this._traverse(operation, linkedID);
-        } else {
-          // If the fragment is not available, we assume that the data cannot have been
-          // processed yet and must therefore be missing.
-          this._handleMissing();
-        }
-      } else {
-        // TODO: warn: store is corrupt: the field should be null if the typename did not match
-      }
+      return;
+    }
+    const operation = operationLoader.get(operationReference);
+    if (operation != null) {
+      this._traverse(operation, dataID);
+    } else {
+      // If the fragment is not available, we assume that the data cannot have been
+      // processed yet and must therefore be missing.
+      this._handleMissing();
     }
   }
 

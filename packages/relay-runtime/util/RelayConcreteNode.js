@@ -57,7 +57,7 @@ const RelayConcreteNode = {
   LINKED_HANDLE: 'LinkedHandle',
   LITERAL: 'Literal',
   LOCAL_ARGUMENT: 'LocalArgument',
-  MATCH_FIELD: 'MatchField',
+  MODULE_IMPORT: 'ModuleImport',
   OPERATION: 'Operation',
   REQUEST: 'Request',
   ROOT_ARGUMENT: 'RootArgument',

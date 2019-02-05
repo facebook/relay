@@ -62,8 +62,7 @@ export type NormalizationCondition = {|
 
 export type NormalizationField =
   | NormalizationScalarField
-  | NormalizationLinkedField
-  | NormalizationMatchField;
+  | NormalizationLinkedField;
 
 export type NormalizationRootArgument = {|
   +kind: 'RootArgument',
@@ -88,18 +87,10 @@ export type NormalizationLinkedField = {|
   +selections: $ReadOnlyArray<NormalizationSelection>,
 |};
 
-export type NormalizationMatchField = {|
-  +kind: 'MatchField',
-  +alias: ?string,
-  +name: string,
-  +storageKey: ?string,
-  +args: ?$ReadOnlyArray<NormalizationArgument>,
-  +matchesByType: {
-    +[key: string]: {|
-      +fragmentPropName: string,
-      +fragmentName: string,
-    |},
-  },
+export type NormalizationModuleImport = {|
+  +kind: 'ModuleImport',
+  +fragmentPropName: string,
+  +fragmentName: string,
 |};
 
 export type NormalizationLiteral = {|
@@ -138,7 +129,7 @@ export type NormalizationSelection =
   | NormalizationField
   | NormalizationHandle
   | NormalizationInlineFragment
-  | NormalizationMatchField;
+  | NormalizationModuleImport;
 
 export type NormalizationSplitOperation = {|
   +kind: 'SplitOperation',

@@ -10,12 +10,9 @@
 
 'use strict';
 
-import type {LinkedField, MatchField} from '../core/GraphQLIR';
+import type {LinkedField} from '../core/GraphQLIR';
 
-function hasUnaliasedSelection(
-  field: LinkedField | MatchField,
-  fieldName: string,
-): boolean {
+function hasUnaliasedSelection(field: LinkedField, fieldName: string): boolean {
   return field.selections.some(
     selection =>
       selection.kind === 'ScalarField' &&

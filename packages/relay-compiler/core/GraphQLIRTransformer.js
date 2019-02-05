@@ -30,8 +30,7 @@ import type {
   ListValue,
   Literal,
   LocalArgumentDefinition,
-  MatchBranch,
-  MatchField,
+  ModuleImport,
   ObjectFieldValue,
   ObjectValue,
   Request,
@@ -55,8 +54,7 @@ type NodeVisitor<S> = {
   ListValue?: NodeVisitorFunction<ListValue, S>,
   Literal?: NodeVisitorFunction<Literal, S>,
   LocalArgumentDefinition?: NodeVisitorFunction<LocalArgumentDefinition, S>,
-  MatchBranch?: NodeVisitorFunction<MatchBranch, S>,
-  MatchField?: NodeVisitorFunction<MatchField, S>,
+  ModuleImport?: NodeVisitorFunction<ModuleImport, S>,
   ObjectFieldValue?: NodeVisitorFunction<ObjectFieldValue, S>,
   ObjectValue?: NodeVisitorFunction<ObjectValue, S>,
   Request?: NodeVisitorFunction<Request, S>,
@@ -236,7 +234,7 @@ class Transformer<S> {
       case 'Directive':
         nextNode = this._traverseChildren(prevNode, ['args']);
         break;
-      case 'MatchBranch':
+      case 'ModuleImport':
         nextNode = this._traverseChildren(prevNode, ['selections']);
         if (!nextNode.selections.length) {
           nextNode = null;
@@ -258,13 +256,6 @@ class Transformer<S> {
         break;
       case 'ListValue':
         nextNode = this._traverseChildren(prevNode, ['items']);
-        break;
-      case 'MatchField':
-        nextNode = this._traverseChildren(prevNode, [
-          'args',
-          'directives',
-          'selections',
-        ]);
         break;
       case 'ObjectFieldValue':
         nextNode = this._traverseChildren(prevNode, null, ['value']);

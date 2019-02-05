@@ -17,7 +17,7 @@ const SchemaUtils = require('../core/GraphQLSchemaUtils');
 const {hasUnaliasedSelection} = require('./RelayTransformUtils');
 const {assertLeafType} = require('graphql');
 
-import type {LinkedField, MatchField, ScalarField} from '../core/GraphQLIR';
+import type {LinkedField, ScalarField} from '../core/GraphQLIR';
 
 const {isAbstractType} = SchemaUtils;
 
@@ -53,17 +53,13 @@ function relayGenerateTypeNameTransform(
   return IRTransformer.transform(
     context,
     {
-      LinkedField: visitLinkedOrMatchField,
-      MatchField: visitLinkedOrMatchField,
+      LinkedField: visitLinkedField,
     },
     () => state,
   );
 }
 
-function visitLinkedOrMatchField<T: LinkedField | MatchField>(
-  field: T,
-  state: State,
-): T {
+function visitLinkedField(field: LinkedField, state: State): LinkedField {
   const transformedNode = this.traverse(field, state);
   if (
     isAbstractType(transformedNode.type) &&

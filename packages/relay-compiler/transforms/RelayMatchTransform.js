@@ -30,8 +30,8 @@ const {
 
 import type {
   InlineFragment,
+  FragmentSpread,
   LinkedField,
-  MatchField,
   ScalarField,
 } from '../core/GraphQLIR';
 import type {GraphQLCompositeType, GraphQLType} from 'graphql';
@@ -52,13 +52,12 @@ const SCHEMA_EXTENSION = `
 
 /**
  * This transform rewrites LinkedField nodes with @match and rewrites them
- * into MatchField nodes with a `supported` argument and MatchBranch selections.
+ * into `LinkedField` nodes with a `supported` argument.
  */
 function relayMatchTransform(context: CompilerContext): CompilerContext {
   return IRTransformer.transform(
     context,
     {
-      // $FlowFixMe this transform intentionally changes the AST node type
       LinkedField: visitLinkedField,
       InlineFragment: visitInlineFragment,
     },
@@ -76,7 +75,7 @@ function visitInlineFragment(
 function visitLinkedField(
   node: LinkedField,
   parentType: GraphQLType,
-): LinkedField | MatchField {
+): LinkedField {
   const transformedNode: LinkedField = this.traverse(node, node.type);
 
   const matchDirective = transformedNode.directives.find(
@@ -106,7 +105,7 @@ function visitLinkedField(
   const schema = context.serverSchema;
   const jsModuleType = schema.getType(JS_FIELD_TYPE);
   if (jsModuleType == null || !(jsModuleType instanceof GraphQLScalarType)) {
-    throw new Error(
+    throw createUserError(
       `RelayMatchTransform: Expected schema to define a scalar '${JS_FIELD_TYPE}' type.`,
     );
   }
@@ -128,60 +127,74 @@ function visitLinkedField(
     supportedArgOfType == null ||
     getNullableType(supportedArgOfType) !== GraphQLString
   ) {
-    throw new Error(
+    throw createUserError(
       'RelayMatchTransform: @match used on an incompatible ' +
         `field '${transformedNode.name}'. @match may only ` +
         `be used with fields that can accept '${SUPPORTED_ARGUMENT_NAME}' ` +
         "argument with type '[String!]!'.",
+      [node.loc],
     );
   }
 
   const unionType = transformedNode.type;
   if (!(unionType instanceof GraphQLUnionType)) {
-    throw new Error(
+    throw createUserError(
       'RelayMatchTransform: You are trying to apply @match ' +
         `directive to a field '${transformedNode.name}' that has unsupported ` +
         `output type. '${transformedNode.name}' output type should be union ` +
         'type of object types.',
+      [node.loc],
     );
   }
 
-  const seenTypes: Map<GraphQLCompositeType, string> = new Map();
+  const seenTypes: Map<GraphQLCompositeType, FragmentSpread> = new Map();
   const typeToSelectionMap = {};
   const selections = [];
   transformedNode.selections.forEach(matchSelection => {
     if (matchSelection.kind !== 'FragmentSpread') {
-      throw new Error(
+      throw createUserError(
         'RelayMatchTransform: all selections in a @match field should be ' +
           `fragment spreads, got '${matchSelection.kind}'.`,
+        [matchSelection.loc],
+      );
+    }
+    if (matchSelection.args.length !== 0) {
+      throw createUserError(
+        'RelayMatchTransform: Unexpected use of @arguments in @match, ' +
+          '@arguments is not currently supported.',
+        [matchSelection.args[0]?.loc ?? matchSelection.loc],
       );
     }
     const fragment = context.getFragment(matchSelection.name);
     if (!(fragment.type instanceof GraphQLObjectType)) {
-      throw new Error(
+      throw createUserError(
         'RelayMatchTransform: all fragment spreads in a @match field should ' +
           'be for fragments on an object type. Union or interface type ' +
           `'${fragment.type.name}' for '...${fragment.name}' is not supported.`,
+        [matchSelection.loc, fragment.loc],
       );
     }
     const matchedType = fragment.type;
-    if (seenTypes.has(matchedType)) {
-      throw new Error(
+    const previousTypeUsage = seenTypes.get(matchedType);
+    if (previousTypeUsage) {
+      throw createUserError(
         'RelayMatchTransform: Each "match" type has to appear at-most once. ' +
-          `Type '${matchedType.name}' was matched in both ` +
-          `'...${matchSelection.name}' and '...${seenTypes.get(matchedType) ||
-            '(unknown)'}'.`,
+          `Type '${
+            matchedType.name
+          }' was matched in multiple fragment spreads.`,
+        [matchSelection.loc, previousTypeUsage.loc],
       );
     }
-    seenTypes.set(matchedType, matchSelection.name);
+    seenTypes.set(matchedType, matchSelection);
 
     const belongsToUnion = unionType.getTypes().includes(matchedType);
     if (!belongsToUnion) {
-      throw new Error(
-        `RelayMatchTransform: Unsupported type '${matchedType.toString()}' in ` +
-          'the list of matches in the @match. Type ' +
-          `"${matchedType.toString()}" does not belong to the union ` +
-          `"${unionType.toString()}".`,
+      throw createUserError(
+        `RelayMatchTransform: Unsupported type '${matchedType.toString()}' ` +
+          'in the list of matches in the @match. Type ' +
+          `'${String(matchedType)}' does not belong to the union ` +
+          `'${String(unionType)}'.`,
+        [matchSelection.loc, fragment.loc],
       );
     }
     const jsField = matchedType.getFields()[JS_FIELD_NAME];
@@ -194,10 +207,11 @@ function visitLinkedField(
       getNullableType(jsFieldArg.type) !== GraphQLString ||
       jsField.type.name !== jsModuleType.name // object identity fails in tests
     ) {
-      throw new Error(
+      throw createUserError(
         `RelayMatchTransform: expcted type '${
           matchedType.name
         }' to have a '${JS_FIELD_NAME}(${JS_FIELD_ARG}: String!): ${JS_FIELD_TYPE}' field .`,
+        [matchSelection.loc],
       );
     }
 
@@ -205,10 +219,11 @@ function visitLinkedField(
       directive => directive.name === 'module',
     );
     if (moduleDirective == null || matchSelection.directives.length !== 1) {
-      throw new Error(
+      throw createUserError(
         'RelayMatchTransform: Fragment spreads in a @match field must have a ' +
-          "'@module' directive and no other directives, got invalid directives " +
+          "'@module' directive and no other directives, got invalid directives." +
           `on fragment spread '...${matchSelection.name}'`,
+        [matchSelection.loc],
       );
     }
     const moduleDirectiveArgs = getLiteralArgumentValues(moduleDirective.args);
@@ -219,7 +234,7 @@ function visitLinkedField(
     const normalizationName =
       getNormalizationOperationName(matchSelection.name) + '.graphql';
     const moduleField: ScalarField = {
-      alias: '__match_component',
+      alias: '__module_component',
       args: [
         {
           kind: 'Argument',
@@ -240,13 +255,13 @@ function visitLinkedField(
       kind: 'ScalarField',
       loc: moduleDirective.loc,
       metadata: {
-        storageKey: '__match_component',
+        storageKey: '__module_component',
       },
       name: JS_FIELD_NAME,
       type: jsModuleType,
     };
     const fragmentField: ScalarField = {
-      alias: '__match_fragment',
+      alias: '__module_operation',
       args: [
         {
           kind: 'Argument',
@@ -267,36 +282,44 @@ function visitLinkedField(
       kind: 'ScalarField',
       loc: matchSelection.loc,
       metadata: {
-        storageKey: '__match_fragment',
+        storageKey: '__module_operation',
       },
       name: JS_FIELD_NAME,
       type: jsModuleType,
     };
 
     selections.push({
-      kind: 'MatchBranch',
+      kind: 'InlineFragment',
+      directives: [],
       loc: matchSelection.loc,
-      module: moduleDirectiveArgs.name,
-      name: matchSelection.name,
+      metadata: null,
       selections: [
         {
-          args: [],
-          directives: [],
-          kind: 'FragmentSpread',
+          kind: 'ModuleImport',
           loc: matchSelection.loc,
-          metadata: {},
+          module: moduleDirectiveArgs.name,
           name: matchSelection.name,
-        },
-        {
-          directives: [],
-          kind: 'InlineFragment',
-          loc: matchSelection.loc,
-          metadata: {},
-          selections: [moduleField, fragmentField],
-          typeCondition: matchedType,
+          selections: [
+            {
+              args: [],
+              directives: [],
+              kind: 'FragmentSpread',
+              loc: matchSelection.loc,
+              metadata: {},
+              name: matchSelection.name,
+            },
+            {
+              directives: [],
+              kind: 'InlineFragment',
+              loc: matchSelection.loc,
+              metadata: {},
+              selections: [moduleField, fragmentField],
+              typeCondition: matchedType,
+            },
+          ],
         },
       ],
-      type: matchedType,
+      typeCondition: matchedType,
     });
   });
 
@@ -311,8 +334,8 @@ function visitLinkedField(
     (transformedNode.alias ?? transformedNode.name) +
     `(${stableArgs.join(',')})`;
 
-  const matchField: MatchField = {
-    kind: 'MatchField',
+  return {
+    kind: 'LinkedField',
     alias: transformedNode.alias,
     args: [
       {
@@ -339,8 +362,6 @@ function visitLinkedField(
     type: unionType,
     selections,
   };
-  // $FlowFixMe intentionally changing the result type in this transform
-  return (matchField: LinkedField);
 }
 
 module.exports = {

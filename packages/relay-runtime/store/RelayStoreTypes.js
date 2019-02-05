@@ -332,7 +332,7 @@ export type MatchPointer = {|
   __fragments: {[fragmentName: string]: Variables},
   __fragmentOwner: OperationDescriptor | null,
   __fragmentPropName: string,
-  __module: mixed,
+  __module_component: mixed,
 |};
 
 /**

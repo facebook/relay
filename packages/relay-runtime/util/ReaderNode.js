@@ -84,10 +84,7 @@ export type ReaderCondition = {|
   +selections: $ReadOnlyArray<ReaderSelection>,
 |};
 
-export type ReaderField =
-  | ReaderScalarField
-  | ReaderLinkedField
-  | ReaderMatchField;
+export type ReaderField = ReaderScalarField | ReaderLinkedField;
 
 export type ReaderRootArgument = {|
   +kind: 'RootArgument',
@@ -112,18 +109,10 @@ export type ReaderLinkedField = {|
   +selections: $ReadOnlyArray<ReaderSelection>,
 |};
 
-export type ReaderMatchField = {|
-  +kind: 'MatchField',
-  +alias: ?string,
-  +name: string,
-  +storageKey: ?string,
-  +args: ?$ReadOnlyArray<ReaderArgument>,
-  +matchesByType: {
-    +[key: string]: {|
-      +fragmentPropName: string,
-      +fragmentName: string,
-    |},
-  },
+export type ReaderModuleImport = {|
+  +kind: 'ModuleImport',
+  +fragmentPropName: string,
+  +fragmentName: string,
 |};
 
 export type ReaderLiteral = {|
@@ -160,7 +149,7 @@ export type ReaderSelection =
   | ReaderField
   | ReaderFragmentSpread
   | ReaderInlineFragment
-  | ReaderMatchField;
+  | ReaderModuleImport;
 
 export type ReaderSplitOperation = {
   +kind: 'SplitOperation',

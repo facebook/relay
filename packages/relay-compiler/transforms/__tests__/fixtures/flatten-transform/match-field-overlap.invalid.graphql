@@ -6,9 +6,8 @@ fragment NameRendererFragment on User {
       @module(name: "MarkdownUserNameRenderer.react")
   }
   ... on User {
-    # same alias and selections, should flatten together
+    # conflicts with above: same alias but different types are matched
     nameRenderer @match {
-      ...PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
       ...MarkdownUserNameRenderer_name
         @module(name: "MarkdownUserNameRenderer.react")
     }
@@ -19,9 +18,6 @@ fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
   plaintext
   data {
     text
-    ... on PlainUserNameData {
-      text # should be flattened
-    }
   }
 }
 
@@ -29,8 +25,5 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
   markdown
   data {
     markup
-    ... on MarkdownUserNameData {
-      markup # should be flattened
-    }
   }
 }

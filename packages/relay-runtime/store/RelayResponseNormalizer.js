@@ -25,7 +25,7 @@ const {
   INLINE_FRAGMENT,
   LINKED_FIELD,
   LINKED_HANDLE,
-  MATCH_FIELD,
+  MODULE_IMPORT,
   SCALAR_FIELD,
   SCALAR_HANDLE,
   STREAM,
@@ -34,7 +34,7 @@ const {
   getArgumentValues,
   getHandleStorageKey,
   getStorageKey,
-  MATCH_FRAGMENT_KEY,
+  MODULE_OPERATION_KEY,
   TYPENAME_KEY,
 } = require('./RelayStoreUtils');
 
@@ -43,7 +43,7 @@ import type {
   NormalizationDefer,
   NormalizationField,
   NormalizationLinkedField,
-  NormalizationMatchField,
+  NormalizationModuleImport,
   NormalizationNode,
   NormalizationStream,
 } from '../util/NormalizationNode';
@@ -190,8 +190,8 @@ class RelayResponseNormalizer {
           handle: selection.handle,
           handleKey,
         });
-      } else if (selection.kind === MATCH_FIELD) {
-        this._normalizeMatchField(node, selection, record, data);
+      } else if (selection.kind === MODULE_IMPORT) {
+        this._normalizeModuleImport(node, selection, record, data);
       } else if (selection.kind === DEFER) {
         this._normalizeDefer(selection, record, data);
       } else if (selection.kind === STREAM) {
@@ -286,76 +286,24 @@ class RelayResponseNormalizer {
     }
   }
 
-  _normalizeMatchField(
+  _normalizeModuleImport(
     parent: NormalizationNode,
-    field: NormalizationMatchField,
+    moduleImport: NormalizationModuleImport,
     record: Record,
     data: PayloadData,
   ) {
     invariant(
       typeof data === 'object' && data,
-      'writeField(): Expected data for field `%s` to be an object.',
-      field.name,
+      'RelayResponseNormalizer: Expected data for @module to be an object.',
     );
-    const responseKey = field.alias || field.name;
-    const storageKey = getStorageKey(field, this._variables);
-    const fieldValue = data[responseKey];
-    if (fieldValue == null) {
-      if (fieldValue === undefined && !this._handleStrippedNulls) {
-        // If we're not stripping nulls, undefined fields are unset
-        return;
-      }
-      if (__DEV__) {
-        warning(
-          parent.kind === LINKED_FIELD && parent.concreteType == null
-            ? true
-            : Object.prototype.hasOwnProperty.call(data, responseKey),
-          'RelayResponseNormalizer(): Payload did not contain a value ' +
-            'for field `%s: %s`. Check that you are parsing with the same ' +
-            'query that was used to fetch the payload.',
-          responseKey,
-          storageKey,
-        );
-      }
-      RelayModernRecord.setValue(record, storageKey, null);
-      return;
-    }
-    invariant(
-      typeof fieldValue === 'object' && fieldValue,
-      'RelayResponseNormalizer: Expected data for field `%s` to be an object.',
-      storageKey,
-    );
-    const typeName: string = this._getRecordType(fieldValue);
-    const match = field.matchesByType[typeName];
-    if (match == null) {
-      RelayModernRecord.setValue(record, storageKey, null);
-      return;
-    }
-    const nextID =
-      fieldValue.id ||
-      // Reuse previously generated client IDs
-      RelayModernRecord.getLinkedRecordID(record, storageKey) ||
-      generateRelayClientID(RelayModernRecord.getDataID(record), storageKey);
-    invariant(
-      typeof nextID === 'string',
-      'RelayResponseNormalizer: Expected id on field `%s` to be a string.',
-      storageKey,
-    );
-    RelayModernRecord.setLinkedRecordID(record, storageKey, nextID);
-    let nextRecord = this._recordSource.get(nextID);
-    if (!nextRecord) {
-      nextRecord = RelayModernRecord.create(nextID, typeName);
-      this._recordSource.set(nextID, nextRecord);
-    } else if (__DEV__) {
-      this._validateRecordType(nextRecord, field, fieldValue);
-    }
-    const operationReference = fieldValue[MATCH_FRAGMENT_KEY];
+    const typeName: string = this._getRecordType(data);
+    const operationReference = data[MODULE_OPERATION_KEY];
     if (operationReference != null) {
       this._matchFieldPayloads.push({
-        data: fieldValue,
-        dataID: nextID,
+        data,
+        dataID: RelayModernRecord.getDataID(record),
         operationReference,
-        path: [...this._path, responseKey],
+        path: [...this._path],
         typeName,
         variables: this._variables,
       });
@@ -407,12 +355,6 @@ class RelayResponseNormalizer {
         this._normalizeLink(selection, record, storageKey, fieldValue);
       }
       this._path.pop();
-    } else if (selection.kind === MATCH_FIELD) {
-      invariant(
-        false,
-        'RelayResponseNormalizer(): Unexpected ast kind `%s` during normalization.',
-        selection.kind,
-      );
     } else {
       (selection: empty);
       invariant(
@@ -519,7 +461,7 @@ class RelayResponseNormalizer {
    */
   _validateRecordType(
     record: Record,
-    field: NormalizationLinkedField | NormalizationMatchField,
+    field: NormalizationLinkedField,
     payload: Object,
   ): void {
     const typeName =

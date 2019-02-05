@@ -1200,8 +1200,8 @@ describe('RelayModernEnvironment', () => {
             __typename: 'User',
             nameRenderer: {
               __typename: 'MarkdownUserNameRenderer',
-              __match_component: 'MarkdownUserNameRenderer.react',
-              __match_fragment:
+              __module_component: 'MarkdownUserNameRenderer.react',
+              __module_operation:
                 'MarkdownUserNameRenderer_name$normalization.graphql',
               markdown: 'markdown payload',
               data: {
@@ -1222,7 +1222,7 @@ describe('RelayModernEnvironment', () => {
       expect(partialSnapshot.isMissingData).toBe(true);
       expect(partialSnapshot.data).toEqual({
         node: {
-          nameRenderer: null, // match field data hasn't been processed yet
+          nameRenderer: {}, // match field data hasn't been processed yet
         },
       });
     });
@@ -1236,8 +1236,8 @@ describe('RelayModernEnvironment', () => {
             __typename: 'User',
             nameRenderer: {
               __typename: 'MarkdownUserNameRenderer',
-              __match_component: 'MarkdownUserNameRenderer.react',
-              __match_fragment:
+              __module_component: 'MarkdownUserNameRenderer.react',
+              __module_operation:
                 'MarkdownUserNameRenderer_name$normalization.graphql',
               markdown: 'markdown payload',
               data: {
@@ -1261,7 +1261,7 @@ describe('RelayModernEnvironment', () => {
       expect(initialSnapshot.isMissingData).toBe(true);
       expect(initialSnapshot.data).toEqual({
         node: {
-          nameRenderer: null, // match field data hasn't been processed yet
+          nameRenderer: {}, // match field data hasn't been processed yet
         },
       });
       const callback = jest.fn();
@@ -1285,7 +1285,7 @@ describe('RelayModernEnvironment', () => {
               MarkdownUserNameRenderer_name: {},
             },
             __fragmentOwner: null,
-            __module: 'MarkdownUserNameRenderer.react',
+            __module_component: 'MarkdownUserNameRenderer.react',
           },
         },
       });
@@ -1318,8 +1318,8 @@ describe('RelayModernEnvironment', () => {
             __typename: 'User',
             nameRenderer: {
               __typename: 'MarkdownUserNameRenderer',
-              __match_component: 'MarkdownUserNameRenderer.react',
-              __match_fragment:
+              __module_component: 'MarkdownUserNameRenderer.react',
+              __module_operation:
                 'MarkdownUserNameRenderer_name$normalization.graphql',
               markdown: 'markdown payload',
               data: {
@@ -1356,8 +1356,8 @@ describe('RelayModernEnvironment', () => {
             __typename: 'User',
             nameRenderer: {
               __typename: 'MarkdownUserNameRenderer',
-              __match_component: 'MarkdownUserNameRenderer.react',
-              __match_fragment:
+              __module_component: 'MarkdownUserNameRenderer.react',
+              __module_operation:
                 'MarkdownUserNameRenderer_name$normalization.graphql',
               markdown: 'markdown payload',
               data: {
@@ -1395,8 +1395,8 @@ describe('RelayModernEnvironment', () => {
             __typename: 'User',
             nameRenderer: {
               __typename: 'MarkdownUserNameRenderer',
-              __match_component: 'MarkdownUserNameRenderer.react',
-              __match_fragment:
+              __module_component: 'MarkdownUserNameRenderer.react',
+              __module_operation:
                 'MarkdownUserNameRenderer_name$normalization.graphql',
               markdown: 'markdown payload',
               data: {
@@ -1426,8 +1426,8 @@ describe('RelayModernEnvironment', () => {
             __typename: 'User',
             nameRenderer: {
               __typename: 'MarkdownUserNameRenderer',
-              __match_component: 'MarkdownUserNameRenderer.react',
-              __match_fragment:
+              __module_component: 'MarkdownUserNameRenderer.react',
+              __module_operation:
                 'MarkdownUserNameRenderer_name$normalization.graphql',
               markdown: 'markdown payload',
               data: {
@@ -1457,8 +1457,8 @@ describe('RelayModernEnvironment', () => {
             __typename: 'User',
             nameRenderer: {
               __typename: 'MarkdownUserNameRenderer',
-              __match_component: 'MarkdownUserNameRenderer.react',
-              __match_fragment:
+              __module_component: 'MarkdownUserNameRenderer.react',
+              __module_operation:
                 'MarkdownUserNameRenderer_name$normalization.graphql',
               markdown: 'markdown payload',
               data: {
@@ -1503,8 +1503,8 @@ describe('RelayModernEnvironment', () => {
             __typename: 'User',
             nameRenderer: {
               __typename: 'MarkdownUserNameRenderer',
-              __match_component: 'MarkdownUserNameRenderer.react',
-              __match_fragment:
+              __module_component: 'MarkdownUserNameRenderer.react',
+              __module_operation:
                 'MarkdownUserNameRenderer_name$normalization.graphql',
               markdown: 'markdown payload',
               data: {
@@ -1536,7 +1536,7 @@ describe('RelayModernEnvironment', () => {
       expect(fragmentSnapshot.isMissingData).toBe(true);
       expect(fragmentSnapshot.data).toEqual({
         node: {
-          nameRenderer: null,
+          nameRenderer: {}, // cancelled before processing the match payload
         },
       });
     });
@@ -2052,8 +2052,8 @@ describe('RelayModernEnvironment', () => {
             __typename: 'User',
             outerRenderer: {
               __typename: 'MarkdownUserNameRenderer',
-              __match_component: 'MarkdownUserNameRenderer.react',
-              __match_fragment:
+              __module_component: 'MarkdownUserNameRenderer.react',
+              __module_operation:
                 'MarkdownUserNameRenderer_name$normalization.graphql',
               markdown: 'markdown payload',
               data: {
@@ -2063,8 +2063,8 @@ describe('RelayModernEnvironment', () => {
                 id: '2',
                 innerRenderer: {
                   __typename: 'PlainUserNameRenderer',
-                  __match_component: 'PlainUserNameRenderer.react',
-                  __match_fragment:
+                  __module_component: 'PlainUserNameRenderer.react',
+                  __module_operation:
                     'PlainUserNameRenderer_name$normalization.graphql',
                   plaintext: 'plaintext payload',
                   data: {
@@ -2087,7 +2087,7 @@ describe('RelayModernEnvironment', () => {
       expect(snapshot.isMissingData).toBe(true);
       expect(snapshot.data).toEqual({
         node: {
-          outerRenderer: null, // match field data hasn't been processed yet
+          outerRenderer: {}, // match field data hasn't been processed yet
         },
       });
     });
@@ -2101,8 +2101,8 @@ describe('RelayModernEnvironment', () => {
             __typename: 'User',
             outerRenderer: {
               __typename: 'MarkdownUserNameRenderer',
-              __match_component: 'MarkdownUserNameRenderer.react',
-              __match_fragment:
+              __module_component: 'MarkdownUserNameRenderer.react',
+              __module_operation:
                 'MarkdownUserNameRenderer_name$normalization.graphql',
               markdown: 'markdown payload',
               data: {
@@ -2113,8 +2113,8 @@ describe('RelayModernEnvironment', () => {
                 id: '2',
                 innerRenderer: {
                   __typename: 'PlainUserNameRenderer',
-                  __match_component: 'PlainUserNameRenderer.react',
-                  __match_fragment:
+                  __module_component: 'PlainUserNameRenderer.react',
+                  __module_operation:
                     'PlainUserNameRenderer_name$normalizationgraphql',
                   plaintext: 'plaintext payload',
                   data: {
@@ -2139,7 +2139,7 @@ describe('RelayModernEnvironment', () => {
       expect(initialSnapshot.isMissingData).toBe(true);
       expect(initialSnapshot.data).toEqual({
         node: {
-          outerRenderer: null, // match field data hasn't been processed yet
+          outerRenderer: {}, // match field data hasn't been processed yet
         },
       });
       const callback = jest.fn();
@@ -2163,7 +2163,7 @@ describe('RelayModernEnvironment', () => {
               MarkdownUserNameRenderer_name: {},
             },
             __fragmentOwner: null,
-            __module: 'MarkdownUserNameRenderer.react',
+            __module_component: 'MarkdownUserNameRenderer.react',
           },
         },
       });
@@ -2185,7 +2185,7 @@ describe('RelayModernEnvironment', () => {
         },
         markdown: 'markdown payload',
         user: {
-          innerRenderer: null, // inner match field data hasn't been processed yet
+          innerRenderer: {}, // inner match field data hasn't been processed yet
         },
       });
     });
@@ -2199,8 +2199,8 @@ describe('RelayModernEnvironment', () => {
             __typename: 'User',
             outerRenderer: {
               __typename: 'MarkdownUserNameRenderer',
-              __match_component: 'MarkdownUserNameRenderer.react',
-              __match_fragment:
+              __module_component: 'MarkdownUserNameRenderer.react',
+              __module_operation:
                 'MarkdownUserNameRenderer_name$normalization.graphql',
               markdown: 'markdown payload',
               data: {
@@ -2211,8 +2211,8 @@ describe('RelayModernEnvironment', () => {
                 id: '2',
                 innerRenderer: {
                   __typename: 'PlainUserNameRenderer',
-                  __match_component: 'PlainUserNameRenderer.react',
-                  __match_fragment:
+                  __module_component: 'PlainUserNameRenderer.react',
+                  __module_operation:
                     'PlainUserNameRenderer_name$normalization.graphql',
                   plaintext: 'plaintext payload',
                   data: {
@@ -2263,8 +2263,8 @@ describe('RelayModernEnvironment', () => {
             __typename: 'User',
             outerRenderer: {
               __typename: 'MarkdownUserNameRenderer',
-              __match_component: 'MarkdownUserNameRenderer.react',
-              __match_fragment:
+              __module_component: 'MarkdownUserNameRenderer.react',
+              __module_operation:
                 'MarkdownUserNameRenderer_name$normalization.graphql',
               markdown: 'markdown payload',
               data: {
@@ -2275,8 +2275,8 @@ describe('RelayModernEnvironment', () => {
                 id: '2',
                 innerRenderer: {
                   __typename: 'PlainUserNameRenderer',
-                  __match_component: 'PlainUserNameRenderer.react',
-                  __match_fragment:
+                  __module_component: 'PlainUserNameRenderer.react',
+                  __module_operation:
                     'PlainUserNameRenderer_name$normalization.graphql',
                   plaintext: 'plaintext payload',
                   data: {
@@ -2327,8 +2327,8 @@ describe('RelayModernEnvironment', () => {
             __typename: 'User',
             outerRenderer: {
               __typename: 'MarkdownUserNameRenderer',
-              __match_component: 'MarkdownUserNameRenderer.react',
-              __match_fragment:
+              __module_component: 'MarkdownUserNameRenderer.react',
+              __module_operation:
                 'MarkdownUserNameRenderer_name$normalization.graphql',
               markdown: 'markdown payload',
               data: {
@@ -2339,8 +2339,8 @@ describe('RelayModernEnvironment', () => {
                 id: '2',
                 innerRenderer: {
                   __typename: 'PlainUserNameRenderer',
-                  __match_component: 'PlainUserNameRenderer.react',
-                  __match_fragment:
+                  __module_component: 'PlainUserNameRenderer.react',
+                  __module_operation:
                     'PlainUserNameRenderer_name$normalization.graphql',
                   plaintext: 'plaintext payload',
                   data: {
@@ -2393,8 +2393,8 @@ describe('RelayModernEnvironment', () => {
             __typename: 'User',
             outerRenderer: {
               __typename: 'MarkdownUserNameRenderer',
-              __match_component: 'MarkdownUserNameRenderer.react',
-              __match_fragment:
+              __module_component: 'MarkdownUserNameRenderer.react',
+              __module_operation:
                 'MarkdownUserNameRenderer_name$normalization.graphql',
               markdown: 'markdown payload',
               data: {
@@ -2405,8 +2405,8 @@ describe('RelayModernEnvironment', () => {
                 id: '2',
                 innerRenderer: {
                   __typename: 'PlainUserNameRenderer',
-                  __match_component: 'PlainUserNameRenderer.react',
-                  __match_fragment:
+                  __module_component: 'PlainUserNameRenderer.react',
+                  __module_operation:
                     'PlainUserNameRenderer_name$normalization.graphql',
                   plaintext: 'plaintext payload',
                   data: {
@@ -2440,7 +2440,7 @@ describe('RelayModernEnvironment', () => {
       expect(fragmentSnapshot.isMissingData).toBe(true);
       expect(fragmentSnapshot.data).toEqual({
         node: {
-          outerRenderer: null,
+          outerRenderer: {}, // cancelled before match processed
         },
       });
     });
@@ -2465,8 +2465,8 @@ describe('RelayModernEnvironment', () => {
             __typename: 'User',
             outerRenderer: {
               __typename: 'MarkdownUserNameRenderer',
-              __match_component: 'MarkdownUserNameRenderer.react',
-              __match_fragment:
+              __module_component: 'MarkdownUserNameRenderer.react',
+              __module_operation:
                 'MarkdownUserNameRenderer_name$normalization.graphql',
               markdown: 'markdown payload',
               data: {
@@ -2477,8 +2477,8 @@ describe('RelayModernEnvironment', () => {
                 id: '2',
                 innerRenderer: {
                   __typename: 'PlainUserNameRenderer',
-                  __match_component: 'PlainUserNameRenderer.react',
-                  __match_fragment:
+                  __module_component: 'PlainUserNameRenderer.react',
+                  __module_operation:
                     'PlainUserNameRenderer_name$normalization.graphql',
                   plaintext: 'plaintext payload',
                   data: {
@@ -2523,7 +2523,7 @@ describe('RelayModernEnvironment', () => {
               MarkdownUserNameRenderer_name: {},
             },
             __fragmentOwner: null,
-            __module: 'MarkdownUserNameRenderer.react',
+            __module_component: 'MarkdownUserNameRenderer.react',
           },
         },
       });
@@ -3035,8 +3035,8 @@ describe('RelayModernEnvironment', () => {
                 __typename: 'User',
                 nameRenderer: {
                   __typename: 'MarkdownUserNameRenderer',
-                  __match_component: 'MarkdownUserNameRenderer.react',
-                  __match_fragment:
+                  __module_component: 'MarkdownUserNameRenderer.react',
+                  __module_operation:
                     'MarkdownUserNameRenderer_name$normalization.graphql',
                   markdown: 'markdown payload',
                   data: {
@@ -3059,7 +3059,7 @@ describe('RelayModernEnvironment', () => {
       expect(snapshot.isMissingData).toBe(true);
       expect(snapshot.data).toEqual({
         id: '4',
-        nameRenderer: null, // match field data hasn't been processed yet
+        nameRenderer: {}, // match field data hasn't been processed yet
       });
     });
 
@@ -3078,8 +3078,8 @@ describe('RelayModernEnvironment', () => {
                 __typename: 'User',
                 nameRenderer: {
                   __typename: 'MarkdownUserNameRenderer',
-                  __match_component: 'MarkdownUserNameRenderer.react',
-                  __match_fragment:
+                  __module_component: 'MarkdownUserNameRenderer.react',
+                  __module_operation:
                     'MarkdownUserNameRenderer_name$normalization.graphql',
                   markdown: 'markdown payload',
                   data: {
@@ -3104,7 +3104,7 @@ describe('RelayModernEnvironment', () => {
       expect(initialFragmentSnapshot.isMissingData).toBe(true);
       expect(initialFragmentSnapshot.data).toEqual({
         id: '4',
-        nameRenderer: null, // match field data hasn't been processed yet
+        nameRenderer: {}, // match field data hasn't been processed yet
       });
       const callback = jest.fn();
       environment.subscribe(initialFragmentSnapshot, callback);
@@ -3127,7 +3127,7 @@ describe('RelayModernEnvironment', () => {
             MarkdownUserNameRenderer_name: {},
           },
           __fragmentOwner: null,
-          __module: 'MarkdownUserNameRenderer.react',
+          __module_component: 'MarkdownUserNameRenderer.react',
         },
       });
 
@@ -3165,8 +3165,8 @@ describe('RelayModernEnvironment', () => {
                 __typename: 'User',
                 nameRenderer: {
                   __typename: 'MarkdownUserNameRenderer',
-                  __match_component: 'MarkdownUserNameRenderer.react',
-                  __match_fragment:
+                  __module_component: 'MarkdownUserNameRenderer.react',
+                  __module_operation:
                     'MarkdownUserNameRenderer_name$normalization.graphql',
                   markdown: 'markdown payload',
                   data: {
@@ -3212,8 +3212,8 @@ describe('RelayModernEnvironment', () => {
                 __typename: 'User',
                 nameRenderer: {
                   __typename: 'MarkdownUserNameRenderer',
-                  __match_component: 'MarkdownUserNameRenderer.react',
-                  __match_fragment:
+                  __module_component: 'MarkdownUserNameRenderer.react',
+                  __module_operation:
                     'MarkdownUserNameRenderer_name$normalization.graphql',
                   markdown: 'markdown payload',
                   data: {

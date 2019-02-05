@@ -254,6 +254,10 @@ async function getOutputForFixture(
     const output = operation(input);
     return output instanceof Promise ? await output : output;
   } catch (e) {
+    if (e instanceof TypeError) {
+      // Fail on blatant coding bugs during development
+      throw e;
+    }
     return `THROWN EXCEPTION:\n\n${e.toString()}`;
   }
 }

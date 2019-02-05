@@ -17,7 +17,7 @@ const SchemaUtils = require('../../core/GraphQLSchemaUtils');
 const {GraphQLObjectType} = require('graphql');
 const {DEFAULT_HANDLE_KEY} = require('relay-runtime');
 
-import type {LinkedField, MatchField} from '../../core/GraphQLIR';
+import type {LinkedField} from '../../core/GraphQLIR';
 
 const {getRawType} = SchemaUtils;
 
@@ -38,12 +38,11 @@ function relayViewerHandleTransform(context: CompilerContext): CompilerContext {
     return context;
   }
   return IRTransformer.transform(context, {
-    LinkedField: visitLinkedOrMatchField,
-    MatchField: visitLinkedOrMatchField,
+    LinkedField: visitLinkedField,
   });
 }
 
-function visitLinkedOrMatchField<T: LinkedField | MatchField>(field: T): ?T {
+function visitLinkedField(field: LinkedField): ?LinkedField {
   const transformedNode = this.traverse(field);
   if (getRawType(field.type).name !== VIEWER_TYPE) {
     return transformedNode;

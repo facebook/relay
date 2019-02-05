@@ -374,8 +374,8 @@ describe('RelayResponseNormalizer', () => {
           __typename: 'User',
           nameRenderer: {
             __typename: 'MarkdownUserNameRenderer',
-            __match_component: 'MarkdownUserNameRenderer.react',
-            __match_fragment:
+            __module_component: 'MarkdownUserNameRenderer.react',
+            __module_operation:
               'MarkdownUserNameRenderer_name$normalization.graphql',
             markdown: 'markdown payload',
             data: {
@@ -425,8 +425,8 @@ describe('RelayResponseNormalizer', () => {
             'client:1:nameRenderer(MarkdownUserNameRenderer_name:MarkdownUserNameRenderer.react,PlainUserNameRenderer_name:PlainUserNameRenderer.react)',
           data: {
             __typename: 'MarkdownUserNameRenderer',
-            __match_component: 'MarkdownUserNameRenderer.react',
-            __match_fragment:
+            __module_component: 'MarkdownUserNameRenderer.react',
+            __module_operation:
               'MarkdownUserNameRenderer_name$normalization.graphql',
             markdown: 'markdown payload',
             data: {
@@ -447,8 +447,8 @@ describe('RelayResponseNormalizer', () => {
           __typename: 'User',
           nameRenderer: {
             __typename: 'MarkdownUserNameRenderer',
-            __match_component: 'MarkdownUserNameRenderer.react',
-            __match_fragment:
+            __module_component: 'MarkdownUserNameRenderer.react',
+            __module_operation:
               'MarkdownUserNameRenderer_name$normalization.graphql',
             markdown: 'markdown payload',
             data: {
@@ -501,8 +501,8 @@ describe('RelayResponseNormalizer', () => {
             'client:1:nameRenderer(MarkdownUserNameRenderer_name:MarkdownUserNameRenderer.react,PlainUserNameRenderer_name:PlainUserNameRenderer.react)',
           data: {
             __typename: 'MarkdownUserNameRenderer',
-            __match_component: 'MarkdownUserNameRenderer.react',
-            __match_fragment:
+            __module_component: 'MarkdownUserNameRenderer.react',
+            __module_operation:
               'MarkdownUserNameRenderer_name$normalization.graphql',
             markdown: 'markdown payload',
             data: {
@@ -524,6 +524,7 @@ describe('RelayResponseNormalizer', () => {
           __typename: 'User',
           nameRenderer: {
             __typename: 'CustomNameRenderer',
+            customField: 'this is ignored!',
           },
         },
       };
@@ -544,7 +545,16 @@ describe('RelayResponseNormalizer', () => {
           __id: '1',
           id: '1',
           __typename: 'User',
-          'nameRenderer(MarkdownUserNameRenderer_name:MarkdownUserNameRenderer.react,PlainUserNameRenderer_name:PlainUserNameRenderer.react)': null,
+          'nameRenderer(MarkdownUserNameRenderer_name:MarkdownUserNameRenderer.react,PlainUserNameRenderer_name:PlainUserNameRenderer.react)': {
+            __ref:
+              'client:1:nameRenderer(MarkdownUserNameRenderer_name:MarkdownUserNameRenderer.react,PlainUserNameRenderer_name:PlainUserNameRenderer.react)',
+          },
+        },
+        'client:1:nameRenderer(MarkdownUserNameRenderer_name:MarkdownUserNameRenderer.react,PlainUserNameRenderer_name:PlainUserNameRenderer.react)': {
+          __id:
+            'client:1:nameRenderer(MarkdownUserNameRenderer_name:MarkdownUserNameRenderer.react,PlainUserNameRenderer_name:PlainUserNameRenderer.react)',
+          __typename: 'CustomNameRenderer',
+          // note: 'customField' data not processed, there is no selection on this type
         },
         'client:root': {
           __id: 'client:root',

@@ -78,7 +78,7 @@ function transformNode<T: Node>(
         }
         break;
       }
-      case 'MatchBranch':
+      case 'ModuleImport':
         nextSelection = transformNode(context, fragments, selection);
         break;
       case 'LinkedField':
@@ -96,9 +96,6 @@ function transformNode<T: Node>(
         break;
       case 'ScalarField':
         nextSelection = selection;
-        break;
-      case 'MatchField':
-        nextSelection = transformNode(context, fragments, selection);
         break;
       default:
         (selection.kind: empty);

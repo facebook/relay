@@ -19,7 +19,7 @@ const {
   FRAGMENT_SPREAD,
   INLINE_FRAGMENT,
   LINKED_FIELD,
-  MATCH_FIELD,
+  MODULE_IMPORT,
   SCALAR_FIELD,
 } = require('../util/RelayConcreteNode');
 const {
@@ -27,8 +27,7 @@ const {
   FRAGMENT_OWNER_KEY,
   FRAGMENT_PROP_NAME_KEY,
   ID_KEY,
-  MATCH_COMPONENT_KEY,
-  MODULE_KEY,
+  MODULE_COMPONENT_KEY,
   getArgumentValues,
   getStorageKey,
 } = require('./RelayStoreUtils');
@@ -36,7 +35,7 @@ const {
 import type {
   ReaderFragmentSpread,
   ReaderLinkedField,
-  ReaderMatchField,
+  ReaderModuleImport,
   ReaderNode,
   ReaderScalarField,
   ReaderSelectableNode,
@@ -149,8 +148,8 @@ class RelayReader {
         }
       } else if (selection.kind === FRAGMENT_SPREAD) {
         this._createFragmentPointer(selection, record, data, this._variables);
-      } else if (selection.kind === MATCH_FIELD) {
-        this._readMatchField(selection, record, data);
+      } else if (selection.kind === MODULE_IMPORT) {
+        this._readModuleImport(selection, record, data);
       } else {
         invariant(
           false,
@@ -253,79 +252,21 @@ class RelayReader {
   }
 
   /**
-   * Reads a ReaderMatchField, which was generated from using the @match
-   * directive
+   * Reads a ReaderModuleImport, which was generated from using the @module
+   * directive.
    */
-  _readMatchField(
-    field: ReaderMatchField,
+  _readModuleImport(
+    moduleImport: ReaderModuleImport,
     record: Record,
     data: SelectorData,
   ): void {
-    const applicationName = field.alias ?? field.name;
-    const storageKey = getStorageKey(field, this._variables);
-    const linkedID = RelayModernRecord.getLinkedRecordID(record, storageKey);
-    if (linkedID == null) {
-      data[applicationName] = linkedID;
-      if (linkedID === undefined) {
-        this._isMissingData = true;
-      }
-      return;
-    }
-
-    const prevData = data[applicationName];
-    invariant(
-      prevData == null || typeof prevData === 'object',
-      'RelayReader(): Expected data for field `%s` on record `%s` ' +
-        'to be an object, got `%s`.',
-      applicationName,
-      RelayModernRecord.getDataID(record),
-      prevData,
-    );
-
-    // Instead of recursing into the traversal again, let's manually traverse
-    // one level to get the record associated with the match field
-    const linkedRecord = this._recordSource.get(linkedID);
-    this._seenRecords[linkedID] = linkedRecord;
-    if (linkedRecord == null) {
-      if (linkedRecord === undefined) {
-        this._isMissingData = true;
-      }
-      data[applicationName] = linkedRecord;
-      return;
-    }
-
-    // Determine the concrete type for the match field record. The type of a
-    // match field must be a union type (i.e. abstract type), so here we
-    // read the concrete type on the record, which should be the type resolved
-    // by the server in the response.
-    const concreteType = RelayModernRecord.getType(linkedRecord);
-    invariant(
-      typeof concreteType === 'string',
-      'RelayReader(): Expected to be able to resolve concrete type for ' +
-        'field `%s` on record `%s`',
-      applicationName,
-      RelayModernRecord.getDataID(linkedRecord),
-    );
-
-    // If we can't find a match provided in the directive for the concrete
-    // type, return null as the result
-    const match = field.matchesByType[concreteType];
-    if (match == null) {
-      data[applicationName] = null;
-      return;
-    }
-
     // Determine the component module from the store: if the field is missing
     // it means we don't know what component to render the match with.
-    const matchComponent = RelayModernRecord.getValue(
-      linkedRecord,
-      MATCH_COMPONENT_KEY,
-    );
-    if (matchComponent == null) {
-      if (matchComponent === undefined) {
+    const component = RelayModernRecord.getValue(record, MODULE_COMPONENT_KEY);
+    if (component == null) {
+      if (component === undefined) {
         this._isMissingData = true;
       }
-      data[applicationName] = null;
       return;
     }
 
@@ -334,22 +275,18 @@ class RelayReader {
     // - For the matched fragment, create the relevant fragment pointer and add
     //   the expected fragmentPropName
     // - For the matched module, create a reference to the module
-    const matchResult = {};
     this._createFragmentPointer(
       {
         kind: 'FragmentSpread',
-        name: match.fragmentName,
+        name: moduleImport.fragmentName,
         args: null,
       },
-      linkedRecord,
-      matchResult,
+      record,
+      data,
       this._variables,
     );
-    matchResult[FRAGMENT_PROP_NAME_KEY] = match.fragmentPropName;
-    matchResult[MODULE_KEY] = matchComponent;
-
-    // Attach the match result to the data being read
-    data[applicationName] = matchResult;
+    data[FRAGMENT_PROP_NAME_KEY] = moduleImport.fragmentPropName;
+    data[MODULE_COMPONENT_KEY] = component;
   }
 
   _createFragmentPointer(

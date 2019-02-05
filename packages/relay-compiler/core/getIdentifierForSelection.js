@@ -23,32 +23,24 @@ import type {Selection} from './GraphQLIR';
  */
 function getIdentifierForSelection(node: Selection): string {
   if (node.kind === 'LinkedField' || node.kind === 'ScalarField') {
-    return node.directives.length === 0
+    return 'Field: ' + node.directives.length === 0
       ? node.alias || node.name
       : (node.alias || node.name) + printDirectives(node.directives);
   } else if (node.kind === 'FragmentSpread') {
-    return node.args.length === 0
-      ? '...' + node.name
-      : '...' + node.name + printArguments(node.args);
-  } else if (node.kind === 'MatchField') {
-    const storageKey = node.metadata?.storageKey;
-    invariant(
-      typeof storageKey === 'string',
-      'getIdentifierForSelection: Expected MatchField `%s` to have a precomputed storageKey.',
-      node.name,
-    );
-    return 'M:' + storageKey;
-  } else if (node.kind === 'MatchBranch') {
-    return 'B:' + node.name + '$' + node.module;
+    return 'FragmentSpread:' + node.args.length === 0
+      ? node.name
+      : node.name + printArguments(node.args);
+  } else if (node.kind === 'ModuleImport') {
+    return 'ModuleImport:'; // sibling @module are disallowed
   } else if (node.kind === 'Defer') {
-    return 'D:' + node.label;
+    return 'Defer:' + node.label;
   } else if (node.kind === 'Stream') {
-    return 'S:' + node.label;
+    return 'Stream:' + node.label;
   } else if (node.kind === 'InlineFragment') {
-    return 'I:' + node.typeCondition.name;
+    return 'InlineFragment:' + node.typeCondition.name;
   } else if (node.kind === 'Condition') {
     return (
-      'C:' +
+      'Condition:' +
       (node.condition.kind === 'Variable'
         ? '$' + node.condition.variableName
         : String(node.condition.value)) +

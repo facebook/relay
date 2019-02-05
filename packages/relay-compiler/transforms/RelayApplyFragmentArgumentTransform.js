@@ -158,7 +158,7 @@ function transformField<T: Field>(
 ): ?T {
   const args = transformArguments(scope, field.args, errorContext);
   const directives = transformDirectives(scope, field.directives, errorContext);
-  if (field.kind === 'LinkedField' || field.kind === 'MatchField') {
+  if (field.kind === 'LinkedField') {
     const selections = transformSelections(
       context,
       fragments,
@@ -243,7 +243,7 @@ function transformSelections(
     let nextSelection;
     if (
       selection.kind === 'InlineFragment' ||
-      selection.kind === 'MatchBranch'
+      selection.kind === 'ModuleImport'
     ) {
       nextSelection = transformNode(
         context,
@@ -274,8 +274,7 @@ function transformSelections(
       }
     } else if (
       selection.kind === 'LinkedField' ||
-      selection.kind === 'ScalarField' ||
-      selection.kind === 'MatchField'
+      selection.kind === 'ScalarField'
     ) {
       nextSelection = transformField(
         context,

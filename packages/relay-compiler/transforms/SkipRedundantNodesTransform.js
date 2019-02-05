@@ -162,8 +162,7 @@ function transformNode<T: Node>(
       }
       case 'Defer':
       case 'Stream':
-      case 'MatchBranch':
-      case 'MatchField':
+      case 'ModuleImport':
       case 'LinkedField': {
         const transformed = transformNode(
           selection,

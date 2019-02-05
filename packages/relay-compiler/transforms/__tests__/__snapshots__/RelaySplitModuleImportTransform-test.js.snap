@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`RelayMatchTransform matches expected output: relay-match-transform.graphql 1`] = `
+exports[`RelayMatchTransform matches expected output: module-in-match-field.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 fragment NameRendererFragment on User {
   id
@@ -29,15 +29,19 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
 fragment NameRendererFragment on User {
   id
   nameRenderer(supported: ["PlainUserNameRenderer", "MarkdownUserNameRenderer"]) {
-    ...PlainUserNameRenderer_name
     ... on PlainUserNameRenderer {
-      __match_component: js(module: "PlainUserNameRenderer.react")
-      __match_fragment: js(module: "PlainUserNameRenderer_name$normalization.graphql")
+      ...PlainUserNameRenderer_name
+      ... on PlainUserNameRenderer {
+        __module_component: js(module: "PlainUserNameRenderer.react")
+        __module_operation: js(module: "PlainUserNameRenderer_name$normalization.graphql")
+      }
     }
-    ...MarkdownUserNameRenderer_name
     ... on MarkdownUserNameRenderer {
-      __match_component: js(module: "MarkdownUserNameRenderer.react")
-      __match_fragment: js(module: "MarkdownUserNameRenderer_name$normalization.graphql")
+      ...MarkdownUserNameRenderer_name
+      ... on MarkdownUserNameRenderer {
+        __module_component: js(module: "MarkdownUserNameRenderer.react")
+        __module_operation: js(module: "MarkdownUserNameRenderer_name$normalization.graphql")
+      }
     }
   }
 }
@@ -59,16 +63,16 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
 SplitOperation PlainUserNameRenderer_name$normalization on PlainUserNameRenderer {
   ...PlainUserNameRenderer_name
   ... on PlainUserNameRenderer {
-    __match_component: js(module: "PlainUserNameRenderer.react")
-    __match_fragment: js(module: "PlainUserNameRenderer_name$normalization.graphql")
+    __module_component: js(module: "PlainUserNameRenderer.react")
+    __module_operation: js(module: "PlainUserNameRenderer_name$normalization.graphql")
   }
 }
 
 SplitOperation MarkdownUserNameRenderer_name$normalization on MarkdownUserNameRenderer {
   ...MarkdownUserNameRenderer_name
   ... on MarkdownUserNameRenderer {
-    __match_component: js(module: "MarkdownUserNameRenderer.react")
-    __match_fragment: js(module: "MarkdownUserNameRenderer_name$normalization.graphql")
+    __module_component: js(module: "MarkdownUserNameRenderer.react")
+    __module_operation: js(module: "MarkdownUserNameRenderer_name$normalization.graphql")
   }
 }
 

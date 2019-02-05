@@ -39,7 +39,6 @@ import type {
   InlineFragment,
   LinkedField,
   Location,
-  MatchField,
   Root,
 } from '../../core/GraphQLIR';
 import type {GraphQLType} from 'graphql';
@@ -71,8 +70,7 @@ function relayConnectionTransform(context: CompilerContext): CompilerContext {
     context,
     {
       Fragment: visitFragmentOrRoot,
-      LinkedField: visitLinkedOrMatchField,
-      MatchField: visitLinkedOrMatchField,
+      LinkedField: visitLinkedField,
       Root: visitFragmentOrRoot,
     },
     node => ({
@@ -110,10 +108,7 @@ function visitFragmentOrRoot<N: Fragment | Root>(
 /**
  * @internal
  */
-function visitLinkedOrMatchField<T: LinkedField | MatchField>(
-  field: T,
-  options: Options,
-): T {
+function visitLinkedField(field: LinkedField, options: Options): LinkedField {
   const isPlural =
     SchemaUtils.getNullableType(field.type) instanceof GraphQLList;
   options.path.push(isPlural ? null : field.alias || field.name);

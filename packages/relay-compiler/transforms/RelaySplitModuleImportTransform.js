@@ -15,27 +15,54 @@ const IRTransformer = require('../core/GraphQLIRTransformer');
 
 const getNormalizationOperationName = require('../core/getNormalizationOperationName');
 
-import type {MatchBranch, SplitOperation} from '../core/GraphQLIR';
+import type {
+  LinkedField,
+  InlineFragment,
+  ModuleImport,
+  SplitOperation,
+} from '../core/GraphQLIR';
+import type {GraphQLCompositeType} from 'graphql';
 
-type State = Map<string, SplitOperation>;
+type State = {|
+  parentType: GraphQLCompositeType,
+  splitOperations: Map<string, SplitOperation>,
+|};
 
 /**
- * This transform finds MatchBranch nodes and adds a SplitOperation root
- * node to the context for each of them.
+ * This transform creates a SplitOperation root for every ModuleImport.
  */
 function relaySplitMatchTransform(context: CompilerContext): CompilerContext {
   const splitOperations = new Map();
   const transformedContext = IRTransformer.transform(
     context,
     {
-      MatchBranch: visitMatchBranch,
+      LinkedField: visitLinkedField,
+      InlineFragment: visitInlineFragment,
+      ModuleImport: visitModuleImport,
     },
-    () => splitOperations,
+    node => ({parentType: node.type, splitOperations}),
   );
   return transformedContext.addAll(Array.from(splitOperations.values()));
 }
 
-function visitMatchBranch(node: MatchBranch, state: State): MatchBranch {
+function visitLinkedField(field: LinkedField, state: State): LinkedField {
+  return this.traverse(field, {
+    parentType: field.type,
+    splitOperations: state.splitOperations,
+  });
+}
+
+function visitInlineFragment(
+  fragment: InlineFragment,
+  state: State,
+): InlineFragment {
+  return this.traverse(fragment, {
+    parentType: fragment.typeCondition,
+    splitOperations: state.splitOperations,
+  });
+}
+
+function visitModuleImport(node: ModuleImport, state: State): ModuleImport {
   const transformedNode = this.traverse(node, state);
   const splitOperation: SplitOperation = {
     kind: 'SplitOperation',
@@ -45,9 +72,9 @@ function visitMatchBranch(node: MatchBranch, state: State): MatchBranch {
     metadata: {
       derivedFrom: transformedNode.name,
     },
-    type: transformedNode.type,
+    type: state.parentType,
   };
-  state.set(node.name, splitOperation);
+  state.splitOperations.set(node.name, splitOperation);
   return transformedNode;
 }
 

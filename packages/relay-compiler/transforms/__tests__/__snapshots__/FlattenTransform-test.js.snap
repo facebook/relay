@@ -378,22 +378,28 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
 fragment NameRendererFragment on User {
   id
   nameRenderer(supported: ["PlainUserNameRenderer", "MarkdownUserNameRenderer"]) {
-    ...PlainUserNameRenderer_name
     ... on PlainUserNameRenderer {
-      __match_component: js(module: "PlainUserNameRenderer.react")
-      __match_fragment: js(module: "PlainUserNameRenderer_name$normalization.graphql")
+      ...PlainUserNameRenderer_name
+      ... on PlainUserNameRenderer {
+        __module_component: js(module: "PlainUserNameRenderer.react")
+        __module_operation: js(module: "PlainUserNameRenderer_name$normalization.graphql")
+      }
     }
-    ...MarkdownUserNameRenderer_name
     ... on MarkdownUserNameRenderer {
-      __match_component: js(module: "MarkdownUserNameRenderer.react")
-      __match_fragment: js(module: "MarkdownUserNameRenderer_name$normalization.graphql")
+      ...MarkdownUserNameRenderer_name
+      ... on MarkdownUserNameRenderer {
+        __module_component: js(module: "MarkdownUserNameRenderer.react")
+        __module_operation: js(module: "MarkdownUserNameRenderer_name$normalization.graphql")
+      }
     }
   }
   plainNameRenderer: nameRenderer(supported: ["PlainUserNameRenderer"]) {
-    ...PlainUserNameRenderer_name
     ... on PlainUserNameRenderer {
-      __match_component: js(module: "PlainUserNameRenderer.react")
-      __match_fragment: js(module: "PlainUserNameRenderer_name$normalization.graphql")
+      ...PlainUserNameRenderer_name
+      ... on PlainUserNameRenderer {
+        __module_component: js(module: "PlainUserNameRenderer.react")
+        __module_operation: js(module: "PlainUserNameRenderer_name$normalization.graphql")
+      }
     }
   }
 }
@@ -424,9 +430,80 @@ fragment NameRendererFragment on User {
       @module(name: "MarkdownUserNameRenderer.react")
   }
   ... on User {
-    # identical to above
+    # same alias and selections, should flatten together
     nameRenderer @match {
       ...PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
+      ...MarkdownUserNameRenderer_name
+        @module(name: "MarkdownUserNameRenderer.react")
+    }
+  }
+}
+
+fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
+  plaintext
+  data {
+    text
+    ... on PlainUserNameData {
+      text # should be flattened
+    }
+  }
+}
+
+fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+  markdown
+  data {
+    markup
+    ... on MarkdownUserNameData {
+      markup # should be flattened
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+fragment NameRendererFragment on User {
+  id
+  nameRenderer(supported: ["PlainUserNameRenderer", "MarkdownUserNameRenderer"]) {
+    ... on PlainUserNameRenderer {
+      ...PlainUserNameRenderer_name
+      __module_component: js(module: "PlainUserNameRenderer.react")
+      __module_operation: js(module: "PlainUserNameRenderer_name$normalization.graphql")
+    }
+    ... on MarkdownUserNameRenderer {
+      ...MarkdownUserNameRenderer_name
+      __module_component: js(module: "MarkdownUserNameRenderer.react")
+      __module_operation: js(module: "MarkdownUserNameRenderer_name$normalization.graphql")
+    }
+  }
+}
+
+fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
+  plaintext
+  data {
+    text
+  }
+}
+
+fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+  markdown
+  data {
+    markup
+  }
+}
+
+`;
+
+exports[`FlattenTransform matches expected output: match-field-overlap.invalid.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment NameRendererFragment on User {
+  id
+  nameRenderer @match {
+    ...PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
+    ...MarkdownUserNameRenderer_name
+      @module(name: "MarkdownUserNameRenderer.react")
+  }
+  ... on User {
+    # conflicts with above: same alias but different types are matched
+    nameRenderer @match {
       ...MarkdownUserNameRenderer_name
         @module(name: "MarkdownUserNameRenderer.react")
     }
@@ -448,18 +525,40 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
 }
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+THROWN EXCEPTION:
+
+Error: Encountered 1 error(s):
+- Expected all fields on the same parent with the name or alias 'nameRenderer' to have the same name and arguments.
+  
+  Source: GraphQL request (10:5)
+   9:     # conflicts with above: same alias but different types are matched
+  10:     nameRenderer @match {
+          ^
+  11:       ...MarkdownUserNameRenderer_name
+  
+  Source: GraphQL request (3:3)
+  2:   id
+  3:   nameRenderer @match {
+       ^
+  4:     ...PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
+  
+`;
+
+exports[`FlattenTransform matches expected output: match-field-overlap-different-react-modules.invalid.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
 fragment NameRendererFragment on User {
   id
-  nameRenderer(supported: ["PlainUserNameRenderer", "MarkdownUserNameRenderer"]) {
-    ...PlainUserNameRenderer_name
-    ... on PlainUserNameRenderer {
-      __match_component: js(module: "PlainUserNameRenderer.react")
-      __match_fragment: js(module: "PlainUserNameRenderer_name$normalization.graphql")
-    }
+  nameRenderer @match {
+    ...PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
     ...MarkdownUserNameRenderer_name
-    ... on MarkdownUserNameRenderer {
-      __match_component: js(module: "MarkdownUserNameRenderer.react")
-      __match_fragment: js(module: "MarkdownUserNameRenderer_name$normalization.graphql")
+      @module(name: "MarkdownUserNameRenderer.react")
+  }
+  ... on User {
+    # conflicts with above: same alias but different module names
+    nameRenderer @match {
+      ...PlainUserNameRenderer_name @module(name: "OtherPlainUserNameRenderer.react")
+      ...MarkdownUserNameRenderer_name
+        @module(name: "OtherMarkdownUserNameRenderer.react")
     }
   }
 }
@@ -478,6 +577,24 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
   }
 }
 
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+THROWN EXCEPTION:
+
+Error: Encountered 1 error(s):
+- Found conflicting @module selections: use a unique alias on the parent fields.
+  
+  Source: GraphQL request (11:7)
+  10:     nameRenderer @match {
+  11:       ...PlainUserNameRenderer_name @module(name: "OtherPlainUserNameRenderer.react")
+            ^
+  12:       ...MarkdownUserNameRenderer_name
+  
+  Source: GraphQL request (4:5)
+  3:   nameRenderer @match {
+  4:     ...PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
+         ^
+  5:     ...MarkdownUserNameRenderer_name
+  
 `;
 
 exports[`FlattenTransform matches expected output: scalar-handle-field.graphql 1`] = `

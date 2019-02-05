@@ -184,23 +184,9 @@ const builds = [
   {
     package: 'react-relay',
     exports: {
-      classic: 'ReactRelayClassicExports.js',
-      compat: 'ReactRelayCompatPublic.js',
       index: 'ReactRelayPublic.js',
     },
     bundles: [
-      {
-        entry: 'ReactRelayClassicExports.js',
-        output: 'react-relay-classic',
-        libraryName: 'ReactRelayClassic',
-        libraryTarget: 'umd',
-      },
-      {
-        entry: 'ReactRelayCompatPublic.js',
-        output: 'react-relay-compat',
-        libraryName: 'ReactRelayCompat',
-        libraryTarget: 'umd',
-      },
       {
         entry: 'ReactRelayPublic.js',
         output: 'react-relay',

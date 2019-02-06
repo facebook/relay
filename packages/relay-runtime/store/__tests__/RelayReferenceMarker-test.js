@@ -752,6 +752,336 @@ describe('RelayReferenceMarker', () => {
     });
   });
 
+  describe('@module', () => {
+    let BarQuery;
+    let loader;
+
+    beforeEach(() => {
+      const nodes = generateAndCompile(`
+        fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
+          plaintext
+          data {
+            text
+          }
+        }
+
+        fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+          markdown
+          data {
+            markup
+          }
+        }
+
+        fragment BarFragment on User {
+          id
+          nameRenderer { # intentionally no @match
+            ...PlainUserNameRenderer_name
+              @module(name: "PlainUserNameRenderer.react")
+            ...MarkdownUserNameRenderer_name
+              @module(name: "MarkdownUserNameRenderer.react")
+          }
+        }
+
+        query BarQuery($id: ID!) {
+          node(id: $id) {
+            ...BarFragment
+          }
+        }
+      `);
+      BarQuery = nodes.BarQuery;
+      loader = {
+        get: jest.fn(
+          moduleName => nodes[String(moduleName).replace(/\$.*/, '')],
+        ),
+        load: jest.fn(moduleName =>
+          Promise.resolve(nodes[String(moduleName).replace(/\$.*/, '')]),
+        ),
+      };
+    });
+
+    it('marks references when the field/record exists and matches a @module selection (plaintext)', () => {
+      // When the type matches PlainUserNameRenderer
+      const storeData = {
+        '1': {
+          __id: '1',
+          id: '1',
+          __typename: 'User',
+          nameRenderer: {
+            __ref: 'client:1:nameRenderer',
+          },
+        },
+        'client:1:nameRenderer': {
+          __id: 'client:1:nameRenderer',
+          __typename: 'PlainUserNameRenderer',
+          __module_component: 'PlainUserNameRenderer.react',
+          __module_operation:
+            'PlainUserNameRenderer_name$normalization.graphql',
+          plaintext: 'plain name',
+          data: {__ref: 'data'},
+        },
+        'client:root': {
+          __id: 'client:root',
+          __typename: '__Root',
+          'node(id:"1")': {__ref: '1'},
+        },
+        data: {
+          __id: 'data',
+          __typename: 'PlainUserNameData',
+          text: 'text',
+        },
+      };
+      source = new RelayInMemoryRecordSource(storeData);
+      const references = new Set();
+      mark(
+        source,
+        {
+          dataID: 'client:root',
+          node: BarQuery.operation,
+          variables: {id: '1'},
+        },
+        references,
+        loader,
+      );
+      expect(Array.from(references).sort()).toEqual([
+        '1',
+        'client:1:nameRenderer',
+        'client:root',
+        'data',
+      ]);
+    });
+
+    it('marks references when the field/record exists and matches a @module selection (markdown)', () => {
+      // When the type matches MarkdownUserNameRenderer
+      const storeData = {
+        '1': {
+          __id: '1',
+          id: '1',
+          __typename: 'User',
+          nameRenderer: {
+            __ref: 'client:1:nameRenderer',
+          },
+        },
+        'client:1:nameRenderer': {
+          __id: 'client:1:nameRenderer',
+          __typename: 'MarkdownUserNameRenderer',
+          __module_component: 'MarkdownUserNameRenderer.react',
+          __module_operation:
+            'MarkdownUserNameRenderer_name$normalization.graphql',
+          markdown: 'markdown payload',
+          data: {__ref: 'data'},
+        },
+        'client:root': {
+          __id: 'client:root',
+          __typename: '__Root',
+          'node(id:"1")': {__ref: '1'},
+        },
+        data: {
+          __id: 'data',
+          __typename: 'MarkdownUserNameData',
+          markup: '<markup/>',
+        },
+      };
+      source = new RelayInMemoryRecordSource(storeData);
+      const references = new Set();
+      mark(
+        source,
+        {
+          dataID: 'client:root',
+          node: BarQuery.operation,
+          variables: {id: '1'},
+        },
+        references,
+        loader,
+      );
+      expect(Array.from(references).sort()).toEqual([
+        '1',
+        'client:1:nameRenderer',
+        'client:root',
+        'data',
+      ]);
+    });
+
+    it('marks references when the field/record exists but the @module fragment has not been processed', () => {
+      // The field returned the MarkdownUserNameRenderer type, but the module for that branch
+      // has not been loaded. The assumption is that the data cannot have been processed in that
+      // case and therefore the markdown field is missing in the store.
+      const storeData = {
+        '1': {
+          __id: '1',
+          id: '1',
+          __typename: 'User',
+          nameRenderer: {
+            __ref: 'client:1:nameRenderer',
+          },
+        },
+        'client:1:nameRenderer': {
+          __id: 'client:1:nameRenderer',
+          __typename: 'MarkdownUserNameRenderer',
+          // NOTE: markdown/data fields are missing, data not processed.
+        },
+        'client:root': {
+          __id: 'client:root',
+          __typename: '__Root',
+          'node(id:"1")': {__ref: '1'},
+        },
+      };
+      source = new RelayInMemoryRecordSource(storeData);
+      const references = new Set();
+      mark(
+        source,
+        {
+          dataID: 'client:root',
+          node: BarQuery.operation,
+          variables: {id: '1'},
+        },
+        references,
+        // Return null to indicate the fragment is not loaded yet
+        {
+          get: _ => null,
+          load: _ => Promise.resolve(null),
+        },
+      );
+      expect(Array.from(references).sort()).toEqual([
+        '1',
+        'client:1:nameRenderer',
+        'client:root',
+      ]);
+    });
+
+    it('marks references when the field/record exists but a scalar field is missing', () => {
+      // the `data` field for the MarkdownUserNameRenderer is missing
+      const storeData = {
+        '1': {
+          __id: '1',
+          id: '1',
+          __typename: 'User',
+          nameRenderer: {
+            __ref: 'client:1:nameRenderer',
+          },
+        },
+        'client:1:nameRenderer': {
+          __id: 'client:1:nameRenderer',
+          __typename: 'MarkdownUserNameRenderer',
+          __module_component: 'MarkdownUserNameRenderer.react',
+          __module_operation:
+            'MarkdownUserNameRenderer_name$normalization.graphql',
+          // NOTE: 'markdown' field missing
+          data: {__ref: 'data'},
+        },
+        'client:root': {
+          __id: 'client:root',
+          __typename: '__Root',
+          'node(id:"1")': {__ref: '1'},
+        },
+        data: {
+          __id: 'data',
+          __typename: 'MarkdownUserNameData',
+          markup: '<markup/>',
+        },
+      };
+      source = new RelayInMemoryRecordSource(storeData);
+      const references = new Set();
+      mark(
+        source,
+        {
+          dataID: 'client:root',
+          node: BarQuery.operation,
+          variables: {id: '1'},
+        },
+        references,
+        loader,
+      );
+      expect(Array.from(references).sort()).toEqual([
+        '1',
+        'client:1:nameRenderer',
+        'client:root',
+        'data',
+      ]);
+    });
+
+    it('marks references when the field/record exists but a linked field is missing', () => {
+      // the `data` field for the MarkdownUserNameRenderer is missing
+      const storeData = {
+        '1': {
+          __id: '1',
+          id: '1',
+          __typename: 'User',
+          nameRenderer: {
+            __ref: 'client:1:nameRenderer',
+          },
+        },
+        'client:1:nameRenderer': {
+          __id: 'client:1:nameRenderer',
+          __typename: 'MarkdownUserNameRenderer',
+          markdown: 'markdown text',
+          // NOTE: 'data' field missing
+        },
+        'client:root': {
+          __id: 'client:root',
+          __typename: '__Root',
+          'node(id:"1")': {__ref: '1'},
+        },
+      };
+      source = new RelayInMemoryRecordSource(storeData);
+      const references = new Set();
+      mark(
+        source,
+        {
+          dataID: 'client:root',
+          node: BarQuery.operation,
+          variables: {id: '1'},
+        },
+        references,
+        loader,
+      );
+      expect(Array.from(references).sort()).toEqual([
+        '1',
+        'client:1:nameRenderer',
+        'client:root',
+      ]);
+    });
+
+    it('marks references when the field/record exists but do not match any @module selection', () => {
+      const storeData = {
+        '1': {
+          __id: '1',
+          id: '1',
+          __typename: 'User',
+          nameRenderer: {
+            __ref: 'client:1:nameRenderer',
+          },
+        },
+        'client:1:nameRenderer': {
+          __id: 'client:1:nameRenderer',
+          __typename: 'CustomNameRenderer',
+          customField: 'custom value',
+        },
+        'client:root': {
+          __id: 'client:root',
+          __typename: '__Root',
+          'node(id:"1")': {__ref: '1'},
+        },
+      };
+      source = new RelayInMemoryRecordSource(storeData);
+      const references = new Set();
+      mark(
+        source,
+        {
+          dataID: 'client:root',
+          node: BarQuery.operation,
+          variables: {id: '1'},
+        },
+        references,
+        loader,
+      );
+      expect(Array.from(references).sort()).toEqual([
+        '1',
+        'client:1:nameRenderer',
+        'client:root',
+      ]);
+    });
+  });
+
   describe('when @defer directive is present', () => {
     let Query;
 

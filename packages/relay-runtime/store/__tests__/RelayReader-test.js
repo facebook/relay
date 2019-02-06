@@ -738,6 +738,162 @@ describe('RelayReader', () => {
     });
   });
 
+  describe('@module', () => {
+    let BarFragment;
+
+    beforeEach(() => {
+      const nodes = generateAndCompile(`
+        fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
+          plaintext
+        }
+
+        fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+          markdown
+        }
+
+        fragment BarFragment on User {
+          id
+          nameRenderer { # intentionally no @match here
+            ...PlainUserNameRenderer_name
+              @module(name: "PlainUserNameRenderer.react")
+            ...MarkdownUserNameRenderer_name
+              @module(name: "MarkdownUserNameRenderer.react")
+          }
+        }
+      `);
+      BarFragment = nodes.BarFragment;
+    });
+
+    it('creates fragment and module pointers when the type matches a @module selection (1)', () => {
+      // When the type matches PlainUserNameRenderer
+      const storeData = {
+        '1': {
+          __id: '1',
+          id: '1',
+          __typename: 'User',
+          nameRenderer: {
+            __ref: 'client:1:nameRenderer',
+          },
+        },
+        'client:1:nameRenderer': {
+          __id: 'client:1:nameRenderer',
+          __typename: 'PlainUserNameRenderer',
+          __module_component: 'PlainUserNameRenderer.react',
+          __module_operation:
+            'PlainUserNameRenderer_name$normalization.graphql',
+          plaintext: 'plain name',
+        },
+        'client:root': {
+          __id: 'client:root',
+          __typename: '__Root',
+          'node(id:"1")': {__ref: '1'},
+        },
+      };
+      source = new RelayInMemoryRecordSource(storeData);
+      const {data, seenRecords, isMissingData} = read(source, {
+        dataID: '1',
+        node: BarFragment,
+        variables: {},
+      });
+      expect(data).toEqual({
+        id: '1',
+        nameRenderer: {
+          __id: 'client:1:nameRenderer',
+          __fragments: {
+            PlainUserNameRenderer_name: {},
+          },
+          __fragmentOwner: null,
+          __fragmentPropName: 'name',
+          __module_component: 'PlainUserNameRenderer.react',
+        },
+      });
+      expect(Object.keys(seenRecords)).toEqual(['1', 'client:1:nameRenderer']);
+      expect(isMissingData).toBe(false);
+    });
+
+    it('creates fragment and module pointers when the type matches a @module selection (2)', () => {
+      // When the type matches MarkdownUserNameRenderer
+      const storeData = {
+        '1': {
+          __id: '1',
+          id: '1',
+          __typename: 'User',
+          nameRenderer: {
+            __ref: 'client:1:nameRenderer',
+          },
+        },
+        'client:1:nameRenderer': {
+          __id: 'client:1:nameRenderer',
+          __typename: 'MarkdownUserNameRenderer',
+          __module_component: 'MarkdownUserNameRenderer.react',
+          __module_operation:
+            'MarkdownUserNameRenderer_name$normalization.graphql',
+          markdown: 'markdown payload',
+        },
+        'client:root': {
+          __id: 'client:root',
+          __typename: '__Root',
+          'node(id:"1")': {__ref: '1'},
+        },
+      };
+      source = new RelayInMemoryRecordSource(storeData);
+      const {data, seenRecords, isMissingData} = read(source, {
+        dataID: '1',
+        node: BarFragment,
+        variables: {},
+      });
+      expect(data).toEqual({
+        id: '1',
+        nameRenderer: {
+          __id: 'client:1:nameRenderer',
+          __fragments: {
+            MarkdownUserNameRenderer_name: {},
+          },
+          __fragmentOwner: null,
+          __fragmentPropName: 'name',
+          __module_component: 'MarkdownUserNameRenderer.react',
+        },
+      });
+      expect(Object.keys(seenRecords)).toEqual(['1', 'client:1:nameRenderer']);
+      expect(isMissingData).toBe(false);
+    });
+
+    it('reads data correctly when the resolved type does not match any of the @module selections', () => {
+      const storeData = {
+        '1': {
+          __id: '1',
+          id: '1',
+          __typename: 'User',
+          nameRenderer: {
+            __ref: 'client:1:nameRenderer',
+          },
+        },
+        'client:1:nameRenderer': {
+          __id: 'client:1:nameRenderer',
+          __typename: 'CustomNameRenderer',
+          customField: 'custom value',
+        },
+        'client:root': {
+          __id: 'client:root',
+          __typename: '__Root',
+          'node(id:"1")': {__ref: '1'},
+        },
+      };
+      source = new RelayInMemoryRecordSource(storeData);
+      const {data, seenRecords, isMissingData} = read(source, {
+        dataID: '1',
+        node: BarFragment,
+        variables: {},
+      });
+      expect(data).toEqual({
+        id: '1',
+        nameRenderer: {}, // type doesn't match selections, no data provided
+      });
+      expect(Object.keys(seenRecords)).toEqual(['1', 'client:1:nameRenderer']);
+      expect(isMissingData).toBe(false);
+    });
+  });
+
   describe('`isMissingData` field', () => {
     describe('readScalar', () => {
       it('should have `isMissingData = false` if data is available', () => {

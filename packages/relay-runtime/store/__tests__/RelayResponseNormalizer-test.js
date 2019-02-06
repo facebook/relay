@@ -600,6 +600,234 @@ describe('RelayResponseNormalizer', () => {
     });
   });
 
+  describe('@module', () => {
+    let BarQuery;
+
+    beforeEach(() => {
+      const nodes = generateAndCompile(`
+        fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
+          plaintext
+          data {
+            text
+          }
+        }
+
+        fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+          markdown
+          data {
+            markup
+          }
+        }
+
+        fragment BarFragment on User {
+          id
+          nameRenderer { # intentionally does not use @match
+            ...PlainUserNameRenderer_name
+              @module(name: "PlainUserNameRenderer.react")
+            ...MarkdownUserNameRenderer_name
+              @module(name: "MarkdownUserNameRenderer.react")
+          }
+        }
+
+        query BarQuery($id: ID!) {
+          node(id: $id) {
+            ...BarFragment
+          }
+        }
+      `);
+      BarQuery = nodes.BarQuery;
+    });
+
+    it('normalizes queries and returns metadata when the type matches an @module selection', () => {
+      const payload = {
+        node: {
+          id: '1',
+          __typename: 'User',
+          nameRenderer: {
+            __typename: 'MarkdownUserNameRenderer',
+            __module_component: 'MarkdownUserNameRenderer.react',
+            __module_operation:
+              'MarkdownUserNameRenderer_name$normalization.graphql',
+            markdown: 'markdown payload',
+            data: {
+              markup: '<markup/>',
+            },
+          },
+        },
+      };
+
+      const recordSource = new RelayInMemoryRecordSource();
+      recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
+      const {matchPayloads} = normalize(
+        recordSource,
+        {
+          dataID: ROOT_ID,
+          node: BarQuery.operation,
+          variables: {id: '1'},
+        },
+        payload,
+      );
+      expect(recordSource.toJSON()).toEqual({
+        '1': {
+          __id: '1',
+          id: '1',
+          __typename: 'User',
+          nameRenderer: {
+            __ref: 'client:1:nameRenderer',
+          },
+        },
+        'client:1:nameRenderer': {
+          __id: 'client:1:nameRenderer',
+          __typename: 'MarkdownUserNameRenderer',
+        },
+        'client:root': {
+          __id: 'client:root',
+          __typename: '__Root',
+          'node(id:"1")': {__ref: '1'},
+        },
+      });
+      expect(matchPayloads).toEqual([
+        {
+          operationReference:
+            'MarkdownUserNameRenderer_name$normalization.graphql',
+          dataID: 'client:1:nameRenderer',
+          data: {
+            __typename: 'MarkdownUserNameRenderer',
+            __module_component: 'MarkdownUserNameRenderer.react',
+            __module_operation:
+              'MarkdownUserNameRenderer_name$normalization.graphql',
+            markdown: 'markdown payload',
+            data: {
+              markup: '<markup/>',
+            },
+          },
+          variables: {id: '1'},
+          typeName: 'MarkdownUserNameRenderer',
+          path: ['node', 'nameRenderer'],
+        },
+      ]);
+    });
+
+    it('returns metadata with prefixed path', () => {
+      const payload = {
+        node: {
+          id: '1',
+          __typename: 'User',
+          nameRenderer: {
+            __typename: 'MarkdownUserNameRenderer',
+            __module_component: 'MarkdownUserNameRenderer.react',
+            __module_operation:
+              'MarkdownUserNameRenderer_name$normalization.graphql',
+            markdown: 'markdown payload',
+            data: {
+              markup: '<markup/>',
+            },
+          },
+        },
+      };
+
+      const recordSource = new RelayInMemoryRecordSource();
+      recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
+      const {matchPayloads} = normalize(
+        recordSource,
+        {
+          dataID: ROOT_ID,
+          node: BarQuery.operation,
+          variables: {id: '1'},
+        },
+        payload,
+        // simulate a nested @match that appeared, validate that nested payload
+        // path is prefixed with this parent path:
+        {path: ['abc', '0', 'xyz']},
+      );
+      expect(recordSource.toJSON()).toEqual({
+        '1': {
+          __id: '1',
+          id: '1',
+          __typename: 'User',
+          nameRenderer: {
+            __ref: 'client:1:nameRenderer',
+          },
+        },
+        'client:1:nameRenderer': {
+          __id: 'client:1:nameRenderer',
+          __typename: 'MarkdownUserNameRenderer',
+        },
+        'client:root': {
+          __id: 'client:root',
+          __typename: '__Root',
+          'node(id:"1")': {__ref: '1'},
+        },
+      });
+      expect(matchPayloads).toEqual([
+        {
+          operationReference:
+            'MarkdownUserNameRenderer_name$normalization.graphql',
+          dataID: 'client:1:nameRenderer',
+          data: {
+            __typename: 'MarkdownUserNameRenderer',
+            __module_component: 'MarkdownUserNameRenderer.react',
+            __module_operation:
+              'MarkdownUserNameRenderer_name$normalization.graphql',
+            markdown: 'markdown payload',
+            data: {
+              markup: '<markup/>',
+            },
+          },
+          variables: {id: '1'},
+          typeName: 'MarkdownUserNameRenderer',
+          // parent path followed by local path to @match
+          path: ['abc', '0', 'xyz', 'node', 'nameRenderer'],
+        },
+      ]);
+    });
+
+    it('normalizes queries correctly when the resolved type does not match any @module selections', () => {
+      const payload = {
+        node: {
+          id: '1',
+          __typename: 'User',
+          nameRenderer: {
+            __typename: 'CustomNameRenderer',
+            customField: 'this is ignored!',
+          },
+        },
+      };
+
+      const recordSource = new RelayInMemoryRecordSource();
+      recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
+      normalize(
+        recordSource,
+        {
+          dataID: ROOT_ID,
+          node: BarQuery.operation,
+          variables: {id: '1'},
+        },
+        payload,
+      );
+      expect(recordSource.toJSON()).toEqual({
+        '1': {
+          __id: '1',
+          id: '1',
+          __typename: 'User',
+          nameRenderer: {
+            __ref: 'client:1:nameRenderer',
+          },
+        },
+        'client:1:nameRenderer': {
+          __id: 'client:1:nameRenderer',
+          __typename: 'CustomNameRenderer',
+          // note: 'customField' data not processed, there is no selection on this type
+        },
+        'client:root': {
+          __id: 'client:root',
+          __typename: '__Root',
+          'node(id:"1")': {__ref: '1'},
+        },
+      });
+    });
+  });
+
   describe('@defer', () => {
     it('normalizes when if condition is false', () => {
       const {Query} = generateAndCompile(

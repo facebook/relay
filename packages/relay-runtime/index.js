@@ -21,6 +21,7 @@ const RelayDefaultHandlerProvider = require('./handlers/RelayDefaultHandlerProvi
 const RelayError = require('./util/RelayError');
 const RelayInMemoryRecordSource = require('./store/RelayInMemoryRecordSource');
 const RelayModernEnvironment = require('./store/RelayModernEnvironment');
+const RelayModernFragmentOwner = require('./store/RelayModernFragmentOwner');
 const RelayModernGraphQLTag = require('./query/RelayModernGraphQLTag');
 const RelayModernStore = require('./store/RelayModernStore');
 const RelayNetwork = require('./network/RelayNetwork');
@@ -197,6 +198,8 @@ module.exports = {
   createOperationDescriptor: RelayCore.createOperationDescriptor,
   getDataIDsFromObject: RelayCore.getDataIDsFromObject,
   getFragment: RelayModernGraphQLTag.getFragment,
+  getFragmentOwner: RelayModernFragmentOwner.getFragmentOwner,
+  getFragmentOwners: RelayModernFragmentOwner.getFragmentOwners,
   getPaginationFragment: RelayModernGraphQLTag.getPaginationFragment,
   getRefetchableFragment: RelayModernGraphQLTag.getRefetchableFragment,
   getRequest: RelayModernGraphQLTag.getRequest,

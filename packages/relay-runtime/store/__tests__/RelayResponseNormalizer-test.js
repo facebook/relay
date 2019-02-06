@@ -387,7 +387,7 @@ describe('RelayResponseNormalizer', () => {
 
       const recordSource = new RelayInMemoryRecordSource();
       recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
-      const {matchPayloads} = normalize(
+      const {moduleImportPayloads} = normalize(
         recordSource,
         {
           dataID: ROOT_ID,
@@ -417,7 +417,7 @@ describe('RelayResponseNormalizer', () => {
           'node(id:"1")': {__ref: '1'},
         },
       });
-      expect(matchPayloads).toEqual([
+      expect(moduleImportPayloads).toEqual([
         {
           operationReference:
             'MarkdownUserNameRenderer_name$normalization.graphql',
@@ -460,7 +460,7 @@ describe('RelayResponseNormalizer', () => {
 
       const recordSource = new RelayInMemoryRecordSource();
       recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
-      const {matchPayloads} = normalize(
+      const {moduleImportPayloads} = normalize(
         recordSource,
         {
           dataID: ROOT_ID,
@@ -493,7 +493,7 @@ describe('RelayResponseNormalizer', () => {
           'node(id:"1")': {__ref: '1'},
         },
       });
-      expect(matchPayloads).toEqual([
+      expect(moduleImportPayloads).toEqual([
         {
           operationReference:
             'MarkdownUserNameRenderer_name$normalization.graphql',
@@ -658,7 +658,7 @@ describe('RelayResponseNormalizer', () => {
 
       const recordSource = new RelayInMemoryRecordSource();
       recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
-      const {matchPayloads} = normalize(
+      const {moduleImportPayloads} = normalize(
         recordSource,
         {
           dataID: ROOT_ID,
@@ -686,7 +686,7 @@ describe('RelayResponseNormalizer', () => {
           'node(id:"1")': {__ref: '1'},
         },
       });
-      expect(matchPayloads).toEqual([
+      expect(moduleImportPayloads).toEqual([
         {
           operationReference:
             'MarkdownUserNameRenderer_name$normalization.graphql',
@@ -728,7 +728,7 @@ describe('RelayResponseNormalizer', () => {
 
       const recordSource = new RelayInMemoryRecordSource();
       recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
-      const {matchPayloads} = normalize(
+      const {moduleImportPayloads} = normalize(
         recordSource,
         {
           dataID: ROOT_ID,
@@ -759,7 +759,7 @@ describe('RelayResponseNormalizer', () => {
           'node(id:"1")': {__ref: '1'},
         },
       });
-      expect(matchPayloads).toEqual([
+      expect(moduleImportPayloads).toEqual([
         {
           operationReference:
             'MarkdownUserNameRenderer_name$normalization.graphql',

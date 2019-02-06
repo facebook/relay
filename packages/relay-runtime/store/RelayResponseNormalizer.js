@@ -52,7 +52,7 @@ import type {DataID, Variables} from '../util/RelayRuntimeTypes';
 import type {
   HandleFieldPayload,
   IncrementalDataPlaceholder,
-  MatchFieldPayload,
+  ModuleImportPayload,
   MutableRecordSource,
   NormalizationSelector,
 } from './RelayStoreTypes';
@@ -65,7 +65,7 @@ export type NormalizationOptions = {|
 export type NormalizedResponse = {|
   incrementalPlaceholders: Array<IncrementalDataPlaceholder>,
   fieldPayloads: Array<HandleFieldPayload>,
-  matchPayloads: Array<MatchFieldPayload>,
+  moduleImportPayloads: Array<ModuleImportPayload>,
 |};
 
 /**
@@ -99,7 +99,7 @@ class RelayResponseNormalizer {
   _handleFieldPayloads: Array<HandleFieldPayload>;
   _handleStrippedNulls: boolean;
   _incrementalPlaceholders: Array<IncrementalDataPlaceholder>;
-  _matchFieldPayloads: Array<MatchFieldPayload>;
+  _moduleImportPayloads: Array<ModuleImportPayload>;
   _path: Array<string>;
   _recordSource: MutableRecordSource;
   _variables: Variables;
@@ -112,7 +112,7 @@ class RelayResponseNormalizer {
     this._handleFieldPayloads = [];
     this._handleStrippedNulls = options.handleStrippedNulls === true;
     this._incrementalPlaceholders = [];
-    this._matchFieldPayloads = [];
+    this._moduleImportPayloads = [];
     this._path = options.path ? [...options.path] : [];
     this._recordSource = recordSource;
     this._variables = variables;
@@ -133,7 +133,7 @@ class RelayResponseNormalizer {
     return {
       incrementalPlaceholders: this._incrementalPlaceholders,
       fieldPayloads: this._handleFieldPayloads,
-      matchPayloads: this._matchFieldPayloads,
+      moduleImportPayloads: this._moduleImportPayloads,
     };
   }
 
@@ -299,7 +299,7 @@ class RelayResponseNormalizer {
     const typeName: string = this._getRecordType(data);
     const operationReference = data[MODULE_OPERATION_KEY];
     if (operationReference != null) {
-      this._matchFieldPayloads.push({
+      this._moduleImportPayloads.push({
         data,
         dataID: RelayModernRecord.getDataID(record),
         operationReference,

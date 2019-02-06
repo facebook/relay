@@ -34,13 +34,13 @@ function normalizeRelayPayload(
   const {
     fieldPayloads,
     incrementalPlaceholders,
-    matchPayloads,
+    moduleImportPayloads,
   } = RelayResponseNormalizer.normalize(source, selector, payload, options);
   return {
     errors,
     fieldPayloads,
     incrementalPlaceholders,
-    matchPayloads,
+    moduleImportPayloads,
     source,
   };
 }

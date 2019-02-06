@@ -25,7 +25,7 @@ const {ROOT_TYPE} = require('./RelayStoreUtils');
 import type {GraphQLResponse} from '../network/RelayNetworkTypes';
 import type {Sink, Subscription} from '../network/RelayObservable';
 import type {
-  MatchFieldPayload,
+  ModuleImportPayload,
   NormalizationSelector,
   OperationDescriptor,
   OptimisticUpdate,
@@ -200,11 +200,11 @@ class Executor {
       ROOT_TYPE,
       [] /* path */,
     );
-    const {incrementalPlaceholders, matchPayloads} = payload;
+    const {incrementalPlaceholders, moduleImportPayloads} = payload;
     if (
       (incrementalPlaceholders != null &&
         incrementalPlaceholders.length !== 0) ||
-      (matchPayloads != null && matchPayloads.length !== 0)
+      (moduleImportPayloads != null && moduleImportPayloads.length !== 0)
     ) {
       invariant(
         false,
@@ -242,16 +242,16 @@ class Executor {
    * and (in the future) @stream directives.
    */
   _processPayloadFollowups(payload: RelayResponsePayload): void {
-    const {incrementalPlaceholders, matchPayloads} = payload;
-    if (matchPayloads && matchPayloads.length !== 0) {
+    const {incrementalPlaceholders, moduleImportPayloads} = payload;
+    if (moduleImportPayloads && moduleImportPayloads.length !== 0) {
       const operationLoader = this._operationLoader;
       invariant(
         operationLoader,
         'RelayModernEnvironment: Expected an operationLoader to be ' +
           'configured when using `@match`.',
       );
-      matchPayloads.forEach(matchPayload => {
-        this._processMatchPayload(matchPayload, operationLoader);
+      moduleImportPayloads.forEach(moduleImportPayload => {
+        this._processModuleImportPayload(moduleImportPayload, operationLoader);
       });
     }
     if (incrementalPlaceholders && incrementalPlaceholders.length !== 0) {
@@ -262,14 +262,14 @@ class Executor {
   }
 
   /**
-   * Processes a MatchFieldPayload, asynchronously resolving the normalization
+   * Processes a ModuleImportPayload, asynchronously resolving the normalization
    * AST and using it to normalize the field data into a RelayResponsePayload.
    * The resulting payload may contain other incremental payloads (match,
    * defer, stream, etc); these are handled by calling
    * `_processPayloadFollowups()`.
    */
-  _processMatchPayload(
-    matchPayload: MatchFieldPayload,
+  _processModuleImportPayload(
+    moduleImportPayload: ModuleImportPayload,
     operationLoader: OperationLoader,
   ): void {
     const id = this._nextSubscriptionId++;
@@ -279,7 +279,7 @@ class Executor {
     RelayObservable.from(
       new Promise((resolve, reject) => {
         operationLoader
-          .load(matchPayload.operationReference)
+          .load(moduleImportPayload.operationReference)
           .then(resolve, reject);
       }),
     )
@@ -288,15 +288,15 @@ class Executor {
           return;
         }
         const selector = {
-          dataID: matchPayload.dataID,
-          variables: matchPayload.variables,
+          dataID: moduleImportPayload.dataID,
+          variables: moduleImportPayload.variables,
           node: operation,
         };
         const relayPayload = this._normalizeResponse(
-          {data: matchPayload.data},
+          {data: moduleImportPayload.data},
           selector,
-          matchPayload.typeName,
-          matchPayload.path,
+          moduleImportPayload.typeName,
+          moduleImportPayload.path,
         );
         this._processPayloadFollowups(relayPayload);
         this._publishQueue.commitRelayPayload(relayPayload);
@@ -402,7 +402,7 @@ class Executor {
       errors,
       incrementalPlaceholders: normalizeResult.incrementalPlaceholders,
       fieldPayloads: normalizeResult.fieldPayloads,
-      matchPayloads: normalizeResult.matchPayloads,
+      moduleImportPayloads: normalizeResult.moduleImportPayloads,
       source,
     };
   }

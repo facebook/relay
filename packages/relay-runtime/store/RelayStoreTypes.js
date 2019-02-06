@@ -325,15 +325,14 @@ export type FragmentPointer = {
 };
 
 /**
- * The results of reading a field that was marked with a @match directive
+ * The partial shape of an object with a '...Fragment @module(name: "...")'
+ * selection
  */
-export type MatchPointer = {|
-  __id: DataID,
-  __fragments: {[fragmentName: string]: Variables},
-  __fragmentOwner: OperationDescriptor | null,
-  __fragmentPropName: string,
-  __module_component: mixed,
-|};
+export type ModuleImportPointer = {
+  +__fragmentPropName: ?string,
+  +__module_component: mixed,
+  +$fragmentRefs: mixed,
+};
 
 /**
  * A callback for resolving a Selector from a source.
@@ -376,8 +375,8 @@ export type HandleFieldPayload = {|
 |};
 
 /**
- * A payload that represents data necessary to process the results of a `@match`
- * directive:
+ * A payload that represents data necessary to process the results of an object
+ * with a `@module` fragment spread:
  * - data: The GraphQL response value for the @match field.
  * - dataID: The ID of the store object linked to by the @match field.
  * - operationReference: A reference to a generated module containing the
@@ -389,7 +388,7 @@ export type HandleFieldPayload = {|
  * which can in turn be used to normalize and publish the data. The dataID and
  * typeName can also be used to construct a root record for normalization.
  */
-export type MatchFieldPayload = {|
+export type ModuleImportPayload = {|
   +data: PayloadData,
   +dataID: DataID,
   +operationReference: mixed,
@@ -515,7 +514,7 @@ export type MissingFieldHandler =
 export type RelayResponsePayload = {|
   incrementalPlaceholders: ?Array<IncrementalDataPlaceholder>,
   fieldPayloads: ?Array<HandleFieldPayload>,
-  matchPayloads: ?Array<MatchFieldPayload>,
+  moduleImportPayloads: ?Array<ModuleImportPayload>,
   source: MutableRecordSource,
   errors: ?Array<PayloadError>,
 |};

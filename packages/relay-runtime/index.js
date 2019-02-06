@@ -93,7 +93,7 @@ export type {
   FragmentReference,
   FragmentSpecResolver,
   HandleFieldPayload,
-  MatchPointer,
+  ModuleImportPointer,
   MissingFieldHandler,
   OperationLoader,
   OperationDescriptor,

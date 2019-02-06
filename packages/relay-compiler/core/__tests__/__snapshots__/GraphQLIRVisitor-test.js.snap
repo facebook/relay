@@ -88,7 +88,7 @@ fragment UserFragment_mutated on User @argumentDefinitions(
     ... on Mutated @skip(if: $cond_mutated) {
       name_mutated
     }
-    thumbnail: profilePicture_mutated(size_mutated: "32_mutated") {
+    thumbnail: profilePicture_mutated(size_mutated: 42) {
       height_mutated
       width_mutated
       src: uri_mutated

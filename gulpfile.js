@@ -59,6 +59,7 @@ const babelOptions = require('./scripts/getBabelOptions')({
     'fb-watchman': 'fb-watchman',
     fs: 'fs',
     graphql: 'graphql',
+    'graphql-compose': 'graphql-compose',
     immutable: 'immutable',
     iterall: 'iterall',
     net: 'net',

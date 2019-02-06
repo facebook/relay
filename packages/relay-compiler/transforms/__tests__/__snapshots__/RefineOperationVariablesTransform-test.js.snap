@@ -63,7 +63,7 @@ query TestQuery(
 query TestQuery2(
   $usedInTestQuery2: Boolean!
 ) {
-  node(id: 4) {
+  node(id: "4") {
     ... on Actor {
       id @skip(if: $usedInTestQuery2)
     }

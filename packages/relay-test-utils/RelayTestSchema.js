@@ -18,16 +18,8 @@ const {buildASTSchema, parse} = require('graphql');
 const {SchemaComposer} = require('graphql-compose');
 
 function buildSchema() {
-  // Compose upstream is going to add AST directives soon, making this simpler
   const composer = new SchemaComposer();
-  const initialSchema = buildASTSchema(
-    parse(fs.readFileSync(RelayTestSchemaPath, 'utf8'), {assumeValid: true}),
-  );
-
-  Object.keys(initialSchema.getTypeMap()).forEach(typeName => {
-    const type = initialSchema.getType(typeName);
-    composer.add(type);
-  });
+  composer.addTypeDefs(fs.readFileSync(RelayTestSchemaPath, 'utf8'));
 
   const CropPositionETC = composer.getETC('CropPosition');
   CropPositionETC.setFields({
@@ -43,9 +35,7 @@ function buildSchema() {
     PNG: {value: 'png'},
   });
 
-  return composer.buildSchema({
-    directives: initialSchema.getDirectives(),
-  });
+  return composer.buildSchema();
 }
 
 module.exports = buildSchema();

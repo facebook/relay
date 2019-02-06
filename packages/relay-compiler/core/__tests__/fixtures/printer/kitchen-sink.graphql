@@ -32,6 +32,9 @@ fragment UserFragment on User @argumentDefinitions(
   friends(after: $after, first: $first, traits: [HELPFUL]) {
     count
   }
+  secondFriends: friends(first: 10) {
+    count
+  }
   name @include(if: $cond)
   otherName: name @customDirective(level: 3)
   thumbnail: profilePicture(size: 32, cropPosition: CENTER, fileExtension: PNG) {

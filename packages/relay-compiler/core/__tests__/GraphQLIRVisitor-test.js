@@ -101,6 +101,8 @@ describe('GraphQLIRVisitor', () => {
                   return 'MOBILE';
                 } else if (value === 'HELPFUL') {
                   return 'DERISIVE';
+                } else if (typeof value === 'number') {
+                  return value + 10;
                 } else {
                   return String(value) + '_mutated';
                 }

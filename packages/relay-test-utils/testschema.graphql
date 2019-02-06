@@ -702,7 +702,7 @@ type CustomNameRenderer {
 
 union UserNameRenderer = PlainUserNameRenderer | MarkdownUserNameRenderer | CustomNameRenderer
 
-type User implements Named & Node & Actor {
+type User implements Named & Node & Actor & HasJsField {
   actor: Actor
   actors: [Actor]
   actorCount: Int
@@ -736,6 +736,7 @@ type User implements Named & Node & Actor {
   ): FriendsConnection
   hometown: Page
   id: ID!
+  js(module: String): JSDependency
   lastName: String
   likers(first: Int): LikersOfContentConnection
   likeSentence: Text

@@ -25,12 +25,12 @@ fragment User_user on User {
 THROWN EXCEPTION:
 
 Error: Encountered 1 error(s):
-- RelayMatchTransform: Unsupported type 'User' in the list of matches in the @match. Type 'User' does not belong to the union 'UserNameRenderer'.
+- Invalid @match selection: selections must match against concrete variants of the union type (e.g. 'PlainUserNameRenderer', 'MarkdownUserNameRenderer', 'CustomNameRenderer', etc) , got 'User'.
   
-  Source: GraphQL request (5:5)
+  Source: GraphQL request (5:18)
   4:     ...PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
   5:     ...User_user @module(name: "User.react")
-         ^
+                      ^
   6:   }
   
   Source: GraphQL request (16:1)
@@ -92,7 +92,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
 THROWN EXCEPTION:
 
 Error: Encountered 1 error(s):
-- RelayMatchTransform: all selections in a @match field should be fragment spreads, got 'ScalarField'.
+- Invalid @match selection: all selections should be fragment spreads with @module.
   
   Source: GraphQL request (4:5)
   3:   nameRenderer @match {
@@ -136,17 +136,13 @@ fragment ActorsRendererFragment on Node {
     nameRenderer(supported: ["PlainUserNameRenderer", "MarkdownUserNameRenderer"]) {
       ... on PlainUserNameRenderer {
         ...PlainUserNameRenderer_name
-        ... on PlainUserNameRenderer {
-          __module_component: js(module: "PlainUserNameRenderer.react")
-          __module_operation: js(module: "PlainUserNameRenderer_name$normalization.graphql")
-        }
+        __module_component: js(module: "PlainUserNameRenderer.react")
+        __module_operation: js(module: "PlainUserNameRenderer_name$normalization.graphql")
       }
       ... on MarkdownUserNameRenderer {
         ...MarkdownUserNameRenderer_name
-        ... on MarkdownUserNameRenderer {
-          __module_component: js(module: "MarkdownUserNameRenderer.react")
-          __module_operation: js(module: "MarkdownUserNameRenderer_name$normalization.graphql")
-        }
+        __module_component: js(module: "MarkdownUserNameRenderer.react")
+        __module_operation: js(module: "MarkdownUserNameRenderer_name$normalization.graphql")
       }
     }
   }
@@ -200,7 +196,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer
 THROWN EXCEPTION:
 
 Error: Encountered 1 error(s):
-- RelayMatchTransform: Unexpected use of @arguments in @match, @arguments is not currently supported.
+- @module does not support @arguments.
   
   Source: GraphQL request (6:66)
   5:     ...MarkdownUserNameRenderer_name
@@ -208,6 +204,64 @@ Error: Encountered 1 error(s):
                                                                       ^
   7:   }
   
+`;
+
+exports[`RelayMatchTransform matches expected output: module-without-match.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment NameRendererFragment on User {
+  id
+  nameRenderer {
+    ...PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
+    ...MarkdownUserNameRenderer_name
+      @module(name: "MarkdownUserNameRenderer.react")
+  }
+}
+
+fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
+  plaintext
+  data {
+    text
+  }
+}
+
+fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+  markdown
+  data {
+    markup
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+fragment NameRendererFragment on User {
+  id
+  nameRenderer {
+    ... on PlainUserNameRenderer {
+      ...PlainUserNameRenderer_name
+      __module_component: js(module: "PlainUserNameRenderer.react")
+      __module_operation: js(module: "PlainUserNameRenderer_name$normalization.graphql")
+    }
+    ... on MarkdownUserNameRenderer {
+      ...MarkdownUserNameRenderer_name
+      __module_component: js(module: "MarkdownUserNameRenderer.react")
+      __module_operation: js(module: "MarkdownUserNameRenderer_name$normalization.graphql")
+    }
+  }
+}
+
+fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
+  plaintext
+  data {
+    text
+  }
+}
+
+fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+  markdown
+  data {
+    markup
+  }
+}
+
 `;
 
 exports[`RelayMatchTransform matches expected output: relay-match-transform.graphql 1`] = `
@@ -241,17 +295,13 @@ fragment NameRendererFragment on User {
   nameRenderer(supported: ["PlainUserNameRenderer", "MarkdownUserNameRenderer"]) {
     ... on PlainUserNameRenderer {
       ...PlainUserNameRenderer_name
-      ... on PlainUserNameRenderer {
-        __module_component: js(module: "PlainUserNameRenderer.react")
-        __module_operation: js(module: "PlainUserNameRenderer_name$normalization.graphql")
-      }
+      __module_component: js(module: "PlainUserNameRenderer.react")
+      __module_operation: js(module: "PlainUserNameRenderer_name$normalization.graphql")
     }
     ... on MarkdownUserNameRenderer {
       ...MarkdownUserNameRenderer_name
-      ... on MarkdownUserNameRenderer {
-        __module_component: js(module: "MarkdownUserNameRenderer.react")
-        __module_operation: js(module: "MarkdownUserNameRenderer_name$normalization.graphql")
-      }
+      __module_component: js(module: "MarkdownUserNameRenderer.react")
+      __module_operation: js(module: "MarkdownUserNameRenderer_name$normalization.graphql")
     }
   }
 }

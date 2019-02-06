@@ -380,26 +380,20 @@ fragment NameRendererFragment on User {
   nameRenderer(supported: ["PlainUserNameRenderer", "MarkdownUserNameRenderer"]) {
     ... on PlainUserNameRenderer {
       ...PlainUserNameRenderer_name
-      ... on PlainUserNameRenderer {
-        __module_component: js(module: "PlainUserNameRenderer.react")
-        __module_operation: js(module: "PlainUserNameRenderer_name$normalization.graphql")
-      }
+      __module_component: js(module: "PlainUserNameRenderer.react")
+      __module_operation: js(module: "PlainUserNameRenderer_name$normalization.graphql")
     }
     ... on MarkdownUserNameRenderer {
       ...MarkdownUserNameRenderer_name
-      ... on MarkdownUserNameRenderer {
-        __module_component: js(module: "MarkdownUserNameRenderer.react")
-        __module_operation: js(module: "MarkdownUserNameRenderer_name$normalization.graphql")
-      }
+      __module_component: js(module: "MarkdownUserNameRenderer.react")
+      __module_operation: js(module: "MarkdownUserNameRenderer_name$normalization.graphql")
     }
   }
   plainNameRenderer: nameRenderer(supported: ["PlainUserNameRenderer"]) {
     ... on PlainUserNameRenderer {
       ...PlainUserNameRenderer_name
-      ... on PlainUserNameRenderer {
-        __module_component: js(module: "PlainUserNameRenderer.react")
-        __module_operation: js(module: "PlainUserNameRenderer_name$normalization.graphql")
-      }
+      __module_component: js(module: "PlainUserNameRenderer.react")
+      __module_operation: js(module: "PlainUserNameRenderer_name$normalization.graphql")
     }
   }
 }
@@ -583,16 +577,16 @@ THROWN EXCEPTION:
 Error: Encountered 1 error(s):
 - Found conflicting @module selections: use a unique alias on the parent fields.
   
-  Source: GraphQL request (11:7)
+  Source: GraphQL request (11:37)
   10:     nameRenderer @match {
   11:       ...PlainUserNameRenderer_name @module(name: "OtherPlainUserNameRenderer.react")
-            ^
+                                          ^
   12:       ...MarkdownUserNameRenderer_name
   
-  Source: GraphQL request (4:5)
+  Source: GraphQL request (4:35)
   3:   nameRenderer @match {
   4:     ...PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
-         ^
+                                       ^
   5:     ...MarkdownUserNameRenderer_name
   
 `;

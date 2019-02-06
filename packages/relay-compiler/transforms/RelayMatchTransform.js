@@ -19,6 +19,8 @@ const getNormalizationOperationName = require('../core/getNormalizationOperation
 const {getRawType} = require('../core/GraphQLSchemaUtils');
 const {createUserError} = require('../core/RelayCompilerError');
 const {
+  assertObjectType,
+  isObjectType,
   GraphQLObjectType,
   GraphQLScalarType,
   GraphQLInterfaceType,
@@ -58,6 +60,8 @@ function relayMatchTransform(context: CompilerContext): CompilerContext {
   return IRTransformer.transform(
     context,
     {
+      // TODO: type IRTransformer to allow changing result type
+      FragmentSpread: (visitFragmentSpread: $FlowFixMe),
       LinkedField: visitLinkedField,
       InlineFragment: visitInlineFragment,
     },
@@ -93,22 +97,14 @@ function visitLinkedField(
     )
   ) {
     throw createUserError(
-      '@match may only be used on fields whose parent type is an interface ' +
-        `or object, field '${node.name}' has invalid type '${String(
-          parentType,
-        )}'`,
+      `@match used on incompatible field '${transformedNode.name}'.` +
+        '@match may only be used with fields whose parent type is an ' +
+        `interface or object, got invalid type '${String(parentType)}'.`,
       [node.loc],
     );
   }
 
   const context: CompilerContext = this.getContext();
-  const schema = context.serverSchema;
-  const jsModuleType = schema.getType(JS_FIELD_TYPE);
-  if (jsModuleType == null || !(jsModuleType instanceof GraphQLScalarType)) {
-    throw createUserError(
-      `RelayMatchTransform: Expected schema to define a scalar '${JS_FIELD_TYPE}' type.`,
-    );
-  }
 
   const currentField = rawType.getFields()[transformedNode.name];
   const supportedArg = currentField.args.find(
@@ -128,10 +124,9 @@ function visitLinkedField(
     getNullableType(supportedArgOfType) !== GraphQLString
   ) {
     throw createUserError(
-      'RelayMatchTransform: @match used on an incompatible ' +
-        `field '${transformedNode.name}'. @match may only ` +
-        `be used with fields that can accept '${SUPPORTED_ARGUMENT_NAME}' ` +
-        "argument with type '[String!]!'.",
+      `@match used on incompatible field '${transformedNode.name}'.` +
+        '@match may only be used with fields that accept a ' +
+        "'supported: [String!]!' argument.",
       [node.loc],
     );
   }
@@ -139,188 +134,67 @@ function visitLinkedField(
   const unionType = transformedNode.type;
   if (!(unionType instanceof GraphQLUnionType)) {
     throw createUserError(
-      'RelayMatchTransform: You are trying to apply @match ' +
-        `directive to a field '${transformedNode.name}' that has unsupported ` +
-        `output type. '${transformedNode.name}' output type should be union ` +
-        'type of object types.',
+      `@match used on incompatible field '${transformedNode.name}'.` +
+        '@match may only be used with fields that return a union.',
       [node.loc],
     );
   }
 
-  const seenTypes: Map<GraphQLCompositeType, FragmentSpread> = new Map();
+  const seenTypes: Map<GraphQLCompositeType, InlineFragment> = new Map();
   const typeToSelectionMap = {};
   const selections = [];
   transformedNode.selections.forEach(matchSelection => {
-    if (matchSelection.kind !== 'FragmentSpread') {
+    const moduleImport =
+      matchSelection.kind === 'InlineFragment'
+        ? matchSelection.selections[0]
+        : null;
+    if (
+      matchSelection.kind !== 'InlineFragment' ||
+      moduleImport == null ||
+      moduleImport.kind !== 'ModuleImport'
+    ) {
       throw createUserError(
-        'RelayMatchTransform: all selections in a @match field should be ' +
-          `fragment spreads, got '${matchSelection.kind}'.`,
-        [matchSelection.loc],
+        'Invalid @match selection: all selections should be ' +
+          'fragment spreads with @module.',
+        [matchSelection.loc, moduleImport?.loc].filter(Boolean),
       );
     }
-    if (matchSelection.args.length !== 0) {
-      throw createUserError(
-        'RelayMatchTransform: Unexpected use of @arguments in @match, ' +
-          '@arguments is not currently supported.',
-        [matchSelection.args[0]?.loc ?? matchSelection.loc],
-      );
-    }
-    const fragment = context.getFragment(matchSelection.name);
-    if (!(fragment.type instanceof GraphQLObjectType)) {
-      throw createUserError(
-        'RelayMatchTransform: all fragment spreads in a @match field should ' +
-          'be for fragments on an object type. Union or interface type ' +
-          `'${fragment.type.name}' for '...${fragment.name}' is not supported.`,
-        [matchSelection.loc, fragment.loc],
-      );
-    }
-    const matchedType = fragment.type;
+    const matchedType = matchSelection.typeCondition;
     const previousTypeUsage = seenTypes.get(matchedType);
     if (previousTypeUsage) {
       throw createUserError(
-        'RelayMatchTransform: Each "match" type has to appear at-most once. ' +
-          `Type '${
-            matchedType.name
-          }' was matched in multiple fragment spreads.`,
+        `Invalid @match selection: each variant of '${String(unionType)}' ` +
+          `may be matched against at-most once, but '${String(matchedType)}'` +
+          'was matched against multiple times.',
         [matchSelection.loc, previousTypeUsage.loc],
       );
     }
     seenTypes.set(matchedType, matchSelection);
 
-    const belongsToUnion = unionType.getTypes().includes(matchedType);
+    const unionVariants = unionType.getTypes();
+    const belongsToUnion = unionVariants.includes(matchedType);
     if (!belongsToUnion) {
+      let suggestedTypesMessage = '';
+      if (unionVariants.length !== 0) {
+        suggestedTypesMessage = ` (e.g. ${unionType
+          .getTypes()
+          .slice(0, 3)
+          .map(type => `'${String(type)}'`)
+          .join(', ')}, etc) `;
+      }
       throw createUserError(
-        `RelayMatchTransform: Unsupported type '${matchedType.toString()}' ` +
-          'in the list of matches in the @match. Type ' +
-          `'${String(matchedType)}' does not belong to the union ` +
-          `'${String(unionType)}'.`,
-        [matchSelection.loc, fragment.loc],
+        'Invalid @match selection: selections must match against concrete ' +
+          `variants of the union type${suggestedTypesMessage}, got '${String(
+            matchedType,
+          )}'.`,
+        [matchSelection.loc, context.getFragment(moduleImport.name).loc],
       );
     }
-    const jsField = matchedType.getFields()[JS_FIELD_NAME];
-    const jsFieldArg = jsField
-      ? jsField.args.find(arg => arg.name === JS_FIELD_ARG)
-      : null;
-    if (
-      jsField == null ||
-      jsFieldArg == null ||
-      getNullableType(jsFieldArg.type) !== GraphQLString ||
-      jsField.type.name !== jsModuleType.name // object identity fails in tests
-    ) {
-      throw createUserError(
-        `RelayMatchTransform: expcted type '${
-          matchedType.name
-        }' to have a '${JS_FIELD_NAME}(${JS_FIELD_ARG}: String!): ${JS_FIELD_TYPE}' field .`,
-        [matchSelection.loc],
-      );
-    }
-
-    const moduleDirective = matchSelection.directives.find(
-      directive => directive.name === 'module',
-    );
-    if (moduleDirective == null || matchSelection.directives.length !== 1) {
-      throw createUserError(
-        'RelayMatchTransform: Fragment spreads in a @match field must have a ' +
-          "'@module' directive and no other directives, got invalid directives." +
-          `on fragment spread '...${matchSelection.name}'`,
-        [matchSelection.loc],
-      );
-    }
-    const moduleDirectiveArgs = getLiteralArgumentValues(moduleDirective.args);
     typeToSelectionMap[String(matchedType)] = {
-      component: moduleDirectiveArgs.name,
-      fragment: matchSelection.name,
+      component: moduleImport.module,
+      fragment: moduleImport.name,
     };
-    const normalizationName =
-      getNormalizationOperationName(matchSelection.name) + '.graphql';
-    const moduleField: ScalarField = {
-      alias: '__module_component',
-      args: [
-        {
-          kind: 'Argument',
-          name: JS_FIELD_ARG,
-          type: jsFieldArg.type,
-          value: {
-            kind: 'Literal',
-            loc: moduleDirective.args[0]?.loc ?? moduleDirective.loc,
-            metadata: {},
-            value: moduleDirectiveArgs.name,
-          },
-          loc: moduleDirective.loc,
-          metadata: {},
-        },
-      ],
-      directives: [],
-      handles: null,
-      kind: 'ScalarField',
-      loc: moduleDirective.loc,
-      metadata: {
-        storageKey: '__module_component',
-      },
-      name: JS_FIELD_NAME,
-      type: jsModuleType,
-    };
-    const fragmentField: ScalarField = {
-      alias: '__module_operation',
-      args: [
-        {
-          kind: 'Argument',
-          name: JS_FIELD_ARG,
-          type: jsFieldArg.type,
-          value: {
-            kind: 'Literal',
-            loc: matchSelection.loc,
-            metadata: {},
-            value: normalizationName,
-          },
-          loc: matchSelection.loc,
-          metadata: {},
-        },
-      ],
-      directives: [],
-      handles: null,
-      kind: 'ScalarField',
-      loc: matchSelection.loc,
-      metadata: {
-        storageKey: '__module_operation',
-      },
-      name: JS_FIELD_NAME,
-      type: jsModuleType,
-    };
-
-    selections.push({
-      kind: 'InlineFragment',
-      directives: [],
-      loc: matchSelection.loc,
-      metadata: null,
-      selections: [
-        {
-          kind: 'ModuleImport',
-          loc: matchSelection.loc,
-          module: moduleDirectiveArgs.name,
-          name: matchSelection.name,
-          selections: [
-            {
-              args: [],
-              directives: [],
-              kind: 'FragmentSpread',
-              loc: matchSelection.loc,
-              metadata: {},
-              name: matchSelection.name,
-            },
-            {
-              directives: [],
-              kind: 'InlineFragment',
-              loc: matchSelection.loc,
-              metadata: {},
-              selections: [moduleField, fragmentField],
-              typeCondition: matchedType,
-            },
-          ],
-        },
-      ],
-      typeCondition: matchedType,
-    });
+    selections.push(matchSelection);
   });
 
   const stableArgs = [];
@@ -361,6 +235,155 @@ function visitLinkedField(
     name: transformedNode.name,
     type: unionType,
     selections,
+  };
+}
+
+// Transform @module
+function visitFragmentSpread(
+  spread: FragmentSpread,
+): FragmentSpread | InlineFragment {
+  const transformedNode: FragmentSpread = this.traverse(spread);
+
+  const moduleDirective = transformedNode.directives.find(
+    directive => directive.name === 'module',
+  );
+  if (moduleDirective == null) {
+    return transformedNode;
+  }
+  if (spread.args.length !== 0) {
+    throw createUserError(
+      '@module does not support @arguments.',
+      [spread.args[0]?.loc].filter(Boolean),
+    );
+  }
+
+  const context: CompilerContext = this.getContext();
+  const schema = context.serverSchema;
+  const jsModuleType = schema.getType(JS_FIELD_TYPE);
+  if (jsModuleType == null || !(jsModuleType instanceof GraphQLScalarType)) {
+    throw createUserError(
+      'Using @module requires the schema to define a scalar ' +
+        `'${JS_FIELD_TYPE}' type.`,
+    );
+  }
+
+  const fragment = context.getFragment(spread.name);
+  if (!isObjectType(fragment.type)) {
+    throw createUserError(
+      `@module used on invalid fragment spread '...${spread.name}'. @module ` +
+        'may only be used with fragments on a concrete (object) type, ' +
+        `but the fragment has abstract type '${String(fragment.type)}'.`,
+      [spread.loc, fragment.loc],
+    );
+  }
+  const type = assertObjectType(fragment.type);
+  const jsField = type.getFields()[JS_FIELD_NAME];
+  const jsFieldArg = jsField
+    ? jsField.args.find(arg => arg.name === JS_FIELD_ARG)
+    : null;
+  if (
+    jsField == null ||
+    jsFieldArg == null ||
+    getNullableType(jsFieldArg.type) !== GraphQLString ||
+    jsField.type.name !== jsModuleType.name // object identity fails in tests
+  ) {
+    throw createUserError(
+      `@module used on invalid fragment spread '...${spread.name}'. @module ` +
+        `requires the fragment type '${String(fragment.type)}' to have a ` +
+        `'${JS_FIELD_NAME}(${JS_FIELD_ARG}: String!): ${JS_FIELD_TYPE}' field .`,
+      [moduleDirective.loc],
+    );
+  }
+
+  if (spread.directives.length !== 1) {
+    throw createUserError(
+      `@module used on invalid fragment spread '...${spread.name}'. @module ` +
+        'may not have additional directives.',
+      [spread.loc],
+    );
+  }
+  const moduleDirectiveArgs = getLiteralArgumentValues(moduleDirective.args);
+  const normalizationName =
+    getNormalizationOperationName(spread.name) + '.graphql';
+  const moduleField: ScalarField = {
+    alias: '__module_component',
+    args: [
+      {
+        kind: 'Argument',
+        name: JS_FIELD_ARG,
+        type: jsFieldArg.type,
+        value: {
+          kind: 'Literal',
+          loc: moduleDirective.args[0]?.loc ?? moduleDirective.loc,
+          metadata: {},
+          value: moduleDirectiveArgs.name,
+        },
+        loc: moduleDirective.loc,
+        metadata: {},
+      },
+    ],
+    directives: [],
+    handles: null,
+    kind: 'ScalarField',
+    loc: moduleDirective.loc,
+    metadata: {
+      storageKey: '__module_component',
+    },
+    name: JS_FIELD_NAME,
+    type: jsModuleType,
+  };
+  const fragmentField: ScalarField = {
+    alias: '__module_operation',
+    args: [
+      {
+        kind: 'Argument',
+        name: JS_FIELD_ARG,
+        type: jsFieldArg.type,
+        value: {
+          kind: 'Literal',
+          loc: moduleDirective.loc,
+          metadata: {},
+          value: normalizationName,
+        },
+        loc: moduleDirective.loc,
+        metadata: {},
+      },
+    ],
+    directives: [],
+    handles: null,
+    kind: 'ScalarField',
+    loc: moduleDirective.loc,
+    metadata: {
+      storageKey: '__module_operation',
+    },
+    name: JS_FIELD_NAME,
+    type: jsModuleType,
+  };
+
+  return {
+    kind: 'InlineFragment',
+    directives: [],
+    loc: moduleDirective.loc,
+    metadata: null,
+    selections: [
+      {
+        kind: 'ModuleImport',
+        loc: moduleDirective.loc,
+        module: moduleDirectiveArgs.name,
+        name: spread.name,
+        selections: [
+          {
+            ...spread,
+            directives: spread.directives.filter(
+              directive => directive !== moduleDirective,
+            ),
+          },
+          moduleField,
+          fragmentField,
+        ],
+      },
+    ],
+    typeCondition: fragment.type,
   };
 }
 

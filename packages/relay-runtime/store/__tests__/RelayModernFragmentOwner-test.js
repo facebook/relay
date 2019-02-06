@@ -30,7 +30,6 @@ describe('RelayModernFragmentOwner', () => {
   let operationVariables;
   let owner;
   beforeEach(() => {
-    expect.extend(RelayModernTestUtils.matchers);
     environment = createMockEnvironment();
   });
 
@@ -66,7 +65,7 @@ describe('RelayModernFragmentOwner', () => {
 
       it('throws if fragment ref is not an object', () => {
         // $FlowFixMe
-        expect(() => getFragmentOwner(UserFragment, 'zuck')).toFailInvariant(
+        expect(() => getFragmentOwner(UserFragment, 'zuck')).toThrow(
           'RelayModernFragmentOwner: Expected value for fragment `UserFragment` to ' +
             'be an object, got `string`.',
         );
@@ -79,7 +78,7 @@ describe('RelayModernFragmentOwner', () => {
             __fragments: {UserFragment: {}},
             __fragmentOwner: null,
           }),
-        ).toFailInvariant(
+        ).toThrow(
           'RelayModernFragmentOwner: Tried reading fragment `UserFragment` ' +
             'without an owning operation. This usually means ' +
             " you didn't render it as a descendant of a QueryRenderer",
@@ -132,7 +131,7 @@ describe('RelayModernFragmentOwner', () => {
 
       it('throws if fragment ref is not an object', () => {
         // $FlowFixMe
-        expect(() => getFragmentOwner(UsersFragment, ['zuck'])).toFailInvariant(
+        expect(() => getFragmentOwner(UsersFragment, ['zuck'])).toThrow(
           'RelayModernFragmentOwner: Expected value for fragment `UsersFragment` to ' +
             'be an object, got `string`.',
         );
@@ -147,7 +146,7 @@ describe('RelayModernFragmentOwner', () => {
               __fragmentOwner: null,
             },
           ]),
-        ).toFailInvariant(
+        ).toThrow(
           'RelayModernFragmentOwner: Tried reading fragment `UsersFragment` ' +
             'without an owning operation. This usually means ' +
             " you didn't render it as a descendant of a QueryRenderer",
@@ -223,7 +222,7 @@ describe('RelayModernFragmentOwner', () => {
           // $FlowFixMe
           {zuck: 'zuck', zucks: ['zuck']},
         ),
-      ).toFailInvariant(
+      ).toThrow(
         'RelayModernFragmentOwner: Expected value for fragment `UserFragment` to ' +
           'be an object, got `string`.',
       );
@@ -248,7 +247,7 @@ describe('RelayModernFragmentOwner', () => {
             ],
           },
         ),
-      ).toFailInvariant(
+      ).toThrow(
         'RelayModernFragmentOwner: Tried reading fragment `UserFragment` ' +
           'without an owning operation. This usually means ' +
           " you didn't render it as a descendant of a QueryRenderer",

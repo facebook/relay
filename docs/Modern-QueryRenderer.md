@@ -27,16 +27,16 @@ However, a `QueryRenderer` will not start loading its data until it is mounted, 
 import React from 'react';
 import { QueryRenderer, graphql } from 'react-relay';
 
-const Example = (props) => {
-  const renderQuery = ({error, props}) => {
-    if (error) {
-      return <div>{error.message}</div>;
-    } else if (props) {
-      return <div>{props.page.name} is great!</div>;
-    }
-    return <div>Loading</div>;
+const renderQuery = ({error, props}) => {
+  if (error) {
+    return <div>{error.message}</div>;
+  } else if (props) {
+    return <div>{props.page.name} is great!</div>;
   }
-
+  return <div>Loading</div>;
+}
+  
+const Example = (props) => {
   return (
     <QueryRenderer
       environment={environment}

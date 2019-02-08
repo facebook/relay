@@ -14,28 +14,54 @@ const RelayTestSchemaPath = require('./RelayTestSchemaPath');
 
 const fs = require('fs');
 
-const {buildASTSchema, parse} = require('graphql');
-const {SchemaComposer} = require('graphql-compose');
+const {
+  buildASTSchema,
+  parse,
+  GraphQLEnumType,
+  GraphQLSchema,
+  extendSchema,
+} = require('graphql');
 
 function buildSchema() {
-  const composer = new SchemaComposer();
-  composer.addTypeDefs(fs.readFileSync(RelayTestSchemaPath, 'utf8'));
-
-  const CropPositionETC = composer.getETC('CropPosition');
-  CropPositionETC.setFields({
-    TOP: {value: 1},
-    CENTER: {value: 2},
-    BOTTOM: {value: 3},
-    LEFT: {value: 4},
-    RIGHT: {value: 5},
+  const CropPosition = new GraphQLEnumType({
+    name: 'CropPosition',
+    values: {
+      TOP: {value: 1},
+      CENTER: {value: 2},
+      BOTTOM: {value: 3},
+      LEFT: {value: 4},
+      RIGHT: {value: 5},
+    },
   });
-  const FileExtensionETC = composer.getETC('FileExtension');
-  FileExtensionETC.setFields({
-    JPG: {value: 'jpg'},
-    PNG: {value: 'png'},
+  const FileExtension = new GraphQLEnumType({
+    name: 'FileExtension',
+    values: {
+      JPG: {value: 'jpg'},
+      PNG: {value: 'png'},
+    },
   });
-
-  return composer.buildSchema();
+  let schema = new GraphQLSchema({
+    types: [CropPosition, FileExtension],
+  });
+  schema = extendSchema(
+    schema,
+    parse(fs.readFileSync(RelayTestSchemaPath, 'utf8')),
+  );
+  // AST Builder doesn't allow things undefined in AST to be argument types it
+  // seems
+  return extendSchema(
+    schema,
+    parse(`
+      extend type User {
+        profilePicture2(
+          size: [Int],
+          preset: PhotoSize,
+          cropPosition: CropPosition,
+          fileExtension: FileExtension
+        ): Image
+      }
+    `),
+  );
 }
 
 module.exports = buildSchema();

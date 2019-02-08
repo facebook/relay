@@ -1052,7 +1052,7 @@ describe('check()', () => {
         `
           fragment TestFragment on Feedback {
             id
-            actors @stream(label: "TestFragmentActors") {
+            actors @stream(label: "TestFragmentActors", initial_count: 0) {
               name
             }
           }

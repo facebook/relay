@@ -66,12 +66,12 @@ const relayQueryTransforms: Array<IRTransform> = [
   SkipClientFieldTransform.transform,
   SkipUnreachableNodeTransform.transform,
   RelayGenerateIDFieldTransform.transform,
+  RelayDeferStreamTransform.transform,
 ];
 
 // Transforms applied to the code used to process a query response.
 const relayCodegenTransforms: Array<IRTransform> = [
   RelaySplitModuleImportTransform.transform,
-  RelayDeferStreamTransform.transform,
   InlineFragmentsTransform.transform,
   FlattenTransform.transformWithOptions({flattenAbstractTypes: true}),
   SkipRedundantNodesTransform.transform,

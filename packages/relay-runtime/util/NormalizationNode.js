@@ -126,10 +126,12 @@ export type NormalizationScalarField = {|
 
 export type NormalizationSelection =
   | NormalizationCondition
+  | NormalizationDefer
   | NormalizationField
   | NormalizationHandle
   | NormalizationInlineFragment
-  | NormalizationModuleImport;
+  | NormalizationModuleImport
+  | NormalizationStream;
 
 export type NormalizationSplitOperation = {|
   +kind: 'SplitOperation',

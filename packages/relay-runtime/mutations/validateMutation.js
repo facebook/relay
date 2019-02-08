@@ -82,7 +82,9 @@ if (__DEV__) {
         return;
       case 'ModuleImport':
       case 'LinkedHandle':
-      case 'ScalarHandle': {
+      case 'ScalarHandle':
+      case 'Defer':
+      case 'Stream': {
         // TODO(T35864292) - Add missing validations for these types
         return;
       }

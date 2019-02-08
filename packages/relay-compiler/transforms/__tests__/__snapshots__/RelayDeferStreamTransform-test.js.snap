@@ -282,6 +282,36 @@ fragment FeedbackFragment on Feedback {
 
 `;
 
+exports[`RelayDeferStreamTransform matches expected output: fragment-with-stream-missing-initial-count-arg.invalid.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query QueryWithFragmentWithStream($id: ID!, $initialCount: Int) {
+  node(id: $id) {
+    id
+    ...FeedbackFragment
+  }
+}
+
+fragment FeedbackFragment on Feedback {
+  id
+  actors @stream(label: "StreamedActorsLabel") { # invalid: missing initial_count
+    name
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+THROWN EXCEPTION:
+
+Error: Encountered 1 error(s):
+- Invalid use of @stream, the 'initial_count' argument is required.
+  
+  Source: GraphQL request (10:10)
+   9:   id
+  10:   actors @stream(label: "StreamedActorsLabel") { # invalid: missing initial_count
+               ^
+  11:     name
+  
+`;
+
 exports[`RelayDeferStreamTransform matches expected output: fragment-with-stream-statically-disabled.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query QueryWithFragmentWithStream($id: ID!) {

@@ -87,11 +87,17 @@ function visitLinkedField(
   const initialCount = streamDirective.args.find(
     arg => arg.name === 'initial_count',
   );
+  if (initialCount == null) {
+    throw createUserError(
+      "Invalid use of @stream, the 'initial_count' argument is required.",
+      [streamDirective.loc],
+    );
+  }
   const label = getLiteralStringArgument(streamDirective, 'label');
   const transformedLabel = transformLabel(state.documentName, 'stream', label);
   return {
     if: ifArg?.value ?? null,
-    initialCount: initialCount?.value ?? null,
+    initialCount: initialCount.value,
     kind: 'Stream',
     label: transformedLabel,
     loc: {kind: 'Derived', source: streamDirective.loc},

@@ -2233,7 +2233,7 @@ query QueryWithFragmentWithDefer {
 fragment UserFragment on User {
   id
   emailAddresses
-  ...DeferredFragment_QMvSr @defer(label: "DeferredFragmentLabel")
+  ...DeferredFragment_QMvSr @defer(label: "UserFragment$defer$DeferredFragmentLabel")
 }
 
 fragment DeferredFragment_QMvSr on User {
@@ -2668,7 +2668,7 @@ query QueryWithFragmentWithStream(
 
 fragment FeedbackFragment on Feedback {
   id
-  actors @stream(initial_count: 1, label: "StreamedActorsLabel") {
+  actors @stream(label: "FeedbackFragment$stream$StreamedActorsLabel", initial_count: 1) {
     __typename
     name
     id

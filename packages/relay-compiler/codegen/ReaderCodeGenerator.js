@@ -255,7 +255,6 @@ const ReaderCodeGenVisitor = {
 
     Argument(node, key, parent, ancestors): ?ReaderArgument {
       if (!['Variable', 'Literal'].includes(node.value.kind)) {
-        const valueString = JSON.stringify(node.value, null, 2);
         throw createUserError(
           'ReaderCodeGenerator: Complex argument values (Lists or ' +
             'InputObjects with nested variables) are not supported.',
@@ -305,4 +304,6 @@ function getStaticStorageKey(field: ReaderField, metadata: Metadata): ?string {
   return getStorageKey(field, {});
 }
 
-module.exports = {generate};
+module.exports = {
+  generate,
+};

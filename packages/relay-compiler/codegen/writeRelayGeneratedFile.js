@@ -17,7 +17,6 @@ const crypto = require('crypto');
 const dedupeJSONStringify = require('../util/dedupeJSONStringify');
 const deepMergeAssignments = require('./deepMergeAssignments');
 const invariant = require('invariant');
-const nullthrows = require('nullthrows');
 
 const {RelayConcreteNode} = require('relay-runtime');
 

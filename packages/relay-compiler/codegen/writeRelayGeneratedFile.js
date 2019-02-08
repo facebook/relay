@@ -106,7 +106,7 @@ async function writeRelayGeneratedFile(
     if (persistQuery) {
       switch (generatedNode.kind) {
         case RelayConcreteNode.REQUEST:
-          const {id, text, ...restParams} = generatedNode.params;
+          const {text} = generatedNode.params;
           invariant(
             text != null,
             'writeRelayGeneratedFile: Expected `text` in order to persist query',
@@ -115,9 +115,11 @@ async function writeRelayGeneratedFile(
           generatedNode = {
             ...generatedNode,
             params: {
+              operationKind: generatedNode.params.operationKind,
+              name: generatedNode.params.name,
               id: await persistQuery(text, sourceHash),
               text: null,
-              ...restParams,
+              metadata: generatedNode.params.metadata,
             },
           };
           break;

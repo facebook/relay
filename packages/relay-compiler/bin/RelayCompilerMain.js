@@ -160,7 +160,7 @@ async function main(options: {
       );
     }
   }
-  if (options.watch && !useWatchman) {
+  if (options.watch && !options.watchman) {
     throw new Error('Watchman is required to watch for changes.');
   }
   if (options.watch && !hasWatchmanRootFile(srcDir)) {

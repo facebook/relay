@@ -24,15 +24,15 @@ class GraphQLWatchmanClient {
   _attemptLimit: number;
 
   static isAvailable(): Promise<boolean> {
-    try {
-      const checkWatchman = execSync('command -v watchman');
-      if (checkWatchman === '') {
-        return false;
-      }
-    } catch {
-      return false; 
-    }
     return new Promise(resolve => {
+      try {
+        const checkWatchman = execSync('command -v watchman');
+        if (checkWatchman === '') {
+          return resolve(false);
+        }
+      } catch {
+        return resolve(false);
+      }
       const client = new GraphQLWatchmanClient(MAX_ATTEMPT_LIMIT);
       client.on('error', () => {
         resolve(false);

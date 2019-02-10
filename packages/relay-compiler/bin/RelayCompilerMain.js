@@ -160,7 +160,7 @@ async function main(options: {
       );
     }
   }
-  if (options.watch && !options.watchman) {
+  if (options.watch && !useWatchman) {
     throw new Error('Watchman is required to watch for changes.');
   }
   if (options.watch && !hasWatchmanRootFile(srcDir)) {
@@ -270,7 +270,7 @@ Ensure that one such file exists in ${srcDir} or its parents.
     // TODO: allow passing in a flag or detect?
     sourceControl: null,
   });
-  if (!options.validate && !options.watch && options.watchman) {
+  if (!options.validate && !options.watch && useWatchman) {
     // eslint-disable-next-line no-console
     console.log('HINT: pass --watch to keep watching for changes.');
   }

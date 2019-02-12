@@ -19,6 +19,8 @@ const {
   parse,
   GraphQLEnumType,
   GraphQLSchema,
+  GraphQLScalarType,
+  Kind,
   extendSchema,
 } = require('graphql');
 
@@ -41,7 +43,7 @@ function buildSchema() {
     },
   });
   let schema = new GraphQLSchema({
-    types: [CropPosition, FileExtension],
+    types: [CropPosition, FileExtension, GraphQLJSONType],
   });
   schema = extendSchema(
     schema,
@@ -58,10 +60,55 @@ function buildSchema() {
           preset: PhotoSize,
           cropPosition: CropPosition,
           fileExtension: FileExtension
+          additionalParameters: JSON
         ): Image
       }
     `),
   );
 }
+
+function identity(value) {
+  return value;
+}
+
+function parseLiteral(ast, variables) {
+  switch (ast.kind) {
+    case Kind.STRING:
+    case Kind.BOOLEAN:
+      return ast.value;
+    case Kind.INT:
+    case Kind.FLOAT:
+      return parseFloat(ast.value);
+    case Kind.OBJECT: {
+      const value = Object.create(null);
+      ast.fields.forEach(field => {
+        value[field.name.value] = parseLiteral(field.value, variables);
+      });
+
+      return value;
+    }
+    case Kind.LIST:
+      return ast.values.map(n => parseLiteral(n, variables));
+    case Kind.NULL:
+      return null;
+    case Kind.VARIABLE: {
+      const name = ast.name.value;
+      return variables ? variables[name] : undefined;
+    }
+    default:
+      return undefined;
+  }
+}
+
+const GraphQLJSONType = new GraphQLScalarType({
+  name: 'JSON',
+  description:
+    'The `JSON` scalar type represents JSON values as specified by ' +
+    '[ECMA-404](http://www.ecma-international.org/' +
+    'publications/files/ECMA-ST/ECMA-404.pdf).',
+  serialize: identity,
+  parseValue: identity,
+  parseLiteral,
+});
 
 module.exports = buildSchema();

@@ -211,7 +211,8 @@ type Comment implements Node {
   #   size: [Int],
   #   preset: PhotoSize,
   #   cropPosition: CropPosition,
-  #   fileExtension: FileExtension
+  #   fileExtension: FileExtension,
+  #   additionalParameters: JSON
   # ): Image
   segments(first: Int): Segments
   screennames: [Screenname]

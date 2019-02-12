@@ -20,9 +20,13 @@ const RelayModernTestUtils = require('RelayModernTestUtils');
 const readContext = require('../readContext');
 
 const {createMockEnvironment} = require('RelayModernMockEnvironment');
-const {createOperationDescriptor, RelayFeatureFlags} = require('relay-runtime');
+const {
+  createOperationDescriptor,
+  RelayFeatureFlags,
+  ROOT_ID,
+} = require('relay-runtime');
 
-describe('ReactRelayRefetchContainer MERGE_FETCH_AND_FRAGMENT_VARS', () => {
+describe('ReactRelayRefetchContainer with fragment ownerhsip', () => {
   let TestChildComponent;
   let TestComponent;
   let TestChildContainer;
@@ -84,11 +88,29 @@ describe('ReactRelayRefetchContainer MERGE_FETCH_AND_FRAGMENT_VARS', () => {
     }
   }
 
+  function createOwnerWithUnalteredVariables(request, vars) {
+    return {
+      fragment: {
+        dataID: ROOT_ID,
+        node: request.fragment,
+        variables: vars,
+      },
+      node: request,
+      root: {
+        dataID: ROOT_ID,
+        node: request.operation,
+        variables: vars,
+      },
+      variables: vars,
+    };
+  }
+
   beforeEach(() => {
     jest.resetModules();
     expect.extend(RelayModernTestUtils.matchers);
 
     RelayFeatureFlags.MERGE_FETCH_AND_FRAGMENT_VARS = true;
+    RelayFeatureFlags.PREFER_FRAGMENT_OWNER_OVER_CONTEXT = true;
 
     environment = createMockEnvironment();
     ({UserFragment, UserFriendFragment, UserQuery} = environment.mock.compile(`
@@ -158,6 +180,7 @@ describe('ReactRelayRefetchContainer MERGE_FETCH_AND_FRAGMENT_VARS', () => {
 
   afterEach(() => {
     RelayFeatureFlags.MERGE_FETCH_AND_FRAGMENT_VARS = false;
+    RelayFeatureFlags.PREFER_FRAGMENT_OWNER_OVER_CONTEXT = false;
   });
 
   describe('refetch()', () => {
@@ -231,6 +254,12 @@ describe('ReactRelayRefetchContainer MERGE_FETCH_AND_FRAGMENT_VARS', () => {
         },
       });
 
+      // Passed down owner should contain render vars and not just fetch vars
+      const expectedOwner = createOwnerWithUnalteredVariables(
+        UserQuery,
+        variables,
+      );
+
       expect(render.mock.calls.length).toBe(1);
       expect(render.mock.calls[0][0].user).toEqual({
         id: '4',
@@ -239,7 +268,7 @@ describe('ReactRelayRefetchContainer MERGE_FETCH_AND_FRAGMENT_VARS', () => {
         },
         __id: '4',
         __fragments: {UserFriendFragment: {cond: false}},
-        __fragmentOwner: ownerUser1,
+        __fragmentOwner: expectedOwner,
       });
       expect(render.mock.calls[0][0].user.name).toBe(undefined);
 
@@ -297,8 +326,8 @@ describe('ReactRelayRefetchContainer MERGE_FETCH_AND_FRAGMENT_VARS', () => {
         },
       });
 
-      // Passed down owner should contain render vars
-      const expectedOwner = createOperationDescriptor(
+      // Passed down owner should contain render vars and not just fetch vars
+      const expectedOwner = createOwnerWithUnalteredVariables(
         UserQuery,
         renderVariables,
       );

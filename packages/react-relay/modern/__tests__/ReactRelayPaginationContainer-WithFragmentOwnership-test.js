@@ -23,10 +23,11 @@ const {
   ConnectionHandler,
   ConnectionInterface,
   RelayFeatureFlags,
+  ROOT_ID,
 } = require('relay-runtime');
 const {generateAndCompile} = RelayModernTestUtils;
 
-describe('ReactRelayPaginationContainer MERGE_FETCH_AND_FRAGMENT_VARS', () => {
+describe('ReactRelayPaginationContainer with fragment ownership', () => {
   let TestChildComponent;
   let TestComponent;
   let TestChildContainer;
@@ -83,11 +84,29 @@ describe('ReactRelayPaginationContainer MERGE_FETCH_AND_FRAGMENT_VARS', () => {
     }
   }
 
+  function createOwnerWithUnalteredVariables(request, vars) {
+    return {
+      fragment: {
+        dataID: ROOT_ID,
+        node: request.fragment,
+        variables: vars,
+      },
+      node: request,
+      root: {
+        dataID: ROOT_ID,
+        node: request.operation,
+        variables: vars,
+      },
+      variables: vars,
+    };
+  }
+
   beforeEach(() => {
     jest.resetModules();
     expect.extend(RelayModernTestUtils.matchers);
 
     RelayFeatureFlags.MERGE_FETCH_AND_FRAGMENT_VARS = true;
+    RelayFeatureFlags.PREFER_FRAGMENT_OWNER_OVER_CONTEXT = true;
 
     environment = createMockEnvironment({
       handlerProvider: () => ConnectionHandler,
@@ -212,6 +231,7 @@ describe('ReactRelayPaginationContainer MERGE_FETCH_AND_FRAGMENT_VARS', () => {
 
   afterEach(() => {
     RelayFeatureFlags.MERGE_FETCH_AND_FRAGMENT_VARS = false;
+    RelayFeatureFlags.PREFER_FRAGMENT_OWNER_OVER_CONTEXT = false;
   });
 
   describe('loadMore()', () => {
@@ -224,37 +244,6 @@ describe('ReactRelayPaginationContainer MERGE_FETCH_AND_FRAGMENT_VARS', () => {
           <TestContainer user={userPointer} />
         </ContextSetter>,
       );
-    });
-
-    it('returns null if there are no more items to fetch', () => {
-      // Simulate empty connection data
-      getConnectionFromProps.mockImplementation(() => null);
-      variables = {
-        after: 'cursor:1',
-        count: 1,
-        id: '4',
-      };
-      expect(loadMore(1, jest.fn())).toBe(null);
-      expect(environment.mock.isLoading(UserQuery, variables)).toBe(false);
-    });
-
-    it('returns null if page info fields are null', () => {
-      const {PAGE_INFO, END_CURSOR, HAS_NEXT_PAGE} = ConnectionInterface.get();
-      // Simulate empty connection data
-      getConnectionFromProps.mockImplementation(() => ({
-        edges: [],
-        [PAGE_INFO]: {
-          [END_CURSOR]: null,
-          [HAS_NEXT_PAGE]: null,
-        },
-      }));
-      variables = {
-        after: 'cursor:1',
-        count: 1,
-        id: '4',
-      };
-      expect(loadMore(1, jest.fn())).toBe(null);
-      expect(environment.mock.isLoading(UserQuery, variables)).toBe(false);
     });
 
     it('calls `getVariables` with props, count/cursor, and the previous variables', () => {
@@ -363,8 +352,11 @@ describe('ReactRelayPaginationContainer MERGE_FETCH_AND_FRAGMENT_VARS', () => {
       const expectedFragmentVariables = {
         ...ownerUser1.variables,
         count: 2,
+        // Variables propagated in fragment owner variables also include
+        // fragment variables
+        isViewerFriendLocal: false,
       };
-      const expectedOwner = createOperationDescriptor(
+      const expectedOwner = createOwnerWithUnalteredVariables(
         UserQuery,
         expectedFragmentVariables,
       );
@@ -496,7 +488,7 @@ describe('ReactRelayPaginationContainer MERGE_FETCH_AND_FRAGMENT_VARS', () => {
     });
 
     it('renders with the results of the new variables on success', () => {
-      expect.assertions(6);
+      expect.assertions(8);
       expect(render.mock.calls.length).toBe(1);
       expect(render.mock.calls[0][0].user.friends.edges.length).toBe(1);
       refetchConnection(1, jest.fn());
@@ -525,9 +517,19 @@ describe('ReactRelayPaginationContainer MERGE_FETCH_AND_FRAGMENT_VARS', () => {
           },
         },
       });
-      expect(render.mock.calls.length).toBe(2);
-      expect(render.mock.calls[1][0].user.friends.edges.length).toBe(1);
-      expect(render.mock.calls[1][0]).toEqual({
+      const expectedFragmentVariables = {
+        ...ownerUser1.variables,
+        // Variables propagated in fragment owner variables also include
+        // fragment variables
+        isViewerFriendLocal: false,
+      };
+      const expectedOwner = createOwnerWithUnalteredVariables(
+        UserQuery,
+        expectedFragmentVariables,
+      );
+      expect(render.mock.calls.length).toBe(3);
+      expect(render.mock.calls[2][0].user.friends.edges.length).toBe(1);
+      expect(render.mock.calls[2][0]).toEqual({
         user: {
           id: '4',
           friends: {
@@ -541,7 +543,7 @@ describe('ReactRelayPaginationContainer MERGE_FETCH_AND_FRAGMENT_VARS', () => {
                   __fragments: {
                     UserFriendFragment: {isViewerFriendLocal: false},
                   },
-                  __fragmentOwner: ownerUser1,
+                  __fragmentOwner: expectedOwner,
                 },
               },
             ],
@@ -558,6 +560,12 @@ describe('ReactRelayPaginationContainer MERGE_FETCH_AND_FRAGMENT_VARS', () => {
           loadMore: expect.any(Function),
           refetchConnection: expect.any(Function),
         },
+      });
+
+      // Assert child containers are correctly rendered
+      expect(TestChildComponent.mock.calls.length).toBe(3);
+      expect(TestChildComponent.mock.calls[2][0].user).toEqual({
+        id: 'node:2',
       });
     });
 
@@ -645,7 +653,7 @@ describe('ReactRelayPaginationContainer MERGE_FETCH_AND_FRAGMENT_VARS', () => {
     });
 
     it('rerenders with the results of new overridden variables', () => {
-      // expect.assertions(8);
+      expect.assertions(10);
       expect(render.mock.calls.length).toBe(1);
       expect(render.mock.calls[0][0].user.friends.edges.length).toBe(1);
       refetchConnection(1, jest.fn(), {orderby: ['last_name']});
@@ -679,8 +687,11 @@ describe('ReactRelayPaginationContainer MERGE_FETCH_AND_FRAGMENT_VARS', () => {
       const expectedFragmentVariables = {
         ...ownerUser1.variables,
         orderby: ['last_name'],
+        // Variables propagated in fragment owner variables also include
+        // fragment variables
+        isViewerFriendLocal: false,
       };
-      const expectedFragmentOwner = createOperationDescriptor(
+      const expectedFragmentOwner = createOwnerWithUnalteredVariables(
         UserQuery,
         expectedFragmentVariables,
       );
@@ -758,8 +769,11 @@ describe('ReactRelayPaginationContainer MERGE_FETCH_AND_FRAGMENT_VARS', () => {
         ...ownerUser1.variables,
         orderby: ['last_name'],
         isViewerFriend: true,
+        // Variables propagated in fragment owner variables also include
+        // fragment variables
+        isViewerFriendLocal: true,
       };
-      let expectedFragmentOwner = createOperationDescriptor(
+      let expectedFragmentOwner = createOwnerWithUnalteredVariables(
         UserQuery,
         expectedFragmentVariables,
       );
@@ -841,8 +855,11 @@ describe('ReactRelayPaginationContainer MERGE_FETCH_AND_FRAGMENT_VARS', () => {
         count: 2,
         orderby: ['last_name'],
         isViewerFriend: true,
+        // Variables propagated in fragment owner variables also include
+        // fragment variables
+        isViewerFriendLocal: true,
       };
-      expectedFragmentOwner = createOperationDescriptor(
+      expectedFragmentOwner = createOwnerWithUnalteredVariables(
         UserQuery,
         expectedFragmentVariables,
       );

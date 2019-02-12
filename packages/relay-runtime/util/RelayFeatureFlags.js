@@ -12,6 +12,7 @@
 
 const RelayFeatureFlags = {
   MERGE_FETCH_AND_FRAGMENT_VARS: false,
+  PREFER_FRAGMENT_OWNER_OVER_CONTEXT: false,
 };
 
 module.exports = RelayFeatureFlags;

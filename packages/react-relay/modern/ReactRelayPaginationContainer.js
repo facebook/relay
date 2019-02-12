@@ -27,6 +27,7 @@ const {
 const {assertRelayContext} = require('./RelayContext');
 const {
   ConnectionInterface,
+  RelayFeatureFlags,
   RelayProfiler,
   Observable,
   isScalarAndEqual,
@@ -711,6 +712,12 @@ function createContainerWithFragments<
         ...fetchVariables,
         ...this._refetchVariables,
       };
+      if (RelayFeatureFlags.MERGE_FETCH_AND_FRAGMENT_VARS) {
+        fragmentVariables = {
+          ...fetchVariables,
+          ...fragmentVariables,
+        };
+      }
 
       const cacheConfig: ?CacheConfig = options
         ? {force: !!options.force}

@@ -1,0 +1,392 @@
+/**
+ * Copyright (c) Facebook, Inc. and its affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ *
+ * @emails oncall+relay
+ * @format
+ */
+
+'use strict';
+
+const React = require('React');
+const ReactRelayContext = require('../ReactRelayContext');
+const ReactRelayFragmentContainer = require('../ReactRelayFragmentContainer');
+const ReactRelayRefetchContainer = require('../ReactRelayRefetchContainer');
+const ReactTestRenderer = require('ReactTestRenderer');
+const RelayModernTestUtils = require('RelayModernTestUtils');
+
+const readContext = require('../readContext');
+
+const {createMockEnvironment} = require('RelayModernMockEnvironment');
+const {createOperationDescriptor, RelayFeatureFlags} = require('relay-runtime');
+
+describe('ReactRelayRefetchContainer MERGE_FETCH_AND_FRAGMENT_VARS', () => {
+  let TestChildComponent;
+  let TestComponent;
+  let TestChildContainer;
+  let TestContainer;
+  let UserFragment;
+  let UserFriendFragment;
+  let UserQuery;
+
+  let environment;
+  let ownerUser1;
+  let refetch;
+  let render;
+  let variables;
+  let relayContext;
+
+  class ContextSetter extends React.Component {
+    constructor(props) {
+      super();
+
+      this.__relayContext = {
+        environment: props.environment,
+        variables: props.variables,
+      };
+
+      this.state = {
+        props: null,
+      };
+    }
+    UNSAFE_componentWillReceiveProps(nextProps) {
+      // eslint-disable-next-line no-shadow
+      const {environment, variables} = nextProps;
+      if (
+        environment !== this.__relayContext.environment ||
+        variables !== this.__relayContext.variables
+      ) {
+        this.__relayContext = {environment, variables};
+      }
+    }
+    setProps(props) {
+      this.setState({props});
+    }
+    setContext(env, vars) {
+      this.__relayContext = {
+        environment: env,
+        variables: vars,
+      };
+      this.setProps({});
+    }
+    render() {
+      let child = React.Children.only(this.props.children);
+      if (this.state.props) {
+        child = React.cloneElement(child, this.state.props);
+      }
+      return (
+        <ReactRelayContext.Provider value={this.__relayContext}>
+          {child}
+        </ReactRelayContext.Provider>
+      );
+    }
+  }
+
+  beforeEach(() => {
+    jest.resetModules();
+    expect.extend(RelayModernTestUtils.matchers);
+
+    RelayFeatureFlags.MERGE_FETCH_AND_FRAGMENT_VARS = true;
+
+    environment = createMockEnvironment();
+    ({UserFragment, UserFriendFragment, UserQuery} = environment.mock.compile(`
+      query UserQuery(
+        $id: ID!
+        $scale: Int!
+      ) {
+        node(id: $id) {
+          ...UserFragment
+        }
+      }
+
+      fragment UserFragment on User @argumentDefinitions(
+        cond: {type: "Boolean!", defaultValue: true}
+      ) {
+        id
+        name @include(if: $cond)
+        profile_picture(scale: $scale) {
+          uri
+        }
+        ...UserFriendFragment @arguments(cond: $cond)
+      }
+
+      fragment UserFriendFragment on User @argumentDefinitions(
+        cond: {type: "Boolean!", defaultValue: true}
+      ) {
+        id
+        username @include(if: $cond)
+      }
+    `));
+
+    TestChildComponent = jest.fn(() => <div />);
+    TestChildContainer = ReactRelayFragmentContainer.createContainer(
+      TestChildComponent,
+      {user: UserFriendFragment},
+    );
+    render = jest.fn(props => {
+      refetch = props.relay.refetch;
+      relayContext = readContext(ReactRelayContext);
+      return <TestChildContainer user={props.user} />;
+    });
+    variables = {id: '4', scale: 2};
+    TestComponent = render;
+    TestComponent.displayName = 'TestComponent';
+    TestContainer = ReactRelayRefetchContainer.createContainer(
+      TestComponent,
+      {
+        user: () => UserFragment,
+      },
+      UserQuery,
+    );
+
+    // Pre-populate the store with data
+    ownerUser1 = createOperationDescriptor(UserQuery, variables);
+    environment.commitPayload(ownerUser1, {
+      node: {
+        id: '4',
+        __typename: 'User',
+        name: 'Zuck',
+        username: 'zuck',
+        profile_picture: {
+          uri: 'zuck2',
+        },
+      },
+    });
+  });
+
+  afterEach(() => {
+    RelayFeatureFlags.MERGE_FETCH_AND_FRAGMENT_VARS = false;
+  });
+
+  describe('refetch()', () => {
+    let instance;
+
+    beforeEach(() => {
+      const userPointer = environment.lookup(ownerUser1.fragment, ownerUser1)
+        .data.node;
+      environment.mock.clearCache();
+      instance = ReactTestRenderer.create(
+        <ContextSetter environment={environment} variables={variables}>
+          <TestContainer user={userPointer} />
+        </ContextSetter>,
+      );
+    });
+
+    it('fetches the new variables', () => {
+      const refetchVariables = {
+        cond: false,
+        id: '4',
+        scale: 2,
+      };
+      const fetchedVariables = {id: '4', scale: 2};
+      refetch(refetchVariables, null, jest.fn());
+      expect(environment.mock.isLoading(UserQuery, fetchedVariables)).toBe(
+        true,
+      );
+    });
+
+    it('renders with the results of the new variables on success', () => {
+      expect.assertions(10);
+      expect(render.mock.calls.length).toBe(1);
+      expect(render.mock.calls[0][0].user).toEqual({
+        id: '4',
+        name: 'Zuck',
+        profile_picture: {
+          uri: 'zuck2',
+        },
+        __id: '4',
+        __fragments: {UserFriendFragment: {cond: true}},
+        __fragmentOwner: ownerUser1,
+      });
+      expect(TestChildComponent.mock.calls.length).toBe(1);
+      expect(TestChildComponent.mock.calls[0][0].user).toEqual({
+        id: '4',
+        username: 'zuck',
+      });
+
+      variables = {
+        cond: false,
+        id: '4',
+        scale: 2,
+      };
+
+      TestComponent.mockClear();
+      TestChildComponent.mockClear();
+
+      refetch(variables, null, jest.fn());
+      expect(render.mock.calls.length).toBe(0);
+      environment.mock.resolve(UserQuery, {
+        data: {
+          node: {
+            id: '4',
+            __typename: 'User',
+            name: 'Zuck',
+            username: 'zuck',
+            profile_picture: {
+              uri: 'zuck2',
+            },
+          },
+        },
+      });
+
+      expect(render.mock.calls.length).toBe(1);
+      expect(render.mock.calls[0][0].user).toEqual({
+        id: '4',
+        profile_picture: {
+          uri: 'zuck2',
+        },
+        __id: '4',
+        __fragments: {UserFriendFragment: {cond: false}},
+        __fragmentOwner: ownerUser1,
+      });
+      expect(render.mock.calls[0][0].user.name).toBe(undefined);
+
+      expect(TestChildComponent.mock.calls.length).toBe(1);
+      expect(TestChildComponent.mock.calls[0][0].user).toEqual({
+        id: '4',
+      });
+    });
+
+    it('renders with the results of the new variables on success when using render variables', () => {
+      expect.assertions(10);
+      expect(render.mock.calls.length).toBe(1);
+      expect(render.mock.calls[0][0].user).toEqual({
+        id: '4',
+        name: 'Zuck',
+        profile_picture: {
+          uri: 'zuck2',
+        },
+        __id: '4',
+        __fragments: {UserFriendFragment: {cond: true}},
+        __fragmentOwner: ownerUser1,
+      });
+      expect(TestChildComponent.mock.calls.length).toBe(1);
+      expect(TestChildComponent.mock.calls[0][0].user).toEqual({
+        id: '4',
+        username: 'zuck',
+      });
+
+      const fetchVariables = {
+        cond: false,
+        id: '4',
+        scale: 4,
+      };
+      const renderVariables = {
+        ...fetchVariables,
+        scale: 2,
+      };
+
+      TestComponent.mockClear();
+      TestChildComponent.mockClear();
+
+      refetch(fetchVariables, renderVariables, jest.fn());
+      expect(render.mock.calls.length).toBe(0);
+      environment.mock.resolve(UserQuery, {
+        data: {
+          node: {
+            id: '4',
+            __typename: 'User',
+            name: 'Zuck',
+            username: 'zuck',
+            profile_picture: {
+              uri: 'zuck4',
+            },
+          },
+        },
+      });
+
+      // Passed down owner should contain render vars
+      const expectedOwner = createOperationDescriptor(
+        UserQuery,
+        renderVariables,
+      );
+
+      expect(render.mock.calls.length).toBe(1);
+      expect(render.mock.calls[0][0].user).toEqual({
+        id: '4',
+        // Uses the value for scale: 2 from renderVariables,
+        // even though it was fetched with scale: 4
+        profile_picture: {
+          uri: 'zuck2',
+        },
+        __id: '4',
+        __fragments: {UserFriendFragment: {cond: false}},
+        __fragmentOwner: expectedOwner,
+      });
+      expect(render.mock.calls[0][0].user.name).toBe(undefined);
+
+      expect(TestChildComponent.mock.calls.length).toBe(1);
+      expect(TestChildComponent.mock.calls[0][0].user).toEqual({
+        id: '4',
+      });
+    });
+
+    it('updates context with the results of new variables', () => {
+      expect.assertions(6);
+
+      // original context before refetch
+      expect(relayContext.environment).toEqual(environment);
+      expect(relayContext.variables).toBe(variables);
+
+      const refetchVariables = {
+        cond: false,
+        id: '4',
+        scale: 2,
+      };
+      refetch(refetchVariables, null, jest.fn());
+
+      // original context while pending refetch
+      expect(relayContext.environment).toBe(environment);
+      expect(relayContext.variables).toBe(variables);
+
+      environment.mock.resolve(UserQuery, {
+        data: {
+          node: {
+            id: '4',
+            __typename: 'User',
+            name: 'Zuck',
+            username: 'zuck',
+            profile_picture: {
+              uri: 'zuck2',
+            },
+          },
+        },
+      });
+
+      // new context after successful refetch
+      expect(relayContext.environment).toBe(environment);
+      expect(relayContext.variables).toEqual(refetchVariables);
+    });
+
+    it('updates child context if updated with new variables', () => {
+      expect.assertions(2);
+      const refetchVariables = {
+        cond: false,
+        id: '4',
+        scale: 2,
+      };
+      refetch(refetchVariables, null, jest.fn());
+      environment.mock.resolve(UserQuery, {
+        data: {
+          node: {
+            id: '4',
+            __typename: 'User',
+            name: 'Zuck',
+          },
+        },
+      });
+
+      const updateVariables = {
+        cond: true,
+        id: '842472',
+        scale: 2,
+      };
+      instance.getInstance().setContext(environment, updateVariables);
+
+      expect(relayContext.environment).toBe(environment);
+      expect(relayContext.variables).toEqual(updateVariables);
+    });
+  });
+});

@@ -21,7 +21,12 @@ const warning = require('warning');
 const {profileContainer} = require('./ReactRelayContainerProfiler');
 const {getContainerName} = require('./ReactRelayContainerUtils');
 const {assertRelayContext} = require('./RelayContext');
-const {Observable, RelayProfiler, isScalarAndEqual} = require('relay-runtime');
+const {
+  Observable,
+  RelayFeatureFlags,
+  RelayProfiler,
+  isScalarAndEqual,
+} = require('relay-runtime');
 
 import type {
   $RelayProps,
@@ -318,8 +323,11 @@ function createContainerWithFragments<
           : refetchVariables;
       fetchVariables = {...rootVariables, ...fetchVariables};
       const fragmentVariables = renderVariables
-        ? {...rootVariables, ...renderVariables}
+        ? RelayFeatureFlags.MERGE_FETCH_AND_FRAGMENT_VARS
+          ? {...fetchVariables, ...renderVariables}
+          : {...rootVariables, ...renderVariables}
         : fetchVariables;
+
       const cacheConfig = options ? {force: !!options.force} : undefined;
 
       const observer =

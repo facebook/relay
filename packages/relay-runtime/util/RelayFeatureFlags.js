@@ -10,6 +10,8 @@
 
 'use strict';
 
-const RelayFeatureFlags = {};
+const RelayFeatureFlags = {
+  MERGE_FETCH_AND_FRAGMENT_VARS: false,
+};
 
 module.exports = RelayFeatureFlags;

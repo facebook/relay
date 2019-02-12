@@ -44,7 +44,7 @@ fragment UserFragment on User @argumentDefinitions(
   thumbnail: profilePicture2(size: 32, cropPosition: CENTER, fileExtension: PNG, additionalParameters: { filter: "Boston" }) {
     height
     width
-    src: uri,
+    src: uri
   }
   profilePicture(size: $size) @include(if: $cond) @skip(if: $foo) {
     height

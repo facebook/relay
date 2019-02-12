@@ -103,7 +103,7 @@ function getSelector(
     // use the owner to compute the selector variables if an owner was
     // explicitly passed by the caller, for backwards compatibility.
     // See TODO(T39494051) for details
-    const owner = explicitOwner ?? item[FRAGMENT_OWNER_KEY];
+    const owner = explicitOwner ?? item[FRAGMENT_OWNER_KEY] ?? null;
     const fragmentVariables = getFragmentVariables(
       fragment,
       operationVariables,
@@ -149,7 +149,7 @@ function getSelectorList(
   if (__DEV__) {
     if (owners != null) {
       warning(
-        items.length !== owners.length,
+        items.length === owners.length,
         'RelayModernSelector: Expected number of plural values for fragment ' +
           '`%s` to match number of owners. Received %s values and %s owners.',
         fragment.name,
@@ -234,14 +234,14 @@ function getSelectorsFromObject(
           fragment.name,
         );
         if (owners != null) {
-          const owner = owners[key];
           invariant(
-            owner != null,
+            owners.hasOwnProperty(key),
             'RelayModernSelector: Expected explcitly provided owner for ' +
-              'fragment `%s` under key `%s` to be defined.',
+              'fragment `%s` under key `%s` to exist.',
             fragment.name,
             key,
           );
+          const owner = owners[key];
           invariant(
             !Array.isArray(owner),
             'RelayModernSelector: Expected explcitly provided owner for ' +

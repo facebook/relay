@@ -32,14 +32,7 @@ function getSingularFragmentOwner(
     fragmentNode.name,
     typeof fragmentRef,
   );
-  const owner = fragmentRef[FRAGMENT_OWNER_KEY];
-  invariant(
-    owner != null,
-    'RelayModernFragmentOwner: Tried reading fragment `%s` ' +
-      'without an owning operation. This usually means ' +
-      " you didn't render it as a descendant of a QueryRenderer",
-    fragmentNode.name,
-  );
+  const owner = fragmentRef[FRAGMENT_OWNER_KEY] ?? null;
   return owner;
 }
 

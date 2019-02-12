@@ -19,7 +19,6 @@ const {
 } = require('../RelayModernFragmentOwner');
 const {createMockEnvironment} = require('RelayModernMockEnvironment');
 const {getRequest, createOperationDescriptor} = require('../RelayCore');
-const RelayModernTestUtils = require('RelayModernTestUtils');
 
 describe('RelayModernFragmentOwner', () => {
   let UserFragment;
@@ -71,18 +70,13 @@ describe('RelayModernFragmentOwner', () => {
         );
       });
 
-      it('throws if owner is not found in fragment ref', () => {
-        expect(() =>
-          getFragmentOwner(UserFragment, {
-            __id: '4',
-            __fragments: {UserFragment: {}},
-            __fragmentOwner: null,
-          }),
-        ).toThrow(
-          'RelayModernFragmentOwner: Tried reading fragment `UserFragment` ' +
-            'without an owning operation. This usually means ' +
-            " you didn't render it as a descendant of a QueryRenderer",
-        );
+      it('returns null if owner is not found in fragment ref', () => {
+        const fragmentOwner = getFragmentOwner(UserFragment, {
+          __id: '4',
+          __fragments: {UserFragment: {}},
+          __fragmentOwner: null,
+        });
+        expect(fragmentOwner).toEqual(null);
       });
 
       it('returns null if fragment ref is null or undefined', () => {
@@ -137,20 +131,15 @@ describe('RelayModernFragmentOwner', () => {
         );
       });
 
-      it('throws if owner is not found in fragment ref', () => {
-        expect(() =>
-          getFragmentOwner(UsersFragment, [
-            {
-              __id: '4',
-              __fragments: {UserFragment: {}},
-              __fragmentOwner: null,
-            },
-          ]),
-        ).toThrow(
-          'RelayModernFragmentOwner: Tried reading fragment `UsersFragment` ' +
-            'without an owning operation. This usually means ' +
-            " you didn't render it as a descendant of a QueryRenderer",
-        );
+      it('returns null if owner is not found in fragment ref', () => {
+        const fragmentOwner = getFragmentOwner(UsersFragment, [
+          {
+            __id: '4',
+            __fragments: {UserFragment: {}},
+            __fragmentOwner: null,
+          },
+        ]);
+        expect(fragmentOwner).toEqual([null]);
       });
 
       it('returns null if fragment ref is null or undefined', () => {
@@ -228,30 +217,25 @@ describe('RelayModernFragmentOwner', () => {
       );
     });
 
-    it('throws if owner is not found in fragment ref', () => {
-      expect(() =>
-        getFragmentOwners(
-          {zuck: UserFragment, zucks: UsersFragment},
-          {
-            zuck: {
+    it('returns null if owner is not found in fragment ref', () => {
+      const fragmentOwners = getFragmentOwners(
+        {zuck: UserFragment, zucks: UsersFragment},
+        {
+          zuck: {
+            __id: '4',
+            __fragments: {UserFragment: {}},
+            __fragmentOwner: null,
+          },
+          zucks: [
+            {
               __id: '4',
-              __fragments: {UserFragment: {}},
+              __fragments: {UsersFragment: {}},
               __fragmentOwner: null,
             },
-            zucks: [
-              {
-                __id: '4',
-                __fragments: {UsersFragment: {}},
-                __fragmentOwner: null,
-              },
-            ],
-          },
-        ),
-      ).toThrow(
-        'RelayModernFragmentOwner: Tried reading fragment `UserFragment` ' +
-          'without an owning operation. This usually means ' +
-          " you didn't render it as a descendant of a QueryRenderer",
+          ],
+        },
       );
+      expect(fragmentOwners).toEqual({zuck: null, zucks: [null]});
     });
 
     it('returns null if fragment ref is null or undefined', () => {

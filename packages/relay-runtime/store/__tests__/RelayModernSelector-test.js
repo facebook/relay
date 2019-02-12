@@ -478,19 +478,7 @@ describe('RelayModernSelector', () => {
           ),
         ).toFailInvariant(
           'RelayModernSelector: Expected explcitly provided owner for fragment `UserFragment` ' +
-            'under key `user` to be defined.',
-        );
-
-        expect(() =>
-          getSelectorsFromObject(
-            variables,
-            {user: UserFragment},
-            {user: zuck},
-            {user: null},
-          ),
-        ).toFailInvariant(
-          'RelayModernSelector: Expected explcitly provided owner for fragment `UserFragment` ' +
-            'under key `user` to be defined.',
+            'under key `user` to exist.',
         );
 
         expect(() =>
@@ -581,6 +569,25 @@ describe('RelayModernSelector', () => {
         });
       });
 
+      it('returns singular selectors with owner from fragment ref when owner is passed as null', () => {
+        const selectors = getSelectorsFromObject(
+          variables,
+          {user: UserFragment},
+          {user: zuck},
+          {user: null},
+        );
+        expect(selectors).toEqual({
+          user: {
+            owner: owner,
+            selector: {
+              dataID: '4',
+              node: UserFragment,
+              variables,
+            },
+          },
+        });
+      });
+
       it('returns singular selector and prefers variables from owner when it is passed', () => {
         const queryNode = getRequest(UserQuery);
         // Pass owner with different variables
@@ -640,6 +647,27 @@ describe('RelayModernSelector', () => {
           {user: UsersFragment},
           {user: [zuck]},
           {user: [owner]},
+        );
+        expect(selectors).toEqual({
+          user: [
+            {
+              owner: owner,
+              selector: {
+                dataID: '4',
+                node: UsersFragment,
+                variables,
+              },
+            },
+          ],
+        });
+      });
+
+      it('returns plural selectors with owner from fragment ref when owner is passed as null', () => {
+        const selectors = getSelectorsFromObject(
+          variables,
+          {user: UsersFragment},
+          {user: [zuck]},
+          {user: [null]},
         );
         expect(selectors).toEqual({
           user: [

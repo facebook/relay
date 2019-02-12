@@ -378,10 +378,10 @@ function visitFragmentSpread(
               directive => directive !== moduleDirective,
             ),
           },
-          moduleField,
           fragmentField,
         ],
       },
+      moduleField,
     ],
     typeCondition: fragment.type,
   };

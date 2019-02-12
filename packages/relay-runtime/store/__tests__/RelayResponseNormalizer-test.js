@@ -410,6 +410,7 @@ describe('RelayResponseNormalizer', () => {
           __id:
             'client:1:nameRenderer(MarkdownUserNameRenderer_name:MarkdownUserNameRenderer.react,PlainUserNameRenderer_name:PlainUserNameRenderer.react)',
           __typename: 'MarkdownUserNameRenderer',
+          __module_component: 'MarkdownUserNameRenderer.react',
         },
         'client:root': {
           __id: 'client:root',
@@ -486,6 +487,7 @@ describe('RelayResponseNormalizer', () => {
           __id:
             'client:1:nameRenderer(MarkdownUserNameRenderer_name:MarkdownUserNameRenderer.react,PlainUserNameRenderer_name:PlainUserNameRenderer.react)',
           __typename: 'MarkdownUserNameRenderer',
+          __module_component: 'MarkdownUserNameRenderer.react',
         },
         'client:root': {
           __id: 'client:root',
@@ -679,6 +681,7 @@ describe('RelayResponseNormalizer', () => {
         'client:1:nameRenderer': {
           __id: 'client:1:nameRenderer',
           __typename: 'MarkdownUserNameRenderer',
+          __module_component: 'MarkdownUserNameRenderer.react',
         },
         'client:root': {
           __id: 'client:root',
@@ -752,6 +755,7 @@ describe('RelayResponseNormalizer', () => {
         'client:1:nameRenderer': {
           __id: 'client:1:nameRenderer',
           __typename: 'MarkdownUserNameRenderer',
+          __module_component: 'MarkdownUserNameRenderer.react',
         },
         'client:root': {
           __id: 'client:root',

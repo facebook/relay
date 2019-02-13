@@ -319,13 +319,13 @@ function setValue(record: Record, storageKey: string, value: mixed): void {
       warning(
         prevType === nextType,
         'RelayModernRecord: Invalid field update, expected both versions of ' +
-          'record `%s` to have the same `%s` but got conflicting types `%s` ' +
-          'and `%s`. The GraphQL server likely violated the globally unique ' +
+          'the record to have the same `%s` but got conflicting types `%s` ' +
+          'and `%s` (RecordID: `%s`). The GraphQL server likely violated the globally unique ' +
           'id requirement by returning the same id for different objects.',
-        prevID,
         TYPENAME_KEY,
         prevType,
         nextType,
+        prevID,
       );
     }
   }

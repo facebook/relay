@@ -3,7 +3,7 @@ id: relay-store
 title: Relay Store
 ---
 
-The Relay Store can be used to programatically update client-side data inside [`updater` functions](./mutations.html#using-updater-and-optimisticupdater). The following is a reference of the Relay Store interface.
+The Relay Store can be used to programmatically update client-side data inside [`updater` functions](./mutations.html#using-updater-and-optimisticupdater). The following is a reference of the Relay Store interface.
 
 Table of Contents:
 - [RecordSourceSelectorProxy](#recordsourceselectorproxy)

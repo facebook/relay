@@ -402,13 +402,13 @@ describe('RelayModernRecord', () => {
         RelayModernRecord.setValue(record, TYPENAME_KEY, 'not-User'),
       ).toWarn([
         'RelayModernRecord: Invalid field update, expected both versions of ' +
-          'the record to have the same `%s` but got conflicting types `%s` ' +
-          'and `%s` (RecordID: `%s`). The GraphQL server likely violated the globally unique ' +
+          'record `%s` to have the same `%s` but got conflicting types `%s` ' +
+          'and `%s`. The GraphQL server likely violated the globally unique ' +
           'id requirement by returning the same id for different objects.',
+        '4',
         '__typename',
         'User',
         'not-User',
-        '4',
       ]);
     });
   });

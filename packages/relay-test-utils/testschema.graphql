@@ -206,6 +206,14 @@ type Comment implements Node {
   message: Text
   name: String
   profilePicture(size: [Int], preset: PhotoSize): Image
+  # This is added in RelayTestSchema
+  # profilePicture2(
+  #   size: [Int],
+  #   preset: PhotoSize,
+  #   cropPosition: CropPosition,
+  #   fileExtension: FileExtension,
+  #   additionalParameters: JSON
+  # ): Image
   segments(first: Int): Segments
   screennames: [Screenname]
   subscribeStatus: String
@@ -745,7 +753,10 @@ type User implements Named & Node & Actor & HasJsField {
   nameRenderer(supported: [String!]!): UserNameRenderer
   storySearch(query: StorySearchInput): [Story]
   storyCommentSearch(query: StoryCommentSearchInput): [Comment]
-  profilePicture(size: [Int], preset: PhotoSize): Image
+  profilePicture(
+    size: [Int],
+    preset: PhotoSize
+  ): Image
   profile_picture(scale: Float): Image
   segments(first: Int): Segments
   screennames: [Screenname]
@@ -838,6 +849,20 @@ enum TopLevelCommentsOrdering {
   recent_activity
   toplevel
 }
+
+# This is added in RelayTestSchema
+# enum CropPosition {
+#   TOP
+#   CENTER
+#   BOTTOM
+#   LEFT
+#   RIGHT
+# }
+#
+# enum FileExtension {
+#   JPG
+#   PNG
+# }
 
 type Settings {
   cache_id: ID

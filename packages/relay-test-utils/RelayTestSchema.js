@@ -54,6 +54,10 @@ function buildSchema() {
   return extendSchema(
     schema,
     parse(`
+      input ProfilePictureOptions {
+        newName: String
+      }
+
       extend type User {
         profilePicture2(
           size: [Int],
@@ -61,6 +65,7 @@ function buildSchema() {
           cropPosition: CropPosition,
           fileExtension: FileExtension
           additionalParameters: JSON
+          options: ProfilePictureOptions
         ): Image
       }
     `),

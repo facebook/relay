@@ -314,7 +314,7 @@ function printLiteral(value: mixed, type: ?GraphQLInputType): string {
     );
     return result;
   }
-  if (type instanceof GraphQLScalarType) {
+  if (type instanceof GraphQLScalarType && value != null) {
     const result = type.serialize(value);
     return JSON.stringify(result);
   }

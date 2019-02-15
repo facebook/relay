@@ -16,6 +16,7 @@ const {DEFAULT_HANDLE_KEY} = require('../util/DefaultHandleKey');
 const {
   GraphQLEnumType,
   GraphQLID,
+  GraphQLInt,
   GraphQLInputObjectType,
   GraphQLList,
   GraphQLNonNull,
@@ -320,8 +321,8 @@ function printLiteral(value: mixed, type: ?GraphQLInputType): string {
       JSON.stringify(value),
     );
     return result;
-  } else if (type === GraphQLID) {
-    // For backwards compatibility, print ID values as-is
+  } else if (type === GraphQLID || type === GraphQLInt) {
+    // For backwards compatibility, print integer and ID values as-is
     return JSON.stringify(value);
   } else if (type instanceof GraphQLScalarType) {
     const result = type.serialize(value);

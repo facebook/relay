@@ -18,11 +18,15 @@ const RelayObservable = require('../network/RelayObservable');
 const RelayPublishQueue = require('./RelayPublishQueue');
 const RelayResponseNormalizer = require('./RelayResponseNormalizer');
 
+const generateRelayClientID = require('./generateRelayClientID');
 const invariant = require('invariant');
 
-const {ROOT_TYPE} = require('./RelayStoreUtils');
+const {ROOT_TYPE, TYPENAME_KEY, getStorageKey} = require('./RelayStoreUtils');
 
-import type {GraphQLResponse} from '../network/RelayNetworkTypes';
+import type {
+  GraphQLResponse,
+  GraphQLResponseWithData,
+} from '../network/RelayNetworkTypes';
 import type {Sink, Subscription} from '../network/RelayObservable';
 import type {
   ModuleImportPayload,
@@ -32,7 +36,10 @@ import type {
   OperationLoader,
   RelayResponsePayload,
   SelectorStoreUpdater,
+  DeferPlaceholder,
+  StreamPlaceholder,
   IncrementalDataPlaceholder,
+  MutableRecordSource,
 } from '../store/RelayStoreTypes';
 import type {NormalizationSplitOperation} from '../util/NormalizationNode';
 
@@ -58,7 +65,10 @@ function execute(config: ExecuteConfig): Executor {
 class Executor {
   _incrementalPlaceholders: Map<
     string,
-    Map<string, IncrementalDataPlaceholder>,
+    {|
+      +kind: 'defer' | 'stream',
+      +placeholdersByPath: Map<string, IncrementalDataPlaceholder>,
+    |},
   >;
   _nextSubscriptionId: number;
   _operation: OperationDescriptor;
@@ -66,6 +76,7 @@ class Executor {
   _optimisticUpdate: null | OptimisticUpdate;
   _publishQueue: RelayPublishQueue;
   _sink: Sink<GraphQLResponse>;
+  _source: ?MutableRecordSource;
   _state: 'started' | 'loading' | 'completed';
   _updater: ?SelectorStoreUpdater;
   _subscriptions: Map<number, Subscription>;
@@ -86,6 +97,7 @@ class Executor {
     this._optimisticUpdate = optimisticUpdate ?? null;
     this._publishQueue = publishQueue;
     this._sink = sink;
+    this._source = null;
     this._state = 'started';
     this._updater = updater;
     this._subscriptions = new Map();
@@ -157,6 +169,24 @@ class Executor {
       }
       return;
     }
+    if (response.data == null) {
+      const {errors} = response;
+      const error = RelayError.create(
+        'RelayNetwork',
+        'No data returned for operation `%s`, got error(s):\n%s\n\nSee the error ' +
+          '`source` property for more information.',
+        this._operation.node.params.name,
+        errors ? errors.map(({message}) => message).join('\n') : '(No errors)',
+      );
+      (error: $FlowFixMe).source = {
+        errors,
+        operation: this._operation.node,
+        variables: this._operation.variables,
+      };
+      throw error;
+    }
+    // Above check ensures that response.data != null
+    const responseWithData: GraphQLResponseWithData = (response: $FlowFixMe);
     const isOptimistic = response.extensions?.isOptimistic === true;
     if (isOptimistic && this._state !== 'started') {
       invariant(
@@ -166,7 +196,7 @@ class Executor {
     }
     this._state = 'loading';
     if (isOptimistic) {
-      this._processOptimisticResponse(response);
+      this._processOptimisticResponse(responseWithData);
     } else {
       const {path, label} = response;
       if (path != null || label != null) {
@@ -179,22 +209,22 @@ class Executor {
               '`string`.',
           );
         } else {
-          this._processIncrementalResponse(label, path, response);
+          this._processIncrementalResponse(label, path, responseWithData);
         }
       } else {
-        this._processResponse(response);
+        this._processResponse(responseWithData);
       }
     }
     this._sink.next(response);
   }
 
-  _processOptimisticResponse(response: GraphQLResponse): void {
+  _processOptimisticResponse(response: GraphQLResponseWithData): void {
     invariant(
       this._optimisticUpdate === null,
       'environment.execute: only support one optimistic response per ' +
         'execute.',
     );
-    const payload = this._normalizeResponse(
+    const payload = normalizeResponse(
       response,
       this._operation.root,
       ROOT_TYPE,
@@ -221,17 +251,19 @@ class Executor {
     this._publishQueue.run();
   }
 
-  _processResponse(response: GraphQLResponse): void {
+  _processResponse(response: GraphQLResponseWithData): void {
     if (this._optimisticUpdate !== null) {
       this._publishQueue.revertUpdate(this._optimisticUpdate);
       this._optimisticUpdate = null;
     }
-    const payload = this._normalizeResponse(
+    const payload = normalizeResponse(
       response,
       this._operation.root,
       ROOT_TYPE,
       [] /* path */,
     );
+    this._incrementalPlaceholders.clear();
+    this._source = payload.source;
     this._processPayloadFollowups(payload);
     this._publishQueue.commitPayload(this._operation, payload, this._updater);
     this._publishQueue.run();
@@ -292,7 +324,7 @@ class Executor {
           variables: moduleImportPayload.variables,
           node: operation,
         };
-        const relayPayload = this._normalizeResponse(
+        const relayPayload = normalizeResponse(
           {data: moduleImportPayload.data},
           selector,
           moduleImportPayload.typeName,
@@ -316,15 +348,29 @@ class Executor {
    * normalization selector, path (for nested defer/stream), and other metadata
    * used to normalize the incremental response.
    */
-  _processIncrementalPlaceholder(payload: IncrementalDataPlaceholder): void {
-    const {label, path} = payload;
+  _processIncrementalPlaceholder(
+    placeholder: IncrementalDataPlaceholder,
+  ): void {
+    const {kind, label, path} = placeholder;
     const pathKey = path.map(String).join('.');
     let dataForLabel = this._incrementalPlaceholders.get(label);
     if (dataForLabel == null) {
-      dataForLabel = new Map();
+      dataForLabel = {
+        kind,
+        placeholdersByPath: new Map(),
+      };
       this._incrementalPlaceholders.set(label, dataForLabel);
+    } else if (dataForLabel.kind !== kind) {
+      invariant(
+        false,
+        'RelayModernEnvironment: Received inconsistent data for label `%s`, ' +
+          'expected `@%s` data but got `@%s` data.',
+        label,
+        dataForLabel.kind,
+        kind,
+      );
     }
-    dataForLabel.set(pathKey, payload);
+    dataForLabel.placeholdersByPath.set(pathKey, placeholder);
   }
 
   /**
@@ -335,77 +381,263 @@ class Executor {
   _processIncrementalResponse(
     label: string,
     path: $ReadOnlyArray<mixed>,
-    response: GraphQLResponse,
+    response: GraphQLResponseWithData,
   ): void {
-    const pathKey = path.map(String).join('.');
     const dataForLabel = this._incrementalPlaceholders.get(label);
-    if (dataForLabel == null) {
-      invariant(
-        false,
-        `RelayModernEnvironment: Received response for unknown label '${label}'. Known labels: ${Array.from(
+    invariant(
+      dataForLabel != null,
+      'RelayModernEnvironment: Received response for unknown label ' +
+        `'${label}'. Known labels: ${Array.from(
           this._incrementalPlaceholders.keys(),
         ).join(', ')}.`,
-      );
-    }
-    const dataForPath = dataForLabel.get(pathKey);
-    if (dataForPath == null) {
+    );
+    if (dataForLabel.kind === 'defer') {
+      const pathKey = path.map(String).join('.');
+      const placeholder = dataForLabel.placeholdersByPath.get(pathKey);
       invariant(
-        false,
-        `RelayModernEnvironment: Received response for unknown path '${pathKey}' for label '${label}'. Known paths: ${Array.from(
-          dataForLabel.keys(),
-        ).join(', ')}.`,
+        placeholder != null,
+        'RelayModernEnvironment: Received response for unknown path `%s` ' +
+          'for label `%s`. Known paths: %s.',
+        pathKey,
+        label,
+        Array.from(dataForLabel.placeholdersByPath.keys()).join(', '),
       );
+      invariant(
+        placeholder.kind === 'defer',
+        'RelayModernEnvironment: Expected data for path `%s` for label `%s` ' +
+          'to be data for @defer, was `@%s`.',
+        pathKey,
+        label,
+        placeholder.kind,
+      );
+      this._processDeferResponse(label, path, placeholder, response);
+    } else {
+      // @stream payload path values end in the field name and item index,
+      // but Relay records paths relative to the parent of the stream node:
+      // therefore we strip the last two elements just to lookup the path
+      // (the item index is used later to insert the element in the list)
+      const pathKey = path
+        .slice(0, -2)
+        .map(String)
+        .join('.');
+      const placeholder = dataForLabel.placeholdersByPath.get(pathKey);
+      invariant(
+        placeholder != null,
+        'RelayModernEnvironment: Received response for unknown path `%s` ' +
+          'for label `%s`. Known paths: %s.',
+        pathKey,
+        label,
+        Array.from(dataForLabel.placeholdersByPath.keys()).join(', '),
+      );
+      invariant(
+        placeholder.kind === 'stream',
+        'RelayModernEnvironment: Expected data for path `%s` for label `%s` ' +
+          'to be data for @stream, was `@%s`.',
+        pathKey,
+        label,
+        placeholder.kind,
+      );
+      this._processStreamResponse(label, path, placeholder, response);
     }
-    const relayPayload = this._normalizeResponse(
+  }
+
+  _processDeferResponse(
+    label: string,
+    path: $ReadOnlyArray<mixed>,
+    placeholder: DeferPlaceholder,
+    response: GraphQLResponseWithData,
+  ): void {
+    const relayPayload = normalizeResponse(
       response,
-      dataForPath.selector,
-      dataForPath.typeName,
-      dataForPath.path,
+      placeholder.selector,
+      placeholder.typeName,
+      placeholder.path,
     );
     this._processPayloadFollowups(relayPayload);
     this._publishQueue.commitRelayPayload(relayPayload);
     this._publishQueue.run();
   }
 
-  _normalizeResponse(
-    response: GraphQLResponse,
-    selector: NormalizationSelector,
-    typeName: string,
-    path: $ReadOnlyArray<string>,
-  ): RelayResponsePayload {
-    const {data, errors} = response;
-    if (data == null) {
-      const error = RelayError.create(
-        'RelayNetwork',
-        'No data returned for operation `%s`, got error(s):\n%s\n\nSee the error ' +
-          '`source` property for more information.',
-        this._operation.node.params.name,
-        errors ? errors.map(({message}) => message).join('\n') : '(No errors)',
-      );
-      (error: $FlowFixMe).source = {
-        errors,
-        operation: selector.node,
-        variables: selector.variables,
-      };
-      throw error;
-    }
-    const source = new RelayInMemoryRecordSource();
-    const record = RelayModernRecord.create(selector.dataID, typeName);
-    source.set(selector.dataID, record);
-    const normalizeResult = RelayResponseNormalizer.normalize(
-      source,
-      selector,
-      data,
-      {handleStrippedNulls: true, path},
+  /**
+   * Process the data for one item in a @stream field.
+   */
+  _processStreamResponse(
+    label: string,
+    path: $ReadOnlyArray<mixed>,
+    placeholder: StreamPlaceholder,
+    response: GraphQLResponseWithData,
+  ): void {
+    const {parentID, node, variables} = placeholder;
+    const {data} = response;
+    invariant(
+      typeof data === 'object',
+      'RelayModernEnvironment: Expected the GraphQL @stream payload `data` ' +
+        'value to be an object.',
     );
-    return {
-      errors,
-      incrementalPlaceholders: normalizeResult.incrementalPlaceholders,
-      fieldPayloads: normalizeResult.fieldPayloads,
-      moduleImportPayloads: normalizeResult.moduleImportPayloads,
-      source,
+    // Find the LinkedField where @stream was applied
+    const field = node.selections[0];
+    invariant(
+      field != null && field.kind === 'LinkedField' && field.plural === true,
+      'RelayModernEnvironment: Expected @stream to be used on a plural field.',
+    );
+    const responseKey = field.alias ?? field.name;
+    const storageKey = getStorageKey(field, variables);
+
+    // Load the version of the parent record from which this incremental data
+    // was derived
+    const source = this._source;
+    invariant(
+      source != null,
+      'RelayModernEnvironment: Expected a RecordSource to exist when ' +
+        'processing @stream data.',
+    );
+    const parentRecord = source.get(parentID);
+    invariant(
+      parentRecord != null,
+      'RelayModernEnvironment: Expected the parent record `%s` for @stream ' +
+        'data to exist.',
+      parentID,
+    );
+
+    // Load the field value (items) that were created by *this* query executor
+    // in order to check if there has been any concurrent modifications by some
+    // other operation.
+    const prevIDs = RelayModernRecord.getLinkedRecordIDs(
+      parentRecord,
+      storageKey,
+    );
+    invariant(
+      prevIDs != null,
+      'RelayModernEnvironment: Expected record `%s` to have fetched field ' +
+        '`%s` with @stream.',
+      parentID,
+      field.name,
+    );
+
+    // Determine the index in the field of the new item
+    const finalPathEntry = path[path.length - 1];
+    const itemIndex = parseInt(finalPathEntry, 10);
+    invariant(
+      itemIndex === finalPathEntry && itemIndex >= 0,
+      'RelayModernEnvironment: Expected path for @stream to end in a ' +
+        'positive integer index, got `%s`',
+      finalPathEntry,
+    );
+
+    // Determine the __id of the new item: this must equal the value that would
+    // be assigned had the item not been streamed
+    const itemID =
+      data.id ??
+      (prevIDs && prevIDs[itemIndex]) || // Reuse previously generated client IDs
+      generateRelayClientID(parentID, storageKey, itemIndex);
+    invariant(
+      typeof itemID === 'string',
+      'RelayModernEnvironment: Expected id of elements of field `%s` to ' +
+        'be strings.',
+      storageKey,
+    );
+
+    // Build a selector to normalize the item data with
+    const selector = {
+      dataID: itemID,
+      node: field,
+      variables,
     };
+    const typeName = field.concreteType ?? data[TYPENAME_KEY];
+    invariant(
+      typeof typeName === 'string',
+      'RelayModernEnvironment: Expected @stream field `%s` to have a ' +
+        '__typename.',
+      field.name,
+    );
+
+    // Update the cached version of the parent record to reflect the new item:
+    // this is used when subsequent stream payloads arrive to see if there
+    // have been concurrent modifications to the list
+    const nextParentRecord = RelayModernRecord.clone(parentRecord);
+    const nextIDs = [...prevIDs];
+    nextIDs[itemIndex] = itemID;
+    RelayModernRecord.setLinkedRecordIDs(nextParentRecord, storageKey, nextIDs);
+    source.set(parentID, nextParentRecord);
+
+    // Publish the new item (does *not* add it to parent.field, see below)
+    const relayPayload = normalizeResponse(response, selector, typeName, [
+      ...placeholder.path,
+      responseKey,
+      String(itemIndex),
+    ]);
+    this._processPayloadFollowups(relayPayload);
+    this._publishQueue.commitRelayPayload(relayPayload);
+
+    // Update the parent record *if* it hasn't been concurrently modified
+    this._publishQueue.commitUpdate(store => {
+      const currentParentRecord = store.get(parentID);
+      if (currentParentRecord == null) {
+        // parent has since been deleted, stream data is stale
+        console.warn(
+          'RelayModernEnvironment: Received stale @stream payload, parent ' +
+            `record '${parentID}' no longer exists.`,
+        );
+        return;
+      }
+      const currentItems = currentParentRecord.getLinkedRecords(storageKey);
+      if (currentItems == null) {
+        // field has since been deleted, stream data is stale
+        console.warn(
+          'RelayModernEnvironment: Received stale @stream payload, field ' +
+            `'${field.name}' on parent record '${parentID}' no longer exists.`,
+        );
+        return;
+      }
+      if (
+        currentItems.length !== prevIDs.length ||
+        currentItems.some(
+          (currentItem, index) =>
+            prevIDs[index] !== (currentItem && currentItem.getDataID()),
+        )
+      ) {
+        // field has been modified by something other than this query,
+        // stream data is stale
+        console.warn(
+          'RelayModernEnvironment: Received stale @stream payload, items for ' +
+            `field '${
+              field.name
+            }' on parent record '${parentID}' have changed.`,
+        );
+        return;
+      }
+      // parent.field has not been concurrently modified:
+      // update `parent.field[index] = item`
+      const nextItems = [...currentItems];
+      nextItems[itemIndex] = store.get(itemID);
+      currentParentRecord.setLinkedRecords(nextItems, storageKey);
+    });
+    this._publishQueue.run();
   }
 }
 
+function normalizeResponse(
+  response: GraphQLResponseWithData,
+  selector: NormalizationSelector,
+  typeName: string,
+  path: $ReadOnlyArray<string>,
+): RelayResponsePayload {
+  const {data, errors} = response;
+  const source = new RelayInMemoryRecordSource();
+  const record = RelayModernRecord.create(selector.dataID, typeName);
+  source.set(selector.dataID, record);
+  const normalizeResult = RelayResponseNormalizer.normalize(
+    source,
+    selector,
+    data,
+    {handleStrippedNulls: true, path},
+  );
+  return {
+    errors,
+    incrementalPlaceholders: normalizeResult.incrementalPlaceholders,
+    fieldPayloads: normalizeResult.fieldPayloads,
+    moduleImportPayloads: normalizeResult.moduleImportPayloads,
+    source,
+  };
+}
 module.exports = {execute};

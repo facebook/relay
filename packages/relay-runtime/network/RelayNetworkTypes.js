@@ -43,21 +43,23 @@ export type PayloadExtensions = {[key: string]: mixed};
  * The shape of a GraphQL response as dictated by the
  * [spec](http://facebook.github.io/graphql/#sec-Response)
  */
+export type GraphQLResponseWithData = {
+  +data: PayloadData,
+  +errors?: Array<PayloadError>,
+  +extensions?: PayloadExtensions,
+  +label?: string,
+  +path?: Array<string | number>,
+};
+export type GraphQLResponseWithoutData = {
+  +data?: ?PayloadData,
+  +errors: Array<PayloadError>,
+  +extensions?: PayloadExtensions,
+  +label?: string,
+  +path?: Array<string | number>,
+};
 export type GraphQLResponse =
-  | {
-      data: PayloadData,
-      errors?: Array<PayloadError>,
-      extensions?: PayloadExtensions,
-      label?: string,
-      path?: Array<string | number>,
-    }
-  | {
-      data?: ?PayloadData,
-      errors: Array<PayloadError>,
-      extensions?: PayloadExtensions,
-      label?: string,
-      path?: Array<string | number>,
-    };
+  | GraphQLResponseWithData
+  | GraphQLResponseWithoutData;
 
 /**
  * A function that returns an Observable representing the response of executing

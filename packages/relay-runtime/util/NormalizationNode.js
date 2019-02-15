@@ -165,6 +165,7 @@ export type NormalizationVariable = {|
 
 export type NormalizationSelectableNode =
   | NormalizationDefer
+  | NormalizationLinkedField
   | NormalizationOperation
   | NormalizationSplitOperation
   | NormalizationStream;

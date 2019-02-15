@@ -424,14 +424,14 @@ function getVariablesFromObject(
           fragment.name,
         );
         if (owners != null) {
-          const owner = owners[key];
           invariant(
-            owner != null,
+            owners.hasOwnProperty(key),
             'RelayModernSelector: Expected explcitly provided owner for ' +
-              'fragment `%s` under key `%s` to be defined.',
+              'fragment `%s` under key `%s` to exist.',
             fragment.name,
             key,
           );
+          const owner = owners[key];
           invariant(
             !Array.isArray(owner),
             'RelayModernSelector: Expected explcitly provided owner for ' +

@@ -938,19 +938,7 @@ describe('RelayModernSelector', () => {
           ),
         ).toFailInvariant(
           'RelayModernSelector: Expected explcitly provided owner for fragment `UserFragment` ' +
-            'under key `user` to be defined.',
-        );
-
-        expect(() =>
-          getVariablesFromObject(
-            inputVariables,
-            {user: UserFragment},
-            {user: 'zuck'},
-            {user: null},
-          ),
-        ).toFailInvariant(
-          'RelayModernSelector: Expected explcitly provided owner for fragment `UserFragment` ' +
-            'under key `user` to be defined.',
+            'under key `user` to exist.',
         );
 
         expect(() =>
@@ -1029,6 +1017,19 @@ describe('RelayModernSelector', () => {
         });
       });
 
+      it('returns variables for singular props with owner from fragment ref when owner is passed as null', () => {
+        variables = getVariablesFromObject(
+          inputVariables,
+          {user: UserFragment},
+          {user: zuck},
+          {user: null},
+        );
+        expect(variables).toEqual({
+          cond: true,
+          size: 42,
+        });
+      });
+
       it('returns variables for singular props and prefers variables from owner when it is passed', () => {
         const queryNode = getRequest(UserQuery);
         // Pass owner with different variables
@@ -1088,6 +1089,19 @@ describe('RelayModernSelector', () => {
           inputVariables,
           {user: UsersFragment},
           {user: [zuck]},
+        );
+        expect(variables).toEqual({
+          cond: true,
+          size: 42,
+        });
+      });
+
+      it('returns variables for plural props with owner from fragment ref when owner is passed as null', () => {
+        variables = getVariablesFromObject(
+          inputVariables,
+          {user: UsersFragment},
+          {user: [zuck]},
+          {user: [null]},
         );
         expect(variables).toEqual({
           cond: true,

@@ -345,7 +345,6 @@ function fetchQueryAndComputeStateFromProps(
   requestCacheKey: ?string,
 ): $Shape<State> {
   const {environment, query, variables} = props;
-  // $FlowFixMe TODO t16225453 QueryRenderer works with old+new environment.
   const genericEnvironment = (environment: IEnvironment);
   if (query) {
     const {

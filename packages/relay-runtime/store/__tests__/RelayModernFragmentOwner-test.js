@@ -208,7 +208,6 @@ describe('RelayModernFragmentOwner', () => {
       expect(() =>
         getFragmentOwners(
           {zuck: UserFragment, zucks: UsersFragment},
-          // $FlowFixMe
           {zuck: 'zuck', zucks: ['zuck']},
         ),
       ).toThrow(
@@ -261,7 +260,6 @@ describe('RelayModernFragmentOwner', () => {
         zuck: owner,
         zucks: [owner],
       });
-      // $FlowFixMe
       expect(fragmentOwners.zuck).toBe(owner);
       // $FlowFixMe
       expect(fragmentOwners.zucks[0]).toBe(owner);

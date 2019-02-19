@@ -25,7 +25,7 @@ const {getRequest} = require('../RelayCore');
 const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
-const {getSelector} = require('../RelayModernSelector');
+const {getSingularSelector} = require('../RelayModernSelector');
 const {ROOT_ID} = require('../RelayStoreUtils');
 
 const {VIEWER_ID} = RelayViewerHandler;
@@ -1244,7 +1244,7 @@ describe('RelayModernEnvironment', () => {
       });
 
       const matchSelector = nullthrows(
-        getSelector(
+        getSingularSelector(
           variables,
           markdownRendererFragment,
           (operationSnapshot.data?.node: any)?.nameRenderer,
@@ -1289,7 +1289,7 @@ describe('RelayModernEnvironment', () => {
       operationCallback.mockClear();
 
       const matchSelector = nullthrows(
-        getSelector(
+        getSingularSelector(
           variables,
           markdownRendererFragment,
           (operationSnapshot.data?.node: any)?.nameRenderer,
@@ -1526,7 +1526,7 @@ describe('RelayModernEnvironment', () => {
       operationCallback.mockClear();
 
       const matchSelector = nullthrows(
-        getSelector(
+        getSingularSelector(
           variables,
           markdownRendererFragment,
           (operationSnapshot.data?.node: any)?.nameRenderer,
@@ -1698,7 +1698,7 @@ describe('RelayModernEnvironment', () => {
       });
 
       const matchSelector = nullthrows(
-        getSelector(
+        getSingularSelector(
           variables,
           markdownRendererFragment,
           (operationSnapshot.data?.node: any)?.nameRenderer,
@@ -1743,7 +1743,7 @@ describe('RelayModernEnvironment', () => {
       operationCallback.mockClear();
 
       const matchSelector = nullthrows(
-        getSelector(
+        getSingularSelector(
           variables,
           markdownRendererFragment,
           (operationSnapshot.data?.node: any)?.nameRenderer,
@@ -1980,7 +1980,7 @@ describe('RelayModernEnvironment', () => {
       operationCallback.mockClear();
 
       const matchSelector = nullthrows(
-        getSelector(
+        getSingularSelector(
           variables,
           markdownRendererFragment,
           (operationSnapshot.data?.node: any)?.nameRenderer,
@@ -4155,7 +4155,7 @@ describe('RelayModernEnvironment', () => {
       });
 
       const matchSelector = nullthrows(
-        getSelector(
+        getSingularSelector(
           variables,
           markdownRendererFragment,
           (operationSnapshot.data?.node: any)?.outerRenderer,
@@ -4219,7 +4219,7 @@ describe('RelayModernEnvironment', () => {
       const operationSnapshot = operationCallback.mock.calls[0][0];
       operationCallback.mockClear();
       const outerMatchSelector = nullthrows(
-        getSelector(
+        getSingularSelector(
           variables,
           markdownRendererFragment,
           (operationSnapshot.data?.node: any)?.outerRenderer,
@@ -4264,7 +4264,7 @@ describe('RelayModernEnvironment', () => {
       });
 
       const innerMatchSelector = nullthrows(
-        getSelector(
+        getSingularSelector(
           variables,
           plaintextRendererFragment,
           (outerMatchSnapshot.data?.user: $FlowFixMe)?.innerRenderer,
@@ -4530,7 +4530,7 @@ describe('RelayModernEnvironment', () => {
       // result shape tested above
       const operationSnapshot = operationCallback.mock.calls[0][0];
       const outerMatchSelector = nullthrows(
-        getSelector(
+        getSingularSelector(
           variables,
           markdownRendererFragment,
           (operationSnapshot.data?.node: any)?.outerRenderer,
@@ -4608,7 +4608,7 @@ describe('RelayModernEnvironment', () => {
       // result shape tested above
       const operationSnapshot = operationCallback.mock.calls[0][0];
       const outerMatchSelector = nullthrows(
-        getSelector(
+        getSingularSelector(
           variables,
           markdownRendererFragment,
           (operationSnapshot.data?.node: any)?.outerRenderer,
@@ -4619,7 +4619,7 @@ describe('RelayModernEnvironment', () => {
         outerMatchSelector.selector,
       );
       const innerMatchSelector = nullthrows(
-        getSelector(
+        getSingularSelector(
           variables,
           plaintextRendererFragment,
           (outerMatchSnapshot.data?.user: $FlowFixMe)?.innerRenderer,
@@ -5167,7 +5167,7 @@ describe('RelayModernEnvironment', () => {
       });
 
       const matchSelector = nullthrows(
-        getSelector(
+        getSingularSelector(
           variables,
           markdownRendererFragment,
           (operationSnapshot.data: any)?.commentCreate?.comment?.actor
@@ -5227,7 +5227,7 @@ describe('RelayModernEnvironment', () => {
       operationCallback.mockClear();
 
       const matchSelector = nullthrows(
-        getSelector(
+        getSingularSelector(
           variables,
           markdownRendererFragment,
           (operationSnapshot.data: any)?.commentCreate?.comment?.actor

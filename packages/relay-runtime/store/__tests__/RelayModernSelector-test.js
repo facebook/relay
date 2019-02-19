@@ -15,8 +15,8 @@ jest.mock('warning');
 const {
   areEqualSelectors,
   getDataIDsFromObject,
-  getSelector,
-  getSelectorList,
+  getSingularSelector,
+  getPluralSelector,
   getSelectorsFromObject,
   getVariablesFromObject,
 } = require('../RelayModernSelector');
@@ -99,16 +99,16 @@ describe('RelayModernSelector', () => {
     };
   });
 
-  describe('getSelector()', () => {
+  describe('getSingularSelector()', () => {
     it('throws for invalid inputs', () => {
       expect(() =>
-        getSelector(variables, UserFragment, 'zuck'),
+        getSingularSelector(variables, UserFragment, 'zuck'),
       ).toFailInvariant(
         'RelayModernSelector: Expected value for fragment `UserFragment` to ' +
           'be an object, got `"zuck"`.',
       );
       expect(() =>
-        getSelector(variables, UserFragment, [zuck]),
+        getSingularSelector(variables, UserFragment, [zuck]),
       ).toFailInvariant(
         'RelayModernSelector: Expected value for fragment `UserFragment` to be an object, got ' +
           '`[{"__fragments":{"UserFragment":{},"UsersFragment":{}},"__id":"4","__fragmentOwner":null}]`.',
@@ -118,7 +118,7 @@ describe('RelayModernSelector', () => {
     it('returns null and warns for unfetched fragment data', () => {
       let selector;
       expect(() => {
-        selector = getSelector(variables, UserFragment, {});
+        selector = getSingularSelector(variables, UserFragment, {});
       }).toWarn([
         'RelayModernSelector: Expected object to contain data for fragment ' +
           '`%s`, got `%s`. Make sure that the parent ' +
@@ -131,7 +131,7 @@ describe('RelayModernSelector', () => {
     });
 
     it('returns a selector', () => {
-      const selector = getSelector(variables, UserFragment, zuck);
+      const selector = getSingularSelector(variables, UserFragment, zuck);
       expect(selector).toEqual({
         owner: null,
         selector: {
@@ -147,7 +147,12 @@ describe('RelayModernSelector', () => {
       owner = createOperationDescriptor(queryNode, operationVariables);
       zuck = environment.lookup(owner.fragment, owner).data.node;
 
-      const selector = getSelector(variables, UserFragment, zuck, owner);
+      const selector = getSingularSelector(
+        variables,
+        UserFragment,
+        zuck,
+        owner,
+      );
       expect(selector).toEqual({
         owner: owner,
         selector: {
@@ -164,7 +169,7 @@ describe('RelayModernSelector', () => {
       owner = createOperationDescriptor(queryNode, operationVariables);
       zuck = environment.lookup(owner.fragment, owner).data.node;
 
-      const selector = getSelector(variables, UserFragment, zuck);
+      const selector = getSingularSelector(variables, UserFragment, zuck);
       expect(selector).toEqual({
         owner: owner,
         selector: {
@@ -186,7 +191,12 @@ describe('RelayModernSelector', () => {
       });
       zuck = environment.lookup(owner.fragment, owner).data.node;
 
-      const selector = getSelector(variables, UserFragment, zuck, owner);
+      const selector = getSingularSelector(
+        variables,
+        UserFragment,
+        zuck,
+        owner,
+      );
       expect(selector).toEqual({
         owner: owner,
         selector: {
@@ -208,7 +218,7 @@ describe('RelayModernSelector', () => {
       });
       zuck = environment.lookup(owner.fragment, owner).data.node;
 
-      const selector = getSelector(variables, UserFragment, zuck);
+      const selector = getSingularSelector(variables, UserFragment, zuck);
       expect(selector).toEqual({
         owner: owner,
         selector: {
@@ -221,10 +231,10 @@ describe('RelayModernSelector', () => {
     });
   });
 
-  describe('getSelectorList()', () => {
+  describe('getPluralSelector()', () => {
     it('throws for invalid inputs', () => {
       expect(() =>
-        getSelectorList(variables, UserFragment, ['zuck']),
+        getPluralSelector(variables, UserFragment, ['zuck']),
       ).toFailInvariant(
         'RelayModernSelector: Expected value for fragment `UserFragment` to be ' +
           'an object, got `"zuck"`.',
@@ -234,7 +244,7 @@ describe('RelayModernSelector', () => {
     it('returns null and warns for unfetched fragment data', () => {
       let selectors;
       expect(() => {
-        selectors = getSelectorList(variables, UserFragment, [{}]);
+        selectors = getPluralSelector(variables, UserFragment, [{}]);
       }).toWarn([
         'RelayModernSelector: Expected object to contain data for fragment ' +
           '`%s`, got `%s`. Make sure that the parent ' +
@@ -247,7 +257,7 @@ describe('RelayModernSelector', () => {
     });
 
     it('returns selectors', () => {
-      const selectors = getSelectorList(variables, UserFragment, [zuck]);
+      const selectors = getPluralSelector(variables, UserFragment, [zuck]);
       expect(selectors).toEqual([
         {
           owner: null,
@@ -265,7 +275,7 @@ describe('RelayModernSelector', () => {
       owner = createOperationDescriptor(queryNode, operationVariables);
       zuck = environment.lookup(owner.fragment, owner).data.node;
 
-      const selectors = getSelectorList(
+      const selectors = getPluralSelector(
         variables,
         UserFragment,
         [zuck],
@@ -288,7 +298,7 @@ describe('RelayModernSelector', () => {
       owner = createOperationDescriptor(queryNode, operationVariables);
       zuck = environment.lookup(owner.fragment, owner).data.node;
 
-      const selectors = getSelectorList(variables, UserFragment, [zuck]);
+      const selectors = getPluralSelector(variables, UserFragment, [zuck]);
       expect(selectors).toEqual([
         {
           owner: owner,
@@ -311,7 +321,7 @@ describe('RelayModernSelector', () => {
       });
       zuck = environment.lookup(owner.fragment, owner).data.node;
 
-      const selectors = getSelectorList(
+      const selectors = getPluralSelector(
         variables,
         UserFragment,
         [zuck],
@@ -339,7 +349,7 @@ describe('RelayModernSelector', () => {
       });
       zuck = environment.lookup(owner.fragment, owner).data.node;
 
-      const selectors = getSelectorList(variables, UserFragment, [zuck]);
+      const selectors = getPluralSelector(variables, UserFragment, [zuck]);
       expect(selectors).toEqual([
         {
           owner: owner,

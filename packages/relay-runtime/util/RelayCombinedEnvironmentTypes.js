@@ -309,11 +309,11 @@ export interface CUnstableEnvironmentCore<
    * using that selector to `lookup()` the results against the environment:
    *
    * ```
-   * const childSelector = getSelector(queryVariables, Child, parent);
+   * const childSelector = getSingularSelector(queryVariables, Child, parent);
    * const childData = environment.lookup(childSelector).data;
    * ```
    */
-  getSelector: (
+  getSingularSelector: (
     operationVariables: Variables,
     fragment: TFragment,
     prop: mixed,
@@ -323,10 +323,10 @@ export interface CUnstableEnvironmentCore<
   /**
    * Given the result `items` from a parent that fetched `fragment`, creates a
    * selector that can be used to read the results of that fragment on those
-   * items. This is similar to `getSelector` but for "plural" fragments that
+   * items. This is similar to `getSingularSelector` but for "plural" fragments that
    * expect an array of results and therefore return an array of selectors.
    */
-  getSelectorList: (
+  getPluralSelector: (
     operationVariables: Variables,
     fragment: TFragment,
     props: Array<mixed>,
@@ -373,6 +373,24 @@ export interface CUnstableEnvironmentCore<
     fragments: CFragmentMap<TFragment>,
     props: Props,
   ) => {[key: string]: ?(DataID | Array<DataID>)};
+
+  getVariablesFromSingularFragment: (
+    operationVariables: Variables,
+    fragment: TFragment,
+    prop: mixed,
+    owner?: ?COperationDescriptor<TReaderNode, TNormalizationNode, TRequest>,
+  ) => ?Variables;
+
+  getVariablesFromPluralFragment: (
+    operationVariables: Variables,
+    fragment: TFragment,
+    prop: Array<mixed>,
+    owners?: Array<?COperationDescriptor<
+      TReaderNode,
+      TNormalizationNode,
+      TRequest,
+    >>,
+  ) => Variables;
 
   /**
    * Given a mapping of keys -> results and a mapping of keys -> fragments,

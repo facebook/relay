@@ -50,11 +50,11 @@ import type {OperationDescriptor, OwnedReaderSelector} from './RelayStoreTypes';
  * using that selector to `lookup()` the results against the environment:
  *
  * ```
- * const childSelector = getSelector(queryVariables, Child, parent);
+ * const childSelector = getSingularSelector(queryVariables, Child, parent);
  * const childData = environment.lookup(childSelector).data;
  * ```
  */
-function getSelector(
+function getSingularSelector(
   operationVariables: Variables,
   fragment: ReaderFragment,
   item: mixed,
@@ -136,10 +136,10 @@ function getSelector(
  *
  * Given the result `items` from a parent that fetched `fragment`, creates a
  * selector that can be used to read the results of that fragment on those
- * items. This is similar to `getSelector` but for "plural" fragments that
+ * items. This is similar to `getSingularSelector` but for "plural" fragments that
  * expect an array of results and therefore return an array of selectors.
  */
-function getSelectorList(
+function getPluralSelector(
   operationVariables: Variables,
   fragment: ReaderFragment,
   items: Array<mixed>,
@@ -163,7 +163,7 @@ function getSelectorList(
     const owner = owners != null ? owners[ii] : null;
     const selector =
       item != null
-        ? getSelector(operationVariables, fragment, item, owner)
+        ? getSingularSelector(operationVariables, fragment, item, owner)
         : null;
     if (selector != null) {
       selectors = selectors || [];
@@ -215,14 +215,18 @@ function getSelectorsFromObject(
             key,
             JSON.stringify(owner),
           );
-          selectors[key] = getSelectorList(
+          selectors[key] = getPluralSelector(
             operationVariables,
             fragment,
             item,
             owner,
           );
         } else {
-          selectors[key] = getSelectorList(operationVariables, fragment, item);
+          selectors[key] = getPluralSelector(
+            operationVariables,
+            fragment,
+            item,
+          );
         }
       } else {
         invariant(
@@ -250,14 +254,18 @@ function getSelectorsFromObject(
             key,
             JSON.stringify(owner),
           );
-          selectors[key] = getSelector(
+          selectors[key] = getSingularSelector(
             operationVariables,
             fragment,
             item,
             owner,
           );
         } else {
-          selectors[key] = getSelector(operationVariables, fragment, item);
+          selectors[key] = getSingularSelector(
+            operationVariables,
+            fragment,
+            item,
+          );
         }
       }
     }
@@ -399,7 +407,7 @@ function getVariablesFromObject(
             key,
             JSON.stringify(owner),
           );
-          const itemVariables = getVariablesFromList(
+          const itemVariables = getVariablesFromPluralFragment(
             operationVariables,
             fragment,
             item,
@@ -407,7 +415,7 @@ function getVariablesFromObject(
           );
           Object.assign(variables, itemVariables);
         } else {
-          const itemVariables = getVariablesFromList(
+          const itemVariables = getVariablesFromPluralFragment(
             operationVariables,
             fragment,
             item,
@@ -441,7 +449,7 @@ function getVariablesFromObject(
             JSON.stringify(owner),
           );
 
-          const itemVariables = getVariables(
+          const itemVariables = getVariablesFromSingularFragment(
             operationVariables,
             fragment,
             item,
@@ -451,7 +459,7 @@ function getVariablesFromObject(
             Object.assign(variables, itemVariables);
           }
         } else {
-          const itemVariables = getVariables(
+          const itemVariables = getVariablesFromSingularFragment(
             operationVariables,
             fragment,
             item,
@@ -469,13 +477,18 @@ function getVariablesFromObject(
 /**
  * @internal
  */
-function getVariables(
+function getVariablesFromSingularFragment(
   operationVariables: Variables,
   fragment: ReaderFragment,
   item: mixed,
   owner?: ?OperationDescriptor,
 ): ?Variables {
-  const ownedSelector = getSelector(operationVariables, fragment, item, owner);
+  const ownedSelector = getSingularSelector(
+    operationVariables,
+    fragment,
+    item,
+    owner,
+  );
   if (!ownedSelector) {
     return null;
   }
@@ -485,7 +498,7 @@ function getVariables(
 /**
  * @internal
  */
-function getVariablesFromList(
+function getVariablesFromPluralFragment(
   operationVariables: Variables,
   fragment: ReaderFragment,
   items: Array<mixed>,
@@ -495,7 +508,7 @@ function getVariablesFromList(
   items.forEach((value, ii) => {
     if (value != null) {
       const owner = owners != null ? owners[ii] : null;
-      const itemVariables = getVariables(
+      const itemVariables = getVariablesFromSingularFragment(
         operationVariables,
         fragment,
         value,
@@ -533,8 +546,10 @@ function areEqualSelectors(
 module.exports = {
   areEqualSelectors,
   getDataIDsFromObject,
-  getSelector,
-  getSelectorList,
+  getSingularSelector,
+  getPluralSelector,
   getSelectorsFromObject,
+  getVariablesFromSingularFragment,
+  getVariablesFromPluralFragment,
   getVariablesFromObject,
 };

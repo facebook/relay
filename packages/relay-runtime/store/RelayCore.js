@@ -25,12 +25,15 @@ const {
 const {createOperationDescriptor} = require('./RelayModernOperationDescriptor');
 const {
   areEqualSelectors,
+  getDataIDsFromFragment,
   getDataIDsFromObject,
   getSingularSelector,
   getPluralSelector,
+  getSelector,
   getSelectorsFromObject,
   getVariablesFromSingularFragment,
   getVariablesFromPluralFragment,
+  getVariablesFromFragment,
   getVariablesFromObject,
 } = require('./RelayModernSelector');
 
@@ -74,6 +77,7 @@ module.exports = {
   areEqualSelectors,
   createFragmentSpecResolver,
   createOperationDescriptor,
+  getDataIDsFromFragment,
   getDataIDsFromObject,
   getFragment,
   getPaginationFragment,
@@ -81,9 +85,11 @@ module.exports = {
   getRequest,
   getSingularSelector,
   getPluralSelector,
+  getSelector,
   getSelectorsFromObject,
   getVariablesFromSingularFragment,
   getVariablesFromPluralFragment,
+  getVariablesFromFragment,
   getVariablesFromObject,
   isFragment,
   isRequest,

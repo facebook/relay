@@ -338,6 +338,20 @@ export interface CUnstableEnvironmentCore<
   ) => ?Array<TReaderSelector>;
 
   /**
+   * Given an item (fragment ref) and a fragment, returns a singular selector
+   * or array of selectors, depending on whether the fragment is singular or
+   * plural.
+   */
+  getSelector: (
+    operationVariables: Variables,
+    fragment: TFragment,
+    item: mixed | Array<mixed>,
+    owner?:
+      | ?COperationDescriptor<TReaderNode, TNormalizationNode, TRequest>
+      | Array<?COperationDescriptor<TReaderNode, TNormalizationNode, TRequest>>,
+  ) => ?TReaderSelector | ?Array<TReaderSelector>;
+
+  /**
    * Given a mapping of keys -> results and a mapping of keys -> fragments,
    * extracts the selectors for those fragments from the results.
    *
@@ -374,6 +388,11 @@ export interface CUnstableEnvironmentCore<
     props: Props,
   ) => {[key: string]: ?(DataID | Array<DataID>)};
 
+  getDataIDsFromFragment: (
+    fragment: TFragment,
+    prop: mixed,
+  ) => ?DataID | ?Array<DataID>;
+
   getVariablesFromSingularFragment: (
     operationVariables: Variables,
     fragment: TFragment,
@@ -393,6 +412,19 @@ export interface CUnstableEnvironmentCore<
   ) => Variables;
 
   /**
+   * Given an item (fragment ref) and a plural or singular fragment, extracts
+   * and returns the merged variables that would be in scope for that fragment/item.
+   */
+  getVariablesFromFragment: (
+    operationVariables: Variables,
+    fragment: TFragment,
+    item: mixed | Array<mixed>,
+    owner?:
+      | ?COperationDescriptor<TReaderNode, TNormalizationNode, TRequest>
+      | Array<?COperationDescriptor<TReaderNode, TNormalizationNode, TRequest>>,
+  ) => Variables;
+
+  /**
    * Given a mapping of keys -> results and a mapping of keys -> fragments,
    * extracts the merged variables that would be in scope for those
    * fragments/results.
@@ -404,7 +436,7 @@ export interface CUnstableEnvironmentCore<
     operationVariables: Variables,
     fragments: CFragmentMap<TFragment>,
     props: Props,
-    owner?: {
+    owners?: {
       [key: string]:
         | ?COperationDescriptor<TReaderNode, TNormalizationNode, TRequest>
         | Array<?COperationDescriptor<

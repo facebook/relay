@@ -24,7 +24,6 @@ const {
 const {ROOT_ID} = require('../../store/RelayStoreUtils');
 const {createMockEnvironment} = require('RelayModernMockEnvironment');
 const {generateAndCompile} = require('RelayModernTestUtils');
-const {commitMutation} = require('react-relay/modern/ReactRelayPublic');
 
 describe('Configs: NODE_DELETE', () => {
   jest.resetModules();
@@ -602,7 +601,7 @@ describe('Configs: RANGE_ADD', () => {
     const operationDescriptor = createOperationDescriptor(CommentQuery, {});
     environment.commitPayload(operationDescriptor, payload);
     store.subscribe(snapshot, callback);
-    commitMutation(environment, {
+    commitRelayModernMutation(environment, {
       configs,
       mutation,
       optimisticResponse,
@@ -657,7 +656,7 @@ describe('Configs: RANGE_ADD', () => {
       },
     });
     // send mutation
-    commitMutation(environment, {
+    commitRelayModernMutation(environment, {
       configs,
       mutation,
       variables,
@@ -738,7 +737,7 @@ describe('Configs: RANGE_ADD', () => {
       },
     };
     // send the same mutation again
-    commitMutation(environment, {
+    commitRelayModernMutation(environment, {
       configs,
       mutation,
       variables,
@@ -812,7 +811,7 @@ describe('Configs: RANGE_ADD', () => {
     const operationDescriptor = createOperationDescriptor(CommentQuery, {});
     environment.commitPayload(operationDescriptor, payload);
     store.subscribe(snapshot, callback);
-    commitMutation(environment, {
+    commitRelayModernMutation(environment, {
       configs,
       mutation,
       optimisticResponse,
@@ -873,7 +872,7 @@ describe('Configs: RANGE_ADD', () => {
       variables: {},
     });
     store.subscribe(snapshot, callback);
-    commitMutation(environment, {
+    commitRelayModernMutation(environment, {
       configs,
       mutation,
       optimisticResponse,
@@ -913,7 +912,7 @@ describe('Aliased mutation roots', () => {
         }
       }
     `).CommentDeleteMutation;
-    commitMutation(environment, {
+    commitRelayModernMutation(environment, {
       mutation,
       variables: {},
       optimisticResponse: {
@@ -999,7 +998,7 @@ describe('commitMutation()', () => {
     const callback = jest.fn();
     environment.subscribe(initialSnapshot, callback);
 
-    commitMutation(environment, {
+    commitRelayModernMutation(environment, {
       mutation,
       variables,
       onCompleted,
@@ -1050,7 +1049,7 @@ describe('commitMutation()', () => {
   });
 
   it('calls onCompleted when the mutation completes after one payload', () => {
-    commitMutation(environment, {
+    commitRelayModernMutation(environment, {
       mutation,
       variables,
       onCompleted,
@@ -1087,7 +1086,7 @@ describe('commitMutation()', () => {
   });
 
   it('calls onCompleted when the mutation completes after one payload with errors', () => {
-    commitMutation(environment, {
+    commitRelayModernMutation(environment, {
       mutation,
       variables,
       onCompleted,
@@ -1137,7 +1136,7 @@ describe('commitMutation()', () => {
   });
 
   it('calls onCompleted with the latest data when the mutation completes after multiple payloads', () => {
-    commitMutation(environment, {
+    commitRelayModernMutation(environment, {
       mutation,
       variables,
       onCompleted,
@@ -1211,7 +1210,7 @@ describe('commitMutation()', () => {
   });
 
   it('calls onError when the payload is mising data', () => {
-    commitMutation(environment, {
+    commitRelayModernMutation(environment, {
       mutation,
       variables,
       onCompleted,
@@ -1235,7 +1234,7 @@ describe('commitMutation()', () => {
   });
 
   it('calls onError when the network errors', () => {
-    commitMutation(environment, {
+    commitRelayModernMutation(environment, {
       mutation,
       variables,
       onCompleted,

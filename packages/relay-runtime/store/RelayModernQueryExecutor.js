@@ -76,7 +76,7 @@ class Executor {
   _optimisticUpdate: null | OptimisticUpdate;
   _publishQueue: RelayPublishQueue;
   _sink: Sink<GraphQLResponse>;
-  _source: ?MutableRecordSource;
+  _source: MutableRecordSource;
   _state: 'started' | 'loading' | 'completed';
   _updater: ?SelectorStoreUpdater;
   _subscriptions: Map<number, Subscription>;
@@ -97,7 +97,7 @@ class Executor {
     this._optimisticUpdate = optimisticUpdate ?? null;
     this._publishQueue = publishQueue;
     this._sink = sink;
-    this._source = null;
+    this._source = new RelayInMemoryRecordSource();
     this._state = 'started';
     this._updater = updater;
     this._subscriptions = new Map();
@@ -263,7 +263,7 @@ class Executor {
       [] /* path */,
     );
     this._incrementalPlaceholders.clear();
-    this._source = payload.source;
+    this._source.clear();
     this._processPayloadFollowups(payload);
     this._publishQueue.commitPayload(this._operation, payload, this._updater);
     this._publishQueue.run();
@@ -288,7 +288,7 @@ class Executor {
     }
     if (incrementalPlaceholders && incrementalPlaceholders.length !== 0) {
       incrementalPlaceholders.forEach(incrementalPlaceholder => {
-        this._processIncrementalPlaceholder(incrementalPlaceholder);
+        this._processIncrementalPlaceholder(payload, incrementalPlaceholder);
       });
     }
   }
@@ -349,8 +349,10 @@ class Executor {
    * used to normalize the incremental response.
    */
   _processIncrementalPlaceholder(
+    relayPayload: RelayResponsePayload,
     placeholder: IncrementalDataPlaceholder,
   ): void {
+    // Update the label => path => placeholder map
     const {kind, label, path} = placeholder;
     const pathKey = path.map(String).join('.');
     let dataForLabel = this._incrementalPlaceholders.get(label);
@@ -371,6 +373,16 @@ class Executor {
       );
     }
     dataForLabel.placeholdersByPath.set(pathKey, placeholder);
+
+    // Store references to the parent node to allow detecting concurrent
+    // modifications to the parent before items arrive
+    if (placeholder.kind === 'stream') {
+      const {parentID} = placeholder;
+      const parentRecord = relayPayload.source.get(parentID);
+      if (parentRecord != null) {
+        this._source.set(parentID, parentRecord);
+      }
+    }
   }
 
   /**
@@ -485,13 +497,7 @@ class Executor {
 
     // Load the version of the parent record from which this incremental data
     // was derived
-    const source = this._source;
-    invariant(
-      source != null,
-      'RelayModernEnvironment: Expected a RecordSource to exist when ' +
-        'processing @stream data.',
-    );
-    const parentRecord = source.get(parentID);
+    const parentRecord = this._source.get(parentID);
     invariant(
       parentRecord != null,
       'RelayModernEnvironment: Expected the parent record `%s` for @stream ' +
@@ -558,7 +564,7 @@ class Executor {
     const nextIDs = [...prevIDs];
     nextIDs[itemIndex] = itemID;
     RelayModernRecord.setLinkedRecordIDs(nextParentRecord, storageKey, nextIDs);
-    source.set(parentID, nextParentRecord);
+    this._source.set(parentID, nextParentRecord);
 
     // Publish the new item (does *not* add it to parent.field, see below)
     const relayPayload = normalizeResponse(response, selector, typeName, [

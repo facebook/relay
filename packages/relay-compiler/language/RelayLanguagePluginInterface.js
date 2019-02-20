@@ -15,7 +15,22 @@ const {RelayConcreteNode} = require('relay-runtime');
 import type {IRTransform} from '../core/GraphQLCompilerContext';
 import type {Root, Fragment} from '../core/GraphQLIR';
 import type {ScalarTypeMapping} from './javascript/RelayFlowTypeTransformers';
+import type {FileFilter} from '../codegen/CodegenWatcher';
 
+/**
+ * The set of all compiler transforms exposed to the PluginInterface for copying or
+ * changing. For instance, if a language plugin wants to offer some extra directive to
+ * alter the generated types, one might want to hook into the printTransforms to
+ * remove the directive before submitting it to the server.
+ *
+ */
+export type CompilerTransforms = {
+  commonTransforms: Array<IRTransform>,
+  codegenTransforms: Array<IRTransform>,
+  fragmentTransforms: Array<IRTransform>,
+  printTransforms: Array<IRTransform>,
+  queryTransforms: Array<IRTransform>,
+}
 /**
  * A language plugin allows relay-compiler to both read and write files for any
  * language.
@@ -34,6 +49,9 @@ export type PluginInterface = {
   findGraphQLTags: GraphQLTagFinder,
   formatModule: FormatModule,
   typeGenerator: TypeGenerator,
+  processCompilerTransforms?: CompilerTransforms => CompilerTransforms,
+  extraSchema?: string,
+  getFileFilter?: string => FileFilter,
 };
 
 /**

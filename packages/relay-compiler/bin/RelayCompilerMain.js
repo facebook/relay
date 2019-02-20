@@ -188,9 +188,9 @@ Ensure that one such file exists in ${srcDir} or its parents.
 
   const useWatchman = options.watchman && (await WatchmanClient.isAvailable());
 
-  const schema = getSchema(schemaPath);
-
   const languagePlugin = getLanguagePlugin(options.language);
+
+  const schema = getSchema(schemaPath, languagePlugin);
 
   const inputExtensions = options.extensions || languagePlugin.inputExtensions;
   const outputExtension = languagePlugin.outputExtension;
@@ -200,6 +200,7 @@ Ensure that one such file exists in ${srcDir} or its parents.
 
   const sourceModuleParser = RelaySourceModuleParser(
     languagePlugin.findGraphQLTags,
+    languagePlugin.getFileFilter,
   );
 
   const providedArtifactDirectory = options.artifactDirectory;
@@ -310,16 +311,22 @@ function getRelayFileWriter(
         return Promise.resolve(id);
       };
     }
+
+    const baseCompilerTransforms = {
+      commonTransforms,
+      codegenTransforms,
+      fragmentTransforms,
+      printTransforms,
+      queryTransforms,
+    };
+
+    const compilerTransforms = languagePlugin.processCompilerTransforms ?
+      languagePlugin.processCompilerTransforms(baseCompilerTransforms) : baseCompilerTransforms;
+
     const results = RelayFileWriter.writeAll({
       config: {
         baseDir,
-        compilerTransforms: {
-          commonTransforms,
-          codegenTransforms,
-          fragmentTransforms,
-          printTransforms,
-          queryTransforms,
-        },
+        compilerTransforms,
         customScalars: {},
         formatModule: languagePlugin.formatModule,
         optionalInputFieldsForFlow: [],
@@ -350,8 +357,10 @@ function getRelayFileWriter(
   };
 }
 
-function getSchema(schemaPath: string): GraphQLSchema {
+function getSchema(schemaPath: string, languagePlugin: PluginInterface): GraphQLSchema {
   try {
+    const extraSchema = languagePlugin.extraSchema ? languagePlugin.extraSchema : '';
+
     let source = fs.readFileSync(schemaPath, 'utf8');
     if (path.extname(schemaPath) === '.json') {
       source = printSchema(buildClientSchema(JSON.parse(source).data));
@@ -359,6 +368,8 @@ function getSchema(schemaPath: string): GraphQLSchema {
     source = `
   directive @include(if: Boolean) on FRAGMENT_SPREAD | FIELD
   directive @skip(if: Boolean) on FRAGMENT_SPREAD | FIELD
+
+  ${extraSchema}
 
   ${source}
   `;

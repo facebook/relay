@@ -50,12 +50,7 @@ describe('FlattenTransform', () => {
   );
 
   generateTestsFromFixtures(
-    `${__dirname}/fixtures/flatten-transform-option-flatten-inline`,
-    printContextTransform({flattenInlineFragments: true}),
-  );
-
-  generateTestsFromFixtures(
     `${__dirname}/fixtures/flatten-transform-errors`,
-    printContextTransform({flattenInlineFragments: true}),
+    printContextTransform({}),
   );
 });

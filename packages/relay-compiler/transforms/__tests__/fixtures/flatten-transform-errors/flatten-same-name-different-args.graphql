@@ -4,15 +4,17 @@ query TestQuery(
   node(id: $id) {
     id
     ... on User {
-      friends(first: 5) {
-        count
+      ... on User {
+        friends(first: 5) {
+          count
+        }
       }
-    }
-    ... on User {
-      friends(first: 10) {
-        edges {
-          node {
-            id
+      ... on User {
+        friends(first: 10) {
+          edges {
+            node {
+              id
+            }
           }
         }
       }

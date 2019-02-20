@@ -4,15 +4,17 @@ query TestQuery(
   node(id: $id) {
     id
     ... on User {
-      friendsAlias: friends(first: 5) {
-        count
+      ... on User {
+        friendsAlias: friends(first: 5) {
+          count
+        }
       }
-    }
-    ... on User {
-      friendsAlias: friends(first: 10) {
-        edges {
-          node {
-            id
+      ... on User {
+        friendsAlias: friends(first: 10) {
+          edges {
+            node {
+              id
+            }
           }
         }
       }

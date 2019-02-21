@@ -31,7 +31,7 @@ const FIND_OPTIONS = {
   validateNames: true,
 };
 
-module.exports = (tagFinder: GraphQLTagFinder) => {
+module.exports = (tagFinder: GraphQLTagFinder, fileFilter?: string => FileFilter) => {
   const memoizedTagFinder = memoizedFind.bind(null, tagFinder);
 
   function parseFile(baseDir: string, file: File): ?DocumentNode {
@@ -88,12 +88,14 @@ module.exports = (tagFinder: GraphQLTagFinder) => {
     });
   }
 
-  function getFileFilter(baseDir: string): FileFilter {
+  function getFileFilterDefault(baseDir: string): FileFilter {
     return (file: File) => {
       const text = fs.readFileSync(path.join(baseDir, file.relPath), 'utf8');
       return text.indexOf('graphql') >= 0;
     };
   }
+
+  const getFileFilter = fileFilter ? fileFilter : getFileFilterDefault;
 
   return {
     getParser,

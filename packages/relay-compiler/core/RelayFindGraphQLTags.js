@@ -23,10 +23,6 @@ import type {
   GraphQLTagFinder,
 } from '../language/RelayLanguagePluginInterface';
 
-export type GraphQLTagFinderOptions = {|
-  validateNames: boolean,
-|};
-
 const cache = new RelayCompilerCache('RelayFindGraphQLTags', 'v1');
 
 function memoizedFind(
@@ -34,7 +30,6 @@ function memoizedFind(
   text: string,
   baseDir: string,
   file: File,
-  options: GraphQLTagFinderOptions,
 ): Array<string> {
   invariant(
     file.exists,
@@ -42,8 +37,8 @@ function memoizedFind(
     file.relPath,
   );
   return cache.getOrCompute(
-    file.hash + (options.validateNames ? '1' : '0'),
-    find.bind(null, tagFinder, text, path.join(baseDir, file.relPath), options),
+    file.hash,
+    find.bind(null, tagFinder, text, path.join(baseDir, file.relPath)),
   );
 }
 
@@ -51,13 +46,10 @@ function find(
   tagFinder: GraphQLTagFinder,
   text: string,
   absPath: string,
-  {validateNames}: GraphQLTagFinderOptions,
 ): Array<string> {
   const tags = tagFinder(text, absPath);
-  if (validateNames) {
-    const moduleName = getModuleName(absPath);
-    tags.forEach(tag => validateTemplate(tag, moduleName, absPath));
-  }
+  const moduleName = getModuleName(absPath);
+  tags.forEach(tag => validateTemplate(tag, moduleName, absPath));
   return tags.map(tag => tag.template);
 }
 

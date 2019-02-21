@@ -38,6 +38,7 @@ const compileRelayArtifacts = require('./codegen/compileRelayArtifacts');
 const filterContextForNode = require('./core/filterContextForNode');
 const formatGeneratedModule = require('./language/javascript/formatGeneratedModule');
 const getIdentifierForArgumentValue = require('./core/getIdentifierForArgumentValue');
+const getNormalizationOperationName = require('./core/getNormalizationOperationName');
 const getLiteralArgumentValues = require('./core/getLiteralArgumentValues');
 const isEquivalentType = require('./core/isEquivalentType');
 const nullthrows = require('./util/nullthrowsOSS');
@@ -66,6 +67,7 @@ export type {
   ArgumentDefinition,
   ArgumentValue,
   Condition,
+  Definition,
   Directive,
   Field,
   Fragment,
@@ -118,6 +120,7 @@ module.exports = {
   WatchmanClient: GraphQLWatchmanClient,
   filterContextForNode,
   getIdentifierForArgumentValue,
+  getNormalizationOperationName,
   getLiteralArgumentValues,
   isEquivalentType,
   nullthrows,

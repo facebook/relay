@@ -216,15 +216,15 @@ function writeAll({
 
     // remove nodes that are present in the base or that derive from nodes
     // in the base
-    const artifacts = artifactsWithBase.filter(node => {
+    const artifacts = artifactsWithBase.filter(([_definition, node]) => {
       const sourceName = getReaderSourceDefinitionName(node);
       return !baseDefinitionNames.has(sourceName);
     });
 
     const artifactMap = new Map(
-      artifacts.map(artifact => [
-        artifact.kind === 'Request' ? artifact.params.name : artifact.name,
-        artifact,
+      artifacts.map(([_definition, node]) => [
+        node.kind === 'Request' ? node.params.name : node.name,
+        node,
       ]),
     );
 
@@ -308,7 +308,7 @@ function writeAll({
 
     try {
       await Promise.all(
-        artifacts.map(async node => {
+        artifacts.map(async ([definition, node]) => {
           const nodeName =
             node.kind === 'Request' ? node.params.name : node.name;
           if (baseDefinitionNames.has(nodeName)) {
@@ -335,6 +335,7 @@ function writeAll({
 
           await writeRelayGeneratedFile(
             getGeneratedDirectory(nodeName),
+            definition,
             node,
             formatModule,
             typeText,

@@ -284,6 +284,8 @@ export type Selection =
   | ScalarField
   | Stream;
 
+export type Definition = Fragment | Root | SplitOperation;
+
 export type SplitOperation = {|
   +kind: 'SplitOperation',
   +name: string,

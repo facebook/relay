@@ -44,12 +44,10 @@ const {getRawType, isAbstractType} = GraphQLSchemaUtils;
 
 export type FlattenOptions = {
   flattenAbstractTypes?: boolean,
-  flattenInlineFragments?: boolean,
 };
 
 type State = {
   flattenAbstractTypes: boolean,
-  flattenInlineFragments: boolean,
   parentType: ?GraphQLType,
 };
 
@@ -71,7 +69,6 @@ type HasSelections =
  * - The fragment type matches the type of its parent.
  * - The fragment has an abstract type and the `flattenAbstractTypes` option has
  *   been set.
- * - The 'flattenInlineFragments' option has been set.
  */
 function flattenTransformImpl(
   context: GraphQLCompilerContext,
@@ -79,7 +76,6 @@ function flattenTransformImpl(
 ): GraphQLCompilerContext {
   const state = {
     flattenAbstractTypes: !!(options && options.flattenAbstractTypes),
-    flattenInlineFragments: !!(options && options.flattenInlineFragments),
     parentType: null,
   };
 
@@ -323,7 +319,6 @@ function shouldFlattenInlineFragment(
   type: GraphQLType,
 ): boolean {
   return (
-    state.flattenInlineFragments ||
     fragment.typeCondition.name === getRawType(type).name ||
     (state.flattenAbstractTypes && isAbstractType(fragment.typeCondition))
   );

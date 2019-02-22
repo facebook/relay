@@ -410,6 +410,7 @@ describe('RelayResponseNormalizer', () => {
           __id:
             'client:1:nameRenderer(MarkdownUserNameRenderer_name:MarkdownUserNameRenderer.react,PlainUserNameRenderer_name:PlainUserNameRenderer.react)',
           __typename: 'MarkdownUserNameRenderer',
+          __module_component: 'MarkdownUserNameRenderer.react',
         },
         'client:root': {
           __id: 'client:root',
@@ -486,6 +487,7 @@ describe('RelayResponseNormalizer', () => {
           __id:
             'client:1:nameRenderer(MarkdownUserNameRenderer_name:MarkdownUserNameRenderer.react,PlainUserNameRenderer_name:PlainUserNameRenderer.react)',
           __typename: 'MarkdownUserNameRenderer',
+          __module_component: 'MarkdownUserNameRenderer.react',
         },
         'client:root': {
           __id: 'client:root',
@@ -679,6 +681,7 @@ describe('RelayResponseNormalizer', () => {
         'client:1:nameRenderer': {
           __id: 'client:1:nameRenderer',
           __typename: 'MarkdownUserNameRenderer',
+          __module_component: 'MarkdownUserNameRenderer.react',
         },
         'client:root': {
           __id: 'client:root',
@@ -752,6 +755,7 @@ describe('RelayResponseNormalizer', () => {
         'client:1:nameRenderer': {
           __id: 'client:1:nameRenderer',
           __typename: 'MarkdownUserNameRenderer',
+          __module_component: 'MarkdownUserNameRenderer.react',
         },
         'client:root': {
           __id: 'client:root',
@@ -1239,12 +1243,9 @@ describe('RelayResponseNormalizer', () => {
           kind: 'stream',
           label: 'TestFragment$stream$actors',
           path: ['node'],
-          selector: {
-            dataID: '1',
-            variables: {id: '1'},
-            node: expect.objectContaining({kind: 'Stream'}),
-          },
-          typeName: 'Feedback',
+          parentID: '1',
+          node: expect.objectContaining({kind: 'Stream'}),
+          variables: {id: '1'},
         },
       ]);
       expect(recordSource.toJSON()).toEqual({
@@ -1308,12 +1309,9 @@ describe('RelayResponseNormalizer', () => {
           kind: 'stream',
           label: 'TestFragment$stream$actors',
           path: ['node'],
-          selector: {
-            dataID: '1',
-            variables: {id: '1', enableStream: true},
-            node: expect.objectContaining({kind: 'Stream'}),
-          },
-          typeName: 'Feedback',
+          parentID: '1',
+          node: expect.objectContaining({kind: 'Stream'}),
+          variables: {id: '1', enableStream: true},
         },
       ]);
       expect(recordSource.toJSON()).toEqual({
@@ -1385,23 +1383,17 @@ describe('RelayResponseNormalizer', () => {
           kind: 'stream',
           label: 'TestFragment$stream$actors',
           path: ['node', 'actors', '0'],
-          selector: {
-            dataID: '2',
-            variables: {id: '1'},
-            node: expect.objectContaining({kind: 'Stream'}),
-          },
-          typeName: 'User',
+          parentID: '2',
+          variables: {id: '1'},
+          node: expect.objectContaining({kind: 'Stream'}),
         },
         {
           kind: 'stream',
           label: 'TestFragment$stream$actors',
           path: ['node', 'actors', '1'],
-          selector: {
-            dataID: '3',
-            variables: {id: '1'},
-            node: expect.objectContaining({kind: 'Stream'}),
-          },
-          typeName: 'User',
+          parentID: '3',
+          variables: {id: '1'},
+          node: expect.objectContaining({kind: 'Stream'}),
         },
       ]);
       expect(recordSource.toJSON()).toEqual({
@@ -1476,12 +1468,9 @@ describe('RelayResponseNormalizer', () => {
           kind: 'stream',
           label: 'TestFragment$stream$actors',
           path: ['abc', '0', 'xyz', 'node'],
-          selector: {
-            dataID: '1',
-            variables: {id: '1'},
-            node: expect.objectContaining({kind: 'Stream'}),
-          },
-          typeName: 'Feedback',
+          parentID: '1',
+          variables: {id: '1'},
+          node: expect.objectContaining({kind: 'Stream'}),
         },
       ]);
     });

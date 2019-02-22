@@ -13,7 +13,7 @@
 const {RelayConcreteNode} = require('relay-runtime');
 
 import type {IRTransform} from '../core/GraphQLCompilerContext';
-import type {Root, Fragment} from '../core/GraphQLIR';
+import type {Definition, Root, Fragment} from '../core/GraphQLIR';
 import type {ScalarTypeMapping} from './javascript/RelayFlowTypeTransformers';
 
 /**
@@ -106,7 +106,7 @@ export type GraphQLTag = {
 export type GraphQLTagFinder = (
   text: string,
   filePath: string,
-) => Array<GraphQLTag>;
+) => $ReadOnlyArray<GraphQLTag>;
 
 /**
  * The function that is responsible for generating the contents of the artifact
@@ -156,6 +156,11 @@ export type FormatModule = ({|
    * The 'kind' of the generated node.
    */
   kind: string,
+
+  /**
+   * The IR node from which the generated node is derived.
+   */
+  definition: Definition,
 
   /**
    * A hash of the document, which is used by relay-compiler to know if it needs

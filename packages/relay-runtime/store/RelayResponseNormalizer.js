@@ -276,12 +276,9 @@ class RelayResponseNormalizer {
         kind: 'stream',
         label: stream.label,
         path: [...this._path],
-        selector: {
-          dataID: RelayModernRecord.getDataID(record),
-          node: stream,
-          variables: this._variables,
-        },
-        typeName: RelayModernRecord.getType(record),
+        parentID: RelayModernRecord.getDataID(record),
+        node: stream,
+        variables: this._variables,
       });
     }
   }

@@ -11,7 +11,7 @@
 'use strict';
 
 const React = require('React');
-const ReactRelayContext = require('../modern/ReactRelayContext');
+const ReactRelayContext = require('./ReactRelayContext');
 
 const assertFragmentMap = require('./assertFragmentMap');
 const invariant = require('invariant');

@@ -10,12 +10,14 @@
 
 'use strict';
 
+const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
 const RelayModernFragmentSpecResolver = require('../RelayModernFragmentSpecResolver');
 const RelayModernTestUtils = require('RelayModernTestUtils');
 
 const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
+const {ROOT_ID} = require('../RelayStoreUtils');
 const {createMockEnvironment} = require('RelayModernMockEnvironment');
 
 describe('RelayModernFragmentSpecResolver with fragment ownership', () => {
@@ -53,8 +55,28 @@ describe('RelayModernFragmentSpecResolver with fragment ownership', () => {
     });
   }
 
+  function createOwnerWithUnalteredVariables(request, vars) {
+    return {
+      fragment: {
+        dataID: ROOT_ID,
+        node: request.fragment,
+        variables: vars,
+      },
+      node: request,
+      root: {
+        dataID: ROOT_ID,
+        node: request.operation,
+        variables: vars,
+      },
+      variables: vars,
+    };
+  }
+
   beforeEach(() => {
     expect.extend(RelayModernTestUtils.matchers);
+
+    RelayFeatureFlags.MERGE_FETCH_AND_FRAGMENT_VARS = true;
+    RelayFeatureFlags.PREFER_FRAGMENT_OWNER_OVER_CONTEXT = true;
 
     environment = createMockEnvironment();
     ({UserFragment, UserQuery, UsersFragment} = environment.mock.compile(
@@ -122,6 +144,11 @@ describe('RelayModernFragmentSpecResolver with fragment ownership', () => {
       size: null,
     };
     context = {environment, variables};
+  });
+
+  afterEach(() => {
+    RelayFeatureFlags.MERGE_FETCH_AND_FRAGMENT_VARS = false;
+    RelayFeatureFlags.PREFER_FRAGMENT_OWNER_OVER_CONTEXT = false;
   });
 
   it('ignores non-fragment data, sets missing fragment props to null', () => {
@@ -393,7 +420,7 @@ describe('RelayModernFragmentSpecResolver with fragment ownership', () => {
           },
           UserQuery,
         );
-        const owner = createOperationDescriptor(UserQuery, {
+        const owner = createOwnerWithUnalteredVariables(UserQuery, {
           fetchSize: true,
           size: 1,
         });
@@ -422,7 +449,7 @@ describe('RelayModernFragmentSpecResolver with fragment ownership', () => {
           },
           UserQuery,
         );
-        const owner = createOperationDescriptor(UserQuery, {
+        const owner = createOwnerWithUnalteredVariables(UserQuery, {
           fetchSize: true,
           size: 1,
         });
@@ -830,7 +857,7 @@ describe('RelayModernFragmentSpecResolver with fragment ownership', () => {
           },
           UserQuery,
         );
-        const owner = createOperationDescriptor(UserQuery, {
+        const owner = createOwnerWithUnalteredVariables(UserQuery, {
           fetchSize: true,
           size: 1,
         });
@@ -861,7 +888,7 @@ describe('RelayModernFragmentSpecResolver with fragment ownership', () => {
           },
           UserQuery,
         );
-        const owner = createOperationDescriptor(UserQuery, {
+        const owner = createOwnerWithUnalteredVariables(UserQuery, {
           fetchSize: true,
           size: 1,
         });

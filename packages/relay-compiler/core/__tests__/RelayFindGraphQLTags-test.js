@@ -13,31 +13,19 @@
 const FindGraphQLTags = require('FindGraphQLTags');
 const RelayFindGraphQLTags = require('RelayFindGraphQLTags');
 
-import type {GraphQLTagFinderOptions} from 'RelayFindGraphQLTags';
-
 describe('RelayFindGraphQLTags', () => {
-  function find(
-    text,
-    options: GraphQLTagFinderOptions,
-    absPath: string = '/path/to/FindGraphQLTags.js',
-  ) {
-    return RelayFindGraphQLTags.find(
-      FindGraphQLTags.find,
-      text,
-      absPath,
-      options,
-    );
+  function find(text, absPath: string = '/path/to/FindGraphQLTags.js') {
+    return RelayFindGraphQLTags.find(FindGraphQLTags.find, text, absPath);
   }
 
   describe('query parsing', () => {
     it('parses a simple file', () => {
-      expect(find('const foo = 1;', {validateNames: false})).toEqual([]);
+      expect(find('const foo = 1;')).toEqual([]);
     });
 
     it('parses graphql templates', () => {
       expect(
-        find(
-          `
+        find(`
           const foo = 1;
           foo(graphql\`fragment FindGraphQLTags on User { id }\`);
           graphql\`fragment FindGraphQLTags on User { name }\`;
@@ -73,9 +61,7 @@ describe('RelayFindGraphQLTags', () => {
             {},
             graphql\`query FindGraphQLTagsRefetchQuery { me { name } }\`
           );
-        `,
-          {validateNames: false},
-        ),
+        `),
       ).toEqual([
         'fragment FindGraphQLTags on User { id }',
         'fragment FindGraphQLTags on User { name }',
@@ -90,8 +76,7 @@ describe('RelayFindGraphQLTags', () => {
 
     it('parses modern JS syntax with Flow annotations', () => {
       expect(
-        find(
-          `
+        find(`
           class RelayContainer extends React.Component {
             // graphql\`this in a comment\`;
             _loadMore = (
@@ -105,21 +90,16 @@ describe('RelayFindGraphQLTags', () => {
               return <>A Fragment!</>;
             }
           }
-        `,
-          {validateNames: false},
-        ),
+        `),
       ).toEqual(['fragment FindGraphQLTags on User { id }']);
     });
 
     it('parses JS with functions sharing names with object prototype methods', () => {
       expect(
-        find(
-          `
+        find(`
           toString();
           foo(graphql\`fragment FindGraphQLTags on User { id }\`);
-        `,
-          {validateNames: false},
-        ),
+        `),
       ).toEqual(['fragment FindGraphQLTags on User { id }']);
     });
   });
@@ -135,7 +115,6 @@ describe('RelayFindGraphQLTags', () => {
             '    id\n' +
             '  }\n' +
             '`);\n',
-          {validateNames: true},
         );
       }).toThrow('Syntax Error: Cannot parse the unexpected character "?".');
     });
@@ -143,28 +122,16 @@ describe('RelayFindGraphQLTags', () => {
 
   describe('query name validation', () => {
     it('throws for invalid query names', () => {
-      expect(() =>
-        find('graphql`query NotModuleName { me { id } }`;', {
-          validateNames: true,
-        }),
-      ).toThrow(
+      expect(() => find('graphql`query NotModuleName { me { id } }`;')).toThrow(
         'FindGraphQLTags: Operation names in graphql tags must be prefixed with ' +
           'the module name and end in "Mutation", "Query", or "Subscription". ' +
           'Got `NotModuleName` in module `FindGraphQLTags`.',
       );
     });
 
-    it('does not validate names when options is not set', () => {
-      find('graphql`query NotModuleName { me { id } }`;', {
-        validateNames: false,
-      });
-    });
-
     it('parses queries with valid names', () => {
       expect(
-        find('graphql`query FindGraphQLTagsQuery { me { id } }`;', {
-          validateNames: true,
-        }),
+        find('graphql`query FindGraphQLTagsQuery { me { id } }`;'),
       ).toEqual(['query FindGraphQLTagsQuery { me { id } }']);
     });
 
@@ -172,28 +139,24 @@ describe('RelayFindGraphQLTags', () => {
       expect(
         find(
           'graphql`query TestComponentQuery { me { id } }`;',
-          {validateNames: true},
           './PathTo/SuperDuper/TestComponent.js',
         ),
       ).toEqual(['query TestComponentQuery { me { id } }']);
       expect(
         find(
           'graphql`query TestComponentQuery { me { id } }`;',
-          {validateNames: true},
           './PathTo/SuperDuper/TestComponent.react.js',
         ),
       ).toEqual(['query TestComponentQuery { me { id } }']);
       expect(
         find(
           'graphql`query TestComponentQuery { me { id } }`;',
-          {validateNames: true},
           './PathTo/SuperDuper/TestComponent.react.jsx',
         ),
       ).toEqual(['query TestComponentQuery { me { id } }']);
       expect(
         find(
           'graphql`query TestComponentQuery { me { id } }`;',
-          {validateNames: true},
           './PathTo/SuperDuper/TestComponent/index.js',
         ),
       ).toEqual(['query TestComponentQuery { me { id } }']);
@@ -201,9 +164,7 @@ describe('RelayFindGraphQLTags', () => {
 
     it('throws for invalid top-level fragment names', () => {
       expect(() =>
-        find('graphql`fragment NotModuleName on User { name }`;', {
-          validateNames: true,
-        }),
+        find('graphql`fragment NotModuleName on User { name }`;'),
       ).toThrow(
         'FindGraphQLTags: Fragment names in graphql tags ' +
           'must be prefixed with the module name. Got ' +
@@ -213,22 +174,17 @@ describe('RelayFindGraphQLTags', () => {
 
     it('parses top-level fragments with valid names', () => {
       expect(
-        find('graphql`fragment FindGraphQLTags on User { name }`;', {
-          validateNames: true,
-        }),
+        find('graphql`fragment FindGraphQLTags on User { name }`;'),
       ).toEqual(['fragment FindGraphQLTags on User { name }']);
     });
 
     it('throws for invalid container fragment names', () => {
       expect(() =>
-        find(
-          `
+        find(`
           createFragmentContainer(Foo, {
             foo: graphql\`fragment FindGraphQLTags_notFoo on User { name }\`,
           });
-        `,
-          {validateNames: true},
-        ),
+        `),
       ).toThrow(
         'FindGraphQLTags: Container fragment names must be ' +
           '`<ModuleName>_<propName>`. Got `FindGraphQLTags_notFoo`, expected ' +
@@ -238,14 +194,11 @@ describe('RelayFindGraphQLTags', () => {
 
     it('parses container fragments with valid names', () => {
       expect(
-        find(
-          `
+        find(`
           createFragmentContainer(Foo, {
             foo: graphql\`fragment FindGraphQLTags_foo on User { name }\`,
           });
-        `,
-          {validateNames: true},
-        ),
+        `),
       ).toEqual(['fragment FindGraphQLTags_foo on User { name }']);
     });
   });

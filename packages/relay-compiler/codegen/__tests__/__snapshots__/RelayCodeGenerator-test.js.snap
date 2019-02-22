@@ -87,6 +87,20 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
               "kind": "ModuleImport",
               "fragmentPropName": "name",
               "fragmentName": "PlainUserNameRenderer_name"
+            },
+            {
+              "kind": "ScalarField",
+              "alias": "__module_component",
+              "name": "js",
+              "args": [
+                {
+                  "kind": "Literal",
+                  "name": "module",
+                  "value": "PlainUserNameRenderer.react",
+                  "type": "String"
+                }
+              ],
+              "storageKey": "__module_component"
             }
           ]
         },
@@ -98,6 +112,20 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
               "kind": "ModuleImport",
               "fragmentPropName": "name",
               "fragmentName": "MarkdownUserNameRenderer_name"
+            },
+            {
+              "kind": "ScalarField",
+              "alias": "__module_component",
+              "name": "js",
+              "args": [
+                {
+                  "kind": "Literal",
+                  "name": "module",
+                  "value": "MarkdownUserNameRenderer.react",
+                  "type": "String"
+                }
+              ],
+              "storageKey": "__module_component"
             }
           ]
         }
@@ -300,6 +328,20 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
                   "kind": "ModuleImport",
                   "fragmentPropName": "name",
                   "fragmentName": "PlainUserNameRenderer_name"
+                },
+                {
+                  "kind": "ScalarField",
+                  "alias": "__module_component",
+                  "name": "js",
+                  "args": [
+                    {
+                      "kind": "Literal",
+                      "name": "module",
+                      "value": "PlainUserNameRenderer.react",
+                      "type": "String"
+                    }
+                  ],
+                  "storageKey": "__module_component"
                 }
               ]
             },
@@ -311,6 +353,20 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
                   "kind": "ModuleImport",
                   "fragmentPropName": "name",
                   "fragmentName": "MarkdownUserNameRenderer_name"
+                },
+                {
+                  "kind": "ScalarField",
+                  "alias": "__module_component",
+                  "name": "js",
+                  "args": [
+                    {
+                      "kind": "Literal",
+                      "name": "module",
+                      "value": "MarkdownUserNameRenderer.react",
+                      "type": "String"
+                    }
+                  ],
+                  "storageKey": "__module_component"
                 }
               ]
             }
@@ -719,6 +775,20 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
               "kind": "ModuleImport",
               "fragmentPropName": "name",
               "fragmentName": "PlainUserNameRenderer_name"
+            },
+            {
+              "kind": "ScalarField",
+              "alias": "__module_component",
+              "name": "js",
+              "args": [
+                {
+                  "kind": "Literal",
+                  "name": "module",
+                  "value": "PlainUserNameRenderer.react",
+                  "type": "String"
+                }
+              ],
+              "storageKey": "__module_component"
             }
           ]
         },
@@ -730,6 +800,20 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
               "kind": "ModuleImport",
               "fragmentPropName": "name",
               "fragmentName": "MarkdownUserNameRenderer_name"
+            },
+            {
+              "kind": "ScalarField",
+              "alias": "__module_component",
+              "name": "js",
+              "args": [
+                {
+                  "kind": "Literal",
+                  "name": "module",
+                  "value": "MarkdownUserNameRenderer.react",
+                  "type": "String"
+                }
+              ],
+              "storageKey": "__module_component"
             }
           ]
         }
@@ -907,6 +991,20 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
               "kind": "ModuleImport",
               "fragmentPropName": "name",
               "fragmentName": "MarkdownUserNameRenderer_name"
+            },
+            {
+              "kind": "ScalarField",
+              "alias": "__module_component",
+              "name": "js",
+              "args": [
+                {
+                  "kind": "Literal",
+                  "name": "module",
+                  "value": "MarkdownUserNameRenderer.react",
+                  "type": "String"
+                }
+              ],
+              "storageKey": "__module_component"
             }
           ]
         }

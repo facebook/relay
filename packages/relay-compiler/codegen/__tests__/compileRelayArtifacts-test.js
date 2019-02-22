@@ -35,7 +35,7 @@ describe('compileRelayArtifacts', () => {
         relaySchema,
       ).addAll(parseGraphQLText(relaySchema, text).definitions);
       return compileRelayArtifacts(compilerContext, RelayIRTransforms)
-        .map(node => {
+        .map(([_definition, node]) => {
           if (node.kind === 'Request') {
             const {
               params: {text: queryText},

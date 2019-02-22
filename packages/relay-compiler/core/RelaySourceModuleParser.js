@@ -27,10 +27,6 @@ import type {DocumentNode} from 'graphql';
 
 const parseGraphQL = Profiler.instrument(GraphQL.parse, 'GraphQL.parse');
 
-const FIND_OPTIONS = {
-  validateNames: true,
-};
-
 module.exports = (tagFinder: GraphQLTagFinder) => {
   const memoizedTagFinder = memoizedFind.bind(null, tagFinder);
 
@@ -59,7 +55,7 @@ module.exports = (tagFinder: GraphQLTagFinder) => {
 
     const astDefinitions = [];
     const sources = [];
-    memoizedTagFinder(text, baseDir, file, FIND_OPTIONS).forEach(template => {
+    memoizedTagFinder(text, baseDir, file).forEach(template => {
       const source = new GraphQL.Source(template, file.relPath);
       const ast = parseGraphQL(source);
       invariant(

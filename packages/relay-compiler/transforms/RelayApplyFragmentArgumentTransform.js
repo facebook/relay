@@ -169,7 +169,6 @@ function transformField<T: Field>(
     if (!selections) {
       return null;
     }
-    // $FlowFixMe(>=0.28.0)
     return {
       ...field,
       args,

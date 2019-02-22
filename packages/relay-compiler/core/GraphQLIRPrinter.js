@@ -15,9 +15,12 @@ const invariant = require('invariant');
 const {DEFAULT_HANDLE_KEY} = require('../util/DefaultHandleKey');
 const {
   GraphQLEnumType,
+  GraphQLID,
+  GraphQLInt,
   GraphQLInputObjectType,
   GraphQLList,
   GraphQLNonNull,
+  GraphQLScalarType,
 } = require('graphql');
 
 import type {CompilerContextDocument} from './GraphQLCompilerContext';
@@ -297,19 +300,34 @@ function printValue(value: ArgumentValue, type: ?GraphQLInputType): ?string {
 }
 
 function printLiteral(value: mixed, type: ?GraphQLInputType): string {
+  if (value == null) {
+    return JSON.stringify(value);
+  }
   if (type instanceof GraphQLNonNull) {
     type = type.ofType;
   }
   if (type instanceof GraphQLEnumType) {
+    let result = type.serialize(value);
+    if (result == null && typeof value === 'string') {
+      // For backwards compatibility, print invalid input values as-is. This
+      // can occur with literals defined as an @argumentDefinitions
+      // defaultValue.
+      result = value;
+    }
     invariant(
-      typeof value === 'string',
-      'GraphQLIRPrinter: Expected value of type %s to be a string, got `%s`.',
+      typeof result === 'string',
+      'GraphQLIRPrinter: Expected value of type %s to be a valid enum value, got `%s`.',
       type.name,
-      value,
+      JSON.stringify(value),
     );
-    return value;
-  }
-  if (Array.isArray(value)) {
+    return result;
+  } else if (type === GraphQLID || type === GraphQLInt) {
+    // For backwards compatibility, print integer and ID values as-is
+    return JSON.stringify(value);
+  } else if (type instanceof GraphQLScalarType) {
+    const result = type.serialize(value);
+    return JSON.stringify(result);
+  } else if (Array.isArray(value)) {
     invariant(
       type instanceof GraphQLList,
       'GraphQLIRPrinter: Need a type in order to print arrays.',

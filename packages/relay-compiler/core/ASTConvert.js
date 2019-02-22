@@ -10,8 +10,8 @@
 
 'use strict';
 
-const GraphQLValidator = require('./GraphQLValidator');
 const Profiler = require('./GraphQLCompilerProfiler');
+const RelayValidator = require('./RelayValidator');
 
 const {
   isExecutableDefinitionAST,
@@ -152,7 +152,7 @@ function convertASTDefinitions(
     definitions: operationDefinitions,
   };
   // Will throw an error if there are validation issues
-  GraphQLValidator.validate(validationAST, schema, validationRules);
+  RelayValidator.validate(validationAST, schema, validationRules);
   return transform(schema, operationDefinitions);
 }
 

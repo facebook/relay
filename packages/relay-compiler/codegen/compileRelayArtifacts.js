@@ -18,6 +18,7 @@ const filterContextForNode = require('../core/filterContextForNode');
 
 import type CompilerContext from '../core/GraphQLCompilerContext';
 import type {IRTransform} from '../core/GraphQLCompilerContext';
+import type {Definition} from '../core/GraphQLIR';
 import type {GraphQLReporter as Reporter} from '../reporters/GraphQLReporter';
 import type {GeneratedNode} from 'relay-runtime';
 
@@ -49,7 +50,7 @@ function compileRelayArtifacts(
   context: CompilerContext,
   transforms: RelayCompilerTransforms,
   reporter?: Reporter,
-): $ReadOnlyArray<GeneratedNode> {
+): $ReadOnlyArray<[Definition, GeneratedNode]> {
   return Profiler.run('GraphQLCompiler.compile', () => {
     // The fragment is used for reading data from the normalized store.
     const fragmentContext = context.applyTransforms(
@@ -86,7 +87,8 @@ function compileRelayArtifacts(
     for (const node of codeGenContext.documents()) {
       if (node.kind === 'Root') {
         const fragNode = fragmentContext.getRoot(node.name);
-        results.push(
+        results.push([
+          node,
           RelayCodeGenerator.generate({
             kind: 'Request',
             fragment: {
@@ -106,16 +108,16 @@ function compileRelayArtifacts(
             root: node,
             text: printOperation(printContext, fragNode.name),
           }),
-        );
+        ]);
       } else {
-        results.push(RelayCodeGenerator.generate(node));
+        results.push([node, RelayCodeGenerator.generate(node)]);
       }
     }
 
     // Add all the Fragments from the fragmentContext for the reader ASTs.
     for (const node of fragmentContext.documents()) {
       if (node.kind === 'Fragment') {
-        results.push(RelayCodeGenerator.generate(node));
+        results.push([node, RelayCodeGenerator.generate(node)]);
       }
     }
     return results;

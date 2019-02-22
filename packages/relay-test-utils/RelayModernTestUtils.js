@@ -281,9 +281,13 @@ function generate(
     relaySchema,
   ).addAll(parseGraphQLText(relaySchema, text).definitions);
   const documentMap = {};
-  compileRelayArtifacts(compilerContext, transforms).forEach(node => {
-    documentMap[node.kind === 'Request' ? node.params.name : node.name] = node;
-  });
+  compileRelayArtifacts(compilerContext, transforms).forEach(
+    ([_definition, node]) => {
+      documentMap[
+        node.kind === 'Request' ? node.params.name : node.name
+      ] = node;
+    },
+  );
   return documentMap;
 }
 

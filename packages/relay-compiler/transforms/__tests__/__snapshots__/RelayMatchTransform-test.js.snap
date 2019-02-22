@@ -136,13 +136,13 @@ fragment ActorsRendererFragment on Node {
     nameRenderer(supported: ["PlainUserNameRenderer", "MarkdownUserNameRenderer"]) {
       ... on PlainUserNameRenderer {
         ...PlainUserNameRenderer_name
-        __module_component: js(module: "PlainUserNameRenderer.react")
         __module_operation: js(module: "PlainUserNameRenderer_name$normalization.graphql")
+        __module_component: js(module: "PlainUserNameRenderer.react")
       }
       ... on MarkdownUserNameRenderer {
         ...MarkdownUserNameRenderer_name
-        __module_component: js(module: "MarkdownUserNameRenderer.react")
         __module_operation: js(module: "MarkdownUserNameRenderer_name$normalization.graphql")
+        __module_component: js(module: "MarkdownUserNameRenderer.react")
       }
     }
   }
@@ -237,13 +237,13 @@ fragment NameRendererFragment on User {
   nameRenderer {
     ... on PlainUserNameRenderer {
       ...PlainUserNameRenderer_name
-      __module_component: js(module: "PlainUserNameRenderer.react")
       __module_operation: js(module: "PlainUserNameRenderer_name$normalization.graphql")
+      __module_component: js(module: "PlainUserNameRenderer.react")
     }
     ... on MarkdownUserNameRenderer {
       ...MarkdownUserNameRenderer_name
-      __module_component: js(module: "MarkdownUserNameRenderer.react")
       __module_operation: js(module: "MarkdownUserNameRenderer_name$normalization.graphql")
+      __module_component: js(module: "MarkdownUserNameRenderer.react")
     }
   }
 }
@@ -295,13 +295,13 @@ fragment NameRendererFragment on User {
   nameRenderer(supported: ["PlainUserNameRenderer", "MarkdownUserNameRenderer"]) {
     ... on PlainUserNameRenderer {
       ...PlainUserNameRenderer_name
-      __module_component: js(module: "PlainUserNameRenderer.react")
       __module_operation: js(module: "PlainUserNameRenderer_name$normalization.graphql")
+      __module_component: js(module: "PlainUserNameRenderer.react")
     }
     ... on MarkdownUserNameRenderer {
       ...MarkdownUserNameRenderer_name
-      __module_component: js(module: "MarkdownUserNameRenderer.react")
       __module_operation: js(module: "MarkdownUserNameRenderer_name$normalization.graphql")
+      __module_component: js(module: "MarkdownUserNameRenderer.react")
     }
   }
 }

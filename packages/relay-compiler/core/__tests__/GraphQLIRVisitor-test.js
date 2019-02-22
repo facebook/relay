@@ -95,11 +95,23 @@ describe('GraphQLIRVisitor', () => {
           },
           Literal: {
             leave(node: Literal) {
+              const mutator = value => {
+                // Keep enums valid
+                if (value === 'WEB') {
+                  return 'MOBILE';
+                } else if (value === 'HELPFUL') {
+                  return 'DERISIVE';
+                } else if (typeof value === 'number') {
+                  return value + 10;
+                } else {
+                  return String(value) + '_mutated';
+                }
+              };
               return {
                 ...node,
                 value: Array.isArray(node.value)
-                  ? node.value.map(item => String(node.value) + '_mutated')
-                  : String(node.value) + '_mutated',
+                  ? node.value.map(mutator)
+                  : mutator(node.value),
               };
             },
           },

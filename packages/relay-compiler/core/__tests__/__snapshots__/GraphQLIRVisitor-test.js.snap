@@ -79,16 +79,16 @@ fragment UserFragment_mutated on User @argumentDefinitions(
   ... on Mutated @include(if: $cond_mutated) {
     id_mutated
     __typename_mutated
-    checkins_mutated(environments_mutated: [WEB_mutated]) {
+    checkins_mutated(environments_mutated: [MOBILE]) {
       __typename_mutated
     }
-    friends_mutated(after_mutated: $after_mutated, first_mutated: $first_mutated, traits_mutated: [HELPFUL_mutated]) {
+    friends_mutated(after_mutated: $after_mutated, first_mutated: $first_mutated, traits_mutated: [DERISIVE]) {
       count_mutated
     }
     ... on Mutated @skip(if: $cond_mutated) {
       name_mutated
     }
-    thumbnail: profilePicture_mutated(size_mutated: "32_mutated") {
+    thumbnail: profilePicture_mutated(size_mutated: 42) {
       height_mutated
       width_mutated
       src: uri_mutated

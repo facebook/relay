@@ -19,6 +19,7 @@ const RelayDeclarativeMutationConfig = require('./mutations/RelayDeclarativeMuta
 const RelayDefaultHandleKey = require('./util/RelayDefaultHandleKey');
 const RelayDefaultHandlerProvider = require('./handlers/RelayDefaultHandlerProvider');
 const RelayError = require('./util/RelayError');
+const RelayFeatureFlags = require('./util/RelayFeatureFlags');
 const RelayInMemoryRecordSource = require('./store/RelayInMemoryRecordSource');
 const RelayModernEnvironment = require('./store/RelayModernEnvironment');
 const RelayModernFragmentOwner = require('./store/RelayModernFragmentOwner');
@@ -196,6 +197,7 @@ module.exports = {
   areEqualSelectors: RelayCore.areEqualSelectors,
   createFragmentSpecResolver: RelayCore.createFragmentSpecResolver,
   createOperationDescriptor: RelayCore.createOperationDescriptor,
+  getDataIDsFromFragment: RelayCore.getDataIDsFromFragment,
   getDataIDsFromObject: RelayCore.getDataIDsFromObject,
   getFragment: RelayModernGraphQLTag.getFragment,
   getFragmentOwner: RelayModernFragmentOwner.getFragmentOwner,
@@ -203,10 +205,14 @@ module.exports = {
   getPaginationFragment: RelayModernGraphQLTag.getPaginationFragment,
   getRefetchableFragment: RelayModernGraphQLTag.getRefetchableFragment,
   getRequest: RelayModernGraphQLTag.getRequest,
+  getSingularSelector: RelayCore.getSingularSelector,
+  getPluralSelector: RelayCore.getPluralSelector,
   getSelector: RelayCore.getSelector,
-  getSelectorList: RelayCore.getSelectorList,
   getSelectorsFromObject: RelayCore.getSelectorsFromObject,
   getStorageKey: RelayStoreUtils.getStorageKey,
+  getVariablesFromSingularFragment: RelayCore.getVariablesFromSingularFragment,
+  getVariablesFromPluralFragment: RelayCore.getVariablesFromPluralFragment,
+  getVariablesFromFragment: RelayCore.getVariablesFromFragment,
   getVariablesFromObject: RelayCore.getVariablesFromObject,
   graphql: RelayModernGraphQLTag.graphql,
 
@@ -236,6 +242,7 @@ module.exports = {
   // INTERNAL-ONLY: These exports might be removed at any point.
   RelayConcreteNode: RelayConcreteNode,
   RelayError: RelayError,
+  RelayFeatureFlags: RelayFeatureFlags,
   RelayNetworkLoggerTransaction: RelayNetworkLoggerTransaction,
   DEFAULT_HANDLE_KEY: RelayDefaultHandleKey.DEFAULT_HANDLE_KEY,
   FRAGMENTS_KEY: RelayStoreUtils.FRAGMENTS_KEY,

@@ -11,7 +11,7 @@
 'use strict';
 
 const watchman = require('fb-watchman');
-const {execSync} = require('child_process');
+const childProcess = require('child_process');
 
 const MAX_ATTEMPT_LIMIT = 5;
 
@@ -19,18 +19,28 @@ function delay(delayMs: number): Promise<void> {
   return new Promise(resolve => setTimeout(resolve, delayMs));
 }
 
+function hasWatchmanInstalled(): Promise<boolean> {
+  return new Promise(resolve => {
+    const proc = childProcess.spawn('watchman', ['--version']);
+    proc.on('error', () => {
+      resolve(false);
+    });
+    proc.on('close', code => {
+      if (code === 0) {
+        resolve(true);
+      }
+    });
+  });
+}
+
 class GraphQLWatchmanClient {
   _client: any;
   _attemptLimit: number;
 
   static isAvailable(): Promise<boolean> {
-    return new Promise(resolve => {
-      try {
-        const checkWatchman = execSync('command -v watchman').toString().trim();
-        if (checkWatchman === '') {
-          return resolve(false);
-        }
-      } catch {
+    return new Promise(async resolve => {
+      const hasWatchman = await hasWatchmanInstalled();
+      if (!hasWatchman) {
         return resolve(false);
       }
       const client = new GraphQLWatchmanClient(MAX_ATTEMPT_LIMIT);

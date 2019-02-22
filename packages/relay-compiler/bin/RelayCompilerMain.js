@@ -185,7 +185,6 @@ Ensure that one such file exists in ${srcDir} or its parents.
     verbose: options.verbose,
     quiet: options.quiet,
   });
-
   const useWatchman = options.watchman && (await WatchmanClient.isAvailable());
 
   const schema = getSchema(schemaPath);

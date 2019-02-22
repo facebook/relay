@@ -106,7 +106,7 @@ export type GraphQLTag = {
 export type GraphQLTagFinder = (
   text: string,
   filePath: string,
-) => Array<GraphQLTag>;
+) => $ReadOnlyArray<GraphQLTag>;
 
 /**
  * The function that is responsible for generating the contents of the artifact

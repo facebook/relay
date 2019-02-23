@@ -7,7 +7,6 @@
 <PROJECT_ROOT>/website/node_modules/.*
 
 [libs]
-flow
 node_modules/fbjs/flow/lib
 
 [options]

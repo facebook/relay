@@ -429,23 +429,17 @@ returns
         {
           "name": "startCursor",
           "type": {
-            "name": null,
-            "kind": "NON_NULL",
-            "ofType": {
-              "name": "String",
-              "kind": "SCALAR"
-            }
+            "name": "String",
+            "kind": "SCALAR",
+            "ofType": null
           }
         },
         {
           "name": "endCursor",
           "type": {
-            "name": null,
-            "kind": "NON_NULL",
-            "ofType": {
-              "name": "String",
-              "kind": "SCALAR"
-            }
+            "name": "String",
+            "kind": "SCALAR",
+            "ofType": null
           }
         }
       ]

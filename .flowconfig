@@ -2,14 +2,9 @@
 .*/__tests__/.*
 .*/**/*.native.js
 <PROJECT_ROOT>/dist/.*
-<PROJECT_ROOT>/examples/.*
 <PROJECT_ROOT>/node_modules/react/node_modules/.*
 <PROJECT_ROOT>/node_modules/react-dom/node_modules/.*
-<PROJECT_ROOT>/node_modules/react-static-container/node_modules/.*
-<PROJECT_ROOT>/website-prototyping-tools/node_modules/.*
 <PROJECT_ROOT>/website/node_modules/.*
-; TODO: Update `iterall` to Flow 0.66
-<PROJECT_ROOT>/node_modules/graphql/node_modules/iterall/.*
 
 [libs]
 flow

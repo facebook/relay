@@ -67,7 +67,6 @@
     "prettier": "1.14.3",
     "prop-types": "^15.5.8",
     "react": "16.6.3",
-    "react-dom": "16.6.3",
     "react-test-renderer": "16.6.3",
     "run-sequence": "2.2.1",
     "signedsource": "^1.0.0",
@@ -120,7 +119,6 @@
       "<rootDir>/node_modules/fbjs/node_modules/promise/",
       "<rootDir>/node_modules/object-assign/",
       "<rootDir>/node_modules/prop-types/",
-      "<rootDir>/node_modules/react-dom/",
       "<rootDir>/node_modules/react/"
     ],
     "testEnvironment": "node"

@@ -98,6 +98,11 @@ describe('ReactRelayQueryRenderer', () => {
     variables = {id: '4'};
   });
 
+  afterEach(async () => {
+    // wait for GC to run in setImmediate
+    await Promise.resolve();
+  });
+
   describe('when initialized', () => {
     it('fetches the query', () => {
       ReactTestRenderer.create(

@@ -15,8 +15,6 @@ const RelayModernRecord = require('../RelayModernRecord');
 const RelayModernStore = require('../RelayModernStore');
 const RelayModernTestUtils = require('RelayModernTestUtils');
 
-const simpleClone = require('../../util/simpleClone');
-
 const {getRequest, createOperationDescriptor} = require('../RelayCore');
 const {
   REF_KEY,
@@ -24,6 +22,8 @@ const {
   ROOT_TYPE,
   UNPUBLISH_RECORD_SENTINEL,
 } = require('../RelayStoreUtils');
+
+const {simpleClone} = RelayModernTestUtils;
 
 expect.extend(RelayModernTestUtils.matchers);
 

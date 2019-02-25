@@ -20,7 +20,6 @@ const RelayStoreUtils = require('../RelayStoreUtils');
 
 const getRelayHandleKey = require('../../util/getRelayHandleKey');
 const invariant = require('invariant');
-const simpleClone = require('../../util/simpleClone');
 
 const {
   createOperationDescriptor,
@@ -29,7 +28,7 @@ const {
 const {ID_KEY, REF_KEY, ROOT_ID, ROOT_TYPE, TYPENAME_KEY} = RelayStoreUtils;
 
 describe('RelayPublishQueue', () => {
-  const {generateAndCompile} = RelayModernTestUtils;
+  const {generateAndCompile, simpleClone} = RelayModernTestUtils;
 
   beforeEach(() => {
     jest.resetModules();

@@ -45,7 +45,6 @@ const isRelayModernEnvironment = require('./store/isRelayModernEnvironment');
 const isScalarAndEqual = require('./util/isScalarAndEqual');
 const recycleNodesInto = require('./util/recycleNodesInto');
 const requestRelaySubscription = require('./subscription/requestRelaySubscription');
-const simpleClone = require('./util/simpleClone');
 const stableCopy = require('./util/stableCopy');
 
 export type {
@@ -259,7 +258,6 @@ module.exports = {
   getRelayHandleKey: getRelayHandleKey,
   isScalarAndEqual: isScalarAndEqual,
   recycleNodesInto: recycleNodesInto,
-  simpleClone: simpleClone,
   stableCopy: stableCopy,
   __internal: {
     getModernOperationVariables: RelayConcreteVariables.getOperationVariables,

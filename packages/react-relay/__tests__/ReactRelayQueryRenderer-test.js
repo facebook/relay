@@ -18,6 +18,7 @@ const ReactTestRenderer = require('ReactTestRenderer');
 const readContext = require('../readContext');
 
 const {createMockEnvironment} = require('RelayModernMockEnvironment');
+const {simpleClone} = require('RelayModernTestUtils');
 const {
   createOperationDescriptor,
   Environment,
@@ -25,7 +26,6 @@ const {
   Observable,
   RecordSource,
   Store,
-  simpleClone,
   ROOT_ID,
 } = require('relay-runtime');
 const {ROOT_TYPE} = require('relay-runtime/store/RelayStoreUtils');

@@ -10,6 +10,7 @@
 'use strict';
 
 const invariant = require('invariant');
+const mapObject = require('mapObject');
 const parseGraphQLText = require('./parseGraphQLText');
 
 import type {
@@ -287,10 +288,26 @@ function generate(
   return documentMap;
 }
 
+/**
+ * A helper to create a deep clone of a value, plain Object, or array of such.
+ *
+ * Does not support RegExp, Date, other classes, or self-referential values.
+ */
+function simpleClone<T>(value: T): T {
+  if (Array.isArray(value)) {
+    return value.map(simpleClone);
+  } else if (value && typeof value === 'object') {
+    return ((mapObject(value, simpleClone): any): T);
+  } else {
+    return value;
+  }
+}
+
 module.exports = {
   generateAndCompile,
   generateTestsFromFixtures,
   generateWithTransforms,
   matchers,
+  simpleClone,
   unwrapContainer,
 };

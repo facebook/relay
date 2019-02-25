@@ -17,8 +17,6 @@ const RelayRecordSourceMutator = require('../RelayRecordSourceMutator');
 const RelayRecordSourceProxy = require('../RelayRecordSourceProxy');
 const RelayStoreUtils = require('../../store/RelayStoreUtils');
 
-const simpleClone = require('../../util/simpleClone');
-
 const {
   createOperationDescriptor,
 } = require('../../store/RelayModernOperationDescriptor');
@@ -91,7 +89,7 @@ describe('RelayRecordSourceProxy', () => {
     };
     backupData = {};
     sinkData = {};
-    baseData = simpleClone(initialData);
+    baseData = RelayModernTestUtils.simpleClone(initialData);
     baseSource = new RelayInMemoryRecordSource(baseData);
     backupSource = new RelayInMemoryRecordSource(backupData);
     sinkSource = new RelayInMemoryRecordSource(sinkData);

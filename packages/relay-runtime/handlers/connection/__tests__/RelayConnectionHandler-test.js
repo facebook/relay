@@ -21,7 +21,6 @@ const RelayResponseNormalizer = require('../../../store/RelayResponseNormalizer'
 const RelayStoreUtils = require('../../../store/RelayStoreUtils');
 
 const getRelayHandleKey = require('../../../util/getRelayHandleKey');
-const simpleClone = require('../../../util/simpleClone');
 
 const {
   ID_KEY,
@@ -41,7 +40,7 @@ const {
 } = RelayConnectionInterface.get();
 
 describe('RelayConnectionHandler', () => {
-  const {generateWithTransforms} = RelayModernTestUtils;
+  const {generateWithTransforms, simpleClone} = RelayModernTestUtils;
   let ConnectionQuery;
   let baseData;
   let baseSource;

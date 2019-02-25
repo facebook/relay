@@ -16,8 +16,6 @@ const RelayRecordSourceMutator = require('../../mutations/RelayRecordSourceMutat
 const RelayRecordState = require('../../store/RelayRecordState');
 const RelayStoreUtils = require('../../store/RelayStoreUtils');
 
-const simpleClone = require('../../util/simpleClone');
-
 const {
   ID_KEY,
   REF_KEY,
@@ -86,7 +84,7 @@ describe('RelayRecordSourceMutator', () => {
     };
     backupData = {};
     sinkData = {};
-    baseData = simpleClone(initialData);
+    baseData = RelayModernTestUtils.simpleClone(initialData);
     baseSource = new RelayInMemoryRecordSource(baseData);
     backupSource = new RelayInMemoryRecordSource(backupData);
     sinkSource = new RelayInMemoryRecordSource(sinkData);

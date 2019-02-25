@@ -60,7 +60,7 @@
     "gulp-util": "3.0.8",
     "immutable": "~3.7.6",
     "iterall": "^1.2.1",
-    "jest": "^23.5.0",
+    "jest": "^24.1.0",
     "nullthrows": "^1.1.0",
     "object-assign": "4.1.1",
     "prettier": "1.14.3",

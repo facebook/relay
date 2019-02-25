@@ -27,10 +27,7 @@ const babelOptions = getBabelOptions({
     '@babel/parser': '@babel/parser',
     immutable: 'immutable',
     React: 'react',
-    ReactDOM: 'react-dom',
-    ReactDOMServer: 'react-dom/server',
     ReactTestRenderer: 'react-test-renderer',
-    ReactTestUtils: 'react-dom/test-utils',
   },
   plugins: [
     [

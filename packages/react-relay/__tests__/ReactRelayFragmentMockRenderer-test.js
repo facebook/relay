@@ -10,8 +10,6 @@
 
 'use strict';
 
-jest.mock('ReactDOM', () => ({}));
-
 const React = require('React');
 const ReactTestRenderer = require('ReactTestRenderer');
 const ReactRelayRefetchContainer = require('../ReactRelayRefetchContainer');

@@ -41,7 +41,7 @@ function fetchRelayModernQuery<T: OperationType>(
 
   return environment
     .execute({operation, cacheConfig})
-    .map(() => environment.lookup(operation.fragment).data)
+    .map(() => environment.lookup(operation.fragment, operation).data)
     .toPromise();
 }
 

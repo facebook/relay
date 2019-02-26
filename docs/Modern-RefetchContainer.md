@@ -29,7 +29,7 @@ createRefetchContainer(
   * A `graphql` tagged fragment. If the fragment uses the name convention `<FileName><...>_<propName>`, the fragment's data will be available to the Component as a prop with the given `<propName>`.
   If the fragment name doesn't specify a prop name, the data will be available as a `data` prop.
   * An object whose keys are prop names and values are `graphql` tagged fragments. Each key specified in this object will correspond to a prop available to the resulting Component.
-  * **Note:** To enable [compatibility mode](./relay-compat.html), `relay-compiler` enforces fragments to be named as `<FileName>_<propName>`.
+  * **Note:** `relay-compiler` enforces fragments to be named as `<FileName>_<propName>`.
 * `refetchQuery`: A `graphql` tagged query to be fetched upon calling [`props.relay.refetch`](#refetch). As with any query, upon fetching this query, its result will be normalized into the store, any relevant subscriptions associated with the changed records will be fired, and subscribed components will re-render.
 
 ### Available Props

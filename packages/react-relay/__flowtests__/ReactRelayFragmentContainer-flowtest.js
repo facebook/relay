@@ -25,16 +25,15 @@ const FooComponent = ({requiredProp}: {requiredProp: string}) => (
 
 // Note that we must reassign to a new identifier to make sure flow doesn't propogate types without
 // the relay type definition doing the work.
-const Foo = createFragmentContainer(
-  FooComponent,
-  graphql`
-    fragment ReactRelayFragmentContainerFlowtest_Foo_viewer on Viewer {
+const Foo = createFragmentContainer(FooComponent, {
+  viewer: graphql`
+    fragment ReactRelayFragmentContainerFlowtest_viewer on Viewer {
       actor {
         id
       }
     }
   `,
-);
+});
 
 class BarComponent extends React.Component<{
   optionalProp?: {foo: number},
@@ -63,16 +62,15 @@ class BarComponent extends React.Component<{
     );
   }
 }
-const Bar = createFragmentContainer(
-  BarComponent,
-  graphql`
-    fragment ReactRelayFragmentContainerFlowtest_Bar_viewer on Viewer {
+const Bar = createFragmentContainer(BarComponent, {
+  viewer2: graphql`
+    fragment ReactRelayFragmentContainerFlowtest_viewer2 on Viewer {
       actor {
         id
       }
     }
   `,
-);
+});
 
 module.exports = {
   checkMissingPropOnFunctionalComponent() {

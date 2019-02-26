@@ -53,24 +53,23 @@ class FooComponent extends React.Component {
 // the relay type definition doing the work.
 const Foo = createRefetchContainer(
   FooComponent,
-  graphql`
-    fragment ReactRelayRefetchContainerFlowtest_Foo_viewer on Viewer {
-      all_friends(after: $cursor, first: $count) @connection {
-        edges {
-          node {
-            __typename
+  {
+    viewer: graphql`
+      fragment ReactRelayRefetchContainerFlowtest_viewer on Viewer {
+        all_friends(after: $cursor, first: $count) @connection {
+          edges {
+            node {
+              __typename
+            }
           }
         }
       }
-    }
-  `,
+    `,
+  },
   graphql`
-    query ReactRelayRefetchContainerFlowtest_Foo_ViewerQuery(
-      $count: Int!
-      $cursor: ID
-    ) {
+    query ReactRelayRefetchContainerFlowtestQuery($count: Int!, $cursor: ID) {
       viewer {
-        ...Foo_viewer
+        ...ReactRelayRefetchContainerFlowtest_viewer
       }
     }
   `,

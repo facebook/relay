@@ -54,17 +54,19 @@ class FooComponent extends React.Component {
 // the relay type definition doing the work.
 const Foo = createPaginationContainer(
   FooComponent,
-  graphql`
-    fragment ReactRelayPaginationContainerFlowtest_Foo_viewer on Viewer {
-      all_friends(after: $cursor, first: $count) @connection {
-        edges {
-          node {
-            __typename
+  {
+    viewer: graphql`
+      fragment ReactRelayPaginationContainerFlowtest_viewer on Viewer {
+        all_friends(after: $cursor, first: $count) @connection {
+          edges {
+            node {
+              __typename
+            }
           }
         }
       }
-    }
-  `,
+    `,
+  },
   {
     direction: 'forward',
     getConnectionFromProps: props => props.viewer.all_friends,
@@ -77,12 +79,12 @@ const Foo = createPaginationContainer(
       count,
     }),
     query: graphql`
-      query ReactRelayPaginationContainerFlowtest_Foo_ViewerQuery(
+      query ReactRelayPaginationContainerFlowtestQuery(
         $count: Int!
         $cursor: ID
       ) {
         viewer {
-          ...Foo_viewer
+          ...ReactRelayPaginationContainerFlowtest_viewer
         }
       }
     `,

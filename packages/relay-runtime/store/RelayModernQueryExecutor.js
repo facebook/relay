@@ -29,6 +29,7 @@ import type {
 } from '../network/RelayNetworkTypes';
 import type {Sink, Subscription} from '../network/RelayObservable';
 import type {
+  HandleFieldPayload,
   ModuleImportPayload,
   NormalizationSelector,
   OperationDescriptor,
@@ -39,9 +40,9 @@ import type {
   DeferPlaceholder,
   StreamPlaceholder,
   IncrementalDataPlaceholder,
-  MutableRecordSource,
 } from '../store/RelayStoreTypes';
 import type {NormalizationSplitOperation} from '../util/NormalizationNode';
+import type {Record} from '../util/RelayCombinedEnvironmentTypes';
 
 type ExecuteConfig = {|
   +operation: OperationDescriptor,
@@ -76,7 +77,10 @@ class Executor {
   _optimisticUpdate: null | OptimisticUpdate;
   _publishQueue: RelayPublishQueue;
   _sink: Sink<GraphQLResponse>;
-  _source: MutableRecordSource;
+  _source: Map<
+    string,
+    {|+record: Record, +fieldPayloads: Array<HandleFieldPayload>|},
+  >;
   _state: 'started' | 'loading' | 'completed';
   _updater: ?SelectorStoreUpdater;
   _subscriptions: Map<number, Subscription>;
@@ -97,7 +101,7 @@ class Executor {
     this._optimisticUpdate = optimisticUpdate ?? null;
     this._publishQueue = publishQueue;
     this._sink = sink;
-    this._source = new RelayInMemoryRecordSource();
+    this._source = new Map();
     this._state = 'started';
     this._updater = updater;
     this._subscriptions = new Map();
@@ -378,9 +382,22 @@ class Executor {
     // modifications to the parent before items arrive
     if (placeholder.kind === 'stream') {
       const {parentID} = placeholder;
+      const parentPayloads = [];
+      (relayPayload.fieldPayloads ?? []).forEach(fieldPayload => {
+        const fieldID = generateRelayClientID(
+          fieldPayload.dataID,
+          fieldPayload.fieldKey,
+        );
+        if (fieldID === parentID) {
+          parentPayloads.push(fieldPayload);
+        }
+      });
       const parentRecord = relayPayload.source.get(parentID);
       if (parentRecord != null) {
-        this._source.set(parentID, parentRecord);
+        this._source.set(parentID, {
+          record: parentRecord,
+          fieldPayloads: parentPayloads,
+        });
       }
     }
   }
@@ -497,13 +514,14 @@ class Executor {
 
     // Load the version of the parent record from which this incremental data
     // was derived
-    const parentRecord = this._source.get(parentID);
+    const parentEntry = this._source.get(parentID);
     invariant(
-      parentRecord != null,
+      parentEntry != null,
       'RelayModernEnvironment: Expected the parent record `%s` for @stream ' +
         'data to exist.',
       parentID,
     );
+    const {record: parentRecord, fieldPayloads} = parentEntry;
 
     // Load the field value (items) that were created by *this* query executor
     // in order to check if there has been any concurrent modifications by some
@@ -564,19 +582,21 @@ class Executor {
     const nextIDs = [...prevIDs];
     nextIDs[itemIndex] = itemID;
     RelayModernRecord.setLinkedRecordIDs(nextParentRecord, storageKey, nextIDs);
-    this._source.set(parentID, nextParentRecord);
+    this._source.set(parentID, {
+      record: nextParentRecord,
+      fieldPayloads,
+    });
 
-    // Publish the new item (does *not* add it to parent.field, see below)
+    // Publish the new item and update the parent record to set
+    // field[index] = item *if* the parent record hasn't been concurrently
+    // modified.
     const relayPayload = normalizeResponse(response, selector, typeName, [
       ...placeholder.path,
       responseKey,
       String(itemIndex),
     ]);
     this._processPayloadFollowups(relayPayload);
-    this._publishQueue.commitRelayPayload(relayPayload);
-
-    // Update the parent record *if* it hasn't been concurrently modified
-    this._publishQueue.commitUpdate(store => {
+    this._publishQueue.commitPayload(this._operation, relayPayload, store => {
       const currentParentRecord = store.get(parentID);
       if (currentParentRecord == null) {
         // parent has since been deleted, stream data is stale
@@ -618,6 +638,20 @@ class Executor {
       nextItems[itemIndex] = store.get(itemID);
       currentParentRecord.setLinkedRecords(nextItems, storageKey);
     });
+
+    // Now that the parent record has been updated to include the new item,
+    // also update any handle fields that are derived from the parent record.
+    if (fieldPayloads.length !== 0) {
+      const handleFieldsRelayPayload = {
+        errors: null,
+        fieldPayloads,
+        incrementalPlaceholders: null,
+        moduleImportPayloads: null,
+        source: new RelayInMemoryRecordSource(),
+      };
+      this._publishQueue.commitRelayPayload(handleFieldsRelayPayload);
+    }
+
     this._publishQueue.run();
   }
 }

@@ -129,7 +129,7 @@ export interface Store {
    * Optionally takes an owner, corresponding to the operation that
    * owns this selector (fragment).
    */
-  lookup(selector: ReaderSelector, owner?: ?OperationDescriptor): Snapshot;
+  lookup(selector: ReaderSelector, owner: ?OperationDescriptor): Snapshot;
 
   /**
    * Notify subscribers (see `subscribe`) of any data that was published
@@ -292,7 +292,7 @@ export interface Environment
    */
   lookup(
     selector: ReaderSelector,
-    owner?: ?OperationDescriptor,
+    owner: ?OperationDescriptor,
   ): CSnapshot<TReaderNode, OperationDescriptor>;
 
   /**

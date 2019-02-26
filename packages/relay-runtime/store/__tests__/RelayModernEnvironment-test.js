@@ -13,6 +13,7 @@
 
 const RelayInMemoryRecordSource = require('../RelayInMemoryRecordSource');
 const RelayModernEnvironment = require('../RelayModernEnvironment');
+const RelayModernOperationDescriptor = require('../RelayModernOperationDescriptor');
 const RelayModernStore = require('../RelayModernStore');
 const RelayModernTestUtils = require('RelayModernTestUtils');
 const RelayNetwork = require('../../network/RelayNetwork');
@@ -22,9 +23,6 @@ const RelayViewerHandler = require('../../handlers/viewer/RelayViewerHandler');
 const nullthrows = require('nullthrows');
 
 const {getRequest} = require('../RelayCore');
-const {
-  createOperationDescriptor,
-} = require('../RelayModernOperationDescriptor');
 const {getSingularSelector} = require('../RelayModernSelector');
 const {ROOT_ID} = require('../RelayStoreUtils');
 
@@ -36,8 +34,25 @@ describe('RelayModernEnvironment', () => {
   let source;
   let store;
 
+  function createOperationDescriptor(...args) {
+    const operation = RelayModernOperationDescriptor.createOperationDescriptor(
+      ...args,
+    );
+    // For convenience of the test output, override toJSON to print
+    // a more succint description of the operation.
+    // $FlowFixMe
+    operation.toJSON = () => {
+      return {
+        name: operation.fragment.node.name,
+        variables: operation.variables,
+      };
+    };
+    return operation;
+  }
+
   beforeEach(() => {
     jest.resetModules();
+
     expect.extend(RelayModernTestUtils.matchers);
     source = new RelayInMemoryRecordSource();
     store = new RelayModernStore(source);
@@ -106,6 +121,7 @@ describe('RelayModernEnvironment', () => {
   describe('lookup()', () => {
     let ParentQuery;
     let environment;
+    let operation;
 
     beforeEach(() => {
       ({ParentQuery} = generateAndCompile(`
@@ -122,8 +138,8 @@ describe('RelayModernEnvironment', () => {
         }
       `));
       environment = new RelayModernEnvironment(config);
-      const operationDescriptor = createOperationDescriptor(ParentQuery, {});
-      environment.commitPayload(operationDescriptor, {
+      operation = createOperationDescriptor(ParentQuery, {});
+      environment.commitPayload(operation, {
         me: {
           id: '4',
           name: 'Zuck',
@@ -132,18 +148,21 @@ describe('RelayModernEnvironment', () => {
     });
 
     it('returns the results of executing a query', () => {
-      const snapshot = environment.lookup({
-        dataID: ROOT_ID,
-        node: ParentQuery.fragment,
-        variables: {},
-      });
+      const snapshot = environment.lookup(
+        {
+          dataID: ROOT_ID,
+          node: ParentQuery.fragment,
+          variables: {},
+        },
+        operation,
+      );
       expect(snapshot.data).toEqual({
         me: {
           id: '4',
           name: 'Zuck',
           __id: '4',
           __fragments: {ChildFragment: {}},
-          __fragmentOwner: null,
+          __fragmentOwner: operation,
         },
       });
     });
@@ -176,6 +195,7 @@ describe('RelayModernEnvironment', () => {
   describe('subscribe()', () => {
     let ParentQuery;
     let environment;
+    let operation;
 
     function setName(id, name) {
       environment.applyUpdate({
@@ -203,8 +223,8 @@ describe('RelayModernEnvironment', () => {
         }
       `));
       environment = new RelayModernEnvironment(config);
-      const operationDescriptor = createOperationDescriptor(ParentQuery, {});
-      environment.commitPayload(operationDescriptor, {
+      operation = createOperationDescriptor(ParentQuery, {});
+      environment.commitPayload(operation, {
         me: {
           id: '4',
           name: 'Zuck',
@@ -213,11 +233,14 @@ describe('RelayModernEnvironment', () => {
     });
 
     it('calls the callback if data changes', () => {
-      const snapshot = environment.lookup({
-        dataID: ROOT_ID,
-        node: ParentQuery.fragment,
-        variables: {},
-      });
+      const snapshot = environment.lookup(
+        {
+          dataID: ROOT_ID,
+          node: ParentQuery.fragment,
+          variables: {},
+        },
+        operation,
+      );
       const callback = jest.fn();
       environment.subscribe(snapshot, callback);
       setName('4', 'Mark'); // Zuck -> Mark
@@ -232,11 +255,14 @@ describe('RelayModernEnvironment', () => {
     });
 
     it('does not call the callback if disposed', () => {
-      const snapshot = environment.lookup({
-        dataID: ROOT_ID,
-        node: ParentQuery.fragment,
-        variables: {},
-      });
+      const snapshot = environment.lookup(
+        {
+          dataID: ROOT_ID,
+          node: ParentQuery.fragment,
+          variables: {},
+        },
+        operation,
+      );
       const callback = jest.fn();
       const {dispose} = environment.subscribe(snapshot, callback);
       dispose();
@@ -248,6 +274,7 @@ describe('RelayModernEnvironment', () => {
   describe('retain()', () => {
     let ParentQuery;
     let environment;
+    let operation;
 
     beforeEach(() => {
       ({ParentQuery} = generateAndCompile(`
@@ -263,8 +290,8 @@ describe('RelayModernEnvironment', () => {
         }
       `));
       environment = new RelayModernEnvironment(config);
-      const operationDescriptor = createOperationDescriptor(ParentQuery, {});
-      environment.commitPayload(operationDescriptor, {
+      operation = createOperationDescriptor(ParentQuery, {});
+      environment.commitPayload(operation, {
         me: {
           id: '4',
           name: 'Zuck',
@@ -278,11 +305,14 @@ describe('RelayModernEnvironment', () => {
         node: ParentQuery.root,
         variables: {},
       });
-      const snapshot = environment.lookup({
-        dataID: ROOT_ID,
-        node: ParentQuery.fragment,
-        variables: {},
-      });
+      const snapshot = environment.lookup(
+        {
+          dataID: ROOT_ID,
+          node: ParentQuery.fragment,
+          variables: {},
+        },
+        operation,
+      );
       // data is still in the store
       expect(snapshot.data).toEqual({
         me: {
@@ -305,7 +335,7 @@ describe('RelayModernEnvironment', () => {
       };
       dispose();
       // GC runs asynchronously; data should still be in the store
-      expect(environment.lookup(selector).data).toEqual({
+      expect(environment.lookup(selector, operation).data).toEqual({
         me: {
           id: '4',
           name: 'Zuck',
@@ -313,22 +343,31 @@ describe('RelayModernEnvironment', () => {
       });
       jest.runAllTimers();
       // After GC runs data is missing
-      expect(environment.lookup(selector).data).toBe(undefined);
+      expect(environment.lookup(selector, operation).data).toBe(undefined);
     });
   });
 
   describe('applyUpdate()', () => {
+    let ParentQuery;
     let UserFragment;
     let environment;
+    let operation;
 
     beforeEach(() => {
-      ({UserFragment} = generateAndCompile(`
+      ({ParentQuery, UserFragment} = generateAndCompile(`
+        query ParentQuery {
+          me {
+            id
+            name
+          }
+        }
         fragment UserFragment on User {
           id
           name
         }
       `));
       environment = new RelayModernEnvironment(config);
+      operation = createOperationDescriptor(ParentQuery, {});
     });
 
     it('applies the mutation to the store', () => {
@@ -338,7 +377,7 @@ describe('RelayModernEnvironment', () => {
         variables: {},
       };
       const callback = jest.fn();
-      const snapshot = environment.lookup(selector);
+      const snapshot = environment.lookup(selector, operation);
       environment.subscribe(snapshot, callback);
 
       environment.applyUpdate({
@@ -362,7 +401,7 @@ describe('RelayModernEnvironment', () => {
         variables: {},
       };
       const callback = jest.fn();
-      const snapshot = environment.lookup(selector);
+      const snapshot = environment.lookup(selector, operation);
       environment.subscribe(snapshot, callback);
 
       const {dispose} = environment.applyUpdate({
@@ -384,7 +423,7 @@ describe('RelayModernEnvironment', () => {
         variables: {},
       };
       const callback = jest.fn();
-      const snapshot = environment.lookup(selector);
+      const snapshot = environment.lookup(selector, operation);
       environment.subscribe(snapshot, callback);
 
       callback.mockClear();
@@ -416,7 +455,7 @@ describe('RelayModernEnvironment', () => {
   describe('commitPayload()', () => {
     let ActorQuery;
     let environment;
-    let operationDescriptor;
+    let operation;
 
     beforeEach(() => {
       ({ActorQuery} = generateAndCompile(`
@@ -426,7 +465,7 @@ describe('RelayModernEnvironment', () => {
           }
         }
       `));
-      operationDescriptor = createOperationDescriptor(ActorQuery, {});
+      operation = createOperationDescriptor(ActorQuery, {});
       (store: $FlowFixMe).notify = jest.fn(store.notify.bind(store));
       (store: $FlowFixMe).publish = jest.fn(store.publish.bind(store));
       environment = new RelayModernEnvironment(config);
@@ -434,10 +473,10 @@ describe('RelayModernEnvironment', () => {
 
     it('applies server updates', () => {
       const callback = jest.fn();
-      const snapshot = environment.lookup(operationDescriptor.fragment);
+      const snapshot = environment.lookup(operation.fragment, operation);
       environment.subscribe(snapshot, callback);
 
-      environment.commitPayload(operationDescriptor, {
+      environment.commitPayload(operation, {
         me: {
           id: '4',
           __typename: 'User',
@@ -454,7 +493,7 @@ describe('RelayModernEnvironment', () => {
 
     it('rebases optimistic updates', () => {
       const callback = jest.fn();
-      const snapshot = environment.lookup(operationDescriptor.fragment);
+      const snapshot = environment.lookup(operation.fragment, operation);
       environment.subscribe(snapshot, callback);
 
       environment.applyUpdate({
@@ -470,7 +509,7 @@ describe('RelayModernEnvironment', () => {
         },
       });
 
-      environment.commitPayload(operationDescriptor, {
+      environment.commitPayload(operation, {
         me: {
           id: '4',
           __typename: 'User',
@@ -582,7 +621,7 @@ describe('RelayModernEnvironment', () => {
         node: query.fragment,
         variables,
       };
-      const snapshot = environment.lookup(selector);
+      const snapshot = environment.lookup(selector, operation);
       const callback = jest.fn();
       environment.subscribe(snapshot, callback);
 
@@ -757,7 +796,7 @@ describe('RelayModernEnvironment', () => {
         node: query.fragment,
         variables,
       };
-      const snapshot = environment.lookup(selector);
+      const snapshot = environment.lookup(selector, operation);
       const callback = jest.fn();
       environment.subscribe(snapshot, callback);
 
@@ -838,7 +877,7 @@ describe('RelayModernEnvironment', () => {
         node: query.fragment,
         variables,
       };
-      const snapshot = environment.lookup(selector);
+      const snapshot = environment.lookup(selector, operation);
       const callback = jest.fn();
       environment.subscribe(snapshot, callback);
 
@@ -877,7 +916,7 @@ describe('RelayModernEnvironment', () => {
         node: query.fragment,
         variables,
       };
-      const snapshot = environment.lookup(selector);
+      const snapshot = environment.lookup(selector, operation);
       const callback = jest.fn();
       environment.subscribe(snapshot, callback);
 
@@ -935,7 +974,7 @@ describe('RelayModernEnvironment', () => {
         node: query.fragment,
         variables,
       };
-      const snapshot = environment.lookup(selector);
+      const snapshot = environment.lookup(selector, operation);
       const callback = jest.fn();
       environment.subscribe(snapshot, callback);
 
@@ -976,7 +1015,7 @@ describe('RelayModernEnvironment', () => {
         node: query.fragment,
         variables,
       };
-      const snapshot = environment.lookup(selector);
+      const snapshot = environment.lookup(selector, operation);
       const callback = jest.fn();
       environment.subscribe(snapshot, callback);
 
@@ -1019,7 +1058,7 @@ describe('RelayModernEnvironment', () => {
         node: query.fragment,
         variables,
       };
-      const snapshot = environment.lookup(selector);
+      const snapshot = environment.lookup(selector, operation);
       const callback = jest.fn();
       environment.subscribe(snapshot, callback);
 
@@ -1062,7 +1101,7 @@ describe('RelayModernEnvironment', () => {
         node: query.fragment,
         variables,
       };
-      const snapshot = environment.lookup(selector);
+      const snapshot = environment.lookup(selector, operation);
       const callback = jest.fn();
       environment.subscribe(snapshot, callback);
 
@@ -1189,7 +1228,10 @@ describe('RelayModernEnvironment', () => {
         },
       });
 
-      const operationSnapshot = environment.lookup(operation.fragment);
+      const operationSnapshot = environment.lookup(
+        operation.fragment,
+        operation,
+      );
       operationCallback = jest.fn();
       environment.subscribe(operationSnapshot, operationCallback);
     });
@@ -1237,7 +1279,7 @@ describe('RelayModernEnvironment', () => {
             __fragments: {
               MarkdownUserNameRenderer_name: {},
             },
-            __fragmentOwner: null,
+            __fragmentOwner: operation,
             __module_component: 'MarkdownUserNameRenderer.react',
           },
         },
@@ -1250,7 +1292,10 @@ describe('RelayModernEnvironment', () => {
           (operationSnapshot.data?.node: any)?.nameRenderer,
         ),
       );
-      const matchSnapshot = environment.lookup(matchSelector.selector);
+      const matchSnapshot = environment.lookup(
+        matchSelector.selector,
+        operation,
+      );
       // ref exists but match field data hasn't been processed yet
       expect(matchSnapshot.isMissingData).toBe(true);
       expect(matchSnapshot.data).toEqual({
@@ -1296,7 +1341,10 @@ describe('RelayModernEnvironment', () => {
         ),
       );
       // initial results tested above
-      const initialMatchSnapshot = environment.lookup(matchSelector.selector);
+      const initialMatchSnapshot = environment.lookup(
+        matchSelector.selector,
+        operation,
+      );
       expect(initialMatchSnapshot.isMissingData).toBe(true);
       const matchCallback = jest.fn();
       environment.subscribe(initialMatchSnapshot, matchCallback);
@@ -1533,7 +1581,10 @@ describe('RelayModernEnvironment', () => {
         ),
       );
       // initial results tested above
-      const initialMatchSnapshot = environment.lookup(matchSelector.selector);
+      const initialMatchSnapshot = environment.lookup(
+        matchSelector.selector,
+        operation,
+      );
       expect(initialMatchSnapshot.isMissingData).toBe(true);
       const matchCallback = jest.fn();
       environment.subscribe(initialMatchSnapshot, matchCallback);
@@ -1644,7 +1695,10 @@ describe('RelayModernEnvironment', () => {
           }
         },
       });
-      const operationSnapshot = environment.lookup(operation.fragment);
+      const operationSnapshot = environment.lookup(
+        operation.fragment,
+        operation,
+      );
       operationCallback = jest.fn();
       environment.subscribe(operationSnapshot, operationCallback);
     });
@@ -1691,7 +1745,7 @@ describe('RelayModernEnvironment', () => {
             __fragments: {
               MarkdownUserNameRenderer_name: {},
             },
-            __fragmentOwner: null,
+            __fragmentOwner: operation,
             __module_component: 'MarkdownUserNameRenderer.react',
           },
         },
@@ -1704,7 +1758,10 @@ describe('RelayModernEnvironment', () => {
           (operationSnapshot.data?.node: any)?.nameRenderer,
         ),
       );
-      const matchSnapshot = environment.lookup(matchSelector.selector);
+      const matchSnapshot = environment.lookup(
+        matchSelector.selector,
+        operation,
+      );
       // ref exists but match field data hasn't been processed yet
       expect(matchSnapshot.isMissingData).toBe(true);
       expect(matchSnapshot.data).toEqual({
@@ -1750,7 +1807,10 @@ describe('RelayModernEnvironment', () => {
         ),
       );
       // initial results tested above
-      const initialMatchSnapshot = environment.lookup(matchSelector.selector);
+      const initialMatchSnapshot = environment.lookup(
+        matchSelector.selector,
+        operation,
+      );
       expect(initialMatchSnapshot.isMissingData).toBe(true);
       const matchCallback = jest.fn();
       environment.subscribe(initialMatchSnapshot, matchCallback);
@@ -1987,7 +2047,10 @@ describe('RelayModernEnvironment', () => {
         ),
       );
       // initial results tested above
-      const initialMatchSnapshot = environment.lookup(matchSelector.selector);
+      const initialMatchSnapshot = environment.lookup(
+        matchSelector.selector,
+        operation,
+      );
       expect(initialMatchSnapshot.isMissingData).toBe(true);
       const matchCallback = jest.fn();
       environment.subscribe(initialMatchSnapshot, matchCallback);
@@ -2073,7 +2136,7 @@ describe('RelayModernEnvironment', () => {
     });
 
     it('calls next() and publishes the initial payload to the store', () => {
-      const initialSnapshot = environment.lookup(selector);
+      const initialSnapshot = environment.lookup(selector, operation);
       const callback = jest.fn();
       environment.subscribe(initialSnapshot, callback);
 
@@ -2102,7 +2165,7 @@ describe('RelayModernEnvironment', () => {
     });
 
     it('processes deferred payloads', () => {
-      const initialSnapshot = environment.lookup(selector);
+      const initialSnapshot = environment.lookup(selector, operation);
       const callback = jest.fn();
       environment.subscribe(initialSnapshot, callback);
 
@@ -2142,7 +2205,7 @@ describe('RelayModernEnvironment', () => {
     });
 
     it('calls error() for invalid deferred payloads (unknown label)', () => {
-      const initialSnapshot = environment.lookup(selector);
+      const initialSnapshot = environment.lookup(selector, operation);
       const callback = jest.fn();
       environment.subscribe(initialSnapshot, callback);
 
@@ -2179,7 +2242,7 @@ describe('RelayModernEnvironment', () => {
     });
 
     it('calls error() for invalid deferred payloads (unknown path)', () => {
-      const initialSnapshot = environment.lookup(selector);
+      const initialSnapshot = environment.lookup(selector, operation);
       const callback = jest.fn();
       environment.subscribe(initialSnapshot, callback);
 
@@ -2218,7 +2281,7 @@ describe('RelayModernEnvironment', () => {
     });
 
     it('calls complete() when server completes after deferred payload resolves', () => {
-      const initialSnapshot = environment.lookup(selector);
+      const initialSnapshot = environment.lookup(selector, operation);
       const callback = jest.fn();
       environment.subscribe(initialSnapshot, callback);
 
@@ -2257,7 +2320,7 @@ describe('RelayModernEnvironment', () => {
     });
 
     it('calls complete() when server completes before deferred payload resolves', () => {
-      const initialSnapshot = environment.lookup(selector);
+      const initialSnapshot = environment.lookup(selector, operation);
       const callback = jest.fn();
       environment.subscribe(initialSnapshot, callback);
 
@@ -2286,7 +2349,7 @@ describe('RelayModernEnvironment', () => {
     });
 
     it('calls error() when server errors after deferred payload resolves', () => {
-      const initialSnapshot = environment.lookup(selector);
+      const initialSnapshot = environment.lookup(selector, operation);
       const callback = jest.fn();
       environment.subscribe(initialSnapshot, callback);
 
@@ -2327,7 +2390,7 @@ describe('RelayModernEnvironment', () => {
     });
 
     it('calls error() when server errors before deferred payload resolves', () => {
-      const initialSnapshot = environment.lookup(selector);
+      const initialSnapshot = environment.lookup(selector, operation);
       const callback = jest.fn();
       environment.subscribe(initialSnapshot, callback);
 
@@ -2358,7 +2421,7 @@ describe('RelayModernEnvironment', () => {
     });
 
     it('calls error() when deferred payload is missing data', () => {
-      const initialSnapshot = environment.lookup(selector);
+      const initialSnapshot = environment.lookup(selector, operation);
       const callback = jest.fn();
       environment.subscribe(initialSnapshot, callback);
 
@@ -2482,7 +2545,7 @@ describe('RelayModernEnvironment', () => {
     });
 
     it('calls next() and publishes the initial payload to the store', () => {
-      const initialSnapshot = environment.lookup(selector);
+      const initialSnapshot = environment.lookup(selector, operation);
       const callback = jest.fn();
       environment.subscribe(initialSnapshot, callback);
 
@@ -2512,7 +2575,7 @@ describe('RelayModernEnvironment', () => {
     });
 
     it('processes streamed payloads', () => {
-      const initialSnapshot = environment.lookup(selector);
+      const initialSnapshot = environment.lookup(selector, operation);
       const callback = jest.fn();
       environment.subscribe(initialSnapshot, callback);
 
@@ -2571,7 +2634,7 @@ describe('RelayModernEnvironment', () => {
     });
 
     it('processes @stream payloads when the parent record has been deleted', () => {
-      const initialSnapshot = environment.lookup(selector);
+      const initialSnapshot = environment.lookup(selector, operation);
       const callback = jest.fn();
       environment.subscribe(initialSnapshot, callback);
 
@@ -2611,11 +2674,14 @@ describe('RelayModernEnvironment', () => {
       expect(callback).toBeCalledTimes(0);
 
       // but the stramed entity is added to the store
-      const actorSnapshot = environment.lookup({
-        dataID: '2',
-        node: actorFragment,
-        variables: {},
-      });
+      const actorSnapshot = environment.lookup(
+        {
+          dataID: '2',
+          node: actorFragment,
+          variables: {},
+        },
+        operation,
+      );
       expect(actorSnapshot.isMissingData).toBe(false);
       expect(actorSnapshot.data).toEqual({
         name: 'ALICE',
@@ -2626,7 +2692,7 @@ describe('RelayModernEnvironment', () => {
     });
 
     it('processes @stream payloads when the streamed field has been deleted on the parent record', () => {
-      const initialSnapshot = environment.lookup(selector);
+      const initialSnapshot = environment.lookup(selector, operation);
       const callback = jest.fn();
       environment.subscribe(initialSnapshot, callback);
 
@@ -2672,11 +2738,14 @@ describe('RelayModernEnvironment', () => {
       expect(callback).toBeCalledTimes(0);
 
       // but the stramed entity is added to the store
-      const actorSnapshot = environment.lookup({
-        dataID: '2',
-        node: actorFragment,
-        variables: {},
-      });
+      const actorSnapshot = environment.lookup(
+        {
+          dataID: '2',
+          node: actorFragment,
+          variables: {},
+        },
+        operation,
+      );
       expect(actorSnapshot.isMissingData).toBe(false);
       expect(actorSnapshot.data).toEqual({
         name: 'ALICE',
@@ -2690,7 +2759,7 @@ describe('RelayModernEnvironment', () => {
       'processes @stream payloads when the identity of the item at the ' +
         'target index has changed on the parent record ()',
       () => {
-        const initialSnapshot = environment.lookup(selector);
+        const initialSnapshot = environment.lookup(selector, operation);
         const callback = jest.fn();
         environment.subscribe(initialSnapshot, callback);
 
@@ -2740,11 +2809,14 @@ describe('RelayModernEnvironment', () => {
         expect(callback).toBeCalledTimes(0);
 
         // but the stramed entity is added to the store
-        const actorSnapshot = environment.lookup({
-          dataID: '2',
-          node: actorFragment,
-          variables: {},
-        });
+        const actorSnapshot = environment.lookup(
+          {
+            dataID: '2',
+            node: actorFragment,
+            variables: {},
+          },
+          operation,
+        );
         expect(actorSnapshot.isMissingData).toBe(false);
         expect(actorSnapshot.data).toEqual({
           name: 'ALICE',
@@ -2759,7 +2831,7 @@ describe('RelayModernEnvironment', () => {
       'processes @stream payloads when the identity of the item at the ' +
         'an index other than the target has changed on the parent record ()',
       () => {
-        const initialSnapshot = environment.lookup(selector);
+        const initialSnapshot = environment.lookup(selector, operation);
         const callback = jest.fn();
         environment.subscribe(initialSnapshot, callback);
 
@@ -2830,11 +2902,14 @@ describe('RelayModernEnvironment', () => {
         expect(callback).toBeCalledTimes(0);
 
         // but the stramed entity is added to the store
-        const actorSnapshot = environment.lookup({
-          dataID: '2',
-          node: actorFragment,
-          variables: {},
-        });
+        const actorSnapshot = environment.lookup(
+          {
+            dataID: '2',
+            node: actorFragment,
+            variables: {},
+          },
+          operation,
+        );
         expect(actorSnapshot.isMissingData).toBe(false);
         expect(actorSnapshot.data).toEqual({
           name: 'ALICE',
@@ -2846,7 +2921,7 @@ describe('RelayModernEnvironment', () => {
     );
 
     it('processes streamed payloads that arrive out of order', () => {
-      const initialSnapshot = environment.lookup(selector);
+      const initialSnapshot = environment.lookup(selector, operation);
       const callback = jest.fn();
       environment.subscribe(initialSnapshot, callback);
 
@@ -2907,7 +2982,7 @@ describe('RelayModernEnvironment', () => {
     });
 
     it('processes streamed payloads relative to the most recent root payload', () => {
-      const initialSnapshot = environment.lookup(selector);
+      const initialSnapshot = environment.lookup(selector, operation);
       const callback = jest.fn();
       environment.subscribe(initialSnapshot, callback);
 
@@ -2954,11 +3029,14 @@ describe('RelayModernEnvironment', () => {
       // root record, not1
       expect(callback).toBeCalledTimes(0);
 
-      const snapshot = environment.lookup({
-        dataID: 'not1',
-        node: fragment,
-        variables: {},
-      });
+      const snapshot = environment.lookup(
+        {
+          dataID: 'not1',
+          node: fragment,
+          variables: {},
+        },
+        operation,
+      );
       expect(snapshot.isMissingData).toBe(false);
       expect(snapshot.data).toEqual({
         id: 'not1',
@@ -2970,7 +3048,7 @@ describe('RelayModernEnvironment', () => {
     });
 
     it('calls error() for invalid streamed payloads (unknown label)', () => {
-      const initialSnapshot = environment.lookup(selector);
+      const initialSnapshot = environment.lookup(selector, operation);
       const callback = jest.fn();
       environment.subscribe(initialSnapshot, callback);
 
@@ -3008,7 +3086,7 @@ describe('RelayModernEnvironment', () => {
     });
 
     it('calls error() for invalid streamed payloads (unknown path)', () => {
-      const initialSnapshot = environment.lookup(selector);
+      const initialSnapshot = environment.lookup(selector, operation);
       const callback = jest.fn();
       environment.subscribe(initialSnapshot, callback);
 
@@ -3048,7 +3126,7 @@ describe('RelayModernEnvironment', () => {
     });
 
     it('calls complete() when server completes after streamed payload resolves', () => {
-      const initialSnapshot = environment.lookup(selector);
+      const initialSnapshot = environment.lookup(selector, operation);
       const callback = jest.fn();
       environment.subscribe(initialSnapshot, callback);
 
@@ -3088,7 +3166,7 @@ describe('RelayModernEnvironment', () => {
     });
 
     it('calls complete() when server completes before streamed payload resolves', () => {
-      const initialSnapshot = environment.lookup(selector);
+      const initialSnapshot = environment.lookup(selector, operation);
       const callback = jest.fn();
       environment.subscribe(initialSnapshot, callback);
 
@@ -3118,7 +3196,7 @@ describe('RelayModernEnvironment', () => {
     });
 
     it('calls error() when server errors after streamed payload resolves', () => {
-      const initialSnapshot = environment.lookup(selector);
+      const initialSnapshot = environment.lookup(selector, operation);
       const callback = jest.fn();
       environment.subscribe(initialSnapshot, callback);
 
@@ -3160,7 +3238,7 @@ describe('RelayModernEnvironment', () => {
     });
 
     it('calls error() when server errors before streamed payload resolves', () => {
-      const initialSnapshot = environment.lookup(selector);
+      const initialSnapshot = environment.lookup(selector, operation);
       const callback = jest.fn();
       environment.subscribe(initialSnapshot, callback);
 
@@ -3192,7 +3270,7 @@ describe('RelayModernEnvironment', () => {
     });
 
     it('calls error() when streamed payload is missing data', () => {
-      const initialSnapshot = environment.lookup(selector);
+      const initialSnapshot = environment.lookup(selector, operation);
       const callback = jest.fn();
       environment.subscribe(initialSnapshot, callback);
 
@@ -3342,7 +3420,7 @@ describe('RelayModernEnvironment', () => {
 
     // Publish an initial root payload and a parent nested stream payload
     beforeEach(() => {
-      const initialSnapshot = environment.lookup(selector);
+      const initialSnapshot = environment.lookup(selector, operation);
       callback = jest.fn();
       environment.subscribe(initialSnapshot, callback);
 
@@ -3537,11 +3615,14 @@ describe('RelayModernEnvironment', () => {
       expect(callback).toBeCalledTimes(0);
 
       // but the stramed entity is added to the store
-      const actorSnapshot = environment.lookup({
-        dataID: 'user-1',
-        node: actorFragment,
-        variables: {},
-      });
+      const actorSnapshot = environment.lookup(
+        {
+          dataID: 'user-1',
+          node: actorFragment,
+          variables: {},
+        },
+        operation,
+      );
       expect(actorSnapshot.isMissingData).toBe(false);
       expect(actorSnapshot.data).toEqual({
         name: 'ALICE',
@@ -3600,11 +3681,14 @@ describe('RelayModernEnvironment', () => {
       expect(callback).toBeCalledTimes(0);
 
       // but the stramed entity is added to the store
-      const actorSnapshot = environment.lookup({
-        dataID: 'user-1',
-        node: actorFragment,
-        variables: {},
-      });
+      const actorSnapshot = environment.lookup(
+        {
+          dataID: 'user-1',
+          node: actorFragment,
+          variables: {},
+        },
+        operation,
+      );
       expect(actorSnapshot.isMissingData).toBe(false);
       expect(actorSnapshot.data).toEqual({
         name: 'ALICE',
@@ -3668,11 +3752,14 @@ describe('RelayModernEnvironment', () => {
         expect(callback).toBeCalledTimes(0);
 
         // but the stramed entity is added to the store
-        const actorSnapshot = environment.lookup({
-          dataID: 'user-1',
-          node: actorFragment,
-          variables: {},
-        });
+        const actorSnapshot = environment.lookup(
+          {
+            dataID: 'user-1',
+            node: actorFragment,
+            variables: {},
+          },
+          operation,
+        );
         expect(actorSnapshot.isMissingData).toBe(false);
         expect(actorSnapshot.data).toEqual({
           name: 'ALICE',
@@ -3737,11 +3824,14 @@ describe('RelayModernEnvironment', () => {
         expect(callback).toBeCalledTimes(0);
 
         // but the stramed entity is added to the store
-        const actorSnapshot = environment.lookup({
-          dataID: 'user-2',
-          node: actorFragment,
-          variables: {},
-        });
+        const actorSnapshot = environment.lookup(
+          {
+            dataID: 'user-2',
+            node: actorFragment,
+            variables: {},
+          },
+          operation,
+        );
         expect(actorSnapshot.isMissingData).toBe(false);
         expect(actorSnapshot.data).toEqual({
           name: 'BOB',
@@ -4092,7 +4182,10 @@ describe('RelayModernEnvironment', () => {
           }
         },
       });
-      const operationSnapshot = environment.lookup(operation.fragment);
+      const operationSnapshot = environment.lookup(
+        operation.fragment,
+        operation,
+      );
       operationCallback = jest.fn();
       environment.subscribe(operationSnapshot, operationCallback);
     });
@@ -4148,7 +4241,7 @@ describe('RelayModernEnvironment', () => {
             __fragments: {
               MarkdownUserNameRenderer_name: {},
             },
-            __fragmentOwner: null,
+            __fragmentOwner: operation,
             __module_component: 'MarkdownUserNameRenderer.react',
           },
         },
@@ -4161,7 +4254,10 @@ describe('RelayModernEnvironment', () => {
           (operationSnapshot.data?.node: any)?.outerRenderer,
         ),
       );
-      const matchSnapshot = environment.lookup(matchSelector.selector);
+      const matchSnapshot = environment.lookup(
+        matchSelector.selector,
+        operation,
+      );
       expect(matchSnapshot.isMissingData).toBe(true);
       expect(matchSnapshot.data).toEqual({
         __typename: 'MarkdownUserNameRenderer',
@@ -4228,6 +4324,7 @@ describe('RelayModernEnvironment', () => {
       // initial outer fragment snapshot is tested above
       const initialOuterMatchSnapshot = environment.lookup(
         outerMatchSelector.selector,
+        operation,
       );
       expect(initialOuterMatchSnapshot.isMissingData).toBe(true);
       const outerMatchCallback = jest.fn();
@@ -4251,7 +4348,7 @@ describe('RelayModernEnvironment', () => {
         markdown: 'markdown payload',
         user: {
           innerRenderer: {
-            __fragmentOwner: null,
+            __fragmentOwner: operation,
             __fragmentPropName: 'name',
             __fragments: {
               PlainUserNameRenderer_name: {},
@@ -4272,6 +4369,7 @@ describe('RelayModernEnvironment', () => {
       );
       const initialInnerMatchSnapshot = environment.lookup(
         innerMatchSelector.selector,
+        operation,
       );
       expect(initialInnerMatchSnapshot.isMissingData).toBe(true);
       const innerMatchCallback = jest.fn();
@@ -4539,6 +4637,7 @@ describe('RelayModernEnvironment', () => {
       // initial outer fragment snapshot is tested above
       const outerMatchSnapshot = environment.lookup(
         outerMatchSelector.selector,
+        operation,
       );
       expect(outerMatchSnapshot.isMissingData).toBe(true);
       expect(outerMatchSnapshot.data).toEqual({
@@ -4617,6 +4716,7 @@ describe('RelayModernEnvironment', () => {
       // initial outer fragment snapshot is tested above
       const outerMatchSnapshot = environment.lookup(
         outerMatchSelector.selector,
+        operation,
       );
       const innerMatchSelector = nullthrows(
         getSingularSelector(
@@ -4627,6 +4727,7 @@ describe('RelayModernEnvironment', () => {
       );
       const innerMatchSnapshot = environment.lookup(
         innerMatchSelector.selector,
+        operation,
       );
       expect(innerMatchSnapshot.isMissingData).toBe(true);
       expect(innerMatchSnapshot.data).toEqual({});
@@ -4715,7 +4816,7 @@ describe('RelayModernEnvironment', () => {
         node: CommentFragment,
         variables: {},
       };
-      const snapshot = environment.lookup(selector);
+      const snapshot = environment.lookup(selector, operation);
       const callback = jest.fn();
       environment.subscribe(snapshot, callback);
 
@@ -4749,7 +4850,7 @@ describe('RelayModernEnvironment', () => {
         node: CommentFragment,
         variables: {},
       };
-      const snapshot = environment.lookup(selector);
+      const snapshot = environment.lookup(selector, operation);
       const callback = jest.fn();
       environment.subscribe(snapshot, callback);
 
@@ -4780,7 +4881,7 @@ describe('RelayModernEnvironment', () => {
         node: CommentFragment,
         variables: {},
       };
-      const snapshot = environment.lookup(selector);
+      const snapshot = environment.lookup(selector, operation);
       const callback = jest.fn();
       environment.subscribe(snapshot, callback);
 
@@ -4830,7 +4931,7 @@ describe('RelayModernEnvironment', () => {
         node: CommentFragment,
         variables: {},
       };
-      const snapshot = environment.lookup(selector);
+      const snapshot = environment.lookup(selector, operation);
       const callback = jest.fn();
       environment.subscribe(snapshot, callback);
 
@@ -4888,7 +4989,7 @@ describe('RelayModernEnvironment', () => {
         node: CommentFragment,
         variables: {},
       };
-      const snapshot = environment.lookup(selector);
+      const snapshot = environment.lookup(selector, operation);
       const callback = jest.fn();
       environment.subscribe(snapshot, callback);
 
@@ -4926,7 +5027,7 @@ describe('RelayModernEnvironment', () => {
         node: CommentFragment,
         variables: {},
       };
-      const snapshot = environment.lookup(selector);
+      const snapshot = environment.lookup(selector, operation);
       const callback = jest.fn();
       environment.subscribe(snapshot, callback);
 
@@ -4964,7 +5065,7 @@ describe('RelayModernEnvironment', () => {
         node: CommentFragment,
         variables: {},
       };
-      const snapshot = environment.lookup(selector);
+      const snapshot = environment.lookup(selector, operation);
       const callback = jest.fn();
       environment.subscribe(snapshot, callback);
 
@@ -5105,7 +5206,10 @@ describe('RelayModernEnvironment', () => {
           }
         },
       });
-      const operationSnapshot = environment.lookup(operation.fragment);
+      const operationSnapshot = environment.lookup(
+        operation.fragment,
+        operation,
+      );
       operationCallback = jest.fn();
       environment.subscribe(operationSnapshot, operationCallback);
     });
@@ -5158,7 +5262,7 @@ describe('RelayModernEnvironment', () => {
                 __fragments: {
                   MarkdownUserNameRenderer_name: {},
                 },
-                __fragmentOwner: null,
+                __fragmentOwner: operation,
                 __module_component: 'MarkdownUserNameRenderer.react',
               },
             },
@@ -5174,7 +5278,10 @@ describe('RelayModernEnvironment', () => {
             ?.nameRenderer,
         ),
       );
-      const matchSnapshot = environment.lookup(matchSelector.selector);
+      const matchSnapshot = environment.lookup(
+        matchSelector.selector,
+        operation,
+      );
       // ref exists but match field data hasn't been processed yet
       expect(matchSnapshot.isMissingData).toBe(true);
       expect(matchSnapshot.data).toEqual({
@@ -5234,7 +5341,10 @@ describe('RelayModernEnvironment', () => {
             ?.nameRenderer,
         ),
       );
-      const initialMatchSnapshot = environment.lookup(matchSelector.selector);
+      const initialMatchSnapshot = environment.lookup(
+        matchSelector.selector,
+        operation,
+      );
       expect(initialMatchSnapshot.isMissingData).toBe(true);
       const matchCallback = jest.fn();
       environment.subscribe(initialMatchSnapshot, matchCallback);
@@ -5430,7 +5540,7 @@ describe('RelayModernEnvironment', () => {
       expect(complete).toBeCalledTimes(0);
       expect(error).toBeCalledTimes(0);
       expect(updater).toBeCalledTimes(1);
-      expect(environment.lookup(operation.fragment).data).toEqual({
+      expect(environment.lookup(operation.fragment, operation).data).toEqual({
         me: {
           name: 'ALICE',
         },

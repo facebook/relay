@@ -158,7 +158,7 @@ export interface CEnvironment<
    */
   lookup(
     selector: CReaderSelector<TReaderNode>,
-    owner?: ?COperationDescriptor<TReaderNode, TNormalizationNode, TRequest>,
+    owner: ?COperationDescriptor<TReaderNode, TNormalizationNode, TRequest>,
   ): CSnapshot<
     TReaderNode,
     COperationDescriptor<TReaderNode, TNormalizationNode, TRequest>,

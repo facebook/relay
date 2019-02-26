@@ -105,7 +105,7 @@ function commitRelayModernMutation<T>(
       complete: () => {
         const {onCompleted} = config;
         if (onCompleted) {
-          const snapshot = environment.lookup(operation.fragment);
+          const snapshot = environment.lookup(operation.fragment, operation);
           onCompleted(
             (snapshot.data: $FlowFixMe),
             errors.length !== 0 ? errors : null,

@@ -68,8 +68,6 @@ See the [Fragment Container docs](./fragment-container.html#passing-arguments-to
 
 When using the [Pagination Container](./pagination-container.html), Relay expects connection fields to be annotated with a `@connection` directive. For more detailed information and an example, check out the [docs on using `@connection` inside a Pagination Container](./pagination-container.html#connection).
 
-**Note:** `@connection` is also supported in [compatibility mode](./relay-compat.html)
-
 ### `@relay(plural: Boolean)`
 
 When defining a fragment for use with a Fragment container, you can use the `@relay(plural: true)` directive to indicate that container expects the prop for that fragment to be a list of items instead of a single item. A query or parent that spreads a `@relay(plural: true)` fragment should do so within a plural field (ie a field backed by a [GraphQL list](http://graphql.org/learn/schema/#lists-and-non-null). For example:

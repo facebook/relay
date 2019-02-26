@@ -23,21 +23,6 @@
       "quick-start-guide": {
         "title": "Quick Start Guide"
       },
-      "api-cheatsheet": {
-        "title": "API Cheatsheet"
-      },
-      "compatibility-cheatsheet": {
-        "title": "Compatibility Cheatsheet"
-      },
-      "conversion-playbook": {
-        "title": "Conversion Playbook"
-      },
-      "conversion-scripts": {
-        "title": "Conversion Scripts"
-      },
-      "converting-mutations": {
-        "title": "Converting Mutations"
-      },
       "relay-debugging": {
         "title": "Debugging"
       },
@@ -50,17 +35,11 @@
       "graphql-in-relay": {
         "title": "GraphQL in Relay"
       },
-      "migration-setup": {
-        "title": "Migration Setup"
-      },
       "mutations": {
         "title": "Mutations"
       },
       "network-layer": {
         "title": "Network Layer"
-      },
-      "new-in-relay-modern": {
-        "title": "New in Relay Modern"
       },
       "pagination-container": {
         "title": "Pagination Container"
@@ -73,9 +52,6 @@
       },
       "refetch-container": {
         "title": "Refetch Container"
-      },
-      "relay-compat": {
-        "title": "Compatibility Mode"
       },
       "relay-environment": {
         "title": "Relay Environment"
@@ -91,9 +67,6 @@
       },
       "type-emission": {
         "title": "Type Emission"
-      },
-      "upgrading-setvariables": {
-        "title": "Upgrading setVariables"
       },
       "compiler-architecture": {
         "title": "Compiler Architecture"
@@ -415,6 +388,9 @@
       },
       "version-v2.0.0-persisted-queries": {
         "title": "Persisted Queries"
+      },
+      "version-v3.0.0-type-emission": {
+        "title": "Type Emission"
       }
     },
     "links": {
@@ -426,9 +402,9 @@
       "Introduction": "Introduction",
       "API Reference": "API Reference",
       "Guides": "Guides",
-      "Migration Guides": "Migration Guides",
       "Principles & Architecture": "Principles & Architecture",
       "Community": "Community",
+      "Migration Guides": "Migration Guides",
       "Relay Classic Guides": "Relay Classic Guides",
       "Relay Classic API": "Relay Classic API",
       "Relay Classic Interfaces": "Relay Classic Interfaces"

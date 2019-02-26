@@ -33,8 +33,6 @@ Please note that the `"relay"` plugin should run before other plugins or
 presets to ensure the `graphql` template literals are correctly transformed. See
 Babel's [documentation on this topic](https://babeljs.io/docs/plugins/#pluginpreset-ordering).
 
-See the [Migration Setup](./migration-setup.html) guide if upgrading an existing Relay app.
-
 Alternatively, instead of using `babel-plugin-relay`, you can use Relay with [babel-plugin-macros](https://github.com/kentcdodds/babel-plugin-macros). After installing `babel-plugin-macros` and adding it to your Babel config:
 
 ```javascript

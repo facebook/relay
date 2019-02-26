@@ -29,7 +29,7 @@ createFragmentContainer(
   * A `graphql` tagged fragment. If the fragment uses the name convention `<FileName><...>_<propName>`, the fragment's data will be available to the Component as a prop with the given `<propName>`.
   If the fragment name doesn't specify a prop name, the data will be available as a `data` prop.
   * An object whose keys are prop names and values are `graphql` tagged fragments. Each key specified in this object will correspond to a prop in the resulting Component.
-  * **Note:** To enable [compatibility mode](./relay-compat.html), `relay-compiler` enforces fragments to be named as `<FileName>_<propName>`.
+  * **Note:** `relay-compiler` enforces fragments to be named as `<FileName>_<propName>` to help keeping names unique.
 
 ### Available Props
 

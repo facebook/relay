@@ -26,17 +26,6 @@
       "persisted-queries",
       "type-emission"
     ],
-    "Migration Guides": [
-      "new-in-relay-modern",
-      "relay-compat",
-      "migration-setup",
-      "conversion-playbook",
-      "conversion-scripts",
-      "upgrading-setvariables",
-      "converting-mutations",
-      "compatibility-cheatsheet",
-      "api-cheatsheet"
-    ],
     "Principles & Architecture": [
       "thinking-in-graphql",
       "thinking-in-relay",

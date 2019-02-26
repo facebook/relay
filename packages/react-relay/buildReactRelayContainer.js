@@ -97,23 +97,8 @@ function buildReactRelayContainer<TBase: React$ComponentType<*>>(
   const ForwardContainer = React.forwardRef(forwardRef);
 
   if (__DEV__) {
-    /* $FlowFixMe(>=0.89.0 site=www,mobile,react_native_fb,oss) Suppressing
-     * errors found while preparing to upgrade to 0.89.0 */
-    ForwardContainer.__ComponentClass = ComponentClass;
-    // Classic container static methods.
-    /* $FlowFixMe(>=0.89.0 site=www,mobile,react_native_fb,oss) Suppressing
-     * errors found while preparing to upgrade to 0.89.0 */
-    ForwardContainer.getFragment = function getFragmentOnModernContainer() {
-      throw new Error(
-        `RelayModernContainer: ${containerName}.getFragment() was called on ` +
-          'a Relay Modern component by a Relay Classic or Relay Compat ' +
-          'component.\n' +
-          'When using Relay Modern and Relay Classic in the same ' +
-          'application, ensure components use Relay Compat to work in ' +
-          'both environments.\n' +
-          'See: http://facebook.github.io/relay/docs/relay-compat.html',
-      );
-    };
+    // Used by RelayModernTestUtils
+    (ForwardContainer: any).__ComponentClass = ComponentClass;
   }
 
   /* $FlowFixMe(>=0.89.0 site=www,mobile,react_native_fb,oss) Suppressing errors

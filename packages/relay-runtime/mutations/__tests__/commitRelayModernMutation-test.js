@@ -180,11 +180,7 @@ describe('Configs: NODE_DELETE', () => {
       }),
     ).toThrowError(
       'commitRelayModernMutation: expected `environment` to be an instance of ' +
-        '`RelayModernEnvironment`.\n' +
-        'When using Relay Modern and Relay Classic in the same ' +
-        'application, ensure mutations use Relay Compat to work in ' +
-        'both environments.\n' +
-        'See: http://facebook.github.io/relay/docs/relay-compat.html',
+        '`RelayModernEnvironment`.',
     );
   });
 });

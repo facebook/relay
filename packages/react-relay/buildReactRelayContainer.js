@@ -57,11 +57,7 @@ function buildReactRelayContainer<TBase: React$ComponentType<*>>(
         if (!isRelayModernEnvironment(environment)) {
           throw new Error(
             'RelayModernContainer: Can only use Relay Modern component ' +
-              `${containerName} in a Relay Modern environment!\n` +
-              'When using Relay Modern and Relay Classic in the same ' +
-              'application, ensure components use Relay Compat to work in ' +
-              'both environments.\n' +
-              'See: http://facebook.github.io/relay/docs/relay-compat.html',
+              `${containerName} in a Relay Modern environment!`,
           );
         }
       }

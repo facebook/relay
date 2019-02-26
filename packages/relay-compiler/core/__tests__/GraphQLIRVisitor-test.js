@@ -10,11 +10,11 @@
 
 'use strict';
 
-const GraphQLIRPrinter = require('GraphQLIRPrinter');
-const RelayParser = require('RelayParser');
+const GraphQLIRPrinter = require('../GraphQLIRPrinter');
+const RelayParser = require('../RelayParser');
 const RelayTestSchema = require('RelayTestSchema');
 
-const {visit} = require('GraphQLIRVisitor');
+const {visit} = require('../GraphQLIRVisitor');
 const {generateTestsFromFixtures} = require('RelayModernTestUtils');
 
 import type {

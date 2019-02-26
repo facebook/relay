@@ -10,11 +10,11 @@
 
 'use strict';
 
-const FlattenTransform = require('FlattenTransform');
-const GraphQLCompilerContext = require('GraphQLCompilerContext');
-const InlineFragmentsTransform = require('InlineFragmentsTransform');
-const RelayGenerateTypeNameTransform = require('RelayGenerateTypeNameTransform');
-const RelayParser = require('RelayParser');
+const FlattenTransform = require('../FlattenTransform');
+const GraphQLCompilerContext = require('../../core/GraphQLCompilerContext');
+const InlineFragmentsTransform = require('../InlineFragmentsTransform');
+const RelayGenerateTypeNameTransform = require('../RelayGenerateTypeNameTransform');
+const RelayParser = require('../../core/RelayParser');
 const RelayTestSchema = require('RelayTestSchema');
 
 const {generateTestsFromFixtures} = require('RelayModernTestUtils');

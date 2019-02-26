@@ -10,7 +10,7 @@
 
 'use strict';
 
-const FindGraphQLTags = require('FindGraphQLTags');
+const FindGraphQLTags = require('../FindGraphQLTags');
 
 describe('FindGraphQLTags', () => {
   function find(text) {

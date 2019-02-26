@@ -19,7 +19,6 @@ const BLACKLISTED_PATTERNS/*: Array<RegExp>*/ = [
 ];
 
 const WHITELISTED_PREFIXES/*: Array<string>*/ = [
-  'packages/relay-compiler',
   'packages/relay-test-utils',
 ];
 

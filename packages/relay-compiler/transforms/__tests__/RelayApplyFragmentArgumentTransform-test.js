@@ -10,10 +10,10 @@
 
 'use strict';
 
-const GraphQLCompilerContext = require('GraphQLCompilerContext');
-const GraphQLIRPrinter = require('GraphQLIRPrinter');
-const RelayApplyFragmentArgumentTransform = require('RelayApplyFragmentArgumentTransform');
-const RelayParser = require('RelayParser');
+const GraphQLCompilerContext = require('../../core/GraphQLCompilerContext');
+const GraphQLIRPrinter = require('../../core/GraphQLIRPrinter');
+const RelayApplyFragmentArgumentTransform = require('../RelayApplyFragmentArgumentTransform');
+const RelayParser = require('../../core/RelayParser');
 const RelayTestSchema = require('RelayTestSchema');
 
 const {generateTestsFromFixtures} = require('RelayModernTestUtils');

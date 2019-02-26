@@ -25,7 +25,7 @@ describe('scope', () => {
     jest.resetModules();
 
     GraphQL = require('graphql');
-    RelayCompilerScope = require('RelayCompilerScope');
+    RelayCompilerScope = require('../RelayCompilerScope');
     RelayTestSchema = require('RelayTestSchema');
 
     ({GraphQLNonNull} = GraphQL);

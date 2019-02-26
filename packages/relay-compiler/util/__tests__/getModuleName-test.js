@@ -10,7 +10,7 @@
 
 'use strict';
 
-const getModuleName = require('getModuleName');
+const getModuleName = require('../getModuleName');
 
 test('getModuleName', () => {
   expect(getModuleName('/path/Button.js')).toBe('Button');

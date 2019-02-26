@@ -10,24 +10,24 @@
 
 'use strict';
 
-const FlattenTransform = require('FlattenTransform');
-const GraphQLCompilerContext = require('GraphQLCompilerContext');
-const GraphQLIRPrinter = require('GraphQLIRPrinter');
+const FlattenTransform = require('../FlattenTransform');
+const GraphQLCompilerContext = require('../../core/GraphQLCompilerContext');
+const GraphQLIRPrinter = require('../../core/GraphQLIRPrinter');
 const RelayMatchTransform = require('../../transforms/RelayMatchTransform');
-const RelayParser = require('RelayParser');
-const RelayRelayDirectiveTransform = require('RelayRelayDirectiveTransform');
+const RelayParser = require('../../core/RelayParser');
+const RelayRelayDirectiveTransform = require('../RelayRelayDirectiveTransform');
 const RelayTestSchema = require('RelayTestSchema');
 
 const {generateTestsFromFixtures} = require('RelayModernTestUtils');
 
-import type {FlattenOptions} from 'FlattenTransform';
+import type {FlattenOptions} from '../FlattenTransform';
 
 describe('FlattenTransform', () => {
   function printContextTransform(
     options: FlattenOptions,
   ): (text: string) => string {
     return text => {
-      const {transformASTSchema} = require('ASTConvert');
+      const {transformASTSchema} = require('../../core/ASTConvert');
       const extendedSchema = transformASTSchema(RelayTestSchema, [
         RelayMatchTransform.SCHEMA_EXTENSION,
         RelayRelayDirectiveTransform.SCHEMA_EXTENSION,

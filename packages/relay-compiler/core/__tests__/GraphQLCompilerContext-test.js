@@ -22,8 +22,8 @@ describe('GraphQLCompilerContext', () => {
 
   beforeEach(() => {
     jest.resetModules();
-    GraphQLCompilerContext = require('GraphQLCompilerContext');
-    RelayParser = require('RelayParser');
+    GraphQLCompilerContext = require('../GraphQLCompilerContext');
+    RelayParser = require('../RelayParser');
     RelayTestSchema = require('RelayTestSchema');
     RelayModernTestUtils = require('RelayModernTestUtils');
 

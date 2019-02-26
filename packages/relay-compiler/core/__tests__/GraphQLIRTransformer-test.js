@@ -10,8 +10,8 @@
 
 'use strict';
 
-const GraphQLCompilerContext = require('GraphQLCompilerContext');
-const GraphQLIRTransformer = require('GraphQLIRTransformer');
+const GraphQLCompilerContext = require('../GraphQLCompilerContext');
+const GraphQLIRTransformer = require('../GraphQLIRTransformer');
 const RelayTestSchema = require('RelayTestSchema');
 
 const parseGraphQLText = require('parseGraphQLText');

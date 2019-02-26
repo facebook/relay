@@ -10,7 +10,7 @@
 
 'use strict';
 
-const dedupeJSONStringify = require('dedupeJSONStringify');
+const dedupeJSONStringify = require('../dedupeJSONStringify');
 
 function trimIndentation(str) {
   const match = str.match(/( +)[^\n]*$/);

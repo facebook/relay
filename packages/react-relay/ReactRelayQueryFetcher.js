@@ -12,6 +12,8 @@
 
 const invariant = require('invariant');
 
+const {fetchQuery} = require('./fetchQueryInternal');
+
 import type {
   CacheConfig,
   Disposable,
@@ -92,9 +94,15 @@ class ReactRelayQueryFetcher {
     operation,
     cacheConfig,
     preservePreviousReferences = false,
-  }: ExecuteConfig): Observable<GraphQLResponse> {
+  }: ExecuteConfig): Observable<Snapshot> {
     const reference = environment.retain(operation.root);
-    return environment.execute({operation, cacheConfig}).do({
+    const fetchQueryOptions =
+      cacheConfig != null
+        ? {
+            networkCacheConfig: cacheConfig,
+          }
+        : {};
+    return fetchQuery(environment, operation, fetchQueryOptions).do({
       error: () => {
         // We may have partially fulfilled the request, so let the next request
         // or the unmount dispose of the references.

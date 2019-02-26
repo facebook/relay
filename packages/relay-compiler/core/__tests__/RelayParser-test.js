@@ -12,7 +12,7 @@
 
 const ASTConvert = require('../ASTConvert');
 const RelayMatchTransform = require('../../transforms/RelayMatchTransform');
-const RelayParser = require('RelayParser');
+const RelayParser = require('../RelayParser');
 const RelayTestSchema = require('RelayTestSchema');
 
 const {generateTestsFromFixtures} = require('RelayModernTestUtils');

@@ -10,15 +10,15 @@
 
 'use strict';
 
-const GraphQLCompilerContext = require('GraphQLCompilerContext');
-const RelayFlowGenerator = require('RelayFlowGenerator');
+const GraphQLCompilerContext = require('../../../core/GraphQLCompilerContext');
+const RelayFlowGenerator = require('../RelayFlowGenerator');
 const RelayMatchTransform = require('../../../transforms/RelayMatchTransform');
-const RelayRelayDirectiveTransform = require('RelayRelayDirectiveTransform');
+const RelayRelayDirectiveTransform = require('../../../transforms/RelayRelayDirectiveTransform');
 const RelayTestSchema = require('RelayTestSchema');
 
 const parseGraphQLText = require('parseGraphQLText');
 
-const {transformASTSchema} = require('ASTConvert');
+const {transformASTSchema} = require('../../../core/ASTConvert');
 const {generateTestsFromFixtures} = require('RelayModernTestUtils');
 
 import type {TypeGeneratorOptions} from '../../RelayLanguagePluginInterface';

@@ -10,10 +10,10 @@
 
 'use strict';
 
-const GraphQLCompilerContext = require('GraphQLCompilerContext');
-const GraphQLIRPrinter = require('GraphQLIRPrinter');
+const GraphQLCompilerContext = require('../../core/GraphQLCompilerContext');
+const GraphQLIRPrinter = require('../../core/GraphQLIRPrinter');
 const RelayTestSchema = require('RelayTestSchema');
-const SkipClientFieldTransform = require('SkipClientFieldTransform');
+const SkipClientFieldTransform = require('../SkipClientFieldTransform');
 
 const parseGraphQLText = require('parseGraphQLText');
 

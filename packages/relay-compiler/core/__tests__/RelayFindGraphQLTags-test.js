@@ -10,8 +10,8 @@
 
 'use strict';
 
-const FindGraphQLTags = require('FindGraphQLTags');
-const RelayFindGraphQLTags = require('RelayFindGraphQLTags');
+const FindGraphQLTags = require('../../language/javascript/FindGraphQLTags');
+const RelayFindGraphQLTags = require('../RelayFindGraphQLTags');
 
 describe('RelayFindGraphQLTags', () => {
   function find(text, absPath: string = '/path/to/FindGraphQLTags.js') {

@@ -10,16 +10,16 @@
 
 'use strict';
 
-const GraphQLCompilerContext = require('GraphQLCompilerContext');
-const GraphQLIRPrinter = require('GraphQLIRPrinter');
-const RelayConnectionTransform = require('RelayConnectionTransform');
-const RelayRefetchableFragmentTransform = require('RelayRefetchableFragmentTransform');
-const RelayRelayDirectiveTransform = require('RelayRelayDirectiveTransform');
+const GraphQLCompilerContext = require('../../core/GraphQLCompilerContext');
+const GraphQLIRPrinter = require('../../core/GraphQLIRPrinter');
+const RelayConnectionTransform = require('../../handlers/connection/RelayConnectionTransform');
+const RelayRefetchableFragmentTransform = require('../RelayRefetchableFragmentTransform');
+const RelayRelayDirectiveTransform = require('../RelayRelayDirectiveTransform');
 const RelayTestSchema = require('RelayTestSchema');
 
 const parseGraphQLText = require('parseGraphQLText');
 
-const {transformASTSchema} = require('ASTConvert');
+const {transformASTSchema} = require('../../core/ASTConvert');
 const {generateTestsFromFixtures} = require('RelayModernTestUtils');
 
 describe('RelayRefetchableFragmentTransform', () => {

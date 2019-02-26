@@ -46,11 +46,7 @@ function commitRelayModernMutation<T>(
   invariant(
     isRelayModernEnvironment(environment),
     'commitRelayModernMutation: expected `environment` to be an instance of ' +
-      '`RelayModernEnvironment`.\n' +
-      'When using Relay Modern and Relay Classic in the same ' +
-      'application, ensure mutations use Relay Compat to work in ' +
-      'both environments.\n' +
-      'See: http://facebook.github.io/relay/docs/relay-compat.html',
+      '`RelayModernEnvironment`.',
   );
   const {createOperationDescriptor, getRequest} = environment.unstable_internal;
   const mutation = getRequest(config.mutation);

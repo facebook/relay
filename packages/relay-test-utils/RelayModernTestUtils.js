@@ -42,7 +42,6 @@ expect.addSnapshotSerializer({
 const matchers = {
   toBeDeeplyFrozen(actual) {
     const {isCollection, forEach} = require('iterall');
-
     function check(value) {
       expect(Object.isFrozen(value)).toBe(true);
       if (isCollection(value)) {
@@ -310,4 +309,5 @@ module.exports = {
   matchers,
   simpleClone,
   unwrapContainer,
+  FIXTURE_TAG,
 };

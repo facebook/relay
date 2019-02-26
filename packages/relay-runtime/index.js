@@ -251,6 +251,7 @@ module.exports = {
   REFS_KEY: RelayStoreUtils.REFS_KEY,
   ROOT_ID: RelayStoreUtils.ROOT_ID,
   ROOT_TYPE: RelayStoreUtils.ROOT_TYPE,
+  TYPENAME_KEY: RelayStoreUtils.TYPENAME_KEY,
 
   createRelayNetworkLogger: createRelayNetworkLogger,
   deepFreeze: deepFreeze,

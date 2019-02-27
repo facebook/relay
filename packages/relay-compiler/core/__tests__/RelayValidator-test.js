@@ -12,13 +12,13 @@
 'use strict';
 
 const GraphQL = require('graphql');
-const RelayTestSchema = require('RelayTestSchema');
+const {TestSchema} = require('relay-test-utils');
 const RelayValidator = require('../RelayValidator');
 
 function validateString(input) {
   const ast = GraphQL.parse(new GraphQL.Source(input, 'test.graphql'));
   return () => {
-    RelayValidator.validate(ast, RelayTestSchema, RelayValidator.LOCAL_RULES);
+    RelayValidator.validate(ast, TestSchema, RelayValidator.LOCAL_RULES);
   };
 }
 

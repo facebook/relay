@@ -14,16 +14,14 @@ const GraphQLCompilerContext = require('../../core/GraphQLCompilerContext');
 const GraphQLIRPrinter = require('../../core/GraphQLIRPrinter');
 const RelayApplyFragmentArgumentTransform = require('../RelayApplyFragmentArgumentTransform');
 const RelayParser = require('../../core/RelayParser');
-const RelayTestSchema = require('RelayTestSchema');
-
-const {generateTestsFromFixtures} = require('RelayModernTestUtils');
+const {TestSchema, generateTestsFromFixtures} = require('relay-test-utils');
 
 describe('RelayApplyFragmentArgumentTransform', () => {
   generateTestsFromFixtures(
     `${__dirname}/fixtures/apply-fragment-argument-transform`,
     text => {
-      const ast = RelayParser.parse(RelayTestSchema, text);
-      return new GraphQLCompilerContext(RelayTestSchema)
+      const ast = RelayParser.parse(TestSchema, text);
+      return new GraphQLCompilerContext(TestSchema)
         .addAll(ast)
         .applyTransforms([RelayApplyFragmentArgumentTransform.transform])
         .documents()

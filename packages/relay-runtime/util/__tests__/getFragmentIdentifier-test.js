@@ -13,8 +13,7 @@
 
 const getFragmentIdentifier = require('../getFragmentIdentifier');
 
-const {createMockEnvironment} = require('RelayModernMockEnvironment');
-const {generateAndCompile} = require('RelayModernTestUtils');
+const {createMockEnvironment, generateAndCompile} = require('relay-test-utils');
 const {createOperationDescriptor, getFragment} = require('relay-runtime');
 
 describe('getFragmentIdentifier', () => {

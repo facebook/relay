@@ -11,13 +11,12 @@
 'use strict';
 
 const RelayModernFragmentSpecResolver = require('../RelayModernFragmentSpecResolver');
-const RelayModernTestUtils = require('RelayModernTestUtils');
+const {createMockEnvironment, matchers} = require('relay-test-utils');
 
 const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
 const {ROOT_ID} = require('../RelayStoreUtils');
-const {createMockEnvironment} = require('RelayModernMockEnvironment');
 
 describe('RelayModernFragmentSpecResolver', () => {
   let UserFragment;
@@ -53,7 +52,7 @@ describe('RelayModernFragmentSpecResolver', () => {
   }
 
   beforeEach(() => {
-    expect.extend(RelayModernTestUtils.matchers);
+    expect.extend(matchers);
 
     environment = createMockEnvironment();
     ({UserFragment, UserQuery, UsersFragment} = environment.mock.compile(`

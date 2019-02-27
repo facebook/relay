@@ -16,9 +16,8 @@ const GraphQLIRPrinter = require('../../core/GraphQLIRPrinter');
 const RelayMatchTransform = require('../../transforms/RelayMatchTransform');
 const RelayParser = require('../../core/RelayParser');
 const RelayRelayDirectiveTransform = require('../RelayRelayDirectiveTransform');
-const RelayTestSchema = require('RelayTestSchema');
 
-const {generateTestsFromFixtures} = require('RelayModernTestUtils');
+const {TestSchema, generateTestsFromFixtures} = require('relay-test-utils');
 
 import type {FlattenOptions} from '../FlattenTransform';
 
@@ -28,11 +27,11 @@ describe('FlattenTransform', () => {
   ): (text: string) => string {
     return text => {
       const {transformASTSchema} = require('../../core/ASTConvert');
-      const extendedSchema = transformASTSchema(RelayTestSchema, [
+      const extendedSchema = transformASTSchema(TestSchema, [
         RelayMatchTransform.SCHEMA_EXTENSION,
         RelayRelayDirectiveTransform.SCHEMA_EXTENSION,
       ]);
-      return new GraphQLCompilerContext(RelayTestSchema, extendedSchema)
+      return new GraphQLCompilerContext(TestSchema, extendedSchema)
         .addAll(RelayParser.parse(extendedSchema, text))
         .applyTransforms([
           RelayMatchTransform.transform,

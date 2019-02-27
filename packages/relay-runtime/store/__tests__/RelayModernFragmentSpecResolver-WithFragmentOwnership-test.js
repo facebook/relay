@@ -12,13 +12,12 @@
 
 const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
 const RelayModernFragmentSpecResolver = require('../RelayModernFragmentSpecResolver');
-const RelayModernTestUtils = require('RelayModernTestUtils');
+const {createMockEnvironment, matchers} = require('relay-test-utils');
 
 const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
 const {ROOT_ID} = require('../RelayStoreUtils');
-const {createMockEnvironment} = require('RelayModernMockEnvironment');
 
 describe('RelayModernFragmentSpecResolver with fragment ownership', () => {
   let UserFragment;
@@ -73,7 +72,7 @@ describe('RelayModernFragmentSpecResolver with fragment ownership', () => {
   }
 
   beforeEach(() => {
-    expect.extend(RelayModernTestUtils.matchers);
+    expect.extend(matchers);
 
     RelayFeatureFlags.MERGE_FETCH_AND_FRAGMENT_VARS = true;
     RelayFeatureFlags.PREFER_FRAGMENT_OWNER_OVER_CONTEXT = true;

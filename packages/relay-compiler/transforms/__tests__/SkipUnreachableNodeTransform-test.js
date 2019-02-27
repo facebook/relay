@@ -13,17 +13,16 @@
 const GraphQLCompilerContext = require('../../core/GraphQLCompilerContext');
 const GraphQLIRPrinter = require('../../core/GraphQLIRPrinter');
 const RelayParser = require('../../core/RelayParser');
-const RelayTestSchema = require('RelayTestSchema');
 const SkipUnreachableNodeTransform = require('../SkipUnreachableNodeTransform');
 
-const {generateTestsFromFixtures} = require('RelayModernTestUtils');
+const {TestSchema, generateTestsFromFixtures} = require('relay-test-utils');
 
 describe('SkipUnreachableNodeTransform', () => {
   generateTestsFromFixtures(
     `${__dirname}/fixtures/skip-unreachable-node-transform`,
     text => {
-      const ast = RelayParser.parse(RelayTestSchema, text);
-      return new GraphQLCompilerContext(RelayTestSchema)
+      const ast = RelayParser.parse(TestSchema, text);
+      return new GraphQLCompilerContext(TestSchema)
         .addAll(ast)
         .applyTransforms([SkipUnreachableNodeTransform.transform])
         .documents()

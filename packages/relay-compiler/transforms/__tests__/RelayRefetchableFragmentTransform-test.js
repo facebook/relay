@@ -15,15 +15,16 @@ const GraphQLIRPrinter = require('../../core/GraphQLIRPrinter');
 const RelayConnectionTransform = require('../../handlers/connection/RelayConnectionTransform');
 const RelayRefetchableFragmentTransform = require('../RelayRefetchableFragmentTransform');
 const RelayRelayDirectiveTransform = require('../RelayRelayDirectiveTransform');
-const RelayTestSchema = require('RelayTestSchema');
-
-const parseGraphQLText = require('parseGraphQLText');
 
 const {transformASTSchema} = require('../../core/ASTConvert');
-const {generateTestsFromFixtures} = require('RelayModernTestUtils');
+const {
+  TestSchema,
+  generateTestsFromFixtures,
+  parseGraphQLText,
+} = require('relay-test-utils');
 
 describe('RelayRefetchableFragmentTransform', () => {
-  const schema = transformASTSchema(RelayTestSchema, [
+  const schema = transformASTSchema(TestSchema, [
     RelayConnectionTransform.SCHEMA_EXTENSION,
     RelayRefetchableFragmentTransform.SCHEMA_EXTENSION,
   ]);
@@ -32,7 +33,7 @@ describe('RelayRefetchableFragmentTransform', () => {
     `${__dirname}/fixtures/relay-refetchable-fragment-transform`,
     text => {
       const {definitions} = parseGraphQLText(schema, text);
-      return new GraphQLCompilerContext(RelayTestSchema, schema)
+      return new GraphQLCompilerContext(TestSchema, schema)
         .addAll(definitions)
         .applyTransforms([
           // Requires Relay directive transform first.

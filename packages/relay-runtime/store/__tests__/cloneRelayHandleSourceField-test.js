@@ -14,7 +14,7 @@ const cloneRelayHandleSourceField = require('../cloneRelayHandleSourceField');
 const getRelayHandleKey = require('../../util/getRelayHandleKey');
 
 const {LINKED_FIELD, LINKED_HANDLE} = require('../../util/RelayConcreteNode');
-const {generateWithTransforms, matchers} = require('RelayModernTestUtils');
+const {generateWithTransforms, matchers} = require('relay-test-utils');
 
 describe('cloneRelayHandleSourceField()', () => {
   let selections;

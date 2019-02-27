@@ -14,11 +14,14 @@ const React = require('React');
 const ReactRelayContext = require('../ReactRelayContext');
 const ReactRelayRefetchContainer = require('../ReactRelayRefetchContainer');
 const ReactTestRenderer = require('ReactTestRenderer');
-const RelayModernTestUtils = require('RelayModernTestUtils');
+const {
+  createMockEnvironment,
+  matchers,
+  unwrapContainer,
+} = require('relay-test-utils');
 
 const readContext = require('../readContext');
 
-const {createMockEnvironment} = require('RelayModernMockEnvironment');
 const {createOperationDescriptor, ROOT_ID} = require('relay-runtime');
 
 describe('ReactRelayRefetchContainer', () => {
@@ -80,7 +83,7 @@ describe('ReactRelayRefetchContainer', () => {
   }
   beforeEach(() => {
     jest.resetModules();
-    expect.extend(RelayModernTestUtils.matchers);
+    expect.extend(matchers);
 
     environment = createMockEnvironment();
     ({UserFragment, UserQuery} = environment.mock.compile(`
@@ -989,9 +992,7 @@ describe('ReactRelayRefetchContainer', () => {
       },
     );
 
-    const UnwrappedComponent = RelayModernTestUtils.unwrapContainer(
-      TestUnwrappingContainer,
-    );
+    const UnwrappedComponent = unwrapContainer(TestUnwrappingContainer);
 
     const renderer = ReactTestRenderer.create(
       <UnwrappedComponent user={{id: '4', name: 'Mark'}} />,

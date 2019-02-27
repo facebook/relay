@@ -12,7 +12,7 @@
 
 const RelayInMemoryRecordSource = require('../../../store/RelayInMemoryRecordSource');
 const RelayModernRecord = require('../../../store/RelayModernRecord');
-const RelayModernTestUtils = require('RelayModernTestUtils');
+const RelayModernTestUtils = require('relay-test-utils');
 const RelayRecordSourceMutator = require('../../../mutations/RelayRecordSourceMutator');
 const RelayRecordSourceProxy = require('../../../mutations/RelayRecordSourceProxy');
 const RelayStoreUtils = require('../../../store/RelayStoreUtils');

@@ -13,18 +13,19 @@
 const GraphQLCompilerContext = require('../../core/GraphQLCompilerContext');
 const GraphQLIRPrinter = require('../../core/GraphQLIRPrinter');
 const RelaySkipHandleFieldTransform = require('../RelaySkipHandleFieldTransform');
-const RelayTestSchema = require('RelayTestSchema');
 
-const parseGraphQLText = require('parseGraphQLText');
-
-const {generateTestsFromFixtures} = require('RelayModernTestUtils');
+const {
+  TestSchema,
+  generateTestsFromFixtures,
+  parseGraphQLText,
+} = require('relay-test-utils');
 
 describe('RelaySkipHandleFieldTransform', () => {
   generateTestsFromFixtures(
     `${__dirname}/fixtures/skip-handle-field-transform`,
     text => {
-      const {definitions} = parseGraphQLText(RelayTestSchema, text);
-      return new GraphQLCompilerContext(RelayTestSchema)
+      const {definitions} = parseGraphQLText(TestSchema, text);
+      return new GraphQLCompilerContext(TestSchema)
         .addAll(definitions)
         .applyTransforms([RelaySkipHandleFieldTransform.transform])
         .documents()

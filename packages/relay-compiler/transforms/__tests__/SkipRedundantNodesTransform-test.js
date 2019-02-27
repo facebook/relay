@@ -13,17 +13,16 @@
 const GraphQLCompilerContext = require('../../core/GraphQLCompilerContext');
 const GraphQLIRPrinter = require('../../core/GraphQLIRPrinter');
 const RelayParser = require('../../core/RelayParser');
-const RelayTestSchema = require('RelayTestSchema');
 const SkipRedundantNodesTransform = require('../SkipRedundantNodesTransform');
 
-const {generateTestsFromFixtures} = require('RelayModernTestUtils');
+const {TestSchema, generateTestsFromFixtures} = require('relay-test-utils');
 
 describe('SkipRedundantNodesTransform', () => {
   generateTestsFromFixtures(
     `${__dirname}/fixtures/skip-redundant-nodes-transform`,
     text => {
-      const ast = RelayParser.parse(RelayTestSchema, text);
-      return new GraphQLCompilerContext(RelayTestSchema)
+      const ast = RelayParser.parse(TestSchema, text);
+      return new GraphQLCompilerContext(TestSchema)
         .addAll(ast)
         .applyTransforms([SkipRedundantNodesTransform.transform])
         .documents()

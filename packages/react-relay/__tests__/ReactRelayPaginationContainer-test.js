@@ -14,16 +14,19 @@ const React = require('React');
 const ReactRelayContext = require('../ReactRelayContext');
 const ReactRelayPaginationContainer = require('../ReactRelayPaginationContainer');
 const ReactTestRenderer = require('ReactTestRenderer');
-const RelayModernTestUtils = require('RelayModernTestUtils');
 
-const {createMockEnvironment} = require('RelayModernMockEnvironment');
+const {createMockEnvironment} = require('relay-test-utils');
 const {
   createOperationDescriptor,
   ConnectionHandler,
   ConnectionInterface,
   ROOT_ID,
 } = require('relay-runtime');
-const {generateAndCompile} = RelayModernTestUtils;
+const {
+  matchers,
+  unwrapContainer,
+  generateAndCompile,
+} = require('relay-test-utils');
 
 describe('ReactRelayPaginationContainer', () => {
   let TestComponent;
@@ -82,7 +85,7 @@ describe('ReactRelayPaginationContainer', () => {
 
   beforeEach(() => {
     jest.resetModules();
-    expect.extend(RelayModernTestUtils.matchers);
+    expect.extend(matchers);
 
     environment = createMockEnvironment({
       handlerProvider: () => ConnectionHandler,
@@ -1938,9 +1941,7 @@ describe('ReactRelayPaginationContainer', () => {
       },
     );
 
-    const UnwrappedComponent = RelayModernTestUtils.unwrapContainer(
-      TestUnwrappingContainer,
-    );
+    const UnwrappedComponent = unwrapContainer(TestUnwrappingContainer);
 
     const renderer = ReactTestRenderer.create(
       <UnwrappedComponent user={{id: '4', name: 'Mark'}} />,

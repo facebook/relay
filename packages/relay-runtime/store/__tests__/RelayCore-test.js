@@ -12,7 +12,7 @@
 
 jest.mock('warning');
 
-const {generateAndCompile, matchers} = require('RelayModernTestUtils');
+const {generateAndCompile, matchers} = require('relay-test-utils');
 
 const {createFragmentSpecResolver} = require('../RelayCore');
 

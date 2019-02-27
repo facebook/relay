@@ -12,21 +12,21 @@
 
 const GraphQLCompilerContext = require('../GraphQLCompilerContext');
 const GraphQLIRPrinter = require('../GraphQLIRPrinter');
-const RelayTestSchema = require('RelayTestSchema');
 
 const filterContextForNode = require('../filterContextForNode');
-const parseGraphQLText = require('parseGraphQLText');
 
-const {generateTestsFromFixtures} = require('RelayModernTestUtils');
+const {
+  TestSchema,
+  generateTestsFromFixtures,
+  parseGraphQLText,
+} = require('relay-test-utils');
 
 const MAIN_QUERY_NAME = 'MainQuery';
 
 describe('filterContextForNode', () => {
   generateTestsFromFixtures(`${__dirname}/fixtures/filter-context`, text => {
-    const {definitions} = parseGraphQLText(RelayTestSchema, text);
-    const context = new GraphQLCompilerContext(RelayTestSchema).addAll(
-      definitions,
-    );
+    const {definitions} = parseGraphQLText(TestSchema, text);
+    const context = new GraphQLCompilerContext(TestSchema).addAll(definitions);
     const printerContext = filterContextForNode(
       context.get(MAIN_QUERY_NAME),
       context,

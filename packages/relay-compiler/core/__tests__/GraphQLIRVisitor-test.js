@@ -12,10 +12,9 @@
 
 const GraphQLIRPrinter = require('../GraphQLIRPrinter');
 const RelayParser = require('../RelayParser');
-const RelayTestSchema = require('RelayTestSchema');
 
 const {visit} = require('../GraphQLIRVisitor');
-const {generateTestsFromFixtures} = require('RelayModernTestUtils');
+const {TestSchema, generateTestsFromFixtures} = require('relay-test-utils');
 
 import type {
   Argument,
@@ -44,7 +43,7 @@ describe('GraphQLIRVisitor', () => {
   generateTestsFromFixtures(
     `${__dirname}/fixtures/visitor/no-op-visit`,
     text => {
-      const ast = RelayParser.parse(RelayTestSchema, text);
+      const ast = RelayParser.parse(TestSchema, text);
       const sameAst = ast.map(fragment => visit(fragment, {}));
       return sameAst.map(doc => GraphQLIRPrinter.print(doc)).join('\n');
     },
@@ -53,7 +52,7 @@ describe('GraphQLIRVisitor', () => {
   generateTestsFromFixtures(
     `${__dirname}/fixtures/visitor/mutate-visit`,
     text => {
-      const ast = RelayParser.parse(RelayTestSchema, text);
+      const ast = RelayParser.parse(TestSchema, text);
       const mutateNameVisitor = {
         leave: (node: VisitNodeWithName) => {
           return {

@@ -88,9 +88,6 @@
   },
   "jest": {
     "testRegex": "/__tests__/.*-test\\.js$",
-    "haste": {
-      "hasteImplModulePath": "<rootDir>/scripts/jest/hasteImpl.js"
-    },
     "modulePathIgnorePatterns": [
       "<rootDir>/lib/",
       "<rootDir>/node_modules/(?!(fbjs/lib/|react/lib/|fbjs-scripts/jest))"

@@ -20,10 +20,9 @@ const {
   getSelectorsFromObject,
   getVariablesFromObject,
 } = require('../RelayModernSelector');
-const {createMockEnvironment} = require('RelayModernMockEnvironment');
 const {ROOT_ID} = require('../RelayStoreUtils');
 const {getRequest, createOperationDescriptor} = require('../RelayCore');
-const RelayModernTestUtils = require('RelayModernTestUtils');
+const {createMockEnvironment, matchers} = require('relay-test-utils');
 const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
 
 describe('RelayModernSelector', () => {
@@ -37,7 +36,7 @@ describe('RelayModernSelector', () => {
   let owner;
 
   beforeEach(() => {
-    expect.extend(RelayModernTestUtils.matchers);
+    expect.extend(matchers);
 
     environment = createMockEnvironment();
     ({UserFragment, UserQuery, UsersFragment} = environment.mock.compile(`

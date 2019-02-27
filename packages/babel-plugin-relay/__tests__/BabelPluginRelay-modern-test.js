@@ -12,7 +12,7 @@
 
 const transformerWithOptions = require('./transformerWithOptions');
 
-const {generateTestsFromFixtures} = require('RelayModernTestUtils');
+const {generateTestsFromFixtures} = require('relay-test-utils');
 
 generateTestsFromFixtures(
   `${__dirname}/fixtures-modern`,

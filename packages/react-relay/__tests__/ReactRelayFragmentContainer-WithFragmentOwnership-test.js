@@ -14,9 +14,8 @@ const React = require('React');
 const ReactRelayContext = require('../ReactRelayContext');
 const ReactRelayFragmentContainer = require('../ReactRelayFragmentContainer');
 const ReactTestRenderer = require('ReactTestRenderer');
-const RelayModernTestUtils = require('RelayModernTestUtils');
 
-const {createMockEnvironment} = require('RelayModernMockEnvironment');
+const {createMockEnvironment, matchers} = require('relay-test-utils');
 const {createOperationDescriptor, RelayFeatureFlags} = require('relay-runtime');
 
 describe('ReactRelayFragmentContainer with fragment ownerhsip', () => {
@@ -76,7 +75,7 @@ describe('ReactRelayFragmentContainer with fragment ownerhsip', () => {
 
   beforeEach(() => {
     jest.resetModules();
-    expect.extend(RelayModernTestUtils.matchers);
+    expect.extend(matchers);
 
     RelayFeatureFlags.MERGE_FETCH_AND_FRAGMENT_VARS = true;
     RelayFeatureFlags.PREFER_FRAGMENT_OWNER_OVER_CONTEXT = true;

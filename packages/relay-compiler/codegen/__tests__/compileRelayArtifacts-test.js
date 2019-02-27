@@ -15,23 +15,24 @@ const ASTConvert = require('../../core/ASTConvert');
 const CodeMarker = require('../../util/CodeMarker');
 const CompilerContext = require('../../core/GraphQLCompilerContext');
 const RelayIRTransforms = require('../../core/RelayIRTransforms');
-const RelayTestSchema = require('RelayTestSchema');
+const {
+  TestSchema,
+  generateTestsFromFixtures,
+  parseGraphQLText,
+} = require('relay-test-utils');
 
 const compileRelayArtifacts = require('../compileRelayArtifacts');
-const parseGraphQLText = require('parseGraphQLText');
-
-const {generateTestsFromFixtures} = require('RelayModernTestUtils');
 
 describe('compileRelayArtifacts', () => {
   generateTestsFromFixtures(
     `${__dirname}/fixtures/compileRelayArtifacts`,
     text => {
       const relaySchema = ASTConvert.transformASTSchema(
-        RelayTestSchema,
+        TestSchema,
         RelayIRTransforms.schemaExtensions,
       );
       const compilerContext = new CompilerContext(
-        RelayTestSchema,
+        TestSchema,
         relaySchema,
       ).addAll(parseGraphQLText(relaySchema, text).definitions);
       return compileRelayArtifacts(compilerContext, RelayIRTransforms)

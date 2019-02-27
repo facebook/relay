@@ -17,8 +17,7 @@ const ReactTestRenderer = require('ReactTestRenderer');
 
 const readContext = require('../readContext');
 
-const {createMockEnvironment} = require('RelayModernMockEnvironment');
-const {simpleClone} = require('RelayModernTestUtils');
+const {createMockEnvironment, simpleClone} = require('relay-test-utils');
 const {
   createOperationDescriptor,
   Environment,

@@ -13,7 +13,7 @@
 describe('scope', () => {
   let GraphQL;
   let RelayCompilerScope;
-  let RelayTestSchema;
+  let TestSchema;
 
   let GraphQLNonNull;
   let getFragmentScope;
@@ -26,12 +26,12 @@ describe('scope', () => {
 
     GraphQL = require('graphql');
     RelayCompilerScope = require('../RelayCompilerScope');
-    RelayTestSchema = require('RelayTestSchema');
+    ({TestSchema} = require('relay-test-utils'));
 
     ({GraphQLNonNull} = GraphQL);
     ({getFragmentScope, getRootScope} = RelayCompilerScope);
 
-    optionalIntType = RelayTestSchema.getType('Int');
+    optionalIntType = TestSchema.getType('Int');
     requiredIntType = new GraphQLNonNull(optionalIntType);
   });
 

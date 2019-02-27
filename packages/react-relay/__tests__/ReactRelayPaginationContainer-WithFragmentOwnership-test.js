@@ -15,9 +15,12 @@ const ReactRelayContext = require('../ReactRelayContext');
 const ReactRelayFragmentContainer = require('../ReactRelayFragmentContainer');
 const ReactRelayPaginationContainer = require('../ReactRelayPaginationContainer');
 const ReactTestRenderer = require('ReactTestRenderer');
-const RelayModernTestUtils = require('RelayModernTestUtils');
+const {
+  createMockEnvironment,
+  generateAndCompile,
+  matchers,
+} = require('relay-test-utils');
 
-const {createMockEnvironment} = require('RelayModernMockEnvironment');
 const {
   createOperationDescriptor,
   ConnectionHandler,
@@ -25,7 +28,6 @@ const {
   RelayFeatureFlags,
   ROOT_ID,
 } = require('relay-runtime');
-const {generateAndCompile} = RelayModernTestUtils;
 
 describe('ReactRelayPaginationContainer with fragment ownership', () => {
   let TestChildComponent;
@@ -103,7 +105,7 @@ describe('ReactRelayPaginationContainer with fragment ownership', () => {
 
   beforeEach(() => {
     jest.resetModules();
-    expect.extend(RelayModernTestUtils.matchers);
+    expect.extend(matchers);
 
     RelayFeatureFlags.MERGE_FETCH_AND_FRAGMENT_VARS = true;
     RelayFeatureFlags.PREFER_FRAGMENT_OWNER_OVER_CONTEXT = true;

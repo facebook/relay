@@ -12,8 +12,6 @@
 'use strict';
 
 const RelayMockPayloadGenerator = require('RelayMockPayloadGenerator');
-/* eslint-disable lint/flow-no-fixme */
-// $FlowFixMe types in RelayModernTestUtils
 const RelayModernTestUtils = require('RelayModernTestUtils');
 const RelayTestSchema = require('RelayTestSchema');
 

@@ -131,11 +131,14 @@ function visitLinkedField(
     );
   }
 
-  const unionType = transformedNode.type;
-  if (!(unionType instanceof GraphQLUnionType)) {
+  const rawFieldType = getRawType(transformedNode.type);
+  if (
+    !(rawFieldType instanceof GraphQLUnionType) &&
+    !(rawFieldType instanceof GraphQLInterfaceType)
+  ) {
     throw createUserError(
       `@match used on incompatible field '${transformedNode.name}'.` +
-        '@match may only be used with fields that return a union.',
+        '@match may only be used with fields that return a union or interface.',
       [node.loc],
     );
   }
@@ -163,30 +166,32 @@ function visitLinkedField(
     const previousTypeUsage = seenTypes.get(matchedType);
     if (previousTypeUsage) {
       throw createUserError(
-        `Invalid @match selection: each variant of '${String(unionType)}' ` +
-          `may be matched against at-most once, but '${String(matchedType)}'` +
-          'was matched against multiple times.',
+        'Invalid @match selection: each concrete variant/implementor of ' +
+          `'${String(rawFieldType)}' may be matched against at-most once, ` +
+          `but '${String(matchedType)}' was matched against multiple times.`,
         [matchSelection.loc, previousTypeUsage.loc],
       );
     }
     seenTypes.set(matchedType, matchSelection);
 
-    const unionVariants = unionType.getTypes();
-    const belongsToUnion = unionVariants.includes(matchedType);
-    if (!belongsToUnion) {
-      let suggestedTypesMessage = '';
-      if (unionVariants.length !== 0) {
-        suggestedTypesMessage = ` (e.g. ${unionType
-          .getTypes()
+    const possibleConcreteTypes =
+      rawFieldType instanceof GraphQLUnionType
+        ? rawFieldType.getTypes()
+        : context.clientSchema.getPossibleTypes(rawFieldType);
+    const isPossibleConcreteType = possibleConcreteTypes.includes(matchedType);
+    if (!isPossibleConcreteType) {
+      let suggestedTypesMessage = 'but no concrete types are defined.';
+      if (possibleConcreteTypes.length !== 0) {
+        suggestedTypesMessage = `expected one of ${possibleConcreteTypes
           .slice(0, 3)
           .map(type => `'${String(type)}'`)
-          .join(', ')}, etc) `;
+          .join(', ')}, etc.`;
       }
       throw createUserError(
         'Invalid @match selection: selections must match against concrete ' +
-          `variants of the union type${suggestedTypesMessage}, got '${String(
-            matchedType,
-          )}'.`,
+          'variants/implementors of type ' +
+          `'${String(transformedNode.type)}'. Got '${String(matchedType)}', ` +
+          suggestedTypesMessage,
         [matchSelection.loc, context.getFragment(moduleImport.name).loc],
       );
     }
@@ -233,7 +238,7 @@ function visitLinkedField(
       storageKey,
     },
     name: transformedNode.name,
-    type: unionType,
+    type: transformedNode.type,
     selections,
   };
 }

@@ -25,7 +25,7 @@ fragment User_user on User {
 THROWN EXCEPTION:
 
 Error: Encountered 1 error(s):
-- Invalid @match selection: selections must match against concrete variants of the union type (e.g. 'PlainUserNameRenderer', 'MarkdownUserNameRenderer', 'CustomNameRenderer', etc) , got 'User'.
+- Invalid @match selection: selections must match against concrete variants/implementors of type 'UserNameRenderer'. Got 'User', expected one of 'PlainUserNameRenderer', 'MarkdownUserNameRenderer', 'CustomNameRenderer', etc.
   
   Source: GraphQL request (5:18)
   4:     ...PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
@@ -264,7 +264,65 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
 
 `;
 
-exports[`RelayMatchTransform matches expected output: relay-match-transform.graphql 1`] = `
+exports[`RelayMatchTransform matches expected output: relay-match-on-interface.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment NameRendererFragment on User {
+  id
+  nameRenderable @match {
+    ...PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
+    ...MarkdownUserNameRenderer_name
+      @module(name: "MarkdownUserNameRenderer.react")
+  }
+}
+
+fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
+  plaintext
+  data {
+    text
+  }
+}
+
+fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+  markdown
+  data {
+    markup
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+fragment NameRendererFragment on User {
+  id
+  nameRenderable(supported: ["PlainUserNameRenderer", "MarkdownUserNameRenderer"]) {
+    ... on PlainUserNameRenderer {
+      ...PlainUserNameRenderer_name
+      __module_operation: js(module: "PlainUserNameRenderer_name$normalization.graphql")
+      __module_component: js(module: "PlainUserNameRenderer.react")
+    }
+    ... on MarkdownUserNameRenderer {
+      ...MarkdownUserNameRenderer_name
+      __module_operation: js(module: "MarkdownUserNameRenderer_name$normalization.graphql")
+      __module_component: js(module: "MarkdownUserNameRenderer.react")
+    }
+  }
+}
+
+fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
+  plaintext
+  data {
+    text
+  }
+}
+
+fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+  markdown
+  data {
+    markup
+  }
+}
+
+`;
+
+exports[`RelayMatchTransform matches expected output: relay-match-on-union.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 fragment NameRendererFragment on User {
   id
@@ -293,6 +351,64 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
 fragment NameRendererFragment on User {
   id
   nameRenderer(supported: ["PlainUserNameRenderer", "MarkdownUserNameRenderer"]) {
+    ... on PlainUserNameRenderer {
+      ...PlainUserNameRenderer_name
+      __module_operation: js(module: "PlainUserNameRenderer_name$normalization.graphql")
+      __module_component: js(module: "PlainUserNameRenderer.react")
+    }
+    ... on MarkdownUserNameRenderer {
+      ...MarkdownUserNameRenderer_name
+      __module_operation: js(module: "MarkdownUserNameRenderer_name$normalization.graphql")
+      __module_component: js(module: "MarkdownUserNameRenderer.react")
+    }
+  }
+}
+
+fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
+  plaintext
+  data {
+    text
+  }
+}
+
+fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+  markdown
+  data {
+    markup
+  }
+}
+
+`;
+
+exports[`RelayMatchTransform matches expected output: relay-match-on-union-plural.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment NameRendererFragment on User {
+  id
+  nameRenderers @match {
+    ...PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
+    ...MarkdownUserNameRenderer_name
+      @module(name: "MarkdownUserNameRenderer.react")
+  }
+}
+
+fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
+  plaintext
+  data {
+    text
+  }
+}
+
+fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+  markdown
+  data {
+    markup
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+fragment NameRendererFragment on User {
+  id
+  nameRenderers(supported: ["PlainUserNameRenderer", "MarkdownUserNameRenderer"]) {
     ... on PlainUserNameRenderer {
       ...PlainUserNameRenderer_name
       __module_operation: js(module: "PlainUserNameRenderer_name$normalization.graphql")

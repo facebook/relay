@@ -424,6 +424,7 @@ interface Actor {
   lastName: String
   name: String
   nameRenderer(supported: [String!]!): UserNameRenderer
+  nameRenderable(supported: [String!]!): UserNameRenderable
   profilePicture(size: [Int], preset: PhotoSize): Image
   screennames: [Screenname]
   subscribeStatus: String
@@ -463,6 +464,7 @@ type Page implements Node & Actor {
   message: Text
   name: String
   nameRenderer(supported: [String!]!): UserNameRenderer
+  nameRenderable(supported: [String!]!): UserNameRenderable
   profilePicture(size: [Int], preset: PhotoSize): Image
   segments(first: Int): Segments
   screennames: [Screenname]
@@ -680,11 +682,12 @@ interface HasJsField {
   js(module: String): JSDependency
 }
 
-type PlainUserNameRenderer implements HasJsField {
+type PlainUserNameRenderer implements HasJsField & UserNameRenderable {
   plaintext: String
   data: PlainUserNameData
   user: User
   js(module: String): JSDependency
+  name: String
 }
 
 type PlainUserNameData {
@@ -692,11 +695,12 @@ type PlainUserNameData {
   text: String
 }
 
-type MarkdownUserNameRenderer implements HasJsField {
+type MarkdownUserNameRenderer implements HasJsField & UserNameRenderable {
   markdown: String
   data: MarkdownUserNameData
   user: User
   js(module: String): JSDependency
+  name: String
 }
 
 type MarkdownUserNameData {
@@ -709,6 +713,10 @@ type CustomNameRenderer {
 }
 
 union UserNameRenderer = PlainUserNameRenderer | MarkdownUserNameRenderer | CustomNameRenderer
+
+interface UserNameRenderable {
+  name: String
+}
 
 type User implements Named & Node & Actor & HasJsField {
   actor: Actor
@@ -751,6 +759,8 @@ type User implements Named & Node & Actor & HasJsField {
   message: Text
   name: String
   nameRenderer(supported: [String!]!): UserNameRenderer
+  nameRenderable(supported: [String!]!): UserNameRenderable
+  nameRenderers(supported: [String!]!): [UserNameRenderer]
   storySearch(query: StorySearchInput): [Story]
   storyCommentSearch(query: StoryCommentSearchInput): [Comment]
   profilePicture(

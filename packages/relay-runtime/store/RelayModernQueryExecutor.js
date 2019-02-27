@@ -382,17 +382,27 @@ class Executor {
     // modifications to the parent before items arrive
     if (placeholder.kind === 'stream') {
       const {parentID} = placeholder;
+      // Find HandleFieldPayloads that may need to be updated to account for
+      // new streamed items.
       const parentPayloads = [];
       (relayPayload.fieldPayloads ?? []).forEach(fieldPayload => {
         const fieldID = generateRelayClientID(
           fieldPayload.dataID,
           fieldPayload.fieldKey,
         );
-        if (fieldID === parentID) {
+        if (
+          // handlers applied to the streamed field itself
+          fieldPayload.dataID === parentID ||
+          // handlers applied to a field on an ancestor object, where
+          // ancestor.field links to the parent record (example: connections)
+          fieldID === parentID
+        ) {
           parentPayloads.push(fieldPayload);
         }
       });
       const parentRecord = relayPayload.source.get(parentID);
+      // null-check is for flow; if a StreamPayload exists on some id that
+      // record should exist.
       if (parentRecord != null) {
         this._source.set(parentID, {
           record: parentRecord,
@@ -600,19 +610,25 @@ class Executor {
       const currentParentRecord = store.get(parentID);
       if (currentParentRecord == null) {
         // parent has since been deleted, stream data is stale
-        console.warn(
-          'RelayModernEnvironment: Received stale @stream payload, parent ' +
-            `record '${parentID}' no longer exists.`,
-        );
+        if (__DEV__) {
+          console.warn(
+            'RelayModernEnvironment: Received stale @stream payload, parent ' +
+              `record '${parentID}' no longer exists.`,
+          );
+        }
         return;
       }
       const currentItems = currentParentRecord.getLinkedRecords(storageKey);
       if (currentItems == null) {
         // field has since been deleted, stream data is stale
-        console.warn(
-          'RelayModernEnvironment: Received stale @stream payload, field ' +
-            `'${field.name}' on parent record '${parentID}' no longer exists.`,
-        );
+        if (__DEV__) {
+          console.warn(
+            'RelayModernEnvironment: Received stale @stream payload, field ' +
+              `'${
+                field.name
+              }' on parent record '${parentID}' no longer exists.`,
+          );
+        }
         return;
       }
       if (
@@ -624,12 +640,14 @@ class Executor {
       ) {
         // field has been modified by something other than this query,
         // stream data is stale
-        console.warn(
-          'RelayModernEnvironment: Received stale @stream payload, items for ' +
-            `field '${
-              field.name
-            }' on parent record '${parentID}' have changed.`,
-        );
+        if (__DEV__) {
+          console.warn(
+            'RelayModernEnvironment: Received stale @stream payload, items for ' +
+              `field '${
+                field.name
+              }' on parent record '${parentID}' have changed.`,
+          );
+        }
         return;
       }
       // parent.field has not been concurrently modified:

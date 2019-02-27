@@ -24,6 +24,7 @@ const {createMockEnvironment} = require('RelayModernMockEnvironment');
 const {ROOT_ID} = require('../RelayStoreUtils');
 const {getRequest, createOperationDescriptor} = require('../RelayCore');
 const RelayModernTestUtils = require('RelayModernTestUtils');
+const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
 
 describe('RelayModernSelector', () => {
   let UserFragment;
@@ -1180,7 +1181,9 @@ describe('RelayModernSelector', () => {
       expect(areEqualSelectors(selector, clone)).toBe(true);
     });
 
-    it('returns true for equivalent selectors with owners', () => {
+    it('returns true for equivalent selectors with different owners when fragment ownership is disabled', () => {
+      RelayFeatureFlags.PREFER_FRAGMENT_OWNER_OVER_CONTEXT = false;
+
       const queryNode = getRequest(UserQuery);
       owner = createOperationDescriptor(queryNode, operationVariables);
       const selector = {
@@ -1192,7 +1195,7 @@ describe('RelayModernSelector', () => {
         },
       };
       const clone = {
-        owner: {...selector.owner},
+        owner,
         selector: {
           ...selector.selector,
           variables: {...selector.selector.variables},
@@ -1202,12 +1205,39 @@ describe('RelayModernSelector', () => {
       expect(areEqualSelectors(selector, clone)).toBe(true);
 
       // Even if the owner is different, areEqualSelectors should return true
-      // if the 2 selectors represent the same selection
+      // if the 2 selectors represent the same selection and fragment ownership
+      // is disabled
       const differentOwner = {
         ...selector,
         owner: {...owner, variables: {}},
       };
       expect(areEqualSelectors(selector, differentOwner)).toBe(true);
+    });
+
+    it('returns true for equivalent selectors with same owners when fragment ownership is enabled', () => {
+      RelayFeatureFlags.PREFER_FRAGMENT_OWNER_OVER_CONTEXT = true;
+
+      const queryNode = getRequest(UserQuery);
+      owner = createOperationDescriptor(queryNode, operationVariables);
+      const selector = {
+        owner: owner,
+        selector: {
+          dataID: '4',
+          node: UserFragment,
+          variables,
+        },
+      };
+      const clone = {
+        owner: owner,
+        selector: {
+          ...selector.selector,
+          variables: {...selector.selector.variables},
+        },
+      };
+      expect(areEqualSelectors(selector, selector)).toBe(true);
+      expect(areEqualSelectors(selector, clone)).toBe(true);
+
+      RelayFeatureFlags.PREFER_FRAGMENT_OWNER_OVER_CONTEXT = false;
     });
 
     it('returns false for different selectors', () => {
@@ -1238,6 +1268,8 @@ describe('RelayModernSelector', () => {
     });
 
     it('returns false for different selectors with owners', () => {
+      RelayFeatureFlags.PREFER_FRAGMENT_OWNER_OVER_CONTEXT = true;
+
       const queryNode = getRequest(UserQuery);
       owner = createOperationDescriptor(queryNode, operationVariables);
       const readerSelector = {
@@ -1247,11 +1279,7 @@ describe('RelayModernSelector', () => {
       };
       const selector = {
         owner: owner,
-        selector: {
-          dataID: '4',
-          node: UserFragment,
-          variables,
-        },
+        selector: readerSelector,
       };
       const differentID = {
         ...selector,
@@ -1265,9 +1293,16 @@ describe('RelayModernSelector', () => {
         ...selector,
         selector: {...readerSelector, variables: {}},
       };
+      const differentOwner = {
+        ...selector,
+        owner: {...owner},
+      };
       expect(areEqualSelectors(selector, differentID)).toBe(false);
       expect(areEqualSelectors(selector, differentNode)).toBe(false);
       expect(areEqualSelectors(selector, differentVars)).toBe(false);
+      expect(areEqualSelectors(selector, differentOwner)).toBe(false);
+
+      RelayFeatureFlags.PREFER_FRAGMENT_OWNER_OVER_CONTEXT = false;
     });
   });
 });

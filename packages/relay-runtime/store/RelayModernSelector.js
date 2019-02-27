@@ -10,6 +10,8 @@
 
 'use strict';
 
+const RelayFeatureFlags = require('../util/RelayFeatureFlags');
+
 const areEqual = require('areEqual');
 const invariant = require('invariant');
 const warning = require('warning');
@@ -576,14 +578,22 @@ function areEqualSelectors(
   thisSelector: OwnedReaderSelector,
   thatSelector: OwnedReaderSelector,
 ): boolean {
-  // NOTE: areEqualSelectors temporarily ignores fragment ownership when
-  // comparing selectors, to preserve current behavior of RelayFragmentSpecResolver
-  // TODO(T39494051)
-  return (
+  const areVariablesEqual = areEqual(
+    thisSelector.selector.variables,
+    thatSelector.selector.variables,
+  );
+  const areReaderSelectorsEqual =
     thisSelector.selector.dataID === thatSelector.selector.dataID &&
     thisSelector.selector.node === thatSelector.selector.node &&
-    areEqual(thisSelector.selector.variables, thatSelector.selector.variables)
-  );
+    areVariablesEqual;
+
+  if (RelayFeatureFlags.PREFER_FRAGMENT_OWNER_OVER_CONTEXT) {
+    // NOTE: If fragment ownership is enabled, we should also compare if
+    // the owners attached to the selectors are the same, otherwise we might
+    // skip setting a new selector that has a new owner.
+    return areReaderSelectorsEqual && thisSelector.owner === thatSelector.owner;
+  }
+  return areReaderSelectorsEqual;
 }
 
 module.exports = {

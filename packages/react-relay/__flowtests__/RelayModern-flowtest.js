@@ -14,9 +14,12 @@ const React = require('React');
 
 const nullthrows = require('nullthrows');
 
-const {createFragmentContainer, graphql} = require('../ReactRelayPublic');
+const {
+  createContainer: createFragmentContainer,
+} = require('../ReactRelayFragmentContainer');
+const {graphql} = require('relay-runtime');
 
-import type {$FragmentRef} from '../ReactRelayPublic';
+import type {$FragmentRef} from '../ReactRelayTypes';
 import type {RelayModernFlowtest_badref} from './RelayModernFlowtest_badref.graphql';
 import type {RelayModernFlowtest_notref} from './RelayModernFlowtest_notref.graphql';
 import type {

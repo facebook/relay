@@ -24,5 +24,6 @@
   "directories": {
     "": "./"
   },
+  "main": "index.js",
   "haste_commonjs": true
 }

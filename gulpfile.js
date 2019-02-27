@@ -182,11 +182,11 @@ const builds = [
   {
     package: 'react-relay',
     exports: {
-      index: 'ReactRelayPublic.js',
+      index: 'index.js',
     },
     bundles: [
       {
-        entry: 'ReactRelayPublic.js',
+        entry: 'index.js',
         output: 'react-relay',
         libraryName: 'ReactRelay',
         libraryTarget: 'umd',

@@ -134,6 +134,7 @@ export type {
   ReaderLinkedField,
   ReaderModuleImport,
   ReaderPaginationMetadata,
+  ReaderRefetchMetadata,
   ReaderRefetchableFragment,
   ReaderScalarField,
   ReaderSelection,

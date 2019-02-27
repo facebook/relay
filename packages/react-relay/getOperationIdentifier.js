@@ -12,6 +12,8 @@
 
 const invariant = require('invariant');
 
+const {stableCopy} = require('relay-runtime');
+
 import type {OperationDescriptor} from 'relay-runtime';
 
 /**
@@ -27,7 +29,7 @@ function getOperationIdentifier(operation: OperationDescriptor): string {
       '`text` property',
     node.params.name,
   );
-  return requestID + JSON.stringify(variables);
+  return requestID + JSON.stringify(stableCopy(variables));
 }
 
 module.exports = getOperationIdentifier;

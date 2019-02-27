@@ -1,0 +1,5807 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`matches expected output: argsInvalidValues.txt 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+var foo = Relay.QL\`
+  query Args {
+    node(id: 123) {
+      ... on User {
+        friends(
+          first: "10"
+          orderby: Name
+          find: cursor1
+          isViewerFriend: "true"
+          gender: "MALE"
+        ) {
+          edges {
+            node {
+              id
+            }
+          }
+        }
+      }
+    }
+  }
+\`;
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+ERROR:
+
+Error: undefined: GraphQL Validation Error: Expected type Int, found "10".
+>
+>           first: "10"
+>                  ^^^
+GraphQL Validation Error: Expected type [String], found Name.
+>
+>           orderby: Name
+>                    ^^^
+GraphQL Validation Error: Expected type String, found cursor1.
+>
+>           find: cursor1
+>                 ^^^
+GraphQL Validation Error: Expected type Boolean, found "true".
+>
+>           isViewerFriend: "true"
+>                           ^^^
+GraphQL Validation Error: Expected type Gender, found "MALE"; Did you mean the enum value MALE or FEMALE?
+>
+>           gender: "MALE"
+>                   ^^^
+> 1 | var foo = Relay.QL\`
+    |           ^
+  2 |   query Args {
+  3 |     node(id: 123) {
+  4 |       ... on User {
+`;
+
+exports[`matches expected output: argsSubstitution.txt 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+var foo = Relay.QL\`
+  query Args {
+    node(id: \${userID}) {
+      id
+    }
+  }
+\`;
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+var foo = function (RQL_0) {
+  return {
+    calls: [{
+      kind: "Call",
+      metadata: {
+        type: "ID!"
+      },
+      name: "id",
+      value: Relay.QL.__var(RQL_0)
+    }],
+    children: [{
+      fieldName: "id",
+      kind: "Field",
+      metadata: {
+        isRequisite: true
+      },
+      type: "String"
+    }, {
+      fieldName: "__typename",
+      kind: "Field",
+      metadata: {
+        isGenerated: true,
+        isRequisite: true
+      },
+      type: "String"
+    }],
+    fieldName: "node",
+    kind: "Query",
+    metadata: {
+      isAbstract: true,
+      identifyingArgName: "id",
+      identifyingArgType: "ID!"
+    },
+    name: "Args",
+    type: "Node"
+  };
+}(userID);
+`;
+
+exports[`matches expected output: argsValues.txt 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+var foo = Relay.QL\`
+  query Args {
+    node(id: 123) {
+      ... on User {
+        friends(
+          first: 10
+          orderby: "Name"
+          find: "cursor1"
+          isViewerFriend: true
+          gender: MALE
+        ) {
+          edges {
+            node {
+              id
+              firstName(if: true, unless: false)
+            }
+          }
+        }
+      }
+    }
+  }
+\`;
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+var foo = function () {
+  return {
+    calls: [{
+      kind: "Call",
+      metadata: {
+        type: "ID!"
+      },
+      name: "id",
+      value: {
+        kind: "CallValue",
+        callValue: 123
+      }
+    }],
+    children: [{
+      fieldName: "id",
+      kind: "Field",
+      metadata: {
+        isGenerated: true,
+        isRequisite: true
+      },
+      type: "String"
+    }, {
+      fieldName: "__typename",
+      kind: "Field",
+      metadata: {
+        isGenerated: true,
+        isRequisite: true
+      },
+      type: "String"
+    }, {
+      children: [{
+        calls: [{
+          kind: "Call",
+          metadata: {
+            type: "Int"
+          },
+          name: "first",
+          value: {
+            kind: "CallValue",
+            callValue: 10
+          }
+        }, {
+          kind: "Call",
+          metadata: {},
+          name: "orderby",
+          value: {
+            kind: "CallValue",
+            callValue: "Name"
+          }
+        }, {
+          kind: "Call",
+          metadata: {},
+          name: "find",
+          value: {
+            kind: "CallValue",
+            callValue: "cursor1"
+          }
+        }, {
+          kind: "Call",
+          metadata: {},
+          name: "isViewerFriend",
+          value: {
+            kind: "CallValue",
+            callValue: true
+          }
+        }, {
+          kind: "Call",
+          metadata: {
+            type: "Gender"
+          },
+          name: "gender",
+          value: {
+            kind: "CallValue",
+            callValue: "MALE"
+          }
+        }],
+        children: [{
+          children: [{
+            children: [{
+              fieldName: "id",
+              kind: "Field",
+              metadata: {
+                isRequisite: true
+              },
+              type: "String"
+            }, {
+              calls: [{
+                kind: "Call",
+                metadata: {},
+                name: "if",
+                value: {
+                  kind: "CallValue",
+                  callValue: true
+                }
+              }, {
+                kind: "Call",
+                metadata: {},
+                name: "unless",
+                value: {
+                  kind: "CallValue",
+                  callValue: false
+                }
+              }],
+              fieldName: "firstName",
+              kind: "Field",
+              metadata: {},
+              type: "String"
+            }],
+            fieldName: "node",
+            kind: "Field",
+            metadata: {
+              canHaveSubselections: true,
+              inferredRootCallName: "node",
+              inferredPrimaryKey: "id",
+              isRequisite: true
+            },
+            type: "User"
+          }, {
+            fieldName: "cursor",
+            kind: "Field",
+            metadata: {
+              isGenerated: true,
+              isRequisite: true
+            },
+            type: "String"
+          }],
+          fieldName: "edges",
+          kind: "Field",
+          metadata: {
+            canHaveSubselections: true,
+            isPlural: true
+          },
+          type: "UserConnectionEdge"
+        }, {
+          children: [{
+            fieldName: "hasNextPage",
+            kind: "Field",
+            metadata: {
+              isGenerated: true,
+              isRequisite: true
+            },
+            type: "Boolean"
+          }, {
+            fieldName: "hasPreviousPage",
+            kind: "Field",
+            metadata: {
+              isGenerated: true,
+              isRequisite: true
+            },
+            type: "Boolean"
+          }],
+          fieldName: "pageInfo",
+          kind: "Field",
+          metadata: {
+            canHaveSubselections: true,
+            isGenerated: true,
+            isRequisite: true
+          },
+          type: "PageInfo"
+        }],
+        fieldName: "friends",
+        kind: "Field",
+        metadata: {
+          canHaveSubselections: true,
+          isConnection: true,
+          isFindable: true
+        },
+        type: "UserConnection"
+      }, {
+        fieldName: "id",
+        kind: "Field",
+        metadata: {
+          isGenerated: true,
+          isRequisite: true
+        },
+        type: "String"
+      }],
+      id: Relay.QL.__id(),
+      kind: "Fragment",
+      metadata: {},
+      name: "User",
+      type: "User"
+    }],
+    fieldName: "node",
+    kind: "Query",
+    metadata: {
+      isAbstract: true,
+      identifyingArgName: "id",
+      identifyingArgType: "ID!"
+    },
+    name: "Args",
+    type: "Node"
+  };
+}();
+`;
+
+exports[`matches expected output: argsVariablesList.txt 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+var foo = Relay.QL\`
+  query Args {
+    nodes(ids: [$one, $two, 3]) {
+      id
+    }
+  }
+\`;
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+var foo = function () {
+  return {
+    calls: [{
+      kind: "Call",
+      metadata: {
+        type: "[ID!]"
+      },
+      name: "ids",
+      value: [{
+        kind: "CallVariable",
+        callVariableName: "one"
+      }, {
+        kind: "CallVariable",
+        callVariableName: "two"
+      }, {
+        kind: "CallValue",
+        callValue: 3
+      }]
+    }],
+    children: [{
+      fieldName: "id",
+      kind: "Field",
+      metadata: {
+        isRequisite: true
+      },
+      type: "String"
+    }, {
+      fieldName: "__typename",
+      kind: "Field",
+      metadata: {
+        isGenerated: true,
+        isRequisite: true
+      },
+      type: "String"
+    }],
+    fieldName: "nodes",
+    kind: "Query",
+    metadata: {
+      isPlural: true,
+      isAbstract: true,
+      identifyingArgName: "ids",
+      identifyingArgType: "[ID!]"
+    },
+    name: "Args",
+    type: "Node"
+  };
+}();
+`;
+
+exports[`matches expected output: connectionPattern.txt 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+var Relay = require('react-relay');
+var x = Relay.QL\`
+  fragment on User @relay(pattern: true) {
+    friends {
+      edges {
+        node {
+          id
+        }
+      }
+    }
+  }
+\`;
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+var Relay = require('react-relay');
+
+var x = function () {
+  return {
+    children: [{
+      children: [{
+        children: [{
+          children: [{
+            fieldName: "id",
+            kind: "Field",
+            metadata: {
+              isRequisite: true
+            },
+            type: "String"
+          }],
+          fieldName: "node",
+          kind: "Field",
+          metadata: {
+            canHaveSubselections: true,
+            inferredRootCallName: "node",
+            inferredPrimaryKey: "id",
+            isRequisite: true
+          },
+          type: "User"
+        }, {
+          fieldName: "cursor",
+          kind: "Field",
+          metadata: {
+            isGenerated: true,
+            isRequisite: true
+          },
+          type: "String"
+        }],
+        fieldName: "edges",
+        kind: "Field",
+        metadata: {
+          canHaveSubselections: true,
+          isPlural: true
+        },
+        type: "UserConnectionEdge"
+      }, {
+        children: [{
+          fieldName: "hasNextPage",
+          kind: "Field",
+          metadata: {
+            isGenerated: true,
+            isRequisite: true
+          },
+          type: "Boolean"
+        }, {
+          fieldName: "hasPreviousPage",
+          kind: "Field",
+          metadata: {
+            isGenerated: true,
+            isRequisite: true
+          },
+          type: "Boolean"
+        }],
+        fieldName: "pageInfo",
+        kind: "Field",
+        metadata: {
+          canHaveSubselections: true,
+          isGenerated: true,
+          isRequisite: true
+        },
+        type: "PageInfo"
+      }],
+      fieldName: "friends",
+      kind: "Field",
+      metadata: {
+        canHaveSubselections: true,
+        isConnection: true,
+        isFindable: true
+      },
+      type: "UserConnection"
+    }, {
+      fieldName: "id",
+      kind: "Field",
+      metadata: {
+        isGenerated: true,
+        isRequisite: true
+      },
+      type: "String"
+    }],
+    id: Relay.QL.__id(),
+    kind: "Fragment",
+    metadata: {
+      pattern: true
+    },
+    name: "UnknownFileRelayQL",
+    type: "User"
+  };
+}();
+`;
+
+exports[`matches expected output: connectionWithAfterLastArgs.txt 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+var Relay = require('react-relay');
+var x = Relay.QL\`
+  query {
+    node(id: 123) {
+      ... on User {
+        friends(last: 3, after: "foo") {
+          edges {
+            node {
+              id
+            }
+          }
+        }
+      }
+    }
+  }
+\`;
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+ERROR:
+
+Error: undefined: Relay Transform Error: Connection arguments \`friends(after: <cursor>, last: <count>)\` are not supported unless both are variables. Use \`(last: <count>)\`, \`(before: <cursor>, last: <count>)\`, \`(after: <cursor>, first: <count>)\`, or \`(after: $<var>, last: $<var>)\`.
+  1 | var Relay = require('react-relay');
+> 2 | var x = Relay.QL\`
+    |         ^
+  3 |   query {
+  4 |     node(id: 123) {
+  5 |       ... on User {
+`;
+
+exports[`matches expected output: connectionWithAfterLastArgsWithInlineFragment.txt 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+var Relay = require('react-relay');
+var x = Relay.QL\`
+  query {
+    node(id: 123) {
+      ... on User {
+        friends(last: 3, after: "foo") {
+          ... on UserConnection {
+            edges {
+              node {
+                id
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+\`;
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+ERROR:
+
+Error: undefined: Relay Transform Error: Connection arguments \`friends(after: <cursor>, last: <count>)\` are not supported unless both are variables. Use \`(last: <count>)\`, \`(before: <cursor>, last: <count>)\`, \`(after: <cursor>, first: <count>)\`, or \`(after: $<var>, last: $<var>)\`.
+  1 | var Relay = require('react-relay');
+> 2 | var x = Relay.QL\`
+    |         ^
+  3 |   query {
+  4 |     node(id: 123) {
+  5 |       ... on User {
+`;
+
+exports[`matches expected output: connectionWithAfterLastOneVariableArgs.txt 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+var Relay = require('react-relay');
+var x = Relay.QL\`
+  query {
+    node(id: 123) {
+      ... on User {
+        friends(last: $last, after: "foo") {
+          edges {
+            node {
+              id
+            }
+          }
+        }
+      }
+    }
+  }
+\`;
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+ERROR:
+
+Error: undefined: Relay Transform Error: Connection arguments \`friends(after: <cursor>, last: <count>)\` are not supported unless both are variables. Use \`(last: <count>)\`, \`(before: <cursor>, last: <count>)\`, \`(after: <cursor>, first: <count>)\`, or \`(after: $<var>, last: $<var>)\`.
+  1 | var Relay = require('react-relay');
+> 2 | var x = Relay.QL\`
+    |         ^
+  3 |   query {
+  4 |     node(id: 123) {
+  5 |       ... on User {
+`;
+
+exports[`matches expected output: connectionWithAfterLastVariableArgs.txt 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+var Relay = require('react-relay');
+var x = Relay.QL\`
+  query {
+    node(id: 123) {
+      ... on User {
+        friends(after: $after, last: $last) {
+          edges {
+            node {
+              id
+            }
+          }
+        }
+      }
+    }
+  }
+\`;
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+var Relay = require('react-relay');
+
+var x = function () {
+  return {
+    calls: [{
+      kind: "Call",
+      metadata: {
+        type: "ID!"
+      },
+      name: "id",
+      value: {
+        kind: "CallValue",
+        callValue: 123
+      }
+    }],
+    children: [{
+      fieldName: "id",
+      kind: "Field",
+      metadata: {
+        isGenerated: true,
+        isRequisite: true
+      },
+      type: "String"
+    }, {
+      fieldName: "__typename",
+      kind: "Field",
+      metadata: {
+        isGenerated: true,
+        isRequisite: true
+      },
+      type: "String"
+    }, {
+      children: [{
+        calls: [{
+          kind: "Call",
+          metadata: {},
+          name: "after",
+          value: {
+            kind: "CallVariable",
+            callVariableName: "after"
+          }
+        }, {
+          kind: "Call",
+          metadata: {
+            type: "Int"
+          },
+          name: "last",
+          value: {
+            kind: "CallVariable",
+            callVariableName: "last"
+          }
+        }],
+        children: [{
+          children: [{
+            children: [{
+              fieldName: "id",
+              kind: "Field",
+              metadata: {
+                isRequisite: true
+              },
+              type: "String"
+            }],
+            fieldName: "node",
+            kind: "Field",
+            metadata: {
+              canHaveSubselections: true,
+              inferredRootCallName: "node",
+              inferredPrimaryKey: "id",
+              isRequisite: true
+            },
+            type: "User"
+          }, {
+            fieldName: "cursor",
+            kind: "Field",
+            metadata: {
+              isGenerated: true,
+              isRequisite: true
+            },
+            type: "String"
+          }],
+          fieldName: "edges",
+          kind: "Field",
+          metadata: {
+            canHaveSubselections: true,
+            isPlural: true
+          },
+          type: "UserConnectionEdge"
+        }, {
+          children: [{
+            fieldName: "hasNextPage",
+            kind: "Field",
+            metadata: {
+              isGenerated: true,
+              isRequisite: true
+            },
+            type: "Boolean"
+          }, {
+            fieldName: "hasPreviousPage",
+            kind: "Field",
+            metadata: {
+              isGenerated: true,
+              isRequisite: true
+            },
+            type: "Boolean"
+          }],
+          fieldName: "pageInfo",
+          kind: "Field",
+          metadata: {
+            canHaveSubselections: true,
+            isGenerated: true,
+            isRequisite: true
+          },
+          type: "PageInfo"
+        }],
+        fieldName: "friends",
+        kind: "Field",
+        metadata: {
+          canHaveSubselections: true,
+          isConnection: true,
+          isFindable: true
+        },
+        type: "UserConnection"
+      }, {
+        fieldName: "id",
+        kind: "Field",
+        metadata: {
+          isGenerated: true,
+          isRequisite: true
+        },
+        type: "String"
+      }],
+      id: Relay.QL.__id(),
+      kind: "Fragment",
+      metadata: {},
+      name: "User",
+      type: "User"
+    }],
+    fieldName: "node",
+    kind: "Query",
+    metadata: {
+      isAbstract: true,
+      identifyingArgName: "id",
+      identifyingArgType: "ID!"
+    },
+    name: "UnknownFile",
+    type: "Node"
+  };
+}();
+`;
+
+exports[`matches expected output: connectionWithBeforeFirstArgs.txt 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+var Relay = require('react-relay');
+var x = Relay.QL\`
+  query {
+    node(id: 123) {
+      ... on User {
+        friends(first: 3, before: "foo") {
+          edges {
+            node {
+              id
+            }
+          }
+        }
+      }
+    }
+  }
+\`;
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+ERROR:
+
+Error: undefined: Relay Transform Error: Connection arguments \`friends(before: <cursor>, first: <count>)\` are not supported unless both are variables. Use \`(first: <count>)\`, \`(after: <cursor>, first: <count>)\`, \`(before: <cursor>, last: <count>)\`, or \`(before: $<var>, first: $<var>)\`.
+  1 | var Relay = require('react-relay');
+> 2 | var x = Relay.QL\`
+    |         ^
+  3 |   query {
+  4 |     node(id: 123) {
+  5 |       ... on User {
+`;
+
+exports[`matches expected output: connectionWithFirstLastArgs.txt 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+var Relay = require('react-relay');
+var x = Relay.QL\`
+  query {
+    node(id: 123) {
+      ... on User {
+        friends(first: 3, last: 3) {
+          edges {
+            node {
+              id
+            }
+          }
+        }
+      }
+    }
+  }
+\`;
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+ERROR:
+
+Error: undefined: Relay Transform Error: Connection arguments \`friends(first: <count>, last: <count>)\` are not supported unless both are variables. Use \`(first: <count>)\`, \`(last: <count>)\`, or \`(first: $<var>, last: $<var>)\`.
+  1 | var Relay = require('react-relay');
+> 2 | var x = Relay.QL\`
+    |         ^
+  3 |   query {
+  4 |     node(id: 123) {
+  5 |       ... on User {
+`;
+
+exports[`matches expected output: connectionWithFirstLastVariableArgs.txt 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+var Relay = require('react-relay');
+var x = Relay.QL\`
+  query {
+    node(id: 123) {
+      ... on User {
+        friends(first: $first, last: $last) {
+          edges {
+            node {
+              id
+            }
+          }
+        }
+      }
+    }
+  }
+\`;
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+var Relay = require('react-relay');
+
+var x = function () {
+  return {
+    calls: [{
+      kind: "Call",
+      metadata: {
+        type: "ID!"
+      },
+      name: "id",
+      value: {
+        kind: "CallValue",
+        callValue: 123
+      }
+    }],
+    children: [{
+      fieldName: "id",
+      kind: "Field",
+      metadata: {
+        isGenerated: true,
+        isRequisite: true
+      },
+      type: "String"
+    }, {
+      fieldName: "__typename",
+      kind: "Field",
+      metadata: {
+        isGenerated: true,
+        isRequisite: true
+      },
+      type: "String"
+    }, {
+      children: [{
+        calls: [{
+          kind: "Call",
+          metadata: {
+            type: "Int"
+          },
+          name: "first",
+          value: {
+            kind: "CallVariable",
+            callVariableName: "first"
+          }
+        }, {
+          kind: "Call",
+          metadata: {
+            type: "Int"
+          },
+          name: "last",
+          value: {
+            kind: "CallVariable",
+            callVariableName: "last"
+          }
+        }],
+        children: [{
+          children: [{
+            children: [{
+              fieldName: "id",
+              kind: "Field",
+              metadata: {
+                isRequisite: true
+              },
+              type: "String"
+            }],
+            fieldName: "node",
+            kind: "Field",
+            metadata: {
+              canHaveSubselections: true,
+              inferredRootCallName: "node",
+              inferredPrimaryKey: "id",
+              isRequisite: true
+            },
+            type: "User"
+          }, {
+            fieldName: "cursor",
+            kind: "Field",
+            metadata: {
+              isGenerated: true,
+              isRequisite: true
+            },
+            type: "String"
+          }],
+          fieldName: "edges",
+          kind: "Field",
+          metadata: {
+            canHaveSubselections: true,
+            isPlural: true
+          },
+          type: "UserConnectionEdge"
+        }, {
+          children: [{
+            fieldName: "hasNextPage",
+            kind: "Field",
+            metadata: {
+              isGenerated: true,
+              isRequisite: true
+            },
+            type: "Boolean"
+          }, {
+            fieldName: "hasPreviousPage",
+            kind: "Field",
+            metadata: {
+              isGenerated: true,
+              isRequisite: true
+            },
+            type: "Boolean"
+          }],
+          fieldName: "pageInfo",
+          kind: "Field",
+          metadata: {
+            canHaveSubselections: true,
+            isGenerated: true,
+            isRequisite: true
+          },
+          type: "PageInfo"
+        }],
+        fieldName: "friends",
+        kind: "Field",
+        metadata: {
+          canHaveSubselections: true,
+          isConnection: true,
+          isFindable: true
+        },
+        type: "UserConnection"
+      }, {
+        fieldName: "id",
+        kind: "Field",
+        metadata: {
+          isGenerated: true,
+          isRequisite: true
+        },
+        type: "String"
+      }],
+      id: Relay.QL.__id(),
+      kind: "Fragment",
+      metadata: {},
+      name: "User",
+      type: "User"
+    }],
+    fieldName: "node",
+    kind: "Query",
+    metadata: {
+      isAbstract: true,
+      identifyingArgName: "id",
+      identifyingArgType: "ID!"
+    },
+    name: "UnknownFile",
+    type: "Node"
+  };
+}();
+`;
+
+exports[`matches expected output: connectionWithNodesField.txt 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+var Relay = require('react-relay');
+var x = Relay.QL\`
+  query {
+    node(id: 123) {
+      ... on User {
+        friends(first: 3) {
+          nodes {
+            id
+          }
+        }
+      }
+    }
+  }
+\`;
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+ERROR:
+
+Error: undefined: Relay Transform Error: You supplied a field named \`nodes\` on a connection named \`friends\`, but pagination is not supported on connections without using \`edges\`. Use \`friends{edges{node{...}}}\` instead.
+  1 | var Relay = require('react-relay');
+> 2 | var x = Relay.QL\`
+    |         ^
+  3 |   query {
+  4 |     node(id: 123) {
+  5 |       ... on User {
+`;
+
+exports[`matches expected output: connectionWithPageInfoAlias.txt 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+var Relay = require('react-relay');
+var x = Relay.QL\`
+  query {
+    node(id: 123) {
+      ... on User {
+        friends(first: 3) {
+          edges {
+            node {
+              name
+            }
+          }
+          myPageInfo: pageInfo {
+            hasPreviousPage
+          }
+        }
+      }
+    }
+  }
+\`;
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+var Relay = require('react-relay');
+
+var x = function () {
+  return {
+    calls: [{
+      kind: "Call",
+      metadata: {
+        type: "ID!"
+      },
+      name: "id",
+      value: {
+        kind: "CallValue",
+        callValue: 123
+      }
+    }],
+    children: [{
+      fieldName: "id",
+      kind: "Field",
+      metadata: {
+        isGenerated: true,
+        isRequisite: true
+      },
+      type: "String"
+    }, {
+      fieldName: "__typename",
+      kind: "Field",
+      metadata: {
+        isGenerated: true,
+        isRequisite: true
+      },
+      type: "String"
+    }, {
+      children: [{
+        calls: [{
+          kind: "Call",
+          metadata: {
+            type: "Int"
+          },
+          name: "first",
+          value: {
+            kind: "CallValue",
+            callValue: 3
+          }
+        }],
+        children: [{
+          children: [{
+            children: [{
+              fieldName: "name",
+              kind: "Field",
+              metadata: {},
+              type: "String"
+            }, {
+              fieldName: "id",
+              kind: "Field",
+              metadata: {
+                isGenerated: true,
+                isRequisite: true
+              },
+              type: "String"
+            }],
+            fieldName: "node",
+            kind: "Field",
+            metadata: {
+              canHaveSubselections: true,
+              inferredRootCallName: "node",
+              inferredPrimaryKey: "id",
+              isRequisite: true
+            },
+            type: "User"
+          }, {
+            fieldName: "cursor",
+            kind: "Field",
+            metadata: {
+              isGenerated: true,
+              isRequisite: true
+            },
+            type: "String"
+          }],
+          fieldName: "edges",
+          kind: "Field",
+          metadata: {
+            canHaveSubselections: true,
+            isPlural: true
+          },
+          type: "UserConnectionEdge"
+        }, {
+          alias: "myPageInfo",
+          children: [{
+            fieldName: "hasPreviousPage",
+            kind: "Field",
+            metadata: {
+              isRequisite: true
+            },
+            type: "Boolean"
+          }, {
+            fieldName: "hasNextPage",
+            kind: "Field",
+            metadata: {
+              isGenerated: true,
+              isRequisite: true
+            },
+            type: "Boolean"
+          }],
+          fieldName: "pageInfo",
+          kind: "Field",
+          metadata: {
+            canHaveSubselections: true,
+            isRequisite: true
+          },
+          type: "PageInfo"
+        }],
+        fieldName: "friends",
+        kind: "Field",
+        metadata: {
+          canHaveSubselections: true,
+          isConnection: true,
+          isFindable: true
+        },
+        type: "UserConnection"
+      }, {
+        fieldName: "id",
+        kind: "Field",
+        metadata: {
+          isGenerated: true,
+          isRequisite: true
+        },
+        type: "String"
+      }],
+      id: Relay.QL.__id(),
+      kind: "Fragment",
+      metadata: {},
+      name: "User",
+      type: "User"
+    }],
+    fieldName: "node",
+    kind: "Query",
+    metadata: {
+      isAbstract: true,
+      identifyingArgName: "id",
+      identifyingArgType: "ID!"
+    },
+    name: "UnknownFile",
+    type: "Node"
+  };
+}();
+`;
+
+exports[`matches expected output: connectionWithPageInfoSubfields.txt 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+var Relay = require('react-relay');
+var x = Relay.QL\`
+  query {
+    node(id: 123) {
+      ... on User {
+        friends(first: 3) {
+          edges {
+            node {
+              name
+            }
+          }
+          pageInfo
+        }
+      }
+    }
+  }
+\`;
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+var Relay = require('react-relay');
+
+var x = function () {
+  return {
+    calls: [{
+      kind: "Call",
+      metadata: {
+        type: "ID!"
+      },
+      name: "id",
+      value: {
+        kind: "CallValue",
+        callValue: 123
+      }
+    }],
+    children: [{
+      fieldName: "id",
+      kind: "Field",
+      metadata: {
+        isGenerated: true,
+        isRequisite: true
+      },
+      type: "String"
+    }, {
+      fieldName: "__typename",
+      kind: "Field",
+      metadata: {
+        isGenerated: true,
+        isRequisite: true
+      },
+      type: "String"
+    }, {
+      children: [{
+        calls: [{
+          kind: "Call",
+          metadata: {
+            type: "Int"
+          },
+          name: "first",
+          value: {
+            kind: "CallValue",
+            callValue: 3
+          }
+        }],
+        children: [{
+          children: [{
+            children: [{
+              fieldName: "name",
+              kind: "Field",
+              metadata: {},
+              type: "String"
+            }, {
+              fieldName: "id",
+              kind: "Field",
+              metadata: {
+                isGenerated: true,
+                isRequisite: true
+              },
+              type: "String"
+            }],
+            fieldName: "node",
+            kind: "Field",
+            metadata: {
+              canHaveSubselections: true,
+              inferredRootCallName: "node",
+              inferredPrimaryKey: "id",
+              isRequisite: true
+            },
+            type: "User"
+          }, {
+            fieldName: "cursor",
+            kind: "Field",
+            metadata: {
+              isGenerated: true,
+              isRequisite: true
+            },
+            type: "String"
+          }],
+          fieldName: "edges",
+          kind: "Field",
+          metadata: {
+            canHaveSubselections: true,
+            isPlural: true
+          },
+          type: "UserConnectionEdge"
+        }, {
+          children: [{
+            fieldName: "hasNextPage",
+            kind: "Field",
+            metadata: {
+              isGenerated: true,
+              isRequisite: true
+            },
+            type: "Boolean"
+          }, {
+            fieldName: "hasPreviousPage",
+            kind: "Field",
+            metadata: {
+              isGenerated: true,
+              isRequisite: true
+            },
+            type: "Boolean"
+          }],
+          fieldName: "pageInfo",
+          kind: "Field",
+          metadata: {
+            canHaveSubselections: true,
+            isRequisite: true
+          },
+          type: "PageInfo"
+        }],
+        fieldName: "friends",
+        kind: "Field",
+        metadata: {
+          canHaveSubselections: true,
+          isConnection: true,
+          isFindable: true
+        },
+        type: "UserConnection"
+      }, {
+        fieldName: "id",
+        kind: "Field",
+        metadata: {
+          isGenerated: true,
+          isRequisite: true
+        },
+        type: "String"
+      }],
+      id: Relay.QL.__id(),
+      kind: "Fragment",
+      metadata: {},
+      name: "User",
+      type: "User"
+    }],
+    fieldName: "node",
+    kind: "Query",
+    metadata: {
+      isAbstract: true,
+      identifyingArgName: "id",
+      identifyingArgType: "ID!"
+    },
+    name: "UnknownFile",
+    type: "Node"
+  };
+}();
+`;
+
+exports[`matches expected output: connectionWithSelectVariables.txt 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+var Relay = require('react-relay');
+var x = Relay.QL\`
+  query {
+    node(id: 123) {
+      ... on User {
+        friends1: friends(first: $limit) {
+          edges {
+            ... on UserConnectionEdge @relay(variables: []) {
+              node {
+                name
+              }
+            }
+          }
+        }
+        friends2: friends(first: $limit) {
+          edges {
+            ... on UserConnectionEdge @relay(variables: ["size"]) {
+              node {
+                name
+                profilePicture(size: $size)
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+\`;
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+var Relay = require('react-relay');
+
+var x = function () {
+  return {
+    calls: [{
+      kind: "Call",
+      metadata: {
+        type: "ID!"
+      },
+      name: "id",
+      value: {
+        kind: "CallValue",
+        callValue: 123
+      }
+    }],
+    children: [{
+      fieldName: "id",
+      kind: "Field",
+      metadata: {
+        isGenerated: true,
+        isRequisite: true
+      },
+      type: "String"
+    }, {
+      fieldName: "__typename",
+      kind: "Field",
+      metadata: {
+        isGenerated: true,
+        isRequisite: true
+      },
+      type: "String"
+    }, {
+      children: [{
+        alias: "friends1",
+        calls: [{
+          kind: "Call",
+          metadata: {
+            type: "Int"
+          },
+          name: "first",
+          value: {
+            kind: "CallVariable",
+            callVariableName: "limit"
+          }
+        }],
+        children: [{
+          children: [{
+            fieldName: "cursor",
+            kind: "Field",
+            metadata: {
+              isGenerated: true,
+              isRequisite: true
+            },
+            type: "String"
+          }, {
+            children: [{
+              fieldName: "id",
+              kind: "Field",
+              metadata: {
+                isGenerated: true,
+                isRequisite: true
+              },
+              type: "String"
+            }],
+            fieldName: "node",
+            kind: "Field",
+            metadata: {
+              canHaveSubselections: true,
+              inferredRootCallName: "node",
+              inferredPrimaryKey: "id",
+              isGenerated: true,
+              isRequisite: true
+            },
+            type: "User"
+          }, Relay.QL.__createFragment({
+            children: [{
+              children: [{
+                fieldName: "name",
+                kind: "Field",
+                metadata: {},
+                type: "String"
+              }, {
+                fieldName: "id",
+                kind: "Field",
+                metadata: {
+                  isGenerated: true,
+                  isRequisite: true
+                },
+                type: "String"
+              }],
+              fieldName: "node",
+              kind: "Field",
+              metadata: {
+                canHaveSubselections: true,
+                inferredRootCallName: "node",
+                inferredPrimaryKey: "id"
+              },
+              type: "User"
+            }],
+            id: Relay.QL.__id(),
+            kind: "Fragment",
+            metadata: {
+              isTrackingEnabled: true
+            },
+            name: "UserConnectionEdge",
+            type: "UserConnectionEdge"
+          }, {})],
+          fieldName: "edges",
+          kind: "Field",
+          metadata: {
+            canHaveSubselections: true,
+            isPlural: true
+          },
+          type: "UserConnectionEdge"
+        }, {
+          children: [{
+            fieldName: "hasNextPage",
+            kind: "Field",
+            metadata: {
+              isGenerated: true,
+              isRequisite: true
+            },
+            type: "Boolean"
+          }, {
+            fieldName: "hasPreviousPage",
+            kind: "Field",
+            metadata: {
+              isGenerated: true,
+              isRequisite: true
+            },
+            type: "Boolean"
+          }],
+          fieldName: "pageInfo",
+          kind: "Field",
+          metadata: {
+            canHaveSubselections: true,
+            isGenerated: true,
+            isRequisite: true
+          },
+          type: "PageInfo"
+        }],
+        fieldName: "friends",
+        kind: "Field",
+        metadata: {
+          canHaveSubselections: true,
+          isConnection: true,
+          isFindable: true
+        },
+        type: "UserConnection"
+      }, {
+        alias: "friends2",
+        calls: [{
+          kind: "Call",
+          metadata: {
+            type: "Int"
+          },
+          name: "first",
+          value: {
+            kind: "CallVariable",
+            callVariableName: "limit"
+          }
+        }],
+        children: [{
+          children: [{
+            fieldName: "cursor",
+            kind: "Field",
+            metadata: {
+              isGenerated: true,
+              isRequisite: true
+            },
+            type: "String"
+          }, {
+            children: [{
+              fieldName: "id",
+              kind: "Field",
+              metadata: {
+                isGenerated: true,
+                isRequisite: true
+              },
+              type: "String"
+            }],
+            fieldName: "node",
+            kind: "Field",
+            metadata: {
+              canHaveSubselections: true,
+              inferredRootCallName: "node",
+              inferredPrimaryKey: "id",
+              isGenerated: true,
+              isRequisite: true
+            },
+            type: "User"
+          }, Relay.QL.__createFragment({
+            children: [{
+              children: [{
+                fieldName: "name",
+                kind: "Field",
+                metadata: {},
+                type: "String"
+              }, {
+                calls: [{
+                  kind: "Call",
+                  metadata: {
+                    type: "Int"
+                  },
+                  name: "size",
+                  value: {
+                    kind: "CallVariable",
+                    callVariableName: "size"
+                  }
+                }],
+                fieldName: "profilePicture",
+                kind: "Field",
+                metadata: {
+                  canHaveSubselections: true
+                },
+                type: "ProfilePicture"
+              }, {
+                fieldName: "id",
+                kind: "Field",
+                metadata: {
+                  isGenerated: true,
+                  isRequisite: true
+                },
+                type: "String"
+              }],
+              fieldName: "node",
+              kind: "Field",
+              metadata: {
+                canHaveSubselections: true,
+                inferredRootCallName: "node",
+                inferredPrimaryKey: "id"
+              },
+              type: "User"
+            }],
+            id: Relay.QL.__id(),
+            kind: "Fragment",
+            metadata: {
+              isTrackingEnabled: true
+            },
+            name: "UserConnectionEdge",
+            type: "UserConnectionEdge"
+          }, {
+            size: {
+              kind: "CallVariable",
+              callVariableName: "size"
+            }
+          })],
+          fieldName: "edges",
+          kind: "Field",
+          metadata: {
+            canHaveSubselections: true,
+            isPlural: true
+          },
+          type: "UserConnectionEdge"
+        }, {
+          children: [{
+            fieldName: "hasNextPage",
+            kind: "Field",
+            metadata: {
+              isGenerated: true,
+              isRequisite: true
+            },
+            type: "Boolean"
+          }, {
+            fieldName: "hasPreviousPage",
+            kind: "Field",
+            metadata: {
+              isGenerated: true,
+              isRequisite: true
+            },
+            type: "Boolean"
+          }],
+          fieldName: "pageInfo",
+          kind: "Field",
+          metadata: {
+            canHaveSubselections: true,
+            isGenerated: true,
+            isRequisite: true
+          },
+          type: "PageInfo"
+        }],
+        fieldName: "friends",
+        kind: "Field",
+        metadata: {
+          canHaveSubselections: true,
+          isConnection: true,
+          isFindable: true
+        },
+        type: "UserConnection"
+      }, {
+        fieldName: "id",
+        kind: "Field",
+        metadata: {
+          isGenerated: true,
+          isRequisite: true
+        },
+        type: "String"
+      }],
+      id: Relay.QL.__id(),
+      kind: "Fragment",
+      metadata: {},
+      name: "User",
+      type: "User"
+    }],
+    fieldName: "node",
+    kind: "Query",
+    metadata: {
+      isAbstract: true,
+      identifyingArgName: "id",
+      identifyingArgType: "ID!"
+    },
+    name: "UnknownFile",
+    type: "Node"
+  };
+}();
+`;
+
+exports[`matches expected output: connectionWithoutArgs.txt 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+var Relay = require('react-relay');
+var x = Relay.QL\`
+  query {
+    node(id: 123) {
+      ... on User {
+        friends {
+          edges {
+            node {
+              id
+            }
+          }
+        }
+      }
+    }
+  }
+\`;
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+ERROR:
+
+Error: undefined: Relay Transform Error: You supplied the \`edges\` field on a connection named \`friends\`, but you did not supply an argument necessary for Relay to handle the connection. Please specify a limit argument like \`first\`, or \`last\` or fetch a specific item with a \`find\` argument.
+  1 | var Relay = require('react-relay');
+> 2 | var x = Relay.QL\`
+    |         ^
+  3 |   query {
+  4 |     node(id: 123) {
+  5 |       ... on User {
+`;
+
+exports[`matches expected output: connectionWithoutArgsWithInlineFragment.txt 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+var Relay = require('react-relay');
+var x = Relay.QL\`
+  query {
+    node(id: 123) {
+      ... on User {
+        friends {
+          ... on UserConnection {
+            edges {
+              node {
+                id
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+\`;
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+ERROR:
+
+Error: undefined: Relay Transform Error: You supplied the \`edges\` field on a connection named \`friends\`, but you did not supply an argument necessary for Relay to handle the connection. Please specify a limit argument like \`first\`, or \`last\` or fetch a specific item with a \`find\` argument.
+  1 | var Relay = require('react-relay');
+> 2 | var x = Relay.QL\`
+    |         ^
+  3 |   query {
+  4 |     node(id: 123) {
+  5 |       ... on User {
+`;
+
+exports[`matches expected output: connectionWithoutNodeField.txt 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+var Relay = require('react-relay');
+var x = Relay.QL\`
+  query {
+    node(id: 123) {
+      ... on User {
+        friends(first: 3) {
+          edges {
+            cursor
+          }
+        }
+      }
+    }
+  }
+\`;
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+var Relay = require('react-relay');
+
+var x = function () {
+  return {
+    calls: [{
+      kind: "Call",
+      metadata: {
+        type: "ID!"
+      },
+      name: "id",
+      value: {
+        kind: "CallValue",
+        callValue: 123
+      }
+    }],
+    children: [{
+      fieldName: "id",
+      kind: "Field",
+      metadata: {
+        isGenerated: true,
+        isRequisite: true
+      },
+      type: "String"
+    }, {
+      fieldName: "__typename",
+      kind: "Field",
+      metadata: {
+        isGenerated: true,
+        isRequisite: true
+      },
+      type: "String"
+    }, {
+      children: [{
+        calls: [{
+          kind: "Call",
+          metadata: {
+            type: "Int"
+          },
+          name: "first",
+          value: {
+            kind: "CallValue",
+            callValue: 3
+          }
+        }],
+        children: [{
+          children: [{
+            fieldName: "cursor",
+            kind: "Field",
+            metadata: {
+              isRequisite: true
+            },
+            type: "String"
+          }, {
+            children: [{
+              fieldName: "id",
+              kind: "Field",
+              metadata: {
+                isGenerated: true,
+                isRequisite: true
+              },
+              type: "String"
+            }],
+            fieldName: "node",
+            kind: "Field",
+            metadata: {
+              canHaveSubselections: true,
+              inferredRootCallName: "node",
+              inferredPrimaryKey: "id",
+              isGenerated: true,
+              isRequisite: true
+            },
+            type: "User"
+          }],
+          fieldName: "edges",
+          kind: "Field",
+          metadata: {
+            canHaveSubselections: true,
+            isPlural: true
+          },
+          type: "UserConnectionEdge"
+        }, {
+          children: [{
+            fieldName: "hasNextPage",
+            kind: "Field",
+            metadata: {
+              isGenerated: true,
+              isRequisite: true
+            },
+            type: "Boolean"
+          }, {
+            fieldName: "hasPreviousPage",
+            kind: "Field",
+            metadata: {
+              isGenerated: true,
+              isRequisite: true
+            },
+            type: "Boolean"
+          }],
+          fieldName: "pageInfo",
+          kind: "Field",
+          metadata: {
+            canHaveSubselections: true,
+            isGenerated: true,
+            isRequisite: true
+          },
+          type: "PageInfo"
+        }],
+        fieldName: "friends",
+        kind: "Field",
+        metadata: {
+          canHaveSubselections: true,
+          isConnection: true,
+          isFindable: true
+        },
+        type: "UserConnection"
+      }, {
+        fieldName: "id",
+        kind: "Field",
+        metadata: {
+          isGenerated: true,
+          isRequisite: true
+        },
+        type: "String"
+      }],
+      id: Relay.QL.__id(),
+      kind: "Fragment",
+      metadata: {},
+      name: "User",
+      type: "User"
+    }],
+    fieldName: "node",
+    kind: "Query",
+    metadata: {
+      isAbstract: true,
+      identifyingArgName: "id",
+      identifyingArgType: "ID!"
+    },
+    name: "UnknownFile",
+    type: "Node"
+  };
+}();
+`;
+
+exports[`matches expected output: connectionWithoutNodeID.txt 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+var Relay = require('react-relay');
+var x = Relay.QL\`
+  query {
+    node(id: 123) {
+      ... on User {
+        friends(first: 3) @relay(isConnectionWithoutNodeID: true) {
+          edges {
+            cursor
+          }
+        }
+      }
+    }
+  }
+\`;
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+var Relay = require('react-relay');
+
+var x = function () {
+  return {
+    calls: [{
+      kind: "Call",
+      metadata: {
+        type: "ID!"
+      },
+      name: "id",
+      value: {
+        kind: "CallValue",
+        callValue: 123
+      }
+    }],
+    children: [{
+      fieldName: "id",
+      kind: "Field",
+      metadata: {
+        isGenerated: true,
+        isRequisite: true
+      },
+      type: "String"
+    }, {
+      fieldName: "__typename",
+      kind: "Field",
+      metadata: {
+        isGenerated: true,
+        isRequisite: true
+      },
+      type: "String"
+    }, {
+      children: [{
+        calls: [{
+          kind: "Call",
+          metadata: {
+            type: "Int"
+          },
+          name: "first",
+          value: {
+            kind: "CallValue",
+            callValue: 3
+          }
+        }],
+        children: [{
+          children: [{
+            fieldName: "cursor",
+            kind: "Field",
+            metadata: {
+              isRequisite: true
+            },
+            type: "String"
+          }, {
+            children: [{
+              fieldName: "id",
+              kind: "Field",
+              metadata: {
+                isGenerated: true,
+                isRequisite: true
+              },
+              type: "String"
+            }],
+            fieldName: "node",
+            kind: "Field",
+            metadata: {
+              canHaveSubselections: true,
+              inferredRootCallName: "node",
+              inferredPrimaryKey: "id",
+              isGenerated: true,
+              isRequisite: true
+            },
+            type: "User"
+          }],
+          fieldName: "edges",
+          kind: "Field",
+          metadata: {
+            canHaveSubselections: true,
+            isPlural: true
+          },
+          type: "UserConnectionEdge"
+        }, {
+          children: [{
+            fieldName: "hasNextPage",
+            kind: "Field",
+            metadata: {
+              isGenerated: true,
+              isRequisite: true
+            },
+            type: "Boolean"
+          }, {
+            fieldName: "hasPreviousPage",
+            kind: "Field",
+            metadata: {
+              isGenerated: true,
+              isRequisite: true
+            },
+            type: "Boolean"
+          }],
+          fieldName: "pageInfo",
+          kind: "Field",
+          metadata: {
+            canHaveSubselections: true,
+            isGenerated: true,
+            isRequisite: true
+          },
+          type: "PageInfo"
+        }],
+        fieldName: "friends",
+        kind: "Field",
+        metadata: {
+          isConnectionWithoutNodeID: true,
+          canHaveSubselections: true,
+          isConnection: true,
+          isFindable: true
+        },
+        type: "UserConnection"
+      }, {
+        fieldName: "id",
+        kind: "Field",
+        metadata: {
+          isGenerated: true,
+          isRequisite: true
+        },
+        type: "String"
+      }],
+      id: Relay.QL.__id(),
+      kind: "Fragment",
+      metadata: {},
+      name: "User",
+      type: "User"
+    }],
+    fieldName: "node",
+    kind: "Query",
+    metadata: {
+      isAbstract: true,
+      identifyingArgName: "id",
+      identifyingArgType: "ID!"
+    },
+    name: "UnknownFile",
+    type: "Node"
+  };
+}();
+`;
+
+exports[`matches expected output: container.txt 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+var Relay = require('react-relay');
+Relay.createContainer(Component, {
+  queries: {
+    viewer: () => Relay.QL\`fragment on Viewer { actor { id } }\`
+  }
+});
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+var Relay = require('react-relay');
+
+Relay.createContainer(Component, {
+  queries: {
+    viewer: () => function () {
+      return {
+        children: [{
+          children: [{
+            fieldName: "id",
+            kind: "Field",
+            metadata: {
+              isRequisite: true
+            },
+            type: "String"
+          }],
+          fieldName: "actor",
+          kind: "Field",
+          metadata: {
+            canHaveSubselections: true,
+            inferredRootCallName: "node",
+            inferredPrimaryKey: "id"
+          },
+          type: "User"
+        }],
+        id: Relay.QL.__id(),
+        kind: "Fragment",
+        metadata: {},
+        name: "UnknownFile_ViewerRelayQL",
+        type: "Viewer"
+      };
+    }()
+  }
+});
+`;
+
+exports[`matches expected output: fieldForEnum.txt 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+var Relay = require('react-relay');
+var x = Relay.QL\`
+  query {
+    node(id: 123) {
+      ... on User {
+        gender
+      }
+    }
+  }
+\`;
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+var Relay = require('react-relay');
+
+var x = function () {
+  return {
+    calls: [{
+      kind: "Call",
+      metadata: {
+        type: "ID!"
+      },
+      name: "id",
+      value: {
+        kind: "CallValue",
+        callValue: 123
+      }
+    }],
+    children: [{
+      fieldName: "id",
+      kind: "Field",
+      metadata: {
+        isGenerated: true,
+        isRequisite: true
+      },
+      type: "String"
+    }, {
+      fieldName: "__typename",
+      kind: "Field",
+      metadata: {
+        isGenerated: true,
+        isRequisite: true
+      },
+      type: "String"
+    }, {
+      children: [{
+        fieldName: "gender",
+        kind: "Field",
+        metadata: {},
+        type: "Gender"
+      }, {
+        fieldName: "id",
+        kind: "Field",
+        metadata: {
+          isGenerated: true,
+          isRequisite: true
+        },
+        type: "String"
+      }],
+      id: Relay.QL.__id(),
+      kind: "Fragment",
+      metadata: {},
+      name: "User",
+      type: "User"
+    }],
+    fieldName: "node",
+    kind: "Query",
+    metadata: {
+      isAbstract: true,
+      identifyingArgName: "id",
+      identifyingArgType: "ID!"
+    },
+    name: "UnknownFile",
+    type: "Node"
+  };
+}();
+`;
+
+exports[`matches expected output: fieldWithAlias.txt 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+var Relay = require('react-relay');
+var x = Relay.QL\`
+  query {
+    node(id: 123) {
+      ... on User {
+        realName: name
+      }
+    }
+  }
+\`;
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+var Relay = require('react-relay');
+
+var x = function () {
+  return {
+    calls: [{
+      kind: "Call",
+      metadata: {
+        type: "ID!"
+      },
+      name: "id",
+      value: {
+        kind: "CallValue",
+        callValue: 123
+      }
+    }],
+    children: [{
+      fieldName: "id",
+      kind: "Field",
+      metadata: {
+        isGenerated: true,
+        isRequisite: true
+      },
+      type: "String"
+    }, {
+      fieldName: "__typename",
+      kind: "Field",
+      metadata: {
+        isGenerated: true,
+        isRequisite: true
+      },
+      type: "String"
+    }, {
+      children: [{
+        alias: "realName",
+        fieldName: "name",
+        kind: "Field",
+        metadata: {},
+        type: "String"
+      }, {
+        fieldName: "id",
+        kind: "Field",
+        metadata: {
+          isGenerated: true,
+          isRequisite: true
+        },
+        type: "String"
+      }],
+      id: Relay.QL.__id(),
+      kind: "Fragment",
+      metadata: {},
+      name: "User",
+      type: "User"
+    }],
+    fieldName: "node",
+    kind: "Query",
+    metadata: {
+      isAbstract: true,
+      identifyingArgName: "id",
+      identifyingArgType: "ID!"
+    },
+    name: "UnknownFile",
+    type: "Node"
+  };
+}();
+`;
+
+exports[`matches expected output: fieldWithAliasAndArgs.txt 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+var Relay = require('react-relay');
+var x = Relay.QL\`
+  query {
+    node(id: 123) {
+      ... on User {
+        mugShot: profilePicture(size: 100) {
+          uri
+        }
+      }
+    }
+  }
+\`;
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+var Relay = require('react-relay');
+
+var x = function () {
+  return {
+    calls: [{
+      kind: "Call",
+      metadata: {
+        type: "ID!"
+      },
+      name: "id",
+      value: {
+        kind: "CallValue",
+        callValue: 123
+      }
+    }],
+    children: [{
+      fieldName: "id",
+      kind: "Field",
+      metadata: {
+        isGenerated: true,
+        isRequisite: true
+      },
+      type: "String"
+    }, {
+      fieldName: "__typename",
+      kind: "Field",
+      metadata: {
+        isGenerated: true,
+        isRequisite: true
+      },
+      type: "String"
+    }, {
+      children: [{
+        alias: "mugShot",
+        calls: [{
+          kind: "Call",
+          metadata: {
+            type: "Int"
+          },
+          name: "size",
+          value: {
+            kind: "CallValue",
+            callValue: 100
+          }
+        }],
+        children: [{
+          fieldName: "uri",
+          kind: "Field",
+          metadata: {},
+          type: "String"
+        }],
+        fieldName: "profilePicture",
+        kind: "Field",
+        metadata: {
+          canHaveSubselections: true
+        },
+        type: "ProfilePicture"
+      }, {
+        fieldName: "id",
+        kind: "Field",
+        metadata: {
+          isGenerated: true,
+          isRequisite: true
+        },
+        type: "String"
+      }],
+      id: Relay.QL.__id(),
+      kind: "Fragment",
+      metadata: {},
+      name: "User",
+      type: "User"
+    }],
+    fieldName: "node",
+    kind: "Query",
+    metadata: {
+      isAbstract: true,
+      identifyingArgName: "id",
+      identifyingArgType: "ID!"
+    },
+    name: "UnknownFile",
+    type: "Node"
+  };
+}();
+`;
+
+exports[`matches expected output: fieldWithArgs.txt 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+var Relay = require('react-relay');
+var x = Relay.QL\`
+  query {
+    node(id: 123) {
+      ... on User {
+        profilePicture(size: 100) {
+          uri
+        }
+      }
+    }
+  }
+\`;
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+var Relay = require('react-relay');
+
+var x = function () {
+  return {
+    calls: [{
+      kind: "Call",
+      metadata: {
+        type: "ID!"
+      },
+      name: "id",
+      value: {
+        kind: "CallValue",
+        callValue: 123
+      }
+    }],
+    children: [{
+      fieldName: "id",
+      kind: "Field",
+      metadata: {
+        isGenerated: true,
+        isRequisite: true
+      },
+      type: "String"
+    }, {
+      fieldName: "__typename",
+      kind: "Field",
+      metadata: {
+        isGenerated: true,
+        isRequisite: true
+      },
+      type: "String"
+    }, {
+      children: [{
+        calls: [{
+          kind: "Call",
+          metadata: {
+            type: "Int"
+          },
+          name: "size",
+          value: {
+            kind: "CallValue",
+            callValue: 100
+          }
+        }],
+        children: [{
+          fieldName: "uri",
+          kind: "Field",
+          metadata: {},
+          type: "String"
+        }],
+        fieldName: "profilePicture",
+        kind: "Field",
+        metadata: {
+          canHaveSubselections: true
+        },
+        type: "ProfilePicture"
+      }, {
+        fieldName: "id",
+        kind: "Field",
+        metadata: {
+          isGenerated: true,
+          isRequisite: true
+        },
+        type: "String"
+      }],
+      id: Relay.QL.__id(),
+      kind: "Fragment",
+      metadata: {},
+      name: "User",
+      type: "User"
+    }],
+    fieldName: "node",
+    kind: "Query",
+    metadata: {
+      isAbstract: true,
+      identifyingArgName: "id",
+      identifyingArgType: "ID!"
+    },
+    name: "UnknownFile",
+    type: "Node"
+  };
+}();
+`;
+
+exports[`matches expected output: fieldWithCustomScalarArg.txt 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+var Relay = require('react-relay');
+var x = Relay.QL\`
+  query {
+    customScalar(arg: {give: "relay"}) {
+      title
+    }
+  }
+\`;
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+var Relay = require('react-relay');
+
+var x = function () {
+  return {
+    calls: [{
+      kind: "Call",
+      metadata: {
+        type: "JSON"
+      },
+      name: "arg",
+      value: {
+        kind: "CallValue",
+        callValue: {
+          give: "relay"
+        }
+      }
+    }],
+    children: [{
+      fieldName: "title",
+      kind: "Field",
+      metadata: {},
+      type: "String"
+    }],
+    fieldName: "customScalar",
+    kind: "Query",
+    metadata: {
+      isPlural: true,
+      identifyingArgName: "arg",
+      identifyingArgType: "JSON"
+    },
+    name: "UnknownFile",
+    type: "SearchResult"
+  };
+}();
+`;
+
+exports[`matches expected output: fieldWithEmptyArrayArg.txt 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+var Relay = require('react-relay');
+var x = Relay.QL\`
+  fragment on User {
+    friends(isViewerFriend: false) {
+      count
+    }
+  }
+\`;
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+var Relay = require('react-relay');
+
+var x = function () {
+  return {
+    children: [{
+      calls: [{
+        kind: "Call",
+        metadata: {},
+        name: "isViewerFriend",
+        value: {
+          kind: "CallValue",
+          callValue: false
+        }
+      }],
+      children: [{
+        fieldName: "count",
+        kind: "Field",
+        metadata: {},
+        type: "Int"
+      }],
+      fieldName: "friends",
+      kind: "Field",
+      metadata: {
+        canHaveSubselections: true,
+        isConnection: true,
+        isFindable: true
+      },
+      type: "UserConnection"
+    }, {
+      fieldName: "id",
+      kind: "Field",
+      metadata: {
+        isGenerated: true,
+        isRequisite: true
+      },
+      type: "String"
+    }],
+    id: Relay.QL.__id(),
+    kind: "Fragment",
+    metadata: {},
+    name: "UnknownFileRelayQL",
+    type: "User"
+  };
+}();
+`;
+
+exports[`matches expected output: fieldWithEnumArg.txt 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+var Relay = require('react-relay');
+var x = Relay.QL\`
+  query {
+    node(id: 123) {
+      ... on User {
+        friends(first: 5, gender: MALE) {
+          edges {
+            node {
+              id
+            }
+          }
+        }
+      }
+    }
+  }
+\`;
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+var Relay = require('react-relay');
+
+var x = function () {
+  return {
+    calls: [{
+      kind: "Call",
+      metadata: {
+        type: "ID!"
+      },
+      name: "id",
+      value: {
+        kind: "CallValue",
+        callValue: 123
+      }
+    }],
+    children: [{
+      fieldName: "id",
+      kind: "Field",
+      metadata: {
+        isGenerated: true,
+        isRequisite: true
+      },
+      type: "String"
+    }, {
+      fieldName: "__typename",
+      kind: "Field",
+      metadata: {
+        isGenerated: true,
+        isRequisite: true
+      },
+      type: "String"
+    }, {
+      children: [{
+        calls: [{
+          kind: "Call",
+          metadata: {
+            type: "Int"
+          },
+          name: "first",
+          value: {
+            kind: "CallValue",
+            callValue: 5
+          }
+        }, {
+          kind: "Call",
+          metadata: {
+            type: "Gender"
+          },
+          name: "gender",
+          value: {
+            kind: "CallValue",
+            callValue: "MALE"
+          }
+        }],
+        children: [{
+          children: [{
+            children: [{
+              fieldName: "id",
+              kind: "Field",
+              metadata: {
+                isRequisite: true
+              },
+              type: "String"
+            }],
+            fieldName: "node",
+            kind: "Field",
+            metadata: {
+              canHaveSubselections: true,
+              inferredRootCallName: "node",
+              inferredPrimaryKey: "id",
+              isRequisite: true
+            },
+            type: "User"
+          }, {
+            fieldName: "cursor",
+            kind: "Field",
+            metadata: {
+              isGenerated: true,
+              isRequisite: true
+            },
+            type: "String"
+          }],
+          fieldName: "edges",
+          kind: "Field",
+          metadata: {
+            canHaveSubselections: true,
+            isPlural: true
+          },
+          type: "UserConnectionEdge"
+        }, {
+          children: [{
+            fieldName: "hasNextPage",
+            kind: "Field",
+            metadata: {
+              isGenerated: true,
+              isRequisite: true
+            },
+            type: "Boolean"
+          }, {
+            fieldName: "hasPreviousPage",
+            kind: "Field",
+            metadata: {
+              isGenerated: true,
+              isRequisite: true
+            },
+            type: "Boolean"
+          }],
+          fieldName: "pageInfo",
+          kind: "Field",
+          metadata: {
+            canHaveSubselections: true,
+            isGenerated: true,
+            isRequisite: true
+          },
+          type: "PageInfo"
+        }],
+        fieldName: "friends",
+        kind: "Field",
+        metadata: {
+          canHaveSubselections: true,
+          isConnection: true,
+          isFindable: true
+        },
+        type: "UserConnection"
+      }, {
+        fieldName: "id",
+        kind: "Field",
+        metadata: {
+          isGenerated: true,
+          isRequisite: true
+        },
+        type: "String"
+      }],
+      id: Relay.QL.__id(),
+      kind: "Fragment",
+      metadata: {},
+      name: "User",
+      type: "User"
+    }],
+    fieldName: "node",
+    kind: "Query",
+    metadata: {
+      isAbstract: true,
+      identifyingArgName: "id",
+      identifyingArgType: "ID!"
+    },
+    name: "UnknownFile",
+    type: "Node"
+  };
+}();
+`;
+
+exports[`matches expected output: fieldWithEnumQueryArg.txt 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+var Relay = require('react-relay');
+var x = Relay.QL\`
+  query($gender_0: Gender) {
+    node(id: 123) {
+      ... on User {
+        friends(first: 5, gender: $gender_0) {
+          edges {
+            node {
+              id
+            }
+          }
+        }
+      }
+    }
+  }
+\`;
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+var Relay = require('react-relay');
+
+var x = function () {
+  return {
+    calls: [{
+      kind: "Call",
+      metadata: {
+        type: "ID!"
+      },
+      name: "id",
+      value: {
+        kind: "CallValue",
+        callValue: 123
+      }
+    }],
+    children: [{
+      fieldName: "id",
+      kind: "Field",
+      metadata: {
+        isGenerated: true,
+        isRequisite: true
+      },
+      type: "String"
+    }, {
+      fieldName: "__typename",
+      kind: "Field",
+      metadata: {
+        isGenerated: true,
+        isRequisite: true
+      },
+      type: "String"
+    }, {
+      children: [{
+        calls: [{
+          kind: "Call",
+          metadata: {
+            type: "Int"
+          },
+          name: "first",
+          value: {
+            kind: "CallValue",
+            callValue: 5
+          }
+        }, {
+          kind: "Call",
+          metadata: {
+            type: "Gender"
+          },
+          name: "gender",
+          value: {
+            kind: "CallVariable",
+            callVariableName: "gender_0"
+          }
+        }],
+        children: [{
+          children: [{
+            children: [{
+              fieldName: "id",
+              kind: "Field",
+              metadata: {
+                isRequisite: true
+              },
+              type: "String"
+            }],
+            fieldName: "node",
+            kind: "Field",
+            metadata: {
+              canHaveSubselections: true,
+              inferredRootCallName: "node",
+              inferredPrimaryKey: "id",
+              isRequisite: true
+            },
+            type: "User"
+          }, {
+            fieldName: "cursor",
+            kind: "Field",
+            metadata: {
+              isGenerated: true,
+              isRequisite: true
+            },
+            type: "String"
+          }],
+          fieldName: "edges",
+          kind: "Field",
+          metadata: {
+            canHaveSubselections: true,
+            isPlural: true
+          },
+          type: "UserConnectionEdge"
+        }, {
+          children: [{
+            fieldName: "hasNextPage",
+            kind: "Field",
+            metadata: {
+              isGenerated: true,
+              isRequisite: true
+            },
+            type: "Boolean"
+          }, {
+            fieldName: "hasPreviousPage",
+            kind: "Field",
+            metadata: {
+              isGenerated: true,
+              isRequisite: true
+            },
+            type: "Boolean"
+          }],
+          fieldName: "pageInfo",
+          kind: "Field",
+          metadata: {
+            canHaveSubselections: true,
+            isGenerated: true,
+            isRequisite: true
+          },
+          type: "PageInfo"
+        }],
+        fieldName: "friends",
+        kind: "Field",
+        metadata: {
+          canHaveSubselections: true,
+          isConnection: true,
+          isFindable: true
+        },
+        type: "UserConnection"
+      }, {
+        fieldName: "id",
+        kind: "Field",
+        metadata: {
+          isGenerated: true,
+          isRequisite: true
+        },
+        type: "String"
+      }],
+      id: Relay.QL.__id(),
+      kind: "Fragment",
+      metadata: {},
+      name: "User",
+      type: "User"
+    }],
+    fieldName: "node",
+    kind: "Query",
+    metadata: {
+      isAbstract: true,
+      identifyingArgName: "id",
+      identifyingArgType: "ID!"
+    },
+    name: "UnknownFile",
+    type: "Node"
+  };
+}();
+`;
+
+exports[`matches expected output: fieldWithFakeConnection.txt 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+const RelayClassic = require('react-relay/classic');
+var foo = RelayClassic.QL\`
+  fragment on User {
+    fakeConnection {
+      edges {
+        node {
+          id
+        }
+      }
+    }
+  }
+\`;
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+const RelayClassic = require('react-relay/classic');
+
+var foo = function () {
+  return {
+    children: [{
+      children: [{
+        children: [{
+          children: [{
+            fieldName: "id",
+            kind: "Field",
+            metadata: {
+              isRequisite: true
+            },
+            type: "String"
+          }],
+          fieldName: "node",
+          kind: "Field",
+          metadata: {
+            canHaveSubselections: true,
+            inferredRootCallName: "node",
+            inferredPrimaryKey: "id",
+            isRequisite: true
+          },
+          type: "FakeNode"
+        }, {
+          fieldName: "cursor",
+          kind: "Field",
+          metadata: {
+            isGenerated: true,
+            isRequisite: true
+          },
+          type: "String"
+        }],
+        fieldName: "edges",
+        kind: "Field",
+        metadata: {
+          canHaveSubselections: true,
+          isPlural: true
+        },
+        type: "FakeEdge"
+      }],
+      fieldName: "fakeConnection",
+      kind: "Field",
+      metadata: {
+        canHaveSubselections: true
+      },
+      type: "FakeConnection"
+    }, {
+      fieldName: "id",
+      kind: "Field",
+      metadata: {
+        isGenerated: true,
+        isRequisite: true
+      },
+      type: "String"
+    }],
+    id: RelayClassic.QL.__id(),
+    kind: "Fragment",
+    metadata: {},
+    name: "UnknownFileRelayQL",
+    type: "User"
+  };
+}();
+`;
+
+exports[`matches expected output: fieldWithParams.txt 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+var Relay = require('react-relay');
+var x = Relay.QL\`
+  query {
+    node(id: 123) {
+      ... on User {
+        profilePicture(size: $size) {
+          uri
+        }
+      }
+    }
+  }
+\`;
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+var Relay = require('react-relay');
+
+var x = function () {
+  return {
+    calls: [{
+      kind: "Call",
+      metadata: {
+        type: "ID!"
+      },
+      name: "id",
+      value: {
+        kind: "CallValue",
+        callValue: 123
+      }
+    }],
+    children: [{
+      fieldName: "id",
+      kind: "Field",
+      metadata: {
+        isGenerated: true,
+        isRequisite: true
+      },
+      type: "String"
+    }, {
+      fieldName: "__typename",
+      kind: "Field",
+      metadata: {
+        isGenerated: true,
+        isRequisite: true
+      },
+      type: "String"
+    }, {
+      children: [{
+        calls: [{
+          kind: "Call",
+          metadata: {
+            type: "Int"
+          },
+          name: "size",
+          value: {
+            kind: "CallVariable",
+            callVariableName: "size"
+          }
+        }],
+        children: [{
+          fieldName: "uri",
+          kind: "Field",
+          metadata: {},
+          type: "String"
+        }],
+        fieldName: "profilePicture",
+        kind: "Field",
+        metadata: {
+          canHaveSubselections: true
+        },
+        type: "ProfilePicture"
+      }, {
+        fieldName: "id",
+        kind: "Field",
+        metadata: {
+          isGenerated: true,
+          isRequisite: true
+        },
+        type: "String"
+      }],
+      id: Relay.QL.__id(),
+      kind: "Fragment",
+      metadata: {},
+      name: "User",
+      type: "User"
+    }],
+    fieldName: "node",
+    kind: "Query",
+    metadata: {
+      isAbstract: true,
+      identifyingArgName: "id",
+      identifyingArgType: "ID!"
+    },
+    name: "UnknownFile",
+    type: "Node"
+  };
+}();
+`;
+
+exports[`matches expected output: fragment.txt 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+var Relay = require('react-relay');
+var x = Relay.QL\`fragment on Node { id }\`;
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+var Relay = require('react-relay');
+
+var x = function () {
+  return {
+    children: [{
+      fieldName: "id",
+      kind: "Field",
+      metadata: {
+        isRequisite: true
+      },
+      type: "String"
+    }, {
+      fieldName: "__typename",
+      kind: "Field",
+      metadata: {
+        isGenerated: true,
+        isRequisite: true
+      },
+      type: "String"
+    }],
+    id: Relay.QL.__id(),
+    kind: "Fragment",
+    metadata: {
+      isAbstract: true
+    },
+    name: "UnknownFileRelayQL",
+    type: "Node"
+  };
+}();
+`;
+
+exports[`matches expected output: fragmentDirectives.txt 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+var Relay = require('react-relay');
+var x = Relay.QL\`fragment on Node @relay(plural: true) { id }\`;
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+var Relay = require('react-relay');
+
+var x = function () {
+  return {
+    children: [{
+      fieldName: "id",
+      kind: "Field",
+      metadata: {
+        isRequisite: true
+      },
+      type: "String"
+    }, {
+      fieldName: "__typename",
+      kind: "Field",
+      metadata: {
+        isGenerated: true,
+        isRequisite: true
+      },
+      type: "String"
+    }],
+    id: Relay.QL.__id(),
+    kind: "Fragment",
+    metadata: {
+      plural: true,
+      isAbstract: true
+    },
+    name: "UnknownFileRelayQL",
+    type: "Node"
+  };
+}();
+`;
+
+exports[`matches expected output: fragmentOnBadType.txt 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+var Relay = require('react-relay');
+var x = Relay.QL\`fragment on NotAType { id }\`;
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+ERROR:
+
+Error: undefined: GraphQL Validation Error: Unknown type "NotAType". Did you mean "__Type"?
+>
+> fragment UnknownFileRelayQL on NotAType { id }
+>                                ^^^
+  1 | var Relay = require('react-relay');
+> 2 | var x = Relay.QL\`fragment on NotAType { id }\`;
+    |         ^
+  3 | 
+`;
+
+exports[`matches expected output: fragmentWithModuleName.txt 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+var Relay = require('react-relay');
+var x = Relay.QL\`fragment Foo on Node { id }\`;
+var y = Relay.QL\`fragment Bar on Node { id }\`;
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+var Relay = require('react-relay');
+
+var x = function () {
+  return {
+    children: [{
+      fieldName: "id",
+      kind: "Field",
+      metadata: {
+        isRequisite: true
+      },
+      type: "String"
+    }, {
+      fieldName: "__typename",
+      kind: "Field",
+      metadata: {
+        isGenerated: true,
+        isRequisite: true
+      },
+      type: "String"
+    }],
+    id: Relay.QL.__id(),
+    kind: "Fragment",
+    metadata: {
+      isAbstract: true
+    },
+    name: "Foo",
+    type: "Node"
+  };
+}();
+
+var y = function () {
+  return {
+    children: [{
+      fieldName: "id",
+      kind: "Field",
+      metadata: {
+        isRequisite: true
+      },
+      type: "String"
+    }, {
+      fieldName: "__typename",
+      kind: "Field",
+      metadata: {
+        isGenerated: true,
+        isRequisite: true
+      },
+      type: "String"
+    }],
+    id: Relay.QL.__id(),
+    kind: "Fragment",
+    metadata: {
+      isAbstract: true
+    },
+    name: "Bar",
+    type: "Node"
+  };
+}();
+`;
+
+exports[`matches expected output: fragmentWithName.txt 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+var Relay = require('react-relay');
+var x = Relay.QL\`fragment FragmentNameHere on Node { id }\`;
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+var Relay = require('react-relay');
+
+var x = function () {
+  return {
+    children: [{
+      fieldName: "id",
+      kind: "Field",
+      metadata: {
+        isRequisite: true
+      },
+      type: "String"
+    }, {
+      fieldName: "__typename",
+      kind: "Field",
+      metadata: {
+        isGenerated: true,
+        isRequisite: true
+      },
+      type: "String"
+    }],
+    id: Relay.QL.__id(),
+    kind: "Fragment",
+    metadata: {
+      isAbstract: true
+    },
+    name: "FragmentNameHere",
+    type: "Node"
+  };
+}();
+`;
+
+exports[`matches expected output: fragmentWithPossibleId.txt 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+var Relay = require('react-relay');
+var x = Relay.QL\`
+  fragment on Actor {
+    name
+    ... on User { id }
+  }
+\`;
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+var Relay = require('react-relay');
+
+var x = function () {
+  return {
+    children: [{
+      fieldName: "name",
+      kind: "Field",
+      metadata: {},
+      type: "String"
+    }, {
+      fieldName: "__typename",
+      kind: "Field",
+      metadata: {
+        isGenerated: true,
+        isRequisite: true
+      },
+      type: "String"
+    }, {
+      children: [{
+        fieldName: "id",
+        kind: "Field",
+        metadata: {
+          isRequisite: true
+        },
+        type: "String"
+      }],
+      id: Relay.QL.__id(),
+      kind: "Fragment",
+      metadata: {},
+      name: "User",
+      type: "User"
+    }, {
+      children: [{
+        fieldName: "id",
+        kind: "Field",
+        metadata: {
+          isGenerated: true,
+          isRequisite: true
+        },
+        type: "String"
+      }, {
+        fieldName: "__typename",
+        kind: "Field",
+        metadata: {
+          isGenerated: true,
+          isRequisite: true
+        },
+        type: "String"
+      }],
+      id: Relay.QL.__id(),
+      kind: "Fragment",
+      metadata: {
+        isAbstract: true
+      },
+      name: "IdFragment",
+      type: "Node"
+    }],
+    id: Relay.QL.__id(),
+    kind: "Fragment",
+    metadata: {
+      isAbstract: true
+    },
+    name: "UnknownFileRelayQL",
+    type: "Actor"
+  };
+}();
+`;
+
+exports[`matches expected output: fragmentWithReference.txt 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+var Relay = require('react-relay');
+var x = Relay.QL\`fragment on Node { \${reference} }\`;
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+var Relay = require('react-relay');
+
+var x = function (RQL_0) {
+  return {
+    children: [].concat.apply([], [{
+      fieldName: "id",
+      kind: "Field",
+      metadata: {
+        isGenerated: true,
+        isRequisite: true
+      },
+      type: "String"
+    }, {
+      fieldName: "__typename",
+      kind: "Field",
+      metadata: {
+        isGenerated: true,
+        isRequisite: true
+      },
+      type: "String"
+    }, Relay.QL.__frag(RQL_0)]),
+    id: Relay.QL.__id(),
+    kind: "Fragment",
+    metadata: {
+      isAbstract: true
+    },
+    name: "UnknownFileRelayQL",
+    type: "Node"
+  };
+}(reference);
+`;
+
+exports[`matches expected output: fragmentWithoutCommas.txt 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+var Relay = require('react-relay');
+var x = Relay.QL\`
+  fragment on Node {
+    \${reference}
+    id
+  }
+\`;
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+var Relay = require('react-relay');
+
+var x = function (RQL_0) {
+  return {
+    children: [].concat.apply([], [{
+      fieldName: "id",
+      kind: "Field",
+      metadata: {
+        isRequisite: true
+      },
+      type: "String"
+    }, {
+      fieldName: "__typename",
+      kind: "Field",
+      metadata: {
+        isGenerated: true,
+        isRequisite: true
+      },
+      type: "String"
+    }, Relay.QL.__frag(RQL_0)]),
+    id: Relay.QL.__id(),
+    kind: "Fragment",
+    metadata: {
+      isAbstract: true
+    },
+    name: "UnknownFileRelayQL",
+    type: "Node"
+  };
+}(reference);
+`;
+
+exports[`matches expected output: inlineFragment.txt 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+var Relay = require('react-relay');
+var x = Relay.QL\`
+  fragment on Node {
+    ... on User {
+      userOnlyField
+    }
+  }
+\`;
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+var Relay = require('react-relay');
+
+var x = function () {
+  return {
+    children: [{
+      fieldName: "id",
+      kind: "Field",
+      metadata: {
+        isGenerated: true,
+        isRequisite: true
+      },
+      type: "String"
+    }, {
+      fieldName: "__typename",
+      kind: "Field",
+      metadata: {
+        isGenerated: true,
+        isRequisite: true
+      },
+      type: "String"
+    }, {
+      children: [{
+        fieldName: "userOnlyField",
+        kind: "Field",
+        metadata: {},
+        type: "String"
+      }, {
+        fieldName: "id",
+        kind: "Field",
+        metadata: {
+          isGenerated: true,
+          isRequisite: true
+        },
+        type: "String"
+      }],
+      id: Relay.QL.__id(),
+      kind: "Fragment",
+      metadata: {},
+      name: "User",
+      type: "User"
+    }],
+    id: Relay.QL.__id(),
+    kind: "Fragment",
+    metadata: {
+      isAbstract: true
+    },
+    name: "UnknownFileRelayQL",
+    type: "Node"
+  };
+}();
+`;
+
+exports[`matches expected output: inlineFragmentWithoutType.txt 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+var Relay = require('react-relay');
+/*
+TODO: Upgrade to graphql@0.4.7 and uncomment this.
+
+var x = Relay.QL\`
+  fragment on Node {
+    ... {
+      id
+    }
+  }
+\`;
+*/
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+var Relay = require('react-relay');
+/*
+TODO: Upgrade to graphql@0.4.7 and uncomment this.
+
+var x = Relay.QL\`
+  fragment on Node {
+    ... {
+      id
+    }
+  }
+\`;
+*/
+`;
+
+exports[`matches expected output: introspectionQueryForSchema.txt 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+var foo = Relay.QL\`
+  query IntrospectionQueryForSchema {
+    __schema {
+      types {
+        name
+      }
+    }
+  }
+\`;
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+var foo = function () {
+  return {
+    children: [{
+      children: [{
+        fieldName: "name",
+        kind: "Field",
+        metadata: {},
+        type: "String"
+      }],
+      fieldName: "types",
+      kind: "Field",
+      metadata: {
+        canHaveSubselections: true,
+        isPlural: true
+      },
+      type: "__Type"
+    }],
+    fieldName: "__schema",
+    kind: "Query",
+    metadata: {},
+    name: "IntrospectionQueryForSchema",
+    type: "__Schema"
+  };
+}();
+`;
+
+exports[`matches expected output: introspectionQueryForType.txt 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+var foo = Relay.QL\`
+  query IntrospectionQueryForType {
+    __type(name: "Root") {
+      name
+    }
+  }
+\`;
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+var foo = function () {
+  return {
+    calls: [{
+      kind: "Call",
+      metadata: {
+        type: "String!"
+      },
+      name: "name",
+      value: {
+        kind: "CallValue",
+        callValue: "Root"
+      }
+    }],
+    children: [{
+      fieldName: "name",
+      kind: "Field",
+      metadata: {},
+      type: "String"
+    }],
+    fieldName: "__type",
+    kind: "Query",
+    metadata: {
+      identifyingArgName: "name",
+      identifyingArgType: "String!"
+    },
+    name: "IntrospectionQueryForType",
+    type: "__Type"
+  };
+}();
+`;
+
+exports[`matches expected output: metadataConnection.txt 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+var Relay = require('react-relay');
+var x = Relay.QL\`
+  query {
+    node(id: 123) {
+      ... on User {
+        friends(first: 3) {
+          edges {
+            node {
+              name
+            }
+          }
+        }
+      }
+    }
+  }
+\`;
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+var Relay = require('react-relay');
+
+var x = function () {
+  return {
+    calls: [{
+      kind: "Call",
+      metadata: {
+        type: "ID!"
+      },
+      name: "id",
+      value: {
+        kind: "CallValue",
+        callValue: 123
+      }
+    }],
+    children: [{
+      fieldName: "id",
+      kind: "Field",
+      metadata: {
+        isGenerated: true,
+        isRequisite: true
+      },
+      type: "String"
+    }, {
+      fieldName: "__typename",
+      kind: "Field",
+      metadata: {
+        isGenerated: true,
+        isRequisite: true
+      },
+      type: "String"
+    }, {
+      children: [{
+        calls: [{
+          kind: "Call",
+          metadata: {
+            type: "Int"
+          },
+          name: "first",
+          value: {
+            kind: "CallValue",
+            callValue: 3
+          }
+        }],
+        children: [{
+          children: [{
+            children: [{
+              fieldName: "name",
+              kind: "Field",
+              metadata: {},
+              type: "String"
+            }, {
+              fieldName: "id",
+              kind: "Field",
+              metadata: {
+                isGenerated: true,
+                isRequisite: true
+              },
+              type: "String"
+            }],
+            fieldName: "node",
+            kind: "Field",
+            metadata: {
+              canHaveSubselections: true,
+              inferredRootCallName: "node",
+              inferredPrimaryKey: "id",
+              isRequisite: true
+            },
+            type: "User"
+          }, {
+            fieldName: "cursor",
+            kind: "Field",
+            metadata: {
+              isGenerated: true,
+              isRequisite: true
+            },
+            type: "String"
+          }],
+          fieldName: "edges",
+          kind: "Field",
+          metadata: {
+            canHaveSubselections: true,
+            isPlural: true
+          },
+          type: "UserConnectionEdge"
+        }, {
+          children: [{
+            fieldName: "hasNextPage",
+            kind: "Field",
+            metadata: {
+              isGenerated: true,
+              isRequisite: true
+            },
+            type: "Boolean"
+          }, {
+            fieldName: "hasPreviousPage",
+            kind: "Field",
+            metadata: {
+              isGenerated: true,
+              isRequisite: true
+            },
+            type: "Boolean"
+          }],
+          fieldName: "pageInfo",
+          kind: "Field",
+          metadata: {
+            canHaveSubselections: true,
+            isGenerated: true,
+            isRequisite: true
+          },
+          type: "PageInfo"
+        }],
+        fieldName: "friends",
+        kind: "Field",
+        metadata: {
+          canHaveSubselections: true,
+          isConnection: true,
+          isFindable: true
+        },
+        type: "UserConnection"
+      }, {
+        fieldName: "id",
+        kind: "Field",
+        metadata: {
+          isGenerated: true,
+          isRequisite: true
+        },
+        type: "String"
+      }],
+      id: Relay.QL.__id(),
+      kind: "Fragment",
+      metadata: {},
+      name: "User",
+      type: "User"
+    }],
+    fieldName: "node",
+    kind: "Query",
+    metadata: {
+      isAbstract: true,
+      identifyingArgName: "id",
+      identifyingArgType: "ID!"
+    },
+    name: "UnknownFile",
+    type: "Node"
+  };
+}();
+`;
+
+exports[`matches expected output: metadataConnectionLimitable.txt 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+var Relay = require('react-relay');
+var x = Relay.QL\`
+  query {
+    viewer {
+      configs {
+        edges {
+          node {
+            name
+          }
+        }
+      }
+    }
+  }
+\`;
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+var Relay = require('react-relay');
+
+var x = function () {
+  return {
+    children: [{
+      children: [{
+        children: [{
+          children: [{
+            fieldName: "name",
+            kind: "Field",
+            metadata: {},
+            type: "String"
+          }],
+          fieldName: "node",
+          kind: "Field",
+          metadata: {
+            canHaveSubselections: true,
+            isRequisite: true
+          },
+          type: "Config"
+        }, {
+          fieldName: "cursor",
+          kind: "Field",
+          metadata: {
+            isGenerated: true,
+            isRequisite: true
+          },
+          type: "String"
+        }],
+        fieldName: "edges",
+        kind: "Field",
+        metadata: {
+          canHaveSubselections: true,
+          isPlural: true
+        },
+        type: "ConfigsConnectionEdge"
+      }],
+      fieldName: "configs",
+      kind: "Field",
+      metadata: {
+        canHaveSubselections: true
+      },
+      type: "ConfigsConnection"
+    }],
+    fieldName: "viewer",
+    kind: "Query",
+    metadata: {},
+    name: "UnknownFile",
+    type: "Viewer"
+  };
+}();
+`;
+
+exports[`matches expected output: metadataDynamic.txt 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+var Relay = require('react-relay');
+var x = Relay.QL\`
+  fragment on NewsFeedConnection {
+    edges {
+      node {
+        id
+        ... on Story {
+          attachments
+        }
+      }
+    }
+  }
+\`;
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+var Relay = require('react-relay');
+
+var x = function () {
+  return {
+    children: [{
+      children: [{
+        children: [{
+          fieldName: "id",
+          kind: "Field",
+          metadata: {
+            isRequisite: true
+          },
+          type: "String"
+        }, {
+          fieldName: "__typename",
+          kind: "Field",
+          metadata: {
+            isGenerated: true,
+            isRequisite: true
+          },
+          type: "String"
+        }, {
+          children: [{
+            children: [{
+              fieldName: "id",
+              kind: "Field",
+              metadata: {
+                isGenerated: true,
+                isRequisite: true
+              },
+              type: "String"
+            }, {
+              fieldName: "__typename",
+              kind: "Field",
+              metadata: {
+                isGenerated: true,
+                isRequisite: true
+              },
+              type: "String"
+            }],
+            fieldName: "attachments",
+            kind: "Field",
+            metadata: {
+              canHaveSubselections: true,
+              inferredRootCallName: "node",
+              inferredPrimaryKey: "id",
+              isAbstract: true,
+              isPlural: true
+            },
+            type: "Node"
+          }, {
+            fieldName: "id",
+            kind: "Field",
+            metadata: {
+              isGenerated: true,
+              isRequisite: true
+            },
+            type: "String"
+          }],
+          id: Relay.QL.__id(),
+          kind: "Fragment",
+          metadata: {},
+          name: "Story",
+          type: "Story"
+        }],
+        fieldName: "node",
+        kind: "Field",
+        metadata: {
+          canHaveSubselections: true,
+          inferredRootCallName: "node",
+          inferredPrimaryKey: "id",
+          isAbstract: true,
+          isRequisite: true
+        },
+        type: "Node"
+      }, {
+        fieldName: "cursor",
+        kind: "Field",
+        metadata: {
+          isGenerated: true,
+          isRequisite: true
+        },
+        type: "String"
+      }],
+      fieldName: "edges",
+      kind: "Field",
+      metadata: {
+        canHaveSubselections: true,
+        isPlural: true
+      },
+      type: "NewsFeedConnectionEdge"
+    }, {
+      children: [{
+        fieldName: "hasNextPage",
+        kind: "Field",
+        metadata: {
+          isGenerated: true,
+          isRequisite: true
+        },
+        type: "Boolean"
+      }, {
+        fieldName: "hasPreviousPage",
+        kind: "Field",
+        metadata: {
+          isGenerated: true,
+          isRequisite: true
+        },
+        type: "Boolean"
+      }],
+      fieldName: "pageInfo",
+      kind: "Field",
+      metadata: {
+        canHaveSubselections: true,
+        isGenerated: true,
+        isRequisite: true
+      },
+      type: "PageInfo"
+    }],
+    id: Relay.QL.__id(),
+    kind: "Fragment",
+    metadata: {},
+    name: "UnknownFileRelayQL",
+    type: "NewsFeedConnection"
+  };
+}();
+`;
+
+exports[`matches expected output: metadataGenerated.txt 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+var Relay = require('react-relay');
+var x = Relay.QL\`
+  query {
+    node(id: 123)
+  }
+\`;
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+var Relay = require('react-relay');
+
+var x = function () {
+  return {
+    calls: [{
+      kind: "Call",
+      metadata: {
+        type: "ID!"
+      },
+      name: "id",
+      value: {
+        kind: "CallValue",
+        callValue: 123
+      }
+    }],
+    children: [{
+      fieldName: "id",
+      kind: "Field",
+      metadata: {
+        isGenerated: true,
+        isRequisite: true
+      },
+      type: "String"
+    }, {
+      fieldName: "__typename",
+      kind: "Field",
+      metadata: {
+        isGenerated: true,
+        isRequisite: true
+      },
+      type: "String"
+    }],
+    fieldName: "node",
+    kind: "Query",
+    metadata: {
+      isAbstract: true,
+      identifyingArgName: "id",
+      identifyingArgType: "ID!"
+    },
+    name: "UnknownFile",
+    type: "Node"
+  };
+}();
+`;
+
+exports[`matches expected output: metadataNonFindable.txt 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+var Relay = require('react-relay');
+var x = Relay.QL\`
+  query {
+    viewer {
+      pendingPosts {
+        count
+      }
+    }
+  }
+\`;
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+var Relay = require('react-relay');
+
+var x = function () {
+  return {
+    children: [{
+      children: [{
+        fieldName: "count",
+        kind: "Field",
+        metadata: {},
+        type: "Int"
+      }],
+      fieldName: "pendingPosts",
+      kind: "Field",
+      metadata: {
+        canHaveSubselections: true,
+        isConnection: true
+      },
+      type: "PendingPostsConnection"
+    }],
+    fieldName: "viewer",
+    kind: "Query",
+    metadata: {},
+    name: "UnknownFile",
+    type: "Viewer"
+  };
+}();
+`;
+
+exports[`matches expected output: metadataPlural.txt 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+var Relay = require('react-relay');
+var x = Relay.QL\`
+  query {
+    node(id: 123) {
+      ... on User {
+        websites
+      }
+    }
+  }
+\`;
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+var Relay = require('react-relay');
+
+var x = function () {
+  return {
+    calls: [{
+      kind: "Call",
+      metadata: {
+        type: "ID!"
+      },
+      name: "id",
+      value: {
+        kind: "CallValue",
+        callValue: 123
+      }
+    }],
+    children: [{
+      fieldName: "id",
+      kind: "Field",
+      metadata: {
+        isGenerated: true,
+        isRequisite: true
+      },
+      type: "String"
+    }, {
+      fieldName: "__typename",
+      kind: "Field",
+      metadata: {
+        isGenerated: true,
+        isRequisite: true
+      },
+      type: "String"
+    }, {
+      children: [{
+        fieldName: "websites",
+        kind: "Field",
+        metadata: {
+          isPlural: true
+        },
+        type: "String"
+      }, {
+        fieldName: "id",
+        kind: "Field",
+        metadata: {
+          isGenerated: true,
+          isRequisite: true
+        },
+        type: "String"
+      }],
+      id: Relay.QL.__id(),
+      kind: "Fragment",
+      metadata: {},
+      name: "User",
+      type: "User"
+    }],
+    fieldName: "node",
+    kind: "Query",
+    metadata: {
+      isAbstract: true,
+      identifyingArgName: "id",
+      identifyingArgType: "ID!"
+    },
+    name: "UnknownFile",
+    type: "Node"
+  };
+}();
+`;
+
+exports[`matches expected output: metadataRequisite.txt 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+var Relay = require('react-relay');
+var x = Relay.QL\`fragment on Node { id }\`;
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+var Relay = require('react-relay');
+
+var x = function () {
+  return {
+    children: [{
+      fieldName: "id",
+      kind: "Field",
+      metadata: {
+        isRequisite: true
+      },
+      type: "String"
+    }, {
+      fieldName: "__typename",
+      kind: "Field",
+      metadata: {
+        isGenerated: true,
+        isRequisite: true
+      },
+      type: "String"
+    }],
+    id: Relay.QL.__id(),
+    kind: "Fragment",
+    metadata: {
+      isAbstract: true
+    },
+    name: "UnknownFileRelayQL",
+    type: "Node"
+  };
+}();
+`;
+
+exports[`matches expected output: metadataVarArgs.txt 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+var Relay = require('react-relay');
+var x = Relay.QL\`
+  fragment on User {
+    friends(orderby: $order) {
+      count
+    }
+  }
+\`;
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+var Relay = require('react-relay');
+
+var x = function () {
+  return {
+    children: [{
+      calls: [{
+        kind: "Call",
+        metadata: {},
+        name: "orderby",
+        value: {
+          kind: "CallVariable",
+          callVariableName: "order"
+        }
+      }],
+      children: [{
+        fieldName: "count",
+        kind: "Field",
+        metadata: {},
+        type: "Int"
+      }],
+      fieldName: "friends",
+      kind: "Field",
+      metadata: {
+        canHaveSubselections: true,
+        isConnection: true,
+        isFindable: true
+      },
+      type: "UserConnection"
+    }, {
+      fieldName: "id",
+      kind: "Field",
+      metadata: {
+        isGenerated: true,
+        isRequisite: true
+      },
+      type: "String"
+    }],
+    id: Relay.QL.__id(),
+    kind: "Fragment",
+    metadata: {},
+    name: "UnknownFileRelayQL",
+    type: "User"
+  };
+}();
+`;
+
+exports[`matches expected output: mutation.txt 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+var Relay = require('react-relay');
+var x = Relay.QL\`
+  mutation {
+    actorSubscribe(input: $input) {
+      actor {
+        profilePicture
+      }
+    }
+  }
+\`;
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+var Relay = require('react-relay');
+
+var x = function () {
+  return {
+    calls: [{
+      kind: "Call",
+      metadata: {},
+      name: "actorSubscribe",
+      value: {
+        kind: "CallVariable",
+        callVariableName: "input"
+      }
+    }],
+    children: [{
+      children: [{
+        fieldName: "profilePicture",
+        kind: "Field",
+        metadata: {
+          canHaveSubselections: true
+        },
+        type: "ProfilePicture"
+      }, {
+        fieldName: "id",
+        kind: "Field",
+        metadata: {
+          isGenerated: true,
+          isRequisite: true
+        },
+        type: "String"
+      }],
+      fieldName: "actor",
+      kind: "Field",
+      metadata: {
+        canHaveSubselections: true,
+        inferredRootCallName: "node",
+        inferredPrimaryKey: "id"
+      },
+      type: "User"
+    }, {
+      fieldName: "clientMutationId",
+      kind: "Field",
+      metadata: {
+        isGenerated: true,
+        isRequisite: true
+      },
+      type: "String"
+    }],
+    kind: "Mutation",
+    metadata: {
+      inputType: "ActorSubscribeInput"
+    },
+    name: "UnknownFile",
+    responseType: "ActorSubscribeResponsePayload"
+  };
+}();
+`;
+
+exports[`matches expected output: mutationBadSchemaMissingArgs.txt 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+var Relay = require('react-relay');
+var x = Relay.QL\`
+  mutation {
+    mutationMissingArg
+  }
+\`;
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+ERROR:
+
+Error: undefined: Relay Transform Error: Your schema defines a mutation field \`mutationMissingArg\` that takes 0 arguments, but mutation fields must have exactly one argument named \`input\`.
+  1 | var Relay = require('react-relay');
+> 2 | var x = Relay.QL\`
+    |         ^
+  3 |   mutation {
+  4 |     mutationMissingArg
+  5 |   }
+`;
+
+exports[`matches expected output: mutationBadSchemaWrongArgs.txt 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+var Relay = require('react-relay');
+var x = Relay.QL\`
+  mutation {
+    mutationWrongArgs
+  }
+\`;
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+ERROR:
+
+Error: undefined: Relay Transform Error: Your schema defines a mutation field \`mutationWrongArgs\` that takes an argument named \`foo\`, but mutation fields must have exactly one argument named \`input\`.
+  1 | var Relay = require('react-relay');
+> 2 | var x = Relay.QL\`
+    |         ^
+  3 |   mutation {
+  4 |     mutationWrongArgs
+  5 |   }
+`;
+
+exports[`matches expected output: mutationWithExtraArgs.txt 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+var Relay = require('react-relay');
+var x = Relay.QL\`
+  mutation MutationNameHere {
+    actorSubscribe(input: $input, extra: $extra) {
+      \${reference}
+    }
+  }
+\`;
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+ERROR:
+
+Error: undefined: GraphQL Validation Error: Unknown argument "extra" on field "actorSubscribe" of type "Mutation".
+>
+>     actorSubscribe(input: $input, extra: $extra) {
+>                                   ^^^
+  1 | var Relay = require('react-relay');
+> 2 | var x = Relay.QL\`
+    |         ^
+  3 |   mutation MutationNameHere {
+  4 |     actorSubscribe(input: $input, extra: $extra) {
+  5 |       \${reference}
+`;
+
+exports[`matches expected output: mutationWithName.txt 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+var Relay = require('react-relay');
+var x = Relay.QL\`
+  mutation MutationNameHere {
+    actorSubscribe(input: $input) {
+      \${reference}
+    }
+  }
+\`;
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+var Relay = require('react-relay');
+
+var x = function (RQL_0) {
+  return {
+    calls: [{
+      kind: "Call",
+      metadata: {},
+      name: "actorSubscribe",
+      value: {
+        kind: "CallVariable",
+        callVariableName: "input"
+      }
+    }],
+    children: [].concat.apply([], [{
+      fieldName: "clientMutationId",
+      kind: "Field",
+      metadata: {
+        isGenerated: true,
+        isRequisite: true
+      },
+      type: "String"
+    }, Relay.QL.__frag(RQL_0)]),
+    kind: "Mutation",
+    metadata: {
+      inputType: "ActorSubscribeInput"
+    },
+    name: "MutationNameHere",
+    responseType: "ActorSubscribeResponsePayload"
+  };
+}(reference);
+`;
+
+exports[`matches expected output: mutationWithoutArgs.txt 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+var Relay = require('react-relay');
+var x = Relay.QL\`
+  mutation {
+    actorSubscribe
+  }
+\`;
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+var Relay = require('react-relay');
+
+var x = function () {
+  return {
+    calls: [{
+      kind: "Call",
+      metadata: {},
+      name: "actorSubscribe",
+      value: {
+        kind: "CallVariable",
+        callVariableName: "input"
+      }
+    }],
+    children: [{
+      fieldName: "clientMutationId",
+      kind: "Field",
+      metadata: {
+        isGenerated: true,
+        isRequisite: true
+      },
+      type: "String"
+    }],
+    kind: "Mutation",
+    metadata: {
+      inputType: "ActorSubscribeInput"
+    },
+    name: "UnknownFile",
+    responseType: "ActorSubscribeResponsePayload"
+  };
+}();
+`;
+
+exports[`matches expected output: nonExistentMutation.txt 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+var Relay = require('react-relay');
+var x = Relay.QL\`
+  mutation {
+    fakeMutation(input: $input) {
+      actor {
+        profilePicture
+      }
+    }
+  }
+\`;
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+ERROR:
+
+Error: undefined: GraphQL Validation Error: Cannot query field "fakeMutation" on type "Mutation".
+>
+>     fakeMutation(input: $input) {
+>     ^^^
+  1 | var Relay = require('react-relay');
+> 2 | var x = Relay.QL\`
+    |         ^
+  3 |   mutation {
+  4 |     fakeMutation(input: $input) {
+  5 |       actor {
+`;
+
+exports[`matches expected output: nonRootNodeField.txt 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+const RelayClassic = require('react-relay/classic');
+var fragment = RelayClassic.QL\`
+  fragment on InvalidType {
+    node(id: 123) {
+      ... on User {
+        name
+      }
+    }
+  }
+\`;
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+ERROR:
+
+Error: undefined: Relay Transform Error: You defined a \`node(id: Int)\` field on type \`InvalidType\`, but Relay requires the \`node\` field to be defined on the root type. See the Object Identification Guide: 
+http://facebook.github.io/relay/docs/graphql-object-identification.html
+  1 | const RelayClassic = require('react-relay/classic');
+> 2 | var fragment = RelayClassic.QL\`
+    |                ^
+  3 |   fragment on InvalidType {
+  4 |     node(id: 123) {
+  5 |       ... on User {
+`;
+
+exports[`matches expected output: pluralField.txt 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+var Relay = require('react-relay');
+var x = Relay.QL\`
+  query {
+    node(id: 456) {
+      ... on Story {
+        actors {
+          id
+          __typename
+        }
+      }
+    }
+  }
+\`;
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+var Relay = require('react-relay');
+
+var x = function () {
+  return {
+    calls: [{
+      kind: "Call",
+      metadata: {
+        type: "ID!"
+      },
+      name: "id",
+      value: {
+        kind: "CallValue",
+        callValue: 456
+      }
+    }],
+    children: [{
+      fieldName: "id",
+      kind: "Field",
+      metadata: {
+        isGenerated: true,
+        isRequisite: true
+      },
+      type: "String"
+    }, {
+      fieldName: "__typename",
+      kind: "Field",
+      metadata: {
+        isGenerated: true,
+        isRequisite: true
+      },
+      type: "String"
+    }, {
+      children: [{
+        children: [{
+          fieldName: "id",
+          kind: "Field",
+          metadata: {
+            isRequisite: true
+          },
+          type: "String"
+        }, {
+          fieldName: "__typename",
+          kind: "Field",
+          metadata: {},
+          type: "String"
+        }],
+        fieldName: "actors",
+        kind: "Field",
+        metadata: {
+          canHaveSubselections: true,
+          inferredRootCallName: "node",
+          inferredPrimaryKey: "id",
+          isPlural: true
+        },
+        type: "User"
+      }, {
+        fieldName: "id",
+        kind: "Field",
+        metadata: {
+          isGenerated: true,
+          isRequisite: true
+        },
+        type: "String"
+      }],
+      id: Relay.QL.__id(),
+      kind: "Fragment",
+      metadata: {},
+      name: "Story",
+      type: "Story"
+    }],
+    fieldName: "node",
+    kind: "Query",
+    metadata: {
+      isAbstract: true,
+      identifyingArgName: "id",
+      identifyingArgType: "ID!"
+    },
+    name: "UnknownFile",
+    type: "Node"
+  };
+}();
+`;
+
+exports[`matches expected output: queryWithArrayObjectArg.txt 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+const RelayClassic = require('react-relay/classic');
+var q = RelayClassic.QL\`
+  query {
+    searchAll(queries: [$query]) {
+      title
+    }
+  }
+\`;
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+const RelayClassic = require('react-relay/classic');
+
+var q = function () {
+  return {
+    calls: [{
+      kind: "Call",
+      metadata: {
+        type: "[SearchInput!]!"
+      },
+      name: "queries",
+      value: [{
+        kind: "CallVariable",
+        callVariableName: "query"
+      }]
+    }],
+    children: [{
+      fieldName: "title",
+      kind: "Field",
+      metadata: {},
+      type: "String"
+    }],
+    fieldName: "searchAll",
+    kind: "Query",
+    metadata: {
+      isPlural: true,
+      identifyingArgName: "queries",
+      identifyingArgType: "[SearchInput!]!"
+    },
+    name: "UnknownFile",
+    type: "SearchResult"
+  };
+}();
+`;
+
+exports[`matches expected output: queryWithArrayObjectNestedVariable.txt 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+const RelayClassic = require('react-relay/classic');
+var q = RelayClassic.QL\`
+  query {
+    searchAll(queries: [{queryText: $query}]) {
+      title
+    }
+  }
+\`;
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+ERROR:
+
+Error: undefined: Relay Transform Error: Unexpected nested variable \`query\`; variables are supported as top-level arguments - \`node(id: $id)\` - or directly within lists - \`nodes(ids: [$id])\`.
+  1 | const RelayClassic = require('react-relay/classic');
+> 2 | var q = RelayClassic.QL\`
+    |         ^
+  3 |   query {
+  4 |     searchAll(queries: [{queryText: $query}]) {
+  5 |       title
+`;
+
+exports[`matches expected output: queryWithArrayObjectValue.txt 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+const RelayClassic = require('react-relay/classic');
+var q = RelayClassic.QL\`
+  query {
+    searchAll(queries: [{queryText: "RelayClassic"}]) {
+      title
+    }
+  }
+\`;
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+const RelayClassic = require('react-relay/classic');
+
+var q = function () {
+  return {
+    calls: [{
+      kind: "Call",
+      metadata: {
+        type: "[SearchInput!]!"
+      },
+      name: "queries",
+      value: [{
+        kind: "CallValue",
+        callValue: {
+          queryText: "RelayClassic"
+        }
+      }]
+    }],
+    children: [{
+      fieldName: "title",
+      kind: "Field",
+      metadata: {},
+      type: "String"
+    }],
+    fieldName: "searchAll",
+    kind: "Query",
+    metadata: {
+      isPlural: true,
+      identifyingArgName: "queries",
+      identifyingArgType: "[SearchInput!]!"
+    },
+    name: "UnknownFile",
+    type: "SearchResult"
+  };
+}();
+`;
+
+exports[`matches expected output: queryWithBadDirective.txt 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+var Relay = require('react-relay');
+var x = Relay.QL\`
+  query {
+    node(id: 123) @bad(if: $foo) {
+      id
+    }
+  }
+\`;
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+ERROR:
+
+Error: undefined: Relay Transform Error: You supplied a directive named \`bad\`, but no such directive exists.
+  1 | var Relay = require('react-relay');
+> 2 | var x = Relay.QL\`
+    |         ^
+  3 |   query {
+  4 |     node(id: 123) @bad(if: $foo) {
+  5 |       id
+`;
+
+exports[`matches expected output: queryWithBadDirectiveArgs.txt 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+var Relay = require('react-relay');
+var x = Relay.QL\`
+  query {
+    node(id: 123) @if(bad: $foo) {
+      id
+    }
+  }
+\`;
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+ERROR:
+
+Error: undefined: Relay Transform Error: You supplied a directive named \`if\`, but no such directive exists.
+  1 | var Relay = require('react-relay');
+> 2 | var x = Relay.QL\`
+    |         ^
+  3 |   query {
+  4 |     node(id: 123) @if(bad: $foo) {
+  5 |       id
+`;
+
+exports[`matches expected output: queryWithDirectives.txt 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+var Relay = require('react-relay');
+var x = Relay.QL\`
+  query {
+    node(id: 123) @include(if: $foo) {
+      ... on User @include(if: $bar) {
+        name @skip(if: $baz)
+      }
+    }
+  }
+\`;
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+var Relay = require('react-relay');
+
+var x = function () {
+  return {
+    calls: [{
+      kind: "Call",
+      metadata: {
+        type: "ID!"
+      },
+      name: "id",
+      value: {
+        kind: "CallValue",
+        callValue: 123
+      }
+    }],
+    children: [{
+      fieldName: "id",
+      kind: "Field",
+      metadata: {
+        isGenerated: true,
+        isRequisite: true
+      },
+      type: "String"
+    }, {
+      fieldName: "__typename",
+      kind: "Field",
+      metadata: {
+        isGenerated: true,
+        isRequisite: true
+      },
+      type: "String"
+    }, {
+      children: [{
+        directives: [{
+          kind: "Directive",
+          name: "skip",
+          args: [{
+            name: "if",
+            value: {
+              kind: "CallVariable",
+              callVariableName: "baz"
+            }
+          }]
+        }],
+        fieldName: "name",
+        kind: "Field",
+        metadata: {},
+        type: "String"
+      }, {
+        fieldName: "id",
+        kind: "Field",
+        metadata: {
+          isGenerated: true,
+          isRequisite: true
+        },
+        type: "String"
+      }],
+      directives: [{
+        kind: "Directive",
+        name: "include",
+        args: [{
+          name: "if",
+          value: {
+            kind: "CallVariable",
+            callVariableName: "bar"
+          }
+        }]
+      }],
+      id: Relay.QL.__id(),
+      kind: "Fragment",
+      metadata: {},
+      name: "User",
+      type: "User"
+    }],
+    directives: [{
+      kind: "Directive",
+      name: "include",
+      args: [{
+        name: "if",
+        value: {
+          kind: "CallVariable",
+          callVariableName: "foo"
+        }
+      }]
+    }],
+    fieldName: "node",
+    kind: "Query",
+    metadata: {
+      isAbstract: true,
+      identifyingArgName: "id",
+      identifyingArgType: "ID!"
+    },
+    name: "UnknownFile",
+    type: "Node"
+  };
+}();
+`;
+
+exports[`matches expected output: queryWithFields.txt 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+var Relay = require('react-relay');
+var x = Relay.QL\`
+  query {
+    node(id: 123) {
+      ... on User {
+        name
+      }
+    }
+  }
+\`;
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+var Relay = require('react-relay');
+
+var x = function () {
+  return {
+    calls: [{
+      kind: "Call",
+      metadata: {
+        type: "ID!"
+      },
+      name: "id",
+      value: {
+        kind: "CallValue",
+        callValue: 123
+      }
+    }],
+    children: [{
+      fieldName: "id",
+      kind: "Field",
+      metadata: {
+        isGenerated: true,
+        isRequisite: true
+      },
+      type: "String"
+    }, {
+      fieldName: "__typename",
+      kind: "Field",
+      metadata: {
+        isGenerated: true,
+        isRequisite: true
+      },
+      type: "String"
+    }, {
+      children: [{
+        fieldName: "name",
+        kind: "Field",
+        metadata: {},
+        type: "String"
+      }, {
+        fieldName: "id",
+        kind: "Field",
+        metadata: {
+          isGenerated: true,
+          isRequisite: true
+        },
+        type: "String"
+      }],
+      id: Relay.QL.__id(),
+      kind: "Fragment",
+      metadata: {},
+      name: "User",
+      type: "User"
+    }],
+    fieldName: "node",
+    kind: "Query",
+    metadata: {
+      isAbstract: true,
+      identifyingArgName: "id",
+      identifyingArgType: "ID!"
+    },
+    name: "UnknownFile",
+    type: "Node"
+  };
+}();
+`;
+
+exports[`matches expected output: queryWithName.txt 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+var Relay = require('react-relay');
+var x = Relay.QL\`
+  query QueryNameHere {
+    node(id: 123) {
+      ... on User {
+        profilePicture {
+          uri
+        }
+      }
+    }
+  }
+\`;
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+var Relay = require('react-relay');
+
+var x = function () {
+  return {
+    calls: [{
+      kind: "Call",
+      metadata: {
+        type: "ID!"
+      },
+      name: "id",
+      value: {
+        kind: "CallValue",
+        callValue: 123
+      }
+    }],
+    children: [{
+      fieldName: "id",
+      kind: "Field",
+      metadata: {
+        isGenerated: true,
+        isRequisite: true
+      },
+      type: "String"
+    }, {
+      fieldName: "__typename",
+      kind: "Field",
+      metadata: {
+        isGenerated: true,
+        isRequisite: true
+      },
+      type: "String"
+    }, {
+      children: [{
+        children: [{
+          fieldName: "uri",
+          kind: "Field",
+          metadata: {},
+          type: "String"
+        }],
+        fieldName: "profilePicture",
+        kind: "Field",
+        metadata: {
+          canHaveSubselections: true
+        },
+        type: "ProfilePicture"
+      }, {
+        fieldName: "id",
+        kind: "Field",
+        metadata: {
+          isGenerated: true,
+          isRequisite: true
+        },
+        type: "String"
+      }],
+      id: Relay.QL.__id(),
+      kind: "Fragment",
+      metadata: {},
+      name: "User",
+      type: "User"
+    }],
+    fieldName: "node",
+    kind: "Query",
+    metadata: {
+      isAbstract: true,
+      identifyingArgName: "id",
+      identifyingArgType: "ID!"
+    },
+    name: "QueryNameHere",
+    type: "Node"
+  };
+}();
+`;
+
+exports[`matches expected output: queryWithNestedFields.txt 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+var Relay = require('react-relay');
+var x = Relay.QL\`
+  query {
+    node(id: 123) {
+      ... on User {
+        profilePicture {
+          uri
+        }
+      }
+    }
+  }
+\`;
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+var Relay = require('react-relay');
+
+var x = function () {
+  return {
+    calls: [{
+      kind: "Call",
+      metadata: {
+        type: "ID!"
+      },
+      name: "id",
+      value: {
+        kind: "CallValue",
+        callValue: 123
+      }
+    }],
+    children: [{
+      fieldName: "id",
+      kind: "Field",
+      metadata: {
+        isGenerated: true,
+        isRequisite: true
+      },
+      type: "String"
+    }, {
+      fieldName: "__typename",
+      kind: "Field",
+      metadata: {
+        isGenerated: true,
+        isRequisite: true
+      },
+      type: "String"
+    }, {
+      children: [{
+        children: [{
+          fieldName: "uri",
+          kind: "Field",
+          metadata: {},
+          type: "String"
+        }],
+        fieldName: "profilePicture",
+        kind: "Field",
+        metadata: {
+          canHaveSubselections: true
+        },
+        type: "ProfilePicture"
+      }, {
+        fieldName: "id",
+        kind: "Field",
+        metadata: {
+          isGenerated: true,
+          isRequisite: true
+        },
+        type: "String"
+      }],
+      id: Relay.QL.__id(),
+      kind: "Fragment",
+      metadata: {},
+      name: "User",
+      type: "User"
+    }],
+    fieldName: "node",
+    kind: "Query",
+    metadata: {
+      isAbstract: true,
+      identifyingArgName: "id",
+      identifyingArgType: "ID!"
+    },
+    name: "UnknownFile",
+    type: "Node"
+  };
+}();
+`;
+
+exports[`matches expected output: queryWithNestedFragments.txt 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+var Relay = require('react-relay');
+var x = Relay.QL\`
+  query {
+    node(id: 123) {
+      \${frag1}
+      \${frag2}
+      \${frag3}
+      \${frag4}
+      ... on User {
+        profilePicture {
+          uri
+          \${frag5}
+          \${frag6}
+          \${frag7}
+          \${frag8}
+        }
+      }
+      \${frag9}
+      \${frag10}
+      \${frag11}
+      \${frag12}
+    }
+  }
+\`;
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+var Relay = require('react-relay');
+
+var x = function (RQL_0, RQL_1, RQL_2, RQL_3, RQL_4, RQL_5, RQL_6, RQL_7, RQL_8, RQL_9, RQL_10, RQL_11) {
+  return {
+    calls: [{
+      kind: "Call",
+      metadata: {
+        type: "ID!"
+      },
+      name: "id",
+      value: {
+        kind: "CallValue",
+        callValue: 123
+      }
+    }],
+    children: [].concat.apply([], [{
+      fieldName: "id",
+      kind: "Field",
+      metadata: {
+        isGenerated: true,
+        isRequisite: true
+      },
+      type: "String"
+    }, {
+      fieldName: "__typename",
+      kind: "Field",
+      metadata: {
+        isGenerated: true,
+        isRequisite: true
+      },
+      type: "String"
+    }, Relay.QL.__frag(RQL_0), Relay.QL.__frag(RQL_1), Relay.QL.__frag(RQL_2), Relay.QL.__frag(RQL_3), {
+      children: [{
+        children: [].concat.apply([], [{
+          fieldName: "uri",
+          kind: "Field",
+          metadata: {},
+          type: "String"
+        }, Relay.QL.__frag(RQL_4), Relay.QL.__frag(RQL_5), Relay.QL.__frag(RQL_6), Relay.QL.__frag(RQL_7)]),
+        fieldName: "profilePicture",
+        kind: "Field",
+        metadata: {
+          canHaveSubselections: true
+        },
+        type: "ProfilePicture"
+      }, {
+        fieldName: "id",
+        kind: "Field",
+        metadata: {
+          isGenerated: true,
+          isRequisite: true
+        },
+        type: "String"
+      }],
+      id: Relay.QL.__id(),
+      kind: "Fragment",
+      metadata: {},
+      name: "User",
+      type: "User"
+    }, Relay.QL.__frag(RQL_8), Relay.QL.__frag(RQL_9), Relay.QL.__frag(RQL_10), Relay.QL.__frag(RQL_11)]),
+    fieldName: "node",
+    kind: "Query",
+    metadata: {
+      isAbstract: true,
+      identifyingArgName: "id",
+      identifyingArgType: "ID!"
+    },
+    name: "UnknownFile",
+    type: "Node"
+  };
+}(frag1, frag2, frag3, frag4, frag5, frag6, frag7, frag8, frag9, frag10, frag11, frag12);
+`;
+
+exports[`matches expected output: queryWithNullLiteral.txt 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+var Relay = require('react-relay');
+var x = Relay.QL\`
+  query MediaQuery {
+    media(id: null) {
+      ... on Story {
+        id
+      }
+    }
+  }
+\`;
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+var Relay = require('react-relay');
+
+var x = function () {
+  return {
+    calls: [{
+      kind: "Call",
+      metadata: {
+        type: "Int"
+      },
+      name: "id",
+      value: {
+        kind: "CallValue",
+        callValue: null
+      }
+    }],
+    children: [{
+      fieldName: "__typename",
+      kind: "Field",
+      metadata: {
+        isGenerated: true,
+        isRequisite: true
+      },
+      type: "String"
+    }, {
+      children: [{
+        fieldName: "id",
+        kind: "Field",
+        metadata: {
+          isRequisite: true
+        },
+        type: "String"
+      }],
+      id: Relay.QL.__id(),
+      kind: "Fragment",
+      metadata: {},
+      name: "Story",
+      type: "Story"
+    }],
+    fieldName: "media",
+    kind: "Query",
+    metadata: {
+      isAbstract: true,
+      identifyingArgName: "id",
+      identifyingArgType: "Int"
+    },
+    name: "MediaQuery",
+    type: "Media"
+  };
+}();
+`;
+
+exports[`matches expected output: queryWithObjectArg.txt 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+const RelayClassic = require('react-relay/classic');
+var q = RelayClassic.QL\`
+  query {
+    search(query: $query) {
+      title
+    }
+  }
+\`;
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+const RelayClassic = require('react-relay/classic');
+
+var q = function () {
+  return {
+    calls: [{
+      kind: "Call",
+      metadata: {
+        type: "SearchInput!"
+      },
+      name: "query",
+      value: {
+        kind: "CallVariable",
+        callVariableName: "query"
+      }
+    }],
+    children: [{
+      fieldName: "title",
+      kind: "Field",
+      metadata: {},
+      type: "String"
+    }],
+    fieldName: "search",
+    kind: "Query",
+    metadata: {
+      isPlural: true,
+      identifyingArgName: "query",
+      identifyingArgType: "SearchInput!"
+    },
+    name: "UnknownFile",
+    type: "SearchResult"
+  };
+}();
+`;
+
+exports[`matches expected output: queryWithObjectArgNestedVariable.txt 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+const RelayClassic = require('react-relay/classic');
+var q = RelayClassic.QL\`
+  query {
+    search(query: {queryText: $query}) {
+      title
+    }
+  }
+\`;
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+ERROR:
+
+Error: undefined: Relay Transform Error: Unexpected nested variable \`query\`; variables are supported as top-level arguments - \`node(id: $id)\` - or directly within lists - \`nodes(ids: [$id])\`.
+  1 | const RelayClassic = require('react-relay/classic');
+> 2 | var q = RelayClassic.QL\`
+    |         ^
+  3 |   query {
+  4 |     search(query: {queryText: $query}) {
+  5 |       title
+`;
+
+exports[`matches expected output: queryWithObjectArgValue.txt 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+const RelayClassic = require('react-relay/classic');
+var q = RelayClassic.QL\`
+  query {
+    search(query: {queryText: "RelayClassic"}) {
+      title
+    }
+  }
+\`;
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+const RelayClassic = require('react-relay/classic');
+
+var q = function () {
+  return {
+    calls: [{
+      kind: "Call",
+      metadata: {
+        type: "SearchInput!"
+      },
+      name: "query",
+      value: {
+        kind: "CallValue",
+        callValue: {
+          queryText: "RelayClassic"
+        }
+      }
+    }],
+    children: [{
+      fieldName: "title",
+      kind: "Field",
+      metadata: {},
+      type: "String"
+    }],
+    fieldName: "search",
+    kind: "Query",
+    metadata: {
+      isPlural: true,
+      identifyingArgName: "query",
+      identifyingArgType: "SearchInput!"
+    },
+    name: "UnknownFile",
+    type: "SearchResult"
+  };
+}();
+`;
+
+exports[`matches expected output: queryWithVarArgs.txt 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+var Relay = require('react-relay');
+var x = Relay.QL\`
+  query {
+    nodes(ids: [123,456]) {
+      id
+    }
+  }
+\`;
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+var Relay = require('react-relay');
+
+var x = function () {
+  return {
+    calls: [{
+      kind: "Call",
+      metadata: {
+        type: "[ID!]"
+      },
+      name: "ids",
+      value: [{
+        kind: "CallValue",
+        callValue: 123
+      }, {
+        kind: "CallValue",
+        callValue: 456
+      }]
+    }],
+    children: [{
+      fieldName: "id",
+      kind: "Field",
+      metadata: {
+        isRequisite: true
+      },
+      type: "String"
+    }, {
+      fieldName: "__typename",
+      kind: "Field",
+      metadata: {
+        isGenerated: true,
+        isRequisite: true
+      },
+      type: "String"
+    }],
+    fieldName: "nodes",
+    kind: "Query",
+    metadata: {
+      isPlural: true,
+      isAbstract: true,
+      identifyingArgName: "ids",
+      identifyingArgType: "[ID!]"
+    },
+    name: "UnknownFile",
+    type: "Node"
+  };
+}();
+`;
+
+exports[`matches expected output: queryWithoutFields.txt 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+var Relay = require('react-relay');
+var x = Relay.QL\`query { viewer }\`;
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+var Relay = require('react-relay');
+
+var x = function () {
+  return {
+    fieldName: "viewer",
+    kind: "Query",
+    metadata: {},
+    name: "UnknownFile",
+    type: "Viewer"
+  };
+}();
+`;
+
+exports[`matches expected output: subscription.txt 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+var Relay = require('react-relay');
+var x = Relay.QL\`
+  subscription {
+    likeStory(input: $input) {
+      \${reference}
+    }
+  }
+\`;
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+var Relay = require('react-relay');
+
+var x = function (RQL_0) {
+  return {
+    calls: [{
+      kind: "Call",
+      metadata: {},
+      name: "likeStory",
+      value: {
+        kind: "CallVariable",
+        callVariableName: "input"
+      }
+    }],
+    children: [].concat.apply([], [{
+      fieldName: "clientSubscriptionId",
+      kind: "Field",
+      metadata: {
+        isGenerated: true,
+        isRequisite: true
+      },
+      type: "String"
+    }, Relay.QL.__frag(RQL_0)]),
+    kind: "Subscription",
+    metadata: {
+      inputType: "LikeStorySubscriptionInput"
+    },
+    name: "UnknownFile",
+    responseType: "LikeStorySubscriptionPayload"
+  };
+}(reference);
+`;
+
+exports[`matches expected output: tagRelayClassicQL.txt 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+var RelayClassic = require('react-relay/classic');
+var x = RelayClassic.QL\`
+  query {
+    node(id: 123) {
+      id
+    }
+  }
+\`;
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+var RelayClassic = require('react-relay/classic');
+
+var x = function () {
+  return {
+    calls: [{
+      kind: "Call",
+      metadata: {
+        type: "ID!"
+      },
+      name: "id",
+      value: {
+        kind: "CallValue",
+        callValue: 123
+      }
+    }],
+    children: [{
+      fieldName: "id",
+      kind: "Field",
+      metadata: {
+        isRequisite: true
+      },
+      type: "String"
+    }, {
+      fieldName: "__typename",
+      kind: "Field",
+      metadata: {
+        isGenerated: true,
+        isRequisite: true
+      },
+      type: "String"
+    }],
+    fieldName: "node",
+    kind: "Query",
+    metadata: {
+      isAbstract: true,
+      identifyingArgName: "id",
+      identifyingArgType: "ID!"
+    },
+    name: "UnknownFile",
+    type: "Node"
+  };
+}();
+`;
+
+exports[`matches expected output: tagRelayQL.txt 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+var RelayQL = require('react-relay/RelayQL');
+var x = RelayQL\`
+  query {
+    node(id: 123) {
+      id
+    }
+  }
+\`;
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+var RelayQL = require('react-relay/RelayQL');
+
+var x = function () {
+  return {
+    calls: [{
+      kind: "Call",
+      metadata: {
+        type: "ID!"
+      },
+      name: "id",
+      value: {
+        kind: "CallValue",
+        callValue: 123
+      }
+    }],
+    children: [{
+      fieldName: "id",
+      kind: "Field",
+      metadata: {
+        isRequisite: true
+      },
+      type: "String"
+    }, {
+      fieldName: "__typename",
+      kind: "Field",
+      metadata: {
+        isGenerated: true,
+        isRequisite: true
+      },
+      type: "String"
+    }],
+    fieldName: "node",
+    kind: "Query",
+    metadata: {
+      isAbstract: true,
+      identifyingArgName: "id",
+      identifyingArgType: "ID!"
+    },
+    name: "UnknownFile",
+    type: "Node"
+  };
+}();
+`;
+
+exports[`matches expected output: templateString.txt 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+var Relay = require('react-relay');
+var x = \`Just a template string.\`;
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+var Relay = require('react-relay');
+
+var x = \`Just a template string.\`;
+`;
+
+exports[`matches expected output: unionWithTypename.txt 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+var foo = Relay.QL\`
+  query UnionWithTypename {
+    media(id: 123) {
+      __typename
+    }
+  }
+\`;
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+var foo = function () {
+  return {
+    calls: [{
+      kind: "Call",
+      metadata: {
+        type: "Int"
+      },
+      name: "id",
+      value: {
+        kind: "CallValue",
+        callValue: 123
+      }
+    }],
+    children: [{
+      fieldName: "__typename",
+      kind: "Field",
+      metadata: {
+        isRequisite: true
+      },
+      type: "String"
+    }],
+    fieldName: "media",
+    kind: "Query",
+    metadata: {
+      isAbstract: true,
+      identifyingArgName: "id",
+      identifyingArgType: "Int"
+    },
+    name: "UnionWithTypename",
+    type: "Media"
+  };
+}();
+`;

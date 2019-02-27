@@ -10,125 +10,41 @@
 
 'use strict';
 
-const BabelPluginRelay = require('../BabelPluginRelay');
+const transformerWithOptions = require('./transformerWithOptions');
 
-const babel = require('@babel/core');
-const path = require('path');
+describe('`development` option', () => {
+  it('tests the hash when `development` is set', () => {
+    expect(
+      transformerWithOptions({}, 'development')(
+        'graphql`fragment TestFrag on Node { id }`',
+      ),
+    ).toMatchSnapshot();
+  });
 
-const {testSchemaPath} = require('../../relay-test-utils/RelayTestUtilsPublic');
-const {generateTestsFromFixtures} = require('RelayModernTestUtils');
+  it('tests the hash when `isDevVariable` is set', () => {
+    expect(
+      transformerWithOptions({isDevVariable: 'IS_DEV'})(
+        'graphql`fragment TestFrag on Node { id }`',
+      ),
+    ).toMatchSnapshot();
+  });
 
-const OLD_SCHEMA_PATH = path.resolve(__dirname, './testschema.rfc.graphql');
+  it('uses a custom build command in message', () => {
+    expect(
+      transformerWithOptions(
+        {
+          buildCommand: 'relay-build',
+        },
+        'development',
+      )('graphql`fragment TestFrag on Node { id }`'),
+    ).toMatchSnapshot();
+  });
 
-describe('BabelPluginRelay', () => {
-  function transformerWithOptions(
-    options: RelayPluginOptions,
-    environment: 'development' | 'production' = 'production',
-    filename?: string = '',
-  ): string => string {
-    return (text, providedFileName) => {
-      const previousEnv = process.env.BABEL_ENV;
-      try {
-        process.env.BABEL_ENV = environment;
-        return babel.transform(text, {
-          compact: false,
-          filename: filename || providedFileName,
-          highlightCode: false,
-          parserOpts: {plugins: ['jsx']},
-          plugins: [[BabelPluginRelay, options]],
-        }).code;
-      } catch (e) {
-        return 'ERROR:\n\n' + e;
-      } finally {
-        process.env.BABEL_ENV = previousEnv;
-      }
-    };
-  }
-
-  generateTestsFromFixtures(
-    `${__dirname}/fixtures-modern`,
-    transformerWithOptions({}),
-  );
-
-  generateTestsFromFixtures(
-    `${__dirname}/fixtures-compat`,
-    transformerWithOptions({
-      compat: true,
-      schema: testSchemaPath,
-      substituteVariables: true,
-    }),
-  );
-
-  generateTestsFromFixtures(
-    `${__dirname}/fixtures-modern-haste`,
-    transformerWithOptions({
-      haste: true,
-    }),
-  );
-
-  generateTestsFromFixtures(
-    `${__dirname}/fixtures-compat-haste`,
-    transformerWithOptions({
-      compat: true,
-      haste: true,
-      schema: testSchemaPath,
-      substituteVariables: true,
-    }),
-  );
-
-  generateTestsFromFixtures(
-    `${__dirname}/fixtures-classic`,
-    transformerWithOptions({
-      schema: OLD_SCHEMA_PATH,
-      substituteVariables: true,
-    }),
-  );
-
-  generateTestsFromFixtures(
-    `${__dirname}/fixtures-modern-artifact-directory`,
-    transformerWithOptions(
-      {
-        artifactDirectory: '/test/artifacts',
-      },
-      'production',
-      '/testing/Container.js',
-    ),
-  );
-
-  describe('`development` option', () => {
-    it('tests the hash when `development` is set', () => {
-      expect(
-        transformerWithOptions({}, 'development')(
-          'graphql`fragment TestFrag on Node { id }`',
-        ),
-      ).toMatchSnapshot();
-    });
-
-    it('tests the hash when `isDevVariable` is set', () => {
-      expect(
-        transformerWithOptions({isDevVariable: 'IS_DEV'})(
-          'graphql`fragment TestFrag on Node { id }`',
-        ),
-      ).toMatchSnapshot();
-    });
-
-    it('uses a custom build command in message', () => {
-      expect(
-        transformerWithOptions(
-          {
-            buildCommand: 'relay-build',
-          },
-          'development',
-        )('graphql`fragment TestFrag on Node { id }`'),
-      ).toMatchSnapshot();
-    });
-
-    it('does not test the hash when `development` is not set', () => {
-      expect(
-        transformerWithOptions({}, 'production')(
-          'graphql`fragment TestFrag on Node { id }`',
-        ),
-      ).toMatchSnapshot();
-    });
+  it('does not test the hash when `development` is not set', () => {
+    expect(
+      transformerWithOptions({}, 'production')(
+        'graphql`fragment TestFrag on Node { id }`',
+      ),
+    ).toMatchSnapshot();
   });
 });

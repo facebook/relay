@@ -22,24 +22,20 @@ const {generateTestsFromFixtures} = require('RelayModernTestUtils');
 
 describe('RelayConnectionTransform', () => {
   generateTestsFromFixtures(`${__dirname}/fixtures`, text => {
-    try {
-      const schema = transformASTSchema(RelayTestSchema, [
-        RelayConnectionTransform.SCHEMA_EXTENSION,
-      ]);
-      const {definitions} = parseGraphQLText(schema, text);
-      return new GraphQLCompilerContext(RelayTestSchema, schema)
-        .addAll(definitions)
-        .applyTransforms([RelayConnectionTransform.transform])
-        .documents()
-        .map(
-          doc =>
-            GraphQLIRPrinter.print(doc) +
-            '# Metadata:\n' +
-            JSON.stringify(doc.metadata, null, 2),
-        )
-        .join('\n');
-    } catch (error) {
-      return error.message;
-    }
+    const schema = transformASTSchema(RelayTestSchema, [
+      RelayConnectionTransform.SCHEMA_EXTENSION,
+    ]);
+    const {definitions} = parseGraphQLText(schema, text);
+    return new GraphQLCompilerContext(RelayTestSchema, schema)
+      .addAll(definitions)
+      .applyTransforms([RelayConnectionTransform.transform])
+      .documents()
+      .map(
+        doc =>
+          GraphQLIRPrinter.print(doc) +
+          '# Metadata:\n' +
+          JSON.stringify(doc.metadata, null, 2),
+      )
+      .join('\n');
   });
 });

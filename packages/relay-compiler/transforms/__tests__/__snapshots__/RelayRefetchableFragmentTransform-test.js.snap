@@ -435,15 +435,15 @@ fragment PaginationFragment on Node @argumentDefinitions(
         node {
           id
         }
-      }
-      ... on FriendsConnection {
-        edges {
+        ... on FriendsEdge {
           cursor
           node {
             __typename
           }
         }
-        pageInfo {
+      }
+      pageInfo {
+        ... on PageInfo {
           endCursor
           hasNextPage
         }
@@ -499,15 +499,15 @@ fragment PaginationFragment on Node @argumentDefinitions(
         node {
           id
         }
-      }
-      ... on FriendsConnection {
-        edges {
+        ... on FriendsEdge {
           cursor
           node {
             __typename
           }
         }
-        pageInfo {
+      }
+      pageInfo {
+        ... on PageInfo {
           endCursor
           hasNextPage
           hasPreviousPage

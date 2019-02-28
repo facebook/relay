@@ -45,15 +45,15 @@ query NodeQuery(
                   node {
                     name
                   }
-                }
-                ... on FriendsConnection {
-                  edges {
+                  ... on FriendsEdge {
                     cursor
                     node {
                       __typename
                     }
                   }
-                  pageInfo {
+                }
+                pageInfo {
+                  ... on PageInfo {
                     endCursor
                     hasNextPage
                   }
@@ -61,15 +61,15 @@ query NodeQuery(
               }
             }
           }
-        }
-        ... on CommentsConnection {
-          edges {
+          ... on CommentsEdge {
             cursor
             node {
               __typename
             }
           }
-          pageInfo {
+        }
+        pageInfo {
+          ... on PageInfo {
             endCursor
             hasNextPage
           }
@@ -149,15 +149,15 @@ query NodeQuery(
           node {
             id
           }
-        }
-        ... on CommentsConnection {
-          edges {
+          ... on CommentsEdge {
             cursor
             node {
               __typename
             }
           }
-          pageInfo {
+        }
+        pageInfo {
+          ... on PageInfo {
             endCursor
             hasNextPage
           }
@@ -168,15 +168,15 @@ query NodeQuery(
           node {
             id
           }
-        }
-        ... on CommentsConnection {
-          edges {
+          ... on CommentsEdge {
             cursor
             node {
               __typename
             }
           }
-          pageInfo {
+        }
+        pageInfo {
+          ... on PageInfo {
             hasPreviousPage
             startCursor
           }
@@ -187,15 +187,15 @@ query NodeQuery(
           node {
             id
           }
-        }
-        ... on CommentsConnection {
-          edges {
+          ... on CommentsEdge {
             cursor
             node {
               __typename
             }
           }
-          pageInfo {
+        }
+        pageInfo {
+          ... on PageInfo {
             endCursor
             hasNextPage
             hasPreviousPage
@@ -277,15 +277,15 @@ query NodeQuery(
               name
             }
           }
-        }
-        ... on CommentsConnection {
-          edges {
+          ... on CommentsEdge {
             cursor
             node {
               __typename
             }
           }
-          pageInfo {
+        }
+        pageInfo {
+          ... on PageInfo {
             endCursor
             hasNextPage
           }
@@ -357,15 +357,15 @@ query NodeQuery(
                   node {
                     name
                   }
-                }
-                ... on FriendsConnection {
-                  edges {
+                  ... on FriendsEdge {
                     cursor
                     node {
                       __typename
                     }
                   }
-                  pageInfo {
+                }
+                pageInfo {
+                  ... on PageInfo {
                     endCursor
                     hasNextPage
                   }
@@ -373,15 +373,15 @@ query NodeQuery(
               }
             }
           }
-        }
-        ... on CommentsConnection {
-          edges {
+          ... on CommentsEdge {
             cursor
             node {
               __typename
             }
           }
-          pageInfo {
+        }
+        pageInfo {
+          ... on PageInfo {
             endCursor
             hasNextPage
           }
@@ -463,15 +463,15 @@ query NodeQuery(
                   node {
                     name
                   }
-                }
-                ... on FriendsConnection {
-                  edges {
+                  ... on FriendsEdge {
                     cursor
                     node {
                       __typename
                     }
                   }
-                  pageInfo {
+                }
+                pageInfo {
+                  ... on PageInfo {
                     endCursor
                     hasNextPage
                   }
@@ -479,15 +479,15 @@ query NodeQuery(
               }
             }
           }
-        }
-        ... on CommentsConnection {
-          edges {
+          ... on CommentsEdge {
             cursor
             node {
               __typename
             }
           }
-          pageInfo {
+        }
+        pageInfo {
+          ... on PageInfo {
             endCursor
             hasNextPage
           }
@@ -540,7 +540,9 @@ query NodeQuery(
 }
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
-Encountered 1 error(s):
+THROWN EXCEPTION:
+
+Error: Encountered 1 error(s):
 - Expected field 'comments' to have a 'first' or 'last' argument.
   
   Source: GraphQL request (7:7)
@@ -596,15 +598,15 @@ query NodeQuery(
                   node {
                     name
                   }
-                }
-                ... on FriendsConnection {
-                  edges {
+                  ... on FriendsEdge {
                     cursor
                     node {
                       __typename
                     }
                   }
-                  pageInfo {
+                }
+                pageInfo {
+                  ... on PageInfo {
                     endCursor
                     hasNextPage
                   }
@@ -612,15 +614,15 @@ query NodeQuery(
               }
             }
           }
-        }
-        ... on CommentsConnection {
-          edges {
+          ... on CommentsEdge {
             cursor
             node {
               __typename
             }
           }
-          pageInfo {
+        }
+        pageInfo {
+          ... on PageInfo {
             endCursor
             hasNextPage
           }
@@ -680,18 +682,16 @@ fragment Example on User {
           uri
         }
       }
-    }
-    pageInfo {
-      endCursor
-    }
-    ... on FriendsConnection {
-      edges {
+      ... on FriendsEdge {
         cursor
         node {
           __typename
         }
       }
-      pageInfo {
+    }
+    pageInfo {
+      endCursor
+      ... on PageInfo {
         endCursor
         hasNextPage
       }
@@ -739,15 +739,15 @@ fragment Example on User {
           uri
         }
       }
-    }
-    ... on FriendsConnection {
-      edges {
+      ... on FriendsEdge {
         cursor
         node {
           __typename
         }
       }
-      pageInfo {
+    }
+    pageInfo {
+      ... on PageInfo {
         endCursor
         hasNextPage
       }
@@ -789,8 +789,10 @@ query NodeQuery(
 }
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
-Encountered 1 error(s):
-- Expected the key argument to @connection to be of form <SomeName>_comments, got 'invalid'. For detailed explanation, check out https://facebook.github.io/relay/docs/en/pagination-container.html#connection
+THROWN EXCEPTION:
+
+Error: Encountered 1 error(s):
+- Expected the key argument to @connection to be of form <SomeName>_comments, got 'invalid'. For a detailed explanation, check out https://facebook.github.io/relay/docs/en/pagination-container.html#connection
   
   Source: GraphQL request (7:44)
   6:     ... on Story {
@@ -820,7 +822,9 @@ query NodeQuery(
 }
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
-RelayParser: Encountered 1 error(s):
+THROWN EXCEPTION:
+
+Error: RelayParser: Encountered 1 error(s):
 - Expected a value matching type 'String!'.
   
   GraphQL request (7:44)
@@ -860,7 +864,9 @@ query NodeQuery(
 }
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
-RelayParser: Encountered 1 error(s):
+THROWN EXCEPTION:
+
+Error: RelayParser: Encountered 1 error(s):
 - Expected a value matching type 'String'.
   
   GraphQL request (7:75)
@@ -887,7 +893,9 @@ query NodeQuery(
 }
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
-Encountered 1 error(s):
+THROWN EXCEPTION:
+
+Error: Encountered 1 error(s):
 - @connection used on invalid field 'actors'. Expected the return type to be a non-plural interface or object, got '[Actor]'.
   
   Source: GraphQL request (7:7)
@@ -896,4 +904,85 @@ Encountered 1 error(s):
            ^
   8:         name
   
+`;
+
+exports[`RelayConnectionTransform matches expected output: stream-connection.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query NodeQuery(
+  $id: ID!
+) {
+  node(id: $id) {
+    id
+    ... on Story {
+      comments(first: 10)
+      @stream_connection(
+        key: "NodeQuery_comments"
+        initial_count: 0
+        label: "comments"
+      ) {
+        edges {
+          node {
+            actor {
+              name
+            }
+          }
+        }
+        pageInfo {
+          endCursor
+          hasNextPage
+        }
+      }
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+query NodeQuery(
+  $id: ID!
+) {
+  node(id: $id) {
+    id
+    ... on Story {
+      comments(first: 10) @__clientField(handle: "connection", key: "NodeQuery_comments") {
+        edges @stream(initial_count: 0, label: "comments") {
+          node {
+            actor {
+              name
+            }
+          }
+          ... on CommentsEdge {
+            cursor
+            node {
+              __typename
+            }
+          }
+        }
+        ... on CommentsConnection @defer(label: "comments$pageInfo") {
+          pageInfo {
+            endCursor
+            hasNextPage
+            ... on PageInfo {
+              endCursor
+              hasNextPage
+            }
+          }
+        }
+      }
+    }
+  }
+}
+# Metadata:
+{
+  "connection": [
+    {
+      "count": null,
+      "cursor": null,
+      "direction": "forward",
+      "path": [
+        "node",
+        "comments"
+      ]
+    }
+  ]
+}
 `;

@@ -26,8 +26,10 @@ const {
   GraphQLList,
   GraphQLObjectType,
   GraphQLScalarType,
+  GraphQLString,
   GraphQLUnionType,
   parse,
+  assertCompositeType,
 } = require('graphql');
 const {ConnectionInterface} = require('relay-runtime');
 
@@ -38,10 +40,9 @@ import type {
   Fragment,
   InlineFragment,
   LinkedField,
-  Location,
   Root,
+  Selection,
 } from '../../core/GraphQLIR';
-import type {GraphQLType} from 'graphql';
 import type {ConnectionMetadata} from 'relay-runtime';
 
 type Options = {
@@ -51,7 +52,19 @@ type Options = {
   connectionMetadata: Array<ConnectionMetadata>,
 };
 
+type ConnectionArguments = {|
+  handler: ?string,
+  key: string,
+  filters: ?$ReadOnlyArray<string>,
+  stream: ?{|
+    if: ?Argument,
+    initialCount: ?Argument,
+    label: string,
+  |},
+|};
+
 const CONNECTION = 'connection';
+const STREAM_CONNECTION = 'stream_connection';
 const HANDLER = 'handler';
 
 /**
@@ -84,6 +97,15 @@ const SCHEMA_EXTENSION = `
     key: String!
     filters: [String]
     handler: String
+  ) on FIELD
+
+  directive @stream_connection(
+    key: String!
+    filters: [String]
+    handler: String
+    label: String!
+    initial_count: Int!
+    if: Boolean = true
   ) on FIELD
 `;
 
@@ -120,7 +142,8 @@ function visitLinkedField(field: LinkedField, options: Options): LinkedField {
     path,
   });
   const connectionDirective = field.directives.find(
-    directive => directive.name === CONNECTION,
+    directive =>
+      directive.name === CONNECTION || directive.name === STREAM_CONNECTION,
   );
   if (!connectionDirective) {
     return transformedField;
@@ -140,55 +163,68 @@ function visitLinkedField(field: LinkedField, options: Options): LinkedField {
   validateConnectionSelection(transformedField);
   validateConnectionType(transformedField, nullableType, connectionDirective);
 
-  const pathHasPlural = options.path.includes(null);
-  const firstArg = findArg(transformedField, FIRST);
-  const lastArg = findArg(transformedField, LAST);
-  let direction = null;
-  let countArg = null;
-  let cursorArg = null;
-  if (firstArg && !lastArg) {
-    direction = 'forward';
-    countArg = firstArg;
-    cursorArg = findArg(transformedField, AFTER);
-  } else if (lastArg && !firstArg) {
-    direction = 'backward';
-    countArg = lastArg;
-    cursorArg = findArg(transformedField, BEFORE);
-  } else if (lastArg && firstArg) {
-    direction = 'bidirectional';
-    // TODO(T26511885) Maybe add connection metadata to this case
-  }
-  const countVariable =
-    countArg && countArg.value.kind === 'Variable'
-      ? countArg.value.variableName
-      : null;
-  const cursorVariable =
-    cursorArg && cursorArg.value.kind === 'Variable'
-      ? cursorArg.value.variableName
-      : null;
-  options.connectionMetadata.push({
-    count: countVariable,
-    cursor: cursorVariable,
-    direction,
-    path: pathHasPlural ? null : (path: any),
-  });
+  const connectionMetadata = buildConnectionMetadata(transformedField, path);
+  options.connectionMetadata.push(connectionMetadata);
 
-  const {handler, key, filters: literalFilters} = getLiteralArgumentValues(
-    connectionDirective.args,
+  const connectionArguments = buildConnectionArguments(
+    transformedField,
+    connectionDirective,
   );
+
+  const handle = {
+    name: connectionArguments.handler ?? CONNECTION,
+    key: connectionArguments.key,
+    filters: connectionArguments.filters,
+  };
+
+  const {direction} = connectionMetadata;
+  if (direction != null) {
+    const selections = transformConnectionSelections(
+      this.getContext(),
+      transformedField,
+      nullableType,
+      direction,
+      connectionArguments,
+    );
+    transformedField = {
+      ...transformedField,
+      selections,
+    };
+  }
+  return {
+    ...transformedField,
+    directives: transformedField.directives.filter(
+      directive => directive !== connectionDirective,
+    ),
+    handles: transformedField.handles
+      ? [...transformedField.handles, handle]
+      : [handle],
+  };
+}
+
+function buildConnectionArguments(
+  field: LinkedField,
+  connectionDirective: Directive,
+): ConnectionArguments {
+  const {
+    handler,
+    key,
+    label,
+    filters: literalFilters,
+  } = getLiteralArgumentValues(connectionDirective.args);
   if (handler != null && typeof handler !== 'string') {
     const handleArg = connectionDirective.args.find(arg => arg.name === 'key');
     throw createUserError(
-      `Expected the ${HANDLER} argument to ` +
-        `@${CONNECTION} to be a string literal for field ${field.name}.`,
+      `Expected the ${HANDLER} argument to @${connectionDirective.name} to ` +
+        `be a string literal for field ${field.name}.`,
       [handleArg?.value?.loc ?? connectionDirective.loc],
     );
   }
   if (typeof key !== 'string') {
     const keyArg = connectionDirective.args.find(arg => arg.name === 'key');
     throw createUserError(
-      `Expected the ${KEY} argument to ` +
-        `@${CONNECTION} to be a string literal for field ${field.name}.`,
+      `Expected the ${KEY} argument to @${connectionDirective.name} to be a ` +
+        `string literal for field ${field.name}.`,
       [keyArg?.value?.loc ?? connectionDirective.loc],
     );
   }
@@ -196,9 +232,9 @@ function visitLinkedField(field: LinkedField, options: Options): LinkedField {
   if (!key.endsWith('_' + postfix)) {
     const keyArg = connectionDirective.args.find(arg => arg.name === 'key');
     throw createUserError(
-      `Expected the ${KEY} argument to ` +
-        `@${CONNECTION} to be of form <SomeName>_${postfix}, got '${key}'. ` +
-        'For detailed explanation, check out ' +
+      `Expected the ${KEY} argument to @${connectionDirective.name} to be of ` +
+        `form <SomeName>_${postfix}, got '${key}'. ` +
+        'For a detailed explanation, check out ' +
         'https://facebook.github.io/relay/docs/en/pagination-container.html#connection',
       [keyArg?.value?.loc ?? connectionDirective.loc],
     );
@@ -212,7 +248,8 @@ function visitLinkedField(field: LinkedField, options: Options): LinkedField {
       arg => arg.name === 'filters',
     );
     throw createUserError(
-      `Expected the 'filters' argument to @${CONNECTION} to be a string literal.`,
+      `Expected the 'filters' argument to @${connectionDirective.name} to be ` +
+        'a string literal.',
       [filtersArg?.value?.loc ?? connectionDirective.loc],
     );
   }
@@ -231,47 +268,87 @@ function visitLinkedField(field: LinkedField, options: Options): LinkedField {
     filters = generatedFilters.length !== 0 ? generatedFilters : null;
   }
 
-  const handle = {
-    name: handler ?? CONNECTION,
-    key,
-    filters,
-  };
-
-  if (direction !== null) {
-    const fragment = generateConnectionFragment(
-      this.getContext(),
-      transformedField.loc,
-      nullableType,
-      direction,
+  let stream = null;
+  if (connectionDirective.name === STREAM_CONNECTION) {
+    const initialCountArg = connectionDirective.args.find(
+      arg => arg.name === 'initial_count',
     );
-    transformedField = {
-      ...transformedField,
-      selections: transformedField.selections.concat(fragment),
-    };
+    const ifArg = connectionDirective.args.find(arg => arg.name === 'if');
+    if (label == null || typeof label !== 'string') {
+      const labelArg = connectionDirective.args.find(
+        arg => arg.name === 'label',
+      );
+      throw createUserError(
+        `Expected the 'label' argument to @${
+          connectionDirective.name
+        } to be a string literal for field ${field.name}.`,
+        [labelArg?.value?.loc ?? connectionDirective.loc],
+      );
+    }
+    stream = {if: ifArg, initialCount: initialCountArg, label};
   }
+
   return {
-    ...transformedField,
-    directives: transformedField.directives.filter(
-      directive => directive.name !== CONNECTION,
-    ),
-    handles: transformedField.handles
-      ? [...transformedField.handles, handle]
-      : [handle],
+    handler,
+    key,
+    filters: (filters: $FlowFixMe),
+    stream,
+  };
+}
+
+function buildConnectionMetadata(
+  field: LinkedField,
+  path: Array<?string>,
+): ConnectionMetadata {
+  const pathHasPlural = path.includes(null);
+  const firstArg = findArg(field, FIRST);
+  const lastArg = findArg(field, LAST);
+  let direction = null;
+  let countArg = null;
+  let cursorArg = null;
+  if (firstArg && !lastArg) {
+    direction = 'forward';
+    countArg = firstArg;
+    cursorArg = findArg(field, AFTER);
+  } else if (lastArg && !firstArg) {
+    direction = 'backward';
+    countArg = lastArg;
+    cursorArg = findArg(field, BEFORE);
+  } else if (lastArg && firstArg) {
+    direction = 'bidirectional';
+    // TODO(T26511885) Maybe add connection metadata to this case
+  }
+  const countVariable =
+    countArg && countArg.value.kind === 'Variable'
+      ? countArg.value.variableName
+      : null;
+  const cursorVariable =
+    cursorArg && cursorArg.value.kind === 'Variable'
+      ? cursorArg.value.variableName
+      : null;
+  return {
+    count: countVariable,
+    cursor: cursorVariable,
+    direction,
+    path: pathHasPlural ? null : (path: any),
   };
 }
 
 /**
  * @internal
  *
- * Generates a fragment on the given type that fetches the minimal connection
- * fields in order to merge different pagination results together at runtime.
+ * Transforms the selections on a connection field, generating fields necessary
+ * for pagination (edges.cursor, pageInfo, etc) and adding/merging them with
+ * existing selections.
  */
-function generateConnectionFragment(
+function transformConnectionSelections(
   context: CompilerContext,
-  loc: Location,
+  field: LinkedField,
   nullableType: GraphQLInterfaceType | GraphQLObjectType,
   direction: 'forward' | 'backward' | 'bidirectional',
-): InlineFragment {
+  connectionArguments: ConnectionArguments,
+): Array<Selection> {
+  const derivedLocation = {kind: 'Derived', source: field.loc};
   const {
     CURSOR,
     EDGES,
@@ -283,63 +360,247 @@ function generateConnectionFragment(
     START_CURSOR,
   } = ConnectionInterface.get();
 
-  let pageInfo = PAGE_INFO;
+  // Find existing edges/pageInfo selections
+  let edgesSelection: ?LinkedField;
+  let pageInfoSelection: ?LinkedField;
+  field.selections.forEach(selection => {
+    if (selection.kind === 'LinkedField') {
+      if (selection.name === EDGES) {
+        if (edgesSelection != null) {
+          throw createCompilerError(
+            `RelayConnectionTransform: Unexpected duplicate field '${EDGES}'.`,
+            [edgesSelection.loc, selection.loc],
+          );
+        }
+        edgesSelection = selection;
+        return;
+      } else if (selection.name === PAGE_INFO) {
+        if (pageInfoSelection != null) {
+          throw createCompilerError(
+            `RelayConnectionTransform: Unexpected duplicate field '${PAGE_INFO}'.`,
+            [pageInfoSelection.loc, selection.loc],
+          );
+        }
+        pageInfoSelection = selection;
+        return;
+      }
+    }
+  });
+
+  // If streaming is enabled, construct directives to apply to the edges/
+  // pageInfo fields
+  let streamDirective;
+  let deferDirective;
+  const stream = connectionArguments.stream;
+  if (stream != null) {
+    streamDirective = {
+      args: [
+        stream.if,
+        stream.initialCount,
+        {
+          kind: 'Argument',
+          loc: derivedLocation,
+          metadata: null,
+          name: 'label',
+          type: GraphQLString,
+          value: {
+            kind: 'Literal',
+            loc: derivedLocation,
+            metadata: null,
+            value: stream.label,
+          },
+        },
+      ].filter(Boolean),
+      kind: 'Directive',
+      loc: derivedLocation,
+      metadata: null,
+      name: 'stream',
+    };
+    deferDirective = {
+      args: [
+        stream.if,
+        {
+          kind: 'Argument',
+          loc: derivedLocation,
+          metadata: null,
+          name: 'label',
+          type: GraphQLString,
+          value: {
+            kind: 'Literal',
+            loc: derivedLocation,
+            metadata: null,
+            value: stream.label + '$' + PAGE_INFO,
+          },
+        },
+      ].filter(Boolean),
+      kind: 'Directive',
+      loc: derivedLocation,
+      metadata: null,
+      name: 'defer',
+    };
+  }
+
+  // Separately create transformed versions of edges/pageInfo so that we can
+  // later replace the originals at the same point within the selection array
+  let transformedEdgesSelection: ?LinkedField = edgesSelection;
+  let transformedPageInfoSelection: ?(
+    | LinkedField
+    | InlineFragment
+  ) = pageInfoSelection;
+  const edgesType = SchemaUtils.getRawType(
+    nullableType.getFields()[EDGES].type,
+  );
+  const pageInfoType = SchemaUtils.getRawType(
+    nullableType.getFields()[PAGE_INFO].type,
+  );
+  if (transformedEdgesSelection == null) {
+    transformedEdgesSelection = {
+      alias: null,
+      args: [],
+      directives: [],
+      handles: null,
+      kind: 'LinkedField',
+      loc: derivedLocation,
+      metadata: null,
+      name: EDGES,
+      selections: [],
+      type: assertCompositeType(edgesType),
+    };
+  }
+  if (transformedPageInfoSelection == null) {
+    transformedPageInfoSelection = {
+      alias: null,
+      args: [],
+      directives: [],
+      handles: null,
+      kind: 'LinkedField',
+      loc: derivedLocation,
+      metadata: null,
+      name: PAGE_INFO,
+      selections: [],
+      type: assertCompositeType(pageInfoType),
+    };
+  }
+
+  // Generate (additional) fields on pageInfo and add to the transformed
+  // pageInfo field
+  let pageInfoText;
   if (direction === 'forward') {
-    pageInfo += `{
+    pageInfoText = `fragment PageInfo on ${String(pageInfoType)} {
       ${END_CURSOR}
       ${HAS_NEXT_PAGE}
     }`;
   } else if (direction === 'backward') {
-    pageInfo += `{
+    pageInfoText = `fragment PageInfo on ${String(pageInfoType)}  {
       ${HAS_PREV_PAGE}
       ${START_CURSOR}
     }`;
   } else {
-    pageInfo += `{
+    pageInfoText = `fragment PageInfo on ${String(pageInfoType)}  {
       ${END_CURSOR}
       ${HAS_NEXT_PAGE}
       ${HAS_PREV_PAGE}
       ${START_CURSOR}
     }`;
   }
+  const pageInfoAst = parse(pageInfoText);
+  const pageInfoFragment = RelayParser.transform(context.clientSchema, [
+    pageInfoAst.definitions[0],
+  ])[0];
+  if (transformedPageInfoSelection.kind !== 'LinkedField') {
+    throw createCompilerError(
+      'RelayConnectionTransform: Expected generated pageInfo selection to be ' +
+        'a LinkedField',
+      [field.loc],
+    );
+  }
+  transformedPageInfoSelection = {
+    ...transformedPageInfoSelection,
+    selections: [
+      ...transformedPageInfoSelection.selections,
+      {
+        directives: [],
+        kind: 'InlineFragment',
+        loc: derivedLocation,
+        metadata: null,
+        typeCondition: pageInfoFragment.type,
+        selections: pageInfoFragment.selections,
+      },
+    ],
+  };
+  // When streaming the pageInfo field has to be deferred
+  if (deferDirective != null) {
+    transformedPageInfoSelection = {
+      directives: [deferDirective],
+      kind: 'InlineFragment',
+      loc: derivedLocation,
+      metadata: null,
+      typeCondition: nullableType,
+      selections: [transformedPageInfoSelection],
+    };
+  }
 
-  const typeName = String(nullableType);
-  const fragmentString = `fragment ConnectionFragment on ${typeName} {
-    ${EDGES} {
+  // Generate additional fields on edges and append to the transformed edges
+  // selection
+  const edgeText = `
+    fragment Edges on ${String(edgesType)} {
       ${CURSOR}
       ${NODE} {
         __typename # rely on GenerateRequisiteFieldTransform to add "id"
       }
     }
-    ${pageInfo}
-  }`;
-
-  const ast = parse(fragmentString);
-  const fragmentAST = ast.definitions[0];
-  if (fragmentAST == null || fragmentAST.kind !== 'FragmentDefinition') {
-    throw createCompilerError(
-      'RelayConnectionTransform: Expected a fragment definition AST.',
-      null,
-      [fragmentAST].filter(Boolean),
-    );
-  }
-  const fragment = RelayParser.transform(context.clientSchema, [
-    fragmentAST,
+  `;
+  const edgeAst = parse(edgeText);
+  const edgeFragment = RelayParser.transform(context.clientSchema, [
+    edgeAst.definitions[0],
   ])[0];
-  if (fragment == null || fragment.kind !== 'Fragment') {
-    throw createCompilerError(
-      'RelayConnectionTransform: Expected a connection fragment.',
-      [fragment?.loc].filter(Boolean),
-    );
-  }
-  return {
-    directives: [],
-    kind: 'InlineFragment',
-    loc: {kind: 'Derived', source: loc},
-    metadata: null,
-    selections: fragment.selections,
-    typeCondition: nullableType,
+  // When streaming the edges field needs @stream
+  transformedEdgesSelection = {
+    ...transformedEdgesSelection,
+    directives:
+      streamDirective != null
+        ? [...transformedEdgesSelection.directives, streamDirective]
+        : transformedEdgesSelection.directives,
+    selections: [
+      ...transformedEdgesSelection.selections,
+      {
+        directives: [],
+        kind: 'InlineFragment',
+        loc: derivedLocation,
+        metadata: null,
+        typeCondition: edgeFragment.type,
+        selections: edgeFragment.selections,
+      },
+    ],
   };
+  // Copy the original selections, replacing edges/pageInfo (if present)
+  // with the generated locations. This is to maintain the original field
+  // ordering.
+  const selections = field.selections.map(selection => {
+    if (
+      transformedEdgesSelection != null &&
+      edgesSelection != null &&
+      selection === edgesSelection
+    ) {
+      return transformedEdgesSelection;
+    } else if (
+      transformedPageInfoSelection != null &&
+      pageInfoSelection != null &&
+      selection === pageInfoSelection
+    ) {
+      return transformedPageInfoSelection;
+    } else {
+      return selection;
+    }
+  });
+  // If edges/pageInfo were missing, append the generated versions instead.
+  if (edgesSelection == null && transformedEdgesSelection != null) {
+    selections.push(transformedEdgesSelection);
+  }
+  if (pageInfoSelection == null && transformedPageInfoSelection != null) {
+    selections.push(transformedPageInfoSelection);
+  }
+  return selections;
 }
 
 function findArg(field: LinkedField, argName: string): ?Argument {

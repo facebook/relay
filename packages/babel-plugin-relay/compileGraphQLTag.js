@@ -28,53 +28,29 @@ function compileGraphQLTag(
   state: BabelState,
   ast: DocumentNode,
 ): void {
-  const mainDefinition = ast.definitions[0];
-
-  if (mainDefinition.kind === 'FragmentDefinition') {
-    const objPropName = getAssignedObjectPropertyName(t, path);
-    if (objPropName) {
-      if (ast.definitions.length !== 1) {
-        throw new Error(
-          'BabelPluginRelay: Expected exactly one fragment in the ' +
-            `graphql tag referenced by the property ${objPropName}.`,
-        );
+  if (ast.definitions.length !== 1) {
+    throw new Error(
+      'BabelPluginRelay: Expected exactly one definition per graphql tag.',
+    );
+  }
+  const definition = ast.definitions[0];
+  switch (definition.kind) {
+    case 'FragmentDefinition':
+      const objPropName = getAssignedObjectPropertyName(t, path);
+      if (objPropName) {
+        return replaceMemoized(t, path, createAST(t, state, path, definition));
       }
-      return replaceMemoized(
-        t,
-        path,
-        createAST(t, state, path, mainDefinition),
-      );
-    }
-
-    const nodeMap = {};
-    for (const definition of ast.definitions) {
-      if (definition.kind !== 'FragmentDefinition') {
-        throw new Error(
-          'BabelPluginRelay: Expected only fragments within this ' +
-            'graphql tag.',
-        );
-      }
-
+      const nodeMap = {};
       const [, propName] = getFragmentNameParts(definition.name.value);
       nodeMap[propName] = createAST(t, state, path, definition);
-    }
-    return replaceMemoized(t, path, createObject(t, nodeMap));
+      return replaceMemoized(t, path, createObject(t, nodeMap));
+    case 'OperationDefinition':
+      return replaceMemoized(t, path, createAST(t, state, path, definition));
   }
-
-  if (mainDefinition.kind === 'OperationDefinition') {
-    if (ast.definitions.length !== 1) {
-      throw new Error(
-        'BabelPluginRelay: Expected exactly one operation ' +
-          '(query, mutation, or subscription) per graphql tag.',
-      );
-    }
-    return replaceMemoized(t, path, createAST(t, state, path, mainDefinition));
-  }
-
   throw new Error(
     'BabelPluginRelay: Expected a fragment, mutation, query, or ' +
       'subscription, got `' +
-      mainDefinition.kind +
+      definition.kind +
       '`.',
   );
 }

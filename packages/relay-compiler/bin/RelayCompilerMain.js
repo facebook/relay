@@ -185,7 +185,6 @@ Ensure that one such file exists in ${srcDir} or its parents.
     verbose: options.verbose,
     quiet: options.quiet,
   });
-
   const useWatchman = options.watchman && (await WatchmanClient.isAvailable());
 
   const schema = getSchema(schemaPath);
@@ -270,7 +269,7 @@ Ensure that one such file exists in ${srcDir} or its parents.
     // TODO: allow passing in a flag or detect?
     sourceControl: null,
   });
-  if (!options.validate && !options.watch && options.watchman) {
+  if (!options.validate && !options.watch && useWatchman) {
     // eslint-disable-next-line no-console
     console.log('HINT: pass --watch to keep watching for changes.');
   }

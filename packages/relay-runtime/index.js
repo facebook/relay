@@ -38,6 +38,7 @@ const commitLocalUpdate = require('./mutations/commitLocalUpdate');
 const commitRelayModernMutation = require('./mutations/commitRelayModernMutation');
 const createRelayNetworkLogger = require('./network/createRelayNetworkLogger');
 const deepFreeze = require('./util/deepFreeze');
+const fetchQueryInternal = require('./query/fetchQueryInternal');
 const fetchRelayModernQuery = require('./query/fetchRelayModernQuery');
 const generateRelayClientID = require('./store/generateRelayClientID');
 const getRelayHandleKey = require('./util/getRelayHandleKey');
@@ -263,5 +264,8 @@ module.exports = {
   stableCopy: stableCopy,
   __internal: {
     getModernOperationVariables: RelayConcreteVariables.getOperationVariables,
+    fetchQuery: fetchQueryInternal.fetchQuery,
+    getPromiseForRequestInFlight:
+      fetchQueryInternal.getPromiseForRequestInFlight,
   },
 };

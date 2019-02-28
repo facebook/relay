@@ -10,18 +10,18 @@
 
 'use strict';
 
-const getOperationIdentifier = require('./getOperationIdentifier');
+const Observable = require('../network/RelayObservable');
+
+const getOperationIdentifier = require('../util/getOperationIdentifier');
 const invariant = require('invariant');
 
-const {Observable} = require('relay-runtime');
-
+import type {Subscription} from '../network/RelayObservable';
 import type {
-  CacheConfig,
-  IEnvironment,
+  Environment,
   OperationDescriptor,
   Snapshot,
-  Subscription,
-} from 'relay-runtime';
+} from '../store/RelayStoreTypes';
+import type {CacheConfig} from '../util/RelayRuntimeTypes';
 
 type ObserverEvent = {|
   event: 'next' | 'error' | 'complete',
@@ -109,7 +109,7 @@ const requestCachesByEnvironment = new Map();
  * @private
  */
 function fetchQuery(
-  environment: IEnvironment,
+  environment: Environment,
   query: OperationDescriptor,
   options?: {|
     networkCacheConfig?: CacheConfig,
@@ -217,7 +217,7 @@ function fetchQuery(
  * @private
  */
 function getPromiseForRequestInFlight(
-  environment: IEnvironment,
+  environment: Environment,
   query: OperationDescriptor,
 ): Promise<?Snapshot> | null {
   const requestCache = getRequestCache(environment);
@@ -263,7 +263,7 @@ function addReceivedEvent(
 }
 
 function getRequestCache(
-  environment: IEnvironment,
+  environment: Environment,
 ): Map<string, RequestCacheEntry> {
   const cached: ?Map<
     string,

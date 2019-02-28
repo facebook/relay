@@ -12,12 +12,13 @@
 
 const invariant = require('invariant');
 
-const {fetchQuery} = require('./fetchQueryInternal');
+const {__internal: RelayRuntimeInternal} = require('relay-runtime');
+
+const {fetchQuery} = RelayRuntimeInternal;
 
 import type {
   CacheConfig,
   Disposable,
-  GraphQLResponse,
   IEnvironment,
   Observable,
   OperationDescriptor,

@@ -11,10 +11,9 @@
 'use strict';
 
 const invariant = require('invariant');
+const stableCopy = require('./stableCopy');
 
-const {stableCopy} = require('relay-runtime');
-
-import type {OperationDescriptor} from 'relay-runtime';
+import type {OperationDescriptor} from '../store/RelayStoreTypes';
 
 /**
  * Returns a stable identifier for a query OperationDescriptor,

@@ -41,6 +41,9 @@ const deepFreeze = require('./util/deepFreeze');
 const fetchQueryInternal = require('./query/fetchQueryInternal');
 const fetchRelayModernQuery = require('./query/fetchRelayModernQuery');
 const generateRelayClientID = require('./store/generateRelayClientID');
+const getFragmentIdentifier = require('./util/getFragmentIdentifier');
+const getFragmentSpecIdentifier = require('./util/getFragmentSpecIdentifier');
+const getOperationIdentifier = require('./util/getOperationIdentifier');
 const getRelayHandleKey = require('./util/getRelayHandleKey');
 const isRelayModernEnvironment = require('./store/isRelayModernEnvironment');
 const isScalarAndEqual = require('./util/isScalarAndEqual');
@@ -262,6 +265,9 @@ module.exports = {
   isScalarAndEqual: isScalarAndEqual,
   recycleNodesInto: recycleNodesInto,
   stableCopy: stableCopy,
+  getOperationIdentifier: getOperationIdentifier,
+  getFragmentIdentifier: getFragmentIdentifier,
+  getFragmentSpecIdentifier: getFragmentSpecIdentifier,
   __internal: {
     getModernOperationVariables: RelayConcreteVariables.getOperationVariables,
     fetchQuery: fetchQueryInternal.fetchQuery,

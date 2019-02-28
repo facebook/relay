@@ -12,9 +12,9 @@
 
 const invariant = require('invariant');
 
-const {__internal: RelayRuntimeInternal} = require('relay-runtime');
-
-const {fetchQuery} = RelayRuntimeInternal;
+const {
+  __internal: {fetchQuery},
+} = require('relay-runtime');
 
 import type {
   CacheConfig,

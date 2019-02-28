@@ -13,6 +13,8 @@
 const CompilerContext = require('../core/GraphQLCompilerContext');
 const IRTransformer = require('../core/GraphQLIRTransformer');
 
+const getLiteralArgumentValues = require('../core/getLiteralArgumentValues');
+
 const {getNullableType} = require('../core/GraphQLSchemaUtils');
 const {createUserError} = require('../core/RelayCompilerError');
 const {GraphQLList} = require('graphql');
@@ -193,17 +195,15 @@ function getLiteralStringArgument(
   directive: Directive,
   argName: string,
 ): string {
-  // NOTE: can't use getLiteralArgumentValues here because other args
-  // are allowed to be non-literals
-  const arg = directive.args.find(({name}) => name === argName);
-  const value =
-    arg != null && arg.value.kind === 'Literal' ? arg.value.value : null;
+  const args = getLiteralArgumentValues(directive.args);
+  const value = args[argName];
   if (typeof value !== 'string') {
+    const arg = directive.args.find(arg => arg.name === argName);
     throw createUserError(
       `Expected the '${argName}' value to @${
         directive.name
       } to be a string literal.`,
-      [arg?.value.loc ?? directive.loc],
+      [arg?.value?.loc ?? directive.loc],
     );
   }
   return value;

@@ -22,7 +22,6 @@ const {
 } = require('../../core/RelayCompilerError');
 const {AFTER, BEFORE, FIRST, KEY, LAST} = require('./RelayConnectionConstants');
 const {
-  assertCompositeType,
   GraphQLInterfaceType,
   GraphQLList,
   GraphQLObjectType,
@@ -35,6 +34,7 @@ const {ConnectionInterface} = require('relay-runtime');
 import type CompilerContext from '../../core/GraphQLCompilerContext';
 import type {
   Argument,
+  Directive,
   Fragment,
   InlineFragment,
   LinkedField,
@@ -49,7 +49,6 @@ type Options = {
   path: Array<?string>,
   // Metadata recorded for @connection fields
   connectionMetadata: Array<ConnectionMetadata>,
-  definitionName: string,
 };
 
 const CONNECTION = 'connection';
@@ -76,13 +75,17 @@ function relayConnectionTransform(context: CompilerContext): CompilerContext {
     node => ({
       path: [],
       connectionMetadata: [],
-      definitionName: node.name,
     }),
   );
 }
 
-const SCHEMA_EXTENSION =
-  'directive @connection(key: String!, filters: [String], handler: String) on FIELD';
+const SCHEMA_EXTENSION = `
+  directive @connection(
+    key: String!
+    filters: [String]
+    handler: String
+  ) on FIELD
+`;
 
 /**
  * @internal
@@ -109,20 +112,33 @@ function visitFragmentOrRoot<N: Fragment | Root>(
  * @internal
  */
 function visitLinkedField(field: LinkedField, options: Options): LinkedField {
-  const isPlural =
-    SchemaUtils.getNullableType(field.type) instanceof GraphQLList;
-  options.path.push(isPlural ? null : field.alias || field.name);
-  let transformedField = this.traverse(field, options);
+  const nullableType = SchemaUtils.getNullableType(field.type);
+  const isPlural = nullableType instanceof GraphQLList;
+  const path = options.path.concat(isPlural ? null : field.alias || field.name);
+  let transformedField = this.traverse(field, {
+    ...options,
+    path,
+  });
   const connectionDirective = field.directives.find(
     directive => directive.name === CONNECTION,
   );
   if (!connectionDirective) {
-    options.path.pop();
     return transformedField;
   }
-  const {definitionName} = options;
-  validateConnectionSelection(definitionName, transformedField);
-  validateConnectionType(definitionName, transformedField);
+  if (
+    !(nullableType instanceof GraphQLObjectType) &&
+    !(nullableType instanceof GraphQLInterfaceType)
+  ) {
+    throw new createUserError(
+      `@${connectionDirective.name} used on invalid field '${field.name}'. ` +
+        'Expected the return type to be a non-plural interface or object, ' +
+        `got '${String(field.type)}'.`,
+      [transformedField.loc],
+    );
+  }
+
+  validateConnectionSelection(transformedField);
+  validateConnectionType(transformedField, nullableType, connectionDirective);
 
   const pathHasPlural = options.path.includes(null);
   const firstArg = findArg(transformedField, FIRST);
@@ -154,11 +170,10 @@ function visitLinkedField(field: LinkedField, options: Options): LinkedField {
     count: countVariable,
     cursor: cursorVariable,
     direction,
-    path: pathHasPlural ? null : ([...options.path]: any),
+    path: pathHasPlural ? null : (path: any),
   });
-  options.path.pop();
 
-  const {handler, key, filters} = getLiteralArgumentValues(
+  const {handler, key, filters: literalFilters} = getLiteralArgumentValues(
     connectionDirective.args,
   );
   if (handler != null && typeof handler !== 'string') {
@@ -188,9 +203,23 @@ function visitLinkedField(field: LinkedField, options: Options): LinkedField {
       [keyArg?.value?.loc ?? connectionDirective.loc],
     );
   }
+  if (
+    literalFilters != null &&
+    (!Array.isArray(literalFilters) ||
+      literalFilters.some(filter => typeof filter !== 'string'))
+  ) {
+    const filtersArg = connectionDirective.args.find(
+      arg => arg.name === 'filters',
+    );
+    throw createUserError(
+      `Expected the 'filters' argument to @${CONNECTION} to be a string literal.`,
+      [filtersArg?.value?.loc ?? connectionDirective.loc],
+    );
+  }
 
-  const generateFilters = () => {
-    const filteredVariableArgs = field.args
+  let filters = literalFilters;
+  if (filters == null) {
+    const generatedFilters = field.args
       .filter(
         arg =>
           !ConnectionInterface.isConnectionCall({
@@ -199,20 +228,20 @@ function visitLinkedField(field: LinkedField, options: Options): LinkedField {
           }),
       )
       .map(arg => arg.name);
-    return filteredVariableArgs.length === 0 ? null : filteredVariableArgs;
-  };
+    filters = generatedFilters.length !== 0 ? generatedFilters : null;
+  }
 
   const handle = {
     name: handler ?? CONNECTION,
     key,
-    filters: filters || generateFilters(),
+    filters,
   };
 
   if (direction !== null) {
     const fragment = generateConnectionFragment(
       this.getContext(),
       transformedField.loc,
-      transformedField.type,
+      nullableType,
       direction,
     );
     transformedField = {
@@ -240,7 +269,7 @@ function visitLinkedField(field: LinkedField, options: Options): LinkedField {
 function generateConnectionFragment(
   context: CompilerContext,
   loc: Location,
-  type: GraphQLType,
+  nullableType: GraphQLInterfaceType | GraphQLObjectType,
   direction: 'forward' | 'backward' | 'bidirectional',
 ): InlineFragment {
   const {
@@ -253,10 +282,6 @@ function generateConnectionFragment(
     PAGE_INFO,
     START_CURSOR,
   } = ConnectionInterface.get();
-
-  const compositeType = assertCompositeType(
-    SchemaUtils.getNullableType((type: $FlowFixMe)),
-  );
 
   let pageInfo = PAGE_INFO;
   if (direction === 'forward') {
@@ -278,17 +303,16 @@ function generateConnectionFragment(
     }`;
   }
 
-  const fragmentString = `fragment ConnectionFragment on ${String(
-    compositeType,
-  )} {
-      ${EDGES} {
-        ${CURSOR}
-        ${NODE} {
-          __typename # rely on GenerateRequisiteFieldTransform to add "id"
-        }
+  const typeName = String(nullableType);
+  const fragmentString = `fragment ConnectionFragment on ${typeName} {
+    ${EDGES} {
+      ${CURSOR}
+      ${NODE} {
+        __typename # rely on GenerateRequisiteFieldTransform to add "id"
       }
-      ${pageInfo}
-    }`;
+    }
+    ${pageInfo}
+  }`;
 
   const ast = parse(fragmentString);
   const fragmentAST = ast.definitions[0];
@@ -314,7 +338,7 @@ function generateConnectionFragment(
     loc: {kind: 'Derived', source: loc},
     metadata: null,
     selections: fragment.selections,
-    typeCondition: compositeType,
+    typeCondition: nullableType,
   };
 }
 
@@ -335,17 +359,13 @@ function findArg(field: LinkedField, argName: string): ?Argument {
  * technically possible to remove this restriction if this pattern becomes
  * common/necessary.
  */
-function validateConnectionSelection(
-  definitionName: string,
-  field: LinkedField,
-): void {
+function validateConnectionSelection(field: LinkedField): void {
   const {EDGES} = ConnectionInterface.get();
 
   if (!findArg(field, FIRST) && !findArg(field, LAST)) {
     throw createUserError(
-      `Expected field \`${field.name}: ` +
-        `${String(field.type)}\` to have a ${FIRST} or ${LAST} argument in ` +
-        `document \`${definitionName}\`.`,
+      `Expected field '${field.name}' to have a '${FIRST}' or '${LAST}' ` +
+        'argument.',
       [field.loc],
     );
   }
@@ -355,9 +375,7 @@ function validateConnectionSelection(
     )
   ) {
     throw createUserError(
-      `Expected field \`${field.name}: ` +
-        `${String(field.type)}\` to have a ${EDGES} selection in document ` +
-        `\`${definitionName}\`.`,
+      `Expected field '${field.name}' to have an '${EDGES}' selection.`,
       [field.loc],
     );
   }
@@ -373,10 +391,11 @@ function validateConnectionSelection(
  *   subfields.
  */
 function validateConnectionType(
-  definitionName: string,
   field: LinkedField,
+  nullableType: GraphQLInterfaceType | GraphQLObjectType,
+  connectionDirective: Directive,
 ): void {
-  const type = field.type;
+  const directiveName = connectionDirective.name;
   const {
     CURSOR,
     EDGES,
@@ -388,17 +407,14 @@ function validateConnectionType(
     START_CURSOR,
   } = ConnectionInterface.get();
 
-  const typeWithFields = SchemaUtils.assertTypeWithFields(
-    SchemaUtils.getNullableType((type: $FlowFixMe)),
-  );
-  const typeFields = typeWithFields.getFields();
+  const typeName = String(nullableType);
+  const typeFields = nullableType.getFields();
   const edges = typeFields[EDGES];
 
   if (edges == null) {
     throw createUserError(
-      `Expected type '${String(
-        type,
-      )}' to have an '${EDGES}' field in document '${definitionName}'.`,
+      `@${directiveName} used on invalid field '${field.name}'. Expected the ` +
+        `field type '${typeName}' to have an '${EDGES}' field`,
       [field.loc],
     );
   }
@@ -406,18 +422,18 @@ function validateConnectionType(
   const edgesType = SchemaUtils.getNullableType(edges.type);
   if (!(edgesType instanceof GraphQLList)) {
     throw createUserError(
-      `Expected '${EDGES}' field on type '${String(
-        type,
-      )}' to be a list type in document '${definitionName}'.`,
+      `@${directiveName} used on invalid field '${field.name}'. Expected the ` +
+        `field type '${typeName}' to have an '${EDGES}' field that returns ` +
+        'a list of objects.',
       [field.loc],
     );
   }
   const edgeType = SchemaUtils.getNullableType(edgesType.ofType);
   if (!(edgeType instanceof GraphQLObjectType)) {
     throw createUserError(
-      `Expected '${EDGES}' field on type '${String(
-        type,
-      )}' to be a list of objects in document '${definitionName}'.`,
+      `@${directiveName} used on invalid field '${field.name}'. Expected the ` +
+        `field type '${typeName}' to have an '${EDGES}' field that returns ` +
+        'a list of objects.',
       [field.loc],
     );
   }
@@ -425,9 +441,9 @@ function validateConnectionType(
   const node = edgeType.getFields()[NODE];
   if (node == null) {
     throw createUserError(
-      `Expected type '${String(
-        type,
-      )}' to have have a '${EDGES} { ${NODE} }' field in in document '${definitionName}'.`,
+      `@${directiveName} used on invalid field '${field.name}'. Expected the ` +
+        `field type '${typeName}' to have an '${EDGES} { ${NODE} }' field ` +
+        'that returns an object, interface, or union.',
       [field.loc],
     );
   }
@@ -440,9 +456,9 @@ function validateConnectionType(
     )
   ) {
     throw createUserError(
-      `Expected type '${String(
-        type,
-      )}' to have a '${EDGES} { ${NODE} }' field for which the type is an interface, object, or union in document '${definitionName}'.`,
+      `@${directiveName} used on invalid field '${field.name}'. Expected the ` +
+        `field type '${typeName}' to have an '${EDGES} { ${NODE} }' field ` +
+        'that returns an object, interface, or union.',
       [field.loc],
     );
   }
@@ -453,9 +469,9 @@ function validateConnectionType(
     !(SchemaUtils.getNullableType(cursor.type) instanceof GraphQLScalarType)
   ) {
     throw createUserError(
-      `Expected type '${String(
-        type,
-      )}' to have a '${EDGES} { ${CURSOR} }' scalar field in document '${definitionName}'.`,
+      `@${directiveName} used on invalid field '${field.name}'. Expected the ` +
+        `field type '${typeName}' to have an '${EDGES} { ${CURSOR} }' field ` +
+        'that returns a scalar value.',
       [field.loc],
     );
   }
@@ -463,18 +479,18 @@ function validateConnectionType(
   const pageInfo = typeFields[PAGE_INFO];
   if (pageInfo == null) {
     throw createUserError(
-      `Expected type '${String(
-        type,
-      )}' to have a '${EDGES} { ${PAGE_INFO} }' field in document '${definitionName}'.`,
+      `@${directiveName} used on invalid field '${field.name}'. Expected the ` +
+        `field type '${typeName}' to have a '${PAGE_INFO}' field that returns ` +
+        'an object.',
       [field.loc],
     );
   }
   const pageInfoType = SchemaUtils.getNullableType(pageInfo.type);
   if (!(pageInfoType instanceof GraphQLObjectType)) {
     throw createUserError(
-      `Expected type '${String(
-        type,
-      )}' to have a '${EDGES} { ${PAGE_INFO} }' field with object type in document '${definitionName}'.`,
+      `@${directiveName} used on invalid field '${field.name}'. Expected the ` +
+        `field type '${typeName}' to have a '${PAGE_INFO}' field that ` +
+        'returns an object.',
       [field.loc],
     );
   }
@@ -490,9 +506,9 @@ function validateConnectionType(
         )
       ) {
         throw createUserError(
-          `Expected type '${String(
-            pageInfo.type,
-          )}' to have a '${fieldName}' scalar field in document '${definitionName}'.`,
+          `@${directiveName} used on invalid field '${field.name}'. Expected ` +
+            `the field type '${typeName}' to have a '${PAGE_INFO} { ${fieldName} }' ` +
+            'field returns a scalar.',
           [field.loc],
         );
       }

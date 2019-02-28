@@ -307,7 +307,13 @@ function visitFragmentSpread(
       [spread.loc],
     );
   }
-  const moduleDirectiveArgs = getLiteralArgumentValues(moduleDirective.args);
+  const {name: moduleName} = getLiteralArgumentValues(moduleDirective.args);
+  if (typeof moduleName !== 'string') {
+    throw createUserError(
+      "Expected the 'name' argument of @module to be a literal string",
+      [(moduleDirective.args.find(arg => arg.name === 'name') ?? spread).loc],
+    );
+  }
   const normalizationName =
     getNormalizationOperationName(spread.name) + '.graphql';
   const moduleField: ScalarField = {
@@ -321,7 +327,7 @@ function visitFragmentSpread(
           kind: 'Literal',
           loc: moduleDirective.args[0]?.loc ?? moduleDirective.loc,
           metadata: {},
-          value: moduleDirectiveArgs.name,
+          value: moduleName,
         },
         loc: moduleDirective.loc,
         metadata: {},
@@ -374,7 +380,7 @@ function visitFragmentSpread(
       {
         kind: 'ModuleImport',
         loc: moduleDirective.loc,
-        module: moduleDirectiveArgs.name,
+        module: moduleName,
         name: spread.name,
         selections: [
           {

@@ -469,7 +469,7 @@ function getRelayProp(environment, refetch): RelayRefetchProp {
  */
 function createContainer<Props: {}, TComponent: React.ComponentType<Props>>(
   Component: TComponent,
-  fragmentSpec: GraphQLTaggedNode | GeneratedNodeMap,
+  fragmentSpec: GeneratedNodeMap,
   taggedNode: GraphQLTaggedNode,
 ): React.ComponentType<
   $RelayProps<React$ElementConfig<TComponent>, RelayRefetchProp>,

@@ -24,7 +24,7 @@ const {
 } = require('./ReactRelayContainerUtils');
 
 import type {GeneratedNodeMap} from './ReactRelayTypes';
-import type {GraphQLTaggedNode, FragmentMap} from 'relay-runtime';
+import type {FragmentMap} from 'relay-runtime';
 
 type ContainerCreator = (
   Component: React$ComponentType<any>,
@@ -39,7 +39,7 @@ type ContainerCreator = (
  */
 function buildReactRelayContainer<TBase: React$ComponentType<*>>(
   ComponentClass: TBase,
-  fragmentSpec: GraphQLTaggedNode | GeneratedNodeMap,
+  fragmentSpec: GeneratedNodeMap,
   createContainerWithFragments: ContainerCreator,
 ): TBase {
   // Sanity-check user-defined fragment input

@@ -13,26 +13,25 @@
 const invariant = require('invariant');
 
 import type {GeneratedNodeMap} from './ReactRelayTypes';
-import type {GraphQLTaggedNode} from 'relay-runtime';
 
 /**
  * Fail fast if the user supplies invalid fragments as input.
  */
 function assertFragmentMap(
   componentName: string,
-  fragments: GraphQLTaggedNode | GeneratedNodeMap,
+  fragmentSpec: GeneratedNodeMap,
 ): void {
   invariant(
-    fragments && typeof fragments === 'object',
+    fragmentSpec && typeof fragmentSpec === 'object',
     'Could not create Relay Container for `%s`. ' +
       'Expected a set of GraphQL fragments, got `%s` instead.',
     componentName,
-    fragments,
+    fragmentSpec,
   );
 
-  for (const key in fragments) {
-    if (fragments.hasOwnProperty(key)) {
-      const fragment = fragments[key];
+  for (const key in fragmentSpec) {
+    if (fragmentSpec.hasOwnProperty(key)) {
+      const fragment = fragmentSpec[key];
       invariant(
         fragment &&
           (typeof fragment === 'object' || typeof fragment === 'function'),

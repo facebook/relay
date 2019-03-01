@@ -24,7 +24,6 @@ import type {$RelayProps, GeneratedNodeMap, RelayProp} from './ReactRelayTypes';
 import type {
   FragmentMap,
   FragmentSpecResolver,
-  GraphQLTaggedNode,
   RelayContext,
 } from 'relay-runtime';
 
@@ -266,7 +265,7 @@ function getRelayProp(environment) {
  */
 function createContainer<Props: {}, TComponent: React.ComponentType<Props>>(
   Component: TComponent,
-  fragmentSpec: GraphQLTaggedNode | GeneratedNodeMap,
+  fragmentSpec: GeneratedNodeMap,
 ): React.ComponentType<
   $RelayProps<React$ElementConfig<TComponent>, RelayProp>,
 > {

@@ -852,7 +852,7 @@ function createContainerWithFragments<
  */
 function createContainer<Props: {}, TComponent: React.ComponentType<Props>>(
   Component: TComponent,
-  fragmentSpec: GraphQLTaggedNode | GeneratedNodeMap,
+  fragmentSpec: GeneratedNodeMap,
   connectionConfig: ConnectionConfig,
 ): React.ComponentType<
   $RelayProps<React$ElementConfig<TComponent>, RelayPaginationProp>,

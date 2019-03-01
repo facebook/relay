@@ -80,7 +80,7 @@ fragment Feed_user on User {
 ```javascript
 createPaginationContainer(
   component: ReactComponentClass,
-  fragmentSpec: GraphQLTaggedNode | {[string]: GraphQLTaggedNode},
+  fragmentSpec: {[string]: GraphQLTaggedNode},
   connectionConfig: ConnectionConfig,
 ): ReactComponentClass;
 
@@ -110,10 +110,7 @@ type ConnectionData = {
 ### Arguments
 
 * `component`: The React Component *class* of the component requiring the fragment data.
-* `fragmentSpec`: Specifies the data requirements for the Component via a GraphQL fragment. It is expected that one of the fragments specified here will contain a [`@connection`](#connection) for pagination. The required data will be available on the component as props that match the shape of the provided fragment. `fragmentSpec` can be one of 2 things:
-  * A `graphql` tagged fragment. If the fragment uses the name convention `<FileName><...>_<propName>`, the fragment's data will be available to the Component as a prop with the given `<propName>`.
-  If the fragment name doesn't specify a prop name, the data will be available as a `data` prop.
-  * An object whose keys are prop names and values are `graphql` tagged fragments. Each key specified in this object will correspond to a prop available to the resulting Component.
+* `fragmentSpec`: Specifies the data requirements for the Component via a GraphQL fragment. It is expected that one of the fragments specified here will contain a [`@connection`](#connection) for pagination. The required data will be available on the component as props that match the shape of the provided fragment. `fragmentSpec` should be an object whose keys are prop names and values are `graphql` tagged fragments. Each key specified in this object will correspond to a prop available to the resulting Component.
   * **Note:** `relay-compiler` enforces fragments to be named as `<FileName>_<propName>`.
 * `connectionConfig`:
   * `direction`: Either "forward" to indicate forward pagination using after/first, or "backward" to indicate backwards pagination using before/last. If not provided, Relay will infer the direction based on the provided `@connection` directive.

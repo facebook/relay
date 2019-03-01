@@ -17,7 +17,7 @@ Table of Contents:
 ```javascript
 createRefetchContainer(
   component: ReactComponentClass,
-  fragmentSpec: GraphQLTaggedNode | {[string]: GraphQLTaggedNode},
+  fragmentSpec: {[string]: GraphQLTaggedNode},
   refetchQuery: GraphQLTaggedNode,
 ): ReactComponentClass;
 ```
@@ -25,10 +25,7 @@ createRefetchContainer(
 ### Arguments
 
 * `component`: The React Component *class* of the component requiring the fragment data.
-* `fragmentSpec`: Specifies the data requirements for the Component via a GraphQL fragment. The required data will be available on the component as props that match the shape of the provided fragment. `fragmentSpec` can be one of 2 things:
-  * A `graphql` tagged fragment. If the fragment uses the name convention `<FileName><...>_<propName>`, the fragment's data will be available to the Component as a prop with the given `<propName>`.
-  If the fragment name doesn't specify a prop name, the data will be available as a `data` prop.
-  * An object whose keys are prop names and values are `graphql` tagged fragments. Each key specified in this object will correspond to a prop available to the resulting Component.
+* `fragmentSpec`: Specifies the data requirements for the Component via a GraphQL fragment. The required data will be available on the component as props that match the shape of the provided fragment. `fragmentSpec` should be an object whose keys are prop names and values are `graphql` tagged fragments. Each key specified in this object will correspond to a prop available to the resulting Component.
   * **Note:** `relay-compiler` enforces fragments to be named as `<FileName>_<propName>`.
 * `refetchQuery`: A `graphql` tagged query to be fetched upon calling [`props.relay.refetch`](#refetch). As with any query, upon fetching this query, its result will be normalized into the store, any relevant subscriptions associated with the changed records will be fired, and subscribed components will re-render.
 

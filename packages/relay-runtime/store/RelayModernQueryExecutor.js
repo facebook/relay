@@ -379,36 +379,37 @@ class Executor {
     dataForLabel.placeholdersByPath.set(pathKey, placeholder);
 
     // Store references to the parent node to allow detecting concurrent
-    // modifications to the parent before items arrive
+    // modifications to the parent before items arrive and to replay
+    // handle field payloads to account for new information on source records.
+    let parentID;
     if (placeholder.kind === 'stream') {
-      const {parentID} = placeholder;
-      // Find HandleFieldPayloads that may need to be updated to account for
-      // new streamed items.
-      const parentPayloads = [];
-      (relayPayload.fieldPayloads ?? []).forEach(fieldPayload => {
+      parentID = placeholder.parentID;
+    } else {
+      parentID = placeholder.selector.dataID;
+    }
+    const parentRecord = relayPayload.source.get(parentID);
+    const parentPayloads = (relayPayload.fieldPayloads ?? []).filter(
+      fieldPayload => {
         const fieldID = generateRelayClientID(
           fieldPayload.dataID,
           fieldPayload.fieldKey,
         );
-        if (
+        return (
           // handlers applied to the streamed field itself
           fieldPayload.dataID === parentID ||
           // handlers applied to a field on an ancestor object, where
           // ancestor.field links to the parent record (example: connections)
           fieldID === parentID
-        ) {
-          parentPayloads.push(fieldPayload);
-        }
+        );
+      },
+    );
+    // null-check is for flow; if an incremental payload exists for some id that
+    // record should also exist.
+    if (parentRecord != null) {
+      this._source.set(parentID, {
+        record: parentRecord,
+        fieldPayloads: parentPayloads,
       });
-      const parentRecord = relayPayload.source.get(parentID);
-      // null-check is for flow; if a StreamPayload exists on some id that
-      // record should exist.
-      if (parentRecord != null) {
-        this._source.set(parentID, {
-          record: parentRecord,
-          fieldPayloads: parentPayloads,
-        });
-      }
     }
   }
 
@@ -486,6 +487,7 @@ class Executor {
     placeholder: DeferPlaceholder,
     response: GraphQLResponseWithData,
   ): void {
+    const {dataID: parentID} = placeholder.selector;
     const relayPayload = normalizeResponse(
       response,
       placeholder.selector,
@@ -494,6 +496,27 @@ class Executor {
     );
     this._processPayloadFollowups(relayPayload);
     this._publishQueue.commitRelayPayload(relayPayload);
+
+    // Load the version of the parent record from which this incremental data
+    // was derived
+    const parentEntry = this._source.get(parentID);
+    invariant(
+      parentEntry != null,
+      'RelayModernEnvironment: Expected the parent record `%s` for @defer ' +
+        'data to exist.',
+      parentID,
+    );
+    const {fieldPayloads} = parentEntry;
+    if (fieldPayloads.length !== 0) {
+      const handleFieldsRelayPayload = {
+        errors: null,
+        fieldPayloads,
+        incrementalPlaceholders: null,
+        moduleImportPayloads: null,
+        source: new RelayInMemoryRecordSource(),
+      };
+      this._publishQueue.commitRelayPayload(handleFieldsRelayPayload);
+    }
     this._publishQueue.run();
   }
 

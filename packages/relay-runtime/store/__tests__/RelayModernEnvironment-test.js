@@ -5226,9 +5226,13 @@ describe('RelayModernEnvironment', () => {
 
         fragment FeedFragment on Viewer {
           newsFeed(first: 10, after: $after)
-          @connection(key: "RelayModernEnvironment_newsFeed") {
-            edges
-            @stream(label: "newsFeed", if: $enableStream, initial_count: 0) {
+          @stream_connection(
+            key: "RelayModernEnvironment_newsFeed"
+            label: "newsFeed"
+            if: $enableStream
+            initial_count: 0
+          ) {
+            edges {
               cursor
               node {
                 __typename
@@ -5368,6 +5372,42 @@ describe('RelayModernEnvironment', () => {
           pageInfo: {
             endCursor: null,
             hasNextPage: false,
+          },
+        },
+      });
+
+      dataSource.next({
+        data: {
+          pageInfo: {
+            endCursor: 'cursor-1',
+            hasNextPage: true,
+          },
+        },
+        label: 'FeedFragment$defer$newsFeed$pageInfo',
+        path: ['viewer', 'newsFeed'],
+      });
+      expect(error.mock.calls.map(call => call[0].stack)).toEqual([]);
+      expect(callback).toBeCalledTimes(2);
+      const snapshot2 = callback.mock.calls[1][0];
+      expect(snapshot2.isMissingData).toBe(false);
+      expect(snapshot2.data).toEqual({
+        newsFeed: {
+          edges: [
+            {
+              cursor: 'cursor-1',
+              node: {
+                __typename: 'Story',
+                id: '1',
+                feedback: {
+                  id: 'feedback-1',
+                  actors: [{id: 'actor-1', name: 'ALICE'}],
+                },
+              },
+            },
+          ],
+          pageInfo: {
+            endCursor: 'cursor-1',
+            hasNextPage: true,
           },
         },
       });
@@ -5676,7 +5716,10 @@ describe('RelayModernEnvironment', () => {
     });
 
     it('updates the connection on forward pagination with new edges (when initial data has pageInfo)', () => {
-      // populate the first "page" of results (one item)
+      // populate the first "page" of results (one item) using the query
+      // with streaming disabled
+      variables = {enableStream: false, after: 'cursor-1'};
+      operation = createOperationDescriptor(query, variables);
       environment.execute({operation}).subscribe({});
       dataSource.next({
         data: {
@@ -5719,7 +5762,7 @@ describe('RelayModernEnvironment', () => {
       callback = jest.fn();
       environment.subscribe(initialSnapshot, callback);
 
-      // fetch the second page of results
+      // fetch the second page of results with streaming enabled
       variables = {enableStream: true, after: 'cursor-1'};
       operation = createOperationDescriptor(query, variables);
       environment.execute({operation}).subscribe(callbacks);
@@ -5859,6 +5902,64 @@ describe('RelayModernEnvironment', () => {
           pageInfo: {
             endCursor: 'cursor-1',
             hasNextPage: true,
+          },
+        },
+      });
+
+      dataSource.next({
+        data: {
+          pageInfo: {
+            endCursor: 'cursor-3', // cursor-1 => cursor-3
+            hasNextPage: false, // true => false
+          },
+        },
+        label: 'FeedFragment$defer$newsFeed$pageInfo',
+        path: ['viewer', 'newsFeed'],
+      });
+      expect(error.mock.calls.map(call => call[0].stack)).toEqual([]);
+      expect(callback).toBeCalledTimes(3);
+      const snapshot3 = callback.mock.calls[2][0];
+      expect(snapshot3.isMissingData).toBe(false);
+      expect(snapshot3.data).toEqual({
+        newsFeed: {
+          edges: [
+            {
+              cursor: 'cursor-1',
+              node: {
+                __typename: 'Story',
+                id: '1',
+                feedback: {
+                  id: 'feedback-1',
+                  actors: [{id: 'actor-1', name: 'ALICE'}],
+                },
+              },
+            },
+            {
+              cursor: 'cursor-2',
+              node: {
+                __typename: 'Story',
+                id: '2',
+                feedback: {
+                  id: 'feedback-2',
+                  actors: [{id: 'actor-2', name: 'BOB'}],
+                },
+              },
+            },
+            {
+              cursor: 'cursor-3',
+              node: {
+                __typename: 'Story',
+                id: '3',
+                feedback: {
+                  id: 'feedback-3',
+                  actors: [{id: 'actor-3', name: 'CLAIRE'}],
+                },
+              },
+            },
+          ],
+          pageInfo: {
+            endCursor: 'cursor-3',
+            hasNextPage: false,
           },
         },
       });

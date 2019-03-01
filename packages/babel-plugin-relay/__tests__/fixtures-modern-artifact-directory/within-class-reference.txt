@@ -1,21 +1,20 @@
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
- * @providesModule CompatStory
  */
 
 'use strict';
 
-const {createFragmentContainer, graphql} = require('RelayClassic');
-const React = require('React');
+const {createFragmentContainer, graphql} = require('react-relay/classic');
+const React = require('react');
 const CompatProfilePic = require('CompatProfilePic');
 
 class CompatProfile extends React.Component {
   render() {
     return <div>
-      <CompatProfilePic user={this.props.data} />
-      {this.props.data.name}
-      {this.props.data.subscribeStatus}
+      <CompatProfilePic user={this.props.actor} />
+      {this.props.actor.name}
+      {this.props.actor.subscribeStatus}
     </div>;
   }
 
@@ -36,10 +35,12 @@ class CompatProfile extends React.Component {
   }
 }
 
-module.exports = createFragmentContainer(CompatProfile, graphql`
-  fragment CompatProfile on Actor {
-    name
-    subscribeStatus
-    ...CompatProfilePic_user
-  }
-`);
+module.exports = createFragmentContainer(CompatProfile, {
+  actor: graphql`
+    fragment CompatProfile_actor on Actor {
+      name
+      subscribeStatus
+      ...CompatProfilePic_user
+    }
+  `,
+});

@@ -13,7 +13,6 @@
 const createClassicNode = require('./createClassicNode');
 const createCompatNode = require('./createCompatNode');
 const createModernNode = require('./createModernNode');
-const getFragmentNameParts = require('./getFragmentNameParts');
 
 import type {BabelState} from './BabelPluginRelay';
 import type {DocumentNode} from 'graphql';
@@ -34,25 +33,18 @@ function compileGraphQLTag(
     );
   }
   const definition = ast.definitions[0];
-  switch (definition.kind) {
-    case 'FragmentDefinition':
-      const objPropName = getAssignedObjectPropertyName(t, path);
-      if (objPropName) {
-        return replaceMemoized(t, path, createAST(t, state, path, definition));
-      }
-      const nodeMap = {};
-      const [, propName] = getFragmentNameParts(definition.name.value);
-      nodeMap[propName] = createAST(t, state, path, definition);
-      return replaceMemoized(t, path, createObject(t, nodeMap));
-    case 'OperationDefinition':
-      return replaceMemoized(t, path, createAST(t, state, path, definition));
+  if (
+    definition.kind !== 'FragmentDefinition' &&
+    definition.kind !== 'OperationDefinition'
+  ) {
+    throw new Error(
+      'BabelPluginRelay: Expected a fragment, mutation, query, or ' +
+        'subscription, got `' +
+        definition.kind +
+        '`.',
+    );
   }
-  throw new Error(
-    'BabelPluginRelay: Expected a fragment, mutation, query, or ' +
-      'subscription, got `' +
-      definition.kind +
-      '`.',
-  );
+  return replaceMemoized(t, path, createAST(t, state, path, definition));
 }
 
 function createAST(t, state, path, graphqlDefinition) {
@@ -104,16 +96,6 @@ function createObject(t, obj: any) {
   return t.objectExpression(
     Object.keys(obj).map(key => t.objectProperty(t.identifier(key), obj[key])),
   );
-}
-
-function getAssignedObjectPropertyName(t, path) {
-  var property = path;
-  while (property) {
-    if (t.isObjectProperty(property) && property.node.key.name) {
-      return property.node.key.name;
-    }
-    property = property.parentPath;
-  }
 }
 
 module.exports = compileGraphQLTag;

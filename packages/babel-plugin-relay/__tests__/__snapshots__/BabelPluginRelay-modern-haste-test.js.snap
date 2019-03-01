@@ -177,32 +177,6 @@ module.exports = RelayCompatContainer.createContainer(CompatProfilePic, {
 });
 `;
 
-exports[`matches expected output: error_confusing-fragment-name.txt 1`] = `
-~~~~~~~~~~ INPUT ~~~~~~~~~~
-/**
- * Copyright 2004-present Facebook. All Rights Reserved.
- *
- */
-
-'use strict';
-
-const RelayCompatContainer = require('RelayCompatContainer');
-const graphql = require('graphql');
-
-const CompatProfile = () => null;
-
-module.exports = RelayCompatContainer.createContainer(CompatProfile, graphql\`
-  fragment CompatProfile_data on User {
-    name
-  }
-\`);
-
-~~~~~~~~~~ OUTPUT ~~~~~~~~~~
-ERROR:
-
-Error: BabelPluginGraphQL: Fragment \`CompatProfile_data\` should not end in \`_data\` to avoid conflict with a fragment named \`CompatProfile\` which also provides resulting data via the React prop \`data\`. Either rename this fragment to \`CompatProfile\` or choose a different prop name.
-`;
-
 exports[`matches expected output: error_too-many-fragments.txt 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 /**
@@ -318,11 +292,13 @@ class RefetchExample extends React.Component {
 
 module.exports = createRefetchContainer(
   RefetchExample,
-  graphql\`
-    fragment RefetchExample_user on User {
-      name
-    }
-  \`,
+  {
+    user: graphql\`
+      fragment RefetchExample_user on User {
+        name
+      }
+    \`
+  },
   graphql\`
     query RefetchExampleRefetchQuery {
       viewer {
@@ -631,46 +607,6 @@ module.exports = RelayCompatContainer.createContainer(CompatProfile, {
 });
 `;
 
-exports[`matches expected output: no-object.txt 1`] = `
-~~~~~~~~~~ INPUT ~~~~~~~~~~
-/**
- * Copyright 2004-present Facebook. All Rights Reserved.
- *
- */
-
-'use strict';
-
-const RelayCompatContainer = require('RelayCompatContainer');
-const graphql = require('graphql');
-
-const CompatProfile = () => null;
-
-module.exports = RelayCompatContainer.createContainer(CompatProfile, graphql\`
-  fragment CompatProfile_user on User {
-    name
-  }
-\`);
-
-~~~~~~~~~~ OUTPUT ~~~~~~~~~~
-/**
- * Copyright 2004-present Facebook. All Rights Reserved.
- *
- */
-'use strict';
-
-const RelayCompatContainer = require('RelayCompatContainer');
-
-const graphql = require('graphql');
-
-const CompatProfile = () => null;
-
-module.exports = RelayCompatContainer.createContainer(CompatProfile, {
-  user: function () {
-    return require("CompatProfile_user.graphql");
-  }
-});
-`;
-
 exports[`matches expected output: query.txt 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 /**
@@ -710,47 +646,6 @@ const CompatViewerQuery = function () {
 };
 `;
 
-exports[`matches expected output: simple-named-fragment.txt 1`] = `
-~~~~~~~~~~ INPUT ~~~~~~~~~~
-/**
- * Copyright 2004-present Facebook. All Rights Reserved.
- *
- */
-
-'use strict';
-
-const RelayCompatContainer = require('RelayCompatContainer');
-const graphql = require('graphql');
-
-const CompatProfile = () => null;
-
-module.exports = RelayCompatContainer.createContainer(CompatProfile, graphql\`
-  fragment CompatProfile on User {
-    name
-    ...SomeOtherContainer
-  }
-\`);
-
-~~~~~~~~~~ OUTPUT ~~~~~~~~~~
-/**
- * Copyright 2004-present Facebook. All Rights Reserved.
- *
- */
-'use strict';
-
-const RelayCompatContainer = require('RelayCompatContainer');
-
-const graphql = require('graphql');
-
-const CompatProfile = () => null;
-
-module.exports = RelayCompatContainer.createContainer(CompatProfile, {
-  data: function () {
-    return require("CompatProfile.graphql");
-  }
-});
-`;
-
 exports[`matches expected output: within-class-reference.txt 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 /**
@@ -767,9 +662,9 @@ const CompatProfilePic = require('CompatProfilePic');
 class CompatProfile extends React.Component {
   render() {
     return <div>
-      <CompatProfilePic user={this.props.data} />
-      {this.props.data.name}
-      {this.props.data.subscribeStatus}
+      <CompatProfilePic user={this.props.actor} />
+      {this.props.actor.name}
+      {this.props.actor.subscribeStatus}
     </div>;
   }
 
@@ -790,13 +685,15 @@ class CompatProfile extends React.Component {
   }
 }
 
-module.exports = createFragmentContainer(CompatProfile, graphql\`
-  fragment CompatProfile on Actor {
-    name
-    subscribeStatus
-    ...CompatProfilePic_user
-  }
-\`);
+module.exports = createFragmentContainer(CompatProfile, {
+  actor: graphql\`
+    fragment CompatProfile_actor on Actor {
+      name
+      subscribeStatus
+      ...CompatProfilePic_user
+    }
+  \`,
+});
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 /**
@@ -819,9 +716,9 @@ const CompatProfilePic = require('CompatProfilePic');
 class CompatProfile extends React.Component {
   render() {
     return <div>
-      <CompatProfilePic user={this.props.data} />
-      {this.props.data.name}
-      {this.props.data.subscribeStatus}
+      <CompatProfilePic user={this.props.actor} />
+      {this.props.actor.name}
+      {this.props.actor.subscribeStatus}
     </div>;
   }
 
@@ -838,8 +735,8 @@ class CompatProfile extends React.Component {
 }
 
 module.exports = createFragmentContainer(CompatProfile, {
-  data: function () {
-    return require("CompatProfile.graphql");
+  actor: function () {
+    return require("CompatProfile_actor.graphql");
   }
 });
 `;

@@ -14,11 +14,13 @@ class RefetchExample extends React.Component {
 
 module.exports = createRefetchContainer(
   RefetchExample,
-  graphql`
-    fragment RefetchExample_user on User {
-      name
-    }
-  `,
+  {
+    user: graphql`
+      fragment RefetchExample_user on User {
+        name
+      }
+    `
+  },
   graphql`
     query RefetchExampleRefetchQuery {
       viewer {

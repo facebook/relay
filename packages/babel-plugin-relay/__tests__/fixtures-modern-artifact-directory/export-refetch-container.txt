@@ -1,11 +1,10 @@
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
- * @providesModule RefetchExample
  */
 
-const React = require('React');
-const {createRefetchContainer, graphql} = require('RelayClassic');
+const React = require('react');
+const {createRefetchContainer, graphql} = require('react-relay/classic');
 
 class RefetchExample extends React.Component {
   render() {
@@ -15,11 +14,13 @@ class RefetchExample extends React.Component {
 
 module.exports = createRefetchContainer(
   RefetchExample,
-  graphql`
-    fragment RefetchExample_user on User {
-      name
-    }
-  `,
+  {
+    user: graphql`
+      fragment RefetchExample_user on User {
+        name
+      }
+    `
+  },
   graphql`
     query RefetchExampleRefetchQuery {
       viewer {

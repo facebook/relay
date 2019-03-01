@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="en"><head><meta charSet="utf-8"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><title>Routes · Relay</title><meta name="viewport" content="width=device-width"/><meta name="generator" content="Docusaurus"/><meta name="description" content="&lt;p&gt;Routes are responsible for defining the entry points into a Relay application. But in order to understand why routes are necessary, we must first understand the difference between GraphQL queries and fragments.&lt;/p&gt;
 "/><meta name="docsearch:version" content="v1.7.0"/><meta name="docsearch:language" content="en"/><meta property="og:title" content="Routes · Relay"/><meta property="og:type" content="website"/><meta property="og:url" content="https://facebook.github.io/relay/index.html"/><meta property="og:description" content="&lt;p&gt;Routes are responsible for defining the entry points into a Relay application. But in order to understand why routes are necessary, we must first understand the difference between GraphQL queries and fragments.&lt;/p&gt;
-"/><meta name="twitter:card" content="summary"/><link rel="shortcut icon" href="/relay/img/favicon.png"/><link rel="stylesheet" href="https://cdn.jsdelivr.net/docsearch.js/1/docsearch.min.css"/><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css"/><link rel="stylesheet" href="/relay/css/main.css"/></head><body class="sideNavVisible"><div class="fixedHeaderContainer"><div class="headerWrapper wrapper"><header><a href="/relay/en"><img class="logo" src="/relay/img/relay-white.svg" alt="Relay"/><h2 class="headerTitleWithLogo">Relay</h2></a><a href="/relay/en/versions.html"><h3>v1.7.0</h3></a><div class="navigationWrapper navigationSlider"><nav class="slidingNav"><ul class="nav-site nav-site-internal"><li class=""><a href="/relay/docs/en/v1.7.0/introduction-to-relay.html" target="_self">Docs</a></li><li class=""><a href="/relay/en/help.html" target="_self">Support</a></li><li class=""><a href="https://github.com/facebook/relay" target="_self">GitHub</a></li><li class=""><a target="_self"></a></li><li class="navSearchWrapper reactNavSearchWrapper"><input type="text" id="search_input_react" placeholder="Search" title="Search"/></li></ul></nav></div></header></div></div><div class="navPusher"><div class="docMainWrapper wrapper"><div class="container mainContainer"><div class="wrapper"><div class="post"><header class="postHeader"><a class="edit-page-link button" href="https://github.com/facebook/relay/edit/master/docs/Classic-Guides-Routes.md" target="_blank" rel="noreferrer noopener">Edit</a><h1 class="postHeaderTitle">Routes</h1></header><article><div><span><p>Routes are responsible for defining the entry points into a Relay application. But in order to understand why routes are necessary, we must first understand the difference between GraphQL queries and fragments.</p>
+"/><meta name="twitter:card" content="summary"/><link rel="shortcut icon" href="/relay/img/favicon.png"/><link rel="stylesheet" href="https://cdn.jsdelivr.net/docsearch.js/1/docsearch.min.css"/><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css"/><link rel="stylesheet" href="/relay/css/main.css"/><script src="/relay/js/codetabs.js"></script></head><body class="sideNavVisible"><div class="fixedHeaderContainer"><div class="headerWrapper wrapper"><header><a href="/relay/en"><img class="logo" src="/relay/img/relay-white.svg" alt="Relay"/><h2 class="headerTitleWithLogo">Relay</h2></a><a href="/relay/en/versions.html"><h3>v1.7.0</h3></a><div class="navigationWrapper navigationSlider"><nav class="slidingNav"><ul class="nav-site nav-site-internal"><li class=""><a href="/relay/docs/en/v1.7.0/introduction-to-relay.html" target="_self">Docs</a></li><li class=""><a href="/relay/en/help.html" target="_self">Support</a></li><li class=""><a href="https://github.com/facebook/relay" target="_self">GitHub</a></li><li class=""><a target="_self"></a></li><li class="navSearchWrapper reactNavSearchWrapper"><input type="text" id="search_input_react" placeholder="Search" title="Search"/></li></ul></nav></div></header></div></div><div class="navPusher"><div class="docMainWrapper wrapper"><div class="container mainContainer"><div class="wrapper"><div class="post"><header class="postHeader"><a class="edit-page-link button" href="https://github.com/facebook/relay/edit/master/docs/Classic-Guides-Routes.md" target="_blank" rel="noreferrer noopener">Edit</a><h1 class="postHeaderTitle">Routes</h1></header><article><div><span><p>Routes are responsible for defining the entry points into a Relay application. But in order to understand why routes are necessary, we must first understand the difference between GraphQL queries and fragments.</p>
 <blockquote>
 <p>Note</p>
 <p>Relay routes don't really implement any URL routing specific logic or work with History API. In the future we will maybe rename RelayRoute to be something more like RelayQueryRoots or RelayQueryConfig. For more information around why Relay doesn't provide URL-routing features, and suggestions for such solutions, see <a href="https://medium.com/@cpojer/relay-and-routing-36b5439bad9">this post</a>.</p>
@@ -32,8 +32,8 @@
   user(id: <span class="hljs-string">"123"</span>) {
     friends(first: <span class="hljs-number">10</span>) {
       edges {
-        node {
-          ...UserProfilePhoto,
+        <span class="hljs-keyword">node</span> <span class="hljs-title">{
+          ...UserProfilePhoto</span>,
         },
       },
     },
@@ -62,18 +62,18 @@
 };
 </code></pre>
 <p>If we wanted to create an instance of this route for arbitrary users, we can subclass the <code>Relay.Route</code> abstract class. <code>Relay.Route</code> makes it easy to define a set of queries and required parameters to be re-used multiple times:</p>
-<pre><code class="hljs"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">ProfileRoute</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Relay</span>.<span class="hljs-title">Route</span> {</span>
+<pre><code class="hljs"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">ProfileRoute</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Relay</span>.<span class="hljs-title">Route</span> </span>{
   static queries = {
-    user: <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> Relay.QL`<span class="javascript">
+    user: () =&gt; <span class="hljs-type">Relay</span>.<span class="hljs-type">QL</span>`
       query { user(id: $userID) }
-    </span>`,
+    `,
   };
   static paramDefinitions = {
-    <span class="hljs-regexp">//</span> By setting `<span class="javascript">required</span>` to <span class="hljs-literal">true</span>, `<span class="javascript">ProfileRoute</span>` will <span class="hljs-keyword">throw</span> <span class="hljs-keyword">if</span> a `<span class="javascript">userID</span>`
-    <span class="hljs-regexp">//</span> <span class="hljs-keyword">is</span> <span class="hljs-keyword">not</span> supplied <span class="hljs-keyword">when</span> instantiated.
+    <span class="hljs-comment">// By setting `required` to true, `ProfileRoute` will throw if a `userID`</span>
+    <span class="hljs-comment">// is not supplied when instantiated.</span>
     userID: {required: <span class="hljs-literal">true</span>},
   };
-  static routeName = <span class="hljs-string">'ProfileRoute'</span>;
+  static routeName = <span class="hljs-symbol">'ProfileRout</span>e';
 }
 </code></pre>
 <p>Now we can instantiate a <code>ProfileRoute</code> that fetches data for user <code>123</code>:</p>
@@ -81,15 +81,15 @@
 <span class="hljs-keyword">var</span> profileRoute = <span class="hljs-keyword">new</span> ProfileRoute({userID: <span class="hljs-string">'123'</span>});
 </code></pre>
 <p>But now, we can also create routes for arbitrary user IDs. For example, if we wanted to construct a route that fetched data for a user defined by the <code>userID</code> query parameter, we might use:</p>
-<pre><code class="hljs"><span class="hljs-built_in">window</span>.addEventListener(<span class="hljs-string">'popstate'</span>, <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {
-  <span class="hljs-keyword">var</span> userID = getQueryParamFromURI(<span class="hljs-string">'userID'</span>, <span class="hljs-built_in">document</span>.location.href);
-  <span class="hljs-keyword">var</span> profileRoute = <span class="hljs-keyword">new</span> ProfileRoute({userID: userID});
-  ReactDOM.render(
+<pre><code class="hljs">window.add<span class="hljs-constructor">EventListener('<span class="hljs-params">popstate</span>', ()</span> =&gt; {
+  var userID = get<span class="hljs-constructor">QueryParamFromURI('<span class="hljs-params">userID</span>', <span class="hljs-params">document</span>.<span class="hljs-params">location</span>.<span class="hljs-params">href</span>)</span>;
+  var profileRoute = <span class="hljs-keyword">new</span> <span class="hljs-constructor">ProfileRoute({<span class="hljs-params">userID</span>: <span class="hljs-params">userID</span>})</span>;
+  <span class="hljs-module-access"><span class="hljs-module"><span class="hljs-identifier">ReactDOM</span>.</span></span>render(
     &lt;Relay.RootContainer
       Component={UserProfile}
       route={profileRoute}
     /&gt;,
-    <span class="hljs-built_in">document</span>.getElementById(<span class="hljs-string">'app'</span>)
+    document.get<span class="hljs-constructor">ElementById('<span class="hljs-params">app</span>')</span>
   );
 });
 </code></pre>

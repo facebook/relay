@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="en"><head><meta charSet="utf-8"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><title>RelayContainer · Relay</title><meta name="viewport" content="width=device-width"/><meta name="generator" content="Docusaurus"/><meta name="description" content="&lt;p&gt;&lt;code&gt;RelayContainer&lt;/code&gt; is a higher-order React component that lets a React component encode its data requirements.&lt;/p&gt;
 "/><meta name="docsearch:version" content="v2.0.0"/><meta name="docsearch:language" content="en"/><meta property="og:title" content="RelayContainer · Relay"/><meta property="og:type" content="website"/><meta property="og:url" content="https://facebook.github.io/relay/index.html"/><meta property="og:description" content="&lt;p&gt;&lt;code&gt;RelayContainer&lt;/code&gt; is a higher-order React component that lets a React component encode its data requirements.&lt;/p&gt;
-"/><meta name="twitter:card" content="summary"/><link rel="shortcut icon" href="/relay/img/favicon.png"/><link rel="stylesheet" href="https://cdn.jsdelivr.net/docsearch.js/1/docsearch.min.css"/><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css"/><link rel="stylesheet" href="/relay/css/main.css"/></head><body class="sideNavVisible"><div class="fixedHeaderContainer"><div class="headerWrapper wrapper"><header><a href="/relay/en"><img class="logo" src="/relay/img/relay-white.svg" alt="Relay"/><h2 class="headerTitleWithLogo">Relay</h2></a><a href="/relay/en/versions.html"><h3>v2.0.0</h3></a><div class="navigationWrapper navigationSlider"><nav class="slidingNav"><ul class="nav-site nav-site-internal"><li class=""><a href="/relay/docs/en/v2.0.0/introduction-to-relay.html" target="_self">Docs</a></li><li class=""><a href="/relay/en/help.html" target="_self">Support</a></li><li class=""><a href="https://github.com/facebook/relay" target="_self">GitHub</a></li><li class=""><a target="_self"></a></li><li class="navSearchWrapper reactNavSearchWrapper"><input type="text" id="search_input_react" placeholder="Search" title="Search"/></li></ul></nav></div></header></div></div><div class="navPusher"><div class="docMainWrapper wrapper"><div class="container mainContainer"><div class="wrapper"><div class="post"><header class="postHeader"><a class="edit-page-link button" href="https://github.com/facebook/relay/edit/master/docs/Classic-APIReference-Container.md" target="_blank" rel="noreferrer noopener">Edit</a><h1 class="postHeaderTitle">RelayContainer</h1></header><article><div><span><p><code>RelayContainer</code> is a higher-order React component that lets a React component encode its data requirements.</p>
+"/><meta name="twitter:card" content="summary"/><link rel="shortcut icon" href="/relay/img/favicon.png"/><link rel="stylesheet" href="https://cdn.jsdelivr.net/docsearch.js/1/docsearch.min.css"/><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css"/><link rel="stylesheet" href="/relay/css/main.css"/><script src="/relay/js/codetabs.js"></script></head><body class="sideNavVisible"><div class="fixedHeaderContainer"><div class="headerWrapper wrapper"><header><a href="/relay/en"><img class="logo" src="/relay/img/relay-white.svg" alt="Relay"/><h2 class="headerTitleWithLogo">Relay</h2></a><a href="/relay/en/versions.html"><h3>v2.0.0</h3></a><div class="navigationWrapper navigationSlider"><nav class="slidingNav"><ul class="nav-site nav-site-internal"><li class=""><a href="/relay/docs/en/v2.0.0/introduction-to-relay.html" target="_self">Docs</a></li><li class=""><a href="/relay/en/help.html" target="_self">Support</a></li><li class=""><a href="https://github.com/facebook/relay" target="_self">GitHub</a></li><li class=""><a target="_self"></a></li><li class="navSearchWrapper reactNavSearchWrapper"><input type="text" id="search_input_react" placeholder="Search" title="Search"/></li></ul></nav></div></header></div></div><div class="navPusher"><div class="docMainWrapper wrapper"><div class="container mainContainer"><div class="wrapper"><div class="post"><header class="postHeader"><a class="edit-page-link button" href="https://github.com/facebook/relay/edit/master/docs/Classic-APIReference-Container.md" target="_blank" rel="noreferrer noopener">Edit</a><h1 class="postHeaderTitle">RelayContainer</h1></header><article><div><span><p><code>RelayContainer</code> is a higher-order React component that lets a React component encode its data requirements.</p>
 <ul>
 <li>Relay ensures that this data is available before the component is rendered.</li>
 <li>Relay updates the component whenever the underlying data has changed.</li>
@@ -84,12 +84,12 @@
 </ul>
 <h2><a class="anchor" aria-hidden="true" id="container-specification"></a><a href="#container-specification" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Container Specification</h2>
 <h3><a class="anchor" aria-hidden="true" id="fragments"></a><a href="#fragments" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>fragments</h3>
-<pre><code class="hljs">fragments: RelayQueryFragments&lt;Tk&gt; = {
-  [propName: string]: (
-    variables: {[name: string]: mixed}
+<pre><code class="hljs">fragments: RelayQueryFragments<span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">Tk</span>&gt;</span> = </span><span class="xquery">{
+  [propName:<span class="hljs-built_in"> string</span>]: (
+    variables: {<span class="hljs-built_in">[name</span>:<span class="hljs-built_in"> string</span>]: mixed}</span><span class="xml">
   ) =&gt; Relay.QL`fragment on ...`
 };
-</code></pre>
+</span></code></pre>
 <p>Containers declare data requirements on <code>fragments</code> using GraphQL fragments.</p>
 <p>Only fields specified by these fragments will be populated in <code>this.props</code> when the component is rendered. This ensures that there are no implicit dependencies from a component on its parent component or any child components.</p>
 <h4><a class="anchor" aria-hidden="true" id="example"></a><a href="#example" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Example</h4>
@@ -316,7 +316,7 @@ module.exports = <span class="hljs-type">Relay</span>.createContainer(<span clas
 </blockquote>
 <p>See also: <a href="guides-ready-state.html">Ready State</a></p>
 <h3><a class="anchor" aria-hidden="true" id="hasoptimisticupdate"></a><a href="#hasoptimisticupdate" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>hasOptimisticUpdate</h3>
-<pre><code class="hljs"><span class="hljs-function"><span class="hljs-title">hasOptimisticUpdate</span><span class="hljs-params">(record: Object)</span></span>: boolean
+<pre><code class="hljs">hasOptimisticUpdate(<span class="hljs-type">record</span>: <span class="hljs-keyword">Object</span>): <span class="hljs-type">boolean</span>
 </code></pre>
 <p>Calling <code>hasOptimisticUpdate</code> with a record from <code>this.props</code> will return whether that given record is affected by an optimistic mutation. It allows the component to render local optimistic changes differently from data that has successfully synchronized with the server.</p>
 <h4><a class="anchor" aria-hidden="true" id="example-8"></a><a href="#example-8" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Example</h4>
@@ -426,28 +426,28 @@ module.exports = <span class="hljs-type">Relay</span>.createContainer(<span clas
 <p>Gets a reference to a child container's fragment for inclusion in a parent fragment.</p>
 <h4><a class="anchor" aria-hidden="true" id="example-10"></a><a href="#example-10" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Example</h4>
 <p>Fragment composition is achieved via ES6 template string interpolation and <code>getFragment</code>:</p>
-<pre><code class="hljs css language-{6}">// Parent.js
+<pre><code class="hljs css language-{6}"><span class="hljs-comment">// Parent.js</span>
 Relay.createContainer(Parent, {
-  fragments: {
-    parentFragment: () =&gt; Relay.QL`
+  <span class="hljs-attr">fragments</span>: {
+    <span class="hljs-attr">parentFragment</span>: <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> Relay.QL<span class="hljs-string">`
       fragment on Foo {
         id
-        ${Child.getFragment(<span class="hljs-string">'childFragment'</span>)}
+        <span class="hljs-subst">${Child.getFragment(<span class="hljs-string">'childFragment'</span>)}</span>
       }
-    `,
+    `</span>,
   }
 });
-// Child.js
+<span class="hljs-comment">// Child.js</span>
 Relay.createContainer(Child, {
-  initialVariables: {
-    size: <span class="hljs-number">64</span>,
+  <span class="hljs-attr">initialVariables</span>: {
+    <span class="hljs-attr">size</span>: <span class="hljs-number">64</span>,
   },
-  fragments: {
-    childFragment: () =&gt; Relay.QL`
+  <span class="hljs-attr">fragments</span>: {
+    <span class="hljs-attr">childFragment</span>: <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> Relay.QL<span class="hljs-string">`
       fragment on Foo {
         photo(size: $size) { uri }
       }
-    `,
+    `</span>,
   }
 });
 </code></pre>

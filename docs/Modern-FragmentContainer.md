@@ -237,57 +237,6 @@ query TodoListQuery($count: Int, $userID: ID) {
 }
 ```
 
-### Calling Component Instance Methods
-
-React component classes may have methods, often accessed via [refs](https://facebook.github.io/react/docs/refs-and-the-dom.html).
-Since Relay composes these component instances in a container, you need to use the `componentRef` prop to access them:
-
-Consider an input with a server-defined placeholder text and an imperative method to focus the input node:
-
-```javascript
-export default createFragmentContainer(
-  class TodoInput extends React.Component {
-    focus() {
-      this.input.focus();
-    }
-
-    render() {
-      return <input
-        ref={node => { this.input = node; }}
-        placeholder={this.props.data.suggestedNextTitle}
-      />;
-    }
-  },
-  graphql`
-    fragment TodoInput on TodoList {
-      suggestedNextTitle
-    }
-  `,
-);
-```
-
-To call this method on the underlying component, first provide a `componentRef` function to the Relay container. This differs from providing a [`ref`](https://facebook.github.io/react/docs/refs-and-the-dom.html) function which would provide a reference to the Relay container itself, not the underlying React Component.
-
-```javascript
-export default createFragmentContainer(
-  class TodoListView extends React.Component {
-    render() {
-      return <div onClick={() => this.input.focus()}>
-        <TodoInput
-          data={this.props.data}
-          componentRef={ref => { this.input = ref; }}
-        />
-      </div>;
-    }
-  },
-  graphql`
-    fragment TodoListView on TodoList {
-      ...TodoInput
-    }
-  `,
-);
-```
-
 ## Rendering Containers
 
 As we've learned, Relay fragment containers only declare data requirements as GraphQL fragments. In order to actually fetch and render the specified data, we need to use a `QueryRenderer` component to render a root query and any fragment containers included within. Please refer to our [`QueryRenderer`](./query-renderer.html) docs for more details.

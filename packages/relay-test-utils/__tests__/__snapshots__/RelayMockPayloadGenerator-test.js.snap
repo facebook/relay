@@ -322,6 +322,10 @@ fragment TestFragment on User @argumentDefinitions(condition: {type: "Boolean!"}
       "myPageInfo": {
         "endCursor": "<mock-value-for-field-\\"endCursor\\">",
         "hasNextPage": false
+      },
+      "pageInfo": {
+        "endCursor": "<mock-value-for-field-\\"endCursor\\">",
+        "hasNextPage": false
       }
     },
     "profile_picture": {

@@ -386,7 +386,6 @@ function transformConnectionSelections(
       }
     }
   });
-
   // If streaming is enabled, construct directives to apply to the edges/
   // pageInfo fields
   let streamDirective;
@@ -438,6 +437,32 @@ function transformConnectionSelections(
       metadata: null,
       name: 'defer',
     };
+  }
+  // For backwards compatibility with earlier versions of this transform,
+  // edges/pageInfo have to be generated as non-aliased fields (since product
+  // code may be accessing the non-aliased response keys). But for streaming
+  // mode we need to generate @stream/@defer directives on these fields *and*
+  // we prefer to avoid generating extra selections (we want one payload per
+  // item, not two as could happen with separate @stream directives on the
+  // aliased and non-aliased edges fields). So we keep things simple by
+  // disallowing aliases on edges/pageInfo in streaming mode.
+  if (edgesSelection && edgesSelection.alias != null) {
+    if (stream) {
+      throw createUserError(
+        `@stream_connection does not support aliasing the '${EDGES}' field.`,
+        [edgesSelection.loc],
+      );
+    }
+    edgesSelection = null;
+  }
+  if (pageInfoSelection && pageInfoSelection.alias != null) {
+    if (stream) {
+      throw createUserError(
+        `@stream_connection does not support aliasing the '${PAGE_INFO}' field.`,
+        [pageInfoSelection.loc],
+      );
+    }
+    pageInfoSelection = null;
   }
 
   // Separately create transformed versions of edges/pageInfo so that we can

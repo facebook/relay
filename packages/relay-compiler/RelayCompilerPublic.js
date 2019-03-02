@@ -33,6 +33,7 @@ const RelayIRTransforms = require('./core/RelayIRTransforms');
 const RelayParser = require('./core/RelayParser');
 const RelaySourceModuleParser = require('./core/RelaySourceModuleParser');
 const RelayValidator = require('./core/RelayValidator');
+const Rollout = require('./util/Rollout');
 
 const compileRelayArtifacts = require('./codegen/compileRelayArtifacts');
 const filterContextForNode = require('./core/filterContextForNode');
@@ -115,6 +116,7 @@ module.exports = {
   IRVisitor: GraphQLIRVisitor,
   Printer: GraphQLIRPrinter,
   Profiler: GraphQLCompilerProfiler,
+  Rollout,
   SchemaUtils: GraphQLSchemaUtils,
   SourceControlMercurial,
   WatchmanClient: GraphQLWatchmanClient,

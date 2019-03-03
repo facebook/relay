@@ -18,6 +18,7 @@ const RelayMaskTransform = require('../../transforms/RelayMaskTransform');
 const RelayMatchTransform = require('../../transforms/RelayMatchTransform');
 const RelayRefetchableFragmentTransform = require('../../transforms/RelayRefetchableFragmentTransform');
 const RelayRelayDirectiveTransform = require('../../transforms/RelayRelayDirectiveTransform');
+const Rollout = require('../../util/Rollout');
 
 const invariant = require('invariant');
 const nullthrows = require('nullthrows');
@@ -324,6 +325,7 @@ function createVisitor(options: TypeGeneratorOptions) {
             t.genericTypeAnnotation(t.identifier('FragmentReference')),
           ),
         );
+
         const unmasked = node.metadata && node.metadata.mask === false;
         const baseType = selectionsToBabel(
           selections,
@@ -333,13 +335,40 @@ function createVisitor(options: TypeGeneratorOptions) {
         );
         const type = isPlural(node) ? readOnlyArrayOfType(baseType) : baseType;
         const importedTypes = ['FragmentReference'];
-        return t.program([
+
+        let typesToGenerate = [
           ...getFragmentImports(state),
           ...getEnumDefinitions(state),
           importTypes(importedTypes, 'relay-runtime'),
           refType,
           exportType(node.name, type),
-        ]);
+        ];
+
+        // TODO(T41212424) Remove rollout check after rollout is complete
+        if (Rollout.check(node.name)) {
+          const keyTypeName = getKeyTypeName(node.name);
+          const keyTypeDataProperty = t.objectTypeProperty(
+            t.identifier('$data'),
+            t.genericTypeAnnotation(t.identifier(`${node.name}$data`)),
+          );
+          keyTypeDataProperty.optional = true;
+          const keyType = t.objectTypeAnnotation([
+            keyTypeDataProperty,
+            t.objectTypeProperty(
+              t.identifier('$fragmentRefs'),
+              t.genericTypeAnnotation(t.identifier(`${node.name}$ref`)),
+            ),
+          ]);
+          const dataTypeName = getDataTypeName(node.name);
+          const dataType = t.genericTypeAnnotation(t.identifier(node.name));
+          typesToGenerate = [
+            ...typesToGenerate,
+            exportType(dataTypeName, dataType),
+            exportType(keyTypeName, keyType),
+          ];
+        }
+
+        return t.program(typesToGenerate);
       },
       InlineFragment(node) {
         const typeCondition = node.typeCondition;
@@ -544,6 +573,14 @@ function getEnumDefinitions({
 
 function getRefTypeName(name: string): string {
   return `${name}$ref`;
+}
+
+function getKeyTypeName(name: string): string {
+  return `${name}$key`;
+}
+
+function getDataTypeName(name: string): string {
+  return `${name}$data`;
 }
 
 const FLOW_TRANSFORMS: Array<IRTransform> = [

@@ -19,6 +19,11 @@ export type ConditionField = {|
   +id?: string,
   +$refType: ConditionField$ref,
 |};
+export type ConditionField$data = ConditionField;
+export type ConditionField$key = {
+  $data?: ConditionField$data,
+  $fragmentRefs: ConditionField$ref,
+};
 
 import type { FragmentReference } from "relay-runtime";
 declare export opaque type NestedCondition$ref: FragmentReference;
@@ -26,6 +31,11 @@ export type NestedCondition = {|
   +id?: string,
   +$refType: NestedCondition$ref,
 |};
+export type NestedCondition$data = NestedCondition;
+export type NestedCondition$key = {
+  $data?: NestedCondition$data,
+  $fragmentRefs: NestedCondition$ref,
+};
 `;
 
 exports[`RelayFlowGenerator matches expected output: fragment-spread.graphql 1`] = `
@@ -78,6 +88,11 @@ export type FragmentSpread = {|
   +$fragmentRefs: OtherFragment$ref & UserFrag1$ref & UserFrag2$ref,
   +$refType: FragmentSpread$ref,
 |};
+export type FragmentSpread$data = FragmentSpread;
+export type FragmentSpread$key = {
+  $data?: FragmentSpread$data,
+  $fragmentRefs: FragmentSpread$ref,
+};
 
 type PageFragment$ref = any;
 import type { FragmentReference } from "relay-runtime";
@@ -97,6 +112,11 @@ export type ConcreateTypes = {|
   |}),
   +$refType: ConcreateTypes$ref,
 |};
+export type ConcreateTypes$data = ConcreateTypes;
+export type ConcreateTypes$key = {
+  $data?: ConcreateTypes$data,
+  $fragmentRefs: ConcreateTypes$ref,
+};
 `;
 
 exports[`RelayFlowGenerator matches expected output: inline-fragment.graphql 1`] = `
@@ -173,6 +193,11 @@ export type InlineFragment = {|
   |},
   +$refType: InlineFragment$ref,
 |};
+export type InlineFragment$data = InlineFragment;
+export type InlineFragment$key = {
+  $data?: InlineFragment$data,
+  $fragmentRefs: InlineFragment$ref,
+};
 
 import type { FragmentReference } from "relay-runtime";
 declare export opaque type InlineFragmentWithOverlappingFields$ref: FragmentReference;
@@ -187,6 +212,11 @@ export type InlineFragmentWithOverlappingFields = {|
   +name?: ?string,
   +$refType: InlineFragmentWithOverlappingFields$ref,
 |};
+export type InlineFragmentWithOverlappingFields$data = InlineFragmentWithOverlappingFields;
+export type InlineFragmentWithOverlappingFields$key = {
+  $data?: InlineFragmentWithOverlappingFields$data,
+  $fragmentRefs: InlineFragmentWithOverlappingFields$ref,
+};
 
 import type { FragmentReference } from "relay-runtime";
 declare export opaque type InlineFragmentConditionalID$ref: FragmentReference;
@@ -195,6 +225,11 @@ export type InlineFragmentConditionalID = {|
   +name?: ?string,
   +$refType: InlineFragmentConditionalID$ref,
 |};
+export type InlineFragmentConditionalID$data = InlineFragmentConditionalID;
+export type InlineFragmentConditionalID$key = {
+  $data?: InlineFragmentConditionalID$data,
+  $fragmentRefs: InlineFragmentConditionalID$ref,
+};
 
 type SomeFragment$ref = any;
 import type { FragmentReference } from "relay-runtime";
@@ -212,6 +247,11 @@ export type InlineFragmentKitchenSink = {|
   |},
   +$refType: InlineFragmentKitchenSink$ref,
 |};
+export type InlineFragmentKitchenSink$data = InlineFragmentKitchenSink;
+export type InlineFragmentKitchenSink$key = {
+  $data?: InlineFragmentKitchenSink$data,
+  $fragmentRefs: InlineFragmentKitchenSink$ref,
+};
 `;
 
 exports[`RelayFlowGenerator matches expected output: linked-field.graphql 1`] = `
@@ -264,6 +304,11 @@ export type LinkedField = {|
   |},
   +$refType: LinkedField$ref,
 |};
+export type LinkedField$data = LinkedField;
+export type LinkedField$key = {
+  $data?: LinkedField$data,
+  $fragmentRefs: LinkedField$ref,
+};
 
 export type UnionTypeTestVariables = {||};
 export type UnionTypeTestResponse = {|
@@ -321,6 +366,11 @@ export type NameRendererFragment = {|
   |},
   +$refType: NameRendererFragment$ref,
 |};
+export type NameRendererFragment$data = NameRendererFragment;
+export type NameRendererFragment$key = {
+  $data?: NameRendererFragment$data,
+  $fragmentRefs: NameRendererFragment$ref,
+};
 
 import type { FragmentReference } from "relay-runtime";
 declare export opaque type PlainUserNameRenderer_name$ref: FragmentReference;
@@ -331,6 +381,11 @@ export type PlainUserNameRenderer_name = {|
   |},
   +$refType: PlainUserNameRenderer_name$ref,
 |};
+export type PlainUserNameRenderer_name$data = PlainUserNameRenderer_name;
+export type PlainUserNameRenderer_name$key = {
+  $data?: PlainUserNameRenderer_name$data,
+  $fragmentRefs: PlainUserNameRenderer_name$ref,
+};
 
 import type { FragmentReference } from "relay-runtime";
 declare export opaque type MarkdownUserNameRenderer_name$ref: FragmentReference;
@@ -341,6 +396,11 @@ export type MarkdownUserNameRenderer_name = {|
   |},
   +$refType: MarkdownUserNameRenderer_name$ref,
 |};
+export type MarkdownUserNameRenderer_name$data = MarkdownUserNameRenderer_name;
+export type MarkdownUserNameRenderer_name$key = {
+  $data?: MarkdownUserNameRenderer_name$data,
+  $fragmentRefs: MarkdownUserNameRenderer_name$ref,
+};
 `;
 
 exports[`RelayFlowGenerator matches expected output: match-field-in-query.graphql 1`] = `
@@ -396,6 +456,11 @@ export type PlainUserNameRenderer_name = {|
   |},
   +$refType: PlainUserNameRenderer_name$ref,
 |};
+export type PlainUserNameRenderer_name$data = PlainUserNameRenderer_name;
+export type PlainUserNameRenderer_name$key = {
+  $data?: PlainUserNameRenderer_name$data,
+  $fragmentRefs: PlainUserNameRenderer_name$ref,
+};
 
 import type { FragmentReference } from "relay-runtime";
 declare export opaque type MarkdownUserNameRenderer_name$ref: FragmentReference;
@@ -406,6 +471,11 @@ export type MarkdownUserNameRenderer_name = {|
   |},
   +$refType: MarkdownUserNameRenderer_name$ref,
 |};
+export type MarkdownUserNameRenderer_name$data = MarkdownUserNameRenderer_name;
+export type MarkdownUserNameRenderer_name$key = {
+  $data?: MarkdownUserNameRenderer_name$data,
+  $fragmentRefs: MarkdownUserNameRenderer_name$ref,
+};
 `;
 
 exports[`RelayFlowGenerator matches expected output: mutation.graphql 1`] = `
@@ -504,6 +574,11 @@ export type PluralFragment = $ReadOnlyArray<{|
   +id: string,
   +$refType: PluralFragment$ref,
 |}>;
+export type PluralFragment$data = PluralFragment;
+export type PluralFragment$key = {
+  $data?: PluralFragment$data,
+  $fragmentRefs: PluralFragment$ref,
+};
 `;
 
 exports[`RelayFlowGenerator matches expected output: recursive-fragments.graphql 1`] = `
@@ -523,6 +598,11 @@ export type FragmentSpread = {|
   +$fragmentRefs: FragmentSpread$ref,
   +$refType: FragmentSpread$ref,
 |};
+export type FragmentSpread$data = FragmentSpread;
+export type FragmentSpread$key = {
+  $data?: FragmentSpread$data,
+  $fragmentRefs: FragmentSpread$ref,
+};
 `;
 
 exports[`RelayFlowGenerator matches expected output: roots.graphql 1`] = `
@@ -573,6 +653,11 @@ export type ExampleFragment = {|
   +id: string,
   +$refType: ExampleFragment$ref,
 |};
+export type ExampleFragment$data = ExampleFragment;
+export type ExampleFragment$key = {
+  $data?: ExampleFragment$data,
+  $fragmentRefs: ExampleFragment$ref,
+};
 
 export type CommentCreateInput = {|
   clientMutationId?: ?string,
@@ -654,6 +739,11 @@ export type ScalarField = {|
   |}>,
   +$refType: ScalarField$ref,
 |};
+export type ScalarField$data = ScalarField;
+export type ScalarField$key = {
+  $data?: ScalarField$data,
+  $fragmentRefs: ScalarField$ref,
+};
 `;
 
 exports[`RelayFlowGenerator matches expected output: typename-on-union.graphql 1`] = `
@@ -757,6 +847,11 @@ export type TypenameInside = {|
   +__typename: "%other",
   +$refType: TypenameInside$ref,
 |};
+export type TypenameInside$data = TypenameInside;
+export type TypenameInside$key = {
+  $data?: TypenameInside$data,
+  $fragmentRefs: TypenameInside$ref,
+};
 
 import type { FragmentReference } from "relay-runtime";
 declare export opaque type TypenameOutside$ref: FragmentReference;
@@ -774,6 +869,11 @@ export type TypenameOutside = {|
   +__typename: "%other",
   +$refType: TypenameOutside$ref,
 |};
+export type TypenameOutside$data = TypenameOutside;
+export type TypenameOutside$key = {
+  $data?: TypenameOutside$data,
+  $fragmentRefs: TypenameOutside$ref,
+};
 
 import type { FragmentReference } from "relay-runtime";
 declare export opaque type TypenameOutsideWithAbstractType$ref: FragmentReference;
@@ -788,6 +888,11 @@ export type TypenameOutsideWithAbstractType = {|
   +firstName?: ?string,
   +$refType: TypenameOutsideWithAbstractType$ref,
 |};
+export type TypenameOutsideWithAbstractType$data = TypenameOutsideWithAbstractType;
+export type TypenameOutsideWithAbstractType$key = {
+  $data?: TypenameOutsideWithAbstractType$data,
+  $fragmentRefs: TypenameOutsideWithAbstractType$ref,
+};
 
 import type { FragmentReference } from "relay-runtime";
 declare export opaque type TypenameWithoutSpreads$ref: FragmentReference;
@@ -796,6 +901,11 @@ export type TypenameWithoutSpreads = {|
   +__typename: "User",
   +$refType: TypenameWithoutSpreads$ref,
 |};
+export type TypenameWithoutSpreads$data = TypenameWithoutSpreads;
+export type TypenameWithoutSpreads$key = {
+  $data?: TypenameWithoutSpreads$data,
+  $fragmentRefs: TypenameWithoutSpreads$ref,
+};
 
 import type { FragmentReference } from "relay-runtime";
 declare export opaque type TypenameWithoutSpreadsAbstractType$ref: FragmentReference;
@@ -804,6 +914,11 @@ export type TypenameWithoutSpreadsAbstractType = {|
   +id: string,
   +$refType: TypenameWithoutSpreadsAbstractType$ref,
 |};
+export type TypenameWithoutSpreadsAbstractType$data = TypenameWithoutSpreadsAbstractType;
+export type TypenameWithoutSpreadsAbstractType$key = {
+  $data?: TypenameWithoutSpreadsAbstractType$data,
+  $fragmentRefs: TypenameWithoutSpreadsAbstractType$ref,
+};
 
 import type { FragmentReference } from "relay-runtime";
 declare export opaque type TypenameWithCommonSelections$ref: FragmentReference;
@@ -814,6 +929,11 @@ export type TypenameWithCommonSelections = {|
   +username?: ?string,
   +$refType: TypenameWithCommonSelections$ref,
 |};
+export type TypenameWithCommonSelections$data = TypenameWithCommonSelections;
+export type TypenameWithCommonSelections$key = {
+  $data?: TypenameWithCommonSelections$data,
+  $fragmentRefs: TypenameWithCommonSelections$ref,
+};
 
 import type { FragmentReference } from "relay-runtime";
 declare export opaque type TypenameAlias$ref: FragmentReference;
@@ -831,6 +951,11 @@ export type TypenameAlias = {|
   +_typeAlias: "%other",
   +$refType: TypenameAlias$ref,
 |};
+export type TypenameAlias$data = TypenameAlias;
+export type TypenameAlias$key = {
+  $data?: TypenameAlias$data,
+  $fragmentRefs: TypenameAlias$ref,
+};
 
 import type { FragmentReference } from "relay-runtime";
 declare export opaque type TypenameAliases$ref: FragmentReference;
@@ -853,6 +978,11 @@ export type TypenameAliases = {|
   +_typeAlias2: "%other",
   +$refType: TypenameAliases$ref,
 |};
+export type TypenameAliases$data = TypenameAliases;
+export type TypenameAliases$key = {
+  $data?: TypenameAliases$data,
+  $fragmentRefs: TypenameAliases$ref,
+};
 `;
 
 exports[`RelayFlowGenerator matches expected output: unmasked-fragment-spreads.graphql 1`] = `
@@ -897,6 +1027,11 @@ export type UserProfile = {|
   |},
   +$refType: UserProfile$ref,
 |};
+export type UserProfile$data = UserProfile;
+export type UserProfile$key = {
+  $data?: UserProfile$data,
+  $fragmentRefs: UserProfile$ref,
+};
 
 import type { FragmentReference } from "relay-runtime";
 declare export opaque type PhotoFragment$ref: FragmentReference;
@@ -905,12 +1040,22 @@ export type PhotoFragment = {|
   +width: ?number,
   +$refType: PhotoFragment$ref,
 |};
+export type PhotoFragment$data = PhotoFragment;
+export type PhotoFragment$key = {
+  $data?: PhotoFragment$data,
+  $fragmentRefs: PhotoFragment$ref,
+};
 
 import type { FragmentReference } from "relay-runtime";
 declare export opaque type RecursiveFragment$ref: FragmentReference;
 export type RecursiveFragment = {
   +uri: ?string,
   +width: ?number,
+};
+export type RecursiveFragment$data = RecursiveFragment;
+export type RecursiveFragment$key = {
+  $data?: RecursiveFragment$data,
+  $fragmentRefs: RecursiveFragment$ref,
 };
 
 import type { FragmentReference } from "relay-runtime";
@@ -920,4 +1065,9 @@ export type AnotherRecursiveFragment = {|
   +height: ?number,
   +$refType: AnotherRecursiveFragment$ref,
 |};
+export type AnotherRecursiveFragment$data = AnotherRecursiveFragment;
+export type AnotherRecursiveFragment$key = {
+  $data?: AnotherRecursiveFragment$data,
+  $fragmentRefs: AnotherRecursiveFragment$ref,
+};
 `;

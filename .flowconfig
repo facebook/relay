@@ -1,12 +1,5 @@
 [ignore]
-.*\.native\.js
 <PROJECT_ROOT>/dist/.*
-<PROJECT_ROOT>/node_modules/react/node_modules/.*
-<PROJECT_ROOT>/node_modules/react-dom/node_modules/.*
-<PROJECT_ROOT>/website/node_modules/.*
-
-[libs]
-node_modules/fbjs/flow/lib
 
 [options]
 module.system=haste
@@ -15,15 +8,11 @@ module.system.haste.use_name_reducers=true
 module.system.haste.name_reducers='^.*/\([a-zA-Z0-9$_.-]+\.js\(\.flow\)?\)$' -> '\1'
 # strip .js or .js.flow suffix
 module.system.haste.name_reducers='^\(.*\)\.js\(\.flow\)?$' -> '\1'
-# strip .native suffix
-module.system.haste.name_reducers='^\(.*\)\.native$' -> '\1'
 
 module.system.haste.paths.blacklist=.*/__tests__/.*
 module.system.haste.paths.blacklist=.*/__mocks__/.*
 module.system.haste.paths.whitelist=<PROJECT_ROOT>/node_modules/fbjs/lib/.*
 module.system.haste.paths.whitelist=<PROJECT_ROOT>/packages/relay-test-utils/.*
-
-module.name_mapper='^ReactDOM$' -> 'react-dom'
 
 esproposal.class_static_fields=enable
 esproposal.class_instance_fields=enable

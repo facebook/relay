@@ -13,12 +13,11 @@
 const ASTConvert = require('../ASTConvert');
 const RelayMatchTransform = require('../../transforms/RelayMatchTransform');
 const RelayParser = require('../RelayParser');
-const RelayTestSchema = require('RelayTestSchema');
 
-const {generateTestsFromFixtures} = require('RelayModernTestUtils');
+const {TestSchema, generateTestsFromFixtures} = require('relay-test-utils');
 
 describe('RelayParser', () => {
-  const schema = ASTConvert.transformASTSchema(RelayTestSchema, [
+  const schema = ASTConvert.transformASTSchema(TestSchema, [
     RelayMatchTransform.SCHEMA_EXTENSION,
   ]);
 
@@ -39,7 +38,7 @@ describe('RelayParser', () => {
       id
     }
   }`;
-    expect(() => RelayParser.parse(RelayTestSchema, text)).not.toThrowError();
+    expect(() => RelayParser.parse(TestSchema, text)).not.toThrowError();
 
     // Should also work when call that requires an ID! comes after a call that takes an ID
     text = `query TestQuery(
@@ -52,7 +51,7 @@ describe('RelayParser', () => {
       id
     }
   }`;
-    expect(() => RelayParser.parse(RelayTestSchema, text)).not.toThrowError();
+    expect(() => RelayParser.parse(TestSchema, text)).not.toThrowError();
   });
 
   it('should parse fragment spread arguments with variable values', () => {
@@ -64,7 +63,7 @@ describe('RelayParser', () => {
       viewer { actor { id } }
     }
   `;
-    expect(() => RelayParser.parse(RelayTestSchema, text)).not.toThrowError();
+    expect(() => RelayParser.parse(TestSchema, text)).not.toThrowError();
   });
 
   it('should parse fragment spread arguments with literal values', () => {
@@ -76,7 +75,7 @@ describe('RelayParser', () => {
       viewer { actor { id } }
     }
   `;
-    expect(() => RelayParser.parse(RelayTestSchema, text)).not.toThrowError();
+    expect(() => RelayParser.parse(TestSchema, text)).not.toThrowError();
   });
 
   it("should correctly parse fragment when input is a non-null type and it's passed to calls expecting both null and non-null types, regardless of order", () => {
@@ -92,7 +91,7 @@ describe('RelayParser', () => {
       id
     }
   }`;
-    expect(() => RelayParser.parse(RelayTestSchema, text)).not.toThrowError();
+    expect(() => RelayParser.parse(TestSchema, text)).not.toThrowError();
 
     // Should also work when call that requires an ID! comes after a call that takes an ID
     text = `fragment TestFragment on Query @argumentDefinitions(
@@ -105,7 +104,7 @@ describe('RelayParser', () => {
       id
     }
   }`;
-    expect(() => RelayParser.parse(RelayTestSchema, text)).not.toThrowError();
+    expect(() => RelayParser.parse(TestSchema, text)).not.toThrowError();
   });
 
   it('should not error when parsing a fragment that references undeclared variables without type errors', () => {
@@ -117,7 +116,7 @@ describe('RelayParser', () => {
       title
     }
   }`;
-    expect(() => RelayParser.parse(RelayTestSchema, text)).not.toThrowError();
+    expect(() => RelayParser.parse(TestSchema, text)).not.toThrowError();
   });
 
   it('should error when parsing fragment that references undeclared variables are used with differing types', () => {
@@ -131,7 +130,7 @@ describe('RelayParser', () => {
   }`;
     let error;
     try {
-      RelayParser.parse(RelayTestSchema, text);
+      RelayParser.parse(TestSchema, text);
     } catch (error_) {
       error = error_;
     }

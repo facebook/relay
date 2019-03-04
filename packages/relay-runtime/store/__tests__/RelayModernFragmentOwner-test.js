@@ -17,7 +17,7 @@ const {
   getFragmentOwner,
   getFragmentOwners,
 } = require('../RelayModernFragmentOwner');
-const {createMockEnvironment} = require('RelayModernMockEnvironment');
+const {createMockEnvironment} = require('relay-test-utils');
 const {getRequest, createOperationDescriptor} = require('../RelayCore');
 
 describe('RelayModernFragmentOwner', () => {

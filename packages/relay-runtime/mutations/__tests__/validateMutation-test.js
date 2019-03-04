@@ -10,7 +10,7 @@
 
 'use strict';
 
-const {generateAndCompile} = require('RelayModernTestUtils');
+const {generateAndCompile} = require('relay-test-utils');
 
 import validateMutation from '../validateMutation';
 

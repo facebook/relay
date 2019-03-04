@@ -13,20 +13,21 @@
 const GraphQLCompilerContext = require('../../../core/GraphQLCompilerContext');
 const GraphQLIRPrinter = require('../../../core/GraphQLIRPrinter');
 const RelayConnectionTransform = require('../RelayConnectionTransform');
-const RelayTestSchema = require('RelayTestSchema');
-
-const parseGraphQLText = require('parseGraphQLText');
 
 const {transformASTSchema} = require('../../../core/ASTConvert');
-const {generateTestsFromFixtures} = require('RelayModernTestUtils');
+const {
+  TestSchema,
+  generateTestsFromFixtures,
+  parseGraphQLText,
+} = require('relay-test-utils');
 
 describe('RelayConnectionTransform', () => {
   generateTestsFromFixtures(`${__dirname}/fixtures`, text => {
-    const schema = transformASTSchema(RelayTestSchema, [
+    const schema = transformASTSchema(TestSchema, [
       RelayConnectionTransform.SCHEMA_EXTENSION,
     ]);
     const {definitions} = parseGraphQLText(schema, text);
-    return new GraphQLCompilerContext(RelayTestSchema, schema)
+    return new GraphQLCompilerContext(TestSchema, schema)
       .addAll(definitions)
       .applyTransforms([RelayConnectionTransform.transform])
       .documents()

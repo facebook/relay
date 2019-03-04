@@ -71,6 +71,7 @@ const babelOptions = require('./scripts/getBabelOptions')({
     'relay-compiler': 'relay-compiler',
     RelayRuntime: 'relay-runtime',
     'relay-runtime': 'relay-runtime',
+    'relay-test-utils': 'relay-test-utils',
     signedsource: 'signedsource',
     util: 'util',
     yargs: 'yargs',
@@ -234,11 +235,11 @@ const builds = [
   {
     package: 'relay-test-utils',
     exports: {
-      index: 'RelayTestUtilsPublic.js',
+      index: 'index.js',
     },
     bundles: [
       {
-        entry: 'RelayTestUtilsPublic.js',
+        entry: 'index.js',
         output: 'relay-test-utils',
         libraryName: 'RelayTestUtils',
         target: 'node',

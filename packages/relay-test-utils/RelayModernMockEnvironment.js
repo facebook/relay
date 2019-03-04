@@ -9,8 +9,8 @@
 
 'use strict';
 
-const RelayModernTestUtils = require('RelayModernTestUtils');
-const RelayTestSchema = require('RelayTestSchema');
+const RelayModernTestUtils = require('relay-test-utils');
+const RelayTestSchema = require('./RelayTestSchema');
 
 const areEqual = require('areEqual');
 const invariant = require('invariant');
@@ -78,7 +78,7 @@ function mockObservableMethod(object, key) {
  * - `resolve(query, payload: PayloadData): void`: Resolve a query that has been
  *   fetched by the environment.
  */
-function createMockEnvironment(options: {
+function createMockEnvironment(options?: {
   schema?: ?GraphQLSchema,
   handlerProvider?: ?HandlerProvider,
 }) {

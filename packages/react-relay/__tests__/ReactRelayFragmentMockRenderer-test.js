@@ -11,11 +11,12 @@
 'use strict';
 
 const React = require('React');
-const ReactTestRenderer = require('ReactTestRenderer');
-const ReactRelayRefetchContainer = require('../ReactRelayRefetchContainer');
-const ReactRelayFragmentMockRenderer = require('../ReactRelayFragmentMockRenderer');
 const ReactRelayFragmentContainer = require('../ReactRelayFragmentContainer');
-const RelayModernMockEnvironment = require('RelayModernMockEnvironment');
+const ReactRelayFragmentMockRenderer = require('../ReactRelayFragmentMockRenderer');
+const ReactRelayRefetchContainer = require('../ReactRelayRefetchContainer');
+const ReactTestRenderer = require('ReactTestRenderer');
+
+const {createMockEnvironment} = require('relay-test-utils');
 
 describe('ReactRelayFragmentMockRenderer', () => {
   it('renders fragment containers with mock data as supplied as props', () => {
@@ -55,7 +56,7 @@ describe('ReactRelayFragmentMockRenderer', () => {
 
     const instance = ReactTestRenderer.create(
       <ReactRelayFragmentMockRenderer
-        environment={RelayModernMockEnvironment.createMockEnvironment()}
+        environment={createMockEnvironment()}
         render={() => <ParentContainer viewer={mockViewer} />}
       />,
     );

@@ -15,16 +15,15 @@ const GraphQLCompilerContext = require('../../core/GraphQLCompilerContext');
 const InlineFragmentsTransform = require('../InlineFragmentsTransform');
 const RelayGenerateTypeNameTransform = require('../RelayGenerateTypeNameTransform');
 const RelayParser = require('../../core/RelayParser');
-const RelayTestSchema = require('RelayTestSchema');
 
-const {generateTestsFromFixtures} = require('RelayModernTestUtils');
+const {TestSchema, generateTestsFromFixtures} = require('relay-test-utils');
 
 describe('RelayGenerateTypeNameTransform', () => {
   generateTestsFromFixtures(
     `${__dirname}/fixtures/generate-typename-transform`,
     text => {
-      const ast = RelayParser.parse(RelayTestSchema, text);
-      return new GraphQLCompilerContext(RelayTestSchema)
+      const ast = RelayParser.parse(TestSchema, text);
+      return new GraphQLCompilerContext(TestSchema)
         .addAll(ast)
         .applyTransforms([
           InlineFragmentsTransform.transform,

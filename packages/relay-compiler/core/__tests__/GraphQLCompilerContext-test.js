@@ -13,8 +13,8 @@
 describe('GraphQLCompilerContext', () => {
   let GraphQLCompilerContext;
   let RelayParser;
-  let RelayTestSchema;
-  let RelayModernTestUtils;
+  let TestSchema;
+  let matchers;
 
   let queryFoo;
   let fragmentBar;
@@ -24,16 +24,15 @@ describe('GraphQLCompilerContext', () => {
     jest.resetModules();
     GraphQLCompilerContext = require('../GraphQLCompilerContext');
     RelayParser = require('../RelayParser');
-    RelayTestSchema = require('RelayTestSchema');
-    RelayModernTestUtils = require('RelayModernTestUtils');
+    ({TestSchema, matchers} = require('relay-test-utils'));
 
-    expect.extend(RelayModernTestUtils.matchers);
+    expect.extend(matchers);
   });
 
   describe('add()', () => {
     it('adds multiple roots', () => {
       [queryFoo, fragmentBar] = RelayParser.parse(
-        RelayTestSchema,
+        TestSchema,
         `
           query Foo { node(id: 1) { ...Bar } }
           fragment Bar on Node { id }
@@ -41,7 +40,7 @@ describe('GraphQLCompilerContext', () => {
       );
       const context = [queryFoo, fragmentBar].reduce(
         (ctx, node) => ctx.add(node),
-        new GraphQLCompilerContext(RelayTestSchema),
+        new GraphQLCompilerContext(TestSchema),
       );
 
       expect(context.getRoot('Foo')).toBe(queryFoo);
@@ -50,14 +49,14 @@ describe('GraphQLCompilerContext', () => {
 
     it('throws if the document names are not unique', () => {
       [queryFoo, fragmentBar] = RelayParser.parse(
-        RelayTestSchema,
+        TestSchema,
         `
           query Foo { node(id: 1) { ...Bar } }
           fragment Bar on Node { id }
         `,
       );
       [fragmentFoo] = RelayParser.parse(
-        RelayTestSchema,
+        TestSchema,
         `
           fragment Foo on Node { id }
         `,
@@ -65,7 +64,7 @@ describe('GraphQLCompilerContext', () => {
       expect(() => {
         [queryFoo, fragmentBar, fragmentFoo].reduce(
           (ctx, node) => ctx.add(node),
-          new GraphQLCompilerContext(RelayTestSchema),
+          new GraphQLCompilerContext(TestSchema),
         );
       }).toFailInvariant(
         'GraphQLCompilerContext: Duplicate document named `Foo`. GraphQL ' +

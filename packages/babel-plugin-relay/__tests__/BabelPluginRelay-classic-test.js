@@ -13,7 +13,7 @@
 const path = require('path');
 const transformerWithOptions = require('./transformerWithOptions');
 
-const {generateTestsFromFixtures} = require('RelayModernTestUtils');
+const {generateTestsFromFixtures} = require('relay-test-utils');
 
 const OLD_SCHEMA_PATH = path.resolve(__dirname, './testschema.rfc.graphql');
 

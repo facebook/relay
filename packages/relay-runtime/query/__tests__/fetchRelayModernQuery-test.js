@@ -10,17 +10,14 @@
 
 'use strict';
 
-const RelayModernTestUtils = require('RelayModernTestUtils');
-
 const fetchRelayModernQuery = require('../fetchRelayModernQuery');
 
 const {
   createOperationDescriptor,
 } = require('../../store/RelayModernOperationDescriptor');
-const {createMockEnvironment} = require('RelayModernMockEnvironment');
+const {createMockEnvironment, generateAndCompile} = require('relay-test-utils');
 
 describe('fetchRelayModernQuery', () => {
-  const {generateAndCompile} = RelayModernTestUtils;
   let cacheConfig;
   let environment;
   let operation;

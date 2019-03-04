@@ -17,14 +17,15 @@ const CompilerContext = require('../../core/GraphQLCompilerContext');
 const RelayCodeGenerator = require('../RelayCodeGenerator');
 const RelayMatchTransform = require('../../transforms/RelayMatchTransform');
 const RelayRelayDirectiveTransform = require('../../transforms/RelayRelayDirectiveTransform');
-const RelayTestSchema = require('RelayTestSchema');
 
-const parseGraphQLText = require('parseGraphQLText');
-
-const {generateTestsFromFixtures} = require('RelayModernTestUtils');
+const {
+  TestSchema,
+  generateTestsFromFixtures,
+  parseGraphQLText,
+} = require('relay-test-utils');
 
 describe('RelayCodeGenerator', () => {
-  const schema = ASTConvert.transformASTSchema(RelayTestSchema, [
+  const schema = ASTConvert.transformASTSchema(TestSchema, [
     RelayMatchTransform.SCHEMA_EXTENSION,
     RelayRelayDirectiveTransform.SCHEMA_EXTENSION,
   ]);
@@ -32,7 +33,7 @@ describe('RelayCodeGenerator', () => {
   generateTestsFromFixtures(`${__dirname}/fixtures/code-generator`, text => {
     try {
       const {definitions} = parseGraphQLText(schema, text);
-      return new CompilerContext(RelayTestSchema, schema)
+      return new CompilerContext(TestSchema, schema)
         .addAll(definitions)
         .applyTransforms([
           // Requires Relay directive transform first.

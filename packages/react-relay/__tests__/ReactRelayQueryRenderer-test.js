@@ -17,8 +17,6 @@ const ReactTestRenderer = require('ReactTestRenderer');
 
 const readContext = require('../readContext');
 
-const {createMockEnvironment} = require('RelayModernMockEnvironment');
-const {simpleClone} = require('RelayModernTestUtils');
 const {
   createOperationDescriptor,
   Environment,
@@ -29,6 +27,7 @@ const {
   ROOT_ID,
 } = require('relay-runtime');
 const {ROOT_TYPE} = require('relay-runtime/store/RelayStoreUtils');
+const {createMockEnvironment, simpleClone} = require('relay-test-utils');
 
 describe('ReactRelayQueryRenderer', () => {
   let TestQuery;

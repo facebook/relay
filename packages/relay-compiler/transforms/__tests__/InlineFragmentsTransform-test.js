@@ -13,18 +13,19 @@
 const GraphQLCompilerContext = require('../../core/GraphQLCompilerContext');
 const GraphQLIRPrinter = require('../../core/GraphQLIRPrinter');
 const InlineFragmentsTransform = require('../InlineFragmentsTransform');
-const RelayTestSchema = require('RelayTestSchema');
 
-const parseGraphQLText = require('parseGraphQLText');
-
-const {generateTestsFromFixtures} = require('RelayModernTestUtils');
+const {
+  TestSchema,
+  generateTestsFromFixtures,
+  parseGraphQLText,
+} = require('relay-test-utils');
 
 describe('InlineFragmentsTransform', () => {
   generateTestsFromFixtures(
     `${__dirname}/fixtures/inline-fragments-transform`,
     text => {
-      const {schema, definitions} = parseGraphQLText(RelayTestSchema, text);
-      return new GraphQLCompilerContext(RelayTestSchema, schema)
+      const {schema, definitions} = parseGraphQLText(TestSchema, text);
+      return new GraphQLCompilerContext(TestSchema, schema)
         .addAll(definitions)
         .applyTransforms([InlineFragmentsTransform.transform])
         .documents()

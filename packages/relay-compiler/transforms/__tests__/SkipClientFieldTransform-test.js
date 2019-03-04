@@ -12,19 +12,20 @@
 
 const GraphQLCompilerContext = require('../../core/GraphQLCompilerContext');
 const GraphQLIRPrinter = require('../../core/GraphQLIRPrinter');
-const RelayTestSchema = require('RelayTestSchema');
 const SkipClientFieldTransform = require('../SkipClientFieldTransform');
 
-const parseGraphQLText = require('parseGraphQLText');
-
-const {generateTestsFromFixtures} = require('RelayModernTestUtils');
+const {
+  TestSchema,
+  generateTestsFromFixtures,
+  parseGraphQLText,
+} = require('relay-test-utils');
 
 describe('SkipClientFieldTransform', () => {
   generateTestsFromFixtures(
     `${__dirname}/fixtures/skip-client-field-transform`,
     text => {
-      const {definitions, schema} = parseGraphQLText(RelayTestSchema, text);
-      return new GraphQLCompilerContext(RelayTestSchema, schema)
+      const {definitions, schema} = parseGraphQLText(TestSchema, text);
+      return new GraphQLCompilerContext(TestSchema, schema)
         .addAll(definitions)
         .applyTransforms([SkipClientFieldTransform.transform])
         .documents()

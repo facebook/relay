@@ -16,7 +16,6 @@ const RelayInMemoryRecordSource = require('../RelayInMemoryRecordSource');
 const RelayModernEnvironment = require('../RelayModernEnvironment');
 const RelayModernOperationDescriptor = require('../RelayModernOperationDescriptor');
 const RelayModernStore = require('../RelayModernStore');
-const RelayModernTestUtils = require('RelayModernTestUtils');
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
 const RelayViewerHandler = require('../../handlers/viewer/RelayViewerHandler');
@@ -26,11 +25,11 @@ const nullthrows = require('nullthrows');
 const {getRequest} = require('../RelayCore');
 const {getSingularSelector} = require('../RelayModernSelector');
 const {ROOT_ID} = require('../RelayStoreUtils');
+const {generateAndCompile, matchers} = require('relay-test-utils');
 
 const {VIEWER_ID} = RelayViewerHandler;
 
 describe('RelayModernEnvironment', () => {
-  const {generateAndCompile} = RelayModernTestUtils;
   let config;
   let source;
   let store;
@@ -54,7 +53,7 @@ describe('RelayModernEnvironment', () => {
   beforeEach(() => {
     jest.resetModules();
 
-    expect.extend(RelayModernTestUtils.matchers);
+    expect.extend(matchers);
     source = new RelayInMemoryRecordSource();
     store = new RelayModernStore(source);
 

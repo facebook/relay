@@ -13,14 +13,13 @@
 const GraphQLCompilerContext = require('../GraphQLCompilerContext');
 const GraphQLIRPrinter = require('../GraphQLIRPrinter');
 const RelayParser = require('../RelayParser');
-const RelayTestSchema = require('RelayTestSchema');
 
-const {generateTestsFromFixtures} = require('RelayModernTestUtils');
+const {TestSchema, generateTestsFromFixtures} = require('relay-test-utils');
 
 describe('GraphQLIRPrinter', () => {
   generateTestsFromFixtures(`${__dirname}/fixtures/printer`, text => {
-    const ast = RelayParser.parse(RelayTestSchema, text);
-    const context = new GraphQLCompilerContext(RelayTestSchema).addAll(ast);
+    const ast = RelayParser.parse(TestSchema, text);
+    const context = new GraphQLCompilerContext(TestSchema).addAll(ast);
     const documents = [];
     context.forEachDocument(doc => {
       documents.push(GraphQLIRPrinter.print(doc));

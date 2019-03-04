@@ -21,5 +21,6 @@
   "peerDependencies": {
     "graphql": "^14.1.0"
   },
+  "main": "index.js",
   "haste_commonjs": true
 }

@@ -14,17 +14,18 @@ const GraphQLCompilerContext = require('../../../core/GraphQLCompilerContext');
 const RelayFlowGenerator = require('../RelayFlowGenerator');
 const RelayMatchTransform = require('../../../transforms/RelayMatchTransform');
 const RelayRelayDirectiveTransform = require('../../../transforms/RelayRelayDirectiveTransform');
-const RelayTestSchema = require('RelayTestSchema');
-
-const parseGraphQLText = require('parseGraphQLText');
 
 const {transformASTSchema} = require('../../../core/ASTConvert');
-const {generateTestsFromFixtures} = require('RelayModernTestUtils');
+const {
+  TestSchema,
+  generateTestsFromFixtures,
+  parseGraphQLText,
+} = require('relay-test-utils');
 
 import type {TypeGeneratorOptions} from '../../RelayLanguagePluginInterface';
 
 function generate(text, options: TypeGeneratorOptions) {
-  const schema = transformASTSchema(RelayTestSchema, [
+  const schema = transformASTSchema(TestSchema, [
     RelayMatchTransform.SCHEMA_EXTENSION,
     RelayRelayDirectiveTransform.SCHEMA_EXTENSION,
     `
@@ -35,7 +36,7 @@ function generate(text, options: TypeGeneratorOptions) {
     `,
   ]);
   const {definitions} = parseGraphQLText(schema, text);
-  return new GraphQLCompilerContext(RelayTestSchema, schema)
+  return new GraphQLCompilerContext(TestSchema, schema)
     .addAll(definitions)
     .applyTransforms(RelayFlowGenerator.transforms)
     .documents()

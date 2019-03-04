@@ -12,14 +12,13 @@
 
 const GraphQLCompilerContext = require('../GraphQLCompilerContext');
 const GraphQLIRTransformer = require('../GraphQLIRTransformer');
-const RelayTestSchema = require('RelayTestSchema');
 
-const parseGraphQLText = require('parseGraphQLText');
+const {TestSchema, parseGraphQLText} = require('relay-test-utils');
 
 describe('GraphQLIRTransformer', () => {
   it('visits all node types', () => {
     const {definitions} = parseGraphQLText(
-      RelayTestSchema,
+      TestSchema,
       `
    query TestQuery($id: ID!, $condition: Boolean = false) {
      node(id: $id) {
@@ -69,9 +68,7 @@ describe('GraphQLIRTransformer', () => {
    }
  `,
     );
-    const context = new GraphQLCompilerContext(RelayTestSchema).addAll(
-      definitions,
-    );
+    const context = new GraphQLCompilerContext(TestSchema).addAll(definitions);
 
     const astKinds = [
       'Argument',

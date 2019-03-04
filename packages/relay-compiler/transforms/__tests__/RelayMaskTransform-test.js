@@ -14,15 +14,16 @@ const GraphQLCompilerContext = require('../../core/GraphQLCompilerContext');
 const GraphQLIRPrinter = require('../../core/GraphQLIRPrinter');
 const RelayMaskTransform = require('../RelayMaskTransform');
 const RelayRelayDirectiveTransform = require('../RelayRelayDirectiveTransform');
-const RelayTestSchema = require('RelayTestSchema');
-
-const parseGraphQLText = require('parseGraphQLText');
 
 const {transformASTSchema} = require('../../core/ASTConvert');
-const {generateTestsFromFixtures} = require('RelayModernTestUtils');
+const {
+  TestSchema,
+  generateTestsFromFixtures,
+  parseGraphQLText,
+} = require('relay-test-utils');
 
 describe('RelayMaskTransform', () => {
-  const schema = transformASTSchema(RelayTestSchema, [
+  const schema = transformASTSchema(TestSchema, [
     RelayRelayDirectiveTransform.SCHEMA_EXTENSION,
   ]);
 
@@ -30,7 +31,7 @@ describe('RelayMaskTransform', () => {
     `${__dirname}/fixtures/relay-mask-transform`,
     text => {
       const {definitions} = parseGraphQLText(schema, text);
-      return new GraphQLCompilerContext(RelayTestSchema, schema)
+      return new GraphQLCompilerContext(TestSchema, schema)
         .addAll(definitions)
         .applyTransforms([
           // Requires Relay directive transform first.
@@ -47,7 +48,7 @@ describe('RelayMaskTransform', () => {
     `${__dirname}/fixtures/relay-mask-transform-variables`,
     text => {
       const {definitions} = parseGraphQLText(schema, text);
-      return new GraphQLCompilerContext(RelayTestSchema, schema)
+      return new GraphQLCompilerContext(TestSchema, schema)
         .addAll(definitions)
         .applyTransforms([
           // Requires Relay directive transform first.

@@ -13,18 +13,19 @@
 const GraphQLCompilerContext = require('../../core/GraphQLCompilerContext');
 const GraphQLIRPrinter = require('../../core/GraphQLIRPrinter');
 const RelayFieldHandleTransform = require('../RelayFieldHandleTransform');
-const RelayTestSchema = require('RelayTestSchema');
 
-const parseGraphQLText = require('parseGraphQLText');
-
-const {generateTestsFromFixtures} = require('RelayModernTestUtils');
+const {
+  TestSchema,
+  generateTestsFromFixtures,
+  parseGraphQLText,
+} = require('relay-test-utils');
 
 describe('RelayFieldHandleTransform', () => {
   generateTestsFromFixtures(
     `${__dirname}/fixtures/field-handle-transform`,
     text => {
-      const {definitions} = parseGraphQLText(RelayTestSchema, text);
-      return new GraphQLCompilerContext(RelayTestSchema)
+      const {definitions} = parseGraphQLText(TestSchema, text);
+      return new GraphQLCompilerContext(TestSchema)
         .addAll(definitions)
         .applyTransforms([RelayFieldHandleTransform.transform])
         .documents()

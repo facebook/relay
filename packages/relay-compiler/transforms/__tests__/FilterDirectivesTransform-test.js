@@ -13,23 +13,24 @@
 const FilterDirectivesTransform = require('../FilterDirectivesTransform');
 const GraphQLCompilerContext = require('../../core/GraphQLCompilerContext');
 const GraphQLIRPrinter = require('../../core/GraphQLIRPrinter');
-const RelayTestSchema = require('RelayTestSchema');
-
-const parseGraphQLText = require('parseGraphQLText');
 
 const {transformASTSchema} = require('../../core/ASTConvert');
-const {generateTestsFromFixtures} = require('RelayModernTestUtils');
+const {
+  TestSchema,
+  generateTestsFromFixtures,
+  parseGraphQLText,
+} = require('relay-test-utils');
 
 describe('FilterDirectivesTransform', () => {
   generateTestsFromFixtures(
     `${__dirname}/fixtures/filter-directives-transform`,
     text => {
       // Extend the schema with a directive for testing purposes.
-      const extendedSchema = transformASTSchema(RelayTestSchema, [
+      const extendedSchema = transformASTSchema(TestSchema, [
         'directive @exampleFilteredDirective on FIELD',
       ]);
       const {definitions} = parseGraphQLText(extendedSchema, text);
-      return new GraphQLCompilerContext(RelayTestSchema, extendedSchema)
+      return new GraphQLCompilerContext(TestSchema, extendedSchema)
         .addAll(definitions)
         .applyTransforms([FilterDirectivesTransform.transform])
         .documents()

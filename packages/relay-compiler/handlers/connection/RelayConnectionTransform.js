@@ -472,12 +472,8 @@ function transformConnectionSelections(
     | LinkedField
     | InlineFragment
   ) = pageInfoSelection;
-  const edgesType = SchemaUtils.getRawType(
-    nullableType.getFields()[EDGES].type,
-  );
-  const pageInfoType = SchemaUtils.getRawType(
-    nullableType.getFields()[PAGE_INFO].type,
-  );
+  const edgesType = nullableType.getFields()[EDGES].type;
+  const pageInfoType = nullableType.getFields()[PAGE_INFO].type;
   if (transformedEdgesSelection == null) {
     transformedEdgesSelection = {
       alias: null,
@@ -489,7 +485,7 @@ function transformConnectionSelections(
       metadata: null,
       name: EDGES,
       selections: [],
-      type: assertCompositeType(edgesType),
+      type: edgesType,
     };
   }
   if (transformedPageInfoSelection == null) {
@@ -503,25 +499,26 @@ function transformConnectionSelections(
       metadata: null,
       name: PAGE_INFO,
       selections: [],
-      type: assertCompositeType(pageInfoType),
+      type: pageInfoType,
     };
   }
 
   // Generate (additional) fields on pageInfo and add to the transformed
   // pageInfo field
+  const pageInfoRawType = SchemaUtils.getRawType(pageInfoType);
   let pageInfoText;
   if (direction === 'forward') {
-    pageInfoText = `fragment PageInfo on ${String(pageInfoType)} {
+    pageInfoText = `fragment PageInfo on ${String(pageInfoRawType)} {
       ${END_CURSOR}
       ${HAS_NEXT_PAGE}
     }`;
   } else if (direction === 'backward') {
-    pageInfoText = `fragment PageInfo on ${String(pageInfoType)}  {
+    pageInfoText = `fragment PageInfo on ${String(pageInfoRawType)}  {
       ${HAS_PREV_PAGE}
       ${START_CURSOR}
     }`;
   } else {
-    pageInfoText = `fragment PageInfo on ${String(pageInfoType)}  {
+    pageInfoText = `fragment PageInfo on ${String(pageInfoRawType)}  {
       ${END_CURSOR}
       ${HAS_NEXT_PAGE}
       ${HAS_PREV_PAGE}
@@ -568,7 +565,7 @@ function transformConnectionSelections(
   // Generate additional fields on edges and append to the transformed edges
   // selection
   const edgeText = `
-    fragment Edges on ${String(edgesType)} {
+    fragment Edges on ${String(SchemaUtils.getRawType(edgesType))} {
       ${CURSOR}
       ${NODE} {
         __typename # rely on GenerateRequisiteFieldTransform to add "id"

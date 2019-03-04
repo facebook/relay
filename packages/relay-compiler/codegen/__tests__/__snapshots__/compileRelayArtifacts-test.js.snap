@@ -1064,7 +1064,7 @@ query NodeQuery(
                     "storageKey": null,
                     "args": null,
                     "concreteType": "CommentsEdge",
-                    "plural": false,
+                    "plural": true,
                     "selections": [
                       {
                         "kind": "ScalarField",
@@ -1274,7 +1274,7 @@ query NodeQuery(
                     "storageKey": null,
                     "args": null,
                     "concreteType": "CommentsEdge",
-                    "plural": false,
+                    "plural": true,
                     "selections": [
                       {
                         "kind": "ScalarField",

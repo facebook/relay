@@ -121,15 +121,24 @@ function getSingularSelector(
       },
     };
   }
-  warning(
-    false,
-    'RelayModernSelector: Expected object to contain data for fragment `%s`, got ' +
-      '`%s`. Make sure that the parent operation/fragment included fragment ' +
-      '`...%s` without `@relay(mask: false)`.',
-    fragment.name,
-    JSON.stringify(item),
-    fragment.name,
-  );
+
+  if (__DEV__) {
+    let stringifiedItem = JSON.stringify(item);
+    if (stringifiedItem.length > 499) {
+      stringifiedItem = stringifiedItem.substr(0, 498) + '\u2026';
+    }
+
+    warning(
+      false,
+      'RelayModernSelector: Expected object to contain data for fragment `%s`, got ' +
+        '`%s`. Make sure that the parent operation/fragment included fragment ' +
+        '`...%s` without `@relay(mask: false)`.',
+      fragment.name,
+      stringifiedItem,
+      fragment.name,
+    );
+  }
+
   return null;
 }
 

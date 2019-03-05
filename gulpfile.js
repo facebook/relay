@@ -197,11 +197,11 @@ const builds = [
   {
     package: 'relay-compiler',
     exports: {
-      index: 'RelayCompilerPublic.js',
+      index: 'index.js',
     },
     bundles: [
       {
-        entry: 'RelayCompilerPublic.js',
+        entry: 'index.js',
         output: 'relay-compiler',
         libraryName: 'RelayCompiler',
         libraryTarget: 'commonjs2',

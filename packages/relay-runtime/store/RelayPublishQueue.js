@@ -34,6 +34,7 @@ import type {
   StoreUpdater,
   RecordSource,
   RelayResponsePayload,
+  PublishQueue,
 } from './RelayStoreTypes';
 
 type Payload = {
@@ -64,7 +65,7 @@ type DataToCommit =
  *   - Executes handlers for "handle" fields.
  *   - Reverts and reapplies pending optimistic updates.
  */
-class RelayPublishQueue {
+class RelayPublishQueue implements PublishQueue {
   _store: Store;
   _handlerProvider: ?HandlerProvider;
 

@@ -103,6 +103,7 @@ export type {
   OperationDescriptor,
   OptimisticUpdate,
   OwnedReaderSelector,
+  PublishQueue,
   RecordProxy,
   RecordSourceProxy,
   RecordSourceSelectorProxy,

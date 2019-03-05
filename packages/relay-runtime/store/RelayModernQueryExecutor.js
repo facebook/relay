@@ -15,7 +15,6 @@ const RelayError = require('../util/RelayError');
 const RelayInMemoryRecordSource = require('./RelayInMemoryRecordSource');
 const RelayModernRecord = require('./RelayModernRecord');
 const RelayObservable = require('../network/RelayObservable');
-const RelayPublishQueue = require('./RelayPublishQueue');
 const RelayResponseNormalizer = require('./RelayResponseNormalizer');
 
 const generateRelayClientID = require('./generateRelayClientID');
@@ -40,6 +39,7 @@ import type {
   DeferPlaceholder,
   StreamPlaceholder,
   IncrementalDataPlaceholder,
+  PublishQueue,
 } from '../store/RelayStoreTypes';
 import type {NormalizationSplitOperation} from '../util/NormalizationNode';
 import type {Record} from '../util/RelayCombinedEnvironmentTypes';
@@ -48,7 +48,7 @@ type ExecuteConfig = {|
   +operation: OperationDescriptor,
   +operationLoader: ?OperationLoader,
   +optimisticUpdate: ?OptimisticUpdate,
-  +publishQueue: RelayPublishQueue,
+  +publishQueue: PublishQueue,
   +sink: Sink<GraphQLResponse>,
   +source: RelayObservable<GraphQLResponse>,
   +updater?: ?SelectorStoreUpdater,
@@ -75,7 +75,7 @@ class Executor {
   _operation: OperationDescriptor;
   _operationLoader: ?OperationLoader;
   _optimisticUpdate: null | OptimisticUpdate;
-  _publishQueue: RelayPublishQueue;
+  _publishQueue: PublishQueue;
   _sink: Sink<GraphQLResponse>;
   _source: Map<
     string,

@@ -519,3 +519,55 @@ export type RelayResponsePayload = {|
   source: MutableRecordSource,
   errors: ?Array<PayloadError>,
 |};
+
+/**
+ * Public interface for Publish Queue
+ */
+export interface PublishQueue {
+  /**
+   * Schedule applying an optimistic updates on the next `run()`.
+   */
+  applyUpdate(updater: OptimisticUpdate): void;
+
+  /**
+   * Schedule reverting an optimistic updates on the next `run()`.
+   */
+  revertUpdate(updater: OptimisticUpdate): void;
+
+  /**
+   * Schedule a revert of all optimistic updates on the next `run()`.
+   */
+  revertAll(): void;
+
+  /**
+   * Schedule applying a payload to the store on the next `run()`.
+   */
+  commitPayload(
+    operation: OperationDescriptor,
+    payload: RelayResponsePayload,
+    updater?: ?SelectorStoreUpdater,
+  ): void;
+
+  /**
+   * Schedule applying a payload to the store on the next `run()` without operation
+   */
+  commitRelayPayload(payload: RelayResponsePayload): void;
+
+  /**
+   * Schedule an updater to mutate the store on the next `run()` typically to
+   * update client schema fields.
+   */
+  commitUpdate(updater: StoreUpdater): void;
+
+  /**
+   * Schedule a publish to the store from the provided source on the next
+   * `run()`. As an example, to update the store with substituted fields that
+   * are missing in the store.
+   */
+  commitSource(source: RecordSource): void;
+
+  /**
+   * Execute all queued up operations from the other public methods.
+   */
+  run(): void;
+}

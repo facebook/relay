@@ -44,6 +44,7 @@ import type {
   Store,
   StoreUpdater,
   UnstableEnvironmentCore,
+  PublishQueue,
 } from '../store/RelayStoreTypes';
 import type {CacheConfig, Disposable} from '../util/RelayRuntimeTypes';
 
@@ -54,12 +55,13 @@ export type EnvironmentConfig = {|
   +network: Network,
   +store: Store,
   +missingFieldHandlers?: $ReadOnlyArray<MissingFieldHandler>,
+  +publishQueue?: PublishQueue,
 |};
 
 class RelayModernEnvironment implements Environment {
   _operationLoader: ?OperationLoader;
   _network: Network;
-  _publishQueue: RelayPublishQueue;
+  _publishQueue: PublishQueue;
   _store: Store;
   configName: ?string;
   unstable_internal: UnstableEnvironmentCore;
@@ -85,7 +87,9 @@ class RelayModernEnvironment implements Environment {
     }
     this._operationLoader = operationLoader;
     this._network = config.network;
-    this._publishQueue = new RelayPublishQueue(config.store, handlerProvider);
+    this._publishQueue =
+      config.publishQueue ??
+      new RelayPublishQueue(config.store, handlerProvider);
     this._store = config.store;
     this.unstable_internal = RelayCore;
 

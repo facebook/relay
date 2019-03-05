@@ -18,6 +18,7 @@ const RelayMaskTransform = require('../../transforms/RelayMaskTransform');
 const RelayMatchTransform = require('../../transforms/RelayMatchTransform');
 const RelayRefetchableFragmentTransform = require('../../transforms/RelayRefetchableFragmentTransform');
 const RelayRelayDirectiveTransform = require('../../transforms/RelayRelayDirectiveTransform');
+const Rollout = require('../../util/Rollout');
 
 const invariant = require('invariant');
 const nullthrows = require('nullthrows');
@@ -326,17 +327,36 @@ function createVisitor(options: TypeGeneratorOptions) {
         );
 
         const keyTypeName = getKeyTypeName(node.name);
-        const keyTypeDataProperty = t.objectTypeProperty(
-          t.identifier('$data'),
-          t.genericTypeAnnotation(t.identifier(`${node.name}$data`)),
-        );
+        let keyTypeDataProperty;
+        if (Rollout.check(node.name)) {
+          keyTypeDataProperty = readOnlyObjectTypeProperty(
+            '$data',
+            t.genericTypeAnnotation(t.identifier(`${node.name}$data`)),
+          );
+        } else {
+          keyTypeDataProperty = t.objectTypeProperty(
+            t.identifier('$data'),
+            t.genericTypeAnnotation(t.identifier(`${node.name}$data`)),
+          );
+        }
         keyTypeDataProperty.optional = true;
-        const keyType = t.objectTypeAnnotation([
-          keyTypeDataProperty,
-          t.objectTypeProperty(
+
+        let keyTypeFragmentRefProperty;
+        if (Rollout.check(node.name)) {
+          keyTypeFragmentRefProperty = readOnlyObjectTypeProperty(
+            '$fragmentRefs',
+            t.genericTypeAnnotation(t.identifier(`${node.name}$ref`)),
+          );
+        } else {
+          keyTypeFragmentRefProperty = t.objectTypeProperty(
             t.identifier('$fragmentRefs'),
             t.genericTypeAnnotation(t.identifier(`${node.name}$ref`)),
-          ),
+          );
+        }
+
+        const keyType = t.objectTypeAnnotation([
+          keyTypeDataProperty,
+          keyTypeFragmentRefProperty,
         ]);
         const dataTypeName = getDataTypeName(node.name);
         const dataType = t.genericTypeAnnotation(t.identifier(node.name));

@@ -12,14 +12,12 @@
 
 const CompilerContext = require('../../core/GraphQLCompilerContext');
 const IRTransformer = require('../../core/GraphQLIRTransformer');
-const SchemaUtils = require('../../core/GraphQLSchemaUtils');
 
+const {getRawType} = require('../../core/GraphQLSchemaUtils');
 const {GraphQLObjectType} = require('graphql');
 const {DEFAULT_HANDLE_KEY} = require('relay-runtime');
 
 import type {LinkedField} from '../../core/GraphQLIR';
-
-const {getRawType} = SchemaUtils;
 
 const ID = 'id';
 const VIEWER_HANDLE = 'viewer';
@@ -45,6 +43,12 @@ function relayViewerHandleTransform(context: CompilerContext): CompilerContext {
 function visitLinkedField(field: LinkedField): ?LinkedField {
   const transformedNode = this.traverse(field);
   if (getRawType(field.type).name !== VIEWER_TYPE) {
+    return transformedNode;
+  }
+  // In case a viewer field has arguments, we shouldn't give it a global
+  // identity. This only applies if the name is 'viewer' because a mutation
+  // field might also be the Viewer type.
+  if (field.args.length > 0 && field.name === 'viewer') {
     return transformedNode;
   }
   let handles = transformedNode.handles;

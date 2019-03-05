@@ -64,6 +64,7 @@ function relayMatchTransform(context: CompilerContext): CompilerContext {
       FragmentSpread: (visitFragmentSpread: $FlowFixMe),
       LinkedField: visitLinkedField,
       InlineFragment: visitInlineFragment,
+      ScalarField: visitScalarField,
     },
     node => node.type,
   );
@@ -74,6 +75,29 @@ function visitInlineFragment(
   state: GraphQLType,
 ): InlineFragment {
   return this.traverse(node, node.typeCondition);
+}
+
+function visitScalarField(
+  field: ScalarField,
+  parentType: GraphQLType,
+): ScalarField {
+  if (field.name === JS_FIELD_NAME) {
+    const context: CompilerContext = this.getContext();
+    const schema = context.serverSchema;
+    const jsModuleType = schema.getType(JS_FIELD_TYPE);
+    if (
+      jsModuleType != null &&
+      jsModuleType instanceof GraphQLScalarType &&
+      getRawType(field.type).name === jsModuleType.name
+    ) {
+      throw new createUserError(
+        `Direct use of the '${JS_FIELD_NAME}' field is not allowed, use ` +
+          '@match/@module instead.',
+        [field.loc],
+      );
+    }
+  }
+  return field;
 }
 
 function visitLinkedField(

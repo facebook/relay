@@ -1,5 +1,30 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`RelayMatchTransform matches expected output: direct-js-field.invalid.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment NameRendererFragment on User {
+  id
+  nameRenderer {
+    ... on PlainUserNameRenderer {
+      js(module: "PlainUserNameRenderer.react")
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+THROWN EXCEPTION:
+
+Error: Encountered 1 error(s):
+- Direct use of the 'js' field is not allowed, use @match/@module instead.
+  
+  Source: GraphQL request (5:7)
+  4:     ... on PlainUserNameRenderer {
+  5:       js(module: "PlainUserNameRenderer.react")
+           ^
+  6:     }
+  
+`;
+
 exports[`RelayMatchTransform matches expected output: invalid-match-type.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 fragment NameRendererFragment on User {

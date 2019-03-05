@@ -1,0 +1,8 @@
+fragment NameRendererFragment on User {
+  id
+  nameRenderer {
+    ... on PlainUserNameRenderer {
+      js(module: "PlainUserNameRenderer.react")
+    }
+  }
+}

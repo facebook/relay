@@ -98,7 +98,6 @@ const chmod = require('gulp-chmod');
 const gulpUtil = require('gulp-util');
 const header = require('gulp-header');
 const path = require('path');
-const runSequence = require('run-sequence');
 const webpack = require('webpack');
 const webpackStream = require('webpack-stream');
 

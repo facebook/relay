@@ -67,7 +67,6 @@
     "prop-types": "^15.5.8",
     "react": "16.6.3",
     "react-test-renderer": "16.6.3",
-    "run-sequence": "2.2.1",
     "signedsource": "^1.0.0",
     "webpack": "^4.20.2",
     "webpack-stream": "^5.1.1",

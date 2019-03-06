@@ -45,11 +45,11 @@ const relaySchemaExtensions: Array<string> = [
 // writing from the store.
 const relayCommonTransforms: Array<IRTransform> = [
   RelayConnectionTransform.transform,
-  RelayViewerHandleTransform.transform,
   RelayRelayDirectiveTransform.transform,
   RelayMaskTransform.transform,
   RelayMatchTransform.transform,
   RelayRefetchableFragmentTransform.transform,
+  RelayViewerHandleTransform.transform,
 ];
 
 // Transforms applied to fragments used for reading data from a store

@@ -2327,8 +2327,8 @@ fragment ProfilePicture on User {
     "selections": [
       {
         "kind": "LinkedField",
-        "alias": null,
-        "name": "viewer",
+        "alias": "viewer",
+        "name": "__viewer_viewer",
         "storageKey": null,
         "args": null,
         "concreteType": "Viewer",
@@ -2428,6 +2428,15 @@ fragment ProfilePicture on User {
             ]
           }
         ]
+      },
+      {
+        "kind": "LinkedHandle",
+        "alias": null,
+        "name": "viewer",
+        "args": null,
+        "handle": "viewer",
+        "key": "",
+        "filters": null
       }
     ]
   }

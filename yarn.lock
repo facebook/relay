@@ -993,11 +993,6 @@ acorn-jsx@^4.1.1:
   dependencies:
     acorn "^5.0.3"
 
-acorn@^4.0.3:
-  version "4.0.13"
-  resolved "https://registry.yarnpkg.com/acorn/-/acorn-4.0.13.tgz#105495ae5361d697bd195c825192e1ad7f253787"
-  integrity sha1-EFSVrlNh1pe9GVyCUZLhrX8lN4c=
-
 acorn@^5.0.0, acorn@^5.0.3, acorn@^5.3.0, acorn@^5.6.0:
   version "5.7.1"
   resolved "https://registry.yarnpkg.com/acorn/-/acorn-5.7.1.tgz#f095829297706a7c9776958c0afc8930a9b9d9d8"
@@ -1743,13 +1738,6 @@ buffer@^4.3.0:
     ieee754 "^1.1.4"
     isarray "^1.0.0"
 
-bufferstreams@^1.0.1:
-  version "1.1.3"
-  resolved "https://registry.yarnpkg.com/bufferstreams/-/bufferstreams-1.1.3.tgz#a8515ac024fa90e8fa7d58c11b13dea1f28abe72"
-  integrity sha512-HaJnVuslRF4g2kSDeyl++AaVizoitCpL9PglzCYwy0uHHyvWerfvEb8jWmYbF1z4kiVFolGomnxSGl+GUQp2jg==
-  dependencies:
-    readable-stream "^2.0.2"
-
 builtin-modules@^1.0.0:
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/builtin-modules/-/builtin-modules-1.1.1.tgz#270f076c5a72c02f5b65a47df94c5fe3a278892f"
@@ -2094,7 +2082,7 @@ concat-map@0.0.1:
   resolved "https://registry.yarnpkg.com/concat-map/-/concat-map-0.0.1.tgz#d8a96bd77fd68df7793a73036a3ba0d5405d477b"
   integrity sha1-2Klr13/Wjfd5OnMDajug1UBdR3s=
 
-concat-stream@^1.4.6, concat-stream@^1.5.0, concat-stream@^1.6.0:
+concat-stream@^1.5.0, concat-stream@^1.6.0:
   version "1.6.2"
   resolved "https://registry.yarnpkg.com/concat-stream/-/concat-stream-1.6.2.tgz#904bdf194cd3122fc675c77fc4ac3d4ff0fd1a34"
   integrity sha512-27HBghJxjiZtIk3Ycvn/4kbJk/1uZuJFfuPEns6LaEvpvG1f0hTea8lilrouyo9mVc2GWdcEZ8OLoGmSADlrCw==
@@ -2444,17 +2432,6 @@ delegates@^1.0.0:
   resolved "https://registry.yarnpkg.com/delegates/-/delegates-1.0.0.tgz#84c6e159b81904fdca59a0ef44cd870d31250f9a"
   integrity sha1-hMbhWbgZBP3KWaDvRM2HDTElD5o=
 
-derequire@^2.0.0:
-  version "2.0.6"
-  resolved "https://registry.yarnpkg.com/derequire/-/derequire-2.0.6.tgz#31a414bb7ca176239fa78b116636ef77d517e768"
-  integrity sha1-MaQUu3yhdiOfp4sRZjbvd9UX52g=
-  dependencies:
-    acorn "^4.0.3"
-    concat-stream "^1.4.6"
-    escope "^3.6.0"
-    through2 "^2.0.0"
-    yargs "^6.5.0"
-
 des.js@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/des.js/-/des.js-1.0.0.tgz#c074d2e2aa6a8a9a07dbd61f9a15c2cd83ec8ecc"
@@ -2632,7 +2609,7 @@ es5-ext@^0.10.14, es5-ext@^0.10.35, es5-ext@^0.10.9, es5-ext@~0.10.14:
     es6-symbol "~3.1.1"
     next-tick "1"
 
-es6-iterator@^2.0.1, es6-iterator@~2.0.1, es6-iterator@~2.0.3:
+es6-iterator@^2.0.1, es6-iterator@~2.0.3:
   version "2.0.3"
   resolved "https://registry.yarnpkg.com/es6-iterator/-/es6-iterator-2.0.3.tgz#a7de889141a05a94b0854403b2d0a0fbfa98f3b7"
   integrity sha1-p96IkUGgWpSwhUQDstCg+/qY87c=
@@ -2641,30 +2618,7 @@ es6-iterator@^2.0.1, es6-iterator@~2.0.1, es6-iterator@~2.0.3:
     es5-ext "^0.10.35"
     es6-symbol "^3.1.1"
 
-es6-map@^0.1.3:
-  version "0.1.5"
-  resolved "https://registry.yarnpkg.com/es6-map/-/es6-map-0.1.5.tgz#9136e0503dcc06a301690f0bb14ff4e364e949f0"
-  integrity sha1-kTbgUD3MBqMBaQ8LsU/042TpSfA=
-  dependencies:
-    d "1"
-    es5-ext "~0.10.14"
-    es6-iterator "~2.0.1"
-    es6-set "~0.1.5"
-    es6-symbol "~3.1.1"
-    event-emitter "~0.3.5"
-
-es6-set@~0.1.5:
-  version "0.1.5"
-  resolved "https://registry.yarnpkg.com/es6-set/-/es6-set-0.1.5.tgz#d2b3ec5d4d800ced818db538d28974db0a73ccb1"
-  integrity sha1-0rPsXU2ADO2BjbU40ol02wpzzLE=
-  dependencies:
-    d "1"
-    es5-ext "~0.10.14"
-    es6-iterator "~2.0.1"
-    es6-symbol "3.1.1"
-    event-emitter "~0.3.5"
-
-es6-symbol@3.1.1, es6-symbol@^3.1.1, es6-symbol@~3.1.1:
+es6-symbol@^3.1.1, es6-symbol@~3.1.1:
   version "3.1.1"
   resolved "https://registry.yarnpkg.com/es6-symbol/-/es6-symbol-3.1.1.tgz#bf00ef4fdab6ba1b46ecb7b629b4c7ed5715cc77"
   integrity sha1-vwDvT9q2uhtG7Le2KbTH7VcVzHc=
@@ -2698,16 +2652,6 @@ escodegen@^1.9.0:
     optionator "^0.8.1"
   optionalDependencies:
     source-map "~0.6.1"
-
-escope@^3.6.0:
-  version "3.6.0"
-  resolved "https://registry.yarnpkg.com/escope/-/escope-3.6.0.tgz#e01975e812781a163a6dadfdd80398dc64c889c3"
-  integrity sha1-4Bl16BJ4GhY6ba392AOY3GTIicM=
-  dependencies:
-    es6-map "^0.1.3"
-    es6-weak-map "^2.0.1"
-    esrecurse "^4.1.0"
-    estraverse "^4.1.1"
 
 eslint-config-fbjs@2.0.1:
   version "2.0.1"
@@ -2876,14 +2820,6 @@ esutils@^2.0.0, esutils@^2.0.2:
   version "2.0.2"
   resolved "https://registry.yarnpkg.com/esutils/-/esutils-2.0.2.tgz#0abf4f1caa5bcb1f7a9d8acc6dea4faaa04bac9b"
   integrity sha1-Cr9PHKpbyx96nYrMbepPqqBLrJs=
-
-event-emitter@~0.3.5:
-  version "0.3.5"
-  resolved "https://registry.yarnpkg.com/event-emitter/-/event-emitter-0.3.5.tgz#df8c69eef1647923c7157b9ce83840610b02cc39"
-  integrity sha1-34xp7vFkeSPHFXuc6DhAYQsCzDk=
-  dependencies:
-    d "1"
-    es5-ext "~0.10.14"
 
 events@^1.0.0:
   version "1.1.1"
@@ -3565,16 +3501,6 @@ gulp-cli@^2.0.0:
     v8flags "^3.0.1"
     yargs "^7.1.0"
 
-gulp-derequire@2.1.0:
-  version "2.1.0"
-  resolved "https://registry.yarnpkg.com/gulp-derequire/-/gulp-derequire-2.1.0.tgz#0562310733f9f8a719c52db873a8847b898b46e5"
-  integrity sha1-BWIxBzP5+KcZxS24c6iEe4mLRuU=
-  dependencies:
-    bufferstreams "^1.0.1"
-    derequire "^2.0.0"
-    gulp-util "^3.0.4"
-    through2 "^1.1.1"
-
 gulp-flatten@0.4.0:
   version "0.4.0"
   resolved "https://registry.yarnpkg.com/gulp-flatten/-/gulp-flatten-0.4.0.tgz#d9ac819416c30fd5dfb3dea9da79c83a1bcd61d1"
@@ -3593,7 +3519,7 @@ gulp-header@2.0.7:
     map-stream "0.0.7"
     through2 "^2.0.0"
 
-gulp-util@3.0.8, gulp-util@^3.0.4:
+gulp-util@3.0.8:
   version "3.0.8"
   resolved "https://registry.yarnpkg.com/gulp-util/-/gulp-util-3.0.8.tgz#0054e1e744502e27c04c187c3ecc505dd54bbb4f"
   integrity sha1-AFTh50RQLifATBh8PsxQXdVLu08=
@@ -6324,7 +6250,7 @@ read-pkg@^3.0.0:
     string_decoder "~1.1.1"
     util-deprecate "~1.0.1"
 
-"readable-stream@>=1.1.13-1 <1.2.0-0", readable-stream@~1.1.9:
+readable-stream@~1.1.9:
   version "1.1.14"
   resolved "https://registry.yarnpkg.com/readable-stream/-/readable-stream-1.1.14.tgz#7cf4c54ef648e3813084c636dd2079e166c081d9"
   integrity sha1-fPTFTvZI44EwhMY23SB54WbAgdk=
@@ -7167,14 +7093,6 @@ through2-filter@^3.0.0:
     through2 "~2.0.0"
     xtend "~4.0.0"
 
-through2@^1.1.1:
-  version "1.1.1"
-  resolved "https://registry.yarnpkg.com/through2/-/through2-1.1.1.tgz#0847cbc4449f3405574dbdccd9bb841b83ac3545"
-  integrity sha1-CEfLxESfNAVXTb3M2buEG4OsNUU=
-  dependencies:
-    readable-stream ">=1.1.13-1 <1.2.0-0"
-    xtend ">=4.0.0 <4.1.0-0"
-
 through2@^2.0.0:
   version "2.0.3"
   resolved "https://registry.yarnpkg.com/through2/-/through2-2.0.3.tgz#0004569b37c7c74ba39c43f3ced78d1ad94140be"
@@ -7831,7 +7749,7 @@ xml-name-validator@^3.0.0:
   resolved "https://registry.yarnpkg.com/xml-name-validator/-/xml-name-validator-3.0.0.tgz#6ae73e06de4d8c6e47f9fb181f78d648ad457c6a"
   integrity sha512-A5CUptxDsvxKJEU3yO6DuWBSJz/qizqzJKOMIfUJHETbBw/sFaDxgd6fxm1ewUaM0jZ444Fc5vC5ROYurg/4Pw==
 
-"xtend@>=4.0.0 <4.1.0-0", xtend@^4.0.0, xtend@~4.0.0, xtend@~4.0.1:
+xtend@^4.0.0, xtend@~4.0.0, xtend@~4.0.1:
   version "4.0.1"
   resolved "https://registry.yarnpkg.com/xtend/-/xtend-4.0.1.tgz#a5c6d532be656e23db820efb943a1f04998d63af"
   integrity sha1-pcbVMr5lbiPbgg77lDofBJmNY68=
@@ -7864,13 +7782,6 @@ yargs-parser@^11.1.1:
     camelcase "^5.0.0"
     decamelize "^1.2.0"
 
-yargs-parser@^4.2.0:
-  version "4.2.1"
-  resolved "https://registry.yarnpkg.com/yargs-parser/-/yargs-parser-4.2.1.tgz#29cceac0dc4f03c6c87b4a9f217dd18c9f74871c"
-  integrity sha1-KczqwNxPA8bIe0qfIX3RjJ90hxw=
-  dependencies:
-    camelcase "^3.0.0"
-
 yargs-parser@^5.0.0:
   version "5.0.0"
   resolved "https://registry.yarnpkg.com/yargs-parser/-/yargs-parser-5.0.0.tgz#275ecf0d7ffe05c77e64e7c86e4cd94bf0e1228a"
@@ -7902,25 +7813,6 @@ yargs@^12.0.2:
     which-module "^2.0.0"
     y18n "^3.2.1 || ^4.0.0"
     yargs-parser "^11.1.1"
-
-yargs@^6.5.0:
-  version "6.6.0"
-  resolved "https://registry.yarnpkg.com/yargs/-/yargs-6.6.0.tgz#782ec21ef403345f830a808ca3d513af56065208"
-  integrity sha1-eC7CHvQDNF+DCoCMo9UTr1YGUgg=
-  dependencies:
-    camelcase "^3.0.0"
-    cliui "^3.2.0"
-    decamelize "^1.1.1"
-    get-caller-file "^1.0.1"
-    os-locale "^1.4.0"
-    read-pkg-up "^1.0.1"
-    require-directory "^2.1.1"
-    require-main-filename "^1.0.1"
-    set-blocking "^2.0.0"
-    string-width "^1.0.2"
-    which-module "^1.0.0"
-    y18n "^3.2.1"
-    yargs-parser "^4.2.0"
 
 yargs@^7.1.0:
   version "7.1.0"

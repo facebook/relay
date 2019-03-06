@@ -90,7 +90,6 @@ const babelOptions = require('./scripts/getBabelOptions')({
   sourceType: 'script',
 });
 const del = require('del');
-const derequire = require('gulp-derequire');
 const flatten = require('gulp-flatten');
 const fs = require('fs');
 const gulp = require('gulp');
@@ -339,7 +338,6 @@ builds.forEach(build => {
         .pipe(
           buildDist(bundle.output + '.js', bundle, /* isProduction */ false)
         )
-        .pipe(derequire())
         .pipe(header(DEVELOPMENT_HEADER))
         .pipe(gulp.dest(path.join(DIST, build.package)));
     });

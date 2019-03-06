@@ -11,18 +11,17 @@
 
 'use strict';
 
-const {parse, print} = require('graphql');
-const {
-  FIXTURE_TAG,
-  MockPayloadGenerator,
-  TestSchema,
-  generateAndCompile,
-} = require('relay-test-utils');
+const RelayMockPayloadGenerator = require('../RelayMockPayloadGenerator');
+const RelayTestSchema = require('../RelayTestSchema');
 
-import type {MockResolvers} from 'relay-test-utils';
+// $FlowFixMe
+const {FIXTURE_TAG, generateAndCompile} = require('../RelayModernTestUtils');
+const {parse, print} = require('graphql');
+
+import type {MockResolvers} from '../RelayMockPayloadGenerator';
 
 function compile(text) {
-  return generateAndCompile(text, TestSchema);
+  return generateAndCompile(text);
 }
 
 function printMockResolvers(mockResolvers: ?MockResolvers): string {
@@ -53,15 +52,15 @@ function testGeneratedData(
   graphql: string,
   mockResolvers: ?MockResolvers,
   customVariables = null,
-  schema = TestSchema,
+  schema = RelayTestSchema,
 ) {
   const {TestFragment: fragment} = compile(graphql);
   const variables = {
-    ...MockPayloadGenerator.generateVariables(fragment, mockResolvers),
+    ...RelayMockPayloadGenerator.generateVariables(fragment, mockResolvers),
     ...customVariables,
   };
 
-  const payload = MockPayloadGenerator.generateData(
+  const payload = RelayMockPayloadGenerator.generateData(
     fragment,
     mockResolvers,
     variables,
@@ -282,7 +281,7 @@ test('generate mock for objects without concrete type', () => {
     }
   `,
     {
-      [MockPayloadGenerator.DEFAULT_MOCK_TYPENAME]: () => {
+      [RelayMockPayloadGenerator.DEFAULT_MOCK_TYPENAME]: () => {
         return {
           __typename: 'User',
           name: 'Mark',

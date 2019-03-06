@@ -9,7 +9,7 @@
 
 'use strict';
 
-const RelayModernTestUtils = require('relay-test-utils');
+const RelayModernTestUtils = require('./RelayModernTestUtils');
 const RelayTestSchema = require('./RelayTestSchema');
 
 const areEqual = require('areEqual');

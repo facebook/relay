@@ -277,6 +277,7 @@ class DataChecker {
           this._traverseSelections(selection.selections, dataID);
           break;
         case SCALAR_HANDLE:
+          break;
         case FRAGMENT_SPREAD:
           invariant(
             false,

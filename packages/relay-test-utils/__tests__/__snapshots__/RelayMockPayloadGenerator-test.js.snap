@@ -132,8 +132,8 @@ fragment TestFragment on User {
     },
     "actor": {
       "name": "<mock-value-for-field-\\"name\\">",
-      "__typename": "__MockObject",
-      "id": "<__MockObject-mock-id-1>"
+      "id": "<__MockObject-mock-id-1>",
+      "__typename": "__MockObject"
     },
     "myActor": {
       "__typename": "__MockObject"
@@ -331,14 +331,19 @@ fragment TestFragment on User @argumentDefinitions(condition: {type: "Boolean!"}
     "profile_picture": {
       "uri": "<mock-value-for-field-\\"uri\\">"
     },
-    "__typename": "User",
     "actor": {
       "username": "<mock-value-for-field-\\"username\\">",
-      "__typename": "Comment",
-      "body": {
-        "text": "<mock-value-for-field-\\"text\\">"
+      "__typename": "User",
+      "id": "<User-mock-id-4>",
+      "userName": "<mock-value-for-field-\\"userName\\">",
+      "name": "<mock-value-for-field-\\"name\\">",
+      "profilePicture": {
+        "uri": "<mock-value-for-field-\\"uri\\">",
+        "width": 42,
+        "height": 42
       }
-    }
+    },
+    "__typename": "User"
   }
 }
 `;
@@ -745,12 +750,16 @@ fragment TestFragment on Viewer {
 {
   "variables": {},
   "payload": {
-    "__typename": "Page",
-    "id": "<Page-mock-id-1>",
+    "__typename": "User",
+    "id": "<User-mock-id-1>",
     "name": "<mock-value-for-field-\\"name\\">",
-    "websites": [
-      "<mock-value-for-field-\\"websites\\">"
-    ]
+    "traits": [
+      "<mock-value-for-field-\\"traits\\">"
+    ],
+    "profile_picture": {
+      "uri": "<mock-value-for-field-\\"uri\\">",
+      "height": 42
+    }
   }
 }
 `;

@@ -207,13 +207,19 @@ function transformNode<T: Node>(
 function sortSelections(
   selections: $ReadOnlyArray<Selection>,
 ): $ReadOnlyArray<Selection> {
-  return [...selections].sort((a, b) => {
-    return a.kind === 'InlineFragment' || a.kind === 'Condition'
-      ? 1
-      : b.kind === 'InlineFragment' || b.kind === 'Condition'
-        ? -1
-        : 0;
-  });
+  const [scalarsAndLinkedFields, rest] = selections.reduce(
+    (acc, next) => {
+      const [scalarsAndLinkedFields, rest] = acc;
+      const isScalarOrLinkedField =
+        next.kind === 'ScalarField' || next.kind === 'LinkedField';
+      if (isScalarOrLinkedField) {
+        return [[...scalarsAndLinkedFields, next], rest];
+      }
+      return [scalarsAndLinkedFields, [...rest, next]];
+    },
+    [[], []],
+  );
+  return [...scalarsAndLinkedFields, ...rest];
 }
 
 module.exports = {

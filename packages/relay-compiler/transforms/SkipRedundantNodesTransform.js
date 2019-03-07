@@ -13,6 +13,7 @@
 const GraphQLCompilerContext = require('../core/GraphQLCompilerContext');
 const GraphQLIRTransformer = require('../core/GraphQLIRTransformer');
 const IMap = require('immutable').Map;
+const partitionArray = require('../util/partitionArray');
 
 const getIdentifierForSelection = require('../core/getIdentifierForSelection');
 const invariant = require('invariant');
@@ -207,17 +208,11 @@ function transformNode<T: Node>(
 function sortSelections(
   selections: $ReadOnlyArray<Selection>,
 ): $ReadOnlyArray<Selection> {
-  const [scalarsAndLinkedFields, rest] = selections.reduce(
-    (acc, next) => {
-      const [scalarsAndLinkedFields, rest] = acc;
-      const isScalarOrLinkedField =
-        next.kind === 'ScalarField' || next.kind === 'LinkedField';
-      if (isScalarOrLinkedField) {
-        return [[...scalarsAndLinkedFields, next], rest];
-      }
-      return [scalarsAndLinkedFields, [...rest, next]];
-    },
-    [[], []],
+  const isScalarOrLinkedField = selection =>
+    selection.kind === 'ScalarField' || selection.kind === 'LinkedField';
+  const [scalarsAndLinkedFields, rest] = partitionArray(
+    selections,
+    isScalarOrLinkedField,
   );
   return [...scalarsAndLinkedFields, ...rest];
 }

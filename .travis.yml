@@ -5,7 +5,7 @@ cache: yarn
 
 matrix:
   include:
-  - node_js: '11'
+  - node_js: '11.10.1'
     env: TEST=1
   - node_js: '10'
     env: TEST=1

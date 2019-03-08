@@ -12,18 +12,22 @@
 
 const {createHash} = require('crypto');
 
-let buckets: null | $ReadOnlyArray<boolean> = null;
+let projectToBuckets: ?Map<string, $ReadOnlyArray<boolean>> = null;
 
 /**
  * This module helps gradually rolling out changes to the code generation by
  * gradually enabling more buckets representing randomly distributed artifacts.
  */
-function set(newBuckets: null | $ReadOnlyArray<boolean>) {
-  buckets = newBuckets == null || newBuckets.length === 0 ? null : newBuckets;
+function set(newProjectToBuckets: Map<string, $ReadOnlyArray<boolean>>) {
+  projectToBuckets = newProjectToBuckets;
 }
 
-function check(key: string): boolean {
-  if (buckets === null) {
+function check(project: string, key: string): boolean {
+  if (projectToBuckets == null) {
+    return true;
+  }
+  const buckets = projectToBuckets.get(project);
+  if (buckets == null || buckets.length === 0) {
     return true;
   }
   const hash = createHash('md5')

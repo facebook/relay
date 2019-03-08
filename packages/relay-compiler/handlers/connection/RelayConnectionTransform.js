@@ -29,7 +29,6 @@ const {
   GraphQLString,
   GraphQLUnionType,
   parse,
-  assertCompositeType,
 } = require('graphql');
 const {ConnectionInterface} = require('relay-runtime');
 
@@ -712,7 +711,10 @@ function validateConnectionType(
     );
   }
   const edgeType = SchemaUtils.getNullableType(edgesType.ofType);
-  if (!(edgeType instanceof GraphQLObjectType)) {
+  if (
+    !(edgeType instanceof GraphQLObjectType) &&
+    !(edgeType instanceof GraphQLInterfaceType)
+  ) {
     throw createUserError(
       `@${directiveName} used on invalid field '${field.name}'. Expected the ` +
         `field type '${typeName}' to have an '${EDGES}' field that returns ` +

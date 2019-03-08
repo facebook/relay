@@ -72,8 +72,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
           "value": [
             "PlainUserNameRenderer",
             "MarkdownUserNameRenderer"
-          ],
-          "type": "[String!]!"
+          ]
         }
       ],
       "concreteType": null,
@@ -96,8 +95,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
                 {
                   "kind": "Literal",
                   "name": "module",
-                  "value": "PlainUserNameRenderer.react",
-                  "type": "String"
+                  "value": "PlainUserNameRenderer.react"
                 }
               ],
               "storageKey": "__module_component"
@@ -121,8 +119,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
                 {
                   "kind": "Literal",
                   "name": "module",
-                  "value": "MarkdownUserNameRenderer.react",
-                  "type": "String"
+                  "value": "MarkdownUserNameRenderer.react"
                 }
               ],
               "storageKey": "__module_component"
@@ -230,8 +227,7 @@ fragment LinkedHandleField on User {
         {
           "kind": "Literal",
           "name": "first",
-          "value": 10,
-          "type": "Int"
+          "value": 10
         }
       ],
       "concreteType": "FriendsConnection",
@@ -313,8 +309,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
               "value": [
                 "PlainUserNameRenderer",
                 "MarkdownUserNameRenderer"
-              ],
-              "type": "[String!]!"
+              ]
             }
           ],
           "concreteType": null,
@@ -337,8 +332,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
                     {
                       "kind": "Literal",
                       "name": "module",
-                      "value": "PlainUserNameRenderer.react",
-                      "type": "String"
+                      "value": "PlainUserNameRenderer.react"
                     }
                   ],
                   "storageKey": "__module_component"
@@ -362,8 +356,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
                     {
                       "kind": "Literal",
                       "name": "module",
-                      "value": "MarkdownUserNameRenderer.react",
-                      "type": "String"
+                      "value": "MarkdownUserNameRenderer.react"
                     }
                   ],
                   "storageKey": "__module_component"
@@ -515,8 +508,7 @@ fragment Profile on User @argumentDefinitions(
           {
             "kind": "Variable",
             "name": "id",
-            "variableName": "id",
-            "type": "ID"
+            "variableName": "id"
           }
         ],
         "concreteType": null,
@@ -570,8 +562,7 @@ fragment Profile on User @argumentDefinitions(
         {
           "kind": "Literal",
           "name": "first",
-          "value": 10,
-          "type": "Int"
+          "value": 10
         }
       ],
       "concreteType": "FriendsConnection",
@@ -602,8 +593,7 @@ fragment Profile on User @argumentDefinitions(
                     {
                       "kind": "Variable",
                       "name": "pictureSize",
-                      "variableName": "pictureSize",
-                      "type": null
+                      "variableName": "pictureSize"
                     }
                   ]
                 }
@@ -639,8 +629,7 @@ fragment Profile on User @argumentDefinitions(
         {
           "kind": "Variable",
           "name": "size",
-          "variableName": "pictureSize",
-          "type": "[Int]"
+          "variableName": "pictureSize"
         }
       ],
       "concreteType": "Image",
@@ -715,8 +704,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
           {
             "kind": "Variable",
             "name": "id",
-            "variableName": "id",
-            "type": "ID"
+            "variableName": "id"
           }
         ],
         "concreteType": null,
@@ -760,8 +748,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
           "value": [
             "PlainUserNameRenderer",
             "MarkdownUserNameRenderer"
-          ],
-          "type": "[String!]!"
+          ]
         }
       ],
       "concreteType": null,
@@ -784,8 +771,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
                 {
                   "kind": "Literal",
                   "name": "module",
-                  "value": "PlainUserNameRenderer.react",
-                  "type": "String"
+                  "value": "PlainUserNameRenderer.react"
                 }
               ],
               "storageKey": "__module_component"
@@ -809,8 +795,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
                 {
                   "kind": "Literal",
                   "name": "module",
-                  "value": "MarkdownUserNameRenderer.react",
-                  "type": "String"
+                  "value": "MarkdownUserNameRenderer.react"
                 }
               ],
               "storageKey": "__module_component"
@@ -941,8 +926,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
           {
             "kind": "Variable",
             "name": "id",
-            "variableName": "id",
-            "type": "ID"
+            "variableName": "id"
           }
         ],
         "concreteType": null,
@@ -1000,8 +984,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
                 {
                   "kind": "Literal",
                   "name": "module",
-                  "value": "MarkdownUserNameRenderer.react",
-                  "type": "String"
+                  "value": "MarkdownUserNameRenderer.react"
                 }
               ],
               "storageKey": "__module_component"
@@ -1117,8 +1100,7 @@ query StableLiteralsTest {
                   "limit": 2,
                   "offset": 10,
                   "text": "foo"
-                },
-                "type": "StoryCommentSearchInput"
+                }
               }
             ],
             "concreteType": "Comment",

@@ -11,6 +11,7 @@
 'use strict';
 
 const IRVisitor = require('../core/GraphQLIRVisitor');
+const Rollout = require('../util/Rollout');
 const SchemaUtils = require('../core/GraphQLSchemaUtils');
 
 const {
@@ -51,7 +52,17 @@ function generate(node) {
       [node.loc],
     );
   }
+  removeTypeEnabled = Rollout.check('remove-type', node.name);
   return IRVisitor.visit(node, NormalizationCodeGenVisitor);
+}
+
+let removeTypeEnabled;
+function removeType<T>(node: T): T {
+  if (removeTypeEnabled) {
+    // $FlowFixMe - remove me after 100% rollout of type removal
+    delete node.type;
+  }
+  return node;
 }
 
 const NormalizationCodeGenVisitor = {
@@ -282,21 +293,21 @@ const NormalizationCodeGenVisitor = {
     },
 
     Variable(node, key, parent): NormalizationArgument {
-      return {
+      return removeType({
         kind: 'Variable',
         name: parent.name,
         variableName: node.variableName,
         type: parent.type ? parent.type.toString() : null,
-      };
+      });
     },
 
     Literal(node, key, parent): NormalizationArgument {
-      return {
+      return removeType({
         kind: 'Literal',
         name: parent.name,
         value: stableCopy(node.value),
         type: parent.type ? parent.type.toString() : null,
-      };
+      });
     },
 
     Argument(node, key, parent, ancestors): ?NormalizationArgument {

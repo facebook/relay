@@ -118,7 +118,7 @@ export type ReaderModuleImport = {|
 export type ReaderLiteral = {|
   +kind: 'Literal',
   +name: string,
-  +type: ?string,
+  +type?: ?string,
   +value: mixed,
 |};
 
@@ -161,7 +161,7 @@ export type ReaderSplitOperation = {
 export type ReaderVariable = {|
   +kind: 'Variable',
   +name: string,
-  +type: ?string,
+  +type?: ?string,
   +variableName: string,
 |};
 

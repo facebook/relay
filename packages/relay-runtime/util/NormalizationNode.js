@@ -96,7 +96,7 @@ export type NormalizationModuleImport = {|
 export type NormalizationLiteral = {|
   +kind: 'Literal',
   +name: string,
-  +type: ?string,
+  +type?: ?string,
   +value: mixed,
 |};
 
@@ -159,7 +159,7 @@ export type NormalizationDefer = {|
 export type NormalizationVariable = {|
   +kind: 'Variable',
   +name: string,
-  +type: ?string,
+  +type?: ?string,
   +variableName: string,
 |};
 

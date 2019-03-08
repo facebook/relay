@@ -82,8 +82,7 @@ type Foo implements Named {
           {
             "kind": "Variable",
             "name": "id",
-            "variableName": "id",
-            "type": "ID"
+            "variableName": "id"
           }
         ],
         "concreteType": null,
@@ -124,8 +123,7 @@ type Foo implements Named {
           {
             "kind": "Variable",
             "name": "id",
-            "variableName": "id",
-            "type": "ID"
+            "variableName": "id"
           }
         ],
         "concreteType": null,
@@ -385,8 +383,7 @@ query NodeQuery($id: ID!) {
           {
             "kind": "Variable",
             "name": "id",
-            "variableName": "id",
-            "type": "ID"
+            "variableName": "id"
           }
         ],
         "concreteType": null,
@@ -599,8 +596,7 @@ query NodeQuery($id: ID!) {
           {
             "kind": "Variable",
             "name": "id",
-            "variableName": "id",
-            "type": "ID"
+            "variableName": "id"
           }
         ],
         "concreteType": null,
@@ -633,8 +629,7 @@ query NodeQuery($id: ID!) {
                   {
                     "kind": "Literal",
                     "name": "first",
-                    "value": 10,
-                    "type": "Int"
+                    "value": 10
                   }
                 ],
                 "concreteType": "CommentsConnection",
@@ -690,8 +685,7 @@ query NodeQuery($id: ID!) {
                                   {
                                     "kind": "Literal",
                                     "name": "first",
-                                    "value": 10,
-                                    "type": "Int"
+                                    "value": 10
                                   }
                                 ],
                                 "concreteType": "FriendsConnection",
@@ -782,8 +776,7 @@ query NodeQuery($id: ID!) {
                                   {
                                     "kind": "Literal",
                                     "name": "first",
-                                    "value": 10,
-                                    "type": "Int"
+                                    "value": 10
                                   }
                                 ],
                                 "handle": "connection",
@@ -859,8 +852,7 @@ query NodeQuery($id: ID!) {
                   {
                     "kind": "Literal",
                     "name": "first",
-                    "value": 10,
-                    "type": "Int"
+                    "value": 10
                   }
                 ],
                 "handle": "connection",
@@ -972,8 +964,7 @@ query NodeQuery(
           {
             "kind": "Variable",
             "name": "id",
-            "variableName": "id",
-            "type": "ID"
+            "variableName": "id"
           }
         ],
         "concreteType": null,
@@ -1147,8 +1138,7 @@ query NodeQuery(
           {
             "kind": "Variable",
             "name": "id",
-            "variableName": "id",
-            "type": "ID"
+            "variableName": "id"
           }
         ],
         "concreteType": null,
@@ -1181,8 +1171,7 @@ query NodeQuery(
                   {
                     "kind": "Literal",
                     "name": "first",
-                    "value": 10,
-                    "type": "Int"
+                    "value": 10
                   }
                 ],
                 "concreteType": "CommentsConnection",
@@ -1345,8 +1334,7 @@ query NodeQuery(
                   {
                     "kind": "Literal",
                     "name": "first",
-                    "value": 10,
-                    "type": "Int"
+                    "value": 10
                   }
                 ],
                 "handle": "connection",
@@ -1450,8 +1438,7 @@ fragment ProfilePicture on User {
           {
             "kind": "Variable",
             "name": "id",
-            "variableName": "id",
-            "type": "ID!"
+            "variableName": "id"
           }
         ],
         "concreteType": null,
@@ -1493,8 +1480,7 @@ fragment ProfilePicture on User {
           {
             "kind": "Variable",
             "name": "id",
-            "variableName": "id",
-            "type": "ID!"
+            "variableName": "id"
           }
         ],
         "concreteType": null,
@@ -1534,8 +1520,7 @@ fragment ProfilePicture on User {
                   {
                     "kind": "Variable",
                     "name": "size",
-                    "variableName": "size",
-                    "type": "[Int]"
+                    "variableName": "size"
                   }
                 ],
                 "concreteType": "Image",
@@ -1657,8 +1642,7 @@ fragment ProfilePicture on User {
         {
           "kind": "Variable",
           "name": "size",
-          "variableName": "size",
-          "type": "[Int]"
+          "variableName": "size"
         }
       ],
       "concreteType": "Image",
@@ -1723,8 +1707,7 @@ fragment ProfilePicture on User {
           {
             "kind": "Variable",
             "name": "id",
-            "variableName": "id",
-            "type": "ID!"
+            "variableName": "id"
           }
         ],
         "concreteType": null,
@@ -1766,8 +1749,7 @@ fragment ProfilePicture on User {
           {
             "kind": "Variable",
             "name": "id",
-            "variableName": "id",
-            "type": "ID!"
+            "variableName": "id"
           }
         ],
         "concreteType": null,
@@ -1807,8 +1789,7 @@ fragment ProfilePicture on User {
                   {
                     "kind": "Variable",
                     "name": "size",
-                    "variableName": "size",
-                    "type": "[Int]"
+                    "variableName": "size"
                   }
                 ],
                 "concreteType": "Image",
@@ -1922,8 +1903,7 @@ fragment ProfilePicture on User {
         {
           "kind": "Variable",
           "name": "size",
-          "variableName": "size",
-          "type": "[Int]"
+          "variableName": "size"
         }
       ],
       "concreteType": "Image",
@@ -1990,8 +1970,7 @@ fragment ProfilePicture on User {
           {
             "kind": "Variable",
             "name": "id",
-            "variableName": "id",
-            "type": "ID!"
+            "variableName": "id"
           }
         ]
       }
@@ -2024,8 +2003,7 @@ fragment ProfilePicture on User {
           {
             "kind": "Variable",
             "name": "id",
-            "variableName": "id",
-            "type": "ID"
+            "variableName": "id"
           }
         ],
         "concreteType": null,
@@ -2065,8 +2043,7 @@ fragment ProfilePicture on User {
                   {
                     "kind": "Variable",
                     "name": "size",
-                    "variableName": "size",
-                    "type": "[Int]"
+                    "variableName": "size"
                   }
                 ],
                 "concreteType": "Image",
@@ -2151,8 +2128,7 @@ fragment ProfilePicture on User {
         {
           "kind": "Variable",
           "name": "id",
-          "variableName": "id",
-          "type": "ID"
+          "variableName": "id"
         }
       ],
       "concreteType": null,
@@ -2210,8 +2186,7 @@ fragment ProfilePicture on User {
         {
           "kind": "Variable",
           "name": "size",
-          "variableName": "size",
-          "type": "[Int]"
+          "variableName": "size"
         }
       ],
       "concreteType": "Image",
@@ -2407,8 +2382,7 @@ fragment ProfilePicture on User {
                       {
                         "kind": "Variable",
                         "name": "size",
-                        "variableName": "size",
-                        "type": "[Int]"
+                        "variableName": "size"
                       }
                     ],
                     "concreteType": "Image",
@@ -2544,8 +2518,7 @@ fragment ProfilePicture on User {
         {
           "kind": "Variable",
           "name": "size",
-          "variableName": "size",
-          "type": "[Int]"
+          "variableName": "size"
         }
       ],
       "concreteType": "Image",
@@ -2684,8 +2657,7 @@ fragment DeferredFragment on User
                       {
                         "kind": "Literal",
                         "name": "scale",
-                        "value": 1.5,
-                        "type": "Float"
+                        "value": 1.5
                       }
                     ],
                     "concreteType": "Image",
@@ -2762,8 +2734,7 @@ fragment DeferredFragment_QMvSr on User {
         {
           "kind": "Literal",
           "name": "scale",
-          "value": 1.5,
-          "type": "Float"
+          "value": 1.5
         }
       ]
     }
@@ -2807,8 +2778,7 @@ fragment DeferredFragment_QMvSr on User {
         {
           "kind": "Variable",
           "name": "scale",
-          "variableName": "scale",
-          "type": "Float"
+          "variableName": "scale"
         }
       ],
       "concreteType": "Image",
@@ -2879,8 +2849,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
           "value": [
             "PlainUserNameRenderer",
             "MarkdownUserNameRenderer"
-          ],
-          "type": "[String!]!"
+          ]
         }
       ],
       "concreteType": null,
@@ -2903,8 +2872,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
                 {
                   "kind": "Literal",
                   "name": "module",
-                  "value": "MarkdownUserNameRenderer.react",
-                  "type": "String"
+                  "value": "MarkdownUserNameRenderer.react"
                 }
               ],
               "storageKey": "__module_component"
@@ -2928,8 +2896,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
                 {
                   "kind": "Literal",
                   "name": "module",
-                  "value": "PlainUserNameRenderer.react",
-                  "type": "String"
+                  "value": "PlainUserNameRenderer.react"
                 }
               ],
               "storageKey": "__module_component"
@@ -3054,8 +3021,7 @@ fragment FeedbackFragment on Feedback {
           {
             "kind": "Variable",
             "name": "id",
-            "variableName": "id",
-            "type": "ID"
+            "variableName": "id"
           }
         ],
         "concreteType": null,
@@ -3098,8 +3064,7 @@ fragment FeedbackFragment on Feedback {
           {
             "kind": "Variable",
             "name": "id",
-            "variableName": "id",
-            "type": "ID"
+            "variableName": "id"
           }
         ],
         "concreteType": null,
@@ -3306,8 +3271,7 @@ fragment UserFragment on User @argumentDefinitions(
           {
             "kind": "Variable",
             "name": "id",
-            "variableName": "id",
-            "type": "ID"
+            "variableName": "id"
           }
         ],
         "concreteType": null,
@@ -3332,8 +3296,7 @@ fragment UserFragment on User @argumentDefinitions(
                   {
                     "kind": "Variable",
                     "name": "size",
-                    "variableName": "PictureSize",
-                    "type": null
+                    "variableName": "PictureSize"
                   }
                 ]
               },
@@ -3389,8 +3352,7 @@ fragment UserFragment on User @argumentDefinitions(
           {
             "kind": "Variable",
             "name": "id",
-            "variableName": "id",
-            "type": "ID"
+            "variableName": "id"
           }
         ],
         "concreteType": null,
@@ -3442,8 +3404,7 @@ fragment UserFragment on User @argumentDefinitions(
                       {
                         "kind": "Literal",
                         "name": "first",
-                        "value": 5,
-                        "type": "Int"
+                        "value": 5
                       }
                     ],
                     "concreteType": "FriendsConnection",
@@ -3467,8 +3428,7 @@ fragment UserFragment on User @argumentDefinitions(
                       {
                         "kind": "Literal",
                         "name": "size",
-                        "value": 32,
-                        "type": "[Int]"
+                        "value": 32
                       }
                     ],
                     "concreteType": "Image",
@@ -3506,8 +3466,7 @@ fragment UserFragment on User @argumentDefinitions(
                       {
                         "kind": "Variable",
                         "name": "size",
-                        "variableName": "PictureSize",
-                        "type": "[Int]"
+                        "variableName": "PictureSize"
                       }
                     ],
                     "concreteType": "Image",
@@ -3545,8 +3504,7 @@ fragment UserFragment on User @argumentDefinitions(
                       {
                         "kind": "Variable",
                         "name": "size",
-                        "variableName": "PictureSize",
-                        "type": "[Int]"
+                        "variableName": "PictureSize"
                       }
                     ],
                     "concreteType": "Image",
@@ -3670,14 +3628,12 @@ fragment UserFragment_3M2EvT on User {
         {
           "kind": "Variable",
           "name": "after",
-          "variableName": "after",
-          "type": "ID"
+          "variableName": "after"
         },
         {
           "kind": "Variable",
           "name": "first",
-          "variableName": "first",
-          "type": "Int"
+          "variableName": "first"
         }
       ],
       "concreteType": "FriendsConnection",
@@ -3701,8 +3657,7 @@ fragment UserFragment_3M2EvT on User {
         {
           "kind": "Literal",
           "name": "size",
-          "value": 32,
-          "type": "[Int]"
+          "value": 32
         }
       ],
       "concreteType": "Image",
@@ -3740,8 +3695,7 @@ fragment UserFragment_3M2EvT on User {
         {
           "kind": "Variable",
           "name": "size",
-          "variableName": "size",
-          "type": "[Int]"
+          "variableName": "size"
         }
       ],
       "concreteType": "Image",
@@ -3779,8 +3733,7 @@ fragment UserFragment_3M2EvT on User {
         {
           "kind": "Variable",
           "name": "size",
-          "variableName": "PictureSize",
-          "type": "[Int]"
+          "variableName": "PictureSize"
         }
       ],
       "concreteType": "Image",
@@ -3851,8 +3804,7 @@ query LinkedHandleField($id: ID!) {
           {
             "kind": "Variable",
             "name": "id",
-            "variableName": "id",
-            "type": "ID"
+            "variableName": "id"
           }
         ],
         "concreteType": null,
@@ -3907,8 +3859,7 @@ query LinkedHandleField($id: ID!) {
           {
             "kind": "Variable",
             "name": "id",
-            "variableName": "id",
-            "type": "ID"
+            "variableName": "id"
           }
         ],
         "concreteType": null,
@@ -3941,8 +3892,7 @@ query LinkedHandleField($id: ID!) {
                   {
                     "kind": "Literal",
                     "name": "first",
-                    "value": 10,
-                    "type": "Int"
+                    "value": 10
                   }
                 ],
                 "concreteType": "FriendsConnection",
@@ -3965,8 +3915,7 @@ query LinkedHandleField($id: ID!) {
                   {
                     "kind": "Literal",
                     "name": "first",
-                    "value": 10,
-                    "type": "Int"
+                    "value": 10
                   }
                 ],
                 "handle": "clientFriends",
@@ -4062,8 +4011,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
               "value": [
                 "PlainUserNameRenderer",
                 "MarkdownUserNameRenderer"
-              ],
-              "type": "[String!]!"
+              ]
             }
           ],
           "concreteType": null,
@@ -4086,8 +4034,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
                     {
                       "kind": "Literal",
                       "name": "module",
-                      "value": "MarkdownUserNameRenderer.react",
-                      "type": "String"
+                      "value": "MarkdownUserNameRenderer.react"
                     }
                   ],
                   "storageKey": "__module_component"
@@ -4111,8 +4058,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
                     {
                       "kind": "Literal",
                       "name": "module",
-                      "value": "PlainUserNameRenderer.react",
-                      "type": "String"
+                      "value": "PlainUserNameRenderer.react"
                     }
                   ],
                   "storageKey": "__module_component"
@@ -4281,8 +4227,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
           {
             "kind": "Variable",
             "name": "id",
-            "variableName": "id",
-            "type": "ID"
+            "variableName": "id"
           }
         ],
         "concreteType": null,
@@ -4318,8 +4263,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
           {
             "kind": "Variable",
             "name": "id",
-            "variableName": "id",
-            "type": "ID"
+            "variableName": "id"
           }
         ],
         "concreteType": null,
@@ -4355,8 +4299,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
                     "value": [
                       "PlainUserNameRenderer",
                       "MarkdownUserNameRenderer"
-                    ],
-                    "type": "[String!]!"
+                    ]
                   }
                 ],
                 "concreteType": null,
@@ -4386,8 +4329,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
                           {
                             "kind": "Literal",
                             "name": "module",
-                            "value": "MarkdownUserNameRenderer.react",
-                            "type": "String"
+                            "value": "MarkdownUserNameRenderer.react"
                           }
                         ],
                         "storageKey": "__module_component"
@@ -4411,8 +4353,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
                           {
                             "kind": "Literal",
                             "name": "module",
-                            "value": "PlainUserNameRenderer.react",
-                            "type": "String"
+                            "value": "PlainUserNameRenderer.react"
                           }
                         ],
                         "storageKey": "__module_component"
@@ -4522,8 +4463,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
         {
           "kind": "Literal",
           "name": "module",
-          "value": "PlainUserNameRenderer_name$normalization.graphql",
-          "type": "String"
+          "value": "PlainUserNameRenderer_name$normalization.graphql"
         }
       ],
       "storageKey": "__module_operation"
@@ -4578,8 +4518,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
         {
           "kind": "Literal",
           "name": "module",
-          "value": "MarkdownUserNameRenderer_name$normalization.graphql",
-          "type": "String"
+          "value": "MarkdownUserNameRenderer_name$normalization.graphql"
         }
       ],
       "storageKey": "__module_operation"
@@ -4613,8 +4552,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
           "value": [
             "PlainUserNameRenderer",
             "MarkdownUserNameRenderer"
-          ],
-          "type": "[String!]!"
+          ]
         }
       ],
       "concreteType": null,
@@ -4637,8 +4575,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
                 {
                   "kind": "Literal",
                   "name": "module",
-                  "value": "MarkdownUserNameRenderer.react",
-                  "type": "String"
+                  "value": "MarkdownUserNameRenderer.react"
                 }
               ],
               "storageKey": "__module_component"
@@ -4662,8 +4599,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
                 {
                   "kind": "Literal",
                   "name": "module",
-                  "value": "PlainUserNameRenderer.react",
-                  "type": "String"
+                  "value": "PlainUserNameRenderer.react"
                 }
               ],
               "storageKey": "__module_component"
@@ -4803,8 +4739,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
           {
             "kind": "Variable",
             "name": "id",
-            "variableName": "id",
-            "type": "ID"
+            "variableName": "id"
           }
         ],
         "concreteType": null,
@@ -4840,8 +4775,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
           {
             "kind": "Variable",
             "name": "id",
-            "variableName": "id",
-            "type": "ID"
+            "variableName": "id"
           }
         ],
         "concreteType": null,
@@ -4877,8 +4811,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
                     "value": [
                       "PlainUserNameRenderer",
                       "MarkdownUserNameRenderer"
-                    ],
-                    "type": "[String!]!"
+                    ]
                   }
                 ],
                 "concreteType": null,
@@ -4908,8 +4841,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
                           {
                             "kind": "Literal",
                             "name": "module",
-                            "value": "MarkdownUserNameRenderer.react",
-                            "type": "String"
+                            "value": "MarkdownUserNameRenderer.react"
                           }
                         ],
                         "storageKey": "__module_component"
@@ -4933,8 +4865,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
                           {
                             "kind": "Literal",
                             "name": "module",
-                            "value": "PlainUserNameRenderer.react",
-                            "type": "String"
+                            "value": "PlainUserNameRenderer.react"
                           }
                         ],
                         "storageKey": "__module_component"
@@ -5044,8 +4975,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
         {
           "kind": "Literal",
           "name": "module",
-          "value": "PlainUserNameRenderer_name$normalization.graphql",
-          "type": "String"
+          "value": "PlainUserNameRenderer_name$normalization.graphql"
         }
       ],
       "storageKey": "__module_operation"
@@ -5100,8 +5030,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
         {
           "kind": "Literal",
           "name": "module",
-          "value": "MarkdownUserNameRenderer_name$normalization.graphql",
-          "type": "String"
+          "value": "MarkdownUserNameRenderer_name$normalization.graphql"
         }
       ],
       "storageKey": "__module_operation"
@@ -5135,8 +5064,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
           "value": [
             "PlainUserNameRenderer",
             "MarkdownUserNameRenderer"
-          ],
-          "type": "[String!]!"
+          ]
         }
       ],
       "concreteType": null,
@@ -5159,8 +5087,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
                 {
                   "kind": "Literal",
                   "name": "module",
-                  "value": "MarkdownUserNameRenderer.react",
-                  "type": "String"
+                  "value": "MarkdownUserNameRenderer.react"
                 }
               ],
               "storageKey": "__module_component"
@@ -5184,8 +5111,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
                 {
                   "kind": "Literal",
                   "name": "module",
-                  "value": "PlainUserNameRenderer.react",
-                  "type": "String"
+                  "value": "PlainUserNameRenderer.react"
                 }
               ],
               "storageKey": "__module_component"
@@ -5317,8 +5243,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
           {
             "kind": "Variable",
             "name": "id",
-            "variableName": "id",
-            "type": "ID"
+            "variableName": "id"
           }
         ],
         "concreteType": null,
@@ -5354,8 +5279,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
           {
             "kind": "Variable",
             "name": "id",
-            "variableName": "id",
-            "type": "ID"
+            "variableName": "id"
           }
         ],
         "concreteType": null,
@@ -5412,8 +5336,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
                           {
                             "kind": "Literal",
                             "name": "module",
-                            "value": "MarkdownUserNameRenderer.react",
-                            "type": "String"
+                            "value": "MarkdownUserNameRenderer.react"
                           }
                         ],
                         "storageKey": "__module_component"
@@ -5510,8 +5433,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
         {
           "kind": "Literal",
           "name": "module",
-          "value": "MarkdownUserNameRenderer_name$normalization.graphql",
-          "type": "String"
+          "value": "MarkdownUserNameRenderer_name$normalization.graphql"
         }
       ],
       "storageKey": "__module_operation"
@@ -5559,8 +5481,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
                 {
                   "kind": "Literal",
                   "name": "module",
-                  "value": "MarkdownUserNameRenderer.react",
-                  "type": "String"
+                  "value": "MarkdownUserNameRenderer.react"
                 }
               ],
               "storageKey": "__module_component"
@@ -5668,8 +5589,7 @@ fragment PaginationFragment on Node
           {
             "kind": "Variable",
             "name": "id",
-            "variableName": "id",
-            "type": "ID!"
+            "variableName": "id"
           }
         ],
         "concreteType": null,
@@ -5682,14 +5602,12 @@ fragment PaginationFragment on Node
               {
                 "kind": "Variable",
                 "name": "count",
-                "variableName": "count",
-                "type": "Int"
+                "variableName": "count"
               },
               {
                 "kind": "Variable",
                 "name": "cursor",
-                "variableName": "cursor",
-                "type": "ID"
+                "variableName": "cursor"
               }
             ]
           }
@@ -5730,8 +5648,7 @@ fragment PaginationFragment on Node
           {
             "kind": "Variable",
             "name": "id",
-            "variableName": "id",
-            "type": "ID!"
+            "variableName": "id"
           }
         ],
         "concreteType": null,
@@ -5771,14 +5688,12 @@ fragment PaginationFragment on Node
                   {
                     "kind": "Variable",
                     "name": "after",
-                    "variableName": "cursor",
-                    "type": "ID"
+                    "variableName": "cursor"
                   },
                   {
                     "kind": "Variable",
                     "name": "first",
-                    "variableName": "count",
-                    "type": "Int"
+                    "variableName": "count"
                   }
                 ],
                 "concreteType": "FriendsConnection",
@@ -5862,14 +5777,12 @@ fragment PaginationFragment on Node
                   {
                     "kind": "Variable",
                     "name": "after",
-                    "variableName": "cursor",
-                    "type": "ID"
+                    "variableName": "cursor"
                   },
                   {
                     "kind": "Variable",
                     "name": "first",
-                    "variableName": "count",
-                    "type": "Int"
+                    "variableName": "count"
                   }
                 ],
                 "handle": "connection",
@@ -6141,8 +6054,7 @@ fragment PaginationFragment on Node
           {
             "kind": "Variable",
             "name": "id",
-            "variableName": "id",
-            "type": "ID!"
+            "variableName": "id"
           }
         ],
         "concreteType": null,
@@ -6155,14 +6067,12 @@ fragment PaginationFragment on Node
               {
                 "kind": "Variable",
                 "name": "count",
-                "variableName": "count",
-                "type": "Int"
+                "variableName": "count"
               },
               {
                 "kind": "Variable",
                 "name": "cursor",
-                "variableName": "cursor",
-                "type": "ID"
+                "variableName": "cursor"
               }
             ]
           }
@@ -6215,8 +6125,7 @@ fragment PaginationFragment on Node
           {
             "kind": "Variable",
             "name": "id",
-            "variableName": "id",
-            "type": "ID!"
+            "variableName": "id"
           }
         ],
         "concreteType": null,
@@ -6256,26 +6165,22 @@ fragment PaginationFragment on Node
                   {
                     "kind": "Variable",
                     "name": "after",
-                    "variableName": "cursor",
-                    "type": "ID"
+                    "variableName": "cursor"
                   },
                   {
                     "kind": "Variable",
                     "name": "before",
-                    "variableName": "beforeCursor",
-                    "type": "ID"
+                    "variableName": "beforeCursor"
                   },
                   {
                     "kind": "Variable",
                     "name": "first",
-                    "variableName": "count",
-                    "type": "Int"
+                    "variableName": "count"
                   },
                   {
                     "kind": "Variable",
                     "name": "last",
-                    "variableName": "lastCount",
-                    "type": "Int"
+                    "variableName": "lastCount"
                   }
                 ],
                 "concreteType": "FriendsConnection",
@@ -6373,26 +6278,22 @@ fragment PaginationFragment on Node
                   {
                     "kind": "Variable",
                     "name": "after",
-                    "variableName": "cursor",
-                    "type": "ID"
+                    "variableName": "cursor"
                   },
                   {
                     "kind": "Variable",
                     "name": "before",
-                    "variableName": "beforeCursor",
-                    "type": "ID"
+                    "variableName": "beforeCursor"
                   },
                   {
                     "kind": "Variable",
                     "name": "first",
-                    "variableName": "count",
-                    "type": "Int"
+                    "variableName": "count"
                   },
                   {
                     "kind": "Variable",
                     "name": "last",
-                    "variableName": "lastCount",
-                    "type": "Int"
+                    "variableName": "lastCount"
                   }
                 ],
                 "handle": "connection",
@@ -6659,8 +6560,7 @@ query ScalarHandleField($id: ID!) {
           {
             "kind": "Variable",
             "name": "id",
-            "variableName": "id",
-            "type": "ID"
+            "variableName": "id"
           }
         ],
         "concreteType": null,
@@ -6704,8 +6604,7 @@ query ScalarHandleField($id: ID!) {
           {
             "kind": "Variable",
             "name": "id",
-            "variableName": "id",
-            "type": "ID"
+            "variableName": "id"
           }
         ],
         "concreteType": null,
@@ -6825,8 +6724,7 @@ query NodeQuery(
           {
             "kind": "Variable",
             "name": "id",
-            "variableName": "id",
-            "type": "ID"
+            "variableName": "id"
           }
         ],
         "concreteType": null,
@@ -6960,8 +6858,7 @@ query NodeQuery(
           {
             "kind": "Variable",
             "name": "id",
-            "variableName": "id",
-            "type": "ID"
+            "variableName": "id"
           }
         ],
         "concreteType": null,
@@ -6994,8 +6891,7 @@ query NodeQuery(
                   {
                     "kind": "Literal",
                     "name": "first",
-                    "value": 10,
-                    "type": "Int"
+                    "value": 10
                   }
                 ],
                 "concreteType": "CommentsConnection",
@@ -7133,8 +7029,7 @@ query NodeQuery(
                   {
                     "kind": "Literal",
                     "name": "first",
-                    "value": 10,
-                    "type": "Int"
+                    "value": 10
                   }
                 ],
                 "handle": "connection",
@@ -7420,8 +7315,7 @@ fragment UserUtil2_user on User {
         {
           "kind": "Variable",
           "name": "size",
-          "variableName": "PictureSize",
-          "type": "[Int]"
+          "variableName": "PictureSize"
         }
       ],
       "concreteType": "Image",
@@ -7451,8 +7345,7 @@ fragment UserUtil2_user on User {
         {
           "kind": "Variable",
           "name": "relative",
-          "variableName": "globalIsRelative",
-          "type": "Boolean"
+          "variableName": "globalIsRelative"
         }
       ],
       "storageKey": null
@@ -7465,8 +7358,7 @@ fragment UserUtil2_user on User {
         {
           "kind": "Variable",
           "name": "relative",
-          "variableName": "localIsRelative",
-          "type": "Boolean"
+          "variableName": "localIsRelative"
         }
       ],
       "storageKey": null
@@ -7495,8 +7387,7 @@ fragment UserUtil2_user on User {
         {
           "kind": "Variable",
           "name": "relative",
-          "variableName": "globalIsRelative",
-          "type": "Boolean"
+          "variableName": "globalIsRelative"
         }
       ],
       "storageKey": null
@@ -7605,8 +7496,7 @@ fragment UserUtil_user on User {
               {
                 "kind": "Variable",
                 "name": "size",
-                "variableName": "ProfilePicture_SIZE",
-                "type": "[Int]"
+                "variableName": "ProfilePicture_SIZE"
               }
             ],
             "concreteType": "Image",
@@ -7636,8 +7526,7 @@ fragment UserUtil_user on User {
               {
                 "kind": "Variable",
                 "name": "relative",
-                "variableName": "isRelative",
-                "type": "Boolean"
+                "variableName": "isRelative"
               }
             ],
             "storageKey": null
@@ -7703,8 +7592,7 @@ fragment UserProfile_user on User {
         {
           "kind": "Variable",
           "name": "size",
-          "variableName": "ProfilePicture_SIZE",
-          "type": "[Int]"
+          "variableName": "ProfilePicture_SIZE"
         }
       ],
       "concreteType": "Image",
@@ -7734,8 +7622,7 @@ fragment UserProfile_user on User {
         {
           "kind": "Variable",
           "name": "relative",
-          "variableName": "isRelative",
-          "type": "Boolean"
+          "variableName": "isRelative"
         }
       ],
       "storageKey": null
@@ -7764,8 +7651,7 @@ fragment UserProfile_user on User {
         {
           "kind": "Variable",
           "name": "relative",
-          "variableName": "isRelative",
-          "type": "Boolean"
+          "variableName": "isRelative"
         }
       ],
       "storageKey": null
@@ -7891,8 +7777,7 @@ fragment UserUtil2_user on User {
               {
                 "kind": "Variable",
                 "name": "if",
-                "variableName": "showFirstName",
-                "type": "Boolean"
+                "variableName": "showFirstName"
               }
             ],
             "storageKey": null
@@ -7906,8 +7791,7 @@ fragment UserUtil2_user on User {
               {
                 "kind": "Variable",
                 "name": "size",
-                "variableName": "ProfilePicture_SIZE",
-                "type": "[Int]"
+                "variableName": "ProfilePicture_SIZE"
               }
             ],
             "concreteType": "Image",
@@ -7937,8 +7821,7 @@ fragment UserUtil2_user on User {
               {
                 "kind": "Variable",
                 "name": "relative",
-                "variableName": "isRelative",
-                "type": "Boolean"
+                "variableName": "isRelative"
               }
             ],
             "storageKey": null
@@ -8010,8 +7893,7 @@ fragment UserProfile_user on User {
         {
           "kind": "Variable",
           "name": "if",
-          "variableName": "showFirstName",
-          "type": "Boolean"
+          "variableName": "showFirstName"
         }
       ],
       "storageKey": null
@@ -8025,8 +7907,7 @@ fragment UserProfile_user on User {
         {
           "kind": "Variable",
           "name": "size",
-          "variableName": "ProfilePicture_SIZE",
-          "type": "[Int]"
+          "variableName": "ProfilePicture_SIZE"
         }
       ],
       "concreteType": "Image",
@@ -8056,8 +7937,7 @@ fragment UserProfile_user on User {
         {
           "kind": "Variable",
           "name": "relative",
-          "variableName": "isRelative",
-          "type": "Boolean"
+          "variableName": "isRelative"
         }
       ],
       "storageKey": null
@@ -8092,8 +7972,7 @@ fragment UserProfile_user on User {
         {
           "kind": "Variable",
           "name": "size",
-          "variableName": "ProfilePicture_SIZE",
-          "type": "[Int]"
+          "variableName": "ProfilePicture_SIZE"
         }
       ],
       "concreteType": "Image",
@@ -8123,8 +8002,7 @@ fragment UserProfile_user on User {
         {
           "kind": "Variable",
           "name": "relative",
-          "variableName": "isRelative",
-          "type": "Boolean"
+          "variableName": "isRelative"
         }
       ],
       "storageKey": null
@@ -8153,8 +8031,7 @@ fragment UserProfile_user on User {
         {
           "kind": "Variable",
           "name": "relative",
-          "variableName": "isRelative",
-          "type": "Boolean"
+          "variableName": "isRelative"
         }
       ],
       "storageKey": null

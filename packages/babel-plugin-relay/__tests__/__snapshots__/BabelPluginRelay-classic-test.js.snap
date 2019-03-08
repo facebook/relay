@@ -4591,7 +4591,7 @@ var fragment = RelayClassic.QL\`
 ERROR:
 
 Error: undefined: Relay Transform Error: You defined a \`node(id: Int)\` field on type \`InvalidType\`, but Relay requires the \`node\` field to be defined on the root type. See the Object Identification Guide: 
-http://facebook.github.io/relay/docs/graphql-object-identification.html
+https://facebook.github.io/relay/docs/en/graphql-server-specification.html#object-identification
   1 | const RelayClassic = require('react-relay/classic');
 > 2 | var fragment = RelayClassic.QL\`
     |                ^

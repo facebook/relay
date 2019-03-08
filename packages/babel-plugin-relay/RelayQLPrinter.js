@@ -766,7 +766,7 @@ module.exports = function(t: any, options: PrinterOptions): Function {
             'You defined a `node(%s: %s)` field on type `%s`, but Relay requires ' +
               'the `node` field to be defined on the root type. See the Object ' +
               'Identification Guide: \n' +
-              'http://facebook.github.io/relay/docs/graphql-object-identification.html',
+              'https://facebook.github.io/relay/docs/en/graphql-server-specification.html#object-identification',
             ID,
             argNames[0] && argTypes[argNames[0]].getName({modifiers: true}),
             parentType.getName({modifiers: false}),

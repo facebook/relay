@@ -82,8 +82,6 @@ function canHaveSelections(type: GraphQLType): boolean {
  * Implements duck typing that checks whether a type has an id field of the ID
  * type. This is approximating what we can hopefully do with the __id proposal
  * a bit more cleanly.
- *
- * https://github.com/graphql/graphql-future/blob/master/01%20-%20__id.md
  */
 function hasID(schema: GraphQLSchema, type: GraphQLCompositeType): boolean {
   const unmodifiedType = getRawType(type);

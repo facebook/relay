@@ -9,12 +9,11 @@
  */
 
 'use strict';
+
 const React = require('React');
 
-import type {RelayContext} from 'relay-runtime';
+const {
+  __internal: {createRelayContext},
+} = require('relay-runtime');
 
-const ReactRelayContext: React$Context<RelayContext | null> = React.createContext(
-  null,
-);
-
-module.exports = ReactRelayContext;
+module.exports = createRelayContext(React);

@@ -36,6 +36,7 @@ const RelayViewerHandler = require('./handlers/viewer/RelayViewerHandler');
 const applyRelayModernOptimisticMutation = require('./mutations/applyRelayModernOptimisticMutation');
 const commitLocalUpdate = require('./mutations/commitLocalUpdate');
 const commitRelayModernMutation = require('./mutations/commitRelayModernMutation');
+const createRelayContext = require('./store/createRelayContext');
 const createRelayNetworkLogger = require('./network/createRelayNetworkLogger');
 const deepFreeze = require('./util/deepFreeze');
 const fetchQueryInternal = require('./query/fetchQueryInternal');
@@ -270,6 +271,7 @@ module.exports = {
   getFragmentIdentifier: getFragmentIdentifier,
   getFragmentSpecIdentifier: getFragmentSpecIdentifier,
   __internal: {
+    createRelayContext: createRelayContext,
     getModernOperationVariables: RelayConcreteVariables.getOperationVariables,
     fetchQuery: fetchQueryInternal.fetchQuery,
     getPromiseForRequestInFlight:

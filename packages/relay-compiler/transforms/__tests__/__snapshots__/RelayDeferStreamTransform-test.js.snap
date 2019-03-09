@@ -1,6 +1,341 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`RelayDeferStreamTransform matches expected output: fragment-with-defer.graphql 1`] = `
+exports[`RelayDeferStreamTransform when streaming is disabled it transform queries matches expected output: fragment-with-defer.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query QueryWithFragmentWithDefer {
+  me {
+    id
+    ...UserFragment
+  }
+}
+
+fragment UserFragment on User {
+  id
+  emailAddresses
+  ...DeferredFragment @defer(
+    if: $RELAY_INCREMENTAL_DELIVERY
+    label: "DeferredFragmentLabel"
+  )
+}
+
+fragment DeferredFragment on User {
+  id
+  name
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+query QueryWithFragmentWithDefer {
+  me {
+    id
+    ...UserFragment
+  }
+}
+
+fragment UserFragment on User {
+  id
+  emailAddresses
+  ...DeferredFragment @defer(label: "UserFragment$defer$DeferredFragmentLabel", if: $RELAY_INCREMENTAL_DELIVERY)
+}
+
+fragment DeferredFragment on User {
+  id
+  name
+}
+
+`;
+
+exports[`RelayDeferStreamTransform when streaming is disabled it transform queries matches expected output: fragment-with-defer-if-literal.invalid.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query QueryWithFragmentWithDefer {
+  me {
+    id
+    ...UserFragment
+  }
+}
+
+fragment UserFragment on User {
+  id
+  emailAddresses
+  ...DeferredFragment @defer(
+    if: true
+    label: "DeferredFragmentLabel"
+  )
+}
+
+fragment DeferredFragment on User {
+  id
+  name
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+THROWN EXCEPTION:
+
+Error: Encountered 1 error(s):
+- The @defer directive requires an 'if: $RELAY_INCREMENTAL_DELIVERY' argument. This is a temporary restriction during rollout of incremental data delivery.
+  
+  Source: GraphQL request (12:9)
+  11:   ...DeferredFragment @defer(
+  12:     if: true
+              ^
+  13:     label: "DeferredFragmentLabel"
+  
+`;
+
+exports[`RelayDeferStreamTransform when streaming is disabled it transform queries matches expected output: fragment-with-defer-wrong-variable.invalid.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query QueryWithFragmentWithDefer($defer: Boolean) {
+  me {
+    id
+    ...UserFragment
+  }
+}
+
+fragment UserFragment on User {
+  id
+  emailAddresses
+  ...DeferredFragment @defer(
+    if: $defer
+    label: "DeferredFragmentLabel"
+  )
+}
+
+fragment DeferredFragment on User {
+  id
+  name
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+THROWN EXCEPTION:
+
+Error: Encountered 1 error(s):
+- The @defer directive requires an 'if: $RELAY_INCREMENTAL_DELIVERY' argument. This is a temporary restriction during rollout of incremental data delivery.
+  
+  Source: GraphQL request (12:9)
+  11:   ...DeferredFragment @defer(
+  12:     if: $defer
+              ^
+  13:     label: "DeferredFragmentLabel"
+  
+`;
+
+exports[`RelayDeferStreamTransform when streaming is disabled it transform queries matches expected output: fragment-with-stream.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query QueryWithFragmentWithStream($id: ID!) {
+  node(id: $id) {
+    id
+    ...FeedbackFragment
+  }
+}
+
+fragment FeedbackFragment on Feedback {
+  id
+  actors @stream(
+    if: $RELAY_INCREMENTAL_DELIVERY
+    initial_count: 1
+    label: "StreamedActorsLabel"
+  ) {
+    name
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+query QueryWithFragmentWithStream(
+  $id: ID!
+) {
+  node(id: $id) {
+    id
+    ...FeedbackFragment
+  }
+}
+
+fragment FeedbackFragment on Feedback {
+  id
+  actors @stream(label: "FeedbackFragment$stream$StreamedActorsLabel", if: $RELAY_INCREMENTAL_DELIVERY, initial_count: 1) {
+    name
+  }
+}
+
+`;
+
+exports[`RelayDeferStreamTransform when streaming is disabled it transform queries matches expected output: fragment-with-stream-if-literal.invalid.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query QueryWithFragmentWithStream($id: ID!) {
+  node(id: $id) {
+    id
+    ...FeedbackFragment
+  }
+}
+
+fragment FeedbackFragment on Feedback {
+  id
+  actors @stream(
+    if: true
+    initial_count: 1
+    label: "StreamedActorsLabel"
+  ) {
+    name
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+THROWN EXCEPTION:
+
+Error: Encountered 1 error(s):
+- The @stream directive requires an 'if: $RELAY_INCREMENTAL_DELIVERY' argument. This is a temporary restriction during rollout of incremental data delivery.
+  
+  Source: GraphQL request (11:9)
+  10:   actors @stream(
+  11:     if: true
+              ^
+  12:     initial_count: 1
+  
+`;
+
+exports[`RelayDeferStreamTransform when streaming is disabled it transform queries matches expected output: fragment-with-stream-wrong-variable.invalid.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query QueryWithFragmentWithStream($id: ID!, $stream: Boolean) {
+  node(id: $id) {
+    id
+    ...FeedbackFragment
+  }
+}
+
+fragment FeedbackFragment on Feedback {
+  id
+  actors @stream(
+    if: $stream
+    initial_count: 1
+    label: "StreamedActorsLabel"
+  ) {
+    name
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+THROWN EXCEPTION:
+
+Error: Encountered 1 error(s):
+- The @stream directive requires an 'if: $RELAY_INCREMENTAL_DELIVERY' argument. This is a temporary restriction during rollout of incremental data delivery.
+  
+  Source: GraphQL request (11:9)
+  10:   actors @stream(
+  11:     if: $stream
+              ^
+  12:     initial_count: 1
+  
+`;
+
+exports[`RelayDeferStreamTransform when streaming is disabled it transform queries matches expected output: inline-fragment-with-defer.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query QueryWithFragmentWithDefer {
+  me {
+    id
+    ...UserFragment
+  }
+}
+
+fragment UserFragment on User {
+  id
+  emailAddresses
+  ... on User @defer(
+    if: $RELAY_INCREMENTAL_DELIVERY
+    label: "DeferredFragmentLabel"
+  ) {
+    id
+    name
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+query QueryWithFragmentWithDefer {
+  me {
+    id
+    ...UserFragment
+  }
+}
+
+fragment UserFragment on User {
+  id
+  emailAddresses
+  ... on User @defer(label: "UserFragment$defer$DeferredFragmentLabel", if: $RELAY_INCREMENTAL_DELIVERY) {
+    id
+    name
+  }
+}
+
+`;
+
+exports[`RelayDeferStreamTransform when streaming is disabled it transform queries matches expected output: inline-fragment-with-defer-if-literal.invalid.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query QueryWithFragmentWithDefer {
+  me {
+    id
+    ...UserFragment
+  }
+}
+
+fragment UserFragment on User {
+  id
+  emailAddresses
+  ... on User @defer(
+    if: true
+    label: "DeferredFragmentLabel"
+  ) {
+    id
+    name
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+THROWN EXCEPTION:
+
+Error: Encountered 1 error(s):
+- The @defer directive requires an 'if: $RELAY_INCREMENTAL_DELIVERY' argument. This is a temporary restriction during rollout of incremental data delivery.
+  
+  Source: GraphQL request (12:9)
+  11:   ... on User @defer(
+  12:     if: true
+              ^
+  13:     label: "DeferredFragmentLabel"
+  
+`;
+
+exports[`RelayDeferStreamTransform when streaming is disabled it transform queries matches expected output: inline-fragment-with-defer-wrong-variable.invalid.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query QueryWithFragmentWithDefer($defer: Boolean) {
+  me {
+    id
+    ...UserFragment
+  }
+}
+
+fragment UserFragment on User {
+  id
+  emailAddresses
+  ... on User @defer(
+    if: $defer
+    label: "DeferredFragmentLabel"
+  ) {
+    id
+    name
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+THROWN EXCEPTION:
+
+Error: Encountered 1 error(s):
+- The @defer directive requires an 'if: $RELAY_INCREMENTAL_DELIVERY' argument. This is a temporary restriction during rollout of incremental data delivery.
+  
+  Source: GraphQL request (12:9)
+  11:   ... on User @defer(
+  12:     if: $defer
+              ^
+  13:     label: "DeferredFragmentLabel"
+  
+`;
+
+exports[`RelayDeferStreamTransform when streaming is enabled matches expected output: fragment-with-defer.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query QueryWithFragmentWithDefer {
   me {
@@ -41,7 +376,7 @@ fragment DeferredFragment on User {
 
 `;
 
-exports[`RelayDeferStreamTransform matches expected output: fragment-with-defer-arguments.graphql 1`] = `
+exports[`RelayDeferStreamTransform when streaming is enabled matches expected output: fragment-with-defer-arguments.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query QueryWithFragmentWithDefer {
   me {
@@ -91,7 +426,7 @@ fragment DeferredFragment on User @argumentDefinitions(
 
 `;
 
-exports[`RelayDeferStreamTransform matches expected output: fragment-with-defer-if-arg.graphql 1`] = `
+exports[`RelayDeferStreamTransform when streaming is enabled matches expected output: fragment-with-defer-if-arg.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query QueryWithFragmentWithDefer($enableDefer: Boolean) {
   me {
@@ -134,7 +469,7 @@ fragment DeferredFragment on User {
 
 `;
 
-exports[`RelayDeferStreamTransform matches expected output: fragment-with-defer-statically-disabled.graphql 1`] = `
+exports[`RelayDeferStreamTransform when streaming is enabled matches expected output: fragment-with-defer-statically-disabled.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query QueryWithFragmentWithDefer {
   me {
@@ -175,7 +510,7 @@ fragment DeferredFragment on User {
 
 `;
 
-exports[`RelayDeferStreamTransform matches expected output: fragment-with-stream.graphql 1`] = `
+exports[`RelayDeferStreamTransform when streaming is enabled matches expected output: fragment-with-stream.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query QueryWithFragmentWithStream($id: ID!) {
   node(id: $id) {
@@ -210,7 +545,7 @@ fragment FeedbackFragment on Feedback {
 
 `;
 
-exports[`RelayDeferStreamTransform matches expected output: fragment-with-stream-if-arg.graphql 1`] = `
+exports[`RelayDeferStreamTransform when streaming is enabled matches expected output: fragment-with-stream-if-arg.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query QueryWithFragmentWithStream($id: ID!, $enableStream: Boolean) {
   node(id: $id) {
@@ -246,7 +581,7 @@ fragment FeedbackFragment on Feedback {
 
 `;
 
-exports[`RelayDeferStreamTransform matches expected output: fragment-with-stream-initial-count-arg.graphql 1`] = `
+exports[`RelayDeferStreamTransform when streaming is enabled matches expected output: fragment-with-stream-initial-count-arg.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query QueryWithFragmentWithStream($id: ID!, $initialCount: Int) {
   node(id: $id) {
@@ -282,7 +617,7 @@ fragment FeedbackFragment on Feedback {
 
 `;
 
-exports[`RelayDeferStreamTransform matches expected output: fragment-with-stream-missing-initial-count-arg.invalid.graphql 1`] = `
+exports[`RelayDeferStreamTransform when streaming is enabled matches expected output: fragment-with-stream-missing-initial-count-arg.invalid.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query QueryWithFragmentWithStream($id: ID!, $initialCount: Int) {
   node(id: $id) {
@@ -312,7 +647,7 @@ Error: Encountered 1 error(s):
   
 `;
 
-exports[`RelayDeferStreamTransform matches expected output: fragment-with-stream-statically-disabled.graphql 1`] = `
+exports[`RelayDeferStreamTransform when streaming is enabled matches expected output: fragment-with-stream-statically-disabled.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query QueryWithFragmentWithStream($id: ID!) {
   node(id: $id) {
@@ -347,7 +682,7 @@ fragment FeedbackFragment on Feedback {
 
 `;
 
-exports[`RelayDeferStreamTransform matches expected output: fragment-with-stream-variable-label.invalid.graphql 1`] = `
+exports[`RelayDeferStreamTransform when streaming is enabled matches expected output: fragment-with-stream-variable-label.invalid.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query QueryWithFragmentWithStream($id: ID!, $label: String!) {
   node(id: $id) {
@@ -377,7 +712,7 @@ Error: Encountered 1 error(s):
   
 `;
 
-exports[`RelayDeferStreamTransform matches expected output: fragment-with-variable-label.invalid.graphql 1`] = `
+exports[`RelayDeferStreamTransform when streaming is enabled matches expected output: fragment-with-variable-label.invalid.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query QueryWithFragmentWithDefer($label: String!) {
   me {
@@ -411,7 +746,7 @@ Error: Encountered 1 error(s):
   
 `;
 
-exports[`RelayDeferStreamTransform matches expected output: inline-fragment-with-defer.graphql 1`] = `
+exports[`RelayDeferStreamTransform when streaming is enabled matches expected output: inline-fragment-with-defer.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query QueryWithFragmentWithDefer {
   me {
@@ -448,7 +783,7 @@ fragment UserFragment on User {
 
 `;
 
-exports[`RelayDeferStreamTransform matches expected output: inline-fragment-with-defer-statically-disabled.graphql 1`] = `
+exports[`RelayDeferStreamTransform when streaming is enabled matches expected output: inline-fragment-with-defer-statically-disabled.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query QueryWithFragmentWithDefer {
   me {
@@ -485,7 +820,7 @@ fragment UserFragment on User {
 
 `;
 
-exports[`RelayDeferStreamTransform matches expected output: inline-fragment-with-variable-label.invalid.graphql 1`] = `
+exports[`RelayDeferStreamTransform when streaming is enabled matches expected output: inline-fragment-with-variable-label.invalid.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query QueryWithFragmentWithDefer($label: String!) {
   me {
@@ -517,7 +852,7 @@ Error: Encountered 1 error(s):
   
 `;
 
-exports[`RelayDeferStreamTransform matches expected output: query-with-defer.graphql 1`] = `
+exports[`RelayDeferStreamTransform when streaming is enabled matches expected output: query-with-defer.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query QueryWithDefer {
   me {
@@ -546,7 +881,7 @@ fragment DeferredFragment on User {
 
 `;
 
-exports[`RelayDeferStreamTransform matches expected output: query-with-stream.graphql 1`] = `
+exports[`RelayDeferStreamTransform when streaming is enabled matches expected output: query-with-stream.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query QueryWithStream($id: ID!) {
   node(id: $id) {

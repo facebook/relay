@@ -1,0 +1,18 @@
+query QueryWithFragmentWithDefer {
+  me {
+    id
+    ...UserFragment
+  }
+}
+
+fragment UserFragment on User {
+  id
+  emailAddresses
+  ... on User @defer(
+    if: true
+    label: "DeferredFragmentLabel"
+  ) {
+    id
+    name
+  }
+}

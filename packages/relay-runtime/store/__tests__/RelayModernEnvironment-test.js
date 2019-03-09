@@ -12,6 +12,7 @@
 'use strict';
 
 const RelayConnectionHandler = require('../../handlers/connection/RelayConnectionHandler');
+const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
 const RelayInMemoryRecordSource = require('../RelayInMemoryRecordSource');
 const RelayModernEnvironment = require('../RelayModernEnvironment');
 const RelayModernOperationDescriptor = require('../RelayModernOperationDescriptor');
@@ -33,6 +34,7 @@ describe('RelayModernEnvironment', () => {
   let config;
   let source;
   let store;
+  let previousEnableIncrementalDelivery;
 
   function createOperationDescriptor(...args) {
     const operation = RelayModernOperationDescriptor.createOperationDescriptor(
@@ -52,6 +54,9 @@ describe('RelayModernEnvironment', () => {
 
   beforeEach(() => {
     jest.resetModules();
+    previousEnableIncrementalDelivery =
+      RelayFeatureFlags.ENABLE_INCREMENTAL_DELIVERY;
+    RelayFeatureFlags.ENABLE_INCREMENTAL_DELIVERY = true;
 
     expect.extend(matchers);
     source = new RelayInMemoryRecordSource();
@@ -61,6 +66,10 @@ describe('RelayModernEnvironment', () => {
       network: RelayNetwork.create(jest.fn()),
       store,
     };
+  });
+
+  afterEach(() => {
+    RelayFeatureFlags.ENABLE_INCREMENTAL_DELIVERY = previousEnableIncrementalDelivery;
   });
 
   describe('getStore()', () => {

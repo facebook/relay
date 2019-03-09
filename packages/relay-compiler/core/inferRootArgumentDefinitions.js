@@ -235,16 +235,50 @@ function visit(
       return false;
     },
     Condition(condition) {
-      if (condition.condition.kind !== 'Variable') {
+      const variable = condition.condition;
+      if (variable.kind !== 'Variable') {
         return;
       }
-      const variable = condition.condition;
       const type = variable.type ?? new GraphQLNonNull(GraphQLBoolean);
       if (!argumentDefinitions.has(variable.variableName)) {
         // root variable
         argumentDefinitions.set(variable.variableName, {
           kind: 'RootArgumentDefinition',
-          loc: {kind: 'Derived', source: condition.loc},
+          loc: {kind: 'Derived', source: variable.loc},
+          metadata: null,
+          name: variable.variableName,
+          type,
+        });
+      }
+    },
+    Defer(defer) {
+      const variable = defer.if;
+      if (variable == null || variable.kind !== 'Variable') {
+        return;
+      }
+      const type = variable.type ?? new GraphQLNonNull(GraphQLBoolean);
+      if (!argumentDefinitions.has(variable.variableName)) {
+        // root variable
+        argumentDefinitions.set(variable.variableName, {
+          kind: 'RootArgumentDefinition',
+          loc: {kind: 'Derived', source: variable.loc},
+          metadata: null,
+          name: variable.variableName,
+          type,
+        });
+      }
+    },
+    Stream(stream) {
+      const variable = stream.if;
+      if (variable == null || variable.kind !== 'Variable') {
+        return;
+      }
+      const type = variable.type ?? new GraphQLNonNull(GraphQLBoolean);
+      if (!argumentDefinitions.has(variable.variableName)) {
+        // root variable
+        argumentDefinitions.set(variable.variableName, {
+          kind: 'RootArgumentDefinition',
+          loc: {kind: 'Derived', source: variable.loc},
           metadata: null,
           name: variable.variableName,
           type,

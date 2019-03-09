@@ -10,6 +10,7 @@
 
 'use strict';
 
+const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
 const RelayInMemoryRecordSource = require('../RelayInMemoryRecordSource');
 const RelayModernTestUtils = require('relay-test-utils');
 
@@ -19,9 +20,13 @@ const {ROOT_ID} = require('../RelayStoreUtils');
 describe('RelayReferenceMarker', () => {
   const {generateAndCompile} = RelayModernTestUtils;
   let source;
+  let previousEnableIncrementalDelivery;
 
   beforeEach(() => {
     jest.resetModules();
+    previousEnableIncrementalDelivery =
+      RelayFeatureFlags.ENABLE_INCREMENTAL_DELIVERY;
+    RelayFeatureFlags.ENABLE_INCREMENTAL_DELIVERY = true;
 
     const data = {
       '1': {
@@ -76,6 +81,10 @@ describe('RelayReferenceMarker', () => {
     };
 
     source = new RelayInMemoryRecordSource(data);
+  });
+
+  afterEach(() => {
+    RelayFeatureFlags.ENABLE_INCREMENTAL_DELIVERY = previousEnableIncrementalDelivery;
   });
 
   it('marks referenced records', () => {

@@ -197,21 +197,21 @@ function generateTestsFromFixtures(
 ): void {
   const fs = require('fs');
   const path = require('path');
-  const tests = fs.readdirSync(fixturesPath).map(async file => {
-    const input = fs.readFileSync(path.join(fixturesPath, file), 'utf8');
-    const output = await getOutputForFixture(input, operation);
-    return {
-      file,
-      input,
-      output,
-    };
-  });
-  invariant(
-    tests.length > 0,
-    'generateTestsFromFixtures: No fixtures found at %s',
-    fixturesPath,
-  );
   it('matches expected output', async () => {
+    const tests = fs.readdirSync(fixturesPath).map(async file => {
+      const input = fs.readFileSync(path.join(fixturesPath, file), 'utf8');
+      const output = await getOutputForFixture(input, operation);
+      return {
+        file,
+        input,
+        output,
+      };
+    });
+    invariant(
+      tests.length > 0,
+      'generateTestsFromFixtures: No fixtures found at %s',
+      fixturesPath,
+    );
     const results = await Promise.all(tests);
     results.forEach(test => {
       expect({

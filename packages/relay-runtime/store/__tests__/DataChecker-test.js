@@ -11,6 +11,7 @@
 
 'use strict';
 
+const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
 const RelayInMemoryRecordSource = require('../RelayInMemoryRecordSource');
 const RelayModernRecord = require('../RelayModernRecord');
 
@@ -27,8 +28,13 @@ beforeEach(() => {
 describe('check()', () => {
   let Query;
   let sampleData;
+  let previousEnableIncrementalDelivery;
 
   beforeEach(() => {
+    previousEnableIncrementalDelivery =
+      RelayFeatureFlags.ENABLE_INCREMENTAL_DELIVERY;
+    RelayFeatureFlags.ENABLE_INCREMENTAL_DELIVERY = true;
+
     sampleData = {
       '1': {
         __id: '1',
@@ -110,6 +116,10 @@ describe('check()', () => {
         }
       `,
     ));
+  });
+
+  afterEach(() => {
+    RelayFeatureFlags.ENABLE_INCREMENTAL_DELIVERY = previousEnableIncrementalDelivery;
   });
 
   it('reads query data', () => {

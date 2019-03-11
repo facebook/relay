@@ -134,9 +134,6 @@ module.exports = {
 
   GraphQLCompilerContext,
 
-  /** @deprecated Use JSModuleParser. */
-  FileIRParser: RelayJSModuleParser,
-
   FileWriter: RelayFileWriter,
   IRTransforms: RelayIRTransforms,
   JSModuleParser: RelayJSModuleParser,

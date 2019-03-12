@@ -3,7 +3,7 @@
 exports[`RelayParser matches expected output: argumentDefinitions-with-typo.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 fragment TestFragment on User @argumentDefinitions(
-  id: {type: "ID", nonNull: true}
+  id: {type: "ID"}
   size: {type: "[Int]", defaultValu: [100]} # uh-oh, typo
 ) {
   ...Foo @arguments(size: $size)
@@ -12,12 +12,12 @@ fragment TestFragment on User @argumentDefinitions(
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 ERROR:
 Error: RelayParser: Encountered 1 error(s):
-- Expected definition for variable '$size' to be an object with the following shape: '{type: string, defaultValue?: mixed, nonNull?: boolean, list?: boolean}', got unknown key(s) 'defaultValu'.
+- Expected definition for variable '$size' to be an object with the shape: '{type: string, defaultValue?: mixed}.
   
-  GraphQL request (3:3)
-  2:   id: {type: "ID", nonNull: true}
+  GraphQL request (3:9)
+  2:   id: {type: "ID"}
   3:   size: {type: "[Int]", defaultValu: [100]} # uh-oh, typo
-       ^
+             ^
   4: ) {
   
 `;

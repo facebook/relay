@@ -56,8 +56,8 @@ describe('GraphQLIRTransformer', () => {
    }
 
    fragment PhotoFragment on Image @argumentDefinitions(
-     id: {type: "ID", nonNull: true}
-     sizes: {type: "Int", list: true, defaultValue: [32, 64, 128]}
+     id: {type: "ID"}
+     sizes: {type: "[Int]", defaultValue: [32, 64, 128]}
      scale: {type: "Int"}
    ) {
      uri

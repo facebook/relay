@@ -25,6 +25,9 @@ fragment UserFragment on User @argumentDefinitions(
   first: {type: "Int", defaultValue: 5}
   size: {type: "[Int]"}
   outOfBoundsSize: {type: "[Int]", defaultValue: [2147483648]}
+  storyType: {type: "StoryType", defaultValue: DIRECTED},
+  storyType_invalid_string: {type: "StoryType", defaultValue: "DIRECTED"},
+  storyType_invalid_lowercase: {type: "StoryType", defaultValue: directed},
 ) {
   id
   __typename
@@ -92,6 +95,9 @@ fragment UserFragment on User @argumentDefinitions(
   first: {type: "Int", defaultValue: 5}
   size: {type: "[Int]"}
   outOfBoundsSize: {type: "[Int]", defaultValue: [2147483648]}
+  storyType: {type: "StoryType", defaultValue: DIRECTED}
+  storyType_invalid_string: {type: "StoryType", defaultValue: DIRECTED}
+  storyType_invalid_lowercase: {type: "StoryType", defaultValue: directed}
 ) {
   id
   __typename
@@ -127,4 +133,90 @@ fragment UserFragment on User @argumentDefinitions(
   }
 }
 
+`;
+
+exports[`GraphQLIRPrinter matches expected output: lowercase-enum-fragment-arg.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment UserFragment on User @argumentDefinitions(
+  environments: {type: "Environment", defaultValue: web}
+) {
+  checkins(environments: [$environments]) {
+    __typename
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+fragment UserFragment on User @argumentDefinitions(
+  environments: {type: "Environment", defaultValue: web}
+) {
+  checkins(environments: [$environments]) {
+    __typename
+  }
+}
+
+`;
+
+exports[`GraphQLIRPrinter matches expected output: string-enum-arg.invalid.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment UserFragment on User {
+  checkins(environments: "WEB") {
+    __typename
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+THROWN EXCEPTION:
+
+Error: RelayParser: Encountered 1 error(s):
+- Expected a value matching type 'Environment!'.
+  
+  GraphQL request (2:26)
+  1: fragment UserFragment on User {
+  2:   checkins(environments: "WEB") {
+                              ^
+  3:     __typename
+  
+`;
+
+exports[`GraphQLIRPrinter matches expected output: string-enum-fragment-arg.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment UserFragment on User @argumentDefinitions(
+  environments: {type: "Environment", defaultValue: "WEB"}
+) {
+  checkins(environments: [$environments]) {
+    __typename
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+fragment UserFragment on User @argumentDefinitions(
+  environments: {type: "Environment", defaultValue: WEB}
+) {
+  checkins(environments: [$environments]) {
+    __typename
+  }
+}
+
+`;
+
+exports[`GraphQLIRPrinter matches expected output: unknown-enum-arg.invalid.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment UserFragment on User {
+  checkins(environments: UNKNOWN_ENUM_VALUE) {
+    __typename
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+THROWN EXCEPTION:
+
+Error: RelayParser: Encountered 1 error(s):
+- Expected a value matching type 'Environment!'.
+  
+  GraphQL request (2:26)
+  1: fragment UserFragment on User {
+  2:   checkins(environments: UNKNOWN_ENUM_VALUE) {
+                              ^
+  3:     __typename
+  
 `;

@@ -37,7 +37,7 @@ query TestQuery(
 }
 
 fragment Profile on User @argumentDefinitions(
-  pictureSize: {type: "[Int]", nonNull: true}
+  pictureSize: {type: "[Int]"}
   includeFriends: {type: "Boolean!", defaultValue: false}
 ) {
   id
@@ -103,7 +103,7 @@ query TestQuery(
 }
 
 fragment Profile on User @argumentDefinitions(
-  pictureSize: {type: "[Int]", nonNull: true}
+  pictureSize: {type: "[Int]"}
   includeFriends: {type: "Boolean!", defaultValue: false}
 ) {
   id
@@ -176,7 +176,7 @@ fragment ProfileFriends on User {
 }
 
 fragment Profile on User @argumentDefinitions(
-  pictureSize: {type: "[Int]", nonNull: true}
+  pictureSize: {type: "[Int]"}
 ) {
   profilePicture(size: $pictureSize) {
     uri
@@ -234,7 +234,7 @@ fragment ProfileFriends on User @argumentDefinitions(pictureSize: {type: "[Int]"
 }
 
 fragment Profile on User @argumentDefinitions(
-  pictureSize: {type: "[Int]", nonNull: true}
+  pictureSize: {type: "[Int]"}
 ) {
   profilePicture(size: $pictureSize) {
     uri
@@ -335,7 +335,7 @@ query TestQuery(
 }
 
 fragment Profile on User @argumentDefinitions(
-  pictureSize: {type: "[Int]", nonNull: true}
+  pictureSize: {type: "[Int]"}
   includeFriends: {type: "Boolean!", defaultValue: false}
 ) {
   id

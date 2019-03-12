@@ -36,6 +36,7 @@ const {
   GraphQLEnumType,
   GraphQLID,
   GraphQLInputObjectType,
+  GraphQLInt,
   GraphQLList,
   GraphQLNonNull,
   GraphQLScalarType,
@@ -295,46 +296,66 @@ class RelayParser {
           [previousVariable.ast, arg],
         );
       }
-      const value = transformLiteralValue(arg.value, arg);
-      if (
-        Array.isArray(value) ||
-        typeof value !== 'object' ||
-        value === null ||
-        typeof value.type !== 'string'
-      ) {
+      if (arg.value.kind !== 'ObjectValue') {
         throw createUserError(
           `Expected definition for variable '\$${argName}' to be an object ` +
-            "with the shape: '{type: string, defaultValue?: mixed, nonNull?: " +
-            "boolean, list?: boolean}'.",
+            "with the shape: '{type: string, defaultValue?: mixed}.",
+          null,
+          [arg.value],
+        );
+      }
+      let defaultValueNode;
+      let typeString;
+      arg.value.fields.forEach(field => {
+        const name = getName(field);
+        if (name === 'type') {
+          typeString = transformLiteralValue(field.value, field);
+        } else if (name === 'defaultValue') {
+          defaultValueNode = field.value;
+        } else {
+          throw createUserError(
+            `Expected definition for variable '\$${argName}' to be an object ` +
+              "with the shape: '{type: string, defaultValue?: mixed}.",
+            null,
+            [arg.value],
+          );
+        }
+      });
+      if (typeof typeString !== 'string') {
+        throw createUserError(
+          `Expected definition for variable '\$${argName}' to be an object ` +
+            "with the shape: '{type: string, defaultValue?: mixed}.",
           null,
           [arg.value],
         );
       }
 
-      const unknownKeys = Object.keys(value).filter(
-        key =>
-          key !== 'type' &&
-          key !== 'defaultValue' &&
-          key !== 'nonNull' &&
-          key !== 'list',
-      );
-      if (unknownKeys.length !== 0) {
-        const unknownKeysString = "'" + unknownKeys.join("', '") + "'";
+      const typeAST = parseType(typeString);
+      const type = assertInputType(getTypeFromAST(this._schema, typeAST));
+      const defaultValue =
+        defaultValueNode != null
+          ? transformValue(
+              defaultValueNode,
+              type,
+              variableAst => {
+                throw createUserError(
+                  "Expected 'defaultValue' to be a literal, got a variable.",
+                  null,
+                  [variableAst],
+                );
+              },
+              {nonStrictEnums: true},
+            )
+          : null;
+      if (defaultValue != null && defaultValue.kind !== 'Literal') {
         throw createUserError(
-          `Expected definition for variable '\$${argName}' to be an object ` +
-            "with the following shape: '{type: string, defaultValue?: mixed, " +
-            "nonNull?: boolean, list?: boolean}', got unknown key(s) " +
-            `${unknownKeysString}.`,
-          null,
-          [arg],
+          "Expected 'defaultValue' to be a literal, got a variable.",
+          [defaultValue.loc],
         );
       }
-
-      const typeAST = parseType(String(value.type));
-      const type = assertInputType(getTypeFromAST(this._schema, typeAST));
       variables.set(argName, {
         ast: arg,
-        defaultValue: value.defaultValue != null ? value.defaultValue : null,
+        defaultValue: defaultValue?.value ?? null,
         defined: true,
         name: argName,
         type,
@@ -1056,189 +1077,268 @@ class GraphQLDefinitionParser {
     };
   }
 
-  /**
-   * Transforms and validates argument values according to the expected
-   * type.
-   */
   _transformValue(ast: ValueNode, type: GraphQLInputType): ArgumentValue {
-    if (ast.kind === 'Variable') {
-      // Special case variables since there is no value to parse
-      return this._transformVariable(ast, type);
-    } else if (ast.kind === 'NullValue') {
-      // Special case null literals since there is no value to parse
-      if (type instanceof GraphQLNonNull) {
-        throw createUserError(
-          `Expected a value matching type '${String(type)}'.`,
-          null,
-          [ast],
-        );
-      }
-      return {
-        kind: 'Literal',
-        loc: buildLocation(ast.loc),
-        metadata: null,
-        value: null,
-      };
-    } else {
-      return this._transformNonNullLiteral(ast, type);
-    }
+    return transformValue(ast, type, (variableAst, variableType) =>
+      this._transformVariable(variableAst, variableType),
+    );
   }
+}
 
-  /**
-   * Transforms and validates non-null literal (non-variable) values
-   * according to the expected type.
-   */
-  _transformNonNullLiteral(
-    ast: NonNullLiteralValueNode,
-    type: GraphQLInputType,
-  ): ArgumentValue {
-    // Transform the value based on the type without a non-null wrapper.
-    // Note that error messages should still use the original `type`
-    // since that accurately describes to the user what the expected
-    // type is (using nullableType would suggest that `null` is legal
-    // even when it may not be, for example).
-    const nullableType = getNullableType(type);
-    if (nullableType instanceof GraphQLList) {
-      if (ast.kind !== 'ListValue') {
-        // Parse singular (non-list) values flowing into a list type
-        // as scalars, ie without wrapping them in an array.
-        return this._transformValue(ast, nullableType.ofType);
-      }
-      const itemType = assertInputType(nullableType.ofType);
-      const literalList = [];
-      const items = [];
-      let areAllItemsScalar = true;
-      ast.values.forEach(item => {
-        const itemValue = this._transformValue(item, itemType);
-        if (itemValue.kind === 'Literal') {
-          literalList.push(itemValue.value);
-        }
-        items.push(itemValue);
-        areAllItemsScalar = areAllItemsScalar && itemValue.kind === 'Literal';
-      });
-      if (areAllItemsScalar) {
-        return {
-          kind: 'Literal',
-          loc: buildLocation(ast.loc),
-          metadata: null,
-          value: literalList,
-        };
-      } else {
-        return {
-          kind: 'ListValue',
-          loc: buildLocation(ast.loc),
-          metadata: null,
-          items,
-        };
-      }
-    } else if (nullableType instanceof GraphQLInputObjectType) {
-      const objectType = nullableType;
-      if (ast.kind !== 'ObjectValue') {
-        throw createUserError(
-          `Expected a value matching type '${String(type)}'.`,
-          null,
-          [ast],
-        );
-      }
-      const literalObject = {};
-      const fields = [];
-      let areAllFieldsScalar = true;
-      ast.fields.forEach(field => {
-        const fieldName = getName(field);
-        const fieldConfig = objectType.getFields()[fieldName];
-        if (fieldConfig == null) {
-          throw createUserError(
-            `Uknown field '${fieldName}' on type '${String(type)}'.`,
-            null,
-            [field],
-          );
-        }
-        const fieldType = assertInputType(fieldConfig.type);
-        const fieldValue = this._transformValue(field.value, fieldType);
-        if (fieldValue.kind === 'Literal') {
-          literalObject[field.name.value] = fieldValue.value;
-        }
-        fields.push({
-          kind: 'ObjectFieldValue',
-          loc: buildLocation(field.loc),
-          metadata: null,
-          name: fieldName,
-          value: fieldValue,
-        });
-        areAllFieldsScalar =
-          areAllFieldsScalar && fieldValue.kind === 'Literal';
-      });
-      if (areAllFieldsScalar) {
-        return {
-          kind: 'Literal',
-          loc: buildLocation(ast.loc),
-          metadata: null,
-          value: literalObject,
-        };
-      } else {
-        return {
-          kind: 'ObjectValue',
-          loc: buildLocation(ast.loc),
-          metadata: null,
-          fields,
-        };
-      }
-    } else if (nullableType === GraphQLID) {
-      // GraphQLID's parseLiteral() always returns the string value. However
-      // the int/string distinction may be important at runtime, so this
-      // transform parses int/string literals into the corresponding JS types.
-      if (ast.kind === 'IntValue') {
-        return {
-          kind: 'Literal',
-          loc: buildLocation(ast.loc),
-          metadata: null,
-          value: parseInt(ast.value, 10),
-        };
-      } else if (ast.kind === 'StringValue') {
-        return {
-          kind: 'Literal',
-          loc: buildLocation(ast.loc),
-          metadata: null,
-          value: ast.value,
-        };
-      } else {
-        throw createUserError(
-          `Invalid value, expected a value matching type '${String(type)}'.`,
-          null,
-          [ast],
-        );
-      }
-    } else if (
-      nullableType instanceof GraphQLScalarType ||
-      nullableType instanceof GraphQLEnumType
-    ) {
-      const value = nullableType.parseLiteral(ast);
-      if (value == null) {
-        // parseLiteral() should return a non-null JavaScript value
-        // if the ast value is valid for the type.
-        throw createUserError(
-          `Expected a value matching type '${String(type)}'.`,
-          null,
-          [ast],
-        );
-      }
-      return {
-        kind: 'Literal',
-        loc: buildLocation(ast.loc),
-        metadata: null,
-        value,
-      };
-    } else {
-      (nullableType: empty);
-      throw createCompilerError(
-        `Unsupported type '${String(
-          type,
-        )}' for input value, expected a GraphQLList, ` +
-          'GraphQLInputObjectType, GraphQLEnumType, or GraphQLScalarType.',
+/**
+ * Transforms and validates argument values according to the expected
+ * type.
+ */
+function transformValue(
+  ast: ValueNode,
+  type: GraphQLInputType,
+  transformVariable: (
+    variableAst: VariableNode,
+    variableType: GraphQLInputType,
+  ) => ArgumentValue,
+  options: {|+nonStrictEnums: boolean|} = {nonStrictEnums: false},
+): ArgumentValue {
+  if (ast.kind === 'Variable') {
+    // Special case variables since there is no value to parse
+    return transformVariable(ast, type);
+  } else if (ast.kind === 'NullValue') {
+    // Special case null literals since there is no value to parse
+    if (type instanceof GraphQLNonNull) {
+      throw createUserError(
+        `Expected a value matching type '${String(type)}'.`,
         null,
         [ast],
       );
     }
+    return {
+      kind: 'Literal',
+      loc: buildLocation(ast.loc),
+      metadata: null,
+      value: null,
+    };
+  } else {
+    return transformNonNullLiteral(ast, type, transformVariable, options);
+  }
+}
+
+/**
+ * Transforms and validates non-null literal (non-variable) values
+ * according to the expected type.
+ */
+function transformNonNullLiteral(
+  ast: NonNullLiteralValueNode,
+  type: GraphQLInputType,
+  transformVariable: (
+    variableAst: VariableNode,
+    variableType: GraphQLInputType,
+  ) => ArgumentValue,
+  options: {|+nonStrictEnums: boolean|},
+): ArgumentValue {
+  // Transform the value based on the type without a non-null wrapper.
+  // Note that error messages should still use the original `type`
+  // since that accurately describes to the user what the expected
+  // type is (using nullableType would suggest that `null` is legal
+  // even when it may not be, for example).
+  const nullableType = getNullableType(type);
+  if (nullableType instanceof GraphQLList) {
+    if (ast.kind !== 'ListValue') {
+      // Parse singular (non-list) values flowing into a list type
+      // as scalars, ie without wrapping them in an array.
+      return transformValue(
+        ast,
+        nullableType.ofType,
+        transformVariable,
+        options,
+      );
+    }
+    const itemType = assertInputType(nullableType.ofType);
+    const literalList = [];
+    const items = [];
+    let areAllItemsScalar = true;
+    ast.values.forEach(item => {
+      const itemValue = transformValue(
+        item,
+        itemType,
+        transformVariable,
+        options,
+      );
+      if (itemValue.kind === 'Literal') {
+        literalList.push(itemValue.value);
+      }
+      items.push(itemValue);
+      areAllItemsScalar = areAllItemsScalar && itemValue.kind === 'Literal';
+    });
+    if (areAllItemsScalar) {
+      return {
+        kind: 'Literal',
+        loc: buildLocation(ast.loc),
+        metadata: null,
+        value: literalList,
+      };
+    } else {
+      return {
+        kind: 'ListValue',
+        loc: buildLocation(ast.loc),
+        metadata: null,
+        items,
+      };
+    }
+  } else if (nullableType instanceof GraphQLInputObjectType) {
+    const objectType = nullableType;
+    if (ast.kind !== 'ObjectValue') {
+      throw createUserError(
+        `Expected a value matching type '${String(type)}'.`,
+        null,
+        [ast],
+      );
+    }
+    const literalObject = {};
+    const fields = [];
+    let areAllFieldsScalar = true;
+    ast.fields.forEach(field => {
+      const fieldName = getName(field);
+      const fieldConfig = objectType.getFields()[fieldName];
+      if (fieldConfig == null) {
+        throw createUserError(
+          `Uknown field '${fieldName}' on type '${String(type)}'.`,
+          null,
+          [field],
+        );
+      }
+      const fieldType = assertInputType(fieldConfig.type);
+      const fieldValue = transformValue(
+        field.value,
+        fieldType,
+        transformVariable,
+        options,
+      );
+      if (fieldValue.kind === 'Literal') {
+        literalObject[field.name.value] = fieldValue.value;
+      }
+      fields.push({
+        kind: 'ObjectFieldValue',
+        loc: buildLocation(field.loc),
+        metadata: null,
+        name: fieldName,
+        value: fieldValue,
+      });
+      areAllFieldsScalar = areAllFieldsScalar && fieldValue.kind === 'Literal';
+    });
+    if (areAllFieldsScalar) {
+      return {
+        kind: 'Literal',
+        loc: buildLocation(ast.loc),
+        metadata: null,
+        value: literalObject,
+      };
+    } else {
+      return {
+        kind: 'ObjectValue',
+        loc: buildLocation(ast.loc),
+        metadata: null,
+        fields,
+      };
+    }
+  } else if (nullableType === GraphQLID) {
+    // GraphQLID's parseLiteral() always returns the string value. However
+    // the int/string distinction may be important at runtime, so this
+    // transform parses int/string literals into the corresponding JS types.
+    if (ast.kind === 'IntValue') {
+      return {
+        kind: 'Literal',
+        loc: buildLocation(ast.loc),
+        metadata: null,
+        value: parseInt(ast.value, 10),
+      };
+    } else if (ast.kind === 'StringValue') {
+      return {
+        kind: 'Literal',
+        loc: buildLocation(ast.loc),
+        metadata: null,
+        value: ast.value,
+      };
+    } else {
+      throw createUserError(
+        `Invalid value, expected a value matching type '${String(type)}'.`,
+        null,
+        [ast],
+      );
+    }
+  } else if (nullableType === GraphQLInt) {
+    // Allow out-of-bounds integers
+    if (ast.kind === 'IntValue') {
+      return {
+        kind: 'Literal',
+        loc: buildLocation(ast.loc),
+        metadata: null,
+        value: parseInt(ast.value, 10),
+      };
+    } else {
+      throw createUserError(
+        `Invalid value, expected a value matching type '${String(type)}'.`,
+        null,
+        [ast],
+      );
+    }
+  } else if (nullableType instanceof GraphQLEnumType) {
+    const value = nullableType.parseLiteral(ast);
+    if (value == null) {
+      if (options.nonStrictEnums) {
+        if (ast.kind === 'StringValue' || ast.kind === 'EnumValue') {
+          const alternateValue =
+            nullableType.parseValue(ast.value.toUpperCase()) ??
+            nullableType.parseValue(ast.value.toLowerCase());
+          if (alternateValue != null) {
+            // Use the original raw value
+            return {
+              kind: 'Literal',
+              loc: buildLocation(ast.loc),
+              metadata: null,
+              value: ast.value,
+            };
+          }
+        }
+      }
+      // parseLiteral() should return a non-null JavaScript value
+      // if the ast value is valid for the type.
+      throw createUserError(
+        `Expected a value matching type '${String(type)}'.`,
+        null,
+        [ast],
+      );
+    }
+    return {
+      kind: 'Literal',
+      loc: buildLocation(ast.loc),
+      metadata: null,
+      value,
+    };
+  } else if (nullableType instanceof GraphQLScalarType) {
+    const value = nullableType.parseLiteral(ast);
+    if (value == null) {
+      // parseLiteral() should return a non-null JavaScript value
+      // if the ast value is valid for the type.
+      throw createUserError(
+        `Expected a value matching type '${String(type)}'.`,
+        null,
+        [ast],
+      );
+    }
+    return {
+      kind: 'Literal',
+      loc: buildLocation(ast.loc),
+      metadata: null,
+      value,
+    };
+  } else {
+    (nullableType: empty);
+    throw createCompilerError(
+      `Unsupported type '${String(
+        type,
+      )}' for input value, expected a GraphQLList, ` +
+        'GraphQLInputObjectType, GraphQLEnumType, or GraphQLScalarType.',
+      null,
+      [ast],
+    );
   }
 }
 

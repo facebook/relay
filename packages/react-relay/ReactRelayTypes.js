@@ -101,7 +101,7 @@ export type $FragmentRef<T> = {
  * `props.relay` and returns the props of the container.
  */
 // prettier-ignore
-export type $RelayProps<Props, RelayPropT> = $ObjMap<
+export type $RelayProps<Props, RelayPropT = RelayProp> = $ObjMap<
   $Diff<Props, {relay: RelayPropT | void}>,
   & (<T: {+$refType: empty}>( T) =>  T)
   & (<T: {+$refType: empty}>(?T) => ?T)

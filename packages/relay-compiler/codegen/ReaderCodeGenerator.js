@@ -12,7 +12,6 @@
 
 const CodeMarker = require('../util/CodeMarker');
 const IRVisitor = require('../core/GraphQLIRVisitor');
-const Rollout = require('../util/Rollout');
 const SchemaUtils = require('../core/GraphQLSchemaUtils');
 
 const {
@@ -46,17 +45,7 @@ function generate(node: Fragment): ReaderFragment {
   if (node == null) {
     return node;
   }
-  removeTypeEnabled = Rollout.check('remove-type', node.name);
   return IRVisitor.visit(node, ReaderCodeGenVisitor);
-}
-
-let removeTypeEnabled;
-function removeType<T>(node: T): T {
-  if (removeTypeEnabled) {
-    // $FlowFixMe - remove me after 100% rollout of type removal
-    delete node.type;
-  }
-  return node;
 }
 
 const ReaderCodeGenVisitor = {
@@ -250,21 +239,19 @@ const ReaderCodeGenVisitor = {
     },
 
     Variable(node, key, parent): ReaderArgument {
-      return removeType({
+      return {
         kind: 'Variable',
         name: parent.name,
         variableName: node.variableName,
-        type: parent.type ? parent.type.toString() : null,
-      });
+      };
     },
 
     Literal(node, key, parent): ReaderArgument {
-      return removeType({
+      return {
         kind: 'Literal',
         name: parent.name,
         value: stableCopy(node.value),
-        type: parent.type ? parent.type.toString() : null,
-      });
+      };
     },
 
     Argument(node, key, parent, ancestors): ?ReaderArgument {

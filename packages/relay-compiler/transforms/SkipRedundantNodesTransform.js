@@ -14,7 +14,6 @@ const GraphQLCompilerContext = require('../core/GraphQLCompilerContext');
 const GraphQLIRTransformer = require('../core/GraphQLIRTransformer');
 const IMap = require('immutable').Map;
 const partitionArray = require('../util/partitionArray');
-const Rollout = require('../util/Rollout');
 const getIdentifierForSelection = require('../core/getIdentifierForSelection');
 const invariant = require('invariant');
 
@@ -122,18 +121,14 @@ type SelectionMap = IMap<string, ?SelectionMap>;
 function skipRedundantNodesTransform(
   context: GraphQLCompilerContext,
 ): GraphQLCompilerContext {
-  return GraphQLIRTransformer.transform(
-    context,
-    {
-      Root: visitNode,
-      Fragment: visitNode,
-    },
-    node => Rollout.check('sort-selections', node.name),
-  );
+  return GraphQLIRTransformer.transform(context, {
+    Root: visitNode,
+    Fragment: visitNode,
+  });
 }
 
-function visitNode<T: Fragment | Root>(node: T, newVersion: boolean): ?T {
-  return transformNode(node, new IMap(), newVersion).node;
+function visitNode<T: Fragment | Root>(node: T): ?T {
+  return transformNode(node, new IMap()).node;
 }
 
 /**
@@ -152,10 +147,8 @@ function visitNode<T: Fragment | Root>(node: T, newVersion: boolean): ?T {
 function transformNode<T: Node>(
   node: T,
   selectionMap: SelectionMap,
-  newVersion: boolean,
 ): {selectionMap: SelectionMap, node: ?T} {
   const selections = [];
-  const sortSelections = newVersion ? newSortSelections : oldSortSelections;
   sortSelections(node.selections).forEach(selection => {
     const identifier = getIdentifierForSelection(selection);
     switch (selection.kind) {
@@ -174,7 +167,6 @@ function transformNode<T: Node>(
         const transformed = transformNode(
           selection,
           selectionMap.get(identifier) || new IMap(),
-          newVersion,
         );
         if (transformed.node) {
           selections.push(transformed.node);
@@ -189,7 +181,6 @@ function transformNode<T: Node>(
         const transformed = transformNode(
           selection,
           selectionMap.get(identifier) || selectionMap,
-          newVersion,
         );
         if (transformed.node) {
           selections.push(transformed.node);
@@ -213,7 +204,7 @@ function transformNode<T: Node>(
 /**
  * Sort inline fragments and conditions after other selections.
  */
-function newSortSelections(
+function sortSelections(
   selections: $ReadOnlyArray<Selection>,
 ): $ReadOnlyArray<Selection> {
   const isScalarOrLinkedField = selection =>
@@ -223,18 +214,6 @@ function newSortSelections(
     isScalarOrLinkedField,
   );
   return [...scalarsAndLinkedFields, ...rest];
-}
-
-function oldSortSelections(
-  selections: $ReadOnlyArray<Selection>,
-): $ReadOnlyArray<Selection> {
-  return [...selections].sort((a, b) => {
-    return a.kind === 'InlineFragment' || a.kind === 'Condition'
-      ? 1
-      : b.kind === 'InlineFragment' || b.kind === 'Condition'
-        ? -1
-        : 0;
-  });
 }
 
 module.exports = {

@@ -62,6 +62,48 @@ class RelayRecordSourceMutator {
     this.__sources = [sink, base];
   }
 
+  /**
+   * **UNSTABLE**
+   * This method is likely to be removed in an upcoming release
+   * and should not be relied upon.
+   * TODO T41593196: Remove unstable_getRawRecordWithChanges
+   */
+  unstable_getRawRecordWithChanges(dataID: DataID): ?Record {
+    const baseRecord = this._base.get(dataID);
+    const sinkRecord = this._sink.get(dataID);
+    if (sinkRecord === undefined) {
+      if (baseRecord == null) {
+        return baseRecord;
+      }
+      const nextRecord = RelayModernRecord.clone(baseRecord);
+      if (__DEV__) {
+        // Prevent mutation of a record from outside the store.
+        RelayModernRecord.freeze(nextRecord);
+      }
+      return nextRecord;
+    } else if (sinkRecord === null) {
+      return null;
+    } else if (sinkRecord === UNPUBLISH_RECORD_SENTINEL) {
+      return undefined;
+    } else if (baseRecord != null) {
+      const nextRecord = RelayModernRecord.update(baseRecord, sinkRecord);
+      if (__DEV__) {
+        if (nextRecord !== baseRecord) {
+          // Prevent mutation of a record from outside the store.
+          RelayModernRecord.freeze(nextRecord);
+        }
+      }
+      return nextRecord;
+    } else {
+      const nextRecord = RelayModernRecord.clone(sinkRecord);
+      if (__DEV__) {
+        // Prevent mutation of a record from outside the store.
+        RelayModernRecord.freeze(nextRecord);
+      }
+      return nextRecord;
+    }
+  }
+
   _createBackupRecord(dataID: DataID): void {
     const backup = this._backup;
     if (backup && !backup.has(dataID)) {

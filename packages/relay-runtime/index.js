@@ -105,6 +105,7 @@ export type {
   OptimisticUpdate,
   OwnedReaderSelector,
   PublishQueue,
+  ReadOnlyRecordProxy,
   RecordProxy,
   RecordSourceProxy,
   RecordSourceSelectorProxy,

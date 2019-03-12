@@ -96,6 +96,73 @@ describe('RelayRecordSourceMutator', () => {
     );
   });
 
+  describe('unstable_getRawRecordWithChanges', () => {
+    it('returns newly created records', () => {
+      mutator.create('sea', 'Page');
+      mutator.setValue('sea', 'name', 'Seattle');
+      const record = mutator.unstable_getRawRecordWithChanges('sea');
+      expect(record).toEqual({
+        [ID_KEY]: 'sea',
+        [TYPENAME_KEY]: 'Page',
+        name: 'Seattle',
+      });
+      expect(Object.isFrozen(record)).toBe(true);
+    });
+
+    it('returns newly created records that are deleted in the base', () => {
+      mutator.create('deleted', 'Page');
+      mutator.setValue('deleted', 'name', 'Somewhere');
+      const record = mutator.unstable_getRawRecordWithChanges('deleted');
+      expect(record).toEqual({
+        [ID_KEY]: 'deleted',
+        [TYPENAME_KEY]: 'Page',
+        name: 'Somewhere',
+      });
+      expect(Object.isFrozen(record)).toBe(true);
+    });
+
+    it('returns updated records', () => {
+      mutator.setValue('nyc', 'alias', 'NYC');
+      mutator.setValue('nyc', 'timezone', 'EAST');
+      const record = mutator.unstable_getRawRecordWithChanges('nyc');
+      expect(record).toEqual({
+        [ID_KEY]: 'nyc', // existing field
+        [TYPENAME_KEY]: 'Page', // existing field
+        name: 'New York', // existing field
+        alias: 'NYC', // added
+        timezone: 'EAST', // updated
+      });
+      expect(Object.isFrozen(record)).toBe(true);
+    });
+
+    it('returns existing (unmodified) records', () => {
+      const record = mutator.unstable_getRawRecordWithChanges('nyc');
+      expect(record).toEqual({
+        [ID_KEY]: 'nyc',
+        [TYPENAME_KEY]: 'Page',
+        name: 'New York',
+        timezone: 'East Time Zone',
+      });
+      expect(Object.isFrozen(record)).toBe(true);
+    });
+
+    it('returns undefined for unknown records', () => {
+      const record = mutator.unstable_getRawRecordWithChanges('<unknown>');
+      expect(record).toEqual(undefined);
+    });
+
+    it('returns null for already deleted records', () => {
+      const record = mutator.unstable_getRawRecordWithChanges('deleted');
+      expect(record).toEqual(null);
+    });
+
+    it('returns null for newly deleted records', () => {
+      mutator.delete('mpk');
+      const record = mutator.unstable_getRawRecordWithChanges('mpk');
+      expect(record).toEqual(null);
+    });
+  });
+
   describe('copyFields()', () => {
     it('throws if the source does not exist', () => {
       expect(() => mutator.copyFields('unfetched', '4')).toFailInvariant(

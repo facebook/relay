@@ -16,7 +16,11 @@ const ReactRelayFragmentContainer = require('../ReactRelayFragmentContainer');
 const ReactTestRenderer = require('ReactTestRenderer');
 
 const {createOperationDescriptor, RelayFeatureFlags} = require('relay-runtime');
-const {createMockEnvironment, matchers} = require('relay-test-utils');
+const {
+  createMockEnvironment,
+  generateAndCompile,
+  matchers,
+} = require('relay-test-utils');
 
 describe('ReactRelayFragmentContainer with fragment ownerhsip', () => {
   let TestComponent;
@@ -81,7 +85,7 @@ describe('ReactRelayFragmentContainer with fragment ownerhsip', () => {
     RelayFeatureFlags.PREFER_FRAGMENT_OWNER_OVER_CONTEXT = true;
 
     environment = createMockEnvironment();
-    ({UserFragment, UserQuery} = environment.mock.compile(`
+    ({UserFragment, UserQuery} = generateAndCompile(`
       query UserQuery($id: ID!) {
         node(id: $id) {
           ...UserFragment

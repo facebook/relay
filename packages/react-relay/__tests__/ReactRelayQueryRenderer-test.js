@@ -27,7 +27,11 @@ const {
   ROOT_ID,
 } = require('relay-runtime');
 const {ROOT_TYPE} = require('relay-runtime/store/RelayStoreUtils');
-const {createMockEnvironment, simpleClone} = require('relay-test-utils');
+const {
+  createMockEnvironment,
+  generateAndCompile,
+  simpleClone,
+} = require('relay-test-utils');
 
 describe('ReactRelayQueryRenderer', () => {
   let TestQuery;
@@ -80,7 +84,7 @@ describe('ReactRelayQueryRenderer', () => {
 
     environment = createMockEnvironment();
     store = environment.getStore();
-    ({TestQuery} = environment.mock.compile(`
+    ({TestQuery} = generateAndCompile(`
       query TestQuery($id: ID = "<default>") {
         node(id: $id) {
           id
@@ -1175,7 +1179,7 @@ describe('ReactRelayQueryRenderer', () => {
     let nextProps;
 
     beforeEach(() => {
-      ({NextQuery} = environment.mock.compile(`
+      ({NextQuery} = generateAndCompile(`
         query NextQuery($id: ID!) {
           node(id: $id) {
             ... on User {
@@ -1277,7 +1281,7 @@ describe('ReactRelayQueryRenderer', () => {
     let nextProps;
 
     beforeEach(() => {
-      ({NextQuery} = environment.mock.compile(`
+      ({NextQuery} = generateAndCompile(`
         query NextQuery($id: ID!) {
           node(id: $id) {
             ... on User {
@@ -1360,7 +1364,7 @@ describe('ReactRelayQueryRenderer', () => {
     let nextProps;
 
     beforeEach(() => {
-      ({NextQuery} = environment.mock.compile(`
+      ({NextQuery} = generateAndCompile(`
         query NextQuery($id: ID!) {
           node(id: $id) {
             ... on User {
@@ -1511,7 +1515,7 @@ describe('ReactRelayQueryRenderer', () => {
     let nextProps;
 
     beforeEach(() => {
-      ({NextQuery} = environment.mock.compile(`
+      ({NextQuery} = generateAndCompile(`
         query NextQuery($id: ID!) {
           node(id: $id) {
             ... on User {

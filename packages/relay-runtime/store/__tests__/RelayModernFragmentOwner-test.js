@@ -17,7 +17,7 @@ const {
   getFragmentOwner,
   getFragmentOwners,
 } = require('../RelayModernFragmentOwner');
-const {createMockEnvironment} = require('relay-test-utils');
+const {createMockEnvironment, generateAndCompile} = require('relay-test-utils');
 const {getRequest, createOperationDescriptor} = require('../RelayCore');
 
 describe('RelayModernFragmentOwner', () => {
@@ -35,7 +35,7 @@ describe('RelayModernFragmentOwner', () => {
   describe('getFragmentOwner()', () => {
     describe('singular fragment', () => {
       beforeEach(() => {
-        ({UserFragment, UserQuery} = environment.mock.compile(`
+        ({UserFragment, UserQuery} = generateAndCompile(`
           query UserQuery($id: ID!) {
             node(id: $id) {
               ...UserFragment
@@ -95,7 +95,7 @@ describe('RelayModernFragmentOwner', () => {
 
     describe('plural fragment', () => {
       beforeEach(() => {
-        ({UserQuery, UsersFragment} = environment.mock.compile(`
+        ({UserQuery, UsersFragment} = generateAndCompile(`
           query UserQuery($ids: [ID!]!) {
             nodes(ids: $ids) {
               ...UsersFragment
@@ -162,7 +162,7 @@ describe('RelayModernFragmentOwner', () => {
   describe('getFragmentOwners', () => {
     let zucks;
     beforeEach(() => {
-      ({UserFragment, UsersFragment, UserQuery} = environment.mock.compile(`
+      ({UserFragment, UsersFragment, UserQuery} = generateAndCompile(`
           query UserQuery($id: ID!, $ids: [ID!]!) {
             node(id: $id) {
               ...UserFragment

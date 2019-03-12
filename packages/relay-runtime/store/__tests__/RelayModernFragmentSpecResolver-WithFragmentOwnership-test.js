@@ -17,7 +17,11 @@ const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
 const {ROOT_ID} = require('../RelayStoreUtils');
-const {createMockEnvironment, matchers} = require('relay-test-utils');
+const {
+  createMockEnvironment,
+  generateAndCompile,
+  matchers,
+} = require('relay-test-utils');
 
 describe('RelayModernFragmentSpecResolver with fragment ownership', () => {
   let UserFragment;
@@ -78,7 +82,7 @@ describe('RelayModernFragmentSpecResolver with fragment ownership', () => {
     RelayFeatureFlags.PREFER_FRAGMENT_OWNER_OVER_CONTEXT = true;
 
     environment = createMockEnvironment();
-    ({UserFragment, UserQuery, UsersFragment} = environment.mock.compile(
+    ({UserFragment, UserQuery, UsersFragment} = generateAndCompile(
       `
       query UserQuery($id: ID! $size: Int $fetchSize: Boolean!) {
         node(id: $id) {

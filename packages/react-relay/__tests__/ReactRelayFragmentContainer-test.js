@@ -19,6 +19,7 @@ const {createOperationDescriptor, ROOT_ID} = require('relay-runtime');
 const {
   createMockEnvironment,
   matchers,
+  generateAndCompile,
   unwrapContainer,
 } = require('relay-test-utils');
 
@@ -80,7 +81,7 @@ describe('ReactRelayFragmentContainer', () => {
     expect.extend(matchers);
 
     environment = createMockEnvironment();
-    ({UserFragment, UserQuery} = environment.mock.compile(`
+    ({UserFragment, UserQuery} = generateAndCompile(`
       query UserQuery($id: ID!) {
         node(id: $id) {
           ...UserFragment

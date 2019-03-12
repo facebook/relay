@@ -23,7 +23,11 @@ const {
   RelayFeatureFlags,
   ROOT_ID,
 } = require('relay-runtime');
-const {createMockEnvironment, matchers} = require('relay-test-utils');
+const {
+  createMockEnvironment,
+  generateAndCompile,
+  matchers,
+} = require('relay-test-utils');
 
 describe('ReactRelayRefetchContainer with fragment ownerhsip', () => {
   let TestChildComponent;
@@ -112,7 +116,7 @@ describe('ReactRelayRefetchContainer with fragment ownerhsip', () => {
     RelayFeatureFlags.PREFER_FRAGMENT_OWNER_OVER_CONTEXT = true;
 
     environment = createMockEnvironment();
-    ({UserFragment, UserFriendFragment, UserQuery} = environment.mock.compile(`
+    ({UserFragment, UserFriendFragment, UserQuery} = generateAndCompile(`
       query UserQuery(
         $id: ID!
         $scale: Int!

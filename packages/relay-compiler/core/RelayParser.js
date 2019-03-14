@@ -1048,15 +1048,15 @@ class GraphQLDefinitionParser {
         return a.condition.variableName < b.condition.variableName
           ? -1
           : a.condition.variableName > b.condition.variableName
-            ? 1
-            : 0;
+          ? 1
+          : 0;
       } else {
         // sort literals earlier, variables later
         return a.condition.kind === 'Variable'
           ? 1
           : b.condition.kind === 'Variable'
-            ? -1
-            : 0;
+          ? -1
+          : 0;
       }
     });
     return [sortedConditions, otherDirectives];

@@ -49,8 +49,8 @@ function getFragmentIdentifier(
         owner => owner?.node.params.id ?? owner?.node.params.name ?? null,
       )
     : fragmentOwner != null
-      ? fragmentOwner.node.params.id ?? fragmentOwner.node.params.name
-      : null;
+    ? fragmentOwner.node.params.id ?? fragmentOwner.node.params.name
+    : null;
 
   return `${fragmentNode.name}-${JSON.stringify(
     stableCopy({

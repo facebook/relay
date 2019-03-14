@@ -228,8 +228,8 @@ const RelayProfiler = {
         hasNamedHandlers && hasCatchAllHandlers
           ? profileHandlersByName[name].concat(profileHandlersByName['*'])
           : hasNamedHandlers
-            ? profileHandlersByName[name]
-            : profileHandlersByName['*'];
+          ? profileHandlersByName[name]
+          : profileHandlersByName['*'];
       let stopHandlers;
       for (let ii = profileHandlers.length - 1; ii >= 0; ii--) {
         const profileHandler = profileHandlers[ii];

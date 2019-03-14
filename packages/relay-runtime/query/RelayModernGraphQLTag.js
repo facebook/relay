@@ -48,8 +48,8 @@ function getNode(taggedNode) {
     typeof taggedNode === 'function'
       ? taggedNode
       : typeof taggedNode.modern === 'function'
-        ? taggedNode.modern
-        : null;
+      ? taggedNode.modern
+      : null;
   // Support for classic raw nodes (used in test mock)
   if (fn === null) {
     return (taggedNode: any);

@@ -106,8 +106,8 @@ function flattenSelections<T: HasSelections>(node: T, state: State): T {
     node.kind === 'SplitOperation'
       ? node.type
       : node.kind === 'InlineFragment'
-        ? node.typeCondition
-        : parentType;
+      ? node.typeCondition
+      : parentType;
   if (type == null) {
     throw createCompilerError('FlattenTransform: Expected a parent type.', [
       node.loc,

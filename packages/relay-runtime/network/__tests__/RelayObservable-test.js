@@ -2555,11 +2555,13 @@ describe('RelayObservable', () => {
         return () => list.push('cleanup second');
       });
 
-      const sub = obs1.catch(() => obs2).subscribe({
-        next: val => list.push('next:' + val),
-        error: err => list.push(err),
-        complete: () => list.push('complete'),
-      });
+      const sub = obs1
+        .catch(() => obs2)
+        .subscribe({
+          next: val => list.push('next:' + val),
+          error: err => list.push(err),
+          complete: () => list.push('complete'),
+        });
 
       sink1.next(1);
       sub.unsubscribe();
@@ -2584,11 +2586,13 @@ describe('RelayObservable', () => {
         return () => list.push('cleanup second');
       });
 
-      const sub = obs1.catch(() => obs2).subscribe({
-        next: val => list.push('next:' + val),
-        error: err => list.push(err),
-        complete: () => list.push('complete'),
-      });
+      const sub = obs1
+        .catch(() => obs2)
+        .subscribe({
+          next: val => list.push('next:' + val),
+          error: err => list.push(err),
+          complete: () => list.push('complete'),
+        });
 
       sink1.next(1);
       sink1.error(new Error());
@@ -2616,12 +2620,14 @@ describe('RelayObservable', () => {
         return () => list.push('cleanup');
       });
 
-      obs.finally(() => list.push('finally')).subscribe({
-        next: val => list.push('next:' + val),
-        error: () => list.push('error'),
-        complete: () => list.push('complete'),
-        unsubscribe: () => list.push('unsubscribe'),
-      });
+      obs
+        .finally(() => list.push('finally'))
+        .subscribe({
+          next: val => list.push('next:' + val),
+          error: () => list.push('error'),
+          complete: () => list.push('complete'),
+          unsubscribe: () => list.push('unsubscribe'),
+        });
 
       expect(list).toEqual(['next:1', 'complete', 'cleanup', 'finally']);
     });
@@ -2634,12 +2640,14 @@ describe('RelayObservable', () => {
         return () => list.push('cleanup');
       });
 
-      obs.finally(() => list.push('finally')).subscribe({
-        next: val => list.push('next:' + val),
-        error: () => list.push('error'),
-        complete: () => list.push('complete'),
-        unsubscribe: () => list.push('unsubscribe'),
-      });
+      obs
+        .finally(() => list.push('finally'))
+        .subscribe({
+          next: val => list.push('next:' + val),
+          error: () => list.push('error'),
+          complete: () => list.push('complete'),
+          unsubscribe: () => list.push('unsubscribe'),
+        });
 
       expect(list).toEqual(['error', 'cleanup', 'finally']);
     });
@@ -2652,12 +2660,14 @@ describe('RelayObservable', () => {
         return () => list.push('cleanup');
       });
 
-      const sub = obs.finally(() => list.push('finally')).subscribe({
-        next: val => list.push('next:' + val),
-        error: () => list.push('error'),
-        complete: () => list.push('complete'),
-        unsubscribe: () => list.push('unsubscribe'),
-      });
+      const sub = obs
+        .finally(() => list.push('finally'))
+        .subscribe({
+          next: val => list.push('next:' + val),
+          error: () => list.push('error'),
+          complete: () => list.push('complete'),
+          unsubscribe: () => list.push('unsubscribe'),
+        });
 
       sub.unsubscribe();
 

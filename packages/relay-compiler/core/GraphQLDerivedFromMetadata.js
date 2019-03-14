@@ -25,8 +25,8 @@ function getReaderSourceDefinitionName(node: GeneratedNode): string {
     node.kind === 'Request'
       ? [node.params.name, node.params.metadata?.derivedFrom]
       : node.kind === 'SplitOperation'
-        ? [node.name, node.metadata?.derivedFrom]
-        : [node.name, null];
+      ? [node.name, node.metadata?.derivedFrom]
+      : [node.name, null];
   return typeof derivedFrom === 'string' ? derivedFrom : name;
 }
 

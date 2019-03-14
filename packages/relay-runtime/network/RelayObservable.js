@@ -140,8 +140,8 @@ class RelayObservable<+T> implements Subscribable<T> {
     return isObservable(obj)
       ? fromObservable(obj)
       : isPromise(obj)
-        ? fromPromise(obj)
-        : fromValue(obj);
+      ? fromPromise(obj)
+      : fromValue(obj);
   }
 
   /**

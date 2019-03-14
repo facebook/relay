@@ -144,13 +144,10 @@ describe('RelayModernTestUtils', () => {
 
     it('formats failure output for multiple `warning` calls prettily', () => {
       expect(
-        toWarn(
-          () => {
-            warning(false, 'Failed %s.', 'unexpectedly');
-            warning(false, 'Failed %s.', 'spectacularly');
-          },
-          ['Failed %s.', 'as I have foreseen it'],
-        ),
+        toWarn(() => {
+          warning(false, 'Failed %s.', 'unexpectedly');
+          warning(false, 'Failed %s.', 'spectacularly');
+        }, ['Failed %s.', 'as I have foreseen it']),
       ).toFail(
         'Expected to warn: [false, "Failed %s.", "as I have foreseen it"] ' +
           'but `warning` received the following calls: [false, "Failed %s.", ' +

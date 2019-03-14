@@ -50,8 +50,8 @@ function createModernNode(
   const requiredPath = options.isHasteMode
     ? requiredFile
     : options.artifactDirectory
-      ? getRelativeImportPath(state, options.artifactDirectory, requiredFile)
-      : GENERATED + requiredFile;
+    ? getRelativeImportPath(state, options.artifactDirectory, requiredFile)
+    : GENERATED + requiredFile;
 
   const hash = crypto
     .createHash('md5')

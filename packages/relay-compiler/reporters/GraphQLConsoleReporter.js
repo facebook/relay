@@ -38,8 +38,8 @@ class GraphQLConsoleReporter implements GraphQLReporter {
         ms === 0
           ? chalk.gray(' <1ms')
           : ms < 1000
-            ? chalk.blue(leftPad(5, ms + 'ms'))
-            : chalk.red(Math.floor(ms / 10) / 100 + 's');
+          ? chalk.blue(leftPad(5, ms + 'ms'))
+          : chalk.red(Math.floor(ms / 10) / 100 + 's');
       process.stdout.write('  ' + time + ' ' + chalk.gray(name) + '\n');
     }
   }

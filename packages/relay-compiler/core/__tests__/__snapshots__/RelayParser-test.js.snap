@@ -5679,6 +5679,25 @@ query TestQuery($id: ID!) {
 ]
 `;
 
+exports[`RelayParser matches expected output: undefined-type.invalid.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query TestQuery($id: UnknownType) {
+  node(id: "someid") {
+    id
+  }
+}
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+ERROR:
+Error: RelayParser: Encountered 1 error(s):
+- Unknown type: UnknownType.
+  
+  GraphQL request (1:22)
+  1: query TestQuery($id: UnknownType) {
+                          ^
+  2:   node(id: "someid") {
+  
+`;
+
 exports[`RelayParser should error when parsing fragment that references undeclared variables are used with differing types 1`] = `
 "RelayParser: Encountered 1 error(s):
 - Variable '$id' was used in locations expecting the conflicting types 'ID' and 'Int'. Source: document \`TestFragment\` file: \`GraphQL request\`

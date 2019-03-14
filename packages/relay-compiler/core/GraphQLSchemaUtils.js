@@ -228,24 +228,12 @@ function assertTypeWithFields(
   return type;
 }
 
-/**
- * Helper for calling `typeFromAST()` with a clear warning when the type does
- * not exist. This enables the pattern `assertXXXType(getTypeFromAST(...))`,
- * emitting distinct errors for unknown types vs types of the wrong category.
- */
-function getTypeFromAST(schema: GraphQLSchema, ast: TypeNode): GraphQLType {
-  const type = typeFromAST(schema, ast);
-  invariant(isType(type), 'GraphQLSchemaUtils: Unknown type `%s`.', print(ast));
-  return (type: any);
-}
-
 module.exports = {
   assertTypeWithFields,
   canHaveSelections,
   getNullableType,
   getRawType,
   getSingularType,
-  getTypeFromAST,
   hasID,
   implementsInterface,
   isAbstractType,

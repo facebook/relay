@@ -52,18 +52,12 @@ type PendingFetch = {
  */
 let nextId = 0;
 
-/**
- * The pending network fetches for the mocked network.
- */
-let pendingFetches: Array<PendingFetch> = [];
-
 class ReactRelayTestMocker {
   _environment: IEnvironment;
-  _defaults: {[string]: $PropertyType<NetworkWriteConfig, 'payload'>};
+  _defaults: {[string]: $PropertyType<NetworkWriteConfig, 'payload'>} = {};
+  _pendingFetches: Array<PendingFetch> = [];
 
   constructor(env: IEnvironment) {
-    this._defaults = {};
-
     if (isRelayModernEnvironment(env)) {
       this._mockNetworkLayer(env);
     } else {
@@ -74,7 +68,6 @@ class ReactRelayTestMocker {
           'Classic environments.',
       );
     }
-
     this._environment = env;
   }
 
@@ -147,7 +140,7 @@ class ReactRelayTestMocker {
         return typeof payload === 'function' ? payload(strippedVars) : payload;
       }
 
-      pendingFetches.push({
+      this._pendingFetches.push({
         ident,
         cacheConfig,
         deferred: {resolve, reject},
@@ -157,29 +150,33 @@ class ReactRelayTestMocker {
       return promise;
     };
 
-    function isLoading(ident: string): boolean {
-      return pendingFetches.some(pending => pending.ident === ident);
-    }
+    const isLoading = (ident: string): boolean => {
+      return this._pendingFetches.some(pending => pending.ident === ident);
+    };
 
-    function resolveRawQuery(
+    const resolveRawQuery = (
       toResolve: PendingFetch,
       payload: GraphQLResponse,
-    ): void {
-      pendingFetches = pendingFetches.filter(pending => pending !== toResolve);
+    ): void => {
+      this._pendingFetches = this._pendingFetches.filter(
+        pending => pending !== toResolve,
+      );
 
       const {deferred} = toResolve;
       deferred.resolve(payload);
-    }
+    };
 
-    function rejectQuery(
+    const rejectQuery = (
       toResolve: PendingFetch,
       payload: {error: PayloadError},
-    ): void {
-      pendingFetches = pendingFetches.filter(pending => pending !== toResolve);
+    ): void => {
+      this._pendingFetches = this._pendingFetches.filter(
+        pending => pending !== toResolve,
+      );
 
       const {deferred} = toResolve;
       deferred.reject(payload.error);
-    }
+    };
 
     (env: any).mock = {
       isLoading,
@@ -270,7 +267,7 @@ class ReactRelayTestMocker {
     }
 
     let toResolve;
-    pendingFetches.forEach(pending => {
+    this._pendingFetches.forEach(pending => {
       const pendingVars = pending.variables;
       if (pending.ident === ident) {
         invariant(

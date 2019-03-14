@@ -17,7 +17,6 @@ const partitionArray = require('../util/partitionArray');
 const {DEFAULT_HANDLE_KEY} = require('../util/DefaultHandleKey');
 const {
   getNullableType,
-  getTypeFromAST,
   isExecutableDefinitionAST,
 } = require('./GraphQLSchemaUtils');
 const {
@@ -41,9 +40,12 @@ const {
   GraphQLNonNull,
   GraphQLScalarType,
   isLeafType,
+  isType,
+  typeFromAST,
   isTypeSubTypeOf,
   parse: parseGraphQL,
   parseType,
+  print,
   Source,
 } = require('graphql');
 
@@ -68,28 +70,30 @@ import type {GetFieldDefinitionFn} from './getFieldDefinition';
 import type {
   ASTNode,
   ArgumentNode,
+  BooleanValueNode,
+  DefinitionNode,
   DirectiveNode,
+  EnumValueNode,
   FieldNode,
+  FloatValueNode,
   FragmentDefinitionNode,
   FragmentSpreadNode,
-  DefinitionNode,
   GraphQLArgument,
   GraphQLInputType,
   GraphQLOutputType,
   GraphQLSchema,
+  GraphQLType,
   InlineFragmentNode,
+  IntValueNode,
+  ListValueNode,
   Location as ASTLocation,
+  ObjectValueNode,
   OperationDefinitionNode,
   SelectionSetNode,
+  StringValueNode,
+  TypeNode,
   ValueNode,
   VariableNode,
-  IntValueNode,
-  FloatValueNode,
-  StringValueNode,
-  BooleanValueNode,
-  EnumValueNode,
-  ListValueNode,
-  ObjectValueNode,
 } from 'graphql';
 
 type ASTDefinitionNode = FragmentDefinitionNode | OperationDefinitionNode;
@@ -157,6 +161,19 @@ function transform(
     const parser = new RelayParser(schema, definitions);
     return parser.transform();
   });
+}
+
+/**
+ * Helper for calling `typeFromAST()` with a clear warning when the type does
+ * not exist. This enables the pattern `assertXXXType(getTypeFromAST(...))`,
+ * emitting distinct errors for unknown types vs types of the wrong category.
+ */
+function getTypeFromAST(schema: GraphQLSchema, ast: TypeNode): GraphQLType {
+  const type = typeFromAST(schema, ast);
+  if (!isType(type)) {
+    throw createUserError(`Unknown type: '${print(ast)}'.`, null, [ast]);
+  }
+  return (type: $FlowFixMe);
 }
 
 /**

@@ -5686,6 +5686,7 @@ query TestQuery($id: UnknownType) {
     id
   }
 }
+
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 ERROR:
 Error: RelayParser: Encountered 1 error(s):

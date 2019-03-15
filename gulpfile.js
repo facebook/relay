@@ -256,11 +256,17 @@ const modules = gulp.parallel(
     build =>
       function modulesTask() {
         return gulp
-          .src([
-            '*' + PACKAGES + '/' + build.package + '/**/*.js',
-            '!' + PACKAGES + '/**/__tests__/**/*.js',
-            '!' + PACKAGES + '/**/__mocks__/**/*.js',
-          ])
+          .src(
+            [
+              '**/*.js',
+              '!**/__tests__/**',
+              '!**/__flowtests__/**',
+              '!**/__mocks__/**',
+            ],
+            {
+              cwd: path.join(PACKAGES, build.package),
+            }
+          )
           .pipe(babel(babelOptions))
           .pipe(flatten())
           .pipe(gulp.dest(path.join(DIST, build.package, 'lib')));
@@ -270,23 +276,27 @@ const modules = gulp.parallel(
 
 const copyFilesTasks = [];
 builds.forEach(build => {
-  copyFilesTasks.push(function copyFileTask() {
-    return gulp
-      .src([
-        'LICENSE',
-        '*' + PACKAGES + '/' + build.package + '/*',
-        '!' + PACKAGES + '/' + build.package + '/*.graphql',
-        '!' + PACKAGES + '/' + build.package + '/**/*.js',
-      ])
-      .pipe(flatten())
-      .pipe(gulp.dest(path.join(DIST, build.package)));
-  });
-  copyFilesTasks.push(function copyLibFileTask() {
-    return gulp // Move *.graphql files directly to lib without going through babel
-      .src(['*' + PACKAGES + '/' + build.package + '/*.graphql'])
-      .pipe(flatten())
-      .pipe(gulp.dest(path.join(DIST, build.package, 'lib')));
-  });
+  copyFilesTasks.push(
+    function copyLicense() {
+      return gulp
+        .src(['LICENSE'])
+        .pipe(gulp.dest(path.join(DIST, build.package)));
+    },
+    function copyTestschema() {
+      return gulp
+        .src(['*.graphql'], {
+          cwd: path.join(PACKAGES, build.package),
+        })
+        .pipe(gulp.dest(path.join(DIST, build.package, 'lib')));
+    },
+    function copyPackageJSON() {
+      return gulp
+        .src(['package.json'], {
+          cwd: path.join(PACKAGES, build.package),
+        })
+        .pipe(gulp.dest(path.join(DIST, build.package)));
+    }
+  );
 });
 const copyFiles = gulp.parallel(copyFilesTasks);
 
@@ -363,10 +373,5 @@ const bundlesMin = gulp.series(bundlesMinTasks);
 
 const dist = gulp.series(exportsFiles, bins, bundles, bundlesMin);
 
-function watch() {
-  gulp.watch(PACKAGES + '/**/*.js', [exportsFiles, bundles]);
-}
-
 exports.clean = clean;
-exports.watch = watch;
 exports.default = gulp.series(clean, dist);

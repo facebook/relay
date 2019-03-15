@@ -301,6 +301,7 @@ function printValue(value: ArgumentValue, type: ?GraphQLInputType): ?string {
 
 function printLiteral(value: mixed, type: ?GraphQLInputType): string {
   if (value == null) {
+    // $FlowFixMe(>=0.95.0) JSON.stringify can return undefined
     return JSON.stringify(value);
   }
   if (type instanceof GraphQLNonNull) {
@@ -323,9 +324,11 @@ function printLiteral(value: mixed, type: ?GraphQLInputType): string {
     return result;
   } else if (type === GraphQLID || type === GraphQLInt) {
     // For backwards compatibility, print integer and ID values as-is
+    // $FlowFixMe(>=0.95.0) JSON.stringify can return undefined
     return JSON.stringify(value);
   } else if (type instanceof GraphQLScalarType) {
     const result = type.serialize(value);
+    // $FlowFixMe(>=0.95.0) JSON.stringify can return undefined
     return JSON.stringify(result);
   } else if (Array.isArray(value)) {
     invariant(
@@ -356,6 +359,7 @@ function printLiteral(value: mixed, type: ?GraphQLInputType): string {
     // http://facebook.github.io/graphql/October2016/#sec-Lists
     return printLiteral(value, type.ofType);
   } else {
+    // $FlowFixMe(>=0.95.0) JSON.stringify can return undefined
     return JSON.stringify(value);
   }
 }

@@ -52,6 +52,7 @@ function formatJSAssignment(
     .map(p => (typeof p === 'string' ? `.${p}` : `[${p}]`))
     .join('');
   const jsValue = value === undefined ? 'undefined' : JSON.stringify(value);
+  // $FlowFixMe(>=0.95.0) JSON.stringify can return undefined
   return `${objectName}${assignmentPath} = ${jsValue};`;
 }
 

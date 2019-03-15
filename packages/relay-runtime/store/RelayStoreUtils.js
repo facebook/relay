@@ -121,6 +121,7 @@ function formatStorageKey(name: string, argValues: ?Arguments): string {
     if (argValues.hasOwnProperty(argName)) {
       const value = argValues[argName];
       if (value != null) {
+        // $FlowFixMe(>=0.95.0) JSON.stringify can return undefined
         values.push(argName + ':' + JSON.stringify(value));
       }
     }

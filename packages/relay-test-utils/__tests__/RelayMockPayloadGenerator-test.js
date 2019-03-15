@@ -42,6 +42,7 @@ function printMockResolvers(mockResolvers: ?MockResolvers): string {
         },
         () => 1,
       );
+      // $FlowFixMe(>=0.95.0) JSON.stringify can return undefined
       output.push(`Output: ${JSON.stringify(resolverOutput, null, 2)}`);
     }
   }

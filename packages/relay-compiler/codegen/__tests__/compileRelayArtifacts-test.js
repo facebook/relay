@@ -68,6 +68,7 @@ describe('compileRelayArtifacts', () => {
 
 function stringifyAST(ast: mixed): string {
   return CodeMarker.postProcess(
+    // $FlowFixMe(>=0.95.0) JSON.stringify can return undefined
     JSON.stringify(ast, null, 2),
     moduleName => `require('${moduleName}')`,
   );

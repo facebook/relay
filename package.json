@@ -60,6 +60,7 @@
     "gulp-chmod": "2.0.0",
     "gulp-header": "2.0.7",
     "gulp-once": "2.0.3",
+    "gulp-rename": "^2.0.0",
     "gulp-util": "3.0.8",
     "immutable": "~3.7.6",
     "jest": "^24.8.0",

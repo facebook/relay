@@ -33,6 +33,7 @@ const gulpUtil = require('gulp-util');
 const header = require('gulp-header');
 const once = require('gulp-once');
 const path = require('path');
+const rename = require('gulp-rename');
 const webpack = require('webpack');
 const webpackStream = require('webpack-stream');
 
@@ -252,6 +253,20 @@ const modules = gulp.parallel(
   ),
 );
 
+const flowDefs = gulp.parallel(
+  ...builds.map(
+    build =>
+      function modulesTask() {
+        return gulp
+          .src(['**/*.js', '!**/__tests__/**/*.js', '!**/__mocks__/**/*.js'], {
+            cwd: PACKAGES + '/' + build.package,
+          })
+          .pipe(rename({extname: '.js.flow'}))
+          .pipe(gulp.dest(path.join(DIST, build.package)));
+      },
+  ),
+);
+
 const copyFilesTasks = [];
 builds.forEach(build => {
   copyFilesTasks.push(
@@ -282,6 +297,7 @@ const copyFiles = gulp.parallel(copyFilesTasks);
 
 const exportsFiles = gulp.series(
   copyFiles,
+  flowDefs,
   modules,
   gulp.parallel(
     ...builds.map(

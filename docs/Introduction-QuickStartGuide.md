@@ -163,7 +163,6 @@ Now, let's see how we would fetch the above query using a `QueryRenderer`:
 // UserTodoList.js
 // @flow
 import React from 'react';
-import PropTypes from 'prop-types';
 import {graphql, QueryRenderer} from 'react-relay';
 
 const environment = /* defined or imported above... */;
@@ -393,7 +392,6 @@ A `QueryRenderer` rendering these fragment containers could look like the follow
 ```javascript
 // ViewerTodoList.js
 import React from 'react';
-import PropTypes from 'prop-types';
 import {graphql, QueryRenderer} from 'react-relay';
 import TodoList from './TodoList'
 

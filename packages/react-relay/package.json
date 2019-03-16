@@ -15,7 +15,6 @@
     "@babel/runtime": "^7.0.0",
     "fbjs": "^1.0.0",
     "nullthrows": "^1.1.0",
-    "prop-types": "^15.5.8",
     "relay-runtime": "3.0.0"
   },
   "peerDependencies": {

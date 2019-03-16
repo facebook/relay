@@ -13,7 +13,6 @@
   "dependencies": {
     "@babel/runtime": "^7.0.0",
     "fbjs": "^1.0.0",
-    "iterall": "^1.2.1",
     "prop-types": "^15.5.8",
     "relay-compiler": "3.0.0",
     "relay-runtime": "3.0.0"

@@ -41,11 +41,10 @@ expect.addSnapshotSerializer({
 
 const matchers = {
   toBeDeeplyFrozen(actual) {
-    const {isCollection, forEach} = require('iterall');
     function check(value) {
       expect(Object.isFrozen(value)).toBe(true);
-      if (isCollection(value)) {
-        forEach(value, check);
+      if (Array.isArray(value)) {
+        value.forEach(item => check(item));
       } else if (typeof value === 'object' && value !== null) {
         for (const key in value) {
           check(value[key]);

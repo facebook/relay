@@ -60,7 +60,6 @@ const babelOptions = require('./scripts/getBabelOptions')({
     fs: 'fs',
     graphql: 'graphql',
     immutable: 'immutable',
-    iterall: 'iterall',
     net: 'net',
     os: 'os',
     path: 'path',

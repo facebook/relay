@@ -1443,10 +1443,10 @@ babel-plugin-syntax-trailing-function-commas@^7.0.0-beta.0:
   resolved "https://registry.yarnpkg.com/babel-plugin-syntax-trailing-function-commas/-/babel-plugin-syntax-trailing-function-commas-7.0.0-beta.0.tgz#aa213c1435e2bffeb6fca842287ef534ad05d5cf"
   integrity sha512-Xj9XuRuz3nTSbaTXWv3itLOcxyF4oPD8douBBmj7U9BBC6nEBYfyOJYQMf/8PJAFotC62UY5dFfIGEPr7WswzQ==
 
-babel-plugin-tester@^6.0.0:
-  version "6.0.0"
-  resolved "https://registry.yarnpkg.com/babel-plugin-tester/-/babel-plugin-tester-6.0.0.tgz#91483381e65f48ea717320a30a9182a441e3fe18"
-  integrity sha512-vzR8l3w9OlXSv6XmdTHu1qpT4i4/y7sK/g0mH1FusPIK7fPd8PYgkzSfuHpLp0JgQzY/LTsmxkSIXfTyfjZ9Ug==
+babel-plugin-tester@^6.0.1:
+  version "6.0.1"
+  resolved "https://registry.yarnpkg.com/babel-plugin-tester/-/babel-plugin-tester-6.0.1.tgz#6e38df63da9969525501f0d09a823055d9d97b33"
+  integrity sha512-33all7GWK2WyTuDZL/ZbtYw4iOZ2PNTyuGE97ah4cZRmOHL/DRHcKYhs0dpUIQuNkuYXFfGK4d4y+e0/L8qJYw==
   dependencies:
     common-tags "^1.4.0"
     invariant "^2.2.2"

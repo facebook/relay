@@ -85,7 +85,7 @@ export type VisitFn<T: VisitNode> = (
 ) => any;
 
 export type NodeVisitorObject<T: VisitNode> =
-  | {enter?: VisitFn<T>, leave?: VisitFn<T>}
+  | {|enter?: VisitFn<T>, leave?: VisitFn<T>|}
   | VisitFn<T>;
 
 export type NodeVisitor =

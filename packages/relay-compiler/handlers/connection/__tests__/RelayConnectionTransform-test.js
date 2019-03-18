@@ -15,6 +15,7 @@ const GraphQLIRPrinter = require('../../../core/GraphQLIRPrinter');
 const RelayConnectionTransform = require('../RelayConnectionTransform');
 
 const {transformASTSchema} = require('../../../core/ASTConvert');
+const {RelayFeatureFlags} = require('relay-runtime');
 const {
   TestSchema,
   generateTestsFromFixtures,
@@ -22,6 +23,18 @@ const {
 } = require('relay-test-utils');
 
 describe('RelayConnectionTransform', () => {
+  let previousEnableIncrementalDelivery;
+
+  beforeEach(() => {
+    previousEnableIncrementalDelivery =
+      RelayFeatureFlags.ENABLE_INCREMENTAL_DELIVERY;
+    RelayFeatureFlags.ENABLE_INCREMENTAL_DELIVERY = true;
+  });
+
+  afterEach(() => {
+    RelayFeatureFlags.ENABLE_INCREMENTAL_DELIVERY = previousEnableIncrementalDelivery;
+  });
+
   generateTestsFromFixtures(`${__dirname}/fixtures`, text => {
     const schema = transformASTSchema(TestSchema, [
       RelayConnectionTransform.SCHEMA_EXTENSION,

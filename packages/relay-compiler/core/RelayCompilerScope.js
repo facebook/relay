@@ -23,6 +23,7 @@ import type {
   ArgumentValue,
   FragmentSpread,
   LocalArgumentDefinition,
+  Variable,
 } from './GraphQLIR';
 
 /**
@@ -82,12 +83,13 @@ function getRootScope(
 ): Scope {
   const scope = {};
   definitions.forEach(definition => {
-    scope[definition.name] = {
+    scope[definition.name] = ({
       kind: 'Variable',
+      loc: definition.loc,
       metadata: null,
       variableName: definition.name,
       type: definition.type,
-    };
+    }: Variable);
   });
   return scope;
 }
@@ -161,12 +163,13 @@ function getFragmentScope(
           [argNode?.loc ?? spread.loc],
         );
       }
-      fragmentScope[definition.name] = {
+      fragmentScope[definition.name] = ({
         kind: 'Variable',
+        loc: definition.loc,
         metadata: null,
         variableName: definition.name,
         type: definition.type,
-      };
+      }: Variable);
     } else {
       const arg = argMap.get(definition.name);
       if (arg == null || (arg.kind === 'Literal' && arg.value == null)) {

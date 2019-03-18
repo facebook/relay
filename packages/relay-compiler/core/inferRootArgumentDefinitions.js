@@ -17,11 +17,16 @@ const {createCompilerError} = require('./RelayCompilerError');
 const {GraphQLNonNull, GraphQLBoolean} = require('graphql');
 
 import type {
+  Argument,
   ArgumentDefinition,
+  Condition,
+  Defer,
   Fragment,
+  FragmentSpread,
   Root,
   SplitOperation,
-} from 'relay-compiler';
+  Stream,
+} from './GraphQLIR';
 
 type ArgumentMap = Map<string, ArgumentDefinition>;
 
@@ -163,7 +168,7 @@ function visit(
   node: Fragment | Root,
 ): void {
   GraphQLIRVisitor.visit(node, {
-    FragmentSpread(fragmentSpread) {
+    FragmentSpread(fragmentSpread: FragmentSpread) {
       let fragment;
       try {
         fragment = context.getFragment(fragmentSpread.name);
@@ -214,12 +219,13 @@ function visit(
       }
       return false;
     },
-    Argument(argument) {
+    Argument(argument: Argument) {
       if (argument.value.kind !== 'Variable') {
         return false;
       }
       const variable = argument.value;
-      if (argument.type == null && variable.type == null) {
+      const type = variable.type ?? argument.type;
+      if (type == null) {
         return;
       }
       if (!argumentDefinitions.has(variable.variableName)) {
@@ -229,12 +235,12 @@ function visit(
           loc: {kind: 'Derived', source: argument.loc},
           metadata: null,
           name: variable.variableName,
-          type: variable.type || argument.type,
+          type,
         });
       }
       return false;
     },
-    Condition(condition) {
+    Condition(condition: Condition) {
       const variable = condition.condition;
       if (variable.kind !== 'Variable') {
         return;
@@ -251,7 +257,7 @@ function visit(
         });
       }
     },
-    Defer(defer) {
+    Defer(defer: Defer) {
       const variable = defer.if;
       if (variable == null || variable.kind !== 'Variable') {
         return;
@@ -268,7 +274,7 @@ function visit(
         });
       }
     },
-    Stream(stream) {
+    Stream(stream: Stream) {
       const variable = stream.if;
       if (variable == null || variable.kind !== 'Variable') {
         return;

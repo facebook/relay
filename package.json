@@ -62,7 +62,6 @@
     "nullthrows": "^1.1.0",
     "object-assign": "4.1.1",
     "prettier": "1.16.4",
-    "prop-types": "^15.5.8",
     "react": "16.6.3",
     "react-test-renderer": "16.6.3",
     "signedsource": "^1.0.0",

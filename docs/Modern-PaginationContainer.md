@@ -273,7 +273,7 @@ module.exports = createPaginationContainer(
       };
     },
     query: graphql`
-      # Pagination query to be fetched upon calling `loadMore`.
+      # Pagination query to be fetched upon calling 'loadMore'.
       # Notice that we re-use our fragment, and the shape of this query matches our fragment spec.
       query FeedPaginationQuery(
         $count: Int!

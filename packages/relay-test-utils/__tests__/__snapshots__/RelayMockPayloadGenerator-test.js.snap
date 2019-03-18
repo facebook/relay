@@ -132,7 +132,7 @@ fragment TestFragment on User {
     },
     "actor": {
       "name": "<mock-value-for-field-\\"name\\">",
-      "id": "<__MockObject-mock-id-1>",
+      "id": "<mock-id-1>",
       "__typename": "__MockObject"
     },
     "myActor": {
@@ -304,7 +304,7 @@ fragment TestFragment on User @argumentDefinitions(condition: {type: "Boolean!"}
     "id": "<User-mock-id-1>",
     "name": "<mock-value-for-field-\\"name\\">",
     "myActor": {
-      "id": "<__MockObject-mock-id-2>",
+      "id": "<mock-id-2>",
       "name": "<mock-value-for-field-\\"name\\">"
     },
     "customName": "<mock-value-for-field-\\"customName\\">",
@@ -452,7 +452,7 @@ Output: {
   "variables": {},
   "payload": {
     "actor": {
-      "id": "<__MockObject-mock-id-1>",
+      "id": "<mock-id-1>",
       "name": "<mock-value-for-field-\\"name\\">"
     },
     "backgroundImage": {
@@ -784,6 +784,38 @@ fragment TestFragment on User {
     "author": {
       "id": "<User-mock-id-2>",
       "name": "<mock-value-for-field-\\"name\\">"
+    }
+  }
+}
+`;
+
+exports[`generate payload for operation 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query TestQuery($id: ID!, $scale: Float) {
+  node(id: $id) {
+    ... on User {
+      name
+      profile_picture(scale: $scale) {
+        uri
+      }
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+{
+  "variables": {
+    "id": "<mock-id-1>",
+    "scale": 4.2
+  },
+  "data": {
+    "node": {
+      "__typename": "User",
+      "id": "<mock-id-1>",
+      "name": "<mock-value-for-field-\\"name\\">",
+      "profile_picture": {
+        "uri": "<mock-value-for-field-\\"uri\\">"
+      }
     }
   }
 }

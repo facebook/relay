@@ -17,6 +17,7 @@ const RelayTestSchema = require('../RelayTestSchema');
 // $FlowFixMe
 const {FIXTURE_TAG, generateAndCompile} = require('../RelayModernTestUtils');
 const {parse, print} = require('graphql');
+const {getRequest, createOperationDescriptor} = require('relay-runtime');
 
 import type {MockResolvers} from '../RelayMockPayloadGenerator';
 
@@ -618,4 +619,35 @@ test('should return `null` for selection if that is specified in default values'
       },
     },
   );
+});
+
+test('generate payload for operation', () => {
+  const graphql = `
+    query TestQuery($id: ID!, $scale: Float) {
+      node(id: $id) {
+        ... on User {
+          name
+          profile_picture(scale: $scale) {
+            uri
+          }
+        }
+      }
+    }
+  `;
+  const {TestQuery: query} = compile(graphql);
+  const variables = RelayMockPayloadGenerator.generateVariables(query.fragment);
+  const operation = createOperationDescriptor(getRequest(query), variables);
+  const data = RelayMockPayloadGenerator.generateDataForOperation(operation);
+  expect({
+    [FIXTURE_TAG]: true,
+    input: print(parse(graphql)),
+    output: JSON.stringify(
+      {
+        variables,
+        data,
+      },
+      null,
+      2,
+    ),
+  }).toMatchSnapshot();
 });

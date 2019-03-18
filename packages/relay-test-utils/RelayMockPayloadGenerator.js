@@ -47,9 +47,11 @@ import type {
   ReaderSelection,
   ReaderScalarField,
   ReaderLinkedField,
+  NormalizationOperation,
   NormalizationSelection,
   NormalizationLinkedField,
   NormalizationScalarField,
+  OperationDescriptor,
 } from 'relay-runtime';
 
 type ValueResolver = (
@@ -88,7 +90,11 @@ function createIdGenerator() {
 
 const DEFAULT_MOCK_RESOLVERS = {
   ID(context, generateId: () => number) {
-    return `<${context.parentType}-mock-id-${generateId()}>`;
+    return `<${
+      context.parentType != null && context.parentType !== DEFAULT_MOCK_TYPENAME
+        ? context.parentType + '-'
+        : ''
+    }mock-id-${generateId()}>`;
   },
   Boolean() {
     return false;
@@ -177,7 +183,7 @@ class RelayMockPayloadGenerator {
     selections: $ReadOnlyArray<ReaderSelection | NormalizationSelection>,
     typeName: string,
     plural: boolean,
-  ): mixed {
+  ): MockData | $ReadOnlyArray<MockData> {
     const generateListItem = () => {
       const defaultValues = this._getDefaultValuesForObject(
         typeName,
@@ -207,7 +213,7 @@ class RelayMockPayloadGenerator {
     path: $ReadOnlyArray<string>,
     prevData: ?MockData,
     defaultValues: ?MockData,
-  ): MockData | $ReadOnlyArray<MockData> {
+  ): MockData {
     const {selections, typeName} = traversable;
 
     return this._traverseSelections(
@@ -588,11 +594,11 @@ class RelayMockPayloadGenerator {
  * Generate mock variables for ReaderFragment
  */
 function generateVariables(
-  fragment: ReaderFragment,
+  node: ReaderFragment | NormalizationOperation,
   mockResolvers: ?MockResolvers,
 ): Variables {
   const variables = {};
-  const {argumentDefinitions} = fragment;
+  const {argumentDefinitions} = node;
   const argumentValueGenerator = createValueResolver({
     ...DEFAULT_MOCK_RESOLVERS,
     ...mockResolvers,
@@ -625,20 +631,46 @@ function generateVariables(
  * Generate mock data for ReaderFragment selection
  */
 function generateData(
-  fragment: ReaderFragment,
+  node: ReaderFragment | NormalizationOperation,
   mockResolvers: ?MockResolvers,
-  variables?: Variables = generateVariables(fragment, mockResolvers),
+  variables?: Variables = generateVariables(node, mockResolvers),
   schema?: ?GraphQLSchema,
-): mixed {
+): MockData | $ReadOnlyArray<MockData> {
   const mockGenerator = new RelayMockPayloadGenerator({
     variables,
     schema,
     mockResolvers,
   });
-  const data = mockGenerator.generate(
-    fragment.selections,
-    fragment.type,
-    fragment.metadata?.plural ?? false,
+  let typeName;
+  if (node.kind === 'Operation') {
+    if (node.name.endsWith('Mutation')) {
+      typeName = 'Mutation';
+    } else if (node.name.endsWith('Subscription')) {
+      typeName = 'Subscription';
+    } else {
+      typeName = 'Query';
+    }
+  } else {
+    typeName = node.type;
+  }
+  const plural =
+    node.kind === 'Operation' ? false : node.metadata?.plural ?? false;
+  const data = mockGenerator.generate(node.selections, typeName, plural);
+  return data;
+}
+
+function generateDataForOperation(
+  operation: OperationDescriptor,
+  mockResolvers: ?MockResolvers,
+): MockData {
+  const data = generateData(
+    operation.node.operation,
+    mockResolvers,
+    operation.variables,
+  );
+  invariant(
+    !Array.isArray(data),
+    'RelayMockPayloadGenerator: Invalid generated payload, unexpected array.',
   );
   return data;
 }
@@ -647,4 +679,5 @@ module.exports = {
   DEFAULT_MOCK_TYPENAME,
   generateVariables,
   generateData,
+  generateDataForOperation,
 };

@@ -9,9 +9,6 @@
 
 'use strict';
 
-const RelayModernTestUtils = require('./RelayModernTestUtils');
-const RelayTestSchema = require('./RelayTestSchema');
-
 const areEqual = require('areEqual');
 const invariant = require('invariant');
 
@@ -70,7 +67,6 @@ function mockObservableMethod(object, key) {
  *
  * Helpers are available as `environment.mock.<helper>`:
  *
- * - `compile(text: string): {[queryName]: Query}`: Create a query.
  * - `isLoading(query, variables): boolean`: Determine whether the given query
  *   is currently being loaded (not yet rejected/resolved).
  * - `reject(query, error: Error): void`: Reject a query that has been fetched
@@ -78,10 +74,7 @@ function mockObservableMethod(object, key) {
  * - `resolve(query, payload: PayloadData): void`: Resolve a query that has been
  *   fetched by the environment.
  */
-function createMockEnvironment(options?: {
-  schema?: ?GraphQLSchema,
-  handlerProvider?: ?HandlerProvider,
-}) {
+function createMockEnvironment(options?: {handlerProvider?: ?HandlerProvider}) {
   const {
     RecordSource,
     Store,
@@ -90,7 +83,6 @@ function createMockEnvironment(options?: {
     Environment,
     Network,
   } = require('relay-runtime');
-  const schema = options && options.schema;
   const handlerProvider = options && options.handlerProvider;
   const source = new RecordSource();
   const store = new Store(source);
@@ -165,15 +157,6 @@ function createMockEnvironment(options?: {
     cache.clear();
   };
 
-  // Helper to compile a query with the given schema (or the test schema by
-  // default).
-  const compile = text => {
-    return RelayModernTestUtils.generateAndCompile(
-      text,
-      schema || RelayTestSchema,
-    );
-  };
-
   // Helper to determine if a given query/variables pair is pending
   const isLoading = (request, variables, cacheConfig) => {
     return pendingRequests.some(
@@ -241,7 +224,6 @@ function createMockEnvironment(options?: {
   environment.mock = {
     cachePayload,
     clearCache,
-    compile,
     isLoading,
     reject,
     resolve,

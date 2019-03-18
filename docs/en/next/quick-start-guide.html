@@ -181,7 +181,6 @@ type </span>Query {
 <pre><code class="hljs css language-javascript"><span class="hljs-comment">// UserTodoList.js</span>
 <span class="hljs-comment">// @flow</span>
 <span class="hljs-keyword">import</span> React <span class="hljs-keyword">from</span> <span class="hljs-string">'react'</span>;
-<span class="hljs-keyword">import</span> PropTypes <span class="hljs-keyword">from</span> <span class="hljs-string">'prop-types'</span>;
 <span class="hljs-keyword">import</span> {graphql, QueryRenderer} <span class="hljs-keyword">from</span> <span class="hljs-string">'react-relay'</span>;
 
 <span class="hljs-keyword">const</span> environment = <span class="hljs-comment">/* defined or imported above... */</span>;
@@ -385,7 +384,6 @@ fragment containers do not directly fetch data. Instead, containers declare a sp
 <p>A <code>QueryRenderer</code> rendering these fragment containers could look like the following:</p>
 <pre><code class="hljs css language-javascript"><span class="hljs-comment">// ViewerTodoList.js</span>
 <span class="hljs-keyword">import</span> React <span class="hljs-keyword">from</span> <span class="hljs-string">'react'</span>;
-<span class="hljs-keyword">import</span> PropTypes <span class="hljs-keyword">from</span> <span class="hljs-string">'prop-types'</span>;
 <span class="hljs-keyword">import</span> {graphql, QueryRenderer} <span class="hljs-keyword">from</span> <span class="hljs-string">'react-relay'</span>;
 <span class="hljs-keyword">import</span> TodoList <span class="hljs-keyword">from</span> <span class="hljs-string">'./TodoList'</span>
 

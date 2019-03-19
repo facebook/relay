@@ -71,6 +71,7 @@ function buildReactRelayContainer<TBase: React$ComponentType<*>>(
     // $FlowFixMe
     return new Container(props);
   }
+  ContainerConstructor.prototype = React.Component.prototype;
 
   function forwardRef(props, ref) {
     const context = readContext(ReactRelayContext);

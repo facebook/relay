@@ -59,7 +59,7 @@ describe('RelayModernFragmentOwner', () => {
           },
         });
 
-        zuck = environment.lookup(owner.fragment, owner).data.node;
+        zuck = environment.lookup(owner.fragment, owner).data?.node;
       });
 
       it('throws if fragment ref is not an object', () => {
@@ -88,7 +88,10 @@ describe('RelayModernFragmentOwner', () => {
       });
 
       it('returns fragment owner', () => {
-        const fragmentOwner = getFragmentOwner(UserFragment, zuck);
+        const fragmentOwner = getFragmentOwner(
+          UserFragment,
+          (zuck: $FlowFixMe),
+        );
         expect(fragmentOwner).toBe(owner);
       });
     });
@@ -120,7 +123,7 @@ describe('RelayModernFragmentOwner', () => {
           ],
         });
 
-        zuck = environment.lookup(owner.fragment, owner).data.nodes;
+        zuck = environment.lookup(owner.fragment, owner).data?.nodes;
       });
 
       it('throws if fragment ref is not an object', () => {
@@ -151,7 +154,10 @@ describe('RelayModernFragmentOwner', () => {
       });
 
       it('returns fragment owner', () => {
-        const fragmentOwner = getFragmentOwner(UsersFragment, zuck);
+        const fragmentOwner = getFragmentOwner(
+          UsersFragment,
+          (zuck: $FlowFixMe),
+        );
         expect(fragmentOwner).toEqual([owner]);
         // $FlowFixMe
         expect(fragmentOwner[0]).toBe(owner);
@@ -200,8 +206,8 @@ describe('RelayModernFragmentOwner', () => {
         ],
       });
 
-      zuck = environment.lookup(owner.fragment, owner).data.node;
-      zucks = environment.lookup(owner.fragment, owner).data.nodes;
+      zuck = environment.lookup(owner.fragment, owner).data?.node;
+      zucks = environment.lookup(owner.fragment, owner).data?.nodes;
     });
 
     it('throws if fragment ref is not an object', () => {

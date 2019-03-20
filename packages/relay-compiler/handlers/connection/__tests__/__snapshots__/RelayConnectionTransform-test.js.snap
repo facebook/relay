@@ -1063,6 +1063,86 @@ query NodeQuery(
 }
 `;
 
+exports[`RelayConnectionTransform matches expected output: stream-connection-no-label.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query NodeQuery(
+  $id: ID!
+) {
+  node(id: $id) {
+    id
+    ... on Story {
+      comments(first: 10)
+      @stream_connection(
+        key: "NodeQuery_comments"
+        initial_count: 0
+      ) {
+        edges {
+          node {
+            actor {
+              name
+            }
+          }
+        }
+        pageInfo {
+          endCursor
+          hasNextPage
+        }
+      }
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+query NodeQuery(
+  $id: ID!
+) {
+  node(id: $id) {
+    id
+    ... on Story {
+      comments(first: 10) @__clientField(handle: "connection", key: "NodeQuery_comments") {
+        edges @stream(initial_count: 0, label: "NodeQuery_comments") {
+          node {
+            actor {
+              name
+            }
+          }
+          ... on CommentsEdge {
+            cursor
+            node {
+              __typename
+            }
+          }
+        }
+        ... on CommentsConnection @defer(label: "NodeQuery_comments$pageInfo") {
+          pageInfo {
+            endCursor
+            hasNextPage
+            ... on PageInfo {
+              endCursor
+              hasNextPage
+            }
+          }
+        }
+      }
+    }
+  }
+}
+# Metadata:
+{
+  "connection": [
+    {
+      "count": null,
+      "cursor": null,
+      "direction": "forward",
+      "path": [
+        "node",
+        "comments"
+      ]
+    }
+  ]
+}
+`;
+
 exports[`RelayConnectionTransform matches expected output: stream-connection-with-aliased-edges.invalid.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query NodeQuery(

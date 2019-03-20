@@ -290,7 +290,7 @@ function buildConnectionArguments(
       }
     }
 
-    if (label == null || typeof label !== 'string') {
+    if (label != null && typeof label !== 'string') {
       const labelArg = connectionDirective.args.find(
         arg => arg.name === 'label',
       );
@@ -301,7 +301,7 @@ function buildConnectionArguments(
         [labelArg?.value?.loc ?? connectionDirective.loc],
       );
     }
-    stream = {if: ifArg, initialCount: initialCountArg, label};
+    stream = {if: ifArg, initialCount: initialCountArg, label: label ?? key};
   }
 
   return {

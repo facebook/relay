@@ -22,6 +22,7 @@ const RelayFileWriter = require('../codegen/RelayFileWriter');
 const RelayIRTransforms = require('../core/RelayIRTransforms');
 const RelayLanguagePluginJavaScript = require('../language/javascript/RelayLanguagePluginJavaScript');
 
+const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
 
@@ -304,7 +305,10 @@ function getRelayFileWriter(
     let queryMap;
     if (persistedQueryPath != null) {
       queryMap = new Map();
-      persistQuery = (text: string, id: string) => {
+      persistQuery = (text: string) => {
+        const hasher = crypto.createHash('md5');
+        hasher.update(text);
+        const id = hasher.digest('hex');
         queryMap.set(id, text);
         return Promise.resolve(id);
       };

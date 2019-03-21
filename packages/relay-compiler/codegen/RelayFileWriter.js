@@ -60,7 +60,7 @@ export type WriterConfig = {
   optionalInputFieldsForFlow: Array<string>,
   outputDir?: ?string,
   generatedDirectories?: Array<string>,
-  persistQuery?: ?(text: string, id: string) => Promise<string>,
+  persistQuery?: ?(text: string) => Promise<string>,
   platform?: string,
   schemaExtensions: Array<string>,
   noFutureProofEnums: boolean,

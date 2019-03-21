@@ -49,7 +49,7 @@ async function writeRelayGeneratedFile(
   _generatedNode: GeneratedNode,
   formatModule: FormatModule,
   typeText: string,
-  _persistQuery: ?(text: string, id: string) => Promise<string>,
+  _persistQuery: ?(text: string) => Promise<string>,
   platform: ?string,
   sourceHash: string,
   extension: string,
@@ -118,7 +118,7 @@ async function writeRelayGeneratedFile(
             params: {
               operationKind: generatedNode.params.operationKind,
               name: generatedNode.params.name,
-              id: await persistQuery(text, sourceHash),
+              id: await persistQuery(text),
               text: null,
               metadata: generatedNode.params.metadata,
             },

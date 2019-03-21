@@ -90,7 +90,6 @@ function skipClientFieldTransform(
       FragmentSpread: visitFragmentSpread,
       InlineFragment: visitInlineFragment,
       LinkedField: visitField,
-      MatchField: visitField,
       ScalarField: visitField,
     },
     node => buildState(context, node),

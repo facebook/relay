@@ -42,7 +42,7 @@ import type {
   Variable,
 } from './GraphQLIR';
 
-type NodeVisitor<S> = {
+type NodeVisitor<S> = {|
   Argument?: NodeVisitorFunction<Argument, S>,
   Condition?: NodeVisitorFunction<Condition, S>,
   Defer?: NodeVisitorFunction<Defer, S>,
@@ -64,7 +64,7 @@ type NodeVisitor<S> = {
   SplitOperation?: NodeVisitorFunction<SplitOperation, S>,
   Stream?: NodeVisitorFunction<Stream, S>,
   Variable?: NodeVisitorFunction<Variable, S>,
-};
+|};
 type NodeVisitorFunction<N: IR, S> = (node: N, state: S) => ?N;
 
 /**

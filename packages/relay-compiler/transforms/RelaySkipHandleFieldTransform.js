@@ -24,7 +24,6 @@ function relaySkipHandleFieldTransform(
 ): CompilerContext {
   return IRTransformer.transform(context, {
     LinkedField: visitField,
-    MatchField: visitField,
     ScalarField: visitField,
   });
 }

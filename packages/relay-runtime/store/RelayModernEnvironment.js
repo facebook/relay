@@ -95,6 +95,11 @@ class RelayModernEnvironment implements Environment {
 
     (this: any).__setNet = newNet => (this._network = newNet);
 
+    if (__DEV__) {
+      const {inspect} = require('./StoreInspector');
+      (this: any).DEBUG_inspect = (dataID: ?string) => inspect(this, dataID);
+    }
+
     // Register this Relay Environment with Relay DevTools if it exists.
     // Note: this must always be the last step in the constructor.
     const _global =

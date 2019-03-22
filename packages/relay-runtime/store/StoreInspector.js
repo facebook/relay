@@ -26,7 +26,7 @@ if (__DEV__) {
    *
    * bit.ly/object-formatters
    */
-  function installDevtoolFormatters() {
+  const installDevtoolFormatters = () => {
     if (formattersInstalled) {
       return;
     }
@@ -44,9 +44,9 @@ if (__DEV__) {
         'section.',
     );
     window.devtoolsFormatters.push(...createFormatters());
-  }
+  };
 
-  function createFormatters() {
+  const createFormatters = () => {
     const listStyle = {
       style:
         'list-style-type: none; padding: 0; margin: 0 0 0 12px; font-style: normal',
@@ -80,7 +80,7 @@ if (__DEV__) {
       }
     }
 
-    function renderRecordEntries(record) {
+    const renderRecordEntries = record => {
       const children = Object.keys(record).map(key => {
         return [
           'li',
@@ -89,7 +89,7 @@ if (__DEV__) {
         ];
       });
       return ['ol', listStyle, ...children];
-    }
+    };
 
     const recordFormatter = {
       header(obj) {
@@ -125,9 +125,9 @@ if (__DEV__) {
     };
 
     return [recordFormatter, recordEntryFormatter];
-  }
+  };
 
-  function getWrappedRecord(source: RecordSource, dataID: string) {
+  const getWrappedRecord = (source: RecordSource, dataID: string) => {
     const record = source.get(dataID);
     if (record == null) {
       return record;
@@ -152,7 +152,7 @@ if (__DEV__) {
         },
       },
     );
-  }
+  };
 
   inspect = (environment: Environment, dataID: ?string) => {
     installDevtoolFormatters();

@@ -250,9 +250,9 @@ function extractConnectionMetadata(
           path = fields.map(pathField => pathField.alias ?? pathField.name);
         }
       },
-    },
-    leave() {
-      fields.pop();
+      leave() {
+        fields.pop();
+      },
     },
   });
   if (connectionField == null || path == null) {

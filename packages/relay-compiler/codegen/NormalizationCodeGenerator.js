@@ -60,8 +60,12 @@ const NormalizationCodeGenVisitor = {
       return {
         kind: 'Operation',
         name: node.name,
+        // $FlowFixMe
         argumentDefinitions: node.argumentDefinitions,
-        selections: flattenArray(node.selections),
+        selections: flattenArray(
+          // $FlowFixMe
+          node.selections,
+        ),
       };
     },
 
@@ -106,7 +110,10 @@ const NormalizationCodeGenVisitor = {
         kind: 'Condition',
         passingValue: node.passingValue,
         condition: node.condition.variableName,
-        selections: flattenArray(node.selections),
+        selections: flattenArray(
+          // $FlowFixMe
+          node.selections,
+        ),
       };
     },
 
@@ -125,11 +132,15 @@ const NormalizationCodeGenVisitor = {
         );
       }
       return {
+        // $FlowFixMe
         if: node.if?.kind === 'Variable' ? node.if.variableName : null,
         kind: 'Defer',
         label: node.label,
         metadata: node.metadata,
-        selections: flattenArray(node.selections),
+        selections: flattenArray(
+          // $FlowFixMe
+          node.selections,
+        ),
       };
     },
 
@@ -148,7 +159,10 @@ const NormalizationCodeGenVisitor = {
       return {
         kind: 'InlineFragment',
         type: node.typeCondition.toString(),
-        selections: flattenArray(node.selections),
+        selections: flattenArray(
+          // $FlowFixMe
+          node.selections,
+        ),
       };
     },
 
@@ -163,7 +177,12 @@ const NormalizationCodeGenVisitor = {
               kind: 'LinkedHandle',
               alias: node.alias,
               name: node.name,
-              args: valuesOrNull(sortByName(node.args)),
+              args: valuesOrNull(
+                sortByName(
+                  // $FlowFixMe
+                  node.args,
+                ),
+              ),
               handle: handle.name,
               key: handle.key,
               filters: handle.filters,
@@ -176,10 +195,18 @@ const NormalizationCodeGenVisitor = {
         alias: node.alias,
         name: node.name,
         storageKey: null,
-        args: valuesOrNull(sortByName(node.args)),
+        args: valuesOrNull(
+          sortByName(
+            // $FlowFixMe
+            node.args,
+          ),
+        ),
         concreteType: !isAbstractType(type) ? type.toString() : null,
         plural: isPlural(node.type),
-        selections: flattenArray(node.selections),
+        selections: flattenArray(
+          // $FlowFixMe
+          node.selections,
+        ),
       };
       // Precompute storageKey if possible
       const storageKey = getStaticStorageKey(field, node.metadata);
@@ -227,7 +254,12 @@ const NormalizationCodeGenVisitor = {
               kind: 'ScalarHandle',
               alias: node.alias,
               name: node.name,
-              args: valuesOrNull(sortByName(node.args)),
+              args: valuesOrNull(
+                sortByName(
+                  // $FlowFixMe
+                  node.args,
+                ),
+              ),
               handle: handle.name,
               key: handle.key,
               filters: handle.filters,
@@ -238,7 +270,12 @@ const NormalizationCodeGenVisitor = {
         kind: 'ScalarField',
         alias: node.alias,
         name: node.name,
-        args: valuesOrNull(sortByName(node.args)),
+        args: valuesOrNull(
+          sortByName(
+            // $FlowFixMe
+            node.args,
+          ),
+        ),
         storageKey: null,
       };
       // Precompute storageKey if possible
@@ -254,7 +291,10 @@ const NormalizationCodeGenVisitor = {
         kind: 'SplitOperation',
         name: node.name,
         metadata: node.metadata,
-        selections: flattenArray(node.selections),
+        selections: flattenArray(
+          // $FlowFixMe
+          node.selections,
+        ),
       };
     },
 
@@ -273,17 +313,22 @@ const NormalizationCodeGenVisitor = {
         );
       }
       return {
+        // $FlowFixMe
         if: node.if?.kind === 'Variable' ? node.if.variableName : null,
         kind: 'Stream',
         label: node.label,
         metadata: node.metadata,
-        selections: flattenArray(node.selections),
+        selections: flattenArray(
+          // $FlowFixMe
+          node.selections,
+        ),
       };
     },
 
     Variable(node, key, parent): NormalizationArgument {
       return {
         kind: 'Variable',
+        // $FlowFixMe
         name: parent.name,
         variableName: node.variableName,
       };
@@ -292,6 +337,7 @@ const NormalizationCodeGenVisitor = {
     Literal(node, key, parent): NormalizationArgument {
       return {
         kind: 'Literal',
+        // $FlowFixMe
         name: parent.name,
         value: stableCopy(node.value),
       };
@@ -305,6 +351,7 @@ const NormalizationCodeGenVisitor = {
           [node.value.loc],
         );
       }
+      // $FlowFixMe
       return node.value.value !== null ? node.value : null;
     },
   },

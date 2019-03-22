@@ -121,7 +121,10 @@ function selectionsToBabel(
   const baseFields = new Map();
   const byConcreteType = {};
 
-  flattenArray(selections).forEach(selection => {
+  flattenArray(
+    // $FlowFixMe
+    selections,
+  ).forEach(selection => {
     const {concreteType} = selection;
     if (concreteType) {
       byConcreteType[concreteType] = byConcreteType[concreteType] ?? [];
@@ -265,7 +268,6 @@ function createVisitor(options: TypeGeneratorOptions) {
     useSingleArtifactDirectory: options.useSingleArtifactDirectory,
     noFutureProofEnums: options.noFutureProofEnums,
   };
-
   return {
     leave: {
       Root(node) {
@@ -298,7 +300,10 @@ function createVisitor(options: TypeGeneratorOptions) {
         ]);
       },
       Fragment(node) {
-        let selections = flattenArray(node.selections);
+        let selections = flattenArray(
+          // $FlowFixMe
+          node.selections,
+        );
         const numConecreteSelections = selections.filter(s => s.concreteType)
           .length;
         selections = selections.map(selection => {
@@ -343,6 +348,7 @@ function createVisitor(options: TypeGeneratorOptions) {
         const baseType = selectionsToBabel(
           selections,
           state,
+          // $FlowFixMe
           unmasked,
           unmasked ? undefined : getOldFragmentTypeName(node.name),
         );
@@ -361,7 +367,10 @@ function createVisitor(options: TypeGeneratorOptions) {
       },
       InlineFragment(node) {
         const typeCondition = node.typeCondition;
-        return flattenArray(node.selections).map(typeSelection => {
+        return flattenArray(
+          // $FlowFixMe
+          node.selections,
+        ).map(typeSelection => {
           return isAbstractType(typeCondition)
             ? {
                 ...typeSelection,
@@ -374,7 +383,10 @@ function createVisitor(options: TypeGeneratorOptions) {
         });
       },
       Condition(node) {
-        return flattenArray(node.selections).map(selection => {
+        return flattenArray(
+          // $FlowFixMe
+          node.selections,
+        ).map(selection => {
           return {
             ...selection,
             conditional: true,
@@ -396,7 +408,12 @@ function createVisitor(options: TypeGeneratorOptions) {
             key: node.alias ?? node.name,
             schemaName: node.name,
             nodeType: node.type,
-            nodeSelections: selectionsToMap(flattenArray(node.selections)),
+            nodeSelections: selectionsToMap(
+              flattenArray(
+                // $FlowFixMe
+                node.selections,
+              ),
+            ),
           },
         ];
       },

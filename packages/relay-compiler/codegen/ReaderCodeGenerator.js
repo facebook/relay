@@ -73,11 +73,16 @@ const ReaderCodeGenVisitor = {
         if (typeof refetch === 'object') {
           metadata = metadata ?? {};
           metadata.refetch = {
-            connection: (refetch.connection: any),
+            connection:
+              // $FlowFixMe
+              refetch.connection,
             operation: CodeMarker.moduleDependency(
-              (refetch.operation: any) + '.graphql',
+              // $FlowFixMe
+              refetch.operation + '.graphql',
             ),
-            fragmentPathInResult: (refetch.fragmentPathInResult: any),
+            fragmentPathInResult:
+              // $FlowFixMe
+              refetch.fragmentPathInResult,
           };
         }
       }
@@ -85,8 +90,11 @@ const ReaderCodeGenVisitor = {
         kind: 'Fragment',
         name: node.name,
         type: node.type.toString(),
+        // $FlowFixMe
         metadata,
+        // $FlowFixMe
         argumentDefinitions: node.argumentDefinitions,
+        // $FlowFixMe
         selections: node.selections,
       };
     },
@@ -120,6 +128,7 @@ const ReaderCodeGenVisitor = {
         kind: 'Condition',
         passingValue: node.passingValue,
         condition: node.condition.variableName,
+        // $FlowFixMe
         selections: node.selections,
       };
     },
@@ -128,7 +137,12 @@ const ReaderCodeGenVisitor = {
       return {
         kind: 'FragmentSpread',
         name: node.name,
-        args: valuesOrNull(sortByName(node.args)),
+        args: valuesOrNull(
+          sortByName(
+            // $FlowFixMe
+            node.args,
+          ),
+        ),
       };
     },
 
@@ -136,6 +150,7 @@ const ReaderCodeGenVisitor = {
       return {
         kind: 'InlineFragment',
         type: node.typeCondition.toString(),
+        // $FlowFixMe
         selections: node.selections,
       };
     },
@@ -160,9 +175,15 @@ const ReaderCodeGenVisitor = {
         alias: node.alias,
         name: node.name,
         storageKey: null,
-        args: valuesOrNull(sortByName(node.args)),
+        args: valuesOrNull(
+          sortByName(
+            // $FlowFixMe
+            node.args,
+          ),
+        ),
         concreteType: !isAbstractType(type) ? type.toString() : null,
         plural: isPlural(node.type),
+        // $FlowFixMe
         selections: node.selections,
       };
       // Precompute storageKey if possible
@@ -218,7 +239,12 @@ const ReaderCodeGenVisitor = {
         kind: 'ScalarField',
         alias: node.alias,
         name: node.name,
-        args: valuesOrNull(sortByName(node.args)),
+        args: valuesOrNull(
+          sortByName(
+            // $FlowFixMe
+            node.args,
+          ),
+        ),
         storageKey: null,
       };
       // Precompute storageKey if possible
@@ -234,6 +260,7 @@ const ReaderCodeGenVisitor = {
         kind: 'SplitOperation',
         name: node.name,
         metadata: null,
+        // $FlowFixMe
         selections: node.selections,
       };
     },
@@ -241,6 +268,7 @@ const ReaderCodeGenVisitor = {
     Variable(node, key, parent): ReaderArgument {
       return {
         kind: 'Variable',
+        // $FlowFixMe
         name: parent.name,
         variableName: node.variableName,
       };
@@ -249,6 +277,7 @@ const ReaderCodeGenVisitor = {
     Literal(node, key, parent): ReaderArgument {
       return {
         kind: 'Literal',
+        // $FlowFixMe
         name: parent.name,
         value: stableCopy(node.value),
       };
@@ -262,6 +291,7 @@ const ReaderCodeGenVisitor = {
           [node.value.loc],
         );
       }
+      // $FlowFixMe
       return node.value.value !== null ? node.value : null;
     },
   },

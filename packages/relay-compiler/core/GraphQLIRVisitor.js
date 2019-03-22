@@ -74,6 +74,8 @@ export type VisitNode =
   | Stream
   | Variable;
 
+type EnterLeave<T> = {|+enter?: T, +leave?: T|};
+
 export type VisitFn<T: VisitNode> = (
   node: T, // node we're visiting
   key?: any, // index/key to node from parent array/object
@@ -85,12 +87,31 @@ export type VisitFn<T: VisitNode> = (
 ) => any;
 
 export type NodeVisitorObject<T: VisitNode> =
-  | {|enter?: VisitFn<T>, leave?: VisitFn<T>|}
+  | EnterLeave<VisitFn<T>>
   | VisitFn<T>;
 
 export type NodeVisitor =
-  | NodeVisitorObject<VisitNode>
-  | {
+  | EnterLeave<{|
+      Argument?: VisitFn<Argument>,
+      Condition?: VisitFn<Condition>,
+      Defer?: VisitFn<Defer>,
+      Directive?: VisitFn<Directive>,
+      Fragment?: VisitFn<Fragment>,
+      FragmentSpread?: VisitFn<FragmentSpread>,
+      InlineFragment?: VisitFn<InlineFragment>,
+      LinkedField?: VisitFn<LinkedField>,
+      Literal?: VisitFn<Literal>,
+      LocalArgumentDefinition?: VisitFn<LocalArgumentDefinition>,
+      ModuleImport?: VisitFn<ModuleImport>,
+      Request?: VisitFn<Request>,
+      Root?: VisitFn<Root>,
+      RootArgumentDefinition?: VisitFn<RootArgumentDefinition>,
+      ScalarField?: VisitFn<ScalarField>,
+      SplitOperation?: VisitFn<SplitOperation>,
+      Stream?: VisitFn<Stream>,
+      Variable?: VisitFn<Variable>,
+    |}>
+  | {|
       Argument?: NodeVisitorObject<Argument>,
       Condition?: NodeVisitorObject<Condition>,
       Defer?: NodeVisitorObject<Defer>,
@@ -109,7 +130,7 @@ export type NodeVisitor =
       SplitOperation?: NodeVisitorObject<SplitOperation>,
       Stream?: NodeVisitorObject<Stream>,
       Variable?: NodeVisitorObject<Variable>,
-    };
+    |};
 
 function visitIR(root: VisitNode, visitor: NodeVisitor) {
   return (visit: $FlowFixMe)(root, visitor, NodeKeys);

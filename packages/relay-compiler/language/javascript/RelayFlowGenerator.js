@@ -18,6 +18,7 @@ const RelayMaskTransform = require('../../transforms/RelayMaskTransform');
 const RelayMatchTransform = require('../../transforms/RelayMatchTransform');
 const RelayRefetchableFragmentTransform = require('../../transforms/RelayRefetchableFragmentTransform');
 const RelayRelayDirectiveTransform = require('../../transforms/RelayRelayDirectiveTransform');
+const Rollout = require('../../util/Rollout');
 
 const invariant = require('invariant');
 const nullthrows = require('nullthrows');
@@ -115,7 +116,7 @@ function selectionsToBabel(
   selections,
   state: State,
   unmasked: boolean,
-  refTypeName?: string,
+  fragmentTypeName?: string,
 ) {
   const baseFields = new Map();
   const byConcreteType = {};
@@ -204,11 +205,11 @@ function selectionsToBabel(
 
   return unionTypeAnnotation(
     types.map(props => {
-      if (refTypeName) {
+      if (fragmentTypeName) {
         props.push(
           readOnlyObjectTypeProperty(
             '$refType',
-            t.genericTypeAnnotation(t.identifier(refTypeName)),
+            t.genericTypeAnnotation(t.identifier(fragmentTypeName)),
           ),
         );
       }
@@ -316,28 +317,23 @@ function createVisitor(options: TypeGeneratorOptions) {
           return [selection];
         });
         state.generatedFragments.add(node.name);
-        const refTypeName = getRefTypeName(node.name);
-        const refType = t.declareExportDeclaration(
-          t.declareOpaqueType(
-            t.identifier(refTypeName),
-            null,
-            t.genericTypeAnnotation(t.identifier('FragmentReference')),
-          ),
-        );
+        const fragmentTypes = getFragmentTypes(node.name);
 
-        const keyTypeName = getKeyTypeName(node.name);
-        const keyTypeDataProperty = readOnlyObjectTypeProperty(
+        const refTypeName = getRefTypeName(node.name);
+        const refTypeDataProperty = readOnlyObjectTypeProperty(
           '$data',
           t.genericTypeAnnotation(t.identifier(`${node.name}$data`)),
         );
-        keyTypeDataProperty.optional = true;
-        const keyTypeFragmentRefProperty = readOnlyObjectTypeProperty(
+        refTypeDataProperty.optional = true;
+        const refTypeFragmentRefProperty = readOnlyObjectTypeProperty(
           '$fragmentRefs',
-          t.genericTypeAnnotation(t.identifier(`${node.name}$ref`)),
+          t.genericTypeAnnotation(
+            t.identifier(getOldFragmentTypeName(node.name)),
+          ),
         );
-        const keyType = t.objectTypeAnnotation([
-          keyTypeDataProperty,
-          keyTypeFragmentRefProperty,
+        const refType = t.objectTypeAnnotation([
+          refTypeDataProperty,
+          refTypeFragmentRefProperty,
         ]);
 
         const dataTypeName = getDataTypeName(node.name);
@@ -348,7 +344,7 @@ function createVisitor(options: TypeGeneratorOptions) {
           selections,
           state,
           unmasked,
-          unmasked ? undefined : refTypeName,
+          unmasked ? undefined : getOldFragmentTypeName(node.name),
         );
         const type = isPlural(node) ? readOnlyArrayOfType(baseType) : baseType;
         const importedTypes = ['FragmentReference'];
@@ -357,10 +353,10 @@ function createVisitor(options: TypeGeneratorOptions) {
           ...getFragmentImports(state),
           ...getEnumDefinitions(state),
           importTypes(importedTypes, 'relay-runtime'),
-          refType,
+          ...fragmentTypes,
           exportType(node.name, type),
           exportType(dataTypeName, dataType),
-          exportType(keyTypeName, keyType),
+          exportType(refTypeName, refType),
         ]);
       },
       InlineFragment(node) {
@@ -498,7 +494,7 @@ function groupRefs(props): Array<Selection> {
   if (refs.length > 0) {
     const value = intersectionTypeAnnotation(
       refs.map(ref =>
-        t.genericTypeAnnotation(t.identifier(getRefTypeName(ref))),
+        t.genericTypeAnnotation(t.identifier(getOldFragmentTypeName(ref))),
       ),
     );
     result.push({
@@ -515,21 +511,23 @@ function getFragmentImports(state: State) {
   if (state.usedFragments.size > 0) {
     const usedFragments = Array.from(state.usedFragments).sort();
     for (const usedFragment of usedFragments) {
-      const refTypeName = getRefTypeName(usedFragment);
+      const fragmentTypeName = getOldFragmentTypeName(usedFragment);
       if (!state.generatedFragments.has(usedFragment)) {
         if (state.useHaste && state.existingFragmentNames.has(usedFragment)) {
           // TODO(T22653277) support non-haste environments when importing
           // fragments
-          imports.push(importTypes([refTypeName], usedFragment + '.graphql'));
+          imports.push(
+            importTypes([fragmentTypeName], usedFragment + '.graphql'),
+          );
         } else if (
           state.useSingleArtifactDirectory &&
           state.existingFragmentNames.has(usedFragment)
         ) {
           imports.push(
-            importTypes([refTypeName], './' + usedFragment + '.graphql'),
+            importTypes([fragmentTypeName], './' + usedFragment + '.graphql'),
           );
         } else {
-          imports.push(anyTypeAlias(refTypeName));
+          imports.push(anyTypeAlias(fragmentTypeName));
         }
       }
     }
@@ -564,11 +562,38 @@ function getEnumDefinitions({
   });
 }
 
-function getRefTypeName(name: string): string {
+function getFragmentTypes(name: string) {
+  const oldFragmentTypeName = getOldFragmentTypeName(name);
+  const oldFragmentType = t.declareExportDeclaration(
+    t.declareOpaqueType(
+      t.identifier(oldFragmentTypeName),
+      null,
+      t.genericTypeAnnotation(t.identifier('FragmentReference')),
+    ),
+  );
+  if (Rollout.check('rename-ref-type-p1', name)) {
+    const newFragmentTypeName = getNewFragmentTypeName(name);
+    const newFragmentType = t.declareExportDeclaration(
+      t.declareOpaqueType(
+        t.identifier(newFragmentTypeName),
+        null,
+        t.genericTypeAnnotation(t.identifier(oldFragmentTypeName)),
+      ),
+    );
+    return [oldFragmentType, newFragmentType];
+  }
+  return [oldFragmentType];
+}
+
+function getOldFragmentTypeName(name: string) {
   return `${name}$ref`;
 }
 
-function getKeyTypeName(name: string): string {
+function getNewFragmentTypeName(name: string) {
+  return `${name}$fragmentType`;
+}
+
+function getRefTypeName(name: string): string {
   return `${name}$key`;
 }
 

@@ -133,8 +133,7 @@ export type ReaderNode =
   | ReaderCondition
   | ReaderLinkedField
   | ReaderFragment
-  | ReaderInlineFragment
-  | ReaderSplitOperation;
+  | ReaderInlineFragment;
 
 export type ReaderScalarField = {|
   +kind: 'ScalarField',
@@ -151,18 +150,9 @@ export type ReaderSelection =
   | ReaderInlineFragment
   | ReaderModuleImport;
 
-export type ReaderSplitOperation = {
-  +kind: 'SplitOperation',
-  +name: string,
-  +metadata: ?{+[key: string]: mixed},
-  +selections: $ReadOnlyArray<ReaderSelection>,
-};
-
 export type ReaderVariable = {|
   +kind: 'Variable',
   +name: string,
   +type?: ?string,
   +variableName: string,
 |};
-
-export type ReaderSelectableNode = ReaderFragment | ReaderSplitOperation;

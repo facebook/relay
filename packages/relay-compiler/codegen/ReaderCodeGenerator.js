@@ -31,7 +31,6 @@ import type {
   ReaderModuleImport,
   ReaderScalarField,
   ReaderSelection,
-  ReaderSplitOperation,
 } from 'relay-runtime';
 const {getRawType, isAbstractType, getNullableType} = SchemaUtils;
 
@@ -253,16 +252,6 @@ const ReaderCodeGenVisitor = {
         field = {...field, storageKey};
       }
       return field;
-    },
-
-    SplitOperation(node, key, parent): ReaderSplitOperation {
-      return {
-        kind: 'SplitOperation',
-        name: node.name,
-        metadata: null,
-        // $FlowFixMe
-        selections: node.selections,
-      };
     },
 
     Variable(node, key, parent): ReaderArgument {

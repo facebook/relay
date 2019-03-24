@@ -145,7 +145,6 @@ export type {
   ReaderRefetchableFragment,
   ReaderScalarField,
   ReaderSelection,
-  ReaderSplitOperation,
 } from './util/ReaderNode';
 export type {
   CEnvironment,

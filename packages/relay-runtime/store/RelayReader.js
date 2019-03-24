@@ -33,20 +33,20 @@ const {
 } = require('./RelayStoreUtils');
 
 import type {
+  ReaderFragment,
   ReaderFragmentSpread,
   ReaderLinkedField,
   ReaderModuleImport,
   ReaderNode,
   ReaderScalarField,
-  ReaderSelectableNode,
   ReaderSelection,
 } from '../util/ReaderNode';
 import type {Record, SelectorData} from '../util/RelayCombinedEnvironmentTypes';
 import type {DataID, Variables} from '../util/RelayRuntimeTypes';
 import type {
   OperationDescriptor,
-  RecordSource,
   ReaderSelector,
+  RecordSource,
   Snapshot,
 } from './RelayStoreTypes';
 
@@ -82,7 +82,7 @@ class RelayReader {
     this._owner = owner;
   }
 
-  read(node: ReaderSelectableNode, dataID: DataID): Snapshot {
+  read(node: ReaderFragment, dataID: DataID): Snapshot {
     const data = this._traverse(node, dataID, null);
     return {
       data,

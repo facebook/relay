@@ -25,7 +25,6 @@ import type {
   NormalizationSplitOperation,
 } from '../util/NormalizationNode';
 import type {ReaderFragment} from '../util/ReaderNode';
-import type {ReaderSelectableNode} from '../util/ReaderNode';
 import type {
   CEnvironment,
   CFragmentMap,
@@ -49,7 +48,7 @@ export opaque type FragmentReference = empty;
 type TEnvironment = Environment;
 type TFragment = ReaderFragment;
 type TGraphQLTaggedNode = GraphQLTaggedNode;
-type TReaderNode = ReaderSelectableNode;
+type TReaderNode = ReaderFragment;
 type TNormalizationNode = NormalizationSelectableNode;
 type TPayload = GraphQLResponse;
 type TRequest = ConcreteRequest;

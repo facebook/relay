@@ -10,7 +10,6 @@
 
 'use strict';
 
-const IRVisitor = require('../core/GraphQLIRVisitor');
 const SchemaUtils = require('../core/GraphQLSchemaUtils');
 
 const {
@@ -20,7 +19,13 @@ const {
 const {GraphQLList} = require('graphql');
 const {getStorageKey, stableCopy} = require('relay-runtime');
 
-import type {Metadata, Root, SplitOperation} from '../core/GraphQLIR';
+import type {
+  Argument,
+  Metadata,
+  Root,
+  Selection,
+  SplitOperation,
+} from '../core/GraphQLIR';
 import type {
   NormalizationArgument,
   NormalizationDefer,
@@ -45,332 +50,310 @@ const {getRawType, isAbstractType, getNullableType} = SchemaUtils;
 declare function generate(node: Root): NormalizationOperation;
 declare function generate(node: SplitOperation): NormalizationSplitOperation;
 function generate(node) {
-  if (node.kind !== 'Root' && node.kind !== 'SplitOperation') {
+  switch (node.kind) {
+    case 'Root':
+      return generateRoot(node);
+    case 'SplitOperation':
+      return generateSplitOperation(node);
+    default:
+      throw createCompilerError(
+        `NormalizationCodeGenerator: Unsupported AST kind '${node.kind}'.`,
+        [node.loc],
+      );
+  }
+}
+
+function generateRoot(node: Root): NormalizationOperation {
+  return {
+    kind: 'Operation',
+    name: node.name,
+    argumentDefinitions: generateArgumentDefinitions(node.argumentDefinitions),
+    selections: generateSelections(node.selections),
+  };
+}
+
+function generateSplitOperation(node, key): NormalizationSplitOperation {
+  return {
+    kind: 'SplitOperation',
+    name: node.name,
+    metadata: node.metadata,
+    selections: generateSelections(node.selections),
+  };
+}
+
+function generateSelections(
+  selections: $ReadOnlyArray<Selection>,
+): $ReadOnlyArray<NormalizationSelection> {
+  const normalizationSelections: Array<NormalizationSelection> = [];
+  selections.forEach(selection => {
+    switch (selection.kind) {
+      case 'FragmentSpread':
+        // TODO(T37646905) enable this invariant after splitting the
+        // RelayCodeGenerator-test and running the InlineFragmentsTransform on
+        // normalization ASTs.
+        break;
+      case 'Condition':
+        normalizationSelections.push(generateCondition(selection));
+        break;
+      case 'ScalarField':
+        normalizationSelections.push(...generateScalarField(selection));
+        break;
+      case 'ModuleImport':
+        normalizationSelections.push(generateModuleImport(selection));
+        break;
+      case 'InlineFragment':
+        normalizationSelections.push(generateInlineFragment(selection));
+        break;
+      case 'LinkedField':
+        normalizationSelections.push(...generateLinkedField(selection));
+        break;
+      case 'Defer':
+        normalizationSelections.push(generateDefer(selection));
+        break;
+      case 'Stream':
+        normalizationSelections.push(generateStream(selection));
+        break;
+      default:
+        (selection: empty);
+        throw new Error();
+    }
+  });
+  return normalizationSelections;
+}
+
+function generateArgumentDefinitions(
+  nodes,
+): $ReadOnlyArray<NormalizationLocalArgumentDefinition> {
+  return nodes.map(node => {
+    return {
+      kind: 'LocalArgument',
+      name: node.name,
+      type: node.type.toString(),
+      defaultValue: node.defaultValue,
+    };
+  });
+}
+
+function generateCondition(node, key): NormalizationSelection {
+  if (node.condition.kind !== 'Variable') {
     throw createCompilerError(
-      `NormalizationCodeGenerator: Unsupported AST kind '${node.kind}'.`,
+      "NormalizationCodeGenerator: Expected 'Condition' with static " +
+        'value to be pruned or inlined',
+      [node.condition.loc],
+    );
+  }
+  return {
+    kind: 'Condition',
+    passingValue: node.passingValue,
+    condition: node.condition.variableName,
+    selections: generateSelections(node.selections),
+  };
+}
+
+function generateDefer(node, key): NormalizationDefer {
+  if (
+    !(
+      node.if == null ||
+      node.if.kind === 'Variable' ||
+      (node.if.kind === 'Literal' && node.if.value === true)
+    )
+  ) {
+    throw createCompilerError(
+      'NormalizationCodeGenerator: Expected @defer `if` condition to be ' +
+        'a variable, unspecified, or the literal `true`.',
+      [node.if?.loc ?? node.loc],
+    );
+  }
+  return {
+    if:
+      node.if != null && node.if.kind === 'Variable'
+        ? node.if.variableName
+        : null,
+    kind: 'Defer',
+    label: node.label,
+    metadata: node.metadata,
+    selections: generateSelections(node.selections),
+  };
+}
+
+function generateInlineFragment(node): NormalizationSelection {
+  return {
+    kind: 'InlineFragment',
+    type: node.typeCondition.toString(),
+    selections: generateSelections(node.selections),
+  };
+}
+
+function generateLinkedField(node): $ReadOnlyArray<NormalizationSelection> {
+  // Note: it is important that the arguments of this field be sorted to
+  // ensure stable generation of storage keys for equivalent arguments
+  // which may have originally appeared in different orders across an app.
+  const handles =
+    (node.handles &&
+      node.handles.map(handle => {
+        return {
+          kind: 'LinkedHandle',
+          alias: node.alias,
+          name: node.name,
+          args: generateArgs(node.args),
+          handle: handle.name,
+          key: handle.key,
+          filters: handle.filters,
+        };
+      })) ||
+    [];
+  const type = getRawType(node.type);
+  let field: NormalizationLinkedField = {
+    kind: 'LinkedField',
+    alias: node.alias,
+    name: node.name,
+    storageKey: null,
+    args: generateArgs(node.args),
+    concreteType: !isAbstractType(type) ? type.toString() : null,
+    plural: isPlural(node.type),
+    selections: generateSelections(node.selections),
+  };
+  // Precompute storageKey if possible
+  const storageKey = getStaticStorageKey(field, node.metadata);
+  if (storageKey) {
+    field = {...field, storageKey};
+  }
+  return [field].concat(handles);
+}
+
+function generateModuleImport(node, key): NormalizationModuleImport {
+  const fragmentName = node.name;
+  const regExpMatch = fragmentName.match(
+    /^([a-zA-Z][a-zA-Z0-9]*)(?:_([a-zA-Z][_a-zA-Z0-9]*))?$/,
+  );
+  if (!regExpMatch) {
+    throw createCompilerError(
+      'NormalizationCodeGenerator: @module fragments should be named ' +
+        `'FragmentName_propName', got '${fragmentName}'.`,
       [node.loc],
     );
   }
-  return IRVisitor.visit(node, NormalizationCodeGenVisitor);
+  const fragmentPropName = regExpMatch[2];
+  if (typeof fragmentPropName !== 'string') {
+    throw createCompilerError(
+      'NormalizationCodeGenerator: @module fragments should be named ' +
+        `'FragmentName_propName', got '${fragmentName}'.`,
+      [node.loc],
+    );
+  }
+  return {
+    kind: 'ModuleImport',
+    fragmentPropName,
+    fragmentName,
+  };
 }
 
-const NormalizationCodeGenVisitor = {
-  leave: {
-    Root(node): NormalizationOperation {
-      return {
-        kind: 'Operation',
-        name: node.name,
-        // $FlowFixMe
-        argumentDefinitions: node.argumentDefinitions,
-        selections: flattenArray(
-          // $FlowFixMe
-          node.selections,
-        ),
-      };
-    },
+function generateScalarField(node): Array<NormalizationSelection> {
+  // Note: it is important that the arguments of this field be sorted to
+  // ensure stable generation of storage keys for equivalent arguments
+  // which may have originally appeared in different orders across an app.
+  const handles =
+    (node.handles &&
+      node.handles.map(handle => {
+        return {
+          kind: 'ScalarHandle',
+          alias: node.alias,
+          name: node.name,
+          args: generateArgs(node.args),
+          handle: handle.name,
+          key: handle.key,
+          filters: handle.filters,
+        };
+      })) ||
+    [];
+  let field: NormalizationScalarField = {
+    kind: 'ScalarField',
+    alias: node.alias,
+    name: node.name,
+    args: generateArgs(node.args),
+    storageKey: null,
+  };
+  // Precompute storageKey if possible
+  const storageKey = getStaticStorageKey(field, node.metadata);
+  if (storageKey) {
+    field = {...field, storageKey};
+  }
+  return [field].concat(handles);
+}
 
-    Request(node): empty {
-      throw createCompilerError(
-        'NormalizationCodeGenerator: unexpected Request node.',
-      );
-    },
+function generateStream(node, key): NormalizationStream {
+  if (
+    !(
+      node.if == null ||
+      node.if.kind === 'Variable' ||
+      (node.if.kind === 'Literal' && node.if.value === true)
+    )
+  ) {
+    throw createCompilerError(
+      'NormalizationCodeGenerator: Expected @stream `if` condition to be ' +
+        'a variable, unspecified, or the literal `true`.',
+      [node.if?.loc ?? node.loc],
+    );
+  }
+  return {
+    if:
+      node.if != null && node.if.kind === 'Variable'
+        ? node.if.variableName
+        : null,
+    kind: 'Stream',
+    label: node.label,
+    metadata: node.metadata,
+    selections: generateSelections(node.selections),
+  };
+}
 
-    Fragment(node): empty {
-      throw createCompilerError(
-        'NormalizationCodeGenerator: unexpected Fragment node.',
-      );
-    },
-
-    LocalArgumentDefinition(node): NormalizationLocalArgumentDefinition {
-      return {
-        kind: 'LocalArgument',
-        name: node.name,
-        type: node.type.toString(),
-        defaultValue: node.defaultValue,
-      };
-    },
-
-    Condition(node, key, parent, ancestors): NormalizationSelection {
-      if (node.condition.kind !== 'Variable') {
-        throw createCompilerError(
-          "NormalizationCodeGenerator: Expected 'Condition' with static " +
-            'value to be pruned or inlined',
-          [node.condition.loc],
-        );
-      }
-      return {
-        kind: 'Condition',
-        passingValue: node.passingValue,
-        condition: node.condition.variableName,
-        selections: flattenArray(
-          // $FlowFixMe
-          node.selections,
-        ),
-      };
-    },
-
-    Defer(node, key, parent, ancestors): NormalizationDefer {
-      if (
-        !(
-          node.if == null ||
-          node.if.kind === 'Variable' ||
-          (node.if.kind === 'Literal' && node.if.value === true)
-        )
-      ) {
-        throw createCompilerError(
-          'NormalizationCodeGenerator: Expected @defer `if` condition to be ' +
-            'a variable, unspecified, or the literal `true`.',
-          [node.if?.loc ?? node.loc],
-        );
-      }
-      return {
-        // $FlowFixMe
-        if: node.if?.kind === 'Variable' ? node.if.variableName : null,
-        kind: 'Defer',
-        label: node.label,
-        metadata: node.metadata,
-        selections: flattenArray(
-          // $FlowFixMe
-          node.selections,
-        ),
-      };
-    },
-
-    FragmentSpread(node): Array<empty> {
-      // TODO(T37646905) enable this invariant after splitting the
-      // RelayCodeGenerator-test and running the InlineFragmentsTransform on
-      // normalization ASTs.
-      //
-      //   throw new Error(
-      //     'NormalizationCodeGenerator: unexpected FragmentSpread node.',
-      //   );
-      return [];
-    },
-
-    InlineFragment(node): NormalizationSelection {
-      return {
-        kind: 'InlineFragment',
-        type: node.typeCondition.toString(),
-        selections: flattenArray(
-          // $FlowFixMe
-          node.selections,
-        ),
-      };
-    },
-
-    LinkedField(node): Array<NormalizationSelection> {
-      // Note: it is important that the arguments of this field be sorted to
-      // ensure stable generation of storage keys for equivalent arguments
-      // which may have originally appeared in different orders across an app.
-      const handles =
-        (node.handles &&
-          node.handles.map(handle => {
-            return {
-              kind: 'LinkedHandle',
-              alias: node.alias,
-              name: node.name,
-              args: valuesOrNull(
-                sortByName(
-                  // $FlowFixMe
-                  node.args,
-                ),
-              ),
-              handle: handle.name,
-              key: handle.key,
-              filters: handle.filters,
-            };
-          })) ||
-        [];
-      const type = getRawType(node.type);
-      let field: NormalizationLinkedField = {
-        kind: 'LinkedField',
-        alias: node.alias,
-        name: node.name,
-        storageKey: null,
-        args: valuesOrNull(
-          sortByName(
-            // $FlowFixMe
-            node.args,
-          ),
-        ),
-        concreteType: !isAbstractType(type) ? type.toString() : null,
-        plural: isPlural(node.type),
-        selections: flattenArray(
-          // $FlowFixMe
-          node.selections,
-        ),
-      };
-      // Precompute storageKey if possible
-      const storageKey = getStaticStorageKey(field, node.metadata);
-      if (storageKey) {
-        field = {...field, storageKey};
-      }
-      return [field].concat(handles);
-    },
-
-    ModuleImport(node, key, parent, ancestors): NormalizationModuleImport {
-      const fragmentName = node.name;
-      const regExpMatch = fragmentName.match(
-        /^([a-zA-Z][a-zA-Z0-9]*)(?:_([a-zA-Z][_a-zA-Z0-9]*))?$/,
-      );
-      if (!regExpMatch) {
-        throw createCompilerError(
-          'NormalizationCodeGenerator: @module fragments should be named ' +
-            `'FragmentName_propName', got '${fragmentName}'.`,
-          [node.loc],
-        );
-      }
-      const fragmentPropName = regExpMatch[2];
-      if (typeof fragmentPropName !== 'string') {
-        throw createCompilerError(
-          'NormalizationCodeGenerator: @module fragments should be named ' +
-            `'FragmentName_propName', got '${fragmentName}'.`,
-          [node.loc],
-        );
-      }
-      return {
-        kind: 'ModuleImport',
-        fragmentPropName,
-        fragmentName,
-      };
-    },
-
-    ScalarField(node): Array<NormalizationSelection> {
-      // Note: it is important that the arguments of this field be sorted to
-      // ensure stable generation of storage keys for equivalent arguments
-      // which may have originally appeared in different orders across an app.
-      const handles =
-        (node.handles &&
-          node.handles.map(handle => {
-            return {
-              kind: 'ScalarHandle',
-              alias: node.alias,
-              name: node.name,
-              args: valuesOrNull(
-                sortByName(
-                  // $FlowFixMe
-                  node.args,
-                ),
-              ),
-              handle: handle.name,
-              key: handle.key,
-              filters: handle.filters,
-            };
-          })) ||
-        [];
-      let field: NormalizationScalarField = {
-        kind: 'ScalarField',
-        alias: node.alias,
-        name: node.name,
-        args: valuesOrNull(
-          sortByName(
-            // $FlowFixMe
-            node.args,
-          ),
-        ),
-        storageKey: null,
-      };
-      // Precompute storageKey if possible
-      const storageKey = getStaticStorageKey(field, node.metadata);
-      if (storageKey) {
-        field = {...field, storageKey};
-      }
-      return [field].concat(handles);
-    },
-
-    SplitOperation(node, key, parent): NormalizationSplitOperation {
-      return {
-        kind: 'SplitOperation',
-        name: node.name,
-        metadata: node.metadata,
-        selections: flattenArray(
-          // $FlowFixMe
-          node.selections,
-        ),
-      };
-    },
-
-    Stream(node, key, parent, ancestors): NormalizationStream {
-      if (
-        !(
-          node.if == null ||
-          node.if.kind === 'Variable' ||
-          (node.if.kind === 'Literal' && node.if.value === true)
-        )
-      ) {
-        throw createCompilerError(
-          'NormalizationCodeGenerator: Expected @stream `if` condition to be ' +
-            'a variable, unspecified, or the literal `true`.',
-          [node.if?.loc ?? node.loc],
-        );
-      }
-      return {
-        // $FlowFixMe
-        if: node.if?.kind === 'Variable' ? node.if.variableName : null,
-        kind: 'Stream',
-        label: node.label,
-        metadata: node.metadata,
-        selections: flattenArray(
-          // $FlowFixMe
-          node.selections,
-        ),
-      };
-    },
-
-    Variable(node, key, parent): NormalizationArgument {
+function generateArgument(node: Argument): NormalizationArgument | null {
+  const value = node.value;
+  switch (value.kind) {
+    case 'Variable':
       return {
         kind: 'Variable',
-        // $FlowFixMe
-        name: parent.name,
-        variableName: node.variableName,
+        name: node.name,
+        variableName: value.variableName,
       };
-    },
-
-    Literal(node, key, parent): NormalizationArgument {
-      return {
-        kind: 'Literal',
-        // $FlowFixMe
-        name: parent.name,
-        value: stableCopy(node.value),
-      };
-    },
-
-    Argument(node, key, parent, ancestors): ?NormalizationArgument {
-      if (!['Variable', 'Literal'].includes(node.value.kind)) {
-        throw createUserError(
-          'RelayCodeGenerator: Complex argument values (Lists or ' +
-            'InputObjects with nested variables) are not supported.',
-          [node.value.loc],
-        );
-      }
-      // $FlowFixMe
-      return node.value.value !== null ? node.value : null;
-    },
-  },
-};
+    case 'Literal':
+      return value.value === null
+        ? null
+        : {
+            kind: 'Literal',
+            name: node.name,
+            value: stableCopy(value.value),
+          };
+    default:
+      throw createUserError(
+        'NormalizationCodeGenerator: Complex argument values (Lists or ' +
+          'InputObjects with nested variables) are not supported.',
+        [node.value.loc],
+      );
+  }
+}
 
 function isPlural(type: any): boolean {
   return getNullableType(type) instanceof GraphQLList;
 }
 
-function valuesOrNull<T>(array: ?$ReadOnlyArray<T>): ?$ReadOnlyArray<T> {
-  return !array || array.length === 0 ? null : array;
+function generateArgs(
+  args: $ReadOnlyArray<Argument>,
+): ?$ReadOnlyArray<NormalizationArgument> {
+  const concreteArguments = [];
+  args.forEach(arg => {
+    const concreteArgument = generateArgument(arg);
+    if (concreteArgument !== null) {
+      concreteArguments.push(concreteArgument);
+    }
+  });
+  return concreteArguments.length === 0
+    ? null
+    : concreteArguments.sort(nameComparator);
 }
 
-function flattenArray<T>(
-  array: $ReadOnlyArray<$ReadOnlyArray<T>>,
-): $ReadOnlyArray<T> {
-  return array ? Array.prototype.concat.apply([], array) : [];
-}
-
-function sortByName<T: {name: string}>(
-  array: $ReadOnlyArray<T>,
-): $ReadOnlyArray<T> {
-  return array instanceof Array
-    ? array
-        .slice()
-        .sort((a, b) => (a.name < b.name ? -1 : a.name > b.name ? 1 : 0))
-    : array;
+function nameComparator(a: {+name: string}, b: {+name: string}): number {
+  return a.name < b.name ? -1 : a.name > b.name ? 1 : 0;
 }
 
 /**

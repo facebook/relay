@@ -11,7 +11,6 @@
 'use strict';
 
 const CodeMarker = require('../util/CodeMarker');
-const IRVisitor = require('../core/GraphQLIRVisitor');
 const SchemaUtils = require('../core/GraphQLSchemaUtils');
 
 const {
@@ -21,7 +20,7 @@ const {
 const {GraphQLList} = require('graphql');
 const {getStorageKey, stableCopy} = require('relay-runtime');
 
-import type {Metadata, Fragment} from '../core/GraphQLIR';
+import type {Argument, Metadata, Fragment, Selection} from '../core/GraphQLIR';
 import type {
   ReaderArgument,
   ReaderArgumentDefinition,
@@ -44,264 +43,268 @@ function generate(node: Fragment): ReaderFragment {
   if (node == null) {
     return node;
   }
-  return IRVisitor.visit(node, ReaderCodeGenVisitor);
+
+  let metadata = null;
+  if (node.metadata != null) {
+    const {mask, plural, connection, refetch} = node.metadata;
+    if (Array.isArray(connection)) {
+      metadata = metadata ?? {};
+      metadata.connection = (connection: any);
+    }
+    if (typeof mask === 'boolean') {
+      metadata = metadata ?? {};
+      metadata.mask = mask;
+    }
+    if (typeof plural === 'boolean') {
+      metadata = metadata ?? {};
+      metadata.plural = plural;
+    }
+    if (typeof refetch === 'object') {
+      metadata = metadata ?? {};
+      metadata.refetch = {
+        // $FlowFixMe
+        connection: refetch.connection,
+        // $FlowFixMe
+        operation: CodeMarker.moduleDependency(refetch.operation + '.graphql'),
+        // $FlowFixMe
+        fragmentPathInResult: refetch.fragmentPathInResult,
+      };
+    }
+  }
+  return {
+    kind: 'Fragment',
+    name: node.name,
+    type: node.type.toString(),
+    // $FlowFixMe
+    metadata,
+    argumentDefinitions: generateArgumentDefinitions(node.argumentDefinitions),
+    selections: generateSelections(node.selections),
+  };
 }
 
-const ReaderCodeGenVisitor = {
-  leave: {
-    Request(node): empty {
-      throw createCompilerError('ReaderCodeGenerator: unexpeted Request node.');
-    },
-
-    Fragment(node): ReaderFragment {
-      let metadata = null;
-      if (node.metadata != null) {
-        const {mask, plural, connection, refetch} = node.metadata;
-        if (Array.isArray(connection)) {
-          metadata = metadata ?? {};
-          metadata.connection = (connection: any);
-        }
-        if (typeof mask === 'boolean') {
-          metadata = metadata ?? {};
-          metadata.mask = mask;
-        }
-        if (typeof plural === 'boolean') {
-          metadata = metadata ?? {};
-          metadata.plural = plural;
-        }
-        if (typeof refetch === 'object') {
-          metadata = metadata ?? {};
-          metadata.refetch = {
-            connection:
-              // $FlowFixMe
-              refetch.connection,
-            operation: CodeMarker.moduleDependency(
-              // $FlowFixMe
-              refetch.operation + '.graphql',
-            ),
-            fragmentPathInResult:
-              // $FlowFixMe
-              refetch.fragmentPathInResult,
-          };
-        }
-      }
-      return {
-        kind: 'Fragment',
-        name: node.name,
-        type: node.type.toString(),
-        // $FlowFixMe
-        metadata,
-        // $FlowFixMe
-        argumentDefinitions: node.argumentDefinitions,
-        // $FlowFixMe
-        selections: node.selections,
-      };
-    },
-
-    LocalArgumentDefinition(node): ReaderArgumentDefinition {
-      return {
-        kind: 'LocalArgument',
-        name: node.name,
-        type: node.type.toString(),
-        defaultValue: node.defaultValue,
-      };
-    },
-
-    RootArgumentDefinition(node): ReaderArgumentDefinition {
-      return {
-        kind: 'RootArgument',
-        name: node.name,
-        type: node.type ? node.type.toString() : null,
-      };
-    },
-
-    Condition(node, key, parent, ancestors): ReaderSelection {
-      if (node.condition.kind !== 'Variable') {
+function generateSelections(
+  selections: $ReadOnlyArray<Selection>,
+): $ReadOnlyArray<ReaderSelection> {
+  return selections.map(selection => {
+    switch (selection.kind) {
+      case 'FragmentSpread':
+        return generateFragmentSpread(selection);
+      case 'Condition':
+        return generateCondition(selection);
+      case 'ScalarField':
+        return generateScalarField(selection);
+      case 'ModuleImport':
+        return generateModuleImport(selection);
+      case 'InlineFragment':
+        return generateInlineFragment(selection);
+      case 'LinkedField':
+        return generateLinkedField(selection);
+      case 'Defer':
+      case 'Stream':
         throw createCompilerError(
-          "ReaderCodeGenerator: Expected 'Condition' with static value to be " +
-            'pruned or inlined',
-          [node.condition.loc],
+          `Unexpected ${selection.kind} IR node in ReaderCodeGenerator.`,
+          [selection.loc],
         );
-      }
-      return {
-        kind: 'Condition',
-        passingValue: node.passingValue,
-        condition: node.condition.variableName,
-        // $FlowFixMe
-        selections: node.selections,
-      };
-    },
+      default:
+        (selection: empty);
+        throw new Error();
+    }
+  });
+}
 
-    FragmentSpread(node): ReaderSelection {
-      return {
-        kind: 'FragmentSpread',
-        name: node.name,
-        args: valuesOrNull(
-          sortByName(
-            // $FlowFixMe
-            node.args,
-          ),
-        ),
-      };
-    },
+function generateArgumentDefinitions(
+  nodes,
+): $ReadOnlyArray<ReaderArgumentDefinition> {
+  return nodes.map(node => {
+    switch (node.kind) {
+      case 'LocalArgumentDefinition':
+        return {
+          kind: 'LocalArgument',
+          name: node.name,
+          type: node.type.toString(),
+          defaultValue: node.defaultValue,
+        };
+      case 'RootArgumentDefinition':
+        return {
+          kind: 'RootArgument',
+          name: node.name,
+          type: node.type ? node.type.toString() : null,
+        };
+      default:
+        (node: empty);
+        throw new Error();
+    }
+  });
+}
 
-    InlineFragment(node): ReaderSelection {
-      return {
-        kind: 'InlineFragment',
-        type: node.typeCondition.toString(),
-        // $FlowFixMe
-        selections: node.selections,
-      };
-    },
+function generateCondition(node): ReaderSelection {
+  if (node.condition.kind !== 'Variable') {
+    throw createCompilerError(
+      "ReaderCodeGenerator: Expected 'Condition' with static value to be " +
+        'pruned or inlined',
+      [node.condition.loc],
+    );
+  }
+  return {
+    kind: 'Condition',
+    passingValue: node.passingValue,
+    condition: node.condition.variableName,
+    selections: generateSelections(node.selections),
+  };
+}
 
-    LinkedField(node): ReaderSelection {
-      // Note: it is important that the arguments of this field be sorted to
-      // ensure stable generation of storage keys for equivalent arguments
-      // which may have originally appeared in different orders across an app.
+function generateFragmentSpread(node): ReaderSelection {
+  return {
+    kind: 'FragmentSpread',
+    name: node.name,
+    args: generateArgs(node.args),
+  };
+}
 
-      // TODO(T37646905) enable this invariant after splitting the
-      // RelayCodeGenerator-test and running the RelayFieldHandleTransform on
-      // Reader ASTs.
-      //
-      //   invariant(
-      //     node.handles == null,
-      //     'ReaderCodeGenerator: unexpected handles',
-      //   );
+function generateInlineFragment(node): ReaderSelection {
+  return {
+    kind: 'InlineFragment',
+    type: node.typeCondition.toString(),
+    selections: generateSelections(node.selections),
+  };
+}
 
-      const type = getRawType(node.type);
-      let field: ReaderLinkedField = {
-        kind: 'LinkedField',
-        alias: node.alias,
-        name: node.name,
-        storageKey: null,
-        args: valuesOrNull(
-          sortByName(
-            // $FlowFixMe
-            node.args,
-          ),
-        ),
-        concreteType: !isAbstractType(type) ? type.toString() : null,
-        plural: isPlural(node.type),
-        // $FlowFixMe
-        selections: node.selections,
-      };
-      // Precompute storageKey if possible
-      const storageKey = getStaticStorageKey(field, node.metadata);
-      if (storageKey) {
-        field = {...field, storageKey};
-      }
-      return field;
-    },
+function generateLinkedField(node): ReaderLinkedField {
+  // Note: it is important that the arguments of this field be sorted to
+  // ensure stable generation of storage keys for equivalent arguments
+  // which may have originally appeared in different orders across an app.
 
-    ModuleImport(node, key, parent, ancestors): ReaderModuleImport {
-      const fragmentName = node.name;
-      const regExpMatch = fragmentName.match(
-        /^([a-zA-Z][a-zA-Z0-9]*)(?:_([a-zA-Z][_a-zA-Z0-9]*))?$/,
-      );
-      if (!regExpMatch) {
-        throw createCompilerError(
-          'ReaderCodeGenerator: @match fragments should be named ' +
-            `'FragmentName_propName', got '${fragmentName}'.`,
-          [node.loc],
-        );
-      }
-      const fragmentPropName = regExpMatch[2];
-      if (typeof fragmentPropName !== 'string') {
-        throw createCompilerError(
-          'ReaderCodeGenerator: @module fragments should be named ' +
-            `'FragmentName_propName', got '${fragmentName}'.`,
-          [node.loc],
-        );
-      }
-      return {
-        kind: 'ModuleImport',
-        fragmentPropName,
-        fragmentName,
-      };
-    },
+  // TODO(T37646905) enable this invariant after splitting the
+  // RelayCodeGenerator-test and running the RelayFieldHandleTransform on
+  // Reader ASTs.
+  //
+  //   invariant(
+  //     node.handles == null,
+  //     'ReaderCodeGenerator: unexpected handles',
+  //   );
 
-    ScalarField(node): ReaderSelection {
-      // Note: it is important that the arguments of this field be sorted to
-      // ensure stable generation of storage keys for equivalent arguments
-      // which may have originally appeared in different orders across an app.
+  const type = getRawType(node.type);
+  let field: ReaderLinkedField = {
+    kind: 'LinkedField',
+    alias: node.alias,
+    name: node.name,
+    storageKey: null,
+    args: generateArgs(node.args),
+    concreteType: !isAbstractType(type) ? type.toString() : null,
+    plural: isPlural(node.type),
+    selections: generateSelections(node.selections),
+  };
+  // Precompute storageKey if possible
+  const storageKey = getStaticStorageKey(field, node.metadata);
+  if (storageKey) {
+    field = {...field, storageKey};
+  }
+  return field;
+}
 
-      // TODO(T37646905) enable this invariant after splitting the
-      // RelayCodeGenerator-test and running the RelayFieldHandleTransform on
-      // Reader ASTs.
-      //
-      //   invariant(
-      //     node.handles == null,
-      //     'ReaderCodeGenerator: unexpected handles',
-      //   );
+function generateModuleImport(node): ReaderModuleImport {
+  const fragmentName = node.name;
+  const regExpMatch = fragmentName.match(
+    /^([a-zA-Z][a-zA-Z0-9]*)(?:_([a-zA-Z][_a-zA-Z0-9]*))?$/,
+  );
+  if (!regExpMatch) {
+    throw createCompilerError(
+      'ReaderCodeGenerator: @match fragments should be named ' +
+        `'FragmentName_propName', got '${fragmentName}'.`,
+      [node.loc],
+    );
+  }
+  const fragmentPropName = regExpMatch[2];
+  if (typeof fragmentPropName !== 'string') {
+    throw createCompilerError(
+      'ReaderCodeGenerator: @module fragments should be named ' +
+        `'FragmentName_propName', got '${fragmentName}'.`,
+      [node.loc],
+    );
+  }
+  return {
+    kind: 'ModuleImport',
+    fragmentPropName,
+    fragmentName,
+  };
+}
 
-      let field: ReaderScalarField = {
-        kind: 'ScalarField',
-        alias: node.alias,
-        name: node.name,
-        args: valuesOrNull(
-          sortByName(
-            // $FlowFixMe
-            node.args,
-          ),
-        ),
-        storageKey: null,
-      };
-      // Precompute storageKey if possible
-      const storageKey = getStaticStorageKey(field, node.metadata);
-      if (storageKey) {
-        field = {...field, storageKey};
-      }
-      return field;
-    },
+function generateScalarField(node): ReaderScalarField {
+  // Note: it is important that the arguments of this field be sorted to
+  // ensure stable generation of storage keys for equivalent arguments
+  // which may have originally appeared in different orders across an app.
 
-    Variable(node, key, parent): ReaderArgument {
+  // TODO(T37646905) enable this invariant after splitting the
+  // RelayCodeGenerator-test and running the RelayFieldHandleTransform on
+  // Reader ASTs.
+  //
+  //   invariant(
+  //     node.handles == null,
+  //     'ReaderCodeGenerator: unexpected handles',
+  //   );
+
+  let field: ReaderScalarField = {
+    kind: 'ScalarField',
+    alias: node.alias,
+    name: node.name,
+    args: generateArgs(node.args),
+    storageKey: null,
+  };
+  // Precompute storageKey if possible
+  const storageKey = getStaticStorageKey(field, node.metadata);
+  if (storageKey) {
+    field = {...field, storageKey};
+  }
+  return field;
+}
+
+function generateArgument(node: Argument): ReaderArgument | null {
+  const value = node.value;
+  switch (value.kind) {
+    case 'Variable':
       return {
         kind: 'Variable',
-        // $FlowFixMe
-        name: parent.name,
-        variableName: node.variableName,
+        name: node.name,
+        variableName: value.variableName,
       };
-    },
-
-    Literal(node, key, parent): ReaderArgument {
-      return {
-        kind: 'Literal',
-        // $FlowFixMe
-        name: parent.name,
-        value: stableCopy(node.value),
-      };
-    },
-
-    Argument(node, key, parent, ancestors): ?ReaderArgument {
-      if (!['Variable', 'Literal'].includes(node.value.kind)) {
-        throw createUserError(
-          'ReaderCodeGenerator: Complex argument values (Lists or ' +
-            'InputObjects with nested variables) are not supported.',
-          [node.value.loc],
-        );
-      }
-      // $FlowFixMe
-      return node.value.value !== null ? node.value : null;
-    },
-  },
-};
+    case 'Literal':
+      return value.value === null
+        ? null
+        : {
+            kind: 'Literal',
+            name: node.name,
+            value: stableCopy(value.value),
+          };
+    default:
+      throw createUserError(
+        'ReaderCodeGenerator: Complex argument values (Lists or ' +
+          'InputObjects with nested variables) are not supported.',
+        [node.value.loc],
+      );
+  }
+}
 
 function isPlural(type: any): boolean {
   return getNullableType(type) instanceof GraphQLList;
 }
 
-function valuesOrNull<T>(array: ?$ReadOnlyArray<T>): ?$ReadOnlyArray<T> {
-  return !array || array.length === 0 ? null : array;
+function generateArgs(
+  args: $ReadOnlyArray<Argument>,
+): ?$ReadOnlyArray<ReaderArgument> {
+  const concreteArguments = [];
+  args.forEach(arg => {
+    const concreteArgument = generateArgument(arg);
+    if (concreteArgument !== null) {
+      concreteArguments.push(concreteArgument);
+    }
+  });
+  return concreteArguments.length === 0
+    ? null
+    : concreteArguments.sort(nameComparator);
 }
 
-function sortByName<T: {name: string}>(
-  array: $ReadOnlyArray<T>,
-): $ReadOnlyArray<T> {
-  return array instanceof Array
-    ? array
-        .slice()
-        .sort((a, b) => (a.name < b.name ? -1 : a.name > b.name ? 1 : 0))
-    : array;
+function nameComparator(a: {+name: string}, b: {+name: string}): number {
+  return a.name < b.name ? -1 : a.name > b.name ? 1 : 0;
 }
 
 /**

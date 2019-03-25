@@ -10,7 +10,7 @@ query TestQuery($date: String) {
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 ERROR:
-RelayCodeGenerator: Complex argument values (Lists or InputObjects with nested variables) are not supported.
+NormalizationCodeGenerator: Complex argument values (Lists or InputObjects with nested variables) are not supported.
 
 Source: GraphQL request (2:17)
 1: query TestQuery($date: String) {

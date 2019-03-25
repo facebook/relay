@@ -122,10 +122,10 @@ export type {
 } from './subscription/requestRelaySubscription';
 export type {
   NormalizationArgument,
-  NormalizationArgumentDefinition,
   NormalizationDefer,
   NormalizationField,
   NormalizationLinkedField,
+  NormalizationLocalArgumentDefinition,
   NormalizationModuleImport,
   NormalizationScalarField,
   NormalizationSelection,

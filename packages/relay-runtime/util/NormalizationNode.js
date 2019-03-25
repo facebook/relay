@@ -17,7 +17,7 @@
 export type NormalizationOperation = {|
   +kind: 'Operation',
   +name: string,
-  +argumentDefinitions: $ReadOnlyArray<NormalizationLocalArgument>,
+  +argumentDefinitions: $ReadOnlyArray<NormalizationLocalArgumentDefinition>,
   +selections: $ReadOnlyArray<NormalizationSelection>,
 |};
 
@@ -49,10 +49,6 @@ export type NormalizationArgument =
   | NormalizationLiteral
   | NormalizationVariable;
 
-export type NormalizationArgumentDefinition =
-  | NormalizationLocalArgument
-  | NormalizationRootArgument;
-
 export type NormalizationCondition = {|
   +kind: 'Condition',
   +passingValue: boolean,
@@ -63,12 +59,6 @@ export type NormalizationCondition = {|
 export type NormalizationField =
   | NormalizationScalarField
   | NormalizationLinkedField;
-
-export type NormalizationRootArgument = {|
-  +kind: 'RootArgument',
-  +name: string,
-  +type: ?string,
-|};
 
 export type NormalizationInlineFragment = {|
   +kind: 'InlineFragment',
@@ -100,7 +90,7 @@ export type NormalizationLiteral = {|
   +value: mixed,
 |};
 
-export type NormalizationLocalArgument = {|
+export type NormalizationLocalArgumentDefinition = {|
   +kind: 'LocalArgument',
   +name: string,
   +type: string,

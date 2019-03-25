@@ -23,10 +23,10 @@ const {getStorageKey, stableCopy} = require('relay-runtime');
 import type {Metadata, Root, SplitOperation} from '../core/GraphQLIR';
 import type {
   NormalizationArgument,
-  NormalizationArgumentDefinition,
   NormalizationDefer,
   NormalizationField,
   NormalizationLinkedField,
+  NormalizationLocalArgumentDefinition,
   NormalizationModuleImport,
   NormalizationOperation,
   NormalizationScalarField,
@@ -81,20 +81,12 @@ const NormalizationCodeGenVisitor = {
       );
     },
 
-    LocalArgumentDefinition(node): NormalizationArgumentDefinition {
+    LocalArgumentDefinition(node): NormalizationLocalArgumentDefinition {
       return {
         kind: 'LocalArgument',
         name: node.name,
         type: node.type.toString(),
         defaultValue: node.defaultValue,
-      };
-    },
-
-    RootArgumentDefinition(node): NormalizationArgumentDefinition {
-      return {
-        kind: 'RootArgument',
-        name: node.name,
-        type: node.type ? node.type.toString() : null,
       };
     },
 

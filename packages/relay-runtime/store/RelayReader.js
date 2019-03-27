@@ -147,7 +147,7 @@ class RelayReader {
           this._traverseSelections(selection.selections, record, data);
         }
       } else if (selection.kind === FRAGMENT_SPREAD) {
-        this._createFragmentPointer(selection, record, data, this._variables);
+        this._createFragmentPointer(selection, record, data);
       } else if (selection.kind === MODULE_IMPORT) {
         this._readModuleImport(selection, record, data);
       } else {
@@ -283,7 +283,6 @@ class RelayReader {
       },
       record,
       data,
-      this._variables,
     );
     data[FRAGMENT_PROP_NAME_KEY] = moduleImport.fragmentPropName;
     data[MODULE_COMPONENT_KEY] = component;
@@ -293,7 +292,6 @@ class RelayReader {
     fragmentSpread: ReaderFragmentSpread,
     record: Record,
     data: SelectorData,
-    variables: Variables,
   ): void {
     let fragmentPointers = data[FRAGMENTS_KEY];
     if (fragmentPointers == null) {
@@ -308,7 +306,7 @@ class RelayReader {
       data[ID_KEY] = RelayModernRecord.getDataID(record);
     }
     fragmentPointers[fragmentSpread.name] = fragmentSpread.args
-      ? getArgumentValues(fragmentSpread.args, variables)
+      ? getArgumentValues(fragmentSpread.args, this._variables)
       : {};
     data[FRAGMENT_OWNER_KEY] = this._owner;
   }

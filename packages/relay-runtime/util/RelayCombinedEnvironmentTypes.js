@@ -122,12 +122,12 @@ export type CFragmentMap<TFragment> = {[key: string]: TFragment};
  * - `fragment`: a selector intended for use in reading or subscribing to
  *   the results of the the operation.
  */
-export type COperationDescriptor<TReaderNode, TNormalizationNode, TRequest> = {
-  fragment: CReaderSelector<TReaderNode>,
-  node: TRequest,
-  root: CNormalizationSelector<TNormalizationNode>,
-  variables: Variables,
-};
+export type COperationDescriptor<TReaderNode, TNormalizationNode, TRequest> = {|
+  +fragment: CReaderSelector<TReaderNode>,
+  +node: TRequest,
+  +root: CNormalizationSelector<TNormalizationNode>,
+  +variables: Variables,
+|};
 
 /**
  * The public API of Relay core. Represents an encapsulated environment with its

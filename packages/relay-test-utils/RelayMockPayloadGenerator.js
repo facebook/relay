@@ -52,6 +52,7 @@ import type {
   NormalizationLinkedField,
   NormalizationScalarField,
   OperationDescriptor,
+  GraphQLResponse,
 } from 'relay-runtime';
 
 type ValueResolver = (
@@ -662,7 +663,7 @@ function generateData(
 function generateDataForOperation(
   operation: OperationDescriptor,
   mockResolvers: ?MockResolvers,
-): MockData {
+): GraphQLResponse {
   const data = generateData(
     operation.node.operation,
     mockResolvers,
@@ -672,7 +673,7 @@ function generateDataForOperation(
     !Array.isArray(data),
     'RelayMockPayloadGenerator: Invalid generated payload, unexpected array.',
   );
-  return data;
+  return {data};
 }
 
 module.exports = {

@@ -809,12 +809,14 @@ query TestQuery($id: ID!, $scale: Float) {
     "scale": 4.2
   },
   "data": {
-    "node": {
-      "__typename": "User",
-      "id": "<mock-id-1>",
-      "name": "<mock-value-for-field-\\"name\\">",
-      "profile_picture": {
-        "uri": "<mock-value-for-field-\\"uri\\">"
+    "data": {
+      "node": {
+        "__typename": "User",
+        "id": "<mock-id-1>",
+        "name": "<mock-value-for-field-\\"name\\">",
+        "profile_picture": {
+          "uri": "<mock-value-for-field-\\"uri\\">"
+        }
       }
     }
   }

@@ -207,8 +207,8 @@ class ReactRelayQueryRenderer extends React.Component<Props, State> {
           renderProps: getRenderProps(
             error,
             snapshot,
-            queryFetcher,
-            retryCallbacks,
+            prevState.queryFetcher,
+            prevState.retryCallbacks,
           ),
           snapshot,
           requestCacheKey: null,

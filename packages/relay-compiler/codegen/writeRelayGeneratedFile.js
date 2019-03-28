@@ -56,6 +56,7 @@ async function writeRelayGeneratedFile(
   printModuleDependency: (
     moduleName: string,
   ) => string = printRequireModuleDependency,
+  shouldRepersist: boolean,
 ): Promise<?GeneratedNode> {
   let generatedNode = _generatedNode;
   // Copy to const so Flow can refine.
@@ -96,7 +97,7 @@ async function writeRelayGeneratedFile(
       hash = hasher.digest('hex');
       return extractHash(oldContent);
     });
-    if (hash === oldHash) {
+    if (!shouldRepersist && hash === oldHash) {
       codegenDir.markUnchanged(filename);
       return null;
     }

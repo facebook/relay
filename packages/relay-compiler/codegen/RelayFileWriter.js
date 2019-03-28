@@ -82,6 +82,7 @@ export type WriterConfig = {
   // TODO (T35012551): Remove this when no longer necessary with a better
   // directory structure.
   experimental_extraFilesPatternToKeep?: RegExp,
+  repersist?: boolean,
 };
 
 function compileAll({
@@ -344,6 +345,7 @@ function writeAll({
             sourceHash,
             writerConfig.extension,
             writerConfig.printModuleDependency,
+            writerConfig.repersist ?? false,
           );
         }),
       );

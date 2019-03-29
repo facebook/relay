@@ -39,6 +39,31 @@ Output: {
 }
 `;
 
+exports[`generate basic mock data 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment TestFragment on User {
+  id
+  name
+  author {
+    id
+    name
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+{
+  "variables": {},
+  "payload": {
+    "id": "<User-mock-id-1>",
+    "name": "<mock-value-for-field-\\"name\\">",
+    "author": {
+      "id": "<User-mock-id-2>",
+      "name": "<mock-value-for-field-\\"name\\">"
+    }
+  }
+}
+`;
+
 exports[`generate mock and verify arguments in the context 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 fragment TestFragment on User {
@@ -88,6 +113,12 @@ fragment TestFragment on User @argumentDefinitions(withName: {type: "Boolean!"})
   }
 }
 
+Resolvers:
+	Type: Image
+Output: {
+  "width": 42,
+  "height": 42
+}
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 {
   "variables": {
@@ -213,28 +244,9 @@ fragment TestFragment on User {
     "name": "<mock-value-for-field-\\"name\\">",
     "profile_picture": {
       "uri": "<mock-value-for-field-\\"uri\\">",
-      "width": 42,
-      "height": 42
+      "width": "<mock-value-for-field-\\"width\\">",
+      "height": "<mock-value-for-field-\\"height\\">"
     }
-  }
-}
-`;
-
-exports[`generate mock for simple fragment without schema 1`] = `
-~~~~~~~~~~ INPUT ~~~~~~~~~~
-fragment TestFragment on User {
-  id
-  name
-  ...MyOtherFragment
-}
-
-~~~~~~~~~~ OUTPUT ~~~~~~~~~~
-{
-  "variables": {},
-  "payload": {
-    "id": "<User-mock-id-1>",
-    "name": "<mock-value-for-field-\\"name\\">",
-    "__typename": "User"
   }
 }
 `;
@@ -321,11 +333,11 @@ fragment TestFragment on User @argumentDefinitions(condition: {type: "Boolean!"}
       ],
       "myPageInfo": {
         "endCursor": "<mock-value-for-field-\\"endCursor\\">",
-        "hasNextPage": false
+        "hasNextPage": "<mock-value-for-field-\\"hasNextPage\\">"
       },
       "pageInfo": {
         "endCursor": "<mock-value-for-field-\\"endCursor\\">",
-        "hasNextPage": false
+        "hasNextPage": "<mock-value-for-field-\\"hasNextPage\\">"
       }
     },
     "profile_picture": {
@@ -339,8 +351,8 @@ fragment TestFragment on User @argumentDefinitions(condition: {type: "Boolean!"}
       "name": "<mock-value-for-field-\\"name\\">",
       "profilePicture": {
         "uri": "<mock-value-for-field-\\"uri\\">",
-        "width": 42,
-        "height": 42
+        "width": "<mock-value-for-field-\\"width\\">",
+        "height": "<mock-value-for-field-\\"height\\">"
       }
     },
     "__typename": "User"
@@ -522,14 +534,12 @@ fragment TestFragment on User {
         }
       }
     ],
-    "emailAddresses": [
-      "<mock-value-for-field-\\"emailAddresses\\">"
-    ],
+    "emailAddresses": "<mock-value-for-field-\\"emailAddresses\\">",
     "backgroundImage": {
       "uri": "<mock-value-for-field-\\"uri\\">"
     },
     "birthdate": {
-      "year": 42
+      "year": "<mock-value-for-field-\\"year\\">"
     }
   }
 }
@@ -583,7 +593,7 @@ fragment TestFragment on Page {
         ],
         "pageInfo": {
           "endCursor": "<mock-value-for-field-\\"endCursor\\">",
-          "hasNextPage": false
+          "hasNextPage": "<mock-value-for-field-\\"hasNextPage\\">"
         }
       }
     }
@@ -753,37 +763,10 @@ fragment TestFragment on Viewer {
     "__typename": "User",
     "id": "<User-mock-id-1>",
     "name": "<mock-value-for-field-\\"name\\">",
-    "traits": [
-      "<mock-value-for-field-\\"traits\\">"
-    ],
+    "traits": "<mock-value-for-field-\\"traits\\">",
     "profile_picture": {
       "uri": "<mock-value-for-field-\\"uri\\">",
-      "height": 42
-    }
-  }
-}
-`;
-
-exports[`generate mock without schema 1`] = `
-~~~~~~~~~~ INPUT ~~~~~~~~~~
-fragment TestFragment on User {
-  id
-  name
-  author {
-    id
-    name
-  }
-}
-
-~~~~~~~~~~ OUTPUT ~~~~~~~~~~
-{
-  "variables": {},
-  "payload": {
-    "id": "<User-mock-id-1>",
-    "name": "<mock-value-for-field-\\"name\\">",
-    "author": {
-      "id": "<User-mock-id-2>",
-      "name": "<mock-value-for-field-\\"name\\">"
+      "height": "<mock-value-for-field-\\"height\\">"
     }
   }
 }

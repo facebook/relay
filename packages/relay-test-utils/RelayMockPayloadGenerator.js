@@ -13,12 +13,6 @@
 
 const invariant = require('invariant');
 
-const {
-  isObjectType,
-  isInterfaceType,
-  getNullableType,
-  GraphQLList,
-} = require('graphql');
 const {TYPENAME_KEY, RelayConcreteNode} = require('relay-runtime');
 
 const {
@@ -33,13 +27,6 @@ const {
   DEFER,
   STREAM,
 } = RelayConcreteNode;
-
-import type {
-  GraphQLObjectType,
-  GraphQLInterfaceType,
-  GraphQLSchema,
-  GraphQLFieldMap,
-} from 'graphql';
 
 import type {
   Variables,
@@ -161,7 +148,6 @@ function generateMockList<T>(
 }
 
 class RelayMockPayloadGenerator {
-  _schema: ?GraphQLSchema;
   _variables: Variables;
   _resolveValue: ValueResolver;
   _mockResolvers: MockResolvers;
@@ -169,9 +155,7 @@ class RelayMockPayloadGenerator {
   constructor(options: {|
     +variables: Variables,
     +mockResolvers: ?MockResolvers,
-    +schema: ?GraphQLSchema,
   |}) {
-    this._schema = options.schema;
     this._variables = options.variables;
     this._mockResolvers = {
       ...DEFAULT_MOCK_RESOLVERS,
@@ -523,34 +507,6 @@ class RelayMockPayloadGenerator {
   }
 
   /**
-   * Get GraphQL Type with fields by name
-   */
-  _getGraphQLTypeWithFields(
-    typeName: ?string,
-  ): GraphQLObjectType | GraphQLInterfaceType | null {
-    const schemaType =
-      this._schema && typeName != null ? this._schema.getType(typeName) : null;
-    if (
-      schemaType != null &&
-      (isObjectType(schemaType) || isInterfaceType(schemaType))
-    ) {
-      return schemaType;
-    }
-    return null;
-  }
-
-  /**
-   * Get fields map of the GraphQL *Object* Type
-   */
-  _getGraphQLTypeFields(typeName: ?string): ?GraphQLFieldMap<mixed, mixed> {
-    const schemaType = this._getGraphQLTypeWithFields(typeName);
-    if (schemaType == null) {
-      return null;
-    }
-    return schemaType.getFields();
-  }
-
-  /**
    * Helper function to get field type information (name of the type, plural)
    */
   _getSimpleTypeDetails(
@@ -560,33 +516,13 @@ class RelayMockPayloadGenerator {
     type: string,
     plural: boolean,
   |} {
-    const defaultSuggestedByName = ['id'].includes(field.alias ?? field.name)
+    const defaultSuggestedByName = ['id'].includes(field.name)
       ? 'ID'
       : 'String';
 
-    const fields = this._getGraphQLTypeFields(typeName);
-    const schemaFieldByName = fields != null ? fields[field.name] : null;
-    // We need to check field type by alias for fields with handlers
-    const schemaFiledByAlias =
-      fields != null && field.alias != null ? fields[field.alias] : null;
-    const schemaField = schemaFiledByAlias ?? schemaFieldByName;
-
-    if (schemaField == null) {
-      return {
-        type: defaultSuggestedByName,
-        plural: false,
-      };
-    }
-
-    let typeInfo = getNullableType(schemaField.type);
-    let plural = false;
-    if (typeInfo instanceof GraphQLList) {
-      typeInfo = getNullableType(typeInfo.ofType);
-      plural = true;
-    }
     return {
-      type: typeInfo != null ? typeInfo.toString() : defaultSuggestedByName,
-      plural,
+      type: defaultSuggestedByName,
+      plural: false,
     };
   }
 }
@@ -635,11 +571,9 @@ function generateData(
   node: ReaderFragment | NormalizationOperation,
   mockResolvers: ?MockResolvers,
   variables?: Variables = generateVariables(node, mockResolvers),
-  schema?: ?GraphQLSchema,
 ): MockData | $ReadOnlyArray<MockData> {
   const mockGenerator = new RelayMockPayloadGenerator({
     variables,
-    schema,
     mockResolvers,
   });
   let typeName;
@@ -656,8 +590,7 @@ function generateData(
   }
   const plural =
     node.kind === 'Operation' ? false : node.metadata?.plural ?? false;
-  const data = mockGenerator.generate(node.selections, typeName, plural);
-  return data;
+  return mockGenerator.generate(node.selections, typeName, plural);
 }
 
 function generateDataForOperation(

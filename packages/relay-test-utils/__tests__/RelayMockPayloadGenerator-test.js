@@ -12,7 +12,6 @@
 'use strict';
 
 const RelayMockPayloadGenerator = require('../RelayMockPayloadGenerator');
-const RelayTestSchema = require('../RelayTestSchema');
 
 // $FlowFixMe
 const {FIXTURE_TAG, generateAndCompile} = require('../RelayModernTestUtils');
@@ -54,7 +53,6 @@ function testGeneratedData(
   graphql: string,
   mockResolvers: ?MockResolvers,
   customVariables = null,
-  schema = RelayTestSchema,
 ) {
   const {TestFragment: fragment} = compile(graphql);
   const variables = {
@@ -66,7 +64,6 @@ function testGeneratedData(
     fragment,
     mockResolvers,
     variables,
-    schema,
   );
 
   expect({
@@ -94,20 +91,6 @@ test('generate mock for simple fragment', () => {
         height
       }
   }`);
-});
-
-test('generate mock for simple fragment without schema', () => {
-  testGeneratedData(
-    `
-    fragment TestFragment on User {
-      id
-      name
-      ...MyOtherFragment
-  }`,
-    null, // Mock Resolvers
-    null, // Variables
-    null, // Schema
-  );
 });
 
 test('generate mock with inline fragment', () => {
@@ -204,7 +187,7 @@ test('generate mock with connection', () => {
   `);
 });
 
-test('generate mock without schema', () => {
+test('generate basic mock data', () => {
   testGeneratedData(
     `
     fragment TestFragment on User {
@@ -218,7 +201,6 @@ test('generate mock without schema', () => {
   `,
     null, // Mock Resolvers
     null, // Variables
-    null, // Schema
   );
 });
 
@@ -486,12 +468,12 @@ test('generate mock and verify arguments in the context', () => {
       smallScale: 1,
       bigScale: 100,
     },
-    null,
   );
 });
 
 test('generate mock for fragment with @argumentsDefinition', () => {
-  testGeneratedData(`
+  testGeneratedData(
+    `
     fragment TestFragment on User @argumentDefinitions(withName: {type: "Boolean!"}) {
       id
       name @include(if: $withName)
@@ -500,7 +482,16 @@ test('generate mock for fragment with @argumentsDefinition', () => {
         width
         height
       }
-  }`);
+  }`,
+    {
+      Image() {
+        return {
+          width: 42,
+          height: 42,
+        };
+      },
+    },
+  );
 });
 
 test('generate mock for plural fragment', () => {

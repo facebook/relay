@@ -1603,4 +1603,49 @@ describe('ReactRelayQueryRenderer', () => {
       expect(render.mock.calls).toHaveLength(1);
     });
   });
+
+  describe('When retry', () => {
+    it('after initial render should query using the latest variables', () => {
+      const renderer = ReactTestRenderer.create(
+        <PropsSetter>
+          <ReactRelayQueryRenderer
+            environment={environment}
+            query={TestQuery}
+            render={render}
+            variables={variables}
+          />
+        </PropsSetter>,
+      );
+      environment.mock.resolve(TestQuery, response);
+      environment.mockClear();
+
+      renderer.getInstance().setProps({
+        cacheConfig,
+        environment,
+        query: TestQuery,
+        render,
+        variables: {id: '5'},
+      });
+      render.mockClear();
+      environment.mock.resolve(TestQuery, {
+        data: {
+          node: {
+            __typename: 'User',
+            id: '5',
+            name: 'Zuck',
+          },
+        },
+      });
+      const readyState = render.mock.calls[0][0];
+      expect(readyState.retry).not.toBe(null);
+      expect(environment.execute).toBeCalledTimes(1);
+      environment.mockClear();
+
+      readyState.retry();
+      expect(environment.execute).toBeCalledTimes(1);
+      expect(environment.mock.getMostRecentOperation().variables).toEqual({
+        id: '5',
+      });
+    });
+  });
 });

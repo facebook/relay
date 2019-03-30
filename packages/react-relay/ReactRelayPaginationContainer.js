@@ -19,7 +19,6 @@ const buildReactRelayContainer = require('./buildReactRelayContainer');
 const invariant = require('invariant');
 const warning = require('warning');
 
-const {profileContainer} = require('./ReactRelayContainerProfiler');
 const {
   getComponentName,
   getContainerName,
@@ -28,7 +27,6 @@ const {assertRelayContext} = require('./RelayContext');
 const {
   ConnectionInterface,
   RelayFeatureFlags,
-  RelayProfiler,
   Observable,
   isScalarAndEqual,
 } = require('relay-runtime');
@@ -335,7 +333,7 @@ function createContainerWithFragments<
     connectionConfig.getFragmentVariables ||
     createGetFragmentVariables(metadata);
 
-  class Container extends React.Component<$FlowFixMeProps, ContainerState> {
+  return class extends React.Component<$FlowFixMeProps, ContainerState> {
     static displayName = containerName;
 
     _isARequestInFlight: boolean;
@@ -471,10 +469,7 @@ function createContainerWithFragments<
      * Render new data for the existing props/context.
      */
     _handleFragmentDataUpdate = () => {
-      const profiler = RelayProfiler.profile(
-        'ReactRelayPaginationContainer.handleFragmentDataUpdate',
-      );
-      this.setState({data: this._resolver.resolve()}, profiler.stop);
+      this.setState({data: this._resolver.resolve()});
     };
 
     _getConnectionData(): ?{
@@ -837,10 +832,7 @@ function createContainerWithFragments<
         </ReactRelayContext.Provider>
       );
     }
-  }
-  profileContainer(Container, 'ReactRelayPaginationContainer');
-
-  return Container;
+  };
 }
 
 /**

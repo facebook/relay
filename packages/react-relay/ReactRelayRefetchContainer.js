@@ -18,13 +18,11 @@ const areEqual = require('areEqual');
 const buildReactRelayContainer = require('./buildReactRelayContainer');
 const warning = require('warning');
 
-const {profileContainer} = require('./ReactRelayContainerProfiler');
 const {getContainerName} = require('./ReactRelayContainerUtils');
 const {assertRelayContext} = require('./RelayContext');
 const {
   Observable,
   RelayFeatureFlags,
-  RelayProfiler,
   isScalarAndEqual,
 } = require('relay-runtime');
 
@@ -74,7 +72,7 @@ function createContainerWithFragments<
 > {
   const containerName = getContainerName(Component);
 
-  class Container extends React.Component<ContainerProps, ContainerState> {
+  return class extends React.Component<ContainerProps, ContainerState> {
     static displayName = containerName;
 
     _refetchSubscription: ?Subscription;
@@ -256,21 +254,16 @@ function createContainerWithFragments<
      * Render new data for the existing props/context.
      */
     _handleFragmentDataUpdate = () => {
-      const profiler = RelayProfiler.profile(
-        'ReactRelayRefetchContainer.handleFragmentDataUpdate',
-      );
       const resolverFromThisUpdate = this.state.resolver;
-      this.setState(updatedState => {
+      this.setState(updatedState =>
         // If this event belongs to the current data source, update.
         // Otherwise we should ignore it.
-        if (resolverFromThisUpdate === updatedState.resolver) {
-          return {
-            data: updatedState.resolver.resolve(),
-          };
-        }
-
-        return null;
-      }, profiler.stop);
+        resolverFromThisUpdate === updatedState.resolver
+          ? {
+              data: updatedState.resolver.resolve(),
+            }
+          : null,
+      );
     };
 
     _getFragmentVariables(): Variables {
@@ -447,10 +440,7 @@ function createContainerWithFragments<
         </ReactRelayContext.Provider>
       );
     }
-  }
-  profileContainer(Container, 'ReactRelayRefetchContainer');
-
-  return Container;
+  };
 }
 
 function getRelayProp(environment, refetch): RelayRefetchProp {

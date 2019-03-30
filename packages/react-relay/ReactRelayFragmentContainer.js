@@ -15,10 +15,9 @@ const React = require('React');
 const areEqual = require('areEqual');
 const buildReactRelayContainer = require('./buildReactRelayContainer');
 
-const {profileContainer} = require('./ReactRelayContainerProfiler');
 const {getContainerName} = require('./ReactRelayContainerUtils');
 const {assertRelayContext} = require('./RelayContext');
-const {RelayProfiler, isScalarAndEqual} = require('relay-runtime');
+const {isScalarAndEqual} = require('relay-runtime');
 
 import type {$RelayProps, GeneratedNodeMap, RelayProp} from './ReactRelayTypes';
 import type {
@@ -52,7 +51,7 @@ function createContainerWithFragments<
 > {
   const containerName = getContainerName(Component);
 
-  class Container extends React.Component<ContainerProps, ContainerState> {
+  return class extends React.Component<ContainerProps, ContainerState> {
     static displayName = containerName;
     constructor(props) {
       super(props);
@@ -199,22 +198,17 @@ function createContainerWithFragments<
      * Render new data for the existing props/context.
      */
     _handleFragmentDataUpdate = () => {
-      const profiler = RelayProfiler.profile(
-        'ReactRelayFragmentContainer.handleFragmentDataUpdate',
-      );
       const resolverFromThisUpdate = this.state.resolver;
-      this.setState(updatedState => {
+      this.setState(updatedState =>
         // If this event belongs to the current data source, update.
         // Otherwise we should ignore it.
-        if (resolverFromThisUpdate === updatedState.resolver) {
-          return {
-            data: updatedState.resolver.resolve(),
-            relayProp: getRelayProp(updatedState.relayProp.environment),
-          };
-        }
-
-        return null;
-      }, profiler.stop);
+        resolverFromThisUpdate === updatedState.resolver
+          ? {
+              data: updatedState.resolver.resolve(),
+              relayProp: getRelayProp(updatedState.relayProp.environment),
+            }
+          : null,
+      );
     };
 
     _rerenderIfStoreHasChanged() {
@@ -244,10 +238,7 @@ function createContainerWithFragments<
         relay: this.state.relayProp,
       });
     }
-  }
-  profileContainer(Container, 'ReactRelayFragmentContainer');
-
-  return Container;
+  };
 }
 
 function getRelayProp(environment) {

@@ -133,14 +133,14 @@ describe('getFragmentIdentifier', () => {
   it('returns correct identifier when fragment ref is null', () => {
     const identifier = getFragmentIdentifier(singularFragment, null);
     expect(identifier).toEqual(
-      'UserFragment-{"dataIDs":null,"fragmentOwnerID":null,"fragmentVariables":{}}',
+      'UserFragment-{"dataIDs":null,"fragmentOwnerID":"","fragmentOwnerVariables":null,"fragmentVariables":{}}',
     );
   });
 
   it('returns correct identifier when using plural fragment and fragment ref is empty', () => {
     const identifier = getFragmentIdentifier(pluralFragment, []);
     expect(identifier).toEqual(
-      'UsersFragment-{"dataIDs":null,"fragmentOwnerID":[],"fragmentVariables":{}}',
+      'UsersFragment-{"dataIDs":null,"fragmentOwnerID":[],"fragmentOwnerVariables":[],"fragmentVariables":{}}',
     );
   });
 
@@ -151,7 +151,7 @@ describe('getFragmentIdentifier', () => {
     ).data?.node;
     const identifier = getFragmentIdentifier(singularFragment, fragmentRef);
     expect(identifier).toEqual(
-      'UserFragment-{"dataIDs":"1","fragmentOwnerID":"UserQuery","fragmentVariables":{"scale":16}}',
+      'UserFragment-{"dataIDs":"1","fragmentOwnerID":"UserQuery","fragmentOwnerVariables":{"id":"1","scale":16},"fragmentVariables":{"scale":16}}',
     );
   });
 
@@ -162,7 +162,7 @@ describe('getFragmentIdentifier', () => {
     ).data?.node;
     const identifier = getFragmentIdentifier(fragmentWithArgs, fragmentRef);
     expect(identifier).toEqual(
-      'UserFragmentWithArgs-{"dataIDs":"1","fragmentOwnerID":"UserQueryWithArgs","fragmentVariables":{"scaleLocal":16}}',
+      'UserFragmentWithArgs-{"dataIDs":"1","fragmentOwnerID":"UserQueryWithArgs","fragmentOwnerVariables":{"id":"1","scale":16},"fragmentVariables":{"scaleLocal":16}}',
     );
   });
 
@@ -171,7 +171,7 @@ describe('getFragmentIdentifier', () => {
       .data?.nodes;
     const identifier = getFragmentIdentifier(pluralFragment, fragmentRef);
     expect(identifier).toEqual(
-      'UsersFragment-{"dataIDs":["1"],"fragmentOwnerID":["UsersQuery"],"fragmentVariables":{"scale":16}}',
+      'UsersFragment-{"dataIDs":["1"],"fragmentOwnerID":["UsersQuery"],"fragmentOwnerVariables":[{"ids":["1"],"scale":16}],"fragmentVariables":{"scale":16}}',
     );
   });
 });

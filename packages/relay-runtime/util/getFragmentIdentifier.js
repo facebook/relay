@@ -42,21 +42,21 @@ function getFragmentIdentifier(
   );
   const dataIDs = getDataIDsFromFragment(fragmentNode, fragmentRef);
 
-  // We don't need to include the fragment owner variables since those
-  // are already encoded in the fragmentVariables
   const fragmentOwnerID = Array.isArray(fragmentOwner)
     ? fragmentOwner.map(
-        owner => owner?.node.params.id ?? owner?.node.params.name ?? null,
+        owner => owner?.node.params.id ?? owner?.node.params.name ?? '',
       )
-    : fragmentOwner != null
-    ? fragmentOwner.node.params.id ?? fragmentOwner.node.params.name
-    : null;
+    : fragmentOwner?.node.params.id ?? fragmentOwner?.node.params.name ?? '';
+  const fragmentOwnerVariables = Array.isArray(fragmentOwner)
+    ? fragmentOwner.map(owner => owner?.variables ?? null)
+    : fragmentOwner?.variables ?? null;
 
   return `${fragmentNode.name}-${JSON.stringify(
     stableCopy({
       dataIDs,
       fragmentVariables,
       fragmentOwnerID,
+      fragmentOwnerVariables,
     }),
   )}`;
 }

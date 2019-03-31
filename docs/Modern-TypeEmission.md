@@ -315,6 +315,13 @@ At its simplest, we can consider Haste as a single directory that contains all m
   $ relay-compiler --language javascript […]
   ```
 
+By default, Flow types are emitted inside of comments to avoid forcing your project to use Flow. Flow types inside of comments is perfectly valid Flow, however, some editors and IDEs (like WebStorm/IDEA) do not understand Flow unless it's in plain source code. In order to solve that, there's a language plugin maintained by the community that replicates the functionality of the default builtin plugin, but emits the Flow types as plain source and not inside comments. Installation and usage:
+
+```shell
+  $ yarn add --dev relay-compiler-language-js-flow-uncommented
+  $ relay-compiler --language js-flow-uncommented […]
+  ```
+
 * [TypeScript](https://github.com/relay-tools/relay-compiler-language-typescript): This is a language plugin for the TypeScript language maintained by the community. Install and enable it like so:
 
   ```shell

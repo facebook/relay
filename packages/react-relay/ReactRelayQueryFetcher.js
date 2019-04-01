@@ -13,6 +13,7 @@
 const invariant = require('invariant');
 
 const {
+  isRelayModernEnvironment,
   __internal: {fetchQuery},
 } = require('relay-runtime');
 
@@ -95,7 +96,7 @@ class ReactRelayQueryFetcher {
     operation,
     cacheConfig,
     preservePreviousReferences = false,
-  }: ExecuteConfig): Observable<Snapshot> {
+  }: ExecuteConfig): Observable<mixed> {
     const reference = environment.retain(operation.root);
     const fetchQueryOptions =
       cacheConfig != null
@@ -103,23 +104,33 @@ class ReactRelayQueryFetcher {
             networkCacheConfig: cacheConfig,
           }
         : {};
+    const error = () => {
+      // We may have partially fulfilled the request, so let the next request
+      // or the unmount dispose of the references.
+      this._selectionReferences = this._selectionReferences.concat(reference);
+    };
+    const complete = () => {
+      if (!preservePreviousReferences) {
+        this.disposeSelectionReferences();
+      }
+      this._selectionReferences = this._selectionReferences.concat(reference);
+    };
+    const unsubscribe = () => {
+      // Let the next request or the unmount code dispose of the references.
+      // We may have partially fulfilled the request.
+      this._selectionReferences = this._selectionReferences.concat(reference);
+    };
+    if (!isRelayModernEnvironment(environment)) {
+      return environment.execute({operation, cacheConfig}).do({
+        error,
+        complete,
+        unsubscribe,
+      });
+    }
     return fetchQuery(environment, operation, fetchQueryOptions).do({
-      error: () => {
-        // We may have partially fulfilled the request, so let the next request
-        // or the unmount dispose of the references.
-        this._selectionReferences = this._selectionReferences.concat(reference);
-      },
-      complete: () => {
-        if (!preservePreviousReferences) {
-          this.disposeSelectionReferences();
-        }
-        this._selectionReferences = this._selectionReferences.concat(reference);
-      },
-      unsubscribe: () => {
-        // Let the next request or the unmount code dispose of the references.
-        // We may have partially fulfilled the request.
-        this._selectionReferences = this._selectionReferences.concat(reference);
-      },
+      error,
+      complete,
+      unsubscribe,
     });
   }
 

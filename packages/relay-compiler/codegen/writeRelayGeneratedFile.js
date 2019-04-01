@@ -153,6 +153,7 @@ async function writeRelayGeneratedFile(
     ),
     devOnlyAssignments,
     sourceHash,
+    node: generatedNode,
   });
 
   codegenDir.writeFile(filename, moduleText);

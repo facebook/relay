@@ -15,6 +15,7 @@ const {RelayConcreteNode} = require('relay-runtime');
 import type {IRTransform} from '../core/GraphQLCompilerContext';
 import type {Definition, Root, Fragment} from '../core/GraphQLIR';
 import type {ScalarTypeMapping} from './javascript/RelayFlowTypeTransformers';
+import type {GeneratedNode} from 'relay-runtime';
 
 /**
  * A language plugin allows relay-compiler to both read and write files for any
@@ -174,6 +175,11 @@ export type FormatModule = ({|
    * @todo Document this.
    */
   devOnlyAssignments: ?string,
+
+  /**
+   * The generated node being written.
+   */
+  node: GeneratedNode,
 |}) => string;
 
 /**

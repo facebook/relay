@@ -16,11 +16,13 @@ const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
 const RelayInMemoryRecordSource = require('../RelayInMemoryRecordSource');
 const RelayModernEnvironment = require('../RelayModernEnvironment');
 const RelayModernOperationDescriptor = require('../RelayModernOperationDescriptor');
+const RelayModernSelector = require('../RelayModernSelector');
 const RelayModernStore = require('../RelayModernStore');
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
 const RelayViewerHandler = require('../../handlers/viewer/RelayViewerHandler');
 
+const invariant = require('invariant');
 const nullthrows = require('nullthrows');
 
 const {getRequest} = require('../RelayCore');
@@ -7988,6 +7990,107 @@ describe('RelayModernEnvironment', () => {
           name: 'ALICE',
         },
       });
+    });
+  });
+
+  // Regression test
+  describe('query with undeclared, unused fragment argument', () => {
+    let environment;
+    let fetch;
+    let fragment;
+    let operation;
+    let query;
+    let subject;
+
+    beforeEach(() => {
+      ({
+        QueryWithUnusedFragmentArgumentDefinition: query,
+        Profile: fragment,
+      } = generateAndCompile(`
+        query QueryWithUnusedFragmentArgumentDefinition($id: ID!) {
+          node(id: $id) {
+            ...Profile
+          }
+        }
+
+        fragment Profile on User {
+          id
+          name
+          ...ProfilePhotoWrapper @arguments(size: $size)
+        }
+
+        fragment ProfilePhotoWrapper on User @argumentDefinitions(size: {type: "Int"}) {
+          __typename
+          ...ProfilePhoto @arguments(size: $size)
+        }
+
+        fragment ProfilePhoto on User {
+          profilePicture(size: [100]) {
+            uri
+          }
+        }
+      `));
+      operation = createOperationDescriptor(query, {id: '4'});
+      fetch = jest.fn((_query, _variables, _cacheConfig) =>
+        RelayObservable.create(sink => {
+          subject = sink;
+        }),
+      );
+      environment = new RelayModernEnvironment({
+        network: RelayNetwork.create((fetch: $FlowFixMe)),
+        store,
+      });
+    });
+
+    it('fatals reading results', () => {
+      environment.execute({operation}).subscribe({});
+      subject.next({
+        data: {
+          node: {
+            __typename: 'User',
+            id: '4',
+            name: 'Zuck',
+            profilePicture: {
+              uri: 'https://facebook.com/zuck.jpg',
+            },
+          },
+        },
+      });
+      subject.complete();
+      const snapshot = environment.lookup(operation.fragment, operation);
+      expect(snapshot.isMissingData).toBe(false);
+      expect(snapshot.data).toEqual({
+        node: {
+          __fragmentOwner: operation,
+          __fragments: {
+            Profile: {},
+          },
+          __id: '4',
+        },
+      });
+      const fragmentSelector = RelayModernSelector.getSelector(
+        operation.variables,
+        fragment,
+        (snapshot.data: $FlowFixMe).node,
+        operation,
+      );
+      invariant(
+        fragmentSelector != null && !Array.isArray(fragmentSelector),
+        'Expected a singular selector.',
+      );
+      expect(() => {
+        environment.lookup(fragmentSelector.selector, fragmentSelector.owner);
+        // expect(fragmentSnapshot.isMissingData).toBe(false);
+        // expect(fragmentSnapshot.data).toEqual({
+        //   __id: '4',
+        //   __fragmentOwner: operation,
+        //   __fragments: {
+        //     ProfilePhotoWrapper: {size: undefined},
+        //   },
+        //   id: '4',
+        //   name: 'Zuck',
+        // });
+      }).toThrow('getVariableValue(): Undefined variable `size`');
     });
   });
 });

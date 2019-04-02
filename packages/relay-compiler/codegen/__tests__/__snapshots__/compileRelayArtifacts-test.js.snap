@@ -8040,6 +8040,308 @@ fragment UserProfile_user on User {
 }
 `;
 
+exports[`compileRelayArtifacts matches expected output: unused-fragment-argdef.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query QueryWithUnusedFragmentArgumentDefinition($id: ID!) {
+  node(id: $id) {
+    ...Profile
+  }
+}
+
+fragment Profile on User {
+  id
+  name
+  ...ProfilePhotoWrapper @arguments(size: $size)
+}
+
+fragment ProfilePhotoWrapper on User @argumentDefinitions(size: {type: "Int"}) {
+  __typename
+  ...ProfilePhoto @arguments(size: $size)
+}
+
+fragment ProfilePhoto on User {
+  profilePicture(size: [100]) {
+    uri
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+{
+  "kind": "Request",
+  "fragment": {
+    "kind": "Fragment",
+    "name": "QueryWithUnusedFragmentArgumentDefinition",
+    "type": "Query",
+    "metadata": null,
+    "argumentDefinitions": [
+      {
+        "kind": "LocalArgument",
+        "name": "id",
+        "type": "ID!",
+        "defaultValue": null
+      }
+    ],
+    "selections": [
+      {
+        "kind": "LinkedField",
+        "alias": null,
+        "name": "node",
+        "storageKey": null,
+        "args": [
+          {
+            "kind": "Variable",
+            "name": "id",
+            "variableName": "id"
+          }
+        ],
+        "concreteType": null,
+        "plural": false,
+        "selections": [
+          {
+            "kind": "FragmentSpread",
+            "name": "Profile",
+            "args": null
+          }
+        ]
+      }
+    ]
+  },
+  "operation": {
+    "kind": "Operation",
+    "name": "QueryWithUnusedFragmentArgumentDefinition",
+    "argumentDefinitions": [
+      {
+        "kind": "LocalArgument",
+        "name": "id",
+        "type": "ID!",
+        "defaultValue": null
+      }
+    ],
+    "selections": [
+      {
+        "kind": "LinkedField",
+        "alias": null,
+        "name": "node",
+        "storageKey": null,
+        "args": [
+          {
+            "kind": "Variable",
+            "name": "id",
+            "variableName": "id"
+          }
+        ],
+        "concreteType": null,
+        "plural": false,
+        "selections": [
+          {
+            "kind": "ScalarField",
+            "alias": null,
+            "name": "__typename",
+            "args": null,
+            "storageKey": null
+          },
+          {
+            "kind": "ScalarField",
+            "alias": null,
+            "name": "id",
+            "args": null,
+            "storageKey": null
+          },
+          {
+            "kind": "InlineFragment",
+            "type": "User",
+            "selections": [
+              {
+                "kind": "ScalarField",
+                "alias": null,
+                "name": "name",
+                "args": null,
+                "storageKey": null
+              },
+              {
+                "kind": "ScalarField",
+                "alias": null,
+                "name": "__typename",
+                "args": null,
+                "storageKey": null
+              },
+              {
+                "kind": "LinkedField",
+                "alias": null,
+                "name": "profilePicture",
+                "storageKey": "profilePicture(size:[100])",
+                "args": [
+                  {
+                    "kind": "Literal",
+                    "name": "size",
+                    "value": [
+                      100
+                    ]
+                  }
+                ],
+                "concreteType": "Image",
+                "plural": false,
+                "selections": [
+                  {
+                    "kind": "ScalarField",
+                    "alias": null,
+                    "name": "uri",
+                    "args": null,
+                    "storageKey": null
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
+
+QUERY:
+
+query QueryWithUnusedFragmentArgumentDefinition(
+  $id: ID!
+) {
+  node(id: $id) {
+    __typename
+    ...Profile
+    id
+  }
+}
+
+fragment Profile on User {
+  id
+  name
+  ...ProfilePhotoWrapper_18PEfK
+}
+
+fragment ProfilePhotoWrapper_18PEfK on User {
+  __typename
+  ...ProfilePhoto_18PEfK
+}
+
+fragment ProfilePhoto_18PEfK on User {
+  profilePicture(size: [100]) {
+    uri
+  }
+}
+
+
+{
+  "kind": "Fragment",
+  "name": "Profile",
+  "type": "User",
+  "metadata": null,
+  "argumentDefinitions": [
+    {
+      "kind": "RootArgument",
+      "name": "size",
+      "type": null
+    }
+  ],
+  "selections": [
+    {
+      "kind": "ScalarField",
+      "alias": null,
+      "name": "id",
+      "args": null,
+      "storageKey": null
+    },
+    {
+      "kind": "ScalarField",
+      "alias": null,
+      "name": "name",
+      "args": null,
+      "storageKey": null
+    },
+    {
+      "kind": "FragmentSpread",
+      "name": "ProfilePhotoWrapper",
+      "args": [
+        {
+          "kind": "Variable",
+          "name": "size",
+          "variableName": "size"
+        }
+      ]
+    }
+  ]
+}
+
+{
+  "kind": "Fragment",
+  "name": "ProfilePhotoWrapper",
+  "type": "User",
+  "metadata": null,
+  "argumentDefinitions": [
+    {
+      "kind": "LocalArgument",
+      "name": "size",
+      "type": "Int",
+      "defaultValue": null
+    }
+  ],
+  "selections": [
+    {
+      "kind": "ScalarField",
+      "alias": null,
+      "name": "__typename",
+      "args": null,
+      "storageKey": null
+    },
+    {
+      "kind": "FragmentSpread",
+      "name": "ProfilePhoto",
+      "args": [
+        {
+          "kind": "Variable",
+          "name": "size",
+          "variableName": "size"
+        }
+      ]
+    }
+  ]
+}
+
+{
+  "kind": "Fragment",
+  "name": "ProfilePhoto",
+  "type": "User",
+  "metadata": null,
+  "argumentDefinitions": [],
+  "selections": [
+    {
+      "kind": "LinkedField",
+      "alias": null,
+      "name": "profilePicture",
+      "storageKey": "profilePicture(size:[100])",
+      "args": [
+        {
+          "kind": "Literal",
+          "name": "size",
+          "value": [
+            100
+          ]
+        }
+      ],
+      "concreteType": "Image",
+      "plural": false,
+      "selections": [
+        {
+          "kind": "ScalarField",
+          "alias": null,
+          "name": "uri",
+          "args": null,
+          "storageKey": null
+        }
+      ]
+    }
+  ]
+}
+`;
+
 exports[`compileRelayArtifacts matches expected output: viewer-query.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query ViewerQuery {

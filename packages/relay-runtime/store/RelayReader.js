@@ -127,37 +127,46 @@ class RelayReader {
     record: Record,
     data: SelectorData,
   ): void {
-    selections.forEach(selection => {
-      if (selection.kind === SCALAR_FIELD) {
-        this._readScalar(selection, record, data);
-      } else if (selection.kind === LINKED_FIELD) {
-        if (selection.plural) {
-          this._readPluralLink(selection, record, data);
-        } else {
-          this._readLink(selection, record, data);
-        }
-      } else if (selection.kind === CONDITION) {
-        const conditionValue = this._getVariableValue(selection.condition);
-        if (conditionValue === selection.passingValue) {
-          this._traverseSelections(selection.selections, record, data);
-        }
-      } else if (selection.kind === INLINE_FRAGMENT) {
-        const typeName = RelayModernRecord.getType(record);
-        if (typeName != null && typeName === selection.type) {
-          this._traverseSelections(selection.selections, record, data);
-        }
-      } else if (selection.kind === FRAGMENT_SPREAD) {
-        this._createFragmentPointer(selection, record, data);
-      } else if (selection.kind === MODULE_IMPORT) {
-        this._readModuleImport(selection, record, data);
-      } else {
-        invariant(
-          false,
-          'RelayReader(): Unexpected ast kind `%s`.',
-          selection.kind,
-        );
+    for (let i = 0; i < selections.length; i++) {
+      const selection = selections[i];
+      switch (selection.kind) {
+        case SCALAR_FIELD:
+          this._readScalar(selection, record, data);
+          break;
+        case LINKED_FIELD:
+          if (selection.plural) {
+            this._readPluralLink(selection, record, data);
+          } else {
+            this._readLink(selection, record, data);
+          }
+          break;
+        case CONDITION:
+          const conditionValue = this._getVariableValue(selection.condition);
+          if (conditionValue === selection.passingValue) {
+            this._traverseSelections(selection.selections, record, data);
+          }
+          break;
+        case INLINE_FRAGMENT:
+          const typeName = RelayModernRecord.getType(record);
+          if (typeName != null && typeName === selection.type) {
+            this._traverseSelections(selection.selections, record, data);
+          }
+          break;
+        case FRAGMENT_SPREAD:
+          this._createFragmentPointer(selection, record, data);
+          break;
+        case MODULE_IMPORT:
+          this._readModuleImport(selection, record, data);
+          break;
+        default:
+          (selection: empty);
+          invariant(
+            false,
+            'RelayReader(): Unexpected ast kind `%s`.',
+            selection.kind,
+          );
       }
-    });
+    }
   }
 
   _readScalar(

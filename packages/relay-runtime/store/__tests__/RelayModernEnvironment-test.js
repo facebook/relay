@@ -1548,7 +1548,7 @@ describe('RelayModernEnvironment', () => {
 
       expect(callbacks.error).toBeCalledTimes(1);
       expect(callbacks.error.mock.calls[0][0].message).toBe(
-        "Cannot read property 'forEach' of undefined",
+        "Cannot read property 'length' of undefined",
       );
     });
 
@@ -2257,7 +2257,7 @@ describe('RelayModernEnvironment', () => {
 
       expect(callbacks.error).toBeCalledTimes(1);
       expect(callbacks.error.mock.calls[0][0].message).toBe(
-        "Cannot read property 'forEach' of undefined",
+        "Cannot read property 'length' of undefined",
       );
     });
 
@@ -7011,7 +7011,7 @@ describe('RelayModernEnvironment', () => {
 
       expect(callbacks.error).toBeCalledTimes(1);
       expect(callbacks.error.mock.calls[0][0].message).toBe(
-        "Cannot read property 'forEach' of undefined",
+        "Cannot read property 'length' of undefined",
       );
     });
 

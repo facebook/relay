@@ -161,59 +161,58 @@ class RelayResponseNormalizer {
     record: Record,
     data: PayloadData,
   ): void {
-    node.selections.forEach(selection => {
-      if (selection.kind === SCALAR_FIELD || selection.kind === LINKED_FIELD) {
-        this._normalizeField(node, selection, record, data);
-      } else if (selection.kind === CONDITION) {
-        const conditionValue = this._getVariableValue(selection.condition);
-        if (conditionValue === selection.passingValue) {
-          this._traverseSelections(selection, record, data);
-        }
-      } else if (selection.kind === INLINE_FRAGMENT) {
-        const typeName = RelayModernRecord.getType(record);
-        if (typeName === selection.type) {
-          this._traverseSelections(selection, record, data);
-        }
-      } else if (
-        selection.kind === LINKED_HANDLE ||
-        selection.kind === SCALAR_HANDLE
-      ) {
-        const args = selection.args
-          ? getArgumentValues(selection.args, this._variables)
-          : {};
-        const fieldKey = getStorageKey(selection, this._variables);
-        const handleKey = getHandleStorageKey(selection, this._variables);
-        this._handleFieldPayloads.push({
-          args,
-          dataID: RelayModernRecord.getDataID(record),
-          fieldKey,
-          handle: selection.handle,
-          handleKey,
-        });
-      } else if (selection.kind === MODULE_IMPORT) {
-        this._normalizeModuleImport(node, selection, record, data);
-      } else if (selection.kind === DEFER) {
-        this._normalizeDefer(selection, record, data);
-      } else if (selection.kind === STREAM) {
-        this._normalizeStream(selection, record, data);
-      } else if (
-        selection.kind === FRAGMENT ||
-        selection.kind === FRAGMENT_SPREAD
-      ) {
-        invariant(
-          false,
-          'RelayResponseNormalizer(): Unexpected ast kind `%s`.',
-          selection.kind,
-        );
-      } else {
-        (selection: empty);
-        invariant(
-          false,
-          'RelayResponseNormalizer(): Unexpected ast kind `%s`.',
-          selection.kind,
-        );
+    for (let i = 0; i < node.selections.length; i++) {
+      const selection = node.selections[i];
+      switch (selection.kind) {
+        case SCALAR_FIELD:
+        case LINKED_FIELD:
+          this._normalizeField(node, selection, record, data);
+          break;
+        case CONDITION:
+          const conditionValue = this._getVariableValue(selection.condition);
+          if (conditionValue === selection.passingValue) {
+            this._traverseSelections(selection, record, data);
+          }
+          break;
+        case INLINE_FRAGMENT:
+          const typeName = RelayModernRecord.getType(record);
+          if (typeName === selection.type) {
+            this._traverseSelections(selection, record, data);
+          }
+          break;
+        case LINKED_HANDLE:
+        case SCALAR_HANDLE:
+          const args = selection.args
+            ? getArgumentValues(selection.args, this._variables)
+            : {};
+          const fieldKey = getStorageKey(selection, this._variables);
+          const handleKey = getHandleStorageKey(selection, this._variables);
+          this._handleFieldPayloads.push({
+            args,
+            dataID: RelayModernRecord.getDataID(record),
+            fieldKey,
+            handle: selection.handle,
+            handleKey,
+          });
+          break;
+        case MODULE_IMPORT:
+          this._normalizeModuleImport(node, selection, record, data);
+          break;
+        case DEFER:
+          this._normalizeDefer(selection, record, data);
+          break;
+        case STREAM:
+          this._normalizeStream(selection, record, data);
+          break;
+        default:
+          (selection: empty);
+          invariant(
+            false,
+            'RelayResponseNormalizer(): Unexpected ast kind `%s`.',
+            selection.kind,
+          );
       }
-    });
+    }
   }
 
   _normalizeDefer(

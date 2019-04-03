@@ -7998,6 +7998,7 @@ describe('RelayModernEnvironment', () => {
     let environment;
     let fetch;
     let fragment;
+    let innerFragment;
     let operation;
     let query;
     let subject;
@@ -8006,6 +8007,7 @@ describe('RelayModernEnvironment', () => {
       ({
         QueryWithUnusedFragmentArgumentDefinition: query,
         Profile: fragment,
+        ProfilePhotoWrapper: innerFragment,
       } = generateAndCompile(`
         query QueryWithUnusedFragmentArgumentDefinition($id: ID!) {
           node(id: $id) {
@@ -8042,7 +8044,7 @@ describe('RelayModernEnvironment', () => {
       });
     });
 
-    it('fatals reading results', () => {
+    it('reads results with the undeclared variable set to undefined', () => {
       environment.execute({operation}).subscribe({});
       subject.next({
         data: {
@@ -8078,19 +8080,43 @@ describe('RelayModernEnvironment', () => {
         fragmentSelector != null && !Array.isArray(fragmentSelector),
         'Expected a singular selector.',
       );
-      expect(() => {
-        environment.lookup(fragmentSelector.selector, fragmentSelector.owner);
-        // expect(fragmentSnapshot.isMissingData).toBe(false);
-        // expect(fragmentSnapshot.data).toEqual({
-        //   __id: '4',
-        //   __fragmentOwner: operation,
-        //   __fragments: {
-        //     ProfilePhotoWrapper: {size: undefined},
-        //   },
-        //   id: '4',
-        //   name: 'Zuck',
-        // });
-      }).toThrow('getVariableValue(): Undefined variable `size`');
+      const fragmentSnapshot = environment.lookup(
+        fragmentSelector.selector,
+        fragmentSelector.owner,
+      );
+      expect(fragmentSnapshot.isMissingData).toBe(false);
+      expect(fragmentSnapshot.data).toEqual({
+        __id: '4',
+        __fragmentOwner: operation,
+        __fragments: {
+          ProfilePhotoWrapper: {size: undefined},
+        },
+        id: '4',
+        name: 'Zuck',
+      });
+      const innerSelector = RelayModernSelector.getSelector(
+        operation.variables,
+        innerFragment,
+        (fragmentSnapshot.data: $FlowFixMe),
+        operation,
+      );
+      invariant(
+        innerSelector != null && !Array.isArray(innerSelector),
+        'Expected a singular selector.',
+      );
+      const innerSnapshot = environment.lookup(
+        innerSelector.selector,
+        innerSelector.owner,
+      );
+      expect(innerSnapshot.isMissingData).toBe(false);
+      expect(innerSnapshot.data).toEqual({
+        __id: '4',
+        __fragmentOwner: operation,
+        __fragments: {
+          ProfilePhoto: {size: undefined},
+        },
+        __typename: 'User',
+      });
     });
   });
 });

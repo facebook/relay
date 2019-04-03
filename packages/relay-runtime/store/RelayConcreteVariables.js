@@ -41,10 +41,15 @@ function getFragmentVariables(
       case 'RootArgument':
         if (!rootVariables.hasOwnProperty(definition.name)) {
           /*
-           * A temporary fix to mute false alarm in cases where the root argument is stripped
-           * off by the compiler due to a conditional directive, we do not need this argument
-           * when tryiny to read the data from the store.
+           * Global variables passed as values of @arguments are not required to
+           * be declared unless they are used by the callee fragment or a
+           * descendant. In this case, the root variable may not be defined when
+           * resolving the callee's variables. The value is explicitly set to
+           * undefined to conform to the check in
+           * RelayStoreUtils.getStableVariableValue() that variable keys are all
+           * present.
            */
+          variables[definition.name] = undefined;
           break;
         }
         variables[definition.name] = rootVariables[definition.name];

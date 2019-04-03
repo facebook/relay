@@ -374,40 +374,45 @@ function createMockEnvironment(options?: {|
   });
 
   const createExecuteProxy = (
+    env: IEnvironment,
     fn:
       | $PropertyType<IEnvironment, 'execute'>
       | $PropertyType<IEnvironment, 'executeMutation'>,
-  ) =>
-    new Proxy(fn, {
-      apply(target, thisArg, argumentsList) {
-        const [{operation}] = argumentsList;
-        pendingOperations = pendingOperations.concat([operation]);
-        return target.apply(thisArg, argumentsList);
-      },
-    });
+  ) => {
+    return (...argumentsList) => {
+      const [{operation}] = argumentsList;
+      pendingOperations = pendingOperations.concat([operation]);
+      return fn.apply(env, argumentsList);
+    };
+  };
 
   // $FlowExpectedError
-  environment.execute = createExecuteProxy(environment.execute);
+  environment.execute = createExecuteProxy(environment, environment.execute);
   // $FlowExpectedError
-  environment.executeMutation = createExecuteProxy(environment.executeMutation);
+  environment.executeMutation = createExecuteProxy(
+    environment,
+    environment.executeMutation,
+  );
 
-  // Mock all the functions with their original behavior
-  mockDisposableMethod(environment, 'applyUpdate');
-  mockInstanceMethod(environment, 'commitPayload');
-  mockInstanceMethod(environment, 'getStore');
-  mockInstanceMethod(environment, 'lookup');
-  mockInstanceMethod(environment, 'check');
-  mockDisposableMethod(environment, 'subscribe');
-  mockDisposableMethod(environment, 'retain');
-  mockObservableMethod(environment, 'execute');
-  mockObservableMethod(environment, 'executeMutation');
+  if (process.env.NODE_ENV === 'test') {
+    // Mock all the functions with their original behavior
+    mockDisposableMethod(environment, 'applyUpdate');
+    mockInstanceMethod(environment, 'commitPayload');
+    mockInstanceMethod(environment, 'getStore');
+    mockInstanceMethod(environment, 'lookup');
+    mockInstanceMethod(environment, 'check');
+    mockDisposableMethod(environment, 'subscribe');
+    mockDisposableMethod(environment, 'retain');
+    mockObservableMethod(environment, 'execute');
+    mockObservableMethod(environment, 'executeMutation');
 
-  mockInstanceMethod(store, 'getSource');
-  mockInstanceMethod(store, 'lookup');
-  mockInstanceMethod(store, 'notify');
-  mockInstanceMethod(store, 'publish');
-  mockDisposableMethod(store, 'retain');
-  mockDisposableMethod(store, 'subscribe');
+    mockInstanceMethod(store, 'getSource');
+    mockInstanceMethod(store, 'lookup');
+    mockInstanceMethod(store, 'notify');
+    mockInstanceMethod(store, 'publish');
+    mockDisposableMethod(store, 'retain');
+    mockDisposableMethod(store, 'subscribe');
+  }
 
   const mock: MockFunctions = {
     cachePayload,

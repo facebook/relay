@@ -117,6 +117,7 @@ type VariableDefinition = {|
 
 const ARGUMENT_DEFINITIONS = 'argumentDefinitions';
 const ARGUMENTS = 'arguments';
+const DEPRECATED_UNCHECKED_ARGUMENTS = 'uncheckedArguments_DEPRECATED';
 
 /**
  * @internal
@@ -743,9 +744,12 @@ class GraphQLDefinitionParser {
     parentType: GraphQLOutputType,
   ): FragmentSpread {
     const fragmentName = getName(fragmentSpread);
-    const [otherDirectives, argumentDirectives] = partitionArray(
+    const [argumentDirectives, otherDirectives] = partitionArray(
       fragmentSpread.directives || [],
-      directive => getName(directive) !== ARGUMENTS,
+      directive => {
+        const name = getName(directive);
+        return name === ARGUMENTS || name === DEPRECATED_UNCHECKED_ARGUMENTS;
+      },
     );
     if (argumentDirectives.length > 1) {
       throw createUserError(
@@ -757,9 +761,13 @@ class GraphQLDefinitionParser {
     }
     const fragmentDefinition = this._entries.get(fragmentName);
     const fragmentArgumentDefinitions = fragmentDefinition?.variableDefinitions;
+    const argumentsDirective = argumentDirectives[0];
     let args;
-    if (argumentDirectives.length) {
-      args = (argumentDirectives[0].arguments || []).map(arg => {
+    if (argumentsDirective != null) {
+      const isDeprecatedUncheckedArguments =
+        getName(argumentsDirective) === DEPRECATED_UNCHECKED_ARGUMENTS;
+      let hasInvalidArgument = false;
+      args = (argumentsDirective.arguments || []).map(arg => {
         const argName = getName(arg);
         const argValue = arg.value;
         const argumentDefinition =
@@ -769,6 +777,18 @@ class GraphQLDefinitionParser {
         const argumentType = argumentDefinition?.type ?? null;
 
         if (argValue.kind === 'Variable') {
+          if (argumentDefinition == null && !isDeprecatedUncheckedArguments) {
+            throw createUserError(
+              `Variable @${ARGUMENTS} values are only supported when the ` +
+                `argument is defined with @${ARGUMENT_DEFINITIONS}. Check ` +
+                `the definition of fragment '${fragmentName}'.`,
+              null,
+              [arg.value, this._entries.get(fragmentName)?.definition].filter(
+                Boolean,
+              ),
+            );
+          }
+          hasInvalidArgument = hasInvalidArgument || argumentDefinition == null;
           // TODO: check the type of the variable and use the type
           return {
             kind: 'Argument',
@@ -801,6 +821,14 @@ class GraphQLDefinitionParser {
           };
         }
       });
+      if (isDeprecatedUncheckedArguments && !hasInvalidArgument) {
+        throw createUserError(
+          `Invalid use of @${DEPRECATED_UNCHECKED_ARGUMENTS}: all arguments ` +
+            `are defined, use @${ARGUMENTS} instead.`,
+          null,
+          [argumentsDirective],
+        );
+      }
     }
     const directives = this._transformDirectives(otherDirectives);
     return {

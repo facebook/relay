@@ -59,7 +59,7 @@ describe('RelayParser', () => {
     fragment TestFragment on Query {
       ...TestChild @arguments(foo: $foo)
     }
-    fragment TestChild on Query {
+    fragment TestChild on Query @argumentDefinitions(foo: {type: "Int"}) {
       viewer { actor { id } }
     }
   `;

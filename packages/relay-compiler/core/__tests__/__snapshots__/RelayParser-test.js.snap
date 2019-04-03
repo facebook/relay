@@ -3767,6 +3767,69 @@ Error: RelayParser: Encountered 1 error(s):
   
 `;
 
+exports[`RelayParser matches expected output: fragment-with-undefined-variable-arguments.invalid.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment ParentFragment on User {
+  ...ChildFragment @arguments(pictureSize: $querySize) # error: $pictureSize not defined
+}
+
+fragment ChildFragment on User {
+  profilePicture(size: $pictureSize) {
+    uri
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+ERROR:
+Error: RelayParser: Encountered 1 error(s):
+- Variable @arguments values are only supported when the argument is defined with @argumentDefinitions. Check the definition of fragment 'ChildFragment'.
+  
+  GraphQL request (2:44)
+  1: fragment ParentFragment on User {
+  2:   ...ChildFragment @arguments(pictureSize: $querySize) # error: $pictureSize not defined
+                                                ^
+  3: }
+  
+  GraphQL request (5:1)
+  4: 
+  5: fragment ChildFragment on User {
+     ^
+  6:   profilePicture(size: $pictureSize) {
+  
+`;
+
+exports[`RelayParser matches expected output: fragment-with-unnecessary-unchecked-arguments.invalid.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment TestFragment on User @argumentDefinitions(
+  id: {type: "ID!"}
+  size: {type: "[Int]", defaultValue: [100]}
+) {
+  profilePicture(size: $PictureSize) {
+    uri
+  }
+  withDefaultArg: profilePicture(size: $size) {
+    uri
+  }
+  ...Foo @uncheckedArguments_DEPRECATED(localId: $id)
+}
+
+fragment Foo on User @argumentDefinitions(localId: {type: "ID!"}){
+  id
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+ERROR:
+Error: RelayParser: Encountered 1 error(s):
+- Invalid use of @uncheckedArguments_DEPRECATED: all arguments are defined, use @arguments instead.
+  
+  GraphQL request (11:10)
+  10:   }
+  11:   ...Foo @uncheckedArguments_DEPRECATED(localId: $id)
+               ^
+  12: }
+  
+`;
+
 exports[`RelayParser matches expected output: inline-untyped-fragment.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 fragment InlineUntypedFragment on User {

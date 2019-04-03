@@ -8023,7 +8023,7 @@ describe('RelayModernEnvironment', () => {
 
         fragment ProfilePhotoWrapper on User @argumentDefinitions(size: {type: "Int"}) {
           __typename
-          ...ProfilePhoto @arguments(size: $size)
+          ...ProfilePhoto @uncheckedArguments_DEPRECATED(size: $size)
         }
 
         fragment ProfilePhoto on User {

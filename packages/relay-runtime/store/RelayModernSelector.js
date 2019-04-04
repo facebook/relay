@@ -457,10 +457,9 @@ function getVariablesFromFragment(
   item: mixed | Array<mixed>,
   explicitOwner?: ?OperationDescriptor | Array<?OperationDescriptor>,
 ): Variables {
-  const variables = {};
   if (item == null) {
-    // Skip
-  } else if (fragment.metadata && fragment.metadata.plural === true) {
+    return {};
+  } else if (fragment.metadata?.plural === true) {
     invariant(
       Array.isArray(item),
       'RelayModernSelector: Expected value for fragment `%s` to be an array, got `%s`. ' +
@@ -478,20 +477,14 @@ function getVariablesFromFragment(
         fragment.name,
         JSON.stringify(explicitOwner),
       );
-      const itemVariables = getVariablesFromPluralFragment(
+      return getVariablesFromPluralFragment(
         operationVariables,
         fragment,
         item,
         explicitOwner,
       );
-      Object.assign(variables, itemVariables);
     } else {
-      const itemVariables = getVariablesFromPluralFragment(
-        operationVariables,
-        fragment,
-        item,
-      );
-      Object.assign(variables, itemVariables);
+      return getVariablesFromPluralFragment(operationVariables, fragment, item);
     }
   } else {
     invariant(
@@ -511,27 +504,21 @@ function getVariablesFromFragment(
         JSON.stringify(explicitOwner),
       );
 
-      const itemVariables = getVariablesFromSingularFragment(
-        operationVariables,
-        fragment,
-        item,
-        explicitOwner,
+      return (
+        getVariablesFromSingularFragment(
+          operationVariables,
+          fragment,
+          item,
+          explicitOwner,
+        ) || {}
       );
-      if (itemVariables) {
-        Object.assign(variables, itemVariables);
-      }
     } else {
-      const itemVariables = getVariablesFromSingularFragment(
-        operationVariables,
-        fragment,
-        item,
+      return (
+        getVariablesFromSingularFragment(operationVariables, fragment, item) ||
+        {}
       );
-      if (itemVariables) {
-        Object.assign(variables, itemVariables);
-      }
     }
   }
-  return variables;
 }
 
 function getVariablesFromSingularFragment(

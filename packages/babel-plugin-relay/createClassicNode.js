@@ -148,6 +148,7 @@ function createClassicAST(t, definition) {
         );
         switch (directive.name.value) {
           case 'arguments':
+          case 'uncheckedArguments_DEPRECATED':
             const fragmentArgumentsObject = {};
             // $FlowFixMe graphql 0.12.2
             directive.arguments.forEach(argNode => {

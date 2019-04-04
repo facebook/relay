@@ -291,6 +291,57 @@ describe('ReactRelayPaginationContainer with fragment ownership', () => {
       );
     });
 
+    it('calls `getVariables` with correct previous variables when variables not set in context', () => {
+      const userPointer = environment.lookup(ownerUser1.fragment, ownerUser1)
+        .data.node;
+      environment.mock.clearCache();
+      ReactTestRenderer.create(
+        <ContextSetter environment={environment} variables={{}}>
+          <TestContainer user={userPointer} />
+        </ContextSetter>,
+      );
+      loadMore(1, jest.fn());
+      expect(getVariables).toBeCalledWith(
+        {
+          user: {
+            id: '4',
+            friends: {
+              edges: [
+                {
+                  cursor: 'cursor:1',
+                  node: {
+                    __typename: 'User',
+                    id: 'node:1',
+                    __id: 'node:1',
+                    __fragments: {
+                      UserFriendFragment: {isViewerFriendLocal: false},
+                    },
+                    __fragmentOwner: ownerUser1,
+                  },
+                },
+              ],
+              pageInfo: {
+                endCursor: 'cursor:1',
+                hasNextPage: true,
+              },
+            },
+          },
+        },
+        {
+          count: 1,
+          cursor: 'cursor:1',
+        },
+        {
+          after: null, // fragment variable defaults to null
+          count: 1,
+          id: '4',
+          orderby: ['name'],
+          isViewerFriend: false,
+          isViewerFriendLocal: false,
+        },
+      );
+    });
+
     it('fetches the new variables', () => {
       variables = {
         after: 'cursor:1',

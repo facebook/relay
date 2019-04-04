@@ -355,6 +355,35 @@ describe('ReactRelayRefetchContainer with fragment ownerhsip', () => {
       });
     });
 
+    it('passes previous variables correctly when refetchVariables is a function', () => {
+      const fetchVariables = jest.fn();
+      refetch(fetchVariables);
+      expect(fetchVariables).toBeCalledTimes(1);
+      expect(fetchVariables).toBeCalledWith({
+        cond: true,
+        scale: 2,
+      });
+    });
+
+    it('passes previous variables correctly when refetchVariables is a function and variables are not set in context', () => {
+      const userPointer = environment.lookup(ownerUser1.fragment, ownerUser1)
+        .data.node;
+      environment.mock.clearCache();
+      instance = ReactTestRenderer.create(
+        <ContextSetter environment={environment} variables={{}}>
+          <TestContainer user={userPointer} />
+        </ContextSetter>,
+      );
+
+      const fetchVariables = jest.fn();
+      refetch(fetchVariables);
+      expect(fetchVariables).toBeCalledTimes(1);
+      expect(fetchVariables).toBeCalledWith({
+        cond: true,
+        scale: 2,
+      });
+    });
+
     it('updates context with the results of new variables', () => {
       expect.assertions(6);
 

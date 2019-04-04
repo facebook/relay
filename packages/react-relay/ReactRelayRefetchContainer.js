@@ -23,6 +23,7 @@ const {assertRelayContext} = require('./RelayContext');
 const {
   Observable,
   RelayFeatureFlags,
+  getFragmentOwners,
   isScalarAndEqual,
 } = require('relay-runtime');
 
@@ -270,6 +271,16 @@ function createContainerWithFragments<
       const {
         getVariablesFromObject,
       } = this.props.__relayContext.environment.unstable_internal;
+      if (RelayFeatureFlags.PREFER_FRAGMENT_OWNER_OVER_CONTEXT) {
+        return getVariablesFromObject(
+          // NOTE: We pass empty operationVariables because we want to prefer
+          // the variables from the fragment owner
+          {},
+          fragments,
+          this.props,
+          getFragmentOwners(fragments, this.props),
+        );
+      }
       return getVariablesFromObject(
         this.props.__relayContext.variables,
         fragments,

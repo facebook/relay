@@ -16,6 +16,7 @@ const ReactRelayQueryFetcher = require('./ReactRelayQueryFetcher');
 
 const areEqual = require('areEqual');
 const buildReactRelayContainer = require('./buildReactRelayContainer');
+const forEachObject = require('forEachObject');
 const invariant = require('invariant');
 const warning = require('warning');
 
@@ -28,6 +29,7 @@ const {
   ConnectionInterface,
   RelayFeatureFlags,
   Observable,
+  getFragmentOwners,
   isScalarAndEqual,
 } = require('relay-runtime');
 
@@ -677,12 +679,41 @@ function createContainerWithFragments<
         ...restProps,
         ...this.state.data,
       };
-      const rootVariables = this.props.__relayContext.variables;
-      let fragmentVariables = getVariablesFromObject(
-        rootVariables,
-        fragments,
-        restProps,
-      );
+      let rootVariables;
+      let fragmentVariables;
+      if (RelayFeatureFlags.PREFER_FRAGMENT_OWNER_OVER_CONTEXT) {
+        const fragmentOwners = getFragmentOwners(fragments, restProps);
+        // NOTE: rootVariables are spread down below in a couple of places,
+        // so we compute them here from the fragment owners.
+        // For extra safety, we make sure the rootVariables include the
+        // variables from all owners in this fragmentSpec, even though they
+        // should all point to the same owner
+        forEachObject(fragments, (__, key) => {
+          const fragmentOwner = fragmentOwners[key];
+          const fragmentOwnerVariables = Array.isArray(fragmentOwner)
+            ? fragmentOwner[0]?.variables ?? {}
+            : fragmentOwner?.variables ?? {};
+          rootVariables = {
+            ...rootVariables,
+            ...fragmentOwnerVariables,
+          };
+        });
+        fragmentVariables = getVariablesFromObject(
+          // NOTE: We pass empty operationVariables because we want to prefer
+          // the variables from the fragment owner
+          {},
+          fragments,
+          restProps,
+          fragmentOwners,
+        );
+      } else {
+        rootVariables = this.props.__relayContext.variables;
+        fragmentVariables = getVariablesFromObject(
+          rootVariables,
+          fragments,
+          restProps,
+        );
+      }
       fragmentVariables = {
         ...rootVariables,
         ...fragmentVariables,

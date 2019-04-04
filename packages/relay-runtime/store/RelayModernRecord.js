@@ -15,6 +15,7 @@ const deepFreeze = require('../util/deepFreeze');
 const invariant = require('invariant');
 const warning = require('warning');
 
+const {isClientID} = require('./ClientID');
 const {
   ID_KEY,
   REF_KEY,
@@ -224,7 +225,7 @@ function update(prevRecord: Record, nextRecord: Record): Record {
     const prevType = getType(prevRecord) ?? null;
     const nextType = getType(nextRecord) ?? null;
     warning(
-      prevType === nextType,
+      isClientID(nextID) || prevType === nextType,
       'RelayModernRecord: Invalid record update, expected both versions of ' +
         'record `%s` to have the same `%s` but got conflicting types `%s` ' +
         'and `%s`. The GraphQL server likely violated the globally unique ' +
@@ -272,7 +273,7 @@ function merge(record1: Record, record2: Record): Record {
     const prevType = getType(record1) ?? null;
     const nextType = getType(record2) ?? null;
     warning(
-      prevType === nextType,
+      isClientID(nextID) || prevType === nextType,
       'RelayModernRecord: Invalid record merge, expected both versions of ' +
         'record `%s` to have the same `%s` but got conflicting types `%s` ' +
         'and `%s`. The GraphQL server likely violated the globally unique ' +
@@ -317,7 +318,7 @@ function setValue(record: Record, storageKey: string, value: mixed): void {
       const prevType = getType(record) ?? null;
       const nextType = value ?? null;
       warning(
-        prevType === nextType,
+        isClientID(getDataID(record)) || prevType === nextType,
         'RelayModernRecord: Invalid field update, expected both versions of ' +
           'record `%s` to have the same `%s` but got conflicting types `%s` ' +
           'and `%s`. The GraphQL server likely violated the globally unique ' +

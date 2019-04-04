@@ -1661,6 +1661,73 @@ describe('RelayResponseNormalizer', () => {
     ]);
   });
 
+  it('does not warn in __DEV__ on inconsistent types for a client record', () => {
+    jest.mock('warning');
+
+    const {BarQuery} = generateWithTransforms(
+      `
+      query BarQuery($id: ID) {
+        node(id: $id) {
+          id
+          __typename
+          ... on User {
+            actor {
+              id
+              __typename
+            }
+            actors {
+              id
+              __typename
+            }
+          }
+        }
+      }
+    `,
+    );
+    const payload = {
+      node: {
+        id: 'client:1',
+        __typename: 'User',
+        actor: {
+          id: 'client:1',
+          __typename: 'Actor', // <- invalid
+        },
+        actors: [
+          {
+            id: 'client:1',
+            __typename: 'Actors', // <- invalid
+          },
+        ],
+      },
+    };
+    const recordSource = new RelayInMemoryRecordSource();
+    recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
+    expect(() => {
+      normalize(
+        recordSource,
+        {
+          dataID: ROOT_ID,
+          node: BarQuery.operation,
+          variables: {id: '1'},
+        },
+        payload,
+        {handleStrippedNulls: true},
+      );
+    }).not.toWarn();
+    expect(() => {
+      normalize(
+        recordSource,
+        {
+          dataID: ROOT_ID,
+          node: BarQuery.operation,
+          variables: {id: '1'},
+        },
+        payload,
+        {handleStrippedNulls: true},
+      );
+    }).not.toWarn();
+  });
+
   it('leaves undefined fields unset, as handleStrippedNulls == false', () => {
     const {StrippedQuery} = generateWithTransforms(
       `

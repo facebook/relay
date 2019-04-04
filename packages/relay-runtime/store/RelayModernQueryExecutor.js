@@ -18,9 +18,9 @@ const RelayModernRecord = require('./RelayModernRecord');
 const RelayObservable = require('../network/RelayObservable');
 const RelayResponseNormalizer = require('./RelayResponseNormalizer');
 
-const generateRelayClientID = require('./generateRelayClientID');
 const invariant = require('invariant');
 
+const {generateClientID} = require('./ClientID');
 const {ROOT_TYPE, TYPENAME_KEY, getStorageKey} = require('./RelayStoreUtils');
 
 import type {
@@ -397,7 +397,7 @@ class Executor {
     const parentRecord = relayPayload.source.get(parentID);
     const parentPayloads = (relayPayload.fieldPayloads ?? []).filter(
       fieldPayload => {
-        const fieldID = generateRelayClientID(
+        const fieldID = generateClientID(
           fieldPayload.dataID,
           fieldPayload.fieldKey,
         );
@@ -599,7 +599,7 @@ class Executor {
     const itemID =
       data.id ??
       (prevIDs && prevIDs[itemIndex]) || // Reuse previously generated client IDs
-      generateRelayClientID(parentID, storageKey, itemIndex);
+      generateClientID(parentID, storageKey, itemIndex);
     invariant(
       typeof itemID === 'string',
       'RelayModernEnvironment: Expected id of elements of field `%s` to ' +

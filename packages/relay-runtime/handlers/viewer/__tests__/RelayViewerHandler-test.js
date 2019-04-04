@@ -18,12 +18,13 @@ const RelayRecordSourceProxy = require('../../../mutations/RelayRecordSourceProx
 const RelayStoreUtils = require('../../../store/RelayStoreUtils');
 const RelayViewerHandler = require('../RelayViewerHandler');
 
-const generateRelayClientID = require('../../../store/generateRelayClientID');
 const getRelayHandleKey = require('../../../util/getRelayHandleKey');
+
+const {generateClientID} = require('../../../store/ClientID');
 
 const {ID_KEY, REF_KEY, ROOT_ID, ROOT_TYPE, TYPENAME_KEY} = RelayStoreUtils;
 
-const VIEWER_ID = generateRelayClientID(ROOT_ID, 'viewer');
+const VIEWER_ID = generateClientID(ROOT_ID, 'viewer');
 
 describe('RelayViewerHandler', () => {
   let baseData;
@@ -114,13 +115,13 @@ describe('RelayViewerHandler', () => {
 
   it('copies the handle field from server viewer for mutation data', () => {
     const commentAlias = 'commentCreate{"input":{}}';
-    const commentID = generateRelayClientID(ROOT_ID, commentAlias);
+    const commentID = generateClientID(ROOT_ID, commentAlias);
     const comment = RelayModernRecord.create(
       commentID,
       'CommentCreateResponsePayload',
     );
     baseSource.set(commentID, comment);
-    const viewerID = generateRelayClientID(commentID, 'viewer');
+    const viewerID = generateClientID(commentID, 'viewer');
     const viewer = RelayModernRecord.create(viewerID, 'Viewer');
     RelayModernRecord.setLinkedRecordID(viewer, 'actor', '842472');
     baseSource.set(viewerID, viewer);

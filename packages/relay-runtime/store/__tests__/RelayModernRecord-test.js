@@ -308,6 +308,13 @@ describe('RelayModernRecord', () => {
         'MeaningOfLife',
       ]);
     });
+
+    it('does not warn if __typename does not match on client record', () => {
+      jest.mock('warning');
+      const prev = RelayModernRecord.create('client:42', 'Number');
+      const next = RelayModernRecord.create('client:42', 'MeaningOfLife');
+      expect(() => RelayModernRecord.update(prev, next)).not.toWarn();
+    });
   });
 
   describe('merge()', () => {
@@ -381,6 +388,13 @@ describe('RelayModernRecord', () => {
         'MeaningOfLife',
       ]);
     });
+
+    it('does not warn if __typename does not match on client record', () => {
+      jest.mock('warning');
+      const prev = RelayModernRecord.create('client:42', 'Number');
+      const next = RelayModernRecord.create('client:42', 'MeaningOfLife');
+      expect(() => RelayModernRecord.merge(prev, next)).not.toWarn();
+    });
   });
 
   describe('setValue()', () => {
@@ -410,6 +424,14 @@ describe('RelayModernRecord', () => {
         'User',
         'not-User',
       ]);
+    });
+
+    it('does not warn if updating the __typename of a client record', () => {
+      jest.mock('warning');
+      const record = RelayModernRecord.create('client:4', 'User');
+      expect(() =>
+        RelayModernRecord.setValue(record, TYPENAME_KEY, 'not-User'),
+      ).not.toWarn();
     });
   });
 });

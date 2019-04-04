@@ -14,7 +14,7 @@ import type {DataID} from '../util/RelayRuntimeTypes';
 
 const PREFIX = 'client:';
 
-function generateRelayClientID(
+function generateClientID(
   id: DataID,
   storageKey: string,
   index?: number,
@@ -29,4 +29,8 @@ function generateRelayClientID(
   return key;
 }
 
-module.exports = generateRelayClientID;
+function isClientID(id: DataID): boolean {
+  return id.indexOf(PREFIX) === 0;
+}
+
+module.exports = {generateClientID, isClientID};

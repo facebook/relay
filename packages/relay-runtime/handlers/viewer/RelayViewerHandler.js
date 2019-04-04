@@ -10,8 +10,7 @@
 
 'use strict';
 
-const generateRelayClientID = require('../../store/generateRelayClientID');
-
+const {generateClientID} = require('../../store/ClientID');
 const {ROOT_ID} = require('../../store/RelayStoreUtils');
 
 import type {
@@ -19,7 +18,7 @@ import type {
   RecordSourceProxy,
 } from '../../store/RelayStoreTypes';
 
-const VIEWER_ID = generateRelayClientID(ROOT_ID, 'viewer');
+const VIEWER_ID = generateClientID(ROOT_ID, 'viewer');
 const VIEWER_TYPE = 'Viewer';
 
 /**

@@ -13,15 +13,12 @@
 const RelayModernRecord = require('./RelayModernRecord');
 const RelayProfiler = require('../util/RelayProfiler');
 
-const generateRelayClientID = require('./generateRelayClientID');
 const invariant = require('invariant');
 const warning = require('warning');
 
 const {
   CONDITION,
   DEFER,
-  FRAGMENT,
-  FRAGMENT_SPREAD,
   INLINE_FRAGMENT,
   LINKED_FIELD,
   LINKED_HANDLE,
@@ -30,6 +27,7 @@ const {
   SCALAR_HANDLE,
   STREAM,
 } = require('../util/RelayConcreteNode');
+const {generateClientID, isClientID} = require('./ClientID');
 const {
   getArgumentValues,
   getHandleStorageKey,
@@ -376,7 +374,7 @@ class RelayResponseNormalizer {
       fieldValue.id ||
       // Reuse previously generated client IDs
       RelayModernRecord.getLinkedRecordID(record, storageKey) ||
-      generateRelayClientID(RelayModernRecord.getDataID(record), storageKey);
+      generateClientID(RelayModernRecord.getDataID(record), storageKey);
     invariant(
       typeof nextID === 'string',
       'RelayResponseNormalizer: Expected id on field `%s` to be a string.',
@@ -425,7 +423,7 @@ class RelayResponseNormalizer {
       const nextID =
         item.id ||
         (prevIDs && prevIDs[nextIndex]) || // Reuse previously generated client IDs
-        generateRelayClientID(
+        generateClientID(
           RelayModernRecord.getDataID(record),
           storageKey,
           nextIndex,
@@ -465,7 +463,8 @@ class RelayResponseNormalizer {
         ? field.concreteType || this._getRecordType(payload)
         : this._getRecordType(payload);
     warning(
-      RelayModernRecord.getType(record) === typeName,
+      isClientID(RelayModernRecord.getDataID(record)) ||
+        RelayModernRecord.getType(record) === typeName,
       'RelayResponseNormalizer: Invalid record `%s`. Expected %s to be ' +
         'be consistent, but the record was assigned conflicting types `%s` ' +
         'and `%s`. The GraphQL server likely violated the globally unique ' +

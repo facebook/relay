@@ -1294,16 +1294,18 @@ describe('RelayPublishQueue', () => {
               me: {[REF_KEY]: '4'},
             },
             4: {
+              [ID_KEY]: '4',
+              [TYPENAME_KEY]: 'User',
               id: '4',
-              __typename: 'User',
               name: 'zuck',
             },
           }),
         };
         nameSource = new RelayInMemoryRecordSource({
           4: {
+            [ID_KEY]: '4',
+            [TYPENAME_KEY]: 'User',
             id: '4',
-            __typename: 'User',
             name: 'mark',
           },
         });
@@ -1320,8 +1322,9 @@ describe('RelayPublishQueue', () => {
             me: {[REF_KEY]: '4'},
           },
           4: {
-            id: '4',
+            __id: '4',
             __typename: 'User',
+            id: '4',
             name: 'zuck',
           },
         });
@@ -1337,8 +1340,9 @@ describe('RelayPublishQueue', () => {
             me: {[REF_KEY]: '4'},
           },
           4: {
-            id: '4',
+            __id: '4',
             __typename: 'User',
+            id: '4',
             name: 'mark',
           },
         });

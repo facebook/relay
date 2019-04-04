@@ -10,9 +10,9 @@
 
 'use strict';
 
-const generateRelayClientID = require('../store/generateRelayClientID');
 const invariant = require('invariant');
 
+const {generateClientID} = require('../store/ClientID');
 const {getStableStorageKey} = require('../store/RelayStoreUtils');
 
 import type {RecordProxy} from '../store/RelayStoreTypes';
@@ -107,7 +107,7 @@ class RelayRecordProxy implements RecordProxy {
     let linkedRecord = this.getLinkedRecord(name, args);
     if (!linkedRecord) {
       const storageKey = getStableStorageKey(name, args);
-      const clientID = generateRelayClientID(this.getDataID(), storageKey);
+      const clientID = generateClientID(this.getDataID(), storageKey);
       linkedRecord = this._source.create(clientID, typeName);
       this.setLinkedRecord(linkedRecord, name, args);
     }

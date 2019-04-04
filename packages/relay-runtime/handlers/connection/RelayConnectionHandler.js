@@ -12,10 +12,11 @@
 
 const RelayConnectionInterface = require('./RelayConnectionInterface');
 
-const generateRelayClientID = require('../../store/generateRelayClientID');
 const getRelayHandleKey = require('../../util/getRelayHandleKey');
 const invariant = require('invariant');
 const warning = require('warning');
+
+const {generateClientID} = require('../../store/ClientID');
 
 import type {
   HandleFieldPayload,
@@ -73,7 +74,7 @@ function update(store: RecordSourceProxy, payload: HandleFieldPayload): void {
   if (!clientConnection) {
     // Initial fetch with data: copy fields from the server record
     const connection = store.create(
-      generateRelayClientID(record.getDataID(), payload.handleKey),
+      generateClientID(record.getDataID(), payload.handleKey),
       serverConnection.getType(),
     );
     connection.setValue(0, NEXT_EDGE_INDEX);
@@ -88,7 +89,7 @@ function update(store: RecordSourceProxy, payload: HandleFieldPayload): void {
     record.setLinkedRecord(connection, payload.handleKey);
 
     clientPageInfo = store.create(
-      generateRelayClientID(connection.getDataID(), PAGE_INFO),
+      generateClientID(connection.getDataID(), PAGE_INFO),
       PAGE_INFO_TYPE,
     );
     clientPageInfo.setValue(false, HAS_NEXT_PAGE);
@@ -343,7 +344,7 @@ function createEdge(
   // which will only conflict if the same node is added to the same connection
   // twice. This is acceptable since the `insertEdge*` functions ignore
   // duplicates.
-  const edgeID = generateRelayClientID(record.getDataID(), node.getDataID());
+  const edgeID = generateClientID(record.getDataID(), node.getDataID());
   let edge = store.get(edgeID);
   if (!edge) {
     edge = store.create(edgeID, edgeType);
@@ -481,11 +482,7 @@ function buildConnectionEdge(
     NEXT_EDGE_INDEX,
     edgeIndex,
   );
-  const edgeID = generateRelayClientID(
-    connection.getDataID(),
-    EDGES,
-    edgeIndex,
-  );
+  const edgeID = generateClientID(connection.getDataID(), EDGES, edgeIndex);
   const connectionEdge = store.create(edgeID, edge.getType());
   connectionEdge.copyFieldsFrom(edge);
   connection.setValue(edgeIndex + 1, NEXT_EDGE_INDEX);

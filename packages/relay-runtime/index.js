@@ -41,7 +41,6 @@ const createRelayNetworkLogger = require('./network/createRelayNetworkLogger');
 const deepFreeze = require('./util/deepFreeze');
 const fetchQueryInternal = require('./query/fetchQueryInternal');
 const fetchRelayModernQuery = require('./query/fetchRelayModernQuery');
-const generateRelayClientID = require('./store/generateRelayClientID');
 const getFragmentIdentifier = require('./util/getFragmentIdentifier');
 const getFragmentSpecIdentifier = require('./util/getFragmentSpecIdentifier');
 const getOperationIdentifier = require('./util/getOperationIdentifier');
@@ -51,6 +50,8 @@ const isScalarAndEqual = require('./util/isScalarAndEqual');
 const recycleNodesInto = require('./util/recycleNodesInto');
 const requestRelaySubscription = require('./subscription/requestRelaySubscription');
 const stableCopy = require('./util/stableCopy');
+
+const {generateClientID} = require('./store/ClientID');
 
 export type {
   ConnectionMetadata,
@@ -262,7 +263,7 @@ module.exports = {
 
   createRelayNetworkLogger: createRelayNetworkLogger,
   deepFreeze: deepFreeze,
-  generateClientID: generateRelayClientID,
+  generateClientID: generateClientID,
   getRelayHandleKey: getRelayHandleKey,
   isScalarAndEqual: isScalarAndEqual,
   recycleNodesInto: recycleNodesInto,

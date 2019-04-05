@@ -295,7 +295,7 @@ function sharedUpdater(store, user, newEdge) {
   const conn = ConnectionHandler.getConnection(
     userProxy,
     'TodoList_todos', // This is the connection identifier, defined here
-    // https://github.com/relayjs/relay-examples/blob/master/todo/js/components/TodoList.js#L68
+    // https://github.com/relayjs/relay-examples/blob/master/todo/js/components/TodoList.js#L76
   );
 
   // Insert the new todo into the Todo List connection

@@ -10,31 +10,25 @@
 
 'use strict';
 
-const {createHash} = require('crypto');
-
-let projectToBuckets: ?Map<string, $ReadOnlyArray<boolean>> = null;
+let whitelistsByProject: ?Map<string, Set<string>> = null;
 
 /**
  * This module helps gradually rolling out changes to the code generation by
  * gradually enabling more buckets representing randomly distributed artifacts.
  */
-function set(newProjectToBuckets: Map<string, $ReadOnlyArray<boolean>>) {
-  projectToBuckets = newProjectToBuckets;
+function set(newWhitelistsByProject: Map<string, Set<string>>) {
+  whitelistsByProject = newWhitelistsByProject;
 }
 
-function check(project: string, key: string): boolean {
-  if (projectToBuckets == null) {
+function check(project: string, key: string) {
+  if (whitelistsByProject == null) {
     return true;
   }
-  const buckets = projectToBuckets.get(project);
-  if (buckets == null || buckets.length === 0) {
+  const whitelist = whitelistsByProject.get(project);
+  if (whitelist == null) {
     return true;
   }
-  const hash = createHash('md5')
-    .update(key)
-    .digest()
-    .readUInt16BE(0);
-  return buckets[hash % buckets.length];
+  return whitelist.has(key);
 }
 
 module.exports = {

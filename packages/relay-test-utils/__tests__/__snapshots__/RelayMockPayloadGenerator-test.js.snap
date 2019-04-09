@@ -2,6 +2,12 @@
 
 exports[`check context in the mock resolver 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
+query TestQuery {
+  viewer {
+    ...TestFragment
+  }
+}
+
 fragment TestFragment on Viewer {
   actor {
     ... on User {
@@ -15,24 +21,18 @@ fragment TestFragment on Viewer {
   }
 }
 
-Resolvers:
-	Type: Image
-Output: {
-  "width": 200,
-  "height": 100,
-  "uri": "http://my-image"
-}
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 {
-  "variables": {},
-  "payload": {
-    "actor": {
-      "__typename": "User",
-      "id": "<User-mock-id-1>",
-      "name": "<mock-value-for-field-\\"name\\">",
-      "profile_picture": {
-        "uri": "http://my-image",
-        "height": 100
+  "data": {
+    "viewer": {
+      "actor": {
+        "__typename": "User",
+        "id": "<mock-id-1>",
+        "name": "<mock-value-for-field-\\"name\\">",
+        "profile_picture": {
+          "uri": "http://my-image",
+          "height": 100
+        }
       }
     }
   }
@@ -41,6 +41,12 @@ Output: {
 
 exports[`generate basic mock data 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
+query TestQuery {
+  node(id: "my-id") {
+    ...TestFragment
+  }
+}
+
 fragment TestFragment on User {
   id
   name
@@ -52,13 +58,15 @@ fragment TestFragment on User {
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 {
-  "variables": {},
-  "payload": {
-    "id": "<User-mock-id-1>",
-    "name": "<mock-value-for-field-\\"name\\">",
-    "author": {
-      "id": "<User-mock-id-2>",
-      "name": "<mock-value-for-field-\\"name\\">"
+  "data": {
+    "node": {
+      "__typename": "User",
+      "id": "<mock-id-1>",
+      "name": "<mock-value-for-field-\\"name\\">",
+      "author": {
+        "id": "<User-mock-id-2>",
+        "name": "<mock-value-for-field-\\"name\\">"
+      }
     }
   }
 }
@@ -66,6 +74,12 @@ fragment TestFragment on User {
 
 exports[`generate mock and verify arguments in the context 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
+query TestQuery($smallScale: Int = 1, $bigScale: Int = 100) {
+  node(id: "my-id") {
+    ...TestFragment
+  }
+}
+
 fragment TestFragment on User {
   ... on User {
     id
@@ -79,23 +93,19 @@ fragment TestFragment on User {
   }
 }
 
-Resolvers:
-	Type: Image
-Output: undefined
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 {
-  "variables": {
-    "smallScale": 1,
-    "bigScale": 100
-  },
-  "payload": {
-    "id": "<User-mock-id-1>",
-    "name": "<mock-value-for-field-\\"name\\">",
-    "smallImage": {
-      "uri": "small image"
-    },
-    "bigImage": {
-      "uri": "big image"
+  "data": {
+    "node": {
+      "__typename": "User",
+      "id": "<mock-id-1>",
+      "name": "<mock-value-for-field-\\"name\\">",
+      "smallImage": {
+        "uri": "small image"
+      },
+      "bigImage": {
+        "uri": "big image"
+      }
     }
   }
 }
@@ -103,6 +113,12 @@ Output: undefined
 
 exports[`generate mock for fragment with @argumentsDefinition 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
+query TestQuery($scale: Int = 1) {
+  node(id: "my-id") {
+    ...TestFragment @arguments(withName: true)
+  }
+}
+
 fragment TestFragment on User @argumentDefinitions(withName: {type: "Boolean!"}) {
   id
   name @include(if: $withName)
@@ -113,24 +129,18 @@ fragment TestFragment on User @argumentDefinitions(withName: {type: "Boolean!"})
   }
 }
 
-Resolvers:
-	Type: Image
-Output: {
-  "width": 42,
-  "height": 42
-}
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 {
-  "variables": {
-    "withName": false,
-    "scale": 4.2
-  },
-  "payload": {
-    "id": "<User-mock-id-1>",
-    "profile_picture": {
-      "uri": "<mock-value-for-field-\\"uri\\">",
-      "width": 42,
-      "height": 42
+  "data": {
+    "node": {
+      "__typename": "User",
+      "id": "<mock-id-1>",
+      "name": "<mock-value-for-field-\\"name\\">",
+      "profile_picture": {
+        "uri": "<mock-value-for-field-\\"uri\\">",
+        "width": 42,
+        "height": 42
+      }
     }
   }
 }
@@ -138,13 +148,36 @@ Output: {
 
 exports[`generate mock for multiple fragment spreads 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
+query TestQuery {
+  node(id: "my-id") {
+    ...TestFragment
+  }
+}
+
+fragment ActorUser on Page {
+  id
+  pageName: name
+}
+
+fragment UserData on User {
+  id
+  name
+  username
+}
+
+fragment ProfilePicture on User {
+  ...UserData
+  profile_picture {
+    uri
+  }
+}
+
 fragment TestFragment on User {
   body {
     text
   }
   actor {
     name
-    ...PageInfo
     id
   }
   myActor: actor {
@@ -156,26 +189,41 @@ fragment TestFragment on User {
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 {
-  "variables": {},
-  "payload": {
-    "body": {
-      "text": "<mock-value-for-field-\\"text\\">"
-    },
-    "actor": {
-      "name": "<mock-value-for-field-\\"name\\">",
+  "data": {
+    "node": {
+      "__typename": "User",
       "id": "<mock-id-1>",
-      "__typename": "__MockObject"
-    },
-    "myActor": {
-      "__typename": "__MockObject"
-    },
-    "__typename": "User"
+      "body": {
+        "text": "<mock-value-for-field-\\"text\\">"
+      },
+      "actor": {
+        "__typename": "__MockObject",
+        "name": "<mock-value-for-field-\\"name\\">",
+        "id": "<mock-id-2>"
+      },
+      "myActor": {
+        "__typename": "Page",
+        "id": "<mock-id-3>",
+        "pageName": "<mock-value-for-field-\\"pageName\\">"
+      },
+      "name": "<mock-value-for-field-\\"name\\">",
+      "username": "<mock-value-for-field-\\"username\\">",
+      "profile_picture": {
+        "uri": "<mock-value-for-field-\\"uri\\">"
+      }
+    }
   }
 }
 `;
 
 exports[`generate mock for objects without concrete type 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
+query TestQuery {
+  node(id: "my-id") {
+    ...TestFragment
+  }
+}
+
 fragment TestFragment on Page {
   actor {
     id
@@ -183,19 +231,17 @@ fragment TestFragment on Page {
   }
 }
 
-Resolvers:
-	Type: __MockObject
-Output: {
-  "__typename": "User",
-  "name": "Mark"
-}
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 {
-  "variables": {},
-  "payload": {
-    "actor": {
-      "id": "<User-mock-id-1>",
-      "name": "Mark"
+  "data": {
+    "node": {
+      "__typename": "Page",
+      "id": "<mock-id-1>",
+      "actor": {
+        "__typename": "__MockObject",
+        "id": "<mock-id-2>",
+        "name": "<mock-value-for-field-\\"name\\">"
+      }
     }
   }
 }
@@ -203,6 +249,12 @@ Output: {
 
 exports[`generate mock for plural fragment 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
+query TestQuery {
+  nodes {
+    ...TestFragment
+  }
+}
+
 fragment TestFragment on Comment @relay(plural: true) {
   id
   body {
@@ -212,20 +264,28 @@ fragment TestFragment on Comment @relay(plural: true) {
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 {
-  "variables": {},
-  "payload": [
-    {
-      "id": "<Comment-mock-id-1>",
-      "body": {
-        "text": "<mock-value-for-field-\\"text\\">"
+  "data": {
+    "nodes": [
+      {
+        "__typename": "Comment",
+        "id": "<mock-id-1>",
+        "body": {
+          "text": "<mock-value-for-field-\\"text\\">"
+        }
       }
-    }
-  ]
+    ]
+  }
 }
 `;
 
 exports[`generate mock for simple fragment 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
+query TestQuery {
+  node(id: "my-id") {
+    ...TestFragment
+  }
+}
+
 fragment TestFragment on User {
   id
   name
@@ -238,14 +298,16 @@ fragment TestFragment on User {
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 {
-  "variables": {},
-  "payload": {
-    "id": "<User-mock-id-1>",
-    "name": "<mock-value-for-field-\\"name\\">",
-    "profile_picture": {
-      "uri": "<mock-value-for-field-\\"uri\\">",
-      "width": "<mock-value-for-field-\\"width\\">",
-      "height": "<mock-value-for-field-\\"height\\">"
+  "data": {
+    "node": {
+      "__typename": "User",
+      "id": "<mock-id-1>",
+      "name": "<mock-value-for-field-\\"name\\">",
+      "profile_picture": {
+        "uri": "<mock-value-for-field-\\"uri\\">",
+        "width": "<mock-value-for-field-\\"width\\">",
+        "height": "<mock-value-for-field-\\"height\\">"
+      }
     }
   }
 }
@@ -253,6 +315,18 @@ fragment TestFragment on User {
 
 exports[`generate mock for with directives and handlers 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
+query TestQuery($first: Int = 10, $picturePreset: PhotoSize, $RELAY_INCREMENTAL_DELIVERY: Boolean = false) {
+  node(id: "my-id") {
+    ...TestFragment @arguments(condition: true)
+  }
+}
+
+fragment OneMoreFragmentSpread on User {
+  birthdate {
+    month
+  }
+}
+
 fragment TestFragment on User @argumentDefinitions(condition: {type: "Boolean!"}) {
   id
   name
@@ -266,7 +340,6 @@ fragment TestFragment on User @argumentDefinitions(condition: {type: "Boolean!"}
       node {
         id
         name
-        ...CustomUserFragment_data
       }
     }
     myPageInfo: pageInfo {
@@ -296,7 +369,7 @@ fragment TestFragment on User @argumentDefinitions(condition: {type: "Boolean!"}
       id
       pageName: name
     }
-    ... on Comment @defer {
+    ... on Comment @defer(if: $RELAY_INCREMENTAL_DELIVERY, label: "DeferLabel") {
       body {
         text
       }
@@ -307,61 +380,71 @@ fragment TestFragment on User @argumentDefinitions(condition: {type: "Boolean!"}
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 {
-  "variables": {
-    "condition": false,
-    "first": 42,
-    "picturePreset": "<mock-value-for-field-\\"picturePreset\\">"
-  },
-  "payload": {
-    "id": "<User-mock-id-1>",
-    "name": "<mock-value-for-field-\\"name\\">",
-    "myActor": {
-      "id": "<mock-id-2>",
-      "name": "<mock-value-for-field-\\"name\\">"
-    },
-    "customName": "<mock-value-for-field-\\"customName\\">",
-    "friends": {
-      "edges": [
-        {
-          "node": {
-            "id": "<User-mock-id-3>",
-            "name": "<mock-value-for-field-\\"name\\">",
-            "__typename": "User"
-          },
-          "cursor": "<mock-value-for-field-\\"cursor\\">"
-        }
-      ],
-      "myPageInfo": {
-        "endCursor": "<mock-value-for-field-\\"endCursor\\">",
-        "hasNextPage": "<mock-value-for-field-\\"hasNextPage\\">"
-      },
-      "pageInfo": {
-        "endCursor": "<mock-value-for-field-\\"endCursor\\">",
-        "hasNextPage": "<mock-value-for-field-\\"hasNextPage\\">"
-      }
-    },
-    "profile_picture": {
-      "uri": "<mock-value-for-field-\\"uri\\">"
-    },
-    "actor": {
-      "username": "<mock-value-for-field-\\"username\\">",
+  "data": {
+    "node": {
       "__typename": "User",
-      "id": "<User-mock-id-4>",
-      "userName": "<mock-value-for-field-\\"userName\\">",
+      "id": "<mock-id-1>",
       "name": "<mock-value-for-field-\\"name\\">",
+      "myActor": {
+        "__typename": "__MockObject",
+        "id": "<mock-id-2>",
+        "name": "<mock-value-for-field-\\"name\\">"
+      },
+      "customName": "<mock-value-for-field-\\"customName\\">",
+      "friends": {
+        "edges": [
+          {
+            "node": {
+              "id": "<User-mock-id-3>",
+              "name": "<mock-value-for-field-\\"name\\">",
+              "__typename": "User"
+            },
+            "cursor": "<mock-value-for-field-\\"cursor\\">"
+          }
+        ],
+        "myPageInfo": {
+          "endCursor": "<mock-value-for-field-\\"endCursor\\">",
+          "hasNextPage": "<mock-value-for-field-\\"hasNextPage\\">"
+        },
+        "pageInfo": {
+          "endCursor": "<mock-value-for-field-\\"endCursor\\">",
+          "hasNextPage": "<mock-value-for-field-\\"hasNextPage\\">"
+        }
+      },
+      "profile_picture": {
+        "uri": "<mock-value-for-field-\\"uri\\">"
+      },
       "profilePicture": {
-        "uri": "<mock-value-for-field-\\"uri\\">",
-        "width": "<mock-value-for-field-\\"width\\">",
-        "height": "<mock-value-for-field-\\"height\\">"
+        "uri": "<mock-value-for-field-\\"uri\\">"
+      },
+      "birthdate": {
+        "month": "<mock-value-for-field-\\"month\\">"
+      },
+      "actor": {
+        "__typename": "User",
+        "username": "<mock-value-for-field-\\"username\\">",
+        "id": "<mock-id-4>",
+        "userName": "<mock-value-for-field-\\"userName\\">",
+        "name": "<mock-value-for-field-\\"name\\">",
+        "profilePicture": {
+          "uri": "<mock-value-for-field-\\"uri\\">",
+          "width": "<mock-value-for-field-\\"width\\">",
+          "height": "<mock-value-for-field-\\"height\\">"
+        }
       }
-    },
-    "__typename": "User"
+    }
   }
 }
 `;
 
 exports[`generate mock using custom mock functions 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
+query TestQuery {
+  node(id: "my-id") {
+    ...TestFragment
+  }
+}
+
 fragment TestFragment on User {
   id
   name
@@ -370,19 +453,16 @@ fragment TestFragment on User {
   }
 }
 
-Resolvers:
-	Type: ID
-Output: "my-id-1001"
-	Type: String
-Output: undefined
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 {
-  "variables": {},
-  "payload": {
-    "id": "my-id-1001",
-    "name": "<mock-value-for-field-\\"name\\">",
-    "profile_picture": {
-      "uri": "http://my-uri"
+  "data": {
+    "node": {
+      "__typename": "User",
+      "id": "my-id-1001",
+      "name": "<mock-value-for-field-\\"name\\">",
+      "profile_picture": {
+        "uri": "http://my-uri"
+      }
     }
   }
 }
@@ -390,6 +470,12 @@ Output: undefined
 
 exports[`generate mock using custom mock functions for object type (multiple object) 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
+query TestQuery {
+  node(id: "my-id") {
+    ...TestFragment
+  }
+}
+
 fragment TestFragment on User {
   name
   actor {
@@ -407,33 +493,25 @@ fragment TestFragment on User {
   }
 }
 
-Resolvers:
-	Type: User
-Output: {
-  "name": "My user name"
-}
-	Type: Image
-Output: {
-  "width": 200,
-  "height": 100,
-  "uri": "http://my-image"
-}
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 {
-  "variables": {},
-  "payload": {
-    "name": "My user name",
-    "actor": {
+  "data": {
+    "node": {
       "__typename": "User",
-      "id": "<User-mock-id-1>",
+      "id": "<mock-id-1>",
       "name": "My user name",
+      "actor": {
+        "__typename": "User",
+        "id": "<mock-id-2>",
+        "name": "My user name",
+        "profile_picture": {
+          "uri": "http://my-image",
+          "height": 100
+        }
+      },
       "profile_picture": {
-        "uri": "http://my-image",
-        "height": 100
+        "uri": "http://my-image"
       }
-    },
-    "profile_picture": {
-      "uri": "http://my-image"
     }
   }
 }
@@ -441,6 +519,12 @@ Output: {
 
 exports[`generate mock using custom mock functions for object type 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
+query TestQuery {
+  node(id: "my-id") {
+    ...TestFragment
+  }
+}
+
 fragment TestFragment on Page {
   actor {
     id
@@ -452,24 +536,21 @@ fragment TestFragment on Page {
   }
 }
 
-Resolvers:
-	Type: Image
-Output: {
-  "width": 200,
-  "height": 100,
-  "uri": "http://my-image"
-}
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 {
-  "variables": {},
-  "payload": {
-    "actor": {
+  "data": {
+    "node": {
+      "__typename": "Page",
       "id": "<mock-id-1>",
-      "name": "<mock-value-for-field-\\"name\\">"
-    },
-    "backgroundImage": {
-      "width": 200,
-      "uri": "http://my-image"
+      "actor": {
+        "__typename": "__MockObject",
+        "id": "<mock-id-2>",
+        "name": "<mock-value-for-field-\\"name\\">"
+      },
+      "backgroundImage": {
+        "width": 200,
+        "uri": "http://my-image"
+      }
     }
   }
 }
@@ -477,6 +558,12 @@ Output: {
 
 exports[`generate mock with condition (and other complications) 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
+query TestQuery($showProfilePicture: Boolean, $hideBirthday: Boolean, $showBirthdayMonth: Boolean, $hideAuthorUsername: Boolean) {
+  node(id: "my-id") {
+    ...TestFragment
+  }
+}
+
 fragment TestFragment on User {
   id
   name
@@ -511,35 +598,27 @@ fragment TestFragment on User {
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 {
-  "variables": {
-    "showProfilePicture": false,
-    "hideBirthday": false,
-    "showBirthdayMonth": false,
-    "hideAuthorUsername": false
-  },
-  "payload": {
-    "id": "<User-mock-id-1>",
-    "name": "<mock-value-for-field-\\"name\\">",
-    "customId": "<User-mock-id-2>",
-    "author": {
+  "data": {
+    "node": {
+      "__typename": "User",
+      "id": "<mock-id-1>",
       "name": "<mock-value-for-field-\\"name\\">",
-      "authorID": "<User-mock-id-3>",
-      "objectType": "User",
-      "username": "<mock-value-for-field-\\"username\\">"
-    },
-    "allPhones": [
-      {
-        "phoneNumber": {
-          "displayNumber": "<mock-value-for-field-\\"displayNumber\\">"
+      "customId": "<User-mock-id-2>",
+      "author": {
+        "name": "<mock-value-for-field-\\"name\\">",
+        "id": "<User-mock-id-3>"
+      },
+      "allPhones": [
+        {
+          "phoneNumber": {
+            "displayNumber": "<mock-value-for-field-\\"displayNumber\\">"
+          }
         }
+      ],
+      "emailAddresses": "<mock-value-for-field-\\"emailAddresses\\">",
+      "backgroundImage": {
+        "uri": "<mock-value-for-field-\\"uri\\">"
       }
-    ],
-    "emailAddresses": "<mock-value-for-field-\\"emailAddresses\\">",
-    "backgroundImage": {
-      "uri": "<mock-value-for-field-\\"uri\\">"
-    },
-    "birthdate": {
-      "year": "<mock-value-for-field-\\"year\\">"
     }
   }
 }
@@ -547,6 +626,18 @@ fragment TestFragment on User {
 
 exports[`generate mock with connection 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
+query TestQuery($first: Int, $skipUserInConnection: Boolean) {
+  node(id: "my-id") {
+    ...TestFragment
+  }
+}
+
+fragment UserFragment on User {
+  name
+  username
+  emailAddresses
+}
+
 fragment TestFragment on Page {
   actor {
     ... on User {
@@ -570,31 +661,33 @@ fragment TestFragment on Page {
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 {
-  "variables": {
-    "first": 42,
-    "skipUserInConnection": false
-  },
-  "payload": {
-    "actor": {
-      "__typename": "User",
-      "id": "<User-mock-id-1>",
-      "myType": "User",
-      "myName": "<mock-value-for-field-\\"myName\\">",
-      "name": "<mock-value-for-field-\\"name\\">",
-      "friends": {
-        "edges": [
-          {
-            "cursor": "<mock-value-for-field-\\"cursor\\">",
-            "node": {
-              "id": "<User-mock-id-2>",
-              "__typename": "User"
+  "data": {
+    "node": {
+      "__typename": "Page",
+      "id": "<mock-id-1>",
+      "actor": {
+        "__typename": "User",
+        "id": "<mock-id-2>",
+        "myType": "User",
+        "myName": "<mock-value-for-field-\\"myName\\">",
+        "name": "<mock-value-for-field-\\"name\\">",
+        "friends": {
+          "edges": [
+            {
+              "cursor": "<mock-value-for-field-\\"cursor\\">",
+              "node": {
+                "id": "<User-mock-id-3>",
+                "__typename": "User"
+              }
             }
+          ],
+          "pageInfo": {
+            "endCursor": "<mock-value-for-field-\\"endCursor\\">",
+            "hasNextPage": "<mock-value-for-field-\\"hasNextPage\\">"
           }
-        ],
-        "pageInfo": {
-          "endCursor": "<mock-value-for-field-\\"endCursor\\">",
-          "hasNextPage": "<mock-value-for-field-\\"hasNextPage\\">"
-        }
+        },
+        "username": "<mock-value-for-field-\\"username\\">",
+        "emailAddresses": "<mock-value-for-field-\\"emailAddresses\\">"
       }
     }
   }
@@ -603,6 +696,12 @@ fragment TestFragment on Page {
 
 exports[`generate mock with inline fragment 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
+query TestQuery($condition: Boolean) {
+  node(id: "my-id") {
+    ...TestFragment
+  }
+}
+
 fragment TestFragment on User {
   id
   name
@@ -632,17 +731,17 @@ fragment TestFragment on User {
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 {
-  "variables": {
-    "condition": false
-  },
-  "payload": {
-    "id": "<User-mock-id-1>",
-    "name": "<mock-value-for-field-\\"name\\">",
-    "author": {
-      "id": "<User-mock-id-2>",
+  "data": {
+    "node": {
+      "__typename": "User",
+      "id": "<mock-id-1>",
       "name": "<mock-value-for-field-\\"name\\">",
-      "authorID": "<User-mock-id-3>",
-      "username": "<mock-value-for-field-\\"username\\">"
+      "author": {
+        "id": "<User-mock-id-2>",
+        "name": "<mock-value-for-field-\\"name\\">",
+        "authorID": "<User-mock-id-3>",
+        "username": "<mock-value-for-field-\\"username\\">"
+      }
     }
   }
 }
@@ -650,6 +749,12 @@ fragment TestFragment on User {
 
 exports[`generate mock with manual mock for objects 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
+query TestQuery {
+  node(id: "my-id") {
+    ...TestFragment
+  }
+}
+
 fragment TestFragment on Page {
   id
   name
@@ -682,54 +787,41 @@ fragment TestFragment on Page {
   }
 }
 
-Resolvers:
-	Type: Page
-Output: {
-  "id": "page-id-1",
-  "name": "My Page",
-  "body": {
-    "text": "My Text"
-  },
-  "url": "http://"
-}
-	Type: Comment
-Output: {
-  "message": {
-    "text": "Comment text: "
-  }
-}
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 {
-  "variables": {},
-  "payload": {
-    "id": "page-id-1",
-    "name": "My Page",
-    "body": {
-      "text": "My Text"
-    },
-    "myTown": {
-      "id": "page-id-2",
-      "name": "My Hometown",
-      "url": "http://myTown",
-      "feedback": {
-        "comments": {
-          "edges": [
-            {
-              "cursor": "<mock-value-for-field-\\"cursor\\">",
-              "comment": {
-                "id": "<Comment-mock-id-3>",
-                "message": {
-                  "text": "Comment text: myTown>feedback>comments>edges>comment"
-                },
-                "likeSentence": {
-                  "text": "<mock-value-for-field-\\"text\\">"
+  "data": {
+    "node": {
+      "__typename": "Page",
+      "id": "<mock-id-1>",
+      "name": "My Page",
+      "body": {
+        "text": "My Text"
+      },
+      "myTown": {
+        "id": "page-id-3",
+        "name": "My Hometown",
+        "url": "http://node-myTown",
+        "feedback": {
+          "comments": {
+            "edges": [
+              {
+                "cursor": "<mock-value-for-field-\\"cursor\\">",
+                "comment": {
+                  "id": "<Comment-mock-id-4>",
+                  "message": {
+                    "text": "Comment text: node>myTown>feedback>comments>edges>comment"
+                  },
+                  "likeSentence": {
+                    "text": "<mock-value-for-field-\\"text\\">"
+                  }
                 }
               }
+            ],
+            "pageInfo": {
+              "startCursor": "<mock-value-for-field-\\"startCursor\\">"
             }
-          ],
-          "pageInfo": {
-            "startCursor": "<mock-value-for-field-\\"startCursor\\">"
-          }
+          },
+          "id": "<Feedback-mock-id-5>"
         }
       }
     }
@@ -739,6 +831,12 @@ Output: {
 
 exports[`generate mock with multiple spreads 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
+query TestQuery {
+  viewer {
+    ...TestFragment
+  }
+}
+
 fragment TestFragment on Viewer {
   ... on User {
     id
@@ -758,48 +856,15 @@ fragment TestFragment on Viewer {
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 {
-  "variables": {},
-  "payload": {
-    "__typename": "User",
-    "id": "<User-mock-id-1>",
-    "name": "<mock-value-for-field-\\"name\\">",
-    "traits": "<mock-value-for-field-\\"traits\\">",
-    "profile_picture": {
-      "uri": "<mock-value-for-field-\\"uri\\">",
-      "height": "<mock-value-for-field-\\"height\\">"
-    }
-  }
-}
-`;
-
-exports[`generate payload for operation 1`] = `
-~~~~~~~~~~ INPUT ~~~~~~~~~~
-query TestQuery($id: ID!, $scale: Float) {
-  node(id: $id) {
-    ... on User {
-      name
-      profile_picture(scale: $scale) {
-        uri
-      }
-    }
-  }
-}
-
-~~~~~~~~~~ OUTPUT ~~~~~~~~~~
-{
-  "variables": {
-    "id": "<mock-id-1>",
-    "scale": 4.2
-  },
   "data": {
-    "data": {
-      "node": {
-        "__typename": "User",
-        "id": "<mock-id-1>",
-        "name": "<mock-value-for-field-\\"name\\">",
-        "profile_picture": {
-          "uri": "<mock-value-for-field-\\"uri\\">"
-        }
+    "viewer": {
+      "__typename": "User",
+      "id": "<User-mock-id-1>",
+      "name": "<mock-value-for-field-\\"name\\">",
+      "traits": "<mock-value-for-field-\\"traits\\">",
+      "profile_picture": {
+        "uri": "<mock-value-for-field-\\"uri\\">",
+        "height": "<mock-value-for-field-\\"height\\">"
       }
     }
   }
@@ -808,39 +873,161 @@ query TestQuery($id: ID!, $scale: Float) {
 
 exports[`should return \`null\` for selection if that is specified in default values 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
+query TestQuery {
+  node(id: "my-id") {
+    ...TestFragment
+  }
+}
+
+fragment ActorUser on User {
+  id
+  name
+}
+
+fragment UserData on User {
+  id
+  name
+  profile_picture {
+    ...ProfilePicture
+  }
+}
+
+fragment ProfilePicture on Image {
+  uri
+  width
+  height
+}
+
 fragment TestFragment on User {
   body {
     text
   }
   actor {
     name
-    ...PageInfo
     id
   }
   myActor: actor {
     ...ActorUser
   }
   ...UserData
-  ...ProfilePicture
 }
 
-Resolvers:
-	Type: User
-Output: {
-  "actor": null
-}
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 {
-  "variables": {},
-  "payload": {
-    "body": {
-      "text": "<mock-value-for-field-\\"text\\">"
-    },
-    "actor": null,
-    "myActor": {
-      "__typename": "__MockObject"
-    },
-    "__typename": "User"
+  "data": {
+    "node": {
+      "__typename": "User",
+      "id": "<mock-id-1>",
+      "body": {
+        "text": "<mock-value-for-field-\\"text\\">"
+      },
+      "actor": null,
+      "myActor": {
+        "__typename": "User",
+        "id": "<mock-id-2>",
+        "name": "<mock-value-for-field-\\"name\\">"
+      },
+      "name": "<mock-value-for-field-\\"name\\">",
+      "profile_picture": {
+        "uri": "<mock-value-for-field-\\"uri\\">",
+        "width": "<mock-value-for-field-\\"width\\">",
+        "height": "<mock-value-for-field-\\"height\\">"
+      }
+    }
+  }
+}
+`;
+
+exports[`with @relay_test_operation generate mock for simple fragment 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query TestQuery @relay_test_operation {
+  node(id: "my-id") {
+    ...TestFragment
+  }
+}
+
+fragment TestFragment on User {
+  id
+  name
+  profile_picture {
+    uri
+    width
+    height
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+{
+  "data": {
+    "node": {
+      "__typename": "User",
+      "id": "<Node-mock-id-1>",
+      "name": "<mock-value-for-field-\\"name\\">",
+      "profile_picture": {
+        "uri": "<mock-value-for-field-\\"uri\\">",
+        "width": 42,
+        "height": 42
+      }
+    }
+  }
+}
+`;
+
+exports[`with @relay_test_operation generate mock for simple query 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query TestQuery @relay_test_operation {
+  me {
+    id
+    name
+    emailAddresses
+    profile_picture(scale: 1) {
+      uri
+      width
+      height
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+{
+  "data": {
+    "me": {
+      "id": "<User-mock-id-1>",
+      "name": "<mock-value-for-field-\\"name\\">",
+      "emailAddresses": [
+        "<mock-value-for-field-\\"emailAddresses\\">"
+      ],
+      "profile_picture": {
+        "uri": "<mock-value-for-field-\\"uri\\">",
+        "width": 42,
+        "height": 42
+      }
+    }
+  }
+}
+`;
+
+exports[`with @relay_test_operation generate mock with Enums 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query TestQuery @relay_test_operation {
+  node(id: "my-id") {
+    ... on User {
+      id
+      name
+      environment
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+{
+  "data": {
+    "node": {
+      "__typename": "User",
+      "id": "<Node-mock-id-1>",
+      "name": "<mock-value-for-field-\\"name\\">",
+      "environment": "WEB"
+    }
   }
 }
 `;

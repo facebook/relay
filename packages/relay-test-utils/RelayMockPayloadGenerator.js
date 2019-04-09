@@ -17,7 +17,6 @@ const {TYPENAME_KEY, RelayConcreteNode} = require('relay-runtime');
 
 const {
   CONDITION,
-  FRAGMENT_SPREAD,
   INLINE_FRAGMENT,
   LINKED_FIELD,
   MODULE_IMPORT,
@@ -30,10 +29,6 @@ const {
 
 import type {
   Variables,
-  ReaderFragment,
-  ReaderSelection,
-  ReaderScalarField,
-  ReaderLinkedField,
   NormalizationOperation,
   NormalizationSelection,
   NormalizationLinkedField,
@@ -49,8 +44,9 @@ type ValueResolver = (
   defaultValue?: mixed,
 ) => mixed;
 type Traversable = {|
-  +selections: $ReadOnlyArray<ReaderSelection | NormalizationSelection>,
+  +selections: $ReadOnlyArray<NormalizationSelection>,
   +typeName: ?string,
+  +isAbstractType: ?boolean,
   +name: ?string,
   +alias: ?string,
   +args: ?{[string]: mixed},
@@ -68,6 +64,15 @@ type MockResolver = (
   generateId: () => number,
 ) => mixed;
 export type MockResolvers = {[typeName: string]: MockResolver};
+
+type SelectionMetadata = {
+  [selectionPath: string]: {|
+    +type: string,
+    +plural: boolean,
+    +nullable: boolean,
+    +enumValues: $ReadOnlyArray<string> | null,
+  |},
+};
 
 function createIdGenerator() {
   let id = 0;
@@ -151,46 +156,46 @@ class RelayMockPayloadGenerator {
   _variables: Variables;
   _resolveValue: ValueResolver;
   _mockResolvers: MockResolvers;
+  _selectionMetadata: SelectionMetadata;
 
   constructor(options: {|
     +variables: Variables,
-    +mockResolvers: ?MockResolvers,
+    +mockResolvers: MockResolvers | null,
+    +selectionMetadata: SelectionMetadata | null,
   |}) {
     this._variables = options.variables;
     this._mockResolvers = {
       ...DEFAULT_MOCK_RESOLVERS,
-      ...options.mockResolvers,
+      ...(options.mockResolvers ?? {}),
     };
+    this._selectionMetadata = options.selectionMetadata ?? {};
     this._resolveValue = createValueResolver(this._mockResolvers);
   }
 
   generate(
-    selections: $ReadOnlyArray<ReaderSelection | NormalizationSelection>,
-    typeName: string,
-    plural: boolean,
-  ): MockData | $ReadOnlyArray<MockData> {
-    const generateListItem = () => {
-      const defaultValues = this._getDefaultValuesForObject(
-        typeName,
-        null,
-        null,
-        [], // path
-        {},
-      );
-      return this._traverse(
-        {
-          selections,
-          typeName,
-          name: null,
-          alias: null,
-          args: null,
-        },
-        [], // path
-        null, // prevData
-        defaultValues,
-      );
-    };
-    return plural ? generateMockList(generateListItem) : generateListItem();
+    selections: $ReadOnlyArray<NormalizationSelection>,
+    operationType: string,
+  ): MockData {
+    const defaultValues = this._getDefaultValuesForObject(
+      operationType,
+      null,
+      null,
+      [], // path
+      {},
+    );
+    return this._traverse(
+      {
+        selections,
+        typeName: operationType,
+        isAbstractType: false,
+        name: null,
+        alias: null,
+        args: null,
+      },
+      [], // path
+      null, // prevData
+      defaultValues,
+    );
   }
 
   _traverse(
@@ -199,11 +204,12 @@ class RelayMockPayloadGenerator {
     prevData: ?MockData,
     defaultValues: ?MockData,
   ): MockData {
-    const {selections, typeName} = traversable;
+    const {selections, typeName, isAbstractType} = traversable;
 
     return this._traverseSelections(
       selections,
       typeName,
+      isAbstractType,
       path,
       prevData,
       defaultValues,
@@ -214,8 +220,9 @@ class RelayMockPayloadGenerator {
    * Generate mock values for selection of fields
    */
   _traverseSelections(
-    selections: $ReadOnlyArray<ReaderSelection | NormalizationSelection>,
+    selections: $ReadOnlyArray<NormalizationSelection>,
     typeName: ?string,
+    isAbstractType: ?boolean,
     path: $ReadOnlyArray<string>,
     prevData: ?MockData,
     defaultValues: ?MockData,
@@ -244,12 +251,27 @@ class RelayMockPayloadGenerator {
             mockData = this._traverseSelections(
               selection.selections,
               typeName,
+              isAbstractType,
               path,
               mockData,
               defaultValues,
             );
           }
           break;
+
+        case DEFER:
+        case STREAM: {
+          mockData = this._traverseSelections(
+            selection.selections,
+            typeName,
+            isAbstractType,
+            path,
+            mockData,
+            defaultValues,
+          );
+          break;
+        }
+
         case INLINE_FRAGMENT: {
           // If it's the first time we're trying to handle fragment spread
           // on this selection, we will generate data for this type.
@@ -263,6 +285,15 @@ class RelayMockPayloadGenerator {
             mockData[TYPENAME_KEY] =
               defaultValues?.[TYPENAME_KEY] ?? selection.type;
           }
+          // Now, we need to make sure that we don't select abstract type
+          // for inline fragments
+          if (
+            isAbstractType === true &&
+            mockData != null &&
+            mockData[TYPENAME_KEY] === typeName
+          ) {
+            mockData[TYPENAME_KEY] = selection.type;
+          }
           if (mockData != null && mockData[TYPENAME_KEY] === selection.type) {
             const defaults = this._getDefaultValuesForObject(
               selection.type,
@@ -273,30 +304,18 @@ class RelayMockPayloadGenerator {
             mockData = this._traverseSelections(
               selection.selections,
               selection.type,
+              isAbstractType,
               path,
               mockData,
               defaults ?? defaultValues,
             );
+            if (mockData[TYPENAME_KEY] != null) {
+              mockData[TYPENAME_KEY] = selection.type;
+            }
           }
           break;
         }
-        case FRAGMENT_SPREAD:
-          if (mockData == null) {
-            mockData = {};
-          }
-          if (mockData[TYPENAME_KEY] == null) {
-            mockData[TYPENAME_KEY] = typeName ?? DEFAULT_MOCK_TYPENAME;
-          }
-          break;
-
-        case DEFER:
-        case STREAM:
         case MODULE_IMPORT:
-          throw new Error(
-            `RelayMockPayloadGenerator(): Mock for ${
-              selection.kind
-            } is not implemented.`,
-          );
         case SCALAR_HANDLE:
         case LINKED_HANDLE:
           break;
@@ -316,7 +335,7 @@ class RelayMockPayloadGenerator {
    * Generate mock value for a scalar field in the selection
    */
   _mockScalar(
-    field: ReaderScalarField,
+    field: NormalizationScalarField,
     typeName: ?string,
     path: $ReadOnlyArray<string>,
     mockData: ?MockData,
@@ -346,9 +365,16 @@ class RelayMockPayloadGenerator {
     // If the value has not been generated yet (__id, __typename fields, or defaults)
     // then we need to generate mock value for a scalar type
     if (value == null) {
+      const selectionPath = [...path, applicationName];
       // Get basic type information: type of the field (Int, Float, String, etc..)
       // And check if it's a plural type
-      const {type, plural} = this._getSimpleTypeDetails(field, typeName);
+      const {type, plural, enumValues} = this._getScalarFieldTypeDetails(
+        field,
+        typeName,
+        selectionPath,
+      );
+
+      const defaultValue = enumValues != null ? enumValues[0] : undefined;
 
       value = this._resolveValue(
         // If we don't have schema let's assume that fields with name (id, __id)
@@ -358,10 +384,11 @@ class RelayMockPayloadGenerator {
           parentType: typeName,
           name: field.name,
           alias: field.alias,
-          path: [...path, applicationName],
+          path: selectionPath,
           args: this._getFieldArgs(field),
         },
         plural,
+        defaultValue,
       );
     }
     data[applicationName] = value;
@@ -372,7 +399,7 @@ class RelayMockPayloadGenerator {
    * Generate mock data for linked fields in the selection
    */
   _mockLink(
-    field: ReaderLinkedField | NormalizationLinkedField,
+    field: NormalizationLinkedField,
     path: $ReadOnlyArray<string>,
     prevData: ?MockData,
     defaultValues: ?MockData,
@@ -384,11 +411,18 @@ class RelayMockPayloadGenerator {
     // Let's check if we have a custom mock resolver for the object type
     // We will pass this data down to selection, so _mockScalar(...) can use
     // values from `defaults`
+    const selectionPath = [...path, applicationName];
+    const typeFromSelection = this._selectionMetadata[
+      selectionPath.join('.')
+    ] ?? {
+      type: DEFAULT_MOCK_TYPENAME,
+    };
+
     let defaults = this._getDefaultValuesForObject(
-      field.concreteType ?? DEFAULT_MOCK_TYPENAME,
+      field.concreteType ?? typeFromSelection.type,
       field.name,
       field.alias,
-      [...path, applicationName],
+      selectionPath,
       args,
     );
     if (
@@ -412,13 +446,14 @@ class RelayMockPayloadGenerator {
       field.concreteType ??
       (defaults != null && typeof defaults[TYPENAME_KEY] === 'string'
         ? defaults[TYPENAME_KEY]
-        : DEFAULT_MOCK_TYPENAME);
+        : typeFromSelection.type);
 
     const generateDataForField = () =>
       this._traverse(
         {
           selections: field.selections,
           typeName,
+          isAbstractType: field.concreteType === null,
           name: field.name,
           alias: field.alias,
           args,
@@ -486,11 +521,7 @@ class RelayMockPayloadGenerator {
    * Get object with variables for field
    */
   _getFieldArgs(
-    field:
-      | ReaderScalarField
-      | ReaderLinkedField
-      | NormalizationLinkedField
-      | NormalizationScalarField,
+    field: NormalizationLinkedField | NormalizationScalarField,
   ): {
     [string]: mixed,
   } {
@@ -509,88 +540,89 @@ class RelayMockPayloadGenerator {
   /**
    * Helper function to get field type information (name of the type, plural)
    */
-  _getSimpleTypeDetails(
-    field: ReaderScalarField,
+  _getScalarFieldTypeDetails(
+    field: NormalizationScalarField,
     typeName: ?string,
+    selectionPath: $ReadOnlyArray<string>,
   ): {|
-    type: string,
-    plural: boolean,
+    +type: string,
+    +plural: boolean,
+    +enumValues: $ReadOnlyArray<string> | null,
+    +nullable: boolean,
   |} {
-    const defaultSuggestedByName = ['id'].includes(field.name)
-      ? 'ID'
-      : 'String';
-
-    return {
-      type: defaultSuggestedByName,
-      plural: false,
-    };
+    return (
+      this._selectionMetadata[selectionPath.join('.')] ?? {
+        type: field.name === 'id' ? 'ID' : 'String',
+        plural: false,
+        enumValues: null,
+        nullable: false,
+      }
+    );
   }
 }
 
 /**
- * Generate mock variables for ReaderFragment
- */
-function generateVariables(
-  node: ReaderFragment | NormalizationOperation,
-  mockResolvers: ?MockResolvers,
-): Variables {
-  const variables = {};
-  const {argumentDefinitions} = node;
-  const argumentValueGenerator = createValueResolver({
-    ...DEFAULT_MOCK_RESOLVERS,
-    ...mockResolvers,
-  });
-  for (const arg of argumentDefinitions) {
-    const type = arg.type != null ? arg.type : 'String';
-    const plural = type.startsWith('[');
-    const typeName = type.replace(/[\[\!\]]/g, '');
-    const defaultValue =
-      arg.kind === 'LocalArgument' ? arg.defaultValue : undefined;
-    variables[arg.name] =
-      defaultValue ??
-      argumentValueGenerator(
-        typeName,
-        {
-          parentType: null,
-          name: arg.name,
-          alias: null,
-          path: null,
-          args: null,
-        },
-        plural,
-        null,
-      );
-  }
-  return variables;
-}
-
-/**
- * Generate mock data for ReaderFragment selection
+ * Generate mock data for NormalizationOperation selection
  */
 function generateData(
-  node: ReaderFragment | NormalizationOperation,
-  mockResolvers: ?MockResolvers,
-  variables?: Variables = generateVariables(node, mockResolvers),
-): MockData | $ReadOnlyArray<MockData> {
+  node: NormalizationOperation,
+  variables: Variables,
+  mockResolvers: MockResolvers | null,
+  selectionMetadata: SelectionMetadata | null,
+): MockData {
   const mockGenerator = new RelayMockPayloadGenerator({
     variables,
     mockResolvers,
+    selectionMetadata,
   });
-  let typeName;
-  if (node.kind === 'Operation') {
-    if (node.name.endsWith('Mutation')) {
-      typeName = 'Mutation';
-    } else if (node.name.endsWith('Subscription')) {
-      typeName = 'Subscription';
-    } else {
-      typeName = 'Query';
-    }
+  let operationType;
+  if (node.name.endsWith('Mutation')) {
+    operationType = 'Mutation';
+  } else if (node.name.endsWith('Subscription')) {
+    operationType = 'Subscription';
   } else {
-    typeName = node.type;
+    operationType = 'Query';
   }
-  const plural =
-    node.kind === 'Operation' ? false : node.metadata?.plural ?? false;
-  return mockGenerator.generate(node.selections, typeName, plural);
+  return mockGenerator.generate(node.selections, operationType);
+}
+
+/**
+ * Type refinement for selection metadata
+ */
+function getSelectionMetadataFromOperation(
+  operation: OperationDescriptor,
+): SelectionMetadata | null {
+  const selectionTypeInfo =
+    operation.node.params.metadata?.relayTestingSelectionTypeInfo;
+  if (
+    selectionTypeInfo != null &&
+    !Array.isArray(selectionTypeInfo) &&
+    typeof selectionTypeInfo === 'object'
+  ) {
+    const selectionMetadata: SelectionMetadata = {};
+    Object.keys(selectionTypeInfo).forEach(path => {
+      const item = selectionTypeInfo[path];
+      if (item != null && !Array.isArray(item) && typeof item === 'object') {
+        if (
+          typeof item.type === 'string' &&
+          typeof item.plural === 'boolean' &&
+          typeof item.nullable === 'boolean' &&
+          (item.enumValues === null || Array.isArray(item.enumValues))
+        ) {
+          selectionMetadata[path] = {
+            type: item.type,
+            plural: item.plural,
+            nullable: item.nullable,
+            enumValues: Array.isArray(item.enumValues)
+              ? item.enumValues.map(String)
+              : null,
+          };
+        }
+      }
+    });
+    return selectionMetadata;
+  }
+  return null;
 }
 
 function generateDataForOperation(
@@ -599,19 +631,13 @@ function generateDataForOperation(
 ): GraphQLResponse {
   const data = generateData(
     operation.node.operation,
-    mockResolvers,
     operation.variables,
-  );
-  invariant(
-    !Array.isArray(data),
-    'RelayMockPayloadGenerator: Invalid generated payload, unexpected array.',
+    mockResolvers ?? null,
+    getSelectionMetadataFromOperation(operation),
   );
   return {data};
 }
 
 module.exports = {
-  DEFAULT_MOCK_TYPENAME,
-  generateVariables,
-  generateData,
-  generateDataForOperation,
+  generate: generateDataForOperation,
 };

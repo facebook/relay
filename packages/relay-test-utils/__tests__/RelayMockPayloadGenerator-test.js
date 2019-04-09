@@ -24,64 +24,26 @@ function compile(text) {
   return generateAndCompile(text);
 }
 
-function printMockResolvers(mockResolvers: ?MockResolvers): string {
-  if (mockResolvers == null) {
-    return '';
-  }
-  const output = ['\nResolvers:'];
-  for (const key in mockResolvers) {
-    if (mockResolvers.hasOwnProperty(key)) {
-      output.push(`\tType: ${key}`);
-      const resolverOutput = mockResolvers[key](
-        {
-          parentType: key,
-          name: null,
-          alias: null,
-          path: [],
-          args: null,
-        },
-        () => 1,
-      );
-      // $FlowFixMe(>=0.95.0) JSON.stringify can return undefined
-      output.push(`Output: ${JSON.stringify(resolverOutput, null, 2)}`);
-    }
-  }
-  return output.join('\n');
-}
-
-function testGeneratedData(
-  graphql: string,
-  mockResolvers: ?MockResolvers,
-  customVariables = null,
-) {
-  const {TestFragment: fragment} = compile(graphql);
-  const variables = {
-    ...RelayMockPayloadGenerator.generateVariables(fragment, mockResolvers),
-    ...customVariables,
-  };
-
-  const payload = RelayMockPayloadGenerator.generateData(
-    fragment,
-    mockResolvers,
-    variables,
-  );
+function testGeneratedData(graphql: string, mockResolvers: ?MockResolvers) {
+  const {TestQuery: query} = compile(graphql);
+  const operation = createOperationDescriptor(getRequest(query), {});
+  const payload = RelayMockPayloadGenerator.generate(operation, mockResolvers);
 
   expect({
     [FIXTURE_TAG]: true,
-    input: print(parse(graphql)) + printMockResolvers(mockResolvers),
-    output: JSON.stringify(
-      {
-        variables,
-        payload,
-      },
-      null,
-      2,
-    ),
+    input: print(parse(graphql)),
+    output: JSON.stringify(payload, null, 2),
   }).toMatchSnapshot();
 }
 
 test('generate mock for simple fragment', () => {
   testGeneratedData(`
+    query TestQuery {
+      node(id: "my-id") {
+        ...TestFragment
+      }
+    }
+
     fragment TestFragment on User {
       id
       name
@@ -95,6 +57,12 @@ test('generate mock for simple fragment', () => {
 
 test('generate mock with inline fragment', () => {
   testGeneratedData(`
+    query TestQuery ($condition: Boolean) {
+      node(id: "my-id") {
+        ...TestFragment
+      }
+    }
+
     fragment TestFragment on User {
       id
       name
@@ -126,6 +94,17 @@ test('generate mock with inline fragment', () => {
 
 test('generate mock with condition (and other complications)', () => {
   testGeneratedData(`
+    query TestQuery (
+      $showProfilePicture: Boolean,
+      $hideBirthday: Boolean,
+      $showBirthdayMonth:  Boolean,
+      $hideAuthorUsername: Boolean
+    ) {
+      node(id: "my-id") {
+        ...TestFragment
+      }
+    }
+
     fragment TestFragment on User {
       id
       name
@@ -162,6 +141,18 @@ test('generate mock with condition (and other complications)', () => {
 
 test('generate mock with connection', () => {
   testGeneratedData(`
+    query TestQuery($first: Int, $skipUserInConnection: Boolean) {
+      node(id: "my-id") {
+        ...TestFragment
+      }
+    }
+
+    fragment UserFragment on User {
+      name
+      username
+      emailAddresses
+    }
+
     fragment TestFragment on Page {
       actor {
         ... on User {
@@ -190,6 +181,12 @@ test('generate mock with connection', () => {
 test('generate basic mock data', () => {
   testGeneratedData(
     `
+    query TestQuery {
+      node(id: "my-id") {
+        ...TestFragment
+      }
+    }
+
     fragment TestFragment on User {
       id
       name
@@ -200,13 +197,18 @@ test('generate basic mock data', () => {
     }
   `,
     null, // Mock Resolvers
-    null, // Variables
   );
 });
 
 test('generate mock using custom mock functions', () => {
   testGeneratedData(
     `
+    query TestQuery {
+      node(id: "my-id") {
+        ...TestFragment
+      }
+    }
+
     fragment TestFragment on User {
       id
       name
@@ -231,6 +233,12 @@ test('generate mock using custom mock functions', () => {
 test('generate mock using custom mock functions for object type', () => {
   testGeneratedData(
     `
+    query TestQuery {
+      node(id: "my-id") {
+        ...TestFragment
+      }
+    }
+
     fragment TestFragment on Page {
       actor {
         id
@@ -257,6 +265,12 @@ test('generate mock using custom mock functions for object type', () => {
 test('generate mock for objects without concrete type', () => {
   testGeneratedData(
     `
+    query TestQuery {
+      node(id: "my-id") {
+        ...TestFragment
+      }
+    }
+
     fragment TestFragment on Page {
       actor {
         id
@@ -265,7 +279,7 @@ test('generate mock for objects without concrete type', () => {
     }
   `,
     {
-      [RelayMockPayloadGenerator.DEFAULT_MOCK_TYPENAME]: () => {
+      Actor: () => {
         return {
           __typename: 'User',
           name: 'Mark',
@@ -278,6 +292,12 @@ test('generate mock for objects without concrete type', () => {
 test('generate mock using custom mock functions for object type (multiple object)', () => {
   testGeneratedData(
     `
+    query TestQuery {
+      node(id: "my-id") {
+        ...TestFragment
+      }
+    }
+
     fragment TestFragment on User {
       name
       actor {
@@ -316,6 +336,12 @@ test('check context in the mock resolver', () => {
   let checkContext;
   testGeneratedData(
     `
+    query TestQuery {
+      viewer {
+        ...TestFragment
+      }
+    }
+
     fragment TestFragment on Viewer {
       actor {
         ... on User {
@@ -343,10 +369,14 @@ test('check context in the mock resolver', () => {
   expect(checkContext).toMatchInlineSnapshot(`
 Object {
   "alias": null,
-  "args": null,
-  "name": null,
-  "parentType": "Image",
-  "path": Array [],
+  "args": Object {},
+  "name": "profile_picture",
+  "parentType": null,
+  "path": Array [
+    "viewer",
+    "actor",
+    "profile_picture",
+  ],
 }
 `);
 });
@@ -354,6 +384,12 @@ Object {
 test('generate mock with manual mock for objects', () => {
   testGeneratedData(
     `
+    query TestQuery {
+      node(id: "my-id") {
+        ...TestFragment
+      }
+    }
+
     fragment TestFragment on Page {
       id
       name
@@ -415,6 +451,12 @@ test('generate mock with manual mock for objects', () => {
 test('generate mock with multiple spreads', () => {
   testGeneratedData(
     `
+    query TestQuery {
+      viewer {
+        ...TestFragment
+      }
+    }
+
     fragment TestFragment on Viewer {
       ... on User {
         id
@@ -438,6 +480,12 @@ test('generate mock with multiple spreads', () => {
 test('generate mock and verify arguments in the context', () => {
   testGeneratedData(
     `
+    query TestQuery($smallScale: Int = 1, $bigScale: Int = 100) {
+      node(id: "my-id") {
+        ...TestFragment
+      }
+    }
+
     fragment TestFragment on User {
       ... on User {
         id
@@ -464,16 +512,18 @@ test('generate mock and verify arguments in the context', () => {
         }
       },
     },
-    {
-      smallScale: 1,
-      bigScale: 100,
-    },
   );
 });
 
 test('generate mock for fragment with @argumentsDefinition', () => {
   testGeneratedData(
     `
+    query TestQuery($scale: Int = 1) {
+      node(id: "my-id") {
+        ...TestFragment @arguments(withName: true)
+      }
+    }
+
     fragment TestFragment on User @argumentDefinitions(withName: {type: "Boolean!"}) {
       id
       name @include(if: $withName)
@@ -497,6 +547,12 @@ test('generate mock for fragment with @argumentsDefinition', () => {
 test('generate mock for plural fragment', () => {
   testGeneratedData(
     `
+    query TestQuery {
+      nodes {
+        ...TestFragment
+      }
+    }
+
     fragment TestFragment on Comment @relay(plural: true) {
       id
       body {
@@ -509,13 +565,36 @@ test('generate mock for plural fragment', () => {
 test('generate mock for multiple fragment spreads', () => {
   testGeneratedData(
     `
+    query TestQuery {
+      node(id: "my-id") {
+        ...TestFragment
+      }
+    }
+
+    fragment ActorUser on Page {
+      id
+      pageName: name
+    }
+
+    fragment UserData on User {
+      id
+      name
+      username
+    }
+
+    fragment ProfilePicture on User {
+      ...UserData,
+      profile_picture {
+        uri
+      }
+    }
+
     fragment TestFragment on User {
       body {
         text
       }
       actor {
         name
-        ...PageInfo
         id
       }
       myActor: actor {
@@ -530,6 +609,22 @@ test('generate mock for multiple fragment spreads', () => {
 test('generate mock for with directives and handlers', () => {
   testGeneratedData(
     `
+    query TestQuery(
+      $first: Int = 10,
+      $picturePreset: PhotoSize,
+      $RELAY_INCREMENTAL_DELIVERY: Boolean = false
+    ) {
+      node(id: "my-id") {
+        ...TestFragment @arguments(condition: true)
+      }
+    }
+
+    fragment OneMoreFragmentSpread on User {
+      birthdate {
+        month
+      }
+    }
+
     fragment TestFragment on User @argumentDefinitions(condition: {type: "Boolean!"}) {
       id
       name
@@ -543,7 +638,6 @@ test('generate mock for with directives and handlers', () => {
           node {
             id
             name
-            ...CustomUserFragment_data
           }
         }
         myPageInfo: pageInfo {
@@ -573,7 +667,7 @@ test('generate mock for with directives and handlers', () => {
           id
           pageName: name
         }
-        ... on Comment @defer {
+        ... on Comment @defer(if: $RELAY_INCREMENTAL_DELIVERY, label: "DeferLabel") {
           body {
             text
           }
@@ -587,20 +681,43 @@ test('generate mock for with directives and handlers', () => {
 test('should return `null` for selection if that is specified in default values', () => {
   testGeneratedData(
     `
+    query TestQuery {
+      node(id: "my-id") {
+        ...TestFragment
+      }
+    }
+
+    fragment ActorUser on User {
+      id
+      name
+    }
+
+    fragment UserData on User {
+      id
+      name
+      profile_picture {
+        ...ProfilePicture
+      }
+    }
+
+    fragment ProfilePicture on Image {
+      uri
+      width
+      height
+    }
+
     fragment TestFragment on User {
       body {
         text
       }
       actor {
         name
-        ...PageInfo
         id
       }
       myActor: actor {
         ...ActorUser
       }
       ...UserData
-      ...ProfilePicture
   }`,
     {
       User() {
@@ -612,33 +729,54 @@ test('should return `null` for selection if that is specified in default values'
   );
 });
 
-test('generate payload for operation', () => {
-  const graphql = `
-    query TestQuery($id: ID!, $scale: Float) {
-      node(id: $id) {
-        ... on User {
+describe('with @relay_test_operation', () => {
+  test('generate mock for simple query', () => {
+    testGeneratedData(`
+      query TestQuery @relay_test_operation {
+        me {
+          id
           name
-          profile_picture(scale: $scale) {
+          emailAddresses
+          profile_picture(scale: 1) {
             uri
+            width
+            height
           }
         }
       }
-    }
-  `;
-  const {TestQuery: query} = compile(graphql);
-  const variables = RelayMockPayloadGenerator.generateVariables(query.fragment);
-  const operation = createOperationDescriptor(getRequest(query), variables);
-  const data = RelayMockPayloadGenerator.generateDataForOperation(operation);
-  expect({
-    [FIXTURE_TAG]: true,
-    input: print(parse(graphql)),
-    output: JSON.stringify(
-      {
-        variables,
-        data,
-      },
-      null,
-      2,
-    ),
-  }).toMatchSnapshot();
+    `);
+  });
+
+  test('generate mock for simple fragment', () => {
+    testGeneratedData(`
+      query TestQuery @relay_test_operation {
+        node(id: "my-id") {
+          ...TestFragment
+        }
+      }
+
+      fragment TestFragment on User {
+        id
+        name
+        profile_picture {
+          uri
+          width
+          height
+        }
+    }`);
+  });
+
+  test('generate mock with Enums', () => {
+    testGeneratedData(`
+      query TestQuery @relay_test_operation {
+        node(id: "my-id") {
+          ... on User {
+            id
+            name
+            environment
+          }
+        }
+      }
+    `);
+  });
 });

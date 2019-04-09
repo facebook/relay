@@ -94,7 +94,7 @@ describe('ReactRelayTestMocker with Containers', () => {
 
       // Make sure request was issued
       environment.mock.resolveMostRecentOperation(operation =>
-        MockPayloadGenerator.generateDataForOperation(operation),
+        MockPayloadGenerator.generate(operation),
       );
 
       // Should render some data
@@ -183,14 +183,14 @@ describe('ReactRelayTestMocker with Containers', () => {
 
     it('should render data', () => {
       environment.mock.resolveMostRecentOperation(operation =>
-        MockPayloadGenerator.generateDataForOperation(operation),
+        MockPayloadGenerator.generate(operation),
       );
       expect(testComponentTree).toMatchSnapshot();
     });
 
     it('should render data with mock resolvers', () => {
       environment.mock.resolveMostRecentOperation(operation =>
-        MockPayloadGenerator.generateDataForOperation(operation, {
+        MockPayloadGenerator.generate(operation, {
           Image() {
             return {
               uri: 'http://test.com/image-url',
@@ -319,7 +319,7 @@ describe('ReactRelayTestMocker with Containers', () => {
     it('should render data', () => {
       ReactTestRenderer.act(() => {
         environment.mock.resolveMostRecentOperation(operation =>
-          MockPayloadGenerator.generateDataForOperation(operation, {
+          MockPayloadGenerator.generate(operation, {
             ID({path}, generateId) {
               if (path != null && path.join('.') === 'user.id') {
                 return operation.variables.id;
@@ -354,7 +354,7 @@ describe('ReactRelayTestMocker with Containers', () => {
     it('should load more data for pagination container', () => {
       ReactTestRenderer.act(() => {
         environment.mock.resolveMostRecentOperation(operation =>
-          MockPayloadGenerator.generateDataForOperation(operation, {
+          MockPayloadGenerator.generate(operation, {
             ID({path}, generateId) {
               // Just to make sure we're generating list data for the same parent id
               if (path != null && path.join('.') === 'user.id') {
@@ -393,7 +393,7 @@ describe('ReactRelayTestMocker with Containers', () => {
       // We need to add additional resolvers
       ReactTestRenderer.act(() => {
         environment.mock.resolveMostRecentOperation(operation =>
-          MockPayloadGenerator.generateDataForOperation(operation, {
+          MockPayloadGenerator.generate(operation, {
             ID({path}, generateId) {
               // Just to make sure we're generating list data for the same parent id
               if (path != null && path.join('.') === 'user.id') {
@@ -443,7 +443,7 @@ describe('ReactRelayTestMocker with Containers', () => {
           }
         }
 
-        query PageQuery($id: ID!) {
+        query PageQuery($id: ID!) @relay_test_operation {
           node(id: $id) {
             ...PageFragment
           }
@@ -518,7 +518,7 @@ describe('ReactRelayTestMocker with Containers', () => {
 
     it('should refetch query', () => {
       environment.mock.resolveMostRecentOperation(operation =>
-        MockPayloadGenerator.generateDataForOperation(operation, {
+        MockPayloadGenerator.generate(operation, {
           Page() {
             return {
               id: 'my-page-id',
@@ -552,14 +552,12 @@ describe('ReactRelayTestMocker with Containers', () => {
       // Resolve refetch query
       environment.mock.resolve(
         operation,
-        MockPayloadGenerator.generateDataForOperation(operation, {
-          Query(context) {
+        MockPayloadGenerator.generate(operation, {
+          Node() {
             return {
-              node: {
-                __typename: 'Page',
-                id: 'my-page-id',
-                name: 'SFO',
-              },
+              __typename: 'Page',
+              id: 'my-page-id',
+              name: 'SFO',
             };
           },
         }),
@@ -685,7 +683,7 @@ describe('ReactRelayTestMocker with Containers', () => {
       });
       ReactTestRenderer.act(() => {
         environment.mock.resolveMostRecentOperation(operation =>
-          MockPayloadGenerator.generateDataForOperation(operation, {
+          MockPayloadGenerator.generate(operation, {
             ID() {
               return operation.variables.id;
             },
@@ -721,7 +719,7 @@ describe('ReactRelayTestMocker with Containers', () => {
       );
       ReactTestRenderer.act(() => {
         environment.mock.resolveMostRecentOperation(operation =>
-          MockPayloadGenerator.generateDataForOperation(operation, {
+          MockPayloadGenerator.generate(operation, {
             Feedback() {
               return {
                 id: operation.variables?.input?.feedbackId,
@@ -782,7 +780,7 @@ describe('ReactRelayTestMocker with Containers', () => {
         },
       });
       const {ViewerQuery} = generateAndCompile(`
-        query ViewerQuery {
+        query ViewerQuery @relay_test_operation {
           viewer {
             actor {
               name @__clientField(handle: "hello")
@@ -812,14 +810,10 @@ describe('ReactRelayTestMocker with Containers', () => {
 
     it('should resolve operation with handle fields', () => {
       environment.mock.resolveMostRecentOperation(operation =>
-        MockPayloadGenerator.generateDataForOperation(operation, {
-          Query() {
+        MockPayloadGenerator.generate(operation, {
+          Actor() {
             return {
-              viewer: {
-                actor: {
-                  name: 'Carol',
-                },
-              },
+              name: 'Carol',
             };
           },
         }),
@@ -926,7 +920,7 @@ describe('ReactRelayTestMocker with Containers', () => {
       });
 
       environment.mock.resolveMostRecentOperation(operation =>
-        MockPayloadGenerator.generateDataForOperation(operation, {
+        MockPayloadGenerator.generate(operation, {
           ID() {
             return operation.variables.id;
           },
@@ -960,7 +954,7 @@ describe('ReactRelayTestMocker with Containers', () => {
       ReactTestRenderer.act(() => {
         environment.mock.nextValue(
           operation.node,
-          MockPayloadGenerator.generateDataForOperation(operation, {
+          MockPayloadGenerator.generate(operation, {
             Feedback() {
               return {
                 id: operation.variables?.input?.feedbackId,
@@ -979,14 +973,14 @@ describe('ReactRelayTestMocker with Containers', () => {
 
     beforeEach(() => {
       const {UserQuery, PageQuery} = generateAndCompile(`
-        query UserQuery($userId: ID!) {
+        query UserQuery($userId: ID!) @relay_test_operation {
           user: node(id: $userId) {
             id
             name
           }
         }
 
-        query PageQuery($pageId: ID!) {
+        query PageQuery($pageId: ID!) @relay_test_operation {
           page: node(id: $pageId) {
             id
             name
@@ -1038,23 +1032,19 @@ describe('ReactRelayTestMocker with Containers', () => {
       );
       environment.mock.resolve(
         userQuery,
-        MockPayloadGenerator.generateDataForOperation(userQuery, {
-          Query: () => ({
-            user: {
-              id: userQuery.variables.userId,
-              name: 'Alice',
-            },
+        MockPayloadGenerator.generate(userQuery, {
+          Node: () => ({
+            id: userQuery.variables.userId,
+            name: 'Alice',
           }),
         }),
       );
       environment.mock.resolve(
         pageQuery,
-        MockPayloadGenerator.generateDataForOperation(pageQuery, {
-          Query: () => ({
-            page: {
-              id: pageQuery.variables.pageId,
-              name: 'My Page',
-            },
+        MockPayloadGenerator.generate(pageQuery, {
+          Node: () => ({
+            id: pageQuery.variables.pageId,
+            name: 'My Page',
           }),
         }),
       );

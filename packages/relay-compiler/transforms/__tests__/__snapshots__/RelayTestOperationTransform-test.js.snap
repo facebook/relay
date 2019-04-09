@@ -1,0 +1,1667 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`RelayTestOperationTransform matches expected output: mutation.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+mutation SimpleMutation @relay_test_operation {
+  commentCreate(input: null) {
+    feedback {
+      id
+      ... on Actor {
+        name
+      }
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+{
+  "kind": "Root",
+  "operation": "mutation",
+  "loc": {
+    "kind": "Source",
+    "start": 0,
+    "end": 156,
+    "source": {
+      "body": "mutation SimpleMutation @relay_test_operation {\\n  commentCreate(input: null) {\\n    feedback {\\n      id\\n      ... on Actor {\\n        name\\n      }\\n    }\\n  }\\n}\\n",
+      "name": "GraphQL request",
+      "locationOffset": {
+        "line": 1,
+        "column": 1
+      }
+    }
+  },
+  "metadata": {
+    "relayTestingSelectionTypeInfo": {
+      "commentCreate": {
+        "type": "CommentCreateResponsePayload",
+        "enumValues": null,
+        "plural": false,
+        "nullable": true
+      },
+      "commentCreate.feedback": {
+        "type": "Feedback",
+        "enumValues": null,
+        "plural": false,
+        "nullable": true
+      },
+      "commentCreate.feedback.id": {
+        "type": "ID",
+        "enumValues": null,
+        "plural": false,
+        "nullable": false
+      },
+      "commentCreate.feedback.name": {
+        "type": "String",
+        "enumValues": null,
+        "plural": false,
+        "nullable": true
+      }
+    }
+  },
+  "name": "SimpleMutation",
+  "argumentDefinitions": [],
+  "directives": [],
+  "selections": [
+    {
+      "kind": "LinkedField",
+      "alias": null,
+      "args": [
+        {
+          "kind": "Argument",
+          "loc": {
+            "kind": "Source",
+            "start": 64,
+            "end": 75,
+            "source": {
+              "body": "mutation SimpleMutation @relay_test_operation {\\n  commentCreate(input: null) {\\n    feedback {\\n      id\\n      ... on Actor {\\n        name\\n      }\\n    }\\n  }\\n}\\n",
+              "name": "GraphQL request",
+              "locationOffset": {
+                "line": 1,
+                "column": 1
+              }
+            }
+          },
+          "metadata": null,
+          "name": "input",
+          "value": {
+            "kind": "Literal",
+            "loc": {
+              "kind": "Source",
+              "start": 71,
+              "end": 75,
+              "source": {
+                "body": "mutation SimpleMutation @relay_test_operation {\\n  commentCreate(input: null) {\\n    feedback {\\n      id\\n      ... on Actor {\\n        name\\n      }\\n    }\\n  }\\n}\\n",
+                "name": "GraphQL request",
+                "locationOffset": {
+                  "line": 1,
+                  "column": 1
+                }
+              }
+            },
+            "metadata": null,
+            "value": null
+          },
+          "type": "CommentCreateInput"
+        }
+      ],
+      "directives": [],
+      "loc": {
+        "kind": "Source",
+        "start": 50,
+        "end": 154,
+        "source": {
+          "body": "mutation SimpleMutation @relay_test_operation {\\n  commentCreate(input: null) {\\n    feedback {\\n      id\\n      ... on Actor {\\n        name\\n      }\\n    }\\n  }\\n}\\n",
+          "name": "GraphQL request",
+          "locationOffset": {
+            "line": 1,
+            "column": 1
+          }
+        }
+      },
+      "metadata": null,
+      "name": "commentCreate",
+      "selections": [
+        {
+          "kind": "LinkedField",
+          "alias": null,
+          "args": [],
+          "directives": [],
+          "loc": {
+            "kind": "Source",
+            "start": 83,
+            "end": 150,
+            "source": {
+              "body": "mutation SimpleMutation @relay_test_operation {\\n  commentCreate(input: null) {\\n    feedback {\\n      id\\n      ... on Actor {\\n        name\\n      }\\n    }\\n  }\\n}\\n",
+              "name": "GraphQL request",
+              "locationOffset": {
+                "line": 1,
+                "column": 1
+              }
+            }
+          },
+          "metadata": null,
+          "name": "feedback",
+          "selections": [
+            {
+              "kind": "ScalarField",
+              "alias": null,
+              "args": [],
+              "directives": [],
+              "loc": {
+                "kind": "Source",
+                "start": 100,
+                "end": 102,
+                "source": {
+                  "body": "mutation SimpleMutation @relay_test_operation {\\n  commentCreate(input: null) {\\n    feedback {\\n      id\\n      ... on Actor {\\n        name\\n      }\\n    }\\n  }\\n}\\n",
+                  "name": "GraphQL request",
+                  "locationOffset": {
+                    "line": 1,
+                    "column": 1
+                  }
+                }
+              },
+              "metadata": null,
+              "name": "id",
+              "type": "ID!"
+            },
+            {
+              "kind": "InlineFragment",
+              "directives": [],
+              "loc": {
+                "kind": "Source",
+                "start": 109,
+                "end": 144,
+                "source": {
+                  "body": "mutation SimpleMutation @relay_test_operation {\\n  commentCreate(input: null) {\\n    feedback {\\n      id\\n      ... on Actor {\\n        name\\n      }\\n    }\\n  }\\n}\\n",
+                  "name": "GraphQL request",
+                  "locationOffset": {
+                    "line": 1,
+                    "column": 1
+                  }
+                }
+              },
+              "metadata": null,
+              "selections": [
+                {
+                  "kind": "ScalarField",
+                  "alias": null,
+                  "args": [],
+                  "directives": [],
+                  "loc": {
+                    "kind": "Source",
+                    "start": 132,
+                    "end": 136,
+                    "source": {
+                      "body": "mutation SimpleMutation @relay_test_operation {\\n  commentCreate(input: null) {\\n    feedback {\\n      id\\n      ... on Actor {\\n        name\\n      }\\n    }\\n  }\\n}\\n",
+                      "name": "GraphQL request",
+                      "locationOffset": {
+                        "line": 1,
+                        "column": 1
+                      }
+                    }
+                  },
+                  "metadata": null,
+                  "name": "name",
+                  "type": "String"
+                }
+              ],
+              "typeCondition": "Actor"
+            }
+          ],
+          "type": "Feedback"
+        }
+      ],
+      "type": "CommentCreateResponsePayload"
+    }
+  ],
+  "type": "Mutation"
+}
+`;
+
+exports[`RelayTestOperationTransform matches expected output: query-with-enums.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query QueryWitEnums @relay_test_operation {
+  node(id: "test-id") {
+    id
+    ... on User {
+      name
+      environment
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+{
+  "kind": "Root",
+  "operation": "query",
+  "loc": {
+    "kind": "Source",
+    "start": 0,
+    "end": 133,
+    "source": {
+      "body": "query QueryWitEnums @relay_test_operation {\\n  node(id: \\"test-id\\") {\\n    id\\n    ... on User {\\n      name\\n      environment\\n    }\\n  }\\n}\\n",
+      "name": "GraphQL request",
+      "locationOffset": {
+        "line": 1,
+        "column": 1
+      }
+    }
+  },
+  "metadata": {
+    "relayTestingSelectionTypeInfo": {
+      "node": {
+        "type": "Node",
+        "enumValues": null,
+        "plural": false,
+        "nullable": true
+      },
+      "node.id": {
+        "type": "ID",
+        "enumValues": null,
+        "plural": false,
+        "nullable": false
+      },
+      "node.name": {
+        "type": "String",
+        "enumValues": null,
+        "plural": false,
+        "nullable": true
+      },
+      "node.environment": {
+        "type": "Environment",
+        "enumValues": [
+          "WEB",
+          "MOBILE"
+        ],
+        "plural": false,
+        "nullable": true
+      }
+    }
+  },
+  "name": "QueryWitEnums",
+  "argumentDefinitions": [],
+  "directives": [],
+  "selections": [
+    {
+      "kind": "LinkedField",
+      "alias": null,
+      "args": [
+        {
+          "kind": "Argument",
+          "loc": {
+            "kind": "Source",
+            "start": 51,
+            "end": 64,
+            "source": {
+              "body": "query QueryWitEnums @relay_test_operation {\\n  node(id: \\"test-id\\") {\\n    id\\n    ... on User {\\n      name\\n      environment\\n    }\\n  }\\n}\\n",
+              "name": "GraphQL request",
+              "locationOffset": {
+                "line": 1,
+                "column": 1
+              }
+            }
+          },
+          "metadata": null,
+          "name": "id",
+          "value": {
+            "kind": "Literal",
+            "loc": {
+              "kind": "Source",
+              "start": 55,
+              "end": 64,
+              "source": {
+                "body": "query QueryWitEnums @relay_test_operation {\\n  node(id: \\"test-id\\") {\\n    id\\n    ... on User {\\n      name\\n      environment\\n    }\\n  }\\n}\\n",
+                "name": "GraphQL request",
+                "locationOffset": {
+                  "line": 1,
+                  "column": 1
+                }
+              }
+            },
+            "metadata": null,
+            "value": "test-id"
+          },
+          "type": "ID"
+        }
+      ],
+      "directives": [],
+      "loc": {
+        "kind": "Source",
+        "start": 46,
+        "end": 131,
+        "source": {
+          "body": "query QueryWitEnums @relay_test_operation {\\n  node(id: \\"test-id\\") {\\n    id\\n    ... on User {\\n      name\\n      environment\\n    }\\n  }\\n}\\n",
+          "name": "GraphQL request",
+          "locationOffset": {
+            "line": 1,
+            "column": 1
+          }
+        }
+      },
+      "metadata": null,
+      "name": "node",
+      "selections": [
+        {
+          "kind": "ScalarField",
+          "alias": null,
+          "args": [],
+          "directives": [],
+          "loc": {
+            "kind": "Source",
+            "start": 72,
+            "end": 74,
+            "source": {
+              "body": "query QueryWitEnums @relay_test_operation {\\n  node(id: \\"test-id\\") {\\n    id\\n    ... on User {\\n      name\\n      environment\\n    }\\n  }\\n}\\n",
+              "name": "GraphQL request",
+              "locationOffset": {
+                "line": 1,
+                "column": 1
+              }
+            }
+          },
+          "metadata": null,
+          "name": "id",
+          "type": "ID!"
+        },
+        {
+          "kind": "InlineFragment",
+          "directives": [],
+          "loc": {
+            "kind": "Source",
+            "start": 79,
+            "end": 127,
+            "source": {
+              "body": "query QueryWitEnums @relay_test_operation {\\n  node(id: \\"test-id\\") {\\n    id\\n    ... on User {\\n      name\\n      environment\\n    }\\n  }\\n}\\n",
+              "name": "GraphQL request",
+              "locationOffset": {
+                "line": 1,
+                "column": 1
+              }
+            }
+          },
+          "metadata": null,
+          "selections": [
+            {
+              "kind": "ScalarField",
+              "alias": null,
+              "args": [],
+              "directives": [],
+              "loc": {
+                "kind": "Source",
+                "start": 99,
+                "end": 103,
+                "source": {
+                  "body": "query QueryWitEnums @relay_test_operation {\\n  node(id: \\"test-id\\") {\\n    id\\n    ... on User {\\n      name\\n      environment\\n    }\\n  }\\n}\\n",
+                  "name": "GraphQL request",
+                  "locationOffset": {
+                    "line": 1,
+                    "column": 1
+                  }
+                }
+              },
+              "metadata": null,
+              "name": "name",
+              "type": "String"
+            },
+            {
+              "kind": "ScalarField",
+              "alias": null,
+              "args": [],
+              "directives": [],
+              "loc": {
+                "kind": "Source",
+                "start": 110,
+                "end": 121,
+                "source": {
+                  "body": "query QueryWitEnums @relay_test_operation {\\n  node(id: \\"test-id\\") {\\n    id\\n    ... on User {\\n      name\\n      environment\\n    }\\n  }\\n}\\n",
+                  "name": "GraphQL request",
+                  "locationOffset": {
+                    "line": 1,
+                    "column": 1
+                  }
+                }
+              },
+              "metadata": null,
+              "name": "environment",
+              "type": "Environment"
+            }
+          ],
+          "typeCondition": "User"
+        }
+      ],
+      "type": "Node"
+    }
+  ],
+  "type": "Query"
+}
+`;
+
+exports[`RelayTestOperationTransform matches expected output: query-with-fragments.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query QueryWithFragment @relay_test_operation {
+  me {
+    id
+    ...UserFragment
+  }
+}
+
+fragment UserFragment on User {
+  id
+  emailAddresses
+  ...UserProfileFragment @arguments(scale: 1.5)
+}
+
+fragment UserProfileFragment on User
+@argumentDefinitions(scale: {type: "Float"}) {
+  id
+  name
+  profile_picture(scale: $scale) {
+    uri
+  }
+  myUserName: username
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+{
+  "kind": "Root",
+  "operation": "query",
+  "loc": {
+    "kind": "Source",
+    "start": 0,
+    "end": 87,
+    "source": {
+      "body": "query QueryWithFragment @relay_test_operation {\\n  me {\\n    id\\n    ...UserFragment\\n  }\\n}\\n\\nfragment UserFragment on User {\\n  id\\n  emailAddresses\\n  ...UserProfileFragment @arguments(scale: 1.5)\\n}\\n\\nfragment UserProfileFragment on User\\n@argumentDefinitions(scale: {type: \\"Float\\"}) {\\n  id\\n  name\\n  profile_picture(scale: $scale) {\\n    uri\\n  }\\n  myUserName: username\\n}\\n",
+      "name": "GraphQL request",
+      "locationOffset": {
+        "line": 1,
+        "column": 1
+      }
+    }
+  },
+  "metadata": {
+    "relayTestingSelectionTypeInfo": {
+      "me": {
+        "type": "User",
+        "enumValues": null,
+        "plural": false,
+        "nullable": true
+      },
+      "me.id": {
+        "type": "ID",
+        "enumValues": null,
+        "plural": false,
+        "nullable": false
+      },
+      "me.emailAddresses": {
+        "type": "String",
+        "enumValues": null,
+        "plural": true,
+        "nullable": true
+      },
+      "me.name": {
+        "type": "String",
+        "enumValues": null,
+        "plural": false,
+        "nullable": true
+      },
+      "me.profile_picture": {
+        "type": "Image",
+        "enumValues": null,
+        "plural": false,
+        "nullable": true
+      },
+      "me.myUserName": {
+        "type": "String",
+        "enumValues": null,
+        "plural": false,
+        "nullable": true
+      },
+      "me.profile_picture.uri": {
+        "type": "String",
+        "enumValues": null,
+        "plural": false,
+        "nullable": true
+      }
+    }
+  },
+  "name": "QueryWithFragment",
+  "argumentDefinitions": [],
+  "directives": [],
+  "selections": [
+    {
+      "kind": "LinkedField",
+      "alias": null,
+      "args": [],
+      "directives": [],
+      "loc": {
+        "kind": "Source",
+        "start": 50,
+        "end": 85,
+        "source": {
+          "body": "query QueryWithFragment @relay_test_operation {\\n  me {\\n    id\\n    ...UserFragment\\n  }\\n}\\n\\nfragment UserFragment on User {\\n  id\\n  emailAddresses\\n  ...UserProfileFragment @arguments(scale: 1.5)\\n}\\n\\nfragment UserProfileFragment on User\\n@argumentDefinitions(scale: {type: \\"Float\\"}) {\\n  id\\n  name\\n  profile_picture(scale: $scale) {\\n    uri\\n  }\\n  myUserName: username\\n}\\n",
+          "name": "GraphQL request",
+          "locationOffset": {
+            "line": 1,
+            "column": 1
+          }
+        }
+      },
+      "metadata": null,
+      "name": "me",
+      "selections": [
+        {
+          "kind": "ScalarField",
+          "alias": null,
+          "args": [],
+          "directives": [],
+          "loc": {
+            "kind": "Source",
+            "start": 59,
+            "end": 61,
+            "source": {
+              "body": "query QueryWithFragment @relay_test_operation {\\n  me {\\n    id\\n    ...UserFragment\\n  }\\n}\\n\\nfragment UserFragment on User {\\n  id\\n  emailAddresses\\n  ...UserProfileFragment @arguments(scale: 1.5)\\n}\\n\\nfragment UserProfileFragment on User\\n@argumentDefinitions(scale: {type: \\"Float\\"}) {\\n  id\\n  name\\n  profile_picture(scale: $scale) {\\n    uri\\n  }\\n  myUserName: username\\n}\\n",
+              "name": "GraphQL request",
+              "locationOffset": {
+                "line": 1,
+                "column": 1
+              }
+            }
+          },
+          "metadata": null,
+          "name": "id",
+          "type": "ID!"
+        },
+        {
+          "kind": "FragmentSpread",
+          "args": [],
+          "metadata": null,
+          "loc": {
+            "kind": "Source",
+            "start": 66,
+            "end": 81,
+            "source": {
+              "body": "query QueryWithFragment @relay_test_operation {\\n  me {\\n    id\\n    ...UserFragment\\n  }\\n}\\n\\nfragment UserFragment on User {\\n  id\\n  emailAddresses\\n  ...UserProfileFragment @arguments(scale: 1.5)\\n}\\n\\nfragment UserProfileFragment on User\\n@argumentDefinitions(scale: {type: \\"Float\\"}) {\\n  id\\n  name\\n  profile_picture(scale: $scale) {\\n    uri\\n  }\\n  myUserName: username\\n}\\n",
+              "name": "GraphQL request",
+              "locationOffset": {
+                "line": 1,
+                "column": 1
+              }
+            }
+          },
+          "name": "UserFragment",
+          "directives": []
+        }
+      ],
+      "type": "User"
+    }
+  ],
+  "type": "Query"
+}
+{
+  "kind": "Fragment",
+  "directives": [],
+  "loc": {
+    "kind": "Source",
+    "start": 89,
+    "end": 192,
+    "source": {
+      "body": "query QueryWithFragment @relay_test_operation {\\n  me {\\n    id\\n    ...UserFragment\\n  }\\n}\\n\\nfragment UserFragment on User {\\n  id\\n  emailAddresses\\n  ...UserProfileFragment @arguments(scale: 1.5)\\n}\\n\\nfragment UserProfileFragment on User\\n@argumentDefinitions(scale: {type: \\"Float\\"}) {\\n  id\\n  name\\n  profile_picture(scale: $scale) {\\n    uri\\n  }\\n  myUserName: username\\n}\\n",
+      "name": "GraphQL request",
+      "locationOffset": {
+        "line": 1,
+        "column": 1
+      }
+    }
+  },
+  "metadata": null,
+  "name": "UserFragment",
+  "selections": [
+    {
+      "kind": "ScalarField",
+      "alias": null,
+      "args": [],
+      "directives": [],
+      "loc": {
+        "kind": "Source",
+        "start": 123,
+        "end": 125,
+        "source": {
+          "body": "query QueryWithFragment @relay_test_operation {\\n  me {\\n    id\\n    ...UserFragment\\n  }\\n}\\n\\nfragment UserFragment on User {\\n  id\\n  emailAddresses\\n  ...UserProfileFragment @arguments(scale: 1.5)\\n}\\n\\nfragment UserProfileFragment on User\\n@argumentDefinitions(scale: {type: \\"Float\\"}) {\\n  id\\n  name\\n  profile_picture(scale: $scale) {\\n    uri\\n  }\\n  myUserName: username\\n}\\n",
+          "name": "GraphQL request",
+          "locationOffset": {
+            "line": 1,
+            "column": 1
+          }
+        }
+      },
+      "metadata": null,
+      "name": "id",
+      "type": "ID!"
+    },
+    {
+      "kind": "ScalarField",
+      "alias": null,
+      "args": [],
+      "directives": [],
+      "loc": {
+        "kind": "Source",
+        "start": 128,
+        "end": 142,
+        "source": {
+          "body": "query QueryWithFragment @relay_test_operation {\\n  me {\\n    id\\n    ...UserFragment\\n  }\\n}\\n\\nfragment UserFragment on User {\\n  id\\n  emailAddresses\\n  ...UserProfileFragment @arguments(scale: 1.5)\\n}\\n\\nfragment UserProfileFragment on User\\n@argumentDefinitions(scale: {type: \\"Float\\"}) {\\n  id\\n  name\\n  profile_picture(scale: $scale) {\\n    uri\\n  }\\n  myUserName: username\\n}\\n",
+          "name": "GraphQL request",
+          "locationOffset": {
+            "line": 1,
+            "column": 1
+          }
+        }
+      },
+      "metadata": null,
+      "name": "emailAddresses",
+      "type": "[String]"
+    },
+    {
+      "kind": "FragmentSpread",
+      "args": [
+        {
+          "kind": "Argument",
+          "loc": {
+            "kind": "Source",
+            "start": 179,
+            "end": 189,
+            "source": {
+              "body": "query QueryWithFragment @relay_test_operation {\\n  me {\\n    id\\n    ...UserFragment\\n  }\\n}\\n\\nfragment UserFragment on User {\\n  id\\n  emailAddresses\\n  ...UserProfileFragment @arguments(scale: 1.5)\\n}\\n\\nfragment UserProfileFragment on User\\n@argumentDefinitions(scale: {type: \\"Float\\"}) {\\n  id\\n  name\\n  profile_picture(scale: $scale) {\\n    uri\\n  }\\n  myUserName: username\\n}\\n",
+              "name": "GraphQL request",
+              "locationOffset": {
+                "line": 1,
+                "column": 1
+              }
+            }
+          },
+          "metadata": null,
+          "name": "scale",
+          "value": {
+            "kind": "Literal",
+            "loc": {
+              "kind": "Source",
+              "start": 186,
+              "end": 189,
+              "source": {
+                "body": "query QueryWithFragment @relay_test_operation {\\n  me {\\n    id\\n    ...UserFragment\\n  }\\n}\\n\\nfragment UserFragment on User {\\n  id\\n  emailAddresses\\n  ...UserProfileFragment @arguments(scale: 1.5)\\n}\\n\\nfragment UserProfileFragment on User\\n@argumentDefinitions(scale: {type: \\"Float\\"}) {\\n  id\\n  name\\n  profile_picture(scale: $scale) {\\n    uri\\n  }\\n  myUserName: username\\n}\\n",
+                "name": "GraphQL request",
+                "locationOffset": {
+                  "line": 1,
+                  "column": 1
+                }
+              }
+            },
+            "metadata": null,
+            "value": 1.5
+          },
+          "type": "Float"
+        }
+      ],
+      "metadata": null,
+      "loc": {
+        "kind": "Source",
+        "start": 145,
+        "end": 190,
+        "source": {
+          "body": "query QueryWithFragment @relay_test_operation {\\n  me {\\n    id\\n    ...UserFragment\\n  }\\n}\\n\\nfragment UserFragment on User {\\n  id\\n  emailAddresses\\n  ...UserProfileFragment @arguments(scale: 1.5)\\n}\\n\\nfragment UserProfileFragment on User\\n@argumentDefinitions(scale: {type: \\"Float\\"}) {\\n  id\\n  name\\n  profile_picture(scale: $scale) {\\n    uri\\n  }\\n  myUserName: username\\n}\\n",
+          "name": "GraphQL request",
+          "locationOffset": {
+            "line": 1,
+            "column": 1
+          }
+        }
+      },
+      "name": "UserProfileFragment",
+      "directives": []
+    }
+  ],
+  "type": "User",
+  "argumentDefinitions": []
+}
+{
+  "kind": "Fragment",
+  "directives": [],
+  "loc": {
+    "kind": "Source",
+    "start": 194,
+    "end": 361,
+    "source": {
+      "body": "query QueryWithFragment @relay_test_operation {\\n  me {\\n    id\\n    ...UserFragment\\n  }\\n}\\n\\nfragment UserFragment on User {\\n  id\\n  emailAddresses\\n  ...UserProfileFragment @arguments(scale: 1.5)\\n}\\n\\nfragment UserProfileFragment on User\\n@argumentDefinitions(scale: {type: \\"Float\\"}) {\\n  id\\n  name\\n  profile_picture(scale: $scale) {\\n    uri\\n  }\\n  myUserName: username\\n}\\n",
+      "name": "GraphQL request",
+      "locationOffset": {
+        "line": 1,
+        "column": 1
+      }
+    }
+  },
+  "metadata": null,
+  "name": "UserProfileFragment",
+  "selections": [
+    {
+      "kind": "ScalarField",
+      "alias": null,
+      "args": [],
+      "directives": [],
+      "loc": {
+        "kind": "Source",
+        "start": 280,
+        "end": 282,
+        "source": {
+          "body": "query QueryWithFragment @relay_test_operation {\\n  me {\\n    id\\n    ...UserFragment\\n  }\\n}\\n\\nfragment UserFragment on User {\\n  id\\n  emailAddresses\\n  ...UserProfileFragment @arguments(scale: 1.5)\\n}\\n\\nfragment UserProfileFragment on User\\n@argumentDefinitions(scale: {type: \\"Float\\"}) {\\n  id\\n  name\\n  profile_picture(scale: $scale) {\\n    uri\\n  }\\n  myUserName: username\\n}\\n",
+          "name": "GraphQL request",
+          "locationOffset": {
+            "line": 1,
+            "column": 1
+          }
+        }
+      },
+      "metadata": null,
+      "name": "id",
+      "type": "ID!"
+    },
+    {
+      "kind": "ScalarField",
+      "alias": null,
+      "args": [],
+      "directives": [],
+      "loc": {
+        "kind": "Source",
+        "start": 285,
+        "end": 289,
+        "source": {
+          "body": "query QueryWithFragment @relay_test_operation {\\n  me {\\n    id\\n    ...UserFragment\\n  }\\n}\\n\\nfragment UserFragment on User {\\n  id\\n  emailAddresses\\n  ...UserProfileFragment @arguments(scale: 1.5)\\n}\\n\\nfragment UserProfileFragment on User\\n@argumentDefinitions(scale: {type: \\"Float\\"}) {\\n  id\\n  name\\n  profile_picture(scale: $scale) {\\n    uri\\n  }\\n  myUserName: username\\n}\\n",
+          "name": "GraphQL request",
+          "locationOffset": {
+            "line": 1,
+            "column": 1
+          }
+        }
+      },
+      "metadata": null,
+      "name": "name",
+      "type": "String"
+    },
+    {
+      "kind": "LinkedField",
+      "alias": null,
+      "args": [
+        {
+          "kind": "Argument",
+          "loc": {
+            "kind": "Source",
+            "start": 308,
+            "end": 321,
+            "source": {
+              "body": "query QueryWithFragment @relay_test_operation {\\n  me {\\n    id\\n    ...UserFragment\\n  }\\n}\\n\\nfragment UserFragment on User {\\n  id\\n  emailAddresses\\n  ...UserProfileFragment @arguments(scale: 1.5)\\n}\\n\\nfragment UserProfileFragment on User\\n@argumentDefinitions(scale: {type: \\"Float\\"}) {\\n  id\\n  name\\n  profile_picture(scale: $scale) {\\n    uri\\n  }\\n  myUserName: username\\n}\\n",
+              "name": "GraphQL request",
+              "locationOffset": {
+                "line": 1,
+                "column": 1
+              }
+            }
+          },
+          "metadata": null,
+          "name": "scale",
+          "value": {
+            "kind": "Variable",
+            "loc": {
+              "kind": "Source",
+              "start": 315,
+              "end": 321,
+              "source": {
+                "body": "query QueryWithFragment @relay_test_operation {\\n  me {\\n    id\\n    ...UserFragment\\n  }\\n}\\n\\nfragment UserFragment on User {\\n  id\\n  emailAddresses\\n  ...UserProfileFragment @arguments(scale: 1.5)\\n}\\n\\nfragment UserProfileFragment on User\\n@argumentDefinitions(scale: {type: \\"Float\\"}) {\\n  id\\n  name\\n  profile_picture(scale: $scale) {\\n    uri\\n  }\\n  myUserName: username\\n}\\n",
+                "name": "GraphQL request",
+                "locationOffset": {
+                  "line": 1,
+                  "column": 1
+                }
+              }
+            },
+            "metadata": null,
+            "variableName": "scale",
+            "type": "Float"
+          },
+          "type": "Float"
+        }
+      ],
+      "directives": [],
+      "loc": {
+        "kind": "Source",
+        "start": 292,
+        "end": 336,
+        "source": {
+          "body": "query QueryWithFragment @relay_test_operation {\\n  me {\\n    id\\n    ...UserFragment\\n  }\\n}\\n\\nfragment UserFragment on User {\\n  id\\n  emailAddresses\\n  ...UserProfileFragment @arguments(scale: 1.5)\\n}\\n\\nfragment UserProfileFragment on User\\n@argumentDefinitions(scale: {type: \\"Float\\"}) {\\n  id\\n  name\\n  profile_picture(scale: $scale) {\\n    uri\\n  }\\n  myUserName: username\\n}\\n",
+          "name": "GraphQL request",
+          "locationOffset": {
+            "line": 1,
+            "column": 1
+          }
+        }
+      },
+      "metadata": null,
+      "name": "profile_picture",
+      "selections": [
+        {
+          "kind": "ScalarField",
+          "alias": null,
+          "args": [],
+          "directives": [],
+          "loc": {
+            "kind": "Source",
+            "start": 329,
+            "end": 332,
+            "source": {
+              "body": "query QueryWithFragment @relay_test_operation {\\n  me {\\n    id\\n    ...UserFragment\\n  }\\n}\\n\\nfragment UserFragment on User {\\n  id\\n  emailAddresses\\n  ...UserProfileFragment @arguments(scale: 1.5)\\n}\\n\\nfragment UserProfileFragment on User\\n@argumentDefinitions(scale: {type: \\"Float\\"}) {\\n  id\\n  name\\n  profile_picture(scale: $scale) {\\n    uri\\n  }\\n  myUserName: username\\n}\\n",
+              "name": "GraphQL request",
+              "locationOffset": {
+                "line": 1,
+                "column": 1
+              }
+            }
+          },
+          "metadata": null,
+          "name": "uri",
+          "type": "String"
+        }
+      ],
+      "type": "Image"
+    },
+    {
+      "kind": "ScalarField",
+      "alias": "myUserName",
+      "args": [],
+      "directives": [],
+      "loc": {
+        "kind": "Source",
+        "start": 339,
+        "end": 359,
+        "source": {
+          "body": "query QueryWithFragment @relay_test_operation {\\n  me {\\n    id\\n    ...UserFragment\\n  }\\n}\\n\\nfragment UserFragment on User {\\n  id\\n  emailAddresses\\n  ...UserProfileFragment @arguments(scale: 1.5)\\n}\\n\\nfragment UserProfileFragment on User\\n@argumentDefinitions(scale: {type: \\"Float\\"}) {\\n  id\\n  name\\n  profile_picture(scale: $scale) {\\n    uri\\n  }\\n  myUserName: username\\n}\\n",
+          "name": "GraphQL request",
+          "locationOffset": {
+            "line": 1,
+            "column": 1
+          }
+        }
+      },
+      "metadata": null,
+      "name": "username",
+      "type": "String"
+    }
+  ],
+  "type": "User",
+  "argumentDefinitions": [
+    {
+      "kind": "LocalArgumentDefinition",
+      "loc": {
+        "kind": "Source",
+        "start": 252,
+        "end": 274,
+        "source": {
+          "body": "query QueryWithFragment @relay_test_operation {\\n  me {\\n    id\\n    ...UserFragment\\n  }\\n}\\n\\nfragment UserFragment on User {\\n  id\\n  emailAddresses\\n  ...UserProfileFragment @arguments(scale: 1.5)\\n}\\n\\nfragment UserProfileFragment on User\\n@argumentDefinitions(scale: {type: \\"Float\\"}) {\\n  id\\n  name\\n  profile_picture(scale: $scale) {\\n    uri\\n  }\\n  myUserName: username\\n}\\n",
+          "name": "GraphQL request",
+          "locationOffset": {
+            "line": 1,
+            "column": 1
+          }
+        }
+      },
+      "metadata": null,
+      "name": "scale",
+      "type": "Float",
+      "defaultValue": null
+    }
+  ]
+}
+`;
+
+exports[`RelayTestOperationTransform matches expected output: simple-query.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query SimpleQuery @relay_test_operation {
+  node(id: "test-id") {
+    id
+    ... on User {
+      name
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+{
+  "kind": "Root",
+  "operation": "query",
+  "loc": {
+    "kind": "Source",
+    "start": 0,
+    "end": 113,
+    "source": {
+      "body": "query SimpleQuery @relay_test_operation {\\n  node(id: \\"test-id\\") {\\n    id\\n    ... on User {\\n      name\\n    }\\n  }\\n}\\n",
+      "name": "GraphQL request",
+      "locationOffset": {
+        "line": 1,
+        "column": 1
+      }
+    }
+  },
+  "metadata": {
+    "relayTestingSelectionTypeInfo": {
+      "node": {
+        "type": "Node",
+        "enumValues": null,
+        "plural": false,
+        "nullable": true
+      },
+      "node.id": {
+        "type": "ID",
+        "enumValues": null,
+        "plural": false,
+        "nullable": false
+      },
+      "node.name": {
+        "type": "String",
+        "enumValues": null,
+        "plural": false,
+        "nullable": true
+      }
+    }
+  },
+  "name": "SimpleQuery",
+  "argumentDefinitions": [],
+  "directives": [],
+  "selections": [
+    {
+      "kind": "LinkedField",
+      "alias": null,
+      "args": [
+        {
+          "kind": "Argument",
+          "loc": {
+            "kind": "Source",
+            "start": 49,
+            "end": 62,
+            "source": {
+              "body": "query SimpleQuery @relay_test_operation {\\n  node(id: \\"test-id\\") {\\n    id\\n    ... on User {\\n      name\\n    }\\n  }\\n}\\n",
+              "name": "GraphQL request",
+              "locationOffset": {
+                "line": 1,
+                "column": 1
+              }
+            }
+          },
+          "metadata": null,
+          "name": "id",
+          "value": {
+            "kind": "Literal",
+            "loc": {
+              "kind": "Source",
+              "start": 53,
+              "end": 62,
+              "source": {
+                "body": "query SimpleQuery @relay_test_operation {\\n  node(id: \\"test-id\\") {\\n    id\\n    ... on User {\\n      name\\n    }\\n  }\\n}\\n",
+                "name": "GraphQL request",
+                "locationOffset": {
+                  "line": 1,
+                  "column": 1
+                }
+              }
+            },
+            "metadata": null,
+            "value": "test-id"
+          },
+          "type": "ID"
+        }
+      ],
+      "directives": [],
+      "loc": {
+        "kind": "Source",
+        "start": 44,
+        "end": 111,
+        "source": {
+          "body": "query SimpleQuery @relay_test_operation {\\n  node(id: \\"test-id\\") {\\n    id\\n    ... on User {\\n      name\\n    }\\n  }\\n}\\n",
+          "name": "GraphQL request",
+          "locationOffset": {
+            "line": 1,
+            "column": 1
+          }
+        }
+      },
+      "metadata": null,
+      "name": "node",
+      "selections": [
+        {
+          "kind": "ScalarField",
+          "alias": null,
+          "args": [],
+          "directives": [],
+          "loc": {
+            "kind": "Source",
+            "start": 70,
+            "end": 72,
+            "source": {
+              "body": "query SimpleQuery @relay_test_operation {\\n  node(id: \\"test-id\\") {\\n    id\\n    ... on User {\\n      name\\n    }\\n  }\\n}\\n",
+              "name": "GraphQL request",
+              "locationOffset": {
+                "line": 1,
+                "column": 1
+              }
+            }
+          },
+          "metadata": null,
+          "name": "id",
+          "type": "ID!"
+        },
+        {
+          "kind": "InlineFragment",
+          "directives": [],
+          "loc": {
+            "kind": "Source",
+            "start": 77,
+            "end": 107,
+            "source": {
+              "body": "query SimpleQuery @relay_test_operation {\\n  node(id: \\"test-id\\") {\\n    id\\n    ... on User {\\n      name\\n    }\\n  }\\n}\\n",
+              "name": "GraphQL request",
+              "locationOffset": {
+                "line": 1,
+                "column": 1
+              }
+            }
+          },
+          "metadata": null,
+          "selections": [
+            {
+              "kind": "ScalarField",
+              "alias": null,
+              "args": [],
+              "directives": [],
+              "loc": {
+                "kind": "Source",
+                "start": 97,
+                "end": 101,
+                "source": {
+                  "body": "query SimpleQuery @relay_test_operation {\\n  node(id: \\"test-id\\") {\\n    id\\n    ... on User {\\n      name\\n    }\\n  }\\n}\\n",
+                  "name": "GraphQL request",
+                  "locationOffset": {
+                    "line": 1,
+                    "column": 1
+                  }
+                }
+              },
+              "metadata": null,
+              "name": "name",
+              "type": "String"
+            }
+          ],
+          "typeCondition": "User"
+        }
+      ],
+      "type": "Node"
+    }
+  ],
+  "type": "Query"
+}
+`;
+
+exports[`RelayTestOperationTransform matches expected output: simple-query-with-condition.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query SimpleQuery @relay_test_operation {
+  node(id: "test-id") {
+    id
+    ... on User {
+      name
+      profile_picture @include(if: true) {
+        uri
+        width
+        height
+      }
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+{
+  "kind": "Root",
+  "operation": "query",
+  "loc": {
+    "kind": "Source",
+    "start": 0,
+    "end": 205,
+    "source": {
+      "body": "query SimpleQuery @relay_test_operation {\\n  node(id: \\"test-id\\") {\\n    id\\n    ... on User {\\n      name\\n      profile_picture @include(if: true) {\\n        uri\\n        width\\n        height\\n      }\\n    }\\n  }\\n}\\n",
+      "name": "GraphQL request",
+      "locationOffset": {
+        "line": 1,
+        "column": 1
+      }
+    }
+  },
+  "metadata": {
+    "relayTestingSelectionTypeInfo": {
+      "node": {
+        "type": "Node",
+        "enumValues": null,
+        "plural": false,
+        "nullable": true
+      },
+      "node.id": {
+        "type": "ID",
+        "enumValues": null,
+        "plural": false,
+        "nullable": false
+      },
+      "node.name": {
+        "type": "String",
+        "enumValues": null,
+        "plural": false,
+        "nullable": true
+      },
+      "node.profile_picture": {
+        "type": "Image",
+        "enumValues": null,
+        "plural": false,
+        "nullable": true
+      },
+      "node.profile_picture.uri": {
+        "type": "String",
+        "enumValues": null,
+        "plural": false,
+        "nullable": true
+      },
+      "node.profile_picture.width": {
+        "type": "Int",
+        "enumValues": null,
+        "plural": false,
+        "nullable": true
+      },
+      "node.profile_picture.height": {
+        "type": "Int",
+        "enumValues": null,
+        "plural": false,
+        "nullable": true
+      }
+    }
+  },
+  "name": "SimpleQuery",
+  "argumentDefinitions": [],
+  "directives": [],
+  "selections": [
+    {
+      "kind": "LinkedField",
+      "alias": null,
+      "args": [
+        {
+          "kind": "Argument",
+          "loc": {
+            "kind": "Source",
+            "start": 49,
+            "end": 62,
+            "source": {
+              "body": "query SimpleQuery @relay_test_operation {\\n  node(id: \\"test-id\\") {\\n    id\\n    ... on User {\\n      name\\n      profile_picture @include(if: true) {\\n        uri\\n        width\\n        height\\n      }\\n    }\\n  }\\n}\\n",
+              "name": "GraphQL request",
+              "locationOffset": {
+                "line": 1,
+                "column": 1
+              }
+            }
+          },
+          "metadata": null,
+          "name": "id",
+          "value": {
+            "kind": "Literal",
+            "loc": {
+              "kind": "Source",
+              "start": 53,
+              "end": 62,
+              "source": {
+                "body": "query SimpleQuery @relay_test_operation {\\n  node(id: \\"test-id\\") {\\n    id\\n    ... on User {\\n      name\\n      profile_picture @include(if: true) {\\n        uri\\n        width\\n        height\\n      }\\n    }\\n  }\\n}\\n",
+                "name": "GraphQL request",
+                "locationOffset": {
+                  "line": 1,
+                  "column": 1
+                }
+              }
+            },
+            "metadata": null,
+            "value": "test-id"
+          },
+          "type": "ID"
+        }
+      ],
+      "directives": [],
+      "loc": {
+        "kind": "Source",
+        "start": 44,
+        "end": 203,
+        "source": {
+          "body": "query SimpleQuery @relay_test_operation {\\n  node(id: \\"test-id\\") {\\n    id\\n    ... on User {\\n      name\\n      profile_picture @include(if: true) {\\n        uri\\n        width\\n        height\\n      }\\n    }\\n  }\\n}\\n",
+          "name": "GraphQL request",
+          "locationOffset": {
+            "line": 1,
+            "column": 1
+          }
+        }
+      },
+      "metadata": null,
+      "name": "node",
+      "selections": [
+        {
+          "kind": "ScalarField",
+          "alias": null,
+          "args": [],
+          "directives": [],
+          "loc": {
+            "kind": "Source",
+            "start": 70,
+            "end": 72,
+            "source": {
+              "body": "query SimpleQuery @relay_test_operation {\\n  node(id: \\"test-id\\") {\\n    id\\n    ... on User {\\n      name\\n      profile_picture @include(if: true) {\\n        uri\\n        width\\n        height\\n      }\\n    }\\n  }\\n}\\n",
+              "name": "GraphQL request",
+              "locationOffset": {
+                "line": 1,
+                "column": 1
+              }
+            }
+          },
+          "metadata": null,
+          "name": "id",
+          "type": "ID!"
+        },
+        {
+          "kind": "InlineFragment",
+          "directives": [],
+          "loc": {
+            "kind": "Source",
+            "start": 77,
+            "end": 199,
+            "source": {
+              "body": "query SimpleQuery @relay_test_operation {\\n  node(id: \\"test-id\\") {\\n    id\\n    ... on User {\\n      name\\n      profile_picture @include(if: true) {\\n        uri\\n        width\\n        height\\n      }\\n    }\\n  }\\n}\\n",
+              "name": "GraphQL request",
+              "locationOffset": {
+                "line": 1,
+                "column": 1
+              }
+            }
+          },
+          "metadata": null,
+          "selections": [
+            {
+              "kind": "ScalarField",
+              "alias": null,
+              "args": [],
+              "directives": [],
+              "loc": {
+                "kind": "Source",
+                "start": 97,
+                "end": 101,
+                "source": {
+                  "body": "query SimpleQuery @relay_test_operation {\\n  node(id: \\"test-id\\") {\\n    id\\n    ... on User {\\n      name\\n      profile_picture @include(if: true) {\\n        uri\\n        width\\n        height\\n      }\\n    }\\n  }\\n}\\n",
+                  "name": "GraphQL request",
+                  "locationOffset": {
+                    "line": 1,
+                    "column": 1
+                  }
+                }
+              },
+              "metadata": null,
+              "name": "name",
+              "type": "String"
+            },
+            {
+              "kind": "Condition",
+              "condition": {
+                "kind": "Literal",
+                "loc": {
+                  "kind": "Source",
+                  "start": 137,
+                  "end": 141,
+                  "source": {
+                    "body": "query SimpleQuery @relay_test_operation {\\n  node(id: \\"test-id\\") {\\n    id\\n    ... on User {\\n      name\\n      profile_picture @include(if: true) {\\n        uri\\n        width\\n        height\\n      }\\n    }\\n  }\\n}\\n",
+                    "name": "GraphQL request",
+                    "locationOffset": {
+                      "line": 1,
+                      "column": 1
+                    }
+                  }
+                },
+                "metadata": null,
+                "value": true
+              },
+              "loc": {
+                "kind": "Source",
+                "start": 124,
+                "end": 142,
+                "source": {
+                  "body": "query SimpleQuery @relay_test_operation {\\n  node(id: \\"test-id\\") {\\n    id\\n    ... on User {\\n      name\\n      profile_picture @include(if: true) {\\n        uri\\n        width\\n        height\\n      }\\n    }\\n  }\\n}\\n",
+                  "name": "GraphQL request",
+                  "locationOffset": {
+                    "line": 1,
+                    "column": 1
+                  }
+                }
+              },
+              "metadata": null,
+              "passingValue": true,
+              "selections": [
+                {
+                  "kind": "LinkedField",
+                  "alias": null,
+                  "args": [],
+                  "directives": [],
+                  "loc": {
+                    "kind": "Source",
+                    "start": 108,
+                    "end": 193,
+                    "source": {
+                      "body": "query SimpleQuery @relay_test_operation {\\n  node(id: \\"test-id\\") {\\n    id\\n    ... on User {\\n      name\\n      profile_picture @include(if: true) {\\n        uri\\n        width\\n        height\\n      }\\n    }\\n  }\\n}\\n",
+                      "name": "GraphQL request",
+                      "locationOffset": {
+                        "line": 1,
+                        "column": 1
+                      }
+                    }
+                  },
+                  "metadata": null,
+                  "name": "profile_picture",
+                  "selections": [
+                    {
+                      "kind": "ScalarField",
+                      "alias": null,
+                      "args": [],
+                      "directives": [],
+                      "loc": {
+                        "kind": "Source",
+                        "start": 153,
+                        "end": 156,
+                        "source": {
+                          "body": "query SimpleQuery @relay_test_operation {\\n  node(id: \\"test-id\\") {\\n    id\\n    ... on User {\\n      name\\n      profile_picture @include(if: true) {\\n        uri\\n        width\\n        height\\n      }\\n    }\\n  }\\n}\\n",
+                          "name": "GraphQL request",
+                          "locationOffset": {
+                            "line": 1,
+                            "column": 1
+                          }
+                        }
+                      },
+                      "metadata": null,
+                      "name": "uri",
+                      "type": "String"
+                    },
+                    {
+                      "kind": "ScalarField",
+                      "alias": null,
+                      "args": [],
+                      "directives": [],
+                      "loc": {
+                        "kind": "Source",
+                        "start": 165,
+                        "end": 170,
+                        "source": {
+                          "body": "query SimpleQuery @relay_test_operation {\\n  node(id: \\"test-id\\") {\\n    id\\n    ... on User {\\n      name\\n      profile_picture @include(if: true) {\\n        uri\\n        width\\n        height\\n      }\\n    }\\n  }\\n}\\n",
+                          "name": "GraphQL request",
+                          "locationOffset": {
+                            "line": 1,
+                            "column": 1
+                          }
+                        }
+                      },
+                      "metadata": null,
+                      "name": "width",
+                      "type": "Int"
+                    },
+                    {
+                      "kind": "ScalarField",
+                      "alias": null,
+                      "args": [],
+                      "directives": [],
+                      "loc": {
+                        "kind": "Source",
+                        "start": 179,
+                        "end": 185,
+                        "source": {
+                          "body": "query SimpleQuery @relay_test_operation {\\n  node(id: \\"test-id\\") {\\n    id\\n    ... on User {\\n      name\\n      profile_picture @include(if: true) {\\n        uri\\n        width\\n        height\\n      }\\n    }\\n  }\\n}\\n",
+                          "name": "GraphQL request",
+                          "locationOffset": {
+                            "line": 1,
+                            "column": 1
+                          }
+                        }
+                      },
+                      "metadata": null,
+                      "name": "height",
+                      "type": "Int"
+                    }
+                  ],
+                  "type": "Image"
+                }
+              ]
+            }
+          ],
+          "typeCondition": "User"
+        }
+      ],
+      "type": "Node"
+    }
+  ],
+  "type": "Query"
+}
+`;
+
+exports[`RelayTestOperationTransform matches expected output: subscription.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+subscription SimpleMutation @relay_test_operation {
+  commentCreateSubscribe(input: null) {
+    feedback {
+      id
+      ... on Actor {
+        name
+      }
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+{
+  "kind": "Root",
+  "operation": "subscription",
+  "loc": {
+    "kind": "Source",
+    "start": 0,
+    "end": 169,
+    "source": {
+      "body": "subscription SimpleMutation @relay_test_operation {\\n  commentCreateSubscribe(input: null) {\\n    feedback {\\n      id\\n      ... on Actor {\\n        name\\n      }\\n    }\\n  }\\n}\\n",
+      "name": "GraphQL request",
+      "locationOffset": {
+        "line": 1,
+        "column": 1
+      }
+    }
+  },
+  "metadata": {
+    "relayTestingSelectionTypeInfo": {
+      "commentCreateSubscribe": {
+        "type": "CommentCreateResponsePayload",
+        "enumValues": null,
+        "plural": false,
+        "nullable": true
+      },
+      "commentCreateSubscribe.feedback": {
+        "type": "Feedback",
+        "enumValues": null,
+        "plural": false,
+        "nullable": true
+      },
+      "commentCreateSubscribe.feedback.id": {
+        "type": "ID",
+        "enumValues": null,
+        "plural": false,
+        "nullable": false
+      },
+      "commentCreateSubscribe.feedback.name": {
+        "type": "String",
+        "enumValues": null,
+        "plural": false,
+        "nullable": true
+      }
+    }
+  },
+  "name": "SimpleMutation",
+  "argumentDefinitions": [],
+  "directives": [],
+  "selections": [
+    {
+      "kind": "LinkedField",
+      "alias": null,
+      "args": [
+        {
+          "kind": "Argument",
+          "loc": {
+            "kind": "Source",
+            "start": 77,
+            "end": 88,
+            "source": {
+              "body": "subscription SimpleMutation @relay_test_operation {\\n  commentCreateSubscribe(input: null) {\\n    feedback {\\n      id\\n      ... on Actor {\\n        name\\n      }\\n    }\\n  }\\n}\\n",
+              "name": "GraphQL request",
+              "locationOffset": {
+                "line": 1,
+                "column": 1
+              }
+            }
+          },
+          "metadata": null,
+          "name": "input",
+          "value": {
+            "kind": "Literal",
+            "loc": {
+              "kind": "Source",
+              "start": 84,
+              "end": 88,
+              "source": {
+                "body": "subscription SimpleMutation @relay_test_operation {\\n  commentCreateSubscribe(input: null) {\\n    feedback {\\n      id\\n      ... on Actor {\\n        name\\n      }\\n    }\\n  }\\n}\\n",
+                "name": "GraphQL request",
+                "locationOffset": {
+                  "line": 1,
+                  "column": 1
+                }
+              }
+            },
+            "metadata": null,
+            "value": null
+          },
+          "type": "CommentCreateSubscriptionInput"
+        }
+      ],
+      "directives": [],
+      "loc": {
+        "kind": "Source",
+        "start": 54,
+        "end": 167,
+        "source": {
+          "body": "subscription SimpleMutation @relay_test_operation {\\n  commentCreateSubscribe(input: null) {\\n    feedback {\\n      id\\n      ... on Actor {\\n        name\\n      }\\n    }\\n  }\\n}\\n",
+          "name": "GraphQL request",
+          "locationOffset": {
+            "line": 1,
+            "column": 1
+          }
+        }
+      },
+      "metadata": null,
+      "name": "commentCreateSubscribe",
+      "selections": [
+        {
+          "kind": "LinkedField",
+          "alias": null,
+          "args": [],
+          "directives": [],
+          "loc": {
+            "kind": "Source",
+            "start": 96,
+            "end": 163,
+            "source": {
+              "body": "subscription SimpleMutation @relay_test_operation {\\n  commentCreateSubscribe(input: null) {\\n    feedback {\\n      id\\n      ... on Actor {\\n        name\\n      }\\n    }\\n  }\\n}\\n",
+              "name": "GraphQL request",
+              "locationOffset": {
+                "line": 1,
+                "column": 1
+              }
+            }
+          },
+          "metadata": null,
+          "name": "feedback",
+          "selections": [
+            {
+              "kind": "ScalarField",
+              "alias": null,
+              "args": [],
+              "directives": [],
+              "loc": {
+                "kind": "Source",
+                "start": 113,
+                "end": 115,
+                "source": {
+                  "body": "subscription SimpleMutation @relay_test_operation {\\n  commentCreateSubscribe(input: null) {\\n    feedback {\\n      id\\n      ... on Actor {\\n        name\\n      }\\n    }\\n  }\\n}\\n",
+                  "name": "GraphQL request",
+                  "locationOffset": {
+                    "line": 1,
+                    "column": 1
+                  }
+                }
+              },
+              "metadata": null,
+              "name": "id",
+              "type": "ID!"
+            },
+            {
+              "kind": "InlineFragment",
+              "directives": [],
+              "loc": {
+                "kind": "Source",
+                "start": 122,
+                "end": 157,
+                "source": {
+                  "body": "subscription SimpleMutation @relay_test_operation {\\n  commentCreateSubscribe(input: null) {\\n    feedback {\\n      id\\n      ... on Actor {\\n        name\\n      }\\n    }\\n  }\\n}\\n",
+                  "name": "GraphQL request",
+                  "locationOffset": {
+                    "line": 1,
+                    "column": 1
+                  }
+                }
+              },
+              "metadata": null,
+              "selections": [
+                {
+                  "kind": "ScalarField",
+                  "alias": null,
+                  "args": [],
+                  "directives": [],
+                  "loc": {
+                    "kind": "Source",
+                    "start": 145,
+                    "end": 149,
+                    "source": {
+                      "body": "subscription SimpleMutation @relay_test_operation {\\n  commentCreateSubscribe(input: null) {\\n    feedback {\\n      id\\n      ... on Actor {\\n        name\\n      }\\n    }\\n  }\\n}\\n",
+                      "name": "GraphQL request",
+                      "locationOffset": {
+                        "line": 1,
+                        "column": 1
+                      }
+                    }
+                  },
+                  "metadata": null,
+                  "name": "name",
+                  "type": "String"
+                }
+              ],
+              "typeCondition": "Actor"
+            }
+          ],
+          "type": "Feedback"
+        }
+      ],
+      "type": "CommentCreateResponsePayload"
+    }
+  ],
+  "type": "Subscription"
+}
+`;

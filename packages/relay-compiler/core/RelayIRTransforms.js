@@ -26,6 +26,7 @@ const RelayRefetchableFragmentTransform = require('../transforms/RelayRefetchabl
 const RelayRelayDirectiveTransform = require('../transforms/RelayRelayDirectiveTransform');
 const RelaySkipHandleFieldTransform = require('../transforms/RelaySkipHandleFieldTransform');
 const RelaySplitModuleImportTransform = require('../transforms/RelaySplitModuleImportTransform');
+const RelayTestOperationTransform = require('../transforms/RelayTestOperationTransform');
 const RelayViewerHandleTransform = require('../handlers/viewer/RelayViewerHandleTransform');
 const SkipClientFieldTransform = require('../transforms/SkipClientFieldTransform');
 const SkipRedundantNodesTransform = require('../transforms/SkipRedundantNodesTransform');
@@ -39,6 +40,7 @@ const relaySchemaExtensions: Array<string> = [
   RelayMatchTransform.SCHEMA_EXTENSION,
   RelayRelayDirectiveTransform.SCHEMA_EXTENSION,
   RelayRefetchableFragmentTransform.SCHEMA_EXTENSION,
+  RelayTestOperationTransform.SCHEMA_EXTENSION,
 ];
 
 // Transforms applied to both operations and fragments for both reading and
@@ -67,6 +69,7 @@ const relayQueryTransforms: Array<IRTransform> = [
   SkipUnreachableNodeTransform.transform,
   RelayGenerateIDFieldTransform.transform,
   RelayDeferStreamTransform.transform,
+  RelayTestOperationTransform.transform,
 ];
 
 // Transforms applied to the code used to process a query response.

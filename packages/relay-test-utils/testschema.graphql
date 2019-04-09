@@ -734,6 +734,7 @@ type User implements Named & Node & Actor & HasJsField {
   comments(first: Int, last: Int, orderby: String): CommentsConnection
   doesViewerLike: Boolean
   emailAddresses: [String]
+  environment: Environment
   feedback: Feedback
   firstName(if: Boolean, unless: Boolean): String
   friends(

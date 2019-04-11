@@ -7,6 +7,9 @@ original_id: community-learning-resources
 ## Relay Modern Learning Blog Posts Thread on Twitter
 https://twitter.com/sseraphini/status/1078595758801203202
 
+## Relay examples - common patterns explained via code and videos
+https://github.com/kiwicom/relay-example
+
 # Basics
 
 ## Relay Modern: What is a fragment?

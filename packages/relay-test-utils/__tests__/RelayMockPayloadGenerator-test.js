@@ -28,7 +28,6 @@ function testGeneratedData(graphql: string, mockResolvers: ?MockResolvers) {
   const {TestQuery: query} = compile(graphql);
   const operation = createOperationDescriptor(getRequest(query), {});
   const payload = RelayMockPayloadGenerator.generate(operation, mockResolvers);
-
   expect({
     [FIXTURE_TAG]: true,
     input: print(parse(graphql)),
@@ -778,5 +777,134 @@ describe('with @relay_test_operation', () => {
         }
       }
     `);
+  });
+
+  test('generate mock with Mock Resolvers for Concrete Type', () => {
+    testGeneratedData(
+      `
+      query TestQuery @relay_test_operation {
+        node(id: "my-id") {
+          ... on User {
+            id
+            name
+          }
+        }
+      }
+    `,
+      {
+        User() {
+          return {
+            id: 'my-id',
+            name: 'my-name',
+          };
+        },
+      },
+    );
+  });
+
+  test('generate mock with Mock Resolvers for Interface Type', () => {
+    testGeneratedData(
+      `
+      query TestQuery @relay_test_operation {
+        node(id: "my-id") {
+          ... on User {
+            id
+            name
+          }
+        }
+      }
+    `,
+      {
+        Node() {
+          return {
+            id: 'my-id',
+            name: 'my-name',
+          };
+        },
+      },
+    );
+  });
+
+  test('generate mock with Mock Resolvers for Interface Type with multiple fragment spreads', () => {
+    testGeneratedData(
+      `
+      query TestQuery @relay_test_operation {
+        node(id: "my-id") {
+          ... on User {
+            id
+            name
+          }
+          ... on Page {
+            id
+            pageName: name
+          }
+        }
+      }
+    `,
+      {
+        Node() {
+          return {
+            __typename: 'Page',
+            id: 'my-page-id',
+            name: 'my-page-name',
+          };
+        },
+      },
+    );
+  });
+
+  test('generate mock with Mock Resolvers for Interface Type with multiple fragments', () => {
+    testGeneratedData(
+      `
+      fragment PageDetails on Page {
+        id
+        pageName: name
+      }
+
+      fragment UserDetails on User {
+        id
+        userName: name
+      }
+
+      query TestQuery @relay_test_operation {
+        node(id: "my-id") {
+          ...PageDetails
+          ...UserDetails
+        }
+      }
+    `,
+      {
+        Node() {
+          return {
+            __typename: 'Page',
+            id: 'my-page-id',
+            name: 'my-page-name',
+          };
+        },
+      },
+    );
+  });
+
+  test('generate mock with Mock Resolvers for Interface Type with Concrete Type mock resolver', () => {
+    testGeneratedData(
+      `
+      query TestQuery @relay_test_operation {
+        node(id: "my-id") {
+          ... on User {
+            id
+            name
+          }
+        }
+      }
+    `,
+      {
+        User() {
+          return {
+            id: 'my-user-id',
+            name: 'my-user-name',
+          };
+        },
+      },
+    );
   });
 });

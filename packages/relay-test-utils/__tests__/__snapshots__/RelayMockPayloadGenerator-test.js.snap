@@ -792,7 +792,7 @@ fragment TestFragment on Page {
   "data": {
     "node": {
       "__typename": "Page",
-      "id": "<mock-id-1>",
+      "id": "page-id-2",
       "name": "My Page",
       "body": {
         "text": "My Text"
@@ -1027,6 +1027,133 @@ query TestQuery @relay_test_operation {
       "id": "<Node-mock-id-1>",
       "name": "<mock-value-for-field-\\"name\\">",
       "environment": "WEB"
+    }
+  }
+}
+`;
+
+exports[`with @relay_test_operation generate mock with Mock Resolvers for Concrete Type 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query TestQuery @relay_test_operation {
+  node(id: "my-id") {
+    ... on User {
+      id
+      name
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+{
+  "data": {
+    "node": {
+      "__typename": "User",
+      "id": "my-id",
+      "name": "my-name"
+    }
+  }
+}
+`;
+
+exports[`with @relay_test_operation generate mock with Mock Resolvers for Interface Type 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query TestQuery @relay_test_operation {
+  node(id: "my-id") {
+    ... on User {
+      id
+      name
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+{
+  "data": {
+    "node": {
+      "__typename": "User",
+      "id": "my-id",
+      "name": "my-name"
+    }
+  }
+}
+`;
+
+exports[`with @relay_test_operation generate mock with Mock Resolvers for Interface Type with Concrete Type mock resolver 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query TestQuery @relay_test_operation {
+  node(id: "my-id") {
+    ... on User {
+      id
+      name
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+{
+  "data": {
+    "node": {
+      "__typename": "User",
+      "id": "my-user-id",
+      "name": "my-user-name"
+    }
+  }
+}
+`;
+
+exports[`with @relay_test_operation generate mock with Mock Resolvers for Interface Type with multiple fragment spreads 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query TestQuery @relay_test_operation {
+  node(id: "my-id") {
+    ... on User {
+      id
+      name
+    }
+    ... on Page {
+      id
+      pageName: name
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+{
+  "data": {
+    "node": {
+      "__typename": "Page",
+      "id": "my-page-id",
+      "pageName": "<mock-value-for-field-\\"pageName\\">"
+    }
+  }
+}
+`;
+
+exports[`with @relay_test_operation generate mock with Mock Resolvers for Interface Type with multiple fragments 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment PageDetails on Page {
+  id
+  pageName: name
+}
+
+fragment UserDetails on User {
+  id
+  userName: name
+}
+
+query TestQuery @relay_test_operation {
+  node(id: "my-id") {
+    ...PageDetails
+    ...UserDetails
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+{
+  "data": {
+    "node": {
+      "__typename": "Page",
+      "id": "my-page-id",
+      "pageName": "<mock-value-for-field-\\"pageName\\">"
     }
   }
 }

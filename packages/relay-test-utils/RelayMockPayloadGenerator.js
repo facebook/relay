@@ -312,6 +312,16 @@ class RelayMockPayloadGenerator {
             if (mockData[TYPENAME_KEY] != null) {
               mockData[TYPENAME_KEY] = selection.type;
             }
+
+            // Make sure we're using id form the default values, an
+            // ID may be referenced in the same selection as InlineFragment
+            if (
+              mockData.id != null &&
+              defaults != null &&
+              defaults.id != null
+            ) {
+              mockData.id = defaults.id;
+            }
           }
           break;
         }
@@ -448,12 +458,19 @@ class RelayMockPayloadGenerator {
         ? defaults[TYPENAME_KEY]
         : typeFromSelection.type);
 
+    // Let's assume, that if the concrete type is null and selected type name is
+    // different from type information form selection, most likely this type
+    // information came from mock resolver __typename value and it was
+    // an intentional selection of the specific type
+    const isAbstractType =
+      field.concreteType === null && typeName === typeFromSelection.type;
+
     const generateDataForField = () =>
       this._traverse(
         {
           selections: field.selections,
           typeName,
-          isAbstractType: field.concreteType === null,
+          isAbstractType: isAbstractType,
           name: field.name,
           alias: field.alias,
           args,

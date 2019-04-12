@@ -21,7 +21,8 @@ import type {
   OperationDescriptor,
   Snapshot,
 } from '../store/RelayStoreTypes';
-import type {CacheConfig} from '../util/RelayRuntimeTypes';
+import type {RequestParameters} from '../util/RelayConcreteNode';
+import type {CacheConfig, Variables} from '../util/RelayRuntimeTypes';
 import type {Identifier as RequestParametersId} from '../util/getRequestParametersIdentifier';
 
 type ObserverEvent = {|
@@ -116,13 +117,38 @@ function fetchQuery(
     networkCacheConfig?: CacheConfig,
   |},
 ): Observable<Snapshot> {
+  return fetchQueryDeduped(
+    environment,
+    query.node.params,
+    query.variables,
+    () =>
+      environment
+        .execute({
+          operation: query,
+          cacheConfig: options?.networkCacheConfig,
+        })
+        .map(payload => environment.lookup(query.fragment, query)),
+  );
+}
+
+/**
+ * Low-level implementation details of `fetchQuery`.
+ *
+ * `fetchQueryDeduped` can also be used to share a single cache for
+ * requests that aren't using `fetchQuery` directly (e.g. because they don't
+ * have an `OperationDescriptor` when they are called).
+ *
+ * @private
+ */
+function fetchQueryDeduped(
+  environment: Environment,
+  parameters: RequestParameters,
+  variables: Variables,
+  fetchFn: () => Observable<Snapshot>,
+): Observable<Snapshot> {
   return Observable.create(sink => {
-    const networkCacheConfig = options?.networkCacheConfig;
     const requestCache = getRequestCache(environment);
-    const cacheKey = getRequestParametersIdentifier(
-      query.node.params,
-      query.variables,
-    );
+    const cacheKey = getRequestParametersIdentifier(parameters, variables);
     const cachedRequest = requestCache.get(cacheKey);
 
     if (cachedRequest) {
@@ -148,11 +174,7 @@ function fetchQuery(
         observers,
       });
     } else {
-      environment
-        .execute({operation: query, cacheConfig: networkCacheConfig})
-        .map(payload => {
-          return payload;
-        })
+      fetchFn()
         .finally(() => {
           requestCache.delete(cacheKey);
         })
@@ -165,8 +187,7 @@ function fetchQuery(
               receivedEvents: [],
             });
           },
-          next: () => {
-            const snapshot = environment.lookup(query.fragment, query);
+          next: snapshot => {
             addReceivedEvent(requestCache, cacheKey, {
               event: 'next',
               data: snapshot,
@@ -299,4 +320,5 @@ function getCachedObservers(
 module.exports = {
   fetchQuery,
   getPromiseForRequestInFlight,
+  fetchQueryDeduped,
 };

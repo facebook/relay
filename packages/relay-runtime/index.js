@@ -275,6 +275,7 @@ module.exports = {
     createRelayContext: createRelayContext,
     getModernOperationVariables: RelayConcreteVariables.getOperationVariables,
     fetchQuery: fetchQueryInternal.fetchQuery,
+    fetchQueryDeduped: fetchQueryInternal.fetchQueryDeduped,
     getPromiseForRequestInFlight:
       fetchQueryInternal.getPromiseForRequestInFlight,
   },

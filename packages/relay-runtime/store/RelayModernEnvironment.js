@@ -47,12 +47,14 @@ import type {
   PublishQueue,
 } from '../store/RelayStoreTypes';
 import type {CacheConfig, Disposable} from '../util/RelayRuntimeTypes';
+import type {TaskScheduler} from './RelayModernQueryExecutor';
 
 export type EnvironmentConfig = {|
   +configName?: string,
   +handlerProvider?: HandlerProvider,
   +operationLoader?: OperationLoader,
   +network: Network,
+  +scheduler?: TaskScheduler,
   +store: Store,
   +missingFieldHandlers?: $ReadOnlyArray<MissingFieldHandler>,
   +publishQueue?: PublishQueue,
@@ -62,6 +64,7 @@ class RelayModernEnvironment implements Environment {
   _operationLoader: ?OperationLoader;
   _network: Network;
   _publishQueue: PublishQueue;
+  _scheduler: ?TaskScheduler;
   _store: Store;
   configName: ?string;
   unstable_internal: UnstableEnvironmentCore;
@@ -90,6 +93,7 @@ class RelayModernEnvironment implements Environment {
     this._publishQueue =
       config.publishQueue ??
       new RelayPublishQueue(config.store, handlerProvider);
+    this._scheduler = config.scheduler ?? null;
     this._store = config.store;
     this.unstable_internal = RelayCore;
 
@@ -252,6 +256,7 @@ class RelayModernEnvironment implements Environment {
         operationLoader: this._operationLoader,
         optimisticUpdate: null,
         publishQueue: this._publishQueue,
+        scheduler: this._scheduler,
         sink,
         source,
         updater,
@@ -303,6 +308,7 @@ class RelayModernEnvironment implements Environment {
         operationLoader: this._operationLoader,
         optimisticUpdate,
         publishQueue: this._publishQueue,
+        scheduler: this._scheduler,
         sink,
         source,
         updater,

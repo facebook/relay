@@ -91,6 +91,7 @@ export type {
 } from './network/RelayObservable';
 export type {GraphiQLPrinter} from './network/createRelayNetworkLogger';
 export type {GraphQLTaggedNode} from './query/RelayModernGraphQLTag';
+export type {TaskScheduler} from './store/RelayModernQueryExecutor';
 export type {RecordState} from './store/RelayRecordState';
 export type {
   Environment as IEnvironment,

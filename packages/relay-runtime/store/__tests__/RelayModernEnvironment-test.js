@@ -1160,6 +1160,7 @@ describe('RelayModernEnvironment', () => {
     let operationCallback;
     let query;
     let variables;
+    let MarkupHandler;
 
     beforeEach(() => {
       ({
@@ -1197,7 +1198,7 @@ describe('RelayModernEnvironment', () => {
       `));
       variables = {id: '1'};
       operation = createOperationDescriptor(query, variables);
-      const MarkupHandler = {
+      MarkupHandler = {
         update(storeProxy, payload) {
           const record = storeProxy.get(payload.dataID);
           if (record != null) {
@@ -1378,6 +1379,203 @@ describe('RelayModernEnvironment', () => {
         },
         markdown: 'markdown payload',
       });
+    });
+
+    it('loads the @match fragment and normalizes/publishes the field payload with scheduling', () => {
+      let taskID = 0;
+      const tasks = new Map();
+      const scheduler = {
+        cancel: id => {
+          tasks.delete(id);
+        },
+        schedule: task => {
+          const id = String(taskID++);
+          tasks.set(id, task);
+          return id;
+        },
+      };
+      const runTask = () => {
+        for (const [id, task] of tasks) {
+          tasks.delete(id);
+          task();
+          break;
+        }
+      };
+      environment = new RelayModernEnvironment({
+        network: environment.getNetwork(),
+        store: environment.getStore(),
+        operationLoader,
+        scheduler,
+        handlerProvider: name => {
+          switch (name) {
+            case 'markup_handler':
+              return MarkupHandler;
+          }
+        },
+      });
+      environment.execute({operation}).subscribe(callbacks);
+      const payload = {
+        data: {
+          node: {
+            id: '1',
+            __typename: 'User',
+            nameRenderer: {
+              __typename: 'MarkdownUserNameRenderer',
+              __module_component: 'MarkdownUserNameRenderer.react',
+              __module_operation:
+                'MarkdownUserNameRenderer_name$normalization.graphql',
+              markdown: 'markdown payload',
+              data: {
+                // NOTE: should be uppercased when normalized (by MarkupHandler)
+                markup: '<markup/>',
+              },
+            },
+          },
+        },
+      };
+      dataSource.next(payload);
+      expect(next).toBeCalledTimes(0);
+      expect(operationCallback).toBeCalledTimes(0);
+      expect(tasks.size).toBe(1);
+      runTask();
+      jest.runAllTimers();
+      next.mockClear();
+      expect(operationCallback).toBeCalledTimes(1); // initial results tested above
+      const operationSnapshot = operationCallback.mock.calls[0][0];
+      operationCallback.mockClear();
+
+      const matchSelector = nullthrows(
+        getSingularSelector(
+          variables,
+          markdownRendererFragment,
+          (operationSnapshot.data?.node: any)?.nameRenderer,
+        ),
+      );
+      // initial results tested above
+      const initialMatchSnapshot = environment.lookup(
+        matchSelector.selector,
+        operation,
+      );
+      expect(initialMatchSnapshot.isMissingData).toBe(true);
+      const matchCallback = jest.fn();
+      environment.subscribe(initialMatchSnapshot, matchCallback);
+
+      resolveFragment(markdownRendererNormalizationFragment);
+      jest.runAllTimers();
+      expect(matchCallback).toBeCalledTimes(0);
+      expect(tasks.size).toBe(1);
+      runTask();
+      // next() should not be called when @match resolves, no new GraphQLResponse
+      // was received for this case
+      expect(next).toBeCalledTimes(0);
+      expect(operationCallback).toBeCalledTimes(0); // operation result shouldn't change
+      expect(matchCallback).toBeCalledTimes(1);
+
+      const matchSnapshot = matchCallback.mock.calls[0][0];
+      expect(matchSnapshot.isMissingData).toBe(false);
+      expect(matchSnapshot.data).toEqual({
+        __typename: 'MarkdownUserNameRenderer',
+        data: {
+          // NOTE: should be uppercased by the MarkupHandler
+          markup: '<MARKUP/>',
+        },
+        markdown: 'markdown payload',
+      });
+    });
+
+    it('cancels processing of @match fragments with scheduling', () => {
+      let taskID = 0;
+      const tasks = new Map();
+      const scheduler = {
+        cancel: id => {
+          tasks.delete(id);
+        },
+        schedule: task => {
+          const id = String(taskID++);
+          tasks.set(id, task);
+          return id;
+        },
+      };
+      const runTask = () => {
+        for (const [id, task] of tasks) {
+          tasks.delete(id);
+          task();
+          break;
+        }
+      };
+      environment = new RelayModernEnvironment({
+        network: environment.getNetwork(),
+        store: environment.getStore(),
+        operationLoader,
+        scheduler,
+        handlerProvider: name => {
+          switch (name) {
+            case 'markup_handler':
+              return MarkupHandler;
+          }
+        },
+      });
+      const subscription = environment
+        .execute({operation})
+        .subscribe(callbacks);
+      const payload = {
+        data: {
+          node: {
+            id: '1',
+            __typename: 'User',
+            nameRenderer: {
+              __typename: 'MarkdownUserNameRenderer',
+              __module_component: 'MarkdownUserNameRenderer.react',
+              __module_operation:
+                'MarkdownUserNameRenderer_name$normalization.graphql',
+              markdown: 'markdown payload',
+              data: {
+                // NOTE: should be uppercased when normalized (by MarkupHandler)
+                markup: '<markup/>',
+              },
+            },
+          },
+        },
+      };
+      dataSource.next(payload);
+      expect(next).toBeCalledTimes(0);
+      expect(operationCallback).toBeCalledTimes(0);
+      expect(tasks.size).toBe(1);
+      runTask();
+      jest.runAllTimers();
+      next.mockClear();
+      expect(operationCallback).toBeCalledTimes(1); // initial results tested above
+      const operationSnapshot = operationCallback.mock.calls[0][0];
+      operationCallback.mockClear();
+
+      const matchSelector = nullthrows(
+        getSingularSelector(
+          variables,
+          markdownRendererFragment,
+          (operationSnapshot.data?.node: any)?.nameRenderer,
+        ),
+      );
+      // initial results tested above
+      const initialMatchSnapshot = environment.lookup(
+        matchSelector.selector,
+        operation,
+      );
+      expect(initialMatchSnapshot.isMissingData).toBe(true);
+      const matchCallback = jest.fn();
+      environment.subscribe(initialMatchSnapshot, matchCallback);
+
+      resolveFragment(markdownRendererNormalizationFragment);
+      jest.runAllTimers();
+      expect(matchCallback).toBeCalledTimes(0);
+      expect(tasks.size).toBe(1);
+
+      subscription.unsubscribe();
+      expect(tasks.size).toBe(0);
+      expect(matchCallback).toBeCalledTimes(0);
+      expect(complete).toBeCalledTimes(0);
+      expect(error).toBeCalledTimes(0);
+      expect(next).toBeCalledTimes(0);
+      expect(operationCallback).toBeCalledTimes(0); // operation result shouldn't change
     });
 
     it('calls complete() if the network completes before processing the match', () => {
@@ -2333,6 +2531,7 @@ describe('RelayModernEnvironment', () => {
     let query;
     let selector;
     let variables;
+    let NameHandler;
 
     beforeEach(() => {
       jest.mock('warning');
@@ -2358,7 +2557,7 @@ describe('RelayModernEnvironment', () => {
         variables: {},
       };
 
-      const NameHandler = {
+      NameHandler = {
         update(storeProxy, payload) {
           const record = storeProxy.get(payload.dataID);
           if (record != null) {
@@ -2459,6 +2658,163 @@ describe('RelayModernEnvironment', () => {
         id: '1',
         name: 'JOE',
       });
+    });
+
+    it('processes deferred payloads with scheduling', () => {
+      let taskID = 0;
+      const tasks = new Map();
+      const scheduler = {
+        cancel: id => {
+          tasks.delete(id);
+        },
+        schedule: task => {
+          const id = String(taskID++);
+          tasks.set(id, task);
+          return id;
+        },
+      };
+      const runTask = () => {
+        for (const [id, task] of tasks) {
+          tasks.delete(id);
+          task();
+          break;
+        }
+      };
+      environment = new RelayModernEnvironment({
+        network: RelayNetwork.create(fetch),
+        scheduler,
+        store,
+        handlerProvider: name => {
+          switch (name) {
+            case 'name_handler':
+              return NameHandler;
+          }
+        },
+      });
+      const initialSnapshot = environment.lookup(selector, operation);
+      const callback = jest.fn();
+      environment.subscribe(initialSnapshot, callback);
+
+      environment.execute({operation}).subscribe(callbacks);
+      dataSource.next({
+        data: {
+          node: {
+            id: '1',
+            __typename: 'User',
+          },
+        },
+      });
+      expect(next).toBeCalledTimes(0);
+      expect(callback).toBeCalledTimes(0);
+      expect(tasks.size).toBe(1);
+      runTask();
+      expect(next).toBeCalledTimes(1);
+      expect(callback).toBeCalledTimes(1);
+      jest.runAllTimers();
+      next.mockClear();
+      callback.mockClear();
+
+      dataSource.next({
+        data: {
+          id: '1',
+          __typename: 'User',
+          name: 'joe',
+        },
+        label: 'UserQuery$defer$UserFragment',
+        path: ['node'],
+      });
+      expect(next).toBeCalledTimes(0);
+      expect(callback).toBeCalledTimes(0);
+      expect(tasks.size).toBe(1);
+      runTask();
+
+      expect(complete).toBeCalledTimes(0);
+      expect(error).toBeCalledTimes(0);
+      expect(next).toBeCalledTimes(1);
+      expect(callback).toBeCalledTimes(1);
+      const snapshot = callback.mock.calls[0][0];
+      expect(snapshot.isMissingData).toBe(false);
+      expect(snapshot.data).toEqual({
+        id: '1',
+        name: 'JOE',
+      });
+    });
+
+    it('cancels processing of deferred payloads with scheduling', () => {
+      let taskID = 0;
+      const tasks = new Map();
+      const scheduler = {
+        cancel: id => {
+          tasks.delete(id);
+        },
+        schedule: task => {
+          const id = String(taskID++);
+          tasks.set(id, task);
+          return id;
+        },
+      };
+      const runTask = () => {
+        for (const [id, task] of tasks) {
+          tasks.delete(id);
+          task();
+          break;
+        }
+      };
+      environment = new RelayModernEnvironment({
+        network: RelayNetwork.create(fetch),
+        scheduler,
+        store,
+        handlerProvider: name => {
+          switch (name) {
+            case 'name_handler':
+              return NameHandler;
+          }
+        },
+      });
+      const initialSnapshot = environment.lookup(selector, operation);
+      const callback = jest.fn();
+      environment.subscribe(initialSnapshot, callback);
+
+      const subscription = environment
+        .execute({operation})
+        .subscribe(callbacks);
+      dataSource.next({
+        data: {
+          node: {
+            id: '1',
+            __typename: 'User',
+          },
+        },
+      });
+      expect(next).toBeCalledTimes(0);
+      expect(callback).toBeCalledTimes(0);
+      expect(tasks.size).toBe(1);
+      runTask();
+      expect(next).toBeCalledTimes(1);
+      expect(callback).toBeCalledTimes(1);
+      jest.runAllTimers();
+      next.mockClear();
+      callback.mockClear();
+
+      dataSource.next({
+        data: {
+          id: '1',
+          __typename: 'User',
+          name: 'joe',
+        },
+        label: 'UserQuery$defer$UserFragment',
+        path: ['node'],
+      });
+      expect(next).toBeCalledTimes(0);
+      expect(callback).toBeCalledTimes(0);
+      expect(tasks.size).toBe(1);
+
+      subscription.unsubscribe();
+      expect(tasks.size).toBe(0);
+      expect(complete).toBeCalledTimes(0);
+      expect(error).toBeCalledTimes(0);
+      expect(next).toBeCalledTimes(0);
+      expect(callback).toBeCalledTimes(0);
     });
 
     it('calls error() for invalid deferred payloads (unknown label)', () => {
@@ -2734,6 +3090,7 @@ describe('RelayModernEnvironment', () => {
     let query;
     let selector;
     let variables;
+    let NameHandler;
 
     beforeEach(() => {
       jest.mock('warning');
@@ -2770,7 +3127,7 @@ describe('RelayModernEnvironment', () => {
         variables: {},
       };
 
-      const NameHandler = {
+      NameHandler = {
         update(storeProxy, payload) {
           const record = storeProxy.get(payload.dataID);
           if (record != null) {
@@ -2891,6 +3248,178 @@ describe('RelayModernEnvironment', () => {
 
       expect(complete).toBeCalledTimes(0);
       expect(error).toBeCalledTimes(0);
+    });
+
+    it('processes streamed payloads with scheduling', () => {
+      let taskID = 0;
+      const tasks = new Map();
+      const scheduler = {
+        cancel: id => {
+          tasks.delete(id);
+        },
+        schedule: task => {
+          const id = String(taskID++);
+          tasks.set(id, task);
+          return id;
+        },
+      };
+      const runTask = () => {
+        for (const [id, task] of tasks) {
+          tasks.delete(id);
+          task();
+          break;
+        }
+      };
+      environment = new RelayModernEnvironment({
+        network: RelayNetwork.create(fetch),
+        scheduler,
+        store,
+        handlerProvider: name => {
+          switch (name) {
+            case 'name_handler':
+              return NameHandler;
+          }
+        },
+      });
+
+      const initialSnapshot = environment.lookup(selector, operation);
+      const callback = jest.fn();
+      environment.subscribe(initialSnapshot, callback);
+
+      environment.execute({operation}).subscribe(callbacks);
+      dataSource.next({
+        data: {
+          node: {
+            __typename: 'Feedback',
+            id: '1',
+            actors: [],
+          },
+        },
+      });
+      expect(next).toBeCalledTimes(0);
+      expect(tasks.size).toBe(1);
+      runTask();
+      expect(next).toBeCalledTimes(1);
+      next.mockClear();
+      callback.mockClear();
+
+      dataSource.next({
+        data: {
+          __typename: 'User',
+          id: '2',
+          name: 'Alice',
+        },
+        label: 'FeedbackFragment$stream$actors',
+        path: ['node', 'actors', 0],
+      });
+      expect(next).toBeCalledTimes(0);
+      expect(tasks.size).toBe(1);
+      runTask();
+      expect(next).toBeCalledTimes(1);
+      expect(callback).toBeCalledTimes(1);
+      const snapshot = callback.mock.calls[0][0];
+      expect(snapshot.isMissingData).toBe(false);
+      expect(snapshot.data).toEqual({
+        id: '1',
+        actors: [{name: 'ALICE'}],
+      });
+
+      dataSource.next({
+        data: {
+          __typename: 'User',
+          id: '3',
+          name: 'Bob',
+        },
+        label: 'FeedbackFragment$stream$actors',
+        path: ['node', 'actors', 1],
+      });
+      expect(next).toBeCalledTimes(1);
+      expect(tasks.size).toBe(1);
+      runTask();
+      expect(next).toBeCalledTimes(2);
+      expect(callback).toBeCalledTimes(2);
+      const snapshot2 = callback.mock.calls[1][0];
+      expect(snapshot2.isMissingData).toBe(false);
+      expect(snapshot2.data).toEqual({
+        id: '1',
+        actors: [{name: 'ALICE'}, {name: 'BOB'}],
+      });
+
+      expect(complete).toBeCalledTimes(0);
+      expect(error).toBeCalledTimes(0);
+    });
+
+    it('cancels processing of streamed payloads with scheduling', () => {
+      let taskID = 0;
+      const tasks = new Map();
+      const scheduler = {
+        cancel: id => {
+          tasks.delete(id);
+        },
+        schedule: task => {
+          const id = String(taskID++);
+          tasks.set(id, task);
+          return id;
+        },
+      };
+      const runTask = () => {
+        for (const [id, task] of tasks) {
+          tasks.delete(id);
+          task();
+          break;
+        }
+      };
+      environment = new RelayModernEnvironment({
+        network: RelayNetwork.create(fetch),
+        scheduler,
+        store,
+        handlerProvider: name => {
+          switch (name) {
+            case 'name_handler':
+              return NameHandler;
+          }
+        },
+      });
+
+      const initialSnapshot = environment.lookup(selector, operation);
+      const callback = jest.fn();
+      environment.subscribe(initialSnapshot, callback);
+
+      const subscription = environment
+        .execute({operation})
+        .subscribe(callbacks);
+      dataSource.next({
+        data: {
+          node: {
+            __typename: 'Feedback',
+            id: '1',
+            actors: [],
+          },
+        },
+      });
+      expect(next).toBeCalledTimes(0);
+      expect(tasks.size).toBe(1);
+      runTask();
+      expect(next).toBeCalledTimes(1);
+      next.mockClear();
+      callback.mockClear();
+
+      dataSource.next({
+        data: {
+          __typename: 'User',
+          id: '2',
+          name: 'Alice',
+        },
+        label: 'FeedbackFragment$stream$actors',
+        path: ['node', 'actors', 0],
+      });
+      expect(next).toBeCalledTimes(0);
+      expect(tasks.size).toBe(1);
+
+      subscription.unsubscribe();
+      expect(tasks.size).toBe(0);
+      expect(next).toBeCalledTimes(0);
+      expect(callback).toBeCalledTimes(0);
     });
 
     it('processes @stream payloads when the parent record has been deleted', () => {

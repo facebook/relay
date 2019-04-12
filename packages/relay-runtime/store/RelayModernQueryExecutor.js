@@ -45,14 +45,20 @@ import type {
 import type {NormalizationSplitOperation} from '../util/NormalizationNode';
 import type {Record} from '../util/RelayCombinedEnvironmentTypes';
 
-type ExecuteConfig = {|
+export type ExecuteConfig = {|
   +operation: OperationDescriptor,
   +operationLoader: ?OperationLoader,
   +optimisticUpdate: ?OptimisticUpdate,
   +publishQueue: PublishQueue,
+  +scheduler?: ?TaskScheduler,
   +sink: Sink<GraphQLResponse>,
   +source: RelayObservable<GraphQLResponse>,
   +updater?: ?SelectorStoreUpdater,
+|};
+
+export type TaskScheduler = {|
+  +cancel: (id: string) => void,
+  +schedule: (fn: () => void) => string,
 |};
 
 function execute(config: ExecuteConfig): Executor {
@@ -77,6 +83,7 @@ class Executor {
   _operationLoader: ?OperationLoader;
   _optimisticUpdate: null | OptimisticUpdate;
   _publishQueue: PublishQueue;
+  _scheduler: ?TaskScheduler;
   _sink: Sink<GraphQLResponse>;
   _source: Map<
     string,
@@ -91,6 +98,7 @@ class Executor {
     operationLoader,
     optimisticUpdate,
     publishQueue,
+    scheduler,
     sink,
     source,
     updater,
@@ -101,6 +109,7 @@ class Executor {
     this._operationLoader = operationLoader;
     this._optimisticUpdate = optimisticUpdate ?? null;
     this._publishQueue = publishQueue;
+    this._scheduler = scheduler;
     this._sink = sink;
     this._source = new Map();
     this._state = 'started';
@@ -146,6 +155,30 @@ class Executor {
     this._incrementalPlaceholders.clear();
   }
 
+  _schedule(task: () => void): void {
+    const scheduler = this._scheduler;
+    if (scheduler != null) {
+      const id = this._nextSubscriptionId++;
+      RelayObservable.create(sink => {
+        const cancellationToken = scheduler.schedule(() => {
+          try {
+            task();
+            sink.complete();
+          } catch (error) {
+            sink.error(error);
+          }
+        });
+        return () => scheduler.cancel(cancellationToken);
+      }).subscribe({
+        complete: () => this._complete(id),
+        error: error => this._error(id, error),
+        start: subscription => this._start(id, subscription),
+      });
+    } else {
+      task();
+    }
+  }
+
   _complete(id: number): void {
     this._subscriptions.delete(id);
     if (this._subscriptions.size === 0) {
@@ -165,6 +198,12 @@ class Executor {
 
   // Handle a raw GraphQL response.
   _next(_id: number, response: GraphQLResponse): void {
+    this._schedule(() => {
+      this._handleNext(response);
+    });
+  }
+
+  _handleNext(response: GraphQLResponse): void {
     if (this._state === 'completed') {
       if (__DEV__) {
         console.warn(
@@ -327,29 +366,37 @@ class Executor {
       }),
     )
       .map((operation: ?NormalizationSplitOperation) => {
-        if (operation == null) {
-          return;
+        if (operation != null) {
+          this._schedule(() => {
+            this._handleModuleImportPayload(moduleImportPayload, operation);
+          });
         }
-        const selector = {
-          dataID: moduleImportPayload.dataID,
-          variables: moduleImportPayload.variables,
-          node: operation,
-        };
-        const relayPayload = normalizeResponse(
-          {data: moduleImportPayload.data},
-          selector,
-          moduleImportPayload.typeName,
-          moduleImportPayload.path,
-        );
-        this._processPayloadFollowups(relayPayload);
-        this._publishQueue.commitRelayPayload(relayPayload);
-        this._publishQueue.run();
       })
       .subscribe({
         complete: () => this._complete(id),
         error: error => this._error(id, error),
         start: subscription => this._start(id, subscription),
       });
+  }
+
+  _handleModuleImportPayload(
+    moduleImportPayload: ModuleImportPayload,
+    operation: NormalizationSplitOperation,
+  ): void {
+    const selector = {
+      dataID: moduleImportPayload.dataID,
+      variables: moduleImportPayload.variables,
+      node: operation,
+    };
+    const relayPayload = normalizeResponse(
+      {data: moduleImportPayload.data},
+      selector,
+      moduleImportPayload.typeName,
+      moduleImportPayload.path,
+    );
+    this._processPayloadFollowups(relayPayload);
+    this._publishQueue.commitRelayPayload(relayPayload);
+    this._publishQueue.run();
   }
 
   /**

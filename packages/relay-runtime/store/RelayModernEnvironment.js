@@ -318,6 +318,35 @@ class RelayModernEnvironment implements Environment {
   }
 
   /**
+   * Returns an Observable of GraphQLResponse resulting from executing the
+   * provided Query or Subscription operation responses, the result of which is
+   * then normalized and comitted to the publish queue.
+   *
+   * Note: Observables are lazy, so calling this method will do nothing until
+   * the result is subscribed to:
+   * environment.executeWithSource({...}).subscribe({...}).
+   */
+  executeWithSource({
+    operation,
+    source,
+  }: {|
+    operation: OperationDescriptor,
+    source: RelayObservable<GraphQLResponse>,
+  |}): RelayObservable<GraphQLResponse> {
+    return RelayObservable.create(sink => {
+      const executor = RelayModernQueryExecutor.execute({
+        operation,
+        operationLoader: this._operationLoader,
+        optimisticUpdate: null,
+        publishQueue: this._publishQueue,
+        sink,
+        source,
+      });
+      return () => executor.cancel();
+    });
+  }
+
+  /**
    * @deprecated Use Environment.execute().subscribe()
    */
   sendQuery({

@@ -317,6 +317,20 @@ export interface Environment
     updater?: ?SelectorStoreUpdater,
     uploadables?: ?UploadableMap,
   |}): RelayObservable<GraphQLResponse>;
+
+  /**
+   * Returns an Observable of GraphQLResponse resulting from executing the
+   * provided Query or Subscription operation responses, the result of which is
+   * then normalized and comitted to the publish queue.
+   *
+   * Note: Observables are lazy, so calling this method will do nothing until
+   * the result is subscribed to:
+   * environment.executeWithSource({...}).subscribe({...}).
+   */
+  executeWithSource({|
+    operation: OperationDescriptor,
+    source: RelayObservable<GraphQLResponse>,
+  |}): RelayObservable<GraphQLResponse>;
 }
 
 /**

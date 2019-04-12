@@ -43,8 +43,8 @@ const fetchQueryInternal = require('./query/fetchQueryInternal');
 const fetchRelayModernQuery = require('./query/fetchRelayModernQuery');
 const getFragmentIdentifier = require('./util/getFragmentIdentifier');
 const getFragmentSpecIdentifier = require('./util/getFragmentSpecIdentifier');
-const getOperationIdentifier = require('./util/getOperationIdentifier');
 const getRelayHandleKey = require('./util/getRelayHandleKey');
+const getRequestParametersIdentifier = require('./util/getRequestParametersIdentifier');
 const isRelayModernEnvironment = require('./store/isRelayModernEnvironment');
 const isScalarAndEqual = require('./util/isScalarAndEqual');
 const recycleNodesInto = require('./util/recycleNodesInto');
@@ -268,9 +268,9 @@ module.exports = {
   isScalarAndEqual: isScalarAndEqual,
   recycleNodesInto: recycleNodesInto,
   stableCopy: stableCopy,
-  getOperationIdentifier: getOperationIdentifier,
   getFragmentIdentifier: getFragmentIdentifier,
   getFragmentSpecIdentifier: getFragmentSpecIdentifier,
+  getRequestParametersIdentifier: getRequestParametersIdentifier,
   __internal: {
     createRelayContext: createRelayContext,
     getModernOperationVariables: RelayConcreteVariables.getOperationVariables,

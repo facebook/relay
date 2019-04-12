@@ -12,7 +12,7 @@
 
 const Observable = require('../network/RelayObservable');
 
-const getOperationIdentifier = require('../util/getOperationIdentifier');
+const getRequestParametersIdentifier = require('../util/getRequestParametersIdentifier');
 const invariant = require('invariant');
 
 import type {Subscription} from '../network/RelayObservable';
@@ -22,6 +22,7 @@ import type {
   Snapshot,
 } from '../store/RelayStoreTypes';
 import type {CacheConfig} from '../util/RelayRuntimeTypes';
+import type {Identifier as RequestParametersId} from '../util/getRequestParametersIdentifier';
 
 type ObserverEvent = {|
   event: 'next' | 'error' | 'complete',
@@ -118,7 +119,10 @@ function fetchQuery(
   return Observable.create(sink => {
     const networkCacheConfig = options?.networkCacheConfig;
     const requestCache = getRequestCache(environment);
-    const cacheKey = getOperationIdentifier(query);
+    const cacheKey = getRequestParametersIdentifier(
+      query.node.params,
+      query.variables,
+    );
     const cachedRequest = requestCache.get(cacheKey);
 
     if (cachedRequest) {
@@ -221,7 +225,10 @@ function getPromiseForRequestInFlight(
   query: OperationDescriptor,
 ): Promise<?Snapshot> | null {
   const requestCache = getRequestCache(environment);
-  const cacheKey = getOperationIdentifier(query);
+  const cacheKey = getRequestParametersIdentifier(
+    query.node.params,
+    query.variables,
+  );
   const cachedRequest = requestCache.get(cacheKey);
   if (!cachedRequest) {
     return null;
@@ -246,8 +253,8 @@ function getPromiseForRequestInFlight(
 }
 
 function addReceivedEvent(
-  requestCache: Map<string, RequestCacheEntry>,
-  cacheKey: string,
+  requestCache: Map<RequestParametersId, RequestCacheEntry>,
+  cacheKey: RequestParametersId,
   observerEvent: ObserverEvent,
 ) {
   const cached = requestCache.get(cacheKey);
@@ -264,22 +271,22 @@ function addReceivedEvent(
 
 function getRequestCache(
   environment: Environment,
-): Map<string, RequestCacheEntry> {
+): Map<RequestParametersId, RequestCacheEntry> {
   const cached: ?Map<
-    string,
+    RequestParametersId,
     RequestCacheEntry,
   > = requestCachesByEnvironment.get(environment);
   if (cached != null) {
     return cached;
   }
-  const requestCache: Map<string, RequestCacheEntry> = new Map();
+  const requestCache: Map<RequestParametersId, RequestCacheEntry> = new Map();
   requestCachesByEnvironment.set(environment, requestCache);
   return requestCache;
 }
 
 function getCachedObservers(
-  requestCache: Map<string, RequestCacheEntry>,
-  cacheKey: string,
+  requestCache: Map<RequestParametersId, RequestCacheEntry>,
+  cacheKey: RequestParametersId,
 ): Array<Sink<Snapshot>> {
   const cached = requestCache.get(cacheKey);
   invariant(

@@ -12,6 +12,7 @@
 
 import type {
   GraphQLResponse,
+  Network,
   PayloadError,
   UploadableMap,
 } from '../network/RelayNetworkTypes';
@@ -278,6 +279,11 @@ export interface Environment
     operationDescriptor: OperationDescriptor,
     payload: PayloadData,
   ): void;
+
+  /**
+   * Get the environment's internal Network.
+   */
+  getNetwork(): Network;
 
   /**
    * Get the environment's internal Store.

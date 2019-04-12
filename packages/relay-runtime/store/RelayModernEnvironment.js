@@ -339,6 +339,7 @@ class RelayModernEnvironment implements Environment {
         operationLoader: this._operationLoader,
         optimisticUpdate: null,
         publishQueue: this._publishQueue,
+        scheduler: this._scheduler,
         sink,
         source,
       });

@@ -73,6 +73,7 @@ import type {
   BooleanValueNode,
   DefinitionNode,
   DirectiveNode,
+  DirectiveLocationEnum,
   EnumValueNode,
   FieldNode,
   FloatValueNode,
@@ -118,6 +119,11 @@ type VariableDefinition = {|
 const ARGUMENT_DEFINITIONS = 'argumentDefinitions';
 const ARGUMENTS = 'arguments';
 const DEPRECATED_UNCHECKED_ARGUMENTS = 'uncheckedArguments_DEPRECATED';
+const DIRECTIVE_WHITELIST: $ReadOnlySet<string> = new Set([
+  ARGUMENT_DEFINITIONS,
+  DEPRECATED_UNCHECKED_ARGUMENTS,
+  ARGUMENTS,
+]);
 
 /**
  * @internal
@@ -455,6 +461,7 @@ class GraphQLDefinitionParser {
   _schema: GraphQLSchema;
   _variableDefinitions: VariableDefinitions;
   _unknownVariables: Map<string, {ast: VariableNode, type: ?GraphQLInputType}>;
+  _directiveLocations: ?Map<string, $ReadOnlyArray<DirectiveLocationEnum>>;
 
   constructor(
     schema: GraphQLSchema,
@@ -580,11 +587,58 @@ class GraphQLDefinitionParser {
     }
   }
 
+  _getDirectiveLocations(): Map<string, $ReadOnlyArray<DirectiveLocationEnum>> {
+    if (!this._directiveLocations) {
+      const directiveDefs = this._schema.getDirectives();
+      this._directiveLocations = new Map();
+      for (const def of directiveDefs) {
+        this._directiveLocations.set(def.name, def.locations);
+      }
+    }
+    return this._directiveLocations;
+  }
+
+  _validateDirectivesLocation(
+    directives: ?$ReadOnlyArray<DirectiveNode>,
+    allowedLocaction: DirectiveLocationEnum,
+  ): void {
+    if (!directives || !directives.length) {
+      return;
+    }
+    const directiveLocs = this._getDirectiveLocations();
+    const mismatches = directives.filter(directive => {
+      const name = getName(directive);
+      if (DIRECTIVE_WHITELIST.has(name)) {
+        return false;
+      }
+      const locs = directiveLocs.get(name);
+      if (locs == null) {
+        throw createUserError(
+          `Unknown directive '${name}'. Source: ${this._getErrorContext()}`,
+          null,
+          [directive],
+        );
+      }
+      return !locs.some(loc => loc === allowedLocaction);
+    });
+    if (mismatches.length) {
+      const invalidDirectives = mismatches
+        .map(directive => '@' + getName(directive))
+        .join(', ');
+      throw createUserError(
+        `Invalid directives ${invalidDirectives} found on ${allowedLocaction}. Source: ${this._getErrorContext()}`,
+        null,
+        mismatches,
+      );
+    }
+  }
+
   _transformFragment(fragment: FragmentDefinitionNode): Fragment {
     const directives = this._transformDirectives(
       (fragment.directives || []).filter(
         directive => getName(directive) !== ARGUMENT_DEFINITIONS,
       ),
+      'FRAGMENT_DEFINITION',
     );
     const type = assertCompositeType(
       getTypeFromAST(this._schema, fragment.typeCondition),
@@ -615,9 +669,34 @@ class GraphQLDefinitionParser {
     };
   }
 
+  _getLocationFromOperation(
+    definition: OperationDefinitionNode,
+  ): DirectiveLocationEnum {
+    switch (definition.operation) {
+      case 'query':
+        return 'QUERY';
+      case 'mutation':
+        return 'MUTATION';
+      case 'subscription':
+        return 'SUBSCRIPTION';
+      default:
+        (definition.operation: empty);
+        throw createCompilerError(
+          `Unknown operation type '${
+            definition.operation
+          }'. Source: ${this._getErrorContext()}.`,
+          null,
+          [definition],
+        );
+    }
+  }
+
   _transformOperation(definition: OperationDefinitionNode): Root {
     const name = getName(definition);
-    const directives = this._transformDirectives(definition.directives || []);
+    const directives = this._transformDirectives(
+      definition.directives || [],
+      this._getLocationFromOperation(definition),
+    );
     let type;
     let operation;
     switch (definition.operation) {
@@ -636,7 +715,7 @@ class GraphQLDefinitionParser {
       default:
         (definition.operation: empty);
         throw createCompilerError(
-          `Unknown ast kind '${
+          `Unknown operation type '${
             definition.operation
           }'. Source: ${this._getErrorContext()}.`,
           null,
@@ -724,7 +803,10 @@ class GraphQLDefinitionParser {
         ? getTypeFromAST(this._schema, fragment.typeCondition)
         : parentType,
     );
-    const directives = this._transformDirectives(fragment.directives || []);
+    const directives = this._transformDirectives(
+      fragment.directives || [],
+      'INLINE_FRAGMENT',
+    );
     const selections = this._transformSelections(
       fragment.selectionSet,
       typeCondition,
@@ -830,7 +912,10 @@ class GraphQLDefinitionParser {
         );
       }
     }
-    const directives = this._transformDirectives(otherDirectives);
+    const directives = this._transformDirectives(
+      otherDirectives,
+      'FRAGMENT_SPREAD',
+    );
     return {
       kind: 'FragmentSpread',
       args: args || [],
@@ -865,7 +950,7 @@ class GraphQLDefinitionParser {
       field.directives || [],
       directive => getName(directive) !== CLIENT_FIELD,
     );
-    const directives = this._transformDirectives(otherDirectives);
+    const directives = this._transformDirectives(otherDirectives, 'FIELD');
     const type = assertOutputType(fieldDef.type);
     const handles = this._transformHandle(name, args, clientFieldDirectives);
     if (isLeafType(getNamedType(type))) {
@@ -1002,7 +1087,9 @@ class GraphQLDefinitionParser {
 
   _transformDirectives(
     directives: $ReadOnlyArray<DirectiveNode>,
+    location: DirectiveLocationEnum,
   ): Array<Directive> {
+    this._validateDirectivesLocation(directives, location);
     return directives.map(directive => {
       const name = getName(directive);
       const directiveDef = this._schema.getDirective(name);

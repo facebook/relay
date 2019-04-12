@@ -909,6 +909,84 @@ fragment TestFragment on User {
 ]
 `;
 
+exports[`RelayParser matches expected output: directive-match-on-fragment.invalid.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment Example on User @match(key: "Example"){
+  friends {
+    edges {
+      node {
+        profilePicture(preset: $preset) {
+          uri
+        }
+      }
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+ERROR:
+Error: RelayParser: Encountered 1 error(s):
+- Invalid directives @match found on FRAGMENT_DEFINITION. Source: document \`Example\` file: \`GraphQL request\`
+  
+  GraphQL request (1:26)
+  1: fragment Example on User @match(key: "Example"){
+                              ^
+  2:   friends {
+  
+`;
+
+exports[`RelayParser matches expected output: directive-module-match-on-query.invalid.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query TestQuery($id: ID!) @module @match{
+  foo: node(id: $id) {
+    id
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+ERROR:
+Error: RelayParser: Encountered 1 error(s):
+- Invalid directives @module, @match found on QUERY. Source: document \`TestQuery\` file: \`GraphQL request\`
+  
+  GraphQL request (1:27)
+  1: query TestQuery($id: ID!) @module @match{
+                               ^
+  2:   foo: node(id: $id) {
+  
+  GraphQL request (1:35)
+  1: query TestQuery($id: ID!) @module @match{
+                                       ^
+  2:   foo: node(id: $id) {
+  
+`;
+
+exports[`RelayParser matches expected output: directive-module-on-field.invalid.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment Example on User {
+  friends {
+    edges {
+      node {
+        profilePicture @module(preset: $preset) {
+          uri
+        }
+      }
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+ERROR:
+Error: RelayParser: Encountered 1 error(s):
+- Invalid directives @module found on FIELD. Source: document \`Example\` file: \`GraphQL request\`
+  
+  GraphQL request (5:24)
+  4:       node {
+  5:         profilePicture @module(preset: $preset) {
+                            ^
+  6:           uri
+  
+`;
+
 exports[`RelayParser matches expected output: enum-values.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query EnumValueQuery {

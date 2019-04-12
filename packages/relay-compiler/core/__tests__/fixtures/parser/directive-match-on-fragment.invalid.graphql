@@ -1,0 +1,11 @@
+fragment Example on User @match(key: "Example"){
+  friends {
+    edges {
+      node {
+        profilePicture(preset: $preset) {
+          uri
+        }
+      }
+    }
+  }
+}

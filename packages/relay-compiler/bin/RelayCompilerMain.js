@@ -360,8 +360,8 @@ function getSchema(schemaPath: string): GraphQLSchema {
       source = printSchema(buildClientSchema(JSON.parse(source).data));
     }
     source = `
-  directive @include(if: Boolean) on FRAGMENT_SPREAD | FIELD
-  directive @skip(if: Boolean) on FRAGMENT_SPREAD | FIELD
+  directive @include(if: Boolean) on FRAGMENT_SPREAD | FIELD | INLINE_FRAGMENT
+  directive @skip(if: Boolean) on FRAGMENT_SPREAD | FIELD | INLINE_FRAGMENT
 
   ${source}
   `;

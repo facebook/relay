@@ -17,6 +17,7 @@ const {TYPENAME_KEY, RelayConcreteNode} = require('relay-runtime');
 
 const {
   CONDITION,
+  CLIENT_EXTENSION,
   INLINE_FRAGMENT,
   LINKED_FIELD,
   MODULE_IMPORT,
@@ -325,6 +326,15 @@ class RelayMockPayloadGenerator {
           }
           break;
         }
+        case CLIENT_EXTENSION:
+          // TODO(T41499100) We're currently not generating ClientExtension nodes
+          // so we can skip for now
+          invariant(
+            false,
+            'RelayMockPayloadGenerator(): Unexpected ClientExtension node.',
+          );
+          // $FlowExpectedError - we need the break; for OSS linter
+          break;
         case MODULE_IMPORT:
         case SCALAR_HANDLE:
         case LINKED_HANDLE:

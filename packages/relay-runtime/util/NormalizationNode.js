@@ -56,6 +56,11 @@ export type NormalizationCondition = {|
   +selections: $ReadOnlyArray<NormalizationSelection>,
 |};
 
+export type NormalizationClientExtension = {|
+  +kind: 'ClientExtension',
+  +selections: $ReadOnlyArray<NormalizationSelection>,
+|};
+
 export type NormalizationField =
   | NormalizationScalarField
   | NormalizationLinkedField;
@@ -116,6 +121,7 @@ export type NormalizationScalarField = {|
 
 export type NormalizationSelection =
   | NormalizationCondition
+  | NormalizationClientExtension
   | NormalizationDefer
   | NormalizationField
   | NormalizationHandle

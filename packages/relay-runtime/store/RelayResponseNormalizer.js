@@ -18,6 +18,7 @@ const warning = require('warning');
 
 const {
   CONDITION,
+  CLIENT_EXTENSION,
   DEFER,
   INLINE_FRAGMENT,
   LINKED_FIELD,
@@ -201,6 +202,15 @@ class RelayResponseNormalizer {
           break;
         case STREAM:
           this._normalizeStream(selection, record, data);
+          break;
+        case CLIENT_EXTENSION:
+          // TODO(T41499100) We're currently not generating ClientExtension nodes
+          // so we can skip for now
+          invariant(
+            false,
+            'RelayResponseNormalizer(): Unexpected ClientExtension node.',
+          );
+          // $FlowExpectedError - we need the break; for OSS linter
           break;
         default:
           (selection: empty);

@@ -41,6 +41,7 @@ import type {
 
 const {
   CONDITION,
+  CLIENT_EXTENSION,
   DEFER,
   FRAGMENT_SPREAD,
   INLINE_FRAGMENT,
@@ -282,6 +283,15 @@ class DataChecker {
             false,
             'RelayAsyncLoader(): Unexpected ast kind `%s`.',
             selection.kind,
+          );
+          // $FlowExpectedError - we need the break; for OSS linter
+          break;
+        case CLIENT_EXTENSION:
+          // TODO(T41499100) We're currently not generating ClientExtension nodes
+          // so we can skip for now
+          invariant(
+            false,
+            'RelayAsyncLoader(): Unexpected ClientExtension node.',
           );
           // $FlowExpectedError - we need the break; for OSS linter
           break;

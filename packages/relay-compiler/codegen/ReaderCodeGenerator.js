@@ -20,7 +20,13 @@ const {
 const {GraphQLList} = require('graphql');
 const {getStorageKey, stableCopy} = require('relay-runtime');
 
-import type {Argument, Metadata, Fragment, Selection} from '../core/GraphQLIR';
+import type {
+  Argument,
+  ClientExtension,
+  Metadata,
+  Fragment,
+  Selection,
+} from '../core/GraphQLIR';
 import type {
   ReaderArgument,
   ReaderArgumentDefinition,
@@ -89,9 +95,7 @@ function generateSelections(
     .map(selection => {
       switch (selection.kind) {
         case 'ClientExtension':
-          // We're not currently generating ClientExtensions so
-          // we can skip this for now
-          return null;
+          return generateClientExtension(selection);
         case 'FragmentSpread':
           return generateFragmentSpread(selection);
         case 'Condition':
@@ -141,6 +145,13 @@ function generateArgumentDefinitions(
         throw new Error();
     }
   });
+}
+
+function generateClientExtension(node: ClientExtension): ReaderSelection {
+  return {
+    kind: 'ClientExtension',
+    selections: generateSelections(node.selections),
+  };
 }
 
 function generateCondition(node): ReaderSelection {

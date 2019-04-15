@@ -84,6 +84,11 @@ export type ReaderCondition = {|
   +selections: $ReadOnlyArray<ReaderSelection>,
 |};
 
+export type ReaderClientExtension = {|
+  +kind: 'ClientExtension',
+  +selections: $ReadOnlyArray<ReaderSelection>,
+|};
+
 export type ReaderField = ReaderScalarField | ReaderLinkedField;
 
 export type ReaderRootArgument = {|
@@ -145,6 +150,7 @@ export type ReaderScalarField = {|
 
 export type ReaderSelection =
   | ReaderCondition
+  | ReaderClientExtension
   | ReaderField
   | ReaderFragmentSpread
   | ReaderInlineFragment

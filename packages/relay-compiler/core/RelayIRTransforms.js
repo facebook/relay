@@ -10,6 +10,7 @@
 
 'use strict';
 
+const ClientExtensionsTransform = require('../transforms/ClientExtensionsTransform');
 const FilterDirectivesTransform = require('../transforms/FilterDirectivesTransform');
 const FlattenTransform = require('../transforms/FlattenTransform');
 const InlineFragmentsTransform = require('../transforms/InlineFragmentsTransform');
@@ -28,9 +29,12 @@ const RelaySkipHandleFieldTransform = require('../transforms/RelaySkipHandleFiel
 const RelaySplitModuleImportTransform = require('../transforms/RelaySplitModuleImportTransform');
 const RelayTestOperationTransform = require('../transforms/RelayTestOperationTransform');
 const RelayViewerHandleTransform = require('../handlers/viewer/RelayViewerHandleTransform');
+const SkipClientExtensionsTransform = require('../transforms/SkipClientExtensionsTransform');
 const SkipClientFieldTransform = require('../transforms/SkipClientFieldTransform');
 const SkipRedundantNodesTransform = require('../transforms/SkipRedundantNodesTransform');
 const SkipUnreachableNodeTransform = require('../transforms/SkipUnreachableNodeTransform');
+
+const {RelayFeatureFlags} = require('relay-runtime');
 
 import type {IRTransform} from './GraphQLCompilerContext';
 
@@ -46,13 +50,16 @@ const relaySchemaExtensions: Array<string> = [
 // Transforms applied to both operations and fragments for both reading and
 // writing from the store.
 const relayCommonTransforms: Array<IRTransform> = [
+  RelayFeatureFlags.ENABLE_CLIENT_EXTENSIONS === true
+    ? ClientExtensionsTransform.transform
+    : null,
   RelayConnectionTransform.transform,
   RelayRelayDirectiveTransform.transform,
   RelayMaskTransform.transform,
   RelayMatchTransform.transform,
   RelayRefetchableFragmentTransform.transform,
   RelayViewerHandleTransform.transform,
-];
+].filter(Boolean);
 
 // Transforms applied to fragments used for reading data from a store
 const relayFragmentTransforms: Array<IRTransform> = [
@@ -65,12 +72,14 @@ const relayFragmentTransforms: Array<IRTransform> = [
 // fetching data from the server and parsing those responses.
 const relayQueryTransforms: Array<IRTransform> = [
   RelayApplyFragmentArgumentTransform.transform,
-  SkipClientFieldTransform.transform,
+  RelayFeatureFlags.ENABLE_CLIENT_EXTENSIONS === true
+    ? null
+    : SkipClientFieldTransform.transform,
   SkipUnreachableNodeTransform.transform,
   RelayGenerateIDFieldTransform.transform,
   RelayDeferStreamTransform.transform,
   RelayTestOperationTransform.transform,
-];
+].filter(Boolean);
 
 // Transforms applied to the code used to process a query response.
 const relayCodegenTransforms: Array<IRTransform> = [
@@ -84,12 +93,15 @@ const relayCodegenTransforms: Array<IRTransform> = [
 
 // Transforms applied before printing the query sent to the server.
 const relayPrintTransforms: Array<IRTransform> = [
+  RelayFeatureFlags.ENABLE_CLIENT_EXTENSIONS === true
+    ? SkipClientExtensionsTransform.transform
+    : null,
   FlattenTransform.transformWithOptions({}),
   RelayGenerateTypeNameTransform.transform,
   RelaySkipHandleFieldTransform.transform,
   FilterDirectivesTransform.transform,
   RefineOperationVariablesTransform.transform,
-];
+].filter(Boolean);
 
 module.exports = {
   commonTransforms: relayCommonTransforms,

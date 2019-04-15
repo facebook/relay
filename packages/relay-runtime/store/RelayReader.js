@@ -16,6 +16,7 @@ const invariant = require('invariant');
 
 const {
   CONDITION,
+  CLIENT_EXTENSION,
   FRAGMENT_SPREAD,
   INLINE_FRAGMENT,
   LINKED_FIELD,
@@ -157,6 +158,12 @@ class RelayReader {
           break;
         case MODULE_IMPORT:
           this._readModuleImport(selection, record, data);
+          break;
+        case CLIENT_EXTENSION:
+          // TODO(T41499100) We're currently not generating ClientExtension nodes
+          // so we can skip for now
+          invariant(false, 'RelayReader(): Unexpected ClientExtension node.');
+          // $FlowExpectedError - we need the break; for OSS linter
           break;
         default:
           (selection: empty);

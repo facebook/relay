@@ -21,6 +21,7 @@ const {getStorageKey, stableCopy} = require('relay-runtime');
 
 import type {
   Argument,
+  ClientExtension,
   Metadata,
   Root,
   Selection,
@@ -96,7 +97,7 @@ function generateSelections(
         normalizationSelections.push(generateCondition(selection));
         break;
       case 'ClientExtension':
-        // We don't need client extensions in the normalization ast
+        normalizationSelections.push(generateClientExtension(selection));
         break;
       case 'ScalarField':
         normalizationSelections.push(...generateScalarField(selection));
@@ -135,6 +136,15 @@ function generateArgumentDefinitions(
       defaultValue: node.defaultValue,
     };
   });
+}
+
+function generateClientExtension(
+  node: ClientExtension,
+): NormalizationSelection {
+  return {
+    kind: 'ClientExtension',
+    selections: generateSelections(node.selections),
+  };
 }
 
 function generateCondition(node, key): NormalizationSelection {

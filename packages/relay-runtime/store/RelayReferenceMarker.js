@@ -33,6 +33,7 @@ import type {
 
 const {
   CONDITION,
+  CLIENT_EXTENSION,
   DEFER,
   FRAGMENT_SPREAD,
   INLINE_FRAGMENT,
@@ -168,6 +169,13 @@ class RelayReferenceMarker {
         case MODULE_IMPORT:
           this._traverseModuleImport(selection, record);
           break;
+        case CLIENT_EXTENSION:
+          // TODO(T41499100) We're currently not generating ClientExtension nodes
+          // so we can skip for now
+          invariant(
+            false,
+            'RelayReferenceMarker(): Unexpected ClientExtension node.',
+          );
         default:
           (selection: empty);
           invariant(

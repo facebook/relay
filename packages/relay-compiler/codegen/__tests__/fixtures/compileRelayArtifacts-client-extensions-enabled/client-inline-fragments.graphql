@@ -1,0 +1,11 @@
+fragment Foo_user on User {
+  id
+
+  ... on ClientNamed {
+    client_name
+  }
+}
+
+interface ClientNamed {
+  client_name: String
+}

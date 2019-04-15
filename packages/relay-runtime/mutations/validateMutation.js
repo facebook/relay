@@ -80,6 +80,7 @@ if (__DEV__) {
           validateSelection(optimisticResponse, subselection, context);
         });
         return;
+      case 'ClientExtension':
       case 'ModuleImport':
       case 'LinkedHandle':
       case 'ScalarHandle':

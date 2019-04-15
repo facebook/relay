@@ -25,21 +25,21 @@ const {
   parseGraphQLText,
 } = require('relay-test-utils');
 
-describe('compileRelayArtifacts', () => {
-  let previousEnableIncrementalDelivery;
+describe('compileRelayArtifacts (ClientExtension transforms enabled)', () => {
+  let previousEnableClientExtensionsTransform;
 
   beforeEach(() => {
-    previousEnableIncrementalDelivery =
-      RelayFeatureFlags.ENABLE_INCREMENTAL_DELIVERY;
-    RelayFeatureFlags.ENABLE_INCREMENTAL_DELIVERY = true;
+    previousEnableClientExtensionsTransform =
+      RelayFeatureFlags.ENABLE_CLIENT_EXTENSIONS;
+    RelayFeatureFlags.ENABLE_CLIENT_EXTENSIONS = true;
   });
 
   afterEach(() => {
-    RelayFeatureFlags.ENABLE_INCREMENTAL_DELIVERY = previousEnableIncrementalDelivery;
+    RelayFeatureFlags.ENABLE_CLIENT_EXTENSIONS = previousEnableClientExtensionsTransform;
   });
 
   generateTestsFromFixtures(
-    `${__dirname}/fixtures/compileRelayArtifacts`,
+    `${__dirname}/fixtures/compileRelayArtifacts-client-extensions-enabled`,
     text => {
       const relaySchema = ASTConvert.transformASTSchema(
         TestSchema,

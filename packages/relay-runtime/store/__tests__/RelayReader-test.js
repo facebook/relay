@@ -10,6 +10,7 @@
 
 'use strict';
 
+const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
 const RelayInMemoryRecordSource = require('../RelayInMemoryRecordSource');
 const RelayModernTestUtils = require('relay-test-utils');
 
@@ -20,9 +21,13 @@ const {ROOT_ID} = require('../RelayStoreUtils');
 describe('RelayReader', () => {
   const {generateAndCompile, generateWithTransforms} = RelayModernTestUtils;
   let source;
+  let previouseEnableClientExtensions;
 
   beforeEach(() => {
     jest.resetModules();
+    previouseEnableClientExtensions =
+      RelayFeatureFlags.ENABLE_CLIENT_EXTENSIONS;
+    RelayFeatureFlags.ENABLE_CLIENT_EXTENSIONS = true;
 
     const data = {
       '1': {
@@ -77,6 +82,10 @@ describe('RelayReader', () => {
     };
 
     source = new RelayInMemoryRecordSource(data);
+  });
+
+  afterEach(() => {
+    RelayFeatureFlags.ENABLE_CLIENT_EXTENSIONS = previouseEnableClientExtensions;
   });
 
   it('reads query data', () => {
@@ -1176,6 +1185,88 @@ describe('RelayReader', () => {
         expect(data.id).toBe('3');
         expect(data.friends.edges).toEqual([undefined]);
         expect(isMissingData).toBe(true);
+      });
+
+      it('should not have missing data if missing fields are client fields', () => {
+        const {UserProfile} = generateAndCompile(
+          `fragment UserProfile on User {
+            id
+            friends(first: 3) {
+              client_friends_connection_field
+              edges {
+                cursor
+                node {
+                  id
+                  firstName
+                  client_foo {
+                    client_name
+                  }
+                }
+              }
+            }
+            nickname
+            client_actor_field
+            client_foo {
+              client_name
+              profile_picture(scale: 2) {
+                uri
+              }
+            }
+            # Top-level linked client field
+            best_friends {
+              edges {
+                # Nested client field
+                client_friend_edge_field
+                cursor
+                node {
+                  id
+                  # Nested inline fragment
+                  ... on Actor {
+                    client_actor_field
+                    profilePicture(size: $size) {
+                      uri
+                      height
+                      width
+                    }
+                  }
+                }
+              }
+            }
+            ... on Actor {
+              client_actor_field
+            }
+          }
+          extend type User {
+            nickname: String
+            best_friends: FriendsConnection
+            client_actor_field: String
+            client_foo: Foo
+          }
+          extend type Page {
+            client_actor_field: String
+          }
+          extend type FriendsEdge {
+            client_friend_edge_field: String
+          }
+          extend type FriendsConnection {
+            client_friends_connection_field: String
+          }
+          extend interface Actor {
+            client_actor_field: String
+          }
+          type Foo {
+            client_name: String
+            profile_picture(scale: Float): Image
+          }
+        `,
+        );
+        const {data, isMissingData} = read(source, {
+          dataID: '1',
+          node: UserProfile,
+          variables: {},
+        });
+        expect(data.id).toBe('1');
+        expect(isMissingData).toBe(false);
       });
     });
   });

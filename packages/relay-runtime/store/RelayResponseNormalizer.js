@@ -204,13 +204,7 @@ class RelayResponseNormalizer {
           this._normalizeStream(selection, record, data);
           break;
         case CLIENT_EXTENSION:
-          // TODO(T41499100) We're currently not generating ClientExtension nodes
-          // so we can skip for now
-          invariant(
-            false,
-            'RelayResponseNormalizer(): Unexpected ClientExtension node.',
-          );
-          // $FlowExpectedError - we need the break; for OSS linter
+          // Skipping ClientExtensnion nodes since they won't be in the payload
           break;
         default:
           (selection: empty);

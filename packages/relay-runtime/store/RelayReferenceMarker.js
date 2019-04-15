@@ -170,12 +170,8 @@ class RelayReferenceMarker {
           this._traverseModuleImport(selection, record);
           break;
         case CLIENT_EXTENSION:
-          // TODO(T41499100) We're currently not generating ClientExtension nodes
-          // so we can skip for now
-          invariant(
-            false,
-            'RelayReferenceMarker(): Unexpected ClientExtension node.',
-          );
+          this._traverseSelections(selection.selections, record);
+          break;
         default:
           (selection: empty);
           invariant(

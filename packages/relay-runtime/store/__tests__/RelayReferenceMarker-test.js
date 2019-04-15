@@ -21,12 +21,16 @@ describe('RelayReferenceMarker', () => {
   const {generateAndCompile} = RelayModernTestUtils;
   let source;
   let previousEnableIncrementalDelivery;
+  let previouseEnableClientExtensions;
 
   beforeEach(() => {
     jest.resetModules();
     previousEnableIncrementalDelivery =
       RelayFeatureFlags.ENABLE_INCREMENTAL_DELIVERY;
     RelayFeatureFlags.ENABLE_INCREMENTAL_DELIVERY = true;
+    previouseEnableClientExtensions =
+      RelayFeatureFlags.ENABLE_CLIENT_EXTENSIONS;
+    RelayFeatureFlags.ENABLE_CLIENT_EXTENSIONS = true;
 
     const data = {
       '1': {
@@ -85,6 +89,7 @@ describe('RelayReferenceMarker', () => {
 
   afterEach(() => {
     RelayFeatureFlags.ENABLE_INCREMENTAL_DELIVERY = previousEnableIncrementalDelivery;
+    RelayFeatureFlags.ENABLE_CLIENT_EXTENSIONS = previouseEnableClientExtensions;
   });
 
   it('marks referenced records', () => {
@@ -358,6 +363,130 @@ describe('RelayReferenceMarker', () => {
     expect(Array.from(references).sort()).toEqual([
       '1',
       'client:bestFriendsByLastName',
+      'client:root',
+    ]);
+  });
+
+  it('marks referenced records for client field', () => {
+    const data = {
+      '1': {
+        __id: '1',
+        id: '1',
+        __typename: 'User',
+        firstName: 'Alice',
+        best_friends: {__ref: 'client:1'},
+        client_foo: {__ref: 'client:foo'},
+      },
+      '2': {
+        __id: '2',
+        __typename: 'User',
+        id: '2',
+        firstName: 'Bob',
+      },
+      '3': {
+        __id: '3',
+        __typename: 'User',
+        id: '3',
+        firstName: 'Claire',
+      },
+      'client:1': {
+        __id: 'client:1',
+        __typename: 'FriendsConnection',
+        edges: {
+          __refs: ['client:2', null, 'client:3'],
+        },
+      },
+      'client:2': {
+        __id: 'client:2',
+        __typename: 'FriendsConnectionEdge',
+        cursor: 'cursor:2',
+        node: {__ref: '2'},
+      },
+      'client:3': {
+        __id: 'client:3',
+        __typename: 'FriendsConnectionEdge',
+        cursor: 'cursor:3',
+        node: {__ref: '3'},
+      },
+      'client:foo': {
+        __id: 'client:foo',
+        __typename: 'Foo',
+        client_name: 'client',
+      },
+      'client:root': {
+        __id: 'client:root',
+        __typename: '__Root',
+        'node(id:"1")': {__ref: '1'},
+      },
+    };
+    source = new RelayInMemoryRecordSource(data);
+    const {FooQuery} = generateAndCompile(
+      `
+      query FooQuery($id: ID, $size: [Int]) {
+        node(id: $id) {
+          id
+          __typename
+          ...UserProfile
+        }
+      }
+      fragment UserProfile on User {
+        client_foo {
+          client_name
+          profile_picture(scale: 2) {
+            uri
+          }
+        }
+        ... on User {
+          nickname
+          best_friends {
+            client_friends_connection_field
+            edges {
+              client_friend_edge_field
+              cursor
+              node {
+                id
+                firstName
+              }
+            }
+          }
+          firstName
+        }
+      }
+      extend type User {
+        nickname: String
+        best_friends: FriendsConnection
+        client_foo: Foo
+      }
+      extend type FriendsConnection {
+        client_friends_connection_field: String
+      }
+      extend type FriendsEdge {
+        client_friend_edge_field: String
+      }
+      type Foo {
+        client_name: String
+        profile_picture(scale: Float): Image
+      }
+    `,
+    );
+    const references = new Set();
+    mark(
+      source,
+      {
+        dataID: ROOT_ID,
+        node: FooQuery.operation,
+        variables: {id: '1', size: 32},
+      },
+      references,
+    );
+    expect(Array.from(references).sort()).toEqual([
+      '1',
+      '2',
+      '3',
+      'client:1',
+      'client:2',
+      'client:3',
+      'client:foo',
       'client:root',
     ]);
   });

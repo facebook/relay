@@ -160,10 +160,9 @@ class RelayReader {
           this._readModuleImport(selection, record, data);
           break;
         case CLIENT_EXTENSION:
-          // TODO(T41499100) We're currently not generating ClientExtension nodes
-          // so we can skip for now
-          invariant(false, 'RelayReader(): Unexpected ClientExtension node.');
-          // $FlowExpectedError - we need the break; for OSS linter
+          const isMissingData = this._isMissingData;
+          this._traverseSelections(selection.selections, record, data);
+          this._isMissingData = isMissingData;
           break;
         default:
           (selection: empty);

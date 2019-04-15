@@ -29,11 +29,14 @@ describe('check()', () => {
   let Query;
   let sampleData;
   let previousEnableIncrementalDelivery;
-
+  let previouseEnableClientExtensions;
   beforeEach(() => {
     previousEnableIncrementalDelivery =
       RelayFeatureFlags.ENABLE_INCREMENTAL_DELIVERY;
     RelayFeatureFlags.ENABLE_INCREMENTAL_DELIVERY = true;
+    previouseEnableClientExtensions =
+      RelayFeatureFlags.ENABLE_CLIENT_EXTENSIONS;
+    RelayFeatureFlags.ENABLE_CLIENT_EXTENSIONS = true;
 
     sampleData = {
       '1': {
@@ -120,6 +123,7 @@ describe('check()', () => {
 
   afterEach(() => {
     RelayFeatureFlags.ENABLE_INCREMENTAL_DELIVERY = previousEnableIncrementalDelivery;
+    RelayFeatureFlags.ENABLE_CLIENT_EXTENSIONS = previouseEnableClientExtensions;
   });
 
   it('reads query data', () => {
@@ -1382,6 +1386,92 @@ describe('check()', () => {
           'profilePicture(size:32)': {__ref: 'profile_1_32'},
         },
       });
+    });
+
+    it('returns true even when client field is missing', () => {
+      const data = {
+        '1': {
+          __id: '1',
+          id: '1',
+          __typename: 'User',
+          firstName: 'Alice',
+          'profilePicture(size:32)': {__ref: 'client:3'},
+        },
+      };
+      const source = new RelayInMemoryRecordSource(data);
+      const target = new RelayInMemoryRecordSource();
+      const {BarFragment} = generateAndCompile(
+        `fragment BarFragment on User @argumentDefinitions(
+          size: {type: "[Int]"}
+        ) {
+          id
+          firstName
+          client_actor_field
+          client_foo {
+            client_name
+            profile_picture(scale: 2) {
+              uri
+            }
+          }
+          best_friends {
+            edges {
+              client_friend_edge_field
+              cursor
+              node {
+                id
+                client_foo {
+                  client_name
+                  profile_picture(scale: 2) {
+                    uri
+                  }
+                }
+                ... on Actor {
+                  client_actor_field
+                  profilePicture(size: $size) {
+                    uri
+                    height
+                    width
+                  }
+                }
+              }
+            }
+          }
+        }
+        extend type FriendsEdge {
+          client_friend_edge_field: String
+        }
+        extend type User {
+          nickname: String
+          best_friends: FriendsConnection
+          client_actor_field: String
+          client_foo: Foo
+        }
+        extend type FriendsConnection {
+          client_friends_connection_field: String
+        }
+        extend type Page {
+          client_actor_field: String
+        }
+        extend interface Actor {
+          client_actor_field: String
+        }
+        type Foo {
+          client_name: String
+          profile_picture(scale: Float): Image
+        }`,
+      );
+      const status = check(
+        source,
+        target,
+        {
+          dataID: '1',
+          node: BarFragment,
+          variables: {size: 32},
+        },
+        [],
+      );
+      expect(status).toBe(true);
+      expect(target.size()).toBe(0);
     });
   });
 });

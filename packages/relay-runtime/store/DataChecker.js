@@ -287,13 +287,9 @@ class DataChecker {
           // $FlowExpectedError - we need the break; for OSS linter
           break;
         case CLIENT_EXTENSION:
-          // TODO(T41499100) We're currently not generating ClientExtension nodes
-          // so we can skip for now
-          invariant(
-            false,
-            'RelayAsyncLoader(): Unexpected ClientExtension node.',
-          );
-          // $FlowExpectedError - we need the break; for OSS linter
+          const recordWasMissing = this._recordWasMissing;
+          this._traverseSelections(selection.selections, dataID);
+          this._recordWasMissing = recordWasMissing;
           break;
         default:
           (selection: empty);

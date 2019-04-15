@@ -163,6 +163,7 @@ function transformNode<T: Node>(
       case 'Defer':
       case 'Stream':
       case 'ModuleImport':
+      case 'ClientExtension':
       case 'LinkedField': {
         const transformed = transformNode(
           selection,

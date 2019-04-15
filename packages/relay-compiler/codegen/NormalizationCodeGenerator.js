@@ -95,6 +95,9 @@ function generateSelections(
       case 'Condition':
         normalizationSelections.push(generateCondition(selection));
         break;
+      case 'ClientExtension':
+        // We don't need client extensions in the normalization ast
+        break;
       case 'ScalarField':
         normalizationSelections.push(...generateScalarField(selection));
         break;

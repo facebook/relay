@@ -241,6 +241,7 @@ function transformSelections(
   selections.forEach(selection => {
     let nextSelection;
     if (
+      selection.kind === 'ClientExtension' ||
       selection.kind === 'InlineFragment' ||
       selection.kind === 'ModuleImport'
     ) {

@@ -118,6 +118,7 @@ export type Stream = {|
 
 export type IR =
   | Argument
+  | ClientExtension
   | Condition
   | Defer
   | Directive
@@ -160,6 +161,13 @@ export type Handle = {|
   +name: string,
   +key: string,
   +filters: ?$ReadOnlyArray<string>,
+|};
+
+export type ClientExtension = {|
+  +kind: 'ClientExtension',
+  +loc: Location,
+  +metadata: Metadata,
+  +selections: $ReadOnlyArray<Selection>,
 |};
 
 export type LinkedField = {|
@@ -209,6 +217,7 @@ export type ModuleImport = {|
 |};
 
 export type Node =
+  | ClientExtension
   | Condition
   | Defer
   | Fragment
@@ -275,6 +284,7 @@ export type ScalarField = {|
 |};
 
 export type Selection =
+  | ClientExtension
   | Condition
   | Defer
   | FragmentSpread

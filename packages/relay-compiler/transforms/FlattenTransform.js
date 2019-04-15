@@ -24,6 +24,7 @@ const {
 
 import type {
   Argument,
+  ClientExtension,
   Condition,
   Defer,
   Field,
@@ -54,6 +55,7 @@ type State = {
 type HasSelections =
   | Root
   | Fragment
+  | ClientExtension
   | Condition
   | Defer
   | InlineFragment
@@ -178,6 +180,19 @@ function flattenSelectionsInto(
       if (selection.kind !== 'Condition') {
         throw createCompilerError(
           `FlattenTransform: Expected a Condition, got a '${selection.kind}'`,
+          [selection.loc],
+        );
+      }
+      flattenedSelections.set(nodeIdentifier, {
+        ...flattenedSelection,
+        selections: mergeSelections(flattenedSelection, selection, state, type),
+      });
+    } else if (flattenedSelection.kind === 'ClientExtension') {
+      if (selection.kind !== 'ClientExtension') {
+        throw createCompilerError(
+          `FlattenTransform: Expected a ClientExtension, got a '${
+            selection.kind
+          }'`,
           [selection.loc],
         );
       }

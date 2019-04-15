@@ -115,6 +115,7 @@ function visitRoot(node: Root) {
           break;
         }
         case 'Condition':
+        case 'ClientExtension':
         case 'Defer':
         case 'InlineFragment':
         case 'ModuleImport':

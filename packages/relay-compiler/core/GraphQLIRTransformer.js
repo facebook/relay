@@ -19,6 +19,7 @@ import type GraphQLCompilerContext, {
 } from './GraphQLCompilerContext';
 import type {
   Argument,
+  ClientExtension,
   Condition,
   Defer,
   Directive,
@@ -44,6 +45,7 @@ import type {
 
 type NodeVisitor<S> = {|
   Argument?: NodeVisitorFunction<Argument, S>,
+  ClientExtension?: NodeVisitorFunction<ClientExtension, S>,
   Condition?: NodeVisitorFunction<Condition, S>,
   Defer?: NodeVisitorFunction<Defer, S>,
   Directive?: NodeVisitorFunction<Directive, S>,
@@ -230,6 +232,9 @@ class Transformer<S> {
           ['selections'],
           ['if', 'initialCount'],
         );
+        break;
+      case 'ClientExtension':
+        nextNode = this._traverseChildren(prevNode, ['selections']);
         break;
       case 'Directive':
         nextNode = this._traverseChildren(prevNode, ['args']);

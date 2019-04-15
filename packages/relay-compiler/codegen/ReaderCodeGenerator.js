@@ -85,31 +85,37 @@ function generate(node: Fragment): ReaderFragment {
 function generateSelections(
   selections: $ReadOnlyArray<Selection>,
 ): $ReadOnlyArray<ReaderSelection> {
-  return selections.map(selection => {
-    switch (selection.kind) {
-      case 'FragmentSpread':
-        return generateFragmentSpread(selection);
-      case 'Condition':
-        return generateCondition(selection);
-      case 'ScalarField':
-        return generateScalarField(selection);
-      case 'ModuleImport':
-        return generateModuleImport(selection);
-      case 'InlineFragment':
-        return generateInlineFragment(selection);
-      case 'LinkedField':
-        return generateLinkedField(selection);
-      case 'Defer':
-      case 'Stream':
-        throw createCompilerError(
-          `Unexpected ${selection.kind} IR node in ReaderCodeGenerator.`,
-          [selection.loc],
-        );
-      default:
-        (selection: empty);
-        throw new Error();
-    }
-  });
+  return selections
+    .map(selection => {
+      switch (selection.kind) {
+        case 'ClientExtension':
+          // We're not currently generating ClientExtensions so
+          // we can skip this for now
+          return null;
+        case 'FragmentSpread':
+          return generateFragmentSpread(selection);
+        case 'Condition':
+          return generateCondition(selection);
+        case 'ScalarField':
+          return generateScalarField(selection);
+        case 'ModuleImport':
+          return generateModuleImport(selection);
+        case 'InlineFragment':
+          return generateInlineFragment(selection);
+        case 'LinkedField':
+          return generateLinkedField(selection);
+        case 'Defer':
+        case 'Stream':
+          throw createCompilerError(
+            `Unexpected ${selection.kind} IR node in ReaderCodeGenerator.`,
+            [selection.loc],
+          );
+        default:
+          (selection: empty);
+          throw new Error();
+      }
+    })
+    .filter(Boolean);
 }
 
 function generateArgumentDefinitions(

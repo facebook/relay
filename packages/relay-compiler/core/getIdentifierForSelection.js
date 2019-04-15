@@ -38,6 +38,8 @@ function getIdentifierForSelection(node: Selection): string {
     return 'Stream:' + node.label;
   } else if (node.kind === 'InlineFragment') {
     return 'InlineFragment:' + node.typeCondition.name;
+  } else if (node.kind === 'ClientExtension') {
+    return 'ClientExtension:';
   } else if (node.kind === 'Condition') {
     return (
       'Condition:' +

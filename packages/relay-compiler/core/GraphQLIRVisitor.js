@@ -14,6 +14,7 @@ const visit = require('graphql').visit;
 
 import type {
   Argument,
+  ClientExtension,
   Condition,
   Defer,
   Directive,
@@ -35,6 +36,7 @@ import type {
 
 const NodeKeys = {
   Argument: ['value'],
+  ClientExtension: ['selections'],
   Condition: ['condition', 'selections'],
   Defer: ['selections', 'if'],
   Directive: ['args'],
@@ -56,6 +58,7 @@ const NodeKeys = {
 
 export type VisitNode =
   | Argument
+  | ClientExtension
   | Condition
   | Defer
   | Directive
@@ -93,6 +96,7 @@ export type NodeVisitorObject<T: VisitNode> =
 export type NodeVisitor =
   | EnterLeave<{|
       Argument?: VisitFn<Argument>,
+      ClientExtension?: VisitFn<ClientExtension>,
       Condition?: VisitFn<Condition>,
       Defer?: VisitFn<Defer>,
       Directive?: VisitFn<Directive>,
@@ -113,6 +117,7 @@ export type NodeVisitor =
     |}>
   | {|
       Argument?: NodeVisitorObject<Argument>,
+      ClientExtension?: VisitFn<ClientExtension>,
       Condition?: NodeVisitorObject<Condition>,
       Defer?: NodeVisitorObject<Defer>,
       Directive?: NodeVisitorObject<Directive>,

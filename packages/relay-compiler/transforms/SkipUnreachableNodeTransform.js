@@ -78,6 +78,9 @@ function transformNode<T: Node>(
         }
         break;
       }
+      case 'ClientExtension':
+        nextSelection = transformNode(context, fragments, selection);
+        break;
       case 'ModuleImport':
         nextSelection = transformNode(context, fragments, selection);
         break;

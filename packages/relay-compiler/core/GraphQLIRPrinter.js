@@ -176,6 +176,9 @@ function printSelection(
       printSelection(sel, indent, deferStr),
     );
     str = subSelections.join('\n' + INDENT);
+  } else if (selection.kind === 'ClientExtension') {
+    // Don't print (for now)
+    str = '';
   } else {
     (selection: empty);
     invariant(

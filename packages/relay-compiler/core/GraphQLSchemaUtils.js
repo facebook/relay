@@ -17,16 +17,18 @@ const {
   assertAbstractType,
   getNamedType,
   getNullableType,
-  isType,
-  print,
-  typeFromAST,
   GraphQLInterfaceType,
   GraphQLList,
   GraphQLObjectType,
   GraphQLSchema,
   GraphQLUnionType,
+  SchemaMetaFieldDef,
+  TypeMetaFieldDef,
+  TypeNameMetaFieldDef,
 } = require('graphql');
 
+import type GraphQLCompilerContext from '../core/GraphQLCompilerContext';
+import type {Field} from '../core/GraphQLIR';
 import type {
   ASTNode,
   GraphQLCompositeType,
@@ -36,7 +38,6 @@ import type {
   GraphQLNonNull,
   GraphQLScalarType,
   GraphQLType,
-  TypeNode,
 } from 'graphql';
 
 const ID = 'id';
@@ -217,6 +218,36 @@ function isSchemaDefinitionAST(ast: ASTNode): boolean %checks {
   );
 }
 
+function isServerDefinedField(
+  field: Field,
+  compilerContext: GraphQLCompilerContext,
+  parentType: GraphQLType,
+) {
+  const {serverSchema} = compilerContext;
+  const rawType = getRawType(field.type);
+  const serverType = serverSchema.getType(rawType.name);
+  const parentServerType = serverSchema.getType(getRawType(parentType).name);
+  return (
+    (serverType != null &&
+      parentServerType != null &&
+      (canHaveSelections(parentType) &&
+        assertTypeWithFields(parentType).getFields()[field.name]) != null) ||
+    // Allow metadata fields and fields defined on classic "fat" interfaces
+    field.name === SchemaMetaFieldDef.name ||
+    field.name === TypeMetaFieldDef.name ||
+    field.name === TypeNameMetaFieldDef.name ||
+    field.directives.some(({name}) => name === 'fixme_fat_interface')
+  );
+}
+
+function isClientDefinedField(
+  field: Field,
+  compilerContext: GraphQLCompilerContext,
+  parentType: GraphQLType,
+) {
+  return !isServerDefinedField(field, compilerContext, parentType);
+}
+
 function assertTypeWithFields(
   type: ?GraphQLType,
 ): GraphQLObjectType | GraphQLInterfaceType {
@@ -237,6 +268,8 @@ module.exports = {
   hasID,
   implementsInterface,
   isAbstractType,
+  isClientDefinedField,
+  isServerDefinedField,
   isUnionType,
   isExecutableDefinitionAST,
   isSchemaDefinitionAST,

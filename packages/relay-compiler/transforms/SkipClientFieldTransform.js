@@ -16,15 +16,9 @@ const GraphQLIRTransformer = require('../core/GraphQLIRTransformer');
 const invariant = require('invariant');
 
 const {
-  assertTypeWithFields,
-  canHaveSelections,
   getRawType,
+  isServerDefinedField,
 } = require('../core/GraphQLSchemaUtils');
-const {
-  SchemaMetaFieldDef,
-  TypeMetaFieldDef,
-  TypeNameMetaFieldDef,
-} = require('graphql');
 
 import type {CompilerContextDocument} from '../core/GraphQLCompilerContext';
 import type {Field, FragmentSpread, InlineFragment} from '../core/GraphQLIR';
@@ -136,16 +130,7 @@ function buildState(
  * Skip fields that were added via `extend type ...`.
  */
 function visitField<F: Field>(field: F, parentType: GraphQLType): ?F {
-  if (
-    // Field is defined in the original parent type definition:
-    (canHaveSelections(parentType) &&
-      assertTypeWithFields(parentType).getFields()[field.name]) ||
-    // Allow metadata fields and fields defined on classic "fat" interfaces
-    field.name === SchemaMetaFieldDef.name ||
-    field.name === TypeMetaFieldDef.name ||
-    field.name === TypeNameMetaFieldDef.name ||
-    field.directives.some(({name}) => name === 'fixme_fat_interface')
-  ) {
+  if (isServerDefinedField(field, this.getContext(), parentType)) {
     const rawType = getRawType(field.type);
     const type = this.getContext().serverSchema.getType(rawType.name);
     invariant(

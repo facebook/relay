@@ -81,27 +81,39 @@ function print(node: CompilerContextDocument): string {
 function printSelections(
   node: Node,
   indent: string,
-  parentDirectives?: string,
+  options?: {
+    parentDirectives?: string,
+    isClientExtension?: boolean,
+  },
 ): string {
   const selections = node.selections;
   if (selections == null) {
     return '';
   }
   const printed = selections.map(selection =>
-    printSelection(selection, indent, parentDirectives),
+    printSelection(selection, indent, options),
   );
   return printed.length
     ? ` {\n${indent + INDENT}${printed.join(
         '\n' + indent + INDENT,
-      )}\n${indent}}`
+      )}\n${indent}${options?.isClientExtension === true ? '# ' : ''}}`
     : '';
 }
 
 /**
  * Prints a field without subselections.
  */
-function printField(field: Field, parentDirectives: string = ''): string {
+function printField(
+  field: Field,
+  options?: {
+    parentDirectives?: string,
+    isClientExtension?: boolean,
+  },
+): string {
+  const parentDirectives = options?.parentDirectives ?? '';
+  const isClientExtension = options?.isClientExtension === true;
   return (
+    (isClientExtension ? '# ' : '') +
     (field.alias != null ? field.alias + ': ' + field.name : field.name) +
     printArguments(field.args) +
     parentDirectives +
@@ -113,25 +125,40 @@ function printField(field: Field, parentDirectives: string = ''): string {
 function printSelection(
   selection: Selection,
   indent: string,
-  parentDirectives?: string = '',
+  options?: {
+    parentDirectives?: string,
+    isClientExtension?: boolean,
+  },
 ): string {
   let str;
+  const parentDirectives = options?.parentDirectives ?? '';
+  const isClientExtension = options?.isClientExtension === true;
   if (selection.kind === 'LinkedField') {
-    str = printField(selection, parentDirectives);
-    str += printSelections(selection, indent + INDENT);
+    str = printField(selection, {parentDirectives, isClientExtension});
+    str += printSelections(selection, indent + INDENT, {isClientExtension});
   } else if (selection.kind === 'ModuleImport') {
     str = selection.selections
-      .map(matchSelection => printSelection(matchSelection, indent))
+      .map(matchSelection =>
+        printSelection(matchSelection, indent, {isClientExtension}),
+      )
       .join('\n' + indent + INDENT);
   } else if (selection.kind === 'ScalarField') {
-    str = printField(selection, parentDirectives);
+    str = printField(selection, {parentDirectives, isClientExtension});
   } else if (selection.kind === 'InlineFragment') {
-    str = '... on ' + selection.typeCondition.toString();
+    str = '';
+    if (isClientExtension) {
+      str += '# ';
+    }
+    str += '... on ' + selection.typeCondition.toString();
     str += parentDirectives;
     str += printDirectives(selection.directives);
-    str += printSelections(selection, indent + INDENT);
+    str += printSelections(selection, indent + INDENT, {isClientExtension});
   } else if (selection.kind === 'FragmentSpread') {
-    str = '...' + selection.name;
+    str = '';
+    if (isClientExtension) {
+      str += '# ';
+    }
+    str += '...' + selection.name;
     str += parentDirectives;
     str += printFragmentArguments(selection.args);
     str += printDirectives(selection.directives);
@@ -147,7 +174,10 @@ function printSelection(
     condStr += parentDirectives;
     // For multi-selection conditions, pushes the condition down to each
     const subSelections = selection.selections.map(sel =>
-      printSelection(sel, indent, condStr),
+      printSelection(sel, indent, {
+        parentDirectives: condStr,
+        isClientExtension,
+      }),
     );
     str = subSelections.join('\n' + INDENT);
   } else if (selection.kind === 'Stream') {
@@ -162,7 +192,10 @@ function printSelection(
     streamStr += ')';
     streamStr += parentDirectives;
     const subSelections = selection.selections.map(sel =>
-      printSelection(sel, indent, streamStr),
+      printSelection(sel, indent, {
+        parentDirectives: streamStr,
+        isClientExtension,
+      }),
     );
     str = subSelections.join('\n' + INDENT);
   } else if (selection.kind === 'Defer') {
@@ -173,12 +206,30 @@ function printSelection(
     deferStr += ')';
     deferStr += parentDirectives;
     const subSelections = selection.selections.map(sel =>
-      printSelection(sel, indent, deferStr),
+      printSelection(sel, indent, {
+        parentDirectives: deferStr,
+        isClientExtension,
+      }),
     );
     str = subSelections.join('\n' + INDENT);
   } else if (selection.kind === 'ClientExtension') {
-    // Don't print (for now)
-    str = '';
+    invariant(
+      isClientExtension === false,
+      'GraphQLIRPrinter: Did not expect to encounter a ClientExtension node ' +
+        'as a descendant of another ClientExtension node.',
+    );
+    str =
+      '# Client-only selections:\n' +
+      indent +
+      INDENT +
+      selection.selections
+        .map(sel =>
+          printSelection(sel, indent, {
+            parentDirectives,
+            isClientExtension: true,
+          }),
+        )
+        .join('\n' + indent + INDENT);
   } else {
     (selection: empty);
     invariant(

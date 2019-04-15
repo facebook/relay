@@ -24,20 +24,13 @@ const {
 
 import type {
   Argument,
-  ClientExtension,
-  Condition,
-  Defer,
   Field,
-  Fragment,
   Handle,
   InlineFragment,
-  ModuleImport,
-  Root,
+  Node,
   ScalarField,
   LinkedField,
   Selection,
-  SplitOperation,
-  Stream,
 } from '../core/GraphQLIR';
 import type {GraphQLType} from 'graphql';
 
@@ -51,18 +44,6 @@ type State = {
   flattenAbstractTypes: boolean,
   parentType: ?GraphQLType,
 };
-
-type HasSelections =
-  | Root
-  | Fragment
-  | ClientExtension
-  | Condition
-  | Defer
-  | InlineFragment
-  | LinkedField
-  | ModuleImport
-  | SplitOperation
-  | Stream;
 
 /**
  * Transform that flattens inline fragments, fragment spreads, and conditionals.
@@ -98,7 +79,7 @@ function flattenTransformImpl(
 /**
  * @private
  */
-function flattenSelections<T: HasSelections>(node: T, state: State): T {
+function flattenSelections<T: Node>(node: T, state: State): T {
   // Determine the current type.
   const parentType = state.parentType;
   const type =
@@ -135,7 +116,7 @@ function flattenSelections<T: HasSelections>(node: T, state: State): T {
  */
 function flattenSelectionsInto(
   flattenedSelections: Map<string, Selection>,
-  node: HasSelections,
+  node: Node,
   state: State,
   type: GraphQLType,
 ): boolean {
@@ -298,8 +279,8 @@ function flattenSelectionsInto(
  * @private
  */
 function mergeSelections(
-  nodeA: HasSelections,
-  nodeB: HasSelections,
+  nodeA: Node,
+  nodeB: Node,
   state: State,
   type: GraphQLType,
 ): Array<Selection> {

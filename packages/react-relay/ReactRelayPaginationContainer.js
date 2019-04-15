@@ -888,4 +888,6 @@ function createContainer<Props: {}, TComponent: React.ComponentType<Props>>(
   );
 }
 
-module.exports = {createContainer, createContainerWithFragments};
+module.exports = {
+  createContainer,
+};

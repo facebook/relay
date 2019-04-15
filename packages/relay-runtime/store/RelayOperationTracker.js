@@ -138,10 +138,6 @@ class RelayOperationTracker {
     this._ownerPromiseResolvers.delete(owner);
   }
 
-  hasPendingOperationsAffectingOwner(owner: OperationDescriptor): boolean {
-    return this._ownersToPendingOperations.has(owner);
-  }
-
   getPromiseForPendingOperationsAffectingOwner(
     owner: OperationDescriptor,
   ): Promise<void> | null {

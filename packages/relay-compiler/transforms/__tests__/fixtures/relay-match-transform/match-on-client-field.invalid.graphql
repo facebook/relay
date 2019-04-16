@@ -1,0 +1,16 @@
+fragment NameRendererFragment on User {
+  id
+  foo @match {
+    name
+    plaintext
+  }
+}
+
+extend type User {
+  foo: Foo
+}
+
+type Foo {
+  name: String
+  plaintext: String
+}

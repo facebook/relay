@@ -10,12 +10,14 @@
 
 'use strict';
 
+const ClientExtensionsTransform = require('../ClientExtensionsTransform');
 const GraphQLCompilerContext = require('../../core/GraphQLCompilerContext');
 const GraphQLIRPrinter = require('../../core/GraphQLIRPrinter');
 const RelayMatchTransform = require('../RelayMatchTransform');
 const RelayRelayDirectiveTransform = require('../RelayRelayDirectiveTransform');
 
 const {transformASTSchema} = require('../../core/ASTConvert');
+const {extendSchema, parse} = require('graphql');
 const {
   TestSchema,
   generateTestsFromFixtures,
@@ -26,20 +28,35 @@ describe('RelayMatchTransform', () => {
   const schema = transformASTSchema(TestSchema, [
     RelayMatchTransform.SCHEMA_EXTENSION,
   ]);
-
+  const EXTEND_CLIENT_SCHEMA = `
+  fragment TestUserNameRenderer_name on TestUserNameRenderer {
+    test
+  }
+  type TestUserNameRenderer {
+    test: String
+    user: User
+    js(module: String): JSDependency
+    name: String
+  }
+  `;
+  const ast = parse(EXTEND_CLIENT_SCHEMA);
   generateTestsFromFixtures(
     `${__dirname}/fixtures/relay-match-transform`,
     text => {
       const {definitions} = parseGraphQLText(schema, text);
-      return new GraphQLCompilerContext(TestSchema, schema)
+      return new GraphQLCompilerContext(
+        TestSchema,
+        extendSchema(schema, ast, {assumeValid: true}),
+      )
         .addAll(definitions)
         .applyTransforms([
           // Requires Relay directive transform first.
           RelayRelayDirectiveTransform.transform,
+          ClientExtensionsTransform.transform,
           RelayMatchTransform.transform,
         ])
         .documents()
-        .map(doc => GraphQLIRPrinter.print(doc))
+        .map(GraphQLIRPrinter.print)
         .join('\n');
     },
   );

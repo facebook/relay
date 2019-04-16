@@ -189,6 +189,39 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
 
 `;
 
+exports[`RelayMatchTransform matches expected output: match-on-client-field.invalid.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment NameRendererFragment on User {
+  id
+  foo @match {
+    name
+    plaintext
+  }
+}
+
+extend type User {
+  foo: Foo
+}
+
+type Foo {
+  name: String
+  plaintext: String
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+THROWN EXCEPTION:
+
+Error: Encountered 1 error(s):
+- @match used on incompatible field 'foo'. Use of @match on client fields is not allowed.
+  
+  Source: GraphQL request (3:3)
+  2:   id
+  3:   foo @match {
+       ^
+  4:     name
+  
+`;
+
 exports[`RelayMatchTransform matches expected output: match-with-arguments.invalid.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 fragment NameRendererFragment on User {
@@ -228,6 +261,49 @@ Error: Encountered 1 error(s):
   6:       @module(name: "MarkdownUserNameRenderer.react") @arguments(cond: true)
                                                                       ^
   7:   }
+  
+`;
+
+exports[`RelayMatchTransform matches expected output: module-on-client-type-interface.invalid.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment NameRendererFragment on User {
+  id
+  nameRenderable @match {
+    ...PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
+    ...TestUserNameRenderer_name
+      @module(name: "TestUserNameRenderer.react")
+  }
+}
+
+fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
+  plaintext
+  data {
+    text
+  }
+}
+
+fragment TestUserNameRenderer_name on TestUserNameRenderer {
+  test
+}
+
+type TestUserNameRenderer implements UserNameRenderable {
+  test: String
+  user: User
+  js(module: String): JSDependency
+  name: String
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+THROWN EXCEPTION:
+
+Error: Encountered 1 error(s):
+- Invalid @match selection: @match is not allowed on client types.
+  
+  Source: GraphQL request (3:3)
+  2:   id
+  3:   nameRenderable @match {
+       ^
+  4:     ...PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
   
 `;
 

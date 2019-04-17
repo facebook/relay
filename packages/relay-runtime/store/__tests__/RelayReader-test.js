@@ -10,7 +10,6 @@
 
 'use strict';
 
-const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
 const RelayInMemoryRecordSource = require('../RelayInMemoryRecordSource');
 const RelayModernTestUtils = require('relay-test-utils');
 
@@ -21,13 +20,9 @@ const {ROOT_ID} = require('../RelayStoreUtils');
 describe('RelayReader', () => {
   const {generateAndCompile, generateWithTransforms} = RelayModernTestUtils;
   let source;
-  let previouseEnableClientExtensions;
 
   beforeEach(() => {
     jest.resetModules();
-    previouseEnableClientExtensions =
-      RelayFeatureFlags.ENABLE_CLIENT_EXTENSIONS;
-    RelayFeatureFlags.ENABLE_CLIENT_EXTENSIONS = true;
 
     const data = {
       '1': {
@@ -82,10 +77,6 @@ describe('RelayReader', () => {
     };
 
     source = new RelayInMemoryRecordSource(data);
-  });
-
-  afterEach(() => {
-    RelayFeatureFlags.ENABLE_CLIENT_EXTENSIONS = previouseEnableClientExtensions;
   });
 
   it('reads query data', () => {

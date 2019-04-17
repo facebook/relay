@@ -29,14 +29,10 @@ describe('check()', () => {
   let Query;
   let sampleData;
   let previousEnableIncrementalDelivery;
-  let previouseEnableClientExtensions;
   beforeEach(() => {
     previousEnableIncrementalDelivery =
       RelayFeatureFlags.ENABLE_INCREMENTAL_DELIVERY;
     RelayFeatureFlags.ENABLE_INCREMENTAL_DELIVERY = true;
-    previouseEnableClientExtensions =
-      RelayFeatureFlags.ENABLE_CLIENT_EXTENSIONS;
-    RelayFeatureFlags.ENABLE_CLIENT_EXTENSIONS = true;
 
     sampleData = {
       '1': {
@@ -123,7 +119,6 @@ describe('check()', () => {
 
   afterEach(() => {
     RelayFeatureFlags.ENABLE_INCREMENTAL_DELIVERY = previousEnableIncrementalDelivery;
-    RelayFeatureFlags.ENABLE_CLIENT_EXTENSIONS = previouseEnableClientExtensions;
   });
 
   it('reads query data', () => {

@@ -14,7 +14,6 @@ type FeatureFlags = {|
   // Configurable
   MERGE_FETCH_AND_FRAGMENT_VARS: boolean,
   PREFER_FRAGMENT_OWNER_OVER_CONTEXT: boolean,
-  ENABLE_CLIENT_EXTENSIONS: boolean,
   ENABLE_INCREMENTAL_DELIVERY: boolean,
 
   // Constants
@@ -24,7 +23,6 @@ type FeatureFlags = {|
 const RelayFeatureFlags: FeatureFlags = {
   MERGE_FETCH_AND_FRAGMENT_VARS: false,
   PREFER_FRAGMENT_OWNER_OVER_CONTEXT: false,
-  ENABLE_CLIENT_EXTENSIONS: false,
   ENABLE_INCREMENTAL_DELIVERY: false,
   INCREMENTAL_DELIVERY_VARIABLE_NAME: 'RELAY_INCREMENTAL_DELIVERY',
 };

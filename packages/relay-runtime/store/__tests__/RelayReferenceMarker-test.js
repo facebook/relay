@@ -21,16 +21,12 @@ describe('RelayReferenceMarker', () => {
   const {generateAndCompile} = RelayModernTestUtils;
   let source;
   let previousEnableIncrementalDelivery;
-  let previouseEnableClientExtensions;
 
   beforeEach(() => {
     jest.resetModules();
     previousEnableIncrementalDelivery =
       RelayFeatureFlags.ENABLE_INCREMENTAL_DELIVERY;
     RelayFeatureFlags.ENABLE_INCREMENTAL_DELIVERY = true;
-    previouseEnableClientExtensions =
-      RelayFeatureFlags.ENABLE_CLIENT_EXTENSIONS;
-    RelayFeatureFlags.ENABLE_CLIENT_EXTENSIONS = true;
 
     const data = {
       '1': {
@@ -89,7 +85,6 @@ describe('RelayReferenceMarker', () => {
 
   afterEach(() => {
     RelayFeatureFlags.ENABLE_INCREMENTAL_DELIVERY = previousEnableIncrementalDelivery;
-    RelayFeatureFlags.ENABLE_CLIENT_EXTENSIONS = previouseEnableClientExtensions;
   });
 
   it('marks referenced records', () => {

@@ -48,6 +48,7 @@ import type {
 } from '../store/RelayStoreTypes';
 import type {CacheConfig, Disposable} from '../util/RelayRuntimeTypes';
 import type {TaskScheduler} from './RelayModernQueryExecutor';
+import type RelayOperationTracker from './RelayOperationTracker';
 
 export type EnvironmentConfig = {|
   +configName?: string,
@@ -58,6 +59,7 @@ export type EnvironmentConfig = {|
   +store: Store,
   +missingFieldHandlers?: $ReadOnlyArray<MissingFieldHandler>,
   +publishQueue?: PublishQueue,
+  +operationTracker?: RelayOperationTracker,
 |};
 
 class RelayModernEnvironment implements Environment {
@@ -69,6 +71,7 @@ class RelayModernEnvironment implements Environment {
   configName: ?string;
   unstable_internal: UnstableEnvironmentCore;
   _missingFieldHandlers: ?$ReadOnlyArray<MissingFieldHandler>;
+  _operationTracker: ?RelayOperationTracker;
 
   constructor(config: EnvironmentConfig) {
     this.configName = config.configName;
@@ -95,7 +98,12 @@ class RelayModernEnvironment implements Environment {
       new RelayPublishQueue(config.store, handlerProvider);
     this._scheduler = config.scheduler ?? null;
     this._store = config.store;
-    this.unstable_internal = RelayCore;
+    this.unstable_internal = {
+      ...RelayCore,
+      getOperationTracker: () => {
+        return this._operationTracker;
+      },
+    };
 
     (this: any).__setNet = newNet => (this._network = newNet);
 
@@ -118,6 +126,9 @@ class RelayModernEnvironment implements Environment {
     }
     if (config.missingFieldHandlers != null) {
       this._missingFieldHandlers = config.missingFieldHandlers;
+    }
+    if (config.operationTracker != null) {
+      this._operationTracker = config.operationTracker;
     }
   }
 
@@ -260,6 +271,7 @@ class RelayModernEnvironment implements Environment {
         sink,
         source,
         updater,
+        operationTracker: this._operationTracker,
       });
       return () => executor.cancel();
     });
@@ -312,6 +324,7 @@ class RelayModernEnvironment implements Environment {
         sink,
         source,
         updater,
+        operationTracker: this._operationTracker,
       });
       return () => executor.cancel();
     });

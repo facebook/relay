@@ -134,8 +134,10 @@ export interface Store {
   /**
    * Notify subscribers (see `subscribe`) of any data that was published
    * (`publish()`) since the last time `notify` was called.
+   *
+   * Also this method should return an array of the affected fragment owners
    */
-  notify(): void;
+  notify(): $ReadOnlyArray<OperationDescriptor>;
 
   /**
    * Publish new information (e.g. from the network) to the store, updating its
@@ -569,6 +571,7 @@ export interface PublishQueue {
 
   /**
    * Schedule applying a payload to the store on the next `run()` without operation
+   * This method will publish subsequent payloads (follow-ups) for initial operation
    */
   commitRelayPayload(payload: RelayResponsePayload): void;
 
@@ -588,5 +591,5 @@ export interface PublishQueue {
   /**
    * Execute all queued up operations from the other public methods.
    */
-  run(): void;
+  run(): $ReadOnlyArray<OperationDescriptor>;
 }

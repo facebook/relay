@@ -125,11 +125,17 @@ class RelayModernStore implements Store {
     return snapshot;
   }
 
-  notify(): void {
+  // This method will return a list of updated owners form the subscriptions
+  notify(): $ReadOnlyArray<OperationDescriptor> {
+    const updatedOwners = [];
     this._subscriptions.forEach(subscription => {
-      this._updateSubscription(subscription);
+      const owner = this._updateSubscription(subscription);
+      if (owner != null) {
+        updatedOwners.push(owner);
+      }
     });
     this._updatedRecordIDs = {};
+    return updatedOwners;
   }
 
   publish(source: RecordSource): void {
@@ -171,7 +177,10 @@ class RelayModernStore implements Store {
     return this._updatedRecordIDs;
   }
 
-  _updateSubscription(subscription: Subscription): void {
+  // We are returning an instance of OperationDescriptor here if the snapshot
+  // were updated. We will use this information in the RelayOperationTracker
+  // in order to track which owner was affected by which operation.
+  _updateSubscription(subscription: Subscription): ?OperationDescriptor {
     const {callback, snapshot} = subscription;
     if (!hasOverlappingIDs(snapshot, this._updatedRecordIDs)) {
       return;
@@ -192,6 +201,7 @@ class RelayModernStore implements Store {
     subscription.snapshot = nextSnapshot;
     if (nextSnapshot.data !== snapshot.data) {
       callback(nextSnapshot);
+      return snapshot.owner;
     }
   }
 

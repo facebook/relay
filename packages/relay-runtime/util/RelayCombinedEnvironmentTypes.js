@@ -11,6 +11,7 @@
 'use strict';
 
 import type Observable from '../network/RelayObservable';
+import type RelayOperationTracker from '../store/RelayOperationTracker';
 import type {SelectorStoreUpdater} from '../store/RelayStoreTypes';
 import type {
   CacheConfig,
@@ -246,7 +247,7 @@ export interface CUnstableEnvironmentCore<
   /**
    * Creates an instance of an OperationDescriptor given an operation definition
    * (see `getOperation`) and the variables to apply. The input variables are
-   * filtered to exclude variables that do not matche defined arguments on the
+   * filtered to exclude variables that do not match defined arguments on the
    * operation, and default values are populated for null values.
    */
   createOperationDescriptor: (
@@ -269,7 +270,7 @@ export interface CUnstableEnvironmentCore<
 
   /**
    * Given a graphql`...` tagged template, returns true if the value is a
-   * fragment definiton, or false otherwise.
+   * fragment definition, or false otherwise.
    */
   isFragment: (node: TGraphQLTaggedNode) => boolean;
 
@@ -429,7 +430,7 @@ export interface CUnstableEnvironmentCore<
    * extracts the merged variables that would be in scope for those
    * fragments/results.
    *
-   * This can be useful in determing what varaibles were used to fetch the data
+   * This can be useful in determining what variables were used to fetch the data
    * for a Relay container, for example.
    */
   getVariablesFromObject: (
@@ -446,6 +447,11 @@ export interface CUnstableEnvironmentCore<
           >>,
     },
   ) => Variables;
+
+  /**
+   * Experimental operation tracker
+   */
+  getOperationTracker: () => ?RelayOperationTracker;
 }
 
 /**

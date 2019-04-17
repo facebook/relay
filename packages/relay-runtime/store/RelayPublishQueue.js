@@ -180,7 +180,7 @@ class RelayPublishQueue implements PublishQueue {
   /**
    * Execute all queued up operations from the other public methods.
    */
-  run(): void {
+  run(): $ReadOnlyArray<OperationDescriptor> {
     if (this._pendingBackupRebase && this._backup.size()) {
       this._store.publish(this._backup);
       this._backup = new RelayInMemoryRecordSource();
@@ -199,7 +199,7 @@ class RelayPublishQueue implements PublishQueue {
         this._gcHold = null;
       }
     }
-    this._store.notify();
+    return this._store.notify();
   }
 
   _getSourceFromPayload(payload: Payload): RecordSource {

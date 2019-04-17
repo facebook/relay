@@ -44,6 +44,7 @@ import type {
 } from '../store/RelayStoreTypes';
 import type {NormalizationSplitOperation} from '../util/NormalizationNode';
 import type {Record} from '../util/RelayCombinedEnvironmentTypes';
+import type RelayOperationTracker from './RelayOperationTracker';
 
 export type ExecuteConfig = {|
   +operation: OperationDescriptor,
@@ -54,6 +55,7 @@ export type ExecuteConfig = {|
   +sink: Sink<GraphQLResponse>,
   +source: RelayObservable<GraphQLResponse>,
   +updater?: ?SelectorStoreUpdater,
+  +operationTracker?: ?RelayOperationTracker,
 |};
 
 export type TaskScheduler = {|
@@ -92,6 +94,7 @@ class Executor {
   _state: 'started' | 'loading' | 'completed';
   _updater: ?SelectorStoreUpdater;
   _subscriptions: Map<number, Subscription>;
+  _operationTracker: ?RelayOperationTracker;
 
   constructor({
     operation,
@@ -102,6 +105,7 @@ class Executor {
     sink,
     source,
     updater,
+    operationTracker,
   }: ExecuteConfig): void {
     this._incrementalPlaceholders = new Map();
     this._nextSubscriptionId = 0;
@@ -115,6 +119,7 @@ class Executor {
     this._state = 'started';
     this._updater = updater;
     this._subscriptions = new Map();
+    this._operationTracker = operationTracker;
 
     const id = this._nextSubscriptionId++;
     source.subscribe({
@@ -132,7 +137,8 @@ class Executor {
 
     if (optimisticUpdate != null) {
       publishQueue.applyUpdate(optimisticUpdate);
-      publishQueue.run();
+      const updatedOwners = this._publishQueue.run();
+      this._updateOperationTracker(updatedOwners);
     }
   }
 
@@ -153,6 +159,7 @@ class Executor {
       this._publishQueue.run();
     }
     this._incrementalPlaceholders.clear();
+    this._completeOperationTracker();
   }
 
   _schedule(task: () => void): void {
@@ -292,7 +299,8 @@ class Executor {
       fieldPayloads: payload.fieldPayloads,
     };
     this._publishQueue.applyUpdate(this._optimisticUpdate);
-    this._publishQueue.run();
+    const updatedOwners = this._publishQueue.run();
+    this._updateOperationTracker(updatedOwners);
   }
 
   _processResponse(response: GraphQLResponseWithData): void {
@@ -310,7 +318,8 @@ class Executor {
     this._source.clear();
     this._processPayloadFollowups(payload);
     this._publishQueue.commitPayload(this._operation, payload, this._updater);
-    this._publishQueue.run();
+    const updatedOwners = this._publishQueue.run();
+    this._updateOperationTracker(updatedOwners);
   }
 
   /**
@@ -396,7 +405,8 @@ class Executor {
     );
     this._processPayloadFollowups(relayPayload);
     this._publishQueue.commitRelayPayload(relayPayload);
-    this._publishQueue.run();
+    const updatedOwners = this._publishQueue.run();
+    this._updateOperationTracker(updatedOwners);
   }
 
   /**
@@ -577,7 +587,8 @@ class Executor {
       };
       this._publishQueue.commitRelayPayload(handleFieldsRelayPayload);
     }
-    this._publishQueue.run();
+    const updatedOwners = this._publishQueue.run();
+    this._updateOperationTracker(updatedOwners);
   }
 
   /**
@@ -752,8 +763,22 @@ class Executor {
       };
       this._publishQueue.commitRelayPayload(handleFieldsRelayPayload);
     }
+    const updatedOwners = this._publishQueue.run();
+    this._updateOperationTracker(updatedOwners);
+  }
 
-    this._publishQueue.run();
+  _updateOperationTracker(
+    updatedOwners: $ReadOnlyArray<OperationDescriptor>,
+  ): void {
+    if (updatedOwners.length > 0 && this._operationTracker != null) {
+      this._operationTracker.update(this._operation, new Set(updatedOwners));
+    }
+  }
+
+  _completeOperationTracker() {
+    if (this._operationTracker != null) {
+      this._operationTracker.complete(this._operation);
+    }
   }
 }
 

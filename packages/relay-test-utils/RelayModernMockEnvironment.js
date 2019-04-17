@@ -26,6 +26,7 @@ const {
 
 import type {HandlerProvider} from 'relay-runtime/handlers/RelayDefaultHandlerProvider';
 import type {Sink} from 'relay-runtime/network/RelayObservable';
+import type RelayOperationTracker from 'relay-runtime/store/RelayOperationTracker';
 import type {MissingFieldHandler} from 'relay-runtime/store/RelayStoreTypes';
 import type {
   RequestParameters,
@@ -35,6 +36,7 @@ import type {
   GraphQLResponse,
   IEnvironment,
   OperationDescriptor,
+  OperationLoader,
 } from 'relay-runtime';
 
 type PendingRequest = {|
@@ -169,12 +171,12 @@ interface RelayMockEnvironment extends MockEnvironment, IEnvironment {}
  * - rejectMostRecentOperation(...) - should reject the most recent operation
  *   with a specific error
  */
-function createMockEnvironment(options?: {|
+function createMockEnvironment(config?: {|
   +handlerProvider?: HandlerProvider,
   +missingFieldHandlers?: $ReadOnlyArray<MissingFieldHandler>,
+  +operationTracker?: RelayOperationTracker,
+  +operationLoader?: OperationLoader,
 |}): RelayMockEnvironment {
-  const handlerProvider = options?.handlerProvider;
-  const missingFieldHandlers = options?.missingFieldHandlers;
   const source = new RecordSource();
   const store = new Store(source);
   const cache = new QueryResponseCache({
@@ -403,10 +405,9 @@ function createMockEnvironment(options?: {|
   // $FlowExpectedError
   const environment: RelayMockEnvironment = new Environment({
     configName: 'RelayModernMockEnvironment',
-    handlerProvider,
-    missingFieldHandlers,
     network: Network.create(execute, execute),
     store,
+    ...config,
   });
 
   const createExecuteProxy = (

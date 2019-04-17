@@ -11,6 +11,7 @@
 'use strict';
 
 const Observable = require('../network/RelayObservable');
+const RelayReplaySubject = require('../util/RelayReplaySubject');
 
 const getRequestParametersIdentifier = require('../util/getRequestParametersIdentifier');
 const invariant = require('invariant');
@@ -25,23 +26,9 @@ import type {RequestParameters} from '../util/RelayConcreteNode';
 import type {CacheConfig, Variables} from '../util/RelayRuntimeTypes';
 import type {Identifier as RequestParametersId} from '../util/getRequestParametersIdentifier';
 
-type ObserverEvent = {|
-  event: 'next' | 'error' | 'complete',
-  data?: mixed,
-|};
-
-type Sink<-T> = {|
-  +next: T => void,
-  +error: (Error, isUncaughtThrownError?: boolean) => void,
-  +complete: () => void,
-  +closed: boolean,
-|};
-
 type RequestCacheEntry = {|
-  +count: number,
+  +subject: RelayReplaySubject<Snapshot>,
   +subscription: Subscription,
-  +receivedEvents: Array<ObserverEvent>,
-  +observers: Array<Sink<Snapshot>>,
 |};
 
 const requestCachesByEnvironment = new Map();
@@ -149,85 +136,49 @@ function fetchQueryDeduped(
   return Observable.create(sink => {
     const requestCache = getRequestCache(environment);
     const cacheKey = getRequestParametersIdentifier(parameters, variables);
-    const cachedRequest = requestCache.get(cacheKey);
+    let cachedRequest = requestCache.get(cacheKey);
 
-    if (cachedRequest) {
-      // We manage observers manually due to the lack of an RxJS Subject abstraction
-      // (https://fburl.com/s6m56gim)
-      const observers =
-        sink && !cachedRequest.observers.find(o => o === sink)
-          ? [...cachedRequest.observers, sink]
-          : cachedRequest.observers;
-
-      cachedRequest.receivedEvents.forEach(observerEvent => {
-        const {data} = observerEvent;
-        const eventHandler: $FlowFixMe = sink[observerEvent.event];
-        if (data !== undefined) {
-          eventHandler && eventHandler(data);
-        } else {
-          eventHandler && eventHandler();
-        }
-      });
-      requestCache.set(cacheKey, {
-        ...cachedRequest,
-        count: cachedRequest.count + 1,
-        observers,
-      });
-    } else {
+    if (!cachedRequest) {
       fetchFn()
-        .finally(() => {
-          requestCache.delete(cacheKey);
-        })
+        .finally(() => requestCache.delete(cacheKey))
         .subscribe({
           start: subscription => {
-            requestCache.set(cacheKey, {
-              count: 1,
+            cachedRequest = {
+              subject: new RelayReplaySubject(),
               subscription: subscription,
-              observers: sink ? [sink] : [],
-              receivedEvents: [],
-            });
+            };
+            requestCache.set(cacheKey, cachedRequest);
           },
           next: snapshot => {
-            addReceivedEvent(requestCache, cacheKey, {
-              event: 'next',
-              data: snapshot,
-            });
-            getCachedObservers(requestCache, cacheKey).forEach(
-              o => o.next && o.next(snapshot),
-            );
+            getCachedRequest(requestCache, cacheKey).subject.next(snapshot);
           },
           error: error => {
-            addReceivedEvent(requestCache, cacheKey, {
-              event: 'error',
-              data: error,
-            });
-            getCachedObservers(requestCache, cacheKey).forEach(
-              o => o.error && o.error(error),
-            );
+            getCachedRequest(requestCache, cacheKey).subject.error(error);
           },
           complete: () => {
-            addReceivedEvent(requestCache, cacheKey, {
-              event: 'complete',
-            });
-            getCachedObservers(requestCache, cacheKey).forEach(
-              o => o.complete && o.complete(),
-            );
+            getCachedRequest(requestCache, cacheKey).subject.complete();
           },
-          unsubscribe: subscription => {},
         });
     }
 
+    invariant(
+      cachedRequest != null,
+      '[fetchQueryInternal] fetchQueryDeduped: Expected `start` to be ' +
+        'called synchronously',
+    );
+    const subscription = cachedRequest.subject.subscribe(sink);
+
     return () => {
+      subscription.unsubscribe();
       const cachedRequestInstance = requestCache.get(cacheKey);
       if (cachedRequestInstance) {
-        if (cachedRequestInstance.count === 1) {
-          cachedRequestInstance.subscription.unsubscribe();
+        const requestSubscription = cachedRequestInstance.subscription;
+        if (
+          requestSubscription != null &&
+          cachedRequestInstance.subject.getObserverCount() === 0
+        ) {
+          requestSubscription.unsubscribe();
           requestCache.delete(cacheKey);
-        } else {
-          requestCache.set(cacheKey, {
-            ...cachedRequestInstance,
-            count: cachedRequestInstance.count - 1,
-          });
         }
       }
     };
@@ -255,38 +206,23 @@ function getPromiseForRequestInFlight(
     return null;
   }
 
-  const {receivedEvents} = cachedRequest;
-  let receivedNextCount = receivedEvents.filter(e => e.event === 'next').length;
   return new Promise((resolve, reject) => {
+    let resolveOnNext = false;
     fetchQuery(environment, query).subscribe({
       complete: resolve,
       error: reject,
       next: () => {
-        // NOTE: Only resolve the promise upon the next call to `next`.
-        // Otherwise, resolving for calls to `next` that have already occurred
-        // will cause the promise to resolve immediately
-        if (receivedNextCount-- <= 0) {
+        /*
+         * The underlying `RelayReplaySubject` will synchronously replay events
+         * as soon as we subscribe, but since we want the *next* asynchronous
+         * one, we'll ignore them until the replay finishes.
+         */
+        if (resolveOnNext) {
           resolve();
         }
       },
     });
-  });
-}
-
-function addReceivedEvent(
-  requestCache: Map<RequestParametersId, RequestCacheEntry>,
-  cacheKey: RequestParametersId,
-  observerEvent: ObserverEvent,
-) {
-  const cached = requestCache.get(cacheKey);
-  invariant(
-    cached != null,
-    '[fetchQueryInternal] addReceivedEvent: Expected request to be cached',
-  );
-  const receivedEvents = [...cached.receivedEvents, observerEvent];
-  requestCache.set(cacheKey, {
-    ...cached,
-    receivedEvents,
+    resolveOnNext = true;
   });
 }
 
@@ -305,16 +241,16 @@ function getRequestCache(
   return requestCache;
 }
 
-function getCachedObservers(
+function getCachedRequest(
   requestCache: Map<RequestParametersId, RequestCacheEntry>,
   cacheKey: RequestParametersId,
-): Array<Sink<Snapshot>> {
+) {
   const cached = requestCache.get(cacheKey);
   invariant(
     cached != null,
-    '[fetchQueryInternal] getCachedObservers: Expected request to be cached',
+    '[fetchQueryInternal] getCachedRequest: Expected request to be cached',
   );
-  return cached.observers;
+  return cached;
 }
 
 module.exports = {

@@ -195,3 +195,19 @@ exports[`ReactRelayTestMocker with Containers Test Query Renderer with Refetch C
   </button>
 </div>
 `;
+
+exports[`ReactRelayTestMocker with Containers resolve/reject next with components should reject next operation: should render component with the error 1`] = `
+<div
+  testID="error"
+>
+  Uh-oh
+</div>
+`;
+
+exports[`ReactRelayTestMocker with Containers resolve/reject next with components should resolve next operation: should render component with the data 1`] = `
+<div
+  testID="user"
+>
+  &lt;mock-value-for-field-"name"&gt;
+</div>
+`;

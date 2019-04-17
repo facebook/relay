@@ -83,6 +83,10 @@ function mockObservableMethod(object: $FlowFixMe, key: string) {
   };
 }
 
+type OperationMockResolver = (
+  operation: OperationDescriptor,
+) => ?GraphQLResponse | ?Error;
+
 type MockFunctions = {|
   +clearCache: () => void,
   +cachePayload: (
@@ -119,6 +123,7 @@ type MockFunctions = {|
       | ((operation: OperationDescriptor) => GraphQLResponse),
   ) => void,
   +rejectMostRecentOperation: (error: Error) => void,
+  +queueOperationResolver: (resolver: OperationMockResolver) => void,
 |};
 
 interface MockEnvironment {
@@ -179,6 +184,11 @@ function createMockEnvironment(options?: {|
 
   let pendingRequests: $ReadOnlyArray<PendingRequest> = [];
   let pendingOperations: $ReadOnlyArray<OperationDescriptor> = [];
+  let resolversQueue: $ReadOnlyArray<OperationMockResolver> = [];
+
+  const queueOperationResolver = (resolver: OperationMockResolver): void => {
+    resolversQueue = resolversQueue.concat([resolver]);
+  };
 
   // Mock the network layer
   const execute = (
@@ -200,6 +210,29 @@ function createMockEnvironment(options?: {|
       return Observable.from(cachedPayload);
     }
 
+    const currentOperation = pendingOperations.find(
+      op => op.node.params === request && op.variables === variables,
+    );
+
+    // Handle network responses added by
+    if (currentOperation != null && resolversQueue.length > 0) {
+      const currentResolver = resolversQueue[0];
+      const result = currentResolver(currentOperation);
+      if (result != null) {
+        resolversQueue = resolversQueue.filter(res => res !== currentResolver);
+        pendingOperations = pendingOperations.filter(
+          op => op !== currentOperation,
+        );
+        if (result instanceof Error) {
+          return Observable.create(sink => {
+            sink.error(result);
+          });
+        } else {
+          return Observable.from(result);
+        }
+      }
+    }
+
     return Observable.create(sink => {
       const nextRequest = {request, variables, cacheConfig, sink};
       pendingRequests = pendingRequests.concat([nextRequest]);
@@ -207,6 +240,9 @@ function createMockEnvironment(options?: {|
       return () => {
         pendingRequests = pendingRequests.filter(
           pending => !areEqual(pending, nextRequest),
+        );
+        pendingOperations = pendingOperations.filter(
+          op => op !== currentOperation,
         );
       };
     });
@@ -436,6 +472,7 @@ function createMockEnvironment(options?: {|
     getAllOperations() {
       return pendingOperations;
     },
+    queueOperationResolver,
   };
 
   // $FlowExpectedError

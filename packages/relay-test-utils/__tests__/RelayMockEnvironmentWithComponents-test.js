@@ -1059,4 +1059,59 @@ describe('ReactRelayTestMocker with Containers', () => {
       expect(testComponentTree).toMatchSnapshot();
     });
   });
+
+  describe('resolve/reject next with components', () => {
+    let TestComponent;
+
+    beforeEach(() => {
+      const {UserQuery} = generateAndCompile(`
+        query UserQuery($userId: ID!) @relay_test_operation {
+          user: node(id: $userId) {
+            id
+            name
+          }
+        }
+      `);
+
+      TestComponent = () => (
+        <QueryRenderer
+          environment={environment}
+          query={UserQuery}
+          variables={{userId: 'my-user-id'}}
+          render={({error, props}) => {
+            if (props) {
+              return <div testID="user">{props.user.name}</div>;
+            } else if (error) {
+              return <div testID="error">{error.message}</div>;
+            }
+            return <div>Loading...</div>;
+          }}
+        />
+      );
+    });
+
+    it('should resolve next operation', () => {
+      environment.mock.queueOperationResolver(operation =>
+        MockPayloadGenerator.generate(operation),
+      );
+      let testComponentTree;
+      ReactTestRenderer.act(() => {
+        testComponentTree = ReactTestRenderer.create(<TestComponent />);
+      });
+      expect(testComponentTree).toMatchSnapshot(
+        'should render component with the data',
+      );
+    });
+
+    it('should reject next operation', () => {
+      environment.mock.queueOperationResolver(() => new Error('Uh-oh'));
+      let testComponentTree;
+      ReactTestRenderer.act(() => {
+        testComponentTree = ReactTestRenderer.create(<TestComponent />);
+      });
+      expect(testComponentTree).toMatchSnapshot(
+        'should render component with the error',
+      );
+    });
+  });
 });

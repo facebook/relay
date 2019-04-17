@@ -14,6 +14,7 @@
 const {
   fetchQuery,
   getPromiseForRequestInFlight,
+  getObservableForRequestInFlight,
 } = require('../fetchQueryInternal');
 const {createOperationDescriptor} = require('relay-runtime');
 const {createMockEnvironment, generateAndCompile} = require('relay-test-utils');
@@ -62,21 +63,17 @@ describe('fetchQueryInternal', () => {
 
     it('provides data snapshot on `next(...)`', () => {
       let calledNext = false;
-      let data = null;
+      const values = [];
       const observer = {
-        next: snapshot => {
+        next: value => {
           calledNext = true;
-          data = snapshot.data;
+          values.push(value);
         },
       };
       fetchQuery(environment, query).subscribe(observer);
       environment.mock.nextValue(gqlQuery, response);
       expect(calledNext).toEqual(true);
-      expect(data).toEqual({
-        node: {
-          id: '4',
-        },
-      });
+      expect(values).toEqual([response]);
       environment.mock.complete(gqlQuery);
     });
 
@@ -191,12 +188,8 @@ describe('fetchQueryInternal', () => {
           true,
         );
         environment.mock.nextValue(gqlQuery, response);
-        const snapshot = await promise;
-        expect(snapshot?.data).toEqual({
-          node: {
-            id: '4',
-          },
-        });
+        const result = await promise;
+        expect(result).toEqual(response);
         expect(environment.mock.isLoading(gqlQuery, query.variables)).toEqual(
           false,
         );
@@ -306,16 +299,16 @@ describe('fetchQueryInternal', () => {
         let observer2Payload = null;
         let calledObserver2Complete = false;
         const observer1 = {
-          next: snapshot => {
-            observer1Payload = snapshot.data;
+          next: data => {
+            observer1Payload = data;
           },
           complete: () => {
             calledObserver1Complete = true;
           },
         };
         const observer2 = {
-          next: snapshot => {
-            observer2Payload = snapshot.data;
+          next: data => {
+            observer2Payload = data;
           },
           complete: () => {
             calledObserver2Complete = true;
@@ -340,16 +333,8 @@ describe('fetchQueryInternal', () => {
         expect(environment.execute).toHaveBeenCalledTimes(1);
 
         // Assert both observers got the payload
-        expect(observer1Payload).toEqual({
-          node: {
-            id: '4',
-          },
-        });
-        expect(observer2Payload).toEqual({
-          node: {
-            id: '4',
-          },
-        });
+        expect(observer1Payload).toEqual(response);
+        expect(observer2Payload).toEqual(response);
         expect(observer1Payload).toEqual(observer2Payload);
 
         expect(calledObserver1Complete).toEqual(true);
@@ -535,6 +520,98 @@ describe('fetchQueryInternal', () => {
           });
         });
       });
+    });
+  });
+
+  describe('getObservableForRequestInFlight', () => {
+    let observer;
+    let events;
+    beforeEach(() => {
+      events = [];
+      observer = {
+        complete: jest.fn(() => events.push('complete')),
+        error: jest.fn(error => events.push('error', error)),
+        next: jest.fn(data => events.push('next', data)),
+      };
+    });
+
+    it('returns null if request is not in flight', () => {
+      const observable = getObservableForRequestInFlight(environment, query);
+      expect(observable).toEqual(null);
+    });
+
+    it('returns null if the request has already errored', () => {
+      fetchQuery(environment, query).subscribe({error: jest.fn()});
+      const error = new Error('Oops');
+      environment.mock.reject(gqlQuery, error);
+      const observable = getObservableForRequestInFlight(environment, query);
+      expect(observable).toBe(null);
+    });
+
+    it('errors asynchronously if the request errors', () => {
+      fetchQuery(environment, query).subscribe({error: jest.fn()});
+      const observable = getObservableForRequestInFlight(environment, query);
+      expect(observable).not.toEqual(null);
+      if (!observable) {
+        return;
+      }
+
+      observable.subscribe(observer);
+      expect(events).toEqual([]);
+
+      const error = new Error('Oops');
+      environment.mock.reject(gqlQuery, error);
+      expect(events).toEqual(['error', error]);
+    });
+
+    it('returns null if the request has already completed', () => {
+      fetchQuery(environment, query).subscribe({});
+      environment.mock.complete(gqlQuery);
+      const observable = getObservableForRequestInFlight(environment, query);
+      expect(observable).toBe(null);
+    });
+
+    it('completes asynchronously if the request completes', () => {
+      fetchQuery(environment, query).subscribe({});
+      const observable = getObservableForRequestInFlight(environment, query);
+      expect(observable).not.toEqual(null);
+      if (!observable) {
+        return;
+      }
+
+      observable.subscribe(observer);
+      expect(events).toEqual([]);
+
+      environment.mock.complete(gqlQuery);
+      expect(events).toEqual(['complete']);
+    });
+
+    it('calls next synchronously with already fetched payloads', () => {
+      fetchQuery(environment, query).subscribe({});
+      environment.mock.nextValue(gqlQuery, response);
+      const observable = getObservableForRequestInFlight(environment, query);
+      expect(observable).not.toEqual(null);
+      if (!observable) {
+        return;
+      }
+
+      observable.subscribe(observer);
+      expect(events).toEqual(['next', response]);
+    });
+
+    it('calls next asynchronously with subsequent payloads', () => {
+      fetchQuery(environment, query).subscribe({});
+      const observable = getObservableForRequestInFlight(environment, query);
+      expect(observable).not.toEqual(null);
+      if (!observable) {
+        return;
+      }
+
+      observable.subscribe(observer);
+      expect(events).toEqual([]);
+
+      environment.mock.nextValue(gqlQuery, response);
+      expect(events).toEqual(['next', response]);
     });
   });
 });

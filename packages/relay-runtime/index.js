@@ -279,5 +279,7 @@ module.exports = {
     fetchQueryDeduped: fetchQueryInternal.fetchQueryDeduped,
     getPromiseForRequestInFlight:
       fetchQueryInternal.getPromiseForRequestInFlight,
+    getObservableForRequestInFlight:
+      fetchQueryInternal.getObservableForRequestInFlight,
   },
 };

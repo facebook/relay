@@ -86,11 +86,18 @@ describe('RelayModernEnvironment with RelayOperationTracker', () => {
       load: jest.fn(),
       get: jest.fn(),
     };
+    tracker = new RelayOperationTracker();
     environment = createMockEnvironment({
-      operationTracker: new RelayOperationTracker(),
+      operationTracker: tracker,
       operationLoader,
     });
-    tracker = environment.unstable_internal.getOperationTracker();
+  });
+
+  it('should return an instance of tracker', () => {
+    expect(environment.unstable_internal.getOperationTracker).toBeDefined();
+    if (environment.unstable_internal.getOperationTracker != null) {
+      expect(environment.unstable_internal.getOperationTracker()).toBe(tracker);
+    }
   });
 
   it('should have operation tracker and operations should not be affected', () => {

@@ -52,14 +52,14 @@ import type RelayOperationTracker from './RelayOperationTracker';
 
 export type EnvironmentConfig = {|
   +configName?: string,
-  +handlerProvider?: HandlerProvider,
-  +operationLoader?: OperationLoader,
+  +handlerProvider?: ?HandlerProvider,
+  +operationLoader?: ?OperationLoader,
   +network: Network,
-  +scheduler?: TaskScheduler,
+  +scheduler?: ?TaskScheduler,
   +store: Store,
-  +missingFieldHandlers?: $ReadOnlyArray<MissingFieldHandler>,
-  +publishQueue?: PublishQueue,
-  +operationTracker?: RelayOperationTracker,
+  +missingFieldHandlers?: ?$ReadOnlyArray<MissingFieldHandler>,
+  +publishQueue?: ?PublishQueue,
+  +operationTracker?: ?RelayOperationTracker,
 |};
 
 class RelayModernEnvironment implements Environment {

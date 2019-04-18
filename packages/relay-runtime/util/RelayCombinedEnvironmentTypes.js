@@ -451,7 +451,7 @@ export interface CUnstableEnvironmentCore<
   /**
    * Experimental operation tracker
    */
-  getOperationTracker: () => ?RelayOperationTracker;
+  getOperationTracker?: () => ?RelayOperationTracker;
 }
 
 /**

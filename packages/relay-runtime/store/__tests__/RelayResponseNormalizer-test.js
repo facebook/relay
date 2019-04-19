@@ -1485,6 +1485,296 @@ describe('RelayResponseNormalizer', () => {
     });
   });
 
+  describe('Client Extensions', () => {
+    const {StrippedQuery} = generateAndCompile(
+      `
+        query StrippedQuery($id: ID, $size: [Int]) {
+          node(id: $id) {
+            id
+            __typename
+            ... on User {
+              firstName
+              nickname
+              foo {
+                bar {
+                  content
+                }
+              }
+            }
+          }
+        }
+        extend type User {
+          nickname: String
+          foo: Foo
+        }
+        type Foo {
+          bar: Bar
+        }
+        type Bar {
+          content: String
+        }
+      `,
+    );
+
+    const payload = {
+      node: {
+        id: '1',
+        __typename: 'User',
+        firstName: 'Bob',
+      },
+    };
+
+    it('skips client fields not present in the payload but present in the store', () => {
+      const recordSource = new RelayInMemoryRecordSource({
+        '1': {
+          __id: '1',
+          __typename: 'User',
+          id: '1',
+          firstName: 'Alice',
+          nickname: 'ecilA',
+        },
+        'client:root': {
+          __id: 'client:root',
+          __typename: '__Root',
+          'node(id:"1")': {__ref: '1'},
+        },
+      });
+      normalize(
+        recordSource,
+        {
+          dataID: ROOT_ID,
+          node: StrippedQuery.operation,
+          variables: {id: '1', size: 32},
+        },
+        payload,
+        {handleStrippedNulls: true},
+      );
+      const result = {
+        '1': {
+          __id: '1',
+          __typename: 'User',
+          id: '1',
+          firstName: 'Bob',
+          nickname: 'ecilA',
+        },
+        'client:root': {
+          __id: 'client:root',
+          __typename: '__Root',
+          'node(id:"1")': {__ref: '1'},
+        },
+      };
+      expect(recordSource.toJSON()).toEqual(result);
+      normalize(
+        recordSource,
+        {
+          dataID: ROOT_ID,
+          node: StrippedQuery.operation,
+          variables: {id: '1', size: 32},
+        },
+        payload,
+        {handleStrippedNulls: false},
+      );
+      expect(recordSource.toJSON()).toEqual(result);
+    });
+
+    it('skips client fields not present in the payload or store', () => {
+      const recordSource = new RelayInMemoryRecordSource({
+        '1': {
+          __id: '1',
+          __typename: 'User',
+          id: '1',
+          firstName: 'Alice',
+        },
+        'client:root': {
+          __id: 'client:root',
+          __typename: '__Root',
+          'node(id:"1")': {__ref: '1'},
+        },
+      });
+      normalize(
+        recordSource,
+        {
+          dataID: ROOT_ID,
+          node: StrippedQuery.operation,
+          variables: {id: '1', size: 32},
+        },
+        payload,
+        {handleStrippedNulls: true},
+      );
+      const result = {
+        '1': {
+          __id: '1',
+          __typename: 'User',
+          id: '1',
+          firstName: 'Bob',
+        },
+        'client:root': {
+          __id: 'client:root',
+          __typename: '__Root',
+          'node(id:"1")': {__ref: '1'},
+        },
+      };
+      expect(recordSource.toJSON()).toEqual(result);
+      normalize(
+        recordSource,
+        {
+          dataID: ROOT_ID,
+          node: StrippedQuery.operation,
+          variables: {id: '1', size: 32},
+        },
+        payload,
+        {handleStrippedNulls: false},
+      );
+      expect(recordSource.toJSON()).toEqual(result);
+    });
+
+    it('ignores linked client fields not present in the payload', () => {
+      const recordSource = new RelayInMemoryRecordSource({
+        '1': {
+          __id: '1',
+          __typename: 'User',
+          id: '1',
+          firstName: 'Alice',
+          foo: {
+            __ref: '2',
+          },
+        },
+        '2': {
+          __id: '2',
+          __typename: 'Foo',
+          bar: {
+            __ref: '3',
+          },
+        },
+        '3': {
+          __id: '3',
+          __typename: 'Bar',
+          content: 'bar',
+        },
+        'client:root': {
+          __id: 'client:root',
+          __typename: '__Root',
+          'node(id:"1")': {__ref: '1'},
+        },
+      });
+      normalize(
+        recordSource,
+        {
+          dataID: ROOT_ID,
+          node: StrippedQuery.operation,
+          variables: {id: '1', size: 32},
+        },
+        payload,
+        {handleStrippedNulls: true},
+      );
+      const result = {
+        '1': {
+          __id: '1',
+          __typename: 'User',
+          id: '1',
+          firstName: 'Bob',
+          foo: {
+            __ref: '2',
+          },
+        },
+        '2': {
+          __id: '2',
+          __typename: 'Foo',
+          bar: {
+            __ref: '3',
+          },
+        },
+        '3': {
+          __id: '3',
+          __typename: 'Bar',
+          content: 'bar',
+        },
+        'client:root': {
+          __id: 'client:root',
+          __typename: '__Root',
+          'node(id:"1")': {__ref: '1'},
+        },
+      };
+      expect(recordSource.toJSON()).toEqual(result);
+      normalize(
+        recordSource,
+        {
+          dataID: ROOT_ID,
+          node: StrippedQuery.operation,
+          variables: {id: '1', size: 32},
+        },
+        payload,
+        {handleStrippedNulls: false},
+      );
+      expect(recordSource.toJSON()).toEqual(result);
+    });
+
+    it('ignores linked client fields not present in the payload or store', () => {
+      const recordSource = new RelayInMemoryRecordSource({
+        '1': {
+          __id: '1',
+          __typename: 'User',
+          id: '1',
+          firstName: 'Alice',
+          foo: {
+            __ref: '2',
+          },
+        },
+        '2': {
+          __id: '2',
+          __typename: 'Foo',
+        },
+        'client:root': {
+          __id: 'client:root',
+          __typename: '__Root',
+          'node(id:"1")': {__ref: '1'},
+        },
+      });
+      normalize(
+        recordSource,
+        {
+          dataID: ROOT_ID,
+          node: StrippedQuery.operation,
+          variables: {id: '1', size: 32},
+        },
+        payload,
+        {handleStrippedNulls: true},
+      );
+      const result = {
+        '1': {
+          __id: '1',
+          __typename: 'User',
+          id: '1',
+          firstName: 'Bob',
+          foo: {
+            __ref: '2',
+          },
+        },
+        '2': {
+          __id: '2',
+          __typename: 'Foo',
+        },
+        'client:root': {
+          __id: 'client:root',
+          __typename: '__Root',
+          'node(id:"1")': {__ref: '1'},
+        },
+      };
+      expect(recordSource.toJSON()).toEqual(result);
+      normalize(
+        recordSource,
+        {
+          dataID: ROOT_ID,
+          node: StrippedQuery.operation,
+          variables: {id: '1', size: 32},
+        },
+        payload,
+        {handleStrippedNulls: false},
+      );
+      expect(recordSource.toJSON()).toEqual(result);
+    });
+  });
+
   it('warns in __DEV__ if payload data is missing an expected field', () => {
     jest.mock('warning');
 

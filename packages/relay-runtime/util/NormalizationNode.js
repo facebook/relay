@@ -103,6 +103,7 @@ export type NormalizationLocalArgumentDefinition = {|
 |};
 
 export type NormalizationNode =
+  | NormalizationClientExtension
   | NormalizationCondition
   | NormalizationDefer
   | NormalizationLinkedField

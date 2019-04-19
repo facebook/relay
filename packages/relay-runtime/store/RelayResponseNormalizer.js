@@ -204,7 +204,10 @@ class RelayResponseNormalizer {
           this._normalizeStream(selection, record, data);
           break;
         case CLIENT_EXTENSION:
-          // Skipping ClientExtensnion nodes since they won't be in the payload
+          const handleStrippedNulls = this._handleStrippedNulls;
+          this._handleStrippedNulls = false;
+          this._traverseSelections(selection, record, data);
+          this._handleStrippedNulls = handleStrippedNulls;
           break;
         default:
           (selection: empty);

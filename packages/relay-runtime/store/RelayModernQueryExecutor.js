@@ -768,9 +768,13 @@ class Executor {
   }
 
   _updateOperationTracker(
-    updatedOwners: $ReadOnlyArray<OperationDescriptor>,
+    updatedOwners: ?$ReadOnlyArray<OperationDescriptor>,
   ): void {
-    if (updatedOwners.length > 0 && this._operationTracker != null) {
+    if (
+      this._operationTracker != null &&
+      updatedOwners != null &&
+      updatedOwners.length > 0
+    ) {
       this._operationTracker.update(this._operation, new Set(updatedOwners));
     }
   }

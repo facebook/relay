@@ -55,6 +55,7 @@ function getFragmentVariables(
         variables[definition.name] = rootVariables[definition.name];
         break;
       default:
+        (definition: empty);
         invariant(
           false,
           'RelayConcreteVariables: Unexpected node kind `%s` in fragment `%s`.',

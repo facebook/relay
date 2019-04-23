@@ -172,6 +172,15 @@ function traverseSelections<T: Node>(
         break;
       }
       case 'FragmentSpread': {
+        if (!compilerContext.get(selection.name)) {
+          // NOTE: Calling `get` will check if the fragment definition for this
+          // fragment spread exists. If it doesn't, which can happen if the
+          // fragment spread is referencing a fragment defined with Relay Classic,
+          // we will treat this selection as a client-only selection
+          // This will ensure that it is properly skipped for the print context.
+          clientSelections.push(selection);
+          break;
+        }
         const fragment = compilerContext.getFragment(selection.name);
         const typeName = fragment.type.name;
         const serverType = serverSchema.getType(typeName);

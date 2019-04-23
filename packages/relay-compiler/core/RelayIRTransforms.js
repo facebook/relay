@@ -47,7 +47,6 @@ const relaySchemaExtensions: Array<string> = [
 // Transforms applied to both operations and fragments for both reading and
 // writing from the store.
 const relayCommonTransforms: Array<IRTransform> = [
-  ClientExtensionsTransform.transform,
   RelayConnectionTransform.transform,
   RelayRelayDirectiveTransform.transform,
   RelayMaskTransform.transform,
@@ -58,6 +57,7 @@ const relayCommonTransforms: Array<IRTransform> = [
 
 // Transforms applied to fragments used for reading data from a store
 const relayFragmentTransforms: Array<IRTransform> = [
+  ClientExtensionsTransform.transform,
   RelayFieldHandleTransform.transform,
   FlattenTransform.transformWithOptions({flattenAbstractTypes: true}),
   SkipRedundantNodesTransform.transform,
@@ -67,7 +67,6 @@ const relayFragmentTransforms: Array<IRTransform> = [
 // fetching data from the server and parsing those responses.
 const relayQueryTransforms: Array<IRTransform> = [
   RelayApplyFragmentArgumentTransform.transform,
-  SkipUnreachableNodeTransform.transform,
   RelayGenerateIDFieldTransform.transform,
   RelayDeferStreamTransform.transform,
   RelayTestOperationTransform.transform,
@@ -75,8 +74,13 @@ const relayQueryTransforms: Array<IRTransform> = [
 
 // Transforms applied to the code used to process a query response.
 const relayCodegenTransforms: Array<IRTransform> = [
+  SkipUnreachableNodeTransform.transform,
   RelaySplitModuleImportTransform.transform,
   InlineFragmentsTransform.transform,
+  // NOTE: For the codegen context, we make sure to run ClientExtensions
+  // transform after we've inlined fragment spreads (i.e. InlineFragmentsTransform)
+  // This will ensure that we don't generate nested ClientExtension nodes
+  ClientExtensionsTransform.transform,
   FlattenTransform.transformWithOptions({flattenAbstractTypes: true}),
   SkipRedundantNodesTransform.transform,
   RelayGenerateTypeNameTransform.transform,
@@ -85,7 +89,11 @@ const relayCodegenTransforms: Array<IRTransform> = [
 
 // Transforms applied before printing the query sent to the server.
 const relayPrintTransforms: Array<IRTransform> = [
+  // NOTE: Skipping client extensions might leave empty selections, which we
+  // skip by running SkipUnreachableNodeTransform immediately after.
+  ClientExtensionsTransform.transform,
   SkipClientExtensionsTransform.transform,
+  SkipUnreachableNodeTransform.transform,
   FlattenTransform.transformWithOptions({}),
   RelayGenerateTypeNameTransform.transform,
   RelaySkipHandleFieldTransform.transform,

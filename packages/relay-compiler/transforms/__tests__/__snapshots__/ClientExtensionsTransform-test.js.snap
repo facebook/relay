@@ -234,6 +234,50 @@ fragment ClientTypeFragment on ClientType {
 
 `;
 
+exports[`ClientExtensionsTransform matches expected output: client-fragment-spreads-in-query.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query FooQuery($id: ID!) {
+  node(id: $id) {
+    ...Foo_user
+  }
+}
+
+fragment Foo_user on User {
+  id
+
+  ...ClientTypeFragment
+}
+
+fragment ClientTypeFragment on ClientType {
+  client_field
+}
+
+type ClientType {
+  client_field: String
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+query FooQuery(
+  $id: ID!
+) {
+  node(id: $id) {
+    ...Foo_user
+  }
+}
+
+fragment Foo_user on User {
+  id
+  # Client-only selections:
+  # ...ClientTypeFragment
+}
+
+fragment ClientTypeFragment on ClientType {
+  # Client-only selections:
+  # client_field
+}
+
+`;
+
 exports[`ClientExtensionsTransform matches expected output: client-inline-fragments.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 fragment Foo_user on User {
@@ -249,6 +293,45 @@ interface ClientNamed {
 }
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+fragment Foo_user on User {
+  id
+  # Client-only selections:
+  # ... on ClientNamed {
+    # client_name
+  # }
+}
+
+`;
+
+exports[`ClientExtensionsTransform matches expected output: client-inline-fragments-in-query.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query FooQuery($id: ID!) {
+  node(id: $id) {
+    ...Foo_user
+  }
+}
+
+fragment Foo_user on User {
+  id
+
+  ... on ClientNamed {
+    client_name
+  }
+}
+
+interface ClientNamed {
+  client_name: String
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+query FooQuery(
+  $id: ID!
+) {
+  node(id: $id) {
+    ...Foo_user
+  }
+}
+
 fragment Foo_user on User {
   id
   # Client-only selections:

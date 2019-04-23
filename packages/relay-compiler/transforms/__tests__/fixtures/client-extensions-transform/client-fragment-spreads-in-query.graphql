@@ -1,0 +1,19 @@
+query FooQuery($id: ID!) {
+  node(id: $id) {
+    ...Foo_user
+  }
+}
+
+fragment Foo_user on User {
+  id
+
+  ...ClientTypeFragment
+}
+
+fragment ClientTypeFragment on ClientType {
+  client_field
+}
+
+type ClientType {
+  client_field: String
+}

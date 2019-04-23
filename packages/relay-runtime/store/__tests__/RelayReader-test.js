@@ -11,19 +11,19 @@
 'use strict';
 
 const RelayInMemoryRecordSource = require('../RelayInMemoryRecordSource');
-const RelayModernTestUtils = require('relay-test-utils');
 
 const {getRequest, createOperationDescriptor} = require('../RelayCore');
 const {read} = require('../RelayReader');
 const {ROOT_ID} = require('../RelayStoreUtils');
+const {
+  generateAndCompile,
+  generateWithTransforms,
+} = require('relay-test-utils');
 
 describe('RelayReader', () => {
-  const {generateAndCompile, generateWithTransforms} = RelayModernTestUtils;
   let source;
 
   beforeEach(() => {
-    jest.resetModules();
-
     const data = {
       '1': {
         __id: '1',

@@ -1,0 +1,13 @@
+/**
+ * Copyright 2004-present Facebook. All Rights Reserved.
+ */
+
+'use strict';
+
+const graphql = require('graphql');
+
+graphql`
+  fragment Test on User @inline {
+    id
+  }
+`;

@@ -384,6 +384,35 @@ module.exports = RelayCompatContainer.createContainer(CompatProfile, {
 });
 `;
 
+exports[`matches expected output: inlineDirective.txt 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+/**
+ * Copyright 2004-present Facebook. All Rights Reserved.
+ */
+
+'use strict';
+
+const graphql = require('graphql');
+
+graphql\`
+  fragment Test on User @inline {
+    id
+  }
+\`;
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+/**
+ * Copyright 2004-present Facebook. All Rights Reserved.
+ */
+'use strict';
+
+const graphql = require('graphql');
+
+(function () {
+  return require("./__generated__/Test.graphql");
+});
+`;
+
 exports[`matches expected output: memoize-inner-scope.txt 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 /**

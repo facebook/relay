@@ -110,6 +110,10 @@ function createClassicAST(t, definition) {
   const visitors = {
     Directive(node) {
       switch (node.name.value) {
+        case 'inline':
+          throw new Error(
+            '@inline is only available in pure RelayModern mode.',
+          );
         case 'argumentDefinitions':
           if (argumentDefinitions) {
             throw new Error(

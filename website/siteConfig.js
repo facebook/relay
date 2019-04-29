@@ -113,6 +113,14 @@ const siteConfig = {
     apiKey: '3d7d5825d50ea36bca0e6ad06c926f06',
     indexName: 'relay',
   },
+  cleanUrl: true,
+  scrollToTop: true,
+  scrollToTopOptions: {
+    zIndex: 100,
+  },
+  enableUpdateTime: true,
+  enableUpdateBy: true,
+  docsSideNavCollapsible: true,
 };
 
 module.exports = siteConfig;

@@ -18,6 +18,7 @@ const RelayModernTestUtils = require('relay-test-utils');
 const RelayPublishQueue = require('../RelayPublishQueue');
 const RelayStoreUtils = require('../RelayStoreUtils');
 
+const defaultGetDataID = require('../defaultGetDataID');
 const getRelayHandleKey = require('../../util/getRelayHandleKey');
 const invariant = require('invariant');
 
@@ -129,7 +130,7 @@ describe('RelayPublishQueue', () => {
     });
 
     it('runs an `storeUpdater` and applies the changes to the store', () => {
-      const queue = new RelayPublishQueue(store);
+      const queue = new RelayPublishQueue(store, null, defaultGetDataID);
       const optimisticUpdate = {
         storeUpdater: storeProxy => {
           const zuck = storeProxy.get('4');
@@ -149,7 +150,7 @@ describe('RelayPublishQueue', () => {
     });
 
     it('runs an `selectorStoreUpdater` and applies the changes to the store', () => {
-      const queue = new RelayPublishQueue(store);
+      const queue = new RelayPublishQueue(store, null, defaultGetDataID);
       const optimisticUpdate = {
         operation: operationDescriptor,
         response: {
@@ -169,7 +170,7 @@ describe('RelayPublishQueue', () => {
     });
 
     it('handles aliases correctly when used with optimistic update', () => {
-      const queue = new RelayPublishQueue(store);
+      const queue = new RelayPublishQueue(store, null, defaultGetDataID);
       const optimisticUpdate = {
         operation: operationDescriptorAliased,
         response: {
@@ -189,7 +190,7 @@ describe('RelayPublishQueue', () => {
     });
 
     it('unpublishes changes from `storeUpdater` when reverted in the same run()', () => {
-      const queue = new RelayPublishQueue(store);
+      const queue = new RelayPublishQueue(store, null, defaultGetDataID);
       const optimisticUpdate = {
         storeUpdater: storeProxy => {
           const zuck = storeProxy.get('4');
@@ -204,7 +205,7 @@ describe('RelayPublishQueue', () => {
     });
 
     it('unpublishes changes from `selectorStoreUpdater` when reverted in the same run()', () => {
-      const queue = new RelayPublishQueue(store);
+      const queue = new RelayPublishQueue(store, null, defaultGetDataID);
       const optimisticUpdate = {
         operation: operationDescriptor,
         response: {
@@ -225,7 +226,7 @@ describe('RelayPublishQueue', () => {
     });
 
     it('unpublishes changes from `storeUpdater` when reverted in a subsequent run()', () => {
-      const queue = new RelayPublishQueue(store);
+      const queue = new RelayPublishQueue(store, null, defaultGetDataID);
       const optimisticUpdate = {
         storeUpdater: storeProxy => {
           const zuck = storeProxy.get('4');
@@ -241,7 +242,7 @@ describe('RelayPublishQueue', () => {
     });
 
     it('unpublishes changes from `selectorStoreUpdater` when reverted in a subsequent run()', () => {
-      const queue = new RelayPublishQueue(store);
+      const queue = new RelayPublishQueue(store, null, defaultGetDataID);
       const optimisticUpdate = {
         operation: operationDescriptor,
         response: {
@@ -263,7 +264,7 @@ describe('RelayPublishQueue', () => {
     });
 
     it('applies multiple updaters in the same run()', () => {
-      const queue = new RelayPublishQueue(store);
+      const queue = new RelayPublishQueue(store, null, defaultGetDataID);
       queue.applyUpdate({
         operation: operationDescriptor,
         response: {
@@ -288,7 +289,7 @@ describe('RelayPublishQueue', () => {
     });
 
     it('applies updates in subsequent run()s (payload then updater)', () => {
-      const queue = new RelayPublishQueue(store);
+      const queue = new RelayPublishQueue(store, null, defaultGetDataID);
       queue.applyUpdate({
         operation: operationDescriptor,
         response: {
@@ -313,7 +314,7 @@ describe('RelayPublishQueue', () => {
     });
 
     it('applies updates in subsequent run()s (updater then updater)', () => {
-      const queue = new RelayPublishQueue(store);
+      const queue = new RelayPublishQueue(store, null, defaultGetDataID);
       const optimisticUpdate = {
         storeUpdater: storeProxy => {
           const zuck = storeProxy.get('4');
@@ -340,7 +341,7 @@ describe('RelayPublishQueue', () => {
     });
 
     it('applies updates in subsequent run()s (payload then payload)', () => {
-      const queue = new RelayPublishQueue(store);
+      const queue = new RelayPublishQueue(store, null, defaultGetDataID);
       // First set `name`.
       const nameMutation = generateAndCompile(`
         mutation ChangeNameMutation(
@@ -420,7 +421,7 @@ describe('RelayPublishQueue', () => {
     });
 
     it('rebases changes when an earlier change is reverted', () => {
-      const queue = new RelayPublishQueue(store);
+      const queue = new RelayPublishQueue(store, null, defaultGetDataID);
       const optimisticUpdate = {
         operation: operationDescriptor,
         response: {
@@ -455,7 +456,7 @@ describe('RelayPublishQueue', () => {
     });
 
     it('rebases multiple changes on the same value', () => {
-      const queue = new RelayPublishQueue(store);
+      const queue = new RelayPublishQueue(store, null, defaultGetDataID);
       const incrementPopulation = {
         storeUpdater: storeProxy => {
           const mpk = storeProxy.get('mpk');
@@ -491,7 +492,7 @@ describe('RelayPublishQueue', () => {
 
     it('unpublishes previously rebased changes when reverted', () => {
       // Test that backups are created correctly during a rebase
-      const queue = new RelayPublishQueue(store);
+      const queue = new RelayPublishQueue(store, null, defaultGetDataID);
       const mutation1 = {
         storeUpdater: storeProxy => {
           const zuck = storeProxy.get('4');
@@ -544,7 +545,7 @@ describe('RelayPublishQueue', () => {
 
     it('reverts executed changes', () => {
       store.publish = jest.fn(store.publish.bind(store));
-      const queue = new RelayPublishQueue(store);
+      const queue = new RelayPublishQueue(store, null, defaultGetDataID);
       // Run the updates
       queue.applyUpdate({
         storeUpdater: storeProxy => {
@@ -572,7 +573,7 @@ describe('RelayPublishQueue', () => {
 
     it('reverts partially executed/unexecuted changes', () => {
       store.publish = jest.fn(store.publish.bind(store));
-      const queue = new RelayPublishQueue(store);
+      const queue = new RelayPublishQueue(store, null, defaultGetDataID);
       // Run the first update
       queue.applyUpdate({
         storeUpdater: storeProxy => {
@@ -600,7 +601,7 @@ describe('RelayPublishQueue', () => {
 
     it('reverts unexecuted changes', () => {
       store.publish = jest.fn(store.publish.bind(store));
-      const queue = new RelayPublishQueue(store);
+      const queue = new RelayPublishQueue(store, null, defaultGetDataID);
       // Apply but don't run the updates
       queue.applyUpdate({
         storeUpdater: storeProxy => {
@@ -624,7 +625,7 @@ describe('RelayPublishQueue', () => {
 
     it('reverts addition of new fields', () => {
       store.publish = jest.fn(store.publish.bind(store));
-      const queue = new RelayPublishQueue(store);
+      const queue = new RelayPublishQueue(store, null, defaultGetDataID);
       queue.applyUpdate({
         storeUpdater: storeProxy => {
           const zuck = storeProxy.get('4');
@@ -640,7 +641,7 @@ describe('RelayPublishQueue', () => {
 
     it('reverts addition of linked field', () => {
       store.publish = jest.fn(store.publish.bind(store));
-      const queue = new RelayPublishQueue(store);
+      const queue = new RelayPublishQueue(store, null, defaultGetDataID);
       queue.applyUpdate({
         storeUpdater: storeProxy => {
           const date = storeProxy.create('fookey', 'Date');
@@ -658,7 +659,7 @@ describe('RelayPublishQueue', () => {
 
     it('reverts addition of linked fields', () => {
       store.publish = jest.fn(store.publish.bind(store));
-      const queue = new RelayPublishQueue(store);
+      const queue = new RelayPublishQueue(store, null, defaultGetDataID);
       queue.applyUpdate({
         storeUpdater: storeProxy => {
           const phone1 = storeProxy.create('fookey1', 'Phone');
@@ -688,7 +689,7 @@ describe('RelayPublishQueue', () => {
         publish,
         holdGC: jest.fn(),
       };
-      const queue = new RelayPublishQueue(store);
+      const queue = new RelayPublishQueue(store, null, defaultGetDataID);
       const publishSource = new RelayInMemoryRecordSource();
       const {ActorQuery} = generateAndCompile(
         `
@@ -721,7 +722,7 @@ describe('RelayPublishQueue', () => {
         publish,
         holdGC: jest.fn(),
       };
-      const queue = new RelayPublishQueue(store);
+      const queue = new RelayPublishQueue(store, null, defaultGetDataID);
       const {ActorQuery} = generateAndCompile(
         `
         fragment UserFragment on User {
@@ -957,7 +958,7 @@ describe('RelayPublishQueue', () => {
       const initialData = simpleClone(sourceData);
       const source = new RelayInMemoryRecordSource(sourceData);
       const store = new RelayModernStore(source);
-      const queue = new RelayPublishQueue(store);
+      const queue = new RelayPublishQueue(store, null, defaultGetDataID);
       // Set name to 'MARK' *without* running the update
       queue.applyUpdate({
         storeUpdater: storeProxy => {
@@ -1017,7 +1018,7 @@ describe('RelayPublishQueue', () => {
       const initialData = simpleClone(sourceData);
       const source = new RelayInMemoryRecordSource(sourceData);
       const store = new RelayModernStore(source);
-      const queue = new RelayPublishQueue(store);
+      const queue = new RelayPublishQueue(store, null, defaultGetDataID);
       // Set name to 'MARK', running the update immediately
       queue.applyUpdate({
         storeUpdater: storeProxy => {
@@ -1078,7 +1079,7 @@ describe('RelayPublishQueue', () => {
       const initialData = simpleClone(sourceData);
       const source = new RelayInMemoryRecordSource(sourceData);
       const store = new RelayModernStore(source);
-      const queue = new RelayPublishQueue(store);
+      const queue = new RelayPublishQueue(store, null, defaultGetDataID);
       // Set name to 'MARK'
       const mutation = {
         storeUpdater: storeProxy => {
@@ -1140,7 +1141,7 @@ describe('RelayPublishQueue', () => {
       };
       const source = new RelayInMemoryRecordSource(sourceData);
       const store = new RelayModernStore(source);
-      const queue = new RelayPublishQueue(store);
+      const queue = new RelayPublishQueue(store, null, defaultGetDataID);
 
       const increaseVolumeUpdater = {
         storeUpdater: storeProxy => {
@@ -1187,7 +1188,7 @@ describe('RelayPublishQueue', () => {
       const initialData = simpleClone(sourceData);
       const source = new RelayInMemoryRecordSource(sourceData);
       const store = new RelayModernStore(source);
-      const queue = new RelayPublishQueue(store);
+      const queue = new RelayPublishQueue(store, null, defaultGetDataID);
       const buggyUpdater = storeProxy => {
         invariant(false, 'buggy updater throwing error');
       };
@@ -1248,7 +1249,7 @@ describe('RelayPublishQueue', () => {
         publish,
         holdGC: jest.fn(),
       };
-      const queue = new RelayPublishQueue(store);
+      const queue = new RelayPublishQueue(store, null, defaultGetDataID);
 
       const source = new RelayInMemoryRecordSource();
       const user = RelayModernRecord.create('1364586419', 'User');
@@ -1275,7 +1276,7 @@ describe('RelayPublishQueue', () => {
         const store = new RelayModernStore(
           new RelayInMemoryRecordSource(sourceData),
         );
-        queue = new RelayPublishQueue(store);
+        queue = new RelayPublishQueue(store, null, defaultGetDataID);
         const {nameQuery} = generateAndCompile(
           `
           query nameQuery {
@@ -1360,7 +1361,7 @@ describe('RelayPublishQueue', () => {
       const initialData = simpleClone(sourceData);
       const storeSource = new RelayInMemoryRecordSource(sourceData);
       const store = new RelayModernStore(storeSource);
-      const queue = new RelayPublishQueue(store);
+      const queue = new RelayPublishQueue(store, null, defaultGetDataID);
       // Set name to 'MARK', running the update immediately
       queue.applyUpdate({
         storeUpdater: storeProxy => {
@@ -1401,7 +1402,7 @@ describe('RelayPublishQueue', () => {
       const initialData = simpleClone(sourceData);
       const storeSource = new RelayInMemoryRecordSource(sourceData);
       const store = new RelayModernStore(storeSource);
-      const queue = new RelayPublishQueue(store);
+      const queue = new RelayPublishQueue(store, null, defaultGetDataID);
       // Set name to 'MARK'
       const mutation = {
         storeUpdater: storeProxy => {
@@ -1445,7 +1446,7 @@ describe('RelayPublishQueue', () => {
         publish,
         holdGC: jest.fn(),
       };
-      const queue = new RelayPublishQueue(store);
+      const queue = new RelayPublishQueue(store, null, defaultGetDataID);
       queue.commitUpdate(storeProxy => {
         const user = storeProxy.create('1364586419', 'User');
         user.setValue('Jan', 'name');
@@ -1475,7 +1476,7 @@ describe('RelayPublishQueue', () => {
         publish,
         holdGC: jest.fn(),
       };
-      const queue = new RelayPublishQueue(store);
+      const queue = new RelayPublishQueue(store, null, defaultGetDataID);
       queue.run();
       expect(publish).not.toBeCalled();
       expect(notify).toBeCalled();
@@ -1491,7 +1492,7 @@ describe('RelayPublishQueue', () => {
         publish,
         holdGC: jest.fn(),
       };
-      const queue = new RelayPublishQueue(store);
+      const queue = new RelayPublishQueue(store, null, defaultGetDataID);
       queue.applyUpdate({
         storeUpdater: storeProxy => {
           storeProxy.create('4', 'User');
@@ -1512,7 +1513,7 @@ describe('RelayPublishQueue', () => {
         publish,
         holdGC: jest.fn(),
       };
-      const queue = new RelayPublishQueue(store);
+      const queue = new RelayPublishQueue(store, null, defaultGetDataID);
       const mutation = {
         storeUpdater: storeProxy => {
           storeProxy.create('4', 'User');
@@ -1539,7 +1540,7 @@ describe('RelayPublishQueue', () => {
         publish,
         holdGC: jest.fn(),
       };
-      const queue = new RelayPublishQueue(store);
+      const queue = new RelayPublishQueue(store, null, defaultGetDataID);
 
       const {NameQuery} = generateAndCompile(
         `
@@ -1574,7 +1575,7 @@ describe('RelayPublishQueue', () => {
         publish: jest.fn(),
         holdGC,
       };
-      const queue = new RelayPublishQueue(store);
+      const queue = new RelayPublishQueue(store, null, defaultGetDataID);
       const mutation = {
         storeUpdater: storeProxy => {
           storeProxy.create('4', 'User');
@@ -1594,7 +1595,7 @@ describe('RelayPublishQueue', () => {
         publish: jest.fn(),
         holdGC,
       };
-      const queue = new RelayPublishQueue(store);
+      const queue = new RelayPublishQueue(store, null, defaultGetDataID);
       queue.run();
       expect(holdGC).not.toBeCalled();
     });
@@ -1611,7 +1612,7 @@ describe('RelayPublishQueue', () => {
         publish: jest.fn(),
         holdGC,
       };
-      const queue = new RelayPublishQueue(store);
+      const queue = new RelayPublishQueue(store, null, defaultGetDataID);
       const mutation = {
         storeUpdater: storeProxy => {
           storeProxy.create('4', 'User');

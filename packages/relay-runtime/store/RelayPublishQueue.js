@@ -23,6 +23,7 @@ const normalizeRelayPayload = require('./normalizeRelayPayload');
 import type {HandlerProvider} from '../handlers/RelayDefaultHandlerProvider';
 import type {SelectorData} from '../util/RelayCombinedEnvironmentTypes';
 import type {Disposable} from '../util/RelayRuntimeTypes';
+import type {GetDataID} from './RelayResponseNormalizer';
 import type {
   HandleFieldPayload,
   MutableRecordSource,
@@ -68,6 +69,7 @@ type DataToCommit =
 class RelayPublishQueue implements PublishQueue {
   _store: Store;
   _handlerProvider: ?HandlerProvider;
+  _getDataID: GetDataID;
 
   // A "negative" of all applied updaters. It can be published to the store to
   // undo them in order to re-apply some of them for a rebase.
@@ -88,7 +90,11 @@ class RelayPublishQueue implements PublishQueue {
   // Garbage collection hold, should rerun gc on dispose
   _gcHold: ?Disposable;
 
-  constructor(store: Store, handlerProvider?: ?HandlerProvider) {
+  constructor(
+    store: Store,
+    handlerProvider?: ?HandlerProvider,
+    getDataID: GetDataID,
+  ) {
     this._backup = new RelayInMemoryRecordSource();
     this._handlerProvider = handlerProvider || null;
     this._pendingBackupRebase = false;
@@ -98,6 +104,7 @@ class RelayPublishQueue implements PublishQueue {
     this._store = store;
     this._appliedOptimisticUpdates = new Set();
     this._gcHold = null;
+    this._getDataID = getDataID;
   }
 
   /**
@@ -208,7 +215,7 @@ class RelayPublishQueue implements PublishQueue {
       this._store.getSource(),
       source,
     );
-    const store = new RelayRecordSourceProxy(mutator);
+    const store = new RelayRecordSourceProxy(mutator, this._getDataID);
     if (fieldPayloads && fieldPayloads.length) {
       fieldPayloads.forEach(fieldPayload => {
         const handler =
@@ -261,7 +268,7 @@ class RelayPublishQueue implements PublishQueue {
         this._store.getSource(),
         sink,
       );
-      const store = new RelayRecordSourceProxy(mutator);
+      const store = new RelayRecordSourceProxy(mutator, this._getDataID);
       ErrorUtils.applyWithGuard(
         updater,
         null,
@@ -285,7 +292,11 @@ class RelayPublishQueue implements PublishQueue {
         sink,
         this._backup,
       );
-      const store = new RelayRecordSourceProxy(mutator, this._handlerProvider);
+      const store = new RelayRecordSourceProxy(
+        mutator,
+        this._getDataID,
+        this._handlerProvider,
+      );
 
       // rerun all updaters in case we are running a rebase
       if (this._pendingBackupRebase && this._appliedOptimisticUpdates.size) {
@@ -300,7 +311,12 @@ class RelayPublishQueue implements PublishQueue {
             // TODO: Fix commitPayload so we don't have to run normalize twice
             let selectorData, source;
             if (response) {
-              ({source} = normalizeRelayPayload(operation.root, response));
+              ({source} = normalizeRelayPayload(
+                operation.root,
+                response,
+                null,
+                {getDataID: this._getDataID},
+              ));
               selectorData = lookupSelector(
                 source,
                 operation.fragment,
@@ -344,7 +360,12 @@ class RelayPublishQueue implements PublishQueue {
             // TODO: Fix commitPayload so we don't have to run normalize twice
             let selectorData, source;
             if (response) {
-              ({source} = normalizeRelayPayload(operation.root, response));
+              ({source} = normalizeRelayPayload(
+                operation.root,
+                response,
+                null,
+                {getDataID: this._getDataID},
+              ));
               selectorData = lookupSelector(
                 source,
                 operation.fragment,

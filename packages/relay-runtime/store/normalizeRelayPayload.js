@@ -27,7 +27,7 @@ function normalizeRelayPayload(
   selector: NormalizationSelector,
   payload: PayloadData,
   errors: ?Array<PayloadError>,
-  options: NormalizationOptions = {handleStrippedNulls: false},
+  options: NormalizationOptions,
 ): RelayResponsePayload {
   const source = new RelayInMemoryRecordSource();
   source.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));

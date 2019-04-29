@@ -17,6 +17,7 @@ const RelayReader = require('./RelayReader');
 const RelayReferenceMarker = require('./RelayReferenceMarker');
 
 const deepFreeze = require('../util/deepFreeze');
+const defaultGetDataID = require('./defaultGetDataID');
 const hasOverlappingIDs = require('./hasOverlappingIDs');
 const recycleNodesInto = require('../util/recycleNodesInto');
 const resolveImmediate = require('resolveImmediate');
@@ -24,6 +25,7 @@ const resolveImmediate = require('resolveImmediate');
 const {UNPUBLISH_RECORD_SENTINEL} = require('./RelayStoreUtils');
 
 import type {Disposable} from '../util/RelayRuntimeTypes';
+import type {GetDataID} from './RelayResponseNormalizer';
 import type {
   MutableRecordSource,
   RecordSource,
@@ -65,11 +67,13 @@ class RelayModernStore implements Store {
   _updatedRecordIDs: UpdatedRecords;
   _gcHoldCounter: number;
   _shouldScheduleGC: boolean;
+  _getDataID: GetDataID;
 
   constructor(
     source: MutableRecordSource,
     gcScheduler: Scheduler = resolveImmediate,
     operationLoader: ?OperationLoader = null,
+    _UNSTABLE_DO_NOT_USE_getDataID?: ?GetDataID,
   ) {
     // Prevent mutation of a record from outside the store.
     if (__DEV__) {
@@ -91,6 +95,7 @@ class RelayModernStore implements Store {
     this._updatedRecordIDs = {};
     this._gcHoldCounter = 0;
     this._shouldScheduleGC = false;
+    this._getDataID = _UNSTABLE_DO_NOT_USE_getDataID ?? defaultGetDataID;
   }
 
   getSource(): RecordSource {
@@ -104,6 +109,7 @@ class RelayModernStore implements Store {
       selector,
       [],
       this._operationLoader,
+      this._getDataID,
     );
   }
 

@@ -56,7 +56,13 @@ import type {
   NormalizationSelector,
 } from './RelayStoreTypes';
 
+export type GetDataID = (
+  fieldValue: {[string]: mixed},
+  typeName: string,
+) => mixed;
+
 export type NormalizationOptions = {|
+  +getDataID: GetDataID,
   +handleStrippedNulls?: boolean,
   +path?: $ReadOnlyArray<string>,
 |};
@@ -78,7 +84,7 @@ function normalize(
   recordSource: MutableRecordSource,
   selector: NormalizationSelector,
   response: PayloadData,
-  options: NormalizationOptions = {handleStrippedNulls: false},
+  options: NormalizationOptions,
 ): NormalizedResponse {
   const {dataID, node, variables} = selector;
   const normalizer = new RelayResponseNormalizer(
@@ -102,12 +108,14 @@ class RelayResponseNormalizer {
   _path: Array<string>;
   _recordSource: MutableRecordSource;
   _variables: Variables;
+  _getDataId: GetDataID;
 
   constructor(
     recordSource: MutableRecordSource,
     variables: Variables,
     options: NormalizationOptions,
   ) {
+    this._getDataId = options.getDataID;
     this._handleFieldPayloads = [];
     this._handleStrippedNulls = options.handleStrippedNulls === true;
     this._incrementalPlaceholders = [];
@@ -378,7 +386,10 @@ class RelayResponseNormalizer {
       storageKey,
     );
     const nextID =
-      fieldValue.id ||
+      this._getDataId(
+        fieldValue,
+        field.concreteType ?? this._getRecordType(fieldValue),
+      ) ||
       // Reuse previously generated client IDs
       RelayModernRecord.getLinkedRecordID(record, storageKey) ||
       generateClientID(RelayModernRecord.getDataID(record), storageKey);
@@ -426,10 +437,12 @@ class RelayResponseNormalizer {
           'objects.',
         storageKey,
       );
-
       const nextID =
-        item.id ||
-        (prevIDs && prevIDs[nextIndex]) || // Reuse previously generated client IDs
+        this._getDataId(
+          item,
+          field.concreteType ?? this._getRecordType(item),
+        ) ||
+        (prevIDs && prevIDs[nextIndex]) || // Reuse previously generated client IDs:
         generateClientID(
           RelayModernRecord.getDataID(record),
           storageKey,

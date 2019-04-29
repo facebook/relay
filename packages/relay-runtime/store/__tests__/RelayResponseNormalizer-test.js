@@ -15,6 +15,8 @@ const RelayInMemoryRecordSource = require('../RelayInMemoryRecordSource');
 const RelayModernRecord = require('../RelayModernRecord');
 const RelayModernTestUtils = require('relay-test-utils');
 
+const defaultGetDataID = require('../defaultGetDataID');
+
 const {normalize} = require('../RelayResponseNormalizer');
 const {ROOT_ID, ROOT_TYPE} = require('../RelayStoreUtils');
 
@@ -25,6 +27,10 @@ describe('RelayResponseNormalizer', () => {
     generateWithTransforms,
     matchers,
   } = RelayModernTestUtils;
+
+  const defaultOptions = {
+    getDataID: defaultGetDataID,
+  };
 
   beforeEach(() => {
     jest.resetModules();
@@ -103,6 +109,7 @@ describe('RelayResponseNormalizer', () => {
         variables: {id: '1', size: 32},
       },
       payload,
+      defaultOptions,
     );
     const friendsID = 'client:1:friends(first:3)';
     const edgeID1 = `${friendsID}:edges:0`;
@@ -209,6 +216,7 @@ describe('RelayResponseNormalizer', () => {
         variables: {id: '1'},
       },
       payload,
+      defaultOptions,
     );
     expect(recordSource.toJSON()).toMatchSnapshot();
     expect(fieldPayloads.length).toBe(2);
@@ -288,6 +296,7 @@ describe('RelayResponseNormalizer', () => {
         variables: {id: '1', orderBy: ['last name'], isViewerFriend: true},
       },
       payload1,
+      defaultOptions,
     );
     expect(recordSource.toJSON()).toMatchSnapshot();
     expect(fieldPayloads.length).toBe(1);
@@ -325,6 +334,7 @@ describe('RelayResponseNormalizer', () => {
         variables: {id: '1', orderBy: ['first name'], isViewerFriend: true},
       },
       payload2,
+      defaultOptions,
     ).fieldPayloads;
     expect(recordSource.toJSON()).toMatchSnapshot();
     expect(fieldPayloads.length).toBe(1);
@@ -404,6 +414,7 @@ describe('RelayResponseNormalizer', () => {
           variables: {id: '1'},
         },
         payload,
+        defaultOptions,
       );
       expect(recordSource.toJSON()).toEqual({
         '1': {
@@ -480,7 +491,7 @@ describe('RelayResponseNormalizer', () => {
         payload,
         // simulate a nested @match that appeared, validate that nested payload
         // path is prefixed with this parent path:
-        {path: ['abc', '0', 'xyz']},
+        {...defaultOptions, path: ['abc', '0', 'xyz']},
       );
       expect(recordSource.toJSON()).toEqual({
         '1': {
@@ -550,6 +561,7 @@ describe('RelayResponseNormalizer', () => {
           variables: {id: '1'},
         },
         payload,
+        defaultOptions,
       );
       expect(recordSource.toJSON()).toEqual({
         '1': {
@@ -594,6 +606,7 @@ describe('RelayResponseNormalizer', () => {
           variables: {id: '1'},
         },
         payload,
+        defaultOptions,
       );
       expect(recordSource.toJSON()).toEqual({
         '1': {
@@ -677,6 +690,7 @@ describe('RelayResponseNormalizer', () => {
           variables: {id: '1'},
         },
         payload,
+        defaultOptions,
       );
       expect(recordSource.toJSON()).toEqual({
         '1': {
@@ -750,7 +764,7 @@ describe('RelayResponseNormalizer', () => {
         payload,
         // simulate a nested @match that appeared, validate that nested payload
         // path is prefixed with this parent path:
-        {path: ['abc', '0', 'xyz']},
+        {...defaultOptions, path: ['abc', '0', 'xyz']},
       );
       expect(recordSource.toJSON()).toEqual({
         '1': {
@@ -817,6 +831,7 @@ describe('RelayResponseNormalizer', () => {
           variables: {id: '1'},
         },
         payload,
+        defaultOptions,
       );
       expect(recordSource.toJSON()).toEqual({
         '1': {
@@ -874,6 +889,7 @@ describe('RelayResponseNormalizer', () => {
           variables: {id: '1', enableDefer: false},
         },
         payload,
+        defaultOptions,
       );
       expect(incrementalPlaceholders).toEqual([]);
       expect(recordSource.toJSON()).toEqual({
@@ -923,6 +939,7 @@ describe('RelayResponseNormalizer', () => {
           variables: {id: '1'},
         },
         payload,
+        defaultOptions,
       );
       expect(incrementalPlaceholders).toEqual([
         {
@@ -984,6 +1001,7 @@ describe('RelayResponseNormalizer', () => {
           variables: {id: '1', enableDefer: true},
         },
         payload,
+        defaultOptions,
       );
       expect(incrementalPlaceholders).toEqual([
         {
@@ -1051,6 +1069,7 @@ describe('RelayResponseNormalizer', () => {
           variables: {id: '1'},
         },
         payload,
+        defaultOptions,
       );
       expect(incrementalPlaceholders).toEqual([
         {
@@ -1136,7 +1155,7 @@ describe('RelayResponseNormalizer', () => {
         payload,
         // simulate a nested defer payload, verify that the incrementalPlaceholders
         // paths are prefixed with this parent path
-        {path: ['abc', '0', 'xyz']},
+        {...defaultOptions, path: ['abc', '0', 'xyz']},
       );
       expect(incrementalPlaceholders).toEqual([
         {
@@ -1189,6 +1208,7 @@ describe('RelayResponseNormalizer', () => {
           variables: {id: '1', enableStream: false},
         },
         payload,
+        defaultOptions,
       );
       expect(incrementalPlaceholders).toEqual([]);
       expect(recordSource.toJSON()).toEqual({
@@ -1246,6 +1266,7 @@ describe('RelayResponseNormalizer', () => {
           variables: {id: '1'},
         },
         payload,
+        defaultOptions,
       );
       expect(incrementalPlaceholders).toEqual([
         {
@@ -1312,6 +1333,7 @@ describe('RelayResponseNormalizer', () => {
           variables: {id: '1', enableStream: true},
         },
         payload,
+        defaultOptions,
       );
       expect(incrementalPlaceholders).toEqual([
         {
@@ -1386,6 +1408,7 @@ describe('RelayResponseNormalizer', () => {
           variables: {id: '1'},
         },
         payload,
+        defaultOptions,
       );
       expect(incrementalPlaceholders).toEqual([
         {
@@ -1470,7 +1493,7 @@ describe('RelayResponseNormalizer', () => {
         payload,
         // simulate a nested @match that appeared, validate that nested payload
         // path is prefixed with this parent path:
-        {path: ['abc', '0', 'xyz']},
+        {...defaultOptions, path: ['abc', '0', 'xyz']},
       );
       expect(incrementalPlaceholders).toEqual([
         {
@@ -1547,7 +1570,7 @@ describe('RelayResponseNormalizer', () => {
           variables: {id: '1', size: 32},
         },
         payload,
-        {handleStrippedNulls: true},
+        {...defaultOptions, handleStrippedNulls: true},
       );
       const result = {
         '1': {
@@ -1572,7 +1595,7 @@ describe('RelayResponseNormalizer', () => {
           variables: {id: '1', size: 32},
         },
         payload,
-        {handleStrippedNulls: false},
+        {...defaultOptions, handleStrippedNulls: false},
       );
       expect(recordSource.toJSON()).toEqual(result);
     });
@@ -1599,7 +1622,7 @@ describe('RelayResponseNormalizer', () => {
           variables: {id: '1', size: 32},
         },
         payload,
-        {handleStrippedNulls: true},
+        {...defaultOptions, handleStrippedNulls: true},
       );
       const result = {
         '1': {
@@ -1623,7 +1646,7 @@ describe('RelayResponseNormalizer', () => {
           variables: {id: '1', size: 32},
         },
         payload,
-        {handleStrippedNulls: false},
+        {...defaultOptions, handleStrippedNulls: false},
       );
       expect(recordSource.toJSON()).toEqual(result);
     });
@@ -1665,7 +1688,7 @@ describe('RelayResponseNormalizer', () => {
           variables: {id: '1', size: 32},
         },
         payload,
-        {handleStrippedNulls: true},
+        {...defaultOptions, handleStrippedNulls: true},
       );
       const result = {
         '1': {
@@ -1704,7 +1727,7 @@ describe('RelayResponseNormalizer', () => {
           variables: {id: '1', size: 32},
         },
         payload,
-        {handleStrippedNulls: false},
+        {...defaultOptions, handleStrippedNulls: false},
       );
       expect(recordSource.toJSON()).toEqual(result);
     });
@@ -1738,7 +1761,7 @@ describe('RelayResponseNormalizer', () => {
           variables: {id: '1', size: 32},
         },
         payload,
-        {handleStrippedNulls: true},
+        {...defaultOptions, handleStrippedNulls: true},
       );
       const result = {
         '1': {
@@ -1769,9 +1792,673 @@ describe('RelayResponseNormalizer', () => {
           variables: {id: '1', size: 32},
         },
         payload,
-        {handleStrippedNulls: false},
+        {...defaultOptions, handleStrippedNulls: false},
       );
       expect(recordSource.toJSON()).toEqual(result);
+    });
+  });
+
+  describe('User-defined getDataID', () => {
+    let recordSource;
+
+    const getDataID = jest.fn((fieldValue, typename) => {
+      return `${fieldValue.id}:${typename}`;
+    });
+
+    const getNullAsDataID = jest.fn((fieldValue, typename) => {
+      return null;
+    });
+
+    beforeEach(() => {
+      recordSource = new RelayInMemoryRecordSource();
+      recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
+    });
+
+    afterEach(() => {
+      jest.clearAllMocks();
+    });
+
+    describe('single field', () => {
+      const {BarQuery} = generateAndCompile(
+        `
+          query BarQuery($id: ID) {
+            node(id: $id) {
+              id
+              __typename
+              ... on User {
+                actor {
+                  id
+                  __typename
+                }
+                author {
+                  id
+                  __typename
+                }
+              }
+            }
+          }
+        `,
+      );
+      const payload = {
+        node: {
+          id: '1',
+          __typename: 'User',
+          actor: {
+            id: '1',
+            __typename: 'Page',
+          },
+          author: {
+            id: '1',
+            __typename: 'User',
+          },
+        },
+      };
+
+      it('Overwrite fields in same position but with different data', () => {
+        const {Foo} = generateAndCompile(
+          `query Foo {
+            me {
+              author {
+                id
+                name
+              }
+            }
+            meAgain: me {
+              author {
+                id
+                name
+              }
+            }
+          }
+          `,
+        );
+        const fooPayload = {
+          me: {
+            __typename: 'User',
+            id: 'me',
+            author: {
+              id: 'friend1',
+              name: 'First Friend',
+            },
+          },
+          meAgain: {
+            __typename: 'User',
+            id: 'me',
+            author: {
+              id: 'friend2',
+              name: 'Second Friend',
+            },
+          },
+        };
+        normalize(
+          recordSource,
+          {
+            dataID: ROOT_ID,
+            node: Foo.operation,
+            variables: {id: '1'},
+          },
+          fooPayload,
+          {getDataID},
+        );
+        expect(recordSource.toJSON()).toEqual({
+          'client:root': {
+            __id: 'client:root',
+            __typename: '__Root',
+            me: {
+              __ref: 'me:User',
+            },
+          },
+          'friend1:User': {
+            __id: 'friend1:User',
+            __typename: 'User',
+            id: 'friend1',
+            name: 'First Friend',
+          },
+          'friend2:User': {
+            __id: 'friend2:User',
+            __typename: 'User',
+            id: 'friend2',
+            name: 'Second Friend',
+          },
+          'me:User': {
+            __id: 'me:User',
+            __typename: 'User',
+            author: {
+              __ref: 'friend2:User', // Should be the second one
+            },
+            id: 'me',
+          },
+        });
+      });
+
+      it('Overwrite fields in same position but with different data in second normalization', () => {
+        const {Foo} = generateAndCompile(
+          `query Foo {
+            me {
+              author {
+                id
+                name
+              }
+            }
+          }
+          `,
+        );
+
+        const fooPayload0 = {
+          me: {
+            __typename: 'User',
+            id: 'me',
+            author: {
+              id: 'friend0',
+              name: 'First Friend',
+            },
+          },
+        };
+        const fooPayload1 = {
+          me: {
+            __typename: 'User',
+            id: 'me',
+            author: {
+              id: 'friend1',
+              name: 'Second Friend',
+            },
+          },
+        };
+        normalize(
+          recordSource,
+          {
+            dataID: ROOT_ID,
+            node: Foo.operation,
+            variables: {id: '1'},
+          },
+          fooPayload0,
+          {getDataID},
+        );
+        normalize(
+          recordSource,
+          {
+            dataID: ROOT_ID,
+            node: Foo.operation,
+            variables: {id: '1'},
+          },
+          fooPayload1,
+          {getDataID},
+        );
+        expect(recordSource.toJSON()).toEqual({
+          'client:root': {
+            __id: 'client:root',
+            __typename: '__Root',
+            me: {
+              __ref: 'me:User',
+            },
+          },
+          'friend0:User': {
+            __id: 'friend0:User',
+            __typename: 'User',
+            id: 'friend0',
+            name: 'First Friend',
+          },
+          'friend1:User': {
+            __id: 'friend1:User',
+            __typename: 'User',
+            id: 'friend1',
+            name: 'Second Friend',
+          },
+          'me:User': {
+            __id: 'me:User',
+            __typename: 'User',
+            author: {
+              __ref: 'friend1:User', // Should be the second one
+            },
+            id: 'me',
+          },
+        });
+      });
+
+      it('stores user-defined id when function returns an string', () => {
+        normalize(
+          recordSource,
+          {
+            dataID: ROOT_ID,
+            node: BarQuery.operation,
+            variables: {id: '1'},
+          },
+          payload,
+          {getDataID},
+        );
+        expect(recordSource.toJSON()).toEqual({
+          '1:Page': {
+            __id: '1:Page',
+            __typename: 'Page',
+            id: '1',
+          },
+          '1:User': {
+            __id: '1:User',
+            __typename: 'User',
+            actor: {
+              __ref: '1:Page',
+            },
+            author: {
+              __ref: '1:User',
+            },
+            id: '1',
+          },
+          'client:root': {
+            __id: 'client:root',
+            __typename: '__Root',
+            'node(id:"1")': {
+              __ref: '1:User',
+            },
+          },
+        });
+        expect(getDataID).toBeCalledTimes(3);
+      });
+
+      it('falls through to previously generated ID if function returns null ', () => {
+        const previousData = {
+          'client:root': {
+            __id: 'client:root',
+            __typename: '__Root',
+            'node(id:"1")': {
+              __ref: 'test:root:node(id:"1")',
+            },
+          },
+          'test:root:node(id:"1")': {
+            __id: 'test:root:node(id:"1")',
+            __typename: 'User',
+            actor: {
+              __ref: 'test:root:node(id:"1"):actor',
+            },
+            author: {
+              __ref: 'test:root:node(id:"1"):author',
+            },
+            id: '1',
+          },
+          'test:root:node(id:"1"):actor': {
+            __id: 'test:root:node(id:"1"):actor',
+            __typename: 'Page',
+            id: '1',
+          },
+          'test:root:node(id:"1"):author': {
+            __id: 'test:root:node(id:"1"):author',
+            __typename: 'User',
+            id: '1',
+          },
+        };
+        const expectedData = JSON.parse(JSON.stringify(previousData));
+        recordSource = new RelayInMemoryRecordSource(previousData);
+        normalize(
+          recordSource,
+          {
+            dataID: ROOT_ID,
+            node: BarQuery.operation,
+            variables: {id: '1'},
+          },
+          payload,
+          {getDataID: getNullAsDataID},
+        );
+        expect(recordSource.toJSON()).toEqual(expectedData);
+        expect(getNullAsDataID).toBeCalledTimes(3);
+      });
+
+      it('falls through to generateClientID when the function returns null, and no previously generated ID', () => {
+        normalize(
+          recordSource,
+          {
+            dataID: ROOT_ID,
+            node: BarQuery.operation,
+            variables: {id: '1'},
+          },
+          payload,
+          {getDataID: getNullAsDataID},
+        );
+        expect(recordSource.toJSON()).toEqual({
+          'client:root': {
+            __id: 'client:root',
+            __typename: '__Root',
+            'node(id:"1")': {
+              __ref: 'client:root:node(id:"1")',
+            },
+          },
+          'client:root:node(id:"1")': {
+            __id: 'client:root:node(id:"1")',
+            __typename: 'User',
+            actor: {
+              __ref: 'client:root:node(id:"1"):actor',
+            },
+            author: {
+              __ref: 'client:root:node(id:"1"):author',
+            },
+            id: '1',
+          },
+          'client:root:node(id:"1"):actor': {
+            __id: 'client:root:node(id:"1"):actor',
+            __typename: 'Page',
+            id: '1',
+          },
+          'client:root:node(id:"1"):author': {
+            __id: 'client:root:node(id:"1"):author',
+            __typename: 'User',
+            id: '1',
+          },
+        });
+        expect(getNullAsDataID).toBeCalledTimes(3);
+      });
+    });
+
+    describe('plural fileds', () => {
+      const {BarQuery} = generateWithTransforms(
+        `
+          query BarQuery($id: ID) {
+            node(id: $id) {
+              id
+              __typename
+              ... on User {
+                actors {
+                  id
+                  __typename
+                }
+              }
+            }
+          }
+        `,
+      );
+      const payload = {
+        node: {
+          id: '1',
+          __typename: 'User',
+          actors: [
+            {
+              id: '1',
+              __typename: 'Page',
+            },
+            {
+              id: '2',
+              __typename: 'Page',
+            },
+          ],
+        },
+      };
+
+      it('stores user-defined ids when function returns an string', () => {
+        normalize(
+          recordSource,
+          {
+            dataID: ROOT_ID,
+            node: BarQuery.operation,
+            variables: {id: '1'},
+          },
+          payload,
+          {getDataID},
+        );
+        expect(recordSource.toJSON()).toEqual({
+          '1:Page': {
+            __id: '1:Page',
+            __typename: 'Page',
+            id: '1',
+          },
+          '2:Page': {
+            __id: '2:Page',
+            __typename: 'Page',
+            id: '2',
+          },
+          '1:User': {
+            __id: '1:User',
+            __typename: 'User',
+            actors: {
+              __refs: ['1:Page', '2:Page'],
+            },
+            id: '1',
+          },
+          'client:root': {
+            __id: 'client:root',
+            __typename: '__Root',
+            'node(id:"1")': {
+              __ref: '1:User',
+            },
+          },
+        });
+        expect(getDataID).toBeCalledTimes(3);
+      });
+
+      it('uses cached IDs if they were generated before and the function returns null', () => {
+        const previousData = {
+          'client:root': {
+            __id: 'client:root',
+            __typename: '__Root',
+            'node(id:"1")': {
+              __ref: 'test:root:node(id:"1")',
+            },
+          },
+          'test:root:node(id:"1")': {
+            __id: 'test:root:node(id:"1")',
+            __typename: 'User',
+            actors: {
+              __refs: [
+                'test:root:node(id:"1"):actor:0',
+                'test:root:node(id:"1"):actor:1',
+              ],
+            },
+            id: '1',
+          },
+          'test:root:node(id:"1"):actor:0': {
+            __id: 'test:root:node(id:"1"):actor:0',
+            __typename: 'Page',
+            id: '1',
+          },
+          'test:root:node(id:"1"):actor:1': {
+            __id: 'test:root:node(id:"1"):actor:1',
+            __typename: 'Page',
+            id: '2',
+          },
+        };
+        recordSource = new RelayInMemoryRecordSource(previousData);
+        const expectedData = JSON.parse(JSON.stringify(previousData));
+        normalize(
+          recordSource,
+          {
+            dataID: ROOT_ID,
+            node: BarQuery.operation,
+            variables: {id: '1'},
+          },
+          payload,
+          {getDataID: getNullAsDataID},
+        );
+        expect(recordSource.toJSON()).toEqual(expectedData);
+        expect(getNullAsDataID).toBeCalledTimes(3);
+      });
+
+      it('falls through to generateClientID when the function returns null and there is one new field in stored plural links', () => {
+        const data = {
+          'client:root': {
+            __id: 'client:root',
+            __typename: '__Root',
+            'node(id:"1")': {
+              __ref: 'test:root:node(id:"1")',
+            },
+          },
+          'test:root:node(id:"1")': {
+            __id: 'test:root:node(id:"1")',
+            __typename: 'User',
+            actors: {
+              __refs: ['test:root:node(id:"1"):actor:0'],
+            },
+            id: '1',
+          },
+          'test:root:node(id:"1"):actor:0': {
+            __id: 'test:root:node(id:"1"):actor:0',
+            __typename: 'Page',
+            id: '1',
+          },
+        };
+        recordSource = new RelayInMemoryRecordSource(data);
+        normalize(
+          recordSource,
+          {
+            dataID: ROOT_ID,
+            node: BarQuery.operation,
+            variables: {id: '1'},
+          },
+          payload,
+          {getDataID: getNullAsDataID},
+        );
+        expect(data['test:root:node(id:"1")']).toEqual({
+          __id: 'test:root:node(id:"1")',
+          __typename: 'User',
+          actors: {
+            __refs: [
+              'test:root:node(id:"1"):actor:0',
+              'client:test:root:node(id:"1"):actors:1',
+            ],
+          },
+          id: '1',
+        });
+        expect(data['client:test:root:node(id:"1"):actors:1']).toEqual({
+          __id: 'client:test:root:node(id:"1"):actors:1',
+          __typename: 'Page',
+          id: '2',
+        });
+        expect(getNullAsDataID).toBeCalledTimes(3);
+      });
+
+      it('falls through to generateClientID when the function returns null and no preiously generated IDs', () => {
+        normalize(
+          recordSource,
+          {
+            dataID: ROOT_ID,
+            node: BarQuery.operation,
+            variables: {id: '1'},
+          },
+          payload,
+          {getDataID: getNullAsDataID},
+        );
+        expect(recordSource.toJSON()).toEqual({
+          'client:root': {
+            __id: 'client:root',
+            __typename: '__Root',
+            'node(id:"1")': {
+              __ref: 'client:root:node(id:"1")',
+            },
+          },
+          'client:root:node(id:"1")': {
+            __id: 'client:root:node(id:"1")',
+            __typename: 'User',
+            actors: {
+              __refs: [
+                'client:root:node(id:"1"):actors:0',
+                'client:root:node(id:"1"):actors:1',
+              ],
+            },
+            id: '1',
+          },
+          'client:root:node(id:"1"):actors:0': {
+            __id: 'client:root:node(id:"1"):actors:0',
+            __typename: 'Page',
+            id: '1',
+          },
+          'client:root:node(id:"1"):actors:1': {
+            __id: 'client:root:node(id:"1"):actors:1',
+            __typename: 'Page',
+            id: '2',
+          },
+        });
+        expect(getNullAsDataID).toBeCalledTimes(3);
+      });
+
+      it('Overwrite fields in same position but with different data in second normalization', () => {
+        const {Foo} = generateWithTransforms(
+          `
+            query Foo($id: ID) {
+              node(id: $id) {
+                id
+                __typename
+                ... on User {
+                  actors {
+                    id
+                    name
+                    __typename
+                  }
+                }
+              }
+            }
+          `,
+        );
+        const payload0 = {
+          node: {
+            id: '1',
+            __typename: 'User',
+            actors: [
+              {
+                id: '1',
+                __typename: 'Page',
+                name: 'Page0',
+              },
+            ],
+          },
+        };
+        const payload1 = {
+          node: {
+            id: '1',
+            __typename: 'User',
+            actors: [
+              {
+                id: '2',
+                __typename: 'Page',
+                name: 'Page1',
+              },
+            ],
+          },
+        };
+        normalize(
+          recordSource,
+          {
+            dataID: ROOT_ID,
+            node: Foo.operation,
+            variables: {id: '1'},
+          },
+          payload0,
+          {getDataID},
+        );
+        normalize(
+          recordSource,
+          {
+            dataID: ROOT_ID,
+            node: Foo.operation,
+            variables: {id: '1'},
+          },
+          payload1,
+          {getDataID},
+        );
+        expect(recordSource.toJSON()).toEqual({
+          '1:Page': {
+            __id: '1:Page',
+            __typename: 'Page',
+            id: '1',
+            name: 'Page0',
+          },
+          '2:Page': {
+            __id: '2:Page',
+            __typename: 'Page',
+            id: '2',
+            name: 'Page1',
+          },
+          '1:User': {
+            __id: '1:User',
+            __typename: 'User',
+            actors: {
+              __refs: ['2:Page'], // Should be the second one
+            },
+            id: '1',
+          },
+          'client:root': {
+            __id: 'client:root',
+            __typename: '__Root',
+            'node(id:"1")': {
+              __ref: '1:User',
+            },
+          },
+        });
+      });
     });
   });
 
@@ -1814,7 +2501,7 @@ describe('RelayResponseNormalizer', () => {
           variables: {id: '1'},
         },
         payload,
-        {handleStrippedNulls: true},
+        {...defaultOptions, handleStrippedNulls: true},
       );
     }).toWarn([
       'RelayResponseNormalizer(): Payload did not contain a value for ' +
@@ -1855,7 +2542,7 @@ describe('RelayResponseNormalizer', () => {
           variables: {},
         },
         payload,
-        {handleStrippedNulls: true},
+        {...defaultOptions, handleStrippedNulls: true},
       );
     }).not.toWarn([
       'RelayResponseNormalizer(): Payload did not contain a value for ' +
@@ -1916,7 +2603,7 @@ describe('RelayResponseNormalizer', () => {
           variables: {id: '1'},
         },
         payload,
-        {handleStrippedNulls: true},
+        {...defaultOptions, handleStrippedNulls: true},
       );
     }).toWarn([
       'RelayResponseNormalizer: Invalid record `%s`. Expected %s to be ' +
@@ -1937,7 +2624,7 @@ describe('RelayResponseNormalizer', () => {
           variables: {id: '1'},
         },
         payload,
-        {handleStrippedNulls: true},
+        {...defaultOptions, handleStrippedNulls: true},
       );
     }).toWarn([
       'RelayResponseNormalizer: Invalid record `%s`. Expected %s to be ' +
@@ -2001,7 +2688,7 @@ describe('RelayResponseNormalizer', () => {
           variables: {id: '1'},
         },
         payload,
-        {handleStrippedNulls: true},
+        {...defaultOptions, handleStrippedNulls: true},
       );
     }).not.toWarn();
     expect(() => {
@@ -2013,7 +2700,7 @@ describe('RelayResponseNormalizer', () => {
           variables: {id: '1'},
         },
         payload,
-        {handleStrippedNulls: true},
+        {...defaultOptions, handleStrippedNulls: true},
       );
     }).not.toWarn();
   });
@@ -2052,7 +2739,7 @@ describe('RelayResponseNormalizer', () => {
         variables: {id: '1', size: 32},
       },
       payload,
-      {handleStrippedNulls: false},
+      {...defaultOptions, handleStrippedNulls: false},
     );
     expect(recordSource.toJSON()).toEqual({
       '1': {

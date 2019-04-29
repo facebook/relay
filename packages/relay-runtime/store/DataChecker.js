@@ -31,6 +31,7 @@ import type {
 } from '../util/NormalizationNode';
 import type {Record} from '../util/RelayCombinedEnvironmentTypes';
 import type {DataID, Variables} from '../util/RelayRuntimeTypes';
+import type {GetDataID} from './RelayResponseNormalizer';
 import type {
   OperationLoader,
   MissingFieldHandler,
@@ -74,6 +75,7 @@ function check(
   selector: NormalizationSelector,
   handlers: $ReadOnlyArray<MissingFieldHandler>,
   operationLoader: ?OperationLoader,
+  getDataID: GetDataID,
 ): boolean {
   const {dataID, node, variables} = selector;
   const checker = new DataChecker(
@@ -82,6 +84,7 @@ function check(
     variables,
     handlers,
     operationLoader,
+    getDataID,
   );
   return checker.check(node, dataID);
 }
@@ -104,6 +107,7 @@ class DataChecker {
     variables: Variables,
     handlers: $ReadOnlyArray<MissingFieldHandler>,
     operationLoader: ?OperationLoader,
+    getDataID: GetDataID,
   ) {
     this._operationLoader = operationLoader ?? null;
     this._handlers = handlers;
@@ -111,7 +115,10 @@ class DataChecker {
     this._recordWasMissing = false;
     this._source = source;
     this._variables = variables;
-    this._recordSourceProxy = new RelayRecordSourceProxy(this._mutator);
+    this._recordSourceProxy = new RelayRecordSourceProxy(
+      this._mutator,
+      getDataID,
+    );
   }
 
   check(node: NormalizationNode, dataID: DataID): boolean {

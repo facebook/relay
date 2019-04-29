@@ -20,6 +20,7 @@ const RelayRecordSourceProxy = require('../../../mutations/RelayRecordSourceProx
 const RelayResponseNormalizer = require('../../../store/RelayResponseNormalizer');
 const RelayStoreUtils = require('../../../store/RelayStoreUtils');
 
+const defaultGetDataID = require('../../../store/defaultGetDataID');
 const getRelayHandleKey = require('../../../util/getRelayHandleKey');
 
 const {
@@ -58,6 +59,9 @@ describe('RelayConnectionHandler', () => {
         variables,
       },
       payload,
+      {
+        getDataID: defaultGetDataID,
+      },
     );
   }
 
@@ -75,7 +79,7 @@ describe('RelayConnectionHandler', () => {
     sinkData = {};
     sinkSource = new RelayInMemoryRecordSource(sinkData);
     mutator = new RelayRecordSourceMutator(baseSource, sinkSource);
-    proxy = new RelayRecordSourceProxy(mutator);
+    proxy = new RelayRecordSourceProxy(mutator, defaultGetDataID);
 
     ({ConnectionQuery} = generateWithTransforms(
       `
@@ -166,7 +170,7 @@ describe('RelayConnectionHandler', () => {
       sinkData = {};
       sinkSource = new RelayInMemoryRecordSource(sinkData);
       mutator = new RelayRecordSourceMutator(baseSource, sinkSource);
-      proxy = new RelayRecordSourceProxy(mutator);
+      proxy = new RelayRecordSourceProxy(mutator, defaultGetDataID);
 
       connection = RelayConnectionHandler.getConnection(
         proxy.get('4'),
@@ -297,7 +301,7 @@ describe('RelayConnectionHandler', () => {
       sinkData = {};
       sinkSource = new RelayInMemoryRecordSource(sinkData);
       mutator = new RelayRecordSourceMutator(baseSource, sinkSource);
-      proxy = new RelayRecordSourceProxy(mutator);
+      proxy = new RelayRecordSourceProxy(mutator, defaultGetDataID);
 
       connection = RelayConnectionHandler.getConnection(
         proxy.get('4'),
@@ -431,7 +435,7 @@ describe('RelayConnectionHandler', () => {
       sinkData = {};
       sinkSource = new RelayInMemoryRecordSource(sinkData);
       mutator = new RelayRecordSourceMutator(baseSource, sinkSource);
-      proxy = new RelayRecordSourceProxy(mutator);
+      proxy = new RelayRecordSourceProxy(mutator, defaultGetDataID);
 
       connection = RelayConnectionHandler.getConnection(
         proxy.get('4'),
@@ -739,7 +743,7 @@ describe('RelayConnectionHandler', () => {
         sinkData = {};
         sinkSource = new RelayInMemoryRecordSource(sinkData);
         mutator = new RelayRecordSourceMutator(baseSource, sinkSource);
-        proxy = new RelayRecordSourceProxy(mutator);
+        proxy = new RelayRecordSourceProxy(mutator, defaultGetDataID);
       });
 
       it('appends new edges', () => {

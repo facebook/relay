@@ -19,6 +19,7 @@ const RelayModernQueryExecutor = require('./RelayModernQueryExecutor');
 const RelayObservable = require('../network/RelayObservable');
 const RelayPublishQueue = require('./RelayPublishQueue');
 
+const defaultGetDataID = require('./defaultGetDataID');
 const invariant = require('invariant');
 const normalizeRelayPayload = require('./normalizeRelayPayload');
 const warning = require('warning');
@@ -49,6 +50,7 @@ import type {
 import type {CacheConfig, Disposable} from '../util/RelayRuntimeTypes';
 import type {TaskScheduler} from './RelayModernQueryExecutor';
 import type RelayOperationTracker from './RelayOperationTracker';
+import type {GetDataID} from './RelayResponseNormalizer';
 
 export type EnvironmentConfig = {|
   +configName?: string,
@@ -60,6 +62,12 @@ export type EnvironmentConfig = {|
   +missingFieldHandlers?: ?$ReadOnlyArray<MissingFieldHandler>,
   +publishQueue?: ?PublishQueue,
   +operationTracker?: ?RelayOperationTracker,
+  /*
+    This method is likely to change in future versions, use at your own risk.
+    It can potentially break existing calls like store.get(<id>),
+    because the internal ID might not be the `id` field on the node anymore
+  */
+  +_UNSTABLE_DO_NOT_USE_getDataID?: ?GetDataID,
 |};
 
 class RelayModernEnvironment implements Environment {
@@ -72,6 +80,7 @@ class RelayModernEnvironment implements Environment {
   unstable_internal: UnstableEnvironmentCore;
   _missingFieldHandlers: ?$ReadOnlyArray<MissingFieldHandler>;
   _operationTracker: ?RelayOperationTracker;
+  _getDataID: GetDataID;
 
   constructor(config: EnvironmentConfig) {
     this.configName = config.configName;
@@ -93,9 +102,10 @@ class RelayModernEnvironment implements Environment {
     }
     this._operationLoader = operationLoader;
     this._network = config.network;
+    this._getDataID = config._UNSTABLE_DO_NOT_USE_getDataID ?? defaultGetDataID;
     this._publishQueue =
       config.publishQueue ??
-      new RelayPublishQueue(config.store, handlerProvider);
+      new RelayPublishQueue(config.store, handlerProvider, this._getDataID);
     this._scheduler = config.scheduler ?? null;
     this._store = config.store;
     this.unstable_internal = {
@@ -195,6 +205,8 @@ class RelayModernEnvironment implements Environment {
     const relayPayload = normalizeRelayPayload(
       operationDescriptor.root,
       payload,
+      null /* errors */,
+      {getDataID: this._getDataID},
     );
     this._publishQueue.commitPayload(operationDescriptor, relayPayload);
     this._publishQueue.run();
@@ -231,6 +243,7 @@ class RelayModernEnvironment implements Environment {
       selector,
       handlers,
       this._operationLoader,
+      this._getDataID,
     );
     if (target.size() > 0) {
       this._publishQueue.commitSource(target);
@@ -272,6 +285,7 @@ class RelayModernEnvironment implements Environment {
         source,
         updater,
         operationTracker: this._operationTracker,
+        getDataID: this._getDataID,
       });
       return () => executor.cancel();
     });
@@ -325,6 +339,7 @@ class RelayModernEnvironment implements Environment {
         source,
         updater,
         operationTracker: this._operationTracker,
+        getDataID: this._getDataID,
       });
       return () => executor.cancel();
     });
@@ -355,6 +370,7 @@ class RelayModernEnvironment implements Environment {
         scheduler: this._scheduler,
         sink,
         source,
+        getDataID: this._getDataID,
       });
       return () => executor.cancel();
     });

@@ -45,17 +45,19 @@ import type {
 import type {NormalizationSplitOperation} from '../util/NormalizationNode';
 import type {Record} from '../util/RelayCombinedEnvironmentTypes';
 import type RelayOperationTracker from './RelayOperationTracker';
+import type {GetDataID} from './RelayResponseNormalizer';
 
 export type ExecuteConfig = {|
+  +getDataID: GetDataID,
   +operation: OperationDescriptor,
   +operationLoader: ?OperationLoader,
+  +operationTracker?: ?RelayOperationTracker,
   +optimisticUpdate: ?OptimisticUpdate,
   +publishQueue: PublishQueue,
   +scheduler?: ?TaskScheduler,
   +sink: Sink<GraphQLResponse>,
   +source: RelayObservable<GraphQLResponse>,
   +updater?: ?SelectorStoreUpdater,
-  +operationTracker?: ?RelayOperationTracker,
 |};
 
 export type TaskScheduler = {|
@@ -95,6 +97,7 @@ class Executor {
   _updater: ?SelectorStoreUpdater;
   _subscriptions: Map<number, Subscription>;
   _operationTracker: ?RelayOperationTracker;
+  _getDataID: GetDataID;
 
   constructor({
     operation,
@@ -106,6 +109,7 @@ class Executor {
     source,
     updater,
     operationTracker,
+    getDataID,
   }: ExecuteConfig): void {
     this._incrementalPlaceholders = new Map();
     this._nextSubscriptionId = 0;
@@ -120,6 +124,7 @@ class Executor {
     this._updater = updater;
     this._subscriptions = new Map();
     this._operationTracker = operationTracker;
+    this._getDataID = getDataID;
 
     const id = this._nextSubscriptionId++;
     source.subscribe({
@@ -280,6 +285,7 @@ class Executor {
       this._operation.root,
       ROOT_TYPE,
       [] /* path */,
+      this._getDataID,
     );
     const {incrementalPlaceholders, moduleImportPayloads} = payload;
     if (
@@ -313,6 +319,7 @@ class Executor {
       this._operation.root,
       ROOT_TYPE,
       [] /* path */,
+      this._getDataID,
     );
     this._incrementalPlaceholders.clear();
     this._source.clear();
@@ -402,6 +409,7 @@ class Executor {
       selector,
       moduleImportPayload.typeName,
       moduleImportPayload.path,
+      this._getDataID,
     );
     this._processPayloadFollowups(relayPayload);
     this._publishQueue.commitRelayPayload(relayPayload);
@@ -563,6 +571,7 @@ class Executor {
       placeholder.selector,
       placeholder.typeName,
       placeholder.path,
+      this._getDataID,
     );
     this._processPayloadFollowups(relayPayload);
     this._publishQueue.commitRelayPayload(relayPayload);
@@ -694,11 +703,13 @@ class Executor {
     // Publish the new item and update the parent record to set
     // field[index] = item *if* the parent record hasn't been concurrently
     // modified.
-    const relayPayload = normalizeResponse(response, selector, typeName, [
-      ...placeholder.path,
-      responseKey,
-      String(itemIndex),
-    ]);
+    const relayPayload = normalizeResponse(
+      response,
+      selector,
+      typeName,
+      [...placeholder.path, responseKey, String(itemIndex)],
+      this._getDataID,
+    );
     this._processPayloadFollowups(relayPayload);
     this._publishQueue.commitPayload(this._operation, relayPayload, store => {
       const currentParentRecord = store.get(parentID);
@@ -791,6 +802,7 @@ function normalizeResponse(
   selector: NormalizationSelector,
   typeName: string,
   path: $ReadOnlyArray<string>,
+  getDataID: GetDataID,
 ): RelayResponsePayload {
   const {data, errors} = response;
   const source = new RelayInMemoryRecordSource();
@@ -800,7 +812,7 @@ function normalizeResponse(
     source,
     selector,
     data,
-    {handleStrippedNulls: true, path},
+    {handleStrippedNulls: true, path, getDataID},
   );
   return {
     errors,

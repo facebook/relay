@@ -15,6 +15,7 @@ const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
 const RelayInMemoryRecordSource = require('../RelayInMemoryRecordSource');
 const RelayModernRecord = require('../RelayModernRecord');
 
+const defaultGetDataID = require('../defaultGetDataID');
 const getRelayHandleKey = require('../../util/getRelayHandleKey');
 
 const {check} = require('../DataChecker');
@@ -133,6 +134,8 @@ describe('check()', () => {
         variables: {id: '1', size: 32},
       },
       [],
+      null,
+      defaultGetDataID,
     );
     expect(status).toBe(true);
     expect(target.size()).toBe(0);
@@ -206,6 +209,8 @@ describe('check()', () => {
         variables: {size: 32},
       },
       [],
+      null,
+      defaultGetDataID,
     );
     expect(status).toBe(true);
     expect(target.size()).toBe(0);
@@ -252,6 +257,8 @@ describe('check()', () => {
         variables: {},
       },
       [],
+      null,
+      defaultGetDataID,
     );
     expect(status).toBe(true);
     expect(target.size()).toBe(0);
@@ -351,6 +358,7 @@ describe('check()', () => {
         },
         [],
         loader,
+        defaultGetDataID,
       );
       expect(loader.get).toBeCalledTimes(1);
       expect(loader.get.mock.calls[0][0]).toBe(
@@ -406,6 +414,7 @@ describe('check()', () => {
         },
         [],
         loader,
+        defaultGetDataID,
       );
       expect(status).toBe(true);
       expect(target.size()).toBe(0);
@@ -453,6 +462,7 @@ describe('check()', () => {
           get: _ => null,
           load: _ => Promise.resolve(null),
         },
+        defaultGetDataID,
       );
       // The data for the field isn't in the store yet, so we have to return false
       expect(status).toBe(false);
@@ -502,6 +512,7 @@ describe('check()', () => {
         },
         [],
         loader,
+        defaultGetDataID,
       );
       // The data for the field 'data' isn't in the store yet, so we have to return false
       expect(status).toBe(false);
@@ -545,6 +556,7 @@ describe('check()', () => {
         },
         [],
         loader,
+        defaultGetDataID,
       );
       // The data for the field 'data' isn't in the store yet, so we have to return false
       expect(status).toBe(false);
@@ -586,6 +598,7 @@ describe('check()', () => {
         },
         [],
         loader,
+        defaultGetDataID,
       );
       expect(status).toBe(true);
       expect(target.size()).toBe(0);
@@ -617,6 +630,7 @@ describe('check()', () => {
         },
         [],
         loader,
+        defaultGetDataID,
       );
       expect(status).toBe(true);
       expect(target.size()).toBe(0);
@@ -647,6 +661,7 @@ describe('check()', () => {
         },
         [],
         loader,
+        defaultGetDataID,
       );
       expect(status).toBe(false);
       expect(target.size()).toBe(0);
@@ -745,6 +760,7 @@ describe('check()', () => {
         },
         [],
         loader,
+        defaultGetDataID,
       );
       expect(loader.get).toBeCalledTimes(1);
       expect(loader.get.mock.calls[0][0]).toBe(
@@ -798,6 +814,7 @@ describe('check()', () => {
         },
         [],
         loader,
+        defaultGetDataID,
       );
       expect(status).toBe(true);
       expect(target.size()).toBe(0);
@@ -843,6 +860,7 @@ describe('check()', () => {
           get: _ => null,
           load: _ => Promise.resolve(null),
         },
+        defaultGetDataID,
       );
       // The data for the field isn't in the store yet, so we have to return false
       expect(status).toBe(false);
@@ -890,6 +908,7 @@ describe('check()', () => {
         },
         [],
         loader,
+        defaultGetDataID,
       );
       // The data for the field 'data' isn't in the store yet, so we have to return false
       expect(status).toBe(false);
@@ -931,6 +950,7 @@ describe('check()', () => {
         },
         [],
         loader,
+        defaultGetDataID,
       );
       // The data for the field 'data' isn't in the store yet, so we have to return false
       expect(status).toBe(false);
@@ -970,6 +990,7 @@ describe('check()', () => {
         },
         [],
         loader,
+        defaultGetDataID,
       );
       expect(status).toBe(true);
       expect(target.size()).toBe(0);
@@ -1019,6 +1040,8 @@ describe('check()', () => {
           variables: {id: '1'},
         },
         [],
+        null,
+        defaultGetDataID,
       );
       expect(status).toBe(true);
       expect(target.size()).toBe(0);
@@ -1049,6 +1072,8 @@ describe('check()', () => {
           variables: {id: '1'},
         },
         [],
+        null,
+        defaultGetDataID,
       );
       expect(status).toBe(false);
       expect(target.size()).toBe(0);
@@ -1106,6 +1131,8 @@ describe('check()', () => {
           variables: {id: '1'},
         },
         [],
+        null,
+        defaultGetDataID,
       );
       expect(status).toBe(true);
       expect(target.size()).toBe(0);
@@ -1142,6 +1169,8 @@ describe('check()', () => {
           variables: {id: '1'},
         },
         [],
+        null,
+        defaultGetDataID,
       );
       expect(status).toBe(false);
       expect(target.size()).toBe(0);
@@ -1161,6 +1190,8 @@ describe('check()', () => {
           variables: {id: '1', size: 32},
         },
         [],
+        null,
+        defaultGetDataID,
       );
       expect(status).toBe(true);
       expect(target.size()).toBe(0);
@@ -1203,6 +1234,8 @@ describe('check()', () => {
           variables: {size: 32},
         },
         [],
+        null,
+        defaultGetDataID,
       );
       expect(status).toBe(false);
       expect(target.size()).toBe(0);
@@ -1246,6 +1279,8 @@ describe('check()', () => {
           variables: {size: 32},
         },
         [],
+        null,
+        defaultGetDataID,
       );
       expect(status).toBe(false);
       expect(target.size()).toBe(0);
@@ -1296,6 +1331,8 @@ describe('check()', () => {
             },
           },
         ],
+        null,
+        defaultGetDataID,
       );
       expect(status).toBe(true);
       expect(target.toJSON()).toEqual({
@@ -1371,6 +1408,8 @@ describe('check()', () => {
             },
           },
         ],
+        null,
+        defaultGetDataID,
       );
       expect(status).toBe(true);
       expect(target.toJSON()).toEqual({
@@ -1464,6 +1503,8 @@ describe('check()', () => {
           variables: {size: 32},
         },
         [],
+        null,
+        defaultGetDataID,
       );
       expect(status).toBe(true);
       expect(target.size()).toBe(0);

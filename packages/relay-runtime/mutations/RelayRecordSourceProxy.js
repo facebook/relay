@@ -21,6 +21,7 @@ const {EXISTENT, NONEXISTENT} = require('../store/RelayRecordState');
 const {ROOT_ID, ROOT_TYPE} = require('../store/RelayStoreUtils');
 
 import type {HandlerProvider} from '../handlers/RelayDefaultHandlerProvider';
+import type {GetDataID} from '../store/RelayResponseNormalizer';
 import type {
   HandleFieldPayload,
   RecordSource,
@@ -41,14 +42,17 @@ class RelayRecordSourceProxy implements RecordSourceProxy {
   _handlerProvider: ?HandlerProvider;
   __mutator: RelayRecordSourceMutator;
   _proxies: {[dataID: DataID]: ?RelayRecordProxy};
+  _getDataID: GetDataID;
 
   constructor(
     mutator: RelayRecordSourceMutator,
+    getDataID: GetDataID,
     handlerProvider?: ?HandlerProvider,
   ) {
     this.__mutator = mutator;
     this._handlerProvider = handlerProvider || null;
     this._proxies = {};
+    this._getDataID = getDataID;
   }
 
   publishSource(
@@ -95,6 +99,8 @@ class RelayRecordSourceProxy implements RecordSourceProxy {
     const {source, fieldPayloads} = normalizeRelayPayload(
       operation.root,
       response,
+      null,
+      {getDataID: this._getDataID},
     );
     this.publishSource(source, fieldPayloads);
     return new RelayRecordSourceSelectorProxy(this, operation.fragment);

@@ -17,6 +17,8 @@ const RelayRecordSourceMutator = require('../RelayRecordSourceMutator');
 const RelayRecordSourceProxy = require('../RelayRecordSourceProxy');
 const RelayStoreUtils = require('../../store/RelayStoreUtils');
 
+const defaultGetDataID = require('../../store/defaultGetDataID');
+
 const {
   createOperationDescriptor,
 } = require('../../store/RelayModernOperationDescriptor');
@@ -98,7 +100,7 @@ describe('RelayRecordSourceProxy', () => {
       sinkSource,
       backupSource,
     );
-    store = new RelayRecordSourceProxy(mutator);
+    store = new RelayRecordSourceProxy(mutator, defaultGetDataID);
   });
 
   describe('get()', () => {
@@ -246,7 +248,11 @@ describe('RelayRecordSourceProxy', () => {
         handlerName: {update: handlerFunction},
       };
       const handlerProvider = name => handlers[name];
-      store = new RelayRecordSourceProxy(mutator, handlerProvider);
+      store = new RelayRecordSourceProxy(
+        mutator,
+        defaultGetDataID,
+        handlerProvider,
+      );
 
       const {Query} = generateAndCompile(`
         query Query {
@@ -275,6 +281,38 @@ describe('RelayRecordSourceProxy', () => {
         handleKey: '__name_handlerName',
       };
       expect(handlerFunction).toBeCalledWith(store, fieldPayload);
+    });
+
+    it('uses user-defined getDataID', () => {
+      const getDataID = jest.fn((field, typename) => {
+        return `${typename}:${field.id}`;
+      });
+      store = new RelayRecordSourceProxy(mutator, getDataID);
+      const {Query} = generateAndCompile(`
+        query Query {
+          node(id: "seattle") {
+            id
+            __typename
+            name
+          }
+        }
+      `);
+      const operationDescriptor = createOperationDescriptor(Query, {});
+      const rawPayload = {
+        node: {
+          id: 'seattle',
+          __typename: 'Page',
+          name: 'Seattle',
+        },
+      };
+      store.commitPayload(operationDescriptor, rawPayload);
+      expect(sinkData['Page:seattle']).toEqual({
+        [ID_KEY]: 'Page:seattle',
+        [TYPENAME_KEY]: 'Page',
+        id: 'seattle',
+        name: 'Seattle',
+      });
+      expect(getDataID).toBeCalledTimes(1);
     });
   });
 

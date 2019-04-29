@@ -24,7 +24,8 @@
       "relay-debugging",
       "graphql-server-specification",
       "persisted-queries",
-      "type-emission"
+      "type-emission",
+      "testing-relay-components"
     ],
     "Principles & Architecture": [
       "thinking-in-graphql",

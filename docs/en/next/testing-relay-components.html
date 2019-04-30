@@ -1,0 +1,486 @@
+<!DOCTYPE html><html lang="en"><head><meta charSet="utf-8"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><title>Testing Relay Components · Relay</title><meta name="viewport" content="width=device-width"/><meta name="generator" content="Docusaurus"/><meta name="description" content="&lt;p&gt;The purpose of this document is to cover the Relay APIs for testing Relay components.&lt;/p&gt;
+"/><meta name="docsearch:version" content="next"/><meta name="docsearch:language" content="en"/><meta property="og:title" content="Testing Relay Components · Relay"/><meta property="og:type" content="website"/><meta property="og:url" content="https://facebook.github.io/relay/index.html"/><meta property="og:description" content="&lt;p&gt;The purpose of this document is to cover the Relay APIs for testing Relay components.&lt;/p&gt;
+"/><meta name="twitter:card" content="summary"/><link rel="shortcut icon" href="/relay/img/favicon.png"/><link rel="stylesheet" href="https://cdn.jsdelivr.net/docsearch.js/1/docsearch.min.css"/><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css"/><link rel="stylesheet" href="/relay/css/main.css"/><script src="/relay/js/codetabs.js"></script></head><body class="sideNavVisible"><div class="fixedHeaderContainer"><div class="headerWrapper wrapper"><header><a href="/relay/en"><img class="logo" src="/relay/img/relay-white.svg" alt="Relay"/><h2 class="headerTitleWithLogo">Relay</h2></a><a href="/relay/en/versions.html"><h3>next</h3></a><div class="navigationWrapper navigationSlider"><nav class="slidingNav"><ul class="nav-site nav-site-internal"><li class="siteNavGroupActive"><a href="/relay/docs/en/next/introduction-to-relay.html" target="_self">Docs</a></li><li class=""><a href="/relay/en/help.html" target="_self">Support</a></li><li class=""><a href="https://github.com/facebook/relay" target="_self">GitHub</a></li><li class=""><a target="_self"></a></li><li class="navSearchWrapper reactNavSearchWrapper"><input type="text" id="search_input_react" placeholder="Search" title="Search"/></li></ul></nav></div></header></div></div><div class="navPusher"><div class="docMainWrapper wrapper"><div class="container docsNavContainer" id="docsNav"><nav class="toc"><div class="toggleNav"><section class="navWrapper wrapper"><div class="navBreadcrumb wrapper"><div class="navToggle" id="navToggler"><i></i></div><h2><i>›</i><span>Guides</span></h2></div><div class="navGroups"><div class="navGroup"><h3 class="navGroupCategoryTitle">Introduction</h3><ul class=""><li class="navListItem"><a class="navItem" href="/relay/docs/en/next/introduction-to-relay.html">Introduction to Relay</a></li><li class="navListItem"><a class="navItem" href="/relay/docs/en/next/prerequisites.html">Prerequisites</a></li><li class="navListItem"><a class="navItem" href="/relay/docs/en/next/installation-and-setup.html">Installation and Setup</a></li><li class="navListItem"><a class="navItem" href="/relay/docs/en/next/quick-start-guide.html">Quick Start Guide</a></li></ul></div><div class="navGroup"><h3 class="navGroupCategoryTitle">API Reference</h3><ul class=""><li class="navListItem"><a class="navItem" href="/relay/docs/en/next/graphql-in-relay.html">GraphQL in Relay</a></li><li class="navListItem"><a class="navItem" href="/relay/docs/en/next/relay-environment.html">Relay Environment</a></li><li class="navListItem"><a class="navItem" href="/relay/docs/en/next/network-layer.html">Network Layer</a></li><li class="navListItem"><a class="navItem" href="/relay/docs/en/next/query-renderer.html">&lt;QueryRenderer /&gt;</a></li><li class="navListItem"><a class="navItem" href="/relay/docs/en/next/fragment-container.html">Fragment Container</a></li><li class="navListItem"><a class="navItem" href="/relay/docs/en/next/refetch-container.html">Refetch Container</a></li><li class="navListItem"><a class="navItem" href="/relay/docs/en/next/pagination-container.html">Pagination Container</a></li><li class="navListItem"><a class="navItem" href="/relay/docs/en/next/mutations.html">Mutations</a></li><li class="navListItem"><a class="navItem" href="/relay/docs/en/next/subscriptions.html">Subscriptions</a></li><li class="navListItem"><a class="navItem" href="/relay/docs/en/next/relay-store.html">Relay Store</a></li><li class="navListItem"><a class="navItem" href="/relay/docs/en/next/fetch-query.html">fetchQuery</a></li></ul></div><div class="navGroup"><h3 class="navGroupCategoryTitle">Guides</h3><ul class=""><li class="navListItem"><a class="navItem" href="/relay/docs/en/next/routing.html">Routing</a></li><li class="navListItem"><a class="navItem" href="/relay/docs/en/next/relay-debugging.html">Debugging</a></li><li class="navListItem"><a class="navItem" href="/relay/docs/en/next/graphql-server-specification.html">GraphQL Server Specification</a></li><li class="navListItem"><a class="navItem" href="/relay/docs/en/next/persisted-queries.html">Persisted Queries</a></li><li class="navListItem"><a class="navItem" href="/relay/docs/en/next/type-emission.html">Type Emission</a></li><li class="navListItem navListItemActive"><a class="navItem" href="/relay/docs/en/next/testing-relay-components.html">Testing Relay Components</a></li></ul></div><div class="navGroup"><h3 class="navGroupCategoryTitle">Principles &amp; Architecture</h3><ul class=""><li class="navListItem"><a class="navItem" href="/relay/docs/en/next/thinking-in-graphql.html">Thinking in GraphQL</a></li><li class="navListItem"><a class="navItem" href="/relay/docs/en/next/thinking-in-relay.html">Thinking In Relay</a></li><li class="navListItem"><a class="navItem" href="/relay/docs/en/next/architecture-overview.html">Architecture Overview</a></li><li class="navListItem"><a class="navItem" href="/relay/docs/en/next/compiler-architecture.html">Compiler Architecture</a></li><li class="navListItem"><a class="navItem" href="/relay/docs/en/next/runtime-architecture.html">Runtime Architecture</a></li><li class="navListItem"><a class="navItem" href="/relay/docs/en/next/videos.html">Videos</a></li></ul></div><div class="navGroup"><h3 class="navGroupCategoryTitle">Community</h3><ul class=""><li class="navListItem"><a class="navItem" href="/relay/docs/en/next/community-learning-resources.html">Community Learning Resources</a></li></ul></div></div></section></div><script>
+            var coll = document.getElementsByClassName('collapsible');
+            var checkActiveCategory = true;
+            for (var i = 0; i < coll.length; i++) {
+              var links = coll[i].nextElementSibling.getElementsByTagName('*');
+              if (checkActiveCategory){
+                for (var j = 0; j < links.length; j++) {
+                  if (links[j].classList.contains('navListItemActive')){
+                    coll[i].nextElementSibling.classList.toggle('hide');
+                    coll[i].childNodes[1].classList.toggle('rotate');
+                    checkActiveCategory = false;
+                    break;
+                  }
+                }
+              }
+
+              coll[i].addEventListener('click', function() {
+                var arrow = this.childNodes[1];
+                arrow.classList.toggle('rotate');
+                var content = this.nextElementSibling;
+                content.classList.toggle('hide');
+              });
+            }
+
+            document.addEventListener('DOMContentLoaded', function() {
+              createToggler('#navToggler', '#docsNav', 'docsSliderActive');
+              createToggler('#tocToggler', 'body', 'tocActive');
+
+              const headings = document.querySelector('.toc-headings');
+              headings && headings.addEventListener('click', function(event) {
+                if (event.target.tagName === 'A') {
+                  document.body.classList.remove('tocActive');
+                }
+              }, false);
+
+              function createToggler(togglerSelector, targetSelector, className) {
+                var toggler = document.querySelector(togglerSelector);
+                var target = document.querySelector(targetSelector);
+
+                if (!toggler) {
+                  return;
+                }
+
+                toggler.onclick = function(event) {
+                  event.preventDefault();
+
+                  target.classList.toggle(className);
+                };
+              }
+            });
+        </script></nav></div><div class="container mainContainer"><div class="wrapper"><div class="post"><header class="postHeader"><a class="edit-page-link button" href="https://github.com/facebook/relay/edit/master/docs/Modern-TestingRelayComponents.md" target="_blank" rel="noreferrer noopener">Edit</a><h1 class="postHeaderTitle">Testing Relay Components</h1></header><article><div><span><p>The purpose of this document is to cover the Relay APIs for testing Relay components.</p>
+<p>The content is focused mostly on jest unit-tests (testing individual components) and integration tests (testing a combination of components).  But these testing tools may be applied in different cases: screenshot-tests, production smoke-tests, fuzz-tests, e2e test, etc.</p>
+<p>What are the benefits of writing jest tests:</p>
+<ul>
+<li>In general, it improves the stability of the system. Flow really helps with catching a various set of javascript errors, but it is still possible to introduce regressions to the components. Unit-tests may help to find, reproduce and fix those regressions, and prevent them in the future.</li>
+<li>It simplifies refactoring process: when properly written (testing public interface, not implementation) - tests really helps with changing the internal implementation of the components.</li>
+<li>It may speed up and improve the development workflow. Some people may call it Test Driven Development (TM). But essentially it's just writing tests for public interfaces of your components, and then writing the components that are implementing those interfaces. Jest —watch mode is really shining in this case.</li>
+<li>It will simplify the on-boarding process for new developers, having tests really help to ramp up on the new code base, fixing bugs, and delivering features.</li>
+</ul>
+<p>One thing to notice: while jest unit and integration tests will help improve the stability of the system, they should be considered as a part of a bigger stability infrastructure with multiple layers of automated testing: flow, e2e, screenshot, performance tests.</p>
+<h2><a class="anchor" aria-hidden="true" id="testing-with-relay"></a><a href="#testing-with-relay" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Testing with Relay</h2>
+<p>Testing applications that are using Relay may be challenging, because of the additional data fetching layer that is wrapping the actual product code.</p>
+<p>And it's not always easy to understand the mechanics of all processes that are happening behind Relay, and how to properly handle interactions with the framework.</p>
+<p>Fortunately, we have tools that aim to simplify the process of writing tests for Relay components, by providing imperative APIs for controlling the request/response flow and additional API for mock data generation.</p>
+<p>There are two main modules that you may using in your tests:</p>
+<ul>
+<li>createMockEnvironment(options): RelayMockEnvironment</li>
+<li>MockPayloadGenerator and @relay_test_operation directive</li>
+</ul>
+<p>With <code>createMockEnvironment,</code> you will be able to create an instance of <code>RelayMockEnvironment</code>, a Relay environment specifically for your tests. The instance created by <code>createMockEnvironment</code> is implementing the Relay Environment Interface and it also has an additional Mock layer, with methods that allow to resolve/reject and control the flow of operations (queries/mutations/subscriptions).</p>
+<p>The main purpose of <code>MockPayloadGenerator</code> is to improve the process of creating and maintaining the mock data for tested components.</p>
+<p>One of the patterns you may see in the tests for Relay components: 95% of the test code, is the test preparation: the gigantic mock object with dummy data, manually created, or just a copy of a sample server response that needs to be passed as the network response. And rest 5% is actual test. As a result, people don't test much. It's hard to create and manage all these dummy payloads for different cases. Hence, writing tests are time-consuming and painful to maintain.</p>
+<p>With the MockPayloadGenerator and @relay_test_operation, we want to get rid of this pattern and switch the developer's focus from the preparation of the test to the actual testing.</p>
+<h2><a class="anchor" aria-hidden="true" id="relaymockenvironment-api-overview"></a><a href="#relaymockenvironment-api-overview" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>RelayMockEnvironment API Overview</h2>
+<p>RelayMockEnvironment is a special version of Relay Environment with an additional API methods for controlling the operation flow: resolving and rejection operations, providing incremental payloads for subscriptions, working with cache.</p>
+<ul>
+<li>Methods for finding operations executed on the environment
+<ul>
+<li><code>getAllOperations()</code> - get all operation executed during the test by the current time</li>
+<li><code>findOperation(findFn =&gt; boolean)</code>- find particular operation in the list of all executed operations, this method will throw, if operation is not available. Maybe useful to find a particular operation when multiple operations executed at the same time</li>
+<li><code>getMostRecentOperation() -</code> return the most recent operation, this method will throw if no operations were executed prior this call.</li>
+</ul></li>
+<li>Methods for resolving or rejecting operations
+<ul>
+<li><code>nextValue(request | operation, data)</code> - provide payload for operation(request), but not complete request. Practically useful when testing incremental updates and subscriptions</li>
+<li><code>complete(request | operation)</code>  - complete the operation, no more payloads are expected for this operation, when it's completed.</li>
+<li><code>resolve(request | operation, data)</code> - resolve the request with provided GraphQL response. Essentially, it's nextValue(...) and complete(...)</li>
+<li><code>reject(request | operation, error)</code> - reject the request with particular error</li>
+<li><code>resolveMostRecentOperation(operation =&gt; data)</code> - resolve and getMostRecentOperation work together</li>
+<li><code>rejectMostRecentOperation(operation =&gt; error)</code>  - reject and getMostRecentOperation work together</li>
+<li><code>queueOperationResolver(operation =&gt; data | error)</code> - adds an OperationResolver function to the queue, those methods will be used to resolve/reject operations as they appear</li>
+</ul></li>
+<li>Additional utility methods
+<ul>
+<li><code>isLoading(request | operation)</code> - will return <code>true</code> if operations has not been completed, yet.</li>
+<li><code>cachePayload(request | operation, variables, payload)</code> - will add payload to QueryResponse cache</li>
+<li><code>clearCache()</code>- will clear QueryResponse cache</li>
+</ul></li>
+</ul>
+<h2><a class="anchor" aria-hidden="true" id="mock-payload-generator-and-relay-test-operation-directive"></a><a href="#mock-payload-generator-and-relay-test-operation-directive" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Mock Payload Generator and @relay_test_operation Directive</h2>
+<p>MockPayloadGenerator may drastically simplify the process of creating and maintaining mock data for your tests. MockPayloadGenerator is the module that can generate dummy data for the selection that you have in your operation. There is an API to modify the generated data - Mock Resolvers. With Mock Resolvers, you may adjust the data for your needs. Collection of Mock Resolvers it's an object where keys are names of GraphQL types (ID, String, User, Feedback, Comment, etc), and values are functions which will return the default data for the type.</p>
+<p>Example of a simple Mock Resolver:</p>
+<pre><code class="hljs css language-javascript">{
+  ID() {
+    <span class="hljs-comment">// Return mock value for a scalar filed with type ID</span>
+    <span class="hljs-keyword">return</span> <span class="hljs-string">'my-id'</span>;
+  },
+  <span class="hljs-built_in">String</span>() {
+    <span class="hljs-comment">// Every scalar field with type String will have this default value</span>
+    <span class="hljs-keyword">return</span> <span class="hljs-string">"Lorem Ipsum"</span>
+  }
+}
+</code></pre>
+<p>It is possible to define more resolvers for Object types</p>
+<pre><code class="hljs css language-javascript">{
+  <span class="hljs-comment">// This will be the default values for User object in the query response</span>
+  User() {
+    <span class="hljs-keyword">return</span> {
+      <span class="hljs-attr">id</span>: <span class="hljs-number">1000</span>,
+      <span class="hljs-attr">name</span>: <span class="hljs-string">"Alice"</span>,
+      <span class="hljs-attr">profile_picture</span>: {
+        <span class="hljs-attr">uri</span>: <span class="hljs-string">"http://my-image..."</span>,
+      },
+    };
+  },
+}
+</code></pre>
+<h3><a class="anchor" aria-hidden="true" id="mock-resolver-context"></a><a href="#mock-resolver-context" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Mock Resolver Context</h3>
+<p>The first argument of the MockResolver is the object that contains Mock Resolver Context. It is possible to return dynamic values from mock resolvers based on the context - for instance, name or alias of the field, a path in the selection, arguments, or parent type.</p>
+<pre><code class="hljs css language-javascript">{
+  <span class="hljs-built_in">String</span>(context) {
+    <span class="hljs-keyword">if</span> (context.name === <span class="hljs-string">'zip'</span>) {
+      <span class="hljs-keyword">return</span> <span class="hljs-string">'94025'</span>;
+    }
+    <span class="hljs-keyword">if</span> (context.path != <span class="hljs-literal">null</span> &amp;&amp; context.path.join(<span class="hljs-string">'.'</span>) === <span class="hljs-string">'node.actor.name'</span>) {
+      <span class="hljs-keyword">return</span> <span class="hljs-string">'Current Actor Name'</span>;
+    }
+    <span class="hljs-keyword">if</span> (context.parentType === <span class="hljs-string">'Image'</span> &amp;&amp; context.name === <span class="hljs-string">'uri'</span>) {
+       <span class="hljs-keyword">return</span> <span class="hljs-string">'http://my-image.url'</span>;
+    }
+  }
+}
+</code></pre>
+<h3><a class="anchor" aria-hidden="true" id="id-generation"></a><a href="#id-generation" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>ID Generation</h3>
+<p>The second argument of the Mock Resolver its a function that will generate a sequence of integers, usefull to generate unique ids in the tests</p>
+<pre><code class="hljs css language-javascript">{
+  <span class="hljs-comment">// will generate strings "my-id-1", "my-id-2", etc.</span>
+  ID(_, generateId) {
+     <span class="hljs-keyword">return</span> <span class="hljs-string">`my-id-<span class="hljs-subst">${generateId()}</span>`</span>;
+  },
+}
+</code></pre>
+<h3><a class="anchor" aria-hidden="true" id="relay-test-operation"></a><a href="#relay-test-operation" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>@relay_test_operation</h3>
+<p>Most of GraphQL type information for a specific field in the selection is not available during Relay runtime. By default, Relay, cannot get type information for a scalar field in the selection, or an interface type of the object.</p>
+<p>Operation with the @relay_test_operation directive will have additional metadata that will contain GraphQL type info for fields in the operation's selection. And it will improve the quality of the generated data. You also will be able to define Mock resolvers for Scalar (not only ID and String) and Abstract types:</p>
+<pre><code class="hljs css language-javascript">{
+  Float() {
+    <span class="hljs-keyword">return</span> <span class="hljs-number">123.456</span>;
+  },
+  <span class="hljs-built_in">Boolean</span>(context) {
+    <span class="hljs-keyword">if</span> (contex.name === <span class="hljs-string">'can_edit'</span>) {
+      <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;
+    }
+    <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;
+  },
+  Node() {
+    <span class="hljs-keyword">return</span> {
+      <span class="hljs-attr">__typename</span>: <span class="hljs-string">'User'</span>,
+      <span class="hljs-attr">id</span>: <span class="hljs-string">'my-user-id'</span>,
+    };
+  }
+}
+</code></pre>
+<h2><a class="anchor" aria-hidden="true" id="examples"></a><a href="#examples" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Examples</h2>
+<h3><a class="anchor" aria-hidden="true" id="relay-component-test"></a><a href="#relay-component-test" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Relay Component Test</h3>
+<p>Using <code>createMockEnvironment</code> and <code>MockPayloadGenerator</code> allows writing concise tests for components that are using Relay Containers and Renderers. Both those modules can be imported from <code>relay-test-utils</code></p>
+<pre><code class="hljs css language-javascript"><span class="hljs-comment">// Say you have a component with the QueryRenderer</span>
+<span class="hljs-keyword">const</span> MyAwesomeViewRoot = <span class="hljs-built_in">require</span>(<span class="hljs-string">'MyAwesomeViewRoot'</span>);
+<span class="hljs-keyword">const</span> {
+  createMockEnvironment,
+  MockPayloadGenerator,
+} = <span class="hljs-built_in">require</span>(<span class="hljs-string">'relay-test-utils'</span>);
+
+<span class="hljs-comment">// Relay may trigger 3 different states</span>
+<span class="hljs-comment">// for this component: Loading, Error, Data Loaded</span>
+<span class="hljs-comment">// Here is examples of tests for those states.</span>
+test(<span class="hljs-string">'Loading State'</span>, () =&gt; {
+  <span class="hljs-keyword">const</span> environment = createMockEnvironment();
+  <span class="hljs-keyword">const</span> renderer = ReactTestRenderer.create(
+    &lt;MyAwesomeViewRoot environment={environment} /&gt;,
+  );
+
+  // Here we just verify that the spinner is rendered
+  expect(
+    renderer.root.find(node =&gt; node.props['data-testid'] === 'spinner'),
+  ).toBeDefined();
+});
+
+test('Data Render', () =&gt; {
+  const environment = createMockEnvironment();
+  const renderer = ReactTestRenderer.create(
+    &lt;MyAwesomeViewRoot environment={environment} /&gt;,
+  );
+
+  environment.mock.resolveMostRecentOperation(operation =&gt;
+    MockPayloadGenerator.generate(operation),
+  );
+
+  // At this point operation will be resolved
+  // and the data for a query will be available in the store
+  expect(
+    renderer.root.find(node =&gt; node.props['data-testid'] === 'myButton'),
+  ).toBeDefined();
+});
+
+test('Error State', () =&gt; {
+  const environment = createMockEnvironment();
+  const renderer = ReactTestRenderer.create(
+    &lt;MyAwesomeViewRoot environment={environment} /&gt;,
+  );
+
+  // Error can be simulated with `rejectMostRecentOperation`
+  environment.mock.rejectMostRecentOperation(new Error('Uh-oh'));
+
+  expect(
+    renderer.root.find(item =&gt; (item.props.testID = 'errorMessage')),
+  ).toBeDefined();
+});
+</code></pre>
+<h3><a class="anchor" aria-hidden="true" id="fragment-container-tests"></a><a href="#fragment-container-tests" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Fragment Container Tests</h3>
+<p>Essentially, in the example above will <code>resolveMostRecentOperation</code> will generate data for all child fragment containers (pagination, refetch). But, usually the Root Components container may have many child fragment components and you may want to exercise a specific Fragment Container. The solution for that would be to wrap you fragment container with the QueryRenderer that renders a Query that's spreads fragments from you fragment container.</p>
+<pre><code class="hljs css language-javascript">test(<span class="hljs-string">'Fragment Container'</span>, () =&gt; {
+  <span class="hljs-keyword">const</span> environment = createMockEnvironment();
+  <span class="hljs-keyword">const</span> TestRenderer = <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> (
+    &lt;QueryRenderer
+      environment={environment}
+      query={graphql`
+        query TestQuery @relay_test_operation {
+          myData: node(id: "test-id") {
+            ...MyFragment
+          }
+        }
+      `}
+      variables={{}}
+      render={({error, props}) =&gt; {
+        if (props) {
+          return &lt;MyFragmentContainer myData={props.myData} /&gt;;
+        } else if (error) {
+          return error.message;
+        }
+        return 'Loading...';
+      }}
+    /&gt;
+  );
+  const renderer = ReactTestRenderer.create(&lt;TestRenderer /&gt;);
+  environment.mock.resolveMostRecentOperation(operation =&gt;
+    MockPayloadGenerator.generate(operation),
+  );
+
+  expect(renderer).toMatchSnapshot();
+});
+</code></pre>
+<h3><a class="anchor" aria-hidden="true" id="pagination-container-test"></a><a href="#pagination-container-test" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Pagination Container Test</h3>
+<p>Essentially, tests for Pagination container are not different from Fragment Container tests. But we can do more here, we can actually see how the pagination works - we can assert the behavior of our components when performing pagination (load more, refetch).</p>
+<pre><code class="hljs css language-javascript"><span class="hljs-comment">// Pagination Example</span>
+test(<span class="hljs-string">'Pagionation Container'</span>, () =&gt; {
+  <span class="hljs-keyword">const</span> environment = createMockEnvironment();
+  <span class="hljs-keyword">const</span> TestRenderer = <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> (
+    &lt;QueryRenderer
+      environment={environment}
+      query={graphql`
+        query TestQuery @relay_test_operation {
+          myConnection: node(id: "test-id") {
+            connection {
+              ...MyConnectionFragment
+            }
+          }
+        }
+      `}
+      variables={{}}
+      render={({error, props}) =&gt; {
+        if (props) {
+          return &lt;MyPaginationContainer connection={props.myConnection.connection} /&gt;;
+        } else if (error) {
+          return error.message;
+        }
+        return 'Loading...';
+      }}
+    /&gt;
+  );
+  const renderer = ReactTestRenderer.create(&lt;TestRenderer /&gt;);
+  environment.mock.resolveMostRecentOperation(operation =&gt;
+    MockPayloadGenerator.generate(operation, {
+      ID(_, generateId) {
+        // Why we're doing this?
+        // To make sure that we will generate a different set of ID
+        // for elements on first page and the second page.
+        return `first-page-id-${generateId()}`;
+      },
+      PageInfo() {
+        return {
+          has_next_page: true,
+        };
+      },
+    }),
+  );
+
+  // Let's find a `loadMore` button and click on it to initiate pagination request, for example
+  const loadMore = renderer.root.find(node =&gt; node.props['data-testid'] === 'loadMore')
+  expect(loadMore.props.disabled).toBe(false);
+  loadMore.props.onClick();
+
+  environment.mock.resolveMostRecentOperation(operation =&gt;
+    MockPayloadGenerator.generte(operation, {
+      ID(_, generateId) {
+        // See, the second page IDs will be different
+        return `second-page-id-${generateId()}`;
+      },
+      PageInfo() {
+        return {
+          // And the button should be disabled, now. Probably.
+          has_next_page: false,
+        };
+      },
+    }),
+  );
+  expect(loadMore.props.disabled).toBe(true);
+});
+
+</code></pre>
+<h3><a class="anchor" aria-hidden="true" id="refetch-container"></a><a href="#refetch-container" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Refetch Container</h3>
+<p>We can use similar approach here with wrapping container with Query Renderer. And for the sake of completeness, we will add example here:</p>
+<pre><code class="hljs css language-javascript">test(<span class="hljs-string">'Refetch Container'</span>, () =&gt; {
+  <span class="hljs-keyword">const</span> environment = createMockEnvironment();
+  <span class="hljs-keyword">const</span> TestRenderer = <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> (
+    &lt;QueryRenderer
+      environment={environment}
+      query={graphql`
+        query TestQuery @relay_test_operation {
+          myData: node(id: "test-id") {
+            ...MyRefetchableFragment
+          }
+        }
+      `}
+      variables={{}}
+      render={({error, props}) =&gt; {
+        if (props) {
+          return &lt;MyRefetchContainer myData={props.myData} /&gt;;
+        } else if (error) {
+          return error.message;
+        }
+        return 'Loading...';
+      }}
+    /&gt;
+  );
+
+  const renderer = ReactTestRenderer.create(&lt;TestRenderer /&gt;);
+  environment.mock.resolveMostRecentOperation(operation =&gt;
+    MockPayloadGenerator.generate(operation),
+  );
+  // Assuming we have refetch button in the Container
+  const refetchButton = renderer.root.find(node =&gt; node.props['data-testid'] === 'refetch');
+
+  // This should trigger the `refetch`
+  refetchButton.props.onClick();
+
+  environment.mock.resolveMostRecentOperation(operation =&gt;
+    MockPayloadGenerator.generate(operation, {
+      // We can customize mock resolvers, to change the output of the refetch query
+    }),
+  );
+  // expect(renderer).toMatchSnapshot();
+});
+</code></pre>
+<h3><a class="anchor" aria-hidden="true" id="mutations"></a><a href="#mutations" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Mutations</h3>
+<p>Mutations itself are operations so we can test them independently (unit-test) for specific mutation, or in combination with the view from which this mutation is called.</p>
+<pre><code class="hljs css language-javascript"><span class="hljs-comment">// Say, you have a mutation function</span>
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">sendMutation</span>(<span class="hljs-params">environment, onCompleted, onError, variables</span>)
+  <span class="hljs-title">commitMutation</span>(<span class="hljs-params">environment, {
+    mutation: graphql<span class="hljs-string">`...`</span>,
+    onCompleted,
+    onError,
+    variables,
+  }</span>);
+}
+
+// <span class="hljs-title">Example</span> <span class="hljs-title">test</span> <span class="hljs-title">may</span> <span class="hljs-title">be</span> <span class="hljs-title">written</span> <span class="hljs-title">like</span> <span class="hljs-title">so</span>
+<span class="hljs-title">test</span>(<span class="hljs-params"><span class="hljs-string">'it should send mutation'</span>, (</span>) =&gt; </span>{
+  <span class="hljs-keyword">const</span> environment = createMockEnvironment();
+  <span class="hljs-keyword">const</span> onCompleted = jest.fn();
+  sendMutation(environment, onCompleted, jest.fn(), {});
+  <span class="hljs-keyword">const</span> operation = environment.mock.getMostRecentOperation();
+  environment.mock.resolve(
+    operation,
+    MockPayloadGenerator.generate(operation)
+  );
+  expect(onCompleted).toBeCalled();
+});
+</code></pre>
+<h3><a class="anchor" aria-hidden="true" id="subscription"></a><a href="#subscription" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Subscription</h3>
+<p>We can test subscription in a similar way we test mutations</p>
+<pre><code class="hljs css language-javascript"><span class="hljs-comment">// Example subscribe function</span>
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">subscribe</span>(<span class="hljs-params">environment, onNext, onError, variables</span>)
+  <span class="hljs-title">requestSubscription</span>(<span class="hljs-params">environment, {
+    subscription: graphql<span class="hljs-string">`...`</span>,
+    onNext,
+    onError,
+    variables,
+  }</span>);
+}
+
+// <span class="hljs-title">Example</span> <span class="hljs-title">test</span> <span class="hljs-title">may</span> <span class="hljs-title">be</span> <span class="hljs-title">written</span> <span class="hljs-title">like</span> <span class="hljs-title">so</span>
+<span class="hljs-title">test</span>(<span class="hljs-params"><span class="hljs-string">'it should subscribe'</span>, (</span>) =&gt; </span>{
+  <span class="hljs-keyword">const</span> environment = createMockEnvironment();
+  <span class="hljs-keyword">const</span> onNext = jest.fn();
+  subscribe(environment, onNext, jest.fn(), {});
+  <span class="hljs-keyword">const</span> operation = environment.mock.getMostRecentOperation();
+  environment.mock.nextValue(
+    operation,
+    MockPayloadGenerator.generate(operation)
+  );
+  expect(onNext).toBeCalled();
+});
+</code></pre>
+<h3><a class="anchor" aria-hidden="true" id="example-with-queueoperationresolver"></a><a href="#example-with-queueoperationresolver" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Example with <code>queueOperationResolver</code></h3>
+<p>With <code>queueOpeararionResolver</code> it possible to define responses for operations that will be executed on the environment</p>
+<pre><code class="hljs css language-javascript"><span class="hljs-comment">// Say you have a component with the QueryRenderer</span>
+<span class="hljs-keyword">const</span> MyAwesomeViewRoot = <span class="hljs-built_in">require</span>(<span class="hljs-string">'MyAwesomeViewRoot'</span>);
+<span class="hljs-keyword">const</span> {
+  createMockEnvironment,
+  MockPayloadGenerator,
+} = <span class="hljs-built_in">require</span>(<span class="hljs-string">'relay-test-utils'</span>);
+
+test(<span class="hljs-string">'Data Render'</span>, () =&gt; {
+  <span class="hljs-keyword">const</span> environment = createMockEnvironment();
+  environment.mock.queueOperationResolver(<span class="hljs-function"><span class="hljs-params">operation</span> =&gt;</span>
+    MockPayloadGenerator.generate(operation),
+  );
+
+  <span class="hljs-keyword">const</span> renderer = ReactTestRenderer.create(
+    &lt;MyAwesomeViewRoot environment={environment} /&gt;,
+  );
+
+  // At this point operation will be resolved
+  // and the data for a query will be available in the store
+  expect(
+    renderer.root.find(node =&gt; node.props['data-testid'] === 'myButton'),
+  ).toBeDefined();
+});
+
+test('Error State', () =&gt; {
+  const environment = createMockEnvironment();
+  environment.mock.queueOpeararionResolver(() =&gt;
+    new Error('Uh-oh'),
+  );
+  const renderer = ReactTestRenderer.create(
+    &lt;MyAwesomeViewRoot environment={environment} /&gt;,
+  );
+
+  expect(
+    renderer.root.find(item =&gt; (item.props.testID = 'errorMessage')),
+  ).toBeDefined();
+});
+
+</code></pre>
+</span></div></article></div><div class="docs-prevnext"><a class="docs-prev button" href="/relay/docs/en/next/type-emission.html"><span class="arrow-prev">← </span><span>Type Emission</span></a><a class="docs-next button" href="/relay/docs/en/next/thinking-in-graphql.html"><span class="function-name-prevnext">Thinking in GraphQL</span><span class="arrow-next"> →</span></a></div></div></div></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/relay/" class="nav-home"><img src="/relay/img/relay.svg" alt="Relay" width="66" height="58"/></a><div><h5>Docs</h5><a href="/relay/docs/en/introduction-to-relay.html">Introduction</a></div><div><h5>Community</h5><a href="/relay/en/users.html">User Showcase</a></div><div><h5>More</h5><a href="https://github.com/facebook/relay">GitHub</a><a class="github-button" href="https://github.com/facebook/relay" data-icon="octicon-star" data-count-href="/facebook/relay/stargazers" data-count-api="/repos/facebook/relay#stargazers_count" data-count-aria-label="# stargazers on GitHub" aria-label="Star this project on GitHub">Star</a></div></section><a href="https://code.facebook.com/projects/" target="_blank" class="fbOpenSource"><img src="/relay/img/oss_logo.png" alt="Facebook Open Source" width="170" height="45"/></a><section class="copyright">Copyright © 2019 Facebook Inc.</section></footer></div><script type="text/javascript" src="https://cdn.jsdelivr.net/docsearch.js/1/docsearch.min.js"></script><script>
+                document.addEventListener('keyup', function(e) {
+                  if (e.target !== document.body) {
+                    return;
+                  }
+                  // keyCode for '/' (slash)
+                  if (e.keyCode === 191) {
+                    const search = document.getElementById('search_input_react');
+                    search && search.focus();
+                  }
+                });
+              </script><script>
+              var search = docsearch({
+                
+                apiKey: '3d7d5825d50ea36bca0e6ad06c926f06',
+                indexName: 'relay',
+                inputSelector: '#search_input_react'
+              });
+            </script></body></html>

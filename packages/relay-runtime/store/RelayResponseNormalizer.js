@@ -401,12 +401,18 @@ class RelayResponseNormalizer {
     RelayModernRecord.setLinkedRecordID(record, storageKey, nextID);
     let nextRecord = this._recordSource.get(nextID);
     if (!nextRecord) {
+      /* $FlowFixMe(>=0.98.0 site=www,mobile) This comment suppresses an error
+       * found when Flow v0.98 was deployed. To see the error delete this
+       * comment and run Flow. */
       const typeName = field.concreteType || this._getRecordType(fieldValue);
       nextRecord = RelayModernRecord.create(nextID, typeName);
       this._recordSource.set(nextID, nextRecord);
     } else if (__DEV__) {
       this._validateRecordType(nextRecord, field, fieldValue);
     }
+    /* $FlowFixMe(>=0.98.0 site=www,mobile) This comment suppresses an error
+     * found when Flow v0.98 was deployed. To see the error delete this comment
+     * and run Flow. */
     this._traverseSelections(field, nextRecord, fieldValue);
   }
 
@@ -458,12 +464,18 @@ class RelayResponseNormalizer {
       nextIDs.push(nextID);
       let nextRecord = this._recordSource.get(nextID);
       if (!nextRecord) {
+        /* $FlowFixMe(>=0.98.0 site=www,mobile) This comment suppresses an
+         * error found when Flow v0.98 was deployed. To see the error delete
+         * this comment and run Flow. */
         const typeName = field.concreteType || this._getRecordType(item);
         nextRecord = RelayModernRecord.create(nextID, typeName);
         this._recordSource.set(nextID, nextRecord);
       } else if (__DEV__) {
         this._validateRecordType(nextRecord, field, item);
       }
+      /* $FlowFixMe(>=0.98.0 site=www,mobile) This comment suppresses an error
+       * found when Flow v0.98 was deployed. To see the error delete this
+       * comment and run Flow. */
       this._traverseSelections(field, nextRecord, item);
       this._path.pop();
     });

@@ -88,6 +88,9 @@ function getSingularSelector(
       const fragmentVariables = getFragmentVariables(
         fragment,
         ownerOperationVariables,
+        /* $FlowFixMe(>=0.98.0 site=www,mobile) This comment suppresses an
+         * error found when Flow v0.98 was deployed. To see the error delete
+         * this comment and run Flow. */
         argumentVariables,
       );
       return {
@@ -109,6 +112,9 @@ function getSingularSelector(
     const fragmentVariables = getFragmentVariables(
       fragment,
       operationVariables,
+      /* $FlowFixMe(>=0.98.0 site=www,mobile) This comment suppresses an error
+       * found when Flow v0.98 was deployed. To see the error delete this
+       * comment and run Flow. */
       argumentVariables,
     );
     return {
@@ -213,6 +219,9 @@ function getSelector(
       selectorOrSelectors = getPluralSelector(
         operationVariables,
         fragment,
+        /* $FlowFixMe(>=0.98.0 site=www,mobile) This comment suppresses an
+         * error found when Flow v0.98 was deployed. To see the error delete
+         * this comment and run Flow. */
         item,
         explicitOwner,
       );
@@ -220,6 +229,9 @@ function getSelector(
       selectorOrSelectors = getPluralSelector(
         operationVariables,
         fragment,
+        /* $FlowFixMe(>=0.98.0 site=www,mobile) This comment suppresses an
+         * error found when Flow v0.98 was deployed. To see the error delete
+         * this comment and run Flow. */
         item,
       );
     }
@@ -341,6 +353,9 @@ function getDataIDsFromFragment(
       JSON.stringify(item),
       fragment.name,
     );
+    /* $FlowFixMe(>=0.98.0 site=www,mobile) This comment suppresses an error
+     * found when Flow v0.98 was deployed. To see the error delete this comment
+     * and run Flow. */
     idOrIDs = getDataIDs(fragment, item);
   } else {
     invariant(
@@ -480,10 +495,16 @@ function getVariablesFromFragment(
       return getVariablesFromPluralFragment(
         operationVariables,
         fragment,
+        /* $FlowFixMe(>=0.98.0 site=www,mobile) This comment suppresses an
+         * error found when Flow v0.98 was deployed. To see the error delete
+         * this comment and run Flow. */
         item,
         explicitOwner,
       );
     } else {
+      /* $FlowFixMe(>=0.98.0 site=www,mobile) This comment suppresses an error
+       * found when Flow v0.98 was deployed. To see the error delete this
+       * comment and run Flow. */
       return getVariablesFromPluralFragment(operationVariables, fragment, item);
     }
   } else {

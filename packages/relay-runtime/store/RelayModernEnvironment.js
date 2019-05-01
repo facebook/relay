@@ -67,7 +67,7 @@ export type EnvironmentConfig = {|
     It can potentially break existing calls like store.get(<id>),
     because the internal ID might not be the `id` field on the node anymore
   */
-  +_UNSTABLE_DO_NOT_USE_getDataID?: ?GetDataID,
+  +UNSTABLE_DO_NOT_USE_getDataID?: ?GetDataID,
 |};
 
 class RelayModernEnvironment implements Environment {
@@ -102,7 +102,7 @@ class RelayModernEnvironment implements Environment {
     }
     this._operationLoader = operationLoader;
     this._network = config.network;
-    this._getDataID = config._UNSTABLE_DO_NOT_USE_getDataID ?? defaultGetDataID;
+    this._getDataID = config.UNSTABLE_DO_NOT_USE_getDataID ?? defaultGetDataID;
     this._publishQueue =
       config.publishQueue ??
       new RelayPublishQueue(config.store, handlerProvider, this._getDataID);

@@ -73,7 +73,7 @@ class RelayModernStore implements Store {
     source: MutableRecordSource,
     gcScheduler: Scheduler = resolveImmediate,
     operationLoader: ?OperationLoader = null,
-    _UNSTABLE_DO_NOT_USE_getDataID?: ?GetDataID,
+    UNSTABLE_DO_NOT_USE_getDataID?: ?GetDataID,
   ) {
     // Prevent mutation of a record from outside the store.
     if (__DEV__) {
@@ -95,7 +95,7 @@ class RelayModernStore implements Store {
     this._updatedRecordIDs = {};
     this._gcHoldCounter = 0;
     this._shouldScheduleGC = false;
-    this._getDataID = _UNSTABLE_DO_NOT_USE_getDataID ?? defaultGetDataID;
+    this._getDataID = UNSTABLE_DO_NOT_USE_getDataID ?? defaultGetDataID;
   }
 
   getSource(): RecordSource {

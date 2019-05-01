@@ -387,7 +387,13 @@ class RelayResponseNormalizer {
     );
     const nextID =
       this._getDataId(
+        /* $FlowFixMe(>=0.98.0 site=www,mobile) This comment suppresses an
+         * error found when Flow v0.98 was deployed. To see the error delete
+         * this comment and run Flow. */
         fieldValue,
+        /* $FlowFixMe(>=0.98.0 site=www,mobile) This comment suppresses an
+         * error found when Flow v0.98 was deployed. To see the error delete
+         * this comment and run Flow. */
         field.concreteType ?? this._getRecordType(fieldValue),
       ) ||
       // Reuse previously generated client IDs
@@ -445,7 +451,13 @@ class RelayResponseNormalizer {
       );
       const nextID =
         this._getDataId(
+          /* $FlowFixMe(>=0.98.0 site=www,mobile) This comment suppresses an
+           * error found when Flow v0.98 was deployed. To see the error delete
+           * this comment and run Flow. */
           item,
+          /* $FlowFixMe(>=0.98.0 site=www,mobile) This comment suppresses an
+           * error found when Flow v0.98 was deployed. To see the error delete
+           * this comment and run Flow. */
           field.concreteType ?? this._getRecordType(item),
         ) ||
         (prevIDs && prevIDs[nextIndex]) || // Reuse previously generated client IDs:

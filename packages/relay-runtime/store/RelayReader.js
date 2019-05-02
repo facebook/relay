@@ -214,9 +214,9 @@ class RelayReader {
       RelayModernRecord.getDataID(record),
       prevData,
     );
-    /* $FlowFixMe(>=0.98.0 site=www,mobile) This comment suppresses an error
-     * found when Flow v0.98 was deployed. To see the error delete this comment
-     * and run Flow. */
+    /* $FlowFixMe(>=0.98.0 site=www,mobile,react_native_fb) This comment
+     * suppresses an error found when Flow v0.98 was deployed. To see the error
+     * delete this comment and run Flow. */
     data[applicationName] = this._traverse(field, linkedID, prevData);
   }
 
@@ -252,9 +252,9 @@ class RelayReader {
         if (linkedID === undefined) {
           this._isMissingData = true;
         }
-        /* $FlowFixMe(>=0.98.0 site=www,mobile) This comment suppresses an
-         * error found when Flow v0.98 was deployed. To see the error delete
-         * this comment and run Flow. */
+        /* $FlowFixMe(>=0.98.0 site=www,mobile,react_native_fb) This comment
+         * suppresses an error found when Flow v0.98 was deployed. To see the
+         * error delete this comment and run Flow. */
         linkedArray[nextIndex] = linkedID;
         return;
       }
@@ -267,9 +267,9 @@ class RelayReader {
         RelayModernRecord.getDataID(record),
         prevItem,
       );
-      /* $FlowFixMe(>=0.98.0 site=www,mobile) This comment suppresses an error
-       * found when Flow v0.98 was deployed. To see the error delete this
-       * comment and run Flow. */
+      /* $FlowFixMe(>=0.98.0 site=www,mobile,react_native_fb) This comment
+       * suppresses an error found when Flow v0.98 was deployed. To see the
+       * error delete this comment and run Flow. */
       linkedArray[nextIndex] = this._traverse(field, linkedID, prevItem);
     });
     data[applicationName] = linkedArray;
@@ -329,9 +329,9 @@ class RelayReader {
     if (data[ID_KEY] == null) {
       data[ID_KEY] = RelayModernRecord.getDataID(record);
     }
-    /* $FlowFixMe(>=0.98.0 site=www,mobile) This comment suppresses an error
-     * found when Flow v0.98 was deployed. To see the error delete this comment
-     * and run Flow. */
+    /* $FlowFixMe(>=0.98.0 site=www,mobile,react_native_fb) This comment
+     * suppresses an error found when Flow v0.98 was deployed. To see the error
+     * delete this comment and run Flow. */
     fragmentPointers[fragmentSpread.name] = fragmentSpread.args
       ? getArgumentValues(fragmentSpread.args, this._variables)
       : {};

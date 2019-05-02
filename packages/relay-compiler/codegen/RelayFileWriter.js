@@ -319,7 +319,10 @@ function writeAll({
 
           const typeNode = transformedTypeContext.get(nodeName);
           const typeText = typeNode
-            ? writerConfig.typeGenerator.generate(typeNode, {
+            ? /* $FlowFixMe(>=0.98.0 site=react_native_fb) This comment
+               * suppresses an error found when Flow v0.98 was deployed. To see
+               * the error delete this comment and run Flow. */
+              writerConfig.typeGenerator.generate(typeNode, {
                 customScalars: writerConfig.customScalars,
                 enumsHasteModule: writerConfig.enumsHasteModule,
                 existingFragmentNames,

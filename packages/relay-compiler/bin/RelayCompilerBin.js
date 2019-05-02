@@ -40,12 +40,7 @@ const argv = yargs
     },
     exclude: {
       array: true,
-      default: [
-        '**/node_modules/**',
-        '**/__mocks__/**',
-        '**/__tests__/**',
-        '**/__generated__/**',
-      ],
+      default: ['**/node_modules/**', '**/__mocks__/**', '**/__generated__/**'],
       describe: 'Directories to ignore under src',
       type: 'string',
     },

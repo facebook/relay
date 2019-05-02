@@ -272,6 +272,7 @@ fragment ProfileFriends on User {
 
 exports[`RelayApplyFragmentArgumentTransform matches expected output: rejects-cyclic-fragments.invalid.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
+# expected-to-throw
 query TestQuery(
   $id: ID!
   $pictureSize: [Int] = [128]
@@ -302,27 +303,29 @@ THROWN EXCEPTION:
 
 Error: Found a circular reference from fragment 'Profile'.
 
-Source: GraphQL request (1:1)
-1: query TestQuery(
+Source: GraphQL request (2:1)
+1: # expected-to-throw
+2: query TestQuery(
    ^
-2:   $id: ID!
+3:   $id: ID!
 
-Source: GraphQL request (7:5)
-6:     id
-7:     ...Profile
+Source: GraphQL request (8:5)
+7:     id
+8:     ...Profile
        ^
-8:   }
+9:   }
 
-Source: GraphQL request (20:9)
-19:       node {
-20:         ...Profile
+Source: GraphQL request (21:9)
+20:       node {
+21:         ...Profile
             ^
-21:       }
+22:       }
 
 `;
 
 exports[`RelayApplyFragmentArgumentTransform matches expected output: rejects-unknown-query-variables.invalid.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
+# expected-to-throw
 query TestQuery(
   $id: ID!
   $pictureSize: [Int] = [128]
@@ -358,11 +361,11 @@ THROWN EXCEPTION:
 Error: RelayParser: Encountered 1 error(s):
 - Query 'TestQuery' references undefined variables.
   
-  GraphQL request (8:70)
-  7:     id
-  8:     ...Profile @arguments(pictureSize: $pictureSize, includeFriends: $includeFriends2)
-                                                                          ^
-  9:   }
+  GraphQL request (9:70)
+   8:     id
+   9:     ...Profile @arguments(pictureSize: $pictureSize, includeFriends: $includeFriends2)
+                                                                           ^
+  10:   }
   
 `;
 

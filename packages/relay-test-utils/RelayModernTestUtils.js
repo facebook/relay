@@ -9,17 +9,21 @@
 
 'use strict';
 
+const getOutputForFixture = require('./getOutputForFixture');
 const invariant = require('invariant');
 const mapObject = require('mapObject');
 const parseGraphQLText = require('./parseGraphQLText');
 
+import type React from 'React';
+import type {GraphQLSchema} from 'graphql';
 import type {
   $RelayProps,
   RelayProp,
   RelayPaginationProp,
   RelayRefetchProp,
-} from 'ReactRelayTypes';
-import type {GeneratedNode} from 'RelayConcreteNode';
+} from 'react-relay/ReactRelayTypes';
+import type {RelayCompilerTransforms, IRTransform} from 'relay-compiler';
+import type {GeneratedNode} from 'relay-runtime';
 
 /* global expect,it */
 
@@ -199,7 +203,7 @@ function generateTestsFromFixtures(
   it('matches expected output', async () => {
     const tests = fs.readdirSync(fixturesPath).map(async file => {
       const input = fs.readFileSync(path.join(fixturesPath, file), 'utf8');
-      const output = await getOutputForFixture(input, operation);
+      const output = await getOutputForFixture(input, operation, file);
       return {
         file,
         input,
@@ -240,22 +244,6 @@ function unwrapContainer<Props>(
   return (unwrapped: any);
 }
 
-async function getOutputForFixture(
-  input: string,
-  operation: (input: string) => string | Promise<string>,
-): Promise<string> {
-  try {
-    const output = operation(input);
-    return output instanceof Promise ? await output : output;
-  } catch (e) {
-    if (e instanceof TypeError) {
-      // Fail on blatant coding bugs during development
-      throw e;
-    }
-    return `THROWN EXCEPTION:\n\n${e.toString()}`;
-  }
-}
-
 function generate(
   text: string,
   schema: GraphQLSchema,
@@ -292,7 +280,7 @@ function generate(
 function simpleClone<T>(value: T): T {
   if (Array.isArray(value)) {
     return value.map(simpleClone);
-  } else if (value && typeof value === 'object') {
+  } else if (value != null && typeof value === 'object') {
     return ((mapObject(value, simpleClone): any): T);
   } else {
     return value;

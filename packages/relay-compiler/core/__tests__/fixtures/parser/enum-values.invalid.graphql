@@ -1,3 +1,4 @@
+# expected-to-throw
 query EnumValueQuery1 {
   me {
     profilePicture(preset: "LARGE") { # error: string not enum

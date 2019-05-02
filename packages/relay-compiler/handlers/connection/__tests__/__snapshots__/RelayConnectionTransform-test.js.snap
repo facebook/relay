@@ -520,6 +520,7 @@ query NodeQuery(
 
 exports[`RelayConnectionTransform matches expected output: connection-missing-first-arg.invalid.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
+# expected-to-throw
 query NodeQuery(
   $id: ID!
 ) {
@@ -545,11 +546,11 @@ THROWN EXCEPTION:
 Error: Encountered 1 error(s):
 - Expected field 'comments' to have a 'first' or 'last' argument.
   
-  Source: GraphQL request (7:7)
-  6:     ... on Story {
-  7:       comments @connection(key: "NodeQuery_comments") {
+  Source: GraphQL request (8:7)
+  7:     ... on Story {
+  8:       comments @connection(key: "NodeQuery_comments") {
            ^
-  8:         edges {
+  9:         edges {
   
 `;
 
@@ -847,6 +848,7 @@ fragment Example on User {
 
 exports[`RelayConnectionTransform matches expected output: invalid-connection-key-name.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
+# expected-to-throw
 query NodeQuery(
   $id: ID!
 ) {
@@ -870,16 +872,17 @@ THROWN EXCEPTION:
 Error: Encountered 1 error(s):
 - Expected the key argument to @connection to be of form <SomeName>_comments, got 'invalid'. For a detailed explanation, check out https://facebook.github.io/relay/docs/en/pagination-container.html#connection
   
-  Source: GraphQL request (7:44)
-  6:     ... on Story {
-  7:       comments(first: 10) @connection(key: "invalid") {
+  Source: GraphQL request (8:44)
+  7:     ... on Story {
+  8:       comments(first: 10) @connection(key: "invalid") {
                                                 ^
-  8:         edges {
+  9:         edges {
   
 `;
 
 exports[`RelayConnectionTransform matches expected output: invalid-connection-key-type.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
+# expected-to-throw
 query NodeQuery(
   $id: ID!
 ) {
@@ -903,16 +906,17 @@ THROWN EXCEPTION:
 Error: RelayParser: Encountered 1 error(s):
 - Expected a value matching type 'String!'.
   
-  GraphQL request (7:44)
-  6:     ... on Story {
-  7:       comments(first: 10) @connection(key: 10) {
+  GraphQL request (8:44)
+  7:     ... on Story {
+  8:       comments(first: 10) @connection(key: 10) {
                                                 ^
-  8:         edges {
+  9:         edges {
   
 `;
 
 exports[`RelayConnectionTransform matches expected output: invalid-connection-with-custom-handler.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
+# expected-to-throw
 query NodeQuery(
   $id: ID!
 ) {
@@ -945,16 +949,17 @@ THROWN EXCEPTION:
 Error: RelayParser: Encountered 1 error(s):
 - Expected a value matching type 'String'.
   
-  GraphQL request (7:75)
-  6:     ... on Story {
-  7:       comments(first: 10) @connection(key: "NodeQuery_comments", handler: 10) {
+  GraphQL request (8:75)
+  7:     ... on Story {
+  8:       comments(first: 10) @connection(key: "NodeQuery_comments", handler: 10) {
                                                                                ^
-  8:         edges {
+  9:         edges {
   
 `;
 
 exports[`RelayConnectionTransform matches expected output: invalid-type.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
+# expected-to-throw
 query NodeQuery(
   $id: ID!
 ) {
@@ -974,11 +979,11 @@ THROWN EXCEPTION:
 Error: Encountered 1 error(s):
 - @connection used on invalid field 'actors'. Expected the return type to be a non-plural interface or object, got '[Actor]'.
   
-  Source: GraphQL request (7:7)
-  6:     ... on Story {
-  7:       actors @connection {
+  Source: GraphQL request (8:7)
+  7:     ... on Story {
+  8:       actors @connection {
            ^
-  8:         name
+  9:         name
   
 `;
 
@@ -1145,6 +1150,7 @@ query NodeQuery(
 
 exports[`RelayConnectionTransform matches expected output: stream-connection-with-aliased-edges.invalid.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
+# expected-to-throw
 query NodeQuery(
   $id: ID!
 ) {
@@ -1178,16 +1184,17 @@ THROWN EXCEPTION:
 Error: Encountered 1 error(s):
 - @stream_connection does not support aliasing the 'edges' field.
   
-  Source: GraphQL request (13:9)
-  12:       ) {
-  13:         commentEdges: edges {
+  Source: GraphQL request (14:9)
+  13:       ) {
+  14:         commentEdges: edges {
               ^
-  14:           node {
+  15:           node {
   
 `;
 
 exports[`RelayConnectionTransform matches expected output: stream-connection-with-aliased-pageInfo.invalid.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
+# expected-to-throw
 query NodeQuery(
   $id: ID!
 ) {
@@ -1221,10 +1228,10 @@ THROWN EXCEPTION:
 Error: Encountered 1 error(s):
 - @stream_connection does not support aliasing the 'pageInfo' field.
   
-  Source: GraphQL request (20:9)
-  19:         }
-  20:         commentPageInfo: pageInfo {
+  Source: GraphQL request (21:9)
+  20:         }
+  21:         commentPageInfo: pageInfo {
               ^
-  21:           hasNextPage
+  22:           hasNextPage
   
 `;

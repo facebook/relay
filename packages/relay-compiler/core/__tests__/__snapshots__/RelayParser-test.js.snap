@@ -1,7 +1,8 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`RelayParser matches expected output: argumentDefinitions-with-typo.graphql 1`] = `
+exports[`RelayParser matches expected output: argumentDefinitions-with-typo.invalid.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
+# expected-to-throw
 fragment TestFragment on User @argumentDefinitions(
   id: {type: "ID"}
   size: {type: "[Int]", defaultValu: [100]} # uh-oh, typo
@@ -10,15 +11,16 @@ fragment TestFragment on User @argumentDefinitions(
 }
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
-ERROR:
+THROWN EXCEPTION:
+
 Error: RelayParser: Encountered 1 error(s):
 - Expected definition for variable '$size' to be an object with the shape: '{type: string, defaultValue?: mixed}.
   
-  GraphQL request (3:9)
-  2:   id: {type: "ID"}
-  3:   size: {type: "[Int]", defaultValu: [100]} # uh-oh, typo
+  GraphQL request (4:9)
+  3:   id: {type: "ID"}
+  4:   size: {type: "[Int]", defaultValu: [100]} # uh-oh, typo
              ^
-  4: ) {
+  5: ) {
   
 `;
 
@@ -911,6 +913,7 @@ fragment TestFragment on User {
 
 exports[`RelayParser matches expected output: directive-match-on-fragment.invalid.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
+# expected-to-throw
 fragment Example on User @match(key: "Example"){
   friends {
     edges {
@@ -924,19 +927,22 @@ fragment Example on User @match(key: "Example"){
 }
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
-ERROR:
+THROWN EXCEPTION:
+
 Error: RelayParser: Encountered 1 error(s):
 - Invalid directives @match found on FRAGMENT_DEFINITION. Source: document \`Example\` file: \`GraphQL request\`
   
-  GraphQL request (1:26)
-  1: fragment Example on User @match(key: "Example"){
+  GraphQL request (2:26)
+  1: # expected-to-throw
+  2: fragment Example on User @match(key: "Example"){
                               ^
-  2:   friends {
+  3:   friends {
   
 `;
 
 exports[`RelayParser matches expected output: directive-module-match-on-query.invalid.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
+# expected-to-throw
 query TestQuery($id: ID!) @module @match{
   foo: node(id: $id) {
     id
@@ -944,24 +950,28 @@ query TestQuery($id: ID!) @module @match{
 }
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
-ERROR:
+THROWN EXCEPTION:
+
 Error: RelayParser: Encountered 1 error(s):
 - Invalid directives @module, @match found on QUERY. Source: document \`TestQuery\` file: \`GraphQL request\`
   
-  GraphQL request (1:27)
-  1: query TestQuery($id: ID!) @module @match{
+  GraphQL request (2:27)
+  1: # expected-to-throw
+  2: query TestQuery($id: ID!) @module @match{
                                ^
-  2:   foo: node(id: $id) {
+  3:   foo: node(id: $id) {
   
-  GraphQL request (1:35)
-  1: query TestQuery($id: ID!) @module @match{
+  GraphQL request (2:35)
+  1: # expected-to-throw
+  2: query TestQuery($id: ID!) @module @match{
                                        ^
-  2:   foo: node(id: $id) {
+  3:   foo: node(id: $id) {
   
 `;
 
 exports[`RelayParser matches expected output: directive-module-on-field.invalid.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
+# expected-to-throw
 fragment Example on User {
   friends {
     edges {
@@ -975,15 +985,16 @@ fragment Example on User {
 }
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
-ERROR:
+THROWN EXCEPTION:
+
 Error: RelayParser: Encountered 1 error(s):
 - Invalid directives @module found on FIELD. Source: document \`Example\` file: \`GraphQL request\`
   
-  GraphQL request (5:24)
-  4:       node {
-  5:         profilePicture @module(preset: $preset) {
+  GraphQL request (6:24)
+  5:       node {
+  6:         profilePicture @module(preset: $preset) {
                             ^
-  6:           uri
+  7:           uri
   
 `;
 
@@ -1136,6 +1147,7 @@ query EnumValueQuery {
 
 exports[`RelayParser matches expected output: enum-values.invalid.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
+# expected-to-throw
 query EnumValueQuery1 {
   me {
     profilePicture(preset: "LARGE") { # error: string not enum
@@ -1161,31 +1173,32 @@ query EnumValueQuery3 {
 }
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
-ERROR:
+THROWN EXCEPTION:
+
 Error: RelayParser: Encountered 3 error(s):
 - Expected a value matching type 'PhotoSize'.
   
-  GraphQL request (3:28)
-  2:   me {
-  3:     profilePicture(preset: "LARGE") { # error: string not enum
+  GraphQL request (4:28)
+  3:   me {
+  4:     profilePicture(preset: "LARGE") { # error: string not enum
                                 ^
-  4:       uri
+  5:       uri
   
 - Expected a value matching type 'PhotoSize'.
   
-  GraphQL request (11:28)
-  10:   me {
-  11:     profilePicture(preset: 128) { # error: int not enum
+  GraphQL request (12:28)
+  11:   me {
+  12:     profilePicture(preset: 128) { # error: int not enum
                                  ^
-  12:       uri
+  13:       uri
   
 - Expected a value matching type 'PhotoSize'.
   
-  GraphQL request (19:28)
-  18:   me {
-  19:     profilePicture(preset: [LARGE]) { # error: list of enum, not enum
+  GraphQL request (20:28)
+  19:   me {
+  20:     profilePicture(preset: [LARGE]) { # error: list of enum, not enum
                                  ^
-  20:       uri
+  21:       uri
   
 `;
 
@@ -2751,6 +2764,7 @@ fragment ChildFragment on User @argumentDefinitions(environments: {type: "[Envir
 
 exports[`RelayParser matches expected output: fragment-with-literal-enum-arguments-into-enum-list-indirect.invalid.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
+# expected-to-throw
 fragment ParentFragment on User {
   mobile_checkins: checkins(environments: [MOBILE]) {
     query
@@ -2767,21 +2781,22 @@ fragment ChildFragment on User @argumentDefinitions(environment: {type: "Environ
 }
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
-ERROR:
+THROWN EXCEPTION:
+
 Error: RelayParser: Encountered 1 error(s):
 - Variable '$environment' was defined as type 'Environment!' but used in a location expecting the type '[Environment!]!'
   
-  GraphQL request (8:53)
-  7: 
-  8: fragment ChildFragment on User @argumentDefinitions(environment: {type: "Environment!"}){
-                                                         ^
-  9:   # variables of a non-list type cannot flow into list types,
+  GraphQL request (9:53)
+   8: 
+   9: fragment ChildFragment on User @argumentDefinitions(environment: {type: "Environment!"}){
+                                                          ^
+  10:   # variables of a non-list type cannot flow into list types,
   
-  GraphQL request (11:26)
-  10:   # the singular -> list promotion only works for literal values
-  11:   checkins(environments: $environment) { # expected error
+  GraphQL request (12:26)
+  11:   # the singular -> list promotion only works for literal values
+  12:   checkins(environments: $environment) { # expected error
                                ^
-  12:     query
+  13:     query
   
 `;
 
@@ -3816,6 +3831,7 @@ fragment ChildFragment on Query @argumentDefinitions(inputs: {type: "[CheckinSea
 
 exports[`RelayParser matches expected output: fragment-with-undefined-literal-arguments.invalid.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
+# expected-to-throw
 fragment ParentFragment on User {
   ...ChildFragment @arguments(pictureSize: 42) # error: $pictureSize not defined
 }
@@ -3827,26 +3843,28 @@ fragment ChildFragment on User {
 }
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
-ERROR:
+THROWN EXCEPTION:
+
 Error: RelayParser: Encountered 1 error(s):
 - Literal @arguments values are only supported when the argument is defined with @argumentDefinitions. Check the definition of fragment 'ChildFragment'.
   
-  GraphQL request (2:44)
-  1: fragment ParentFragment on User {
-  2:   ...ChildFragment @arguments(pictureSize: 42) # error: $pictureSize not defined
+  GraphQL request (3:44)
+  2: fragment ParentFragment on User {
+  3:   ...ChildFragment @arguments(pictureSize: 42) # error: $pictureSize not defined
                                                 ^
-  3: }
+  4: }
   
-  GraphQL request (5:1)
-  4: 
-  5: fragment ChildFragment on User {
+  GraphQL request (6:1)
+  5: 
+  6: fragment ChildFragment on User {
      ^
-  6:   profilePicture(size: $pictureSize) {
+  7:   profilePicture(size: $pictureSize) {
   
 `;
 
 exports[`RelayParser matches expected output: fragment-with-undefined-variable-arguments.invalid.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
+# expected-to-throw
 fragment ParentFragment on User {
   ...ChildFragment @arguments(pictureSize: $querySize) # error: $pictureSize not defined
 }
@@ -3858,26 +3876,28 @@ fragment ChildFragment on User {
 }
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
-ERROR:
+THROWN EXCEPTION:
+
 Error: RelayParser: Encountered 1 error(s):
 - Variable @arguments values are only supported when the argument is defined with @argumentDefinitions. Check the definition of fragment 'ChildFragment'.
   
-  GraphQL request (2:44)
-  1: fragment ParentFragment on User {
-  2:   ...ChildFragment @arguments(pictureSize: $querySize) # error: $pictureSize not defined
+  GraphQL request (3:44)
+  2: fragment ParentFragment on User {
+  3:   ...ChildFragment @arguments(pictureSize: $querySize) # error: $pictureSize not defined
                                                 ^
-  3: }
+  4: }
   
-  GraphQL request (5:1)
-  4: 
-  5: fragment ChildFragment on User {
+  GraphQL request (6:1)
+  5: 
+  6: fragment ChildFragment on User {
      ^
-  6:   profilePicture(size: $pictureSize) {
+  7:   profilePicture(size: $pictureSize) {
   
 `;
 
 exports[`RelayParser matches expected output: fragment-with-unnecessary-unchecked-arguments.invalid.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
+# expected-to-throw
 fragment TestFragment on User @argumentDefinitions(
   id: {type: "ID!"}
   size: {type: "[Int]", defaultValue: [100]}
@@ -3896,15 +3916,16 @@ fragment Foo on User @argumentDefinitions(localId: {type: "ID!"}){
 }
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
-ERROR:
+THROWN EXCEPTION:
+
 Error: RelayParser: Encountered 1 error(s):
 - Invalid use of @uncheckedArguments_DEPRECATED: all arguments are defined, use @arguments instead.
   
-  GraphQL request (11:10)
-  10:   }
-  11:   ...Foo @uncheckedArguments_DEPRECATED(localId: $id)
+  GraphQL request (12:10)
+  11:   }
+  12:   ...Foo @uncheckedArguments_DEPRECATED(localId: $id)
                ^
-  12: }
+  13: }
   
 `;
 
@@ -4993,6 +5014,7 @@ query LiteralListArgumentQuery {
 
 exports[`RelayParser matches expected output: literal-list-argument.invalid.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
+# expected-to-throw
 query LiteralListArgumentQuery1 {
   route(waypoints: [{
     lat: 0.0 # error: float not string
@@ -5021,31 +5043,32 @@ query LiteralListArgumentQuery3 {
 }
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
-ERROR:
+THROWN EXCEPTION:
+
 Error: RelayParser: Encountered 3 error(s):
 - Expected a value matching type 'String'.
   
-  GraphQL request (3:10)
-  2:   route(waypoints: [{
-  3:     lat: 0.0 # error: float not string
+  GraphQL request (4:10)
+  3:   route(waypoints: [{
+  4:     lat: 0.0 # error: float not string
               ^
-  4:     lon: "0.0"
+  5:     lon: "0.0"
   
 - Expected a value matching type 'WayPoint!'.
   
-  GraphQL request (13:21)
-  12: query LiteralListArgumentQuery2 {
-  13:   route(waypoints: ["waypoint"]) { # error: string not input object
+  GraphQL request (14:21)
+  13: query LiteralListArgumentQuery2 {
+  14:   route(waypoints: ["waypoint"]) { # error: string not input object
                           ^
-  14:     steps {
+  15:     steps {
   
 - Expected a value matching type 'WayPoint!'.
   
-  GraphQL request (21:20)
-  20: query LiteralListArgumentQuery3 {
-  21:   route(waypoints: "waypoint") { # error: string not list
+  GraphQL request (22:20)
+  21: query LiteralListArgumentQuery3 {
+  22:   route(waypoints: "waypoint") { # error: string not list
                          ^
-  22:     steps {
+  23:     steps {
   
 `;
 
@@ -5176,6 +5199,7 @@ query LiteralObjectArgument {
 
 exports[`RelayParser matches expected output: literal-object-argument.invalid.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
+# expected-to-throw
 query LiteralObjectArgument1 {
   checkinSearchQuery(query: {
     unknownField: "Facebook" # error: unknown field
@@ -5199,31 +5223,32 @@ query LiteralObjectArgument3 {
 }
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
-ERROR:
+THROWN EXCEPTION:
+
 Error: RelayParser: Encountered 3 error(s):
 - Uknown field 'unknownField' on type 'CheckinSearchInput'.
   
-  GraphQL request (3:5)
-  2:   checkinSearchQuery(query: {
-  3:     unknownField: "Facebook" # error: unknown field
+  GraphQL request (4:5)
+  3:   checkinSearchQuery(query: {
+  4:     unknownField: "Facebook" # error: unknown field
          ^
-  4:   }) {
+  5:   }) {
   
 - Expected a value matching type 'String'.
   
-  GraphQL request (11:12)
-  10:   checkinSearchQuery(query: {
-  11:     query: FACEBOOK # error: enum not string
+  GraphQL request (12:12)
+  11:   checkinSearchQuery(query: {
+  12:     query: FACEBOOK # error: enum not string
                  ^
-  12:   }) {
+  13:   }) {
   
 - Expected a value matching type 'CheckinSearchInput'.
   
-  GraphQL request (18:29)
-  17: query LiteralObjectArgument3 {
-  18:   checkinSearchQuery(query: FACEBOOK) { # error: enum not object
+  GraphQL request (19:29)
+  18: query LiteralObjectArgument3 {
+  19:   checkinSearchQuery(query: FACEBOOK) { # error: enum not object
                                   ^
-  19:     query
+  20:     query
   
 `;
 
@@ -5352,6 +5377,7 @@ query NullValuesQuery {
 
 exports[`RelayParser matches expected output: null-values.invalid.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
+# expected-to-throw
 query NullValuesQuery {
   node_id_required(id: null) {
     id
@@ -5359,15 +5385,16 @@ query NullValuesQuery {
 }
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
-ERROR:
+THROWN EXCEPTION:
+
 Error: RelayParser: Encountered 1 error(s):
 - Expected a value matching type 'ID!'.
   
-  GraphQL request (2:24)
-  1: query NullValuesQuery {
-  2:   node_id_required(id: null) {
+  GraphQL request (3:24)
+  2: query NullValuesQuery {
+  3:   node_id_required(id: null) {
                             ^
-  3:     id
+  4:     id
   
 `;
 
@@ -5822,6 +5849,7 @@ query TestQuery($id: ID!) {
 
 exports[`RelayParser matches expected output: undefined-type.invalid.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
+# expected-to-throw
 query TestQuery($id: UnknownType) {
   node(id: "someid") {
     id
@@ -5829,14 +5857,16 @@ query TestQuery($id: UnknownType) {
 }
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
-ERROR:
+THROWN EXCEPTION:
+
 Error: RelayParser: Encountered 1 error(s):
 - Unknown type: 'UnknownType'.
   
-  GraphQL request (1:22)
-  1: query TestQuery($id: UnknownType) {
+  GraphQL request (2:22)
+  1: # expected-to-throw
+  2: query TestQuery($id: UnknownType) {
                           ^
-  2:   node(id: "someid") {
+  3:   node(id: "someid") {
   
 `;
 

@@ -1,3 +1,4 @@
+# expected-to-throw
 query QueryWithFragmentWithDefer($label: String!) {
   me {
     id

@@ -1,3 +1,4 @@
+# expected-to-throw
 query LiteralObjectArgument1 {
   checkinSearchQuery(query: {
     unknownField: "Facebook" # error: unknown field

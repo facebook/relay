@@ -1,3 +1,4 @@
+# expected-to-throw
 query QueryWithFragmentWithStream($id: ID!, $label: String!) {
   node(id: $id) {
     id

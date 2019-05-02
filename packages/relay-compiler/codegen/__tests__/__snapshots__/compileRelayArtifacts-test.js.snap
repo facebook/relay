@@ -3331,8 +3331,9 @@ fragment ProfilePicture on User {
 }
 `;
 
-exports[`compileRelayArtifacts matches expected output: fragment-on-query-with-cycle.graphql 1`] = `
+exports[`compileRelayArtifacts matches expected output: fragment-on-query-with-cycle.invalid.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
+# expected-to-throw
 fragment RefetchableFragment on Query @refetchable(queryName: "RefetchableFragmentQuery") @argumentDefinitions(id: {type: "ID!"}) {
   node(id: $id) {
     ... on User {
@@ -3363,33 +3364,35 @@ THROWN EXCEPTION:
 
 Error: Found a circular reference from fragment 'Profile'.
 
-Source (derived): GraphQL request (1:1)
-1: fragment RefetchableFragment on Query @refetchable(queryName: "RefetchableFragmentQuery") @argumentDefinitions(id: {type: "ID!"}) {
+Source (derived): GraphQL request (2:1)
+1: # expected-to-throw
+2: fragment RefetchableFragment on Query @refetchable(queryName: "RefetchableFragmentQuery") @argumentDefinitions(id: {type: "ID!"}) {
    ^
-2:   node(id: $id) {
+3:   node(id: $id) {
 
-Source (derived): GraphQL request (1:1)
-1: fragment RefetchableFragment on Query @refetchable(queryName: "RefetchableFragmentQuery") @argumentDefinitions(id: {type: "ID!"}) {
+Source (derived): GraphQL request (2:1)
+1: # expected-to-throw
+2: fragment RefetchableFragment on Query @refetchable(queryName: "RefetchableFragmentQuery") @argumentDefinitions(id: {type: "ID!"}) {
    ^
-2:   node(id: $id) {
+3:   node(id: $id) {
 
-Source: GraphQL request (6:7)
-5:       name
-6:       ...Profile @arguments(includeProfile: true)
+Source: GraphQL request (7:7)
+6:       name
+7:       ...Profile @arguments(includeProfile: true)
          ^
-7:     }
+8:     }
 
-Source: GraphQL request (20:9)
-19:       node {
-20:         ...Profile
+Source: GraphQL request (21:9)
+20:       node {
+21:         ...Profile
             ^
-21:       }
+22:       }
 
-Source: GraphQL request (20:9)
-19:       node {
-20:         ...Profile
+Source: GraphQL request (21:9)
+20:       node {
+21:         ...Profile
             ^
-21:       }
+22:       }
 
 `;
 
@@ -9805,6 +9808,7 @@ fragment UserProfile_user on User {
 
 exports[`compileRelayArtifacts matches expected output: unused-fragment-argdef.invalid.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
+# expected-to-throw
 query QueryWithUnusedFragmentArgumentDefinition($id: ID!) {
   node(id: $id) {
     ...Profile
@@ -9834,17 +9838,17 @@ THROWN EXCEPTION:
 Error: RelayParser: Encountered 1 error(s):
 - Variable @arguments values are only supported when the argument is defined with @argumentDefinitions. Check the definition of fragment 'ProfilePhoto'.
   
-  GraphQL request (15:36)
-  14:   __typename
-  15:   ...ProfilePhoto @arguments(size: $size)
+  GraphQL request (16:36)
+  15:   __typename
+  16:   ...ProfilePhoto @arguments(size: $size)
                                          ^
-  16: }
+  17: }
   
-  GraphQL request (18:1)
-  17: 
-  18: fragment ProfilePhoto on User {
+  GraphQL request (19:1)
+  18: 
+  19: fragment ProfilePhoto on User {
       ^
-  19:   profilePicture(size: [100]) {
+  20:   profilePicture(size: [100]) {
   
 `;
 

@@ -534,6 +534,7 @@ query RefetchableFragmentQuery(
 
 exports[`RelayRefetchableFragmentTransform matches expected output: refetchable-fragment-with-connection-literal-count.invalid.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
+# expected-to-throw
 fragment PaginationFragment on Node
   @refetchable(queryName: "RefetchableFragmentQuery")
   @argumentDefinitions(
@@ -559,22 +560,23 @@ THROWN EXCEPTION:
 Error: RelayRefetchableFragmentTransform: Encountered 1 error(s):
 - Invalid use of @refetchable with @connection in fragment 'PaginationFragment', refetchable connections must use variables for the after and first arguments.
   
-  Source: GraphQL request (9:5)
-   8:     name
-   9:     friends(after: $cursor, first: 10)
+  Source: GraphQL request (10:5)
+   9:     name
+  10:     friends(after: $cursor, first: 10)
           ^
-  10:       @connection(key: "PaginationFragment_friends") {
+  11:       @connection(key: "PaginationFragment_friends") {
   
-  Source: GraphQL request (9:36)
-   8:     name
-   9:     friends(after: $cursor, first: 10)
+  Source: GraphQL request (10:36)
+   9:     name
+  10:     friends(after: $cursor, first: 10)
                                          ^
-  10:       @connection(key: "PaginationFragment_friends") {
+  11:       @connection(key: "PaginationFragment_friends") {
   
 `;
 
 exports[`RelayRefetchableFragmentTransform matches expected output: refetchable-fragment-with-connection-no-cursor.invalid.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
+# expected-to-throw
 fragment PaginationFragment on Node
   @refetchable(queryName: "RefetchableFragmentQuery")
   @argumentDefinitions(
@@ -600,22 +602,23 @@ THROWN EXCEPTION:
 Error: RelayRefetchableFragmentTransform: Encountered 1 error(s):
 - Invalid use of @refetchable with @connection in fragment 'PaginationFragment', refetchable connections must use variables for the after and first arguments.
   
-  Source: GraphQL request (9:5)
-   8:     name
-   9:     friends(after: "<cursor>", first: $count)
+  Source: GraphQL request (10:5)
+   9:     name
+  10:     friends(after: "<cursor>", first: $count)
           ^
-  10:       @connection(key: "PaginationFragment_friends") {
+  11:       @connection(key: "PaginationFragment_friends") {
   
-  Source: GraphQL request (9:20)
-   8:     name
-   9:     friends(after: "<cursor>", first: $count)
+  Source: GraphQL request (10:20)
+   9:     name
+  10:     friends(after: "<cursor>", first: $count)
                          ^
-  10:       @connection(key: "PaginationFragment_friends") {
+  11:       @connection(key: "PaginationFragment_friends") {
   
 `;
 
 exports[`RelayRefetchableFragmentTransform matches expected output: refetchable-fragment-with-connection-unstable-path.invalid.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
+# expected-to-throw
 fragment PaginationFragment on Node
   @refetchable(queryName: "RefetchableFragmentQuery")
   @argumentDefinitions(
@@ -648,16 +651,16 @@ THROWN EXCEPTION:
 Error: RelayRefetchableFragmentTransform: Encountered 1 error(s):
 - Invalid use of @refetchable with @connection in fragment 'PaginationFragment', refetchable connections cannot appear inside plural fields.
   
-  Source: GraphQL request (13:11)
-  12:         node {
-  13:           friends(after: $cursor, first: $count)
+  Source: GraphQL request (14:11)
+  13:         node {
+  14:           friends(after: $cursor, first: $count)
                 ^
-  14:             @connection(key: "PaginationFragment_friends") {
+  15:             @connection(key: "PaginationFragment_friends") {
   
-  Source: GraphQL request (11:7)
-  10:     friends(first: 1) {
-  11:       edges {
+  Source: GraphQL request (12:7)
+  11:     friends(first: 1) {
+  12:       edges {
             ^
-  12:         node {
+  13:         node {
   
 `;

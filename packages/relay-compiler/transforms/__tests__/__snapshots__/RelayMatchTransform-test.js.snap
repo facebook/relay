@@ -2,6 +2,7 @@
 
 exports[`RelayMatchTransform matches expected output: direct-js-field.invalid.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
+# expected-to-throw
 fragment NameRendererFragment on User {
   id
   nameRenderer {
@@ -17,16 +18,17 @@ THROWN EXCEPTION:
 Error: Encountered 1 error(s):
 - Direct use of the 'js' field is not allowed, use @match/@module instead.
   
-  Source: GraphQL request (5:7)
-  4:     ... on PlainUserNameRenderer {
-  5:       js(module: "PlainUserNameRenderer.react")
+  Source: GraphQL request (6:7)
+  5:     ... on PlainUserNameRenderer {
+  6:       js(module: "PlainUserNameRenderer.react")
            ^
-  6:     }
+  7:     }
   
 `;
 
 exports[`RelayMatchTransform matches expected output: invalid-match-type.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
+# expected-to-throw
 fragment NameRendererFragment on User {
   id
   nameRenderer @match {
@@ -52,22 +54,23 @@ THROWN EXCEPTION:
 Error: Encountered 1 error(s):
 - Invalid @match selection: selections must match against concrete variants/implementors of type 'UserNameRenderer'. Got 'User', expected one of 'PlainUserNameRenderer', 'MarkdownUserNameRenderer', 'CustomNameRenderer', etc.
   
-  Source: GraphQL request (5:18)
-  4:     ...PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
-  5:     ...User_user @module(name: "User.react")
+  Source: GraphQL request (6:18)
+  5:     ...PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
+  6:     ...User_user @module(name: "User.react")
                       ^
-  6:   }
+  7:   }
   
-  Source: GraphQL request (16:1)
-  15: 
-  16: fragment User_user on User {
+  Source: GraphQL request (17:1)
+  16: 
+  17: fragment User_user on User {
       ^
-  17:   __typename
+  18:   __typename
   
 `;
 
 exports[`RelayMatchTransform matches expected output: invalid-no-matches.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
+# expected-to-throw
 fragment NameRendererFragment on User {
   id
   nameRenderer @match
@@ -79,16 +82,17 @@ THROWN EXCEPTION:
 Error: RelayParser: Encountered 1 error(s):
 - Expected at least one selection for non-scalar field 'nameRenderer' on type 'UserNameRenderer'. Source: document \`NameRendererFragment\` file: \`GraphQL request\`.
   
-  GraphQL request (3:3)
-  2:   id
-  3:   nameRenderer @match
+  GraphQL request (4:3)
+  3:   id
+  4:   nameRenderer @match
        ^
-  4: }
+  5: }
   
 `;
 
 exports[`RelayMatchTransform matches expected output: invalid-non-empty-selections.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
+# expected-to-throw
 fragment NameRendererFragment on User {
   id
   nameRenderer @match {
@@ -119,11 +123,11 @@ THROWN EXCEPTION:
 Error: Encountered 1 error(s):
 - Invalid @match selection: all selections should be fragment spreads with @module.
   
-  Source: GraphQL request (4:5)
-  3:   nameRenderer @match {
-  4:     __typename
+  Source: GraphQL request (5:5)
+  4:   nameRenderer @match {
+  5:     __typename
          ^
-  5:     ...PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
+  6:     ...PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
   
 `;
 
@@ -191,6 +195,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
 
 exports[`RelayMatchTransform matches expected output: match-on-client-field.invalid.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
+# expected-to-throw
 fragment NameRendererFragment on User {
   id
   foo @match {
@@ -214,16 +219,17 @@ THROWN EXCEPTION:
 Error: Encountered 1 error(s):
 - @match used on incompatible field 'foo'. Use of @match on client fields is not allowed.
   
-  Source: GraphQL request (3:3)
-  2:   id
-  3:   foo @match {
+  Source: GraphQL request (4:3)
+  3:   id
+  4:   foo @match {
        ^
-  4:     name
+  5:     name
   
 `;
 
 exports[`RelayMatchTransform matches expected output: match-with-arguments.invalid.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
+# expected-to-throw
 fragment NameRendererFragment on User {
   id
   nameRenderer @match {
@@ -256,16 +262,17 @@ THROWN EXCEPTION:
 Error: Encountered 1 error(s):
 - @module does not support @arguments.
   
-  Source: GraphQL request (6:66)
-  5:     ...MarkdownUserNameRenderer_name
-  6:       @module(name: "MarkdownUserNameRenderer.react") @arguments(cond: true)
+  Source: GraphQL request (7:66)
+  6:     ...MarkdownUserNameRenderer_name
+  7:       @module(name: "MarkdownUserNameRenderer.react") @arguments(cond: true)
                                                                       ^
-  7:   }
+  8:   }
   
 `;
 
 exports[`RelayMatchTransform matches expected output: module-on-client-type-interface.invalid.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
+# expected-to-throw
 fragment NameRendererFragment on User {
   id
   nameRenderable @match {
@@ -299,11 +306,11 @@ THROWN EXCEPTION:
 Error: Encountered 1 error(s):
 - Invalid @match selection: @match is not allowed on client types.
   
-  Source: GraphQL request (3:3)
-  2:   id
-  3:   nameRenderable @match {
+  Source: GraphQL request (4:3)
+  3:   id
+  4:   nameRenderable @match {
        ^
-  4:     ...PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
+  5:     ...PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
   
 `;
 

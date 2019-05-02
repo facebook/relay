@@ -158,6 +158,7 @@ fragment UserFragment on User @argumentDefinitions(
 
 exports[`GraphQLIRPrinter matches expected output: string-enum-arg.invalid.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
+# expected-to-throw
 fragment UserFragment on User {
   checkins(environments: "WEB") {
     __typename
@@ -170,11 +171,11 @@ THROWN EXCEPTION:
 Error: RelayParser: Encountered 1 error(s):
 - Expected a value matching type 'Environment!'.
   
-  GraphQL request (2:26)
-  1: fragment UserFragment on User {
-  2:   checkins(environments: "WEB") {
+  GraphQL request (3:26)
+  2: fragment UserFragment on User {
+  3:   checkins(environments: "WEB") {
                               ^
-  3:     __typename
+  4:     __typename
   
 `;
 
@@ -201,6 +202,7 @@ fragment UserFragment on User @argumentDefinitions(
 
 exports[`GraphQLIRPrinter matches expected output: unknown-enum-arg.invalid.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
+# expected-to-throw
 fragment UserFragment on User {
   checkins(environments: UNKNOWN_ENUM_VALUE) {
     __typename
@@ -213,10 +215,10 @@ THROWN EXCEPTION:
 Error: RelayParser: Encountered 1 error(s):
 - Expected a value matching type 'Environment!'.
   
-  GraphQL request (2:26)
-  1: fragment UserFragment on User {
-  2:   checkins(environments: UNKNOWN_ENUM_VALUE) {
+  GraphQL request (3:26)
+  2: fragment UserFragment on User {
+  3:   checkins(environments: UNKNOWN_ENUM_VALUE) {
                               ^
-  3:     __typename
+  4:     __typename
   
 `;

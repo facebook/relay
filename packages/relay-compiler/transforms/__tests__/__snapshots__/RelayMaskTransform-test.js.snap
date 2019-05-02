@@ -68,6 +68,7 @@ fragment AnotherRecursiveFragment on Image {
 
 exports[`RelayMaskTransform matches expected output: relay-mask-transform-incompatible-type-invalid.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
+# expected-to-throw
 fragment ParentFragment on Query {
   ...StringFragment @relay(mask: false)
   ...NullableIDFragment @relay(mask: false)
@@ -94,6 +95,7 @@ Error: RelayMaskTransform: Cannot unmask one or more fragments in \`ParentFragme
 
 exports[`RelayMaskTransform matches expected output: relay-mask-transform-incompatible-type-invalid2.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
+# expected-to-throw
 fragment ParentFragment on Query {
   ...NullableIDListFragment @relay(mask: false)
   ...NullableIDFragment @relay(mask: false)
@@ -120,6 +122,7 @@ Error: RelayMaskTransform: Cannot unmask one or more fragments in \`ParentFragme
 
 exports[`RelayMaskTransform matches expected output: relay-mask-transform-mixed-local-root-invalid.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
+# expected-to-throw
 fragment ParentQuery on Query @argumentDefinitions(
   id: {type: "ID!"}
 ) {

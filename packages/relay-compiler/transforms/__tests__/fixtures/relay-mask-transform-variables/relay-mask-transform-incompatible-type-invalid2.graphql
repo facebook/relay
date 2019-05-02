@@ -1,3 +1,4 @@
+# expected-to-throw
 fragment ParentFragment on Query {
   ...NullableIDListFragment @relay(mask: false)
   ...NullableIDFragment @relay(mask: false)

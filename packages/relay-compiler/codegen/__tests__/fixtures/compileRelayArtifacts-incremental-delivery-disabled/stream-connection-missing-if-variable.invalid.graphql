@@ -1,3 +1,4 @@
+# expected-to-throw
 query NodeQuery(
   $id: ID!
 ) {

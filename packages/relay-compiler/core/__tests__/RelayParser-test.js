@@ -139,11 +139,7 @@ describe('RelayParser', () => {
   });
 
   generateTestsFromFixtures(`${__dirname}/fixtures/parser`, text => {
-    try {
-      const ir = RelayParser.parse(schema, text);
-      return JSON.stringify(ir, null, 2);
-    } catch (e) {
-      return 'ERROR:\n' + e;
-    }
+    const ir = RelayParser.parse(schema, text);
+    return JSON.stringify(ir, null, 2);
   });
 });

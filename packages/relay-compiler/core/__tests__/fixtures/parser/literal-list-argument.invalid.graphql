@@ -1,3 +1,4 @@
+# expected-to-throw
 query LiteralListArgumentQuery1 {
   route(waypoints: [{
     lat: 0.0 # error: float not string

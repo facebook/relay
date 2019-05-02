@@ -1,3 +1,4 @@
+# expected-to-throw
 query QueryWithFragmentWithDefer($defer: Boolean) {
   me {
     id

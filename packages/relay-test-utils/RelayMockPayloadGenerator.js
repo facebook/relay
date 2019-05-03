@@ -486,13 +486,13 @@ class RelayMockPayloadGenerator {
           args,
         },
         [...path, applicationName],
-        /* $FlowFixMe(>=0.98.0 site=react_native_fb) This comment suppresses an
+        /* $FlowFixMe(>=0.98.0 site=react_native_fb,oss) This comment suppresses an
          * error found when Flow v0.98 was deployed. To see the error delete
          * this comment and run Flow. */
         typeof data[applicationName] === 'object'
           ? data[applicationName]
           : null,
-        /* $FlowFixMe(>=0.98.0 site=react_native_fb) This comment suppresses an
+        /* $FlowFixMe(>=0.98.0 site=react_native_fb,oss) This comment suppresses an
          * error found when Flow v0.98 was deployed. To see the error delete
          * this comment and run Flow. */
         defaults,
@@ -546,7 +546,7 @@ class RelayMockPayloadGenerator {
       );
     }
     if (typeof data === 'object') {
-      /* $FlowFixMe(>=0.98.0 site=react_native_fb) This comment suppresses an
+      /* $FlowFixMe(>=0.98.0 site=react_native_fb,oss) This comment suppresses an
        * error found when Flow v0.98 was deployed. To see the error delete this
        * comment and run Flow. */
       return data;

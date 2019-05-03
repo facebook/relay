@@ -387,7 +387,10 @@ function getRootField(request: ConcreteRequest): ?string {
     request.fragment.selections.length > 0 &&
     request.fragment.selections[0].kind === 'LinkedField'
   ) {
-    return request.fragment.selections[0].name;
+    return (
+      request.fragment.selections[0].alias ||
+      request.fragment.selections[0].name
+    );
   }
   return null;
 }

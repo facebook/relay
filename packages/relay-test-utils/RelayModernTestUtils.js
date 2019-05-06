@@ -193,6 +193,8 @@ function generateAndCompile(
 /**
  * Generates a set of jest snapshot tests that compare the output of the
  * provided `operation` to each of the matching files in the `fixturesPath`.
+ * The fixture should have '# expected-to-throw' on its first line
+ * if it is expected to fail
  */
 function generateTestsFromFixtures(
   fixturesPath: string,

@@ -37,7 +37,9 @@ async function getOutputForFixture(
     return `THROWN EXCEPTION:\n\n${e.toString()}`;
   }
   if (shouldThrow) {
-    throw new Error(`Expect test '${file}' to throw, but it passed`);
+    throw new Error(
+      `Expect test '${file}' to throw, but it passed:\n${result}`,
+    );
   }
   return result;
 }

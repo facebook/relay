@@ -15,22 +15,25 @@
 const getOutputForFixture = require('../getOutputForFixture');
 
 describe('getOutputForFixture', () => {
-  it('should throw when shouldThrow == true but operation succeeded', async () => {
+  it('should throw when there is #expected-to-throw but operation succeeded', async () => {
+    const RESULT_STRING = 'SUCCESS_STRING';
     try {
       await getOutputForFixture(
         '# expected-to-throw\n query{}',
-        () => '',
+        () => RESULT_STRING,
         'test.graphql',
       );
       throw new Error('Should fail');
     } catch (e) {
       expect(e).toEqual(
-        new Error("Expect test 'test.graphql' to throw, but it passed"),
+        new Error(
+          `Expect test 'test.graphql' to throw, but it passed:\n${RESULT_STRING}`,
+        ),
       );
     }
   });
 
-  it('should throw when shouldThrow == false but operation failed', async () => {
+  it('should throw when there is no #expected-to-throw but operation failed', async () => {
     try {
       await getOutputForFixture(
         'fragment tnemgarf{}',
@@ -45,5 +48,27 @@ describe('getOutputForFixture', () => {
         new Error("Expect test 'test.graphql' to pass, but it threw:\nError"),
       );
     }
+  });
+
+  it('should pass when there is #expected-to-throw and operation failed', async () => {
+    const RESULT_STRING = 'ERROR_STRING';
+    const output = await getOutputForFixture(
+      '# expected-to-throw\n query{}',
+      () => {
+        throw new Error(RESULT_STRING);
+      },
+      'test.graphql',
+    );
+    expect(output).toEqual(`THROWN EXCEPTION:\n\nError: ${RESULT_STRING}`);
+  });
+
+  it('should pass when there is no expected-to-throw and operation succeeded', async () => {
+    const RESULT_STRING = 'SUCCESS_STRING';
+    const output = await getOutputForFixture(
+      'fragment tnemgarf{}',
+      () => RESULT_STRING,
+      'test.graphql',
+    );
+    expect(output).toEqual(RESULT_STRING);
   });
 });

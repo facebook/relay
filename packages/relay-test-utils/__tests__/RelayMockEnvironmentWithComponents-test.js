@@ -111,6 +111,18 @@ describe('ReactRelayTestMocker with Containers', () => {
       expect(errorMessage.props.children).toBe('Uh-oh');
     });
 
+    it('should reject query with function', () => {
+      environment.mock.rejectMostRecentOperation(
+        operation => new Error(`Uh-oh: ${operation.node.fragment.name}`),
+      );
+
+      const errorMessage = testComponentTree.root.find(
+        node => node.props.testID === 'error',
+      );
+      // Should render error
+      expect(errorMessage.props.children).toBe('Uh-oh: TestQuery');
+    });
+
     it('should throw if it unable to find operation', () => {
       expect(environment.mock.getAllOperations().length).toEqual(1);
       expect(() => {

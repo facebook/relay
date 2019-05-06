@@ -52,8 +52,8 @@ RelayMockEnvironment is a special version of Relay Environment with an additiona
     * `complete(request | operation)`  - complete the operation, no more payloads are expected for this operation, when it's completed.
     * `resolve(request | operation, data)` - resolve the request with provided GraphQL response. Essentially, it's nextValue(...) and complete(...)
     * `reject(request | operation, error)` - reject the request with particular error
-    * `resolveMostRecentOperation(operation => data)` - resolve and getMostRecentOperation work together
-    * `rejectMostRecentOperation(operation => error)`  - reject and getMostRecentOperation work together
+    * `resolveMostRecentOperation(data | operation => data)` - resolve and getMostRecentOperation work together
+    * `rejectMostRecentOperation(error | operation => error)`  - reject and getMostRecentOperation work together
     * `queueOperationResolver(operation => data | error)` - adds an OperationResolver function to the queue, those methods will be used to resolve/reject operations as they appear
 * Additional utility methods
     * `isLoading(request | operation)` - will return `true` if operations has not been completed, yet.

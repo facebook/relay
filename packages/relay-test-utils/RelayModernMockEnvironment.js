@@ -124,7 +124,9 @@ type MockFunctions = {|
       | GraphQLResponse
       | ((operation: OperationDescriptor) => GraphQLResponse),
   ) => void,
-  +rejectMostRecentOperation: (error: Error) => void,
+  +rejectMostRecentOperation: (
+    error: Error | ((operation: OperationDescriptor) => Error),
+  ) => void,
   +queueOperationResolver: (resolver: OperationMockResolver) => void,
 |};
 
@@ -465,9 +467,10 @@ function createMockEnvironment(config?: {|
       const data = typeof payload === 'function' ? payload(operation) : payload;
       return resolve(operation, data);
     },
-    rejectMostRecentOperation(error: Error): void {
+    rejectMostRecentOperation(error): void {
       const operation = getMostRecentOperation();
-      return reject(operation, error);
+      const rejector = typeof error === 'function' ? error(operation) : error;
+      return reject(operation, rejector);
     },
     findOperation,
     getAllOperations() {

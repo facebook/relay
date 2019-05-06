@@ -125,12 +125,12 @@ function getRelativeImportPath(
   const relative = path.relative(
     path.dirname(filename),
     path.resolve(artifactDirectory),
-  );
+  ).replace(/\\/g, '/');
 
   const relativeReference =
     relative.length === 0 || !relative.startsWith('.') ? './' : '';
 
-  return relativeReference + path.join(relative, fileToRequire);
+  return relativeReference + path.posix.join(relative, fileToRequire);
 }
 
 module.exports = createModernNode;

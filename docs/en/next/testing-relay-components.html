@@ -88,8 +88,8 @@
 <li><code>complete(request | operation)</code>  - complete the operation, no more payloads are expected for this operation, when it's completed.</li>
 <li><code>resolve(request | operation, data)</code> - resolve the request with provided GraphQL response. Essentially, it's nextValue(...) and complete(...)</li>
 <li><code>reject(request | operation, error)</code> - reject the request with particular error</li>
-<li><code>resolveMostRecentOperation(operation =&gt; data)</code> - resolve and getMostRecentOperation work together</li>
-<li><code>rejectMostRecentOperation(operation =&gt; error)</code>  - reject and getMostRecentOperation work together</li>
+<li><code>resolveMostRecentOperation(data | operation =&gt; data)</code> - resolve and getMostRecentOperation work together</li>
+<li><code>rejectMostRecentOperation(error | operation =&gt; error)</code>  - reject and getMostRecentOperation work together</li>
 <li><code>queueOperationResolver(operation =&gt; data | error)</code> - adds an OperationResolver function to the queue, those methods will be used to resolve/reject operations as they appear</li>
 </ul></li>
 <li>Additional utility methods

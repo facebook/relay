@@ -159,6 +159,30 @@ it('publishes next/complete events to an existing subscriber', () => {
   expect(observer.start).toBeCalledTimes(1);
 });
 
+it('publishes events synchronously when subscribing to an ongoing stream ', () => {
+  subject.next('Alice');
+  subject.next('Bob');
+
+  const observer = createObserver();
+  subject.subscribe(observer);
+
+  expect(observer.complete).toBeCalledTimes(0);
+  expect(observer.error).toBeCalledTimes(0);
+  expect(observer.next).toBeCalledTimes(2);
+  expect(observer.next.mock.calls[0][0]).toBe('Alice');
+  expect(observer.next.mock.calls[1][0]).toBe('Bob');
+  expect(observer.start).toBeCalledTimes(1);
+
+  subject.next('Jon');
+  subject.complete();
+
+  expect(observer.complete).toBeCalledTimes(1);
+  expect(observer.error).toBeCalledTimes(0);
+  expect(observer.next).toBeCalledTimes(3);
+  expect(observer.next.mock.calls[2][0]).toBe('Jon');
+  expect(observer.start).toBeCalledTimes(1);
+});
+
 it('publishes subsequent next/complete events to an existing subscriber', () => {
   const observer = createObserver();
   subject.next('Alice');

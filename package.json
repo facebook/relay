@@ -61,7 +61,7 @@
     "jest": "^24.1.0",
     "nullthrows": "^1.1.0",
     "object-assign": "4.1.1",
-    "prettier": "1.16.4",
+    "prettier": "1.17.0",
     "react": "16.8.6",
     "react-test-renderer": "16.8.6",
     "signedsource": "^1.0.0",

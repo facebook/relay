@@ -10,6 +10,8 @@
 
 'use strict';
 
+const invariant = require('invariant');
+
 import type {OperationDescriptor} from './RelayStoreTypes';
 
 class RelayOperationTracker {
@@ -21,12 +23,15 @@ class RelayOperationTracker {
     OperationDescriptor,
     Set<OperationDescriptor>,
   >;
-  _ownerPromiseResolvers: Map<OperationDescriptor, Set<() => void>>;
+  _ownersToPromise: Map<
+    OperationDescriptor,
+    {|promise: Promise<void>, resolve: () => void|},
+  >;
 
   constructor() {
     this._ownersToPendingOperations = new Map();
     this._pendingOperationsToOwners = new Map();
-    this._ownerPromiseResolvers = new Map();
+    this._ownersToPromise = new Map();
   }
 
   /**
@@ -129,13 +134,11 @@ class RelayOperationTracker {
   }
 
   _resolveOwnerResolvers(owner: OperationDescriptor): void {
-    const ownerResolvers = this._ownerPromiseResolvers.get(owner);
-    if (ownerResolvers != null) {
-      for (const ownerResolver of ownerResolvers) {
-        ownerResolver();
-      }
+    const promiseEntry = this._ownersToPromise.get(owner);
+    if (promiseEntry != null) {
+      promiseEntry.resolve();
     }
-    this._ownerPromiseResolvers.delete(owner);
+    this._ownersToPromise.delete(owner);
   }
 
   getPromiseForPendingOperationsAffectingOwner(
@@ -144,14 +147,21 @@ class RelayOperationTracker {
     if (!this._ownersToPendingOperations.has(owner)) {
       return null;
     }
-    return new Promise(resolve => {
-      const ownerResolvers = this._ownerPromiseResolvers.get(owner);
-      if (!ownerResolvers) {
-        this._ownerPromiseResolvers.set(owner, new Set([resolve]));
-      } else {
-        ownerResolvers.add(resolve);
-      }
+    const cachedPromiseEntry = this._ownersToPromise.get(owner);
+    if (cachedPromiseEntry != null) {
+      return cachedPromiseEntry.promise;
+    }
+    let resolve;
+    const promise = new Promise(r => {
+      resolve = r;
     });
+    invariant(
+      resolve != null,
+      'RelayOperationTracker: Expected resolver to be defined. If you' +
+        'are seeing this, it is likely a bug in Relay.',
+    );
+    this._ownersToPromise.set(owner, {promise, resolve});
+    return promise;
   }
 }
 

@@ -137,6 +137,19 @@ describe('RelayOperationTracker', () => {
       expect(promise).toBeInstanceOf(Promise);
     });
 
+    it('should return the same promise for an operation if called multiple times', () => {
+      tracker.update(MutationOperation1, new Set([QueryOperation1]));
+      const promise = tracker.getPromiseForPendingOperationsAffectingOwner(
+        QueryOperation1,
+      );
+      expect(promise).toBeInstanceOf(Promise);
+
+      const promise2 = tracker.getPromiseForPendingOperationsAffectingOwner(
+        QueryOperation1,
+      );
+      expect(promise2).toBe(promise);
+    });
+
     it('should resolve promise when pending operation is completed', () => {
       tracker.update(MutationOperation1, new Set([QueryOperation1]));
       const promise = tracker.getPromiseForPendingOperationsAffectingOwner(

@@ -196,7 +196,9 @@ function checkAndThrow(
       `Unexpected directives ${invalidDirectivesStr} on '${
         node.name
       }'. These directives can only be used on fields/fragments that are fetched from the server schema, but these directives are used inside a client-only selection`,
-      [...new Set([clientExtensionChild.loc, node.loc])],
+      clientExtensionChild.loc === node.loc
+        ? [node.loc]
+        : [clientExtensionChild.loc, node.loc],
     );
   }
 }

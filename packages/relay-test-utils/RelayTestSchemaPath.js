@@ -12,4 +12,4 @@
 
 const path = require('path');
 
-module.exports = path.join(__dirname, 'testschema.graphql');
+module.exports = (path.join(__dirname, 'testschema.graphql'): string);

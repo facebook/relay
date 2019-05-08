@@ -10,23 +10,6 @@
 
 'use strict';
 
-const invariant = require('invariant');
-const nullthrows = require('../util/nullthrowsOSS');
-
-const {
-  assertAbstractType,
-  getNamedType,
-  getNullableType,
-  GraphQLInterfaceType,
-  GraphQLList,
-  GraphQLObjectType,
-  GraphQLSchema,
-  GraphQLUnionType,
-  SchemaMetaFieldDef,
-  TypeMetaFieldDef,
-  TypeNameMetaFieldDef,
-} = require('graphql');
-
 import type GraphQLCompilerContext from '../core/GraphQLCompilerContext';
 import type {Field} from '../core/GraphQLIR';
 import type {
@@ -39,6 +22,22 @@ import type {
   GraphQLScalarType,
   GraphQLType,
 } from 'graphql';
+
+const nullthrows = require('../util/nullthrowsOSS');
+const {
+  GraphQLInterfaceType,
+  GraphQLList,
+  GraphQLObjectType,
+  GraphQLSchema,
+  GraphQLUnionType,
+  SchemaMetaFieldDef,
+  TypeMetaFieldDef,
+  TypeNameMetaFieldDef,
+  assertAbstractType,
+  getNamedType,
+  getNullableType,
+} = require('graphql');
+const invariant = require('invariant');
 
 const ID = 'id';
 const ID_TYPE = 'ID';
@@ -222,7 +221,7 @@ function isServerDefinedField(
   field: Field,
   compilerContext: GraphQLCompilerContext,
   parentType: GraphQLType,
-) {
+): boolean {
   const {serverSchema} = compilerContext;
   const rawType = getRawType(field.type);
   const serverType = serverSchema.getType(rawType.name);
@@ -244,7 +243,7 @@ function isClientDefinedField(
   field: Field,
   compilerContext: GraphQLCompilerContext,
   parentType: GraphQLType,
-) {
+): boolean {
   return !isServerDefinedField(field, compilerContext, parentType);
 }
 

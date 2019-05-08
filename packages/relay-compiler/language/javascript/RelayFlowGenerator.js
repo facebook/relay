@@ -10,20 +10,19 @@
 
 'use strict';
 
-const babelGenerator = require('@babel/generator').default;
-const FlattenTransform = require('../../transforms/FlattenTransform');
-const IRVisitor = require('../../core/GraphQLIRVisitor');
+import type {IRTransform} from '../../core/GraphQLCompilerContext';
+import type {Fragment, Root} from '../../core/GraphQLIR';
+import type {TypeGeneratorOptions} from '../RelayLanguagePluginInterface';
+import type {GraphQLEnumType} from 'graphql';
+
 const Profiler = require('../../core/GraphQLCompilerProfiler');
+const IRVisitor = require('../../core/GraphQLIRVisitor');
+const {isAbstractType} = require('../../core/GraphQLSchemaUtils');
+const FlattenTransform = require('../../transforms/FlattenTransform');
 const RelayMaskTransform = require('../../transforms/RelayMaskTransform');
 const RelayMatchTransform = require('../../transforms/RelayMatchTransform');
 const RelayRefetchableFragmentTransform = require('../../transforms/RelayRefetchableFragmentTransform');
 const RelayRelayDirectiveTransform = require('../../transforms/RelayRelayDirectiveTransform');
-
-const invariant = require('invariant');
-const nullthrows = require('nullthrows');
-const t = require('@babel/types');
-
-const {isAbstractType} = require('../../core/GraphQLSchemaUtils');
 const {
   anyTypeAlias,
   exactObjectTypeAnnotation,
@@ -36,19 +35,18 @@ const {
   unionTypeAnnotation,
 } = require('./RelayFlowBabelFactories');
 const {
-  transformScalarType,
   transformInputType,
+  transformScalarType,
 } = require('./RelayFlowTypeTransformers');
+const babelGenerator = require('@babel/generator').default;
+const t = require('@babel/types');
 const {
   GraphQLInputObjectType,
   GraphQLNonNull,
   GraphQLString,
 } = require('graphql');
-
-import type {IRTransform} from '../../core/GraphQLCompilerContext';
-import type {Fragment, Root} from '../../core/GraphQLIR';
-import type {TypeGeneratorOptions} from '../RelayLanguagePluginInterface';
-import type {GraphQLEnumType} from 'graphql';
+const invariant = require('invariant');
+const nullthrows = require('nullthrows');
 
 export type State = {|
   ...TypeGeneratorOptions,
@@ -623,6 +621,9 @@ const FLOW_TRANSFORMS: Array<IRTransform> = [
 ];
 
 module.exports = {
-  generate: Profiler.instrument(generate, 'RelayFlowGenerator.generate'),
+  generate: (Profiler.instrument(generate, 'RelayFlowGenerator.generate'): (
+    node: Root | Fragment,
+    options: TypeGeneratorOptions,
+  ) => string),
   transforms: FLOW_TRANSFORMS,
 };

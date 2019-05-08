@@ -10,17 +10,16 @@
 
 'use strict';
 
-const NormalizationCodeGenerator = require('./NormalizationCodeGenerator');
-const ReaderCodeGenerator = require('./ReaderCodeGenerator');
-
-const {createCompilerError} = require('../core/RelayCompilerError');
-
 import type {Fragment, Request, SplitOperation} from '../core/GraphQLIR';
 import type {
-  ReaderFragment,
   ConcreteRequest,
   NormalizationSplitOperation,
+  ReaderFragment,
 } from 'relay-runtime';
+
+const {createCompilerError} = require('../core/RelayCompilerError');
+const NormalizationCodeGenerator = require('./NormalizationCodeGenerator');
+const ReaderCodeGenerator = require('./ReaderCodeGenerator');
 
 /**
  * @public
@@ -31,7 +30,7 @@ import type {
 declare function generate(node: Fragment): ReaderFragment;
 declare function generate(node: Request): ConcreteRequest;
 declare function generate(node: SplitOperation): NormalizationSplitOperation;
-function generate(node: Fragment | Request | SplitOperation) {
+function generate(node: Fragment | Request | SplitOperation): any {
   switch (node.kind) {
     case 'Fragment':
       return ReaderCodeGenerator.generate(node);

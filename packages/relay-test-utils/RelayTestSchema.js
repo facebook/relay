@@ -11,16 +11,14 @@
 'use strict';
 
 const RelayTestSchemaPath = require('./RelayTestSchemaPath');
-
 const fs = require('fs');
-
 const {
-  parse,
   GraphQLEnumType,
-  GraphQLSchema,
   GraphQLScalarType,
+  GraphQLSchema,
   Kind,
   extendSchema,
+  parse,
 } = require('graphql');
 
 function buildSchema() {
@@ -115,4 +113,4 @@ const GraphQLJSONType = new GraphQLScalarType({
   parseLiteral,
 });
 
-module.exports = buildSchema();
+module.exports = (buildSchema(): GraphQLSchema);

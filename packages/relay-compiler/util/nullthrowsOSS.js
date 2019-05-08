@@ -9,7 +9,7 @@
  */
 'use strict';
 
-var nullthrows = function<T>(
+var nullthrows: <T>(x: ?T, message?: string) => T = function<T>(
   x: ?T,
   message?: string = 'Got unexpected null or undefined',
 ): T {

@@ -10,12 +10,15 @@
 
 'use strict';
 
+import type {
+  DocumentNode,
+  FieldNode,
+  GraphQLSchema,
+  ValidationContext,
+} from 'graphql';
+
 const Profiler = require('./GraphQLCompilerProfiler');
-
-const util = require('util');
-
 const {
-  formatError,
   FragmentsOnCompositeTypesRule,
   KnownArgumentNamesRule,
   KnownTypeNamesRule,
@@ -27,17 +30,12 @@ const {
   UniqueInputFieldNamesRule,
   UniqueOperationNamesRule,
   UniqueVariableNamesRule,
-  validate,
   ValuesOfCorrectTypeRule,
   VariablesAreInputTypesRule,
+  formatError,
+  validate,
 } = require('graphql');
-
-import type {
-  DocumentNode,
-  FieldNode,
-  GraphQLSchema,
-  ValidationContext,
-} from 'graphql';
+const util = require('util');
 
 function validateOrThrow(
   document: DocumentNode,
@@ -60,7 +58,9 @@ function validateOrThrow(
   }
 }
 
-function DisallowIdAsAliasValidationRule(context: ValidationContext) {
+function DisallowIdAsAliasValidationRule(
+  context: ValidationContext,
+): $TEMPORARY$object<{|Field: (field: FieldNode) => void|}> {
   return {
     Field(field: FieldNode): void {
       if (
@@ -126,5 +126,12 @@ module.exports = {
     // Relay-specific validation
     DisallowIdAsAliasValidationRule,
   ],
-  validate: Profiler.instrument(validateOrThrow, 'GraphQLValidator.validate'),
+  validate: (Profiler.instrument(
+    validateOrThrow,
+    'GraphQLValidator.validate',
+  ): (
+    document: DocumentNode,
+    schema: GraphQLSchema,
+    rules: $ReadOnlyArray<any>,
+  ) => void),
 };

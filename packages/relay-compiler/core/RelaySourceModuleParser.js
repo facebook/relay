@@ -10,24 +10,35 @@
 
 'use strict';
 
-const ASTCache = require('./ASTCache');
-const GraphQL = require('graphql');
-const Profiler = require('./GraphQLCompilerProfiler');
-
-const fs = require('fs');
-const invariant = require('invariant');
-const path = require('path');
-
-const {memoizedFind} = require('./RelayFindGraphQLTags');
-
 import type {File} from '../codegen/CodegenTypes';
 import type {FileFilter} from '../codegen/CodegenWatcher';
 import type {GraphQLTagFinder} from '../language/RelayLanguagePluginInterface';
 import type {DocumentNode} from 'graphql';
 
+const ASTCache = require('./ASTCache');
+const Profiler = require('./GraphQLCompilerProfiler');
+const {memoizedFind} = require('./RelayFindGraphQLTags');
+const fs = require('fs');
+const GraphQL = require('graphql');
+const invariant = require('invariant');
+const path = require('path');
+
 const parseGraphQL = Profiler.instrument(GraphQL.parse, 'GraphQL.parse');
 
-module.exports = (tagFinder: GraphQLTagFinder) => {
+module.exports = (
+  tagFinder: GraphQLTagFinder,
+): $TEMPORARY$object<{|
+  getFileFilter: (baseDir: string) => FileFilter,
+  getParser: (baseDir: string) => ASTCache,
+  parseFile: (baseDir: string, file: File) => ?DocumentNode,
+  parseFileWithSources: (
+    baseDir: string,
+    file: File,
+  ) => ?{|
+    +document: DocumentNode,
+    +sources: $ReadOnlyArray<string>,
+  |},
+|}> => {
   const memoizedTagFinder = memoizedFind.bind(null, tagFinder);
 
   function parseFile(baseDir: string, file: File): ?DocumentNode {

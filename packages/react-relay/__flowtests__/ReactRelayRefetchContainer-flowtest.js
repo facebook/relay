@@ -79,42 +79,42 @@ const Foo = createRefetchContainer(
 );
 
 module.exports = {
-  checkMissingProp() {
+  checkMissingProp(): React.Node {
     /** $ShouldBeFlowExpectedError: Foo missing `requiredProp` **/
     return <Foo />;
   },
-  checkMinimalProps() {
+  checkMinimalProps(): React.Node {
     // All is well
     return <Foo requiredProp="foo" />;
   },
-  checkWrongPropType() {
+  checkWrongPropType(): React.Node {
     /** $ShouldBeFlowExpectedError: Foo1 wrong `requiredProp` type, should be string **/
     return <Foo requiredProp={17} />;
   },
-  checkWrongOptionalType() {
+  checkWrongOptionalType(): React.Node {
     /** $ShouldBeFlowExpectedError: Foo wrong `optionalProp` type, should be `{foo: string}` **/
     return <Foo optionalProp="wrongType" requiredProp="foo" />;
   },
-  checkNullOptionalType() {
+  checkNullOptionalType(): React.Node {
     /** $ShouldBeFlowExpectedError: Foo `optionalProp` must be omitted or truthy, not null **/
     return <Foo optionalProp={null} requiredProp="foo" />;
   },
-  checkWrongDefaultPropType() {
+  checkWrongDefaultPropType(): React.Node {
     /** $ShouldBeFlowExpectedError: Foo wrong `defaultProp` type, should be string **/
     return <Foo defaultProp={false} requiredProp="foo" />;
   },
-  checkAllPossibleProps() {
+  checkAllPossibleProps(): React.Node {
     // All is well
     return (
       <Foo defaultProp="bar" optionalProp={{foo: 42}} requiredProp="foo" />
     );
   },
-  checkMinimalPropSpread() {
+  checkMinimalPropSpread(): React.Node {
     // All is well
     const props = {requiredProp: 'foo'};
     return <Foo {...props} />;
   },
-  checkMissingPropSpread() {
+  checkMissingPropSpread(): React.Node {
     const props = {defaultProp: 'foo'};
     /** $ShouldBeFlowExpectedError: Foo missing `requiredProp` with spread **/
     return <Foo {...props} />;

@@ -20,7 +20,7 @@ function set(newWhitelistsByProject: Map<string, Set<string>>) {
   whitelistsByProject = newWhitelistsByProject;
 }
 
-function check(project: string, key: string) {
+function check(project: string, key: string): boolean {
   if (whitelistsByProject == null) {
     return true;
   }

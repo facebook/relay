@@ -10,8 +10,8 @@
 
 'use strict';
 
-const invariant = require('invariant');
 const t = require('@babel/types');
+const invariant = require('invariant');
 
 type BabelAST = mixed;
 
@@ -27,7 +27,7 @@ function anyTypeAlias(name: string): BabelAST {
  *   PROPS
  * |}
  */
-function exactObjectTypeAnnotation(props: Array<BabelAST>) {
+function exactObjectTypeAnnotation(props: Array<BabelAST>): $FlowFixMe {
   const typeAnnotation = t.objectTypeAnnotation(props);
   typeAnnotation.exact = true;
   return typeAnnotation;
@@ -36,7 +36,7 @@ function exactObjectTypeAnnotation(props: Array<BabelAST>) {
 /**
  * export type NAME = TYPE
  */
-function exportType(name: string, type: BabelAST) {
+function exportType(name: string, type: BabelAST): $FlowFixMe {
   return t.exportNamedDeclaration(
     t.typeAlias(t.identifier(name), null, type),
     [],
@@ -47,7 +47,7 @@ function exportType(name: string, type: BabelAST) {
 /**
  * import type {NAMES[0], NAMES[1], ...} from 'MODULE';
  */
-function importTypes(names: Array<string>, module: string) {
+function importTypes(names: Array<string>, module: string): $FlowFixMe {
   const importDeclaration = t.importDeclaration(
     names.map(name =>
       t.importSpecifier(t.identifier(name), t.identifier(name)),
@@ -71,7 +71,7 @@ function intersectionTypeAnnotation(types: Array<BabelAST>): BabelAST {
   return types.length === 1 ? types[0] : t.intersectionTypeAnnotation(types);
 }
 
-function lineComments(...lines: Array<string>) {
+function lineComments(...lines: Array<string>): Array<$FlowFixMe> {
   /* $FlowFixMe(>=0.70.0) This comment suppresses an error found when
    * Flow v0.70 was deployed. To see the error delete this comment and
    * run Flow. */
@@ -81,7 +81,7 @@ function lineComments(...lines: Array<string>) {
 /**
  * $ReadOnlyArray<TYPE>
  */
-function readOnlyArrayOfType(thing: BabelAST) {
+function readOnlyArrayOfType(thing: BabelAST): $FlowFixMe {
   return t.genericTypeAnnotation(
     t.identifier('$ReadOnlyArray'),
     t.typeParameterInstantiation([thing]),
@@ -91,13 +91,13 @@ function readOnlyArrayOfType(thing: BabelAST) {
 /**
  * +KEY: VALUE
  */
-function readOnlyObjectTypeProperty(key: string, value: BabelAST) {
+function readOnlyObjectTypeProperty(key: string, value: BabelAST): $FlowFixMe {
   const prop = t.objectTypeProperty(t.identifier(key), value);
   prop.variance = t.variance('plus');
   return prop;
 }
 
-function stringLiteralTypeAnnotation(value: string) {
+function stringLiteralTypeAnnotation(value: string): $FlowFixMe {
   return t.stringLiteralTypeAnnotation(value);
 }
 

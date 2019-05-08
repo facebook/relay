@@ -10,29 +10,27 @@
 
 'use strict';
 
-const GraphQLCompilerContext = require('../core/GraphQLCompilerContext');
-const GraphQLIRTransformer = require('../core/GraphQLIRTransformer');
-const GraphQLSchemaUtils = require('../core/GraphQLSchemaUtils');
-
-const areEqual = require('../util/areEqualOSS');
-const getIdentifierForSelection = require('../core/getIdentifierForSelection');
-
-const {
-  createUserError,
-  createCompilerError,
-} = require('../core/RelayCompilerError');
-
 import type {
   Argument,
   Field,
   Handle,
   InlineFragment,
+  LinkedField,
   Node,
   ScalarField,
-  LinkedField,
   Selection,
 } from '../core/GraphQLIR';
 import type {GraphQLType} from 'graphql';
+
+const getIdentifierForSelection = require('../core/getIdentifierForSelection');
+const GraphQLCompilerContext = require('../core/GraphQLCompilerContext');
+const GraphQLIRTransformer = require('../core/GraphQLIRTransformer');
+const GraphQLSchemaUtils = require('../core/GraphQLSchemaUtils');
+const {
+  createCompilerError,
+  createUserError,
+} = require('../core/RelayCompilerError');
+const areEqual = require('../util/areEqualOSS');
 
 const {getRawType, isAbstractType} = GraphQLSchemaUtils;
 
@@ -394,7 +392,9 @@ function mergeHandles<T: LinkedField | ScalarField>(
   return Array.from(uniqueItems.values());
 }
 
-function transformWithOptions(options: FlattenOptions) {
+function transformWithOptions(
+  options: FlattenOptions,
+): (context: GraphQLCompilerContext) => GraphQLCompilerContext {
   return function flattenTransform(
     context: GraphQLCompilerContext,
   ): GraphQLCompilerContext {

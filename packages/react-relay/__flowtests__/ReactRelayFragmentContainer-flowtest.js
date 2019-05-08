@@ -76,50 +76,50 @@ const Bar = createFragmentContainer(BarComponent, {
 });
 
 module.exports = {
-  checkMissingPropOnFunctionalComponent() {
+  checkMissingPropOnFunctionalComponent(): React.Node {
     /** $FlowExpectedError: Foo missing `requiredProp` **/
     return <Foo />;
   },
-  checkMinimalPropsOnFunctionalComponent() {
+  checkMinimalPropsOnFunctionalComponent(): React.Node {
     // Fine, no expected errors
     return <Foo requiredProp="foo" />;
   },
-  checkMissingPropOnClassComponent() {
+  checkMissingPropOnClassComponent(): React.Node {
     /** $FlowExpectedError: Bar missing `requiredProp` **/
     return <Bar />;
   },
-  checkMinimalPropsOnClassComponent() {
+  checkMinimalPropsOnClassComponent(): React.Node {
     // All is well
     return <Bar requiredProp="foo" />;
   },
-  checkWrongPropType() {
+  checkWrongPropType(): React.Node {
     /** $FlowExpectedError: Bar wrong `requiredProp` type, should be string **/
     return <Bar requiredProp={17} />;
   },
-  checkWrongOptionalType() {
+  checkWrongOptionalType(): React.Node {
     /** $FlowExpectedError: Bar wrong `optionalProp` type, should be `{foo: string}` **/
     return <Bar optionalProp="wrongType" requiredProp="foo" />;
   },
-  checkNullOptionalType() {
+  checkNullOptionalType(): React.Node {
     /** $FlowExpectedError: Bar `optionalProp` must be omitted or truthy, not null **/
     return <Bar optionalProp={null} requiredProp="foo" />;
   },
-  checkWrongDefaultPropType() {
+  checkWrongDefaultPropType(): React.Node {
     /** $FlowExpectedError: Bar wrong `defaultProp` type, should be string **/
     return <Bar defaultProp={false} requiredProp="foo" />;
   },
-  checkAllPossibleProps() {
+  checkAllPossibleProps(): React.Node {
     // All is well
     return (
       <Bar defaultProp="bar" optionalProp={{foo: 42}} requiredProp="foo" />
     );
   },
-  checkMinimalPropSpread() {
+  checkMinimalPropSpread(): React.Node {
     // All is well
     const props = {requiredProp: 'foo'};
     return <Bar {...props} />;
   },
-  checkMissingPropSpread() {
+  checkMissingPropSpread(): React.Node {
     const props = {defaultProp: 'foo'};
     /** $FlowExpectedError: Bar missing `requiredProp` with spread **/
     return <Bar {...props} />;

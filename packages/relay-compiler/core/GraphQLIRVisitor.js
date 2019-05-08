@@ -10,8 +10,6 @@
 
 'use strict';
 
-const visit = require('graphql').visit;
-
 import type {
   Argument,
   ClientExtension,
@@ -33,6 +31,8 @@ import type {
   Stream,
   Variable,
 } from './GraphQLIR';
+
+const visit = require('graphql').visit;
 
 const NodeKeys = {
   Argument: ['value'],
@@ -137,7 +137,7 @@ export type NodeVisitor =
       Variable?: NodeVisitorObject<Variable>,
     |};
 
-function visitIR(root: VisitNode, visitor: NodeVisitor) {
+function visitIR(root: VisitNode, visitor: NodeVisitor): any {
   return (visit: $FlowFixMe)(root, visitor, NodeKeys);
 }
 

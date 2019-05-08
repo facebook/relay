@@ -49,7 +49,7 @@ class BarComponent extends React.Component<{
   getNum(): number {
     return 42;
   }
-  render() {
+  render(): React.Element<'div'> {
     const reqLen = this.props.requiredProp.length;
     const optionalProp = this.props.optionalProp;
 
@@ -124,7 +124,7 @@ module.exports = {
     /** $FlowExpectedError: Bar missing `requiredProp` with spread **/
     return <Bar {...props} />;
   },
-  checkStaticsAndMethodsProxying() {
+  checkStaticsAndMethodsProxying(): React.Node {
     class ProxyChecker extends React.PureComponent<{||}> {
       _barRef: ?BarComponent;
       getString(): string {
@@ -136,7 +136,7 @@ module.exports = {
         /** $FlowExpectedError: Bar `getNum` gives number, but `getString` assumes string  **/
         return bad ? 'not good' : ok;
       }
-      render() {
+      render(): React.Element<typeof Bar> {
         return (
           <Bar
             componentRef={ref => {

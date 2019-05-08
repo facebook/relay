@@ -9,9 +9,20 @@
  */
 
 'use strict';
+import type {GraphiQLPrinter} from './createRelayNetworkLogger.js';
+import type {SubscribeFunction, FetchFunction} from './RelayNetworkTypes.js';
 
 const RelayNetworkLoggerTransaction = require('./RelayNetworkLoggerTransaction');
 
 const createRelayNetworkLogger = require('./createRelayNetworkLogger');
 
-module.exports = createRelayNetworkLogger(RelayNetworkLoggerTransaction);
+module.exports = (createRelayNetworkLogger(RelayNetworkLoggerTransaction): {|
+  wrapFetch: (
+    fetch: FetchFunction,
+    graphiQLPrinter?: GraphiQLPrinter,
+  ) => FetchFunction,
+  wrapSubscribe: (
+    subscribe: SubscribeFunction,
+    graphiQLPrinter?: GraphiQLPrinter,
+  ) => SubscribeFunction,
+|});

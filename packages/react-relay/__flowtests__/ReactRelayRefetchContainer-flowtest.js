@@ -119,7 +119,7 @@ module.exports = {
     /** $ShouldBeFlowExpectedError: Foo missing `requiredProp` with spread **/
     return <Foo {...props} />;
   },
-  checkStaticsAndMethodsProxying() {
+  checkStaticsAndMethodsProxying(): React.Node {
     /* $FlowFixMe(>=0.53.0) This comment suppresses an
      * error when upgrading Flow's support for React. Common errors found when
      * upgrading Flow's React support are documented at

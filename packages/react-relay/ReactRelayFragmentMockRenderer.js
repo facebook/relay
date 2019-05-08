@@ -13,7 +13,7 @@
 const React = require('React');
 const ReactRelayContext = require('./ReactRelayContext');
 
-function ReactRelayFragmentMockRenderer(props: Object) {
+function ReactRelayFragmentMockRenderer(props: Object): React.Node {
   return (
     <ReactRelayContext.Provider
       value={{

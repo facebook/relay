@@ -73,7 +73,10 @@ class ReactRelayQueryFetcher {
     }
   }
 
-  getSelectionReferences() {
+  getSelectionReferences(): {|
+    cacheSelectionReference: ?Disposable,
+    selectionReferences: Array<Disposable>,
+  |} {
     return {
       cacheSelectionReference: this._cacheSelectionReference,
       selectionReferences: this._selectionReferences,

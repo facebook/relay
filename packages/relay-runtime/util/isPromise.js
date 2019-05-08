@@ -12,7 +12,7 @@
 
 declare function isPromise(p: mixed): boolean %checks(p instanceof Promise);
 
-function isPromise(p) {
+function isPromise(p): boolean {
   return !!p && typeof p.then === 'function';
 }
 

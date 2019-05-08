@@ -57,7 +57,7 @@ class RelayTestRenderer extends React.Component<Props, $FlowFixMe> {
     this.setState({data: snapshot.data});
   };
 
-  render() {
+  render(): React.Element<typeof ReactRelayContext.Provider> {
     const childProps = this.props.children.props;
     const newProps = {...childProps, ...this.state.data};
     return (

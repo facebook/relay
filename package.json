@@ -65,7 +65,7 @@
     "react": "16.8.6",
     "react-test-renderer": "16.8.6",
     "signedsource": "^1.0.0",
-    "webpack": "^4.20.2",
+    "webpack": "^4.30.0",
     "webpack-stream": "^5.1.1",
     "yargs": "^9.0.0"
   },

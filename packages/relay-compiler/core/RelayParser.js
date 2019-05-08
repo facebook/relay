@@ -213,7 +213,7 @@ class RelayParser {
     });
     if (duplicated.size) {
       throw new Error(
-        'RelayParser: Encountered duplicate defintitions for one or more ' +
+        'RelayParser: Encountered duplicate definitions for one or more ' +
           'documents: each document must have a unique name. Duplicated documents:\n' +
           Array.from(duplicated, name => `- ${name}`).join('\n'),
       );

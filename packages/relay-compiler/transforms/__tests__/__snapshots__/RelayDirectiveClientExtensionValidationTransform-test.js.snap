@@ -1,5 +1,140 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`RelayDirectiveClientExtensionValidationTransform matches expected output: fragment-with-defer-on-client.invalid.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+# expected-to-throw
+query QueryWithFragmentWithDefer {
+  me {
+    id
+    ...UserFragment
+  }
+}
+
+fragment UserFragment on User {
+  id
+  emailAddresses
+  ...DeferredFragment @defer(label: "DeferredFragmentLabel")
+}
+
+fragment DeferredFragment on ClientUser {
+  clientname
+}
+
+interface ClientUser {
+  id: String
+  clientname: String
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+THROWN EXCEPTION:
+
+Error: Encountered 1 error(s):
+- Unexpected directives @defer on 'DeferredFragment'. These directives can only be used on fields/fragments that are fetched from the server schema, but these directives are used inside a client-only selection
+  
+  Source: GraphQL request (12:3)
+  11:   emailAddresses
+  12:   ...DeferredFragment @defer(label: "DeferredFragmentLabel")
+        ^
+  13: }
+  
+`;
+
+exports[`RelayDirectiveClientExtensionValidationTransform matches expected output: fragment-with-stream-child-of-client.invalid.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+# expected-to-throw
+query QueryWithFragmentWithStream($id: ID!) {
+  node(id: $id) {
+    id
+    ...FeedbackFragment
+  }
+}
+
+fragment FeedbackFragment on Feedback {
+  id
+  foo {
+    bar {
+      users @stream(initial_count: 1, label: "StreamedActorsLabel") {
+        id
+        name
+      }
+    }
+  }
+}
+
+
+extend type Feedback {
+  foo: Foo
+}
+
+
+type Foo {
+  bar: Bar
+}
+
+type Bar {
+  users: [User]
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+THROWN EXCEPTION:
+
+Error: Encountered 1 error(s):
+- Unexpected directives @stream on 'users'. These directives can only be used on fields/fragments that are fetched from the server schema, but these directives are used inside a client-only selection
+  
+  Source: GraphQL request (11:3)
+  10:   id
+  11:   foo {
+        ^
+  12:     bar {
+  
+  Source: GraphQL request (13:7)
+  12:     bar {
+  13:       users @stream(initial_count: 1, label: "StreamedActorsLabel") {
+            ^
+  14:         id
+  
+`;
+
+exports[`RelayDirectiveClientExtensionValidationTransform matches expected output: fragment-with-stream-on-client.invalid.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+# expected-to-throw
+query QueryWithFragmentWithStream($id: ID!) {
+  node(id: $id) {
+    id
+    ...FeedbackFragment
+  }
+}
+
+fragment FeedbackFragment on Feedback {
+  id
+  foos @stream(initial_count: 1, label: "StreamedActorsLabel") {
+    bar
+  }
+}
+
+
+extend type Feedback {
+  foos: [Foo]
+}
+
+type Foo {
+  bar: String
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+THROWN EXCEPTION:
+
+Error: Encountered 1 error(s):
+- Unexpected directives @stream on 'foos'. These directives can only be used on fields/fragments that are fetched from the server schema, but these directives are used inside a client-only selection
+  
+  Source: GraphQL request (11:3)
+  10:   id
+  11:   foos @stream(initial_count: 1, label: "StreamedActorsLabel") {
+        ^
+  12:     bar
+  
+`;
+
 exports[`RelayDirectiveClientExtensionValidationTransform matches expected output: match.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 fragment ActorsRendererFragment on Node {
@@ -897,5 +1032,54 @@ Error: Encountered 1 error(s):
   5:     ...TestUserNameRenderer_name
          ^
   6:       @module(name: "TestUserNameRenderer.react")
+  
+`;
+
+exports[`RelayDirectiveClientExtensionValidationTransform matches expected output: stream-connection-on-client.invalid.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+# expected-to-throw
+query NodeQuery(
+  $id: ID!
+) {
+  node(id: $id) {
+    id
+    ... on Story {
+      clientComments(first: 10)
+      @stream_connection(
+        key: "NodeQuery_comments"
+        initial_count: 0
+        label: "comments"
+      ) {
+        edges {
+          node {
+            actor {
+              name
+            }
+          }
+        }
+        pageInfo {
+          endCursor
+          hasNextPage
+        }
+      }
+    }
+  }
+}
+
+extend type Story {
+  clientComments(first: Int, last: Int, orderby: String): CommentsConnection
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+THROWN EXCEPTION:
+
+Error: Encountered 1 error(s):
+- Unexpected directives @stream_connection on 'clientComments'. These directives can only be used on fields/fragments that are fetched from the server schema, but these directives are used inside a client-only selection
+  
+  Source: GraphQL request (8:7)
+  7:     ... on Story {
+  8:       clientComments(first: 10)
+           ^
+  9:       @stream_connection(
   
 `;

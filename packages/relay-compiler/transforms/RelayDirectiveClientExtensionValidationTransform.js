@@ -26,6 +26,9 @@ import type {
 const SERVER_ONLY_DIRECTIVES: $ReadOnlySet<string> = new Set([
   'module',
   'match',
+  'defer',
+  'stream',
+  'stream_connection',
 ]);
 
 type State = {

@@ -12,6 +12,7 @@
 
 const ClientExtensionsTransform = require('../ClientExtensionsTransform');
 const GraphQLCompilerContext = require('../../core/GraphQLCompilerContext');
+const RelayConnectionTransform = require('../../handlers/connection/RelayConnectionTransform');
 const RelayDirectiveClientExtensionValidationTransform = require('../RelayDirectiveClientExtensionValidationTransform');
 const RelayMatchTransform = require('../RelayMatchTransform');
 
@@ -28,6 +29,7 @@ describe('RelayDirectiveClientExtensionValidationTransform', () => {
     text => {
       const schema = transformASTSchema(TestSchema, [
         RelayMatchTransform.SCHEMA_EXTENSION,
+        RelayConnectionTransform.SCHEMA_EXTENSION,
       ]);
       const {definitions, schema: clientSchema} = parseGraphQLText(
         schema,

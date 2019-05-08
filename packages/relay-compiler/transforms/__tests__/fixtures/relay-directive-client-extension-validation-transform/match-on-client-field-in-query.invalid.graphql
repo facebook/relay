@@ -1,0 +1,32 @@
+# expected-to-throw
+query TestQuery {
+  me {
+    user {
+      nameRenderer @match {
+        ...PlainUserNameRenderer_name
+          @module(name: "PlainUserNameRenderer.react")
+        ...MarkdownUserNameRenderer_name
+          @module(name: "MarkdownUserNameRenderer.react")
+      }
+    }
+  }
+}
+
+
+extend type User {
+  user: User
+}
+
+fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
+  plaintext
+  data {
+    text
+  }
+}
+
+fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+  markdown
+  data {
+    markup
+  }
+}

@@ -1,0 +1,901 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`RelayDirectiveClientExtensionValidationTransform matches expected output: match.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment ActorsRendererFragment on Node {
+  id
+  actors {
+    nameRenderer @match {
+      ...PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
+      ...MarkdownUserNameRenderer_name
+        @module(name: "MarkdownUserNameRenderer.react")
+    }
+  }
+}
+
+fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
+  plaintext
+  data {
+    text
+  }
+}
+
+fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+  markdown
+  data {
+    markup
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+{
+  "kind": "Fragment",
+  "directives": [],
+  "loc": {
+    "kind": "Source",
+    "start": 0,
+    "end": 271,
+    "source": {
+      "body": "fragment ActorsRendererFragment on Node {\\n  id\\n  actors {\\n    nameRenderer @match {\\n      ...PlainUserNameRenderer_name @module(name: \\"PlainUserNameRenderer.react\\")\\n      ...MarkdownUserNameRenderer_name\\n        @module(name: \\"MarkdownUserNameRenderer.react\\")\\n    }\\n  }\\n}\\n\\nfragment PlainUserNameRenderer_name on PlainUserNameRenderer {\\n  plaintext\\n  data {\\n    text\\n  }\\n}\\n\\nfragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {\\n  markdown\\n  data {\\n    markup\\n  }\\n}\\n",
+      "name": "GraphQL request",
+      "locationOffset": {
+        "line": 1,
+        "column": 1
+      }
+    }
+  },
+  "metadata": null,
+  "name": "ActorsRendererFragment",
+  "selections": [
+    {
+      "kind": "ScalarField",
+      "alias": null,
+      "args": [],
+      "directives": [],
+      "loc": {
+        "kind": "Source",
+        "start": 44,
+        "end": 46,
+        "source": {
+          "body": "fragment ActorsRendererFragment on Node {\\n  id\\n  actors {\\n    nameRenderer @match {\\n      ...PlainUserNameRenderer_name @module(name: \\"PlainUserNameRenderer.react\\")\\n      ...MarkdownUserNameRenderer_name\\n        @module(name: \\"MarkdownUserNameRenderer.react\\")\\n    }\\n  }\\n}\\n\\nfragment PlainUserNameRenderer_name on PlainUserNameRenderer {\\n  plaintext\\n  data {\\n    text\\n  }\\n}\\n\\nfragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {\\n  markdown\\n  data {\\n    markup\\n  }\\n}\\n",
+          "name": "GraphQL request",
+          "locationOffset": {
+            "line": 1,
+            "column": 1
+          }
+        }
+      },
+      "metadata": null,
+      "name": "id",
+      "type": "ID!"
+    },
+    {
+      "kind": "LinkedField",
+      "alias": null,
+      "args": [],
+      "directives": [],
+      "loc": {
+        "kind": "Source",
+        "start": 49,
+        "end": 269,
+        "source": {
+          "body": "fragment ActorsRendererFragment on Node {\\n  id\\n  actors {\\n    nameRenderer @match {\\n      ...PlainUserNameRenderer_name @module(name: \\"PlainUserNameRenderer.react\\")\\n      ...MarkdownUserNameRenderer_name\\n        @module(name: \\"MarkdownUserNameRenderer.react\\")\\n    }\\n  }\\n}\\n\\nfragment PlainUserNameRenderer_name on PlainUserNameRenderer {\\n  plaintext\\n  data {\\n    text\\n  }\\n}\\n\\nfragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {\\n  markdown\\n  data {\\n    markup\\n  }\\n}\\n",
+          "name": "GraphQL request",
+          "locationOffset": {
+            "line": 1,
+            "column": 1
+          }
+        }
+      },
+      "metadata": null,
+      "name": "actors",
+      "selections": [
+        {
+          "kind": "LinkedField",
+          "alias": null,
+          "args": [],
+          "directives": [
+            {
+              "kind": "Directive",
+              "loc": {
+                "kind": "Source",
+                "start": 75,
+                "end": 81,
+                "source": {
+                  "body": "fragment ActorsRendererFragment on Node {\\n  id\\n  actors {\\n    nameRenderer @match {\\n      ...PlainUserNameRenderer_name @module(name: \\"PlainUserNameRenderer.react\\")\\n      ...MarkdownUserNameRenderer_name\\n        @module(name: \\"MarkdownUserNameRenderer.react\\")\\n    }\\n  }\\n}\\n\\nfragment PlainUserNameRenderer_name on PlainUserNameRenderer {\\n  plaintext\\n  data {\\n    text\\n  }\\n}\\n\\nfragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {\\n  markdown\\n  data {\\n    markup\\n  }\\n}\\n",
+                  "name": "GraphQL request",
+                  "locationOffset": {
+                    "line": 1,
+                    "column": 1
+                  }
+                }
+              },
+              "metadata": null,
+              "name": "match",
+              "args": []
+            }
+          ],
+          "loc": {
+            "kind": "Source",
+            "start": 62,
+            "end": 265,
+            "source": {
+              "body": "fragment ActorsRendererFragment on Node {\\n  id\\n  actors {\\n    nameRenderer @match {\\n      ...PlainUserNameRenderer_name @module(name: \\"PlainUserNameRenderer.react\\")\\n      ...MarkdownUserNameRenderer_name\\n        @module(name: \\"MarkdownUserNameRenderer.react\\")\\n    }\\n  }\\n}\\n\\nfragment PlainUserNameRenderer_name on PlainUserNameRenderer {\\n  plaintext\\n  data {\\n    text\\n  }\\n}\\n\\nfragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {\\n  markdown\\n  data {\\n    markup\\n  }\\n}\\n",
+              "name": "GraphQL request",
+              "locationOffset": {
+                "line": 1,
+                "column": 1
+              }
+            }
+          },
+          "metadata": null,
+          "name": "nameRenderer",
+          "selections": [
+            {
+              "kind": "FragmentSpread",
+              "args": [],
+              "metadata": null,
+              "loc": {
+                "kind": "Source",
+                "start": 90,
+                "end": 164,
+                "source": {
+                  "body": "fragment ActorsRendererFragment on Node {\\n  id\\n  actors {\\n    nameRenderer @match {\\n      ...PlainUserNameRenderer_name @module(name: \\"PlainUserNameRenderer.react\\")\\n      ...MarkdownUserNameRenderer_name\\n        @module(name: \\"MarkdownUserNameRenderer.react\\")\\n    }\\n  }\\n}\\n\\nfragment PlainUserNameRenderer_name on PlainUserNameRenderer {\\n  plaintext\\n  data {\\n    text\\n  }\\n}\\n\\nfragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {\\n  markdown\\n  data {\\n    markup\\n  }\\n}\\n",
+                  "name": "GraphQL request",
+                  "locationOffset": {
+                    "line": 1,
+                    "column": 1
+                  }
+                }
+              },
+              "name": "PlainUserNameRenderer_name",
+              "directives": [
+                {
+                  "kind": "Directive",
+                  "loc": {
+                    "kind": "Source",
+                    "start": 120,
+                    "end": 164,
+                    "source": {
+                      "body": "fragment ActorsRendererFragment on Node {\\n  id\\n  actors {\\n    nameRenderer @match {\\n      ...PlainUserNameRenderer_name @module(name: \\"PlainUserNameRenderer.react\\")\\n      ...MarkdownUserNameRenderer_name\\n        @module(name: \\"MarkdownUserNameRenderer.react\\")\\n    }\\n  }\\n}\\n\\nfragment PlainUserNameRenderer_name on PlainUserNameRenderer {\\n  plaintext\\n  data {\\n    text\\n  }\\n}\\n\\nfragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {\\n  markdown\\n  data {\\n    markup\\n  }\\n}\\n",
+                      "name": "GraphQL request",
+                      "locationOffset": {
+                        "line": 1,
+                        "column": 1
+                      }
+                    }
+                  },
+                  "metadata": null,
+                  "name": "module",
+                  "args": [
+                    {
+                      "kind": "Argument",
+                      "loc": {
+                        "kind": "Source",
+                        "start": 128,
+                        "end": 163,
+                        "source": {
+                          "body": "fragment ActorsRendererFragment on Node {\\n  id\\n  actors {\\n    nameRenderer @match {\\n      ...PlainUserNameRenderer_name @module(name: \\"PlainUserNameRenderer.react\\")\\n      ...MarkdownUserNameRenderer_name\\n        @module(name: \\"MarkdownUserNameRenderer.react\\")\\n    }\\n  }\\n}\\n\\nfragment PlainUserNameRenderer_name on PlainUserNameRenderer {\\n  plaintext\\n  data {\\n    text\\n  }\\n}\\n\\nfragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {\\n  markdown\\n  data {\\n    markup\\n  }\\n}\\n",
+                          "name": "GraphQL request",
+                          "locationOffset": {
+                            "line": 1,
+                            "column": 1
+                          }
+                        }
+                      },
+                      "metadata": null,
+                      "name": "name",
+                      "value": {
+                        "kind": "Literal",
+                        "loc": {
+                          "kind": "Source",
+                          "start": 134,
+                          "end": 163,
+                          "source": {
+                            "body": "fragment ActorsRendererFragment on Node {\\n  id\\n  actors {\\n    nameRenderer @match {\\n      ...PlainUserNameRenderer_name @module(name: \\"PlainUserNameRenderer.react\\")\\n      ...MarkdownUserNameRenderer_name\\n        @module(name: \\"MarkdownUserNameRenderer.react\\")\\n    }\\n  }\\n}\\n\\nfragment PlainUserNameRenderer_name on PlainUserNameRenderer {\\n  plaintext\\n  data {\\n    text\\n  }\\n}\\n\\nfragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {\\n  markdown\\n  data {\\n    markup\\n  }\\n}\\n",
+                            "name": "GraphQL request",
+                            "locationOffset": {
+                              "line": 1,
+                              "column": 1
+                            }
+                          }
+                        },
+                        "metadata": null,
+                        "value": "PlainUserNameRenderer.react"
+                      },
+                      "type": "String!"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "kind": "FragmentSpread",
+              "args": [],
+              "metadata": null,
+              "loc": {
+                "kind": "Source",
+                "start": 171,
+                "end": 259,
+                "source": {
+                  "body": "fragment ActorsRendererFragment on Node {\\n  id\\n  actors {\\n    nameRenderer @match {\\n      ...PlainUserNameRenderer_name @module(name: \\"PlainUserNameRenderer.react\\")\\n      ...MarkdownUserNameRenderer_name\\n        @module(name: \\"MarkdownUserNameRenderer.react\\")\\n    }\\n  }\\n}\\n\\nfragment PlainUserNameRenderer_name on PlainUserNameRenderer {\\n  plaintext\\n  data {\\n    text\\n  }\\n}\\n\\nfragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {\\n  markdown\\n  data {\\n    markup\\n  }\\n}\\n",
+                  "name": "GraphQL request",
+                  "locationOffset": {
+                    "line": 1,
+                    "column": 1
+                  }
+                }
+              },
+              "name": "MarkdownUserNameRenderer_name",
+              "directives": [
+                {
+                  "kind": "Directive",
+                  "loc": {
+                    "kind": "Source",
+                    "start": 212,
+                    "end": 259,
+                    "source": {
+                      "body": "fragment ActorsRendererFragment on Node {\\n  id\\n  actors {\\n    nameRenderer @match {\\n      ...PlainUserNameRenderer_name @module(name: \\"PlainUserNameRenderer.react\\")\\n      ...MarkdownUserNameRenderer_name\\n        @module(name: \\"MarkdownUserNameRenderer.react\\")\\n    }\\n  }\\n}\\n\\nfragment PlainUserNameRenderer_name on PlainUserNameRenderer {\\n  plaintext\\n  data {\\n    text\\n  }\\n}\\n\\nfragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {\\n  markdown\\n  data {\\n    markup\\n  }\\n}\\n",
+                      "name": "GraphQL request",
+                      "locationOffset": {
+                        "line": 1,
+                        "column": 1
+                      }
+                    }
+                  },
+                  "metadata": null,
+                  "name": "module",
+                  "args": [
+                    {
+                      "kind": "Argument",
+                      "loc": {
+                        "kind": "Source",
+                        "start": 220,
+                        "end": 258,
+                        "source": {
+                          "body": "fragment ActorsRendererFragment on Node {\\n  id\\n  actors {\\n    nameRenderer @match {\\n      ...PlainUserNameRenderer_name @module(name: \\"PlainUserNameRenderer.react\\")\\n      ...MarkdownUserNameRenderer_name\\n        @module(name: \\"MarkdownUserNameRenderer.react\\")\\n    }\\n  }\\n}\\n\\nfragment PlainUserNameRenderer_name on PlainUserNameRenderer {\\n  plaintext\\n  data {\\n    text\\n  }\\n}\\n\\nfragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {\\n  markdown\\n  data {\\n    markup\\n  }\\n}\\n",
+                          "name": "GraphQL request",
+                          "locationOffset": {
+                            "line": 1,
+                            "column": 1
+                          }
+                        }
+                      },
+                      "metadata": null,
+                      "name": "name",
+                      "value": {
+                        "kind": "Literal",
+                        "loc": {
+                          "kind": "Source",
+                          "start": 226,
+                          "end": 258,
+                          "source": {
+                            "body": "fragment ActorsRendererFragment on Node {\\n  id\\n  actors {\\n    nameRenderer @match {\\n      ...PlainUserNameRenderer_name @module(name: \\"PlainUserNameRenderer.react\\")\\n      ...MarkdownUserNameRenderer_name\\n        @module(name: \\"MarkdownUserNameRenderer.react\\")\\n    }\\n  }\\n}\\n\\nfragment PlainUserNameRenderer_name on PlainUserNameRenderer {\\n  plaintext\\n  data {\\n    text\\n  }\\n}\\n\\nfragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {\\n  markdown\\n  data {\\n    markup\\n  }\\n}\\n",
+                            "name": "GraphQL request",
+                            "locationOffset": {
+                              "line": 1,
+                              "column": 1
+                            }
+                          }
+                        },
+                        "metadata": null,
+                        "value": "MarkdownUserNameRenderer.react"
+                      },
+                      "type": "String!"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "type": "UserNameRenderer"
+        }
+      ],
+      "type": "[Actor]"
+    }
+  ],
+  "type": "Node",
+  "argumentDefinitions": []
+}
+{
+  "kind": "Fragment",
+  "directives": [],
+  "loc": {
+    "kind": "Source",
+    "start": 273,
+    "end": 371,
+    "source": {
+      "body": "fragment ActorsRendererFragment on Node {\\n  id\\n  actors {\\n    nameRenderer @match {\\n      ...PlainUserNameRenderer_name @module(name: \\"PlainUserNameRenderer.react\\")\\n      ...MarkdownUserNameRenderer_name\\n        @module(name: \\"MarkdownUserNameRenderer.react\\")\\n    }\\n  }\\n}\\n\\nfragment PlainUserNameRenderer_name on PlainUserNameRenderer {\\n  plaintext\\n  data {\\n    text\\n  }\\n}\\n\\nfragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {\\n  markdown\\n  data {\\n    markup\\n  }\\n}\\n",
+      "name": "GraphQL request",
+      "locationOffset": {
+        "line": 1,
+        "column": 1
+      }
+    }
+  },
+  "metadata": null,
+  "name": "PlainUserNameRenderer_name",
+  "selections": [
+    {
+      "kind": "ScalarField",
+      "alias": null,
+      "args": [],
+      "directives": [],
+      "loc": {
+        "kind": "Source",
+        "start": 338,
+        "end": 347,
+        "source": {
+          "body": "fragment ActorsRendererFragment on Node {\\n  id\\n  actors {\\n    nameRenderer @match {\\n      ...PlainUserNameRenderer_name @module(name: \\"PlainUserNameRenderer.react\\")\\n      ...MarkdownUserNameRenderer_name\\n        @module(name: \\"MarkdownUserNameRenderer.react\\")\\n    }\\n  }\\n}\\n\\nfragment PlainUserNameRenderer_name on PlainUserNameRenderer {\\n  plaintext\\n  data {\\n    text\\n  }\\n}\\n\\nfragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {\\n  markdown\\n  data {\\n    markup\\n  }\\n}\\n",
+          "name": "GraphQL request",
+          "locationOffset": {
+            "line": 1,
+            "column": 1
+          }
+        }
+      },
+      "metadata": null,
+      "name": "plaintext",
+      "type": "String"
+    },
+    {
+      "kind": "LinkedField",
+      "alias": null,
+      "args": [],
+      "directives": [],
+      "loc": {
+        "kind": "Source",
+        "start": 350,
+        "end": 369,
+        "source": {
+          "body": "fragment ActorsRendererFragment on Node {\\n  id\\n  actors {\\n    nameRenderer @match {\\n      ...PlainUserNameRenderer_name @module(name: \\"PlainUserNameRenderer.react\\")\\n      ...MarkdownUserNameRenderer_name\\n        @module(name: \\"MarkdownUserNameRenderer.react\\")\\n    }\\n  }\\n}\\n\\nfragment PlainUserNameRenderer_name on PlainUserNameRenderer {\\n  plaintext\\n  data {\\n    text\\n  }\\n}\\n\\nfragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {\\n  markdown\\n  data {\\n    markup\\n  }\\n}\\n",
+          "name": "GraphQL request",
+          "locationOffset": {
+            "line": 1,
+            "column": 1
+          }
+        }
+      },
+      "metadata": null,
+      "name": "data",
+      "selections": [
+        {
+          "kind": "ScalarField",
+          "alias": null,
+          "args": [],
+          "directives": [],
+          "loc": {
+            "kind": "Source",
+            "start": 361,
+            "end": 365,
+            "source": {
+              "body": "fragment ActorsRendererFragment on Node {\\n  id\\n  actors {\\n    nameRenderer @match {\\n      ...PlainUserNameRenderer_name @module(name: \\"PlainUserNameRenderer.react\\")\\n      ...MarkdownUserNameRenderer_name\\n        @module(name: \\"MarkdownUserNameRenderer.react\\")\\n    }\\n  }\\n}\\n\\nfragment PlainUserNameRenderer_name on PlainUserNameRenderer {\\n  plaintext\\n  data {\\n    text\\n  }\\n}\\n\\nfragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {\\n  markdown\\n  data {\\n    markup\\n  }\\n}\\n",
+              "name": "GraphQL request",
+              "locationOffset": {
+                "line": 1,
+                "column": 1
+              }
+            }
+          },
+          "metadata": null,
+          "name": "text",
+          "type": "String"
+        }
+      ],
+      "type": "PlainUserNameData"
+    }
+  ],
+  "type": "PlainUserNameRenderer",
+  "argumentDefinitions": []
+}
+{
+  "kind": "Fragment",
+  "directives": [],
+  "loc": {
+    "kind": "Source",
+    "start": 373,
+    "end": 478,
+    "source": {
+      "body": "fragment ActorsRendererFragment on Node {\\n  id\\n  actors {\\n    nameRenderer @match {\\n      ...PlainUserNameRenderer_name @module(name: \\"PlainUserNameRenderer.react\\")\\n      ...MarkdownUserNameRenderer_name\\n        @module(name: \\"MarkdownUserNameRenderer.react\\")\\n    }\\n  }\\n}\\n\\nfragment PlainUserNameRenderer_name on PlainUserNameRenderer {\\n  plaintext\\n  data {\\n    text\\n  }\\n}\\n\\nfragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {\\n  markdown\\n  data {\\n    markup\\n  }\\n}\\n",
+      "name": "GraphQL request",
+      "locationOffset": {
+        "line": 1,
+        "column": 1
+      }
+    }
+  },
+  "metadata": null,
+  "name": "MarkdownUserNameRenderer_name",
+  "selections": [
+    {
+      "kind": "ScalarField",
+      "alias": null,
+      "args": [],
+      "directives": [],
+      "loc": {
+        "kind": "Source",
+        "start": 444,
+        "end": 452,
+        "source": {
+          "body": "fragment ActorsRendererFragment on Node {\\n  id\\n  actors {\\n    nameRenderer @match {\\n      ...PlainUserNameRenderer_name @module(name: \\"PlainUserNameRenderer.react\\")\\n      ...MarkdownUserNameRenderer_name\\n        @module(name: \\"MarkdownUserNameRenderer.react\\")\\n    }\\n  }\\n}\\n\\nfragment PlainUserNameRenderer_name on PlainUserNameRenderer {\\n  plaintext\\n  data {\\n    text\\n  }\\n}\\n\\nfragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {\\n  markdown\\n  data {\\n    markup\\n  }\\n}\\n",
+          "name": "GraphQL request",
+          "locationOffset": {
+            "line": 1,
+            "column": 1
+          }
+        }
+      },
+      "metadata": null,
+      "name": "markdown",
+      "type": "String"
+    },
+    {
+      "kind": "LinkedField",
+      "alias": null,
+      "args": [],
+      "directives": [],
+      "loc": {
+        "kind": "Source",
+        "start": 455,
+        "end": 476,
+        "source": {
+          "body": "fragment ActorsRendererFragment on Node {\\n  id\\n  actors {\\n    nameRenderer @match {\\n      ...PlainUserNameRenderer_name @module(name: \\"PlainUserNameRenderer.react\\")\\n      ...MarkdownUserNameRenderer_name\\n        @module(name: \\"MarkdownUserNameRenderer.react\\")\\n    }\\n  }\\n}\\n\\nfragment PlainUserNameRenderer_name on PlainUserNameRenderer {\\n  plaintext\\n  data {\\n    text\\n  }\\n}\\n\\nfragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {\\n  markdown\\n  data {\\n    markup\\n  }\\n}\\n",
+          "name": "GraphQL request",
+          "locationOffset": {
+            "line": 1,
+            "column": 1
+          }
+        }
+      },
+      "metadata": null,
+      "name": "data",
+      "selections": [
+        {
+          "kind": "ScalarField",
+          "alias": null,
+          "args": [],
+          "directives": [],
+          "loc": {
+            "kind": "Source",
+            "start": 466,
+            "end": 472,
+            "source": {
+              "body": "fragment ActorsRendererFragment on Node {\\n  id\\n  actors {\\n    nameRenderer @match {\\n      ...PlainUserNameRenderer_name @module(name: \\"PlainUserNameRenderer.react\\")\\n      ...MarkdownUserNameRenderer_name\\n        @module(name: \\"MarkdownUserNameRenderer.react\\")\\n    }\\n  }\\n}\\n\\nfragment PlainUserNameRenderer_name on PlainUserNameRenderer {\\n  plaintext\\n  data {\\n    text\\n  }\\n}\\n\\nfragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {\\n  markdown\\n  data {\\n    markup\\n  }\\n}\\n",
+              "name": "GraphQL request",
+              "locationOffset": {
+                "line": 1,
+                "column": 1
+              }
+            }
+          },
+          "metadata": null,
+          "name": "markup",
+          "type": "String"
+        }
+      ],
+      "type": "MarkdownUserNameData"
+    }
+  ],
+  "type": "MarkdownUserNameRenderer",
+  "argumentDefinitions": []
+}
+`;
+
+exports[`RelayDirectiveClientExtensionValidationTransform matches expected output: match-on-child-of-client.invalid.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+# expected-to-throw
+fragment NameRendererFragment on User {
+  id
+  foo {
+    bar {
+      user {
+        nameRenderer @match {
+          ...PlainUserNameRenderer_name
+            @module(name: "PlainUserNameRenderer.react")
+          ...MarkdownUserNameRenderer_name
+            @module(name: "MarkdownUserNameRenderer.react")
+        }
+      }
+    }
+  }
+}
+
+extend type User {
+  foo: Foo
+}
+
+type Foo {
+  bar: Bar
+}
+
+type Bar {
+  user: User
+}
+
+fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
+  plaintext
+  data {
+    text
+  }
+}
+
+fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+  markdown
+  data {
+    markup
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+THROWN EXCEPTION:
+
+Error: Encountered 1 error(s):
+- Unexpected directives @match on 'nameRenderer'. These directives can only be used on fields/fragments that are fetched from the server schema, but these directives are used inside a client-only selection
+  
+  Source: GraphQL request (4:3)
+  3:   id
+  4:   foo {
+       ^
+  5:     bar {
+  
+  Source: GraphQL request (7:9)
+  6:       user {
+  7:         nameRenderer @match {
+             ^
+  8:           ...PlainUserNameRenderer_name
+  
+`;
+
+exports[`RelayDirectiveClientExtensionValidationTransform matches expected output: match-on-child-of-client-in-fragment.invalid.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+# expected-to-throw
+extend type User {
+  foo: Foo
+}
+
+type Foo {
+  bar: Bar
+}
+
+type Bar {
+  user: User
+}
+
+fragment SomeUser on User {
+  nameRenderer {
+    ...PlainUserNameRenderer_name
+      @module(name: "PlainUserNameRenderer.react")
+    ...MarkdownUserNameRenderer_name
+      @module(name: "MarkdownUserNameRenderer.react")
+  }
+}
+
+fragment NameRendererFragment on User {
+  id
+  foo {
+    bar {
+      user {
+        ...SomeUser
+      }
+    }
+  }
+}
+
+fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
+  plaintext
+  data {
+    text
+  }
+}
+
+fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+  markdown
+  data {
+    markup
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+THROWN EXCEPTION:
+
+Error: Encountered 1 error(s):
+- Unexpected directives @module on 'PlainUserNameRenderer_name'. These directives can only be used on fields/fragments that are fetched from the server schema, but these directives are used inside a client-only selection
+  
+  Source: GraphQL request (25:3)
+  24:   id
+  25:   foo {
+        ^
+  26:     bar {
+  
+  Source: GraphQL request (16:5)
+  15:   nameRenderer {
+  16:     ...PlainUserNameRenderer_name
+          ^
+  17:       @module(name: "PlainUserNameRenderer.react")
+  
+`;
+
+exports[`RelayDirectiveClientExtensionValidationTransform matches expected output: match-on-child-of-client-in-nested-fragment.invalid.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+# expected-to-throw
+extend type User {
+  foo: Foo
+}
+
+type Foo {
+  bar: Bar
+}
+
+type Bar {
+  user: User
+}
+
+
+fragment NameRendererFragment on User {
+  id
+  foo {
+    bar {
+      user {
+        ...SomeUser
+      }
+    }
+  }
+}
+
+fragment SomeUser2 on User {
+  nameRenderer {
+    ...PlainUserNameRenderer_name
+      @module(name: "PlainUserNameRenderer.react")
+    ...MarkdownUserNameRenderer_name
+      @module(name: "MarkdownUserNameRenderer.react")
+  }
+}
+
+fragment SomeUser on User {
+  ...SomeUser2
+}
+
+fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
+  plaintext
+  data {
+    text
+  }
+}
+
+fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+  markdown
+  data {
+    markup
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+THROWN EXCEPTION:
+
+Error: Encountered 1 error(s):
+- Unexpected directives @module on 'PlainUserNameRenderer_name'. These directives can only be used on fields/fragments that are fetched from the server schema, but these directives are used inside a client-only selection
+  
+  Source: GraphQL request (17:3)
+  16:   id
+  17:   foo {
+        ^
+  18:     bar {
+  
+  Source: GraphQL request (28:5)
+  27:   nameRenderer {
+  28:     ...PlainUserNameRenderer_name
+          ^
+  29:       @module(name: "PlainUserNameRenderer.react")
+  
+`;
+
+exports[`RelayDirectiveClientExtensionValidationTransform matches expected output: match-on-child-of-client-in-query-with-nested-fragment.invalid.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+# expected-to-throw
+fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
+  plaintext
+  data {
+    text
+  }
+}
+
+fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+  markdown
+  data {
+    markup
+  }
+}
+
+fragment SomeUser2 on User {
+  nameRenderer {
+    ...PlainUserNameRenderer_name
+      @module(name: "PlainUserNameRenderer.react")
+    ...MarkdownUserNameRenderer_name
+      @module(name: "MarkdownUserNameRenderer.react")
+  }
+}
+
+fragment SomeUser on User {
+  ...SomeUser2
+}
+
+query TestQuery {
+  me {
+    ...NameRendererFragment
+  }
+}
+
+fragment NameRendererFragment on User {
+  id
+  foo {
+    bar {
+      user {
+        ...SomeUser
+      }
+    }
+  }
+}
+
+extend type User {
+  foo: Foo
+}
+
+type Foo {
+  bar: Bar
+}
+
+type Bar {
+  user: User
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+THROWN EXCEPTION:
+
+Error: Encountered 1 error(s):
+- Unexpected directives @module on 'PlainUserNameRenderer_name'. These directives can only be used on fields/fragments that are fetched from the server schema, but these directives are used inside a client-only selection
+  
+  Source: GraphQL request (37:3)
+  36:   id
+  37:   foo {
+        ^
+  38:     bar {
+  
+  Source: GraphQL request (18:5)
+  17:   nameRenderer {
+  18:     ...PlainUserNameRenderer_name
+          ^
+  19:       @module(name: "PlainUserNameRenderer.react")
+  
+`;
+
+exports[`RelayDirectiveClientExtensionValidationTransform matches expected output: match-on-client-field.invalid.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+# expected-to-throw
+fragment NameRendererFragment on User {
+  id
+  foo @match {
+    name
+    plaintext
+  }
+}
+
+extend type User {
+  foo: Foo
+}
+
+type Foo {
+  name: String
+  plaintext: String
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+THROWN EXCEPTION:
+
+Error: Encountered 1 error(s):
+- Unexpected directives @match on 'foo'. These directives can only be used on fields/fragments that are fetched from the server schema, but these directives are used inside a client-only selection
+  
+  Source: GraphQL request (4:3)
+  3:   id
+  4:   foo @match {
+       ^
+  5:     name
+  
+`;
+
+exports[`RelayDirectiveClientExtensionValidationTransform matches expected output: match-on-client-field-in-query.invalid.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+# expected-to-throw
+query TestQuery {
+  me {
+    user {
+      nameRenderer @match {
+        ...PlainUserNameRenderer_name
+          @module(name: "PlainUserNameRenderer.react")
+        ...MarkdownUserNameRenderer_name
+          @module(name: "MarkdownUserNameRenderer.react")
+      }
+    }
+  }
+}
+
+
+extend type User {
+  user: User
+}
+
+fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
+  plaintext
+  data {
+    text
+  }
+}
+
+fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+  markdown
+  data {
+    markup
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+THROWN EXCEPTION:
+
+Error: Encountered 1 error(s):
+- Unexpected directives @match on 'nameRenderer'. These directives can only be used on fields/fragments that are fetched from the server schema, but these directives are used inside a client-only selection
+  
+  Source: GraphQL request (4:5)
+  3:   me {
+  4:     user {
+         ^
+  5:       nameRenderer @match {
+  
+  Source: GraphQL request (5:7)
+  4:     user {
+  5:       nameRenderer @match {
+           ^
+  6:         ...PlainUserNameRenderer_name
+  
+`;
+
+exports[`RelayDirectiveClientExtensionValidationTransform matches expected output: module-on-client-type-interface.invalid.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+# expected-to-throw
+fragment NameRendererFragment on User {
+  id
+  nameRenderable {
+    ...TestUserNameRenderer_name
+      @module(name: "TestUserNameRenderer.react")
+  }
+}
+
+fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
+  plaintext
+  data {
+    text
+  }
+}
+
+fragment TestUserNameRenderer_name on TestUserNameRenderer {
+  test
+}
+
+type TestUserNameRenderer implements UserNameRenderable {
+  test: String
+  user: User
+  js(module: String): JSDependency
+  name: String
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+THROWN EXCEPTION:
+
+Error: Encountered 1 error(s):
+- Unexpected directives @module on 'TestUserNameRenderer_name'. These directives can only be used on fields/fragments that are fetched from the server schema, but these directives are used inside a client-only selection
+  
+  Source: GraphQL request (5:5)
+  4:   nameRenderable {
+  5:     ...TestUserNameRenderer_name
+         ^
+  6:       @module(name: "TestUserNameRenderer.react")
+  
+`;

@@ -410,6 +410,11 @@ function createVisitor(options: TypeGeneratorOptions) {
                 // $FlowFixMe
                 node.selections,
               ),
+              /*
+               * append concreteType to key so overlapping fields with different
+               * concreteTypes don't get overwritten by each other
+               */
+              true,
             ),
           },
         ];
@@ -445,12 +450,19 @@ function createVisitor(options: TypeGeneratorOptions) {
   };
 }
 
-function selectionsToMap(selections: $ReadOnlyArray<Selection>): SelectionMap {
+function selectionsToMap(
+  selections: $ReadOnlyArray<Selection>,
+  appendType?: boolean,
+): SelectionMap {
   const map = new Map();
   selections.forEach(selection => {
-    const previousSel = map.get(selection.key);
+    const key =
+      appendType && selection.concreteType
+        ? `${selection.key}::${selection.concreteType}`
+        : selection.key;
+    const previousSel = map.get(key);
     map.set(
-      selection.key,
+      key,
       previousSel ? mergeSelection(previousSel, selection) : selection,
     );
   });

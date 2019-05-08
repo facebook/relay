@@ -18,7 +18,6 @@ const RelayMaskTransform = require('../../transforms/RelayMaskTransform');
 const RelayMatchTransform = require('../../transforms/RelayMatchTransform');
 const RelayRefetchableFragmentTransform = require('../../transforms/RelayRefetchableFragmentTransform');
 const RelayRelayDirectiveTransform = require('../../transforms/RelayRelayDirectiveTransform');
-const Rollout = require('../../util/Rollout');
 
 const invariant = require('invariant');
 const nullthrows = require('nullthrows');
@@ -588,18 +587,15 @@ function getFragmentTypes(name: string) {
       t.genericTypeAnnotation(t.identifier('FragmentReference')),
     ),
   );
-  if (Rollout.check('rename-ref-type-p1', name)) {
-    const newFragmentTypeName = getNewFragmentTypeName(name);
-    const newFragmentType = t.declareExportDeclaration(
-      t.declareOpaqueType(
-        t.identifier(newFragmentTypeName),
-        null,
-        t.genericTypeAnnotation(t.identifier(oldFragmentTypeName)),
-      ),
-    );
-    return [oldFragmentType, newFragmentType];
-  }
-  return [oldFragmentType];
+  const newFragmentTypeName = getNewFragmentTypeName(name);
+  const newFragmentType = t.declareExportDeclaration(
+    t.declareOpaqueType(
+      t.identifier(newFragmentTypeName),
+      null,
+      t.genericTypeAnnotation(t.identifier(oldFragmentTypeName)),
+    ),
+  );
+  return [oldFragmentType, newFragmentType];
 }
 
 function getOldFragmentTypeName(name: string) {

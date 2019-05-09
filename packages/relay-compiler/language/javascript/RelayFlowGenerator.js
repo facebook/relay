@@ -10,19 +10,15 @@
 
 'use strict';
 
-import type {IRTransform} from '../../core/GraphQLCompilerContext';
-import type {Fragment, Root} from '../../core/GraphQLIR';
-import type {TypeGeneratorOptions} from '../RelayLanguagePluginInterface';
-import type {GraphQLEnumType} from 'graphql';
-
-const Profiler = require('../../core/GraphQLCompilerProfiler');
-const IRVisitor = require('../../core/GraphQLIRVisitor');
-const {isAbstractType} = require('../../core/GraphQLSchemaUtils');
 const FlattenTransform = require('../../transforms/FlattenTransform');
+const IRVisitor = require('../../core/GraphQLIRVisitor');
+const Profiler = require('../../core/GraphQLCompilerProfiler');
 const RelayMaskTransform = require('../../transforms/RelayMaskTransform');
 const RelayMatchTransform = require('../../transforms/RelayMatchTransform');
 const RelayRefetchableFragmentTransform = require('../../transforms/RelayRefetchableFragmentTransform');
 const RelayRelayDirectiveTransform = require('../../transforms/RelayRelayDirectiveTransform');
+
+const {isAbstractType, getRawType} = require('../../core/GraphQLSchemaUtils');
 const {
   anyTypeAlias,
   exactObjectTypeAnnotation,
@@ -38,6 +34,12 @@ const {
   transformInputType,
   transformScalarType,
 } = require('./RelayFlowTypeTransformers');
+const {assertAbstractType, assertCompositeType} = require('graphql');
+
+import type {IRTransform} from '../../core/GraphQLCompilerContext';
+import type {Fragment, Root} from '../../core/GraphQLIR';
+import type {TypeGeneratorOptions} from '../RelayLanguagePluginInterface';
+import type {GraphQLEnumType, GraphQLType, GraphQLSchema} from 'graphql';
 const babelGenerator = require('@babel/generator').default;
 const t = require('@babel/types');
 const {
@@ -70,7 +72,7 @@ type Selection = {
   key: string,
   schemaName?: string,
   value?: any,
-  nodeType?: any,
+  nodeType?: GraphQLType,
   conditional?: boolean,
   concreteType?: string,
   ref?: string,
@@ -90,6 +92,7 @@ function makeProp(
       state,
       selectionsToBabel(
         [Array.from(nullthrows(nodeSelections).values())],
+        nodeType,
         state,
         unmasked,
       ),
@@ -109,8 +112,34 @@ const isTypenameSelection = selection => selection.schemaName === '__typename';
 const hasTypenameSelection = selections => selections.some(isTypenameSelection);
 const onlySelectsTypename = selections => selections.every(isTypenameSelection);
 
+function hasAllConcreteTypes(
+  schema: ?GraphQLSchema,
+  nodeType: GraphQLType,
+  types: $ReadOnlyArray<string>,
+): boolean {
+  if (!schema) {
+    return false;
+  }
+  const type = getRawType(nodeType);
+  if (!isAbstractType(type)) {
+    return false;
+  }
+  const possibleTypes = schema.getPossibleTypes(
+    assertAbstractType(assertCompositeType(type)),
+  );
+  if (possibleTypes.length > types.length) {
+    return false;
+  }
+  const set = new Set(types);
+  for (const possibleType of possibleTypes) {
+    set.delete(possibleType.name);
+  }
+  return set.size === 0;
+}
+
 function selectionsToBabel(
   selections,
+  nodeType: GraphQLType,
   state: State,
   unmasked: boolean,
   fragmentTypeName?: string,
@@ -137,14 +166,13 @@ function selectionsToBabel(
   });
 
   const types = [];
+  const concreteTypes = Object.keys(byConcreteType);
 
   if (
-    Object.keys(byConcreteType).length &&
+    concreteTypes.length &&
     onlySelectsTypename(Array.from(baseFields.values())) &&
     (hasTypenameSelection(Array.from(baseFields.values())) ||
-      Object.keys(byConcreteType).every(type =>
-        hasTypenameSelection(byConcreteType[type]),
-      ))
+      concreteTypes.every(type => hasTypenameSelection(byConcreteType[type])))
   ) {
     const typenameAliases = new Set();
     for (const concreteType in byConcreteType) {
@@ -160,22 +188,25 @@ function selectionsToBabel(
         }),
       );
     }
-    // It might be some other type then the listed concrete types. Ideally, we
-    // would set the type to diff(string, set of listed concrete types), but
-    // this doesn't exist in Flow at the time.
-    types.push(
-      Array.from(typenameAliases).map(typenameAlias => {
-        const otherProp = readOnlyObjectTypeProperty(
-          typenameAlias,
-          t.stringLiteralTypeAnnotation('%other'),
-        );
-        otherProp.leadingComments = lineComments(
-          "This will never be '%other', but we need some",
-          'value in case none of the concrete values match.',
-        );
-        return otherProp;
-      }),
-    );
+
+    if (!hasAllConcreteTypes(state.schema, nodeType, concreteTypes)) {
+      // It might be some other type then the listed concrete types. Ideally, we
+      // would set the type to diff(string, set of listed concrete types), but
+      // this doesn't exist in Flow at the time.
+      types.push(
+        Array.from(typenameAliases).map(typenameAlias => {
+          const otherProp = readOnlyObjectTypeProperty(
+            typenameAlias,
+            t.stringLiteralTypeAnnotation('%other'),
+          );
+          otherProp.leadingComments = lineComments(
+            "This will never be '%other', but we need some",
+            'value in case none of the concrete values match.',
+          );
+          return otherProp;
+        }),
+      );
+    }
   } else {
     let selectionMap = selectionsToMap(Array.from(baseFields.values()));
     for (const concreteType in byConcreteType) {
@@ -264,6 +295,7 @@ function createVisitor(options: TypeGeneratorOptions) {
     useHaste: options.useHaste,
     useSingleArtifactDirectory: options.useSingleArtifactDirectory,
     noFutureProofEnums: options.noFutureProofEnums,
+    schema: options.schema,
   };
   return {
     leave: {
@@ -272,7 +304,7 @@ function createVisitor(options: TypeGeneratorOptions) {
         const inputObjectTypes = generateInputObjectTypes(state);
         const responseType = exportType(
           `${node.name}Response`,
-          selectionsToBabel(node.selections, state, false),
+          selectionsToBabel(node.selections, node.type, state, false),
         );
         const operationType = exportType(
           node.name,
@@ -344,6 +376,7 @@ function createVisitor(options: TypeGeneratorOptions) {
         const unmasked = node.metadata && node.metadata.mask === false;
         const baseType = selectionsToBabel(
           selections,
+          node.type,
           state,
           // $FlowFixMe
           unmasked,

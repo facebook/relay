@@ -1,0 +1,20 @@
+fragment TypenameInsideWithOverlappingFieldsFull on Viewer {
+  actor {
+    __typename
+    ... on Page {
+      id
+      name
+    }
+    ... on User {
+      id
+      name
+      profile_picture {
+        uri
+      }
+    }
+    ... on ExtraUser {
+      id
+      name
+    }
+  }
+}

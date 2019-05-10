@@ -28,6 +28,8 @@ type State = {
   typenameField: ScalarField,
 };
 
+let cache = new Map();
+
 /**
  * A transform that adds `__typename` field on any `LinkedField` of a union or
  * interface type where there is no unaliased `__typename` selection.
@@ -35,6 +37,7 @@ type State = {
 function relayGenerateTypeNameTransform(
   context: CompilerContext,
 ): CompilerContext {
+  cache = new Map();
   const stringType = assertLeafType(context.serverSchema.getType(STRING_TYPE));
   const typenameField: ScalarField = {
     kind: 'ScalarField',
@@ -60,16 +63,21 @@ function relayGenerateTypeNameTransform(
 }
 
 function visitLinkedField(field: LinkedField, state: State): LinkedField {
-  const transformedNode = this.traverse(field, state);
+  let transformedNode = cache.get(field);
+  if (transformedNode != null) {
+    return transformedNode;
+  }
+  transformedNode = this.traverse(field, state);
   if (
     isAbstractType(transformedNode.type) &&
     !hasUnaliasedSelection(transformedNode, TYPENAME_KEY)
   ) {
-    return {
+    transformedNode = {
       ...transformedNode,
       selections: [state.typenameField, ...transformedNode.selections],
     };
   }
+  cache.set(field, transformedNode);
   return transformedNode;
 }
 

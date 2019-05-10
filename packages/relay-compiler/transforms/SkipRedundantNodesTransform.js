@@ -127,7 +127,9 @@ function skipRedundantNodesTransform(
   });
 }
 
+let cache = new Map();
 function visitNode<T: Fragment | Root>(node: T): ?T {
+  cache = new Map();
   return transformNode(node, new IMap()).node;
 }
 
@@ -148,6 +150,17 @@ function transformNode<T: Node>(
   node: T,
   selectionMap: SelectionMap,
 ): {selectionMap: SelectionMap, node: ?T} {
+  // This will optimize a traversal of the same subselections.
+  // If it's the same node, and selectionMap is empty
+  // result of transformNode has to be the same.
+  const isEmptySelectionMap = selectionMap.size === 0;
+  let result;
+  if (isEmptySelectionMap) {
+    result = cache.get(node);
+    if (result != null) {
+      return result;
+    }
+  }
   const selections = [];
   sortSelections(node.selections).forEach(selection => {
     const identifier = getIdentifierForSelection(selection);
@@ -199,7 +212,11 @@ function transformNode<T: Node>(
     }
   });
   const nextNode: any = selections.length ? {...node, selections} : null;
-  return {selectionMap, node: nextNode};
+  result = {selectionMap, node: nextNode};
+  if (isEmptySelectionMap) {
+    cache.set(node, result);
+  }
+  return result;
 }
 
 /**

@@ -10,21 +10,43 @@
 
 'use strict';
 
+const ClientExtensionsTransform = require('../ClientExtensionsTransform');
 const GraphQLCompilerContext = require('../../core/GraphQLCompilerContext');
 const GraphQLIRPrinter = require('../../core/GraphQLIRPrinter');
-const RelayParser = require('../../core/RelayParser');
+const InlineFragmentsTransform = require('../InlineFragmentsTransform');
+const RelayDirectiveClientExtensionValidationTransform = require('../RelayDirectiveClientExtensionValidationTransform');
+const RelayMatchTransform = require('../RelayMatchTransform');
+const RelayRelayDirectiveTransform = require('../RelayRelayDirectiveTransform');
 const SkipRedundantNodesTransform = require('../SkipRedundantNodesTransform');
 
-const {TestSchema, generateTestsFromFixtures} = require('relay-test-utils');
+const {transformASTSchema} = require('../../core/ASTConvert');
+const {
+  TestSchema,
+  parseGraphQLText,
+  generateTestsFromFixtures,
+} = require('relay-test-utils');
 
 describe('SkipRedundantNodesTransform', () => {
+  const schema = transformASTSchema(TestSchema, [
+    RelayMatchTransform.SCHEMA_EXTENSION,
+  ]);
   generateTestsFromFixtures(
     `${__dirname}/fixtures/skip-redundant-nodes-transform`,
     text => {
-      const ast = RelayParser.parse(TestSchema, text);
-      return new GraphQLCompilerContext(TestSchema)
-        .addAll(ast)
-        .applyTransforms([SkipRedundantNodesTransform.transform])
+      const {definitions, schema: clientSchema} = parseGraphQLText(
+        schema,
+        text,
+      );
+      return new GraphQLCompilerContext(TestSchema, clientSchema)
+        .addAll(definitions)
+        .applyTransforms([
+          RelayRelayDirectiveTransform.transform,
+          ClientExtensionsTransform.transform,
+          RelayDirectiveClientExtensionValidationTransform.transform,
+          RelayMatchTransform.transform,
+          InlineFragmentsTransform.transform,
+          SkipRedundantNodesTransform.transform,
+        ])
         .documents()
         .map(GraphQLIRPrinter.print)
         .join('\n');

@@ -122,7 +122,7 @@ The first argument of the MockResolver is the object that contains Mock Resolver
 
 ### ID Generation
 
-The second argument of the Mock Resolver its a function that will generate a sequence of integers, usefull to generate unique ids in the tests
+The second argument of the Mock Resolver its a function that will generate a sequence of integers, useful to generate unique ids in the tests
 
 ```javascript
 {
@@ -264,7 +264,7 @@ Essentially, tests for Pagination container are not different from Fragment Cont
 
 ```javascript
 // Pagination Example
-test('Pagionation Container', () => {
+test('Pagination Container', () => {
   const environment = createMockEnvironment();
   const TestRenderer = () => (
     <QueryRenderer
@@ -312,7 +312,7 @@ test('Pagionation Container', () => {
   loadMore.props.onClick();
 
   environment.mock.resolveMostRecentOperation(operation =>
-    MockPayloadGenerator.generte(operation, {
+    MockPayloadGenerator.generate(operation, {
       ID(_, generateId) {
         // See, the second page IDs will be different
         return `second-page-id-${generateId()}`;

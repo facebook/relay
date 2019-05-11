@@ -80,6 +80,12 @@ const users = [
     infoLink: 'https://github.com/jusbrasil',
     pinned: false,
   },
+  {
+    caption: 'Up',
+    image: '/relay/img/logos/up.png',
+    infoLink: 'https://up.com.au/',
+    pinned: false,
+  },
 ];
 
 const siteConfig = {

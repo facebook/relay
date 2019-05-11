@@ -33,27 +33,6 @@ function generate(text, options: TypeGeneratorOptions) {
       extend type User {
         color: Color
       }
-      type ExtraUser implements Actor {
-        address: StreetAddress
-        allPhones: [Phone]
-        birthdate: Date
-        emailAddresses: [String]
-        firstName(if: Boolean, unless: Boolean): String
-        friends(after: ID, before: ID, first: Int, last: Int, orderby: [String], find: String, isViewerFriend: Boolean, if: Boolean, unless: Boolean, traits: [PersonalityTraits]): FriendsConnection
-        hometown: Page
-        id: ID!
-        lastName: String
-        name: String
-        nameRenderer(supported: [String!]!): UserNameRenderer
-        nameRenderable(supported: [String!]!): UserNameRenderable
-        profilePicture(size: [Int], preset: PhotoSize): Image
-        screennames: [Screenname]
-        subscribeStatus: String
-        subscribers(first: Int): SubscribersConnection
-        url(relative: Boolean, site: String): String
-        websites: [String]
-        username: String
-      }
     `,
   ]);
   const {definitions} = parseGraphQLText(schema, text);
@@ -61,12 +40,7 @@ function generate(text, options: TypeGeneratorOptions) {
     .addAll(definitions)
     .applyTransforms(RelayFlowGenerator.transforms)
     .documents()
-    .map(doc =>
-      RelayFlowGenerator.generate(doc, {
-        ...options,
-        schema,
-      }),
-    )
+    .map(doc => RelayFlowGenerator.generate(doc, options))
     .join('\n\n');
 }
 

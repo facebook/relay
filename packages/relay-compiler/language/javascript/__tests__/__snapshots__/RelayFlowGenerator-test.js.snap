@@ -813,59 +813,6 @@ export type TypenameInsideWithOverlappingFields$key = {
 };
 `;
 
-exports[`RelayFlowGenerator matches expected output: typename-inside-with-overlapping-fields-full.graphql 1`] = `
-~~~~~~~~~~ INPUT ~~~~~~~~~~
-fragment TypenameInsideWithOverlappingFieldsFull on Viewer {
-  actor {
-    __typename
-    ... on Page {
-      id
-      name
-    }
-    ... on User {
-      id
-      name
-      profile_picture {
-        uri
-      }
-    }
-    ... on ExtraUser {
-      id
-      name
-    }
-  }
-}
-
-~~~~~~~~~~ OUTPUT ~~~~~~~~~~
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type TypenameInsideWithOverlappingFieldsFull$ref: FragmentReference;
-declare export opaque type TypenameInsideWithOverlappingFieldsFull$fragmentType: TypenameInsideWithOverlappingFieldsFull$ref;
-export type TypenameInsideWithOverlappingFieldsFull = {|
-  +actor: ?({|
-    +__typename: "Page",
-    +id: string,
-    +name: ?string,
-  |} | {|
-    +__typename: "User",
-    +id: string,
-    +name: ?string,
-    +profile_picture: ?{|
-      +uri: ?string
-    |},
-  |} | {|
-    +__typename: "ExtraUser",
-    +id: string,
-    +name: ?string,
-  |}),
-  +$refType: TypenameInsideWithOverlappingFieldsFull$ref,
-|};
-export type TypenameInsideWithOverlappingFieldsFull$data = TypenameInsideWithOverlappingFieldsFull;
-export type TypenameInsideWithOverlappingFieldsFull$key = {
-  +$data?: TypenameInsideWithOverlappingFieldsFull$data,
-  +$fragmentRefs: TypenameInsideWithOverlappingFieldsFull$ref,
-};
-`;
-
 exports[`RelayFlowGenerator matches expected output: typename-on-union.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 fragment TypenameInside on Actor {

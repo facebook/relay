@@ -10,7 +10,6 @@
 
 'use strict';
 
-import type React from 'React';
 import type {
   Disposable,
   FragmentReference,
@@ -115,14 +114,14 @@ export type $RelayProps<Props, RelayPropT = RelayProp> = $ObjMap<
   & (<T>(T) => T),
 >;
 
-export type RelayFragmentContainer<TComponent> = React.ComponentType<
+export type RelayFragmentContainer<TComponent> = React$ComponentType<
   $RelayProps<React$ElementConfig<TComponent>, RelayProp>,
 >;
 
-export type RelayPaginationContainer<TComponent> = React.ComponentType<
+export type RelayPaginationContainer<TComponent> = React$ComponentType<
   $RelayProps<React$ElementConfig<TComponent>, RelayPaginationProp>,
 >;
 
-export type RelayRefetchContainer<TComponent> = React.ComponentType<
+export type RelayRefetchContainer<TComponent> = React$ComponentType<
   $RelayProps<React$ElementConfig<TComponent>, RelayRefetchProp>,
 >;

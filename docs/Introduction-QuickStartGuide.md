@@ -294,13 +294,16 @@ class Todo extends React.Component<Props> {
 
 export default createFragmentContainer(
   Todo,
-  graphql`
-    # As a convention, we name the fragment as '<ComponentFileName>_<propName>'
-    fragment Todo_todo on Todo {
-      complete
-      text
-    }
-  `
+  // Each key specified in this object will correspond to a prop available to the component
+  {
+    todo: graphql`
+      # As a convention, we name the fragment as '<ComponentFileName>_<propName>'
+      fragment Todo_todo on Todo {
+        complete
+        text
+      }
+    `
+  },
 )
 ```
 
@@ -356,25 +359,27 @@ class TodoList extends React.Component<Props> {
 
 export default createFragmentContainer(
   TodoList,
-  graphql`
-    # As a convention, we name the fragment as '<ComponentFileName>_<PropName>'
-    fragment TodoList_userTodoData on User {
-      todos(
-        first: 2147483647  # max GraphQLInt, to fetch all todos
-      ) {
-        edges {
-          node {
-            id,
-            # We use the fragment defined by the child Todo component here
-            ...Todo_todo,
+  {
+    userTodoData: graphql`
+      # As a convention, we name the fragment as '<ComponentFileName>_<PropName>'
+      fragment TodoList_userTodoData on User {
+        todos(
+          first: 2147483647  # max GraphQLInt, to fetch all todos
+        ) {
+          edges {
+            node {
+              id,
+              # We use the fragment defined by the child Todo component here
+              ...Todo_todo,
+            },
           },
         },
-      },
-      id,
-      totalCount,
-      completedCount,
-    }
-  `,
+        id,
+        totalCount,
+        completedCount,
+      }
+    `,
+  },
 );
 ```
 

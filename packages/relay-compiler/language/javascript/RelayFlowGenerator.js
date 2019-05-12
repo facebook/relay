@@ -10,7 +10,6 @@
 
 'use strict';
 
-const babelGenerator = require('@babel/generator').default;
 const FlattenTransform = require('../../transforms/FlattenTransform');
 const IRVisitor = require('../../core/GraphQLIRVisitor');
 const Profiler = require('../../core/GraphQLCompilerProfiler');
@@ -18,11 +17,6 @@ const RelayMaskTransform = require('../../transforms/RelayMaskTransform');
 const RelayMatchTransform = require('../../transforms/RelayMatchTransform');
 const RelayRefetchableFragmentTransform = require('../../transforms/RelayRefetchableFragmentTransform');
 const RelayRelayDirectiveTransform = require('../../transforms/RelayRelayDirectiveTransform');
-const Rollout = require('../../util/Rollout');
-
-const invariant = require('invariant');
-const nullthrows = require('nullthrows');
-const t = require('@babel/types');
 
 const {isAbstractType} = require('../../core/GraphQLSchemaUtils');
 const {
@@ -37,19 +31,23 @@ const {
   unionTypeAnnotation,
 } = require('./RelayFlowBabelFactories');
 const {
-  transformScalarType,
   transformInputType,
+  transformScalarType,
 } = require('./RelayFlowTypeTransformers');
-const {
-  GraphQLInputObjectType,
-  GraphQLNonNull,
-  GraphQLString,
-} = require('graphql');
 
 import type {IRTransform} from '../../core/GraphQLCompilerContext';
 import type {Fragment, Root} from '../../core/GraphQLIR';
 import type {TypeGeneratorOptions} from '../RelayLanguagePluginInterface';
 import type {GraphQLEnumType} from 'graphql';
+const babelGenerator = require('@babel/generator').default;
+const t = require('@babel/types');
+const {
+  GraphQLInputObjectType,
+  GraphQLNonNull,
+  GraphQLString,
+} = require('graphql');
+const invariant = require('invariant');
+const nullthrows = require('nullthrows');
 
 export type State = {|
   ...TypeGeneratorOptions,
@@ -413,6 +411,11 @@ function createVisitor(options: TypeGeneratorOptions) {
                 // $FlowFixMe
                 node.selections,
               ),
+              /*
+               * append concreteType to key so overlapping fields with different
+               * concreteTypes don't get overwritten by each other
+               */
+              true,
             ),
           },
         ];
@@ -448,12 +451,19 @@ function createVisitor(options: TypeGeneratorOptions) {
   };
 }
 
-function selectionsToMap(selections: $ReadOnlyArray<Selection>): SelectionMap {
+function selectionsToMap(
+  selections: $ReadOnlyArray<Selection>,
+  appendType?: boolean,
+): SelectionMap {
   const map = new Map();
   selections.forEach(selection => {
-    const previousSel = map.get(selection.key);
+    const key =
+      appendType && selection.concreteType
+        ? `${selection.key}::${selection.concreteType}`
+        : selection.key;
+    const previousSel = map.get(key);
     map.set(
-      selection.key,
+      key,
       previousSel ? mergeSelection(previousSel, selection) : selection,
     );
   });
@@ -588,18 +598,15 @@ function getFragmentTypes(name: string) {
       t.genericTypeAnnotation(t.identifier('FragmentReference')),
     ),
   );
-  if (Rollout.check('rename-ref-type-p1', name)) {
-    const newFragmentTypeName = getNewFragmentTypeName(name);
-    const newFragmentType = t.declareExportDeclaration(
-      t.declareOpaqueType(
-        t.identifier(newFragmentTypeName),
-        null,
-        t.genericTypeAnnotation(t.identifier(oldFragmentTypeName)),
-      ),
-    );
-    return [oldFragmentType, newFragmentType];
-  }
-  return [oldFragmentType];
+  const newFragmentTypeName = getNewFragmentTypeName(name);
+  const newFragmentType = t.declareExportDeclaration(
+    t.declareOpaqueType(
+      t.identifier(newFragmentTypeName),
+      null,
+      t.genericTypeAnnotation(t.identifier(oldFragmentTypeName)),
+    ),
+  );
+  return [oldFragmentType, newFragmentType];
 }
 
 function getOldFragmentTypeName(name: string) {
@@ -627,6 +634,9 @@ const FLOW_TRANSFORMS: Array<IRTransform> = [
 ];
 
 module.exports = {
-  generate: Profiler.instrument(generate, 'RelayFlowGenerator.generate'),
+  generate: (Profiler.instrument(generate, 'RelayFlowGenerator.generate'): (
+    node: Root | Fragment,
+    options: TypeGeneratorOptions,
+  ) => string),
   transforms: FLOW_TRANSFORMS,
 };

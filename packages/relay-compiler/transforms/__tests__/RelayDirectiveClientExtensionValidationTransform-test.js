@@ -12,27 +12,25 @@
 
 const ClientExtensionsTransform = require('../ClientExtensionsTransform');
 const GraphQLCompilerContext = require('../../core/GraphQLCompilerContext');
-const GraphQLIRPrinter = require('../../core/GraphQLIRPrinter');
-const InlineFragmentsTransform = require('../InlineFragmentsTransform');
+const RelayConnectionTransform = require('../../handlers/connection/RelayConnectionTransform');
 const RelayDirectiveClientExtensionValidationTransform = require('../RelayDirectiveClientExtensionValidationTransform');
 const RelayMatchTransform = require('../RelayMatchTransform');
-const RelayRelayDirectiveTransform = require('../RelayRelayDirectiveTransform');
-const SkipRedundantNodesTransform = require('../SkipRedundantNodesTransform');
 
 const {transformASTSchema} = require('../../core/ASTConvert');
 const {
   TestSchema,
-  parseGraphQLText,
   generateTestsFromFixtures,
+  parseGraphQLText,
 } = require('relay-test-utils');
 
-describe('SkipRedundantNodesTransform', () => {
-  const schema = transformASTSchema(TestSchema, [
-    RelayMatchTransform.SCHEMA_EXTENSION,
-  ]);
+describe('RelayDirectiveClientExtensionValidationTransform', () => {
   generateTestsFromFixtures(
-    `${__dirname}/fixtures/skip-redundant-nodes-transform`,
+    `${__dirname}/fixtures/relay-directive-client-extension-validation-transform`,
     text => {
+      const schema = transformASTSchema(TestSchema, [
+        RelayMatchTransform.SCHEMA_EXTENSION,
+        RelayConnectionTransform.SCHEMA_EXTENSION,
+      ]);
       const {definitions, schema: clientSchema} = parseGraphQLText(
         schema,
         text,
@@ -40,15 +38,11 @@ describe('SkipRedundantNodesTransform', () => {
       return new GraphQLCompilerContext(TestSchema, clientSchema)
         .addAll(definitions)
         .applyTransforms([
-          RelayRelayDirectiveTransform.transform,
           ClientExtensionsTransform.transform,
           RelayDirectiveClientExtensionValidationTransform.transform,
-          RelayMatchTransform.transform,
-          InlineFragmentsTransform.transform,
-          SkipRedundantNodesTransform.transform,
         ])
         .documents()
-        .map(GraphQLIRPrinter.print)
+        .map(doc => JSON.stringify(doc, null, 2))
         .join('\n');
     },
   );

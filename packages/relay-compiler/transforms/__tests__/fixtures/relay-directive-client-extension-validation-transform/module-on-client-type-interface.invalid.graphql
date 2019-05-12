@@ -1,8 +1,7 @@
 # expected-to-throw
 fragment NameRendererFragment on User {
   id
-  nameRenderable @match {
-    ...PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
+  nameRenderable {
     ...TestUserNameRenderer_name
       @module(name: "TestUserNameRenderer.react")
   }

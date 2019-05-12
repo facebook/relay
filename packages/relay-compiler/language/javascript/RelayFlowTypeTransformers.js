@@ -10,12 +10,11 @@
 
 'use strict';
 
-const t = require('@babel/types');
-
 const {
   exactObjectTypeAnnotation,
   readOnlyArrayOfType,
 } = require('./RelayFlowBabelFactories');
+const t = require('@babel/types');
 const {
   GraphQLEnumType,
   GraphQLInputObjectType,
@@ -43,7 +42,7 @@ function transformScalarType(
   type: GraphQLType,
   state: State,
   objectProps?: mixed,
-) {
+): mixed {
   if (type instanceof GraphQLNonNull) {
     return transformNonNullableScalarType(type.ofType, state, objectProps);
   } else {
@@ -100,7 +99,7 @@ function transformGraphQLEnumType(type: GraphQLEnumType, state: State) {
   return t.genericTypeAnnotation(t.identifier(type.name));
 }
 
-function transformInputType(type: GraphQLInputType, state: State) {
+function transformInputType(type: GraphQLInputType, state: State): $FlowFixMe {
   if (type instanceof GraphQLNonNull) {
     return transformNonNullableInputType(type.ofType, state);
   } else {

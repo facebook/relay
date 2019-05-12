@@ -12,7 +12,7 @@
 
 declare function isPromise(p: mixed): boolean %checks(p instanceof Promise);
 
-function isPromise(p): boolean {
+function isPromise(p: $FlowFixMe): boolean {
   return !!p && typeof p.then === 'function';
 }
 

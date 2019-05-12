@@ -10,29 +10,27 @@
 
 'use strict';
 
-const GraphQLCompilerContext = require('../core/GraphQLCompilerContext');
-const GraphQLIRTransformer = require('../core/GraphQLIRTransformer');
-const GraphQLSchemaUtils = require('../core/GraphQLSchemaUtils');
-
-const areEqual = require('../util/areEqualOSS');
-const getIdentifierForSelection = require('../core/getIdentifierForSelection');
-
-const {
-  createUserError,
-  createCompilerError,
-} = require('../core/RelayCompilerError');
-
 import type {
   Argument,
   Field,
   Handle,
   InlineFragment,
+  LinkedField,
   Node,
   ScalarField,
-  LinkedField,
   Selection,
 } from '../core/GraphQLIR';
 import type {GraphQLType} from 'graphql';
+
+const getIdentifierForSelection = require('../core/getIdentifierForSelection');
+const GraphQLCompilerContext = require('../core/GraphQLCompilerContext');
+const GraphQLIRTransformer = require('../core/GraphQLIRTransformer');
+const GraphQLSchemaUtils = require('../core/GraphQLSchemaUtils');
+const {
+  createCompilerError,
+  createUserError,
+} = require('../core/RelayCompilerError');
+const areEqual = require('../util/areEqualOSS');
 
 const {getRawType, isAbstractType} = GraphQLSchemaUtils;
 
@@ -61,54 +59,69 @@ function flattenTransformImpl(
     flattenAbstractTypes: !!(options && options.flattenAbstractTypes),
     parentType: null,
   };
-
+  const visitorFn = memoizedFlattenSelection(new Map());
   return GraphQLIRTransformer.transform(
     context,
     {
-      Root: flattenSelections,
-      Fragment: flattenSelections,
-      Condition: flattenSelections,
-      InlineFragment: flattenSelections,
-      LinkedField: flattenSelections,
-      SplitOperation: flattenSelections,
+      Root: visitorFn,
+      Fragment: visitorFn,
+      Condition: visitorFn,
+      InlineFragment: visitorFn,
+      LinkedField: visitorFn,
+      SplitOperation: visitorFn,
     },
     () => state,
   );
 }
 
-/**
- * @private
- */
-function flattenSelections<T: Node>(node: T, state: State): T {
-  // Determine the current type.
-  const parentType = state.parentType;
-  const type =
-    node.kind === 'LinkedField' ||
-    node.kind === 'Fragment' ||
-    node.kind === 'Root' ||
-    node.kind === 'SplitOperation'
-      ? node.type
-      : node.kind === 'InlineFragment'
-      ? node.typeCondition
-      : parentType;
-  if (type == null) {
-    throw createCompilerError('FlattenTransform: Expected a parent type.', [
-      node.loc,
-    ]);
-  }
+function memoizedFlattenSelection(cache) {
+  return function flattenSelectionsFn<T: Node>(node: T, state: State): T {
+    let nodeCache = cache.get(node);
+    if (nodeCache == null) {
+      nodeCache = new Map();
+      cache.set(node, nodeCache);
+    }
+    // Determine the current type.
+    const parentType = state.parentType;
+    const result = nodeCache.get(parentType);
+    if (result != null) {
+      return result;
+    }
 
-  // Flatten the selections in this node, creating a new node with flattened
-  // selections if possible, then deeply traverse the flattened node, while
-  // keeping track of the parent type.
-  const nextSelections = new Map();
-  const hasFlattened = flattenSelectionsInto(nextSelections, node, state, type);
-  const flattenedNode = hasFlattened
-    ? {...node, selections: Array.from(nextSelections.values())}
-    : node;
-  state.parentType = type;
-  const deeplyFlattenedNode = this.traverse(flattenedNode, state);
-  state.parentType = parentType;
-  return deeplyFlattenedNode;
+    const type =
+      node.kind === 'LinkedField' ||
+      node.kind === 'Fragment' ||
+      node.kind === 'Root' ||
+      node.kind === 'SplitOperation'
+        ? node.type
+        : node.kind === 'InlineFragment'
+        ? node.typeCondition
+        : parentType;
+    if (type == null) {
+      throw createCompilerError('FlattenTransform: Expected a parent type.', [
+        node.loc,
+      ]);
+    }
+
+    // Flatten the selections in this node, creating a new node with flattened
+    // selections if possible, then deeply traverse the flattened node, while
+    // keeping track of the parent type.
+    const nextSelections = new Map();
+    const hasFlattened = flattenSelectionsInto(
+      nextSelections,
+      node,
+      state,
+      type,
+    );
+    const flattenedNode = hasFlattened
+      ? {...node, selections: Array.from(nextSelections.values())}
+      : node;
+    state.parentType = type;
+    const deeplyFlattenedNode = this.traverse(flattenedNode, state);
+    state.parentType = parentType;
+    nodeCache.set(parentType, deeplyFlattenedNode);
+    return deeplyFlattenedNode;
+  };
 }
 
 /**
@@ -379,7 +392,9 @@ function mergeHandles<T: LinkedField | ScalarField>(
   return Array.from(uniqueItems.values());
 }
 
-function transformWithOptions(options: FlattenOptions) {
+function transformWithOptions(
+  options: FlattenOptions,
+): (context: GraphQLCompilerContext) => GraphQLCompilerContext {
   return function flattenTransform(
     context: GraphQLCompilerContext,
   ): GraphQLCompilerContext {

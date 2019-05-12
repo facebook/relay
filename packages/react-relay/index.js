@@ -18,10 +18,13 @@ const ReactRelayRefetchContainer = require('./ReactRelayRefetchContainer');
 const RelayRuntime = require('relay-runtime');
 
 export type {
+  $FragmentRef,
+  RelayFragmentContainer,
+  RelayPaginationContainer,
   RelayPaginationProp,
   RelayProp,
+  RelayRefetchContainer,
   RelayRefetchProp,
-  $FragmentRef,
 } from './ReactRelayTypes';
 export type {
   DataID,

@@ -130,15 +130,6 @@ function visitLinkedField(
 
   const context: CompilerContext = this.getContext();
 
-  const {serverSchema} = context;
-  if (!serverSchema.getType(getRawType(node.type).name)) {
-    throw createUserError(
-      `@match used on incompatible field '${transformedNode.name}'. ` +
-        'Use of @match on client fields is not allowed.',
-      [node.loc],
-    );
-  }
-
   const currentField = rawType.getFields()[transformedNode.name];
   const supportedArg = currentField.args.find(
     ({name}) => SUPPORTED_ARGUMENT_NAME,
@@ -180,12 +171,6 @@ function visitLinkedField(
   const typeToSelectionMap = {};
   const selections = [];
   transformedNode.selections.forEach(matchSelection => {
-    if (matchSelection.kind === 'ClientExtension') {
-      throw createUserError(
-        'Invalid @match selection: @match is not allowed on client types.',
-        [matchSelection.loc],
-      );
-    }
     const moduleImport =
       matchSelection.kind === 'InlineFragment'
         ? matchSelection.selections[0]

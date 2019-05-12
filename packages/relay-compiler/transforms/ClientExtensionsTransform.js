@@ -30,20 +30,21 @@ type State = {|
   parentType: GraphQLType | null,
 |};
 
+let cachesByNode = new Map();
 function clientExtensionTransform(
   context: GraphQLCompilerContext,
 ): GraphQLCompilerContext {
+  cachesByNode = new Map();
   return GraphQLIRTransformer.transform<State>(context, {
-    Fragment: traverseDefintion,
-    Root: traverseDefintion,
-    SplitOperation: traverseDefintion,
+    Fragment: traverseDefinition,
+    Root: traverseDefinition,
+    SplitOperation: traverseDefinition,
   });
 }
 
-function traverseDefintion<T: Definition>(node: T): T {
+function traverseDefinition<T: Definition>(node: T): T {
   const compilerContext = this.getContext();
   const {serverSchema, clientSchema} = compilerContext;
-
   let rootType;
   switch (node.kind) {
     case 'Root':
@@ -89,6 +90,16 @@ function traverseSelections<T: Node>(
   compilerContext: GraphQLCompilerContext,
   parentType: GraphQLType,
 ): T {
+  let nodeCache = cachesByNode.get(node);
+  if (nodeCache == null) {
+    nodeCache = new Map();
+    cachesByNode.set(node, nodeCache);
+  }
+  let result = nodeCache.get(parentType);
+  if (result != null) {
+    // $FlowFixMe - TODO: type IRTransformer to allow changing result type
+    return result;
+  }
   const {serverSchema, clientSchema} = compilerContext;
   const clientSelections = [];
   const serverSelections = [];
@@ -204,27 +215,28 @@ function traverseSelections<T: Node>(
         );
     }
   });
-  if (clientSelections.length === 0) {
-    // $FlowFixMe - TODO: type IRTransformer to allow changing result type
-    return {
-      ...node,
-      selections: [...serverSelections],
-    };
-  }
+  result =
+    clientSelections.length === 0
+      ? {
+          ...node,
+          selections: [...serverSelections],
+        }
+      : {
+          ...node,
+          selections: [
+            ...serverSelections,
+            // Group client fields under a single ClientExtension node
+            {
+              kind: 'ClientExtension',
+              loc: node.loc,
+              metadata: null,
+              selections: [...clientSelections],
+            },
+          ],
+        };
+  nodeCache.set(parentType, result);
   // $FlowFixMe - TODO: type IRTransformer to allow changing result type
-  return {
-    ...node,
-    selections: [
-      ...serverSelections,
-      // Group client fields under a single ClientExtension node
-      {
-        kind: 'ClientExtension',
-        loc: node.loc,
-        metadata: null,
-        selections: [...clientSelections],
-      },
-    ],
-  };
+  return result;
 }
 
 module.exports = {

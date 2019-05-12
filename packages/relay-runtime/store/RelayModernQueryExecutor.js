@@ -129,7 +129,7 @@ class Executor {
     const id = this._nextSubscriptionId++;
     source.subscribe({
       complete: () => this._complete(id),
-      error: error => this._error(id, error),
+      error: error => this._error(error),
       next: response => {
         try {
           this._next(id, response);
@@ -183,7 +183,7 @@ class Executor {
         return () => scheduler.cancel(cancellationToken);
       }).subscribe({
         complete: () => this._complete(id),
-        error: error => this._error(id, error),
+        error: error => this._error(error),
         start: subscription => this._start(id, subscription),
       });
     } else {
@@ -199,7 +199,7 @@ class Executor {
     }
   }
 
-  _error(_id: number, error: Error): void {
+  _error(error: Error): void {
     this.cancel();
     this._sink.error(error);
   }
@@ -370,29 +370,41 @@ class Executor {
     moduleImportPayload: ModuleImportPayload,
     operationLoader: OperationLoader,
   ): void {
-    const id = this._nextSubscriptionId++;
-    // Observable.from(operationLoader.load()) wouldn't catch synchronous errors
-    // thrown by the load function, which is user-defined. Guard against that
-    // with Observable.from(new Promise(<work>)).
-    RelayObservable.from(
-      new Promise((resolve, reject) => {
-        operationLoader
-          .load(moduleImportPayload.operationReference)
-          .then(resolve, reject);
-      }),
-    )
-      .map((operation: ?NormalizationSplitOperation) => {
-        if (operation != null) {
-          this._schedule(() => {
-            this._handleModuleImportPayload(moduleImportPayload, operation);
-          });
-        }
-      })
-      .subscribe({
-        complete: () => this._complete(id),
-        error: error => this._error(id, error),
-        start: subscription => this._start(id, subscription),
-      });
+    const syncOperation = operationLoader.get(
+      moduleImportPayload.operationReference,
+    );
+    if (syncOperation != null) {
+      // If the operation module is available synchronously, normalize the
+      // data syncrhonously.
+      this._handleModuleImportPayload(moduleImportPayload, syncOperation);
+    } else {
+      // Otherwise load the operation module and schedule a task to normalize
+      // the data when the module is available.
+      const id = this._nextSubscriptionId++;
+
+      // Observable.from(operationLoader.load()) wouldn't catch synchronous errors
+      // thrown by the load function, which is user-defined. Guard against that
+      // with Observable.from(new Promise(<work>)).
+      RelayObservable.from(
+        new Promise((resolve, reject) => {
+          operationLoader
+            .load(moduleImportPayload.operationReference)
+            .then(resolve, reject);
+        }),
+      )
+        .map((operation: ?NormalizationSplitOperation) => {
+          if (operation != null) {
+            this._schedule(() => {
+              this._handleModuleImportPayload(moduleImportPayload, operation);
+            });
+          }
+        })
+        .subscribe({
+          complete: () => this._complete(id),
+          error: error => this._error(error),
+          start: subscription => this._start(id, subscription),
+        });
+    }
   }
 
   _handleModuleImportPayload(

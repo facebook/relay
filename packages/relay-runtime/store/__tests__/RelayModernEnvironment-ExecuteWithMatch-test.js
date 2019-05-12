@@ -286,6 +286,61 @@ describe('execute() a query with @match', () => {
     });
   });
 
+  it('synchronously normalizes/publishes the field payload if @match fragment is available synchronously', () => {
+    environment.execute({operation}).subscribe(callbacks);
+    jest
+      .spyOn(operationLoader, 'get')
+      .mockImplementationOnce(() => markdownRendererNormalizationFragment);
+
+    const payload = {
+      data: {
+        node: {
+          id: '1',
+          __typename: 'User',
+          nameRenderer: {
+            __typename: 'MarkdownUserNameRenderer',
+            __module_component: 'MarkdownUserNameRenderer.react',
+            __module_operation:
+              'MarkdownUserNameRenderer_name$normalization.graphql',
+            markdown: 'markdown payload',
+            data: {
+              // NOTE: should be uppercased when normalized (by MarkupHandler)
+              markup: '<markup/>',
+            },
+          },
+        },
+      },
+    };
+    dataSource.next(payload);
+    expect(next).toBeCalledTimes(1);
+    next.mockClear();
+
+    expect(operationCallback).toBeCalledTimes(1); // initial results tested above
+    const operationSnapshot = operationCallback.mock.calls[0][0];
+    operationCallback.mockClear();
+
+    const matchSelector = nullthrows(
+      getSingularSelector(
+        variables,
+        markdownRendererFragment,
+        (operationSnapshot.data?.node: any)?.nameRenderer,
+      ),
+    );
+
+    // At this point the matchSnapshot should contain all the data,
+    // since it should've been normalized synchronously
+    const matchSnapshot = environment.lookup(matchSelector.selector, operation);
+    expect(matchSnapshot.isMissingData).toBe(false);
+    expect(matchSnapshot.data).toEqual({
+      __typename: 'MarkdownUserNameRenderer',
+      data: {
+        // NOTE: should be uppercased by the MarkupHandler
+        markup: '<MARKUP/>',
+      },
+      markdown: 'markdown payload',
+    });
+  });
+
   it('loads the @match fragment and normalizes/publishes the field payload with scheduling', () => {
     let taskID = 0;
     const tasks = new Map();
@@ -584,6 +639,37 @@ describe('execute() a query with @match', () => {
     });
     dataSource.next(payload);
     jest.runAllTimers();
+
+    expect(callbacks.error).toBeCalledTimes(1);
+    expect(callbacks.error.mock.calls[0][0]).toBe(loaderError);
+  });
+
+  it('calls error() if operationLoader.get function throws synchronously', () => {
+    environment.execute({operation}).subscribe(callbacks);
+    const loaderError = new Error();
+    jest.spyOn(operationLoader, 'get').mockImplementationOnce(() => {
+      throw loaderError;
+    });
+
+    const payload = {
+      data: {
+        node: {
+          id: '1',
+          __typename: 'User',
+          nameRenderer: {
+            __typename: 'MarkdownUserNameRenderer',
+            __module_component: 'MarkdownUserNameRenderer.react',
+            __module_operation:
+              'MarkdownUserNameRenderer_name$normalization.graphql',
+            markdown: 'markdown payload',
+            data: {
+              markup: '<markup/>',
+            },
+          },
+        },
+      },
+    };
+    dataSource.next(payload);
 
     expect(callbacks.error).toBeCalledTimes(1);
     expect(callbacks.error.mock.calls[0][0]).toBe(loaderError);

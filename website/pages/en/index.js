@@ -50,8 +50,7 @@ class HomeSplash extends React.Component {
                   <div className="pluginRowBlock">
                     <Button
                       href={
-                        siteConfig.baseUrl +
-                        'docs/en/introduction-to-relay.html'
+                        siteConfig.baseUrl + 'docs/en/introduction-to-relay'
                       }>
                       Get Started
                     </Button>
@@ -137,7 +136,7 @@ class Index extends React.Component {
             <div className="more-users">
               <a
                 className="button"
-                href={siteConfig.baseUrl + this.props.language + '/users.html'}>
+                href={siteConfig.baseUrl + this.props.language + '/users'}>
                 More Relay Users
               </a>
             </div>

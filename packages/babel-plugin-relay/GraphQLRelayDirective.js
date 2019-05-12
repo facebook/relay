@@ -34,7 +34,7 @@ const SCHEMA_EXTENSION = `directive @relay(
   variables: [String!],
 ) on FRAGMENT_DEFINITION | FRAGMENT_SPREAD | INLINE_FRAGMENT | FIELD`;
 
-const GraphQLRelayDirective = buildSchema(
+const GraphQLRelayDirective: $FlowFixMe = buildSchema(
   SCHEMA_EXTENSION + '\ntype Query { x: String }',
 ).getDirective('relay');
 

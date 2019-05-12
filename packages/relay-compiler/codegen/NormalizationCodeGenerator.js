@@ -10,15 +10,6 @@
 
 'use strict';
 
-const SchemaUtils = require('../core/GraphQLSchemaUtils');
-
-const {
-  createCompilerError,
-  createUserError,
-} = require('../core/RelayCompilerError');
-const {GraphQLList} = require('graphql');
-const {getStorageKey, stableCopy} = require('relay-runtime');
-
 import type {
   Argument,
   ClientExtension,
@@ -40,6 +31,14 @@ import type {
   NormalizationSplitOperation,
   NormalizationStream,
 } from 'relay-runtime';
+
+const SchemaUtils = require('../core/GraphQLSchemaUtils');
+const {
+  createCompilerError,
+  createUserError,
+} = require('../core/RelayCompilerError');
+const {GraphQLList} = require('graphql');
+const {getStorageKey, stableCopy} = require('relay-runtime');
 const {getRawType, isAbstractType, getNullableType} = SchemaUtils;
 
 /**
@@ -50,7 +49,9 @@ const {getRawType, isAbstractType, getNullableType} = SchemaUtils;
  */
 declare function generate(node: Root): NormalizationOperation;
 declare function generate(node: SplitOperation): NormalizationSplitOperation;
-function generate(node) {
+function generate(
+  node: any,
+): NormalizationOperation | NormalizationSplitOperation {
   switch (node.kind) {
     case 'Root':
       return generateRoot(node);

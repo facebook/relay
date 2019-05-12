@@ -10,11 +10,10 @@
 
 'use strict';
 
-const fs = require('fs');
-const path = require('path');
-
 const {SCHEMA_EXTENSION} = require('./GraphQLRelayDirective');
+const fs = require('fs');
 const {parse} = require('graphql');
+const path = require('path');
 
 function readSource(sourceFile: string, basePath: ?string): string {
   const fullSourceFile =
@@ -25,7 +24,7 @@ function readSource(sourceFile: string, basePath: ?string): string {
   return fs.readFileSync(fullSourceFile, 'utf8');
 }
 
-function getSchemaIntrospection(schemaPath: string, basePath: ?string) {
+function getSchemaIntrospection(schemaPath: string, basePath: ?string): any {
   try {
     const schemaPaths = schemaPath.split(',');
     if (schemaPaths.length > 1) {

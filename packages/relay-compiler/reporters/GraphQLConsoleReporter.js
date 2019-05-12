@@ -14,6 +14,12 @@ const chalk = require('chalk');
 
 import type {GraphQLReporter} from './GraphQLReporter';
 
+function getMemoryUsageString() {
+  return chalk.blue(
+    Math.round(process.memoryUsage().heapUsed / 1024 / 1024) + 'Mb',
+  );
+}
+
 class GraphQLConsoleReporter implements GraphQLReporter {
   _verbose: boolean;
   _quiet: boolean;
@@ -40,7 +46,15 @@ class GraphQLConsoleReporter implements GraphQLReporter {
           : ms < 1000
           ? chalk.blue(leftPad(5, ms + 'ms'))
           : chalk.red(Math.floor(ms / 10) / 100 + 's');
-      process.stdout.write('  ' + time + ' ' + chalk.gray(name) + '\n');
+      process.stdout.write(
+        '  ' +
+          time +
+          ' ' +
+          chalk.gray(name) +
+          ' [' +
+          getMemoryUsageString() +
+          ']\n',
+      );
     }
   }
 

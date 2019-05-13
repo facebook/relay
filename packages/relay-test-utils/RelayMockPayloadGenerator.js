@@ -114,7 +114,7 @@ function valueResolver(
   plural: ?boolean = false,
   defaultValue?: mixed,
 ): mixed {
-  const createValue = () => {
+  const generateValue = (possibleDefaultValue: mixed) => {
     let mockValue;
     const mockResolver =
       typeName != null && mockResolvers != null
@@ -125,7 +125,7 @@ function valueResolver(
     }
     if (mockValue === undefined) {
       mockValue =
-        defaultValue ??
+        possibleDefaultValue ??
         `<mock-value-for-field-"${context.alias ??
           context.name ||
           'undefined'}">`;
@@ -133,7 +133,12 @@ function valueResolver(
     return mockValue;
   };
 
-  return plural === true ? generateMockList(createValue) : createValue();
+  return plural === true
+    ? generateMockList(
+        Array.isArray(defaultValue) ? defaultValue : Array(1).fill(),
+        generateValue,
+      )
+    : generateValue(defaultValue);
 }
 
 function createValueResolver(mockResolvers: ?MockResolvers): ValueResolver {
@@ -143,14 +148,13 @@ function createValueResolver(mockResolvers: ?MockResolvers): ValueResolver {
   };
 }
 
-// This is a super simple implementation (later this should be customizable)
 function generateMockList<T>(
-  generateListItem: (index: number) => T,
-  howMany: number = 1,
+  placeholderArray: $ReadOnlyArray<mixed>,
+  generateListItem: (defaultValue: mixed) => T,
 ): $ReadOnlyArray<T> {
-  return Array(howMany)
-    .fill(null)
-    .map((_, index) => generateListItem(index));
+  return placeholderArray.map(possibleDefaultValue =>
+    generateListItem(possibleDefaultValue),
+  );
 }
 
 class RelayMockPayloadGenerator {
@@ -327,15 +331,11 @@ class RelayMockPayloadGenerator {
           break;
         }
         case CLIENT_EXTENSION:
+        case MODULE_IMPORT:
           // TODO(T41499100) We're currently not generating ClientExtension nodes
           // so we can skip for now
-          invariant(
-            false,
-            'RelayMockPayloadGenerator(): Unexpected ClientExtension node.',
-          );
-          // $FlowExpectedError - we need the break; for OSS linter
+          // TODO(T43369419) generate payloads for 3D in mock payload generator
           break;
-        case MODULE_IMPORT:
         case SCALAR_HANDLE:
         case LINKED_HANDLE:
           break;
@@ -475,8 +475,11 @@ class RelayMockPayloadGenerator {
     const isAbstractType =
       field.concreteType === null && typeName === typeFromSelection.type;
 
-    const generateDataForField = () =>
-      this._traverse(
+    const generateDataForField = possibleDefaultValue => {
+      if (possibleDefaultValue === null) {
+        return null;
+      }
+      return this._traverse(
         {
           selections: field.selections,
           typeName,
@@ -495,12 +498,16 @@ class RelayMockPayloadGenerator {
         /* $FlowFixMe(>=0.98.0 site=react_native_fb,oss) This comment suppresses an
          * error found when Flow v0.98 was deployed. To see the error delete
          * this comment and run Flow. */
-        defaults,
+        possibleDefaultValue,
       );
+    };
 
     data[applicationName] = field.plural
-      ? generateMockList(generateDataForField)
-      : generateDataForField();
+      ? generateMockList(
+          Array.isArray(defaults) ? defaults : Array(1).fill(),
+          generateDataForField,
+        )
+      : generateDataForField(defaults);
 
     return data;
   }

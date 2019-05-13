@@ -907,4 +907,211 @@ describe('with @relay_test_operation', () => {
       },
     );
   });
+
+  test('generate mock with multiple items in arrays for scalar field', () => {
+    testGeneratedData(
+      `
+      query TestQuery @relay_test_operation {
+        node(id: "my-id") {
+          ... on User {
+            id
+            emailAddresses
+          }
+        }
+      }
+    `,
+      {
+        User(_, generateId) {
+          return {
+            emailAddresses: Array(5)
+              .fill(null)
+              .map((__, idx) => `mock_email-${idx}-${generateId()}@fb.com`),
+          };
+        },
+      },
+    );
+  });
+
+  test('generate mock with empty array for scalar field ', () => {
+    testGeneratedData(
+      `
+      query TestQuery @relay_test_operation {
+        node(id: "my-id") {
+          ... on User {
+            id
+            emailAddresses
+          }
+        }
+      }
+    `,
+      {
+        User(_, generateId) {
+          return {
+            emailAddresses: [],
+          };
+        },
+      },
+    );
+  });
+
+  test('generate mock with multiple items in arrays for linked field with default data', () => {
+    testGeneratedData(
+      `
+        query TestQuery @relay_test_operation {
+          node(id: "my-id") {
+            ... on User {
+              id
+              friends {
+                edges {
+                  node {
+                    id
+                    name
+                    profile_picture {
+                      uri
+                      width
+                      height
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      `,
+      {
+        FriendsConnection(_, generateId) {
+          return {
+            edges: Array(5).fill(),
+          };
+        },
+      },
+    );
+  });
+
+  test('generate mock with multiple items in arrays including null', () => {
+    testGeneratedData(
+      `
+        query TestQuery @relay_test_operation {
+          node(id: "my-id") {
+            ... on User {
+              id
+              friends {
+                edges {
+                  node {
+                    id
+                    name
+                    profile_picture {
+                      uri
+                      width
+                      height
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      `,
+      {
+        FriendsConnection(_, generateId) {
+          return {
+            edges: [null, undefined],
+          };
+        },
+      },
+    );
+  });
+
+  test('generate mock with multiple items in arrays for linked field with custom data', () => {
+    testGeneratedData(
+      `
+      query TestQuery @relay_test_operation {
+        node(id: "my-id") {
+          ... on User {
+            id
+            friends {
+              edges {
+                node {
+                  id
+                  name
+                  profile_picture {
+                    uri
+                    width
+                    height
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    `,
+      {
+        FriendsConnection(_, generateId) {
+          return {
+            edges: [
+              {
+                node: {
+                  id: `friend-id-${generateId()}`,
+                  name: 'Alice',
+                },
+              },
+              {
+                node: {
+                  id: `friend-id-${generateId()}`,
+                  name: 'Bob',
+                },
+              },
+            ],
+          };
+        },
+      },
+    );
+  });
+
+  test('generate mock with multiple items in arrays for linked field with custom data and additional mock resolver', () => {
+    testGeneratedData(
+      `
+      query TestQuery @relay_test_operation {
+        node(id: "my-id") {
+          ... on User {
+            id
+            friends {
+              edges {
+                node {
+                  id
+                  name
+                  profile_picture {
+                    uri
+                    width
+                    height
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    `,
+      {
+        Image(_, generateId) {
+          return {
+            uri: `/image-url-${generateId()}.jpg`,
+          };
+        },
+        FriendsConnection() {
+          return {
+            edges: [
+              undefined,
+              {
+                node: {
+                  name: 'Bob with Image',
+                },
+              },
+            ],
+          };
+        },
+      },
+    );
+  });
 });

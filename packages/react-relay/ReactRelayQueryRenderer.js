@@ -145,9 +145,9 @@ class ReactRelayQueryRenderer extends React.Component<Props, State> {
       !areEqual(prevState.prevPropsVariables, nextProps.variables)
     ) {
       const {query} = nextProps;
-      const prevSelectionReferences = prevState.queryFetcher.getSelectionReferences();
       prevState.queryFetcher.disposeRequest();
-
+      const prevSelectionReferences = prevState.queryFetcher.getSelectionReferences();
+      
       let queryFetcher;
       if (query) {
         const {getRequest} = nextProps.environment.unstable_internal;

@@ -19,6 +19,7 @@ const RelayObservable = require('../network/RelayObservable');
 const RelayResponseNormalizer = require('./RelayResponseNormalizer');
 
 const invariant = require('invariant');
+const stableCopy = require('../util/stableCopy');
 
 const {generateClientID} = require('./ClientID');
 const {ROOT_TYPE, TYPENAME_KEY, getStorageKey} = require('./RelayStoreUtils');
@@ -487,14 +488,39 @@ class Executor {
         );
       },
     );
-    // null-check is for flow; if an incremental payload exists for some id that
-    // record should also exist.
-    if (parentRecord != null) {
-      this._source.set(parentID, {
-        record: parentRecord,
-        fieldPayloads: parentPayloads,
-      });
+    // If an incremental payload exists for some id that record should also
+    // exist.
+    invariant(
+      parentRecord != null,
+      'RelayModernEnvironment: Expected record `%s` to exist.',
+      parentID,
+    );
+    let nextParentRecord;
+    let nextParentPayloads;
+    const previousParentEntry = this._source.get(parentID);
+    if (previousParentEntry != null) {
+      // If a previous entry exists, merge the previous/next records and
+      // payloads together.
+      nextParentRecord = RelayModernRecord.update(
+        previousParentEntry.record,
+        parentRecord,
+      );
+      const handlePayloads = new Map();
+      const dedupePayload = payload => {
+        const key = stableStringify(payload);
+        handlePayloads.set(key, payload);
+      };
+      previousParentEntry.fieldPayloads.forEach(dedupePayload);
+      parentPayloads.forEach(dedupePayload);
+      nextParentPayloads = Array.from(handlePayloads.values());
+    } else {
+      nextParentRecord = parentRecord;
+      nextParentPayloads = parentPayloads;
     }
+    this._source.set(parentID, {
+      record: nextParentRecord,
+      fieldPayloads: nextParentPayloads,
+    });
   }
 
   /**
@@ -834,4 +860,9 @@ function normalizeResponse(
     source,
   };
 }
+
+function stableStringify(value: mixed): string {
+  return JSON.stringify(stableCopy(value)) ?? ''; // null-check for flow
+}
+
 module.exports = {execute};

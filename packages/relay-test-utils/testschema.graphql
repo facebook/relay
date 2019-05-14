@@ -307,6 +307,7 @@ type Feedback implements Node {
   url(relative: Boolean, site: String): String
   websites: [String]
   username: String
+  viewedBy: [Actor]
   viewerSavedState: String
 }
 

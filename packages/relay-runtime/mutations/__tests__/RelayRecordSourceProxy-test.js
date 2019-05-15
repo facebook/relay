@@ -404,6 +404,23 @@ describe('RelayRecordSourceProxy', () => {
         'Adelaide',
       );
     });
+
+    it('links to existing client records if the field was unset', () => {
+      const greg = store.get('660361306');
+      expect(greg.getLinkedRecord('hometown')).toBe(undefined);
+
+      const hometown = greg.getOrCreateLinkedRecord('hometown', 'Page');
+      hometown.setValue('Adelaide', 'name');
+      // unset the field but don't delete the newly created record
+      greg.setValue(null, 'hometown');
+      const hometown2 = greg.getOrCreateLinkedRecord('hometown', 'Page');
+
+      expect(hometown2).toBe(hometown);
+      expect(hometown2.getValue('name')).toBe('Adelaide');
+      expect(greg.getLinkedRecord('hometown').getValue('name')).toBe(
+        'Adelaide',
+      );
+    });
   });
 
   it('combines operations', () => {

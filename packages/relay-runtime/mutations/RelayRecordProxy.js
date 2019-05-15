@@ -108,7 +108,10 @@ class RelayRecordProxy implements RecordProxy {
     if (!linkedRecord) {
       const storageKey = getStableStorageKey(name, args);
       const clientID = generateClientID(this.getDataID(), storageKey);
-      linkedRecord = this._source.create(clientID, typeName);
+      // NOTE: it's possible that a client record for this field exists
+      // but the field itself was unset.
+      linkedRecord =
+        this._source.get(clientID) ?? this._source.create(clientID, typeName);
       this.setLinkedRecord(linkedRecord, name, args);
     }
     return linkedRecord;

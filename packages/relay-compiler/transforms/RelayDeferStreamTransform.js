@@ -13,8 +13,6 @@
 const CompilerContext = require('../core/GraphQLCompilerContext');
 const IRTransformer = require('../core/GraphQLIRTransformer');
 
-const getLiteralArgumentValues = require('../core/getLiteralArgumentValues');
-
 const {getNullableType} = require('../core/GraphQLSchemaUtils');
 const {createUserError} = require('../core/RelayCompilerError');
 const {GraphQLList} = require('graphql');
@@ -35,6 +33,7 @@ import type {
 
 type State = {|
   +documentName: string,
+  +recordLabel: (label: string, directive: Directive) => void,
 |};
 
 /**
@@ -53,9 +52,37 @@ function relayDeferStreamTransform(context: CompilerContext): CompilerContext {
       LinkedField: (visitLinkedField: $FlowFixMe),
       ScalarField: visitScalarField,
     },
-    sourceNode => ({
-      documentName: sourceNode.name,
-    }),
+    sourceNode => {
+      const labels = new Map();
+      return {
+        documentName: sourceNode.name,
+        recordLabel: (label, directive) => {
+          const prevDirective = labels.get(label);
+          if (prevDirective) {
+            const labelArg = directive.args.find(({name}) => name === 'label');
+            const prevLabelArg = prevDirective.args.find(
+              ({name}) => name === 'label',
+            );
+            const previousLocation = prevLabelArg?.loc ?? prevDirective.loc;
+            if (labelArg) {
+              throw createUserError(
+                `Invalid use of @${directive.name}, the provided label is ` +
+                  "not unique. Specify a unique 'label' as a literal string.",
+                [labelArg?.loc, previousLocation],
+              );
+            } else {
+              throw createUserError(
+                `Invalid use of @${directive.name}, could not generate a ` +
+                  "default label that is unique. Specify a unique 'label' " +
+                  'as a literal string.',
+                [directive.loc, previousLocation],
+              );
+            }
+          }
+          labels.set(label, directive);
+        },
+      };
+    },
   );
 }
 
@@ -111,8 +138,12 @@ function visitLinkedField(
       [streamDirective.loc],
     );
   }
-  const label = getLiteralStringArgument(streamDirective, 'label');
+  const label =
+    getLiteralStringArgument(streamDirective, 'label') ??
+    field.alias ??
+    field.name;
   const transformedLabel = transformLabel(state.documentName, 'stream', label);
+  state.recordLabel(transformedLabel, streamDirective);
   return {
     if: ifArg?.value ?? null,
     initialCount: initialCount.value,
@@ -173,8 +204,11 @@ function visitInlineFragment(
       );
     }
   }
-  const label = getLiteralStringArgument(deferDirective, 'label');
+  const label =
+    getLiteralStringArgument(deferDirective, 'label') ??
+    fragment.typeCondition.name;
   const transformedLabel = transformLabel(state.documentName, 'defer', label);
+  state.recordLabel(transformedLabel, deferDirective);
   return {
     if: ifArg?.value ?? null,
     kind: 'Defer',
@@ -221,8 +255,10 @@ function visitFragmentSpread(
       );
     }
   }
-  const label = getLiteralStringArgument(deferDirective, 'label');
+  const label =
+    getLiteralStringArgument(deferDirective, 'label') ?? spread.name;
   const transformedLabel = transformLabel(state.documentName, 'defer', label);
+  state.recordLabel(transformedLabel, deferDirective);
   return {
     if: ifArg?.value ?? null,
     kind: 'Defer',
@@ -236,16 +272,18 @@ function visitFragmentSpread(
 function getLiteralStringArgument(
   directive: Directive,
   argName: string,
-): string {
-  const args = getLiteralArgumentValues(directive.args);
-  const value = args[argName];
-  if (typeof value !== 'string') {
-    const arg = directive.args.find(arg => arg.name === argName);
+): ?string {
+  const arg = directive.args.find(({name}) => name === argName);
+  if (arg == null) {
+    return null;
+  }
+  const value = arg.value.kind === 'Literal' ? arg.value.value : null;
+  if (value == null || typeof value !== 'string') {
     throw createUserError(
       `Expected the '${argName}' value to @${
         directive.name
-      } to be a string literal.`,
-      [arg?.value?.loc ?? directive.loc],
+      } to be a string literal if provided.`,
+      [arg.value.loc],
     );
   }
   return value;

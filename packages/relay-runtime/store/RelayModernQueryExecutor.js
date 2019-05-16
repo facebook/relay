@@ -12,7 +12,6 @@
 'use strict';
 
 const RelayError = require('../util/RelayError');
-const RelayFeatureFlags = require('../util/RelayFeatureFlags');
 const RelayInMemoryRecordSource = require('./RelayInMemoryRecordSource');
 const RelayModernRecord = require('./RelayModernRecord');
 const RelayObservable = require('../network/RelayObservable');
@@ -348,12 +347,6 @@ class Executor {
       });
     }
     if (incrementalPlaceholders && incrementalPlaceholders.length !== 0) {
-      invariant(
-        RelayFeatureFlags.ENABLE_INCREMENTAL_DELIVERY,
-        'RelayModernEnvironment: Unexpected use of @defer/@stream in ' +
-          'operation `%s`.',
-        this._operation.node.params.name,
-      );
       incrementalPlaceholders.forEach(incrementalPlaceholder => {
         this._processIncrementalPlaceholder(payload, incrementalPlaceholder);
       });
@@ -533,12 +526,6 @@ class Executor {
     path: $ReadOnlyArray<mixed>,
     response: GraphQLResponseWithData,
   ): void {
-    invariant(
-      RelayFeatureFlags.ENABLE_INCREMENTAL_DELIVERY,
-      'RelayModernEnvironment: Unexpected use of @defer/@stream in ' +
-        'operation `%s`.',
-      this._operation.node.params.name,
-    );
     const dataForLabel = this._incrementalPlaceholders.get(label);
     invariant(
       dataForLabel != null,

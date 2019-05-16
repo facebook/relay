@@ -48,7 +48,6 @@ describe('execute() a query with @defer', () => {
   let NameHandler;
   let next;
   let operation;
-  let previousEnableIncrementalDelivery;
   let query;
   let selector;
   let source;
@@ -59,9 +58,6 @@ describe('execute() a query with @defer', () => {
     jest.resetModules();
     jest.mock('warning');
     jest.spyOn(console, 'warn').mockImplementation(() => undefined);
-    previousEnableIncrementalDelivery =
-      RelayFeatureFlags.ENABLE_INCREMENTAL_DELIVERY;
-    RelayFeatureFlags.ENABLE_INCREMENTAL_DELIVERY = true;
 
     expect.extend(matchers);
     ({UserQuery: query, UserFragment: fragment} = generateAndCompile(`
@@ -119,10 +115,6 @@ describe('execute() a query with @defer', () => {
         }
       },
     });
-  });
-
-  afterEach(() => {
-    RelayFeatureFlags.ENABLE_INCREMENTAL_DELIVERY = previousEnableIncrementalDelivery;
   });
 
   it('calls next() and publishes the initial payload to the store', () => {

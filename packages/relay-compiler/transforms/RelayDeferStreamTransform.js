@@ -16,9 +16,6 @@ const IRTransformer = require('../core/GraphQLIRTransformer');
 const {getNullableType} = require('../core/GraphQLSchemaUtils');
 const {createUserError} = require('../core/RelayCompilerError');
 const {GraphQLList} = require('graphql');
-const {RelayFeatureFlags} = require('relay-runtime');
-
-const {INCREMENTAL_DELIVERY_VARIABLE_NAME: VARIABLE_NAME} = RelayFeatureFlags;
 
 import type {
   Argument,
@@ -111,23 +108,8 @@ function visitLinkedField(
     ),
   };
   const ifArg = streamDirective.args.find(arg => arg.name === 'if');
-  if (RelayFeatureFlags.ENABLE_INCREMENTAL_DELIVERY) {
-    if (isLiteralFalse(ifArg)) {
-      return transformedField;
-    }
-  } else {
-    if (
-      ifArg == null ||
-      ifArg.value.kind !== 'Variable' ||
-      ifArg.value.variableName !== VARIABLE_NAME
-    ) {
-      throw createUserError(
-        `The @stream directive requires an 'if: $${VARIABLE_NAME}' argument. ` +
-          'This is a temporary restriction during rollout of incremental data ' +
-          'delivery.',
-        [(ifArg?.value ?? streamDirective).loc],
-      );
-    }
+  if (isLiteralFalse(ifArg)) {
+    return transformedField;
   }
   const initialCount = streamDirective.args.find(
     arg => arg.name === 'initial_count',
@@ -186,23 +168,8 @@ function visitInlineFragment(
     ),
   };
   const ifArg = deferDirective.args.find(arg => arg.name === 'if');
-  if (RelayFeatureFlags.ENABLE_INCREMENTAL_DELIVERY) {
-    if (isLiteralFalse(ifArg)) {
-      return transformedFragment;
-    }
-  } else {
-    if (
-      ifArg == null ||
-      ifArg.value.kind !== 'Variable' ||
-      ifArg.value.variableName !== VARIABLE_NAME
-    ) {
-      throw createUserError(
-        `The @defer directive requires an 'if: $${VARIABLE_NAME}' argument. ` +
-          'This is a temporary restriction during rollout of incremental data ' +
-          'delivery.',
-        [(ifArg?.value ?? deferDirective).loc],
-      );
-    }
+  if (isLiteralFalse(ifArg)) {
+    return transformedFragment;
   }
   const label =
     getLiteralStringArgument(deferDirective, 'label') ??
@@ -237,23 +204,8 @@ function visitFragmentSpread(
     ),
   };
   const ifArg = deferDirective.args.find(arg => arg.name === 'if');
-  if (RelayFeatureFlags.ENABLE_INCREMENTAL_DELIVERY) {
-    if (isLiteralFalse(ifArg)) {
-      return transformedSpread;
-    }
-  } else {
-    if (
-      ifArg == null ||
-      ifArg.value.kind !== 'Variable' ||
-      ifArg.value.variableName !== VARIABLE_NAME
-    ) {
-      throw createUserError(
-        `The @defer directive requires an 'if: $${VARIABLE_NAME}' argument. ` +
-          'This is a temporary restriction during rollout of incremental data ' +
-          'delivery.',
-        [(ifArg?.value ?? deferDirective).loc],
-      );
-    }
+  if (isLiteralFalse(ifArg)) {
+    return transformedSpread;
   }
   const label =
     getLiteralStringArgument(deferDirective, 'label') ?? spread.name;

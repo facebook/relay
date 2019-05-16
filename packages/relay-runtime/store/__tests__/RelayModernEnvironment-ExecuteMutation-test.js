@@ -47,7 +47,6 @@ describe('executeMutation()', () => {
   let error;
   let fetch;
   let operation;
-  let previousEnableIncrementalDelivery;
   let source;
   let store;
   let subject;
@@ -55,9 +54,6 @@ describe('executeMutation()', () => {
 
   beforeEach(() => {
     jest.resetModules();
-    previousEnableIncrementalDelivery =
-      RelayFeatureFlags.ENABLE_INCREMENTAL_DELIVERY;
-    RelayFeatureFlags.ENABLE_INCREMENTAL_DELIVERY = true;
 
     expect.extend(matchers);
     ({
@@ -113,10 +109,6 @@ describe('executeMutation()', () => {
     complete = jest.fn();
     error = jest.fn();
     callbacks = {complete, error};
-  });
-
-  afterEach(() => {
-    RelayFeatureFlags.ENABLE_INCREMENTAL_DELIVERY = previousEnableIncrementalDelivery;
   });
 
   it('fetches the mutation with the provided fetch function', () => {

@@ -54,7 +54,6 @@ describe('execute() a query with @match', () => {
   let operation;
   let operationCallback;
   let operationLoader;
-  let previousEnableIncrementalDelivery;
   let query;
   let resolveFragment;
   let source;
@@ -63,9 +62,6 @@ describe('execute() a query with @match', () => {
 
   beforeEach(() => {
     jest.resetModules();
-    previousEnableIncrementalDelivery =
-      RelayFeatureFlags.ENABLE_INCREMENTAL_DELIVERY;
-    RelayFeatureFlags.ENABLE_INCREMENTAL_DELIVERY = true;
 
     expect.extend(matchers);
     ({
@@ -150,10 +146,6 @@ describe('execute() a query with @match', () => {
     const operationSnapshot = environment.lookup(operation.fragment, operation);
     operationCallback = jest.fn();
     environment.subscribe(operationSnapshot, operationCallback);
-  });
-
-  afterEach(() => {
-    RelayFeatureFlags.ENABLE_INCREMENTAL_DELIVERY = previousEnableIncrementalDelivery;
   });
 
   it('calls next() and publishes the initial payload to the store', () => {

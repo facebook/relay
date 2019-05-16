@@ -51,7 +51,6 @@ describe('execute() a query with @stream with handler', () => {
   let query;
   let selector;
   let variables;
-  let previousEnableIncrementalDelivery;
   let source;
   let store;
 
@@ -59,10 +58,6 @@ describe('execute() a query with @stream with handler', () => {
     jest.resetModules();
     jest.mock('warning');
     jest.spyOn(console, 'warn').mockImplementation(() => undefined);
-
-    previousEnableIncrementalDelivery =
-      RelayFeatureFlags.ENABLE_INCREMENTAL_DELIVERY;
-    RelayFeatureFlags.ENABLE_INCREMENTAL_DELIVERY = true;
 
     expect.extend(matchers);
     ({
@@ -152,10 +147,6 @@ describe('execute() a query with @stream with handler', () => {
         }
       },
     });
-  });
-
-  afterEach(() => {
-    RelayFeatureFlags.ENABLE_INCREMENTAL_DELIVERY = previousEnableIncrementalDelivery;
   });
 
   it('calls next() and publishes the initial payload to the store', () => {

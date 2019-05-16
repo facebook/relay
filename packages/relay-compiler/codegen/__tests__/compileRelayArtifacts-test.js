@@ -18,7 +18,6 @@ const RelayIRTransforms = require('../../core/RelayIRTransforms');
 
 const compileRelayArtifacts = require('../compileRelayArtifacts');
 
-const {RelayFeatureFlags} = require('relay-runtime');
 const {
   TestSchema,
   generateTestsFromFixtures,
@@ -26,18 +25,6 @@ const {
 } = require('relay-test-utils');
 
 describe('compileRelayArtifacts', () => {
-  let previousEnableIncrementalDelivery;
-
-  beforeEach(() => {
-    previousEnableIncrementalDelivery =
-      RelayFeatureFlags.ENABLE_INCREMENTAL_DELIVERY;
-    RelayFeatureFlags.ENABLE_INCREMENTAL_DELIVERY = true;
-  });
-
-  afterEach(() => {
-    RelayFeatureFlags.ENABLE_INCREMENTAL_DELIVERY = previousEnableIncrementalDelivery;
-  });
-
   generateTestsFromFixtures(
     `${__dirname}/fixtures/compileRelayArtifacts`,
     text => {

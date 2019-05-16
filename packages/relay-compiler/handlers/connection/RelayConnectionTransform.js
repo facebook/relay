@@ -30,9 +30,7 @@ const {
   GraphQLUnionType,
   parse,
 } = require('graphql');
-const {ConnectionInterface, RelayFeatureFlags} = require('relay-runtime');
-
-const {INCREMENTAL_DELIVERY_VARIABLE_NAME: VARIABLE_NAME} = RelayFeatureFlags;
+const {ConnectionInterface} = require('relay-runtime');
 
 import type CompilerContext from '../../core/GraphQLCompilerContext';
 import type {
@@ -275,21 +273,6 @@ function buildConnectionArguments(
       arg => arg.name === 'initial_count',
     );
     const ifArg = connectionDirective.args.find(arg => arg.name === 'if');
-    if (!RelayFeatureFlags.ENABLE_INCREMENTAL_DELIVERY) {
-      if (
-        ifArg == null ||
-        ifArg.value.kind !== 'Variable' ||
-        ifArg.value.variableName !== VARIABLE_NAME
-      ) {
-        throw createUserError(
-          `The @stream_connection directive requires an 'if: $${VARIABLE_NAME}' ` +
-            'argument. This is a temporary restriction during rollout of ' +
-            'incremental data delivery.',
-          [(ifArg?.value ?? connectionDirective).loc],
-        );
-      }
-    }
-
     if (label != null && typeof label !== 'string') {
       const labelArg = connectionDirective.args.find(
         arg => arg.name === 'label',

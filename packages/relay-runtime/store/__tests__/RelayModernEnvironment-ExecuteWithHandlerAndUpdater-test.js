@@ -48,7 +48,6 @@ describe('execute() with handler and updater', () => {
   let fetch;
   let next;
   let operation;
-  let previousEnableIncrementalDelivery;
   let query;
   let source;
   let store;
@@ -56,9 +55,6 @@ describe('execute() with handler and updater', () => {
 
   beforeEach(() => {
     jest.resetModules();
-    previousEnableIncrementalDelivery =
-      RelayFeatureFlags.ENABLE_INCREMENTAL_DELIVERY;
-    RelayFeatureFlags.ENABLE_INCREMENTAL_DELIVERY = true;
 
     expect.extend(matchers);
     ({ActorQuery: query} = generateAndCompile(`
@@ -104,10 +100,6 @@ describe('execute() with handler and updater', () => {
         }
       },
     });
-  });
-
-  afterEach(() => {
-    RelayFeatureFlags.ENABLE_INCREMENTAL_DELIVERY = previousEnableIncrementalDelivery;
   });
 
   it('calls next() and runs updater when payloads return', () => {

@@ -47,7 +47,6 @@ describe('execute() with network that returns optimistic response', () => {
   let fetch;
   let next;
   let operation;
-  let previousEnableIncrementalDelivery;
   let query;
   let source;
   let store;
@@ -55,9 +54,6 @@ describe('execute() with network that returns optimistic response', () => {
 
   beforeEach(() => {
     jest.resetModules();
-    previousEnableIncrementalDelivery =
-      RelayFeatureFlags.ENABLE_INCREMENTAL_DELIVERY;
-    RelayFeatureFlags.ENABLE_INCREMENTAL_DELIVERY = true;
 
     expect.extend(matchers);
     ({ActorQuery: query} = generateAndCompile(`
@@ -91,10 +87,6 @@ describe('execute() with network that returns optimistic response', () => {
       network: RelayNetwork.create(fetch),
       store,
     });
-  });
-
-  afterEach(() => {
-    RelayFeatureFlags.ENABLE_INCREMENTAL_DELIVERY = previousEnableIncrementalDelivery;
   });
 
   it('calls next() and publishes optimistic payload to the store', () => {

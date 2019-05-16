@@ -47,7 +47,6 @@ describe('query with undeclared, unused fragment argument', () => {
   let fragment;
   let innerFragment;
   let operation;
-  let previousEnableIncrementalDelivery;
   let query;
   let source;
   let store;
@@ -55,9 +54,6 @@ describe('query with undeclared, unused fragment argument', () => {
 
   beforeEach(() => {
     jest.resetModules();
-    previousEnableIncrementalDelivery =
-      RelayFeatureFlags.ENABLE_INCREMENTAL_DELIVERY;
-    RelayFeatureFlags.ENABLE_INCREMENTAL_DELIVERY = true;
 
     expect.extend(matchers);
     ({
@@ -100,10 +96,6 @@ describe('query with undeclared, unused fragment argument', () => {
       network: RelayNetwork.create((fetch: $FlowFixMe)),
       store,
     });
-  });
-
-  afterEach(() => {
-    RelayFeatureFlags.ENABLE_INCREMENTAL_DELIVERY = previousEnableIncrementalDelivery;
   });
 
   it('reads results with the undeclared variable set to undefined', () => {

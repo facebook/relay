@@ -46,7 +46,6 @@ describe('execute() with Promise network', () => {
   let fetch;
   let next;
   let operation;
-  let previousEnableIncrementalDelivery;
   let query;
   let source;
   let store;
@@ -54,9 +53,6 @@ describe('execute() with Promise network', () => {
 
   beforeEach(() => {
     jest.resetModules();
-    previousEnableIncrementalDelivery =
-      RelayFeatureFlags.ENABLE_INCREMENTAL_DELIVERY;
-    RelayFeatureFlags.ENABLE_INCREMENTAL_DELIVERY = true;
 
     expect.extend(matchers);
     ({ActorQuery: query} = generateAndCompile(`
@@ -91,10 +87,6 @@ describe('execute() with Promise network', () => {
       network: RelayNetwork.create((fetch: $FlowFixMe)),
       store,
     });
-  });
-
-  afterEach(() => {
-    RelayFeatureFlags.ENABLE_INCREMENTAL_DELIVERY = previousEnableIncrementalDelivery;
   });
 
   it('fetches queries', () => {

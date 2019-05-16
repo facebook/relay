@@ -52,7 +52,6 @@ describe('execute() fetches a @defer-ed @stream-ed @connection', () => {
   let fetch;
   let next;
   let operation;
-  let previousEnableIncrementalDelivery;
   let query;
   let selector;
   let source;
@@ -63,9 +62,6 @@ describe('execute() fetches a @defer-ed @stream-ed @connection', () => {
     jest.resetModules();
     jest.mock('warning');
     jest.spyOn(console, 'warn').mockImplementation(() => undefined);
-    previousEnableIncrementalDelivery =
-      RelayFeatureFlags.ENABLE_INCREMENTAL_DELIVERY;
-    RelayFeatureFlags.ENABLE_INCREMENTAL_DELIVERY = true;
 
     expect.extend(matchers);
 
@@ -158,10 +154,6 @@ describe('execute() fetches a @defer-ed @stream-ed @connection', () => {
         }
       },
     });
-  });
-
-  afterEach(() => {
-    RelayFeatureFlags.ENABLE_INCREMENTAL_DELIVERY = previousEnableIncrementalDelivery;
   });
 
   it('does not initialize the connection with the root payload', () => {

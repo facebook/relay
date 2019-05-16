@@ -21,7 +21,6 @@ const {normalize} = require('../RelayResponseNormalizer');
 const {ROOT_ID, ROOT_TYPE} = require('../RelayStoreUtils');
 
 describe('RelayResponseNormalizer', () => {
-  let previousEnableIncrementalDelivery;
   const {
     generateAndCompile,
     generateWithTransforms,
@@ -35,13 +34,6 @@ describe('RelayResponseNormalizer', () => {
   beforeEach(() => {
     jest.resetModules();
     expect.extend(matchers);
-    previousEnableIncrementalDelivery =
-      RelayFeatureFlags.ENABLE_INCREMENTAL_DELIVERY;
-    RelayFeatureFlags.ENABLE_INCREMENTAL_DELIVERY = true;
-  });
-
-  afterEach(() => {
-    RelayFeatureFlags.ENABLE_INCREMENTAL_DELIVERY = previousEnableIncrementalDelivery;
   });
 
   it('normalizes queries', () => {

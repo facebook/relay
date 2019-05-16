@@ -17,7 +17,6 @@ const RelayDeferStreamTransform = require('../RelayDeferStreamTransform');
 const RelayDirectiveClientExtensionValidationTransform = require('../RelayDirectiveClientExtensionValidationTransform');
 
 const {transformASTSchema} = require('../../core/ASTConvert');
-const {RelayFeatureFlags} = require('relay-runtime');
 const {
   TestSchema,
   generateTestsFromFixtures,
@@ -28,18 +27,6 @@ describe('RelayDeferStreamTransform', () => {
   const schema = transformASTSchema(TestSchema, []);
 
   describe('when streaming is enabled', () => {
-    let previousEnableIncrementalDelivery;
-
-    beforeEach(() => {
-      previousEnableIncrementalDelivery =
-        RelayFeatureFlags.ENABLE_INCREMENTAL_DELIVERY;
-      RelayFeatureFlags.ENABLE_INCREMENTAL_DELIVERY = true;
-    });
-
-    afterEach(() => {
-      RelayFeatureFlags.ENABLE_INCREMENTAL_DELIVERY = previousEnableIncrementalDelivery;
-    });
-
     generateTestsFromFixtures(
       `${__dirname}/fixtures/relay-defer-stream-transform`,
       text => {
@@ -59,22 +46,5 @@ describe('RelayDeferStreamTransform', () => {
           .join('\n');
       },
     );
-  });
-
-  describe('when streaming is disabled', () => {
-    describe('it transform queries', () => {
-      generateTestsFromFixtures(
-        `${__dirname}/fixtures/relay-defer-stream-transform-disabled`,
-        text => {
-          const {definitions} = parseGraphQLText(schema, text);
-          return new GraphQLCompilerContext(TestSchema, schema)
-            .addAll(definitions)
-            .applyTransforms([RelayDeferStreamTransform.transform])
-            .documents()
-            .map(doc => GraphQLIRPrinter.print(doc))
-            .join('\n');
-        },
-      );
-    });
   });
 });

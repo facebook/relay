@@ -48,7 +48,6 @@ describe('executeWithSource() with Observable network', () => {
   let fetchSourceMock;
   let next;
   let operation;
-  let previousEnableIncrementalDelivery;
   let query;
   let source;
   let store;
@@ -57,9 +56,6 @@ describe('executeWithSource() with Observable network', () => {
 
   beforeEach(() => {
     jest.resetModules();
-    previousEnableIncrementalDelivery =
-      RelayFeatureFlags.ENABLE_INCREMENTAL_DELIVERY;
-    RelayFeatureFlags.ENABLE_INCREMENTAL_DELIVERY = true;
 
     expect.extend(matchers);
     ({ActorQuery: query} = generateAndCompile(`
@@ -97,10 +93,6 @@ describe('executeWithSource() with Observable network', () => {
       fetch(operation.node.params, operation.variables).subscribe(sink),
     );
     fetchSource = RelayObservable.create(fetchSourceMock);
-  });
-
-  afterEach(() => {
-    RelayFeatureFlags.ENABLE_INCREMENTAL_DELIVERY = previousEnableIncrementalDelivery;
   });
 
   it('subscribes to source', () => {

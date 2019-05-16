@@ -52,7 +52,6 @@ describe('execute() a query with nested @stream', () => {
   let fetch;
   let next;
   let operation;
-  let previousEnableIncrementalDelivery;
   let query;
   let selector;
   let source;
@@ -63,9 +62,6 @@ describe('execute() a query with nested @stream', () => {
     jest.resetModules();
     jest.mock('warning');
     jest.spyOn(console, 'warn').mockImplementation(() => undefined);
-    previousEnableIncrementalDelivery =
-      RelayFeatureFlags.ENABLE_INCREMENTAL_DELIVERY;
-    RelayFeatureFlags.ENABLE_INCREMENTAL_DELIVERY = true;
 
     expect.extend(matchers);
 
@@ -216,10 +212,6 @@ describe('execute() a query with nested @stream', () => {
     complete.mockClear();
     error.mockClear();
     next.mockClear();
-  });
-
-  afterEach(() => {
-    RelayFeatureFlags.ENABLE_INCREMENTAL_DELIVERY = previousEnableIncrementalDelivery;
   });
 
   it('processes nested payloads', () => {

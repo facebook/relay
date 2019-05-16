@@ -543,17 +543,17 @@ describe('RelayReader', () => {
           __id: '1',
           id: '1',
           __typename: 'User',
-          'nameRenderer(MarkdownUserNameRenderer_name:MarkdownUserNameRenderer.react,PlainUserNameRenderer_name:PlainUserNameRenderer.react)': {
+          'nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])': {
             __ref:
-              'client:1:nameRenderer(MarkdownUserNameRenderer_name:MarkdownUserNameRenderer.react,PlainUserNameRenderer_name:PlainUserNameRenderer.react)',
+              'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
           },
         },
-        'client:1:nameRenderer(MarkdownUserNameRenderer_name:MarkdownUserNameRenderer.react,PlainUserNameRenderer_name:PlainUserNameRenderer.react)': {
+        'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])': {
           __id:
-            'client:1:nameRenderer(MarkdownUserNameRenderer_name:MarkdownUserNameRenderer.react,PlainUserNameRenderer_name:PlainUserNameRenderer.react)',
+            'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
           __typename: 'PlainUserNameRenderer',
-          __module_component: 'PlainUserNameRenderer.react',
-          __module_operation:
+          __module_component_BarFragment: 'PlainUserNameRenderer.react',
+          __module_operation_BarFragment:
             'PlainUserNameRenderer_name$normalization.graphql',
           plaintext: 'plain name',
         },
@@ -573,7 +573,7 @@ describe('RelayReader', () => {
         id: '1',
         nameRenderer: {
           __id:
-            'client:1:nameRenderer(MarkdownUserNameRenderer_name:MarkdownUserNameRenderer.react,PlainUserNameRenderer_name:PlainUserNameRenderer.react)',
+            'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
           __fragments: {
             PlainUserNameRenderer_name: {},
           },
@@ -584,7 +584,7 @@ describe('RelayReader', () => {
       });
       expect(Object.keys(seenRecords)).toEqual([
         '1',
-        'client:1:nameRenderer(MarkdownUserNameRenderer_name:MarkdownUserNameRenderer.react,PlainUserNameRenderer_name:PlainUserNameRenderer.react)',
+        'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
       ]);
       expect(isMissingData).toBe(false);
     });
@@ -596,17 +596,17 @@ describe('RelayReader', () => {
           __id: '1',
           id: '1',
           __typename: 'User',
-          'nameRenderer(MarkdownUserNameRenderer_name:MarkdownUserNameRenderer.react,PlainUserNameRenderer_name:PlainUserNameRenderer.react)': {
+          'nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])': {
             __ref:
-              'client:1:nameRenderer(MarkdownUserNameRenderer_name:MarkdownUserNameRenderer.react,PlainUserNameRenderer_name:PlainUserNameRenderer.react)',
+              'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
           },
         },
-        'client:1:nameRenderer(MarkdownUserNameRenderer_name:MarkdownUserNameRenderer.react,PlainUserNameRenderer_name:PlainUserNameRenderer.react)': {
+        'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])': {
           __id:
-            'client:1:nameRenderer(MarkdownUserNameRenderer_name:MarkdownUserNameRenderer.react,PlainUserNameRenderer_name:PlainUserNameRenderer.react)',
+            'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
           __typename: 'MarkdownUserNameRenderer',
-          __module_component: 'MarkdownUserNameRenderer.react',
-          __module_operation:
+          __module_component_BarFragment: 'MarkdownUserNameRenderer.react',
+          __module_operation_BarFragment:
             'MarkdownUserNameRenderer_name$normalization.graphql',
           markdown: 'markdown payload',
         },
@@ -626,7 +626,7 @@ describe('RelayReader', () => {
         id: '1',
         nameRenderer: {
           __id:
-            'client:1:nameRenderer(MarkdownUserNameRenderer_name:MarkdownUserNameRenderer.react,PlainUserNameRenderer_name:PlainUserNameRenderer.react)',
+            'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
           __fragments: {
             MarkdownUserNameRenderer_name: {},
           },
@@ -637,7 +637,7 @@ describe('RelayReader', () => {
       });
       expect(Object.keys(seenRecords)).toEqual([
         '1',
-        'client:1:nameRenderer(MarkdownUserNameRenderer_name:MarkdownUserNameRenderer.react,PlainUserNameRenderer_name:PlainUserNameRenderer.react)',
+        'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
       ]);
       expect(isMissingData).toBe(false);
     });
@@ -648,14 +648,14 @@ describe('RelayReader', () => {
           __id: '1',
           id: '1',
           __typename: 'User',
-          'nameRenderer(MarkdownUserNameRenderer_name:MarkdownUserNameRenderer.react,PlainUserNameRenderer_name:PlainUserNameRenderer.react)': {
+          'nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])': {
             __ref:
-              'client:1:nameRenderer(MarkdownUserNameRenderer_name:MarkdownUserNameRenderer.react,PlainUserNameRenderer_name:PlainUserNameRenderer.react)',
+              'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
           },
         },
-        'client:1:nameRenderer(MarkdownUserNameRenderer_name:MarkdownUserNameRenderer.react,PlainUserNameRenderer_name:PlainUserNameRenderer.react)': {
+        'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])': {
           __id:
-            'client:1:nameRenderer(MarkdownUserNameRenderer_name:MarkdownUserNameRenderer.react,PlainUserNameRenderer_name:PlainUserNameRenderer.react)',
+            'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
           __typename: 'CustomNameRenderer',
           customField: 'custom value',
         },
@@ -677,7 +677,7 @@ describe('RelayReader', () => {
       });
       expect(Object.keys(seenRecords)).toEqual([
         '1',
-        'client:1:nameRenderer(MarkdownUserNameRenderer_name:MarkdownUserNameRenderer.react,PlainUserNameRenderer_name:PlainUserNameRenderer.react)',
+        'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
       ]);
       expect(isMissingData).toBe(false);
     });
@@ -688,7 +688,7 @@ describe('RelayReader', () => {
           __id: '1',
           id: '1',
           __typename: 'User',
-          'nameRenderer(MarkdownUserNameRenderer_name:MarkdownUserNameRenderer.react,PlainUserNameRenderer_name:PlainUserNameRenderer.react)': null,
+          'nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])': null,
         },
         'client:root': {
           __id: 'client:root',
@@ -778,8 +778,8 @@ describe('RelayReader', () => {
         'client:1:nameRenderer': {
           __id: 'client:1:nameRenderer',
           __typename: 'PlainUserNameRenderer',
-          __module_component: 'PlainUserNameRenderer.react',
-          __module_operation:
+          __module_component_BarFragment: 'PlainUserNameRenderer.react',
+          __module_operation_BarFragment:
             'PlainUserNameRenderer_name$normalization.graphql',
           plaintext: 'plain name',
         },
@@ -825,8 +825,8 @@ describe('RelayReader', () => {
         'client:1:nameRenderer': {
           __id: 'client:1:nameRenderer',
           __typename: 'MarkdownUserNameRenderer',
-          __module_component: 'MarkdownUserNameRenderer.react',
-          __module_operation:
+          __module_component_BarFragment: 'MarkdownUserNameRenderer.react',
+          __module_operation_BarFragment:
             'MarkdownUserNameRenderer_name$normalization.graphql',
           markdown: 'markdown payload',
         },

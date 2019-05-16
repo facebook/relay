@@ -31,6 +31,7 @@ const {
   MODULE_COMPONENT_KEY,
   getArgumentValues,
   getStorageKey,
+  getModuleComponentKey,
 } = require('./RelayStoreUtils');
 
 import type {
@@ -286,7 +287,8 @@ class RelayReader {
   ): void {
     // Determine the component module from the store: if the field is missing
     // it means we don't know what component to render the match with.
-    const component = RelayModernRecord.getValue(record, MODULE_COMPONENT_KEY);
+    const componentKey = getModuleComponentKey(moduleImport.documentName);
+    const component = RelayModernRecord.getValue(record, componentKey);
     if (component == null) {
       if (component === undefined) {
         this._isMissingData = true;

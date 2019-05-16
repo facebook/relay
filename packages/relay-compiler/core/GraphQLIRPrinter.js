@@ -139,7 +139,10 @@ function printSelection(
   } else if (selection.kind === 'ModuleImport') {
     str = selection.selections
       .map(matchSelection =>
-        printSelection(matchSelection, indent, {isClientExtension}),
+        printSelection(matchSelection, indent, {
+          parentDirectives,
+          isClientExtension,
+        }),
       )
       .join('\n' + indent + INDENT);
   } else if (selection.kind === 'ScalarField') {

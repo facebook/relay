@@ -257,8 +257,9 @@ function generateModuleImport(node, key): NormalizationModuleImport {
   }
   return {
     kind: 'ModuleImport',
-    fragmentPropName,
+    documentName: node.documentName,
     fragmentName,
+    fragmentPropName,
   };
 }
 

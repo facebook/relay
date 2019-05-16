@@ -116,6 +116,7 @@ export type ReaderLinkedField = {|
 
 export type ReaderModuleImport = {|
   +kind: 'ModuleImport',
+  +documentName: string,
   +fragmentPropName: string,
   +fragmentName: string,
 |};

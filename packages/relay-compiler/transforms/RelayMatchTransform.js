@@ -29,6 +29,7 @@ const {
   GraphQLString,
   getNullableType,
 } = require('graphql');
+const {getModuleComponentKey, getModuleOperationKey} = require('relay-runtime');
 
 import type {
   InlineFragment,
@@ -52,6 +53,11 @@ const SCHEMA_EXTENSION = `
   ) on FRAGMENT_SPREAD
 `;
 
+type State = {|
+  +documentName: string,
+  +parentType: GraphQLType,
+|};
+
 /**
  * This transform rewrites LinkedField nodes with @match and rewrites them
  * into `LinkedField` nodes with a `supported` argument.
@@ -66,21 +72,21 @@ function relayMatchTransform(context: CompilerContext): CompilerContext {
       InlineFragment: visitInlineFragment,
       ScalarField: visitScalarField,
     },
-    node => node.type,
+    node => ({documentName: node.name, parentType: node.type}),
   );
 }
 
 function visitInlineFragment(
   node: InlineFragment,
-  state: GraphQLType,
+  state: State,
 ): InlineFragment {
-  return this.traverse(node, node.typeCondition);
+  return this.traverse(node, {
+    ...state,
+    parentType: node.typeCondition,
+  });
 }
 
-function visitScalarField(
-  field: ScalarField,
-  parentType: GraphQLType,
-): ScalarField {
+function visitScalarField(field: ScalarField): ScalarField {
   if (field.name === JS_FIELD_NAME) {
     const context: CompilerContext = this.getContext();
     const schema = context.serverSchema;
@@ -100,11 +106,11 @@ function visitScalarField(
   return field;
 }
 
-function visitLinkedField(
-  node: LinkedField,
-  parentType: GraphQLType,
-): LinkedField {
-  const transformedNode: LinkedField = this.traverse(node, node.type);
+function visitLinkedField(node: LinkedField, state: State): LinkedField {
+  const transformedNode: LinkedField = this.traverse(node, {
+    ...state,
+    parentType: node.type,
+  });
 
   const matchDirective = transformedNode.directives.find(
     directive => directive.name === 'match',
@@ -113,6 +119,7 @@ function visitLinkedField(
     return transformedNode;
   }
 
+  const {parentType} = state;
   const rawType = getRawType(parentType);
   if (
     !(
@@ -228,17 +235,6 @@ function visitLinkedField(
     selections.push(matchSelection);
   });
 
-  const stableArgs = [];
-  Object.keys(typeToSelectionMap)
-    .sort()
-    .forEach(typeName => {
-      const {component, fragment} = typeToSelectionMap[typeName];
-      stableArgs.push(`${fragment}:${component}`);
-    });
-  const storageKey =
-    (transformedNode.alias ?? transformedNode.name) +
-    `(${stableArgs.join(',')})`;
-
   return {
     kind: 'LinkedField',
     alias: transformedNode.alias,
@@ -260,9 +256,7 @@ function visitLinkedField(
     directives: [],
     handles: null,
     loc: node.loc,
-    metadata: {
-      storageKey,
-    },
+    metadata: null,
     name: transformedNode.name,
     type: transformedNode.type,
     selections,
@@ -272,6 +266,7 @@ function visitLinkedField(
 // Transform @module
 function visitFragmentSpread(
   spread: FragmentSpread,
+  {documentName}: State,
 ): FragmentSpread | InlineFragment {
   const transformedNode: FragmentSpread = this.traverse(spread);
 
@@ -342,8 +337,9 @@ function visitFragmentSpread(
   }
   const normalizationName =
     getNormalizationOperationName(spread.name) + '.graphql';
-  const moduleField: ScalarField = {
-    alias: '__module_component',
+  const componentKey = getModuleComponentKey(documentName);
+  const componentField: ScalarField = {
+    alias: componentKey,
     args: [
       {
         kind: 'Argument',
@@ -363,14 +359,13 @@ function visitFragmentSpread(
     handles: null,
     kind: 'ScalarField',
     loc: moduleDirective.loc,
-    metadata: {
-      storageKey: '__module_component',
-    },
+    metadata: {storageKey: componentKey},
     name: JS_FIELD_NAME,
     type: jsModuleType,
   };
-  const fragmentField: ScalarField = {
-    alias: '__module_operation',
+  const operationKey = getModuleOperationKey(documentName);
+  const operationField: ScalarField = {
+    alias: operationKey,
     args: [
       {
         kind: 'Argument',
@@ -390,9 +385,7 @@ function visitFragmentSpread(
     handles: null,
     kind: 'ScalarField',
     loc: moduleDirective.loc,
-    metadata: {
-      storageKey: '__module_operation',
-    },
+    metadata: {storageKey: operationKey},
     name: JS_FIELD_NAME,
     type: jsModuleType,
   };
@@ -406,6 +399,7 @@ function visitFragmentSpread(
       {
         kind: 'ModuleImport',
         loc: moduleDirective.loc,
+        documentName,
         module: moduleName,
         name: spread.name,
         selections: [
@@ -415,10 +409,10 @@ function visitFragmentSpread(
               directive => directive !== moduleDirective,
             ),
           },
-          fragmentField,
+          operationField,
+          componentField,
         ],
       },
-      moduleField,
     ],
     typeCondition: fragment.type,
   };

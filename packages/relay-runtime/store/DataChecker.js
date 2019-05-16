@@ -54,9 +54,9 @@ const {
   STREAM,
 } = RelayConcreteNode;
 const {
+  getModuleOperationKey,
   getStorageKey,
   getArgumentValues,
-  MODULE_OPERATION_KEY,
 } = RelayStoreUtils;
 
 /**
@@ -318,10 +318,8 @@ class DataChecker {
       operationLoader !== null,
       'DataChecker: Expected an operationLoader to be configured when using `@module`.',
     );
-    const operationReference = this._mutator.getValue(
-      dataID,
-      MODULE_OPERATION_KEY,
-    );
+    const operationKey = getModuleOperationKey(moduleImport.documentName);
+    const operationReference = this._mutator.getValue(dataID, operationKey);
     if (operationReference == null) {
       if (operationReference === undefined) {
         this._handleMissing();

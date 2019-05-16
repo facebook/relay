@@ -165,8 +165,8 @@ describe('execute() a query with plural @match', () => {
           nameRenderers: [
             {
               __typename: 'MarkdownUserNameRenderer',
-              __module_component: 'MarkdownUserNameRenderer.react',
-              __module_operation:
+              __module_component_UserQuery: 'MarkdownUserNameRenderer.react',
+              __module_operation_UserQuery:
                 'MarkdownUserNameRenderer_name$normalization.graphql',
               markdown: 'markdown payload',
               data: {
@@ -196,7 +196,7 @@ describe('execute() a query with plural @match', () => {
         nameRenderers: [
           {
             __id:
-              'client:1:nameRenderers(MarkdownUserNameRenderer_name:MarkdownUserNameRenderer.react,PlainUserNameRenderer_name:PlainUserNameRenderer.react):0',
+              'client:1:nameRenderers(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"]):0',
             __fragmentPropName: 'name',
             __fragments: {
               MarkdownUserNameRenderer_name: {},
@@ -235,8 +235,8 @@ describe('execute() a query with plural @match', () => {
           nameRenderers: [
             {
               __typename: 'MarkdownUserNameRenderer',
-              __module_component: 'MarkdownUserNameRenderer.react',
-              __module_operation:
+              __module_component_UserQuery: 'MarkdownUserNameRenderer.react',
+              __module_operation_UserQuery:
                 'MarkdownUserNameRenderer_name$normalization.graphql',
               markdown: 'markdown payload',
               data: {

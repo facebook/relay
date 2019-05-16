@@ -540,17 +540,17 @@ describe('RelayReferenceMarker', () => {
           __id: '1',
           id: '1',
           __typename: 'User',
-          'nameRenderer(MarkdownUserNameRenderer_name:MarkdownUserNameRenderer.react,PlainUserNameRenderer_name:PlainUserNameRenderer.react)': {
+          'nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])': {
             __ref:
-              'client:1:nameRenderer(MarkdownUserNameRenderer_name:MarkdownUserNameRenderer.react,PlainUserNameRenderer_name:PlainUserNameRenderer.react)',
+              'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
           },
         },
-        'client:1:nameRenderer(MarkdownUserNameRenderer_name:MarkdownUserNameRenderer.react,PlainUserNameRenderer_name:PlainUserNameRenderer.react)': {
+        'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])': {
           __id:
-            'client:1:nameRenderer(MarkdownUserNameRenderer_name:MarkdownUserNameRenderer.react,PlainUserNameRenderer_name:PlainUserNameRenderer.react)',
+            'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
           __typename: 'PlainUserNameRenderer',
-          __module_component: 'PlainUserNameRenderer.react',
-          __module_operation:
+          __module_component_BarFragment: 'PlainUserNameRenderer.react',
+          __module_operation_BarFragment:
             'PlainUserNameRenderer_name$normalization.graphql',
           plaintext: 'plain name',
           data: {__ref: 'data'},
@@ -580,7 +580,7 @@ describe('RelayReferenceMarker', () => {
       );
       expect(Array.from(references).sort()).toEqual([
         '1',
-        'client:1:nameRenderer(MarkdownUserNameRenderer_name:MarkdownUserNameRenderer.react,PlainUserNameRenderer_name:PlainUserNameRenderer.react)',
+        'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
         'client:root',
         'data',
       ]);
@@ -593,17 +593,17 @@ describe('RelayReferenceMarker', () => {
           __id: '1',
           id: '1',
           __typename: 'User',
-          'nameRenderer(MarkdownUserNameRenderer_name:MarkdownUserNameRenderer.react,PlainUserNameRenderer_name:PlainUserNameRenderer.react)': {
+          'nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])': {
             __ref:
-              'client:1:nameRenderer(MarkdownUserNameRenderer_name:MarkdownUserNameRenderer.react,PlainUserNameRenderer_name:PlainUserNameRenderer.react)',
+              'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
           },
         },
-        'client:1:nameRenderer(MarkdownUserNameRenderer_name:MarkdownUserNameRenderer.react,PlainUserNameRenderer_name:PlainUserNameRenderer.react)': {
+        'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])': {
           __id:
-            'client:1:nameRenderer(MarkdownUserNameRenderer_name:MarkdownUserNameRenderer.react,PlainUserNameRenderer_name:PlainUserNameRenderer.react)',
+            'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
           __typename: 'MarkdownUserNameRenderer',
-          __module_component: 'MarkdownUserNameRenderer.react',
-          __module_operation:
+          __module_component_BarFragment: 'MarkdownUserNameRenderer.react',
+          __module_operation_BarFragment:
             'MarkdownUserNameRenderer_name$normalization.graphql',
           markdown: 'markdown payload',
           data: {__ref: 'data'},
@@ -633,7 +633,7 @@ describe('RelayReferenceMarker', () => {
       );
       expect(Array.from(references).sort()).toEqual([
         '1',
-        'client:1:nameRenderer(MarkdownUserNameRenderer_name:MarkdownUserNameRenderer.react,PlainUserNameRenderer_name:PlainUserNameRenderer.react)',
+        'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
         'client:root',
         'data',
       ]);
@@ -648,14 +648,14 @@ describe('RelayReferenceMarker', () => {
           __id: '1',
           id: '1',
           __typename: 'User',
-          'nameRenderer(MarkdownUserNameRenderer_name:MarkdownUserNameRenderer.react,PlainUserNameRenderer_name:PlainUserNameRenderer.react)': {
+          'nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])': {
             __ref:
-              'client:1:nameRenderer(MarkdownUserNameRenderer_name:MarkdownUserNameRenderer.react,PlainUserNameRenderer_name:PlainUserNameRenderer.react)',
+              'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
           },
         },
-        'client:1:nameRenderer(MarkdownUserNameRenderer_name:MarkdownUserNameRenderer.react,PlainUserNameRenderer_name:PlainUserNameRenderer.react)': {
+        'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])': {
           __id:
-            'client:1:nameRenderer(MarkdownUserNameRenderer_name:MarkdownUserNameRenderer.react,PlainUserNameRenderer_name:PlainUserNameRenderer.react)',
+            'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
           __typename: 'MarkdownUserNameRenderer',
           // NOTE: markdown/data fields are missing, data not processed.
         },
@@ -683,7 +683,7 @@ describe('RelayReferenceMarker', () => {
       );
       expect(Array.from(references).sort()).toEqual([
         '1',
-        'client:1:nameRenderer(MarkdownUserNameRenderer_name:MarkdownUserNameRenderer.react,PlainUserNameRenderer_name:PlainUserNameRenderer.react)',
+        'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
         'client:root',
       ]);
     });
@@ -695,17 +695,17 @@ describe('RelayReferenceMarker', () => {
           __id: '1',
           id: '1',
           __typename: 'User',
-          'nameRenderer(MarkdownUserNameRenderer_name:MarkdownUserNameRenderer.react,PlainUserNameRenderer_name:PlainUserNameRenderer.react)': {
+          'nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])': {
             __ref:
-              'client:1:nameRenderer(MarkdownUserNameRenderer_name:MarkdownUserNameRenderer.react,PlainUserNameRenderer_name:PlainUserNameRenderer.react)',
+              'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
           },
         },
-        'client:1:nameRenderer(MarkdownUserNameRenderer_name:MarkdownUserNameRenderer.react,PlainUserNameRenderer_name:PlainUserNameRenderer.react)': {
+        'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])': {
           __id:
-            'client:1:nameRenderer(MarkdownUserNameRenderer_name:MarkdownUserNameRenderer.react,PlainUserNameRenderer_name:PlainUserNameRenderer.react)',
+            'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
           __typename: 'MarkdownUserNameRenderer',
-          __module_component: 'MarkdownUserNameRenderer.react',
-          __module_operation:
+          __module_component_BarFragment: 'MarkdownUserNameRenderer.react',
+          __module_operation_BarFragment:
             'MarkdownUserNameRenderer_name$normalization.graphql',
           // NOTE: 'markdown' field missing
           data: {__ref: 'data'},
@@ -735,7 +735,7 @@ describe('RelayReferenceMarker', () => {
       );
       expect(Array.from(references).sort()).toEqual([
         '1',
-        'client:1:nameRenderer(MarkdownUserNameRenderer_name:MarkdownUserNameRenderer.react,PlainUserNameRenderer_name:PlainUserNameRenderer.react)',
+        'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
         'client:root',
         'data',
       ]);
@@ -748,14 +748,14 @@ describe('RelayReferenceMarker', () => {
           __id: '1',
           id: '1',
           __typename: 'User',
-          'nameRenderer(MarkdownUserNameRenderer_name:MarkdownUserNameRenderer.react,PlainUserNameRenderer_name:PlainUserNameRenderer.react)': {
+          'nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])': {
             __ref:
-              'client:1:nameRenderer(MarkdownUserNameRenderer_name:MarkdownUserNameRenderer.react,PlainUserNameRenderer_name:PlainUserNameRenderer.react)',
+              'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
           },
         },
-        'client:1:nameRenderer(MarkdownUserNameRenderer_name:MarkdownUserNameRenderer.react,PlainUserNameRenderer_name:PlainUserNameRenderer.react)': {
+        'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])': {
           __id:
-            'client:1:nameRenderer(MarkdownUserNameRenderer_name:MarkdownUserNameRenderer.react,PlainUserNameRenderer_name:PlainUserNameRenderer.react)',
+            'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
           __typename: 'MarkdownUserNameRenderer',
           markdown: 'markdown text',
           // NOTE: 'data' field missing
@@ -780,7 +780,7 @@ describe('RelayReferenceMarker', () => {
       );
       expect(Array.from(references).sort()).toEqual([
         '1',
-        'client:1:nameRenderer(MarkdownUserNameRenderer_name:MarkdownUserNameRenderer.react,PlainUserNameRenderer_name:PlainUserNameRenderer.react)',
+        'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
         'client:root',
       ]);
     });
@@ -791,14 +791,14 @@ describe('RelayReferenceMarker', () => {
           __id: '1',
           id: '1',
           __typename: 'User',
-          'nameRenderer(MarkdownUserNameRenderer_name:MarkdownUserNameRenderer.react,PlainUserNameRenderer_name:PlainUserNameRenderer.react)': {
+          'nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])': {
             __ref:
-              'client:1:nameRenderer(MarkdownUserNameRenderer_name:MarkdownUserNameRenderer.react,PlainUserNameRenderer_name:PlainUserNameRenderer.react)',
+              'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
           },
         },
-        'client:1:nameRenderer(MarkdownUserNameRenderer_name:MarkdownUserNameRenderer.react,PlainUserNameRenderer_name:PlainUserNameRenderer.react)': {
+        'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])': {
           __id:
-            'client:1:nameRenderer(MarkdownUserNameRenderer_name:MarkdownUserNameRenderer.react,PlainUserNameRenderer_name:PlainUserNameRenderer.react)',
+            'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
           __typename: 'CustomNameRenderer',
           customField: 'custom value',
         },
@@ -822,7 +822,7 @@ describe('RelayReferenceMarker', () => {
       );
       expect(Array.from(references).sort()).toEqual([
         '1',
-        'client:1:nameRenderer(MarkdownUserNameRenderer_name:MarkdownUserNameRenderer.react,PlainUserNameRenderer_name:PlainUserNameRenderer.react)',
+        'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
         'client:root',
       ]);
     });
@@ -833,7 +833,7 @@ describe('RelayReferenceMarker', () => {
           __id: '1',
           id: '1',
           __typename: 'User',
-          'nameRenderer(MarkdownUserNameRenderer_name:MarkdownUserNameRenderer.react,PlainUserNameRenderer_name:PlainUserNameRenderer.react)': null,
+          'nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])': null,
         },
         'client:root': {
           __id: 'client:root',
@@ -946,8 +946,8 @@ describe('RelayReferenceMarker', () => {
         'client:1:nameRenderer': {
           __id: 'client:1:nameRenderer',
           __typename: 'PlainUserNameRenderer',
-          __module_component: 'PlainUserNameRenderer.react',
-          __module_operation:
+          __module_component_BarFragment: 'PlainUserNameRenderer.react',
+          __module_operation_BarFragment:
             'PlainUserNameRenderer_name$normalization.graphql',
           plaintext: 'plain name',
           data: {__ref: 'data'},
@@ -997,8 +997,8 @@ describe('RelayReferenceMarker', () => {
         'client:1:nameRenderer': {
           __id: 'client:1:nameRenderer',
           __typename: 'MarkdownUserNameRenderer',
-          __module_component: 'MarkdownUserNameRenderer.react',
-          __module_operation:
+          __module_component_BarFragment: 'MarkdownUserNameRenderer.react',
+          __module_operation_BarFragment:
             'MarkdownUserNameRenderer_name$normalization.graphql',
           markdown: 'markdown payload',
           data: {__ref: 'data'},
@@ -1095,8 +1095,8 @@ describe('RelayReferenceMarker', () => {
         'client:1:nameRenderer': {
           __id: 'client:1:nameRenderer',
           __typename: 'MarkdownUserNameRenderer',
-          __module_component: 'MarkdownUserNameRenderer.react',
-          __module_operation:
+          __module_component_BarFragment: 'MarkdownUserNameRenderer.react',
+          __module_operation_BarFragment:
             'MarkdownUserNameRenderer_name$normalization.graphql',
           // NOTE: 'markdown' field missing
           data: {__ref: 'data'},

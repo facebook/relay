@@ -33,7 +33,8 @@ const {
   getArgumentValues,
   getHandleStorageKey,
   getStorageKey,
-  MODULE_OPERATION_KEY,
+  getModuleComponentKey,
+  getModuleOperationKey,
   TYPENAME_KEY,
 } = require('./RelayStoreUtils');
 
@@ -306,7 +307,15 @@ class RelayResponseNormalizer {
       'RelayResponseNormalizer: Expected data for @module to be an object.',
     );
     const typeName: string = this._getRecordType(data);
-    const operationReference = data[MODULE_OPERATION_KEY];
+    const componentKey = getModuleComponentKey(moduleImport.documentName);
+    const componentReference = data[componentKey];
+    RelayModernRecord.setValue(
+      record,
+      componentKey,
+      componentReference ?? null,
+    );
+    const operationKey = getModuleOperationKey(moduleImport.documentName);
+    const operationReference = data[operationKey];
     if (operationReference != null) {
       this._moduleImportPayloads.push({
         data,

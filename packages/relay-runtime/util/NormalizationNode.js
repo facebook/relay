@@ -84,6 +84,7 @@ export type NormalizationLinkedField = {|
 
 export type NormalizationModuleImport = {|
   +kind: 'ModuleImport',
+  +documentName: string,
   +fragmentPropName: string,
   +fragmentName: string,
 |};

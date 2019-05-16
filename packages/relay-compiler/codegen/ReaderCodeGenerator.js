@@ -241,8 +241,9 @@ function generateModuleImport(node): ReaderModuleImport {
   }
   return {
     kind: 'ModuleImport',
-    fragmentPropName,
+    documentName: node.documentName,
     fragmentName,
+    fragmentPropName,
   };
 }
 

@@ -164,8 +164,8 @@ describe('execute() a query with @module', () => {
           __typename: 'User',
           nameRenderer: {
             __typename: 'MarkdownUserNameRenderer',
-            __module_component: 'MarkdownUserNameRenderer.react',
-            __module_operation:
+            __module_component_UserQuery: 'MarkdownUserNameRenderer.react',
+            __module_operation_UserQuery:
               'MarkdownUserNameRenderer_name$normalization.graphql',
             markdown: 'markdown payload',
             data: {
@@ -229,8 +229,8 @@ describe('execute() a query with @module', () => {
           __typename: 'User',
           nameRenderer: {
             __typename: 'MarkdownUserNameRenderer',
-            __module_component: 'MarkdownUserNameRenderer.react',
-            __module_operation:
+            __module_component_UserQuery: 'MarkdownUserNameRenderer.react',
+            __module_operation_UserQuery:
               'MarkdownUserNameRenderer_name$normalization.graphql',
             markdown: 'markdown payload',
             data: {
@@ -297,8 +297,8 @@ describe('execute() a query with @module', () => {
           __typename: 'User',
           nameRenderer: {
             __typename: 'MarkdownUserNameRenderer',
-            __module_component: 'MarkdownUserNameRenderer.react',
-            __module_operation:
+            __module_component_UserQuery: 'MarkdownUserNameRenderer.react',
+            __module_operation_UserQuery:
               'MarkdownUserNameRenderer_name$normalization.graphql',
             markdown: 'markdown payload',
             data: {
@@ -348,8 +348,8 @@ describe('execute() a query with @module', () => {
           __typename: 'User',
           nameRenderer: {
             __typename: 'MarkdownUserNameRenderer',
-            __module_component: 'MarkdownUserNameRenderer.react',
-            __module_operation:
+            __module_component_UserQuery: 'MarkdownUserNameRenderer.react',
+            __module_operation_UserQuery:
               'MarkdownUserNameRenderer_name$normalization.graphql',
             markdown: 'markdown payload',
             data: {
@@ -386,8 +386,8 @@ describe('execute() a query with @module', () => {
           __typename: 'User',
           nameRenderer: {
             __typename: 'MarkdownUserNameRenderer',
-            __module_component: 'MarkdownUserNameRenderer.react',
-            __module_operation:
+            __module_component_UserQuery: 'MarkdownUserNameRenderer.react',
+            __module_operation_UserQuery:
               'MarkdownUserNameRenderer_name$normalization.graphql',
             markdown: 'markdown payload',
             data: {
@@ -425,8 +425,8 @@ describe('execute() a query with @module', () => {
           __typename: 'User',
           nameRenderer: {
             __typename: 'MarkdownUserNameRenderer',
-            __module_component: 'MarkdownUserNameRenderer.react',
-            __module_operation:
+            __module_component_UserQuery: 'MarkdownUserNameRenderer.react',
+            __module_operation_UserQuery:
               'MarkdownUserNameRenderer_name$normalization.graphql',
             markdown: 'markdown payload',
             data: {
@@ -461,8 +461,8 @@ describe('execute() a query with @module', () => {
           __typename: 'User',
           nameRenderer: {
             __typename: 'MarkdownUserNameRenderer',
-            __module_component: 'MarkdownUserNameRenderer.react',
-            __module_operation:
+            __module_component_UserQuery: 'MarkdownUserNameRenderer.react',
+            __module_operation_UserQuery:
               'MarkdownUserNameRenderer_name$normalization.graphql',
             markdown: 'markdown payload',
             data: {
@@ -487,8 +487,8 @@ describe('execute() a query with @module', () => {
           __typename: 'User',
           nameRenderer: {
             __typename: 'MarkdownUserNameRenderer',
-            __module_component: 'MarkdownUserNameRenderer.react',
-            __module_operation:
+            __module_component_UserQuery: 'MarkdownUserNameRenderer.react',
+            __module_operation_UserQuery:
               'MarkdownUserNameRenderer_name$normalization.graphql',
             markdown: 'markdown payload',
             data: {
@@ -518,8 +518,8 @@ describe('execute() a query with @module', () => {
           __typename: 'User',
           nameRenderer: {
             __typename: 'MarkdownUserNameRenderer',
-            __module_component: 'MarkdownUserNameRenderer.react',
-            __module_operation:
+            __module_component_UserQuery: 'MarkdownUserNameRenderer.react',
+            __module_operation_UserQuery:
               'MarkdownUserNameRenderer_name$normalization.graphql',
             markdown: 'markdown payload',
             data: {
@@ -553,8 +553,8 @@ describe('execute() a query with @module', () => {
           __typename: 'User',
           nameRenderer: {
             __typename: 'MarkdownUserNameRenderer',
-            __module_component: 'MarkdownUserNameRenderer.react',
-            __module_operation:
+            __module_component_UserQuery: 'MarkdownUserNameRenderer.react',
+            __module_operation_UserQuery:
               'MarkdownUserNameRenderer_name$normalization.graphql',
             markdown: 'markdown payload',
             data: {

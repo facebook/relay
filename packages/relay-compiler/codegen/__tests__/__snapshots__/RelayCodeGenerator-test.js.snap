@@ -64,7 +64,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
       "kind": "LinkedField",
       "alias": null,
       "name": "nameRenderer",
-      "storageKey": "nameRenderer(MarkdownUserNameRenderer_name:MarkdownUserNameRenderer.react,PlainUserNameRenderer_name:PlainUserNameRenderer.react)",
+      "storageKey": "nameRenderer(supported:[\\"PlainUserNameRenderer\\",\\"MarkdownUserNameRenderer\\"])",
       "args": [
         {
           "kind": "Literal",
@@ -84,21 +84,9 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
           "selections": [
             {
               "kind": "ModuleImport",
-              "fragmentPropName": "name",
-              "fragmentName": "PlainUserNameRenderer_name"
-            },
-            {
-              "kind": "ScalarField",
-              "alias": "__module_component",
-              "name": "js",
-              "args": [
-                {
-                  "kind": "Literal",
-                  "name": "module",
-                  "value": "PlainUserNameRenderer.react"
-                }
-              ],
-              "storageKey": "__module_component"
+              "documentName": "NameRendererFragment",
+              "fragmentName": "PlainUserNameRenderer_name",
+              "fragmentPropName": "name"
             }
           ]
         },
@@ -108,21 +96,9 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
           "selections": [
             {
               "kind": "ModuleImport",
-              "fragmentPropName": "name",
-              "fragmentName": "MarkdownUserNameRenderer_name"
-            },
-            {
-              "kind": "ScalarField",
-              "alias": "__module_component",
-              "name": "js",
-              "args": [
-                {
-                  "kind": "Literal",
-                  "name": "module",
-                  "value": "MarkdownUserNameRenderer.react"
-                }
-              ],
-              "storageKey": "__module_component"
+              "documentName": "NameRendererFragment",
+              "fragmentName": "MarkdownUserNameRenderer_name",
+              "fragmentPropName": "name"
             }
           ]
         }
@@ -301,7 +277,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
           "kind": "LinkedField",
           "alias": null,
           "name": "nameRenderer",
-          "storageKey": "nameRenderer(MarkdownUserNameRenderer_name:MarkdownUserNameRenderer.react,PlainUserNameRenderer_name:PlainUserNameRenderer.react)",
+          "storageKey": "nameRenderer(supported:[\\"PlainUserNameRenderer\\",\\"MarkdownUserNameRenderer\\"])",
           "args": [
             {
               "kind": "Literal",
@@ -321,21 +297,9 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
               "selections": [
                 {
                   "kind": "ModuleImport",
-                  "fragmentPropName": "name",
-                  "fragmentName": "PlainUserNameRenderer_name"
-                },
-                {
-                  "kind": "ScalarField",
-                  "alias": "__module_component",
-                  "name": "js",
-                  "args": [
-                    {
-                      "kind": "Literal",
-                      "name": "module",
-                      "value": "PlainUserNameRenderer.react"
-                    }
-                  ],
-                  "storageKey": "__module_component"
+                  "documentName": "ActorsRendererFragment",
+                  "fragmentName": "PlainUserNameRenderer_name",
+                  "fragmentPropName": "name"
                 }
               ]
             },
@@ -345,21 +309,9 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
               "selections": [
                 {
                   "kind": "ModuleImport",
-                  "fragmentPropName": "name",
-                  "fragmentName": "MarkdownUserNameRenderer_name"
-                },
-                {
-                  "kind": "ScalarField",
-                  "alias": "__module_component",
-                  "name": "js",
-                  "args": [
-                    {
-                      "kind": "Literal",
-                      "name": "module",
-                      "value": "MarkdownUserNameRenderer.react"
-                    }
-                  ],
-                  "storageKey": "__module_component"
+                  "documentName": "ActorsRendererFragment",
+                  "fragmentName": "MarkdownUserNameRenderer_name",
+                  "fragmentPropName": "name"
                 }
               ]
             }
@@ -740,7 +692,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
       "kind": "LinkedField",
       "alias": null,
       "name": "nameRenderer",
-      "storageKey": "nameRenderer(MarkdownUserNameRenderer_name:MarkdownUserNameRenderer.react,PlainUserNameRenderer_name:PlainUserNameRenderer.react)",
+      "storageKey": "nameRenderer(supported:[\\"PlainUserNameRenderer\\",\\"MarkdownUserNameRenderer\\"])",
       "args": [
         {
           "kind": "Literal",
@@ -760,21 +712,9 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
           "selections": [
             {
               "kind": "ModuleImport",
-              "fragmentPropName": "name",
-              "fragmentName": "PlainUserNameRenderer_name"
-            },
-            {
-              "kind": "ScalarField",
-              "alias": "__module_component",
-              "name": "js",
-              "args": [
-                {
-                  "kind": "Literal",
-                  "name": "module",
-                  "value": "PlainUserNameRenderer.react"
-                }
-              ],
-              "storageKey": "__module_component"
+              "documentName": "NameRendererFragment",
+              "fragmentName": "PlainUserNameRenderer_name",
+              "fragmentPropName": "name"
             }
           ]
         },
@@ -784,21 +724,9 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
           "selections": [
             {
               "kind": "ModuleImport",
-              "fragmentPropName": "name",
-              "fragmentName": "MarkdownUserNameRenderer_name"
-            },
-            {
-              "kind": "ScalarField",
-              "alias": "__module_component",
-              "name": "js",
-              "args": [
-                {
-                  "kind": "Literal",
-                  "name": "module",
-                  "value": "MarkdownUserNameRenderer.react"
-                }
-              ],
-              "storageKey": "__module_component"
+              "documentName": "NameRendererFragment",
+              "fragmentName": "MarkdownUserNameRenderer_name",
+              "fragmentPropName": "name"
             }
           ]
         }
@@ -973,21 +901,9 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
           "selections": [
             {
               "kind": "ModuleImport",
-              "fragmentPropName": "name",
-              "fragmentName": "MarkdownUserNameRenderer_name"
-            },
-            {
-              "kind": "ScalarField",
-              "alias": "__module_component",
-              "name": "js",
-              "args": [
-                {
-                  "kind": "Literal",
-                  "name": "module",
-                  "value": "MarkdownUserNameRenderer.react"
-                }
-              ],
-              "storageKey": "__module_component"
+              "documentName": "NameRendererFragment",
+              "fragmentName": "MarkdownUserNameRenderer_name",
+              "fragmentPropName": "name"
             }
           ]
         }

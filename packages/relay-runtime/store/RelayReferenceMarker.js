@@ -44,7 +44,7 @@ const {
   SCALAR_HANDLE,
   STREAM,
 } = RelayConcreteNode;
-const {getStorageKey, MODULE_OPERATION_KEY} = RelayStoreUtils;
+const {getStorageKey, getModuleOperationKey} = RelayStoreUtils;
 
 function mark(
   recordSource: RecordSource,
@@ -192,10 +192,8 @@ class RelayReferenceMarker {
       operationLoader !== null,
       'RelayReferenceMarker: Expected an operationLoader to be configured when using `@module`.',
     );
-    const operationReference = RelayModernRecord.getValue(
-      record,
-      MODULE_OPERATION_KEY,
-    );
+    const operationKey = getModuleOperationKey(moduleImport.documentName);
+    const operationReference = RelayModernRecord.getValue(record, operationKey);
     if (operationReference == null) {
       return;
     }

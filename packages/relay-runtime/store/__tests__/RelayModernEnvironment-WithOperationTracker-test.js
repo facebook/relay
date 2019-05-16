@@ -451,17 +451,17 @@ describe('RelayModernEnvironment with RelayOperationTracker', () => {
                 data: {
                   markup: 'mock value',
                 },
-                __module_component:
-                  '<mock-value-for-field-"__module_component">',
-                __module_operation:
-                  '<mock-value-for-field-"__module_operation">',
+                __module_component_FeedbackFragment:
+                  '<mock-value-for-field-"__module_component_FeedbackFragment">',
+                __module_operation_FeedbackFragment:
+                  '<mock-value-for-field-"__module_operation_FeedbackFragment">',
               },
               plainNameRenderer: {
                 __typename: 'PlainUserNameRenderer',
-                __module_component:
-                  '<mock-value-for-field-"__module_component">',
-                __module_operation:
-                  '<mock-value-for-field-"__module_operation">',
+                __module_component_FeedbackFragment:
+                  '<mock-value-for-field-"__module_component_FeedbackFragment">',
+                __module_operation_FeedbackFragment:
+                  '<mock-value-for-field-"__module_operation_FeedbackFragment">',
               },
               id: '<User-mock-id-1>',
             },
@@ -501,17 +501,17 @@ describe('RelayModernEnvironment with RelayOperationTracker', () => {
                 __typename: 'User',
                 nameRenderer: {
                   __typename: 'PlainUserNameRenderer',
-                  __module_component:
-                    '<mock-value-for-field-"__module_component">',
-                  __module_operation:
-                    '<mock-value-for-field-"__module_operation">',
+                  __module_component_FeedbackFragment:
+                    '<mock-value-for-field-"__module_component_FeedbackFragment">',
+                  __module_operation_FeedbackFragment:
+                    '<mock-value-for-field-"__module_operation_FeedbackFragment">',
                 },
                 plainNameRenderer: {
                   __typename: 'PlainUserNameRenderer',
-                  __module_component:
-                    '<mock-value-for-field-"__module_component">',
-                  __module_operation:
-                    '<mock-value-for-field-"__module_operation">',
+                  __module_component_FeedbackFragment:
+                    '<mock-value-for-field-"__module_component_FeedbackFragment">',
+                  __module_operation_FeedbackFragment:
+                    '<mock-value-for-field-"__module_operation_FeedbackFragment">',
                 },
                 id: '<User-mock-id-1>',
               },

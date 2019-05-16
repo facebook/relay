@@ -209,6 +209,10 @@ export type LocalArgumentDefinition = {|
 export type ModuleImport = {|
   +kind: 'ModuleImport',
   +loc: Location,
+  // the name of the document in which the @module was defined, used to
+  // namespace the result and avoid collisions between modules selected by
+  // different consumers on the same record
+  +documentName: string,
   // the name of the module to require
   +module: string,
   // the name of the original FragmentSpread on which @module was applied

@@ -177,8 +177,9 @@ describe('executeMutation() with @match', () => {
               __typename: 'User',
               nameRenderer: {
                 __typename: 'MarkdownUserNameRenderer',
-                __module_component: 'MarkdownUserNameRenderer.react',
-                __module_operation:
+                __module_component_CreateCommentMutation:
+                  'MarkdownUserNameRenderer.react',
+                __module_operation_CreateCommentMutation:
                   'MarkdownUserNameRenderer_name$normalization.graphql',
                 markdown: 'markdown payload',
                 data: {
@@ -205,7 +206,7 @@ describe('executeMutation() with @match', () => {
           actor: {
             nameRenderer: {
               __id:
-                'client:4:nameRenderer(MarkdownUserNameRenderer_name:MarkdownUserNameRenderer.react,PlainUserNameRenderer_name:PlainUserNameRenderer.react)',
+                'client:4:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
               __fragmentPropName: 'name',
               __fragments: {
                 MarkdownUserNameRenderer_name: {},
@@ -251,8 +252,9 @@ describe('executeMutation() with @match', () => {
               __typename: 'User',
               nameRenderer: {
                 __typename: 'MarkdownUserNameRenderer',
-                __module_component: 'MarkdownUserNameRenderer.react',
-                __module_operation:
+                __module_component_CreateCommentMutation:
+                  'MarkdownUserNameRenderer.react',
+                __module_operation_CreateCommentMutation:
                   'MarkdownUserNameRenderer_name$normalization.graphql',
                 markdown: 'markdown payload',
                 data: {
@@ -329,8 +331,9 @@ describe('executeMutation() with @match', () => {
               __typename: 'User',
               nameRenderer: {
                 __typename: 'MarkdownUserNameRenderer',
-                __module_component: 'MarkdownUserNameRenderer.react',
-                __module_operation:
+                __module_component_CreateCommentMutation:
+                  'MarkdownUserNameRenderer.react',
+                __module_operation_CreateCommentMutation:
                   'MarkdownUserNameRenderer_name$normalization.graphql',
                 markdown: 'markdown payload',
                 data: {
@@ -376,8 +379,9 @@ describe('executeMutation() with @match', () => {
               __typename: 'User',
               nameRenderer: {
                 __typename: 'MarkdownUserNameRenderer',
-                __module_component: 'MarkdownUserNameRenderer.react',
-                __module_operation:
+                __module_component_CreateCommentMutation:
+                  'MarkdownUserNameRenderer.react',
+                __module_operation_CreateCommentMutation:
                   'MarkdownUserNameRenderer_name$normalization.graphql',
                 markdown: 'markdown payload',
                 data: {

@@ -393,8 +393,8 @@ describe('RelayResponseNormalizer', () => {
           __typename: 'User',
           nameRenderer: {
             __typename: 'MarkdownUserNameRenderer',
-            __module_component: 'MarkdownUserNameRenderer.react',
-            __module_operation:
+            __module_component_BarFragment: 'MarkdownUserNameRenderer.react',
+            __module_operation_BarFragment:
               'MarkdownUserNameRenderer_name$normalization.graphql',
             markdown: 'markdown payload',
             data: {
@@ -421,16 +421,16 @@ describe('RelayResponseNormalizer', () => {
           __id: '1',
           id: '1',
           __typename: 'User',
-          'nameRenderer(MarkdownUserNameRenderer_name:MarkdownUserNameRenderer.react,PlainUserNameRenderer_name:PlainUserNameRenderer.react)': {
+          'nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])': {
             __ref:
-              'client:1:nameRenderer(MarkdownUserNameRenderer_name:MarkdownUserNameRenderer.react,PlainUserNameRenderer_name:PlainUserNameRenderer.react)',
+              'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
           },
         },
-        'client:1:nameRenderer(MarkdownUserNameRenderer_name:MarkdownUserNameRenderer.react,PlainUserNameRenderer_name:PlainUserNameRenderer.react)': {
+        'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])': {
           __id:
-            'client:1:nameRenderer(MarkdownUserNameRenderer_name:MarkdownUserNameRenderer.react,PlainUserNameRenderer_name:PlainUserNameRenderer.react)',
+            'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
           __typename: 'MarkdownUserNameRenderer',
-          __module_component: 'MarkdownUserNameRenderer.react',
+          __module_component_BarFragment: 'MarkdownUserNameRenderer.react',
         },
         'client:root': {
           __id: 'client:root',
@@ -443,11 +443,11 @@ describe('RelayResponseNormalizer', () => {
           operationReference:
             'MarkdownUserNameRenderer_name$normalization.graphql',
           dataID:
-            'client:1:nameRenderer(MarkdownUserNameRenderer_name:MarkdownUserNameRenderer.react,PlainUserNameRenderer_name:PlainUserNameRenderer.react)',
+            'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
           data: {
             __typename: 'MarkdownUserNameRenderer',
-            __module_component: 'MarkdownUserNameRenderer.react',
-            __module_operation:
+            __module_component_BarFragment: 'MarkdownUserNameRenderer.react',
+            __module_operation_BarFragment:
               'MarkdownUserNameRenderer_name$normalization.graphql',
             markdown: 'markdown payload',
             data: {
@@ -468,8 +468,8 @@ describe('RelayResponseNormalizer', () => {
           __typename: 'User',
           nameRenderer: {
             __typename: 'MarkdownUserNameRenderer',
-            __module_component: 'MarkdownUserNameRenderer.react',
-            __module_operation:
+            __module_component_BarFragment: 'MarkdownUserNameRenderer.react',
+            __module_operation_BarFragment:
               'MarkdownUserNameRenderer_name$normalization.graphql',
             markdown: 'markdown payload',
             data: {
@@ -498,16 +498,16 @@ describe('RelayResponseNormalizer', () => {
           __id: '1',
           id: '1',
           __typename: 'User',
-          'nameRenderer(MarkdownUserNameRenderer_name:MarkdownUserNameRenderer.react,PlainUserNameRenderer_name:PlainUserNameRenderer.react)': {
+          'nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])': {
             __ref:
-              'client:1:nameRenderer(MarkdownUserNameRenderer_name:MarkdownUserNameRenderer.react,PlainUserNameRenderer_name:PlainUserNameRenderer.react)',
+              'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
           },
         },
-        'client:1:nameRenderer(MarkdownUserNameRenderer_name:MarkdownUserNameRenderer.react,PlainUserNameRenderer_name:PlainUserNameRenderer.react)': {
+        'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])': {
           __id:
-            'client:1:nameRenderer(MarkdownUserNameRenderer_name:MarkdownUserNameRenderer.react,PlainUserNameRenderer_name:PlainUserNameRenderer.react)',
+            'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
           __typename: 'MarkdownUserNameRenderer',
-          __module_component: 'MarkdownUserNameRenderer.react',
+          __module_component_BarFragment: 'MarkdownUserNameRenderer.react',
         },
         'client:root': {
           __id: 'client:root',
@@ -520,11 +520,11 @@ describe('RelayResponseNormalizer', () => {
           operationReference:
             'MarkdownUserNameRenderer_name$normalization.graphql',
           dataID:
-            'client:1:nameRenderer(MarkdownUserNameRenderer_name:MarkdownUserNameRenderer.react,PlainUserNameRenderer_name:PlainUserNameRenderer.react)',
+            'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
           data: {
             __typename: 'MarkdownUserNameRenderer',
-            __module_component: 'MarkdownUserNameRenderer.react',
-            __module_operation:
+            __module_component_BarFragment: 'MarkdownUserNameRenderer.react',
+            __module_operation_BarFragment:
               'MarkdownUserNameRenderer_name$normalization.graphql',
             markdown: 'markdown payload',
             data: {
@@ -568,14 +568,14 @@ describe('RelayResponseNormalizer', () => {
           __id: '1',
           id: '1',
           __typename: 'User',
-          'nameRenderer(MarkdownUserNameRenderer_name:MarkdownUserNameRenderer.react,PlainUserNameRenderer_name:PlainUserNameRenderer.react)': {
+          'nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])': {
             __ref:
-              'client:1:nameRenderer(MarkdownUserNameRenderer_name:MarkdownUserNameRenderer.react,PlainUserNameRenderer_name:PlainUserNameRenderer.react)',
+              'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
           },
         },
-        'client:1:nameRenderer(MarkdownUserNameRenderer_name:MarkdownUserNameRenderer.react,PlainUserNameRenderer_name:PlainUserNameRenderer.react)': {
+        'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])': {
           __id:
-            'client:1:nameRenderer(MarkdownUserNameRenderer_name:MarkdownUserNameRenderer.react,PlainUserNameRenderer_name:PlainUserNameRenderer.react)',
+            'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
           __typename: 'CustomNameRenderer',
           // note: 'customField' data not processed, there is no selection on this type
         },
@@ -613,7 +613,7 @@ describe('RelayResponseNormalizer', () => {
           __id: '1',
           id: '1',
           __typename: 'User',
-          'nameRenderer(MarkdownUserNameRenderer_name:MarkdownUserNameRenderer.react,PlainUserNameRenderer_name:PlainUserNameRenderer.react)': null,
+          'nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])': null,
         },
         'client:root': {
           __id: 'client:root',
@@ -669,8 +669,8 @@ describe('RelayResponseNormalizer', () => {
           __typename: 'User',
           nameRenderer: {
             __typename: 'MarkdownUserNameRenderer',
-            __module_component: 'MarkdownUserNameRenderer.react',
-            __module_operation:
+            __module_component_BarFragment: 'MarkdownUserNameRenderer.react',
+            __module_operation_BarFragment:
               'MarkdownUserNameRenderer_name$normalization.graphql',
             markdown: 'markdown payload',
             data: {
@@ -704,7 +704,7 @@ describe('RelayResponseNormalizer', () => {
         'client:1:nameRenderer': {
           __id: 'client:1:nameRenderer',
           __typename: 'MarkdownUserNameRenderer',
-          __module_component: 'MarkdownUserNameRenderer.react',
+          __module_component_BarFragment: 'MarkdownUserNameRenderer.react',
         },
         'client:root': {
           __id: 'client:root',
@@ -719,8 +719,8 @@ describe('RelayResponseNormalizer', () => {
           dataID: 'client:1:nameRenderer',
           data: {
             __typename: 'MarkdownUserNameRenderer',
-            __module_component: 'MarkdownUserNameRenderer.react',
-            __module_operation:
+            __module_component_BarFragment: 'MarkdownUserNameRenderer.react',
+            __module_operation_BarFragment:
               'MarkdownUserNameRenderer_name$normalization.graphql',
             markdown: 'markdown payload',
             data: {
@@ -741,8 +741,8 @@ describe('RelayResponseNormalizer', () => {
           __typename: 'User',
           nameRenderer: {
             __typename: 'MarkdownUserNameRenderer',
-            __module_component: 'MarkdownUserNameRenderer.react',
-            __module_operation:
+            __module_component_BarFragment: 'MarkdownUserNameRenderer.react',
+            __module_operation_BarFragment:
               'MarkdownUserNameRenderer_name$normalization.graphql',
             markdown: 'markdown payload',
             data: {
@@ -778,7 +778,7 @@ describe('RelayResponseNormalizer', () => {
         'client:1:nameRenderer': {
           __id: 'client:1:nameRenderer',
           __typename: 'MarkdownUserNameRenderer',
-          __module_component: 'MarkdownUserNameRenderer.react',
+          __module_component_BarFragment: 'MarkdownUserNameRenderer.react',
         },
         'client:root': {
           __id: 'client:root',
@@ -793,8 +793,8 @@ describe('RelayResponseNormalizer', () => {
           dataID: 'client:1:nameRenderer',
           data: {
             __typename: 'MarkdownUserNameRenderer',
-            __module_component: 'MarkdownUserNameRenderer.react',
-            __module_operation:
+            __module_component_BarFragment: 'MarkdownUserNameRenderer.react',
+            __module_operation_BarFragment:
               'MarkdownUserNameRenderer_name$normalization.graphql',
             markdown: 'markdown payload',
             data: {

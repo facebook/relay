@@ -28,6 +28,9 @@ export type Arguments = {[argName: string]: mixed};
 
 const {VARIABLE} = RelayConcreteNode;
 
+const MODULE_COMPONENT_KEY_PREFIX = '__module_component_';
+const MODULE_OPERATION_KEY_PREFIX = '__module_operation_';
+
 /**
  * Returns the values of field/fragment arguments as an object keyed by argument
  * names. Guaranteed to return a result with stable ordered nested values.
@@ -142,6 +145,14 @@ function getStableVariableValue(name: string, variables: Variables): mixed {
   return stableCopy(variables[name]);
 }
 
+function getModuleComponentKey(documentName: string): string {
+  return `${MODULE_COMPONENT_KEY_PREFIX}${documentName}`;
+}
+
+function getModuleOperationKey(documentName: string): string {
+  return `${MODULE_OPERATION_KEY_PREFIX}${documentName}`;
+}
+
 /**
  * Constants shared by all implementations of RecordSource/MutableRecordSource/etc.
  */
@@ -149,8 +160,7 @@ const RelayStoreUtils = {
   FRAGMENTS_KEY: '__fragments',
   FRAGMENT_OWNER_KEY: '__fragmentOwner',
   FRAGMENT_PROP_NAME_KEY: '__fragmentPropName',
-  MODULE_COMPONENT_KEY: '__module_component',
-  MODULE_OPERATION_KEY: '__module_operation',
+  MODULE_COMPONENT_KEY: '__module_component', // alias returned by Reader
   ID_KEY: '__id',
   REF_KEY: '__ref',
   REFS_KEY: '__refs',
@@ -164,6 +174,8 @@ const RelayStoreUtils = {
   getHandleStorageKey,
   getStorageKey,
   getStableStorageKey,
+  getModuleComponentKey,
+  getModuleOperationKey,
 };
 
 module.exports = RelayStoreUtils;

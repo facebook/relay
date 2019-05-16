@@ -172,8 +172,8 @@ describe('execute() a query with nested @match', () => {
           __typename: 'User',
           outerRenderer: {
             __typename: 'MarkdownUserNameRenderer',
-            __module_component: 'MarkdownUserNameRenderer.react',
-            __module_operation:
+            __module_component_UserQuery: 'MarkdownUserNameRenderer.react',
+            __module_operation_UserQuery:
               'MarkdownUserNameRenderer_name$normalization.graphql',
             markdown: 'markdown payload',
             data: {
@@ -183,8 +183,9 @@ describe('execute() a query with nested @match', () => {
               id: '2',
               innerRenderer: {
                 __typename: 'PlainUserNameRenderer',
-                __module_component: 'PlainUserNameRenderer.react',
-                __module_operation:
+                __module_component_MarkdownUserNameRenderer_name:
+                  'PlainUserNameRenderer.react',
+                __module_operation_MarkdownUserNameRenderer_name:
                   'PlainUserNameRenderer_name$normalization.graphql',
                 plaintext: 'plaintext payload',
                 data: {
@@ -208,8 +209,7 @@ describe('execute() a query with nested @match', () => {
     expect(operationSnapshot.data).toEqual({
       node: {
         outerRenderer: {
-          __id:
-            'client:1:outerRenderer(MarkdownUserNameRenderer_name:MarkdownUserNameRenderer.react)',
+          __id: 'client:1:nameRenderer(supported:["MarkdownUserNameRenderer"])',
           __fragmentPropName: 'name',
           __fragments: {
             MarkdownUserNameRenderer_name: {},
@@ -246,8 +246,8 @@ describe('execute() a query with nested @match', () => {
           __typename: 'User',
           outerRenderer: {
             __typename: 'MarkdownUserNameRenderer',
-            __module_component: 'MarkdownUserNameRenderer.react',
-            __module_operation:
+            __module_component_UserQuery: 'MarkdownUserNameRenderer.react',
+            __module_operation_UserQuery:
               'MarkdownUserNameRenderer_name$normalization.graphql',
             markdown: 'markdown payload',
             data: {
@@ -258,8 +258,9 @@ describe('execute() a query with nested @match', () => {
               id: '2',
               innerRenderer: {
                 __typename: 'PlainUserNameRenderer',
-                __module_component: 'PlainUserNameRenderer.react',
-                __module_operation:
+                __module_component_MarkdownUserNameRenderer_name:
+                  'PlainUserNameRenderer.react',
+                __module_operation_MarkdownUserNameRenderer_name:
                   'PlainUserNameRenderer_name$normalizationgraphql',
                 plaintext: 'plaintext payload',
                 data: {
@@ -323,8 +324,7 @@ describe('execute() a query with nested @match', () => {
           __fragments: {
             PlainUserNameRenderer_name: {},
           },
-          __id:
-            'client:2:innerRenderer(PlainUserNameRenderer_name:PlainUserNameRenderer.react)',
+          __id: 'client:2:nameRenderer(supported:["PlainUserNameRenderer"])',
           __module_component: 'PlainUserNameRenderer.react',
         },
       },
@@ -368,8 +368,8 @@ describe('execute() a query with nested @match', () => {
           __typename: 'User',
           outerRenderer: {
             __typename: 'MarkdownUserNameRenderer',
-            __module_component: 'MarkdownUserNameRenderer.react',
-            __module_operation:
+            __module_component_UserQuery: 'MarkdownUserNameRenderer.react',
+            __module_operation_UserQuery:
               'MarkdownUserNameRenderer_name$normalization.graphql',
             markdown: 'markdown payload',
             data: {
@@ -380,8 +380,9 @@ describe('execute() a query with nested @match', () => {
               id: '2',
               innerRenderer: {
                 __typename: 'PlainUserNameRenderer',
-                __module_component: 'PlainUserNameRenderer.react',
-                __module_operation:
+                __module_component_MarkdownUserNameRenderer_name:
+                  'PlainUserNameRenderer.react',
+                __module_operation_MarkdownUserNameRenderer_name:
                   'PlainUserNameRenderer_name$normalization.graphql',
                 plaintext: 'plaintext payload',
                 data: {
@@ -432,8 +433,8 @@ describe('execute() a query with nested @match', () => {
           __typename: 'User',
           outerRenderer: {
             __typename: 'MarkdownUserNameRenderer',
-            __module_component: 'MarkdownUserNameRenderer.react',
-            __module_operation:
+            __module_component_UserQuery: 'MarkdownUserNameRenderer.react',
+            __module_operation_UserQuery:
               'MarkdownUserNameRenderer_name$normalization.graphql',
             markdown: 'markdown payload',
             data: {
@@ -444,8 +445,9 @@ describe('execute() a query with nested @match', () => {
               id: '2',
               innerRenderer: {
                 __typename: 'PlainUserNameRenderer',
-                __module_component: 'PlainUserNameRenderer.react',
-                __module_operation:
+                __module_component_MarkdownUserNameRenderer_name:
+                  'PlainUserNameRenderer.react',
+                __module_operation_MarkdownUserNameRenderer_name:
                   'PlainUserNameRenderer_name$normalization.graphql',
                 plaintext: 'plaintext payload',
                 data: {
@@ -496,8 +498,8 @@ describe('execute() a query with nested @match', () => {
           __typename: 'User',
           outerRenderer: {
             __typename: 'MarkdownUserNameRenderer',
-            __module_component: 'MarkdownUserNameRenderer.react',
-            __module_operation:
+            __module_component_UserQuery: 'MarkdownUserNameRenderer.react',
+            __module_operation_UserQuery:
               'MarkdownUserNameRenderer_name$normalization.graphql',
             markdown: 'markdown payload',
             data: {
@@ -508,8 +510,9 @@ describe('execute() a query with nested @match', () => {
               id: '2',
               innerRenderer: {
                 __typename: 'PlainUserNameRenderer',
-                __module_component: 'PlainUserNameRenderer.react',
-                __module_operation:
+                __module_component_MarkdownUserNameRenderer_name:
+                  'PlainUserNameRenderer.react',
+                __module_operation_MarkdownUserNameRenderer_name:
                   'PlainUserNameRenderer_name$normalization.graphql',
                 plaintext: 'plaintext payload',
                 data: {
@@ -551,8 +554,8 @@ describe('execute() a query with nested @match', () => {
           __typename: 'User',
           outerRenderer: {
             __typename: 'MarkdownUserNameRenderer',
-            __module_component: 'MarkdownUserNameRenderer.react',
-            __module_operation:
+            __module_component_UserQuery: 'MarkdownUserNameRenderer.react',
+            __module_operation_UserQuery:
               'MarkdownUserNameRenderer_name$normalization.graphql',
             markdown: 'markdown payload',
             data: {
@@ -563,8 +566,9 @@ describe('execute() a query with nested @match', () => {
               id: '2',
               innerRenderer: {
                 __typename: 'PlainUserNameRenderer',
-                __module_component: 'PlainUserNameRenderer.react',
-                __module_operation:
+                __module_component_MarkdownUserNameRenderer_name:
+                  'PlainUserNameRenderer.react',
+                __module_operation_MarkdownUserNameRenderer_name:
                   'PlainUserNameRenderer_name$normalization.graphql',
                 plaintext: 'plaintext payload',
                 data: {
@@ -625,8 +629,8 @@ describe('execute() a query with nested @match', () => {
           __typename: 'User',
           outerRenderer: {
             __typename: 'MarkdownUserNameRenderer',
-            __module_component: 'MarkdownUserNameRenderer.react',
-            __module_operation:
+            __module_component_UserQuery: 'MarkdownUserNameRenderer.react',
+            __module_operation_UserQuery:
               'MarkdownUserNameRenderer_name$normalization.graphql',
             markdown: 'markdown payload',
             data: {
@@ -637,8 +641,9 @@ describe('execute() a query with nested @match', () => {
               id: '2',
               innerRenderer: {
                 __typename: 'PlainUserNameRenderer',
-                __module_component: 'PlainUserNameRenderer.react',
-                __module_operation:
+                __module_component_MarkdownUserNameRenderer_name:
+                  'PlainUserNameRenderer.react',
+                __module_operation_MarkdownUserNameRenderer_name:
                   'PlainUserNameRenderer_name$normalization.graphql',
                 plaintext: 'plaintext payload',
                 data: {

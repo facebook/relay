@@ -31,7 +31,7 @@ function getIdentifierForSelection(node: Selection): string {
       ? node.name
       : node.name + printArguments(node.args);
   } else if (node.kind === 'ModuleImport') {
-    return 'ModuleImport:'; // sibling @module are disallowed
+    return 'ModuleImport:';
   } else if (node.kind === 'Defer') {
     return 'Defer:' + node.label;
   } else if (node.kind === 'Stream') {

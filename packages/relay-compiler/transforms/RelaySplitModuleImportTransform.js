@@ -63,10 +63,17 @@ function visitInlineFragment(
 }
 
 function visitModuleImport(node: ModuleImport, state: State): ModuleImport {
+  // It's possible for the same fragment to be selected in multiple usages
+  // of @module: skip processing a node if its SplitOperation has already
+  // been generated
+  const normalizatioName = getNormalizationOperationName(node.name);
+  if (state.splitOperations.has(normalizatioName)) {
+    return node;
+  }
   const transformedNode = this.traverse(node, state);
   const splitOperation: SplitOperation = {
     kind: 'SplitOperation',
-    name: getNormalizationOperationName(transformedNode.name),
+    name: normalizatioName,
     selections: transformedNode.selections,
     loc: {kind: 'Derived', source: node.loc},
     metadata: {
@@ -74,7 +81,7 @@ function visitModuleImport(node: ModuleImport, state: State): ModuleImport {
     },
     type: state.parentType,
   };
-  state.splitOperations.set(node.name, splitOperation);
+  state.splitOperations.set(normalizatioName, splitOperation);
   return transformedNode;
 }
 

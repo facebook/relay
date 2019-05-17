@@ -363,30 +363,29 @@ function createContainerWithFragments<
       // synchronous completion may call callbacks .subscribe() returns.
       let refetchSubscription;
 
-      if (options?.fetchPolicy === 'store-or-network') {
-        const storeSnapshot = this._getQueryFetcher().lookupInStore(
-          environment,
-          operation,
-        );
-        if (storeSnapshot != null) {
-          this.state.resolver.setVariables(fragmentVariables, operation.node);
-          this.setState(
-            latestState => ({
-              data: latestState.resolver.resolve(),
-              contextForChildren: {
-                environment: this.props.__relayContext.environment,
-                variables: fragmentVariables,
-              },
-            }),
-            () => {
-              observer.next && observer.next();
-              observer.complete && observer.complete();
+      const storeSnapshot = this._getQueryFetcher().lookupInStore(
+        environment,
+        operation,
+        options?.fetchPolicy,
+      );
+      if (storeSnapshot != null) {
+        this.state.resolver.setVariables(fragmentVariables, operation.node);
+        this.setState(
+          latestState => ({
+            data: latestState.resolver.resolve(),
+            contextForChildren: {
+              environment: this.props.__relayContext.environment,
+              variables: fragmentVariables,
             },
-          );
-          return {
-            dispose() {},
-          };
-        }
+          }),
+          () => {
+            observer.next && observer.next();
+            observer.complete && observer.complete();
+          },
+        );
+        return {
+          dispose() {},
+        };
       }
 
       this._getQueryFetcher()

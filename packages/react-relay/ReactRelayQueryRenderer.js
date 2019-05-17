@@ -385,10 +385,7 @@ function fetchQueryAndComputeStateFromProps(
     }
 
     try {
-      const storeSnapshot =
-        props.dataFrom === STORE_THEN_NETWORK
-          ? queryFetcher.lookupInStore(genericEnvironment, operation)
-          : null;
+      const storeSnapshot = queryFetcher.lookupInStore(genericEnvironment, operation, props.dataFrom)
       const querySnapshot = queryFetcher.fetch({
         cacheConfig: props.cacheConfig,
         dataFrom: props.dataFrom,

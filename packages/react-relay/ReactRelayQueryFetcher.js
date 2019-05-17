@@ -86,10 +86,14 @@ class ReactRelayQueryFetcher {
   lookupInStore(
     environment: IEnvironment,
     operation: OperationDescriptor,
+    dataFrom: any,
   ): ?Snapshot {
-    if (environment.check(operation.root)) {
-      this._retainCachedOperation(environment, operation);
-      return environment.lookup(operation.fragment, operation);
+    if(dataFrom === 'STORE_THEN_NETWORK' ||
+      dataFrom === 'store-or-network') {
+      if (environment.check(operation.root)) {
+        this._retainCachedOperation(environment, operation);
+        return environment.lookup(operation.fragment, operation);
+      }
     }
     return null;
   }

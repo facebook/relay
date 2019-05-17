@@ -359,7 +359,7 @@ function visitFragmentSpread(
     handles: null,
     kind: 'ScalarField',
     loc: moduleDirective.loc,
-    metadata: {storageKey: componentKey},
+    metadata: {skipNormalizationNode: true},
     name: JS_FIELD_NAME,
     type: jsModuleType,
   };
@@ -385,7 +385,7 @@ function visitFragmentSpread(
     handles: null,
     kind: 'ScalarField',
     loc: moduleDirective.loc,
-    metadata: {storageKey: operationKey},
+    metadata: {skipNormalizationNode: true},
     name: JS_FIELD_NAME,
     type: jsModuleType,
   };

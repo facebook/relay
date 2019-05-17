@@ -32,9 +32,9 @@ const {generateClientID, isClientID} = require('./ClientID');
 const {
   getArgumentValues,
   getHandleStorageKey,
-  getStorageKey,
   getModuleComponentKey,
   getModuleOperationKey,
+  getStorageKey,
   TYPENAME_KEY,
 } = require('./RelayStoreUtils');
 
@@ -316,6 +316,11 @@ class RelayResponseNormalizer {
     );
     const operationKey = getModuleOperationKey(moduleImport.documentName);
     const operationReference = data[operationKey];
+    RelayModernRecord.setValue(
+      record,
+      operationKey,
+      operationReference ?? null,
+    );
     if (operationReference != null) {
       this._moduleImportPayloads.push({
         data,

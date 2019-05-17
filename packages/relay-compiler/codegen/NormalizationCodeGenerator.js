@@ -264,6 +264,9 @@ function generateModuleImport(node, key): NormalizationModuleImport {
 }
 
 function generateScalarField(node): Array<NormalizationSelection> {
+  if (node.metadata?.skipNormalizationNode) {
+    return [];
+  }
   // Note: it is important that the arguments of this field be sorted to
   // ensure stable generation of storage keys for equivalent arguments
   // which may have originally appeared in different orders across an app.

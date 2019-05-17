@@ -423,6 +423,8 @@ describe('RelayResponseNormalizer', () => {
             'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
           __typename: 'MarkdownUserNameRenderer',
           __module_component_BarFragment: 'MarkdownUserNameRenderer.react',
+          __module_operation_BarFragment:
+            'MarkdownUserNameRenderer_name$normalization.graphql',
         },
         'client:root': {
           __id: 'client:root',
@@ -500,6 +502,8 @@ describe('RelayResponseNormalizer', () => {
             'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
           __typename: 'MarkdownUserNameRenderer',
           __module_component_BarFragment: 'MarkdownUserNameRenderer.react',
+          __module_operation_BarFragment:
+            'MarkdownUserNameRenderer_name$normalization.graphql',
         },
         'client:root': {
           __id: 'client:root',
@@ -697,6 +701,8 @@ describe('RelayResponseNormalizer', () => {
           __id: 'client:1:nameRenderer',
           __typename: 'MarkdownUserNameRenderer',
           __module_component_BarFragment: 'MarkdownUserNameRenderer.react',
+          __module_operation_BarFragment:
+            'MarkdownUserNameRenderer_name$normalization.graphql',
         },
         'client:root': {
           __id: 'client:root',
@@ -771,6 +777,8 @@ describe('RelayResponseNormalizer', () => {
           __id: 'client:1:nameRenderer',
           __typename: 'MarkdownUserNameRenderer',
           __module_component_BarFragment: 'MarkdownUserNameRenderer.react',
+          __module_operation_BarFragment:
+            'MarkdownUserNameRenderer_name$normalization.graphql',
         },
         'client:root': {
           __id: 'client:root',

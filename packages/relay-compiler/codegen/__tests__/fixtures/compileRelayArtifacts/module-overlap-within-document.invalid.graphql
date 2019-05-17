@@ -1,6 +1,8 @@
-query FooNameRendererQuery($id: ID!) {
+# expected-to-throw
+query MultipleNameRendererQuery($id: ID!) {
   node(id: $id) {
     ...FooNameRendererFragment
+    ...BarNameRendererFragment
   }
 }
 
@@ -8,15 +10,9 @@ fragment FooNameRendererFragment on User {
   id
   nameRenderer {
     ...MarkdownUserNameRenderer_name
-      @module(name: "MarkdownUserNameRenderer.react")
+      @module(name: "FooMarkdownUserNameRenderer.react")
     ...PlainUserNameRenderer_name
-      @module(name: "PlainUserNameRenderer.react")
-  }
-}
-
-query BarNameRendererQuery($id: ID!) {
-  node(id: $id) {
-    ...BarNameRendererFragment
+      @module(name: "FooPlainUserNameRenderer.react")
   }
 }
 
@@ -26,7 +22,7 @@ fragment BarNameRendererFragment on User {
   # different
   nameRenderer {
     ...MarkdownUserNameRenderer_name
-      @module(name: "MarkdownUserNameRenderer.react")
+      @module(name: "BarMarkdownUserNameRenderer.react")
   }
 }
 

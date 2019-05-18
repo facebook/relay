@@ -86,9 +86,9 @@ class ReactRelayQueryFetcher {
   lookupInStore(
     environment: IEnvironment,
     operation: OperationDescriptor,
-    dataFrom: any,
+    dataFrom: $FlowFixMe,
   ): ?Snapshot {
-    if(dataFrom === 'STORE_THEN_NETWORK' ||
+    if (dataFrom === 'STORE_THEN_NETWORK' ||
       dataFrom === 'store-or-network') {
       if (environment.check(operation.root)) {
         this._retainCachedOperation(environment, operation);

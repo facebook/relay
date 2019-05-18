@@ -13,7 +13,7 @@
 const {RelayConcreteNode} = require('relay-runtime');
 
 import type {IRTransform} from '../core/GraphQLCompilerContext';
-import type {Definition, Root, Fragment} from '../core/GraphQLIR';
+import type {GeneratedDefinition, Root, Fragment} from '../core/GraphQLIR';
 import type {ScalarTypeMapping} from './javascript/RelayFlowTypeTransformers';
 import type {GeneratedNode} from 'relay-runtime';
 
@@ -161,7 +161,7 @@ export type FormatModule = ({|
   /**
    * The IR node from which the generated node is derived.
    */
-  definition: Definition,
+  definition: GeneratedDefinition,
 
   /**
    * A hash of the document, which is used by relay-compiler to know if it needs

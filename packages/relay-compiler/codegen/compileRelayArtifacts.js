@@ -18,7 +18,7 @@ const filterContextForNode = require('../core/filterContextForNode');
 
 import type CompilerContext from '../core/GraphQLCompilerContext';
 import type {IRTransform} from '../core/GraphQLCompilerContext';
-import type {Definition} from '../core/GraphQLIR';
+import type {GeneratedDefinition} from '../core/GraphQLIR';
 import type {GraphQLReporter as Reporter} from '../reporters/GraphQLReporter';
 import type {GeneratedNode} from 'relay-runtime';
 
@@ -50,7 +50,7 @@ function compileRelayArtifacts(
   context: CompilerContext,
   transforms: RelayCompilerTransforms,
   reporter?: Reporter,
-): $ReadOnlyArray<[Definition, GeneratedNode]> {
+): $ReadOnlyArray<[GeneratedDefinition, GeneratedNode]> {
   return Profiler.run('GraphQLCompiler.compile', () => {
     // The fragment is used for reading data from the normalized store.
     const fragmentContext = context.applyTransforms(
@@ -86,29 +86,27 @@ function compileRelayArtifacts(
     // SplitOperations from @match.
     for (const node of codeGenContext.documents()) {
       if (node.kind === 'Root') {
-        const fragNode = fragmentContext.getRoot(node.name);
-        results.push([
-          node,
-          RelayCodeGenerator.generate({
-            kind: 'Request',
-            fragment: {
-              kind: 'Fragment',
-              argumentDefinitions: fragNode.argumentDefinitions,
-              directives: fragNode.directives,
-              loc: {kind: 'Derived', source: node.loc},
-              metadata: null,
-              name: fragNode.name,
-              selections: fragNode.selections,
-              type: fragNode.type,
-            },
-            id: null,
-            loc: node.loc,
-            metadata: node.metadata || {},
-            name: fragNode.name,
-            root: node,
-            text: printOperation(printContext, fragNode.name),
-          }),
-        ]);
+        const fragment = fragmentContext.getRoot(node.name);
+        const request = {
+          kind: 'Request',
+          fragment: {
+            kind: 'Fragment',
+            argumentDefinitions: fragment.argumentDefinitions,
+            directives: fragment.directives,
+            loc: {kind: 'Derived', source: node.loc},
+            metadata: null,
+            name: fragment.name,
+            selections: fragment.selections,
+            type: fragment.type,
+          },
+          id: null,
+          loc: node.loc,
+          metadata: node.metadata || {},
+          name: fragment.name,
+          root: node,
+          text: printOperation(printContext, fragment.name),
+        };
+        results.push([request, RelayCodeGenerator.generate(request)]);
       } else {
         results.push([node, RelayCodeGenerator.generate(node)]);
       }

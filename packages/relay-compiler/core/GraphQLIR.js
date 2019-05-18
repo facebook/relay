@@ -299,6 +299,7 @@ export type Selection =
   | Stream;
 
 export type Definition = Fragment | Root | SplitOperation;
+export type GeneratedDefinition = Fragment | Request | SplitOperation;
 
 export type SplitOperation = {|
   +kind: 'SplitOperation',

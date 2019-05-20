@@ -15,7 +15,7 @@ const ReactRelayContext = require('../ReactRelayContext');
 const ReactRelayFragmentContainer = require('../ReactRelayFragmentContainer');
 const ReactTestRenderer = require('ReactTestRenderer');
 
-const {createOperationDescriptor, RelayFeatureFlags} = require('relay-runtime');
+const {createOperationDescriptor} = require('relay-runtime');
 const {
   createMockEnvironment,
   generateAndCompile,
@@ -81,9 +81,6 @@ describe('ReactRelayFragmentContainer with fragment ownerhsip', () => {
     jest.resetModules();
     expect.extend(matchers);
 
-    RelayFeatureFlags.MERGE_FETCH_AND_FRAGMENT_VARS = true;
-    RelayFeatureFlags.PREFER_FRAGMENT_OWNER_OVER_CONTEXT = true;
-
     environment = createMockEnvironment();
     ({UserFragment, UserQuery} = generateAndCompile(`
       query UserQuery($id: ID!) {
@@ -136,11 +133,6 @@ describe('ReactRelayFragmentContainer with fragment ownerhsip', () => {
         username: 'joe',
       },
     });
-  });
-
-  afterEach(() => {
-    RelayFeatureFlags.MERGE_FETCH_AND_FRAGMENT_VARS = false;
-    RelayFeatureFlags.PREFER_FRAGMENT_OWNER_OVER_CONTEXT = false;
   });
 
   it('resolves & subscribes fragment props', () => {

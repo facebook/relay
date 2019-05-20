@@ -40,6 +40,8 @@ describe('ReactRelayPaginationContainer', () => {
   let hasMore;
   let isLoading;
   let loadMore;
+  let ownerUser1;
+  let ownerUser2;
   let refetchConnection;
   let render;
   let variables;
@@ -168,7 +170,8 @@ describe('ReactRelayPaginationContainer', () => {
     );
 
     // Pre-populate the store with data
-    environment.commitPayload(createOperationDescriptor(UserQuery, variables), {
+    ownerUser1 = createOperationDescriptor(UserQuery, variables);
+    environment.commitPayload(ownerUser1, {
       node: {
         id: '4',
         __typename: 'User',
@@ -189,25 +192,23 @@ describe('ReactRelayPaginationContainer', () => {
         },
       },
     });
-    environment.commitPayload(
-      createOperationDescriptor(UserQuery, {
-        ...variables,
+    ownerUser2 = createOperationDescriptor(UserQuery, {
+      ...variables,
+      id: '842472',
+    });
+    environment.commitPayload(ownerUser2, {
+      node: {
         id: '842472',
-      }),
-      {
-        node: {
-          id: '842472',
-          __typename: 'User',
-          friends: {
-            edges: [],
-            pageInfo: {
-              endCursor: null,
-              hasNextPage: false,
-            },
+        __typename: 'User',
+        friends: {
+          edges: [],
+          pageInfo: {
+            endCursor: null,
+            hasNextPage: false,
           },
         },
       },
-    );
+    });
   });
 
   it('generates a name for containers', () => {
@@ -273,11 +274,8 @@ describe('ReactRelayPaginationContainer', () => {
   });
 
   it('resolves & subscribes fragment props', () => {
-    const userPointer = environment.lookup({
-      dataID: ROOT_ID,
-      node: UserQuery.fragment,
-      variables,
-    }).data.node;
+    const userPointer = environment.lookup(ownerUser1.fragment, ownerUser1).data
+      .node;
 
     ReactTestRenderer.create(
       <ContextSetter environment={environment} variables={variables}>
@@ -327,16 +325,13 @@ describe('ReactRelayPaginationContainer', () => {
         isViewerFriendLocal: false,
       },
       isMissingData: false,
-      owner: null,
+      owner: ownerUser1,
     });
   });
 
   it('re-renders on subscription callback', () => {
-    const userPointer = environment.lookup({
-      dataID: ROOT_ID,
-      node: UserQuery.fragment,
-      variables,
-    }).data.node;
+    const userPointer = environment.lookup(ownerUser1.fragment, ownerUser1).data
+      .node;
 
     ReactTestRenderer.create(
       <ContextSetter environment={environment} variables={variables}>
@@ -380,11 +375,8 @@ describe('ReactRelayPaginationContainer', () => {
   });
 
   it('resolves new props', () => {
-    let userPointer = environment.lookup({
-      dataID: ROOT_ID,
-      node: UserQuery.fragment,
-      variables,
-    }).data.node;
+    let userPointer = environment.lookup(ownerUser1.fragment, ownerUser1).data
+      .node;
     const instance = ReactTestRenderer.create(
       <ContextSetter environment={environment} variables={variables}>
         <TestContainer user={userPointer} />
@@ -394,14 +386,7 @@ describe('ReactRelayPaginationContainer', () => {
     environment.lookup.mockClear();
     environment.subscribe.mockClear();
 
-    userPointer = environment.lookup({
-      dataID: ROOT_ID,
-      node: UserQuery.fragment,
-      variables: {
-        ...variables,
-        id: '842472',
-      },
-    }).data.node;
+    userPointer = environment.lookup(ownerUser2.fragment, ownerUser2).data.node;
     instance.getInstance().setProps({
       user: userPointer,
     });
@@ -441,16 +426,13 @@ describe('ReactRelayPaginationContainer', () => {
         isViewerFriendLocal: false,
       },
       isMissingData: false,
-      owner: null,
+      owner: ownerUser2,
     });
   });
 
   it('resolves for new variables in context', () => {
-    const userPointer = environment.lookup({
-      dataID: ROOT_ID,
-      node: UserQuery.fragment,
-      variables,
-    }).data.node;
+    const userPointer = environment.lookup(ownerUser1.fragment, ownerUser1).data
+      .node;
 
     const instance = ReactTestRenderer.create(
       <ContextSetter environment={environment} variables={variables}>
@@ -509,7 +491,7 @@ describe('ReactRelayPaginationContainer', () => {
         isViewerFriendLocal: false,
       },
       isMissingData: false,
-      owner: null,
+      owner: ownerUser1,
     });
 
     // Data & Variables are passed to component
@@ -555,16 +537,13 @@ describe('ReactRelayPaginationContainer', () => {
         isViewerFriendLocal: false,
       },
       isMissingData: false,
-      owner: null,
+      owner: ownerUser1,
     });
   });
 
   it('does not update for same props/data', () => {
-    const userPointer = environment.lookup({
-      dataID: ROOT_ID,
-      node: UserQuery.fragment,
-      variables,
-    }).data.node;
+    const userPointer = environment.lookup(ownerUser1.fragment, ownerUser1).data
+      .node;
     const instance = ReactTestRenderer.create(
       <ContextSetter environment={environment} variables={variables}>
         <TestContainer user={userPointer} />
@@ -584,11 +563,8 @@ describe('ReactRelayPaginationContainer', () => {
   });
 
   it('does not update for equal scalar props', () => {
-    const userPointer = environment.lookup({
-      dataID: ROOT_ID,
-      node: UserQuery.fragment,
-      variables,
-    }).data.node;
+    const userPointer = environment.lookup(ownerUser1.fragment, ownerUser1).data
+      .node;
     const scalar = 42;
     const fn = () => null;
     const instance = ReactTestRenderer.create(
@@ -613,11 +589,8 @@ describe('ReactRelayPaginationContainer', () => {
   });
 
   it('updates for unequal function props', () => {
-    const userPointer = environment.lookup({
-      dataID: ROOT_ID,
-      node: UserQuery.fragment,
-      variables,
-    }).data.node;
+    const userPointer = environment.lookup(ownerUser1.fragment, ownerUser1).data
+      .node;
     const scalar = 42;
     const fn = () => null;
     const instance = ReactTestRenderer.create(
@@ -647,11 +620,8 @@ describe('ReactRelayPaginationContainer', () => {
   });
 
   it('updates for unequal scalar props', () => {
-    const userPointer = environment.lookup({
-      dataID: ROOT_ID,
-      node: UserQuery.fragment,
-      variables,
-    }).data.node;
+    const userPointer = environment.lookup(ownerUser1.fragment, ownerUser1).data
+      .node;
     const scalar = 42;
     const fn = () => null;
     const instance = ReactTestRenderer.create(
@@ -680,11 +650,8 @@ describe('ReactRelayPaginationContainer', () => {
   });
 
   it('always updates for non-scalar props', () => {
-    const userPointer = environment.lookup({
-      dataID: ROOT_ID,
-      node: UserQuery.fragment,
-      variables,
-    }).data.node;
+    const userPointer = environment.lookup(ownerUser1.fragment, ownerUser1).data
+      .node;
     const instance = ReactTestRenderer.create(
       <ContextSetter environment={environment} variables={variables}>
         <TestContainer arr={[]} obj={{}} user={userPointer} />
@@ -838,11 +805,8 @@ describe('ReactRelayPaginationContainer', () => {
 
   describe('hasMore()', () => {
     beforeEach(() => {
-      const userPointer = environment.lookup({
-        dataID: ROOT_ID,
-        node: UserQuery.fragment,
-        variables,
-      }).data.node;
+      const userPointer = environment.lookup(ownerUser1.fragment, ownerUser1)
+        .data.node;
       ReactTestRenderer.create(
         <ContextSetter environment={environment} variables={variables}>
           <TestContainer user={userPointer} />
@@ -955,11 +919,8 @@ describe('ReactRelayPaginationContainer', () => {
 
   describe('isLoading()', () => {
     beforeEach(() => {
-      const userPointer = environment.lookup({
-        dataID: ROOT_ID,
-        node: UserQuery.fragment,
-        variables,
-      }).data.node;
+      const userPointer = environment.lookup(ownerUser1.fragment, ownerUser1)
+        .data.node;
       environment.mock.clearCache();
       ReactTestRenderer.create(
         <ContextSetter environment={environment} variables={variables}>
@@ -1070,11 +1031,9 @@ describe('ReactRelayPaginationContainer', () => {
         references.push(ref);
         return ref;
       };
-      const userPointer = environment.lookup({
-        dataID: ROOT_ID,
-        node: UserQuery.fragment,
-        variables,
-      }).data.node;
+      const userPointer = environment.lookup(ownerUser1.fragment, ownerUser1)
+        .data.node;
+
       environment.mock.clearCache();
       instance = ReactTestRenderer.create(
         <ContextSetter environment={environment} variables={variables}>
@@ -1321,11 +1280,8 @@ describe('ReactRelayPaginationContainer', () => {
     it('continues the fetch if new props refer to the same records', () => {
       loadMore(1, jest.fn());
       const subscription = environment.execute.mock.subscriptions[0];
-      const userPointer = environment.lookup({
-        dataID: ROOT_ID,
-        node: UserQuery.fragment,
-        variables, // same user
-      }).data.node;
+      const userPointer = environment.lookup(ownerUser1.fragment, ownerUser1)
+        .data.node;
       instance.getInstance().setProps({user: userPointer});
       expect(subscription.closed).toBe(false);
     });
@@ -1333,17 +1289,8 @@ describe('ReactRelayPaginationContainer', () => {
     it('cancels the fetch if new props refer to different records', () => {
       loadMore(1, jest.fn());
       const subscription = environment.execute.mock.subscriptions[0];
-      const userPointer = environment.lookup({
-        dataID: ROOT_ID,
-        node: UserQuery.fragment,
-        variables: {
-          after: null,
-          count: 1,
-          id: '842472',
-          isViewerFriend: false,
-          orderby: ['name'],
-        },
-      }).data.node;
+      const userPointer = environment.lookup(ownerUser2.fragment, ownerUser2)
+        .data.node;
       instance.getInstance().setProps({user: userPointer});
       expect(subscription.closed).toBe(true);
     });
@@ -1361,11 +1308,8 @@ describe('ReactRelayPaginationContainer', () => {
           },
         },
       });
-      const userPointer = environment.lookup({
-        dataID: ROOT_ID,
-        node: UserQuery.fragment,
-        variables, // same user
-      }).data.node;
+      const userPointer = environment.lookup(ownerUser1.fragment, ownerUser1)
+        .data.node;
       instance.getInstance().setProps({user: userPointer});
       expect(references.length).toBe(1);
       expect(references[0].dispose).not.toBeCalled();
@@ -1384,17 +1328,8 @@ describe('ReactRelayPaginationContainer', () => {
           },
         },
       });
-      const userPointer = environment.lookup({
-        dataID: ROOT_ID,
-        node: UserQuery.fragment,
-        variables: {
-          after: null,
-          first: 1,
-          id: '842472', // different user
-          isViewerFriend: false,
-          orderby: ['name'],
-        },
-      }).data.node;
+      const userPointer = environment.lookup(ownerUser2.fragment, ownerUser2)
+        .data.node;
       instance.getInstance().setProps({user: userPointer});
       expect(references.length).toBe(1);
       expect(references[0].dispose).toBeCalled();
@@ -1419,11 +1354,8 @@ describe('ReactRelayPaginationContainer', () => {
     });
 
     it('should not load more data if container is unmounted', () => {
-      const userPointer = environment.lookup({
-        dataID: ROOT_ID,
-        node: UserQuery.fragment,
-        variables,
-      }).data.node;
+      const userPointer = environment.lookup(ownerUser1.fragment, ownerUser1)
+        .data.node;
       instance = ReactTestRenderer.create(
         <ContextSetter environment={environment} variables={variables}>
           <TestContainer user={userPointer} />
@@ -1449,11 +1381,8 @@ describe('ReactRelayPaginationContainer', () => {
         references.push(ref);
         return ref;
       };
-      const userPointer = environment.lookup({
-        dataID: ROOT_ID,
-        node: UserQuery.fragment,
-        variables,
-      }).data.node;
+      const userPointer = environment.lookup(ownerUser1.fragment, ownerUser1)
+        .data.node;
       instance = ReactTestRenderer.create(
         <ContextSetter environment={environment} variables={variables}>
           <TestContainer user={userPointer} />
@@ -1701,11 +1630,8 @@ describe('ReactRelayPaginationContainer', () => {
     it('continues the fetch if new props refer to the same records', () => {
       refetchConnection(1, jest.fn());
       const subscription = environment.execute.mock.subscriptions[0];
-      const userPointer = environment.lookup({
-        dataID: ROOT_ID,
-        node: UserQuery.fragment,
-        variables, // same user
-      }).data.node;
+      const userPointer = environment.lookup(ownerUser1.fragment, ownerUser1)
+        .data.node;
       instance.getInstance().setProps({user: userPointer});
       expect(subscription.closed).toBe(false);
     });
@@ -1713,17 +1639,8 @@ describe('ReactRelayPaginationContainer', () => {
     it('cancels the fetch if new props refer to different records', () => {
       refetchConnection(1, jest.fn());
       const subscription = environment.execute.mock.subscriptions[0];
-      const userPointer = environment.lookup({
-        dataID: ROOT_ID,
-        node: UserQuery.fragment,
-        variables: {
-          after: null,
-          count: 1,
-          id: '842472',
-          isViewerFriend: false,
-          orderby: ['name'],
-        },
-      }).data.node;
+      const userPointer = environment.lookup(ownerUser2.fragment, ownerUser2)
+        .data.node;
       instance.getInstance().setProps({user: userPointer});
       expect(subscription.closed).toBe(true);
     });
@@ -1741,11 +1658,8 @@ describe('ReactRelayPaginationContainer', () => {
           },
         },
       });
-      const userPointer = environment.lookup({
-        dataID: ROOT_ID,
-        node: UserQuery.fragment,
-        variables, // same user
-      }).data.node;
+      const userPointer = environment.lookup(ownerUser1.fragment, ownerUser1)
+        .data.node;
       instance.getInstance().setProps({user: userPointer});
       expect(references.length).toBe(1);
       expect(references[0].dispose).not.toBeCalled();
@@ -1764,17 +1678,8 @@ describe('ReactRelayPaginationContainer', () => {
           },
         },
       });
-      const userPointer = environment.lookup({
-        dataID: ROOT_ID,
-        node: UserQuery.fragment,
-        variables: {
-          after: null,
-          first: 1,
-          id: '842472', // different user
-          isViewerFriend: false,
-          orderby: ['name'],
-        },
-      }).data.node;
+      const userPointer = environment.lookup(ownerUser2.fragment, ownerUser2)
+        .data.node;
       instance.getInstance().setProps({user: userPointer});
       expect(references.length).toBe(1);
       expect(references[0].dispose).toBeCalled();
@@ -1901,11 +1806,8 @@ describe('ReactRelayPaginationContainer', () => {
     });
 
     it('should not refetch connection if container is unmounted', () => {
-      const userPointer = environment.lookup({
-        dataID: ROOT_ID,
-        node: UserQuery.fragment,
-        variables,
-      }).data.node;
+      const userPointer = environment.lookup(ownerUser1.fragment, ownerUser1)
+        .data.node;
       instance = ReactTestRenderer.create(
         <ContextSetter environment={environment} variables={variables}>
           <TestContainer user={userPointer} />

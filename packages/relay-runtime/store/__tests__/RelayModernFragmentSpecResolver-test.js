@@ -29,7 +29,9 @@ describe('RelayModernFragmentSpecResolver', () => {
   let context;
   let environment;
   let zuck;
+  let zuckOperation;
   let beast;
+  let beastOperation;
   let variables;
 
   function setName(id, name) {
@@ -81,44 +83,33 @@ describe('RelayModernFragmentSpecResolver', () => {
         }
       }
     `));
-    environment.commitPayload(
-      createOperationDescriptor(UserQuery, {
-        fetchSize: false,
+    zuckOperation = createOperationDescriptor(UserQuery, {
+      fetchSize: false,
+      id: '4',
+      size: null,
+    });
+    beastOperation = createOperationDescriptor(UserQuery, {
+      fetchSize: false,
+      id: 'beast',
+      size: null,
+    });
+    environment.commitPayload(zuckOperation, {
+      node: {
         id: '4',
-        size: null,
-      }),
-      {
-        node: {
-          id: '4',
-          __typename: 'User',
-          name: 'Zuck',
-        },
+        __typename: 'User',
+        name: 'Zuck',
       },
-    );
-    environment.commitPayload(
-      createOperationDescriptor(UserQuery, {
-        fetchSize: false,
+    });
+    environment.commitPayload(beastOperation, {
+      node: {
         id: 'beast',
-        size: null,
-      }),
-      {
-        node: {
-          id: 'beast',
-          __typename: 'User',
-          name: 'Beast',
-        },
+        __typename: 'User',
+        name: 'Beast',
       },
-    );
-    zuck = environment.lookup({
-      dataID: ROOT_ID,
-      node: UserQuery.fragment,
-      variables: {id: '4'},
-    }).data.node;
-    beast = environment.lookup({
-      dataID: ROOT_ID,
-      node: UserQuery.fragment,
-      variables: {id: 'beast'},
-    }).data.node;
+    });
+    zuck = environment.lookup(zuckOperation.fragment, zuckOperation).data.node;
+    beast = environment.lookup(beastOperation.fragment, beastOperation).data
+      .node;
 
     variables = {
       fetchSize: false,

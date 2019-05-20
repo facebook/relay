@@ -32,6 +32,8 @@ describe('ReactRelayRefetchContainer', () => {
   let UserQuery;
 
   let environment;
+  let ownerUser1;
+  let ownerUser2;
   let refetch;
   let render;
   let variables;
@@ -125,23 +127,22 @@ describe('ReactRelayRefetchContainer', () => {
     );
 
     // Pre-populate the store with data
-    environment.commitPayload(createOperationDescriptor(UserQuery, {id: '4'}), {
+    ownerUser1 = createOperationDescriptor(UserQuery, {id: '4'});
+    environment.commitPayload(ownerUser1, {
       node: {
         id: '4',
         __typename: 'User',
         name: 'Zuck',
       },
     });
-    environment.commitPayload(
-      createOperationDescriptor(UserQuery, {id: '842472'}),
-      {
-        node: {
-          id: '842472',
-          __typename: 'User',
-          name: 'Joe',
-        },
+    ownerUser2 = createOperationDescriptor(UserQuery, {id: '842472'});
+    environment.commitPayload(ownerUser2, {
+      node: {
+        id: '842472',
+        __typename: 'User',
+        name: 'Joe',
       },
-    );
+    });
   });
 
   it('generates a name for containers', () => {
@@ -211,11 +212,8 @@ describe('ReactRelayRefetchContainer', () => {
   });
 
   it('resolves & subscribes fragment props', () => {
-    const userPointer = environment.lookup({
-      dataID: ROOT_ID,
-      node: UserQuery.fragment,
-      variables: {id: '4'},
-    }).data.node;
+    const userPointer = environment.lookup(ownerUser1.fragment, ownerUser1).data
+      .node;
 
     ReactTestRenderer.create(
       <ContextSetter environment={environment} variables={variables}>
@@ -246,16 +244,13 @@ describe('ReactRelayRefetchContainer', () => {
       seenRecords: expect.any(Object),
       variables: {cond: true},
       isMissingData: false,
-      owner: null,
+      owner: ownerUser1,
     });
   });
 
   it('re-renders on subscription callback', () => {
-    const userPointer = environment.lookup({
-      dataID: ROOT_ID,
-      node: UserQuery.fragment,
-      variables: {id: '4'},
-    }).data.node;
+    const userPointer = environment.lookup(ownerUser1.fragment, ownerUser1).data
+      .node;
 
     ReactTestRenderer.create(
       <ContextSetter environment={environment} variables={variables}>
@@ -296,11 +291,8 @@ describe('ReactRelayRefetchContainer', () => {
   });
 
   it('resolves new props', () => {
-    let userPointer = environment.lookup({
-      dataID: ROOT_ID,
-      node: UserQuery.fragment,
-      variables: {id: '4'},
-    }).data.node;
+    let userPointer = environment.lookup(ownerUser1.fragment, ownerUser1).data
+      .node;
     const instance = ReactTestRenderer.create(
       <ContextSetter environment={environment} variables={variables}>
         <TestContainer user={userPointer} />
@@ -310,11 +302,7 @@ describe('ReactRelayRefetchContainer', () => {
     environment.lookup.mockClear();
     environment.subscribe.mockClear();
 
-    userPointer = environment.lookup({
-      dataID: ROOT_ID,
-      node: UserQuery.fragment,
-      variables: {id: '842472'},
-    }).data.node;
+    userPointer = environment.lookup(ownerUser2.fragment, ownerUser2).data.node;
     instance.getInstance().setProps({
       user: userPointer,
     });
@@ -343,16 +331,13 @@ describe('ReactRelayRefetchContainer', () => {
       seenRecords: expect.any(Object),
       variables: {cond: true},
       isMissingData: false,
-      owner: null,
+      owner: ownerUser2,
     });
   });
 
   it('resolves for new variables in context', () => {
-    const userPointer = environment.lookup({
-      dataID: ROOT_ID,
-      node: UserQuery.fragment,
-      variables: {id: '4'},
-    }).data.node;
+    const userPointer = environment.lookup(ownerUser1.fragment, ownerUser1).data
+      .node;
     const instance = ReactTestRenderer.create(
       <ContextSetter environment={environment} variables={variables}>
         <TestContainer user={userPointer} />
@@ -391,16 +376,13 @@ describe('ReactRelayRefetchContainer', () => {
       seenRecords: expect.any(Object),
       variables: {cond: true},
       isMissingData: false,
-      owner: null,
+      owner: ownerUser1,
     });
   });
 
   it('does not update for same props/data', () => {
-    const userPointer = environment.lookup({
-      dataID: ROOT_ID,
-      node: UserQuery.fragment,
-      variables: {id: '4'},
-    }).data.node;
+    const userPointer = environment.lookup(ownerUser1.fragment, ownerUser1).data
+      .node;
     const instance = ReactTestRenderer.create(
       <ContextSetter environment={environment} variables={variables}>
         <TestContainer user={userPointer} />
@@ -420,11 +402,8 @@ describe('ReactRelayRefetchContainer', () => {
   });
 
   it('does not update for equal scalar props', () => {
-    const userPointer = environment.lookup({
-      dataID: ROOT_ID,
-      node: UserQuery.fragment,
-      variables: {id: '4'},
-    }).data.node;
+    const userPointer = environment.lookup(ownerUser1.fragment, ownerUser1).data
+      .node;
     const scalar = 42;
     const fn = () => null;
     const instance = ReactTestRenderer.create(
@@ -449,11 +428,8 @@ describe('ReactRelayRefetchContainer', () => {
   });
 
   it('updates for unequal function props', () => {
-    const userPointer = environment.lookup({
-      dataID: ROOT_ID,
-      node: UserQuery.fragment,
-      variables: {id: '4'},
-    }).data.node;
+    const userPointer = environment.lookup(ownerUser1.fragment, ownerUser1).data
+      .node;
     const scalar = 42;
     const fn = () => null;
     const instance = ReactTestRenderer.create(
@@ -483,11 +459,8 @@ describe('ReactRelayRefetchContainer', () => {
   });
 
   it('updates for unequal scalar props', () => {
-    const userPointer = environment.lookup({
-      dataID: ROOT_ID,
-      node: UserQuery.fragment,
-      variables: {id: '4'},
-    }).data.node;
+    const userPointer = environment.lookup(ownerUser1.fragment, ownerUser1).data
+      .node;
     const scalar = 42;
     const fn = () => null;
     const instance = ReactTestRenderer.create(
@@ -516,11 +489,8 @@ describe('ReactRelayRefetchContainer', () => {
   });
 
   it('always updates for non-scalar props', () => {
-    const userPointer = environment.lookup({
-      dataID: ROOT_ID,
-      node: UserQuery.fragment,
-      variables: {id: '4'},
-    }).data.node;
+    const userPointer = environment.lookup(ownerUser1.fragment, ownerUser1).data
+      .node;
     const instance = ReactTestRenderer.create(
       <ContextSetter environment={environment} variables={variables}>
         <TestContainer arr={[]} obj={{}} user={userPointer} />
@@ -559,11 +529,8 @@ describe('ReactRelayRefetchContainer', () => {
         references.push(ref);
         return ref;
       };
-      const userPointer = environment.lookup({
-        dataID: ROOT_ID,
-        node: UserQuery.fragment,
-        variables: {id: '4'},
-      }).data.node;
+      const userPointer = environment.lookup(ownerUser1.fragment, ownerUser1)
+        .data.node;
       environment.mock.clearCache();
       instance = ReactTestRenderer.create(
         <ContextSetter environment={environment} variables={variables}>
@@ -776,11 +743,8 @@ describe('ReactRelayRefetchContainer', () => {
       };
       refetch(variables, null, jest.fn());
       const subscription = environment.execute.mock.subscriptions[0];
-      const userPointer = environment.lookup({
-        dataID: ROOT_ID,
-        node: UserQuery.fragment,
-        variables: {id: '4'}, // same user
-      }).data.node;
+      const userPointer = environment.lookup(ownerUser1.fragment, ownerUser1)
+        .data.node;
       instance.getInstance().setProps({user: userPointer});
       expect(subscription.closed).toBe(false);
     });
@@ -792,11 +756,8 @@ describe('ReactRelayRefetchContainer', () => {
       };
       refetch(variables, null, jest.fn());
       const subscription = environment.execute.mock.subscriptions[0];
-      const userPointer = environment.lookup({
-        dataID: ROOT_ID,
-        node: UserQuery.fragment,
-        variables: {id: '842472'}, // different user
-      }).data.node;
+      const userPointer = environment.lookup(ownerUser2.fragment, ownerUser2)
+        .data.node;
       instance.getInstance().setProps({user: userPointer});
       expect(subscription.closed).toBe(true);
     });
@@ -816,11 +777,8 @@ describe('ReactRelayRefetchContainer', () => {
           },
         },
       });
-      const userPointer = environment.lookup({
-        dataID: ROOT_ID,
-        node: UserQuery.fragment,
-        variables: {id: '4'}, // same user
-      }).data.node;
+      const userPointer = environment.lookup(ownerUser1.fragment, ownerUser1)
+        .data.node;
       instance.getInstance().setProps({user: userPointer});
       expect(references.length).toBe(1);
       expect(references[0].dispose).not.toBeCalled();
@@ -841,11 +799,8 @@ describe('ReactRelayRefetchContainer', () => {
           },
         },
       });
-      const userPointer = environment.lookup({
-        dataID: ROOT_ID,
-        node: UserQuery.fragment,
-        variables: {id: '842472'}, // different user
-      }).data.node;
+      const userPointer = environment.lookup(ownerUser2.fragment, ownerUser2)
+        .data.node;
       instance.getInstance().setProps({user: userPointer});
       expect(references.length).toBe(1);
       expect(references[0].dispose).toBeCalled();
@@ -945,11 +900,8 @@ describe('ReactRelayRefetchContainer', () => {
     });
 
     it('should not refetch data is container unmounted', () => {
-      const userPointer = environment.lookup({
-        dataID: ROOT_ID,
-        node: UserQuery.fragment,
-        variables: {id: '4'},
-      }).data.node;
+      const userPointer = environment.lookup(ownerUser1.fragment, ownerUser1)
+        .data.node;
 
       class TestContainerWrapper extends React.Component {
         state = {

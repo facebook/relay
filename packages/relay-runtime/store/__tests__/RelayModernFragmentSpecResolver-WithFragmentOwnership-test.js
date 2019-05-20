@@ -10,7 +10,6 @@
 
 'use strict';
 
-const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
 const RelayModernFragmentSpecResolver = require('../RelayModernFragmentSpecResolver');
 
 const {
@@ -78,9 +77,6 @@ describe('RelayModernFragmentSpecResolver with fragment ownership', () => {
   beforeEach(() => {
     expect.extend(matchers);
 
-    RelayFeatureFlags.MERGE_FETCH_AND_FRAGMENT_VARS = true;
-    RelayFeatureFlags.PREFER_FRAGMENT_OWNER_OVER_CONTEXT = true;
-
     environment = createMockEnvironment();
     ({UserFragment, UserQuery, UsersFragment} = generateAndCompile(
       `
@@ -147,11 +143,6 @@ describe('RelayModernFragmentSpecResolver with fragment ownership', () => {
       size: null,
     };
     context = {environment, variables};
-  });
-
-  afterEach(() => {
-    RelayFeatureFlags.MERGE_FETCH_AND_FRAGMENT_VARS = false;
-    RelayFeatureFlags.PREFER_FRAGMENT_OWNER_OVER_CONTEXT = false;
   });
 
   it('ignores non-fragment data, sets missing fragment props to null', () => {

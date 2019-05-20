@@ -10,15 +10,8 @@
 
 'use strict';
 
-type FeatureFlags = {|
-  // Configurable
-  MERGE_FETCH_AND_FRAGMENT_VARS: boolean,
-  PREFER_FRAGMENT_OWNER_OVER_CONTEXT: boolean,
-|};
+type FeatureFlags = {};
 
-const RelayFeatureFlags: FeatureFlags = {
-  MERGE_FETCH_AND_FRAGMENT_VARS: false,
-  PREFER_FRAGMENT_OWNER_OVER_CONTEXT: false,
-};
+const RelayFeatureFlags: FeatureFlags = {};
 
 module.exports = RelayFeatureFlags;

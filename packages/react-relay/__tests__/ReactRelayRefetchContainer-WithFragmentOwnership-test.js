@@ -112,9 +112,6 @@ describe('ReactRelayRefetchContainer with fragment ownerhsip', () => {
     jest.resetModules();
     expect.extend(matchers);
 
-    RelayFeatureFlags.MERGE_FETCH_AND_FRAGMENT_VARS = true;
-    RelayFeatureFlags.PREFER_FRAGMENT_OWNER_OVER_CONTEXT = true;
-
     environment = createMockEnvironment();
     ({UserFragment, UserFriendFragment, UserQuery} = generateAndCompile(`
       query UserQuery(
@@ -179,11 +176,6 @@ describe('ReactRelayRefetchContainer with fragment ownerhsip', () => {
         },
       },
     });
-  });
-
-  afterEach(() => {
-    RelayFeatureFlags.MERGE_FETCH_AND_FRAGMENT_VARS = false;
-    RelayFeatureFlags.PREFER_FRAGMENT_OWNER_OVER_CONTEXT = false;
   });
 
   describe('refetch()', () => {

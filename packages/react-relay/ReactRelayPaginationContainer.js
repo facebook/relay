@@ -27,7 +27,6 @@ const {
 const {assertRelayContext} = require('./RelayContext');
 const {
   ConnectionInterface,
-  RelayFeatureFlags,
   Observable,
   getFragmentOwners,
   isScalarAndEqual,
@@ -681,39 +680,30 @@ function createContainerWithFragments<
       };
       let rootVariables;
       let fragmentVariables;
-      if (RelayFeatureFlags.PREFER_FRAGMENT_OWNER_OVER_CONTEXT) {
-        const fragmentOwners = getFragmentOwners(fragments, restProps);
-        // NOTE: rootVariables are spread down below in a couple of places,
-        // so we compute them here from the fragment owners.
-        // For extra safety, we make sure the rootVariables include the
-        // variables from all owners in this fragmentSpec, even though they
-        // should all point to the same owner
-        forEachObject(fragments, (__, key) => {
-          const fragmentOwner = fragmentOwners[key];
-          const fragmentOwnerVariables = Array.isArray(fragmentOwner)
-            ? fragmentOwner[0]?.variables ?? {}
-            : fragmentOwner?.variables ?? {};
-          rootVariables = {
-            ...rootVariables,
-            ...fragmentOwnerVariables,
-          };
-        });
-        fragmentVariables = getVariablesFromObject(
-          // NOTE: We pass empty operationVariables because we want to prefer
-          // the variables from the fragment owner
-          {},
-          fragments,
-          restProps,
-          fragmentOwners,
-        );
-      } else {
-        rootVariables = this.props.__relayContext.variables;
-        fragmentVariables = getVariablesFromObject(
-          rootVariables,
-          fragments,
-          restProps,
-        );
-      }
+      const fragmentOwners = getFragmentOwners(fragments, restProps);
+      // NOTE: rootVariables are spread down below in a couple of places,
+      // so we compute them here from the fragment owners.
+      // For extra safety, we make sure the rootVariables include the
+      // variables from all owners in this fragmentSpec, even though they
+      // should all point to the same owner
+      forEachObject(fragments, (__, key) => {
+        const fragmentOwner = fragmentOwners[key];
+        const fragmentOwnerVariables = Array.isArray(fragmentOwner)
+          ? fragmentOwner[0]?.variables ?? {}
+          : fragmentOwner?.variables ?? {};
+        rootVariables = {
+          ...rootVariables,
+          ...fragmentOwnerVariables,
+        };
+      });
+      fragmentVariables = getVariablesFromObject(
+        // NOTE: We pass empty operationVariables because we want to prefer
+        // the variables from the fragment owner
+        {},
+        fragments,
+        restProps,
+        fragmentOwners,
+      );
       fragmentVariables = {
         ...rootVariables,
         ...fragmentVariables,
@@ -738,12 +728,10 @@ function createContainerWithFragments<
         ...fetchVariables,
         ...this._refetchVariables,
       };
-      if (RelayFeatureFlags.MERGE_FETCH_AND_FRAGMENT_VARS) {
-        fragmentVariables = {
-          ...fetchVariables,
-          ...fragmentVariables,
-        };
-      }
+      fragmentVariables = {
+        ...fetchVariables,
+        ...fragmentVariables,
+      };
 
       const cacheConfig: ?CacheConfig = options
         ? {force: !!options.force}

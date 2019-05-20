@@ -15,7 +15,7 @@ const ReactRelayContext = require('../ReactRelayContext');
 const ReactRelayFragmentContainer = require('../ReactRelayFragmentContainer');
 const ReactTestRenderer = require('ReactTestRenderer');
 
-const {createOperationDescriptor, ROOT_ID} = require('relay-runtime');
+const {createOperationDescriptor} = require('relay-runtime');
 const {
   createMockEnvironment,
   matchers,
@@ -30,6 +30,8 @@ describe('ReactRelayFragmentContainer', () => {
   let UserQuery;
 
   let environment;
+  let ownerUser1;
+  let ownerUser2;
   let render;
   let spec;
   let variables;
@@ -109,23 +111,22 @@ describe('ReactRelayFragmentContainer', () => {
     );
 
     // Pre-populate the store with data
-    environment.commitPayload(createOperationDescriptor(UserQuery, {id: '4'}), {
+    ownerUser1 = createOperationDescriptor(UserQuery, {id: '4'});
+    environment.commitPayload(ownerUser1, {
       node: {
         id: '4',
         __typename: 'User',
         name: 'Zuck',
       },
     });
-    environment.commitPayload(
-      createOperationDescriptor(UserQuery, {id: '842472'}),
-      {
-        node: {
-          id: '842472',
-          __typename: 'User',
-          name: 'Joe',
-        },
+    ownerUser2 = createOperationDescriptor(UserQuery, {id: '842472'});
+    environment.commitPayload(ownerUser2, {
+      node: {
+        id: '842472',
+        __typename: 'User',
+        name: 'Joe',
       },
-    );
+    });
   });
 
   it('generates a name for containers', () => {
@@ -200,11 +201,8 @@ describe('ReactRelayFragmentContainer', () => {
   });
 
   it('resolves & subscribes fragment props', () => {
-    const userPointer = environment.lookup({
-      dataID: ROOT_ID,
-      node: UserQuery.fragment,
-      variables: {id: '4'},
-    }).data.node;
+    const userPointer = environment.lookup(ownerUser1.fragment, ownerUser1).data
+      .node;
 
     ReactTestRenderer.create(
       <ContextSetter environment={environment} variables={variables}>
@@ -234,16 +232,13 @@ describe('ReactRelayFragmentContainer', () => {
       seenRecords: expect.any(Object),
       variables: {cond: true},
       isMissingData: false,
-      owner: null,
+      owner: ownerUser1,
     });
   });
 
   it('re-renders on subscription callback', () => {
-    const userPointer = environment.lookup({
-      dataID: ROOT_ID,
-      node: UserQuery.fragment,
-      variables: {id: '4'},
-    }).data.node;
+    const userPointer = environment.lookup(ownerUser1.fragment, ownerUser1).data
+      .node;
 
     ReactTestRenderer.create(
       <ContextSetter environment={environment} variables={variables}>
@@ -283,11 +278,8 @@ describe('ReactRelayFragmentContainer', () => {
   });
 
   it('resolves new props', () => {
-    let userPointer = environment.lookup({
-      dataID: ROOT_ID,
-      node: UserQuery.fragment,
-      variables: {id: '4'},
-    }).data.node;
+    let userPointer = environment.lookup(ownerUser1.fragment, ownerUser1).data
+      .node;
     const instance = ReactTestRenderer.create(
       <ContextSetter environment={environment} variables={variables}>
         <TestContainer user={userPointer} />
@@ -297,11 +289,7 @@ describe('ReactRelayFragmentContainer', () => {
     environment.lookup.mockClear();
     environment.subscribe.mockClear();
 
-    userPointer = environment.lookup({
-      dataID: ROOT_ID,
-      node: UserQuery.fragment,
-      variables: {id: '842472'},
-    }).data.node;
+    userPointer = environment.lookup(ownerUser2.fragment, ownerUser2).data.node;
     instance.getInstance().setProps({
       user: userPointer,
     });
@@ -329,16 +317,13 @@ describe('ReactRelayFragmentContainer', () => {
       seenRecords: expect.any(Object),
       variables: {cond: true},
       isMissingData: false,
-      owner: null,
+      owner: ownerUser2,
     });
   });
 
   it('resolves for new variables in context', () => {
-    const userPointer = environment.lookup({
-      dataID: ROOT_ID,
-      node: UserQuery.fragment,
-      variables: {id: '4'},
-    }).data.node;
+    const userPointer = environment.lookup(ownerUser1.fragment, ownerUser1).data
+      .node;
     const instance = ReactTestRenderer.create(
       <ContextSetter environment={environment} variables={variables}>
         <TestContainer user={userPointer} />
@@ -373,16 +358,13 @@ describe('ReactRelayFragmentContainer', () => {
       seenRecords: expect.any(Object),
       variables: {cond: true},
       isMissingData: false,
-      owner: null,
+      owner: ownerUser1,
     });
   });
 
   it('does not update for same props/data', () => {
-    const userPointer = environment.lookup({
-      dataID: ROOT_ID,
-      node: UserQuery.fragment,
-      variables: {id: '4'},
-    }).data.node;
+    const userPointer = environment.lookup(ownerUser1.fragment, ownerUser1).data
+      .node;
     const instance = ReactTestRenderer.create(
       <ContextSetter environment={environment} variables={variables}>
         <TestContainer user={userPointer} />
@@ -402,11 +384,8 @@ describe('ReactRelayFragmentContainer', () => {
   });
 
   it('does not update for equal scalar props', () => {
-    const userPointer = environment.lookup({
-      dataID: ROOT_ID,
-      node: UserQuery.fragment,
-      variables: {id: '4'},
-    }).data.node;
+    const userPointer = environment.lookup(ownerUser1.fragment, ownerUser1).data
+      .node;
     const scalar = 42;
     const fn = () => null;
     const instance = ReactTestRenderer.create(
@@ -431,11 +410,8 @@ describe('ReactRelayFragmentContainer', () => {
   });
 
   it('updates for unequal function props', () => {
-    const userPointer = environment.lookup({
-      dataID: ROOT_ID,
-      node: UserQuery.fragment,
-      variables: {id: '4'},
-    }).data.node;
+    const userPointer = environment.lookup(ownerUser1.fragment, ownerUser1).data
+      .node;
     const scalar = 42;
     const fn = () => null;
     const instance = ReactTestRenderer.create(
@@ -465,11 +441,8 @@ describe('ReactRelayFragmentContainer', () => {
   });
 
   it('updates for unequal scalar props', () => {
-    const userPointer = environment.lookup({
-      dataID: ROOT_ID,
-      node: UserQuery.fragment,
-      variables: {id: '4'},
-    }).data.node;
+    const userPointer = environment.lookup(ownerUser1.fragment, ownerUser1).data
+      .node;
     const scalar = 42;
     const fn = () => null;
     const instance = ReactTestRenderer.create(
@@ -498,11 +471,8 @@ describe('ReactRelayFragmentContainer', () => {
   });
 
   it('always updates for non-scalar props', () => {
-    const userPointer = environment.lookup({
-      dataID: ROOT_ID,
-      node: UserQuery.fragment,
-      variables: {id: '4'},
-    }).data.node;
+    const userPointer = environment.lookup(ownerUser1.fragment, ownerUser1).data
+      .node;
     const instance = ReactTestRenderer.create(
       <ContextSetter environment={environment} variables={variables}>
         <TestContainer arr={[]} obj={{}} user={userPointer} />

@@ -475,7 +475,7 @@ describe('RelayModernSelector', () => {
       });
     });
 
-    describe('with owner', () => {
+    describe('with fragment owner', () => {
       beforeEach(() => {
         const queryNode = getRequest(UserQuery);
         owner = createOperationDescriptor(queryNode, operationVariables);
@@ -935,7 +935,7 @@ describe('RelayModernSelector', () => {
       });
     });
 
-    describe('with owner', () => {
+    describe('with fragment owner', () => {
       beforeEach(() => {
         const queryNode = getRequest(UserQuery);
         owner = createOperationDescriptor(queryNode, inputVariables);
@@ -1184,9 +1184,7 @@ describe('RelayModernSelector', () => {
       expect(areEqualSelectors(selector, clone)).toBe(true);
     });
 
-    it('returns true for equivalent selectors with different owners when fragment ownership is disabled', () => {
-      RelayFeatureFlags.PREFER_FRAGMENT_OWNER_OVER_CONTEXT = false;
-
+    it('returns false for equivalent selectors but with different owners', () => {
       const queryNode = getRequest(UserQuery);
       owner = createOperationDescriptor(queryNode, operationVariables);
       const selector = {
@@ -1207,19 +1205,16 @@ describe('RelayModernSelector', () => {
       expect(areEqualSelectors(selector, selector)).toBe(true);
       expect(areEqualSelectors(selector, clone)).toBe(true);
 
-      // Even if the owner is different, areEqualSelectors should return true
-      // if the 2 selectors represent the same selection and fragment ownership
-      // is disabled
+      // Even if the owner is different, areEqualSelectors should return false
+      // if the 2 selectors represent the same selection
       const differentOwner = {
         ...selector,
         owner: {...owner, variables: {}},
       };
-      expect(areEqualSelectors(selector, differentOwner)).toBe(true);
+      expect(areEqualSelectors(selector, differentOwner)).toBe(false);
     });
 
     it('returns true for equivalent selectors with same owners when fragment ownership is enabled', () => {
-      RelayFeatureFlags.PREFER_FRAGMENT_OWNER_OVER_CONTEXT = true;
-
       const queryNode = getRequest(UserQuery);
       owner = createOperationDescriptor(queryNode, operationVariables);
       const selector = {
@@ -1239,8 +1234,6 @@ describe('RelayModernSelector', () => {
       };
       expect(areEqualSelectors(selector, selector)).toBe(true);
       expect(areEqualSelectors(selector, clone)).toBe(true);
-
-      RelayFeatureFlags.PREFER_FRAGMENT_OWNER_OVER_CONTEXT = false;
     });
 
     it('returns false for different selectors', () => {
@@ -1271,8 +1264,6 @@ describe('RelayModernSelector', () => {
     });
 
     it('returns false for different selectors with owners', () => {
-      RelayFeatureFlags.PREFER_FRAGMENT_OWNER_OVER_CONTEXT = true;
-
       const queryNode = getRequest(UserQuery);
       owner = createOperationDescriptor(queryNode, operationVariables);
       const readerSelector = {
@@ -1304,8 +1295,6 @@ describe('RelayModernSelector', () => {
       expect(areEqualSelectors(selector, differentNode)).toBe(false);
       expect(areEqualSelectors(selector, differentVars)).toBe(false);
       expect(areEqualSelectors(selector, differentOwner)).toBe(false);
-
-      RelayFeatureFlags.PREFER_FRAGMENT_OWNER_OVER_CONTEXT = false;
     });
   });
 });

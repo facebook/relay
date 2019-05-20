@@ -10,8 +10,6 @@
 
 'use strict';
 
-const RelayFeatureFlags = require('../util/RelayFeatureFlags');
-
 const areEqual = require('areEqual');
 const invariant = require('invariant');
 const isScalarAndEqual = require('../util/isScalarAndEqual');
@@ -131,16 +129,14 @@ class RelayModernFragmentSpecResolver implements FragmentSpecResolver {
   }
 
   setProps(props: Props): void {
-    const ownedSelectors = RelayFeatureFlags.PREFER_FRAGMENT_OWNER_OVER_CONTEXT
-      ? getSelectorsFromObject(
-          // NOTE: We pass empty operationVariables because we want to prefer
-          // the variables from the fragment owner
-          {},
-          this._fragments,
-          props,
-          getFragmentOwners(this._fragments, props),
-        )
-      : getSelectorsFromObject(this._context.variables, this._fragments, props);
+    const ownedSelectors = getSelectorsFromObject(
+      // NOTE: We pass empty operationVariables because we want to prefer
+      // the variables from the fragment owner
+      {},
+      this._fragments,
+      props,
+      getFragmentOwners(this._fragments, props),
+    );
     for (const key in ownedSelectors) {
       if (ownedSelectors.hasOwnProperty(key)) {
         const ownedSelector = ownedSelectors[key];
@@ -264,58 +260,45 @@ class SelectorResolver {
   }
 
   setVariables(variables: Variables, request?: ConcreteRequest): void {
-    let ownedSelector;
-
-    if (RelayFeatureFlags.PREFER_FRAGMENT_OWNER_OVER_CONTEXT) {
-      if (areEqual(variables, this._ownedSelector.selector.variables)) {
-        // If we're not actually setting new variables, we don't actually want
-        // to create a new fragment owner, since areEqualSelectors relies on
-        // owner identity when fragment ownership is enabled.
-        // In fact, we don't even need to try to attempt to set a new selector.
-        // When fragment ownership is not enabled, setSelector will also bail
-        // out since the selector doesn't really change, so we're doing it here
-        // earlier.
-        return;
-      }
-      ownedSelector = {
-        owner: request
-          ? // NOTE: We manually create the operation descriptor here instead of
-            // calling createOperationDescriptor() because we want to set a
-            // descriptor with *unaltered* variables as the fragment owner.
-            // This is a hack that allows us to preserve exisiting (broken)
-            // behavior of RelayModern containers while using fragment ownership
-            // to propagate variables instead of Context.
-            // For more details, see the summary of D13999308
-            {
-              fragment: {
-                dataID: ROOT_ID,
-                node: request.fragment,
-                variables,
-              },
-              node: request,
-              root: {
-                dataID: ROOT_ID,
-                node: request.operation,
-                variables,
-              },
-              variables,
-            }
-          : null,
-        selector: {
-          ...this._ownedSelector.selector,
-          variables,
-        },
-      };
-    } else {
-      ownedSelector = {
-        ...this._ownedSelector,
-        selector: {
-          ...this._ownedSelector.selector,
-          variables,
-        },
-      };
+    if (areEqual(variables, this._ownedSelector.selector.variables)) {
+      // If we're not actually setting new variables, we don't actually want
+      // to create a new fragment owner, since areEqualSelectors relies on
+      // owner identity when fragment ownership is enabled.
+      // In fact, we don't even need to try to attempt to set a new selector.
+      // When fragment ownership is not enabled, setSelector will also bail
+      // out since the selector doesn't really change, so we're doing it here
+      // earlier.
+      return;
     }
-
+    const ownedSelector = {
+      owner: request
+        ? // NOTE: We manually create the operation descriptor here instead of
+          // calling createOperationDescriptor() because we want to set a
+          // descriptor with *unaltered* variables as the fragment owner.
+          // This is a hack that allows us to preserve exisiting (broken)
+          // behavior of RelayModern containers while using fragment ownership
+          // to propagate variables instead of Context.
+          // For more details, see the summary of D13999308
+          {
+            fragment: {
+              dataID: ROOT_ID,
+              node: request.fragment,
+              variables,
+            },
+            node: request,
+            root: {
+              dataID: ROOT_ID,
+              node: request.operation,
+              variables,
+            },
+            variables,
+          }
+        : null,
+      selector: {
+        ...this._ownedSelector.selector,
+        variables,
+      },
+    };
     this.setSelector(ownedSelector);
   }
 

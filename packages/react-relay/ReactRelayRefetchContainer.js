@@ -22,7 +22,6 @@ const {getContainerName} = require('./ReactRelayContainerUtils');
 const {assertRelayContext} = require('./RelayContext');
 const {
   Observable,
-  RelayFeatureFlags,
   getFragmentOwners,
   isScalarAndEqual,
 } = require('relay-runtime');
@@ -271,20 +270,13 @@ function createContainerWithFragments<
       const {
         getVariablesFromObject,
       } = this.props.__relayContext.environment.unstable_internal;
-      if (RelayFeatureFlags.PREFER_FRAGMENT_OWNER_OVER_CONTEXT) {
-        return getVariablesFromObject(
-          // NOTE: We pass empty operationVariables because we want to prefer
-          // the variables from the fragment owner
-          {},
-          fragments,
-          this.props,
-          getFragmentOwners(fragments, this.props),
-        );
-      }
       return getVariablesFromObject(
-        this.props.__relayContext.variables,
+        // NOTE: We pass empty operationVariables because we want to prefer
+        // the variables from the fragment owner
+        {},
         fragments,
         this.props,
+        getFragmentOwners(fragments, this.props),
       );
     }
 
@@ -327,9 +319,7 @@ function createContainerWithFragments<
           : refetchVariables;
       fetchVariables = {...rootVariables, ...fetchVariables};
       const fragmentVariables = renderVariables
-        ? RelayFeatureFlags.MERGE_FETCH_AND_FRAGMENT_VARS
-          ? {...fetchVariables, ...renderVariables}
-          : {...rootVariables, ...renderVariables}
+        ? {...fetchVariables, ...renderVariables}
         : fetchVariables;
 
       const cacheConfig = options ? {force: !!options.force} : undefined;

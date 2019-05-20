@@ -1,0 +1,13 @@
+fragment RefetchableFragment on Actor @refetchable(queryName: "RefetchableFragmentQuery") {
+  id
+  ... on User {
+    name
+    ...ProfilePicture
+  }
+}
+
+fragment ProfilePicture on User {
+  profilePicture(size: $size) {
+    uri
+  }
+}

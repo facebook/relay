@@ -12,6 +12,7 @@
 
 const GraphQLCompilerContext = require('../core/GraphQLCompilerContext');
 const GraphQLIRVisitor = require('../core/GraphQLIRVisitor');
+const GraphQLSchemaUtils = require('../core/GraphQLSchemaUtils');
 
 const getLiteralArgumentValues = require('../core/getLiteralArgumentValues');
 const inferRootArgumentDefinitions = require('../core/inferRootArgumentDefinitions');
@@ -25,6 +26,8 @@ const {
   eachWithErrors,
 } = require('../core/RelayCompilerError');
 const {
+  assertAbstractType,
+  assertCompositeType,
   getNullableType,
   GraphQLID,
   GraphQLInterfaceType,
@@ -33,6 +36,9 @@ const {
   GraphQLObjectType,
   GraphQLSchema,
 } = require('graphql');
+
+import type {GraphQLCompositeType} from 'graphql';
+const {isAbstractType, implementsInterface} = GraphQLSchemaUtils;
 
 import type {
   Argument,
@@ -114,7 +120,11 @@ function relayRefetchableFragmentTransform(
         (fragment.type instanceof GraphQLObjectType &&
           fragment.type
             .getInterfaces()
-            .some(interfaceType => String(interfaceType) === NODE_TYPE_NAME))
+            .some(interfaceType => String(interfaceType) === NODE_TYPE_NAME)) ||
+        (isAbstractType(fragment.type) &&
+          getImplementations(fragment.type, schema).every(possibleType =>
+            implementsInterface(possibleType, NODE_TYPE_NAME),
+          ))
       ) {
         // Validate that the schema conforms to the Object Identity (Node) spec
         // and build the refetch query accordingly.
@@ -159,6 +169,14 @@ function relayRefetchableFragmentTransform(
     throw createCombinedError(errors, 'RelayRefetchableFragmentTransform');
   }
   return nextContext;
+}
+
+function getImplementations(
+  type: GraphQLCompositeType,
+  schema: GraphQLSchema,
+): $ReadOnlyArray<GraphQLObjectType> {
+  const abstractType = assertAbstractType(assertCompositeType(type));
+  return schema.getPossibleTypes(abstractType);
 }
 
 /**
@@ -466,12 +484,16 @@ function buildRefetchOperationOnNodeType(
       nodeField.args[0].name === 'id' &&
       isEquivalentType(getNullableType(nodeField.args[0].type), GraphQLID) &&
       // the fragment must be on Node or on a type that implements Node
-      ((fragment.type instanceof GraphQLInterfaceType &&
-        isEquivalentType(fragment.type, nodeType)) ||
-        (fragment.type instanceof GraphQLObjectType &&
-          fragment.type
-            .getInterfaces()
-            .some(interfaceType => isEquivalentType(interfaceType, nodeType))))
+      ((fragment.type instanceof GraphQLObjectType &&
+        fragment.type
+          .getInterfaces()
+          .some(interfaceType => isEquivalentType(interfaceType, nodeType))) ||
+        (isAbstractType(fragment.type) &&
+          getImplementations(fragment.type, schema).every(possibleType =>
+            possibleType
+              .getInterfaces()
+              .some(interfaceType => isEquivalentType(interfaceType, nodeType)),
+          )))
     )
   ) {
     throw createUserError(

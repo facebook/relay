@@ -135,7 +135,7 @@ interface MockEnvironment {
   +mockClear: () => void;
 }
 
-interface RelayMockEnvironment extends MockEnvironment, IEnvironment {}
+export interface RelayMockEnvironment extends MockEnvironment, IEnvironment {}
 
 /**
  * Creates an instance of the `Environment` interface defined in

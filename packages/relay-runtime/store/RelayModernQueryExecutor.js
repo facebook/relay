@@ -686,10 +686,18 @@ class Executor {
       finalPathEntry,
     );
 
+    const typeName = field.concreteType ?? data[TYPENAME_KEY];
+    invariant(
+      typeof typeName === 'string',
+      'RelayModernEnvironment: Expected @stream field `%s` to have a ' +
+        '__typename.',
+      field.name,
+    );
+
     // Determine the __id of the new item: this must equal the value that would
     // be assigned had the item not been streamed
     const itemID =
-      data.id ??
+      this._getDataID(data, typeName) ??
       (prevIDs && prevIDs[itemIndex]) || // Reuse previously generated client IDs
       generateClientID(parentID, storageKey, itemIndex);
     invariant(
@@ -705,13 +713,6 @@ class Executor {
       node: field,
       variables,
     };
-    const typeName = field.concreteType ?? data[TYPENAME_KEY];
-    invariant(
-      typeof typeName === 'string',
-      'RelayModernEnvironment: Expected @stream field `%s` to have a ' +
-        '__typename.',
-      field.name,
-    );
 
     // Update the cached version of the parent record to reflect the new item:
     // this is used when subsequent stream payloads arrive to see if there

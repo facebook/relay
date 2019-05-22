@@ -106,6 +106,13 @@ describe('execute() a query with @stream', () => {
       },
     };
 
+    function getDataID(data, typename) {
+      if (typename === 'MessagingParticipant') {
+        return `${typename}:${String(data.id)}`;
+      }
+      return data.id;
+    }
+
     complete = jest.fn();
     error = jest.fn();
     next = jest.fn();
@@ -118,6 +125,7 @@ describe('execute() a query with @stream', () => {
     source = new RelayInMemoryRecordSource();
     store = new RelayModernStore(source);
     environment = new RelayModernEnvironment({
+      UNSTABLE_DO_NOT_USE_getDataID: getDataID,
       network: RelayNetwork.create(fetch),
       store,
       handlerProvider: name => {
@@ -1065,5 +1073,69 @@ describe('execute() a query with @stream', () => {
     );
     expect(next).toBeCalledTimes(1);
     expect(callback).toBeCalledTimes(1);
+  });
+
+  it('uses user-defined getDataID to generate ID from streamed payload.', () => {
+    const initialSnapshot = environment.lookup(selector, operation);
+    const callback = jest.fn();
+    environment.subscribe(initialSnapshot, callback);
+
+    environment.execute({operation}).subscribe(callbacks);
+    dataSource.next({
+      data: {
+        node: {
+          __typename: 'Feedback',
+          id: '1',
+          actors: [],
+        },
+      },
+    });
+    jest.runAllTimers();
+    next.mockClear();
+    callback.mockClear();
+
+    dataSource.next({
+      data: {
+        __typename: 'MessagingParticipant',
+        id: '2',
+        name: 'Alice',
+      },
+      label: 'FeedbackFragment$stream$actors',
+      path: ['node', 'actors', 0],
+    });
+
+    expect(next).toBeCalledTimes(1);
+    expect(callback).toBeCalledTimes(1);
+    expect(source.get('MessagingParticipant:2')).toEqual({
+      __id: 'MessagingParticipant:2',
+      __typename: 'MessagingParticipant',
+      id: '2',
+      name: 'Alice',
+      __name_name_handler: 'ALICE',
+    });
+
+    dataSource.next({
+      data: {
+        __typename: 'User',
+        id: '3',
+        name: 'Bob',
+      },
+      label: 'FeedbackFragment$stream$actors',
+      path: ['node', 'actors', 1],
+    });
+
+    expect(next).toBeCalledTimes(2);
+    expect(callback).toBeCalledTimes(2);
+
+    expect(source.get('3')).toEqual({
+      __id: '3',
+      __typename: 'User',
+      id: '3',
+      name: 'Bob',
+      __name_name_handler: 'BOB',
+    });
+
+    expect(complete).toBeCalledTimes(0);
+    expect(error).toBeCalledTimes(0);
   });
 });

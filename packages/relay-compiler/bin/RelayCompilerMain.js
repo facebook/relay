@@ -49,6 +49,23 @@ import type {
   PluginInterface,
 } from '../language/RelayLanguagePluginInterface';
 
+type Options = {|
+  schema: string,
+  src: string,
+  extensions: Array<string>,
+  include: Array<string>,
+  exclude: Array<string>,
+  verbose: boolean,
+  watchman: boolean,
+  watch?: ?boolean,
+  validate: boolean,
+  quiet: boolean,
+  persistOutput: ?string,
+  noFutureProofEnums: boolean,
+  language: string,
+  artifactDirectory: ?string,
+|};
+
 function buildWatchExpression(options: {
   extensions: Array<string>,
   include: Array<string>,
@@ -128,45 +145,30 @@ function getLanguagePlugin(language: string): PluginInterface {
   }
 }
 
-async function main(options: {
-  schema: string,
-  src: string,
-  extensions: Array<string>,
-  include: Array<string>,
-  exclude: Array<string>,
-  verbose: boolean,
-  watchman: boolean,
-  watch?: ?boolean,
-  validate: boolean,
-  quiet: boolean,
-  persistOutput: ?string,
-  noFutureProofEnums: boolean,
-  language: string,
-  artifactDirectory: ?string,
-}) {
-  const schemaPath = path.resolve(process.cwd(), options.schema);
-  if (!fs.existsSync(schemaPath)) {
-    throw new Error(`--schema path does not exist: ${schemaPath}`);
+async function main(options: Options) {
+  const schema = path.resolve(process.cwd(), options.schema);
+  if (!fs.existsSync(schema)) {
+    throw new Error(`--schema path does not exist: ${schema}`);
   }
-  const srcDir = path.resolve(process.cwd(), options.src);
-  if (!fs.existsSync(srcDir)) {
-    throw new Error(`--src path does not exist: ${srcDir}`);
+  const src = path.resolve(process.cwd(), options.src);
+  if (!fs.existsSync(src)) {
+    throw new Error(`--src path does not exist: ${src}`);
   }
 
-  let persistedQueryPath = options.persistOutput;
-  if (typeof persistedQueryPath === 'string') {
-    persistedQueryPath = path.resolve(process.cwd(), persistedQueryPath);
-    const persistOutputDir = path.dirname(persistedQueryPath);
+  let persistOutput = options.persistOutput;
+  if (typeof persistOutput === 'string') {
+    persistOutput = path.resolve(process.cwd(), persistOutput);
+    const persistOutputDir = path.dirname(persistOutput);
     if (!fs.existsSync(persistOutputDir)) {
       throw new Error(
-        `--persist-output path does not exist: ${persistedQueryPath}`,
+        `--persist-output path does not exist: ${persistOutput}`,
       );
     }
   }
   if (options.watch && !options.watchman) {
     throw new Error('Watchman is required to watch for changes.');
   }
-  if (options.watch && !hasWatchmanRootFile(srcDir)) {
+  if (options.watch && !hasWatchmanRootFile(src)) {
     throw new Error(
       `
 --watch requires that the src directory have a valid watchman "root" file.
@@ -176,7 +178,7 @@ Root files can include:
 - A .hg/ Mercurial folder
 - A .watchmanconfig file
 
-Ensure that one such file exists in ${srcDir} or its parents.
+Ensure that one such file exists in ${src} or its parents.
     `.trim(),
     );
   }
@@ -184,78 +186,92 @@ Ensure that one such file exists in ${srcDir} or its parents.
     throw new Error("I can't be quiet and verbose at the same time");
   }
 
+  const watchman = options.watchman && (await WatchmanClient.isAvailable());
+
+  const codegenRunner = getCodegenRunner(
+    { ...options, persistOutput, schema, src, watchman },
+  );
+
+  if (!options.validate && !options.watch && watchman) {
+    // eslint-disable-next-line no-console
+    console.log('HINT: pass --watch to keep watching for changes.');
+  }
+
+  const result = options.watch
+    ? await codegenRunner.watchAll()
+    : await codegenRunner.compileAll();
+
+  if (result === 'ERROR') {
+    process.exit(100);
+  }
+  if (options.validate && result !== 'NO_CHANGES') {
+    process.exit(101);
+  }
+}
+
+function getCodegenRunner(options: Options) {
   const reporter = new ConsoleReporter({
     verbose: options.verbose,
     quiet: options.quiet,
   });
-  const useWatchman = options.watchman && (await WatchmanClient.isAvailable());
-
-  const schema = getSchema(schemaPath);
-
+  const schema = getSchema(options.schema);
   const languagePlugin = getLanguagePlugin(options.language);
-
   const inputExtensions = options.extensions || languagePlugin.inputExtensions;
   const outputExtension = languagePlugin.outputExtension;
-
   const sourceParserName = inputExtensions.join('/');
   const sourceWriterName = outputExtension;
-
   const sourceModuleParser = RelaySourceModuleParser(
     languagePlugin.findGraphQLTags,
   );
-
   const providedArtifactDirectory = options.artifactDirectory;
   const artifactDirectory =
     providedArtifactDirectory != null
       ? path.resolve(process.cwd(), providedArtifactDirectory)
       : null;
-
   const generatedDirectoryName = artifactDirectory || '__generated__';
-
   const sourceSearchOptions = {
     extensions: inputExtensions,
     include: options.include,
-    exclude: ['**/*.graphql.*', ...options.exclude], // Do not include artifacts
+    exclude: ['**/*.graphql.*', ...options.exclude],
   };
   const graphqlSearchOptions = {
     extensions: ['graphql'],
     include: options.include,
-    exclude: [path.relative(srcDir, schemaPath)].concat(options.exclude),
+    exclude: [path.relative(options.src, options.schema)].concat(options.exclude),
   };
-
   const parserConfigs = {
     [sourceParserName]: {
-      baseDir: srcDir,
+      baseDir: options.src,
       getFileFilter: sourceModuleParser.getFileFilter,
       getParser: sourceModuleParser.getParser,
       getSchema: () => schema,
-      watchmanExpression: useWatchman
+      watchmanExpression: options.watchman
         ? buildWatchExpression(sourceSearchOptions)
         : null,
-      filepaths: useWatchman
+      filepaths: options.watchman
         ? null
-        : getFilepathsFromGlob(srcDir, sourceSearchOptions),
+        : getFilepathsFromGlob(options.src, sourceSearchOptions),
     },
     graphql: {
-      baseDir: srcDir,
+      baseDir: options.src,
       getParser: DotGraphQLParser.getParser,
       getSchema: () => schema,
-      watchmanExpression: useWatchman
+      watchmanExpression: options.watchman
         ? buildWatchExpression(graphqlSearchOptions)
         : null,
-      filepaths: useWatchman
+      filepaths: options.watchman
         ? null
-        : getFilepathsFromGlob(srcDir, graphqlSearchOptions),
+        : getFilepathsFromGlob(options.src, graphqlSearchOptions),
     },
   };
   const writerConfigs = {
     [sourceWriterName]: {
       writeFiles: getRelayFileWriter(
-        srcDir,
+        options.src,
         languagePlugin,
         options.noFutureProofEnums,
         artifactDirectory,
-        persistedQueryPath,
+        options.persistOutput,
       ),
       isGeneratedFile: (filePath: string) =>
         filePath.endsWith('.graphql.' + outputExtension) &&
@@ -272,20 +288,8 @@ Ensure that one such file exists in ${srcDir} or its parents.
     // TODO: allow passing in a flag or detect?
     sourceControl: null,
   });
-  if (!options.validate && !options.watch && useWatchman) {
-    // eslint-disable-next-line no-console
-    console.log('HINT: pass --watch to keep watching for changes.');
-  }
-  const result = options.watch
-    ? await codegenRunner.watchAll()
-    : await codegenRunner.compileAll();
-
-  if (result === 'ERROR') {
-    process.exit(100);
-  }
-  if (options.validate && result !== 'NO_CHANGES') {
-    process.exit(101);
-  }
+  // console.log(codegenRunner)
+  return codegenRunner;
 }
 
 function getRelayFileWriter(
@@ -397,4 +401,4 @@ function hasWatchmanRootFile(testPath) {
   return false;
 }
 
-module.exports = {main};
+module.exports = {getCodegenRunner, main};

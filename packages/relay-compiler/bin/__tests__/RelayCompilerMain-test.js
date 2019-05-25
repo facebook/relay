@@ -10,12 +10,6 @@
 
 'use strict';
 
-// jest.mock('fs', () => ({
-//   existsSync(path) {
-//     return path.startsWith('/existent/');
-//   },
-// }));
-
 jest.mock('../../codegen/RelayFileWriter');
 const RelayFileWriter = require('../../codegen/RelayFileWriter');
 
@@ -80,21 +74,24 @@ describe('RelayCompilerMain', () => {
     describe('and its writer configurations', () => {
       it('configures the language', () => {
         const codegenRunner = getCodegenRunner({
-          language: 'javascript',
           ...options,
+          language: 'javascript',
         });
         const config = codegenRunner.writerConfigs.js;
         expect(codegenRunner.parserConfigs[config.parser]).not.toBeUndefined();
       });
 
       it('configures the file writer with custom scalars', () => {
-        const codegenRunner = getCodegenRunner({...options});
+        const codegenRunner = getCodegenRunner({
+          ...options,
+          customScalars: {URL: 'String'},
+        });
         const config = codegenRunner.writerConfigs.js;
         const writeFiles = config.writeFiles;
         writeFiles({onlyValidate: true});
         expect(RelayFileWriter.writeAll).toHaveBeenCalledWith(
           expect.objectContaining({
-            config: expect.objectContaining({customScalars: {}}),
+            config: expect.objectContaining({customScalars: {URL: 'String'}}),
           }),
         );
       });

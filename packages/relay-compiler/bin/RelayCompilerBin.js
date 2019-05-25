@@ -100,6 +100,14 @@ const argv = yargs
       type: 'string',
       default: null,
     },
+    customScalars: {
+      describe:
+        'Mappings from custom scalars in your schema to built-in GraphQL ' +
+        'types, for type emission purposes. (Uses yargs dot-notation, e.g. ' +
+        '--customScalars.URL=String)',
+      type: 'object',
+      default: {},
+    },
   })
   .help().argv;
 

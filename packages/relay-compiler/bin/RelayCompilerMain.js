@@ -42,6 +42,7 @@ const {
   schemaExtensions,
 } = RelayIRTransforms;
 
+import type {ScalarTypeMapping} from '../language/javascript/RelayFlowTypeTransformers';
 import type {WriteFilesOptions} from '../codegen/CodegenRunner';
 import type {GraphQLSchema} from 'graphql';
 import type {
@@ -64,6 +65,7 @@ type Options = {|
   noFutureProofEnums: boolean,
   language: string,
   artifactDirectory: ?string,
+  customScalars?: ScalarTypeMapping,
 |};
 
 function buildWatchExpression(options: {
@@ -160,9 +162,7 @@ async function main(options: Options) {
     persistOutput = path.resolve(process.cwd(), persistOutput);
     const persistOutputDir = path.dirname(persistOutput);
     if (!fs.existsSync(persistOutputDir)) {
-      throw new Error(
-        `--persist-output path does not exist: ${persistOutput}`,
-      );
+      throw new Error(`--persist-output path does not exist: ${persistOutput}`);
     }
   }
   if (options.watch && !options.watchman) {
@@ -188,9 +188,13 @@ Ensure that one such file exists in ${src} or its parents.
 
   const watchman = options.watchman && (await WatchmanClient.isAvailable());
 
-  const codegenRunner = getCodegenRunner(
-    { ...options, persistOutput, schema, src, watchman },
-  );
+  const codegenRunner = getCodegenRunner({
+    ...options,
+    persistOutput,
+    schema,
+    src,
+    watchman,
+  });
 
   if (!options.validate && !options.watch && watchman) {
     // eslint-disable-next-line no-console
@@ -237,7 +241,9 @@ function getCodegenRunner(options: Options) {
   const graphqlSearchOptions = {
     extensions: ['graphql'],
     include: options.include,
-    exclude: [path.relative(options.src, options.schema)].concat(options.exclude),
+    exclude: [path.relative(options.src, options.schema)].concat(
+      options.exclude,
+    ),
   };
   const parserConfigs = {
     [sourceParserName]: {
@@ -272,6 +278,7 @@ function getCodegenRunner(options: Options) {
         options.noFutureProofEnums,
         artifactDirectory,
         options.persistOutput,
+        options.customScalars,
       ),
       isGeneratedFile: (filePath: string) =>
         filePath.endsWith('.graphql.' + outputExtension) &&
@@ -288,7 +295,6 @@ function getCodegenRunner(options: Options) {
     // TODO: allow passing in a flag or detect?
     sourceControl: null,
   });
-  // console.log(codegenRunner)
   return codegenRunner;
 }
 
@@ -298,6 +304,7 @@ function getRelayFileWriter(
   noFutureProofEnums: boolean,
   outputDir?: ?string,
   persistedQueryPath?: ?string,
+  customScalars?: ScalarTypeMapping,
 ) {
   return ({
     onlyValidate,
@@ -329,7 +336,7 @@ function getRelayFileWriter(
           printTransforms,
           queryTransforms,
         },
-        customScalars: {},
+        customScalars: customScalars || {},
         formatModule: languagePlugin.formatModule,
         optionalInputFieldsForFlow: [],
         schemaExtensions,

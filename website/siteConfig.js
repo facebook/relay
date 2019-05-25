@@ -86,6 +86,12 @@ const users = [
     infoLink: 'https://up.com.au/',
     pinned: false,
   },
+  {
+    caption: 'Quanto',
+    image: '/relay/img/logos/quanto.png',
+    infoLink: 'https://www.contaquanto.com.br/',
+    pinned: false,
+  },
 ];
 
 const siteConfig = {

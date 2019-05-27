@@ -260,6 +260,7 @@ const modules = gulp.parallel(
               '!**/__tests__/**',
               '!**/__flowtests__/**',
               '!**/__mocks__/**',
+              '!**/node_modules/**',
             ],
             {
               cwd: path.join(PACKAGES, build.package),

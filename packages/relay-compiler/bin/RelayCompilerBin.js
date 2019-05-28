@@ -15,6 +15,12 @@ require('@babel/polyfill');
 const {main} = require('./RelayCompilerMain');
 const yargs = require('yargs');
 
+let RelayConfig;
+try {
+  // eslint-disable-next-line no-eval
+  RelayConfig = eval('require')('relay-config');
+} catch (_) {}
+
 import type {Config} from './RelayCompilerMain';
 
 type OptionBase<T> = {|
@@ -158,16 +164,22 @@ const options: Options = {
   },
 };
 
-// Collect args
+// Load external config
+const config = RelayConfig && RelayConfig.loadConfig();
+
+// Parse CLI args
 const argv = yargs
   .usage(
     'Create Relay generated files\n\n' +
       '$0 --schema <path> --src <path> [--watch]',
   )
-  .options(options).argv;
+  .options(options)
+  // Apply externally loaded config through the yargs API so that we can leverage yargs' defaults and have them show up
+  // in the help banner.
+  .config(config)
+  .help().argv;
 
-// Run script with args
-// $FlowFixMe: Invalid types for yargs. Please fix this when touching this code.
+// Start the application
 main(argv).catch(error => {
   console.error(String(error.stack || error));
   process.exit(1);

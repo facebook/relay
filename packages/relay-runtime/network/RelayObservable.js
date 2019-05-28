@@ -24,6 +24,12 @@ export type Subscription = {|
   +closed: boolean,
 |};
 
+type SubscriptionFn = {
+  (): mixed,
+  +unsubscribe?: void,
+  +closed?: void,
+};
+
 /**
  * An Observer is an object of optional callback functions provided to
  * .subscribe(). Each callback function is invoked when that event occurs.
@@ -54,7 +60,7 @@ export type Sink<-T> = {|
  * and may return either a cleanup function or a Subscription instance (for use
  * when composing Observables).
  */
-export type Source<+T> = (Sink<T>) => void | Subscription | (() => mixed);
+export type Source<+T> = (Sink<T>) => void | Subscription | SubscriptionFn;
 
 /**
  * A Subscribable is an interface describing any object which can be subscribed.

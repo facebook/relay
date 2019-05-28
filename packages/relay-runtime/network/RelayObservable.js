@@ -208,6 +208,30 @@ class RelayObservable<+T> implements Subscribable<T> {
   }
 
   /**
+   * Returns a new Observable which first yields values from this Observable,
+   * then yields values from the next Observable. This is useful for chaining
+   * together Observables of finite length.
+   */
+  concat<U>(next: RelayObservable<U>): RelayObservable<T | U> {
+    return RelayObservable.create(sink => {
+      let current;
+      this.subscribe({
+        start(subscription) {
+          current = subscription;
+        },
+        next: sink.next,
+        error: sink.error,
+        complete() {
+          current = next.subscribe(sink);
+        },
+      });
+      return () => {
+        current && current.unsubscribe();
+      };
+    });
+  }
+
+  /**
    * Returns a new Observable which returns the same values as this one, but
    * modified so that the provided Observer is called to perform a side-effects
    * for all events emitted by the source.

@@ -1893,6 +1893,160 @@ describe('RelayObservable', () => {
     });
   });
 
+  describe('concat', () => {
+    it('Yields values from both observables', () => {
+      const list = [];
+
+      const fruits = RelayObservable.create(sink => {
+        list.push('begin fruits');
+        sink.next('Apple');
+        sink.next('Banana');
+        sink.complete();
+        return () => list.push('cleanup fruits');
+      });
+
+      const cities = RelayObservable.create(sink => {
+        list.push('begin cities');
+        sink.next('Athens');
+        sink.next('Berlin');
+        sink.complete();
+        return () => list.push('cleanup cities');
+      });
+
+      const fruitsThenCities = fruits.concat(cities);
+      fruitsThenCities.subscribe({
+        next: val => list.push(val),
+        error: err => {
+          list.push('error');
+          list.push(err);
+        },
+        complete: () => list.push('complete'),
+      });
+
+      expect(list).toEqual([
+        'begin fruits',
+        'Apple',
+        'Banana',
+        'begin cities',
+        'Athens',
+        'Berlin',
+        'complete',
+        'cleanup cities',
+        'cleanup fruits',
+      ]);
+    });
+
+    it('Error passes through without starting the second', () => {
+      const list = [];
+      const error = new Error();
+
+      const problem = RelayObservable.create(sink => {
+        list.push('begin problem');
+        sink.error(error);
+        return () => list.push('cleanup problem');
+      });
+
+      const cities = RelayObservable.create(sink => {
+        list.push('begin cities');
+        sink.next('Athens');
+        sink.next('Berlin');
+        sink.complete();
+        return () => list.push('cleanup cities');
+      });
+
+      const problemThenCities = problem.concat(cities);
+
+      problemThenCities.subscribe({
+        next: val => list.push(val),
+        error: err => {
+          list.push('error');
+          list.push(err);
+        },
+        complete: () => list.push('complete'),
+      });
+
+      expect(list).toEqual([
+        'begin problem',
+        'error',
+        error,
+        'cleanup problem',
+      ]);
+    });
+
+    it('Does not start second Observable if first is unsubscribed', () => {
+      let sink1;
+      const list = [];
+
+      const obs1 = RelayObservable.create(sink => {
+        list.push('create first');
+        sink1 = sink;
+        return () => list.push('cleanup first');
+      });
+
+      const obs2 = RelayObservable.create(sink => {
+        list.push('create second');
+        return () => list.push('cleanup second');
+      });
+
+      const sub = obs1.concat(obs2).subscribe({
+        next: val => list.push('next:' + val),
+        error: err => list.push(err),
+        complete: () => list.push('complete'),
+        unsubscribe: () => list.push('unsubscribe'),
+      });
+
+      sink1.next(1);
+      sub.unsubscribe();
+
+      expect(list).toEqual([
+        'create first',
+        'next:1',
+        'unsubscribe',
+        'cleanup first',
+      ]);
+    });
+
+    it('Cleans up both Observables if second is unsubscribed', () => {
+      let sink1;
+      let sink2;
+      const list = [];
+
+      const obs1 = RelayObservable.create(sink => {
+        list.push('create first');
+        sink1 = sink;
+        return () => list.push('cleanup first');
+      });
+
+      const obs2 = RelayObservable.create(sink => {
+        list.push('create second');
+        sink2 = sink;
+        return () => list.push('cleanup second');
+      });
+
+      const sub = obs1.concat(obs2).subscribe({
+        next: val => list.push('next:' + val),
+        error: err => list.push(err),
+        complete: () => list.push('complete'),
+        unsubscribe: () => list.push('unsubscribe'),
+      });
+
+      sink1.next(1);
+      sink1.complete();
+      sink2.next(2);
+      sub.unsubscribe();
+
+      expect(list).toEqual([
+        'create first',
+        'next:1',
+        'create second',
+        'cleanup first',
+        'next:2',
+        'unsubscribe',
+        'cleanup second',
+      ]);
+    });
+  });
+
   describe('ifEmpty', () => {
     it('Matches the first Observable if values are yielded', () => {
       const list = [];

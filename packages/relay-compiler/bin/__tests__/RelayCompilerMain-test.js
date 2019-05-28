@@ -10,12 +10,19 @@
 
 'use strict';
 
-jest.mock('../../codegen/RelayFileWriter');
+const {
+  getCodegenRunner,
+  getLanguagePlugin,
+  main,
+} = require('../RelayCompilerMain');
 const RelayFileWriter = require('../../codegen/RelayFileWriter');
-
-const {getCodegenRunner, main} = require('../RelayCompilerMain');
+const RelayLanguagePluginJavaScript = require('../../language/javascript/RelayLanguagePluginJavaScript');
 const {testSchemaPath} = require('relay-test-utils');
 const path = require('path');
+
+jest.mock('../../codegen/RelayFileWriter');
+
+import type {PluginInitializer} from '../../language/RelayLanguagePluginInterface';
 
 describe('RelayCompilerMain', () => {
   it('throws when schema path does not exist', async () => {
@@ -55,7 +62,7 @@ describe('RelayCompilerMain', () => {
       }),
     ).rejects.toEqual(
       new Error(
-        `--persist-output path does not exist: ${path.resolve(
+        `--persistOutput path does not exist: ${path.resolve(
           'non-existent/output',
         )}`,
       ),
@@ -95,6 +102,36 @@ describe('RelayCompilerMain', () => {
           }),
         );
       });
+    });
+  });
+
+  describe('concerning language plugins', () => {
+    it('uses the builtin Flow generator for javascript', () => {
+      expect(getLanguagePlugin('javascript')).toEqual(
+        RelayLanguagePluginJavaScript(),
+      );
+    });
+
+    it('loads a plugin from a local module', () => {
+      const pluginModuleMockPath = path.join(
+        __dirname,
+        'fixtures',
+        'plugin-module.js',
+      );
+      expect(getLanguagePlugin(pluginModuleMockPath)).toEqual(
+        require(pluginModuleMockPath)(),
+      );
+    });
+
+    it('loads a module from the load path with the relay-compiler-language- prefix', () => {
+      const plugin = jest.fn(() => RelayLanguagePluginJavaScript());
+      jest.mock('relay-compiler-language-typescript', () => plugin, {
+        virtual: true,
+      });
+      expect(getLanguagePlugin('typescript')).toEqual(
+        RelayLanguagePluginJavaScript(),
+      );
+      expect(plugin).toHaveBeenCalled();
     });
   });
 });

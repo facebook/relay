@@ -406,4 +406,4 @@ function hasWatchmanRootFile(testPath) {
   return false;
 }
 
-module.exports = {getCodegenRunner, main};
+module.exports = {getCodegenRunner, getLanguagePlugin, main};

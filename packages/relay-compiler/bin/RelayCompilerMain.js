@@ -50,7 +50,7 @@ import type {
   PluginInterface,
 } from '../language/RelayLanguagePluginInterface';
 
-type Options = {|
+export type Config = {|
   schema: string,
   src: string,
   extensions: Array<string>,
@@ -61,14 +61,14 @@ type Options = {|
   watch?: ?boolean,
   validate: boolean,
   quiet: boolean,
-  persistOutput: ?string,
+  persistOutput?: ?string,
   noFutureProofEnums: boolean,
   language: string,
-  artifactDirectory: ?string,
+  artifactDirectory?: ?string,
   customScalars?: ScalarTypeMapping,
 |};
 
-function buildWatchExpression(options: {
+function buildWatchExpression(config: {
   extensions: Array<string>,
   include: Array<string>,
   exclude: Array<string>,
@@ -76,24 +76,24 @@ function buildWatchExpression(options: {
   return [
     'allof',
     ['type', 'f'],
-    ['anyof', ...options.extensions.map(ext => ['suffix', ext])],
+    ['anyof', ...config.extensions.map(ext => ['suffix', ext])],
     [
       'anyof',
-      ...options.include.map(include => ['match', include, 'wholename']),
+      ...config.include.map(include => ['match', include, 'wholename']),
     ],
-    ...options.exclude.map(exclude => ['not', ['match', exclude, 'wholename']]),
+    ...config.exclude.map(exclude => ['not', ['match', exclude, 'wholename']]),
   ];
 }
 
 function getFilepathsFromGlob(
   baseDir,
-  options: {
+  config: {
     extensions: Array<string>,
     include: Array<string>,
     exclude: Array<string>,
   },
 ): Array<string> {
-  const {extensions, include, exclude} = options;
+  const {extensions, include, exclude} = config;
   const patterns = include.map(inc => `${inc}/*.+(${extensions.join('|')})`);
 
   const glob = require('fast-glob');
@@ -147,17 +147,17 @@ function getLanguagePlugin(language: string): PluginInterface {
   }
 }
 
-async function main(options: Options) {
-  const schema = path.resolve(process.cwd(), options.schema);
+async function main(config: Config) {
+  const schema = path.resolve(process.cwd(), config.schema);
   if (!fs.existsSync(schema)) {
     throw new Error(`--schema path does not exist: ${schema}`);
   }
-  const src = path.resolve(process.cwd(), options.src);
+  const src = path.resolve(process.cwd(), config.src);
   if (!fs.existsSync(src)) {
     throw new Error(`--src path does not exist: ${src}`);
   }
 
-  let persistOutput = options.persistOutput;
+  let persistOutput = config.persistOutput;
   if (typeof persistOutput === 'string') {
     persistOutput = path.resolve(process.cwd(), persistOutput);
     const persistOutputDir = path.dirname(persistOutput);
@@ -165,10 +165,10 @@ async function main(options: Options) {
       throw new Error(`--persist-output path does not exist: ${persistOutput}`);
     }
   }
-  if (options.watch && !options.watchman) {
+  if (config.watch && !config.watchman) {
     throw new Error('Watchman is required to watch for changes.');
   }
-  if (options.watch && !hasWatchmanRootFile(src)) {
+  if (config.watch && !hasWatchmanRootFile(src)) {
     throw new Error(
       `
 --watch requires that the src directory have a valid watchman "root" file.
@@ -182,52 +182,52 @@ Ensure that one such file exists in ${src} or its parents.
     `.trim(),
     );
   }
-  if (options.verbose && options.quiet) {
+  if (config.verbose && config.quiet) {
     throw new Error("I can't be quiet and verbose at the same time");
   }
 
-  const watchman = options.watchman && (await WatchmanClient.isAvailable());
+  const watchman = config.watchman && (await WatchmanClient.isAvailable());
 
   const codegenRunner = getCodegenRunner({
-    ...options,
+    ...config,
     persistOutput,
     schema,
     src,
     watchman,
   });
 
-  if (!options.validate && !options.watch && watchman) {
+  if (!config.validate && !config.watch && watchman) {
     // eslint-disable-next-line no-console
     console.log('HINT: pass --watch to keep watching for changes.');
   }
 
-  const result = options.watch
+  const result = config.watch
     ? await codegenRunner.watchAll()
     : await codegenRunner.compileAll();
 
   if (result === 'ERROR') {
     process.exit(100);
   }
-  if (options.validate && result !== 'NO_CHANGES') {
+  if (config.validate && result !== 'NO_CHANGES') {
     process.exit(101);
   }
 }
 
-function getCodegenRunner(options: Options) {
+function getCodegenRunner(config: Config) {
   const reporter = new ConsoleReporter({
-    verbose: options.verbose,
-    quiet: options.quiet,
+    verbose: config.verbose,
+    quiet: config.quiet,
   });
-  const schema = getSchema(options.schema);
-  const languagePlugin = getLanguagePlugin(options.language);
-  const inputExtensions = options.extensions || languagePlugin.inputExtensions;
+  const schema = getSchema(config.schema);
+  const languagePlugin = getLanguagePlugin(config.language);
+  const inputExtensions = config.extensions || languagePlugin.inputExtensions;
   const outputExtension = languagePlugin.outputExtension;
   const sourceParserName = inputExtensions.join('/');
   const sourceWriterName = outputExtension;
   const sourceModuleParser = RelaySourceModuleParser(
     languagePlugin.findGraphQLTags,
   );
-  const providedArtifactDirectory = options.artifactDirectory;
+  const providedArtifactDirectory = config.artifactDirectory;
   const artifactDirectory =
     providedArtifactDirectory != null
       ? path.resolve(process.cwd(), providedArtifactDirectory)
@@ -235,50 +235,48 @@ function getCodegenRunner(options: Options) {
   const generatedDirectoryName = artifactDirectory || '__generated__';
   const sourceSearchOptions = {
     extensions: inputExtensions,
-    include: options.include,
-    exclude: ['**/*.graphql.*', ...options.exclude],
+    include: config.include,
+    exclude: ['**/*.graphql.*', ...config.exclude],
   };
   const graphqlSearchOptions = {
     extensions: ['graphql'],
-    include: options.include,
-    exclude: [path.relative(options.src, options.schema)].concat(
-      options.exclude,
-    ),
+    include: config.include,
+    exclude: [path.relative(config.src, config.schema)].concat(config.exclude),
   };
   const parserConfigs = {
     [sourceParserName]: {
-      baseDir: options.src,
+      baseDir: config.src,
       getFileFilter: sourceModuleParser.getFileFilter,
       getParser: sourceModuleParser.getParser,
       getSchema: () => schema,
-      watchmanExpression: options.watchman
+      watchmanExpression: config.watchman
         ? buildWatchExpression(sourceSearchOptions)
         : null,
-      filepaths: options.watchman
+      filepaths: config.watchman
         ? null
-        : getFilepathsFromGlob(options.src, sourceSearchOptions),
+        : getFilepathsFromGlob(config.src, sourceSearchOptions),
     },
     graphql: {
-      baseDir: options.src,
+      baseDir: config.src,
       getParser: DotGraphQLParser.getParser,
       getSchema: () => schema,
-      watchmanExpression: options.watchman
+      watchmanExpression: config.watchman
         ? buildWatchExpression(graphqlSearchOptions)
         : null,
-      filepaths: options.watchman
+      filepaths: config.watchman
         ? null
-        : getFilepathsFromGlob(options.src, graphqlSearchOptions),
+        : getFilepathsFromGlob(config.src, graphqlSearchOptions),
     },
   };
   const writerConfigs = {
     [sourceWriterName]: {
       writeFiles: getRelayFileWriter(
-        options.src,
+        config.src,
         languagePlugin,
-        options.noFutureProofEnums,
+        config.noFutureProofEnums,
         artifactDirectory,
-        options.persistOutput,
-        options.customScalars,
+        config.persistOutput,
+        config.customScalars,
       ),
       isGeneratedFile: (filePath: string) =>
         filePath.endsWith('.graphql.' + outputExtension) &&
@@ -291,7 +289,7 @@ function getCodegenRunner(options: Options) {
     reporter,
     parserConfigs,
     writerConfigs,
-    onlyValidate: options.validate,
+    onlyValidate: config.validate,
     // TODO: allow passing in a flag or detect?
     sourceControl: null,
   });

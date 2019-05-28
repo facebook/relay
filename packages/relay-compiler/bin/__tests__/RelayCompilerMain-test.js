@@ -112,6 +112,22 @@ describe('RelayCompilerMain', () => {
       );
     });
 
+    it('accepts a plugin initializer function', () => {
+      const plugin = jest.fn(() => RelayLanguagePluginJavaScript());
+      expect(getLanguagePlugin(plugin)).toEqual(
+        RelayLanguagePluginJavaScript(),
+      );
+      expect(plugin).toHaveBeenCalled();
+    });
+
+    it('accepts a plugin initializer function from a ES6 module', () => {
+      const plugin = {default: jest.fn(() => RelayLanguagePluginJavaScript())};
+      expect(getLanguagePlugin(plugin)).toEqual(
+        RelayLanguagePluginJavaScript(),
+      );
+      expect(plugin.default).toHaveBeenCalled();
+    });
+
     it('loads a plugin from a local module', () => {
       const pluginModuleMockPath = path.join(
         __dirname,

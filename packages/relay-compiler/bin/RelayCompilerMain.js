@@ -63,7 +63,7 @@ export type Config = {|
   quiet: boolean,
   persistOutput?: ?string,
   noFutureProofEnums: boolean,
-  language: string,
+  language: string | PluginInitializer,
   artifactDirectory?: ?string,
   customScalars?: ScalarTypeMapping,
 |};
@@ -116,33 +116,43 @@ type LanguagePlugin = PluginInitializer | {default: PluginInitializer};
  * replaced with `__webpack_require__` when bundled using webpack, by using
  * `eval` to get it at runtime.
  */
-function getLanguagePlugin(language: string): PluginInterface {
+function getLanguagePlugin(
+  language: string | PluginInitializer,
+): PluginInterface {
   if (language === 'javascript') {
     return RelayLanguagePluginJavaScript();
   } else {
-    const pluginPath = path.resolve(process.cwd(), language);
-    const requirePath = fs.existsSync(pluginPath)
-      ? pluginPath
-      : `relay-compiler-language-${language}`;
-    try {
-      // eslint-disable-next-line no-eval
-      let languagePlugin: LanguagePlugin = eval('require')(requirePath);
-      if (languagePlugin.default) {
-        // $FlowFixMe - Flow no longer considers statics of functions as any
-        languagePlugin = languagePlugin.default;
+    let languagePlugin: LanguagePlugin;
+    if (typeof language === 'string') {
+      const pluginPath = path.resolve(process.cwd(), language);
+      const requirePath = fs.existsSync(pluginPath)
+        ? pluginPath
+        : `relay-compiler-language-${language}`;
+      try {
+        // eslint-disable-next-line no-eval
+        languagePlugin = eval('require')(requirePath);
+        if (languagePlugin.default) {
+          languagePlugin = languagePlugin.default;
+        }
+      } catch (err) {
+        const e = new Error(
+          `Unable to load language plugin ${requirePath}: ${err.message}`,
+        );
+        e.stack = err.stack;
+        throw e;
       }
-      if (typeof languagePlugin === 'function') {
-        // $FlowFixMe
-        return languagePlugin();
-      } else {
-        throw new Error('Expected plugin to export a function.');
-      }
-    } catch (err) {
-      const e = new Error(
-        `Unable to load language plugin ${requirePath}: ${err.message}`,
-      );
-      e.stack = err.stack;
-      throw e;
+    } else {
+      languagePlugin = language;
+    }
+    if (languagePlugin.default) {
+      // $FlowFixMe - Flow no longer considers statics of functions as any
+      languagePlugin = languagePlugin.default;
+    }
+    if (typeof languagePlugin === 'function') {
+      // $FlowFixMe
+      return languagePlugin();
+    } else {
+      throw new Error('Expected plugin to be a initializer function.');
     }
   }
 }

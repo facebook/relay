@@ -65,7 +65,11 @@ type OptionTypeMap<T> = $Call<
 /**
  * Generates an object type with all keys from Config and values mapped to yargs option object types.
  */
-type Options = $ObjMap<Config, <T>(T) => OptionTypeMap<T>>;
+type Options = $ObjMap<
+  // TODO: Unsure how to remove function types from T with Flow, so instead just narrowing it here by hand.
+  Config & {language: string},
+  <T>(T) => OptionTypeMap<T>,
+>;
 
 const options: Options = {
   schema: {

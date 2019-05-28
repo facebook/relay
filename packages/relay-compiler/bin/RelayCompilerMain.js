@@ -162,7 +162,7 @@ async function main(config: Config) {
     persistOutput = path.resolve(process.cwd(), persistOutput);
     const persistOutputDir = path.dirname(persistOutput);
     if (!fs.existsSync(persistOutputDir)) {
-      throw new Error(`--persist-output path does not exist: ${persistOutput}`);
+      throw new Error(`--persistOutput path does not exist: ${persistOutput}`);
     }
   }
   if (config.watch && !config.watchman) {

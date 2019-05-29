@@ -11,7 +11,6 @@
 
 'use strict';
 
-const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
 const RelayInMemoryRecordSource = require('../RelayInMemoryRecordSource');
 const RelayModernEnvironment = require('../RelayModernEnvironment');
 const RelayModernOperationDescriptor = require('../RelayModernOperationDescriptor');
@@ -639,59 +638,6 @@ describe('execute() a query with nested @stream', () => {
         ],
       },
     });
-  });
-
-  it('calls error() for invalid streamed payloads (unknown label)', () => {
-    dataSource.next({
-      data: {
-        __typename: 'User',
-        id: 'user-1',
-        name: 'Alice',
-      },
-      label: '<unknown-label>',
-      path: ['viewer', 'newsFeed', 'edges', 0, 'node', 'feedback', 'actors', 0],
-    });
-
-    expect(complete).toBeCalledTimes(0);
-    expect(error).toBeCalledTimes(1);
-    expect(error.mock.calls[0][0].message).toContain(
-      "RelayModernEnvironment: Received response for unknown label '<unknown-label>'",
-    );
-    expect(next).toBeCalledTimes(0);
-    expect(callback).toBeCalledTimes(0);
-  });
-
-  it('calls error() for invalid streamed payloads (unknown path)', () => {
-    dataSource.next({
-      data: {
-        __typename: 'User',
-        id: 'user-1',
-        name: 'Alice',
-      },
-      label: 'FeedFragment$stream$actors',
-      path: [
-        '<unknown-path>',
-        'viewer',
-        'newsFeed',
-        'edges',
-        0,
-        'node',
-        'feedback',
-        'actors',
-        0,
-      ],
-    });
-
-    expect(complete).toBeCalledTimes(0);
-    expect(error).toBeCalledTimes(1);
-    expect(error.mock.calls[0][0].message).toContain(
-      'RelayModernEnvironment: Received response for unknown path ' +
-        '`<unknown-path>.viewer.newsFeed.edges.0.node.feedback` for label ' +
-        '`FeedFragment$stream$actors`. Known paths: ' +
-        'viewer.newsFeed.edges.0.node.feedback.',
-    );
-    expect(next).toBeCalledTimes(0);
-    expect(callback).toBeCalledTimes(0);
   });
 
   it('calls complete() when server completes', () => {

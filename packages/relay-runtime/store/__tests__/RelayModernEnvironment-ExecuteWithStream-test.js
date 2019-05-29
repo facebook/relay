@@ -11,7 +11,6 @@
 
 'use strict';
 
-const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
 const RelayInMemoryRecordSource = require('../RelayInMemoryRecordSource');
 const RelayModernEnvironment = require('../RelayModernEnvironment');
 const RelayModernOperationDescriptor = require('../RelayModernOperationDescriptor');
@@ -808,84 +807,6 @@ describe('execute() a query with @stream', () => {
 
     expect(complete).toBeCalledTimes(0);
     expect(error).toBeCalledTimes(0);
-  });
-
-  it('calls error() for invalid streamed payloads (unknown label)', () => {
-    const initialSnapshot = environment.lookup(selector, operation);
-    const callback = jest.fn();
-    environment.subscribe(initialSnapshot, callback);
-
-    environment.execute({operation}).subscribe(callbacks);
-    dataSource.next({
-      data: {
-        node: {
-          __typename: 'Feedback',
-          id: '1',
-          actors: [],
-        },
-      },
-    });
-    jest.runAllTimers();
-    next.mockClear();
-    callback.mockClear();
-
-    dataSource.next({
-      data: {
-        __typename: 'User',
-        id: '2',
-        name: 'Alice',
-      },
-      label: '<unknown-label>',
-      path: ['node', 'actors', 0],
-    });
-
-    expect(complete).toBeCalledTimes(0);
-    expect(error).toBeCalledTimes(1);
-    expect(error.mock.calls[0][0].message).toContain(
-      "RelayModernEnvironment: Received response for unknown label '<unknown-label>'",
-    );
-    expect(next).toBeCalledTimes(0);
-    expect(callback).toBeCalledTimes(0);
-  });
-
-  it('calls error() for invalid streamed payloads (unknown path)', () => {
-    const initialSnapshot = environment.lookup(selector, operation);
-    const callback = jest.fn();
-    environment.subscribe(initialSnapshot, callback);
-
-    environment.execute({operation}).subscribe(callbacks);
-    dataSource.next({
-      data: {
-        node: {
-          __typename: 'Feedback',
-          id: '1',
-          actors: [],
-        },
-      },
-    });
-    jest.runAllTimers();
-    next.mockClear();
-    callback.mockClear();
-
-    dataSource.next({
-      data: {
-        __typename: 'User',
-        id: '2',
-        name: 'Alice',
-      },
-      label: 'FeedbackFragment$stream$actors',
-      path: ['<unknown-path>', 'actors', 0],
-    });
-
-    expect(complete).toBeCalledTimes(0);
-    expect(error).toBeCalledTimes(1);
-    expect(error.mock.calls[0][0].message).toContain(
-      'RelayModernEnvironment: Received response for unknown path ' +
-        '`<unknown-path>` for label `FeedbackFragment$stream$actors`. ' +
-        'Known paths: node.',
-    );
-    expect(next).toBeCalledTimes(0);
-    expect(callback).toBeCalledTimes(0);
   });
 
   it('calls complete() when server completes after streamed payload resolves', () => {

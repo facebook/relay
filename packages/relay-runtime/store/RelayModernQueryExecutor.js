@@ -65,6 +65,24 @@ export type TaskScheduler = {|
   +schedule: (fn: () => void) => string,
 |};
 
+type Label = string;
+type PathKey = string;
+type IncrementalResults =
+  | {|
+      +kind: 'placeholder',
+      +placeholder: IncrementalDataPlaceholder,
+    |}
+  | {|
+      +kind: 'response',
+      +responses: Array<IncrementalGraphQLResponse>,
+    |};
+
+type IncrementalGraphQLResponse = {|
+  label: string,
+  path: $ReadOnlyArray<mixed>,
+  response: GraphQLResponseWithData,
+|};
+
 function execute(config: ExecuteConfig): Executor {
   return new Executor(config);
 }
@@ -75,13 +93,7 @@ function execute(config: ExecuteConfig): Executor {
  * dependencies, etc.
  */
 class Executor {
-  _incrementalPlaceholders: Map<
-    string,
-    {|
-      +kind: 'defer' | 'stream',
-      +placeholdersByPath: Map<string, IncrementalDataPlaceholder>,
-    |},
-  >;
+  _incrementalResults: Map<Label, Map<PathKey, IncrementalResults>>;
   _nextSubscriptionId: number;
   _operation: OperationDescriptor;
   _operationLoader: ?OperationLoader;
@@ -111,7 +123,7 @@ class Executor {
     operationTracker,
     getDataID,
   }: ExecuteConfig): void {
-    this._incrementalPlaceholders = new Map();
+    this._incrementalResults = new Map();
     this._nextSubscriptionId = 0;
     this._operation = operation;
     this._operationLoader = operationLoader;
@@ -163,7 +175,7 @@ class Executor {
       this._publishQueue.revertUpdate(optimisticResponse);
       this._publishQueue.run();
     }
-    this._incrementalPlaceholders.clear();
+    this._incrementalResults.clear();
     this._completeOperationTracker();
   }
 
@@ -256,7 +268,13 @@ class Executor {
     } else {
       const {path, label} = response;
       if (path != null || label != null) {
-        if (typeof label !== 'string' || !Array.isArray(path)) {
+        if (typeof label === 'string' && Array.isArray(path)) {
+          this._processIncrementalResponse({
+            path,
+            label,
+            response: responseWithData,
+          });
+        } else {
           invariant(
             false,
             'RelayModernQueryExecutor: invalid incremental payload, expected ' +
@@ -264,8 +282,6 @@ class Executor {
               '`path` to be an `Array<string | number>` and `label` to be a ' +
               '`string`.',
           );
-        } else {
-          this._processIncrementalResponse(label, path, responseWithData);
         }
       } else {
         this._processResponse(responseWithData);
@@ -321,7 +337,7 @@ class Executor {
       [] /* path */,
       this._getDataID,
     );
-    this._incrementalPlaceholders.clear();
+    this._incrementalResults.clear();
     this._source.clear();
     this._processPayloadFollowups(payload);
     this._publishQueue.commitPayload(this._operation, payload, this._updater);
@@ -369,16 +385,18 @@ class Executor {
     );
     if (syncOperation != null) {
       // If the operation module is available synchronously, normalize the
-      // data syncrhonously.
-      this._handleModuleImportPayload(moduleImportPayload, syncOperation);
+      // data synchronously.
+      this._schedule(() => {
+        this._handleModuleImportPayload(moduleImportPayload, syncOperation);
+      });
     } else {
       // Otherwise load the operation module and schedule a task to normalize
       // the data when the module is available.
       const id = this._nextSubscriptionId++;
 
-      // Observable.from(operationLoader.load()) wouldn't catch synchronous errors
-      // thrown by the load function, which is user-defined. Guard against that
-      // with Observable.from(new Promise(<work>)).
+      // Observable.from(operationLoader.load()) wouldn't catch synchronous
+      // errors thrown by the load function, which is user-defined. Guard
+      // against that with Observable.from(new Promise(<work>)).
       RelayObservable.from(
         new Promise((resolve, reject) => {
           operationLoader
@@ -424,37 +442,34 @@ class Executor {
   }
 
   /**
-   * Stores a mapping of label => path => placeholder; at this point the
-   * executor knows *how* to process the incremental data and has to save
-   * this until the data is available. The placeholder contains the
-   * normalization selector, path (for nested defer/stream), and other metadata
-   * used to normalize the incremental response.
+   * The executor now knows that GraphQL responses are expected for a given
+   * label/path:
+   * - Store the placeholder in order to process any future responses that may
+   *   arrive.
+   * - Then process any responses that had already arrived.
+   *
+   * The placeholder contains the normalization selector, path (for nested
+   * defer/stream), and other metadata used to normalize the incremental
+   * response(s).
    */
   _processIncrementalPlaceholder(
     relayPayload: RelayResponsePayload,
     placeholder: IncrementalDataPlaceholder,
   ): void {
     // Update the label => path => placeholder map
-    const {kind, label, path} = placeholder;
+    const {label, path} = placeholder;
     const pathKey = path.map(String).join('.');
-    let dataForLabel = this._incrementalPlaceholders.get(label);
-    if (dataForLabel == null) {
-      dataForLabel = {
-        kind,
-        placeholdersByPath: new Map(),
-      };
-      this._incrementalPlaceholders.set(label, dataForLabel);
-    } else if (dataForLabel.kind !== kind) {
-      invariant(
-        false,
-        'RelayModernEnvironment: Received inconsistent data for label `%s`, ' +
-          'expected `@%s` data but got `@%s` data.',
-        label,
-        dataForLabel.kind,
-        kind,
-      );
+    let resultForLabel = this._incrementalResults.get(label);
+    if (resultForLabel == null) {
+      resultForLabel = new Map();
+      this._incrementalResults.set(label, resultForLabel);
     }
-    dataForLabel.placeholdersByPath.set(pathKey, placeholder);
+    const resultForPath = resultForLabel.get(pathKey);
+    const pendingResponses =
+      resultForPath != null && resultForPath.kind === 'response'
+        ? resultForPath.responses
+        : null;
+    resultForLabel.set(pathKey, {kind: 'placeholder', placeholder});
 
     // Store references to the parent node to allow detecting concurrent
     // modifications to the parent before items arrive and to replay
@@ -514,6 +529,15 @@ class Executor {
       record: nextParentRecord,
       fieldPayloads: nextParentPayloads,
     });
+    // If there were any queued responses, process them now that placeholders
+    // are in place
+    if (pendingResponses != null) {
+      pendingResponses.forEach(incrementalResponse => {
+        this._schedule(() => {
+          this._processIncrementalResponse(incrementalResponse);
+        });
+      });
+    }
   }
 
   /**
@@ -522,29 +546,26 @@ class Executor {
    * metadata.
    */
   _processIncrementalResponse(
-    label: string,
-    path: $ReadOnlyArray<mixed>,
-    response: GraphQLResponseWithData,
+    incrementalResponse: IncrementalGraphQLResponse,
   ): void {
-    const dataForLabel = this._incrementalPlaceholders.get(label);
-    invariant(
-      dataForLabel != null,
-      'RelayModernEnvironment: Received response for unknown label ' +
-        `'${label}'. Known labels: ${Array.from(
-          this._incrementalPlaceholders.keys(),
-        ).join(', ')}.`,
-    );
-    if (dataForLabel.kind === 'defer') {
+    const {label, path, response} = incrementalResponse;
+    let resultForLabel = this._incrementalResults.get(label);
+    if (resultForLabel == null) {
+      resultForLabel = new Map();
+      this._incrementalResults.set(label, resultForLabel);
+    }
+    if (label.indexOf('$defer$') !== -1) {
       const pathKey = path.map(String).join('.');
-      const placeholder = dataForLabel.placeholdersByPath.get(pathKey);
-      invariant(
-        placeholder != null,
-        'RelayModernEnvironment: Received response for unknown path `%s` ' +
-          'for label `%s`. Known paths: %s.',
-        pathKey,
-        label,
-        Array.from(dataForLabel.placeholdersByPath.keys()).join(', '),
-      );
+      let resultForPath = resultForLabel.get(pathKey);
+      if (resultForPath == null) {
+        resultForPath = {kind: 'response', responses: [incrementalResponse]};
+        resultForLabel.set(pathKey, resultForPath);
+        return;
+      } else if (resultForPath.kind === 'response') {
+        resultForPath.responses.push(incrementalResponse);
+        return;
+      }
+      const placeholder = resultForPath.placeholder;
       invariant(
         placeholder.kind === 'defer',
         'RelayModernEnvironment: Expected data for path `%s` for label `%s` ' +
@@ -563,15 +584,16 @@ class Executor {
         .slice(0, -2)
         .map(String)
         .join('.');
-      const placeholder = dataForLabel.placeholdersByPath.get(pathKey);
-      invariant(
-        placeholder != null,
-        'RelayModernEnvironment: Received response for unknown path `%s` ' +
-          'for label `%s`. Known paths: %s.',
-        pathKey,
-        label,
-        Array.from(dataForLabel.placeholdersByPath.keys()).join(', '),
-      );
+      let resultForPath = resultForLabel.get(pathKey);
+      if (resultForPath == null) {
+        resultForPath = {kind: 'response', responses: [incrementalResponse]};
+        resultForLabel.set(pathKey, resultForPath);
+        return;
+      } else if (resultForPath.kind === 'response') {
+        resultForPath.responses.push(incrementalResponse);
+        return;
+      }
+      const placeholder = resultForPath.placeholder;
       invariant(
         placeholder.kind === 'stream',
         'RelayModernEnvironment: Expected data for path `%s` for label `%s` ' +

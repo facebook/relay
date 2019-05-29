@@ -10,20 +10,9 @@
 
 'use strict';
 
-import type GraphQLCompilerContext from '../core/GraphQLCompilerContext';
-import type {Field} from '../core/GraphQLIR';
-import type {
-  ASTNode,
-  GraphQLCompositeType,
-  GraphQLEnumType,
-  GraphQLInputObjectType,
-  GraphQLNamedType,
-  GraphQLNonNull,
-  GraphQLScalarType,
-  GraphQLType,
-} from 'graphql';
-
+const invariant = require('invariant');
 const nullthrows = require('../util/nullthrowsOSS');
+
 const {
   GraphQLInterfaceType,
   GraphQLList,
@@ -37,7 +26,20 @@ const {
   getNamedType,
   getNullableType,
 } = require('graphql');
-const invariant = require('invariant');
+
+import type GraphQLCompilerContext from '../core/GraphQLCompilerContext';
+import type {Field, ScalarField} from '../core/GraphQLIR';
+import type {
+  ASTNode,
+  GraphQLCompositeType,
+  GraphQLEnumType,
+  GraphQLInputObjectType,
+  GraphQLLeafType,
+  GraphQLNamedType,
+  GraphQLNonNull,
+  GraphQLScalarType,
+  GraphQLType,
+} from 'graphql';
 
 const ID = 'id';
 const ID_TYPE = 'ID';
@@ -258,9 +260,24 @@ function assertTypeWithFields(
   return type;
 }
 
+function generateIDField(idType: GraphQLLeafType): ScalarField {
+  return {
+    kind: 'ScalarField',
+    alias: (null: ?string),
+    args: [],
+    directives: [],
+    handles: null,
+    loc: {kind: 'Generated'},
+    metadata: null,
+    name: ID,
+    type: idType,
+  };
+}
+
 module.exports = {
   assertTypeWithFields,
   canHaveSelections,
+  generateIDField,
   getNullableType,
   getRawType,
   getSingularType,
@@ -268,9 +285,9 @@ module.exports = {
   implementsInterface,
   isAbstractType,
   isClientDefinedField,
-  isServerDefinedField,
-  isUnionType,
   isExecutableDefinitionAST,
   isSchemaDefinitionAST,
+  isServerDefinedField,
+  isUnionType,
   mayImplement,
 };

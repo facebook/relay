@@ -105,6 +105,47 @@ query RefetchableFragmentQuery(
 
 `;
 
+exports[`RelayRefetchableFragmentTransform matches expected output: fragment-on-node-interface-without-id.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment RefetchableFragment on Node @refetchable(queryName: "RefetchableFragmentQuery") {
+  ... on User {
+    name
+    ...ProfilePicture
+  }
+}
+
+fragment ProfilePicture on User {
+  profilePicture(size: $size) {
+    uri
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+fragment RefetchableFragment on Node @refetchable(queryName: "RefetchableFragmentQuery") {
+  ... on User {
+    name
+    ...ProfilePicture
+  }
+  id
+}
+
+fragment ProfilePicture on User {
+  profilePicture(size: $size) {
+    uri
+  }
+}
+
+query RefetchableFragmentQuery(
+  $size: [Int]
+  $id: ID!
+) {
+  node(id: $id) {
+    ...RefetchableFragment
+  }
+}
+
+`;
+
 exports[`RelayRefetchableFragmentTransform matches expected output: fragment-on-object-implementing-node-interface.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 fragment RefetchableFragment on User @refetchable(queryName: "RefetchableFragmentQuery") {
@@ -124,6 +165,45 @@ fragment RefetchableFragment on User @refetchable(queryName: "RefetchableFragmen
   id
   name
   ...ProfilePicture
+}
+
+fragment ProfilePicture on User {
+  profilePicture(size: $size) {
+    uri
+  }
+}
+
+query RefetchableFragmentQuery(
+  $size: [Int]
+  $id: ID!
+) {
+  node(id: $id) {
+    ...RefetchableFragment
+  }
+}
+
+`;
+
+exports[`RelayRefetchableFragmentTransform matches expected output: fragment-on-object-implementing-node-interface-with-alias-id.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment RefetchableFragment on User @refetchable(queryName: "RefetchableFragmentQuery") {
+  __id: id
+  name
+  ...ProfilePicture
+}
+
+fragment ProfilePicture on User {
+  profilePicture(size: $size) {
+    uri
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+fragment RefetchableFragment on User @refetchable(queryName: "RefetchableFragmentQuery") {
+  __id: id
+  name
+  ...ProfilePicture
+  id
 }
 
 fragment ProfilePicture on User {

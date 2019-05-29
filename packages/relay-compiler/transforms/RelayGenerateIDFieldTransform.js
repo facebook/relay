@@ -26,6 +26,7 @@ import type {GraphQLCompositeType} from 'graphql';
 const {
   canHaveSelections,
   getRawType,
+  generateIDField,
   hasID,
   implementsInterface,
   isAbstractType,
@@ -48,17 +49,7 @@ function relayGenerateIDFieldTransform(
   context: CompilerContext,
 ): CompilerContext {
   const idType = assertLeafType(context.serverSchema.getType(ID_TYPE));
-  const idField: ScalarField = {
-    kind: 'ScalarField',
-    alias: (null: ?string),
-    args: [],
-    directives: [],
-    handles: null,
-    loc: {kind: 'Generated'},
-    metadata: null,
-    name: ID,
-    type: idType,
-  };
+  const idField: ScalarField = generateIDField(idType);
   const state = {
     idField,
   };

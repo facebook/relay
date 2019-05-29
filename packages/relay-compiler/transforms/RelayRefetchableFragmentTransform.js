@@ -38,7 +38,11 @@ const {
 } = require('graphql');
 
 import type {GraphQLCompositeType} from 'graphql';
-const {isAbstractType, implementsInterface} = GraphQLSchemaUtils;
+const {
+  isAbstractType,
+  implementsInterface,
+  generateIDField,
+} = GraphQLSchemaUtils;
 
 import type {
   Argument,
@@ -54,6 +58,7 @@ import type {ReaderPaginationMetadata} from 'relay-runtime';
 type RefetchRoot = {|
   path: $ReadOnlyArray<string>,
   node: Root,
+  transformedFragment: Fragment,
 |};
 
 const VIEWER_TYPE_NAME = 'Viewer';
@@ -142,12 +147,14 @@ function relayRefetchableFragmentTransform(
         );
       }
       if (refetchDescriptor != null) {
-        const {path, node} = refetchDescriptor;
-        const connectionMetadata = extractConnectionMetadata(fragment);
+        const {path, node, transformedFragment} = refetchDescriptor;
+        const connectionMetadata = extractConnectionMetadata(
+          transformedFragment,
+        );
         nextContext = nextContext.replace({
-          ...fragment,
+          ...transformedFragment,
           metadata: {
-            ...(fragment.metadata || {}),
+            ...(transformedFragment.metadata || {}),
             refetch: {
               connection: connectionMetadata ?? null,
               operation: refetchName,
@@ -159,7 +166,7 @@ function relayRefetchableFragmentTransform(
           ...node,
           metadata: {
             ...(node.metadata || {}),
-            derivedFrom: fragment.name,
+            derivedFrom: transformedFragment.name,
           },
         });
       }
@@ -406,6 +413,7 @@ function buildRefetchOperationOnQueryType(
       selections: [buildFragmentSpread(fragment)],
       type: queryType,
     },
+    transformedFragment: fragment,
   };
 }
 
@@ -463,6 +471,7 @@ function buildRefetchOperationOnViewerType(
       ],
       type: queryType,
     },
+    transformedFragment: fragment,
   };
 }
 
@@ -513,21 +522,6 @@ function buildRefetchOperationOnNodeType(
         fragment.name
       }', this fragment already has an '\$id' variable in scope.`,
       [idArgument.loc],
-    );
-  }
-  const idSelection = fragment.selections.find(
-    selection =>
-      selection.kind === 'ScalarField' &&
-      selection.name === 'id' &&
-      selection.alias == null &&
-      isEquivalentType(getNullableType(selection.type), GraphQLID),
-  );
-  if (idSelection == null) {
-    throw createUserError(
-      `Invalid use of @refetchable on fragment '${
-        fragment.name
-      }', refetchable fragments on Node (or types implementing Node) must fetch the 'id' field without an alias.`,
-      [fragment.loc],
     );
   }
   const idArgType = new GraphQLNonNull(GraphQLID);
@@ -583,6 +577,24 @@ function buildRefetchOperationOnNodeType(
       ],
       type: queryType,
     },
+    transformedFragment: enforceIDField(fragment),
+  };
+}
+
+function enforceIDField(fragment: Fragment): Fragment {
+  const idSelection = fragment.selections.find(
+    selection =>
+      selection.kind === 'ScalarField' &&
+      selection.name === 'id' &&
+      selection.alias == null &&
+      isEquivalentType(getNullableType(selection.type), GraphQLID),
+  );
+  if (idSelection) {
+    return fragment;
+  }
+  return {
+    ...fragment,
+    selections: [...fragment.selections, generateIDField(GraphQLID)],
   };
 }
 

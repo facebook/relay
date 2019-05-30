@@ -529,7 +529,6 @@ describe('execute() a query with @defer', () => {
     const callback = jest.fn();
     environment.subscribe(initialSnapshot, callback);
 
-    warning.mockClear();
     environment.execute({operation}).subscribe(callbacks);
     const payload = {
       data: {

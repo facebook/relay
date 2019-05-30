@@ -1067,7 +1067,6 @@ describe('execute() a query with @stream', () => {
     const callback = jest.fn();
     environment.subscribe(initialSnapshot, callback);
 
-    warning.mockClear();
     environment.execute({operation}).subscribe(callbacks);
     const payload = {
       data: {

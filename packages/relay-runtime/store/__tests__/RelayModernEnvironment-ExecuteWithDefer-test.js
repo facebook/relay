@@ -11,13 +11,14 @@
 
 'use strict';
 
-const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
 const RelayInMemoryRecordSource = require('../RelayInMemoryRecordSource');
 const RelayModernEnvironment = require('../RelayModernEnvironment');
 const RelayModernOperationDescriptor = require('../RelayModernOperationDescriptor');
 const RelayModernStore = require('../RelayModernStore');
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
+
+const warning = require('warning');
 
 const {generateAndCompile, matchers} = require('relay-test-utils');
 
@@ -521,5 +522,46 @@ describe('execute() a query with @defer', () => {
     );
     expect(next).toBeCalledTimes(1);
     expect(callback).toBeCalledTimes(1);
+  });
+
+  it('warns if executed in non-streaming mode', () => {
+    const initialSnapshot = environment.lookup(selector, operation);
+    const callback = jest.fn();
+    environment.subscribe(initialSnapshot, callback);
+
+    warning.mockClear();
+    environment.execute({operation}).subscribe(callbacks);
+    const payload = {
+      data: {
+        node: {
+          id: '1',
+          __typename: 'User',
+          name: 'Alice',
+        },
+      },
+      extensions: {
+        is_final: true,
+      },
+    };
+    dataSource.next(payload);
+    jest.runAllTimers();
+
+    expect(next.mock.calls.length).toBe(1);
+    expect(complete).not.toBeCalled();
+    expect(error).not.toBeCalled();
+    expect(callback.mock.calls.length).toBe(1);
+    const snapshot = callback.mock.calls[0][0];
+    expect(snapshot.isMissingData).toBe(true);
+    expect(snapshot.data).toEqual({
+      id: '1',
+      name: undefined,
+    });
+    expect(warning).toHaveBeenCalledWith(
+      false,
+      'RelayModernEnvironment: Operation `%s` contains @defer/@stream ' +
+        'directives but was executed in non-streaming mode. See ' +
+        'https://fburl.com/relay-incremental-delivery-non-streaming-warning.',
+      'UserQuery',
+    );
   });
 });

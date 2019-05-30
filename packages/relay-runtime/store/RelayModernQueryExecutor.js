@@ -19,6 +19,8 @@ const RelayResponseNormalizer = require('./RelayResponseNormalizer');
 
 const invariant = require('invariant');
 const stableCopy = require('../util/stableCopy');
+// flowlint-next-line untyped-import:off
+const warning = require('warning');
 
 const {generateClientID} = require('./ClientID');
 const {ROOT_TYPE, TYPENAME_KEY, getStorageKey} = require('./RelayStoreUtils');
@@ -343,6 +345,24 @@ class Executor {
     this._publishQueue.commitPayload(this._operation, payload, this._updater);
     const updatedOwners = this._publishQueue.run();
     this._updateOperationTracker(updatedOwners);
+
+    if (
+      payload.incrementalPlaceholders &&
+      payload.incrementalPlaceholders.length !== 0 &&
+      response.extensions?.is_final === true
+    ) {
+      // The query has defer/stream selections that are enabled, but the server
+      // indicated that this is a "final" payload: no incremental payloads will
+      // be delivered. Warn that the query was (likely) executed on the server
+      // in non-streaming mode, with incremental delivery disabled.
+      warning(
+        false,
+        'RelayModernEnvironment: Operation `%s` contains @defer/@stream ' +
+          'directives but was executed in non-streaming mode. See ' +
+          'https://fburl.com/relay-incremental-delivery-non-streaming-warning.',
+        this._operation.node.params.name,
+      );
+    }
   }
 
   /**

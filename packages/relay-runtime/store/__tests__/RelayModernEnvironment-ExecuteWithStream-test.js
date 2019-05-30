@@ -18,6 +18,8 @@ const RelayModernStore = require('../RelayModernStore');
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
 
+const warning = require('warning');
+
 const {generateAndCompile, matchers} = require('relay-test-utils');
 
 function createOperationDescriptor(...args) {
@@ -1058,5 +1060,46 @@ describe('execute() a query with @stream', () => {
 
     expect(complete).toBeCalledTimes(0);
     expect(error).toBeCalledTimes(0);
+  });
+
+  it('warns if executed in non-streaming mode', () => {
+    const initialSnapshot = environment.lookup(selector, operation);
+    const callback = jest.fn();
+    environment.subscribe(initialSnapshot, callback);
+
+    warning.mockClear();
+    environment.execute({operation}).subscribe(callbacks);
+    const payload = {
+      data: {
+        node: {
+          __typename: 'Feedback',
+          id: '1',
+          actors: [],
+        },
+      },
+      extensions: {
+        is_final: true,
+      },
+    };
+    dataSource.next(payload);
+    jest.runAllTimers();
+
+    expect(next.mock.calls.length).toBe(1);
+    expect(complete).not.toBeCalled();
+    expect(error).not.toBeCalled();
+    expect(callback.mock.calls.length).toBe(1);
+    const snapshot = callback.mock.calls[0][0];
+    expect(snapshot.isMissingData).toBe(false);
+    expect(snapshot.data).toEqual({
+      id: '1',
+      actors: [],
+    });
+    expect(warning).toHaveBeenCalledWith(
+      false,
+      'RelayModernEnvironment: Operation `%s` contains @defer/@stream ' +
+        'directives but was executed in non-streaming mode. See ' +
+        'https://fburl.com/relay-incremental-delivery-non-streaming-warning.',
+      'FeedbackQuery',
+    );
   });
 });

@@ -508,7 +508,7 @@ function mergeEdges(
       continue;
     }
     const node = edge.getLinkedRecord(NODE);
-    const nodeID = node && node.getValue('id');
+    const nodeID = node && node.getDataID();
     if (nodeID) {
       if (nodeIDs.has(nodeID)) {
         continue;

@@ -50,7 +50,7 @@ describe('RelayConnectionHandler', () => {
   let sinkData;
   let sinkSource;
 
-  function normalize(payload, variables) {
+  function normalize(payload, variables, options) {
     RelayResponseNormalizer.normalize(
       baseSource,
       {
@@ -59,7 +59,7 @@ describe('RelayConnectionHandler', () => {
         variables,
       },
       payload,
-      {
+      options ?? {
         getDataID: defaultGetDataID,
       },
     );
@@ -1211,7 +1211,7 @@ describe('RelayConnectionHandler', () => {
         });
       });
 
-      it('skips edges with duplicate node ids', () => {
+      it('skips edges with duplicate node data id (server `id`)', () => {
         normalize(
           {
             node: {
@@ -1247,6 +1247,110 @@ describe('RelayConnectionHandler', () => {
             count: 10,
             orderby: ['first name'],
             id: '4',
+          },
+        );
+        const args = {after: 'cursor:1', first: 10, orderby: ['first name']};
+        const handleKey =
+          getRelayHandleKey(
+            'connection',
+            'ConnectionQuery_friends',
+            'friends',
+          ) + '(orderby:["first name"])';
+        const payload = {
+          args,
+          dataID: '4',
+          fieldKey: getStableStorageKey('friends', args),
+          handleKey,
+        };
+        RelayConnectionHandler.update(proxy, payload);
+        expect(sinkData).toEqual({
+          'client:4:__ConnectionQuery_friends_connection(orderby:["first name"])': {
+            [ID_KEY]:
+              'client:4:__ConnectionQuery_friends_connection(orderby:["first name"])',
+            [TYPENAME_KEY]: 'FriendsConnection',
+            edges: {
+              [REFS_KEY]: [
+                'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):edges:0',
+                // '...edges:0' skipped bc of duplicate node id
+                'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):edges:2',
+              ],
+            },
+            pageInfo: {
+              [REF_KEY]:
+                'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):pageInfo',
+            },
+            __connection_next_edge_index: 3,
+          },
+          'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):edges:1': {
+            [ID_KEY]:
+              'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):edges:1',
+            [TYPENAME_KEY]: 'FriendsEdge',
+            cursor: 'cursor:2',
+            node: {[REF_KEY]: '1'},
+          },
+          'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):edges:2': {
+            [ID_KEY]:
+              'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):edges:2',
+            [TYPENAME_KEY]: 'FriendsEdge',
+            cursor: 'cursor:3',
+            node: {[REF_KEY]: '3'},
+          },
+          'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):pageInfo': {
+            [ID_KEY]:
+              'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):pageInfo',
+            [TYPENAME_KEY]: 'PageInfo',
+            [END_CURSOR]: 'cursor:3',
+            [HAS_NEXT_PAGE]: true,
+          },
+        });
+      });
+
+      it('skips edges with duplicate node data id (client ids)', () => {
+        normalize(
+          {
+            node: {
+              id: '4',
+              __typename: 'User',
+              friends: {
+                edges: [
+                  {
+                    cursor: 'cursor:2', // new cursor
+                    node: {
+                      // below getDataID() rewrites to same __id as the existing
+                      // edge
+                      id: '<duplicate-1>',
+                    },
+                  },
+                  {
+                    cursor: 'cursor:3',
+                    node: {
+                      id: '3',
+                    },
+                  },
+                ],
+                [PAGE_INFO]: {
+                  [END_CURSOR]: 'cursor:3',
+                  [HAS_NEXT_PAGE]: true,
+                  [HAS_PREV_PAGE]: false,
+                  [START_CURSOR]: 'cursor:3',
+                },
+              },
+            },
+          },
+          {
+            after: 'cursor:1',
+            before: null,
+            count: 10,
+            orderby: ['first name'],
+            id: '4',
+          },
+          {
+            getDataID: (value, typeName) => {
+              if (value.id === '<duplicate-1>') {
+                return '1';
+              }
+              return value.id;
+            },
           },
         );
         const args = {after: 'cursor:1', first: 10, orderby: ['first name']};

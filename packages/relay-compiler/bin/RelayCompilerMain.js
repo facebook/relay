@@ -162,6 +162,7 @@ async function main(config: Config) {
   if (!fs.existsSync(schema)) {
     throw new Error(`--schema path does not exist: ${schema}`);
   }
+
   const src = path.resolve(process.cwd(), config.src);
   if (!fs.existsSync(src)) {
     throw new Error(`--src path does not exist: ${src}`);
@@ -202,12 +203,15 @@ async function main(config: Config) {
 }
 
 async function getWatchConfig(config: Config) {
-  if (config.watch && !config.watchman) {
-    throw new Error('Watchman is required to watch for changes.');
-  }
-  if (config.watch && !module.exports.hasWatchmanRootFile(config.src)) {
-    throw new Error(
-      `
+  const watchman = config.watchman && (await WatchmanClient.isAvailable());
+
+  if (config.watch) {
+    if (!watchman) {
+      throw new Error('Watchman is required to watch for changes.');
+    }
+    if (!module.exports.hasWatchmanRootFile(config.src)) {
+      throw new Error(
+        `
 --watch requires that the src directory have a valid watchman "root" file.
 
 Root files can include:
@@ -216,14 +220,14 @@ Root files can include:
 - A .watchmanconfig file
 
 Ensure that one such file exists in ${config.src} or its parents.
-    `.trim(),
-    );
-  }
-  const watchman = config.watchman && (await WatchmanClient.isAvailable());
-  if (!config.validate && !config.watch && watchman) {
+      `.trim(),
+      );
+    }
+  } else if (watchman && !config.validate) {
     // eslint-disable-next-line no-console
     console.log('HINT: pass --watch to keep watching for changes.');
   }
+
   return {...config, watchman};
 }
 

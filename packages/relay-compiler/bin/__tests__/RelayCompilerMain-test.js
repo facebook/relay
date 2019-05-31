@@ -119,7 +119,7 @@ describe('RelayCompilerMain', () => {
 
     it('invokes getCodegenRunner with the correct watchman config', async () => {
       isWatchmanAvailable.mockImplementationOnce(() => Promise.resolve(false));
-      await main(config);
+      await main({...config, watch: false});
       expect(getCodegenRunnerSpy).toHaveBeenCalledWith(
         expect.objectContaining({watchman: false}),
       );
@@ -147,8 +147,26 @@ describe('RelayCompilerMain', () => {
       logSpy.mockRestore();
     });
 
-    it('works', async () => {
+    it('returns an unaltered config if enalbing watch mode and watchman is available', async () => {
       expect(await getWatchConfig(config)).toEqual(config);
+    });
+
+    it('disables the watchman setting if watchman is not available', async () => {
+      isWatchmanAvailable.mockImplementationOnce(() => Promise.resolve(false));
+      expect(await getWatchConfig({...config, watch: false})).toEqual({
+        ...config,
+        watch: false,
+        watchman: false,
+      });
+    });
+
+    it('does not enable watchman if disabled by user, regardless of watchman being available', async () => {
+      const result = await getWatchConfig({
+        ...config,
+        watch: false,
+        watchman: false,
+      });
+      expect(result.watchman).toEqual(false);
     });
 
     it('throws when enabling watch mode but disabling watchman', async () => {
@@ -167,21 +185,11 @@ describe('RelayCompilerMain', () => {
       spy.mockRestore();
     });
 
-    it('disables the watchman setting if watchman is not available', async () => {
+    it('throws when enabling watch mode but watchman not being available', async () => {
       isWatchmanAvailable.mockImplementationOnce(() => Promise.resolve(false));
-      expect(await getWatchConfig(config)).toEqual({
-        ...config,
-        watchman: false,
-      });
-    });
-
-    it('does not enable watchman if disabled by user, regardless of watchman being available', async () => {
-      const result = await getWatchConfig({
-        ...config,
-        watch: false,
-        watchman: false,
-      });
-      expect(result.watchman).toEqual(false);
+      await expect(
+        getWatchConfig({...config, watchman: true}),
+      ).rejects.toThrowError(/watchman is required/i);
     });
 
     describe('concerning its hint to enable watch mode', () => {

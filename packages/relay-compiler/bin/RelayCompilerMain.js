@@ -175,41 +175,19 @@ async function main(config: Config) {
       throw new Error(`--persistOutput path does not exist: ${persistOutput}`);
     }
   }
-  if (config.watch && !config.watchman) {
-    throw new Error('Watchman is required to watch for changes.');
-  }
-  if (config.watch && !hasWatchmanRootFile(src)) {
-    throw new Error(
-      `
---watch requires that the src directory have a valid watchman "root" file.
 
-Root files can include:
-- A .git/ Git folder
-- A .hg/ Mercurial folder
-- A .watchmanconfig file
-
-Ensure that one such file exists in ${src} or its parents.
-    `.trim(),
-    );
-  }
   if (config.verbose && config.quiet) {
     throw new Error("I can't be quiet and verbose at the same time");
   }
 
-  const watchman = config.watchman && (await WatchmanClient.isAvailable());
+  config = await getWatchConfig(config);
 
-  const codegenRunner = getCodegenRunner({
+  const codegenRunner = module.exports.getCodegenRunner({
     ...config,
     persistOutput,
     schema,
     src,
-    watchman,
   });
-
-  if (!config.validate && !config.watch && watchman) {
-    // eslint-disable-next-line no-console
-    console.log('HINT: pass --watch to keep watching for changes.');
-  }
 
   const result = config.watch
     ? await codegenRunner.watchAll()
@@ -221,6 +199,32 @@ Ensure that one such file exists in ${src} or its parents.
   if (config.validate && result !== 'NO_CHANGES') {
     process.exit(101);
   }
+}
+
+async function getWatchConfig(config: Config) {
+  if (config.watch && !config.watchman) {
+    throw new Error('Watchman is required to watch for changes.');
+  }
+  if (config.watch && !module.exports.hasWatchmanRootFile(config.src)) {
+    throw new Error(
+      `
+--watch requires that the src directory have a valid watchman "root" file.
+
+Root files can include:
+- A .git/ Git folder
+- A .hg/ Mercurial folder
+- A .watchmanconfig file
+
+Ensure that one such file exists in ${config.src} or its parents.
+    `.trim(),
+    );
+  }
+  const watchman = config.watchman && (await WatchmanClient.isAvailable());
+  if (!config.validate && !config.watch && watchman) {
+    // eslint-disable-next-line no-console
+    console.log('HINT: pass --watch to keep watching for changes.');
+  }
+  return {...config, watchman};
 }
 
 function getCodegenRunner(config: Config) {
@@ -402,7 +406,7 @@ ${error.stack}
 // Ensure that a watchman "root" file exists in the given directory
 // or a parent so that it can be watched
 const WATCHMAN_ROOT_FILES = ['.git', '.hg', '.watchmanconfig'];
-function hasWatchmanRootFile(testPath) {
+function hasWatchmanRootFile(testPath: string) {
   while (path.dirname(testPath) !== testPath) {
     if (
       WATCHMAN_ROOT_FILES.some(file => {
@@ -416,4 +420,10 @@ function hasWatchmanRootFile(testPath) {
   return false;
 }
 
-module.exports = {getCodegenRunner, getLanguagePlugin, main};
+module.exports = {
+  getCodegenRunner,
+  getLanguagePlugin,
+  getWatchConfig,
+  hasWatchmanRootFile,
+  main,
+};

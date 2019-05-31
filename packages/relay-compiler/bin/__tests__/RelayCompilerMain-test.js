@@ -45,7 +45,7 @@ describe('RelayCompilerMain', () => {
       schema: testSchemaPath,
       src: path.resolve('.'),
       validate: false,
-      watch: true,
+      watch: false,
       watchman: true,
     };
   });
@@ -148,7 +148,10 @@ describe('RelayCompilerMain', () => {
     });
 
     it('returns an unaltered config if enalbing watch mode and watchman is available', async () => {
-      expect(await getWatchConfig(config)).toEqual(config);
+      expect(await getWatchConfig({...config, watch: true})).toEqual({
+        ...config,
+        watch: true,
+      });
     });
 
     it('disables the watchman setting if watchman is not available', async () => {
@@ -171,7 +174,7 @@ describe('RelayCompilerMain', () => {
 
     it('throws when enabling watch mode but disabling watchman', async () => {
       await expect(
-        getWatchConfig({...config, watchman: false}),
+        getWatchConfig({...config, watch: true, watchman: false}),
       ).rejects.toThrowError(/watchman is required/i);
     });
 
@@ -179,16 +182,16 @@ describe('RelayCompilerMain', () => {
       const spy = jest
         .spyOn(RelayCompilerMain, 'hasWatchmanRootFile')
         .mockImplementation(() => false);
-      await expect(getWatchConfig(config)).rejects.toThrowError(
-        /have a valid watchman "root" file/i,
-      );
+      await expect(
+        getWatchConfig({...config, watch: true}),
+      ).rejects.toThrowError(/have a valid watchman "root" file/i);
       spy.mockRestore();
     });
 
     it('throws when enabling watch mode but watchman not being available', async () => {
       isWatchmanAvailable.mockImplementationOnce(() => Promise.resolve(false));
       await expect(
-        getWatchConfig({...config, watchman: true}),
+        getWatchConfig({...config, watch: true, watchman: true}),
       ).rejects.toThrowError(/watchman is required/i);
     });
 

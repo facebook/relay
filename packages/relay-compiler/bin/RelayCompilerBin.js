@@ -106,10 +106,12 @@ const options: Options = {
   verbose: {
     describe: 'More verbose logging',
     type: 'boolean',
+    default: false,
   },
   quiet: {
     describe: 'No output to stdout',
     type: 'boolean',
+    default: false,
   },
   watchman: {
     describe: 'Use watchman when not in watch mode',
@@ -119,6 +121,7 @@ const options: Options = {
   watch: {
     describe: 'If specified, watches files and regenerates on changes',
     type: 'boolean',
+    default: false,
   },
   validate: {
     describe:

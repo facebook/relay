@@ -158,6 +158,28 @@ function getLanguagePlugin(
 }
 
 async function main(config: Config) {
+  if (config.verbose && config.quiet) {
+    throw new Error("I can't be quiet and verbose at the same time");
+  }
+
+  config = getPathBasedConfig(config);
+  config = await getWatchConfig(config);
+
+  const codegenRunner = module.exports.getCodegenRunner(config);
+
+  const result = config.watch
+    ? await codegenRunner.watchAll()
+    : await codegenRunner.compileAll();
+
+  if (result === 'ERROR') {
+    process.exit(100);
+  }
+  if (config.validate && result !== 'NO_CHANGES') {
+    process.exit(101);
+  }
+}
+
+function getPathBasedConfig(config: Config) {
   const schema = path.resolve(process.cwd(), config.schema);
   if (!fs.existsSync(schema)) {
     throw new Error(`--schema path does not exist: ${schema}`);
@@ -177,29 +199,7 @@ async function main(config: Config) {
     }
   }
 
-  if (config.verbose && config.quiet) {
-    throw new Error("I can't be quiet and verbose at the same time");
-  }
-
-  config = await getWatchConfig(config);
-
-  const codegenRunner = module.exports.getCodegenRunner({
-    ...config,
-    persistOutput,
-    schema,
-    src,
-  });
-
-  const result = config.watch
-    ? await codegenRunner.watchAll()
-    : await codegenRunner.compileAll();
-
-  if (result === 'ERROR') {
-    process.exit(100);
-  }
-  if (config.validate && result !== 'NO_CHANGES') {
-    process.exit(101);
-  }
+  return {...config, schema, src, persistOutput};
 }
 
 async function getWatchConfig(config: Config) {

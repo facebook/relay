@@ -69,7 +69,7 @@ describe('RelayCompilerMain', () => {
     );
   });
 
-  describe('concerning the codegen runner', () => {
+  describe('getCodegenRunner', () => {
     const options = {
       schema: testSchemaPath,
       language: 'javascript',
@@ -78,34 +78,32 @@ describe('RelayCompilerMain', () => {
       src: '.',
     };
 
-    describe('and its writer configurations', () => {
-      it('configures the language', () => {
-        const codegenRunner = getCodegenRunner({
-          ...options,
-          language: 'javascript',
-        });
-        const config = codegenRunner.writerConfigs.js;
-        expect(codegenRunner.parserConfigs[config.parser]).not.toBeUndefined();
+    it('configures the language', () => {
+      const codegenRunner = getCodegenRunner({
+        ...options,
+        language: 'javascript',
       });
+      const config = codegenRunner.writerConfigs.js;
+      expect(codegenRunner.parserConfigs[config.parser]).not.toBeUndefined();
+    });
 
-      it('configures the file writer with custom scalars', () => {
-        const codegenRunner = getCodegenRunner({
-          ...options,
-          customScalars: {URL: 'String'},
-        });
-        const config = codegenRunner.writerConfigs.js;
-        const writeFiles = config.writeFiles;
-        writeFiles({onlyValidate: true});
-        expect(RelayFileWriter.writeAll).toHaveBeenCalledWith(
-          expect.objectContaining({
-            config: expect.objectContaining({customScalars: {URL: 'String'}}),
-          }),
-        );
+    it('configures the file writer with custom scalars', () => {
+      const codegenRunner = getCodegenRunner({
+        ...options,
+        customScalars: {URL: 'String'},
       });
+      const config = codegenRunner.writerConfigs.js;
+      const writeFiles = config.writeFiles;
+      writeFiles({onlyValidate: true});
+      expect(RelayFileWriter.writeAll).toHaveBeenCalledWith(
+        expect.objectContaining({
+          config: expect.objectContaining({customScalars: {URL: 'String'}}),
+        }),
+      );
     });
   });
 
-  describe('concerning language plugins', () => {
+  describe('getLanguagePlugin', () => {
     it('uses the builtin Flow generator for javascript', () => {
       expect(getLanguagePlugin('javascript')).toEqual(
         RelayLanguagePluginJavaScript(),

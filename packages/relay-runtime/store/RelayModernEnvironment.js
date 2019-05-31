@@ -14,6 +14,7 @@
 const DataChecker = require('./DataChecker');
 const RelayCore = require('./RelayCore');
 const RelayDefaultHandlerProvider = require('../handlers/RelayDefaultHandlerProvider');
+const RelayDefaultMissingFieldHanlders = require('../handlers/RelayDefaultMissingFieldHanlders');
 const RelayInMemoryRecordSource = require('./RelayInMemoryRecordSource');
 const RelayModernQueryExecutor = require('./RelayModernQueryExecutor');
 const RelayObservable = require('../network/RelayObservable');
@@ -134,9 +135,9 @@ class RelayModernEnvironment implements Environment {
     if (devToolsHook) {
       devToolsHook.registerEnvironment(this);
     }
-    if (config.missingFieldHandlers != null) {
-      this._missingFieldHandlers = config.missingFieldHandlers;
-    }
+    this._missingFieldHandlers =
+      config.missingFieldHandlers ?? RelayDefaultMissingFieldHanlders;
+
     if (config.operationTracker != null) {
       this._operationTracker = config.operationTracker;
     }

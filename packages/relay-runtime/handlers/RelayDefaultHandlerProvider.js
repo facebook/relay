@@ -11,7 +11,6 @@
 'use strict';
 
 const RelayConnectionHandler = require('./connection/RelayConnectionHandler');
-const RelayViewerHandler = require('./viewer/RelayViewerHandler');
 
 const invariant = require('invariant');
 
@@ -22,8 +21,6 @@ function RelayDefaultHandlerProvider(handle: string): Handler {
   switch (handle) {
     case 'connection':
       return RelayConnectionHandler;
-    case 'viewer':
-      return RelayViewerHandler;
   }
   invariant(
     false,

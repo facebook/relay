@@ -150,8 +150,6 @@ describe('execute() fetches a @stream-ed @connection', () => {
         switch (name) {
           case 'name_handler':
             return NameHandler;
-          case 'viewer':
-            return RelayViewerHandler;
           case 'connection':
             return RelayConnectionHandler;
         }

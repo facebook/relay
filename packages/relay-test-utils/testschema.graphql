@@ -83,6 +83,7 @@ type Mutation {
   nodeSavedState(input: NodeSaveStateInput): NodeSavedStateResponsePayload
   unfriend(input: UnfriendInput): UnfriendResponsePayload
   viewerNotificationsUpdateAllSeenState(input: UpdateAllSeenStateInput): ViewerNotificationsUpdateAllSeenStateResponsePayload
+  setLocation(input: LocationInput): setLocationResponsePayload
 }
 
 type Subscription {
@@ -143,6 +144,16 @@ input NodeSaveStateInput {
 input UpdateAllSeenStateInput {
   clientMutationId: String
   storyIds: [ID]
+}
+
+input LocationInput {
+  longitude: Float
+  latitude: Float
+}
+
+type setLocationResponsePayload {
+  clientMutationId: String
+  viewer: Viewer
 }
 
 type ActorSubscribeResponsePayload {
@@ -818,6 +829,17 @@ type Viewer {
     marketplace_browse_context: MarketplaceBrowseContext,
     with_price_between: [Float],
   ): MarketplaceExploreConnection
+  marketplace_settings: MarketPlaceSettings
+}
+
+type MarketPlaceSettings {
+  location: MarketPlaceSellLocation
+  categories: [String],
+}
+
+type MarketPlaceSellLocation {
+  longitude: Float,
+  latitude: Float,
 }
 
 type MarketplaceExploreConnection {

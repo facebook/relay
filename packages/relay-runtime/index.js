@@ -18,6 +18,7 @@ const RelayCore = require('./store/RelayCore');
 const RelayDeclarativeMutationConfig = require('./mutations/RelayDeclarativeMutationConfig');
 const RelayDefaultHandleKey = require('./util/RelayDefaultHandleKey');
 const RelayDefaultHandlerProvider = require('./handlers/RelayDefaultHandlerProvider');
+const RelayDefaultMissingFieldHanlders = require('./handlers/RelayDefaultMissingFieldHanlders');
 const RelayError = require('./util/RelayError');
 const RelayFeatureFlags = require('./util/RelayFeatureFlags');
 const RelayInMemoryRecordSource = require('./store/RelayInMemoryRecordSource');
@@ -232,6 +233,7 @@ module.exports = {
 
   // Extensions
   DefaultHandlerProvider: RelayDefaultHandlerProvider,
+  DefaultMissingFieldHanlders: RelayDefaultMissingFieldHanlders,
   ConnectionHandler: RelayConnectionHandler,
   ViewerHandler: RelayViewerHandler,
 

@@ -147,8 +147,6 @@ describe('execute() a query with nested @stream', () => {
         switch (name) {
           case 'name_handler':
             return NameHandler;
-          case 'viewer':
-            return RelayViewerHandler;
         }
       },
     });

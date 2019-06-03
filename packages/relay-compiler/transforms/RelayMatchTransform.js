@@ -138,24 +138,26 @@ function visitLinkedField(node: LinkedField, state: State): LinkedField {
   const context: CompilerContext = this.getContext();
 
   const currentField = rawType.getFields()[transformedNode.name];
-  const supportedArg = currentField.args.find(
-    ({name}) => SUPPORTED_ARGUMENT_NAME,
+  const supportedArgumentDefinition = currentField.args.find(
+    ({name}) => name === SUPPORTED_ARGUMENT_NAME,
   );
 
   const supportedArgType =
-    supportedArg != null ? getNullableType(supportedArg.type) : null;
+    supportedArgumentDefinition != null
+      ? getNullableType(supportedArgumentDefinition.type)
+      : null;
   const supportedArgOfType =
     supportedArgType != null && supportedArgType instanceof GraphQLList
       ? supportedArgType.ofType
       : null;
   if (
-    supportedArg == null ||
+    supportedArgumentDefinition == null ||
     supportedArgType == null ||
     supportedArgOfType == null ||
     getNullableType(supportedArgOfType) !== GraphQLString
   ) {
     throw createUserError(
-      `@match used on incompatible field '${transformedNode.name}'.` +
+      `@match used on incompatible field '${transformedNode.name}'. ` +
         '@match may only be used with fields that accept a ' +
         "'supported: [String!]!' argument.",
       [node.loc],
@@ -175,7 +177,6 @@ function visitLinkedField(node: LinkedField, state: State): LinkedField {
   }
 
   const seenTypes: Map<GraphQLCompositeType, InlineFragment> = new Map();
-  const typeToSelectionMap = {};
   const selections = [];
   transformedNode.selections.forEach(matchSelection => {
     const moduleImport =
@@ -228,21 +229,29 @@ function visitLinkedField(node: LinkedField, state: State): LinkedField {
         [matchSelection.loc, context.getFragment(moduleImport.name).loc],
       );
     }
-    typeToSelectionMap[String(matchedType)] = {
-      component: moduleImport.module,
-      fragment: moduleImport.name,
-    };
     selections.push(matchSelection);
   });
+
+  const supportedArg = transformedNode.args.find(
+    arg => arg.name === SUPPORTED_ARGUMENT_NAME,
+  );
+  if (supportedArg != null) {
+    throw createUserError(
+      `Invalid @match selection: the '${SUPPORTED_ARGUMENT_NAME}' argument ` +
+        'is automatically added and cannot be supplied explicitly.',
+      [supportedArg.loc],
+    );
+  }
 
   return {
     kind: 'LinkedField',
     alias: transformedNode.alias,
     args: [
+      ...transformedNode.args,
       {
         kind: 'Argument',
         name: SUPPORTED_ARGUMENT_NAME,
-        type: supportedArg.type,
+        type: supportedArgumentDefinition.type,
         value: {
           kind: 'Literal',
           loc: node.loc,

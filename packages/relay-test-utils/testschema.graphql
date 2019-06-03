@@ -771,8 +771,9 @@ type User implements Named & Node & Actor & HasJsField {
   likeSentence: Text
   message: Text
   name: String
-  nameRenderer(supported: [String!]!): UserNameRenderer
   nameRenderable(supported: [String!]!): UserNameRenderable
+  nameRenderer(supported: [String!]!): UserNameRenderer
+  nameRendererForContext(context: NameRendererContext, supported: [String!]!): UserNameRenderer
   nameRenderers(supported: [String!]!): [UserNameRenderer]
   storySearch(query: StorySearchInput): [Story]
   storyCommentSearch(query: StoryCommentSearchInput): [Comment]
@@ -792,6 +793,11 @@ type User implements Named & Node & Actor & HasJsField {
   websites: [String]
   username: String
   viewerSavedState: String
+}
+
+enum NameRendererContext {
+  HEADER
+  OTHER
 }
 
 input StorySearchInput {

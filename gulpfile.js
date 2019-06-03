@@ -159,6 +159,14 @@ const buildDist = function(filename, opts, isProduction) {
 const PACKAGES = 'packages';
 const DIST = 'dist';
 
+// Globs for paths in PACKAGES
+const INCLUDE_GLOBS = [
+  '**/*.js',
+  '!**/__tests__/**',
+  '!**/__flowtests__/**',
+  '!**/__mocks__/**',
+];
+
 const builds = [
   {
     package: 'babel-plugin-relay',
@@ -245,22 +253,13 @@ const builds = [
   },
 ];
 
-function clean() {
-  return del(DIST);
-}
-
 const modules = gulp.parallel(
   ...builds.map(
     build =>
       function modulesTask() {
         return gulp
           .src(
-            [
-              '**/*.js',
-              '!**/__tests__/**',
-              '!**/__flowtests__/**',
-              '!**/__mocks__/**',
-            ],
+            INCLUDE_GLOBS,
             {
               cwd: path.join(PACKAGES, build.package),
             }
@@ -369,7 +368,10 @@ builds.forEach(build => {
 });
 const bundlesMin = gulp.series(bundlesMinTasks);
 
+const clean = () => del(DIST);
 const dist = gulp.series(exportsFiles, bins, bundles, bundlesMin);
+const watch = gulp.series(dist, () => gulp.watch(INCLUDE_GLOBS, { cwd: PACKAGES }, dist));
 
 exports.clean = clean;
 exports.default = gulp.series(clean, dist);
+exports.watch = watch;

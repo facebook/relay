@@ -8,6 +8,7 @@
   "repository": "facebook/relay",
   "scripts": {
     "build": "gulp",
+    "watch": "gulp watch",
     "jest": "NODE_ENV=test jest \"$@\"",
     "lint": "eslint --max-warnings 0 .",
     "prepublishOnly": "node node_modules/fbjs-scripts/node/check-dev-engines.js package.json && npm run build",

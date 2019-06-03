@@ -10,7 +10,7 @@
     "build": "gulp",
     "jest": "NODE_ENV=test jest \"$@\"",
     "lint": "eslint --max-warnings 0 .",
-    "prepublish": "node node_modules/fbjs-scripts/node/check-dev-engines.js package.json && npm run build",
+    "prepublishOnly": "node node_modules/fbjs-scripts/node/check-dev-engines.js package.json && npm run build",
     "prettier": "find . -name node_modules -prune -or -name dist -prune -or -name '*.js' -print | xargs prettier --write",
     "test": "f() { EXIT=0; npm run typecheck || EXIT=$?; npm run test-dependencies || EXIT=$?; npm run jest \"$@\" || EXIT=$?; exit $EXIT; }; f",
     "test-dependencies": "node ./scripts/testDependencies.js",

@@ -110,7 +110,7 @@ function createCombinedError(
     `${prefix}Encountered ${errors.length} error(s):\n` +
       errors
         .map(error =>
-          String(error)
+          (error instanceof GraphQLError ? printError(error) : String(error))
             .split('\n')
             .map((line, index) => (index === 0 ? `- ${line}` : `  ${line}`))
             .join('\n'),
@@ -190,6 +190,34 @@ function printLocations(locations: $ReadOnlyArray<Location>): Array<string> {
     }
   }
   return printedLocations;
+}
+
+/**
+ * Prints a GraphQLError to a string, representing useful location information
+ * about the error's position in the source.
+ */
+function printError(error: GraphQLError): string {
+  const printedLocations = [];
+  if (error.nodes) {
+    for (const node of error.nodes) {
+      if (node.loc) {
+        printedLocations.push(
+          highlightSourceAtLocation(
+            node.loc.source,
+            getLocation(node.loc.source, node.loc.start),
+          ),
+        );
+      }
+    }
+  } else if (error.source && error.locations) {
+    const source = error.source;
+    for (const location of error.locations) {
+      printedLocations.push(highlightSourceAtLocation(source, location));
+    }
+  }
+  return printedLocations.length === 0
+    ? error.message
+    : [error.message, ...printedLocations].join('\n\n') + '\n';
 }
 
 /**

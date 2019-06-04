@@ -332,7 +332,6 @@ builds.forEach(build => {
       binsTasks.push(function binsTask() {
         return gulp
           .src(path.join(DIST, build.package, 'lib', bin.entry))
-          .pipe(once())
           .pipe(buildDist(bin.output, bin, /* isProduction */ false))
           .pipe(header(SCRIPT_HASHBANG + PRODUCTION_HEADER))
           .pipe(chmod(0o755))
@@ -349,7 +348,6 @@ builds.forEach(build => {
     bundlesTasks.push(function bundleTask() {
       return gulp
         .src(path.join(DIST, build.package, 'lib', bundle.entry))
-        .pipe(once())
         .pipe(
           buildDist(bundle.output + '.js', bundle, /* isProduction */ false)
         )
@@ -366,7 +364,6 @@ builds.forEach(build => {
     bundlesMinTasks.push(function bundlesMinTask() {
       return gulp
         .src(path.join(DIST, build.package, 'lib', bundle.entry))
-        .pipe(once())
         .pipe(
           buildDist(bundle.output + '.min.js', bundle, /* isProduction */ true)
         )

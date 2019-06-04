@@ -76,7 +76,7 @@ module.exports = (
     memoizedTagFinder(text, baseDir, file).forEach(tag => {
       const source = new GraphQL.Source(
         tag.template,
-        file.relPath,
+        path.join(path.relative(process.cwd(), baseDir), file.relPath),
         tag.sourceLocationOffset,
       );
       const ast = parseGraphQL(source);

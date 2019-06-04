@@ -23,14 +23,14 @@ import type {
   GraphQLTagFinder,
 } from '../language/RelayLanguagePluginInterface';
 
-const cache = new RelayCompilerCache('RelayFindGraphQLTags', 'v1');
+const cache = new RelayCompilerCache('RelayFindGraphQLTags', 'v2');
 
 function memoizedFind(
   tagFinder: GraphQLTagFinder,
   text: string,
   baseDir: string,
   file: File,
-): $ReadOnlyArray<string> {
+): $ReadOnlyArray<GraphQLTag> {
   invariant(
     file.exists,
     'RelayFindGraphQLTags: Called with non-existent file `%s`',
@@ -46,11 +46,11 @@ function find(
   tagFinder: GraphQLTagFinder,
   text: string,
   absPath: string,
-): $ReadOnlyArray<string> {
+): $ReadOnlyArray<GraphQLTag> {
   const tags = tagFinder(text, absPath);
   const moduleName = getModuleName(absPath);
   tags.forEach(tag => validateTemplate(tag, moduleName, absPath));
-  return tags.map(tag => tag.template);
+  return tags;
 }
 
 function validateTemplate(

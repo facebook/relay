@@ -73,14 +73,18 @@ module.exports = (
 
     const astDefinitions = [];
     const sources = [];
-    memoizedTagFinder(text, baseDir, file).forEach(template => {
-      const source = new GraphQL.Source(template, file.relPath);
+    memoizedTagFinder(text, baseDir, file).forEach(tag => {
+      const source = new GraphQL.Source(
+        tag.template,
+        file.relPath,
+        tag.sourceLocationOffset,
+      );
       const ast = parseGraphQL(source);
       invariant(
         ast.definitions.length,
         'RelaySourceModuleParser: Expected GraphQL text to contain at least one ' +
           'definition (fragment, mutation, query, subscription), got `%s`.',
-        template,
+        tag.template,
       );
       sources.push(source.body);
       astDefinitions.push(...ast.definitions);

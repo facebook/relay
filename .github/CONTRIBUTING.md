@@ -60,6 +60,17 @@ We will eventually have a linter that will catch most styling issues that may ex
 * Trailing commas,
 * Avd abbr wrds.
 
+## Development process for non-FB developers
+
+A typical solution for working on a library is to test changes in your application project through ‘linking’. The
+following steps should work for all Relay packages:
+
+1. Either trigger a build manually by running `yarn build` or keep a watcher running with `yarn build:watch`.
+1. Make your package of choice available to link: `cd dist/relay-compiler && yarn link`.
+1. Link the package into your project: `cd my/app && yarn link relay-compiler`.
+1. Because of symbolic links and how Node resolves dependencies, you will probably want to instruct Node to resolve
+   preserve the links `yarn node --preserve-symlinks-main --preserve-symlinks ./node_modules/.bin/relay-compiler […]`. 
+
 ## License
 
 By contributing to Relay, you agree that your contributions will be licensed under its MIT license.

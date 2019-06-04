@@ -170,14 +170,13 @@ function instrumentAsyncContext<F: (...any) => Promise<any>>(
   if (!enabled) {
     return fn;
   }
-  /* $FlowFixMe(>=0.99.0 site=react_native_fb) This comment suppresses an error
-   * found when Flow v0.99 was deployed. To see the error, delete this comment
-   * and run Flow. */
-  const profileName = name || fn.displayName || fn.name;
+
+  const profileName: string =
+    name ||
+    // $FlowFixMe - Flow no longer considers statics of functions as any
+    fn.displayName ||
+    fn.name;
   const instrumented = async function() {
-    /* $FlowFixMe(>=0.99.0 site=react_native_fb) This comment suppresses an
-     * error found when Flow v0.99 was deployed. To see the error, delete this
-     * comment and run Flow. */
     const traceId = start(profileName);
     try {
       return await fn.apply(this, arguments);
@@ -200,14 +199,12 @@ function instrumentWait<F: (...any) => Promise<any>>(fn: F, name?: string): F {
   if (!enabled) {
     return fn;
   }
-  /* $FlowFixMe(>=0.99.0 site=react_native_fb) This comment suppresses an error
-   * found when Flow v0.99 was deployed. To see the error, delete this comment
-   * and run Flow. */
-  const profileName = name || fn.displayName || fn.name;
+  const profileName: string =
+    name ||
+    // $FlowFixMe - Flow no longer considers statics of functions as any
+    fn.displayName ||
+    fn.name;
   const instrumented = async function() {
-    /* $FlowFixMe(>=0.99.0 site=react_native_fb) This comment suppresses an
-     * error found when Flow v0.99 was deployed. To see the error, delete this
-     * comment and run Flow. */
     const traceId = startWait(profileName);
     try {
       return await fn.apply(this, arguments);

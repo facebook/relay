@@ -12,6 +12,7 @@ module.system.haste.name_reducers='^\(.*\)\.js\(\.flow\)?$' -> '\1'
 module.system.haste.paths.blacklist=.*/__tests__/.*
 module.system.haste.paths.blacklist=.*/__mocks__/.*
 module.system.haste.paths.whitelist=<PROJECT_ROOT>/node_modules/fbjs/lib/.*
+module.system.haste.paths.blacklist=<PROJECT_ROOT>/node_modules/fbjs/lib/emptyFunction\\.js\\.flow
 
 esproposal.class_static_fields=enable
 esproposal.class_instance_fields=enable

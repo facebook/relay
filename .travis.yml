@@ -19,15 +19,15 @@ matrix:
 script:
 - |
     if [ $TEST ]; then
-      yarn install && yarn build && yarn run jest --runInBand --no-watchman
+      yarn install && yarn run jest --runInBand --no-watchman
     fi
 - |
     if [ $TYPECHECK ]; then
-      yarn install && yarn run typecheck
+      yarn install --ignore-scripts && yarn run typecheck
     fi
 - |
     if [ $LINT ]; then
-      yarn install && yarn run test-dependencies && yarn run lint
+      yarn install --ignore-scripts && yarn run test-dependencies && yarn run lint
     fi
 
 notifications:

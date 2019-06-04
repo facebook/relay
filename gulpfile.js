@@ -382,5 +382,7 @@ const dist = gulp.series(exportsFiles, bins, bundles, bundlesMin);
 const watch = gulp.series(dist, () => gulp.watch(INCLUDE_GLOBS, { cwd: PACKAGES }, dist));
 
 exports.clean = clean;
-exports.default = gulp.series(clean, dist);
+exports.dist = dist;
 exports.watch = watch;
+exports.cleanbuild = gulp.series(clean, dist);
+exports.default = exports.cleanbuild;

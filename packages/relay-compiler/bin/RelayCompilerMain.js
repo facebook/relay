@@ -109,15 +109,11 @@ function getLanguagePlugin(language: string): PluginInterface {
       // eslint-disable-next-line no-eval
       let languagePlugin: LanguagePlugin = eval('require')(requirePath);
       if (languagePlugin.default) {
-        /* $     /* $FlowFixMe(>=0.99.0 site=react_native_fb) This comment suppresses an
-         * error found when Flow v0.99 was deployed. To see the error, delete
-         * this comment and run Flow. */
+        // $FlowFixMe - Flow no longer considers statics of functions as any
         languagePlugin = languagePlugin.default;
       }
       if (typeof languagePlugin === 'function') {
-        /* $     /* $FlowFixMe(>=0.99.0 site=react_native_fb) This comment suppresses an
-         * error found when Flow v0.99 was deployed. To see the error, delete
-         * this comment and run Flow. */
+        // $FlowFixMe
         return languagePlugin();
       } else {
         throw new Error('Expected plugin to export a function.');

@@ -306,7 +306,7 @@ class RelayResponseNormalizer {
       typeof data === 'object' && data,
       'RelayResponseNormalizer: Expected data for @module to be an object.',
     );
-    const typeName: string = this._getRecordType(data);
+    const typeName: string = RelayModernRecord.getType(record);
     const componentKey = getModuleComponentKey(moduleImport.documentName);
     const componentReference = data[componentKey];
     RelayModernRecord.setValue(

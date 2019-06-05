@@ -91,7 +91,7 @@ const users = [
 const siteConfig = {
   title: 'Relay',
   tagline: 'A JavaScript framework for building data-driven React applications',
-  url: 'https://facebook.github.io',
+  url: 'https://relay.dev',
   baseUrl: '/',
   projectName: 'relay',
   users,

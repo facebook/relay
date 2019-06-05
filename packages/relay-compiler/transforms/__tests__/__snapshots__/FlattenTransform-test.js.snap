@@ -33,13 +33,13 @@ THROWN EXCEPTION:
 Error: Encountered 1 error(s):
 - Expected all fields on the same parent with the name or alias 'friendsAlias' to have the same name and arguments.
   
-  Source: GraphQL request (14:9)
+  Source: GraphQL request:14:9
   13:       ... on User {
   14:         friendsAlias: friends(first: 10) {
               ^
   15:           edges {
   
-  Source: GraphQL request (9:9)
+  Source: GraphQL request:9:9
    8:       ... on User {
    9:         friendsAlias: friends(first: 5) {
               ^
@@ -80,13 +80,13 @@ THROWN EXCEPTION:
 Error: Encountered 1 error(s):
 - Expected all fields on the same parent with the name or alias 'friends' to have the same name and arguments.
   
-  Source: GraphQL request (14:9)
+  Source: GraphQL request:14:9
   13:       ... on User {
   14:         friends(first: 10) {
               ^
   15:           edges {
   
-  Source: GraphQL request (9:9)
+  Source: GraphQL request:9:9
    8:       ... on User {
    9:         friends(first: 5) {
               ^
@@ -455,13 +455,13 @@ THROWN EXCEPTION:
 Error: Encountered 1 error(s):
 - Expected all fields on the same parent with the name or alias 'nameRenderer' to have the same name and arguments.
   
-  Source: GraphQL request (11:5)
+  Source: GraphQL request:11:5
   10:     # conflicts with above: same alias but different types are matched
   11:     nameRenderer @match {
           ^
   12:       ...MarkdownUserNameRenderer_name
   
-  Source: GraphQL request (4:3)
+  Source: GraphQL request:4:3
   3:   id
   4:   nameRenderer @match {
        ^
@@ -509,13 +509,13 @@ THROWN EXCEPTION:
 Error: Encountered 1 error(s):
 - Found conflicting @module selections: use a unique alias on the parent fields.
   
-  Source: GraphQL request (12:37)
+  Source: GraphQL request:12:37
   11:     nameRenderer @match {
   12:       ...PlainUserNameRenderer_name @module(name: "OtherPlainUserNameRenderer.react")
                                           ^
   13:       ...MarkdownUserNameRenderer_name
   
-  Source: GraphQL request (5:35)
+  Source: GraphQL request:5:35
   4:   nameRenderer @match {
   5:     ...PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
                                        ^

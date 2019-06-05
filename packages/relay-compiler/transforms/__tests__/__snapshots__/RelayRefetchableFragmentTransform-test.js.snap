@@ -55,7 +55,7 @@ THROWN EXCEPTION:
 Error: RelayRefetchableFragmentTransform: Encountered 1 error(s):
 - Invalid use of @refetchable on fragment 'UserName', only fragments on the Query type, Viewer type, Node type, or types implementing Node are supported.
   
-  Source: GraphQL request (2:1)
+  Source: GraphQL request:2:1
   1: # expected-to-throw
   2: fragment UserName on UserNameRenderable @refetchable(queryName: "RefetchableFragmentQuery") {
      ^
@@ -703,13 +703,13 @@ THROWN EXCEPTION:
 Error: RelayRefetchableFragmentTransform: Encountered 1 error(s):
 - Invalid use of @refetchable with @connection in fragment 'PaginationFragment', refetchable connections must use variables for the after and first arguments.
   
-  Source: GraphQL request (10:5)
+  Source: GraphQL request:10:5
    9:     name
   10:     friends(after: $cursor, first: 10)
           ^
   11:       @connection(key: "PaginationFragment_friends") {
   
-  Source: GraphQL request (10:36)
+  Source: GraphQL request:10:36
    9:     name
   10:     friends(after: $cursor, first: 10)
                                          ^
@@ -745,13 +745,13 @@ THROWN EXCEPTION:
 Error: RelayRefetchableFragmentTransform: Encountered 1 error(s):
 - Invalid use of @refetchable with @connection in fragment 'PaginationFragment', refetchable connections must use variables for the after and first arguments.
   
-  Source: GraphQL request (10:5)
+  Source: GraphQL request:10:5
    9:     name
   10:     friends(after: "<cursor>", first: $count)
           ^
   11:       @connection(key: "PaginationFragment_friends") {
   
-  Source: GraphQL request (10:20)
+  Source: GraphQL request:10:20
    9:     name
   10:     friends(after: "<cursor>", first: $count)
                          ^
@@ -794,13 +794,13 @@ THROWN EXCEPTION:
 Error: RelayRefetchableFragmentTransform: Encountered 1 error(s):
 - Invalid use of @refetchable with @connection in fragment 'PaginationFragment', refetchable connections cannot appear inside plural fields.
   
-  Source: GraphQL request (14:11)
+  Source: GraphQL request:14:11
   13:         node {
   14:           friends(after: $cursor, first: $count)
                 ^
   15:             @connection(key: "PaginationFragment_friends") {
   
-  Source: GraphQL request (12:7)
+  Source: GraphQL request:12:7
   11:     friends(first: 1) {
   12:       edges {
             ^

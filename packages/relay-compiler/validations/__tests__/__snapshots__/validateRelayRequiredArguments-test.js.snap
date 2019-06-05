@@ -107,13 +107,13 @@ THROWN EXCEPTION:
 Error: Encountered 1 error(s):
 - Required argument 'level: Int!' is missing on 'customDirective' in 'ViewerQuery'.
   
-  Source: GraphQL request (5:10)
+  Source: GraphQL request:5:10
   4:   node {
   5:     body @customDirective {
               ^
   6:       text
   
-  Source: GraphQL request (3:1)
+  Source: GraphQL request:3:1
   2: 
   3: query ViewerQuery {
      ^
@@ -138,13 +138,13 @@ THROWN EXCEPTION:
 Error: Encountered 1 error(s):
 - Required argument 'capitalize: Boolean!' is missing on 'nameWithArgs' in 'TestQuery'.
   
-  Source: GraphQL request (5:7)
+  Source: GraphQL request:5:7
   4:     hometown{
   5:       nameWithArgs
            ^
   6:     }
   
-  Source: GraphQL request (2:1)
+  Source: GraphQL request:2:1
   1: # expected-to-throw
   2: query TestQuery {
      ^
@@ -177,13 +177,13 @@ THROWN EXCEPTION:
 Error: Encountered 1 error(s):
 - Required argument 'supported: [String!]!' is missing on 'commentBody' in 'SomeComment'.
   
-  Source: GraphQL request (3:3)
+  Source: GraphQL request:3:3
   2: fragment SomeComment on Comment {
   3:   commentBody {
        ^
   4:     ... on PlainCommentBody {
   
-  Source: GraphQL request (2:1)
+  Source: GraphQL request:2:1
   1: # expected-to-throw
   2: fragment SomeComment on Comment {
      ^
@@ -214,13 +214,13 @@ THROWN EXCEPTION:
 Error: Encountered 1 error(s):
 - Required argument 'supported: [String!]!' is missing on 'commentBody' in 'ViewerQuery'.
   
-  Source: GraphQL request (5:7)
+  Source: GraphQL request:5:7
   4:     ... on Comment {
   5:       commentBody {
            ^
   6:         ... on PlainCommentBody {
   
-  Source: GraphQL request (2:1)
+  Source: GraphQL request:2:1
   1: # expected-to-throw
   2: query ViewerQuery {
      ^
@@ -285,7 +285,7 @@ THROWN EXCEPTION:
 Error: RelayParser: Encountered 1 error(s):
 - Unknown field 'commentBody' on type 'Node'.
   
-  GraphQL request (4:5)
+  GraphQL request:4:5
   3:   node {
   4:     commentBody {
          ^

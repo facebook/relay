@@ -92,13 +92,13 @@ THROWN EXCEPTION:
 Error: Encountered 1 error(s):
 - Cannot combine variables with incompatible types Int and ID when applying @relay(unmask: true).
   
-  Source: GraphQL request (14:16)
+  Source: GraphQL request:14:16
   13: fragment StringFragment on Query {
   14:   task(number: $id) {
                      ^
   15:     title
   
-  Source: GraphQL request (8:12)
+  Source: GraphQL request:8:12
   7: fragment NullableIDFragment on Query {
   8:   node(id: $id) {
                 ^
@@ -132,13 +132,13 @@ THROWN EXCEPTION:
 Error: Encountered 1 error(s):
 - Cannot combine variables with incompatible types [ID!] and ID when applying @relay(unmask: true).
   
-  Source: GraphQL request (14:14)
+  Source: GraphQL request:14:14
   13: fragment NullableIDListFragment on Query {
   14:   nodes(ids: $id) {
                    ^
   15:     id
   
-  Source: GraphQL request (8:12)
+  Source: GraphQL request:8:12
   7: fragment NullableIDFragment on Query {
   8:   node(id: $id) {
                 ^
@@ -167,13 +167,13 @@ THROWN EXCEPTION:
 Error: Encountered 1 error(s):
 - Cannot combine global and local variables when applying @relay(unmask: true).
   
-  Source: GraphQL request (3:3)
+  Source: GraphQL request:3:3
   2: fragment ParentQuery on Query @argumentDefinitions(
   3:   id: {type: "ID!"}
        ^
   4: ) {
   
-  Source: GraphQL request (9:24)
+  Source: GraphQL request:9:24
    8: fragment NonNullIDFragment on Query {
    9:   node_id_required(id: $id) {
                              ^

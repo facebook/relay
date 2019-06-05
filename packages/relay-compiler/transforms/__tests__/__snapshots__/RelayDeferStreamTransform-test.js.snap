@@ -165,13 +165,13 @@ THROWN EXCEPTION:
 Error: Encountered 1 error(s):
 - Invalid use of @defer, the provided label is not unique. Specify a unique 'label' as a literal string.
   
-  Source: GraphQL request (13:35)
+  Source: GraphQL request:13:35
   12:   ...DeferredFragment @defer(label: "deferred")
   13:   ...OtherDeferredFragment @defer(label: "deferred")
                                         ^
   14: }
   
-  Source: GraphQL request (12:30)
+  Source: GraphQL request:12:30
   11:   emailAddresses
   12:   ...DeferredFragment @defer(label: "deferred")
                                    ^
@@ -360,13 +360,13 @@ THROWN EXCEPTION:
 Error: Encountered 1 error(s):
 - Invalid use of @stream, the provided label is not unique. Specify a unique 'label' as a literal string.
   
-  Source: GraphQL request (15:29)
+  Source: GraphQL request:15:29
   14:   otherActors: actors
   15:   @stream(initial_count: 1, label: "actors") { # invalid: duplicate label
                                   ^
   16:     name
   
-  Source: GraphQL request (11:36)
+  Source: GraphQL request:11:36
   10:   id
   11:   actors @stream(initial_count: 1, label: "actors") {
                                          ^
@@ -469,7 +469,7 @@ THROWN EXCEPTION:
 Error: Encountered 1 error(s):
 - Invalid use of @stream, the 'initial_count' argument is required.
   
-  Source: GraphQL request (11:10)
+  Source: GraphQL request:11:10
   10:   id
   11:   actors @stream(label: "StreamedActorsLabel") { # invalid: missing initial_count
                ^
@@ -535,7 +535,7 @@ THROWN EXCEPTION:
 Error: Encountered 1 error(s):
 - Expected the 'label' value to @stream to be a string literal if provided.
   
-  Source: GraphQL request (11:43)
+  Source: GraphQL request:11:43
   10:   id
   11:   actors @stream(initial_count: 1, label: $label) {
                                                 ^
@@ -570,7 +570,7 @@ THROWN EXCEPTION:
 Error: Encountered 1 error(s):
 - Expected the 'label' value to @defer to be a string literal if provided.
   
-  Source: GraphQL request (12:37)
+  Source: GraphQL request:12:37
   11:   emailAddresses
   12:   ...DeferredFragment @defer(label: $label)
                                           ^
@@ -680,13 +680,13 @@ THROWN EXCEPTION:
 Error: Encountered 1 error(s):
 - Invalid use of @defer, could not generate a default label that is unique. Specify a unique 'label' as a literal string.
   
-  Source: GraphQL request (16:15)
+  Source: GraphQL request:16:15
   15:   }
   16:   ... on User @defer { # invalid: duplicate label
                     ^
   17:     name
   
-  Source: GraphQL request (12:15)
+  Source: GraphQL request:12:15
   11:   emailAddresses
   12:   ... on User @defer {
                     ^
@@ -756,7 +756,7 @@ THROWN EXCEPTION:
 Error: Encountered 1 error(s):
 - Expected the 'label' value to @defer to be a string literal if provided.
   
-  Source: GraphQL request (12:29)
+  Source: GraphQL request:12:29
   11:   emailAddresses
   12:   ... on User @defer(label: $label) {
                                   ^

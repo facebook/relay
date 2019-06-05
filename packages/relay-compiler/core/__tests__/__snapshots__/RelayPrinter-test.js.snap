@@ -161,7 +161,7 @@ THROWN EXCEPTION:
 Error: RelayParser: Encountered 1 error(s):
 - Expected a value matching type 'Environment!'.
   
-  GraphQL request (3:26)
+  GraphQL request:3:26
   2: fragment UserFragment on User {
   3:   checkins(environments: "WEB") {
                               ^
@@ -205,7 +205,7 @@ THROWN EXCEPTION:
 Error: RelayParser: Encountered 1 error(s):
 - Expected a value matching type 'Environment!'.
   
-  GraphQL request (3:26)
+  GraphQL request:3:26
   2: fragment UserFragment on User {
   3:   checkins(environments: UNKNOWN_ENUM_VALUE) {
                               ^

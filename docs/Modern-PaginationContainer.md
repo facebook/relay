@@ -144,7 +144,7 @@ type Props = {
   * `loadMore`: See `loadMore` [docs](#loadmore)
   * `refetchConnection `: See `refetchConnection` [docs](#refetchconnection)
 
-## `hasMore()`
+## `hasMore`
 
 `hasMore` is a function available on the `relay` [prop](#available-props). This function indicates whether there are more pages to fetch from the server or not.
 

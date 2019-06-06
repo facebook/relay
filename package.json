@@ -3,7 +3,7 @@
   "description": "A framework for building data-driven React applications.",
   "version": "4.0.0",
   "license": "MIT",
-  "homepage": "https://facebook.github.io/relay/",
+  "homepage": "https://relay.dev",
   "bugs": "https://github.com/facebook/relay/issues",
   "repository": "facebook/relay",
   "scripts": {

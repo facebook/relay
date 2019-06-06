@@ -583,9 +583,9 @@ You can inspect the network request or response to see the exact shape.
 
 By default, Relay will know to update the fields on the records referenced by the mutation payload, (i.e. the `todo` in our example). However, this is only the simplest case. In some cases updating the local data isn't as simple as just updating the fields in a record.
 
-For instance, we might be updating a collection of items, or we might be deleting a record entirely. For these more advanced scenarios Relay allows us to pass a set of options for us to control how we update the local data from a server response, including a set of [`configs`](./mutations.html#configs) and an [`updater`](https://facebook.github.io/relay/docs/en/mutations.html#updating-the-store-programatically-advanced) function for full control over the update.
+For instance, we might be updating a collection of items, or we might be deleting a record entirely. For these more advanced scenarios Relay allows us to pass a set of options for us to control how we update the local data from a server response, including a set of [`configs`](./mutations.html#configs) and an [`updater`](./mutations#using-updater-and-optimisticupdater) function for full control over the update.
 
-For more details and advanced use cases on mutations and updates, check out our [Mutations](./mutations.html) docs.
+For more details and advanced use cases on mutations and updates, check out our [Mutations](./mutations) docs.
 
 ## Next Steps
 

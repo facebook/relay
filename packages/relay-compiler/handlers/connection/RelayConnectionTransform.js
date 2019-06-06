@@ -234,7 +234,7 @@ function buildConnectionArguments(
       `Expected the ${KEY} argument to @${connectionDirective.name} to be of ` +
         `form <SomeName>_${postfix}, got '${key}'. ` +
         'For a detailed explanation, check out ' +
-        'https://facebook.github.io/relay/docs/en/pagination-container.html#connection',
+        'https://relay.dev/docs/en/pagination-container#connection',
       [keyArg?.value?.loc ?? connectionDirective.loc],
     );
   }

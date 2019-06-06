@@ -870,7 +870,7 @@ query NodeQuery(
 THROWN EXCEPTION:
 
 Error: Encountered 1 error(s):
-- Expected the key argument to @connection to be of form <SomeName>_comments, got 'invalid'. For a detailed explanation, check out https://facebook.github.io/relay/docs/en/pagination-container.html#connection
+- Expected the key argument to @connection to be of form <SomeName>_comments, got 'invalid'. For a detailed explanation, check out https://relay.dev/docs/en/pagination-container#connection
   
   Source: GraphQL request (8:44)
   7:     ... on Story {

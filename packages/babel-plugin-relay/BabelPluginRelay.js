@@ -92,7 +92,7 @@ module.exports = function BabelPluginRelay(context: {types: $FlowFixMe}): any {
           'babel-plugin-relay: Missing schema option. ' +
             'Check your .babelrc file or wherever you configure your Babel ' +
             'plugins to ensure the "relay" plugin has a "schema" option.\n' +
-            'https://facebook.github.io/relay/docs/babel-plugin-relay.html#additional-options',
+            'https://relay.dev/docs/en/installation-and-setup#set-up-babel-plugin-relay',
         );
         const documentName = getDocumentName(path, state);
         path.replaceWith(

@@ -3,7 +3,7 @@ id: pagination-container
 title: Pagination Container
 ---
 
-Pagination Container is also a [higher-order component](https://reactjs.org/docs/higher-order-components.html), similar to a [Fragment Container](./fragment-container.html), that is designed to simplify the workflow of loading more items in a list &mdash; in many cases, we don't want to fetch all the data at once but lazily load more data. It relies on a GraphQL server exposing connections in a standardized way. For a detailed spec, please check out [this page](https://facebook.github.io/relay/graphql/connections.htm).
+Pagination Container is also a [higher-order component](https://reactjs.org/docs/higher-order-components.html), similar to a [Fragment Container](./fragment-container.html), that is designed to simplify the workflow of loading more items in a list &mdash; in many cases, we don't want to fetch all the data at once but lazily load more data. It relies on a GraphQL server exposing connections in a standardized way. For a detailed spec, please check out [this page](https://relay.dev/graphql/connections.htm).
 
 Table of Contents:
 - [`@connection`](#connection)
@@ -16,9 +16,9 @@ Table of Contents:
 
 ## `@connection`
 
-Pagination Container works in a very similar way to the [Fragment Container](https://facebook.github.io/relay/docs/en/fragment-container.html) in that you also specify the data requirements for a component via GraphQL fragments in the `fragmentSpec`.
+Pagination Container works in a very similar way to the [Fragment Container](./fragment-container) in that you also specify the data requirements for a component via GraphQL fragments in the `fragmentSpec`.
 
-However, when [specifying connection fragments](#createpaginationcontainer) for a Pagination Container, it is expected that at least one of the fragments contains a [GraphQL connection](https://facebook.github.io/relay/graphql/connections.htm) to paginate over, and that the connection field is annotated with a `@connection` directive.
+However, when [specifying connection fragments](#createpaginationcontainer) for a Pagination Container, it is expected that at least one of the fragments contains a [GraphQL connection](https://relay.dev/graphql/connections.htm) to paginate over, and that the connection field is annotated with a `@connection` directive.
 
 The purpose of the `@connection` directive is to allow Relay to uniquely identify different connections under a parent type. The `@connection` directive takes 2 arguments that help identify the connection:
 

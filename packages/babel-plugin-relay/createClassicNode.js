@@ -341,7 +341,7 @@ function getSchemaOption(state) {
     'babel-plugin-relay: Missing schema option. ' +
       'Check your .babelrc file or wherever you configure your Babel ' +
       'plugins to ensure the "relay" plugin has a "schema" option.\n' +
-      'https://facebook.github.io/relay/docs/babel-plugin-relay.html#additional-options',
+      'https://relay.dev/docs/en/installation-and-setup#set-up-babel-plugin-relay',
   );
   return schema;
 }

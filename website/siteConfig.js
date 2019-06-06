@@ -92,7 +92,6 @@ const siteConfig = {
   title: 'Relay',
   tagline: 'A JavaScript framework for building data-driven React applications',
   url: 'https://relay.dev',
-  cname: 'relay.dev',
   baseUrl: '/',
   projectName: 'relay',
   users,

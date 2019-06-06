@@ -26,7 +26,7 @@ function createOperationDescriptor(...args) {
     ...args,
   );
   // For convenience of the test output, override toJSON to print
-  // a more succint description of the operation.
+  // a more succinct description of the operation.
   // $FlowFixMe
   operation.toJSON = () => {
     return {
@@ -100,7 +100,7 @@ describe('execute() a query with multiple @stream selections on the same record'
       variables: {},
     };
 
-    // Handler to upper-case the value of the (string) field to which its
+    // Handler to upper-case the value of the (string) field to which it's
     // applied
     const NameHandler = {
       update(storeProxy, payload) {

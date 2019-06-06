@@ -38,6 +38,7 @@ Array [
   "ScalarField",
   "init state: Fragment UserProfile",
   "Fragment",
+  "Directive",
   "LinkedField",
   "Argument",
   "Variable",

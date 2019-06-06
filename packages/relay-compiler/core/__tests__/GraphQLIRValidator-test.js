@@ -12,12 +12,13 @@
 
 const GraphQLCompilerContext = require('../GraphQLCompilerContext');
 const GraphQLIRTransformer = require('../GraphQLIRTransformer');
+const GraphQLIRValidator = require('../GraphQLIRValidator');
 
 const {transformASTSchema} = require('../ASTConvert');
 const {TestSchema, parseGraphQLText} = require('relay-test-utils');
 
-describe('GraphQLIRTransformer', () => {
-  it('visits all node types', () => {
+describe('GraphQLIRValidator', () => {
+  it('should have same behavior as the GraphQLIRTransformer', () => {
     const {definitions} = parseGraphQLText(
       transformASTSchema(TestSchema, [
         'directive @test on FRAGMENT_DEFINITION',
@@ -91,27 +92,33 @@ describe('GraphQLIRTransformer', () => {
       'Variable',
     ];
 
-    const sequence = [];
-    const seenKinds = new Set();
-    function createRecorder(kind) {
-      return function(node, state) {
-        expect(node.kind).toBe(kind);
-        sequence.push(kind);
-        seenKinds.add(kind);
-        return this.traverse(node, state);
-      };
+    function recordSequnce(func) {
+      const sequence = [];
+      const seenKinds = new Set();
+      function createRecorder(kind) {
+        return function(node, state) {
+          expect(node.kind).toBe(kind);
+          sequence.push(kind);
+          seenKinds.add(kind);
+          this.traverse(node, state);
+        };
+      }
+
+      const visitors = {};
+
+      astKinds.forEach(kind => {
+        visitors[kind] = createRecorder(kind);
+      });
+
+      func(context, visitors, node => {
+        sequence.push(`${node.kind} ${node.name}`);
+        return {};
+      });
+      expect(Array.from(astKinds).sort()).toEqual(Array.from(seenKinds).sort());
+      return sequence;
     }
-
-    const visitors = {};
-    astKinds.forEach(kind => {
-      visitors[kind] = createRecorder(kind);
-    });
-    GraphQLIRTransformer.transform(context, visitors, node => {
-      sequence.push(`init state: ${node.kind} ${node.name}`);
-      return {};
-    });
-
-    expect(Array.from(astKinds).sort()).toEqual(Array.from(seenKinds).sort());
-    expect(sequence).toMatchSnapshot();
+    const validatorSeq = recordSequnce(GraphQLIRValidator.validate);
+    const transformerSeq = recordSequnce(GraphQLIRTransformer.transform);
+    expect(validatorSeq).toEqual(transformerSeq);
   });
 });

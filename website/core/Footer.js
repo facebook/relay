@@ -9,6 +9,15 @@
 
 'use strict';
 
+// Terrible hack until we figure out how to have a working 302 redirect.
+if (document.location.hostname === 'facebook.github.io') {
+  const current = document.location.href;
+  const next = current.replace('facebook.github.io/relay', 'relay.dev');
+  if (current !== next) {
+    document.location.replace(next);
+  }
+}
+
 const React = require('react');
 
 class Footer extends React.Component {

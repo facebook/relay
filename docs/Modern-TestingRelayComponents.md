@@ -23,7 +23,7 @@ And it's not always easy to understand the mechanics of all processes that are h
 
 Fortunately, we have tools that aim to simplify the process of writing tests for Relay components, by providing imperative APIs for controlling the request/response flow and additional API for mock data generation.
 
-There are two main modules that you may using in your tests:
+There are two main modules that you may use in your tests:
 
 * createMockEnvironment(options): RelayMockEnvironment
 * MockPayloadGenerator and @relay_test_operation directive

@@ -8,7 +8,7 @@
   "repository": "facebook/relay",
   "scripts": {
     "build": "gulp",
-    "jest": "NODE_ENV=test jest \"$@\"",
+    "jest": "cross-env NODE_ENV=test jest \"$@\"",
     "lint": "eslint --max-warnings 0 .",
     "prepublish": "node node_modules/fbjs-scripts/node/check-dev-engines.js package.json && npm run build",
     "prettier": "find . -name node_modules -prune -or -name dist -prune -or -name '*.js' -print | xargs prettier --write",
@@ -37,6 +37,7 @@
     "babel-plugin-tester": "^6.0.1",
     "babel-preset-fbjs": "^3.1.2",
     "chalk": "^2.4.1",
+    "cross-env":"^5.2.0",
     "del": "3.0.0",
     "eslint": "5.4.0",
     "eslint-config-fbjs": "2.0.1",

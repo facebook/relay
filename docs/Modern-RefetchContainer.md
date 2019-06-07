@@ -81,6 +81,7 @@ local data store *after* the new query has been fetched. If not specified, the `
 * `callback`: Function to be called after the refetch has completed. If an error occurred during refetch, this function will receive that error as an argument.
 * `options`: Optional object containing set of options.
   * `force`: If the [Network Layer](./network-layer.html) has been configured with a cache, this option forces a refetch even if the data for this query and variables is already available in the cache.
+  * `fetchPolicy`: If the data is already present in the store, using the `'store-or-network'` option will use that data without making an additional network request. Using the `'network-only'` option, which is the default behavior, will ignore any data present in the store and make a network request.
 
 ### Return Value
 

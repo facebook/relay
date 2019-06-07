@@ -165,13 +165,19 @@ isLoading: () => boolean,
 `loadMore` is a function available on the `relay` [prop](#available-props). You can call `loadMore()` to fetch more items from the server based on the `connectionConfig` provided to the container. This will return null if there are no more items to fetch, otherwise it will fetch more items and return a Disposable that can be used to cancel the fetch.
 
 ```javascript
-loadMore(pageSize: number, callback: ?(error: ?Error) => void): ?Disposable
+loadMore(
+  pageSize: number,
+  callback: ?(error: ?Error) => void,
+  options?: RefetchOptions
+): ?Disposable
 ```
 
 ### Arguments:
 
 * `pageSize`: The number of **additional** items to fetch (not the total).
 * `callback`: Function called when the new page has been fetched. If an error occurred during refetch, this function will receive that error as an argument.
+* `options`: Optional object containing set of options.
+  * `force`: If the [Network Layer](./network-layer.html) has been configured with a cache, this option forces a refetch even if the data for this query and variables is already available in the cache.
 
 ## `refetchConnection`
 

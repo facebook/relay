@@ -14,7 +14,7 @@ const GraphQLCompilerContext = require('./GraphQLCompilerContext');
 const GraphQLIRVisitor = require('./GraphQLIRVisitor');
 
 const {createCompilerError} = require('./RelayCompilerError');
-const {GraphQLNonNull, GraphQLBoolean} = require('graphql');
+const {GraphQLNonNull, GraphQLBoolean, GraphQLString} = require('graphql');
 
 import type {
   Argument,
@@ -23,6 +23,7 @@ import type {
   Defer,
   Fragment,
   FragmentSpread,
+  LinkedField,
   Root,
   SplitOperation,
   Stream,
@@ -290,6 +291,28 @@ function visit(
           type,
         });
       }
+    },
+    LinkedField(field: LinkedField) {
+      if (!field.handles) {
+        return;
+      }
+      field.handles.forEach(handle => {
+        const variable = handle.dynamicKey;
+        if (variable == null) {
+          return;
+        }
+        const type = variable.type ?? GraphQLString;
+        if (!argumentDefinitions.has(variable.variableName)) {
+          // root variable
+          argumentDefinitions.set(variable.variableName, {
+            kind: 'RootArgumentDefinition',
+            loc: {kind: 'Derived', source: variable.loc},
+            metadata: null,
+            name: variable.variableName,
+            type,
+          });
+        }
+      });
     },
   });
 }

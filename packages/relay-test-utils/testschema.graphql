@@ -203,7 +203,7 @@ type Comment implements Node {
   canViewerComment: Boolean
   canViewerLike: Boolean
   commentBody(supported: [String!]!): CommentBody
-  comments(first: Int, last: Int, orderby: String): CommentsConnection
+  comments(after: ID, before: ID, first: Int, last: Int, orderby: String): CommentsConnection
   doesViewerLike: Boolean
   emailAddresses: [String]
   feedback: Feedback
@@ -295,7 +295,7 @@ type Feedback implements Node {
   body: Text
   canViewerComment: Boolean
   canViewerLike: Boolean
-  comments(first: Int, last: Int, orderby: String): CommentsConnection
+  comments(after: ID, before: ID, first: Int, last: Int, orderby: String): CommentsConnection
   doesViewerLike: Boolean
   emailAddresses: [String]
   feedback: Feedback
@@ -398,7 +398,7 @@ interface Node {
   body: Text
   canViewerComment: Boolean
   canViewerLike: Boolean
-  comments(first: Int, last: Int, orderby: String): CommentsConnection
+  comments(after: ID, before: ID, first: Int, last: Int, orderby: String): CommentsConnection
   doesViewerLike: Boolean
   emailAddresses: [String]
   feedback: Feedback
@@ -462,7 +462,7 @@ type Page implements Node & Actor {
   body: Text
   canViewerComment: Boolean
   canViewerLike: Boolean
-  comments(first: Int, last: Int, orderby: String): CommentsConnection
+  comments(after: ID, before: ID, first: Int, last: Int, orderby: String): CommentsConnection
   doesViewerLike: Boolean
   emailAddresses: [String]
   feedback: Feedback
@@ -564,7 +564,7 @@ type PhotoStory implements FeedUnit & Node {
   body: Text
   canViewerComment: Boolean
   canViewerLike: Boolean
-  comments(first: Int, last: Int, orderby: String): CommentsConnection
+  comments(after: ID, before: ID, first: Int, last: Int, orderby: String): CommentsConnection
   doesViewerLike: Boolean
   emailAddresses: [String]
   feedback: Feedback
@@ -609,7 +609,7 @@ type Story implements FeedUnit & Node {
   body: Text
   canViewerComment: Boolean
   canViewerLike: Boolean
-  comments(first: Int, last: Int, orderby: String): CommentsConnection
+  comments(after: ID, before: ID, first: Int, last: Int, orderby: String): CommentsConnection
   doesViewerLike: Boolean
   emailAddresses: [String]
   feedback: Feedback
@@ -743,7 +743,7 @@ type User implements Named & Node & Actor & HasJsField {
   canViewerComment: Boolean
   canViewerLike: Boolean
   checkins(environments: [Environment!]!): CheckinSearchResult
-  comments(first: Int, last: Int, orderby: String): CommentsConnection
+  comments(after: ID, before: ID, first: Int, last: Int, orderby: String): CommentsConnection
   doesViewerLike: Boolean
   emailAddresses: [String]
   environment: Environment

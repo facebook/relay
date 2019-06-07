@@ -1078,8 +1078,18 @@ class GraphQLDefinitionParser {
           // $FlowFixMe
           filters = (maybeFilters: Array<string>);
         }
+        const dynamicKeyArgument = (clientFieldDirective.arguments || []).find(
+          arg => getName(arg) === 'dynamicKey_UNSTABLE',
+        );
+        if (dynamicKeyArgument != null) {
+          throw createUserError(
+            'Dynamic keys are only supported with @connection.',
+            null,
+            [dynamicKeyArgument.value],
+          );
+        }
         handles = handles || [];
-        handles.push({name, key, filters});
+        handles.push({name, key, filters, dynamicKey: null});
       }
     });
     return handles;

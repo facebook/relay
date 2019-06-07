@@ -10,6 +10,7 @@
 
 'use strict';
 
+const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
 const RelayModernTestUtils = require('relay-test-utils');
 const RelayStoreUtils = require('../RelayStoreUtils');
 
@@ -170,6 +171,129 @@ describe('RelayStoreUtils', () => {
     it('disregards a null or undefined arguments object', () => {
       expect(RelayStoreUtils.getStableStorageKey('foo')).toBe('foo');
       expect(RelayStoreUtils.getStableStorageKey('bar', null)).toBe('bar');
+    });
+  });
+
+  describe('getHandleStorageKey', () => {
+    beforeEach(() => {
+      RelayFeatureFlags.ENABLE_VARIABLE_CONNECTION_KEY = true;
+    });
+
+    afterEach(() => {
+      RelayFeatureFlags.ENABLE_VARIABLE_CONNECTION_KEY = false;
+    });
+
+    it('creates a key with no arguments', () => {
+      const {UserQuery} = generateAndCompile(`
+        query UserQuery {
+          me {
+            address @__clientField(key: "UserQuery_address", handle: "addressHandler") {
+              city
+            }
+          }
+        }
+      `);
+      const handle = UserQuery.operation.selections[0].selections.find(
+        selection => selection.kind === 'LinkedHandle',
+      );
+      const key = RelayStoreUtils.getHandleStorageKey(handle, {});
+      expect(key).toBe('__UserQuery_address_addressHandler');
+    });
+
+    it('creates a key with arguments', () => {
+      const {UserQuery} = generateAndCompile(`
+        query UserQuery {
+          me {
+            profile_picture(scale: 42)
+            @__clientField(key: "UserQuery_profile_picture", handle: "photoHandler") {
+              uri
+            }
+          }
+        }
+      `);
+      const handle = UserQuery.operation.selections[0].selections.find(
+        selection => selection.kind === 'LinkedHandle',
+      );
+      const key = RelayStoreUtils.getHandleStorageKey(handle, {});
+      expect(key).toBe('__UserQuery_profile_picture_photoHandler');
+    });
+
+    it('creates a key with arguments and filters', () => {
+      const {UserQuery} = generateAndCompile(`
+        query UserQuery {
+          me {
+            profile_picture(scale: 42)
+            @__clientField(key: "UserQuery_profile_picture", handle: "photoHandler", filters: ["scale"]) {
+              uri
+            }
+          }
+        }
+      `);
+      const handle = UserQuery.operation.selections[0].selections.find(
+        selection => selection.kind === 'LinkedHandle',
+      );
+      const key = RelayStoreUtils.getHandleStorageKey(handle, {});
+      expect(key).toBe('__UserQuery_profile_picture_photoHandler(scale:42)');
+    });
+
+    it('creates a dynamic connection key', () => {
+      const {UserQuery} = generateAndCompile(`
+        query UserQuery($count: Int!, $cursor: ID, $dynamicKey: String!) {
+          me {
+            friends(after: $cursor, first: $count) @connection(
+              key: "UserQuery_friends"
+              dynamicKey_UNSTABLE: $dynamicKey
+            ) {
+              edges {
+                node {
+                  id
+                }
+              }
+            }
+          }
+        }
+      `);
+      const handle = UserQuery.operation.selections[0].selections.find(
+        selection => selection.kind === 'LinkedHandle',
+      );
+      const key = RelayStoreUtils.getHandleStorageKey(handle, {
+        count: 5,
+        cursor: null,
+        dynamicKey: 'xyz',
+      });
+      expect(key).toBe('__UserQuery_friends_connection(__dynamicKey:"xyz")');
+    });
+
+    it('creates a dynamic connection key with filters', () => {
+      const {UserQuery} = generateAndCompile(`
+        query UserQuery($count: Int!, $cursor: ID, $dynamicKey: String!) {
+          me {
+            friends(after: $cursor, first: $count, orderby: ["name"])
+            @connection(
+              key: "UserQuery_friends"
+              dynamicKey_UNSTABLE: $dynamicKey
+              filters: ["orderby"]
+            ) {
+              edges {
+                node {
+                  id
+                }
+              }
+            }
+          }
+        }
+      `);
+      const handle = UserQuery.operation.selections[0].selections.find(
+        selection => selection.kind === 'LinkedHandle',
+      );
+      const key = RelayStoreUtils.getHandleStorageKey(handle, {
+        count: 5,
+        cursor: null,
+        dynamicKey: 'xyz',
+      });
+      expect(key).toBe(
+        '__UserQuery_friends_connection(orderby:["name"],__dynamicKey:"xyz")',
+      );
     });
   });
 });

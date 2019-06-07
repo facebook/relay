@@ -128,6 +128,7 @@ export type {
   NormalizationDefer,
   NormalizationField,
   NormalizationLinkedField,
+  NormalizationLinkedHandle,
   NormalizationLocalArgumentDefinition,
   NormalizationModuleImport,
   NormalizationScalarField,

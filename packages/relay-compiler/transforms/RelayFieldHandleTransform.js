@@ -15,6 +15,7 @@ const IRTransformer = require('../core/GraphQLIRTransformer');
 
 const invariant = require('invariant');
 
+const {GraphQLString} = require('graphql');
 const {getRelayHandleKey} = require('relay-runtime');
 
 import type {Field} from '../core/GraphQLIR';
@@ -49,8 +50,19 @@ function visitField<F: Field>(field: F): F {
   const name = getRelayHandleKey(handle.name, handle.key, field.name);
   const filters = handle.filters;
   const args = filters
-    ? field.args.filter(arg => filters.indexOf(arg.name) > -1)
+    ? field.args.filter(arg => filters.indexOf(arg.name) !== -1)
     : [];
+  // T45504512: new connection model
+  if (handle.dynamicKey != null) {
+    args.push({
+      kind: 'Argument',
+      loc: handle.dynamicKey.loc,
+      metadata: null,
+      name: '__dynamicKey',
+      type: GraphQLString,
+      value: handle.dynamicKey,
+    });
+  }
 
   return ({
     ...field,

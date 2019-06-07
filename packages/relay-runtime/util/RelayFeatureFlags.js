@@ -10,8 +10,13 @@
 
 'use strict';
 
-type FeatureFlags = {};
+type FeatureFlags = {|
+  ENABLE_VARIABLE_CONNECTION_KEY: boolean,
+|};
 
-const RelayFeatureFlags: FeatureFlags = {};
+const RelayFeatureFlags: FeatureFlags = {
+  // T45504512: new connection model
+  ENABLE_VARIABLE_CONNECTION_KEY: false,
+};
 
 module.exports = RelayFeatureFlags;

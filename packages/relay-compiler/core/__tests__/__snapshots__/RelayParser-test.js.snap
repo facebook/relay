@@ -4084,12 +4084,14 @@ fragment LinkedHandleField on User {
           {
             "name": "clientFriends",
             "key": "",
-            "filters": null
+            "filters": null,
+            "dynamicKey": null
           },
           {
             "name": "otherFriends",
             "key": "",
-            "filters": null
+            "filters": null,
+            "dynamicKey": null
           }
         ],
         "loc": {
@@ -4257,7 +4259,8 @@ fragment LinkedHandleField on User {
             "filters": [
               "first",
               "orderby"
-            ]
+            ],
+            "dynamicKey": null
           }
         ],
         "loc": {
@@ -4404,7 +4407,8 @@ fragment LinkedHandleField on User {
           {
             "name": "clientFriends",
             "key": "LinkedHandleField_friends",
-            "filters": null
+            "filters": null,
+            "dynamicKey": null
           }
         ],
         "loc": {
@@ -4533,12 +4537,14 @@ fragment LinkedHandleField on User {
             "key": "",
             "filters": [
               "first"
-            ]
+            ],
+            "dynamicKey": null
           },
           {
             "name": "otherFriends",
             "key": "",
-            "filters": null
+            "filters": null,
+            "dynamicKey": null
           }
         ],
         "loc": {
@@ -5616,12 +5622,14 @@ fragment ScalarHandleField on User {
           {
             "name": "clientName",
             "key": "",
-            "filters": null
+            "filters": null,
+            "dynamicKey": null
           },
           {
             "name": "clientName2",
             "key": "",
-            "filters": null
+            "filters": null,
+            "dynamicKey": null
           }
         ],
         "loc": {

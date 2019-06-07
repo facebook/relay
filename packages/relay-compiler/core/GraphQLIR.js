@@ -160,6 +160,8 @@ export type InlineFragment = {|
 export type Handle = {|
   +name: string,
   +key: string,
+  // T45504512: new connection model
+  +dynamicKey: Variable | null,
   +filters: ?$ReadOnlyArray<string>,
 |};
 

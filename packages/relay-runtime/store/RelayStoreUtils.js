@@ -65,13 +65,24 @@ function getHandleStorageKey(
   handleField: NormalizationHandle,
   variables: Variables,
 ): string {
-  const {handle, key, name, args, filters} = handleField;
+  const {dynamicKey, handle, key, name, args, filters} = handleField;
   const handleName = getRelayHandleKey(handle, key, name);
-  if (!args || !filters || args.length === 0 || filters.length === 0) {
-    return handleName;
+  let filterArgs = null;
+  if (args && filters && args.length !== 0 && filters.length !== 0) {
+    filterArgs = args.filter(arg => filters.indexOf(arg.name) > -1);
   }
-  const filterArgs = args.filter(arg => filters.indexOf(arg.name) > -1);
-  return formatStorageKey(handleName, getArgumentValues(filterArgs, variables));
+  if (dynamicKey) {
+    filterArgs = filterArgs ?? [];
+    filterArgs.push(dynamicKey);
+  }
+  if (filterArgs === null) {
+    return handleName;
+  } else {
+    return formatStorageKey(
+      handleName,
+      getArgumentValues(filterArgs, variables),
+    );
+  }
 }
 
 /**

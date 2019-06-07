@@ -10,6 +10,15 @@
 
 'use strict';
 
+const SchemaUtils = require('../core/GraphQLSchemaUtils');
+
+const {
+  createCompilerError,
+  createUserError,
+} = require('../core/RelayCompilerError');
+const {GraphQLList} = require('graphql');
+const {getStorageKey, stableCopy} = require('relay-runtime');
+
 import type {
   Argument,
   ClientExtension,
@@ -23,6 +32,7 @@ import type {
   NormalizationDefer,
   NormalizationField,
   NormalizationLinkedField,
+  NormalizationLinkedHandle,
   NormalizationLocalArgumentDefinition,
   NormalizationModuleImport,
   NormalizationOperation,
@@ -31,14 +41,6 @@ import type {
   NormalizationSplitOperation,
   NormalizationStream,
 } from 'relay-runtime';
-
-const SchemaUtils = require('../core/GraphQLSchemaUtils');
-const {
-  createCompilerError,
-  createUserError,
-} = require('../core/RelayCompilerError');
-const {GraphQLList} = require('graphql');
-const {getStorageKey, stableCopy} = require('relay-runtime');
 const {getRawType, isAbstractType, getNullableType} = SchemaUtils;
 
 /**
@@ -205,7 +207,7 @@ function generateLinkedField(node): $ReadOnlyArray<NormalizationSelection> {
   const handles =
     (node.handles &&
       node.handles.map(handle => {
-        return {
+        let handleNode: NormalizationLinkedHandle = {
           kind: 'LinkedHandle',
           alias: node.alias,
           name: node.name,
@@ -214,6 +216,22 @@ function generateLinkedField(node): $ReadOnlyArray<NormalizationSelection> {
           key: handle.key,
           filters: handle.filters,
         };
+        // T45504512: new connection model
+        // NOTE: this intentionally adds a dynamic key in order to avoid
+        // triggering updates to existing queries that do not use dynamic
+        // keys.
+        if (handle.dynamicKey != null) {
+          const dynamicKeyArgName = '__dynamicKey';
+          handleNode = {
+            ...handleNode,
+            dynamicKey: {
+              kind: 'Variable',
+              name: dynamicKeyArgName,
+              variableName: handle.dynamicKey.variableName,
+            },
+          };
+        }
+        return handleNode;
       })) ||
     [];
   const type = getRawType(node.type);
@@ -273,6 +291,12 @@ function generateScalarField(node): Array<NormalizationSelection> {
   const handles =
     (node.handles &&
       node.handles.map(handle => {
+        if (handle.dynamicKey != null) {
+          throw createUserError(
+            'Dynamic key values are not supported on scalar fields.',
+            [handle.dynamicKey.loc],
+          );
+        }
         return {
           kind: 'ScalarHandle',
           alias: node.alias,

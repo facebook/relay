@@ -30,17 +30,19 @@ const {
   GraphQLUnionType,
   parse,
 } = require('graphql');
-const {ConnectionInterface} = require('relay-runtime');
+const {ConnectionInterface, RelayFeatureFlags} = require('relay-runtime');
 
 import type CompilerContext from '../../core/GraphQLCompilerContext';
 import type {
   Argument,
   Directive,
   Fragment,
+  Handle,
   InlineFragment,
   LinkedField,
   Root,
   Selection,
+  Variable,
 } from '../../core/GraphQLIR';
 import type {ConnectionMetadata} from 'relay-runtime';
 
@@ -54,6 +56,7 @@ type Options = {
 type ConnectionArguments = {|
   handler: ?string,
   key: string,
+  dynamicKey: Variable | null,
   filters: ?$ReadOnlyArray<string>,
   stream: ?{|
     if: ?Argument,
@@ -96,6 +99,7 @@ const SCHEMA_EXTENSION = `
     key: String!
     filters: [String]
     handler: String
+    dynamicKey_UNSTABLE: String
   ) on FIELD
 
   directive @stream_connection(
@@ -105,6 +109,7 @@ const SCHEMA_EXTENSION = `
     label: String!
     initial_count: Int!
     if: Boolean = true
+    dynamicKey_UNSTABLE: String
   ) on FIELD
 `;
 
@@ -136,7 +141,7 @@ function visitLinkedField(field: LinkedField, options: Options): LinkedField {
   const nullableType = SchemaUtils.getNullableType(field.type);
   const isPlural = nullableType instanceof GraphQLList;
   const path = options.path.concat(isPlural ? null : field.alias || field.name);
-  let transformedField = this.traverse(field, {
+  let transformedField: LinkedField = this.traverse(field, {
     ...options,
     path,
   });
@@ -170,9 +175,10 @@ function visitLinkedField(field: LinkedField, options: Options): LinkedField {
     connectionDirective,
   );
 
-  const handle = {
+  const handle: Handle = {
     name: connectionArguments.handler ?? CONNECTION,
     key: connectionArguments.key,
+    dynamicKey: connectionArguments.dynamicKey,
     filters: connectionArguments.filters,
   };
 
@@ -287,9 +293,32 @@ function buildConnectionArguments(
     stream = {if: ifArg, initialCount: initialCountArg, label: label ?? key};
   }
 
+  // T45504512: new connection model
+  const dynamicKeyArg = connectionDirective.args.find(
+    arg => arg.name === 'dynamicKey_UNSTABLE',
+  );
+  let dynamicKey: Variable | null = null;
+  if (dynamicKeyArg != null) {
+    if (
+      RelayFeatureFlags.ENABLE_VARIABLE_CONNECTION_KEY &&
+      dynamicKeyArg.value.kind === 'Variable'
+    ) {
+      dynamicKey = dynamicKeyArg.value;
+    } else {
+      throw createUserError(
+        `Unsupported 'dynamicKey_UNSTABLE' argument to @${
+          connectionDirective.name
+        }. This argument is only valid when the feature flag is enabled and ` +
+          'the variable must be a variable',
+        [connectionDirective.loc],
+      );
+    }
+  }
+
   return {
     handler,
     key,
+    dynamicKey,
     filters: (filters: $FlowFixMe),
     stream,
   };

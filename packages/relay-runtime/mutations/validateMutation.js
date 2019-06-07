@@ -165,8 +165,8 @@ if (__DEV__) {
       optimisticResponse.forEach(r => {
         if (r instanceof Object) {
           validateOptimisticResponse(r, context);
-        });
-      }
+        }
+      });
       return;
     }
     Object.keys(optimisticResponse).forEach((key: string) => {

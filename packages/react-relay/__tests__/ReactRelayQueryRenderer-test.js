@@ -1602,6 +1602,68 @@ describe('ReactRelayQueryRenderer', () => {
 
       expect(render.mock.calls).toHaveLength(1);
     });
+    it('check GC with single pending request', () => {
+
+      const fetch = async () => response;
+      store = new Store(new RecordSource());
+      environment = new Environment({
+        network: Network.create(fetch),
+        store,
+      });
+
+      const renderer = ReactTestRenderer.create(
+          <ReactRelayQueryRenderer
+            environment={environment}
+            query={TestQuery}
+            render={render}
+            variables={variables}
+          />,
+      );
+
+      expect(store._roots.size).toEqual(1);
+      renderer.unmount();
+      expect(store._roots.size).toEqual(0);
+    });
+    it('check GC with multiple pending requests', () => {
+
+      const fetch = async () => response;
+      store = new Store(new RecordSource());
+      environment = new Environment({
+        network: Network.create(fetch),
+        store,
+      });
+
+      const renderer = ReactTestRenderer.create(
+        <PropsSetter>
+          <ReactRelayQueryRenderer
+            environment={environment}
+            query={TestQuery}
+            render={render}
+            variables={variables}
+          />
+        </PropsSetter>,
+      );
+
+      renderer.getInstance().setProps({
+        cacheConfig,
+        environment,
+        query: TestQuery,
+        render,
+        variables: { id: '5' },
+      });
+
+      renderer.getInstance().setProps({
+        cacheConfig,
+        environment,
+        query: TestQuery,
+        render,
+        variables: { id: '6' },
+      });
+
+      expect(store._roots.size).toEqual(3);
+      renderer.unmount();
+      expect(store._roots.size).toEqual(0);
+    });
   });
 
   describe('When retry', () => {

@@ -145,6 +145,13 @@ class ReactRelayQueryRenderer extends React.Component<Props, State> {
       !areEqual(prevState.prevPropsVariables, nextProps.variables)
     ) {
       const {query} = nextProps;
+      /*
+          The prevState.queryFetcher.disposeRequest() invokes the dispose of the pending request which 
+          adds new functions to the variable selectionReferences (request.unsubscribe()).
+          That's why it's necessary to call the disposeRequest before retrieving the selectionReferences 
+          (prevState.queryFetcher.getSelectionReferences()) in order to create a new instance of 
+          ReactRelayQueryFetcher with all previous selectionReferences.
+      */
       prevState.queryFetcher.disposeRequest();
       const prevSelectionReferences = prevState.queryFetcher.getSelectionReferences();
       

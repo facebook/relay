@@ -9,3 +9,4 @@ npm-debug.log
 /website/src/relay/prototyping
 .idea
 .vscode
+.checksums

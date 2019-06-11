@@ -167,6 +167,7 @@ const INCLUDE_GLOBS = [
   '!**/__tests__/**',
   '!**/__flowtests__/**',
   '!**/__mocks__/**',
+  '!**/node_modules/**',
 ];
 
 const builds = [
@@ -262,6 +263,16 @@ const modules = gulp.parallel(
         return gulp
           .src(
             INCLUDE_GLOBS,
+
+
+
+
+
+
+
+
+
+
             {
               cwd: path.join(PACKAGES, build.package),
             }

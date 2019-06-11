@@ -2516,6 +2516,793 @@ query NodeQuery(
 
 `;
 
+exports[`compileRelayArtifacts matches expected output: connection-with-dynamic-key.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query FeedbackQuery($id: ID!, $commentsKey: String) {
+  node(id: $id) {
+    ...FeedbackFragment
+  }
+}
+
+query PaginationQuery(
+  $id: ID!
+  $commentsKey: String
+  $count: Int!
+  $cursor: ID!
+) {
+  node(id: $id) {
+    ...FeedbackFragment @arguments(count: $count, cursor: $cursor)
+  }
+}
+
+fragment FeedbackFragment on Feedback @argumentDefinitions(
+  count: {type: "Int", defaultValue: 2},
+  cursor: {type: "ID"}
+) {
+  id
+  comments(after: $cursor, first: $count, orderby: "date") @connection(
+    key: "FeedbackFragment_comments"
+    dynamicKey_UNSTABLE: $commentsKey
+    filters: ["orderby"]
+  ) {
+    edges {
+      node {
+        id
+      }
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+{
+  "kind": "Request",
+  "fragment": {
+    "kind": "Fragment",
+    "name": "FeedbackQuery",
+    "type": "Query",
+    "metadata": null,
+    "argumentDefinitions": [
+      {
+        "kind": "LocalArgument",
+        "name": "id",
+        "type": "ID!",
+        "defaultValue": null
+      },
+      {
+        "kind": "LocalArgument",
+        "name": "commentsKey",
+        "type": "String",
+        "defaultValue": null
+      }
+    ],
+    "selections": [
+      {
+        "kind": "LinkedField",
+        "alias": null,
+        "name": "node",
+        "storageKey": null,
+        "args": [
+          {
+            "kind": "Variable",
+            "name": "id",
+            "variableName": "id"
+          }
+        ],
+        "concreteType": null,
+        "plural": false,
+        "selections": [
+          {
+            "kind": "FragmentSpread",
+            "name": "FeedbackFragment",
+            "args": null
+          }
+        ]
+      }
+    ]
+  },
+  "operation": {
+    "kind": "Operation",
+    "name": "FeedbackQuery",
+    "argumentDefinitions": [
+      {
+        "kind": "LocalArgument",
+        "name": "id",
+        "type": "ID!",
+        "defaultValue": null
+      },
+      {
+        "kind": "LocalArgument",
+        "name": "commentsKey",
+        "type": "String",
+        "defaultValue": null
+      }
+    ],
+    "selections": [
+      {
+        "kind": "LinkedField",
+        "alias": null,
+        "name": "node",
+        "storageKey": null,
+        "args": [
+          {
+            "kind": "Variable",
+            "name": "id",
+            "variableName": "id"
+          }
+        ],
+        "concreteType": null,
+        "plural": false,
+        "selections": [
+          {
+            "kind": "ScalarField",
+            "alias": null,
+            "name": "__typename",
+            "args": null,
+            "storageKey": null
+          },
+          {
+            "kind": "ScalarField",
+            "alias": null,
+            "name": "id",
+            "args": null,
+            "storageKey": null
+          },
+          {
+            "kind": "InlineFragment",
+            "type": "Feedback",
+            "selections": [
+              {
+                "kind": "LinkedField",
+                "alias": null,
+                "name": "comments",
+                "storageKey": "comments(first:2,orderby:\\"date\\")",
+                "args": [
+                  {
+                    "kind": "Literal",
+                    "name": "first",
+                    "value": 2
+                  },
+                  {
+                    "kind": "Literal",
+                    "name": "orderby",
+                    "value": "date"
+                  }
+                ],
+                "concreteType": "CommentsConnection",
+                "plural": false,
+                "selections": [
+                  {
+                    "kind": "LinkedField",
+                    "alias": null,
+                    "name": "edges",
+                    "storageKey": null,
+                    "args": null,
+                    "concreteType": "CommentsEdge",
+                    "plural": true,
+                    "selections": [
+                      {
+                        "kind": "LinkedField",
+                        "alias": null,
+                        "name": "node",
+                        "storageKey": null,
+                        "args": null,
+                        "concreteType": "Comment",
+                        "plural": false,
+                        "selections": [
+                          {
+                            "kind": "ScalarField",
+                            "alias": null,
+                            "name": "id",
+                            "args": null,
+                            "storageKey": null
+                          },
+                          {
+                            "kind": "ScalarField",
+                            "alias": null,
+                            "name": "__typename",
+                            "args": null,
+                            "storageKey": null
+                          }
+                        ]
+                      },
+                      {
+                        "kind": "ScalarField",
+                        "alias": null,
+                        "name": "cursor",
+                        "args": null,
+                        "storageKey": null
+                      }
+                    ]
+                  },
+                  {
+                    "kind": "LinkedField",
+                    "alias": null,
+                    "name": "pageInfo",
+                    "storageKey": null,
+                    "args": null,
+                    "concreteType": "PageInfo",
+                    "plural": false,
+                    "selections": [
+                      {
+                        "kind": "ScalarField",
+                        "alias": null,
+                        "name": "endCursor",
+                        "args": null,
+                        "storageKey": null
+                      },
+                      {
+                        "kind": "ScalarField",
+                        "alias": null,
+                        "name": "hasNextPage",
+                        "args": null,
+                        "storageKey": null
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "kind": "LinkedHandle",
+                "alias": null,
+                "name": "comments",
+                "args": [
+                  {
+                    "kind": "Literal",
+                    "name": "first",
+                    "value": 2
+                  },
+                  {
+                    "kind": "Literal",
+                    "name": "orderby",
+                    "value": "date"
+                  }
+                ],
+                "handle": "connection",
+                "key": "FeedbackFragment_comments",
+                "filters": [
+                  "orderby"
+                ],
+                "dynamicKey": {
+                  "kind": "Variable",
+                  "name": "__dynamicKey",
+                  "variableName": "commentsKey"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
+
+QUERY:
+
+query FeedbackQuery(
+  $id: ID!
+) {
+  node(id: $id) {
+    __typename
+    ...FeedbackFragment
+    id
+  }
+}
+
+fragment FeedbackFragment on Feedback {
+  id
+  comments(first: 2, orderby: "date") {
+    edges {
+      node {
+        id
+        __typename
+      }
+      cursor
+    }
+    pageInfo {
+      endCursor
+      hasNextPage
+    }
+  }
+}
+
+
+{
+  "kind": "Request",
+  "fragment": {
+    "kind": "Fragment",
+    "name": "PaginationQuery",
+    "type": "Query",
+    "metadata": null,
+    "argumentDefinitions": [
+      {
+        "kind": "LocalArgument",
+        "name": "id",
+        "type": "ID!",
+        "defaultValue": null
+      },
+      {
+        "kind": "LocalArgument",
+        "name": "commentsKey",
+        "type": "String",
+        "defaultValue": null
+      },
+      {
+        "kind": "LocalArgument",
+        "name": "count",
+        "type": "Int!",
+        "defaultValue": null
+      },
+      {
+        "kind": "LocalArgument",
+        "name": "cursor",
+        "type": "ID!",
+        "defaultValue": null
+      }
+    ],
+    "selections": [
+      {
+        "kind": "LinkedField",
+        "alias": null,
+        "name": "node",
+        "storageKey": null,
+        "args": [
+          {
+            "kind": "Variable",
+            "name": "id",
+            "variableName": "id"
+          }
+        ],
+        "concreteType": null,
+        "plural": false,
+        "selections": [
+          {
+            "kind": "FragmentSpread",
+            "name": "FeedbackFragment",
+            "args": [
+              {
+                "kind": "Variable",
+                "name": "count",
+                "variableName": "count"
+              },
+              {
+                "kind": "Variable",
+                "name": "cursor",
+                "variableName": "cursor"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "operation": {
+    "kind": "Operation",
+    "name": "PaginationQuery",
+    "argumentDefinitions": [
+      {
+        "kind": "LocalArgument",
+        "name": "id",
+        "type": "ID!",
+        "defaultValue": null
+      },
+      {
+        "kind": "LocalArgument",
+        "name": "commentsKey",
+        "type": "String",
+        "defaultValue": null
+      },
+      {
+        "kind": "LocalArgument",
+        "name": "count",
+        "type": "Int!",
+        "defaultValue": null
+      },
+      {
+        "kind": "LocalArgument",
+        "name": "cursor",
+        "type": "ID!",
+        "defaultValue": null
+      }
+    ],
+    "selections": [
+      {
+        "kind": "LinkedField",
+        "alias": null,
+        "name": "node",
+        "storageKey": null,
+        "args": [
+          {
+            "kind": "Variable",
+            "name": "id",
+            "variableName": "id"
+          }
+        ],
+        "concreteType": null,
+        "plural": false,
+        "selections": [
+          {
+            "kind": "ScalarField",
+            "alias": null,
+            "name": "__typename",
+            "args": null,
+            "storageKey": null
+          },
+          {
+            "kind": "ScalarField",
+            "alias": null,
+            "name": "id",
+            "args": null,
+            "storageKey": null
+          },
+          {
+            "kind": "InlineFragment",
+            "type": "Feedback",
+            "selections": [
+              {
+                "kind": "LinkedField",
+                "alias": null,
+                "name": "comments",
+                "storageKey": null,
+                "args": [
+                  {
+                    "kind": "Variable",
+                    "name": "after",
+                    "variableName": "cursor"
+                  },
+                  {
+                    "kind": "Variable",
+                    "name": "first",
+                    "variableName": "count"
+                  },
+                  {
+                    "kind": "Literal",
+                    "name": "orderby",
+                    "value": "date"
+                  }
+                ],
+                "concreteType": "CommentsConnection",
+                "plural": false,
+                "selections": [
+                  {
+                    "kind": "LinkedField",
+                    "alias": null,
+                    "name": "edges",
+                    "storageKey": null,
+                    "args": null,
+                    "concreteType": "CommentsEdge",
+                    "plural": true,
+                    "selections": [
+                      {
+                        "kind": "LinkedField",
+                        "alias": null,
+                        "name": "node",
+                        "storageKey": null,
+                        "args": null,
+                        "concreteType": "Comment",
+                        "plural": false,
+                        "selections": [
+                          {
+                            "kind": "ScalarField",
+                            "alias": null,
+                            "name": "id",
+                            "args": null,
+                            "storageKey": null
+                          },
+                          {
+                            "kind": "ScalarField",
+                            "alias": null,
+                            "name": "__typename",
+                            "args": null,
+                            "storageKey": null
+                          }
+                        ]
+                      },
+                      {
+                        "kind": "ScalarField",
+                        "alias": null,
+                        "name": "cursor",
+                        "args": null,
+                        "storageKey": null
+                      }
+                    ]
+                  },
+                  {
+                    "kind": "LinkedField",
+                    "alias": null,
+                    "name": "pageInfo",
+                    "storageKey": null,
+                    "args": null,
+                    "concreteType": "PageInfo",
+                    "plural": false,
+                    "selections": [
+                      {
+                        "kind": "ScalarField",
+                        "alias": null,
+                        "name": "endCursor",
+                        "args": null,
+                        "storageKey": null
+                      },
+                      {
+                        "kind": "ScalarField",
+                        "alias": null,
+                        "name": "hasNextPage",
+                        "args": null,
+                        "storageKey": null
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "kind": "LinkedHandle",
+                "alias": null,
+                "name": "comments",
+                "args": [
+                  {
+                    "kind": "Variable",
+                    "name": "after",
+                    "variableName": "cursor"
+                  },
+                  {
+                    "kind": "Variable",
+                    "name": "first",
+                    "variableName": "count"
+                  },
+                  {
+                    "kind": "Literal",
+                    "name": "orderby",
+                    "value": "date"
+                  }
+                ],
+                "handle": "connection",
+                "key": "FeedbackFragment_comments",
+                "filters": [
+                  "orderby"
+                ],
+                "dynamicKey": {
+                  "kind": "Variable",
+                  "name": "__dynamicKey",
+                  "variableName": "commentsKey"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
+
+QUERY:
+
+query PaginationQuery(
+  $id: ID!
+  $count: Int!
+  $cursor: ID!
+) {
+  node(id: $id) {
+    __typename
+    ...FeedbackFragment_1G22uz
+    id
+  }
+}
+
+fragment FeedbackFragment_1G22uz on Feedback {
+  id
+  comments(after: $cursor, first: $count, orderby: "date") {
+    edges {
+      node {
+        id
+        __typename
+      }
+      cursor
+    }
+    pageInfo {
+      endCursor
+      hasNextPage
+    }
+  }
+}
+
+
+{
+  "kind": "Fragment",
+  "name": "FeedbackFragment",
+  "type": "Feedback",
+  "metadata": {
+    "connection": [
+      {
+        "count": "count",
+        "cursor": "cursor",
+        "direction": "forward",
+        "path": [
+          "comments"
+        ]
+      }
+    ]
+  },
+  "argumentDefinitions": [
+    {
+      "kind": "LocalArgument",
+      "name": "count",
+      "type": "Int",
+      "defaultValue": 2
+    },
+    {
+      "kind": "LocalArgument",
+      "name": "cursor",
+      "type": "ID",
+      "defaultValue": null
+    },
+    {
+      "kind": "RootArgument",
+      "name": "commentsKey",
+      "type": "String"
+    }
+  ],
+  "selections": [
+    {
+      "kind": "ScalarField",
+      "alias": null,
+      "name": "id",
+      "args": null,
+      "storageKey": null
+    },
+    {
+      "kind": "LinkedField",
+      "alias": "comments",
+      "name": "__FeedbackFragment_comments_connection",
+      "storageKey": null,
+      "args": [
+        {
+          "kind": "Variable",
+          "name": "__dynamicKey",
+          "variableName": "commentsKey"
+        },
+        {
+          "kind": "Literal",
+          "name": "orderby",
+          "value": "date"
+        }
+      ],
+      "concreteType": "CommentsConnection",
+      "plural": false,
+      "selections": [
+        {
+          "kind": "LinkedField",
+          "alias": null,
+          "name": "edges",
+          "storageKey": null,
+          "args": null,
+          "concreteType": "CommentsEdge",
+          "plural": true,
+          "selections": [
+            {
+              "kind": "LinkedField",
+              "alias": null,
+              "name": "node",
+              "storageKey": null,
+              "args": null,
+              "concreteType": "Comment",
+              "plural": false,
+              "selections": [
+                {
+                  "kind": "ScalarField",
+                  "alias": null,
+                  "name": "id",
+                  "args": null,
+                  "storageKey": null
+                },
+                {
+                  "kind": "ScalarField",
+                  "alias": null,
+                  "name": "__typename",
+                  "args": null,
+                  "storageKey": null
+                }
+              ]
+            },
+            {
+              "kind": "ScalarField",
+              "alias": null,
+              "name": "cursor",
+              "args": null,
+              "storageKey": null
+            }
+          ]
+        },
+        {
+          "kind": "LinkedField",
+          "alias": null,
+          "name": "pageInfo",
+          "storageKey": null,
+          "args": null,
+          "concreteType": "PageInfo",
+          "plural": false,
+          "selections": [
+            {
+              "kind": "ScalarField",
+              "alias": null,
+              "name": "endCursor",
+              "args": null,
+              "storageKey": null
+            },
+            {
+              "kind": "ScalarField",
+              "alias": null,
+              "name": "hasNextPage",
+              "args": null,
+              "storageKey": null
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
+`;
+
+exports[`compileRelayArtifacts matches expected output: connection-with-dynamic-key-missing-variable-definition.invalid.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+# expected-to-throw
+query FeedbackQuery($id: ID!) {
+  node(id: $id) {
+    ...FeedbackFragment
+  }
+}
+
+query PaginationQuery(
+  $id: ID!
+  $count: Int!
+  $cursor: ID!
+) {
+  node(id: $id) {
+    ...FeedbackFragment @arguments(count: $count, cursor: $cursor)
+  }
+}
+
+fragment FeedbackFragment on Feedback @argumentDefinitions(
+  count: {type: "Int", defaultValue: 2},
+  cursor: {type: "ID"}
+) {
+  id
+  comments(after: $cursor, first: $count, orderby: "date") @connection(
+    key: "FeedbackFragment_comments"
+    dynamicKey_UNSTABLE: $commentsKey
+    filters: ["orderby"]
+  ) {
+    edges {
+      node {
+        id
+      }
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+THROWN EXCEPTION:
+
+Error: Encountered 2 error(s):
+- Operation 'FeedbackQuery' references undefined variable(s):
+  - $commentsKey: String.
+  
+  Source (derived): GraphQL request (25:26)
+  24:     key: "FeedbackFragment_comments"
+  25:     dynamicKey_UNSTABLE: $commentsKey
+                               ^
+  26:     filters: ["orderby"]
+  
+- Operation 'PaginationQuery' references undefined variable(s):
+  - $commentsKey: String.
+  
+  Source (derived): GraphQL request (25:26)
+  24:     key: "FeedbackFragment_comments"
+  25:     dynamicKey_UNSTABLE: $commentsKey
+                               ^
+  26:     filters: ["orderby"]
+  
+`;
+
 exports[`compileRelayArtifacts matches expected output: fragment-on-node-interface.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 fragment RefetchableFragment on Node @refetchable(queryName: "RefetchableFragmentQuery") {
@@ -11705,6 +12492,255 @@ fragment ProfilePhoto_18PEfK on User {
           "name": "uri",
           "args": null,
           "storageKey": null
+        }
+      ]
+    }
+  ]
+}
+`;
+
+exports[`compileRelayArtifacts matches expected output: unused-variables-removed-from-print-not-codegen.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query QueryWithUnusedVariables(
+  $id: ID!,
+  $unusedFirst: Int,
+  $unusedAfter: ID) {
+  node(id: $id) {
+    id
+    ...ConnectionFragment @arguments(fetchConnection: false)
+  }
+}
+
+fragment ConnectionFragment on User @argumentDefinitions(
+  fetchConnection: {type: "Boolean", defaultValue: false}
+) {
+  ... @include(if: $fetchConnection) {
+    friends(after: $unusedAfter, first: $unusedFirst) {
+      edges {
+        node {
+          id
+        }
+      }
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+{
+  "kind": "Request",
+  "fragment": {
+    "kind": "Fragment",
+    "name": "QueryWithUnusedVariables",
+    "type": "Query",
+    "metadata": null,
+    "argumentDefinitions": [
+      {
+        "kind": "LocalArgument",
+        "name": "id",
+        "type": "ID!",
+        "defaultValue": null
+      },
+      {
+        "kind": "LocalArgument",
+        "name": "unusedFirst",
+        "type": "Int",
+        "defaultValue": null
+      },
+      {
+        "kind": "LocalArgument",
+        "name": "unusedAfter",
+        "type": "ID",
+        "defaultValue": null
+      }
+    ],
+    "selections": [
+      {
+        "kind": "LinkedField",
+        "alias": null,
+        "name": "node",
+        "storageKey": null,
+        "args": [
+          {
+            "kind": "Variable",
+            "name": "id",
+            "variableName": "id"
+          }
+        ],
+        "concreteType": null,
+        "plural": false,
+        "selections": [
+          {
+            "kind": "ScalarField",
+            "alias": null,
+            "name": "id",
+            "args": null,
+            "storageKey": null
+          },
+          {
+            "kind": "FragmentSpread",
+            "name": "ConnectionFragment",
+            "args": [
+              {
+                "kind": "Literal",
+                "name": "fetchConnection",
+                "value": false
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "operation": {
+    "kind": "Operation",
+    "name": "QueryWithUnusedVariables",
+    "argumentDefinitions": [
+      {
+        "kind": "LocalArgument",
+        "name": "id",
+        "type": "ID!",
+        "defaultValue": null
+      },
+      {
+        "kind": "LocalArgument",
+        "name": "unusedFirst",
+        "type": "Int",
+        "defaultValue": null
+      },
+      {
+        "kind": "LocalArgument",
+        "name": "unusedAfter",
+        "type": "ID",
+        "defaultValue": null
+      }
+    ],
+    "selections": [
+      {
+        "kind": "LinkedField",
+        "alias": null,
+        "name": "node",
+        "storageKey": null,
+        "args": [
+          {
+            "kind": "Variable",
+            "name": "id",
+            "variableName": "id"
+          }
+        ],
+        "concreteType": null,
+        "plural": false,
+        "selections": [
+          {
+            "kind": "ScalarField",
+            "alias": null,
+            "name": "__typename",
+            "args": null,
+            "storageKey": null
+          },
+          {
+            "kind": "ScalarField",
+            "alias": null,
+            "name": "id",
+            "args": null,
+            "storageKey": null
+          }
+        ]
+      }
+    ]
+  }
+}
+
+QUERY:
+
+query QueryWithUnusedVariables(
+  $id: ID!
+) {
+  node(id: $id) {
+    __typename
+    id
+  }
+}
+
+
+{
+  "kind": "Fragment",
+  "name": "ConnectionFragment",
+  "type": "User",
+  "metadata": null,
+  "argumentDefinitions": [
+    {
+      "kind": "LocalArgument",
+      "name": "fetchConnection",
+      "type": "Boolean",
+      "defaultValue": false
+    },
+    {
+      "kind": "RootArgument",
+      "name": "unusedAfter",
+      "type": "ID"
+    },
+    {
+      "kind": "RootArgument",
+      "name": "unusedFirst",
+      "type": "Int"
+    }
+  ],
+  "selections": [
+    {
+      "kind": "Condition",
+      "passingValue": true,
+      "condition": "fetchConnection",
+      "selections": [
+        {
+          "kind": "LinkedField",
+          "alias": null,
+          "name": "friends",
+          "storageKey": null,
+          "args": [
+            {
+              "kind": "Variable",
+              "name": "after",
+              "variableName": "unusedAfter"
+            },
+            {
+              "kind": "Variable",
+              "name": "first",
+              "variableName": "unusedFirst"
+            }
+          ],
+          "concreteType": "FriendsConnection",
+          "plural": false,
+          "selections": [
+            {
+              "kind": "LinkedField",
+              "alias": null,
+              "name": "edges",
+              "storageKey": null,
+              "args": null,
+              "concreteType": "FriendsEdge",
+              "plural": true,
+              "selections": [
+                {
+                  "kind": "LinkedField",
+                  "alias": null,
+                  "name": "node",
+                  "storageKey": null,
+                  "args": null,
+                  "concreteType": "User",
+                  "plural": false,
+                  "selections": [
+                    {
+                      "kind": "ScalarField",
+                      "alias": null,
+                      "name": "id",
+                      "args": null,
+                      "storageKey": null
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
         }
       ]
     }

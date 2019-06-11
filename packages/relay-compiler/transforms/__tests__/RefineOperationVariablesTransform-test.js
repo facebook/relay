@@ -27,7 +27,11 @@ describe('RefineOperationVariablesTransform', () => {
       const {definitions} = parseGraphQLText(TestSchema, text);
       return new GraphQLCompilerContext(TestSchema)
         .addAll(definitions)
-        .applyTransforms([RefineOperationVariablesTransform.transform])
+        .applyTransforms([
+          RefineOperationVariablesTransform.transformWithOptions({
+            removeUnusedVariables: true,
+          }),
+        ])
         .documents()
         .map(GraphQLIRPrinter.print)
         .join('\n');

@@ -18,6 +18,7 @@ const RelayIRTransforms = require('../../core/RelayIRTransforms');
 
 const compileRelayArtifacts = require('../compileRelayArtifacts');
 
+const {RelayFeatureFlags} = require('relay-runtime');
 const {
   TestSchema,
   generateTestsFromFixtures,
@@ -25,6 +26,14 @@ const {
 } = require('relay-test-utils');
 
 describe('compileRelayArtifacts', () => {
+  beforeEach(() => {
+    RelayFeatureFlags.ENABLE_VARIABLE_CONNECTION_KEY = true;
+  });
+
+  afterEach(() => {
+    RelayFeatureFlags.ENABLE_VARIABLE_CONNECTION_KEY = false;
+  });
+
   generateTestsFromFixtures(
     `${__dirname}/fixtures/compileRelayArtifacts`,
     text => {

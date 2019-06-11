@@ -83,6 +83,9 @@ const relayCodegenTransforms: Array<IRTransform> = [
   SkipRedundantNodesTransform.transform,
   RelayGenerateTypeNameTransform.transform,
   FilterDirectivesTransform.transform,
+  RefineOperationVariablesTransform.transformWithOptions({
+    removeUnusedVariables: false,
+  }),
 ];
 
 // Transforms applied before printing the query sent to the server.
@@ -96,7 +99,9 @@ const relayPrintTransforms: Array<IRTransform> = [
   RelayGenerateTypeNameTransform.transform,
   RelaySkipHandleFieldTransform.transform,
   FilterDirectivesTransform.transform,
-  RefineOperationVariablesTransform.transform,
+  RefineOperationVariablesTransform.transformWithOptions({
+    removeUnusedVariables: true,
+  }),
 ];
 
 module.exports = {

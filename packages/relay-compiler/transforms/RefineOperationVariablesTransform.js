@@ -22,6 +22,10 @@ const {
 
 import type {ArgumentDefinition, Root} from '../core/GraphQLIR';
 
+type Options = {|
+  +removeUnusedVariables: boolean,
+|};
+
 /**
  * Refines the argument definitions for operations to remove unused arguments
  * due to statically pruned conditional branches (e.g. because of overriding
@@ -29,8 +33,9 @@ import type {ArgumentDefinition, Root} from '../core/GraphQLIR';
  * referenced in each operation are defined. Reports aggregated errors for all
  * operations.
  */
-function stripUnusedVariablesTransform(
+function refineOperationVariablesTransformImpl(
   context: GraphQLCompilerContext,
+  {removeUnusedVariables}: Options,
 ): GraphQLCompilerContext {
   const contextWithUsedArguments = inferRootArgumentDefinitions(context);
   let nextContext = context;
@@ -60,15 +65,18 @@ function stripUnusedVariablesTransform(
         undefinedVariables.map(argDef => argDef.loc),
       );
     }
-    // Remove unused argument definitions
-    nextContext = nextContext.replace(
-      ({
-        ...node,
-        argumentDefinitions: node.argumentDefinitions.filter(argDef =>
-          usedArguments.has(argDef.name),
-        ),
-      }: Root),
-    );
+    if (removeUnusedVariables) {
+      // Remove unused argument definitions
+      const usedArgumentDefinitions = node.argumentDefinitions.filter(argDef =>
+        usedArguments.has(argDef.name),
+      );
+      nextContext = nextContext.replace(
+        ({
+          ...node,
+          argumentDefinitions: usedArgumentDefinitions,
+        }: Root),
+      );
+    }
   });
   if (errors != null && errors.length !== 0) {
     throw createCombinedError(errors);
@@ -86,6 +94,16 @@ function argumentDefinitionsToMap<T: ArgumentDefinition>(
   return map;
 }
 
+function transformWithOptions(
+  options: Options,
+): (context: GraphQLCompilerContext) => GraphQLCompilerContext {
+  return function refineOperationVariablesTransform(
+    context: GraphQLCompilerContext,
+  ): GraphQLCompilerContext {
+    return refineOperationVariablesTransformImpl(context, options);
+  };
+}
+
 module.exports = {
-  transform: stripUnusedVariablesTransform,
+  transformWithOptions,
 };

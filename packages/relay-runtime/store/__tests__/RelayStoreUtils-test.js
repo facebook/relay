@@ -283,17 +283,33 @@ describe('RelayStoreUtils', () => {
           }
         }
       `);
-      const handle = UserQuery.operation.selections[0].selections.find(
-        selection => selection.kind === 'LinkedHandle',
-      );
-      const key = RelayStoreUtils.getHandleStorageKey(handle, {
+      const variables = {
         count: 5,
         cursor: null,
         dynamicKey: 'xyz',
-      });
-      expect(key).toBe(
-        '__UserQuery_friends_connection(orderby:["name"],__dynamicKey:"xyz")',
+      };
+      const handle = UserQuery.operation.selections[0].selections.find(
+        selection => selection.kind === 'LinkedHandle',
       );
+      const normalizationKey = RelayStoreUtils.getHandleStorageKey(
+        handle,
+        variables,
+      );
+      expect(normalizationKey).toBe(
+        '__UserQuery_friends_connection(__dynamicKey:"xyz",orderby:["name"])',
+      );
+      const field = UserQuery.fragment.selections
+        .find(
+          selection =>
+            selection.kind === 'LinkedField' && selection.name === 'me',
+        )
+        .selections.find(
+          selection =>
+            selection.kind === 'LinkedField' && selection.alias === 'friends',
+        );
+      expect(field).not.toBe(null);
+      const readerKey = RelayStoreUtils.getStorageKey(field, variables);
+      expect(readerKey).toBe(normalizationKey);
     });
   });
 });

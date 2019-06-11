@@ -88,10 +88,11 @@ describe('@connection with dynamic key', () => {
         cursor: {type: "ID"}
       ) {
         id
-        comments(after: $cursor, first: $count) @connection(
-          key: "FeedbackFragment_comments",
+        comments(after: $cursor, first: $count, orderby: "date") @connection(
+          key: "FeedbackFragment_comments"
           dynamicKey_UNSTABLE: $commentsKey
-        ){
+          filters: ["orderby"]
+        ) {
           edges {
             node {
               id

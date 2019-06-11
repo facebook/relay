@@ -72,8 +72,13 @@ function getHandleStorageKey(
     filterArgs = args.filter(arg => filters.indexOf(arg.name) > -1);
   }
   if (dynamicKey) {
-    filterArgs = filterArgs ?? [];
-    filterArgs.push(dynamicKey);
+    // "Sort" the arguments by argument name: this is done by the compiler for
+    // user-supplied arguments but the dynamic argument must also be in sorted
+    // order.  Note that dynamic key argument name is double-underscore-
+    // -prefixed, and a double-underscore prefix is disallowed for user-supplied
+    // argument names, so there's no need to actually sort.
+    filterArgs =
+      filterArgs != null ? [dynamicKey, ...filterArgs] : [dynamicKey];
   }
   if (filterArgs === null) {
     return handleName;

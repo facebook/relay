@@ -54,6 +54,7 @@ const babelOptions = require('./scripts/getBabelOptions')({
     'babel-plugin-macros': 'babel-plugin-macros',
     chalk: 'chalk',
     child_process: 'child_process',
+    cosmiconfig: 'cosmiconfig',
     crypto: 'crypto',
     'fast-glob': 'fast-glob',
     'fb-watchman': 'fb-watchman',
@@ -249,6 +250,21 @@ const builds = [
         entry: 'index.js',
         output: 'relay-test-utils',
         libraryName: 'RelayTestUtils',
+        target: 'node',
+        noMinify: true, // Note: uglify can't yet handle modern JS
+      },
+    ],
+  },
+  {
+    package: 'relay-config',
+    exports: {
+      index: 'index.js',
+    },
+    bundles: [
+      {
+        entry: 'index.js',
+        output: 'relay-config',
+        libraryName: 'RelayConfig',
         target: 'node',
         noMinify: true, // Note: uglify can't yet handle modern JS
       },

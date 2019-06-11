@@ -50,7 +50,7 @@ import type {
   PluginInterface,
 } from '../language/RelayLanguagePluginInterface';
 
-type Options = {|
+export type Config = {|
   schema: string,
   src: string,
   extensions: Array<string>,
@@ -61,14 +61,14 @@ type Options = {|
   watch?: ?boolean,
   validate: boolean,
   quiet: boolean,
-  persistOutput: ?string,
+  persistOutput?: ?string,
   noFutureProofEnums: boolean,
-  language: string,
-  artifactDirectory: ?string,
+  language: string | PluginInitializer,
+  artifactDirectory?: ?string,
   customScalars?: ScalarTypeMapping,
 |};
 
-function buildWatchExpression(options: {
+function buildWatchExpression(config: {
   extensions: Array<string>,
   include: Array<string>,
   exclude: Array<string>,
@@ -76,24 +76,24 @@ function buildWatchExpression(options: {
   return [
     'allof',
     ['type', 'f'],
-    ['anyof', ...options.extensions.map(ext => ['suffix', ext])],
+    ['anyof', ...config.extensions.map(ext => ['suffix', ext])],
     [
       'anyof',
-      ...options.include.map(include => ['match', include, 'wholename']),
+      ...config.include.map(include => ['match', include, 'wholename']),
     ],
-    ...options.exclude.map(exclude => ['not', ['match', exclude, 'wholename']]),
+    ...config.exclude.map(exclude => ['not', ['match', exclude, 'wholename']]),
   ];
 }
 
 function getFilepathsFromGlob(
   baseDir,
-  options: {
+  config: {
     extensions: Array<string>,
     include: Array<string>,
     exclude: Array<string>,
   },
 ): Array<string> {
-  const {extensions, include, exclude} = options;
+  const {extensions, include, exclude} = config;
   const patterns = include.map(inc => `${inc}/*.+(${extensions.join('|')})`);
 
   const glob = require('fast-glob');
@@ -116,61 +116,103 @@ type LanguagePlugin = PluginInitializer | {default: PluginInitializer};
  * replaced with `__webpack_require__` when bundled using webpack, by using
  * `eval` to get it at runtime.
  */
-function getLanguagePlugin(language: string): PluginInterface {
+function getLanguagePlugin(
+  language: string | PluginInitializer,
+): PluginInterface {
   if (language === 'javascript') {
     return RelayLanguagePluginJavaScript();
   } else {
-    const pluginPath = path.resolve(process.cwd(), language);
-    const requirePath = fs.existsSync(pluginPath)
-      ? pluginPath
-      : `relay-compiler-language-${language}`;
-    try {
-      // eslint-disable-next-line no-eval
-      let languagePlugin: LanguagePlugin = eval('require')(requirePath);
-      if (languagePlugin.default) {
-        // $FlowFixMe - Flow no longer considers statics of functions as any
-        languagePlugin = languagePlugin.default;
+    let languagePlugin: LanguagePlugin;
+    if (typeof language === 'string') {
+      const pluginPath = path.resolve(process.cwd(), language);
+      const requirePath = fs.existsSync(pluginPath)
+        ? pluginPath
+        : `relay-compiler-language-${language}`;
+      try {
+        // eslint-disable-next-line no-eval
+        languagePlugin = eval('require')(requirePath);
+        if (languagePlugin.default) {
+          languagePlugin = languagePlugin.default;
+        }
+      } catch (err) {
+        const e = new Error(
+          `Unable to load language plugin ${requirePath}: ${err.message}`,
+        );
+        e.stack = err.stack;
+        throw e;
       }
-      if (typeof languagePlugin === 'function') {
-        // $FlowFixMe
-        return languagePlugin();
-      } else {
-        throw new Error('Expected plugin to export a function.');
-      }
-    } catch (err) {
-      const e = new Error(
-        `Unable to load language plugin ${requirePath}: ${err.message}`,
-      );
-      e.stack = err.stack;
-      throw e;
+    } else {
+      languagePlugin = language;
+    }
+    if (languagePlugin.default) {
+      // $FlowFixMe - Flow no longer considers statics of functions as any
+      languagePlugin = languagePlugin.default;
+    }
+    if (typeof languagePlugin === 'function') {
+      // $FlowFixMe
+      return languagePlugin();
+    } else {
+      throw new Error('Expected plugin to be a initializer function.');
     }
   }
 }
 
-async function main(options: Options) {
-  const schema = path.resolve(process.cwd(), options.schema);
+async function main(config: Config) {
+  if (config.verbose && config.quiet) {
+    throw new Error("I can't be quiet and verbose at the same time");
+  }
+
+  config = getPathBasedConfig(config);
+  config = await getWatchConfig(config);
+
+  // Use function from module.exports to be able to mock it for tests
+  const codegenRunner = module.exports.getCodegenRunner(config);
+
+  const result = config.watch
+    ? await codegenRunner.watchAll()
+    : await codegenRunner.compileAll();
+
+  if (result === 'ERROR') {
+    process.exit(100);
+  }
+  if (config.validate && result !== 'NO_CHANGES') {
+    process.exit(101);
+  }
+}
+
+function getPathBasedConfig(config: Config) {
+  const schema = path.resolve(process.cwd(), config.schema);
   if (!fs.existsSync(schema)) {
     throw new Error(`--schema path does not exist: ${schema}`);
   }
-  const src = path.resolve(process.cwd(), options.src);
+
+  const src = path.resolve(process.cwd(), config.src);
   if (!fs.existsSync(src)) {
     throw new Error(`--src path does not exist: ${src}`);
   }
 
-  let persistOutput = options.persistOutput;
+  let persistOutput = config.persistOutput;
   if (typeof persistOutput === 'string') {
     persistOutput = path.resolve(process.cwd(), persistOutput);
     const persistOutputDir = path.dirname(persistOutput);
     if (!fs.existsSync(persistOutputDir)) {
-      throw new Error(`--persist-output path does not exist: ${persistOutput}`);
+      throw new Error(`--persistOutput path does not exist: ${persistOutput}`);
     }
   }
-  if (options.watch && !options.watchman) {
-    throw new Error('Watchman is required to watch for changes.');
-  }
-  if (options.watch && !hasWatchmanRootFile(src)) {
-    throw new Error(
-      `
+
+  return {...config, schema, src, persistOutput};
+}
+
+async function getWatchConfig(config: Config): Promise<Config> {
+  const watchman = config.watchman && (await WatchmanClient.isAvailable());
+
+  if (config.watch) {
+    if (!watchman) {
+      throw new Error('Watchman is required to watch for changes.');
+    }
+    if (!module.exports.hasWatchmanRootFile(config.src)) {
+      throw new Error(
+        `
 --watch requires that the src directory have a valid watchman "root" file.
 
 Root files can include:
@@ -178,56 +220,33 @@ Root files can include:
 - A .hg/ Mercurial folder
 - A .watchmanconfig file
 
-Ensure that one such file exists in ${src} or its parents.
-    `.trim(),
-    );
-  }
-  if (options.verbose && options.quiet) {
-    throw new Error("I can't be quiet and verbose at the same time");
-  }
-
-  const watchman = options.watchman && (await WatchmanClient.isAvailable());
-
-  const codegenRunner = getCodegenRunner({
-    ...options,
-    persistOutput,
-    schema,
-    src,
-    watchman,
-  });
-
-  if (!options.validate && !options.watch && watchman) {
+Ensure that one such file exists in ${config.src} or its parents.
+      `.trim(),
+      );
+    }
+  } else if (watchman && !config.validate) {
     // eslint-disable-next-line no-console
     console.log('HINT: pass --watch to keep watching for changes.');
   }
 
-  const result = options.watch
-    ? await codegenRunner.watchAll()
-    : await codegenRunner.compileAll();
-
-  if (result === 'ERROR') {
-    process.exit(100);
-  }
-  if (options.validate && result !== 'NO_CHANGES') {
-    process.exit(101);
-  }
+  return {...config, watchman};
 }
 
-function getCodegenRunner(options: Options): CodegenRunner {
+function getCodegenRunner(config: Config): CodegenRunner {
   const reporter = new ConsoleReporter({
-    verbose: options.verbose,
-    quiet: options.quiet,
+    verbose: config.verbose,
+    quiet: config.quiet,
   });
-  const schema = getSchema(options.schema);
-  const languagePlugin = getLanguagePlugin(options.language);
-  const inputExtensions = options.extensions || languagePlugin.inputExtensions;
+  const schema = getSchema(config.schema);
+  const languagePlugin = getLanguagePlugin(config.language);
+  const inputExtensions = config.extensions || languagePlugin.inputExtensions;
   const outputExtension = languagePlugin.outputExtension;
   const sourceParserName = inputExtensions.join('/');
   const sourceWriterName = outputExtension;
   const sourceModuleParser = RelaySourceModuleParser(
     languagePlugin.findGraphQLTags,
   );
-  const providedArtifactDirectory = options.artifactDirectory;
+  const providedArtifactDirectory = config.artifactDirectory;
   const artifactDirectory =
     providedArtifactDirectory != null
       ? path.resolve(process.cwd(), providedArtifactDirectory)
@@ -235,50 +254,48 @@ function getCodegenRunner(options: Options): CodegenRunner {
   const generatedDirectoryName = artifactDirectory || '__generated__';
   const sourceSearchOptions = {
     extensions: inputExtensions,
-    include: options.include,
-    exclude: ['**/*.graphql.*', ...options.exclude],
+    include: config.include,
+    exclude: ['**/*.graphql.*', ...config.exclude],
   };
   const graphqlSearchOptions = {
     extensions: ['graphql'],
-    include: options.include,
-    exclude: [path.relative(options.src, options.schema)].concat(
-      options.exclude,
-    ),
+    include: config.include,
+    exclude: [path.relative(config.src, config.schema)].concat(config.exclude),
   };
   const parserConfigs = {
     [sourceParserName]: {
-      baseDir: options.src,
+      baseDir: config.src,
       getFileFilter: sourceModuleParser.getFileFilter,
       getParser: sourceModuleParser.getParser,
       getSchema: () => schema,
-      watchmanExpression: options.watchman
+      watchmanExpression: config.watchman
         ? buildWatchExpression(sourceSearchOptions)
         : null,
-      filepaths: options.watchman
+      filepaths: config.watchman
         ? null
-        : getFilepathsFromGlob(options.src, sourceSearchOptions),
+        : getFilepathsFromGlob(config.src, sourceSearchOptions),
     },
     graphql: {
-      baseDir: options.src,
+      baseDir: config.src,
       getParser: DotGraphQLParser.getParser,
       getSchema: () => schema,
-      watchmanExpression: options.watchman
+      watchmanExpression: config.watchman
         ? buildWatchExpression(graphqlSearchOptions)
         : null,
-      filepaths: options.watchman
+      filepaths: config.watchman
         ? null
-        : getFilepathsFromGlob(options.src, graphqlSearchOptions),
+        : getFilepathsFromGlob(config.src, graphqlSearchOptions),
     },
   };
   const writerConfigs = {
     [sourceWriterName]: {
       writeFiles: getRelayFileWriter(
-        options.src,
+        config.src,
         languagePlugin,
-        options.noFutureProofEnums,
+        config.noFutureProofEnums,
         artifactDirectory,
-        options.persistOutput,
-        options.customScalars,
+        config.persistOutput,
+        config.customScalars,
       ),
       isGeneratedFile: (filePath: string) =>
         filePath.endsWith('.graphql.' + outputExtension) &&
@@ -291,7 +308,7 @@ function getCodegenRunner(options: Options): CodegenRunner {
     reporter,
     parserConfigs,
     writerConfigs,
-    onlyValidate: options.validate,
+    onlyValidate: config.validate,
     // TODO: allow passing in a flag or detect?
     sourceControl: null,
   });
@@ -394,7 +411,7 @@ ${error.stack}
 // Ensure that a watchman "root" file exists in the given directory
 // or a parent so that it can be watched
 const WATCHMAN_ROOT_FILES = ['.git', '.hg', '.watchmanconfig'];
-function hasWatchmanRootFile(testPath) {
+function hasWatchmanRootFile(testPath: string): boolean {
   while (path.dirname(testPath) !== testPath) {
     if (
       WATCHMAN_ROOT_FILES.some(file => {
@@ -408,4 +425,10 @@ function hasWatchmanRootFile(testPath) {
   return false;
 }
 
-module.exports = {getCodegenRunner, main};
+module.exports = {
+  getCodegenRunner,
+  getLanguagePlugin,
+  getWatchConfig,
+  hasWatchmanRootFile,
+  main,
+};

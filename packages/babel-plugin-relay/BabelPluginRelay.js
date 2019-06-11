@@ -17,6 +17,13 @@ const getValidGraphQLTag = require('./getValidGraphQLTag');
 const getValidRelayQLTag = require('./getValidRelayQLTag');
 const invariant = require('./invariant');
 
+let RelayConfig;
+try {
+  // eslint-disable-next-line no-eval
+  RelayConfig = eval('require')('relay-config');
+  // eslint-disable-next-line lint/no-unused-catch-bindings
+} catch (_) {}
+
 import type {Validator} from './RelayQLTransformer';
 
 export type RelayPluginOptions = {
@@ -38,7 +45,7 @@ export type RelayPluginOptions = {
   snakeCase?: boolean,
   substituteVariables?: boolean,
   validator?: Validator<any>,
-  // Directory as specified by outputDir when running relay-compiler
+  // Directory as specified by artifactDirectory when running relay-compiler
   artifactDirectory?: string,
 };
 
@@ -115,7 +122,8 @@ module.exports = function BabelPluginRelay(context: {types: $FlowFixMe}): any {
   return {
     visitor: {
       Program(path, state) {
-        path.traverse(visitor, state);
+        const config = RelayConfig && RelayConfig.loadConfig();
+        path.traverse(visitor, {...state, opts: {...config, ...state.opts}});
       },
     },
   };

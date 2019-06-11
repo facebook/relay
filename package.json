@@ -41,6 +41,7 @@
     "babel-preset-fbjs": "^3.1.2",
     "chalk": "^2.4.1",
     "cross-env": "^5.2.0",
+    "cosmiconfig": "^5.0.5",
     "del": "3.0.0",
     "eslint": "5.4.0",
     "eslint-config-fbjs": "2.0.1",

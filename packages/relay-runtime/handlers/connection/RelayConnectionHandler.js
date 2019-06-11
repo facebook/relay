@@ -68,13 +68,23 @@ function update(store: RecordSourceProxy, payload: HandleFieldPayload): void {
     record.setValue(null, payload.handleKey);
     return;
   }
-  const clientConnection = record.getLinkedRecord(payload.handleKey);
+  // In rare cases the handleKey field may be unset even though the client
+  // connection record exists, in this case new edges should still be merged
+  // into the existing client connection record (and the field reset to point
+  // to that record).
+  const clientConnectionID = generateClientID(
+    record.getDataID(),
+    payload.handleKey,
+  );
+  const clientConnectionField = record.getLinkedRecord(payload.handleKey);
+  const clientConnection =
+    clientConnectionField ?? store.get(clientConnectionID);
   let clientPageInfo =
     clientConnection && clientConnection.getLinkedRecord(PAGE_INFO);
   if (!clientConnection) {
     // Initial fetch with data: copy fields from the server record
     const connection = store.create(
-      generateClientID(record.getDataID(), payload.handleKey),
+      clientConnectionID,
       serverConnection.getType(),
     );
     connection.setValue(0, NEXT_EDGE_INDEX);
@@ -101,6 +111,11 @@ function update(store: RecordSourceProxy, payload: HandleFieldPayload): void {
     }
     connection.setLinkedRecord(clientPageInfo, PAGE_INFO);
   } else {
+    if (clientConnectionField == null) {
+      // If the handleKey field was unset but the client connection record
+      // existed, update the field to point to the record
+      record.setLinkedRecord(clientConnection, payload.handleKey);
+    }
     const connection = clientConnection;
     // Subsequent fetches:
     // - updated fields on the connection

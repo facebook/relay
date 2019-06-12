@@ -17,6 +17,7 @@ const IRTransformer = require('../core/GraphQLIRTransformer');
 
 const invariant = require('invariant');
 
+const {createUserError} = require('../core/RelayCompilerError');
 const {isTypeSubTypeOf, GraphQLSchema} = require('graphql');
 
 import type {
@@ -91,14 +92,16 @@ function visitFragmentSpread(
     typeCondition: fragment.type,
   };
 
-  invariant(
-    !fragment.argumentDefinitions.find(
-      argDef => argDef.kind === 'LocalArgumentDefinition',
-    ),
-    'RelayMaskTransform: Cannot unmask fragment spread `%s` because it has local ' +
-      'argument definition.',
-    fragmentSpread.name,
+  const localArgDef = fragment.argumentDefinitions.find(
+    argDef => argDef.kind === 'LocalArgumentDefinition',
   );
+  if (localArgDef != null) {
+    throw createUserError(
+      'RelayMaskTransform: Cannot use @relay(mask: false) on fragment spread ' +
+        'because the fragment definition uses @argumentDefinitions.',
+      [fragmentSpread.loc, localArgDef.loc],
+    );
+  }
 
   // Note: defer validating arguments to the containing fragment in order
   // to list all invalid variables/arguments instead of only one.

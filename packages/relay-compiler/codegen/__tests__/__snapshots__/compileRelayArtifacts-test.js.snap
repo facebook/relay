@@ -11771,6 +11771,42 @@ fragment UserProfile_user on User {
 }
 `;
 
+exports[`compileRelayArtifacts matches expected output: unmasked-fragment-spreads-local-arguments.invalid.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+# expected-to-throw
+
+query TestQuery {
+  me {
+    ...User_user @relay(mask: false)
+  }
+}
+
+fragment User_user on User
+  @argumentDefinitions(isRelative: {type: "Boolean!", defaultValue: false}) {
+
+  url(relative: $isRelative)
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+THROWN EXCEPTION:
+
+Error: Encountered 1 error(s):
+- RelayMaskTransform: Cannot use @relay(mask: false) on fragment spread because the fragment definition uses @argumentDefinitions.
+  
+  Source: GraphQL request (5:5)
+  4:   me {
+  5:     ...User_user @relay(mask: false)
+         ^
+  6:   }
+  
+  Source: GraphQL request (10:24)
+   9: fragment User_user on User
+  10:   @argumentDefinitions(isRelative: {type: "Boolean!", defaultValue: false}) {
+                             ^
+  11: 
+  
+`;
+
 exports[`compileRelayArtifacts matches expected output: unmasked-fragment-spreads-recursive.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query TestQuery(

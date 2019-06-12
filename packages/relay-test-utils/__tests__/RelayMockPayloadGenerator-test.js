@@ -908,7 +908,7 @@ describe('with @relay_test_operation', () => {
     );
   });
 
-  test('should return null if mockResolver has null on scalar field', () => {
+  test('generate mock with Mock Resolvers for Scalar field as null', () => {
     testGeneratedData(
       `
       query TestQuery @relay_test_operation {

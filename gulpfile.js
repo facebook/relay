@@ -118,7 +118,10 @@ const PRODUCTION_HEADER =
 
 const buildDist = function(filename, opts, isProduction) {
   const webpackOpts = {
-    externals: [/^[-/a-zA-Z0-9]+$/],
+    externals: [
+      /^[-/a-zA-Z0-9]+$/,
+      /^@babel\/.+$/,
+    ],
     target: opts.target,
     node: {
       fs: 'empty',
@@ -250,6 +253,7 @@ const builds = [
         entry: 'index.js',
         output: 'relay-test-utils',
         libraryName: 'RelayTestUtils',
+        libraryTarget: 'commonjs2',
         target: 'node',
         noMinify: true, // Note: uglify can't yet handle modern JS
       },

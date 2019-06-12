@@ -384,7 +384,7 @@ class RelayMockPayloadGenerator {
 
     // If the value has not been generated yet (__id, __typename fields, or defaults)
     // then we need to generate mock value for a scalar type
-    if (value == null) {
+    if (value === undefined) {
       const selectionPath = [...path, applicationName];
       // Get basic type information: type of the field (Int, Float, String, etc..)
       // And check if it's a plural type

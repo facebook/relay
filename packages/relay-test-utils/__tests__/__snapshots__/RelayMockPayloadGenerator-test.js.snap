@@ -1159,6 +1159,29 @@ query TestQuery @relay_test_operation {
 }
 `;
 
+exports[`with @relay_test_operation generate mock with Mock Resolvers for Scalar field as null 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query TestQuery @relay_test_operation {
+  node(id: "my-id") {
+    ... on User {
+      id
+      name
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+{
+  "data": {
+    "node": {
+      "__typename": "User",
+      "id": "my-user-id",
+      "name": null
+    }
+  }
+}
+`;
+
 exports[`with @relay_test_operation generate mock with empty array for scalar field  1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query TestQuery @relay_test_operation {

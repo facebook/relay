@@ -908,6 +908,29 @@ describe('with @relay_test_operation', () => {
     );
   });
 
+  test('generate mock with Mock Resolvers for Scalar field as null', () => {
+    testGeneratedData(
+      `
+      query TestQuery @relay_test_operation {
+        node(id: "my-id") {
+          ... on User {
+            id
+            name
+          }
+        }
+      }
+    `,
+      {
+        User() {
+          return {
+            id: 'my-user-id',
+            name: null,
+          };
+        },
+      },
+    );
+  });
+
   test('generate mock with multiple items in arrays for scalar field', () => {
     testGeneratedData(
       `

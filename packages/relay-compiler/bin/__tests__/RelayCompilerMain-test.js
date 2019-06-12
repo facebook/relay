@@ -280,7 +280,8 @@ describe('RelayCompilerMain', () => {
     it('loads a plugin from a local module', () => {
       const pluginModuleMockPath = path.join(
         __dirname,
-        'fixtures',
+        '..',
+        '__fixtures__',
         'plugin-module.js',
       );
       expect(getLanguagePlugin(pluginModuleMockPath)).toEqual(

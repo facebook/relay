@@ -10,6 +10,6 @@
  */
 
 'use strict';
-const RelayLanguagePluginJavaScript = require('../../../language/javascript/RelayLanguagePluginJavaScript');
+const RelayLanguagePluginJavaScript = require('../../language/javascript/RelayLanguagePluginJavaScript');
 
 module.exports = RelayLanguagePluginJavaScript;

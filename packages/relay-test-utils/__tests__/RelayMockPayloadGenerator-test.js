@@ -908,6 +908,29 @@ describe('with @relay_test_operation', () => {
     );
   });
 
+  test('should return null if mockResolver has null on scalar field', () => {
+    testGeneratedData(
+      `
+      query TestQuery @relay_test_operation {
+        node(id: "my-id") {
+          ... on User {
+            id
+            name
+          }
+        }
+      }
+    `,
+      {
+        User() {
+          return {
+            id: 'my-user-id',
+            name: null,
+          };
+        },
+      },
+    );
+  });
+
   test('generate mock with multiple items in arrays for scalar field', () => {
     testGeneratedData(
       `

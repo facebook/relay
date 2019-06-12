@@ -1473,3 +1473,26 @@ query TestQuery @relay_test_operation {
   }
 }
 `;
+
+exports[`with @relay_test_operation should return null if mockResolver has null on scalar field 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query TestQuery @relay_test_operation {
+  node(id: "my-id") {
+    ... on User {
+      id
+      name
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+{
+  "data": {
+    "node": {
+      "__typename": "User",
+      "id": "my-user-id",
+      "name": "<mock-value-for-field-\\"name\\">"
+    }
+  }
+}
+`;

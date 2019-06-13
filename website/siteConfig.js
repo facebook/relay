@@ -86,6 +86,12 @@ const users = [
     infoLink: 'https://up.com.au/',
     pinned: false,
   },
+  {
+    caption: 'Clockwise',
+    image: '/img/logos/clockwise.png',
+    infoLink: 'https://getclockwise.com/',
+    pinned: false,
+  },
 ];
 
 const siteConfig = {

@@ -30,6 +30,7 @@ const RelayCodeGenerator = require('./codegen/RelayCodeGenerator');
 const RelayFileWriter = require('./codegen/RelayFileWriter');
 const RelayFlowGenerator = require('./language/javascript/RelayFlowGenerator');
 const RelayIRTransforms = require('./core/RelayIRTransforms');
+const RelayIRValidations = require('./core/RelayIRValidations');
 const RelayParser = require('./core/RelayParser');
 const RelaySourceModuleParser = require('./core/RelaySourceModuleParser');
 const RelayValidator = require('./core/RelayValidator');
@@ -61,7 +62,10 @@ export type {
 export type {CompileResult, File} from './codegen/CodegenTypes';
 export type {FileFilter, WatchmanExpression} from './codegen/CodegenWatcher';
 export type {SourceControl} from './codegen/SourceControl';
-export type {RelayCompilerTransforms} from './codegen/compileRelayArtifacts';
+export type {
+  RelayCompilerTransforms,
+  RelayCompilerValidations,
+} from './codegen/compileRelayArtifacts';
 export type {IRTransform} from './core/GraphQLCompilerContext';
 export type {
   Argument,
@@ -139,6 +143,7 @@ module.exports = {
 
   FileWriter: RelayFileWriter,
   IRTransforms: RelayIRTransforms,
+  IRValidations: RelayIRValidations,
   JSModuleParser: RelayJSModuleParser,
   MultiReporter: GraphQLMultiReporter,
   Runner: CodegenRunner,

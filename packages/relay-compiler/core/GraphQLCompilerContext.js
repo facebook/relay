@@ -129,6 +129,21 @@ class GraphQLCompilerContext {
     return transformed;
   }
 
+  applyValidations(
+    validations: $ReadOnlyArray<(GraphQLCompilerContext) => void>,
+    reporter?: GraphQLReporter,
+  ): void {
+    Profiler.run('applyValidaitons', () => {
+      for (const validate of validations) {
+        const start = process.hrtime();
+        Profiler.instrument(validate)(this);
+        const delta = process.hrtime(start);
+        const deltaMs = Math.round((delta[0] * 1e9 + delta[1]) / 1e6);
+        reporter && reporter.reportTime(validate.name, deltaMs);
+      }
+    });
+  }
+
   get(name: string): ?CompilerContextDocument {
     return this._documents.get(name);
   }

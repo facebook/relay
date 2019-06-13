@@ -86,9 +86,7 @@ function compileRelayArtifacts(
     );
 
     if (validations != null) {
-      validations.codegenValidations.forEach(validate =>
-        validate(codeGenContext),
-      );
+      codeGenContext.applyValidations(validations.codegenValidations, reporter);
     }
 
     const results = [];

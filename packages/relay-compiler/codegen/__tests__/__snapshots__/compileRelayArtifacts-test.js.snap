@@ -6108,6 +6108,37 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
 }
 `;
 
+exports[`compileRelayArtifacts matches expected output: missing-argument-on-field.invalid.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+# expected-to-throw
+query TestQuery {
+  node {
+    hometown{
+      nameWithArgs
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+THROWN EXCEPTION:
+
+Error: Encountered 1 error(s):
+- Required argument 'capitalize: Boolean!' is missing on 'nameWithArgs' in 'TestQuery'.
+  
+  Source: GraphQL request (5:7)
+  4:     hometown{
+  5:       nameWithArgs
+           ^
+  6:     }
+  
+  Source: GraphQL request (2:1)
+  1: # expected-to-throw
+  2: query TestQuery {
+     ^
+  3:   node {
+  
+`;
+
 exports[`compileRelayArtifacts matches expected output: module-overlap-across-documents.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query FooNameRendererQuery($id: ID!) {

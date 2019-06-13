@@ -46,7 +46,6 @@ function getFieldDefinitionStrict(
   schema: GraphQLSchema,
   parentType: GraphQLOutputType,
   fieldName: string,
-  fieldAST: FieldNode,
 ): ?GraphQLField<mixed, mixed> {
   const type = getRawType(parentType);
   const isQueryType = type === schema.getQueryType();
@@ -82,12 +81,7 @@ function getFieldDefinitionLegacy(
   fieldName: string,
   fieldAST: FieldNode,
 ): ?GraphQLField<mixed, mixed> {
-  let schemaFieldDef = getFieldDefinitionStrict(
-    schema,
-    parentType,
-    fieldName,
-    fieldAST,
-  );
+  let schemaFieldDef = getFieldDefinitionStrict(schema, parentType, fieldName);
   if (!schemaFieldDef) {
     const type = getRawType(parentType);
     schemaFieldDef = getFieldDefinitionLegacyImpl(

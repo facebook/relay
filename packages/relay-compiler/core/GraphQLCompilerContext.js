@@ -22,6 +22,7 @@ import type {Fragment, Root, SplitOperation} from './GraphQLIR';
 import type {GraphQLSchema} from 'graphql';
 
 export type IRTransform = GraphQLCompilerContext => GraphQLCompilerContext;
+export type IRValidation = GraphQLCompilerContext => void;
 
 export type CompilerContextDocument = Fragment | Root | SplitOperation;
 
@@ -130,7 +131,7 @@ class GraphQLCompilerContext {
   }
 
   applyValidations(
-    validations: $ReadOnlyArray<(GraphQLCompilerContext) => void>,
+    validations: $ReadOnlyArray<IRValidation>,
     reporter?: GraphQLReporter,
   ): void {
     Profiler.run('applyValidaitons', () => {

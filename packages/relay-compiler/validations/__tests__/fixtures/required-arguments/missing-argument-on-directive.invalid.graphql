@@ -1,0 +1,9 @@
+# expected-to-throw
+
+query ViewerQuery {
+  node {
+    body @customDirective {
+      text
+    }
+  }
+}

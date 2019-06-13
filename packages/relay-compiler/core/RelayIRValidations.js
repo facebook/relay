@@ -10,8 +10,10 @@
 
 'use strict';
 
+const validateRelayRequiredArugments = require('../validations/validateRelayRequiredArugments');
 const validateRelayServerOnlyDirectives = require('../validations/validateRelayServerOnlyDirectives');
 
 module.exports = {
   codegenValidations: [validateRelayServerOnlyDirectives],
+  printValidations: [validateRelayRequiredArugments],
 };

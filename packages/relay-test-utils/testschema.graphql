@@ -435,8 +435,8 @@ interface Actor {
   id: ID!
   lastName: String
   name: String
-  nameRenderer(supported: [String!]!): UserNameRenderer
-  nameRenderable(supported: [String!]!): UserNameRenderable
+  nameRenderer(supported: [String!]): UserNameRenderer
+  nameRenderable(supported: [String!]): UserNameRenderable
   profilePicture(size: [Int], preset: PhotoSize): Image
   screennames: [Screenname]
   subscribeStatus: String
@@ -475,8 +475,8 @@ type Page implements Node & Actor {
   likeSentence: Text
   message: Text
   name: String
-  nameRenderer(supported: [String!]!): UserNameRenderer
-  nameRenderable(supported: [String!]!): UserNameRenderable
+  nameRenderer(supported: [String!]): UserNameRenderer
+  nameRenderable(supported: [String!]): UserNameRenderable
   profilePicture(size: [Int], preset: PhotoSize): Image
   segments(first: Int): Segments
   screennames: [Screenname]
@@ -488,6 +488,7 @@ type Page implements Node & Actor {
   websites: [String]
   username: String
   viewerSavedState: String
+  nameWithArgs(capitalize: Boolean!): String
 }
 
 type PageInfo {
@@ -771,10 +772,10 @@ type User implements Named & Node & Actor & HasJsField {
   likeSentence: Text
   message: Text
   name: String
-  nameRenderable(supported: [String!]!): UserNameRenderable
-  nameRenderer(supported: [String!]!): UserNameRenderer
+  nameRenderable(supported: [String!]): UserNameRenderable
+  nameRenderer(supported: [String!]): UserNameRenderer
   nameRendererForContext(context: NameRendererContext, supported: [String!]!): UserNameRenderer
-  nameRenderers(supported: [String!]!): [UserNameRenderer]
+  nameRenderers(supported: [String!]): [UserNameRenderer]
   storySearch(query: StorySearchInput): [Story]
   storyCommentSearch(query: StoryCommentSearchInput): [Comment]
   profilePicture(

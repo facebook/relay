@@ -11,7 +11,7 @@
 'use strict';
 
 const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
-const RelayModernTestUtils = require('relay-test-utils');
+const RelayModernTestUtils = require('relay-test-utils-internal');
 const RelayStoreUtils = require('../RelayStoreUtils');
 
 const {generateAndCompile} = RelayModernTestUtils;

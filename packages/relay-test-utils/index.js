@@ -12,20 +12,8 @@
 
 const RelayMockPayloadGenerator = require('./RelayMockPayloadGenerator');
 const RelayModernMockEnvironment = require('./RelayModernMockEnvironment');
-const RelayTestSchema = require('./RelayTestSchema');
-const RelayTestSchemaPath = require('./RelayTestSchemaPath');
 
-const parseGraphQLText = require('./parseGraphQLText');
-
-const {
-  generateAndCompile,
-  generateTestsFromFixtures,
-  generateWithTransforms,
-  matchers,
-  simpleClone,
-  unwrapContainer,
-  FIXTURE_TAG,
-} = require('./RelayModernTestUtils');
+const unwrapContainer = require('./unwrapContainer');
 
 export type {MockResolvers} from './RelayMockPayloadGenerator';
 
@@ -35,15 +23,6 @@ export type {MockResolvers} from './RelayMockPayloadGenerator';
 module.exports = {
   MockEnvironment: RelayModernMockEnvironment,
   MockPayloadGenerator: RelayMockPayloadGenerator,
-  testSchemaPath: RelayTestSchemaPath,
-  TestSchema: RelayTestSchema,
-  generateAndCompile,
-  generateTestsFromFixtures,
   createMockEnvironment: RelayModernMockEnvironment.createMockEnvironment,
-  generateWithTransforms,
-  matchers,
-  simpleClone,
-  parseGraphQLText,
-  unwrapContainer,
-  FIXTURE_TAG,
+  unwrapContainer: unwrapContainer,
 };

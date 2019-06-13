@@ -27,7 +27,7 @@ const {
   createMockEnvironment,
   generateAndCompile,
   matchers,
-} = require('relay-test-utils');
+} = require('relay-test-utils-internal');
 
 describe('ReactRelayRefetchContainer with fragment ownerhsip', () => {
   let TestChildComponent;

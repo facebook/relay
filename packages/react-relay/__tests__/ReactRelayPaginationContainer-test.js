@@ -26,7 +26,7 @@ const {
   generateAndCompile,
   matchers,
   unwrapContainer,
-} = require('relay-test-utils');
+} = require('relay-test-utils-internal');
 
 describe('ReactRelayPaginationContainer', () => {
   let TestComponent;

@@ -71,6 +71,7 @@ const babelOptions = require('./scripts/getBabelOptions')({
     RelayRuntime: 'relay-runtime',
     'relay-runtime': 'relay-runtime',
     'relay-test-utils': 'relay-test-utils',
+    'relay-test-utils-internal': 'relay-test-utils-internal',
     signedsource: 'signedsource',
     util: 'util',
     yargs: 'yargs',
@@ -274,6 +275,13 @@ const builds = [
       },
     ],
   },
+  {
+    package: 'relay-test-utils-internal',
+    exports: {
+      index: 'index.js',
+    },
+    bundles: [],
+  }
 ];
 
 const modules = gulp.parallel(

@@ -21,7 +21,7 @@ const {
   TestSchema,
   generateTestsFromFixtures,
   parseGraphQLText,
-} = require('relay-test-utils');
+} = require('relay-test-utils-internal');
 
 describe('RelayRefetchableFragmentTransform', () => {
   const schema = transformASTSchema(TestSchema, [

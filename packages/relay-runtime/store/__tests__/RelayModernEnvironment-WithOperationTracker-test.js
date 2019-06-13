@@ -19,10 +19,10 @@ const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
 const {
-  generateAndCompile,
   createMockEnvironment,
   MockPayloadGenerator,
 } = require('relay-test-utils');
+const {generateAndCompile} = require('relay-test-utils-internal');
 
 describe('RelayModernEnvironment with RelayOperationTracker', () => {
   let tracker;

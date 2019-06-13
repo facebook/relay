@@ -21,7 +21,7 @@ const RelayObservable = require('../../network/RelayObservable');
 const nullthrows = require('nullthrows');
 
 const {getSingularSelector} = require('../RelayModernSelector');
-const {generateAndCompile, matchers} = require('relay-test-utils');
+const {generateAndCompile, matchers} = require('relay-test-utils-internal');
 
 function createOperationDescriptor(...args) {
   const operation = RelayModernOperationDescriptor.createOperationDescriptor(

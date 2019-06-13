@@ -18,7 +18,7 @@ const invariant = require('invariant');
 const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
-const {generateAndCompile} = require('relay-test-utils');
+const {generateAndCompile} = require('relay-test-utils-internal');
 
 describe('RelayOperationTracker', () => {
   let tracker;

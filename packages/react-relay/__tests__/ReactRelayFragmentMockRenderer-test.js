@@ -16,7 +16,7 @@ const ReactRelayFragmentMockRenderer = require('../ReactRelayFragmentMockRendere
 const ReactRelayRefetchContainer = require('../ReactRelayRefetchContainer');
 const ReactTestRenderer = require('ReactTestRenderer');
 
-const {createMockEnvironment} = require('relay-test-utils');
+const {createMockEnvironment} = require('relay-test-utils-internal');
 
 describe('ReactRelayFragmentMockRenderer', () => {
   it('renders fragment containers with mock data as supplied as props', () => {

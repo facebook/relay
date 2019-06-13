@@ -14,7 +14,7 @@
 const React = require('React');
 // $FlowFixMe - Types for react-test-renderer
 const ReactTestRenderer = require('react-test-renderer');
-const RelayTestUtils = require('relay-test-utils');
+const RelayTestUtils = require('relay-test-utils-internal');
 
 const ReactRelayTestMockerTestQuery = RelayTestUtils.generateAndCompile(`
   query ReactRelayTestMockerTestQuery {

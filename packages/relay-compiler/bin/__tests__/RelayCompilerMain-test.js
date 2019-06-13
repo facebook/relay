@@ -19,7 +19,7 @@ const path = require('path');
 const {
   isAvailable: isWatchmanAvailable,
 } = require('../../core/GraphQLWatchmanClient');
-const {testSchemaPath} = require('relay-test-utils');
+const {testSchemaPath} = require('relay-test-utils-internal');
 const {
   getCodegenRunner,
   getLanguagePlugin,

@@ -14,7 +14,7 @@ const ErrorUtils = require('ErrorUtils');
 const RelayInMemoryRecordSource = require('../RelayInMemoryRecordSource');
 const RelayModernRecord = require('../RelayModernRecord');
 const RelayModernStore = require('../RelayModernStore');
-const RelayModernTestUtils = require('relay-test-utils');
+const RelayModernTestUtils = require('relay-test-utils-internal');
 const RelayPublishQueue = require('../RelayPublishQueue');
 const RelayStoreUtils = require('../RelayStoreUtils');
 

@@ -22,7 +22,7 @@ const nullthrows = require('nullthrows');
 
 const {getHandleStorageKey} = require('../../store/RelayStoreUtils');
 const {getSingularSelector} = require('../RelayModernSelector');
-const {generateAndCompile} = require('relay-test-utils');
+const {generateAndCompile} = require('relay-test-utils-internal');
 
 function createOperationDescriptor(...args) {
   const operation = RelayModernOperationDescriptor.createOperationDescriptor(

@@ -14,7 +14,10 @@ const ASTConvert = require('../ASTConvert');
 const RelayMatchTransform = require('../../transforms/RelayMatchTransform');
 const RelayParser = require('../RelayParser');
 
-const {TestSchema, generateTestsFromFixtures} = require('relay-test-utils');
+const {
+  TestSchema,
+  generateTestsFromFixtures,
+} = require('relay-test-utils-internal');
 
 describe('RelayParser', () => {
   const schema = ASTConvert.transformASTSchema(TestSchema, [

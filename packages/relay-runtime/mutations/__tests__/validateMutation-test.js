@@ -6,11 +6,12 @@
  *
  * @flow
  * @format
+ * @emails oncall+relay
  */
 
 'use strict';
 
-const {generateAndCompile} = require('relay-test-utils');
+const {generateAndCompile} = require('relay-test-utils-internal');
 
 import validateMutation from '../validateMutation';
 

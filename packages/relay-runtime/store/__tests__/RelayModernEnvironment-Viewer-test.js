@@ -23,7 +23,7 @@ const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
 const {ROOT_ID} = require('../RelayStoreUtils');
-const {generateAndCompile} = require('relay-test-utils');
+const {generateAndCompile} = require('relay-test-utils-internal');
 
 describe('Mutations on viewer', () => {
   let dataSource;

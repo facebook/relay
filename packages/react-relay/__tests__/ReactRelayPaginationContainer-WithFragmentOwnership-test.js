@@ -25,7 +25,7 @@ const {
   createMockEnvironment,
   generateAndCompile,
   matchers,
-} = require('relay-test-utils');
+} = require('relay-test-utils-internal');
 
 describe('ReactRelayPaginationContainer with fragment ownership', () => {
   let TestChildComponent;

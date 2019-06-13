@@ -12,7 +12,7 @@
 
 const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
 const RelayInMemoryRecordSource = require('../RelayInMemoryRecordSource');
-const RelayModernTestUtils = require('relay-test-utils');
+const RelayModernTestUtils = require('relay-test-utils-internal');
 
 const {mark} = require('../RelayReferenceMarker');
 const {ROOT_ID} = require('../RelayStoreUtils');

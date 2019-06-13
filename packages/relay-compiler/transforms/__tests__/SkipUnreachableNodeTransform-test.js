@@ -15,7 +15,10 @@ const GraphQLIRPrinter = require('../../core/GraphQLIRPrinter');
 const RelayParser = require('../../core/RelayParser');
 const SkipUnreachableNodeTransform = require('../SkipUnreachableNodeTransform');
 
-const {TestSchema, generateTestsFromFixtures} = require('relay-test-utils');
+const {
+  TestSchema,
+  generateTestsFromFixtures,
+} = require('relay-test-utils-internal');
 
 describe('SkipUnreachableNodeTransform', () => {
   generateTestsFromFixtures(

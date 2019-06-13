@@ -18,7 +18,7 @@ const {ROOT_ID} = require('../RelayStoreUtils');
 const {
   generateAndCompile,
   generateWithTransforms,
-} = require('relay-test-utils');
+} = require('relay-test-utils-internal');
 
 describe('RelayReader', () => {
   let source;

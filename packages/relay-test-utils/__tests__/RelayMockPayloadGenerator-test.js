@@ -13,10 +13,9 @@
 
 const RelayMockPayloadGenerator = require('../RelayMockPayloadGenerator');
 
-// $FlowFixMe
-const {FIXTURE_TAG, generateAndCompile} = require('../RelayModernTestUtils');
 const {parse, print} = require('graphql');
 const {getRequest, createOperationDescriptor} = require('relay-runtime');
+const {FIXTURE_TAG, generateAndCompile} = require('relay-test-utils-internal');
 
 import type {MockResolvers} from '../RelayMockPayloadGenerator';
 

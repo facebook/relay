@@ -13,7 +13,6 @@
 const RelayInMemoryRecordSource = require('../RelayInMemoryRecordSource');
 const RelayModernRecord = require('../RelayModernRecord');
 const RelayModernStore = require('../RelayModernStore');
-const RelayModernTestUtils = require('relay-test-utils');
 
 const {getRequest, createOperationDescriptor} = require('../RelayCore');
 const {
@@ -22,14 +21,15 @@ const {
   ROOT_TYPE,
   UNPUBLISH_RECORD_SENTINEL,
 } = require('../RelayStoreUtils');
+const {
+  generateWithTransforms,
+  simpleClone,
+  matchers,
+} = require('relay-test-utils-internal');
 
-const {simpleClone} = RelayModernTestUtils;
-
-expect.extend(RelayModernTestUtils.matchers);
+expect.extend(matchers);
 
 describe('RelayStore', () => {
-  const {generateWithTransforms} = RelayModernTestUtils;
-
   describe('retain()', () => {
     let UserFragment;
     let data;

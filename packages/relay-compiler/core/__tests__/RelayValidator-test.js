@@ -14,7 +14,7 @@
 const GraphQL = require('graphql');
 const RelayValidator = require('../RelayValidator');
 
-const {TestSchema} = require('relay-test-utils');
+const {TestSchema} = require('relay-test-utils-internal');
 
 function validateString(input) {
   const ast = GraphQL.parse(new GraphQL.Source(input, 'test.graphql'));

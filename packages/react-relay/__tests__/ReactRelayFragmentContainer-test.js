@@ -18,10 +18,10 @@ const ReactTestRenderer = require('ReactTestRenderer');
 const {createOperationDescriptor} = require('relay-runtime');
 const {
   createMockEnvironment,
-  matchers,
   generateAndCompile,
+  matchers,
   unwrapContainer,
-} = require('relay-test-utils');
+} = require('relay-test-utils-internal');
 
 describe('ReactRelayFragmentContainer', () => {
   let TestComponent;

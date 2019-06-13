@@ -433,7 +433,7 @@ function createMockEnvironment(config?: {|
     environment.executeMutation,
   );
 
-  if (process.env.NODE_ENV === 'test') {
+  if (global?.process?.env?.NODE_ENV === 'test') {
     // Mock all the functions with their original behavior
     mockDisposableMethod(environment, 'applyUpdate');
     mockInstanceMethod(environment, 'commitPayload');

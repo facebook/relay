@@ -19,7 +19,7 @@ const {
   TestSchema,
   generateTestsFromFixtures,
   parseGraphQLText,
-} = require('relay-test-utils');
+} = require('relay-test-utils-internal');
 
 describe('RelayDeferStreamTransform', () => {
   const schema = transformASTSchema(TestSchema, []);

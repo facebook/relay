@@ -15,7 +15,7 @@ const GraphQLIRTransformer = require('../GraphQLIRTransformer');
 const GraphQLIRValidator = require('../GraphQLIRValidator');
 
 const {transformASTSchema} = require('../ASTConvert');
-const {TestSchema, parseGraphQLText} = require('relay-test-utils');
+const {TestSchema, parseGraphQLText} = require('relay-test-utils-internal');
 
 describe('GraphQLIRValidator', () => {
   it('should have same behavior as the GraphQLIRTransformer', () => {

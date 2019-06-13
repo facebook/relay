@@ -13,7 +13,7 @@
 const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
 const RelayInMemoryRecordSource = require('../RelayInMemoryRecordSource');
 const RelayModernRecord = require('../RelayModernRecord');
-const RelayModernTestUtils = require('relay-test-utils');
+const RelayModernTestUtils = require('relay-test-utils-internal');
 
 const defaultGetDataID = require('../defaultGetDataID');
 

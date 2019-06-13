@@ -12,7 +12,10 @@
 
 const transformerWithOptions = require('./transformerWithOptions');
 
-const {generateTestsFromFixtures, testSchemaPath} = require('relay-test-utils');
+const {
+  generateTestsFromFixtures,
+  testSchemaPath,
+} = require('relay-test-utils-internal');
 
 generateTestsFromFixtures(
   `${__dirname}/fixtures-compat-haste`,

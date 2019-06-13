@@ -18,7 +18,7 @@ const RelayModernStore = require('../RelayModernStore');
 const RelayNetwork = require('../../network/RelayNetwork');
 
 const {ROOT_ID} = require('../RelayStoreUtils');
-const {generateAndCompile} = require('relay-test-utils');
+const {generateAndCompile} = require('relay-test-utils-internal');
 
 function createOperationDescriptor(...args) {
   const operation = RelayModernOperationDescriptor.createOperationDescriptor(

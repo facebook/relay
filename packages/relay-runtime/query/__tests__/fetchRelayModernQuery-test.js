@@ -15,7 +15,10 @@ const fetchRelayModernQuery = require('../fetchRelayModernQuery');
 const {
   createOperationDescriptor,
 } = require('../../store/RelayModernOperationDescriptor');
-const {createMockEnvironment, generateAndCompile} = require('relay-test-utils');
+const {
+  createMockEnvironment,
+  generateAndCompile,
+} = require('relay-test-utils-internal');
 
 describe('fetchRelayModernQuery', () => {
   let cacheConfig;

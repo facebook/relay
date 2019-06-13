@@ -23,7 +23,7 @@ const {
   matchers,
   generateAndCompile,
   unwrapContainer,
-} = require('relay-test-utils');
+} = require('relay-test-utils-internal');
 
 describe('ReactRelayRefetchContainer', () => {
   let TestComponent;

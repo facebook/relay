@@ -22,7 +22,7 @@ const {
   TestSchema,
   generateTestsFromFixtures,
   parseGraphQLText,
-} = require('relay-test-utils');
+} = require('relay-test-utils-internal');
 
 describe('RelayCodeGenerator', () => {
   const schema = ASTConvert.transformASTSchema(TestSchema, [

@@ -14,7 +14,10 @@ const GraphQLCompilerContext = require('../GraphQLCompilerContext');
 const GraphQLIRPrinter = require('../GraphQLIRPrinter');
 const RelayParser = require('../RelayParser');
 
-const {TestSchema, generateTestsFromFixtures} = require('relay-test-utils');
+const {
+  TestSchema,
+  generateTestsFromFixtures,
+} = require('relay-test-utils-internal');
 
 describe('GraphQLIRPrinter', () => {
   generateTestsFromFixtures(`${__dirname}/fixtures/printer`, text => {

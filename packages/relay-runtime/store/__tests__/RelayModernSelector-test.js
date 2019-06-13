@@ -26,7 +26,7 @@ const {
   createMockEnvironment,
   generateAndCompile,
   matchers,
-} = require('relay-test-utils');
+} = require('relay-test-utils-internal');
 const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
 
 describe('RelayModernSelector', () => {

@@ -14,7 +14,7 @@ const GraphQLCompilerContext = require('../GraphQLCompilerContext');
 const GraphQLIRTransformer = require('../GraphQLIRTransformer');
 
 const {transformASTSchema} = require('../ASTConvert');
-const {TestSchema, parseGraphQLText} = require('relay-test-utils');
+const {TestSchema, parseGraphQLText} = require('relay-test-utils-internal');
 
 describe('GraphQLIRTransformer', () => {
   it('visits all node types', () => {

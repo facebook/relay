@@ -14,7 +14,10 @@ const GraphQLIRPrinter = require('../GraphQLIRPrinter');
 const RelayParser = require('../RelayParser');
 
 const {visit} = require('../GraphQLIRVisitor');
-const {TestSchema, generateTestsFromFixtures} = require('relay-test-utils');
+const {
+  TestSchema,
+  generateTestsFromFixtures,
+} = require('relay-test-utils-internal');
 
 import type {
   Argument,

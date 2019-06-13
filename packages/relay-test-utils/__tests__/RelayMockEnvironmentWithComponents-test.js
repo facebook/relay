@@ -15,11 +15,7 @@ const React = require('React');
 // $FlowFixMe - untyped import
 const ReactTestRenderer = require('react-test-renderer');
 
-const {
-  MockPayloadGenerator,
-  createMockEnvironment,
-  generateAndCompile,
-} = require('../');
+const {MockPayloadGenerator, createMockEnvironment} = require('../');
 const {
   QueryRenderer,
   createFragmentContainer,
@@ -31,6 +27,7 @@ const {
   requestSubscription,
   DefaultHandlerProvider,
 } = require('relay-runtime');
+const {generateAndCompile} = require('relay-test-utils-internal');
 
 const {useState, useEffect} = React;
 

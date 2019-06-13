@@ -22,7 +22,7 @@ const {
   TestSchema,
   parseGraphQLText,
   generateTestsFromFixtures,
-} = require('relay-test-utils');
+} = require('relay-test-utils-internal');
 
 describe('SkipRedundantNodesTransform', () => {
   const schema = transformASTSchema(TestSchema, [

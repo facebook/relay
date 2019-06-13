@@ -31,7 +31,7 @@ const {
   createMockEnvironment,
   generateAndCompile,
   simpleClone,
-} = require('relay-test-utils');
+} = require('relay-test-utils-internal');
 
 describe('ReactRelayQueryRenderer', () => {
   let TestQuery;

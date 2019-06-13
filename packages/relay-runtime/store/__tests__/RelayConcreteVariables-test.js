@@ -10,7 +10,7 @@
 
 'use strict';
 
-const RelayModernTestUtils = require('relay-test-utils');
+const RelayModernTestUtils = require('relay-test-utils-internal');
 
 const {
   getFragmentVariables,

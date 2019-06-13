@@ -17,7 +17,10 @@ const {
   getObservableForRequestInFlight,
 } = require('../fetchQueryInternal');
 const {createOperationDescriptor} = require('relay-runtime');
-const {createMockEnvironment, generateAndCompile} = require('relay-test-utils');
+const {
+  createMockEnvironment,
+  generateAndCompile,
+} = require('relay-test-utils-internal');
 
 const response = {
   data: {

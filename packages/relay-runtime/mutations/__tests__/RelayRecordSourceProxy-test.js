@@ -11,7 +11,7 @@
 'use strict';
 
 const RelayInMemoryRecordSource = require('../../store/RelayInMemoryRecordSource');
-const RelayModernTestUtils = require('relay-test-utils');
+const RelayModernTestUtils = require('relay-test-utils-internal');
 const RelayRecordProxy = require('../RelayRecordProxy');
 const RelayRecordSourceMutator = require('../RelayRecordSourceMutator');
 const RelayRecordSourceProxy = require('../RelayRecordSourceProxy');

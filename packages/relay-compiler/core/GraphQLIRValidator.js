@@ -168,7 +168,6 @@ class Validator<S> {
         break;
       case 'ModuleImport':
         this._traverseChildren(prevNode, ['selections']);
-
         break;
       case 'FragmentSpread':
       case 'ScalarField':

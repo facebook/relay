@@ -43,6 +43,7 @@ import type {
   Root,
   Selection,
   Variable,
+  Location,
 } from '../../core/GraphQLIR';
 import type {ConnectionMetadata} from 'relay-runtime';
 
@@ -190,6 +191,7 @@ function visitLinkedField(field: LinkedField, options: Options): LinkedField {
       nullableType,
       direction,
       connectionArguments,
+      connectionDirective.loc,
     );
     transformedField = {
       ...transformedField,
@@ -375,8 +377,13 @@ function transformConnectionSelections(
   nullableType: GraphQLInterfaceType | GraphQLObjectType,
   direction: 'forward' | 'backward' | 'bidirectional',
   connectionArguments: ConnectionArguments,
+  directiveLocation: Location,
 ): Array<Selection> {
-  const derivedLocation = {kind: 'Derived', source: field.loc};
+  const derivedFieldLocation = {kind: 'Derived', source: field.loc};
+  const derivedDirectiveLocation = {
+    kind: 'Derived',
+    source: directiveLocation,
+  };
   const {
     CURSOR,
     EDGES,
@@ -426,20 +433,20 @@ function transformConnectionSelections(
         stream.initialCount,
         {
           kind: 'Argument',
-          loc: derivedLocation,
+          loc: derivedDirectiveLocation,
           metadata: null,
           name: 'label',
           type: GraphQLString,
           value: {
             kind: 'Literal',
-            loc: derivedLocation,
+            loc: derivedDirectiveLocation,
             metadata: null,
             value: stream.label,
           },
         },
       ].filter(Boolean),
       kind: 'Directive',
-      loc: derivedLocation,
+      loc: derivedDirectiveLocation,
       metadata: null,
       name: 'stream',
     };
@@ -448,20 +455,20 @@ function transformConnectionSelections(
         stream.if,
         {
           kind: 'Argument',
-          loc: derivedLocation,
+          loc: derivedDirectiveLocation,
           metadata: null,
           name: 'label',
           type: GraphQLString,
           value: {
             kind: 'Literal',
-            loc: derivedLocation,
+            loc: derivedDirectiveLocation,
             metadata: null,
             value: stream.label + '$' + PAGE_INFO,
           },
         },
       ].filter(Boolean),
       kind: 'Directive',
-      loc: derivedLocation,
+      loc: derivedDirectiveLocation,
       metadata: null,
       name: 'defer',
     };
@@ -509,7 +516,7 @@ function transformConnectionSelections(
       directives: [],
       handles: null,
       kind: 'LinkedField',
-      loc: derivedLocation,
+      loc: derivedFieldLocation,
       metadata: null,
       name: EDGES,
       selections: [],
@@ -523,7 +530,7 @@ function transformConnectionSelections(
       directives: [],
       handles: null,
       kind: 'LinkedField',
-      loc: derivedLocation,
+      loc: derivedFieldLocation,
       metadata: null,
       name: PAGE_INFO,
       selections: [],
@@ -571,7 +578,7 @@ function transformConnectionSelections(
       {
         directives: [],
         kind: 'InlineFragment',
-        loc: derivedLocation,
+        loc: derivedFieldLocation,
         metadata: null,
         typeCondition: pageInfoFragment.type,
         selections: pageInfoFragment.selections,
@@ -583,7 +590,7 @@ function transformConnectionSelections(
     transformedPageInfoSelection = {
       directives: [deferDirective],
       kind: 'InlineFragment',
-      loc: derivedLocation,
+      loc: derivedFieldLocation,
       metadata: null,
       typeCondition: nullableType,
       selections: [transformedPageInfoSelection],
@@ -616,7 +623,7 @@ function transformConnectionSelections(
       {
         directives: [],
         kind: 'InlineFragment',
-        loc: derivedLocation,
+        loc: derivedFieldLocation,
         metadata: null,
         typeCondition: edgeFragment.type,
         selections: edgeFragment.selections,

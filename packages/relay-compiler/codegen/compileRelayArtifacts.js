@@ -30,6 +30,10 @@ export type RelayCompilerTransforms = {
   queryTransforms: Array<IRTransform>,
 };
 
+export type RelayCompilerValidations = {
+  codegenValidations: $ReadOnlyArray<(CompilerContext) => void>,
+};
+
 /**
  * Transforms the provided compiler context
  *
@@ -50,6 +54,7 @@ function compileRelayArtifacts(
   context: CompilerContext,
   transforms: RelayCompilerTransforms,
   reporter?: Reporter,
+  validations?: RelayCompilerValidations,
 ): $ReadOnlyArray<[GeneratedDefinition, GeneratedNode]> {
   return Profiler.run('GraphQLCompiler.compile', () => {
     // The fragment is used for reading data from the normalized store.
@@ -79,6 +84,12 @@ function compileRelayArtifacts(
       ],
       reporter,
     );
+
+    if (validations != null) {
+      validations.codegenValidations.forEach(validate =>
+        validate(codeGenContext),
+      );
+    }
 
     const results = [];
 

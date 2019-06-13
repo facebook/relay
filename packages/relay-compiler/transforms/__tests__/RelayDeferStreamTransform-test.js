@@ -10,11 +10,9 @@
 
 'use strict';
 
-const ClientExtensionsTransform = require('../ClientExtensionsTransform');
 const GraphQLCompilerContext = require('../../core/GraphQLCompilerContext');
 const GraphQLIRPrinter = require('../../core/GraphQLIRPrinter');
 const RelayDeferStreamTransform = require('../RelayDeferStreamTransform');
-const RelayDirectiveClientExtensionValidationTransform = require('../RelayDirectiveClientExtensionValidationTransform');
 
 const {transformASTSchema} = require('../../core/ASTConvert');
 const {
@@ -36,11 +34,7 @@ describe('RelayDeferStreamTransform', () => {
         );
         return new GraphQLCompilerContext(TestSchema, clientSchema)
           .addAll(definitions)
-          .applyTransforms([
-            ClientExtensionsTransform.transform,
-            RelayDirectiveClientExtensionValidationTransform.transform,
-            RelayDeferStreamTransform.transform,
-          ])
+          .applyTransforms([RelayDeferStreamTransform.transform])
           .documents()
           .map(doc => GraphQLIRPrinter.print(doc))
           .join('\n');

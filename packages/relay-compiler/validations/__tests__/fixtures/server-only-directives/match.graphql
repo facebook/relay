@@ -10,6 +10,7 @@ fragment ActorsRendererFragment on Node {
 }
 
 fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
+  client_text
   plaintext
   data {
     text
@@ -18,7 +19,22 @@ fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
 
 fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
   markdown
+  client_text
   data {
     markup
   }
+}
+
+query TestQuery {
+  node(id: "1") {
+    ...ActorsRendererFragment
+  }
+}
+
+extend type PlainUserNameRenderer {
+  client_text: String
+}
+
+extend type MarkdownUserNameRenderer {
+  client_text: String
 }

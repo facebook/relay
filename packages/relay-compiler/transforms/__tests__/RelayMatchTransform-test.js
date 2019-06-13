@@ -10,10 +10,8 @@
 
 'use strict';
 
-const ClientExtensionsTransform = require('../ClientExtensionsTransform');
 const GraphQLCompilerContext = require('../../core/GraphQLCompilerContext');
 const GraphQLIRPrinter = require('../../core/GraphQLIRPrinter');
-const RelayDirectiveClientExtensionValidationTransform = require('../RelayDirectiveClientExtensionValidationTransform');
 const RelayMatchTransform = require('../RelayMatchTransform');
 const RelayRelayDirectiveTransform = require('../RelayRelayDirectiveTransform');
 
@@ -40,8 +38,6 @@ describe('RelayMatchTransform', () => {
         .applyTransforms([
           // Requires Relay directive transform first.
           RelayRelayDirectiveTransform.transform,
-          ClientExtensionsTransform.transform,
-          RelayDirectiveClientExtensionValidationTransform.transform,
           RelayMatchTransform.transform,
         ])
         .documents()

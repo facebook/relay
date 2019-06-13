@@ -10,11 +10,9 @@
 
 'use strict';
 
-const ClientExtensionsTransform = require('../ClientExtensionsTransform');
 const GraphQLCompilerContext = require('../../core/GraphQLCompilerContext');
 const GraphQLIRPrinter = require('../../core/GraphQLIRPrinter');
 const InlineFragmentsTransform = require('../InlineFragmentsTransform');
-const RelayDirectiveClientExtensionValidationTransform = require('../RelayDirectiveClientExtensionValidationTransform');
 const RelayMatchTransform = require('../RelayMatchTransform');
 const RelayRelayDirectiveTransform = require('../RelayRelayDirectiveTransform');
 const SkipRedundantNodesTransform = require('../SkipRedundantNodesTransform');
@@ -41,8 +39,6 @@ describe('SkipRedundantNodesTransform', () => {
         .addAll(definitions)
         .applyTransforms([
           RelayRelayDirectiveTransform.transform,
-          ClientExtensionsTransform.transform,
-          RelayDirectiveClientExtensionValidationTransform.transform,
           RelayMatchTransform.transform,
           InlineFragmentsTransform.transform,
           SkipRedundantNodesTransform.transform,

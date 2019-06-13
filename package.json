@@ -19,6 +19,9 @@
     "test-dependencies": "node ./scripts/testDependencies.js",
     "typecheck": "flow check"
   },
+  "workspaces": [
+    "packages/*"
+  ],
   "dependencies": {
     "@babel/core": "^7.0.0",
     "@babel/generator": "^7.0.0",

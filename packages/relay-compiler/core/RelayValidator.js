@@ -126,10 +126,7 @@ module.exports = {
     // Relay-specific validation
     DisallowIdAsAliasValidationRule,
   ],
-  validate: (Profiler.instrument(
-    validateOrThrow,
-    'GraphQLValidator.validate',
-  ): (
+  validate: (Profiler.instrument(validateOrThrow, 'RelayValidator.validate'): (
     document: DocumentNode,
     schema: GraphQLSchema,
     rules: $ReadOnlyArray<any>,

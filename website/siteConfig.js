@@ -127,6 +127,7 @@ const siteConfig = {
   enableUpdateTime: true,
   enableUpdateBy: true,
   docsSideNavCollapsible: true,
+  scripts: ['/js/redirect.js'],
 };
 
 module.exports = siteConfig;

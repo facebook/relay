@@ -86,6 +86,12 @@ const users = [
     infoLink: 'https://up.com.au/',
     pinned: false,
   },
+  {
+    caption: 'Clubhouse',
+    image: '/img/logos/clubhouse.png',
+    infoLink: 'https://clubhouse.io/',
+    pinned: false,
+  },
 ];
 
 const siteConfig = {

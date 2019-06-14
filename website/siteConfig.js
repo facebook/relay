@@ -86,6 +86,12 @@ const users = [
     infoLink: 'https://up.com.au/',
     pinned: false,
   },
+  {
+    caption: 'Bumped',
+    image: '/img/logos/bumped.png',
+    infoLink: 'https://bumped.com/',
+    pinned: false,
+  },
 ];
 
 const siteConfig = {

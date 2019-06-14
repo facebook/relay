@@ -280,7 +280,16 @@ const builds = [
     exports: {
       index: 'index.js',
     },
-    bundles: [],
+    bundles: [
+      {
+        entry: 'index.js',
+        output: 'relay-test-utils-internal',
+        libraryName: 'RelayTestUtilsInternal',
+        libraryTarget: 'commonjs2',
+        target: 'node',
+        noMinify: true, // Note: uglify can't yet handle modern JS
+      },
+    ],
   }
 ];
 
@@ -291,16 +300,6 @@ const modules = gulp.parallel(
         return gulp
           .src(
             INCLUDE_GLOBS,
-
-
-
-
-
-
-
-
-
-
             {
               cwd: path.join(PACKAGES, build.package),
             }

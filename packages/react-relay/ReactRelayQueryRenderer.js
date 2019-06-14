@@ -38,12 +38,11 @@ type RetryCallbacks = {
   handleRetryAfterError: null | ((error: Error) => void),
 };
 
-export type RenderProps = {
+export type RenderProps<T> = {|
   error: ?Error,
-  props: ?Object,
+  props: ?T,
   retry: ?() => void,
-};
-
+|};
 /**
  * React may double-fire the constructor, and we call 'fetch' in the
  * constructor. If a request is already in flight from a previous call to the
@@ -63,22 +62,22 @@ export type Props = {
   dataFrom?: DataFrom,
   environment: IEnvironment,
   query: ?GraphQLTaggedNode,
-  render: (renderProps: RenderProps) => React.Node,
+  render: (renderProps: RenderProps<Object>) => React.Node,
   variables: Variables,
 };
 
-type State = {
+type State = {|
   error: Error | null,
   prevPropsEnvironment: IEnvironment,
   prevPropsVariables: Variables,
   prevQuery: ?GraphQLTaggedNode,
   queryFetcher: ReactRelayQueryFetcher,
   relayContext: RelayContext,
-  renderProps: RenderProps,
+  renderProps: RenderProps<Object>,
   retryCallbacks: RetryCallbacks,
   requestCacheKey: ?string,
   snapshot: Snapshot | null,
-};
+|};
 
 /**
  * @public
@@ -283,7 +282,7 @@ function getContext(
     variables,
   };
 }
-function getLoadingRenderProps(): RenderProps {
+function getLoadingRenderProps(): RenderProps<Object> {
   return {
     error: null,
     props: null, // `props: null` indicates that the data is being fetched (i.e. loading)
@@ -291,7 +290,7 @@ function getLoadingRenderProps(): RenderProps {
   };
 }
 
-function getEmptyRenderProps(): RenderProps {
+function getEmptyRenderProps(): RenderProps<Object> {
   return {
     error: null,
     props: {}, // `props: {}` indicates no data available
@@ -304,7 +303,7 @@ function getRenderProps(
   snapshot: ?Snapshot,
   queryFetcher: ReactRelayQueryFetcher,
   retryCallbacks: RetryCallbacks,
-): RenderProps {
+): RenderProps<Object> {
   return {
     error: error ? error : null,
     props: snapshot ? snapshot.data : null,

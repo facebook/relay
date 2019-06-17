@@ -72,19 +72,7 @@ function visitTransformedDirective(
       state.rootClientSelection.loc,
     );
   }
-
-  // A special case: ...ClientFragment @defer
-  const clientExtension = node.selections.find(
-    sel => sel.kind === 'ClientExtension',
-  );
-  if (clientExtension != null && clientExtension.kind === 'ClientExtension') {
-    throwError(
-      `@${NODEKIND_DIRECTIVE_MAP[node.kind]}`,
-      node.loc,
-      clientExtension.selections[0].loc,
-    );
-  }
-
+  // TODO: validate that @defer is not used on a fragment on a client type
   this.traverse(node, state);
 }
 

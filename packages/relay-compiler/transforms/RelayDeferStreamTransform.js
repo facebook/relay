@@ -181,7 +181,11 @@ function visitInlineFragment(
     kind: 'Defer',
     label: transformedLabel,
     loc: {kind: 'Derived', source: deferDirective.loc},
-    metadata: null,
+    metadata: {
+      // We may lose this information during FlattenTransform
+      // Keeping it on metadata will allow us to read it during IRPrinting step
+      fragmentTypeCondition: transformedFragment.typeCondition,
+    },
     selections: [transformedFragment],
   };
 }

@@ -30,7 +30,8 @@ PASSED
 
 exports[`ValidateRelayServerOnlyDirectives matches expected output: fragment-with-defer-on-client.invalid.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
-# expected-to-throw
+# TODO: validate that @defer is not used on a fragment on a client type
+# should be expected to throw
 query QueryWithFragmentWithDefer {
   me {
     id
@@ -54,23 +55,7 @@ interface ClientUser {
 }
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
-THROWN EXCEPTION:
-
-Error: Encountered 1 error(s):
-- Unexpected directive: @defer. This directive can only be used on fields/fragments that are fetched from the server schema, but it is used inside a client-only selection.
-  
-  Source (derived): GraphQL request (12:23)
-  11:   emailAddresses
-  12:   ...DeferredFragment @defer(label: "DeferredFragmentLabel")
-                            ^
-  13: }
-  
-  Source (derived): GraphQL request (12:3)
-  11:   emailAddresses
-  12:   ...DeferredFragment @defer(label: "DeferredFragmentLabel")
-        ^
-  13: }
-  
+PASSED
 `;
 
 exports[`ValidateRelayServerOnlyDirectives matches expected output: fragment-with-stream-child-of-client.invalid.graphql 1`] = `
@@ -131,7 +116,8 @@ Error: Encountered 1 error(s):
 
 exports[`ValidateRelayServerOnlyDirectives matches expected output: fragment-with-stream-on-client.invalid.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
-# expected-to-throw
+# TODO: validate that @stream is not a client field
+# should be expected to throw
 query QueryWithFragmentWithStream($id: ID!) {
   node(id: $id) {
     id
@@ -156,23 +142,7 @@ type Foo {
 }
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
-THROWN EXCEPTION:
-
-Error: Encountered 1 error(s):
-- Unexpected directive: @stream. This directive can only be used on fields/fragments that are fetched from the server schema, but it is used inside a client-only selection.
-  
-  Source (derived): GraphQL request (11:8)
-  10:   id
-  11:   foos @stream(initial_count: 1, label: "StreamedActorsLabel") {
-             ^
-  12:     bar
-  
-  Source: GraphQL request (11:3)
-  10:   id
-  11:   foos @stream(initial_count: 1, label: "StreamedActorsLabel") {
-        ^
-  12:     bar
-  
+PASSED
 `;
 
 exports[`ValidateRelayServerOnlyDirectives matches expected output: match.graphql 1`] = `

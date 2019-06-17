@@ -10,6 +10,18 @@
 
 'use strict';
 
+const GraphQLCompilerContext = require('../core/GraphQLCompilerContext');
+const GraphQLIRTransformer = require('../core/GraphQLIRTransformer');
+const GraphQLSchemaUtils = require('../core/GraphQLSchemaUtils');
+
+const areEqual = require('../util/areEqualOSS');
+const getIdentifierForSelection = require('../core/getIdentifierForSelection');
+
+const {
+  createCompilerError,
+  createUserError,
+} = require('../core/RelayCompilerError');
+
 import type {
   Argument,
   Field,
@@ -21,16 +33,6 @@ import type {
   Selection,
 } from '../core/GraphQLIR';
 import type {GraphQLType} from 'graphql';
-
-const getIdentifierForSelection = require('../core/getIdentifierForSelection');
-const GraphQLCompilerContext = require('../core/GraphQLCompilerContext');
-const GraphQLIRTransformer = require('../core/GraphQLIRTransformer');
-const GraphQLSchemaUtils = require('../core/GraphQLSchemaUtils');
-const {
-  createCompilerError,
-  createUserError,
-} = require('../core/RelayCompilerError');
-const areEqual = require('../util/areEqualOSS');
 
 const {getRawType, isAbstractType} = GraphQLSchemaUtils;
 
@@ -63,11 +65,12 @@ function flattenTransformImpl(
   return GraphQLIRTransformer.transform(
     context,
     {
-      Root: visitorFn,
-      Fragment: visitorFn,
       Condition: visitorFn,
+      Defer: visitorFn,
+      Fragment: visitorFn,
       InlineFragment: visitorFn,
       LinkedField: visitorFn,
+      Root: visitorFn,
       SplitOperation: visitorFn,
     },
     () => state,

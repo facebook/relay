@@ -4538,46 +4538,40 @@ fragment DeferredFragment on User
             "metadata": null,
             "selections": [
               {
-                "kind": "InlineFragment",
-                "type": "User",
+                "kind": "ScalarField",
+                "alias": null,
+                "name": "id",
+                "args": null,
+                "storageKey": null
+              },
+              {
+                "kind": "ScalarField",
+                "alias": null,
+                "name": "name",
+                "args": null,
+                "storageKey": null
+              },
+              {
+                "kind": "LinkedField",
+                "alias": null,
+                "name": "profile_picture",
+                "storageKey": "profile_picture(scale:1.5)",
+                "args": [
+                  {
+                    "kind": "Literal",
+                    "name": "scale",
+                    "value": 1.5
+                  }
+                ],
+                "concreteType": "Image",
+                "plural": false,
                 "selections": [
                   {
                     "kind": "ScalarField",
                     "alias": null,
-                    "name": "id",
+                    "name": "uri",
                     "args": null,
                     "storageKey": null
-                  },
-                  {
-                    "kind": "ScalarField",
-                    "alias": null,
-                    "name": "name",
-                    "args": null,
-                    "storageKey": null
-                  },
-                  {
-                    "kind": "LinkedField",
-                    "alias": null,
-                    "name": "profile_picture",
-                    "storageKey": "profile_picture(scale:1.5)",
-                    "args": [
-                      {
-                        "kind": "Literal",
-                        "name": "scale",
-                        "value": 1.5
-                      }
-                    ],
-                    "concreteType": "Image",
-                    "plural": false,
-                    "selections": [
-                      {
-                        "kind": "ScalarField",
-                        "alias": null,
-                        "name": "uri",
-                        "args": null,
-                        "storageKey": null
-                      }
-                    ]
                   }
                 ]
               }
@@ -4704,9 +4698,208 @@ fragment DeferredFragment_QMvSr on User {
 }
 `;
 
+exports[`compileRelayArtifacts matches expected output: fragment-with-defer-on-abstract-type.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query QueryWithFragmentWithDefer {
+  node(id: "my-id") {
+    ...NodeFragment @defer(label: "node")
+  }
+}
+
+fragment NodeFragment on Node {
+  id
+  ... on User {
+    name
+  }
+  ... on Page {
+    websites
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+{
+  "kind": "Request",
+  "fragment": {
+    "kind": "Fragment",
+    "name": "QueryWithFragmentWithDefer",
+    "type": "Query",
+    "metadata": null,
+    "argumentDefinitions": [],
+    "selections": [
+      {
+        "kind": "LinkedField",
+        "alias": null,
+        "name": "node",
+        "storageKey": "node(id:\\"my-id\\")",
+        "args": [
+          {
+            "kind": "Literal",
+            "name": "id",
+            "value": "my-id"
+          }
+        ],
+        "concreteType": null,
+        "plural": false,
+        "selections": [
+          {
+            "kind": "FragmentSpread",
+            "name": "NodeFragment",
+            "args": null
+          }
+        ]
+      }
+    ]
+  },
+  "operation": {
+    "kind": "Operation",
+    "name": "QueryWithFragmentWithDefer",
+    "argumentDefinitions": [],
+    "selections": [
+      {
+        "kind": "LinkedField",
+        "alias": null,
+        "name": "node",
+        "storageKey": "node(id:\\"my-id\\")",
+        "args": [
+          {
+            "kind": "Literal",
+            "name": "id",
+            "value": "my-id"
+          }
+        ],
+        "concreteType": null,
+        "plural": false,
+        "selections": [
+          {
+            "kind": "ScalarField",
+            "alias": null,
+            "name": "__typename",
+            "args": null,
+            "storageKey": null
+          },
+          {
+            "kind": "ScalarField",
+            "alias": null,
+            "name": "id",
+            "args": null,
+            "storageKey": null
+          },
+          {
+            "if": null,
+            "kind": "Defer",
+            "label": "QueryWithFragmentWithDefer$defer$node",
+            "metadata": null,
+            "selections": [
+              {
+                "kind": "ScalarField",
+                "alias": null,
+                "name": "id",
+                "args": null,
+                "storageKey": null
+              },
+              {
+                "kind": "InlineFragment",
+                "type": "User",
+                "selections": [
+                  {
+                    "kind": "ScalarField",
+                    "alias": null,
+                    "name": "name",
+                    "args": null,
+                    "storageKey": null
+                  }
+                ]
+              },
+              {
+                "kind": "InlineFragment",
+                "type": "Page",
+                "selections": [
+                  {
+                    "kind": "ScalarField",
+                    "alias": null,
+                    "name": "websites",
+                    "args": null,
+                    "storageKey": null
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
+
+QUERY:
+
+query QueryWithFragmentWithDefer {
+  node(id: "my-id") {
+    __typename
+    ...NodeFragment @defer(label: "QueryWithFragmentWithDefer$defer$node")
+    id
+  }
+}
+
+fragment NodeFragment on Node {
+  id
+  ... on User {
+    name
+  }
+  ... on Page {
+    websites
+  }
+}
+
+
+{
+  "kind": "Fragment",
+  "name": "NodeFragment",
+  "type": "Node",
+  "metadata": null,
+  "argumentDefinitions": [],
+  "selections": [
+    {
+      "kind": "ScalarField",
+      "alias": null,
+      "name": "id",
+      "args": null,
+      "storageKey": null
+    },
+    {
+      "kind": "InlineFragment",
+      "type": "User",
+      "selections": [
+        {
+          "kind": "ScalarField",
+          "alias": null,
+          "name": "name",
+          "args": null,
+          "storageKey": null
+        }
+      ]
+    },
+    {
+      "kind": "InlineFragment",
+      "type": "Page",
+      "selections": [
+        {
+          "kind": "ScalarField",
+          "alias": null,
+          "name": "websites",
+          "args": null,
+          "storageKey": null
+        }
+      ]
+    }
+  ]
+}
+`;
+
 exports[`compileRelayArtifacts matches expected output: fragment-with-defer-on-client.invalid.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
-# expected-to-throw
+# TODO: validate that @defer is not used on a fragment on a client type
+# should be expected to throw
 query QueryWithFragmentWithDefer {
   me {
     id
@@ -4730,23 +4923,170 @@ interface ClientUser {
 }
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
-THROWN EXCEPTION:
+{
+  "kind": "Request",
+  "fragment": {
+    "kind": "Fragment",
+    "name": "QueryWithFragmentWithDefer",
+    "type": "Query",
+    "metadata": null,
+    "argumentDefinitions": [],
+    "selections": [
+      {
+        "kind": "LinkedField",
+        "alias": null,
+        "name": "me",
+        "storageKey": null,
+        "args": null,
+        "concreteType": "User",
+        "plural": false,
+        "selections": [
+          {
+            "kind": "ScalarField",
+            "alias": null,
+            "name": "id",
+            "args": null,
+            "storageKey": null
+          },
+          {
+            "kind": "FragmentSpread",
+            "name": "UserFragment",
+            "args": null
+          }
+        ]
+      }
+    ]
+  },
+  "operation": {
+    "kind": "Operation",
+    "name": "QueryWithFragmentWithDefer",
+    "argumentDefinitions": [],
+    "selections": [
+      {
+        "kind": "LinkedField",
+        "alias": null,
+        "name": "me",
+        "storageKey": null,
+        "args": null,
+        "concreteType": "User",
+        "plural": false,
+        "selections": [
+          {
+            "kind": "ScalarField",
+            "alias": null,
+            "name": "id",
+            "args": null,
+            "storageKey": null
+          },
+          {
+            "kind": "ScalarField",
+            "alias": null,
+            "name": "emailAddresses",
+            "args": null,
+            "storageKey": null
+          },
+          {
+            "if": null,
+            "kind": "Defer",
+            "label": "UserFragment$defer$DeferredFragmentLabel",
+            "metadata": null,
+            "selections": [
+              {
+                "kind": "ClientExtension",
+                "selections": [
+                  {
+                    "kind": "InlineFragment",
+                    "type": "ClientUser",
+                    "selections": [
+                      {
+                        "kind": "ScalarField",
+                        "alias": null,
+                        "name": "clientname",
+                        "args": null,
+                        "storageKey": null
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
 
-Error: Encountered 1 error(s):
-- Unexpected directive: @defer. This directive can only be used on fields/fragments that are fetched from the server schema, but it is used inside a client-only selection.
-  
-  Source (derived): GraphQL request (12:23)
-  11:   emailAddresses
-  12:   ...DeferredFragment @defer(label: "DeferredFragmentLabel")
-                            ^
-  13: }
-  
-  Source (derived): GraphQL request (12:3)
-  11:   emailAddresses
-  12:   ...DeferredFragment @defer(label: "DeferredFragmentLabel")
-        ^
-  13: }
-  
+QUERY:
+
+query QueryWithFragmentWithDefer {
+  me {
+    id
+    ...UserFragment
+  }
+}
+
+fragment UserFragment on User {
+  id
+  emailAddresses
+}
+
+
+{
+  "kind": "Fragment",
+  "name": "UserFragment",
+  "type": "User",
+  "metadata": null,
+  "argumentDefinitions": [],
+  "selections": [
+    {
+      "kind": "ScalarField",
+      "alias": null,
+      "name": "id",
+      "args": null,
+      "storageKey": null
+    },
+    {
+      "kind": "ScalarField",
+      "alias": null,
+      "name": "emailAddresses",
+      "args": null,
+      "storageKey": null
+    },
+    {
+      "kind": "ClientExtension",
+      "selections": [
+        {
+          "kind": "FragmentSpread",
+          "name": "DeferredFragment",
+          "args": null
+        }
+      ]
+    }
+  ]
+}
+
+{
+  "kind": "Fragment",
+  "name": "DeferredFragment",
+  "type": "ClientUser",
+  "metadata": null,
+  "argumentDefinitions": [],
+  "selections": [
+    {
+      "kind": "ClientExtension",
+      "selections": [
+        {
+          "kind": "ScalarField",
+          "alias": null,
+          "name": "clientname",
+          "args": null,
+          "storageKey": null
+        }
+      ]
+    }
+  ]
+}
 `;
 
 exports[`compileRelayArtifacts matches expected output: fragment-with-match-directive.graphql 1`] = `
@@ -11171,36 +11511,32 @@ query NodeQuery(
                     "if": null,
                     "kind": "Defer",
                     "label": "NodeQuery$defer$comments$pageInfo",
-                    "metadata": null,
+                    "metadata": {
+                      "fragmentTypeCondition": "CommentsConnection"
+                    },
                     "selections": [
                       {
-                        "kind": "InlineFragment",
-                        "type": "CommentsConnection",
+                        "kind": "LinkedField",
+                        "alias": null,
+                        "name": "pageInfo",
+                        "storageKey": null,
+                        "args": null,
+                        "concreteType": "PageInfo",
+                        "plural": false,
                         "selections": [
                           {
-                            "kind": "LinkedField",
+                            "kind": "ScalarField",
                             "alias": null,
-                            "name": "pageInfo",
-                            "storageKey": null,
+                            "name": "endCursor",
                             "args": null,
-                            "concreteType": "PageInfo",
-                            "plural": false,
-                            "selections": [
-                              {
-                                "kind": "ScalarField",
-                                "alias": null,
-                                "name": "endCursor",
-                                "args": null,
-                                "storageKey": null
-                              },
-                              {
-                                "kind": "ScalarField",
-                                "alias": null,
-                                "name": "hasNextPage",
-                                "args": null,
-                                "storageKey": null
-                              }
-                            ]
+                            "storageKey": null
+                          },
+                          {
+                            "kind": "ScalarField",
+                            "alias": null,
+                            "name": "hasNextPage",
+                            "args": null,
+                            "storageKey": null
                           }
                         ]
                       }

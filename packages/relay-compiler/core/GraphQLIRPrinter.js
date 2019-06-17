@@ -208,13 +208,33 @@ function printSelection(
     }
     deferStr += ')';
     deferStr += parentDirectives;
-    const subSelections = selection.selections.map(sel =>
-      printSelection(sel, indent, {
-        parentDirectives: deferStr,
-        isClientExtension,
-      }),
-    );
-    str = subSelections.join('\n' + INDENT);
+    if (
+      selection.selections.every(
+        subSelection =>
+          subSelection.kind === 'InlineFragment' ||
+          subSelection.kind === 'FragmentSpread',
+      )
+    ) {
+      const subSelections = selection.selections.map(sel =>
+        printSelection(sel, indent, {
+          parentDirectives: deferStr,
+          isClientExtension,
+        }),
+      );
+      str = subSelections.join('\n' + INDENT);
+    } else {
+      if (
+        selection.metadata != null &&
+        selection.metadata.fragmentTypeCondition != null
+      ) {
+        str =
+          `... on ${String(selection.metadata.fragmentTypeCondition)}` +
+          deferStr;
+      } else {
+        str = '...' + deferStr;
+      }
+      str += printSelections(selection, indent + INDENT, {isClientExtension});
+    }
   } else if (selection.kind === 'ClientExtension') {
     invariant(
       isClientExtension === false,

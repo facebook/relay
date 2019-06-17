@@ -5878,6 +5878,18 @@ Error: RelayParser: Encountered 1 error(s):
   
 `;
 
+exports[`RelayParser should error on fragment spread arguments with literal out of bounds values 1`] = `
+"RelayParser: Encountered 1 error(s):
+- Expected a value matching type 'Int'.
+  
+  GraphQL request (4:38)
+  3:         # Number.MAX_SAFE_INTEGER is 9007199254740991
+  4:         ...TestChild @arguments(foo: 10000000000000000)
+                                          ^
+  5:       }
+  "
+`;
+
 exports[`RelayParser should error when parsing fragment that references undeclared variables are used with differing types 1`] = `
 "RelayParser: Encountered 1 error(s):
 - Variable '$id' was used in locations expecting the conflicting types 'ID' and 'Int'. Source: document \`TestFragment\` file: \`GraphQL request\`

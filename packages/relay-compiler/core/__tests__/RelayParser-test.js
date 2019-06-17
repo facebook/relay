@@ -81,6 +81,21 @@ describe('RelayParser', () => {
     expect(() => RelayParser.parse(TestSchema, text)).not.toThrowError();
   });
 
+  it('should error on fragment spread arguments with literal out of bounds values', () => {
+    const text = `
+      fragment TestFragment on Query {
+        # Number.MAX_SAFE_INTEGER is 9007199254740991
+        ...TestChild @arguments(foo: 10000000000000000)
+      }
+      fragment TestChild on Query @argumentDefinitions(foo: {type: "Int"}) {
+        viewer { actor { id } }
+      }
+    `;
+    expect(() =>
+      RelayParser.parse(TestSchema, text),
+    ).toThrowErrorMatchingSnapshot();
+  });
+
   it("should correctly parse fragment when input is a non-null type and it's passed to calls expecting both null and non-null types, regardless of order", () => {
     let text;
     // Should work with the call requiring an ID! placed first in the query

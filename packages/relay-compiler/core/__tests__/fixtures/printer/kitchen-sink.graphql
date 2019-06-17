@@ -20,7 +20,6 @@ fragment UserFragment on User @argumentDefinitions(
   after: {type: "ID"}
   first: {type: "Int", defaultValue: 5}
   size: {type: "[Int]"}
-  outOfBoundsSize: {type: "[Int]", defaultValue: [2147483648]}
   storyType: {type: "StoryType", defaultValue: DIRECTED},
   storyType_invalid_string: {type: "StoryType", defaultValue: "DIRECTED"},
   storyType_invalid_lowercase: {type: "StoryType", defaultValue: directed},
@@ -59,10 +58,5 @@ fragment UserFragment on User @argumentDefinitions(
   }
   storySearch(query: {type: DIRECTED}) {
     id
-  }
-  thumbnailWithOutOfBoundsSize: profilePicture2(
-    size: $outOfBoundsSize,
-  ) {
-    uri
   }
 }

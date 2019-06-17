@@ -1405,22 +1405,6 @@ function transformNonNullLiteral(
         [ast],
       );
     }
-  } else if (nullableType === GraphQLInt) {
-    // Allow out-of-bounds integers
-    if (ast.kind === 'IntValue') {
-      return {
-        kind: 'Literal',
-        loc: buildLocation(ast.loc),
-        metadata: null,
-        value: parseInt(ast.value, 10),
-      };
-    } else {
-      throw createUserError(
-        `Invalid value, expected a value matching type '${String(type)}'.`,
-        null,
-        [ast],
-      );
-    }
   } else if (nullableType instanceof GraphQLEnumType) {
     const value = nullableType.parseLiteral(ast);
     if (value == null) {

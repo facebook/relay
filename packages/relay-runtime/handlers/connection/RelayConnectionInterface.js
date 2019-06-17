@@ -46,7 +46,6 @@ let config: {|
   CLIENT_MUTATION_ID: $TEMPORARY$string<'clientMutationId'>,
   CURSOR: $TEMPORARY$string<'cursor'>,
   EDGES: $TEMPORARY$string<'edges'>,
-  EDGES_HAVE_SOURCE_FIELD: boolean,
   END_CURSOR: $TEMPORARY$string<'endCursor'>,
   HAS_NEXT_PAGE: $TEMPORARY$string<'hasNextPage'>,
   HAS_PREV_PAGE: $TEMPORARY$string<'hasPreviousPage'>,
@@ -57,10 +56,6 @@ let config: {|
 |} = {
   CLIENT_MUTATION_ID: 'clientMutationId',
   CURSOR: 'cursor',
-  /**
-   * Whether `edges` fields are expected to have `source` fields.
-   */
-  EDGES_HAVE_SOURCE_FIELD: false,
   EDGES: 'edges',
   END_CURSOR: 'endCursor',
   HAS_NEXT_PAGE: 'hasNextPage',

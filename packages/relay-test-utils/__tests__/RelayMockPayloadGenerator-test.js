@@ -1238,4 +1238,74 @@ describe('with @relay_test_operation', () => {
       },
     );
   });
+
+  test('generate mock with default value for scalar plural field', () => {
+    testGeneratedData(
+      `
+      query TestQuery @relay_test_operation {
+        node(id: "my-id") {
+          ... on User {
+            id
+            emailAddresses
+          }
+        }
+      }
+    `,
+      {
+        User(context) {
+          return {
+            emailAddresses: 'my@email.com',
+          };
+        },
+      },
+    );
+  });
+
+  test('generate mock for enum with different case should be OK', () => {
+    testGeneratedData(
+      `
+        query TestQuery @relay_test_operation {
+          node(id: "my-id") {
+            ... on User {
+              id
+              environment
+            }
+          }
+        }
+      `,
+      {
+        User(context) {
+          return {
+            environment: 'Web',
+          };
+        },
+      },
+    );
+  });
+
+  test('generate mock with invalid value for enum', () => {
+    expect(() => {
+      testGeneratedData(
+        `
+        query TestQuery @relay_test_operation {
+          node(id: "my-id") {
+            ... on User {
+              id
+              environment
+            }
+          }
+        }
+      `,
+        {
+          User(context) {
+            return {
+              environment: 'INVALID_VALUE',
+            };
+          },
+        },
+      );
+    }).toThrow(
+      'RelayMockPayloadGenerator: Invalid value "INVALID_VALUE" provided for enum field',
+    );
+  });
 });

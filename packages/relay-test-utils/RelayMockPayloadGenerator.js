@@ -375,27 +375,61 @@ class RelayMockPayloadGenerator {
     if (field.name === TYPENAME_KEY) {
       value = typeName ?? DEFAULT_MOCK_TYPENAME;
     }
+
+    const selectionPath = [...path, applicationName];
+    const {type, plural, enumValues} = this._getScalarFieldTypeDetails(
+      field,
+      typeName,
+      selectionPath,
+    );
+
     // We may have an object with default values (generated in _mockLink(...))
-    // let's check if we have a value there for our field
+    // let's check if we have a possible default value there for our field
     if (
       defaultValues != null &&
       defaultValues.hasOwnProperty(applicationName)
     ) {
       value = defaultValues[applicationName];
+
+      // Let's validate the correctness of the provided enum value
+      // We will throw if value provided by mock resolvers is invalid
+      if (
+        enumValues !== null &&
+        !enumValues
+          .map(s => s.toUpperCase())
+          .includes(String(value).toUpperCase())
+      ) {
+        invariant(
+          false,
+          'RelayMockPayloadGenerator: Invalid value "%s" provided for enum ' +
+            'field "%s" via MockResolver.' +
+            'Expected one of the following values: %s.',
+          String(value),
+          `${path.join('.')}.${applicationName}`,
+          enumValues.map(v => `"${v}"`).join(', '),
+        );
+      }
+
+      // But missing case should be acceptable, we will just use
+      // a correct spelling from enumValues
+      if (enumValues !== null && value !== undefined) {
+        const correctSpellingEnumIndex = enumValues
+          .map(s => s.toUpperCase())
+          .indexOf(String(value).toUpperCase());
+        value = enumValues[correctSpellingEnumIndex];
+      }
+
+      // And if it's a plural field, we need to return an array
+      if (value !== undefined && plural && !Array.isArray(value)) {
+        value = [value];
+      }
     }
 
     // If the value has not been generated yet (__id, __typename fields, or defaults)
     // then we need to generate mock value for a scalar type
     if (value === undefined) {
-      const selectionPath = [...path, applicationName];
       // Get basic type information: type of the field (Int, Float, String, etc..)
       // And check if it's a plural type
-      const {type, plural, enumValues} = this._getScalarFieldTypeDetails(
-        field,
-        typeName,
-        selectionPath,
-      );
-
       const defaultValue = enumValues != null ? enumValues[0] : undefined;
 
       value = this._resolveValue(

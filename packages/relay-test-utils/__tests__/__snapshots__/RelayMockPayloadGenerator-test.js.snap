@@ -983,6 +983,29 @@ query TestQuery @relay_test_operation {
 }
 `;
 
+exports[`with @relay_test_operation generate mock for enum with different case should be OK 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query TestQuery @relay_test_operation {
+  node(id: "my-id") {
+    ... on User {
+      id
+      environment
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+{
+  "data": {
+    "node": {
+      "__typename": "User",
+      "id": "<Node-mock-id-1>",
+      "environment": "WEB"
+    }
+  }
+}
+`;
+
 exports[`with @relay_test_operation generate mock for simple fragment 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query TestQuery @relay_test_operation {
@@ -1324,6 +1347,31 @@ query TestQuery @relay_test_operation {
           }
         ]
       }
+    }
+  }
+}
+`;
+
+exports[`with @relay_test_operation generate mock with default value for scalar plural field 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query TestQuery @relay_test_operation {
+  node(id: "my-id") {
+    ... on User {
+      id
+      emailAddresses
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+{
+  "data": {
+    "node": {
+      "__typename": "User",
+      "id": "<Node-mock-id-1>",
+      "emailAddresses": [
+        "my@email.com"
+      ]
     }
   }
 }

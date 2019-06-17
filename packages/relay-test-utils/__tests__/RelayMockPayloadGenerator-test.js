@@ -1171,4 +1171,71 @@ describe('with @relay_test_operation', () => {
       },
     );
   });
+
+  test('generate mock with default value for object in plural field', () => {
+    testGeneratedData(
+      `
+    query TestQuery @relay_test_operation {
+      node(id: "my-id") {
+        ... on User {
+          id
+          friends {
+            edges {
+              node {
+                id
+                name
+              }
+            }
+          }
+        }
+      }
+    }
+  `,
+      {
+        FriendsEdge() {
+          return {
+            node: {
+              name: 'Alice',
+            },
+          };
+        },
+      },
+    );
+  });
+
+  test('generate mock with default value for plural field and its object', () => {
+    testGeneratedData(
+      `
+    query TestQuery @relay_test_operation {
+      node(id: "my-id") {
+        ... on User {
+          id
+          friends {
+            edges {
+              node {
+                id
+                name
+              }
+            }
+          }
+        }
+      }
+    }
+  `,
+      {
+        FriendsConnection() {
+          return {
+            edges: Array(5).fill(),
+          };
+        },
+        FriendsEdge() {
+          return {
+            node: {
+              name: 'Alice',
+            },
+          };
+        },
+      },
+    );
+  });
 });

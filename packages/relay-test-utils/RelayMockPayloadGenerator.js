@@ -440,15 +440,8 @@ class RelayMockPayloadGenerator {
       type: DEFAULT_MOCK_TYPENAME,
     };
 
-    let defaults = this._getDefaultValuesForObject(
-      field.concreteType ?? typeFromSelection.type,
-      field.name,
-      field.alias,
-      selectionPath,
-      args,
-    );
+    let defaults;
     if (
-      defaults == null &&
       defaultValues != null &&
       typeof defaultValues[applicationName] === 'object'
     ) {
@@ -478,7 +471,16 @@ class RelayMockPayloadGenerator {
       field.concreteType === null && typeName === typeFromSelection.type;
 
     const generateDataForField = possibleDefaultValue => {
-      if (possibleDefaultValue === null) {
+      const fieldDefaultValue =
+        this._getDefaultValuesForObject(
+          field.concreteType ?? typeFromSelection.type,
+          field.name,
+          field.alias,
+          selectionPath,
+          args,
+        ) ?? possibleDefaultValue;
+
+      if (fieldDefaultValue === null) {
         return null;
       }
       return this._traverse(
@@ -500,10 +502,9 @@ class RelayMockPayloadGenerator {
         /* $FlowFixMe(>=0.98.0 site=react_native_fb,oss,www,mobile) This comment suppresses an
          * error found when Flow v0.98 was deployed. To see the error delete
          * this comment and run Flow. */
-        possibleDefaultValue,
+        fieldDefaultValue,
       );
     };
-
     data[applicationName] = field.plural
       ? generateMockList(
           Array.isArray(defaults) ? defaults : Array(1).fill(),

@@ -1227,6 +1227,108 @@ query TestQuery @relay_test_operation {
 }
 `;
 
+exports[`with @relay_test_operation generate mock with default value for object in plural field 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query TestQuery @relay_test_operation {
+  node(id: "my-id") {
+    ... on User {
+      id
+      friends {
+        edges {
+          node {
+            id
+            name
+          }
+        }
+      }
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+{
+  "data": {
+    "node": {
+      "__typename": "User",
+      "id": "<Node-mock-id-1>",
+      "friends": {
+        "edges": [
+          {
+            "node": {
+              "id": "<User-mock-id-2>",
+              "name": "Alice"
+            }
+          }
+        ]
+      }
+    }
+  }
+}
+`;
+
+exports[`with @relay_test_operation generate mock with default value for plural field and its object 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query TestQuery @relay_test_operation {
+  node(id: "my-id") {
+    ... on User {
+      id
+      friends {
+        edges {
+          node {
+            id
+            name
+          }
+        }
+      }
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+{
+  "data": {
+    "node": {
+      "__typename": "User",
+      "id": "<Node-mock-id-1>",
+      "friends": {
+        "edges": [
+          {
+            "node": {
+              "id": "<User-mock-id-2>",
+              "name": "Alice"
+            }
+          },
+          {
+            "node": {
+              "id": "<User-mock-id-3>",
+              "name": "Alice"
+            }
+          },
+          {
+            "node": {
+              "id": "<User-mock-id-4>",
+              "name": "Alice"
+            }
+          },
+          {
+            "node": {
+              "id": "<User-mock-id-5>",
+              "name": "Alice"
+            }
+          },
+          {
+            "node": {
+              "id": "<User-mock-id-6>",
+              "name": "Alice"
+            }
+          }
+        ]
+      }
+    }
+  }
+}
+`;
+
 exports[`with @relay_test_operation generate mock with empty array for scalar field  1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query TestQuery @relay_test_operation {

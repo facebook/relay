@@ -938,6 +938,51 @@ fragment TestFragment on User {
 }
 `;
 
+exports[`with @relay_test_operation generate mock data with mock resolver for ID that may return \`undefined\` 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query TestQuery @relay_test_operation {
+  node(id: "my-id") {
+    ... on User {
+      id
+      friends {
+        edges {
+          node {
+            id
+            name
+          }
+        }
+      }
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+{
+  "data": {
+    "node": {
+      "__typename": "User",
+      "id": "this-is-my-id",
+      "friends": {
+        "edges": [
+          {
+            "node": {
+              "id": "<User-mock-id-1>",
+              "name": "<mock-value-for-field-\\"name\\">"
+            }
+          },
+          {
+            "node": {
+              "id": "<User-mock-id-2>",
+              "name": "<mock-value-for-field-\\"name\\">"
+            }
+          }
+        ]
+      }
+    }
+  }
+}
+`;
+
 exports[`with @relay_test_operation generate mock for simple fragment 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query TestQuery @relay_test_operation {

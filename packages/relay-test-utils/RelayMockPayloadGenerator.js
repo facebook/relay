@@ -363,65 +363,40 @@ class RelayMockPayloadGenerator {
     path: $ReadOnlyArray<string>,
     applicationName: string,
   ) {
-    if (enumValues == null) {
+    if (enumValues == null || value === undefined) {
       return value;
     }
 
+    const valueToValidate = Array.isArray(value) ? value.map(v => String(v).toUpperCase()) : [String(value).toUpperCase()];
     const enumValuesNormalized = enumValues.map(s => s.toUpperCase());
 
-    if (Array.isArray(value)) {
-      // Let's validate the correctness of the provided enum value
-      // We will throw if value provided by mock resolvers is invalid
-      const correctValues = value.filter(v => enumValuesNormalized.includes(v));
+    // Let's validate the correctness of the provided enum value
+    // We will throw if value provided by mock resolvers is invalid
+    const correctValues = valueToValidate.filter(v => enumValuesNormalized.includes(v));
 
-      if (correctValues.length !== value.length) {
-        invariant(
-          false,
-          'RelayMockPayloadGenerator: Invalid value "%s" provided for enum ' +
-            'field "%s" via MockResolver.' +
-            'Expected one of the following values: %s.',
-          value,
-          `${path.join('.')}.${applicationName}`,
-          enumValues.map(v => `"${v}"`).join(', '),
-        );
-      }
-    } else {
-      // Let's validate the correctness of the provided enum value
-      // We will throw if value provided by mock resolvers is invalid
-      if (
-        !enumValuesNormalized
-          .includes(String(value).toUpperCase())
-      ) {
-        invariant(
-          false,
-          'RelayMockPayloadGenerator: Invalid value "%s" provided for enum ' +
-            'field "%s" via MockResolver.' +
-            'Expected one of the following values: %s.',
-          String(value),
-          `${path.join('.')}.${applicationName}`,
-          enumValues.map(v => `"${v}"`).join(', '),
-        );
-      }
+    if (correctValues.length !== valueToValidate.length) {
+      invariant(
+        false,
+        'RelayMockPayloadGenerator: Invalid value "%s" provided for enum ' +
+          'field "%s" via MockResolver.' +
+          'Expected one of the following values: %s.',
+        value,
+        `${path.join('.')}.${applicationName}`,
+        enumValues.map(v => `"${v}"`).join(', '),
+      );
     }
 
     // But missing case should be acceptable, we will just use
     // a correct spelling from enumValues
-    if (value !== undefined) {
-      if (Array.isArray(value)) {
-        return value.map(v => {
-          const correctSpellingEnumIndex = enumValues
-          .map(s => s.toUpperCase())
-          .indexOf(String(v).toUpperCase());
+    const correctSpellingValues = valueToValidate.map(v => {
+      const correctSpellingEnumIndex = enumValues
+        .map(s => s.toUpperCase())
+        .indexOf(String(v).toUpperCase());
 
-          return enumValues[correctSpellingEnumIndex];
-        });
-      } else {
-        const correctSpellingEnumIndex = enumValues
-          .map(s => s.toUpperCase())
-          .indexOf(String(value).toUpperCase());
-        return enumValues[correctSpellingEnumIndex];
-      }
-    }
+      return enumValues[correctSpellingEnumIndex];
+    });
+
+    return Array.isArray(value) ? correctSpellingValues : correctSpellingValues[0];
   }
 
   /**

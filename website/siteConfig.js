@@ -86,6 +86,12 @@ const users = [
     infoLink: 'https://up.com.au/',
     pinned: false,
   },
+  {
+    caption: 'Foton',
+    image: '/img/logos/foton.png',
+    infoLink: 'https://fotontech.io',
+    pinned: false,
+  },
 ];
 
 const siteConfig = {

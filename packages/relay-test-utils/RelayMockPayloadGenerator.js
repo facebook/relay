@@ -391,7 +391,7 @@ class RelayMockPayloadGenerator {
     ) {
       value = defaultValues[applicationName];
 
-      if (Array.isArray(value)) {
+      if (Array.isArray(value) && enumValues !== null) {
         const enumValuesNormalized = enumValues.map(s => s.toUpperCase());
 
         const correctValues = value.filter(v => enumValuesNormalized.includes(v));

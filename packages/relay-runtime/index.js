@@ -142,6 +142,8 @@ export type {
   ReaderArgumentDefinition,
   ReaderField,
   ReaderFragment,
+  ReaderInlineDataFragment,
+  ReaderInlineDataFragmentSpread,
   ReaderLinkedField,
   ReaderModuleImport,
   ReaderPaginationMetadata,

@@ -5462,6 +5462,472 @@ fragment FeedbackFragment on Feedback {
 }
 `;
 
+exports[`compileRelayArtifacts matches expected output: inline-and-mask-are-incompatible.invalid.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+# expected-to-throw
+
+fragment ParentFragment on Query {
+  me {
+    ...Profile @relay(mask: false)
+  }
+}
+
+fragment Profile on User @inline {
+  id
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+THROWN EXCEPTION:
+
+Error: Encountered 1 error(s):
+- Cannot use @relay(mask: false) on fragment spreads for fragments with directives.
+  
+  Source: GraphQL request (5:5)
+  4:   me {
+  5:     ...Profile @relay(mask: false)
+         ^
+  6:   }
+  
+  Source: GraphQL request (9:26)
+   8: 
+   9: fragment Profile on User @inline {
+                               ^
+  10:   id
+  
+`;
+
+exports[`compileRelayArtifacts matches expected output: inline-data-fragment.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query Test {
+  ...ParentFragment
+}
+
+fragment ParentFragment on Query {
+  me {
+    # No refinement needed, field and fragment are both User.
+    ...Profile
+    profilePicture(size: 100) {
+      uri
+      height
+    }
+  }
+
+  username(name: "test") {
+    # Should refine from type Actor to User.
+    ...Profile
+  }
+}
+
+fragment Profile on User @inline {
+  profilePicture(size: 100) {
+    uri
+    width
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+{
+  "kind": "Request",
+  "fragment": {
+    "kind": "Fragment",
+    "name": "Test",
+    "type": "Query",
+    "metadata": null,
+    "argumentDefinitions": [],
+    "selections": [
+      {
+        "kind": "FragmentSpread",
+        "name": "ParentFragment",
+        "args": null
+      }
+    ]
+  },
+  "operation": {
+    "kind": "Operation",
+    "name": "Test",
+    "argumentDefinitions": [],
+    "selections": [
+      {
+        "kind": "LinkedField",
+        "alias": null,
+        "name": "me",
+        "storageKey": null,
+        "args": null,
+        "concreteType": "User",
+        "plural": false,
+        "selections": [
+          {
+            "kind": "LinkedField",
+            "alias": null,
+            "name": "profilePicture",
+            "storageKey": "profilePicture(size:100)",
+            "args": [
+              {
+                "kind": "Literal",
+                "name": "size",
+                "value": 100
+              }
+            ],
+            "concreteType": "Image",
+            "plural": false,
+            "selections": [
+              {
+                "kind": "ScalarField",
+                "alias": null,
+                "name": "uri",
+                "args": null,
+                "storageKey": null
+              },
+              {
+                "kind": "ScalarField",
+                "alias": null,
+                "name": "width",
+                "args": null,
+                "storageKey": null
+              },
+              {
+                "kind": "ScalarField",
+                "alias": null,
+                "name": "height",
+                "args": null,
+                "storageKey": null
+              }
+            ]
+          },
+          {
+            "kind": "ScalarField",
+            "alias": null,
+            "name": "id",
+            "args": null,
+            "storageKey": null
+          }
+        ]
+      },
+      {
+        "kind": "LinkedField",
+        "alias": null,
+        "name": "username",
+        "storageKey": "username(name:\\"test\\")",
+        "args": [
+          {
+            "kind": "Literal",
+            "name": "name",
+            "value": "test"
+          }
+        ],
+        "concreteType": null,
+        "plural": false,
+        "selections": [
+          {
+            "kind": "ScalarField",
+            "alias": null,
+            "name": "__typename",
+            "args": null,
+            "storageKey": null
+          },
+          {
+            "kind": "ScalarField",
+            "alias": null,
+            "name": "id",
+            "args": null,
+            "storageKey": null
+          },
+          {
+            "kind": "InlineFragment",
+            "type": "User",
+            "selections": [
+              {
+                "kind": "LinkedField",
+                "alias": null,
+                "name": "profilePicture",
+                "storageKey": "profilePicture(size:100)",
+                "args": [
+                  {
+                    "kind": "Literal",
+                    "name": "size",
+                    "value": 100
+                  }
+                ],
+                "concreteType": "Image",
+                "plural": false,
+                "selections": [
+                  {
+                    "kind": "ScalarField",
+                    "alias": null,
+                    "name": "uri",
+                    "args": null,
+                    "storageKey": null
+                  },
+                  {
+                    "kind": "ScalarField",
+                    "alias": null,
+                    "name": "width",
+                    "args": null,
+                    "storageKey": null
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
+
+QUERY:
+
+query Test {
+  ...ParentFragment
+}
+
+fragment ParentFragment on Query {
+  me {
+    ...Profile
+    profilePicture(size: 100) {
+      uri
+      height
+    }
+    id
+  }
+  username(name: "test") {
+    __typename
+    ...Profile
+    id
+  }
+}
+
+fragment Profile on User {
+  profilePicture(size: 100) {
+    uri
+    width
+  }
+}
+
+
+{
+  "kind": "Fragment",
+  "name": "ParentFragment",
+  "type": "Query",
+  "metadata": null,
+  "argumentDefinitions": [],
+  "selections": [
+    {
+      "kind": "LinkedField",
+      "alias": null,
+      "name": "me",
+      "storageKey": null,
+      "args": null,
+      "concreteType": "User",
+      "plural": false,
+      "selections": [
+        {
+          "kind": "LinkedField",
+          "alias": null,
+          "name": "profilePicture",
+          "storageKey": "profilePicture(size:100)",
+          "args": [
+            {
+              "kind": "Literal",
+              "name": "size",
+              "value": 100
+            }
+          ],
+          "concreteType": "Image",
+          "plural": false,
+          "selections": [
+            {
+              "kind": "ScalarField",
+              "alias": null,
+              "name": "uri",
+              "args": null,
+              "storageKey": null
+            },
+            {
+              "kind": "ScalarField",
+              "alias": null,
+              "name": "height",
+              "args": null,
+              "storageKey": null
+            }
+          ]
+        },
+        {
+          "kind": "InlineDataFragmentSpread",
+          "name": "Profile",
+          "selections": [
+            {
+              "kind": "LinkedField",
+              "alias": null,
+              "name": "profilePicture",
+              "storageKey": "profilePicture(size:100)",
+              "args": [
+                {
+                  "kind": "Literal",
+                  "name": "size",
+                  "value": 100
+                }
+              ],
+              "concreteType": "Image",
+              "plural": false,
+              "selections": [
+                {
+                  "kind": "ScalarField",
+                  "alias": null,
+                  "name": "uri",
+                  "args": null,
+                  "storageKey": null
+                },
+                {
+                  "kind": "ScalarField",
+                  "alias": null,
+                  "name": "width",
+                  "args": null,
+                  "storageKey": null
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "LinkedField",
+      "alias": null,
+      "name": "username",
+      "storageKey": "username(name:\\"test\\")",
+      "args": [
+        {
+          "kind": "Literal",
+          "name": "name",
+          "value": "test"
+        }
+      ],
+      "concreteType": null,
+      "plural": false,
+      "selections": [
+        {
+          "kind": "InlineDataFragmentSpread",
+          "name": "Profile",
+          "selections": [
+            {
+              "kind": "InlineFragment",
+              "type": "User",
+              "selections": [
+                {
+                  "kind": "LinkedField",
+                  "alias": null,
+                  "name": "profilePicture",
+                  "storageKey": "profilePicture(size:100)",
+                  "args": [
+                    {
+                      "kind": "Literal",
+                      "name": "size",
+                      "value": 100
+                    }
+                  ],
+                  "concreteType": "Image",
+                  "plural": false,
+                  "selections": [
+                    {
+                      "kind": "ScalarField",
+                      "alias": null,
+                      "name": "uri",
+                      "args": null,
+                      "storageKey": null
+                    },
+                    {
+                      "kind": "ScalarField",
+                      "alias": null,
+                      "name": "width",
+                      "args": null,
+                      "storageKey": null
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
+
+{
+  "kind": "InlineDataFragment",
+  "name": "Profile"
+}
+`;
+
+exports[`compileRelayArtifacts matches expected output: inline-data-fragment-global-vars.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+# expected-to-throw
+
+fragment ParentFragment on Query {
+  me {
+    ...Profile
+  }
+}
+
+fragment Profile on User @inline {
+  profilePicture(size: $pictureSize) {
+    uri
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+THROWN EXCEPTION:
+
+Error: Encountered 1 error(s):
+- Variables are not yet supported inside @inline fragments.
+  
+  Source: GraphQL request (10:24)
+   9: fragment Profile on User @inline {
+  10:   profilePicture(size: $pictureSize) {
+                             ^
+  11:     uri
+  
+`;
+
+exports[`compileRelayArtifacts matches expected output: inline-data-fragment-local-args.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+# expected-to-throw
+
+fragment ParentFragment on Query {
+  usingLiteralPassedValue: me {
+    ...Profile @arguments(sizeArg: [100])
+  }
+  usingGlobalPassedValue: me {
+    ...Profile @arguments(sizeArg: $globalSizeVar)
+  }
+  usingDefaultValue: me {
+    ...Profile
+  }
+}
+
+fragment Profile on User
+  @inline
+  @argumentDefinitions(sizeArg: { type: "[Int]", defaultValue: [50] }) {
+  profilePicture(size: $sizeArg) {
+    uri
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+THROWN EXCEPTION:
+
+Error: Encountered 1 error(s):
+- Variables are not yet supported inside @inline fragments.
+  
+  Source: GraphQL request (17:24)
+  16:   @inline
+  17:   @argumentDefinitions(sizeArg: { type: "[Int]", defaultValue: [50] }) {
+                             ^
+  18:   profilePicture(size: $sizeArg) {
+  
+`;
+
 exports[`compileRelayArtifacts matches expected output: kitchen-sink.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query NodeQuery($id: ID! $cond: Boolean! $PictureSize: [Int]!) {

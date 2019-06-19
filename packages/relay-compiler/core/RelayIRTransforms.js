@@ -13,6 +13,7 @@
 const ClientExtensionsTransform = require('../transforms/ClientExtensionsTransform');
 const FilterDirectivesTransform = require('../transforms/FilterDirectivesTransform');
 const FlattenTransform = require('../transforms/FlattenTransform');
+const InlineDataFragmentTransform = require('../transforms/InlineDataFragmentTransform');
 const InlineFragmentsTransform = require('../transforms/InlineFragmentsTransform');
 const RefineOperationVariablesTransform = require('../transforms/RefineOperationVariablesTransform');
 const RelayApplyFragmentArgumentTransform = require('../transforms/RelayApplyFragmentArgumentTransform');
@@ -41,6 +42,7 @@ const relaySchemaExtensions: Array<string> = [
   RelayRelayDirectiveTransform.SCHEMA_EXTENSION,
   RelayRefetchableFragmentTransform.SCHEMA_EXTENSION,
   RelayTestOperationTransform.SCHEMA_EXTENSION,
+  InlineDataFragmentTransform.SCHEMA_EXTENSION,
 ];
 
 // Transforms applied to both operations and fragments for both reading and
@@ -57,6 +59,7 @@ const relayCommonTransforms: Array<IRTransform> = [
 const relayFragmentTransforms: Array<IRTransform> = [
   ClientExtensionsTransform.transform,
   RelayFieldHandleTransform.transform,
+  InlineDataFragmentTransform.transform,
   FlattenTransform.transformWithOptions({flattenAbstractTypes: true}),
   SkipRedundantNodesTransform.transform,
 ];

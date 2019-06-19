@@ -100,6 +100,15 @@ function transformNode<T: Node>(
       case 'ScalarField':
         nextSelection = selection;
         break;
+      case 'InlineDataFragmentSpread':
+        invariant(
+          false,
+          'SkipUnreachableNodeTransform: Did not expect an ' +
+            'InlineDataFragmentSpread here. Only expecting ' +
+            'InlineDataFragmentSpread in reader ASTs and this transform to ' +
+            'run only on normalization ASTs.',
+        );
+      // fallthrough
       default:
         (selection.kind: empty);
         invariant(

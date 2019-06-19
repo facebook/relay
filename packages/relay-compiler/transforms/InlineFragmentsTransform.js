@@ -12,6 +12,7 @@
 
 const GraphQLCompilerContext = require('../core/GraphQLCompilerContext');
 const GraphQLIRTransformer = require('../core/GraphQLIRTransformer');
+
 const invariant = require('invariant');
 
 import type {InlineFragment, Fragment, FragmentSpread} from '../core/GraphQLIR';

@@ -69,6 +69,7 @@ function flattenTransformImpl(
       Defer: visitorFn,
       Fragment: visitorFn,
       InlineFragment: visitorFn,
+      InlineDataFragmentSpread: visitorFn,
       LinkedField: visitorFn,
       Root: visitorFn,
       SplitOperation: visitorFn,
@@ -282,6 +283,13 @@ function flattenSelectionsInto(
         // Note: arguments are intentionally reversed to avoid rebuilds
         handles: mergeHandles(selection, flattenedSelection),
       });
+    } else if (flattenedSelection.kind === 'InlineDataFragmentSpread') {
+      throw createCompilerError(
+        'FlattenTransform: did not expect an InlineDataFragmentSpread node. ' +
+          'Only expecting InlineDataFragmentSpread in reader ASTs and this ' +
+          'transform to run only on normalization ASTs.',
+        [selection.loc],
+      );
     } else {
       (flattenedSelection.kind: empty);
       throw createCompilerError(

@@ -14,7 +14,7 @@ import type {
   NormalizationOperation,
   NormalizationSplitOperation,
 } from './NormalizationNode';
-import type {ReaderFragment} from './ReaderNode';
+import type {ReaderFragment, ReaderInlineDataFragment} from './ReaderNode';
 
 /**
  * Represents a common GraphQL request with `text` (or persisted `id`) can be
@@ -45,6 +45,7 @@ type BaseRequestParameters = {|
 export type GeneratedNode =
   | ConcreteRequest
   | ReaderFragment
+  | ReaderInlineDataFragment
   | NormalizationSplitOperation;
 
 const RelayConcreteNode = {
@@ -53,6 +54,8 @@ const RelayConcreteNode = {
   DEFER: 'Defer',
   FRAGMENT: 'Fragment',
   FRAGMENT_SPREAD: 'FragmentSpread',
+  INLINE_DATA_FRAGMENT_SPREAD: 'InlineDataFragmentSpread',
+  INLINE_DATA_FRAGMENT: 'InlineDataFragment',
   INLINE_FRAGMENT: 'InlineFragment',
   LINKED_FIELD: 'LinkedField',
   LINKED_HANDLE: 'LinkedHandle',

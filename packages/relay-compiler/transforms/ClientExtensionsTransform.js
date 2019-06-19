@@ -111,6 +111,7 @@ function traverseSelections<T: Node>(
       }
       case 'Condition':
       case 'Defer':
+      case 'InlineDataFragmentSpread':
       case 'ModuleImport':
       case 'Stream': {
         const transformed = traverseSelections(

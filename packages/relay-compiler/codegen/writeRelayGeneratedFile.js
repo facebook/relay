@@ -37,6 +37,8 @@ function getConcreteType(node: GeneratedNode): string {
       return 'ConcreteRequest';
     case RelayConcreteNode.SPLIT_OPERATION:
       return 'NormalizationSplitOperation';
+    case RelayConcreteNode.INLINE_DATA_FRAGMENT:
+      return 'ReaderInlineDataFragment';
     default:
       (node: empty);
       invariant(false, 'Unexpected GeneratedNode kind: `%s`.', node.kind);

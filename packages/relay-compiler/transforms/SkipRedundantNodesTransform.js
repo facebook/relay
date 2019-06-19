@@ -177,6 +177,7 @@ function transformNode<T: Node>(
       case 'Stream':
       case 'ModuleImport':
       case 'ClientExtension':
+      case 'InlineDataFragmentSpread':
       case 'LinkedField': {
         const transformed = transformNode(
           selection,

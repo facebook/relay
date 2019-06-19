@@ -117,6 +117,7 @@ function visitRoot(node: Root) {
         case 'Condition':
         case 'ClientExtension':
         case 'Defer':
+        case 'InlineDataFragmentSpread':
         case 'InlineFragment':
         case 'ModuleImport':
         case 'Stream':

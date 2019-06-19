@@ -19,6 +19,12 @@ export type ReaderFragmentSpread = {|
   +args: ?$ReadOnlyArray<ReaderArgument>,
 |};
 
+export type ReaderInlineDataFragmentSpread = {|
+  +kind: 'InlineDataFragmentSpread',
+  +name: string,
+  +selections: $ReadOnlyArray<ReaderSelection>,
+|};
+
 export type ReaderFragment = {|
   +kind: 'Fragment',
   +name: string,
@@ -71,6 +77,11 @@ export type ReaderPaginationMetadata = {|
     +cursor: string,
   |} | null,
   +path: $ReadOnlyArray<string>,
+|};
+
+export type ReaderInlineDataFragment = {|
+  +kind: 'InlineDataFragment',
+  +name: string,
 |};
 
 export type ReaderArgument = ReaderLiteral | ReaderVariable;
@@ -154,6 +165,7 @@ export type ReaderSelection =
   | ReaderClientExtension
   | ReaderField
   | ReaderFragmentSpread
+  | ReaderInlineDataFragmentSpread
   | ReaderInlineFragment
   | ReaderModuleImport;
 

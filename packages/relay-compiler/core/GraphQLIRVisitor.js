@@ -18,6 +18,7 @@ import type {
   Directive,
   Fragment,
   FragmentSpread,
+  InlineDataFragmentSpread,
   InlineFragment,
   LinkedField,
   Literal,
@@ -42,6 +43,7 @@ const NodeKeys = {
   Directive: ['args'],
   Fragment: ['argumentDefinitions', 'directives', 'selections'],
   FragmentSpread: ['args', 'directives'],
+  InlineDataFragmentSpread: ['selections'],
   InlineFragment: ['directives', 'selections'],
   LinkedField: ['args', 'directives', 'selections'],
   Literal: [],
@@ -64,11 +66,12 @@ export type VisitNode =
   | Directive
   | Fragment
   | FragmentSpread
+  | InlineDataFragmentSpread
   | InlineFragment
   | LinkedField
-  | ModuleImport
   | Literal
   | LocalArgumentDefinition
+  | ModuleImport
   | Request
   | Root
   | RootArgumentDefinition
@@ -123,6 +126,7 @@ export type NodeVisitor =
       Directive?: NodeVisitorObject<Directive>,
       Fragment?: NodeVisitorObject<Fragment>,
       FragmentSpread?: NodeVisitorObject<FragmentSpread>,
+      InlineDataFragmentSpread?: NodeVisitorObject<InlineDataFragmentSpread>,
       InlineFragment?: NodeVisitorObject<InlineFragment>,
       LinkedField?: NodeVisitorObject<LinkedField>,
       Literal?: NodeVisitorObject<Literal>,

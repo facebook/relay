@@ -18,6 +18,7 @@ const {
   CONDITION,
   CLIENT_EXTENSION,
   FRAGMENT_SPREAD,
+  INLINE_DATA_FRAGMENT_SPREAD,
   INLINE_FRAGMENT,
   LINKED_FIELD,
   MODULE_IMPORT,
@@ -37,6 +38,7 @@ const {
 import type {
   ReaderFragment,
   ReaderFragmentSpread,
+  ReaderInlineDataFragmentSpread,
   ReaderLinkedField,
   ReaderModuleImport,
   ReaderNode,
@@ -159,6 +161,9 @@ class RelayReader {
           break;
         case MODULE_IMPORT:
           this._readModuleImport(selection, record, data);
+          break;
+        case INLINE_DATA_FRAGMENT_SPREAD:
+          this._createInlineDataFragmentPointer(selection, record, data);
           break;
         case CLIENT_EXTENSION:
           const isMissingData = this._isMissingData;
@@ -338,6 +343,15 @@ class RelayReader {
       ? getArgumentValues(fragmentSpread.args, this._variables)
       : {};
     data[FRAGMENT_OWNER_KEY] = this._owner;
+  }
+
+  _createInlineDataFragmentPointer(
+    inlineDataFragmentSpread: ReaderInlineDataFragmentSpread,
+    record: Record,
+    data: SelectorData,
+  ): void {
+    // TODO T29705355 implement runtime support for @inline
+    throw new Error('@inline is not yet supported at runtime.');
   }
 }
 

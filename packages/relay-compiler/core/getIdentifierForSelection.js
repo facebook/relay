@@ -40,6 +40,8 @@ function getIdentifierForSelection(node: Selection): string {
     return 'InlineFragment:' + node.typeCondition.name;
   } else if (node.kind === 'ClientExtension') {
     return 'ClientExtension:';
+  } else if (node.kind === 'InlineDataFragmentSpread') {
+    return 'InlineDataFragment:' + node.name;
   } else if (node.kind === 'Condition') {
     return (
       'Condition:' +

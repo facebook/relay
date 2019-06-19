@@ -25,6 +25,7 @@ import type {
   Directive,
   Fragment,
   FragmentSpread,
+  InlineDataFragmentSpread,
   InlineFragment,
   IR,
   LinkedField,
@@ -61,6 +62,7 @@ type NodeVisitor<S> = {|
   ObjectValue?: NodeVisitorFunction<ObjectValue, S>,
   Request?: NodeVisitorFunction<Request, S>,
   Root?: NodeVisitorFunction<Root, S>,
+  InlineDataFragmentSpread?: NodeVisitorFunction<InlineDataFragmentSpread, S>,
   RootArgumentDefinition?: NodeVisitorFunction<RootArgumentDefinition, S>,
   ScalarField?: NodeVisitorFunction<ScalarField, S>,
   SplitOperation?: NodeVisitorFunction<SplitOperation, S>,
@@ -172,6 +174,9 @@ class Validator<S> {
       case 'FragmentSpread':
       case 'ScalarField':
         this._traverseChildren(prevNode, ['args', 'directives']);
+        break;
+      case 'InlineDataFragmentSpread':
+        this._traverseChildren(prevNode, ['selections']);
         break;
       case 'LinkedField':
         this._traverseChildren(prevNode, ['args', 'directives', 'selections']);

@@ -32,6 +32,7 @@ import type {
   ReaderArgumentDefinition,
   ReaderField,
   ReaderFragment,
+  ReaderInlineDataFragmentSpread,
   ReaderLinkedField,
   ReaderModuleImport,
   ReaderScalarField,
@@ -104,6 +105,8 @@ function generateSelections(
           return generateScalarField(selection);
         case 'ModuleImport':
           return generateModuleImport(selection);
+        case 'InlineDataFragmentSpread':
+          return generateInlineDataFragmentSpread(selection);
         case 'InlineFragment':
           return generateInlineFragment(selection);
         case 'LinkedField':
@@ -182,6 +185,16 @@ function generateInlineFragment(node): ReaderSelection {
   return {
     kind: 'InlineFragment',
     type: node.typeCondition.toString(),
+    selections: generateSelections(node.selections),
+  };
+}
+
+function generateInlineDataFragmentSpread(
+  node,
+): ReaderInlineDataFragmentSpread {
+  return {
+    kind: 'InlineDataFragmentSpread',
+    name: node.name,
     selections: generateSelections(node.selections),
   };
 }

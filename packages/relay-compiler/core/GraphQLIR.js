@@ -116,6 +116,14 @@ export type Stream = {|
   +initialCount: ArgumentValue,
 |};
 
+export type InlineDataFragmentSpread = {|
+  +kind: 'InlineDataFragmentSpread',
+  +loc: Location,
+  +metadata: Metadata,
+  +name: string,
+  +selections: $ReadOnlyArray<Selection>,
+|};
+
 export type IR =
   | Argument
   | ClientExtension
@@ -138,6 +146,7 @@ export type IR =
   | ScalarField
   | SplitOperation
   | Stream
+  | InlineDataFragmentSpread
   | Variable;
 
 export type RootArgumentDefinition = {|
@@ -227,6 +236,7 @@ export type Node =
   | Condition
   | Defer
   | Fragment
+  | InlineDataFragmentSpread
   | InlineFragment
   | LinkedField
   | ModuleImport
@@ -298,6 +308,7 @@ export type Selection =
   | LinkedField
   | ModuleImport
   | ScalarField
+  | InlineDataFragmentSpread
   | Stream;
 
 export type Definition = Fragment | Root | SplitOperation;

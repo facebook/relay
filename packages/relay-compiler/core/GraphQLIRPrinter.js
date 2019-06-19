@@ -165,6 +165,12 @@ function printSelection(
     str += parentDirectives;
     str += printFragmentArguments(selection.args);
     str += printDirectives(selection.directives);
+  } else if (selection.kind === 'InlineDataFragmentSpread') {
+    str =
+      `# ${selection.name} @inline` +
+      `\n${indent}${INDENT}...` +
+      parentDirectives +
+      printSelections(selection, indent + INDENT);
   } else if (selection.kind === 'Condition') {
     const value = printValue(selection.condition);
     // For Flow

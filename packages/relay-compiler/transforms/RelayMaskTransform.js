@@ -92,6 +92,14 @@ function visitFragmentSpread(
     typeCondition: fragment.type,
   };
 
+  if (fragment.directives.length > 0) {
+    throw new createUserError(
+      'Cannot use @relay(mask: false) on fragment spreads for fragments ' +
+        'with directives.',
+      [fragmentSpread.loc, fragment.directives[0].loc],
+    );
+  }
+
   const localArgDef = fragment.argumentDefinitions.find(
     argDef => argDef.kind === 'LocalArgumentDefinition',
   );

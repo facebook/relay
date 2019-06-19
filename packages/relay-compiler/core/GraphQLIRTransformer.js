@@ -39,6 +39,7 @@ import type {
   RootArgumentDefinition,
   ScalarField,
   SplitOperation,
+  InlineDataFragmentSpread,
   Stream,
   Variable,
 } from './GraphQLIR';
@@ -61,6 +62,7 @@ type NodeVisitor<S> = {|
   ObjectValue?: NodeVisitorFunction<ObjectValue, S>,
   Request?: NodeVisitorFunction<Request, S>,
   Root?: NodeVisitorFunction<Root, S>,
+  InlineDataFragmentSpread?: NodeVisitorFunction<InlineDataFragmentSpread, S>,
   RootArgumentDefinition?: NodeVisitorFunction<RootArgumentDefinition, S>,
   ScalarField?: NodeVisitorFunction<ScalarField, S>,
   SplitOperation?: NodeVisitorFunction<SplitOperation, S>,
@@ -248,6 +250,9 @@ class Transformer<S> {
       case 'FragmentSpread':
       case 'ScalarField':
         nextNode = this._traverseChildren(prevNode, ['args', 'directives']);
+        break;
+      case 'InlineDataFragmentSpread':
+        nextNode = this._traverseChildren(prevNode, ['selections']);
         break;
       case 'LinkedField':
         nextNode = this._traverseChildren(prevNode, [

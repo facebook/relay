@@ -33,6 +33,12 @@ declare function generate(node: SplitOperation): NormalizationSplitOperation;
 function generate(node: Fragment | Request | SplitOperation): any {
   switch (node.kind) {
     case 'Fragment':
+      if (node.metadata?.inlineData === true) {
+        return {
+          kind: 'InlineDataFragment',
+          name: node.name,
+        };
+      }
       return ReaderCodeGenerator.generate(node);
     case 'Request':
       return {

@@ -91,6 +91,7 @@ function generateSelections(
   const normalizationSelections: Array<NormalizationSelection> = [];
   selections.forEach(selection => {
     switch (selection.kind) {
+      case 'InlineDataFragmentSpread':
       case 'FragmentSpread':
         // TODO(T37646905) enable this invariant after splitting the
         // RelayCodeGenerator-test and running the InlineFragmentsTransform on

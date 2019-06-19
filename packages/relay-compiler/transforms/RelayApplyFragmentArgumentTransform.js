@@ -242,6 +242,7 @@ function transformSelections(
     let nextSelection;
     if (
       selection.kind === 'ClientExtension' ||
+      selection.kind === 'InlineDataFragmentSpread' ||
       selection.kind === 'InlineFragment' ||
       selection.kind === 'ModuleImport'
     ) {

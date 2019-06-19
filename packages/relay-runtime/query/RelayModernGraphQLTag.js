@@ -18,6 +18,7 @@ import type {
   ReaderFragment,
   ReaderRefetchableFragment,
   ReaderPaginationFragment,
+  ReaderInlineDataFragment,
 } from '../util/ReaderNode';
 import type {ConcreteRequest} from '../util/RelayConcreteNode';
 
@@ -77,6 +78,15 @@ function isRequest(node: GraphQLTaggedNode): boolean {
   );
 }
 
+function isInlineDataFragment(node: GraphQLTaggedNode): boolean {
+  const fragment = getNode(node);
+  return (
+    typeof fragment === 'object' &&
+    fragment !== null &&
+    fragment.kind === RelayConcreteNode.INLINE_DATA_FRAGMENT
+  );
+}
+
 function getFragment(taggedNode: GraphQLTaggedNode): ReaderFragment {
   const fragment = getNode(taggedNode);
   invariant(
@@ -125,12 +135,26 @@ function getRequest(taggedNode: GraphQLTaggedNode): ConcreteRequest {
   return (request: any);
 }
 
+function getInlineDataFragment(
+  taggedNode: GraphQLTaggedNode,
+): ReaderInlineDataFragment {
+  const fragment = getNode(taggedNode);
+  invariant(
+    isInlineDataFragment(fragment),
+    'RelayModernGraphQLTag: Expected an inline data fragment, got `%s`.',
+    JSON.stringify(fragment),
+  );
+  return (fragment: any);
+}
+
 module.exports = {
   getFragment,
   getPaginationFragment,
   getRefetchableFragment,
   getRequest,
+  getInlineDataFragment,
   graphql,
   isFragment,
   isRequest,
+  isInlineDataFragment,
 };

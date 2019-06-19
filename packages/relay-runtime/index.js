@@ -218,6 +218,7 @@ module.exports = {
   getModuleComponentKey: RelayStoreUtils.getModuleComponentKey,
   getModuleOperationKey: RelayStoreUtils.getModuleOperationKey,
   getRefetchableFragment: RelayModernGraphQLTag.getRefetchableFragment,
+  getInlineDataFragment: RelayModernGraphQLTag.getInlineDataFragment,
   getRequest: RelayModernGraphQLTag.getRequest,
   getSingularSelector: RelayCore.getSingularSelector,
   getPluralSelector: RelayCore.getPluralSelector,

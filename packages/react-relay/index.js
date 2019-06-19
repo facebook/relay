@@ -17,6 +17,8 @@ const ReactRelayQueryRenderer = require('./ReactRelayQueryRenderer');
 const ReactRelayRefetchContainer = require('./ReactRelayRefetchContainer');
 const RelayRuntime = require('relay-runtime');
 
+const readInlineData = require('./readInlineData');
+
 export type {
   $FragmentRef,
   RelayFragmentContainer,
@@ -63,4 +65,5 @@ module.exports = {
   fetchQuery: RelayRuntime.fetchQuery,
   graphql: RelayRuntime.graphql,
   requestSubscription: RelayRuntime.requestSubscription,
+  readInlineData_EXPERIMENTAL: readInlineData,
 };

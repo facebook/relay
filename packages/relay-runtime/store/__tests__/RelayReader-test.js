@@ -32,6 +32,7 @@ describe('RelayReader', () => {
         firstName: 'Alice',
         'friends(first:3)': {__ref: 'client:1'},
         'profilePicture(size:32)': {__ref: 'client:4'},
+        'profilePicture(size:80)': {__ref: 'client:5'},
       },
       '2': {
         __id: '2',
@@ -67,7 +68,12 @@ describe('RelayReader', () => {
       'client:4': {
         __id: 'client:4',
         __typename: 'Photo',
-        uri: 'https://...',
+        uri: 'https://example.com/32.png',
+      },
+      'client:5': {
+        __id: 'client:5',
+        __typename: 'Photo',
+        uri: 'https://example.com/80.png',
       },
       'client:root': {
         __id: 'client:root',
@@ -138,7 +144,7 @@ describe('RelayReader', () => {
           ],
         },
         profilePicture: {
-          uri: 'https://...',
+          uri: 'https://example.com/32.png',
         },
       },
     });
@@ -203,7 +209,7 @@ describe('RelayReader', () => {
         ],
       },
       profilePicture: {
-        uri: 'https://...',
+        uri: 'https://example.com/32.png',
       },
     });
     expect(Object.keys(seenRecords)).toEqual([
@@ -329,6 +335,136 @@ describe('RelayReader', () => {
       __fragmentOwner: null,
     });
     expect(Object.keys(seenRecords)).toEqual(['1']);
+  });
+
+  describe('@inline', () => {
+    it('reads a basic fragment', () => {
+      const {UserProfile} = generateAndCompile(`
+        fragment UserProfile on User  {
+          id
+          ...UserProfilePicture
+        }
+        fragment UserProfilePicture on User @inline {
+          profilePicture(size: 32) {
+            uri
+          }
+        }
+      `);
+      const {data, seenRecords} = read(source, {
+        dataID: '1',
+        node: UserProfile,
+        variables: {},
+      });
+      expect(data).toEqual({
+        id: '1',
+        __id: '1',
+        __fragments: {
+          UserProfilePicture: {
+            profilePicture: {uri: 'https://example.com/32.png'},
+          },
+        },
+      });
+      expect(Object.keys(seenRecords)).toEqual(['1', 'client:4']);
+    });
+
+    // it('uses global variables', () => {
+    //   const {UserProfile} = generateAndCompile(`
+    //     fragment UserProfile on User  {
+    //       id
+    //       ...UserProfilePicture
+    //     }
+    //     fragment UserProfilePicture on User @inline {
+    //       profilePicture(size: $globalSize) {
+    //         uri
+    //       }
+    //     }
+    //   `);
+    //   const {data, seenRecords} = read(source, {
+    //     dataID: '1',
+    //     node: UserProfile,
+    //     variables: {
+    //       globalSize: 32,
+    //     },
+    //   });
+    //   expect(data).toEqual({
+    //     id: '1',
+    //     __id: '1',
+    //     __fragments: {
+    //       UserProfilePicture: {
+    //         profilePicture: {uri: 'https://example.com/32.png'},
+    //       },
+    //     },
+    //   });
+    //   expect(Object.keys(seenRecords)).toEqual(['1', 'client:4']);
+    // });
+
+    // it('creates inline data fragment pointers', () => {
+    //   const {UserProfile} = generateAndCompile(`
+    //     fragment UserProfile on User @argumentDefinitions(
+    //       globalSize: {type: "[Int]"}
+    //     ) {
+    //       id
+    //       ...UserProfilePicture # @arguments(argSize: $globalSize)
+    //     }
+    //
+    //     fragment UserProfilePicture on User @inline @argumentDefinitions(
+    //       argSize: {type: "[Int]"}
+    //     ) {
+    //       profilePicture(size: $argSize) {
+    //         uri
+    //       }
+    //     }
+    //   `);
+    //
+    //   const {data, seenRecords} = read(source, {
+    //     dataID: '1',
+    //     node: UserProfile,
+    //     variables: {
+    //       globalSize: 32
+    //     },
+    //   });
+    //   expect(data).toEqual({
+    //     id: '1',
+    //     __id: '1',
+    //     __fragments: {
+    //       UserProfilePicture: {
+    //         profilePicture: {uri: 'https://example.com/32.png'},
+    //       },
+    //     },
+    //   });
+    //   expect(Object.keys(seenRecords)).toEqual(['1', 'client:4']);
+    // });
+
+    // test('@inline works with default arguments', () => {
+    //   const {UserProfile} = generateAndCompile(`
+    //     fragment UserProfile on User {
+    //       ...UserProfilePicture
+    //     }
+    //
+    //     fragment UserProfilePicture on User @inline @argumentDefinitions(
+    //       size: {type: "[Int]", defaultValue: 32}
+    //     ) {
+    //       profilePicture(size: 32) {
+    //         uri
+    //       }
+    //     }
+    //   `);
+    //
+    //   const {data, seenRecords} = read(source, {
+    //     dataID: '1',
+    //     node: UserProfile,
+    //     variables: {},
+    //   });
+    //   expect(data).toEqual({
+    //     __id: '1',
+    //     __fragments: {
+    //       UserProfilePicture: {
+    //         profilePicture: {uri: 'https://example.com/32.png'},
+    //       },
+    //     },
+    //   });
+    //   expect(Object.keys(seenRecords)).toEqual(['1', 'client:4']);
+    // });
   });
 
   it('reads data when the root is deleted', () => {
@@ -946,7 +1082,7 @@ describe('RelayReader', () => {
             size: 32,
           },
         });
-        expect(data.profilePicture.uri).toEqual('https://...');
+        expect(data.profilePicture.uri).toEqual('https://example.com/32.png');
         expect(isMissingData).toBe(false);
       });
 

@@ -24,6 +24,7 @@ const {
   MODULE_IMPORT,
   SCALAR_FIELD,
 } = require('../util/RelayConcreteNode');
+const {getFragmentVariables} = require('./RelayConcreteVariables');
 const {
   FRAGMENTS_KEY,
   FRAGMENT_OWNER_KEY,
@@ -329,16 +330,14 @@ class RelayReader {
       fragmentPointers = data[FRAGMENTS_KEY] = {};
     }
     invariant(
-      typeof fragmentPointers === 'object' && fragmentPointers,
+      typeof fragmentPointers === 'object' && fragmentPointers != null,
       'RelayReader: Expected fragment spread data to be an object, got `%s`.',
       fragmentPointers,
     );
     if (data[ID_KEY] == null) {
       data[ID_KEY] = RelayModernRecord.getDataID(record);
     }
-    /* $FlowFixMe(>=0.98.0 site=www,mobile,react_native_fb,oss) This comment
-     * suppresses an error found when Flow v0.98 was deployed. To see the error
-     * delete this comment and run Flow. */
+    // $FlowFixMe - writing into read-only field
     fragmentPointers[fragmentSpread.name] = fragmentSpread.args
       ? getArgumentValues(fragmentSpread.args, this._variables)
       : {};
@@ -350,8 +349,26 @@ class RelayReader {
     record: Record,
     data: SelectorData,
   ): void {
-    // TODO T29705355 implement runtime support for @inline
-    throw new Error('@inline is not yet supported at runtime.');
+    let fragmentPointers = data[FRAGMENTS_KEY];
+    if (fragmentPointers == null) {
+      fragmentPointers = data[FRAGMENTS_KEY] = {};
+    }
+    invariant(
+      typeof fragmentPointers === 'object' && fragmentPointers != null,
+      'RelayReader: Expected fragment spread data to be an object, got `%s`.',
+      fragmentPointers,
+    );
+    if (data[ID_KEY] == null) {
+      data[ID_KEY] = RelayModernRecord.getDataID(record);
+    }
+    const inlineData = {};
+    this._traverseSelections(
+      inlineDataFragmentSpread.selections,
+      record,
+      inlineData,
+    );
+    // $FlowFixMe - writing into read-only field
+    fragmentPointers[inlineDataFragmentSpread.name] = inlineData;
   }
 }
 

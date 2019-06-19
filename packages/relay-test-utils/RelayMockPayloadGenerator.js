@@ -354,6 +354,77 @@ class RelayMockPayloadGenerator {
   }
 
   /**
+   * Generate default enum value
+   * @private
+   */
+  _getCorrectDefaultEnum(
+    enumValues: $ReadOnlyArray<string> | null,
+    value: mixed | Array<mixed>,
+    path: $ReadOnlyArray<string>,
+    applicationName: string,
+  ) {
+    if (enumValues == null) {
+      return value;
+    }
+
+    const enumValuesNormalized = enumValues.map(s => s.toUpperCase());
+
+    if (Array.isArray(value)) {
+      // Let's validate the correctness of the provided enum value
+      // We will throw if value provided by mock resolvers is invalid
+      const correctValues = value.filter(v => enumValuesNormalized.includes(v));
+
+      if (correctValues.length !== value.length) {
+        invariant(
+          false,
+          'RelayMockPayloadGenerator: Invalid value "%s" provided for enum ' +
+            'field "%s" via MockResolver.' +
+            'Expected one of the following values: %s.',
+          value,
+          `${path.join('.')}.${applicationName}`,
+          enumValues.map(v => `"${v}"`).join(', '),
+        );
+      }
+    } else {
+      // Let's validate the correctness of the provided enum value
+      // We will throw if value provided by mock resolvers is invalid
+      if (
+        !enumValuesNormalized
+          .includes(String(value).toUpperCase())
+      ) {
+        invariant(
+          false,
+          'RelayMockPayloadGenerator: Invalid value "%s" provided for enum ' +
+            'field "%s" via MockResolver.' +
+            'Expected one of the following values: %s.',
+          String(value),
+          `${path.join('.')}.${applicationName}`,
+          enumValues.map(v => `"${v}"`).join(', '),
+        );
+      }
+    }
+
+    // But missing case should be acceptable, we will just use
+    // a correct spelling from enumValues
+    if (value !== undefined) {
+      if (Array.isArray(value)) {
+        return value.map(v => {
+          const correctSpellingEnumIndex = enumValues
+          .map(s => s.toUpperCase())
+          .indexOf(String(v).toUpperCase());
+
+          return enumValues[correctSpellingEnumIndex];
+        });
+      } else {
+        const correctSpellingEnumIndex = enumValues
+          .map(s => s.toUpperCase())
+          .indexOf(String(value).toUpperCase());
+        return enumValues[correctSpellingEnumIndex];
+      }
+    }
+  }
+
+  /**
    * Generate mock value for a scalar field in the selection
    */
   _mockScalar(
@@ -391,61 +462,7 @@ class RelayMockPayloadGenerator {
     ) {
       value = defaultValues[applicationName];
 
-      if (Array.isArray(value) && enumValues !== null) {
-        const enumValuesNormalized = enumValues.map(s => s.toUpperCase());
-
-        const correctValues = value.filter(v => enumValuesNormalized.includes(v));
-
-        if (correctValues.length !== value.length) {
-          invariant(
-            false,
-            'RelayMockPayloadGenerator: Invalid value "%s" provided for enum ' +
-              'field "%s" via MockResolver.' +
-              'Expected one of the following values: %s.',
-            value,
-            `${path.join('.')}.${applicationName}`,
-            enumValues.map(v => `"${v}"`).join(', '),
-          );
-        }
-      } else {
-        // Let's validate the correctness of the provided enum value
-        // We will throw if value provided by mock resolvers is invalid
-        if (
-          enumValues !== null &&
-          !enumValues
-            .map(s => s.toUpperCase())
-            .includes(String(value).toUpperCase())
-        ) {
-          invariant(
-            false,
-            'RelayMockPayloadGenerator: Invalid value "%s" provided for enum ' +
-              'field "%s" via MockResolver.' +
-              'Expected one of the following values: %s.',
-            String(value),
-            `${path.join('.')}.${applicationName}`,
-            enumValues.map(v => `"${v}"`).join(', '),
-          );
-        }
-      }
-
-      // But missing case should be acceptable, we will just use
-      // a correct spelling from enumValues
-      if (enumValues !== null && value !== undefined) {
-        if (Array.isArray(value)) {
-          value = value.map(v => {
-            const correctSpellingEnumIndex = enumValues
-            .map(s => s.toUpperCase())
-            .indexOf(String(v).toUpperCase());
-
-            return enumValues[correctSpellingEnumIndex];
-          });
-        } else {
-          const correctSpellingEnumIndex = enumValues
-            .map(s => s.toUpperCase())
-            .indexOf(String(value).toUpperCase());
-          value = enumValues[correctSpellingEnumIndex];
-        }
-      }
+      value = this._getCorrectDefaultEnum(enumValues, value, path, applicationName);
 
       // And if it's a plural field, we need to return an array
       if (value !== undefined && plural && !Array.isArray(value)) {

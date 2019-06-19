@@ -499,6 +499,30 @@ describe('ReactRelayFragmentContainer', () => {
     expect(environment.subscribe).not.toBeCalled();
   });
 
+  test('throw for @inline fragments', () => {
+    const {InlineUserFragment} = generateAndCompile(`
+      fragment InlineUserFragment on User @inline {
+        id
+      }
+    `);
+    const TestContainer = ReactRelayFragmentContainer.createContainer(
+      () => <div />,
+      {
+        user: () => InlineUserFragment,
+      },
+    );
+    expect(() =>
+      ReactTestRenderer.create(
+        <ContextSetter environment={environment} variables={{}}>
+          <TestContainer user={null} />
+        </ContextSetter>,
+      ),
+    ).toThrow(
+      'RelayModernGraphQLTag: Expected a fragment, got ' +
+        '`{"kind":"InlineDataFragment","name":"InlineUserFragment"}`.',
+    );
+  });
+
   it('does not proxy instance methods', () => {
     class TestNoProxy extends React.Component {
       render() {

@@ -358,12 +358,12 @@ class RelayMockPayloadGenerator {
    * @private
    */
   _getCorrectDefaultEnum(
-    enumValues: $ReadOnlyArray<string> | null,
+    enumValues: $ReadOnlyArray<string>,
     value: mixed | Array<mixed>,
     path: $ReadOnlyArray<string>,
     applicationName: string,
   ) {
-    if (enumValues == null || value === undefined) {
+    if (value === undefined) {
       return value;
     }
 
@@ -437,7 +437,9 @@ class RelayMockPayloadGenerator {
     ) {
       value = defaultValues[applicationName];
 
-      value = this._getCorrectDefaultEnum(enumValues, value, path, applicationName);
+      if (enumValues != null) {
+        value = this._getCorrectDefaultEnum(enumValues, value, path, applicationName);
+      }
 
       // And if it's a plural field, we need to return an array
       if (value !== undefined && plural && !Array.isArray(value)) {

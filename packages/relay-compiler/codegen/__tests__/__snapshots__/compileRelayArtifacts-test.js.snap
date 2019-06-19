@@ -4898,8 +4898,7 @@ fragment NodeFragment on Node {
 
 exports[`compileRelayArtifacts matches expected output: fragment-with-defer-on-client.invalid.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
-# TODO: validate that @defer is not used on a fragment on a client type
-# should be expected to throw
+# expected-to-throw
 query QueryWithFragmentWithDefer {
   me {
     id
@@ -4923,170 +4922,23 @@ interface ClientUser {
 }
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
-{
-  "kind": "Request",
-  "fragment": {
-    "kind": "Fragment",
-    "name": "QueryWithFragmentWithDefer",
-    "type": "Query",
-    "metadata": null,
-    "argumentDefinitions": [],
-    "selections": [
-      {
-        "kind": "LinkedField",
-        "alias": null,
-        "name": "me",
-        "storageKey": null,
-        "args": null,
-        "concreteType": "User",
-        "plural": false,
-        "selections": [
-          {
-            "kind": "ScalarField",
-            "alias": null,
-            "name": "id",
-            "args": null,
-            "storageKey": null
-          },
-          {
-            "kind": "FragmentSpread",
-            "name": "UserFragment",
-            "args": null
-          }
-        ]
-      }
-    ]
-  },
-  "operation": {
-    "kind": "Operation",
-    "name": "QueryWithFragmentWithDefer",
-    "argumentDefinitions": [],
-    "selections": [
-      {
-        "kind": "LinkedField",
-        "alias": null,
-        "name": "me",
-        "storageKey": null,
-        "args": null,
-        "concreteType": "User",
-        "plural": false,
-        "selections": [
-          {
-            "kind": "ScalarField",
-            "alias": null,
-            "name": "id",
-            "args": null,
-            "storageKey": null
-          },
-          {
-            "kind": "ScalarField",
-            "alias": null,
-            "name": "emailAddresses",
-            "args": null,
-            "storageKey": null
-          },
-          {
-            "if": null,
-            "kind": "Defer",
-            "label": "UserFragment$defer$DeferredFragmentLabel",
-            "metadata": null,
-            "selections": [
-              {
-                "kind": "ClientExtension",
-                "selections": [
-                  {
-                    "kind": "InlineFragment",
-                    "type": "ClientUser",
-                    "selections": [
-                      {
-                        "kind": "ScalarField",
-                        "alias": null,
-                        "name": "clientname",
-                        "args": null,
-                        "storageKey": null
-                      }
-                    ]
-                  }
-                ]
-              }
-            ]
-          }
-        ]
-      }
-    ]
-  }
-}
+THROWN EXCEPTION:
 
-QUERY:
-
-query QueryWithFragmentWithDefer {
-  me {
-    id
-    ...UserFragment
-  }
-}
-
-fragment UserFragment on User {
-  id
-  emailAddresses
-}
-
-
-{
-  "kind": "Fragment",
-  "name": "UserFragment",
-  "type": "User",
-  "metadata": null,
-  "argumentDefinitions": [],
-  "selections": [
-    {
-      "kind": "ScalarField",
-      "alias": null,
-      "name": "id",
-      "args": null,
-      "storageKey": null
-    },
-    {
-      "kind": "ScalarField",
-      "alias": null,
-      "name": "emailAddresses",
-      "args": null,
-      "storageKey": null
-    },
-    {
-      "kind": "ClientExtension",
-      "selections": [
-        {
-          "kind": "FragmentSpread",
-          "name": "DeferredFragment",
-          "args": null
-        }
-      ]
-    }
-  ]
-}
-
-{
-  "kind": "Fragment",
-  "name": "DeferredFragment",
-  "type": "ClientUser",
-  "metadata": null,
-  "argumentDefinitions": [],
-  "selections": [
-    {
-      "kind": "ClientExtension",
-      "selections": [
-        {
-          "kind": "ScalarField",
-          "alias": null,
-          "name": "clientname",
-          "args": null,
-          "storageKey": null
-        }
-      ]
-    }
-  ]
-}
+Error: Encountered 1 error(s):
+- Unexpected directive: @defer. This directive can only be used on fields/fragments that are fetched from the server schema, but it is used inside a client-only selection.
+  
+  Source (derived): GraphQL request (12:23)
+  11:   emailAddresses
+  12:   ...DeferredFragment @defer(label: "DeferredFragmentLabel")
+                            ^
+  13: }
+  
+  Source (derived): GraphQL request (12:3)
+  11:   emailAddresses
+  12:   ...DeferredFragment @defer(label: "DeferredFragmentLabel")
+        ^
+  13: }
+  
 `;
 
 exports[`compileRelayArtifacts matches expected output: fragment-with-match-directive.graphql 1`] = `

@@ -1,5 +1,4 @@
-# TODO: validate that @stream is not a client field
-# should be expected to throw
+# expected-to-throw
 query QueryWithFragmentWithStream($id: ID!) {
   node(id: $id) {
     id

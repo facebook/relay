@@ -30,8 +30,7 @@ PASSED
 
 exports[`ValidateRelayServerOnlyDirectives matches expected output: fragment-with-defer-on-client.invalid.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
-# TODO: validate that @defer is not used on a fragment on a client type
-# should be expected to throw
+# expected-to-throw
 query QueryWithFragmentWithDefer {
   me {
     id
@@ -55,7 +54,61 @@ interface ClientUser {
 }
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
-PASSED
+THROWN EXCEPTION:
+
+Error: Encountered 1 error(s):
+- Unexpected directive: @defer. This directive can only be used on fields/fragments that are fetched from the server schema, but it is used inside a client-only selection.
+  
+  Source (derived): GraphQL request (12:23)
+  11:   emailAddresses
+  12:   ...DeferredFragment @defer(label: "DeferredFragmentLabel")
+                            ^
+  13: }
+  
+  Source (derived): GraphQL request (12:3)
+  11:   emailAddresses
+  12:   ...DeferredFragment @defer(label: "DeferredFragmentLabel")
+        ^
+  13: }
+  
+`;
+
+exports[`ValidateRelayServerOnlyDirectives matches expected output: fragment-with-defer-on-fragment-with-only-client-fields.invalid.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+# expected-to-throw
+query QueryWithFragmentWithDefer {
+  me {
+    id
+    ...UserFragment @defer(label: "DeferredFragmentLabel")
+  }
+}
+
+fragment UserFragment on User {
+  clientField
+}
+
+extend type User {
+  clientField: String
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+THROWN EXCEPTION:
+
+Error: Encountered 1 error(s):
+- Unexpected directive: @defer. This directive can only be used on fields/fragments that are fetched from the server schema, but it is used inside a client-only selection.
+  
+  Source (derived): GraphQL request (5:21)
+  4:     id
+  5:     ...UserFragment @defer(label: "DeferredFragmentLabel")
+                         ^
+  6:   }
+  
+  Source: GraphQL request (10:3)
+   9: fragment UserFragment on User {
+  10:   clientField
+        ^
+  11: }
+  
 `;
 
 exports[`ValidateRelayServerOnlyDirectives matches expected output: fragment-with-stream-child-of-client.invalid.graphql 1`] = `
@@ -116,8 +169,7 @@ Error: Encountered 1 error(s):
 
 exports[`ValidateRelayServerOnlyDirectives matches expected output: fragment-with-stream-on-client.invalid.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
-# TODO: validate that @stream is not a client field
-# should be expected to throw
+# expected-to-throw
 query QueryWithFragmentWithStream($id: ID!) {
   node(id: $id) {
     id
@@ -142,7 +194,23 @@ type Foo {
 }
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
-PASSED
+THROWN EXCEPTION:
+
+Error: Encountered 1 error(s):
+- Unexpected directive: @stream. This directive can only be used on fields/fragments that are fetched from the server schema, but it is used inside a client-only selection.
+  
+  Source (derived): GraphQL request (11:8)
+  10:   id
+  11:   foos @stream(initial_count: 1, label: "StreamedActorsLabel") {
+             ^
+  12:     bar
+  
+  Source: GraphQL request (11:3)
+  10:   id
+  11:   foos @stream(initial_count: 1, label: "StreamedActorsLabel") {
+        ^
+  12:     bar
+  
 `;
 
 exports[`ValidateRelayServerOnlyDirectives matches expected output: match.graphql 1`] = `

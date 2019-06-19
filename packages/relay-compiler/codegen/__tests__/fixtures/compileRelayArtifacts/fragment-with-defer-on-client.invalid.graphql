@@ -1,5 +1,4 @@
-# TODO: validate that @defer is not used on a fragment on a client type
-# should be expected to throw
+# expected-to-throw
 query QueryWithFragmentWithDefer {
   me {
     id

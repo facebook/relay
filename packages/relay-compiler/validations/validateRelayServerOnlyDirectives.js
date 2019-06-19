@@ -72,7 +72,17 @@ function visitTransformedDirective(
       state.rootClientSelection.loc,
     );
   }
-  // TODO: validate that @defer is not used on a fragment on a client type
+  // directive used only on client fields
+  if (node.selections.every(sel => sel.kind === 'ClientExtension')) {
+    const clientExtension = node.selections[0];
+    throwError(
+      `@${NODEKIND_DIRECTIVE_MAP[node.kind]}`,
+      node.loc,
+      clientExtension && clientExtension.kind === 'ClientExtension'
+        ? clientExtension.selections[0]?.loc
+        : null,
+    );
+  }
   this.traverse(node, state);
 }
 
@@ -82,7 +92,7 @@ function throwError(directiveName, directiveLoc, clientExtensionLoc) {
       'This directive can only be used on fields/fragments that are ' +
       'fetched from the server schema, but it is used ' +
       'inside a client-only selection.',
-    directiveLoc === clientExtensionLoc
+    clientExtensionLoc == null || directiveLoc === clientExtensionLoc
       ? [directiveLoc]
       : [directiveLoc, clientExtensionLoc],
   );

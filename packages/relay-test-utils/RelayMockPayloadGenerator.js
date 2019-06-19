@@ -389,8 +389,7 @@ class RelayMockPayloadGenerator {
     // But missing case should be acceptable, we will just use
     // a correct spelling from enumValues
     const correctSpellingValues = valueToValidate.map(v => {
-      const correctSpellingEnumIndex = enumValues
-        .map(s => s.toUpperCase())
+      const correctSpellingEnumIndex = enumValuesNormalized
         .indexOf(String(v).toUpperCase());
 
       return enumValues[correctSpellingEnumIndex];

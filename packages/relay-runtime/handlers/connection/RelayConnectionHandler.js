@@ -31,6 +31,7 @@ export type ConnectionMetadata = {
   direction: ?('forward' | 'backward' | 'bidirectional'),
   cursor: ?string,
   count: ?string,
+  stream?: boolean,
 };
 
 const CONNECTION = 'connection';

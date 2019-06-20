@@ -168,13 +168,17 @@ function visitLinkedField(field: LinkedField, options: Options): LinkedField {
   validateConnectionSelection(transformedField);
   validateConnectionType(transformedField, nullableType, connectionDirective);
 
-  const connectionMetadata = buildConnectionMetadata(transformedField, path);
-  options.connectionMetadata.push(connectionMetadata);
-
   const connectionArguments = buildConnectionArguments(
     transformedField,
     connectionDirective,
   );
+
+  const connectionMetadata = buildConnectionMetadata(
+    transformedField,
+    path,
+    connectionArguments,
+  );
+  options.connectionMetadata.push(connectionMetadata);
 
   const handle: Handle = {
     name: connectionArguments.handler ?? CONNECTION,
@@ -329,6 +333,7 @@ function buildConnectionArguments(
 function buildConnectionMetadata(
   field: LinkedField,
   path: Array<?string>,
+  connectionArguments: ConnectionArguments,
 ): ConnectionMetadata {
   const pathHasPlural = path.includes(null);
   const firstArg = findArg(field, FIRST);
@@ -356,6 +361,15 @@ function buildConnectionMetadata(
     cursorArg && cursorArg.value.kind === 'Variable'
       ? cursorArg.value.variableName
       : null;
+  if (connectionArguments.stream != null) {
+    return {
+      count: countVariable,
+      cursor: cursorVariable,
+      direction,
+      path: pathHasPlural ? null : (path: any),
+      stream: true,
+    };
+  }
   return {
     count: countVariable,
     cursor: cursorVariable,

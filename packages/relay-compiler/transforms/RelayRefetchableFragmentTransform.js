@@ -248,7 +248,11 @@ function extractConnectionMetadata(
         if (
           (field.handles &&
             field.handles.some(handle => handle.name === 'connection')) ||
-          field.directives.some(directive => directive.name === 'connection')
+          field.directives.some(
+            directive =>
+              directive.name === 'connection' ||
+              directive.name === 'stream_connection',
+          )
         ) {
           // Disallow multiple @connections
           if (connectionField != null) {

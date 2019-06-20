@@ -807,3 +807,69 @@ Error: RelayRefetchableFragmentTransform: Encountered 1 error(s):
   13:         node {
   
 `;
+
+exports[`RelayRefetchableFragmentTransform matches expected output: refetchable-fragment-with-connection-with-stream.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment PaginationFragment on Node
+  @refetchable(queryName: "RefetchableFragmentQuery")
+  @argumentDefinitions(
+    count: {type: "Int", defaultValue: 10}
+    cursor: {type: "ID"}
+  ) {
+  id
+  ... on User {
+    name
+    friends(after: $cursor, first: $count)
+      @stream_connection(key: "PaginationFragment_friends", initial_count: 1) {
+      edges {
+        node {
+          id
+        }
+      }
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+fragment PaginationFragment on Node @argumentDefinitions(
+  count: {type: "Int", defaultValue: 10}
+  cursor: {type: "ID"}
+) @refetchable(queryName: "RefetchableFragmentQuery") {
+  id
+  ... on User {
+    name
+    friends(after: $cursor, first: $count) @__clientField(handle: "connection", key: "PaginationFragment_friends") {
+      edges @stream(initial_count: 1, label: "PaginationFragment_friends") {
+        node {
+          id
+        }
+        ... on FriendsEdge {
+          cursor
+          node {
+            __typename
+          }
+        }
+      }
+      ... on FriendsConnection @defer(label: "PaginationFragment_friends$pageInfo") {
+        pageInfo {
+          ... on PageInfo {
+            endCursor
+            hasNextPage
+          }
+        }
+      }
+    }
+  }
+}
+
+query RefetchableFragmentQuery(
+  $count: Int = 10
+  $cursor: ID
+  $id: ID!
+) {
+  node(id: $id) {
+    ...PaginationFragment @arguments(count: $count, cursor: $cursor)
+  }
+}
+
+`;

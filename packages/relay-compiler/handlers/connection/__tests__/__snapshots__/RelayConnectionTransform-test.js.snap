@@ -1062,7 +1062,8 @@ query NodeQuery(
       "path": [
         "node",
         "comments"
-      ]
+      ],
+      "stream": true
     }
   ]
 }
@@ -1142,7 +1143,8 @@ query NodeQuery(
       "path": [
         "node",
         "comments"
-      ]
+      ],
+      "stream": true
     }
   ]
 }

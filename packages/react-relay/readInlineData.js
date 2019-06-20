@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @flow strict-local
+ * @flow
  * @format
  */
 
@@ -14,27 +14,32 @@ const invariant = require('invariant');
 
 const {getInlineDataFragment, FRAGMENTS_KEY} = require('relay-runtime');
 
-import type {$FragmentRef} from './ReactRelayTypes';
 import type {FragmentReference, GraphQLTaggedNode} from 'relay-runtime';
-
-// prettier-ignore
-type $InlineFragmentRef<T2> = $Call<
-  & (<TRef: FragmentReference, T: {+$refType: TRef}>(                 T ) =>                  $FragmentRef<T> )
-  & (<TRef: FragmentReference, T: {+$refType: TRef}>(?                T ) => ?                $FragmentRef<T> )
-  & (<TRef: FragmentReference, T: {+$refType: TRef}>( $ReadOnlyArray< T>) =>  $ReadOnlyArray< $FragmentRef<T>>)
-  & (<TRef: FragmentReference, T: {+$refType: TRef}>(?$ReadOnlyArray< T>) => ?$ReadOnlyArray< $FragmentRef<T>>)
-  & (<TRef: FragmentReference, T: {+$refType: TRef}>( $ReadOnlyArray<?T>) =>  $ReadOnlyArray<?$FragmentRef<T>>)
-  & (<TRef: FragmentReference, T: {+$refType: TRef}>(?$ReadOnlyArray<?T>) => ?$ReadOnlyArray<?$FragmentRef<T>>),
-  T2
->;
 
 /**
  * Reads an @inline data fragment that was spread into the parent fragment.
  */
-function readInlineData<TFragmentData: ?{+$refType: FragmentReference}>(
+
+declare function readInlineData<
+  TRef: FragmentReference,
+  TData,
+  TKey: {+$data?: TData, +$fragmentRefs: TRef},
+>(
   fragment: GraphQLTaggedNode,
-  fragmentRef: $InlineFragmentRef<TFragmentData>,
-): TFragmentData {
+  fragmentRef: TKey,
+): TData;
+declare function readInlineData<
+  TRef: FragmentReference,
+  TData,
+  TKey: ?{+$data?: TData, +$fragmentRefs: TRef},
+>(
+  fragment: GraphQLTaggedNode,
+  fragmentRef: null | void,
+): ?TData;
+function readInlineData(
+  fragment: GraphQLTaggedNode,
+  fragmentRef: mixed,
+): mixed {
   const inlineDataFragment = getInlineDataFragment(fragment);
   if (fragmentRef == null) {
     return fragmentRef;

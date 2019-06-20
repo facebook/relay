@@ -10,7 +10,6 @@
 'use strict';
 
 const getOutputForFixture = require('./getOutputForFixture');
-const invariant = require('invariant');
 const mapObject = require('mapObject');
 const parseGraphQLText = require('./parseGraphQLText');
 
@@ -18,7 +17,7 @@ import type {GraphQLSchema} from 'graphql';
 import type {RelayCompilerTransforms, IRTransform} from 'relay-compiler';
 import type {GeneratedNode} from 'relay-runtime';
 
-/* global expect,it */
+/* global expect,test */
 
 /**
  * Extend Jest with a custom snapshot serializer to provide additional context
@@ -195,29 +194,21 @@ function generateTestsFromFixtures(
 ): void {
   const fs = require('fs');
   const path = require('path');
-  it('matches expected output', async () => {
-    const tests = fs.readdirSync(fixturesPath).map(async file => {
-      const input = fs.readFileSync(path.join(fixturesPath, file), 'utf8');
-      const output = await getOutputForFixture(input, operation, file);
-      return {
-        file,
-        input,
-        output,
-      };
-    });
-    invariant(
-      tests.length > 0,
-      'generateTestsFromFixtures: No fixtures found at %s',
-      fixturesPath,
-    );
-    const results = await Promise.all(tests);
-    results.forEach(test => {
-      expect({
-        [FIXTURE_TAG]: true,
-        input: test.input,
-        output: test.output,
-      }).toMatchSnapshot(test.file);
-    });
+
+  const fixtures = fs.readdirSync(fixturesPath);
+
+  test(`has fixtures in ${fixturesPath}`, () => {
+    expect(fixtures.length > 0).toBe(true);
+  });
+
+  test.each(fixtures)('matches expected output: %s', async file => {
+    const input = fs.readFileSync(path.join(fixturesPath, file), 'utf8');
+    const output = await getOutputForFixture(input, operation, file);
+    expect({
+      [FIXTURE_TAG]: true,
+      input,
+      output,
+    }).toMatchSnapshot();
   });
 }
 

@@ -12,6 +12,7 @@
 
 const ReactRelayContext = require('./ReactRelayContext');
 const ReactRelayFragmentContainer = require('./ReactRelayFragmentContainer');
+const ReactRelayLocalQueryRenderer = require('./ReactRelayLocalQueryRenderer');
 const ReactRelayPaginationContainer = require('./ReactRelayPaginationContainer');
 const ReactRelayQueryRenderer = require('./ReactRelayQueryRenderer');
 const ReactRelayRefetchContainer = require('./ReactRelayRefetchContainer');
@@ -50,6 +51,7 @@ export type {
  */
 module.exports = {
   QueryRenderer: ReactRelayQueryRenderer,
+  LocalQueryRenderer: ReactRelayLocalQueryRenderer,
 
   MutationTypes: RelayRuntime.MutationTypes,
   RangeOperations: RelayRuntime.RangeOperations,

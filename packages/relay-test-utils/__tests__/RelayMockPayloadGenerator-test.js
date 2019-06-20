@@ -1283,6 +1283,28 @@ describe('with @relay_test_operation', () => {
     );
   });
 
+  test('generate mock for enum in arrays', () => {
+    testGeneratedData(
+      `
+        query TestQuery @relay_test_operation {
+          node(id: "my-id") {
+            ... on User {
+              id
+              traits
+            }
+          }
+        }
+      `,
+      {
+        User(context) {
+          return {
+            traits: ['CHEERFUL', 'DERISIVE'],
+          };
+        },
+      },
+    );
+  });
+
   test('generate mock with invalid value for enum', () => {
     expect(() => {
       testGeneratedData(

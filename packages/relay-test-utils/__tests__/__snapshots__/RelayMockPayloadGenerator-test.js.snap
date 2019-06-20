@@ -983,6 +983,32 @@ query TestQuery @relay_test_operation {
 }
 `;
 
+exports[`with @relay_test_operation generate mock for enum in arrays 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query TestQuery @relay_test_operation {
+  node(id: "my-id") {
+    ... on User {
+      id
+      traits
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+{
+  "data": {
+    "node": {
+      "__typename": "User",
+      "id": "<Node-mock-id-1>",
+      "traits": [
+        "CHEERFUL",
+        "DERISIVE"
+      ]
+    }
+  }
+}
+`;
+
 exports[`with @relay_test_operation generate mock for enum with different case should be OK 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query TestQuery @relay_test_operation {

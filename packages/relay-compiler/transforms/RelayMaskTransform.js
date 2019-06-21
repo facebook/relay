@@ -28,10 +28,7 @@ import type {
 } from '../core/GraphQLIR';
 
 type State = {
-  reachableArguments: Array<{
-    argDef: ArgumentDefinition,
-    source: string /* fragment spread name */,
-  }>,
+  reachableArguments: Array<ArgumentDefinition>,
 };
 
 /**
@@ -61,6 +58,7 @@ function visitFragment(fragment: Fragment, state: State): Fragment {
     schema,
     fragment,
     state.reachableArguments,
+    '@relay(unmask: true)',
   );
   return {
     ...result,
@@ -114,10 +112,7 @@ function visitFragmentSpread(
   // Note: defer validating arguments to the containing fragment in order
   // to list all invalid variables/arguments instead of only one.
   for (const argDef of fragment.argumentDefinitions) {
-    state.reachableArguments.push({
-      argDef: argDef,
-      source: fragmentSpread.name,
-    });
+    state.reachableArguments.push(argDef);
   }
   return this.traverse(result, state);
 }

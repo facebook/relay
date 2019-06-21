@@ -12,14 +12,13 @@
 
 'use strict';
 
+const {createUserError} = require('../core/RelayCompilerError');
 const {isTypeSubTypeOf} = require('graphql');
 
 import type {ArgumentDefinition, Fragment} from '../core/GraphQLIR';
 import type {GraphQLSchema} from 'graphql';
 
 /**
- * @private
- *
  * Attempts to join the argument definitions for a root fragment
  * and any unmasked fragment spreads reachable from that root fragment,
  * returning a combined list of arguments or throwing if the same
@@ -28,42 +27,21 @@ import type {GraphQLSchema} from 'graphql';
 function joinArgumentDefinitions(
   schema: GraphQLSchema,
   fragment: Fragment,
-  reachableArguments: $ReadOnlyArray<{
-    argDef: ArgumentDefinition,
-    source: string,
-  }>,
+  reachableArguments: $ReadOnlyArray<ArgumentDefinition>,
+  directiveName: string,
 ): Array<ArgumentDefinition> {
   const joinedArgumentDefinitions = new Map();
   fragment.argumentDefinitions.forEach(prevArgDef => {
     joinedArgumentDefinitions.set(prevArgDef.name, prevArgDef);
   });
-  const errors = [];
-  reachableArguments.forEach(nextArg => {
-    const {argDef: nextArgDef, source} = nextArg;
+  reachableArguments.forEach(nextArgDef => {
     const prevArgDef = joinedArgumentDefinitions.get(nextArgDef.name);
-    if (prevArgDef) {
-      const joinedArgDef = joinArgumentDefinition(
-        schema,
-        prevArgDef,
-        nextArgDef,
-      );
-      if (joinedArgDef === null) {
-        errors.push(`Variable \`\$${nextArgDef.name}\` in \`${source}\``);
-      } else {
-        joinedArgumentDefinitions.set(joinedArgDef.name, joinedArgDef);
-      }
-    } else {
-      joinedArgumentDefinitions.set(nextArgDef.name, nextArgDef);
-    }
+    const joinedArgDef =
+      prevArgDef == null
+        ? nextArgDef
+        : joinArgumentDefinition(schema, prevArgDef, nextArgDef, directiveName);
+    joinedArgumentDefinitions.set(joinedArgDef.name, joinedArgDef);
   });
-  if (errors.length) {
-    throw new Error(
-      'RelayMaskTransform: Cannot unmask one or more fragments in ' +
-        `\`${fragment.name}\`, the following variables are referenced more ` +
-        'than once with incompatible kinds/types:\n' +
-        errors.map(msg => `* ${msg}`).join('\n'),
-    );
-  }
   return Array.from(joinedArgumentDefinitions.values());
 }
 
@@ -84,21 +62,36 @@ function joinArgumentDefinition(
   schema: GraphQLSchema,
   prevArgDef: ArgumentDefinition,
   nextArgDef: ArgumentDefinition,
-): ArgumentDefinition | null {
-  if (
-    prevArgDef.kind !== nextArgDef.kind ||
-    prevArgDef.name !== nextArgDef.name ||
-    // Only LocalArgumentDefinition defines defaultValue
-    (prevArgDef: any).defaultValue !== (nextArgDef: any).defaultValue
+  directiveName: string,
+): ArgumentDefinition {
+  if (prevArgDef.kind !== nextArgDef.kind) {
+    throw createUserError(
+      'Cannot combine global and local variables when applying ' +
+        `${directiveName}.`,
+      [prevArgDef.loc, nextArgDef.loc],
+    );
+  } else if (
+    prevArgDef.kind === 'LocalArgumentDefinition' &&
+    nextArgDef.kind === 'LocalArgumentDefinition' &&
+    prevArgDef.defaultValue !== nextArgDef.defaultValue
   ) {
-    return null;
+    throw createUserError(
+      'Cannot combine local variables with different defaultValues when ' +
+        `applying ${directiveName}.`,
+      [prevArgDef.loc, nextArgDef.loc],
+    );
   } else if (isTypeSubTypeOf(schema, nextArgDef.type, prevArgDef.type)) {
     // prevArgDef is less strict than nextArgDef
     return nextArgDef;
   } else if (isTypeSubTypeOf(schema, prevArgDef.type, nextArgDef.type)) {
     return prevArgDef;
   } else {
-    return null;
+    throw createUserError(
+      'Cannot combine variables with incompatible types ' +
+        `${String(prevArgDef.type)} and ${String(nextArgDef.type)} ` +
+        `when applying ${directiveName}.`,
+      [prevArgDef.loc, nextArgDef.loc],
+    );
   }
 }
 

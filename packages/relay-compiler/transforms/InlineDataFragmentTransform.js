@@ -64,21 +64,23 @@ function visitFragment(fragment: Fragment): Fragment {
 function visitFragmentSpread(
   fragmentSpread: FragmentSpread,
 ): FragmentSpread | InlineDataFragmentSpread {
-  const transformedNode: FragmentSpread = this.traverse(fragmentSpread);
+  const transformedFragmentSpread: FragmentSpread = this.traverse(
+    fragmentSpread,
+  );
 
   const context: GraphQLCompilerContext = this.getContext();
-  const fragment = context.get(transformedNode.name);
+  const fragment = context.get(transformedFragmentSpread.name);
   if (
     !fragment ||
     fragment.kind !== 'Fragment' ||
     !fragment.directives.some(directive => directive.name === 'inline')
   ) {
-    return transformedNode;
+    return transformedFragmentSpread;
   }
 
   if (
     fragment.argumentDefinitions.length > 0 ||
-    fragmentSpread.args.length > 0
+    transformedFragmentSpread.args.length > 0
   ) {
     throw createUserError(
       'Variables are not yet supported inside @inline fragments.',
@@ -86,32 +88,32 @@ function visitFragmentSpread(
     );
   }
 
-  if (fragmentSpread.directives.length > 0) {
+  if (transformedFragmentSpread.directives.length > 0) {
     throw createUserError(
       'Directives on fragment spreads for @inline fragments are not yet ' +
         'supported',
-      [fragmentSpread.loc],
+      [transformedFragmentSpread.loc],
     );
   }
 
-  return this.traverse(
-    ({
-      kind: 'InlineDataFragmentSpread',
-      loc: transformedNode.loc,
-      metadata: transformedNode.metadata,
-      name: transformedNode.name,
-      selections: [
-        {
-          directives: [],
-          kind: 'InlineFragment',
-          loc: {kind: 'Derived', source: transformedNode.loc},
-          metadata: null,
-          selections: fragment.selections,
-          typeCondition: fragment.type,
-        },
-      ],
-    }: InlineDataFragmentSpread),
-  );
+  const transformedFragment = (this.visit(fragment): Fragment);
+
+  return ({
+    kind: 'InlineDataFragmentSpread',
+    loc: transformedFragmentSpread.loc,
+    metadata: transformedFragmentSpread.metadata,
+    name: transformedFragmentSpread.name,
+    selections: [
+      {
+        directives: [],
+        kind: 'InlineFragment',
+        loc: {kind: 'Derived', source: transformedFragmentSpread.loc},
+        metadata: null,
+        selections: transformedFragment.selections,
+        typeCondition: transformedFragment.type,
+      },
+    ],
+  }: InlineDataFragmentSpread);
 }
 
 module.exports = {

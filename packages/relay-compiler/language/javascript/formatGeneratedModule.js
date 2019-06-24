@@ -46,8 +46,20 @@ ${docTextComment}
 const node/*: ${documentType || 'empty'}*/ = ${concreteText};
 // prettier-ignore
 (node/*: any*/).hash = '${sourceHash}';
+`;
+};
+
+const formatGeneratedCommonjsModule: FormatModule = options => {
+  return `${formatGeneratedModule(options)}
 module.exports = node;
 `;
 };
 
-module.exports = formatGeneratedModule;
+const formatGeneratedESModule: FormatModule = options => {
+  return `${formatGeneratedModule(options)}
+export default node;
+`;
+};
+
+exports.formatGeneratedCommonjsModule = formatGeneratedCommonjsModule;
+exports.formatGeneratedESModule = formatGeneratedESModule;

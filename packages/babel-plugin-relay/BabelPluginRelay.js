@@ -27,6 +27,10 @@ export type RelayPluginOptions = {
   haste?: boolean,
   // Check this global variable before validation.
   isDevVariable?: string,
+
+  // enable generating eager es modules for modern runtime
+  eagerESModules?: boolean,
+
   // Directory as specified by artifactDirectory when running relay-compiler
   artifactDirectory?: string,
   ...

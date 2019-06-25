@@ -34,6 +34,7 @@ import type {
   RelayRefetchProp,
 } from './ReactRelayTypes';
 import type {
+  CacheConfig,
   Disposable,
   FragmentMap,
   GraphQLTaggedNode,
@@ -322,7 +323,12 @@ function createContainerWithFragments<
         ? {...fetchVariables, ...renderVariables}
         : fetchVariables;
 
-      const cacheConfig = options ? {force: !!options.force} : undefined;
+      const cacheConfig: ?CacheConfig = options
+        ? {force: !!options.force}
+        : undefined;
+      if (cacheConfig != null && options?.metadata != null) {
+        cacheConfig.metadata = options?.metadata;
+      }
 
       const observer =
         typeof observerOrCallback === 'function'

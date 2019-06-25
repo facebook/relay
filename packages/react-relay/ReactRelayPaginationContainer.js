@@ -736,6 +736,9 @@ function createContainerWithFragments<
       const cacheConfig: ?CacheConfig = options
         ? {force: !!options.force}
         : undefined;
+      if (cacheConfig != null && options?.metadata != null) {
+        cacheConfig.metadata = options?.metadata;
+      }
       const request = getRequest(connectionConfig.query);
       const operation = createOperationDescriptor(request, fetchVariables);
 

@@ -157,8 +157,7 @@ async function writeRelayGeneratedFile(
     sourceHash,
     node: generatedNode,
   });
-
-  codegenDir.writeFile(filename, moduleText);
+  codegenDir.writeFile(filename, moduleText, shouldRepersist);
   return generatedNode;
 }
 

@@ -220,13 +220,17 @@ class CodegenDirectory {
     this.changes.updated.push(filename);
   }
 
-  writeFile(filename: string, content: string): void {
+  writeFile(
+    filename: string,
+    content: string,
+    shouldRepersist: boolean = false,
+  ): void {
     Profiler.run('CodegenDirectory.writeFile', () => {
       this._addGenerated(filename);
       const filePath = path.join(this._dir, filename);
       if (this._filesystem.existsSync(filePath)) {
         const existingContent = this._filesystem.readFileSync(filePath, 'utf8');
-        if (existingContent === content) {
+        if (existingContent === content && !shouldRepersist) {
           this.changes.unchanged.push(filename);
         } else {
           this._writeFile(filePath, content);

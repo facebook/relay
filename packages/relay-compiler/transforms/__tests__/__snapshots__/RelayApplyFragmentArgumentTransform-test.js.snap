@@ -304,22 +304,22 @@ THROWN EXCEPTION:
 Error: Found a circular reference from fragment 'Profile'.
 
 Source: GraphQL request:2:1
-1: # expected-to-throw
-2: query TestQuery(
-   ^
-3:   $id: ID!
+1 | # expected-to-throw
+2 | query TestQuery(
+  | ^
+3 |   $id: ID!
 
 Source: GraphQL request:8:5
-7:     id
-8:     ...Profile
-       ^
-9:   }
+7 |     id
+8 |     ...Profile
+  |     ^
+9 |   }
 
 Source: GraphQL request:21:9
-20:       node {
-21:         ...Profile
-            ^
-22:       }
+20 |       node {
+21 |         ...Profile
+   |         ^
+22 |       }
 
 `;
 
@@ -362,11 +362,10 @@ Error: RelayParser: Encountered 1 error(s):
 - Query 'TestQuery' references undefined variables.
   
   GraphQL request:9:70
-   8:     id
-   9:     ...Profile @arguments(pictureSize: $pictureSize, includeFriends: $includeFriends2)
-                                                                           ^
-  10:   }
-  
+   8 |     id
+   9 |     ...Profile @arguments(pictureSize: $pictureSize, includeFriends: $includeFriends2)
+     |                                                                      ^
+  10 |   }
 `;
 
 exports[`RelayApplyFragmentArgumentTransform matches expected output: uses-defaults-for-literal-null-arguments.graphql 1`] = `

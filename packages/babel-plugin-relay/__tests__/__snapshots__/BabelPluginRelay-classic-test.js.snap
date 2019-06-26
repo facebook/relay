@@ -43,7 +43,7 @@ GraphQL Validation Error: Expected type Boolean, found "true".
 >
 >           isViewerFriend: "true"
 >                           ^^^
-GraphQL Validation Error: Expected type Gender, found "MALE"; Did you mean the enum value MALE or FEMALE?
+GraphQL Validation Error: Expected type Gender, found "MALE". Did you mean the enum value MALE or FEMALE?
 >
 >           gender: "MALE"
 >                   ^^^

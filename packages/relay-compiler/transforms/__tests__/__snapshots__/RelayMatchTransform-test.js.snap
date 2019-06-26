@@ -19,10 +19,10 @@ Error: Encountered 1 error(s):
 - Direct use of the 'js' field is not allowed, use @match/@module instead.
   
   Source: GraphQL request:6:7
-  5:     ... on PlainUserNameRenderer {
-  6:       js(module: "PlainUserNameRenderer.react")
-           ^
-  7:     }
+  5 |     ... on PlainUserNameRenderer {
+  6 |       js(module: "PlainUserNameRenderer.react")
+    |       ^
+  7 |     }
   
 `;
 
@@ -55,16 +55,16 @@ Error: Encountered 1 error(s):
 - Invalid @match selection: selections must match against concrete variants/implementors of type 'UserNameRenderer'. Got 'User', expected one of 'PlainUserNameRenderer', 'MarkdownUserNameRenderer', 'CustomNameRenderer', etc.
   
   Source: GraphQL request:6:18
-  5:     ...PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
-  6:     ...User_user @module(name: "User.react")
-                      ^
-  7:   }
+  5 |     ...PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
+  6 |     ...User_user @module(name: "User.react")
+    |                  ^
+  7 |   }
   
   Source: GraphQL request:17:1
-  16: 
-  17: fragment User_user on User {
-      ^
-  18:   __typename
+  16 | 
+  17 | fragment User_user on User {
+     | ^
+  18 |   __typename
   
 `;
 
@@ -83,11 +83,10 @@ Error: RelayParser: Encountered 1 error(s):
 - Expected at least one selection for non-scalar field 'nameRenderer' on type 'UserNameRenderer'.
   
   GraphQL request:4:3
-  3:   id
-  4:   nameRenderer @match
-       ^
-  5: }
-  
+  3 |   id
+  4 |   nameRenderer @match
+    |   ^
+  5 | }
 `;
 
 exports[`RelayMatchTransform matches expected output: invalid-non-empty-selections.graphql 1`] = `
@@ -124,10 +123,10 @@ Error: Encountered 1 error(s):
 - Invalid @match selection: all selections should be fragment spreads with @module.
   
   Source: GraphQL request:5:5
-  4:   nameRenderer @match {
-  5:     __typename
-         ^
-  6:     ...PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
+  4 |   nameRenderer @match {
+  5 |     __typename
+    |     ^
+  6 |     ...PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
   
 `;
 
@@ -229,10 +228,10 @@ Error: Encountered 1 error(s):
 - @module does not support @arguments.
   
   Source: GraphQL request:7:66
-  6:     ...MarkdownUserNameRenderer_name
-  7:       @module(name: "MarkdownUserNameRenderer.react") @arguments(cond: true)
-                                                                      ^
-  8:   }
+  6 |     ...MarkdownUserNameRenderer_name
+  7 |       @module(name: "MarkdownUserNameRenderer.react") @arguments(cond: true)
+    |                                                                  ^
+  8 |   }
   
 `;
 
@@ -270,10 +269,10 @@ Error: Encountered 1 error(s):
 - Invalid @match selection: the 'supported' argument is automatically added and cannot be supplied explicitly.
   
   Source: GraphQL request:4:16
-  3:   id
-  4:   nameRenderer(supported: ["PlainUserNameRenderer",  "MarkdownUserNameRenderer"])
-                    ^
-  5:     @match {
+  3 |   id
+  4 |   nameRenderer(supported: ["PlainUserNameRenderer",  "MarkdownUserNameRenderer"])
+    |                ^
+  5 |     @match {
   
 `;
 

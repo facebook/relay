@@ -10,7 +10,7 @@
 
 'use strict';
 
-const {GraphQLError} = require('graphql');
+const {GraphQLError, getLocation, printSourceLocation} = require('graphql');
 
 import type {Location} from './GraphQLIR';
 import type {ASTNode, Source, SourceLocation} from 'graphql';
@@ -110,7 +110,7 @@ function createCombinedError(
     `${prefix}Encountered ${errors.length} error(s):\n` +
       errors
         .map(error =>
-          (error instanceof GraphQLError ? printError(error) : String(error))
+          String(error)
             .split('\n')
             .map((line, index) => (index === 0 ? `- ${line}` : `  ${line}`))
             .join('\n'),
@@ -164,7 +164,7 @@ function printLocations(locations: $ReadOnlyArray<Location>): Array<string> {
           sourceLocation === location ? 'Source: ' : 'Source (derived): ';
         printedLocations.push(
           prefix +
-            highlightSourceAtLocation(
+            printSourceLocation(
               sourceLocation.source,
               getLocation(sourceLocation.source, sourceLocation.start),
             ),
@@ -190,98 +190,6 @@ function printLocations(locations: $ReadOnlyArray<Location>): Array<string> {
     }
   }
   return printedLocations;
-}
-
-/**
- * Prints a GraphQLError to a string, representing useful location information
- * about the error's position in the source.
- */
-function printError(error: GraphQLError): string {
-  const printedLocations = [];
-  if (error.nodes) {
-    for (const node of error.nodes) {
-      if (node.loc) {
-        printedLocations.push(
-          highlightSourceAtLocation(
-            node.loc.source,
-            getLocation(node.loc.source, node.loc.start),
-          ),
-        );
-      }
-    }
-  } else if (error.source && error.locations) {
-    const source = error.source;
-    for (const location of error.locations) {
-      printedLocations.push(highlightSourceAtLocation(source, location));
-    }
-  }
-  return printedLocations.length === 0
-    ? error.message
-    : [error.message, ...printedLocations].join('\n\n') + '\n';
-}
-
-/**
- * Render a helpful description of the location of the error in the GraphQL
- * Source document.
- */
-function highlightSourceAtLocation(
-  source: Source,
-  location: SourceLocation,
-): string {
-  const firstLineColumnOffset = source.locationOffset.column - 1;
-  const body = whitespace(firstLineColumnOffset) + source.body;
-
-  const lineIndex = location.line - 1;
-  const lineOffset = source.locationOffset.line - 1;
-  const lineNum = location.line + lineOffset;
-
-  const columnOffset = location.line === 1 ? firstLineColumnOffset : 0;
-  const columnNum = location.column + columnOffset;
-
-  const lines = body.split(/\r\n|[\n\r]/g);
-  return (
-    `${source.name}:${lineNum}:${columnNum}\n` +
-    printPrefixedLines([
-      // Lines specified like this: ["prefix", "string"],
-      [`${lineNum - 1}: `, lines[lineIndex - 1]],
-      [`${lineNum}: `, lines[lineIndex]],
-      ['', whitespace(columnNum - 1) + '^'],
-      [`${lineNum + 1}: `, lines[lineIndex + 1]],
-    ])
-  );
-}
-
-function printPrefixedLines(lines: Array<[string, string]>): string {
-  const existingLines = lines.filter(([_, line]) => line !== undefined);
-
-  let padLen = 0;
-  for (const [prefix] of existingLines) {
-    padLen = Math.max(padLen, prefix.length);
-  }
-
-  return existingLines
-    .map(([prefix, line]) => lpad(padLen, prefix) + line)
-    .join('\n');
-}
-
-function whitespace(len: number): string {
-  return Array(len + 1).join(' ');
-}
-
-function lpad(len: number, str: string): string {
-  return whitespace(len - str.length) + str;
-}
-
-function getLocation(source: Source, position: number): SourceLocation {
-  const lineRegexp = /\r\n|[\n\r]/g;
-  let line = 1;
-  let column = position + 1;
-  let match;
-  while ((match = lineRegexp.exec(source.body)) && match.index < position) {
-    line += 1;
-    column = position + 1 - (match.index + match[0].length);
-  }
-  return {line, column};
 }
 
 module.exports = {

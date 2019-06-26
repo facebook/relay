@@ -16,7 +16,7 @@
     "relay-runtime": "5.0.0"
   },
   "peerDependencies": {
-    "graphql": "^14.2.0"
+    "graphql": "^14.4.0"
   },
   "directories": {
     "": "./"

@@ -547,10 +547,10 @@ Error: Encountered 1 error(s):
 - Expected field 'comments' to have a 'first' or 'last' argument.
   
   Source: GraphQL request:8:7
-  7:     ... on Story {
-  8:       comments @connection(key: "NodeQuery_comments") {
-           ^
-  9:         edges {
+  7 |     ... on Story {
+  8 |       comments @connection(key: "NodeQuery_comments") {
+    |       ^
+  9 |         edges {
   
 `;
 
@@ -873,10 +873,10 @@ Error: Encountered 1 error(s):
 - Expected the key argument to @connection to be of form <SomeName>_comments, got 'invalid'. For a detailed explanation, check out https://relay.dev/docs/en/pagination-container#connection
   
   Source: GraphQL request:8:44
-  7:     ... on Story {
-  8:       comments(first: 10) @connection(key: "invalid") {
-                                                ^
-  9:         edges {
+  7 |     ... on Story {
+  8 |       comments(first: 10) @connection(key: "invalid") {
+    |                                            ^
+  9 |         edges {
   
 `;
 
@@ -907,11 +907,10 @@ Error: RelayParser: Encountered 1 error(s):
 - Expected a value matching type 'String!'.
   
   GraphQL request:8:44
-  7:     ... on Story {
-  8:       comments(first: 10) @connection(key: 10) {
-                                                ^
-  9:         edges {
-  
+  7 |     ... on Story {
+  8 |       comments(first: 10) @connection(key: 10) {
+    |                                            ^
+  9 |         edges {
 `;
 
 exports[`RelayConnectionTransform matches expected output: invalid-connection-with-custom-handler.graphql 1`] = `
@@ -950,11 +949,10 @@ Error: RelayParser: Encountered 1 error(s):
 - Expected a value matching type 'String'.
   
   GraphQL request:8:75
-  7:     ... on Story {
-  8:       comments(first: 10) @connection(key: "NodeQuery_comments", handler: 10) {
-                                                                               ^
-  9:         edges {
-  
+  7 |     ... on Story {
+  8 |       comments(first: 10) @connection(key: "NodeQuery_comments", handler: 10) {
+    |                                                                           ^
+  9 |         edges {
 `;
 
 exports[`RelayConnectionTransform matches expected output: invalid-type.graphql 1`] = `
@@ -980,10 +978,10 @@ Error: Encountered 1 error(s):
 - @connection used on invalid field 'actors'. Expected the return type to be a non-plural interface or object, got '[Actor]'.
   
   Source: GraphQL request:8:7
-  7:     ... on Story {
-  8:       actors @connection {
-           ^
-  9:         name
+  7 |     ... on Story {
+  8 |       actors @connection {
+    |       ^
+  9 |         name
   
 `;
 
@@ -1187,10 +1185,10 @@ Error: Encountered 1 error(s):
 - @stream_connection does not support aliasing the 'edges' field.
   
   Source: GraphQL request:14:9
-  13:       ) {
-  14:         commentEdges: edges {
-              ^
-  15:           node {
+  13 |       ) {
+  14 |         commentEdges: edges {
+     |         ^
+  15 |           node {
   
 `;
 
@@ -1231,9 +1229,9 @@ Error: Encountered 1 error(s):
 - @stream_connection does not support aliasing the 'pageInfo' field.
   
   Source: GraphQL request:21:9
-  20:         }
-  21:         commentPageInfo: pageInfo {
-              ^
-  22:           hasNextPage
+  20 |         }
+  21 |         commentPageInfo: pageInfo {
+     |         ^
+  22 |           hasNextPage
   
 `;

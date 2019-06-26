@@ -108,16 +108,16 @@ Error: Encountered 1 error(s):
 - Required argument 'level: Int!' is missing on 'customDirective' in 'ViewerQuery'.
   
   Source: GraphQL request:5:10
-  4:   node {
-  5:     body @customDirective {
-              ^
-  6:       text
+  4 |   node {
+  5 |     body @customDirective {
+    |          ^
+  6 |       text
   
   Source: GraphQL request:3:1
-  2: 
-  3: query ViewerQuery {
-     ^
-  4:   node {
+  2 | 
+  3 | query ViewerQuery {
+    | ^
+  4 |   node {
   
 `;
 
@@ -139,16 +139,16 @@ Error: Encountered 1 error(s):
 - Required argument 'capitalize: Boolean!' is missing on 'nameWithArgs' in 'TestQuery'.
   
   Source: GraphQL request:5:7
-  4:     hometown{
-  5:       nameWithArgs
-           ^
-  6:     }
+  4 |     hometown{
+  5 |       nameWithArgs
+    |       ^
+  6 |     }
   
   Source: GraphQL request:2:1
-  1: # expected-to-throw
-  2: query TestQuery {
-     ^
-  3:   node {
+  1 | # expected-to-throw
+  2 | query TestQuery {
+    | ^
+  3 |   node {
   
 `;
 
@@ -178,16 +178,16 @@ Error: Encountered 1 error(s):
 - Required argument 'supported: [String!]!' is missing on 'commentBody' in 'SomeComment'.
   
   Source: GraphQL request:3:3
-  2: fragment SomeComment on Comment {
-  3:   commentBody {
-       ^
-  4:     ... on PlainCommentBody {
+  2 | fragment SomeComment on Comment {
+  3 |   commentBody {
+    |   ^
+  4 |     ... on PlainCommentBody {
   
   Source: GraphQL request:2:1
-  1: # expected-to-throw
-  2: fragment SomeComment on Comment {
-     ^
-  3:   commentBody {
+  1 | # expected-to-throw
+  2 | fragment SomeComment on Comment {
+    | ^
+  3 |   commentBody {
   
 `;
 
@@ -215,16 +215,16 @@ Error: Encountered 1 error(s):
 - Required argument 'supported: [String!]!' is missing on 'commentBody' in 'ViewerQuery'.
   
   Source: GraphQL request:5:7
-  4:     ... on Comment {
-  5:       commentBody {
-           ^
-  6:         ... on PlainCommentBody {
+  4 |     ... on Comment {
+  5 |       commentBody {
+    |       ^
+  6 |         ... on PlainCommentBody {
   
   Source: GraphQL request:2:1
-  1: # expected-to-throw
-  2: query ViewerQuery {
-     ^
-  3:   node {
+  1 | # expected-to-throw
+  2 | query ViewerQuery {
+    | ^
+  3 |   node {
   
 `;
 
@@ -286,9 +286,8 @@ Error: RelayParser: Encountered 1 error(s):
 - Unknown field 'commentBody' on type 'Node'.
   
   GraphQL request:4:5
-  3:   node {
-  4:     commentBody {
-         ^
-  5:       ... on PlainCommentBody {
-  
+  3 |   node {
+  4 |     commentBody {
+    |     ^
+  5 |       ... on PlainCommentBody {
 `;

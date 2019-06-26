@@ -158,7 +158,7 @@ function transformField<T: Field>(
 ): ?T {
   const args = transformArguments(scope, field.args, errorContext);
   const directives = transformDirectives(scope, field.directives, errorContext);
-  if (field.kind === 'LinkedField') {
+  if (field.kind === 'LinkedField' || field.kind === 'ConnectionField') {
     const selections = transformSelections(
       context,
       fragments,
@@ -169,12 +169,12 @@ function transformField<T: Field>(
     if (!selections) {
       return null;
     }
-    return {
+    return ({
       ...field,
       args,
       directives,
       selections,
-    };
+    }: $FlowFixMe);
   } else {
     return {
       ...field,
@@ -275,7 +275,8 @@ function transformSelections(
       }
     } else if (
       selection.kind === 'LinkedField' ||
-      selection.kind === 'ScalarField'
+      selection.kind === 'ScalarField' ||
+      selection.kind === 'ConnectionField'
     ) {
       nextSelection = transformField(
         context,

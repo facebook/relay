@@ -122,6 +122,7 @@ function traverseSelections<T: Node>(
         serverSelections.push(transformed);
         break;
       }
+      case 'ConnectionField':
       case 'ScalarField':
       case 'LinkedField': {
         const isClientField = isClientDefinedField(

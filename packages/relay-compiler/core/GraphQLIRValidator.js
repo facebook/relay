@@ -22,6 +22,7 @@ import type {
   ClientExtension,
   Condition,
   Defer,
+  ConnectionField,
   Directive,
   Fragment,
   FragmentSpread,
@@ -49,6 +50,7 @@ type NodeVisitor<S> = {|
   ClientExtension?: NodeVisitorFunction<ClientExtension, S>,
   Condition?: NodeVisitorFunction<Condition, S>,
   Defer?: NodeVisitorFunction<Defer, S>,
+  ConnectionField?: NodeVisitorFunction<ConnectionField, S>,
   Directive?: NodeVisitorFunction<Directive, S>,
   Fragment?: NodeVisitorFunction<Fragment, S>,
   FragmentSpread?: NodeVisitorFunction<FragmentSpread, S>,
@@ -179,6 +181,9 @@ class Validator<S> {
         this._traverseChildren(prevNode, ['selections']);
         break;
       case 'LinkedField':
+        this._traverseChildren(prevNode, ['args', 'directives', 'selections']);
+        break;
+      case 'ConnectionField':
         this._traverseChildren(prevNode, ['args', 'directives', 'selections']);
         break;
       case 'ListValue':

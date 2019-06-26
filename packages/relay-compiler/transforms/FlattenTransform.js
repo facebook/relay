@@ -290,6 +290,27 @@ function flattenSelectionsInto(
           'transform to run only on normalization ASTs.',
         [selection.loc],
       );
+    } else if (flattenedSelection.kind === 'ConnectionField') {
+      if (selection.kind !== 'ConnectionField') {
+        throw createCompilerError(
+          `FlattenTransform: Expected a ConnectionField, got a '${
+            selection.kind
+          }'`,
+          [selection.loc],
+        );
+      }
+      // Note: arguments are intentionally reversed to avoid rebuilds
+      assertUniqueArgsForAlias(selection, flattenedSelection);
+      flattenedSelections.set(nodeIdentifier, {
+        kind: 'ConnectionField',
+        ...flattenedSelection,
+        selections: mergeSelections(
+          flattenedSelection,
+          selection,
+          state,
+          selection.type,
+        ),
+      });
     } else {
       (flattenedSelection.kind: empty);
       throw createCompilerError(

@@ -136,6 +136,9 @@ function printSelection(
   if (selection.kind === 'LinkedField') {
     str = printField(selection, {parentDirectives, isClientExtension});
     str += printSelections(selection, indent + INDENT, {isClientExtension});
+  } else if (selection.kind === 'ConnectionField') {
+    str = printField(selection, {parentDirectives, isClientExtension});
+    str += printSelections(selection, indent + INDENT, {isClientExtension});
   } else if (selection.kind === 'ModuleImport') {
     str = selection.selections
       .map(matchSelection =>

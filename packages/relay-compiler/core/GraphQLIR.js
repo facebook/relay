@@ -75,7 +75,7 @@ export type Directive = {|
   +name: string,
 |};
 
-export type Field = LinkedField | ScalarField;
+export type Field = LinkedField | ScalarField | ConnectionField;
 
 export type Fragment = {|
   +argumentDefinitions: $ReadOnlyArray<ArgumentDefinition>,
@@ -129,6 +129,7 @@ export type IR =
   | ClientExtension
   | Condition
   | Defer
+  | ConnectionField
   | Directive
   | Fragment
   | FragmentSpread
@@ -179,6 +180,19 @@ export type ClientExtension = {|
   +loc: Location,
   +metadata: Metadata,
   +selections: $ReadOnlyArray<Selection>,
+|};
+
+export type ConnectionField = {|
+  +alias: ?string,
+  +args: $ReadOnlyArray<Argument>,
+  +directives: $ReadOnlyArray<Directive>,
+  +kind: 'ConnectionField',
+  +loc: Location,
+  +metadata: Metadata,
+  +name: string,
+  +resolver: ?string,
+  +selections: $ReadOnlyArray<Selection>,
+  +type: GraphQLOutputType,
 |};
 
 export type LinkedField = {|
@@ -235,6 +249,7 @@ export type Node =
   | ClientExtension
   | Condition
   | Defer
+  | ConnectionField
   | Fragment
   | InlineDataFragmentSpread
   | InlineFragment
@@ -303,6 +318,7 @@ export type Selection =
   | ClientExtension
   | Condition
   | Defer
+  | ConnectionField
   | FragmentSpread
   | InlineFragment
   | LinkedField

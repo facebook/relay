@@ -103,6 +103,7 @@ function visitRoot(node: Root) {
           );
           break;
         }
+        case 'ConnectionField':
         case 'LinkedField': {
           const nextPath = [...path, selection.alias ?? selection.name];
           selectionsTypeInfo[nextPath.join('.')] = getTypeDetails(

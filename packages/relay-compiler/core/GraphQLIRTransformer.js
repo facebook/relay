@@ -22,6 +22,7 @@ import type {
   ClientExtension,
   Condition,
   Defer,
+  ConnectionField,
   Directive,
   Fragment,
   FragmentSpread,
@@ -49,6 +50,7 @@ type NodeVisitor<S> = {|
   ClientExtension?: NodeVisitorFunction<ClientExtension, S>,
   Condition?: NodeVisitorFunction<Condition, S>,
   Defer?: NodeVisitorFunction<Defer, S>,
+  ConnectionField?: NodeVisitorFunction<ConnectionField, S>,
   Directive?: NodeVisitorFunction<Directive, S>,
   Fragment?: NodeVisitorFunction<Fragment, S>,
   FragmentSpread?: NodeVisitorFunction<FragmentSpread, S>,
@@ -255,6 +257,16 @@ class Transformer<S> {
         nextNode = this._traverseChildren(prevNode, ['selections']);
         break;
       case 'LinkedField':
+        nextNode = this._traverseChildren(prevNode, [
+          'args',
+          'directives',
+          'selections',
+        ]);
+        if (!nextNode.selections.length) {
+          nextNode = null;
+        }
+        break;
+      case 'ConnectionField':
         nextNode = this._traverseChildren(prevNode, [
           'args',
           'directives',

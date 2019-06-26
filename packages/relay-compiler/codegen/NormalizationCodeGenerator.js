@@ -115,6 +115,9 @@ function generateSelections(
       case 'LinkedField':
         normalizationSelections.push(...generateLinkedField(selection));
         break;
+      case 'ConnectionField':
+        normalizationSelections.push(generateConnectionField(selection));
+        break;
       case 'Defer':
         normalizationSelections.push(generateDefer(selection));
         break;
@@ -252,6 +255,27 @@ function generateLinkedField(node): $ReadOnlyArray<NormalizationSelection> {
     field = {...field, storageKey};
   }
   return [field].concat(handles);
+}
+
+function generateConnectionField(node): NormalizationSelection {
+  // TODO
+  const type = getRawType(node.type);
+  let field: NormalizationLinkedField = {
+    kind: 'LinkedField',
+    alias: node.alias,
+    name: node.name,
+    storageKey: null,
+    args: generateArgs(node.args),
+    concreteType: !isAbstractType(type) ? type.toString() : null,
+    plural: isPlural(node.type),
+    selections: generateSelections(node.selections),
+  };
+  // Precompute storageKey if possible
+  const storageKey = getStaticStorageKey(field, node.metadata);
+  if (storageKey) {
+    field = {...field, storageKey};
+  }
+  return field;
 }
 
 function generateModuleImport(node, key): NormalizationModuleImport {

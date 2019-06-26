@@ -178,6 +178,7 @@ function transformNode<T: Node>(
       case 'ModuleImport':
       case 'ClientExtension':
       case 'InlineDataFragmentSpread':
+      case 'ConnectionField':
       case 'LinkedField': {
         const transformed = transformNode(
           selection,

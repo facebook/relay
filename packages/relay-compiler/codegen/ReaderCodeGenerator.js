@@ -111,6 +111,8 @@ function generateSelections(
           return generateInlineFragment(selection);
         case 'LinkedField':
           return generateLinkedField(selection);
+        case 'ConnectionField':
+          return generateConnectionField(selection);
         case 'Defer':
         case 'Stream':
           throw createCompilerError(
@@ -213,6 +215,26 @@ function generateLinkedField(node): ReaderLinkedField {
   //     'ReaderCodeGenerator: unexpected handles',
   //   );
 
+  const type = getRawType(node.type);
+  let field: ReaderLinkedField = {
+    kind: 'LinkedField',
+    alias: node.alias,
+    name: node.name,
+    storageKey: null,
+    args: generateArgs(node.args),
+    concreteType: !isAbstractType(type) ? type.toString() : null,
+    plural: isPlural(node.type),
+    selections: generateSelections(node.selections),
+  };
+  // Precompute storageKey if possible
+  const storageKey = getStaticStorageKey(field, node.metadata);
+  if (storageKey) {
+    field = {...field, storageKey};
+  }
+  return field;
+}
+
+function generateConnectionField(node): ReaderLinkedField {
   const type = getRawType(node.type);
   let field: ReaderLinkedField = {
     kind: 'LinkedField',

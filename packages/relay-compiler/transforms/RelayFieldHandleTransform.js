@@ -18,7 +18,7 @@ const invariant = require('invariant');
 const {GraphQLString} = require('graphql');
 const {getRelayHandleKey} = require('relay-runtime');
 
-import type {Field} from '../core/GraphQLIR';
+import type {LinkedField, ScalarField} from '../core/GraphQLIR';
 
 function relayFieldHandleTransform(context: CompilerContext): CompilerContext {
   return IRTransformer.transform(context, {
@@ -30,7 +30,7 @@ function relayFieldHandleTransform(context: CompilerContext): CompilerContext {
 /**
  * @internal
  */
-function visitField<F: Field>(field: F): F {
+function visitField<F: LinkedField | ScalarField>(field: F): F {
   if (field.kind === 'LinkedField') {
     field = this.traverse(field);
   }

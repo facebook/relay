@@ -266,6 +266,7 @@ class RelayMockPayloadGenerator {
           }
           break;
 
+        case CLIENT_EXTENSION:
         case DEFER:
         case STREAM: {
           mockData = this._traverseSelections(
@@ -332,10 +333,8 @@ class RelayMockPayloadGenerator {
           }
           break;
         }
-        case CLIENT_EXTENSION:
+
         case MODULE_IMPORT:
-          // TODO(T41499100) We're currently not generating ClientExtension nodes
-          // so we can skip for now
           // TODO(T43369419) generate payloads for 3D in mock payload generator
           break;
         case SCALAR_HANDLE:

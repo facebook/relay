@@ -1330,4 +1330,25 @@ describe('with @relay_test_operation', () => {
       'RelayMockPayloadGenerator: Invalid value "INVALID_VALUE" provided for enum field',
     );
   });
+
+  test('generate mock for client extensions', () => {
+    testGeneratedData(
+      `
+        extend type User {
+          client_name: String
+          client_code: Int
+        }
+
+        query TestQuery @relay_test_operation {
+          node(id: "my-id") {
+            ... on User {
+              id
+              client_name
+              client_code
+            }
+          }
+        }
+      `,
+    );
+  });
 });

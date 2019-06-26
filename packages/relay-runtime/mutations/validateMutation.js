@@ -18,15 +18,28 @@ import type {ConcreteRequest} from '../util/RelayConcreteNode';
 import type {Variables} from '../util/RelayRuntimeTypes';
 
 type ValidationContext = {
-  operationName: string,
   visitedPaths: Set<string>,
   path: string,
   variables: Variables,
+  missingDiff: Object,
+  extraDiff: Object,
 };
 const warning = require('warning');
 
 let validateMutation = () => {};
 if (__DEV__) {
+  const addFieldToDiff = (path: string, diff: Object, isScalar) => {
+    let deepLoc = diff;
+    path.split('.').forEach((key, index, arr) => {
+      if (deepLoc[key] == null) {
+        deepLoc[key] = {};
+      }
+      if (isScalar && index === arr.length - 1) {
+        deepLoc[key] = '<scalar>';
+      }
+      deepLoc = deepLoc[key];
+    });
+  };
   validateMutation = (
     optimisticResponse: Object,
     mutation: ConcreteRequest,
@@ -34,10 +47,11 @@ if (__DEV__) {
   ) => {
     const operationName = mutation.operation.name;
     const context: ValidationContext = {
-      operationName,
       path: 'ROOT',
       visitedPaths: new Set(),
       variables: variables || {},
+      missingDiff: {},
+      extraDiff: {},
     };
     validateSelections(
       optimisticResponse,
@@ -45,6 +59,18 @@ if (__DEV__) {
       context,
     );
     validateOptimisticResponse(optimisticResponse, context);
+    warning(
+      context.missingDiff.ROOT == null,
+      'Expected `optimisticResponse` to match structure of server response for mutation `%s`, please define fields for all of\n%s',
+      operationName,
+      JSON.stringify(context.missingDiff.ROOT, null, 2),
+    );
+    warning(
+      context.extraDiff.ROOT == null,
+      'Expected `optimisticResponse` to match structure of server response for mutation `%s`, please remove all fields of\n%s',
+      operationName,
+      JSON.stringify(context.extraDiff.ROOT, null, 2),
+    );
   };
 
   const validateSelections = (
@@ -106,12 +132,7 @@ if (__DEV__) {
     switch (field.kind) {
       case 'ScalarField':
         if (optimisticResponse[fieldName] === undefined) {
-          warning(
-            false,
-            'validateMutation: Expected `optimisticResponse` to match structure of server response for mutation `%s`, field %s is undefined',
-            context.operationName,
-            path,
-          );
+          addFieldToDiff(path, context.missingDiff, true);
         }
         return;
       case 'LinkedField':
@@ -129,12 +150,7 @@ if (__DEV__) {
             );
             return;
           } else {
-            warning(
-              false,
-              'validateMutation: Expected `optimisticResponse` to match structure of server response for mutation `%s`, field %s is not an array',
-              context.operationName,
-              path,
-            );
+            addFieldToDiff(path, context.missingDiff);
             return;
           }
         } else {
@@ -145,12 +161,7 @@ if (__DEV__) {
             });
             return;
           } else {
-            warning(
-              false,
-              'validateMutation: Expected `optimisticResponse` to match structure of server response for mutation `%s`, field %s is not an object',
-              context.operationName,
-              path,
-            );
+            addFieldToDiff(path, context.missingDiff);
             return;
           }
         }
@@ -169,12 +180,7 @@ if (__DEV__) {
       const value = optimisticResponse[key];
       const path = `${context.path}.${key}`;
       if (!context.visitedPaths.has(path)) {
-        warning(
-          false,
-          'validateMutation: `optimisticResponse` for mutation `%s`, contains an unused field %s',
-          context.operationName,
-          path,
-        );
+        addFieldToDiff(path, context.extraDiff);
         return;
       }
       if (value instanceof Object) {

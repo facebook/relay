@@ -22,6 +22,7 @@ const readInlineData = require('./readInlineData');
 
 export type {
   $FragmentRef,
+  $RelayProps,
   RelayFragmentContainer,
   RelayPaginationContainer,
   RelayPaginationProp,

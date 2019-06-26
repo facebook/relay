@@ -17,7 +17,7 @@ import type {
   RelayProp,
   RelayPaginationProp,
   RelayRefetchProp,
-} from 'react-relay/ReactRelayTypes';
+} from 'react-relay';
 
 /**
  * Returns original component class wrapped by e.g. createFragmentContainer

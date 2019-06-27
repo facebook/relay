@@ -10,6 +10,7 @@
 
 'use strict';
 
+const ConnectionFieldTransform = require('../../transforms/ConnectionFieldTransform');
 const FlattenTransform = require('../../transforms/FlattenTransform');
 const IRVisitor = require('../../core/GraphQLIRVisitor');
 const Profiler = require('../../core/GraphQLCompilerProfiler');
@@ -400,6 +401,26 @@ function createVisitor(options: TypeGeneratorOptions) {
           },
         ];
       },
+      ConnectionField(node) {
+        return [
+          {
+            key: node.alias ?? node.name,
+            schemaName: node.name,
+            nodeType: node.type,
+            nodeSelections: selectionsToMap(
+              flattenArray(
+                // $FlowFixMe
+                node.selections,
+              ),
+              /*
+               * append concreteType to key so overlapping fields with different
+               * concreteTypes don't get overwritten by each other
+               */
+              true,
+            ),
+          },
+        ];
+      },
       LinkedField(node) {
         return [
           {
@@ -474,7 +495,9 @@ function flattenArray<T>(
   arrayOfArrays: $ReadOnlyArray<$ReadOnlyArray<T>>,
 ): $ReadOnlyArray<T> {
   const result = [];
-  arrayOfArrays.forEach(array => result.push(...array));
+  arrayOfArrays.forEach(array => {
+    result.push(...array);
+  });
   return result;
 }
 
@@ -628,6 +651,7 @@ function getDataTypeName(name: string): string {
 const FLOW_TRANSFORMS: Array<IRTransform> = [
   RelayRelayDirectiveTransform.transform,
   RelayMaskTransform.transform,
+  ConnectionFieldTransform.transform,
   RelayMatchTransform.transform,
   FlattenTransform.transformWithOptions({}),
   RelayRefetchableFragmentTransform.transform,

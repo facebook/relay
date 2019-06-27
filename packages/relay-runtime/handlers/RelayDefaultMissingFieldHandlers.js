@@ -13,7 +13,7 @@
 const {ROOT_TYPE} = require('../store/RelayStoreUtils');
 const {VIEWER_ID} = require('./viewer/RelayViewerHandler');
 
-import type {MissingFieldHandler} from 'relay-runtime';
+import type {MissingFieldHandler} from '../store/RelayStoreTypes';
 
 const missingViewerFieldHandler: MissingFieldHandler = {
   kind: 'linked',

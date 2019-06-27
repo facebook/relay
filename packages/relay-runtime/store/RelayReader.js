@@ -17,6 +17,7 @@ const invariant = require('invariant');
 const {
   CONDITION,
   CLIENT_EXTENSION,
+  CONNECTION_FIELD,
   FRAGMENT_SPREAD,
   INLINE_DATA_FRAGMENT_SPREAD,
   INLINE_FRAGMENT,
@@ -170,6 +171,13 @@ class RelayReader {
           const isMissingData = this._isMissingData;
           this._traverseSelections(selection.selections, record, data);
           this._isMissingData = isMissingData;
+          break;
+        case CONNECTION_FIELD:
+          invariant(
+            false,
+            'RelayReader(): Connection fields are not supported yet.',
+          );
+          // $FlowExpectedError - we need the break; for OSS linter
           break;
         default:
           (selection: empty);

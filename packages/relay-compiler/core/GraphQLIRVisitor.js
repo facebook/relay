@@ -15,6 +15,7 @@ import type {
   ClientExtension,
   Condition,
   Defer,
+  ConnectionField,
   Directive,
   Fragment,
   FragmentSpread,
@@ -40,6 +41,7 @@ const NodeKeys = {
   ClientExtension: ['selections'],
   Condition: ['condition', 'selections'],
   Defer: ['selections', 'if'],
+  ConnectionField: ['args', 'directives', 'selections'],
   Directive: ['args'],
   Fragment: ['argumentDefinitions', 'directives', 'selections'],
   FragmentSpread: ['args', 'directives'],
@@ -63,6 +65,7 @@ export type VisitNode =
   | ClientExtension
   | Condition
   | Defer
+  | ConnectionField
   | Directive
   | Fragment
   | FragmentSpread
@@ -102,6 +105,7 @@ export type NodeVisitor =
       ClientExtension?: VisitFn<ClientExtension>,
       Condition?: VisitFn<Condition>,
       Defer?: VisitFn<Defer>,
+      ConnectionField?: VisitFn<ConnectionField>,
       Directive?: VisitFn<Directive>,
       Fragment?: VisitFn<Fragment>,
       FragmentSpread?: VisitFn<FragmentSpread>,
@@ -123,6 +127,7 @@ export type NodeVisitor =
       ClientExtension?: VisitFn<ClientExtension>,
       Condition?: NodeVisitorObject<Condition>,
       Defer?: NodeVisitorObject<Defer>,
+      ConnectionField?: NodeVisitorObject<ConnectionField>,
       Directive?: NodeVisitorObject<Directive>,
       Fragment?: NodeVisitorObject<Fragment>,
       FragmentSpread?: NodeVisitorObject<FragmentSpread>,

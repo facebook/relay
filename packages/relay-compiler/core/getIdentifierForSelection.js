@@ -27,7 +27,7 @@ function getIdentifierForSelection(node: Selection): string {
       ? node.alias || node.name
       : (node.alias || node.name) + printDirectives(node.directives);
   } else if (node.kind === 'ConnectionField') {
-    return 'ConnectionField:' + (node.alias || node.name);
+    return 'ConnectionField:' + node.label;
   } else if (node.kind === 'FragmentSpread') {
     return 'FragmentSpread:' + node.args.length === 0
       ? node.name

@@ -11,6 +11,7 @@
 'use strict';
 
 const ClientExtensionsTransform = require('../transforms/ClientExtensionsTransform');
+const ConnectionFieldTransform = require('../transforms/ConnectionFieldTransform');
 const FilterDirectivesTransform = require('../transforms/FilterDirectivesTransform');
 const FlattenTransform = require('../transforms/FlattenTransform');
 const InlineDataFragmentTransform = require('../transforms/InlineDataFragmentTransform');
@@ -39,6 +40,7 @@ import type {IRTransform} from './GraphQLCompilerContext';
 const relaySchemaExtensions: Array<string> = [
   RelayConnectionTransform.SCHEMA_EXTENSION,
   RelayMatchTransform.SCHEMA_EXTENSION,
+  ConnectionFieldTransform.SCHEMA_EXTENSION,
   RelayRelayDirectiveTransform.SCHEMA_EXTENSION,
   RelayRefetchableFragmentTransform.SCHEMA_EXTENSION,
   RelayTestOperationTransform.SCHEMA_EXTENSION,
@@ -52,6 +54,7 @@ const relayCommonTransforms: Array<IRTransform> = [
   RelayRelayDirectiveTransform.transform,
   RelayMaskTransform.transform,
   RelayMatchTransform.transform,
+  ConnectionFieldTransform.transform,
   RelayRefetchableFragmentTransform.transform,
 ];
 

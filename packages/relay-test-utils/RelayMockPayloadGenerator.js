@@ -17,6 +17,7 @@ const {TYPENAME_KEY, RelayConcreteNode} = require('relay-runtime');
 
 const {
   CONDITION,
+  CONNECTION_FIELD,
   CLIENT_EXTENSION,
   INLINE_FRAGMENT,
   LINKED_FIELD,
@@ -30,6 +31,8 @@ const {
 
 import type {
   Variables,
+  NormalizationConnectionField,
+  NormalizationField,
   NormalizationOperation,
   NormalizationSelection,
   NormalizationLinkedField,
@@ -248,6 +251,7 @@ class RelayMockPayloadGenerator {
           );
           break;
         }
+        case CONNECTION_FIELD:
         case LINKED_FIELD: {
           mockData = this._mockLink(selection, path, mockData, defaultValues);
           break;
@@ -487,7 +491,7 @@ class RelayMockPayloadGenerator {
    * Generate mock data for linked fields in the selection
    */
   _mockLink(
-    field: NormalizationLinkedField,
+    field: NormalizationLinkedField | NormalizationConnectionField,
     path: $ReadOnlyArray<string>,
     prevData: ?MockData,
     defaultValues: ?MockData,
@@ -571,12 +575,13 @@ class RelayMockPayloadGenerator {
         fieldDefaultValue,
       );
     };
-    data[applicationName] = field.plural
-      ? generateMockList(
-          Array.isArray(defaults) ? defaults : Array(1).fill(),
-          generateDataForField,
-        )
-      : generateDataForField(defaults);
+    data[applicationName] =
+      field.kind === 'LinkedField' && field.plural
+        ? generateMockList(
+            Array.isArray(defaults) ? defaults : Array(1).fill(),
+            generateDataForField,
+          )
+        : generateDataForField(defaults);
 
     return data;
   }
@@ -633,7 +638,7 @@ class RelayMockPayloadGenerator {
    * Get object with variables for field
    */
   _getFieldArgs(
-    field: NormalizationLinkedField | NormalizationScalarField,
+    field: NormalizationField,
   ): {
     [string]: mixed,
   } {

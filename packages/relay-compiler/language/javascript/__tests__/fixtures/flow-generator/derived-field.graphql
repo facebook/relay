@@ -1,0 +1,18 @@
+query QueryWithConnectionField($id: ID!) {
+  feedback: node(id: $id)  {
+    ...FeedbackComments_feedback
+  }
+}
+
+fragment FeedbackComments_feedback on Feedback {
+  comments(first: 10) @connection_resolver(resolver: "FeedbackCommentsResolver") {
+    edges {
+      node {
+        id
+      }
+    }
+    pageInfo {
+      hasNextPage
+    }
+  }
+}

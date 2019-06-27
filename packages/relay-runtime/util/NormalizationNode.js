@@ -4,11 +4,13 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @flow strict
+ * @flow strict-local
  * @format
  */
 
 'use strict';
+
+import type {ConnectionFieldResolver} from './RelayRuntimeTypes';
 
 /**
  * Represents a single operation used to processing and normalize runtime
@@ -69,7 +71,8 @@ export type NormalizationClientExtension = {|
 
 export type NormalizationField =
   | NormalizationScalarField
-  | NormalizationLinkedField;
+  | NormalizationLinkedField
+  | NormalizationConnectionField;
 
 export type NormalizationInlineFragment = {|
   +kind: 'InlineFragment',
@@ -85,6 +88,18 @@ export type NormalizationLinkedField = {|
   +args: ?$ReadOnlyArray<NormalizationArgument>,
   +concreteType: ?string,
   +plural: boolean,
+  +selections: $ReadOnlyArray<NormalizationSelection>,
+|};
+
+export type NormalizationConnectionField = {|
+  +kind: 'ConnectionField',
+  +alias: ?string,
+  +label: string,
+  +name: string,
+  +resolver: ConnectionFieldResolver,
+  +storageKey: ?string,
+  +args: ?$ReadOnlyArray<NormalizationArgument>,
+  +concreteType: ?string,
   +selections: $ReadOnlyArray<NormalizationSelection>,
 |};
 
@@ -114,6 +129,7 @@ export type NormalizationNode =
   | NormalizationCondition
   | NormalizationDefer
   | NormalizationLinkedField
+  | NormalizationConnectionField
   | NormalizationInlineFragment
   | NormalizationOperation
   | NormalizationSplitOperation
@@ -170,6 +186,7 @@ export type NormalizationVariable = {|
 export type NormalizationSelectableNode =
   | NormalizationDefer
   | NormalizationLinkedField
+  | NormalizationConnectionField
   | NormalizationOperation
   | NormalizationSplitOperation
   | NormalizationStream;

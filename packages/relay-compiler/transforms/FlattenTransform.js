@@ -255,7 +255,6 @@ function flattenSelectionsInto(
           [selection.loc],
         );
       }
-      // Note: arguments are intentionally reversed to avoid rebuilds
       assertUniqueArgsForAlias(selection, flattenedSelection);
       flattenedSelections.set(nodeIdentifier, {
         kind: 'LinkedField',
@@ -275,12 +274,10 @@ function flattenSelectionsInto(
           [selection.loc],
         );
       }
-      // Note: arguments are intentionally reversed to avoid rebuilds
       assertUniqueArgsForAlias(selection, flattenedSelection);
       flattenedSelections.set(nodeIdentifier, {
         kind: 'ScalarField',
         ...flattenedSelection,
-        // Note: arguments are intentionally reversed to avoid rebuilds
         handles: mergeHandles(selection, flattenedSelection),
       });
     } else if (flattenedSelection.kind === 'InlineDataFragmentSpread') {
@@ -299,7 +296,6 @@ function flattenSelectionsInto(
           [selection.loc],
         );
       }
-      // Note: arguments are intentionally reversed to avoid rebuilds
       assertUniqueArgsForAlias(selection, flattenedSelection);
       flattenedSelections.set(nodeIdentifier, {
         kind: 'ConnectionField',

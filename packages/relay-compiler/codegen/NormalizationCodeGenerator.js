@@ -10,6 +10,7 @@
 
 'use strict';
 
+const CodeMarker = require('../util/CodeMarker');
 const SchemaUtils = require('../core/GraphQLSchemaUtils');
 
 const {
@@ -30,6 +31,7 @@ import type {
 import type {
   NormalizationArgument,
   NormalizationDefer,
+  NormalizationConnectionField,
   NormalizationField,
   NormalizationLinkedField,
   NormalizationLinkedHandle,
@@ -260,14 +262,21 @@ function generateLinkedField(node): $ReadOnlyArray<NormalizationSelection> {
 function generateConnectionField(node): NormalizationSelection {
   // TODO
   const type = getRawType(node.type);
-  let field: NormalizationLinkedField = {
-    kind: 'LinkedField',
+  if (isPlural(node.type)) {
+    throw createUserError(
+      'Connection fields cannot return a plural (list) value.',
+      [node.loc],
+    );
+  }
+  let field: NormalizationConnectionField = {
+    kind: 'ConnectionField',
     alias: node.alias,
+    label: node.label,
     name: node.name,
+    resolver: (CodeMarker.moduleDependency(node.resolver): $FlowFixMe),
     storageKey: null,
     args: generateArgs(node.args),
     concreteType: !isAbstractType(type) ? type.toString() : null,
-    plural: isPlural(node.type),
     selections: generateSelections(node.selections),
   };
   // Precompute storageKey if possible

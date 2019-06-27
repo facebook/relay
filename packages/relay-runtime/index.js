@@ -126,6 +126,7 @@ export type {
 export type {
   NormalizationArgument,
   NormalizationDefer,
+  NormalizationConnectionField,
   NormalizationField,
   NormalizationLinkedField,
   NormalizationLinkedHandle,
@@ -140,6 +141,7 @@ export type {NormalizationOperation} from './util/NormalizationNode';
 export type {
   ReaderArgument,
   ReaderArgumentDefinition,
+  ReaderConnectionField,
   ReaderField,
   ReaderFragment,
   ReaderInlineDataFragment,
@@ -173,6 +175,7 @@ export type {
 export type {
   CacheConfig,
   DataID,
+  ConnectionFieldResolver,
   Disposable,
   OperationType,
   Variables,

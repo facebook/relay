@@ -187,10 +187,11 @@ export type ConnectionField = {|
   +args: $ReadOnlyArray<Argument>,
   +directives: $ReadOnlyArray<Directive>,
   +kind: 'ConnectionField',
+  +label: string,
   +loc: Location,
   +metadata: Metadata,
   +name: string,
-  +resolver: ?string,
+  +resolver: string,
   +selections: $ReadOnlyArray<Selection>,
   +type: GraphQLOutputType,
 |};

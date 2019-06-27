@@ -106,6 +106,7 @@ if (__DEV__) {
           validateSelection(optimisticResponse, subselection, context);
         });
         return;
+      case 'ConnectionField':
       case 'ClientExtension':
       case 'ModuleImport':
       case 'LinkedHandle':

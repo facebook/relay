@@ -44,6 +44,7 @@ const {
   CONDITION,
   CLIENT_EXTENSION,
   DEFER,
+  CONNECTION_FIELD,
   FRAGMENT_SPREAD,
   INLINE_FRAGMENT,
   LINKED_FIELD,
@@ -297,6 +298,13 @@ class DataChecker {
           const recordWasMissing = this._recordWasMissing;
           this._traverseSelections(selection.selections, dataID);
           this._recordWasMissing = recordWasMissing;
+          break;
+        case CONNECTION_FIELD:
+          invariant(
+            false,
+            'DataChecker(): Connection fields are not supported yet.',
+          );
+          // $FlowExpectedError - we need the break; for OSS linter
           break;
         default:
           (selection: empty);

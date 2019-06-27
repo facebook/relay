@@ -1,0 +1,19 @@
+# expected-to-throw
+query QueryWithConnectionField($id: ID!) {
+  feedback: node(id: $id)  {
+    ...FeedbackComments_feedback
+  }
+}
+
+fragment FeedbackComments_feedback on Feedback {
+  comments(first: 10) {
+    edges @connection_resolver(resolver: "FeedbackCommentsEdgesResolver") { # error: plural
+      node {
+        id
+      }
+    }
+    pageInfo {
+      hasNextPage
+    }
+  }
+}

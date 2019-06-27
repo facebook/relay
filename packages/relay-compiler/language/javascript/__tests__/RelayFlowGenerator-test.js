@@ -10,6 +10,7 @@
 
 'use strict';
 
+const ConnectionFieldTransform = require('../../../transforms/ConnectionFieldTransform');
 const GraphQLCompilerContext = require('../../../core/GraphQLCompilerContext');
 const RelayFlowGenerator = require('../RelayFlowGenerator');
 const RelayMatchTransform = require('../../../transforms/RelayMatchTransform');
@@ -26,6 +27,7 @@ import type {TypeGeneratorOptions} from '../../RelayLanguagePluginInterface';
 
 function generate(text, options: TypeGeneratorOptions) {
   const schema = transformASTSchema(TestSchema, [
+    ConnectionFieldTransform.SCHEMA_EXTENSION,
     RelayMatchTransform.SCHEMA_EXTENSION,
     RelayRelayDirectiveTransform.SCHEMA_EXTENSION,
     `

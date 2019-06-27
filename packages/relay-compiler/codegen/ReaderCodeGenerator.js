@@ -30,6 +30,7 @@ import type {
 import type {
   ReaderArgument,
   ReaderArgumentDefinition,
+  ReaderConnectionField,
   ReaderField,
   ReaderFragment,
   ReaderInlineDataFragmentSpread,
@@ -234,16 +235,23 @@ function generateLinkedField(node): ReaderLinkedField {
   return field;
 }
 
-function generateConnectionField(node): ReaderLinkedField {
+function generateConnectionField(node): ReaderConnectionField {
   const type = getRawType(node.type);
-  let field: ReaderLinkedField = {
-    kind: 'LinkedField',
+  if (isPlural(node.type)) {
+    throw createUserError(
+      'Connection fields cannot return a plural (list) value.',
+      [node.loc],
+    );
+  }
+  let field: ReaderConnectionField = {
+    kind: 'ConnectionField',
     alias: node.alias,
+    label: node.label,
     name: node.name,
+    resolver: (CodeMarker.moduleDependency(node.resolver): $FlowFixMe),
     storageKey: null,
     args: generateArgs(node.args),
     concreteType: !isAbstractType(type) ? type.toString() : null,
-    plural: isPlural(node.type),
     selections: generateSelections(node.selections),
   };
   // Precompute storageKey if possible

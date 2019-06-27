@@ -35,6 +35,7 @@ const {
   CONDITION,
   CLIENT_EXTENSION,
   DEFER,
+  CONNECTION_FIELD,
   FRAGMENT_SPREAD,
   INLINE_FRAGMENT,
   LINKED_FIELD,
@@ -171,6 +172,13 @@ class RelayReferenceMarker {
           break;
         case CLIENT_EXTENSION:
           this._traverseSelections(selection.selections, record);
+          break;
+        case CONNECTION_FIELD:
+          invariant(
+            false,
+            'RelayReferenceMarker(): Connection fields are not supported yet.',
+          );
+          // $FlowExpectedError - we need the break; for OSS linter
           break;
         default:
           (selection: empty);

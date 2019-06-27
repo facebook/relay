@@ -20,6 +20,7 @@ const {
   CONDITION,
   CLIENT_EXTENSION,
   DEFER,
+  CONNECTION_FIELD,
   INLINE_FRAGMENT,
   LINKED_FIELD,
   LINKED_HANDLE,
@@ -41,10 +42,10 @@ const {
 import type {PayloadData} from '../network/RelayNetworkTypes';
 import type {
   NormalizationDefer,
-  NormalizationField,
   NormalizationLinkedField,
   NormalizationModuleImport,
   NormalizationNode,
+  NormalizationScalarField,
   NormalizationStream,
 } from '../util/NormalizationNode';
 import type {Record} from '../util/RelayCombinedEnvironmentTypes';
@@ -218,6 +219,13 @@ class RelayResponseNormalizer {
           this._traverseSelections(selection, record, data);
           this._handleStrippedNulls = handleStrippedNulls;
           break;
+        case CONNECTION_FIELD:
+          invariant(
+            false,
+            'RelayResponseNormalizer(): Connection fields are not supported yet.',
+          );
+          // $FlowExpectedError - we need the break; for OSS linter
+          break;
         default:
           (selection: empty);
           invariant(
@@ -335,7 +343,7 @@ class RelayResponseNormalizer {
 
   _normalizeField(
     parent: NormalizationNode,
-    selection: NormalizationField,
+    selection: NormalizationLinkedField | NormalizationScalarField,
     record: Record,
     data: PayloadData,
   ) {

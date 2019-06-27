@@ -403,8 +403,7 @@ class RelayMockPayloadGenerator {
                 '@module dependency. Provided value is "%s" and we\'re ' +
                 'expecting an object of a type `NormalizationSplitOperation`. ' +
                 'Please adjust mock resolver for the type "%s". ' +
-                'Typically it should be ' +
-                "`__module_operation: require('%s$normalization.graphql')`.",
+                'Typically it should require a file "%s$normalization.graphql".',
               JSON.stringify(operation),
               typeName,
               selection.fragmentName,

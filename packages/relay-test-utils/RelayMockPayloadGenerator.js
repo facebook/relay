@@ -13,7 +13,12 @@
 
 const invariant = require('invariant');
 
-const {TYPENAME_KEY, RelayConcreteNode} = require('relay-runtime');
+const {
+  TYPENAME_KEY,
+  RelayConcreteNode,
+  getModuleComponentKey,
+  getModuleOperationKey,
+} = require('relay-runtime');
 
 const {
   CONDITION,
@@ -39,6 +44,7 @@ import type {
   NormalizationScalarField,
   OperationDescriptor,
   GraphQLResponse,
+  NormalizationSplitOperation,
 } from 'relay-runtime';
 
 type ValueResolver = (
@@ -307,20 +313,54 @@ class RelayMockPayloadGenerator {
             mockData[TYPENAME_KEY] = selection.type;
           }
           if (mockData != null && mockData[TYPENAME_KEY] === selection.type) {
+            // This will get default values for current selection type
             const defaults = this._getDefaultValuesForObject(
               selection.type,
               path[path.length - 1],
               null,
               path,
             );
+
+            // Also, if the selection has an abstract type
+            // we may have mock resolvers for it
+            const defaultsForAbstractType =
+              typeName !== selection.type
+                ? this._getDefaultValuesForObject(
+                    typeName,
+                    path[path.length - 1],
+                    null,
+                    path,
+                  )
+                : defaults;
+
+            // Now let's select which defaults we're going to use
+            // for the selections
+            let defaultValuesForSelection = defaults; // First, defaults for
+            // concrete type of the selection
+            if (defaultValuesForSelection === undefined) {
+              // Second, defaults for abstract type of the selection
+              defaultValuesForSelection = defaultsForAbstractType;
+            }
+            // And last, values from the parent mock resolver
+            if (defaultValuesForSelection === undefined) {
+              defaultValuesForSelection = defaultValues;
+            }
+            // Now, if the default value for the type is explicit null,
+            // we may skip traversing child selection
+            if (defaultValuesForSelection === null) {
+              mockData = null;
+              break;
+            }
+
             mockData = this._traverseSelections(
               selection.selections,
               selection.type,
               isAbstractType,
               path,
               mockData,
-              defaults ?? defaultValues,
+              defaultValuesForSelection,
             );
+
             if (mockData[TYPENAME_KEY] != null) {
               mockData[TYPENAME_KEY] = selection.type;
             }
@@ -339,7 +379,59 @@ class RelayMockPayloadGenerator {
         }
 
         case MODULE_IMPORT:
-          // TODO(T43369419) generate payloads for 3D in mock payload generator
+          // Explicit `null` of `defaultValues` handled in the INLINE_FRAGMENT
+          if (defaultValues != null) {
+            if (defaultValues.__typename !== typeName) {
+              break;
+            }
+            // In order to mock 3d payloads, we need to receive an object with
+            // the type `NormalizationSplitOperation` from mock resolvers.
+            // In this case, we can traverse into its selection
+            // and generated payloads for it.
+            const operation = defaultValues.__module_operation;
+
+            // Basic sanity checks of the provided default value.
+            // It should look like NormalizationSplitOperation
+            invariant(
+              typeof operation === 'object' &&
+                operation !== null &&
+                operation.kind === 'SplitOperation' &&
+                Array.isArray(operation.selections) &&
+                typeof operation.name === 'string',
+              'RelayMockPayloadGenerator(): Unexpected default value for ' +
+                'a field `__module_operation` in the mock resolver for ' +
+                '@module dependency. Provided value is "%s" and we\'re ' +
+                'expecting an object of a type `NormalizationSplitOperation`. ' +
+                'Please adjust mock resolver for the type "%s". ' +
+                'Typically it should be ' +
+                "`__module_operation: require('%s$normalization.graphql')`.",
+              JSON.stringify(operation),
+              typeName,
+              selection.fragmentName,
+            );
+
+            const splitOperation: NormalizationSplitOperation = (operation: $FlowFixMe);
+            const {documentName} = selection;
+            if (mockData == null) {
+              mockData = {};
+            }
+            mockData = {
+              ...mockData,
+              [TYPENAME_KEY]: typeName,
+              [getModuleOperationKey(documentName)]: operation.name,
+              [getModuleComponentKey(
+                documentName,
+              )]: defaultValues.__module_component,
+              ...this._traverseSelections(
+                splitOperation.selections,
+                typeName,
+                false,
+                path,
+                null,
+                null,
+              ),
+            };
+          }
           break;
         case SCALAR_HANDLE:
         case LINKED_HANDLE:

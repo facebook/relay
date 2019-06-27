@@ -1747,3 +1747,181 @@ query TestQuery @relay_test_operation {
   }
 }
 `;
+
+exports[`with @relay_test_operation should generate data for @match with MarkdownUserNameRenderer_name 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query TestQuery @relay_test_operation {
+  node(id: "my-id") {
+    ...NameRendererFragment
+  }
+}
+
+fragment NameRendererFragment on User {
+  id
+  nameRenderer @match {
+    ...PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
+    ...MarkdownUserNameRenderer_name @module(name: "MarkdownUserNameRenderer.react")
+  }
+}
+
+fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
+  plaintext
+  data {
+    text
+  }
+}
+
+fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+  markdown
+  data {
+    markup
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+{
+  "data": {
+    "node": {
+      "__typename": "User",
+      "id": "<Node-mock-id-1>",
+      "nameRenderer": {
+        "__typename": "MarkdownUserNameRenderer",
+        "__module_operation_NameRendererFragment": "MarkdownUserNameRenderer_name$normalization",
+        "markdown": "<mock-value-for-field-\\"markdown\\">",
+        "data": {
+          "markup": "<mock-value-for-field-\\"markup\\">",
+          "id": "<MarkdownUserNameData-mock-id-2>"
+        }
+      }
+    }
+  }
+}
+`;
+
+exports[`with @relay_test_operation should generate data for @match with PlainUserNameRenderer_name 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query TestQuery @relay_test_operation {
+  node(id: "my-id") {
+    ...NameRendererFragment
+  }
+}
+
+fragment NameRendererFragment on User {
+  id
+  nameRenderer @match {
+    ...PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
+    ...MarkdownUserNameRenderer_name @module(name: "MarkdownUserNameRenderer.react")
+  }
+}
+
+fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
+  plaintext
+  data {
+    text
+  }
+}
+
+fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+  markdown
+  data {
+    markup
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+{
+  "data": {
+    "node": {
+      "__typename": "User",
+      "id": "<Node-mock-id-1>",
+      "nameRenderer": {
+        "__typename": "PlainUserNameRenderer",
+        "__module_operation_NameRendererFragment": "PlainUserNameRenderer_name$normalization",
+        "plaintext": "<mock-value-for-field-\\"plaintext\\">",
+        "data": {
+          "text": "<mock-value-for-field-\\"text\\">",
+          "id": "<PlainUserNameData-mock-id-2>"
+        }
+      }
+    }
+  }
+}
+`;
+
+exports[`with @relay_test_operation should generate data for @module 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query TestQuery @relay_test_operation {
+  node(id: "my-id") {
+    ...NameRendererFragment
+  }
+}
+
+fragment NameRendererFragment on User {
+  id
+  nameRenderer {
+    ...MarkdownUserNameRenderer_name @module(name: "MarkdownUserNameRenderer.react")
+  }
+}
+
+fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+  markdown
+  data {
+    markup
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+{
+  "data": {
+    "node": {
+      "__typename": "User",
+      "id": "<Node-mock-id-1>",
+      "nameRenderer": {
+        "__typename": "MarkdownUserNameRenderer",
+        "__module_operation_NameRendererFragment": "MarkdownUserNameRenderer_name$normalization",
+        "markdown": "<mock-value-for-field-\\"markdown\\">",
+        "data": {
+          "markup": "<mock-value-for-field-\\"markup\\">",
+          "id": "<MarkdownUserNameData-mock-id-2>"
+        }
+      }
+    }
+  }
+}
+`;
+
+exports[`with @relay_test_operation should generate data for @module with \`null\` in mock resolvers 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query TestQuery @relay_test_operation {
+  node(id: "my-id") {
+    ...NameRendererFragment
+  }
+}
+
+fragment NameRendererFragment on User {
+  id
+  nameRenderer {
+    ...MarkdownUserNameRenderer_name @module(name: "MarkdownUserNameRenderer.react")
+  }
+}
+
+fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+  markdown
+  data {
+    markup
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+{
+  "data": {
+    "node": {
+      "__typename": "User",
+      "id": "<Node-mock-id-1>",
+      "nameRenderer": null
+    }
+  }
+}
+`;
+
+exports[`with @relay_test_operation should throw if invalid default value provide for __module_operation. 1`] = `"RelayMockPayloadGenerator(): Unexpected default value for a field \`__module_operation\` in the mock resolver for @module dependency. Provided value is \\"{\\"kind\\":\\"InvalidObject\\"}\\" and we're expecting an object of a type \`NormalizationSplitOperation\`. Please adjust mock resolver for the type \\"MarkdownUserNameRenderer\\". Typically it should be \`__module_operation: require('MarkdownUserNameRenderer_name$normalization.graphql')\`."`;

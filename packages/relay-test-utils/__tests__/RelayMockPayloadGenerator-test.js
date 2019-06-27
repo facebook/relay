@@ -22,10 +22,19 @@ function compile(text) {
   return generateAndCompile(text);
 }
 
-function testGeneratedData(graphql: string, mockResolvers: ?MockResolvers) {
-  const {TestQuery: query} = compile(graphql);
+function testGeneratedData(
+  graphql: string,
+  mockResolvers: ?MockResolvers | ((compiledGraphQL: mixed) => MockResolvers),
+): void {
+  const compiledGraphQL = compile(graphql);
+  const {TestQuery: query} = compiledGraphQL;
   const operation = createOperationDescriptor(getRequest(query), {});
-  const payload = RelayMockPayloadGenerator.generate(operation, mockResolvers);
+  const payload = RelayMockPayloadGenerator.generate(
+    operation,
+    typeof mockResolvers === 'function'
+      ? mockResolvers(compiledGraphQL)
+      : mockResolvers,
+  );
   expect({
     [FIXTURE_TAG]: true,
     input: print(parse(graphql)),
@@ -1349,6 +1358,201 @@ describe('with @relay_test_operation', () => {
           }
         }
       `,
+    );
+  });
+
+  test('should generate data for @module', () => {
+    testGeneratedData(
+      `
+        query TestQuery @relay_test_operation {
+          node(id: "my-id") {
+            ...NameRendererFragment
+          }
+        }
+
+        fragment NameRendererFragment on User {
+          id
+          nameRenderer {
+            ...MarkdownUserNameRenderer_name
+              @module(name: "MarkdownUserNameRenderer.react")
+          }
+        }
+
+        fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+          markdown
+          data {
+            markup
+          }
+        }
+      `,
+      compiledGraphQL => ({
+        UserNameRenderer() {
+          return {
+            __typename: 'MarkdownUserNameRenderer',
+            __module_operation:
+              compiledGraphQL.MarkdownUserNameRenderer_name$normalization,
+          };
+        },
+      }),
+    );
+  });
+
+  test('should generate data for @match with MarkdownUserNameRenderer_name', () => {
+    testGeneratedData(
+      `
+        query TestQuery @relay_test_operation {
+          node(id: "my-id") {
+            ...NameRendererFragment
+          }
+        }
+
+        fragment NameRendererFragment on User {
+          id
+          nameRenderer @match {
+            ...PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
+            ...MarkdownUserNameRenderer_name
+              @module(name: "MarkdownUserNameRenderer.react")
+          }
+        }
+
+        fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
+          plaintext
+          data {
+            text
+          }
+        }
+
+        fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+          markdown
+          data {
+            markup
+          }
+        }
+      `,
+      compiledGraphQL => ({
+        UserNameRenderer() {
+          return {
+            __typename: 'MarkdownUserNameRenderer',
+            __module_operation:
+              compiledGraphQL.MarkdownUserNameRenderer_name$normalization,
+          };
+        },
+      }),
+    );
+  });
+
+  test('should generate data for @match with PlainUserNameRenderer_name', () => {
+    testGeneratedData(
+      `
+        query TestQuery @relay_test_operation {
+          node(id: "my-id") {
+            ...NameRendererFragment
+          }
+        }
+
+        fragment NameRendererFragment on User {
+          id
+          nameRenderer @match {
+            ...PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
+            ...MarkdownUserNameRenderer_name
+              @module(name: "MarkdownUserNameRenderer.react")
+          }
+        }
+
+        fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
+          plaintext
+          data {
+            text
+          }
+        }
+
+        fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+          markdown
+          data {
+            markup
+          }
+        }
+      `,
+      compiledGraphQL => ({
+        UserNameRenderer() {
+          return {
+            __typename: 'PlainUserNameRenderer',
+            __module_operation:
+              compiledGraphQL.PlainUserNameRenderer_name$normalization,
+          };
+        },
+      }),
+    );
+  });
+
+  test('should throw if invalid default value provide for __module_operation.', () => {
+    expect(() => {
+      testGeneratedData(
+        `
+        query TestQuery @relay_test_operation {
+          node(id: "my-id") {
+            ...NameRendererFragment
+          }
+        }
+
+        fragment NameRendererFragment on User {
+          id
+          nameRenderer {
+            ...MarkdownUserNameRenderer_name
+              @module(name: "MarkdownUserNameRenderer.react")
+          }
+        }
+
+        fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+          markdown
+          data {
+            markup
+          }
+        }
+      `,
+        {
+          UserNameRenderer() {
+            return {
+              __typename: 'MarkdownUserNameRenderer',
+              __module_operation: {
+                kind: 'InvalidObject',
+              },
+            };
+          },
+        },
+      );
+    }).toThrowErrorMatchingSnapshot();
+  });
+
+  test('should generate data for @module with `null` in mock resolvers', () => {
+    testGeneratedData(
+      `
+        query TestQuery @relay_test_operation {
+          node(id: "my-id") {
+            ...NameRendererFragment
+          }
+        }
+
+        fragment NameRendererFragment on User {
+          id
+          nameRenderer {
+            ...MarkdownUserNameRenderer_name
+              @module(name: "MarkdownUserNameRenderer.react")
+          }
+        }
+
+        fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+          markdown
+          data {
+            markup
+          }
+        }
+      `,
+      compiledGraphQL => ({
+        UserNameRenderer() {
+          return null;
+        },
+      }),
     );
   });
 });

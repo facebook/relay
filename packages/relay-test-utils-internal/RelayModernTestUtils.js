@@ -13,6 +13,8 @@ const getOutputForFixture = require('./getOutputForFixture');
 const mapObject = require('mapObject');
 const parseGraphQLText = require('./parseGraphQLText');
 
+const {CodeMarker} = require('relay-compiler');
+
 import type {GraphQLSchema} from 'graphql';
 import type {RelayCompilerTransforms, IRTransform} from 'relay-compiler';
 import type {GeneratedNode} from 'relay-runtime';
@@ -159,13 +161,18 @@ function generateWithTransforms(
   transforms?: ?Array<IRTransform>,
 ): {[key: string]: GeneratedNode} {
   const RelayTestSchema = require('./RelayTestSchema');
-  return generate(text, RelayTestSchema, {
-    commonTransforms: transforms || [],
-    fragmentTransforms: [],
-    queryTransforms: [],
-    codegenTransforms: [],
-    printTransforms: [],
-  });
+  return generate(
+    text,
+    RelayTestSchema,
+    {
+      commonTransforms: transforms || [],
+      fragmentTransforms: [],
+      queryTransforms: [],
+      codegenTransforms: [],
+      printTransforms: [],
+    },
+    null,
+  );
 }
 
 /**
@@ -176,10 +183,16 @@ function generateWithTransforms(
 function generateAndCompile(
   text: string,
   schema?: ?GraphQLSchema,
+  moduleMap?: ?{[string]: mixed},
 ): {[key: string]: GeneratedNode} {
   const {IRTransforms} = require('relay-compiler');
   const RelayTestSchema = require('./RelayTestSchema');
-  return generate(text, schema || RelayTestSchema, IRTransforms);
+  return generate(
+    text,
+    schema || RelayTestSchema,
+    IRTransforms,
+    moduleMap ?? null,
+  );
 }
 
 /**
@@ -216,6 +229,7 @@ function generate(
   text: string,
   schema: GraphQLSchema,
   transforms: RelayCompilerTransforms,
+  moduleMap: ?{[string]: mixed},
 ): {[key: string]: GeneratedNode} {
   const {
     compileRelayArtifacts,
@@ -232,9 +246,11 @@ function generate(
   const documentMap = {};
   compileRelayArtifacts(compilerContext, transforms).forEach(
     ([_definition, node]) => {
+      const transformedNode =
+        moduleMap != null ? CodeMarker.transform(node, moduleMap) : node;
       documentMap[
         node.kind === 'Request' ? node.params.name : node.name
-      ] = node;
+      ] = transformedNode;
     },
   );
   return documentMap;

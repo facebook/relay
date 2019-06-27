@@ -12,6 +12,7 @@
 
 const ASTCache = require('./core/ASTCache');
 const ASTConvert = require('./core/ASTConvert');
+const CodeMarker = require('./util/CodeMarker');
 const CodegenDirectory = require('./codegen/CodegenDirectory');
 const CodegenRunner = require('./codegen/CodegenRunner');
 const CodegenWatcher = require('./codegen/CodegenWatcher');
@@ -115,6 +116,7 @@ module.exports = {
   CodegenDirectory,
   CodegenRunner,
   CodegenWatcher,
+  CodeMarker,
   CompilerContext: GraphQLCompilerContext,
   ConsoleReporter: GraphQLConsoleReporter,
   DotGraphQLParser,

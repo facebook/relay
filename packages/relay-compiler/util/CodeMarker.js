@@ -33,7 +33,45 @@ function postProcess(json: string, printModule: string => string): string {
   );
 }
 
+/**
+ * Transforms a value such that any transitive CodeMarker strings are replaced
+ * with the value of the named module in the given module map.
+ */
+function transform(node: mixed, moduleMap: {[string]: mixed}): mixed {
+  if (node == null) {
+    return node;
+  } else if (Array.isArray(node)) {
+    return node.map(item => transform(item, moduleMap));
+  } else if (typeof node === 'object') {
+    const next = {};
+    Object.keys(node).forEach(key => {
+      next[key] = transform(node[key], moduleMap);
+    });
+    return next;
+  } else if (typeof node === 'string') {
+    const match = /^@@MODULE_START@@(.*?)@@MODULE_END@@$/.exec(node);
+    if (match != null) {
+      const moduleName = match[1];
+      if (moduleMap.hasOwnProperty(moduleName)) {
+        return moduleMap[moduleName];
+      } else {
+        throw new Error(
+          `Could not find a value for CodeMarker value '${moduleName}', ` +
+            'make sure to supply one in the module mapping.',
+        );
+      }
+    } else if (node.indexOf('@@MODULE_START') >= 0) {
+      throw new Error(`Found unprocessed CodeMarker value '${node}'.`);
+    }
+    return node;
+  } else {
+    // mixed
+    return node;
+  }
+}
+
 module.exports = {
   moduleDependency,
   postProcess,
+  transform,
 };

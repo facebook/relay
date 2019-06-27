@@ -112,7 +112,7 @@ const hasTypenameSelection = selections => selections.some(isTypenameSelection);
 const onlySelectsTypename = selections => selections.every(isTypenameSelection);
 
 function selectionsToBabel(
-  selections,
+  selections: $ReadOnlyArray<$ReadOnlyArray<Selection>>,
   state: State,
   unmasked: boolean,
   fragmentTypeName?: string,
@@ -120,10 +120,7 @@ function selectionsToBabel(
   const baseFields = new Map();
   const byConcreteType = {};
 
-  flattenArray(
-    // $FlowFixMe
-    selections,
-  ).forEach(selection => {
+  flattenArray(selections).forEach(selection => {
     const {concreteType} = selection;
     if (concreteType) {
       byConcreteType[concreteType] = byConcreteType[concreteType] ?? [];
@@ -222,29 +219,44 @@ function selectionsToBabel(
   );
 }
 
-function mergeSelection(a: ?Selection, b: Selection): Selection {
+function mergeSelection(
+  a: ?Selection,
+  b: Selection,
+  shouldSetConditional: boolean = true,
+): Selection {
   if (!a) {
-    return {
-      ...b,
-      conditional: true,
-    };
+    if (shouldSetConditional) {
+      return {
+        ...b,
+        conditional: true,
+      };
+    }
+    return b;
   }
   return {
     ...a,
     nodeSelections: a.nodeSelections
-      ? mergeSelections(a.nodeSelections, nullthrows(b.nodeSelections))
+      ? mergeSelections(
+          a.nodeSelections,
+          nullthrows(b.nodeSelections),
+          shouldSetConditional,
+        )
       : null,
     conditional: a.conditional && b.conditional,
   };
 }
 
-function mergeSelections(a: SelectionMap, b: SelectionMap): SelectionMap {
+function mergeSelections(
+  a: SelectionMap,
+  b: SelectionMap,
+  shouldSetConditional: boolean = true,
+): SelectionMap {
   const merged = new Map();
   for (const [key, value] of a.entries()) {
     merged.set(key, value);
   }
   for (const [key, value] of b.entries()) {
-    merged.set(key, mergeSelection(a.get(key), value));
+    merged.set(key, mergeSelection(a.get(key), value, shouldSetConditional));
   }
   return merged;
 }
@@ -274,7 +286,12 @@ function createVisitor(options: TypeGeneratorOptions) {
         const inputObjectTypes = generateInputObjectTypes(state);
         const responseType = exportType(
           `${node.name}Response`,
-          selectionsToBabel(node.selections, state, false),
+          selectionsToBabel(
+            /* $FlowFixMe: selections have already been transformed */
+            (node.selections: $ReadOnlyArray<Selection>),
+            state,
+            false,
+          ),
         );
         const operationType = exportType(
           node.name,
@@ -289,19 +306,39 @@ function createVisitor(options: TypeGeneratorOptions) {
             ),
           ]),
         );
-        return t.program([
+
+        // Generate raw response type
+        let rawResponseType;
+        const {normalizationIR} = options;
+        if (
+          normalizationIR &&
+          node.directives.some(d => d.name === DIRECTIVE_NAME)
+        ) {
+          rawResponseType = IRVisitor.visit(
+            normalizationIR,
+            createRawResponseTypeVisitor(state),
+          );
+        }
+
+        const babelNodes = [
           ...getFragmentImports(state),
           ...getEnumDefinitions(state),
           ...inputObjectTypes,
           inputVariablesType,
           responseType,
           operationType,
-        ]);
+        ];
+
+        if (rawResponseType) {
+          babelNodes.push(rawResponseType);
+        }
+
+        return t.program(babelNodes);
       },
       Fragment(node) {
         let selections = flattenArray(
-          // $FlowFixMe
-          node.selections,
+          /* $FlowFixMe: selections have already been transformed */
+          (node.selections: $ReadOnlyArray<Selection>),
         );
         const numConecreteSelections = selections.filter(s => s.concreteType)
           .length;
@@ -343,11 +380,10 @@ function createVisitor(options: TypeGeneratorOptions) {
         const dataTypeName = getDataTypeName(node.name);
         const dataType = t.genericTypeAnnotation(t.identifier(node.name));
 
-        const unmasked = node.metadata && node.metadata.mask === false;
+        const unmasked = node.metadata != null && node.metadata.mask === false;
         const baseType = selectionsToBabel(
           selections,
           state,
-          // $FlowFixMe
           unmasked,
           unmasked ? undefined : getOldFragmentTypeName(node.name),
         );
@@ -367,8 +403,8 @@ function createVisitor(options: TypeGeneratorOptions) {
       InlineFragment(node) {
         const typeCondition = node.typeCondition;
         return flattenArray(
-          // $FlowFixMe
-          node.selections,
+          /* $FlowFixMe: selections have already been transformed */
+          (node.selections: $ReadOnlyArray<Selection>),
         ).map(typeSelection => {
           return isAbstractType(typeCondition)
             ? {
@@ -381,83 +417,14 @@ function createVisitor(options: TypeGeneratorOptions) {
               };
         });
       },
-      Condition(node) {
-        return flattenArray(
-          // $FlowFixMe
-          node.selections,
-        ).map(selection => {
-          return {
-            ...selection,
-            conditional: true,
-          };
-        });
-      },
+      Condition: visitCondition,
       ScalarField(node) {
-        return [
-          {
-            key: node.alias ?? node.name,
-            schemaName: node.name,
-            value: transformScalarType(node.type, state),
-          },
-        ];
+        return visitScalarField(node, state);
       },
-      ConnectionField(node) {
-        return [
-          {
-            key: node.alias ?? node.name,
-            schemaName: node.name,
-            nodeType: node.type,
-            nodeSelections: selectionsToMap(
-              flattenArray(
-                // $FlowFixMe
-                node.selections,
-              ),
-              /*
-               * append concreteType to key so overlapping fields with different
-               * concreteTypes don't get overwritten by each other
-               */
-              true,
-            ),
-          },
-        ];
-      },
-      LinkedField(node) {
-        return [
-          {
-            key: node.alias ?? node.name,
-            schemaName: node.name,
-            nodeType: node.type,
-            nodeSelections: selectionsToMap(
-              flattenArray(
-                // $FlowFixMe
-                node.selections,
-              ),
-              /*
-               * append concreteType to key so overlapping fields with different
-               * concreteTypes don't get overwritten by each other
-               */
-              true,
-            ),
-          },
-        ];
-      },
+      ConnectionField: visitConnectionField,
+      LinkedField: visitLinkedField,
       ModuleImport(node) {
-        return [
-          {
-            key: '__fragmentPropName',
-            conditional: true,
-            value: transformScalarType(GraphQLString, state),
-          },
-          {
-            key: '__module_component',
-            conditional: true,
-            value: transformScalarType(GraphQLString, state),
-          },
-          {
-            key: '__fragments_' + node.name,
-            ref: node.name,
-          },
-        ];
+        return visitMoudleImport(node, state);
       },
       FragmentSpread(node) {
         state.usedFragments.add(node.name);
@@ -467,6 +434,223 @@ function createVisitor(options: TypeGeneratorOptions) {
             ref: node.name,
           },
         ];
+      },
+    },
+  };
+}
+
+function visitCondition(node, state) {
+  return flattenArray(
+    /* $FlowFixMe: selections have already been transformed */
+    (node.selections: $ReadOnlyArray<Selection>),
+  ).map(selection => {
+    return {
+      ...selection,
+      conditional: true,
+    };
+  });
+}
+
+function visitScalarField(node, state) {
+  return [
+    {
+      key: node.alias ?? node.name,
+      schemaName: node.name,
+      value: transformScalarType(node.type, state),
+    },
+  ];
+}
+
+function visitConnectionField(node) {
+  return [
+    {
+      key: node.alias ?? node.name,
+      schemaName: node.name,
+      nodeType: node.type,
+      nodeSelections: selectionsToMap(
+        flattenArray(
+          // $FlowFixMe
+          node.selections,
+        ),
+        /*
+         * append concreteType to key so overlapping fields with different
+         * concreteTypes don't get overwritten by each other
+         */
+        true,
+      ),
+    },
+  ];
+}
+
+function visitLinkedField(node) {
+  return [
+    {
+      key: node.alias ?? node.name,
+      schemaName: node.name,
+      nodeType: node.type,
+      nodeSelections: selectionsToMap(
+        flattenArray(
+          /* $FlowFixMe: selections have already been transformed */
+          (node.selections: $ReadOnlyArray<Selection>),
+        ),
+        /*
+         * append concreteType to key so overlapping fields with different
+         * concreteTypes don't get overwritten by each other
+         */
+        true,
+      ),
+    },
+  ];
+}
+
+function visitMoudleImport(node, state) {
+  return [
+    {
+      key: '__fragmentPropName',
+      conditional: true,
+      value: transformScalarType(GraphQLString, state),
+    },
+    {
+      key: '__module_component',
+      conditional: true,
+      value: transformScalarType(GraphQLString, state),
+    },
+    {
+      key: '__fragments_' + node.name,
+      ref: node.name,
+    },
+  ];
+}
+
+function makeRawResponseProp(
+  {key, schemaName, value, conditional, nodeType, nodeSelections}: Selection,
+  state: State,
+  concreteType: ?string,
+) {
+  if (nodeType) {
+    value = transformScalarType(
+      nodeType,
+      state,
+      selectionsToRawResponseBabel(
+        [Array.from(nullthrows(nodeSelections).values())],
+        state,
+        isAbstractType(nodeType) ? null : nodeType.name,
+      ),
+    );
+  }
+  if (schemaName === '__typename' && concreteType) {
+    value = t.stringLiteralTypeAnnotation(concreteType);
+  }
+  const typeProperty = readOnlyObjectTypeProperty(key, value);
+  if (conditional) {
+    typeProperty.optional = true;
+  }
+  return typeProperty;
+}
+
+// Trasform the codegen IR selections into Babel flow types
+function selectionsToRawResponseBabel(
+  selections: $ReadOnlyArray<$ReadOnlyArray<Selection>>,
+  state: State,
+  nodeTypeName: ?string,
+) {
+  const baseFields = [];
+  const byConcreteType = {};
+
+  flattenArray(selections).forEach(selection => {
+    const {concreteType} = selection;
+    if (concreteType) {
+      byConcreteType[concreteType] = byConcreteType[concreteType] ?? [];
+      byConcreteType[concreteType].push(selection);
+    } else {
+      baseFields.push(selection);
+    }
+  });
+
+  const types = [];
+  if (Object.keys(byConcreteType).length) {
+    const baseFieldsMap = selectionsToMap(baseFields);
+    for (const concreteType in byConcreteType) {
+      types.push(
+        Array.from(
+          mergeSelections(
+            baseFieldsMap,
+            selectionsToMap(byConcreteType[concreteType]),
+            false,
+          ).values(),
+        ).map(selection => {
+          if (isTypenameSelection(selection)) {
+            return makeRawResponseProp(
+              {...selection, conditional: false},
+              state,
+              concreteType,
+            );
+          }
+          return makeRawResponseProp(selection, state, concreteType);
+        }),
+      );
+    }
+  }
+  types.push(
+    baseFields.map(selection => {
+      if (isTypenameSelection(selection)) {
+        return makeRawResponseProp(
+          {...selection, conditional: false},
+          state,
+          nodeTypeName,
+        );
+      }
+      return makeRawResponseProp(selection, state, null);
+    }),
+  );
+  return unionTypeAnnotation(
+    types.map(props => exactObjectTypeAnnotation(props)),
+  );
+}
+// Visitor for generating raw reponse type
+function createRawResponseTypeVisitor(state: State) {
+  return {
+    leave: {
+      Root(node) {
+        return exportType(
+          `${node.name}RawResponse`,
+          selectionsToRawResponseBabel(
+            /* $FlowFixMe: selections have already been transformed */
+            (node.selections: $ReadOnlyArray<Selection>),
+            state,
+            null,
+          ),
+        );
+      },
+      InlineFragment(node) {
+        const typeCondition = node.typeCondition;
+        return flattenArray(
+          /* $FlowFixMe: selections have already been transformed */
+          (node.selections: $ReadOnlyArray<Selection>),
+        ).map(typeSelection => {
+          return isAbstractType(typeCondition)
+            ? typeSelection
+            : {
+                ...typeSelection,
+                concreteType: typeCondition.toString(),
+              };
+        });
+      },
+      Condition: visitCondition,
+      ScalarField(node) {
+        return visitScalarField(node, state);
+      },
+      ConnectionField: visitConnectionField,
+      LinkedField: visitLinkedField,
+      ModuleImport(node) {
+        return visitMoudleImport(node, state);
+      },
+      FragmentSpread(node) {
+        invariant(
+          false,
+          'A fragment spread is found when traversing the AST, ' +
+            'make sure you are passing the codegen IR',
+        );
       },
     },
   };
@@ -491,9 +675,9 @@ function selectionsToMap(
   return map;
 }
 
-function flattenArray<T>(
-  arrayOfArrays: $ReadOnlyArray<$ReadOnlyArray<T>>,
-): $ReadOnlyArray<T> {
+function flattenArray(
+  arrayOfArrays: $ReadOnlyArray<$ReadOnlyArray<Selection>>,
+): $ReadOnlyArray<Selection> {
   const result = [];
   arrayOfArrays.forEach(array => {
     result.push(...array);
@@ -657,10 +841,13 @@ const FLOW_TRANSFORMS: Array<IRTransform> = [
   RelayRefetchableFragmentTransform.transform,
 ];
 
+const DIRECTIVE_NAME = 'raw_response_type';
+
 module.exports = {
   generate: (Profiler.instrument(generate, 'RelayFlowGenerator.generate'): (
     node: Root | Fragment,
     options: TypeGeneratorOptions,
   ) => string),
   transforms: FLOW_TRANSFORMS,
+  SCHEMA_EXTENSION: `directive @${DIRECTIVE_NAME} on QUERY | MUTATION | SUBSCRIPTION`,
 };

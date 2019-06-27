@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`RelayFlowGenerator matches expected output: conditional.graphql 1`] = `
+exports[`RelayFlowGenerator Snapshot tests matches expected output: conditional.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 fragment ConditionField on Node {
   id @include(if: $condition)
@@ -40,7 +40,7 @@ export type NestedCondition$key = {
 };
 `;
 
-exports[`RelayFlowGenerator matches expected output: derived-field.graphql 1`] = `
+exports[`RelayFlowGenerator Snapshot tests matches expected output: derived-field.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query QueryWithConnectionField($id: ID!) {
   feedback: node(id: $id)  {
@@ -99,7 +99,7 @@ export type FeedbackComments_feedback$key = {
 };
 `;
 
-exports[`RelayFlowGenerator matches expected output: fragment-spread.graphql 1`] = `
+exports[`RelayFlowGenerator Snapshot tests matches expected output: fragment-spread.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 fragment FragmentSpread on Node {
   id
@@ -182,7 +182,7 @@ export type ConcreateTypes$key = {
 };
 `;
 
-exports[`RelayFlowGenerator matches expected output: inline-fragment.graphql 1`] = `
+exports[`RelayFlowGenerator Snapshot tests matches expected output: inline-fragment.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 fragment InlineFragment on Node {
   id
@@ -321,7 +321,7 @@ export type InlineFragmentKitchenSink$key = {
 };
 `;
 
-exports[`RelayFlowGenerator matches expected output: linked-field.graphql 1`] = `
+exports[`RelayFlowGenerator Snapshot tests matches expected output: linked-field.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 fragment LinkedField on User {
   profilePicture {
@@ -395,7 +395,7 @@ export type UnionTypeTest = {|
 |};
 `;
 
-exports[`RelayFlowGenerator matches expected output: match-field.graphql 1`] = `
+exports[`RelayFlowGenerator Snapshot tests matches expected output: match-field.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 fragment NameRendererFragment on User {
   id
@@ -474,7 +474,7 @@ export type MarkdownUserNameRenderer_name$key = {
 };
 `;
 
-exports[`RelayFlowGenerator matches expected output: match-field-in-query.graphql 1`] = `
+exports[`RelayFlowGenerator Snapshot tests matches expected output: match-field-in-query.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query NameRendererQuery {
   me {
@@ -551,7 +551,118 @@ export type MarkdownUserNameRenderer_name$key = {
 };
 `;
 
-exports[`RelayFlowGenerator matches expected output: mutation.graphql 1`] = `
+exports[`RelayFlowGenerator Snapshot tests matches expected output: mutaion-with-response-on-inline-fragments.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+mutation TestMutation (
+  $input: CommentCreateInput!
+) @raw_response_type {
+  commentCreate(input: $input) {
+    viewer {
+      actor {
+        ...InlineFragmentWithOverlappingFields
+      }
+    }
+  }
+}
+
+
+fragment InlineFragmentWithOverlappingFields on Actor {
+  ... on User {
+    hometown {
+      id
+      name
+    }
+  }
+  ... on Page {
+    name
+    hometown {
+      id
+      message {
+        text
+      }
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+type InlineFragmentWithOverlappingFields$ref = any;
+export type CommentCreateInput = {|
+  clientMutationId?: ?string,
+  feedbackId?: ?string,
+  feedback?: ?CommentfeedbackFeedback,
+|};
+export type CommentfeedbackFeedback = {|
+  comment?: ?FeedbackcommentComment
+|};
+export type FeedbackcommentComment = {|
+  feedback?: ?CommentfeedbackFeedback
+|};
+export type TestMutationVariables = {|
+  input: CommentCreateInput
+|};
+export type TestMutationResponse = {|
+  +commentCreate: ?{|
+    +viewer: ?{|
+      +actor: ?{|
+        +$fragmentRefs: InlineFragmentWithOverlappingFields$ref
+      |}
+    |}
+  |}
+|};
+export type TestMutation = {|
+  variables: TestMutationVariables,
+  response: TestMutationResponse,
+|};
+export type TestMutationRawResponse = {|
+  +commentCreate: ?{|
+    +viewer: ?{|
+      +actor: ?({|
+        +__typename: "User",
+        +id: ?string,
+        +hometown: ?{|
+          +id: string,
+          +name: ?string,
+        |},
+      |} | {|
+        +__typename: "Page",
+        +id: ?string,
+        +name: ?string,
+        +hometown: ?{|
+          +id: string,
+          +message: ?{|
+            +text: ?string
+          |},
+        |},
+      |} | {|
+        +__typename: ?string,
+        +id: ?string,
+      |})
+    |}
+  |}
+|};
+
+import type { FragmentReference } from "relay-runtime";
+declare export opaque type InlineFragmentWithOverlappingFields$ref: FragmentReference;
+declare export opaque type InlineFragmentWithOverlappingFields$fragmentType: InlineFragmentWithOverlappingFields$ref;
+export type InlineFragmentWithOverlappingFields = {|
+  +hometown?: ?{|
+    +id: string,
+    +name: ?string,
+    +message?: ?{|
+      +text: ?string
+    |},
+  |},
+  +name?: ?string,
+  +$refType: InlineFragmentWithOverlappingFields$ref,
+|};
+export type InlineFragmentWithOverlappingFields$data = InlineFragmentWithOverlappingFields;
+export type InlineFragmentWithOverlappingFields$key = {
+  +$data?: InlineFragmentWithOverlappingFields$data,
+  +$fragmentRefs: InlineFragmentWithOverlappingFields$ref,
+};
+`;
+
+exports[`RelayFlowGenerator Snapshot tests matches expected output: mutation.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 mutation CommentCreateMutation(
   $input: CommentCreateInput!
@@ -603,9 +714,9 @@ export type CommentCreateMutation = {|
 |};
 `;
 
-exports[`RelayFlowGenerator matches expected output: mutation-input-has-array.graphql 1`] = `
+exports[`RelayFlowGenerator Snapshot tests matches expected output: mutation-input-has-array.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
-mutation InputHasArray($input: UpdateAllSeenStateInput) {
+mutation InputHasArray($input: UpdateAllSeenStateInput) @raw_response_type{
   viewerNotificationsUpdateAllSeenState(input: $input) {
     stories {
       actorCount
@@ -632,9 +743,240 @@ export type InputHasArray = {|
   variables: InputHasArrayVariables,
   response: InputHasArrayResponse,
 |};
+export type InputHasArrayRawResponse = {|
+  +viewerNotificationsUpdateAllSeenState: ?{|
+    +stories: ?$ReadOnlyArray<?{|
+      +actorCount: ?number,
+      +id: ?string,
+    |}>
+  |}
+|};
 `;
 
-exports[`RelayFlowGenerator matches expected output: plural-fragment.graphql 1`] = `
+exports[`RelayFlowGenerator Snapshot tests matches expected output: mutation-with-nested-fragments.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+mutation CommentCreateMutation (
+  $input: CommentCreateInput!
+  $first: Int
+  $orderBy: [String!]
+) @raw_response_type {
+  commentCreate(input: $input) {
+    comment {
+      friends(first: $first, orderby: $orderBy) {
+        edges {
+          node {
+            lastName
+            ...FriendFragment
+          }
+        }
+      }
+    }
+  }
+}
+
+
+fragment FriendFragment on User {
+  name
+  lastName
+  feedback {
+    ...FeedbackFragment
+  }
+}
+
+fragment FeedbackFragment on Feedback {
+  id
+  name
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+type FriendFragment$ref = any;
+export type CommentCreateInput = {|
+  clientMutationId?: ?string,
+  feedbackId?: ?string,
+  feedback?: ?CommentfeedbackFeedback,
+|};
+export type CommentfeedbackFeedback = {|
+  comment?: ?FeedbackcommentComment
+|};
+export type FeedbackcommentComment = {|
+  feedback?: ?CommentfeedbackFeedback
+|};
+export type CommentCreateMutationVariables = {|
+  input: CommentCreateInput,
+  first?: ?number,
+  orderBy?: ?$ReadOnlyArray<string>,
+|};
+export type CommentCreateMutationResponse = {|
+  +commentCreate: ?{|
+    +comment: ?{|
+      +friends: ?{|
+        +edges: ?$ReadOnlyArray<?{|
+          +node: ?{|
+            +lastName: ?string,
+            +$fragmentRefs: FriendFragment$ref,
+          |}
+        |}>
+      |}
+    |}
+  |}
+|};
+export type CommentCreateMutation = {|
+  variables: CommentCreateMutationVariables,
+  response: CommentCreateMutationResponse,
+|};
+export type CommentCreateMutationRawResponse = {|
+  +commentCreate: ?{|
+    +comment: ?{|
+      +friends: ?{|
+        +edges: ?$ReadOnlyArray<?{|
+          +node: ?{|
+            +lastName: ?string,
+            +name: ?string,
+            +feedback: ?{|
+              +id: string,
+              +name: ?string,
+            |},
+            +id: ?string,
+          |}
+        |}>
+      |},
+      +id: ?string,
+    |}
+  |}
+|};
+
+type FeedbackFragment$ref = any;
+import type { FragmentReference } from "relay-runtime";
+declare export opaque type FriendFragment$ref: FragmentReference;
+declare export opaque type FriendFragment$fragmentType: FriendFragment$ref;
+export type FriendFragment = {|
+  +name: ?string,
+  +lastName: ?string,
+  +feedback: ?{|
+    +$fragmentRefs: FeedbackFragment$ref
+  |},
+  +$refType: FriendFragment$ref,
+|};
+export type FriendFragment$data = FriendFragment;
+export type FriendFragment$key = {
+  +$data?: FriendFragment$data,
+  +$fragmentRefs: FriendFragment$ref,
+};
+
+import type { FragmentReference } from "relay-runtime";
+declare export opaque type FeedbackFragment$ref: FragmentReference;
+declare export opaque type FeedbackFragment$fragmentType: FeedbackFragment$ref;
+export type FeedbackFragment = {|
+  +id: string,
+  +name: ?string,
+  +$refType: FeedbackFragment$ref,
+|};
+export type FeedbackFragment$data = FeedbackFragment;
+export type FeedbackFragment$key = {
+  +$data?: FeedbackFragment$data,
+  +$fragmentRefs: FeedbackFragment$ref,
+};
+`;
+
+exports[`RelayFlowGenerator Snapshot tests matches expected output: mutation-with-one-fragment.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+mutation CommentCreateMutation (
+  $input: CommentCreateInput!
+  $first: Int
+  $orderBy: [String!]
+) @raw_response_type {
+  commentCreate(input: $input) {
+    comment {
+      friends(first: $first, orderby: $orderBy) {
+        edges {
+          node {
+            id
+            __typename
+            ...FriendFragment
+          }
+        }
+      }
+    }
+  }
+}
+
+
+fragment FriendFragment on User {
+  name
+  lastName
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+type FriendFragment$ref = any;
+export type CommentCreateInput = {|
+  clientMutationId?: ?string,
+  feedbackId?: ?string,
+  feedback?: ?CommentfeedbackFeedback,
+|};
+export type CommentfeedbackFeedback = {|
+  comment?: ?FeedbackcommentComment
+|};
+export type FeedbackcommentComment = {|
+  feedback?: ?CommentfeedbackFeedback
+|};
+export type CommentCreateMutationVariables = {|
+  input: CommentCreateInput,
+  first?: ?number,
+  orderBy?: ?$ReadOnlyArray<string>,
+|};
+export type CommentCreateMutationResponse = {|
+  +commentCreate: ?{|
+    +comment: ?{|
+      +friends: ?{|
+        +edges: ?$ReadOnlyArray<?{|
+          +node: ?{|
+            +id: string,
+            +__typename: string,
+            +$fragmentRefs: FriendFragment$ref,
+          |}
+        |}>
+      |}
+    |}
+  |}
+|};
+export type CommentCreateMutation = {|
+  variables: CommentCreateMutationVariables,
+  response: CommentCreateMutationResponse,
+|};
+export type CommentCreateMutationRawResponse = {|
+  +commentCreate: ?{|
+    +comment: ?{|
+      +friends: ?{|
+        +edges: ?$ReadOnlyArray<?{|
+          +node: ?{|
+            +id: string,
+            +__typename: "User",
+            +name: ?string,
+            +lastName: ?string,
+          |}
+        |}>
+      |},
+      +id: ?string,
+    |}
+  |}
+|};
+
+import type { FragmentReference } from "relay-runtime";
+declare export opaque type FriendFragment$ref: FragmentReference;
+declare export opaque type FriendFragment$fragmentType: FriendFragment$ref;
+export type FriendFragment = {|
+  +name: ?string,
+  +lastName: ?string,
+  +$refType: FriendFragment$ref,
+|};
+export type FriendFragment$data = FriendFragment;
+export type FriendFragment$key = {
+  +$data?: FriendFragment$data,
+  +$fragmentRefs: FriendFragment$ref,
+};
+`;
+
+exports[`RelayFlowGenerator Snapshot tests matches expected output: plural-fragment.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 fragment PluralFragment on Node @relay(plural: true) {
   id
@@ -655,7 +997,76 @@ export type PluralFragment$key = {
 };
 `;
 
-exports[`RelayFlowGenerator matches expected output: recursive-fragments.graphql 1`] = `
+exports[`RelayFlowGenerator Snapshot tests matches expected output: query-with-raw-response-on-conditional.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query ExampleQuery($id: ID!, $condition: Boolean!) @raw_response_type{
+  node(id: $id) {
+    ...FriendFragment
+  }
+}
+
+fragment FriendFragment on User {
+  ... @include(if: $condition) {
+    name
+    lastName
+    feedback {
+      id
+      name
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+type FriendFragment$ref = any;
+export type ExampleQueryVariables = {|
+  id: string,
+  condition: boolean,
+|};
+export type ExampleQueryResponse = {|
+  +node: ?{|
+    +$fragmentRefs: FriendFragment$ref
+  |}
+|};
+export type ExampleQuery = {|
+  variables: ExampleQueryVariables,
+  response: ExampleQueryResponse,
+|};
+export type ExampleQueryRawResponse = {|
+  +node: ?({|
+    +__typename: "User",
+    +id: ?string,
+    +name?: ?string,
+    +lastName?: ?string,
+    +feedback?: ?{|
+      +id: string,
+      +name: ?string,
+    |},
+  |} | {|
+    +__typename: ?string,
+    +id: ?string,
+  |})
+|};
+
+import type { FragmentReference } from "relay-runtime";
+declare export opaque type FriendFragment$ref: FragmentReference;
+declare export opaque type FriendFragment$fragmentType: FriendFragment$ref;
+export type FriendFragment = {|
+  +name?: ?string,
+  +lastName?: ?string,
+  +feedback?: ?{|
+    +id: string,
+    +name: ?string,
+  |},
+  +$refType: FriendFragment$ref,
+|};
+export type FriendFragment$data = FriendFragment;
+export type FriendFragment$key = {
+  +$data?: FriendFragment$data,
+  +$fragmentRefs: FriendFragment$ref,
+};
+`;
+
+exports[`RelayFlowGenerator Snapshot tests matches expected output: recursive-fragments.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 fragment FragmentSpread on Node {
   id
@@ -680,7 +1091,7 @@ export type FragmentSpread$key = {
 };
 `;
 
-exports[`RelayFlowGenerator matches expected output: roots.graphql 1`] = `
+exports[`RelayFlowGenerator Snapshot tests matches expected output: roots.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query ExampleQuery($id: ID!) {
   node(id: $id) {
@@ -781,7 +1192,7 @@ export type TestSubscription = {|
 |};
 `;
 
-exports[`RelayFlowGenerator matches expected output: scalar-field.graphql 1`] = `
+exports[`RelayFlowGenerator Snapshot tests matches expected output: scalar-field.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 fragment ScalarField on User {
   id
@@ -823,7 +1234,7 @@ export type ScalarField$key = {
 };
 `;
 
-exports[`RelayFlowGenerator matches expected output: typename-inside-with-overlapping-fields.graphql 1`] = `
+exports[`RelayFlowGenerator Snapshot tests matches expected output: typename-inside-with-overlapping-fields.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 fragment TypenameInsideWithOverlappingFields on Viewer {
   actor {
@@ -872,7 +1283,7 @@ export type TypenameInsideWithOverlappingFields$key = {
 };
 `;
 
-exports[`RelayFlowGenerator matches expected output: typename-on-union.graphql 1`] = `
+exports[`RelayFlowGenerator Snapshot tests matches expected output: typename-on-union.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 fragment TypenameInside on Actor {
   ... on User {
@@ -1119,7 +1530,7 @@ export type TypenameAliases$key = {
 };
 `;
 
-exports[`RelayFlowGenerator matches expected output: unmasked-fragment-spreads.graphql 1`] = `
+exports[`RelayFlowGenerator Snapshot tests matches expected output: unmasked-fragment-spreads.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 fragment UserProfile on User {
   profilePicture(size: $ProfilePicture_SIZE) {

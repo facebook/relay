@@ -242,6 +242,11 @@ export type TypeGeneratorOptions = {|
    * @todo Document this.
    */
   +enumsHasteModule: ?string,
+
+  /**
+   * Optional normalization IR for generating raw response
+   */
+  +normalizationIR?: Root,
 |};
 
 /**

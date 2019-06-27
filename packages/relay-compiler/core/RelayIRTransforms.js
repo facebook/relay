@@ -21,6 +21,7 @@ const RelayApplyFragmentArgumentTransform = require('../transforms/RelayApplyFra
 const RelayConnectionTransform = require('../handlers/connection//RelayConnectionTransform');
 const RelayDeferStreamTransform = require('../transforms/RelayDeferStreamTransform');
 const RelayFieldHandleTransform = require('../transforms/RelayFieldHandleTransform');
+const RelayFlowGenerator = require('../language/javascript/RelayFlowGenerator');
 const RelayGenerateIDFieldTransform = require('../transforms/RelayGenerateIDFieldTransform');
 const RelayGenerateTypeNameTransform = require('../transforms/RelayGenerateTypeNameTransform');
 const RelayMaskTransform = require('../transforms/RelayMaskTransform');
@@ -45,6 +46,7 @@ const relaySchemaExtensions: Array<string> = [
   RelayRefetchableFragmentTransform.SCHEMA_EXTENSION,
   RelayTestOperationTransform.SCHEMA_EXTENSION,
   InlineDataFragmentTransform.SCHEMA_EXTENSION,
+  RelayFlowGenerator.SCHEMA_EXTENSION,
 ];
 
 // Transforms applied to both operations and fragments for both reading and

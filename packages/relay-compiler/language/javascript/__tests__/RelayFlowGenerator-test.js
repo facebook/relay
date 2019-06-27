@@ -13,6 +13,7 @@
 const ConnectionFieldTransform = require('../../../transforms/ConnectionFieldTransform');
 const GraphQLCompilerContext = require('../../../core/GraphQLCompilerContext');
 const RelayFlowGenerator = require('../RelayFlowGenerator');
+const RelayIRTransforms = require('../../../core/RelayIRTransforms');
 const RelayMatchTransform = require('../../../transforms/RelayMatchTransform');
 const RelayRelayDirectiveTransform = require('../../../transforms/RelayRelayDirectiveTransform');
 
@@ -25,11 +26,12 @@ const {
 
 import type {TypeGeneratorOptions} from '../../RelayLanguagePluginInterface';
 
-function generate(text, options: TypeGeneratorOptions) {
+function generate(text, options: TypeGeneratorOptions, context?) {
   const schema = transformASTSchema(TestSchema, [
     ConnectionFieldTransform.SCHEMA_EXTENSION,
     RelayMatchTransform.SCHEMA_EXTENSION,
     RelayRelayDirectiveTransform.SCHEMA_EXTENSION,
+    RelayFlowGenerator.SCHEMA_EXTENSION,
     `
       scalar Color
       extend type User {
@@ -42,21 +44,48 @@ function generate(text, options: TypeGeneratorOptions) {
     .addAll(definitions)
     .applyTransforms(RelayFlowGenerator.transforms)
     .documents()
-    .map(doc => RelayFlowGenerator.generate(doc, options))
+    .map(doc =>
+      RelayFlowGenerator.generate(doc, {
+        ...options,
+        normalizationIR: context ? context.get(doc.name) : undefined,
+      }),
+    )
     .join('\n\n');
 }
 
 describe('RelayFlowGenerator', () => {
-  generateTestsFromFixtures(`${__dirname}/fixtures/flow-generator`, text =>
-    generate(text, {
-      customScalars: {},
-      enumsHasteModule: null,
-      existingFragmentNames: new Set(['PhotoFragment']),
-      optionalInputFields: [],
-      useHaste: true,
-      useSingleArtifactDirectory: false,
-    }),
-  );
+  describe('Snapshot tests', () => {
+    function generateContext(text) {
+      const schema = transformASTSchema(
+        TestSchema,
+        RelayIRTransforms.schemaExtensions,
+      );
+      const {definitions} = parseGraphQLText(schema, text);
+      return new GraphQLCompilerContext(TestSchema, schema)
+        .addAll(definitions)
+        .applyTransforms([
+          ...RelayIRTransforms.commonTransforms,
+          ...RelayIRTransforms.queryTransforms,
+          ...RelayIRTransforms.codegenTransforms,
+        ]);
+    }
+
+    generateTestsFromFixtures(`${__dirname}/fixtures/flow-generator`, text => {
+      const context = generateContext(text);
+      return generate(
+        text,
+        {
+          customScalars: {},
+          enumsHasteModule: null,
+          existingFragmentNames: new Set(['PhotoFragment']),
+          optionalInputFields: [],
+          useHaste: true,
+          useSingleArtifactDirectory: false,
+        },
+        context,
+      );
+    });
+  });
 
   it('does not add `%future added values` when the noFutureProofEnums option is set', () => {
     const text = `

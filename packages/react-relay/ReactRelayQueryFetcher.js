@@ -29,12 +29,12 @@ import type {
 type OnDataChange = ({error?: Error, snapshot?: Snapshot}) => void;
 
 /** The external API of 'fetch' **/
-export type FetchOptions = {
+export type FetchOptions = {|
   cacheConfig?: ?CacheConfig,
   environment: IEnvironment,
   onDataChange?: null | OnDataChange,
   operation: OperationDescriptor,
-};
+|};
 
 // Internally we keep an array of onDataChange callbacks, to support reusing
 // the queryRenderer for multiple components.

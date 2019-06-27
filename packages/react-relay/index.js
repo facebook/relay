@@ -29,6 +29,7 @@ export type {
   RelayProp,
   RelayRefetchContainer,
   RelayRefetchProp,
+  FetchPolicy,
 } from './ReactRelayTypes';
 export type {
   DataID,

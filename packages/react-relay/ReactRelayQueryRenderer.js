@@ -18,6 +18,7 @@ const areEqual = require('areEqual');
 
 const {deepFreeze} = require('relay-runtime');
 
+import type {FetchPolicy} from './ReactRelayTypes';
 import type {
   CacheConfig,
   GraphQLTaggedNode,
@@ -27,7 +28,6 @@ import type {
   Snapshot,
   Variables,
 } from 'relay-runtime';
-
 type RetryCallbacks = {
   handleDataChange:
     | null
@@ -50,16 +50,11 @@ export type RenderProps<T> = {|
  */
 const requestCache = {};
 
-const NETWORK_ONLY = 'NETWORK_ONLY';
-const STORE_THEN_NETWORK = 'STORE_THEN_NETWORK';
-const DataFromEnum = {
-  NETWORK_ONLY,
-  STORE_THEN_NETWORK,
-};
-type DataFrom = $Keys<typeof DataFromEnum>;
+const STORE_AND_NETWORK = 'store-and-network';
+
 export type Props = {|
   cacheConfig?: ?CacheConfig,
-  dataFrom?: DataFrom,
+  fetchPolicy?: FetchPolicy,
   environment: IEnvironment,
   query: ?GraphQLTaggedNode,
   render: (renderProps: RenderProps<Object>) => React.Node,
@@ -385,12 +380,11 @@ function fetchQueryAndComputeStateFromProps(
 
     try {
       const storeSnapshot =
-        props.dataFrom === STORE_THEN_NETWORK
+        props.fetchPolicy === STORE_AND_NETWORK
           ? queryFetcher.lookupInStore(genericEnvironment, operation)
           : null;
       const querySnapshot = queryFetcher.fetch({
         cacheConfig: props.cacheConfig,
-        dataFrom: props.dataFrom,
         environment: genericEnvironment,
         onDataChange: retryCallbacks.handleDataChange,
         operation,

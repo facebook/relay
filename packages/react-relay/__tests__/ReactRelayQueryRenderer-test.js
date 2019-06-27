@@ -208,7 +208,7 @@ describe('ReactRelayQueryRenderer', () => {
                   <Child>A</Child>
                   <ReactRelayQueryRenderer
                     query={TestQuery}
-                    dataFrom="STORE_THEN_NETWORK"
+                    fetchPolicy="store-and-network"
                     environment={environment}
                     render={render}
                     variables={variables}
@@ -288,7 +288,7 @@ describe('ReactRelayQueryRenderer', () => {
                   <Child>A</Child>
                   <ReactRelayQueryRenderer
                     query={TestQuery}
-                    dataFrom="STORE_THEN_NETWORK"
+                    fetchPolicy="store-and-network"
                     environment={environment}
                     render={render}
                     variables={variables}
@@ -504,7 +504,7 @@ describe('ReactRelayQueryRenderer', () => {
       ReactTestRenderer.create(
         <ReactRelayQueryRenderer
           query={TestQuery}
-          dataFrom="STORE_THEN_NETWORK"
+          fetchPolicy="store-and-network"
           environment={environment}
           render={render}
           variables={variables}

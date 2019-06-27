@@ -57,14 +57,14 @@ const DataFromEnum = {
   STORE_THEN_NETWORK,
 };
 type DataFrom = $Keys<typeof DataFromEnum>;
-export type Props = {
+export type Props = {|
   cacheConfig?: ?CacheConfig,
   dataFrom?: DataFrom,
   environment: IEnvironment,
   query: ?GraphQLTaggedNode,
   render: (renderProps: RenderProps<Object>) => React.Node,
   variables: Variables,
-};
+|};
 
 type State = {|
   error: Error | null,

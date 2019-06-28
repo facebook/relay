@@ -241,6 +241,10 @@ export type ModuleImport = {|
   +documentName: string,
   // the name of the module to require
   +module: string,
+  // a value that uniquely identifies this @module position in the codebase:
+  // the documentName plus the relative field path of the @module within that
+  // document
+  +id: string,
   // the name of the original FragmentSpread on which @module was applied
   +name: string,
   +selections: $ReadOnlyArray<Selection>,

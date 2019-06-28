@@ -8725,13 +8725,13 @@ fragment FooNameRendererFragment on User {
     __typename
     ... on MarkdownUserNameRenderer {
       ...MarkdownUserNameRenderer_name
-      __module_operation_FooNameRendererFragment: js(module: "MarkdownUserNameRenderer_name$normalization.graphql")
-      __module_component_FooNameRendererFragment: js(module: "MarkdownUserNameRenderer.react")
+      __module_operation_FooNameRendererFragment: js(module: "MarkdownUserNameRenderer_name$normalization.graphql", id: "FooNameRendererFragment.nameRenderer")
+      __module_component_FooNameRendererFragment: js(module: "MarkdownUserNameRenderer.react", id: "FooNameRendererFragment.nameRenderer")
     }
     ... on PlainUserNameRenderer {
       ...PlainUserNameRenderer_name
-      __module_operation_FooNameRendererFragment: js(module: "PlainUserNameRenderer_name$normalization.graphql")
-      __module_component_FooNameRendererFragment: js(module: "PlainUserNameRenderer.react")
+      __module_operation_FooNameRendererFragment: js(module: "PlainUserNameRenderer_name$normalization.graphql", id: "FooNameRendererFragment.nameRenderer")
+      __module_component_FooNameRendererFragment: js(module: "PlainUserNameRenderer.react", id: "FooNameRendererFragment.nameRenderer")
     }
   }
 }
@@ -8893,8 +8893,8 @@ fragment BarNameRendererFragment on User {
     __typename
     ... on MarkdownUserNameRenderer {
       ...MarkdownUserNameRenderer_name
-      __module_operation_BarNameRendererFragment: js(module: "MarkdownUserNameRenderer_name$normalization.graphql")
-      __module_component_BarNameRendererFragment: js(module: "MarkdownUserNameRenderer.react")
+      __module_operation_BarNameRendererFragment: js(module: "MarkdownUserNameRenderer_name$normalization.graphql", id: "BarNameRendererFragment.nameRenderer")
+      __module_component_BarNameRendererFragment: js(module: "MarkdownUserNameRenderer.react", id: "BarNameRendererFragment.nameRenderer")
     }
   }
 }
@@ -9867,8 +9867,8 @@ fragment NameRendererFragment on User {
     __typename
     ... on MarkdownUserNameRenderer @include(if: $fetchModule) {
       ...MarkdownUserNameRenderer_name
-      __module_operation_NameRendererFragment: js(module: "MarkdownUserNameRenderer_name$normalization.graphql")
-      __module_component_NameRendererFragment: js(module: "MarkdownUserNameRenderer.react")
+      __module_operation_NameRendererFragment: js(module: "MarkdownUserNameRenderer_name$normalization.graphql", id: "NameRendererFragment.nameRenderer")
+      __module_component_NameRendererFragment: js(module: "MarkdownUserNameRenderer.react", id: "NameRendererFragment.nameRenderer")
     }
   }
 }
@@ -10207,13 +10207,13 @@ fragment NameRendererFragment on User {
     __typename
     ... on PlainUserNameRenderer {
       ...PlainUserNameRenderer_name
-      __module_operation_NameRendererFragment: js(module: "PlainUserNameRenderer_name$normalization.graphql")
-      __module_component_NameRendererFragment: js(module: "PlainUserNameRenderer.react")
+      __module_operation_NameRendererFragment: js(module: "PlainUserNameRenderer_name$normalization.graphql", id: "NameRendererFragment.nameRenderer")
+      __module_component_NameRendererFragment: js(module: "PlainUserNameRenderer.react", id: "NameRendererFragment.nameRenderer")
     }
     ... on MarkdownUserNameRenderer {
       ...MarkdownUserNameRenderer_name
-      __module_operation_NameRendererFragment: js(module: "MarkdownUserNameRenderer_name$normalization.graphql")
-      __module_component_NameRendererFragment: js(module: "MarkdownUserNameRenderer.react")
+      __module_operation_NameRendererFragment: js(module: "MarkdownUserNameRenderer_name$normalization.graphql", id: "NameRendererFragment.nameRenderer")
+      __module_component_NameRendererFragment: js(module: "MarkdownUserNameRenderer.react", id: "NameRendererFragment.nameRenderer")
     }
   }
 }
@@ -10645,13 +10645,13 @@ fragment NameRendererFragment on User {
     __typename
     ... on PlainUserNameRenderer {
       ...PlainUserNameRenderer_name
-      __module_operation_NameRendererFragment: js(module: "PlainUserNameRenderer_name$normalization.graphql")
-      __module_component_NameRendererFragment: js(module: "PlainUserNameRenderer.react")
+      __module_operation_NameRendererFragment: js(module: "PlainUserNameRenderer_name$normalization.graphql", id: "NameRendererFragment.nameRenderer")
+      __module_component_NameRendererFragment: js(module: "PlainUserNameRenderer.react", id: "NameRendererFragment.nameRenderer")
     }
     ... on MarkdownUserNameRenderer {
       ...MarkdownUserNameRenderer_name
-      __module_operation_NameRendererFragment: js(module: "MarkdownUserNameRenderer_name$normalization.graphql")
-      __module_component_NameRendererFragment: js(module: "MarkdownUserNameRenderer.react")
+      __module_operation_NameRendererFragment: js(module: "MarkdownUserNameRenderer_name$normalization.graphql", id: "NameRendererFragment.nameRenderer")
+      __module_component_NameRendererFragment: js(module: "MarkdownUserNameRenderer.react", id: "NameRendererFragment.nameRenderer")
     }
   }
 }
@@ -11088,13 +11088,13 @@ fragment NameRendererFragment on User {
     __typename
     ... on PlainUserNameRenderer {
       ...PlainUserNameRenderer_name
-      __module_operation_NameRendererFragment: js(module: "PlainUserNameRenderer_name$normalization.graphql")
-      __module_component_NameRendererFragment: js(module: "PlainUserNameRenderer.react")
+      __module_operation_NameRendererFragment: js(module: "PlainUserNameRenderer_name$normalization.graphql", id: "NameRendererFragment.nameRendererForContext")
+      __module_component_NameRendererFragment: js(module: "PlainUserNameRenderer.react", id: "NameRendererFragment.nameRendererForContext")
     }
     ... on MarkdownUserNameRenderer {
       ...MarkdownUserNameRenderer_name
-      __module_operation_NameRendererFragment: js(module: "MarkdownUserNameRenderer_name$normalization.graphql")
-      __module_component_NameRendererFragment: js(module: "MarkdownUserNameRenderer.react")
+      __module_operation_NameRendererFragment: js(module: "MarkdownUserNameRenderer_name$normalization.graphql", id: "NameRendererFragment.nameRendererForContext")
+      __module_component_NameRendererFragment: js(module: "MarkdownUserNameRenderer.react", id: "NameRendererFragment.nameRendererForContext")
     }
   }
 }
@@ -11502,8 +11502,8 @@ fragment NameRendererFragment on User {
     __typename
     ... on MarkdownUserNameRenderer {
       ...MarkdownUserNameRenderer_name
-      __module_operation_NameRendererFragment: js(module: "MarkdownUserNameRenderer_name$normalization.graphql")
-      __module_component_NameRendererFragment: js(module: "MarkdownUserNameRenderer.react")
+      __module_operation_NameRendererFragment: js(module: "MarkdownUserNameRenderer_name$normalization.graphql", id: "NameRendererFragment.nameRenderer")
+      __module_component_NameRendererFragment: js(module: "MarkdownUserNameRenderer.react", id: "NameRendererFragment.nameRenderer")
     }
   }
 }

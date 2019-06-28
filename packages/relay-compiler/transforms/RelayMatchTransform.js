@@ -42,7 +42,8 @@ import type {GraphQLCompositeType, GraphQLType} from 'graphql';
 const SUPPORTED_ARGUMENT_NAME = 'supported';
 
 const JS_FIELD_TYPE = 'JSDependency';
-const JS_FIELD_ARG = 'module';
+const JS_FIELD_MODULE_ARG = 'module';
+const JS_FIELD_ID_ARG = 'id';
 const JS_FIELD_NAME = 'js';
 
 const SCHEMA_EXTENSION = `
@@ -55,6 +56,7 @@ const SCHEMA_EXTENSION = `
 
 type State = {|
   +documentName: string,
+  +path: Array<string>,
   +parentType: GraphQLType,
 |};
 
@@ -72,7 +74,7 @@ function relayMatchTransform(context: CompilerContext): CompilerContext {
       InlineFragment: visitInlineFragment,
       ScalarField: visitScalarField,
     },
-    node => ({documentName: node.name, parentType: node.type}),
+    node => ({documentName: node.name, parentType: node.type, path: []}),
   );
 }
 
@@ -107,10 +109,12 @@ function visitScalarField(field: ScalarField): ScalarField {
 }
 
 function visitLinkedField(node: LinkedField, state: State): LinkedField {
+  state.path.push(node.alias ?? node.name);
   const transformedNode: LinkedField = this.traverse(node, {
     ...state,
     parentType: node.type,
   });
+  state.path.pop();
 
   const matchDirective = transformedNode.directives.find(
     directive => directive.name === 'match',
@@ -275,7 +279,7 @@ function visitLinkedField(node: LinkedField, state: State): LinkedField {
 // Transform @module
 function visitFragmentSpread(
   spread: FragmentSpread,
-  {documentName}: State,
+  {documentName, path}: State,
 ): FragmentSpread | InlineFragment {
   const transformedNode: FragmentSpread = this.traverse(spread);
 
@@ -313,19 +317,27 @@ function visitFragmentSpread(
   }
   const type = assertObjectType(fragment.type);
   const jsField = type.getFields()[JS_FIELD_NAME];
-  const jsFieldArg = jsField
-    ? jsField.args.find(arg => arg.name === JS_FIELD_ARG)
+  const jsFieldModuleArg = jsField
+    ? jsField.args.find(arg => arg.name === JS_FIELD_MODULE_ARG)
+    : null;
+  const jsFieldIdArg = jsField
+    ? jsField.args.find(arg => arg.name === JS_FIELD_ID_ARG)
     : null;
   if (
     jsField == null ||
-    jsFieldArg == null ||
-    getNullableType(jsFieldArg.type) !== GraphQLString ||
+    jsFieldModuleArg == null ||
+    getNullableType(jsFieldModuleArg.type) !== GraphQLString ||
+    (jsFieldIdArg != null &&
+      getNullableType(jsFieldIdArg.type) !== GraphQLString) ||
     jsField.type.name !== jsModuleType.name // object identity fails in tests
   ) {
     throw createUserError(
       `@module used on invalid fragment spread '...${spread.name}'. @module ` +
         `requires the fragment type '${String(fragment.type)}' to have a ` +
-        `'${JS_FIELD_NAME}(${JS_FIELD_ARG}: String!): ${JS_FIELD_TYPE}' field .`,
+        `'${JS_FIELD_NAME}(${JS_FIELD_MODULE_ARG}: String! ` +
+        `[${JS_FIELD_ID_ARG}: String]): ${JS_FIELD_TYPE}' field (your ` +
+        "schema may choose to omit the 'id'  argument but if present it " +
+        "must accept a 'String').",
       [moduleDirective.loc],
     );
   }
@@ -344,6 +356,7 @@ function visitFragmentSpread(
       [(moduleDirective.args.find(arg => arg.name === 'name') ?? spread).loc],
     );
   }
+  const moduleId = [documentName, ...path].join('.');
   const normalizationName =
     getNormalizationOperationName(spread.name) + '.graphql';
   const componentKey = getModuleComponentKey(documentName);
@@ -352,8 +365,8 @@ function visitFragmentSpread(
     args: [
       {
         kind: 'Argument',
-        name: JS_FIELD_ARG,
-        type: jsFieldArg.type,
+        name: JS_FIELD_MODULE_ARG,
+        type: jsFieldModuleArg.type,
         value: {
           kind: 'Literal',
           loc: moduleDirective.args[0]?.loc ?? moduleDirective.loc,
@@ -363,7 +376,22 @@ function visitFragmentSpread(
         loc: moduleDirective.loc,
         metadata: {},
       },
-    ],
+      jsFieldIdArg != null
+        ? {
+            kind: 'Argument',
+            name: JS_FIELD_ID_ARG,
+            type: jsFieldIdArg.type,
+            value: {
+              kind: 'Literal',
+              loc: moduleDirective.args[0]?.loc ?? moduleDirective.loc,
+              metadata: {},
+              value: moduleId,
+            },
+            loc: moduleDirective.loc,
+            metadata: {},
+          }
+        : null,
+    ].filter(Boolean),
     directives: [],
     handles: null,
     kind: 'ScalarField',
@@ -378,8 +406,8 @@ function visitFragmentSpread(
     args: [
       {
         kind: 'Argument',
-        name: JS_FIELD_ARG,
-        type: jsFieldArg.type,
+        name: JS_FIELD_MODULE_ARG,
+        type: jsFieldModuleArg.type,
         value: {
           kind: 'Literal',
           loc: moduleDirective.loc,
@@ -389,7 +417,22 @@ function visitFragmentSpread(
         loc: moduleDirective.loc,
         metadata: {},
       },
-    ],
+      jsFieldIdArg != null
+        ? {
+            kind: 'Argument',
+            name: JS_FIELD_ID_ARG,
+            type: jsFieldIdArg.type,
+            value: {
+              kind: 'Literal',
+              loc: moduleDirective.args[0]?.loc ?? moduleDirective.loc,
+              metadata: {},
+              value: moduleId,
+            },
+            loc: moduleDirective.loc,
+            metadata: {},
+          }
+        : null,
+    ].filter(Boolean),
     directives: [],
     handles: null,
     kind: 'ScalarField',
@@ -409,6 +452,7 @@ function visitFragmentSpread(
         kind: 'ModuleImport',
         loc: moduleDirective.loc,
         documentName,
+        id: moduleId,
         module: moduleName,
         name: spread.name,
         selections: [

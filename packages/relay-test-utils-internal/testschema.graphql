@@ -692,14 +692,14 @@ type UnfriendResponsePayload {
 scalar JSDependency
 
 interface HasJsField {
-  js(module: String): JSDependency
+  js(module: String!, id: String): JSDependency
 }
 
 type PlainUserNameRenderer implements HasJsField & UserNameRenderable {
   plaintext: String
   data: PlainUserNameData
   user: User
-  js(module: String): JSDependency
+  js(module: String!, id: String): JSDependency
   name: String
 }
 
@@ -712,7 +712,7 @@ type MarkdownUserNameRenderer implements HasJsField & UserNameRenderable {
   markdown: String
   data: MarkdownUserNameData
   user: User
-  js(module: String): JSDependency
+  js(module: String!, id: String): JSDependency
   name: String
 }
 
@@ -766,7 +766,7 @@ type User implements Named & Node & Actor & HasJsField {
   ): FriendsConnection
   hometown: Page
   id: ID!
-  js(module: String): JSDependency
+  js(module: String!, id: String): JSDependency
   lastName: String
   likers(first: Int): LikersOfContentConnection
   likeSentence: Text

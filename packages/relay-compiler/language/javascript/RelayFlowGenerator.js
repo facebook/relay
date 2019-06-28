@@ -35,6 +35,7 @@ const {
   transformInputType,
   transformScalarType,
 } = require('./RelayFlowTypeTransformers');
+const {getModuleComponentKey, getModuleOperationKey} = require('relay-runtime');
 
 import type {IRTransform} from '../../core/GraphQLCompilerContext';
 import type {Fragment, Root} from '../../core/GraphQLIR';
@@ -288,7 +289,7 @@ function createVisitor(options: TypeGeneratorOptions) {
           `${node.name}Response`,
           selectionsToBabel(
             /* $FlowFixMe: selections have already been transformed */
-            (node.selections: $ReadOnlyArray<Selection>),
+            (node.selections: $ReadOnlyArray<$ReadOnlyArray<Selection>>),
             state,
             false,
           ),
@@ -338,7 +339,7 @@ function createVisitor(options: TypeGeneratorOptions) {
       Fragment(node) {
         let selections = flattenArray(
           /* $FlowFixMe: selections have already been transformed */
-          (node.selections: $ReadOnlyArray<Selection>),
+          (node.selections: $ReadOnlyArray<$ReadOnlyArray<Selection>>),
         );
         const numConecreteSelections = selections.filter(s => s.concreteType)
           .length;
@@ -404,7 +405,7 @@ function createVisitor(options: TypeGeneratorOptions) {
         const typeCondition = node.typeCondition;
         return flattenArray(
           /* $FlowFixMe: selections have already been transformed */
-          (node.selections: $ReadOnlyArray<Selection>),
+          (node.selections: $ReadOnlyArray<$ReadOnlyArray<Selection>>),
         ).map(typeSelection => {
           return isAbstractType(typeCondition)
             ? {
@@ -424,7 +425,22 @@ function createVisitor(options: TypeGeneratorOptions) {
       ConnectionField: visitConnectionField,
       LinkedField: visitLinkedField,
       ModuleImport(node) {
-        return visitMoudleImport(node, state);
+        return [
+          {
+            key: '__fragmentPropName',
+            conditional: true,
+            value: transformScalarType(GraphQLString, state),
+          },
+          {
+            key: '__module_component',
+            conditional: true,
+            value: transformScalarType(GraphQLString, state),
+          },
+          {
+            key: '__fragments_' + node.name,
+            ref: node.name,
+          },
+        ];
       },
       FragmentSpread(node) {
         state.usedFragments.add(node.name);
@@ -442,7 +458,7 @@ function createVisitor(options: TypeGeneratorOptions) {
 function visitCondition(node, state) {
   return flattenArray(
     /* $FlowFixMe: selections have already been transformed */
-    (node.selections: $ReadOnlyArray<Selection>),
+    (node.selections: $ReadOnlyArray<$ReadOnlyArray<Selection>>),
   ).map(selection => {
     return {
       ...selection,
@@ -491,7 +507,7 @@ function visitLinkedField(node) {
       nodeSelections: selectionsToMap(
         flattenArray(
           /* $FlowFixMe: selections have already been transformed */
-          (node.selections: $ReadOnlyArray<Selection>),
+          (node.selections: $ReadOnlyArray<$ReadOnlyArray<Selection>>),
         ),
         /*
          * append concreteType to key so overlapping fields with different
@@ -499,25 +515,6 @@ function visitLinkedField(node) {
          */
         true,
       ),
-    },
-  ];
-}
-
-function visitMoudleImport(node, state) {
-  return [
-    {
-      key: '__fragmentPropName',
-      conditional: true,
-      value: transformScalarType(GraphQLString, state),
-    },
-    {
-      key: '__module_component',
-      conditional: true,
-      value: transformScalarType(GraphQLString, state),
-    },
-    {
-      key: '__fragments_' + node.name,
-      ref: node.name,
     },
   ];
 }
@@ -591,32 +588,40 @@ function selectionsToRawResponseBabel(
       );
     }
   }
-  types.push(
-    baseFields.map(selection => {
-      if (isTypenameSelection(selection)) {
-        return makeRawResponseProp(
-          {...selection, conditional: false},
-          state,
-          nodeTypeName,
-        );
-      }
-      return makeRawResponseProp(selection, state, null);
-    }),
-  );
+  if (baseFields.length) {
+    types.push(
+      baseFields.map(selection => {
+        if (isTypenameSelection(selection)) {
+          return makeRawResponseProp(
+            {...selection, conditional: false},
+            state,
+            nodeTypeName,
+          );
+        }
+        return makeRawResponseProp(selection, state, null);
+      }),
+    );
+  }
   return unionTypeAnnotation(
     types.map(props => exactObjectTypeAnnotation(props)),
   );
 }
 // Visitor for generating raw reponse type
 function createRawResponseTypeVisitor(state: State) {
-  return {
+  const visitor = {
+    enter: {
+      ClientExtension(node) {
+        // client fields are not supposed to be in the response
+        return null;
+      },
+    },
     leave: {
       Root(node) {
         return exportType(
           `${node.name}RawResponse`,
           selectionsToRawResponseBabel(
             /* $FlowFixMe: selections have already been transformed */
-            (node.selections: $ReadOnlyArray<Selection>),
+            (node.selections: $ReadOnlyArray<$ReadOnlyArray<Selection>>),
             state,
             null,
           ),
@@ -626,7 +631,7 @@ function createRawResponseTypeVisitor(state: State) {
         const typeCondition = node.typeCondition;
         return flattenArray(
           /* $FlowFixMe: selections have already been transformed */
-          (node.selections: $ReadOnlyArray<Selection>),
+          (node.selections: $ReadOnlyArray<$ReadOnlyArray<Selection>>),
         ).map(typeSelection => {
           return isAbstractType(typeCondition)
             ? typeSelection
@@ -642,8 +647,29 @@ function createRawResponseTypeVisitor(state: State) {
       },
       ConnectionField: visitConnectionField,
       LinkedField: visitLinkedField,
+      Defer(node) {
+        return flattenArray(
+          /* $FlowFixMe: selections have already been transformed */
+          (node.selections: $ReadOnlyArray<$ReadOnlyArray<Selection>>),
+        );
+      },
+      Stream(node) {
+        return flattenArray(
+          /* $FlowFixMe: selections have already been transformed */
+          (node.selections: $ReadOnlyArray<$ReadOnlyArray<Selection>>),
+        );
+      },
       ModuleImport(node) {
-        return visitMoudleImport(node, state);
+        return [
+          {
+            key: getModuleOperationKey(node.name),
+            value: t.mixedTypeAnnotation(),
+          },
+          {
+            key: getModuleComponentKey(node.name),
+            value: t.mixedTypeAnnotation(),
+          },
+        ];
       },
       FragmentSpread(node) {
         invariant(
@@ -654,6 +680,7 @@ function createRawResponseTypeVisitor(state: State) {
       },
     },
   };
+  return visitor;
 }
 
 function selectionsToMap(

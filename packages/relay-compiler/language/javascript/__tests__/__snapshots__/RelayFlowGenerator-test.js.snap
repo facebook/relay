@@ -551,6 +551,57 @@ export type MarkdownUserNameRenderer_name$key = {
 };
 `;
 
+exports[`RelayFlowGenerator Snapshot tests matches expected output: mutaion-with-client-extension.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+mutation Test($input: UpdateAllSeenStateInput) @raw_response_type{
+  viewerNotificationsUpdateAllSeenState(input: $input) {
+    stories {
+      foos {
+        bar
+      }
+    }
+  }
+}
+
+
+extend type Story {
+  foos: [Foo]
+}
+
+type Foo {
+  bar: String
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+export type UpdateAllSeenStateInput = {|
+  clientMutationId?: ?string,
+  storyIds?: ?$ReadOnlyArray<?string>,
+|};
+export type TestVariables = {|
+  input?: ?UpdateAllSeenStateInput
+|};
+export type TestResponse = {|
+  +viewerNotificationsUpdateAllSeenState: ?{|
+    +stories: ?$ReadOnlyArray<?{|
+      +foos: ?$ReadOnlyArray<?{|
+        +bar: ?string
+      |}>
+    |}>
+  |}
+|};
+export type Test = {|
+  variables: TestVariables,
+  response: TestResponse,
+|};
+export type TestRawResponse = {|
+  +viewerNotificationsUpdateAllSeenState: ?{|
+    +stories: ?$ReadOnlyArray<?{|
+      +id: ?string
+    |}>
+  |}
+|};
+`;
+
 exports[`RelayFlowGenerator Snapshot tests matches expected output: mutaion-with-response-on-inline-fragments.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 mutation TestMutation (
@@ -997,6 +1048,255 @@ export type PluralFragment$key = {
 };
 `;
 
+exports[`RelayFlowGenerator Snapshot tests matches expected output: query-with-defer.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query TestDefer @raw_response_type {
+  node(id: "1") {
+    ... on User {
+      name
+      friends(first: 10) {
+        edges {
+          ... on FriendsConnection
+            @defer {
+            pageInfo {
+              endCursor
+              hasNextPage
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+export type TestDeferVariables = {||};
+export type TestDeferResponse = {|
+  +node: ?{|
+    +name?: ?string,
+    +friends?: ?{|
+      +edges: ?$ReadOnlyArray<?{|
+        +pageInfo?: ?{|
+          +endCursor: ?string,
+          +hasNextPage: ?boolean,
+        |}
+      |}>
+    |},
+  |}
+|};
+export type TestDefer = {|
+  variables: TestDeferVariables,
+  response: TestDeferResponse,
+|};
+export type TestDeferRawResponse = {|
+  +node: ?({|
+    +__typename: "User",
+    +id: ?string,
+    +name: ?string,
+    +friends: ?{|
+      +edges: ?$ReadOnlyArray<?{|
+        +pageInfo: ?{|
+          +endCursor: ?string,
+          +hasNextPage: ?boolean,
+        |}
+      |}>
+    |},
+  |} | {|
+    +__typename: ?string,
+    +id: ?string,
+  |})
+|};
+`;
+
+exports[`RelayFlowGenerator Snapshot tests matches expected output: query-with-handles.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query LinkedHandleField($id: ID!) @raw_response_type {
+  node(id: $id) {
+    ... on User {
+      friends(first: 10) @__clientField(handle: "clientFriends") {
+        count
+      }
+    }
+  }
+}
+
+query ScalarHandleField($id: ID!) @raw_response_type {
+  node(id: $id) {
+    ... on User {
+      name @__clientField(handle: "clientName")
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+export type LinkedHandleFieldVariables = {|
+  id: string
+|};
+export type LinkedHandleFieldResponse = {|
+  +node: ?{|
+    +friends?: ?{|
+      +count: ?number
+    |}
+  |}
+|};
+export type LinkedHandleField = {|
+  variables: LinkedHandleFieldVariables,
+  response: LinkedHandleFieldResponse,
+|};
+export type LinkedHandleFieldRawResponse = {|
+  +node: ?({|
+    +__typename: "User",
+    +id: ?string,
+    +friends: ?{|
+      +count: ?number
+    |},
+  |} | {|
+    +__typename: ?string,
+    +id: ?string,
+  |})
+|};
+
+export type ScalarHandleFieldVariables = {|
+  id: string
+|};
+export type ScalarHandleFieldResponse = {|
+  +node: ?{|
+    +name?: ?string
+  |}
+|};
+export type ScalarHandleField = {|
+  variables: ScalarHandleFieldVariables,
+  response: ScalarHandleFieldResponse,
+|};
+export type ScalarHandleFieldRawResponse = {|
+  +node: ?({|
+    +__typename: "User",
+    +id: ?string,
+    +name: ?string,
+  |} | {|
+    +__typename: ?string,
+    +id: ?string,
+  |})
+|};
+`;
+
+exports[`RelayFlowGenerator Snapshot tests matches expected output: query-with-match-fields.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query Test @raw_response_type {
+  node(id: "1") {
+    ...NameRendererFragment
+  }
+}
+
+fragment NameRendererFragment on User {
+  id
+  nameRenderer @match {
+    ...PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
+    ...MarkdownUserNameRenderer_name
+      @module(name: "MarkdownUserNameRenderer.react")
+  }
+}
+
+fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
+  plaintext
+  data {
+    text
+  }
+}
+
+fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+  markdown
+  data {
+    markup
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+type NameRendererFragment$ref = any;
+export type TestVariables = {||};
+export type TestResponse = {|
+  +node: ?{|
+    +$fragmentRefs: NameRendererFragment$ref
+  |}
+|};
+export type Test = {|
+  variables: TestVariables,
+  response: TestResponse,
+|};
+export type TestRawResponse = {|
+  +node: ?({|
+    +__typename: "User",
+    +id: ?string,
+    +nameRenderer: ?({|
+      +__typename: "PlainUserNameRenderer",
+      +__module_operation_PlainUserNameRenderer_name: mixed,
+      +__module_component_PlainUserNameRenderer_name: mixed,
+    |} | {|
+      +__typename: "MarkdownUserNameRenderer",
+      +__module_operation_MarkdownUserNameRenderer_name: mixed,
+      +__module_component_MarkdownUserNameRenderer_name: mixed,
+    |} | {|
+      +__typename: ?string
+    |}),
+  |} | {|
+    +__typename: ?string,
+    +id: ?string,
+  |})
+|};
+
+type MarkdownUserNameRenderer_name$ref = any;
+type PlainUserNameRenderer_name$ref = any;
+import type { FragmentReference } from "relay-runtime";
+declare export opaque type NameRendererFragment$ref: FragmentReference;
+declare export opaque type NameRendererFragment$fragmentType: NameRendererFragment$ref;
+export type NameRendererFragment = {|
+  +id: string,
+  +nameRenderer: ?{|
+    +__fragmentPropName?: ?string,
+    +__module_component?: ?string,
+    +$fragmentRefs: PlainUserNameRenderer_name$ref & MarkdownUserNameRenderer_name$ref,
+  |},
+  +$refType: NameRendererFragment$ref,
+|};
+export type NameRendererFragment$data = NameRendererFragment;
+export type NameRendererFragment$key = {
+  +$data?: NameRendererFragment$data,
+  +$fragmentRefs: NameRendererFragment$ref,
+};
+
+import type { FragmentReference } from "relay-runtime";
+declare export opaque type PlainUserNameRenderer_name$ref: FragmentReference;
+declare export opaque type PlainUserNameRenderer_name$fragmentType: PlainUserNameRenderer_name$ref;
+export type PlainUserNameRenderer_name = {|
+  +plaintext: ?string,
+  +data: ?{|
+    +text: ?string
+  |},
+  +$refType: PlainUserNameRenderer_name$ref,
+|};
+export type PlainUserNameRenderer_name$data = PlainUserNameRenderer_name;
+export type PlainUserNameRenderer_name$key = {
+  +$data?: PlainUserNameRenderer_name$data,
+  +$fragmentRefs: PlainUserNameRenderer_name$ref,
+};
+
+import type { FragmentReference } from "relay-runtime";
+declare export opaque type MarkdownUserNameRenderer_name$ref: FragmentReference;
+declare export opaque type MarkdownUserNameRenderer_name$fragmentType: MarkdownUserNameRenderer_name$ref;
+export type MarkdownUserNameRenderer_name = {|
+  +markdown: ?string,
+  +data: ?{|
+    +markup: ?string
+  |},
+  +$refType: MarkdownUserNameRenderer_name$ref,
+|};
+export type MarkdownUserNameRenderer_name$data = MarkdownUserNameRenderer_name;
+export type MarkdownUserNameRenderer_name$key = {
+  +$data?: MarkdownUserNameRenderer_name$data,
+  +$fragmentRefs: MarkdownUserNameRenderer_name$ref,
+};
+`;
+
 exports[`RelayFlowGenerator Snapshot tests matches expected output: query-with-raw-response-on-conditional.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query ExampleQuery($id: ID!, $condition: Boolean!) @raw_response_type{
@@ -1064,6 +1364,67 @@ export type FriendFragment$key = {
   +$data?: FriendFragment$data,
   +$fragmentRefs: FriendFragment$ref,
 };
+`;
+
+exports[`RelayFlowGenerator Snapshot tests matches expected output: query-with-stream.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query TestStream @raw_response_type {
+  node(id: "1") {
+    ... on User {
+      name
+      friends(first: 10)
+        @stream_connection(key: "PaginationFragment_friends", initial_count: 1) {
+        edges {
+          node {
+            id
+          }
+        }
+      }
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+export type TestStreamVariables = {||};
+export type TestStreamResponse = {|
+  +node: ?{|
+    +name?: ?string,
+    +friends?: ?{|
+      +edges: ?$ReadOnlyArray<?{|
+        +node: ?{|
+          +id: string
+        |}
+      |}>
+    |},
+  |}
+|};
+export type TestStream = {|
+  variables: TestStreamVariables,
+  response: TestStreamResponse,
+|};
+export type TestStreamRawResponse = {|
+  +node: ?({|
+    +__typename: "User",
+    +id: ?string,
+    +name: ?string,
+    +friends: ?{|
+      +edges: ?$ReadOnlyArray<?{|
+        +node: ?{|
+          +id: string,
+          +__typename: "User",
+        |},
+        +cursor: ?string,
+      |}>,
+      +pageInfo: ?{|
+        +endCursor: ?string,
+        +hasNextPage: ?boolean,
+      |},
+    |},
+  |} | {|
+    +__typename: ?string,
+    +id: ?string,
+  |})
+|};
 `;
 
 exports[`RelayFlowGenerator Snapshot tests matches expected output: recursive-fragments.graphql 1`] = `

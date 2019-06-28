@@ -1,0 +1,18 @@
+query TestDefer @raw_response_type {
+  node(id: "1") {
+    ... on User {
+      name
+      friends(first: 10) {
+        edges {
+          ... on FriendsConnection
+            @defer {
+            pageInfo {
+              endCursor
+              hasNextPage
+            }
+          }
+        }
+      }
+    }
+  }
+}

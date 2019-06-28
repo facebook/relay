@@ -10,12 +10,9 @@
 
 'use strict';
 
-const ConnectionFieldTransform = require('../../../transforms/ConnectionFieldTransform');
 const GraphQLCompilerContext = require('../../../core/GraphQLCompilerContext');
 const RelayFlowGenerator = require('../RelayFlowGenerator');
 const RelayIRTransforms = require('../../../core/RelayIRTransforms');
-const RelayMatchTransform = require('../../../transforms/RelayMatchTransform');
-const RelayRelayDirectiveTransform = require('../../../transforms/RelayRelayDirectiveTransform');
 
 const {transformASTSchema} = require('../../../core/ASTConvert');
 const {
@@ -28,10 +25,7 @@ import type {TypeGeneratorOptions} from '../../RelayLanguagePluginInterface';
 
 function generate(text, options: TypeGeneratorOptions, context?) {
   const schema = transformASTSchema(TestSchema, [
-    ConnectionFieldTransform.SCHEMA_EXTENSION,
-    RelayMatchTransform.SCHEMA_EXTENSION,
-    RelayRelayDirectiveTransform.SCHEMA_EXTENSION,
-    RelayFlowGenerator.SCHEMA_EXTENSION,
+    ...RelayIRTransforms.schemaExtensions,
     `
       scalar Color
       extend type User {

@@ -117,7 +117,7 @@ describe('ReactRelayLocalQueryRenderer', () => {
       };
       environment.commitPayload(operation, payload);
       const instance = renderer(environment, TestQuery, render, variables);
-
+      ReactTestRenderer.act(() => jest.runAllImmediates());
       expect(environment.retain).toBeCalledTimes(1);
       expect(environment.check).toBeCalledTimes(1);
       expect(environment.subscribe).toBeCalledTimes(1);
@@ -167,6 +167,7 @@ describe('ReactRelayLocalQueryRenderer', () => {
       };
       environment.commitPayload(operation, payload);
       const instance = renderer(environment, TestQuery, render, variables);
+      ReactTestRenderer.act(() => jest.runAllImmediates());
       expect(environment.retain).toBeCalledTimes(1);
       const snapshot = environment.lookup(operation.fragment, operation);
       const callback = jest.fn(() => {});
@@ -180,7 +181,7 @@ describe('ReactRelayLocalQueryRenderer', () => {
   });
 
   describe('when store data updates', () => {
-    it('renders with new data after store updates', () => {
+    it('renders with new data', () => {
       const payload = {
         node: {
           __typename: 'User',
@@ -192,6 +193,7 @@ describe('ReactRelayLocalQueryRenderer', () => {
       environment.commitPayload(operation, payload);
 
       const instance = renderer(environment, TestQuery, render, variables);
+      ReactTestRenderer.act(() => jest.runAllImmediates());
       expect(render).toBeCalledTimes(1);
       render.mockClear();
 
@@ -215,6 +217,7 @@ describe('ReactRelayLocalQueryRenderer', () => {
 
     it('subscribes to changes if initial data is undefined', () => {
       const instance = renderer(environment, TestQuery, render, variables);
+      ReactTestRenderer.act(() => jest.runAllImmediates());
       expect(render).toBeCalledTimes(1);
       expect(instance.toJSON()).toEqual(null);
       render.mockClear();
@@ -263,19 +266,25 @@ describe('ReactRelayLocalQueryRenderer', () => {
       };
       environment.commitPayload(operation, payload);
       const instance = renderer(environment, TestQuery, render, variables);
+      ReactTestRenderer.act(() => jest.runAllImmediates());
       expect(render).toBeCalledTimes(1);
       expect(instance.toJSON()).toEqual('Mark');
       render.mockClear();
 
       environment.commitPayload(secondOperation, secondPayload);
       ReactTestRenderer.act(() => {
-        setProps({variables: {id: '5'}});
+        setProps({variables: secondVariables});
       });
+      ReactTestRenderer.act(() => {
+        jest.runAllImmediates();
+      });
+
       expect(environment.retain).toBeCalledTimes(2);
       expect(environment.check).toBeCalledTimes(2);
       expect(environment.subscribe).toBeCalledTimes(2);
 
       expect(render).toBeCalledTimes(1);
+
       const snapshot = environment.lookup(
         secondOperation.fragment,
         secondOperation,
@@ -283,13 +292,22 @@ describe('ReactRelayLocalQueryRenderer', () => {
       expect(render.mock.calls[0][0]).toEqual({props: snapshot.data});
 
       expect(instance.toJSON()).toEqual('Kram');
+
+      ReactTestRenderer.act(() => {
+        setProps({variables: {id: '6'}});
+      });
+      ReactTestRenderer.act(() => {
+        jest.runAllImmediates();
+      });
+      expect(render).toBeCalledTimes(2);
+      expect(instance.toJSON()).toEqual(null);
     });
 
     it('renders new data if the environment changes', () => {
       const newEnvironment = createMockEnvironment();
-
       environment.commitPayload(operation, payload);
       const instance = renderer(environment, TestQuery, render, variables);
+      ReactTestRenderer.act(() => jest.runAllImmediates());
       expect(render).toBeCalledTimes(1);
       expect(instance.toJSON()).toEqual('Mark');
       render.mockClear();
@@ -312,6 +330,7 @@ describe('ReactRelayLocalQueryRenderer', () => {
     it('renders new data if the query changes', () => {
       environment.commitPayload(operation, payload);
       const instance = renderer(environment, TestQuery, render, variables);
+
       expect(render).toBeCalledTimes(1);
       expect(instance.toJSON()).toEqual('Mark');
       render.mockClear();
@@ -343,12 +362,14 @@ describe('ReactRelayLocalQueryRenderer', () => {
 
       expect(instance.toJSON()).toEqual('Mark');
 
-      environment.commitPayload(secondOperation, {
-        node: {
-          __typename: 'User',
-          id: '4',
-          lastName: 'Kram',
-        },
+      ReactTestRenderer.act(() => {
+        environment.commitPayload(secondOperation, {
+          node: {
+            __typename: 'User',
+            id: '4',
+            lastName: 'Kram',
+          },
+        });
       });
       expect(instance.toJSON()).toEqual('Kram');
     });
@@ -360,16 +381,20 @@ describe('ReactRelayLocalQueryRenderer', () => {
       ReactTestRenderer.act(() => {
         setProps({variables: {id: '5'}});
       });
+
       expect(instance.toJSON()).toEqual(null);
       render.mockClear();
 
       // old data should be collected by GC
       environment.getStore().__gc();
+      jest.runAllImmediates();
       expect(
         environment.lookup(operation.fragment, operation).data.node,
       ).toBeUndefined();
-      // Store update on old id shouldn't trigger render
-      environment.commitPayload(operation, payload);
+      // update on old id shouldn't trigger render
+      ReactTestRenderer.act(() => {
+        environment.commitPayload(operation, payload);
+      });
       expect(render).not.toBeCalled();
     });
   });
@@ -390,13 +415,93 @@ describe('ReactRelayLocalQueryRenderer', () => {
       expect(instance.toJSON()).toEqual('Mark');
       render.mockClear();
       instance.unmount();
-
+      // make sure GC runs
       environment.getStore().__gc();
+      jest.runAllImmediates();
       expect(
         environment.lookup(operation.fragment, operation).data,
       ).toBeUndefined();
       environment.commitPayload(operation, payload);
       expect(render).not.toBeCalled();
+    });
+  });
+
+  describe('useEffect', () => {
+    let instance;
+
+    beforeEach(() => {
+      const payload = {
+        node: {
+          __typename: 'User',
+          id: '4',
+          name: 'Zuck',
+          lastName: 'Mark',
+        },
+      };
+      environment.commitPayload(operation, payload);
+      instance = renderer(environment, TestQuery, render, variables);
+    });
+
+    it('runs after GC, data should not be collected by GC', () => {
+      const snapshot = environment.lookup(operation.fragment, operation);
+      const callback = jest.fn(() => {});
+      environment.lookup(snapshot, callback);
+
+      // Data should not be collected by GC
+      environment.getStore().__gc();
+      jest.runAllImmediates();
+      expect(
+        environment
+          .getStore()
+          .getSource()
+          .toJSON(),
+      ).not.toEqual({});
+
+      ReactTestRenderer.act(() => jest.runAllImmediates());
+      expect(callback).not.toBeCalled();
+      expect(snapshot.data).toBeDefined();
+      expect(instance.toJSON()).toBe('Mark');
+    });
+
+    it('runs after commiting another payload, latest data should be renderer', () => {
+      ReactTestRenderer.act(() => {
+        environment.commitPayload(operation, {
+          node: {
+            __typename: 'User',
+            id: '4',
+            name: 'Zuck',
+            lastName: 'Alice',
+          },
+        });
+      });
+
+      ReactTestRenderer.act(() => jest.runAllImmediates());
+      expect(instance.toJSON()).toBe('Alice');
+    });
+
+    it('never runs before unmount, data retain should be released', () => {
+      instance.unmount();
+      jest.runAllTimers();
+      expect(
+        environment
+          .getStore()
+          .getSource()
+          .toJSON(),
+      ).toEqual({});
+    });
+
+    it('warns if effect runs after retain is release by a timeout', () => {
+      jest.mock('warning');
+      const warning = require('warning');
+
+      // trigger temporary retain
+      ReactTestRenderer.act(() => {
+        jest.advanceTimersByTime(30000);
+      });
+      ReactTestRenderer.act(() => {
+        jest.runAllImmediates();
+      });
+      expect(warning).toBeCalledTimes(1);
     });
   });
 });

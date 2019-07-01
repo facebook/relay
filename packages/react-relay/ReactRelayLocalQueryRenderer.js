@@ -13,14 +13,15 @@
 const React = require('React');
 const ReactRelayContext = require('./ReactRelayContext');
 
-const areEqual = require('areEqual');
+const {useEffect, useState, useRef, useMemo} = React;
+const {deepFreeze} = require('relay-runtime');
+// flowlint-next-line untyped-import:off
+const warning = require('warning');
 
-import type {
-  GraphQLTaggedNode,
-  IEnvironment,
-  Snapshot,
-  Variables,
-} from 'relay-runtime';
+const areEqual = require('areEqual');
+const TIMEOUT = 30000;
+
+import type {GraphQLTaggedNode, IEnvironment, Variables} from 'relay-runtime';
 
 type Props = {
   environment: IEnvironment,
@@ -30,117 +31,95 @@ type Props = {
   variables: Variables,
 };
 
-type Disposables = {|
-  disposeRetain: () => void,
-  disposeSubscribe: () => void,
-|};
-
-type State = {
-  disposables: Disposables,
-  onNotify: Snapshot => void,
-  prevEnvironment: IEnvironment,
-  prevQuery: GraphQLTaggedNode,
-  prevVariables: Variables,
-  // $FlowFixMe
-  props: ?Object,
-};
-
-function subscribeAndDeriveState(
-  environment: IEnvironment,
-  query: GraphQLTaggedNode,
-  variables: Variables,
-  onNotify: Snapshot => void,
-  prevDisposables?: Disposables,
-): State {
-  cleanup(prevDisposables);
-  const {getRequest, createOperationDescriptor} = environment.unstable_internal;
-  const request = getRequest(query);
-  const operation = createOperationDescriptor(request, variables);
-  const snapshot = environment.lookup(operation.fragment, operation);
-  environment.check(operation.root);
-  const disposables = {
-    disposeRetain: environment.retain(operation.root).dispose,
-    disposeSubscribe: environment.subscribe(snapshot, onNotify).dispose,
-  };
-  return {
-    props: snapshot.data,
-    prevEnvironment: environment,
-    prevQuery: query,
-    prevVariables: variables,
-    onNotify,
-    disposables,
-  };
-}
-
-function cleanup(disposables: ?Disposables): void {
-  if (disposables) {
-    disposables.disposeRetain();
-    disposables.disposeSubscribe();
-  }
-}
-
-class ReactRelayLocalQueryRenderer extends React.Component<Props, State> {
-  constructor(props: Props) {
-    super(props);
-    const {environment, query, variables} = props;
-    this.state = subscribeAndDeriveState(
-      environment,
-      query,
-      variables,
-      this._onNotify,
-    );
-  }
-
-  componentWillUnmount(): void {
-    cleanup(this.state.disposables);
-  }
-
-  shouldComponentUpdate(nextProps: Props, nextState: State): boolean {
-    return (
-      nextProps.render !== this.props.render ||
-      nextState.props !== this.state.props
-    );
-  }
-
-  static getDerivedStateFromProps(
-    nextProps: Props,
-    prevState: State,
-  ): State | null {
-    if (
-      nextProps.query === prevState.prevQuery &&
-      nextProps.environment === prevState.prevEnvironment &&
-      areEqual(nextProps.variables, prevState.prevVariables)
-    ) {
-      return null;
+function useDeepCompare<T: {}>(value: T): T {
+  const latestValue = React.useRef(value);
+  if (!areEqual(latestValue.current, value)) {
+    if (__DEV__) {
+      deepFreeze(value);
     }
-    return subscribeAndDeriveState(
-      nextProps.environment,
-      nextProps.query,
-      nextProps.variables,
-      prevState.onNotify,
-      prevState.disposables,
-    );
+    latestValue.current = value;
   }
+  return latestValue.current;
+}
 
-  _onNotify = (snapshot: Snapshot): void => {
-    this.setState({
-      props: snapshot.data,
-    });
-  };
+function ReactRelayLocalQueryRenderer(props: Props): React.Node {
+  const {environment, query, variables, render} = props;
+  const latestVariables = useDeepCompare(variables);
+  const operation = useMemo(() => {
+    const {
+      getRequest,
+      createOperationDescriptor,
+    } = environment.unstable_internal;
+    const request = getRequest(query);
+    return createOperationDescriptor(request, latestVariables);
+  }, [environment.unstable_internal, query, latestVariables]);
 
-  render(): React.Node {
-    const {environment, render} = this.props;
-    const {props} = this.state;
-    const relayContext = {
+  const relayContext = useMemo(
+    () => ({
       environment,
       variables: {},
+    }),
+    [environment],
+  );
+
+  // Use a ref to prevent rendering twice when data changes
+  // because of props change
+  const dataRef = useRef(null);
+  const [, forceUpdate] = useState(null);
+  const cleanupFnRef = useRef(null);
+
+  const snapshot = useMemo(() => {
+    environment.check(operation.root);
+    const res = environment.lookup(operation.fragment, operation);
+    dataRef.current = res.data;
+
+    // Run effects here so that the data can be retained
+    // and subscribed before the component commits
+    const retainDisposable = environment.retain(operation.root);
+    const subscribeDisposable = environment.subscribe(res, newSnapshot => {
+      if (dataRef.current !== newSnapshot.data) {
+        dataRef.current = newSnapshot.data;
+        forceUpdate(dataRef.current);
+      }
+    });
+    const handle = setTimeout(nextCleanupFn, TIMEOUT);
+    let disposed = false;
+    function nextCleanupFn() {
+      if (!disposed) {
+        disposed = true;
+        cleanupFnRef.current = null;
+        clearTimeout(handle);
+        retainDisposable.dispose();
+        subscribeDisposable.dispose();
+      }
+    }
+    if (cleanupFnRef.current) {
+      cleanupFnRef.current();
+    }
+    cleanupFnRef.current = nextCleanupFn;
+
+    return res;
+  }, [environment, operation]);
+
+  useEffect(() => {
+    const cleanupFn = cleanupFnRef.current;
+    if (!cleanupFn) {
+      warning(
+        false,
+        'ReactRelayLocalQueryRenderer: Component took too long to render. ' +
+          'Data could have already been deleted by garbage collection',
+      );
+    }
+    return () => {
+      cleanupFn && cleanupFn();
     };
-    return (
-      <ReactRelayContext.Provider value={relayContext}>
-        {render({props})}
-      </ReactRelayContext.Provider>
-    );
-  }
+  }, [snapshot]);
+
+  return (
+    <ReactRelayContext.Provider value={relayContext}>
+      {render({props: dataRef.current})}
+    </ReactRelayContext.Provider>
+  );
 }
 
 module.exports = ReactRelayLocalQueryRenderer;

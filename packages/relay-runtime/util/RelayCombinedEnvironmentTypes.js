@@ -101,19 +101,3 @@ export interface CFragmentSpecResolver<TRequest> {
 }
 
 export type CFragmentMap<TFragment> = {[key: string]: TFragment};
-
-/**
- * An operation selector describes a specific instance of a GraphQL operation
- * with variables applied.
- *
- * - `root`: a selector intended for processing server results or retaining
- *   response data in the store.
- * - `fragment`: a selector intended for use in reading or subscribing to
- *   the results of the the operation.
- */
-export type COperationDescriptor<TReaderNode, TNormalizationNode, TRequest> = {|
-  +fragment: CReaderSelector<TReaderNode>,
-  +node: TRequest,
-  +root: CNormalizationSelector<TNormalizationNode>,
-  +variables: Variables,
-|};

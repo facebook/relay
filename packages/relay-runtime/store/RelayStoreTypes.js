@@ -29,7 +29,6 @@ import type {ReaderFragment} from '../util/ReaderNode';
 import type {
   CFragmentMap,
   CFragmentSpecResolver,
-  COperationDescriptor,
   CReaderSelector,
   CNormalizationSelector,
   CSnapshot,
@@ -59,12 +58,6 @@ type TReaderSelector = OwnedReaderSelector;
 
 export type FragmentMap = CFragmentMap<TFragment>;
 
-export type OperationDescriptor = COperationDescriptor<
-  TReaderNode,
-  TNormalizationNode,
-  TRequest,
->;
-
 export type ReaderSelector = CReaderSelector<TReaderNode>;
 export type OwnedReaderSelector = {|
   owner: OperationDescriptor | null,
@@ -72,6 +65,22 @@ export type OwnedReaderSelector = {|
 |};
 export type NormalizationSelector = CNormalizationSelector<TNormalizationNode>;
 export type Snapshot = CSnapshot<TReaderNode, OperationDescriptor>;
+
+/**
+ * An operation selector describes a specific instance of a GraphQL operation
+ * with variables applied.
+ *
+ * - `root`: a selector intended for processing server results or retaining
+ *   response data in the store.
+ * - `fragment`: a selector intended for use in reading or subscribing to
+ *   the results of the the operation.
+ */
+export type OperationDescriptor = {|
+  +fragment: ReaderSelector,
+  +node: TRequest,
+  +root: NormalizationSelector,
+  +variables: Variables,
+|};
 
 /**
  * Arbitrary data e.g. received by a container as props.

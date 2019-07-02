@@ -159,7 +159,6 @@ export type {
   CFragmentMap,
   CFragmentSpecResolver,
   CNormalizationSelector,
-  COperationDescriptor,
   CReaderSelector,
   CSnapshot,
   FragmentSpecResults,

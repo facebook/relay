@@ -30,7 +30,6 @@ import type {
   CFragmentMap,
   CFragmentSpecResolver,
   COperationDescriptor,
-  CRelayContext,
   CReaderSelector,
   CNormalizationSelector,
   CSnapshot,
@@ -50,7 +49,6 @@ export type {SelectorData} from '../util/RelayCombinedEnvironmentTypes';
 
 export opaque type FragmentReference = empty;
 
-type TEnvironment = Environment;
 type TFragment = ReaderFragment;
 type TGraphQLTaggedNode = GraphQLTaggedNode;
 type TReaderNode = ReaderFragment;
@@ -67,7 +65,6 @@ export type OperationDescriptor = COperationDescriptor<
   TRequest,
 >;
 
-export type RelayContext = CRelayContext<TEnvironment>;
 export type ReaderSelector = CReaderSelector<TReaderNode>;
 export type OwnedReaderSelector = {|
   owner: OperationDescriptor | null,
@@ -80,6 +77,15 @@ export type Snapshot = CSnapshot<TReaderNode, OperationDescriptor>;
  * Arbitrary data e.g. received by a container as props.
  */
 export type Props = {[key: string]: mixed};
+
+/**
+ * The type of the `relay` property set on React context by the React/Relay
+ * integration layer (e.g. QueryRenderer, FragmentContainer, etc).
+ */
+export type RelayContext = {
+  environment: Environment,
+  variables: Variables,
+};
 
 export interface UnstableEnvironmentCore {
   /**

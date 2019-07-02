@@ -117,12 +117,3 @@ export type COperationDescriptor<TReaderNode, TNormalizationNode, TRequest> = {|
   +root: CNormalizationSelector<TNormalizationNode>,
   +variables: Variables,
 |};
-
-/**
- * The type of the `relay` property set on React context by the React/Relay
- * integration layer (e.g. QueryRenderer, FragmentContainer, etc).
- */
-export type CRelayContext<TEnvironment> = {
-  environment: TEnvironment,
-  variables: Variables,
-};

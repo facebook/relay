@@ -161,7 +161,6 @@ export type {
   CNormalizationSelector,
   COperationDescriptor,
   CReaderSelector,
-  CRelayContext,
   CSnapshot,
   FragmentSpecResults,
 } from './util/RelayCombinedEnvironmentTypes';

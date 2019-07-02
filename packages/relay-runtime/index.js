@@ -155,7 +155,6 @@ export type {
   ReaderSelection,
 } from './util/ReaderNode';
 export type {
-  CEnvironment,
   CFragmentMap,
   CFragmentSpecResolver,
   CNormalizationSelector,

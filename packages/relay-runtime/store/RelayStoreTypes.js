@@ -13,21 +13,20 @@
 import type {
   GraphQLResponse,
   Network,
+  PayloadData,
   PayloadError,
   UploadableMap,
 } from '../network/RelayNetworkTypes';
-import type {PayloadData} from '../network/RelayNetworkTypes';
 import type RelayObservable from '../network/RelayObservable';
 import type {GraphQLTaggedNode} from '../query/RelayModernGraphQLTag';
 import type {
-  NormalizationScalarField,
   NormalizationLinkedField,
+  NormalizationScalarField,
   NormalizationSelectableNode,
   NormalizationSplitOperation,
 } from '../util/NormalizationNode';
 import type {ReaderFragment} from '../util/ReaderNode';
 import type {
-  CEnvironment,
   CFragmentMap,
   CFragmentSpecResolver,
   COperationDescriptor,
@@ -39,7 +38,12 @@ import type {
   Record,
 } from '../util/RelayCombinedEnvironmentTypes';
 import type {ConcreteRequest} from '../util/RelayConcreteNode';
-import type {DataID, Disposable, Variables} from '../util/RelayRuntimeTypes';
+import type {
+  CacheConfig,
+  DataID,
+  Disposable,
+  Variables,
+} from '../util/RelayRuntimeTypes';
 import type {RecordState} from './RelayRecordState';
 
 export type {SelectorData} from '../util/RelayCombinedEnvironmentTypes';
@@ -250,17 +254,36 @@ export interface RecordSourceSelectorProxy {
  * The public API of Relay core. Represents an encapsulated environment with its
  * own in-memory cache.
  */
-export interface Environment
-  extends CEnvironment<
-    TEnvironment,
-    TFragment,
-    TGraphQLTaggedNode,
-    TReaderNode,
-    TNormalizationNode,
-    TRequest,
-    TPayload,
-    TReaderSelector,
-  > {
+export interface Environment {
+  unstable_internal: UnstableEnvironmentCore;
+
+  /**
+   * Determine if the selector can be resolved with data in the store (i.e. no
+   * fields are missing).
+   *
+   * Note that this operation effectively "executes" the selector against the
+   * cache and therefore takes time proportional to the size/complexity of the
+   * selector.
+   */
+  check(selector: NormalizationSelector): boolean;
+
+  /**
+   * Subscribe to changes to the results of a selector. The callback is called
+   * when data has been committed to the store that would cause the results of
+   * the snapshot's selector to change.
+   */
+  subscribe(
+    snapshot: Snapshot,
+    callback: (snapshot: Snapshot) => void,
+  ): Disposable;
+
+  /**
+   * Ensure that all the records necessary to fulfill the given selector are
+   * retained in-memory. The records will not be eligible for garbage collection
+   * until the returned reference is disposed.
+   */
+  retain(selector: NormalizationSelector): Disposable;
+
   /**
    * Apply an optimistic update to the environment. The mutation can be reverted
    * by calling `dispose()` on the returned value.
@@ -297,10 +320,24 @@ export interface Environment
    * Optionally takes an owner, corresponding to the operation that
    * owns this selector (fragment).
    */
-  lookup(
-    selector: ReaderSelector,
-    owner: ?OperationDescriptor,
-  ): CSnapshot<TReaderNode, OperationDescriptor>;
+  lookup(selector: ReaderSelector, owner: ?OperationDescriptor): Snapshot;
+
+  /**
+   * Send a query to the server with Observer semantics: one or more
+   * responses may be returned (via `next`) over time followed by either
+   * the request completing (`completed`) or an error (`error`).
+   *
+   * Networks/servers that support subscriptions may choose to hold the
+   * subscription open indefinitely such that `complete` is not called.
+   *
+   * Note: Observables are lazy, so calling this method will do nothing until
+   * the result is subscribed to: environment.execute({...}).subscribe({...}).
+   */
+  execute(config: {|
+    operation: OperationDescriptor,
+    cacheConfig?: ?CacheConfig,
+    updater?: ?SelectorStoreUpdater,
+  |}): RelayObservable<TPayload>;
 
   /**
    * Returns an Observable of GraphQLResponse resulting from executing the

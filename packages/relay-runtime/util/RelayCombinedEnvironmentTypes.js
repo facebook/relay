@@ -10,15 +10,8 @@
 
 'use strict';
 
-import type Observable from '../network/RelayObservable';
 import type RelayOperationTracker from '../store/RelayOperationTracker';
-import type {SelectorStoreUpdater} from '../store/RelayStoreTypes';
-import type {
-  CacheConfig,
-  DataID,
-  Disposable,
-  Variables,
-} from './RelayRuntimeTypes';
+import type {DataID, Variables} from './RelayRuntimeTypes';
 
 /**
  * Arbitrary data e.g. received by a container as props.
@@ -129,96 +122,6 @@ export type COperationDescriptor<TReaderNode, TNormalizationNode, TRequest> = {|
   +root: CNormalizationSelector<TNormalizationNode>,
   +variables: Variables,
 |};
-
-/**
- * The public API of Relay core. Represents an encapsulated environment with its
- * own in-memory cache.
- */
-export interface CEnvironment<
-  TEnvironment,
-  TFragment,
-  TGraphQLTaggedNode,
-  TReaderNode,
-  TNormalizationNode,
-  TRequest,
-  TPayload,
-  TReaderSelector,
-> {
-  /**
-   * Determine if the selector can be resolved with data in the store (i.e. no
-   * fields are missing).
-   *
-   * Note that this operation effectively "executes" the selector against the
-   * cache and therefore takes time proportional to the size/complexity of the
-   * selector.
-   */
-  check(selector: CNormalizationSelector<TNormalizationNode>): boolean;
-
-  /**
-   * Read the results of a selector from in-memory records in the store.
-   */
-  lookup(
-    selector: CReaderSelector<TReaderNode>,
-    owner: ?COperationDescriptor<TReaderNode, TNormalizationNode, TRequest>,
-  ): CSnapshot<
-    TReaderNode,
-    COperationDescriptor<TReaderNode, TNormalizationNode, TRequest>,
-  >;
-
-  /**
-   * Subscribe to changes to the results of a selector. The callback is called
-   * when data has been committed to the store that would cause the results of
-   * the snapshot's selector to change.
-   */
-  subscribe(
-    snapshot: CSnapshot<
-      TReaderNode,
-      COperationDescriptor<TReaderNode, TNormalizationNode, TRequest>,
-    >,
-    callback: (
-      snapshot: CSnapshot<
-        TReaderNode,
-        COperationDescriptor<TReaderNode, TNormalizationNode, TRequest>,
-      >,
-    ) => void,
-  ): Disposable;
-
-  /**
-   * Ensure that all the records necessary to fulfill the given selector are
-   * retained in-memory. The records will not be eligible for garbage collection
-   * until the returned reference is disposed.
-   *
-   * Note: This is a no-op in the classic core.
-   */
-  retain(selector: CNormalizationSelector<TNormalizationNode>): Disposable;
-
-  /**
-   * Send a query to the server with Observer semantics: one or more
-   * responses may be returned (via `next`) over time followed by either
-   * the request completing (`completed`) or an error (`error`).
-   *
-   * Networks/servers that support subscriptions may choose to hold the
-   * subscription open indefinitely such that `complete` is not called.
-   *
-   * Note: Observables are lazy, so calling this method will do nothing until
-   * the result is subscribed to: environment.execute({...}).subscribe({...}).
-   */
-  execute(config: {|
-    operation: COperationDescriptor<TReaderNode, TNormalizationNode, TRequest>,
-    cacheConfig?: ?CacheConfig,
-    updater?: ?SelectorStoreUpdater,
-  |}): Observable<TPayload>;
-
-  unstable_internal: CUnstableEnvironmentCore<
-    TEnvironment,
-    TFragment,
-    TGraphQLTaggedNode,
-    TReaderNode,
-    TNormalizationNode,
-    TRequest,
-    TReaderSelector,
-  >;
-}
 
 export interface CUnstableEnvironmentCore<
   TEnvironment,

@@ -10,10 +10,11 @@
 
 'use strict';
 
-const {SCHEMA_EXTENSION} = require('./GraphQLRelayDirective');
 const fs = require('fs');
-const {parse} = require('graphql');
 const path = require('path');
+
+const {SCHEMA_EXTENSION} = require('./GraphQLRelayDirective');
+const {parse} = require('graphql');
 
 function readSource(sourceFile: string, basePath: ?string): string {
   const fullSourceFile =

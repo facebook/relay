@@ -92,10 +92,4 @@ function replaceMemoized(t, path, ast) {
   }
 }
 
-function createObject(t, obj: any) {
-  return t.objectExpression(
-    Object.keys(obj).map(key => t.objectProperty(t.identifier(key), obj[key])),
-  );
-}
-
 module.exports = compileGraphQLTag;

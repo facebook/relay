@@ -26,11 +26,6 @@ import type {
   NormalizationSplitOperation,
 } from '../util/NormalizationNode';
 import type {ReaderFragment} from '../util/ReaderNode';
-import type {
-  CFragmentMap,
-  CReaderSelector,
-  CNormalizationSelector,
-} from '../util/RelayCombinedEnvironmentTypes';
 import type {ConcreteRequest} from '../util/RelayConcreteNode';
 import type {
   CacheConfig,
@@ -45,8 +40,6 @@ export opaque type FragmentReference = empty;
 
 type TFragment = ReaderFragment;
 type TGraphQLTaggedNode = GraphQLTaggedNode;
-type TReaderNode = ReaderFragment;
-type TNormalizationNode = NormalizationSelectableNode;
 type TPayload = GraphQLResponse;
 type TRequest = ConcreteRequest;
 type TReaderSelector = OwnedReaderSelector;
@@ -61,19 +54,33 @@ export type Record = {[key: string]: mixed};
  */
 export type RecordMap = {[dataID: DataID]: ?Record};
 
-export type FragmentMap = CFragmentMap<TFragment>;
+export type FragmentMap = {[key: string]: ReaderFragment};
 
 /**
  * The results of a selector given a store/RecordSource.
  */
 export type SelectorData = {[key: string]: mixed};
 
-export type ReaderSelector = CReaderSelector<TReaderNode>;
+export type ReaderSelector = {
+  dataID: DataID,
+  node: ReaderFragment,
+  variables: Variables,
+};
+
 export type OwnedReaderSelector = {|
   owner: OperationDescriptor | null,
   selector: ReaderSelector,
 |};
-export type NormalizationSelector = CNormalizationSelector<TNormalizationNode>;
+
+/**
+ * A selector defines the starting point for a traversal into the graph for the
+ * purposes of targeting a subgraph.
+ */
+export type NormalizationSelector = {
+  dataID: DataID,
+  node: NormalizationSelectableNode,
+  variables: Variables,
+};
 
 /**
  * A representation of a selector and its results at a particular point in time.

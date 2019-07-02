@@ -34,7 +34,6 @@ import type {
   CReaderSelector,
   CNormalizationSelector,
   CSnapshot,
-  CUnstableEnvironmentCore,
   Record,
 } from '../util/RelayCombinedEnvironmentTypes';
 import type {ConcreteRequest} from '../util/RelayConcreteNode';
@@ -44,6 +43,7 @@ import type {
   Disposable,
   Variables,
 } from '../util/RelayRuntimeTypes';
+import type RelayOperationTracker from './RelayOperationTracker';
 import type {RecordState} from './RelayRecordState';
 
 export type {SelectorData} from '../util/RelayCombinedEnvironmentTypes';
@@ -75,15 +75,213 @@ export type OwnedReaderSelector = {|
 |};
 export type NormalizationSelector = CNormalizationSelector<TNormalizationNode>;
 export type Snapshot = CSnapshot<TReaderNode, OperationDescriptor>;
-export type UnstableEnvironmentCore = CUnstableEnvironmentCore<
-  TEnvironment,
-  TFragment,
-  TGraphQLTaggedNode,
-  TReaderNode,
-  TNormalizationNode,
-  TRequest,
-  TReaderSelector,
->;
+
+/**
+ * Arbitrary data e.g. received by a container as props.
+ */
+export type Props = {[key: string]: mixed};
+
+export interface UnstableEnvironmentCore {
+  /**
+   * Create an instance of a FragmentSpecResolver.
+   *
+   * TODO: The FragmentSpecResolver *can* be implemented via the other methods
+   * defined here, so this could be moved out of core. It's convenient to have
+   * separate implementations until the experimental core is in OSS.
+   */
+  createFragmentSpecResolver: (
+    context: RelayContext,
+    containerName: string,
+    fragments: FragmentMap,
+    props: Props,
+    callback?: () => void,
+  ) => FragmentSpecResolver;
+
+  /**
+   * Creates an instance of an OperationDescriptor given an operation definition
+   * (see `getOperation`) and the variables to apply. The input variables are
+   * filtered to exclude variables that do not match defined arguments on the
+   * operation, and default values are populated for null values.
+   */
+  createOperationDescriptor: (
+    request: TRequest,
+    variables: Variables,
+  ) => OperationDescriptor;
+
+  /**
+   * Given a graphql`...` tagged template, extract a fragment definition usable
+   * by this version of Relay core. Throws if the value is not a fragment.
+   */
+  getFragment: (node: TGraphQLTaggedNode) => TFragment;
+
+  /**
+   * Given a graphql`...` tagged template, extract an operation definition
+   * usable by this version of Relay core. Throws if the value is not an
+   * operation (or batch request).
+   */
+  getRequest: (node: TGraphQLTaggedNode) => TRequest;
+
+  /**
+   * Given a graphql`...` tagged template, returns true if the value is a
+   * fragment definition, or false otherwise.
+   */
+  isFragment: (node: TGraphQLTaggedNode) => boolean;
+
+  /**
+   * Given a graphql`...` tagged template, returns true if the value is an
+   * operation or batch request (i.e. query), or false otherwise.
+   */
+  isRequest: (node: TGraphQLTaggedNode) => boolean;
+
+  /**
+   * Determine if two selectors are equal (represent the same selection). Note
+   * that this function returns `false` when the two queries/fragments are
+   * different objects, even if they select the same fields.
+   */
+  areEqualSelectors: (a: TReaderSelector, b: TReaderSelector) => boolean;
+
+  /**
+   * Given the result `item` from a parent that fetched `fragment`, creates a
+   * selector that can be used to read the results of that fragment for that item.
+   *
+   * Example:
+   *
+   * Given two fragments as follows:
+   *
+   * ```
+   * fragment Parent on User {
+   *   id
+   *   ...Child
+   * }
+   * fragment Child on User {
+   *   name
+   * }
+   * ```
+   *
+   * And given some object `parent` that is the results of `Parent` for id "4",
+   * the results of `Child` can be accessed by first getting a selector and then
+   * using that selector to `lookup()` the results against the environment:
+   *
+   * ```
+   * const childSelector = getSingularSelector(queryVariables, Child, parent);
+   * const childData = environment.lookup(childSelector).data;
+   * ```
+   */
+  getSingularSelector: (
+    operationVariables: Variables,
+    fragment: TFragment,
+    prop: mixed,
+    owner?: ?OperationDescriptor,
+  ) => ?TReaderSelector;
+
+  /**
+   * Given the result `items` from a parent that fetched `fragment`, creates a
+   * selector that can be used to read the results of that fragment on those
+   * items. This is similar to `getSingularSelector` but for "plural" fragments that
+   * expect an array of results and therefore return an array of selectors.
+   */
+  getPluralSelector: (
+    operationVariables: Variables,
+    fragment: TFragment,
+    props: Array<mixed>,
+    owner?: Array<?OperationDescriptor>,
+  ) => ?Array<TReaderSelector>;
+
+  /**
+   * Given an item (fragment ref) and a fragment, returns a singular selector
+   * or array of selectors, depending on whether the fragment is singular or
+   * plural.
+   */
+  getSelector: (
+    operationVariables: Variables,
+    fragment: TFragment,
+    item: mixed | Array<mixed>,
+    owner?: ?OperationDescriptor | Array<?OperationDescriptor>,
+  ) => ?TReaderSelector | ?Array<TReaderSelector>;
+
+  /**
+   * Given a mapping of keys -> results and a mapping of keys -> fragments,
+   * extracts the selectors for those fragments from the results.
+   *
+   * The canonical use-case for this function are Relay Containers, which
+   * use this function to convert (props, fragments) into selectors so that they
+   * can read the results to pass to the inner component.
+   */
+  getSelectorsFromObject: (
+    operationVariables: Variables,
+    fragments: FragmentMap,
+    props: Props,
+    owner?: {
+      [key: string]: ?OperationDescriptor | Array<?OperationDescriptor>,
+    },
+  ) => {
+    [key: string]: ?(TReaderSelector | Array<TReaderSelector>),
+  };
+
+  /**
+   * Given a mapping of keys -> results and a mapping of keys -> fragments,
+   * extracts a mapping of keys -> id(s) of the results.
+   *
+   * Similar to `getSelectorsFromObject()`, this function can be useful in
+   * determining the "identity" of the props passed to a component.
+   */
+  getDataIDsFromObject: (
+    fragments: FragmentMap,
+    props: Props,
+  ) => {[key: string]: ?(DataID | Array<DataID>)};
+
+  getDataIDsFromFragment: (
+    fragment: TFragment,
+    prop: mixed,
+  ) => ?DataID | ?Array<DataID>;
+
+  getVariablesFromSingularFragment: (
+    operationVariables: Variables,
+    fragment: TFragment,
+    prop: mixed,
+    owner?: ?OperationDescriptor,
+  ) => ?Variables;
+
+  getVariablesFromPluralFragment: (
+    operationVariables: Variables,
+    fragment: TFragment,
+    prop: Array<mixed>,
+    owners?: Array<?OperationDescriptor>,
+  ) => Variables;
+
+  /**
+   * Given an item (fragment ref) and a plural or singular fragment, extracts
+   * and returns the merged variables that would be in scope for that fragment/item.
+   */
+  getVariablesFromFragment: (
+    operationVariables: Variables,
+    fragment: TFragment,
+    item: mixed | Array<mixed>,
+    owner?: ?OperationDescriptor | Array<?OperationDescriptor>,
+  ) => Variables;
+
+  /**
+   * Given a mapping of keys -> results and a mapping of keys -> fragments,
+   * extracts the merged variables that would be in scope for those
+   * fragments/results.
+   *
+   * This can be useful in determining what variables were used to fetch the data
+   * for a Relay container, for example.
+   */
+  getVariablesFromObject: (
+    operationVariables: Variables,
+    fragments: FragmentMap,
+    props: Props,
+    owners?: {
+      [key: string]: ?OperationDescriptor | Array<?OperationDescriptor>,
+    },
+  ) => Variables;
+
+  /**
+   * Experimental operation tracker
+   */
+  getOperationTracker?: () => ?RelayOperationTracker;
+}
 
 export interface FragmentSpecResolver extends CFragmentSpecResolver<TRequest> {}
 

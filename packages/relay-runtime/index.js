@@ -108,6 +108,7 @@ export type {
   OperationLoader,
   OptimisticUpdate,
   OwnedReaderSelector,
+  Props,
   PublishQueue,
   ReaderSelector,
   ReadOnlyRecordProxy,
@@ -162,9 +163,7 @@ export type {
   CReaderSelector,
   CRelayContext,
   CSnapshot,
-  CUnstableEnvironmentCore,
   FragmentSpecResults,
-  Props,
 } from './util/RelayCombinedEnvironmentTypes';
 export type {
   ConcreteRequest,

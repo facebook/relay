@@ -21,8 +21,11 @@ const {
 } = require('../store/RelayStoreUtils');
 
 import type {RecordState} from '../store/RelayRecordState';
-import type {MutableRecordSource, RecordSource} from '../store/RelayStoreTypes';
-import type {Record} from '../util/RelayCombinedEnvironmentTypes';
+import type {
+  MutableRecordSource,
+  Record,
+  RecordSource,
+} from '../store/RelayStoreTypes';
 import type {DataID} from '../util/RelayRuntimeTypes';
 
 /**

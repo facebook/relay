@@ -10,7 +10,7 @@
 
 'use strict';
 
-import type {Record} from '../../util/RelayCombinedEnvironmentTypes';
+import type {Record} from '../../store/RelayStoreTypes';
 
 type Call = {
   name: string,

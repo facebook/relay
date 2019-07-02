@@ -30,8 +30,6 @@ import type {
   CFragmentMap,
   CReaderSelector,
   CNormalizationSelector,
-  RecordMap,
-  Record,
 } from '../util/RelayCombinedEnvironmentTypes';
 import type {ConcreteRequest} from '../util/RelayConcreteNode';
 import type {
@@ -52,6 +50,16 @@ type TNormalizationNode = NormalizationSelectableNode;
 type TPayload = GraphQLResponse;
 type TRequest = ConcreteRequest;
 type TReaderSelector = OwnedReaderSelector;
+
+/*
+ * An individual cached graph object.
+ */
+export type Record = {[key: string]: mixed};
+
+/**
+ * A collection of records keyed by id.
+ */
+export type RecordMap = {[dataID: DataID]: ?Record};
 
 export type FragmentMap = CFragmentMap<TFragment>;
 

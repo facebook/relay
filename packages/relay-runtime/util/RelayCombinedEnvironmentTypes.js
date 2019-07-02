@@ -12,16 +12,6 @@
 
 import type {DataID, Variables} from './RelayRuntimeTypes';
 
-/*
- * An individual cached graph object.
- */
-export type Record = {[key: string]: mixed};
-
-/**
- * A collection of records keyed by id.
- */
-export type RecordMap = {[dataID: DataID]: ?Record};
-
 /**
  * A selector defines the starting point for a traversal into the graph for the
  * purposes of targeting a subgraph.

@@ -29,15 +29,15 @@ import type {
   NormalizationScalarField,
   NormalizationSelection,
 } from '../util/NormalizationNode';
-import type {Record} from '../util/RelayCombinedEnvironmentTypes';
 import type {DataID, Variables} from '../util/RelayRuntimeTypes';
 import type {GetDataID} from './RelayResponseNormalizer';
 import type {
-  OperationLoader,
   MissingFieldHandler,
   MutableRecordSource,
-  RecordSource,
   NormalizationSelector,
+  OperationLoader,
+  Record,
+  RecordSource,
 } from './RelayStoreTypes';
 
 const {

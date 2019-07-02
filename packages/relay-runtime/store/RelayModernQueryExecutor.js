@@ -31,21 +31,21 @@ import type {
 } from '../network/RelayNetworkTypes';
 import type {Sink, Subscription} from '../network/RelayObservable';
 import type {
+  DeferPlaceholder,
   HandleFieldPayload,
+  IncrementalDataPlaceholder,
   ModuleImportPayload,
   NormalizationSelector,
   OperationDescriptor,
-  OptimisticUpdate,
   OperationLoader,
+  OptimisticUpdate,
+  PublishQueue,
+  Record,
   RelayResponsePayload,
   SelectorStoreUpdater,
-  DeferPlaceholder,
   StreamPlaceholder,
-  IncrementalDataPlaceholder,
-  PublishQueue,
 } from '../store/RelayStoreTypes';
 import type {NormalizationSplitOperation} from '../util/NormalizationNode';
-import type {Record} from '../util/RelayCombinedEnvironmentTypes';
 import type RelayOperationTracker from './RelayOperationTracker';
 import type {GetDataID} from './RelayResponseNormalizer';
 

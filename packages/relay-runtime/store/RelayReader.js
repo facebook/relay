@@ -47,11 +47,11 @@ import type {
   ReaderScalarField,
   ReaderSelection,
 } from '../util/ReaderNode';
-import type {Record} from '../util/RelayCombinedEnvironmentTypes';
 import type {DataID, Variables} from '../util/RelayRuntimeTypes';
 import type {
   OperationDescriptor,
   ReaderSelector,
+  Record,
   RecordSource,
   SelectorData,
   Snapshot,

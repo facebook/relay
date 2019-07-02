@@ -24,8 +24,8 @@ const {
   UNPUBLISH_FIELD_SENTINEL,
 } = require('./RelayStoreUtils');
 
-import type {Record} from '../util/RelayCombinedEnvironmentTypes';
 import type {DataID} from '../util/RelayRuntimeTypes';
+import type {Record} from './RelayStoreTypes';
 
 /**
  * @public

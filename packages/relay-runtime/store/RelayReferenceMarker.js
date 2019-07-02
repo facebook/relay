@@ -23,12 +23,12 @@ import type {
   NormalizationNode,
   NormalizationSelection,
 } from '../util/NormalizationNode';
-import type {Record} from '../util/RelayCombinedEnvironmentTypes';
 import type {DataID, Variables} from '../util/RelayRuntimeTypes';
 import type {
-  OperationLoader,
-  RecordSource,
   NormalizationSelector,
+  OperationLoader,
+  Record,
+  RecordSource,
 } from './RelayStoreTypes';
 
 const {

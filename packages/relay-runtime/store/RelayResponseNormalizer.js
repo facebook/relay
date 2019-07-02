@@ -48,7 +48,6 @@ import type {
   NormalizationScalarField,
   NormalizationStream,
 } from '../util/NormalizationNode';
-import type {Record} from '../util/RelayCombinedEnvironmentTypes';
 import type {DataID, Variables} from '../util/RelayRuntimeTypes';
 import type {
   HandleFieldPayload,
@@ -56,6 +55,7 @@ import type {
   ModuleImportPayload,
   MutableRecordSource,
   NormalizationSelector,
+  Record,
 } from './RelayStoreTypes';
 
 export type GetDataID = (

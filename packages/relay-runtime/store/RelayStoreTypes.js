@@ -38,12 +38,6 @@ import type {RecordState} from './RelayRecordState';
 
 export opaque type FragmentReference = empty;
 
-type TFragment = ReaderFragment;
-type TGraphQLTaggedNode = GraphQLTaggedNode;
-type TPayload = GraphQLResponse;
-type TRequest = ConcreteRequest;
-type TReaderSelector = OwnedReaderSelector;
-
 /*
  * An individual cached graph object.
  */
@@ -103,7 +97,7 @@ export type Snapshot = ReaderSelector & {
  */
 export type OperationDescriptor = {|
   +fragment: ReaderSelector,
-  +node: TRequest,
+  +node: ConcreteRequest,
   +root: NormalizationSelector,
   +variables: Variables,
 |};
@@ -192,7 +186,7 @@ export interface UnstableEnvironmentCore {
    * operation, and default values are populated for null values.
    */
   createOperationDescriptor: (
-    request: TRequest,
+    request: ConcreteRequest,
     variables: Variables,
   ) => OperationDescriptor;
 
@@ -200,33 +194,36 @@ export interface UnstableEnvironmentCore {
    * Given a graphql`...` tagged template, extract a fragment definition usable
    * by this version of Relay core. Throws if the value is not a fragment.
    */
-  getFragment: (node: TGraphQLTaggedNode) => TFragment;
+  getFragment: (node: GraphQLTaggedNode) => ReaderFragment;
 
   /**
    * Given a graphql`...` tagged template, extract an operation definition
    * usable by this version of Relay core. Throws if the value is not an
    * operation (or batch request).
    */
-  getRequest: (node: TGraphQLTaggedNode) => TRequest;
+  getRequest: (node: GraphQLTaggedNode) => ConcreteRequest;
 
   /**
    * Given a graphql`...` tagged template, returns true if the value is a
    * fragment definition, or false otherwise.
    */
-  isFragment: (node: TGraphQLTaggedNode) => boolean;
+  isFragment: (node: GraphQLTaggedNode) => boolean;
 
   /**
    * Given a graphql`...` tagged template, returns true if the value is an
    * operation or batch request (i.e. query), or false otherwise.
    */
-  isRequest: (node: TGraphQLTaggedNode) => boolean;
+  isRequest: (node: GraphQLTaggedNode) => boolean;
 
   /**
    * Determine if two selectors are equal (represent the same selection). Note
    * that this function returns `false` when the two queries/fragments are
    * different objects, even if they select the same fields.
    */
-  areEqualSelectors: (a: TReaderSelector, b: TReaderSelector) => boolean;
+  areEqualSelectors: (
+    a: OwnedReaderSelector,
+    b: OwnedReaderSelector,
+  ) => boolean;
 
   /**
    * Given the result `item` from a parent that fetched `fragment`, creates a
@@ -257,10 +254,10 @@ export interface UnstableEnvironmentCore {
    */
   getSingularSelector: (
     operationVariables: Variables,
-    fragment: TFragment,
+    fragment: ReaderFragment,
     prop: mixed,
     owner?: ?OperationDescriptor,
-  ) => ?TReaderSelector;
+  ) => ?OwnedReaderSelector;
 
   /**
    * Given the result `items` from a parent that fetched `fragment`, creates a
@@ -270,10 +267,10 @@ export interface UnstableEnvironmentCore {
    */
   getPluralSelector: (
     operationVariables: Variables,
-    fragment: TFragment,
+    fragment: ReaderFragment,
     props: Array<mixed>,
     owner?: Array<?OperationDescriptor>,
-  ) => ?Array<TReaderSelector>;
+  ) => ?Array<OwnedReaderSelector>;
 
   /**
    * Given an item (fragment ref) and a fragment, returns a singular selector
@@ -282,10 +279,10 @@ export interface UnstableEnvironmentCore {
    */
   getSelector: (
     operationVariables: Variables,
-    fragment: TFragment,
+    fragment: ReaderFragment,
     item: mixed | Array<mixed>,
     owner?: ?OperationDescriptor | Array<?OperationDescriptor>,
-  ) => ?TReaderSelector | ?Array<TReaderSelector>;
+  ) => ?OwnedReaderSelector | ?Array<OwnedReaderSelector>;
 
   /**
    * Given a mapping of keys -> results and a mapping of keys -> fragments,
@@ -303,7 +300,7 @@ export interface UnstableEnvironmentCore {
       [key: string]: ?OperationDescriptor | Array<?OperationDescriptor>,
     },
   ) => {
-    [key: string]: ?(TReaderSelector | Array<TReaderSelector>),
+    [key: string]: ?(OwnedReaderSelector | Array<OwnedReaderSelector>),
   };
 
   /**
@@ -319,20 +316,20 @@ export interface UnstableEnvironmentCore {
   ) => {[key: string]: ?(DataID | Array<DataID>)};
 
   getDataIDsFromFragment: (
-    fragment: TFragment,
+    fragment: ReaderFragment,
     prop: mixed,
   ) => ?DataID | ?Array<DataID>;
 
   getVariablesFromSingularFragment: (
     operationVariables: Variables,
-    fragment: TFragment,
+    fragment: ReaderFragment,
     prop: mixed,
     owner?: ?OperationDescriptor,
   ) => ?Variables;
 
   getVariablesFromPluralFragment: (
     operationVariables: Variables,
-    fragment: TFragment,
+    fragment: ReaderFragment,
     prop: Array<mixed>,
     owners?: Array<?OperationDescriptor>,
   ) => Variables;
@@ -343,7 +340,7 @@ export interface UnstableEnvironmentCore {
    */
   getVariablesFromFragment: (
     operationVariables: Variables,
-    fragment: TFragment,
+    fragment: ReaderFragment,
     item: mixed | Array<mixed>,
     owner?: ?OperationDescriptor | Array<?OperationDescriptor>,
   ) => Variables;
@@ -621,7 +618,7 @@ export interface Environment {
     operation: OperationDescriptor,
     cacheConfig?: ?CacheConfig,
     updater?: ?SelectorStoreUpdater,
-  |}): RelayObservable<TPayload>;
+  |}): RelayObservable<GraphQLResponse>;
 
   /**
    * Returns an Observable of GraphQLResponse resulting from executing the

@@ -38,16 +38,6 @@ export type CReaderSelector<TReaderNode> = {
 };
 
 /**
- * A representation of a selector and its results at a particular point in time.
- */
-export type CSnapshot<TReaderNode, TOwner> = CReaderSelector<TReaderNode> & {
-  data: ?SelectorData,
-  seenRecords: RecordMap,
-  isMissingData: boolean,
-  owner: TOwner | null,
-};
-
-/**
  * The results of a selector given a store/RecordSource.
  */
 export type SelectorData = {[key: string]: mixed};

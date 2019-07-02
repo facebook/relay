@@ -30,8 +30,9 @@ import type {
   CFragmentMap,
   CReaderSelector,
   CNormalizationSelector,
-  CSnapshot,
+  RecordMap,
   Record,
+  SelectorData,
 } from '../util/RelayCombinedEnvironmentTypes';
 import type {ConcreteRequest} from '../util/RelayConcreteNode';
 import type {
@@ -63,7 +64,16 @@ export type OwnedReaderSelector = {|
   selector: ReaderSelector,
 |};
 export type NormalizationSelector = CNormalizationSelector<TNormalizationNode>;
-export type Snapshot = CSnapshot<TReaderNode, OperationDescriptor>;
+
+/**
+ * A representation of a selector and its results at a particular point in time.
+ */
+export type Snapshot = ReaderSelector & {
+  data: ?SelectorData,
+  seenRecords: RecordMap,
+  isMissingData: boolean,
+  owner: OperationDescriptor | null,
+};
 
 /**
  * An operation selector describes a specific instance of a GraphQL operation

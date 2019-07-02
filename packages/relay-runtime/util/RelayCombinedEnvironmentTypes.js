@@ -10,7 +10,6 @@
 
 'use strict';
 
-import type {Props} from '../store/RelayStoreTypes';
 import type {DataID, Variables} from './RelayRuntimeTypes';
 
 /*
@@ -52,52 +51,5 @@ export type CSnapshot<TReaderNode, TOwner> = CReaderSelector<TReaderNode> & {
  * The results of a selector given a store/RecordSource.
  */
 export type SelectorData = {[key: string]: mixed};
-
-/**
- * The results of reading the results of a FragmentMap given some input
- * `Props`.
- */
-export type FragmentSpecResults = {[key: string]: mixed};
-
-/**
- * A utility for resolving and subscribing to the results of a fragment spec
- * (key -> fragment mapping) given some "props" that determine the root ID
- * and variables to use when reading each fragment. When props are changed via
- * `setProps()`, the resolver will update its results and subscriptions
- * accordingly. Internally, the resolver:
- * - Converts the fragment map & props map into a map of `Selector`s.
- * - Removes any resolvers for any props that became null.
- * - Creates resolvers for any props that became non-null.
- * - Updates resolvers with the latest props.
- */
-export interface CFragmentSpecResolver<TRequest> {
-  /**
-   * Stop watching for changes to the results of the fragments.
-   */
-  dispose(): void;
-
-  /**
-   * Get the current results.
-   */
-  resolve(): FragmentSpecResults;
-
-  /**
-   * Update the resolver with new inputs. Call `resolve()` to get the updated
-   * results.
-   */
-  setProps(props: Props): void;
-
-  /**
-   * Override the variables used to read the results of the fragments. Call
-   * `resolve()` to get the updated results.
-   */
-  setVariables(variables: Variables, node?: TRequest): void;
-
-  /**
-   * Subscribe to resolver updates.
-   * Overrides existing callback (if one has been specified).
-   */
-  setCallback(callback: () => void): void;
-}
 
 export type CFragmentMap<TFragment> = {[key: string]: TFragment};

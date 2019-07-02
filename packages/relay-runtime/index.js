@@ -156,14 +156,6 @@ export type {
   ReaderSelection,
 } from './util/ReaderNode';
 export type {
-  CFragmentMap,
-  CFragmentSpecResolver,
-  CNormalizationSelector,
-  CReaderSelector,
-  CSnapshot,
-  FragmentSpecResults,
-} from './util/RelayCombinedEnvironmentTypes';
-export type {
   ConcreteRequest,
   GeneratedNode,
   RequestParameters,

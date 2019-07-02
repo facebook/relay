@@ -26,6 +26,7 @@ function compileGraphQLTag(
   path: Object,
   state: BabelState,
   ast: DocumentNode,
+  deprecated?: boolean,
 ): void {
   if (ast.definitions.length !== 1) {
     throw new Error(
@@ -44,10 +45,14 @@ function compileGraphQLTag(
         '`.',
     );
   }
-  return replaceMemoized(t, path, createAST(t, state, path, definition));
+  return replaceMemoized(
+    t,
+    path,
+    createAST(t, state, path, definition, deprecated || false),
+  );
 }
 
-function createAST(t, state, path, graphqlDefinition) {
+function createAST(t, state, path, graphqlDefinition, deprecated) {
   const isCompatMode = Boolean(state.opts && state.opts.compat);
   const isHasteMode = Boolean(state.opts && state.opts.haste);
   const isDevVariable = state.opts && state.opts.isDevVariable;
@@ -59,18 +64,25 @@ function createAST(t, state, path, graphqlDefinition) {
   const isDevelopment =
     (process.env.BABEL_ENV || process.env.NODE_ENV) !== 'production';
 
-  const modernNode = createModernNode(t, graphqlDefinition, state, {
-    artifactDirectory,
-    buildCommand,
-    isDevelopment,
-    isHasteMode,
-    isDevVariable,
-  });
+  const modernNode = deprecated
+    ? null
+    : createModernNode(t, graphqlDefinition, state, {
+        artifactDirectory,
+        buildCommand,
+        isDevelopment,
+        isHasteMode,
+        isDevVariable,
+      });
   if (isCompatMode) {
     return createCompatNode(
       t,
       modernNode,
       createClassicNode(t, path, graphqlDefinition, state),
+    );
+  }
+  if (deprecated) {
+    throw new Error(
+      'graphql_DEPRECATED`...` tag not allowed in modern-only mode.',
     );
   }
   return modernNode;

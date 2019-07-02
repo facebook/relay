@@ -16,13 +16,17 @@
  */
 function createCompatNode(
   t: $FlowFixMe,
-  modernNode: Object,
+  modernNode: ?Object,
   classicNode: Object,
 ): Object {
-  return t.objectExpression([
-    t.objectProperty(t.identifier('modern'), modernNode),
-    t.objectProperty(t.identifier('classic'), classicNode),
-  ]);
+  return t.objectExpression(
+    modernNode != null
+      ? [
+          t.objectProperty(t.identifier('modern'), modernNode),
+          t.objectProperty(t.identifier('classic'), classicNode),
+        ]
+      : [t.objectProperty(t.identifier('classic'), classicNode)],
+  );
 }
 
 module.exports = createCompatNode;

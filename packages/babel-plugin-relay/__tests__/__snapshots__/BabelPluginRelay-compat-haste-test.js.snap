@@ -848,6 +848,81 @@ module.exports = RelayCompatContainer.createContainer(CompatProfile, {
 });
 `;
 
+exports[`matches expected output: graphql-deprecated.txt 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+/**
+ * Copyright 2004-present Facebook. All Rights Reserved.
+ *
+ */
+
+'use strict';
+
+const CompatProfilePic = require('CompatProfilePic');
+const RelayCompatContainer = require('RelayCompatContainer');
+const graphql_DEPRECATED = require('graphql');
+
+const CompatProfile = () => null;
+
+module.exports = RelayCompatContainer.createContainer(CompatProfile, {
+  user: graphql_DEPRECATED\`
+    fragment CompatProfile_user on User {
+      name
+      ...CompatProfilePic_user
+    }
+  \`,
+});
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+/**
+ * Copyright 2004-present Facebook. All Rights Reserved.
+ *
+ */
+'use strict';
+
+const CompatProfilePic = require('CompatProfilePic');
+
+const RelayCompatContainer = require('RelayCompatContainer');
+
+const graphql_DEPRECATED = require('graphql');
+
+const CompatProfile = () => null;
+
+module.exports = RelayCompatContainer.createContainer(CompatProfile, {
+  user: {
+    classic: function (RelayQL_GENERATED) {
+      const CompatProfilePic_user = CompatProfilePic.getFragment("user");
+      return {
+        kind: "FragmentDefinition",
+        argumentDefinitions: [],
+        node: function () {
+          return {
+            children: [].concat.apply([], [{
+              fieldName: "name",
+              kind: "Field",
+              metadata: {},
+              type: "String"
+            }, {
+              fieldName: "id",
+              kind: "Field",
+              metadata: {
+                isGenerated: true,
+                isRequisite: true
+              },
+              type: "ID"
+            }, RelayQL_GENERATED.__frag(CompatProfilePic_user)]),
+            id: RelayQL_GENERATED.__id(),
+            kind: "Fragment",
+            metadata: {},
+            name: "CompatProfile_user",
+            type: "User"
+          };
+        }()
+      };
+    }
+  }
+});
+`;
+
 exports[`matches expected output: memoize-inner-scope.txt 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 /**

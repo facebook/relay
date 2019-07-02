@@ -90,6 +90,13 @@ module.exports = function BabelPluginRelay(context: {types: $FlowFixMe}): any {
         return;
       }
 
+      // Convert graphql_DEPRECATED`` literals
+      const deprecatedAst = getValidGraphQLTag(path, 'graphql_DEPRECATED');
+      if (deprecatedAst != null) {
+        compileGraphQLTag(t, path, state, deprecatedAst, /* deprecated */ true);
+        return;
+      }
+
       // Convert Relay.QL`` literals
       const [quasi, tagName, propName] = getValidRelayQLTag(path);
       if (quasi && tagName) {

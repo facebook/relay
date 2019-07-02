@@ -21,7 +21,6 @@ const {
 } = require('./RelayModernSelector');
 const {ROOT_ID} = require('./RelayStoreUtils');
 
-import type {SelectorData} from '../util/RelayCombinedEnvironmentTypes';
 import type {ConcreteRequest} from '../util/RelayConcreteNode';
 import type {Disposable, Variables} from '../util/RelayRuntimeTypes';
 import type {
@@ -31,6 +30,7 @@ import type {
   FragmentSpecResults,
   OwnedReaderSelector,
   RelayContext,
+  SelectorData,
   Snapshot,
 } from './RelayStoreTypes';
 

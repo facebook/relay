@@ -21,7 +21,6 @@ const invariant = require('invariant');
 const normalizeRelayPayload = require('./normalizeRelayPayload');
 
 import type {HandlerProvider} from '../handlers/RelayDefaultHandlerProvider';
-import type {SelectorData} from '../util/RelayCombinedEnvironmentTypes';
 import type {Disposable} from '../util/RelayRuntimeTypes';
 import type {GetDataID} from './RelayResponseNormalizer';
 import type {
@@ -29,13 +28,14 @@ import type {
   MutableRecordSource,
   OperationDescriptor,
   OptimisticUpdate,
+  PublishQueue,
   ReaderSelector,
+  RecordSource,
+  RelayResponsePayload,
+  SelectorData,
   SelectorStoreUpdater,
   Store,
   StoreUpdater,
-  RecordSource,
-  RelayResponsePayload,
-  PublishQueue,
 } from './RelayStoreTypes';
 
 type Payload = {

@@ -16,9 +16,9 @@ const warning = require('warning');
 
 import type {
   RecordSourceSelectorProxy,
+  SelectorData,
   SelectorStoreUpdater,
 } from '../store/RelayStoreTypes';
-import type {SelectorData} from '../util/RelayCombinedEnvironmentTypes';
 import type {ConcreteRequest} from '../util/RelayConcreteNode';
 import type {DataID, Variables} from '../util/RelayRuntimeTypes';
 

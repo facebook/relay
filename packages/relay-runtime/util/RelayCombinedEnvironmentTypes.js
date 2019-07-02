@@ -37,9 +37,4 @@ export type CReaderSelector<TReaderNode> = {
   variables: Variables,
 };
 
-/**
- * The results of a selector given a store/RecordSource.
- */
-export type SelectorData = {[key: string]: mixed};
-
 export type CFragmentMap<TFragment> = {[key: string]: TFragment};

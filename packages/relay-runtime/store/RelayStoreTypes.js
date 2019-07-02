@@ -32,7 +32,6 @@ import type {
   CNormalizationSelector,
   RecordMap,
   Record,
-  SelectorData,
 } from '../util/RelayCombinedEnvironmentTypes';
 import type {ConcreteRequest} from '../util/RelayConcreteNode';
 import type {
@@ -43,8 +42,6 @@ import type {
 } from '../util/RelayRuntimeTypes';
 import type RelayOperationTracker from './RelayOperationTracker';
 import type {RecordState} from './RelayRecordState';
-
-export type {SelectorData} from '../util/RelayCombinedEnvironmentTypes';
 
 export opaque type FragmentReference = empty;
 
@@ -57,6 +54,11 @@ type TRequest = ConcreteRequest;
 type TReaderSelector = OwnedReaderSelector;
 
 export type FragmentMap = CFragmentMap<TFragment>;
+
+/**
+ * The results of a selector given a store/RecordSource.
+ */
+export type SelectorData = {[key: string]: mixed};
 
 export type ReaderSelector = CReaderSelector<TReaderNode>;
 export type OwnedReaderSelector = {|
@@ -776,8 +778,8 @@ export type StoreUpdater = (store: RecordSourceProxy) => void;
  */
 export type SelectorStoreUpdater = (
   store: RecordSourceSelectorProxy,
-  // Actually RelayCombinedEnvironmentTypes#SelectorData, but mixed is
-  // inconvenient to access deeply in product code.
+  // Actually SelectorData, but mixed is inconvenient to access deeply in
+  // product code.
   data: $FlowFixMe,
 ) => void;
 

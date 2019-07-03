@@ -10,11 +10,12 @@
 
 'use strict';
 
-import type {GraphQLTag} from '../RelayLanguagePluginInterface';
-
 const Profiler = require('../../core/GraphQLCompilerProfiler');
+
 const babylon = require('@babel/parser');
 const util = require('util');
+
+import type {GraphQLTag} from '../RelayLanguagePluginInterface';
 
 // Attempt to be as inclusive as possible of source text.
 const BABYLON_OPTIONS = {
@@ -75,17 +76,21 @@ function find(text: string): Array<GraphQLTag> {
             node.callee.name,
           );
           invariant(
-            isGraphQLTag(property.value.tag),
+            isGraphQLModernOrDeprecatedTag(property.value.tag),
             'FindGraphQLTags: `%s` expects fragment definitions to be tagged ' +
               'with `graphql`, got `%s`.',
             node.callee.name,
             getSourceTextForLocation(text, property.value.tag.loc),
           );
-          result.push({
-            keyName: property.key.name,
-            template: getGraphQLText(property.value.quasi),
-            sourceLocationOffset: getSourceLocationOffset(property.value.quasi),
-          });
+          if (isGraphQLTag(property.value.tag)) {
+            result.push({
+              keyName: property.key.name,
+              template: getGraphQLText(property.value.quasi),
+              sourceLocationOffset: getSourceLocationOffset(
+                property.value.quasi,
+              ),
+            });
+          }
         });
       } else {
         invariant(
@@ -95,7 +100,7 @@ function find(text: string): Array<GraphQLTag> {
           node.callee.name,
         );
         invariant(
-          isGraphQLTag(fragments.tag),
+          isGraphQLModernOrDeprecatedTag(fragments.tag),
           'FindGraphQLTags: `%s` expects fragment definitions to be tagged ' +
             'with `graphql`, got `%s`.',
           node.callee.name,
@@ -146,6 +151,13 @@ const IGNORED_KEYS = {
 
 function isGraphQLTag(tag): boolean {
   return tag.type === 'Identifier' && tag.name === 'graphql';
+}
+
+function isGraphQLModernOrDeprecatedTag(tag): boolean {
+  return (
+    tag.type === 'Identifier' &&
+    (tag.name === 'graphql' || tag.name === 'graphql_DEPRECATED')
+  );
 }
 
 function getTemplateNode(quasi) {

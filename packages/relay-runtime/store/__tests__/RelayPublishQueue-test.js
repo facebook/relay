@@ -11,11 +11,12 @@
 'use strict';
 
 const ErrorUtils = require('ErrorUtils');
-const RelayInMemoryRecordSource = require('../RelayInMemoryRecordSource');
 const RelayModernRecord = require('../RelayModernRecord');
 const RelayModernStore = require('../RelayModernStore');
 const RelayModernTestUtils = require('relay-test-utils-internal');
 const RelayPublishQueue = require('../RelayPublishQueue');
+const RelayRecordSourceMapImpl = require('../RelayRecordSourceMapImpl');
+const RelayRecordSourceObjectImpl = require('../RelayRecordSourceObjectImpl');
 const RelayStoreUtils = require('../RelayStoreUtils');
 
 const defaultGetDataID = require('../defaultGetDataID');
@@ -28,30 +29,31 @@ const {
 
 const {ID_KEY, REF_KEY, ROOT_ID, ROOT_TYPE, TYPENAME_KEY} = RelayStoreUtils;
 
-describe('RelayPublishQueue', () => {
-  const {generateAndCompile, simpleClone} = RelayModernTestUtils;
-
-  beforeEach(() => {
-    jest.resetModules();
-    expect.extend(RelayModernTestUtils.matchers);
-
-    ErrorUtils.applyWithGuard = jest.fn((callback, context, params) => {
-      try {
-        callback.apply(context, params);
-      } catch (guarded) {} // eslint-disable-line lint/no-unused-catch-bindings
-    });
-  });
-
-  describe('applyUpdate()/revertUpdate()', () => {
-    let operationDescriptor;
-    let operationDescriptorAliased;
-    let initialData;
-    let sourceData;
-    let source;
-    let store;
+[
+  [RelayRecordSourceObjectImpl, 'Object'],
+  [RelayRecordSourceMapImpl, 'Map'],
+].forEach(([RecordSourceImplementation, ImplementationName]) => {
+  describe(`RelayPublishQueue with ${ImplementationName} RecordSource`, () => {
+    const {generateAndCompile, simpleClone} = RelayModernTestUtils;
 
     beforeEach(() => {
-      initialData = {
+      jest.resetModules();
+      expect.extend(RelayModernTestUtils.matchers);
+
+      ErrorUtils.applyWithGuard = jest.fn((callback, context, params) => {
+        try {
+          callback.apply(context, params);
+        } catch (guarded) {} // eslint-disable-line lint/no-unused-catch-bindings
+      });
+    });
+
+    describe('applyUpdate()/revertUpdate()', () => {
+      let operationDescriptor;
+      let operationDescriptorAliased;
+      let source;
+      let store;
+
+      const initialData = {
         [ROOT_ID]: {
           __id: ROOT_ID,
           __typename: ROOT_TYPE,
@@ -85,11 +87,12 @@ describe('RelayPublishQueue', () => {
           population: 9000,
         },
       };
-      sourceData = simpleClone(initialData);
-      source = new RelayInMemoryRecordSource(sourceData);
-      store = new RelayModernStore(source);
-      const mutationQuery = generateAndCompile(
-        `
+
+      beforeEach(() => {
+        source = new RecordSourceImplementation(simpleClone(initialData));
+        store = new RelayModernStore(source);
+        const mutationQuery = generateAndCompile(
+          `
         mutation ChangeNameMutation(
           $input: ActorNameChangeInput!
         ) {
@@ -100,10 +103,10 @@ describe('RelayPublishQueue', () => {
           }
         }
       `,
-      ).ChangeNameMutation;
+        ).ChangeNameMutation;
 
-      const mutationQueryAliased = generateAndCompile(
-        `
+        const mutationQueryAliased = generateAndCompile(
+          `
         mutation ChangeNameMutation(
           $input: ActorNameChangeInput!
         ) {
@@ -114,236 +117,257 @@ describe('RelayPublishQueue', () => {
           }
         }
       `,
-      ).ChangeNameMutation;
+        ).ChangeNameMutation;
 
-      const variables = {
-        input: {
-          clientMutationId: '0',
-          newName: 'zuck',
-        },
-      };
-      operationDescriptor = createOperationDescriptor(mutationQuery, variables);
-      operationDescriptorAliased = createOperationDescriptor(
-        mutationQueryAliased,
-        variables,
-      );
-    });
-
-    it('runs an `storeUpdater` and applies the changes to the store', () => {
-      const queue = new RelayPublishQueue(store, null, defaultGetDataID);
-      const optimisticUpdate = {
-        storeUpdater: storeProxy => {
-          const zuck = storeProxy.get('4');
-          zuck.setValue('zuck', 'name');
-        },
-      };
-      queue.applyUpdate(optimisticUpdate);
-      expect(sourceData).toEqual(initialData);
-      queue.run();
-      expect(sourceData).toEqual({
-        ...initialData,
-        4: {
-          ...initialData['4'],
-          name: 'zuck',
-        },
+        const variables = {
+          input: {
+            clientMutationId: '0',
+            newName: 'zuck',
+          },
+        };
+        operationDescriptor = createOperationDescriptor(
+          mutationQuery,
+          variables,
+        );
+        operationDescriptorAliased = createOperationDescriptor(
+          mutationQueryAliased,
+          variables,
+        );
       });
-    });
 
-    it('runs an `selectorStoreUpdater` and applies the changes to the store', () => {
-      const queue = new RelayPublishQueue(store, null, defaultGetDataID);
-      const optimisticUpdate = {
-        operation: operationDescriptor,
-        response: {
-          actorNameChange: {
-            actor: {
-              id: '4',
-              name: 'zuck',
-              __typename: 'Actor',
+      it('runs an `storeUpdater` and applies the changes to the store', () => {
+        const queue = new RelayPublishQueue(store, null, defaultGetDataID);
+        const optimisticUpdate = {
+          storeUpdater: storeProxy => {
+            const zuck = storeProxy.get('4');
+            zuck.setValue('zuck', 'name');
+          },
+        };
+        queue.applyUpdate(optimisticUpdate);
+        let sourceData = source.toJSON();
+        expect(sourceData).toEqual(initialData);
+        queue.run();
+        sourceData = source.toJSON();
+        expect(sourceData).toEqual({
+          ...initialData,
+          4: {
+            ...initialData['4'],
+            name: 'zuck',
+          },
+        });
+      });
+
+      it('runs an `selectorStoreUpdater` and applies the changes to the store', () => {
+        const queue = new RelayPublishQueue(store, null, defaultGetDataID);
+        const optimisticUpdate = {
+          operation: operationDescriptor,
+          response: {
+            actorNameChange: {
+              actor: {
+                id: '4',
+                name: 'zuck',
+                __typename: 'Actor',
+              },
             },
           },
-        },
-      };
-      queue.applyUpdate(optimisticUpdate);
-      expect(sourceData).toEqual(initialData);
-      queue.run();
-      expect(sourceData['4'].name).toEqual('zuck');
-    });
+        };
+        queue.applyUpdate(optimisticUpdate);
+        let sourceData = source.toJSON();
+        expect(sourceData).toEqual(initialData);
+        queue.run();
+        sourceData = source.toJSON();
+        expect(sourceData['4'].name).toEqual('zuck');
+      });
 
-    it('handles aliases correctly when used with optimistic update', () => {
-      const queue = new RelayPublishQueue(store, null, defaultGetDataID);
-      const optimisticUpdate = {
-        operation: operationDescriptorAliased,
-        response: {
-          changeName: {
-            actor: {
-              id: '4',
-              name: 'zuck',
-              __typename: 'Actor',
+      it('handles aliases correctly when used with optimistic update', () => {
+        const queue = new RelayPublishQueue(store, null, defaultGetDataID);
+        const optimisticUpdate = {
+          operation: operationDescriptorAliased,
+          response: {
+            changeName: {
+              actor: {
+                id: '4',
+                name: 'zuck',
+                __typename: 'Actor',
+              },
             },
           },
-        },
-      };
-      queue.applyUpdate(optimisticUpdate);
-      expect(sourceData).toEqual(initialData);
-      queue.run();
-      expect(sourceData['4'].name).toEqual('zuck');
-    });
+        };
+        queue.applyUpdate(optimisticUpdate);
+        let sourceData = source.toJSON();
+        expect(sourceData).toEqual(initialData);
+        queue.run();
+        sourceData = source.toJSON();
+        expect(sourceData['4'].name).toEqual('zuck');
+      });
 
-    it('unpublishes changes from `storeUpdater` when reverted in the same run()', () => {
-      const queue = new RelayPublishQueue(store, null, defaultGetDataID);
-      const optimisticUpdate = {
-        storeUpdater: storeProxy => {
-          const zuck = storeProxy.get('4');
-          zuck.setValue('zuck', 'name');
-        },
-      };
-      queue.applyUpdate(optimisticUpdate);
-      queue.revertUpdate(optimisticUpdate);
-      expect(sourceData).toEqual(initialData);
-      queue.run();
-      expect(sourceData).toEqual(initialData);
-    });
+      it('unpublishes changes from `storeUpdater` when reverted in the same run()', () => {
+        const queue = new RelayPublishQueue(store, null, defaultGetDataID);
+        const optimisticUpdate = {
+          storeUpdater: storeProxy => {
+            const zuck = storeProxy.get('4');
+            zuck.setValue('zuck', 'name');
+          },
+        };
+        queue.applyUpdate(optimisticUpdate);
+        queue.revertUpdate(optimisticUpdate);
+        let sourceData = source.toJSON();
+        expect(sourceData).toEqual(initialData);
+        queue.run();
+        sourceData = source.toJSON();
+        expect(sourceData).toEqual(initialData);
+      });
 
-    it('unpublishes changes from `selectorStoreUpdater` when reverted in the same run()', () => {
-      const queue = new RelayPublishQueue(store, null, defaultGetDataID);
-      const optimisticUpdate = {
-        operation: operationDescriptor,
-        response: {
-          actorNameChange: {
-            actor: {
-              id: '4',
-              name: 'zuck',
-              __typename: 'Actor',
+      it('unpublishes changes from `selectorStoreUpdater` when reverted in the same run()', () => {
+        const queue = new RelayPublishQueue(store, null, defaultGetDataID);
+        const optimisticUpdate = {
+          operation: operationDescriptor,
+          response: {
+            actorNameChange: {
+              actor: {
+                id: '4',
+                name: 'zuck',
+                __typename: 'Actor',
+              },
             },
           },
-        },
-      };
-      queue.applyUpdate(optimisticUpdate);
-      queue.revertUpdate(optimisticUpdate);
-      expect(sourceData).toEqual(initialData);
-      queue.run();
-      expect(sourceData).toEqual(initialData);
-    });
+        };
+        queue.applyUpdate(optimisticUpdate);
+        queue.revertUpdate(optimisticUpdate);
+        let sourceData = source.toJSON();
+        expect(sourceData).toEqual(initialData);
+        queue.run();
+        sourceData = source.toJSON();
+        expect(sourceData).toEqual(initialData);
+      });
 
-    it('unpublishes changes from `storeUpdater` when reverted in a subsequent run()', () => {
-      const queue = new RelayPublishQueue(store, null, defaultGetDataID);
-      const optimisticUpdate = {
-        storeUpdater: storeProxy => {
-          const zuck = storeProxy.get('4');
-          zuck.setValue('zuck', 'name');
-        },
-      };
-      queue.applyUpdate(optimisticUpdate);
-      queue.run();
-      queue.revertUpdate(optimisticUpdate);
-      expect(sourceData).not.toEqual(initialData);
-      queue.run();
-      expect(sourceData).toEqual(initialData);
-    });
+      it('unpublishes changes from `storeUpdater` when reverted in a subsequent run()', () => {
+        const queue = new RelayPublishQueue(store, null, defaultGetDataID);
+        const optimisticUpdate = {
+          storeUpdater: storeProxy => {
+            const zuck = storeProxy.get('4');
+            zuck.setValue('zuck', 'name');
+          },
+        };
+        queue.applyUpdate(optimisticUpdate);
+        queue.run();
+        queue.revertUpdate(optimisticUpdate);
+        let sourceData = source.toJSON();
+        expect(sourceData).not.toEqual(initialData);
+        queue.run();
+        sourceData = source.toJSON();
+        expect(sourceData).toEqual(initialData);
+      });
 
-    it('unpublishes changes from `selectorStoreUpdater` when reverted in a subsequent run()', () => {
-      const queue = new RelayPublishQueue(store, null, defaultGetDataID);
-      const optimisticUpdate = {
-        operation: operationDescriptor,
-        response: {
-          actorNameChange: {
-            actor: {
-              id: '4',
-              name: 'zuck',
-              __typename: 'Actor',
+      it('unpublishes changes from `selectorStoreUpdater` when reverted in a subsequent run()', () => {
+        const queue = new RelayPublishQueue(store, null, defaultGetDataID);
+        const optimisticUpdate = {
+          operation: operationDescriptor,
+          response: {
+            actorNameChange: {
+              actor: {
+                id: '4',
+                name: 'zuck',
+                __typename: 'Actor',
+              },
             },
           },
-        },
-      };
-      queue.applyUpdate(optimisticUpdate);
-      queue.run();
-      queue.revertUpdate(optimisticUpdate);
-      expect(sourceData).not.toEqual(initialData);
-      queue.run();
-      expect(sourceData).toEqual(initialData);
-    });
+        };
+        queue.applyUpdate(optimisticUpdate);
+        queue.run();
+        queue.revertUpdate(optimisticUpdate);
+        let sourceData = source.toJSON();
+        expect(sourceData).not.toEqual(initialData);
+        queue.run();
+        sourceData = source.toJSON();
+        expect(sourceData).toEqual(initialData);
+      });
 
-    it('applies multiple updaters in the same run()', () => {
-      const queue = new RelayPublishQueue(store, null, defaultGetDataID);
-      queue.applyUpdate({
-        operation: operationDescriptor,
-        response: {
-          actorNameChange: {
-            actor: {
-              id: '4',
-              name: 'zuck',
-              __typename: 'Actor',
+      it('applies multiple updaters in the same run()', () => {
+        const queue = new RelayPublishQueue(store, null, defaultGetDataID);
+        queue.applyUpdate({
+          operation: operationDescriptor,
+          response: {
+            actorNameChange: {
+              actor: {
+                id: '4',
+                name: 'zuck',
+                __typename: 'Actor',
+              },
             },
           },
-        },
+        });
+        queue.applyUpdate({
+          storeUpdater: storeProxy => {
+            const zuck = storeProxy.get('4');
+            zuck.setValue(zuck.getValue('name').toUpperCase(), 'name');
+          },
+        });
+        let sourceData = source.toJSON();
+        expect(sourceData).toEqual(initialData);
+        queue.run();
+        sourceData = source.toJSON();
+        expect(sourceData['4'].name).toEqual('ZUCK');
       });
-      queue.applyUpdate({
-        storeUpdater: storeProxy => {
-          const zuck = storeProxy.get('4');
-          zuck.setValue(zuck.getValue('name').toUpperCase(), 'name');
-        },
-      });
-      expect(sourceData).toEqual(initialData);
-      queue.run();
-      expect(sourceData['4'].name).toEqual('ZUCK');
-    });
 
-    it('applies updates in subsequent run()s (payload then updater)', () => {
-      const queue = new RelayPublishQueue(store, null, defaultGetDataID);
-      queue.applyUpdate({
-        operation: operationDescriptor,
-        response: {
-          actorNameChange: {
-            actor: {
-              id: '4',
-              name: 'zuck',
-              __typename: 'Actor',
+      it('applies updates in subsequent run()s (payload then updater)', () => {
+        const queue = new RelayPublishQueue(store, null, defaultGetDataID);
+        queue.applyUpdate({
+          operation: operationDescriptor,
+          response: {
+            actorNameChange: {
+              actor: {
+                id: '4',
+                name: 'zuck',
+                __typename: 'Actor',
+              },
             },
           },
-        },
+        });
+        queue.run();
+        queue.applyUpdate({
+          storeUpdater: storeProxy => {
+            const zuck = storeProxy.get('4');
+            zuck.setValue(zuck.getValue('name').toUpperCase(), 'name');
+          },
+        });
+        queue.run();
+        const sourceData = source.toJSON();
+        expect(sourceData['4'].name).toEqual('ZUCK');
       });
-      queue.run();
-      queue.applyUpdate({
-        storeUpdater: storeProxy => {
-          const zuck = storeProxy.get('4');
-          zuck.setValue(zuck.getValue('name').toUpperCase(), 'name');
-        },
-      });
-      queue.run();
-      expect(sourceData['4'].name).toEqual('ZUCK');
-    });
 
-    it('applies updates in subsequent run()s (updater then updater)', () => {
-      const queue = new RelayPublishQueue(store, null, defaultGetDataID);
-      const optimisticUpdate = {
-        storeUpdater: storeProxy => {
-          const zuck = storeProxy.get('4');
-          zuck.setValue('zuck', 'name');
-        },
-      };
-      const optimisticUpdate2 = {
-        storeUpdater: storeProxy => {
-          const zuck = storeProxy.get('4');
-          zuck.setValue('zuckerberg', 'lastName');
-        },
-      };
-      queue.applyUpdate(optimisticUpdate);
-      queue.applyUpdate(optimisticUpdate2);
-      queue.run();
-      expect(sourceData).toEqual({
-        ...initialData,
-        4: {
-          ...initialData['4'],
-          name: 'zuck', // from first updater
-          lastName: 'zuckerberg', // from second updater
-        },
+      it('applies updates in subsequent run()s (updater then updater)', () => {
+        const queue = new RelayPublishQueue(store, null, defaultGetDataID);
+        const optimisticUpdate = {
+          storeUpdater: storeProxy => {
+            const zuck = storeProxy.get('4');
+            zuck.setValue('zuck', 'name');
+          },
+        };
+        const optimisticUpdate2 = {
+          storeUpdater: storeProxy => {
+            const zuck = storeProxy.get('4');
+            zuck.setValue('zuckerberg', 'lastName');
+          },
+        };
+        queue.applyUpdate(optimisticUpdate);
+        queue.applyUpdate(optimisticUpdate2);
+        queue.run();
+        const sourceData = source.toJSON();
+        expect(sourceData).toEqual({
+          ...initialData,
+          4: {
+            ...initialData['4'],
+            name: 'zuck', // from first updater
+            lastName: 'zuckerberg', // from second updater
+          },
+        });
       });
-    });
 
-    it('applies updates in subsequent run()s (payload then payload)', () => {
-      const queue = new RelayPublishQueue(store, null, defaultGetDataID);
-      // First set `name`.
-      const nameMutation = generateAndCompile(`
+      it('applies updates in subsequent run()s (payload then payload)', () => {
+        const queue = new RelayPublishQueue(store, null, defaultGetDataID);
+        // First set `name`.
+        const nameMutation = generateAndCompile(`
         mutation ChangeNameMutation(
           $input: ActorNameChangeInput!
         ) {
@@ -354,23 +378,23 @@ describe('RelayPublishQueue', () => {
           }
         }
       `).ChangeNameMutation;
-      const nameMutationDescriptor = createOperationDescriptor(nameMutation, {
-        input: {},
-      });
-      queue.applyUpdate({
-        operation: nameMutationDescriptor,
-        response: {
-          actorNameChange: {
-            actor: {
-              __typename: 'User',
-              id: '4',
-              name: 'zuck',
+        const nameMutationDescriptor = createOperationDescriptor(nameMutation, {
+          input: {},
+        });
+        queue.applyUpdate({
+          operation: nameMutationDescriptor,
+          response: {
+            actorNameChange: {
+              actor: {
+                __typename: 'User',
+                id: '4',
+                name: 'zuck',
+              },
             },
           },
-        },
-      });
-      // Next set `lastName`.
-      const lastNameMutation = generateAndCompile(`
+        });
+        // Next set `lastName`.
+        const lastNameMutation = generateAndCompile(`
         mutation ChangeNameMutation(
           $input: ActorNameChangeInput!
         ) {
@@ -381,350 +405,368 @@ describe('RelayPublishQueue', () => {
           }
         }
       `).ChangeNameMutation;
-      const lastNameMutationDescriptor = createOperationDescriptor(
-        lastNameMutation,
-        {input: {}},
-      );
-      queue.applyUpdate({
-        operation: lastNameMutationDescriptor,
-        response: {
-          actorNameChange: {
-            actor: {
-              __typename: 'User',
-              id: '4',
-              lastName: 'zuckerberg',
+        const lastNameMutationDescriptor = createOperationDescriptor(
+          lastNameMutation,
+          {input: {}},
+        );
+        queue.applyUpdate({
+          operation: lastNameMutationDescriptor,
+          response: {
+            actorNameChange: {
+              actor: {
+                __typename: 'User',
+                id: '4',
+                lastName: 'zuckerberg',
+              },
             },
           },
-        },
-      });
-      queue.run();
-      expect(sourceData).toEqual({
-        ...initialData,
-        [ROOT_ID]: {
-          ...initialData[ROOT_ID],
-          'actorNameChange(input:{})': {
-            __ref: 'client:root:actorNameChange(input:{})',
-          },
-        },
-        'client:root:actorNameChange(input:{})': {
-          __id: 'client:root:actorNameChange(input:{})',
-          __typename: 'ActorNameChangePayload',
-          actor: {__ref: '4'},
-        },
-        4: {
-          ...initialData['4'],
-          id: '4',
-          name: 'zuck', // from first updater
-          lastName: 'zuckerberg', // from second updater
-        },
-      });
-    });
-
-    it('rebases changes when an earlier change is reverted', () => {
-      const queue = new RelayPublishQueue(store, null, defaultGetDataID);
-      const optimisticUpdate = {
-        operation: operationDescriptor,
-        response: {
-          actorNameChange: {
-            actor: {
-              id: '4',
-              name: 'zuck',
-              __typename: 'Actor',
+        });
+        queue.run();
+        const sourceData = source.toJSON();
+        expect(sourceData).toEqual({
+          ...initialData,
+          [ROOT_ID]: {
+            ...initialData[ROOT_ID],
+            'actorNameChange(input:{})': {
+              __ref: 'client:root:actorNameChange(input:{})',
             },
           },
-        },
-      };
-      queue.applyUpdate(optimisticUpdate);
-      // The second update should be applied to the reverted store state
-      queue.applyUpdate({
-        storeUpdater: storeProxy => {
-          const zuck = storeProxy.get('4');
-          zuck.setValue(zuck.getValue('name').toUpperCase(), 'name');
-        },
+          'client:root:actorNameChange(input:{})': {
+            __id: 'client:root:actorNameChange(input:{})',
+            __typename: 'ActorNameChangePayload',
+            actor: {__ref: '4'},
+          },
+          4: {
+            ...initialData['4'],
+            id: '4',
+            name: 'zuck', // from first updater
+            lastName: 'zuckerberg', // from second updater
+          },
+        });
       });
-      queue.run();
-      // Cause a rebase
-      queue.revertUpdate(optimisticUpdate);
-      queue.run();
-      expect(sourceData).toEqual({
-        ...initialData,
-        4: {
-          ...initialData['4'],
-          name: 'MARK',
-        },
+
+      it('rebases changes when an earlier change is reverted', () => {
+        const queue = new RelayPublishQueue(store, null, defaultGetDataID);
+        const optimisticUpdate = {
+          operation: operationDescriptor,
+          response: {
+            actorNameChange: {
+              actor: {
+                id: '4',
+                name: 'zuck',
+                __typename: 'Actor',
+              },
+            },
+          },
+        };
+        queue.applyUpdate(optimisticUpdate);
+        // The second update should be applied to the reverted store state
+        queue.applyUpdate({
+          storeUpdater: storeProxy => {
+            const zuck = storeProxy.get('4');
+            zuck.setValue(zuck.getValue('name').toUpperCase(), 'name');
+          },
+        });
+        queue.run();
+        // Cause a rebase
+        queue.revertUpdate(optimisticUpdate);
+        queue.run();
+        const sourceData = source.toJSON();
+        expect(sourceData).toEqual({
+          ...initialData,
+          4: {
+            ...initialData['4'],
+            name: 'MARK',
+          },
+        });
+      });
+
+      it('rebases multiple changes on the same value', () => {
+        const queue = new RelayPublishQueue(store, null, defaultGetDataID);
+        const incrementPopulation = {
+          storeUpdater: storeProxy => {
+            const mpk = storeProxy.get('mpk');
+            invariant(mpk, 'should have mpk');
+            const population = mpk.getValue('population');
+            mpk.setValue(population + 1000, 'population');
+          },
+        };
+        const doublePopulation = {
+          storeUpdater: storeProxy => {
+            const mpk = storeProxy.get('mpk');
+            invariant(mpk, 'should have mpk');
+            const population = mpk.getValue('population');
+            mpk.setValue(population * 2, 'population');
+          },
+        };
+
+        const getPopulation = () => {
+          const sourceData = source.toJSON();
+          return sourceData.mpk.population;
+        };
+
+        expect(getPopulation()).toBe(9000);
+
+        queue.applyUpdate(incrementPopulation);
+        queue.run();
+        expect(getPopulation()).toBe(10000);
+
+        queue.applyUpdate(doublePopulation);
+        queue.run();
+        expect(getPopulation()).toBe(20000);
+
+        queue.revertUpdate(incrementPopulation);
+        queue.run();
+        expect(getPopulation()).toBe(18000);
+      });
+
+      it('unpublishes previously rebased changes when reverted', () => {
+        // Test that backups are created correctly during a rebase
+        const queue = new RelayPublishQueue(store, null, defaultGetDataID);
+        const mutation1 = {
+          storeUpdater: storeProxy => {
+            const zuck = storeProxy.get('4');
+            zuck.setValue('Zuckerberg', 'name');
+          },
+        };
+        const mutation2 = {
+          storeUpdater: storeProxy => {
+            const zuck = storeProxy.get('4');
+            zuck.setValue('Mark Zuckerberg', 'name');
+          },
+        };
+        queue.applyUpdate(mutation1);
+        queue.applyUpdate(mutation2);
+        queue.run();
+        // Cause a rebase
+        queue.revertUpdate(mutation1);
+        queue.run();
+        // Revert the rebased change
+        queue.revertUpdate(mutation2);
+        let sourceData = source.toJSON();
+        expect(sourceData).not.toEqual(initialData);
+        queue.run();
+        sourceData = source.toJSON();
+        // Ensures the intermediate backup was correct
+        expect(sourceData).toEqual(initialData);
       });
     });
 
-    it('rebases multiple changes on the same value', () => {
-      const queue = new RelayPublishQueue(store, null, defaultGetDataID);
-      const incrementPopulation = {
-        storeUpdater: storeProxy => {
-          const mpk = storeProxy.get('mpk');
-          invariant(mpk, 'should have mpk');
-          const population = mpk.getValue('population');
-          mpk.setValue(population + 1000, 'population');
-        },
-      };
-      const doublePopulation = {
-        storeUpdater: storeProxy => {
-          const mpk = storeProxy.get('mpk');
-          invariant(mpk, 'should have mpk');
-          const population = mpk.getValue('population');
-          mpk.setValue(population * 2, 'population');
-        },
-      };
-      const getPopulation = () => sourceData.mpk.population;
+    describe('revertAll()', () => {
+      let initialData;
+      let source;
+      let store;
 
-      expect(getPopulation()).toBe(9000);
-
-      queue.applyUpdate(incrementPopulation);
-      queue.run();
-      expect(getPopulation()).toBe(10000);
-
-      queue.applyUpdate(doublePopulation);
-      queue.run();
-      expect(getPopulation()).toBe(20000);
-
-      queue.revertUpdate(incrementPopulation);
-      queue.run();
-      expect(getPopulation()).toBe(18000);
-    });
-
-    it('unpublishes previously rebased changes when reverted', () => {
-      // Test that backups are created correctly during a rebase
-      const queue = new RelayPublishQueue(store, null, defaultGetDataID);
-      const mutation1 = {
-        storeUpdater: storeProxy => {
-          const zuck = storeProxy.get('4');
-          zuck.setValue('Zuckerberg', 'name');
-        },
-      };
-      const mutation2 = {
-        storeUpdater: storeProxy => {
-          const zuck = storeProxy.get('4');
-          zuck.setValue('Mark Zuckerberg', 'name');
-        },
-      };
-      queue.applyUpdate(mutation1);
-      queue.applyUpdate(mutation2);
-      queue.run();
-      // Cause a rebase
-      queue.revertUpdate(mutation1);
-      queue.run();
-      // Revert the rebased change
-      queue.revertUpdate(mutation2);
-      expect(sourceData).not.toEqual(initialData);
-      queue.run();
-      // Ensures the intermediate backup was correct
-      expect(sourceData).toEqual(initialData);
-    });
-  });
-
-  describe('revertAll()', () => {
-    let initialData;
-    let sourceData;
-    let source;
-    let store;
-
-    beforeEach(() => {
-      initialData = {
-        [ROOT_ID]: {
-          [ID_KEY]: ROOT_ID,
-          [TYPENAME_KEY]: ROOT_TYPE,
-        },
-        4: {
-          [ID_KEY]: '4',
-          [TYPENAME_KEY]: 'User',
-          name: 'Mark',
-        },
-      };
-      sourceData = simpleClone(initialData);
-      source = new RelayInMemoryRecordSource(sourceData);
-      store = new RelayModernStore(source);
-    });
-
-    it('reverts executed changes', () => {
-      store.publish = jest.fn(store.publish.bind(store));
-      const queue = new RelayPublishQueue(store, null, defaultGetDataID);
-      // Run the updates
-      queue.applyUpdate({
-        storeUpdater: storeProxy => {
-          const zuck = storeProxy.get('4');
-          zuck.setValue('zuck', 'name');
-        },
-      });
-      queue.applyUpdate({
-        storeUpdater: storeProxy => {
-          const zuck = storeProxy.get('4');
-          zuck.setValue(zuck.getValue('name').toUpperCase(), 'name');
-        },
-      });
-      queue.run();
-      expect(store.publish.mock.calls.length).toBe(1);
-      store.publish.mockClear();
-
-      // Then run the revert
-      queue.revertAll();
-      expect(sourceData).not.toEqual(initialData);
-      queue.run();
-      expect(sourceData).toEqual(initialData);
-      expect(store.publish.mock.calls.length).toBe(1);
-    });
-
-    it('reverts partially executed/unexecuted changes', () => {
-      store.publish = jest.fn(store.publish.bind(store));
-      const queue = new RelayPublishQueue(store, null, defaultGetDataID);
-      // Run the first update
-      queue.applyUpdate({
-        storeUpdater: storeProxy => {
-          const zuck = storeProxy.get('4');
-          zuck.setValue('zuck', 'name');
-        },
-      });
-      queue.run();
-      // Apply a second update
-      queue.applyUpdate({
-        storeUpdater: storeProxy => {
-          const zuck = storeProxy.get('4');
-          zuck.setValue(zuck.getValue('name').toUpperCase(), 'name');
-        },
-      });
-      store.publish.mockClear();
-
-      // Then run the revert
-      queue.revertAll();
-      expect(sourceData).not.toEqual(initialData);
-      queue.run();
-      expect(sourceData).toEqual(initialData);
-      expect(store.publish.mock.calls.length).toBe(1);
-    });
-
-    it('reverts unexecuted changes', () => {
-      store.publish = jest.fn(store.publish.bind(store));
-      const queue = new RelayPublishQueue(store, null, defaultGetDataID);
-      // Apply but don't run the updates
-      queue.applyUpdate({
-        storeUpdater: storeProxy => {
-          const zuck = storeProxy.get('4');
-          zuck.setValue('zuck', 'name');
-        },
-      });
-      queue.applyUpdate({
-        storeUpdater: storeProxy => {
-          const zuck = storeProxy.get('4');
-          zuck.setValue(zuck.getValue('name').toUpperCase(), 'name');
-        },
+      beforeEach(() => {
+        initialData = {
+          [ROOT_ID]: {
+            [ID_KEY]: ROOT_ID,
+            [TYPENAME_KEY]: ROOT_TYPE,
+          },
+          4: {
+            [ID_KEY]: '4',
+            [TYPENAME_KEY]: 'User',
+            name: 'Mark',
+          },
+        };
+        source = new RecordSourceImplementation(simpleClone(initialData));
+        store = new RelayModernStore(source);
       });
 
-      queue.revertAll();
-      expect(sourceData).toEqual(initialData);
-      queue.run();
-      expect(sourceData).toEqual(initialData);
-      expect(store.publish.mock.calls.length).toBe(0);
-    });
+      it('reverts executed changes', () => {
+        store.publish = jest.fn(store.publish.bind(store));
+        const queue = new RelayPublishQueue(store, null, defaultGetDataID);
+        // Run the updates
+        queue.applyUpdate({
+          storeUpdater: storeProxy => {
+            const zuck = storeProxy.get('4');
+            zuck.setValue('zuck', 'name');
+          },
+        });
+        queue.applyUpdate({
+          storeUpdater: storeProxy => {
+            const zuck = storeProxy.get('4');
+            zuck.setValue(zuck.getValue('name').toUpperCase(), 'name');
+          },
+        });
+        queue.run();
+        expect(store.publish.mock.calls.length).toBe(1);
+        store.publish.mockClear();
 
-    it('reverts addition of new fields', () => {
-      store.publish = jest.fn(store.publish.bind(store));
-      const queue = new RelayPublishQueue(store, null, defaultGetDataID);
-      queue.applyUpdate({
-        storeUpdater: storeProxy => {
-          const zuck = storeProxy.get('4');
-          zuck.setValue('zuck124', 'username');
-        },
+        // Then run the revert
+        queue.revertAll();
+        let sourceData = source.toJSON();
+        expect(sourceData).not.toEqual(initialData);
+        queue.run();
+        sourceData = source.toJSON();
+        expect(sourceData).toEqual(initialData);
+        expect(store.publish.mock.calls.length).toBe(1);
       });
-      queue.run();
-      expect(sourceData).not.toEqual(initialData);
-      queue.revertAll();
-      queue.run();
-      expect(sourceData).toEqual(initialData);
-    });
 
-    it('reverts addition of linked field', () => {
-      store.publish = jest.fn(store.publish.bind(store));
-      const queue = new RelayPublishQueue(store, null, defaultGetDataID);
-      queue.applyUpdate({
-        storeUpdater: storeProxy => {
-          const date = storeProxy.create('fookey', 'Date');
-          date.setValue(14, 'day').setValue(5, 'month');
-          const zuck = storeProxy.get('4');
-          zuck.setLinkedRecord(date, 'birthdate');
-        },
+      it('reverts partially executed/unexecuted changes', () => {
+        store.publish = jest.fn(store.publish.bind(store));
+        const queue = new RelayPublishQueue(store, null, defaultGetDataID);
+        // Run the first update
+        queue.applyUpdate({
+          storeUpdater: storeProxy => {
+            const zuck = storeProxy.get('4');
+            zuck.setValue('zuck', 'name');
+          },
+        });
+        queue.run();
+        // Apply a second update
+        queue.applyUpdate({
+          storeUpdater: storeProxy => {
+            const zuck = storeProxy.get('4');
+            zuck.setValue(zuck.getValue('name').toUpperCase(), 'name');
+          },
+        });
+        store.publish.mockClear();
+
+        // Then run the revert
+        queue.revertAll();
+        let sourceData = source.toJSON();
+        expect(sourceData).not.toEqual(initialData);
+        queue.run();
+        sourceData = source.toJSON();
+        expect(sourceData).toEqual(initialData);
+        expect(store.publish.mock.calls.length).toBe(1);
       });
-      queue.run();
-      expect(sourceData).not.toEqual(initialData);
-      queue.revertAll();
-      queue.run();
-      expect(sourceData).toEqual(initialData);
-    });
 
-    it('reverts addition of linked fields', () => {
-      store.publish = jest.fn(store.publish.bind(store));
-      const queue = new RelayPublishQueue(store, null, defaultGetDataID);
-      queue.applyUpdate({
-        storeUpdater: storeProxy => {
-          const phone1 = storeProxy.create('fookey1', 'Phone');
-          phone1.setValue(1234, 'phoneNumber');
-          const phone2 = storeProxy.create('fookey2', 'Phone');
-          phone2.setValue(5678, 'phoneNumber');
-          const zuck = storeProxy.get('4');
-          zuck.setLinkedRecords([phone1, phone2], 'allPhones');
-        },
+      it('reverts unexecuted changes', () => {
+        store.publish = jest.fn(store.publish.bind(store));
+        const queue = new RelayPublishQueue(store, null, defaultGetDataID);
+        // Apply but don't run the updates
+        queue.applyUpdate({
+          storeUpdater: storeProxy => {
+            const zuck = storeProxy.get('4');
+            zuck.setValue('zuck', 'name');
+          },
+        });
+        queue.applyUpdate({
+          storeUpdater: storeProxy => {
+            const zuck = storeProxy.get('4');
+            zuck.setValue(zuck.getValue('name').toUpperCase(), 'name');
+          },
+        });
+
+        queue.revertAll();
+        let sourceData = source.toJSON();
+        expect(sourceData).toEqual(initialData);
+        queue.run();
+        sourceData = source.toJSON();
+        expect(sourceData).toEqual(initialData);
+        expect(store.publish.mock.calls.length).toBe(0);
       });
-      queue.run();
-      expect(sourceData).not.toEqual(initialData);
-      queue.revertAll();
-      queue.run();
-      expect(sourceData).toEqual(initialData);
-    });
-  });
 
-  describe('commitPayload()', () => {
-    it('publishes the source to the store', () => {
-      const notify = jest.fn();
-      const publish = jest.fn();
-      const source = new RelayInMemoryRecordSource();
-      const store = {
-        getSource: () => source,
-        notify,
-        publish,
-        holdGC: jest.fn(),
-      };
-      const queue = new RelayPublishQueue(store, null, defaultGetDataID);
-      const publishSource = new RelayInMemoryRecordSource();
-      const {ActorQuery} = generateAndCompile(
-        `
+      it('reverts addition of new fields', () => {
+        store.publish = jest.fn(store.publish.bind(store));
+        const queue = new RelayPublishQueue(store, null, defaultGetDataID);
+        queue.applyUpdate({
+          storeUpdater: storeProxy => {
+            const zuck = storeProxy.get('4');
+            zuck.setValue('zuck124', 'username');
+          },
+        });
+        queue.run();
+        let sourceData = source.toJSON();
+        expect(sourceData).not.toEqual(initialData);
+        queue.revertAll();
+        queue.run();
+        sourceData = source.toJSON();
+        expect(sourceData).toEqual(initialData);
+      });
+
+      it('reverts addition of linked field', () => {
+        store.publish = jest.fn(store.publish.bind(store));
+        const queue = new RelayPublishQueue(store, null, defaultGetDataID);
+        queue.applyUpdate({
+          storeUpdater: storeProxy => {
+            const date = storeProxy.create('fookey', 'Date');
+            date.setValue(14, 'day').setValue(5, 'month');
+            const zuck = storeProxy.get('4');
+            zuck.setLinkedRecord(date, 'birthdate');
+          },
+        });
+        queue.run();
+        let sourceData = source.toJSON();
+        expect(sourceData).not.toEqual(initialData);
+        queue.revertAll();
+        queue.run();
+        sourceData = source.toJSON();
+        expect(sourceData).toEqual(initialData);
+      });
+
+      it('reverts addition of linked fields', () => {
+        store.publish = jest.fn(store.publish.bind(store));
+        const queue = new RelayPublishQueue(store, null, defaultGetDataID);
+        queue.applyUpdate({
+          storeUpdater: storeProxy => {
+            const phone1 = storeProxy.create('fookey1', 'Phone');
+            phone1.setValue(1234, 'phoneNumber');
+            const phone2 = storeProxy.create('fookey2', 'Phone');
+            phone2.setValue(5678, 'phoneNumber');
+            const zuck = storeProxy.get('4');
+            zuck.setLinkedRecords([phone1, phone2], 'allPhones');
+          },
+        });
+        queue.run();
+        let sourceData = source.toJSON();
+        expect(sourceData).not.toEqual(initialData);
+        queue.revertAll();
+        queue.run();
+        sourceData = source.toJSON();
+        expect(sourceData).toEqual(initialData);
+      });
+    });
+
+    describe('commitPayload()', () => {
+      it('publishes the source to the store', () => {
+        const notify = jest.fn();
+        const publish = jest.fn();
+        const source = new RecordSourceImplementation();
+        const store = {
+          getSource: () => source,
+          notify,
+          publish,
+          holdGC: jest.fn(),
+        };
+        const queue = new RelayPublishQueue(store, null, defaultGetDataID);
+        const publishSource = new RecordSourceImplementation();
+        const {ActorQuery} = generateAndCompile(
+          `
         query ActorQuery {
           me {
             name
           }
         }
       `,
-      );
+        );
 
-      queue.commitPayload(createOperationDescriptor(ActorQuery, {}), {
-        source: publishSource,
+        queue.commitPayload(createOperationDescriptor(ActorQuery, {}), {
+          source: publishSource,
+        });
+        expect(notify).not.toBeCalled();
+        expect(publish).not.toBeCalled();
+        queue.run();
+        expect(publish.mock.calls.length).toBe(1);
+        expect(publish.mock.calls[0][0]).toBe(publishSource);
+        expect(notify.mock.calls.length).toBe(1);
       });
-      expect(notify).not.toBeCalled();
-      expect(publish).not.toBeCalled();
-      queue.run();
-      expect(publish.mock.calls.length).toBe(1);
-      expect(publish.mock.calls[0][0]).toBe(publishSource);
-      expect(notify.mock.calls.length).toBe(1);
-    });
 
-    it('runs the provided updater before publishing', () => {
-      const notify = jest.fn();
-      const publish = jest.fn();
-      const source = new RelayInMemoryRecordSource();
-      const store = {
-        getSource: () => source,
-        notify,
-        publish,
-        holdGC: jest.fn(),
-      };
-      const queue = new RelayPublishQueue(store, null, defaultGetDataID);
-      const {ActorQuery} = generateAndCompile(
-        `
+      it('runs the provided updater before publishing', () => {
+        const notify = jest.fn();
+        const publish = jest.fn();
+        const source = new RecordSourceImplementation();
+        const store = {
+          getSource: () => source,
+          notify,
+          publish,
+          holdGC: jest.fn(),
+        };
+        const queue = new RelayPublishQueue(store, null, defaultGetDataID);
+        const {ActorQuery} = generateAndCompile(
+          `
         fragment UserFragment on User {
           username
         }
@@ -739,112 +781,112 @@ describe('RelayPublishQueue', () => {
           }
         }
       `,
-      );
+        );
 
-      const operation = createOperationDescriptor(ActorQuery, {});
-      const updater = jest.fn((storeProxy, data) => {
-        const zuck = storeProxy.getRootField('me');
-        const nodes = storeProxy.getPluralRootField('nodes');
-        expect(nodes.length).toBe(1);
-        expect(nodes[0]).toBe(zuck);
+        const operation = createOperationDescriptor(ActorQuery, {});
+        const updater = jest.fn((storeProxy, data) => {
+          const zuck = storeProxy.getRootField('me');
+          const nodes = storeProxy.getPluralRootField('nodes');
+          expect(nodes.length).toBe(1);
+          expect(nodes[0]).toBe(zuck);
 
-        expect(data).toEqual({
-          me: {
-            __id: '4',
-            __fragments: {UserFragment: {}},
-            __fragmentOwner: operation,
-            name: 'Zuck',
-          },
-          nodes: [{name: 'Zuck'}],
-        });
-
-        zuck.setValue(zuck.getValue('name').toUpperCase(), 'name');
-      });
-      queue.commitPayload(
-        operation,
-        {
-          source: new RelayInMemoryRecordSource({
-            '4': {
+          expect(data).toEqual({
+            me: {
               __id: '4',
-              __typename: 'User',
-              id: '4',
+              __fragments: {UserFragment: {}},
+              __fragmentOwner: operation,
               name: 'Zuck',
-              username: 'zuck',
             },
-            'client:root': {
-              __id: 'client:root',
-              __typename: '__Root',
-              me: {__ref: '4'},
-              'nodes(ids:["4"])': {__refs: ['4']},
-            },
-          }),
-        },
-        updater,
-      );
-      expect(notify).not.toBeCalled();
-      expect(publish).not.toBeCalled();
-      expect(updater).not.toBeCalled();
-      queue.run();
-      expect(publish.mock.calls.length).toBe(1);
-      expect(updater.mock.calls.length).toBe(1);
-      const publishSource = publish.mock.calls[0][0];
-      expect(publishSource.toJSON()).toEqual({
-        '4': {
-          __id: '4',
-          __typename: 'User',
-          id: '4',
-          name: 'ZUCK',
-          username: 'zuck',
-        },
-        'client:root': {
-          __id: 'client:root',
-          __typename: '__Root',
-          me: {__ref: '4'},
-          'nodes(ids:["4"])': {__refs: ['4']},
-        },
+            nodes: [{name: 'Zuck'}],
+          });
+
+          zuck.setValue(zuck.getValue('name').toUpperCase(), 'name');
+        });
+        queue.commitPayload(
+          operation,
+          {
+            source: new RecordSourceImplementation({
+              '4': {
+                __id: '4',
+                __typename: 'User',
+                id: '4',
+                name: 'Zuck',
+                username: 'zuck',
+              },
+              'client:root': {
+                __id: 'client:root',
+                __typename: '__Root',
+                me: {__ref: '4'},
+                'nodes(ids:["4"])': {__refs: ['4']},
+              },
+            }),
+          },
+          updater,
+        );
+        expect(notify).not.toBeCalled();
+        expect(publish).not.toBeCalled();
+        expect(updater).not.toBeCalled();
+        queue.run();
+        expect(publish.mock.calls.length).toBe(1);
+        expect(updater.mock.calls.length).toBe(1);
+        const publishSource = publish.mock.calls[0][0];
+        expect(publishSource.toJSON()).toEqual({
+          '4': {
+            __id: '4',
+            __typename: 'User',
+            id: '4',
+            name: 'ZUCK',
+            username: 'zuck',
+          },
+          'client:root': {
+            __id: 'client:root',
+            __typename: '__Root',
+            me: {__ref: '4'},
+            'nodes(ids:["4"])': {__refs: ['4']},
+          },
+        });
+        expect(notify.mock.calls.length).toBe(1);
       });
-      expect(notify.mock.calls.length).toBe(1);
-    });
 
-    it('processes handle fields before publishing', () => {
-      const notify = jest.fn();
-      const publish = jest.fn();
-      const source = new RelayInMemoryRecordSource();
-      const store = {
-        getSource: () => source,
-        notify,
-        publish,
-        holdGC: jest.fn(),
-      };
-      const ScreennameHandler = {
-        update(storeProxy, payload) {
-          const record = storeProxy.get(payload.dataID);
-          const linkedRecords = record.getLinkedRecords(payload.fieldKey);
-          record.setLinkedRecords(
-            [...linkedRecords].reverse(),
-            payload.handleKey,
-          );
-        },
-      };
-      const NameHandler = {
-        update(storeProxy, payload) {
-          const record = storeProxy.get(payload.dataID);
-          const name = record.getValue(payload.fieldKey);
-          record.setValue(name.toUpperCase(), payload.handleKey);
-        },
-      };
-      const handleProvider = name => {
-        switch (name) {
-          case 'handleScreennames':
-            return ScreennameHandler;
-          case 'handleName':
-            return NameHandler;
-        }
-      };
-      const queue = new RelayPublishQueue(store, handleProvider);
+      it('processes handle fields before publishing', () => {
+        const notify = jest.fn();
+        const publish = jest.fn();
+        const source = new RecordSourceImplementation();
+        const store = {
+          getSource: () => source,
+          notify,
+          publish,
+          holdGC: jest.fn(),
+        };
+        const ScreennameHandler = {
+          update(storeProxy, payload) {
+            const record = storeProxy.get(payload.dataID);
+            const linkedRecords = record.getLinkedRecords(payload.fieldKey);
+            record.setLinkedRecords(
+              [...linkedRecords].reverse(),
+              payload.handleKey,
+            );
+          },
+        };
+        const NameHandler = {
+          update(storeProxy, payload) {
+            const record = storeProxy.get(payload.dataID);
+            const name = record.getValue(payload.fieldKey);
+            record.setValue(name.toUpperCase(), payload.handleKey);
+          },
+        };
+        const handleProvider = name => {
+          switch (name) {
+            case 'handleScreennames':
+              return ScreennameHandler;
+            case 'handleName':
+              return NameHandler;
+          }
+        };
+        const queue = new RelayPublishQueue(store, handleProvider);
 
-      const {ActorQuery} = generateAndCompile(
-        `
+        const {ActorQuery} = generateAndCompile(
+          `
         query ActorQuery {
           me {
             screennames @__clientField(handle: "handleScreennames") {
@@ -853,34 +895,65 @@ describe('RelayPublishQueue', () => {
           }
         }
       `,
-      );
+        );
 
-      queue.commitPayload(createOperationDescriptor(ActorQuery, {}), {
-        fieldPayloads: [
-          {
-            dataID: '4',
-            fieldKey: 'screennames',
-            handleKey: getRelayHandleKey(
-              'handleScreennames',
-              null,
-              'screennames',
-            ),
-            handle: 'handleScreennames',
-          },
-          {
-            dataID: 'client:4:screennames:0',
-            fieldKey: 'name',
-            handleKey: getRelayHandleKey('handleName', null, 'name'),
-            handle: 'handleName',
-          },
-          {
-            dataID: 'client:4:screennames:1',
-            fieldKey: 'name',
-            handleKey: getRelayHandleKey('handleName', null, 'name'),
-            handle: 'handleName',
-          },
-        ],
-        source: new RelayInMemoryRecordSource({
+        queue.commitPayload(createOperationDescriptor(ActorQuery, {}), {
+          fieldPayloads: [
+            {
+              dataID: '4',
+              fieldKey: 'screennames',
+              handleKey: getRelayHandleKey(
+                'handleScreennames',
+                null,
+                'screennames',
+              ),
+              handle: 'handleScreennames',
+            },
+            {
+              dataID: 'client:4:screennames:0',
+              fieldKey: 'name',
+              handleKey: getRelayHandleKey('handleName', null, 'name'),
+              handle: 'handleName',
+            },
+            {
+              dataID: 'client:4:screennames:1',
+              fieldKey: 'name',
+              handleKey: getRelayHandleKey('handleName', null, 'name'),
+              handle: 'handleName',
+            },
+          ],
+          source: new RecordSourceImplementation({
+            '4': {
+              __id: '4',
+              __typename: 'User',
+              id: '4',
+              screennames: {
+                __refs: ['client:4:screennames:0', 'client:4:screennames:1'],
+              },
+            },
+            'client:4:screennames:0': {
+              __id: 'client:4:screennames:0',
+              __typename: 'Screenname',
+              name: 'zuck',
+            },
+            'client:4:screennames:1': {
+              __id: 'client:4:screennames:1',
+              __typename: 'Screenname',
+              name: 'beast',
+            },
+            'client:root': {
+              __id: 'client:root',
+              __typename: '__Root',
+              me: {__ref: '4'},
+            },
+          }),
+        });
+        expect(notify).not.toBeCalled();
+        expect(publish).not.toBeCalled();
+        queue.run();
+        expect(publish.mock.calls.length).toBe(1);
+        const publishSource = publish.mock.calls[0][0];
+        expect(publishSource.toJSON()).toEqual({
           '4': {
             __id: '4',
             __typename: 'User',
@@ -888,407 +961,64 @@ describe('RelayPublishQueue', () => {
             screennames: {
               __refs: ['client:4:screennames:0', 'client:4:screennames:1'],
             },
+            // reversed order
+            __screennames_handleScreennames: {
+              __refs: ['client:4:screennames:1', 'client:4:screennames:0'],
+            },
           },
           'client:4:screennames:0': {
             __id: 'client:4:screennames:0',
             __typename: 'Screenname',
             name: 'zuck',
+            // uppercase
+            __name_handleName: 'ZUCK',
           },
           'client:4:screennames:1': {
             __id: 'client:4:screennames:1',
             __typename: 'Screenname',
             name: 'beast',
+            // uppercase
+            __name_handleName: 'BEAST',
           },
           'client:root': {
             __id: 'client:root',
             __typename: '__Root',
             me: {__ref: '4'},
           },
-        }),
+        });
+        expect(notify.mock.calls.length).toBe(1);
       });
-      expect(notify).not.toBeCalled();
-      expect(publish).not.toBeCalled();
-      queue.run();
-      expect(publish.mock.calls.length).toBe(1);
-      const publishSource = publish.mock.calls[0][0];
-      expect(publishSource.toJSON()).toEqual({
-        '4': {
-          __id: '4',
-          __typename: 'User',
-          id: '4',
-          screennames: {
-            __refs: ['client:4:screennames:0', 'client:4:screennames:1'],
-          },
-          // reversed order
-          __screennames_handleScreennames: {
-            __refs: ['client:4:screennames:1', 'client:4:screennames:0'],
-          },
-        },
-        'client:4:screennames:0': {
-          __id: 'client:4:screennames:0',
-          __typename: 'Screenname',
-          name: 'zuck',
-          // uppercase
-          __name_handleName: 'ZUCK',
-        },
-        'client:4:screennames:1': {
-          __id: 'client:4:screennames:1',
-          __typename: 'Screenname',
-          name: 'beast',
-          // uppercase
-          __name_handleName: 'BEAST',
-        },
-        'client:root': {
-          __id: 'client:root',
-          __typename: '__Root',
-          me: {__ref: '4'},
-        },
-      });
-      expect(notify.mock.calls.length).toBe(1);
-    });
 
-    it('applies optimistic updates and commits server data together', () => {
-      const sourceData = {
-        4: {
-          __id: '4',
-          __typename: 'User',
-          name: 'mark',
-        },
-      };
-      const initialData = simpleClone(sourceData);
-      const source = new RelayInMemoryRecordSource(sourceData);
-      const store = new RelayModernStore(source);
-      const queue = new RelayPublishQueue(store, null, defaultGetDataID);
-      // Set name to 'MARK' *without* running the update
-      queue.applyUpdate({
-        storeUpdater: storeProxy => {
-          const zuck = storeProxy.get('4');
-          zuck.setValue(zuck.getValue('name').toUpperCase(), 'name');
-        },
-      });
-      const {NameQuery} = generateAndCompile(
-        `
-        query NameQuery {
-          me {
-            name
-          }
-        }
-      `,
-      );
-      // Query payload sets name to 'zuck'
-      queue.commitPayload(createOperationDescriptor(NameQuery, {id: '4'}), {
-        source: new RelayInMemoryRecordSource({
-          [ROOT_ID]: {
-            [ID_KEY]: ROOT_ID,
-            [TYPENAME_KEY]: ROOT_TYPE,
-            me: {[REF_KEY]: '4'},
-          },
+      it('applies optimistic updates and commits server data together', () => {
+        const initialData = {
           4: {
-            [ID_KEY]: '4',
-            [TYPENAME_KEY]: 'User',
-            id: '4',
-            name: 'zuck',
+            __id: '4',
+            __typename: 'User',
+            name: 'mark',
           },
-        }),
-      });
-      // Run both the optimisitc and server update
-      queue.run();
-      expect(sourceData).toEqual({
-        [ROOT_ID]: {
-          __id: ROOT_ID,
-          __typename: ROOT_TYPE,
-          me: {[REF_KEY]: '4'},
-        },
-        4: {
-          ...initialData['4'],
-          id: '4', // added by server payload
-          name: 'ZUCK', // optimistic update is re-applied on the new data
-        },
-      });
-    });
-
-    it('reverts/rebases optimistic updates when publishing server data', () => {
-      const sourceData = {
-        4: {
-          __id: '4',
-          __typename: 'User',
-          name: 'mark',
-        },
-      };
-      const initialData = simpleClone(sourceData);
-      const source = new RelayInMemoryRecordSource(sourceData);
-      const store = new RelayModernStore(source);
-      const queue = new RelayPublishQueue(store, null, defaultGetDataID);
-      // Set name to 'MARK', running the update immediately
-      queue.applyUpdate({
-        storeUpdater: storeProxy => {
-          const zuck = storeProxy.get('4');
-          zuck.setValue(zuck.getValue('name').toUpperCase(), 'name');
-        },
-      });
-      queue.run();
-      // Query payload sets name to 'zuck'
-      const {NameQuery} = generateAndCompile(
-        `
-        query NameQuery {
-          me {
-            name
-          }
-        }
-      `,
-      );
-      queue.commitPayload(createOperationDescriptor(NameQuery, {id: '4'}), {
-        source: new RelayInMemoryRecordSource({
-          [ROOT_ID]: {
-            [ID_KEY]: ROOT_ID,
-            [TYPENAME_KEY]: ROOT_TYPE,
-            me: {[REF_KEY]: '4'},
+        };
+        const source = new RecordSourceImplementation(simpleClone(initialData));
+        const store = new RelayModernStore(source);
+        const queue = new RelayPublishQueue(store, null, defaultGetDataID);
+        // Set name to 'MARK' *without* running the update
+        queue.applyUpdate({
+          storeUpdater: storeProxy => {
+            const zuck = storeProxy.get('4');
+            zuck.setValue(zuck.getValue('name').toUpperCase(), 'name');
           },
-          4: {
-            [ID_KEY]: '4',
-            [TYPENAME_KEY]: 'User',
-            id: '4',
-            name: 'zuck',
-          },
-        }),
-      });
-      queue.run();
-      // Optimistic update should rebase, capitalizing the new name
-      expect(sourceData).toEqual({
-        [ROOT_ID]: {
-          __id: ROOT_ID,
-          __typename: ROOT_TYPE,
-          me: {[REF_KEY]: '4'},
-        },
-        4: {
-          ...initialData['4'],
-          id: '4', // added by server payload
-          name: 'ZUCK', // optimistic update is re-applied on the new data
-        },
-      });
-    });
-
-    it('can rollback an optimistic mutation after committing a payload', () => {
-      const sourceData = {
-        4: {
-          __id: '4',
-          __typename: 'User',
-          name: 'mark',
-        },
-      };
-      const initialData = simpleClone(sourceData);
-      const source = new RelayInMemoryRecordSource(sourceData);
-      const store = new RelayModernStore(source);
-      const queue = new RelayPublishQueue(store, null, defaultGetDataID);
-      // Set name to 'MARK'
-      const mutation = {
-        storeUpdater: storeProxy => {
-          const zuck = storeProxy.get('4');
-          zuck.setValue(zuck.getValue('name').toUpperCase(), 'name');
-        },
-      };
-      queue.applyUpdate(mutation);
-      const {NameQuery} = generateAndCompile(
-        `
-        query NameQuery {
-          me {
-            name
-          }
-        }
-      `,
-      );
-      // Query payload sets name to 'zuck'
-      queue.commitPayload(createOperationDescriptor(NameQuery, {id: '4'}), {
-        source: new RelayInMemoryRecordSource({
-          [ROOT_ID]: {
-            [ID_KEY]: ROOT_ID,
-            [TYPENAME_KEY]: ROOT_TYPE,
-            me: {[REF_KEY]: '4'},
-          },
-          4: {
-            [ID_KEY]: '4',
-            [TYPENAME_KEY]: 'User',
-            id: '4',
-            name: 'zuck',
-          },
-        }),
-      });
-      queue.run();
-
-      queue.revertUpdate(mutation);
-      queue.run();
-      expect(sourceData).toEqual({
-        [ROOT_ID]: {
-          __id: ROOT_ID,
-          __typename: ROOT_TYPE,
-          me: {[REF_KEY]: '4'},
-        },
-        4: {
-          ...initialData['4'],
-          id: '4', // added by server payload
-          name: 'zuck', // reverts to the server data, not initial data
-        },
-      });
-    });
-
-    it('can rollback an optimistic mutation after committing an updater', () => {
-      const sourceData = {
-        '84872': {
-          __id: '84872',
-          __typename: 'Amp',
-          volume: 3,
-        },
-      };
-      const source = new RelayInMemoryRecordSource(sourceData);
-      const store = new RelayModernStore(source);
-      const queue = new RelayPublishQueue(store, null, defaultGetDataID);
-
-      const increaseVolumeUpdater = {
-        storeUpdater: storeProxy => {
-          const amp = storeProxy.get('84872');
-          amp.setValue(amp.getValue('volume') + 1, 'volume');
-        },
-      };
-
-      const setVolumeTo10Updater = storeProxy => {
-        const amp = storeProxy.get('84872');
-        amp.setValue(10, 'volume');
-      };
-
-      const getVolume = () => source.get('84872').volume;
-
-      expect(getVolume()).toBe(3);
-
-      queue.applyUpdate(increaseVolumeUpdater);
-      queue.run();
-
-      expect(getVolume()).toBe(4);
-
-      queue.commitUpdate(setVolumeTo10Updater);
-      queue.run();
-
-      // All the way to 11.
-      expect(getVolume()).toBe(11);
-
-      queue.revertAll();
-      queue.run();
-
-      // The optimistic update (+1) is reverted, the client mutation (set 10)
-      // remains.
-      expect(getVolume()).toBe(10);
-    });
-    it('can commit payload with buggy updaters', () => {
-      const sourceData = {
-        4: {
-          __id: '4',
-          __typename: 'User',
-          name: 'mark',
-        },
-      };
-      const initialData = simpleClone(sourceData);
-      const source = new RelayInMemoryRecordSource(sourceData);
-      const store = new RelayModernStore(source);
-      const queue = new RelayPublishQueue(store, null, defaultGetDataID);
-      const buggyUpdater = storeProxy => {
-        invariant(false, 'buggy updater throwing error');
-      };
-      const mutation = {
-        storeUpdater: buggyUpdater,
-      };
-      queue.applyUpdate(mutation);
-      queue.commitUpdate(buggyUpdater);
-      const {NameQuery} = generateAndCompile(
-        `
-        query NameQuery {
-          me {
-            name
-          }
-        }
-      `,
-      );
-      // Query payload sets name to 'zuck'
-      queue.commitPayload(createOperationDescriptor(NameQuery, {id: '4'}), {
-        source: new RelayInMemoryRecordSource({
-          [ROOT_ID]: {
-            [ID_KEY]: ROOT_ID,
-            [TYPENAME_KEY]: ROOT_TYPE,
-            me: {[REF_KEY]: '4'},
-          },
-          4: {
-            [ID_KEY]: '4',
-            [TYPENAME_KEY]: 'User',
-            id: '4',
-            name: 'zuck',
-          },
-        }),
-      });
-      queue.run();
-      expect(sourceData).toEqual({
-        [ROOT_ID]: {
-          __id: ROOT_ID,
-          __typename: ROOT_TYPE,
-          me: {[REF_KEY]: '4'},
-        },
-        4: {
-          ...initialData['4'],
-          id: '4', // added by server payload
-          name: 'zuck', // reverts to the server data, not initial data
-        },
-      });
-    });
-  });
-
-  describe('commitSource()', () => {
-    it('publishes the source to the store', () => {
-      const notify = jest.fn();
-      const publish = jest.fn();
-      const store_source = new RelayInMemoryRecordSource();
-      const store = {
-        getSource: () => store_source,
-        notify,
-        publish,
-        holdGC: jest.fn(),
-      };
-      const queue = new RelayPublishQueue(store, null, defaultGetDataID);
-
-      const source = new RelayInMemoryRecordSource();
-      const user = RelayModernRecord.create('1364586419', 'User');
-      RelayModernRecord.setValue(user, 'name', 'Jan');
-      source.set('1364586419', user);
-      queue.commitSource(source);
-      expect(notify).not.toBeCalled();
-      expect(publish).not.toBeCalled();
-      queue.run();
-      expect(publish.mock.calls[0][0].toJSON()).toEqual({
-        '1364586419': {
-          __id: '1364586419',
-          __typename: 'User',
-          name: 'Jan',
-        },
-      });
-      expect(notify.mock.calls.length).toBe(1);
-    });
-
-    describe('it commits in order', () => {
-      let namePayload, nameSelector, nameSource, sourceData, queue;
-      beforeEach(() => {
-        sourceData = {};
-        const store = new RelayModernStore(
-          new RelayInMemoryRecordSource(sourceData),
-        );
-        queue = new RelayPublishQueue(store, null, defaultGetDataID);
-        const {nameQuery} = generateAndCompile(
+        });
+        const {NameQuery} = generateAndCompile(
           `
-          query nameQuery {
-            me {
-              name
-            }
+        query NameQuery {
+          me {
+            name
           }
-        `,
+        }
+      `,
         );
-        nameSelector = createOperationDescriptor(nameQuery, {id: '4'});
-        namePayload = {
-          source: new RelayInMemoryRecordSource({
+        // Query payload sets name to 'zuck'
+        queue.commitPayload(createOperationDescriptor(NameQuery, {id: '4'}), {
+          source: new RecordSourceImplementation({
             [ROOT_ID]: {
               [ID_KEY]: ROOT_ID,
               [TYPENAME_KEY]: ROOT_TYPE,
@@ -1301,334 +1031,638 @@ describe('RelayPublishQueue', () => {
               name: 'zuck',
             },
           }),
+        });
+        // Run both the optimisitc and server update
+        queue.run();
+        expect(source.toJSON()).toEqual({
+          [ROOT_ID]: {
+            __id: ROOT_ID,
+            __typename: ROOT_TYPE,
+            me: {[REF_KEY]: '4'},
+          },
+          4: {
+            ...initialData['4'],
+            id: '4', // added by server payload
+            name: 'ZUCK', // optimistic update is re-applied on the new data
+          },
+        });
+      });
+
+      it('reverts/rebases optimistic updates when publishing server data', () => {
+        const initialData = {
+          4: {
+            __id: '4',
+            __typename: 'User',
+            name: 'mark',
+          },
         };
-        nameSource = new RelayInMemoryRecordSource({
-          4: {
-            [ID_KEY]: '4',
-            [TYPENAME_KEY]: 'User',
-            id: '4',
-            name: 'mark',
+        const source = new RecordSourceImplementation(simpleClone(initialData));
+        const store = new RelayModernStore(source);
+        const queue = new RelayPublishQueue(store, null, defaultGetDataID);
+        // Set name to 'MARK', running the update immediately
+        queue.applyUpdate({
+          storeUpdater: storeProxy => {
+            const zuck = storeProxy.get('4');
+            zuck.setValue(zuck.getValue('name').toUpperCase(), 'name');
           },
         });
-      });
-
-      it('commits a source and then payload', () => {
-        queue.commitSource(nameSource); // sets name as mark
-        queue.commitPayload(nameSelector, namePayload); // sets name as zuck
         queue.run();
-        expect(sourceData).toEqual({
-          [ROOT_ID]: {
-            __id: ROOT_ID,
-            __typename: ROOT_TYPE,
-            me: {[REF_KEY]: '4'},
-          },
-          4: {
-            __id: '4',
-            __typename: 'User',
-            id: '4',
-            name: 'zuck',
-          },
-        });
-      });
-      it('commits a payload and then a source', () => {
-        queue.commitPayload(nameSelector, namePayload); // sets name as zuck
-        queue.commitSource(nameSource); // sets name as mark
-        queue.run();
-        expect(sourceData).toEqual({
-          [ROOT_ID]: {
-            __id: ROOT_ID,
-            __typename: ROOT_TYPE,
-            me: {[REF_KEY]: '4'},
-          },
-          4: {
-            __id: '4',
-            __typename: 'User',
-            id: '4',
-            name: 'mark',
-          },
-        });
-      });
-    });
-
-    it('reverts/rebases optimistic updates when comitting sources', () => {
-      const sourceData = {
-        4: {
-          __id: '4',
-          __typename: 'User',
-          name: 'mark',
-        },
-      };
-      const initialData = simpleClone(sourceData);
-      const storeSource = new RelayInMemoryRecordSource(sourceData);
-      const store = new RelayModernStore(storeSource);
-      const queue = new RelayPublishQueue(store, null, defaultGetDataID);
-      // Set name to 'MARK', running the update immediately
-      queue.applyUpdate({
-        storeUpdater: storeProxy => {
-          const zuck = storeProxy.get('4');
-          zuck.setValue(zuck.getValue('name').toUpperCase(), 'name');
-        },
-      });
-      queue.run();
-      queue.commitSource(
-        new RelayInMemoryRecordSource({
-          4: {
-            [ID_KEY]: '4',
-            [TYPENAME_KEY]: 'User',
-            id: '4',
-            name: 'zuck',
-          },
-        }),
-      );
-      queue.run();
-      // Optimistic update should rebase, capitalizing the new name
-      expect(sourceData).toEqual({
-        4: {
-          ...initialData['4'],
-          id: '4', // added by server payload
-          name: 'ZUCK', // optimistic update is re-applied on the new data
-        },
-      });
-    });
-
-    it('can rollback an optimistic mutation after committing a source', () => {
-      const sourceData = {
-        4: {
-          __id: '4',
-          __typename: 'User',
-          name: 'mark',
-        },
-      };
-      const initialData = simpleClone(sourceData);
-      const storeSource = new RelayInMemoryRecordSource(sourceData);
-      const store = new RelayModernStore(storeSource);
-      const queue = new RelayPublishQueue(store, null, defaultGetDataID);
-      // Set name to 'MARK'
-      const mutation = {
-        storeUpdater: storeProxy => {
-          const zuck = storeProxy.get('4');
-          zuck.setValue(zuck.getValue('name').toUpperCase(), 'name');
-        },
-      };
-      queue.applyUpdate(mutation);
-      queue.commitSource(
-        new RelayInMemoryRecordSource({
-          4: {
-            [ID_KEY]: '4',
-            [TYPENAME_KEY]: 'User',
-            id: '4',
-            name: 'zuck',
-          },
-        }),
-      );
-      queue.run();
-
-      queue.revertUpdate(mutation);
-      queue.run();
-      expect(sourceData).toEqual({
-        4: {
-          ...initialData['4'],
-          id: '4', // added by server payload
-          name: 'zuck', // reverts to the server data, not initial data
-        },
-      });
-    });
-  });
-
-  describe('commitUpdate()', () => {
-    it('publishes the source to the store', () => {
-      const notify = jest.fn();
-      const publish = jest.fn();
-      const source = new RelayInMemoryRecordSource();
-      const store = {
-        getSource: () => source,
-        notify,
-        publish,
-        holdGC: jest.fn(),
-      };
-      const queue = new RelayPublishQueue(store, null, defaultGetDataID);
-      queue.commitUpdate(storeProxy => {
-        const user = storeProxy.create('1364586419', 'User');
-        user.setValue('Jan', 'name');
-      });
-      expect(notify).not.toBeCalled();
-      expect(publish).not.toBeCalled();
-      queue.run();
-      expect(publish.mock.calls[0][0].toJSON()).toEqual({
-        '1364586419': {
-          __id: '1364586419',
-          __typename: 'User',
-          name: 'Jan',
-        },
-      });
-      expect(notify.mock.calls.length).toBe(1);
-    });
-  });
-
-  describe('run()', () => {
-    it('notifies the store even when no mutations have occurred', () => {
-      const notify = jest.fn();
-      const publish = jest.fn();
-      const source = new RelayInMemoryRecordSource();
-      const store = {
-        getSource: () => source,
-        notify,
-        publish,
-        holdGC: jest.fn(),
-      };
-      const queue = new RelayPublishQueue(store, null, defaultGetDataID);
-      queue.run();
-      expect(publish).not.toBeCalled();
-      expect(notify).toBeCalled();
-    });
-
-    it('notifies the store if an optimistic mutation is applied', () => {
-      const notify = jest.fn();
-      const publish = jest.fn();
-      const source = new RelayInMemoryRecordSource();
-      const store = {
-        getSource: () => source,
-        notify,
-        publish,
-        holdGC: jest.fn(),
-      };
-      const queue = new RelayPublishQueue(store, null, defaultGetDataID);
-      queue.applyUpdate({
-        storeUpdater: storeProxy => {
-          storeProxy.create('4', 'User');
-        },
-      });
-      queue.run();
-      expect(publish).toBeCalled();
-      expect(notify).toBeCalled();
-    });
-
-    it('notifies the store if an optimistic mutation is reverted', () => {
-      const notify = jest.fn();
-      const publish = jest.fn();
-      const source = new RelayInMemoryRecordSource();
-      const store = {
-        getSource: () => source,
-        notify,
-        publish,
-        holdGC: jest.fn(),
-      };
-      const queue = new RelayPublishQueue(store, null, defaultGetDataID);
-      const mutation = {
-        storeUpdater: storeProxy => {
-          storeProxy.create('4', 'User');
-        },
-      };
-      queue.applyUpdate(mutation);
-      queue.run();
-      notify.mockClear();
-      publish.mockClear();
-
-      queue.revertUpdate(mutation);
-      queue.run();
-      expect(publish).toBeCalled();
-      expect(notify).toBeCalled();
-    });
-
-    it('notifies the store if a server mutation is committed', () => {
-      const notify = jest.fn();
-      const publish = jest.fn();
-      const source = new RelayInMemoryRecordSource();
-      const store = {
-        getSource: () => source,
-        notify,
-        publish,
-        holdGC: jest.fn(),
-      };
-      const queue = new RelayPublishQueue(store, null, defaultGetDataID);
-
-      const {NameQuery} = generateAndCompile(
-        `
+        // Query payload sets name to 'zuck'
+        const {NameQuery} = generateAndCompile(
+          `
         query NameQuery {
           me {
             name
           }
         }
       `,
-      );
-      // Query payload sets name to 'zuck'
-      queue.commitPayload(createOperationDescriptor(NameQuery, {id: '4'}), {
-        me: {
-          id: '4',
-          __typename: 'User',
-          name: 'zuck',
-        },
+        );
+        queue.commitPayload(createOperationDescriptor(NameQuery, {id: '4'}), {
+          source: new RecordSourceImplementation({
+            [ROOT_ID]: {
+              [ID_KEY]: ROOT_ID,
+              [TYPENAME_KEY]: ROOT_TYPE,
+              me: {[REF_KEY]: '4'},
+            },
+            4: {
+              [ID_KEY]: '4',
+              [TYPENAME_KEY]: 'User',
+              id: '4',
+              name: 'zuck',
+            },
+          }),
+        });
+        queue.run();
+        // Optimistic update should rebase, capitalizing the new name
+        expect(source.toJSON()).toEqual({
+          [ROOT_ID]: {
+            __id: ROOT_ID,
+            __typename: ROOT_TYPE,
+            me: {[REF_KEY]: '4'},
+          },
+          4: {
+            ...initialData['4'],
+            id: '4', // added by server payload
+            name: 'ZUCK', // optimistic update is re-applied on the new data
+          },
+        });
       });
-      expect(notify).not.toBeCalled();
-      expect(publish).not.toBeCalled();
-      queue.run();
-      expect(publish).toBeCalled();
-      expect(notify).toBeCalled();
+
+      it('can rollback an optimistic mutation after committing a payload', () => {
+        const initialData = {
+          4: {
+            __id: '4',
+            __typename: 'User',
+            name: 'mark',
+          },
+        };
+        const source = new RecordSourceImplementation(simpleClone(initialData));
+        const store = new RelayModernStore(source);
+        const queue = new RelayPublishQueue(store, null, defaultGetDataID);
+        // Set name to 'MARK'
+        const mutation = {
+          storeUpdater: storeProxy => {
+            const zuck = storeProxy.get('4');
+            zuck.setValue(zuck.getValue('name').toUpperCase(), 'name');
+          },
+        };
+        queue.applyUpdate(mutation);
+        const {NameQuery} = generateAndCompile(
+          `
+        query NameQuery {
+          me {
+            name
+          }
+        }
+      `,
+        );
+        // Query payload sets name to 'zuck'
+        queue.commitPayload(createOperationDescriptor(NameQuery, {id: '4'}), {
+          source: new RecordSourceImplementation({
+            [ROOT_ID]: {
+              [ID_KEY]: ROOT_ID,
+              [TYPENAME_KEY]: ROOT_TYPE,
+              me: {[REF_KEY]: '4'},
+            },
+            4: {
+              [ID_KEY]: '4',
+              [TYPENAME_KEY]: 'User',
+              id: '4',
+              name: 'zuck',
+            },
+          }),
+        });
+        queue.run();
+
+        queue.revertUpdate(mutation);
+        queue.run();
+        expect(source.toJSON()).toEqual({
+          [ROOT_ID]: {
+            __id: ROOT_ID,
+            __typename: ROOT_TYPE,
+            me: {[REF_KEY]: '4'},
+          },
+          4: {
+            ...initialData['4'],
+            id: '4', // added by server payload
+            name: 'zuck', // reverts to the server data, not initial data
+          },
+        });
+      });
+
+      it('can rollback an optimistic mutation after committing an updater', () => {
+        const source = new RecordSourceImplementation({
+          '84872': {
+            __id: '84872',
+            __typename: 'Amp',
+            volume: 3,
+          },
+        });
+        const store = new RelayModernStore(source);
+        const queue = new RelayPublishQueue(store, null, defaultGetDataID);
+
+        const increaseVolumeUpdater = {
+          storeUpdater: storeProxy => {
+            const amp = storeProxy.get('84872');
+            amp.setValue(amp.getValue('volume') + 1, 'volume');
+          },
+        };
+
+        const setVolumeTo10Updater = storeProxy => {
+          const amp = storeProxy.get('84872');
+          amp.setValue(10, 'volume');
+        };
+
+        const getVolume = () => source.get('84872').volume;
+
+        expect(getVolume()).toBe(3);
+
+        queue.applyUpdate(increaseVolumeUpdater);
+        queue.run();
+
+        expect(getVolume()).toBe(4);
+
+        queue.commitUpdate(setVolumeTo10Updater);
+        queue.run();
+
+        // All the way to 11.
+        expect(getVolume()).toBe(11);
+
+        queue.revertAll();
+        queue.run();
+
+        // The optimistic update (+1) is reverted, the client mutation (set 10)
+        // remains.
+        expect(getVolume()).toBe(10);
+      });
+      it('can commit payload with buggy updaters', () => {
+        const initialData = {
+          4: {
+            __id: '4',
+            __typename: 'User',
+            name: 'mark',
+          },
+        };
+        const source = new RecordSourceImplementation(simpleClone(initialData));
+        const store = new RelayModernStore(source);
+        const queue = new RelayPublishQueue(store, null, defaultGetDataID);
+        const buggyUpdater = storeProxy => {
+          invariant(false, 'buggy updater throwing error');
+        };
+        const mutation = {
+          storeUpdater: buggyUpdater,
+        };
+        queue.applyUpdate(mutation);
+        queue.commitUpdate(buggyUpdater);
+        const {NameQuery} = generateAndCompile(
+          `
+        query NameQuery {
+          me {
+            name
+          }
+        }
+      `,
+        );
+        // Query payload sets name to 'zuck'
+        queue.commitPayload(createOperationDescriptor(NameQuery, {id: '4'}), {
+          source: new RecordSourceImplementation({
+            [ROOT_ID]: {
+              [ID_KEY]: ROOT_ID,
+              [TYPENAME_KEY]: ROOT_TYPE,
+              me: {[REF_KEY]: '4'},
+            },
+            4: {
+              [ID_KEY]: '4',
+              [TYPENAME_KEY]: 'User',
+              id: '4',
+              name: 'zuck',
+            },
+          }),
+        });
+        queue.run();
+        expect(source.toJSON()).toEqual({
+          [ROOT_ID]: {
+            __id: ROOT_ID,
+            __typename: ROOT_TYPE,
+            me: {[REF_KEY]: '4'},
+          },
+          4: {
+            ...initialData['4'],
+            id: '4', // added by server payload
+            name: 'zuck', // reverts to the server data, not initial data
+          },
+        });
+      });
     });
 
-    it('should disable CG if there are any applied optimistic updates', () => {
-      const holdGC = jest.fn();
-      const source = new RelayInMemoryRecordSource();
-      const store = {
-        getSource: () => source,
-        notify: jest.fn(),
-        publish: jest.fn(),
-        holdGC,
-      };
-      const queue = new RelayPublishQueue(store, null, defaultGetDataID);
-      const mutation = {
-        storeUpdater: storeProxy => {
-          storeProxy.create('4', 'User');
-        },
-      };
-      queue.applyUpdate(mutation);
-      queue.run();
-      expect(holdGC).toBeCalled();
+    describe('commitSource()', () => {
+      it('publishes the source to the store', () => {
+        const notify = jest.fn();
+        const publish = jest.fn();
+        const store_source = new RecordSourceImplementation();
+        const store = {
+          getSource: () => store_source,
+          notify,
+          publish,
+          holdGC: jest.fn(),
+        };
+        const queue = new RelayPublishQueue(store, null, defaultGetDataID);
+
+        const source = new RecordSourceImplementation();
+        const user = RelayModernRecord.create('1364586419', 'User');
+        RelayModernRecord.setValue(user, 'name', 'Jan');
+        source.set('1364586419', user);
+        queue.commitSource(source);
+        expect(notify).not.toBeCalled();
+        expect(publish).not.toBeCalled();
+        queue.run();
+        expect(publish.mock.calls[0][0].toJSON()).toEqual({
+          '1364586419': {
+            __id: '1364586419',
+            __typename: 'User',
+            name: 'Jan',
+          },
+        });
+        expect(notify.mock.calls.length).toBe(1);
+      });
+
+      describe('it commits in order', () => {
+        let namePayload, nameSelector, nameSource, queue, source;
+        beforeEach(() => {
+          source = new RecordSourceImplementation({});
+          const store = new RelayModernStore(source);
+          queue = new RelayPublishQueue(store, null, defaultGetDataID);
+          const {nameQuery} = generateAndCompile(
+            `
+          query nameQuery {
+            me {
+              name
+            }
+          }
+        `,
+          );
+          nameSelector = createOperationDescriptor(nameQuery, {id: '4'});
+          namePayload = {
+            source: new RecordSourceImplementation({
+              [ROOT_ID]: {
+                [ID_KEY]: ROOT_ID,
+                [TYPENAME_KEY]: ROOT_TYPE,
+                me: {[REF_KEY]: '4'},
+              },
+              4: {
+                [ID_KEY]: '4',
+                [TYPENAME_KEY]: 'User',
+                id: '4',
+                name: 'zuck',
+              },
+            }),
+          };
+          nameSource = new RecordSourceImplementation({
+            4: {
+              [ID_KEY]: '4',
+              [TYPENAME_KEY]: 'User',
+              id: '4',
+              name: 'mark',
+            },
+          });
+        });
+
+        it('commits a source and then payload', () => {
+          queue.commitSource(nameSource); // sets name as mark
+          queue.commitPayload(nameSelector, namePayload); // sets name as zuck
+          queue.run();
+          expect(source.toJSON()).toEqual({
+            [ROOT_ID]: {
+              __id: ROOT_ID,
+              __typename: ROOT_TYPE,
+              me: {[REF_KEY]: '4'},
+            },
+            4: {
+              __id: '4',
+              __typename: 'User',
+              id: '4',
+              name: 'zuck',
+            },
+          });
+        });
+        it('commits a payload and then a source', () => {
+          queue.commitPayload(nameSelector, namePayload); // sets name as zuck
+          queue.commitSource(nameSource); // sets name as mark
+          queue.run();
+          expect(source.toJSON()).toEqual({
+            [ROOT_ID]: {
+              __id: ROOT_ID,
+              __typename: ROOT_TYPE,
+              me: {[REF_KEY]: '4'},
+            },
+            4: {
+              __id: '4',
+              __typename: 'User',
+              id: '4',
+              name: 'mark',
+            },
+          });
+        });
+      });
+
+      it('reverts/rebases optimistic updates when committing sources', () => {
+        const initialData = {
+          4: {
+            __id: '4',
+            __typename: 'User',
+            name: 'mark',
+          },
+        };
+        const source = new RecordSourceImplementation(simpleClone(initialData));
+        const store = new RelayModernStore(source);
+        const queue = new RelayPublishQueue(store, null, defaultGetDataID);
+        // Set name to 'MARK', running the update immediately
+        queue.applyUpdate({
+          storeUpdater: storeProxy => {
+            const zuck = storeProxy.get('4');
+            zuck.setValue(zuck.getValue('name').toUpperCase(), 'name');
+          },
+        });
+        queue.run();
+        queue.commitSource(
+          new RecordSourceImplementation({
+            4: {
+              [ID_KEY]: '4',
+              [TYPENAME_KEY]: 'User',
+              id: '4',
+              name: 'zuck',
+            },
+          }),
+        );
+        queue.run();
+        // Optimistic update should rebase, capitalizing the new name
+        expect(source.toJSON()).toEqual({
+          4: {
+            ...initialData['4'],
+            id: '4', // added by server payload
+            name: 'ZUCK', // optimistic update is re-applied on the new data
+          },
+        });
+      });
+
+      it('can rollback an optimistic mutation after committing a source', () => {
+        const initialData = {
+          4: {
+            __id: '4',
+            __typename: 'User',
+            name: 'mark',
+          },
+        };
+        const source = new RecordSourceImplementation(simpleClone(initialData));
+        const store = new RelayModernStore(source);
+        const queue = new RelayPublishQueue(store, null, defaultGetDataID);
+        // Set name to 'MARK'
+        const mutation = {
+          storeUpdater: storeProxy => {
+            const zuck = storeProxy.get('4');
+            zuck.setValue(zuck.getValue('name').toUpperCase(), 'name');
+          },
+        };
+        queue.applyUpdate(mutation);
+        queue.commitSource(
+          new RecordSourceImplementation({
+            4: {
+              [ID_KEY]: '4',
+              [TYPENAME_KEY]: 'User',
+              id: '4',
+              name: 'zuck',
+            },
+          }),
+        );
+        queue.run();
+
+        queue.revertUpdate(mutation);
+        queue.run();
+        expect(source.toJSON()).toEqual({
+          4: {
+            ...initialData['4'],
+            id: '4', // added by server payload
+            name: 'zuck', // reverts to the server data, not initial data
+          },
+        });
+      });
     });
 
-    it('should not disable GC if there are no optimistic updates', () => {
-      const holdGC = jest.fn();
-      const source = new RelayInMemoryRecordSource();
-      const store = {
-        getSource: () => source,
-        notify: jest.fn(),
-        publish: jest.fn(),
-        holdGC,
-      };
-      const queue = new RelayPublishQueue(store, null, defaultGetDataID);
-      queue.run();
-      expect(holdGC).not.toBeCalled();
+    describe('commitUpdate()', () => {
+      it('publishes the source to the store', () => {
+        const notify = jest.fn();
+        const publish = jest.fn();
+        const source = new RecordSourceImplementation();
+        const store = {
+          getSource: () => source,
+          notify,
+          publish,
+          holdGC: jest.fn(),
+        };
+        const queue = new RelayPublishQueue(store, null, defaultGetDataID);
+        queue.commitUpdate(storeProxy => {
+          const user = storeProxy.create('1364586419', 'User');
+          user.setValue('Jan', 'name');
+        });
+        expect(notify).not.toBeCalled();
+        expect(publish).not.toBeCalled();
+        queue.run();
+        expect(publish.mock.calls[0][0].toJSON()).toEqual({
+          '1364586419': {
+            __id: '1364586419',
+            __typename: 'User',
+            name: 'Jan',
+          },
+        });
+        expect(notify.mock.calls.length).toBe(1);
+      });
     });
 
-    it('should dispose gc hold, when there are no optimistic updates are in the queue', () => {
-      const disposeGC = jest.fn();
-      const holdGC = jest.fn(() => ({
-        dispose: disposeGC,
-      }));
-      const source = new RelayInMemoryRecordSource();
-      const store = {
-        getSource: () => source,
-        notify: jest.fn(),
-        publish: jest.fn(),
-        holdGC,
-      };
-      const queue = new RelayPublishQueue(store, null, defaultGetDataID);
-      const mutation = {
-        storeUpdater: storeProxy => {
-          storeProxy.create('4', 'User');
-        },
-      };
-      queue.applyUpdate(mutation);
-      queue.run();
-      expect(holdGC).toBeCalled();
-      expect(disposeGC).not.toBeCalled();
-      queue.run();
-      expect(disposeGC).not.toBeCalled(); // Exactly! We should not dispose GC on each run
-      // Let's revert all updates
-      queue.revertAll();
-      queue.run();
-      // Now, it's time to release GC
-      expect(disposeGC).toBeCalled();
+    describe('run()', () => {
+      it('notifies the store even when no mutations have occurred', () => {
+        const notify = jest.fn();
+        const publish = jest.fn();
+        const source = new RecordSourceImplementation();
+        const store = {
+          getSource: () => source,
+          notify,
+          publish,
+          holdGC: jest.fn(),
+        };
+        const queue = new RelayPublishQueue(store, null, defaultGetDataID);
+        queue.run();
+        expect(publish).not.toBeCalled();
+        expect(notify).toBeCalled();
+      });
+
+      it('notifies the store if an optimistic mutation is applied', () => {
+        const notify = jest.fn();
+        const publish = jest.fn();
+        const source = new RecordSourceImplementation();
+        const store = {
+          getSource: () => source,
+          notify,
+          publish,
+          holdGC: jest.fn(),
+        };
+        const queue = new RelayPublishQueue(store, null, defaultGetDataID);
+        queue.applyUpdate({
+          storeUpdater: storeProxy => {
+            storeProxy.create('4', 'User');
+          },
+        });
+        queue.run();
+        expect(publish).toBeCalled();
+        expect(notify).toBeCalled();
+      });
+
+      it('notifies the store if an optimistic mutation is reverted', () => {
+        const notify = jest.fn();
+        const publish = jest.fn();
+        const source = new RecordSourceImplementation();
+        const store = {
+          getSource: () => source,
+          notify,
+          publish,
+          holdGC: jest.fn(),
+        };
+        const queue = new RelayPublishQueue(store, null, defaultGetDataID);
+        const mutation = {
+          storeUpdater: storeProxy => {
+            storeProxy.create('4', 'User');
+          },
+        };
+        queue.applyUpdate(mutation);
+        queue.run();
+        notify.mockClear();
+        publish.mockClear();
+
+        queue.revertUpdate(mutation);
+        queue.run();
+        expect(publish).toBeCalled();
+        expect(notify).toBeCalled();
+      });
+
+      it('notifies the store if a server mutation is committed', () => {
+        const notify = jest.fn();
+        const publish = jest.fn();
+        const source = new RecordSourceImplementation();
+        const store = {
+          getSource: () => source,
+          notify,
+          publish,
+          holdGC: jest.fn(),
+        };
+        const queue = new RelayPublishQueue(store, null, defaultGetDataID);
+
+        const {NameQuery} = generateAndCompile(
+          `
+        query NameQuery {
+          me {
+            name
+          }
+        }
+      `,
+        );
+        // Query payload sets name to 'zuck'
+        queue.commitPayload(createOperationDescriptor(NameQuery, {id: '4'}), {
+          me: {
+            id: '4',
+            __typename: 'User',
+            name: 'zuck',
+          },
+        });
+        expect(notify).not.toBeCalled();
+        expect(publish).not.toBeCalled();
+        queue.run();
+        expect(publish).toBeCalled();
+        expect(notify).toBeCalled();
+      });
+
+      it('should disable CG if there are any applied optimistic updates', () => {
+        const holdGC = jest.fn();
+        const source = new RecordSourceImplementation();
+        const store = {
+          getSource: () => source,
+          notify: jest.fn(),
+          publish: jest.fn(),
+          holdGC,
+        };
+        const queue = new RelayPublishQueue(store, null, defaultGetDataID);
+        const mutation = {
+          storeUpdater: storeProxy => {
+            storeProxy.create('4', 'User');
+          },
+        };
+        queue.applyUpdate(mutation);
+        queue.run();
+        expect(holdGC).toBeCalled();
+      });
+
+      it('should not disable GC if there are no optimistic updates', () => {
+        const holdGC = jest.fn();
+        const source = new RecordSourceImplementation();
+        const store = {
+          getSource: () => source,
+          notify: jest.fn(),
+          publish: jest.fn(),
+          holdGC,
+        };
+        const queue = new RelayPublishQueue(store, null, defaultGetDataID);
+        queue.run();
+        expect(holdGC).not.toBeCalled();
+      });
+
+      it('should dispose gc hold, when there are no optimistic updates are in the queue', () => {
+        const disposeGC = jest.fn();
+        const holdGC = jest.fn(() => ({
+          dispose: disposeGC,
+        }));
+        const source = new RecordSourceImplementation();
+        const store = {
+          getSource: () => source,
+          notify: jest.fn(),
+          publish: jest.fn(),
+          holdGC,
+        };
+        const queue = new RelayPublishQueue(store, null, defaultGetDataID);
+        const mutation = {
+          storeUpdater: storeProxy => {
+            storeProxy.create('4', 'User');
+          },
+        };
+        queue.applyUpdate(mutation);
+        queue.run();
+        expect(holdGC).toBeCalled();
+        expect(disposeGC).not.toBeCalled();
+        queue.run();
+        expect(disposeGC).not.toBeCalled(); // Exactly! We should not dispose GC on each run
+        // Let's revert all updates
+        queue.revertAll();
+        queue.run();
+        // Now, it's time to release GC
+        expect(disposeGC).toBeCalled();
+      });
     });
   });
 });

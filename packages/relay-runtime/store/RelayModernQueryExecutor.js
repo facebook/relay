@@ -12,9 +12,9 @@
 'use strict';
 
 const RelayError = require('../util/RelayError');
-const RelayInMemoryRecordSource = require('./RelayInMemoryRecordSource');
 const RelayModernRecord = require('./RelayModernRecord');
 const RelayObservable = require('../network/RelayObservable');
+const RelayRecordSource = require('./RelayRecordSource');
 const RelayResponseNormalizer = require('./RelayResponseNormalizer');
 
 const invariant = require('invariant');
@@ -659,7 +659,7 @@ class Executor {
         fieldPayloads,
         incrementalPlaceholders: null,
         moduleImportPayloads: null,
-        source: new RelayInMemoryRecordSource(),
+        source: RelayRecordSource.create(),
       };
       this._publishQueue.commitRelayPayload(handleFieldsRelayPayload);
     }
@@ -838,7 +838,7 @@ class Executor {
         fieldPayloads,
         incrementalPlaceholders: null,
         moduleImportPayloads: null,
-        source: new RelayInMemoryRecordSource(),
+        source: RelayRecordSource.create(),
       };
       this._publishQueue.commitRelayPayload(handleFieldsRelayPayload);
     }
@@ -873,7 +873,7 @@ function normalizeResponse(
   getDataID: GetDataID,
 ): RelayResponsePayload {
   const {data, errors} = response;
-  const source = new RelayInMemoryRecordSource();
+  const source = RelayRecordSource.create();
   const record = RelayModernRecord.create(selector.dataID, typeName);
   source.set(selector.dataID, record);
   const normalizeResult = RelayResponseNormalizer.normalize(

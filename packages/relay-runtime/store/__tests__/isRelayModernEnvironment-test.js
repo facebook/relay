@@ -10,15 +10,15 @@
 
 'use strict';
 
-const RelayInMemoryRecordSource = require('../RelayInMemoryRecordSource');
 const RelayModernEnvironment = require('../RelayModernEnvironment');
 const RelayModernStore = require('../RelayModernStore');
+const RelayRecordSource = require('../RelayRecordSource');
 
 const isRelayModernEnvironment = require('../isRelayModernEnvironment');
 
 describe('isRelayModernEnvironment()', () => {
   it('returns true for `RelayModernEnvironment` instances', () => {
-    const source = new RelayInMemoryRecordSource();
+    const source = RelayRecordSource.create();
     const store = new RelayModernStore(source);
     const fetch = jest.fn();
     const environment = new RelayModernEnvironment({fetch, store});

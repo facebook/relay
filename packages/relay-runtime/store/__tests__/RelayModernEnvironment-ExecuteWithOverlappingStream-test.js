@@ -12,12 +12,12 @@
 'use strict';
 
 const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
-const RelayInMemoryRecordSource = require('../RelayInMemoryRecordSource');
 const RelayModernEnvironment = require('../RelayModernEnvironment');
 const RelayModernOperationDescriptor = require('../RelayModernOperationDescriptor');
 const RelayModernStore = require('../RelayModernStore');
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
+const RelayRecordSource = require('../RelayRecordSource');
 
 const {generateAndCompile, matchers} = require('relay-test-utils-internal');
 
@@ -140,7 +140,7 @@ describe('execute() a query with multiple @stream selections on the same record'
         dataSource = sink;
       });
     };
-    source = new RelayInMemoryRecordSource();
+    source = RelayRecordSource.create();
     store = new RelayModernStore(source);
     environment = new RelayModernEnvironment({
       network: RelayNetwork.create(fetch),

@@ -15,10 +15,10 @@ const DataChecker = require('./DataChecker');
 const RelayCore = require('./RelayCore');
 const RelayDefaultHandlerProvider = require('../handlers/RelayDefaultHandlerProvider');
 const RelayDefaultMissingFieldHandlers = require('../handlers/RelayDefaultMissingFieldHandlers');
-const RelayInMemoryRecordSource = require('./RelayInMemoryRecordSource');
 const RelayModernQueryExecutor = require('./RelayModernQueryExecutor');
 const RelayObservable = require('../network/RelayObservable');
 const RelayPublishQueue = require('./RelayPublishQueue');
+const RelayRecordSource = require('./RelayRecordSource');
 
 const defaultGetDataID = require('./defaultGetDataID');
 const invariant = require('invariant');
@@ -237,7 +237,7 @@ class RelayModernEnvironment implements Environment {
     selector: NormalizationSelector,
     handlers: $ReadOnlyArray<MissingFieldHandler>,
   ): boolean {
-    const target = new RelayInMemoryRecordSource();
+    const target = RelayRecordSource.create();
     const result = DataChecker.check(
       this._store.getSource(),
       target,

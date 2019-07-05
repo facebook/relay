@@ -12,13 +12,13 @@
 'use strict';
 
 const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
-const RelayInMemoryRecordSource = require('../RelayInMemoryRecordSource');
 const RelayModernEnvironment = require('../RelayModernEnvironment');
 const RelayModernOperationDescriptor = require('../RelayModernOperationDescriptor');
 const RelayModernSelector = require('../RelayModernSelector');
 const RelayModernStore = require('../RelayModernStore');
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
+const RelayRecordSource = require('../RelayRecordSource');
 
 const invariant = require('invariant');
 
@@ -90,7 +90,7 @@ describe('query with undeclared, unused fragment argument', () => {
         subject = sink;
       }),
     );
-    source = new RelayInMemoryRecordSource();
+    source = RelayRecordSource.create();
     store = new RelayModernStore(source);
     environment = new RelayModernEnvironment({
       network: RelayNetwork.create((fetch: $FlowFixMe)),

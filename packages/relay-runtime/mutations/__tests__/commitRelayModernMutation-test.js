@@ -10,11 +10,11 @@
 
 'use strict';
 
-const RelayInMemoryRecordSource = require('../../store/RelayInMemoryRecordSource');
 const RelayModernEnvironment = require('../../store/RelayModernEnvironment');
 const RelayModernStore = require('../../store/RelayModernStore');
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
+const RelayRecordSource = require('../../store/RelayRecordSource');
 
 const commitRelayModernMutation = require('../commitRelayModernMutation');
 
@@ -979,7 +979,7 @@ describe('commitMutation()', () => {
         dataSource = sink;
       });
     };
-    const source = new RelayInMemoryRecordSource({});
+    const source = RelayRecordSource.create({});
     const store = new RelayModernStore(source);
     environment = new RelayModernEnvironment({
       network: RelayNetwork.create(fetch),

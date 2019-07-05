@@ -12,8 +12,8 @@
 'use strict';
 
 const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
-const RelayInMemoryRecordSource = require('../RelayInMemoryRecordSource');
 const RelayModernRecord = require('../RelayModernRecord');
+const RelayRecordSource = require('../RelayRecordSource');
 
 const defaultGetDataID = require('../defaultGetDataID');
 const getRelayHandleKey = require('../../util/getRelayHandleKey');
@@ -114,8 +114,8 @@ describe('check()', () => {
   });
 
   it('reads query data', () => {
-    const source = new RelayInMemoryRecordSource(sampleData);
-    const target = new RelayInMemoryRecordSource();
+    const source = RelayRecordSource.create(sampleData);
+    const target = RelayRecordSource.create();
     const status = check(
       source,
       target,
@@ -167,8 +167,8 @@ describe('check()', () => {
         uri: 'https://...',
       },
     };
-    const source = new RelayInMemoryRecordSource(data);
-    const target = new RelayInMemoryRecordSource();
+    const source = RelayRecordSource.create(data);
+    const target = RelayRecordSource.create();
     const {BarFragment} = generateAndCompile(
       `
         fragment BarFragment on User @argumentDefinitions(
@@ -228,8 +228,8 @@ describe('check()', () => {
         uri: 'https://...',
       },
     };
-    const source = new RelayInMemoryRecordSource(data);
-    const target = new RelayInMemoryRecordSource();
+    const source = RelayRecordSource.create(data);
+    const target = RelayRecordSource.create();
     const {Fragment} = generateAndCompile(
       `
           fragment Fragment on User {
@@ -337,8 +337,8 @@ describe('check()', () => {
           text: 'text',
         },
       };
-      const source = new RelayInMemoryRecordSource(storeData);
-      const target = new RelayInMemoryRecordSource();
+      const source = RelayRecordSource.create(storeData);
+      const target = RelayRecordSource.create();
       const status = check(
         source,
         target,
@@ -393,8 +393,8 @@ describe('check()', () => {
           markup: '<markup/>',
         },
       };
-      const source = new RelayInMemoryRecordSource(storeData);
-      const target = new RelayInMemoryRecordSource();
+      const source = RelayRecordSource.create(storeData);
+      const target = RelayRecordSource.create();
       const status = check(
         source,
         target,
@@ -437,8 +437,8 @@ describe('check()', () => {
           'node(id:"1")': {__ref: '1'},
         },
       };
-      const source = new RelayInMemoryRecordSource(storeData);
-      const target = new RelayInMemoryRecordSource();
+      const source = RelayRecordSource.create(storeData);
+      const target = RelayRecordSource.create();
       const status = check(
         source,
         target,
@@ -491,8 +491,8 @@ describe('check()', () => {
           markup: '<markup/>',
         },
       };
-      const source = new RelayInMemoryRecordSource(storeData);
-      const target = new RelayInMemoryRecordSource();
+      const source = RelayRecordSource.create(storeData);
+      const target = RelayRecordSource.create();
       const status = check(
         source,
         target,
@@ -535,8 +535,8 @@ describe('check()', () => {
           'node(id:"1")': {__ref: '1'},
         },
       };
-      const source = new RelayInMemoryRecordSource(storeData);
-      const target = new RelayInMemoryRecordSource();
+      const source = RelayRecordSource.create(storeData);
+      const target = RelayRecordSource.create();
       const status = check(
         source,
         target,
@@ -577,8 +577,8 @@ describe('check()', () => {
           'node(id:"1")': {__ref: '1'},
         },
       };
-      const source = new RelayInMemoryRecordSource(storeData);
-      const target = new RelayInMemoryRecordSource();
+      const source = RelayRecordSource.create(storeData);
+      const target = RelayRecordSource.create();
       const status = check(
         source,
         target,
@@ -609,8 +609,8 @@ describe('check()', () => {
           'node(id:"1")': {__ref: '1'},
         },
       };
-      const source = new RelayInMemoryRecordSource(storeData);
-      const target = new RelayInMemoryRecordSource();
+      const source = RelayRecordSource.create(storeData);
+      const target = RelayRecordSource.create();
       const status = check(
         source,
         target,
@@ -640,8 +640,8 @@ describe('check()', () => {
           'node(id:"1")': {__ref: '1'},
         },
       };
-      const source = new RelayInMemoryRecordSource(storeData);
-      const target = new RelayInMemoryRecordSource();
+      const source = RelayRecordSource.create(storeData);
+      const target = RelayRecordSource.create();
       const status = check(
         source,
         target,
@@ -739,8 +739,8 @@ describe('check()', () => {
           text: 'text',
         },
       };
-      const source = new RelayInMemoryRecordSource(storeData);
-      const target = new RelayInMemoryRecordSource();
+      const source = RelayRecordSource.create(storeData);
+      const target = RelayRecordSource.create();
       const status = check(
         source,
         target,
@@ -793,8 +793,8 @@ describe('check()', () => {
           markup: '<markup/>',
         },
       };
-      const source = new RelayInMemoryRecordSource(storeData);
-      const target = new RelayInMemoryRecordSource();
+      const source = RelayRecordSource.create(storeData);
+      const target = RelayRecordSource.create();
       const status = check(
         source,
         target,
@@ -835,8 +835,8 @@ describe('check()', () => {
           'node(id:"1")': {__ref: '1'},
         },
       };
-      const source = new RelayInMemoryRecordSource(storeData);
-      const target = new RelayInMemoryRecordSource();
+      const source = RelayRecordSource.create(storeData);
+      const target = RelayRecordSource.create();
       const status = check(
         source,
         target,
@@ -887,8 +887,8 @@ describe('check()', () => {
           markup: '<markup/>',
         },
       };
-      const source = new RelayInMemoryRecordSource(storeData);
-      const target = new RelayInMemoryRecordSource();
+      const source = RelayRecordSource.create(storeData);
+      const target = RelayRecordSource.create();
       const status = check(
         source,
         target,
@@ -929,8 +929,8 @@ describe('check()', () => {
           'node(id:"1")': {__ref: '1'},
         },
       };
-      const source = new RelayInMemoryRecordSource(storeData);
-      const target = new RelayInMemoryRecordSource();
+      const source = RelayRecordSource.create(storeData);
+      const target = RelayRecordSource.create();
       const status = check(
         source,
         target,
@@ -969,8 +969,8 @@ describe('check()', () => {
           'node(id:"1")': {__ref: '1'},
         },
       };
-      const source = new RelayInMemoryRecordSource(storeData);
-      const target = new RelayInMemoryRecordSource();
+      const source = RelayRecordSource.create(storeData);
+      const target = RelayRecordSource.create();
       const status = check(
         source,
         target,
@@ -1020,8 +1020,8 @@ describe('check()', () => {
           'node(id:"1")': {__ref: '1'},
         },
       };
-      const source = new RelayInMemoryRecordSource(storeData);
-      const target = new RelayInMemoryRecordSource();
+      const source = RelayRecordSource.create(storeData);
+      const target = RelayRecordSource.create();
       const status = check(
         source,
         target,
@@ -1052,8 +1052,8 @@ describe('check()', () => {
           'node(id:"1")': {__ref: '1'},
         },
       };
-      const source = new RelayInMemoryRecordSource(storeData);
-      const target = new RelayInMemoryRecordSource();
+      const source = RelayRecordSource.create(storeData);
+      const target = RelayRecordSource.create();
       const status = check(
         source,
         target,
@@ -1111,8 +1111,8 @@ describe('check()', () => {
           'node(id:"1")': {__ref: '1'},
         },
       };
-      const source = new RelayInMemoryRecordSource(storeData);
-      const target = new RelayInMemoryRecordSource();
+      const source = RelayRecordSource.create(storeData);
+      const target = RelayRecordSource.create();
       const status = check(
         source,
         target,
@@ -1149,8 +1149,8 @@ describe('check()', () => {
           'node(id:"1")': {__ref: '1'},
         },
       };
-      const source = new RelayInMemoryRecordSource(storeData);
-      const target = new RelayInMemoryRecordSource();
+      const source = RelayRecordSource.create(storeData);
+      const target = RelayRecordSource.create();
       const status = check(
         source,
         target,
@@ -1170,8 +1170,8 @@ describe('check()', () => {
 
   describe('when the data is complete', () => {
     it('returns `true`', () => {
-      const source = new RelayInMemoryRecordSource(sampleData);
-      const target = new RelayInMemoryRecordSource();
+      const source = RelayRecordSource.create(sampleData);
+      const target = RelayRecordSource.create();
       const status = check(
         source,
         target,
@@ -1201,8 +1201,8 @@ describe('check()', () => {
         },
         // missing profilePicture record
       };
-      const source = new RelayInMemoryRecordSource(data);
-      const target = new RelayInMemoryRecordSource();
+      const source = RelayRecordSource.create(data);
+      const target = RelayRecordSource.create();
       const {BarFragment} = generateAndCompile(
         `
             fragment BarFragment on User @argumentDefinitions(
@@ -1246,8 +1246,8 @@ describe('check()', () => {
           // missing 'uri'
         },
       };
-      const source = new RelayInMemoryRecordSource(data);
-      const target = new RelayInMemoryRecordSource();
+      const source = RelayRecordSource.create(data);
+      const target = RelayRecordSource.create();
       const {BarFragment} = generateAndCompile(
         `
           fragment BarFragment on User @argumentDefinitions(
@@ -1291,8 +1291,8 @@ describe('check()', () => {
           // missing 'uri'
         },
       };
-      const source = new RelayInMemoryRecordSource(data);
-      const target = new RelayInMemoryRecordSource();
+      const source = RelayRecordSource.create(data);
+      const target = RelayRecordSource.create();
       const {BarFragment} = generateAndCompile(
         `
           fragment BarFragment on User @argumentDefinitions(
@@ -1349,8 +1349,8 @@ describe('check()', () => {
           uri: 'thebestimage.uri',
         },
       };
-      const source = new RelayInMemoryRecordSource(data);
-      const target = new RelayInMemoryRecordSource();
+      const source = RelayRecordSource.create(data);
+      const target = RelayRecordSource.create();
       const {BarFragment} = generateAndCompile(
         `
           fragment BarFragment on User @argumentDefinitions(
@@ -1423,8 +1423,8 @@ describe('check()', () => {
           'profilePicture(size:32)': {__ref: 'client:3'},
         },
       };
-      const source = new RelayInMemoryRecordSource(data);
-      const target = new RelayInMemoryRecordSource();
+      const source = RelayRecordSource.create(data);
+      const target = RelayRecordSource.create();
       const {BarFragment} = generateAndCompile(
         `fragment BarFragment on User @argumentDefinitions(
           size: {type: "[Int]"}

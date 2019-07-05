@@ -11,12 +11,12 @@
 
 'use strict';
 
-const RelayInMemoryRecordSource = require('../RelayInMemoryRecordSource');
 const RelayModernEnvironment = require('../RelayModernEnvironment');
 const RelayModernOperationDescriptor = require('../RelayModernOperationDescriptor');
 const RelayModernStore = require('../RelayModernStore');
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
+const RelayRecordSource = require('../RelayRecordSource');
 
 const warning = require('warning');
 
@@ -123,7 +123,7 @@ describe('execute() a query with @stream', () => {
         dataSource = sink;
       });
     };
-    source = new RelayInMemoryRecordSource();
+    source = RelayRecordSource.create();
     store = new RelayModernStore(source);
     environment = new RelayModernEnvironment({
       UNSTABLE_DO_NOT_USE_getDataID: getDataID,

@@ -12,12 +12,12 @@
 'use strict';
 
 const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
-const RelayInMemoryRecordSource = require('../RelayInMemoryRecordSource');
 const RelayModernEnvironment = require('../RelayModernEnvironment');
 const RelayModernOperationDescriptor = require('../RelayModernOperationDescriptor');
 const RelayModernStore = require('../RelayModernStore');
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
+const RelayRecordSource = require('../RelayRecordSource');
 
 const {ROOT_ID} = require('../RelayStoreUtils');
 const {generateAndCompile, matchers} = require('relay-test-utils-internal');
@@ -83,7 +83,7 @@ describe('executeWithSource() with Observable network', () => {
         subject = sink;
       }),
     );
-    source = new RelayInMemoryRecordSource();
+    source = RelayRecordSource.create();
     store = new RelayModernStore(source);
     environment = new RelayModernEnvironment({
       network: RelayNetwork.create((fetch: $FlowFixMe)),

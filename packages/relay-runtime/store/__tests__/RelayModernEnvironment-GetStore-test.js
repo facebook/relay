@@ -11,14 +11,14 @@
 
 'use strict';
 
-const RelayInMemoryRecordSource = require('../RelayInMemoryRecordSource');
 const RelayModernEnvironment = require('../RelayModernEnvironment');
 const RelayModernStore = require('../RelayModernStore');
 const RelayNetwork = require('../../network/RelayNetwork');
+const RelayRecordSource = require('../RelayRecordSource');
 
 describe('getStore()', () => {
   it('returns the store passed to the constructor', () => {
-    const source = new RelayInMemoryRecordSource();
+    const source = RelayRecordSource.create();
     const store = new RelayModernStore(source);
     const environment = new RelayModernEnvironment({
       network: RelayNetwork.create(jest.fn()),

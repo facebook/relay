@@ -10,7 +10,7 @@
 
 'use strict';
 
-const RelayInMemoryRecordSource = require('../RelayInMemoryRecordSource');
+const RelayRecordSource = require('../RelayRecordSource');
 
 const {getRequest, createOperationDescriptor} = require('../RelayCore');
 const {read} = require('../RelayReader');
@@ -82,7 +82,7 @@ describe('RelayReader', () => {
       },
     };
 
-    source = new RelayInMemoryRecordSource(data);
+    source = RelayRecordSource.create(data);
   });
 
   it('reads query data', () => {
@@ -473,7 +473,7 @@ describe('RelayReader', () => {
         name
       }
     `);
-    source = new RelayInMemoryRecordSource();
+    source = RelayRecordSource.create();
     source.delete('4');
     const {data, seenRecords} = read(source, {
       dataID: '4',
@@ -490,7 +490,7 @@ describe('RelayReader', () => {
         name
       }
     `);
-    source = new RelayInMemoryRecordSource();
+    source = RelayRecordSource.create();
     const {data, seenRecords} = read(source, {
       dataID: '4',
       node: UserProfile,
@@ -532,7 +532,7 @@ describe('RelayReader', () => {
         'node(id:"1")': {__ref: '1'},
       },
     };
-    source = new RelayInMemoryRecordSource(records);
+    source = RelayRecordSource.create(records);
     const {UserFriends} = generateAndCompile(`
       query UserFriends($id: ID!) {
         node(id: $id) {
@@ -606,7 +606,7 @@ describe('RelayReader', () => {
         node: {__ref: '2'},
       },
     };
-    source = new RelayInMemoryRecordSource(records);
+    source = RelayRecordSource.create(records);
     const {UserFriends} = generateAndCompile(`
       fragment UserFriends on User {
         friends(first: 1) @__clientField(handle: "bestFriends") {
@@ -699,7 +699,7 @@ describe('RelayReader', () => {
           'node(id:"1")': {__ref: '1'},
         },
       };
-      source = new RelayInMemoryRecordSource(storeData);
+      source = RelayRecordSource.create(storeData);
       const {data, seenRecords, isMissingData} = read(source, {
         dataID: '1',
         node: BarFragment,
@@ -752,7 +752,7 @@ describe('RelayReader', () => {
           'node(id:"1")': {__ref: '1'},
         },
       };
-      source = new RelayInMemoryRecordSource(storeData);
+      source = RelayRecordSource.create(storeData);
       const {data, seenRecords, isMissingData} = read(source, {
         dataID: '1',
         node: BarFragment,
@@ -801,7 +801,7 @@ describe('RelayReader', () => {
           'node(id:"1")': {__ref: '1'},
         },
       };
-      source = new RelayInMemoryRecordSource(storeData);
+      source = RelayRecordSource.create(storeData);
       const {data, seenRecords, isMissingData} = read(source, {
         dataID: '1',
         node: BarFragment,
@@ -832,7 +832,7 @@ describe('RelayReader', () => {
           'node(id:"1")': {__ref: '1'},
         },
       };
-      source = new RelayInMemoryRecordSource(storeData);
+      source = RelayRecordSource.create(storeData);
       const {data, seenRecords, isMissingData} = read(source, {
         dataID: '1',
         node: BarFragment,
@@ -859,7 +859,7 @@ describe('RelayReader', () => {
           'node(id:"1")': {__ref: '1'},
         },
       };
-      source = new RelayInMemoryRecordSource(storeData);
+      source = RelayRecordSource.create(storeData);
       const {data, seenRecords, isMissingData} = read(source, {
         dataID: '1',
         node: BarFragment,
@@ -925,7 +925,7 @@ describe('RelayReader', () => {
           'node(id:"1")': {__ref: '1'},
         },
       };
-      source = new RelayInMemoryRecordSource(storeData);
+      source = RelayRecordSource.create(storeData);
       const {data, seenRecords, isMissingData} = read(source, {
         dataID: '1',
         node: BarFragment,
@@ -972,7 +972,7 @@ describe('RelayReader', () => {
           'node(id:"1")': {__ref: '1'},
         },
       };
-      source = new RelayInMemoryRecordSource(storeData);
+      source = RelayRecordSource.create(storeData);
       const {data, seenRecords, isMissingData} = read(source, {
         dataID: '1',
         node: BarFragment,
@@ -1015,7 +1015,7 @@ describe('RelayReader', () => {
           'node(id:"1")': {__ref: '1'},
         },
       };
-      source = new RelayInMemoryRecordSource(storeData);
+      source = RelayRecordSource.create(storeData);
       const {data, seenRecords, isMissingData} = read(source, {
         dataID: '1',
         node: BarFragment,
@@ -1188,7 +1188,7 @@ describe('RelayReader', () => {
           },
         };
 
-        source = new RelayInMemoryRecordSource(data);
+        source = RelayRecordSource.create(data);
       });
 
       it('should have `isMissingData = false` if data is available', () => {

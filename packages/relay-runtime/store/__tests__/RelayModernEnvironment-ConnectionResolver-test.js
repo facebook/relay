@@ -11,12 +11,12 @@
 
 'use strict';
 
-const RelayInMemoryRecordSource = require('../RelayInMemoryRecordSource');
 const RelayModernEnvironment = require('../RelayModernEnvironment');
 const RelayModernOperationDescriptor = require('../RelayModernOperationDescriptor');
 const RelayModernStore = require('../RelayModernStore');
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
+const RelayRecordSource = require('../RelayRecordSource');
 
 const nullthrows = require('nullthrows');
 
@@ -123,7 +123,7 @@ describe('@connection_resolver connection field', () => {
         dataSource = sink;
       });
     });
-    source = new RelayInMemoryRecordSource();
+    source = RelayRecordSource.create();
     store = new RelayModernStore(source);
     environment = new RelayModernEnvironment({
       network: RelayNetwork.create(fetch),

@@ -10,9 +10,8 @@
 
 'use strict';
 
-const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
-const RelayInMemoryRecordSource = require('../RelayInMemoryRecordSource');
 const RelayModernTestUtils = require('relay-test-utils-internal');
+const RelayRecordSource = require('../RelayRecordSource');
 
 const {mark} = require('../RelayReferenceMarker');
 const {ROOT_ID} = require('../RelayStoreUtils');
@@ -76,7 +75,7 @@ describe('RelayReferenceMarker', () => {
       },
     };
 
-    source = new RelayInMemoryRecordSource(data);
+    source = RelayRecordSource.create(data);
   });
 
   it('marks referenced records', () => {
@@ -188,7 +187,7 @@ describe('RelayReferenceMarker', () => {
         'node(id:"1")': {__ref: '1'},
       },
     };
-    source = new RelayInMemoryRecordSource(data);
+    source = RelayRecordSource.create(data);
     const {UserProfile} = generateAndCompile(
       `
       query UserProfile($id: ID!) {
@@ -292,7 +291,7 @@ describe('RelayReferenceMarker', () => {
         'node(id:"1")': {__ref: '1'},
       },
     };
-    source = new RelayInMemoryRecordSource(data);
+    source = RelayRecordSource.create(data);
     const {UserProfile} = generateAndCompile(
       `
       query UserProfile($id: ID!, $orderby: [String]) {
@@ -406,7 +405,7 @@ describe('RelayReferenceMarker', () => {
         'node(id:"1")': {__ref: '1'},
       },
     };
-    source = new RelayInMemoryRecordSource(data);
+    source = RelayRecordSource.create(data);
     const {FooQuery} = generateAndCompile(
       `
       query FooQuery($id: ID, $size: [Int]) {
@@ -558,7 +557,7 @@ describe('RelayReferenceMarker', () => {
           text: 'text',
         },
       };
-      source = new RelayInMemoryRecordSource(storeData);
+      source = RelayRecordSource.create(storeData);
       const references = new Set();
       mark(
         source,
@@ -611,7 +610,7 @@ describe('RelayReferenceMarker', () => {
           markup: '<markup/>',
         },
       };
-      source = new RelayInMemoryRecordSource(storeData);
+      source = RelayRecordSource.create(storeData);
       const references = new Set();
       mark(
         source,
@@ -657,7 +656,7 @@ describe('RelayReferenceMarker', () => {
           'node(id:"1")': {__ref: '1'},
         },
       };
-      source = new RelayInMemoryRecordSource(storeData);
+      source = RelayRecordSource.create(storeData);
       const references = new Set();
       mark(
         source,
@@ -713,7 +712,7 @@ describe('RelayReferenceMarker', () => {
           markup: '<markup/>',
         },
       };
-      source = new RelayInMemoryRecordSource(storeData);
+      source = RelayRecordSource.create(storeData);
       const references = new Set();
       mark(
         source,
@@ -758,7 +757,7 @@ describe('RelayReferenceMarker', () => {
           'node(id:"1")': {__ref: '1'},
         },
       };
-      source = new RelayInMemoryRecordSource(storeData);
+      source = RelayRecordSource.create(storeData);
       const references = new Set();
       mark(
         source,
@@ -800,7 +799,7 @@ describe('RelayReferenceMarker', () => {
           'node(id:"1")': {__ref: '1'},
         },
       };
-      source = new RelayInMemoryRecordSource(storeData);
+      source = RelayRecordSource.create(storeData);
       const references = new Set();
       mark(
         source,
@@ -833,7 +832,7 @@ describe('RelayReferenceMarker', () => {
           'node(id:"1")': {__ref: '1'},
         },
       };
-      source = new RelayInMemoryRecordSource(storeData);
+      source = RelayRecordSource.create(storeData);
       const references = new Set();
       mark(
         source,
@@ -861,7 +860,7 @@ describe('RelayReferenceMarker', () => {
           'node(id:"1")': {__ref: '1'},
         },
       };
-      source = new RelayInMemoryRecordSource(storeData);
+      source = RelayRecordSource.create(storeData);
       const references = new Set();
       mark(
         source,
@@ -955,7 +954,7 @@ describe('RelayReferenceMarker', () => {
           text: 'text',
         },
       };
-      source = new RelayInMemoryRecordSource(storeData);
+      source = RelayRecordSource.create(storeData);
       const references = new Set();
       mark(
         source,
@@ -1006,7 +1005,7 @@ describe('RelayReferenceMarker', () => {
           markup: '<markup/>',
         },
       };
-      source = new RelayInMemoryRecordSource(storeData);
+      source = RelayRecordSource.create(storeData);
       const references = new Set();
       mark(
         source,
@@ -1050,7 +1049,7 @@ describe('RelayReferenceMarker', () => {
           'node(id:"1")': {__ref: '1'},
         },
       };
-      source = new RelayInMemoryRecordSource(storeData);
+      source = RelayRecordSource.create(storeData);
       const references = new Set();
       mark(
         source,
@@ -1104,7 +1103,7 @@ describe('RelayReferenceMarker', () => {
           markup: '<markup/>',
         },
       };
-      source = new RelayInMemoryRecordSource(storeData);
+      source = RelayRecordSource.create(storeData);
       const references = new Set();
       mark(
         source,
@@ -1147,7 +1146,7 @@ describe('RelayReferenceMarker', () => {
           'node(id:"1")': {__ref: '1'},
         },
       };
-      source = new RelayInMemoryRecordSource(storeData);
+      source = RelayRecordSource.create(storeData);
       const references = new Set();
       mark(
         source,
@@ -1187,7 +1186,7 @@ describe('RelayReferenceMarker', () => {
           'node(id:"1")': {__ref: '1'},
         },
       };
-      source = new RelayInMemoryRecordSource(storeData);
+      source = RelayRecordSource.create(storeData);
       const references = new Set();
       mark(
         source,
@@ -1249,10 +1248,10 @@ describe('RelayReferenceMarker', () => {
           'node(id:"1")': {__ref: '1'},
         },
       };
-      const source = new RelayInMemoryRecordSource(storeData);
+      const recordSource = RelayRecordSource.create(storeData);
       const references = new Set();
       mark(
-        source,
+        recordSource,
         {
           dataID: 'client:root',
           node: Query.operation,
@@ -1277,10 +1276,10 @@ describe('RelayReferenceMarker', () => {
           'node(id:"1")': {__ref: '1'},
         },
       };
-      const source = new RelayInMemoryRecordSource(storeData);
+      const recordSource = RelayRecordSource.create(storeData);
       const references = new Set();
       mark(
-        source,
+        recordSource,
         {
           dataID: 'client:root',
           node: Query.operation,
@@ -1334,10 +1333,10 @@ describe('RelayReferenceMarker', () => {
           'node(id:"1")': {__ref: '1'},
         },
       };
-      const source = new RelayInMemoryRecordSource(storeData);
+      const recordSource = RelayRecordSource.create(storeData);
       const references = new Set();
       mark(
-        source,
+        recordSource,
         {
           dataID: 'client:root',
           node: Query.operation,
@@ -1362,10 +1361,10 @@ describe('RelayReferenceMarker', () => {
           'node(id:"1")': {__ref: '1'},
         },
       };
-      const source = new RelayInMemoryRecordSource(storeData);
+      const recordSource = RelayRecordSource.create(storeData);
       const references = new Set();
       mark(
-        source,
+        recordSource,
         {
           dataID: 'client:root',
           node: Query.operation,

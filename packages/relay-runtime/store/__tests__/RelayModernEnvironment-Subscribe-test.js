@@ -11,11 +11,11 @@
 
 'use strict';
 
-const RelayInMemoryRecordSource = require('../RelayInMemoryRecordSource');
 const RelayModernEnvironment = require('../RelayModernEnvironment');
 const RelayModernOperationDescriptor = require('../RelayModernOperationDescriptor');
 const RelayModernStore = require('../RelayModernStore');
 const RelayNetwork = require('../../network/RelayNetwork');
+const RelayRecordSource = require('../RelayRecordSource');
 
 const {ROOT_ID} = require('../RelayStoreUtils');
 const {generateAndCompile} = require('relay-test-utils-internal');
@@ -67,7 +67,7 @@ describe('subscribe()', () => {
           name
         }
       `));
-    const source = new RelayInMemoryRecordSource();
+    const source = RelayRecordSource.create();
     const store = new RelayModernStore(source);
     environment = new RelayModernEnvironment({
       network: RelayNetwork.create(jest.fn()),

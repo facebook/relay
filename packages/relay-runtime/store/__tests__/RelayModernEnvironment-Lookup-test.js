@@ -11,11 +11,11 @@
 
 'use strict';
 
-const RelayInMemoryRecordSource = require('../RelayInMemoryRecordSource');
 const RelayModernEnvironment = require('../RelayModernEnvironment');
 const RelayModernOperationDescriptor = require('../RelayModernOperationDescriptor');
 const RelayModernStore = require('../RelayModernStore');
 const RelayNetwork = require('../../network/RelayNetwork');
+const RelayRecordSource = require('../RelayRecordSource');
 
 const {getRequest} = require('../RelayCore');
 const {ROOT_ID} = require('../RelayStoreUtils');
@@ -57,7 +57,7 @@ describe('lookup()', () => {
           name
         }
       `));
-    const source = new RelayInMemoryRecordSource();
+    const source = RelayRecordSource.create();
     const store = new RelayModernStore(source);
     environment = new RelayModernEnvironment({
       network: RelayNetwork.create(jest.fn()),

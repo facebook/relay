@@ -10,8 +10,8 @@
 
 'use strict';
 
-const RelayInMemoryRecordSource = require('./RelayInMemoryRecordSource');
 const RelayModernRecord = require('./RelayModernRecord');
+const RelayRecordSource = require('./RelayRecordSource');
 const RelayResponseNormalizer = require('./RelayResponseNormalizer');
 
 const {ROOT_ID, ROOT_TYPE} = require('./RelayStoreUtils');
@@ -29,7 +29,7 @@ function normalizeRelayPayload(
   errors: ?Array<PayloadError>,
   options: NormalizationOptions,
 ): RelayResponsePayload {
-  const source = new RelayInMemoryRecordSource();
+  const source = RelayRecordSource.create();
   source.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
   const {
     fieldPayloads,

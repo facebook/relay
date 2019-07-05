@@ -11,8 +11,8 @@
 'use strict';
 
 const ErrorUtils = require('ErrorUtils');
-const RelayInMemoryRecordSource = require('./RelayInMemoryRecordSource');
 const RelayReader = require('./RelayReader');
+const RelayRecordSource = require('./RelayRecordSource');
 const RelayRecordSourceMutator = require('../mutations/RelayRecordSourceMutator');
 const RelayRecordSourceProxy = require('../mutations/RelayRecordSourceProxy');
 const RelayRecordSourceSelectorProxy = require('../mutations/RelayRecordSourceSelectorProxy');
@@ -95,7 +95,7 @@ class RelayPublishQueue implements PublishQueue {
     handlerProvider?: ?HandlerProvider,
     getDataID: GetDataID,
   ) {
-    this._backup = new RelayInMemoryRecordSource();
+    this._backup = RelayRecordSource.create();
     this._handlerProvider = handlerProvider || null;
     this._pendingBackupRebase = false;
     this._pendingUpdaters = new Set();
@@ -190,7 +190,7 @@ class RelayPublishQueue implements PublishQueue {
   run(): $ReadOnlyArray<OperationDescriptor> {
     if (this._pendingBackupRebase && this._backup.size()) {
       this._store.publish(this._backup);
-      this._backup = new RelayInMemoryRecordSource();
+      this._backup = RelayRecordSource.create();
     }
     this._commitData();
     this._commitUpdaters();
@@ -262,7 +262,7 @@ class RelayPublishQueue implements PublishQueue {
     if (!this._pendingUpdaters.size) {
       return;
     }
-    const sink = new RelayInMemoryRecordSource();
+    const sink = RelayRecordSource.create();
     this._pendingUpdaters.forEach(updater => {
       const mutator = new RelayRecordSourceMutator(
         this._store.getSource(),
@@ -286,7 +286,7 @@ class RelayPublishQueue implements PublishQueue {
       this._pendingOptimisticUpdates.size ||
       (this._pendingBackupRebase && this._appliedOptimisticUpdates.size)
     ) {
-      const sink = new RelayInMemoryRecordSource();
+      const sink = RelayRecordSource.create();
       const mutator = new RelayRecordSourceMutator(
         this._store.getSource(),
         sink,

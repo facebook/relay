@@ -12,11 +12,13 @@
 
 type FeatureFlags = {|
   ENABLE_VARIABLE_CONNECTION_KEY: boolean,
+  USE_RECORD_SOURCE_MAP_IMPL: boolean,
 |};
 
 const RelayFeatureFlags: FeatureFlags = {
   // T45504512: new connection model
   ENABLE_VARIABLE_CONNECTION_KEY: false,
+  USE_RECORD_SOURCE_MAP_IMPL: false,
 };
 
 module.exports = RelayFeatureFlags;

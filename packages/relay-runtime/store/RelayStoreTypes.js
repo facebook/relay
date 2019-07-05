@@ -391,6 +391,7 @@ export interface MutableRecordSource extends RecordSource {
   delete(dataID: DataID): void;
   remove(dataID: DataID): void;
   set(dataID: DataID, record: Record): void;
+  toJSON(): {[DataID]: ?Record};
 }
 
 /**

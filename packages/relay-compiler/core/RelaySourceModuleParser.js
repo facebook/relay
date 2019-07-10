@@ -10,18 +10,20 @@
 
 'use strict';
 
+const ASTCache = require('./ASTCache');
+const GraphQL = require('graphql');
+const Profiler = require('./GraphQLCompilerProfiler');
+
+const fs = require('fs');
+const invariant = require('invariant');
+const path = require('path');
+
+const {memoizedFind} = require('./RelayFindGraphQLTags');
+
 import type {File} from '../codegen/CodegenTypes';
 import type {FileFilter} from '../codegen/CodegenWatcher';
 import type {GraphQLTagFinder} from '../language/RelayLanguagePluginInterface';
 import type {DocumentNode} from 'graphql';
-
-const ASTCache = require('./ASTCache');
-const Profiler = require('./GraphQLCompilerProfiler');
-const {memoizedFind} = require('./RelayFindGraphQLTags');
-const fs = require('fs');
-const GraphQL = require('graphql');
-const invariant = require('invariant');
-const path = require('path');
 
 const parseGraphQL = Profiler.instrument(GraphQL.parse, 'GraphQL.parse');
 
@@ -56,13 +58,18 @@ module.exports = (
     +document: DocumentNode,
     +sources: $ReadOnlyArray<string>,
   |} {
-    const text = fs.readFileSync(path.join(baseDir, file.relPath), 'utf8');
-    invariant(
-      text.indexOf('graphql') >= 0,
-      'RelaySourceModuleParser: Files should be filtered before passed to the ' +
-        'parser, got unfiltered file `%s`.',
-      file.relPath,
-    );
+    const filePath = path.join(baseDir, file.relPath);
+    let text = '';
+    try {
+      text = fs.readFileSync(filePath, 'utf8');
+    } catch {
+      invariant(
+        false,
+        'RelaySourceModuleParser: Files should be filtered before passed to the ' +
+          'parser, got unfiltered file `%s`.',
+        file.relPath,
+      );
+    }
 
     const astDefinitions = [];
     const sources = [];
@@ -97,7 +104,17 @@ module.exports = (
 
   function getFileFilter(baseDir: string): FileFilter {
     return (file: File) => {
-      const text = fs.readFileSync(path.join(baseDir, file.relPath), 'utf8');
+      const filePath = path.join(baseDir, file.relPath);
+      let text = '';
+      try {
+        text = fs.readFileSync(filePath, 'utf8');
+      } catch {
+        // eslint-disable no-console
+        console.warn(
+          `RelaySourceModuleParser: Unable to read the file "${filePath}". Looks like it was removed.`,
+        );
+        return false;
+      }
       return text.indexOf('graphql') >= 0;
     };
   }

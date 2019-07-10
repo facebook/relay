@@ -28,6 +28,7 @@ const RelayModernStore = require('./store/RelayModernStore');
 const RelayNetwork = require('./network/RelayNetwork');
 const RelayNetworkLoggerTransaction = require('./network/RelayNetworkLoggerTransaction');
 const RelayObservable = require('./network/RelayObservable');
+const RelayOperationTracker = require('./store/RelayOperationTracker');
 const RelayProfiler = require('./util/RelayProfiler');
 const RelayQueryResponseCache = require('./network/RelayQueryResponseCache');
 const RelayRecordSource = require('./store/RelayRecordSource');
@@ -106,12 +107,13 @@ export type {
   NormalizationSelector,
   OperationDescriptor,
   OperationLoader,
+  OperationTracker,
   OptimisticUpdate,
   OwnedReaderSelector,
   Props,
   PublishQueue,
-  ReaderSelector,
   ReadOnlyRecordProxy,
+  ReaderSelector,
   RecordProxy,
   RecordSourceProxy,
   RecordSourceSelectorProxy,
@@ -272,6 +274,7 @@ module.exports = {
   getFragmentSpecIdentifier: getFragmentSpecIdentifier,
   getRequestParametersIdentifier: getRequestParametersIdentifier,
   __internal: {
+    OperationTracker: RelayOperationTracker,
     createRelayContext: createRelayContext,
     getModernOperationVariables: RelayConcreteVariables.getOperationVariables,
     fetchQuery: fetchQueryInternal.fetchQuery,

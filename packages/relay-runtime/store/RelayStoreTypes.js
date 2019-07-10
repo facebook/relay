@@ -37,6 +37,7 @@ import type RelayOperationTracker from './RelayOperationTracker';
 import type {RecordState} from './RelayRecordState';
 
 export opaque type FragmentReference = empty;
+export type OperationTracker = RelayOperationTracker;
 
 /*
  * An individual cached graph object.

@@ -35,11 +35,12 @@ import type {
 } from '../network/RelayNetworkTypes';
 import type {
   Environment,
-  OperationLoader,
   MissingFieldHandler,
-  OperationDescriptor,
-  OptimisticUpdate,
   NormalizationSelector,
+  OperationDescriptor,
+  OperationLoader,
+  OperationTracker,
+  OptimisticUpdate,
   ReaderSelector,
   SelectorStoreUpdater,
   Snapshot,
@@ -50,7 +51,6 @@ import type {
 } from '../store/RelayStoreTypes';
 import type {CacheConfig, Disposable} from '../util/RelayRuntimeTypes';
 import type {TaskScheduler} from './RelayModernQueryExecutor';
-import type RelayOperationTracker from './RelayOperationTracker';
 import type {GetDataID} from './RelayResponseNormalizer';
 
 export type EnvironmentConfig = {|
@@ -62,7 +62,7 @@ export type EnvironmentConfig = {|
   +store: Store,
   +missingFieldHandlers?: ?$ReadOnlyArray<MissingFieldHandler>,
   +publishQueue?: ?PublishQueue,
-  +operationTracker?: ?RelayOperationTracker,
+  +operationTracker?: ?OperationTracker,
   /*
     This method is likely to change in future versions, use at your own risk.
     It can potentially break existing calls like store.get(<id>),
@@ -80,7 +80,7 @@ class RelayModernEnvironment implements Environment {
   configName: ?string;
   unstable_internal: UnstableEnvironmentCore;
   _missingFieldHandlers: ?$ReadOnlyArray<MissingFieldHandler>;
-  _operationTracker: ?RelayOperationTracker;
+  _operationTracker: ?OperationTracker;
   _getDataID: GetDataID;
 
   constructor(config: EnvironmentConfig) {
@@ -366,6 +366,7 @@ class RelayModernEnvironment implements Environment {
       const executor = RelayModernQueryExecutor.execute({
         operation,
         operationLoader: this._operationLoader,
+        operationTracker: this._operationTracker,
         optimisticUpdate: null,
         publishQueue: this._publishQueue,
         scheduler: this._scheduler,

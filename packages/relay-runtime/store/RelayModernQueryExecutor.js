@@ -38,6 +38,7 @@ import type {
   NormalizationSelector,
   OperationDescriptor,
   OperationLoader,
+  OperationTracker,
   OptimisticUpdate,
   PublishQueue,
   Record,
@@ -46,14 +47,13 @@ import type {
   StreamPlaceholder,
 } from '../store/RelayStoreTypes';
 import type {NormalizationSplitOperation} from '../util/NormalizationNode';
-import type RelayOperationTracker from './RelayOperationTracker';
 import type {GetDataID} from './RelayResponseNormalizer';
 
 export type ExecuteConfig = {|
   +getDataID: GetDataID,
   +operation: OperationDescriptor,
   +operationLoader: ?OperationLoader,
-  +operationTracker?: ?RelayOperationTracker,
+  +operationTracker?: ?OperationTracker,
   +optimisticUpdate: ?OptimisticUpdate,
   +publishQueue: PublishQueue,
   +scheduler?: ?TaskScheduler,
@@ -110,7 +110,7 @@ class Executor {
   _state: 'started' | 'loading' | 'completed';
   _updater: ?SelectorStoreUpdater;
   _subscriptions: Map<number, Subscription>;
-  _operationTracker: ?RelayOperationTracker;
+  _operationTracker: ?OperationTracker;
   _getDataID: GetDataID;
 
   constructor({

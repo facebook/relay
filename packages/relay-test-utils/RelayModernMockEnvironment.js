@@ -26,17 +26,17 @@ const {
 
 import type {HandlerProvider} from 'relay-runtime/handlers/RelayDefaultHandlerProvider';
 import type {Sink} from 'relay-runtime/network/RelayObservable';
-import type RelayOperationTracker from 'relay-runtime/store/RelayOperationTracker';
 import type {MissingFieldHandler} from 'relay-runtime/store/RelayStoreTypes';
 import type {
-  RequestParameters,
-  Variables,
   CacheConfig,
   ConcreteRequest,
   GraphQLResponse,
   IEnvironment,
   OperationDescriptor,
   OperationLoader,
+  OperationTracker,
+  RequestParameters,
+  Variables,
 } from 'relay-runtime';
 
 type PendingRequest = {|
@@ -176,7 +176,7 @@ export interface RelayMockEnvironment extends MockEnvironment, IEnvironment {}
 function createMockEnvironment(config?: {|
   +handlerProvider?: HandlerProvider,
   +missingFieldHandlers?: $ReadOnlyArray<MissingFieldHandler>,
-  +operationTracker?: RelayOperationTracker,
+  +operationTracker?: OperationTracker,
   +operationLoader?: OperationLoader,
 |}): RelayMockEnvironment {
   const source = new RecordSource();

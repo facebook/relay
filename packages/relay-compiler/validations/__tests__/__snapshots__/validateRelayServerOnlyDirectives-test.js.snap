@@ -260,9 +260,8 @@ extend type MarkdownUserNameRenderer {
 PASSED
 `;
 
-exports[`ValidateRelayServerOnlyDirectives matches expected output: module-on-child-of-client.invalid.graphql 1`] = `
+exports[`ValidateRelayServerOnlyDirectives matches expected output: module-on-child-of-client.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
-# expected-to-throw
 fragment NameRendererFragment on User {
   id
   foo {
@@ -312,28 +311,11 @@ query Test {
 }
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
-THROWN EXCEPTION:
-
-Error: Encountered 1 error(s):
-- Unexpected directive: @module. This directive can only be used on fields/fragments that are fetched from the server schema, but it is used inside a client-only selection.
-  
-  Source: GraphQL request (9:13)
-   8:           ...PlainUserNameRenderer_name
-   9:             @module(name: "PlainUserNameRenderer.react")
-                  ^
-  10:           ...MarkdownUserNameRenderer_name
-  
-  Source: GraphQL request (4:3)
-  3:   id
-  4:   foo {
-       ^
-  5:     bar {
-  
+PASSED
 `;
 
-exports[`ValidateRelayServerOnlyDirectives matches expected output: module-on-child-of-client-in-fragment.invalid.graphql 1`] = `
+exports[`ValidateRelayServerOnlyDirectives matches expected output: module-on-child-of-client-in-fragment.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
-# expected-to-throw
 extend type User {
   foo: Foo
 }
@@ -385,237 +367,7 @@ query TestQuery {
 }
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
-THROWN EXCEPTION:
-
-Error: Encountered 1 error(s):
-- Unexpected directive: @module. This directive can only be used on fields/fragments that are fetched from the server schema, but it is used inside a client-only selection.
-  
-  Source: GraphQL request (17:7)
-  16:     ...PlainUserNameRenderer_name
-  17:       @module(name: "PlainUserNameRenderer.react")
-            ^
-  18:     ...MarkdownUserNameRenderer_name
-  
-  Source: GraphQL request (25:3)
-  24:   id
-  25:   foo {
-        ^
-  26:     bar {
-  
-`;
-
-exports[`ValidateRelayServerOnlyDirectives matches expected output: module-on-child-of-client-in-nested-fragment.invalid.graphql 1`] = `
-~~~~~~~~~~ INPUT ~~~~~~~~~~
-# expected-to-throw
-extend type User {
-  foo: Foo
-}
-
-type Foo {
-  bar: Bar
-}
-
-type Bar {
-  user: User
-}
-
-
-fragment NameRendererFragment on User {
-  id
-  foo {
-    bar {
-      user {
-        ...SomeUser
-      }
-    }
-  }
-}
-
-fragment SomeUser2 on User {
-  nameRenderer {
-    ...PlainUserNameRenderer_name
-      @module(name: "PlainUserNameRenderer.react")
-    ...MarkdownUserNameRenderer_name
-      @module(name: "MarkdownUserNameRenderer.react")
-  }
-}
-
-fragment SomeUser on User {
-  ...SomeUser2
-}
-
-fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
-  plaintext
-  data {
-    text
-  }
-}
-
-fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
-  markdown
-  data {
-    markup
-  }
-}
-
-query Test {
-  me {
-    ...NameRendererFragment
-  }
-}
-
-~~~~~~~~~~ OUTPUT ~~~~~~~~~~
-THROWN EXCEPTION:
-
-Error: Encountered 1 error(s):
-- Unexpected directive: @module. This directive can only be used on fields/fragments that are fetched from the server schema, but it is used inside a client-only selection.
-  
-  Source: GraphQL request (29:7)
-  28:     ...PlainUserNameRenderer_name
-  29:       @module(name: "PlainUserNameRenderer.react")
-            ^
-  30:     ...MarkdownUserNameRenderer_name
-  
-  Source: GraphQL request (17:3)
-  16:   id
-  17:   foo {
-        ^
-  18:     bar {
-  
-`;
-
-exports[`ValidateRelayServerOnlyDirectives matches expected output: module-on-child-of-client-in-query-with-nested-fragment.invalid.graphql 1`] = `
-~~~~~~~~~~ INPUT ~~~~~~~~~~
-# expected-to-throw
-fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
-  plaintext
-  data {
-    text
-  }
-}
-
-fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
-  markdown
-  data {
-    markup
-  }
-}
-
-fragment SomeUser2 on User {
-  nameRenderer {
-    ...PlainUserNameRenderer_name
-      @module(name: "PlainUserNameRenderer.react")
-    ...MarkdownUserNameRenderer_name
-      @module(name: "MarkdownUserNameRenderer.react")
-  }
-}
-
-fragment SomeUser on User {
-  ...SomeUser2
-}
-
-query TestQuery {
-  me {
-    ...NameRendererFragment
-  }
-}
-
-fragment NameRendererFragment on User {
-  id
-  foo {
-    bar {
-      user {
-        ...SomeUser
-      }
-    }
-  }
-}
-
-extend type User {
-  foo: Foo
-}
-
-type Foo {
-  bar: Bar
-}
-
-type Bar {
-  user: User
-}
-
-~~~~~~~~~~ OUTPUT ~~~~~~~~~~
-THROWN EXCEPTION:
-
-Error: Encountered 1 error(s):
-- Unexpected directive: @module. This directive can only be used on fields/fragments that are fetched from the server schema, but it is used inside a client-only selection.
-  
-  Source: GraphQL request (19:7)
-  18:     ...PlainUserNameRenderer_name
-  19:       @module(name: "PlainUserNameRenderer.react")
-            ^
-  20:     ...MarkdownUserNameRenderer_name
-  
-  Source: GraphQL request (37:3)
-  36:   id
-  37:   foo {
-        ^
-  38:     bar {
-  
-`;
-
-exports[`ValidateRelayServerOnlyDirectives matches expected output: module-on-client-field-in-query.invalid.graphql 1`] = `
-~~~~~~~~~~ INPUT ~~~~~~~~~~
-# expected-to-throw
-query TestQuery {
-  me {
-    user {
-      nameRenderer @match {
-        ...PlainUserNameRenderer_name
-          @module(name: "PlainUserNameRenderer.react")
-        ...MarkdownUserNameRenderer_name
-          @module(name: "MarkdownUserNameRenderer.react")
-      }
-    }
-  }
-}
-
-
-extend type User {
-  user: User
-}
-
-fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
-  plaintext
-  data {
-    text
-  }
-}
-
-fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
-  markdown
-  data {
-    markup
-  }
-}
-
-~~~~~~~~~~ OUTPUT ~~~~~~~~~~
-THROWN EXCEPTION:
-
-Error: Encountered 1 error(s):
-- Unexpected directive: @module. This directive can only be used on fields/fragments that are fetched from the server schema, but it is used inside a client-only selection.
-  
-  Source: GraphQL request (7:11)
-  6:         ...PlainUserNameRenderer_name
-  7:           @module(name: "PlainUserNameRenderer.react")
-               ^
-  8:         ...MarkdownUserNameRenderer_name
-  
-  Source: GraphQL request (4:5)
-  3:   me {
-  4:     user {
-         ^
-  5:       nameRenderer @match {
-  
+PASSED
 `;
 
 exports[`ValidateRelayServerOnlyDirectives matches expected output: stream-connection-on-client.invalid.graphql 1`] = `

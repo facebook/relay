@@ -1,4 +1,3 @@
-# expected-to-throw
 extend type User {
   foo: Foo
 }

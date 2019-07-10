@@ -28,7 +28,6 @@ type State = {
 };
 
 const NODEKIND_DIRECTIVE_MAP = {
-  ModuleImport: 'module',
   Defer: 'defer',
   Stream: 'stream',
 };
@@ -45,7 +44,6 @@ function validateRelayServerOnlyDirectives(
       ClientExtension: visitClientExtension,
       Defer: visitTransformedDirective,
       Stream: visitTransformedDirective,
-      ModuleImport: visitTransformedDirective,
     },
     () => ({
       rootClientSelection: null,
@@ -61,10 +59,7 @@ function visitClientExtension(node: ClientExtension, state: State): void {
   }
 }
 
-function visitTransformedDirective(
-  node: Defer | Stream | ModuleImport,
-  state: State,
-): void {
+function visitTransformedDirective(node: Defer | Stream, state: State): void {
   if (state.rootClientSelection) {
     throwError(
       `@${NODEKIND_DIRECTIVE_MAP[node.kind]}`,

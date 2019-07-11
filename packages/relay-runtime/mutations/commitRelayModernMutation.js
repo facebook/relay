@@ -23,7 +23,7 @@ import type {Environment, SelectorStoreUpdater} from '../store/RelayStoreTypes';
 import type {Disposable, Variables} from '../util/RelayRuntimeTypes';
 import type {DeclarativeMutationConfig} from './RelayDeclarativeMutationConfig';
 
-export type MutationConfig<T> = {|
+export type DEPRECATED_MutationConfig<T> = {|
   configs?: Array<DeclarativeMutationConfig>,
   mutation: GraphQLTaggedNode,
   variables: Variables,
@@ -35,11 +35,35 @@ export type MutationConfig<T> = {|
   updater?: ?SelectorStoreUpdater,
 |};
 
+export type MutationParameters = {|
+  +response: {},
+  +variables: {},
+  +rawResponse?: {},
+|};
+
+export type MutationConfig<T: MutationParameters> = {|
+  configs?: Array<DeclarativeMutationConfig>,
+  mutation: GraphQLTaggedNode,
+  onError?: ?(error: Error) => void,
+  onCompleted?: ?(
+    response: $PropertyType<T, 'response'>,
+    errors: ?Array<PayloadError>,
+  ) => void,
+  optimisticResponse?: $PropertyType<
+    {+rawResponse?: Object, ...T},
+    'rawResponse',
+  >,
+  optimisticUpdater?: ?SelectorStoreUpdater,
+  updater?: ?SelectorStoreUpdater,
+  uploadables?: UploadableMap,
+  variables: $PropertyType<T, 'variables'>,
+|};
+
 /**
  * Higher-level helper function to execute a mutation against a specific
  * environment.
  */
-function commitRelayModernMutation<T>(
+function commitRelayModernMutation<T: MutationParameters>(
   environment: Environment,
   config: MutationConfig<T>,
 ): Disposable {

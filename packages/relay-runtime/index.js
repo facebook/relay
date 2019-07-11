@@ -71,7 +71,11 @@ export type {
 export type {
   OptimisticMutationConfig,
 } from './mutations/applyRelayModernOptimisticMutation';
-export type {MutationConfig} from './mutations/commitRelayModernMutation';
+export type {
+  DEPRECATED_MutationConfig,
+  MutationConfig,
+  MutationParameters,
+} from './mutations/commitRelayModernMutation';
 export type {RelayNetworkLog} from './network/RelayNetworkLoggerTransaction';
 export type {
   ExecuteFunction,

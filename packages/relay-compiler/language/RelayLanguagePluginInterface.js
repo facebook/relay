@@ -172,11 +172,6 @@ export type FormatModule = ({|
   sourceHash: string,
 
   /**
-   * @todo Document this.
-   */
-  devOnlyAssignments: ?string,
-
-  /**
    * The generated node being written.
    */
   node: GeneratedNode,

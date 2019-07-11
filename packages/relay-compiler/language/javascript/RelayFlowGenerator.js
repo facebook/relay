@@ -139,7 +139,7 @@ function selectionsToBabel(
   const types = [];
 
   if (
-    Object.keys(byConcreteType).length &&
+    Object.keys(byConcreteType).length > 0 &&
     onlySelectsTypename(Array.from(baseFields.values())) &&
     (hasTypenameSelection(Array.from(baseFields.values())) ||
       Object.keys(byConcreteType).every(type =>

@@ -15,7 +15,6 @@ const Profiler = require('../core/GraphQLCompilerProfiler');
 
 const crypto = require('crypto');
 const dedupeJSONStringify = require('../util/dedupeJSONStringify');
-const deepMergeAssignments = require('./deepMergeAssignments');
 const invariant = require('invariant');
 
 const {RelayConcreteNode} = require('relay-runtime');
@@ -74,8 +73,6 @@ async function writeRelayGeneratedFile(
   const filename = platformName + '.' + extension;
   const typeName = getConcreteType(generatedNode);
 
-  const devOnlyProperties = {};
-
   let docText;
   if (generatedNode.kind === RelayConcreteNode.REQUEST) {
     docText = generatedNode.params.text;
@@ -115,7 +112,6 @@ async function writeRelayGeneratedFile(
             text != null,
             'writeRelayGeneratedFile: Expected `text` in order to persist query',
           );
-          devOnlyProperties.params = {text};
           generatedNode = {
             ...generatedNode,
             params: {
@@ -136,11 +132,6 @@ async function writeRelayGeneratedFile(
     }
   }
 
-  const devOnlyAssignments = deepMergeAssignments(
-    '(node/*: any*/)',
-    devOnlyProperties,
-  );
-
   const moduleText = formatModule({
     moduleName,
     documentType: typeName,
@@ -153,7 +144,6 @@ async function writeRelayGeneratedFile(
       dedupeJSONStringify(generatedNode),
       printModuleDependency,
     ),
-    devOnlyAssignments,
     sourceHash,
     node: generatedNode,
   });

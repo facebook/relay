@@ -22,25 +22,20 @@ import type {Directive} from '../core/GraphQLIR';
 function filterDirectivesTransform(
   context: GraphQLCompilerContext,
 ): GraphQLCompilerContext {
+  const schemaDirectives = new Set(
+    context.serverSchema
+      .getDirectives()
+      .map(schemaDirective => schemaDirective.name),
+  );
+  const visitDirective = (directive: Directive): ?Directive => {
+    if (schemaDirectives.has(directive.name)) {
+      return directive;
+    }
+    return null;
+  };
   return GraphQLIRTransformer.transform(context, {
     Directive: visitDirective,
   });
-}
-
-/**
- * @internal
- *
- * Skip directives not defined in the original schema.
- */
-function visitDirective(directive: Directive): ?Directive {
-  if (
-    this.getContext()
-      .serverSchema.getDirectives()
-      .some(schemaDirective => schemaDirective.name === directive.name)
-  ) {
-    return directive;
-  }
-  return null;
 }
 
 module.exports = {

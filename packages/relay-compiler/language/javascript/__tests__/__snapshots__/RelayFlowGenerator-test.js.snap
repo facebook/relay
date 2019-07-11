@@ -589,16 +589,17 @@ export type TestResponse = {|
     |}>
   |}
 |};
-export type Test = {|
-  variables: TestVariables,
-  response: TestResponse,
-|};
 export type TestRawResponse = {|
   +viewerNotificationsUpdateAllSeenState: ?{|
     +stories: ?$ReadOnlyArray<?{|
       +id: ?string
     |}>
   |}
+|};
+export type Test = {|
+  variables: TestVariables,
+  response: TestResponse,
+  rawResponse: TestRawResponse,
 |};
 `;
 
@@ -660,10 +661,6 @@ export type TestMutationResponse = {|
     |}
   |}
 |};
-export type TestMutation = {|
-  variables: TestMutationVariables,
-  response: TestMutationResponse,
-|};
 export type TestMutationRawResponse = {|
   +commentCreate: ?{|
     +viewer: ?{|
@@ -690,6 +687,11 @@ export type TestMutationRawResponse = {|
       |})
     |}
   |}
+|};
+export type TestMutation = {|
+  variables: TestMutationVariables,
+  response: TestMutationResponse,
+  rawResponse: TestMutationRawResponse,
 |};
 
 import type { FragmentReference } from "relay-runtime";
@@ -790,10 +792,6 @@ export type InputHasArrayResponse = {|
     |}>
   |}
 |};
-export type InputHasArray = {|
-  variables: InputHasArrayVariables,
-  response: InputHasArrayResponse,
-|};
 export type InputHasArrayRawResponse = {|
   +viewerNotificationsUpdateAllSeenState: ?{|
     +stories: ?$ReadOnlyArray<?{|
@@ -801,6 +799,11 @@ export type InputHasArrayRawResponse = {|
       +id: ?string,
     |}>
   |}
+|};
+export type InputHasArray = {|
+  variables: InputHasArrayVariables,
+  response: InputHasArrayResponse,
+  rawResponse: InputHasArrayRawResponse,
 |};
 `;
 
@@ -871,10 +874,6 @@ export type CommentCreateMutationResponse = {|
     |}
   |}
 |};
-export type CommentCreateMutation = {|
-  variables: CommentCreateMutationVariables,
-  response: CommentCreateMutationResponse,
-|};
 export type CommentCreateMutationRawResponse = {|
   +commentCreate: ?{|
     +comment: ?{|
@@ -894,6 +893,11 @@ export type CommentCreateMutationRawResponse = {|
       +id: ?string,
     |}
   |}
+|};
+export type CommentCreateMutation = {|
+  variables: CommentCreateMutationVariables,
+  response: CommentCreateMutationResponse,
+  rawResponse: CommentCreateMutationRawResponse,
 |};
 
 type FeedbackFragment$ref = any;
@@ -990,10 +994,6 @@ export type CommentCreateMutationResponse = {|
     |}
   |}
 |};
-export type CommentCreateMutation = {|
-  variables: CommentCreateMutationVariables,
-  response: CommentCreateMutationResponse,
-|};
 export type CommentCreateMutationRawResponse = {|
   +commentCreate: ?{|
     +comment: ?{|
@@ -1010,6 +1010,11 @@ export type CommentCreateMutationRawResponse = {|
       +id: ?string,
     |}
   |}
+|};
+export type CommentCreateMutation = {|
+  variables: CommentCreateMutationVariables,
+  response: CommentCreateMutationResponse,
+  rawResponse: CommentCreateMutationRawResponse,
 |};
 
 import type { FragmentReference } from "relay-runtime";
@@ -1084,10 +1089,6 @@ export type TestDeferResponse = {|
     |},
   |}
 |};
-export type TestDefer = {|
-  variables: TestDeferVariables,
-  response: TestDeferResponse,
-|};
 export type TestDeferRawResponse = {|
   +node: ?({|
     +__typename: "User",
@@ -1105,6 +1106,11 @@ export type TestDeferRawResponse = {|
     +__typename: ?string,
     +id: ?string,
   |})
+|};
+export type TestDefer = {|
+  variables: TestDeferVariables,
+  response: TestDeferResponse,
+  rawResponse: TestDeferRawResponse,
 |};
 `;
 
@@ -1139,10 +1145,6 @@ export type LinkedHandleFieldResponse = {|
     |}
   |}
 |};
-export type LinkedHandleField = {|
-  variables: LinkedHandleFieldVariables,
-  response: LinkedHandleFieldResponse,
-|};
 export type LinkedHandleFieldRawResponse = {|
   +node: ?({|
     +__typename: "User",
@@ -1155,6 +1157,11 @@ export type LinkedHandleFieldRawResponse = {|
     +id: ?string,
   |})
 |};
+export type LinkedHandleField = {|
+  variables: LinkedHandleFieldVariables,
+  response: LinkedHandleFieldResponse,
+  rawResponse: LinkedHandleFieldRawResponse,
+|};
 
 export type ScalarHandleFieldVariables = {|
   id: string
@@ -1163,10 +1170,6 @@ export type ScalarHandleFieldResponse = {|
   +node: ?{|
     +name?: ?string
   |}
-|};
-export type ScalarHandleField = {|
-  variables: ScalarHandleFieldVariables,
-  response: ScalarHandleFieldResponse,
 |};
 export type ScalarHandleFieldRawResponse = {|
   +node: ?({|
@@ -1177,6 +1180,11 @@ export type ScalarHandleFieldRawResponse = {|
     +__typename: ?string,
     +id: ?string,
   |})
+|};
+export type ScalarHandleField = {|
+  variables: ScalarHandleFieldVariables,
+  response: ScalarHandleFieldResponse,
+  rawResponse: ScalarHandleFieldRawResponse,
 |};
 `;
 
@@ -1219,10 +1227,6 @@ export type TestResponse = {|
     +$fragmentRefs: NameRendererFragment$ref
   |}
 |};
-export type Test = {|
-  variables: TestVariables,
-  response: TestResponse,
-|};
 export type TestRawResponse = {|
   +node: ?({|
     +__typename: "User",
@@ -1242,6 +1246,11 @@ export type TestRawResponse = {|
     +__typename: ?string,
     +id: ?string,
   |})
+|};
+export type Test = {|
+  variables: TestVariables,
+  response: TestResponse,
+  rawResponse: TestRawResponse,
 |};
 
 type MarkdownUserNameRenderer_name$ref = any;
@@ -1327,10 +1336,6 @@ export type ExampleQueryResponse = {|
     +$fragmentRefs: FriendFragment$ref
   |}
 |};
-export type ExampleQuery = {|
-  variables: ExampleQueryVariables,
-  response: ExampleQueryResponse,
-|};
 export type ExampleQueryRawResponse = {|
   +node: ?({|
     +__typename: "User",
@@ -1345,6 +1350,11 @@ export type ExampleQueryRawResponse = {|
     +__typename: ?string,
     +id: ?string,
   |})
+|};
+export type ExampleQuery = {|
+  variables: ExampleQueryVariables,
+  response: ExampleQueryResponse,
+  rawResponse: ExampleQueryRawResponse,
 |};
 
 import type { FragmentReference } from "relay-runtime";
@@ -1398,10 +1408,6 @@ export type TestStreamResponse = {|
     |},
   |}
 |};
-export type TestStream = {|
-  variables: TestStreamVariables,
-  response: TestStreamResponse,
-|};
 export type TestStreamRawResponse = {|
   +node: ?({|
     +__typename: "User",
@@ -1424,6 +1430,11 @@ export type TestStreamRawResponse = {|
     +__typename: ?string,
     +id: ?string,
   |})
+|};
+export type TestStream = {|
+  variables: TestStreamVariables,
+  response: TestStreamResponse,
+  rawResponse: TestStreamRawResponse,
 |};
 `;
 

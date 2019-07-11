@@ -294,32 +294,17 @@ function createVisitor(options: TypeGeneratorOptions) {
             false,
           ),
         );
-        const operationType = exportType(
-          node.name,
-          exactObjectTypeAnnotation([
-            t.objectTypeProperty(
-              t.identifier('variables'),
-              t.genericTypeAnnotation(t.identifier(`${node.name}Variables`)),
-            ),
-            t.objectTypeProperty(
-              t.identifier('response'),
-              t.genericTypeAnnotation(t.identifier(`${node.name}Response`)),
-            ),
-          ]),
-        );
 
-        // Generate raw response type
-        let rawResponseType;
-        const {normalizationIR} = options;
-        if (
-          normalizationIR &&
-          node.directives.some(d => d.name === DIRECTIVE_NAME)
-        ) {
-          rawResponseType = IRVisitor.visit(
-            normalizationIR,
-            createRawResponseTypeVisitor(state),
-          );
-        }
+        const operationTypes = [
+          t.objectTypeProperty(
+            t.identifier('variables'),
+            t.genericTypeAnnotation(t.identifier(`${node.name}Variables`)),
+          ),
+          t.objectTypeProperty(
+            t.identifier('response'),
+            t.genericTypeAnnotation(t.identifier(`${node.name}Response`)),
+          ),
+        ];
 
         const babelNodes = [
           ...getFragmentImports(state),
@@ -327,12 +312,34 @@ function createVisitor(options: TypeGeneratorOptions) {
           ...inputObjectTypes,
           inputVariablesType,
           responseType,
-          operationType,
         ];
 
-        if (rawResponseType) {
-          babelNodes.push(rawResponseType);
+        // Generate raw response type
+        const {normalizationIR} = options;
+        if (
+          normalizationIR &&
+          node.directives.some(d => d.name === DIRECTIVE_NAME)
+        ) {
+          const rawResponseType = IRVisitor.visit(
+            normalizationIR,
+            createRawResponseTypeVisitor(state),
+          );
+          if (rawResponseType) {
+            operationTypes.push(
+              t.objectTypeProperty(
+                t.identifier('rawResponse'),
+                t.genericTypeAnnotation(
+                  t.identifier(`${node.name}RawResponse`),
+                ),
+              ),
+            );
+            babelNodes.push(rawResponseType);
+          }
         }
+
+        babelNodes.push(
+          exportType(node.name, exactObjectTypeAnnotation(operationTypes)),
+        );
 
         return t.program(babelNodes);
       },

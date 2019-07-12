@@ -17,6 +17,7 @@ const RelayDefaultHandlerProvider = require('../handlers/RelayDefaultHandlerProv
 const RelayDefaultMissingFieldHandlers = require('../handlers/RelayDefaultMissingFieldHandlers');
 const RelayModernQueryExecutor = require('./RelayModernQueryExecutor');
 const RelayObservable = require('../network/RelayObservable');
+const RelayOperationTracker = require('../store/RelayOperationTracker');
 const RelayPublishQueue = require('./RelayPublishQueue');
 const RelayRecordSource = require('./RelayRecordSource');
 
@@ -80,7 +81,7 @@ class RelayModernEnvironment implements Environment {
   configName: ?string;
   unstable_internal: UnstableEnvironmentCore;
   _missingFieldHandlers: ?$ReadOnlyArray<MissingFieldHandler>;
-  _operationTracker: ?OperationTracker;
+  _operationTracker: OperationTracker;
   _getDataID: GetDataID;
 
   constructor(config: EnvironmentConfig) {
@@ -138,9 +139,8 @@ class RelayModernEnvironment implements Environment {
     this._missingFieldHandlers =
       config.missingFieldHandlers ?? RelayDefaultMissingFieldHandlers;
 
-    if (config.operationTracker != null) {
-      this._operationTracker = config.operationTracker;
-    }
+    this._operationTracker =
+      config.operationTracker ?? new RelayOperationTracker();
   }
 
   getStore(): Store {

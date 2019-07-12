@@ -363,10 +363,8 @@ export interface UnstableEnvironmentCore {
     },
   ) => Variables;
 
-  /**
-   * Experimental operation tracker
-   */
-  getOperationTracker?: () => ?RelayOperationTracker;
+  // Operation Tracker for Relay Hooks
+  getOperationTracker: () => RelayOperationTracker;
 }
 
 /**

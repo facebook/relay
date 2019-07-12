@@ -35,6 +35,7 @@ export type OperationType = {|
   // TODO(T33395812) Make this an open object type
   +variables: Variables,
   +response: mixed,
+  +rawResponse?: {},
 |};
 
 /**

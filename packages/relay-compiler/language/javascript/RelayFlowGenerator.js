@@ -306,6 +306,19 @@ function createVisitor(options: TypeGeneratorOptions) {
           ),
         ];
 
+        // Generate raw response type
+        let rawResponseType;
+        const {normalizationIR} = options;
+        if (
+          normalizationIR &&
+          node.directives.some(d => d.name === DIRECTIVE_NAME)
+        ) {
+          rawResponseType = IRVisitor.visit(
+            normalizationIR,
+            createRawResponseTypeVisitor(state),
+          );
+        }
+
         const babelNodes = [
           ...getFragmentImports(state),
           ...getEnumDefinitions(state),
@@ -314,27 +327,14 @@ function createVisitor(options: TypeGeneratorOptions) {
           responseType,
         ];
 
-        // Generate raw response type
-        const {normalizationIR} = options;
-        if (
-          normalizationIR &&
-          node.directives.some(d => d.name === DIRECTIVE_NAME)
-        ) {
-          const rawResponseType = IRVisitor.visit(
-            normalizationIR,
-            createRawResponseTypeVisitor(state),
+        if (rawResponseType) {
+          operationTypes.push(
+            t.objectTypeProperty(
+              t.identifier('rawResponse'),
+              t.genericTypeAnnotation(t.identifier(`${node.name}RawResponse`)),
+            ),
           );
-          if (rawResponseType) {
-            operationTypes.push(
-              t.objectTypeProperty(
-                t.identifier('rawResponse'),
-                t.genericTypeAnnotation(
-                  t.identifier(`${node.name}RawResponse`),
-                ),
-              ),
-            );
-            babelNodes.push(rawResponseType);
-          }
+          babelNodes.push(rawResponseType);
         }
 
         babelNodes.push(

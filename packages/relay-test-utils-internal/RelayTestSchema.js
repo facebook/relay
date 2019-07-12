@@ -41,8 +41,15 @@ function buildSchema() {
       PNG: {value: 'png'},
     },
   });
+  const TestEnums = new GraphQLEnumType({
+    name: 'TestEnums',
+    values: {
+      Zuck: {value: 'zuck'},
+      Mark: {value: 'mark'},
+    },
+  });
   let schema = new GraphQLSchema({
-    types: [CropPosition, FileExtension, GraphQLJSONType],
+    types: [CropPosition, FileExtension, TestEnums, GraphQLJSONType],
   });
   schema = extendSchema(
     schema,
@@ -66,6 +73,10 @@ function buildSchema() {
           additionalParameters: JSON
           options: ProfilePictureOptions
         ): Image
+      }
+
+      extend type Image {
+        test_enums: TestEnums
       }
     `),
   );

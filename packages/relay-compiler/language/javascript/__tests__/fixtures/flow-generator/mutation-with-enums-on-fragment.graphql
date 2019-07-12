@@ -22,4 +22,7 @@ mutation CommentCreateMutation (
 fragment FriendFragment on User {
   name
   lastName
+  profilePicture2 {
+    test_enums
+  }
 }

@@ -41,7 +41,7 @@ type RetryCallbacks = {
 export type RenderProps<T> = {|
   error: ?Error,
   props: ?T,
-  retry: ?() => void,
+  retry: ?(cacheConfigOverride?: CacheConfig) => void,
 |};
 /**
  * React may double-fire the constructor, and we call 'fetch' in the
@@ -302,8 +302,8 @@ function getRenderProps(
   return {
     error: error ? error : null,
     props: snapshot ? snapshot.data : null,
-    retry: () => {
-      const syncSnapshot = queryFetcher.retry();
+    retry: (cacheConfigOverride?: CacheConfig) => {
+      const syncSnapshot = queryFetcher.retry(cacheConfigOverride);
       if (
         syncSnapshot &&
         typeof retryCallbacks.handleDataChange === 'function'

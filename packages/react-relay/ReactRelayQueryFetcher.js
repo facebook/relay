@@ -170,7 +170,10 @@ class ReactRelayQueryFetcher {
    * `onDataChange` will be called with the first result (**if it wasn't returned synchronously**),
    * and then subsequently whenever the data changes.
    */
-  fetch(fetchOptions: FetchOptions): ?Snapshot {
+  fetch(
+    fetchOptions: FetchOptions,
+    cacheConfigOverride?: CacheConfig,
+  ): ?Snapshot {
     const {cacheConfig, environment, operation, onDataChange} = fetchOptions;
     let fetchHasReturned = false;
     let error;
@@ -195,7 +198,7 @@ class ReactRelayQueryFetcher {
     const request = this.execute({
       environment,
       operation,
-      cacheConfig,
+      cacheConfig: cacheConfigOverride ?? cacheConfig,
     })
       .finally(() => {
         this._pendingRequest = null;
@@ -250,17 +253,20 @@ class ReactRelayQueryFetcher {
     return this._snapshot;
   }
 
-  retry(): ?Snapshot {
+  retry(cacheConfigOverride?: CacheConfig): ?Snapshot {
     invariant(
       this._fetchOptions,
       'ReactRelayQueryFetcher: `retry` should be called after having called `fetch`',
     );
-    return this.fetch({
-      cacheConfig: this._fetchOptions.cacheConfig,
-      environment: this._fetchOptions.environment,
-      operation: this._fetchOptions.operation,
-      onDataChange: null, // If there are onDataChangeCallbacks they will be reused
-    });
+    return this.fetch(
+      {
+        cacheConfig: this._fetchOptions.cacheConfig,
+        environment: this._fetchOptions.environment,
+        operation: this._fetchOptions.operation,
+        onDataChange: null, // If there are onDataChangeCallbacks they will be reused
+      },
+      cacheConfigOverride,
+    );
   }
 
   dispose() {

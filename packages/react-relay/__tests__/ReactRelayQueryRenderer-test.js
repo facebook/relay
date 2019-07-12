@@ -1605,7 +1605,7 @@ describe('ReactRelayQueryRenderer', () => {
   });
 
   describe('When retry', () => {
-    it('after initial render should query using the latest variables', () => {
+    it('uses the latest variables after initial render', () => {
       const renderer = ReactTestRenderer.create(
         <PropsSetter>
           <ReactRelayQueryRenderer
@@ -1646,6 +1646,69 @@ describe('ReactRelayQueryRenderer', () => {
       expect(environment.mock.getMostRecentOperation().variables).toEqual({
         id: '5',
       });
+    });
+
+    it('skips cache if `force` is set to true', () => {
+      ReactTestRenderer.create(
+        <PropsSetter>
+          <ReactRelayQueryRenderer
+            environment={environment}
+            query={TestQuery}
+            render={render}
+            variables={variables}
+          />
+        </PropsSetter>,
+      );
+      render.mockClear();
+      environment.mock.resolve(TestQuery, response);
+
+      expect(render).toBeCalledTimes(1);
+      const readyState = render.mock.calls[0][0];
+      expect(readyState.retry).not.toBe(null);
+      environment.mockClear();
+
+      readyState.retry({force: true});
+      expect(
+        environment.mock.isLoading(TestQuery, variables, {force: true}),
+      ).toBe(true);
+      jest.runAllTimers();
+      environment.mockClear();
+      readyState.retry();
+      expect(
+        environment.mock.isLoading(TestQuery, variables, {force: true}),
+      ).toBe(false);
+    });
+
+    it('uses cache if `force` is set to false', () => {
+      ReactTestRenderer.create(
+        <PropsSetter>
+          <ReactRelayQueryRenderer
+            environment={environment}
+            query={TestQuery}
+            render={render}
+            variables={variables}
+            cacheConfig={{force: true}}
+          />
+        </PropsSetter>,
+      );
+      render.mockClear();
+      environment.mock.resolve(TestQuery, response);
+
+      expect(render).toBeCalledTimes(1);
+      const readyState = render.mock.calls[0][0];
+      expect(readyState.retry).not.toBe(null);
+      environment.mockClear();
+
+      readyState.retry({force: false});
+      expect(
+        environment.mock.isLoading(TestQuery, variables, {force: true}),
+      ).toBe(false);
+      jest.runAllTimers();
+      environment.mockClear();
+      readyState.retry();
+      expect(
+        environment.mock.isLoading(TestQuery, variables, {force: true}),
+      ).toBe(true);
     });
   });
 });

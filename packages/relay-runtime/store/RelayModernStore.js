@@ -20,7 +20,7 @@ const deepFreeze = require('../util/deepFreeze');
 const defaultGetDataID = require('./defaultGetDataID');
 const hasOverlappingIDs = require('./hasOverlappingIDs');
 const recycleNodesInto = require('../util/recycleNodesInto');
-const resolveImmediate = require('resolveImmediate');
+const resolveImmediate = require('../util/resolveImmediate');
 
 const {UNPUBLISH_RECORD_SENTINEL} = require('./RelayStoreUtils');
 

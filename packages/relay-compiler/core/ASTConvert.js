@@ -171,7 +171,7 @@ function definitionsFromDocuments(
  */
 function transformASTSchema(
   schema: GraphQLSchema,
-  schemaExtensions: Array<string>,
+  schemaExtensions: $ReadOnlyArray<string>,
 ): GraphQLSchema {
   return Profiler.run('ASTConvert.transformASTSchema', () => {
     if (schemaExtensions.length === 0) {

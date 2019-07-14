@@ -74,7 +74,7 @@ function relayApplyFragmentArgumentTransform(
     Fragment: () => null,
   });
 
-  return (Array.from(fragments.values()): Array<?Fragment>).reduce(
+  return (Array.from(fragments.values()): $ReadOnlyArray<?Fragment>).reduce(
     (ctx: CompilerContext, fragment) => (fragment ? ctx.add(fragment) : ctx),
     nextContext,
   );

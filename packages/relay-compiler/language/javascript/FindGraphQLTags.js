@@ -43,7 +43,7 @@ const BABYLON_OPTIONS = {
   strictMode: false,
 };
 
-function find(text: string): Array<GraphQLTag> {
+function find(text: string): $ReadOnlyArray<GraphQLTag> {
   const result: Array<GraphQLTag> = [];
   const ast = babylon.parse(text, BABYLON_OPTIONS);
 
@@ -227,5 +227,5 @@ function traverse(node, visitors) {
 module.exports = {
   find: (Profiler.instrument(find, 'FindGraphQLTags.find'): (
     text: string,
-  ) => Array<GraphQLTag>),
+  ) => $ReadOnlyArray<GraphQLTag>),
 };

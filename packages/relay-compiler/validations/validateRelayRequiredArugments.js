@@ -73,7 +73,7 @@ function visitField(
 
 function validateRequiredArguments(
   node: Directive | LinkedField | ScalarField,
-  definitionArgs: ?Array<GraphQLArgument>,
+  definitionArgs: ?$ReadOnlyArray<GraphQLArgument>,
   rootNode,
 ): void {
   if (!definitionArgs) {

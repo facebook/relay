@@ -19,7 +19,7 @@ import type {GraphQLSchema} from 'graphql';
 
 function writeForSchema(
   schema: GraphQLSchema,
-  licenseHeader: Array<string>,
+  licenseHeader: $ReadOnlyArray<string>,
   codegenDir: CodegenDirectory,
   moduleName: string,
 ): void {

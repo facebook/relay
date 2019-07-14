@@ -21,7 +21,7 @@ import type {File} from './CodegenTypes';
 const SUBSCRIPTION_NAME = 'graphql-codegen';
 const QUERY_RETRIES = 3;
 
-export type WatchmanExpression = Array<string | WatchmanExpression>;
+export type WatchmanExpression = $ReadOnlyArray<string | WatchmanExpression>;
 
 export type FileFilter = (file: File) => boolean;
 
@@ -31,7 +31,7 @@ type WatchmanChange = {
   'content.sha1hex': ?string,
 };
 type WatchmanChanges = {
-  files?: Array<WatchmanChange>,
+  files?: $ReadOnlyArray<WatchmanChange>,
 };
 
 async function queryFiles(
@@ -58,7 +58,7 @@ async function queryFiles(
 async function queryDirectories(
   baseDir: string,
   expression: WatchmanExpression,
-): Promise<Array<string>> {
+): Promise<$ReadOnlyArray<string>> {
   return await Profiler.waitFor('Watchman:query', async () => {
     const client = new GraphQLWatchmanClient();
     const watchResp = await client.watchProject(baseDir);
@@ -74,7 +74,7 @@ async function queryDirectories(
 
 async function getFields(
   client: GraphQLWatchmanClient,
-): Promise<Array<string>> {
+): Promise<$ReadOnlyArray<string>> {
   const fields = ['name', 'exists'];
   if (await client.hasCapability('field-content.sha1hex')) {
     fields.push('content.sha1hex');
@@ -85,7 +85,7 @@ async function getFields(
 // For use when not using Watchman.
 async function queryFilepaths(
   baseDir: string,
-  filepaths: Array<string>,
+  filepaths: $ReadOnlyArray<string>,
   filter: FileFilter,
 ): Promise<Set<File>> {
   // Construct WatchmanChange objects as an intermediate step before
@@ -202,7 +202,7 @@ function updateFiles(
   files: Set<File>,
   baseDir: string,
   filter: FileFilter,
-  fileChanges: Array<WatchmanChange>,
+  fileChanges: $ReadOnlyArray<WatchmanChange>,
 ): Set<File> {
   const fileMap = new Map();
   files.forEach(file => {

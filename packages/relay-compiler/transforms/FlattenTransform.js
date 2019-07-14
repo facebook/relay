@@ -325,7 +325,7 @@ function mergeSelections(
   nodeB: Node,
   state: State,
   type: GraphQLType,
-): Array<Selection> {
+): $ReadOnlyArray<Selection> {
   const flattenedSelections = new Map();
   flattenSelectionsInto(flattenedSelections, nodeA, state, type);
   flattenSelectionsInto(flattenedSelections, nodeB, state, type);

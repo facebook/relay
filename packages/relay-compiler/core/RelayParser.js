@@ -148,7 +148,7 @@ function parse(
   schema: GraphQLSchema,
   text: string,
   filename?: string,
-): Array<Root | Fragment> {
+): $ReadOnlyArray<Root | Fragment> {
   const ast = parseGraphQL(new Source(text, filename));
   // TODO T24511737 figure out if this is dangerous
   schema = extendSchema(schema, ast, {assumeValid: true});
@@ -220,7 +220,7 @@ class RelayParser {
     }
   }
 
-  transform(): Array<Root | Fragment> {
+  transform(): $ReadOnlyArray<Root | Fragment> {
     let errors;
     const nodes = [];
     const entries = new Map();
@@ -759,7 +759,7 @@ class GraphQLDefinitionParser {
   _transformSelections(
     selectionSet: SelectionSetNode,
     parentType: GraphQLOutputType,
-  ): Array<Selection> {
+  ): $ReadOnlyArray<Selection> {
     return selectionSet.selections.map(selection => {
       let node;
       if (selection.kind === 'Field') {
@@ -1098,7 +1098,7 @@ class GraphQLDefinitionParser {
   _transformDirectives(
     directives: $ReadOnlyArray<DirectiveNode>,
     location: DirectiveLocationEnum,
-  ): Array<Directive> {
+  ): $ReadOnlyArray<Directive> {
     this._validateDirectivesLocation(directives, location);
     return directives.map(directive => {
       const name = getName(directive);
@@ -1126,8 +1126,8 @@ class GraphQLDefinitionParser {
 
   _transformArguments(
     args: $ReadOnlyArray<ArgumentNode>,
-    argumentDefinitions: Array<GraphQLArgument>,
-  ): Array<Argument> {
+    argumentDefinitions: $ReadOnlyArray<GraphQLArgument>,
+  ): $ReadOnlyArray<Argument> {
     return args.map(arg => {
       const argName = getName(arg);
       const argDef = argumentDefinitions.find(def => def.name === argName);
@@ -1515,7 +1515,7 @@ function transformLiteralValue(ast: ValueNode, context: ASTNode): mixed {
  */
 function buildArgumentDefinitions(
   variables: VariableDefinitions,
-): Array<LocalArgumentDefinition> {
+): $ReadOnlyArray<LocalArgumentDefinition> {
   return Array.from(variables.values(), ({ast, name, type, defaultValue}) => {
     return {
       kind: 'LocalArgumentDefinition',

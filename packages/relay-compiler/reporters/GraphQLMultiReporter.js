@@ -13,9 +13,9 @@
 import type {GraphQLReporter} from './GraphQLReporter';
 
 class GraphQLMultiReporter implements GraphQLReporter {
-  _reporters: Array<GraphQLReporter>;
+  _reporters: $ReadOnlyArray<GraphQLReporter>;
 
-  constructor(...reporters: Array<GraphQLReporter>) {
+  constructor(...reporters: $ReadOnlyArray<GraphQLReporter>) {
     this._reporters = reporters;
   }
 

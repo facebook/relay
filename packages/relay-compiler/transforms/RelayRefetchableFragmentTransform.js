@@ -348,7 +348,7 @@ function extractConnectionMetadata(
 
 function buildOperationArgumentDefinitions(
   argumentDefinitions: $ReadOnlyArray<ArgumentDefinition>,
-): Array<LocalArgumentDefinition> {
+): $ReadOnlyArray<LocalArgumentDefinition> {
   return argumentDefinitions.map(argDef => {
     if (argDef.kind === 'LocalArgumentDefinition') {
       return argDef;

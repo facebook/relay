@@ -97,7 +97,7 @@ class GraphQLCompilerContext {
    * Apply a list of compiler transforms and return a new compiler context.
    */
   applyTransforms(
-    transforms: Array<IRTransform>,
+    transforms: $ReadOnlyArray<IRTransform>,
     reporter?: GraphQLReporter,
   ): GraphQLCompilerContext {
     return Profiler.run('applyTransforms', () =>

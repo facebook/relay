@@ -524,10 +524,7 @@ class RelayResponseNormalizer {
     field: NormalizationLinkedField,
     payload: Object,
   ): void {
-    const typeName =
-      field.kind === 'LinkedField'
-        ? field.concreteType || this._getRecordType(payload)
-        : this._getRecordType(payload);
+    const typeName = field.concreteType ?? this._getRecordType(payload);
     warning(
       isClientID(RelayModernRecord.getDataID(record)) ||
         RelayModernRecord.getType(record) === typeName,

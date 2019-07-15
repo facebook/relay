@@ -27,7 +27,9 @@ function anyTypeAlias(name: string): BabelAST {
  *   PROPS
  * |}
  */
-function exactObjectTypeAnnotation(props: Array<BabelAST>): $FlowFixMe {
+function exactObjectTypeAnnotation(
+  props: $ReadOnlyArray<BabelAST>,
+): $FlowFixMe {
   const typeAnnotation = t.objectTypeAnnotation(props);
   typeAnnotation.exact = true;
   return typeAnnotation;
@@ -47,7 +49,10 @@ function exportType(name: string, type: BabelAST): $FlowFixMe {
 /**
  * import type {NAMES[0], NAMES[1], ...} from 'MODULE';
  */
-function importTypes(names: Array<string>, module: string): $FlowFixMe {
+function importTypes(
+  names: $ReadOnlyArray<string>,
+  module: string,
+): $FlowFixMe {
   const importDeclaration = t.importDeclaration(
     names.map(name =>
       t.importSpecifier(t.identifier(name), t.identifier(name)),
@@ -63,7 +68,7 @@ function importTypes(names: Array<string>, module: string): $FlowFixMe {
  *
  * TYPES[0] & TYPES[1] & ...
  */
-function intersectionTypeAnnotation(types: Array<BabelAST>): BabelAST {
+function intersectionTypeAnnotation(types: $ReadOnlyArray<BabelAST>): BabelAST {
   invariant(
     types.length > 0,
     'RelayFlowBabelFactories: cannot create an intersection of 0 types',
@@ -71,7 +76,9 @@ function intersectionTypeAnnotation(types: Array<BabelAST>): BabelAST {
   return types.length === 1 ? types[0] : t.intersectionTypeAnnotation(types);
 }
 
-function lineComments(...lines: Array<string>): Array<$FlowFixMe> {
+function lineComments(
+  ...lines: $ReadOnlyArray<string>
+): $ReadOnlyArray<$FlowFixMe> {
   return lines.map(line => ({type: 'CommentLine', value: ' ' + line}));
 }
 
@@ -103,7 +110,7 @@ function stringLiteralTypeAnnotation(value: string): $FlowFixMe {
  *
  * TYPES[0] | TYPES[1] | ...
  */
-function unionTypeAnnotation(types: Array<BabelAST>): BabelAST {
+function unionTypeAnnotation(types: $ReadOnlyArray<BabelAST>): BabelAST {
   invariant(
     types.length > 0,
     'RelayFlowBabelFactories: cannot create a union of 0 types',

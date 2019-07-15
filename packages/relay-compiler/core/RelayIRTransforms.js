@@ -38,7 +38,7 @@ const SkipUnreachableNodeTransform = require('../transforms/SkipUnreachableNodeT
 import type {IRTransform} from './GraphQLCompilerContext';
 
 // Transforms applied to the code used to process a query response.
-const relaySchemaExtensions: Array<string> = [
+const relaySchemaExtensions: $ReadOnlyArray<string> = [
   RelayConnectionTransform.SCHEMA_EXTENSION,
   RelayMatchTransform.SCHEMA_EXTENSION,
   ConnectionFieldTransform.SCHEMA_EXTENSION,
@@ -51,7 +51,7 @@ const relaySchemaExtensions: Array<string> = [
 
 // Transforms applied to both operations and fragments for both reading and
 // writing from the store.
-const relayCommonTransforms: Array<IRTransform> = [
+const relayCommonTransforms: $ReadOnlyArray<IRTransform> = [
   RelayConnectionTransform.transform,
   RelayRelayDirectiveTransform.transform,
   RelayMaskTransform.transform,
@@ -61,7 +61,7 @@ const relayCommonTransforms: Array<IRTransform> = [
 ];
 
 // Transforms applied to fragments used for reading data from a store
-const relayFragmentTransforms: Array<IRTransform> = [
+const relayFragmentTransforms: $ReadOnlyArray<IRTransform> = [
   ClientExtensionsTransform.transform,
   RelayFieldHandleTransform.transform,
   InlineDataFragmentTransform.transform,
@@ -71,7 +71,7 @@ const relayFragmentTransforms: Array<IRTransform> = [
 
 // Transforms applied to queries/mutations/subscriptions that are used for
 // fetching data from the server and parsing those responses.
-const relayQueryTransforms: Array<IRTransform> = [
+const relayQueryTransforms: $ReadOnlyArray<IRTransform> = [
   RelayApplyFragmentArgumentTransform.transform,
   RelayGenerateIDFieldTransform.transform,
   RelayDeferStreamTransform.transform,
@@ -79,7 +79,7 @@ const relayQueryTransforms: Array<IRTransform> = [
 ];
 
 // Transforms applied to the code used to process a query response.
-const relayCodegenTransforms: Array<IRTransform> = [
+const relayCodegenTransforms: $ReadOnlyArray<IRTransform> = [
   SkipUnreachableNodeTransform.transform,
   RelaySplitModuleImportTransform.transform,
   InlineFragmentsTransform.transform,
@@ -97,7 +97,7 @@ const relayCodegenTransforms: Array<IRTransform> = [
 ];
 
 // Transforms applied before printing the query sent to the server.
-const relayPrintTransforms: Array<IRTransform> = [
+const relayPrintTransforms: $ReadOnlyArray<IRTransform> = [
   // NOTE: Skipping client extensions might leave empty selections, which we
   // skip by running SkipUnreachableNodeTransform immediately after.
   ClientExtensionsTransform.transform,

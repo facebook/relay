@@ -392,7 +392,7 @@ function transformConnectionSelections(
   direction: 'forward' | 'backward' | 'bidirectional',
   connectionArguments: ConnectionArguments,
   directiveLocation: Location,
-): Array<Selection> {
+): $ReadOnlyArray<Selection> {
   const derivedFieldLocation = {kind: 'Derived', source: field.loc};
   const derivedDirectiveLocation = {
     kind: 'Derived',

@@ -749,7 +749,7 @@ function generateInputVariablesType(node: Root, state: State) {
   );
 }
 
-function groupRefs(props): Array<Selection> {
+function groupRefs(props): $ReadOnlyArray<Selection> {
   const result = [];
   const refs = [];
   props.forEach(prop => {
@@ -866,7 +866,7 @@ function getDataTypeName(name: string): string {
   return `${name}$data`;
 }
 
-const FLOW_TRANSFORMS: Array<IRTransform> = [
+const FLOW_TRANSFORMS: $ReadOnlyArray<IRTransform> = [
   RelayRelayDirectiveTransform.transform,
   RelayMaskTransform.transform,
   ConnectionFieldTransform.transform,

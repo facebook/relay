@@ -57,12 +57,12 @@ export type WriterConfig = {
   customScalars: ScalarTypeMapping,
   formatModule: FormatModule,
   generateExtraFiles?: GenerateExtraFiles,
-  optionalInputFieldsForFlow: Array<string>,
+  optionalInputFieldsForFlow: $ReadOnlyArray<string>,
   outputDir?: ?string,
-  generatedDirectories?: Array<string>,
+  generatedDirectories?: $ReadOnlyArray<string>,
   persistQuery?: ?(text: string) => Promise<string>,
   platform?: string,
-  schemaExtensions: Array<string>,
+  schemaExtensions: $ReadOnlyArray<string>,
   noFutureProofEnums: boolean,
   useHaste: boolean,
   extension: string,
@@ -71,8 +71,8 @@ export type WriterConfig = {
   // TODO(T22422153) support non-haste environments
   enumsHasteModule?: string,
   validationRules?: {
-    GLOBAL_RULES?: Array<ValidationRule>,
-    LOCAL_RULES?: Array<ValidationRule>,
+    GLOBAL_RULES?: $ReadOnlyArray<ValidationRule>,
+    LOCAL_RULES?: $ReadOnlyArray<ValidationRule>,
   },
   printModuleDependency?: string => string,
   // EXPERIMENTAL: skips deleting extra files in the generated directories
@@ -102,11 +102,11 @@ function compileAll({
   compilerTransforms: RelayCompilerTransforms,
   documents: $ReadOnlyArray<DocumentNode>,
   extraValidationRules?: {
-    GLOBAL_RULES?: Array<ValidationRule>,
-    LOCAL_RULES?: Array<ValidationRule>,
+    GLOBAL_RULES?: $ReadOnlyArray<ValidationRule>,
+    LOCAL_RULES?: $ReadOnlyArray<ValidationRule>,
   },
   reporter: Reporter,
-  schemaExtensions: Array<string>,
+  schemaExtensions: $ReadOnlyArray<string>,
   typeGenerator: TypeGenerator,
 |}) {
   // Can't convert to IR unless the schema already has Relay-local extensions

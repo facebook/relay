@@ -255,7 +255,7 @@ export type TypeGenerator = {
    * Transforms that should be applied to the intermediate representation of the
    * GraphQL document before passing to the `generate` function.
    */
-  transforms: Array<IRTransform>,
+  transforms: $ReadOnlyArray<IRTransform>,
 
   /**
    * Given GraphQL document IR, this function should generate type information

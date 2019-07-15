@@ -24,11 +24,11 @@ import type {GraphQLReporter as Reporter} from '../reporters/GraphQLReporter';
 import type {GeneratedNode} from 'relay-runtime';
 
 export type RelayCompilerTransforms = {
-  commonTransforms: Array<IRTransform>,
-  codegenTransforms: Array<IRTransform>,
-  fragmentTransforms: Array<IRTransform>,
-  printTransforms: Array<IRTransform>,
-  queryTransforms: Array<IRTransform>,
+  commonTransforms: $ReadOnlyArray<IRTransform>,
+  codegenTransforms: $ReadOnlyArray<IRTransform>,
+  fragmentTransforms: $ReadOnlyArray<IRTransform>,
+  printTransforms: $ReadOnlyArray<IRTransform>,
+  queryTransforms: $ReadOnlyArray<IRTransform>,
 };
 
 export type RelayCompilerValidations = {

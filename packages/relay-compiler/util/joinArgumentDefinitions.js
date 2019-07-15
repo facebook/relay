@@ -29,7 +29,7 @@ function joinArgumentDefinitions(
   fragment: Fragment,
   reachableArguments: $ReadOnlyArray<ArgumentDefinition>,
   directiveName: string,
-): Array<ArgumentDefinition> {
+): $ReadOnlyArray<ArgumentDefinition> {
   const joinedArgumentDefinitions = new Map();
   fragment.argumentDefinitions.forEach(prevArgDef => {
     joinedArgumentDefinitions.set(prevArgDef.name, prevArgDef);

@@ -18,7 +18,7 @@
 function partitionArray<Tv>(
   array: $ReadOnlyArray<Tv>,
   predicate: (value: Tv) => boolean,
-): [Array<Tv>, Array<Tv>] {
+): [$ReadOnlyArray<Tv>, $ReadOnlyArray<Tv>] {
   const first = [];
   const second = [];
   for (let i = 0; i < array.length; i++) {

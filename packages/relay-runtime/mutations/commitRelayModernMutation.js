@@ -46,17 +46,14 @@ export type MutationConfig<T: MutationParameters> = {|
   mutation: GraphQLTaggedNode,
   onError?: ?(error: Error) => void,
   onCompleted?: ?(
-    response: $PropertyType<T, 'response'>,
+    response: $ElementType<T, 'response'>,
     errors: ?Array<PayloadError>,
   ) => void,
-  optimisticResponse?: $PropertyType<
-    {+rawResponse?: Object, ...T},
-    'rawResponse',
-  >,
+  optimisticResponse?: $ElementType<{+rawResponse?: {}, ...T}, 'rawResponse'>,
   optimisticUpdater?: ?SelectorStoreUpdater,
   updater?: ?SelectorStoreUpdater,
   uploadables?: UploadableMap,
-  variables: $PropertyType<T, 'variables'>,
+  variables: $ElementType<T, 'variables'>,
 |};
 
 /**

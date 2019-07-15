@@ -340,9 +340,8 @@ function mergeSelections(
 function assertUniqueArgsForAlias(field: Field, otherField: Field): void {
   if (!areEqualFields(field, otherField)) {
     throw createUserError(
-      'Expected all fields on the same parent with ' +
-        `the name or alias '${field.alias ??
-          field.name}' to have the same name and arguments.`,
+      'Expected all fields on the same parent with the name or alias ' +
+        `'${field.alias}' to have the same name and arguments.`,
       [field.loc, otherField.loc],
     );
   }

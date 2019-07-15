@@ -97,7 +97,7 @@ function visitRoot(node: Root) {
           }
           break;
         case 'ScalarField': {
-          const nextPath = [...path, selection.alias ?? selection.name];
+          const nextPath = [...path, selection.alias];
           selectionsTypeInfo[nextPath.join('.')] = getTypeDetails(
             selection.type,
           );
@@ -105,7 +105,7 @@ function visitRoot(node: Root) {
         }
         case 'ConnectionField':
         case 'LinkedField': {
-          const nextPath = [...path, selection.alias ?? selection.name];
+          const nextPath = [...path, selection.alias];
           selectionsTypeInfo[nextPath.join('.')] = getTypeDetails(
             selection.type,
           );

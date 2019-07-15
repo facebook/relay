@@ -16,7 +16,7 @@ function hasUnaliasedSelection(field: LinkedField, fieldName: string): boolean {
   return field.selections.some(
     selection =>
       selection.kind === 'ScalarField' &&
-      selection.alias == null &&
+      selection.alias === fieldName &&
       selection.name === fieldName,
   );
 }

@@ -495,7 +495,7 @@ function transformConnectionSelections(
   // item, not two as could happen with separate @stream directives on the
   // aliased and non-aliased edges fields). So we keep things simple by
   // disallowing aliases on edges/pageInfo in streaming mode.
-  if (edgesSelection && edgesSelection.alias != null) {
+  if (edgesSelection && edgesSelection.alias !== edgesSelection.name) {
     if (stream) {
       throw createUserError(
         `@stream_connection does not support aliasing the '${EDGES}' field.`,
@@ -504,7 +504,7 @@ function transformConnectionSelections(
     }
     edgesSelection = null;
   }
-  if (pageInfoSelection && pageInfoSelection.alias != null) {
+  if (pageInfoSelection && pageInfoSelection.alias !== pageInfoSelection.name) {
     if (stream) {
       throw createUserError(
         `@stream_connection does not support aliasing the '${PAGE_INFO}' field.`,
@@ -525,7 +525,7 @@ function transformConnectionSelections(
   const pageInfoType = nullableType.getFields()[PAGE_INFO].type;
   if (transformedEdgesSelection == null) {
     transformedEdgesSelection = {
-      alias: null,
+      alias: EDGES,
       args: [],
       directives: [],
       handles: null,
@@ -539,7 +539,7 @@ function transformConnectionSelections(
   }
   if (transformedPageInfoSelection == null) {
     transformedPageInfoSelection = {
-      alias: null,
+      alias: PAGE_INFO,
       args: [],
       directives: [],
       handles: null,

@@ -219,7 +219,7 @@ function generateLinkedField(node): ReaderLinkedField {
   const type = getRawType(node.type);
   let field: ReaderLinkedField = {
     kind: 'LinkedField',
-    alias: node.alias,
+    alias: node.alias === node.name ? null : node.alias,
     name: node.name,
     storageKey: null,
     args: generateArgs(node.args),
@@ -245,7 +245,7 @@ function generateConnectionField(node): ReaderConnectionField {
   }
   let field: ReaderConnectionField = {
     kind: 'ConnectionField',
-    alias: node.alias,
+    alias: node.alias === node.name ? null : node.alias,
     label: node.label,
     name: node.name,
     resolver: (CodeMarker.moduleDependency(node.resolver): $FlowFixMe),
@@ -306,7 +306,7 @@ function generateScalarField(node): ReaderScalarField {
 
   let field: ReaderScalarField = {
     kind: 'ScalarField',
-    alias: node.alias,
+    alias: node.alias === node.name ? null : node.alias,
     name: node.name,
     args: generateArgs(node.args),
     storageKey: null,

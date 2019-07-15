@@ -35,7 +35,6 @@ const {
   GraphQLEnumType,
   GraphQLID,
   GraphQLInputObjectType,
-  GraphQLInt,
   GraphQLList,
   GraphQLNonNull,
   GraphQLScalarType,
@@ -944,7 +943,7 @@ class GraphQLDefinitionParser {
         [field],
       );
     }
-    const alias = field.alias ? field.alias.value : null;
+    const alias = field.alias?.value ?? name;
     const args = this._transformArguments(field.arguments || [], fieldDef.args);
     const [otherDirectives, clientFieldDirectives] = partitionArray(
       field.directives || [],

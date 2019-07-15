@@ -45,7 +45,7 @@ function visitField<F: LinkedField | ScalarField>(field: F): F {
       '"handle" property, got `%s`.',
     handles.join(', '),
   );
-  const alias = field.alias || field.name;
+  const alias = field.alias;
   const handle = handles[0];
   const name = getRelayHandleKey(handle.name, handle.key, field.name);
   const filters = handle.filters;

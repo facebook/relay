@@ -114,7 +114,7 @@ type Foo {
     "selections": [
       {
         "kind": "LinkedField",
-        "alias": null,
+        "alias": "node",
         "args": [
           {
             "kind": "Argument",
@@ -219,7 +219,7 @@ type Foo {
     "selections": [
       {
         "kind": "ScalarField",
-        "alias": null,
+        "alias": "id",
         "args": [],
         "directives": [],
         "loc": {
@@ -241,7 +241,7 @@ type Foo {
       },
       {
         "kind": "LinkedField",
-        "alias": null,
+        "alias": "best_friends",
         "args": [],
         "directives": [],
         "loc": {
@@ -262,7 +262,7 @@ type Foo {
         "selections": [
           {
             "kind": "LinkedField",
-            "alias": null,
+            "alias": "edges",
             "args": [],
             "directives": [],
             "loc": {
@@ -283,7 +283,7 @@ type Foo {
             "selections": [
               {
                 "kind": "ScalarField",
-                "alias": null,
+                "alias": "cursor",
                 "args": [],
                 "directives": [],
                 "loc": {
@@ -305,7 +305,7 @@ type Foo {
               },
               {
                 "kind": "LinkedField",
-                "alias": null,
+                "alias": "node",
                 "args": [],
                 "directives": [],
                 "loc": {
@@ -326,7 +326,7 @@ type Foo {
                 "selections": [
                   {
                     "kind": "ScalarField",
-                    "alias": null,
+                    "alias": "id",
                     "args": [],
                     "directives": [],
                     "loc": {
@@ -354,7 +354,7 @@ type Foo {
           },
           {
             "kind": "LinkedField",
-            "alias": null,
+            "alias": "pageInfo",
             "args": [],
             "directives": [],
             "loc": {
@@ -375,7 +375,7 @@ type Foo {
             "selections": [
               {
                 "kind": "ScalarField",
-                "alias": null,
+                "alias": "hasNextPage",
                 "args": [],
                 "directives": [],
                 "loc": {
@@ -459,7 +459,7 @@ type Foo {
             "selections": [
               {
                 "kind": "ScalarField",
-                "alias": null,
+                "alias": "id",
                 "args": [],
                 "directives": [],
                 "loc": {
@@ -510,7 +510,7 @@ type Foo {
     "selections": [
       {
         "kind": "ScalarField",
-        "alias": null,
+        "alias": "id",
         "args": [],
         "directives": [],
         "loc": {
@@ -566,7 +566,7 @@ fragment TestFragment on User {
     "selections": [
       {
         "kind": "ScalarField",
-        "alias": null,
+        "alias": "id",
         "args": [],
         "directives": [
           {
@@ -721,7 +721,7 @@ fragment TestFragment on User {
         "selections": [
           {
             "kind": "ScalarField",
-            "alias": null,
+            "alias": "id",
             "args": [],
             "directives": [],
             "loc": {
@@ -800,7 +800,7 @@ fragment TestFragment on User {
             "selections": [
               {
                 "kind": "ScalarField",
-                "alias": null,
+                "alias": "firstName",
                 "args": [],
                 "directives": [],
                 "loc": {
@@ -1033,7 +1033,7 @@ query EnumValueQuery {
     "selections": [
       {
         "kind": "LinkedField",
-        "alias": null,
+        "alias": "me",
         "args": [],
         "directives": [],
         "loc": {
@@ -1054,7 +1054,7 @@ query EnumValueQuery {
         "selections": [
           {
             "kind": "LinkedField",
-            "alias": null,
+            "alias": "profilePicture",
             "args": [
               {
                 "kind": "Argument",
@@ -1113,7 +1113,7 @@ query EnumValueQuery {
             "selections": [
               {
                 "kind": "ScalarField",
-                "alias": null,
+                "alias": "uri",
                 "args": [],
                 "directives": [],
                 "loc": {
@@ -1241,7 +1241,7 @@ query TestQuery {
     "selections": [
       {
         "kind": "LinkedField",
-        "alias": null,
+        "alias": "task",
         "args": [
           {
             "kind": "Argument",
@@ -1300,7 +1300,7 @@ query TestQuery {
         "selections": [
           {
             "kind": "ScalarField",
-            "alias": null,
+            "alias": "title",
             "args": [],
             "directives": [],
             "loc": {
@@ -1325,7 +1325,7 @@ query TestQuery {
       },
       {
         "kind": "LinkedField",
-        "alias": null,
+        "alias": "settings",
         "args": [
           {
             "kind": "Argument",
@@ -1384,7 +1384,7 @@ query TestQuery {
         "selections": [
           {
             "kind": "ScalarField",
-            "alias": null,
+            "alias": "notificationSounds",
             "args": [],
             "directives": [],
             "loc": {
@@ -1409,7 +1409,7 @@ query TestQuery {
       },
       {
         "kind": "LinkedField",
-        "alias": null,
+        "alias": "checkinSearchQuery",
         "args": [
           {
             "kind": "Argument",
@@ -1470,7 +1470,7 @@ query TestQuery {
         "selections": [
           {
             "kind": "ScalarField",
-            "alias": null,
+            "alias": "query",
             "args": [],
             "directives": [],
             "loc": {
@@ -1541,7 +1541,7 @@ fragment Foo on User @argumentDefinitions(localId: {type: "ID!"}){
     "selections": [
       {
         "kind": "LinkedField",
-        "alias": null,
+        "alias": "profilePicture",
         "args": [
           {
             "kind": "Argument",
@@ -1601,7 +1601,7 @@ fragment Foo on User @argumentDefinitions(localId: {type: "ID!"}){
         "selections": [
           {
             "kind": "ScalarField",
-            "alias": null,
+            "alias": "uri",
             "args": [],
             "directives": [],
             "loc": {
@@ -1686,7 +1686,7 @@ fragment Foo on User @argumentDefinitions(localId: {type: "ID!"}){
         "selections": [
           {
             "kind": "ScalarField",
-            "alias": null,
+            "alias": "uri",
             "args": [],
             "directives": [],
             "loc": {
@@ -1855,7 +1855,7 @@ fragment Foo on User @argumentDefinitions(localId: {type: "ID!"}){
     "selections": [
       {
         "kind": "ScalarField",
-        "alias": null,
+        "alias": "id",
         "args": [],
         "directives": [],
         "loc": {
@@ -2021,7 +2021,7 @@ fragment ChildFragment on User @argumentDefinitions(pictureSize: {type: "[Int]"}
     "selections": [
       {
         "kind": "LinkedField",
-        "alias": null,
+        "alias": "profilePicture",
         "args": [
           {
             "kind": "Argument",
@@ -2081,7 +2081,7 @@ fragment ChildFragment on User @argumentDefinitions(pictureSize: {type: "[Int]"}
         "selections": [
           {
             "kind": "ScalarField",
-            "alias": null,
+            "alias": "uri",
             "args": [],
             "directives": [],
             "loc": {
@@ -2229,7 +2229,7 @@ fragment ChildFragment on Query @argumentDefinitions(environment: {type: "Enviro
         "selections": [
           {
             "kind": "ScalarField",
-            "alias": null,
+            "alias": "cache_id",
             "args": [],
             "directives": [],
             "loc": {
@@ -2335,7 +2335,7 @@ fragment ChildFragment on Query @argumentDefinitions(environment: {type: "Enviro
     "selections": [
       {
         "kind": "LinkedField",
-        "alias": null,
+        "alias": "settings",
         "args": [
           {
             "kind": "Argument",
@@ -2395,7 +2395,7 @@ fragment ChildFragment on Query @argumentDefinitions(environment: {type: "Enviro
         "selections": [
           {
             "kind": "ScalarField",
-            "alias": null,
+            "alias": "cache_id",
             "args": [],
             "directives": [],
             "loc": {
@@ -2545,7 +2545,7 @@ fragment ChildFragment on User @argumentDefinitions(environments: {type: "[Envir
         "selections": [
           {
             "kind": "ScalarField",
-            "alias": null,
+            "alias": "query",
             "args": [],
             "directives": [],
             "loc": {
@@ -2651,7 +2651,7 @@ fragment ChildFragment on User @argumentDefinitions(environments: {type: "[Envir
     "selections": [
       {
         "kind": "LinkedField",
-        "alias": null,
+        "alias": "checkins",
         "args": [
           {
             "kind": "Argument",
@@ -2711,7 +2711,7 @@ fragment ChildFragment on User @argumentDefinitions(environments: {type: "[Envir
         "selections": [
           {
             "kind": "ScalarField",
-            "alias": null,
+            "alias": "query",
             "args": [],
             "directives": [],
             "loc": {
@@ -2899,7 +2899,7 @@ fragment ChildFragment on User @argumentDefinitions(environments: {type: "[Envir
         "selections": [
           {
             "kind": "ScalarField",
-            "alias": null,
+            "alias": "query",
             "args": [],
             "directives": [],
             "loc": {
@@ -3007,7 +3007,7 @@ fragment ChildFragment on User @argumentDefinitions(environments: {type: "[Envir
     "selections": [
       {
         "kind": "LinkedField",
-        "alias": null,
+        "alias": "checkins",
         "args": [
           {
             "kind": "Argument",
@@ -3067,7 +3067,7 @@ fragment ChildFragment on User @argumentDefinitions(environments: {type: "[Envir
         "selections": [
           {
             "kind": "ScalarField",
-            "alias": null,
+            "alias": "query",
             "args": [],
             "directives": [],
             "loc": {
@@ -3217,7 +3217,7 @@ fragment ChildFragment on Query @argumentDefinitions(query: {type: "CheckinSearc
         "selections": [
           {
             "kind": "ScalarField",
-            "alias": null,
+            "alias": "query",
             "args": [],
             "directives": [],
             "loc": {
@@ -3325,7 +3325,7 @@ fragment ChildFragment on Query @argumentDefinitions(query: {type: "CheckinSearc
     "selections": [
       {
         "kind": "LinkedField",
-        "alias": null,
+        "alias": "checkinSearchQuery",
         "args": [
           {
             "kind": "Argument",
@@ -3385,7 +3385,7 @@ fragment ChildFragment on Query @argumentDefinitions(query: {type: "CheckinSearc
         "selections": [
           {
             "kind": "ScalarField",
-            "alias": null,
+            "alias": "query",
             "args": [],
             "directives": [],
             "loc": {
@@ -3535,7 +3535,7 @@ fragment ChildFragment on Query @argumentDefinitions(inputs: {type: "[CheckinSea
         "selections": [
           {
             "kind": "ScalarField",
-            "alias": null,
+            "alias": "query",
             "args": [],
             "directives": [],
             "loc": {
@@ -3645,7 +3645,7 @@ fragment ChildFragment on Query @argumentDefinitions(inputs: {type: "[CheckinSea
     "selections": [
       {
         "kind": "LinkedField",
-        "alias": null,
+        "alias": "checkinSearchQuery",
         "args": [
           {
             "kind": "Argument",
@@ -3778,7 +3778,7 @@ fragment ChildFragment on Query @argumentDefinitions(inputs: {type: "[CheckinSea
         "selections": [
           {
             "kind": "ScalarField",
-            "alias": null,
+            "alias": "query",
             "args": [],
             "directives": [],
             "loc": {
@@ -3978,7 +3978,7 @@ fragment InlineUntypedFragment on User {
         "selections": [
           {
             "kind": "ScalarField",
-            "alias": null,
+            "alias": "name",
             "args": [],
             "directives": [],
             "loc": {
@@ -4039,7 +4039,7 @@ fragment LinkedHandleField on User {
     "selections": [
       {
         "kind": "LinkedField",
-        "alias": null,
+        "alias": "friends",
         "args": [
           {
             "kind": "Argument",
@@ -4112,7 +4112,7 @@ fragment LinkedHandleField on User {
         "selections": [
           {
             "kind": "ScalarField",
-            "alias": null,
+            "alias": "count",
             "args": [],
             "directives": [],
             "loc": {
@@ -4173,7 +4173,7 @@ fragment LinkedHandleField on User {
     "selections": [
       {
         "kind": "LinkedField",
-        "alias": null,
+        "alias": "friends",
         "args": [
           {
             "kind": "Argument",
@@ -4281,7 +4281,7 @@ fragment LinkedHandleField on User {
         "selections": [
           {
             "kind": "ScalarField",
-            "alias": null,
+            "alias": "count",
             "args": [],
             "directives": [],
             "loc": {
@@ -4362,7 +4362,7 @@ fragment LinkedHandleField on User {
     "selections": [
       {
         "kind": "LinkedField",
-        "alias": null,
+        "alias": "friends",
         "args": [
           {
             "kind": "Argument",
@@ -4429,7 +4429,7 @@ fragment LinkedHandleField on User {
         "selections": [
           {
             "kind": "ScalarField",
-            "alias": null,
+            "alias": "count",
             "args": [],
             "directives": [],
             "loc": {
@@ -4490,7 +4490,7 @@ fragment LinkedHandleField on User {
     "selections": [
       {
         "kind": "LinkedField",
-        "alias": null,
+        "alias": "friends",
         "args": [
           {
             "kind": "Argument",
@@ -4565,7 +4565,7 @@ fragment LinkedHandleField on User {
         "selections": [
           {
             "kind": "ScalarField",
-            "alias": null,
+            "alias": "count",
             "args": [],
             "directives": [],
             "loc": {
@@ -4654,7 +4654,7 @@ query ListArgumentQuery($waypoint: WayPoint!) {
     "selections": [
       {
         "kind": "LinkedField",
-        "alias": null,
+        "alias": "route",
         "args": [
           {
             "kind": "Argument",
@@ -4754,7 +4754,7 @@ query ListArgumentQuery($waypoint: WayPoint!) {
         "selections": [
           {
             "kind": "LinkedField",
-            "alias": null,
+            "alias": "steps",
             "args": [],
             "directives": [],
             "loc": {
@@ -4775,7 +4775,7 @@ query ListArgumentQuery($waypoint: WayPoint!) {
             "selections": [
               {
                 "kind": "ScalarField",
-                "alias": null,
+                "alias": "note",
                 "args": [],
                 "directives": [],
                 "loc": {
@@ -4836,7 +4836,7 @@ fragment TestFragment on User {
     "selections": [
       {
         "kind": "ScalarField",
-        "alias": null,
+        "alias": "traits",
         "args": [],
         "directives": [],
         "loc": {
@@ -4901,7 +4901,7 @@ query LiteralListArgumentQuery {
     "selections": [
       {
         "kind": "LinkedField",
-        "alias": null,
+        "alias": "route",
         "args": [
           {
             "kind": "Argument",
@@ -4965,7 +4965,7 @@ query LiteralListArgumentQuery {
         "selections": [
           {
             "kind": "LinkedField",
-            "alias": null,
+            "alias": "steps",
             "args": [],
             "directives": [],
             "loc": {
@@ -4986,7 +4986,7 @@ query LiteralListArgumentQuery {
             "selections": [
               {
                 "kind": "ScalarField",
-                "alias": null,
+                "alias": "note",
                 "args": [],
                 "directives": [],
                 "loc": {
@@ -5113,7 +5113,7 @@ query LiteralObjectArgument {
     "selections": [
       {
         "kind": "LinkedField",
-        "alias": null,
+        "alias": "checkinSearchQuery",
         "args": [
           {
             "kind": "Argument",
@@ -5174,7 +5174,7 @@ query LiteralObjectArgument {
         "selections": [
           {
             "kind": "ScalarField",
-            "alias": null,
+            "alias": "query",
             "args": [],
             "directives": [],
             "loc": {
@@ -5291,7 +5291,7 @@ query NullValuesQuery {
     "selections": [
       {
         "kind": "LinkedField",
-        "alias": null,
+        "alias": "items",
         "args": [
           {
             "kind": "Argument",
@@ -5352,7 +5352,7 @@ query NullValuesQuery {
         "selections": [
           {
             "kind": "ScalarField",
-            "alias": null,
+            "alias": "date",
             "args": [],
             "directives": [],
             "loc": {
@@ -5460,7 +5460,7 @@ query ObjectArgument($text: String!) {
     "selections": [
       {
         "kind": "LinkedField",
-        "alias": null,
+        "alias": "checkinSearchQuery",
         "args": [
           {
             "kind": "Argument",
@@ -5557,7 +5557,7 @@ query ObjectArgument($text: String!) {
         "selections": [
           {
             "kind": "ScalarField",
-            "alias": null,
+            "alias": "query",
             "args": [],
             "directives": [],
             "loc": {
@@ -5615,7 +5615,7 @@ fragment ScalarHandleField on User {
     "selections": [
       {
         "kind": "ScalarField",
-        "alias": null,
+        "alias": "name",
         "args": [],
         "directives": [],
         "handles": [
@@ -5685,7 +5685,7 @@ fragment TestFragment on User {
     "selections": [
       {
         "kind": "ScalarField",
-        "alias": null,
+        "alias": "id",
         "args": [],
         "directives": [],
         "loc": {
@@ -5826,7 +5826,7 @@ query TestQuery($id: ID!) {
         "selections": [
           {
             "kind": "ScalarField",
-            "alias": null,
+            "alias": "id",
             "args": [],
             "directives": [],
             "loc": {

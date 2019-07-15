@@ -80,9 +80,7 @@ function visitLinkedField(
     );
   }
   const rawLabel =
-    getLiteralStringArgument(connectionDirective, 'label') ??
-    transformed.alias ??
-    transformed.name;
+    getLiteralStringArgument(connectionDirective, 'label') ?? transformed.alias;
   const label = transformLabel(state.documentName, 'connection', rawLabel);
   const previousDirective = state.labels.get(label);
   if (previousDirective != null) {

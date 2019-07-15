@@ -121,9 +121,7 @@ function visitLinkedField(
     );
   }
   const label =
-    getLiteralStringArgument(streamDirective, 'label') ??
-    field.alias ??
-    field.name;
+    getLiteralStringArgument(streamDirective, 'label') ?? field.alias;
   const transformedLabel = transformLabel(state.documentName, 'stream', label);
   state.recordLabel(transformedLabel, streamDirective);
   return {

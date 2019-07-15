@@ -215,7 +215,7 @@ function generateLinkedField(node): $ReadOnlyArray<NormalizationSelection> {
       node.handles.map(handle => {
         let handleNode: NormalizationLinkedHandle = {
           kind: 'LinkedHandle',
-          alias: node.alias,
+          alias: node.alias === node.name ? null : node.alias,
           name: node.name,
           args: generateArgs(node.args),
           handle: handle.name,
@@ -243,7 +243,7 @@ function generateLinkedField(node): $ReadOnlyArray<NormalizationSelection> {
   const type = getRawType(node.type);
   let field: NormalizationLinkedField = {
     kind: 'LinkedField',
-    alias: node.alias,
+    alias: node.alias === node.name ? null : node.alias,
     name: node.name,
     storageKey: null,
     args: generateArgs(node.args),
@@ -270,7 +270,7 @@ function generateConnectionField(node): NormalizationSelection {
   }
   let field: NormalizationConnectionField = {
     kind: 'ConnectionField',
-    alias: node.alias,
+    alias: node.alias === node.name ? null : node.alias,
     label: node.label,
     name: node.name,
     resolver: (CodeMarker.moduleDependency(node.resolver): $FlowFixMe),
@@ -333,7 +333,7 @@ function generateScalarField(node): Array<NormalizationSelection> {
         }
         return {
           kind: 'ScalarHandle',
-          alias: node.alias,
+          alias: node.alias === node.name ? null : node.alias,
           name: node.name,
           args: generateArgs(node.args),
           handle: handle.name,
@@ -344,7 +344,7 @@ function generateScalarField(node): Array<NormalizationSelection> {
     [];
   let field: NormalizationScalarField = {
     kind: 'ScalarField',
-    alias: node.alias,
+    alias: node.alias === node.name ? null : node.alias,
     name: node.name,
     args: generateArgs(node.args),
     storageKey: null,

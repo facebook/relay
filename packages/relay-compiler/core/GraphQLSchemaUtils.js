@@ -263,7 +263,7 @@ function assertTypeWithFields(
 function generateIDField(idType: GraphQLLeafType): ScalarField {
   return {
     kind: 'ScalarField',
-    alias: (null: ?string),
+    alias: ID,
     args: [],
     directives: [],
     handles: null,

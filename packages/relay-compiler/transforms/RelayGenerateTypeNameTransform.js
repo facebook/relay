@@ -41,7 +41,7 @@ function relayGenerateTypeNameTransform(
   const stringType = assertLeafType(context.serverSchema.getType(STRING_TYPE));
   const typenameField: ScalarField = {
     kind: 'ScalarField',
-    alias: (null: ?string),
+    alias: TYPENAME_KEY,
     args: [],
     directives: [],
     handles: null,

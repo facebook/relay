@@ -109,7 +109,7 @@ function visitScalarField(field: ScalarField): ScalarField {
 }
 
 function visitLinkedField(node: LinkedField, state: State): LinkedField {
-  state.path.push(node.alias ?? node.name);
+  state.path.push(node.alias);
   const transformedNode: LinkedField = this.traverse(node, {
     ...state,
     parentType: node.type,

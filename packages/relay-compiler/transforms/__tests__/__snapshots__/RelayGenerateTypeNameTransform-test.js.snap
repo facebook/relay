@@ -68,7 +68,7 @@ fragment CommentFragment_comment on Comment {
   "selections": [
     {
       "kind": "LinkedField",
-      "alias": null,
+      "alias": "viewer",
       "args": [],
       "directives": [],
       "loc": {
@@ -89,7 +89,7 @@ fragment CommentFragment_comment on Comment {
       "selections": [
         {
           "kind": "LinkedField",
-          "alias": null,
+          "alias": "newsFeed",
           "args": [
             {
               "kind": "Argument",
@@ -148,7 +148,7 @@ fragment CommentFragment_comment on Comment {
           "selections": [
             {
               "kind": "LinkedField",
-              "alias": null,
+              "alias": "edges",
               "args": [],
               "directives": [],
               "loc": {
@@ -169,7 +169,7 @@ fragment CommentFragment_comment on Comment {
               "selections": [
                 {
                   "kind": "LinkedField",
-                  "alias": null,
+                  "alias": "node",
                   "args": [],
                   "directives": [],
                   "loc": {
@@ -190,7 +190,7 @@ fragment CommentFragment_comment on Comment {
                   "selections": [
                     {
                       "kind": "ScalarField",
-                      "alias": null,
+                      "alias": "__typename",
                       "args": [],
                       "directives": [],
                       "handles": null,
@@ -203,7 +203,7 @@ fragment CommentFragment_comment on Comment {
                     },
                     {
                       "kind": "ScalarField",
-                      "alias": null,
+                      "alias": "id",
                       "args": [],
                       "directives": [],
                       "loc": {
@@ -225,7 +225,7 @@ fragment CommentFragment_comment on Comment {
                     },
                     {
                       "kind": "LinkedField",
-                      "alias": null,
+                      "alias": "message",
                       "args": [],
                       "directives": [],
                       "loc": {
@@ -246,7 +246,7 @@ fragment CommentFragment_comment on Comment {
                       "selections": [
                         {
                           "kind": "ScalarField",
-                          "alias": null,
+                          "alias": "text",
                           "args": [],
                           "directives": [],
                           "loc": {
@@ -271,7 +271,7 @@ fragment CommentFragment_comment on Comment {
                     },
                     {
                       "kind": "LinkedField",
-                      "alias": null,
+                      "alias": "actor",
                       "args": [],
                       "directives": [],
                       "loc": {
@@ -292,7 +292,7 @@ fragment CommentFragment_comment on Comment {
                       "selections": [
                         {
                           "kind": "ScalarField",
-                          "alias": null,
+                          "alias": "__typename",
                           "args": [],
                           "directives": [],
                           "handles": null,
@@ -305,7 +305,7 @@ fragment CommentFragment_comment on Comment {
                         },
                         {
                           "kind": "ScalarField",
-                          "alias": null,
+                          "alias": "name",
                           "args": [],
                           "directives": [],
                           "loc": {
@@ -366,7 +366,7 @@ fragment CommentFragment_comment on Comment {
   "selections": [
     {
       "kind": "LinkedField",
-      "alias": null,
+      "alias": "node",
       "args": [
         {
           "kind": "Argument",
@@ -425,7 +425,7 @@ fragment CommentFragment_comment on Comment {
       "selections": [
         {
           "kind": "ScalarField",
-          "alias": null,
+          "alias": "__typename",
           "args": [],
           "directives": [],
           "handles": null,
@@ -438,7 +438,7 @@ fragment CommentFragment_comment on Comment {
         },
         {
           "kind": "LinkedField",
-          "alias": null,
+          "alias": "comments",
           "args": [
             {
               "kind": "Argument",
@@ -497,7 +497,7 @@ fragment CommentFragment_comment on Comment {
           "selections": [
             {
               "kind": "LinkedField",
-              "alias": null,
+              "alias": "edges",
               "args": [],
               "directives": [],
               "loc": {
@@ -518,7 +518,7 @@ fragment CommentFragment_comment on Comment {
               "selections": [
                 {
                   "kind": "LinkedField",
-                  "alias": null,
+                  "alias": "node",
                   "args": [],
                   "directives": [],
                   "loc": {
@@ -539,7 +539,7 @@ fragment CommentFragment_comment on Comment {
                   "selections": [
                     {
                       "kind": "ScalarField",
-                      "alias": null,
+                      "alias": "id",
                       "args": [],
                       "directives": [],
                       "loc": {
@@ -561,7 +561,7 @@ fragment CommentFragment_comment on Comment {
                     },
                     {
                       "kind": "LinkedField",
-                      "alias": null,
+                      "alias": "body",
                       "args": [],
                       "directives": [],
                       "loc": {
@@ -582,7 +582,7 @@ fragment CommentFragment_comment on Comment {
                       "selections": [
                         {
                           "kind": "ScalarField",
-                          "alias": null,
+                          "alias": "text",
                           "args": [],
                           "directives": [],
                           "loc": {
@@ -693,7 +693,7 @@ fragment CommentFragment_comment on Comment {
   "selections": [
     {
       "kind": "LinkedField",
-      "alias": null,
+      "alias": "viewer",
       "args": [],
       "directives": [],
       "loc": {
@@ -714,7 +714,7 @@ fragment CommentFragment_comment on Comment {
       "selections": [
         {
           "kind": "LinkedField",
-          "alias": null,
+          "alias": "newsFeed",
           "args": [
             {
               "kind": "Argument",
@@ -773,7 +773,7 @@ fragment CommentFragment_comment on Comment {
           "selections": [
             {
               "kind": "LinkedField",
-              "alias": null,
+              "alias": "edges",
               "args": [],
               "directives": [],
               "loc": {
@@ -794,7 +794,7 @@ fragment CommentFragment_comment on Comment {
               "selections": [
                 {
                   "kind": "LinkedField",
-                  "alias": null,
+                  "alias": "node",
                   "args": [],
                   "directives": [],
                   "loc": {
@@ -815,7 +815,7 @@ fragment CommentFragment_comment on Comment {
                   "selections": [
                     {
                       "kind": "ScalarField",
-                      "alias": null,
+                      "alias": "id",
                       "args": [],
                       "directives": [],
                       "loc": {
@@ -837,7 +837,7 @@ fragment CommentFragment_comment on Comment {
                     },
                     {
                       "kind": "ScalarField",
-                      "alias": null,
+                      "alias": "__typename",
                       "args": [],
                       "directives": [],
                       "loc": {
@@ -859,7 +859,7 @@ fragment CommentFragment_comment on Comment {
                     },
                     {
                       "kind": "LinkedField",
-                      "alias": null,
+                      "alias": "message",
                       "args": [],
                       "directives": [],
                       "loc": {
@@ -880,7 +880,7 @@ fragment CommentFragment_comment on Comment {
                       "selections": [
                         {
                           "kind": "ScalarField",
-                          "alias": null,
+                          "alias": "text",
                           "args": [],
                           "directives": [],
                           "loc": {
@@ -905,7 +905,7 @@ fragment CommentFragment_comment on Comment {
                     },
                     {
                       "kind": "LinkedField",
-                      "alias": null,
+                      "alias": "actor",
                       "args": [],
                       "directives": [],
                       "loc": {
@@ -926,7 +926,7 @@ fragment CommentFragment_comment on Comment {
                       "selections": [
                         {
                           "kind": "ScalarField",
-                          "alias": null,
+                          "alias": "name",
                           "args": [],
                           "directives": [],
                           "loc": {
@@ -948,7 +948,7 @@ fragment CommentFragment_comment on Comment {
                         },
                         {
                           "kind": "ScalarField",
-                          "alias": null,
+                          "alias": "__typename",
                           "args": [],
                           "directives": [],
                           "loc": {
@@ -1009,7 +1009,7 @@ fragment CommentFragment_comment on Comment {
   "selections": [
     {
       "kind": "LinkedField",
-      "alias": null,
+      "alias": "node",
       "args": [
         {
           "kind": "Argument",
@@ -1068,7 +1068,7 @@ fragment CommentFragment_comment on Comment {
       "selections": [
         {
           "kind": "ScalarField",
-          "alias": null,
+          "alias": "__typename",
           "args": [],
           "directives": [],
           "handles": null,
@@ -1081,7 +1081,7 @@ fragment CommentFragment_comment on Comment {
         },
         {
           "kind": "LinkedField",
-          "alias": null,
+          "alias": "comments",
           "args": [
             {
               "kind": "Argument",
@@ -1140,7 +1140,7 @@ fragment CommentFragment_comment on Comment {
           "selections": [
             {
               "kind": "LinkedField",
-              "alias": null,
+              "alias": "edges",
               "args": [],
               "directives": [],
               "loc": {
@@ -1161,7 +1161,7 @@ fragment CommentFragment_comment on Comment {
               "selections": [
                 {
                   "kind": "LinkedField",
-                  "alias": null,
+                  "alias": "node",
                   "args": [],
                   "directives": [],
                   "loc": {
@@ -1182,7 +1182,7 @@ fragment CommentFragment_comment on Comment {
                   "selections": [
                     {
                       "kind": "ScalarField",
-                      "alias": null,
+                      "alias": "id",
                       "args": [],
                       "directives": [],
                       "loc": {
@@ -1204,7 +1204,7 @@ fragment CommentFragment_comment on Comment {
                     },
                     {
                       "kind": "LinkedField",
-                      "alias": null,
+                      "alias": "body",
                       "args": [],
                       "directives": [],
                       "loc": {
@@ -1225,7 +1225,7 @@ fragment CommentFragment_comment on Comment {
                       "selections": [
                         {
                           "kind": "ScalarField",
-                          "alias": null,
+                          "alias": "text",
                           "args": [],
                           "directives": [],
                           "loc": {

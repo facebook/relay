@@ -64,7 +64,7 @@ mutation SimpleMutation @relay_test_operation {
   "selections": [
     {
       "kind": "LinkedField",
-      "alias": null,
+      "alias": "commentCreate",
       "args": [
         {
           "kind": "Argument",
@@ -123,7 +123,7 @@ mutation SimpleMutation @relay_test_operation {
       "selections": [
         {
           "kind": "LinkedField",
-          "alias": null,
+          "alias": "feedback",
           "args": [],
           "directives": [],
           "loc": {
@@ -144,7 +144,7 @@ mutation SimpleMutation @relay_test_operation {
           "selections": [
             {
               "kind": "ScalarField",
-              "alias": null,
+              "alias": "id",
               "args": [],
               "directives": [],
               "loc": {
@@ -184,7 +184,7 @@ mutation SimpleMutation @relay_test_operation {
               "selections": [
                 {
                   "kind": "ScalarField",
-                  "alias": null,
+                  "alias": "name",
                   "args": [],
                   "directives": [],
                   "loc": {
@@ -284,7 +284,7 @@ query QueryWitEnums @relay_test_operation {
   "selections": [
     {
       "kind": "LinkedField",
-      "alias": null,
+      "alias": "node",
       "args": [
         {
           "kind": "Argument",
@@ -343,7 +343,7 @@ query QueryWitEnums @relay_test_operation {
       "selections": [
         {
           "kind": "ScalarField",
-          "alias": null,
+          "alias": "id",
           "args": [],
           "directives": [],
           "loc": {
@@ -383,7 +383,7 @@ query QueryWitEnums @relay_test_operation {
           "selections": [
             {
               "kind": "ScalarField",
-              "alias": null,
+              "alias": "name",
               "args": [],
               "directives": [],
               "loc": {
@@ -405,7 +405,7 @@ query QueryWitEnums @relay_test_operation {
             },
             {
               "kind": "ScalarField",
-              "alias": null,
+              "alias": "environment",
               "args": [],
               "directives": [],
               "loc": {
@@ -530,7 +530,7 @@ fragment UserProfileFragment on User
   "selections": [
     {
       "kind": "LinkedField",
-      "alias": null,
+      "alias": "me",
       "args": [],
       "directives": [],
       "loc": {
@@ -551,7 +551,7 @@ fragment UserProfileFragment on User
       "selections": [
         {
           "kind": "ScalarField",
-          "alias": null,
+          "alias": "id",
           "args": [],
           "directives": [],
           "loc": {
@@ -618,7 +618,7 @@ fragment UserProfileFragment on User
   "selections": [
     {
       "kind": "ScalarField",
-      "alias": null,
+      "alias": "id",
       "args": [],
       "directives": [],
       "loc": {
@@ -640,7 +640,7 @@ fragment UserProfileFragment on User
     },
     {
       "kind": "ScalarField",
-      "alias": null,
+      "alias": "emailAddresses",
       "args": [],
       "directives": [],
       "loc": {
@@ -743,7 +743,7 @@ fragment UserProfileFragment on User
   "selections": [
     {
       "kind": "ScalarField",
-      "alias": null,
+      "alias": "id",
       "args": [],
       "directives": [],
       "loc": {
@@ -765,7 +765,7 @@ fragment UserProfileFragment on User
     },
     {
       "kind": "ScalarField",
-      "alias": null,
+      "alias": "name",
       "args": [],
       "directives": [],
       "loc": {
@@ -787,7 +787,7 @@ fragment UserProfileFragment on User
     },
     {
       "kind": "LinkedField",
-      "alias": null,
+      "alias": "profile_picture",
       "args": [
         {
           "kind": "Argument",
@@ -847,7 +847,7 @@ fragment UserProfileFragment on User
       "selections": [
         {
           "kind": "ScalarField",
-          "alias": null,
+          "alias": "uri",
           "args": [],
           "directives": [],
           "loc": {
@@ -975,7 +975,7 @@ query SimpleQuery @relay_test_operation {
   "selections": [
     {
       "kind": "LinkedField",
-      "alias": null,
+      "alias": "node",
       "args": [
         {
           "kind": "Argument",
@@ -1034,7 +1034,7 @@ query SimpleQuery @relay_test_operation {
       "selections": [
         {
           "kind": "ScalarField",
-          "alias": null,
+          "alias": "id",
           "args": [],
           "directives": [],
           "loc": {
@@ -1074,7 +1074,7 @@ query SimpleQuery @relay_test_operation {
           "selections": [
             {
               "kind": "ScalarField",
-              "alias": null,
+              "alias": "name",
               "args": [],
               "directives": [],
               "loc": {
@@ -1190,7 +1190,7 @@ query SimpleQuery @relay_test_operation {
   "selections": [
     {
       "kind": "LinkedField",
-      "alias": null,
+      "alias": "node",
       "args": [
         {
           "kind": "Argument",
@@ -1249,7 +1249,7 @@ query SimpleQuery @relay_test_operation {
       "selections": [
         {
           "kind": "ScalarField",
-          "alias": null,
+          "alias": "id",
           "args": [],
           "directives": [],
           "loc": {
@@ -1289,7 +1289,7 @@ query SimpleQuery @relay_test_operation {
           "selections": [
             {
               "kind": "ScalarField",
-              "alias": null,
+              "alias": "name",
               "args": [],
               "directives": [],
               "loc": {
@@ -1347,7 +1347,7 @@ query SimpleQuery @relay_test_operation {
               "selections": [
                 {
                   "kind": "LinkedField",
-                  "alias": null,
+                  "alias": "profile_picture",
                   "args": [],
                   "directives": [],
                   "loc": {
@@ -1368,7 +1368,7 @@ query SimpleQuery @relay_test_operation {
                   "selections": [
                     {
                       "kind": "ScalarField",
-                      "alias": null,
+                      "alias": "uri",
                       "args": [],
                       "directives": [],
                       "loc": {
@@ -1390,7 +1390,7 @@ query SimpleQuery @relay_test_operation {
                     },
                     {
                       "kind": "ScalarField",
-                      "alias": null,
+                      "alias": "width",
                       "args": [],
                       "directives": [],
                       "loc": {
@@ -1412,7 +1412,7 @@ query SimpleQuery @relay_test_operation {
                     },
                     {
                       "kind": "ScalarField",
-                      "alias": null,
+                      "alias": "height",
                       "args": [],
                       "directives": [],
                       "loc": {
@@ -1512,7 +1512,7 @@ subscription SimpleMutation @relay_test_operation {
   "selections": [
     {
       "kind": "LinkedField",
-      "alias": null,
+      "alias": "commentCreateSubscribe",
       "args": [
         {
           "kind": "Argument",
@@ -1571,7 +1571,7 @@ subscription SimpleMutation @relay_test_operation {
       "selections": [
         {
           "kind": "LinkedField",
-          "alias": null,
+          "alias": "feedback",
           "args": [],
           "directives": [],
           "loc": {
@@ -1592,7 +1592,7 @@ subscription SimpleMutation @relay_test_operation {
           "selections": [
             {
               "kind": "ScalarField",
-              "alias": null,
+              "alias": "id",
               "args": [],
               "directives": [],
               "loc": {
@@ -1632,7 +1632,7 @@ subscription SimpleMutation @relay_test_operation {
               "selections": [
                 {
                   "kind": "ScalarField",
-                  "alias": null,
+                  "alias": "name",
                   "args": [],
                   "directives": [],
                   "loc": {

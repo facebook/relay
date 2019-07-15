@@ -30,7 +30,7 @@ fragment PluralFragment on User @relay(plural: true) {
   "selections": [
     {
       "kind": "ScalarField",
-      "alias": null,
+      "alias": "name",
       "args": [],
       "directives": [],
       "loc": {
@@ -86,7 +86,7 @@ fragment UserProfile on User {
   "selections": [
     {
       "kind": "LinkedField",
-      "alias": null,
+      "alias": "profilePicture",
       "args": [],
       "directives": [],
       "loc": {

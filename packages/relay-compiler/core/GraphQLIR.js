@@ -183,7 +183,7 @@ export type ClientExtension = {|
 |};
 
 export type ConnectionField = {|
-  +alias: ?string,
+  +alias: string,
   +args: $ReadOnlyArray<Argument>,
   +directives: $ReadOnlyArray<Directive>,
   +kind: 'ConnectionField',
@@ -197,7 +197,7 @@ export type ConnectionField = {|
 |};
 
 export type LinkedField = {|
-  +alias: ?string,
+  +alias: string,
   +args: $ReadOnlyArray<Argument>,
   +directives: $ReadOnlyArray<Directive>,
   +handles: ?$ReadOnlyArray<Handle>,
@@ -308,7 +308,7 @@ export type ScalarFieldType =
   | GraphQLNonNull<GraphQLLeafType | GraphQLList<ScalarFieldType>>;
 
 export type ScalarField = {|
-  +alias: ?string,
+  +alias: string,
   +args: $ReadOnlyArray<Argument>,
   +directives: $ReadOnlyArray<Directive>,
   +handles: ?$ReadOnlyArray<Handle>,

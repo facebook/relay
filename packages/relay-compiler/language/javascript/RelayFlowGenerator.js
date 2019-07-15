@@ -477,7 +477,7 @@ function visitCondition(node, state) {
 function visitScalarField(node, state) {
   return [
     {
-      key: node.alias ?? node.name,
+      key: node.alias,
       schemaName: node.name,
       value: transformScalarType(node.type, state),
     },
@@ -487,7 +487,7 @@ function visitScalarField(node, state) {
 function visitConnectionField(node) {
   return [
     {
-      key: node.alias ?? node.name,
+      key: node.alias,
       schemaName: node.name,
       nodeType: node.type,
       nodeSelections: selectionsToMap(
@@ -508,7 +508,7 @@ function visitConnectionField(node) {
 function visitLinkedField(node) {
   return [
     {
-      key: node.alias ?? node.name,
+      key: node.alias,
       schemaName: node.name,
       nodeType: node.type,
       nodeSelections: selectionsToMap(

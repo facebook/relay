@@ -276,7 +276,7 @@ function extractConnectionMetadata(
             );
           }
           connectionField = field;
-          path = fields.map(pathField => pathField.alias ?? pathField.name);
+          path = fields.map(pathField => pathField.alias);
         }
       },
       leave() {
@@ -461,7 +461,7 @@ function buildRefetchOperationOnViewerType(
       operation: 'query',
       selections: [
         {
-          alias: null,
+          alias: VIEWER_FIELD_NAME,
           args: [],
           directives: [],
           handles: null,
@@ -552,7 +552,7 @@ function buildRefetchOperationOnNodeType(
       operation: 'query',
       selections: [
         {
-          alias: null,
+          alias: NODE_FIELD_NAME,
           args: [
             {
               kind: 'Argument',
@@ -590,7 +590,7 @@ function enforceIDField(fragment: Fragment): Fragment {
     selection =>
       selection.kind === 'ScalarField' &&
       selection.name === 'id' &&
-      selection.alias == null &&
+      selection.alias === 'id' &&
       isEquivalentType(getNullableType(selection.type), GraphQLID),
   );
   if (idSelection) {

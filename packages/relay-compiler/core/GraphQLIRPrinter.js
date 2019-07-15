@@ -114,7 +114,9 @@ function printField(
   const isClientExtension = options?.isClientExtension === true;
   return (
     (isClientExtension ? '# ' : '') +
-    (field.alias != null ? field.alias + ': ' + field.name : field.name) +
+    (field.alias === field.name
+      ? field.name
+      : field.alias + ': ' + field.name) +
     printArguments(field.args) +
     parentDirectives +
     printDirectives(field.directives) +

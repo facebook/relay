@@ -81,9 +81,16 @@ const options = {
     type: 'boolean',
     default: false,
   },
+  persistFunction: {
+    describe:
+      'An async function (or path to a module exporting this function) which will persist the query text and return the id.',
+    demandOption: false,
+    type: 'string',
+    array: false,
+  },
   persistOutput: {
     describe:
-      'A path to a .json file where persisted query metadata should be saved',
+      'A path to a .json file where persisted query metadata should be saved. Will use the default implementation (md5 hash) if `persistQueryFunction` is not passed.',
     demandOption: false,
     type: 'string',
     array: false,

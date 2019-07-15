@@ -10,6 +10,8 @@
 
 'use strict';
 
+const {main} = require('./bin/RelayCompilerMain');
+
 const ASTCache = require('./core/ASTCache');
 const ASTConvert = require('./core/ASTConvert');
 const CodeMarker = require('./util/CodeMarker');
@@ -112,6 +114,8 @@ const RelayJSModuleParser: $FlowFixMe = RelaySourceModuleParser(
 );
 
 module.exports = {
+  relayCompiler: main,
+
   ASTConvert,
   CodegenDirectory,
   CodegenRunner,

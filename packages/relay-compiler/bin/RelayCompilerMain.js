@@ -166,9 +166,13 @@ function getPersistQueryFunction(
   } else if (typeof config.persistFunction === 'string') {
     try {
       // eslint-disable-next-line no-eval
-      return eval('require')(
+      const persistFunction = eval('require')(
         path.resolve(process.cwd(), String(config.persistFunction)),
       );
+      if (persistFunction.default) {
+        return persistFunction.default;
+      }
+      return persistFunction;
     } catch (err) {
       const e = new Error(
         `Unable to load persistFunction ${config.persistFunction}: ${

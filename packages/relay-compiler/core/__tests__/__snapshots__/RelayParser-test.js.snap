@@ -930,7 +930,7 @@ fragment Example on User @match(key: "Example"){
 THROWN EXCEPTION:
 
 Error: RelayParser: Encountered 1 error(s):
-- Invalid directives @match found on FRAGMENT_DEFINITION. Source: document \`Example\` file: \`GraphQL request\`
+- Invalid directives @match found on FRAGMENT_DEFINITION.
   
   GraphQL request (2:26)
   1: # expected-to-throw
@@ -953,7 +953,7 @@ query TestQuery($id: ID!) @module @match{
 THROWN EXCEPTION:
 
 Error: RelayParser: Encountered 1 error(s):
-- Invalid directives @module, @match found on QUERY. Source: document \`TestQuery\` file: \`GraphQL request\`
+- Invalid directives @module, @match found on QUERY.
   
   GraphQL request (2:27)
   1: # expected-to-throw
@@ -988,7 +988,7 @@ fragment Example on User {
 THROWN EXCEPTION:
 
 Error: RelayParser: Encountered 1 error(s):
-- Invalid directives @module found on FIELD. Source: document \`Example\` file: \`GraphQL request\`
+- Invalid directives @module found on FIELD.
   
   GraphQL request (6:24)
   5:       node {
@@ -5892,7 +5892,7 @@ exports[`RelayParser should error on fragment spread arguments with literal out 
 
 exports[`RelayParser should error when parsing fragment that references undeclared variables are used with differing types 1`] = `
 "RelayParser: Encountered 1 error(s):
-- Variable '$id' was used in locations expecting the conflicting types 'ID' and 'Int'. Source: document \`TestFragment\` file: \`GraphQL request\`
+- Variable '$id' was used in locations expecting the conflicting types 'ID' and 'Int'.
   
   GraphQL request (2:14)
   1: fragment TestFragment on Query {

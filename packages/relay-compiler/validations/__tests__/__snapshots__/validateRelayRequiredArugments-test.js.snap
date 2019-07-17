@@ -190,3 +190,105 @@ Error: Encountered 1 error(s):
   3:   commentBody {
   
 `;
+
+exports[`validateRelayRequiredArugments-test matches expected output: missing-argument-on-linked-field-in-inline-fragment.invalid.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+# expected-to-throw
+query ViewerQuery {
+  node {
+    ... on Comment {
+      commentBody {
+        ... on PlainCommentBody {
+          text {
+            text
+          }
+        }
+      }
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+THROWN EXCEPTION:
+
+Error: Encountered 1 error(s):
+- Required argument 'supported: [String!]!' is missing on 'commentBody' in 'ViewerQuery'.
+  
+  Source: GraphQL request (5:7)
+  4:     ... on Comment {
+  5:       commentBody {
+           ^
+  6:         ... on PlainCommentBody {
+  
+  Source: GraphQL request (2:1)
+  1: # expected-to-throw
+  2: query ViewerQuery {
+     ^
+  3:   node {
+  
+`;
+
+exports[`validateRelayRequiredArugments-test matches expected output: missing-argument-on-linked-field-on-abstract-type.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query ViewerQuery {
+  node {
+    commentBody @fixme_fat_interface { # don't validate fixme_fat_interface
+      ... on PlainCommentBody {
+        text {
+          text
+        }
+      }
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+PASSED
+`;
+
+exports[`validateRelayRequiredArugments-test matches expected output: missing-argument-on-linked-field-on-abstract-type.invalid.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query ViewerQuery {
+  node {
+    commentBody @fixme_fat_interface {
+      ... on PlainCommentBody {
+        text {
+          text
+        }
+      }
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+PASSED
+`;
+
+exports[`validateRelayRequiredArugments-test matches expected output: missing-argument-on-unknown-linked-field-on-abstract-type.invalid.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+# expected-to-throw
+query ViewerQuery {
+  node {
+    commentBody {
+      ... on PlainCommentBody {
+        text {
+          text
+        }
+      }
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+THROWN EXCEPTION:
+
+Error: RelayParser: Encountered 1 error(s):
+- Unknown field 'commentBody' on type 'Node'.
+  
+  GraphQL request (4:5)
+  3:   node {
+  4:     commentBody {
+         ^
+  5:       ... on PlainCommentBody {
+  
+`;

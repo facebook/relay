@@ -18,6 +18,7 @@ const {isRequiredArgument} = require('graphql');
 
 import type GraphQLCompilerContext from '../core/GraphQLCompilerContext';
 import type {
+  ConnectionField,
   Directive,
   Fragment,
   LinkedField,
@@ -40,6 +41,8 @@ function validateRelayRequiredArugments(context: GraphQLCompilerContext): void {
     context,
     {
       Directive: visitDirective,
+      InlineFragment: visitInlineFragment,
+      ConnectionField: visitField,
       LinkedField: visitField,
       ScalarField: visitField,
       // FragmentSpread validation is done in RelayApplyFragmentArgumentTransform
@@ -51,11 +54,21 @@ function validateRelayRequiredArugments(context: GraphQLCompilerContext): void {
 function visitDirective(node: Directive, {parentType, rootNode}: State): void {
   const context = this.getContext();
   const directiveDef = context.serverSchema.getDirective(node.name);
-  validateRequiredArguments(node, directiveDef?.args, rootNode);
+  if (directiveDef == null) {
+    return;
+  }
+  validateRequiredArguments(node, directiveDef.args, rootNode);
+}
+
+function visitInlineFragment(fragment, {rootNode}: State): void {
+  this.traverse(fragment, {
+    rootNode,
+    parentType: fragment.typeCondition,
+  });
 }
 
 function visitField(
-  node: LinkedField | ScalarField,
+  node: LinkedField | ScalarField | ConnectionField,
   {parentType, rootNode}: State,
 ): void {
   const context = this.getContext();
@@ -64,7 +77,19 @@ function visitField(
     parentType,
     node.name,
   );
-  validateRequiredArguments(node, definition?.args, rootNode);
+  if (definition == null) {
+    const isLegacyFatInterface = node.directives.some(
+      directive => directive.name === 'fixme_fat_interface',
+    );
+    if (!isLegacyFatInterface) {
+      throw createUserError(
+        `Unknown field '${node.name}' on type '${String(parentType)}'.`,
+        [node.loc],
+      );
+    }
+  } else {
+    validateRequiredArguments(node, definition.args, rootNode);
+  }
   this.traverse(node, {
     rootNode,
     parentType: node.type,
@@ -72,13 +97,10 @@ function visitField(
 }
 
 function validateRequiredArguments(
-  node: Directive | LinkedField | ScalarField,
-  definitionArgs: ?$ReadOnlyArray<GraphQLArgument>,
+  node: ConnectionField | Directive | LinkedField | ScalarField,
+  definitionArgs: $ReadOnlyArray<GraphQLArgument>,
   rootNode,
 ): void {
-  if (!definitionArgs) {
-    return;
-  }
   for (const arg of definitionArgs) {
     if (
       isRequiredArgument(arg) &&

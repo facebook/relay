@@ -194,7 +194,10 @@ function traverseSelections<T: Node>(
           clientSelections.push(selection);
           break;
         }
-        const fragment = compilerContext.getFragment(selection.name);
+        const fragment = compilerContext.getFragment(
+          selection.name,
+          selection.loc,
+        );
         const typeName = fragment.type.name;
         const serverType = serverSchema.getType(typeName);
         const clientType = clientSchema.getType(typeName);

@@ -566,9 +566,7 @@ class GraphQLDefinitionParser {
           throw createUserError(
             `Variable '\$${name}' was used in locations expecting the conflicting types '${String(
               previousType,
-            )}' and '${String(
-              usedAsType,
-            )}'. Source: ${this._getErrorContext()}`,
+            )}' and '${String(usedAsType)}'.`,
             null,
             [previousVariable, variable],
           );
@@ -612,11 +610,9 @@ class GraphQLDefinitionParser {
       }
       const locs = directiveLocs.get(name);
       if (locs == null) {
-        throw createUserError(
-          `Unknown directive '${name}'. Source: ${this._getErrorContext()}`,
-          null,
-          [directive],
-        );
+        throw createUserError(`Unknown directive '${name}'.`, null, [
+          directive,
+        ]);
       }
       return !locs.some(loc => loc === allowedLocaction);
     });
@@ -625,7 +621,7 @@ class GraphQLDefinitionParser {
         .map(directive => '@' + getName(directive))
         .join(', ');
       throw createUserError(
-        `Invalid directives ${invalidDirectives} found on ${allowedLocaction}. Source: ${this._getErrorContext()}`,
+        `Invalid directives ${invalidDirectives} found on ${allowedLocaction}.`,
         null,
         mismatches,
       );
@@ -681,9 +677,7 @@ class GraphQLDefinitionParser {
       default:
         (definition.operation: empty);
         throw createCompilerError(
-          `Unknown operation type '${
-            definition.operation
-          }'. Source: ${this._getErrorContext()}.`,
+          `Unknown operation type '${definition.operation}'.`,
           null,
           [definition],
         );
@@ -714,19 +708,15 @@ class GraphQLDefinitionParser {
       default:
         (definition.operation: empty);
         throw createCompilerError(
-          `Unknown operation type '${
-            definition.operation
-          }'. Source: ${this._getErrorContext()}.`,
+          `Unknown operation type '${definition.operation}'.`,
           null,
           [definition],
         );
     }
     if (!definition.selectionSet) {
-      throw createUserError(
-        `Expected operation to have selections. Source: ${this._getErrorContext()}`,
-        null,
-        [definition],
-      );
+      throw createUserError('Expected operation to have selections.', null, [
+        definition,
+      ]);
     }
     const selections = this._transformSelections(definition.selectionSet, type);
     const argumentDefinitions = buildArgumentDefinitions(
@@ -769,12 +759,9 @@ class GraphQLDefinitionParser {
         node = this._transformInlineFragment(selection, parentType);
       } else {
         (selection.kind: empty);
-        throw createCompilerError(
-          `Unknown ast kind '${
-            selection.kind
-          }'. Source: ${this._getErrorContext()}.`,
-          [selection],
-        );
+        throw createCompilerError(`Unknown ast kind '${selection.kind}'.`, [
+          selection,
+        ]);
       }
       const [conditions, directives] = this._splitConditions(node.directives);
       const conditionalNodes = applyConditions(
@@ -784,7 +771,7 @@ class GraphQLDefinitionParser {
       );
       if (conditionalNodes.length !== 1) {
         throw createCompilerError(
-          `Expected exactly one condition node. Source: ${this._getErrorContext()}`,
+          'Expected exactly one condition node.',
           null,
           selection.directives,
         );
@@ -834,8 +821,7 @@ class GraphQLDefinitionParser {
     );
     if (argumentDirectives.length > 1) {
       throw createUserError(
-        `Directive @${ARGUMENTS} may be used at most once per a fragment spread. ` +
-          `Source: ${this._getErrorContext()}`,
+        `Directive @${ARGUMENTS} may be used at most once per a fragment spread.`,
         null,
         argumentDirectives,
       );
@@ -936,9 +922,7 @@ class GraphQLDefinitionParser {
 
     if (fieldDef == null) {
       throw createUserError(
-        `Unknown field '${name}' on type '${String(
-          parentType,
-        )}'. Source: ${this._getErrorContext()}`,
+        `Unknown field '${name}' on type '${String(parentType)}'.`,
         null,
         [field],
       );
@@ -959,7 +943,7 @@ class GraphQLDefinitionParser {
         field.selectionSet.selections.length
       ) {
         throw createUserError(
-          `Expected no selections for scalar field '${name}'. Source: ${this._getErrorContext()}`,
+          `Expected no selections for scalar field '${name}'.`,
           null,
           [field],
         );
@@ -983,7 +967,7 @@ class GraphQLDefinitionParser {
         throw createUserError(
           `Expected at least one selection for non-scalar field '${name}' on type '${String(
             type,
-          )}'. Source: ${this._getErrorContext()}.`,
+          )}'.`,
           null,
           [field],
         );
@@ -1023,8 +1007,7 @@ class GraphQLDefinitionParser {
         );
         if (typeof maybeHandle !== 'string') {
           throw createUserError(
-            `Expected a string literal argument for the @${CLIENT_FIELD} directive. ` +
-              `Source: ${this._getErrorContext()}`,
+            `Expected a string literal argument for the @${CLIENT_FIELD} directive.`,
             null,
             [handleArgument.value],
           );
@@ -1041,8 +1024,7 @@ class GraphQLDefinitionParser {
           );
           if (typeof maybeKey !== 'string') {
             throw createUserError(
-              `Expected a string literal argument for the @${CLIENT_FIELD} directive. ` +
-                `Source: ${this._getErrorContext()}`,
+              `Expected a string literal argument for the @${CLIENT_FIELD} directive.`,
               null,
               [keyArgument.value],
             );
@@ -1068,8 +1050,7 @@ class GraphQLDefinitionParser {
             )
           ) {
             throw createUserError(
-              `Expected an array of argument names on field '${fieldName}'. ` +
-                `Source: ${this._getErrorContext()}`,
+              `Expected an array of argument names on field '${fieldName}'.`,
               null,
               [filtersArgument.value],
             );
@@ -1103,11 +1084,9 @@ class GraphQLDefinitionParser {
       const name = getName(directive);
       const directiveDef = this._schema.getDirective(name);
       if (directiveDef == null) {
-        throw createUserError(
-          `Unknown directive '${name}'. Source: ${this._getErrorContext()}`,
-          null,
-          [directive],
-        );
+        throw createUserError(`Unknown directive '${name}'.`, null, [
+          directive,
+        ]);
       }
       const args = this._transformArguments(
         directive.arguments || [],
@@ -1131,11 +1110,7 @@ class GraphQLDefinitionParser {
       const argName = getName(arg);
       const argDef = argumentDefinitions.find(def => def.name === argName);
       if (argDef == null) {
-        throw createUserError(
-          `Unknown argument '${argName}'. Source: ${this._getErrorContext()}`,
-          null,
-          [arg],
-        );
+        throw createUserError(`Unknown argument '${argName}'.`, null, [arg]);
       }
       const value = this._transformValue(arg.value, argDef.type);
       return {
@@ -1161,9 +1136,7 @@ class GraphQLDefinitionParser {
       const arg = directive.args[0];
       if (arg == null || arg.name !== IF) {
         throw createUserError(
-          `Expected an 'if' argument to @${
-            directive.name
-          }. Source: ${this._getErrorContext()}`,
+          `Expected an 'if' argument to @${directive.name}.`,
           [directive.loc],
         );
       }
@@ -1171,7 +1144,7 @@ class GraphQLDefinitionParser {
         throw createUserError(
           `Expected the 'if' argument to @${
             directive.name
-          } to be a variable or literal. Source: ${this._getErrorContext()}`,
+          } to be a variable or literal.`,
           [directive.loc],
         );
       }

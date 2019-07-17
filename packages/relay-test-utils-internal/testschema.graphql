@@ -8,6 +8,8 @@ schema {
 
 directive @customDirective(level: Int!) on FIELD
 
+directive @fixme_fat_interface on FIELD
+
 directive @defer(
   label: String!
   if: Boolean = true

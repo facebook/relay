@@ -14,11 +14,11 @@ const Profiler = require('./GraphQLCompilerProfiler');
 
 const invariant = require('invariant');
 
-const {createUserError} = require('./GraphQLCompilerUserError');
+const {createUserError} = require('./RelayCompilerError');
 const {OrderedMap: ImmutableOrderedMap} = require('immutable');
 
 import type {GraphQLReporter} from '../reporters/GraphQLReporter';
-import type {Fragment, Root, SplitOperation} from './GraphQLIR';
+import type {Fragment, Location, Root, SplitOperation} from './GraphQLIR';
 import type {GraphQLSchema} from 'graphql';
 
 export type IRTransform = GraphQLCompilerContext => GraphQLCompilerContext;
@@ -149,28 +149,36 @@ class GraphQLCompilerContext {
     return this._documents.get(name);
   }
 
-  getFragment(name: string): Fragment {
-    const node = this._get(name);
-    if (node.kind !== 'Fragment') {
+  getFragment(name: string, referencedFrom?: ?Location): Fragment {
+    const node = this._documents.get(name);
+    if (node == null) {
       const childModule = name.substring(0, name.lastIndexOf('_'));
       throw createUserError(
-        'GraphQLCompilerContext: Cannot find fragment `%s`.' +
-          ' Please make sure the fragment exists in `%s`.',
-        name,
-        childModule,
+        `Cannot find fragment '${name}'. Please make sure the fragment ` +
+          `exists in '${childModule}'.`,
+        referencedFrom != null ? [referencedFrom] : null,
+      );
+    } else if (node.kind !== 'Fragment') {
+      throw createUserError(
+        `Cannot find fragment '${name}', a document with this name exists ` +
+          'but is not a fragment.',
+        [node.loc, referencedFrom].filter(Boolean),
       );
     }
     return node;
   }
 
   getRoot(name: string): Root {
-    const node = this._get(name);
-    invariant(
-      node.kind === 'Root',
-      'GraphQLCompilerContext: Expected `%s` to be a root, got `%s`.',
-      name,
-      node.kind,
-    );
+    const node = this._documents.get(name);
+    if (node == null) {
+      throw createUserError(`Cannot find root '${name}'.`);
+    } else if (node.kind !== 'Root') {
+      throw createUserError(
+        `Cannot find root '${name}', a document with this name exists but ` +
+          'is not a root.',
+        [node.loc],
+      );
+    }
     return node;
   }
 
@@ -187,12 +195,6 @@ class GraphQLCompilerContext {
     result._isMutable = false;
     result._documents = result._documents.asImmutable();
     return this._documents === result._documents ? this : result;
-  }
-
-  _get(name: string): CompilerContextDocument {
-    const document = this._documents.get(name);
-    invariant(document, 'GraphQLCompilerContext: Unknown document `%s`.', name);
-    return document;
   }
 
   _update(

@@ -306,7 +306,7 @@ function visitFragmentSpread(
     );
   }
 
-  const fragment = context.getFragment(spread.name);
+  const fragment = context.getFragment(spread.name, spread.loc);
   if (!isObjectType(fragment.type)) {
     throw createUserError(
       `@module used on invalid fragment spread '...${spread.name}'. @module ` +

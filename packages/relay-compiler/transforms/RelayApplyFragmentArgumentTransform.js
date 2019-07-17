@@ -378,7 +378,7 @@ function transformFragment(
   args: $ReadOnlyArray<Argument>,
   errorContext: $ReadOnlyArray<IR>,
 ): ?Fragment {
-  const fragment = context.getFragment(spread.name);
+  const fragment = context.getFragment(spread.name, spread.loc);
   const argumentsHash = hashArguments(args, parentScope, errorContext);
   const fragmentName = argumentsHash
     ? `${fragment.name}_${argumentsHash}`

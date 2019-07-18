@@ -47,6 +47,7 @@ const isEquivalentType = require('./core/isEquivalentType');
 const nullthrows = require('./util/nullthrowsOSS');
 const writeRelayGeneratedFile = require('./codegen/writeRelayGeneratedFile');
 
+const {main} = require('./bin/RelayCompilerMain');
 const {SourceControlMercurial} = require('./codegen/SourceControl');
 const {
   getReaderSourceDefinitionName,
@@ -112,6 +113,8 @@ const RelayJSModuleParser: $FlowFixMe = RelaySourceModuleParser(
 );
 
 module.exports = {
+  relayCompiler: main,
+
   ASTConvert,
   CodegenDirectory,
   CodegenRunner,

@@ -18,15 +18,10 @@ const ReactTestRenderer = require('ReactTestRenderer');
 
 const readContext = require('../readContext');
 
-const {
-  createOperationDescriptor,
-  RelayFeatureFlags,
-  ROOT_ID,
-} = require('relay-runtime');
+const {createOperationDescriptor, ROOT_ID} = require('relay-runtime');
 const {
   createMockEnvironment,
   generateAndCompile,
-  matchers,
 } = require('relay-test-utils-internal');
 
 describe('ReactRelayRefetchContainer with fragment ownerhsip', () => {
@@ -110,7 +105,6 @@ describe('ReactRelayRefetchContainer with fragment ownerhsip', () => {
 
   beforeEach(() => {
     jest.resetModules();
-    expect.extend(matchers);
 
     environment = createMockEnvironment();
     ({UserFragment, UserFriendFragment, UserQuery} = generateAndCompile(`

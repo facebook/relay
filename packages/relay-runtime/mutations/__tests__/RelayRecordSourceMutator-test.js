@@ -10,12 +10,13 @@
 
 'use strict';
 
-const RelayModernTestUtils = require('relay-test-utils-internal');
 const RelayRecordSourceMapImpl = require('../../store/RelayRecordSourceMapImpl');
 const RelayRecordSourceMutator = require('../../mutations/RelayRecordSourceMutator');
 const RelayRecordSourceObjectImpl = require('../../store/RelayRecordSourceObjectImpl');
 const RelayRecordState = require('../../store/RelayRecordState');
 const RelayStoreUtils = require('../../store/RelayStoreUtils');
+
+const {simpleClone} = require('relay-test-utils-internal');
 
 const {
   ID_KEY,
@@ -43,8 +44,6 @@ const {EXISTENT, NONEXISTENT, UNKNOWN} = RelayRecordState;
     let sinkSource;
 
     beforeEach(() => {
-      expect.extend(RelayModernTestUtils.matchers);
-
       initialData = {
         4: {
           [ID_KEY]: '4',
@@ -89,7 +88,7 @@ const {EXISTENT, NONEXISTENT, UNKNOWN} = RelayRecordState;
       };
       backupData = {};
       sinkData = {};
-      baseData = RelayModernTestUtils.simpleClone(initialData);
+      baseData = simpleClone(initialData);
       baseSource = new RecordSourceImpl(baseData);
       backupSource = new RecordSourceImpl(backupData);
       sinkSource = new RecordSourceImpl(sinkData);
@@ -170,7 +169,7 @@ const {EXISTENT, NONEXISTENT, UNKNOWN} = RelayRecordState;
 
     describe('copyFields()', () => {
       it('throws if the source does not exist', () => {
-        expect(() => mutator.copyFields('unfetched', '4')).toFailInvariant(
+        expect(() => mutator.copyFields('unfetched', '4')).toThrowError(
           'RelayRecordSourceMutator#copyFields(): Cannot copy fields from ' +
             'non-existent record `unfetched`.',
         );
@@ -280,7 +279,7 @@ const {EXISTENT, NONEXISTENT, UNKNOWN} = RelayRecordState;
         const sourceRecord = initialData['4'];
         expect(() =>
           mutator.copyFieldsFromRecord(sourceRecord, 'unfetched'),
-        ).toFailInvariant(
+        ).toThrowError(
           'RelayRecordSourceMutator: Cannot modify non-existent record ' +
             '`unfetched`.',
         );
@@ -341,7 +340,7 @@ const {EXISTENT, NONEXISTENT, UNKNOWN} = RelayRecordState;
 
     describe('create()', () => {
       it('throws if the record already exists', () => {
-        expect(() => mutator.create('4', 'User')).toFailInvariant(
+        expect(() => mutator.create('4', 'User')).toThrowError(
           'RelayRecordSourceMutator#create(): Cannot create a record with id ' +
             '`4`, this record already exists.',
         );
@@ -349,7 +348,7 @@ const {EXISTENT, NONEXISTENT, UNKNOWN} = RelayRecordState;
 
       it('throws if the record was previously created', () => {
         mutator.create('842472', 'User');
-        expect(() => mutator.create('842472', 'User')).toFailInvariant(
+        expect(() => mutator.create('842472', 'User')).toThrowError(
           'RelayRecordSourceMutator#create(): Cannot create a record with id ' +
             '`842472`, this record already exists.',
         );

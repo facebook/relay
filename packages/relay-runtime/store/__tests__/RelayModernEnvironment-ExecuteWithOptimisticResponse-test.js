@@ -11,7 +11,6 @@
 
 'use strict';
 
-const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
 const RelayModernEnvironment = require('../RelayModernEnvironment');
 const RelayModernOperationDescriptor = require('../RelayModernOperationDescriptor');
 const RelayModernStore = require('../RelayModernStore');
@@ -20,7 +19,7 @@ const RelayObservable = require('../../network/RelayObservable');
 const RelayRecordSource = require('../RelayRecordSource');
 
 const {ROOT_ID} = require('../RelayStoreUtils');
-const {generateAndCompile, matchers} = require('relay-test-utils-internal');
+const {generateAndCompile} = require('relay-test-utils-internal');
 
 function createOperationDescriptor(...args) {
   const operation = RelayModernOperationDescriptor.createOperationDescriptor(
@@ -55,7 +54,6 @@ describe('execute() with network that returns optimistic response', () => {
   beforeEach(() => {
     jest.resetModules();
 
-    expect.extend(matchers);
     ({ActorQuery: query} = generateAndCompile(`
         query ActorQuery($fetchSize: Boolean!) {
           me {

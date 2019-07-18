@@ -20,7 +20,7 @@ const RelayRecordSource = require('../RelayRecordSource');
 
 const warning = require('warning');
 
-const {generateAndCompile, matchers} = require('relay-test-utils-internal');
+const {generateAndCompile} = require('relay-test-utils-internal');
 
 function createOperationDescriptor(...args) {
   const operation = RelayModernOperationDescriptor.createOperationDescriptor(
@@ -60,7 +60,6 @@ describe('execute() a query with @defer', () => {
     jest.mock('warning');
     jest.spyOn(console, 'warn').mockImplementation(() => undefined);
 
-    expect.extend(matchers);
     ({UserQuery: query, UserFragment: fragment} = generateAndCompile(`
         query UserQuery($id: ID!) {
           node(id: $id) {

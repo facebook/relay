@@ -13,11 +13,9 @@
 const ErrorUtils = require('ErrorUtils');
 const RelayModernRecord = require('../RelayModernRecord');
 const RelayModernStore = require('../RelayModernStore');
-const RelayModernTestUtils = require('relay-test-utils-internal');
 const RelayPublishQueue = require('../RelayPublishQueue');
 const RelayRecordSourceMapImpl = require('../RelayRecordSourceMapImpl');
 const RelayRecordSourceObjectImpl = require('../RelayRecordSourceObjectImpl');
-const RelayStoreUtils = require('../RelayStoreUtils');
 
 const defaultGetDataID = require('../defaultGetDataID');
 const getRelayHandleKey = require('../../util/getRelayHandleKey');
@@ -26,19 +24,22 @@ const invariant = require('invariant');
 const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
-
-const {ID_KEY, REF_KEY, ROOT_ID, ROOT_TYPE, TYPENAME_KEY} = RelayStoreUtils;
+const {
+  ID_KEY,
+  REF_KEY,
+  ROOT_ID,
+  ROOT_TYPE,
+  TYPENAME_KEY,
+} = require('../RelayStoreUtils');
+const {generateAndCompile, simpleClone} = require('relay-test-utils-internal');
 
 [
   [RelayRecordSourceObjectImpl, 'Object'],
   [RelayRecordSourceMapImpl, 'Map'],
 ].forEach(([RecordSourceImplementation, ImplementationName]) => {
   describe(`RelayPublishQueue with ${ImplementationName} RecordSource`, () => {
-    const {generateAndCompile, simpleClone} = RelayModernTestUtils;
-
     beforeEach(() => {
       jest.resetModules();
-      expect.extend(RelayModernTestUtils.matchers);
 
       ErrorUtils.applyWithGuard = jest.fn((callback, context, params) => {
         try {

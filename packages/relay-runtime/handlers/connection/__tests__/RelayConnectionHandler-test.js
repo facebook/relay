@@ -13,7 +13,6 @@
 const RelayConnectionHandler = require('../RelayConnectionHandler');
 const RelayConnectionInterface = require('../RelayConnectionInterface');
 const RelayModernStore = require('../../../store/RelayModernStore');
-const RelayModernTestUtils = require('relay-test-utils-internal');
 const RelayRecordSourceMapImpl = require('../../../store/RelayRecordSourceMapImpl');
 const RelayRecordSourceMutator = require('../../../mutations/RelayRecordSourceMutator');
 const RelayRecordSourceObjectImpl = require('../../../store/RelayRecordSourceObjectImpl');
@@ -23,6 +22,11 @@ const RelayStoreUtils = require('../../../store/RelayStoreUtils');
 
 const defaultGetDataID = require('../../../store/defaultGetDataID');
 const getRelayHandleKey = require('../../../util/getRelayHandleKey');
+
+const {
+  generateWithTransforms,
+  simpleClone,
+} = require('relay-test-utils-internal');
 
 const {
   ID_KEY,
@@ -46,7 +50,6 @@ const {
   [RelayRecordSourceMapImpl, 'Map'],
 ].forEach(([RecordSourceImplementation, ImplementationName]) => {
   describe(`RelayConnectionHandler with ${ImplementationName} RecordSource`, () => {
-    const {generateWithTransforms, simpleClone} = RelayModernTestUtils;
     let ConnectionQuery;
     let baseSource;
     let mutator;
@@ -70,7 +73,6 @@ const {
 
     beforeEach(() => {
       jest.resetModules();
-      expect.extend(RelayModernTestUtils.matchers);
 
       baseSource = new RecordSourceImplementation({
         [ROOT_ID]: {

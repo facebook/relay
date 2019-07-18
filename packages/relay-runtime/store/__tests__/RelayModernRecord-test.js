@@ -109,7 +109,7 @@ describe('RelayModernRecord', () => {
     it('throws if the field is actually a scalar', () => {
       expect(() =>
         RelayModernRecord.getLinkedRecordIDs(record, 'name'),
-      ).toFailInvariant(
+      ).toThrowError(
         'RelayModernRecord.getLinkedRecordIDs(): Expected `4.name` to contain ' +
           'an array of linked IDs, got `"Mark"`.',
       );
@@ -118,7 +118,7 @@ describe('RelayModernRecord', () => {
     it('throws if the field is a singular link', () => {
       expect(() =>
         RelayModernRecord.getLinkedRecordIDs(record, 'hometown'),
-      ).toFailInvariant(
+      ).toThrowError(
         'RelayModernRecord.getLinkedRecordIDs(): Expected `4.hometown` to contain ' +
           'an array of linked IDs, got `{"__ref":"mpk"}`.',
       );
@@ -210,9 +210,7 @@ describe('RelayModernRecord', () => {
     });
 
     it('throws on encountering a linked record', () => {
-      expect(() =>
-        RelayModernRecord.getValue(record, 'hometown'),
-      ).toFailInvariant(
+      expect(() => RelayModernRecord.getValue(record, 'hometown')).toThrowError(
         'RelayModernRecord.getValue(): Expected a scalar (non-link) value for ' +
           '`4.hometown` but found a linked record.',
       );
@@ -221,7 +219,7 @@ describe('RelayModernRecord', () => {
     it('throws on encountering a plural linked record', () => {
       expect(() =>
         RelayModernRecord.getValue(record, 'friends{"first":10}'),
-      ).toFailInvariant(
+      ).toThrowError(
         'RelayModernRecord.getValue(): Expected a scalar (non-link) value for ' +
           '`4.friends{"first":10}` but found plural linked records.',
       );

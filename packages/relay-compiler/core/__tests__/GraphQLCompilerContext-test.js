@@ -14,7 +14,6 @@ describe('GraphQLCompilerContext', () => {
   let GraphQLCompilerContext;
   let RelayParser;
   let TestSchema;
-  let matchers;
 
   let queryFoo;
   let fragmentBar;
@@ -24,9 +23,7 @@ describe('GraphQLCompilerContext', () => {
     jest.resetModules();
     GraphQLCompilerContext = require('../GraphQLCompilerContext');
     RelayParser = require('../RelayParser');
-    ({TestSchema, matchers} = require('relay-test-utils-internal'));
-
-    expect.extend(matchers);
+    ({TestSchema} = require('relay-test-utils-internal'));
   });
 
   describe('add()', () => {
@@ -66,7 +63,7 @@ describe('GraphQLCompilerContext', () => {
           (ctx, node) => ctx.add(node),
           new GraphQLCompilerContext(TestSchema),
         );
-      }).toFailInvariant(
+      }).toThrowError(
         'GraphQLCompilerContext: Duplicate document named `Foo`. GraphQL ' +
           'fragments and roots must have unique names.',
       );

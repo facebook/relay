@@ -19,12 +19,10 @@ const {
   createOperationDescriptor,
   ConnectionHandler,
   ConnectionInterface,
-  ROOT_ID,
 } = require('relay-runtime');
 const {
   createMockEnvironment,
   generateAndCompile,
-  matchers,
   unwrapContainer,
 } = require('relay-test-utils-internal');
 
@@ -87,7 +85,6 @@ describe('ReactRelayPaginationContainer', () => {
 
   beforeEach(() => {
     jest.resetModules();
-    expect.extend(matchers);
 
     environment = createMockEnvironment({
       handlerProvider: () => ConnectionHandler,
@@ -221,7 +218,7 @@ describe('ReactRelayPaginationContainer', () => {
       ReactRelayPaginationContainer.createContainer(TestComponent, {
         foo: null,
       });
-    }).toFailInvariant(
+    }).toThrowError(
       'Could not create Relay Container for `TestComponent`. ' +
         'The value of fragment `foo` was expected to be a fragment, ' +
         'got `null` instead.',
@@ -730,7 +727,7 @@ describe('ReactRelayPaginationContainer', () => {
           <TestContainer />
         </ContextSetter>,
       );
-    }).toFailInvariant(
+    }).toThrowError(
       'ReactRelayPaginationContainer: A @connection directive must be present.',
     );
   });

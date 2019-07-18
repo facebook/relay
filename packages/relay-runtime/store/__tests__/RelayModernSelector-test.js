@@ -107,13 +107,13 @@ describe('RelayModernSelector', () => {
     it('throws for invalid inputs', () => {
       expect(() =>
         getSingularSelector(variables, UserFragment, 'zuck'),
-      ).toFailInvariant(
+      ).toThrowError(
         'RelayModernSelector: Expected value for fragment `UserFragment` to ' +
           'be an object, got `"zuck"`.',
       );
       expect(() =>
         getSingularSelector(variables, UserFragment, [zuck]),
-      ).toFailInvariant(
+      ).toThrowError(
         'RelayModernSelector: Expected value for fragment `UserFragment` to be an object, got ' +
           '`[{"__fragments":{"UserFragment":{},"UsersFragment":{}},"__id":"4","__fragmentOwner":null}]`.',
       );
@@ -239,7 +239,7 @@ describe('RelayModernSelector', () => {
     it('throws for invalid inputs', () => {
       expect(() =>
         getPluralSelector(variables, UserFragment, ['zuck']),
-      ).toFailInvariant(
+      ).toThrowError(
         'RelayModernSelector: Expected value for fragment `UserFragment` to be ' +
           'an object, got `"zuck"`.',
       );
@@ -371,7 +371,7 @@ describe('RelayModernSelector', () => {
     it('throws for invalid inputs', () => {
       expect(() =>
         getSelectorsFromObject(variables, {user: UserFragment}, {user: 'zuck'}),
-      ).toFailInvariant(
+      ).toThrowError(
         'RelayModernSelector: Expected value for fragment `UserFragment` to be an ' +
           'object, got `"zuck"`.',
       );
@@ -490,7 +490,7 @@ describe('RelayModernSelector', () => {
             {user: zuck},
             {userr: owner},
           ),
-        ).toFailInvariant(
+        ).toThrowError(
           'RelayModernSelector: Expected explcitly provided owner for fragment `UserFragment` ' +
             'under key `user` to exist.',
         );
@@ -502,7 +502,7 @@ describe('RelayModernSelector', () => {
             {user: zuck},
             {user: ['zuck']},
           ),
-        ).toFailInvariant(
+        ).toThrowError(
           'RelayModernSelector: Expected explcitly provided owner for fragment `UserFragment` ' +
             'not to be an array, got `["zuck"]`.',
         );
@@ -516,7 +516,7 @@ describe('RelayModernSelector', () => {
             {user: [zuck]},
             {userr: owner},
           ),
-        ).toFailInvariant(
+        ).toThrowError(
           'RelayModernSelector: Expected explcitly provided owner for fragment `UsersFragment` ' +
             'under key `user` to exist.',
         );
@@ -528,7 +528,7 @@ describe('RelayModernSelector', () => {
             {user: [zuck]},
             {user: null},
           ),
-        ).toFailInvariant(
+        ).toThrowError(
           'RelayModernSelector: Expected explcitly provided owner for fragment `UsersFragment` ' +
             'to be an array, got `null`.',
         );
@@ -540,7 +540,7 @@ describe('RelayModernSelector', () => {
             {user: [zuck]},
             {user: 'zuck'},
           ),
-        ).toFailInvariant(
+        ).toThrowError(
           'RelayModernSelector: Expected explcitly provided owner for fragment `UsersFragment` ' +
             'to be an array, got `"zuck"`.',
         );
@@ -780,7 +780,7 @@ describe('RelayModernSelector', () => {
     it('throws for invalid inputs', () => {
       expect(() =>
         getDataIDsFromObject({user: UserFragment}, {user: 'zuck'}),
-      ).toFailInvariant(
+      ).toThrowError(
         'RelayModernSelector: Expected value for fragment `UserFragment` to be an ' +
           'object, got `"zuck"`.',
       );
@@ -859,7 +859,7 @@ describe('RelayModernSelector', () => {
           {user: UserFragment},
           {user: 'zuck'},
         ),
-      ).toFailInvariant(
+      ).toThrowError(
         'RelayModernSelector: Expected value for fragment `UserFragment` to be an ' +
           'object, got `"zuck"`.',
       );
@@ -950,7 +950,7 @@ describe('RelayModernSelector', () => {
             {user: 'zuck'},
             {userr: owner},
           ),
-        ).toFailInvariant(
+        ).toThrowError(
           'RelayModernSelector: Expected explcitly provided owner for fragment `UserFragment` ' +
             'under key `user` to exist.',
         );
@@ -962,7 +962,7 @@ describe('RelayModernSelector', () => {
             {user: 'zuck'},
             {user: ['zuck']},
           ),
-        ).toFailInvariant(
+        ).toThrowError(
           'RelayModernSelector: Expected explcitly provided owner for fragment `UserFragment` ' +
             'not to be an array, got `["zuck"]`.',
         );
@@ -976,7 +976,7 @@ describe('RelayModernSelector', () => {
             {user: [zuck]},
             {userr: owner},
           ),
-        ).toFailInvariant(
+        ).toThrowError(
           'RelayModernSelector: Expected explcitly provided owner for fragment `UsersFragment` ' +
             'under key `user` to exist.',
         );
@@ -988,7 +988,7 @@ describe('RelayModernSelector', () => {
             {user: [zuck]},
             {user: null},
           ),
-        ).toFailInvariant(
+        ).toThrowError(
           'RelayModernSelector: Expected explcitly provided owner for fragment `UsersFragment` ' +
             'to be an array, got `null`.',
         );
@@ -1000,7 +1000,7 @@ describe('RelayModernSelector', () => {
             {user: [zuck]},
             {user: 'zuck'},
           ),
-        ).toFailInvariant(
+        ).toThrowError(
           'RelayModernSelector: Expected explcitly provided owner for fragment `UsersFragment` ' +
             'to be an array, got `"zuck"`.',
         );

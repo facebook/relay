@@ -11,7 +11,6 @@
 
 'use strict';
 
-const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
 const RelayModernEnvironment = require('../RelayModernEnvironment');
 const RelayModernOperationDescriptor = require('../RelayModernOperationDescriptor');
 const RelayModernSelector = require('../RelayModernSelector');
@@ -22,7 +21,7 @@ const RelayRecordSource = require('../RelayRecordSource');
 
 const invariant = require('invariant');
 
-const {generateAndCompile, matchers} = require('relay-test-utils-internal');
+const {generateAndCompile} = require('relay-test-utils-internal');
 
 function createOperationDescriptor(...args) {
   const operation = RelayModernOperationDescriptor.createOperationDescriptor(
@@ -55,7 +54,6 @@ describe('query with undeclared, unused fragment argument', () => {
   beforeEach(() => {
     jest.resetModules();
 
-    expect.extend(matchers);
     ({
       QueryWithUnusedFragmentArgumentDefinition: query,
       Profile: fragment,

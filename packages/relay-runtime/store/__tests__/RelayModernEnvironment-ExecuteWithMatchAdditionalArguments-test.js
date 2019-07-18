@@ -21,7 +21,7 @@ const RelayRecordSource = require('../RelayRecordSource');
 const nullthrows = require('nullthrows');
 
 const {getSingularSelector} = require('../RelayModernSelector');
-const {generateAndCompile, matchers} = require('relay-test-utils-internal');
+const {generateAndCompile} = require('relay-test-utils-internal');
 
 function createOperationDescriptor(...args) {
   const operation = RelayModernOperationDescriptor.createOperationDescriptor(
@@ -62,7 +62,6 @@ describe('execute() a query with @match with additional arguments', () => {
   beforeEach(() => {
     jest.resetModules();
 
-    expect.extend(matchers);
     ({
       UserQuery: query,
       MarkdownUserNameRenderer_name: markdownRendererFragment,

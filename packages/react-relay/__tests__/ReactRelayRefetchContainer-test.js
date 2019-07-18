@@ -17,10 +17,9 @@ const ReactTestRenderer = require('ReactTestRenderer');
 
 const readContext = require('../readContext');
 
-const {createOperationDescriptor, ROOT_ID} = require('relay-runtime');
+const {createOperationDescriptor} = require('relay-runtime');
 const {
   createMockEnvironment,
-  matchers,
   generateAndCompile,
   unwrapContainer,
 } = require('relay-test-utils-internal');
@@ -86,7 +85,6 @@ describe('ReactRelayRefetchContainer', () => {
   }
   beforeEach(() => {
     jest.resetModules();
-    expect.extend(matchers);
 
     environment = createMockEnvironment();
     ({UserFragment, UserQuery} = generateAndCompile(`
@@ -155,7 +153,7 @@ describe('ReactRelayRefetchContainer', () => {
       ReactRelayRefetchContainer.createContainer(TestComponent, {
         foo: null,
       });
-    }).toFailInvariant(
+    }).toThrowError(
       'Could not create Relay Container for `TestComponent`. ' +
         'The value of fragment `foo` was expected to be a fragment, ' +
         'got `null` instead.',

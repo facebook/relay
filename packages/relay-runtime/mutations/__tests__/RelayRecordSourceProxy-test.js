@@ -10,7 +10,6 @@
 
 'use strict';
 
-const RelayModernTestUtils = require('relay-test-utils-internal');
 const RelayRecordProxy = require('../RelayRecordProxy');
 const RelayRecordSourceMapImpl = require('../../store/RelayRecordSourceMapImpl');
 const RelayRecordSourceMutator = require('../RelayRecordSourceMutator');
@@ -23,6 +22,7 @@ const defaultGetDataID = require('../../store/defaultGetDataID');
 const {
   createOperationDescriptor,
 } = require('../../store/RelayModernOperationDescriptor');
+const {generateAndCompile, simpleClone} = require('relay-test-utils-internal');
 
 const {
   ID_KEY,
@@ -88,10 +88,7 @@ const {
 
     beforeEach(() => {
       jest.resetModules();
-      expect.extend(RelayModernTestUtils.matchers);
-      baseSource = new RecordSourceImplementation(
-        RelayModernTestUtils.simpleClone(initialData),
-      );
+      baseSource = new RecordSourceImplementation(simpleClone(initialData));
       backupSource = new RecordSourceImplementation({});
       sinkSource = new RecordSourceImplementation({});
       mutator = new RelayRecordSourceMutator(
@@ -164,7 +161,7 @@ const {
       });
 
       it('throws if the root is deleted', () => {
-        expect(() => store.delete(ROOT_ID)).toFailInvariant(
+        expect(() => store.delete(ROOT_ID)).toThrowError(
           'RelayRecordSourceProxy#delete(): Cannot delete the root record.',
         );
       });
@@ -186,7 +183,6 @@ const {
     });
 
     describe('commitPayload()', () => {
-      const {generateAndCompile} = RelayModernTestUtils;
       it('override current fields ', () => {
         const {Query} = generateAndCompile(`
         query Query {
@@ -340,7 +336,7 @@ const {
       it('throws if a duplicate record is created', () => {
         expect(() => {
           store.create('4', 'User');
-        }).toFailInvariant(
+        }).toThrowError(
           'RelayRecordSourceMutator#create(): Cannot create a record with id ' +
             '`4`, this record already exists.',
         );
@@ -376,7 +372,7 @@ const {
 
         expect(() => {
           user.setValue({day: 1, month: 1, year: 1970}, 'birthdate');
-        }).toFailInvariant(
+        }).toThrowError(
           'RelayRecordProxy#setValue(): Expected a scalar or array of scalars, ' +
             'got `{"day":1,"month":1,"year":1970}`.',
         );

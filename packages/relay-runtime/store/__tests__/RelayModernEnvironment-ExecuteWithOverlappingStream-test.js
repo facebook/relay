@@ -11,7 +11,6 @@
 
 'use strict';
 
-const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
 const RelayModernEnvironment = require('../RelayModernEnvironment');
 const RelayModernOperationDescriptor = require('../RelayModernOperationDescriptor');
 const RelayModernStore = require('../RelayModernStore');
@@ -19,7 +18,7 @@ const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
 const RelayRecordSource = require('../RelayRecordSource');
 
-const {generateAndCompile, matchers} = require('relay-test-utils-internal');
+const {generateAndCompile} = require('relay-test-utils-internal');
 
 function createOperationDescriptor(...args) {
   const operation = RelayModernOperationDescriptor.createOperationDescriptor(
@@ -38,7 +37,6 @@ function createOperationDescriptor(...args) {
 }
 
 describe('execute() a query with multiple @stream selections on the same record', () => {
-  let actorFragment;
   let callbacks;
   let complete;
   let dataSource;
@@ -59,12 +57,7 @@ describe('execute() a query with multiple @stream selections on the same record'
     jest.mock('warning');
     jest.spyOn(console, 'warn').mockImplementation(() => undefined);
 
-    expect.extend(matchers);
-    ({
-      FeedbackQuery: query,
-      FeedbackFragment: fragment,
-      ActorFragment: actorFragment,
-    } = generateAndCompile(`
+    ({FeedbackQuery: query, FeedbackFragment: fragment} = generateAndCompile(`
         query FeedbackQuery($id: ID!, $enableStream: Boolean!) {
           node(id: $id) {
             ...FeedbackFragment
@@ -85,11 +78,6 @@ describe('execute() a query with multiple @stream selections on the same record'
               name @__clientField(handle: "name_handler")
             }
           }
-        }
-
-        # keep in sync with above
-        fragment ActorFragment on Actor {
-          name @__clientField(handle: "name_handler")
         }
       `));
     variables = {id: '1', enableStream: true};

@@ -19,7 +19,7 @@ const RelayObservable = require('../../network/RelayObservable');
 const RelayRecordSource = require('../RelayRecordSource');
 const RelayViewerHandler = require('../../handlers/viewer/RelayViewerHandler');
 
-const {generateAndCompile, matchers} = require('relay-test-utils-internal');
+const {generateAndCompile} = require('relay-test-utils-internal');
 
 const {VIEWER_ID} = RelayViewerHandler;
 
@@ -61,8 +61,6 @@ describe('execute() a query with nested @stream', () => {
     jest.resetModules();
     jest.mock('warning');
     jest.spyOn(console, 'warn').mockImplementation(() => undefined);
-
-    expect.extend(matchers);
 
     ({
       FeedQuery: query,

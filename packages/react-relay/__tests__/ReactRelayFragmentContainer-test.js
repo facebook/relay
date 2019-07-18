@@ -19,7 +19,6 @@ const {createOperationDescriptor} = require('relay-runtime');
 const {
   createMockEnvironment,
   generateAndCompile,
-  matchers,
   unwrapContainer,
 } = require('relay-test-utils-internal');
 
@@ -80,7 +79,6 @@ describe('ReactRelayFragmentContainer', () => {
 
   beforeEach(() => {
     jest.resetModules();
-    expect.extend(matchers);
 
     environment = createMockEnvironment();
     ({UserFragment, UserQuery} = generateAndCompile(`
@@ -137,7 +135,7 @@ describe('ReactRelayFragmentContainer', () => {
   it('throws for invalid fragment set', () => {
     expect(() => {
       ReactRelayFragmentContainer.createContainer(TestComponent, 'a string');
-    }).toFailInvariant(
+    }).toThrowError(
       'Could not create Relay Container for `TestComponent`. ' +
         'Expected a set of GraphQL fragments, got `a string` instead.',
     );
@@ -148,7 +146,7 @@ describe('ReactRelayFragmentContainer', () => {
       ReactRelayFragmentContainer.createContainer(TestComponent, {
         foo: null,
       });
-    }).toFailInvariant(
+    }).toThrowError(
       'Could not create Relay Container for `TestComponent`. ' +
         'The value of fragment `foo` was expected to be a fragment, ' +
         'got `null` instead.',

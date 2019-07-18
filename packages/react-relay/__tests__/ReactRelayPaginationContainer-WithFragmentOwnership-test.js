@@ -24,7 +24,6 @@ const {
 const {
   createMockEnvironment,
   generateAndCompile,
-  matchers,
 } = require('relay-test-utils-internal');
 
 describe('ReactRelayPaginationContainer with fragment ownership', () => {
@@ -103,7 +102,6 @@ describe('ReactRelayPaginationContainer with fragment ownership', () => {
 
   beforeEach(() => {
     jest.resetModules();
-    expect.extend(matchers);
 
     environment = createMockEnvironment({
       handlerProvider: () => ConnectionHandler,

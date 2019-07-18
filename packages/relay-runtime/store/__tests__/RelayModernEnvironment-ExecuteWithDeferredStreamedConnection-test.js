@@ -12,7 +12,6 @@
 'use strict';
 
 const RelayConnectionHandler = require('../../handlers/connection/RelayConnectionHandler');
-const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
 const RelayModernEnvironment = require('../RelayModernEnvironment');
 const RelayModernOperationDescriptor = require('../RelayModernOperationDescriptor');
 const RelayModernStore = require('../RelayModernStore');
@@ -21,7 +20,7 @@ const RelayObservable = require('../../network/RelayObservable');
 const RelayRecordSource = require('../RelayRecordSource');
 const RelayViewerHandler = require('../../handlers/viewer/RelayViewerHandler');
 
-const {generateAndCompile, matchers} = require('relay-test-utils-internal');
+const {generateAndCompile} = require('relay-test-utils-internal');
 
 const {VIEWER_ID} = RelayViewerHandler;
 
@@ -62,8 +61,6 @@ describe('execute() fetches a @defer-ed @stream-ed @connection', () => {
     jest.resetModules();
     jest.mock('warning');
     jest.spyOn(console, 'warn').mockImplementation(() => undefined);
-
-    expect.extend(matchers);
 
     ({FeedQuery: query, FeedFragment: feedFragment} = generateAndCompile(`
         query FeedQuery($enableStream: Boolean!, $after: ID) {

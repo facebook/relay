@@ -19,7 +19,6 @@ const {ROOT_ID} = require('../RelayStoreUtils');
 const {
   createMockEnvironment,
   generateAndCompile,
-  matchers,
 } = require('relay-test-utils-internal');
 
 describe('RelayModernFragmentSpecResolver with fragment ownership', () => {
@@ -75,8 +74,6 @@ describe('RelayModernFragmentSpecResolver with fragment ownership', () => {
   }
 
   beforeEach(() => {
-    expect.extend(matchers);
-
     environment = createMockEnvironment();
     ({UserFragment, UserQuery, UsersFragment} = generateAndCompile(
       `

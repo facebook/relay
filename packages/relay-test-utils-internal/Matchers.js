@@ -28,13 +28,6 @@ function toBeDeeplyFrozen(actual) {
   };
 }
 
-function toFailInvariant(actual, expected) {
-  expect(actual).toThrowError(expected);
-  return {
-    pass: true,
-  };
-}
-
 function toWarn(actual, expected) {
   const negative = this.isNot;
 
@@ -125,7 +118,6 @@ function toThrowTypeError(fn) {
 
 module.exports = {
   toBeDeeplyFrozen,
-  toFailInvariant,
   toWarn,
   toThrowTypeError,
 };

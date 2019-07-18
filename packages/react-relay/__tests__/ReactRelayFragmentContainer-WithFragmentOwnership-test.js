@@ -19,7 +19,6 @@ const {createOperationDescriptor} = require('relay-runtime');
 const {
   createMockEnvironment,
   generateAndCompile,
-  matchers,
 } = require('relay-test-utils-internal');
 
 describe('ReactRelayFragmentContainer with fragment ownerhsip', () => {
@@ -79,7 +78,6 @@ describe('ReactRelayFragmentContainer with fragment ownerhsip', () => {
 
   beforeEach(() => {
     jest.resetModules();
-    expect.extend(matchers);
 
     environment = createMockEnvironment();
     ({UserFragment, UserQuery} = generateAndCompile(`

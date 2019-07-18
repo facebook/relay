@@ -24,6 +24,7 @@ const RelayLanguagePluginJavaScript = require('../language/javascript/RelayLangu
 
 const crypto = require('crypto');
 const fs = require('fs');
+const invariant = require('invariant');
 const path = require('path');
 
 const {
@@ -64,6 +65,7 @@ export type Config = {|
   persistOutput?: ?string,
   noFutureProofEnums: boolean,
   language: string | PluginInitializer,
+  persistFunction?: ?string | ?((text: string) => Promise<string>),
   artifactDirectory?: ?string,
   customScalars?: ScalarTypeMapping,
 |};
@@ -157,6 +159,38 @@ function getLanguagePlugin(
   }
 }
 
+function getPersistQueryFunction(
+  config: Config,
+): ?(text: string) => Promise<string> {
+  const configValue = config.persistFunction;
+  if (configValue == null) {
+    return null;
+  } else if (typeof configValue === 'string') {
+    try {
+      // eslint-disable-next-line no-eval
+      const persistFunction = eval('require')(
+        path.resolve(process.cwd(), configValue),
+      );
+      if (persistFunction.default) {
+        return persistFunction.default;
+      }
+      return persistFunction;
+    } catch (err) {
+      const e = new Error(
+        `Unable to load persistFunction ${configValue}: ${err.message}`,
+      );
+      e.stack = err.stack;
+      throw e;
+    }
+  } else if (typeof configValue === 'function') {
+    return configValue;
+  } else {
+    throw new Error(
+      'Expected persistFunction to be a path string or a function.',
+    );
+  }
+}
+
 async function main(config: Config) {
   if (config.verbose && config.quiet) {
     throw new Error("I can't be quiet and verbose at the same time");
@@ -239,6 +273,7 @@ function getCodegenRunner(config: Config): CodegenRunner {
   });
   const schema = getSchema(config.schema);
   const languagePlugin = getLanguagePlugin(config.language);
+  const persistQueryFunction = getPersistQueryFunction(config);
   const inputExtensions = config.extensions || languagePlugin.inputExtensions;
   const outputExtension = languagePlugin.outputExtension;
   const sourceParserName = inputExtensions.join('/');
@@ -296,6 +331,7 @@ function getCodegenRunner(config: Config): CodegenRunner {
         artifactDirectory,
         config.persistOutput,
         config.customScalars,
+        persistQueryFunction,
       ),
       isGeneratedFile: (filePath: string) =>
         filePath.endsWith('.graphql.' + outputExtension) &&
@@ -315,6 +351,13 @@ function getCodegenRunner(config: Config): CodegenRunner {
   return codegenRunner;
 }
 
+function defaultPersistFunction(text: string): Promise<string> {
+  const hasher = crypto.createHash('md5');
+  hasher.update(text);
+  const id = hasher.digest('hex');
+  return Promise.resolve(id);
+}
+
 function getRelayFileWriter(
   baseDir: string,
   languagePlugin: PluginInterface,
@@ -322,8 +365,9 @@ function getRelayFileWriter(
   outputDir?: ?string,
   persistedQueryPath?: ?string,
   customScalars?: ScalarTypeMapping,
+  persistFunction?: ?(text: string) => Promise<string>,
 ) {
-  return ({
+  return async ({
     onlyValidate,
     schema,
     documents,
@@ -333,17 +377,21 @@ function getRelayFileWriter(
   }: WriteFilesOptions) => {
     let persistQuery;
     let queryMap;
-    if (persistedQueryPath != null) {
+    if (persistFunction != null || persistedQueryPath != null) {
       queryMap = new Map();
-      persistQuery = (text: string) => {
-        const hasher = crypto.createHash('md5');
-        hasher.update(text);
-        const id = hasher.digest('hex');
+      const persistImplmentation = persistFunction || defaultPersistFunction;
+      persistQuery = async (text: string) => {
+        const id = await persistImplmentation(text);
+        invariant(
+          typeof id === 'string',
+          'Expected persist function to return a string, got `%s`.',
+          id,
+        );
         queryMap.set(id, text);
-        return Promise.resolve(id);
+        return id;
       };
     }
-    const results = RelayFileWriter.writeAll({
+    const results = await RelayFileWriter.writeAll({
       config: {
         baseDir,
         compilerTransforms: {

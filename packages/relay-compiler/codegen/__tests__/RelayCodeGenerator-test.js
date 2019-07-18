@@ -31,41 +31,37 @@ describe('RelayCodeGenerator', () => {
   ]);
 
   generateTestsFromFixtures(`${__dirname}/fixtures/code-generator`, text => {
-    try {
-      const {definitions} = parseGraphQLText(schema, text);
-      return new CompilerContext(TestSchema, schema)
-        .addAll(definitions)
-        .applyTransforms([
-          // Requires Relay directive transform first.
-          RelayRelayDirectiveTransform.transform,
-          RelayMatchTransform.transform,
-        ])
-        .documents()
-        .map(doc => {
-          const node =
-            doc.kind === 'Fragment'
-              ? doc
-              : {
-                  kind: 'Request',
-                  fragment: (null: $FlowFixMe),
-                  id: null,
-                  loc: doc.loc,
-                  metadata: {},
-                  name: doc.name,
-                  root: doc,
-                  text: null,
-                };
-          return CodeMarker.postProcess(
-            /* $FlowFixMe(>=0.98.0 site=react_native_fb,oss) This comment
-             * suppresses an error found when Flow v0.98 was deployed. To see
-             * the error delete this comment and run Flow. */
-            JSON.stringify(RelayCodeGenerator.generate(node), null, 2),
-            moduleName => `require('${moduleName}')`,
-          );
-        })
-        .join('\n\n');
-    } catch (e) {
-      return 'ERROR:\n' + e;
-    }
+    const {definitions} = parseGraphQLText(schema, text);
+    return new CompilerContext(TestSchema, schema)
+      .addAll(definitions)
+      .applyTransforms([
+        // Requires Relay directive transform first.
+        RelayRelayDirectiveTransform.transform,
+        RelayMatchTransform.transform,
+      ])
+      .documents()
+      .map(doc => {
+        const node =
+          doc.kind === 'Fragment'
+            ? doc
+            : {
+                kind: 'Request',
+                fragment: (null: $FlowFixMe),
+                id: null,
+                loc: doc.loc,
+                metadata: {},
+                name: doc.name,
+                root: doc,
+                text: null,
+              };
+        return CodeMarker.postProcess(
+          /* $FlowFixMe(>=0.98.0 site=react_native_fb,oss) This comment
+           * suppresses an error found when Flow v0.98 was deployed. To see
+           * the error delete this comment and run Flow. */
+          JSON.stringify(RelayCodeGenerator.generate(node), null, 2),
+          moduleName => `require('${moduleName}')`,
+        );
+      })
+      .join('\n\n');
   });
 });

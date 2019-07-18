@@ -10,19 +10,18 @@
 
 'use strict';
 
+const Matchers = require('./Matchers');
 const RelayTestSchema = require('./RelayTestSchema');
 const RelayTestSchemaPath = require('./RelayTestSchemaPath');
 
 const parseGraphQLText = require('./parseGraphQLText');
+const simpleClone = require('./simpleClone');
 
+const {generateAndCompile, generateWithTransforms} = require('./TestCompiler');
 const {
-  generateAndCompile,
   generateTestsFromFixtures,
-  generateWithTransforms,
-  matchers,
-  simpleClone,
   FIXTURE_TAG,
-} = require('./RelayModernTestUtils');
+} = require('./generateTestsFromFixtures');
 const {createMockEnvironment, unwrapContainer} = require('relay-test-utils');
 
 /**
@@ -35,7 +34,7 @@ module.exports = {
   generateAndCompile,
   generateTestsFromFixtures,
   generateWithTransforms,
-  matchers,
+  matchers: Matchers,
   simpleClone,
   parseGraphQLText,
   unwrapContainer,

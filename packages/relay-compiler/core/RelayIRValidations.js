@@ -10,7 +10,7 @@
 
 'use strict';
 
-const validateRelayRequiredArugments = require('../validations/validateRelayRequiredArugments');
+const validateRelayRequiredArugments = require('../validations/validateRelayRequiredArguments');
 const validateRelayServerOnlyDirectives = require('../validations/validateRelayServerOnlyDirectives');
 
 module.exports = {

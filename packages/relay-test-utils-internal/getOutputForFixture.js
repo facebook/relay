@@ -10,38 +10,25 @@
 
 'use strict';
 
-const SHOULD_THROW_FLAG = 'expected-to-throw';
-
-async function getOutputForFixture(
+function getOutputForFixture(
   input: string,
-  operation: (input: string) => string | Promise<string>,
+  operation: (input: string) => string,
   file: string,
-): Promise<string> {
-  let result;
-  const firstLine = input.substring(0, input.indexOf('\n')).trim();
-  const shouldThrow =
-    firstLine[0] === '#' && firstLine.substring(1).trim() === SHOULD_THROW_FLAG;
-  try {
-    const output = operation(input);
-    result = output instanceof Promise ? await output : output;
-  } catch (e) {
-    if (e instanceof TypeError) {
-      // Fail on blatant coding bugs during development
-      throw e;
-    }
-    if (!shouldThrow) {
-      throw new Error(
-        `Expect test '${file}' to pass, but it threw:\n${e.toString()}`,
-      );
-    }
-    return `THROWN EXCEPTION:\n\n${e.toString()}`;
-  }
+): string {
+  const shouldThrow = /^# *expected-to-throw/.test(input);
   if (shouldThrow) {
+    let result;
+    try {
+      result = operation(input);
+    } catch (e) {
+      return `THROWN EXCEPTION:\n\n${e.toString()}`;
+    }
     throw new Error(
-      `Expect test '${file}' to throw, but it passed:\n${result}`,
+      `Expected test file '${file}' to throw, but it passed:\n${result}`,
     );
+  } else {
+    return operation(input);
   }
-  return result;
 }
 
 module.exports = getOutputForFixture;

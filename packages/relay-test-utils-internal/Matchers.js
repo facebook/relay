@@ -103,21 +103,7 @@ function toWarn(actual, expected) {
   };
 }
 
-function toThrowTypeError(fn) {
-  let pass = false;
-  try {
-    fn();
-  } catch (e) {
-    pass = e instanceof TypeError;
-  }
-  return {
-    pass,
-    message: () => 'Expected function to throw a TypeError.',
-  };
-}
-
 module.exports = {
   toBeDeeplyFrozen,
   toWarn,
-  toThrowTypeError,
 };

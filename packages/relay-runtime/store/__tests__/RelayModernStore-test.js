@@ -709,7 +709,7 @@ expect.extend(matchers);
         const zuck = source.get('4');
         expect(() => {
           RelayModernRecord.setValue(zuck, 'pet', 'Beast');
-        }).toThrowTypeError();
+        }).toThrow(TypeError);
       });
 
       it('throws if published records are modified', () => {
@@ -720,7 +720,7 @@ expect.extend(matchers);
         store.publish(nextSource);
         expect(() => {
           RelayModernRecord.setValue(beast, 'name', 'Beast');
-        }).toThrowTypeError();
+        }).toThrow(TypeError);
       });
 
       it('throws if updated records are modified', () => {
@@ -737,13 +737,13 @@ expect.extend(matchers);
         expect(() => {
           const mergedRecord = source.get('4');
           RelayModernRecord.setValue(mergedRecord, 'pet', null);
-        }).toThrowTypeError();
+        }).toThrow(TypeError);
         // Cannot modify the published record, even though it isn't in the store
         // This is for consistency because it is non-deterinistic if published
         // records will be merged into a new object or used as-is.
         expect(() => {
           RelayModernRecord.setValue(zuck, 'pet', null);
-        }).toThrowTypeError();
+        }).toThrow(TypeError);
       });
     });
 

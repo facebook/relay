@@ -232,7 +232,7 @@ describe('RelayModernRecord', () => {
       RelayModernRecord.freeze(record);
       expect(() => {
         RelayModernRecord.setValue(record, 'pet', 'Beast');
-      }).toThrowTypeError();
+      }).toThrow(TypeError);
     });
   });
 

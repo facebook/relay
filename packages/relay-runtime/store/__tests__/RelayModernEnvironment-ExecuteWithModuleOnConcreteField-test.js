@@ -161,7 +161,6 @@ describe('execute() a query with @module on a field with a nullable concrete typ
 
     const matchSelector = nullthrows(
       getSingularSelector(
-        variables,
         authorFragment,
         (operationSnapshot.data?.node: any)?.author,
       ),
@@ -201,7 +200,6 @@ describe('execute() a query with @module on a field with a nullable concrete typ
 
     const matchSelector = nullthrows(
       getSingularSelector(
-        variables,
         authorFragment,
         (operationSnapshot.data?.node: any)?.author,
       ),

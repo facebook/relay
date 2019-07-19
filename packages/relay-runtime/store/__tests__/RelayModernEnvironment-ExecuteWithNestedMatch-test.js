@@ -212,7 +212,6 @@ describe('execute() a query with nested @match', () => {
 
     const matchSelector = nullthrows(
       getSingularSelector(
-        variables,
         markdownRendererFragment,
         (operationSnapshot.data?.node: any)?.outerRenderer,
       ),
@@ -277,7 +276,6 @@ describe('execute() a query with nested @match', () => {
     operationCallback.mockClear();
     const outerMatchSelector = nullthrows(
       getSingularSelector(
-        variables,
         markdownRendererFragment,
         (operationSnapshot.data?.node: any)?.outerRenderer,
       ),
@@ -322,7 +320,6 @@ describe('execute() a query with nested @match', () => {
 
     const innerMatchSelector = nullthrows(
       getSingularSelector(
-        variables,
         plaintextRendererFragment,
         (outerMatchSnapshot.data?.user: $FlowFixMe)?.innerRenderer,
       ),
@@ -591,7 +588,6 @@ describe('execute() a query with nested @match', () => {
     const operationSnapshot = operationCallback.mock.calls[0][0];
     const outerMatchSelector = nullthrows(
       getSingularSelector(
-        variables,
         markdownRendererFragment,
         (operationSnapshot.data?.node: any)?.outerRenderer,
       ),
@@ -669,7 +665,6 @@ describe('execute() a query with nested @match', () => {
     const operationSnapshot = operationCallback.mock.calls[0][0];
     const outerMatchSelector = nullthrows(
       getSingularSelector(
-        variables,
         markdownRendererFragment,
         (operationSnapshot.data?.node: any)?.outerRenderer,
       ),
@@ -681,7 +676,6 @@ describe('execute() a query with nested @match', () => {
     );
     const innerMatchSelector = nullthrows(
       getSingularSelector(
-        variables,
         plaintextRendererFragment,
         (outerMatchSnapshot.data?.user: $FlowFixMe)?.innerRenderer,
       ),

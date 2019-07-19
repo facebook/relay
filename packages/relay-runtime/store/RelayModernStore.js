@@ -123,7 +123,7 @@ class RelayModernStore implements Store {
     return {dispose};
   }
 
-  lookup(selector: ReaderSelector, owner: ?OperationDescriptor): Snapshot {
+  lookup(selector: ReaderSelector, owner: OperationDescriptor): Snapshot {
     const snapshot = RelayReader.read(this._recordSource, selector, owner);
     if (__DEV__) {
       deepFreeze(snapshot);

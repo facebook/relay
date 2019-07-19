@@ -10,15 +10,32 @@
 
 'use strict';
 
+const RelayModernOperationDescriptor = require('../RelayModernOperationDescriptor');
 const RelayRecordSource = require('../RelayRecordSource');
 
-const {getRequest, createOperationDescriptor} = require('../RelayCore');
+const {getRequest} = require('../RelayCore');
 const {read} = require('../RelayReader');
 const {ROOT_ID} = require('../RelayStoreUtils');
 const {
   generateAndCompile,
   generateWithTransforms,
 } = require('relay-test-utils-internal');
+
+function createOperationDescriptor(...args) {
+  const operation = RelayModernOperationDescriptor.createOperationDescriptor(
+    ...args,
+  );
+  // For convenience of the test output, override toJSON to print
+  // a more succint description of the operation.
+  // $FlowFixMe
+  operation.toJSON = () => {
+    return {
+      name: operation.fragment.node.name,
+      variables: operation.variables,
+    };
+  };
+  return operation;
+}
 
 describe('RelayReader', () => {
   let source;
@@ -268,7 +285,13 @@ describe('RelayReader', () => {
   });
 
   it('creates fragment pointers with variable @arguments', () => {
-    const {UserProfile} = generateAndCompile(`
+    const {UserProfile, UserQuery} = generateAndCompile(`
+      query UserQuery {
+        me {
+          ...UserProfile
+        }
+      }
+
       fragment UserProfile on User @argumentDefinitions(
         size: {type: "[Int]"}
       ) {
@@ -285,11 +308,16 @@ describe('RelayReader', () => {
       }
     `);
 
-    const {data, seenRecords} = read(source, {
-      dataID: '1',
-      node: UserProfile,
-      variables: {size: 42},
-    });
+    const owner = createOperationDescriptor(UserQuery, {});
+    const {data, seenRecords} = read(
+      source,
+      {
+        dataID: '1',
+        node: UserProfile,
+        variables: {size: 42},
+      },
+      owner,
+    );
     expect(data).toEqual({
       id: '1',
       __id: '1',
@@ -298,13 +326,19 @@ describe('RelayReader', () => {
           size: 42,
         },
       },
-      __fragmentOwner: null,
+      __fragmentOwner: owner,
     });
     expect(Object.keys(seenRecords)).toEqual(['1']);
   });
 
   it('creates fragment pointers with literal @arguments', () => {
-    const {UserProfile} = generateAndCompile(`
+    const {UserProfile, UserQuery} = generateAndCompile(`
+      query UserQuery {
+        me {
+          ...UserProfile
+        }
+      }
+
       fragment UserProfile on User {
         id
         ...UserProfilePicture @arguments(size: 42)
@@ -319,11 +353,16 @@ describe('RelayReader', () => {
       }
     `);
 
-    const {data, seenRecords} = read(source, {
-      dataID: '1',
-      node: UserProfile,
-      variables: {},
-    });
+    const owner = createOperationDescriptor(UserQuery, {});
+    const {data, seenRecords} = read(
+      source,
+      {
+        dataID: '1',
+        node: UserProfile,
+        variables: {},
+      },
+      owner,
+    );
     expect(data).toEqual({
       id: '1',
       __id: '1',
@@ -332,7 +371,7 @@ describe('RelayReader', () => {
           size: 42,
         },
       },
-      __fragmentOwner: null,
+      __fragmentOwner: owner,
     });
     expect(Object.keys(seenRecords)).toEqual(['1']);
   });
@@ -648,6 +687,7 @@ describe('RelayReader', () => {
 
   describe('when @match directive is present', () => {
     let BarFragment;
+    let BarQuery;
 
     beforeEach(() => {
       const nodes = generateAndCompile(`
@@ -668,8 +708,15 @@ describe('RelayReader', () => {
               @module(name: "MarkdownUserNameRenderer.react")
           }
         }
+
+        query BarQuery {
+          me {
+            ...BarFragment
+          }
+        }
       `);
       BarFragment = nodes.BarFragment;
+      BarQuery = nodes.BarQuery;
     });
 
     it('creates fragment and module pointers for fragment that matches resolved type (1)', () => {
@@ -700,11 +747,16 @@ describe('RelayReader', () => {
         },
       };
       source = RelayRecordSource.create(storeData);
-      const {data, seenRecords, isMissingData} = read(source, {
-        dataID: '1',
-        node: BarFragment,
-        variables: {},
-      });
+      const owner = createOperationDescriptor(BarQuery, {});
+      const {data, seenRecords, isMissingData} = read(
+        source,
+        {
+          dataID: '1',
+          node: BarFragment,
+          variables: {},
+        },
+        owner,
+      );
       expect(data).toEqual({
         id: '1',
         nameRenderer: {
@@ -713,7 +765,7 @@ describe('RelayReader', () => {
           __fragments: {
             PlainUserNameRenderer_name: {},
           },
-          __fragmentOwner: null,
+          __fragmentOwner: owner,
           __fragmentPropName: 'name',
           __module_component: 'PlainUserNameRenderer.react',
         },
@@ -753,11 +805,16 @@ describe('RelayReader', () => {
         },
       };
       source = RelayRecordSource.create(storeData);
-      const {data, seenRecords, isMissingData} = read(source, {
-        dataID: '1',
-        node: BarFragment,
-        variables: {},
-      });
+      const owner = createOperationDescriptor(BarQuery, {});
+      const {data, seenRecords, isMissingData} = read(
+        source,
+        {
+          dataID: '1',
+          node: BarFragment,
+          variables: {},
+        },
+        owner,
+      );
       expect(data).toEqual({
         id: '1',
         nameRenderer: {
@@ -766,7 +823,7 @@ describe('RelayReader', () => {
           __fragments: {
             MarkdownUserNameRenderer_name: {},
           },
-          __fragmentOwner: null,
+          __fragmentOwner: owner,
           __fragmentPropName: 'name',
           __module_component: 'MarkdownUserNameRenderer.react',
         },
@@ -875,6 +932,7 @@ describe('RelayReader', () => {
   });
 
   describe('@module', () => {
+    let BarQuery;
     let BarFragment;
 
     beforeEach(() => {
@@ -896,8 +954,15 @@ describe('RelayReader', () => {
               @module(name: "MarkdownUserNameRenderer.react")
           }
         }
+
+        query BarQuery {
+          me {
+            ...BarFragment
+          }
+        }
       `);
       BarFragment = nodes.BarFragment;
+      BarQuery = nodes.BarQuery;
     });
 
     it('creates fragment and module pointers when the type matches a @module selection (1)', () => {
@@ -926,11 +991,16 @@ describe('RelayReader', () => {
         },
       };
       source = RelayRecordSource.create(storeData);
-      const {data, seenRecords, isMissingData} = read(source, {
-        dataID: '1',
-        node: BarFragment,
-        variables: {},
-      });
+      const owner = createOperationDescriptor(BarQuery, {});
+      const {data, seenRecords, isMissingData} = read(
+        source,
+        {
+          dataID: '1',
+          node: BarFragment,
+          variables: {},
+        },
+        owner,
+      );
       expect(data).toEqual({
         id: '1',
         nameRenderer: {
@@ -938,7 +1008,7 @@ describe('RelayReader', () => {
           __fragments: {
             PlainUserNameRenderer_name: {},
           },
-          __fragmentOwner: null,
+          __fragmentOwner: owner,
           __fragmentPropName: 'name',
           __module_component: 'PlainUserNameRenderer.react',
         },
@@ -973,11 +1043,16 @@ describe('RelayReader', () => {
         },
       };
       source = RelayRecordSource.create(storeData);
-      const {data, seenRecords, isMissingData} = read(source, {
-        dataID: '1',
-        node: BarFragment,
-        variables: {},
-      });
+      const owner = createOperationDescriptor(BarQuery, {});
+      const {data, seenRecords, isMissingData} = read(
+        source,
+        {
+          dataID: '1',
+          node: BarFragment,
+          variables: {},
+        },
+        owner,
+      );
       expect(data).toEqual({
         id: '1',
         nameRenderer: {
@@ -985,7 +1060,7 @@ describe('RelayReader', () => {
           __fragments: {
             MarkdownUserNameRenderer_name: {},
           },
-          __fragmentOwner: null,
+          __fragmentOwner: owner,
           __fragmentPropName: 'name',
           __module_component: 'MarkdownUserNameRenderer.react',
         },

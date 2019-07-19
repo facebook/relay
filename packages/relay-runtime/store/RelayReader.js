@@ -25,7 +25,6 @@ const {
   MODULE_IMPORT,
   SCALAR_FIELD,
 } = require('../util/RelayConcreteNode');
-const {getFragmentVariables} = require('./RelayConcreteVariables');
 const {
   FRAGMENTS_KEY,
   FRAGMENT_OWNER_KEY,
@@ -60,10 +59,10 @@ import type {
 function read(
   recordSource: RecordSource,
   selector: ReaderSelector,
-  owner?: ?OperationDescriptor,
+  owner: OperationDescriptor,
 ): Snapshot {
   const {dataID, node, variables} = selector;
-  const reader = new RelayReader(recordSource, variables, owner ?? null);
+  const reader = new RelayReader(recordSource, variables, owner);
   return reader.read(node, dataID);
 }
 
@@ -75,12 +74,12 @@ class RelayReader {
   _seenRecords: {[dataID: DataID]: ?Record};
   _variables: Variables;
   _isMissingData: boolean;
-  _owner: OperationDescriptor | null;
+  _owner: OperationDescriptor;
 
   constructor(
     recordSource: RecordSource,
     variables: Variables,
-    owner: OperationDescriptor | null,
+    owner: OperationDescriptor,
   ) {
     this._recordSource = recordSource;
     this._seenRecords = {};

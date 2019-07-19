@@ -199,10 +199,8 @@ describe('@connection_resolver connection field', () => {
 
     const selector = nullthrows(
       getSingularSelector(
-        operation.variables,
         fragment,
         nextOperationSnapshot.data?.node,
-        operation,
       ),
     );
     const snapshot = environment.lookup(selector.selector, selector.owner);
@@ -270,12 +268,7 @@ describe('@connection_resolver connection field', () => {
       );
 
       const selector = nullthrows(
-        getSingularSelector(
-          operation.variables,
-          fragment,
-          operationSnapshot.data?.node,
-          operation,
-        ),
+        getSingularSelector(fragment, operationSnapshot.data?.node),
       );
       const snapshot = environment.lookup(selector.selector, selector.owner);
       callback = jest.fn();

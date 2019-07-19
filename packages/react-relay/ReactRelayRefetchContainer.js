@@ -20,11 +20,7 @@ const warning = require('warning');
 
 const {getContainerName} = require('./ReactRelayContainerUtils');
 const {assertRelayContext} = require('./RelayContext');
-const {
-  Observable,
-  getFragmentOwners,
-  isScalarAndEqual,
-} = require('relay-runtime');
+const {Observable, isScalarAndEqual} = require('relay-runtime');
 
 import type {
   $RelayProps,
@@ -271,14 +267,7 @@ function createContainerWithFragments<
       const {
         getVariablesFromObject,
       } = this.props.__relayContext.environment.unstable_internal;
-      return getVariablesFromObject(
-        // NOTE: We pass empty operationVariables because we want to prefer
-        // the variables from the fragment owner
-        {},
-        fragments,
-        this.props,
-        getFragmentOwners(fragments, this.props),
-      );
+      return getVariablesFromObject(fragments, this.props);
     }
 
     _getQueryFetcher(): ReactRelayQueryFetcher {

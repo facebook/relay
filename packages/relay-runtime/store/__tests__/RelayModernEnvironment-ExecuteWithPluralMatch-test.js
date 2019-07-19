@@ -200,7 +200,6 @@ describe('execute() a query with plural @match', () => {
 
     const matchSelector = nullthrows(
       getSingularSelector(
-        variables,
         markdownRendererFragment,
         (operationSnapshot.data?.node: any)?.nameRenderers[0],
       ),
@@ -247,7 +246,6 @@ describe('execute() a query with plural @match', () => {
 
     const matchSelector = nullthrows(
       getSingularSelector(
-        variables,
         markdownRendererFragment,
         (operationSnapshot.data?.node: any)?.nameRenderers[0],
       ),

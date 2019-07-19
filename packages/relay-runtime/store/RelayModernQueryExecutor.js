@@ -456,7 +456,7 @@ class Executor {
       this._getDataID,
     );
     this._processPayloadFollowups(relayPayload);
-    this._publishQueue.commitRelayPayload(relayPayload);
+    this._publishQueue.commitPayload(this._operation, relayPayload);
     const updatedOwners = this._publishQueue.run();
     this._updateOperationTracker(updatedOwners);
   }
@@ -641,7 +641,7 @@ class Executor {
       this._getDataID,
     );
     this._processPayloadFollowups(relayPayload);
-    this._publishQueue.commitRelayPayload(relayPayload);
+    this._publishQueue.commitPayload(this._operation, relayPayload);
 
     // Load the version of the parent record from which this incremental data
     // was derived
@@ -661,7 +661,10 @@ class Executor {
         moduleImportPayloads: null,
         source: RelayRecordSource.create(),
       };
-      this._publishQueue.commitRelayPayload(handleFieldsRelayPayload);
+      this._publishQueue.commitPayload(
+        this._operation,
+        handleFieldsRelayPayload,
+      );
     }
     const updatedOwners = this._publishQueue.run();
     this._updateOperationTracker(updatedOwners);
@@ -840,7 +843,10 @@ class Executor {
         moduleImportPayloads: null,
         source: RelayRecordSource.create(),
       };
-      this._publishQueue.commitRelayPayload(handleFieldsRelayPayload);
+      this._publishQueue.commitPayload(
+        this._operation,
+        handleFieldsRelayPayload,
+      );
     }
     const updatedOwners = this._publishQueue.run();
     this._updateOperationTracker(updatedOwners);

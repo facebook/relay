@@ -40,7 +40,7 @@ import type {
 
 type Payload = {
   fieldPayloads: ?Array<HandleFieldPayload>,
-  operation: OperationDescriptor | null,
+  operation: OperationDescriptor,
   source: MutableRecordSource,
   updater: ?SelectorStoreUpdater,
 };
@@ -157,14 +157,6 @@ class RelayPublishQueue implements PublishQueue {
     });
   }
 
-  commitRelayPayload({fieldPayloads, source}: RelayResponsePayload): void {
-    this._pendingBackupRebase = true;
-    this._pendingData.add({
-      kind: 'payload',
-      payload: {fieldPayloads, operation: null, source, updater: null},
-    });
-  }
-
   /**
    * Schedule an updater to mutate the store on the next `run()` typically to
    * update client schema fields.
@@ -230,7 +222,7 @@ class RelayPublishQueue implements PublishQueue {
       });
     }
     if (updater) {
-      const selector = operation?.fragment;
+      const selector = operation.fragment;
       invariant(
         selector != null,
         'RelayModernEnvironment: Expected a selector to be provided with updater function.',
@@ -406,7 +398,7 @@ class RelayPublishQueue implements PublishQueue {
 function lookupSelector(
   source: RecordSource,
   selector: ReaderSelector,
-  owner: ?OperationDescriptor,
+  owner: OperationDescriptor,
 ): ?SelectorData {
   const selectorData = RelayReader.read(source, selector, owner).data;
   if (__DEV__) {

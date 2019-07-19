@@ -10,12 +10,13 @@
 
 'use strict';
 
+const RelayModernOperationDescriptor = require('../RelayModernOperationDescriptor');
 const RelayModernRecord = require('../RelayModernRecord');
 const RelayModernStore = require('../RelayModernStore');
 const RelayRecordSourceMapImpl = require('../RelayRecordSourceMapImpl');
 const RelayRecordSourceObjectImpl = require('../RelayRecordSourceObjectImpl');
 
-const {getRequest, createOperationDescriptor} = require('../RelayCore');
+const {getRequest} = require('../RelayCore');
 const {
   REF_KEY,
   ROOT_ID,
@@ -30,6 +31,22 @@ const {
 
 expect.extend(matchers);
 
+function createOperationDescriptor(...args) {
+  const operation = RelayModernOperationDescriptor.createOperationDescriptor(
+    ...args,
+  );
+  // For convenience of the test output, override toJSON to print
+  // a more succint description of the operation.
+  // $FlowFixMe
+  operation.toJSON = () => {
+    return {
+      name: operation.fragment.node.name,
+      variables: operation.variables,
+    };
+  };
+  return operation;
+}
+
 [
   [RelayRecordSourceObjectImpl, 'Object'],
   [RelayRecordSourceMapImpl, 'Map'],
@@ -37,6 +54,7 @@ expect.extend(matchers);
   describe(`Relay Store with ${ImplementationName} Record Source`, () => {
     describe('retain()', () => {
       let UserFragment;
+      let UserQuery;
       let data;
       let initialData;
       let source;
@@ -59,8 +77,14 @@ expect.extend(matchers);
         initialData = simpleClone(data);
         source = new RecordSourceImplementation(data);
         store = new RelayModernStore(source);
-        ({UserFragment} = generateWithTransforms(
+        ({UserFragment, UserQuery} = generateWithTransforms(
           `
+        query UserQuery($size: Int) {
+          me {
+            ...UserFragment
+          }
+        }
+
         fragment UserFragment on User {
           name
           profilePicture(size: $size) {
@@ -138,7 +162,7 @@ expect.extend(matchers);
     });
 
     describe('lookup()', () => {
-      let ParentQuery;
+      let UserQuery;
       let UserFragment;
       let data;
       let source;
@@ -160,12 +184,18 @@ expect.extend(matchers);
         };
         source = new RecordSourceImplementation(data);
         store = new RelayModernStore(source);
-        ({UserFragment} = generateWithTransforms(
+        ({UserFragment, UserQuery} = generateWithTransforms(
           `
         fragment UserFragment on User {
           name
           profilePicture(size: $size) {
             uri
+          }
+        }
+
+        query UserQuery($size: Int) {
+          me {
+            ...UserFragment
           }
         }
       `,
@@ -178,7 +208,8 @@ expect.extend(matchers);
           node: UserFragment,
           variables: {size: 32},
         };
-        const snapshot = store.lookup(selector);
+        const owner = createOperationDescriptor(UserQuery, {});
+        const snapshot = store.lookup(selector, owner);
         expect(snapshot).toEqual({
           ...selector,
           data: {
@@ -191,7 +222,7 @@ expect.extend(matchers);
             ...data,
           },
           isMissingData: false,
-          owner: null,
+          owner,
         });
         for (const id in snapshot.seenRecords) {
           if (snapshot.seenRecords.hasOwnProperty(id)) {
@@ -202,9 +233,9 @@ expect.extend(matchers);
       });
 
       it('includes fragment owner in selector data when owner is provided', () => {
-        ({ParentQuery, UserFragment} = generateWithTransforms(
+        ({UserQuery, UserFragment} = generateWithTransforms(
           `
-        query ParentQuery($size: Float!) {
+        query UserQuery($size: Float!) {
           me {
             ...UserFragment
           }
@@ -228,7 +259,7 @@ expect.extend(matchers);
           node: UserFragment,
           variables: {size: 32},
         };
-        const queryNode = getRequest(ParentQuery);
+        const queryNode = getRequest(UserQuery);
         const owner = createOperationDescriptor(queryNode, {size: 32});
         const snapshot = store.lookup(selector, owner);
         expect(snapshot).toEqual({
@@ -263,8 +294,11 @@ expect.extend(matchers);
           node: UserFragment,
           variables: {size: 32},
         };
-        const snapshot = store.lookup(selector);
-        expect(snapshot).toBeDeeplyFrozen();
+        const owner = createOperationDescriptor(UserQuery, {});
+        const snapshot = store.lookup(selector, owner);
+        expect(Object.isFrozen(snapshot)).toBe(true);
+        expect(snapshot.data).toBeDeeplyFrozen();
+        expect(snapshot.variables).toBeDeeplyFrozen();
       });
 
       it('returns updated data after a publish', () => {
@@ -283,12 +317,13 @@ expect.extend(matchers);
         const nextSource = new RecordSourceImplementation(nextData);
         store.publish(nextSource); // takes effect w/o calling notify()
 
+        const owner = createOperationDescriptor(UserQuery, {size: 32});
         const selector = {
           dataID: '4',
           node: UserFragment,
           variables: {size: 32},
         };
-        const snapshot = store.lookup(selector);
+        const snapshot = store.lookup(selector, owner);
         expect(snapshot).toEqual({
           ...selector,
           data: {
@@ -302,13 +337,13 @@ expect.extend(matchers);
             'client:2': nextData['client:2'],
           },
           isMissingData: false,
-          owner: null,
+          owner,
         });
       });
     });
 
     describe('notify/publish/subscribe', () => {
-      let ParentQuery;
+      let UserQuery;
       let UserFragment;
       let data;
       let source;
@@ -331,7 +366,7 @@ expect.extend(matchers);
         };
         source = new RecordSourceImplementation(data);
         store = new RelayModernStore(source);
-        ({UserFragment} = generateWithTransforms(
+        ({UserFragment, UserQuery} = generateWithTransforms(
           `
         fragment UserFragment on User {
           name
@@ -339,6 +374,12 @@ expect.extend(matchers);
             uri
           }
           emailAddresses
+        }
+
+        query UserQuery($size: Int) {
+          me {
+            ...UserFragment
+          }
         }
       `,
         ));
@@ -351,7 +392,8 @@ expect.extend(matchers);
           node: UserFragment,
           variables: {size: 32},
         };
-        const snapshot = store.lookup(selector);
+        const owner = createOperationDescriptor(UserQuery, {});
+        const snapshot = store.lookup(selector, owner);
         const callback = jest.fn();
         store.subscribe(snapshot, callback);
         // Publish a change to profilePicture.uri
@@ -386,9 +428,9 @@ expect.extend(matchers);
 
       it('calls subscribers and reads data with fragment owner if one is available in subscription snapshot', () => {
         // subscribe(), publish(), notify() -> subscriber called
-        ({ParentQuery, UserFragment} = generateWithTransforms(
+        ({UserQuery, UserFragment} = generateWithTransforms(
           `
-        query ParentQuery($size: Float!) {
+        query UserQuery($size: Float!) {
           me {
             ...UserFragment
           }
@@ -408,7 +450,7 @@ expect.extend(matchers);
           node: UserFragment,
           variables: {size: 32},
         };
-        const queryNode = getRequest(ParentQuery);
+        const queryNode = getRequest(UserQuery);
         const owner = createOperationDescriptor(queryNode, {size: 32});
         const snapshot = store.lookup(selector, owner);
         expect(snapshot.owner).toBe(owner);
@@ -452,7 +494,8 @@ expect.extend(matchers);
           node: UserFragment,
           variables: {size: 32},
         };
-        const snapshot = store.lookup(selector);
+        const owner = createOperationDescriptor(UserQuery, {});
+        const snapshot = store.lookup(selector, owner);
         const callback = jest.fn();
         store.subscribe(snapshot, callback);
         // Publish a change to profilePicture.uri
@@ -466,7 +509,9 @@ expect.extend(matchers);
         store.notify();
         expect(callback.mock.calls.length).toBe(1);
         const nextSnapshot = callback.mock.calls[0][0];
-        expect(nextSnapshot).toBeDeeplyFrozen();
+        expect(Object.isFrozen(nextSnapshot)).toBe(true);
+        expect(nextSnapshot.data).toBeDeeplyFrozen();
+        expect(nextSnapshot.variables).toBeDeeplyFrozen();
       });
 
       it('calls affected subscribers only once', () => {
@@ -476,7 +521,8 @@ expect.extend(matchers);
           node: UserFragment,
           variables: {size: 32},
         };
-        const snapshot = store.lookup(selector);
+        const owner = createOperationDescriptor(UserQuery, {});
+        const snapshot = store.lookup(selector, owner);
         const callback = jest.fn();
         store.subscribe(snapshot, callback);
         // Publish a change to profilePicture.uri
@@ -547,7 +593,8 @@ expect.extend(matchers);
           node: UserFragment,
           variables: {size: 32},
         };
-        const snapshot = store.lookup(selector);
+        const owner = createOperationDescriptor(UserQuery, {});
+        const snapshot = store.lookup(selector, owner);
         expect(snapshot.isMissingData).toEqual(true);
 
         const callback = jest.fn();
@@ -591,7 +638,8 @@ expect.extend(matchers);
           node: UserFragment,
           variables: {size: 32},
         };
-        const snapshot = store.lookup(selector);
+        const owner = createOperationDescriptor(UserQuery, {});
+        const snapshot = store.lookup(selector, owner);
         const callback = jest.fn();
         // Record does not exist when subscribed
         store.subscribe(snapshot, callback);
@@ -624,7 +672,8 @@ expect.extend(matchers);
         };
         // Initially delete the record
         source.delete('842472');
-        const snapshot = store.lookup(selector);
+        const owner = createOperationDescriptor(UserQuery, {});
+        const snapshot = store.lookup(selector, owner);
         const callback = jest.fn();
         // Record does not exist when subscribed
         store.subscribe(snapshot, callback);
@@ -657,7 +706,8 @@ expect.extend(matchers);
           node: UserFragment,
           variables: {size: 32},
         };
-        const snapshot = store.lookup(selector);
+        const owner = createOperationDescriptor(UserQuery, {});
+        const snapshot = store.lookup(selector, owner);
         const callback = jest.fn();
         store.subscribe(snapshot, callback);
         // Publish a change to profilePicture.uri
@@ -680,7 +730,8 @@ expect.extend(matchers);
           node: UserFragment,
           variables: {size: 32},
         };
-        const snapshot = store.lookup(selector);
+        const owner = createOperationDescriptor(UserQuery, {});
+        const snapshot = store.lookup(selector, owner);
         const callback = jest.fn();
         const {dispose} = store.subscribe(snapshot, callback);
         // Publish a change to profilePicture.uri

@@ -109,7 +109,9 @@ class ReactRelayTestMocker {
         'clientMutationId',
         'actorId',
       ];
-      toRemove.forEach(item => (variables.input[item] = undefined));
+      const strippedVariables = {...variables, input: {...variables.input}};
+      toRemove.forEach(item => (strippedVariables.input[item] = undefined));
+      return strippedVariables;
     }
 
     return variables;
@@ -145,7 +147,7 @@ class ReactRelayTestMocker {
         cacheConfig,
         deferred: {resolve, reject},
         request,
-        variables,
+        variables: strippedVars,
       });
       return promise;
     };

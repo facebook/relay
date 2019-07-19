@@ -155,7 +155,7 @@ describe('execute() fetches a @stream-ed @connection', () => {
   });
 
   it('initializes the connection with the first edge (0 => 1 edges)', () => {
-    const initialSnapshot = environment.lookup(selector);
+    const initialSnapshot = environment.lookup(selector, operation);
     callback = jest.fn();
     environment.subscribe(initialSnapshot, callback);
 
@@ -259,7 +259,7 @@ describe('execute() fetches a @stream-ed @connection', () => {
   });
 
   it('initializes the connection with subsequent edges (1 => 2 edges)', () => {
-    const initialSnapshot = environment.lookup(selector);
+    const initialSnapshot = environment.lookup(selector, operation);
     callback = jest.fn();
     environment.subscribe(initialSnapshot, callback);
 
@@ -361,7 +361,7 @@ describe('execute() fetches a @stream-ed @connection', () => {
   });
 
   it('initializes the connection with subsequent edges (1 => 2 edges) when initial_count=1', () => {
-    const initialSnapshot = environment.lookup(selector);
+    const initialSnapshot = environment.lookup(selector, operation);
     callback = jest.fn();
     environment.subscribe(initialSnapshot, callback);
 
@@ -459,7 +459,7 @@ describe('execute() fetches a @stream-ed @connection', () => {
   });
 
   it('initializes the connection with subsequent edges (0 => 2 edges) when edges arrive out of order', () => {
-    const initialSnapshot = environment.lookup(selector);
+    const initialSnapshot = environment.lookup(selector, operation);
     callback = jest.fn();
     environment.subscribe(initialSnapshot, callback);
 
@@ -603,7 +603,7 @@ describe('execute() fetches a @stream-ed @connection', () => {
     error.mockClear();
     next.mockClear();
 
-    const initialSnapshot = environment.lookup(selector);
+    const initialSnapshot = environment.lookup(selector, operation);
     callback = jest.fn();
     environment.subscribe(initialSnapshot, callback);
 
@@ -846,7 +846,7 @@ describe('execute() fetches a @stream-ed @connection', () => {
     error.mockClear();
     next.mockClear();
 
-    const initialSnapshot = environment.lookup(selector);
+    const initialSnapshot = environment.lookup(selector, operation);
     callback = jest.fn();
     environment.subscribe(initialSnapshot, callback);
 

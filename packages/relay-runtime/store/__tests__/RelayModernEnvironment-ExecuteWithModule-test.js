@@ -195,7 +195,6 @@ describe('execute() a query with @module', () => {
 
     const matchSelector = nullthrows(
       getSingularSelector(
-        variables,
         markdownRendererFragment,
         (operationSnapshot.data?.node: any)?.nameRenderer,
       ),
@@ -240,7 +239,6 @@ describe('execute() a query with @module', () => {
 
     const matchSelector = nullthrows(
       getSingularSelector(
-        variables,
         markdownRendererFragment,
         (operationSnapshot.data?.node: any)?.nameRenderer,
       ),
@@ -309,7 +307,6 @@ describe('execute() a query with @module', () => {
 
     const matchSelector = nullthrows(
       getSingularSelector(
-        variables,
         markdownRendererFragment,
         (operationSnapshot.data?.node: any)?.nameRenderer,
       ),
@@ -564,7 +561,6 @@ describe('execute() a query with @module', () => {
 
     const matchSelector = nullthrows(
       getSingularSelector(
-        variables,
         markdownRendererFragment,
         (operationSnapshot.data?.node: any)?.nameRenderer,
       ),

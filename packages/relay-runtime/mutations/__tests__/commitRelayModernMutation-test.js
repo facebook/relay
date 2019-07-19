@@ -115,16 +115,19 @@ describe('Configs: NODE_DELETE', () => {
     ];
     const optimisticUpdater = jest.fn();
     const updater = jest.fn();
-    const snapshot = store.lookup({
-      dataID: ROOT_ID,
-      node: FeedbackCommentQuery.fragment,
-      variables: {},
-    });
-    const callback = jest.fn();
     const operationDescriptor = createOperationDescriptor(
       FeedbackCommentQuery,
       {},
     );
+    const snapshot = store.lookup(
+      {
+        dataID: ROOT_ID,
+        node: FeedbackCommentQuery.fragment,
+        variables: {},
+      },
+      operationDescriptor,
+    );
+    const callback = jest.fn();
     environment.commitPayload(operationDescriptor, payload);
     store.subscribe(snapshot, callback);
     commitRelayModernMutation(environment, {
@@ -295,11 +298,14 @@ describe('Configs: RANGE_DELETE', () => {
     environment.commitPayload(operationDescriptor, payload);
     const optimisticUpdater = jest.fn();
     const updater = jest.fn();
-    const snapshot = store.lookup({
-      dataID: ROOT_ID,
-      node: FeedbackCommentQuery.fragment,
-      variables: {},
-    });
+    const snapshot = store.lookup(
+      {
+        dataID: ROOT_ID,
+        node: FeedbackCommentQuery.fragment,
+        variables: {},
+      },
+      operationDescriptor,
+    );
     const callback = jest.fn();
     store.subscribe(snapshot, callback);
     commitRelayModernMutation(environment, {
@@ -422,11 +428,14 @@ describe('Configs: RANGE_DELETE', () => {
         },
       },
     };
-    const snapshot = store.lookup({
-      dataID: ROOT_ID,
-      node: FriendQuery.fragment,
-      variables: {},
-    });
+    const snapshot = store.lookup(
+      {
+        dataID: ROOT_ID,
+        node: FriendQuery.fragment,
+        variables: {},
+      },
+      operationDescriptor,
+    );
     const callback = jest.fn();
     store.subscribe(snapshot, callback);
     commitRelayModernMutation(environment, {
@@ -591,12 +600,15 @@ describe('Configs: RANGE_ADD', () => {
         edgeName: 'feedbackCommentEdge',
       },
     ];
-    const snapshot = store.lookup({
-      dataID: ROOT_ID,
-      node: CommentQuery.fragment,
-      variables: {},
-    });
     const operationDescriptor = createOperationDescriptor(CommentQuery, {});
+    const snapshot = store.lookup(
+      {
+        dataID: ROOT_ID,
+        node: CommentQuery.fragment,
+        variables: {},
+      },
+      operationDescriptor,
+    );
     environment.commitPayload(operationDescriptor, payload);
     store.subscribe(snapshot, callback);
     commitRelayModernMutation(environment, {
@@ -682,11 +694,14 @@ describe('Configs: RANGE_ADD', () => {
     environment.mock.resolve(node, serverResponse);
     jest.runAllTimers();
 
-    let snapshot = store.lookup({
-      dataID: ROOT_ID,
-      node: CommentQuery.fragment,
-      variables: {},
-    });
+    let snapshot = store.lookup(
+      {
+        dataID: ROOT_ID,
+        node: CommentQuery.fragment,
+        variables: {},
+      },
+      operationDescriptor,
+    );
     expect(snapshot.data).toEqual({
       node: {
         topLevelComments: {
@@ -743,11 +758,14 @@ describe('Configs: RANGE_ADD', () => {
     environment.mock.resolve(node, serverResponse);
     jest.runAllTimers();
 
-    snapshot = store.lookup({
-      dataID: ROOT_ID,
-      node: CommentQuery.fragment,
-      variables: {},
-    });
+    snapshot = store.lookup(
+      {
+        dataID: ROOT_ID,
+        node: CommentQuery.fragment,
+        variables: {},
+      },
+      operationDescriptor,
+    );
 
     expect(snapshot.data).toEqual({
       node: {
@@ -801,12 +819,15 @@ describe('Configs: RANGE_ADD', () => {
         edgeName: 'feedbackCommentEdge',
       },
     ];
-    const snapshot = store.lookup({
-      dataID: ROOT_ID,
-      node: CommentQuery.fragment,
-      variables: {},
-    });
     const operationDescriptor = createOperationDescriptor(CommentQuery, {});
+    const snapshot = store.lookup(
+      {
+        dataID: ROOT_ID,
+        node: CommentQuery.fragment,
+        variables: {},
+      },
+      operationDescriptor,
+    );
     environment.commitPayload(operationDescriptor, payload);
     store.subscribe(snapshot, callback);
     commitRelayModernMutation(environment, {
@@ -864,11 +885,14 @@ describe('Configs: RANGE_ADD', () => {
       }`));
     const operationDescriptor = createOperationDescriptor(CommentQuery, {});
     environment.commitPayload(operationDescriptor, payload);
-    const snapshot = store.lookup({
-      dataID: ROOT_ID,
-      node: CommentQuery.fragment,
-      variables: {},
-    });
+    const snapshot = store.lookup(
+      {
+        dataID: ROOT_ID,
+        node: CommentQuery.fragment,
+        variables: {},
+      },
+      operationDescriptor,
+    );
     store.subscribe(snapshot, callback);
     commitRelayModernMutation(environment, {
       configs,
@@ -988,11 +1012,15 @@ describe('commitMutation()', () => {
   });
 
   it('publishes each payload to the store as it arrives', () => {
-    const initialSnapshot = environment.lookup({
-      dataID: '1',
-      node: fragment,
-      variables: {},
-    });
+    const operation = createOperationDescriptor(mutation, variables);
+    const initialSnapshot = environment.lookup(
+      {
+        dataID: '1',
+        node: fragment,
+        variables: {},
+      },
+      operation,
+    );
     const callback = jest.fn();
     environment.subscribe(initialSnapshot, callback);
 

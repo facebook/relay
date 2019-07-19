@@ -339,10 +339,13 @@ describe('RelayModernFragmentSpecResolver', () => {
         environment.lookup.mockClear();
         environment.subscribe.mockClear();
 
-        resolver.setVariables({
-          fetchSize: false,
-          size: null,
-        });
+        resolver.setVariables(
+          {
+            fetchSize: false,
+            size: null,
+          },
+          UserQuery,
+        );
         expect(dispose).not.toBeCalled();
         expect(environment.lookup).not.toBeCalled();
         expect(environment.subscribe).not.toBeCalled();
@@ -353,10 +356,13 @@ describe('RelayModernFragmentSpecResolver', () => {
         const dispose = environment.subscribe.mock.dispose;
         setPhotoUri('4', 1, 'https://4.jpg');
         expect(dispose).not.toBeCalled();
-        resolver.setVariables({
-          fetchSize: true,
-          size: 1,
-        });
+        resolver.setVariables(
+          {
+            fetchSize: true,
+            size: 1,
+          },
+          UserQuery,
+        );
         expect(callback).not.toBeCalled();
         expect(dispose).toBeCalled();
         expect(resolver.resolve()).toEqual({
@@ -372,10 +378,13 @@ describe('RelayModernFragmentSpecResolver', () => {
 
       it('calls callback when fragment data changes', () => {
         setPhotoUri('4', 1, 'https://4.jpg');
-        resolver.setVariables({
-          fetchSize: true,
-          size: 1,
-        });
+        resolver.setVariables(
+          {
+            fetchSize: true,
+            size: 1,
+          },
+          UserQuery,
+        );
         expect(callback).not.toBeCalled();
         setPhotoUri('4', 1, 'https://zuck.jpg');
         expect(callback).toBeCalled();
@@ -705,10 +714,13 @@ describe('RelayModernFragmentSpecResolver', () => {
         environment.lookup.mockClear();
         environment.subscribe.mockClear();
 
-        resolver.setVariables({
-          fetchSize: false,
-          size: null,
-        });
+        resolver.setVariables(
+          {
+            fetchSize: false,
+            size: null,
+          },
+          UserQuery,
+        );
         expect(dispose).not.toBeCalled();
         expect(environment.lookup).not.toBeCalled();
         expect(environment.subscribe).not.toBeCalled();
@@ -719,10 +731,13 @@ describe('RelayModernFragmentSpecResolver', () => {
         const dispose = environment.subscribe.mock.dispose;
         setPhotoUri('4', 1, 'https://4.jpg');
         expect(dispose).not.toBeCalled();
-        resolver.setVariables({
-          fetchSize: true,
-          size: 1,
-        });
+        resolver.setVariables(
+          {
+            fetchSize: true,
+            size: 1,
+          },
+          UserQuery,
+        );
         expect(callback).not.toBeCalled();
         expect(dispose).toBeCalled();
         expect(resolver.resolve()).toEqual({
@@ -740,10 +755,13 @@ describe('RelayModernFragmentSpecResolver', () => {
 
       it('calls callback when fragment data changes', () => {
         setPhotoUri('4', 1, 'https://4.jpg');
-        resolver.setVariables({
-          fetchSize: true,
-          size: 1,
-        });
+        resolver.setVariables(
+          {
+            fetchSize: true,
+            size: 1,
+          },
+          UserQuery,
+        );
         expect(callback).not.toBeCalled();
         setPhotoUri('4', 1, 'https://zuck.jpg');
         expect(callback).toBeCalled();

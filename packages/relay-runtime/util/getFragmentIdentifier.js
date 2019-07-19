@@ -30,16 +30,7 @@ function getFragmentIdentifier(
     // $FlowFixMe - TODO T39154660 Use FragmentPointer type instead of mixed
     fragmentRef,
   );
-  const fragmentVariables = getVariablesFromFragment(
-    // We get the variables from the fragment owner in the fragment ref, so we
-    // don't pass them here. This API can change once fragment ownership
-    // stops being optional
-    // TODO(T39494051)
-    {},
-    fragmentNode,
-    fragmentRef,
-    fragmentOwner,
-  );
+  const fragmentVariables = getVariablesFromFragment(fragmentNode, fragmentRef);
   const dataIDs = getDataIDsFromFragment(fragmentNode, fragmentRef);
 
   const fragmentOwnerID = Array.isArray(fragmentOwner)

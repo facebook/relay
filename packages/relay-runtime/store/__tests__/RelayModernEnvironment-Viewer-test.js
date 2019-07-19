@@ -94,11 +94,11 @@ describe('Mutations on viewer', () => {
       node: ShortCutQuery.fragment,
       variables: {},
     };
+    const operationDescriptor = createOperationDescriptor(ShortCutQuery, {});
     const callback = jest.fn();
-    const snapshot = environment.lookup(selector);
+    const snapshot = environment.lookup(selector, operationDescriptor);
     environment.subscribe(snapshot, callback);
 
-    const operationDescriptor = createOperationDescriptor(ShortCutQuery, {});
     environment.commitPayload(operationDescriptor, payload);
     expect(callback).toBeCalledTimes(1);
     expect(callback.mock.calls[0][0].data).toEqual({
@@ -148,7 +148,8 @@ describe('Mutations on viewer', () => {
       node: LocationQuery.fragment,
       variables: {},
     };
-    const snapshot = environment.lookup(selector);
+    const operationDescriptor = createOperationDescriptor(LocationQuery, {});
+    const snapshot = environment.lookup(selector, operationDescriptor);
     const callback = jest.fn();
     environment.subscribe(snapshot, callback);
 
@@ -172,7 +173,6 @@ describe('Mutations on viewer', () => {
         },
       },
     });
-    const operationDescriptor = createOperationDescriptor(LocationQuery, {});
     environment.check(operationDescriptor.root); // fill in missing viewer
     expect(callback).toBeCalledTimes(2);
     expect(callback.mock.calls[0][0].data).toEqual({

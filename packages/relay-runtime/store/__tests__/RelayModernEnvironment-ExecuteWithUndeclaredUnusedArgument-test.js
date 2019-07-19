@@ -123,10 +123,8 @@ describe('query with undeclared, unused fragment argument', () => {
       },
     });
     const fragmentSelector = RelayModernSelector.getSelector(
-      operation.variables,
       fragment,
       (snapshot.data: $FlowFixMe).node,
-      operation,
     );
     invariant(
       fragmentSelector != null && !Array.isArray(fragmentSelector),
@@ -147,10 +145,8 @@ describe('query with undeclared, unused fragment argument', () => {
       name: 'Zuck',
     });
     const innerSelector = RelayModernSelector.getSelector(
-      operation.variables,
       innerFragment,
       (fragmentSnapshot.data: $FlowFixMe),
-      operation,
     );
     invariant(
       innerSelector != null && !Array.isArray(innerSelector),

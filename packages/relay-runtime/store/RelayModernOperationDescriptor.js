@@ -10,6 +10,8 @@
 
 'use strict';
 
+const deepFreeze = require('../util/deepFreeze');
+
 const {getOperationVariables} = require('./RelayConcreteVariables');
 const {ROOT_ID} = require('./RelayStoreUtils');
 
@@ -30,7 +32,7 @@ function createOperationDescriptor(
   const operation = request.operation;
   const operationVariables = getOperationVariables(operation, variables);
   const dataID = ROOT_ID;
-  return {
+  const operationDescriptor = {
     fragment: {
       dataID,
       node: request.fragment,
@@ -44,6 +46,19 @@ function createOperationDescriptor(
     },
     variables: operationVariables,
   };
+  if (__DEV__) {
+    // Freeze the properties of an OperationDescriptor but not the object:
+    // - Freezing properties short-circuits a deepFreeze of snapshots
+    //   that contain an OperationDescriptor via their selector's owner,
+    //   avoiding stack overflow on larger queries.
+    // - Not freezing the object allows overriding properties in tests,
+    //   such as configuring a custom  toJSON() for debugging.
+    Object.freeze(operationDescriptor.fragment);
+    Object.freeze(operationDescriptor.node);
+    Object.freeze(operationDescriptor.root);
+    deepFreeze(operationDescriptor.variables);
+  }
+  return operationDescriptor;
 }
 
 module.exports = {

@@ -47,7 +47,10 @@ class RelayTestRenderer extends React.Component<Props, $FlowFixMe> {
 
     const operation = getRequest((query: $FlowFixMe));
     const operationDescriptor = createOperationDescriptor(operation, variables);
-    const snapshot = environment.lookup(operationDescriptor.fragment);
+    const snapshot = environment.lookup(
+      operationDescriptor.fragment,
+      operationDescriptor,
+    );
 
     this.state = {data: snapshot.data};
     environment.subscribe(snapshot, this._onChange);

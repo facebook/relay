@@ -145,7 +145,7 @@ describe('execute() a query with multiple @stream selections on the same record'
   });
 
   it('calls next() and publishes the initial payload to the store', () => {
-    const initialSnapshot = environment.lookup(selector);
+    const initialSnapshot = environment.lookup(selector, operation);
     const callback = jest.fn();
     environment.subscribe(initialSnapshot, callback);
 
@@ -176,7 +176,7 @@ describe('execute() a query with multiple @stream selections on the same record'
   });
 
   it('processes sequential payloads (all actors, then all viewedBy)', () => {
-    const initialSnapshot = environment.lookup(selector);
+    const initialSnapshot = environment.lookup(selector, operation);
     const callback = jest.fn();
     environment.subscribe(initialSnapshot, callback);
 
@@ -292,7 +292,7 @@ describe('execute() a query with multiple @stream selections on the same record'
   });
 
   it('processes interleaved streamed payloads (actor/viewedBy/actor/viewedBy)', () => {
-    const initialSnapshot = environment.lookup(selector);
+    const initialSnapshot = environment.lookup(selector, operation);
     const callback = jest.fn();
     environment.subscribe(initialSnapshot, callback);
 

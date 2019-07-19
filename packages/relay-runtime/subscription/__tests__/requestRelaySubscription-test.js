@@ -143,11 +143,14 @@ describe('requestRelaySubscription-test', () => {
       },
     };
     environment.mock.nextValue(CommentCreateSubscription, subscriptionPayload);
-    const snapshot = store.lookup({
-      dataID: ROOT_ID,
-      node: FeedbackCommentQuery.fragment,
-      variables: {id: feedbackId},
-    });
+    const snapshot = store.lookup(
+      {
+        dataID: ROOT_ID,
+        node: FeedbackCommentQuery.fragment,
+        variables: {id: feedbackId},
+      },
+      operationDescriptor,
+    );
     expect(snapshot.data).toEqual({
       node: {
         comments: {

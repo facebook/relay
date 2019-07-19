@@ -696,14 +696,7 @@ function createContainerWithFragments<
           ...fragmentOwnerVariables,
         };
       });
-      fragmentVariables = getVariablesFromObject(
-        // NOTE: We pass empty operationVariables because we want to prefer
-        // the variables from the fragment owner
-        {},
-        fragments,
-        restProps,
-        fragmentOwners,
-      );
+      fragmentVariables = getVariablesFromObject(fragments, restProps);
       fragmentVariables = {
         ...rootVariables,
         ...fragmentVariables,

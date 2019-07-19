@@ -211,7 +211,6 @@ describe('executeMutation() with @match', () => {
 
     const matchSelector = nullthrows(
       getSingularSelector(
-        variables,
         markdownRendererFragment,
         (operationSnapshot.data: any)?.commentCreate?.comment?.actor
           ?.nameRenderer,
@@ -272,7 +271,6 @@ describe('executeMutation() with @match', () => {
 
     const matchSelector = nullthrows(
       getSingularSelector(
-        variables,
         markdownRendererFragment,
         (operationSnapshot.data: any)?.commentCreate?.comment?.actor
           ?.nameRenderer,

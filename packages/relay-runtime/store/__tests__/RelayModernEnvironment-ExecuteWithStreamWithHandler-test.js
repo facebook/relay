@@ -148,7 +148,7 @@ describe('execute() a query with @stream with handler', () => {
   });
 
   it('calls next() and publishes the initial payload to the store', () => {
-    const initialSnapshot = environment.lookup(selector);
+    const initialSnapshot = environment.lookup(selector, operation);
     const callback = jest.fn();
     environment.subscribe(initialSnapshot, callback);
 
@@ -178,7 +178,7 @@ describe('execute() a query with @stream with handler', () => {
   });
 
   it('processes streamed payloads', () => {
-    const initialSnapshot = environment.lookup(selector);
+    const initialSnapshot = environment.lookup(selector, operation);
     const callback = jest.fn();
     environment.subscribe(initialSnapshot, callback);
 
@@ -237,7 +237,7 @@ describe('execute() a query with @stream with handler', () => {
   });
 
   it('processes @stream payloads when the parent record has been deleted', () => {
-    const initialSnapshot = environment.lookup(selector);
+    const initialSnapshot = environment.lookup(selector, operation);
     const callback = jest.fn();
     environment.subscribe(initialSnapshot, callback);
 
@@ -277,11 +277,14 @@ describe('execute() a query with @stream with handler', () => {
     expect(callback).toBeCalledTimes(0);
 
     // but the streamed entity is added to the store
-    const actorSnapshot = environment.lookup({
-      dataID: '2',
-      node: actorFragment,
-      variables: {},
-    });
+    const actorSnapshot = environment.lookup(
+      {
+        dataID: '2',
+        node: actorFragment,
+        variables: {},
+      },
+      operation,
+    );
     expect(actorSnapshot.isMissingData).toBe(false);
     expect(actorSnapshot.data).toEqual({
       name: 'ALICE',
@@ -292,7 +295,7 @@ describe('execute() a query with @stream with handler', () => {
   });
 
   it('processes @stream payloads when the streamed field has been deleted on the parent record', () => {
-    const initialSnapshot = environment.lookup(selector);
+    const initialSnapshot = environment.lookup(selector, operation);
     const callback = jest.fn();
     environment.subscribe(initialSnapshot, callback);
 
@@ -340,11 +343,14 @@ describe('execute() a query with @stream with handler', () => {
     });
 
     // the streamed entity is also added to the store
-    const actorSnapshot = environment.lookup({
-      dataID: '2',
-      node: actorFragment,
-      variables: {},
-    });
+    const actorSnapshot = environment.lookup(
+      {
+        dataID: '2',
+        node: actorFragment,
+        variables: {},
+      },
+      operation,
+    );
     expect(actorSnapshot.isMissingData).toBe(false);
     expect(actorSnapshot.data).toEqual({
       name: 'ALICE',
@@ -358,7 +364,7 @@ describe('execute() a query with @stream with handler', () => {
     'processes @stream payloads when the identity of the item at the ' +
       'target index has changed on the parent record ()',
     () => {
-      const initialSnapshot = environment.lookup(selector);
+      const initialSnapshot = environment.lookup(selector, operation);
       const callback = jest.fn();
       environment.subscribe(initialSnapshot, callback);
 
@@ -411,11 +417,14 @@ describe('execute() a query with @stream with handler', () => {
       });
 
       // and the streamed entity is added to the store
-      const actorSnapshot = environment.lookup({
-        dataID: '2',
-        node: actorFragment,
-        variables: {},
-      });
+      const actorSnapshot = environment.lookup(
+        {
+          dataID: '2',
+          node: actorFragment,
+          variables: {},
+        },
+        operation,
+      );
       expect(actorSnapshot.isMissingData).toBe(false);
       expect(actorSnapshot.data).toEqual({
         name: 'ALICE',
@@ -430,7 +439,7 @@ describe('execute() a query with @stream with handler', () => {
     'processes @stream payloads when the identity of the item at the ' +
       'an index other than the target has changed on the parent record ()',
     () => {
-      const initialSnapshot = environment.lookup(selector);
+      const initialSnapshot = environment.lookup(selector, operation);
       const callback = jest.fn();
       environment.subscribe(initialSnapshot, callback);
 
@@ -502,11 +511,14 @@ describe('execute() a query with @stream with handler', () => {
       });
 
       // but the streamed entity is added to the store
-      const actorSnapshot = environment.lookup({
-        dataID: '2',
-        node: actorFragment,
-        variables: {},
-      });
+      const actorSnapshot = environment.lookup(
+        {
+          dataID: '2',
+          node: actorFragment,
+          variables: {},
+        },
+        operation,
+      );
       expect(actorSnapshot.isMissingData).toBe(false);
       expect(actorSnapshot.data).toEqual({
         name: 'ALICE',
@@ -518,7 +530,7 @@ describe('execute() a query with @stream with handler', () => {
   );
 
   it('processes streamed payloads that arrive out of order', () => {
-    const initialSnapshot = environment.lookup(selector);
+    const initialSnapshot = environment.lookup(selector, operation);
     const callback = jest.fn();
     environment.subscribe(initialSnapshot, callback);
 
@@ -579,7 +591,7 @@ describe('execute() a query with @stream with handler', () => {
   });
 
   it('processes streamed payloads relative to the most recent root payload', () => {
-    const initialSnapshot = environment.lookup(selector);
+    const initialSnapshot = environment.lookup(selector, operation);
     const callback = jest.fn();
     environment.subscribe(initialSnapshot, callback);
 
@@ -626,11 +638,14 @@ describe('execute() a query with @stream with handler', () => {
     // root record, not1
     expect(callback).toBeCalledTimes(0);
 
-    const snapshot = environment.lookup({
-      dataID: 'not1',
-      node: fragment,
-      variables: {},
-    });
+    const snapshot = environment.lookup(
+      {
+        dataID: 'not1',
+        node: fragment,
+        variables: {},
+      },
+      operation,
+    );
     expect(snapshot.isMissingData).toBe(false);
     expect(snapshot.data).toEqual({
       id: 'not1',
@@ -642,7 +657,7 @@ describe('execute() a query with @stream with handler', () => {
   });
 
   it('calls complete() when server completes after streamed payload resolves', () => {
-    const initialSnapshot = environment.lookup(selector);
+    const initialSnapshot = environment.lookup(selector, operation);
     const callback = jest.fn();
     environment.subscribe(initialSnapshot, callback);
 
@@ -682,7 +697,7 @@ describe('execute() a query with @stream with handler', () => {
   });
 
   it('calls complete() when server completes before streamed payload resolves', () => {
-    const initialSnapshot = environment.lookup(selector);
+    const initialSnapshot = environment.lookup(selector, operation);
     const callback = jest.fn();
     environment.subscribe(initialSnapshot, callback);
 
@@ -712,7 +727,7 @@ describe('execute() a query with @stream with handler', () => {
   });
 
   it('calls error() when server errors after streamed payload resolves', () => {
-    const initialSnapshot = environment.lookup(selector);
+    const initialSnapshot = environment.lookup(selector, operation);
     const callback = jest.fn();
     environment.subscribe(initialSnapshot, callback);
 
@@ -754,7 +769,7 @@ describe('execute() a query with @stream with handler', () => {
   });
 
   it('calls error() when server errors before streamed payload resolves', () => {
-    const initialSnapshot = environment.lookup(selector);
+    const initialSnapshot = environment.lookup(selector, operation);
     const callback = jest.fn();
     environment.subscribe(initialSnapshot, callback);
 
@@ -786,7 +801,7 @@ describe('execute() a query with @stream with handler', () => {
   });
 
   it('calls error() when streamed payload is missing data', () => {
-    const initialSnapshot = environment.lookup(selector);
+    const initialSnapshot = environment.lookup(selector, operation);
     const callback = jest.fn();
     environment.subscribe(initialSnapshot, callback);
 

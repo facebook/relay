@@ -181,12 +181,7 @@ describe('@connection with dynamic key', () => {
     });
 
     const selector = nullthrows(
-      getSingularSelector(
-        operation.variables,
-        fragment,
-        nextOperationSnapshot.data?.node,
-        operation,
-      ),
+      getSingularSelector(fragment, nextOperationSnapshot.data?.node),
     );
     const snapshot = environment.lookup(selector.selector, selector.owner);
     expect(snapshot.isMissingData).toBe(false);
@@ -251,12 +246,7 @@ describe('@connection with dynamic key', () => {
       );
 
       const selector = nullthrows(
-        getSingularSelector(
-          operation.variables,
-          fragment,
-          operationSnapshot.data?.node,
-          operation,
-        ),
+        getSingularSelector(fragment, operationSnapshot.data?.node),
       );
       const snapshot = environment.lookup(selector.selector, selector.owner);
       callback = jest.fn();

@@ -63,7 +63,7 @@ export type ReaderSelector = {
 };
 
 export type OwnedReaderSelector = {|
-  owner: OperationDescriptor | null,
+  owner: OperationDescriptor,
   selector: ReaderSelector,
 |};
 
@@ -84,7 +84,7 @@ export type Snapshot = ReaderSelector & {
   data: ?SelectorData,
   seenRecords: RecordMap,
   isMissingData: boolean,
-  owner: OperationDescriptor | null,
+  owner: OperationDescriptor,
 };
 
 /**
@@ -155,7 +155,7 @@ export interface FragmentSpecResolver {
    * Override the variables used to read the results of the fragments. Call
    * `resolve()` to get the updated results.
    */
-  setVariables(variables: Variables, node?: ConcreteRequest): void;
+  setVariables(variables: Variables, node: ConcreteRequest): void;
 
   /**
    * Subscribe to resolver updates.
@@ -254,10 +254,8 @@ export interface UnstableEnvironmentCore {
    * ```
    */
   getSingularSelector: (
-    operationVariables: Variables,
     fragment: ReaderFragment,
     prop: mixed,
-    owner?: ?OperationDescriptor,
   ) => ?OwnedReaderSelector;
 
   /**
@@ -267,10 +265,8 @@ export interface UnstableEnvironmentCore {
    * expect an array of results and therefore return an array of selectors.
    */
   getPluralSelector: (
-    operationVariables: Variables,
     fragment: ReaderFragment,
     props: Array<mixed>,
-    owner?: Array<?OperationDescriptor>,
   ) => ?Array<OwnedReaderSelector>;
 
   /**
@@ -279,10 +275,8 @@ export interface UnstableEnvironmentCore {
    * plural.
    */
   getSelector: (
-    operationVariables: Variables,
     fragment: ReaderFragment,
     item: mixed | Array<mixed>,
-    owner?: ?OperationDescriptor | Array<?OperationDescriptor>,
   ) => ?OwnedReaderSelector | ?Array<OwnedReaderSelector>;
 
   /**
@@ -294,12 +288,8 @@ export interface UnstableEnvironmentCore {
    * can read the results to pass to the inner component.
    */
   getSelectorsFromObject: (
-    operationVariables: Variables,
     fragments: FragmentMap,
     props: Props,
-    owner?: {
-      [key: string]: ?OperationDescriptor | Array<?OperationDescriptor>,
-    },
   ) => {
     [key: string]: ?(OwnedReaderSelector | Array<OwnedReaderSelector>),
   };
@@ -322,17 +312,13 @@ export interface UnstableEnvironmentCore {
   ) => ?DataID | ?Array<DataID>;
 
   getVariablesFromSingularFragment: (
-    operationVariables: Variables,
     fragment: ReaderFragment,
     prop: mixed,
-    owner?: ?OperationDescriptor,
   ) => ?Variables;
 
   getVariablesFromPluralFragment: (
-    operationVariables: Variables,
     fragment: ReaderFragment,
     prop: Array<mixed>,
-    owners?: Array<?OperationDescriptor>,
   ) => Variables;
 
   /**
@@ -340,10 +326,8 @@ export interface UnstableEnvironmentCore {
    * and returns the merged variables that would be in scope for that fragment/item.
    */
   getVariablesFromFragment: (
-    operationVariables: Variables,
     fragment: ReaderFragment,
     item: mixed | Array<mixed>,
-    owner?: ?OperationDescriptor | Array<?OperationDescriptor>,
   ) => Variables;
 
   /**
@@ -354,14 +338,7 @@ export interface UnstableEnvironmentCore {
    * This can be useful in determining what variables were used to fetch the data
    * for a Relay container, for example.
    */
-  getVariablesFromObject: (
-    operationVariables: Variables,
-    fragments: FragmentMap,
-    props: Props,
-    owners?: {
-      [key: string]: ?OperationDescriptor | Array<?OperationDescriptor>,
-    },
-  ) => Variables;
+  getVariablesFromObject: (fragments: FragmentMap, props: Props) => Variables;
 
   // Operation Tracker for Relay Hooks
   getOperationTracker: () => RelayOperationTracker;
@@ -414,7 +391,7 @@ export interface Store {
    * Optionally takes an owner, corresponding to the operation that
    * owns this selector (fragment).
    */
-  lookup(selector: ReaderSelector, owner: ?OperationDescriptor): Snapshot;
+  lookup(selector: ReaderSelector, owner: OperationDescriptor): Snapshot;
 
   /**
    * Notify subscribers (see `subscribe`) of any data that was published
@@ -601,7 +578,7 @@ export interface Environment {
    * Optionally takes an owner, corresponding to the operation that
    * owns this selector (fragment).
    */
-  lookup(selector: ReaderSelector, owner: ?OperationDescriptor): Snapshot;
+  lookup(selector: ReaderSelector, owner: OperationDescriptor): Snapshot;
 
   /**
    * Send a query to the server with Observer semantics: one or more
@@ -660,7 +637,7 @@ export interface Environment {
 export type FragmentPointer = {
   __id: DataID,
   __fragments: {[fragmentName: string]: Variables},
-  __fragmentOwner: OperationDescriptor | null,
+  __fragmentOwner: OperationDescriptor,
 };
 
 /**
@@ -886,12 +863,6 @@ export interface PublishQueue {
     payload: RelayResponsePayload,
     updater?: ?SelectorStoreUpdater,
   ): void;
-
-  /**
-   * Schedule applying a payload to the store on the next `run()` without operation
-   * This method will publish subsequent payloads (follow-ups) for initial operation
-   */
-  commitRelayPayload(payload: RelayResponsePayload): void;
 
   /**
    * Schedule an updater to mutate the store on the next `run()` typically to

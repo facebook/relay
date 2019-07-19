@@ -73,15 +73,6 @@ describe('RelayModernFragmentOwner', () => {
         );
       });
 
-      it('returns null if owner is not found in fragment ref', () => {
-        const fragmentOwner = getFragmentOwner(UserFragment, {
-          __id: '4',
-          __fragments: {UserFragment: {}},
-          __fragmentOwner: null,
-        });
-        expect(fragmentOwner).toEqual(null);
-      });
-
       it('returns null if fragment ref is null or undefined', () => {
         let fragmentOwner = getFragmentOwner(UserFragment, null);
         expect(fragmentOwner).toEqual(null);
@@ -135,17 +126,6 @@ describe('RelayModernFragmentOwner', () => {
           'RelayModernFragmentOwner: Expected value for fragment `UsersFragment` to ' +
             'be an object, got `string`.',
         );
-      });
-
-      it('returns null if owner is not found in fragment ref', () => {
-        const fragmentOwner = getFragmentOwner(UsersFragment, [
-          {
-            __id: '4',
-            __fragments: {UserFragment: {}},
-            __fragmentOwner: null,
-          },
-        ]);
-        expect(fragmentOwner).toEqual([null]);
       });
 
       it('returns null if fragment ref is null or undefined', () => {

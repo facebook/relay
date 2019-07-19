@@ -197,7 +197,6 @@ describe('execute() a query with @match with additional arguments', () => {
 
     const matchSelector = nullthrows(
       getSingularSelector(
-        variables,
         markdownRendererFragment,
         (operationSnapshot.data?.node: any)?.nameRendererForContext,
       ),
@@ -242,7 +241,6 @@ describe('execute() a query with @match with additional arguments', () => {
 
     const matchSelector = nullthrows(
       getSingularSelector(
-        variables,
         markdownRendererFragment,
         (operationSnapshot.data?.node: any)?.nameRendererForContext,
       ),
@@ -311,7 +309,6 @@ describe('execute() a query with @match with additional arguments', () => {
 
     const matchSelector = nullthrows(
       getSingularSelector(
-        variables,
         markdownRendererFragment,
         (operationSnapshot.data?.node: any)?.nameRendererForContext,
       ),
@@ -396,7 +393,6 @@ describe('execute() a query with @match with additional arguments', () => {
 
     const matchSelector = nullthrows(
       getSingularSelector(
-        variables,
         markdownRendererFragment,
         (operationSnapshot.data?.node: any)?.nameRendererForContext,
       ),
@@ -498,7 +494,6 @@ describe('execute() a query with @match with additional arguments', () => {
 
     const matchSelector = nullthrows(
       getSingularSelector(
-        variables,
         markdownRendererFragment,
         (operationSnapshot.data?.node: any)?.nameRendererForContext,
       ),
@@ -761,7 +756,6 @@ describe('execute() a query with @match with additional arguments', () => {
 
     const matchSelector = nullthrows(
       getSingularSelector(
-        variables,
         markdownRendererFragment,
         (operationSnapshot.data?.node: any)?.nameRendererForContext,
       ),

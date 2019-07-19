@@ -1457,6 +1457,28 @@ extend type FriendsConnection {
 }
 `;
 
+exports[`compileRelayArtifacts matches expected output: complex-arguments.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+# expected-to-throw
+query TestQuery($date: String) {
+  items(filter: {date: $date}) {
+    date
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+THROWN EXCEPTION:
+
+ReaderCodeGenerator: Complex argument values (Lists or InputObjects with nested variables) are not supported.
+
+Source: GraphQL request (3:17)
+2: query TestQuery($date: String) {
+3:   items(filter: {date: $date}) {
+                   ^
+4:     date
+
+`;
+
 exports[`compileRelayArtifacts matches expected output: connection.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query NodeQuery($id: ID!) {
@@ -10013,6 +10035,429 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
 }
 `;
 
+exports[`compileRelayArtifacts matches expected output: query-with-fragment-variables.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query TestQuery($id: ID!, $cond: Boolean!, $pictureSize: [Int] = [128]) {
+  node(id: $id) {
+    id
+    ...Profile @arguments(pictureSize: $pictureSize)
+    ...ProfileFriends @include(if: $cond)
+  }
+}
+
+fragment ProfileFriends on User {
+  friends(first: 10) {
+    edges {
+      node {
+        ...Profile @arguments(pictureSize: $pictureSize)
+      }
+    }
+  }
+}
+
+fragment Profile on User @argumentDefinitions(
+  pictureSize: {type: "[Int]"}
+) {
+  profilePicture(size: $pictureSize) {
+    uri
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+{
+  "kind": "Request",
+  "fragment": {
+    "kind": "Fragment",
+    "name": "TestQuery",
+    "type": "Query",
+    "metadata": null,
+    "argumentDefinitions": [
+      {
+        "kind": "LocalArgument",
+        "name": "id",
+        "type": "ID!",
+        "defaultValue": null
+      },
+      {
+        "kind": "LocalArgument",
+        "name": "cond",
+        "type": "Boolean!",
+        "defaultValue": null
+      },
+      {
+        "kind": "LocalArgument",
+        "name": "pictureSize",
+        "type": "[Int]",
+        "defaultValue": [
+          128
+        ]
+      }
+    ],
+    "selections": [
+      {
+        "kind": "LinkedField",
+        "alias": null,
+        "name": "node",
+        "storageKey": null,
+        "args": [
+          {
+            "kind": "Variable",
+            "name": "id",
+            "variableName": "id"
+          }
+        ],
+        "concreteType": null,
+        "plural": false,
+        "selections": [
+          {
+            "kind": "ScalarField",
+            "alias": null,
+            "name": "id",
+            "args": null,
+            "storageKey": null
+          },
+          {
+            "kind": "FragmentSpread",
+            "name": "Profile",
+            "args": [
+              {
+                "kind": "Variable",
+                "name": "pictureSize",
+                "variableName": "pictureSize"
+              }
+            ]
+          },
+          {
+            "kind": "Condition",
+            "passingValue": true,
+            "condition": "cond",
+            "selections": [
+              {
+                "kind": "FragmentSpread",
+                "name": "ProfileFriends",
+                "args": null
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "operation": {
+    "kind": "Operation",
+    "name": "TestQuery",
+    "argumentDefinitions": [
+      {
+        "kind": "LocalArgument",
+        "name": "id",
+        "type": "ID!",
+        "defaultValue": null
+      },
+      {
+        "kind": "LocalArgument",
+        "name": "cond",
+        "type": "Boolean!",
+        "defaultValue": null
+      },
+      {
+        "kind": "LocalArgument",
+        "name": "pictureSize",
+        "type": "[Int]",
+        "defaultValue": [
+          128
+        ]
+      }
+    ],
+    "selections": [
+      {
+        "kind": "LinkedField",
+        "alias": null,
+        "name": "node",
+        "storageKey": null,
+        "args": [
+          {
+            "kind": "Variable",
+            "name": "id",
+            "variableName": "id"
+          }
+        ],
+        "concreteType": null,
+        "plural": false,
+        "selections": [
+          {
+            "kind": "ScalarField",
+            "alias": null,
+            "name": "__typename",
+            "args": null,
+            "storageKey": null
+          },
+          {
+            "kind": "ScalarField",
+            "alias": null,
+            "name": "id",
+            "args": null,
+            "storageKey": null
+          },
+          {
+            "kind": "InlineFragment",
+            "type": "User",
+            "selections": [
+              {
+                "kind": "LinkedField",
+                "alias": null,
+                "name": "profilePicture",
+                "storageKey": null,
+                "args": [
+                  {
+                    "kind": "Variable",
+                    "name": "size",
+                    "variableName": "pictureSize"
+                  }
+                ],
+                "concreteType": "Image",
+                "plural": false,
+                "selections": [
+                  {
+                    "kind": "ScalarField",
+                    "alias": null,
+                    "name": "uri",
+                    "args": null,
+                    "storageKey": null
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "kind": "Condition",
+            "passingValue": true,
+            "condition": "cond",
+            "selections": [
+              {
+                "kind": "InlineFragment",
+                "type": "User",
+                "selections": [
+                  {
+                    "kind": "LinkedField",
+                    "alias": null,
+                    "name": "friends",
+                    "storageKey": "friends(first:10)",
+                    "args": [
+                      {
+                        "kind": "Literal",
+                        "name": "first",
+                        "value": 10
+                      }
+                    ],
+                    "concreteType": "FriendsConnection",
+                    "plural": false,
+                    "selections": [
+                      {
+                        "kind": "LinkedField",
+                        "alias": null,
+                        "name": "edges",
+                        "storageKey": null,
+                        "args": null,
+                        "concreteType": "FriendsEdge",
+                        "plural": true,
+                        "selections": [
+                          {
+                            "kind": "LinkedField",
+                            "alias": null,
+                            "name": "node",
+                            "storageKey": null,
+                            "args": null,
+                            "concreteType": "User",
+                            "plural": false,
+                            "selections": [
+                              {
+                                "kind": "LinkedField",
+                                "alias": null,
+                                "name": "profilePicture",
+                                "storageKey": null,
+                                "args": [
+                                  {
+                                    "kind": "Variable",
+                                    "name": "size",
+                                    "variableName": "pictureSize"
+                                  }
+                                ],
+                                "concreteType": "Image",
+                                "plural": false,
+                                "selections": [
+                                  {
+                                    "kind": "ScalarField",
+                                    "alias": null,
+                                    "name": "uri",
+                                    "args": null,
+                                    "storageKey": null
+                                  }
+                                ]
+                              },
+                              {
+                                "kind": "ScalarField",
+                                "alias": null,
+                                "name": "id",
+                                "args": null,
+                                "storageKey": null
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
+
+QUERY:
+
+query TestQuery(
+  $id: ID!
+  $cond: Boolean!
+  $pictureSize: [Int] = [128]
+) {
+  node(id: $id) {
+    __typename
+    id
+    ...Profile_4CNNX6
+    ...ProfileFriends @include(if: $cond)
+  }
+}
+
+fragment Profile_4CNNX6 on User {
+  profilePicture(size: $pictureSize) {
+    uri
+  }
+}
+
+fragment ProfileFriends on User {
+  friends(first: 10) {
+    edges {
+      node {
+        ...Profile_4CNNX6
+        id
+      }
+    }
+  }
+}
+
+
+{
+  "kind": "Fragment",
+  "name": "ProfileFriends",
+  "type": "User",
+  "metadata": null,
+  "argumentDefinitions": [
+    {
+      "kind": "RootArgument",
+      "name": "pictureSize",
+      "type": null
+    }
+  ],
+  "selections": [
+    {
+      "kind": "LinkedField",
+      "alias": null,
+      "name": "friends",
+      "storageKey": "friends(first:10)",
+      "args": [
+        {
+          "kind": "Literal",
+          "name": "first",
+          "value": 10
+        }
+      ],
+      "concreteType": "FriendsConnection",
+      "plural": false,
+      "selections": [
+        {
+          "kind": "LinkedField",
+          "alias": null,
+          "name": "edges",
+          "storageKey": null,
+          "args": null,
+          "concreteType": "FriendsEdge",
+          "plural": true,
+          "selections": [
+            {
+              "kind": "LinkedField",
+              "alias": null,
+              "name": "node",
+              "storageKey": null,
+              "args": null,
+              "concreteType": "User",
+              "plural": false,
+              "selections": [
+                {
+                  "kind": "FragmentSpread",
+                  "name": "Profile",
+                  "args": [
+                    {
+                      "kind": "Variable",
+                      "name": "pictureSize",
+                      "variableName": "pictureSize"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
+
+{
+  "kind": "Fragment",
+  "name": "Profile",
+  "type": "User",
+  "metadata": null,
+  "argumentDefinitions": [
+    {
+      "kind": "LocalArgument",
+      "name": "pictureSize",
+      "type": "[Int]",
+      "defaultValue": null
+    }
+  ],
+  "selections": [
+    {
+      "kind": "LinkedField",
+      "alias": null,
+      "name": "profilePicture",
+      "storageKey": null,
+      "args": [
+        {
+          "kind": "Variable",
+          "name": "size",
+          "variableName": "pictureSize"
+        }
+      ],
+      "concreteType": "Image",
+      "plural": false,
+      "selections": [
+        {
+          "kind": "ScalarField",
+          "alias": null,
+          "name": "uri",
+          "args": null,
+          "storageKey": null
+        }
+      ]
+    }
+  ]
+}
+`;
+
 exports[`compileRelayArtifacts matches expected output: query-with-match-directive.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query NameRendererQuery($id: ID!) {
@@ -13820,6 +14265,137 @@ interface ClientNamed {
     }
   ]
 }
+`;
+
+exports[`compileRelayArtifacts matches expected output: stable-literals.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query StableLiteralsTest {
+  me {
+    # Note: these object fields are not defined in alphabetical order.
+    # The generated artifacts will be produced in alphabetical order.
+    storyCommentSearch(query: {text: "foo" limit: 2 offset: 10}) {
+      id
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+{
+  "kind": "Request",
+  "fragment": {
+    "kind": "Fragment",
+    "name": "StableLiteralsTest",
+    "type": "Query",
+    "metadata": null,
+    "argumentDefinitions": [],
+    "selections": [
+      {
+        "kind": "LinkedField",
+        "alias": null,
+        "name": "me",
+        "storageKey": null,
+        "args": null,
+        "concreteType": "User",
+        "plural": false,
+        "selections": [
+          {
+            "kind": "LinkedField",
+            "alias": null,
+            "name": "storyCommentSearch",
+            "storageKey": "storyCommentSearch(query:{\\"limit\\":2,\\"offset\\":10,\\"text\\":\\"foo\\"})",
+            "args": [
+              {
+                "kind": "Literal",
+                "name": "query",
+                "value": {
+                  "limit": 2,
+                  "offset": 10,
+                  "text": "foo"
+                }
+              }
+            ],
+            "concreteType": "Comment",
+            "plural": true,
+            "selections": [
+              {
+                "kind": "ScalarField",
+                "alias": null,
+                "name": "id",
+                "args": null,
+                "storageKey": null
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "operation": {
+    "kind": "Operation",
+    "name": "StableLiteralsTest",
+    "argumentDefinitions": [],
+    "selections": [
+      {
+        "kind": "LinkedField",
+        "alias": null,
+        "name": "me",
+        "storageKey": null,
+        "args": null,
+        "concreteType": "User",
+        "plural": false,
+        "selections": [
+          {
+            "kind": "LinkedField",
+            "alias": null,
+            "name": "storyCommentSearch",
+            "storageKey": "storyCommentSearch(query:{\\"limit\\":2,\\"offset\\":10,\\"text\\":\\"foo\\"})",
+            "args": [
+              {
+                "kind": "Literal",
+                "name": "query",
+                "value": {
+                  "limit": 2,
+                  "offset": 10,
+                  "text": "foo"
+                }
+              }
+            ],
+            "concreteType": "Comment",
+            "plural": true,
+            "selections": [
+              {
+                "kind": "ScalarField",
+                "alias": null,
+                "name": "id",
+                "args": null,
+                "storageKey": null
+              }
+            ]
+          },
+          {
+            "kind": "ScalarField",
+            "alias": null,
+            "name": "id",
+            "args": null,
+            "storageKey": null
+          }
+        ]
+      }
+    ]
+  }
+}
+
+QUERY:
+
+query StableLiteralsTest {
+  me {
+    storyCommentSearch(query: {text: "foo", limit: 2, offset: 10}) {
+      id
+    }
+    id
+  }
+}
+
 `;
 
 exports[`compileRelayArtifacts matches expected output: stream-connection.graphql 1`] = `

@@ -24,9 +24,9 @@ const {
   UNPUBLISH_RECORD_SENTINEL,
 } = require('../RelayStoreUtils');
 const {
-  generateWithTransforms,
-  simpleClone,
+  generateAndCompile,
   matchers,
+  simpleClone,
 } = require('relay-test-utils-internal');
 
 expect.extend(matchers);
@@ -77,22 +77,20 @@ function createOperationDescriptor(...args) {
         initialData = simpleClone(data);
         source = new RecordSourceImplementation(data);
         store = new RelayModernStore(source);
-        ({UserFragment, UserQuery} = generateWithTransforms(
-          `
-        query UserQuery($size: Int) {
-          me {
-            ...UserFragment
+        ({UserFragment, UserQuery} = generateAndCompile(`
+          query UserQuery($size: Int) {
+            me {
+              ...UserFragment
+            }
           }
-        }
 
-        fragment UserFragment on User {
-          name
-          profilePicture(size: $size) {
-            uri
+          fragment UserFragment on User {
+            name
+            profilePicture(size: $size) {
+              uri
+            }
           }
-        }
-      `,
-        ));
+        `));
       });
 
       it('prevents data from being collected', () => {
@@ -118,19 +116,17 @@ function createOperationDescriptor(...args) {
       });
 
       it('only collects unreferenced data', () => {
-        const {JoeFragment} = generateWithTransforms(
-          `
-        fragment JoeFragment on Query @argumentDefinitions(
-          id: {type: "ID"}
-        ) {
-          node(id: $id) {
-            ... on User {
-              name
+        const {JoeFragment} = generateAndCompile(`
+          fragment JoeFragment on Query @argumentDefinitions(
+            id: {type: "ID"}
+          ) {
+            node(id: $id) {
+              ... on User {
+                name
+              }
             }
           }
-        }
-      `,
-        );
+        `);
         const nextSource = new RecordSourceImplementation({
           842472: {
             __id: '842472',
@@ -184,22 +180,20 @@ function createOperationDescriptor(...args) {
         };
         source = new RecordSourceImplementation(data);
         store = new RelayModernStore(source);
-        ({UserFragment, UserQuery} = generateWithTransforms(
-          `
-        fragment UserFragment on User {
-          name
-          profilePicture(size: $size) {
-            uri
+        ({UserFragment, UserQuery} = generateAndCompile(`
+          fragment UserFragment on User {
+            name
+            profilePicture(size: $size) {
+              uri
+            }
           }
-        }
 
-        query UserQuery($size: Int) {
-          me {
-            ...UserFragment
+          query UserQuery($size: Int) {
+            me {
+              ...UserFragment
+            }
           }
-        }
-      `,
-        ));
+        `));
       });
 
       it('returns selector data', () => {
@@ -233,27 +227,25 @@ function createOperationDescriptor(...args) {
       });
 
       it('includes fragment owner in selector data when owner is provided', () => {
-        ({UserQuery, UserFragment} = generateWithTransforms(
-          `
-        query UserQuery($size: Float!) {
-          me {
-            ...UserFragment
+        ({UserQuery, UserFragment} = generateAndCompile(`
+          query UserQuery($size: Float!) {
+            me {
+              ...UserFragment
+            }
           }
-        }
 
-        fragment UserFragment on User {
-          name
-          profilePicture(size: $size) {
-            uri
+          fragment UserFragment on User {
+            name
+            profilePicture(size: $size) {
+              uri
+            }
+            ...ChildUserFragment
           }
-          ...ChildUserFragment
-        }
 
-        fragment ChildUserFragment on User {
-          username
-        }
-      `,
-        ));
+          fragment ChildUserFragment on User {
+            username
+          }
+        `));
         const selector = {
           dataID: '4',
           node: UserFragment,
@@ -366,23 +358,21 @@ function createOperationDescriptor(...args) {
         };
         source = new RecordSourceImplementation(data);
         store = new RelayModernStore(source);
-        ({UserFragment, UserQuery} = generateWithTransforms(
-          `
-        fragment UserFragment on User {
-          name
-          profilePicture(size: $size) {
-            uri
+        ({UserFragment, UserQuery} = generateAndCompile(`
+          fragment UserFragment on User {
+            name
+            profilePicture(size: $size) {
+              uri
+            }
+            emailAddresses
           }
-          emailAddresses
-        }
 
-        query UserQuery($size: Int) {
-          me {
-            ...UserFragment
+          query UserQuery($size: Int) {
+            me {
+              ...UserFragment
+            }
           }
-        }
-      `,
-        ));
+        `));
       });
 
       it('calls subscribers whose data has changed since previous notify', () => {
@@ -428,23 +418,21 @@ function createOperationDescriptor(...args) {
 
       it('calls subscribers and reads data with fragment owner if one is available in subscription snapshot', () => {
         // subscribe(), publish(), notify() -> subscriber called
-        ({UserQuery, UserFragment} = generateWithTransforms(
-          `
-        query UserQuery($size: Float!) {
-          me {
-            ...UserFragment
+        ({UserQuery, UserFragment} = generateAndCompile(`
+          query UserQuery($size: Float!) {
+            me {
+              ...UserFragment
+            }
           }
-        }
 
-        fragment UserFragment on User {
-          name
-          profilePicture(size: $size) {
-            uri
+          fragment UserFragment on User {
+            name
+            profilePicture(size: $size) {
+              uri
+            }
+            emailAddresses
           }
-          emailAddresses
-        }
-      `,
-        ));
+        `));
         const selector = {
           dataID: '4',
           node: UserFragment,
@@ -820,16 +808,14 @@ function createOperationDescriptor(...args) {
         };
         source = new RecordSourceImplementation(data);
         store = new RelayModernStore(source);
-        ({UserFragment} = generateWithTransforms(
-          `
-        fragment UserFragment on User {
-          name
-          profilePicture(size: $size) {
-            uri
+        ({UserFragment} = generateAndCompile(`
+          fragment UserFragment on User {
+            name
+            profilePicture(size: $size) {
+              uri
+            }
           }
-        }
-      `,
-        ));
+        `));
       });
 
       it('returns true if all data exists in the cache', () => {
@@ -917,16 +903,14 @@ function createOperationDescriptor(...args) {
         scheduler = jest.fn(callbacks.push.bind(callbacks));
         source = new RecordSourceImplementation(data);
         store = new RelayModernStore(source, scheduler);
-        ({UserFragment} = generateWithTransforms(
-          `
-        fragment UserFragment on User {
-          name
-          profilePicture(size: $size) {
-            uri
+        ({UserFragment} = generateAndCompile(`
+          fragment UserFragment on User {
+            name
+            profilePicture(size: $size) {
+              uri
+            }
           }
-        }
-      `,
-        ));
+        `));
       });
 
       it('calls the gc scheduler function when GC should run', () => {
@@ -978,16 +962,14 @@ function createOperationDescriptor(...args) {
         initialData = simpleClone(data);
         source = new RecordSourceImplementation(data);
         store = new RelayModernStore(source);
-        ({UserFragment} = generateWithTransforms(
-          `
-        fragment UserFragment on User {
-          name
-          profilePicture(size: $size) {
-            uri
+        ({UserFragment} = generateAndCompile(`
+          fragment UserFragment on User {
+            name
+            profilePicture(size: $size) {
+              uri
+            }
           }
-        }
-      `,
-        ));
+        `));
       });
 
       it('prevents data from being collected with disabled GC, and reruns GC when it is enabled', () => {

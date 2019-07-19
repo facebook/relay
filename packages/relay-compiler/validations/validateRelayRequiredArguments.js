@@ -36,7 +36,7 @@ type State = {|
 /*
  * Validate requierd arguments are provided after transforms filling in arguments
  */
-function validateRelayRequiredArugments(context: GraphQLCompilerContext): void {
+function validateRelayRequiredArguments(context: GraphQLCompilerContext): void {
   GraphQLIRValidator.validate(
     context,
     {
@@ -115,4 +115,4 @@ function validateRequiredArguments(
   }
 }
 
-module.exports = validateRelayRequiredArugments;
+module.exports = validateRelayRequiredArguments;

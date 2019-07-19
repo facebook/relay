@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`validateRelayRequiredArugments-test matches expected output: argument-on-field.graphql 1`] = `
+exports[`validateRelayRequiredArguments-test matches expected output: argument-on-field.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query TestQuery {
   node {
@@ -14,7 +14,7 @@ query TestQuery {
 PASSED
 `;
 
-exports[`validateRelayRequiredArugments-test matches expected output: argument-on-linked-field.graphql 1`] = `
+exports[`validateRelayRequiredArguments-test matches expected output: argument-on-linked-field.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 fragment SomeComment on Comment {
   commentBody(supported: "Mark") {
@@ -36,7 +36,7 @@ query ViewerQuery {
 PASSED
 `;
 
-exports[`validateRelayRequiredArugments-test matches expected output: auto-filled-argument-on-defer.graphql 1`] = `
+exports[`validateRelayRequiredArguments-test matches expected output: auto-filled-argument-on-defer.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query QueryWithFragmentWithDefer {
   me {
@@ -60,7 +60,7 @@ fragment DeferredFragment on User {
 PASSED
 `;
 
-exports[`validateRelayRequiredArugments-test matches expected output: auto-filled-argument-on-match.graphql 1`] = `
+exports[`validateRelayRequiredArguments-test matches expected output: auto-filled-argument-on-match.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 fragment NameRendererFragment on User {
   id
@@ -89,7 +89,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
 PASSED
 `;
 
-exports[`validateRelayRequiredArugments-test matches expected output: missing-argument-on-directive.invalid.graphql 1`] = `
+exports[`validateRelayRequiredArguments-test matches expected output: missing-argument-on-directive.invalid.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 # expected-to-throw
 
@@ -121,7 +121,7 @@ Error: Encountered 1 error(s):
   
 `;
 
-exports[`validateRelayRequiredArugments-test matches expected output: missing-argument-on-field.invalid.graphql 1`] = `
+exports[`validateRelayRequiredArguments-test matches expected output: missing-argument-on-field.invalid.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 # expected-to-throw
 query TestQuery {
@@ -152,7 +152,7 @@ Error: Encountered 1 error(s):
   
 `;
 
-exports[`validateRelayRequiredArugments-test matches expected output: missing-argument-on-linked-field.invalid.graphql 1`] = `
+exports[`validateRelayRequiredArguments-test matches expected output: missing-argument-on-linked-field.invalid.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 # expected-to-throw
 fragment SomeComment on Comment {
@@ -191,7 +191,7 @@ Error: Encountered 1 error(s):
   
 `;
 
-exports[`validateRelayRequiredArugments-test matches expected output: missing-argument-on-linked-field-in-inline-fragment.invalid.graphql 1`] = `
+exports[`validateRelayRequiredArguments-test matches expected output: missing-argument-on-linked-field-in-inline-fragment.invalid.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 # expected-to-throw
 query ViewerQuery {
@@ -228,7 +228,7 @@ Error: Encountered 1 error(s):
   
 `;
 
-exports[`validateRelayRequiredArugments-test matches expected output: missing-argument-on-linked-field-on-abstract-type.graphql 1`] = `
+exports[`validateRelayRequiredArguments-test matches expected output: missing-argument-on-linked-field-on-abstract-type.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query ViewerQuery {
   node {
@@ -246,7 +246,7 @@ query ViewerQuery {
 PASSED
 `;
 
-exports[`validateRelayRequiredArugments-test matches expected output: missing-argument-on-linked-field-on-abstract-type.invalid.graphql 1`] = `
+exports[`validateRelayRequiredArguments-test matches expected output: missing-argument-on-linked-field-on-abstract-type.invalid.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query ViewerQuery {
   node {
@@ -264,7 +264,7 @@ query ViewerQuery {
 PASSED
 `;
 
-exports[`validateRelayRequiredArugments-test matches expected output: missing-argument-on-unknown-linked-field-on-abstract-type.invalid.graphql 1`] = `
+exports[`validateRelayRequiredArguments-test matches expected output: missing-argument-on-unknown-linked-field-on-abstract-type.invalid.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 # expected-to-throw
 query ViewerQuery {

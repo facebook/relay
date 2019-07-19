@@ -13,7 +13,7 @@
 const GraphQLCompilerContext = require('../../core/GraphQLCompilerContext');
 const RelayIRTransforms = require('../../core/RelayIRTransforms');
 
-const validateRelayRequiredArugments = require('../validateRelayRequiredArugments');
+const validateRelayRequiredArguments = require('../validateRelayRequiredArguments');
 
 const {transformASTSchema} = require('../../core/ASTConvert');
 const {
@@ -21,7 +21,7 @@ const {
   generateTestsFromFixtures,
   parseGraphQLText,
 } = require('relay-test-utils-internal');
-describe('validateRelayRequiredArugments-test', () => {
+describe('validateRelayRequiredArguments-test', () => {
   const relaySchema = transformASTSchema(
     TestSchema,
     RelayIRTransforms.schemaExtensions,
@@ -38,7 +38,7 @@ describe('validateRelayRequiredArugments-test', () => {
           ...RelayIRTransforms.queryTransforms,
           ...RelayIRTransforms.printTransforms,
         ]);
-      validateRelayRequiredArugments(codegenContext);
+      validateRelayRequiredArguments(codegenContext);
       return 'PASSED';
     },
   );

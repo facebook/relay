@@ -10,17 +10,14 @@
 
 'use strict';
 
-require('@babel/polyfill');
-
 const CodegenRunner = require('../codegen/CodegenRunner');
 const ConsoleReporter = require('../reporters/GraphQLConsoleReporter');
 const DotGraphQLParser = require('../core/DotGraphQLParser');
-const WatchmanClient = require('../core/GraphQLWatchmanClient');
-
-const RelaySourceModuleParser = require('../core/RelaySourceModuleParser');
 const RelayFileWriter = require('../codegen/RelayFileWriter');
 const RelayIRTransforms = require('../core/RelayIRTransforms');
 const RelayLanguagePluginJavaScript = require('../language/javascript/RelayLanguagePluginJavaScript');
+const RelaySourceModuleParser = require('../core/RelaySourceModuleParser');
+const WatchmanClient = require('../core/GraphQLWatchmanClient');
 
 const crypto = require('crypto');
 const fs = require('fs');

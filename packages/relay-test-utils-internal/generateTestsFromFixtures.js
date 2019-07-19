@@ -41,12 +41,20 @@ function generateTestsFromFixtures(
   fixturesPath: string,
   operation: (input: string) => string,
 ): void {
-  const fixtures = fs.readdirSync(fixturesPath);
+  let fixtures = fs.readdirSync(fixturesPath);
 
   test(`has fixtures in ${fixturesPath}`, () => {
     expect(fixtures.length > 0).toBe(true);
   });
 
+  const onlyFixtures = fixtures.filter(name => name.startsWith('only.'));
+  if (onlyFixtures.length) {
+    test.skip.each(fixtures.filter(name => !name.startsWith('only.')))(
+      'matches expected output: %s',
+      () => {},
+    );
+    fixtures = onlyFixtures;
+  }
   test.each(fixtures)('matches expected output: %s', file => {
     const input = fs.readFileSync(path.join(fixturesPath, file), 'utf8');
     const output = getOutputForFixture(input, operation, file);

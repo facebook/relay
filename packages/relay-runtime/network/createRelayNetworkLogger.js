@@ -10,8 +10,6 @@
 
 'use strict';
 
-const RelayConcreteNode = require('../util/RelayConcreteNode');
-
 const {convertFetch, convertSubscribe} = require('./ConvertToExecuteFunction');
 
 import type {RequestParameters} from '../util/RelayConcreteNode';
@@ -110,14 +108,14 @@ function wrapExecute(
           cacheConfig,
           uploadables,
         });
-        console.time && console.time(transaction.getIdentifier());
+        transaction.timerStart();
         if (isSubscription) {
           flushLogs(null, null, 'subscription is sent.');
         }
       },
       next: payload => {
         flushLogs(null, payload);
-        console.time && console.time(transaction.getIdentifier());
+        transaction.timerStart();
       },
       error: error => commitLogs(error, null, null),
       complete: () => {

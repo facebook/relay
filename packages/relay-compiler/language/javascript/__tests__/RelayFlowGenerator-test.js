@@ -38,11 +38,12 @@ function generate(text, options: TypeGeneratorOptions, context?) {
     .addAll(definitions)
     .applyTransforms(RelayFlowGenerator.transforms)
     .documents()
-    .map(doc =>
-      RelayFlowGenerator.generate(doc, {
-        ...options,
-        normalizationIR: context ? context.get(doc.name) : undefined,
-      }),
+    .map(
+      doc =>
+        `// ${doc.name}.graphql\n${RelayFlowGenerator.generate(doc, {
+          ...options,
+          normalizationIR: context ? context.get(doc.name) : undefined,
+        })}`,
     )
     .join('\n\n');
 }
@@ -63,20 +64,64 @@ describe('RelayFlowGenerator', () => {
           ...RelayIRTransforms.codegenTransforms,
         ]);
     }
-
-    generateTestsFromFixtures(`${__dirname}/fixtures/flow-generator`, text => {
-      const context = generateContext(text);
-      return generate(
-        text,
-        {
-          customScalars: {},
-          enumsHasteModule: null,
-          existingFragmentNames: new Set(['PhotoFragment']),
-          optionalInputFields: [],
-          useHaste: true,
-          useSingleArtifactDirectory: false,
+    describe('for useHaste', () => {
+      generateTestsFromFixtures(
+        `${__dirname}/fixtures/flow-generator/useHaste`,
+        text => {
+          const context = generateContext(text);
+          return generate(
+            text,
+            {
+              customScalars: {},
+              enumsHasteModule: null,
+              existingFragmentNames: new Set(['PhotoFragment']),
+              optionalInputFields: [],
+              useHaste: true,
+              useSingleArtifactDirectory: false,
+            },
+            context,
+          );
         },
-        context,
+      );
+    });
+    describe('for useSingleDirectory', () => {
+      generateTestsFromFixtures(
+        `${__dirname}/fixtures/flow-generator/useSingleDirectory`,
+        text => {
+          const context = generateContext(text);
+          return generate(
+            text,
+            {
+              customScalars: {},
+              enumsHasteModule: null,
+              existingFragmentNames: new Set(['PhotoFragment']),
+              optionalInputFields: [],
+              useHaste: false,
+              useSingleArtifactDirectory: true,
+            },
+            context,
+          );
+        },
+      );
+    });
+    describe('for useAnyDirectory', () => {
+      generateTestsFromFixtures(
+        `${__dirname}/fixtures/flow-generator/useAnyDirectory`,
+        text => {
+          const context = generateContext(text);
+          return generate(
+            text,
+            {
+              customScalars: {},
+              enumsHasteModule: null,
+              existingFragmentNames: new Set(['PhotoFragment']),
+              optionalInputFields: [],
+              useHaste: false,
+              useSingleArtifactDirectory: false,
+            },
+            context,
+          );
+        },
       );
     });
   });

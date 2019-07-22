@@ -1,0 +1,6 @@
+fragment RefetchableFragment on Node @refetchable(queryName: "RefetchableFragmentQuery") {
+  id
+  fragAndField: profilePicture {
+    uri
+  }
+}

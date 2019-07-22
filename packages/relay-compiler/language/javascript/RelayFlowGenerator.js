@@ -22,8 +22,10 @@ const RelayRelayDirectiveTransform = require('../../transforms/RelayRelayDirecti
 const {isAbstractType} = require('../../core/GraphQLSchemaUtils');
 const {
   anyTypeAlias,
+  declareExportOpaqueType,
   exactObjectTypeAnnotation,
   exportType,
+  exportTypes,
   importTypes,
   intersectionTypeAnnotation,
   lineComments,
@@ -38,7 +40,7 @@ const {
 const {getModuleComponentKey, getModuleOperationKey} = require('relay-runtime');
 
 import type {IRTransform} from '../../core/GraphQLCompilerContext';
-import type {Fragment, Root} from '../../core/GraphQLIR';
+import type {Fragment, Root, Directive, Metadata} from '../../core/GraphQLIR';
 import type {TypeGeneratorOptions} from '../RelayLanguagePluginInterface';
 import type {GraphQLEnumType} from 'graphql';
 const babelGenerator = require('@babel/generator').default;
@@ -318,9 +320,14 @@ function createVisitor(options: TypeGeneratorOptions) {
             createRawResponseTypeVisitor(state),
           );
         }
-
+        const refetchableFragmentName = getRefetchableQueryParentFragmentName(
+          state,
+          node.metadata,
+        );
         const babelNodes = [
-          ...getFragmentImports(state),
+          ...(refetchableFragmentName
+            ? generateFragmentRefsForRefetchable(refetchableFragmentName)
+            : getFragmentImports(state)),
           ...getEnumDefinitions(state),
           ...inputObjectTypes,
           inputVariablesType,
@@ -366,7 +373,10 @@ function createVisitor(options: TypeGeneratorOptions) {
           return [selection];
         });
         state.generatedFragments.add(node.name);
-        const fragmentTypes = getFragmentTypes(node.name);
+        const fragmentTypes = getFragmentTypes(
+          node.name,
+          getRefetchableQueryPath(state, node.directives),
+        );
 
         const refTypeName = getRefTypeName(node.name);
         const refTypeDataProperty = readOnlyObjectTypeProperty(
@@ -830,24 +840,81 @@ function getEnumDefinitions({
   });
 }
 
-function getFragmentTypes(name: string) {
+// If it's a @refetchable fragment, we generate the $fragmentRef in generated
+// query, and import it in the fragment to avoid circular dependencies
+function getRefetchableQueryParentFragmentName(
+  state: State,
+  metadata: Metadata,
+): ?string {
+  if (
+    !metadata?.isRefetchableQuery ||
+    (!state.useHaste && !state.useSingleArtifactDirectory)
+  ) {
+    return null;
+  }
+  const derivedFrom = metadata?.derivedFrom;
+  if (derivedFrom != null && typeof derivedFrom === 'string') {
+    return derivedFrom;
+  }
+  return null;
+}
+
+function getRefetchableQueryPath(
+  state: State,
+  directives: $ReadOnlyArray<Directive>,
+): ?string {
+  let refetchableQuery: ?string;
+  if (!state.useHaste && !state.useSingleArtifactDirectory) {
+    return;
+  }
+  const refetchableArgs = directives.find(d => d.name === 'refetchable')?.args;
+  if (!refetchableArgs) {
+    return;
+  }
+  const argument = refetchableArgs.find(
+    arg => arg.kind === 'Argument' && arg.name === 'queryName',
+  );
+  if (
+    argument &&
+    argument.value &&
+    argument.value.kind === 'Literal' &&
+    typeof argument.value.value === 'string'
+  ) {
+    refetchableQuery = argument.value.value;
+    if (!state.useHaste) {
+      refetchableQuery = './' + refetchableQuery;
+    }
+    refetchableQuery += '.graphql';
+  }
+  return refetchableQuery;
+}
+
+function generateFragmentRefsForRefetchable(name: string) {
   const oldFragmentTypeName = getOldFragmentTypeName(name);
-  const oldFragmentType = t.declareExportDeclaration(
-    t.declareOpaqueType(
-      t.identifier(oldFragmentTypeName),
-      null,
-      t.genericTypeAnnotation(t.identifier('FragmentReference')),
-    ),
-  );
   const newFragmentTypeName = getNewFragmentTypeName(name);
-  const newFragmentType = t.declareExportDeclaration(
-    t.declareOpaqueType(
-      t.identifier(newFragmentTypeName),
-      null,
-      t.genericTypeAnnotation(t.identifier(oldFragmentTypeName)),
-    ),
-  );
-  return [oldFragmentType, newFragmentType];
+  return [
+    importTypes(['FragmentReference'], 'relay-runtime'),
+    declareExportOpaqueType(oldFragmentTypeName, 'FragmentReference'),
+    declareExportOpaqueType(newFragmentTypeName, oldFragmentTypeName),
+  ];
+}
+
+function getFragmentTypes(name: string, refetchableQueryPath: ?string) {
+  const oldFragmentTypeName = getOldFragmentTypeName(name);
+  const newFragmentTypeName = getNewFragmentTypeName(name);
+  if (refetchableQueryPath) {
+    return [
+      importTypes(
+        [oldFragmentTypeName, newFragmentTypeName],
+        refetchableQueryPath,
+      ),
+      exportTypes([oldFragmentTypeName, newFragmentTypeName]),
+    ];
+  }
+  return [
+    declareExportOpaqueType(oldFragmentTypeName, 'FragmentReference'),
+    declareExportOpaqueType(newFragmentTypeName, oldFragmentTypeName),
+  ];
 }
 
 function getOldFragmentTypeName(name: string) {

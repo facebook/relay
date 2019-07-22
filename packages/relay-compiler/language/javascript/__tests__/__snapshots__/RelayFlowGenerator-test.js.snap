@@ -1,6 +1,49 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`RelayFlowGenerator Snapshot tests matches expected output: conditional.graphql 1`] = `
+exports[`RelayFlowGenerator Snapshot tests for useAnyDirectory matches expected output: refetchable-fragment.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment RefetchableFragment on Node @refetchable(queryName: "RefetchableFragmentQuery") {
+  id
+  fragAndField: profilePicture {
+    uri
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+// RefetchableFragment.graphql
+import type { FragmentReference } from "relay-runtime";
+declare export opaque type RefetchableFragment$ref: FragmentReference;
+declare export opaque type RefetchableFragment$fragmentType: RefetchableFragment$ref;
+export type RefetchableFragment = {|
+  +id: string,
+  +fragAndField: ?{|
+    +uri: ?string
+  |},
+  +$refType: RefetchableFragment$ref,
+|};
+export type RefetchableFragment$data = RefetchableFragment;
+export type RefetchableFragment$key = {
+  +$data?: RefetchableFragment$data,
+  +$fragmentRefs: RefetchableFragment$ref,
+};
+
+// RefetchableFragmentQuery.graphql
+type RefetchableFragment$ref = any;
+export type RefetchableFragmentQueryVariables = {|
+  id: string
+|};
+export type RefetchableFragmentQueryResponse = {|
+  +node: ?{|
+    +$fragmentRefs: RefetchableFragment$ref
+  |}
+|};
+export type RefetchableFragmentQuery = {|
+  variables: RefetchableFragmentQueryVariables,
+  response: RefetchableFragmentQueryResponse,
+|};
+`;
+
+exports[`RelayFlowGenerator Snapshot tests for useHaste matches expected output: conditional.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 fragment ConditionField on Node {
   id @include(if: $condition)
@@ -13,6 +56,7 @@ fragment NestedCondition on Node {
 }
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+// ConditionField.graphql
 import type { FragmentReference } from "relay-runtime";
 declare export opaque type ConditionField$ref: FragmentReference;
 declare export opaque type ConditionField$fragmentType: ConditionField$ref;
@@ -26,6 +70,7 @@ export type ConditionField$key = {
   +$fragmentRefs: ConditionField$ref,
 };
 
+// NestedCondition.graphql
 import type { FragmentReference } from "relay-runtime";
 declare export opaque type NestedCondition$ref: FragmentReference;
 declare export opaque type NestedCondition$fragmentType: NestedCondition$ref;
@@ -40,7 +85,7 @@ export type NestedCondition$key = {
 };
 `;
 
-exports[`RelayFlowGenerator Snapshot tests matches expected output: derived-field.graphql 1`] = `
+exports[`RelayFlowGenerator Snapshot tests for useHaste matches expected output: derived-field.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query QueryWithConnectionField($id: ID!) {
   feedback: node(id: $id)  {
@@ -62,6 +107,7 @@ fragment FeedbackComments_feedback on Feedback {
 }
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+// QueryWithConnectionField.graphql
 type FeedbackComments_feedback$ref = any;
 export type QueryWithConnectionFieldVariables = {|
   id: string
@@ -76,6 +122,7 @@ export type QueryWithConnectionField = {|
   response: QueryWithConnectionFieldResponse,
 |};
 
+// FeedbackComments_feedback.graphql
 import type { FragmentReference } from "relay-runtime";
 declare export opaque type FeedbackComments_feedback$ref: FragmentReference;
 declare export opaque type FeedbackComments_feedback$fragmentType: FeedbackComments_feedback$ref;
@@ -99,7 +146,7 @@ export type FeedbackComments_feedback$key = {
 };
 `;
 
-exports[`RelayFlowGenerator Snapshot tests matches expected output: fragment-spread.graphql 1`] = `
+exports[`RelayFlowGenerator Snapshot tests for useHaste matches expected output: fragment-spread.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 fragment FragmentSpread on Node {
   id
@@ -131,6 +178,7 @@ fragment ConcreateTypes on Viewer {
 }
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+// FragmentSpread.graphql
 type OtherFragment$ref = any;
 type PictureFragment$ref = any;
 type UserFrag1$ref = any;
@@ -156,6 +204,7 @@ export type FragmentSpread$key = {
   +$fragmentRefs: FragmentSpread$ref,
 };
 
+// ConcreateTypes.graphql
 type PageFragment$ref = any;
 import type { FragmentReference } from "relay-runtime";
 declare export opaque type ConcreateTypes$ref: FragmentReference;
@@ -182,7 +231,7 @@ export type ConcreateTypes$key = {
 };
 `;
 
-exports[`RelayFlowGenerator Snapshot tests matches expected output: inline-fragment.graphql 1`] = `
+exports[`RelayFlowGenerator Snapshot tests for useHaste matches expected output: inline-fragment.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 fragment InlineFragment on Node {
   id
@@ -246,6 +295,7 @@ fragment InlineFragmentKitchenSink on Story {
 }
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+// InlineFragment.graphql
 import type { FragmentReference } from "relay-runtime";
 declare export opaque type InlineFragment$ref: FragmentReference;
 declare export opaque type InlineFragment$fragmentType: InlineFragment$ref;
@@ -263,6 +313,7 @@ export type InlineFragment$key = {
   +$fragmentRefs: InlineFragment$ref,
 };
 
+// InlineFragmentWithOverlappingFields.graphql
 import type { FragmentReference } from "relay-runtime";
 declare export opaque type InlineFragmentWithOverlappingFields$ref: FragmentReference;
 declare export opaque type InlineFragmentWithOverlappingFields$fragmentType: InlineFragmentWithOverlappingFields$ref;
@@ -283,6 +334,7 @@ export type InlineFragmentWithOverlappingFields$key = {
   +$fragmentRefs: InlineFragmentWithOverlappingFields$ref,
 };
 
+// InlineFragmentConditionalID.graphql
 import type { FragmentReference } from "relay-runtime";
 declare export opaque type InlineFragmentConditionalID$ref: FragmentReference;
 declare export opaque type InlineFragmentConditionalID$fragmentType: InlineFragmentConditionalID$ref;
@@ -297,6 +349,7 @@ export type InlineFragmentConditionalID$key = {
   +$fragmentRefs: InlineFragmentConditionalID$ref,
 };
 
+// InlineFragmentKitchenSink.graphql
 type SomeFragment$ref = any;
 import type { FragmentReference } from "relay-runtime";
 declare export opaque type InlineFragmentKitchenSink$ref: FragmentReference;
@@ -321,7 +374,7 @@ export type InlineFragmentKitchenSink$key = {
 };
 `;
 
-exports[`RelayFlowGenerator Snapshot tests matches expected output: linked-field.graphql 1`] = `
+exports[`RelayFlowGenerator Snapshot tests for useHaste matches expected output: linked-field.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 fragment LinkedField on User {
   profilePicture {
@@ -352,6 +405,7 @@ query UnionTypeTest {
 }
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+// LinkedField.graphql
 import type { FragmentReference } from "relay-runtime";
 declare export opaque type LinkedField$ref: FragmentReference;
 declare export opaque type LinkedField$fragmentType: LinkedField$ref;
@@ -378,6 +432,7 @@ export type LinkedField$key = {
   +$fragmentRefs: LinkedField$ref,
 };
 
+// UnionTypeTest.graphql
 export type UnionTypeTestVariables = {||};
 export type UnionTypeTestResponse = {|
   +neverNode: ?({|
@@ -395,7 +450,7 @@ export type UnionTypeTest = {|
 |};
 `;
 
-exports[`RelayFlowGenerator Snapshot tests matches expected output: match-field.graphql 1`] = `
+exports[`RelayFlowGenerator Snapshot tests for useHaste matches expected output: match-field.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 fragment NameRendererFragment on User {
   id
@@ -421,6 +476,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
 }
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+// NameRendererFragment.graphql
 type MarkdownUserNameRenderer_name$ref = any;
 type PlainUserNameRenderer_name$ref = any;
 import type { FragmentReference } from "relay-runtime";
@@ -441,6 +497,7 @@ export type NameRendererFragment$key = {
   +$fragmentRefs: NameRendererFragment$ref,
 };
 
+// PlainUserNameRenderer_name.graphql
 import type { FragmentReference } from "relay-runtime";
 declare export opaque type PlainUserNameRenderer_name$ref: FragmentReference;
 declare export opaque type PlainUserNameRenderer_name$fragmentType: PlainUserNameRenderer_name$ref;
@@ -457,6 +514,7 @@ export type PlainUserNameRenderer_name$key = {
   +$fragmentRefs: PlainUserNameRenderer_name$ref,
 };
 
+// MarkdownUserNameRenderer_name.graphql
 import type { FragmentReference } from "relay-runtime";
 declare export opaque type MarkdownUserNameRenderer_name$ref: FragmentReference;
 declare export opaque type MarkdownUserNameRenderer_name$fragmentType: MarkdownUserNameRenderer_name$ref;
@@ -474,7 +532,7 @@ export type MarkdownUserNameRenderer_name$key = {
 };
 `;
 
-exports[`RelayFlowGenerator Snapshot tests matches expected output: match-field-in-query.graphql 1`] = `
+exports[`RelayFlowGenerator Snapshot tests for useHaste matches expected output: match-field-in-query.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query NameRendererQuery {
   me {
@@ -501,6 +559,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
 }
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+// NameRendererQuery.graphql
 type MarkdownUserNameRenderer_name$ref = any;
 type PlainUserNameRenderer_name$ref = any;
 export type NameRendererQueryVariables = {||};
@@ -518,6 +577,7 @@ export type NameRendererQuery = {|
   response: NameRendererQueryResponse,
 |};
 
+// PlainUserNameRenderer_name.graphql
 import type { FragmentReference } from "relay-runtime";
 declare export opaque type PlainUserNameRenderer_name$ref: FragmentReference;
 declare export opaque type PlainUserNameRenderer_name$fragmentType: PlainUserNameRenderer_name$ref;
@@ -534,6 +594,7 @@ export type PlainUserNameRenderer_name$key = {
   +$fragmentRefs: PlainUserNameRenderer_name$ref,
 };
 
+// MarkdownUserNameRenderer_name.graphql
 import type { FragmentReference } from "relay-runtime";
 declare export opaque type MarkdownUserNameRenderer_name$ref: FragmentReference;
 declare export opaque type MarkdownUserNameRenderer_name$fragmentType: MarkdownUserNameRenderer_name$ref;
@@ -551,7 +612,7 @@ export type MarkdownUserNameRenderer_name$key = {
 };
 `;
 
-exports[`RelayFlowGenerator Snapshot tests matches expected output: mutaion-with-client-extension.graphql 1`] = `
+exports[`RelayFlowGenerator Snapshot tests for useHaste matches expected output: mutaion-with-client-extension.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 mutation Test($input: UpdateAllSeenStateInput) @raw_response_type{
   viewerNotificationsUpdateAllSeenState(input: $input) {
@@ -573,6 +634,7 @@ type Foo {
 }
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+// Test.graphql
 export type UpdateAllSeenStateInput = {|
   clientMutationId?: ?string,
   storyIds?: ?$ReadOnlyArray<?string>,
@@ -603,7 +665,7 @@ export type Test = {|
 |};
 `;
 
-exports[`RelayFlowGenerator Snapshot tests matches expected output: mutaion-with-response-on-inline-fragments.graphql 1`] = `
+exports[`RelayFlowGenerator Snapshot tests for useHaste matches expected output: mutaion-with-response-on-inline-fragments.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 mutation TestMutation (
   $input: CommentCreateInput!
@@ -637,6 +699,7 @@ fragment InlineFragmentWithOverlappingFields on Actor {
 }
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+// TestMutation.graphql
 type InlineFragmentWithOverlappingFields$ref = any;
 export type CommentCreateInput = {|
   clientMutationId?: ?string,
@@ -694,6 +757,7 @@ export type TestMutation = {|
   rawResponse: TestMutationRawResponse,
 |};
 
+// InlineFragmentWithOverlappingFields.graphql
 import type { FragmentReference } from "relay-runtime";
 declare export opaque type InlineFragmentWithOverlappingFields$ref: FragmentReference;
 declare export opaque type InlineFragmentWithOverlappingFields$fragmentType: InlineFragmentWithOverlappingFields$ref;
@@ -715,7 +779,7 @@ export type InlineFragmentWithOverlappingFields$key = {
 };
 `;
 
-exports[`RelayFlowGenerator Snapshot tests matches expected output: mutation.graphql 1`] = `
+exports[`RelayFlowGenerator Snapshot tests for useHaste matches expected output: mutation.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 mutation CommentCreateMutation(
   $input: CommentCreateInput!
@@ -734,6 +798,7 @@ mutation CommentCreateMutation(
 }
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+// CommentCreateMutation.graphql
 export type CommentCreateInput = {|
   clientMutationId?: ?string,
   feedbackId?: ?string,
@@ -767,7 +832,7 @@ export type CommentCreateMutation = {|
 |};
 `;
 
-exports[`RelayFlowGenerator Snapshot tests matches expected output: mutation-input-has-array.graphql 1`] = `
+exports[`RelayFlowGenerator Snapshot tests for useHaste matches expected output: mutation-input-has-array.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 mutation InputHasArray($input: UpdateAllSeenStateInput) @raw_response_type{
   viewerNotificationsUpdateAllSeenState(input: $input) {
@@ -778,6 +843,7 @@ mutation InputHasArray($input: UpdateAllSeenStateInput) @raw_response_type{
 }
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+// InputHasArray.graphql
 export type UpdateAllSeenStateInput = {|
   clientMutationId?: ?string,
   storyIds?: ?$ReadOnlyArray<?string>,
@@ -807,7 +873,7 @@ export type InputHasArray = {|
 |};
 `;
 
-exports[`RelayFlowGenerator Snapshot tests matches expected output: mutation-with-enums-on-fragment.graphql 1`] = `
+exports[`RelayFlowGenerator Snapshot tests for useHaste matches expected output: mutation-with-enums-on-fragment.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 mutation CommentCreateMutation (
   $input: CommentCreateInput!
@@ -839,6 +905,7 @@ fragment FriendFragment on User {
 }
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+// CommentCreateMutation.graphql
 type FriendFragment$ref = any;
 export type TestEnums = "mark" | "zuck" | "%future added value";
 export type CommentCreateInput = {|
@@ -898,6 +965,7 @@ export type CommentCreateMutation = {|
   rawResponse: CommentCreateMutationRawResponse,
 |};
 
+// FriendFragment.graphql
 export type TestEnums = "mark" | "zuck" | "%future added value";
 import type { FragmentReference } from "relay-runtime";
 declare export opaque type FriendFragment$ref: FragmentReference;
@@ -917,7 +985,7 @@ export type FriendFragment$key = {
 };
 `;
 
-exports[`RelayFlowGenerator Snapshot tests matches expected output: mutation-with-nested-fragments.graphql 1`] = `
+exports[`RelayFlowGenerator Snapshot tests for useHaste matches expected output: mutation-with-nested-fragments.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 mutation CommentCreateMutation (
   $input: CommentCreateInput!
@@ -953,6 +1021,7 @@ fragment FeedbackFragment on Feedback {
 }
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+// CommentCreateMutation.graphql
 type FriendFragment$ref = any;
 export type CommentCreateInput = {|
   clientMutationId?: ?string,
@@ -1010,6 +1079,7 @@ export type CommentCreateMutation = {|
   rawResponse: CommentCreateMutationRawResponse,
 |};
 
+// FriendFragment.graphql
 type FeedbackFragment$ref = any;
 import type { FragmentReference } from "relay-runtime";
 declare export opaque type FriendFragment$ref: FragmentReference;
@@ -1028,6 +1098,7 @@ export type FriendFragment$key = {
   +$fragmentRefs: FriendFragment$ref,
 };
 
+// FeedbackFragment.graphql
 import type { FragmentReference } from "relay-runtime";
 declare export opaque type FeedbackFragment$ref: FragmentReference;
 declare export opaque type FeedbackFragment$fragmentType: FeedbackFragment$ref;
@@ -1043,13 +1114,14 @@ export type FeedbackFragment$key = {
 };
 `;
 
-exports[`RelayFlowGenerator Snapshot tests matches expected output: plural-fragment.graphql 1`] = `
+exports[`RelayFlowGenerator Snapshot tests for useHaste matches expected output: plural-fragment.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 fragment PluralFragment on Node @relay(plural: true) {
   id
 }
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+// PluralFragment.graphql
 import type { FragmentReference } from "relay-runtime";
 declare export opaque type PluralFragment$ref: FragmentReference;
 declare export opaque type PluralFragment$fragmentType: PluralFragment$ref;
@@ -1064,7 +1136,7 @@ export type PluralFragment$key = {
 };
 `;
 
-exports[`RelayFlowGenerator Snapshot tests matches expected output: query-with-defer.graphql 1`] = `
+exports[`RelayFlowGenerator Snapshot tests for useHaste matches expected output: query-with-defer.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query TestDefer @raw_response_type {
   node(id: "1") {
@@ -1086,6 +1158,7 @@ query TestDefer @raw_response_type {
 }
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+// TestDefer.graphql
 export type TestDeferVariables = {||};
 export type TestDeferResponse = {|
   +node: ?{|
@@ -1125,7 +1198,7 @@ export type TestDefer = {|
 |};
 `;
 
-exports[`RelayFlowGenerator Snapshot tests matches expected output: query-with-handles.graphql 1`] = `
+exports[`RelayFlowGenerator Snapshot tests for useHaste matches expected output: query-with-handles.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query LinkedHandleField($id: ID!) @raw_response_type {
   node(id: $id) {
@@ -1146,6 +1219,7 @@ query ScalarHandleField($id: ID!) @raw_response_type {
 }
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+// LinkedHandleField.graphql
 export type LinkedHandleFieldVariables = {|
   id: string
 |};
@@ -1174,6 +1248,7 @@ export type LinkedHandleField = {|
   rawResponse: LinkedHandleFieldRawResponse,
 |};
 
+// ScalarHandleField.graphql
 export type ScalarHandleFieldVariables = {|
   id: string
 |};
@@ -1199,7 +1274,7 @@ export type ScalarHandleField = {|
 |};
 `;
 
-exports[`RelayFlowGenerator Snapshot tests matches expected output: query-with-match-fields.graphql 1`] = `
+exports[`RelayFlowGenerator Snapshot tests for useHaste matches expected output: query-with-match-fields.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query Test @raw_response_type {
   node(id: "1") {
@@ -1231,6 +1306,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
 }
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+// Test.graphql
 type NameRendererFragment$ref = any;
 export type TestVariables = {||};
 export type TestResponse = {|
@@ -1264,6 +1340,7 @@ export type Test = {|
   rawResponse: TestRawResponse,
 |};
 
+// NameRendererFragment.graphql
 type MarkdownUserNameRenderer_name$ref = any;
 type PlainUserNameRenderer_name$ref = any;
 import type { FragmentReference } from "relay-runtime";
@@ -1284,6 +1361,7 @@ export type NameRendererFragment$key = {
   +$fragmentRefs: NameRendererFragment$ref,
 };
 
+// PlainUserNameRenderer_name.graphql
 import type { FragmentReference } from "relay-runtime";
 declare export opaque type PlainUserNameRenderer_name$ref: FragmentReference;
 declare export opaque type PlainUserNameRenderer_name$fragmentType: PlainUserNameRenderer_name$ref;
@@ -1300,6 +1378,7 @@ export type PlainUserNameRenderer_name$key = {
   +$fragmentRefs: PlainUserNameRenderer_name$ref,
 };
 
+// MarkdownUserNameRenderer_name.graphql
 import type { FragmentReference } from "relay-runtime";
 declare export opaque type MarkdownUserNameRenderer_name$ref: FragmentReference;
 declare export opaque type MarkdownUserNameRenderer_name$fragmentType: MarkdownUserNameRenderer_name$ref;
@@ -1317,7 +1396,7 @@ export type MarkdownUserNameRenderer_name$key = {
 };
 `;
 
-exports[`RelayFlowGenerator Snapshot tests matches expected output: query-with-raw-response-on-conditional.graphql 1`] = `
+exports[`RelayFlowGenerator Snapshot tests for useHaste matches expected output: query-with-raw-response-on-conditional.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query ExampleQuery($id: ID!, $condition: Boolean!) @raw_response_type{
   node(id: $id) {
@@ -1337,6 +1416,7 @@ fragment FriendFragment on User {
 }
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+// ExampleQuery.graphql
 type FriendFragment$ref = any;
 export type ExampleQueryVariables = {|
   id: string,
@@ -1368,6 +1448,7 @@ export type ExampleQuery = {|
   rawResponse: ExampleQueryRawResponse,
 |};
 
+// FriendFragment.graphql
 import type { FragmentReference } from "relay-runtime";
 declare export opaque type FriendFragment$ref: FragmentReference;
 declare export opaque type FriendFragment$fragmentType: FriendFragment$ref;
@@ -1387,7 +1468,7 @@ export type FriendFragment$key = {
 };
 `;
 
-exports[`RelayFlowGenerator Snapshot tests matches expected output: query-with-stream.graphql 1`] = `
+exports[`RelayFlowGenerator Snapshot tests for useHaste matches expected output: query-with-stream.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query TestStream @raw_response_type {
   node(id: "1") {
@@ -1406,6 +1487,7 @@ query TestStream @raw_response_type {
 }
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+// TestStream.graphql
 export type TestStreamVariables = {||};
 export type TestStreamResponse = {|
   +node: ?{|
@@ -1449,7 +1531,7 @@ export type TestStream = {|
 |};
 `;
 
-exports[`RelayFlowGenerator Snapshot tests matches expected output: recursive-fragments.graphql 1`] = `
+exports[`RelayFlowGenerator Snapshot tests for useHaste matches expected output: recursive-fragments.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 fragment FragmentSpread on Node {
   id
@@ -1459,6 +1541,7 @@ fragment FragmentSpread on Node {
 }
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+// FragmentSpread.graphql
 import type { FragmentReference } from "relay-runtime";
 declare export opaque type FragmentSpread$ref: FragmentReference;
 declare export opaque type FragmentSpread$fragmentType: FragmentSpread$ref;
@@ -1474,7 +1557,52 @@ export type FragmentSpread$key = {
 };
 `;
 
-exports[`RelayFlowGenerator Snapshot tests matches expected output: roots.graphql 1`] = `
+exports[`RelayFlowGenerator Snapshot tests for useHaste matches expected output: refetchable-fragment.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment RefetchableFragment on Node @refetchable(queryName: "RefetchableFragmentQuery") {
+  id
+  fragAndField: profilePicture {
+    uri
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+// RefetchableFragment.graphql
+import type { FragmentReference } from "relay-runtime";
+import type { RefetchableFragment$ref, RefetchableFragment$fragmentType } from "RefetchableFragmentQuery.graphql";
+export type { RefetchableFragment$ref, RefetchableFragment$fragmentType };
+export type RefetchableFragment = {|
+  +id: string,
+  +fragAndField: ?{|
+    +uri: ?string
+  |},
+  +$refType: RefetchableFragment$ref,
+|};
+export type RefetchableFragment$data = RefetchableFragment;
+export type RefetchableFragment$key = {
+  +$data?: RefetchableFragment$data,
+  +$fragmentRefs: RefetchableFragment$ref,
+};
+
+// RefetchableFragmentQuery.graphql
+import type { FragmentReference } from "relay-runtime";
+declare export opaque type RefetchableFragment$ref: FragmentReference;
+declare export opaque type RefetchableFragment$fragmentType: RefetchableFragment$ref;
+export type RefetchableFragmentQueryVariables = {|
+  id: string
+|};
+export type RefetchableFragmentQueryResponse = {|
+  +node: ?{|
+    +$fragmentRefs: RefetchableFragment$ref
+  |}
+|};
+export type RefetchableFragmentQuery = {|
+  variables: RefetchableFragmentQueryVariables,
+  response: RefetchableFragmentQueryResponse,
+|};
+`;
+
+exports[`RelayFlowGenerator Snapshot tests for useHaste matches expected output: roots.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query ExampleQuery($id: ID!) {
   node(id: $id) {
@@ -1503,6 +1631,7 @@ subscription TestSubscription($input: FeedbackLikeInput) {
 }
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+// ExampleQuery.graphql
 export type ExampleQueryVariables = {|
   id: string
 |};
@@ -1516,6 +1645,7 @@ export type ExampleQuery = {|
   response: ExampleQueryResponse,
 |};
 
+// ExampleFragment.graphql
 import type { FragmentReference } from "relay-runtime";
 declare export opaque type ExampleFragment$ref: FragmentReference;
 declare export opaque type ExampleFragment$fragmentType: ExampleFragment$ref;
@@ -1529,6 +1659,7 @@ export type ExampleFragment$key = {
   +$fragmentRefs: ExampleFragment$ref,
 };
 
+// TestMutation.graphql
 export type CommentCreateInput = {|
   clientMutationId?: ?string,
   feedbackId?: ?string,
@@ -1555,6 +1686,7 @@ export type TestMutation = {|
   response: TestMutationResponse,
 |};
 
+// TestSubscription.graphql
 export type FeedbackLikeInput = {|
   clientMutationId?: ?string,
   feedbackId?: ?string,
@@ -1575,7 +1707,7 @@ export type TestSubscription = {|
 |};
 `;
 
-exports[`RelayFlowGenerator Snapshot tests matches expected output: scalar-field.graphql 1`] = `
+exports[`RelayFlowGenerator Snapshot tests for useHaste matches expected output: scalar-field.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 fragment ScalarField on User {
   id
@@ -1592,6 +1724,7 @@ fragment ScalarField on User {
 }
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+// ScalarField.graphql
 export type PersonalityTraits = "CHEERFUL" | "DERISIVE" | "HELPFUL" | "SNARKY" | "%future added value";
 import type { FragmentReference } from "relay-runtime";
 declare export opaque type ScalarField$ref: FragmentReference;
@@ -1617,7 +1750,7 @@ export type ScalarField$key = {
 };
 `;
 
-exports[`RelayFlowGenerator Snapshot tests matches expected output: typename-inside-with-overlapping-fields.graphql 1`] = `
+exports[`RelayFlowGenerator Snapshot tests for useHaste matches expected output: typename-inside-with-overlapping-fields.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 fragment TypenameInsideWithOverlappingFields on Viewer {
   actor {
@@ -1637,6 +1770,7 @@ fragment TypenameInsideWithOverlappingFields on Viewer {
 }
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+// TypenameInsideWithOverlappingFields.graphql
 import type { FragmentReference } from "relay-runtime";
 declare export opaque type TypenameInsideWithOverlappingFields$ref: FragmentReference;
 declare export opaque type TypenameInsideWithOverlappingFields$fragmentType: TypenameInsideWithOverlappingFields$ref;
@@ -1666,7 +1800,7 @@ export type TypenameInsideWithOverlappingFields$key = {
 };
 `;
 
-exports[`RelayFlowGenerator Snapshot tests matches expected output: typename-on-union.graphql 1`] = `
+exports[`RelayFlowGenerator Snapshot tests for useHaste matches expected output: typename-on-union.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 fragment TypenameInside on Actor {
   ... on User {
@@ -1751,6 +1885,7 @@ fragment TypenameAliases on Actor {
 }
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+// TypenameInside.graphql
 import type { FragmentReference } from "relay-runtime";
 declare export opaque type TypenameInside$ref: FragmentReference;
 declare export opaque type TypenameInside$fragmentType: TypenameInside$ref;
@@ -1774,6 +1909,7 @@ export type TypenameInside$key = {
   +$fragmentRefs: TypenameInside$ref,
 };
 
+// TypenameOutside.graphql
 import type { FragmentReference } from "relay-runtime";
 declare export opaque type TypenameOutside$ref: FragmentReference;
 declare export opaque type TypenameOutside$fragmentType: TypenameOutside$ref;
@@ -1797,6 +1933,7 @@ export type TypenameOutside$key = {
   +$fragmentRefs: TypenameOutside$ref,
 };
 
+// TypenameOutsideWithAbstractType.graphql
 import type { FragmentReference } from "relay-runtime";
 declare export opaque type TypenameOutsideWithAbstractType$ref: FragmentReference;
 declare export opaque type TypenameOutsideWithAbstractType$fragmentType: TypenameOutsideWithAbstractType$ref;
@@ -1817,6 +1954,7 @@ export type TypenameOutsideWithAbstractType$key = {
   +$fragmentRefs: TypenameOutsideWithAbstractType$ref,
 };
 
+// TypenameWithoutSpreads.graphql
 import type { FragmentReference } from "relay-runtime";
 declare export opaque type TypenameWithoutSpreads$ref: FragmentReference;
 declare export opaque type TypenameWithoutSpreads$fragmentType: TypenameWithoutSpreads$ref;
@@ -1831,6 +1969,7 @@ export type TypenameWithoutSpreads$key = {
   +$fragmentRefs: TypenameWithoutSpreads$ref,
 };
 
+// TypenameWithoutSpreadsAbstractType.graphql
 import type { FragmentReference } from "relay-runtime";
 declare export opaque type TypenameWithoutSpreadsAbstractType$ref: FragmentReference;
 declare export opaque type TypenameWithoutSpreadsAbstractType$fragmentType: TypenameWithoutSpreadsAbstractType$ref;
@@ -1845,6 +1984,7 @@ export type TypenameWithoutSpreadsAbstractType$key = {
   +$fragmentRefs: TypenameWithoutSpreadsAbstractType$ref,
 };
 
+// TypenameWithCommonSelections.graphql
 import type { FragmentReference } from "relay-runtime";
 declare export opaque type TypenameWithCommonSelections$ref: FragmentReference;
 declare export opaque type TypenameWithCommonSelections$fragmentType: TypenameWithCommonSelections$ref;
@@ -1861,6 +2001,7 @@ export type TypenameWithCommonSelections$key = {
   +$fragmentRefs: TypenameWithCommonSelections$ref,
 };
 
+// TypenameAlias.graphql
 import type { FragmentReference } from "relay-runtime";
 declare export opaque type TypenameAlias$ref: FragmentReference;
 declare export opaque type TypenameAlias$fragmentType: TypenameAlias$ref;
@@ -1884,6 +2025,7 @@ export type TypenameAlias$key = {
   +$fragmentRefs: TypenameAlias$ref,
 };
 
+// TypenameAliases.graphql
 import type { FragmentReference } from "relay-runtime";
 declare export opaque type TypenameAliases$ref: FragmentReference;
 declare export opaque type TypenameAliases$fragmentType: TypenameAliases$ref;
@@ -1913,7 +2055,7 @@ export type TypenameAliases$key = {
 };
 `;
 
-exports[`RelayFlowGenerator Snapshot tests matches expected output: unmasked-fragment-spreads.graphql 1`] = `
+exports[`RelayFlowGenerator Snapshot tests for useHaste matches expected output: unmasked-fragment-spreads.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 fragment UserProfile on User {
   profilePicture(size: $ProfilePicture_SIZE) {
@@ -1943,6 +2085,7 @@ fragment AnotherRecursiveFragment on Image {
 }
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+// UserProfile.graphql
 import type { PhotoFragment$ref } from "PhotoFragment.graphql";
 import type { FragmentReference } from "relay-runtime";
 declare export opaque type UserProfile$ref: FragmentReference;
@@ -1962,6 +2105,7 @@ export type UserProfile$key = {
   +$fragmentRefs: UserProfile$ref,
 };
 
+// PhotoFragment.graphql
 import type { FragmentReference } from "relay-runtime";
 declare export opaque type PhotoFragment$ref: FragmentReference;
 declare export opaque type PhotoFragment$fragmentType: PhotoFragment$ref;
@@ -1976,6 +2120,7 @@ export type PhotoFragment$key = {
   +$fragmentRefs: PhotoFragment$ref,
 };
 
+// RecursiveFragment.graphql
 import type { FragmentReference } from "relay-runtime";
 declare export opaque type RecursiveFragment$ref: FragmentReference;
 declare export opaque type RecursiveFragment$fragmentType: RecursiveFragment$ref;
@@ -1989,6 +2134,7 @@ export type RecursiveFragment$key = {
   +$fragmentRefs: RecursiveFragment$ref,
 };
 
+// AnotherRecursiveFragment.graphql
 import type { FragmentReference } from "relay-runtime";
 declare export opaque type AnotherRecursiveFragment$ref: FragmentReference;
 declare export opaque type AnotherRecursiveFragment$fragmentType: AnotherRecursiveFragment$ref;
@@ -2002,4 +2148,49 @@ export type AnotherRecursiveFragment$key = {
   +$data?: AnotherRecursiveFragment$data,
   +$fragmentRefs: AnotherRecursiveFragment$ref,
 };
+`;
+
+exports[`RelayFlowGenerator Snapshot tests for useSingleDirectory matches expected output: refetchable-fragment.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment RefetchableFragment on Node @refetchable(queryName: "RefetchableFragmentQuery") {
+  id
+  fragAndField: profilePicture {
+    uri
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+// RefetchableFragment.graphql
+import type { FragmentReference } from "relay-runtime";
+import type { RefetchableFragment$ref, RefetchableFragment$fragmentType } from "./RefetchableFragmentQuery.graphql";
+export type { RefetchableFragment$ref, RefetchableFragment$fragmentType };
+export type RefetchableFragment = {|
+  +id: string,
+  +fragAndField: ?{|
+    +uri: ?string
+  |},
+  +$refType: RefetchableFragment$ref,
+|};
+export type RefetchableFragment$data = RefetchableFragment;
+export type RefetchableFragment$key = {
+  +$data?: RefetchableFragment$data,
+  +$fragmentRefs: RefetchableFragment$ref,
+};
+
+// RefetchableFragmentQuery.graphql
+import type { FragmentReference } from "relay-runtime";
+declare export opaque type RefetchableFragment$ref: FragmentReference;
+declare export opaque type RefetchableFragment$fragmentType: RefetchableFragment$ref;
+export type RefetchableFragmentQueryVariables = {|
+  id: string
+|};
+export type RefetchableFragmentQueryResponse = {|
+  +node: ?{|
+    +$fragmentRefs: RefetchableFragment$ref
+  |}
+|};
+export type RefetchableFragmentQuery = {|
+  variables: RefetchableFragmentQueryVariables,
+  response: RefetchableFragmentQueryResponse,
+|};
 `;

@@ -167,6 +167,7 @@ function relayRefetchableFragmentTransform(
           metadata: {
             ...(node.metadata || {}),
             derivedFrom: transformedFragment.name,
+            isRefetchableQuery: true,
           },
         });
       }

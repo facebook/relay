@@ -47,6 +47,35 @@ function exportType(name: string, type: BabelAST): $FlowFixMe {
 }
 
 /**
+ * export type {A, B, C}
+ */
+function exportTypes(names: $ReadOnlyArray<string>): $FlowFixMe {
+  const res = t.exportNamedDeclaration(
+    null,
+    names.map(name =>
+      t.exportSpecifier(t.identifier(name), t.identifier(name)),
+    ),
+
+    null,
+  );
+  res.exportKind = 'type';
+  return res;
+}
+
+/**
+ * declare export type NAME = VALUE
+ */
+function declareExportOpaqueType(name: string, value: string): $FlowFixMe {
+  return t.declareExportDeclaration(
+    t.declareOpaqueType(
+      t.identifier(name),
+      null,
+      t.genericTypeAnnotation(t.identifier(value)),
+    ),
+  );
+}
+
+/**
  * import type {NAMES[0], NAMES[1], ...} from 'MODULE';
  */
 function importTypes(
@@ -120,8 +149,10 @@ function unionTypeAnnotation(types: $ReadOnlyArray<BabelAST>): BabelAST {
 
 module.exports = {
   anyTypeAlias,
+  declareExportOpaqueType,
   exactObjectTypeAnnotation,
   exportType,
+  exportTypes,
   importTypes,
   intersectionTypeAnnotation,
   lineComments,

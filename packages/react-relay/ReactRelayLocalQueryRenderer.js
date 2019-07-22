@@ -13,13 +13,10 @@
 const React = require('React');
 const ReactRelayContext = require('./ReactRelayContext');
 
-const {useEffect, useState, useRef, useMemo} = React;
+const {useLayoutEffect, useState, useRef, useMemo} = React;
 const {deepFreeze} = require('relay-runtime');
-// flowlint-next-line untyped-import:off
-const warning = require('warning');
 
 const areEqual = require('areEqual');
-const TIMEOUT = 30000;
 
 import type {GraphQLTaggedNode, IEnvironment, Variables} from 'relay-runtime';
 
@@ -77,18 +74,14 @@ function ReactRelayLocalQueryRenderer(props: Props): React.Node {
     // and subscribed before the component commits
     const retainDisposable = environment.retain(operation.root);
     const subscribeDisposable = environment.subscribe(res, newSnapshot => {
-      if (dataRef.current !== newSnapshot.data) {
-        dataRef.current = newSnapshot.data;
-        forceUpdate(dataRef.current);
-      }
+      dataRef.current = newSnapshot.data;
+      forceUpdate(dataRef.current);
     });
-    const handle = setTimeout(nextCleanupFn, TIMEOUT);
     let disposed = false;
     function nextCleanupFn() {
       if (!disposed) {
         disposed = true;
         cleanupFnRef.current = null;
-        clearTimeout(handle);
         retainDisposable.dispose();
         subscribeDisposable.dispose();
       }
@@ -97,19 +90,11 @@ function ReactRelayLocalQueryRenderer(props: Props): React.Node {
       cleanupFnRef.current();
     }
     cleanupFnRef.current = nextCleanupFn;
-
     return res;
   }, [environment, operation]);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const cleanupFn = cleanupFnRef.current;
-    if (!cleanupFn) {
-      warning(
-        false,
-        'ReactRelayLocalQueryRenderer: Component took too long to render. ' +
-          'Data could have already been deleted by garbage collection',
-      );
-    }
     return () => {
       cleanupFn && cleanupFn();
     };

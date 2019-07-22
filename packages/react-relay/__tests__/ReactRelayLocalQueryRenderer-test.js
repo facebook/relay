@@ -170,12 +170,18 @@ describe('ReactRelayLocalQueryRenderer', () => {
       ReactTestRenderer.act(() => jest.runAllImmediates());
       expect(environment.retain).toBeCalledTimes(1);
       const snapshot = environment.lookup(operation.fragment, operation);
-      const callback = jest.fn(() => {});
-      environment.lookup(snapshot, callback);
+      ReactTestRenderer.act(() => jest.runAllTimers());
       environment.getStore().__gc();
       // Data should not change
-      expect(callback).not.toBeCalled();
-      expect(snapshot.data).toBeDefined();
+      expect(
+        environment
+          .getStore()
+          .getSource()
+          .toJSON(),
+      ).not.toEqual({});
+      expect(environment.lookup(operation.fragment, operation)).toEqual(
+        snapshot,
+      );
       expect(instance.toJSON()).toBe('Mark');
     });
   });
@@ -444,9 +450,7 @@ describe('ReactRelayLocalQueryRenderer', () => {
 
     it('runs after GC, data should not be collected by GC', () => {
       const snapshot = environment.lookup(operation.fragment, operation);
-      const callback = jest.fn(() => {});
-      environment.lookup(snapshot, callback);
-
+      expect(snapshot.data).toBeDefined();
       // Data should not be collected by GC
       environment.getStore().__gc();
       jest.runAllImmediates();
@@ -458,12 +462,13 @@ describe('ReactRelayLocalQueryRenderer', () => {
       ).not.toEqual({});
 
       ReactTestRenderer.act(() => jest.runAllImmediates());
-      expect(callback).not.toBeCalled();
-      expect(snapshot.data).toBeDefined();
+      expect(environment.lookup(operation.fragment, operation)).toEqual(
+        snapshot,
+      );
       expect(instance.toJSON()).toBe('Mark');
     });
 
-    it('runs after commiting another payload, latest data should be renderer', () => {
+    it('runs after commiting another payload, latest data should be rendered', () => {
       ReactTestRenderer.act(() => {
         environment.commitPayload(operation, {
           node: {
@@ -488,20 +493,6 @@ describe('ReactRelayLocalQueryRenderer', () => {
           .getSource()
           .toJSON(),
       ).toEqual({});
-    });
-
-    it('warns if effect runs after retain is release by a timeout', () => {
-      jest.mock('warning');
-      const warning = require('warning');
-
-      // trigger temporary retain
-      ReactTestRenderer.act(() => {
-        jest.advanceTimersByTime(30000);
-      });
-      ReactTestRenderer.act(() => {
-        jest.runAllImmediates();
-      });
-      expect(warning).toBeCalledTimes(1);
     });
   });
 });

@@ -1574,7 +1574,7 @@ const {ROOT_ID, ROOT_TYPE} = require('../RelayStoreUtils');
             variables: {id: '1', size: 32},
           },
           payload,
-          {...defaultOptions, handleStrippedNulls: true},
+          defaultOptions,
         );
         const result = {
           '1': {
@@ -1599,7 +1599,7 @@ const {ROOT_ID, ROOT_TYPE} = require('../RelayStoreUtils');
             variables: {id: '1', size: 32},
           },
           payload,
-          {...defaultOptions, handleStrippedNulls: false},
+          defaultOptions,
         );
         expect(recordSource.toJSON()).toEqual(result);
       });
@@ -1626,7 +1626,7 @@ const {ROOT_ID, ROOT_TYPE} = require('../RelayStoreUtils');
             variables: {id: '1', size: 32},
           },
           payload,
-          {...defaultOptions, handleStrippedNulls: true},
+          defaultOptions,
         );
         const result = {
           '1': {
@@ -1650,7 +1650,7 @@ const {ROOT_ID, ROOT_TYPE} = require('../RelayStoreUtils');
             variables: {id: '1', size: 32},
           },
           payload,
-          {...defaultOptions, handleStrippedNulls: false},
+          defaultOptions,
         );
         expect(recordSource.toJSON()).toEqual(result);
       });
@@ -1692,7 +1692,7 @@ const {ROOT_ID, ROOT_TYPE} = require('../RelayStoreUtils');
             variables: {id: '1', size: 32},
           },
           payload,
-          {...defaultOptions, handleStrippedNulls: true},
+          defaultOptions,
         );
         const result = {
           '1': {
@@ -1731,7 +1731,7 @@ const {ROOT_ID, ROOT_TYPE} = require('../RelayStoreUtils');
             variables: {id: '1', size: 32},
           },
           payload,
-          {...defaultOptions, handleStrippedNulls: false},
+          defaultOptions,
         );
         expect(recordSource.toJSON()).toEqual(result);
       });
@@ -1765,7 +1765,7 @@ const {ROOT_ID, ROOT_TYPE} = require('../RelayStoreUtils');
             variables: {id: '1', size: 32},
           },
           payload,
-          {...defaultOptions, handleStrippedNulls: true},
+          defaultOptions,
         );
         const result = {
           '1': {
@@ -1796,7 +1796,7 @@ const {ROOT_ID, ROOT_TYPE} = require('../RelayStoreUtils');
             variables: {id: '1', size: 32},
           },
           payload,
-          {...defaultOptions, handleStrippedNulls: false},
+          defaultOptions,
         );
         expect(recordSource.toJSON()).toEqual(result);
       });
@@ -2506,7 +2506,7 @@ const {ROOT_ID, ROOT_TYPE} = require('../RelayStoreUtils');
             variables: {id: '1'},
           },
           payload,
-          {...defaultOptions, handleStrippedNulls: true},
+          defaultOptions,
         );
       }).toWarn([
         'RelayResponseNormalizer(): Payload did not contain a value for ' +
@@ -2547,7 +2547,7 @@ const {ROOT_ID, ROOT_TYPE} = require('../RelayStoreUtils');
             variables: {},
           },
           payload,
-          {...defaultOptions, handleStrippedNulls: true},
+          defaultOptions,
         );
       }).not.toWarn([
         'RelayResponseNormalizer(): Payload did not contain a value for ' +
@@ -2608,7 +2608,7 @@ const {ROOT_ID, ROOT_TYPE} = require('../RelayStoreUtils');
             variables: {id: '1'},
           },
           payload,
-          {...defaultOptions, handleStrippedNulls: true},
+          defaultOptions,
         );
       }).toWarn([
         'RelayResponseNormalizer: Invalid record `%s`. Expected %s to be ' +
@@ -2629,7 +2629,7 @@ const {ROOT_ID, ROOT_TYPE} = require('../RelayStoreUtils');
             variables: {id: '1'},
           },
           payload,
-          {...defaultOptions, handleStrippedNulls: true},
+          defaultOptions,
         );
       }).toWarn([
         'RelayResponseNormalizer: Invalid record `%s`. Expected %s to be ' +
@@ -2693,7 +2693,7 @@ const {ROOT_ID, ROOT_TYPE} = require('../RelayStoreUtils');
             variables: {id: '1'},
           },
           payload,
-          {...defaultOptions, handleStrippedNulls: true},
+          defaultOptions,
         );
       }).not.toWarn();
       expect(() => {
@@ -2705,12 +2705,12 @@ const {ROOT_ID, ROOT_TYPE} = require('../RelayStoreUtils');
             variables: {id: '1'},
           },
           payload,
-          {...defaultOptions, handleStrippedNulls: true},
+          defaultOptions,
         );
       }).not.toWarn();
     });
 
-    it('leaves undefined fields unset, as handleStrippedNulls == false', () => {
+    it('leaves undefined fields unset', () => {
       const {StrippedQuery} = generateWithTransforms(
         `
       query StrippedQuery($id: ID, $size: [Int]) {
@@ -2744,7 +2744,7 @@ const {ROOT_ID, ROOT_TYPE} = require('../RelayStoreUtils');
           variables: {id: '1', size: 32},
         },
         payload,
-        {...defaultOptions, handleStrippedNulls: false},
+        defaultOptions,
       );
       expect(recordSource.toJSON()).toEqual({
         '1': {

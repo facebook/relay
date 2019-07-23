@@ -65,7 +65,6 @@ export type GetDataID = (
 
 export type NormalizationOptions = {|
   +getDataID: GetDataID,
-  +handleStrippedNulls?: boolean,
   +path?: $ReadOnlyArray<string>,
 |};
 
@@ -78,9 +77,6 @@ export type NormalizedResponse = {|
 /**
  * Normalizes the results of a query and standard GraphQL response, writing the
  * normalized records/fields into the given MutableRecordSource.
- *
- * If handleStrippedNulls is true, will replace fields on the Selector that
- * are not present in the response with null. Otherwise will leave fields unset.
  */
 function normalize(
   recordSource: MutableRecordSource,
@@ -103,14 +99,14 @@ function normalize(
  * Helper for handling payloads.
  */
 class RelayResponseNormalizer {
+  _getDataId: GetDataID;
   _handleFieldPayloads: Array<HandleFieldPayload>;
-  _handleStrippedNulls: boolean;
   _incrementalPlaceholders: Array<IncrementalDataPlaceholder>;
+  _isClientExtension: boolean;
   _moduleImportPayloads: Array<ModuleImportPayload>;
   _path: Array<string>;
   _recordSource: MutableRecordSource;
   _variables: Variables;
-  _getDataId: GetDataID;
 
   constructor(
     recordSource: MutableRecordSource,
@@ -119,8 +115,8 @@ class RelayResponseNormalizer {
   ) {
     this._getDataId = options.getDataID;
     this._handleFieldPayloads = [];
-    this._handleStrippedNulls = options.handleStrippedNulls === true;
     this._incrementalPlaceholders = [];
+    this._isClientExtension = false;
     this._moduleImportPayloads = [];
     this._path = options.path ? [...options.path] : [];
     this._recordSource = recordSource;
@@ -214,10 +210,10 @@ class RelayResponseNormalizer {
           this._normalizeStream(selection, record, data);
           break;
         case CLIENT_EXTENSION:
-          const handleStrippedNulls = this._handleStrippedNulls;
-          this._handleStrippedNulls = false;
+          const isClientExtension = this._isClientExtension;
+          this._isClientExtension = true;
           this._traverseSelections(selection, record, data);
-          this._handleStrippedNulls = handleStrippedNulls;
+          this._isClientExtension = isClientExtension;
           break;
         case CONNECTION_FIELD:
           invariant(
@@ -356,21 +352,30 @@ class RelayResponseNormalizer {
     const storageKey = getStorageKey(selection, this._variables);
     const fieldValue = data[responseKey];
     if (fieldValue == null) {
-      if (fieldValue === undefined && !this._handleStrippedNulls) {
-        // If we're not stripping nulls, undefined fields are unset
+      if (fieldValue === undefined) {
+        // Fields that are missing in the response are not set on the record.
+        // There are three main cases where this can occur:
+        // - Inside a client extension: the server will not generally return
+        //   values for these fields, but a local update may provide them.
+        // - Fields on abstract types: these may be missing if the concrete
+        //   response type does not match the abstract type.
+        //
+        // Otherwise, missing fields usually indicate a server or user error (
+        // the latter for manually constructed payloads).
+        if (__DEV__) {
+          warning(
+            this._isClientExtension ||
+              (parent.kind === LINKED_FIELD && parent.concreteType == null)
+              ? true
+              : Object.prototype.hasOwnProperty.call(data, responseKey),
+            'RelayResponseNormalizer(): Payload did not contain a value ' +
+              'for field `%s: %s`. Check that you are parsing with the same ' +
+              'query that was used to fetch the payload.',
+            responseKey,
+            storageKey,
+          );
+        }
         return;
-      }
-      if (__DEV__) {
-        warning(
-          parent.kind === LINKED_FIELD && parent.concreteType == null
-            ? true
-            : Object.prototype.hasOwnProperty.call(data, responseKey),
-          'RelayResponseNormalizer(): Payload did not contain a value ' +
-            'for field `%s: %s`. Check that you are parsing with the same ' +
-            'query that was used to fetch the payload.',
-          responseKey,
-          storageKey,
-        );
       }
       RelayModernRecord.setValue(record, storageKey, null);
       return;

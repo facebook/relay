@@ -886,7 +886,7 @@ function normalizeResponse(
     source,
     selector,
     data,
-    {handleStrippedNulls: true, path, getDataID},
+    {path, getDataID},
   );
   return {
     errors,

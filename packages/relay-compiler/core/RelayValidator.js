@@ -10,14 +10,10 @@
 
 'use strict';
 
-import type {
-  DocumentNode,
-  FieldNode,
-  GraphQLSchema,
-  ValidationContext,
-} from 'graphql';
-
 const Profiler = require('./GraphQLCompilerProfiler');
+
+const util = require('util');
+
 const {
   FragmentsOnCompositeTypesRule,
   KnownArgumentNamesRule,
@@ -35,7 +31,13 @@ const {
   formatError,
   validate,
 } = require('graphql');
-const util = require('util');
+
+import type {
+  DocumentNode,
+  FieldNode,
+  GraphQLSchema,
+  ValidationContext,
+} from 'graphql';
 
 function validateOrThrow(
   document: DocumentNode,

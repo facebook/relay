@@ -11,7 +11,6 @@
 
 'use strict';
 
-const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
 const RelayModernRecord = require('../RelayModernRecord');
 const RelayRecordSource = require('../RelayRecordSource');
 

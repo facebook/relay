@@ -14,7 +14,6 @@ const areEqual = require('areEqual');
 const invariant = require('invariant');
 const isScalarAndEqual = require('../util/isScalarAndEqual');
 
-const {getFragmentOwners} = require('./RelayModernFragmentOwner');
 const {
   areEqualSelectors,
   getSelectorsFromObject,

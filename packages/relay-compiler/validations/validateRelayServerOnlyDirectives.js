@@ -20,7 +20,6 @@ import type {
   ClientExtension,
   Defer,
   Stream,
-  ModuleImport,
 } from '../core/GraphQLIR';
 
 type State = {

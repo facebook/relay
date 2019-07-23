@@ -958,7 +958,6 @@ describe('Aliased mutation roots', () => {
 });
 
 describe('commitMutation()', () => {
-  let callbacks;
   let dataSource;
   let environment;
   let fragment;

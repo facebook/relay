@@ -10,8 +10,8 @@
 
 'use strict';
 
-const t = require('@babel/types');
 const invariant = require('invariant');
+const t = require('@babel/types');
 
 type BabelAST = mixed;
 

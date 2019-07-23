@@ -10,11 +10,12 @@
 
 'use strict';
 
+const t = require('@babel/types');
+
 const {
   exactObjectTypeAnnotation,
   readOnlyArrayOfType,
 } = require('./RelayFlowBabelFactories');
-const t = require('@babel/types');
 const {
   GraphQLEnumType,
   GraphQLInputObjectType,

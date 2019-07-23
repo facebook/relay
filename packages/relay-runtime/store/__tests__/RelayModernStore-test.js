@@ -54,7 +54,6 @@ function createOperationDescriptor(...args) {
   describe(`Relay Store with ${ImplementationName} Record Source`, () => {
     describe('retain()', () => {
       let UserFragment;
-      let UserQuery;
       let data;
       let initialData;
       let source;
@@ -77,7 +76,7 @@ function createOperationDescriptor(...args) {
         initialData = simpleClone(data);
         source = new RecordSourceImplementation(data);
         store = new RelayModernStore(source);
-        ({UserFragment, UserQuery} = generateAndCompile(`
+        ({UserFragment} = generateAndCompile(`
           query UserQuery($size: Int) {
             me {
               ...UserFragment

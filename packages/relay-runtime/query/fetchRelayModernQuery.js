@@ -12,6 +12,11 @@
 
 const invariant = require('invariant');
 
+const {
+  createOperationDescriptor,
+} = require('../store/RelayModernOperationDescriptor');
+const {getRequest} = require('./RelayModernGraphQLTag');
+
 import type {CacheConfig, OperationType} from '../util/RelayRuntimeTypes';
 import type {GraphQLTaggedNode} from './RelayModernGraphQLTag';
 
@@ -32,7 +37,6 @@ function fetchRelayModernQuery<T: OperationType>(
     'fetchRelayModernQuery: Expected a valid Relay environment, got `%s`.',
     environment,
   );
-  const {createOperationDescriptor, getRequest} = environment.unstable_internal;
   const query = getRequest(taggedNode);
   if (query.params.operationKind !== 'query') {
     throw new Error('fetchRelayModernQuery: Expected query operation');

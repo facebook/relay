@@ -17,6 +17,11 @@ const isRelayModernEnvironment = require('../store/isRelayModernEnvironment');
 const validateMutation = require('./validateMutation');
 const warning = require('warning');
 
+const {getRequest} = require('../query/RelayModernGraphQLTag');
+const {
+  createOperationDescriptor,
+} = require('../store/RelayModernOperationDescriptor');
+
 import type {PayloadError, UploadableMap} from '../network/RelayNetworkTypes';
 import type {GraphQLTaggedNode} from '../query/RelayModernGraphQLTag';
 import type {Environment, SelectorStoreUpdater} from '../store/RelayStoreTypes';
@@ -69,7 +74,6 @@ function commitRelayModernMutation<T: MutationParameters>(
     'commitRelayModernMutation: expected `environment` to be an instance of ' +
       '`RelayModernEnvironment`.',
   );
-  const {createOperationDescriptor, getRequest} = environment.unstable_internal;
   const mutation = getRequest(config.mutation);
   if (mutation.params.operationKind !== 'mutation') {
     throw new Error('commitRelayModernMutation: Expected mutation operation');

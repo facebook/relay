@@ -16,7 +16,11 @@ const ReactRelayQueryFetcher = require('./ReactRelayQueryFetcher');
 
 const areEqual = require('areEqual');
 
-const {deepFreeze} = require('relay-runtime');
+const {
+  createOperationDescriptor,
+  deepFreeze,
+  getRequest,
+} = require('relay-runtime');
 
 import type {FetchPolicy} from './ReactRelayTypes';
 import type {
@@ -104,7 +108,6 @@ class ReactRelayQueryRenderer extends React.Component<Props, State> {
     if (props.query) {
       const {query} = props;
 
-      const {getRequest} = props.environment.unstable_internal;
       const request = getRequest(query);
       requestCacheKey = getRequestCacheKey(request.params, props.variables);
       queryFetcher = requestCache[requestCacheKey]
@@ -144,7 +147,6 @@ class ReactRelayQueryRenderer extends React.Component<Props, State> {
 
       let queryFetcher;
       if (query) {
-        const {getRequest} = nextProps.environment.unstable_internal;
         const request = getRequest(query);
         const requestCacheKey = getRequestCacheKey(
           request.params,
@@ -341,10 +343,6 @@ function fetchQueryAndComputeStateFromProps(
   const {environment, query, variables} = props;
   const genericEnvironment = (environment: IEnvironment);
   if (query) {
-    const {
-      createOperationDescriptor,
-      getRequest,
-    } = genericEnvironment.unstable_internal;
     const request = getRequest(query);
     const operation = createOperationDescriptor(request, variables);
     const relayContext = getContext(genericEnvironment, operation.variables);

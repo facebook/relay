@@ -15,6 +15,11 @@ const RelayDeclarativeMutationConfig = require('./RelayDeclarativeMutationConfig
 const invariant = require('invariant');
 const isRelayModernEnvironment = require('../store/isRelayModernEnvironment');
 
+const {getRequest} = require('../query/RelayModernGraphQLTag');
+const {
+  createOperationDescriptor,
+} = require('../store/RelayModernOperationDescriptor');
+
 import type {GraphQLTaggedNode} from '../query/RelayModernGraphQLTag';
 import type {Environment, SelectorStoreUpdater} from '../store/RelayStoreTypes';
 import type {Disposable, Variables} from '../util/RelayRuntimeTypes';
@@ -41,7 +46,6 @@ function applyRelayModernOptimisticMutation(
     'commitRelayModernMutation: expected `environment` to be an instance of ' +
       '`RelayModernEnvironment`.',
   );
-  const {createOperationDescriptor, getRequest} = environment.unstable_internal;
   const mutation = getRequest(config.mutation);
   if (mutation.params.operationKind !== 'mutation') {
     throw new Error('commitRelayModernMutation: Expected mutation operation');

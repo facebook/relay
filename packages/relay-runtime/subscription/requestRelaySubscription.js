@@ -14,6 +14,11 @@ const RelayDeclarativeMutationConfig = require('../mutations/RelayDeclarativeMut
 
 const warning = require('warning');
 
+const {getRequest} = require('../query/RelayModernGraphQLTag');
+const {
+  createOperationDescriptor,
+} = require('../store/RelayModernOperationDescriptor');
+
 import type {DeclarativeMutationConfig} from '../mutations/RelayDeclarativeMutationConfig';
 import type {GraphQLTaggedNode} from '../query/RelayModernGraphQLTag';
 import type {Environment, SelectorStoreUpdater} from '../store/RelayStoreTypes';
@@ -33,7 +38,6 @@ function requestRelaySubscription<TSubscriptionPayload>(
   environment: Environment,
   config: GraphQLSubscriptionConfig<TSubscriptionPayload>,
 ): Disposable {
-  const {createOperationDescriptor, getRequest} = environment.unstable_internal;
   const subscription = getRequest(config.subscription);
   if (subscription.params.operationKind !== 'subscription') {
     throw new Error(

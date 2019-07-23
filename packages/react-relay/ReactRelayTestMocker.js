@@ -15,7 +15,11 @@ const emptyFunction = require('emptyFunction');
 const invariant = require('invariant');
 const warning = require('warning');
 
-const {Network, isRelayModernEnvironment} = require('relay-runtime');
+const {
+  createOperationDescriptor,
+  isRelayModernEnvironment,
+  Network,
+} = require('relay-runtime');
 
 import type {
   CacheConfig,
@@ -227,7 +231,6 @@ class ReactRelayTestMocker {
    */
   dataWrite(config: DataWriteConfig): void {
     const {query, variables, payload} = config;
-    const {createOperationDescriptor} = this._environment.unstable_internal;
 
     const operationDescriptor = createOperationDescriptor(query, variables);
 
@@ -261,7 +264,6 @@ class ReactRelayTestMocker {
     let usedVars;
 
     if (variables) {
-      const {createOperationDescriptor} = this._environment.unstable_internal;
       const operationDescriptor = createOperationDescriptor(query, variables);
       usedVars = ReactRelayTestMocker.stripUnused(
         operationDescriptor.variables,

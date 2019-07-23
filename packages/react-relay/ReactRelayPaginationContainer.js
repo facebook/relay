@@ -28,7 +28,12 @@ const {assertRelayContext} = require('./RelayContext');
 const {
   ConnectionInterface,
   Observable,
+  createFragmentSpecResolver,
+  createOperationDescriptor,
+  getDataIDsFromObject,
   getFragmentOwners,
+  getRequest,
+  getVariablesFromObject,
   isScalarAndEqual,
 } = require('relay-runtime');
 
@@ -348,9 +353,6 @@ function createContainerWithFragments<
     constructor(props) {
       super(props);
       const relayContext = assertRelayContext(props.__relayContext);
-      const {
-        createFragmentSpecResolver,
-      } = relayContext.environment.unstable_internal;
       this._isARequestInFlight = false;
       this._refetchSubscription = null;
       this._refetchVariables = null;
@@ -378,10 +380,6 @@ function createContainerWithFragments<
      */
     UNSAFE_componentWillReceiveProps(nextProps) {
       const relayContext = assertRelayContext(nextProps.__relayContext);
-      const {
-        createFragmentSpecResolver,
-        getDataIDsFromObject,
-      } = relayContext.environment.unstable_internal;
       const prevIDs = getDataIDsFromObject(fragments, this.props);
       const nextIDs = getDataIDsFromObject(fragments, nextProps);
 
@@ -668,11 +666,6 @@ function createContainerWithFragments<
       options: ?RefetchOptions,
     ): Subscription {
       const {environment} = assertRelayContext(this.props.__relayContext);
-      const {
-        createOperationDescriptor,
-        getRequest,
-        getVariablesFromObject,
-      } = environment.unstable_internal;
       const {componentRef: _, __relayContext, ...restProps} = this.props;
       const props = {
         ...restProps,

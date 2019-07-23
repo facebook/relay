@@ -20,7 +20,15 @@ const warning = require('warning');
 
 const {getContainerName} = require('./ReactRelayContainerUtils');
 const {assertRelayContext} = require('./RelayContext');
-const {Observable, isScalarAndEqual} = require('relay-runtime');
+const {
+  Observable,
+  createFragmentSpecResolver,
+  createOperationDescriptor,
+  getDataIDsFromObject,
+  getRequest,
+  getVariablesFromObject,
+  isScalarAndEqual,
+} = require('relay-runtime');
 
 import type {
   $RelayProps,
@@ -80,9 +88,6 @@ function createContainerWithFragments<
       super(props);
       const relayContext = assertRelayContext(props.__relayContext);
       this._refetchSubscription = null;
-      const {
-        createFragmentSpecResolver,
-      } = relayContext.environment.unstable_internal;
       // Do not provide a subscription/callback here.
       // It is possible for this render to be interrupted or aborted,
       // In which case the subscription would cause a leak.
@@ -137,10 +142,6 @@ function createContainerWithFragments<
       const {prevProps} = prevState;
       const relayContext = assertRelayContext(nextProps.__relayContext);
 
-      const {
-        createFragmentSpecResolver,
-        getDataIDsFromObject,
-      } = relayContext.environment.unstable_internal;
       const prevIDs = getDataIDsFromObject(fragments, prevProps);
       const nextIDs = getDataIDsFromObject(fragments, nextProps);
 
@@ -264,9 +265,6 @@ function createContainerWithFragments<
     };
 
     _getFragmentVariables(): Variables {
-      const {
-        getVariablesFromObject,
-      } = this.props.__relayContext.environment.unstable_internal;
       return getVariablesFromObject(fragments, this.props);
     }
 
@@ -329,10 +327,6 @@ function createContainerWithFragments<
             }
           : observerOrCallback || ({}: any);
 
-      const {
-        createOperationDescriptor,
-        getRequest,
-      } = this.props.__relayContext.environment.unstable_internal;
       const query = getRequest(taggedNode);
       const operation = createOperationDescriptor(query, fetchVariables);
 

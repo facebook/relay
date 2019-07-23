@@ -15,6 +15,8 @@ const ReactRelayContext = require('../ReactRelayContext');
 
 const invariant = require('invariant');
 
+const {createOperationDescriptor, getRequest} = require('relay-runtime');
+
 import type {Variables, Snapshot} from 'relay-runtime';
 
 type Props = {
@@ -39,11 +41,6 @@ class RelayTestRenderer extends React.Component<Props, $FlowFixMe> {
     );
 
     const {query, environment, variables} = props;
-
-    const {
-      createOperationDescriptor,
-      getRequest,
-    } = environment.unstable_internal;
 
     const operation = getRequest((query: $FlowFixMe));
     const operationDescriptor = createOperationDescriptor(operation, variables);

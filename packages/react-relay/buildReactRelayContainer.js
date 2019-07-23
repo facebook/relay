@@ -22,6 +22,7 @@ const {
   getComponentName,
   getContainerName,
 } = require('./ReactRelayContainerUtils');
+const {getFragment} = require('relay-runtime');
 
 import type {GeneratedNodeMap} from './ReactRelayTypes';
 import type {FragmentMap} from 'relay-runtime';
@@ -61,8 +62,7 @@ function buildReactRelayContainer<TBase: React$ComponentType<*>>(
           );
         }
       }
-      const {getFragment: getFragmentFromTag} = environment.unstable_internal;
-      const fragments = mapObject(fragmentSpec, getFragmentFromTag);
+      const fragments = mapObject(fragmentSpec, getFragment);
       Container = createContainerWithFragments(ComponentClass, fragments);
 
       // Attach static lifecycle to wrapper component so React can see it.

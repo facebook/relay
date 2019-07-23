@@ -14,7 +14,11 @@ const React = require('React');
 const ReactRelayContext = require('./ReactRelayContext');
 
 const {useLayoutEffect, useState, useRef, useMemo} = React;
-const {deepFreeze} = require('relay-runtime');
+const {
+  createOperationDescriptor,
+  deepFreeze,
+  getRequest,
+} = require('relay-runtime');
 
 const areEqual = require('areEqual');
 
@@ -43,13 +47,9 @@ function ReactRelayLocalQueryRenderer(props: Props): React.Node {
   const {environment, query, variables, render} = props;
   const latestVariables = useDeepCompare(variables);
   const operation = useMemo(() => {
-    const {
-      getRequest,
-      createOperationDescriptor,
-    } = environment.unstable_internal;
     const request = getRequest(query);
     return createOperationDescriptor(request, latestVariables);
-  }, [environment.unstable_internal, query, latestVariables]);
+  }, [query, latestVariables]);
 
   const relayContext = useMemo(
     () => ({

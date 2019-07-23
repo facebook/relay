@@ -17,7 +17,11 @@ const buildReactRelayContainer = require('./buildReactRelayContainer');
 
 const {getContainerName} = require('./ReactRelayContainerUtils');
 const {assertRelayContext} = require('./RelayContext');
-const {isScalarAndEqual} = require('relay-runtime');
+const {
+  createFragmentSpecResolver,
+  getDataIDsFromObject,
+  isScalarAndEqual,
+} = require('relay-runtime');
 
 import type {$RelayProps, GeneratedNodeMap, RelayProp} from './ReactRelayTypes';
 import type {
@@ -56,9 +60,6 @@ function createContainerWithFragments<
     constructor(props) {
       super(props);
       const relayContext = assertRelayContext(props.__relayContext);
-      const {
-        createFragmentSpecResolver,
-      } = relayContext.environment.unstable_internal;
       // Do not provide a subscription/callback here.
       // It is possible for this render to be interrupted or aborted,
       // In which case the subscription would cause a leak.
@@ -91,10 +92,6 @@ function createContainerWithFragments<
       // This is an unusual pattern, but necessary for this container usecase.
       const {prevProps} = prevState;
       const relayContext = assertRelayContext(nextProps.__relayContext);
-      const {
-        createFragmentSpecResolver,
-        getDataIDsFromObject,
-      } = relayContext.environment.unstable_internal;
       const prevIDs = getDataIDsFromObject(fragments, prevProps);
       const nextIDs = getDataIDsFromObject(fragments, nextProps);
 

@@ -94,10 +94,7 @@ describe('RelayModernEnvironment with RelayOperationTracker', () => {
   });
 
   it('should return an instance of tracker', () => {
-    expect(environment.unstable_internal.getOperationTracker).toBeDefined();
-    if (environment.unstable_internal.getOperationTracker != null) {
-      expect(environment.unstable_internal.getOperationTracker()).toBe(tracker);
-    }
+    expect(environment.getOperationTracker()).toBe(tracker);
   });
 
   it('should have operation tracker and operations should not be affected', () => {

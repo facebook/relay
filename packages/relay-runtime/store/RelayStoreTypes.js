@@ -339,9 +339,6 @@ export interface UnstableEnvironmentCore {
    * for a Relay container, for example.
    */
   getVariablesFromObject: (fragments: FragmentMap, props: Props) => Variables;
-
-  // Operation Tracker for Relay Hooks
-  getOperationTracker: () => RelayOperationTracker;
 }
 
 /**
@@ -572,6 +569,11 @@ export interface Environment {
    * Get the environment's internal Store.
    */
   getStore(): Store;
+
+  /**
+   * Returns the environment specific OperationTracker.
+   */
+  getOperationTracker(): RelayOperationTracker;
 
   /**
    * Read the results of a selector from in-memory records in the store.

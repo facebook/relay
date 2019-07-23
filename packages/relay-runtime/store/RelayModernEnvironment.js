@@ -110,12 +110,7 @@ class RelayModernEnvironment implements Environment {
       new RelayPublishQueue(config.store, handlerProvider, this._getDataID);
     this._scheduler = config.scheduler ?? null;
     this._store = config.store;
-    this.unstable_internal = {
-      ...RelayCore,
-      getOperationTracker: () => {
-        return this._operationTracker;
-      },
-    };
+    this.unstable_internal = RelayCore;
 
     (this: any).__setNet = newNet => (this._network = newNet);
 
@@ -149,6 +144,10 @@ class RelayModernEnvironment implements Environment {
 
   getNetwork(): Network {
     return this._network;
+  }
+
+  getOperationTracker(): RelayOperationTracker {
+    return this._operationTracker;
   }
 
   applyUpdate(optimisticUpdate: OptimisticUpdate): Disposable {

@@ -65,23 +65,21 @@ export type MutationConfig<T: MutationParameters> = {|
  * Higher-level helper function to execute a mutation against a specific
  * environment.
  */
-function commitRelayModernMutation<T: MutationParameters>(
+function commitMutation<T: MutationParameters>(
   environment: Environment,
   config: MutationConfig<T>,
 ): Disposable {
   invariant(
     isRelayModernEnvironment(environment),
-    'commitRelayModernMutation: expected `environment` to be an instance of ' +
+    'commitMutation: expected `environment` to be an instance of ' +
       '`RelayModernEnvironment`.',
   );
   const mutation = getRequest(config.mutation);
   if (mutation.params.operationKind !== 'mutation') {
-    throw new Error('commitRelayModernMutation: Expected mutation operation');
+    throw new Error('commitMutation: Expected mutation operation');
   }
   if (mutation.kind !== 'Request') {
-    throw new Error(
-      'commitRelayModernMutation: Expected mutation to be of type request',
-    );
+    throw new Error('commitMutation: Expected mutation to be of type request');
   }
   let {optimisticResponse, optimisticUpdater, updater} = config;
   const {configs, onError, variables, uploadables} = config;
@@ -91,7 +89,7 @@ function commitRelayModernMutation<T: MutationParameters>(
     optimisticResponse = optimisticResponse();
     warning(
       false,
-      'commitRelayModernMutation: Expected `optimisticResponse` to be an object, ' +
+      'commitMutation: Expected `optimisticResponse` to be an object, ' +
         'received a function.',
     );
   }
@@ -138,4 +136,4 @@ function commitRelayModernMutation<T: MutationParameters>(
   return {dispose: subscription.unsubscribe};
 }
 
-module.exports = commitRelayModernMutation;
+module.exports = commitMutation;

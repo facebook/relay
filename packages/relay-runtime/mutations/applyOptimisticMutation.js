@@ -37,18 +37,18 @@ export type OptimisticMutationConfig = {|
  * Higher-level helper function to execute a mutation against a specific
  * environment.
  */
-function applyRelayModernOptimisticMutation(
+function applyOptimisticMutation(
   environment: Environment,
   config: OptimisticMutationConfig,
 ): Disposable {
   invariant(
     isRelayModernEnvironment(environment),
-    'commitRelayModernMutation: expected `environment` to be an instance of ' +
+    'commitMutation: expected `environment` to be an instance of ' +
       '`RelayModernEnvironment`.',
   );
   const mutation = getRequest(config.mutation);
   if (mutation.params.operationKind !== 'mutation') {
-    throw new Error('commitRelayModernMutation: Expected mutation operation');
+    throw new Error('commitMutation: Expected mutation operation');
   }
   let {optimisticUpdater} = config;
   const {configs, optimisticResponse, variables} = config;
@@ -68,4 +68,4 @@ function applyRelayModernOptimisticMutation(
   });
 }
 
-module.exports = applyRelayModernOptimisticMutation;
+module.exports = applyOptimisticMutation;

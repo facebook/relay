@@ -35,14 +35,14 @@ const RelayRecordSource = require('./store/RelayRecordSource');
 const RelayStoreUtils = require('./store/RelayStoreUtils');
 const RelayViewerHandler = require('./handlers/viewer/RelayViewerHandler');
 
-const applyRelayModernOptimisticMutation = require('./mutations/applyRelayModernOptimisticMutation');
+const applyOptimisticMutation = require('./mutations/applyOptimisticMutation');
 const commitLocalUpdate = require('./mutations/commitLocalUpdate');
-const commitRelayModernMutation = require('./mutations/commitRelayModernMutation');
+const commitMutation = require('./mutations/commitMutation');
 const createRelayContext = require('./store/createRelayContext');
 const createRelayNetworkLogger = require('./network/createRelayNetworkLogger');
 const deepFreeze = require('./util/deepFreeze');
+const fetchQuery = require('./query/fetchQuery');
 const fetchQueryInternal = require('./query/fetchQueryInternal');
-const fetchRelayModernQuery = require('./query/fetchRelayModernQuery');
 const getFragmentIdentifier = require('./util/getFragmentIdentifier');
 const getFragmentSpecIdentifier = require('./util/getFragmentSpecIdentifier');
 const getRelayHandleKey = require('./util/getRelayHandleKey');
@@ -50,7 +50,7 @@ const getRequestParametersIdentifier = require('./util/getRequestParametersIdent
 const isRelayModernEnvironment = require('./store/isRelayModernEnvironment');
 const isScalarAndEqual = require('./util/isScalarAndEqual');
 const recycleNodesInto = require('./util/recycleNodesInto');
-const requestRelaySubscription = require('./subscription/requestRelaySubscription');
+const requestSubscription = require('./subscription/requestSubscription');
 const stableCopy = require('./util/stableCopy');
 
 const {generateClientID} = require('./store/ClientID');
@@ -70,12 +70,12 @@ export type {
 } from './mutations/RelayDeclarativeMutationConfig';
 export type {
   OptimisticMutationConfig,
-} from './mutations/applyRelayModernOptimisticMutation';
+} from './mutations/applyOptimisticMutation';
 export type {
   DEPRECATED_MutationConfig,
   MutationConfig,
   MutationParameters,
-} from './mutations/commitRelayModernMutation';
+} from './mutations/commitMutation';
 export type {RelayNetworkLog} from './network/RelayNetworkLoggerTransaction';
 export type {
   ExecuteFunction,
@@ -129,7 +129,7 @@ export type {
 } from './store/RelayStoreTypes';
 export type {
   GraphQLSubscriptionConfig,
-} from './subscription/requestRelaySubscription';
+} from './subscription/requestSubscription';
 export type {
   NormalizationArgument,
   NormalizationDefer,
@@ -239,12 +239,12 @@ module.exports = {
   ViewerHandler: RelayViewerHandler,
 
   // Helpers (can be implemented via the above API)
-  applyOptimisticMutation: applyRelayModernOptimisticMutation,
-  commitLocalUpdate: commitLocalUpdate,
-  commitMutation: commitRelayModernMutation,
-  fetchQuery: fetchRelayModernQuery,
-  isRelayModernEnvironment: isRelayModernEnvironment,
-  requestSubscription: requestRelaySubscription,
+  applyOptimisticMutation,
+  commitLocalUpdate,
+  commitMutation,
+  fetchQuery,
+  isRelayModernEnvironment,
+  requestSubscription,
 
   // Configuration interface for legacy or special uses
   ConnectionInterface: RelayConnectionInterface,

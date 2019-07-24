@@ -17,7 +17,7 @@ const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
 const RelayRecordSource = require('../RelayRecordSource');
 
-const commitRelayModernMutation = require('../../mutations/commitRelayModernMutation');
+const commitMutation = require('../../mutations/commitMutation');
 
 const {
   createOperationDescriptor,
@@ -106,7 +106,7 @@ describe('Mutations on viewer', () => {
     });
 
     callback.mockClear();
-    commitRelayModernMutation(environment, {
+    commitMutation(environment, {
       mutation,
       variables,
       onCompleted,
@@ -153,7 +153,7 @@ describe('Mutations on viewer', () => {
     const callback = jest.fn();
     environment.subscribe(snapshot, callback);
 
-    commitRelayModernMutation(environment, {
+    commitMutation(environment, {
       mutation,
       variables,
       onCompleted,

@@ -25,7 +25,7 @@ import type {GraphQLTaggedNode} from './RelayModernGraphQLTag';
  * order to be accessible in the result object.
  */
 
-function fetchRelayModernQuery<T: OperationType>(
+function fetchQuery<T: OperationType>(
   environment: Environment,
   taggedNode: GraphQLTaggedNode,
   variables: $PropertyType<T, 'variables'>,
@@ -33,7 +33,7 @@ function fetchRelayModernQuery<T: OperationType>(
 ): Promise<$PropertyType<T, 'response'>> {
   const query = getRequest(taggedNode);
   if (query.params.operationKind !== 'query') {
-    throw new Error('fetchRelayModernQuery: Expected query operation');
+    throw new Error('fetchQuery: Expected query operation');
   }
   const operation = createOperationDescriptor(query, variables);
   return environment
@@ -42,4 +42,4 @@ function fetchRelayModernQuery<T: OperationType>(
     .toPromise();
 }
 
-module.exports = fetchRelayModernQuery;
+module.exports = fetchQuery;

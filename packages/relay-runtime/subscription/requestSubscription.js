@@ -34,22 +34,20 @@ export type GraphQLSubscriptionConfig<TSubscriptionPayload> = {|
   updater?: ?SelectorStoreUpdater,
 |};
 
-function requestRelaySubscription<TSubscriptionPayload>(
+function requestSubscription<TSubscriptionPayload>(
   environment: Environment,
   config: GraphQLSubscriptionConfig<TSubscriptionPayload>,
 ): Disposable {
   const subscription = getRequest(config.subscription);
   if (subscription.params.operationKind !== 'subscription') {
-    throw new Error(
-      'requestRelaySubscription: Must use Subscription operation',
-    );
+    throw new Error('requestSubscription: Must use Subscription operation');
   }
   const {configs, onCompleted, onError, onNext, variables} = config;
   const operation = createOperationDescriptor(subscription, variables);
 
   warning(
     !(config.updater && configs),
-    'requestRelaySubscription: Expected only one of `updater` and `configs` to be provided',
+    'requestSubscription: Expected only one of `updater` and `configs` to be provided',
   );
 
   const {updater} = configs
@@ -79,4 +77,4 @@ function requestRelaySubscription<TSubscriptionPayload>(
     });
 }
 
-module.exports = requestRelaySubscription;
+module.exports = requestSubscription;

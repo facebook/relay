@@ -10,7 +10,7 @@
 
 'use strict';
 
-const fetchRelayModernQuery = require('../fetchRelayModernQuery');
+const fetchQuery = require('../fetchQuery');
 
 const {
   createOperationDescriptor,
@@ -20,7 +20,7 @@ const {
   generateAndCompile,
 } = require('relay-test-utils-internal');
 
-describe('fetchRelayModernQuery', () => {
+describe('fetchQuery', () => {
   let cacheConfig;
   let environment;
   let operation;
@@ -47,7 +47,7 @@ describe('fetchRelayModernQuery', () => {
 
   it('fetches the query', () => {
     cacheConfig = {force: true};
-    fetchRelayModernQuery(environment, query, variables, cacheConfig);
+    fetchQuery(environment, query, variables, cacheConfig);
     expect(environment.execute.mock.calls.length).toBe(1);
     const args = environment.execute.mock.calls[0][0];
     expect(args).toEqual({operation, cacheConfig});
@@ -55,7 +55,7 @@ describe('fetchRelayModernQuery', () => {
   });
 
   it('resolves with the query results after first value', async () => {
-    const promise = fetchRelayModernQuery(environment, query, variables);
+    const promise = fetchQuery(environment, query, variables);
     environment.mock.nextValue(query, {
       data: {
         me: {
@@ -72,7 +72,7 @@ describe('fetchRelayModernQuery', () => {
   });
 
   it('rejects with query errors', async () => {
-    const promise = fetchRelayModernQuery(environment, query, variables);
+    const promise = fetchQuery(environment, query, variables);
     const error = new Error('wtf');
     environment.mock.reject(query, error);
     expect(await promise.catch(err => err)).toBe(error);

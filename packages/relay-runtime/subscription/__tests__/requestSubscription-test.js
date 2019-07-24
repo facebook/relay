@@ -11,7 +11,7 @@
 
 'use strict';
 
-const requestRelaySubscription = require('../requestRelaySubscription');
+const requestSubscription = require('../requestSubscription');
 
 const {
   createOperationDescriptor,
@@ -22,7 +22,7 @@ const {
   generateAndCompile,
 } = require('relay-test-utils-internal');
 
-describe('requestRelaySubscription-test', () => {
+describe('requestSubscription-test', () => {
   it('Config: `RANGE_ADD`', () => {
     const environment = createMockEnvironment();
     const store = environment.getStore();
@@ -117,7 +117,7 @@ describe('requestRelaySubscription-test', () => {
     ];
 
     const secondCommentBody = 'second comment';
-    requestRelaySubscription(environment, {
+    requestSubscription(environment, {
       configs,
       subscription: CommentCreateSubscription,
       variables: {

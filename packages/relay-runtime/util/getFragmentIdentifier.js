@@ -11,15 +11,15 @@
 
 'use strict';
 
-const RelayCore = require('../store/RelayCore');
-
-const {getDataIDsFromFragment, getVariablesFromFragment} = RelayCore;
-
-const {getFragmentOwner} = require('../store/RelayModernFragmentOwner');
-
 const stableCopy = require('./stableCopy');
 
-import type {ReaderFragment} from '../util/ReaderNode';
+const {getFragmentOwner} = require('../store/RelayModernFragmentOwner');
+const {
+  getDataIDsFromFragment,
+  getVariablesFromFragment,
+} = require('../store/RelayModernSelector');
+
+import type {ReaderFragment} from './ReaderNode';
 
 function getFragmentIdentifier(
   fragmentNode: ReaderFragment,

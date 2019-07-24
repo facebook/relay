@@ -12,6 +12,10 @@
 
 jest.mock('warning');
 
+const {getRequest} = require('../../query/RelayModernGraphQLTag');
+const {
+  createOperationDescriptor,
+} = require('../RelayModernOperationDescriptor');
 const {
   areEqualSelectors,
   getDataIDsFromObject,
@@ -21,7 +25,6 @@ const {
   getVariablesFromObject,
 } = require('../RelayModernSelector');
 const {ROOT_ID} = require('../RelayStoreUtils');
-const {getRequest, createOperationDescriptor} = require('../RelayCore');
 const {
   createMockEnvironment,
   generateAndCompile,

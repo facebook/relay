@@ -14,7 +14,6 @@ const RelayConcreteNode = require('./util/RelayConcreteNode');
 const RelayConcreteVariables = require('./store/RelayConcreteVariables');
 const RelayConnectionHandler = require('./handlers/connection/RelayConnectionHandler');
 const RelayConnectionInterface = require('./handlers/connection/RelayConnectionInterface');
-const RelayCore = require('./store/RelayCore');
 const RelayDeclarativeMutationConfig = require('./mutations/RelayDeclarativeMutationConfig');
 const RelayDefaultHandleKey = require('./util/RelayDefaultHandleKey');
 const RelayDefaultHandlerProvider = require('./handlers/RelayDefaultHandlerProvider');
@@ -24,6 +23,8 @@ const RelayFeatureFlags = require('./util/RelayFeatureFlags');
 const RelayModernEnvironment = require('./store/RelayModernEnvironment');
 const RelayModernFragmentOwner = require('./store/RelayModernFragmentOwner');
 const RelayModernGraphQLTag = require('./query/RelayModernGraphQLTag');
+const RelayModernOperationDescriptor = require('./store/RelayModernOperationDescriptor');
+const RelayModernSelector = require('./store/RelayModernSelector');
 const RelayModernStore = require('./store/RelayModernStore');
 const RelayNetwork = require('./network/RelayNetwork');
 const RelayNetworkLoggerTransaction = require('./network/RelayNetworkLoggerTransaction');
@@ -38,6 +39,7 @@ const RelayViewerHandler = require('./handlers/viewer/RelayViewerHandler');
 const applyOptimisticMutation = require('./mutations/applyOptimisticMutation');
 const commitLocalUpdate = require('./mutations/commitLocalUpdate');
 const commitMutation = require('./mutations/commitMutation');
+const createFragmentSpecResolver = require('./store/createFragmentSpecResolver');
 const createRelayContext = require('./store/createRelayContext');
 const createRelayNetworkLogger = require('./network/createRelayNetworkLogger');
 const deepFreeze = require('./util/deepFreeze');
@@ -203,11 +205,12 @@ module.exports = {
   RecordSource: RelayRecordSource,
   Store: RelayModernStore,
 
-  areEqualSelectors: RelayCore.areEqualSelectors,
-  createFragmentSpecResolver: RelayCore.createFragmentSpecResolver,
-  createOperationDescriptor: RelayCore.createOperationDescriptor,
-  getDataIDsFromFragment: RelayCore.getDataIDsFromFragment,
-  getDataIDsFromObject: RelayCore.getDataIDsFromObject,
+  areEqualSelectors: RelayModernSelector.areEqualSelectors,
+  createFragmentSpecResolver: createFragmentSpecResolver,
+  createOperationDescriptor:
+    RelayModernOperationDescriptor.createOperationDescriptor,
+  getDataIDsFromFragment: RelayModernSelector.getDataIDsFromFragment,
+  getDataIDsFromObject: RelayModernSelector.getDataIDsFromObject,
   getFragment: RelayModernGraphQLTag.getFragment,
   getFragmentOwner: RelayModernFragmentOwner.getFragmentOwner,
   getFragmentOwners: RelayModernFragmentOwner.getFragmentOwners,
@@ -217,15 +220,17 @@ module.exports = {
   getRefetchableFragment: RelayModernGraphQLTag.getRefetchableFragment,
   getInlineDataFragment: RelayModernGraphQLTag.getInlineDataFragment,
   getRequest: RelayModernGraphQLTag.getRequest,
-  getSingularSelector: RelayCore.getSingularSelector,
-  getPluralSelector: RelayCore.getPluralSelector,
-  getSelector: RelayCore.getSelector,
-  getSelectorsFromObject: RelayCore.getSelectorsFromObject,
+  getSingularSelector: RelayModernSelector.getSingularSelector,
+  getPluralSelector: RelayModernSelector.getPluralSelector,
+  getSelector: RelayModernSelector.getSelector,
+  getSelectorsFromObject: RelayModernSelector.getSelectorsFromObject,
   getStorageKey: RelayStoreUtils.getStorageKey,
-  getVariablesFromSingularFragment: RelayCore.getVariablesFromSingularFragment,
-  getVariablesFromPluralFragment: RelayCore.getVariablesFromPluralFragment,
-  getVariablesFromFragment: RelayCore.getVariablesFromFragment,
-  getVariablesFromObject: RelayCore.getVariablesFromObject,
+  getVariablesFromSingularFragment:
+    RelayModernSelector.getVariablesFromSingularFragment,
+  getVariablesFromPluralFragment:
+    RelayModernSelector.getVariablesFromPluralFragment,
+  getVariablesFromFragment: RelayModernSelector.getVariablesFromFragment,
+  getVariablesFromObject: RelayModernSelector.getVariablesFromObject,
   graphql: RelayModernGraphQLTag.graphql,
 
   // Declarative mutation API

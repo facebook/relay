@@ -13,15 +13,18 @@
 
 jest.mock('warning');
 
+const {getRequest} = require('../../query/RelayModernGraphQLTag');
 const {
   getFragmentOwner,
   getFragmentOwners,
 } = require('../RelayModernFragmentOwner');
 const {
+  createOperationDescriptor,
+} = require('../RelayModernOperationDescriptor');
+const {
   createMockEnvironment,
   generateAndCompile,
 } = require('relay-test-utils-internal');
-const {getRequest, createOperationDescriptor} = require('../RelayCore');
 
 describe('RelayModernFragmentOwner', () => {
   let UserFragment;

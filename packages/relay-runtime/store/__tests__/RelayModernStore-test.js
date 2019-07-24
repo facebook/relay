@@ -16,7 +16,7 @@ const RelayModernStore = require('../RelayModernStore');
 const RelayRecordSourceMapImpl = require('../RelayRecordSourceMapImpl');
 const RelayRecordSourceObjectImpl = require('../RelayRecordSourceObjectImpl');
 
-const {getRequest} = require('../RelayCore');
+const {getRequest} = require('../../query/RelayModernGraphQLTag');
 const {
   REF_KEY,
   ROOT_ID,

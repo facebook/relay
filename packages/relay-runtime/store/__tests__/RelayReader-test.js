@@ -13,7 +13,7 @@
 const RelayModernOperationDescriptor = require('../RelayModernOperationDescriptor');
 const RelayRecordSource = require('../RelayRecordSource');
 
-const {getRequest} = require('../RelayCore');
+const {getRequest} = require('../../query/RelayModernGraphQLTag');
 const {read} = require('../RelayReader');
 const {ROOT_ID} = require('../RelayStoreUtils');
 const {

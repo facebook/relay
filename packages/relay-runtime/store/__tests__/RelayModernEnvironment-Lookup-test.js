@@ -17,7 +17,7 @@ const RelayModernStore = require('../RelayModernStore');
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayRecordSource = require('../RelayRecordSource');
 
-const {getRequest} = require('../RelayCore');
+const {getRequest} = require('../../query/RelayModernGraphQLTag');
 const {ROOT_ID} = require('../RelayStoreUtils');
 const {generateAndCompile} = require('relay-test-utils-internal');
 

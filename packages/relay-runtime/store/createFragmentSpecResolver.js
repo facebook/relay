@@ -14,29 +14,6 @@ const RelayModernFragmentSpecResolver = require('./RelayModernFragmentSpecResolv
 
 const warning = require('warning');
 
-const {
-  getFragment,
-  getPaginationFragment,
-  getRefetchableFragment,
-  getRequest,
-  isFragment,
-  isRequest,
-} = require('../query/RelayModernGraphQLTag');
-const {createOperationDescriptor} = require('./RelayModernOperationDescriptor');
-const {
-  areEqualSelectors,
-  getDataIDsFromFragment,
-  getDataIDsFromObject,
-  getSingularSelector,
-  getPluralSelector,
-  getSelector,
-  getSelectorsFromObject,
-  getVariablesFromSingularFragment,
-  getVariablesFromPluralFragment,
-  getVariablesFromFragment,
-  getVariablesFromObject,
-} = require('./RelayModernSelector');
-
 import type {
   FragmentMap,
   FragmentSpecResolver,
@@ -73,24 +50,4 @@ function createFragmentSpecResolver(
   );
 }
 
-module.exports = {
-  areEqualSelectors,
-  createFragmentSpecResolver,
-  createOperationDescriptor,
-  getDataIDsFromFragment,
-  getDataIDsFromObject,
-  getFragment,
-  getPaginationFragment,
-  getRefetchableFragment,
-  getRequest,
-  getSingularSelector,
-  getPluralSelector,
-  getSelector,
-  getSelectorsFromObject,
-  getVariablesFromSingularFragment,
-  getVariablesFromPluralFragment,
-  getVariablesFromFragment,
-  getVariablesFromObject,
-  isFragment,
-  isRequest,
-};
+module.exports = createFragmentSpecResolver;

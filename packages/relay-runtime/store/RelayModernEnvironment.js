@@ -12,7 +12,6 @@
 'use strict';
 
 const DataChecker = require('./DataChecker');
-const RelayCore = require('./RelayCore');
 const RelayDefaultHandlerProvider = require('../handlers/RelayDefaultHandlerProvider');
 const RelayDefaultMissingFieldHandlers = require('../handlers/RelayDefaultMissingFieldHandlers');
 const RelayModernQueryExecutor = require('./RelayModernQueryExecutor');
@@ -50,7 +49,6 @@ import type {
   Snapshot,
   Store,
   StoreUpdater,
-  UnstableEnvironmentCore,
   PublishQueue,
 } from './RelayStoreTypes';
 
@@ -79,7 +77,6 @@ class RelayModernEnvironment implements Environment {
   _scheduler: ?TaskScheduler;
   _store: Store;
   configName: ?string;
-  unstable_internal: UnstableEnvironmentCore;
   _missingFieldHandlers: ?$ReadOnlyArray<MissingFieldHandler>;
   _operationTracker: OperationTracker;
   _getDataID: GetDataID;
@@ -110,7 +107,6 @@ class RelayModernEnvironment implements Environment {
       new RelayPublishQueue(config.store, handlerProvider, this._getDataID);
     this._scheduler = config.scheduler ?? null;
     this._store = config.store;
-    this.unstable_internal = RelayCore;
 
     (this: any).__setNet = newNet => (this._network = newNet);
 

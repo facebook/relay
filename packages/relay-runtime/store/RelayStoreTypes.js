@@ -18,7 +18,6 @@ import type {
   UploadableMap,
 } from '../network/RelayNetworkTypes';
 import type RelayObservable from '../network/RelayObservable';
-import type {GraphQLTaggedNode} from '../query/RelayModernGraphQLTag';
 import type {
   NormalizationLinkedField,
   NormalizationScalarField,
@@ -162,183 +161,6 @@ export interface FragmentSpecResolver {
    * Overrides existing callback (if one has been specified).
    */
   setCallback(callback: () => void): void;
-}
-
-export interface UnstableEnvironmentCore {
-  /**
-   * Create an instance of a FragmentSpecResolver.
-   *
-   * TODO: The FragmentSpecResolver *can* be implemented via the other methods
-   * defined here, so this could be moved out of core. It's convenient to have
-   * separate implementations until the experimental core is in OSS.
-   */
-  createFragmentSpecResolver: (
-    context: RelayContext,
-    containerName: string,
-    fragments: FragmentMap,
-    props: Props,
-    callback?: () => void,
-  ) => FragmentSpecResolver;
-
-  /**
-   * Creates an instance of an OperationDescriptor given an operation definition
-   * (see `getOperation`) and the variables to apply. The input variables are
-   * filtered to exclude variables that do not match defined arguments on the
-   * operation, and default values are populated for null values.
-   */
-  createOperationDescriptor: (
-    request: ConcreteRequest,
-    variables: Variables,
-  ) => OperationDescriptor;
-
-  /**
-   * Given a graphql`...` tagged template, extract a fragment definition usable
-   * by this version of Relay core. Throws if the value is not a fragment.
-   */
-  getFragment: (node: GraphQLTaggedNode) => ReaderFragment;
-
-  /**
-   * Given a graphql`...` tagged template, extract an operation definition
-   * usable by this version of Relay core. Throws if the value is not an
-   * operation (or batch request).
-   */
-  getRequest: (node: GraphQLTaggedNode) => ConcreteRequest;
-
-  /**
-   * Given a graphql`...` tagged template, returns true if the value is a
-   * fragment definition, or false otherwise.
-   */
-  isFragment: (node: GraphQLTaggedNode) => boolean;
-
-  /**
-   * Given a graphql`...` tagged template, returns true if the value is an
-   * operation or batch request (i.e. query), or false otherwise.
-   */
-  isRequest: (node: GraphQLTaggedNode) => boolean;
-
-  /**
-   * Determine if two selectors are equal (represent the same selection). Note
-   * that this function returns `false` when the two queries/fragments are
-   * different objects, even if they select the same fields.
-   */
-  areEqualSelectors: (
-    a: OwnedReaderSelector,
-    b: OwnedReaderSelector,
-  ) => boolean;
-
-  /**
-   * Given the result `item` from a parent that fetched `fragment`, creates a
-   * selector that can be used to read the results of that fragment for that item.
-   *
-   * Example:
-   *
-   * Given two fragments as follows:
-   *
-   * ```
-   * fragment Parent on User {
-   *   id
-   *   ...Child
-   * }
-   * fragment Child on User {
-   *   name
-   * }
-   * ```
-   *
-   * And given some object `parent` that is the results of `Parent` for id "4",
-   * the results of `Child` can be accessed by first getting a selector and then
-   * using that selector to `lookup()` the results against the environment:
-   *
-   * ```
-   * const childSelector = getSingularSelector(queryVariables, Child, parent);
-   * const childData = environment.lookup(childSelector).data;
-   * ```
-   */
-  getSingularSelector: (
-    fragment: ReaderFragment,
-    prop: mixed,
-  ) => ?OwnedReaderSelector;
-
-  /**
-   * Given the result `items` from a parent that fetched `fragment`, creates a
-   * selector that can be used to read the results of that fragment on those
-   * items. This is similar to `getSingularSelector` but for "plural" fragments that
-   * expect an array of results and therefore return an array of selectors.
-   */
-  getPluralSelector: (
-    fragment: ReaderFragment,
-    props: Array<mixed>,
-  ) => ?Array<OwnedReaderSelector>;
-
-  /**
-   * Given an item (fragment ref) and a fragment, returns a singular selector
-   * or array of selectors, depending on whether the fragment is singular or
-   * plural.
-   */
-  getSelector: (
-    fragment: ReaderFragment,
-    item: mixed | Array<mixed>,
-  ) => ?OwnedReaderSelector | ?Array<OwnedReaderSelector>;
-
-  /**
-   * Given a mapping of keys -> results and a mapping of keys -> fragments,
-   * extracts the selectors for those fragments from the results.
-   *
-   * The canonical use-case for this function are Relay Containers, which
-   * use this function to convert (props, fragments) into selectors so that they
-   * can read the results to pass to the inner component.
-   */
-  getSelectorsFromObject: (
-    fragments: FragmentMap,
-    props: Props,
-  ) => {
-    [key: string]: ?(OwnedReaderSelector | Array<OwnedReaderSelector>),
-  };
-
-  /**
-   * Given a mapping of keys -> results and a mapping of keys -> fragments,
-   * extracts a mapping of keys -> id(s) of the results.
-   *
-   * Similar to `getSelectorsFromObject()`, this function can be useful in
-   * determining the "identity" of the props passed to a component.
-   */
-  getDataIDsFromObject: (
-    fragments: FragmentMap,
-    props: Props,
-  ) => {[key: string]: ?(DataID | Array<DataID>)};
-
-  getDataIDsFromFragment: (
-    fragment: ReaderFragment,
-    prop: mixed,
-  ) => ?DataID | ?Array<DataID>;
-
-  getVariablesFromSingularFragment: (
-    fragment: ReaderFragment,
-    prop: mixed,
-  ) => ?Variables;
-
-  getVariablesFromPluralFragment: (
-    fragment: ReaderFragment,
-    prop: Array<mixed>,
-  ) => Variables;
-
-  /**
-   * Given an item (fragment ref) and a plural or singular fragment, extracts
-   * and returns the merged variables that would be in scope for that fragment/item.
-   */
-  getVariablesFromFragment: (
-    fragment: ReaderFragment,
-    item: mixed | Array<mixed>,
-  ) => Variables;
-
-  /**
-   * Given a mapping of keys -> results and a mapping of keys -> fragments,
-   * extracts the merged variables that would be in scope for those
-   * fragments/results.
-   *
-   * This can be useful in determining what variables were used to fetch the data
-   * for a Relay container, for example.
-   */
-  getVariablesFromObject: (fragments: FragmentMap, props: Props) => Variables;
 }
 
 /**
@@ -510,8 +332,6 @@ export interface RecordSourceSelectorProxy {
  * own in-memory cache.
  */
 export interface Environment {
-  unstable_internal: UnstableEnvironmentCore;
-
   /**
    * Determine if the selector can be resolved with data in the store (i.e. no
    * fields are missing).

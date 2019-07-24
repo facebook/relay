@@ -34,6 +34,9 @@ import type {
   PayloadError,
   UploadableMap,
 } from '../network/RelayNetworkTypes';
+import type {CacheConfig, Disposable} from '../util/RelayRuntimeTypes';
+import type {TaskScheduler} from './RelayModernQueryExecutor';
+import type {GetDataID} from './RelayResponseNormalizer';
 import type {
   Environment,
   MissingFieldHandler,
@@ -49,10 +52,7 @@ import type {
   StoreUpdater,
   UnstableEnvironmentCore,
   PublishQueue,
-} from '../store/RelayStoreTypes';
-import type {CacheConfig, Disposable} from '../util/RelayRuntimeTypes';
-import type {TaskScheduler} from './RelayModernQueryExecutor';
-import type {GetDataID} from './RelayResponseNormalizer';
+} from './RelayStoreTypes';
 
 export type EnvironmentConfig = {|
   +configName?: string,

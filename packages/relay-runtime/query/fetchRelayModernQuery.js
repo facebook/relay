@@ -10,13 +10,12 @@
 
 'use strict';
 
-const invariant = require('invariant');
-
 const {
   createOperationDescriptor,
 } = require('../store/RelayModernOperationDescriptor');
 const {getRequest} = require('./RelayModernGraphQLTag');
 
+import type {Environment} from '../store/RelayStoreTypes';
 import type {CacheConfig, OperationType} from '../util/RelayRuntimeTypes';
 import type {GraphQLTaggedNode} from './RelayModernGraphQLTag';
 
@@ -27,22 +26,16 @@ import type {GraphQLTaggedNode} from './RelayModernGraphQLTag';
  */
 
 function fetchRelayModernQuery<T: OperationType>(
-  environment: $FlowFixMe,
+  environment: Environment,
   taggedNode: GraphQLTaggedNode,
   variables: $PropertyType<T, 'variables'>,
   cacheConfig?: ?CacheConfig,
 ): Promise<$PropertyType<T, 'response'>> {
-  invariant(
-    environment.unstable_internal,
-    'fetchRelayModernQuery: Expected a valid Relay environment, got `%s`.',
-    environment,
-  );
   const query = getRequest(taggedNode);
   if (query.params.operationKind !== 'query') {
     throw new Error('fetchRelayModernQuery: Expected query operation');
   }
   const operation = createOperationDescriptor(query, variables);
-
   return environment
     .execute({operation, cacheConfig})
     .map(() => environment.lookup(operation.fragment, operation).data)

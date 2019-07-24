@@ -33,12 +33,10 @@ type ContainerCreator = (
 ) => React$ComponentType<any>;
 
 /**
- * Creates a component class whose instances adapt to the
- * `context.relay.environment` in which they are rendered and which have the
- * necessary static methods (`getFragment()` etc) to be composed within classic
- * `Relay.Containers`.
+ * Helper to create the Relay HOCs with ref forwarding, setting the displayName
+ * and reading the React context.
  */
-function buildReactRelayContainer<TBase: React$ComponentType<*>>(
+function buildReactRelayContainer<TBase: React$ComponentType<any>>(
   ComponentClass: TBase,
   fragmentSpec: GeneratedNodeMap,
   createContainerWithFragments: ContainerCreator,
@@ -47,44 +45,22 @@ function buildReactRelayContainer<TBase: React$ComponentType<*>>(
   const containerName = getContainerName(ComponentClass);
   assertFragmentMap(getComponentName(ComponentClass), fragmentSpec);
 
-  // Memoize a container for the last environment instance encountered
-  let environment;
-  let Container;
-  function ContainerConstructor(props) {
-    if (Container == null || props.__relayContext.environment !== environment) {
-      environment = props.__relayContext.environment;
-      if (__DEV__) {
-        const {isRelayModernEnvironment} = require('relay-runtime');
-        if (!isRelayModernEnvironment(environment)) {
-          throw new Error(
-            'RelayModernContainer: Can only use Relay Modern component ' +
-              `${containerName} in a Relay Modern environment!`,
-          );
-        }
-      }
-      const fragments = mapObject(fragmentSpec, getFragment);
-      Container = createContainerWithFragments(ComponentClass, fragments);
-
-      // Attach static lifecycle to wrapper component so React can see it.
-      ContainerConstructor.getDerivedStateFromProps = (Container: any).getDerivedStateFromProps;
-    }
-    // $FlowFixMe
-    return new Container(props);
-  }
-  ContainerConstructor.prototype = React.Component.prototype;
-  ContainerConstructor.displayName = containerName;
+  const fragments = mapObject(fragmentSpec, getFragment);
+  const Container = createContainerWithFragments(ComponentClass, fragments);
+  Container.displayName = containerName;
 
   function forwardRef(props, ref) {
     const context = readContext(ReactRelayContext);
     invariant(
-      context,
-      `${containerName} tried to render a context that was ` +
-        `not valid this means that ${containerName} was rendered outside of a ` +
-        'query renderer.',
+      context != null,
+      '`%s` tried to render a context that was not valid this means that ' +
+        '`%s` was rendered outside of a query renderer.',
+      containerName,
+      containerName,
     );
 
     return (
-      <ContainerConstructor
+      <Container
         {...props}
         __relayContext={context}
         componentRef={props.componentRef || ref}
@@ -99,8 +75,7 @@ function buildReactRelayContainer<TBase: React$ComponentType<*>>(
     (ForwardContainer: any).__ComponentClass = ComponentClass;
   }
 
-  /* $FlowFixMe(>=0.89.0 site=www,mobile,react_native_fb,oss) Suppressing errors
-   * found while preparing to upgrade to 0.89.0 */
+  // $FlowFixMe
   return ForwardContainer;
 }
 

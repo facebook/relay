@@ -503,19 +503,11 @@ describe('ReactRelayFragmentContainer', () => {
         id
       }
     `);
-    const TestContainer = ReactRelayFragmentContainer.createContainer(
-      () => <div />,
-      {
+    expect(() => {
+      ReactRelayFragmentContainer.createContainer(() => <div />, {
         user: () => InlineUserFragment,
-      },
-    );
-    expect(() =>
-      ReactTestRenderer.create(
-        <ContextSetter environment={environment} variables={{}}>
-          <TestContainer user={null} />
-        </ContextSetter>,
-      ),
-    ).toThrow(
+      });
+    }).toThrow(
       'RelayModernGraphQLTag: Expected a fragment, got ' +
         '`{"kind":"InlineDataFragment","name":"InlineUserFragment"}`.',
     );

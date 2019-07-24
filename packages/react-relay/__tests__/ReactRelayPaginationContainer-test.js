@@ -704,28 +704,22 @@ describe('ReactRelayPaginationContainer', () => {
       }
     `));
 
-    TestContainer = ReactRelayPaginationContainer.createContainer(
-      TestComponent,
-      {
-        user: () => UserFragment,
-      },
-      {
-        direction: 'forward',
-        getConnectionFromProps,
-        getFragmentVariables: (vars, totalCount) => ({
-          ...vars,
-          count: totalCount,
-        }),
-        getVariables,
-        query: UserQuery,
-      },
-    );
-
     expect(() => {
-      ReactTestRenderer.create(
-        <ContextSetter environment={environment} variables={variables}>
-          <TestContainer />
-        </ContextSetter>,
+      ReactRelayPaginationContainer.createContainer(
+        TestComponent,
+        {
+          user: () => UserFragment,
+        },
+        {
+          direction: 'forward',
+          getConnectionFromProps,
+          getFragmentVariables: (vars, totalCount) => ({
+            ...vars,
+            count: totalCount,
+          }),
+          getVariables,
+          query: UserQuery,
+        },
       );
     }).toThrowError(
       'ReactRelayPaginationContainer: A @connection directive must be present.',

@@ -34,7 +34,7 @@ const RelayProfiler = require('./util/RelayProfiler');
 const RelayQueryResponseCache = require('./network/RelayQueryResponseCache');
 const RelayRecordSource = require('./store/RelayRecordSource');
 const RelayStoreUtils = require('./store/RelayStoreUtils');
-const RelayViewerHandler = require('./handlers/viewer/RelayViewerHandler');
+const ViewerPattern = require('./store/ViewerPattern');
 
 const applyOptimisticMutation = require('./mutations/applyOptimisticMutation');
 const commitLocalUpdate = require('./mutations/commitLocalUpdate');
@@ -241,7 +241,12 @@ module.exports = {
   DefaultHandlerProvider: RelayDefaultHandlerProvider,
   DefaultMissingFieldHandlers: RelayDefaultMissingFieldHandlers,
   ConnectionHandler: RelayConnectionHandler,
-  ViewerHandler: RelayViewerHandler,
+  VIEWER_ID: ViewerPattern.VIEWER_ID,
+  VIEWER_TYPE: ViewerPattern.VIEWER_TYPE,
+  ViewerHandler: {
+    VIEWER_ID: ViewerPattern.VIEWER_ID,
+    VIEWER_TYPE: ViewerPattern.VIEWER_TYPE,
+  },
 
   // Helpers (can be implemented via the above API)
   applyOptimisticMutation,

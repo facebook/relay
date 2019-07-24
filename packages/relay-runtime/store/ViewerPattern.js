@@ -7,10 +7,11 @@
  * @flow strict-local
  * @format
  */
+
 'use strict';
 
-const {generateClientID} = require('../../store/ClientID');
-const {ROOT_ID} = require('../../store/RelayStoreUtils');
+const {generateClientID} = require('./ClientID');
+const {ROOT_ID} = require('./RelayStoreUtils');
 
 import type {DataID} from 'relay-runtime/util/RelayRuntimeTypes';
 

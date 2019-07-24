@@ -11,7 +11,7 @@
 'use strict';
 
 const {ROOT_TYPE} = require('../store/RelayStoreUtils');
-const {VIEWER_ID} = require('./viewer/RelayViewerHandler');
+const {VIEWER_ID} = require('../store/ViewerPattern');
 
 import type {MissingFieldHandler} from '../store/RelayStoreTypes';
 

@@ -17,11 +17,9 @@ const RelayModernStore = require('../RelayModernStore');
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
 const RelayRecordSource = require('../RelayRecordSource');
-const RelayViewerHandler = require('../../handlers/viewer/RelayViewerHandler');
 
+const {VIEWER_ID} = require('../ViewerPattern');
 const {generateAndCompile} = require('relay-test-utils-internal');
-
-const {VIEWER_ID} = RelayViewerHandler;
 
 function createOperationDescriptor(...args) {
   const operation = RelayModernOperationDescriptor.createOperationDescriptor(

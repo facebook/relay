@@ -122,14 +122,11 @@ describe('query with undeclared, unused fragment argument', () => {
         __id: '4',
       },
     });
-    const fragmentSelector = RelayModernSelector.getSelector(
+    const fragmentSelector = RelayModernSelector.getSingularSelector(
       fragment,
       (snapshot.data: $FlowFixMe).node,
     );
-    invariant(
-      fragmentSelector != null && !Array.isArray(fragmentSelector),
-      'Expected a singular selector.',
-    );
+    invariant(fragmentSelector != null, 'Expected a singular selector.');
     const fragmentSnapshot = environment.lookup(
       fragmentSelector.selector,
       fragmentSelector.owner,
@@ -144,14 +141,11 @@ describe('query with undeclared, unused fragment argument', () => {
       id: '4',
       name: 'Zuck',
     });
-    const innerSelector = RelayModernSelector.getSelector(
+    const innerSelector = RelayModernSelector.getSingularSelector(
       innerFragment,
       (fragmentSnapshot.data: $FlowFixMe),
     );
-    invariant(
-      innerSelector != null && !Array.isArray(innerSelector),
-      'Expected a singular selector.',
-    );
+    invariant(innerSelector != null, 'Expected a singular selector.');
     const innerSnapshot = environment.lookup(
       innerSelector.selector,
       innerSelector.owner,

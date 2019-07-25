@@ -23,7 +23,12 @@ const {
 
 import type {ReaderFragment} from '../util/ReaderNode';
 import type {DataID, Variables} from '../util/RelayRuntimeTypes';
-import type {OperationDescriptor, OwnedReaderSelector} from './RelayStoreTypes';
+import type {
+  OperationDescriptor,
+  OwnedReaderSelector,
+  PluralOwnedReaderSelector,
+  SingularOwnedReaderSelector,
+} from './RelayStoreTypes';
 
 /**
  * @public
@@ -57,7 +62,7 @@ import type {OperationDescriptor, OwnedReaderSelector} from './RelayStoreTypes';
 function getSingularSelector(
   fragment: ReaderFragment,
   item: mixed,
-): ?OwnedReaderSelector {
+): ?SingularOwnedReaderSelector {
   invariant(
     typeof item === 'object' && item !== null && !Array.isArray(item),
     'RelayModernSelector: Expected value for fragment `%s` to be an object, got ' +
@@ -89,6 +94,7 @@ function getSingularSelector(
       argumentVariables,
     );
     return {
+      kind: 'SingularOwnedReaderSelector',
       owner,
       selector: {
         dataID,
@@ -129,7 +135,7 @@ function getSingularSelector(
 function getPluralSelector(
   fragment: ReaderFragment,
   items: Array<mixed>,
-): ?Array<OwnedReaderSelector> {
+): ?PluralOwnedReaderSelector {
   let selectors = null;
   items.forEach((item, ii) => {
     const selector = item != null ? getSingularSelector(fragment, item) : null;
@@ -138,16 +144,22 @@ function getPluralSelector(
       selectors.push(selector);
     }
   });
-  return selectors;
+  if (selectors == null) {
+    return null;
+  } else {
+    return {
+      kind: 'PluralOwnedReaderSelector',
+      selectors,
+    };
+  }
 }
 
 function getSelector(
   fragment: ReaderFragment,
   item: mixed | Array<mixed>,
-): ?OwnedReaderSelector | ?Array<OwnedReaderSelector> {
-  let selectorOrSelectors;
+): ?OwnedReaderSelector {
   if (item == null) {
-    selectorOrSelectors = item;
+    return item;
   } else if (fragment.metadata && fragment.metadata.plural === true) {
     invariant(
       Array.isArray(item),
@@ -157,7 +169,7 @@ function getSelector(
       JSON.stringify(item),
       fragment.name,
     );
-    selectorOrSelectors = getPluralSelector(
+    return getPluralSelector(
       fragment,
       /* $FlowFixMe(>=0.98.0 site=www,mobile,react_native_fb,oss) This comment
        * suppresses an error found when Flow v0.98 was deployed. To see the
@@ -173,9 +185,8 @@ function getSelector(
       JSON.stringify(item),
       fragment.name,
     );
-    selectorOrSelectors = getSingularSelector(fragment, item);
+    return getSingularSelector(fragment, item);
   }
-  return selectorOrSelectors;
 }
 
 /**
@@ -191,7 +202,7 @@ function getSelector(
 function getSelectorsFromObject(
   fragments: {[key: string]: ReaderFragment},
   object: {[key: string]: mixed},
-): {[key: string]: ?(OwnedReaderSelector | Array<OwnedReaderSelector>)} {
+): {[key: string]: ?OwnedReaderSelector} {
   const selectors = {};
   for (const key in fragments) {
     if (fragments.hasOwnProperty(key)) {
@@ -233,7 +244,7 @@ function getDataIDsFromFragment(
 ): ?DataID | ?Array<DataID> {
   let idOrIDs;
   if (item == null) {
-    idOrIDs = item;
+    return item;
   } else if (fragment.metadata && fragment.metadata.plural === true) {
     invariant(
       Array.isArray(item),
@@ -246,7 +257,7 @@ function getDataIDsFromFragment(
     /* $FlowFixMe(>=0.98.0 site=www,mobile,react_native_fb,oss) This comment
      * suppresses an error found when Flow v0.98 was deployed. To see the error
      * delete this comment and run Flow. */
-    idOrIDs = getDataIDs(fragment, item);
+    return getDataIDs(fragment, item);
   } else {
     invariant(
       !Array.isArray(item),
@@ -256,9 +267,8 @@ function getDataIDsFromFragment(
       JSON.stringify(item),
       fragment.name,
     );
-    idOrIDs = getDataID(fragment, item);
+    return getDataID(fragment, item);
   }
-  return idOrIDs;
 }
 
 /**
@@ -268,7 +278,7 @@ function getDataIDs(
   fragment: ReaderFragment,
   items: Array<mixed>,
 ): ?Array<DataID> {
-  let ids;
+  let ids = null;
   items.forEach(item => {
     const id = item != null ? getDataID(fragment, item) : null;
     if (id != null) {
@@ -276,7 +286,7 @@ function getDataIDs(
       ids.push(id);
     }
   });
-  return ids || null;
+  return ids;
 }
 
 /**
@@ -404,22 +414,15 @@ function getVariablesFromPluralFragment(
  * different objects, even if they select the same fields.
  */
 function areEqualSelectors(
-  thisSelector: OwnedReaderSelector,
-  thatSelector: OwnedReaderSelector,
+  thisSelector: SingularOwnedReaderSelector,
+  thatSelector: SingularOwnedReaderSelector,
 ): boolean {
-  const areVariablesEqual = areEqual(
-    thisSelector.selector.variables,
-    thatSelector.selector.variables,
-  );
-  const areReaderSelectorsEqual =
+  return (
+    thisSelector.owner === thatSelector.owner &&
     thisSelector.selector.dataID === thatSelector.selector.dataID &&
     thisSelector.selector.node === thatSelector.selector.node &&
-    areVariablesEqual;
-
-  // NOTE: With fragment ownership we need to also compare if
-  // the owners attached to the selectors are the same, otherwise we might
-  // skip setting a new selector that has a new owner.
-  return areReaderSelectorsEqual && thisSelector.owner === thatSelector.owner;
+    areEqual(thisSelector.selector.variables, thatSelector.selector.variables)
+  );
 }
 
 module.exports = {

@@ -27,9 +27,10 @@ import type {
   FragmentMap,
   FragmentSpecResolver,
   FragmentSpecResults,
-  OwnedReaderSelector,
+  PluralOwnedReaderSelector,
   RelayContext,
   SelectorData,
+  SingularOwnedReaderSelector,
   Snapshot,
 } from './RelayStoreTypes';
 
@@ -136,7 +137,7 @@ class RelayModernFragmentSpecResolver implements FragmentSpecResolver {
             resolver.dispose();
           }
           resolver = null;
-        } else if (Array.isArray(ownedSelector)) {
+        } else if (ownedSelector.kind === 'PluralOwnedReaderSelector') {
           if (resolver == null) {
             resolver = new SelectorListResolver(
               this._context.environment,
@@ -149,7 +150,7 @@ class RelayModernFragmentSpecResolver implements FragmentSpecResolver {
               'RelayModernFragmentSpecResolver: Expected prop `%s` to always be an array.',
               key,
             );
-            resolver.setSelectors(ownedSelector);
+            resolver.setSelector(ownedSelector);
           }
         } else {
           if (resolver == null) {
@@ -202,12 +203,12 @@ class SelectorResolver {
   _callback: () => void;
   _data: ?SelectorData;
   _environment: Environment;
-  _ownedSelector: OwnedReaderSelector;
+  _ownedSelector: SingularOwnedReaderSelector;
   _subscription: ?Disposable;
 
   constructor(
     environment: Environment,
-    ownedSelector: OwnedReaderSelector,
+    ownedSelector: SingularOwnedReaderSelector,
     callback: () => void,
   ) {
     const snapshot = environment.lookup(
@@ -232,7 +233,7 @@ class SelectorResolver {
     return this._data;
   }
 
-  setSelector(ownedSelector: OwnedReaderSelector): void {
+  setSelector(ownedSelector: SingularOwnedReaderSelector): void {
     if (
       this._subscription != null &&
       areEqualSelectors(ownedSelector, this._ownedSelector)
@@ -260,7 +261,8 @@ class SelectorResolver {
       // earlier.
       return;
     }
-    const ownedSelector = {
+    const ownedSelector: SingularOwnedReaderSelector = {
+      kind: 'SingularOwnedReaderSelector',
       owner:
         // NOTE: We manually create the operation descriptor here instead of
         // calling createOperationDescriptor() because we want to set a
@@ -309,7 +311,7 @@ class SelectorListResolver {
 
   constructor(
     environment: Environment,
-    selectors: Array<OwnedReaderSelector>,
+    selector: PluralOwnedReaderSelector,
     callback: () => void,
   ) {
     this._callback = callback;
@@ -318,7 +320,7 @@ class SelectorListResolver {
     this._resolvers = [];
     this._stale = true;
 
-    this.setSelectors(selectors);
+    this.setSelector(selector);
   }
 
   dispose(): void {
@@ -348,7 +350,8 @@ class SelectorListResolver {
     return this._data;
   }
 
-  setSelectors(selectors: Array<OwnedReaderSelector>): void {
+  setSelector(selector: PluralOwnedReaderSelector): void {
+    const {selectors} = selector;
     while (this._resolvers.length > selectors.length) {
       const resolver = this._resolvers.pop();
       resolver.dispose();

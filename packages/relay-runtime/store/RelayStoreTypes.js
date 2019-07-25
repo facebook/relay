@@ -61,9 +61,19 @@ export type ReaderSelector = {
   variables: Variables,
 };
 
-export type OwnedReaderSelector = {|
+export type OwnedReaderSelector =
+  | SingularOwnedReaderSelector
+  | PluralOwnedReaderSelector;
+
+export type SingularOwnedReaderSelector = {|
+  kind: 'SingularOwnedReaderSelector',
   owner: OperationDescriptor,
   selector: ReaderSelector,
+|};
+
+export type PluralOwnedReaderSelector = {|
+  kind: 'PluralOwnedReaderSelector',
+  selectors: $ReadOnlyArray<SingularOwnedReaderSelector>,
 |};
 
 /**

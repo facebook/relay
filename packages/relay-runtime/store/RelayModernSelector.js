@@ -242,7 +242,6 @@ function getDataIDsFromFragment(
   fragment: ReaderFragment,
   item: mixed | Array<mixed>,
 ): ?DataID | ?Array<DataID> {
-  let idOrIDs;
   if (item == null) {
     return item;
   } else if (fragment.metadata && fragment.metadata.plural === true) {

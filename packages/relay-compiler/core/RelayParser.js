@@ -499,14 +499,6 @@ class GraphQLDefinitionParser {
     }
   }
 
-  _getErrorContext(): string {
-    let message = `document \`${getName(this._definition)}\``;
-    if (this._definition.loc && this._definition.loc.source) {
-      message += ` file: \`${this._definition.loc.source.name}\``;
-    }
-    return message;
-  }
-
   _recordAndVerifyVariableReference(
     variable: VariableNode,
     name: string,

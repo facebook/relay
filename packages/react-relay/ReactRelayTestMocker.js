@@ -197,10 +197,6 @@ class ReactRelayTestMocker {
     return env;
   }
 
-  _getDefaults() {
-    return this._defaults;
-  }
-
   /**
    * set a default payload for a given query
    */

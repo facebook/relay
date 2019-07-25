@@ -243,10 +243,6 @@ module.exports = {
   ConnectionHandler: RelayConnectionHandler,
   VIEWER_ID: ViewerPattern.VIEWER_ID,
   VIEWER_TYPE: ViewerPattern.VIEWER_TYPE,
-  ViewerHandler: {
-    VIEWER_ID: ViewerPattern.VIEWER_ID,
-    VIEWER_TYPE: ViewerPattern.VIEWER_TYPE,
-  },
 
   // Helpers (can be implemented via the above API)
   applyOptimisticMutation,

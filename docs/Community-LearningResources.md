@@ -53,6 +53,16 @@ https://medium.com/entria/wrangling-the-client-store-with-the-relay-modern-updat
 How to update your UI before server responds.
 https://medium.com/entria/relay-modern-optimistic-update-a09ba22d83c9
 
+## Relay Modern: Local State Management, part 1
+
+Amongst the shrouds of the Relay source code, there are many a treasure to be found. One of these treasures is rumoured to be none other, than local state.
+https://babangsund.com/relay_local_state_management/
+
+## Relay Modern: Local State Management, part 2
+
+In this post, we will explore how an implementation of this concept might look in a more realistic scenario than the previous controlled input example.
+https://babangsund.com/relay_local_state_management_2/
+
 # Network Layer
 
 ## Relay Modern: Network Deep Dive

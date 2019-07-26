@@ -152,10 +152,8 @@ class GraphQLCompilerContext {
   getFragment(name: string, referencedFrom?: ?Location): Fragment {
     const node = this._documents.get(name);
     if (node == null) {
-      const childModule = name.substring(0, name.lastIndexOf('_'));
       throw createUserError(
-        `Cannot find fragment '${name}'. Please make sure the fragment ` +
-          `exists in '${childModule}'.`,
+        `Cannot find fragment '${name}'.`,
         referencedFrom != null ? [referencedFrom] : null,
       );
     } else if (node.kind !== 'Fragment') {

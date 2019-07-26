@@ -192,6 +192,10 @@ describe('RelayFlowGenerator', () => {
       fragment Picture on Image {
         ...PhotoFragment
       }
+
+      fragment PhotoFragment on Image {
+        __typename
+      }
     `;
     const types = generate(text, {
       customScalars: {},

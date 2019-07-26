@@ -170,21 +170,10 @@ function visit(
 ): void {
   GraphQLIRVisitor.visit(node, {
     FragmentSpread(fragmentSpread: FragmentSpread) {
-      let fragment;
-      try {
-        fragment = context.getFragment(fragmentSpread.name);
-      } catch {
-        // Handle cases where a compat fragment references a classic fragment
-        // that is not accessible to Relay compiler
-        // TODO: disallow unknown fragment references
-        // throw createCompilerError(
-        //   `Document '${node.name}' referenced unknown fragment '${
-        //     fragmentSpread.name
-        //   }'.`,
-        //   [fragmentSpread.loc],
-        // );
-        return false;
-      }
+      const fragment = context.getFragment(
+        fragmentSpread.name,
+        fragmentSpread.loc,
+      );
       const referencedFragmentArguments = transformFragmentArguments(
         context,
         transformed,

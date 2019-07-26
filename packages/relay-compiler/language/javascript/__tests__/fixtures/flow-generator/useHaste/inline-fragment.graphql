@@ -58,3 +58,7 @@ fragment InlineFragmentKitchenSink on Story {
     }
   }
 }
+
+fragment SomeFragment on User {
+  __typename
+}

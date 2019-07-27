@@ -64,6 +64,10 @@ fragment UserProfile on User {
   }
 }
 
+fragment PhotoFragment on Image {
+  uri
+}
+
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 {
   "kind": "Fragment",
@@ -73,7 +77,7 @@ fragment UserProfile on User {
     "start": 0,
     "end": 96,
     "source": {
-      "body": "fragment UserProfile on User {\\n  profilePicture {\\n    ...PhotoFragment @relay(mask: false)\\n  }\\n}\\n",
+      "body": "fragment UserProfile on User {\\n  profilePicture {\\n    ...PhotoFragment @relay(mask: false)\\n  }\\n}\\n\\nfragment PhotoFragment on Image {\\n  uri\\n}\\n",
       "name": "GraphQL request",
       "locationOffset": {
         "line": 1,
@@ -94,7 +98,7 @@ fragment UserProfile on User {
         "start": 33,
         "end": 94,
         "source": {
-          "body": "fragment UserProfile on User {\\n  profilePicture {\\n    ...PhotoFragment @relay(mask: false)\\n  }\\n}\\n",
+          "body": "fragment UserProfile on User {\\n  profilePicture {\\n    ...PhotoFragment @relay(mask: false)\\n  }\\n}\\n\\nfragment PhotoFragment on Image {\\n  uri\\n}\\n",
           "name": "GraphQL request",
           "locationOffset": {
             "line": 1,
@@ -116,7 +120,7 @@ fragment UserProfile on User {
             "start": 54,
             "end": 90,
             "source": {
-              "body": "fragment UserProfile on User {\\n  profilePicture {\\n    ...PhotoFragment @relay(mask: false)\\n  }\\n}\\n",
+              "body": "fragment UserProfile on User {\\n  profilePicture {\\n    ...PhotoFragment @relay(mask: false)\\n  }\\n}\\n\\nfragment PhotoFragment on Image {\\n  uri\\n}\\n",
               "name": "GraphQL request",
               "locationOffset": {
                 "line": 1,
@@ -132,6 +136,51 @@ fragment UserProfile on User {
     }
   ],
   "type": "User",
+  "argumentDefinitions": []
+}
+{
+  "kind": "Fragment",
+  "directives": [],
+  "loc": {
+    "kind": "Source",
+    "start": 98,
+    "end": 139,
+    "source": {
+      "body": "fragment UserProfile on User {\\n  profilePicture {\\n    ...PhotoFragment @relay(mask: false)\\n  }\\n}\\n\\nfragment PhotoFragment on Image {\\n  uri\\n}\\n",
+      "name": "GraphQL request",
+      "locationOffset": {
+        "line": 1,
+        "column": 1
+      }
+    }
+  },
+  "metadata": null,
+  "name": "PhotoFragment",
+  "selections": [
+    {
+      "kind": "ScalarField",
+      "alias": "uri",
+      "args": [],
+      "directives": [],
+      "loc": {
+        "kind": "Source",
+        "start": 134,
+        "end": 137,
+        "source": {
+          "body": "fragment UserProfile on User {\\n  profilePicture {\\n    ...PhotoFragment @relay(mask: false)\\n  }\\n}\\n\\nfragment PhotoFragment on Image {\\n  uri\\n}\\n",
+          "name": "GraphQL request",
+          "locationOffset": {
+            "line": 1,
+            "column": 1
+          }
+        }
+      },
+      "metadata": null,
+      "name": "uri",
+      "type": "String"
+    }
+  ],
+  "type": "Image",
   "argumentDefinitions": []
 }
 `;

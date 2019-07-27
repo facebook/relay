@@ -661,6 +661,10 @@ fragment TestFragment on User {
   ...Foo @include(if: $Cond)
 }
 
+fragment Foo on User {
+  id
+}
+
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 [
   {
@@ -671,7 +675,7 @@ fragment TestFragment on User {
       "start": 0,
       "end": 141,
       "source": {
-        "body": "fragment TestFragment on User {\\n  id @include(if: $Cond)\\n  ... on User @include(if: $Cond) {\\n    firstName\\n  }\\n  ...Foo @include(if: $Cond)\\n}\\n",
+        "body": "fragment TestFragment on User {\\n  id @include(if: $Cond)\\n  ... on User @include(if: $Cond) {\\n    firstName\\n  }\\n  ...Foo @include(if: $Cond)\\n}\\n\\nfragment Foo on User {\\n  id\\n}\\n",
         "name": "GraphQL request",
         "locationOffset": {
           "line": 1,
@@ -691,7 +695,7 @@ fragment TestFragment on User {
             "start": 50,
             "end": 55,
             "source": {
-              "body": "fragment TestFragment on User {\\n  id @include(if: $Cond)\\n  ... on User @include(if: $Cond) {\\n    firstName\\n  }\\n  ...Foo @include(if: $Cond)\\n}\\n",
+              "body": "fragment TestFragment on User {\\n  id @include(if: $Cond)\\n  ... on User @include(if: $Cond) {\\n    firstName\\n  }\\n  ...Foo @include(if: $Cond)\\n}\\n\\nfragment Foo on User {\\n  id\\n}\\n",
               "name": "GraphQL request",
               "locationOffset": {
                 "line": 1,
@@ -708,7 +712,7 @@ fragment TestFragment on User {
           "start": 37,
           "end": 56,
           "source": {
-            "body": "fragment TestFragment on User {\\n  id @include(if: $Cond)\\n  ... on User @include(if: $Cond) {\\n    firstName\\n  }\\n  ...Foo @include(if: $Cond)\\n}\\n",
+            "body": "fragment TestFragment on User {\\n  id @include(if: $Cond)\\n  ... on User @include(if: $Cond) {\\n    firstName\\n  }\\n  ...Foo @include(if: $Cond)\\n}\\n\\nfragment Foo on User {\\n  id\\n}\\n",
             "name": "GraphQL request",
             "locationOffset": {
               "line": 1,
@@ -729,7 +733,7 @@ fragment TestFragment on User {
               "start": 34,
               "end": 56,
               "source": {
-                "body": "fragment TestFragment on User {\\n  id @include(if: $Cond)\\n  ... on User @include(if: $Cond) {\\n    firstName\\n  }\\n  ...Foo @include(if: $Cond)\\n}\\n",
+                "body": "fragment TestFragment on User {\\n  id @include(if: $Cond)\\n  ... on User @include(if: $Cond) {\\n    firstName\\n  }\\n  ...Foo @include(if: $Cond)\\n}\\n\\nfragment Foo on User {\\n  id\\n}\\n",
                 "name": "GraphQL request",
                 "locationOffset": {
                   "line": 1,
@@ -752,7 +756,7 @@ fragment TestFragment on User {
             "start": 84,
             "end": 89,
             "source": {
-              "body": "fragment TestFragment on User {\\n  id @include(if: $Cond)\\n  ... on User @include(if: $Cond) {\\n    firstName\\n  }\\n  ...Foo @include(if: $Cond)\\n}\\n",
+              "body": "fragment TestFragment on User {\\n  id @include(if: $Cond)\\n  ... on User @include(if: $Cond) {\\n    firstName\\n  }\\n  ...Foo @include(if: $Cond)\\n}\\n\\nfragment Foo on User {\\n  id\\n}\\n",
               "name": "GraphQL request",
               "locationOffset": {
                 "line": 1,
@@ -769,7 +773,7 @@ fragment TestFragment on User {
           "start": 71,
           "end": 90,
           "source": {
-            "body": "fragment TestFragment on User {\\n  id @include(if: $Cond)\\n  ... on User @include(if: $Cond) {\\n    firstName\\n  }\\n  ...Foo @include(if: $Cond)\\n}\\n",
+            "body": "fragment TestFragment on User {\\n  id @include(if: $Cond)\\n  ... on User @include(if: $Cond) {\\n    firstName\\n  }\\n  ...Foo @include(if: $Cond)\\n}\\n\\nfragment Foo on User {\\n  id\\n}\\n",
             "name": "GraphQL request",
             "locationOffset": {
               "line": 1,
@@ -788,7 +792,7 @@ fragment TestFragment on User {
               "start": 59,
               "end": 110,
               "source": {
-                "body": "fragment TestFragment on User {\\n  id @include(if: $Cond)\\n  ... on User @include(if: $Cond) {\\n    firstName\\n  }\\n  ...Foo @include(if: $Cond)\\n}\\n",
+                "body": "fragment TestFragment on User {\\n  id @include(if: $Cond)\\n  ... on User @include(if: $Cond) {\\n    firstName\\n  }\\n  ...Foo @include(if: $Cond)\\n}\\n\\nfragment Foo on User {\\n  id\\n}\\n",
                 "name": "GraphQL request",
                 "locationOffset": {
                   "line": 1,
@@ -808,7 +812,7 @@ fragment TestFragment on User {
                   "start": 97,
                   "end": 106,
                   "source": {
-                    "body": "fragment TestFragment on User {\\n  id @include(if: $Cond)\\n  ... on User @include(if: $Cond) {\\n    firstName\\n  }\\n  ...Foo @include(if: $Cond)\\n}\\n",
+                    "body": "fragment TestFragment on User {\\n  id @include(if: $Cond)\\n  ... on User @include(if: $Cond) {\\n    firstName\\n  }\\n  ...Foo @include(if: $Cond)\\n}\\n\\nfragment Foo on User {\\n  id\\n}\\n",
                     "name": "GraphQL request",
                     "locationOffset": {
                       "line": 1,
@@ -834,7 +838,7 @@ fragment TestFragment on User {
             "start": 133,
             "end": 138,
             "source": {
-              "body": "fragment TestFragment on User {\\n  id @include(if: $Cond)\\n  ... on User @include(if: $Cond) {\\n    firstName\\n  }\\n  ...Foo @include(if: $Cond)\\n}\\n",
+              "body": "fragment TestFragment on User {\\n  id @include(if: $Cond)\\n  ... on User @include(if: $Cond) {\\n    firstName\\n  }\\n  ...Foo @include(if: $Cond)\\n}\\n\\nfragment Foo on User {\\n  id\\n}\\n",
               "name": "GraphQL request",
               "locationOffset": {
                 "line": 1,
@@ -851,7 +855,7 @@ fragment TestFragment on User {
           "start": 120,
           "end": 139,
           "source": {
-            "body": "fragment TestFragment on User {\\n  id @include(if: $Cond)\\n  ... on User @include(if: $Cond) {\\n    firstName\\n  }\\n  ...Foo @include(if: $Cond)\\n}\\n",
+            "body": "fragment TestFragment on User {\\n  id @include(if: $Cond)\\n  ... on User @include(if: $Cond) {\\n    firstName\\n  }\\n  ...Foo @include(if: $Cond)\\n}\\n\\nfragment Foo on User {\\n  id\\n}\\n",
             "name": "GraphQL request",
             "locationOffset": {
               "line": 1,
@@ -871,7 +875,7 @@ fragment TestFragment on User {
               "start": 113,
               "end": 139,
               "source": {
-                "body": "fragment TestFragment on User {\\n  id @include(if: $Cond)\\n  ... on User @include(if: $Cond) {\\n    firstName\\n  }\\n  ...Foo @include(if: $Cond)\\n}\\n",
+                "body": "fragment TestFragment on User {\\n  id @include(if: $Cond)\\n  ... on User @include(if: $Cond) {\\n    firstName\\n  }\\n  ...Foo @include(if: $Cond)\\n}\\n\\nfragment Foo on User {\\n  id\\n}\\n",
                 "name": "GraphQL request",
                 "locationOffset": {
                   "line": 1,
@@ -894,7 +898,7 @@ fragment TestFragment on User {
           "start": 133,
           "end": 138,
           "source": {
-            "body": "fragment TestFragment on User {\\n  id @include(if: $Cond)\\n  ... on User @include(if: $Cond) {\\n    firstName\\n  }\\n  ...Foo @include(if: $Cond)\\n}\\n",
+            "body": "fragment TestFragment on User {\\n  id @include(if: $Cond)\\n  ... on User @include(if: $Cond) {\\n    firstName\\n  }\\n  ...Foo @include(if: $Cond)\\n}\\n\\nfragment Foo on User {\\n  id\\n}\\n",
             "name": "GraphQL request",
             "locationOffset": {
               "line": 1,
@@ -907,6 +911,51 @@ fragment TestFragment on User {
         "type": "Boolean!"
       }
     ]
+  },
+  {
+    "kind": "Fragment",
+    "directives": [],
+    "loc": {
+      "kind": "Source",
+      "start": 143,
+      "end": 172,
+      "source": {
+        "body": "fragment TestFragment on User {\\n  id @include(if: $Cond)\\n  ... on User @include(if: $Cond) {\\n    firstName\\n  }\\n  ...Foo @include(if: $Cond)\\n}\\n\\nfragment Foo on User {\\n  id\\n}\\n",
+        "name": "GraphQL request",
+        "locationOffset": {
+          "line": 1,
+          "column": 1
+        }
+      }
+    },
+    "metadata": null,
+    "name": "Foo",
+    "selections": [
+      {
+        "kind": "ScalarField",
+        "alias": "id",
+        "args": [],
+        "directives": [],
+        "loc": {
+          "kind": "Source",
+          "start": 168,
+          "end": 170,
+          "source": {
+            "body": "fragment TestFragment on User {\\n  id @include(if: $Cond)\\n  ... on User @include(if: $Cond) {\\n    firstName\\n  }\\n  ...Foo @include(if: $Cond)\\n}\\n\\nfragment Foo on User {\\n  id\\n}\\n",
+            "name": "GraphQL request",
+            "locationOffset": {
+              "line": 1,
+              "column": 1
+            }
+          }
+        },
+        "metadata": null,
+        "name": "id",
+        "type": "ID!"
+      }
+    ],
+    "type": "User",
+    "argumentDefinitions": []
   }
 ]
 `;
@@ -5853,6 +5902,27 @@ query TestQuery($id: ID!) {
     "type": "Query"
   }
 ]
+`;
+
+exports[`RelayParser matches expected output: undefined-fragment.invalid.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+# expected-to-throw
+fragment Foo on User {
+  ...SomeUndefinedFragment
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+THROWN EXCEPTION:
+
+Error: RelayParser: Encountered 1 error(s):
+- Unknown fragment 'SomeUndefinedFragment'.
+  
+  GraphQL request (3:6)
+  2: fragment Foo on User {
+  3:   ...SomeUndefinedFragment
+          ^
+  4: }
+  
 `;
 
 exports[`RelayParser matches expected output: undefined-type.invalid.graphql 1`] = `

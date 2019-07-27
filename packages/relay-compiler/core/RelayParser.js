@@ -819,7 +819,12 @@ class GraphQLDefinitionParser {
       );
     }
     const fragmentDefinition = this._entries.get(fragmentName);
-    const fragmentArgumentDefinitions = fragmentDefinition?.variableDefinitions;
+    if (fragmentDefinition == null) {
+      throw createUserError(`Unknown fragment '${fragmentName}'.`, null, [
+        fragmentSpread.name,
+      ]);
+    }
+    const fragmentArgumentDefinitions = fragmentDefinition.variableDefinitions;
     const argumentsDirective = argumentDirectives[0];
     let args;
     if (argumentsDirective != null) {
@@ -829,10 +834,7 @@ class GraphQLDefinitionParser {
       args = (argumentsDirective.arguments || []).map(arg => {
         const argName = getName(arg);
         const argValue = arg.value;
-        const argumentDefinition =
-          fragmentArgumentDefinitions != null
-            ? fragmentArgumentDefinitions.get(argName)
-            : null;
+        const argumentDefinition = fragmentArgumentDefinitions.get(argName);
         const argumentType = argumentDefinition?.type ?? null;
 
         if (argValue.kind === 'Variable') {
@@ -842,9 +844,7 @@ class GraphQLDefinitionParser {
                 `argument is defined with @${ARGUMENT_DEFINITIONS}. Check ` +
                 `the definition of fragment '${fragmentName}'.`,
               null,
-              [arg.value, this._entries.get(fragmentName)?.definition].filter(
-                Boolean,
-              ),
+              [arg.value, fragmentDefinition.definition],
             );
           }
           hasInvalidArgument = hasInvalidArgument || argumentDefinition == null;
@@ -864,9 +864,7 @@ class GraphQLDefinitionParser {
                 `argument is defined with @${ARGUMENT_DEFINITIONS}. Check ` +
                 `the definition of fragment '${fragmentName}'.`,
               null,
-              [arg.value, this._entries.get(fragmentName)?.definition].filter(
-                Boolean,
-              ),
+              [arg.value, fragmentDefinition.definition],
             );
           }
           const value = this._transformValue(argValue, argumentType);

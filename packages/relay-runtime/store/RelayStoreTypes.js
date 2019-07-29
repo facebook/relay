@@ -67,13 +67,20 @@ export type OwnedReaderSelector =
 
 export type SingularOwnedReaderSelector = {|
   kind: 'SingularOwnedReaderSelector',
-  owner: OperationDescriptor,
+  owner: RequestDescriptor,
   selector: ReaderSelector,
 |};
 
 export type PluralOwnedReaderSelector = {|
   kind: 'PluralOwnedReaderSelector',
   selectors: $ReadOnlyArray<SingularOwnedReaderSelector>,
+|};
+
+export type RequestDescriptor = {|
+  +fragment: mixed,
+  +node: ConcreteRequest,
+  +root: mixed,
+  +variables: Variables,
 |};
 
 /**
@@ -93,7 +100,7 @@ export type Snapshot = ReaderSelector & {
   data: ?SelectorData,
   seenRecords: RecordMap,
   isMissingData: boolean,
-  owner: OperationDescriptor,
+  owner: RequestDescriptor,
 };
 
 /**
@@ -220,7 +227,7 @@ export interface Store {
    * Optionally takes an owner, corresponding to the operation that
    * owns this selector (fragment).
    */
-  lookup(selector: ReaderSelector, owner: OperationDescriptor): Snapshot;
+  lookup(selector: ReaderSelector, owner: RequestDescriptor): Snapshot;
 
   /**
    * Notify subscribers (see `subscribe`) of any data that was published
@@ -228,7 +235,7 @@ export interface Store {
    *
    * Also this method should return an array of the affected fragment owners
    */
-  notify(): $ReadOnlyArray<OperationDescriptor>;
+  notify(): $ReadOnlyArray<RequestDescriptor>;
 
   /**
    * Publish new information (e.g. from the network) to the store, updating its
@@ -410,7 +417,7 @@ export interface Environment {
    * Optionally takes an owner, corresponding to the operation that
    * owns this selector (fragment).
    */
-  lookup(selector: ReaderSelector, owner: OperationDescriptor): Snapshot;
+  lookup(selector: ReaderSelector, owner: RequestDescriptor): Snapshot;
 
   /**
    * Send a query to the server with Observer semantics: one or more
@@ -469,7 +476,7 @@ export interface Environment {
 export type FragmentPointer = {
   __id: DataID,
   __fragments: {[fragmentName: string]: Variables},
-  __fragmentOwner: OperationDescriptor,
+  __fragmentOwner: RequestDescriptor,
 };
 
 /**
@@ -712,5 +719,5 @@ export interface PublishQueue {
   /**
    * Execute all queued up operations from the other public methods.
    */
-  run(): $ReadOnlyArray<OperationDescriptor>;
+  run(): $ReadOnlyArray<RequestDescriptor>;
 }

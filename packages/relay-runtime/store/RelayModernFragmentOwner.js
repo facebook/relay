@@ -16,12 +16,12 @@ const mapObject = require('mapObject');
 const {FRAGMENT_OWNER_KEY} = require('./RelayStoreUtils');
 
 import type {ReaderFragment} from '../util/ReaderNode';
-import type {OperationDescriptor, FragmentPointer} from './RelayStoreTypes';
+import type {RequestDescriptor, FragmentPointer} from './RelayStoreTypes';
 
 function getSingularFragmentOwner(
   fragmentNode: ReaderFragment,
   fragmentRef: ?FragmentPointer,
-): ?OperationDescriptor {
+): ?RequestDescriptor {
   if (fragmentRef == null) {
     return null;
   }
@@ -39,7 +39,7 @@ function getSingularFragmentOwner(
 function getPluralFragmentOwner(
   fragmentNode: ReaderFragment,
   fragmentRef: $ReadOnlyArray<?FragmentPointer>,
-): Array<?OperationDescriptor> {
+): Array<?RequestDescriptor> {
   return fragmentRef.map(ref => getSingularFragmentOwner(fragmentNode, ref));
 }
 
@@ -52,7 +52,7 @@ function getPluralFragmentOwner(
 function getFragmentOwner(
   fragmentNode: ReaderFragment,
   fragmentRef: ?FragmentPointer | $ReadOnlyArray<?FragmentPointer>,
-): ?OperationDescriptor | Array<?OperationDescriptor> {
+): ?RequestDescriptor | Array<?RequestDescriptor> {
   if (Array.isArray(fragmentRef)) {
     return getPluralFragmentOwner(fragmentNode, fragmentRef);
   }
@@ -70,7 +70,7 @@ function getFragmentOwner(
 function getFragmentOwners(
   fragmentNodes: {[string]: ReaderFragment},
   fragmentRefs: {[string]: mixed},
-): {[string]: ?OperationDescriptor | Array<?OperationDescriptor>} {
+): {[string]: ?RequestDescriptor | Array<?RequestDescriptor>} {
   return mapObject(fragmentNodes, (fragmentNode, key) => {
     const fragmentRef = fragmentRefs[key];
     return getFragmentOwner(

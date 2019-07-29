@@ -48,7 +48,7 @@ import type {
 } from '../util/ReaderNode';
 import type {DataID, Variables} from '../util/RelayRuntimeTypes';
 import type {
-  OperationDescriptor,
+  RequestDescriptor,
   ReaderSelector,
   Record,
   RecordSource,
@@ -59,7 +59,7 @@ import type {
 function read(
   recordSource: RecordSource,
   selector: ReaderSelector,
-  owner: OperationDescriptor,
+  owner: RequestDescriptor,
 ): Snapshot {
   const {dataID, node, variables} = selector;
   const reader = new RelayReader(recordSource, variables, owner);
@@ -74,12 +74,12 @@ class RelayReader {
   _seenRecords: {[dataID: DataID]: ?Record};
   _variables: Variables;
   _isMissingData: boolean;
-  _owner: OperationDescriptor;
+  _owner: RequestDescriptor;
 
   constructor(
     recordSource: RecordSource,
     variables: Variables,
-    owner: OperationDescriptor,
+    owner: RequestDescriptor,
   ) {
     this._recordSource = recordSource;
     this._seenRecords = {};

@@ -12,19 +12,13 @@
 
 const invariant = require('invariant');
 
-import type {OperationDescriptor} from './RelayStoreTypes';
+import type {RequestDescriptor} from './RelayStoreTypes';
 
 class RelayOperationTracker {
-  _ownersToPendingOperations: Map<
-    OperationDescriptor,
-    Set<OperationDescriptor>,
-  >;
-  _pendingOperationsToOwners: Map<
-    OperationDescriptor,
-    Set<OperationDescriptor>,
-  >;
+  _ownersToPendingOperations: Map<RequestDescriptor, Set<RequestDescriptor>>;
+  _pendingOperationsToOwners: Map<RequestDescriptor, Set<RequestDescriptor>>;
   _ownersToPromise: Map<
-    OperationDescriptor,
+    RequestDescriptor,
     {|promise: Promise<void>, resolve: () => void|},
   >;
 
@@ -39,8 +33,8 @@ class RelayOperationTracker {
    * affected owners and notify subscribers
    */
   update(
-    pendingOperation: OperationDescriptor,
-    affectedOwners: Set<OperationDescriptor>,
+    pendingOperation: RequestDescriptor,
+    affectedOwners: Set<RequestDescriptor>,
   ): void {
     if (affectedOwners.size === 0) {
       return;
@@ -89,7 +83,7 @@ class RelayOperationTracker {
    * Once pending operation is completed we need to remove it
    * from all tracking maps
    */
-  complete(pendingOperation: OperationDescriptor): void {
+  complete(pendingOperation: RequestDescriptor): void {
     const affectedOwners = this._pendingOperationsToOwners.get(
       pendingOperation,
     );
@@ -133,7 +127,7 @@ class RelayOperationTracker {
     this._pendingOperationsToOwners.delete(pendingOperation);
   }
 
-  _resolveOwnerResolvers(owner: OperationDescriptor): void {
+  _resolveOwnerResolvers(owner: RequestDescriptor): void {
     const promiseEntry = this._ownersToPromise.get(owner);
     if (promiseEntry != null) {
       promiseEntry.resolve();
@@ -142,7 +136,7 @@ class RelayOperationTracker {
   }
 
   getPromiseForPendingOperationsAffectingOwner(
-    owner: OperationDescriptor,
+    owner: RequestDescriptor,
   ): Promise<void> | null {
     if (!this._ownersToPendingOperations.has(owner)) {
       return null;

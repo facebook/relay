@@ -38,6 +38,7 @@ import type {TaskScheduler} from './RelayModernQueryExecutor';
 import type {GetDataID} from './RelayResponseNormalizer';
 import type {
   Environment,
+  RequestDescriptor,
   MissingFieldHandler,
   NormalizationSelector,
   OperationDescriptor,
@@ -213,7 +214,7 @@ class RelayModernEnvironment implements Environment {
     this._publishQueue.run();
   }
 
-  lookup(readSelector: ReaderSelector, owner: OperationDescriptor): Snapshot {
+  lookup(readSelector: ReaderSelector, owner: RequestDescriptor): Snapshot {
     return this._store.lookup(readSelector, owner);
   }
 

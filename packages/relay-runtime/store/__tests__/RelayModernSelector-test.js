@@ -32,6 +32,8 @@ const {
   matchers,
 } = require('relay-test-utils-internal');
 
+import type {OperationDescriptor} from '../RelayStoreTypes';
+
 describe('RelayModernSelector', () => {
   let UserFragment;
   let UserQuery;
@@ -40,7 +42,7 @@ describe('RelayModernSelector', () => {
   let zuck;
   let variables;
   let operationVariables;
-  let operationDescriptor;
+  let operationDescriptor: OperationDescriptor;
   let owner;
 
   beforeEach(() => {

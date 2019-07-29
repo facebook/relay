@@ -24,6 +24,7 @@ import type {HandlerProvider} from '../handlers/RelayDefaultHandlerProvider';
 import type {Disposable} from '../util/RelayRuntimeTypes';
 import type {GetDataID} from './RelayResponseNormalizer';
 import type {
+  RequestDescriptor,
   HandleFieldPayload,
   MutableRecordSource,
   OperationDescriptor,
@@ -179,7 +180,7 @@ class RelayPublishQueue implements PublishQueue {
   /**
    * Execute all queued up operations from the other public methods.
    */
-  run(): $ReadOnlyArray<OperationDescriptor> {
+  run(): $ReadOnlyArray<RequestDescriptor> {
     if (this._pendingBackupRebase && this._backup.size()) {
       this._store.publish(this._backup);
       this._backup = RelayRecordSource.create();

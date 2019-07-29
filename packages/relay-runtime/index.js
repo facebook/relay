@@ -124,6 +124,7 @@ export type {
   RecordSourceProxy,
   RecordSourceSelectorProxy,
   RelayContext,
+  RequestDescriptor,
   SelectorData,
   SelectorStoreUpdater,
   Snapshot,

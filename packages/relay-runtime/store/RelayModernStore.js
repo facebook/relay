@@ -27,13 +27,13 @@ const {UNPUBLISH_RECORD_SENTINEL} = require('./RelayStoreUtils');
 import type {Disposable} from '../util/RelayRuntimeTypes';
 import type {GetDataID} from './RelayResponseNormalizer';
 import type {
+  RequestDescriptor,
   MutableRecordSource,
   RecordSource,
   Scheduler,
   ReaderSelector,
   NormalizationSelector,
   OperationLoader,
-  OperationDescriptor,
   Snapshot,
   Store,
   UpdatedRecords,
@@ -123,7 +123,7 @@ class RelayModernStore implements Store {
     return {dispose};
   }
 
-  lookup(selector: ReaderSelector, owner: OperationDescriptor): Snapshot {
+  lookup(selector: ReaderSelector, owner: RequestDescriptor): Snapshot {
     const snapshot = RelayReader.read(this._recordSource, selector, owner);
     if (__DEV__) {
       deepFreeze(snapshot);
@@ -132,7 +132,7 @@ class RelayModernStore implements Store {
   }
 
   // This method will return a list of updated owners form the subscriptions
-  notify(): $ReadOnlyArray<OperationDescriptor> {
+  notify(): $ReadOnlyArray<RequestDescriptor> {
     const updatedOwners = [];
     this._subscriptions.forEach(subscription => {
       const owner = this._updateSubscription(subscription);
@@ -183,10 +183,10 @@ class RelayModernStore implements Store {
     return this._updatedRecordIDs;
   }
 
-  // We are returning an instance of OperationDescriptor here if the snapshot
+  // We are returning an instance of RequestDescriptor here if the snapshot
   // were updated. We will use this information in the RelayOperationTracker
   // in order to track which owner was affected by which operation.
-  _updateSubscription(subscription: Subscription): ?OperationDescriptor {
+  _updateSubscription(subscription: Subscription): ?RequestDescriptor {
     const {callback, snapshot} = subscription;
     if (!hasOverlappingIDs(snapshot, this._updatedRecordIDs)) {
       return;

@@ -32,6 +32,7 @@ import type {
 import type {Sink, Subscription} from '../network/RelayObservable';
 import type {
   DeferPlaceholder,
+  RequestDescriptor,
   HandleFieldPayload,
   IncrementalDataPlaceholder,
   ModuleImportPayload,
@@ -853,7 +854,7 @@ class Executor {
   }
 
   _updateOperationTracker(
-    updatedOwners: ?$ReadOnlyArray<OperationDescriptor>,
+    updatedOwners: ?$ReadOnlyArray<RequestDescriptor>,
   ): void {
     if (
       this._operationTracker != null &&

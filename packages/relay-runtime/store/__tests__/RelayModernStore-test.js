@@ -17,6 +17,7 @@ const RelayRecordSourceMapImpl = require('../RelayRecordSourceMapImpl');
 const RelayRecordSourceObjectImpl = require('../RelayRecordSourceObjectImpl');
 
 const {getRequest} = require('../../query/RelayModernGraphQLTag');
+const {createReaderSelector} = require('../RelayModernSelector');
 const {
   REF_KEY,
   ROOT_ID,
@@ -93,21 +94,15 @@ function createOperationDescriptor(...args) {
       });
 
       it('prevents data from being collected', () => {
-        store.retain({
-          dataID: '4',
-          node: UserFragment,
-          variables: {size: 32},
-        });
+        store.retain(createReaderSelector(UserFragment, '4', {size: 32}));
         jest.runAllTimers();
         expect(source.toJSON()).toEqual(initialData);
       });
 
       it('frees data when disposed', () => {
-        const {dispose} = store.retain({
-          dataID: '4',
-          node: UserFragment,
-          variables: {size: 32},
-        });
+        const {dispose} = store.retain(
+          createReaderSelector(UserFragment, '4', {size: 32}),
+        );
         dispose();
         expect(data).toEqual(initialData);
         jest.runAllTimers();
@@ -139,16 +134,12 @@ function createOperationDescriptor(...args) {
           },
         });
         store.publish(nextSource);
-        const {dispose} = store.retain({
-          dataID: '4',
-          node: UserFragment,
-          variables: {size: 32},
-        });
-        store.retain({
-          dataID: ROOT_ID,
-          node: JoeFragment,
-          variables: {id: '842472'},
-        });
+        const {dispose} = store.retain(
+          createReaderSelector(UserFragment, '4', {size: 32}),
+        );
+        store.retain(
+          createReaderSelector(JoeFragment, ROOT_ID, {id: '842472'}),
+        );
 
         dispose(); // release one of the holds but not the other
         jest.runAllTimers();
@@ -196,11 +187,7 @@ function createOperationDescriptor(...args) {
       });
 
       it('returns selector data', () => {
-        const selector = {
-          dataID: '4',
-          node: UserFragment,
-          variables: {size: 32},
-        };
+        const selector = createReaderSelector(UserFragment, '4', {size: 32});
         const owner = createOperationDescriptor(UserQuery, {});
         const snapshot = store.lookup(selector, owner);
         expect(snapshot).toEqual({
@@ -245,11 +232,7 @@ function createOperationDescriptor(...args) {
             username
           }
         `));
-        const selector = {
-          dataID: '4',
-          node: UserFragment,
-          variables: {size: 32},
-        };
+        const selector = createReaderSelector(UserFragment, '4', {size: 32});
         const queryNode = getRequest(UserQuery);
         const owner = createOperationDescriptor(queryNode, {size: 32});
         const snapshot = store.lookup(selector, owner);
@@ -280,11 +263,7 @@ function createOperationDescriptor(...args) {
       });
 
       it('returns deeply-frozen objects', () => {
-        const selector = {
-          dataID: '4',
-          node: UserFragment,
-          variables: {size: 32},
-        };
+        const selector = createReaderSelector(UserFragment, '4', {size: 32});
         const owner = createOperationDescriptor(UserQuery, {});
         const snapshot = store.lookup(selector, owner);
         expect(Object.isFrozen(snapshot)).toBe(true);
@@ -309,11 +288,7 @@ function createOperationDescriptor(...args) {
         store.publish(nextSource); // takes effect w/o calling notify()
 
         const owner = createOperationDescriptor(UserQuery, {size: 32});
-        const selector = {
-          dataID: '4',
-          node: UserFragment,
-          variables: {size: 32},
-        };
+        const selector = createReaderSelector(UserFragment, '4', {size: 32});
         const snapshot = store.lookup(selector, owner);
         expect(snapshot).toEqual({
           ...selector,
@@ -376,11 +351,7 @@ function createOperationDescriptor(...args) {
 
       it('calls subscribers whose data has changed since previous notify', () => {
         // subscribe(), publish(), notify() -> subscriber called
-        const selector = {
-          dataID: '4',
-          node: UserFragment,
-          variables: {size: 32},
-        };
+        const selector = createReaderSelector(UserFragment, '4', {size: 32});
         const owner = createOperationDescriptor(UserQuery, {});
         const snapshot = store.lookup(selector, owner);
         const callback = jest.fn();
@@ -432,11 +403,7 @@ function createOperationDescriptor(...args) {
             emailAddresses
           }
         `));
-        const selector = {
-          dataID: '4',
-          node: UserFragment,
-          variables: {size: 32},
-        };
+        const selector = createReaderSelector(UserFragment, '4', {size: 32});
         const queryNode = getRequest(UserQuery);
         const owner = createOperationDescriptor(queryNode, {size: 32});
         const snapshot = store.lookup(selector, owner);
@@ -476,11 +443,7 @@ function createOperationDescriptor(...args) {
       });
 
       it('vends deeply-frozen objects', () => {
-        const selector = {
-          dataID: '4',
-          node: UserFragment,
-          variables: {size: 32},
-        };
+        const selector = createReaderSelector(UserFragment, '4', {size: 32});
         const owner = createOperationDescriptor(UserQuery, {});
         const snapshot = store.lookup(selector, owner);
         const callback = jest.fn();
@@ -503,11 +466,7 @@ function createOperationDescriptor(...args) {
 
       it('calls affected subscribers only once', () => {
         // subscribe(), publish(), publish(), notify() -> subscriber called once
-        const selector = {
-          dataID: '4',
-          node: UserFragment,
-          variables: {size: 32},
-        };
+        const selector = createReaderSelector(UserFragment, '4', {size: 32});
         const owner = createOperationDescriptor(UserQuery, {});
         const snapshot = store.lookup(selector, owner);
         const callback = jest.fn();
@@ -575,11 +534,7 @@ function createOperationDescriptor(...args) {
         };
         source = new RecordSourceImplementation(data);
         store = new RelayModernStore(source);
-        const selector = {
-          dataID: '4',
-          node: UserFragment,
-          variables: {size: 32},
-        };
+        const selector = createReaderSelector(UserFragment, '4', {size: 32});
         const owner = createOperationDescriptor(UserQuery, {});
         const snapshot = store.lookup(selector, owner);
         expect(snapshot.isMissingData).toEqual(true);
@@ -620,11 +575,9 @@ function createOperationDescriptor(...args) {
       });
 
       it('notifies subscribers of changes to unfetched records', () => {
-        const selector = {
-          dataID: '842472',
-          node: UserFragment,
-          variables: {size: 32},
-        };
+        const selector = createReaderSelector(UserFragment, '842472', {
+          size: 32,
+        });
         const owner = createOperationDescriptor(UserQuery, {});
         const snapshot = store.lookup(selector, owner);
         const callback = jest.fn();
@@ -652,11 +605,9 @@ function createOperationDescriptor(...args) {
       });
 
       it('notifies subscribers of changes to deleted records', () => {
-        const selector = {
-          dataID: '842472',
-          node: UserFragment,
-          variables: {size: 32},
-        };
+        const selector = createReaderSelector(UserFragment, '842472', {
+          size: 32,
+        });
         // Initially delete the record
         source.delete('842472');
         const owner = createOperationDescriptor(UserQuery, {});
@@ -688,11 +639,7 @@ function createOperationDescriptor(...args) {
 
       it('does not call subscribers whose data has not changed', () => {
         // subscribe(), publish() -> subscriber *not* called
-        const selector = {
-          dataID: '4',
-          node: UserFragment,
-          variables: {size: 32},
-        };
+        const selector = createReaderSelector(UserFragment, '4', {size: 32});
         const owner = createOperationDescriptor(UserQuery, {});
         const snapshot = store.lookup(selector, owner);
         const callback = jest.fn();
@@ -712,11 +659,7 @@ function createOperationDescriptor(...args) {
 
       it('does not notify disposed subscribers', () => {
         // subscribe(), publish(), dispose(), notify() -> subscriber *not* called
-        const selector = {
-          dataID: '4',
-          node: UserFragment,
-          variables: {size: 32},
-        };
+        const selector = createReaderSelector(UserFragment, '4', {size: 32});
         const owner = createOperationDescriptor(UserQuery, {});
         const snapshot = store.lookup(selector, owner);
         const callback = jest.fn();
@@ -818,20 +761,12 @@ function createOperationDescriptor(...args) {
       });
 
       it('returns true if all data exists in the cache', () => {
-        const selector = {
-          dataID: '4',
-          node: UserFragment,
-          variables: {size: 32},
-        };
+        const selector = createReaderSelector(UserFragment, '4', {size: 32});
         expect(store.check(selector)).toBe(true);
       });
 
       it('returns false if a scalar field is missing', () => {
-        const selector = {
-          dataID: '4',
-          node: UserFragment,
-          variables: {size: 32},
-        };
+        const selector = createReaderSelector(UserFragment, '4', {size: 32});
         store.publish(
           new RecordSourceImplementation({
             'client:1': {
@@ -844,11 +779,7 @@ function createOperationDescriptor(...args) {
       });
 
       it('returns false if a linked field is missing', () => {
-        const selector = {
-          dataID: '4',
-          node: UserFragment,
-          variables: {size: 64}, // unfetched size
-        };
+        const selector = createReaderSelector(UserFragment, '4', {size: 64});
         expect(store.check(selector)).toBe(false);
       });
 
@@ -856,20 +787,14 @@ function createOperationDescriptor(...args) {
         delete data['client:1']; // profile picture
         source = new RecordSourceImplementation(data);
         store = new RelayModernStore(source);
-        const selector = {
-          dataID: '4',
-          node: UserFragment,
-          variables: {size: 32},
-        };
+        const selector = createReaderSelector(UserFragment, '4', {size: 32});
         expect(store.check(selector)).toBe(false);
       });
 
       it('returns false if the root record is missing', () => {
-        const selector = {
-          dataID: '842472', // unfetched record
-          node: UserFragment,
-          variables: {size: 32},
-        };
+        const selector = createReaderSelector(UserFragment, '842472', {
+          size: 32,
+        });
         expect(store.check(selector)).toBe(false);
       });
     });
@@ -913,11 +838,9 @@ function createOperationDescriptor(...args) {
       });
 
       it('calls the gc scheduler function when GC should run', () => {
-        const {dispose} = store.retain({
-          dataID: '4',
-          node: UserFragment,
-          variables: {size: 32},
-        });
+        const {dispose} = store.retain(
+          createReaderSelector(UserFragment, '4', {size: 32}),
+        );
         expect(scheduler).not.toBeCalled();
         dispose();
         expect(scheduler).toBeCalled();
@@ -925,11 +848,9 @@ function createOperationDescriptor(...args) {
       });
 
       it('Runs GC when the GC scheduler executes the task', () => {
-        const {dispose} = store.retain({
-          dataID: '4',
-          node: UserFragment,
-          variables: {size: 32},
-        });
+        const {dispose} = store.retain(
+          createReaderSelector(UserFragment, '4', {size: 32}),
+        );
         dispose();
         expect(source.toJSON()).toEqual(initialData);
         callbacks[0](); // run gc
@@ -973,11 +894,9 @@ function createOperationDescriptor(...args) {
 
       it('prevents data from being collected with disabled GC, and reruns GC when it is enabled', () => {
         const gcHold = store.holdGC();
-        const {dispose} = store.retain({
-          dataID: '4',
-          node: UserFragment,
-          variables: {size: 32},
-        });
+        const {dispose} = store.retain(
+          createReaderSelector(UserFragment, '4', {size: 32}),
+        );
         dispose();
         expect(data).toEqual(initialData);
         jest.runAllTimers();

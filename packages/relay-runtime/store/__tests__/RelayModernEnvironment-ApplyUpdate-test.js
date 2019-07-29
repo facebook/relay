@@ -17,6 +17,7 @@ const RelayModernStore = require('../RelayModernStore');
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayRecordSource = require('../RelayRecordSource');
 
+const {createReaderSelector} = require('../RelayModernSelector');
 const {generateAndCompile} = require('relay-test-utils-internal');
 
 function createOperationDescriptor(...args) {
@@ -69,11 +70,7 @@ describe('applyUpdate()', () => {
   });
 
   it('applies the mutation to the store', () => {
-    const selector = {
-      dataID: '4',
-      node: UserFragment,
-      variables: {},
-    };
+    const selector = createReaderSelector(UserFragment, '4', {});
     const callback = jest.fn();
     const snapshot = environment.lookup(selector, operation);
     environment.subscribe(snapshot, callback);
@@ -93,11 +90,7 @@ describe('applyUpdate()', () => {
   });
 
   it('reverts mutations when disposed', () => {
-    const selector = {
-      dataID: '4',
-      node: UserFragment,
-      variables: {},
-    };
+    const selector = createReaderSelector(UserFragment, '4', {});
     const callback = jest.fn();
     const snapshot = environment.lookup(selector, operation);
     environment.subscribe(snapshot, callback);
@@ -115,11 +108,7 @@ describe('applyUpdate()', () => {
   });
 
   it('can replace one mutation with another', () => {
-    const selector = {
-      dataID: '4',
-      node: UserFragment,
-      variables: {},
-    };
+    const selector = createReaderSelector(UserFragment, '4', {});
     const callback = jest.fn();
     const snapshot = environment.lookup(selector, operation);
     environment.subscribe(snapshot, callback);

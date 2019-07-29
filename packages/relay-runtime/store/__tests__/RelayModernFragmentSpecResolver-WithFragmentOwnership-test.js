@@ -15,6 +15,7 @@ const RelayModernFragmentSpecResolver = require('../RelayModernFragmentSpecResol
 const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
+const {createReaderSelector} = require('../RelayModernSelector');
 const {ROOT_ID} = require('../RelayStoreUtils');
 const {
   createMockEnvironment,
@@ -58,17 +59,9 @@ describe('RelayModernFragmentSpecResolver with fragment ownership', () => {
 
   function createOwnerWithUnalteredVariables(request, vars) {
     return {
-      fragment: {
-        dataID: ROOT_ID,
-        node: request.fragment,
-        variables: vars,
-      },
+      fragment: createReaderSelector(request.fragment, ROOT_ID, vars),
       node: request,
-      root: {
-        dataID: ROOT_ID,
-        node: request.operation,
-        variables: vars,
-      },
+      root: createReaderSelector(request.operation, ROOT_ID, vars),
       variables: vars,
     };
   }

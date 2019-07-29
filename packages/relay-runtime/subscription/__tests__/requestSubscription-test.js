@@ -16,6 +16,7 @@ const requestSubscription = require('../requestSubscription');
 const {
   createOperationDescriptor,
 } = require('../../store/RelayModernOperationDescriptor');
+const {createReaderSelector} = require('../../store/RelayModernSelector');
 const {ROOT_ID} = require('../../store/RelayStoreUtils');
 const {
   createMockEnvironment,
@@ -144,11 +145,9 @@ describe('requestSubscription-test', () => {
     };
     environment.mock.nextValue(CommentCreateSubscription, subscriptionPayload);
     const snapshot = store.lookup(
-      {
-        dataID: ROOT_ID,
-        node: FeedbackCommentQuery.fragment,
-        variables: {id: feedbackId},
-      },
+      createReaderSelector(FeedbackCommentQuery.fragment, ROOT_ID, {
+        id: feedbackId,
+      }),
       operationDescriptor,
     );
     expect(snapshot.data).toEqual({

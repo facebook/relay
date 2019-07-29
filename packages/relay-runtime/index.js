@@ -208,30 +208,32 @@ module.exports = {
 
   areEqualSelectors: RelayModernSelector.areEqualSelectors,
   createFragmentSpecResolver: createFragmentSpecResolver,
+  createNormalizationSelector: RelayModernSelector.createNormalizationSelector,
   createOperationDescriptor:
     RelayModernOperationDescriptor.createOperationDescriptor,
+  createReaderSelector: RelayModernSelector.createReaderSelector,
   getDataIDsFromFragment: RelayModernSelector.getDataIDsFromFragment,
   getDataIDsFromObject: RelayModernSelector.getDataIDsFromObject,
   getFragment: RelayModernGraphQLTag.getFragment,
   getFragmentOwner: RelayModernFragmentOwner.getFragmentOwner,
   getFragmentOwners: RelayModernFragmentOwner.getFragmentOwners,
-  getPaginationFragment: RelayModernGraphQLTag.getPaginationFragment,
+  getInlineDataFragment: RelayModernGraphQLTag.getInlineDataFragment,
   getModuleComponentKey: RelayStoreUtils.getModuleComponentKey,
   getModuleOperationKey: RelayStoreUtils.getModuleOperationKey,
-  getRefetchableFragment: RelayModernGraphQLTag.getRefetchableFragment,
-  getInlineDataFragment: RelayModernGraphQLTag.getInlineDataFragment,
-  getRequest: RelayModernGraphQLTag.getRequest,
-  getSingularSelector: RelayModernSelector.getSingularSelector,
+  getPaginationFragment: RelayModernGraphQLTag.getPaginationFragment,
   getPluralSelector: RelayModernSelector.getPluralSelector,
+  getRefetchableFragment: RelayModernGraphQLTag.getRefetchableFragment,
+  getRequest: RelayModernGraphQLTag.getRequest,
   getSelector: RelayModernSelector.getSelector,
   getSelectorsFromObject: RelayModernSelector.getSelectorsFromObject,
+  getSingularSelector: RelayModernSelector.getSingularSelector,
   getStorageKey: RelayStoreUtils.getStorageKey,
-  getVariablesFromSingularFragment:
-    RelayModernSelector.getVariablesFromSingularFragment,
-  getVariablesFromPluralFragment:
-    RelayModernSelector.getVariablesFromPluralFragment,
   getVariablesFromFragment: RelayModernSelector.getVariablesFromFragment,
   getVariablesFromObject: RelayModernSelector.getVariablesFromObject,
+  getVariablesFromPluralFragment:
+    RelayModernSelector.getVariablesFromPluralFragment,
+  getVariablesFromSingularFragment:
+    RelayModernSelector.getVariablesFromSingularFragment,
   graphql: RelayModernGraphQLTag.graphql,
 
   // Declarative mutation API

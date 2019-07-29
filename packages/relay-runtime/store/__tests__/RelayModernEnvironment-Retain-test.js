@@ -17,6 +17,10 @@ const RelayModernStore = require('../RelayModernStore');
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayRecordSource = require('../RelayRecordSource');
 
+const {
+  createReaderSelector,
+  createNormalizationSelector,
+} = require('../RelayModernSelector');
 const {ROOT_ID} = require('../RelayStoreUtils');
 const {generateAndCompile} = require('relay-test-utils-internal');
 
@@ -71,17 +75,11 @@ describe('retain()', () => {
   });
 
   it('retains data when not disposed', () => {
-    environment.retain({
-      dataID: ROOT_ID,
-      node: ParentQuery.root,
-      variables: {},
-    });
+    environment.retain(
+      createNormalizationSelector(ParentQuery.root, ROOT_ID, {}),
+    );
     const snapshot = environment.lookup(
-      {
-        dataID: ROOT_ID,
-        node: ParentQuery.fragment,
-        variables: {},
-      },
+      createReaderSelector(ParentQuery.fragment, ROOT_ID, {}),
       operation,
     );
     // data is still in the store
@@ -94,16 +92,10 @@ describe('retain()', () => {
   });
 
   it('releases data when disposed', () => {
-    const {dispose} = environment.retain({
-      dataID: ROOT_ID,
-      node: ParentQuery.root,
-      variables: {},
-    });
-    const selector = {
-      dataID: ROOT_ID,
-      node: ParentQuery.fragment,
-      variables: {},
-    };
+    const {dispose} = environment.retain(
+      createNormalizationSelector(ParentQuery.root, ROOT_ID, {}),
+    );
+    const selector = createReaderSelector(ParentQuery.fragment, ROOT_ID, {});
     dispose();
     // GC runs asynchronously; data should still be in the store
     expect(environment.lookup(selector, operation).data).toEqual({

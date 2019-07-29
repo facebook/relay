@@ -20,6 +20,7 @@ const RelayRecordSource = require('../RelayRecordSource');
 
 const warning = require('warning');
 
+const {createReaderSelector} = require('../RelayModernSelector');
 const {generateAndCompile} = require('relay-test-utils-internal');
 
 function createOperationDescriptor(...args) {
@@ -74,11 +75,7 @@ describe('execute() a query with @defer', () => {
       `));
     variables = {id: '1'};
     operation = createOperationDescriptor(query, variables);
-    selector = {
-      dataID: '1',
-      node: fragment,
-      variables: {},
-    };
+    selector = createReaderSelector(fragment, '1', {});
 
     NameHandler = {
       update(storeProxy, payload) {

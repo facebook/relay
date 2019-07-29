@@ -16,6 +16,8 @@ const isScalarAndEqual = require('../util/isScalarAndEqual');
 
 const {
   areEqualSelectors,
+  createNormalizationSelector,
+  createReaderSelector,
   getSelectorsFromObject,
 } = require('./RelayModernSelector');
 const {ROOT_ID} = require('./RelayStoreUtils');
@@ -272,17 +274,13 @@ class SelectorResolver {
         // to propagate variables instead of Context.
         // For more details, see the summary of D13999308
         {
-          fragment: {
-            dataID: ROOT_ID,
-            node: request.fragment,
-            variables,
-          },
+          fragment: createReaderSelector(request.fragment, ROOT_ID, variables),
           node: request,
-          root: {
-            dataID: ROOT_ID,
-            node: request.operation,
+          root: createNormalizationSelector(
+            request.operation,
+            ROOT_ID,
             variables,
-          },
+          ),
           variables,
         },
       selector: {

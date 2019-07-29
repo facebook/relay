@@ -5,6 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  *
  * @format
+ * @flow
  * @emails oncall+relay
  */
 
@@ -21,11 +22,14 @@ const commitMutation = require('../commitMutation');
 const {
   createOperationDescriptor,
 } = require('../../store/RelayModernOperationDescriptor');
+const {createReaderSelector} = require('../../store/RelayModernSelector');
 const {ROOT_ID} = require('../../store/RelayStoreUtils');
 const {
   createMockEnvironment,
   generateAndCompile,
 } = require('relay-test-utils-internal');
+
+import type {GraphQLResponseWithoutData} from '../../network/RelayNetworkTypes';
 
 describe('Configs: NODE_DELETE', () => {
   jest.resetModules();
@@ -120,11 +124,7 @@ describe('Configs: NODE_DELETE', () => {
       {},
     );
     const snapshot = store.lookup(
-      {
-        dataID: ROOT_ID,
-        node: FeedbackCommentQuery.fragment,
-        variables: {},
-      },
+      createReaderSelector(FeedbackCommentQuery.fragment, ROOT_ID, {}),
       operationDescriptor,
     );
     const callback = jest.fn();
@@ -158,35 +158,6 @@ describe('Configs: NODE_DELETE', () => {
     jest.runAllTimers();
     expect(updater).toBeCalled();
     expect(callback.mock.calls.length).toBe(0);
-  });
-  it('throws error with classic environment', () => {
-    const notARelayModernEnvironment = {};
-    const mutation = generateAndCompile(`
-      mutation CommentDeleteMutation(
-        $input: CommentDeleteInput
-      ) {
-        __typename
-      }
-    `).CommentDeleteMutation;
-
-    const firstCommentID = 'comment456';
-
-    const variables = {
-      input: {
-        clientMutationId: '0',
-        deletedCommentId: firstCommentID,
-      },
-    };
-
-    expect(() =>
-      commitMutation(notARelayModernEnvironment, {
-        mutation,
-        variables,
-      }),
-    ).toThrowError(
-      'commitMutation: expected `environment` to be an instance of ' +
-        '`RelayModernEnvironment`.',
-    );
   });
 });
 
@@ -299,11 +270,7 @@ describe('Configs: RANGE_DELETE', () => {
     const optimisticUpdater = jest.fn();
     const updater = jest.fn();
     const snapshot = store.lookup(
-      {
-        dataID: ROOT_ID,
-        node: FeedbackCommentQuery.fragment,
-        variables: {},
-      },
+      createReaderSelector(FeedbackCommentQuery.fragment, ROOT_ID, {}),
       operationDescriptor,
     );
     const callback = jest.fn();
@@ -429,11 +396,7 @@ describe('Configs: RANGE_DELETE', () => {
       },
     };
     const snapshot = store.lookup(
-      {
-        dataID: ROOT_ID,
-        node: FriendQuery.fragment,
-        variables: {},
-      },
+      createReaderSelector(FriendQuery.fragment, ROOT_ID, {}),
       operationDescriptor,
     );
     const callback = jest.fn();
@@ -602,11 +565,7 @@ describe('Configs: RANGE_ADD', () => {
     ];
     const operationDescriptor = createOperationDescriptor(CommentQuery, {});
     const snapshot = store.lookup(
-      {
-        dataID: ROOT_ID,
-        node: CommentQuery.fragment,
-        variables: {},
-      },
+      createReaderSelector(CommentQuery.fragment, ROOT_ID, {}),
       operationDescriptor,
     );
     environment.commitPayload(operationDescriptor, payload);
@@ -695,11 +654,7 @@ describe('Configs: RANGE_ADD', () => {
     jest.runAllTimers();
 
     let snapshot = store.lookup(
-      {
-        dataID: ROOT_ID,
-        node: CommentQuery.fragment,
-        variables: {},
-      },
+      createReaderSelector(CommentQuery.fragment, ROOT_ID, {}),
       operationDescriptor,
     );
     expect(snapshot.data).toEqual({
@@ -759,11 +714,7 @@ describe('Configs: RANGE_ADD', () => {
     jest.runAllTimers();
 
     snapshot = store.lookup(
-      {
-        dataID: ROOT_ID,
-        node: CommentQuery.fragment,
-        variables: {},
-      },
+      createReaderSelector(CommentQuery.fragment, ROOT_ID, {}),
       operationDescriptor,
     );
 
@@ -821,11 +772,7 @@ describe('Configs: RANGE_ADD', () => {
     ];
     const operationDescriptor = createOperationDescriptor(CommentQuery, {});
     const snapshot = store.lookup(
-      {
-        dataID: ROOT_ID,
-        node: CommentQuery.fragment,
-        variables: {},
-      },
+      createReaderSelector(CommentQuery.fragment, ROOT_ID, {}),
       operationDescriptor,
     );
     environment.commitPayload(operationDescriptor, payload);
@@ -886,11 +833,7 @@ describe('Configs: RANGE_ADD', () => {
     const operationDescriptor = createOperationDescriptor(CommentQuery, {});
     environment.commitPayload(operationDescriptor, payload);
     const snapshot = store.lookup(
-      {
-        dataID: ROOT_ID,
-        node: CommentQuery.fragment,
-        variables: {},
-      },
+      createReaderSelector(CommentQuery.fragment, ROOT_ID, {}),
       operationDescriptor,
     );
     store.subscribe(snapshot, callback);
@@ -916,7 +859,10 @@ describe('Configs: RANGE_ADD', () => {
 });
 
 describe('Aliased mutation roots', () => {
-  beforeEach(() => jest.mock('warning'));
+  beforeEach(() => {
+    jest.mock('warning');
+  });
+
   it('does not present a warning when mutation uses an aliased in combination with a optimistcResponse', () => {
     const environment = createMockEnvironment();
     const mutation = generateAndCompile(`
@@ -997,11 +943,11 @@ describe('commitMutation()', () => {
 
     onCompleted = jest.fn();
     onError = jest.fn();
-    const fetch = (_query, _variables, _cacheConfig) => {
+    const fetch = jest.fn((_query, _variables, _cacheConfig) => {
       return RelayObservable.create(sink => {
         dataSource = sink;
       });
-    };
+    });
     const source = RelayRecordSource.create({});
     const store = new RelayModernStore(source);
     environment = new RelayModernEnvironment({
@@ -1013,11 +959,7 @@ describe('commitMutation()', () => {
   it('publishes each payload to the store as it arrives', () => {
     const operation = createOperationDescriptor(mutation, variables);
     const initialSnapshot = environment.lookup(
-      {
-        dataID: '1',
-        node: fragment,
-        variables: {},
-      },
+      createReaderSelector(fragment, '1', {}),
       operation,
     );
     const callback = jest.fn();
@@ -1117,25 +1059,27 @@ describe('commitMutation()', () => {
       onCompleted,
       onError,
     });
-    dataSource.next({
-      data: {
-        commentCreate: {
-          comment: {
-            id: '1',
-            body: {
-              text: 'Gave Relay',
+    dataSource.next(
+      ({
+        data: {
+          commentCreate: {
+            comment: {
+              id: '1',
+              body: {
+                text: 'Gave Relay',
+              },
             },
           },
         },
-      },
-      errors: [
-        {
-          message: 'wtf',
-          locations: [],
-          severity: 'ERROR',
-        },
-      ],
-    });
+        errors: [
+          {
+            message: 'wtf',
+            locations: [],
+            severity: 'ERROR',
+          },
+        ],
+      }: GraphQLResponseWithoutData),
+    );
     expect(onCompleted).toBeCalledTimes(0);
     dataSource.complete();
 
@@ -1167,44 +1111,48 @@ describe('commitMutation()', () => {
       onCompleted,
       onError,
     });
-    dataSource.next({
-      data: {
-        commentCreate: {
-          comment: {
-            id: '1',
-            body: {
-              text: 'Gave Relay', // overridden by later payload
+    dataSource.next(
+      ({
+        data: {
+          commentCreate: {
+            comment: {
+              id: '1',
+              body: {
+                text: 'Gave Relay', // overridden by later payload
+              },
             },
           },
         },
-      },
-      errors: [
-        {
-          message: 'wtf',
-          locations: [],
-          severity: 'ERROR',
-        },
-      ],
-    });
-    dataSource.next({
-      data: {
-        commentCreate: {
-          comment: {
-            id: '1',
-            body: {
-              text: 'GAVE RELAY',
+        errors: [
+          {
+            message: 'wtf',
+            locations: [],
+            severity: 'ERROR',
+          },
+        ],
+      }: GraphQLResponseWithoutData),
+    );
+    dataSource.next(
+      ({
+        data: {
+          commentCreate: {
+            comment: {
+              id: '1',
+              body: {
+                text: 'GAVE RELAY',
+              },
             },
           },
         },
-      },
-      errors: [
-        {
-          message: 'wtf again!',
-          locations: [],
-          severity: 'ERROR',
-        },
-      ],
-    });
+        errors: [
+          {
+            message: 'wtf again!',
+            locations: [],
+            severity: 'ERROR',
+          },
+        ],
+      }: GraphQLResponseWithoutData),
+    );
     expect(onCompleted).toBeCalledTimes(0);
     dataSource.complete();
 

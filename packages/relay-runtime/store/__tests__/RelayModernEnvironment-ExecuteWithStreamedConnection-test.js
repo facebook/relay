@@ -19,6 +19,7 @@ const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
 const RelayRecordSource = require('../RelayRecordSource');
 
+const {createReaderSelector} = require('../RelayModernSelector');
 const {VIEWER_ID} = require('../ViewerPattern');
 const {generateAndCompile} = require('relay-test-utils-internal');
 
@@ -108,11 +109,7 @@ describe('execute() fetches a @stream-ed @connection', () => {
       `));
     variables = {enableStream: true, after: null};
     operation = createOperationDescriptor(query, variables);
-    selector = {
-      dataID: VIEWER_ID,
-      node: feedFragment,
-      variables,
-    };
+    selector = createReaderSelector(feedFragment, VIEWER_ID, variables);
 
     const NameHandler = {
       update(storeProxy, payload) {

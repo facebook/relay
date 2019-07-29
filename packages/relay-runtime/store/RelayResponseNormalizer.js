@@ -30,6 +30,7 @@ const {
   STREAM,
 } = require('../util/RelayConcreteNode');
 const {generateClientID, isClientID} = require('./ClientID');
+const {createNormalizationSelector} = require('./RelayModernSelector');
 const {
   getArgumentValues,
   getHandleStorageKey,
@@ -258,11 +259,11 @@ class RelayResponseNormalizer {
         kind: 'defer',
         label: defer.label,
         path: [...this._path],
-        selector: {
-          dataID: RelayModernRecord.getDataID(record),
-          node: defer,
-          variables: this._variables,
-        },
+        selector: createNormalizationSelector(
+          defer,
+          RelayModernRecord.getDataID(record),
+          this._variables,
+        ),
         typeName: RelayModernRecord.getType(record),
       });
     }

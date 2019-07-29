@@ -22,6 +22,7 @@ const commitMutation = require('../../mutations/commitMutation');
 const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
+const {createReaderSelector} = require('../RelayModernSelector');
 const {ROOT_ID} = require('../RelayStoreUtils');
 const {generateAndCompile} = require('relay-test-utils-internal');
 
@@ -89,11 +90,7 @@ describe('Mutations on viewer', () => {
       },
     };
 
-    const selector = {
-      dataID: ROOT_ID,
-      node: ShortCutQuery.fragment,
-      variables: {},
-    };
+    const selector = createReaderSelector(ShortCutQuery.fragment, ROOT_ID, {});
     const operationDescriptor = createOperationDescriptor(ShortCutQuery, {});
     const callback = jest.fn();
     const snapshot = environment.lookup(selector, operationDescriptor);
@@ -143,11 +140,7 @@ describe('Mutations on viewer', () => {
         }
       }`);
 
-    const selector = {
-      dataID: ROOT_ID,
-      node: LocationQuery.fragment,
-      variables: {},
-    };
+    const selector = createReaderSelector(LocationQuery.fragment, ROOT_ID, {});
     const operationDescriptor = createOperationDescriptor(LocationQuery, {});
     const snapshot = environment.lookup(selector, operationDescriptor);
     const callback = jest.fn();

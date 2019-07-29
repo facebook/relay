@@ -17,6 +17,7 @@ const RelayRecordSourceObjectImpl = require('../RelayRecordSourceObjectImpl');
 
 const defaultGetDataID = require('../defaultGetDataID');
 
+const {createReaderSelector} = require('../RelayModernSelector');
 const {normalize} = require('../RelayResponseNormalizer');
 const {ROOT_ID, ROOT_TYPE} = require('../RelayStoreUtils');
 
@@ -99,11 +100,7 @@ const {ROOT_ID, ROOT_TYPE} = require('../RelayStoreUtils');
       recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
       normalize(
         recordSource,
-        {
-          dataID: ROOT_ID,
-          node: FooQuery.operation,
-          variables: {id: '1', size: 32},
-        },
+        createReaderSelector(FooQuery.operation, ROOT_ID, {id: '1', size: 32}),
         payload,
         defaultOptions,
       );
@@ -206,11 +203,7 @@ const {ROOT_ID, ROOT_TYPE} = require('../RelayStoreUtils');
       recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
       const {fieldPayloads} = normalize(
         recordSource,
-        {
-          dataID: ROOT_ID,
-          node: UserFriends.operation,
-          variables: {id: '1'},
-        },
+        createReaderSelector(UserFriends.operation, ROOT_ID, {id: '1'}),
         payload,
         defaultOptions,
       );
@@ -286,11 +279,11 @@ const {ROOT_ID, ROOT_TYPE} = require('../RelayStoreUtils');
       recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
       let {fieldPayloads} = normalize(
         recordSource,
-        {
-          dataID: ROOT_ID,
-          node: UserFriends.operation,
-          variables: {id: '1', orderBy: ['last name'], isViewerFriend: true},
-        },
+        createReaderSelector(UserFriends.operation, ROOT_ID, {
+          id: '1',
+          orderBy: ['last name'],
+          isViewerFriend: true,
+        }),
         payload1,
         defaultOptions,
       );
@@ -324,11 +317,11 @@ const {ROOT_ID, ROOT_TYPE} = require('../RelayStoreUtils');
       };
       fieldPayloads = normalize(
         recordSource,
-        {
-          dataID: ROOT_ID,
-          node: UserFriends.operation,
-          variables: {id: '1', orderBy: ['first name'], isViewerFriend: true},
-        },
+        createReaderSelector(UserFriends.operation, ROOT_ID, {
+          id: '1',
+          orderBy: ['first name'],
+          isViewerFriend: true,
+        }),
         payload2,
         defaultOptions,
       ).fieldPayloads;
@@ -404,11 +397,7 @@ const {ROOT_ID, ROOT_TYPE} = require('../RelayStoreUtils');
         recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
         const {moduleImportPayloads} = normalize(
           recordSource,
-          {
-            dataID: ROOT_ID,
-            node: BarQuery.operation,
-            variables: {id: '1'},
-          },
+          createReaderSelector(BarQuery.operation, ROOT_ID, {id: '1'}),
           payload,
           defaultOptions,
         );
@@ -481,11 +470,7 @@ const {ROOT_ID, ROOT_TYPE} = require('../RelayStoreUtils');
         recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
         const {moduleImportPayloads} = normalize(
           recordSource,
-          {
-            dataID: ROOT_ID,
-            node: BarQuery.operation,
-            variables: {id: '1'},
-          },
+          createReaderSelector(BarQuery.operation, ROOT_ID, {id: '1'}),
           payload,
           // simulate a nested @match that appeared, validate that nested payload
           // path is prefixed with this parent path:
@@ -555,11 +540,7 @@ const {ROOT_ID, ROOT_TYPE} = require('../RelayStoreUtils');
         recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
         normalize(
           recordSource,
-          {
-            dataID: ROOT_ID,
-            node: BarQuery.operation,
-            variables: {id: '1'},
-          },
+          createReaderSelector(BarQuery.operation, ROOT_ID, {id: '1'}),
           payload,
           defaultOptions,
         );
@@ -600,11 +581,7 @@ const {ROOT_ID, ROOT_TYPE} = require('../RelayStoreUtils');
         recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
         normalize(
           recordSource,
-          {
-            dataID: ROOT_ID,
-            node: BarQuery.operation,
-            variables: {id: '1'},
-          },
+          createReaderSelector(BarQuery.operation, ROOT_ID, {id: '1'}),
           payload,
           defaultOptions,
         );
@@ -684,11 +661,7 @@ const {ROOT_ID, ROOT_TYPE} = require('../RelayStoreUtils');
         recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
         const {moduleImportPayloads} = normalize(
           recordSource,
-          {
-            dataID: ROOT_ID,
-            node: BarQuery.operation,
-            variables: {id: '1'},
-          },
+          createReaderSelector(BarQuery.operation, ROOT_ID, {id: '1'}),
           payload,
           defaultOptions,
         );
@@ -758,11 +731,7 @@ const {ROOT_ID, ROOT_TYPE} = require('../RelayStoreUtils');
         recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
         const {moduleImportPayloads} = normalize(
           recordSource,
-          {
-            dataID: ROOT_ID,
-            node: BarQuery.operation,
-            variables: {id: '1'},
-          },
+          createReaderSelector(BarQuery.operation, ROOT_ID, {id: '1'}),
           payload,
           // simulate a nested @match that appeared, validate that nested payload
           // path is prefixed with this parent path:
@@ -829,11 +798,7 @@ const {ROOT_ID, ROOT_TYPE} = require('../RelayStoreUtils');
         recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
         normalize(
           recordSource,
-          {
-            dataID: ROOT_ID,
-            node: BarQuery.operation,
-            variables: {id: '1'},
-          },
+          createReaderSelector(BarQuery.operation, ROOT_ID, {id: '1'}),
           payload,
           defaultOptions,
         );
@@ -887,11 +852,10 @@ const {ROOT_ID, ROOT_TYPE} = require('../RelayStoreUtils');
         recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
         const {incrementalPlaceholders} = normalize(
           recordSource,
-          {
-            dataID: ROOT_ID,
-            node: Query.operation,
-            variables: {id: '1', enableDefer: false},
-          },
+          createReaderSelector(Query.operation, ROOT_ID, {
+            id: '1',
+            enableDefer: false,
+          }),
           payload,
           defaultOptions,
         );
@@ -937,11 +901,7 @@ const {ROOT_ID, ROOT_TYPE} = require('../RelayStoreUtils');
         recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
         const {incrementalPlaceholders} = normalize(
           recordSource,
-          {
-            dataID: ROOT_ID,
-            node: Query.operation,
-            variables: {id: '1'},
-          },
+          createReaderSelector(Query.operation, ROOT_ID, {id: '1'}),
           payload,
           defaultOptions,
         );
@@ -950,11 +910,11 @@ const {ROOT_ID, ROOT_TYPE} = require('../RelayStoreUtils');
             kind: 'defer',
             label: 'Query$defer$TestFragment',
             path: ['node'],
-            selector: {
-              dataID: '1',
-              variables: {id: '1'},
-              node: expect.objectContaining({kind: 'Defer'}),
-            },
+            selector: createReaderSelector(
+              expect.objectContaining({kind: 'Defer'}),
+              '1',
+              {id: '1'},
+            ),
             typeName: 'User',
           },
         ]);
@@ -999,11 +959,10 @@ const {ROOT_ID, ROOT_TYPE} = require('../RelayStoreUtils');
         recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
         const {incrementalPlaceholders} = normalize(
           recordSource,
-          {
-            dataID: ROOT_ID,
-            node: Query.operation,
-            variables: {id: '1', enableDefer: true},
-          },
+          createReaderSelector(Query.operation, ROOT_ID, {
+            id: '1',
+            enableDefer: true,
+          }),
           payload,
           defaultOptions,
         );
@@ -1012,11 +971,11 @@ const {ROOT_ID, ROOT_TYPE} = require('../RelayStoreUtils');
             kind: 'defer',
             label: 'Query$defer$TestFragment',
             path: ['node'],
-            selector: {
-              dataID: '1',
-              variables: {id: '1', enableDefer: true},
-              node: expect.objectContaining({kind: 'Defer'}),
-            },
+            selector: createReaderSelector(
+              expect.objectContaining({kind: 'Defer'}),
+              '1',
+              {id: '1', enableDefer: true},
+            ),
             typeName: 'User',
           },
         ]);
@@ -1067,11 +1026,7 @@ const {ROOT_ID, ROOT_TYPE} = require('../RelayStoreUtils');
         recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
         const {incrementalPlaceholders} = normalize(
           recordSource,
-          {
-            dataID: ROOT_ID,
-            node: Query.operation,
-            variables: {id: '1'},
-          },
+          createReaderSelector(Query.operation, ROOT_ID, {id: '1'}),
           payload,
           defaultOptions,
         );
@@ -1080,22 +1035,22 @@ const {ROOT_ID, ROOT_TYPE} = require('../RelayStoreUtils');
             kind: 'defer',
             label: 'Query$defer$TestFragment',
             path: ['node', 'actors', '0'],
-            selector: {
-              dataID: '2',
-              variables: {id: '1'},
-              node: expect.objectContaining({kind: 'Defer'}),
-            },
+            selector: createReaderSelector(
+              expect.objectContaining({kind: 'Defer'}),
+              '2',
+              {id: '1'},
+            ),
             typeName: 'User',
           },
           {
             kind: 'defer',
             label: 'Query$defer$TestFragment',
             path: ['node', 'actors', '1'],
-            selector: {
-              dataID: '3',
-              variables: {id: '1'},
-              node: expect.objectContaining({kind: 'Defer'}),
-            },
+            selector: createReaderSelector(
+              expect.objectContaining({kind: 'Defer'}),
+              '3',
+              {id: '1'},
+            ),
             typeName: 'User',
           },
         ]);
@@ -1151,11 +1106,7 @@ const {ROOT_ID, ROOT_TYPE} = require('../RelayStoreUtils');
         recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
         const {incrementalPlaceholders} = normalize(
           recordSource,
-          {
-            dataID: ROOT_ID,
-            node: Query.operation,
-            variables: {id: '1'},
-          },
+          createReaderSelector(Query.operation, ROOT_ID, {id: '1'}),
           payload,
           // simulate a nested defer payload, verify that the incrementalPlaceholders
           // paths are prefixed with this parent path
@@ -1166,11 +1117,11 @@ const {ROOT_ID, ROOT_TYPE} = require('../RelayStoreUtils');
             kind: 'defer',
             label: 'Query$defer$TestFragment',
             path: ['abc', '0', 'xyz', 'node'],
-            selector: {
-              dataID: '1',
-              variables: {id: '1'},
-              node: expect.objectContaining({kind: 'Defer'}),
-            },
+            selector: createReaderSelector(
+              expect.objectContaining({kind: 'Defer'}),
+              '1',
+              {id: '1'},
+            ),
             typeName: 'User',
           },
         ]);
@@ -1206,11 +1157,10 @@ const {ROOT_ID, ROOT_TYPE} = require('../RelayStoreUtils');
         recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
         const {incrementalPlaceholders} = normalize(
           recordSource,
-          {
-            dataID: ROOT_ID,
-            node: Query.operation,
-            variables: {id: '1', enableStream: false},
-          },
+          createReaderSelector(Query.operation, ROOT_ID, {
+            id: '1',
+            enableStream: false,
+          }),
           payload,
           defaultOptions,
         );
@@ -1264,11 +1214,7 @@ const {ROOT_ID, ROOT_TYPE} = require('../RelayStoreUtils');
         recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
         const {incrementalPlaceholders} = normalize(
           recordSource,
-          {
-            dataID: ROOT_ID,
-            node: Query.operation,
-            variables: {id: '1'},
-          },
+          createReaderSelector(Query.operation, ROOT_ID, {id: '1'}),
           payload,
           defaultOptions,
         );
@@ -1331,11 +1277,10 @@ const {ROOT_ID, ROOT_TYPE} = require('../RelayStoreUtils');
         recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
         const {incrementalPlaceholders} = normalize(
           recordSource,
-          {
-            dataID: ROOT_ID,
-            node: Query.operation,
-            variables: {id: '1', enableStream: true},
-          },
+          createReaderSelector(Query.operation, ROOT_ID, {
+            id: '1',
+            enableStream: true,
+          }),
           payload,
           defaultOptions,
         );
@@ -1406,11 +1351,7 @@ const {ROOT_ID, ROOT_TYPE} = require('../RelayStoreUtils');
         recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
         const {incrementalPlaceholders} = normalize(
           recordSource,
-          {
-            dataID: ROOT_ID,
-            node: Query.operation,
-            variables: {id: '1'},
-          },
+          createReaderSelector(Query.operation, ROOT_ID, {id: '1'}),
           payload,
           defaultOptions,
         );
@@ -1489,11 +1430,7 @@ const {ROOT_ID, ROOT_TYPE} = require('../RelayStoreUtils');
         recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
         const {incrementalPlaceholders} = normalize(
           recordSource,
-          {
-            dataID: ROOT_ID,
-            node: Query.operation,
-            variables: {id: '1'},
-          },
+          createReaderSelector(Query.operation, ROOT_ID, {id: '1'}),
           payload,
           // simulate a nested @match that appeared, validate that nested payload
           // path is prefixed with this parent path:
@@ -1568,11 +1505,10 @@ const {ROOT_ID, ROOT_TYPE} = require('../RelayStoreUtils');
         });
         normalize(
           recordSource,
-          {
-            dataID: ROOT_ID,
-            node: StrippedQuery.operation,
-            variables: {id: '1', size: 32},
-          },
+          createReaderSelector(StrippedQuery.operation, ROOT_ID, {
+            id: '1',
+            size: 32,
+          }),
           payload,
           defaultOptions,
         );
@@ -1593,11 +1529,10 @@ const {ROOT_ID, ROOT_TYPE} = require('../RelayStoreUtils');
         expect(recordSource.toJSON()).toEqual(result);
         normalize(
           recordSource,
-          {
-            dataID: ROOT_ID,
-            node: StrippedQuery.operation,
-            variables: {id: '1', size: 32},
-          },
+          createReaderSelector(StrippedQuery.operation, ROOT_ID, {
+            id: '1',
+            size: 32,
+          }),
           payload,
           defaultOptions,
         );
@@ -1620,11 +1555,10 @@ const {ROOT_ID, ROOT_TYPE} = require('../RelayStoreUtils');
         });
         normalize(
           recordSource,
-          {
-            dataID: ROOT_ID,
-            node: StrippedQuery.operation,
-            variables: {id: '1', size: 32},
-          },
+          createReaderSelector(StrippedQuery.operation, ROOT_ID, {
+            id: '1',
+            size: 32,
+          }),
           payload,
           defaultOptions,
         );
@@ -1644,11 +1578,10 @@ const {ROOT_ID, ROOT_TYPE} = require('../RelayStoreUtils');
         expect(recordSource.toJSON()).toEqual(result);
         normalize(
           recordSource,
-          {
-            dataID: ROOT_ID,
-            node: StrippedQuery.operation,
-            variables: {id: '1', size: 32},
-          },
+          createReaderSelector(StrippedQuery.operation, ROOT_ID, {
+            id: '1',
+            size: 32,
+          }),
           payload,
           defaultOptions,
         );
@@ -1686,11 +1619,10 @@ const {ROOT_ID, ROOT_TYPE} = require('../RelayStoreUtils');
         });
         normalize(
           recordSource,
-          {
-            dataID: ROOT_ID,
-            node: StrippedQuery.operation,
-            variables: {id: '1', size: 32},
-          },
+          createReaderSelector(StrippedQuery.operation, ROOT_ID, {
+            id: '1',
+            size: 32,
+          }),
           payload,
           defaultOptions,
         );
@@ -1725,11 +1657,10 @@ const {ROOT_ID, ROOT_TYPE} = require('../RelayStoreUtils');
         expect(recordSource.toJSON()).toEqual(result);
         normalize(
           recordSource,
-          {
-            dataID: ROOT_ID,
-            node: StrippedQuery.operation,
-            variables: {id: '1', size: 32},
-          },
+          createReaderSelector(StrippedQuery.operation, ROOT_ID, {
+            id: '1',
+            size: 32,
+          }),
           payload,
           defaultOptions,
         );
@@ -1759,11 +1690,10 @@ const {ROOT_ID, ROOT_TYPE} = require('../RelayStoreUtils');
         });
         normalize(
           recordSource,
-          {
-            dataID: ROOT_ID,
-            node: StrippedQuery.operation,
-            variables: {id: '1', size: 32},
-          },
+          createReaderSelector(StrippedQuery.operation, ROOT_ID, {
+            id: '1',
+            size: 32,
+          }),
           payload,
           defaultOptions,
         );
@@ -1790,11 +1720,10 @@ const {ROOT_ID, ROOT_TYPE} = require('../RelayStoreUtils');
         expect(recordSource.toJSON()).toEqual(result);
         normalize(
           recordSource,
-          {
-            dataID: ROOT_ID,
-            node: StrippedQuery.operation,
-            variables: {id: '1', size: 32},
-          },
+          createReaderSelector(StrippedQuery.operation, ROOT_ID, {
+            id: '1',
+            size: 32,
+          }),
           payload,
           defaultOptions,
         );
@@ -1896,11 +1825,7 @@ const {ROOT_ID, ROOT_TYPE} = require('../RelayStoreUtils');
           };
           normalize(
             recordSource,
-            {
-              dataID: ROOT_ID,
-              node: Foo.operation,
-              variables: {id: '1'},
-            },
+            createReaderSelector(Foo.operation, ROOT_ID, {id: '1'}),
             fooPayload,
             {getDataID},
           );
@@ -1970,21 +1895,13 @@ const {ROOT_ID, ROOT_TYPE} = require('../RelayStoreUtils');
           };
           normalize(
             recordSource,
-            {
-              dataID: ROOT_ID,
-              node: Foo.operation,
-              variables: {id: '1'},
-            },
+            createReaderSelector(Foo.operation, ROOT_ID, {id: '1'}),
             fooPayload0,
             {getDataID},
           );
           normalize(
             recordSource,
-            {
-              dataID: ROOT_ID,
-              node: Foo.operation,
-              variables: {id: '1'},
-            },
+            createReaderSelector(Foo.operation, ROOT_ID, {id: '1'}),
             fooPayload1,
             {getDataID},
           );
@@ -2022,11 +1939,7 @@ const {ROOT_ID, ROOT_TYPE} = require('../RelayStoreUtils');
         it('stores user-defined id when function returns an string', () => {
           normalize(
             recordSource,
-            {
-              dataID: ROOT_ID,
-              node: BarQuery.operation,
-              variables: {id: '1'},
-            },
+            createReaderSelector(BarQuery.operation, ROOT_ID, {id: '1'}),
             payload,
             {getDataID},
           );
@@ -2093,11 +2006,7 @@ const {ROOT_ID, ROOT_TYPE} = require('../RelayStoreUtils');
           recordSource = new RecordSourceImpl(previousData);
           normalize(
             recordSource,
-            {
-              dataID: ROOT_ID,
-              node: BarQuery.operation,
-              variables: {id: '1'},
-            },
+            createReaderSelector(BarQuery.operation, ROOT_ID, {id: '1'}),
             payload,
             {getDataID: getNullAsDataID},
           );
@@ -2108,11 +2017,7 @@ const {ROOT_ID, ROOT_TYPE} = require('../RelayStoreUtils');
         it('falls through to generateClientID when the function returns null, and no previously generated ID', () => {
           normalize(
             recordSource,
-            {
-              dataID: ROOT_ID,
-              node: BarQuery.operation,
-              variables: {id: '1'},
-            },
+            createReaderSelector(BarQuery.operation, ROOT_ID, {id: '1'}),
             payload,
             {getDataID: getNullAsDataID},
           );
@@ -2187,11 +2092,7 @@ const {ROOT_ID, ROOT_TYPE} = require('../RelayStoreUtils');
         it('stores user-defined ids when function returns an string', () => {
           normalize(
             recordSource,
-            {
-              dataID: ROOT_ID,
-              node: BarQuery.operation,
-              variables: {id: '1'},
-            },
+            createReaderSelector(BarQuery.operation, ROOT_ID, {id: '1'}),
             payload,
             {getDataID},
           );
@@ -2260,11 +2161,7 @@ const {ROOT_ID, ROOT_TYPE} = require('../RelayStoreUtils');
           const expectedData = JSON.parse(JSON.stringify(previousData));
           normalize(
             recordSource,
-            {
-              dataID: ROOT_ID,
-              node: BarQuery.operation,
-              variables: {id: '1'},
-            },
+            createReaderSelector(BarQuery.operation, ROOT_ID, {id: '1'}),
             payload,
             {getDataID: getNullAsDataID},
           );
@@ -2298,11 +2195,7 @@ const {ROOT_ID, ROOT_TYPE} = require('../RelayStoreUtils');
           recordSource = new RecordSourceImpl(data);
           normalize(
             recordSource,
-            {
-              dataID: ROOT_ID,
-              node: BarQuery.operation,
-              variables: {id: '1'},
-            },
+            createReaderSelector(BarQuery.operation, ROOT_ID, {id: '1'}),
             payload,
             {getDataID: getNullAsDataID},
           );
@@ -2329,11 +2222,7 @@ const {ROOT_ID, ROOT_TYPE} = require('../RelayStoreUtils');
         it('falls through to generateClientID when the function returns null and no preiously generated IDs', () => {
           normalize(
             recordSource,
-            {
-              dataID: ROOT_ID,
-              node: BarQuery.operation,
-              variables: {id: '1'},
-            },
+            createReaderSelector(BarQuery.operation, ROOT_ID, {id: '1'}),
             payload,
             {getDataID: getNullAsDataID},
           );
@@ -2416,21 +2305,13 @@ const {ROOT_ID, ROOT_TYPE} = require('../RelayStoreUtils');
           };
           normalize(
             recordSource,
-            {
-              dataID: ROOT_ID,
-              node: Foo.operation,
-              variables: {id: '1'},
-            },
+            createReaderSelector(Foo.operation, ROOT_ID, {id: '1'}),
             payload0,
             {getDataID},
           );
           normalize(
             recordSource,
-            {
-              dataID: ROOT_ID,
-              node: Foo.operation,
-              variables: {id: '1'},
-            },
+            createReaderSelector(Foo.operation, ROOT_ID, {id: '1'}),
             payload1,
             {getDataID},
           );
@@ -2500,11 +2381,7 @@ const {ROOT_ID, ROOT_TYPE} = require('../RelayStoreUtils');
       expect(() => {
         normalize(
           recordSource,
-          {
-            dataID: ROOT_ID,
-            node: BarQuery.operation,
-            variables: {id: '1'},
-          },
+          createReaderSelector(BarQuery.operation, ROOT_ID, {id: '1'}),
           payload,
           defaultOptions,
         );
@@ -2541,11 +2418,7 @@ const {ROOT_ID, ROOT_TYPE} = require('../RelayStoreUtils');
       expect(() => {
         normalize(
           recordSource,
-          {
-            dataID: ROOT_ID,
-            node: BarQuery.operation,
-            variables: {},
-          },
+          createReaderSelector(BarQuery.operation, ROOT_ID, {}),
           payload,
           defaultOptions,
         );
@@ -2602,11 +2475,7 @@ const {ROOT_ID, ROOT_TYPE} = require('../RelayStoreUtils');
       expect(() => {
         normalize(
           recordSource,
-          {
-            dataID: ROOT_ID,
-            node: BarQuery.operation,
-            variables: {id: '1'},
-          },
+          createReaderSelector(BarQuery.operation, ROOT_ID, {id: '1'}),
           payload,
           defaultOptions,
         );
@@ -2623,11 +2492,7 @@ const {ROOT_ID, ROOT_TYPE} = require('../RelayStoreUtils');
       expect(() => {
         normalize(
           recordSource,
-          {
-            dataID: ROOT_ID,
-            node: BarQuery.operation,
-            variables: {id: '1'},
-          },
+          createReaderSelector(BarQuery.operation, ROOT_ID, {id: '1'}),
           payload,
           defaultOptions,
         );
@@ -2687,11 +2552,7 @@ const {ROOT_ID, ROOT_TYPE} = require('../RelayStoreUtils');
       expect(() => {
         normalize(
           recordSource,
-          {
-            dataID: ROOT_ID,
-            node: BarQuery.operation,
-            variables: {id: '1'},
-          },
+          createReaderSelector(BarQuery.operation, ROOT_ID, {id: '1'}),
           payload,
           defaultOptions,
         );
@@ -2699,11 +2560,7 @@ const {ROOT_ID, ROOT_TYPE} = require('../RelayStoreUtils');
       expect(() => {
         normalize(
           recordSource,
-          {
-            dataID: ROOT_ID,
-            node: BarQuery.operation,
-            variables: {id: '1'},
-          },
+          createReaderSelector(BarQuery.operation, ROOT_ID, {id: '1'}),
           payload,
           defaultOptions,
         );
@@ -2738,11 +2595,10 @@ const {ROOT_ID, ROOT_TYPE} = require('../RelayStoreUtils');
       recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
       normalize(
         recordSource,
-        {
-          dataID: ROOT_ID,
-          node: StrippedQuery.operation,
-          variables: {id: '1', size: 32},
-        },
+        createReaderSelector(StrippedQuery.operation, ROOT_ID, {
+          id: '1',
+          size: 32,
+        }),
         payload,
         defaultOptions,
       );

@@ -18,6 +18,7 @@ const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
 const RelayRecordSource = require('../RelayRecordSource');
 
+const {createReaderSelector} = require('../RelayModernSelector');
 const {VIEWER_ID} = require('../ViewerPattern');
 const {generateAndCompile} = require('relay-test-utils-internal');
 
@@ -106,11 +107,7 @@ describe('execute() a query with nested @stream', () => {
       `));
     variables = {enableStream: true};
     operation = createOperationDescriptor(query, variables);
-    selector = {
-      dataID: VIEWER_ID,
-      node: feedFragment,
-      variables,
-    };
+    selector = createReaderSelector(feedFragment, VIEWER_ID, variables);
 
     const NameHandler = {
       update(storeProxy, payload) {
@@ -317,11 +314,7 @@ describe('execute() a query with nested @stream', () => {
 
     // but the streamed entity is added to the store
     const actorSnapshot = environment.lookup(
-      {
-        dataID: 'user-1',
-        node: actorFragment,
-        variables: {},
-      },
+      createReaderSelector(actorFragment, 'user-1', {}),
       operation,
     );
     expect(actorSnapshot.isMissingData).toBe(false);
@@ -374,11 +367,7 @@ describe('execute() a query with nested @stream', () => {
 
     // but the streamed entity is added to the store
     const actorSnapshot = environment.lookup(
-      {
-        dataID: 'user-1',
-        node: actorFragment,
-        variables: {},
-      },
+      createReaderSelector(actorFragment, 'user-1', {}),
       operation,
     );
     expect(actorSnapshot.isMissingData).toBe(false);
@@ -445,11 +434,7 @@ describe('execute() a query with nested @stream', () => {
 
       // but the streamed entity is added to the store
       const actorSnapshot = environment.lookup(
-        {
-          dataID: 'user-1',
-          node: actorFragment,
-          variables: {},
-        },
+        createReaderSelector(actorFragment, 'user-1', {}),
         operation,
       );
       expect(actorSnapshot.isMissingData).toBe(false);
@@ -517,11 +502,7 @@ describe('execute() a query with nested @stream', () => {
 
       // but the streamed entity is added to the store
       const actorSnapshot = environment.lookup(
-        {
-          dataID: 'user-2',
-          node: actorFragment,
-          variables: {},
-        },
+        createReaderSelector(actorFragment, 'user-2', {}),
         operation,
       );
       expect(actorSnapshot.isMissingData).toBe(false);

@@ -18,6 +18,7 @@ const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
 const RelayRecordSource = require('../RelayRecordSource');
 
+const {createReaderSelector} = require('../RelayModernSelector');
 const {generateAndCompile} = require('relay-test-utils-internal');
 
 function createOperationDescriptor(...args) {
@@ -158,20 +159,12 @@ describe('execute() a query with @defer', () => {
       store,
     });
 
-    const userSelector = {
-      dataID: '1',
-      node: fragment,
-      variables: {},
-    };
+    const userSelector = createReaderSelector(fragment, '1', {});
     const userSnapshot = environment.lookup(userSelector, operation);
     userCallback = jest.fn();
     environment.subscribe(userSnapshot, userCallback);
 
-    const actorSelector = {
-      dataID: '2',
-      node: fragment,
-      variables: {},
-    };
+    const actorSelector = createReaderSelector(fragment, '2', {});
     const actorSnapshot = environment.lookup(actorSelector, operation);
     actorCallback = jest.fn();
     environment.subscribe(actorSnapshot, actorCallback);

@@ -24,6 +24,9 @@ const defaultGetDataID = require('../../../store/defaultGetDataID');
 const getRelayHandleKey = require('../../../util/getRelayHandleKey');
 
 const {
+  createNormalizationSelector,
+} = require('../../../store/RelayModernSelector');
+const {
   generateWithTransforms,
   simpleClone,
 } = require('relay-test-utils-internal');
@@ -59,11 +62,11 @@ const {
     function normalize(payload, variables, options) {
       RelayResponseNormalizer.normalize(
         baseSource,
-        {
-          dataID: ROOT_ID,
-          node: ConnectionQuery.operation,
+        createNormalizationSelector(
+          ConnectionQuery.operation,
+          ROOT_ID,
           variables,
-        },
+        ),
         payload,
         options ?? {
           getDataID: defaultGetDataID,

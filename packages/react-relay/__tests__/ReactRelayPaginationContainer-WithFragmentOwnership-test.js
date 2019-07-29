@@ -17,8 +17,10 @@ const ReactRelayPaginationContainer = require('../ReactRelayPaginationContainer'
 const ReactTestRenderer = require('ReactTestRenderer');
 
 const {
-  createOperationDescriptor,
   ConnectionHandler,
+  createNormalizationSelector,
+  createOperationDescriptor,
+  createReaderSelector,
   ROOT_ID,
 } = require('relay-runtime');
 const {
@@ -85,17 +87,9 @@ describe('ReactRelayPaginationContainer with fragment ownership', () => {
 
   function createOwnerWithUnalteredVariables(request, vars) {
     return {
-      fragment: {
-        dataID: ROOT_ID,
-        node: request.fragment,
-        variables: vars,
-      },
+      fragment: createReaderSelector(request.fragment, ROOT_ID, vars),
       node: request,
-      root: {
-        dataID: ROOT_ID,
-        node: request.operation,
-        variables: vars,
-      },
+      root: createNormalizationSelector(request.operation, ROOT_ID, vars),
       variables: vars,
     };
   }

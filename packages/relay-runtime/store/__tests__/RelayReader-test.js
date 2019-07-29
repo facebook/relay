@@ -14,6 +14,7 @@ const RelayModernOperationDescriptor = require('../RelayModernOperationDescripto
 const RelayRecordSource = require('../RelayRecordSource');
 
 const {getRequest} = require('../../query/RelayModernGraphQLTag');
+const {createReaderSelector} = require('../RelayModernSelector');
 const {read} = require('../RelayReader');
 const {ROOT_ID} = require('../RelayStoreUtils');
 const {
@@ -131,11 +132,10 @@ describe('RelayReader', () => {
         }
       }
     `);
-    const {data, seenRecords} = read(source, {
-      dataID: ROOT_ID,
-      node: FooQuery.fragment,
-      variables: {id: '1', size: 32},
-    });
+    const {data, seenRecords} = read(
+      source,
+      createReaderSelector(FooQuery.fragment, ROOT_ID, {id: '1', size: 32}),
+    );
     expect(data).toEqual({
       node: {
         id: '1',
@@ -198,11 +198,10 @@ describe('RelayReader', () => {
         }
       }
     `);
-    const {data, seenRecords} = read(source, {
-      dataID: '1',
-      node: BarFragment,
-      variables: {size: 32},
-    });
+    const {data, seenRecords} = read(
+      source,
+      createReaderSelector(BarFragment, '1', {size: 32}),
+    );
     expect(data).toEqual({
       id: '1',
       firstName: 'Alice',
@@ -265,11 +264,7 @@ describe('RelayReader', () => {
     const owner = createOperationDescriptor(queryNode, {size: 42});
     const {data, seenRecords} = read(
       source,
-      {
-        dataID: '1',
-        node: UserProfile,
-        variables: {size: 42},
-      },
+      createReaderSelector(UserProfile, '1', {size: 42}),
       owner,
     );
     expect(data).toEqual({
@@ -311,11 +306,7 @@ describe('RelayReader', () => {
     const owner = createOperationDescriptor(UserQuery, {});
     const {data, seenRecords} = read(
       source,
-      {
-        dataID: '1',
-        node: UserProfile,
-        variables: {size: 42},
-      },
+      createReaderSelector(UserProfile, '1', {size: 42}),
       owner,
     );
     expect(data).toEqual({
@@ -356,11 +347,7 @@ describe('RelayReader', () => {
     const owner = createOperationDescriptor(UserQuery, {});
     const {data, seenRecords} = read(
       source,
-      {
-        dataID: '1',
-        node: UserProfile,
-        variables: {},
-      },
+      createReaderSelector(UserProfile, '1', {}),
       owner,
     );
     expect(data).toEqual({
@@ -389,11 +376,10 @@ describe('RelayReader', () => {
           }
         }
       `);
-      const {data, seenRecords} = read(source, {
-        dataID: '1',
-        node: UserProfile,
-        variables: {},
-      });
+      const {data, seenRecords} = read(
+        source,
+        createReaderSelector(UserProfile, '1', {}),
+      );
       expect(data).toEqual({
         id: '1',
         __id: '1',
@@ -514,11 +500,10 @@ describe('RelayReader', () => {
     `);
     source = RelayRecordSource.create();
     source.delete('4');
-    const {data, seenRecords} = read(source, {
-      dataID: '4',
-      node: UserProfile,
-      variables: {},
-    });
+    const {data, seenRecords} = read(
+      source,
+      createReaderSelector(UserProfile, '4', {}),
+    );
     expect(data).toBe(null);
     expect(Object.keys(seenRecords)).toEqual(['4']);
   });
@@ -530,11 +515,10 @@ describe('RelayReader', () => {
       }
     `);
     source = RelayRecordSource.create();
-    const {data, seenRecords} = read(source, {
-      dataID: '4',
-      node: UserProfile,
-      variables: {},
-    });
+    const {data, seenRecords} = read(
+      source,
+      createReaderSelector(UserProfile, '4', {}),
+    );
     expect(data).toBe(undefined);
     expect(Object.keys(seenRecords)).toEqual(['4']);
   });
@@ -589,11 +573,10 @@ describe('RelayReader', () => {
         }
       }
     `);
-    const {data, seenRecords} = read(source, {
-      dataID: ROOT_ID,
-      node: UserFriends.fragment,
-      variables: {id: '1'},
-    });
+    const {data, seenRecords} = read(
+      source,
+      createReaderSelector(UserFriends.fragment, ROOT_ID, {id: '1'}),
+    );
     expect(data).toEqual({
       node: {
         friends: {
@@ -659,11 +642,10 @@ describe('RelayReader', () => {
         }
       }
     `);
-    const {data, seenRecords} = read(source, {
-      dataID: '1',
-      node: UserFriends,
-      variables: {},
-    });
+    const {data, seenRecords} = read(
+      source,
+      createReaderSelector(UserFriends, '1', {}),
+    );
     expect(data).toEqual({
       friends: {
         edges: [
@@ -750,11 +732,7 @@ describe('RelayReader', () => {
       const owner = createOperationDescriptor(BarQuery, {});
       const {data, seenRecords, isMissingData} = read(
         source,
-        {
-          dataID: '1',
-          node: BarFragment,
-          variables: {},
-        },
+        createReaderSelector(BarFragment, '1', {}),
         owner,
       );
       expect(data).toEqual({
@@ -808,11 +786,7 @@ describe('RelayReader', () => {
       const owner = createOperationDescriptor(BarQuery, {});
       const {data, seenRecords, isMissingData} = read(
         source,
-        {
-          dataID: '1',
-          node: BarFragment,
-          variables: {},
-        },
+        createReaderSelector(BarFragment, '1', {}),
         owner,
       );
       expect(data).toEqual({
@@ -859,11 +833,10 @@ describe('RelayReader', () => {
         },
       };
       source = RelayRecordSource.create(storeData);
-      const {data, seenRecords, isMissingData} = read(source, {
-        dataID: '1',
-        node: BarFragment,
-        variables: {},
-      });
+      const {data, seenRecords, isMissingData} = read(
+        source,
+        createReaderSelector(BarFragment, '1', {}),
+      );
       expect(data).toEqual({
         id: '1',
         nameRenderer: {}, // type doesn't match selections, no data provided
@@ -890,11 +863,10 @@ describe('RelayReader', () => {
         },
       };
       source = RelayRecordSource.create(storeData);
-      const {data, seenRecords, isMissingData} = read(source, {
-        dataID: '1',
-        node: BarFragment,
-        variables: {},
-      });
+      const {data, seenRecords, isMissingData} = read(
+        source,
+        createReaderSelector(BarFragment, '1', {}),
+      );
       expect(data).toEqual({
         id: '1',
         nameRenderer: null,
@@ -917,11 +889,10 @@ describe('RelayReader', () => {
         },
       };
       source = RelayRecordSource.create(storeData);
-      const {data, seenRecords, isMissingData} = read(source, {
-        dataID: '1',
-        node: BarFragment,
-        variables: {},
-      });
+      const {data, seenRecords, isMissingData} = read(
+        source,
+        createReaderSelector(BarFragment, '1', {}),
+      );
       expect(data).toEqual({
         id: '1',
         nameRenderer: undefined,
@@ -994,11 +965,7 @@ describe('RelayReader', () => {
       const owner = createOperationDescriptor(BarQuery, {});
       const {data, seenRecords, isMissingData} = read(
         source,
-        {
-          dataID: '1',
-          node: BarFragment,
-          variables: {},
-        },
+        createReaderSelector(BarFragment, '1', {}),
         owner,
       );
       expect(data).toEqual({
@@ -1046,11 +1013,7 @@ describe('RelayReader', () => {
       const owner = createOperationDescriptor(BarQuery, {});
       const {data, seenRecords, isMissingData} = read(
         source,
-        {
-          dataID: '1',
-          node: BarFragment,
-          variables: {},
-        },
+        createReaderSelector(BarFragment, '1', {}),
         owner,
       );
       expect(data).toEqual({
@@ -1091,11 +1054,10 @@ describe('RelayReader', () => {
         },
       };
       source = RelayRecordSource.create(storeData);
-      const {data, seenRecords, isMissingData} = read(source, {
-        dataID: '1',
-        node: BarFragment,
-        variables: {},
-      });
+      const {data, seenRecords, isMissingData} = read(
+        source,
+        createReaderSelector(BarFragment, '1', {}),
+      );
       expect(data).toEqual({
         id: '1',
         nameRenderer: {}, // type doesn't match selections, no data provided
@@ -1113,11 +1075,10 @@ describe('RelayReader', () => {
             id
           }
         `);
-        const {data, isMissingData} = read(source, {
-          dataID: '1',
-          node: UserProfile,
-          variables: {},
-        });
+        const {data, isMissingData} = read(
+          source,
+          createReaderSelector(UserProfile, '1', {}),
+        );
         expect(data.id).toBe('1');
         expect(isMissingData).toBe(false);
       });
@@ -1129,11 +1090,10 @@ describe('RelayReader', () => {
             username
           }
         `);
-        const {data, isMissingData} = read(source, {
-          dataID: '1',
-          node: UserProfile,
-          variables: {},
-        });
+        const {data, isMissingData} = read(
+          source,
+          createReaderSelector(UserProfile, '1', {}),
+        );
         expect(data.id).toBe('1');
         expect(data.username).not.toBeDefined();
         expect(isMissingData).toBe(true);
@@ -1150,13 +1110,12 @@ describe('RelayReader', () => {
             }
           }
         `);
-        const {data, isMissingData} = read(source, {
-          dataID: '1',
-          node: ProfilePicture,
-          variables: {
+        const {data, isMissingData} = read(
+          source,
+          createReaderSelector(ProfilePicture, '1', {
             size: 32,
-          },
-        });
+          }),
+        );
         expect(data.profilePicture.uri).toEqual('https://example.com/32.png');
         expect(isMissingData).toBe(false);
       });
@@ -1170,11 +1129,10 @@ describe('RelayReader', () => {
             }
           }
         `);
-        const {data, isMissingData} = read(source, {
-          dataID: '1',
-          node: Address,
-          variables: {},
-        });
+        const {data, isMissingData} = read(
+          source,
+          createReaderSelector(Address, '1', {}),
+        );
         expect(data.id).toBe('1');
         expect(data.address).not.toBeDefined();
         expect(isMissingData).toBe(true);
@@ -1189,13 +1147,12 @@ describe('RelayReader', () => {
             }
           }
         `);
-        const {data, isMissingData} = read(source, {
-          dataID: '1',
-          node: ProfilePicture,
-          variables: {
+        const {data, isMissingData} = read(
+          source,
+          createReaderSelector(ProfilePicture, '1', {
             size: 48,
-          },
-        });
+          }),
+        );
         expect(data.id).toBe('1');
         expect(data.profilePicture).not.toBeDefined();
         expect(isMissingData).toBe(true);
@@ -1280,11 +1237,10 @@ describe('RelayReader', () => {
             }
           }
         `);
-        const {data, isMissingData} = read(source, {
-          dataID: '1',
-          node: UserFriends,
-          variables: {},
-        });
+        const {data, isMissingData} = read(
+          source,
+          createReaderSelector(UserFriends, '1', {}),
+        );
         expect(data.friends.edges).toEqual([
           {
             cursor: 'cursor:2',
@@ -1318,11 +1274,10 @@ describe('RelayReader', () => {
             }
           }
         `);
-        const {data, isMissingData} = read(source, {
-          dataID: '1',
-          node: UserFriends,
-          variables: {},
-        });
+        const {data, isMissingData} = read(
+          source,
+          createReaderSelector(UserFriends, '1', {}),
+        );
         expect(data.friends.edges).toEqual([
           {
             cursor: 'cursor:2',
@@ -1355,11 +1310,10 @@ describe('RelayReader', () => {
             }
           }
         `);
-        const {data, isMissingData} = read(source, {
-          dataID: '2',
-          node: UserFriends,
-          variables: {},
-        });
+        const {data, isMissingData} = read(
+          source,
+          createReaderSelector(UserFriends, '2', {}),
+        );
         expect(data.id).toBe('2');
         expect(data.friends.edges).not.toBeDefined();
         expect(isMissingData).toBe(true);
@@ -1379,11 +1333,10 @@ describe('RelayReader', () => {
             }
           }
         `);
-        const {data, isMissingData} = read(source, {
-          dataID: '3',
-          node: UserFriends,
-          variables: {},
-        });
+        const {data, isMissingData} = read(
+          source,
+          createReaderSelector(UserFriends, '3', {}),
+        );
         expect(data.id).toBe('3');
         expect(data.friends.edges).toEqual([undefined]);
         expect(isMissingData).toBe(true);
@@ -1462,11 +1415,10 @@ describe('RelayReader', () => {
           }
         `,
         );
-        const {data, isMissingData} = read(source, {
-          dataID: '1',
-          node: UserProfile,
-          variables: {},
-        });
+        const {data, isMissingData} = read(
+          source,
+          createReaderSelector(UserProfile, '1', {}),
+        );
         expect(data.id).toBe('1');
         expect(isMissingData).toBe(false);
       });

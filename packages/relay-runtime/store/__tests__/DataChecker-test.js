@@ -18,6 +18,7 @@ const defaultGetDataID = require('../defaultGetDataID');
 const getRelayHandleKey = require('../../util/getRelayHandleKey');
 
 const {check} = require('../DataChecker');
+const {createNormalizationSelector} = require('../RelayModernSelector');
 const {ROOT_ID} = require('../RelayStoreUtils');
 const {generateAndCompile} = require('relay-test-utils-internal');
 
@@ -118,11 +119,7 @@ describe('check()', () => {
     const status = check(
       source,
       target,
-      {
-        dataID: ROOT_ID,
-        node: Query.fragment,
-        variables: {id: '1', size: 32},
-      },
+      createNormalizationSelector(Query.fragment, ROOT_ID, {id: '1', size: 32}),
       [],
       null,
       defaultGetDataID,
@@ -193,11 +190,7 @@ describe('check()', () => {
     const status = check(
       source,
       target,
-      {
-        dataID: '1',
-        node: BarFragment,
-        variables: {size: 32},
-      },
+      createNormalizationSelector(BarFragment, '1', {size: 32}),
       [],
       null,
       defaultGetDataID,
@@ -241,11 +234,7 @@ describe('check()', () => {
     const status = check(
       source,
       target,
-      {
-        dataID: '1',
-        node: Fragment,
-        variables: {},
-      },
+      createNormalizationSelector(Fragment, '1', {}),
       [],
       null,
       defaultGetDataID,
@@ -341,11 +330,9 @@ describe('check()', () => {
       const status = check(
         source,
         target,
-        {
-          dataID: 'client:root',
-          node: BarQuery.operation,
-          variables: {id: '1'},
-        },
+        createNormalizationSelector(BarQuery.operation, 'client:root', {
+          id: '1',
+        }),
         [],
         loader,
         defaultGetDataID,
@@ -397,11 +384,9 @@ describe('check()', () => {
       const status = check(
         source,
         target,
-        {
-          dataID: 'client:root',
-          node: BarQuery.operation,
-          variables: {id: '1'},
-        },
+        createNormalizationSelector(BarQuery.operation, 'client:root', {
+          id: '1',
+        }),
         [],
         loader,
         defaultGetDataID,
@@ -441,11 +426,9 @@ describe('check()', () => {
       const status = check(
         source,
         target,
-        {
-          dataID: 'client:root',
-          node: BarQuery.operation,
-          variables: {id: '1'},
-        },
+        createNormalizationSelector(BarQuery.operation, 'client:root', {
+          id: '1',
+        }),
         [],
         // Return null to indicate the fragment is not loaded yet
         {
@@ -495,11 +478,9 @@ describe('check()', () => {
       const status = check(
         source,
         target,
-        {
-          dataID: 'client:root',
-          node: BarQuery.operation,
-          variables: {id: '1'},
-        },
+        createNormalizationSelector(BarQuery.operation, 'client:root', {
+          id: '1',
+        }),
         [],
         loader,
         defaultGetDataID,
@@ -539,11 +520,9 @@ describe('check()', () => {
       const status = check(
         source,
         target,
-        {
-          dataID: 'client:root',
-          node: BarQuery.operation,
-          variables: {id: '1'},
-        },
+        createNormalizationSelector(BarQuery.operation, 'client:root', {
+          id: '1',
+        }),
         [],
         loader,
         defaultGetDataID,
@@ -581,11 +560,9 @@ describe('check()', () => {
       const status = check(
         source,
         target,
-        {
-          dataID: 'client:root',
-          node: BarQuery.operation,
-          variables: {id: '1'},
-        },
+        createNormalizationSelector(BarQuery.operation, 'client:root', {
+          id: '1',
+        }),
         [],
         loader,
         defaultGetDataID,
@@ -613,11 +590,9 @@ describe('check()', () => {
       const status = check(
         source,
         target,
-        {
-          dataID: 'client:root',
-          node: BarQuery.operation,
-          variables: {id: '1'},
-        },
+        createNormalizationSelector(BarQuery.operation, 'client:root', {
+          id: '1',
+        }),
         [],
         loader,
         defaultGetDataID,
@@ -644,11 +619,9 @@ describe('check()', () => {
       const status = check(
         source,
         target,
-        {
-          dataID: 'client:root',
-          node: BarQuery.operation,
-          variables: {id: '1'},
-        },
+        createNormalizationSelector(BarQuery.operation, 'client:root', {
+          id: '1',
+        }),
         [],
         loader,
         defaultGetDataID,
@@ -743,11 +716,9 @@ describe('check()', () => {
       const status = check(
         source,
         target,
-        {
-          dataID: 'client:root',
-          node: BarQuery.operation,
-          variables: {id: '1'},
-        },
+        createNormalizationSelector(BarQuery.operation, 'client:root', {
+          id: '1',
+        }),
         [],
         loader,
         defaultGetDataID,
@@ -797,11 +768,9 @@ describe('check()', () => {
       const status = check(
         source,
         target,
-        {
-          dataID: 'client:root',
-          node: BarQuery.operation,
-          variables: {id: '1'},
-        },
+        createNormalizationSelector(BarQuery.operation, 'client:root', {
+          id: '1',
+        }),
         [],
         loader,
         defaultGetDataID,
@@ -839,11 +808,9 @@ describe('check()', () => {
       const status = check(
         source,
         target,
-        {
-          dataID: 'client:root',
-          node: BarQuery.operation,
-          variables: {id: '1'},
-        },
+        createNormalizationSelector(BarQuery.operation, 'client:root', {
+          id: '1',
+        }),
         [],
         // Return null to indicate the fragment is not loaded yet
         {
@@ -891,11 +858,9 @@ describe('check()', () => {
       const status = check(
         source,
         target,
-        {
-          dataID: 'client:root',
-          node: BarQuery.operation,
-          variables: {id: '1'},
-        },
+        createNormalizationSelector(BarQuery.operation, 'client:root', {
+          id: '1',
+        }),
         [],
         loader,
         defaultGetDataID,
@@ -933,11 +898,9 @@ describe('check()', () => {
       const status = check(
         source,
         target,
-        {
-          dataID: 'client:root',
-          node: BarQuery.operation,
-          variables: {id: '1'},
-        },
+        createNormalizationSelector(BarQuery.operation, 'client:root', {
+          id: '1',
+        }),
         [],
         loader,
         defaultGetDataID,
@@ -973,11 +936,9 @@ describe('check()', () => {
       const status = check(
         source,
         target,
-        {
-          dataID: 'client:root',
-          node: BarQuery.operation,
-          variables: {id: '1'},
-        },
+        createNormalizationSelector(BarQuery.operation, 'client:root', {
+          id: '1',
+        }),
         [],
         loader,
         defaultGetDataID,
@@ -1024,11 +985,7 @@ describe('check()', () => {
       const status = check(
         source,
         target,
-        {
-          dataID: 'client:root',
-          node: Query.operation,
-          variables: {id: '1'},
-        },
+        createNormalizationSelector(Query.operation, 'client:root', {id: '1'}),
         [],
         null,
         defaultGetDataID,
@@ -1056,11 +1013,7 @@ describe('check()', () => {
       const status = check(
         source,
         target,
-        {
-          dataID: 'client:root',
-          node: Query.operation,
-          variables: {id: '1'},
-        },
+        createNormalizationSelector(Query.operation, 'client:root', {id: '1'}),
         [],
         null,
         defaultGetDataID,
@@ -1115,11 +1068,7 @@ describe('check()', () => {
       const status = check(
         source,
         target,
-        {
-          dataID: 'client:root',
-          node: Query.operation,
-          variables: {id: '1'},
-        },
+        createNormalizationSelector(Query.operation, 'client:root', {id: '1'}),
         [],
         null,
         defaultGetDataID,
@@ -1153,11 +1102,7 @@ describe('check()', () => {
       const status = check(
         source,
         target,
-        {
-          dataID: 'client:root',
-          node: Query.operation,
-          variables: {id: '1'},
-        },
+        createNormalizationSelector(Query.operation, 'client:root', {id: '1'}),
         [],
         null,
         defaultGetDataID,
@@ -1174,11 +1119,10 @@ describe('check()', () => {
       const status = check(
         source,
         target,
-        {
-          dataID: ROOT_ID,
-          node: Query.fragment,
-          variables: {id: '1', size: 32},
-        },
+        createNormalizationSelector(Query.fragment, ROOT_ID, {
+          id: '1',
+          size: 32,
+        }),
         [],
         null,
         defaultGetDataID,
@@ -1218,11 +1162,7 @@ describe('check()', () => {
       const status = check(
         source,
         target,
-        {
-          dataID: '1',
-          node: BarFragment,
-          variables: {size: 32},
-        },
+        createNormalizationSelector(BarFragment, '1', {size: 32}),
         [],
         null,
         defaultGetDataID,
@@ -1263,11 +1203,7 @@ describe('check()', () => {
       const status = check(
         source,
         target,
-        {
-          dataID: '1',
-          node: BarFragment,
-          variables: {size: 32},
-        },
+        createNormalizationSelector(BarFragment, '1', {size: 32}),
         [],
         null,
         defaultGetDataID,
@@ -1308,11 +1244,7 @@ describe('check()', () => {
       const status = check(
         source,
         target,
-        {
-          dataID: '1',
-          node: BarFragment,
-          variables: {size: 32},
-        },
+        createNormalizationSelector(BarFragment, '1', {size: 32}),
         [
           {
             kind: 'scalar',
@@ -1366,11 +1298,7 @@ describe('check()', () => {
       const status = check(
         source,
         target,
-        {
-          dataID: '1',
-          node: BarFragment,
-          variables: {size: 32},
-        },
+        createNormalizationSelector(BarFragment, '1', {size: 32}),
         [
           {
             kind: 'scalar',
@@ -1487,11 +1415,7 @@ describe('check()', () => {
       const status = check(
         source,
         target,
-        {
-          dataID: '1',
-          node: BarFragment,
-          variables: {size: 32},
-        },
+        createNormalizationSelector(BarFragment, '1', {size: 32}),
         [],
         null,
         defaultGetDataID,

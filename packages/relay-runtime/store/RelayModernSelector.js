@@ -21,12 +21,15 @@ const {
   ID_KEY,
 } = require('./RelayStoreUtils');
 
+import type {NormalizationSelectableNode} from '../util/NormalizationNode';
 import type {ReaderFragment} from '../util/ReaderNode';
 import type {DataID, Variables} from '../util/RelayRuntimeTypes';
 import type {
+  NormalizationSelector,
   OperationDescriptor,
   OwnedReaderSelector,
   PluralOwnedReaderSelector,
+  ReaderSelector,
   SingularOwnedReaderSelector,
 } from './RelayStoreTypes';
 
@@ -96,11 +99,7 @@ function getSingularSelector(
     return {
       kind: 'SingularOwnedReaderSelector',
       owner,
-      selector: {
-        dataID,
-        node: fragment,
-        variables: fragmentVariables,
-      },
+      selector: createReaderSelector(fragment, dataID, fragmentVariables),
     };
   }
 
@@ -424,8 +423,26 @@ function areEqualSelectors(
   );
 }
 
+function createReaderSelector(
+  fragment: ReaderFragment,
+  dataID: DataID,
+  variables: Variables,
+): ReaderSelector {
+  return {dataID, node: fragment, variables};
+}
+
+function createNormalizationSelector(
+  node: NormalizationSelectableNode,
+  dataID: DataID,
+  variables: Variables,
+): NormalizationSelector {
+  return {dataID, node, variables};
+}
+
 module.exports = {
   areEqualSelectors,
+  createReaderSelector,
+  createNormalizationSelector,
   getDataIDsFromFragment,
   getDataIDsFromObject,
   getSingularSelector,

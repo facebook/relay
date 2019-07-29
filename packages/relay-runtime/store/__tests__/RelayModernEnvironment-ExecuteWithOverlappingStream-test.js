@@ -18,6 +18,7 @@ const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
 const RelayRecordSource = require('../RelayRecordSource');
 
+const {createReaderSelector} = require('../RelayModernSelector');
 const {generateAndCompile} = require('relay-test-utils-internal');
 
 function createOperationDescriptor(...args) {
@@ -82,11 +83,7 @@ describe('execute() a query with multiple @stream selections on the same record'
       `));
     variables = {id: '1', enableStream: true};
     operation = createOperationDescriptor(query, variables);
-    selector = {
-      dataID: '1',
-      node: fragment,
-      variables: {},
-    };
+    selector = createReaderSelector(fragment, '1', {});
 
     // Handler to upper-case the value of the (string) field to which it's
     // applied

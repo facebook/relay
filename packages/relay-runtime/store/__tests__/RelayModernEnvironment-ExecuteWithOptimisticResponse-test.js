@@ -18,6 +18,7 @@ const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
 const RelayRecordSource = require('../RelayRecordSource');
 
+const {createReaderSelector} = require('../RelayModernSelector');
 const {ROOT_ID} = require('../RelayStoreUtils');
 const {generateAndCompile} = require('relay-test-utils-internal');
 
@@ -88,11 +89,7 @@ describe('execute() with network that returns optimistic response', () => {
   });
 
   it('calls next() and publishes optimistic payload to the store', () => {
-    const selector = {
-      dataID: ROOT_ID,
-      node: query.fragment,
-      variables,
-    };
+    const selector = createReaderSelector(query.fragment, ROOT_ID, variables);
     const snapshot = environment.lookup(selector, operation);
     const callback = jest.fn();
     environment.subscribe(snapshot, callback);
@@ -127,11 +124,7 @@ describe('execute() with network that returns optimistic response', () => {
   });
 
   it('reverts the optimistic payload before applying regular response', () => {
-    const selector = {
-      dataID: ROOT_ID,
-      node: query.fragment,
-      variables,
-    };
+    const selector = createReaderSelector(query.fragment, ROOT_ID, variables);
     const snapshot = environment.lookup(selector, operation);
     const callback = jest.fn();
     environment.subscribe(snapshot, callback);
@@ -185,11 +178,7 @@ describe('execute() with network that returns optimistic response', () => {
   });
 
   it('reverts optimistic response on complete.', () => {
-    const selector = {
-      dataID: ROOT_ID,
-      node: query.fragment,
-      variables,
-    };
+    const selector = createReaderSelector(query.fragment, ROOT_ID, variables);
     const snapshot = environment.lookup(selector, operation);
     const callback = jest.fn();
     environment.subscribe(snapshot, callback);
@@ -226,11 +215,7 @@ describe('execute() with network that returns optimistic response', () => {
   });
 
   it('reverts optimistic response on error.', () => {
-    const selector = {
-      dataID: ROOT_ID,
-      node: query.fragment,
-      variables,
-    };
+    const selector = createReaderSelector(query.fragment, ROOT_ID, variables);
     const snapshot = environment.lookup(selector, operation);
     const callback = jest.fn();
     environment.subscribe(snapshot, callback);
@@ -269,11 +254,7 @@ describe('execute() with network that returns optimistic response', () => {
   });
 
   it('reverts optimistic response if unsubscribed.', () => {
-    const selector = {
-      dataID: ROOT_ID,
-      node: query.fragment,
-      variables,
-    };
+    const selector = createReaderSelector(query.fragment, ROOT_ID, variables);
     const snapshot = environment.lookup(selector, operation);
     const callback = jest.fn();
     environment.subscribe(snapshot, callback);
@@ -310,11 +291,7 @@ describe('execute() with network that returns optimistic response', () => {
   });
 
   it('calls error() if optimistic response is missing data', () => {
-    const selector = {
-      dataID: ROOT_ID,
-      node: query.fragment,
-      variables,
-    };
+    const selector = createReaderSelector(query.fragment, ROOT_ID, variables);
     const snapshot = environment.lookup(selector, operation);
     const callback = jest.fn();
     environment.subscribe(snapshot, callback);

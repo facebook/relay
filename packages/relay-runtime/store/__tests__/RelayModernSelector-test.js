@@ -19,10 +19,12 @@ const {
 } = require('../RelayModernOperationDescriptor');
 const {
   areEqualSelectors,
+  createNormalizationSelector,
+  createReaderSelector,
   getDataIDsFromObject,
-  getSingularSelector,
   getPluralSelector,
   getSelectorsFromObject,
+  getSingularSelector,
   getVariablesFromObject,
 } = require('../RelayModernSelector');
 const {ROOT_ID} = require('../RelayStoreUtils');
@@ -75,16 +77,16 @@ describe('RelayModernSelector', () => {
     const dataID = ROOT_ID;
     variables = {id: '4', size: null, cond: false};
     operationVariables = variables;
-    const fragment = {
+    const fragment = createReaderSelector(
+      UserQuery.fragment,
       dataID,
-      node: UserQuery.fragment,
       variables,
-    };
-    const root = {
+    );
+    const root = createNormalizationSelector(
+      UserQuery.operation,
       dataID,
-      node: UserQuery.operation,
       variables,
-    };
+    );
     operationDescriptor = {
       fragment,
       root,
@@ -100,11 +102,7 @@ describe('RelayModernSelector', () => {
       },
     });
     zuck = (environment.lookup(
-      {
-        dataID: ROOT_ID,
-        node: UserQuery.fragment,
-        variables: {id: '4'},
-      },
+      createReaderSelector(UserQuery.fragment, ROOT_ID, {id: '4'}),
       operationDescriptor,
     ).data: $FlowFixMe).node;
     variables = {
@@ -150,11 +148,7 @@ describe('RelayModernSelector', () => {
       expect(selector).toEqual({
         kind: 'SingularOwnedReaderSelector',
         owner: owner,
-        selector: {
-          dataID: '4',
-          node: UserFragment,
-          variables,
-        },
+        selector: createReaderSelector(UserFragment, '4', variables),
       });
       expect(selector?.owner).toBe(owner);
     });
@@ -173,11 +167,10 @@ describe('RelayModernSelector', () => {
       expect(selector).toEqual({
         kind: 'SingularOwnedReaderSelector',
         owner: owner,
-        selector: {
-          dataID: '4',
-          node: UserFragment,
-          variables: {size: 16, cond: true},
-        },
+        selector: createReaderSelector(UserFragment, '4', {
+          size: 16,
+          cond: true,
+        }),
       });
       expect(selector?.owner).toBe(owner);
     });
@@ -217,11 +210,7 @@ describe('RelayModernSelector', () => {
           {
             kind: 'SingularOwnedReaderSelector',
             owner: owner,
-            selector: {
-              dataID: '4',
-              node: UserFragment,
-              variables,
-            },
+            selector: createReaderSelector(UserFragment, '4', variables),
           },
         ],
       });
@@ -244,11 +233,10 @@ describe('RelayModernSelector', () => {
           {
             kind: 'SingularOwnedReaderSelector',
             owner: owner,
-            selector: {
-              dataID: '4',
-              node: UserFragment,
-              variables: {size: 16, cond: true},
-            },
+            selector: createReaderSelector(UserFragment, '4', {
+              size: 16,
+              cond: true,
+            }),
           },
         ],
       });
@@ -295,11 +283,7 @@ describe('RelayModernSelector', () => {
         user: {
           kind: 'SingularOwnedReaderSelector',
           owner: operationDescriptor,
-          selector: {
-            dataID: '4',
-            node: UserFragment,
-            variables,
-          },
+          selector: createReaderSelector(UserFragment, '4', variables),
         },
       });
     });
@@ -330,11 +314,7 @@ describe('RelayModernSelector', () => {
         user: {
           kind: 'SingularOwnedReaderSelector',
           owner: operationDescriptor,
-          selector: {
-            dataID: '4',
-            node: UserFragment,
-            variables,
-          },
+          selector: createReaderSelector(UserFragment, '4', variables),
         },
       });
     });
@@ -351,11 +331,7 @@ describe('RelayModernSelector', () => {
             {
               kind: 'SingularOwnedReaderSelector',
               owner: operationDescriptor,
-              selector: {
-                dataID: '4',
-                node: UsersFragment,
-                variables,
-              },
+              selector: createReaderSelector(UsersFragment, '4', variables),
             },
           ],
         },
@@ -379,11 +355,7 @@ describe('RelayModernSelector', () => {
           user: {
             kind: 'SingularOwnedReaderSelector',
             owner: owner,
-            selector: {
-              dataID: '4',
-              node: UserFragment,
-              variables,
-            },
+            selector: createReaderSelector(UserFragment, '4', variables),
           },
         });
       });
@@ -406,11 +378,10 @@ describe('RelayModernSelector', () => {
           user: {
             kind: 'SingularOwnedReaderSelector',
             owner: owner,
-            selector: {
-              dataID: '4',
-              node: UserFragment,
-              variables: {size: 16, cond: true},
-            },
+            selector: createReaderSelector(UserFragment, '4', {
+              size: 16,
+              cond: true,
+            }),
           },
         });
       });
@@ -427,11 +398,7 @@ describe('RelayModernSelector', () => {
               {
                 kind: 'SingularOwnedReaderSelector',
                 owner: owner,
-                selector: {
-                  dataID: '4',
-                  node: UsersFragment,
-                  variables,
-                },
+                selector: createReaderSelector(UsersFragment, '4', variables),
               },
             ],
           },
@@ -459,11 +426,10 @@ describe('RelayModernSelector', () => {
               {
                 kind: 'SingularOwnedReaderSelector',
                 owner: owner,
-                selector: {
-                  dataID: '4',
-                  node: UsersFragment,
-                  variables: {size: 16, cond: true},
-                },
+                selector: createReaderSelector(UsersFragment, '4', {
+                  size: 16,
+                  cond: true,
+                }),
               },
             ],
           },
@@ -682,11 +648,7 @@ describe('RelayModernSelector', () => {
       const ownedSelector = {
         kind: 'SingularOwnedReaderSelector',
         owner: operationDescriptor,
-        selector: {
-          dataID: '4',
-          node: UserFragment,
-          variables,
-        },
+        selector: createReaderSelector(UserFragment, '4', variables),
       };
       const clone = {
         ...ownedSelector,
@@ -705,11 +667,7 @@ describe('RelayModernSelector', () => {
       const selector = {
         kind: 'SingularOwnedReaderSelector',
         owner: owner,
-        selector: {
-          dataID: '4',
-          node: UserFragment,
-          variables,
-        },
+        selector: createReaderSelector(UserFragment, '4', variables),
       };
       const clone = {
         kind: 'SingularOwnedReaderSelector',
@@ -737,11 +695,7 @@ describe('RelayModernSelector', () => {
       const selector = {
         kind: 'SingularOwnedReaderSelector',
         owner: owner,
-        selector: {
-          dataID: '4',
-          node: UserFragment,
-          variables,
-        },
+        selector: createReaderSelector(UserFragment, '4', variables),
       };
       const clone = {
         kind: 'SingularOwnedReaderSelector',
@@ -756,11 +710,7 @@ describe('RelayModernSelector', () => {
     });
 
     it('returns false for different selectors', () => {
-      const readerSelector = {
-        dataID: '4',
-        node: UserFragment,
-        variables,
-      };
+      const readerSelector = createReaderSelector(UserFragment, '4', variables);
       const selector = {
         kind: 'SingularOwnedReaderSelector',
         owner: operationDescriptor,
@@ -786,11 +736,7 @@ describe('RelayModernSelector', () => {
     it('returns false for different selectors with owners', () => {
       const queryNode = getRequest(UserQuery);
       owner = createOperationDescriptor(queryNode, operationVariables);
-      const readerSelector = {
-        dataID: '4',
-        node: UserFragment,
-        variables,
-      };
+      const readerSelector = createReaderSelector(UserFragment, '4', variables);
       const selector = {
         kind: 'SingularOwnedReaderSelector',
         owner: owner,

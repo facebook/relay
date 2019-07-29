@@ -23,6 +23,7 @@ const stableCopy = require('../util/stableCopy');
 const warning = require('warning');
 
 const {generateClientID} = require('./ClientID');
+const {createNormalizationSelector} = require('./RelayModernSelector');
 const {ROOT_TYPE, TYPENAME_KEY, getStorageKey} = require('./RelayStoreUtils');
 
 import type {
@@ -444,11 +445,11 @@ class Executor {
     moduleImportPayload: ModuleImportPayload,
     operation: NormalizationSplitOperation,
   ): void {
-    const selector = {
-      dataID: moduleImportPayload.dataID,
-      variables: moduleImportPayload.variables,
-      node: operation,
-    };
+    const selector = createNormalizationSelector(
+      operation,
+      moduleImportPayload.dataID,
+      moduleImportPayload.variables,
+    );
     const relayPayload = normalizeResponse(
       {data: moduleImportPayload.data},
       selector,
@@ -754,11 +755,7 @@ class Executor {
     );
 
     // Build a selector to normalize the item data with
-    const selector = {
-      dataID: itemID,
-      node: field,
-      variables,
-    };
+    const selector = createNormalizationSelector(field, itemID, variables);
 
     // Update the cached version of the parent record to reflect the new item:
     // this is used when subsequent stream payloads arrive to see if there

@@ -18,6 +18,7 @@ const invariant = require('invariant');
 const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
+const {createReaderSelector} = require('../RelayModernSelector');
 const {
   createMockEnvironment,
   MockPayloadGenerator,
@@ -421,11 +422,11 @@ describe('RelayModernEnvironment with RelayOperationTracker', () => {
       );
       environment.subscribe(
         environment.lookup(
-          {
-            dataID: FEEDBACK_ID,
-            node: FeedbackFragment,
-            variables: QueryOperation1.variables,
-          },
+          createReaderSelector(
+            FeedbackFragment,
+            FEEDBACK_ID,
+            QueryOperation1.variables,
+          ),
           QueryOperation1,
         ),
         jest.fn(),

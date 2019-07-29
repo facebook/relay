@@ -5,6 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  *
  * @format
+ * @flow
  * @emails oncall+relay
  */
 
@@ -13,6 +14,7 @@
 const RelayModernTestUtils = require('relay-test-utils-internal');
 const RelayRecordSource = require('../RelayRecordSource');
 
+const {createNormalizationSelector} = require('../RelayModernSelector');
 const {mark} = require('../RelayReferenceMarker');
 const {ROOT_ID} = require('../RelayStoreUtils');
 
@@ -118,11 +120,10 @@ describe('RelayReferenceMarker', () => {
     const references = new Set();
     mark(
       source,
-      {
-        dataID: ROOT_ID,
-        node: FooQuery.operation,
-        variables: {id: '1', size: 32},
-      },
+      createNormalizationSelector(FooQuery.operation, ROOT_ID, {
+        id: '1',
+        size: 32,
+      }),
       references,
     );
     expect(Array.from(references).sort()).toEqual([
@@ -210,11 +211,7 @@ describe('RelayReferenceMarker', () => {
     const references = new Set();
     mark(
       source,
-      {
-        dataID: ROOT_ID,
-        node: UserProfile.operation,
-        variables: {id: '1'},
-      },
+      createNormalizationSelector(UserProfile.operation, ROOT_ID, {id: '1'}),
       references,
     );
     expect(Array.from(references).sort()).toEqual([
@@ -318,11 +315,10 @@ describe('RelayReferenceMarker', () => {
     let references = new Set();
     mark(
       source,
-      {
-        dataID: ROOT_ID,
-        node: UserProfile.operation,
-        variables: {id: '1', orderby: ['first name']},
-      },
+      createNormalizationSelector(UserProfile.operation, ROOT_ID, {
+        id: '1',
+        orderby: ['first name'],
+      }),
       references,
     );
     expect(Array.from(references).sort()).toEqual([
@@ -339,11 +335,10 @@ describe('RelayReferenceMarker', () => {
     references = new Set();
     mark(
       source,
-      {
-        dataID: ROOT_ID,
-        node: UserProfile.operation,
-        variables: {id: '1', orderby: ['last name']},
-      },
+      createNormalizationSelector(UserProfile.operation, ROOT_ID, {
+        id: '1',
+        orderby: ['last name'],
+      }),
       references,
     );
     expect(Array.from(references).sort()).toEqual([
@@ -458,11 +453,10 @@ describe('RelayReferenceMarker', () => {
     const references = new Set();
     mark(
       source,
-      {
-        dataID: ROOT_ID,
-        node: FooQuery.operation,
-        variables: {id: '1', size: 32},
-      },
+      createNormalizationSelector(FooQuery.operation, ROOT_ID, {
+        id: '1',
+        size: 32,
+      }),
       references,
     );
     expect(Array.from(references).sort()).toEqual([
@@ -561,11 +555,9 @@ describe('RelayReferenceMarker', () => {
       const references = new Set();
       mark(
         source,
-        {
-          dataID: 'client:root',
-          node: BarQuery.operation,
-          variables: {id: '1'},
-        },
+        createNormalizationSelector(BarQuery.operation, 'client:root', {
+          id: '1',
+        }),
         references,
         loader,
       );
@@ -614,11 +606,9 @@ describe('RelayReferenceMarker', () => {
       const references = new Set();
       mark(
         source,
-        {
-          dataID: 'client:root',
-          node: BarQuery.operation,
-          variables: {id: '1'},
-        },
+        createNormalizationSelector(BarQuery.operation, 'client:root', {
+          id: '1',
+        }),
         references,
         loader,
       );
@@ -660,11 +650,9 @@ describe('RelayReferenceMarker', () => {
       const references = new Set();
       mark(
         source,
-        {
-          dataID: 'client:root',
-          node: BarQuery.operation,
-          variables: {id: '1'},
-        },
+        createNormalizationSelector(BarQuery.operation, 'client:root', {
+          id: '1',
+        }),
         references,
         // Return null to indicate the fragment is not loaded yet
         {
@@ -716,11 +704,9 @@ describe('RelayReferenceMarker', () => {
       const references = new Set();
       mark(
         source,
-        {
-          dataID: 'client:root',
-          node: BarQuery.operation,
-          variables: {id: '1'},
-        },
+        createNormalizationSelector(BarQuery.operation, 'client:root', {
+          id: '1',
+        }),
         references,
         loader,
       );
@@ -761,11 +747,9 @@ describe('RelayReferenceMarker', () => {
       const references = new Set();
       mark(
         source,
-        {
-          dataID: 'client:root',
-          node: BarQuery.operation,
-          variables: {id: '1'},
-        },
+        createNormalizationSelector(BarQuery.operation, 'client:root', {
+          id: '1',
+        }),
         references,
         loader,
       );
@@ -803,11 +787,9 @@ describe('RelayReferenceMarker', () => {
       const references = new Set();
       mark(
         source,
-        {
-          dataID: 'client:root',
-          node: BarQuery.operation,
-          variables: {id: '1'},
-        },
+        createNormalizationSelector(BarQuery.operation, 'client:root', {
+          id: '1',
+        }),
         references,
         loader,
       );
@@ -836,11 +818,9 @@ describe('RelayReferenceMarker', () => {
       const references = new Set();
       mark(
         source,
-        {
-          dataID: 'client:root',
-          node: BarQuery.operation,
-          variables: {id: '1'},
-        },
+        createNormalizationSelector(BarQuery.operation, 'client:root', {
+          id: '1',
+        }),
         references,
         loader,
       );
@@ -864,11 +844,9 @@ describe('RelayReferenceMarker', () => {
       const references = new Set();
       mark(
         source,
-        {
-          dataID: 'client:root',
-          node: BarQuery.operation,
-          variables: {id: '1'},
-        },
+        createNormalizationSelector(BarQuery.operation, 'client:root', {
+          id: '1',
+        }),
         references,
         loader,
       );
@@ -958,11 +936,9 @@ describe('RelayReferenceMarker', () => {
       const references = new Set();
       mark(
         source,
-        {
-          dataID: 'client:root',
-          node: BarQuery.operation,
-          variables: {id: '1'},
-        },
+        createNormalizationSelector(BarQuery.operation, 'client:root', {
+          id: '1',
+        }),
         references,
         loader,
       );
@@ -1009,11 +985,9 @@ describe('RelayReferenceMarker', () => {
       const references = new Set();
       mark(
         source,
-        {
-          dataID: 'client:root',
-          node: BarQuery.operation,
-          variables: {id: '1'},
-        },
+        createNormalizationSelector(BarQuery.operation, 'client:root', {
+          id: '1',
+        }),
         references,
         loader,
       );
@@ -1053,11 +1027,9 @@ describe('RelayReferenceMarker', () => {
       const references = new Set();
       mark(
         source,
-        {
-          dataID: 'client:root',
-          node: BarQuery.operation,
-          variables: {id: '1'},
-        },
+        createNormalizationSelector(BarQuery.operation, 'client:root', {
+          id: '1',
+        }),
         references,
         // Return null to indicate the fragment is not loaded yet
         {
@@ -1107,11 +1079,9 @@ describe('RelayReferenceMarker', () => {
       const references = new Set();
       mark(
         source,
-        {
-          dataID: 'client:root',
-          node: BarQuery.operation,
-          variables: {id: '1'},
-        },
+        createNormalizationSelector(BarQuery.operation, 'client:root', {
+          id: '1',
+        }),
         references,
         loader,
       );
@@ -1150,11 +1120,9 @@ describe('RelayReferenceMarker', () => {
       const references = new Set();
       mark(
         source,
-        {
-          dataID: 'client:root',
-          node: BarQuery.operation,
-          variables: {id: '1'},
-        },
+        createNormalizationSelector(BarQuery.operation, 'client:root', {
+          id: '1',
+        }),
         references,
         loader,
       );
@@ -1190,11 +1158,9 @@ describe('RelayReferenceMarker', () => {
       const references = new Set();
       mark(
         source,
-        {
-          dataID: 'client:root',
-          node: BarQuery.operation,
-          variables: {id: '1'},
-        },
+        createNormalizationSelector(BarQuery.operation, 'client:root', {
+          id: '1',
+        }),
         references,
         loader,
       );
@@ -1252,11 +1218,7 @@ describe('RelayReferenceMarker', () => {
       const references = new Set();
       mark(
         recordSource,
-        {
-          dataID: 'client:root',
-          node: Query.operation,
-          variables: {id: '1'},
-        },
+        createNormalizationSelector(Query.operation, 'client:root', {id: '1'}),
         references,
       );
       expect(Array.from(references).sort()).toEqual(['1', '2', 'client:root']);
@@ -1280,11 +1242,7 @@ describe('RelayReferenceMarker', () => {
       const references = new Set();
       mark(
         recordSource,
-        {
-          dataID: 'client:root',
-          node: Query.operation,
-          variables: {id: '1'},
-        },
+        createNormalizationSelector(Query.operation, 'client:root', {id: '1'}),
         references,
       );
       expect(Array.from(references).sort()).toEqual(['1', 'client:root']);
@@ -1337,11 +1295,7 @@ describe('RelayReferenceMarker', () => {
       const references = new Set();
       mark(
         recordSource,
-        {
-          dataID: 'client:root',
-          node: Query.operation,
-          variables: {id: '1'},
-        },
+        createNormalizationSelector(Query.operation, 'client:root', {id: '1'}),
         references,
       );
       expect(Array.from(references).sort()).toEqual(['1', '2', 'client:root']);
@@ -1365,11 +1319,7 @@ describe('RelayReferenceMarker', () => {
       const references = new Set();
       mark(
         recordSource,
-        {
-          dataID: 'client:root',
-          node: Query.operation,
-          variables: {id: '1'},
-        },
+        createNormalizationSelector(Query.operation, 'client:root', {id: '1'}),
         references,
       );
       expect(Array.from(references).sort()).toEqual(['1', 'client:root']);

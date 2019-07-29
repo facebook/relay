@@ -17,6 +17,7 @@ const RelayModernStore = require('../RelayModernStore');
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayRecordSource = require('../RelayRecordSource');
 
+const {createReaderSelector} = require('../RelayModernSelector');
 const {ROOT_ID} = require('../RelayStoreUtils');
 const {generateAndCompile} = require('relay-test-utils-internal');
 
@@ -84,11 +85,7 @@ describe('subscribe()', () => {
 
   it('calls the callback if data changes', () => {
     const snapshot = environment.lookup(
-      {
-        dataID: ROOT_ID,
-        node: ParentQuery.fragment,
-        variables: {},
-      },
+      createReaderSelector(ParentQuery.fragment, ROOT_ID, {}),
       operation,
     );
     const callback = jest.fn();
@@ -106,11 +103,7 @@ describe('subscribe()', () => {
 
   it('does not call the callback if disposed', () => {
     const snapshot = environment.lookup(
-      {
-        dataID: ROOT_ID,
-        node: ParentQuery.fragment,
-        variables: {},
-      },
+      createReaderSelector(ParentQuery.fragment, ROOT_ID, {}),
       operation,
     );
     const callback = jest.fn();

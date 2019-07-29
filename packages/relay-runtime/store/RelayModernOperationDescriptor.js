@@ -13,6 +13,10 @@
 const deepFreeze = require('../util/deepFreeze');
 
 const {getOperationVariables} = require('./RelayConcreteVariables');
+const {
+  createNormalizationSelector,
+  createReaderSelector,
+} = require('./RelayModernSelector');
 const {ROOT_ID} = require('./RelayStoreUtils');
 
 import type {ConcreteRequest} from '../util/RelayConcreteNode';
@@ -33,17 +37,13 @@ function createOperationDescriptor(
   const operationVariables = getOperationVariables(operation, variables);
   const dataID = ROOT_ID;
   const operationDescriptor = {
-    fragment: {
+    fragment: createReaderSelector(
+      request.fragment,
       dataID,
-      node: request.fragment,
-      variables: operationVariables,
-    },
+      operationVariables,
+    ),
     node: request,
-    root: {
-      dataID,
-      node: operation,
-      variables: operationVariables,
-    },
+    root: createNormalizationSelector(operation, dataID, operationVariables),
     variables: operationVariables,
   };
   if (__DEV__) {

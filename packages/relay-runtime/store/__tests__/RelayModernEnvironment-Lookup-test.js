@@ -18,6 +18,7 @@ const RelayNetwork = require('../../network/RelayNetwork');
 const RelayRecordSource = require('../RelayRecordSource');
 
 const {getRequest} = require('../../query/RelayModernGraphQLTag');
+const {createReaderSelector} = require('../RelayModernSelector');
 const {ROOT_ID} = require('../RelayStoreUtils');
 const {generateAndCompile} = require('relay-test-utils-internal');
 
@@ -74,11 +75,7 @@ describe('lookup()', () => {
 
   it('returns the results of executing a query', () => {
     const snapshot = environment.lookup(
-      {
-        dataID: ROOT_ID,
-        node: ParentQuery.fragment,
-        variables: {},
-      },
+      createReaderSelector(ParentQuery.fragment, ROOT_ID, {}),
       operation,
     );
     expect(snapshot.data).toEqual({
@@ -96,11 +93,7 @@ describe('lookup()', () => {
     const queryNode = getRequest(ParentQuery);
     const owner = createOperationDescriptor(queryNode, {});
     const snapshot = environment.lookup(
-      {
-        dataID: ROOT_ID,
-        node: ParentQuery.fragment,
-        variables: {},
-      },
+      createReaderSelector(ParentQuery.fragment, ROOT_ID, {}),
       owner,
     );
     expect(snapshot.data).toEqual({

@@ -18,7 +18,12 @@ const ReactTestRenderer = require('ReactTestRenderer');
 
 const readContext = require('../readContext');
 
-const {createOperationDescriptor, ROOT_ID} = require('relay-runtime');
+const {
+  createNormalizationSelector,
+  createOperationDescriptor,
+  createReaderSelector,
+  ROOT_ID,
+} = require('relay-runtime');
 const {
   createMockEnvironment,
   generateAndCompile,
@@ -88,17 +93,9 @@ describe('ReactRelayRefetchContainer with fragment ownerhsip', () => {
 
   function createOwnerWithUnalteredVariables(request, vars) {
     return {
-      fragment: {
-        dataID: ROOT_ID,
-        node: request.fragment,
-        variables: vars,
-      },
+      fragment: createReaderSelector(request.fragment, ROOT_ID, vars),
       node: request,
-      root: {
-        dataID: ROOT_ID,
-        node: request.operation,
-        variables: vars,
-      },
+      root: createNormalizationSelector(request.operation, ROOT_ID, vars),
       variables: vars,
     };
   }

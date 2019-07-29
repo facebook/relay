@@ -17,6 +17,7 @@ const RelayModernStore = require('../RelayModernStore');
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayRecordSource = require('../RelayRecordSource');
 
+const {createReaderSelector} = require('../RelayModernSelector');
 const {ROOT_ID} = require('../RelayStoreUtils');
 const {generateAndCompile} = require('relay-test-utils-internal');
 
@@ -133,11 +134,7 @@ describe('execute() with Promise network', () => {
   });
 
   it('calls next() and publishes payloads to the store', () => {
-    const selector = {
-      dataID: ROOT_ID,
-      node: query.fragment,
-      variables,
-    };
+    const selector = createReaderSelector(query.fragment, ROOT_ID, variables);
     const snapshot = environment.lookup(selector, operation);
     const callback = jest.fn();
     environment.subscribe(snapshot, callback);

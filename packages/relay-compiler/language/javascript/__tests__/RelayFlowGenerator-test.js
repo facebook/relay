@@ -147,6 +147,42 @@ it('does not add `%future added values` when the noFutureProofEnums option is se
   );
 });
 
+test('import enum definitions from single module', () => {
+  const text = `
+    fragment EnumTest on User {
+      traits
+    }
+  `;
+  const types = generate(text, {
+    customScalars: {},
+    enumsHasteModule: 'MyGraphQLEnums',
+    existingFragmentNames: new Set([]),
+    optionalInputFields: [],
+    useHaste: true,
+  });
+  expect(types).toContain(
+    'import type { PersonalityTraits } from "MyGraphQLEnums";',
+  );
+});
+
+test('import enum definitions from enum specific module', () => {
+  const text = `
+    fragment EnumTest on User {
+      traits
+    }
+  `;
+  const types = generate(text, {
+    customScalars: {},
+    enumsHasteModule: (enumName: string) => `${enumName}.graphqlenum`,
+    existingFragmentNames: new Set([]),
+    optionalInputFields: [],
+    useHaste: true,
+  });
+  expect(types).toContain(
+    'import type { PersonalityTraits } from "PersonalityTraits.graphqlenum";',
+  );
+});
+
 describe('custom scalars', () => {
   const text = `
     fragment ScalarField on User {

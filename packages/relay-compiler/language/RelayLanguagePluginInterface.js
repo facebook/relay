@@ -234,9 +234,10 @@ export type TypeGeneratorOptions = {|
   +useHaste: boolean,
 
   /**
-   * @todo Document this.
+   * Import flow types from the Haste-style global module name or per-enum
+   * global module name given by the function variant.
    */
-  +enumsHasteModule: ?string,
+  +enumsHasteModule?: string | ((enumName: string) => string),
 
   /**
    * Optional normalization IR for generating raw response

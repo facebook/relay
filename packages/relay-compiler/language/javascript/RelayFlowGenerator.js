@@ -822,8 +822,13 @@ function getEnumDefinitions({
   if (enumNames.length === 0) {
     return [];
   }
-  if (enumsHasteModule) {
+  if (typeof enumsHasteModule === 'string') {
     return [importTypes(enumNames, enumsHasteModule)];
+  }
+  if (typeof enumsHasteModule === 'function') {
+    return enumNames.map(enumName =>
+      importTypes([enumName], enumsHasteModule(enumName)),
+    );
   }
   return enumNames.map(name => {
     const values = usedEnums[name].getValues().map(({value}) => value);

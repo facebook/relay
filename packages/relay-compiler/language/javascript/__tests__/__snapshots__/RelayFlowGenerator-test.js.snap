@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`RelayFlowGenerator Snapshot tests for useAnyDirectory matches expected output: refetchable-fragment.graphql 1`] = `
+exports[`Snapshot tests for useAnyDirectory matches expected output: refetchable-fragment.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 fragment RefetchableFragment on Node @refetchable(queryName: "RefetchableFragmentQuery") {
   id
@@ -43,7 +43,7 @@ export type RefetchableFragmentQuery = {|
 |};
 `;
 
-exports[`RelayFlowGenerator Snapshot tests for useHaste matches expected output: conditional.graphql 1`] = `
+exports[`Snapshot tests for useHaste matches expected output: conditional.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 fragment ConditionField on Node {
   id @include(if: $condition)
@@ -85,7 +85,7 @@ export type NestedCondition$key = {
 };
 `;
 
-exports[`RelayFlowGenerator Snapshot tests for useHaste matches expected output: derived-field.graphql 1`] = `
+exports[`Snapshot tests for useHaste matches expected output: derived-field.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query QueryWithConnectionField($id: ID!) {
   feedback: node(id: $id)  {
@@ -146,7 +146,7 @@ export type FeedbackComments_feedback$key = {
 };
 `;
 
-exports[`RelayFlowGenerator Snapshot tests for useHaste matches expected output: fragment-spread.graphql 1`] = `
+exports[`Snapshot tests for useHaste matches expected output: fragment-spread.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 fragment FragmentSpread on Node {
   id
@@ -341,7 +341,7 @@ export type UserFrag2$key = {
 };
 `;
 
-exports[`RelayFlowGenerator Snapshot tests for useHaste matches expected output: inline-fragment.graphql 1`] = `
+exports[`Snapshot tests for useHaste matches expected output: inline-fragment.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 fragment InlineFragment on Node {
   id
@@ -507,7 +507,7 @@ export type SomeFragment$key = {
 };
 `;
 
-exports[`RelayFlowGenerator Snapshot tests for useHaste matches expected output: linked-field.graphql 1`] = `
+exports[`Snapshot tests for useHaste matches expected output: linked-field.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 fragment LinkedField on User {
   profilePicture {
@@ -583,7 +583,7 @@ export type UnionTypeTest = {|
 |};
 `;
 
-exports[`RelayFlowGenerator Snapshot tests for useHaste matches expected output: match-field.graphql 1`] = `
+exports[`Snapshot tests for useHaste matches expected output: match-field.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 fragment NameRendererFragment on User {
   id
@@ -665,7 +665,7 @@ export type MarkdownUserNameRenderer_name$key = {
 };
 `;
 
-exports[`RelayFlowGenerator Snapshot tests for useHaste matches expected output: match-field-in-query.graphql 1`] = `
+exports[`Snapshot tests for useHaste matches expected output: match-field-in-query.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query NameRendererQuery {
   me {
@@ -745,7 +745,7 @@ export type MarkdownUserNameRenderer_name$key = {
 };
 `;
 
-exports[`RelayFlowGenerator Snapshot tests for useHaste matches expected output: mutaion-with-client-extension.graphql 1`] = `
+exports[`Snapshot tests for useHaste matches expected output: mutaion-with-client-extension.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 mutation Test($input: UpdateAllSeenStateInput) @raw_response_type{
   viewerNotificationsUpdateAllSeenState(input: $input) {
@@ -798,7 +798,7 @@ export type Test = {|
 |};
 `;
 
-exports[`RelayFlowGenerator Snapshot tests for useHaste matches expected output: mutaion-with-response-on-inline-fragments.graphql 1`] = `
+exports[`Snapshot tests for useHaste matches expected output: mutaion-with-response-on-inline-fragments.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 mutation TestMutation (
   $input: CommentCreateInput!
@@ -912,7 +912,7 @@ export type InlineFragmentWithOverlappingFields$key = {
 };
 `;
 
-exports[`RelayFlowGenerator Snapshot tests for useHaste matches expected output: mutation.graphql 1`] = `
+exports[`Snapshot tests for useHaste matches expected output: mutation.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 mutation CommentCreateMutation(
   $input: CommentCreateInput!
@@ -965,7 +965,7 @@ export type CommentCreateMutation = {|
 |};
 `;
 
-exports[`RelayFlowGenerator Snapshot tests for useHaste matches expected output: mutation-input-has-array.graphql 1`] = `
+exports[`Snapshot tests for useHaste matches expected output: mutation-input-has-array.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 mutation InputHasArray($input: UpdateAllSeenStateInput) @raw_response_type{
   viewerNotificationsUpdateAllSeenState(input: $input) {
@@ -1006,7 +1006,7 @@ export type InputHasArray = {|
 |};
 `;
 
-exports[`RelayFlowGenerator Snapshot tests for useHaste matches expected output: mutation-with-enums-on-fragment.graphql 1`] = `
+exports[`Snapshot tests for useHaste matches expected output: mutation-with-enums-on-fragment.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 mutation CommentCreateMutation (
   $input: CommentCreateInput!
@@ -1118,7 +1118,7 @@ export type FriendFragment$key = {
 };
 `;
 
-exports[`RelayFlowGenerator Snapshot tests for useHaste matches expected output: mutation-with-nested-fragments.graphql 1`] = `
+exports[`Snapshot tests for useHaste matches expected output: mutation-with-nested-fragments.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 mutation CommentCreateMutation (
   $input: CommentCreateInput!
@@ -1247,7 +1247,7 @@ export type FeedbackFragment$key = {
 };
 `;
 
-exports[`RelayFlowGenerator Snapshot tests for useHaste matches expected output: plural-fragment.graphql 1`] = `
+exports[`Snapshot tests for useHaste matches expected output: plural-fragment.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 fragment PluralFragment on Node @relay(plural: true) {
   id
@@ -1269,7 +1269,7 @@ export type PluralFragment$key = {
 };
 `;
 
-exports[`RelayFlowGenerator Snapshot tests for useHaste matches expected output: query-with-defer.graphql 1`] = `
+exports[`Snapshot tests for useHaste matches expected output: query-with-defer.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query TestDefer @raw_response_type {
   node(id: "1") {
@@ -1331,7 +1331,7 @@ export type TestDefer = {|
 |};
 `;
 
-exports[`RelayFlowGenerator Snapshot tests for useHaste matches expected output: query-with-handles.graphql 1`] = `
+exports[`Snapshot tests for useHaste matches expected output: query-with-handles.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query LinkedHandleField($id: ID!) @raw_response_type {
   node(id: $id) {
@@ -1407,7 +1407,7 @@ export type ScalarHandleField = {|
 |};
 `;
 
-exports[`RelayFlowGenerator Snapshot tests for useHaste matches expected output: query-with-match-fields.graphql 1`] = `
+exports[`Snapshot tests for useHaste matches expected output: query-with-match-fields.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query Test @raw_response_type {
   node(id: "1") {
@@ -1529,7 +1529,7 @@ export type MarkdownUserNameRenderer_name$key = {
 };
 `;
 
-exports[`RelayFlowGenerator Snapshot tests for useHaste matches expected output: query-with-raw-response-on-conditional.graphql 1`] = `
+exports[`Snapshot tests for useHaste matches expected output: query-with-raw-response-on-conditional.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query ExampleQuery($id: ID!, $condition: Boolean!) @raw_response_type{
   node(id: $id) {
@@ -1601,7 +1601,7 @@ export type FriendFragment$key = {
 };
 `;
 
-exports[`RelayFlowGenerator Snapshot tests for useHaste matches expected output: query-with-stream.graphql 1`] = `
+exports[`Snapshot tests for useHaste matches expected output: query-with-stream.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query TestStream @raw_response_type {
   node(id: "1") {
@@ -1664,7 +1664,7 @@ export type TestStream = {|
 |};
 `;
 
-exports[`RelayFlowGenerator Snapshot tests for useHaste matches expected output: recursive-fragments.graphql 1`] = `
+exports[`Snapshot tests for useHaste matches expected output: recursive-fragments.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 fragment FragmentSpread on Node {
   id
@@ -1690,7 +1690,7 @@ export type FragmentSpread$key = {
 };
 `;
 
-exports[`RelayFlowGenerator Snapshot tests for useHaste matches expected output: refetchable-fragment.graphql 1`] = `
+exports[`Snapshot tests for useHaste matches expected output: refetchable-fragment.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 fragment RefetchableFragment on Node @refetchable(queryName: "RefetchableFragmentQuery") {
   id
@@ -1735,7 +1735,7 @@ export type RefetchableFragmentQuery = {|
 |};
 `;
 
-exports[`RelayFlowGenerator Snapshot tests for useHaste matches expected output: roots.graphql 1`] = `
+exports[`Snapshot tests for useHaste matches expected output: roots.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query ExampleQuery($id: ID!) {
   node(id: $id) {
@@ -1840,7 +1840,7 @@ export type TestSubscription = {|
 |};
 `;
 
-exports[`RelayFlowGenerator Snapshot tests for useHaste matches expected output: scalar-field.graphql 1`] = `
+exports[`Snapshot tests for useHaste matches expected output: scalar-field.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 fragment ScalarField on User {
   id
@@ -1883,7 +1883,7 @@ export type ScalarField$key = {
 };
 `;
 
-exports[`RelayFlowGenerator Snapshot tests for useHaste matches expected output: typename-inside-with-overlapping-fields.graphql 1`] = `
+exports[`Snapshot tests for useHaste matches expected output: typename-inside-with-overlapping-fields.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 fragment TypenameInsideWithOverlappingFields on Viewer {
   actor {
@@ -1933,7 +1933,7 @@ export type TypenameInsideWithOverlappingFields$key = {
 };
 `;
 
-exports[`RelayFlowGenerator Snapshot tests for useHaste matches expected output: typename-on-union.graphql 1`] = `
+exports[`Snapshot tests for useHaste matches expected output: typename-on-union.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 fragment TypenameInside on Actor {
   ... on User {
@@ -2188,7 +2188,7 @@ export type TypenameAliases$key = {
 };
 `;
 
-exports[`RelayFlowGenerator Snapshot tests for useHaste matches expected output: unmasked-fragment-spreads.graphql 1`] = `
+exports[`Snapshot tests for useHaste matches expected output: unmasked-fragment-spreads.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 fragment UserProfile on User {
   profilePicture(size: $ProfilePicture_SIZE) {
@@ -2283,7 +2283,7 @@ export type AnotherRecursiveFragment$key = {
 };
 `;
 
-exports[`RelayFlowGenerator Snapshot tests for useSingleDirectory matches expected output: refetchable-fragment.graphql 1`] = `
+exports[`Snapshot tests for useSingleDirectory matches expected output: refetchable-fragment.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 fragment RefetchableFragment on Node @refetchable(queryName: "RefetchableFragmentQuery") {
   id

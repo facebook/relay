@@ -48,166 +48,164 @@ function generate(text, options: TypeGeneratorOptions, context?) {
     .join('\n\n');
 }
 
-describe('RelayFlowGenerator', () => {
-  describe('Snapshot tests', () => {
-    function generateContext(text) {
-      const schema = transformASTSchema(
-        TestSchema,
-        RelayIRTransforms.schemaExtensions,
-      );
-      const {definitions} = parseGraphQLText(schema, text);
-      return new GraphQLCompilerContext(TestSchema, schema)
-        .addAll(definitions)
-        .applyTransforms([
-          ...RelayIRTransforms.commonTransforms,
-          ...RelayIRTransforms.queryTransforms,
-          ...RelayIRTransforms.codegenTransforms,
-        ]);
+describe('Snapshot tests', () => {
+  function generateContext(text) {
+    const schema = transformASTSchema(
+      TestSchema,
+      RelayIRTransforms.schemaExtensions,
+    );
+    const {definitions} = parseGraphQLText(schema, text);
+    return new GraphQLCompilerContext(TestSchema, schema)
+      .addAll(definitions)
+      .applyTransforms([
+        ...RelayIRTransforms.commonTransforms,
+        ...RelayIRTransforms.queryTransforms,
+        ...RelayIRTransforms.codegenTransforms,
+      ]);
+  }
+  describe('for useHaste', () => {
+    generateTestsFromFixtures(
+      `${__dirname}/fixtures/flow-generator/useHaste`,
+      text => {
+        const context = generateContext(text);
+        return generate(
+          text,
+          {
+            customScalars: {},
+            enumsHasteModule: null,
+            existingFragmentNames: new Set(['PhotoFragment']),
+            optionalInputFields: [],
+            useHaste: true,
+            useSingleArtifactDirectory: false,
+          },
+          context,
+        );
+      },
+    );
+  });
+  describe('for useSingleDirectory', () => {
+    generateTestsFromFixtures(
+      `${__dirname}/fixtures/flow-generator/useSingleDirectory`,
+      text => {
+        const context = generateContext(text);
+        return generate(
+          text,
+          {
+            customScalars: {},
+            enumsHasteModule: null,
+            existingFragmentNames: new Set(['PhotoFragment']),
+            optionalInputFields: [],
+            useHaste: false,
+            useSingleArtifactDirectory: true,
+          },
+          context,
+        );
+      },
+    );
+  });
+  describe('for useAnyDirectory', () => {
+    generateTestsFromFixtures(
+      `${__dirname}/fixtures/flow-generator/useAnyDirectory`,
+      text => {
+        const context = generateContext(text);
+        return generate(
+          text,
+          {
+            customScalars: {},
+            enumsHasteModule: null,
+            existingFragmentNames: new Set(['PhotoFragment']),
+            optionalInputFields: [],
+            useHaste: false,
+            useSingleArtifactDirectory: false,
+          },
+          context,
+        );
+      },
+    );
+  });
+});
+
+it('does not add `%future added values` when the noFutureProofEnums option is set', () => {
+  const text = `
+    fragment ScalarField on User {
+      traits
     }
-    describe('for useHaste', () => {
-      generateTestsFromFixtures(
-        `${__dirname}/fixtures/flow-generator/useHaste`,
-        text => {
-          const context = generateContext(text);
-          return generate(
-            text,
-            {
-              customScalars: {},
-              enumsHasteModule: null,
-              existingFragmentNames: new Set(['PhotoFragment']),
-              optionalInputFields: [],
-              useHaste: true,
-              useSingleArtifactDirectory: false,
-            },
-            context,
-          );
-        },
-      );
+  `;
+  const types = generate(text, {
+    customScalars: {},
+    enumsHasteModule: null,
+    existingFragmentNames: new Set(['PhotoFragment']),
+    optionalInputFields: [],
+    useHaste: true,
+    useSingleArtifactDirectory: false,
+    // This is what's different from the tests above.
+    noFutureProofEnums: true,
+  });
+  // Without the option, PersonalityTraits would be `('CHEERFUL' | ... | '%future added value');`
+  expect(types).toContain(
+    'export type PersonalityTraits = "CHEERFUL" | "DERISIVE" | "HELPFUL" | "SNARKY";',
+  );
+});
+
+describe('custom scalars', () => {
+  const text = `
+    fragment ScalarField on User {
+      name
+      color
+    }
+  `;
+  const generateWithMapping = mapping =>
+    generate(text, {
+      customScalars: mapping,
     });
-    describe('for useSingleDirectory', () => {
-      generateTestsFromFixtures(
-        `${__dirname}/fixtures/flow-generator/useSingleDirectory`,
-        text => {
-          const context = generateContext(text);
-          return generate(
-            text,
-            {
-              customScalars: {},
-              enumsHasteModule: null,
-              existingFragmentNames: new Set(['PhotoFragment']),
-              optionalInputFields: [],
-              useHaste: false,
-              useSingleArtifactDirectory: true,
-            },
-            context,
-          );
-        },
-      );
-    });
-    describe('for useAnyDirectory', () => {
-      generateTestsFromFixtures(
-        `${__dirname}/fixtures/flow-generator/useAnyDirectory`,
-        text => {
-          const context = generateContext(text);
-          return generate(
-            text,
-            {
-              customScalars: {},
-              enumsHasteModule: null,
-              existingFragmentNames: new Set(['PhotoFragment']),
-              optionalInputFields: [],
-              useHaste: false,
-              useSingleArtifactDirectory: false,
-            },
-            context,
-          );
-        },
-      );
-    });
+
+  it('maps unspecified types to `any`', () => {
+    expect(
+      generateWithMapping({
+        // empty mapping
+      }),
+    ).toContain('+color: ?any,');
   });
 
-  it('does not add `%future added values` when the noFutureProofEnums option is set', () => {
-    const text = `
-      fragment ScalarField on User {
-        traits
-      }
-    `;
-    const types = generate(text, {
-      customScalars: {},
-      enumsHasteModule: null,
-      existingFragmentNames: new Set(['PhotoFragment']),
-      optionalInputFields: [],
-      useHaste: true,
-      useSingleArtifactDirectory: false,
-      // This is what's different from the tests above.
-      noFutureProofEnums: true,
-    });
-    // Without the option, PersonalityTraits would be `('CHEERFUL' | ... | '%future added value');`
-    expect(types).toContain(
-      'export type PersonalityTraits = "CHEERFUL" | "DERISIVE" | "HELPFUL" | "SNARKY";',
-    );
+  it('maps GraphQL types to their Flow representation', () => {
+    expect(
+      generateWithMapping({
+        Color: 'String',
+      }),
+    ).toContain('+color: ?string,');
   });
 
-  describe('custom scalars', () => {
-    const text = `
-      fragment ScalarField on User {
-        name
-        color
-      }
-    `;
-    const generateWithMapping = mapping =>
-      generate(text, {
-        customScalars: mapping,
-      });
-
-    it('maps unspecified types to `any`', () => {
-      expect(
-        generateWithMapping({
-          // empty mapping
-        }),
-      ).toContain('+color: ?any,');
+  it('maps other types to global types', () => {
+    const types = generateWithMapping({
+      // customScalars mapping can override build in types
+      String: 'LocalizedString',
+      Color: 'Color',
     });
-
-    it('maps GraphQL types to their Flow representation', () => {
-      expect(
-        generateWithMapping({
-          Color: 'String',
-        }),
-      ).toContain('+color: ?string,');
-    });
-
-    it('maps other types to global types', () => {
-      const types = generateWithMapping({
-        // customScalars mapping can override build in types
-        String: 'LocalizedString',
-        Color: 'Color',
-      });
-      expect(types).toContain('+color: ?Color,');
-      expect(types).toContain('+name: ?LocalizedString,');
-    });
+    expect(types).toContain('+color: ?Color,');
+    expect(types).toContain('+name: ?LocalizedString,');
   });
+});
 
-  it('imports fragment refs from siblings in a single artifact dir', () => {
-    const text = `
-      fragment Picture on Image {
-        ...PhotoFragment
-      }
+it('imports fragment refs from siblings in a single artifact dir', () => {
+  const text = `
+    fragment Picture on Image {
+      ...PhotoFragment
+    }
 
-      fragment PhotoFragment on Image {
-        __typename
-      }
-    `;
-    const types = generate(text, {
-      customScalars: {},
-      enumsHasteModule: null,
-      existingFragmentNames: new Set(['PhotoFragment']),
-      optionalInputFields: [],
-      // This is what's different from the tests above.
-      useHaste: false,
-      useSingleArtifactDirectory: true,
-    });
-    expect(types).toContain(
-      'import type { PhotoFragment$ref } from "./PhotoFragment.graphql";',
-    );
+    fragment PhotoFragment on Image {
+      __typename
+    }
+  `;
+  const types = generate(text, {
+    customScalars: {},
+    enumsHasteModule: null,
+    existingFragmentNames: new Set(['PhotoFragment']),
+    optionalInputFields: [],
+    // This is what's different from the tests above.
+    useHaste: false,
+    useSingleArtifactDirectory: true,
   });
+  expect(types).toContain(
+    'import type { PhotoFragment$ref } from "./PhotoFragment.graphql";',
+  );
 });

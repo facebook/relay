@@ -26,7 +26,7 @@ export type Disposable = {
 export type DataID = string;
 
 // Variables
-export type Variables = {[name: string]: $FlowFixMe};
+export type Variables = {+[string]: $FlowFixMe};
 
 /**
  * Generated operation flow types are subtypes of this.

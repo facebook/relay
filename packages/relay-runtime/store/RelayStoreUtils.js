@@ -24,7 +24,7 @@ import type {
 import type {ReaderArgument, ReaderField} from '../util/ReaderNode';
 import type {Variables} from '../util/RelayRuntimeTypes';
 
-export type Arguments = {[argName: string]: mixed};
+export type Arguments = {+[string]: mixed};
 
 const {VARIABLE} = RelayConcreteNode;
 

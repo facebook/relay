@@ -105,9 +105,8 @@ module.exports = (
   function getFileFilter(baseDir: string): FileFilter {
     return (file: File) => {
       const filePath = path.join(baseDir, file.relPath);
-      let text = '';
       try {
-        text = fs.readFileSync(filePath, 'utf8');
+        fs.readFileSync(filePath, 'utf8');
       } catch {
         // eslint-disable no-console
         console.warn(
@@ -115,7 +114,7 @@ module.exports = (
         );
         return false;
       }
-      return text.indexOf('graphql') >= 0;
+      return true;
     };
   }
 

@@ -53,14 +53,12 @@ function createOperationDescriptor(
   };
 
   if (__DEV__) {
-    // Freeze the properties of an OperationDescriptor but not the object:
-    // - Freezing properties short-circuits a deepFreeze of snapshots
-    //   that contain an OperationDescriptor via their selector's owner,
-    //   avoiding stack overflow on larger queries.
-    // - Not freezing the object allows overriding properties in tests,
-    //   such as configuring a custom  toJSON() for debugging.
+    // Freezing properties short-circuits a deepFreeze of snapshots that contain
+    // an OperationDescriptor via their selector's owner, avoiding stack
+    // overflow on larger queries.
     Object.freeze(operationDescriptor.fragment);
     Object.freeze(operationDescriptor.root);
+    Object.freeze(operationDescriptor);
   }
   return operationDescriptor;
 }

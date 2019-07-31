@@ -10,13 +10,15 @@
 
 'use strict';
 
-const RelayModernOperationDescriptor = require('../RelayModernOperationDescriptor');
 const RelayModernRecord = require('../RelayModernRecord');
 const RelayModernStore = require('../RelayModernStore');
 const RelayRecordSourceMapImpl = require('../RelayRecordSourceMapImpl');
 const RelayRecordSourceObjectImpl = require('../RelayRecordSourceObjectImpl');
 
 const {getRequest} = require('../../query/RelayModernGraphQLTag');
+const {
+  createOperationDescriptor,
+} = require('../RelayModernOperationDescriptor');
 const {createReaderSelector} = require('../RelayModernSelector');
 const {
   REF_KEY,
@@ -31,22 +33,6 @@ const {
 } = require('relay-test-utils-internal');
 
 expect.extend(matchers);
-
-function createOperationDescriptor(...args) {
-  const operation = RelayModernOperationDescriptor.createOperationDescriptor(
-    ...args,
-  );
-  // For convenience of the test output, override toJSON to print
-  // a more succint description of the operation.
-  // $FlowFixMe
-  operation.toJSON = () => {
-    return {
-      name: operation.fragment.node.name,
-      variables: operation.request.variables,
-    };
-  };
-  return operation;
-}
 
 [
   [RelayRecordSourceObjectImpl, 'Object'],

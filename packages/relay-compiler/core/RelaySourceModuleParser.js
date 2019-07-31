@@ -105,16 +105,16 @@ module.exports = (
   function getFileFilter(baseDir: string): FileFilter {
     return (file: File) => {
       const filePath = path.join(baseDir, file.relPath);
-      try {
-        fs.readFileSync(filePath, 'utf8');
-      } catch {
+
+      if (fs.existsSync(filePath)) {
+        return true;
+      } else {
         // eslint-disable no-console
         console.warn(
           `RelaySourceModuleParser: Unable to read the file "${filePath}". Looks like it was removed.`,
         );
         return false;
       }
-      return true;
     };
   }
 

@@ -14,12 +14,12 @@ const areEqual = require('areEqual');
 const invariant = require('invariant');
 const isScalarAndEqual = require('../util/isScalarAndEqual');
 
+const {createRequestDescriptor} = require('./RelayModernOperationDescriptor');
 const {
   areEqualSelectors,
   createReaderSelector,
   getSelectorsFromObject,
 } = require('./RelayModernSelector');
-const {ROOT_ID} = require('./RelayStoreUtils');
 
 import type {ConcreteRequest} from '../util/RelayConcreteNode';
 import type {Disposable, Variables} from '../util/RelayRuntimeTypes';
@@ -263,10 +263,7 @@ class SelectorResolver {
     // behavior of RelayModern containers while using fragment ownership
     // to propagate variables instead of Context.
     // For more details, see the summary of D13999308
-    const requestDescriptor = {
-      node: request,
-      variables,
-    };
+    const requestDescriptor = createRequestDescriptor(request, variables);
     const selector = createReaderSelector(
       this._selector.node,
       this._selector.dataID,

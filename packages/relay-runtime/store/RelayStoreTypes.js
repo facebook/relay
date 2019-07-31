@@ -32,6 +32,7 @@ import type {
   Disposable,
   Variables,
 } from '../util/RelayRuntimeTypes';
+import type {RequestIdentifier} from '../util/getRequestIdentifier';
 import type RelayOperationTracker from './RelayOperationTracker';
 import type {RecordState} from './RelayRecordState';
 
@@ -71,6 +72,7 @@ export type PluralReaderSelector = {|
 |};
 
 export type RequestDescriptor = {|
+  +identifier: RequestIdentifier,
   +node: ConcreteRequest,
   +variables: Variables,
 |};

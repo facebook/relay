@@ -48,7 +48,6 @@ const fetchQueryInternal = require('./query/fetchQueryInternal');
 const getFragmentIdentifier = require('./util/getFragmentIdentifier');
 const getFragmentSpecIdentifier = require('./util/getFragmentSpecIdentifier');
 const getRelayHandleKey = require('./util/getRelayHandleKey');
-const getRequestParametersIdentifier = require('./util/getRequestParametersIdentifier');
 const isRelayModernEnvironment = require('./store/isRelayModernEnvironment');
 const isScalarAndEqual = require('./util/isScalarAndEqual');
 const recycleNodesInto = require('./util/recycleNodesInto');
@@ -213,6 +212,8 @@ module.exports = {
   createOperationDescriptor:
     RelayModernOperationDescriptor.createOperationDescriptor,
   createReaderSelector: RelayModernSelector.createReaderSelector,
+  createRequestDescriptor:
+    RelayModernOperationDescriptor.createRequestDescriptor,
   getDataIDsFromFragment: RelayModernSelector.getDataIDsFromFragment,
   getDataIDsFromObject: RelayModernSelector.getDataIDsFromObject,
   getFragment: RelayModernGraphQLTag.getFragment,
@@ -286,7 +287,6 @@ module.exports = {
   stableCopy: stableCopy,
   getFragmentIdentifier: getFragmentIdentifier,
   getFragmentSpecIdentifier: getFragmentSpecIdentifier,
-  getRequestParametersIdentifier: getRequestParametersIdentifier,
   __internal: {
     OperationTracker: RelayOperationTracker,
     createRelayContext: createRelayContext,

@@ -16,6 +16,7 @@ const warning = require('warning');
 const {getRequest} = require('../../query/RelayModernGraphQLTag');
 const {
   createOperationDescriptor,
+  createRequestDescriptor,
 } = require('../RelayModernOperationDescriptor');
 const {
   areEqualSelectors,
@@ -77,10 +78,10 @@ describe('RelayModernSelector', () => {
     const dataID = ROOT_ID;
     variables = {id: '4', size: null, cond: false};
     operationVariables = variables;
-    const requestDescriptor = {
-      node: UserQuery,
+    const requestDescriptor = createRequestDescriptor(
+      getRequest(UserQuery),
       variables,
-    };
+    );
     const fragment = createReaderSelector(
       UserQuery.fragment,
       dataID,

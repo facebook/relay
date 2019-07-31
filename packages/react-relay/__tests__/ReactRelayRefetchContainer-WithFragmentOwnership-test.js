@@ -22,6 +22,7 @@ const {
   createNormalizationSelector,
   createOperationDescriptor,
   createReaderSelector,
+  createRequestDescriptor,
   ROOT_ID,
 } = require('relay-runtime');
 const {
@@ -92,10 +93,7 @@ describe('ReactRelayRefetchContainer with fragment ownerhsip', () => {
   }
 
   function createOwnerWithUnalteredVariables(request, vars) {
-    const requestDescriptor = {
-      node: request,
-      variables: vars,
-    };
+    const requestDescriptor = createRequestDescriptor(request, vars);
     const operationDescriptor = {
       fragment: createReaderSelector(
         request.fragment,

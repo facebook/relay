@@ -16,24 +16,24 @@ const stableCopy = require('./stableCopy');
 import type {RequestParameters} from './RelayConcreteNode';
 import type {Variables} from './RelayRuntimeTypes';
 
-export opaque type Identifier: string = string;
+export opaque type RequestIdentifier: string = string;
 
 /**
  * Returns a stable identifier for the given pair of `RequestParameters` +
  * variables.
  */
-function getRequestParametersIdentifier(
+function getRequestIdentifier(
   parameters: RequestParameters,
   variables: Variables,
-): Identifier {
+): RequestIdentifier {
   const requestID = parameters.id != null ? parameters.id : parameters.text;
   invariant(
     requestID != null,
-    'getRequestParametersIdentifier: Expected request `%s` to have either a ' +
+    'getRequestIdentifier: Expected request `%s` to have either a ' +
       'valid `id` or `text` property',
     parameters.name,
   );
   return requestID + JSON.stringify(stableCopy(variables));
 }
 
-module.exports = getRequestParametersIdentifier;
+module.exports = getRequestIdentifier;

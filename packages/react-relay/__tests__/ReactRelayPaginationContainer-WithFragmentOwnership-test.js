@@ -21,6 +21,7 @@ const {
   createNormalizationSelector,
   createOperationDescriptor,
   createReaderSelector,
+  createRequestDescriptor,
   ROOT_ID,
 } = require('relay-runtime');
 const {
@@ -86,10 +87,7 @@ describe('ReactRelayPaginationContainer with fragment ownership', () => {
   }
 
   function createOwnerWithUnalteredVariables(request, vars) {
-    const requestDescriptor = {
-      node: request,
-      variables: vars,
-    };
+    const requestDescriptor = createRequestDescriptor(request, vars);
     const operationDescriptor = {
       fragment: createReaderSelector(
         request.fragment,

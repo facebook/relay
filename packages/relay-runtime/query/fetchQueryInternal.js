@@ -13,7 +13,6 @@
 const Observable = require('../network/RelayObservable');
 const RelayReplaySubject = require('../util/RelayReplaySubject');
 
-const getRequestParametersIdentifier = require('../util/getRequestParametersIdentifier');
 const invariant = require('invariant');
 
 import type {GraphQLResponse} from '../network/RelayNetworkTypes';
@@ -23,12 +22,11 @@ import type {
   OperationDescriptor,
   RequestDescriptor,
 } from '../store/RelayStoreTypes';
-import type {RequestParameters} from '../util/RelayConcreteNode';
-import type {CacheConfig, Variables} from '../util/RelayRuntimeTypes';
-import type {Identifier as RequestParametersId} from '../util/getRequestParametersIdentifier';
+import type {CacheConfig} from '../util/RelayRuntimeTypes';
+import type {RequestIdentifier} from '../util/getRequestIdentifier';
 
 type RequestCacheEntry = {|
-  +key: RequestParametersId,
+  +identifier: RequestIdentifier,
   +subject: RelayReplaySubject<GraphQLResponse>,
   +subscription: Subscription,
 |};
@@ -105,15 +103,11 @@ function fetchQuery(
     networkCacheConfig?: CacheConfig,
   |},
 ): Observable<GraphQLResponse> {
-  return fetchQueryDeduped(
-    environment,
-    operation.request.node.params,
-    operation.request.variables,
-    () =>
-      environment.execute({
-        operation,
-        cacheConfig: options?.networkCacheConfig,
-      }),
+  return fetchQueryDeduped(environment, operation.request, () =>
+    environment.execute({
+      operation,
+      cacheConfig: options?.networkCacheConfig,
+    }),
   );
 }
 
@@ -126,35 +120,34 @@ function fetchQuery(
  */
 function fetchQueryDeduped(
   environment: Environment,
-  parameters: RequestParameters,
-  variables: Variables,
+  request: RequestDescriptor,
   fetchFn: () => Observable<GraphQLResponse>,
 ): Observable<GraphQLResponse> {
   return Observable.create(sink => {
     const requestCache = getRequestCache(environment);
-    const cacheKey = getRequestParametersIdentifier(parameters, variables);
-    let cachedRequest = requestCache.get(cacheKey);
+    const identifier = request.identifier;
+    let cachedRequest = requestCache.get(identifier);
 
     if (!cachedRequest) {
       fetchFn()
-        .finally(() => requestCache.delete(cacheKey))
+        .finally(() => requestCache.delete(identifier))
         .subscribe({
           start: subscription => {
             cachedRequest = {
-              key: cacheKey,
+              identifier,
               subject: new RelayReplaySubject(),
               subscription: subscription,
             };
-            requestCache.set(cacheKey, cachedRequest);
+            requestCache.set(identifier, cachedRequest);
           },
           next: response => {
-            getCachedRequest(requestCache, cacheKey).subject.next(response);
+            getCachedRequest(requestCache, identifier).subject.next(response);
           },
           error: error => {
-            getCachedRequest(requestCache, cacheKey).subject.error(error);
+            getCachedRequest(requestCache, identifier).subject.error(error);
           },
           complete: () => {
-            getCachedRequest(requestCache, cacheKey).subject.complete();
+            getCachedRequest(requestCache, identifier).subject.complete();
           },
         });
     }
@@ -174,7 +167,7 @@ function fetchQueryDeduped(
  * @private
  */
 function getObservableForCachedRequest(
-  requestCache: Map<RequestParametersId, RequestCacheEntry>,
+  requestCache: Map<RequestIdentifier, RequestCacheEntry>,
   cachedRequest: RequestCacheEntry,
 ): Observable<GraphQLResponse> {
   return Observable.create(sink => {
@@ -182,7 +175,7 @@ function getObservableForCachedRequest(
 
     return () => {
       subscription.unsubscribe();
-      const cachedRequestInstance = requestCache.get(cachedRequest.key);
+      const cachedRequestInstance = requestCache.get(cachedRequest.identifier);
       if (cachedRequestInstance) {
         const requestSubscription = cachedRequestInstance.subscription;
         if (
@@ -190,7 +183,7 @@ function getObservableForCachedRequest(
           cachedRequestInstance.subject.getObserverCount() === 0
         ) {
           requestSubscription.unsubscribe();
-          requestCache.delete(cachedRequest.key);
+          requestCache.delete(cachedRequest.identifier);
         }
       }
     };
@@ -208,11 +201,7 @@ function getPromiseForRequestInFlight(
   request: RequestDescriptor,
 ): Promise<?GraphQLResponse> | null {
   const requestCache = getRequestCache(environment);
-  const cacheKey = getRequestParametersIdentifier(
-    request.node.params,
-    request.variables,
-  );
-  const cachedRequest = requestCache.get(cacheKey);
+  const cachedRequest = requestCache.get(request.identifier);
   if (!cachedRequest) {
     return null;
   }
@@ -249,11 +238,7 @@ function getObservableForRequestInFlight(
   request: RequestDescriptor,
 ): Observable<GraphQLResponse> | null {
   const requestCache = getRequestCache(environment);
-  const cacheKey = getRequestParametersIdentifier(
-    request.node.params,
-    request.variables,
-  );
-  const cachedRequest = requestCache.get(cacheKey);
+  const cachedRequest = requestCache.get(request.identifier);
   if (!cachedRequest) {
     return null;
   }
@@ -266,15 +251,15 @@ function getObservableForRequestInFlight(
  */
 function getRequestCache(
   environment: Environment,
-): Map<RequestParametersId, RequestCacheEntry> {
+): Map<RequestIdentifier, RequestCacheEntry> {
   const cached: ?Map<
-    RequestParametersId,
+    RequestIdentifier,
     RequestCacheEntry,
   > = requestCachesByEnvironment.get(environment);
   if (cached != null) {
     return cached;
   }
-  const requestCache: Map<RequestParametersId, RequestCacheEntry> = new Map();
+  const requestCache: Map<RequestIdentifier, RequestCacheEntry> = new Map();
   requestCachesByEnvironment.set(environment, requestCache);
   return requestCache;
 }
@@ -283,10 +268,10 @@ function getRequestCache(
  * @private
  */
 function getCachedRequest(
-  requestCache: Map<RequestParametersId, RequestCacheEntry>,
-  cacheKey: RequestParametersId,
+  requestCache: Map<RequestIdentifier, RequestCacheEntry>,
+  identifier: RequestIdentifier,
 ) {
-  const cached = requestCache.get(cacheKey);
+  const cached = requestCache.get(identifier);
   invariant(
     cached != null,
     '[fetchQueryInternal] getCachedRequest: Expected request to be cached',

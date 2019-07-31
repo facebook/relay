@@ -14,6 +14,7 @@ const RelayModernFragmentSpecResolver = require('../RelayModernFragmentSpecResol
 
 const {
   createOperationDescriptor,
+  createRequestDescriptor,
 } = require('../RelayModernOperationDescriptor');
 const {
   createReaderSelector,
@@ -61,10 +62,7 @@ describe('RelayModernFragmentSpecResolver with fragment ownership', () => {
   }
 
   function createOwnerWithUnalteredVariables(request, vars) {
-    const requestDescriptor = {
-      node: request,
-      variables: vars,
-    };
+    const requestDescriptor = createRequestDescriptor(request, vars);
     const operationDescriptor = {
       fragment: createReaderSelector(
         request.fragment,

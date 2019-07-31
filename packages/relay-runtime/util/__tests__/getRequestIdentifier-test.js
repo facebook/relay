@@ -11,11 +11,11 @@
 
 'use strict';
 
-const getRequestParametersIdentifier = require('../getRequestParametersIdentifier');
+const getRequestIdentifier = require('../getRequestIdentifier');
 
-describe('getRequestParametersIdentifier', () => {
+describe('getRequestIdentifier', () => {
   it('passes with `id`', () => {
-    const queryIdentifier = getRequestParametersIdentifier(
+    const queryIdentifier = getRequestIdentifier(
       ({
         name: 'FooQuery',
         id: '123',
@@ -26,7 +26,7 @@ describe('getRequestParametersIdentifier', () => {
   });
 
   it('passes with `text`', () => {
-    const queryIdentifier = getRequestParametersIdentifier(
+    const queryIdentifier = getRequestIdentifier(
       ({
         name: 'FooQuery',
         text: 'query FooQuery {}',
@@ -38,14 +38,14 @@ describe('getRequestParametersIdentifier', () => {
 
   it('fails without `id` or `text`', () => {
     expect(() => {
-      getRequestParametersIdentifier(
+      getRequestIdentifier(
         ({
           name: 'FooQuery',
         }: any),
         {foo: 1},
       );
     }).toThrowError(
-      'getRequestParametersIdentifier: Expected request `FooQuery` to have ' +
+      'getRequestIdentifier: Expected request `FooQuery` to have ' +
         'either a valid `id` or `text` property',
     );
   });

@@ -44,10 +44,12 @@ type Parsers = {
   [parser: string]: ASTCache,
 };
 
+export type IsGeneratedFileFn = (filePath: string) => boolean;
+
 export type WriterConfig = {|
   parser: string,
   baseParsers?: Array<string>,
-  isGeneratedFile: (filePath: string) => boolean,
+  isGeneratedFile: IsGeneratedFileFn,
   writeFiles: WriteFiles,
 |};
 

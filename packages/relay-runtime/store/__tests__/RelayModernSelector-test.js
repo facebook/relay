@@ -77,10 +77,15 @@ describe('RelayModernSelector', () => {
     const dataID = ROOT_ID;
     variables = {id: '4', size: null, cond: false};
     operationVariables = variables;
+    const requestDescriptor = {
+      node: UserQuery,
+      variables,
+    };
     const fragment = createReaderSelector(
       UserQuery.fragment,
       dataID,
       variables,
+      requestDescriptor,
     );
     const root = createNormalizationSelector(
       UserQuery.operation,
@@ -89,9 +94,8 @@ describe('RelayModernSelector', () => {
     );
     operationDescriptor = {
       fragment,
+      request: requestDescriptor,
       root,
-      node: UserQuery,
-      variables,
     };
 
     environment.commitPayload(operationDescriptor, {
@@ -102,8 +106,12 @@ describe('RelayModernSelector', () => {
       },
     });
     zuck = (environment.lookup(
-      createReaderSelector(UserQuery.fragment, ROOT_ID, {id: '4'}),
-      operationDescriptor,
+      createReaderSelector(
+        UserQuery.fragment,
+        ROOT_ID,
+        {id: '4'},
+        operationDescriptor.request,
+      ),
     ).data: $FlowFixMe).node;
     variables = {
       size: null,
@@ -120,7 +128,7 @@ describe('RelayModernSelector', () => {
       expect(() => getSingularSelector(UserFragment, [zuck])).toThrowError(
         'RelayModernSelector: Expected value for fragment `UserFragment` to be an object, got ' +
           '`[{"__fragments":{"UserFragment":{},"UsersFragment":{}},"__id":"4","__fragmentOwner":' +
-          JSON.stringify(operationDescriptor) +
+          JSON.stringify(operationDescriptor.request) +
           '}]`.',
       );
     });
@@ -142,15 +150,13 @@ describe('RelayModernSelector', () => {
     it('returns a selector', () => {
       const queryNode = getRequest(UserQuery);
       owner = createOperationDescriptor(queryNode, operationVariables);
-      zuck = (environment.lookup(owner.fragment, owner).data: $FlowFixMe).node;
+      zuck = (environment.lookup(owner.fragment).data: $FlowFixMe).node;
 
       const selector = getSingularSelector(UserFragment, zuck);
-      expect(selector).toEqual({
-        kind: 'SingularOwnedReaderSelector',
-        owner: owner,
-        selector: createReaderSelector(UserFragment, '4', variables),
-      });
-      expect(selector?.owner).toBe(owner);
+      expect(selector).toEqual(
+        createReaderSelector(UserFragment, '4', variables, owner.request),
+      );
+      expect(selector?.owner).toBe(owner.request);
     });
 
     it('uses variables from owner', () => {
@@ -161,18 +167,21 @@ describe('RelayModernSelector', () => {
         size: 16,
         cond: true,
       });
-      zuck = (environment.lookup(owner.fragment, owner).data: $FlowFixMe).node;
+      zuck = (environment.lookup(owner.fragment).data: $FlowFixMe).node;
 
       const selector = getSingularSelector(UserFragment, zuck);
-      expect(selector).toEqual({
-        kind: 'SingularOwnedReaderSelector',
-        owner: owner,
-        selector: createReaderSelector(UserFragment, '4', {
-          size: 16,
-          cond: true,
-        }),
-      });
-      expect(selector?.owner).toBe(owner);
+      expect(selector).toEqual(
+        createReaderSelector(
+          UserFragment,
+          '4',
+          {
+            size: 16,
+            cond: true,
+          },
+          owner.request,
+        ),
+      );
+      expect(selector?.owner).toBe(owner.request);
     });
   });
 
@@ -201,17 +210,13 @@ describe('RelayModernSelector', () => {
     it('returns selectors', () => {
       const queryNode = getRequest(UserQuery);
       owner = createOperationDescriptor(queryNode, operationVariables);
-      zuck = (environment.lookup(owner.fragment, owner).data: $FlowFixMe).node;
+      zuck = (environment.lookup(owner.fragment).data: $FlowFixMe).node;
 
       const selector = getPluralSelector(UserFragment, [zuck]);
       expect(selector).toEqual({
-        kind: 'PluralOwnedReaderSelector',
+        kind: 'PluralReaderSelector',
         selectors: [
-          {
-            kind: 'SingularOwnedReaderSelector',
-            owner: owner,
-            selector: createReaderSelector(UserFragment, '4', variables),
-          },
+          createReaderSelector(UserFragment, '4', variables, owner.request),
         ],
       });
     });
@@ -224,20 +229,21 @@ describe('RelayModernSelector', () => {
         size: 16,
         cond: true,
       });
-      zuck = (environment.lookup(owner.fragment, owner).data: $FlowFixMe).node;
+      zuck = (environment.lookup(owner.fragment).data: $FlowFixMe).node;
 
       const selector = getPluralSelector(UserFragment, [zuck]);
       expect(selector).toEqual({
-        kind: 'PluralOwnedReaderSelector',
+        kind: 'PluralReaderSelector',
         selectors: [
-          {
-            kind: 'SingularOwnedReaderSelector',
-            owner: owner,
-            selector: createReaderSelector(UserFragment, '4', {
+          createReaderSelector(
+            UserFragment,
+            '4',
+            {
               size: 16,
               cond: true,
-            }),
-          },
+            },
+            owner.request,
+          ),
         ],
       });
     });
@@ -280,11 +286,12 @@ describe('RelayModernSelector', () => {
         },
       );
       expect(selectors).toEqual({
-        user: {
-          kind: 'SingularOwnedReaderSelector',
-          owner: operationDescriptor,
-          selector: createReaderSelector(UserFragment, '4', variables),
-        },
+        user: createReaderSelector(
+          UserFragment,
+          '4',
+          variables,
+          operationDescriptor.request,
+        ),
       });
     });
 
@@ -311,11 +318,12 @@ describe('RelayModernSelector', () => {
         {user: zuck},
       );
       expect(selectors).toEqual({
-        user: {
-          kind: 'SingularOwnedReaderSelector',
-          owner: operationDescriptor,
-          selector: createReaderSelector(UserFragment, '4', variables),
-        },
+        user: createReaderSelector(
+          UserFragment,
+          '4',
+          variables,
+          operationDescriptor.request,
+        ),
       });
     });
 
@@ -326,13 +334,14 @@ describe('RelayModernSelector', () => {
       );
       expect(selectors).toEqual({
         user: {
-          kind: 'PluralOwnedReaderSelector',
+          kind: 'PluralReaderSelector',
           selectors: [
-            {
-              kind: 'SingularOwnedReaderSelector',
-              owner: operationDescriptor,
-              selector: createReaderSelector(UsersFragment, '4', variables),
-            },
+            createReaderSelector(
+              UsersFragment,
+              '4',
+              variables,
+              operationDescriptor.request,
+            ),
           ],
         },
       });
@@ -342,8 +351,7 @@ describe('RelayModernSelector', () => {
       beforeEach(() => {
         const queryNode = getRequest(UserQuery);
         owner = createOperationDescriptor(queryNode, operationVariables);
-        zuck = (environment.lookup(owner.fragment, owner).data: $FlowFixMe)
-          .node;
+        zuck = (environment.lookup(owner.fragment).data: $FlowFixMe).node;
       });
 
       it('returns singular selectors', () => {
@@ -352,11 +360,12 @@ describe('RelayModernSelector', () => {
           {user: zuck},
         );
         expect(selectors).toEqual({
-          user: {
-            kind: 'SingularOwnedReaderSelector',
-            owner: owner,
-            selector: createReaderSelector(UserFragment, '4', variables),
-          },
+          user: createReaderSelector(
+            UserFragment,
+            '4',
+            variables,
+            owner.request,
+          ),
         });
       });
 
@@ -368,21 +377,21 @@ describe('RelayModernSelector', () => {
           size: 16,
           cond: true,
         });
-        zuck = (environment.lookup(owner.fragment, owner).data: $FlowFixMe)
-          .node;
+        zuck = (environment.lookup(owner.fragment).data: $FlowFixMe).node;
         const selectors = getSelectorsFromObject(
           {user: UserFragment},
           {user: zuck},
         );
         expect(selectors).toEqual({
-          user: {
-            kind: 'SingularOwnedReaderSelector',
-            owner: owner,
-            selector: createReaderSelector(UserFragment, '4', {
+          user: createReaderSelector(
+            UserFragment,
+            '4',
+            {
               size: 16,
               cond: true,
-            }),
-          },
+            },
+            owner.request,
+          ),
         });
       });
 
@@ -393,13 +402,14 @@ describe('RelayModernSelector', () => {
         );
         expect(selectors).toEqual({
           user: {
-            kind: 'PluralOwnedReaderSelector',
+            kind: 'PluralReaderSelector',
             selectors: [
-              {
-                kind: 'SingularOwnedReaderSelector',
-                owner: owner,
-                selector: createReaderSelector(UsersFragment, '4', variables),
-              },
+              createReaderSelector(
+                UsersFragment,
+                '4',
+                variables,
+                owner.request,
+              ),
             ],
           },
         });
@@ -413,24 +423,24 @@ describe('RelayModernSelector', () => {
           size: 16,
           cond: true,
         });
-        zuck = (environment.lookup(owner.fragment, owner).data: $FlowFixMe)
-          .node;
+        zuck = (environment.lookup(owner.fragment).data: $FlowFixMe).node;
         const selectors = getSelectorsFromObject(
           {user: UsersFragment},
           {user: [zuck]},
         );
         expect(selectors).toEqual({
           user: {
-            kind: 'PluralOwnedReaderSelector',
+            kind: 'PluralReaderSelector',
             selectors: [
-              {
-                kind: 'SingularOwnedReaderSelector',
-                owner: owner,
-                selector: createReaderSelector(UsersFragment, '4', {
+              createReaderSelector(
+                UsersFragment,
+                '4',
+                {
                   size: 16,
                   cond: true,
-                }),
-              },
+                },
+                owner.request,
+              ),
             ],
           },
         });
@@ -583,8 +593,7 @@ describe('RelayModernSelector', () => {
       beforeEach(() => {
         const queryNode = getRequest(UserQuery);
         owner = createOperationDescriptor(queryNode, inputVariables);
-        zuck = (environment.lookup(owner.fragment, owner).data: $FlowFixMe)
-          .node;
+        zuck = (environment.lookup(owner.fragment).data: $FlowFixMe).node;
       });
 
       it('returns variables for singular props', () => {
@@ -602,8 +611,7 @@ describe('RelayModernSelector', () => {
           size: 16,
           cond: false,
         });
-        zuck = (environment.lookup(owner.fragment, owner).data: $FlowFixMe)
-          .node;
+        zuck = (environment.lookup(owner.fragment).data: $FlowFixMe).node;
         variables = getVariablesFromObject({user: UserFragment}, {user: zuck});
         expect(variables).toEqual({
           cond: false,
@@ -629,8 +637,7 @@ describe('RelayModernSelector', () => {
           size: 16,
           cond: false,
         });
-        zuck = (environment.lookup(owner.fragment, owner).data: $FlowFixMe)
-          .node;
+        zuck = (environment.lookup(owner.fragment).data: $FlowFixMe).node;
         variables = getVariablesFromObject(
           {user: UsersFragment},
           {user: [zuck]},
@@ -645,46 +652,34 @@ describe('RelayModernSelector', () => {
 
   describe('areEqualSelectors()', () => {
     it('returns true for equivalent selectors', () => {
-      const ownedSelector = {
-        kind: 'SingularOwnedReaderSelector',
-        owner: operationDescriptor,
-        selector: createReaderSelector(UserFragment, '4', variables),
-      };
+      const selector = createReaderSelector(
+        UserFragment,
+        '4',
+        variables,
+        operationDescriptor.request,
+      );
       const clone = {
-        ...ownedSelector,
-        selector: {
-          ...ownedSelector.selector,
-          variables: {...ownedSelector.selector.variables},
-        },
+        ...selector,
+        variables: {...selector.variables},
       };
-      expect(areEqualSelectors(ownedSelector, ownedSelector)).toBe(true);
-      expect(areEqualSelectors(ownedSelector, clone)).toBe(true);
+      expect(areEqualSelectors(selector, selector)).toBe(true);
+      expect(areEqualSelectors(selector, clone)).toBe(true);
     });
 
     it('returns false for equivalent selectors but with different owners', () => {
       const queryNode = getRequest(UserQuery);
       owner = createOperationDescriptor(queryNode, operationVariables);
-      const selector = {
-        kind: 'SingularOwnedReaderSelector',
-        owner: owner,
-        selector: createReaderSelector(UserFragment, '4', variables),
-      };
-      const clone = {
-        kind: 'SingularOwnedReaderSelector',
-        owner,
-        selector: {
-          ...selector.selector,
-          variables: {...selector.selector.variables},
-        },
-      };
-      expect(areEqualSelectors(selector, selector)).toBe(true);
-      expect(areEqualSelectors(selector, clone)).toBe(true);
-
-      // Even if the owner is different, areEqualSelectors should return false
-      // if the 2 selectors represent the same selection
+      const selector = createReaderSelector(
+        UserFragment,
+        '4',
+        variables,
+        owner.request,
+      );
+      // When the owner is different, areEqualSelectors should return false
+      // even if the 2 selectors represent the same selection
       const differentOwner = {
         ...selector,
-        owner: {...owner, variables: {}},
+        owner: {...owner.request},
       };
       expect(areEqualSelectors(selector, differentOwner)).toBe(false);
     });
@@ -692,41 +687,38 @@ describe('RelayModernSelector', () => {
     it('returns true for equivalent selectors with same owners', () => {
       const queryNode = getRequest(UserQuery);
       owner = createOperationDescriptor(queryNode, operationVariables);
-      const selector = {
-        kind: 'SingularOwnedReaderSelector',
-        owner: owner,
-        selector: createReaderSelector(UserFragment, '4', variables),
-      };
+      const selector = createReaderSelector(
+        UserFragment,
+        '4',
+        variables,
+        owner.request,
+      );
       const clone = {
-        kind: 'SingularOwnedReaderSelector',
-        owner: owner,
-        selector: {
-          ...selector.selector,
-          variables: {...selector.selector.variables},
-        },
+        ...selector,
+        variables: {...selector.variables},
       };
       expect(areEqualSelectors(selector, selector)).toBe(true);
       expect(areEqualSelectors(selector, clone)).toBe(true);
     });
 
     it('returns false for different selectors', () => {
-      const readerSelector = createReaderSelector(UserFragment, '4', variables);
-      const selector = {
-        kind: 'SingularOwnedReaderSelector',
-        owner: operationDescriptor,
-        selector: readerSelector,
-      };
+      const selector = createReaderSelector(
+        UserFragment,
+        '4',
+        variables,
+        operationDescriptor.request,
+      );
       const differentID = {
         ...selector,
-        selector: {...readerSelector, dataID: 'beast'},
+        dataID: 'beast',
       };
       const differentNode = {
         ...selector,
-        selector: {...readerSelector, node: {...readerSelector.node}},
+        node: {...selector.node},
       };
       const differentVars = {
         ...selector,
-        selector: {...readerSelector, variables: {}},
+        variables: {},
       };
       expect(areEqualSelectors(selector, differentID)).toBe(false);
       expect(areEqualSelectors(selector, differentNode)).toBe(false);
@@ -736,27 +728,27 @@ describe('RelayModernSelector', () => {
     it('returns false for different selectors with owners', () => {
       const queryNode = getRequest(UserQuery);
       owner = createOperationDescriptor(queryNode, operationVariables);
-      const readerSelector = createReaderSelector(UserFragment, '4', variables);
-      const selector = {
-        kind: 'SingularOwnedReaderSelector',
-        owner: owner,
-        selector: readerSelector,
-      };
+      const selector = createReaderSelector(
+        UserFragment,
+        '4',
+        variables,
+        owner.request,
+      );
       const differentID = {
         ...selector,
-        selector: {...readerSelector, dataID: 'beast'},
+        dataID: 'beast',
       };
       const differentNode = {
         ...selector,
-        selector: {...readerSelector, node: {...readerSelector.node}},
+        node: {...selector.node},
       };
       const differentVars = {
         ...selector,
-        selector: {...readerSelector, variables: {}},
+        variables: {},
       };
       const differentOwner = {
         ...selector,
-        owner: {...owner},
+        owner: {...owner.request},
       };
       expect(areEqualSelectors(selector, differentID)).toBe(false);
       expect(areEqualSelectors(selector, differentNode)).toBe(false);

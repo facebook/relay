@@ -232,10 +232,12 @@ describe('ReactRelayQueryRenderer', () => {
             props: {
               node: {
                 id: '4',
+
                 __fragments: {
                   TestFragment: {},
                 },
-                __fragmentOwner: owner,
+
+                __fragmentOwner: owner.request,
                 __id: '4',
               },
             },
@@ -254,10 +256,12 @@ describe('ReactRelayQueryRenderer', () => {
             props: {
               node: {
                 id: '4',
+
                 __fragments: {
                   TestFragment: {},
                 },
-                __fragmentOwner: owner,
+
+                __fragmentOwner: owner.request,
                 __id: '4',
               },
             },
@@ -312,10 +316,12 @@ describe('ReactRelayQueryRenderer', () => {
             props: {
               node: {
                 id: '4',
+
                 __fragments: {
                   TestFragment: {},
                 },
-                __fragmentOwner: owner,
+
+                __fragmentOwner: owner.request,
                 __id: '4',
               },
             },
@@ -334,10 +340,12 @@ describe('ReactRelayQueryRenderer', () => {
             props: {
               node: {
                 id: '4',
+
                 __fragments: {
                   TestFragment: {},
                 },
-                __fragmentOwner: owner,
+
+                __fragmentOwner: owner.request,
                 __id: '4',
               },
             },
@@ -385,10 +393,12 @@ describe('ReactRelayQueryRenderer', () => {
           props: {
             node: {
               id: '4',
+
               __fragments: {
                 TestFragment: {},
               },
-              __fragmentOwner: firstOwner,
+
+              __fragmentOwner: firstOwner.request,
               __id: '4',
             },
           },
@@ -442,10 +452,12 @@ describe('ReactRelayQueryRenderer', () => {
           props: {
             node: {
               id: '6',
+
               __fragments: {
                 TestFragment: {},
               },
-              __fragmentOwner: thirdOwner,
+
+              __fragmentOwner: thirdOwner.request,
               __id: '6',
             },
           },
@@ -516,10 +528,12 @@ describe('ReactRelayQueryRenderer', () => {
         props: {
           node: {
             id: '4',
+
             __fragments: {
               TestFragment: {},
             },
-            __fragmentOwner: owner,
+
+            __fragmentOwner: owner.request,
             __id: '4',
           },
         },
@@ -549,10 +563,12 @@ describe('ReactRelayQueryRenderer', () => {
         props: {
           node: {
             id: '4',
+
             __fragments: {
               TestFragment: {},
             },
-            __fragmentOwner: owner,
+
+            __fragmentOwner: owner.request,
             __id: '4',
           },
         },
@@ -1024,10 +1040,12 @@ describe('ReactRelayQueryRenderer', () => {
         props: {
           node: {
             id: '4',
+
             __fragments: {
               TestFragment: {},
             },
-            __fragmentOwner: owner,
+
+            __fragmentOwner: owner.request,
             __id: '4',
           },
         },
@@ -1079,10 +1097,12 @@ describe('ReactRelayQueryRenderer', () => {
               props: {
                 node: {
                   id: '4',
+
                   __fragments: {
                     TestFragment: {},
                   },
-                  __fragmentOwner: owner,
+
+                  __fragmentOwner: owner.request,
                   __id: '4',
                 },
               },
@@ -1097,10 +1117,12 @@ describe('ReactRelayQueryRenderer', () => {
               props: {
                 node: {
                   id: '4',
+
                   __fragments: {
                     TestFragment: {},
                   },
-                  __fragmentOwner: owner,
+
+                  __fragmentOwner: owner.request,
                   __id: '4',
                 },
               },
@@ -1149,10 +1171,12 @@ describe('ReactRelayQueryRenderer', () => {
         props: {
           node: {
             id: '4',
+
             __fragments: {
               TestFragment: {},
             },
-            __fragmentOwner: owner,
+
+            __fragmentOwner: owner.request,
             __id: '4',
           },
         },
@@ -1164,11 +1188,13 @@ describe('ReactRelayQueryRenderer', () => {
       expect.assertions(4);
       environment.mock.resolve(TestQuery, response);
       expect(environment.subscribe).toBeCalled();
-      expect(environment.subscribe.mock.calls[0][0].dataID).toBe('client:root');
-      expect(environment.subscribe.mock.calls[0][0].node).toBe(
+      expect(environment.subscribe.mock.calls[0][0].selector.dataID).toBe(
+        'client:root',
+      );
+      expect(environment.subscribe.mock.calls[0][0].selector.node).toBe(
         TestQuery.fragment,
       );
-      expect(environment.subscribe.mock.calls[0][0].variables).toEqual(
+      expect(environment.subscribe.mock.calls[0][0].selector.variables).toEqual(
         variables,
       );
     });
@@ -1643,7 +1669,9 @@ describe('ReactRelayQueryRenderer', () => {
 
       readyState.retry();
       expect(environment.execute).toBeCalledTimes(1);
-      expect(environment.mock.getMostRecentOperation().variables).toEqual({
+      expect(
+        environment.mock.getMostRecentOperation().request.variables,
+      ).toEqual({
         id: '5',
       });
     });

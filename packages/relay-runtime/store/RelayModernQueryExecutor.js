@@ -247,13 +247,13 @@ class Executor {
         'RelayNetwork',
         'No data returned for operation `%s`, got error(s):\n%s\n\nSee the error ' +
           '`source` property for more information.',
-        this._operation.node.params.name,
+        this._operation.request.node.params.name,
         errors ? errors.map(({message}) => message).join('\n') : '(No errors)',
       );
       (error: $FlowFixMe).source = {
         errors,
-        operation: this._operation.node,
-        variables: this._operation.variables,
+        operation: this._operation.request.node,
+        variables: this._operation.request.variables,
       };
       throw error;
     }
@@ -362,7 +362,7 @@ class Executor {
         'RelayModernEnvironment: Operation `%s` contains @defer/@stream ' +
           'directives but was executed in non-streaming mode. See ' +
           'https://fburl.com/relay-incremental-delivery-non-streaming-warning.',
-        this._operation.node.params.name,
+        this._operation.request.node.params.name,
       );
     }
   }
@@ -858,13 +858,16 @@ class Executor {
       updatedOwners != null &&
       updatedOwners.length > 0
     ) {
-      this._operationTracker.update(this._operation, new Set(updatedOwners));
+      this._operationTracker.update(
+        this._operation.request,
+        new Set(updatedOwners),
+      );
     }
   }
 
   _completeOperationTracker() {
     if (this._operationTracker != null) {
-      this._operationTracker.complete(this._operation);
+      this._operationTracker.complete(this._operation.request);
     }
   }
 }

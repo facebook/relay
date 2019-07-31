@@ -348,7 +348,10 @@ function createContainerWithFragments<
           operation,
         );
         if (storeSnapshot != null) {
-          this.state.resolver.setVariables(fragmentVariables, operation.node);
+          this.state.resolver.setVariables(
+            fragmentVariables,
+            operation.request.node,
+          );
           this.setState(
             latestState => ({
               data: latestState.resolver.resolve(),
@@ -377,7 +380,10 @@ function createContainerWithFragments<
           preservePreviousReferences: true,
         })
         .mergeMap(response => {
-          this.state.resolver.setVariables(fragmentVariables, operation.node);
+          this.state.resolver.setVariables(
+            fragmentVariables,
+            operation.request.node,
+          );
           return Observable.create(sink =>
             this.setState(
               latestState => ({

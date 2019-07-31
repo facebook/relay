@@ -215,7 +215,9 @@ function createMockEnvironment(config?: {|
     }
 
     const currentOperation = pendingOperations.find(
-      op => op.node.params === request && op.variables === variables,
+      op =>
+        op.request.node.params === request &&
+        op.request.variables === variables,
     );
 
     // Handle network responses added by
@@ -255,36 +257,47 @@ function createMockEnvironment(config?: {|
   function getConcreteRequest(
     input: ConcreteRequest | OperationDescriptor,
   ): ConcreteRequest {
-    if (input.kind === 'Request' && !input.node) {
-      const request: ConcreteRequest = input;
+    if (input.kind === 'Request') {
+      const request: ConcreteRequest = (input: $FlowFixMe);
       return request;
     } else {
+      const operationDescriptor: OperationDescriptor = (input: $FlowFixMe);
       invariant(
-        pendingOperations.includes(input),
+        pendingOperations.includes(operationDescriptor),
         'RelayModernMockEnvironment: Operation "%s" was not found in the list of pending operations',
-        input.node.operation.name,
+        operationDescriptor.request.node.operation.name,
       );
-      return input.node;
+      return operationDescriptor.request.node;
     }
   }
 
   // The same request may be made by multiple query renderers
   function getRequests(
-    request: ConcreteRequest | OperationDescriptor,
+    input: ConcreteRequest | OperationDescriptor,
   ): $ReadOnlyArray<PendingRequest> {
-    const concreteRequest = getConcreteRequest(request);
+    let concreteRequest: ConcreteRequest;
+    let operationDescriptor: OperationDescriptor;
+    if (input.kind === 'Request') {
+      concreteRequest = (input: $FlowFixMe);
+    } else {
+      operationDescriptor = (input: $FlowFixMe);
+      concreteRequest = operationDescriptor.request.node;
+    }
     const foundRequests = pendingRequests.filter(pending => {
       if (!areEqual(pending.request, concreteRequest.params)) {
         return false;
       }
-      // In the case we received `ConcreteRequest` as input we will return
-      // all pending request, even if they have different variables
-      if (request.variables == null) {
-        return true;
-      } else {
+      if (operationDescriptor) {
         // If we handling `OperationDescriptor` we also need to check variables
         // and return only pending request with equal variables
-        return areEqual(request.variables, pending.variables);
+        return areEqual(
+          operationDescriptor.request.variables,
+          pending.variables,
+        );
+      } else {
+        // In the case we received `ConcreteRequest` as input we will return
+        // all pending request, even if they have different variables
+        return true;
       }
     });
     invariant(

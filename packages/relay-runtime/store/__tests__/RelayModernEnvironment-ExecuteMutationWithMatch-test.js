@@ -33,7 +33,7 @@ function createOperationDescriptor(...args) {
   operation.toJSON = () => {
     return {
       name: operation.fragment.node.name,
-      variables: operation.variables,
+      variables: operation.request.variables,
     };
   };
   return operation;
@@ -147,7 +147,7 @@ describe('executeMutation() with @match', () => {
         }
       },
     });
-    const operationSnapshot = environment.lookup(operation.fragment, operation);
+    const operationSnapshot = environment.lookup(operation.fragment);
     operationCallback = jest.fn();
     environment.subscribe(operationSnapshot, operationCallback);
   });
@@ -197,11 +197,14 @@ describe('executeMutation() with @match', () => {
             nameRenderer: {
               __id:
                 'client:4:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+
               __fragmentPropName: 'name',
+
               __fragments: {
                 MarkdownUserNameRenderer_name: {},
               },
-              __fragmentOwner: operation,
+
+              __fragmentOwner: operation.request,
               __module_component: 'MarkdownUserNameRenderer.react',
             },
           },
@@ -216,7 +219,7 @@ describe('executeMutation() with @match', () => {
           ?.nameRenderer,
       ),
     );
-    const matchSnapshot = environment.lookup(matchSelector.selector, operation);
+    const matchSnapshot = environment.lookup(matchSelector);
     // ref exists but match field data hasn't been processed yet
     expect(matchSnapshot.isMissingData).toBe(true);
     expect(matchSnapshot.data).toEqual({
@@ -276,10 +279,7 @@ describe('executeMutation() with @match', () => {
           ?.nameRenderer,
       ),
     );
-    const initialMatchSnapshot = environment.lookup(
-      matchSelector.selector,
-      operation,
-    );
+    const initialMatchSnapshot = environment.lookup(matchSelector);
     expect(initialMatchSnapshot.isMissingData).toBe(true);
     const matchCallback = jest.fn();
     environment.subscribe(initialMatchSnapshot, matchCallback);

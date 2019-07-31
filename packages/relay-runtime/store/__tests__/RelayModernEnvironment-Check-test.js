@@ -29,7 +29,7 @@ function createOperationDescriptor(...args) {
   operation.toJSON = () => {
     return {
       name: operation.fragment.node.name,
-      variables: operation.variables,
+      variables: operation.request.variables,
     };
   };
   return operation;

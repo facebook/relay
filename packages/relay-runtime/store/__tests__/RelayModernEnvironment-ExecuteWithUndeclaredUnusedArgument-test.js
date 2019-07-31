@@ -33,7 +33,7 @@ function createOperationDescriptor(...args) {
   operation.toJSON = () => {
     return {
       name: operation.fragment.node.name,
-      variables: operation.variables,
+      variables: operation.request.variables,
     };
   };
   return operation;
@@ -111,14 +111,16 @@ describe('query with undeclared, unused fragment argument', () => {
       },
     });
     subject.complete();
-    const snapshot = environment.lookup(operation.fragment, operation);
+    const snapshot = environment.lookup(operation.fragment);
     expect(snapshot.isMissingData).toBe(false);
     expect(snapshot.data).toEqual({
       node: {
-        __fragmentOwner: operation,
+        __fragmentOwner: operation.request,
+
         __fragments: {
           Profile: {},
         },
+
         __id: '4',
       },
     });
@@ -127,17 +129,16 @@ describe('query with undeclared, unused fragment argument', () => {
       (snapshot.data: $FlowFixMe).node,
     );
     invariant(fragmentSelector != null, 'Expected a singular selector.');
-    const fragmentSnapshot = environment.lookup(
-      fragmentSelector.selector,
-      fragmentSelector.owner,
-    );
+    const fragmentSnapshot = environment.lookup(fragmentSelector);
     expect(fragmentSnapshot.isMissingData).toBe(false);
     expect(fragmentSnapshot.data).toEqual({
       __id: '4',
-      __fragmentOwner: operation,
+      __fragmentOwner: operation.request,
+
       __fragments: {
         ProfilePhotoWrapper: {size: undefined},
       },
+
       id: '4',
       name: 'Zuck',
     });
@@ -146,17 +147,16 @@ describe('query with undeclared, unused fragment argument', () => {
       (fragmentSnapshot.data: $FlowFixMe),
     );
     invariant(innerSelector != null, 'Expected a singular selector.');
-    const innerSnapshot = environment.lookup(
-      innerSelector.selector,
-      innerSelector.owner,
-    );
+    const innerSnapshot = environment.lookup(innerSelector);
     expect(innerSnapshot.isMissingData).toBe(false);
     expect(innerSnapshot.data).toEqual({
       __id: '4',
-      __fragmentOwner: operation,
+      __fragmentOwner: operation.request,
+
       __fragments: {
         ProfilePhoto: {size: undefined},
       },
+
       __typename: 'User',
     });
   });

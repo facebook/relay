@@ -34,7 +34,7 @@ function createOperationDescriptor(...args) {
   operation.toJSON = () => {
     return {
       name: operation.fragment.node.name,
-      variables: operation.variables,
+      variables: operation.request.variables,
     };
   };
   return operation;
@@ -129,7 +129,7 @@ describe('@connection with dynamic key', () => {
   });
 
   it('publishes initial results to the store', () => {
-    const operationSnapshot = environment.lookup(operation.fragment, operation);
+    const operationSnapshot = environment.lookup(operation.fragment);
     const operationCallback = jest.fn();
     environment.subscribe(operationSnapshot, operationCallback);
 
@@ -173,17 +173,19 @@ describe('@connection with dynamic key', () => {
     expect(nextOperationSnapshot.data).toEqual({
       node: {
         __id: '<feedbackid>',
+
         __fragments: {
           FeedbackFragment: {},
         },
-        __fragmentOwner: operation,
+
+        __fragmentOwner: operation.request,
       },
     });
 
     const selector = nullthrows(
       getSingularSelector(fragment, nextOperationSnapshot.data?.node),
     );
-    const snapshot = environment.lookup(selector.selector, selector.owner);
+    const snapshot = environment.lookup(selector);
     expect(snapshot.isMissingData).toBe(false);
     expect(snapshot.data).toEqual({
       id: '<feedbackid>',
@@ -240,15 +242,12 @@ describe('@connection with dynamic key', () => {
       fetch.mockClear();
       jest.runAllTimers();
 
-      const operationSnapshot = environment.lookup(
-        operation.fragment,
-        operation,
-      );
+      const operationSnapshot = environment.lookup(operation.fragment);
 
       const selector = nullthrows(
         getSingularSelector(fragment, operationSnapshot.data?.node),
       );
-      const snapshot = environment.lookup(selector.selector, selector.owner);
+      const snapshot = environment.lookup(selector);
       callback = jest.fn();
       environment.subscribe(snapshot, callback);
     });

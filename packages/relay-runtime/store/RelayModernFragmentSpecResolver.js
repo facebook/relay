@@ -16,7 +16,6 @@ const isScalarAndEqual = require('../util/isScalarAndEqual');
 
 const {
   areEqualSelectors,
-  createNormalizationSelector,
   createReaderSelector,
   getSelectorsFromObject,
 } = require('./RelayModernSelector');
@@ -29,10 +28,10 @@ import type {
   FragmentMap,
   FragmentSpecResolver,
   FragmentSpecResults,
-  PluralOwnedReaderSelector,
+  PluralReaderSelector,
   RelayContext,
   SelectorData,
-  SingularOwnedReaderSelector,
+  SingularReaderSelector,
   Snapshot,
 } from './RelayStoreTypes';
 
@@ -139,7 +138,7 @@ class RelayModernFragmentSpecResolver implements FragmentSpecResolver {
             resolver.dispose();
           }
           resolver = null;
-        } else if (ownedSelector.kind === 'PluralOwnedReaderSelector') {
+        } else if (ownedSelector.kind === 'PluralReaderSelector') {
           if (resolver == null) {
             resolver = new SelectorListResolver(
               this._context.environment,
@@ -205,22 +204,19 @@ class SelectorResolver {
   _callback: () => void;
   _data: ?SelectorData;
   _environment: Environment;
-  _ownedSelector: SingularOwnedReaderSelector;
+  _selector: SingularReaderSelector;
   _subscription: ?Disposable;
 
   constructor(
     environment: Environment,
-    ownedSelector: SingularOwnedReaderSelector,
+    selector: SingularReaderSelector,
     callback: () => void,
   ) {
-    const snapshot = environment.lookup(
-      ownedSelector.selector,
-      ownedSelector.owner,
-    );
+    const snapshot = environment.lookup(selector);
     this._callback = callback;
     this._data = snapshot.data;
     this._environment = environment;
-    this._ownedSelector = ownedSelector;
+    this._selector = selector;
     this._subscription = environment.subscribe(snapshot, this._onChange);
   }
 
@@ -235,60 +231,49 @@ class SelectorResolver {
     return this._data;
   }
 
-  setSelector(ownedSelector: SingularOwnedReaderSelector): void {
+  setSelector(selector: SingularReaderSelector): void {
     if (
       this._subscription != null &&
-      areEqualSelectors(ownedSelector, this._ownedSelector)
+      areEqualSelectors(selector, this._selector)
     ) {
       return;
     }
     this.dispose();
-    const snapshot = this._environment.lookup(
-      ownedSelector.selector,
-      ownedSelector.owner,
-    );
+    const snapshot = this._environment.lookup(selector);
     this._data = snapshot.data;
-    this._ownedSelector = ownedSelector;
+    this._selector = selector;
     this._subscription = this._environment.subscribe(snapshot, this._onChange);
   }
 
   setVariables(variables: Variables, request: ConcreteRequest): void {
-    if (areEqual(variables, this._ownedSelector.selector.variables)) {
+    if (areEqual(variables, this._selector.variables)) {
       // If we're not actually setting new variables, we don't actually want
       // to create a new fragment owner, since areEqualSelectors relies on
-      // owner identity when fragment ownership is enabled.
+      // owner identity.
       // In fact, we don't even need to try to attempt to set a new selector.
       // When fragment ownership is not enabled, setSelector will also bail
       // out since the selector doesn't really change, so we're doing it here
       // earlier.
       return;
     }
-    const ownedSelector: SingularOwnedReaderSelector = {
-      kind: 'SingularOwnedReaderSelector',
-      owner:
-        // NOTE: We manually create the operation descriptor here instead of
-        // calling createOperationDescriptor() because we want to set a
-        // descriptor with *unaltered* variables as the fragment owner.
-        // This is a hack that allows us to preserve exisiting (broken)
-        // behavior of RelayModern containers while using fragment ownership
-        // to propagate variables instead of Context.
-        // For more details, see the summary of D13999308
-        {
-          fragment: createReaderSelector(request.fragment, ROOT_ID, variables),
-          node: request,
-          root: createNormalizationSelector(
-            request.operation,
-            ROOT_ID,
-            variables,
-          ),
-          variables,
-        },
-      selector: {
-        ...this._ownedSelector.selector,
-        variables,
-      },
+    // NOTE: We manually create the request descriptor here instead of
+    // calling createOperationDescriptor() because we want to set a
+    // descriptor with *unaltered* variables as the fragment owner.
+    // This is a hack that allows us to preserve exisiting (broken)
+    // behavior of RelayModern containers while using fragment ownership
+    // to propagate variables instead of Context.
+    // For more details, see the summary of D13999308
+    const requestDescriptor = {
+      node: request,
+      variables,
     };
-    this.setSelector(ownedSelector);
+    const selector = createReaderSelector(
+      this._selector.node,
+      this._selector.dataID,
+      variables,
+      requestDescriptor,
+    );
+    this.setSelector(selector);
   }
 
   _onChange = (snapshot: Snapshot): void => {
@@ -309,7 +294,7 @@ class SelectorListResolver {
 
   constructor(
     environment: Environment,
-    selector: PluralOwnedReaderSelector,
+    selector: PluralReaderSelector,
     callback: () => void,
   ) {
     this._callback = callback;
@@ -348,7 +333,7 @@ class SelectorListResolver {
     return this._data;
   }
 
-  setSelector(selector: PluralOwnedReaderSelector): void {
+  setSelector(selector: PluralReaderSelector): void {
     const {selectors} = selector;
     while (this._resolvers.length > selectors.length) {
       const resolver = this._resolvers.pop();

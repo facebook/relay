@@ -31,7 +31,7 @@ function createOperationDescriptor(...args) {
   operation.toJSON = () => {
     return {
       name: operation.fragment.node.name,
-      variables: operation.variables,
+      variables: operation.request.variables,
     };
   };
   return operation;
@@ -85,8 +85,12 @@ describe('subscribe()', () => {
 
   it('calls the callback if data changes', () => {
     const snapshot = environment.lookup(
-      createReaderSelector(ParentQuery.fragment, ROOT_ID, {}),
-      operation,
+      createReaderSelector(
+        ParentQuery.fragment,
+        ROOT_ID,
+        {},
+        operation.request,
+      ),
     );
     const callback = jest.fn();
     environment.subscribe(snapshot, callback);
@@ -103,8 +107,12 @@ describe('subscribe()', () => {
 
   it('does not call the callback if disposed', () => {
     const snapshot = environment.lookup(
-      createReaderSelector(ParentQuery.fragment, ROOT_ID, {}),
-      operation,
+      createReaderSelector(
+        ParentQuery.fragment,
+        ROOT_ID,
+        {},
+        operation.request,
+      ),
     );
     const callback = jest.fn();
     const {dispose} = environment.subscribe(snapshot, callback);

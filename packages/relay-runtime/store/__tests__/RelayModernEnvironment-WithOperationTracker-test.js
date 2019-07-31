@@ -101,10 +101,14 @@ describe('RelayModernEnvironment with RelayOperationTracker', () => {
   it('should have operation tracker and operations should not be affected', () => {
     invariant(tracker != null, 'Tracker should be defined');
     expect(
-      tracker.getPromiseForPendingOperationsAffectingOwner(QueryOperation1),
+      tracker.getPromiseForPendingOperationsAffectingOwner(
+        QueryOperation1.request,
+      ),
     ).toBe(null);
     expect(
-      tracker.getPromiseForPendingOperationsAffectingOwner(QueryOperation2),
+      tracker.getPromiseForPendingOperationsAffectingOwner(
+        QueryOperation2.request,
+      ),
     ).toBe(null);
   });
 
@@ -122,7 +126,7 @@ describe('RelayModernEnvironment with RelayOperationTracker', () => {
     // OperationTracker, and mark this owner as pending, or completed - if an
     // operation that initiated the change is completed.
     environment.subscribe(
-      environment.lookup(QueryOperation1.fragment, QueryOperation1),
+      environment.lookup(QueryOperation1.fragment),
       jest.fn(),
     );
 
@@ -146,7 +150,9 @@ describe('RelayModernEnvironment with RelayOperationTracker', () => {
       .subscribe({});
 
     expect(
-      tracker.getPromiseForPendingOperationsAffectingOwner(QueryOperation1),
+      tracker.getPromiseForPendingOperationsAffectingOwner(
+        QueryOperation1.request,
+      ),
     ).toBe(null);
 
     // This mutation is changing the same feedback object, so the owner (QueryOperation1)
@@ -166,16 +172,20 @@ describe('RelayModernEnvironment with RelayOperationTracker', () => {
     );
 
     expect(
-      tracker.getPromiseForPendingOperationsAffectingOwner(QueryOperation1),
+      tracker.getPromiseForPendingOperationsAffectingOwner(
+        QueryOperation1.request,
+      ),
     ).toBeInstanceOf(Promise);
 
     // Complete the mutation
-    environment.mock.complete(MutationOperation.node);
+    environment.mock.complete(MutationOperation.request.node);
 
     // There should be no pending operations affecting the owner,
     // after the mutation is completed
     expect(
-      tracker.getPromiseForPendingOperationsAffectingOwner(QueryOperation1),
+      tracker.getPromiseForPendingOperationsAffectingOwner(
+        QueryOperation1.request,
+      ),
     ).toBe(null);
   });
 
@@ -207,7 +217,9 @@ describe('RelayModernEnvironment with RelayOperationTracker', () => {
       .subscribe({});
 
     expect(
-      tracker.getPromiseForPendingOperationsAffectingOwner(QueryOperation1),
+      tracker.getPromiseForPendingOperationsAffectingOwner(
+        QueryOperation1.request,
+      ),
     ).toBe(null);
 
     // This mutation will update the same data as the QueryOperation1
@@ -227,7 +239,9 @@ describe('RelayModernEnvironment with RelayOperationTracker', () => {
       }),
     );
     expect(
-      tracker.getPromiseForPendingOperationsAffectingOwner(QueryOperation1),
+      tracker.getPromiseForPendingOperationsAffectingOwner(
+        QueryOperation1.request,
+      ),
     ).toBe(null);
   });
 
@@ -240,7 +254,7 @@ describe('RelayModernEnvironment with RelayOperationTracker', () => {
       .subscribe({});
 
     environment.subscribe(
-      environment.lookup(QueryOperation1.fragment, QueryOperation1),
+      environment.lookup(QueryOperation1.fragment),
       jest.fn(),
     );
 
@@ -264,7 +278,9 @@ describe('RelayModernEnvironment with RelayOperationTracker', () => {
       })
       .subscribe({});
     expect(
-      tracker.getPromiseForPendingOperationsAffectingOwner(QueryOperation1),
+      tracker.getPromiseForPendingOperationsAffectingOwner(
+        QueryOperation1.request,
+      ),
     ).toBe(null);
     environment.mock.nextValue(
       MutationOperation,
@@ -280,14 +296,14 @@ describe('RelayModernEnvironment with RelayOperationTracker', () => {
       }),
     );
     const promise = tracker.getPromiseForPendingOperationsAffectingOwner(
-      QueryOperation1,
+      QueryOperation1.request,
     );
 
     invariant(promise != null, 'Expected to have promise for operation');
     const promiseCallback = jest.fn();
     promise.then(promiseCallback);
     expect(promiseCallback).not.toBeCalled();
-    environment.mock.complete(MutationOperation.node);
+    environment.mock.complete(MutationOperation.request.node);
     jest.runAllTimers();
     expect(promiseCallback).toBeCalled();
   });
@@ -302,7 +318,7 @@ describe('RelayModernEnvironment with RelayOperationTracker', () => {
       .subscribe({});
 
     environment.subscribe(
-      environment.lookup(QueryOperation1.fragment, QueryOperation1),
+      environment.lookup(QueryOperation1.fragment),
       jest.fn(),
     );
 
@@ -314,7 +330,7 @@ describe('RelayModernEnvironment with RelayOperationTracker', () => {
       .subscribe({});
 
     environment.subscribe(
-      environment.lookup(QueryOperation2.fragment, QueryOperation2),
+      environment.lookup(QueryOperation2.fragment),
       jest.fn(),
     );
 
@@ -330,7 +346,9 @@ describe('RelayModernEnvironment with RelayOperationTracker', () => {
     );
 
     expect(
-      tracker.getPromiseForPendingOperationsAffectingOwner(QueryOperation1),
+      tracker.getPromiseForPendingOperationsAffectingOwner(
+        QueryOperation1.request,
+      ),
     ).toBe(null);
 
     environment.mock.nextValue(
@@ -345,7 +363,9 @@ describe('RelayModernEnvironment with RelayOperationTracker', () => {
       }),
     );
     expect(
-      tracker.getPromiseForPendingOperationsAffectingOwner(QueryOperation1),
+      tracker.getPromiseForPendingOperationsAffectingOwner(
+        QueryOperation1.request,
+      ),
     ).toBe(null);
   });
 
@@ -417,7 +437,7 @@ describe('RelayModernEnvironment with RelayOperationTracker', () => {
       const FEEDBACK_ID = 'my-feedback-id';
 
       environment.subscribe(
-        environment.lookup(QueryOperation1.fragment, QueryOperation1),
+        environment.lookup(QueryOperation1.fragment),
         jest.fn(),
       );
       environment.subscribe(
@@ -425,15 +445,15 @@ describe('RelayModernEnvironment with RelayOperationTracker', () => {
           createReaderSelector(
             FeedbackFragment,
             FEEDBACK_ID,
-            QueryOperation1.variables,
+            QueryOperation1.request.variables,
+            QueryOperation1.request,
           ),
-          QueryOperation1,
         ),
         jest.fn(),
       );
 
       operationLoader.load.mockImplementation(() => Promise.resolve());
-      environment.mock.resolve(QueryOperation1.node, {
+      environment.mock.resolve(QueryOperation1.request.node, {
         data: {
           node: {
             __typename: 'Feedback',
@@ -471,13 +491,17 @@ describe('RelayModernEnvironment with RelayOperationTracker', () => {
 
       // We still processing follow-up payloads for the initial query
       expect(
-        tracker.getPromiseForPendingOperationsAffectingOwner(QueryOperation1),
+        tracker.getPromiseForPendingOperationsAffectingOwner(
+          QueryOperation1.request,
+        ),
       ).toBeInstanceOf(Promise);
       jest.runAllTimers();
 
       // All followup completed, operation tracker should be completed
       expect(
-        tracker.getPromiseForPendingOperationsAffectingOwner(QueryOperation1),
+        tracker.getPromiseForPendingOperationsAffectingOwner(
+          QueryOperation1.request,
+        ),
       ).toBe(null);
 
       // Send the mutation
@@ -519,14 +543,18 @@ describe('RelayModernEnvironment with RelayOperationTracker', () => {
       });
 
       expect(
-        tracker.getPromiseForPendingOperationsAffectingOwner(QueryOperation1),
+        tracker.getPromiseForPendingOperationsAffectingOwner(
+          QueryOperation1.request,
+        ),
       ).toBeInstanceOf(Promise);
 
       environment.mock.complete(MutationOperation);
       expect(operationLoader.load).toBeCalled();
       jest.runAllTimers();
       expect(
-        tracker.getPromiseForPendingOperationsAffectingOwner(QueryOperation1),
+        tracker.getPromiseForPendingOperationsAffectingOwner(
+          QueryOperation1.request,
+        ),
       ).toBe(null);
     });
   });

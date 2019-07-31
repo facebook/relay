@@ -27,13 +27,13 @@ const {UNPUBLISH_RECORD_SENTINEL} = require('./RelayStoreUtils');
 import type {Disposable} from '../util/RelayRuntimeTypes';
 import type {GetDataID} from './RelayResponseNormalizer';
 import type {
-  RequestDescriptor,
   MutableRecordSource,
-  RecordSource,
-  Scheduler,
-  ReaderSelector,
   NormalizationSelector,
   OperationLoader,
+  RecordSource,
+  RequestDescriptor,
+  Scheduler,
+  SingularReaderSelector,
   Snapshot,
   Store,
   UpdatedRecords,
@@ -123,8 +123,8 @@ class RelayModernStore implements Store {
     return {dispose};
   }
 
-  lookup(selector: ReaderSelector, owner: RequestDescriptor): Snapshot {
-    const snapshot = RelayReader.read(this._recordSource, selector, owner);
+  lookup(selector: SingularReaderSelector): Snapshot {
+    const snapshot = RelayReader.read(this._recordSource, selector);
     if (__DEV__) {
       deepFreeze(snapshot);
     }
@@ -191,11 +191,7 @@ class RelayModernStore implements Store {
     if (!hasOverlappingIDs(snapshot, this._updatedRecordIDs)) {
       return;
     }
-    let nextSnapshot = RelayReader.read(
-      this._recordSource,
-      snapshot,
-      snapshot.owner,
-    );
+    let nextSnapshot = RelayReader.read(this._recordSource, snapshot.selector);
     const nextData = recycleNodesInto(snapshot.data, nextSnapshot.data);
     nextSnapshot = {
       ...nextSnapshot,
@@ -207,7 +203,7 @@ class RelayModernStore implements Store {
     subscription.snapshot = nextSnapshot;
     if (nextSnapshot.data !== snapshot.data) {
       callback(nextSnapshot);
-      return snapshot.owner;
+      return snapshot.selector.owner;
     }
   }
 

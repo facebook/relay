@@ -17,10 +17,7 @@ const {getRequest} = require('../../query/RelayModernGraphQLTag');
 const {createReaderSelector} = require('../RelayModernSelector');
 const {read} = require('../RelayReader');
 const {ROOT_ID} = require('../RelayStoreUtils');
-const {
-  generateAndCompile,
-  generateWithTransforms,
-} = require('relay-test-utils-internal');
+const {generateAndCompile} = require('relay-test-utils-internal');
 
 function createOperationDescriptor(...args) {
   const operation = RelayModernOperationDescriptor.createOperationDescriptor(
@@ -32,7 +29,7 @@ function createOperationDescriptor(...args) {
   operation.toJSON = () => {
     return {
       name: operation.fragment.node.name,
-      variables: operation.variables,
+      variables: operation.request.variables,
     };
   };
   return operation;
@@ -104,7 +101,7 @@ describe('RelayReader', () => {
   });
 
   it('reads query data', () => {
-    const {FooQuery} = generateWithTransforms(`
+    const {FooQuery} = generateAndCompile(`
       query FooQuery($id: ID, $size: [Int]) {
         node(id: $id) {
           id
@@ -132,10 +129,8 @@ describe('RelayReader', () => {
         }
       }
     `);
-    const {data, seenRecords} = read(
-      source,
-      createReaderSelector(FooQuery.fragment, ROOT_ID, {id: '1', size: 32}),
-    );
+    const operation = createOperationDescriptor(FooQuery, {id: '1', size: 32});
+    const {data, seenRecords} = read(source, operation.fragment);
     expect(data).toEqual({
       node: {
         id: '1',
@@ -178,7 +173,12 @@ describe('RelayReader', () => {
   });
 
   it('reads fragment data', () => {
-    const {BarFragment} = generateWithTransforms(`
+    const {BarFragment, UserQuery} = generateAndCompile(`
+      query UserQuery($size: [Int]) {
+        me {
+          ...BarFragment @arguments(size: $size)
+        }
+      }
       fragment BarFragment on User @argumentDefinitions(
         size: {type: "[Int]"}
       ) {
@@ -198,9 +198,10 @@ describe('RelayReader', () => {
         }
       }
     `);
+    const owner = createOperationDescriptor(UserQuery, {size: 32});
     const {data, seenRecords} = read(
       source,
-      createReaderSelector(BarFragment, '1', {size: 32}),
+      createReaderSelector(BarFragment, '1', {size: 32}, owner.request),
     );
     expect(data).toEqual({
       id: '1',
@@ -264,8 +265,7 @@ describe('RelayReader', () => {
     const owner = createOperationDescriptor(queryNode, {size: 42});
     const {data, seenRecords} = read(
       source,
-      createReaderSelector(UserProfile, '1', {size: 42}),
-      owner,
+      createReaderSelector(UserProfile, '1', {size: 42}, owner.request),
     );
     expect(data).toEqual({
       id: '1',
@@ -273,9 +273,9 @@ describe('RelayReader', () => {
       __fragments: {
         UserProfilePicture: {},
       },
-      __fragmentOwner: owner,
+      __fragmentOwner: owner.request,
     });
-    expect(data.__fragmentOwner).toBe(owner);
+    expect(data.__fragmentOwner).toBe(owner.request);
     expect(Object.keys(seenRecords)).toEqual(['1']);
   });
 
@@ -306,8 +306,7 @@ describe('RelayReader', () => {
     const owner = createOperationDescriptor(UserQuery, {});
     const {data, seenRecords} = read(
       source,
-      createReaderSelector(UserProfile, '1', {size: 42}),
-      owner,
+      createReaderSelector(UserProfile, '1', {size: 42}, owner.request),
     );
     expect(data).toEqual({
       id: '1',
@@ -317,7 +316,7 @@ describe('RelayReader', () => {
           size: 42,
         },
       },
-      __fragmentOwner: owner,
+      __fragmentOwner: owner.request,
     });
     expect(Object.keys(seenRecords)).toEqual(['1']);
   });
@@ -347,8 +346,7 @@ describe('RelayReader', () => {
     const owner = createOperationDescriptor(UserQuery, {});
     const {data, seenRecords} = read(
       source,
-      createReaderSelector(UserProfile, '1', {}),
-      owner,
+      createReaderSelector(UserProfile, '1', {}, owner.request),
     );
     expect(data).toEqual({
       id: '1',
@@ -358,14 +356,20 @@ describe('RelayReader', () => {
           size: 42,
         },
       },
-      __fragmentOwner: owner,
+      __fragmentOwner: owner.request,
     });
     expect(Object.keys(seenRecords)).toEqual(['1']);
   });
 
   describe('@inline', () => {
     it('reads a basic fragment', () => {
-      const {UserProfile} = generateAndCompile(`
+      const {UserProfile, UserQuery} = generateAndCompile(`
+        query UserQuery {
+          me {
+            ...UserProfile
+          }
+        }
+
         fragment UserProfile on User  {
           id
           ...UserProfilePicture
@@ -376,9 +380,10 @@ describe('RelayReader', () => {
           }
         }
       `);
+      const owner = createOperationDescriptor(UserQuery, {});
       const {data, seenRecords} = read(
         source,
-        createReaderSelector(UserProfile, '1', {}),
+        createReaderSelector(UserProfile, '1', {}, owner.request),
       );
       expect(data).toEqual({
         id: '1',
@@ -732,8 +737,7 @@ describe('RelayReader', () => {
       const owner = createOperationDescriptor(BarQuery, {});
       const {data, seenRecords, isMissingData} = read(
         source,
-        createReaderSelector(BarFragment, '1', {}),
-        owner,
+        createReaderSelector(BarFragment, '1', {}, owner.request),
       );
       expect(data).toEqual({
         id: '1',
@@ -743,7 +747,7 @@ describe('RelayReader', () => {
           __fragments: {
             PlainUserNameRenderer_name: {},
           },
-          __fragmentOwner: owner,
+          __fragmentOwner: owner.request,
           __fragmentPropName: 'name',
           __module_component: 'PlainUserNameRenderer.react',
         },
@@ -786,8 +790,7 @@ describe('RelayReader', () => {
       const owner = createOperationDescriptor(BarQuery, {});
       const {data, seenRecords, isMissingData} = read(
         source,
-        createReaderSelector(BarFragment, '1', {}),
-        owner,
+        createReaderSelector(BarFragment, '1', {}, owner.request),
       );
       expect(data).toEqual({
         id: '1',
@@ -797,7 +800,7 @@ describe('RelayReader', () => {
           __fragments: {
             MarkdownUserNameRenderer_name: {},
           },
-          __fragmentOwner: owner,
+          __fragmentOwner: owner.request,
           __fragmentPropName: 'name',
           __module_component: 'MarkdownUserNameRenderer.react',
         },
@@ -965,8 +968,7 @@ describe('RelayReader', () => {
       const owner = createOperationDescriptor(BarQuery, {});
       const {data, seenRecords, isMissingData} = read(
         source,
-        createReaderSelector(BarFragment, '1', {}),
-        owner,
+        createReaderSelector(BarFragment, '1', {}, owner.request),
       );
       expect(data).toEqual({
         id: '1',
@@ -975,7 +977,7 @@ describe('RelayReader', () => {
           __fragments: {
             PlainUserNameRenderer_name: {},
           },
-          __fragmentOwner: owner,
+          __fragmentOwner: owner.request,
           __fragmentPropName: 'name',
           __module_component: 'PlainUserNameRenderer.react',
         },
@@ -1013,8 +1015,7 @@ describe('RelayReader', () => {
       const owner = createOperationDescriptor(BarQuery, {});
       const {data, seenRecords, isMissingData} = read(
         source,
-        createReaderSelector(BarFragment, '1', {}),
-        owner,
+        createReaderSelector(BarFragment, '1', {}, owner.request),
       );
       expect(data).toEqual({
         id: '1',
@@ -1023,7 +1024,7 @@ describe('RelayReader', () => {
           __fragments: {
             MarkdownUserNameRenderer_name: {},
           },
-          __fragmentOwner: owner,
+          __fragmentOwner: owner.request,
           __fragmentPropName: 'name',
           __module_component: 'MarkdownUserNameRenderer.react',
         },
@@ -1054,9 +1055,10 @@ describe('RelayReader', () => {
         },
       };
       source = RelayRecordSource.create(storeData);
+      const owner = createOperationDescriptor(BarQuery, {});
       const {data, seenRecords, isMissingData} = read(
         source,
-        createReaderSelector(BarFragment, '1', {}),
+        createReaderSelector(BarFragment, '1', {}, owner.request),
       );
       expect(data).toEqual({
         id: '1',
@@ -1070,29 +1072,41 @@ describe('RelayReader', () => {
   describe('`isMissingData` field', () => {
     describe('readScalar', () => {
       it('should have `isMissingData = false` if data is available', () => {
-        const {UserProfile} = generateAndCompile(`
+        const {UserProfile, UserQuery} = generateAndCompile(`
           fragment UserProfile on User {
             id
           }
+          query UserQuery {
+            me {
+              ...UserProfile
+            }
+          }
         `);
+        const owner = createOperationDescriptor(UserQuery, {});
         const {data, isMissingData} = read(
           source,
-          createReaderSelector(UserProfile, '1', {}),
+          createReaderSelector(UserProfile, '1', {}, owner.request),
         );
         expect(data.id).toBe('1');
         expect(isMissingData).toBe(false);
       });
 
       it('should have `isMissingData = true` if data is missing', () => {
-        const {UserProfile} = generateAndCompile(`
+        const {UserProfile, UserQuery} = generateAndCompile(`
           fragment UserProfile on User {
             id
             username
           }
+          query UserQuery {
+            me {
+              ...UserProfile
+            }
+          }
         `);
+        const owner = createOperationDescriptor(UserQuery, {});
         const {data, isMissingData} = read(
           source,
-          createReaderSelector(UserProfile, '1', {}),
+          createReaderSelector(UserProfile, '1', {}, owner.request),
         );
         expect(data.id).toBe('1');
         expect(data.username).not.toBeDefined();
@@ -1102,19 +1116,30 @@ describe('RelayReader', () => {
 
     describe('readLink', () => {
       it('should have `isMissingData = false` if data is available', () => {
-        const {ProfilePicture} = generateAndCompile(`
+        const {ProfilePicture, UserQuery} = generateAndCompile(`
           fragment ProfilePicture on User {
             id
             profilePicture(size: $size) {
               uri
             }
           }
+          query UserQuery($size: [Int]) {
+            me {
+              ...ProfilePicture
+            }
+          }
         `);
+        const owner = createOperationDescriptor(UserQuery, {size: 32});
         const {data, isMissingData} = read(
           source,
-          createReaderSelector(ProfilePicture, '1', {
-            size: 32,
-          }),
+          createReaderSelector(
+            ProfilePicture,
+            '1',
+            {
+              size: 32,
+            },
+            owner.request,
+          ),
         );
         expect(data.profilePicture.uri).toEqual('https://example.com/32.png');
         expect(isMissingData).toBe(false);
@@ -1320,7 +1345,12 @@ describe('RelayReader', () => {
       });
 
       it('should have `isMissingData = true` if data is missing for edge in the connection', () => {
-        const {UserFriends} = generateAndCompile(`
+        const {UserFriends, UserQuery} = generateAndCompile(`
+          query UserQuery {
+            me {
+              ...UserFriends
+            }
+          }
           fragment UserFriends on User {
             id
             friends(first: 1) {
@@ -1333,9 +1363,10 @@ describe('RelayReader', () => {
             }
           }
         `);
+        const owner = createOperationDescriptor(UserQuery, {});
         const {data, isMissingData} = read(
           source,
-          createReaderSelector(UserFriends, '3', {}),
+          createReaderSelector(UserFriends, '3', {}, owner.request),
         );
         expect(data.id).toBe('3');
         expect(data.friends.edges).toEqual([undefined]);
@@ -1343,8 +1374,14 @@ describe('RelayReader', () => {
       });
 
       it('should not have missing data if missing fields are client fields', () => {
-        const {UserProfile} = generateAndCompile(
-          `fragment UserProfile on User {
+        const {UserProfile, UserQuery} = generateAndCompile(`
+          query UserQuery($size: [Int]) {
+            me {
+              ...UserProfile
+            }
+          }
+
+          fragment UserProfile on User {
             id
             friends(first: 3) {
               client_friends_connection_field
@@ -1413,11 +1450,11 @@ describe('RelayReader', () => {
             client_name: String
             profile_picture(scale: Float): Image
           }
-        `,
-        );
+        `);
+        const owner = createOperationDescriptor(UserQuery, {size: 32});
         const {data, isMissingData} = read(
           source,
-          createReaderSelector(UserProfile, '1', {}),
+          createReaderSelector(UserProfile, '1', {}, owner.request),
         );
         expect(data.id).toBe('1');
         expect(isMissingData).toBe(false);

@@ -66,7 +66,7 @@ function requestSubscription<TSubscriptionPayload>(
       cacheConfig: {force: true},
     })
     .map(() => {
-      const data = environment.lookup(operation.fragment, operation).data;
+      const data = environment.lookup(operation.fragment).data;
       // $FlowFixMe
       return (data: TSubscriptionPayload);
     })

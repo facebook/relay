@@ -124,7 +124,7 @@ function commitMutation<T: MutationParameters>(
       complete: () => {
         const {onCompleted} = config;
         if (onCompleted) {
-          const snapshot = environment.lookup(operation.fragment, operation);
+          const snapshot = environment.lookup(operation.fragment);
           onCompleted(
             (snapshot.data: $FlowFixMe),
             errors.length !== 0 ? errors : null,

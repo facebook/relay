@@ -31,7 +31,7 @@ function createOperationDescriptor(...args) {
   operation.toJSON = () => {
     return {
       name: operation.fragment.node.name,
-      variables: operation.variables,
+      variables: operation.request.variables,
     };
   };
   return operation;
@@ -134,8 +134,13 @@ describe('execute() with Promise network', () => {
   });
 
   it('calls next() and publishes payloads to the store', () => {
-    const selector = createReaderSelector(query.fragment, ROOT_ID, variables);
-    const snapshot = environment.lookup(selector, operation);
+    const selector = createReaderSelector(
+      query.fragment,
+      ROOT_ID,
+      variables,
+      operation.request,
+    );
+    const snapshot = environment.lookup(selector);
     const callback = jest.fn();
     environment.subscribe(snapshot, callback);
 

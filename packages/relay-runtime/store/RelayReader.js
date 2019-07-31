@@ -37,7 +37,6 @@ const {
 } = require('./RelayStoreUtils');
 
 import type {
-  ReaderFragment,
   ReaderFragmentSpread,
   ReaderInlineDataFragmentSpread,
   ReaderLinkedField,
@@ -48,56 +47,50 @@ import type {
 } from '../util/ReaderNode';
 import type {DataID, Variables} from '../util/RelayRuntimeTypes';
 import type {
-  RequestDescriptor,
-  ReaderSelector,
   Record,
   RecordSource,
+  RequestDescriptor,
   SelectorData,
+  SingularReaderSelector,
   Snapshot,
 } from './RelayStoreTypes';
 
 function read(
   recordSource: RecordSource,
-  selector: ReaderSelector,
-  owner: RequestDescriptor,
+  selector: SingularReaderSelector,
 ): Snapshot {
-  const {dataID, node, variables} = selector;
-  const reader = new RelayReader(recordSource, variables, owner);
-  return reader.read(node, dataID);
+  const reader = new RelayReader(recordSource, selector);
+  return reader.read();
 }
 
 /**
  * @private
  */
 class RelayReader {
-  _recordSource: RecordSource;
-  _seenRecords: {[dataID: DataID]: ?Record};
-  _variables: Variables;
   _isMissingData: boolean;
   _owner: RequestDescriptor;
+  _recordSource: RecordSource;
+  _seenRecords: {[dataID: DataID]: ?Record};
+  _selector: SingularReaderSelector;
+  _variables: Variables;
 
-  constructor(
-    recordSource: RecordSource,
-    variables: Variables,
-    owner: RequestDescriptor,
-  ) {
+  constructor(recordSource: RecordSource, selector: SingularReaderSelector) {
+    this._isMissingData = false;
+    this._owner = selector.owner;
     this._recordSource = recordSource;
     this._seenRecords = {};
-    this._isMissingData = false;
-    this._variables = variables;
-    this._owner = owner;
+    this._selector = selector;
+    this._variables = selector.variables;
   }
 
-  read(node: ReaderFragment, dataID: DataID): Snapshot {
+  read(): Snapshot {
+    const {node, dataID} = this._selector;
     const data = this._traverse(node, dataID, null);
     return {
       data,
-      dataID,
-      node,
       seenRecords: this._seenRecords,
-      variables: this._variables,
       isMissingData: this._isMissingData,
-      owner: this._owner,
+      selector: this._selector,
     };
   }
 

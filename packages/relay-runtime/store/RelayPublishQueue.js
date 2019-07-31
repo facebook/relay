@@ -24,17 +24,17 @@ import type {HandlerProvider} from '../handlers/RelayDefaultHandlerProvider';
 import type {Disposable} from '../util/RelayRuntimeTypes';
 import type {GetDataID} from './RelayResponseNormalizer';
 import type {
-  RequestDescriptor,
   HandleFieldPayload,
   MutableRecordSource,
   OperationDescriptor,
   OptimisticUpdate,
   PublishQueue,
-  ReaderSelector,
   RecordSource,
   RelayResponsePayload,
+  RequestDescriptor,
   SelectorData,
   SelectorStoreUpdater,
+  SingularReaderSelector,
   Store,
   StoreUpdater,
 } from './RelayStoreTypes';
@@ -229,7 +229,7 @@ class RelayPublishQueue implements PublishQueue {
         'RelayModernEnvironment: Expected a selector to be provided with updater function.',
       );
       const selectorStore = new RelayRecordSourceSelectorProxy(store, selector);
-      const selectorData = lookupSelector(source, selector, operation);
+      const selectorData = lookupSelector(source, selector);
       updater(selectorStore, selectorData);
     }
     return source;
@@ -310,11 +310,7 @@ class RelayPublishQueue implements PublishQueue {
                 null,
                 {getDataID: this._getDataID},
               ));
-              selectorData = lookupSelector(
-                source,
-                operation.fragment,
-                operation,
-              );
+              selectorData = lookupSelector(source, operation.fragment);
             }
             selectorStoreUpdater &&
               ErrorUtils.applyWithGuard(
@@ -359,11 +355,7 @@ class RelayPublishQueue implements PublishQueue {
                 null,
                 {getDataID: this._getDataID},
               ));
-              selectorData = lookupSelector(
-                source,
-                operation.fragment,
-                operation,
-              );
+              selectorData = lookupSelector(source, operation.fragment);
             }
             selectorStoreUpdater &&
               ErrorUtils.applyWithGuard(
@@ -398,10 +390,9 @@ class RelayPublishQueue implements PublishQueue {
 
 function lookupSelector(
   source: RecordSource,
-  selector: ReaderSelector,
-  owner: OperationDescriptor,
+  selector: SingularReaderSelector,
 ): ?SelectorData {
-  const selectorData = RelayReader.read(source, selector, owner).data;
+  const selectorData = RelayReader.read(source, selector).data;
   if (__DEV__) {
     const deepFreeze = require('../util/deepFreeze');
     if (selectorData) {

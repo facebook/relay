@@ -32,7 +32,7 @@ function createOperationDescriptor(...args) {
   operation.toJSON = () => {
     return {
       name: operation.fragment.node.name,
-      variables: operation.variables,
+      variables: operation.request.variables,
     };
   };
   return operation;
@@ -75,8 +75,12 @@ describe('lookup()', () => {
 
   it('returns the results of executing a query', () => {
     const snapshot = environment.lookup(
-      createReaderSelector(ParentQuery.fragment, ROOT_ID, {}),
-      operation,
+      createReaderSelector(
+        ParentQuery.fragment,
+        ROOT_ID,
+        {},
+        operation.request,
+      ),
     );
     expect(snapshot.data).toEqual({
       me: {
@@ -84,7 +88,7 @@ describe('lookup()', () => {
         name: 'Zuck',
         __id: '4',
         __fragments: {ChildFragment: {}},
-        __fragmentOwner: operation,
+        __fragmentOwner: operation.request,
       },
     });
   });
@@ -93,8 +97,7 @@ describe('lookup()', () => {
     const queryNode = getRequest(ParentQuery);
     const owner = createOperationDescriptor(queryNode, {});
     const snapshot = environment.lookup(
-      createReaderSelector(ParentQuery.fragment, ROOT_ID, {}),
-      owner,
+      createReaderSelector(ParentQuery.fragment, ROOT_ID, {}, owner.request),
     );
     expect(snapshot.data).toEqual({
       me: {
@@ -102,10 +105,10 @@ describe('lookup()', () => {
         name: 'Zuck',
         __id: '4',
         __fragments: {ChildFragment: {}},
-        __fragmentOwner: owner,
+        __fragmentOwner: owner.request,
       },
     });
     // $FlowFixMe
-    expect(snapshot.data?.me?.__fragmentOwner).toBe(owner);
+    expect(snapshot.data?.me?.__fragmentOwner).toBe(owner.request);
   });
 });

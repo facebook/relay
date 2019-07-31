@@ -31,7 +31,7 @@ function createOperationDescriptor(...args) {
   operation.toJSON = () => {
     return {
       name: operation.fragment.node.name,
-      variables: operation.variables,
+      variables: operation.request.variables,
     };
   };
   return operation;
@@ -159,13 +159,23 @@ describe('execute() a query with @defer', () => {
       store,
     });
 
-    const userSelector = createReaderSelector(fragment, '1', {});
-    const userSnapshot = environment.lookup(userSelector, operation);
+    const userSelector = createReaderSelector(
+      fragment,
+      '1',
+      {},
+      operation.request,
+    );
+    const userSnapshot = environment.lookup(userSelector);
     userCallback = jest.fn();
     environment.subscribe(userSnapshot, userCallback);
 
-    const actorSelector = createReaderSelector(fragment, '2', {});
-    const actorSnapshot = environment.lookup(actorSelector, operation);
+    const actorSelector = createReaderSelector(
+      fragment,
+      '2',
+      {},
+      operation.request,
+    );
+    const actorSnapshot = environment.lookup(actorSelector);
     actorCallback = jest.fn();
     environment.subscribe(actorSnapshot, actorCallback);
   });

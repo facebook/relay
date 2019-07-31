@@ -33,7 +33,7 @@ function createOperationDescriptor(...args) {
   operation.toJSON = () => {
     return {
       name: operation.fragment.node.name,
-      variables: operation.variables,
+      variables: operation.request.variables,
     };
   };
   return operation;
@@ -141,7 +141,7 @@ describe('execute() a query with @match with additional arguments', () => {
       },
     });
 
-    const operationSnapshot = environment.lookup(operation.fragment, operation);
+    const operationSnapshot = environment.lookup(operation.fragment);
     operationCallback = jest.fn();
     environment.subscribe(operationSnapshot, operationCallback);
   });
@@ -185,11 +185,14 @@ describe('execute() a query with @match with additional arguments', () => {
         nameRendererForContext: {
           __id:
             'client:1:nameRendererForContext(context:"HEADER",supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+
           __fragmentPropName: 'name',
+
           __fragments: {
             MarkdownUserNameRenderer_name: {},
           },
-          __fragmentOwner: operation,
+
+          __fragmentOwner: operation.request,
           __module_component: 'MarkdownUserNameRenderer.react',
         },
       },
@@ -201,7 +204,7 @@ describe('execute() a query with @match with additional arguments', () => {
         (operationSnapshot.data?.node: any)?.nameRendererForContext,
       ),
     );
-    const matchSnapshot = environment.lookup(matchSelector.selector, operation);
+    const matchSnapshot = environment.lookup(matchSelector);
     // ref exists but match field data hasn't been processed yet
     expect(matchSnapshot.isMissingData).toBe(true);
     expect(matchSnapshot.data).toEqual({
@@ -246,10 +249,7 @@ describe('execute() a query with @match with additional arguments', () => {
       ),
     );
     // initial results tested above
-    const initialMatchSnapshot = environment.lookup(
-      matchSelector.selector,
-      operation,
-    );
+    const initialMatchSnapshot = environment.lookup(matchSelector);
     expect(initialMatchSnapshot.isMissingData).toBe(true);
     const matchCallback = jest.fn();
     environment.subscribe(initialMatchSnapshot, matchCallback);
@@ -316,7 +316,7 @@ describe('execute() a query with @match with additional arguments', () => {
 
     // At this point the matchSnapshot should contain all the data,
     // since it should've been normalized synchronously
-    const matchSnapshot = environment.lookup(matchSelector.selector, operation);
+    const matchSnapshot = environment.lookup(matchSelector);
     expect(matchSnapshot.isMissingData).toBe(false);
     expect(matchSnapshot.data).toEqual({
       __typename: 'MarkdownUserNameRenderer',
@@ -398,10 +398,7 @@ describe('execute() a query with @match with additional arguments', () => {
       ),
     );
     // initial results tested above
-    const initialMatchSnapshot = environment.lookup(
-      matchSelector.selector,
-      operation,
-    );
+    const initialMatchSnapshot = environment.lookup(matchSelector);
     expect(initialMatchSnapshot.isMissingData).toBe(true);
     const matchCallback = jest.fn();
     environment.subscribe(initialMatchSnapshot, matchCallback);
@@ -499,10 +496,7 @@ describe('execute() a query with @match with additional arguments', () => {
       ),
     );
     // initial results tested above
-    const initialMatchSnapshot = environment.lookup(
-      matchSelector.selector,
-      operation,
-    );
+    const initialMatchSnapshot = environment.lookup(matchSelector);
     expect(initialMatchSnapshot.isMissingData).toBe(true);
     const matchCallback = jest.fn();
     environment.subscribe(initialMatchSnapshot, matchCallback);
@@ -761,10 +755,7 @@ describe('execute() a query with @match with additional arguments', () => {
       ),
     );
     // initial results tested above
-    const initialMatchSnapshot = environment.lookup(
-      matchSelector.selector,
-      operation,
-    );
+    const initialMatchSnapshot = environment.lookup(matchSelector);
     expect(initialMatchSnapshot.isMissingData).toBe(true);
     const matchCallback = jest.fn();
     environment.subscribe(initialMatchSnapshot, matchCallback);

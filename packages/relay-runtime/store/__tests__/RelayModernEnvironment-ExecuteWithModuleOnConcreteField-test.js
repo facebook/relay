@@ -33,7 +33,7 @@ function createOperationDescriptor(...args) {
   operation.toJSON = () => {
     return {
       name: operation.fragment.node.name,
-      variables: operation.variables,
+      variables: operation.request.variables,
     };
   };
   return operation;
@@ -108,7 +108,7 @@ describe('execute() a query with @module on a field with a nullable concrete typ
       store,
       operationLoader,
     });
-    const operationSnapshot = environment.lookup(operation.fragment, operation);
+    const operationSnapshot = environment.lookup(operation.fragment);
     operationCallback = jest.fn();
     environment.subscribe(operationSnapshot, operationCallback);
   });
@@ -150,10 +150,12 @@ describe('execute() a query with @module on a field with a nullable concrete typ
         author: {
           __id: '2',
           __fragmentPropName: 'author',
+
           __fragments: {
             FeedbackAuthor_author: {},
           },
-          __fragmentOwner: operation,
+
+          __fragmentOwner: operation.request,
           __module_component: 'FeedbackAuthor.react',
         },
       },
@@ -165,7 +167,7 @@ describe('execute() a query with @module on a field with a nullable concrete typ
         (operationSnapshot.data?.node: any)?.author,
       ),
     );
-    const matchSnapshot = environment.lookup(matchSelector.selector, operation);
+    const matchSnapshot = environment.lookup(matchSelector);
     // ref exists but match field data hasn't been processed yet
     expect(matchSnapshot.isMissingData).toBe(true);
     expect(matchSnapshot.data).toEqual({
@@ -205,10 +207,7 @@ describe('execute() a query with @module on a field with a nullable concrete typ
       ),
     );
     // initial results tested above
-    const initialMatchSnapshot = environment.lookup(
-      matchSelector.selector,
-      operation,
-    );
+    const initialMatchSnapshot = environment.lookup(matchSelector);
     expect(initialMatchSnapshot.isMissingData).toBe(true);
     const matchCallback = jest.fn();
     environment.subscribe(initialMatchSnapshot, matchCallback);

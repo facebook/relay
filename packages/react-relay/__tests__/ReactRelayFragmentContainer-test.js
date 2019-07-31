@@ -15,7 +15,10 @@ const ReactRelayContext = require('../ReactRelayContext');
 const ReactRelayFragmentContainer = require('../ReactRelayFragmentContainer');
 const ReactTestRenderer = require('ReactTestRenderer');
 
-const {createOperationDescriptor} = require('relay-runtime');
+const {
+  createReaderSelector,
+  createOperationDescriptor,
+} = require('relay-runtime');
 const {
   createMockEnvironment,
   generateAndCompile,
@@ -221,16 +224,18 @@ describe('ReactRelayFragmentContainer', () => {
     // Subscribes for updates
     expect(environment.subscribe.mock.calls.length).toBe(1);
     expect(environment.subscribe.mock.calls[0][0]).toEqual({
-      dataID: '4',
       data: {
         id: '4',
         name: 'Zuck',
       },
-      node: UserFragment,
-      seenRecords: expect.any(Object),
-      variables: {cond: true},
       isMissingData: false,
-      owner: ownerUser1,
+      seenRecords: expect.any(Object),
+      selector: createReaderSelector(
+        UserFragment,
+        '4',
+        {cond: true},
+        ownerUser1.request,
+      ),
     });
   });
 
@@ -306,16 +311,18 @@ describe('ReactRelayFragmentContainer', () => {
     // Container subscribes for updates on new props
     expect(environment.subscribe.mock.calls.length).toBe(1);
     expect(environment.subscribe.mock.calls[0][0]).toEqual({
-      dataID: '842472',
       data: {
         id: '842472',
         name: 'Joe',
       },
-      node: UserFragment,
-      seenRecords: expect.any(Object),
-      variables: {cond: true},
       isMissingData: false,
-      owner: ownerUser2,
+      seenRecords: expect.any(Object),
+      selector: createReaderSelector(
+        UserFragment,
+        '842472',
+        {cond: true},
+        ownerUser2.request,
+      ),
     });
   });
 
@@ -347,16 +354,18 @@ describe('ReactRelayFragmentContainer', () => {
     // Container subscribes for updates on new props
     expect(environment.subscribe.mock.calls.length).toBe(1);
     expect(environment.subscribe.mock.calls[0][0]).toEqual({
-      dataID: '4',
       data: {
         id: '4',
         name: 'Zuck',
       },
-      node: UserFragment,
-      seenRecords: expect.any(Object),
-      variables: {cond: true},
       isMissingData: false,
-      owner: ownerUser1,
+      seenRecords: expect.any(Object),
+      selector: createReaderSelector(
+        UserFragment,
+        '4',
+        {cond: true},
+        ownerUser1.request,
+      ),
     });
   });
 

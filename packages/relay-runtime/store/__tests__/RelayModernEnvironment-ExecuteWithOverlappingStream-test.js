@@ -31,7 +31,7 @@ function createOperationDescriptor(...args) {
   operation.toJSON = () => {
     return {
       name: operation.fragment.node.name,
-      variables: operation.variables,
+      variables: operation.request.variables,
     };
   };
   return operation;
@@ -83,7 +83,7 @@ describe('execute() a query with multiple @stream selections on the same record'
       `));
     variables = {id: '1', enableStream: true};
     operation = createOperationDescriptor(query, variables);
-    selector = createReaderSelector(fragment, '1', {});
+    selector = createReaderSelector(fragment, '1', {}, operation.request);
 
     // Handler to upper-case the value of the (string) field to which it's
     // applied
@@ -142,7 +142,7 @@ describe('execute() a query with multiple @stream selections on the same record'
   });
 
   it('calls next() and publishes the initial payload to the store', () => {
-    const initialSnapshot = environment.lookup(selector, operation);
+    const initialSnapshot = environment.lookup(selector);
     const callback = jest.fn();
     environment.subscribe(initialSnapshot, callback);
 
@@ -173,7 +173,7 @@ describe('execute() a query with multiple @stream selections on the same record'
   });
 
   it('processes sequential payloads (all actors, then all viewedBy)', () => {
-    const initialSnapshot = environment.lookup(selector, operation);
+    const initialSnapshot = environment.lookup(selector);
     const callback = jest.fn();
     environment.subscribe(initialSnapshot, callback);
 
@@ -289,7 +289,7 @@ describe('execute() a query with multiple @stream selections on the same record'
   });
 
   it('processes interleaved streamed payloads (actor/viewedBy/actor/viewedBy)', () => {
-    const initialSnapshot = environment.lookup(selector, operation);
+    const initialSnapshot = environment.lookup(selector);
     const callback = jest.fn();
     environment.subscribe(initialSnapshot, callback);
 

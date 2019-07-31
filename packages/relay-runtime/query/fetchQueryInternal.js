@@ -18,12 +18,17 @@ const invariant = require('invariant');
 
 import type {GraphQLResponse} from '../network/RelayNetworkTypes';
 import type {Subscription} from '../network/RelayObservable';
-import type {Environment, OperationDescriptor} from '../store/RelayStoreTypes';
+import type {
+  Environment,
+  OperationDescriptor,
+  RequestDescriptor,
+} from '../store/RelayStoreTypes';
 import type {RequestParameters} from '../util/RelayConcreteNode';
 import type {CacheConfig, Variables} from '../util/RelayRuntimeTypes';
 import type {Identifier as RequestParametersId} from '../util/getRequestParametersIdentifier';
 
 type RequestCacheEntry = {|
+  +key: RequestParametersId,
   +subject: RelayReplaySubject<GraphQLResponse>,
   +subscription: Subscription,
 |};
@@ -92,22 +97,21 @@ const requestCachesByEnvironment = new Map();
  * // This will cancel the request if it is in-flight.
  * subscription.unsubscribe();
  * ```
- * @private
  */
 function fetchQuery(
   environment: Environment,
-  query: OperationDescriptor,
+  operation: OperationDescriptor,
   options?: {|
     networkCacheConfig?: CacheConfig,
   |},
 ): Observable<GraphQLResponse> {
   return fetchQueryDeduped(
     environment,
-    query.node.params,
-    query.variables,
+    operation.request.node.params,
+    operation.request.variables,
     () =>
       environment.execute({
-        operation: query,
+        operation,
         cacheConfig: options?.networkCacheConfig,
       }),
   );
@@ -119,8 +123,6 @@ function fetchQuery(
  * `fetchQueryDeduped` can also be used to share a single cache for
  * requests that aren't using `fetchQuery` directly (e.g. because they don't
  * have an `OperationDescriptor` when they are called).
- *
- * @private
  */
 function fetchQueryDeduped(
   environment: Environment,
@@ -139,6 +141,7 @@ function fetchQueryDeduped(
         .subscribe({
           start: subscription => {
             cachedRequest = {
+              key: cacheKey,
               subject: new RelayReplaySubject(),
               subscription: subscription,
             };
@@ -161,11 +164,25 @@ function fetchQueryDeduped(
       '[fetchQueryInternal] fetchQueryDeduped: Expected `start` to be ' +
         'called synchronously',
     );
+    return getObservableForCachedRequest(requestCache, cachedRequest).subscribe(
+      sink,
+    );
+  });
+}
+
+/**
+ * @private
+ */
+function getObservableForCachedRequest(
+  requestCache: Map<RequestParametersId, RequestCacheEntry>,
+  cachedRequest: RequestCacheEntry,
+): Observable<GraphQLResponse> {
+  return Observable.create(sink => {
     const subscription = cachedRequest.subject.subscribe(sink);
 
     return () => {
       subscription.unsubscribe();
-      const cachedRequestInstance = requestCache.get(cacheKey);
+      const cachedRequestInstance = requestCache.get(cachedRequest.key);
       if (cachedRequestInstance) {
         const requestSubscription = cachedRequestInstance.subscription;
         if (
@@ -173,7 +190,7 @@ function fetchQueryDeduped(
           cachedRequestInstance.subject.getObserverCount() === 0
         ) {
           requestSubscription.unsubscribe();
-          requestCache.delete(cacheKey);
+          requestCache.delete(cachedRequest.key);
         }
       }
     };
@@ -185,16 +202,15 @@ function fetchQueryDeduped(
  * this function will return a Promise that will resolve when that request has
  * completed and the data has been saved to the store.
  * If no request is in flight, null will be returned
- * @private
  */
 function getPromiseForRequestInFlight(
   environment: Environment,
-  query: OperationDescriptor,
+  request: RequestDescriptor,
 ): Promise<?GraphQLResponse> | null {
   const requestCache = getRequestCache(environment);
   const cacheKey = getRequestParametersIdentifier(
-    query.node.params,
-    query.variables,
+    request.node.params,
+    request.variables,
   );
   const cachedRequest = requestCache.get(cacheKey);
   if (!cachedRequest) {
@@ -203,7 +219,7 @@ function getPromiseForRequestInFlight(
 
   return new Promise((resolve, reject) => {
     let resolveOnNext = false;
-    fetchQuery(environment, query).subscribe({
+    getObservableForCachedRequest(requestCache, cachedRequest).subscribe({
       complete: resolve,
       error: reject,
       next: response => {
@@ -230,21 +246,24 @@ function getPromiseForRequestInFlight(
  */
 function getObservableForRequestInFlight(
   environment: Environment,
-  query: OperationDescriptor,
+  request: RequestDescriptor,
 ): Observable<GraphQLResponse> | null {
   const requestCache = getRequestCache(environment);
   const cacheKey = getRequestParametersIdentifier(
-    query.node.params,
-    query.variables,
+    request.node.params,
+    request.variables,
   );
   const cachedRequest = requestCache.get(cacheKey);
   if (!cachedRequest) {
     return null;
   }
 
-  return fetchQuery(environment, query);
+  return getObservableForCachedRequest(requestCache, cachedRequest);
 }
 
+/**
+ * @private
+ */
 function getRequestCache(
   environment: Environment,
 ): Map<RequestParametersId, RequestCacheEntry> {
@@ -260,6 +279,9 @@ function getRequestCache(
   return requestCache;
 }
 
+/**
+ * @private
+ */
 function getCachedRequest(
   requestCache: Map<RequestParametersId, RequestCacheEntry>,
   cacheKey: RequestParametersId,

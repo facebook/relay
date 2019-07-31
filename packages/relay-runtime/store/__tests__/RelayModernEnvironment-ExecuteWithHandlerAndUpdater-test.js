@@ -30,7 +30,7 @@ function createOperationDescriptor(...args) {
   operation.toJSON = () => {
     return {
       name: operation.fragment.node.name,
-      variables: operation.variables,
+      variables: operation.request.variables,
     };
   };
   return operation;
@@ -117,7 +117,7 @@ describe('execute() with handler and updater', () => {
     expect(complete).toBeCalledTimes(0);
     expect(error).toBeCalledTimes(0);
     expect(updater).toBeCalledTimes(1);
-    expect(environment.lookup(operation.fragment, operation).data).toEqual({
+    expect(environment.lookup(operation.fragment).data).toEqual({
       me: {
         name: 'ALICE',
       },

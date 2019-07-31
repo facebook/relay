@@ -30,7 +30,7 @@ function createOperationDescriptor(...args) {
   operation.toJSON = () => {
     return {
       name: operation.fragment.node.name,
-      variables: operation.variables,
+      variables: operation.request.variables,
     };
   };
   return operation;
@@ -70,9 +70,14 @@ describe('applyUpdate()', () => {
   });
 
   it('applies the mutation to the store', () => {
-    const selector = createReaderSelector(UserFragment, '4', {});
+    const selector = createReaderSelector(
+      UserFragment,
+      '4',
+      {},
+      operation.request,
+    );
     const callback = jest.fn();
-    const snapshot = environment.lookup(selector, operation);
+    const snapshot = environment.lookup(selector);
     environment.subscribe(snapshot, callback);
 
     environment.applyUpdate({
@@ -90,9 +95,14 @@ describe('applyUpdate()', () => {
   });
 
   it('reverts mutations when disposed', () => {
-    const selector = createReaderSelector(UserFragment, '4', {});
+    const selector = createReaderSelector(
+      UserFragment,
+      '4',
+      {},
+      operation.request,
+    );
     const callback = jest.fn();
-    const snapshot = environment.lookup(selector, operation);
+    const snapshot = environment.lookup(selector);
     environment.subscribe(snapshot, callback);
 
     const {dispose} = environment.applyUpdate({
@@ -108,9 +118,14 @@ describe('applyUpdate()', () => {
   });
 
   it('can replace one mutation with another', () => {
-    const selector = createReaderSelector(UserFragment, '4', {});
+    const selector = createReaderSelector(
+      UserFragment,
+      '4',
+      {},
+      operation.request,
+    );
     const callback = jest.fn();
-    const snapshot = environment.lookup(selector, operation);
+    const snapshot = environment.lookup(selector);
     environment.subscribe(snapshot, callback);
 
     callback.mockClear();

@@ -16,9 +16,9 @@ const {getStorageKey} = require('../store/RelayStoreUtils');
 
 import type {
   RecordProxy,
-  ReaderSelector,
   RecordSourceProxy,
   RecordSourceSelectorProxy,
+  SingularReaderSelector,
 } from '../store/RelayStoreTypes';
 import type {ReaderLinkedField} from '../util/ReaderNode';
 import type {DataID} from '../util/RelayRuntimeTypes';
@@ -33,9 +33,12 @@ import type {DataID} from '../util/RelayRuntimeTypes';
  */
 class RelayRecordSourceSelectorProxy implements RecordSourceSelectorProxy {
   __recordSource: RecordSourceProxy;
-  _readSelector: ReaderSelector;
+  _readSelector: SingularReaderSelector;
 
-  constructor(recordSource: RecordSourceProxy, readSelector: ReaderSelector) {
+  constructor(
+    recordSource: RecordSourceProxy,
+    readSelector: SingularReaderSelector,
+  ) {
     this.__recordSource = recordSource;
     this._readSelector = readSelector;
   }
@@ -57,7 +60,7 @@ class RelayRecordSourceSelectorProxy implements RecordSourceSelectorProxy {
   }
 
   _getRootField(
-    selector: ReaderSelector,
+    selector: SingularReaderSelector,
     fieldName: string,
     plural: boolean,
   ): ReaderLinkedField {

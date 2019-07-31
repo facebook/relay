@@ -90,10 +90,15 @@ describe('Mutations on viewer', () => {
       },
     };
 
-    const selector = createReaderSelector(ShortCutQuery.fragment, ROOT_ID, {});
     const operationDescriptor = createOperationDescriptor(ShortCutQuery, {});
+    const selector = createReaderSelector(
+      ShortCutQuery.fragment,
+      ROOT_ID,
+      {},
+      operationDescriptor.request,
+    );
     const callback = jest.fn();
-    const snapshot = environment.lookup(selector, operationDescriptor);
+    const snapshot = environment.lookup(selector);
     environment.subscribe(snapshot, callback);
 
     environment.commitPayload(operationDescriptor, payload);
@@ -140,9 +145,14 @@ describe('Mutations on viewer', () => {
         }
       }`);
 
-    const selector = createReaderSelector(LocationQuery.fragment, ROOT_ID, {});
     const operationDescriptor = createOperationDescriptor(LocationQuery, {});
-    const snapshot = environment.lookup(selector, operationDescriptor);
+    const selector = createReaderSelector(
+      LocationQuery.fragment,
+      ROOT_ID,
+      {},
+      operationDescriptor.request,
+    );
+    const snapshot = environment.lookup(selector);
     const callback = jest.fn();
     environment.subscribe(snapshot, callback);
 

@@ -262,7 +262,7 @@ class ReactRelayTestMocker {
     if (variables) {
       const operationDescriptor = createOperationDescriptor(query, variables);
       usedVars = ReactRelayTestMocker.stripUnused(
-        operationDescriptor.variables,
+        operationDescriptor.request.variables,
       );
     }
 

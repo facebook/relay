@@ -29,7 +29,7 @@ function createOperationDescriptor(...args) {
   operation.toJSON = () => {
     return {
       name: operation.fragment.node.name,
-      variables: operation.variables,
+      variables: operation.request.variables,
     };
   };
   return operation;
@@ -64,7 +64,7 @@ describe('commitPayload()', () => {
 
   it('applies server updates', () => {
     const callback = jest.fn();
-    const snapshot = environment.lookup(operation.fragment, operation);
+    const snapshot = environment.lookup(operation.fragment);
     environment.subscribe(snapshot, callback);
 
     environment.commitPayload(operation, {
@@ -84,7 +84,7 @@ describe('commitPayload()', () => {
 
   it('rebases optimistic updates', () => {
     const callback = jest.fn();
-    const snapshot = environment.lookup(operation.fragment, operation);
+    const snapshot = environment.lookup(operation.fragment);
     environment.subscribe(snapshot, callback);
 
     environment.applyUpdate({

@@ -801,7 +801,7 @@ function getSelectionMetadataFromOperation(
   operation: OperationDescriptor,
 ): SelectionMetadata | null {
   const selectionTypeInfo =
-    operation.node.params.metadata?.relayTestingSelectionTypeInfo;
+    operation.request.node.params.metadata?.relayTestingSelectionTypeInfo;
   if (
     selectionTypeInfo != null &&
     !Array.isArray(selectionTypeInfo) &&
@@ -838,8 +838,8 @@ function generateDataForOperation(
   mockResolvers: ?MockResolvers,
 ): GraphQLResponse {
   const data = generateData(
-    operation.node.operation,
-    operation.variables,
+    operation.request.node.operation,
+    operation.request.variables,
     mockResolvers ?? null,
     getSelectionMetadataFromOperation(operation),
   );

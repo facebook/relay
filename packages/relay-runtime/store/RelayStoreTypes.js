@@ -55,31 +55,23 @@ export type FragmentMap = {[key: string]: ReaderFragment};
  */
 export type SelectorData = {[key: string]: mixed};
 
-export type ReaderSelector = {
-  dataID: DataID,
-  node: ReaderFragment,
-  variables: Variables,
-};
-
-export type OwnedReaderSelector =
-  | SingularOwnedReaderSelector
-  | PluralOwnedReaderSelector;
-
-export type SingularOwnedReaderSelector = {|
-  kind: 'SingularOwnedReaderSelector',
-  owner: RequestDescriptor,
-  selector: ReaderSelector,
+export type SingularReaderSelector = {|
+  +kind: 'SingularReaderSelector',
+  +dataID: DataID,
+  +node: ReaderFragment,
+  +owner: RequestDescriptor,
+  +variables: Variables,
 |};
 
-export type PluralOwnedReaderSelector = {|
-  kind: 'PluralOwnedReaderSelector',
-  selectors: $ReadOnlyArray<SingularOwnedReaderSelector>,
+export type ReaderSelector = SingularReaderSelector | PluralReaderSelector;
+
+export type PluralReaderSelector = {|
+  +kind: 'PluralReaderSelector',
+  +selectors: $ReadOnlyArray<SingularReaderSelector>,
 |};
 
 export type RequestDescriptor = {|
-  +fragment: mixed,
   +node: ConcreteRequest,
-  +root: mixed,
   +variables: Variables,
 |};
 
@@ -87,21 +79,21 @@ export type RequestDescriptor = {|
  * A selector defines the starting point for a traversal into the graph for the
  * purposes of targeting a subgraph.
  */
-export type NormalizationSelector = {
-  dataID: DataID,
-  node: NormalizationSelectableNode,
-  variables: Variables,
-};
+export type NormalizationSelector = {|
+  +dataID: DataID,
+  +node: NormalizationSelectableNode,
+  +variables: Variables,
+|};
 
 /**
  * A representation of a selector and its results at a particular point in time.
  */
-export type Snapshot = ReaderSelector & {
-  data: ?SelectorData,
-  seenRecords: RecordMap,
-  isMissingData: boolean,
-  owner: RequestDescriptor,
-};
+export type Snapshot = {|
+  +data: ?SelectorData,
+  +seenRecords: RecordMap,
+  +isMissingData: boolean,
+  +selector: SingularReaderSelector,
+|};
 
 /**
  * An operation selector describes a specific instance of a GraphQL operation
@@ -113,10 +105,9 @@ export type Snapshot = ReaderSelector & {
  *   the results of the the operation.
  */
 export type OperationDescriptor = {|
-  +fragment: ReaderSelector,
-  +node: ConcreteRequest,
+  +fragment: SingularReaderSelector,
+  +request: RequestDescriptor,
   +root: NormalizationSelector,
-  +variables: Variables,
 |};
 
 /**
@@ -227,7 +218,7 @@ export interface Store {
    * Optionally takes an owner, corresponding to the operation that
    * owns this selector (fragment).
    */
-  lookup(selector: ReaderSelector, owner: RequestDescriptor): Snapshot;
+  lookup(selector: SingularReaderSelector): Snapshot;
 
   /**
    * Notify subscribers (see `subscribe`) of any data that was published
@@ -417,7 +408,7 @@ export interface Environment {
    * Optionally takes an owner, corresponding to the operation that
    * owns this selector (fragment).
    */
-  lookup(selector: ReaderSelector, owner: RequestDescriptor): Snapshot;
+  lookup(selector: SingularReaderSelector): Snapshot;
 
   /**
    * Send a query to the server with Observer semantics: one or more

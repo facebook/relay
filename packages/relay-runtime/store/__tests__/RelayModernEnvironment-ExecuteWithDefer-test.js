@@ -33,7 +33,7 @@ function createOperationDescriptor(...args) {
   operation.toJSON = () => {
     return {
       name: operation.fragment.node.name,
-      variables: operation.variables,
+      variables: operation.request.variables,
     };
   };
   return operation;
@@ -75,7 +75,7 @@ describe('execute() a query with @defer', () => {
       `));
     variables = {id: '1'};
     operation = createOperationDescriptor(query, variables);
-    selector = createReaderSelector(fragment, '1', {});
+    selector = createReaderSelector(fragment, '1', {}, operation.request);
 
     NameHandler = {
       update(storeProxy, payload) {
@@ -115,7 +115,7 @@ describe('execute() a query with @defer', () => {
   });
 
   it('calls next() and publishes the initial payload to the store', () => {
-    const initialSnapshot = environment.lookup(selector, operation);
+    const initialSnapshot = environment.lookup(selector);
     const callback = jest.fn();
     environment.subscribe(initialSnapshot, callback);
 
@@ -144,7 +144,7 @@ describe('execute() a query with @defer', () => {
   });
 
   it('processes deferred payloads', () => {
-    const initialSnapshot = environment.lookup(selector, operation);
+    const initialSnapshot = environment.lookup(selector);
     const callback = jest.fn();
     environment.subscribe(initialSnapshot, callback);
 
@@ -214,7 +214,7 @@ describe('execute() a query with @defer', () => {
         }
       },
     });
-    const initialSnapshot = environment.lookup(selector, operation);
+    const initialSnapshot = environment.lookup(selector);
     const callback = jest.fn();
     environment.subscribe(initialSnapshot, callback);
 
@@ -294,7 +294,7 @@ describe('execute() a query with @defer', () => {
         }
       },
     });
-    const initialSnapshot = environment.lookup(selector, operation);
+    const initialSnapshot = environment.lookup(selector);
     const callback = jest.fn();
     environment.subscribe(initialSnapshot, callback);
 
@@ -339,7 +339,7 @@ describe('execute() a query with @defer', () => {
   });
 
   it('calls complete() when server completes after deferred payload resolves', () => {
-    const initialSnapshot = environment.lookup(selector, operation);
+    const initialSnapshot = environment.lookup(selector);
     const callback = jest.fn();
     environment.subscribe(initialSnapshot, callback);
 
@@ -378,7 +378,7 @@ describe('execute() a query with @defer', () => {
   });
 
   it('calls complete() when server completes before deferred payload resolves', () => {
-    const initialSnapshot = environment.lookup(selector, operation);
+    const initialSnapshot = environment.lookup(selector);
     const callback = jest.fn();
     environment.subscribe(initialSnapshot, callback);
 
@@ -407,7 +407,7 @@ describe('execute() a query with @defer', () => {
   });
 
   it('calls error() when server errors after deferred payload resolves', () => {
-    const initialSnapshot = environment.lookup(selector, operation);
+    const initialSnapshot = environment.lookup(selector);
     const callback = jest.fn();
     environment.subscribe(initialSnapshot, callback);
 
@@ -448,7 +448,7 @@ describe('execute() a query with @defer', () => {
   });
 
   it('calls error() when server errors before deferred payload resolves', () => {
-    const initialSnapshot = environment.lookup(selector, operation);
+    const initialSnapshot = environment.lookup(selector);
     const callback = jest.fn();
     environment.subscribe(initialSnapshot, callback);
 
@@ -479,7 +479,7 @@ describe('execute() a query with @defer', () => {
   });
 
   it('calls error() when deferred payload is missing data', () => {
-    const initialSnapshot = environment.lookup(selector, operation);
+    const initialSnapshot = environment.lookup(selector);
     const callback = jest.fn();
     environment.subscribe(initialSnapshot, callback);
 
@@ -521,7 +521,7 @@ describe('execute() a query with @defer', () => {
   });
 
   it('warns if executed in non-streaming mode', () => {
-    const initialSnapshot = environment.lookup(selector, operation);
+    const initialSnapshot = environment.lookup(selector);
     const callback = jest.fn();
     environment.subscribe(initialSnapshot, callback);
 

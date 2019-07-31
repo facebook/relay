@@ -32,7 +32,7 @@ function createOperationDescriptor(...args) {
   operation.toJSON = () => {
     return {
       name: operation.fragment.node.name,
-      variables: operation.variables,
+      variables: operation.request.variables,
     };
   };
   return operation;
@@ -107,7 +107,12 @@ describe('execute() a query with nested @stream', () => {
       `));
     variables = {enableStream: true};
     operation = createOperationDescriptor(query, variables);
-    selector = createReaderSelector(feedFragment, VIEWER_ID, variables);
+    selector = createReaderSelector(
+      feedFragment,
+      VIEWER_ID,
+      variables,
+      operation.request,
+    );
 
     const NameHandler = {
       update(storeProxy, payload) {
@@ -145,7 +150,7 @@ describe('execute() a query with nested @stream', () => {
     });
 
     // Publish an initial root payload and a parent nested stream payload
-    const initialSnapshot = environment.lookup(selector, operation);
+    const initialSnapshot = environment.lookup(selector);
     callback = jest.fn();
     environment.subscribe(initialSnapshot, callback);
 
@@ -314,8 +319,7 @@ describe('execute() a query with nested @stream', () => {
 
     // but the streamed entity is added to the store
     const actorSnapshot = environment.lookup(
-      createReaderSelector(actorFragment, 'user-1', {}),
-      operation,
+      createReaderSelector(actorFragment, 'user-1', {}, operation.request),
     );
     expect(actorSnapshot.isMissingData).toBe(false);
     expect(actorSnapshot.data).toEqual({
@@ -367,8 +371,7 @@ describe('execute() a query with nested @stream', () => {
 
     // but the streamed entity is added to the store
     const actorSnapshot = environment.lookup(
-      createReaderSelector(actorFragment, 'user-1', {}),
-      operation,
+      createReaderSelector(actorFragment, 'user-1', {}, operation.request),
     );
     expect(actorSnapshot.isMissingData).toBe(false);
     expect(actorSnapshot.data).toEqual({
@@ -434,8 +437,7 @@ describe('execute() a query with nested @stream', () => {
 
       // but the streamed entity is added to the store
       const actorSnapshot = environment.lookup(
-        createReaderSelector(actorFragment, 'user-1', {}),
-        operation,
+        createReaderSelector(actorFragment, 'user-1', {}, operation.request),
       );
       expect(actorSnapshot.isMissingData).toBe(false);
       expect(actorSnapshot.data).toEqual({
@@ -502,8 +504,7 @@ describe('execute() a query with nested @stream', () => {
 
       // but the streamed entity is added to the store
       const actorSnapshot = environment.lookup(
-        createReaderSelector(actorFragment, 'user-2', {}),
-        operation,
+        createReaderSelector(actorFragment, 'user-2', {}, operation.request),
       );
       expect(actorSnapshot.isMissingData).toBe(false);
       expect(actorSnapshot.data).toEqual({

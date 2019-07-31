@@ -38,19 +38,18 @@ import type {TaskScheduler} from './RelayModernQueryExecutor';
 import type {GetDataID} from './RelayResponseNormalizer';
 import type {
   Environment,
-  RequestDescriptor,
   MissingFieldHandler,
   NormalizationSelector,
   OperationDescriptor,
   OperationLoader,
   OperationTracker,
   OptimisticUpdate,
-  ReaderSelector,
+  PublishQueue,
   SelectorStoreUpdater,
+  SingularReaderSelector,
   Snapshot,
   Store,
   StoreUpdater,
-  PublishQueue,
 } from './RelayStoreTypes';
 
 export type EnvironmentConfig = {|
@@ -214,8 +213,8 @@ class RelayModernEnvironment implements Environment {
     this._publishQueue.run();
   }
 
-  lookup(readSelector: ReaderSelector, owner: RequestDescriptor): Snapshot {
-    return this._store.lookup(readSelector, owner);
+  lookup(readSelector: SingularReaderSelector): Snapshot {
+    return this._store.lookup(readSelector);
   }
 
   subscribe(
@@ -268,8 +267,8 @@ class RelayModernEnvironment implements Environment {
   }): RelayObservable<GraphQLResponse> {
     return RelayObservable.create(sink => {
       const source = this._network.execute(
-        operation.node.params,
-        operation.variables,
+        operation.request.node.params,
+        operation.request.variables,
         cacheConfig || {},
       );
       const executor = RelayModernQueryExecutor.execute({
@@ -321,8 +320,8 @@ class RelayModernEnvironment implements Environment {
         };
       }
       const source = this._network.execute(
-        operation.node.params,
-        operation.variables,
+        operation.request.node.params,
+        operation.request.variables,
         {force: true},
         uploadables,
       );

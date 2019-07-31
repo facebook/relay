@@ -34,7 +34,7 @@ function createOperationDescriptor(...args) {
   operation.toJSON = () => {
     return {
       name: operation.fragment.node.name,
-      variables: operation.variables,
+      variables: operation.request.variables,
     };
   };
   return operation;
@@ -79,8 +79,12 @@ describe('retain()', () => {
       createNormalizationSelector(ParentQuery.root, ROOT_ID, {}),
     );
     const snapshot = environment.lookup(
-      createReaderSelector(ParentQuery.fragment, ROOT_ID, {}),
-      operation,
+      createReaderSelector(
+        ParentQuery.fragment,
+        ROOT_ID,
+        {},
+        operation.request,
+      ),
     );
     // data is still in the store
     expect(snapshot.data).toEqual({
@@ -95,10 +99,15 @@ describe('retain()', () => {
     const {dispose} = environment.retain(
       createNormalizationSelector(ParentQuery.root, ROOT_ID, {}),
     );
-    const selector = createReaderSelector(ParentQuery.fragment, ROOT_ID, {});
+    const selector = createReaderSelector(
+      ParentQuery.fragment,
+      ROOT_ID,
+      {},
+      operation.request,
+    );
     dispose();
     // GC runs asynchronously; data should still be in the store
-    expect(environment.lookup(selector, operation).data).toEqual({
+    expect(environment.lookup(selector).data).toEqual({
       me: {
         id: '4',
         name: 'Zuck',
@@ -106,6 +115,6 @@ describe('retain()', () => {
     });
     jest.runAllTimers();
     // After GC runs data is missing
-    expect(environment.lookup(selector, operation).data).toBe(undefined);
+    expect(environment.lookup(selector).data).toBe(undefined);
   });
 });

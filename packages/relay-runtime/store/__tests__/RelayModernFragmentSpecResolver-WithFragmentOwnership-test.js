@@ -15,7 +15,10 @@ const RelayModernFragmentSpecResolver = require('../RelayModernFragmentSpecResol
 const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
-const {createReaderSelector} = require('../RelayModernSelector');
+const {
+  createReaderSelector,
+  createNormalizationSelector,
+} = require('../RelayModernSelector');
 const {ROOT_ID} = require('../RelayStoreUtils');
 const {
   createMockEnvironment,
@@ -58,12 +61,21 @@ describe('RelayModernFragmentSpecResolver with fragment ownership', () => {
   }
 
   function createOwnerWithUnalteredVariables(request, vars) {
-    return {
-      fragment: createReaderSelector(request.fragment, ROOT_ID, vars),
+    const requestDescriptor = {
       node: request,
-      root: createReaderSelector(request.operation, ROOT_ID, vars),
       variables: vars,
     };
+    const operationDescriptor = {
+      fragment: createReaderSelector(
+        request.fragment,
+        ROOT_ID,
+        vars,
+        requestDescriptor,
+      ),
+      request: requestDescriptor,
+      root: createNormalizationSelector(request.operation, ROOT_ID, vars),
+    };
+    return operationDescriptor;
   }
 
   beforeEach(() => {
@@ -199,7 +211,7 @@ describe('RelayModernFragmentSpecResolver with fragment ownership', () => {
           name: 'Zuck',
           __id: '4',
           __fragments: {NestedUserFragment: {}},
-          __fragmentOwner: zuckOperation,
+          __fragmentOwner: zuckOperation.request,
         },
       });
     });
@@ -220,7 +232,7 @@ describe('RelayModernFragmentSpecResolver with fragment ownership', () => {
           name: 'Mark',
           __id: '4',
           __fragments: {NestedUserFragment: {}},
-          __fragmentOwner: zuckOperation,
+          __fragmentOwner: zuckOperation.request,
         },
       });
     });
@@ -239,10 +251,11 @@ describe('RelayModernFragmentSpecResolver with fragment ownership', () => {
       expect(resolver.resolve()).toEqual({
         user: {
           id: '4',
-          name: 'Zuck', // does not reflect latest changes
+          // does not reflect latest changes
+          name: 'Zuck',
           __id: '4',
           __fragments: {NestedUserFragment: {}},
-          __fragmentOwner: zuckOperation,
+          __fragmentOwner: zuckOperation.request,
         },
       });
     });
@@ -291,10 +304,11 @@ describe('RelayModernFragmentSpecResolver with fragment ownership', () => {
         expect(resolver.resolve()).toEqual({
           user: {
             id: '4',
-            name: 'Mark', // reflects updated value
+            // reflects updated value
+            name: 'Mark',
             __id: '4',
             __fragments: {NestedUserFragment: {}},
-            __fragmentOwner: zuckOperation,
+            __fragmentOwner: zuckOperation.request,
           },
         });
       });
@@ -314,7 +328,7 @@ describe('RelayModernFragmentSpecResolver with fragment ownership', () => {
             name: 'Beast',
             __id: 'beast',
             __fragments: {NestedUserFragment: {}},
-            __fragmentOwner: beastOperation,
+            __fragmentOwner: beastOperation.request,
           },
         });
       });
@@ -334,10 +348,11 @@ describe('RelayModernFragmentSpecResolver with fragment ownership', () => {
         expect(resolver.resolve()).toEqual({
           user: {
             id: 'beast',
-            name: 'BEAST', // reflects updated value
+            // reflects updated value
+            name: 'BEAST',
             __id: 'beast',
             __fragments: {NestedUserFragment: {}},
-            __fragmentOwner: beastOperation,
+            __fragmentOwner: beastOperation.request,
           },
         });
       });
@@ -351,10 +366,11 @@ describe('RelayModernFragmentSpecResolver with fragment ownership', () => {
         expect(resolver.resolve()).toEqual({
           user: {
             id: 'beast',
-            name: 'Beast', // does not update
+            // does not update
+            name: 'Beast',
             __id: 'beast',
             __fragments: {NestedUserFragment: {}},
-            __fragmentOwner: beastOperation,
+            __fragmentOwner: beastOperation.request,
           },
         });
       });
@@ -419,7 +435,7 @@ describe('RelayModernFragmentSpecResolver with fragment ownership', () => {
             },
             __id: '4',
             __fragments: {NestedUserFragment: {}},
-            __fragmentOwner: owner,
+            __fragmentOwner: owner.request,
           },
         });
       });
@@ -449,7 +465,7 @@ describe('RelayModernFragmentSpecResolver with fragment ownership', () => {
             },
             __id: '4',
             __fragments: {NestedUserFragment: {}},
-            __fragmentOwner: owner,
+            __fragmentOwner: owner.request,
           },
         });
       });
@@ -499,7 +515,7 @@ describe('RelayModernFragmentSpecResolver with fragment ownership', () => {
             name: 'Zuck',
             __id: '4',
             __fragments: {NestedUserFragment: {}},
-            __fragmentOwner: zuckOperation,
+            __fragmentOwner: zuckOperation.request,
           },
         ],
       });
@@ -522,7 +538,7 @@ describe('RelayModernFragmentSpecResolver with fragment ownership', () => {
             name: 'Mark',
             __id: '4',
             __fragments: {NestedUserFragment: {}},
-            __fragmentOwner: zuckOperation,
+            __fragmentOwner: zuckOperation.request,
           },
         ],
       });
@@ -543,14 +559,14 @@ describe('RelayModernFragmentSpecResolver with fragment ownership', () => {
             name: 'Zuck',
             __id: '4',
             __fragments: {NestedUserFragment: {}},
-            __fragmentOwner: zuckOperation,
+            __fragmentOwner: zuckOperation.request,
           },
           {
             id: 'beast',
             name: 'Beast',
             __id: 'beast',
             __fragments: {NestedUserFragment: {}},
-            __fragmentOwner: beastOperation,
+            __fragmentOwner: beastOperation.request,
           },
         ],
       });
@@ -564,7 +580,7 @@ describe('RelayModernFragmentSpecResolver with fragment ownership', () => {
             name: 'Zuck',
             __id: '4',
             __fragments: {NestedUserFragment: {}},
-            __fragmentOwner: zuckOperation,
+            __fragmentOwner: zuckOperation.request,
           },
         ],
       });
@@ -585,10 +601,13 @@ describe('RelayModernFragmentSpecResolver with fragment ownership', () => {
         user: [
           {
             id: '4',
-            name: 'Zuck', // does not reflect latest changes
+
+            // does not reflect latest changes
+            name: 'Zuck',
+
             __id: '4',
             __fragments: {NestedUserFragment: {}},
-            __fragmentOwner: zuckOperation,
+            __fragmentOwner: zuckOperation.request,
           },
         ],
       });
@@ -639,10 +658,13 @@ describe('RelayModernFragmentSpecResolver with fragment ownership', () => {
           user: [
             {
               id: '4',
-              name: 'Mark', // reflects updated value
+
+              // reflects updated value
+              name: 'Mark',
+
               __id: '4',
               __fragments: {NestedUserFragment: {}},
-              __fragmentOwner: zuckOperation,
+              __fragmentOwner: zuckOperation.request,
             },
           ],
         });
@@ -664,7 +686,7 @@ describe('RelayModernFragmentSpecResolver with fragment ownership', () => {
               name: 'Beast',
               __id: 'beast',
               __fragments: {NestedUserFragment: {}},
-              __fragmentOwner: beastOperation,
+              __fragmentOwner: beastOperation.request,
             },
           ],
         });
@@ -686,10 +708,13 @@ describe('RelayModernFragmentSpecResolver with fragment ownership', () => {
           user: [
             {
               id: 'beast',
-              name: 'BEAST', // reflects updated value
+
+              // reflects updated value
+              name: 'BEAST',
+
               __id: 'beast',
               __fragments: {NestedUserFragment: {}},
-              __fragmentOwner: beastOperation,
+              __fragmentOwner: beastOperation.request,
             },
           ],
         });
@@ -705,10 +730,13 @@ describe('RelayModernFragmentSpecResolver with fragment ownership', () => {
           user: [
             {
               id: 'beast',
-              name: 'Beast', // does not update
+
+              // does not update
+              name: 'Beast',
+
               __id: 'beast',
               __fragments: {NestedUserFragment: {}},
-              __fragmentOwner: beastOperation,
+              __fragmentOwner: beastOperation.request,
             },
           ],
         });
@@ -723,14 +751,14 @@ describe('RelayModernFragmentSpecResolver with fragment ownership', () => {
               name: 'Zuck',
               __id: '4',
               __fragments: {NestedUserFragment: {}},
-              __fragmentOwner: zuckOperation,
+              __fragmentOwner: zuckOperation.request,
             },
             {
               id: 'beast',
               name: 'Beast',
               __id: 'beast',
               __fragments: {NestedUserFragment: {}},
-              __fragmentOwner: beastOperation,
+              __fragmentOwner: beastOperation.request,
             },
           ],
         });
@@ -750,14 +778,17 @@ describe('RelayModernFragmentSpecResolver with fragment ownership', () => {
               name: 'Zuck',
               __id: '4',
               __fragments: {NestedUserFragment: {}},
-              __fragmentOwner: zuckOperation,
+              __fragmentOwner: zuckOperation.request,
             },
             {
               id: 'beast',
-              name: 'BEAST', // updated value
+
+              // updated value
+              name: 'BEAST',
+
               __id: 'beast',
               __fragments: {NestedUserFragment: {}},
-              __fragmentOwner: beastOperation,
+              __fragmentOwner: beastOperation.request,
             },
           ],
         });
@@ -774,14 +805,14 @@ describe('RelayModernFragmentSpecResolver with fragment ownership', () => {
               name: 'Mark',
               __id: '4',
               __fragments: {NestedUserFragment: {}},
-              __fragmentOwner: zuckOperation,
+              __fragmentOwner: zuckOperation.request,
             },
             {
               id: 'beast',
               name: 'Beast',
               __id: 'beast',
               __fragments: {NestedUserFragment: {}},
-              __fragmentOwner: beastOperation,
+              __fragmentOwner: beastOperation.request,
             },
           ],
         });
@@ -852,12 +883,14 @@ describe('RelayModernFragmentSpecResolver with fragment ownership', () => {
             {
               id: '4',
               name: 'Zuck',
+
               profilePicture: {
                 uri: 'https://4.jpg',
               },
+
               __id: '4',
               __fragments: {NestedUserFragment: {}},
-              __fragmentOwner: owner,
+              __fragmentOwner: owner.request,
             },
           ],
         });
@@ -884,12 +917,14 @@ describe('RelayModernFragmentSpecResolver with fragment ownership', () => {
             {
               id: '4',
               name: 'Zuck',
+
               profilePicture: {
                 uri: 'https://zuck.jpg',
               },
+
               __id: '4',
               __fragments: {NestedUserFragment: {}},
-              __fragmentOwner: owner,
+              __fragmentOwner: owner.request,
             },
           ],
         });

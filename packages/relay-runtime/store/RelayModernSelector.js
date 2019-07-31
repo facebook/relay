@@ -27,10 +27,10 @@ import type {DataID, Variables} from '../util/RelayRuntimeTypes';
 import type {
   NormalizationSelector,
   OperationDescriptor,
-  OwnedReaderSelector,
-  PluralOwnedReaderSelector,
+  PluralReaderSelector,
   ReaderSelector,
-  SingularOwnedReaderSelector,
+  RequestDescriptor,
+  SingularReaderSelector,
 } from './RelayStoreTypes';
 
 /**
@@ -65,7 +65,7 @@ import type {
 function getSingularSelector(
   fragment: ReaderFragment,
   item: mixed,
-): ?SingularOwnedReaderSelector {
+): ?SingularReaderSelector {
   invariant(
     typeof item === 'object' && item !== null && !Array.isArray(item),
     'RelayModernSelector: Expected value for fragment `%s` to be an object, got ' +
@@ -85,7 +85,7 @@ function getSingularSelector(
     typeof mixedOwner === 'object' &&
     mixedOwner !== null
   ) {
-    const owner: OperationDescriptor = (mixedOwner: $FlowFixMe);
+    const owner: RequestDescriptor = (mixedOwner: $FlowFixMe);
     const argumentVariables = fragments[fragment.name];
 
     const fragmentVariables = getFragmentVariables(
@@ -96,11 +96,7 @@ function getSingularSelector(
        * error delete this comment and run Flow. */
       argumentVariables,
     );
-    return {
-      kind: 'SingularOwnedReaderSelector',
-      owner,
-      selector: createReaderSelector(fragment, dataID, fragmentVariables),
-    };
+    return createReaderSelector(fragment, dataID, fragmentVariables, owner);
   }
 
   if (__DEV__) {
@@ -134,7 +130,7 @@ function getSingularSelector(
 function getPluralSelector(
   fragment: ReaderFragment,
   items: Array<mixed>,
-): ?PluralOwnedReaderSelector {
+): ?PluralReaderSelector {
   let selectors = null;
   items.forEach((item, ii) => {
     const selector = item != null ? getSingularSelector(fragment, item) : null;
@@ -147,7 +143,7 @@ function getPluralSelector(
     return null;
   } else {
     return {
-      kind: 'PluralOwnedReaderSelector',
+      kind: 'PluralReaderSelector',
       selectors,
     };
   }
@@ -156,7 +152,7 @@ function getPluralSelector(
 function getSelector(
   fragment: ReaderFragment,
   item: mixed | Array<mixed>,
-): ?OwnedReaderSelector {
+): ?ReaderSelector {
   if (item == null) {
     return item;
   } else if (fragment.metadata && fragment.metadata.plural === true) {
@@ -201,7 +197,7 @@ function getSelector(
 function getSelectorsFromObject(
   fragments: {[key: string]: ReaderFragment},
   object: {[key: string]: mixed},
-): {[key: string]: ?OwnedReaderSelector} {
+): {[key: string]: ?ReaderSelector} {
   const selectors = {};
   for (const key in fragments) {
     if (fragments.hasOwnProperty(key)) {
@@ -381,11 +377,11 @@ function getVariablesFromSingularFragment(
   fragment: ReaderFragment,
   item: mixed,
 ): ?Variables {
-  const ownedSelector = getSingularSelector(fragment, item);
-  if (!ownedSelector) {
+  const selector = getSingularSelector(fragment, item);
+  if (!selector) {
     return null;
   }
-  return ownedSelector.selector.variables;
+  return selector.variables;
 }
 
 function getVariablesFromPluralFragment(
@@ -412,14 +408,14 @@ function getVariablesFromPluralFragment(
  * different objects, even if they select the same fields.
  */
 function areEqualSelectors(
-  thisSelector: SingularOwnedReaderSelector,
-  thatSelector: SingularOwnedReaderSelector,
+  thisSelector: SingularReaderSelector,
+  thatSelector: SingularReaderSelector,
 ): boolean {
   return (
     thisSelector.owner === thatSelector.owner &&
-    thisSelector.selector.dataID === thatSelector.selector.dataID &&
-    thisSelector.selector.node === thatSelector.selector.node &&
-    areEqual(thisSelector.selector.variables, thatSelector.selector.variables)
+    thisSelector.dataID === thatSelector.dataID &&
+    thisSelector.node === thatSelector.node &&
+    areEqual(thisSelector.variables, thatSelector.variables)
   );
 }
 
@@ -427,8 +423,15 @@ function createReaderSelector(
   fragment: ReaderFragment,
   dataID: DataID,
   variables: Variables,
-): ReaderSelector {
-  return {dataID, node: fragment, variables};
+  request: RequestDescriptor,
+): SingularReaderSelector {
+  return {
+    kind: 'SingularReaderSelector',
+    dataID,
+    node: fragment,
+    variables,
+    owner: request,
+  };
 }
 
 function createNormalizationSelector(

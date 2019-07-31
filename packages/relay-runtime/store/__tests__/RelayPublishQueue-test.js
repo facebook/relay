@@ -795,7 +795,7 @@ const {generateAndCompile, simpleClone} = require('relay-test-utils-internal');
             me: {
               __id: '4',
               __fragments: {UserFragment: {}},
-              __fragmentOwner: operation,
+              __fragmentOwner: operation.request,
               name: 'Zuck',
             },
             nodes: [{name: 'Zuck'}],

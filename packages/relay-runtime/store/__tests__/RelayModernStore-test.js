@@ -42,7 +42,7 @@ function createOperationDescriptor(...args) {
   operation.toJSON = () => {
     return {
       name: operation.fragment.node.name,
-      variables: operation.variables,
+      variables: operation.request.variables,
     };
   };
   return operation;
@@ -187,11 +187,16 @@ function createOperationDescriptor(...args) {
       });
 
       it('returns selector data', () => {
-        const selector = createReaderSelector(UserFragment, '4', {size: 32});
         const owner = createOperationDescriptor(UserQuery, {});
-        const snapshot = store.lookup(selector, owner);
+        const selector = createReaderSelector(
+          UserFragment,
+          '4',
+          {size: 32},
+          owner.request,
+        );
+        const snapshot = store.lookup(selector);
         expect(snapshot).toEqual({
-          ...selector,
+          selector,
           data: {
             name: 'Zuck',
             profilePicture: {
@@ -202,7 +207,6 @@ function createOperationDescriptor(...args) {
             ...data,
           },
           isMissingData: false,
-          owner,
         });
         for (const id in snapshot.seenRecords) {
           if (snapshot.seenRecords.hasOwnProperty(id)) {
@@ -232,28 +236,34 @@ function createOperationDescriptor(...args) {
             username
           }
         `));
-        const selector = createReaderSelector(UserFragment, '4', {size: 32});
         const queryNode = getRequest(UserQuery);
         const owner = createOperationDescriptor(queryNode, {size: 32});
-        const snapshot = store.lookup(selector, owner);
+        const selector = createReaderSelector(
+          UserFragment,
+          '4',
+          {size: 32},
+          owner.request,
+        );
+        const snapshot = store.lookup(selector);
         expect(snapshot).toEqual({
-          ...selector,
+          selector,
           data: {
             name: 'Zuck',
+
             profilePicture: {
               uri: 'https://photo1.jpg',
             },
+
             __id: '4',
             __fragments: {ChildUserFragment: {}},
-            __fragmentOwner: owner,
+            __fragmentOwner: owner.request,
           },
           seenRecords: {
             ...data,
           },
           isMissingData: false,
-          owner: owner,
         });
-        expect(snapshot.data?.__fragmentOwner).toBe(owner);
+        expect(snapshot.data?.__fragmentOwner).toBe(owner.request);
         for (const id in snapshot.seenRecords) {
           if (snapshot.seenRecords.hasOwnProperty(id)) {
             const record = snapshot.seenRecords[id];
@@ -263,9 +273,14 @@ function createOperationDescriptor(...args) {
       });
 
       it('returns deeply-frozen objects', () => {
-        const selector = createReaderSelector(UserFragment, '4', {size: 32});
         const owner = createOperationDescriptor(UserQuery, {});
-        const snapshot = store.lookup(selector, owner);
+        const selector = createReaderSelector(
+          UserFragment,
+          '4',
+          {size: 32},
+          owner.request,
+        );
+        const snapshot = store.lookup(selector);
         expect(Object.isFrozen(snapshot)).toBe(true);
         expect(snapshot.data).toBeDeeplyFrozen();
         expect(snapshot.variables).toBeDeeplyFrozen();
@@ -288,10 +303,15 @@ function createOperationDescriptor(...args) {
         store.publish(nextSource); // takes effect w/o calling notify()
 
         const owner = createOperationDescriptor(UserQuery, {size: 32});
-        const selector = createReaderSelector(UserFragment, '4', {size: 32});
-        const snapshot = store.lookup(selector, owner);
+        const selector = createReaderSelector(
+          UserFragment,
+          '4',
+          {size: 32},
+          owner.request,
+        );
+        const snapshot = store.lookup(selector);
         expect(snapshot).toEqual({
-          ...selector,
+          selector,
           data: {
             name: 'Zuck',
             profilePicture: {
@@ -303,7 +323,6 @@ function createOperationDescriptor(...args) {
             'client:2': nextData['client:2'],
           },
           isMissingData: false,
-          owner,
         });
       });
     });
@@ -351,9 +370,14 @@ function createOperationDescriptor(...args) {
 
       it('calls subscribers whose data has changed since previous notify', () => {
         // subscribe(), publish(), notify() -> subscriber called
-        const selector = createReaderSelector(UserFragment, '4', {size: 32});
         const owner = createOperationDescriptor(UserQuery, {});
-        const snapshot = store.lookup(selector, owner);
+        const selector = createReaderSelector(
+          UserFragment,
+          '4',
+          {size: 32},
+          owner.request,
+        );
+        const snapshot = store.lookup(selector);
         const callback = jest.fn();
         store.subscribe(snapshot, callback);
         // Publish a change to profilePicture.uri
@@ -403,11 +427,16 @@ function createOperationDescriptor(...args) {
             emailAddresses
           }
         `));
-        const selector = createReaderSelector(UserFragment, '4', {size: 32});
         const queryNode = getRequest(UserQuery);
         const owner = createOperationDescriptor(queryNode, {size: 32});
-        const snapshot = store.lookup(selector, owner);
-        expect(snapshot.owner).toBe(owner);
+        const selector = createReaderSelector(
+          UserFragment,
+          '4',
+          {size: 32},
+          owner.request,
+        );
+        const snapshot = store.lookup(selector);
+        expect(snapshot.selector).toBe(selector);
 
         const callback = jest.fn();
         store.subscribe(snapshot, callback);
@@ -439,13 +468,18 @@ function createOperationDescriptor(...args) {
             },
           },
         });
-        expect(callback.mock.calls[0][0].owner).toBe(owner);
+        expect(callback.mock.calls[0][0].selector).toBe(selector);
       });
 
       it('vends deeply-frozen objects', () => {
-        const selector = createReaderSelector(UserFragment, '4', {size: 32});
         const owner = createOperationDescriptor(UserQuery, {});
-        const snapshot = store.lookup(selector, owner);
+        const selector = createReaderSelector(
+          UserFragment,
+          '4',
+          {size: 32},
+          owner.request,
+        );
+        const snapshot = store.lookup(selector);
         const callback = jest.fn();
         store.subscribe(snapshot, callback);
         // Publish a change to profilePicture.uri
@@ -466,9 +500,14 @@ function createOperationDescriptor(...args) {
 
       it('calls affected subscribers only once', () => {
         // subscribe(), publish(), publish(), notify() -> subscriber called once
-        const selector = createReaderSelector(UserFragment, '4', {size: 32});
         const owner = createOperationDescriptor(UserQuery, {});
-        const snapshot = store.lookup(selector, owner);
+        const selector = createReaderSelector(
+          UserFragment,
+          '4',
+          {size: 32},
+          owner.request,
+        );
+        const snapshot = store.lookup(selector);
         const callback = jest.fn();
         store.subscribe(snapshot, callback);
         // Publish a change to profilePicture.uri
@@ -534,9 +573,14 @@ function createOperationDescriptor(...args) {
         };
         source = new RecordSourceImplementation(data);
         store = new RelayModernStore(source);
-        const selector = createReaderSelector(UserFragment, '4', {size: 32});
         const owner = createOperationDescriptor(UserQuery, {});
-        const snapshot = store.lookup(selector, owner);
+        const selector = createReaderSelector(
+          UserFragment,
+          '4',
+          {size: 32},
+          owner.request,
+        );
+        const snapshot = store.lookup(selector);
         expect(snapshot.isMissingData).toEqual(true);
 
         const callback = jest.fn();
@@ -575,11 +619,16 @@ function createOperationDescriptor(...args) {
       });
 
       it('notifies subscribers of changes to unfetched records', () => {
-        const selector = createReaderSelector(UserFragment, '842472', {
-          size: 32,
-        });
         const owner = createOperationDescriptor(UserQuery, {});
-        const snapshot = store.lookup(selector, owner);
+        const selector = createReaderSelector(
+          UserFragment,
+          '842472',
+          {
+            size: 32,
+          },
+          owner.request,
+        );
+        const snapshot = store.lookup(selector);
         const callback = jest.fn();
         // Record does not exist when subscribed
         store.subscribe(snapshot, callback);
@@ -605,13 +654,18 @@ function createOperationDescriptor(...args) {
       });
 
       it('notifies subscribers of changes to deleted records', () => {
-        const selector = createReaderSelector(UserFragment, '842472', {
-          size: 32,
-        });
+        const owner = createOperationDescriptor(UserQuery, {});
+        const selector = createReaderSelector(
+          UserFragment,
+          '842472',
+          {
+            size: 32,
+          },
+          owner.request,
+        );
         // Initially delete the record
         source.delete('842472');
-        const owner = createOperationDescriptor(UserQuery, {});
-        const snapshot = store.lookup(selector, owner);
+        const snapshot = store.lookup(selector);
         const callback = jest.fn();
         // Record does not exist when subscribed
         store.subscribe(snapshot, callback);
@@ -639,9 +693,14 @@ function createOperationDescriptor(...args) {
 
       it('does not call subscribers whose data has not changed', () => {
         // subscribe(), publish() -> subscriber *not* called
-        const selector = createReaderSelector(UserFragment, '4', {size: 32});
         const owner = createOperationDescriptor(UserQuery, {});
-        const snapshot = store.lookup(selector, owner);
+        const selector = createReaderSelector(
+          UserFragment,
+          '4',
+          {size: 32},
+          owner.request,
+        );
+        const snapshot = store.lookup(selector);
         const callback = jest.fn();
         store.subscribe(snapshot, callback);
         // Publish a change to profilePicture.uri
@@ -659,9 +718,14 @@ function createOperationDescriptor(...args) {
 
       it('does not notify disposed subscribers', () => {
         // subscribe(), publish(), dispose(), notify() -> subscriber *not* called
-        const selector = createReaderSelector(UserFragment, '4', {size: 32});
         const owner = createOperationDescriptor(UserQuery, {});
-        const snapshot = store.lookup(selector, owner);
+        const selector = createReaderSelector(
+          UserFragment,
+          '4',
+          {size: 32},
+          owner.request,
+        );
+        const snapshot = store.lookup(selector);
         const callback = jest.fn();
         const {dispose} = store.subscribe(snapshot, callback);
         // Publish a change to profilePicture.uri

@@ -124,8 +124,12 @@ describe('Configs: NODE_DELETE', () => {
       {},
     );
     const snapshot = store.lookup(
-      createReaderSelector(FeedbackCommentQuery.fragment, ROOT_ID, {}),
-      operationDescriptor,
+      createReaderSelector(
+        FeedbackCommentQuery.fragment,
+        ROOT_ID,
+        {},
+        operationDescriptor.request,
+      ),
     );
     const callback = jest.fn();
     environment.commitPayload(operationDescriptor, payload);
@@ -141,8 +145,8 @@ describe('Configs: NODE_DELETE', () => {
     expect(callback.mock.calls.length).toBe(1);
     expect(optimisticUpdater).toBeCalled();
     callback.mockClear();
-    const node = environment.executeMutation.mock.calls[0][0].operation.node;
-    environment.mock.resolve(node, {
+    const operation = environment.executeMutation.mock.calls[0][0].operation;
+    environment.mock.resolve(operation, {
       data: {
         commentDelete: {
           deletedCommentId: firstCommentID,
@@ -270,8 +274,12 @@ describe('Configs: RANGE_DELETE', () => {
     const optimisticUpdater = jest.fn();
     const updater = jest.fn();
     const snapshot = store.lookup(
-      createReaderSelector(FeedbackCommentQuery.fragment, ROOT_ID, {}),
-      operationDescriptor,
+      createReaderSelector(
+        FeedbackCommentQuery.fragment,
+        ROOT_ID,
+        {},
+        operationDescriptor.request,
+      ),
     );
     const callback = jest.fn();
     store.subscribe(snapshot, callback);
@@ -287,8 +295,8 @@ describe('Configs: RANGE_DELETE', () => {
     expect(callback.mock.calls.length).toBe(1);
     expect(optimisticUpdater).toBeCalled();
     callback.mockClear();
-    const node = environment.executeMutation.mock.calls[0][0].operation.node;
-    environment.mock.resolve(node, {
+    const operation = environment.executeMutation.mock.calls[0][0].operation;
+    environment.mock.resolve(operation, {
       data: {
         commentDelete: {
           clientMutationId: '0',
@@ -396,8 +404,12 @@ describe('Configs: RANGE_DELETE', () => {
       },
     };
     const snapshot = store.lookup(
-      createReaderSelector(FriendQuery.fragment, ROOT_ID, {}),
-      operationDescriptor,
+      createReaderSelector(
+        FriendQuery.fragment,
+        ROOT_ID,
+        {},
+        operationDescriptor.request,
+      ),
     );
     const callback = jest.fn();
     store.subscribe(snapshot, callback);
@@ -412,8 +424,8 @@ describe('Configs: RANGE_DELETE', () => {
     expect(callback.mock.calls.length).toBe(1);
     expect(optimisticUpdater).toBeCalled();
     callback.mockClear();
-    const node = environment.executeMutation.mock.calls[0][0].operation.node;
-    environment.mock.resolve(node, {
+    const operation = environment.executeMutation.mock.calls[0][0].operation;
+    environment.mock.resolve(operation, {
       data: {
         unfriend: {
           clientMutationId: '0',
@@ -565,8 +577,12 @@ describe('Configs: RANGE_ADD', () => {
     ];
     const operationDescriptor = createOperationDescriptor(CommentQuery, {});
     const snapshot = store.lookup(
-      createReaderSelector(CommentQuery.fragment, ROOT_ID, {}),
-      operationDescriptor,
+      createReaderSelector(
+        CommentQuery.fragment,
+        ROOT_ID,
+        {},
+        operationDescriptor.request,
+      ),
     );
     environment.commitPayload(operationDescriptor, payload);
     store.subscribe(snapshot, callback);
@@ -582,8 +598,8 @@ describe('Configs: RANGE_ADD', () => {
     expect(callback.mock.calls.length).toBe(1);
     expect(optimisticUpdater).toBeCalled();
     callback.mockClear();
-    const node = environment.executeMutation.mock.calls[0][0].operation.node;
-    environment.mock.resolve(node, data);
+    const operation = environment.executeMutation.mock.calls[0][0].operation;
+    environment.mock.resolve(operation, data);
     jest.runAllTimers();
     // Does not need to fire again since server data should be the same
     expect(updater).toBeCalled();
@@ -649,13 +665,17 @@ describe('Configs: RANGE_ADD', () => {
         },
       },
     };
-    const node = environment.executeMutation.mock.calls[0][0].operation.node;
-    environment.mock.resolve(node, serverResponse);
+    const operation = environment.executeMutation.mock.calls[0][0].operation;
+    environment.mock.resolve(operation, serverResponse);
     jest.runAllTimers();
 
     let snapshot = store.lookup(
-      createReaderSelector(CommentQuery.fragment, ROOT_ID, {}),
-      operationDescriptor,
+      createReaderSelector(
+        CommentQuery.fragment,
+        ROOT_ID,
+        {},
+        operationDescriptor.request,
+      ),
     );
     expect(snapshot.data).toEqual({
       node: {
@@ -710,12 +730,16 @@ describe('Configs: RANGE_ADD', () => {
       mutation,
       variables,
     });
-    environment.mock.resolve(node, serverResponse);
+    environment.mock.resolve(operation, serverResponse);
     jest.runAllTimers();
 
     snapshot = store.lookup(
-      createReaderSelector(CommentQuery.fragment, ROOT_ID, {}),
-      operationDescriptor,
+      createReaderSelector(
+        CommentQuery.fragment,
+        ROOT_ID,
+        {},
+        operationDescriptor.request,
+      ),
     );
 
     expect(snapshot.data).toEqual({
@@ -772,8 +796,12 @@ describe('Configs: RANGE_ADD', () => {
     ];
     const operationDescriptor = createOperationDescriptor(CommentQuery, {});
     const snapshot = store.lookup(
-      createReaderSelector(CommentQuery.fragment, ROOT_ID, {}),
-      operationDescriptor,
+      createReaderSelector(
+        CommentQuery.fragment,
+        ROOT_ID,
+        {},
+        operationDescriptor.request,
+      ),
     );
     environment.commitPayload(operationDescriptor, payload);
     store.subscribe(snapshot, callback);
@@ -789,8 +817,8 @@ describe('Configs: RANGE_ADD', () => {
     expect(callback.mock.calls.length).toBe(1);
     expect(optimisticUpdater).toBeCalled();
     callback.mockClear();
-    const node = environment.executeMutation.mock.calls[0][0].operation.node;
-    environment.mock.resolve(node, data);
+    const operation = environment.executeMutation.mock.calls[0][0].operation;
+    environment.mock.resolve(operation, data);
     jest.runAllTimers();
     // Does not need to fire again since server data should be the same
     expect(updater).toBeCalled();
@@ -833,8 +861,12 @@ describe('Configs: RANGE_ADD', () => {
     const operationDescriptor = createOperationDescriptor(CommentQuery, {});
     environment.commitPayload(operationDescriptor, payload);
     const snapshot = store.lookup(
-      createReaderSelector(CommentQuery.fragment, ROOT_ID, {}),
-      operationDescriptor,
+      createReaderSelector(
+        CommentQuery.fragment,
+        ROOT_ID,
+        {},
+        operationDescriptor.request,
+      ),
     );
     store.subscribe(snapshot, callback);
     commitMutation(environment, {
@@ -849,8 +881,8 @@ describe('Configs: RANGE_ADD', () => {
     expect(callback.mock.calls.length).toBe(1);
     expect(optimisticUpdater).toBeCalled();
     callback.mockClear();
-    const node = environment.executeMutation.mock.calls[0][0].operation.node;
-    environment.mock.resolve(node, data);
+    const operation = environment.executeMutation.mock.calls[0][0].operation;
+    environment.mock.resolve(operation, data);
     jest.runAllTimers();
     // Does not need to fire again since server data should be the same
     expect(updater).toBeCalled();
@@ -959,8 +991,7 @@ describe('commitMutation()', () => {
   it('publishes each payload to the store as it arrives', () => {
     const operation = createOperationDescriptor(mutation, variables);
     const initialSnapshot = environment.lookup(
-      createReaderSelector(fragment, '1', {}),
-      operation,
+      createReaderSelector(fragment, '1', {}, operation.request),
     );
     const callback = jest.fn();
     environment.subscribe(initialSnapshot, callback);

@@ -33,7 +33,7 @@ function createOperationDescriptor(...args) {
   operation.toJSON = () => {
     return {
       name: operation.fragment.node.name,
-      variables: operation.variables,
+      variables: operation.request.variables,
     };
   };
   return operation;
@@ -109,7 +109,12 @@ describe('execute() fetches a @stream-ed @connection', () => {
       `));
     variables = {enableStream: true, after: null};
     operation = createOperationDescriptor(query, variables);
-    selector = createReaderSelector(feedFragment, VIEWER_ID, variables);
+    selector = createReaderSelector(
+      feedFragment,
+      VIEWER_ID,
+      variables,
+      operation.request,
+    );
 
     const NameHandler = {
       update(storeProxy, payload) {
@@ -150,7 +155,7 @@ describe('execute() fetches a @stream-ed @connection', () => {
   });
 
   it('initializes the connection with the first edge (0 => 1 edges)', () => {
-    const initialSnapshot = environment.lookup(selector, operation);
+    const initialSnapshot = environment.lookup(selector);
     callback = jest.fn();
     environment.subscribe(initialSnapshot, callback);
 
@@ -254,7 +259,7 @@ describe('execute() fetches a @stream-ed @connection', () => {
   });
 
   it('initializes the connection with subsequent edges (1 => 2 edges)', () => {
-    const initialSnapshot = environment.lookup(selector, operation);
+    const initialSnapshot = environment.lookup(selector);
     callback = jest.fn();
     environment.subscribe(initialSnapshot, callback);
 
@@ -356,7 +361,7 @@ describe('execute() fetches a @stream-ed @connection', () => {
   });
 
   it('initializes the connection with subsequent edges (1 => 2 edges) when initial_count=1', () => {
-    const initialSnapshot = environment.lookup(selector, operation);
+    const initialSnapshot = environment.lookup(selector);
     callback = jest.fn();
     environment.subscribe(initialSnapshot, callback);
 
@@ -454,7 +459,7 @@ describe('execute() fetches a @stream-ed @connection', () => {
   });
 
   it('initializes the connection with subsequent edges (0 => 2 edges) when edges arrive out of order', () => {
-    const initialSnapshot = environment.lookup(selector, operation);
+    const initialSnapshot = environment.lookup(selector);
     callback = jest.fn();
     environment.subscribe(initialSnapshot, callback);
 
@@ -598,7 +603,7 @@ describe('execute() fetches a @stream-ed @connection', () => {
     error.mockClear();
     next.mockClear();
 
-    const initialSnapshot = environment.lookup(selector, operation);
+    const initialSnapshot = environment.lookup(selector);
     callback = jest.fn();
     environment.subscribe(initialSnapshot, callback);
 
@@ -841,7 +846,7 @@ describe('execute() fetches a @stream-ed @connection', () => {
     error.mockClear();
     next.mockClear();
 
-    const initialSnapshot = environment.lookup(selector, operation);
+    const initialSnapshot = environment.lookup(selector);
     callback = jest.fn();
     environment.subscribe(initialSnapshot, callback);
 

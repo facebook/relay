@@ -36,16 +36,21 @@ function createOperationDescriptor(
   const operation = request.operation;
   const operationVariables = getOperationVariables(operation, variables);
   const dataID = ROOT_ID;
+  const requestDescriptor = {
+    node: request,
+    variables: operationVariables,
+  };
   const operationDescriptor = {
     fragment: createReaderSelector(
       request.fragment,
       dataID,
       operationVariables,
+      requestDescriptor,
     ),
-    node: request,
+    request: requestDescriptor,
     root: createNormalizationSelector(operation, dataID, operationVariables),
-    variables: operationVariables,
   };
+
   if (__DEV__) {
     // Freeze the properties of an OperationDescriptor but not the object:
     // - Freezing properties short-circuits a deepFreeze of snapshots
@@ -53,10 +58,11 @@ function createOperationDescriptor(
     //   avoiding stack overflow on larger queries.
     // - Not freezing the object allows overriding properties in tests,
     //   such as configuring a custom  toJSON() for debugging.
+    Object.freeze(requestDescriptor.node);
+    deepFreeze(requestDescriptor.variables);
     Object.freeze(operationDescriptor.fragment);
-    Object.freeze(operationDescriptor.node);
+    Object.freeze(operationDescriptor.request);
     Object.freeze(operationDescriptor.root);
-    deepFreeze(operationDescriptor.variables);
   }
   return operationDescriptor;
 }

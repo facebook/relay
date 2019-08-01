@@ -75,13 +75,6 @@ export type WriterConfig = {
     LOCAL_RULES?: $ReadOnlyArray<ValidationRule>,
   },
   printModuleDependency?: string => string,
-  // EXPERIMENTAL: skips deleting extra files in the generated directories
-  experimental_noDeleteExtraFiles?: boolean,
-  // EXPERIMENTAL: skips deleting extra files with the supplied pattern in
-  // the generated directories.
-  // TODO (T35012551): Remove this when no longer necessary with a better
-  // directory structure.
-  experimental_extraFilesPatternToKeep?: RegExp,
   repersist?: boolean,
 };
 
@@ -377,14 +370,9 @@ function writeAll({
         });
       }
 
-      // clean output directories
-      if (writerConfig.experimental_noDeleteExtraFiles !== true) {
-        allOutputDirectories.forEach(dir => {
-          dir.deleteExtraFiles(
-            writerConfig.experimental_extraFilesPatternToKeep,
-          );
-        });
-      }
+      allOutputDirectories.forEach(dir => {
+        dir.deleteExtraFiles();
+      });
       if (sourceControl && !onlyValidate) {
         await CodegenDirectory.sourceControlAddRemove(
           sourceControl,

@@ -105,31 +105,4 @@ describe('deleteExtraFiles', () => {
       updated: ['bar.js'],
     });
   });
-
-  test('filePatternToKeep', () => {
-    const filesystem = new TestFilesystem();
-    filesystem.__mockFiles.push('unexpected-should-be-deleted.js');
-    const codegenDir = new CodegenDirectory('/generated', {
-      filesystem,
-      onlyValidate: true,
-    });
-    codegenDir.writeFile('foo.js', 'mock-content-/generated/foo.js');
-    codegenDir.writeFile('bar.js', 'mock-content-/generated/bar.js-changed');
-    codegenDir.deleteExtraFiles(/\unexpected\.js$/);
-    expect(filesystem.__mockOperations).toEqual([
-      'existsSync(/generated)',
-      'statSync(/generated)',
-      'existsSync(/generated/foo.js)',
-      'readFileSync(/generated/foo.js)',
-      'existsSync(/generated/bar.js)',
-      'readFileSync(/generated/bar.js)',
-      'readdirSync(/generated)',
-    ]);
-    expect(codegenDir.changes).toEqual({
-      created: [],
-      deleted: ['unexpected-should-be-deleted.js'],
-      unchanged: ['foo.js'],
-      updated: ['bar.js'],
-    });
-  });
 });

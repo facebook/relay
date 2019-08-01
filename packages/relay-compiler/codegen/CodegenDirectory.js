@@ -251,16 +251,13 @@ class CodegenDirectory {
 
   /**
    * Deletes all non-generated files, except for invisible "dot" files (ie.
-   * files with names starting with ".") and any files matching the supplied
-   * filePatternToKeep.
+   * files with names starting with ".").
    */
-  deleteExtraFiles(filePatternToKeep?: RegExp): void {
+  deleteExtraFiles(): void {
     Profiler.run('CodegenDirectory.deleteExtraFiles', () => {
       this._filesystem.readdirSync(this._dir).forEach(actualFile => {
         const shouldFileExist =
-          this._files.has(actualFile) ||
-          /^\./.test(actualFile) ||
-          (filePatternToKeep != null && filePatternToKeep.test(actualFile));
+          this._files.has(actualFile) || actualFile.startsWith('.');
         if (shouldFileExist) {
           return;
         }

@@ -63,8 +63,6 @@ export type WriteFilesOptions = {|
   sourceControl: ?SourceControl,
   reporter: GraphQLReporter,
   generatedDirectories?: Array<string>,
-  experimental_noDeleteExtraFiles?: boolean,
-  experimental_extraFilesPatternToKeep?: RegExp,
 |};
 
 export type WriteFiles = WriteFilesOptions => Promise<

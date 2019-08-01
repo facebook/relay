@@ -90,8 +90,8 @@ const users = [
     caption: 'M1 Finance',
     image: '/img/logos/m1finance.png',
     infoLink: 'https://www.m1finance.com/',
-    pinned: false,
-	},
+    pinned: false
+  },
 ];
 
 const siteConfig = {

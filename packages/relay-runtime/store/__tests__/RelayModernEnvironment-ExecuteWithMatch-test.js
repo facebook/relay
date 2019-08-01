@@ -57,6 +57,7 @@ describe('execute() a query with @match', () => {
           node(id: $id) {
             ... on User {
               nameRenderer @match {
+                __typename
                 ...PlainUserNameRenderer_name
                   @module(name: "PlainUserNameRenderer.react")
                 ...MarkdownUserNameRenderer_name
@@ -171,13 +172,11 @@ describe('execute() a query with @match', () => {
         nameRenderer: {
           __id:
             'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
-
+          __typename: 'MarkdownUserNameRenderer',
           __fragmentPropName: 'name',
-
           __fragments: {
             MarkdownUserNameRenderer_name: {},
           },
-
           __fragmentOwner: operation.request,
           __module_component: 'MarkdownUserNameRenderer.react',
         },

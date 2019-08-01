@@ -1,10 +1,13 @@
-# expected-to-throw
+query NameRendererQuery($id: ID!) {
+  node(id: $id) {
+    ...NameRendererFragment
+  }
+}
+
 fragment NameRendererFragment on User {
   id
   nameRenderer @match {
-    ... on PlainUserNameRenderer {
-      plaintext
-    }
+    __typename
     ...PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
     ...MarkdownUserNameRenderer_name
       @module(name: "MarkdownUserNameRenderer.react")

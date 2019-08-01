@@ -96,7 +96,9 @@ exports[`RelayMatchTransform matches expected output: invalid-non-empty-selectio
 fragment NameRendererFragment on User {
   id
   nameRenderer @match {
-    __typename
+    ... on PlainUserNameRenderer {
+      plaintext
+    }
     ...PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
     ...MarkdownUserNameRenderer_name
       @module(name: "MarkdownUserNameRenderer.react")
@@ -125,9 +127,9 @@ Error: Encountered 1 error(s):
   
   Source: GraphQL request (5:5)
   4:   nameRenderer @match {
-  5:     __typename
+  5:     ... on PlainUserNameRenderer {
          ^
-  6:     ...PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
+  6:       plaintext
   
 `;
 

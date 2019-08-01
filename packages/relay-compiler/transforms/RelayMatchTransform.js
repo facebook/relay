@@ -183,6 +183,13 @@ function visitLinkedField(node: LinkedField, state: State): LinkedField {
   const seenTypes: Map<GraphQLCompositeType, InlineFragment> = new Map();
   const selections = [];
   transformedNode.selections.forEach(matchSelection => {
+    if (
+      matchSelection.kind === 'ScalarField' &&
+      matchSelection.name === '__typename'
+    ) {
+      selections.push(matchSelection);
+      return;
+    }
     const moduleImport =
       matchSelection.kind === 'InlineFragment'
         ? matchSelection.selections[0]
@@ -195,7 +202,7 @@ function visitLinkedField(node: LinkedField, state: State): LinkedField {
       throw createUserError(
         'Invalid @match selection: all selections should be ' +
           'fragment spreads with @module.',
-        [matchSelection.loc, moduleImport?.loc].filter(Boolean),
+        [matchSelection.loc],
       );
     }
     const matchedType = matchSelection.typeCondition;
@@ -235,6 +242,14 @@ function visitLinkedField(node: LinkedField, state: State): LinkedField {
     }
     selections.push(matchSelection);
   });
+
+  if (seenTypes.size === 0) {
+    throw createUserError(
+      'Invalid @match selection: expected at least one @module selection. ' +
+        "Remove @match or add a '...Fragment @module()' selection.",
+      [matchDirective.loc],
+    );
+  }
 
   const supportedArg = transformedNode.args.find(
     arg => arg.name === SUPPORTED_ARGUMENT_NAME,

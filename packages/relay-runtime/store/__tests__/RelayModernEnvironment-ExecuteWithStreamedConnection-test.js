@@ -881,4 +881,98 @@ describe('execute() fetches a @stream-ed @connection', () => {
     // pageInfo.endCursor
     expect(callback).toBeCalledTimes(0);
   });
+
+  it('warns if executed in non-streaming mode and initializes the connection', () => {
+    const initialSnapshot = environment.lookup(selector);
+    callback = jest.fn();
+    environment.subscribe(initialSnapshot, callback);
+
+    environment.execute({operation}).subscribe(callbacks);
+    dataSource.next({
+      data: {
+        viewer: {
+          newsFeed: {
+            edges: [
+              {
+                cursor: 'cursor-1',
+                node: {
+                  __typename: 'Story',
+                  id: '1',
+                  feedback: {
+                    id: 'feedback-1',
+                    actors: [
+                      {
+                        id: 'actor-1',
+                        __typename: 'User',
+                        name: 'Alice',
+                      },
+                    ],
+                  },
+                },
+              },
+            ],
+            pageInfo: {
+              endCursor: 'cursor-1',
+              hasNextPage: true,
+            },
+          },
+        },
+      },
+      extensions: {
+        is_final: true,
+      },
+    });
+    jest.runAllTimers();
+
+    expect(error.mock.calls.map(call => call[0].stack)).toEqual([]);
+    expect(next).toBeCalledTimes(1);
+    expect(callback).toBeCalledTimes(2);
+    const snapshot = callback.mock.calls[0][0];
+    expect(snapshot.isMissingData).toBe(false);
+    expect(snapshot.data).toEqual({
+      newsFeed: {
+        edges: [
+          {
+            cursor: 'cursor-1',
+            node: {
+              __typename: 'Story',
+              id: '1',
+              feedback: {
+                id: 'feedback-1',
+                actors: [{id: 'actor-1', name: 'ALICE'}],
+              },
+            },
+          },
+        ],
+        pageInfo: {
+          endCursor: null, // not initially processed
+          hasNextPage: false, // not initially processed
+        },
+      },
+    });
+    expect(callback).toBeCalledTimes(2);
+    const snapshot2 = callback.mock.calls[1][0];
+    expect(snapshot2.isMissingData).toBe(false);
+    expect(snapshot2.data).toEqual({
+      newsFeed: {
+        edges: [
+          {
+            cursor: 'cursor-1',
+            node: {
+              __typename: 'Story',
+              id: '1',
+              feedback: {
+                id: 'feedback-1',
+                actors: [{id: 'actor-1', name: 'ALICE'}],
+              },
+            },
+          },
+        ],
+        pageInfo: {
+          endCursor: 'cursor-1', // updated
+          hasNextPage: true, // updated
+        },
+      },
+    });
+  });
 });

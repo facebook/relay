@@ -506,7 +506,7 @@ describe('execute() a query with @defer', () => {
     expect(callback).toBeCalledTimes(1);
   });
 
-  it('warns if executed in non-streaming mode', () => {
+  it('warns if executed in non-streaming mode and processes deferred selections', () => {
     const initialSnapshot = environment.lookup(selector);
     const callback = jest.fn();
     environment.subscribe(initialSnapshot, callback);
@@ -530,14 +530,66 @@ describe('execute() a query with @defer', () => {
     expect(next.mock.calls.length).toBe(1);
     expect(complete).not.toBeCalled();
     expect(error).not.toBeCalled();
+    expect(callback.mock.calls.length).toBe(2);
+    const snapshot = callback.mock.calls[0][0];
+    expect(snapshot.isMissingData).toBe(true);
+    expect(snapshot.data).toEqual({
+      id: '1',
+      name: undefined, // not initially published
+    });
+    const snapshot2 = callback.mock.calls[1][0];
+    expect(snapshot2.isMissingData).toBe(false);
+    expect(snapshot2.data).toEqual({
+      id: '1',
+      name: 'ALICE',
+    });
+    expect(warning).toHaveBeenCalledWith(
+      false,
+      'RelayModernEnvironment: Operation `%s` contains @defer/@stream ' +
+        'directives but was executed in non-streaming mode. See ' +
+        'https://fburl.com/relay-incremental-delivery-non-streaming-warning.',
+      'UserQuery',
+    );
+  });
+
+  it('warns if executed in non-streaming mode and skips deferred selections if cancelled', () => {
+    const initialSnapshot = environment.lookup(selector);
+    let subscription = null;
+    const callback = jest.fn(() => {
+      if (subscription != null) {
+        subscription.unsubscribe();
+        subscription = null;
+      }
+    });
+    environment.subscribe(initialSnapshot, callback);
+
+    subscription = environment.execute({operation}).subscribe(callbacks);
+    const payload = {
+      data: {
+        node: {
+          id: '1',
+          __typename: 'User',
+          name: 'Alice',
+        },
+      },
+      extensions: {
+        is_final: true,
+      },
+    };
+    dataSource.next(payload);
+    jest.runAllTimers();
+
+    expect(next).not.toBeCalled();
+    expect(complete).not.toBeCalled();
+    expect(error).not.toBeCalled();
     expect(callback.mock.calls.length).toBe(1);
     const snapshot = callback.mock.calls[0][0];
     expect(snapshot.isMissingData).toBe(true);
     expect(snapshot.data).toEqual({
       id: '1',
-      name: undefined,
+      name: undefined, // not initially published
     });
-    expect(warning).toHaveBeenCalledWith(
+    expect(warning).not.toHaveBeenCalledWith(
       false,
       'RelayModernEnvironment: Operation `%s` contains @defer/@stream ' +
         'directives but was executed in non-streaming mode. See ' +

@@ -911,6 +911,7 @@ const {ROOT_ID, ROOT_TYPE} = require('../RelayStoreUtils');
         expect(incrementalPlaceholders).toEqual([
           {
             kind: 'defer',
+            data: payload.node,
             label: 'Query$defer$TestFragment',
             path: ['node'],
             selector: createNormalizationSelector(
@@ -972,6 +973,7 @@ const {ROOT_ID, ROOT_TYPE} = require('../RelayStoreUtils');
         expect(incrementalPlaceholders).toEqual([
           {
             kind: 'defer',
+            data: payload.node,
             label: 'Query$defer$TestFragment',
             path: ['node'],
             selector: createNormalizationSelector(
@@ -1036,6 +1038,7 @@ const {ROOT_ID, ROOT_TYPE} = require('../RelayStoreUtils');
         expect(incrementalPlaceholders).toEqual([
           {
             kind: 'defer',
+            data: payload.node.actors[0],
             label: 'Query$defer$TestFragment',
             path: ['node', 'actors', '0'],
             selector: createNormalizationSelector(
@@ -1047,6 +1050,7 @@ const {ROOT_ID, ROOT_TYPE} = require('../RelayStoreUtils');
           },
           {
             kind: 'defer',
+            data: payload.node.actors[1],
             label: 'Query$defer$TestFragment',
             path: ['node', 'actors', '1'],
             selector: createNormalizationSelector(
@@ -1118,6 +1122,7 @@ const {ROOT_ID, ROOT_TYPE} = require('../RelayStoreUtils');
         expect(incrementalPlaceholders).toEqual([
           {
             kind: 'defer',
+            data: payload.node,
             label: 'Query$defer$TestFragment',
             path: ['abc', '0', 'xyz', 'node'],
             selector: createNormalizationSelector(

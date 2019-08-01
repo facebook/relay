@@ -257,6 +257,7 @@ class RelayResponseNormalizer {
       // metadata to process the subsequent response chunk.
       this._incrementalPlaceholders.push({
         kind: 'defer',
+        data,
         label: defer.label,
         path: [...this._path],
         selector: createNormalizationSelector(

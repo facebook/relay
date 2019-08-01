@@ -552,6 +552,7 @@ export type ModuleImportPayload = {|
  */
 export type DeferPlaceholder = {|
   +kind: 'defer',
+  +data: PayloadData,
   +label: string,
   +path: $ReadOnlyArray<string>,
   +selector: NormalizationSelector,

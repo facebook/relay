@@ -109,7 +109,7 @@ class Executor {
     string,
     {|+record: Record, +fieldPayloads: Array<HandleFieldPayload>|},
   >;
-  _state: 'started' | 'loading' | 'completed';
+  _state: 'started' | 'loading_incremental' | 'loading_final' | 'completed';
   _updater: ?SelectorStoreUpdater;
   _subscriptions: Map<number, Subscription>;
   _operationTracker: ?OperationTracker;
@@ -266,7 +266,8 @@ class Executor {
         'RelayModernQueryExecutor: optimistic payload received after server payload.',
       );
     }
-    this._state = 'loading';
+    const isFinal = response.extensions?.is_final === true;
+    this._state = isFinal ? 'loading_final' : 'loading_incremental';
     if (isOptimistic) {
       this._processOptimisticResponse(responseWithData);
     } else {
@@ -343,28 +344,10 @@ class Executor {
     );
     this._incrementalResults.clear();
     this._source.clear();
-    this._processPayloadFollowups(payload);
     this._publishQueue.commitPayload(this._operation, payload, this._updater);
     const updatedOwners = this._publishQueue.run();
     this._updateOperationTracker(updatedOwners);
-
-    if (
-      payload.incrementalPlaceholders &&
-      payload.incrementalPlaceholders.length !== 0 &&
-      response.extensions?.is_final === true
-    ) {
-      // The query has defer/stream selections that are enabled, but the server
-      // indicated that this is a "final" payload: no incremental payloads will
-      // be delivered. Warn that the query was (likely) executed on the server
-      // in non-streaming mode, with incremental delivery disabled.
-      warning(
-        false,
-        'RelayModernEnvironment: Operation `%s` contains @defer/@stream ' +
-          'directives but was executed in non-streaming mode. See ' +
-          'https://fburl.com/relay-incremental-delivery-non-streaming-warning.',
-        this._operation.request.node.params.name,
-      );
-    }
+    this._processPayloadFollowups(payload);
   }
 
   /**
@@ -372,6 +355,9 @@ class Executor {
    * and (in the future) @stream directives.
    */
   _processPayloadFollowups(payload: RelayResponsePayload): void {
+    if (this._state === 'completed') {
+      return;
+    }
     const {incrementalPlaceholders, moduleImportPayloads} = payload;
     if (moduleImportPayloads && moduleImportPayloads.length !== 0) {
       const operationLoader = this._operationLoader;
@@ -388,6 +374,31 @@ class Executor {
       incrementalPlaceholders.forEach(incrementalPlaceholder => {
         this._processIncrementalPlaceholder(payload, incrementalPlaceholder);
       });
+      if (this._state === 'loading_final') {
+        // The query has defer/stream selections that are enabled, but the
+        // server indicated that this is a "final" payload: no incremental
+        // payloads will be delivered. Warn that the query was (likely) executed
+        // on the server in non-streaming mode, with incremental delivery
+        // disabled.
+        warning(
+          false,
+          'RelayModernEnvironment: Operation `%s` contains @defer/@stream ' +
+            'directives but was executed in non-streaming mode. See ' +
+            'https://fburl.com/relay-incremental-delivery-non-streaming-warning.',
+          this._operation.request.node.params.name,
+        );
+        // But eagerly process any deferred payloads
+        incrementalPlaceholders.forEach(placeholder => {
+          if (placeholder.kind === 'defer') {
+            this._processDeferResponse(
+              placeholder.label,
+              placeholder.path,
+              placeholder,
+              {data: placeholder.data},
+            );
+          }
+        });
+      }
     }
   }
 
@@ -457,10 +468,10 @@ class Executor {
       moduleImportPayload.path,
       this._getDataID,
     );
-    this._processPayloadFollowups(relayPayload);
     this._publishQueue.commitPayload(this._operation, relayPayload);
     const updatedOwners = this._publishQueue.run();
     this._updateOperationTracker(updatedOwners);
+    this._processPayloadFollowups(relayPayload);
   }
 
   /**
@@ -642,7 +653,6 @@ class Executor {
       placeholder.path,
       this._getDataID,
     );
-    this._processPayloadFollowups(relayPayload);
     this._publishQueue.commitPayload(this._operation, relayPayload);
 
     // Load the version of the parent record from which this incremental data
@@ -670,6 +680,7 @@ class Executor {
     }
     const updatedOwners = this._publishQueue.run();
     this._updateOperationTracker(updatedOwners);
+    this._processPayloadFollowups(relayPayload);
   }
 
   /**
@@ -779,7 +790,6 @@ class Executor {
       [...placeholder.path, responseKey, String(itemIndex)],
       this._getDataID,
     );
-    this._processPayloadFollowups(relayPayload);
     this._publishQueue.commitPayload(this._operation, relayPayload, store => {
       const currentParentRecord = store.get(parentID);
       if (currentParentRecord == null) {
@@ -848,6 +858,7 @@ class Executor {
     }
     const updatedOwners = this._publishQueue.run();
     this._updateOperationTracker(updatedOwners);
+    this._processPayloadFollowups(relayPayload);
   }
 
   _updateOperationTracker(

@@ -1,8 +1,0 @@
-var RelayClassic = require('react-relay/classic');
-var x = RelayClassic.QL`
-  query {
-    node(id: 123) {
-      id
-    }
-  }
-`;

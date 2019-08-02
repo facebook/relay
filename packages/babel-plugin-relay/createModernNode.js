@@ -11,7 +11,6 @@
 'use strict';
 
 const crypto = require('crypto');
-const invariant = require('./invariant');
 const path = require('path');
 
 const {print} = require('graphql');
@@ -119,7 +118,9 @@ function getRelativeImportPath(
   artifactDirectory: string,
   fileToRequire: string,
 ): string {
-  invariant(state.file != null, 'babel state file is null');
+  if (state.file == null) {
+    throw new Error('Babel state is missing expected file name');
+  }
   const filename = state.file.opts.filename;
 
   const relative = path.relative(

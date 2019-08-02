@@ -10,8 +10,6 @@
 
 'use strict';
 
-const createClassicNode = require('./createClassicNode');
-const createCompatNode = require('./createCompatNode');
 const createModernNode = require('./createModernNode');
 
 import type {BabelState} from './BabelPluginRelay';
@@ -26,7 +24,6 @@ function compileGraphQLTag(
   path: Object,
   state: BabelState,
   ast: DocumentNode,
-  deprecated?: boolean,
 ): void {
   if (ast.definitions.length !== 1) {
     throw new Error(
@@ -45,15 +42,10 @@ function compileGraphQLTag(
         '`.',
     );
   }
-  return replaceMemoized(
-    t,
-    path,
-    createAST(t, state, path, definition, deprecated || false),
-  );
+  return replaceMemoized(t, path, createAST(t, state, path, definition));
 }
 
-function createAST(t, state, path, graphqlDefinition, deprecated) {
-  const isCompatMode = Boolean(state.opts && state.opts.compat);
+function createAST(t, state, path, graphqlDefinition) {
   const isHasteMode = Boolean(state.opts && state.opts.haste);
   const isDevVariable = state.opts && state.opts.isDevVariable;
   const artifactDirectory = state.opts && state.opts.artifactDirectory;
@@ -64,28 +56,13 @@ function createAST(t, state, path, graphqlDefinition, deprecated) {
   const isDevelopment =
     (process.env.BABEL_ENV || process.env.NODE_ENV) !== 'production';
 
-  const modernNode = deprecated
-    ? null
-    : createModernNode(t, graphqlDefinition, state, {
-        artifactDirectory,
-        buildCommand,
-        isDevelopment,
-        isHasteMode,
-        isDevVariable,
-      });
-  if (isCompatMode) {
-    return createCompatNode(
-      t,
-      modernNode,
-      createClassicNode(t, path, graphqlDefinition, state),
-    );
-  }
-  if (deprecated) {
-    throw new Error(
-      'graphql_DEPRECATED`...` tag not allowed in modern-only mode.',
-    );
-  }
-  return modernNode;
+  return createModernNode(t, graphqlDefinition, state, {
+    artifactDirectory,
+    buildCommand,
+    isDevelopment,
+    isHasteMode,
+    isDevVariable,
+  });
 }
 
 function replaceMemoized(t, path, ast) {

@@ -15460,6 +15460,50 @@ query UnionQuery {
 
 `;
 
+exports[`compileRelayArtifacts matches expected output: unknown-root-variable-in-fragment.invalid.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+# expected-to-throw
+query TestQuery($id: ID!, $pictureSize: [Int] = [128]) {
+  node(id: $id) {
+    id
+    ...Profile @relay(mask: false)
+  }
+}
+
+fragment Profile on User {
+  id
+  name
+  # includeFriends is not defined on the referencing query, should error
+  ... @include(if: $includeFriends) {
+    friends(first: 10) {
+      edges {
+        node {
+          id
+        }
+      }
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+THROWN EXCEPTION:
+
+Error: Variable '$includeFriends' is not in scope.
+
+Source: GraphQL request (2:1)
+1: # expected-to-throw
+2: query TestQuery($id: ID!, $pictureSize: [Int] = [128]) {
+   ^
+3:   node(id: $id) {
+
+Source: GraphQL request (13:20)
+12:   # includeFriends is not defined on the referencing query, should error
+13:   ... @include(if: $includeFriends) {
+                       ^
+14:     friends(first: 10) {
+
+`;
+
 exports[`compileRelayArtifacts matches expected output: unmasked-fragment-spreads-dup-arguments.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 fragment UserUtil_user on User

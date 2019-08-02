@@ -345,7 +345,7 @@ function transformValue(
       // additional spurious errors.
       throw createNonRecoverableUserError(
         `Variable '\$${value.variableName}' is not in scope.`,
-        [value.loc],
+        [errorContext[0]?.loc, value.loc].filter(Boolean),
       );
     }
     return scopeValue;
@@ -445,7 +445,7 @@ function hashArguments(
           // additional spurious errors.
           throw createNonRecoverableUserError(
             `Variable '\$${arg.value.variableName}' is not in scope.`,
-            [arg.value.loc],
+            [errorContext[0]?.loc, arg.value.loc].filter(Boolean),
           );
         }
       } else {

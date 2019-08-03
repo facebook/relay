@@ -19,12 +19,6 @@ const babelOptions = getBabelOptions({
   env: 'test',
   // Tests use a Promise polfill so they can use jest.runAllTimers().
   autoImport: true,
-  moduleMap: {
-    '@babel/parser': '@babel/parser',
-    immutable: 'immutable',
-    react: 'react',
-    'react-test-renderer': 'react-test-renderer',
-  },
   plugins: [
     '@babel/plugin-transform-flow-strip-types',
     '@babel/plugin-transform-runtime',

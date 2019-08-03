@@ -13,7 +13,6 @@ module.exports = function(options) {
   options = Object.assign(
     {
       env: 'production',
-      moduleMap: {},
       plugins: [],
     },
     options,
@@ -25,20 +24,21 @@ module.exports = function(options) {
     stripDEV: options.env === 'production',
   });
 
-  // The module rewrite transform needs to be positioned relative to fbjs's
-  // many other transforms.
-  const moduleMap = Object.assign(
-    {},
-    require('fbjs/module-map'),
-    options.moduleMap,
-  );
-  // TODO: Delete `nullthrows` from fbjs.
-  moduleMap.nullthrows = 'nullthrows';
-
   fbjsPreset.presets[0].plugins.push([
     require('./rewrite-modules'),
     {
-      map: moduleMap,
+      map: {
+        ErrorUtils: 'fbjs/lib/ErrorUtils',
+        areEqual: 'fbjs/lib/areEqual',
+        emptyFunction: 'fbjs/lib/emptyFunction',
+        forEachObject: 'fbjs/lib/forEachObject',
+        invariant: 'fbjs/lib/invariant',
+        mapObject: 'fbjs/lib/mapObject',
+        removeFromArray: 'fbjs/lib/removeFromArray',
+        resolveImmediate: 'fbjs/lib/resolveImmediate',
+        sprintf: 'fbjs/lib/sprintf',
+        warning: 'fbjs/lib/warning',
+      },
     },
   ]);
 

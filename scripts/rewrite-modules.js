@@ -17,21 +17,12 @@ const path = require('path');
  * file names in require statements.
  */
 
-/**
- * Rewrites module string literals according to the `map` and `prefix` options.
- * This allows other npm packages to be published and used directly without
- * being a part of the same build.
- */
 function mapModule(state, module) {
   var moduleMap = state.opts.map || {};
   if (moduleMap.hasOwnProperty(module)) {
     return moduleMap[module];
   }
-  // Jest understands the haste module system, so leave modules intact.
-  if (process.env.NODE_ENV === 'test') {
-    return;
-  }
-  return './' + path.basename(module);
+  return null;
 }
 
 var jestMethods = [
@@ -43,7 +34,7 @@ var jestMethods = [
 ];
 
 function isJestProperty(t, property) {
-  return t.isIdentifier(property) && jestMethods.indexOf(property.name) !== -1;
+  return t.isIdentifier(property) && jestMethods.includes(property.name);
 }
 
 module.exports = function(babel) {

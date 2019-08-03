@@ -12,70 +12,6 @@
 const babel = require('gulp-babel');
 const babelOptions = require('./scripts/getBabelOptions')({
   ast: false,
-  moduleMap: {
-    '@babel/core': '@babel/core',
-    '@babel/parser': '@babel/parser',
-    '@babel/polyfill': '@babel/polyfill',
-    '@babel/traverse': '@babel/traverse',
-    '@babel/types': '@babel/types',
-    '@babel/plugin-proposal-nullish-coalescing-operator':
-      '@babel/plugin-proposal-nullish-coalescing-operator',
-    '@babel/plugin-proposal-optional-chaining':
-      '@babel/plugin-proposal-optional-chaining',
-    '@babel/plugin-transform-runtime': '@babel/plugin-transform-runtime',
-    '@babel/plugin-transform-flow-strip-types':
-      '@babel/plugin-transform-flow-strip-types',
-    '@babel/generator': '@babel/generator',
-    '@babel/generator/lib/printer': '@babel/generator/lib/printer',
-    '@babel/runtime/helpers/assertThisInitialized':
-      '@babel/runtime/helpers/assertThisInitialized',
-    '@babel/runtime/helpers/asyncToGenerator':
-      '@babel/runtime/helpers/asyncToGenerator',
-    '@babel/runtime/helpers/classCallCheck':
-      '@babel/runtime/helpers/classCallCheck',
-    '@babel/runtime/helpers/defineProperty':
-      '@babel/runtime/helpers/defineProperty',
-    '@babel/runtime/helpers/extends': '@babel/runtime/helpers/extends',
-    '@babel/runtime/helpers/inherits': '@babel/runtime/helpers/inherits',
-    '@babel/runtime/helpers/inheritsLoose':
-      '@babel/runtime/helpers/inheritsLoose',
-    '@babel/runtime/helpers/interopRequireDefault':
-      '@babel/runtime/helpers/interopRequireDefault',
-    '@babel/runtime/helpers/objectSpread':
-      '@babel/runtime/helpers/objectSpread',
-    '@babel/runtime/helpers/objectWithoutProperties':
-      '@babel/runtime/helpers/objectWithoutProperties',
-    '@babel/runtime/helpers/objectWithoutPropertiesLoose':
-      '@babel/runtime/helpers/objectWithoutPropertiesLoose',
-    '@babel/runtime/helpers/possibleConstructorReturn':
-      '@babel/runtime/helpers/possibleConstructorReturn',
-    '@babel/runtime/helpers/toConsumableArray':
-      '@babel/runtime/helpers/toConsumableArray',
-    'babel-plugin-macros': 'babel-plugin-macros',
-    chalk: 'chalk',
-    child_process: 'child_process',
-    cosmiconfig: 'cosmiconfig',
-    crypto: 'crypto',
-    'fast-glob': 'fast-glob',
-    'fb-watchman': 'fb-watchman',
-    fs: 'fs',
-    graphql: 'graphql',
-    immutable: 'immutable',
-    net: 'net',
-    os: 'os',
-    path: 'path',
-    process: 'process',
-    react: 'react',
-    'react-lifecycles-compat': 'react-lifecycles-compat',
-    'relay-compiler': 'relay-compiler',
-    RelayRuntime: 'relay-runtime',
-    'relay-runtime': 'relay-runtime',
-    'relay-test-utils': 'relay-test-utils',
-    'relay-test-utils-internal': 'relay-test-utils-internal',
-    signedsource: 'signedsource',
-    util: 'util',
-    yargs: 'yargs',
-  },
   plugins: [
     '@babel/plugin-transform-flow-strip-types',
     '@babel/plugin-transform-runtime',
@@ -90,7 +26,6 @@ const babelOptions = require('./scripts/getBabelOptions')({
   sourceType: 'script',
 });
 const del = require('del');
-const flatten = require('gulp-flatten');
 const fs = require('fs');
 const gulp = require('gulp');
 const chmod = require('gulp-chmod');
@@ -300,7 +235,6 @@ const modules = gulp.parallel(
           })
           .pipe(once())
           .pipe(babel(babelOptions))
-          .pipe(flatten())
           .pipe(gulp.dest(path.join(DIST, build.package, 'lib')));
       },
   ),
@@ -363,7 +297,7 @@ builds.forEach(build => {
     build.bins.forEach(bin => {
       binsTasks.push(function binsTask() {
         return gulp
-          .src(path.join(DIST, build.package, 'lib', bin.entry))
+          .src(path.join(DIST, build.package, 'lib', 'bin', bin.entry))
           .pipe(buildDist(bin.output, bin, /* isProduction */ false))
           .pipe(header(SCRIPT_HASHBANG + PRODUCTION_HEADER))
           .pipe(chmod(0o755))

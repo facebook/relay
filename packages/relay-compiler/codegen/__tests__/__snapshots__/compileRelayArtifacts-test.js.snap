@@ -5051,6 +5051,210 @@ fragment FeedbackText_feedback on Feedback {
 }
 `;
 
+exports[`compileRelayArtifacts matches expected output: false-positive-circular-fragment-reference-regression.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query TestQuery{
+  viewer {
+    ...MyViewer
+    ...MyOtherViewer
+    actor {
+      name
+    }
+  }
+}
+
+fragment MyViewer on Viewer {
+  ...MyNestedViewer
+}
+
+fragment MyOtherViewer on Viewer {
+  ...MyNestedViewer
+}
+
+fragment MyNestedViewer on Viewer @argumentDefinitions(
+  includeEmail: {type: "Boolean!", defaultValue: false}
+) {
+  primaryEmail @include(if: $includeEmail)
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+{
+  "kind": "Request",
+  "fragment": {
+    "kind": "Fragment",
+    "name": "TestQuery",
+    "type": "Query",
+    "metadata": null,
+    "argumentDefinitions": [],
+    "selections": [
+      {
+        "kind": "LinkedField",
+        "alias": null,
+        "name": "viewer",
+        "storageKey": null,
+        "args": null,
+        "concreteType": "Viewer",
+        "plural": false,
+        "selections": [
+          {
+            "kind": "LinkedField",
+            "alias": null,
+            "name": "actor",
+            "storageKey": null,
+            "args": null,
+            "concreteType": null,
+            "plural": false,
+            "selections": [
+              {
+                "kind": "ScalarField",
+                "alias": null,
+                "name": "name",
+                "args": null,
+                "storageKey": null
+              }
+            ]
+          },
+          {
+            "kind": "FragmentSpread",
+            "name": "MyViewer",
+            "args": null
+          },
+          {
+            "kind": "FragmentSpread",
+            "name": "MyOtherViewer",
+            "args": null
+          }
+        ]
+      }
+    ]
+  },
+  "operation": {
+    "kind": "Operation",
+    "name": "TestQuery",
+    "argumentDefinitions": [],
+    "selections": [
+      {
+        "kind": "LinkedField",
+        "alias": null,
+        "name": "viewer",
+        "storageKey": null,
+        "args": null,
+        "concreteType": "Viewer",
+        "plural": false,
+        "selections": [
+          {
+            "kind": "LinkedField",
+            "alias": null,
+            "name": "actor",
+            "storageKey": null,
+            "args": null,
+            "concreteType": null,
+            "plural": false,
+            "selections": [
+              {
+                "kind": "ScalarField",
+                "alias": null,
+                "name": "__typename",
+                "args": null,
+                "storageKey": null
+              },
+              {
+                "kind": "ScalarField",
+                "alias": null,
+                "name": "name",
+                "args": null,
+                "storageKey": null
+              },
+              {
+                "kind": "ScalarField",
+                "alias": null,
+                "name": "id",
+                "args": null,
+                "storageKey": null
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
+
+QUERY:
+
+query TestQuery {
+  viewer {
+    actor {
+      __typename
+      name
+      id
+    }
+  }
+}
+
+
+{
+  "kind": "Fragment",
+  "name": "MyViewer",
+  "type": "Viewer",
+  "metadata": null,
+  "argumentDefinitions": [],
+  "selections": [
+    {
+      "kind": "FragmentSpread",
+      "name": "MyNestedViewer",
+      "args": null
+    }
+  ]
+}
+
+{
+  "kind": "Fragment",
+  "name": "MyOtherViewer",
+  "type": "Viewer",
+  "metadata": null,
+  "argumentDefinitions": [],
+  "selections": [
+    {
+      "kind": "FragmentSpread",
+      "name": "MyNestedViewer",
+      "args": null
+    }
+  ]
+}
+
+{
+  "kind": "Fragment",
+  "name": "MyNestedViewer",
+  "type": "Viewer",
+  "metadata": null,
+  "argumentDefinitions": [
+    {
+      "kind": "LocalArgument",
+      "name": "includeEmail",
+      "type": "Boolean!",
+      "defaultValue": false
+    }
+  ],
+  "selections": [
+    {
+      "kind": "Condition",
+      "passingValue": true,
+      "condition": "includeEmail",
+      "selections": [
+        {
+          "kind": "ScalarField",
+          "alias": null,
+          "name": "primaryEmail",
+          "args": null,
+          "storageKey": null
+        }
+      ]
+    }
+  ]
+}
+`;
+
 exports[`compileRelayArtifacts matches expected output: fragment-on-node-interface.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 fragment RefetchableFragment on Node @refetchable(queryName: "RefetchableFragmentQuery") {

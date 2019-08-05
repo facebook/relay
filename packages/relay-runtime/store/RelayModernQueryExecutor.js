@@ -233,12 +233,6 @@ class Executor {
 
   _handleNext(response: GraphQLResponse): void {
     if (this._state === 'completed') {
-      if (__DEV__) {
-        console.warn(
-          'RelayModernQueryExecutor: payload received after execution ' +
-            `completed: '${JSON.stringify(response)}'`,
-        );
-      }
       return;
     }
     if (response.data == null) {
@@ -794,25 +788,11 @@ class Executor {
       const currentParentRecord = store.get(parentID);
       if (currentParentRecord == null) {
         // parent has since been deleted, stream data is stale
-        if (__DEV__) {
-          console.warn(
-            'RelayModernEnvironment: Received stale @stream payload, parent ' +
-              `record '${parentID}' no longer exists.`,
-          );
-        }
         return;
       }
       const currentItems = currentParentRecord.getLinkedRecords(storageKey);
       if (currentItems == null) {
         // field has since been deleted, stream data is stale
-        if (__DEV__) {
-          console.warn(
-            'RelayModernEnvironment: Received stale @stream payload, field ' +
-              `'${
-                field.name
-              }' on parent record '${parentID}' no longer exists.`,
-          );
-        }
         return;
       }
       if (
@@ -824,14 +804,6 @@ class Executor {
       ) {
         // field has been modified by something other than this query,
         // stream data is stale
-        if (__DEV__) {
-          console.warn(
-            'RelayModernEnvironment: Received stale @stream payload, items for ' +
-              `field '${
-                field.name
-              }' on parent record '${parentID}' have changed.`,
-          );
-        }
         return;
       }
       // parent.field has not been concurrently modified:

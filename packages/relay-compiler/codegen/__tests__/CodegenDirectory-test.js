@@ -64,6 +64,7 @@ describe('deleteExtraFiles', () => {
     expect(filesystem.__mockOperations).toEqual([
       'existsSync(/generated)',
       'statSync(/generated)',
+      'existsSync(/generated)',
       'existsSync(/generated/foo.js)',
       'readFileSync(/generated/foo.js)',
       'existsSync(/generated/bar.js)',

@@ -27,6 +27,12 @@ const users = [
     pinned: true,
   },
   {
+    caption: 'Lattice',
+    image: '/img/logos/latice_logo_full_color.png',
+    infoLink: 'https://lattice.com/',
+    pinned: false,
+  },
+  {
     caption: 'Cirrus CI',
     image: '/img/logos/cirrus.png',
     infoLink: 'https://cirrus-ci.com/',

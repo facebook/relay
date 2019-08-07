@@ -86,6 +86,12 @@ const users = [
     infoLink: 'https://up.com.au/',
     pinned: false,
   },
+  {
+    caption: 'AutoGuru',
+    image: '/img/logos/autoguru.png',
+    infoLink: 'https://www.autoguru.com.au/',
+    pinned: false,
+  },
 ];
 
 const siteConfig = {

@@ -28,7 +28,7 @@ const users = [
   },
   {
     caption: 'Lattice',
-    image: '/img/logos/latice_logo_full_color.png',
+    image: '/img/logos/lattice_logo_full_color.png',
     infoLink: 'https://lattice.com/',
     pinned: false,
   },

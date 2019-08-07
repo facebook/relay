@@ -22,7 +22,6 @@ function writeForSchema(
   licenseHeader: $ReadOnlyArray<string>,
   codegenDir: CodegenDirectory,
   getModuleName: (enumName: string) => string,
-  aggregateModuleNames: $ReadOnlyArray<string>,
 ): void {
   const header =
     '/**\n' +
@@ -34,12 +33,9 @@ function writeForSchema(
     '\n';
 
   const typeMap = schema.getTypeMap();
-  const stableTypeNames = Object.keys(typeMap).sort();
-  const types = [];
-  for (const name of stableTypeNames) {
+  for (const name of Object.keys(typeMap)) {
     const type = typeMap[name];
     if (type instanceof GraphQLEnumType) {
-      types.push(`export type {${name}} from '${getModuleName(name)}';`);
       const values = type
         .getValues()
         .map(({value}) => value)
@@ -55,15 +51,6 @@ function writeForSchema(
       );
     }
   }
-
-  const content = header + types.join('\n') + '\n';
-
-  aggregateModuleNames.forEach(aggregateModuleName => {
-    codegenDir.writeFile(
-      aggregateModuleName + '.js',
-      SignedSource.signFile(content),
-    );
-  });
 }
 
 module.exports = {

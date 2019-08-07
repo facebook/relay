@@ -92,6 +92,12 @@ const users = [
     infoLink: 'https://www.autoguru.com.au/',
     pinned: false,
   },
+  {
+    caption: 'Foton',
+    image: '/img/logos/foton.png',
+    infoLink: 'https://fotontech.io',
+    pinned: false,
+  },
 ];
 
 const siteConfig = {

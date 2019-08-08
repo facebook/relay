@@ -104,6 +104,12 @@ const users = [
     infoLink: 'https://fotontech.io',
     pinned: false,
   },
+  {
+    caption: 'M1 Finance',
+    image: '/img/logos/m1finance.png',
+    infoLink: 'https://www.m1finance.com/',
+    pinned: false,
+  },
 ];
 
 const siteConfig = {

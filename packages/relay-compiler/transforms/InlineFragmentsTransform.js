@@ -10,11 +10,11 @@
 
 'use strict';
 
-const GraphQLCompilerContext = require('../core/GraphQLCompilerContext');
 const GraphQLIRTransformer = require('../core/GraphQLIRTransformer');
 
 const invariant = require('invariant');
 
+import type GraphQLCompilerContext from '../core/GraphQLCompilerContext';
 import type {InlineFragment, Fragment, FragmentSpread} from '../core/GraphQLIR';
 
 type FragmentVisitorCache = Map<FragmentSpread, FragmentSpread>;

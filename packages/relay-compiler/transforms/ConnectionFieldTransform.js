@@ -10,7 +10,6 @@
 
 'use strict';
 
-const CompilerContext = require('../core/GraphQLCompilerContext');
 const IRTransformer = require('../core/GraphQLIRTransformer');
 
 const getLiteralArgumentValues = require('../core/getLiteralArgumentValues');
@@ -19,6 +18,7 @@ const {getNullableType} = require('../core/GraphQLSchemaUtils');
 const {createUserError} = require('../core/RelayCompilerError');
 const {GraphQLList} = require('graphql');
 
+import type CompilerContext from '../core/GraphQLCompilerContext';
 import type {
   Directive,
   ConnectionField,

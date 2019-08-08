@@ -13,7 +13,6 @@
 
 'use strict';
 
-const CompilerContext = require('../core/GraphQLCompilerContext');
 const IRTransformer = require('../core/GraphQLIRTransformer');
 
 const {
@@ -23,6 +22,7 @@ const {
   isListType,
 } = require('graphql');
 
+import type CompilerContext from '../core/GraphQLCompilerContext';
 import type {Fragment, Root} from '../core/GraphQLIR';
 import type {GraphQLOutputType, GraphQLList} from 'graphql';
 

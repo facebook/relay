@@ -10,7 +10,6 @@
 
 'use strict';
 
-const CompilerContext = require('../core/GraphQLCompilerContext');
 const IRTransformer = require('../core/GraphQLIRTransformer');
 
 const getLiteralArgumentValues = require('../core/getLiteralArgumentValues');
@@ -31,6 +30,7 @@ const {
 } = require('graphql');
 const {getModuleComponentKey, getModuleOperationKey} = require('relay-runtime');
 
+import type CompilerContext from '../core/GraphQLCompilerContext';
 import type {
   InlineFragment,
   FragmentSpread,

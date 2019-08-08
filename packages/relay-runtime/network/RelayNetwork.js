@@ -10,8 +10,6 @@
 
 'use strict';
 
-const RelayObservable = require('./RelayObservable');
-
 const invariant = require('invariant');
 
 const {convertFetch, convertSubscribe} = require('./ConvertToExecuteFunction');
@@ -25,6 +23,7 @@ import type {
   SubscribeFunction,
   UploadableMap,
 } from './RelayNetworkTypes';
+import type RelayObservable from './RelayObservable';
 
 /**
  * Creates an implementation of the `Network` interface defined in

@@ -10,7 +10,6 @@
 
 'use strict';
 
-const GraphQLCompilerContext = require('../core/GraphQLCompilerContext');
 const GraphQLIRVisitor = require('../core/GraphQLIRVisitor');
 const GraphQLSchemaUtils = require('../core/GraphQLSchemaUtils');
 
@@ -37,6 +36,7 @@ const {
   GraphQLSchema,
 } = require('graphql');
 
+import type GraphQLCompilerContext from '../core/GraphQLCompilerContext';
 import type {GraphQLCompositeType} from 'graphql';
 const {
   isAbstractType,

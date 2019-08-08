@@ -10,7 +10,6 @@
 
 'use strict';
 
-const GraphQLCompilerContext = require('../core/GraphQLCompilerContext');
 const GraphQLIRTransformer = require('../core/GraphQLIRTransformer');
 const GraphQLSchemaUtils = require('../core/GraphQLSchemaUtils');
 
@@ -22,6 +21,7 @@ const {
   createUserError,
 } = require('../core/RelayCompilerError');
 
+import type GraphQLCompilerContext from '../core/GraphQLCompilerContext';
 import type {
   Argument,
   Field,

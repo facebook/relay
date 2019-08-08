@@ -10,9 +10,9 @@
 
 'use strict';
 
-const GraphQLCompilerContext = require('../core/GraphQLCompilerContext');
 const GraphQLIRTransformer = require('../core/GraphQLIRTransformer');
 
+import type GraphQLCompilerContext from '../core/GraphQLCompilerContext';
 import type {Directive} from '../core/GraphQLIR';
 
 /**

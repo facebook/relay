@@ -10,8 +10,6 @@
 
 'use strict';
 
-const GraphQLCompilerContext = require('../core/GraphQLCompilerContext');
-
 const inferRootArgumentDefinitions = require('../core/inferRootArgumentDefinitions');
 
 const {
@@ -20,6 +18,7 @@ const {
   eachWithErrors,
 } = require('../core/RelayCompilerError');
 
+import type GraphQLCompilerContext from '../core/GraphQLCompilerContext';
 import type {ArgumentDefinition, Root} from '../core/GraphQLIR';
 
 type Options = {|

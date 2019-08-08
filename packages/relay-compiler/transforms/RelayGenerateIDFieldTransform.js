@@ -10,7 +10,6 @@
 
 'use strict';
 
-const CompilerContext = require('../core/GraphQLCompilerContext');
 const IRTransformer = require('../core/GraphQLIRTransformer');
 const SchemaUtils = require('../core/GraphQLSchemaUtils');
 
@@ -21,6 +20,7 @@ const {
   assertLeafType,
 } = require('graphql');
 
+import type CompilerContext from '../core/GraphQLCompilerContext';
 import type {InlineFragment, LinkedField, ScalarField} from '../core/GraphQLIR';
 import type {GraphQLCompositeType} from 'graphql';
 const {

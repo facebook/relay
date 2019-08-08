@@ -15,6 +15,7 @@ const {
   fetchQuery,
   getPromiseForRequestInFlight,
   getObservableForRequestInFlight,
+  hasRequestInFlight,
 } = require('../fetchQueryInternal');
 const {createOperationDescriptor} = require('relay-runtime');
 const {
@@ -343,6 +344,20 @@ describe('fetchQueryInternal', () => {
         expect(calledObserver1Complete).toEqual(true);
         expect(calledObserver2Complete).toEqual(true);
       });
+    });
+  });
+
+  describe('hasRequestInFlight', () => {
+    it('returns false if request is not in flight', () => {
+      const inFlight = hasRequestInFlight(environment, query.request);
+      expect(inFlight).toEqual(false);
+    });
+
+    it('returns true when request is in flight', () => {
+      fetchQuery(environment, query).subscribe({});
+
+      const inFlight = hasRequestInFlight(environment, query.request);
+      expect(inFlight).toEqual(true);
     });
   });
 

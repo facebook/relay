@@ -246,6 +246,14 @@ function getObservableForRequestInFlight(
   return getObservableForCachedRequest(requestCache, cachedRequest);
 }
 
+function hasRequestInFlight(
+  environment: Environment,
+  request: RequestDescriptor,
+): boolean {
+  const requestCache = getRequestCache(environment);
+  return requestCache.has(request.identifier);
+}
+
 /**
  * @private
  */
@@ -281,7 +289,8 @@ function getCachedRequest(
 
 module.exports = {
   fetchQuery,
+  fetchQueryDeduped,
   getPromiseForRequestInFlight,
   getObservableForRequestInFlight,
-  fetchQueryDeduped,
+  hasRequestInFlight,
 };

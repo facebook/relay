@@ -299,5 +299,6 @@ module.exports = {
       fetchQueryInternal.getPromiseForRequestInFlight,
     getObservableForRequestInFlight:
       fetchQueryInternal.getObservableForRequestInFlight,
+    hasRequestInFlight: fetchQueryInternal.hasRequestInFlight,
   },
 };

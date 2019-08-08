@@ -116,6 +116,12 @@ const users = [
     infoLink: 'https://bumped.com/',
     pinned: false,
   },
+  {
+    caption: 'Clubhouse',
+    image: '/img/logos/clubhouse.png',
+    infoLink: 'https://clubhouse.io/',
+    pinned: false,
+  },
 ];
 
 const siteConfig = {

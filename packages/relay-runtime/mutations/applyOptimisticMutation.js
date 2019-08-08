@@ -61,10 +61,10 @@ function applyOptimisticMutation(
     ));
   }
 
-  return environment.applyUpdate({
+  return environment.applyMutation({
     operation,
-    selectorStoreUpdater: optimisticUpdater,
     response: optimisticResponse,
+    updater: optimisticUpdater,
   });
 }
 

@@ -5,8 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  *
  * @flow
- * @format
  * @emails oncall+relay
+ * @format
  */
 
 'use strict';
@@ -43,7 +43,8 @@ import type {
   OperationDescriptor,
   OperationLoader,
   OperationTracker,
-  OptimisticUpdate,
+  OptimisticResponseConfig,
+  OptimisticUpdateFunction,
   PublishQueue,
   SelectorStoreUpdater,
   SingularReaderSelector,
@@ -146,7 +147,7 @@ class RelayModernEnvironment implements Environment {
     return this._operationTracker;
   }
 
-  applyUpdate(optimisticUpdate: OptimisticUpdate): Disposable {
+  applyUpdate(optimisticUpdate: OptimisticUpdateFunction): Disposable {
     const dispose = () => {
       this._publishQueue.revertUpdate(optimisticUpdate);
       this._publishQueue.run();
@@ -156,31 +157,40 @@ class RelayModernEnvironment implements Environment {
     return {dispose};
   }
 
-  revertUpdate(update: OptimisticUpdate): void {
+  revertUpdate(update: OptimisticUpdateFunction): void {
     this._publishQueue.revertUpdate(update);
     this._publishQueue.run();
   }
 
-  replaceUpdate(update: OptimisticUpdate, newUpdate: OptimisticUpdate): void {
+  replaceUpdate(
+    update: OptimisticUpdateFunction,
+    newUpdate: OptimisticUpdateFunction,
+  ): void {
     this._publishQueue.revertUpdate(update);
     this._publishQueue.applyUpdate(newUpdate);
     this._publishQueue.run();
   }
 
-  applyMutation({
-    operation,
-    optimisticResponse,
-    optimisticUpdater,
-  }: {
-    operation: OperationDescriptor,
-    optimisticUpdater?: ?SelectorStoreUpdater,
-    optimisticResponse?: Object,
-  }): Disposable {
-    return this.applyUpdate({
-      operation,
-      selectorStoreUpdater: optimisticUpdater,
-      response: optimisticResponse || null,
-    });
+  applyMutation(optimisticConfig: OptimisticResponseConfig): Disposable {
+    const subscription = RelayObservable.create(sink => {
+      const source = RelayObservable.create(_sink => {});
+      const executor = RelayModernQueryExecutor.execute({
+        operation: optimisticConfig.operation,
+        operationLoader: this._operationLoader,
+        optimisticConfig,
+        publishQueue: this._publishQueue,
+        scheduler: this._scheduler,
+        sink,
+        source,
+        updater: null,
+        operationTracker: this._operationTracker,
+        getDataID: this._getDataID,
+      });
+      return () => executor.cancel();
+    }).subscribe({});
+    return {
+      dispose: () => subscription.unsubscribe(),
+    };
   }
 
   check(readSelector: NormalizationSelector): boolean {
@@ -274,7 +284,7 @@ class RelayModernEnvironment implements Environment {
       const executor = RelayModernQueryExecutor.execute({
         operation,
         operationLoader: this._operationLoader,
-        optimisticUpdate: null,
+        optimisticConfig: null,
         publishQueue: this._publishQueue,
         scheduler: this._scheduler,
         sink,
@@ -311,12 +321,12 @@ class RelayModernEnvironment implements Environment {
     uploadables?: ?UploadableMap,
   |}): RelayObservable<GraphQLResponse> {
     return RelayObservable.create(sink => {
-      let optimisticUpdate;
+      let optimisticConfig;
       if (optimisticResponse || optimisticUpdater) {
-        optimisticUpdate = {
+        optimisticConfig = {
           operation: operation,
-          selectorStoreUpdater: optimisticUpdater,
-          response: optimisticResponse ?? null,
+          response: optimisticResponse,
+          updater: optimisticUpdater,
         };
       }
       const source = this._network.execute(
@@ -328,7 +338,7 @@ class RelayModernEnvironment implements Environment {
       const executor = RelayModernQueryExecutor.execute({
         operation,
         operationLoader: this._operationLoader,
-        optimisticUpdate,
+        optimisticConfig,
         publishQueue: this._publishQueue,
         scheduler: this._scheduler,
         sink,
@@ -362,7 +372,7 @@ class RelayModernEnvironment implements Environment {
         operation,
         operationLoader: this._operationLoader,
         operationTracker: this._operationTracker,
-        optimisticUpdate: null,
+        optimisticConfig: null,
         publishQueue: this._publishQueue,
         scheduler: this._scheduler,
         sink,

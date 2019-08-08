@@ -20,6 +20,7 @@ const RelayRecordSourceObjectImpl = require('../RelayRecordSourceObjectImpl');
 const defaultGetDataID = require('../defaultGetDataID');
 const getRelayHandleKey = require('../../util/getRelayHandleKey');
 const invariant = require('invariant');
+const normalizeRelayPayload = require('../normalizeRelayPayload');
 
 const {
   createOperationDescriptor,
@@ -160,9 +161,9 @@ const {generateAndCompile, simpleClone} = require('relay-test-utils-internal');
 
       it('runs an `selectorStoreUpdater` and applies the changes to the store', () => {
         const queue = new RelayPublishQueue(store, null, defaultGetDataID);
-        const optimisticUpdate = {
-          operation: operationDescriptor,
-          response: {
+        const payload = normalizeRelayPayload(
+          operationDescriptor.root,
+          {
             actorNameChange: {
               actor: {
                 id: '4',
@@ -171,6 +172,12 @@ const {generateAndCompile, simpleClone} = require('relay-test-utils-internal');
               },
             },
           },
+          null,
+          {getDataID: defaultGetDataID},
+        );
+        const optimisticUpdate = {
+          operation: operationDescriptor,
+          source: payload.source,
         };
         queue.applyUpdate(optimisticUpdate);
         let sourceData = source.toJSON();
@@ -182,9 +189,9 @@ const {generateAndCompile, simpleClone} = require('relay-test-utils-internal');
 
       it('handles aliases correctly when used with optimistic update', () => {
         const queue = new RelayPublishQueue(store, null, defaultGetDataID);
-        const optimisticUpdate = {
-          operation: operationDescriptorAliased,
-          response: {
+        const payload = normalizeRelayPayload(
+          operationDescriptorAliased.root,
+          {
             changeName: {
               actor: {
                 id: '4',
@@ -193,6 +200,12 @@ const {generateAndCompile, simpleClone} = require('relay-test-utils-internal');
               },
             },
           },
+          null,
+          {getDataID: defaultGetDataID},
+        );
+        const optimisticUpdate = {
+          operation: operationDescriptorAliased,
+          source: payload.source,
         };
         queue.applyUpdate(optimisticUpdate);
         let sourceData = source.toJSON();
@@ -221,9 +234,9 @@ const {generateAndCompile, simpleClone} = require('relay-test-utils-internal');
 
       it('unpublishes changes from `selectorStoreUpdater` when reverted in the same run()', () => {
         const queue = new RelayPublishQueue(store, null, defaultGetDataID);
-        const optimisticUpdate = {
-          operation: operationDescriptor,
-          response: {
+        const payload = normalizeRelayPayload(
+          operationDescriptor.root,
+          {
             actorNameChange: {
               actor: {
                 id: '4',
@@ -232,6 +245,12 @@ const {generateAndCompile, simpleClone} = require('relay-test-utils-internal');
               },
             },
           },
+          null,
+          {getDataID: defaultGetDataID},
+        );
+        const optimisticUpdate = {
+          operation: operationDescriptor,
+          source: payload.source,
         };
         queue.applyUpdate(optimisticUpdate);
         queue.revertUpdate(optimisticUpdate);
@@ -262,9 +281,9 @@ const {generateAndCompile, simpleClone} = require('relay-test-utils-internal');
 
       it('unpublishes changes from `selectorStoreUpdater` when reverted in a subsequent run()', () => {
         const queue = new RelayPublishQueue(store, null, defaultGetDataID);
-        const optimisticUpdate = {
-          operation: operationDescriptor,
-          response: {
+        const payload = normalizeRelayPayload(
+          operationDescriptor.root,
+          {
             actorNameChange: {
               actor: {
                 id: '4',
@@ -273,6 +292,12 @@ const {generateAndCompile, simpleClone} = require('relay-test-utils-internal');
               },
             },
           },
+          null,
+          {getDataID: defaultGetDataID},
+        );
+        const optimisticUpdate = {
+          operation: operationDescriptor,
+          source: payload.source,
         };
         queue.applyUpdate(optimisticUpdate);
         queue.run();
@@ -286,9 +311,9 @@ const {generateAndCompile, simpleClone} = require('relay-test-utils-internal');
 
       it('applies multiple updaters in the same run()', () => {
         const queue = new RelayPublishQueue(store, null, defaultGetDataID);
-        queue.applyUpdate({
-          operation: operationDescriptor,
-          response: {
+        const payload = normalizeRelayPayload(
+          operationDescriptor.root,
+          {
             actorNameChange: {
               actor: {
                 id: '4',
@@ -297,6 +322,12 @@ const {generateAndCompile, simpleClone} = require('relay-test-utils-internal');
               },
             },
           },
+          null,
+          {getDataID: defaultGetDataID},
+        );
+        queue.applyUpdate({
+          operation: operationDescriptor,
+          source: payload.source,
         });
         queue.applyUpdate({
           storeUpdater: storeProxy => {
@@ -313,9 +344,9 @@ const {generateAndCompile, simpleClone} = require('relay-test-utils-internal');
 
       it('applies updates in subsequent run()s (payload then updater)', () => {
         const queue = new RelayPublishQueue(store, null, defaultGetDataID);
-        queue.applyUpdate({
-          operation: operationDescriptor,
-          response: {
+        const payload = normalizeRelayPayload(
+          operationDescriptor.root,
+          {
             actorNameChange: {
               actor: {
                 id: '4',
@@ -324,6 +355,12 @@ const {generateAndCompile, simpleClone} = require('relay-test-utils-internal');
               },
             },
           },
+          null,
+          {getDataID: defaultGetDataID},
+        );
+        queue.applyUpdate({
+          operation: operationDescriptor,
+          source: payload.source,
         });
         queue.run();
         queue.applyUpdate({
@@ -382,9 +419,9 @@ const {generateAndCompile, simpleClone} = require('relay-test-utils-internal');
         const nameMutationDescriptor = createOperationDescriptor(nameMutation, {
           input: {},
         });
-        queue.applyUpdate({
-          operation: nameMutationDescriptor,
-          response: {
+        const nameMutatorPayload = normalizeRelayPayload(
+          nameMutationDescriptor.root,
+          {
             actorNameChange: {
               actor: {
                 __typename: 'User',
@@ -393,6 +430,12 @@ const {generateAndCompile, simpleClone} = require('relay-test-utils-internal');
               },
             },
           },
+          null,
+          {getDataID: defaultGetDataID},
+        );
+        queue.applyUpdate({
+          operation: nameMutationDescriptor,
+          source: nameMutatorPayload.source,
         });
         // Next set `lastName`.
         const lastNameMutation = generateAndCompile(`
@@ -410,9 +453,9 @@ const {generateAndCompile, simpleClone} = require('relay-test-utils-internal');
           lastNameMutation,
           {input: {}},
         );
-        queue.applyUpdate({
-          operation: lastNameMutationDescriptor,
-          response: {
+        const lastNamePayload = normalizeRelayPayload(
+          lastNameMutationDescriptor.root,
+          {
             actorNameChange: {
               actor: {
                 __typename: 'User',
@@ -421,6 +464,12 @@ const {generateAndCompile, simpleClone} = require('relay-test-utils-internal');
               },
             },
           },
+          null,
+          {getDataID: defaultGetDataID},
+        );
+        queue.applyUpdate({
+          operation: lastNameMutationDescriptor,
+          source: lastNamePayload.source,
         });
         queue.run();
         const sourceData = source.toJSON();
@@ -448,9 +497,9 @@ const {generateAndCompile, simpleClone} = require('relay-test-utils-internal');
 
       it('rebases changes when an earlier change is reverted', () => {
         const queue = new RelayPublishQueue(store, null, defaultGetDataID);
-        const optimisticUpdate = {
-          operation: operationDescriptor,
-          response: {
+        const payload = normalizeRelayPayload(
+          operationDescriptor.root,
+          {
             actorNameChange: {
               actor: {
                 id: '4',
@@ -459,6 +508,12 @@ const {generateAndCompile, simpleClone} = require('relay-test-utils-internal');
               },
             },
           },
+          null,
+          {getDataID: defaultGetDataID},
+        );
+        const optimisticUpdate = {
+          operation: operationDescriptor,
+          source: payload.source,
         };
         queue.applyUpdate(optimisticUpdate);
         // The second update should be applied to the reverted store state

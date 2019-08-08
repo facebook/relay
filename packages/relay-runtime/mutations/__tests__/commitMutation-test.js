@@ -34,7 +34,7 @@ import type {GraphQLResponseWithoutData} from '../../network/RelayNetworkTypes';
 describe('Configs: NODE_DELETE', () => {
   jest.resetModules();
 
-  it('deletes a node properly', () => {
+  it('deletes a node', () => {
     const environment = createMockEnvironment();
     const store = environment.getStore();
     const mutation = generateAndCompile(`
@@ -175,7 +175,7 @@ describe('Configs: RANGE_DELETE', () => {
     store = environment.getStore();
   });
 
-  it('handles configs properly', () => {
+  it('handles configs', () => {
     const mutation = generateAndCompile(`
       mutation CommentDeleteMutation(
         $input: CommentDeleteInput
@@ -291,7 +291,7 @@ describe('Configs: RANGE_DELETE', () => {
       updater,
       variables,
     });
-    // Optimistically deletes properly
+    // Optimistically deletes
     expect(callback.mock.calls.length).toBe(1);
     expect(optimisticUpdater).toBeCalled();
     callback.mockClear();
@@ -594,7 +594,7 @@ describe('Configs: RANGE_ADD', () => {
       updater,
       variables,
     });
-    // Optimistically appends properly
+    // Optimistically appends
     expect(callback.mock.calls.length).toBe(1);
     expect(optimisticUpdater).toBeCalled();
     callback.mockClear();
@@ -813,7 +813,7 @@ describe('Configs: RANGE_ADD', () => {
       updater,
       variables,
     });
-    // Optimistically prepends properly
+    // Optimistically prepends
     expect(callback.mock.calls.length).toBe(1);
     expect(optimisticUpdater).toBeCalled();
     callback.mockClear();
@@ -877,7 +877,7 @@ describe('Configs: RANGE_ADD', () => {
       updater,
       variables,
     });
-    // Optimistically appends orderBy(chronological) properly
+    // Optimistically appends orderBy(chronological)
     expect(callback.mock.calls.length).toBe(1);
     expect(optimisticUpdater).toBeCalled();
     callback.mockClear();

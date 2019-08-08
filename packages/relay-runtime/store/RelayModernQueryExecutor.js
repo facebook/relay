@@ -41,6 +41,7 @@ import type {
   OperationDescriptor,
   OperationLoader,
   OperationTracker,
+  OptimisticResponseConfig,
   OptimisticUpdate,
   PublishQueue,
   Record,
@@ -56,7 +57,7 @@ export type ExecuteConfig = {|
   +operation: OperationDescriptor,
   +operationLoader: ?OperationLoader,
   +operationTracker?: ?OperationTracker,
-  +optimisticUpdate: ?OptimisticUpdate,
+  +optimisticConfig: ?OptimisticResponseConfig,
   +publishQueue: PublishQueue,
   +scheduler?: ?TaskScheduler,
   +sink: Sink<GraphQLResponse>,
@@ -118,7 +119,7 @@ class Executor {
   constructor({
     operation,
     operationLoader,
-    optimisticUpdate,
+    optimisticConfig,
     publishQueue,
     scheduler,
     sink,
@@ -131,7 +132,7 @@ class Executor {
     this._nextSubscriptionId = 0;
     this._operation = operation;
     this._operationLoader = operationLoader;
-    this._optimisticUpdate = optimisticUpdate ?? null;
+    this._optimisticUpdate = null;
     this._publishQueue = publishQueue;
     this._scheduler = scheduler;
     this._sink = sink;
@@ -156,10 +157,13 @@ class Executor {
       start: subscription => this._start(id, subscription),
     });
 
-    if (optimisticUpdate != null) {
-      publishQueue.applyUpdate(optimisticUpdate);
-      const updatedOwners = this._publishQueue.run();
-      this._updateOperationTracker(updatedOwners);
+    if (optimisticConfig != null) {
+      this._processOptimisticResponse(
+        optimisticConfig.response != null
+          ? {data: optimisticConfig.response}
+          : null,
+        optimisticConfig.updater,
+      );
     }
   }
 
@@ -263,7 +267,7 @@ class Executor {
     const isFinal = response.extensions?.is_final === true;
     this._state = isFinal ? 'loading_final' : 'loading_incremental';
     if (isOptimistic) {
-      this._processOptimisticResponse(responseWithData);
+      this._processOptimisticResponse(responseWithData, null);
     } else {
       const {path, label} = response;
       if (path != null || label != null) {
@@ -289,35 +293,46 @@ class Executor {
     this._sink.next(response);
   }
 
-  _processOptimisticResponse(response: GraphQLResponseWithData): void {
+  _processOptimisticResponse(
+    response: ?GraphQLResponseWithData,
+    updater: ?SelectorStoreUpdater,
+  ): void {
     invariant(
       this._optimisticUpdate === null,
       'environment.execute: only support one optimistic response per ' +
         'execute.',
     );
-    const payload = normalizeResponse(
-      response,
-      this._operation.root,
-      ROOT_TYPE,
-      [] /* path */,
-      this._getDataID,
-    );
-    const {incrementalPlaceholders, moduleImportPayloads} = payload;
-    if (
-      (incrementalPlaceholders != null &&
-        incrementalPlaceholders.length !== 0) ||
-      (moduleImportPayloads != null && moduleImportPayloads.length !== 0)
-    ) {
-      invariant(
-        false,
-        'RelayModernQueryExecutor: optimistic responses cannot be returned ' +
-          'for operations that use incremental data delivery (@match, ' +
-          '@defer, and @stream).',
+    if (response == null && updater == null) {
+      return;
+    }
+    let payload;
+    if (response) {
+      payload = normalizeResponse(
+        response,
+        this._operation.root,
+        ROOT_TYPE,
+        [] /* path */,
+        this._getDataID,
       );
+      const {incrementalPlaceholders, moduleImportPayloads} = payload;
+      if (
+        (incrementalPlaceholders != null &&
+          incrementalPlaceholders.length !== 0) ||
+        (moduleImportPayloads != null && moduleImportPayloads.length !== 0)
+      ) {
+        invariant(
+          false,
+          'RelayModernQueryExecutor: optimistic responses cannot be returned ' +
+            'for operations that use incremental data delivery (@match, ' +
+            '@defer, and @stream).',
+        );
+      }
     }
     this._optimisticUpdate = {
-      source: payload.source,
-      fieldPayloads: payload.fieldPayloads,
+      fieldPayloads: payload?.fieldPayloads,
+      operation: this._operation,
+      selectorStoreUpdater: updater,
+      source: payload?.source,
     };
     this._publishQueue.applyUpdate(this._optimisticUpdate);
     const updatedOwners = this._publishQueue.run();

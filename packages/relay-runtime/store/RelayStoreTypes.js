@@ -373,7 +373,13 @@ export interface Environment {
    * Apply an optimistic update to the environment. The mutation can be reverted
    * by calling `dispose()` on the returned value.
    */
-  applyUpdate(optimisticUpdate: OptimisticUpdate): Disposable;
+  applyUpdate(optimisticUpdate: OptimisticUpdateFunction): Disposable;
+
+  /**
+   * Apply an optimistic mutation response and/or updater. The mutation can be
+   * reverted by calling `dispose()` on the returned value.
+   */
+  applyMutation(optimisticConfig: OptimisticResponseConfig): Disposable;
 
   /**
    * Commit an updater to the environment. This mutation cannot be reverted and
@@ -608,22 +614,27 @@ export type SelectorStoreUpdater = (
 /**
  * A set of configs that can be used to apply an optimistic update into the
  * store.
- * TODO: we should probably only expose `storeUpdater` and `source` to the
- * publish queue.
  */
 export type OptimisticUpdate =
-  | {|
-      storeUpdater: StoreUpdater,
-    |}
-  | {|
-      selectorStoreUpdater: ?SelectorStoreUpdater,
-      operation: OperationDescriptor,
-      response: ?Object,
-    |}
-  | {|
-      source: RecordSource,
-      fieldPayloads?: ?Array<HandleFieldPayload>,
-    |};
+  | OptimisticUpdateFunction
+  | OptimisticUpdateSource;
+
+export type OptimisticUpdateFunction = {|
+  +storeUpdater: StoreUpdater,
+|};
+
+export type OptimisticUpdateSource = {|
+  +fieldPayloads?: ?Array<HandleFieldPayload>,
+  +operation: OperationDescriptor,
+  +selectorStoreUpdater: ?SelectorStoreUpdater,
+  +source: ?RecordSource,
+|};
+
+export type OptimisticResponseConfig = {|
+  +operation: OperationDescriptor,
+  +response: ?PayloadData,
+  +updater: ?SelectorStoreUpdater,
+|};
 
 /**
  * A set of handlers that can be used to provide substitute data for missing

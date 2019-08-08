@@ -294,33 +294,7 @@ class RelayPublishQueue implements PublishQueue {
       // rerun all updaters in case we are running a rebase
       if (this._pendingBackupRebase && this._appliedOptimisticUpdates.size) {
         this._appliedOptimisticUpdates.forEach(optimisticUpdate => {
-          if (optimisticUpdate.operation) {
-            const {
-              selectorStoreUpdater,
-              operation,
-              response,
-            } = optimisticUpdate;
-            const selectorStore = store.commitPayload(operation, response);
-            // TODO: Fix commitPayload so we don't have to run normalize twice
-            let selectorData, source;
-            if (response) {
-              ({source} = normalizeRelayPayload(
-                operation.root,
-                response,
-                null,
-                {getDataID: this._getDataID},
-              ));
-              selectorData = lookupSelector(source, operation.fragment);
-            }
-            selectorStoreUpdater &&
-              ErrorUtils.applyWithGuard(
-                selectorStoreUpdater,
-                null,
-                [selectorStore, selectorData],
-                null,
-                'RelayPublishQueue:applyUpdates',
-              );
-          } else if (optimisticUpdate.storeUpdater) {
+          if (optimisticUpdate.storeUpdater) {
             const {storeUpdater} = optimisticUpdate;
             ErrorUtils.applyWithGuard(
               storeUpdater,
@@ -330,8 +304,30 @@ class RelayPublishQueue implements PublishQueue {
               'RelayPublishQueue:applyUpdates',
             );
           } else {
-            const {source, fieldPayloads} = optimisticUpdate;
-            store.publishSource(source, fieldPayloads);
+            const {
+              selectorStoreUpdater,
+              operation,
+              source,
+              fieldPayloads,
+            } = optimisticUpdate;
+            const selectorStore = new RelayRecordSourceSelectorProxy(
+              store,
+              operation.fragment,
+            );
+            let selectorData;
+            if (source) {
+              store.publishSource(source, fieldPayloads);
+              selectorData = lookupSelector(source, operation.fragment);
+            }
+            if (selectorStoreUpdater) {
+              ErrorUtils.applyWithGuard(
+                selectorStoreUpdater,
+                null,
+                [selectorStore, selectorData],
+                null,
+                'RelayPublishQueue:applyUpdates',
+              );
+            }
           }
         });
       }
@@ -339,33 +335,7 @@ class RelayPublishQueue implements PublishQueue {
       // apply any new updaters
       if (this._pendingOptimisticUpdates.size) {
         this._pendingOptimisticUpdates.forEach(optimisticUpdate => {
-          if (optimisticUpdate.operation) {
-            const {
-              selectorStoreUpdater,
-              operation,
-              response,
-            } = optimisticUpdate;
-            const selectorStore = store.commitPayload(operation, response);
-            // TODO: Fix commitPayload so we don't have to run normalize twice
-            let selectorData, source;
-            if (response) {
-              ({source} = normalizeRelayPayload(
-                operation.root,
-                response,
-                null,
-                {getDataID: this._getDataID},
-              ));
-              selectorData = lookupSelector(source, operation.fragment);
-            }
-            selectorStoreUpdater &&
-              ErrorUtils.applyWithGuard(
-                selectorStoreUpdater,
-                null,
-                [selectorStore, selectorData],
-                null,
-                'RelayPublishQueue:applyUpdates',
-              );
-          } else if (optimisticUpdate.storeUpdater) {
+          if (optimisticUpdate.storeUpdater) {
             const {storeUpdater} = optimisticUpdate;
             ErrorUtils.applyWithGuard(
               storeUpdater,
@@ -375,8 +345,30 @@ class RelayPublishQueue implements PublishQueue {
               'RelayPublishQueue:applyUpdates',
             );
           } else {
-            const {source, fieldPayloads} = optimisticUpdate;
-            store.publishSource(source, fieldPayloads);
+            const {
+              selectorStoreUpdater,
+              operation,
+              source,
+              fieldPayloads,
+            } = optimisticUpdate;
+            const selectorStore = new RelayRecordSourceSelectorProxy(
+              store,
+              operation.fragment,
+            );
+            let selectorData;
+            if (source) {
+              store.publishSource(source, fieldPayloads);
+              selectorData = lookupSelector(source, operation.fragment);
+            }
+            if (selectorStoreUpdater) {
+              ErrorUtils.applyWithGuard(
+                selectorStoreUpdater,
+                null,
+                [selectorStore, selectorData],
+                null,
+                'RelayPublishQueue:applyUpdates',
+              );
+            }
           }
           this._appliedOptimisticUpdates.add(optimisticUpdate);
         });

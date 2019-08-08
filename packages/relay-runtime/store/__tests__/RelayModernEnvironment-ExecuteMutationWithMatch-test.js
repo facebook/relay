@@ -183,13 +183,10 @@ describe('executeMutation() with @match', () => {
             nameRenderer: {
               __id:
                 'client:4:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
-
               __fragmentPropName: 'name',
-
               __fragments: {
                 MarkdownUserNameRenderer_name: {},
               },
-
               __fragmentOwner: operation.request,
               __module_component: 'MarkdownUserNameRenderer.react',
             },
@@ -385,5 +382,84 @@ describe('executeMutation() with @match', () => {
     expect(complete).toBeCalledTimes(1);
     expect(error).toBeCalledTimes(0);
     expect(next).toBeCalledTimes(1);
+  });
+
+  it('optimistically creates @match fields', () => {
+    const optimisticResponse = {
+      commentCreate: {
+        comment: {
+          id: '1',
+          body: {
+            text: 'Gave Relay', // server data is lowercase
+          },
+          actor: {
+            id: '4',
+            __typename: 'User',
+            nameRenderer: {
+              __typename: 'MarkdownUserNameRenderer',
+              __module_component_CreateCommentMutation:
+                'MarkdownUserNameRenderer.react',
+              __module_operation_CreateCommentMutation:
+                'MarkdownUserNameRenderer_name$normalization.graphql',
+              markdown: 'markdown payload',
+              data: {
+                markup: '<markup/>',
+              },
+            },
+          },
+        },
+      },
+    };
+    operationLoader.get.mockImplementationOnce(name => {
+      return markdownRendererNormalizationFragment;
+    });
+    environment
+      .executeMutation({operation, optimisticResponse})
+      .subscribe(callbacks);
+    jest.runAllTimers();
+
+    expect(next.mock.calls.length).toBe(0);
+    expect(complete).not.toBeCalled();
+    expect(error.mock.calls.map(call => call[0].message)).toEqual([]);
+    expect(operationCallback).toBeCalledTimes(1);
+    const operationSnapshot = operationCallback.mock.calls[0][0];
+    expect(operationSnapshot.isMissingData).toBe(false);
+    expect(operationSnapshot.data).toEqual({
+      commentCreate: {
+        comment: {
+          actor: {
+            nameRenderer: {
+              __id:
+                'client:4:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+              __fragmentPropName: 'name',
+              __fragments: {
+                MarkdownUserNameRenderer_name: {},
+              },
+              __fragmentOwner: operation.request,
+              __module_component: 'MarkdownUserNameRenderer.react',
+            },
+          },
+        },
+      },
+    });
+    operationCallback.mockClear();
+
+    const matchSelector = nullthrows(
+      getSingularSelector(
+        markdownRendererFragment,
+        (operationSnapshot.data: any)?.commentCreate?.comment?.actor
+          ?.nameRenderer,
+      ),
+    );
+    const initialMatchSnapshot = environment.lookup(matchSelector);
+    expect(initialMatchSnapshot.isMissingData).toBe(false);
+    expect(initialMatchSnapshot.data).toEqual({
+      __typename: 'MarkdownUserNameRenderer',
+      data: {
+        // NOTE: should be uppercased by the MarkupHandler
+        markup: '<MARKUP/>',
+      },
+      markdown: 'markdown payload',
+    });
   });
 });

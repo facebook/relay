@@ -624,7 +624,7 @@ export type OptimisticUpdateFunction = {|
 |};
 
 export type OptimisticUpdateSource = {|
-  +fieldPayloads?: ?Array<HandleFieldPayload>,
+  +fieldPayloads: ?Array<HandleFieldPayload>,
   +operation: OperationDescriptor,
   +selectorStoreUpdater: ?SelectorStoreUpdater,
   +source: ?RecordSource,

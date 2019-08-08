@@ -102,7 +102,7 @@ class Executor {
   _nextSubscriptionId: number;
   _operation: OperationDescriptor;
   _operationLoader: ?OperationLoader;
-  _optimisticUpdate: null | OptimisticUpdate;
+  _optimisticUpdates: null | Array<OptimisticUpdate>;
   _publishQueue: PublishQueue;
   _scheduler: ?TaskScheduler;
   _sink: Sink<GraphQLResponse>;
@@ -132,7 +132,7 @@ class Executor {
     this._nextSubscriptionId = 0;
     this._operation = operation;
     this._operationLoader = operationLoader;
-    this._optimisticUpdate = null;
+    this._optimisticUpdates = null;
     this._publishQueue = publishQueue;
     this._scheduler = scheduler;
     this._sink = sink;
@@ -177,10 +177,12 @@ class Executor {
       this._subscriptions.forEach(sub => sub.unsubscribe());
       this._subscriptions.clear();
     }
-    const optimisticResponse = this._optimisticUpdate;
-    if (optimisticResponse !== null) {
-      this._optimisticUpdate = null;
-      this._publishQueue.revertUpdate(optimisticResponse);
+    const optimisticUpdates = this._optimisticUpdates;
+    if (optimisticUpdates !== null) {
+      this._optimisticUpdates = null;
+      optimisticUpdates.forEach(update =>
+        this._publishQueue.revertUpdate(update),
+      );
       this._publishQueue.run();
     }
     this._incrementalResults.clear();
@@ -298,51 +300,89 @@ class Executor {
     updater: ?SelectorStoreUpdater,
   ): void {
     invariant(
-      this._optimisticUpdate === null,
+      this._optimisticUpdates === null,
       'environment.execute: only support one optimistic response per ' +
         'execute.',
     );
     if (response == null && updater == null) {
       return;
     }
-    let payload;
+    const optimisticUpdates: Array<OptimisticUpdate> = [];
     if (response) {
-      payload = normalizeResponse(
+      const payload = normalizeResponse(
         response,
         this._operation.root,
         ROOT_TYPE,
         [] /* path */,
         this._getDataID,
       );
-      const {incrementalPlaceholders, moduleImportPayloads} = payload;
-      if (
-        (incrementalPlaceholders != null &&
-          incrementalPlaceholders.length !== 0) ||
-        (moduleImportPayloads != null && moduleImportPayloads.length !== 0)
-      ) {
+      validateOptimisticResponsePayload(payload);
+      optimisticUpdates.push({
+        fieldPayloads: payload.fieldPayloads,
+        operation: this._operation,
+        source: payload.source,
+        selectorStoreUpdater: updater,
+      });
+      if (payload.moduleImportPayloads && payload.moduleImportPayloads.length) {
+        const moduleImportPayloads = payload.moduleImportPayloads;
+        const operationLoader = this._operationLoader;
         invariant(
-          false,
-          'RelayModernQueryExecutor: optimistic responses cannot be returned ' +
-            'for operations that use incremental data delivery (@match, ' +
-            '@defer, and @stream).',
+          operationLoader,
+          'RelayModernEnvironment: Expected an operationLoader to be ' +
+            'configured when using `@match`.',
         );
+        while (moduleImportPayloads.length) {
+          const moduleImportPayload = moduleImportPayloads.shift();
+          const operation = operationLoader.get(
+            moduleImportPayload.operationReference,
+          );
+          if (operation == null) {
+            continue;
+          }
+          const selector = createNormalizationSelector(
+            operation,
+            moduleImportPayload.dataID,
+            moduleImportPayload.variables,
+          );
+          const modulePayload = normalizeResponse(
+            {data: moduleImportPayload.data},
+            selector,
+            moduleImportPayload.typeName,
+            moduleImportPayload.path,
+            this._getDataID,
+          );
+          validateOptimisticResponsePayload(modulePayload);
+          optimisticUpdates.push({
+            fieldPayloads: modulePayload.fieldPayloads,
+            operation: this._operation,
+            source: modulePayload.source,
+            selectorStoreUpdater: null,
+          });
+          if (modulePayload.moduleImportPayloads) {
+            moduleImportPayloads.push(...modulePayload.moduleImportPayloads);
+          }
+        }
       }
+    } else if (updater) {
+      optimisticUpdates.push({
+        fieldPayloads: null,
+        operation: this._operation,
+        source: null,
+        selectorStoreUpdater: updater,
+      });
     }
-    this._optimisticUpdate = {
-      fieldPayloads: payload?.fieldPayloads,
-      operation: this._operation,
-      selectorStoreUpdater: updater,
-      source: payload?.source,
-    };
-    this._publishQueue.applyUpdate(this._optimisticUpdate);
+    this._optimisticUpdates = optimisticUpdates;
+    optimisticUpdates.forEach(update => this._publishQueue.applyUpdate(update));
     const updatedOwners = this._publishQueue.run();
     this._updateOperationTracker(updatedOwners);
   }
 
   _processResponse(response: GraphQLResponseWithData): void {
-    if (this._optimisticUpdate !== null) {
-      this._publishQueue.revertUpdate(this._optimisticUpdate);
-      this._optimisticUpdate = null;
+    if (this._optimisticUpdates !== null) {
+      this._optimisticUpdates.forEach(update =>
+        this._publishQueue.revertUpdate(update),
+      );
+      this._optimisticUpdates = null;
     }
     const payload = normalizeResponse(
       response,
@@ -898,6 +938,20 @@ function normalizeResponse(
 
 function stableStringify(value: mixed): string {
   return JSON.stringify(stableCopy(value)) ?? ''; // null-check for flow
+}
+
+function validateOptimisticResponsePayload(
+  payload: RelayResponsePayload,
+): void {
+  const {incrementalPlaceholders} = payload;
+  if (incrementalPlaceholders != null && incrementalPlaceholders.length !== 0) {
+    invariant(
+      false,
+      'RelayModernQueryExecutor: optimistic responses cannot be returned ' +
+        'for operations that use incremental data delivery (@defer, ' +
+        '@stream, and @stream_connection).',
+    );
+  }
 }
 
 module.exports = {execute};

@@ -110,6 +110,12 @@ const users = [
     infoLink: 'https://www.m1finance.com/',
     pinned: false,
   },
+  {
+    caption: 'Bumped',
+    image: '/img/logos/bumped.png',
+    infoLink: 'https://bumped.com/',
+    pinned: false,
+  },
 ];
 
 const siteConfig = {

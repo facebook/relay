@@ -27,10 +27,13 @@ import type {DocumentNode} from 'graphql';
 
 const parseGraphQL = Profiler.instrument(GraphQL.parse, 'GraphQL.parse');
 
+export type GetFileFilter = (baseDir: string) => FileFilter;
+
 module.exports = (
   tagFinder: GraphQLTagFinder,
+  getFileFilter?: GetFileFilter,
 ): $TEMPORARY$object<{|
-  getFileFilter: (baseDir: string) => FileFilter,
+  getFileFilter: GetFileFilter,
   getParser: (baseDir: string) => ASTCache,
   parseFile: (baseDir: string, file: File) => ?DocumentNode,
   parseFileWithSources: (
@@ -102,7 +105,7 @@ module.exports = (
     });
   }
 
-  function getFileFilter(baseDir: string): FileFilter {
+  function defaultGetFileFilter(baseDir: string): FileFilter {
     return (file: File) => {
       const filePath = path.join(baseDir, file.relPath);
 
@@ -120,7 +123,7 @@ module.exports = (
 
   return {
     getParser,
-    getFileFilter,
+    getFileFilter: getFileFilter || defaultGetFileFilter,
     parseFile,
     parseFileWithSources,
   };

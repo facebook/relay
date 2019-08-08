@@ -46,10 +46,6 @@ const BABYLON_OPTIONS = {
 function find(text: string): $ReadOnlyArray<GraphQLTag> {
   const result: Array<GraphQLTag> = [];
 
-  if (text.indexOf('graphql') < 0) {
-    return result;
-  }
-
   const ast = babylon.parse(text, BABYLON_OPTIONS);
 
   const visitors = {

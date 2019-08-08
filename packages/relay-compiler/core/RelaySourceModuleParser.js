@@ -108,16 +108,17 @@ module.exports = (
   function defaultGetFileFilter(baseDir: string): FileFilter {
     return (file: File) => {
       const filePath = path.join(baseDir, file.relPath);
-
-      if (fs.existsSync(filePath)) {
-        return true;
-      } else {
+      let text = '';
+      try {
+        text = fs.readFileSync(filePath, 'utf8');
+      } catch {
         // eslint-disable no-console
         console.warn(
           `RelaySourceModuleParser: Unable to read the file "${filePath}". Looks like it was removed.`,
         );
         return false;
       }
+      return text.indexOf('graphql') >= 0;
     };
   }
 

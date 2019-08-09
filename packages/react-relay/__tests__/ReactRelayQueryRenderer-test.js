@@ -10,7 +10,10 @@
 
 'use strict';
 
+jest.mock('scheduler', () => require('scheduler/unstable_mock'));
+
 const React = require('React');
+const Scheduler = require('scheduler');
 const ReactRelayContext = require('../ReactRelayContext');
 const ReactRelayQueryRenderer = require('../ReactRelayQueryRenderer');
 const ReactTestRenderer = require('ReactTestRenderer');
@@ -129,7 +132,7 @@ describe('ReactRelayQueryRenderer', () => {
           function Child(props) {
             // NOTE the unstable_yield method will move to the static renderer.
             // When React sync runs we need to update this.
-            ReactTestRenderer.unstable_yield(props.children);
+            Scheduler.unstable_yieldValue(props.children);
             return props.children;
           }
 
@@ -156,7 +159,8 @@ describe('ReactRelayQueryRenderer', () => {
           });
 
           // Flush some of the changes, but don't commit
-          expect(renderer.unstable_flushNumberOfYields(2)).toEqual(['A', 'B']);
+          Scheduler.unstable_flushNumberOfYields(2);
+          expect(Scheduler.unstable_clearYields()).toEqual(['A', 'B']);
           expect(renderer.toJSON()).toEqual(null);
           expect({
             error: null,
@@ -197,7 +201,7 @@ describe('ReactRelayQueryRenderer', () => {
           function Child(props) {
             // NOTE the unstable_yield method will move to the static renderer.
             // When React sync runs we need to update this.
-            ReactTestRenderer.unstable_yield(props.children);
+            Scheduler.unstable_yieldValue(props.children);
             return props.children;
           }
 
@@ -225,7 +229,8 @@ describe('ReactRelayQueryRenderer', () => {
           const owner = createOperationDescriptor(TestQuery, variables);
 
           // Flush some of the changes, but don't commit
-          expect(renderer.unstable_flushNumberOfYields(2)).toEqual(['A', 'B']);
+          Scheduler.unstable_flushNumberOfYields(2);
+          expect(Scheduler.unstable_clearYields()).toEqual(['A', 'B']);
           expect(renderer.toJSON()).toEqual(null);
           expect({
             error: null,
@@ -279,9 +284,9 @@ describe('ReactRelayQueryRenderer', () => {
           });
 
           function Child(props) {
-            // NOTE the unstable_yield method will move to the static renderer.
+            // NOTE the unstable_yieldValue method will move to the static renderer.
             // When React sync runs we need to update this.
-            ReactTestRenderer.unstable_yield(props.children);
+            Scheduler.unstable_yieldValue(props.children);
             return props.children;
           }
 
@@ -309,7 +314,8 @@ describe('ReactRelayQueryRenderer', () => {
           const owner = createOperationDescriptor(TestQuery, variables);
 
           // Flush some of the changes, but don't commit
-          expect(renderer.unstable_flushNumberOfYields(2)).toEqual(['A', 'B']);
+          Scheduler.unstable_flushNumberOfYields(2);
+          expect(Scheduler.unstable_clearYields()).toEqual(['A', 'B']);
           expect(renderer.toJSON()).toEqual(null);
           expect({
             error: null,

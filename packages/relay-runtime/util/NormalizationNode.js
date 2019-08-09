@@ -10,7 +10,7 @@
 
 'use strict';
 
-import type {ConnectionFieldResolver} from './RelayRuntimeTypes';
+import type {ConnectionResolver} from '../store/RelayConnection';
 
 /**
  * Represents a single operation used to processing and normalize runtime
@@ -96,7 +96,7 @@ export type NormalizationConnectionField = {|
   +alias: ?string,
   +label: string,
   +name: string,
-  +resolver: ConnectionFieldResolver,
+  +resolver: ConnectionResolver<mixed, mixed>,
   +storageKey: ?string,
   +args: ?$ReadOnlyArray<NormalizationArgument>,
   +concreteType: ?string,

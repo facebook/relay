@@ -98,6 +98,13 @@ export type {
 } from './network/RelayObservable';
 export type {GraphiQLPrinter} from './network/createRelayNetworkLogger';
 export type {GraphQLTaggedNode} from './query/RelayModernGraphQLTag';
+export type {
+  ConnectionID,
+  ConnectionReference,
+  ConnectionReferenceObject,
+  ConnectionResolver,
+  ConnectionSnapshot,
+} from './store/RelayConnection';
 export type {TaskScheduler} from './store/RelayModernQueryExecutor';
 export type {RecordState} from './store/RelayRecordState';
 export type {
@@ -174,7 +181,6 @@ export type {
 export type {
   CacheConfig,
   DataID,
-  ConnectionFieldResolver,
   Disposable,
   OperationType,
   Variables,

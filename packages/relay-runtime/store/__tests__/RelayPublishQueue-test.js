@@ -177,7 +177,8 @@ const {generateAndCompile, simpleClone} = require('relay-test-utils-internal');
         );
         const optimisticUpdate = {
           operation: operationDescriptor,
-          source: payload.source,
+          payload,
+          updater: null,
         };
         queue.applyUpdate(optimisticUpdate);
         let sourceData = source.toJSON();
@@ -205,7 +206,8 @@ const {generateAndCompile, simpleClone} = require('relay-test-utils-internal');
         );
         const optimisticUpdate = {
           operation: operationDescriptorAliased,
-          source: payload.source,
+          payload,
+          updater: null,
         };
         queue.applyUpdate(optimisticUpdate);
         let sourceData = source.toJSON();
@@ -297,7 +299,8 @@ const {generateAndCompile, simpleClone} = require('relay-test-utils-internal');
         );
         const optimisticUpdate = {
           operation: operationDescriptor,
-          source: payload.source,
+          payload,
+          updater: null,
         };
         queue.applyUpdate(optimisticUpdate);
         queue.run();
@@ -327,7 +330,8 @@ const {generateAndCompile, simpleClone} = require('relay-test-utils-internal');
         );
         queue.applyUpdate({
           operation: operationDescriptor,
-          source: payload.source,
+          payload,
+          updater: null,
         });
         queue.applyUpdate({
           storeUpdater: storeProxy => {
@@ -360,7 +364,8 @@ const {generateAndCompile, simpleClone} = require('relay-test-utils-internal');
         );
         queue.applyUpdate({
           operation: operationDescriptor,
-          source: payload.source,
+          payload,
+          updater: null,
         });
         queue.run();
         queue.applyUpdate({
@@ -435,7 +440,8 @@ const {generateAndCompile, simpleClone} = require('relay-test-utils-internal');
         );
         queue.applyUpdate({
           operation: nameMutationDescriptor,
-          source: nameMutatorPayload.source,
+          payload: nameMutatorPayload,
+          updater: null,
         });
         // Next set `lastName`.
         const lastNameMutation = generateAndCompile(`
@@ -469,7 +475,8 @@ const {generateAndCompile, simpleClone} = require('relay-test-utils-internal');
         );
         queue.applyUpdate({
           operation: lastNameMutationDescriptor,
-          source: lastNamePayload.source,
+          payload: lastNamePayload,
+          updater: null,
         });
         queue.run();
         const sourceData = source.toJSON();
@@ -513,7 +520,8 @@ const {generateAndCompile, simpleClone} = require('relay-test-utils-internal');
         );
         const optimisticUpdate = {
           operation: operationDescriptor,
-          source: payload.source,
+          payload,
+          updater: null,
         };
         queue.applyUpdate(optimisticUpdate);
         // The second update should be applied to the reverted store state

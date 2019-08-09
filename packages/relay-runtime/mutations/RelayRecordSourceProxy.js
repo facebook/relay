@@ -100,7 +100,7 @@ class RelayRecordSourceProxy implements RecordSourceProxy {
       operation.root,
       response,
       null,
-      {getDataID: this._getDataID},
+      {getDataID: this._getDataID, request: operation.request},
     );
     this.publishSource(source, fieldPayloads);
     return new RelayRecordSourceSelectorProxy(this, operation.fragment);

@@ -10,6 +10,8 @@
 
 'use strict';
 
+const RelayConnection = require('./RelayConnection');
+const RelayConnectionInterface = require('../handlers/connection/RelayConnectionInterface');
 const RelayModernRecord = require('./RelayModernRecord');
 const RelayProfiler = require('../util/RelayProfiler');
 
@@ -42,6 +44,7 @@ const {
 
 import type {PayloadData} from '../network/RelayNetworkTypes';
 import type {
+  NormalizationConnectionField,
   NormalizationDefer,
   NormalizationLinkedField,
   NormalizationModuleImport,
@@ -50,6 +53,7 @@ import type {
   NormalizationStream,
 } from '../util/NormalizationNode';
 import type {DataID, Variables} from '../util/RelayRuntimeTypes';
+import type {ConnectionInternalEvent} from './RelayConnection';
 import type {
   HandleFieldPayload,
   IncrementalDataPlaceholder,
@@ -57,6 +61,8 @@ import type {
   MutableRecordSource,
   NormalizationSelector,
   Record,
+  RelayResponsePayload,
+  RequestDescriptor,
 } from './RelayStoreTypes';
 
 export type GetDataID = (
@@ -67,12 +73,7 @@ export type GetDataID = (
 export type NormalizationOptions = {|
   +getDataID: GetDataID,
   +path?: $ReadOnlyArray<string>,
-|};
-
-export type NormalizedResponse = {|
-  incrementalPlaceholders: Array<IncrementalDataPlaceholder>,
-  fieldPayloads: Array<HandleFieldPayload>,
-  moduleImportPayloads: Array<ModuleImportPayload>,
+  +request: RequestDescriptor,
 |};
 
 /**
@@ -84,7 +85,7 @@ function normalize(
   selector: NormalizationSelector,
   response: PayloadData,
   options: NormalizationOptions,
-): NormalizedResponse {
+): RelayResponsePayload {
   const {dataID, node, variables} = selector;
   const normalizer = new RelayResponseNormalizer(
     recordSource,
@@ -100,6 +101,7 @@ function normalize(
  * Helper for handling payloads.
  */
 class RelayResponseNormalizer {
+  _connectionEvents: Array<ConnectionInternalEvent>;
   _getDataId: GetDataID;
   _handleFieldPayloads: Array<HandleFieldPayload>;
   _incrementalPlaceholders: Array<IncrementalDataPlaceholder>;
@@ -107,6 +109,7 @@ class RelayResponseNormalizer {
   _moduleImportPayloads: Array<ModuleImportPayload>;
   _path: Array<string>;
   _recordSource: MutableRecordSource;
+  _request: RequestDescriptor;
   _variables: Variables;
 
   constructor(
@@ -114,6 +117,7 @@ class RelayResponseNormalizer {
     variables: Variables,
     options: NormalizationOptions,
   ) {
+    this._connectionEvents = [];
     this._getDataId = options.getDataID;
     this._handleFieldPayloads = [];
     this._incrementalPlaceholders = [];
@@ -121,6 +125,7 @@ class RelayResponseNormalizer {
     this._moduleImportPayloads = [];
     this._path = options.path ? [...options.path] : [];
     this._recordSource = recordSource;
+    this._request = options.request;
     this._variables = variables;
   }
 
@@ -128,7 +133,7 @@ class RelayResponseNormalizer {
     node: NormalizationNode,
     dataID: DataID,
     data: PayloadData,
-  ): NormalizedResponse {
+  ): RelayResponsePayload {
     const record = this._recordSource.get(dataID);
     invariant(
       record,
@@ -137,9 +142,12 @@ class RelayResponseNormalizer {
     );
     this._traverseSelections(node, record, data);
     return {
-      incrementalPlaceholders: this._incrementalPlaceholders,
+      connectionEvents: this._connectionEvents,
+      errors: null,
       fieldPayloads: this._handleFieldPayloads,
+      incrementalPlaceholders: this._incrementalPlaceholders,
       moduleImportPayloads: this._moduleImportPayloads,
+      source: this._recordSource,
     };
   }
 
@@ -217,11 +225,7 @@ class RelayResponseNormalizer {
           this._isClientExtension = isClientExtension;
           break;
         case CONNECTION_FIELD:
-          invariant(
-            false,
-            'RelayResponseNormalizer(): Connection fields are not supported yet.',
-          );
-          // $FlowExpectedError - we need the break; for OSS linter
+          this._normalizeConnectionField(node, selection, record, data);
           break;
         default:
           (selection: empty);
@@ -339,9 +343,90 @@ class RelayResponseNormalizer {
     }
   }
 
+  _normalizeConnectionField(
+    parent: NormalizationNode,
+    selection: NormalizationConnectionField,
+    record: Record,
+    data: PayloadData,
+  ) {
+    this._normalizeField(parent, selection, record, data);
+
+    const parentID = RelayModernRecord.getDataID(record);
+    const connectionID = RelayConnection.createConnectionID(
+      parentID,
+      selection.label,
+    );
+    const args =
+      selection.args != null
+        ? getArgumentValues(selection.args, this._variables)
+        : {};
+    const storageKey = getStorageKey(selection, this._variables);
+    const {
+      EDGES,
+      END_CURSOR,
+      HAS_NEXT_PAGE,
+      HAS_PREV_PAGE,
+      PAGE_INFO,
+      START_CURSOR,
+    } = RelayConnectionInterface.get();
+
+    const connectionRecordID = RelayModernRecord.getLinkedRecordID(
+      record,
+      storageKey,
+    );
+    const connectionRecord =
+      connectionRecordID != null
+        ? this._recordSource.get(connectionRecordID)
+        : null;
+    if (connectionRecord == null) {
+      // TODO
+      return;
+    }
+    const edgeIDs = RelayModernRecord.getLinkedRecordIDs(
+      connectionRecord,
+      EDGES,
+    );
+    if (edgeIDs == null) {
+      return;
+    }
+    const pageInfoID = RelayModernRecord.getLinkedRecordID(
+      connectionRecord,
+      PAGE_INFO,
+    );
+    const pageInfoRecord =
+      pageInfoID != null ? this._recordSource.get(pageInfoID) : null;
+    let endCursor;
+    let hasNextPage;
+    let hasPrevPage;
+    let startCursor;
+    if (pageInfoRecord != null) {
+      endCursor = RelayModernRecord.getValue(pageInfoRecord, END_CURSOR);
+      hasNextPage = RelayModernRecord.getValue(pageInfoRecord, HAS_NEXT_PAGE);
+      hasPrevPage = RelayModernRecord.getValue(pageInfoRecord, HAS_PREV_PAGE);
+      startCursor = RelayModernRecord.getValue(pageInfoRecord, START_CURSOR);
+    }
+
+    this._connectionEvents.push({
+      kind: 'fetch',
+      connectionID,
+      args,
+      edgeIDs,
+      pageInfo: {
+        endCursor: typeof endCursor === 'string' ? endCursor : null,
+        startCursor: typeof startCursor === 'string' ? startCursor : null,
+        hasNextPage: typeof hasNextPage === 'boolean' ? hasNextPage : null,
+        hasPrevPage: typeof hasPrevPage === 'boolean' ? hasPrevPage : null,
+      },
+      request: this._request,
+    });
+  }
+
   _normalizeField(
     parent: NormalizationNode,
-    selection: NormalizationLinkedField | NormalizationScalarField,
+    selection:
+      | NormalizationLinkedField
+      | NormalizationScalarField
+      | NormalizationConnectionField,
     record: Record,
     data: PayloadData,
   ) {
@@ -385,7 +470,10 @@ class RelayResponseNormalizer {
 
     if (selection.kind === SCALAR_FIELD) {
       RelayModernRecord.setValue(record, storageKey, fieldValue);
-    } else if (selection.kind === LINKED_FIELD) {
+    } else if (
+      selection.kind === LINKED_FIELD ||
+      selection.kind === CONNECTION_FIELD
+    ) {
       this._path.push(responseKey);
       if (selection.plural) {
         this._normalizePluralLink(selection, record, storageKey, fieldValue);
@@ -404,7 +492,7 @@ class RelayResponseNormalizer {
   }
 
   _normalizeLink(
-    field: NormalizationLinkedField,
+    field: NormalizationLinkedField | NormalizationConnectionField,
     record: Record,
     storageKey: string,
     fieldValue: mixed,
@@ -528,7 +616,7 @@ class RelayResponseNormalizer {
    */
   _validateRecordType(
     record: Record,
-    field: NormalizationLinkedField,
+    field: NormalizationLinkedField | NormalizationConnectionField,
     payload: Object,
   ): void {
     const typeName = field.concreteType ?? this._getRecordType(payload);

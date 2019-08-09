@@ -4,12 +4,13 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @flow strict-local
+ * @flow
  * @format
  */
 
 'use strict';
 
+const RelayConnection = require('./RelayConnection');
 const RelayModernRecord = require('./RelayModernRecord');
 
 const invariant = require('invariant');
@@ -37,6 +38,7 @@ const {
 } = require('./RelayStoreUtils');
 
 import type {
+  ReaderConnectionField,
   ReaderFragmentSpread,
   ReaderInlineDataFragmentSpread,
   ReaderLinkedField,
@@ -46,6 +48,7 @@ import type {
   ReaderSelection,
 } from '../util/ReaderNode';
 import type {DataID, Variables} from '../util/RelayRuntimeTypes';
+import type {ConnectionReference} from './RelayConnection';
 import type {
   Record,
   RecordSource,
@@ -166,11 +169,7 @@ class RelayReader {
           this._isMissingData = isMissingData;
           break;
         case CONNECTION_FIELD:
-          invariant(
-            false,
-            'RelayReader(): Connection fields are not supported yet.',
-          );
-          // $FlowExpectedError - we need the break; for OSS linter
+          this._readConnectionField(selection, record, data);
           break;
         default:
           (selection: empty);
@@ -181,6 +180,49 @@ class RelayReader {
           );
       }
     }
+  }
+
+  _readConnectionField(
+    field: ReaderConnectionField,
+    record: Record,
+    data: SelectorData,
+  ): void {
+    const parentID = RelayModernRecord.getDataID(record);
+    const connectionID = RelayConnection.createConnectionID(
+      parentID,
+      field.label,
+    );
+    const edgeField: ?ReaderSelection = field.selections.find(
+      selection =>
+        selection.kind === 'LinkedField' &&
+        selection.plural &&
+        selection.name === 'edges',
+    );
+    invariant(
+      edgeField && edgeField.kind === 'LinkedField',
+      'RelayReader: Expected connection field to have an `edges` selection.',
+    );
+    const reference: ConnectionReference<mixed, mixed> = {
+      variables: this._variables,
+      edgeField,
+      id: connectionID,
+      label: field.label,
+      resolver: field.resolver,
+    };
+    const applicationName = field.alias ?? field.name;
+    const prevData = data[applicationName];
+    invariant(
+      prevData == null || typeof prevData === 'object',
+      'RelayReader(): Expected data for field `%s` on record `%s` ' +
+        'to be an object, got `%s`.',
+      applicationName,
+      parentID,
+      prevData,
+    );
+    // data[applicationName] = this._traverse(field, linkedID, prevData);
+    const nextData = ((prevData: $FlowFixMe): SelectorData) ?? {};
+    data[applicationName] = nextData;
+    nextData[RelayConnection.CONNECTION_KEY] = reference;
   }
 
   _readScalar(

@@ -49,20 +49,20 @@ import type {DataID} from '../util/RelayRuntimeTypes';
  *   backup.
  */
 class RelayRecordSourceMutator {
+  __sources: Array<RecordSource>;
   _backup: ?MutableRecordSource;
   _base: RecordSource;
   _sink: MutableRecordSource;
-  __sources: Array<RecordSource>;
 
   constructor(
     base: RecordSource,
     sink: MutableRecordSource,
     backup?: ?MutableRecordSource,
   ) {
+    this.__sources = [sink, base];
     this._backup = backup;
     this._base = base;
     this._sink = sink;
-    this.__sources = [sink, base];
   }
 
   /**

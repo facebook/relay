@@ -58,6 +58,3 @@ export type CacheConfig = {
   metadata?: {[key: string]: mixed},
   transactionId?: ?string,
 };
-
-// TODO: define the resolver interface
-export type ConnectionFieldResolver = {||};

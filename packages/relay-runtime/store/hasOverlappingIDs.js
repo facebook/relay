@@ -10,13 +10,13 @@
 
 'use strict';
 
-import type {UpdatedRecords, Snapshot} from './RelayStoreTypes';
+import type {RecordMap, UpdatedRecords} from './RelayStoreTypes';
 
 function hasOverlappingIDs(
-  snapshot: Snapshot,
+  seenRecords: RecordMap,
   updatedRecordIDs: UpdatedRecords,
 ): boolean {
-  const keys = Object.keys(snapshot.seenRecords);
+  const keys = Object.keys(seenRecords);
   for (let ii = 0; ii < keys.length; ii++) {
     if (updatedRecordIDs.hasOwnProperty(keys[ii])) {
       return true;

@@ -11,8 +11,8 @@
 'use strict';
 
 import type {ConnectionMetadata} from '../handlers/connection/RelayConnectionHandler';
+import type {ConnectionResolver} from '../store/RelayConnection';
 import type {ConcreteRequest} from './RelayConcreteNode';
-import type {ConnectionFieldResolver} from './RelayRuntimeTypes';
 
 export type ReaderFragmentSpread = {|
   +kind: 'FragmentSpread',
@@ -134,7 +134,7 @@ export type ReaderConnectionField = {|
   +alias: ?string,
   +label: string,
   +name: string,
-  +resolver: ConnectionFieldResolver,
+  +resolver: ConnectionResolver<mixed, mixed>,
   +storageKey: ?string,
   +args: ?$ReadOnlyArray<ReaderArgument>,
   +concreteType: ?string,

@@ -33,6 +33,12 @@ import type {
   Variables,
 } from '../util/RelayRuntimeTypes';
 import type {RequestIdentifier} from '../util/getRequestIdentifier';
+import type {
+  ConnectionID,
+  ConnectionInternalEvent,
+  ConnectionReference,
+  ConnectionSnapshot,
+} from './RelayConnection';
 import type RelayOperationTracker from './RelayOperationTracker';
 import type {RecordState} from './RelayRecordState';
 
@@ -238,6 +244,14 @@ export interface Store {
   publish(source: RecordSource): void;
 
   /**
+   * Publish connection events, updating the store's list of events. As with
+   * publish(), subscribers are only notified after notify() is called.
+   */
+  publishConnectionEvents_UNSTABLE(
+    events: Array<ConnectionInternalEvent>,
+  ): void;
+
+  /**
    * Ensure that all the records necessary to fulfill the given selector are
    * retained in-memory. The records will not be eligible for garbage collection
    * until the returned reference is disposed.
@@ -259,6 +273,15 @@ export interface Store {
    * the returned reference is disposed.
    */
   holdGC(): Disposable;
+
+  lookupConnection_UNSTABLE<TEdge, TState>(
+    connectionReference: ConnectionReference<TEdge, TState>,
+  ): ConnectionSnapshot<TEdge, TState>;
+
+  subscribeConnection_UNSTABLE<TEdge, TState>(
+    snapshot: ConnectionSnapshot<TEdge, TState>,
+    callback: (state: TState) => void,
+  ): Disposable;
 }
 
 /**
@@ -328,11 +351,7 @@ export interface ReadOnlyRecordSourceProxy {
  * Extends the RecordSourceProxy interface with methods for accessing the root
  * fields of a Selector.
  */
-export interface RecordSourceSelectorProxy {
-  create(dataID: DataID, typeName: string): RecordProxy;
-  delete(dataID: DataID): void;
-  get(dataID: DataID): ?RecordProxy;
-  getRoot(): RecordProxy;
+export interface RecordSourceSelectorProxy extends RecordSourceProxy {
   getRootField(fieldName: string): ?RecordProxy;
   getPluralRootField(fieldName: string): ?Array<?RecordProxy>;
 }
@@ -617,17 +636,16 @@ export type SelectorStoreUpdater = (
  */
 export type OptimisticUpdate =
   | OptimisticUpdateFunction
-  | OptimisticUpdateSource;
+  | OptimisticUpdateRelayPayload;
 
 export type OptimisticUpdateFunction = {|
   +storeUpdater: StoreUpdater,
 |};
 
-export type OptimisticUpdateSource = {|
-  +fieldPayloads: ?Array<HandleFieldPayload>,
+export type OptimisticUpdateRelayPayload = {|
   +operation: OperationDescriptor,
-  +selectorStoreUpdater: ?SelectorStoreUpdater,
-  +source: ?RecordSource,
+  +payload: RelayResponsePayload,
+  +updater: ?SelectorStoreUpdater,
 |};
 
 export type OptimisticResponseConfig = {|
@@ -673,11 +691,12 @@ export type MissingFieldHandler =
  * The results of normalizing a query.
  */
 export type RelayResponsePayload = {|
-  incrementalPlaceholders: ?Array<IncrementalDataPlaceholder>,
-  fieldPayloads: ?Array<HandleFieldPayload>,
-  moduleImportPayloads: ?Array<ModuleImportPayload>,
-  source: MutableRecordSource,
-  errors: ?Array<PayloadError>,
+  +connectionEvents: ?Array<ConnectionInternalEvent>,
+  +errors: ?Array<PayloadError>,
+  +fieldPayloads: ?Array<HandleFieldPayload>,
+  +incrementalPlaceholders: ?Array<IncrementalDataPlaceholder>,
+  +moduleImportPayloads: ?Array<ModuleImportPayload>,
+  +source: MutableRecordSource,
 |};
 
 /**

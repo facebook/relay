@@ -51,6 +51,7 @@ import type {
 } from '../store/RelayStoreTypes';
 import type {NormalizationSplitOperation} from '../util/NormalizationNode';
 import type {GetDataID} from './RelayResponseNormalizer';
+import type {NormalizationOptions} from './RelayResponseNormalizer';
 
 export type ExecuteConfig = {|
   +getDataID: GetDataID,
@@ -313,15 +314,17 @@ class Executor {
         response,
         this._operation.root,
         ROOT_TYPE,
-        [] /* path */,
-        this._getDataID,
+        {
+          getDataID: this._getDataID,
+          path: [],
+          request: this._operation.request,
+        },
       );
       validateOptimisticResponsePayload(payload);
       optimisticUpdates.push({
-        fieldPayloads: payload.fieldPayloads,
         operation: this._operation,
-        source: payload.source,
-        selectorStoreUpdater: updater,
+        payload,
+        updater,
       });
       if (payload.moduleImportPayloads && payload.moduleImportPayloads.length) {
         const moduleImportPayloads = payload.moduleImportPayloads;
@@ -348,15 +351,17 @@ class Executor {
             {data: moduleImportPayload.data},
             selector,
             moduleImportPayload.typeName,
-            moduleImportPayload.path,
-            this._getDataID,
+            {
+              getDataID: this._getDataID,
+              path: moduleImportPayload.path,
+              request: this._operation.request,
+            },
           );
           validateOptimisticResponsePayload(modulePayload);
           optimisticUpdates.push({
-            fieldPayloads: modulePayload.fieldPayloads,
             operation: this._operation,
-            source: modulePayload.source,
-            selectorStoreUpdater: null,
+            payload: modulePayload,
+            updater: null,
           });
           if (modulePayload.moduleImportPayloads) {
             moduleImportPayloads.push(...modulePayload.moduleImportPayloads);
@@ -365,10 +370,16 @@ class Executor {
       }
     } else if (updater) {
       optimisticUpdates.push({
-        fieldPayloads: null,
         operation: this._operation,
-        source: null,
-        selectorStoreUpdater: updater,
+        payload: {
+          connectionEvents: null,
+          errors: null,
+          fieldPayloads: null,
+          incrementalPlaceholders: null,
+          moduleImportPayloads: null,
+          source: new RelayRecordSource(),
+        },
+        updater: updater,
       });
     }
     this._optimisticUpdates = optimisticUpdates;
@@ -388,8 +399,7 @@ class Executor {
       response,
       this._operation.root,
       ROOT_TYPE,
-      [] /* path */,
-      this._getDataID,
+      {getDataID: this._getDataID, path: [], request: this._operation.request},
     );
     this._incrementalResults.clear();
     this._source.clear();
@@ -514,8 +524,11 @@ class Executor {
       {data: moduleImportPayload.data},
       selector,
       moduleImportPayload.typeName,
-      moduleImportPayload.path,
-      this._getDataID,
+      {
+        getDataID: this._getDataID,
+        path: moduleImportPayload.path,
+        request: this._operation.request,
+      },
     );
     this._publishQueue.commitPayload(this._operation, relayPayload);
     const updatedOwners = this._publishQueue.run();
@@ -699,8 +712,11 @@ class Executor {
       response,
       placeholder.selector,
       placeholder.typeName,
-      placeholder.path,
-      this._getDataID,
+      {
+        getDataID: this._getDataID,
+        path: placeholder.path,
+        request: this._operation.request,
+      },
     );
     this._publishQueue.commitPayload(this._operation, relayPayload);
 
@@ -716,6 +732,7 @@ class Executor {
     const {fieldPayloads} = parentEntry;
     if (fieldPayloads.length !== 0) {
       const handleFieldsRelayPayload = {
+        connectionEvents: null,
         errors: null,
         fieldPayloads,
         incrementalPlaceholders: null,
@@ -832,13 +849,11 @@ class Executor {
     // Publish the new item and update the parent record to set
     // field[index] = item *if* the parent record hasn't been concurrently
     // modified.
-    const relayPayload = normalizeResponse(
-      response,
-      selector,
-      typeName,
-      [...placeholder.path, responseKey, String(itemIndex)],
-      this._getDataID,
-    );
+    const relayPayload = normalizeResponse(response, selector, typeName, {
+      getDataID: this._getDataID,
+      path: [...placeholder.path, responseKey, String(itemIndex)],
+      request: this._operation.request,
+    });
     this._publishQueue.commitPayload(this._operation, relayPayload, store => {
       const currentParentRecord = store.get(parentID);
       if (currentParentRecord == null) {
@@ -872,6 +887,7 @@ class Executor {
     // also update any handle fields that are derived from the parent record.
     if (fieldPayloads.length !== 0) {
       const handleFieldsRelayPayload = {
+        connectionEvents: null,
         errors: null,
         fieldPayloads,
         incrementalPlaceholders: null,
@@ -914,25 +930,21 @@ function normalizeResponse(
   response: GraphQLResponseWithData,
   selector: NormalizationSelector,
   typeName: string,
-  path: $ReadOnlyArray<string>,
-  getDataID: GetDataID,
+  options: NormalizationOptions,
 ): RelayResponsePayload {
   const {data, errors} = response;
   const source = RelayRecordSource.create();
   const record = RelayModernRecord.create(selector.dataID, typeName);
   source.set(selector.dataID, record);
-  const normalizeResult = RelayResponseNormalizer.normalize(
+  const relayPayload = RelayResponseNormalizer.normalize(
     source,
     selector,
     data,
-    {path, getDataID},
+    options,
   );
   return {
+    ...relayPayload,
     errors,
-    incrementalPlaceholders: normalizeResult.incrementalPlaceholders,
-    fieldPayloads: normalizeResult.fieldPayloads,
-    moduleImportPayloads: normalizeResult.moduleImportPayloads,
-    source,
   };
 }
 

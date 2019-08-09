@@ -18,13 +18,11 @@ const RelayRecordSourceProxy = require('../mutations/RelayRecordSourceProxy');
 const RelayRecordSourceSelectorProxy = require('../mutations/RelayRecordSourceSelectorProxy');
 
 const invariant = require('invariant');
-const normalizeRelayPayload = require('./normalizeRelayPayload');
 
 import type {HandlerProvider} from '../handlers/RelayDefaultHandlerProvider';
 import type {Disposable} from '../util/RelayRuntimeTypes';
 import type {GetDataID} from './RelayResponseNormalizer';
 import type {
-  HandleFieldPayload,
   MutableRecordSource,
   OperationDescriptor,
   OptimisticUpdate,
@@ -39,22 +37,17 @@ import type {
   StoreUpdater,
 } from './RelayStoreTypes';
 
-type Payload = {
-  fieldPayloads: ?Array<HandleFieldPayload>,
-  operation: OperationDescriptor,
-  source: MutableRecordSource,
-  updater: ?SelectorStoreUpdater,
-};
-
-type DataToCommit =
-  | {
-      kind: 'payload',
-      payload: Payload,
-    }
-  | {
-      kind: 'source',
-      source: RecordSource,
-    };
+type PendingCommit = PendingRelayPayload | PendingRecordSource;
+type PendingRelayPayload = {|
+  +kind: 'payload',
+  +operation: OperationDescriptor,
+  +payload: RelayResponsePayload,
+  +updater: ?SelectorStoreUpdater,
+|};
+type PendingRecordSource = {|
+  +kind: 'source',
+  +source: RecordSource,
+|};
 
 /**
  * Coordinates the concurrent modification of a `Store` due to optimistic and
@@ -79,7 +72,7 @@ class RelayPublishQueue implements PublishQueue {
   // updates performing a rebase.
   _pendingBackupRebase: boolean;
   // Payloads to apply or Sources to publish to the store with the next `run()`.
-  _pendingData: Set<DataToCommit>;
+  _pendingData: Set<PendingCommit>;
   // Updaters to apply with the next `run()`. These mutate the store and should
   // typically only mutate client schema extensions.
   _pendingUpdaters: Set<StoreUpdater>;
@@ -148,13 +141,15 @@ class RelayPublishQueue implements PublishQueue {
    */
   commitPayload(
     operation: OperationDescriptor,
-    {fieldPayloads, source}: RelayResponsePayload,
+    payload: RelayResponsePayload,
     updater?: ?SelectorStoreUpdater,
   ): void {
     this._pendingBackupRebase = true;
     this._pendingData.add({
       kind: 'payload',
-      payload: {fieldPayloads, operation, source, updater},
+      operation,
+      payload,
+      updater,
     });
   }
 
@@ -202,8 +197,9 @@ class RelayPublishQueue implements PublishQueue {
     return this._store.notify();
   }
 
-  _getSourceFromPayload(payload: Payload): RecordSource {
-    const {fieldPayloads, operation, source, updater} = payload;
+  _getSourceFromPayload(pendingPayload: PendingRelayPayload): RecordSource {
+    const {payload, operation, updater} = pendingPayload;
+    const {source, fieldPayloads} = payload;
     const mutator = new RelayRecordSourceMutator(
       this._store.getSource(),
       source,
@@ -240,13 +236,18 @@ class RelayPublishQueue implements PublishQueue {
       return;
     }
     this._pendingData.forEach(data => {
-      let source;
       if (data.kind === 'payload') {
-        source = this._getSourceFromPayload(data.payload);
+        const source = this._getSourceFromPayload(data);
+        this._store.publish(source);
+        if (data.payload.connectionEvents) {
+          this._store.publishConnectionEvents_UNSTABLE(
+            data.payload.connectionEvents,
+          );
+        }
       } else {
-        source = data.source;
+        const source = data.source;
+        this._store.publish(source);
       }
-      this._store.publish(source);
     });
     this._pendingData.clear();
   }
@@ -304,12 +305,8 @@ class RelayPublishQueue implements PublishQueue {
               'RelayPublishQueue:applyUpdates',
             );
           } else {
-            const {
-              selectorStoreUpdater,
-              operation,
-              source,
-              fieldPayloads,
-            } = optimisticUpdate;
+            const {operation, payload, updater} = optimisticUpdate;
+            const {source, fieldPayloads} = payload;
             const selectorStore = new RelayRecordSourceSelectorProxy(
               store,
               operation.fragment,
@@ -319,9 +316,9 @@ class RelayPublishQueue implements PublishQueue {
               store.publishSource(source, fieldPayloads);
               selectorData = lookupSelector(source, operation.fragment);
             }
-            if (selectorStoreUpdater) {
+            if (updater) {
               ErrorUtils.applyWithGuard(
-                selectorStoreUpdater,
+                updater,
                 null,
                 [selectorStore, selectorData],
                 null,
@@ -345,12 +342,8 @@ class RelayPublishQueue implements PublishQueue {
               'RelayPublishQueue:applyUpdates',
             );
           } else {
-            const {
-              selectorStoreUpdater,
-              operation,
-              source,
-              fieldPayloads,
-            } = optimisticUpdate;
+            const {operation, payload, updater} = optimisticUpdate;
+            const {source, fieldPayloads} = payload;
             const selectorStore = new RelayRecordSourceSelectorProxy(
               store,
               operation.fragment,
@@ -360,9 +353,9 @@ class RelayPublishQueue implements PublishQueue {
               store.publishSource(source, fieldPayloads);
               selectorData = lookupSelector(source, operation.fragment);
             }
-            if (selectorStoreUpdater) {
+            if (updater) {
               ErrorUtils.applyWithGuard(
-                selectorStoreUpdater,
+                updater,
                 null,
                 [selectorStore, selectorData],
                 null,

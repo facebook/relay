@@ -203,18 +203,15 @@ class RelayModernEnvironment implements Environment {
     );
   }
 
-  commitPayload(
-    operationDescriptor: OperationDescriptor,
-    payload: PayloadData,
-  ): void {
+  commitPayload(operation: OperationDescriptor, payload: PayloadData): void {
     // Do not handle stripped nulls when committing a payload
     const relayPayload = normalizeRelayPayload(
-      operationDescriptor.root,
+      operation.root,
       payload,
       null /* errors */,
-      {getDataID: this._getDataID},
+      {getDataID: this._getDataID, request: operation.request},
     );
-    this._publishQueue.commitPayload(operationDescriptor, relayPayload);
+    this._publishQueue.commitPayload(operation, relayPayload);
     this._publishQueue.run();
   }
 

@@ -14,8 +14,8 @@ const React = require('React');
 const ReactRelayContext = require('./ReactRelayContext');
 
 const assertFragmentMap = require('./assertFragmentMap');
-const invariant = require('invariant');
-const mapObject = require('mapObject');
+const invariant = require('fbjs/lib/invariant');
+const mapObject = require('fbjs/lib/mapObject');
 const readContext = require('./readContext');
 
 const {

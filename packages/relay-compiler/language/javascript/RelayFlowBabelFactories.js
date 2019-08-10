@@ -10,7 +10,8 @@
 
 'use strict';
 
-const invariant = require('invariant');
+// $FlowFixMe
+const invariant = require('fbjs/lib/invariant');
 const t = require('@babel/types');
 
 type BabelAST = mixed;

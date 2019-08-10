@@ -10,8 +10,8 @@
 
 'use strict';
 
-const areEqual = require('areEqual');
-const invariant = require('invariant');
+const areEqual = require('fbjs/lib/areEqual');
+const invariant = require('fbjs/lib/invariant');
 
 const {LINKED_FIELD} = require('../util/RelayConcreteNode');
 const {getHandleStorageKey} = require('./RelayStoreUtils');

@@ -20,7 +20,7 @@ const {
   getRequest,
 } = require('relay-runtime');
 
-const areEqual = require('areEqual');
+const areEqual = require('fbjs/lib/areEqual');
 
 import type {GraphQLTaggedNode, IEnvironment, Variables} from 'relay-runtime';
 

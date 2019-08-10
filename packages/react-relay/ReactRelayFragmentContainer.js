@@ -12,7 +12,7 @@
 
 const React = require('React');
 
-const areEqual = require('areEqual');
+const areEqual = require('fbjs/lib/areEqual');
 const buildReactRelayContainer = require('./buildReactRelayContainer');
 
 const {getContainerName} = require('./ReactRelayContainerUtils');

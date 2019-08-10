@@ -13,7 +13,7 @@
 const Profiler = require('../core/GraphQLCompilerProfiler');
 
 const crypto = require('crypto');
-const invariant = require('invariant');
+const invariant = require('fbjs/lib/invariant');
 const path = require('path');
 
 import type {SourceControl} from './SourceControl';

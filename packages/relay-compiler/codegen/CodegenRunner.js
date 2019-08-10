@@ -15,7 +15,7 @@ const CodegenWatcher = require('./CodegenWatcher');
 const GraphQLWatchmanClient = require('../core/GraphQLWatchmanClient');
 const Profiler = require('../core/GraphQLCompilerProfiler');
 
-const invariant = require('invariant');
+const invariant = require('fbjs/lib/invariant');
 const path = require('path');
 
 const {Map: ImmutableMap} = require('immutable');

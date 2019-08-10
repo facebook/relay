@@ -15,7 +15,7 @@ const GraphQL = require('graphql');
 const Profiler = require('./GraphQLCompilerProfiler');
 
 const fs = require('fs');
-const invariant = require('invariant');
+const invariant = require('fbjs/lib/invariant');
 const path = require('path');
 
 const {memoizedFind} = require('./RelayFindGraphQLTags');

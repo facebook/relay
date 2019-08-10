@@ -10,8 +10,8 @@
 
 'use strict';
 
-const emptyFunction = require('emptyFunction');
-const removeFromArray = require('removeFromArray');
+const emptyFunction = require('fbjs/lib/emptyFunction');
+const removeFromArray = require('fbjs/lib/removeFromArray');
 
 type Handler = (name: string, callback: () => void) => void;
 type ProfileHandler = (name: string, state?: any) => (error?: Error) => void;

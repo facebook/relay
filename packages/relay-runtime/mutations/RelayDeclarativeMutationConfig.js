@@ -12,7 +12,7 @@
 
 const RelayConnectionHandler = require('../handlers/connection/RelayConnectionHandler');
 
-const warning = require('warning');
+const warning = require('fbjs/lib/warning');
 
 import type {
   RecordSourceSelectorProxy,

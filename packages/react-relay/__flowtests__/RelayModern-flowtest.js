@@ -12,7 +12,7 @@
 
 const React = require('React');
 
-const nullthrows = require('nullthrows');
+const nullthrows = require('fbjs/lib/nullthrows');
 
 const {
   createContainer: createFragmentContainer,

@@ -21,9 +21,9 @@ const RelayPublishQueue = require('./RelayPublishQueue');
 const RelayRecordSource = require('./RelayRecordSource');
 
 const defaultGetDataID = require('./defaultGetDataID');
-const invariant = require('invariant');
+const invariant = require('fbjs/lib/invariant');
 const normalizeRelayPayload = require('./normalizeRelayPayload');
-const warning = require('warning');
+const warning = require('fbjs/lib/warning');
 
 import type {HandlerProvider} from '../handlers/RelayDefaultHandlerProvider';
 import type {

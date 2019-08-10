@@ -12,7 +12,7 @@
 'use strict';
 
 const getFragmentIdentifier = require('./getFragmentIdentifier');
-const mapObject = require('mapObject');
+const mapObject = require('fbjs/lib/mapObject');
 const stableCopy = require('./stableCopy');
 
 import type {ReaderFragment} from '../util/ReaderNode';

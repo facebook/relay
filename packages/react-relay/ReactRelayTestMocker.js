@@ -10,10 +10,10 @@
 
 'use strict';
 
-const areEqual = require('areEqual');
-const emptyFunction = require('emptyFunction');
-const invariant = require('invariant');
-const warning = require('warning');
+const areEqual = require('fbjs/lib/areEqual');
+const emptyFunction = require('fbjs/lib/emptyFunction');
+const invariant = require('fbjs/lib/invariant');
+const warning = require('fbjs/lib/warning');
 
 const {
   createOperationDescriptor,

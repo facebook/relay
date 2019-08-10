@@ -13,8 +13,8 @@
 const RelayConnectionInterface = require('./RelayConnectionInterface');
 
 const getRelayHandleKey = require('../../util/getRelayHandleKey');
-const invariant = require('invariant');
-const warning = require('warning');
+const invariant = require('fbjs/lib/invariant');
+const warning = require('fbjs/lib/warning');
 
 const {generateClientID} = require('../../store/ClientID');
 

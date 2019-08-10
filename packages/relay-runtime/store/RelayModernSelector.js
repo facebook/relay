@@ -10,9 +10,9 @@
 
 'use strict';
 
-const areEqual = require('areEqual');
-const invariant = require('invariant');
-const warning = require('warning');
+const areEqual = require('fbjs/lib/areEqual');
+const invariant = require('fbjs/lib/invariant');
+const warning = require('fbjs/lib/warning');
 
 const {getFragmentVariables} = require('./RelayConcreteVariables');
 const {

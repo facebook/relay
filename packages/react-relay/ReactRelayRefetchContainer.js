@@ -14,9 +14,9 @@ const React = require('React');
 const ReactRelayContext = require('./ReactRelayContext');
 const ReactRelayQueryFetcher = require('./ReactRelayQueryFetcher');
 
-const areEqual = require('areEqual');
+const areEqual = require('fbjs/lib/areEqual');
 const buildReactRelayContainer = require('./buildReactRelayContainer');
-const warning = require('warning');
+const warning = require('fbjs/lib/warning');
 
 const {getContainerName} = require('./ReactRelayContainerUtils');
 const {assertRelayContext} = require('./RelayContext');

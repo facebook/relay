@@ -15,8 +15,8 @@ const RelayConnectionInterface = require('../handlers/connection/RelayConnection
 const RelayModernRecord = require('./RelayModernRecord');
 const RelayProfiler = require('../util/RelayProfiler');
 
-const invariant = require('invariant');
-const warning = require('warning');
+const invariant = require('fbjs/lib/invariant');
+const warning = require('fbjs/lib/warning');
 
 const {
   CONDITION,

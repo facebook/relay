@@ -22,7 +22,7 @@ const defaultGetDataID = require('./defaultGetDataID');
 const hasOverlappingIDs = require('./hasOverlappingIDs');
 const invariant = require('invariant');
 const recycleNodesInto = require('../util/recycleNodesInto');
-const resolveImmediate = require('resolveImmediate');
+const resolveImmediate = require('fbjs/lib/resolveImmediate');
 
 const {createReaderSelector} = require('./RelayModernSelector');
 const {UNPUBLISH_RECORD_SENTINEL} = require('./RelayStoreUtils');

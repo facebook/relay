@@ -12,7 +12,7 @@
 
 const Profiler = require('./GraphQLCompilerProfiler');
 
-const invariant = require('invariant');
+const invariant = require('fbjs/lib/invariant');
 
 const {createUserError} = require('./RelayCompilerError');
 const {OrderedMap: ImmutableOrderedMap} = require('immutable');

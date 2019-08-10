@@ -16,7 +16,7 @@ const GraphQLSchemaUtils = require('../core/GraphQLSchemaUtils');
 const getLiteralArgumentValues = require('../core/getLiteralArgumentValues');
 const inferRootArgumentDefinitions = require('../core/inferRootArgumentDefinitions');
 const isEquivalentType = require('../core/isEquivalentType');
-const nullthrows = require('nullthrows');
+const nullthrows = require('fbjs/lib/nullthrows');
 
 const {
   createCombinedError,

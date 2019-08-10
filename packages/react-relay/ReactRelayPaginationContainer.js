@@ -14,11 +14,11 @@ const React = require('React');
 const ReactRelayContext = require('./ReactRelayContext');
 const ReactRelayQueryFetcher = require('./ReactRelayQueryFetcher');
 
-const areEqual = require('areEqual');
+const areEqual = require('fbjs/lib/areEqual');
 const buildReactRelayContainer = require('./buildReactRelayContainer');
-const forEachObject = require('forEachObject');
-const invariant = require('invariant');
-const warning = require('warning');
+const forEachObject = require('fbjs/lib/forEachObject');
+const invariant = require('fbjs/lib/invariant');
+const warning = require('fbjs/lib/warning');
 
 const {
   getComponentName,

@@ -10,7 +10,7 @@
 
 'use strict';
 
-const sprintf = require('sprintf');
+const sprintf = require('fbjs/lib/sprintf');
 
 /**
  * @internal

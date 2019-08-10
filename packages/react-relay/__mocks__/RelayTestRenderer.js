@@ -13,7 +13,7 @@
 const React = require('React');
 const ReactRelayContext = require('../ReactRelayContext');
 
-const invariant = require('invariant');
+const invariant = require('fbjs/lib/invariant');
 
 const {createOperationDescriptor, getRequest} = require('relay-runtime');
 

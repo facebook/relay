@@ -12,7 +12,7 @@
 
 const IRTransformer = require('../core/GraphQLIRTransformer');
 
-const invariant = require('invariant');
+const invariant = require('fbjs/lib/invariant');
 
 const {GraphQLString} = require('graphql');
 const {getRelayHandleKey} = require('relay-runtime');

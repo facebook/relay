@@ -50,8 +50,8 @@ const {
   GraphQLNonNull,
   GraphQLString,
 } = require('graphql');
-const invariant = require('invariant');
-const nullthrows = require('nullthrows');
+const invariant = require('fbjs/lib/invariant');
+const nullthrows = require('fbjs/lib/nullthrows');
 
 export type State = {|
   ...TypeGeneratorOptions,

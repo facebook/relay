@@ -12,7 +12,7 @@
 
 const GraphQLIRTransformer = require('../core/GraphQLIRTransformer');
 
-const invariant = require('invariant');
+const invariant = require('fbjs/lib/invariant');
 
 import type GraphQLCompilerContext from '../core/GraphQLCompilerContext';
 import type {Condition, Fragment, Node, Selection} from '../core/GraphQLIR';

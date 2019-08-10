@@ -10,7 +10,7 @@
 
 'use strict';
 
-const invariant = require('invariant');
+const invariant = require('fbjs/lib/invariant');
 
 const {generateClientID} = require('../store/ClientID');
 const {getStableStorageKey} = require('../store/RelayStoreUtils');

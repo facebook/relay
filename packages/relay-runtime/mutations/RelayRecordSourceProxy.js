@@ -14,7 +14,7 @@ const RelayModernRecord = require('../store/RelayModernRecord');
 const RelayRecordProxy = require('./RelayRecordProxy');
 const RelayRecordSourceSelectorProxy = require('./RelayRecordSourceSelectorProxy');
 
-const invariant = require('invariant');
+const invariant = require('fbjs/lib/invariant');
 const normalizeRelayPayload = require('../store/normalizeRelayPayload');
 
 const {EXISTENT, NONEXISTENT} = require('../store/RelayRecordState');

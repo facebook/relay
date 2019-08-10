@@ -12,7 +12,7 @@
 
 const RelayModernFragmentSpecResolver = require('./RelayModernFragmentSpecResolver');
 
-const warning = require('warning');
+const warning = require('fbjs/lib/warning');
 
 import type {
   FragmentMap,

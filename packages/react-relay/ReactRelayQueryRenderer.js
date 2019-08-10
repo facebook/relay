@@ -14,7 +14,7 @@ const React = require('React');
 const ReactRelayContext = require('./ReactRelayContext');
 const ReactRelayQueryFetcher = require('./ReactRelayQueryFetcher');
 
-const areEqual = require('areEqual');
+const areEqual = require('fbjs/lib/areEqual');
 
 const {
   createOperationDescriptor,

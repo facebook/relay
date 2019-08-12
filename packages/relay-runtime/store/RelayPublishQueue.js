@@ -37,7 +37,7 @@ import type {
   StoreUpdater,
 } from './RelayStoreTypes';
 
-type PendingCommit = PendingRelayPayload | PendingRecordSource;
+type PendingCommit = PendingRelayPayload | PendingRecordSource | PendingUpdater;
 type PendingRelayPayload = {|
   +kind: 'payload',
   +operation: OperationDescriptor,
@@ -47,6 +47,10 @@ type PendingRelayPayload = {|
 type PendingRecordSource = {|
   +kind: 'source',
   +source: RecordSource,
+|};
+type PendingUpdater = {|
+  +kind: 'updater',
+  +updater: StoreUpdater,
 |};
 
 /**
@@ -73,9 +77,6 @@ class RelayPublishQueue implements PublishQueue {
   _pendingBackupRebase: boolean;
   // Payloads to apply or Sources to publish to the store with the next `run()`.
   _pendingData: Set<PendingCommit>;
-  // Updaters to apply with the next `run()`. These mutate the store and should
-  // typically only mutate client schema extensions.
-  _pendingUpdaters: Set<StoreUpdater>;
   // Optimistic updaters to add with the next `run()`.
   _pendingOptimisticUpdates: Set<OptimisticUpdate>;
   // Optimistic updaters that are already added and might be rerun in order to
@@ -92,7 +93,6 @@ class RelayPublishQueue implements PublishQueue {
     this._backup = RelayRecordSource.create();
     this._handlerProvider = handlerProvider || null;
     this._pendingBackupRebase = false;
-    this._pendingUpdaters = new Set();
     this._pendingData = new Set();
     this._pendingOptimisticUpdates = new Set();
     this._store = store;
@@ -159,7 +159,10 @@ class RelayPublishQueue implements PublishQueue {
    */
   commitUpdate(updater: StoreUpdater): void {
     this._pendingBackupRebase = true;
-    this._pendingUpdaters.add(updater);
+    this._pendingData.add({
+      kind: 'updater',
+      updater,
+    });
   }
 
   /**
@@ -181,7 +184,6 @@ class RelayPublishQueue implements PublishQueue {
       this._backup = RelayRecordSource.create();
     }
     this._commitData();
-    this._commitUpdaters();
     this._applyUpdates();
     this._pendingBackupRebase = false;
     if (this._appliedOptimisticUpdates.size > 0) {
@@ -244,35 +246,28 @@ class RelayPublishQueue implements PublishQueue {
             data.payload.connectionEvents,
           );
         }
-      } else {
+      } else if (data.kind === 'source') {
         const source = data.source;
         this._store.publish(source);
+      } else {
+        const updater = data.updater;
+        const sink = RelayRecordSource.create();
+        const mutator = new RelayRecordSourceMutator(
+          this._store.getSource(),
+          sink,
+        );
+        const store = new RelayRecordSourceProxy(mutator, this._getDataID);
+        ErrorUtils.applyWithGuard(
+          updater,
+          null,
+          [store],
+          null,
+          'RelayPublishQueue:commitData',
+        );
+        this._store.publish(sink);
       }
     });
     this._pendingData.clear();
-  }
-
-  _commitUpdaters(): void {
-    if (!this._pendingUpdaters.size) {
-      return;
-    }
-    const sink = RelayRecordSource.create();
-    this._pendingUpdaters.forEach(updater => {
-      const mutator = new RelayRecordSourceMutator(
-        this._store.getSource(),
-        sink,
-      );
-      const store = new RelayRecordSourceProxy(mutator, this._getDataID);
-      ErrorUtils.applyWithGuard(
-        updater,
-        null,
-        [store],
-        null,
-        'RelayPublishQueue:commitUpdaters',
-      );
-    });
-    this._store.publish(sink);
-    this._pendingUpdaters.clear();
   }
 
   _applyUpdates(): void {

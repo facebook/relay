@@ -377,7 +377,7 @@ class Executor {
           fieldPayloads: null,
           incrementalPlaceholders: null,
           moduleImportPayloads: null,
-          source: new RelayRecordSource(),
+          source: RelayRecordSource.create(),
         },
         updater: updater,
       });

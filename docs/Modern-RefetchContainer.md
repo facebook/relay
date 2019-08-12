@@ -121,12 +121,14 @@ class TodoItem extends React.Component {
 
 export default createRefetchContainer(
   TodoItem,
-  graphql`
-    fragment TodoItem_item on Todo {
-      text
-      isComplete
-    }
-  `,
+  {
+    item: graphql`
+      fragment TodoItem_item on Todo {
+        text
+        isComplete
+      }
+    `
+  },
   graphql`
     # Refetch query to be fetched upon calling `refetch`.
     # Notice that we re-use our fragment and the shape of this query matches our fragment spec.

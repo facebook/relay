@@ -1,5 +1,6 @@
 ---
-id: graphql-in-relay title: GraphQL in Relay
+id: graphql-in-relay
+title: GraphQL in Relay
 ---
 
 Table of Contents:
@@ -258,7 +259,7 @@ import type {DictionaryComponent_word} from './__generated__/DictionaryComponent
 
 The Relay Compiler fully supports client-side schema extensions, which allows you to extend the server schema and define additional GraphQL types on the client. Relay expects the client schema to be located in your `--src` directory.
 
-For example, let's create `./src/clientSchema.graphql` and define a new GraphQL type. Let's call it `Setting`:
+For example, let's create `./src/clientSchema.graphql` and define a new GraphQL type called `Setting`:
 
 ```graphql
 type Setting {

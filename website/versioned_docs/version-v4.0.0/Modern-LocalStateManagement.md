@@ -106,7 +106,7 @@ To build upon the previous example, let's try creating, updating and deleting a 
 ```javascript
 import {commitLocalUpdate} from 'react-relay';
 
-let tempId = 0;
+let tempID = 0;
 
 function createUserNote() {
   commitLocalUpdate(environment, store => {
@@ -114,10 +114,17 @@ function createUserNote() {
     const userNoteRecords = user.getLinkedRecords('notes') || [];
 
     // Create a unique ID.
-    const dataID = `client:Note:${tempId++}`;
+    const dataID = `client:Note:${tempID++}`;
 
     //Create a new note record.
     const newNoteRecord = store.create(dataID, 'Note');
+
+    // Tell garbage collection to retain the record.
+    environment.retain({
+      dataID,
+      variables: {},
+      node: { selections: [] }
+    });
 
     // Add the record to the users list of notes.
     user.setLinkedRecords([...userNoteRecords, newNoteRecord], 'notes');
@@ -134,8 +141,8 @@ function updateUserNote(dataID, body, title) {
   commitLocalUpdate(environment, store => {
     const note = store.get(dataID);
 
-    note.setValue(body, "body");
-    note.setValue(title, "title")
+    note.setValue(body, 'body');
+    note.setValue(title, 'title')
   });
 }
 ```
@@ -173,7 +180,7 @@ import {commitLocalUpdate} from 'react-relay';
 commitLocalUpdate(environment, store => {
   const user = store.getRoot().getLinkedRecord('viewer');
 
-  // initialize user notes to an empty array
-  user.setLinkedRecords([], "notes");
+  // initialize user notes to an empty array.
+  user.setLinkedRecords([], 'notes');
 });
 ```

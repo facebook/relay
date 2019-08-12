@@ -258,9 +258,9 @@ import type {DictionaryComponent_word} from './__generated__/DictionaryComponent
 
 ### Client schema extensions
 
-The Relay Compiler fully supports client-side schema extensions, which allows you to extend the server schema and define additional GraphQL types on the client. Relay expects the client schema to be located in your `--src` directory.
+The Relay Compiler fully supports client-side schema extensions, which allows you to extend the server schema by defining additional GraphQL types and fields on the client. Relay expects the client schema to be located in your `--src` directory.
 
-For example, let's create `./src/clientSchema.graphql` and define a new GraphQL type. Let's call it `Setting`:
+For example, let's create `./src/clientSchema.graphql` and define a new type called `Setting`:
 
 ```graphql
 type Setting {
@@ -289,7 +289,7 @@ extend type Root {
 }
 ```
 
-Any fields specified in the client schema, can be fetched as client-side data from the [Relay Store](./relay-store) by using [a QueryRenderer](./query-renderer).
+Any fields specified in the client schema, can be fetched from the [Relay Store](./relay-store), by requesting it in a query.
 
 For more details, refer to the [Local state management section](./local-state-management.html).
 

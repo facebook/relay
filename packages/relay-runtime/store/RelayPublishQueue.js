@@ -287,77 +287,49 @@ class RelayPublishQueue implements PublishQueue {
         this._handlerProvider,
       );
 
-      // rerun all updaters in case we are running a rebase
-      if (this._pendingBackupRebase && this._appliedOptimisticUpdates.size) {
-        this._appliedOptimisticUpdates.forEach(optimisticUpdate => {
-          if (optimisticUpdate.storeUpdater) {
-            const {storeUpdater} = optimisticUpdate;
+      const processUpdate = optimisticUpdate => {
+        if (optimisticUpdate.storeUpdater) {
+          const {storeUpdater} = optimisticUpdate;
+          ErrorUtils.applyWithGuard(
+            storeUpdater,
+            null,
+            [store],
+            null,
+            'RelayPublishQueue:applyUpdates',
+          );
+        } else {
+          const {operation, payload, updater} = optimisticUpdate;
+          const {source, fieldPayloads} = payload;
+          const selectorStore = new RelayRecordSourceSelectorProxy(
+            store,
+            operation.fragment,
+          );
+          let selectorData;
+          if (source) {
+            store.publishSource(source, fieldPayloads);
+            selectorData = lookupSelector(source, operation.fragment);
+          }
+          if (updater) {
             ErrorUtils.applyWithGuard(
-              storeUpdater,
+              updater,
               null,
-              [store],
+              [selectorStore, selectorData],
               null,
               'RelayPublishQueue:applyUpdates',
             );
-          } else {
-            const {operation, payload, updater} = optimisticUpdate;
-            const {source, fieldPayloads} = payload;
-            const selectorStore = new RelayRecordSourceSelectorProxy(
-              store,
-              operation.fragment,
-            );
-            let selectorData;
-            if (source) {
-              store.publishSource(source, fieldPayloads);
-              selectorData = lookupSelector(source, operation.fragment);
-            }
-            if (updater) {
-              ErrorUtils.applyWithGuard(
-                updater,
-                null,
-                [selectorStore, selectorData],
-                null,
-                'RelayPublishQueue:applyUpdates',
-              );
-            }
           }
-        });
+        }
+      };
+
+      // rerun all updaters in case we are running a rebase
+      if (this._pendingBackupRebase && this._appliedOptimisticUpdates.size) {
+        this._appliedOptimisticUpdates.forEach(processUpdate);
       }
 
       // apply any new updaters
       if (this._pendingOptimisticUpdates.size) {
         this._pendingOptimisticUpdates.forEach(optimisticUpdate => {
-          if (optimisticUpdate.storeUpdater) {
-            const {storeUpdater} = optimisticUpdate;
-            ErrorUtils.applyWithGuard(
-              storeUpdater,
-              null,
-              [store],
-              null,
-              'RelayPublishQueue:applyUpdates',
-            );
-          } else {
-            const {operation, payload, updater} = optimisticUpdate;
-            const {source, fieldPayloads} = payload;
-            const selectorStore = new RelayRecordSourceSelectorProxy(
-              store,
-              operation.fragment,
-            );
-            let selectorData;
-            if (source) {
-              store.publishSource(source, fieldPayloads);
-              selectorData = lookupSelector(source, operation.fragment);
-            }
-            if (updater) {
-              ErrorUtils.applyWithGuard(
-                updater,
-                null,
-                [selectorStore, selectorData],
-                null,
-                'RelayPublishQueue:applyUpdates',
-              );
-            }
-          }
+          processUpdate(optimisticUpdate);
           this._appliedOptimisticUpdates.add(optimisticUpdate);
         });
         this._pendingOptimisticUpdates.clear();

@@ -118,6 +118,13 @@ function createUserNote() {
     //Create a new note record.
     const newNoteRecord = store.create(dataID, 'Note');
 
+    // Tell garbage collection to retain the record
+    environment.retain({
+      dataID,
+      variables: {},
+      node: { selections: [] }
+    });
+
     // Add the record to the users list of notes.
     user.setLinkedRecords([...userNoteRecords, newNoteRecord], 'notes');
   });

@@ -52,6 +52,7 @@ export type {
  * The public interface to React Relay.
  */
 module.exports = {
+  ConnectionHandler: RelayRuntime.ConnectionHandler,
   QueryRenderer: ReactRelayQueryRenderer,
   LocalQueryRenderer: ReactRelayLocalQueryRenderer,
 

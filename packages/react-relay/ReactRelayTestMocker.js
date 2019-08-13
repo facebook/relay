@@ -67,12 +67,16 @@ class ReactRelayTestMocker {
     } else {
       warning(
         false,
-        'Netork mocking is currently only supported in Relay Modern. ' +
+        'Network mocking is currently only supported in Relay Modern. ' +
           'You will not be able to resolve requests made with Relay ' +
           'Classic environments.',
       );
     }
     this._environment = env;
+  }
+
+  static mockOutEnvironment(env: IEnvironment): ReactRelayTestMocker {
+    return new ReactRelayTestMocker(env);
   }
 
   /**

@@ -61,7 +61,6 @@ export type EnvironmentConfig = {|
   +scheduler?: ?TaskScheduler,
   +store: Store,
   +missingFieldHandlers?: ?$ReadOnlyArray<MissingFieldHandler>,
-  +publishQueue?: ?PublishQueue,
   +operationTracker?: ?OperationTracker,
   /*
     This method is likely to change in future versions, use at your own risk.
@@ -103,9 +102,11 @@ class RelayModernEnvironment implements Environment {
     this._operationLoader = operationLoader;
     this._network = config.network;
     this._getDataID = config.UNSTABLE_DO_NOT_USE_getDataID ?? defaultGetDataID;
-    this._publishQueue =
-      config.publishQueue ??
-      new RelayPublishQueue(config.store, handlerProvider, this._getDataID);
+    this._publishQueue = new RelayPublishQueue(
+      config.store,
+      handlerProvider,
+      this._getDataID,
+    );
     this._scheduler = config.scheduler ?? null;
     this._store = config.store;
 

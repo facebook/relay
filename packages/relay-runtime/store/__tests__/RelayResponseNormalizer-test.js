@@ -2394,7 +2394,7 @@ const {ROOT_ID, ROOT_TYPE} = require('../RelayStoreUtils');
           defaultOptions,
         );
       }).toWarn([
-        'RelayResponseNormalizer(): Payload did not contain a value for ' +
+        'RelayResponseNormalizer: Payload did not contain a value for ' +
           'field `%s: %s`. Check that you are parsing with the same query that ' +
           'was used to fetch the payload.',
         'firstName',
@@ -2489,7 +2489,7 @@ const {ROOT_ID, ROOT_TYPE} = require('../RelayStoreUtils');
         );
       }).toWarn([
         'RelayResponseNormalizer: Invalid record `%s`. Expected %s to be ' +
-          'be consistent, but the record was assigned conflicting types `%s` ' +
+          'consistent, but the record was assigned conflicting types `%s` ' +
           'and `%s`. The GraphQL server likely violated the globally unique ' +
           'id requirement by returning the same id for different objects.',
         '1',
@@ -2506,7 +2506,7 @@ const {ROOT_ID, ROOT_TYPE} = require('../RelayStoreUtils');
         );
       }).toWarn([
         'RelayResponseNormalizer: Invalid record `%s`. Expected %s to be ' +
-          'be consistent, but the record was assigned conflicting types `%s` ' +
+          'consistent, but the record was assigned conflicting types `%s` ' +
           'and `%s`. The GraphQL server likely violated the globally unique ' +
           'id requirement by returning the same id for different objects.',
         '1',

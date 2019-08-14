@@ -455,7 +455,7 @@ class RelayResponseNormalizer {
               (parent.kind === LINKED_FIELD && parent.concreteType == null)
               ? true
               : Object.prototype.hasOwnProperty.call(data, responseKey),
-            'RelayResponseNormalizer(): Payload did not contain a value ' +
+            'RelayResponseNormalizer: Payload did not contain a value ' +
               'for field `%s: %s`. Check that you are parsing with the same ' +
               'query that was used to fetch the payload.',
             responseKey,
@@ -624,7 +624,7 @@ class RelayResponseNormalizer {
       isClientID(RelayModernRecord.getDataID(record)) ||
         RelayModernRecord.getType(record) === typeName,
       'RelayResponseNormalizer: Invalid record `%s`. Expected %s to be ' +
-        'be consistent, but the record was assigned conflicting types `%s` ' +
+        'consistent, but the record was assigned conflicting types `%s` ' +
         'and `%s`. The GraphQL server likely violated the globally unique ' +
         'id requirement by returning the same id for different objects.',
       RelayModernRecord.getDataID(record),

@@ -81,7 +81,6 @@ mutation SimpleMutation @relay_test_operation {
               }
             }
           },
-          "metadata": null,
           "name": "input",
           "value": {
             "kind": "Literal",
@@ -98,7 +97,6 @@ mutation SimpleMutation @relay_test_operation {
                 }
               }
             },
-            "metadata": null,
             "value": null
           },
           "type": "CommentCreateInput"
@@ -301,7 +299,6 @@ query QueryWitEnums @relay_test_operation {
               }
             }
           },
-          "metadata": null,
           "name": "id",
           "value": {
             "kind": "Literal",
@@ -318,7 +315,6 @@ query QueryWitEnums @relay_test_operation {
                 }
               }
             },
-            "metadata": null,
             "value": "test-id"
           },
           "type": "ID"
@@ -678,7 +674,6 @@ fragment UserProfileFragment on User
               }
             }
           },
-          "metadata": null,
           "name": "scale",
           "value": {
             "kind": "Literal",
@@ -695,7 +690,6 @@ fragment UserProfileFragment on User
                 }
               }
             },
-            "metadata": null,
             "value": 1.5
           },
           "type": "Float"
@@ -804,7 +798,6 @@ fragment UserProfileFragment on User
               }
             }
           },
-          "metadata": null,
           "name": "scale",
           "value": {
             "kind": "Variable",
@@ -821,7 +814,6 @@ fragment UserProfileFragment on User
                 }
               }
             },
-            "metadata": null,
             "variableName": "scale",
             "type": "Float"
           },
@@ -910,7 +902,6 @@ fragment UserProfileFragment on User
           }
         }
       },
-      "metadata": null,
       "name": "scale",
       "type": "Float",
       "defaultValue": null
@@ -992,7 +983,6 @@ query SimpleQuery @relay_test_operation {
               }
             }
           },
-          "metadata": null,
           "name": "id",
           "value": {
             "kind": "Literal",
@@ -1009,7 +999,6 @@ query SimpleQuery @relay_test_operation {
                 }
               }
             },
-            "metadata": null,
             "value": "test-id"
           },
           "type": "ID"
@@ -1207,7 +1196,6 @@ query SimpleQuery @relay_test_operation {
               }
             }
           },
-          "metadata": null,
           "name": "id",
           "value": {
             "kind": "Literal",
@@ -1224,7 +1212,6 @@ query SimpleQuery @relay_test_operation {
                 }
               }
             },
-            "metadata": null,
             "value": "test-id"
           },
           "type": "ID"
@@ -1326,7 +1313,6 @@ query SimpleQuery @relay_test_operation {
                     }
                   }
                 },
-                "metadata": null,
                 "value": true
               },
               "loc": {
@@ -1342,7 +1328,6 @@ query SimpleQuery @relay_test_operation {
                   }
                 }
               },
-              "metadata": null,
               "passingValue": true,
               "selections": [
                 {
@@ -1529,7 +1514,6 @@ subscription SimpleMutation @relay_test_operation {
               }
             }
           },
-          "metadata": null,
           "name": "input",
           "value": {
             "kind": "Literal",
@@ -1546,7 +1530,6 @@ subscription SimpleMutation @relay_test_operation {
                 }
               }
             },
-            "metadata": null,
             "value": null
           },
           "type": "CommentCreateSubscriptionInput"

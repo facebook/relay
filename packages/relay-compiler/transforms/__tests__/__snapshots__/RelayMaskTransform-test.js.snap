@@ -234,7 +234,6 @@ fragment NullableIDFirstFragment on Query {
         }
       }
     },
-    "metadata": null,
     "name": "id",
     "type": "ID!"
   }
@@ -268,7 +267,6 @@ fragment NonNullableIDFirstFragment on Query {
         }
       }
     },
-    "metadata": null,
     "name": "id",
     "type": "ID!"
   }
@@ -295,7 +293,6 @@ fragment NullableIDFragment on Query {
         }
       }
     },
-    "metadata": null,
     "name": "id",
     "type": "ID"
   }
@@ -322,7 +319,6 @@ fragment NonNullIDFragment on Query {
         }
       }
     },
-    "metadata": null,
     "name": "id",
     "type": "ID!"
   }

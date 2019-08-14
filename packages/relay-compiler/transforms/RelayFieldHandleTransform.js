@@ -57,7 +57,6 @@ function visitField<F: LinkedField | ScalarField>(field: F): F {
     args.push({
       kind: 'Argument',
       loc: handle.dynamicKey.loc,
-      metadata: null,
       name: '__dynamicKey',
       type: GraphQLString,
       value: handle.dynamicKey,

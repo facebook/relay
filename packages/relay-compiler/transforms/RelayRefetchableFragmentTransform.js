@@ -360,7 +360,6 @@ function buildOperationArgumentDefinitions(
         type: argDef.type,
         defaultValue: null,
         loc: argDef.loc,
-        metadata: null,
       };
     }
   });
@@ -375,13 +374,11 @@ function buildFragmentSpread(fragment: Fragment): FragmentSpread {
     args.push({
       kind: 'Argument',
       loc: {kind: 'Derived', source: argDef.loc},
-      metadata: null,
       name: argDef.name,
       type: argDef.type,
       value: {
         kind: 'Variable',
         loc: {kind: 'Derived', source: argDef.loc},
-        metadata: null,
         variableName: argDef.name,
         type: argDef.type,
       },
@@ -536,7 +533,6 @@ function buildRefetchOperationOnNodeType(
       defaultValue: null,
       kind: 'LocalArgumentDefinition',
       loc: {kind: 'Derived', source: fragment.loc},
-      metadata: null,
       name: 'id',
       type: idArgType,
     },
@@ -558,13 +554,11 @@ function buildRefetchOperationOnNodeType(
             {
               kind: 'Argument',
               loc: {kind: 'Derived', source: fragment.loc},
-              metadata: null,
               name: 'id',
               type: idArgType,
               value: {
                 kind: 'Variable',
                 loc: {kind: 'Derived', source: fragment.loc},
-                metadata: null,
                 variableName: 'id',
                 type: idArgType,
               },

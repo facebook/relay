@@ -274,11 +274,9 @@ function visitLinkedField(node: LinkedField, state: State): LinkedField {
         value: {
           kind: 'Literal',
           loc: node.loc,
-          metadata: {},
           value: Array.from(seenTypes.keys()).map(type => type.name),
         },
         loc: node.loc,
-        metadata: {},
       },
     ],
     directives: [],
@@ -385,11 +383,9 @@ function visitFragmentSpread(
         value: {
           kind: 'Literal',
           loc: moduleDirective.args[0]?.loc ?? moduleDirective.loc,
-          metadata: {},
           value: moduleName,
         },
         loc: moduleDirective.loc,
-        metadata: {},
       },
       jsFieldIdArg != null
         ? {
@@ -399,11 +395,9 @@ function visitFragmentSpread(
             value: {
               kind: 'Literal',
               loc: moduleDirective.args[0]?.loc ?? moduleDirective.loc,
-              metadata: {},
               value: moduleId,
             },
             loc: moduleDirective.loc,
-            metadata: {},
           }
         : null,
     ].filter(Boolean),
@@ -426,11 +420,9 @@ function visitFragmentSpread(
         value: {
           kind: 'Literal',
           loc: moduleDirective.loc,
-          metadata: {},
           value: normalizationName,
         },
         loc: moduleDirective.loc,
-        metadata: {},
       },
       jsFieldIdArg != null
         ? {
@@ -440,11 +432,9 @@ function visitFragmentSpread(
             value: {
               kind: 'Literal',
               loc: moduleDirective.args[0]?.loc ?? moduleDirective.loc,
-              metadata: {},
               value: moduleId,
             },
             loc: moduleDirective.loc,
-            metadata: {},
           }
         : null,
     ].filter(Boolean),

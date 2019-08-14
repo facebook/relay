@@ -86,7 +86,6 @@ function getRootScope(
     scope[definition.name] = ({
       kind: 'Variable',
       loc: definition.loc,
-      metadata: null,
       variableName: definition.name,
       type: definition.type,
     }: Variable);
@@ -166,7 +165,6 @@ function getFragmentScope(
       fragmentScope[definition.name] = ({
         kind: 'Variable',
         loc: definition.loc,
-        metadata: null,
         variableName: definition.name,
         type: definition.type,
       }: Variable);

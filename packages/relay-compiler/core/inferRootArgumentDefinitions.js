@@ -125,7 +125,6 @@ function transformRoot(
         defaultValue: localDefinition?.defaultValue ?? null,
         kind: 'LocalArgumentDefinition',
         loc: argDef.loc,
-        metadata: null,
         name: argDef.name,
         type: localDefinition?.type ?? argDef.type,
       };
@@ -191,7 +190,6 @@ function visit(
           argumentDefinitions.set(arg.value.variableName, {
             kind: 'RootArgumentDefinition',
             loc: {kind: 'Derived', source: arg.loc},
-            metadata: null,
             name: arg.value.variableName,
             type: argDef.type,
           });
@@ -223,7 +221,6 @@ function visit(
         argumentDefinitions.set(variable.variableName, {
           kind: 'RootArgumentDefinition',
           loc: {kind: 'Derived', source: argument.loc},
-          metadata: null,
           name: variable.variableName,
           type,
         });
@@ -241,7 +238,6 @@ function visit(
         argumentDefinitions.set(variable.variableName, {
           kind: 'RootArgumentDefinition',
           loc: {kind: 'Derived', source: variable.loc},
-          metadata: null,
           name: variable.variableName,
           type,
         });
@@ -258,7 +254,6 @@ function visit(
         argumentDefinitions.set(variable.variableName, {
           kind: 'RootArgumentDefinition',
           loc: {kind: 'Derived', source: variable.loc},
-          metadata: null,
           name: variable.variableName,
           type,
         });
@@ -275,7 +270,6 @@ function visit(
         argumentDefinitions.set(variable.variableName, {
           kind: 'RootArgumentDefinition',
           loc: {kind: 'Derived', source: variable.loc},
-          metadata: null,
           name: variable.variableName,
           type,
         });
@@ -296,7 +290,6 @@ function visit(
           argumentDefinitions.set(variable.variableName, {
             kind: 'RootArgumentDefinition',
             loc: {kind: 'Derived', source: variable.loc},
-            metadata: null,
             name: variable.variableName,
             type,
           });

@@ -46,7 +46,6 @@ export type Location =
 export type Argument = {|
   +kind: 'Argument',
   +loc: Location,
-  +metadata: Metadata,
   +name: string,
   +type: ?GraphQLInputType,
   +value: ArgumentValue,
@@ -62,7 +61,6 @@ export type Condition = {|
   +kind: 'Condition',
   +condition: Literal | Variable,
   +loc: Location,
-  +metadata: Metadata,
   +passingValue: boolean,
   +selections: $ReadOnlyArray<Selection>,
 |};
@@ -71,7 +69,6 @@ export type Directive = {|
   +args: $ReadOnlyArray<Argument>,
   +kind: 'Directive',
   +loc: Location,
-  +metadata: Metadata,
   +name: string,
 |};
 
@@ -153,7 +150,6 @@ export type IR =
 export type RootArgumentDefinition = {|
   +kind: 'RootArgumentDefinition',
   +loc: Location,
-  +metadata: Metadata,
   +name: string,
   +type: GraphQLInputType,
 |};
@@ -213,13 +209,11 @@ export type ListValue = {|
   +kind: 'ListValue',
   +items: $ReadOnlyArray<ArgumentValue>,
   +loc: Location,
-  +metadata: Metadata,
 |};
 
 export type Literal = {|
   +kind: 'Literal',
   +loc: Location,
-  +metadata: Metadata,
   +value: mixed,
 |};
 
@@ -227,7 +221,6 @@ export type LocalArgumentDefinition = {|
   +defaultValue: mixed,
   +kind: 'LocalArgumentDefinition',
   +loc: Location,
-  +metadata: Metadata,
   +name: string,
   +type: GraphQLInputType,
 |};
@@ -267,7 +260,6 @@ export type Node =
 export type ObjectFieldValue = {|
   +kind: 'ObjectFieldValue',
   +loc: Location,
-  +metadata: Metadata,
   +name: string,
   +value: ArgumentValue,
 |};
@@ -276,7 +268,6 @@ export type ObjectValue = {|
   +kind: 'ObjectValue',
   +fields: $ReadOnlyArray<ObjectFieldValue>,
   +loc: Location,
-  +metadata: Metadata,
 |};
 
 export type Request = {|
@@ -347,7 +338,6 @@ export type SplitOperation = {|
 export type Variable = {|
   +kind: 'Variable',
   +loc: Location,
-  +metadata: Metadata,
   +variableName: string,
   +type: ?GraphQLInputType,
 |};

@@ -448,20 +448,17 @@ function transformConnectionSelections(
         {
           kind: 'Argument',
           loc: derivedDirectiveLocation,
-          metadata: null,
           name: 'label',
           type: GraphQLString,
           value: {
             kind: 'Literal',
             loc: derivedDirectiveLocation,
-            metadata: null,
             value: stream.label,
           },
         },
       ].filter(Boolean),
       kind: 'Directive',
       loc: derivedDirectiveLocation,
-      metadata: null,
       name: 'stream',
     };
     deferDirective = {
@@ -470,20 +467,17 @@ function transformConnectionSelections(
         {
           kind: 'Argument',
           loc: derivedDirectiveLocation,
-          metadata: null,
           name: 'label',
           type: GraphQLString,
           value: {
             kind: 'Literal',
             loc: derivedDirectiveLocation,
-            metadata: null,
             value: stream.label + '$' + PAGE_INFO,
           },
         },
       ].filter(Boolean),
       kind: 'Directive',
       loc: derivedDirectiveLocation,
-      metadata: null,
       name: 'defer',
     };
   }

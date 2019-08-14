@@ -165,7 +165,7 @@ class RelayModernStore implements Store {
       }
     });
     this._connectionSubscriptions.forEach(subscription => {
-      this._updateConnection(subscription);
+      this._updateConnection_UNSTABLE(subscription);
     });
     this._pendingConnectionEvents.forEach((newEvents, connectionID) => {
       const events = this._connectionEvents.get(connectionID);
@@ -175,6 +175,7 @@ class RelayModernStore implements Store {
         this._connectionEvents.set(connectionID, events.concat(newEvents));
       }
     });
+    this._pendingConnectionEvents.clear();
     this._updatedConnectionIDs = {};
     this._updatedRecordIDs = {};
     return updatedOwners;
@@ -239,20 +240,35 @@ class RelayModernStore implements Store {
       RelayFeatureFlags.ENABLE_CONNECTION_RESOLVERS,
       'RelayModernStore: Connection resolvers are not yet supported.',
     );
-    const {edgeField, id, resolver, variables} = connectionReference;
+    const {id, resolver} = connectionReference;
     const initialState: TState = resolver.initialize();
-    // todo: is this legit? only if we filter out fetch events whose type matches
     const events: ?$ReadOnlyArray<ConnectionInternalEvent> = this._connectionEvents.get(
       id,
     );
-    if (events == null) {
-      return {
-        id,
-        reference: connectionReference,
-        seenRecords: {},
-        state: initialState,
-      };
+    const initialSnapshot = {
+      edgeSnapshots: {},
+      id,
+      reference: connectionReference,
+      seenRecords: {},
+      state: initialState,
+    };
+    if (events == null || events.length === 0) {
+      return initialSnapshot;
     }
+    return this._reduceConnection_UNSTABLE(
+      connectionReference,
+      initialSnapshot,
+      events,
+    );
+  }
+
+  _reduceConnection_UNSTABLE<TEdge, TState>(
+    connectionReference: ConnectionReference<TEdge, TState>,
+    snapshot: ConnectionSnapshot<TEdge, TState>,
+    events: $ReadOnlyArray<ConnectionInternalEvent>,
+    hasStoreUpdates: boolean = false,
+  ): ConnectionSnapshot<TEdge, TState> {
+    const {edgeField, id, resolver, variables} = connectionReference;
     const fragment: ReaderFragment = {
       kind: 'Fragment',
       name: edgeField.name,
@@ -262,10 +278,43 @@ class RelayModernStore implements Store {
       selections: edgeField.selections,
     };
     const seenRecords = {};
+    const edgeSnapshots = {...snapshot.edgeSnapshots};
+    let initialState = snapshot.state;
+    if (hasStoreUpdates) {
+      const edgeData = {};
+      Object.keys(edgeSnapshots).forEach(edgeID => {
+        const prevSnapshot = edgeSnapshots[edgeID];
+        let nextSnapshot = RelayReader.read(
+          this._recordSource,
+          createReaderSelector(
+            fragment,
+            edgeID,
+            variables,
+            prevSnapshot.selector.owner,
+          ),
+        );
+        const data = recycleNodesInto(prevSnapshot.data, nextSnapshot.data);
+        nextSnapshot = {
+          ...nextSnapshot,
+          data,
+        };
+        if (data !== prevSnapshot.data) {
+          edgeData[edgeID] = data;
+          edgeSnapshots[edgeID] = nextSnapshot;
+        }
+      });
+      if (Object.keys(edgeData).length !== 0) {
+        initialState = resolver.reduce(initialState, {
+          kind: 'update',
+          edgeData,
+        });
+      }
+    }
     const state: TState = events.reduce(
       (prevState: TState, event: ConnectionInternalEvent) => {
         if (event.kind === 'fetch') {
-          const edges = event.edgeIDs.map(edgeID => {
+          const edgeData = {};
+          event.edgeIDs.forEach(edgeID => {
             if (edgeID == null) {
               return edgeID;
             }
@@ -274,12 +323,15 @@ class RelayModernStore implements Store {
               createReaderSelector(fragment, edgeID, variables, event.request),
             );
             Object.assign(seenRecords, edgeSnapshot.seenRecords);
-            return ((edgeSnapshot.data: $FlowFixMe): TEdge);
+            const itemData = ((edgeSnapshot.data: $FlowFixMe): ?TEdge);
+            edgeSnapshots[edgeID] = edgeSnapshot;
+            edgeData[edgeID] = itemData;
           });
           return resolver.reduce(prevState, {
             kind: 'fetch',
             args: event.args,
-            edges,
+            edgeIDs: event.edgeIDs,
+            edgeData,
             pageInfo: event.pageInfo,
           });
         } else if (event.kind === 'insert') {
@@ -293,10 +345,13 @@ class RelayModernStore implements Store {
             ),
           );
           Object.assign(seenRecords, edgeSnapshot.seenRecords);
+          const itemData = ((edgeSnapshot.data: $FlowFixMe): ?TEdge);
+          edgeSnapshots[event.edgeID] = edgeSnapshot;
           return resolver.reduce(prevState, {
-            kind: 'insert',
             args: event.args,
-            edge: ((edgeSnapshot.data: $FlowFixMe): TEdge),
+            edge: itemData,
+            edgeID: event.edgeID,
+            kind: 'insert',
           });
         } else {
           (event.kind: empty);
@@ -310,6 +365,7 @@ class RelayModernStore implements Store {
       initialState,
     );
     return {
+      edgeSnapshots,
       id,
       reference: connectionReference,
       seenRecords,
@@ -369,17 +425,26 @@ class RelayModernStore implements Store {
     }
   }
 
-  _updateConnection<TEdge, TState>(
+  _updateConnection_UNSTABLE<TEdge, TState>(
     connection: ConnectionSubscription<TEdge, TState>,
   ): void {
     const {snapshot, callback} = connection;
-    if (
-      !this._pendingConnectionEvents.has(snapshot.reference.id) &&
-      !hasOverlappingIDs(snapshot.seenRecords, this._updatedRecordIDs)
-    ) {
+    const hasStoreUpdates = hasOverlappingIDs(
+      snapshot.seenRecords,
+      this._updatedRecordIDs,
+    );
+    const pendingEvents = this._pendingConnectionEvents.get(
+      snapshot.reference.id,
+    );
+    if (pendingEvents == null && !hasStoreUpdates) {
       return;
     }
-    const nextSnapshot = this.lookupConnection_UNSTABLE(snapshot.reference);
+    const nextSnapshot = this._reduceConnection_UNSTABLE(
+      snapshot.reference,
+      snapshot,
+      pendingEvents ?? [],
+      hasStoreUpdates,
+    );
     const state = recycleNodesInto(snapshot.state, nextSnapshot.state);
     if (__DEV__) {
       deepFreeze(nextSnapshot);

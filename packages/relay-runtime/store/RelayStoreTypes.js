@@ -96,12 +96,13 @@ export type NormalizationSelector = {|
 /**
  * A representation of a selector and its results at a particular point in time.
  */
-export type Snapshot = {|
-  +data: ?SelectorData,
+export type TypedSnapshot<TData> = {|
+  +data: TData,
   +seenRecords: RecordMap,
   +isMissingData: boolean,
   +selector: SingularReaderSelector,
 |};
+export type Snapshot = TypedSnapshot<?SelectorData>;
 
 /**
  * An operation selector describes a specific instance of a GraphQL operation

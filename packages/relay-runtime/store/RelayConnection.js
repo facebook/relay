@@ -12,7 +12,11 @@
 
 import type {ReaderLinkedField} from '../util/ReaderNode';
 import type {DataID, Variables} from '../util/RelayRuntimeTypes';
-import type {RecordMap, RequestDescriptor} from './RelayStoreTypes';
+import type {
+  RecordMap,
+  RequestDescriptor,
+  TypedSnapshot,
+} from './RelayStoreTypes';
 
 export opaque type ConnectionID: string = string;
 
@@ -45,10 +49,12 @@ export type ConnectionEvent<TEdge> =
   | {|
       +kind: 'fetch',
       +args: Variables,
-      +edges: $ReadOnlyArray<?TEdge>,
+      +edgeIDs: $ReadOnlyArray<?DataID>,
+      +edgeData: {[DataID]: ?TEdge},
       +pageInfo: PageInfo,
     |}
-  | {|+kind: 'insert', args: Variables, edge: TEdge|};
+  | {|+kind: 'update', edgeData: {[DataID]: ?TEdge}|}
+  | {|+kind: 'insert', args: Variables, edge: ?TEdge, edgeID: DataID|};
 
 export interface ConnectionResolver<TEdge, TState> {
   initialize(): TState;
@@ -69,6 +75,7 @@ export type ConnectionReference<TEdge, TState> = {|
 |};
 
 export type ConnectionSnapshot<TEdge, TState> = {|
+  +edgeSnapshots: {[DataID]: TypedSnapshot<TEdge>},
   +id: ConnectionID,
   +reference: ConnectionReference<TEdge, TState>,
   +seenRecords: RecordMap,

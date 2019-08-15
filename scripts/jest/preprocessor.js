@@ -4,7 +4,6 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- *
  * @format
  */
 
@@ -15,7 +14,6 @@ const babel = require('@babel/core');
 const createCacheKeyFunction = require('fbjs-scripts/jest/createCacheKeyFunction');
 const getBabelOptions = require('../getBabelOptions');
 const path = require('path');
-const testSchemaPath = require('../../dist/relay-test-utils-internal/lib/RelayTestSchemaPath');
 
 const babelOptions = getBabelOptions({
   env: 'test',
@@ -48,7 +46,6 @@ module.exports = {
 
   getCacheKey: createCacheKeyFunction([
     __filename,
-    testSchemaPath,
     // We cannot have trailing commas in this file for node < 8
     // prettier-ignore
     path.join(

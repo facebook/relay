@@ -88,6 +88,10 @@ function transformGraphQLScalarType(type: GraphQLScalarType, state: State) {
       return t.numberTypeAnnotation();
     case 'Boolean':
       return t.booleanTypeAnnotation();
+    case 'JSDependency':
+      return exactObjectTypeAnnotation([
+        t.objectTypeProperty(t.identifier('__dr'), t.stringTypeAnnotation()),
+      ]);
     default:
       return customType == null
         ? t.anyTypeAnnotation()

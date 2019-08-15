@@ -37,7 +37,6 @@ const {
   transformInputType,
   transformScalarType,
 } = require('./RelayFlowTypeTransformers');
-const {getModuleComponentKey, getModuleOperationKey} = require('relay-runtime');
 
 import type {IRTransform} from '../../core/GraphQLCompilerContext';
 import type {Fragment, Root, Directive, Metadata} from '../../core/GraphQLIR';
@@ -677,16 +676,10 @@ function createRawResponseTypeVisitor(state: State) {
         );
       },
       ModuleImport(node) {
-        return [
-          {
-            key: getModuleOperationKey(node.name),
-            value: t.mixedTypeAnnotation(),
-          },
-          {
-            key: getModuleComponentKey(node.name),
-            value: t.mixedTypeAnnotation(),
-          },
-        ];
+        return flattenArray(
+          /* $FlowFixMe: selections have already been transformed */
+          (node.selections: $ReadOnlyArray<$ReadOnlyArray<Selection>>),
+        );
       },
       FragmentSpread(node) {
         invariant(

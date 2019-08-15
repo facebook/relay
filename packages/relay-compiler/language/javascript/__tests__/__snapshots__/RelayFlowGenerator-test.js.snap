@@ -1453,12 +1453,30 @@ export type TestRawResponse = {|
     +id: ?string,
     +nameRenderer: ?({|
       +__typename: "PlainUserNameRenderer",
-      +__module_operation_PlainUserNameRenderer_name: mixed,
-      +__module_component_PlainUserNameRenderer_name: mixed,
+      +__module_operation_NameRendererFragment: ?{|
+        __dr: string
+      |},
+      +__module_component_NameRendererFragment: ?{|
+        __dr: string
+      |},
+      +plaintext: ?string,
+      +data: ?{|
+        +text: ?string,
+        +id: ?string,
+      |},
     |} | {|
       +__typename: "MarkdownUserNameRenderer",
-      +__module_operation_MarkdownUserNameRenderer_name: mixed,
-      +__module_component_MarkdownUserNameRenderer_name: mixed,
+      +__module_operation_NameRendererFragment: ?{|
+        __dr: string
+      |},
+      +__module_component_NameRendererFragment: ?{|
+        __dr: string
+      |},
+      +markdown: ?string,
+      +data: ?{|
+        +markup: ?string,
+        +id: ?string,
+      |},
     |} | {|
       +__typename: ?string
     |}),

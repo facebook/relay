@@ -22,8 +22,8 @@ const babelOptions = getBabelOptions({
   moduleMap: {
     '@babel/parser': '@babel/parser',
     immutable: 'immutable',
-    React: 'react',
-    ReactTestRenderer: 'react-test-renderer',
+    react: 'react',
+    'react-test-renderer': 'react-test-renderer',
   },
   plugins: [
     '@babel/plugin-transform-flow-strip-types',

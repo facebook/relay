@@ -11,7 +11,7 @@
 
 'use strict';
 
-const React = require('React');
+const React = require('react');
 // $FlowFixMe - untyped import
 const ReactTestRenderer = require('react-test-renderer');
 

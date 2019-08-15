@@ -43,7 +43,7 @@ extend type User {
 ## Querying local state
 
 Accessing local data is no different from querying your GraphQL server.  
-Here, we use a [QueryRenderer](./query-renderer) to get the current `User` via the `viewer` field, along with her name and the list of notes.
+Here, we use a [QueryRenderer](./query-renderer) to get the current `User` via the `viewer` field, along with their name and the list of notes.
 
 ```javascript
 // Example.js
@@ -126,7 +126,7 @@ function createUserNote() {
       node: { selections: [] }
     });
 
-    // Add the record to the users list of notes.
+    // Add the record to the user's list of notes.
     user.setLinkedRecords([...userNoteRecords, newNoteRecord], 'notes');
   });
 }

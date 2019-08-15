@@ -11,7 +11,7 @@
 
 'use strict';
 
-const React = require('React');
+const React = require('react');
 // $FlowFixMe - Types for react-test-renderer
 const ReactTestRenderer = require('react-test-renderer');
 const RelayTestUtils = require('relay-test-utils-internal');

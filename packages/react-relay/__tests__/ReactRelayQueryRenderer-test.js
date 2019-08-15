@@ -12,11 +12,11 @@
 
 jest.mock('scheduler', () => require('scheduler/unstable_mock'));
 
-const React = require('React');
+const React = require('react');
 const Scheduler = require('scheduler');
 const ReactRelayContext = require('../ReactRelayContext');
 const ReactRelayQueryRenderer = require('../ReactRelayQueryRenderer');
-const ReactTestRenderer = require('ReactTestRenderer');
+const ReactTestRenderer = require('react-test-renderer');
 
 const readContext = require('../readContext');
 

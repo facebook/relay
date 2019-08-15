@@ -10,7 +10,7 @@
 
 'use strict';
 
-const React = require('React');
+const React = require('react');
 
 const areEqual = require('areEqual');
 const buildReactRelayContainer = require('./buildReactRelayContainer');

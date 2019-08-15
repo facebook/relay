@@ -625,12 +625,6 @@ function selectionsToRawResponseBabel(
 // Visitor for generating raw reponse type
 function createRawResponseTypeVisitor(state: State) {
   const visitor = {
-    enter: {
-      ClientExtension(node) {
-        // client fields are not supposed to be in the response
-        return null;
-      },
-    },
     leave: {
       Root(node) {
         return exportType(
@@ -663,6 +657,15 @@ function createRawResponseTypeVisitor(state: State) {
       },
       ConnectionField: visitConnectionField,
       LinkedField: visitLinkedField,
+      ClientExtension(node) {
+        return flattenArray(
+          /* $FlowFixMe: selections have already been transformed */
+          (node.selections: $ReadOnlyArray<$ReadOnlyArray<Selection>>),
+        ).map(sel => ({
+          ...sel,
+          conditional: true,
+        }));
+      },
       Defer(node) {
         return flattenArray(
           /* $FlowFixMe: selections have already been transformed */

@@ -787,7 +787,10 @@ export type TestResponse = {|
 export type TestRawResponse = {|
   +viewerNotificationsUpdateAllSeenState: ?{|
     +stories: ?$ReadOnlyArray<?{|
-      +id: ?string
+      +id: ?string,
+      +foos?: ?$ReadOnlyArray<?{|
+        +bar: ?string
+      |}>,
     |}>
   |}
 |};

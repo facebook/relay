@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @noformat
+ * @format
  */
 
 'use strict';
@@ -16,7 +16,7 @@ module.exports = function(options) {
       moduleMap: {},
       plugins: [],
     },
-    options
+    options,
   );
 
   const fbjsPreset = require('babel-preset-fbjs/configure')({
@@ -30,7 +30,7 @@ module.exports = function(options) {
   const moduleMap = Object.assign(
     {},
     require('fbjs/module-map'),
-    options.moduleMap
+    options.moduleMap,
   );
   // TODO: Delete `nullthrows` from fbjs.
   moduleMap.nullthrows = 'nullthrows';

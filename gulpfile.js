@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @noformat
+ * @format
  */
 
 'use strict';
@@ -119,10 +119,7 @@ const PRODUCTION_HEADER =
 
 const buildDist = function(filename, opts, isProduction) {
   const webpackOpts = {
-    externals: [
-      /^[-/a-zA-Z0-9]+$/,
-      /^@babel\/.+$/,
-    ],
+    externals: [/^[-/a-zA-Z0-9]+$/, /^@babel\/.+$/],
     target: opts.target,
     node: {
       fs: 'empty',
@@ -139,7 +136,7 @@ const buildDist = function(filename, opts, isProduction) {
     plugins: [
       new webpackStream.webpack.DefinePlugin({
         'process.env.NODE_ENV': JSON.stringify(
-          isProduction ? 'production' : 'development'
+          isProduction ? 'production' : 'development',
         ),
       }),
       new webpackStream.webpack.optimize.OccurrenceOrderPlugin(),
@@ -290,7 +287,7 @@ const builds = [
         noMinify: true, // Note: uglify can't yet handle modern JS
       },
     ],
-  }
+  },
 ];
 
 const modules = gulp.parallel(
@@ -298,18 +295,15 @@ const modules = gulp.parallel(
     build =>
       function modulesTask() {
         return gulp
-          .src(
-            INCLUDE_GLOBS,
-            {
-              cwd: path.join(PACKAGES, build.package),
-            }
-          )
+          .src(INCLUDE_GLOBS, {
+            cwd: path.join(PACKAGES, build.package),
+          })
           .pipe(once())
           .pipe(babel(babelOptions))
           .pipe(flatten())
           .pipe(gulp.dest(path.join(DIST, build.package, 'lib')));
-      }
-  )
+      },
+  ),
 );
 
 const copyFilesTasks = [];
@@ -336,7 +330,7 @@ builds.forEach(build => {
         })
         .pipe(once())
         .pipe(gulp.dest(path.join(DIST, build.package)));
-    }
+    },
   );
 });
 const copyFiles = gulp.parallel(copyFilesTasks);
@@ -354,13 +348,13 @@ const exportsFiles = gulp.series(
               PRODUCTION_HEADER +
                 `\nmodule.exports = require('./lib/${
                   build.exports[exportName]
-                }');\n`
-            )
+                }');\n`,
+            ),
           );
           done();
-        }
-    )
-  )
+        },
+    ),
+  ),
 );
 
 const binsTasks = [];
@@ -387,7 +381,7 @@ builds.forEach(build => {
       return gulp
         .src(path.join(DIST, build.package, 'lib', bundle.entry))
         .pipe(
-          buildDist(bundle.output + '.js', bundle, /* isProduction */ false)
+          buildDist(bundle.output + '.js', bundle, /* isProduction */ false),
         )
         .pipe(header(DEVELOPMENT_HEADER))
         .pipe(gulp.dest(path.join(DIST, build.package)));
@@ -403,7 +397,7 @@ builds.forEach(build => {
       return gulp
         .src(path.join(DIST, build.package, 'lib', bundle.entry))
         .pipe(
-          buildDist(bundle.output + '.min.js', bundle, /* isProduction */ true)
+          buildDist(bundle.output + '.min.js', bundle, /* isProduction */ true),
         )
         .pipe(header(PRODUCTION_HEADER))
         .pipe(gulp.dest(path.join(DIST, build.package)));
@@ -414,7 +408,9 @@ const bundlesMin = gulp.series(bundlesMinTasks);
 
 const clean = () => del(ONCE_FILE).then(() => del(DIST));
 const dist = gulp.series(exportsFiles, bins, bundles, bundlesMin);
-const watch = gulp.series(dist, () => gulp.watch(INCLUDE_GLOBS, { cwd: PACKAGES }, dist));
+const watch = gulp.series(dist, () =>
+  gulp.watch(INCLUDE_GLOBS, {cwd: PACKAGES}, dist),
+);
 
 exports.clean = clean;
 exports.dist = dist;

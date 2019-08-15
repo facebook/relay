@@ -10,8 +10,6 @@
 
 'use strict';
 
-const BabelPluginRelay = require('../../dist/babel-plugin-relay');
-
 const assign = require('object-assign');
 const babel = require('@babel/core');
 const createCacheKeyFunction = require('fbjs-scripts/jest/createCacheKeyFunction');
@@ -30,15 +28,6 @@ const babelOptions = getBabelOptions({
     ReactTestRenderer: 'react-test-renderer',
   },
   plugins: [
-    [
-      BabelPluginRelay,
-      {
-        compat: true,
-        haste: true,
-        substituteVariables: true,
-        schema: testSchemaPath,
-      },
-    ],
     '@babel/plugin-transform-flow-strip-types',
     '@babel/plugin-transform-runtime',
     '@babel/plugin-proposal-nullish-coalescing-operator',

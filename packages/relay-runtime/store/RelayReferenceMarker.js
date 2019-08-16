@@ -15,7 +15,7 @@ const RelayModernRecord = require('./RelayModernRecord');
 const RelayStoreUtils = require('./RelayStoreUtils');
 
 const cloneRelayHandleSourceField = require('./cloneRelayHandleSourceField');
-const invariant = require('invariant');
+const invariant = require('fbjs/lib/invariant');
 
 import type {
   NormalizationLinkedField,

@@ -13,7 +13,7 @@
 const IRTransformer = require('../core/GraphQLIRTransformer');
 
 const getLiteralArgumentValues = require('../core/getLiteralArgumentValues');
-const invariant = require('invariant');
+const invariant = require('fbjs/lib/invariant');
 
 import type CompilerContext from '../core/GraphQLCompilerContext';
 import type {Fragment, FragmentSpread} from '../core/GraphQLIR';

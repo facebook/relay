@@ -11,7 +11,7 @@
 
 'use strict';
 
-const warning = require('warning');
+const warning = require('fbjs/lib/warning');
 
 const {getRequest} = require('../../query/RelayModernGraphQLTag');
 const {

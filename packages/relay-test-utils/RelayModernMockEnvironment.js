@@ -12,8 +12,8 @@
 
 /* global jest */
 
-const areEqual = require('areEqual');
-const invariant = require('invariant');
+const areEqual = require('fbjs/lib/areEqual');
+const invariant = require('fbjs/lib/invariant');
 
 const {
   RecordSource,

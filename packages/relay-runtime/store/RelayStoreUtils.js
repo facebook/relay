@@ -13,7 +13,7 @@
 const RelayConcreteNode = require('../util/RelayConcreteNode');
 
 const getRelayHandleKey = require('../util/getRelayHandleKey');
-const invariant = require('invariant');
+const invariant = require('fbjs/lib/invariant');
 const stableCopy = require('../util/stableCopy');
 
 import type {

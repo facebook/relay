@@ -13,7 +13,7 @@
 const RelayConnection = require('./RelayConnection');
 const RelayModernRecord = require('./RelayModernRecord');
 
-const invariant = require('invariant');
+const invariant = require('fbjs/lib/invariant');
 
 const {
   CONDITION,

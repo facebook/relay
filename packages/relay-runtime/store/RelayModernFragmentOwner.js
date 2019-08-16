@@ -10,8 +10,8 @@
 
 'use strict';
 
-const invariant = require('invariant');
-const mapObject = require('mapObject');
+const invariant = require('fbjs/lib/invariant');
+const mapObject = require('fbjs/lib/mapObject');
 
 const {FRAGMENT_OWNER_KEY} = require('./RelayStoreUtils');
 

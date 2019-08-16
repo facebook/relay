@@ -19,7 +19,7 @@ const RelayRecordSourceObjectImpl = require('../RelayRecordSourceObjectImpl');
 
 const defaultGetDataID = require('../defaultGetDataID');
 const getRelayHandleKey = require('../../util/getRelayHandleKey');
-const invariant = require('invariant');
+const invariant = require('fbjs/lib/invariant');
 const normalizeRelayPayload = require('../normalizeRelayPayload');
 
 const {

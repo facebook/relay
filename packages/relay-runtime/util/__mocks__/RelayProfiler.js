@@ -9,7 +9,7 @@
 
 'use strict';
 
-const emptyFunction = require('emptyFunction');
+const emptyFunction = require('fbjs/lib/emptyFunction');
 const forEachObject = require('forEachObject');
 
 const RelayProfiler = {

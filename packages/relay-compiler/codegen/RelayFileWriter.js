@@ -21,8 +21,8 @@ const SchemaUtils = require('../core/GraphQLSchemaUtils');
 const compileRelayArtifacts = require('./compileRelayArtifacts');
 const crypto = require('crypto');
 const graphql = require('graphql');
-const invariant = require('invariant');
-const nullthrows = require('nullthrows');
+const invariant = require('fbjs/lib/invariant');
+const nullthrows = require('fbjs/lib/nullthrows');
 const path = require('path');
 const writeRelayGeneratedFile = require('./writeRelayGeneratedFile');
 

@@ -15,7 +15,7 @@ const Profiler = require('../core/GraphQLCompilerProfiler');
 
 const crypto = require('crypto');
 const dedupeJSONStringify = require('../util/dedupeJSONStringify');
-const invariant = require('invariant');
+const invariant = require('fbjs/lib/invariant');
 
 const {RelayConcreteNode} = require('relay-runtime');
 

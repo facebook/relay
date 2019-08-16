@@ -12,7 +12,7 @@
 
 const RelayObservable = require('../network/RelayObservable');
 
-const invariant = require('invariant');
+const invariant = require('fbjs/lib/invariant');
 
 import type {Observer, Sink, Subscription} from '../network/RelayObservable';
 

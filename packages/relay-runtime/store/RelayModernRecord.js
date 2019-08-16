@@ -10,10 +10,10 @@
 
 'use strict';
 
-const areEqual = require('areEqual');
+const areEqual = require('fbjs/lib/areEqual');
 const deepFreeze = require('../util/deepFreeze');
-const invariant = require('invariant');
-const warning = require('warning');
+const invariant = require('fbjs/lib/invariant');
+const warning = require('fbjs/lib/warning');
 
 const {isClientID} = require('./ClientID');
 const {

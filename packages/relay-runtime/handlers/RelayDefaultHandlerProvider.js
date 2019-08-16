@@ -12,7 +12,7 @@
 
 const RelayConnectionHandler = require('./connection/RelayConnectionHandler');
 
-const invariant = require('invariant');
+const invariant = require('fbjs/lib/invariant');
 
 import type {Handler} from '../store/RelayStoreTypes';
 export type HandlerProvider = (name: string) => ?Handler;

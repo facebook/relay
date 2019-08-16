@@ -12,7 +12,7 @@
 
 const RelayDeclarativeMutationConfig = require('./RelayDeclarativeMutationConfig');
 
-const invariant = require('invariant');
+const invariant = require('fbjs/lib/invariant');
 const isRelayModernEnvironment = require('../store/isRelayModernEnvironment');
 
 const {getRequest} = require('../query/RelayModernGraphQLTag');

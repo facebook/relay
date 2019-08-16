@@ -12,7 +12,7 @@
 
 const RelayModernRecord = require('../store/RelayModernRecord');
 
-const invariant = require('invariant');
+const invariant = require('fbjs/lib/invariant');
 
 const {EXISTENT} = require('../store/RelayRecordState');
 const {

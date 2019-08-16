@@ -927,7 +927,7 @@ describe('Aliased mutation roots', () => {
         },
       },
     });
-    expect(require('warning')).not.toHaveBeenCalledWith(
+    expect(require('fbjs/lib/warning')).not.toHaveBeenCalledWith(
       undefined,
       expect.anything(),
       expect.anything(),

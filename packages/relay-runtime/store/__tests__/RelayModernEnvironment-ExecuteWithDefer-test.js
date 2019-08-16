@@ -17,7 +17,7 @@ const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
 const RelayRecordSource = require('../RelayRecordSource');
 
-const warning = require('warning');
+const warning = require('fbjs/lib/warning');
 
 const {
   createOperationDescriptor,

@@ -17,7 +17,7 @@ const RelayRecordSourceMutator = require('../mutations/RelayRecordSourceMutator'
 const RelayRecordSourceProxy = require('../mutations/RelayRecordSourceProxy');
 const RelayRecordSourceSelectorProxy = require('../mutations/RelayRecordSourceSelectorProxy');
 
-const invariant = require('invariant');
+const invariant = require('fbjs/lib/invariant');
 
 import type {HandlerProvider} from '../handlers/RelayDefaultHandlerProvider';
 import type {Disposable} from '../util/RelayRuntimeTypes';

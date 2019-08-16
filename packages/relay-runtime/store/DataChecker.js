@@ -17,7 +17,7 @@ const RelayRecordSourceProxy = require('../mutations/RelayRecordSourceProxy');
 const RelayStoreUtils = require('./RelayStoreUtils');
 
 const cloneRelayHandleSourceField = require('./cloneRelayHandleSourceField');
-const invariant = require('invariant');
+const invariant = require('fbjs/lib/invariant');
 
 const {EXISTENT, UNKNOWN} = require('./RelayRecordState');
 

@@ -17,10 +17,10 @@ const RelayObservable = require('../network/RelayObservable');
 const RelayRecordSource = require('./RelayRecordSource');
 const RelayResponseNormalizer = require('./RelayResponseNormalizer');
 
-const invariant = require('invariant');
+const invariant = require('fbjs/lib/invariant');
 const stableCopy = require('../util/stableCopy');
 // flowlint-next-line untyped-import:off
-const warning = require('warning');
+const warning = require('fbjs/lib/warning');
 
 const {generateClientID} = require('./ClientID');
 const {createNormalizationSelector} = require('./RelayModernSelector');

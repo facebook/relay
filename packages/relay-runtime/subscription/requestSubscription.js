@@ -12,7 +12,7 @@
 
 const RelayDeclarativeMutationConfig = require('../mutations/RelayDeclarativeMutationConfig');
 
-const warning = require('warning');
+const warning = require('fbjs/lib/warning');
 
 const {getRequest} = require('../query/RelayModernGraphQLTag');
 const {

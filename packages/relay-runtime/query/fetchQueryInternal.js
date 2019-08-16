@@ -13,7 +13,7 @@
 const Observable = require('../network/RelayObservable');
 const RelayReplaySubject = require('../util/RelayReplaySubject');
 
-const invariant = require('invariant');
+const invariant = require('fbjs/lib/invariant');
 
 import type {GraphQLResponse} from '../network/RelayNetworkTypes';
 import type {Subscription} from '../network/RelayObservable';

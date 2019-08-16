@@ -12,7 +12,7 @@
 
 const RelayConcreteNode = require('../util/RelayConcreteNode');
 
-const invariant = require('invariant');
+const invariant = require('fbjs/lib/invariant');
 
 import type {
   ReaderFragment,

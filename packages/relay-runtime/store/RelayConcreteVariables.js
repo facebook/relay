@@ -10,7 +10,7 @@
 
 'use strict';
 
-const invariant = require('invariant');
+const invariant = require('fbjs/lib/invariant');
 
 import type {NormalizationOperation} from '../util/NormalizationNode';
 import type {ReaderFragment} from '../util/ReaderNode';

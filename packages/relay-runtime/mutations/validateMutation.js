@@ -24,7 +24,7 @@ type ValidationContext = {
   missingDiff: Object,
   extraDiff: Object,
 };
-const warning = require('warning');
+const warning = require('fbjs/lib/warning');
 
 let validateMutation = () => {};
 if (__DEV__) {

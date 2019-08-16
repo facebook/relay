@@ -1,4 +1,4 @@
-declare module 'mapObject' {
+declare module 'fbjs/lib/mapObject' {
   declare module.exports: any;
 }
 

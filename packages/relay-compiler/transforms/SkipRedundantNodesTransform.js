@@ -16,7 +16,7 @@ import type GraphQLCompilerContext from '../core/GraphQLCompilerContext';
 const IMap = require('immutable').Map;
 const partitionArray = require('../util/partitionArray');
 const getIdentifierForSelection = require('../core/getIdentifierForSelection');
-const invariant = require('invariant');
+const invariant = require('fbjs/lib/invariant');
 
 import type {Fragment, Node, Root, Selection} from '../core/GraphQLIR';
 

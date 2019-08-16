@@ -14,7 +14,7 @@
 
 const IRTransformer = require('../core/GraphQLIRTransformer');
 
-const invariant = require('invariant');
+const invariant = require('fbjs/lib/invariant');
 const joinArgumentDefinitions = require('../util/joinArgumentDefinitions');
 
 const {createUserError} = require('../core/RelayCompilerError');

@@ -10,7 +10,7 @@
 
 'use strict';
 
-const invariant = require('invariant');
+const invariant = require('fbjs/lib/invariant');
 const stableCopy = require('./stableCopy');
 
 import type {RequestParameters} from './RelayConcreteNode';

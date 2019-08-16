@@ -29,6 +29,7 @@ module.exports = function(options) {
     {
       map: {
         ErrorUtils: 'fbjs/lib/ErrorUtils',
+        Promise: 'fbjs/lib/Promise',
         areEqual: 'fbjs/lib/areEqual',
         emptyFunction: 'fbjs/lib/emptyFunction',
         forEachObject: 'fbjs/lib/forEachObject',

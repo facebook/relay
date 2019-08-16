@@ -1450,6 +1450,20 @@ export type TestResponse = {|
     +$fragmentRefs: NameRendererFragment$ref
   |}
 |};
+type PlainUserNameRenderer_name = {|
+  +plaintext: ?string,
+  +data: ?{|
+    +text: ?string,
+    +id: ?string,
+  |},
+|};
+type MarkdownUserNameRenderer_name = {|
+  +markdown: ?string,
+  +data: ?{|
+    +markup: ?string,
+    +id: ?string,
+  |},
+|};
 export type TestRawResponse = {|
   +node: ?({|
     +__typename: "User",
@@ -1462,11 +1476,7 @@ export type TestRawResponse = {|
       +__module_component_NameRendererFragment: ?{|
         __dr: string
       |},
-      +plaintext: ?string,
-      +data: ?{|
-        +text: ?string,
-        +id: ?string,
-      |},
+      ...PlainUserNameRenderer_name,
     |} | {|
       +__typename: "MarkdownUserNameRenderer",
       +__module_operation_NameRendererFragment: ?{|
@@ -1475,11 +1485,7 @@ export type TestRawResponse = {|
       +__module_component_NameRendererFragment: ?{|
         __dr: string
       |},
-      +markdown: ?string,
-      +data: ?{|
-        +markup: ?string,
-        +id: ?string,
-      |},
+      ...MarkdownUserNameRenderer_name,
     |} | {|
       +__typename: ?string
     |}),
@@ -1513,6 +1519,224 @@ export type NameRendererFragment$data = NameRendererFragment;
 export type NameRendererFragment$key = {
   +$data?: NameRendererFragment$data,
   +$fragmentRefs: NameRendererFragment$ref,
+};
+
+// PlainUserNameRenderer_name.graphql
+import type { FragmentReference } from "relay-runtime";
+declare export opaque type PlainUserNameRenderer_name$ref: FragmentReference;
+declare export opaque type PlainUserNameRenderer_name$fragmentType: PlainUserNameRenderer_name$ref;
+export type PlainUserNameRenderer_name = {|
+  +plaintext: ?string,
+  +data: ?{|
+    +text: ?string
+  |},
+  +$refType: PlainUserNameRenderer_name$ref,
+|};
+export type PlainUserNameRenderer_name$data = PlainUserNameRenderer_name;
+export type PlainUserNameRenderer_name$key = {
+  +$data?: PlainUserNameRenderer_name$data,
+  +$fragmentRefs: PlainUserNameRenderer_name$ref,
+};
+
+// MarkdownUserNameRenderer_name.graphql
+import type { FragmentReference } from "relay-runtime";
+declare export opaque type MarkdownUserNameRenderer_name$ref: FragmentReference;
+declare export opaque type MarkdownUserNameRenderer_name$fragmentType: MarkdownUserNameRenderer_name$ref;
+export type MarkdownUserNameRenderer_name = {|
+  +markdown: ?string,
+  +data: ?{|
+    +markup: ?string
+  |},
+  +$refType: MarkdownUserNameRenderer_name$ref,
+|};
+export type MarkdownUserNameRenderer_name$data = MarkdownUserNameRenderer_name;
+export type MarkdownUserNameRenderer_name$key = {
+  +$data?: MarkdownUserNameRenderer_name$data,
+  +$fragmentRefs: MarkdownUserNameRenderer_name$ref,
+};
+`;
+
+exports[`Snapshot tests for useHaste matches expected output: query-with-multiple-match-fields.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query Test @raw_response_type {
+  node(id: "1") {
+    ... on User {
+      username
+      ...NameRendererFragment
+    }
+  }
+  viewer {
+    ... on User {
+      name
+      ...AnotherNameRendererFragment
+    }
+  }
+}
+
+fragment NameRendererFragment on User {
+  id
+  nameRenderer @match {
+    ...PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
+    ...MarkdownUserNameRenderer_name
+      @module(name: "MarkdownUserNameRenderer.react")
+  }
+}
+
+fragment AnotherNameRendererFragment on User {
+  name
+  nameRenderer @match {
+    ...PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
+    ...MarkdownUserNameRenderer_name
+      @module(name: "MarkdownUserNameRenderer.react")
+  }
+}
+
+
+
+fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
+  plaintext
+  data {
+    text
+  }
+}
+
+fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+  markdown
+  data {
+    markup
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+// Test.graphql
+type AnotherNameRendererFragment$ref = any;
+type NameRendererFragment$ref = any;
+export type TestVariables = {||};
+export type TestResponse = {|
+  +node: ?{|
+    +username?: ?string,
+    +$fragmentRefs: NameRendererFragment$ref,
+  |},
+  +viewer: ?{|
+    +name?: ?string,
+    +$fragmentRefs: AnotherNameRendererFragment$ref,
+  |},
+|};
+type PlainUserNameRenderer_name = {|
+  +plaintext: ?string,
+  +data: ?{|
+    +text: ?string,
+    +id: ?string,
+  |},
+|};
+type MarkdownUserNameRenderer_name = {|
+  +markdown: ?string,
+  +data: ?{|
+    +markup: ?string,
+    +id: ?string,
+  |},
+|};
+export type TestRawResponse = {|
+  +node: ?({|
+    +__typename: "User",
+    +id: ?string,
+    +username: ?string,
+    +nameRenderer: ?({|
+      +__typename: "PlainUserNameRenderer",
+      +__module_operation_NameRendererFragment: ?{|
+        __dr: string
+      |},
+      +__module_component_NameRendererFragment: ?{|
+        __dr: string
+      |},
+      ...PlainUserNameRenderer_name,
+    |} | {|
+      +__typename: "MarkdownUserNameRenderer",
+      +__module_operation_NameRendererFragment: ?{|
+        __dr: string
+      |},
+      +__module_component_NameRendererFragment: ?{|
+        __dr: string
+      |},
+      ...MarkdownUserNameRenderer_name,
+    |} | {|
+      +__typename: ?string
+    |}),
+  |} | {|
+    +__typename: ?string,
+    +id: ?string,
+  |}),
+  +viewer: ?{|
+    +name: ?string,
+    +nameRenderer: ?({|
+      +__typename: "PlainUserNameRenderer",
+      +__module_operation_AnotherNameRendererFragment: ?{|
+        __dr: string
+      |},
+      +__module_component_AnotherNameRendererFragment: ?{|
+        __dr: string
+      |},
+      ...PlainUserNameRenderer_name,
+    |} | {|
+      +__typename: "MarkdownUserNameRenderer",
+      +__module_operation_AnotherNameRendererFragment: ?{|
+        __dr: string
+      |},
+      +__module_component_AnotherNameRendererFragment: ?{|
+        __dr: string
+      |},
+      ...MarkdownUserNameRenderer_name,
+    |} | {|
+      +__typename: ?string
+    |}),
+  |},
+|};
+export type Test = {|
+  variables: TestVariables,
+  response: TestResponse,
+  rawResponse: TestRawResponse,
+|};
+
+// NameRendererFragment.graphql
+type MarkdownUserNameRenderer_name$ref = any;
+type PlainUserNameRenderer_name$ref = any;
+import type { FragmentReference } from "relay-runtime";
+declare export opaque type NameRendererFragment$ref: FragmentReference;
+declare export opaque type NameRendererFragment$fragmentType: NameRendererFragment$ref;
+export type NameRendererFragment = {|
+  +id: string,
+  +nameRenderer: ?{|
+    +__fragmentPropName?: ?string,
+    +__module_component?: ?string,
+    +$fragmentRefs: PlainUserNameRenderer_name$ref & MarkdownUserNameRenderer_name$ref,
+  |},
+  +$refType: NameRendererFragment$ref,
+|};
+export type NameRendererFragment$data = NameRendererFragment;
+export type NameRendererFragment$key = {
+  +$data?: NameRendererFragment$data,
+  +$fragmentRefs: NameRendererFragment$ref,
+};
+
+// AnotherNameRendererFragment.graphql
+type MarkdownUserNameRenderer_name$ref = any;
+type PlainUserNameRenderer_name$ref = any;
+import type { FragmentReference } from "relay-runtime";
+declare export opaque type AnotherNameRendererFragment$ref: FragmentReference;
+declare export opaque type AnotherNameRendererFragment$fragmentType: AnotherNameRendererFragment$ref;
+export type AnotherNameRendererFragment = {|
+  +name: ?string,
+  +nameRenderer: ?{|
+    +__fragmentPropName?: ?string,
+    +__module_component?: ?string,
+    +$fragmentRefs: PlainUserNameRenderer_name$ref & MarkdownUserNameRenderer_name$ref,
+  |},
+  +$refType: AnotherNameRendererFragment$ref,
+|};
+export type AnotherNameRendererFragment$data = AnotherNameRendererFragment;
+export type AnotherNameRendererFragment$key = {
+  +$data?: AnotherNameRendererFragment$data,
+  +$fragmentRefs: AnotherNameRendererFragment$ref,
 };
 
 // PlainUserNameRenderer_name.graphql

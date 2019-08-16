@@ -52,6 +52,8 @@ const {
 const invariant = require('invariant');
 const nullthrows = require('nullthrows');
 
+const MODULE_IMPORT_FIELD = 'MODULE_IMPORT_FIELD';
+
 export type State = {|
   ...TypeGeneratorOptions,
   +generatedFragments: Set<string>,
@@ -60,6 +62,7 @@ export type State = {|
   },
   +usedEnums: {[name: string]: GraphQLEnumType},
   +usedFragments: Set<string>,
+  +matchFields: Map<string, mixed>,
 |};
 
 function generate(
@@ -280,6 +283,7 @@ function createVisitor(options: TypeGeneratorOptions) {
     useHaste: options.useHaste,
     useSingleArtifactDirectory: options.useSingleArtifactDirectory,
     noFutureProofEnums: options.noFutureProofEnums,
+    matchFields: new Map(),
   };
   return {
     leave: {
@@ -334,6 +338,9 @@ function createVisitor(options: TypeGeneratorOptions) {
         ];
 
         if (rawResponseType) {
+          for (const [key, ast] of state.matchFields) {
+            babelNodes.push(t.typeAlias(t.identifier(key), null, ast));
+          }
           operationTypes.push(
             t.objectTypeProperty(
               t.identifier('rawResponse'),
@@ -541,6 +548,11 @@ function makeRawResponseProp(
   concreteType: ?string,
 ) {
   if (nodeType) {
+    if (nodeType === MODULE_IMPORT_FIELD) {
+      return t.objectTypeSpreadProperty(
+        t.genericTypeAnnotation(t.identifier(key)),
+      );
+    }
     value = transformScalarType(
       nodeType,
       state,
@@ -622,6 +634,7 @@ function selectionsToRawResponseBabel(
     types.map(props => exactObjectTypeAnnotation(props)),
   );
 }
+
 // Visitor for generating raw reponse type
 function createRawResponseTypeVisitor(state: State) {
   const visitor = {
@@ -679,10 +692,7 @@ function createRawResponseTypeVisitor(state: State) {
         );
       },
       ModuleImport(node) {
-        return flattenArray(
-          /* $FlowFixMe: selections have already been transformed */
-          (node.selections: $ReadOnlyArray<$ReadOnlyArray<Selection>>),
-        );
+        return visitRawResposneModuleImport(node, state);
       },
       FragmentSpread(node) {
         invariant(
@@ -694,6 +704,35 @@ function createRawResponseTypeVisitor(state: State) {
     },
   };
   return visitor;
+}
+
+// Dedupe the genreated type of module selections to reduce file zie
+function visitRawResposneModuleImport(node, state): $ReadOnlyArray<Selection> {
+  const {selections, name: key} = node;
+  const moduleSelections = selections
+    .filter(
+      // $FlowFixMe selections have already been transformed
+      sel => sel.length && sel[0].schemaName === 'js',
+    )
+    .map(arr => arr[0]);
+  if (!state.matchFields.has(key)) {
+    const ast = selectionsToRawResponseBabel(
+      /* $FlowFixMe: selections have already been transformed */
+      (node.selections: $ReadOnlyArray<$ReadOnlyArray<Selection>>).filter(
+        sel => sel.length > 1 || sel[0].schemaName !== 'js',
+      ),
+      state,
+      null,
+    );
+    state.matchFields.set(key, ast);
+  }
+  return [
+    ...moduleSelections,
+    {
+      key,
+      nodeType: MODULE_IMPORT_FIELD,
+    },
+  ];
 }
 
 function selectionsToMap(

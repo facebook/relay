@@ -10,8 +10,6 @@
 
 'use strict';
 
-const removeFromArray = require('removeFromArray');
-
 type Handler = (name: string, callback: () => void) => void;
 type ProfileHandler = (name: string, state?: any) => (error?: Error) => void;
 
@@ -273,5 +271,12 @@ const RelayProfiler = {
     }
   },
 };
+
+function removeFromArray<T>(array: Array<T>, element: T): void {
+  var index = array.indexOf(element);
+  if (index !== -1) {
+    array.splice(index, 1);
+  }
+}
 
 module.exports = RelayProfiler;

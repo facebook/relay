@@ -11,7 +11,6 @@
 'use strict';
 
 const areEqual = require('areEqual');
-const emptyFunction = require('emptyFunction');
 const invariant = require('invariant');
 const warning = require('warning');
 
@@ -134,8 +133,8 @@ class ReactRelayTestMocker {
    */
   _mockNetworkLayer(env: IEnvironment): IEnvironment {
     const fetch = (request, variables, cacheConfig) => {
-      let resolve = emptyFunction;
-      let reject = emptyFunction;
+      let resolve;
+      let reject;
       const promise = new Promise((res, rej) => {
         resolve = res;
         reject = rej;

@@ -31,8 +31,6 @@ module.exports = function(options) {
         ErrorUtils: 'fbjs/lib/ErrorUtils',
         Promise: 'fbjs/lib/Promise',
         areEqual: 'fbjs/lib/areEqual',
-        emptyFunction: 'fbjs/lib/emptyFunction',
-        forEachObject: 'fbjs/lib/forEachObject',
         invariant: 'fbjs/lib/invariant',
         mapObject: 'fbjs/lib/mapObject',
         removeFromArray: 'fbjs/lib/removeFromArray',

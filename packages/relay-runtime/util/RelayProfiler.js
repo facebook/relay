@@ -10,11 +10,12 @@
 
 'use strict';
 
-const emptyFunction = require('emptyFunction');
 const removeFromArray = require('removeFromArray');
 
 type Handler = (name: string, callback: () => void) => void;
 type ProfileHandler = (name: string, state?: any) => (error?: Error) => void;
+
+function emptyFunction() {}
 
 const aggregateHandlersByName: {[name: string]: Array<Handler>} = {
   '*': [],

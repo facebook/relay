@@ -821,8 +821,10 @@ class Executor {
     // Determine the __id of the new item: this must equal the value that would
     // be assigned had the item not been streamed
     const itemID =
-      this._getDataID(data, typeName) ??
-      (prevIDs && prevIDs[itemIndex]) || // Reuse previously generated client IDs
+      // https://github.com/prettier/prettier/issues/6403
+      // prettier-ignore
+      (this._getDataID(data, typeName) ??
+        (prevIDs && prevIDs[itemIndex])) || // Reuse previously generated client IDs
       generateClientID(parentID, storageKey, itemIndex);
     invariant(
       typeof itemID === 'string',

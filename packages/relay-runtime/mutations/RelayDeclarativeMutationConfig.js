@@ -333,7 +333,7 @@ function deleteNode(
   deleteIDs: Array<string>,
 ): void {
   warning(
-    connectionKeys,
+    connectionKeys != null,
     'RelayDeclarativeMutationConfig: RANGE_DELETE must provide a ' +
       'connectionKeys',
   );

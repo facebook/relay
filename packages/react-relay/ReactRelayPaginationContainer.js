@@ -617,7 +617,7 @@ function createContainerWithFragments<
       const {END_CURSOR, START_CURSOR} = ConnectionInterface.get();
       const cursor = connectionData.cursor;
       warning(
-        cursor,
+        cursor != null && cursor !== '',
         'ReactRelayPaginationContainer: Cannot `loadMore` without valid `%s` (got `%s`)',
         direction === FORWARD ? END_CURSOR : START_CURSOR,
         cursor,

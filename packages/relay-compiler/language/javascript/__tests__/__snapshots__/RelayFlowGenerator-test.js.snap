@@ -1266,10 +1266,10 @@ export type PluralFragment = $ReadOnlyArray<{|
   +$refType: PluralFragment$ref,
 |}>;
 export type PluralFragment$data = PluralFragment;
-export type PluralFragment$key = {
+export type PluralFragment$key = $ReadOnlyArray<{
   +$data?: PluralFragment$data,
   +$fragmentRefs: PluralFragment$ref,
-};
+}>;
 `;
 
 exports[`Snapshot tests for useHaste matches expected output: query-with-defer.graphql 1`] = `

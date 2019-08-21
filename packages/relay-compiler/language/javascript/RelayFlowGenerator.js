@@ -396,6 +396,7 @@ function createVisitor(options: TypeGeneratorOptions) {
             t.identifier(getOldFragmentTypeName(node.name)),
           ),
         );
+        const isPluralFragment = isPlural(node);
         const refType = t.objectTypeAnnotation([
           refTypeDataProperty,
           refTypeFragmentRefProperty,
@@ -411,7 +412,9 @@ function createVisitor(options: TypeGeneratorOptions) {
           unmasked,
           unmasked ? undefined : getOldFragmentTypeName(node.name),
         );
-        const type = isPlural(node) ? readOnlyArrayOfType(baseType) : baseType;
+        const type = isPluralFragment
+          ? readOnlyArrayOfType(baseType)
+          : baseType;
         const importedTypes = ['FragmentReference'];
 
         return t.program([
@@ -421,7 +424,10 @@ function createVisitor(options: TypeGeneratorOptions) {
           ...fragmentTypes,
           exportType(node.name, type),
           exportType(dataTypeName, dataType),
-          exportType(refTypeName, refType),
+          exportType(
+            refTypeName,
+            isPluralFragment ? readOnlyArrayOfType(refType) : refType,
+          ),
         ]);
       },
       InlineFragment(node) {

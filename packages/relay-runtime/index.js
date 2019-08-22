@@ -77,7 +77,10 @@ export type {
   MutationConfig,
   MutationParameters,
 } from './mutations/commitMutation';
-export type {RelayNetworkLog} from './network/RelayNetworkLoggerTransaction';
+export type {
+  RelayNetworkLog,
+  LoggerTransactionConfig,
+} from './network/RelayNetworkLoggerTransaction';
 export type {
   ExecuteFunction,
   FetchFunction,
@@ -113,6 +116,8 @@ export type {
   FragmentPointer,
   FragmentReference,
   FragmentSpecResolver,
+  Logger,
+  LoggerProvider,
   HandleFieldPayload,
   MissingFieldHandler,
   ModuleImportPointer,

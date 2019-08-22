@@ -24,8 +24,8 @@ import type {Selection} from './GraphQLIR';
 function getIdentifierForSelection(node: Selection): string {
   if (node.kind === 'LinkedField' || node.kind === 'ScalarField') {
     return 'Field: ' + node.directives.length === 0
-      ? node.alias || node.name
-      : (node.alias || node.name) + printDirectives(node.directives);
+      ? node.alias
+      : node.alias + printDirectives(node.directives);
   } else if (node.kind === 'ConnectionField') {
     return 'ConnectionField:' + node.label;
   } else if (node.kind === 'FragmentSpread') {

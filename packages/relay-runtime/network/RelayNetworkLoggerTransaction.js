@@ -19,7 +19,7 @@ import type {GraphQLResponse, UploadableMap} from './RelayNetworkTypes';
 let queryID = 1;
 
 export interface IRelayNetworkLoggerTransaction {
-  constructor(config: TransactionConfig): void;
+  constructor(config: LoggerTransactionConfig): void;
   addLog(label: string, ...values: Array<any>): void;
   commitLogs(error: ?Error, payload: ?GraphQLResponse, status?: ?string): void;
   flushLogs(error: ?Error, payload: ?GraphQLResponse, status?: ?string): void;
@@ -34,7 +34,7 @@ export interface IRelayNetworkLoggerTransaction {
   timerEnd(): void;
 }
 
-type TransactionConfig = {
+export type LoggerTransactionConfig = {
   request: RequestParameters,
   variables: Variables,
   cacheConfig: ?CacheConfig,
@@ -68,7 +68,7 @@ class RelayNetworkLoggerTransaction implements IRelayNetworkLoggerTransaction {
     variables,
     cacheConfig,
     uploadables,
-  }: TransactionConfig): void {
+  }: LoggerTransactionConfig): void {
     this._cacheConfig = cacheConfig;
     this._id = queryID++;
     this._request = request;

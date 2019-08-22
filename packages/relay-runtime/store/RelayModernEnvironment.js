@@ -15,6 +15,7 @@ const DataChecker = require('./DataChecker');
 const RelayDefaultHandlerProvider = require('../handlers/RelayDefaultHandlerProvider');
 const RelayDefaultMissingFieldHandlers = require('../handlers/RelayDefaultMissingFieldHandlers');
 const RelayModernQueryExecutor = require('./RelayModernQueryExecutor');
+const RelayNetworkLoggerTransaction = require('../network/RelayNetworkLoggerTransaction');
 const RelayObservable = require('../network/RelayObservable');
 const RelayOperationTracker = require('../store/RelayOperationTracker');
 const RelayPublishQueue = require('./RelayPublishQueue');
@@ -26,6 +27,7 @@ const normalizeRelayPayload = require('./normalizeRelayPayload');
 const warning = require('warning');
 
 import type {HandlerProvider} from '../handlers/RelayDefaultHandlerProvider';
+import type {LoggerTransactionConfig} from '../network/RelayNetworkLoggerTransaction';
 import type {
   GraphQLResponse,
   Network,
@@ -38,6 +40,8 @@ import type {TaskScheduler} from './RelayModernQueryExecutor';
 import type {GetDataID} from './RelayResponseNormalizer';
 import type {
   Environment,
+  Logger,
+  LoggerProvider,
   MissingFieldHandler,
   NormalizationSelector,
   OperationDescriptor,
@@ -62,6 +66,7 @@ export type EnvironmentConfig = {|
   +store: Store,
   +missingFieldHandlers?: ?$ReadOnlyArray<MissingFieldHandler>,
   +operationTracker?: ?OperationTracker,
+  +loggerProvider?: ?LoggerProvider,
   /*
     This method is likely to change in future versions, use at your own risk.
     It can potentially break existing calls like store.get(<id>),
@@ -70,7 +75,22 @@ export type EnvironmentConfig = {|
   +UNSTABLE_DO_NOT_USE_getDataID?: ?GetDataID,
 |};
 
+const DefaultLoggerProvider = {
+  getLogger(config: LoggerTransactionConfig) {
+    const logger = new RelayNetworkLoggerTransaction(config);
+    return {
+      log(message: string, ...args: Array<mixed>) {
+        return logger.addLog(message, ...args);
+      },
+      flushLogs() {
+        return logger.flushLogs();
+      },
+    };
+  },
+};
+
 class RelayModernEnvironment implements Environment {
+  _loggerProvider: LoggerProvider;
   _operationLoader: ?OperationLoader;
   _network: Network;
   _publishQueue: PublishQueue;
@@ -99,6 +119,7 @@ class RelayModernEnvironment implements Environment {
         );
       }
     }
+    this._loggerProvider = config.loggerProvider ?? DefaultLoggerProvider;
     this._operationLoader = operationLoader;
     this._network = config.network;
     this._getDataID = config.UNSTABLE_DO_NOT_USE_getDataID ?? defaultGetDataID;
@@ -146,6 +167,10 @@ class RelayModernEnvironment implements Environment {
 
   getOperationTracker(): RelayOperationTracker {
     return this._operationTracker;
+  }
+
+  getLogger(config: LoggerTransactionConfig): Logger {
+    return this._loggerProvider.getLogger(config);
   }
 
   applyUpdate(optimisticUpdate: OptimisticUpdateFunction): Disposable {

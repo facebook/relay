@@ -10,6 +10,7 @@
 
 'use strict';
 
+import type {LoggerTransactionConfig} from '../network/RelayNetworkLoggerTransaction';
 import type {
   GraphQLResponse,
   Network,
@@ -34,7 +35,6 @@ import type {
 } from '../util/RelayRuntimeTypes';
 import type {RequestIdentifier} from '../util/getRequestIdentifier';
 import type {
-  ConnectionID,
   ConnectionInternalEvent,
   ConnectionReference,
   ConnectionSnapshot,
@@ -357,6 +357,15 @@ export interface RecordSourceSelectorProxy extends RecordSourceProxy {
   getPluralRootField(fieldName: string): ?Array<?RecordProxy>;
 }
 
+export interface Logger {
+  log(message: string, ...values: Array<mixed>): void;
+  flushLogs(): void;
+}
+
+export interface LoggerProvider {
+  getLogger(config: LoggerTransactionConfig): Logger;
+}
+
 /**
  * The public API of Relay core. Represents an encapsulated environment with its
  * own in-memory cache.
@@ -425,6 +434,11 @@ export interface Environment {
    * Get the environment's internal Store.
    */
   getStore(): Store;
+
+  /**
+   * Get an instance of a logger
+   */
+  getLogger(config: LoggerTransactionConfig): Logger;
 
   /**
    * Returns the environment specific OperationTracker.

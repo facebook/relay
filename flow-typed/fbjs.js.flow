@@ -1,7 +1,3 @@
-declare module 'mapObject' {
-  declare module.exports: any;
-}
-
 declare module 'ErrorUtils' {
   declare module.exports: any;
 }

@@ -14,7 +14,6 @@
 const LRUCache = require('./LRUCache');
 
 const invariant = require('invariant');
-const mapObject = require('mapObject');
 const warning = require('warning');
 
 const {
@@ -245,15 +244,16 @@ class FragmentResourceImpl {
     fragmentRefs: {[string]: mixed},
     componentDisplayName: string,
   ): {[string]: FragmentResult} {
-    return mapObject(fragmentNodes, (fragmentNode, fragmentKey) => {
-      const fragmentRef = fragmentRefs[fragmentKey];
-      return this.read(
-        fragmentNode,
-        fragmentRef,
+    const result = {};
+    for (const key in fragmentNodes) {
+      result[key] = this.read(
+        fragmentNodes[key],
+        fragmentRefs[key],
         componentDisplayName,
-        fragmentKey,
+        key,
       );
-    });
+    }
+    return result;
   }
 
   subscribe(fragmentResult: FragmentResult, callback: () => void): Disposable {
@@ -320,13 +320,12 @@ class FragmentResourceImpl {
     },
     callback: () => void,
   ): Disposable {
-    const disposables = mapObject(fragmentResults, fragmentResult => {
-      return this.subscribe(fragmentResult, callback);
-    });
+    const disposables = Object.keys(fragmentResults).map(key =>
+      this.subscribe(fragmentResults[key], callback),
+    );
     return {
       dispose: () => {
-        Object.keys(disposables).forEach(key => {
-          const disposable = disposables[key];
+        disposables.forEach(disposable => {
           disposable.dispose();
         });
       },

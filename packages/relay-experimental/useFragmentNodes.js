@@ -11,7 +11,6 @@
 
 'use strict';
 
-const mapObject = require('mapObject');
 const useRelayEnvironment = require('./useRelayEnvironment');
 const warning = require('warning');
 
@@ -190,9 +189,10 @@ function useFragmentNodes<TFragmentSpec: {}>(
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mustResubscribeGenerationRef.current]);
 
-  const data = mapObject(fragmentSpecResult, (result, key) => {
+  const data = {};
+  for (const key in fragmentSpecResult) {
     if (__DEV__) {
-      if (props[key] != null && result.data == null) {
+      if (props[key] != null && fragmentSpecResult[key].data == null) {
         const fragmentName = fragmentNodes[key]?.name ?? 'Unknown fragment';
         warning(
           false,
@@ -208,8 +208,8 @@ function useFragmentNodes<TFragmentSpec: {}>(
         );
       }
     }
-    return result.data;
-  });
+    data[key] = fragmentSpecResult[key].data;
+  }
   return {
     // $FlowFixMe
     data,

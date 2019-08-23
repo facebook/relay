@@ -11,7 +11,6 @@
 'use strict';
 
 const invariant = require('invariant');
-const mapObject = require('mapObject');
 
 const {FRAGMENT_OWNER_KEY} = require('./RelayStoreUtils');
 
@@ -71,14 +70,15 @@ function getFragmentOwners(
   fragmentNodes: {[string]: ReaderFragment},
   fragmentRefs: {[string]: mixed},
 ): {[string]: ?RequestDescriptor | Array<?RequestDescriptor>} {
-  return mapObject(fragmentNodes, (fragmentNode, key) => {
-    const fragmentRef = fragmentRefs[key];
-    return getFragmentOwner(
-      fragmentNode,
+  const fragmentOwners = {};
+  for (const key in fragmentNodes) {
+    fragmentOwners[key] = getFragmentOwner(
+      fragmentNodes[key],
       // $FlowFixMe - TODO T39154660 Use FragmentPointer type instead of mixed
-      fragmentRef,
+      fragmentRefs[key],
     );
-  });
+  }
+  return fragmentOwners;
 }
 
 module.exports = {getFragmentOwner, getFragmentOwners};

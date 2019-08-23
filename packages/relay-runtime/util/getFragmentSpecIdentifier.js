@@ -12,8 +12,6 @@
 'use strict';
 
 const getFragmentIdentifier = require('./getFragmentIdentifier');
-const mapObject = require('mapObject');
-const stableCopy = require('./stableCopy');
 
 import type {ReaderFragment} from '../util/ReaderNode';
 
@@ -21,14 +19,15 @@ function getFragmentSpecIdentifier(
   fragmentNodes: {[string]: ReaderFragment},
   fragmentRefs: {[string]: mixed},
 ): string {
-  return JSON.stringify(
-    stableCopy(
-      mapObject(fragmentNodes, (fragmentNode, key) => {
-        const fragmentRef = fragmentRefs[key];
-        return getFragmentIdentifier(fragmentNode, fragmentRef);
-      }),
-    ),
-  );
+  return Object.keys(fragmentNodes)
+    .sort()
+    .map(
+      key =>
+        key +
+        ':' +
+        getFragmentIdentifier(fragmentNodes[key], fragmentRefs[key]),
+    )
+    .join(',');
 }
 
 module.exports = getFragmentSpecIdentifier;

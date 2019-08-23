@@ -15,7 +15,6 @@ const DataChecker = require('./DataChecker');
 const RelayDefaultHandlerProvider = require('../handlers/RelayDefaultHandlerProvider');
 const RelayDefaultMissingFieldHandlers = require('../handlers/RelayDefaultMissingFieldHandlers');
 const RelayModernQueryExecutor = require('./RelayModernQueryExecutor');
-const RelayNetworkLoggerTransaction = require('../network/RelayNetworkLoggerTransaction');
 const RelayObservable = require('../network/RelayObservable');
 const RelayOperationTracker = require('../store/RelayOperationTracker');
 const RelayPublishQueue = require('./RelayPublishQueue');
@@ -75,22 +74,28 @@ export type EnvironmentConfig = {|
   +UNSTABLE_DO_NOT_USE_getDataID?: ?GetDataID,
 |};
 
-const DefaultLoggerProvider = {
-  getLogger(config: LoggerTransactionConfig) {
-    const logger = new RelayNetworkLoggerTransaction(config);
-    return {
-      log(message: string, ...args: Array<mixed>) {
-        return logger.addLog(message, ...args);
-      },
-      flushLogs() {
-        return logger.flushLogs();
+let DefaultLoggerProvider = null;
+if (__DEV__) {
+  if (console.groupCollapsed) {
+    const RelayNetworkLoggerTransaction = require('../network/RelayNetworkLoggerTransaction');
+    DefaultLoggerProvider = {
+      getLogger(config: LoggerTransactionConfig) {
+        const logger = new RelayNetworkLoggerTransaction(config);
+        return {
+          log(message: string, ...args: Array<mixed>) {
+            return logger.addLog(message, ...args);
+          },
+          flushLogs() {
+            return logger.flushLogs();
+          },
+        };
       },
     };
-  },
-};
+  }
+}
 
 class RelayModernEnvironment implements Environment {
-  _loggerProvider: LoggerProvider;
+  _loggerProvider: ?LoggerProvider;
   _operationLoader: ?OperationLoader;
   _network: Network;
   _publishQueue: PublishQueue;
@@ -169,7 +174,10 @@ class RelayModernEnvironment implements Environment {
     return this._operationTracker;
   }
 
-  getLogger(config: LoggerTransactionConfig): Logger {
+  getLogger(config: LoggerTransactionConfig): ?Logger {
+    if (!this._loggerProvider) {
+      return null;
+    }
     return this._loggerProvider.getLogger(config);
   }
 

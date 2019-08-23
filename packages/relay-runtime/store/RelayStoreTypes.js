@@ -438,7 +438,7 @@ export interface Environment {
   /**
    * Get an instance of a logger
    */
-  getLogger(config: LoggerTransactionConfig): Logger;
+  getLogger(config: LoggerTransactionConfig): ?Logger;
 
   /**
    * Returns the environment specific OperationTracker.

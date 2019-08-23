@@ -34,7 +34,6 @@ module.exports = function(options) {
         invariant: 'fbjs/lib/invariant',
         mapObject: 'fbjs/lib/mapObject',
         resolveImmediate: 'fbjs/lib/resolveImmediate',
-        sprintf: 'fbjs/lib/sprintf',
         warning: 'fbjs/lib/warning',
       },
     },

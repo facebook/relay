@@ -244,12 +244,16 @@ class Executor {
     }
     if (response.data == null) {
       const {errors} = response;
+      const messages = errors
+        ? errors.map(({message}) => message).join('\n')
+        : '(No errors)';
       const error = RelayError.create(
         'RelayNetwork',
-        'No data returned for operation `%s`, got error(s):\n%s\n\nSee the error ' +
-          '`source` property for more information.',
-        this._operation.request.node.params.name,
-        errors ? errors.map(({message}) => message).join('\n') : '(No errors)',
+        'No data returned for operation `' +
+          this._operation.request.node.params.name +
+          '`, got error(s):\n' +
+          messages +
+          '\n\nSee the error `source` property for more information.',
       );
       (error: $FlowFixMe).source = {
         errors,

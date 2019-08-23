@@ -33,7 +33,6 @@ module.exports = function(options) {
         areEqual: 'fbjs/lib/areEqual',
         invariant: 'fbjs/lib/invariant',
         mapObject: 'fbjs/lib/mapObject',
-        resolveImmediate: 'fbjs/lib/resolveImmediate',
         warning: 'fbjs/lib/warning',
       },
     },

@@ -16,7 +16,6 @@ const ReactRelayQueryFetcher = require('./ReactRelayQueryFetcher');
 
 const areEqual = require('areEqual');
 const buildReactRelayContainer = require('./buildReactRelayContainer');
-const forEachObject = require('forEachObject');
 const invariant = require('invariant');
 const warning = require('warning');
 
@@ -679,7 +678,7 @@ function createContainerWithFragments<
       // For extra safety, we make sure the rootVariables include the
       // variables from all owners in this fragmentSpec, even though they
       // should all point to the same owner
-      forEachObject(fragments, (__, key) => {
+      Object.keys(fragments).forEach(key => {
         const fragmentOwner = fragmentOwners[key];
         const fragmentOwnerVariables = Array.isArray(fragmentOwner)
           ? fragmentOwner[0]?.variables ?? {}

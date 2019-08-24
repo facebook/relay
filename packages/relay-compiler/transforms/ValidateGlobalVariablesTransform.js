@@ -19,25 +19,17 @@ const {
 } = require('../core/RelayCompilerError');
 
 import type GraphQLCompilerContext from '../core/GraphQLCompilerContext';
-import type {ArgumentDefinition, Root} from '../core/GraphQLIR';
-
-type Options = {|
-  +removeUnusedVariables: boolean,
-|};
+import type {ArgumentDefinition} from '../core/GraphQLIR';
 
 /**
- * Refines the argument definitions for operations to remove unused arguments
- * due to statically pruned conditional branches (e.g. because of overriding
- * a variable used in `@include()` to be false) and checks that all variables
- * referenced in each operation are defined. Reports aggregated errors for all
- * operations.
+ * Validates that all global variables used in operations are defined at the
+ * root. This isn't a real transform as it returns the original context, but
+ * has to happen before other transforms strip certain variable usages.
  */
-function refineOperationVariablesTransformImpl(
+function validateGlobalVariablesTransform(
   context: GraphQLCompilerContext,
-  {removeUnusedVariables}: Options,
 ): GraphQLCompilerContext {
   const contextWithUsedArguments = inferRootArgumentDefinitions(context);
-  let nextContext = context;
   const errors = eachWithErrors(context.documents(), node => {
     if (node.kind !== 'Root') {
       return;
@@ -64,23 +56,11 @@ function refineOperationVariablesTransformImpl(
         undefinedVariables.map(argDef => argDef.loc),
       );
     }
-    if (removeUnusedVariables) {
-      // Remove unused argument definitions
-      const usedArgumentDefinitions = node.argumentDefinitions.filter(argDef =>
-        usedArguments.has(argDef.name),
-      );
-      nextContext = nextContext.replace(
-        ({
-          ...node,
-          argumentDefinitions: usedArgumentDefinitions,
-        }: Root),
-      );
-    }
   });
   if (errors != null && errors.length !== 0) {
     throw createCombinedError(errors);
   }
-  return nextContext;
+  return context;
 }
 
 function argumentDefinitionsToMap<T: ArgumentDefinition>(
@@ -93,16 +73,6 @@ function argumentDefinitionsToMap<T: ArgumentDefinition>(
   return map;
 }
 
-function transformWithOptions(
-  options: Options,
-): (context: GraphQLCompilerContext) => GraphQLCompilerContext {
-  return function refineOperationVariablesTransform(
-    context: GraphQLCompilerContext,
-  ): GraphQLCompilerContext {
-    return refineOperationVariablesTransformImpl(context, options);
-  };
-}
-
 module.exports = {
-  transformWithOptions,
+  transform: validateGlobalVariablesTransform,
 };

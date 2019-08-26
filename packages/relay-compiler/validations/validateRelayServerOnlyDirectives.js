@@ -16,9 +16,10 @@ const {createUserError} = require('../core/RelayCompilerError');
 
 import type GraphQLCompilerContext from '../core/GraphQLCompilerContext';
 import type {
-  Selection,
   ClientExtension,
   Defer,
+  LinkedField,
+  Selection,
   Stream,
 } from '../core/GraphQLIR';
 
@@ -43,11 +44,24 @@ function validateRelayServerOnlyDirectives(
       ClientExtension: visitClientExtension,
       Defer: visitTransformedDirective,
       Stream: visitTransformedDirective,
+      LinkedField: visitLinkedField,
+      ScalarField: stopVisit,
     },
     () => ({
       rootClientSelection: null,
     }),
   );
+}
+
+// If an empty visitor is defined, we no longer automatically visit child nodes
+// such as arguments.
+function stopVisit() {}
+
+// Only visits selections as an optimization to not look at arguments
+function visitLinkedField(node: LinkedField, state: State): void {
+  for (const selection of node.selections) {
+    this.visit(selection, state);
+  }
 }
 
 function visitClientExtension(node: ClientExtension, state: State): void {

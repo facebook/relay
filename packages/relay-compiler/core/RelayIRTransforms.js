@@ -92,7 +92,6 @@ const relayCodegenTransforms: $ReadOnlyArray<IRTransform> = [
   FlattenTransform.transformWithOptions({flattenAbstractTypes: true}),
   SkipRedundantNodesTransform.transform,
   RelayGenerateTypeNameTransform.transform,
-  FilterDirectivesTransform.transform,
 ];
 
 // Transforms applied before printing the query sent to the server.

@@ -275,11 +275,13 @@ function flattenSelectionsInto(
         );
       }
       assertUniqueArgsForAlias(selection, flattenedSelection);
-      flattenedSelections.set(nodeIdentifier, {
-        kind: 'ScalarField',
-        ...flattenedSelection,
-        handles: mergeHandles(selection, flattenedSelection),
-      });
+      if (selection.handles && selection.handles.length > 0) {
+        flattenedSelections.set(nodeIdentifier, {
+          kind: 'ScalarField',
+          ...flattenedSelection,
+          handles: mergeHandles(selection, flattenedSelection),
+        });
+      }
     } else if (flattenedSelection.kind === 'InlineDataFragmentSpread') {
       throw createCompilerError(
         'FlattenTransform: did not expect an InlineDataFragmentSpread node. ' +

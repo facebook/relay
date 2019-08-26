@@ -256,16 +256,23 @@ function flattenSelectionsInto(
         );
       }
       assertUniqueArgsForAlias(selection, flattenedSelection);
+      // NOTE: not using object spread here as this code is pretty hot
       flattenedSelections.set(nodeIdentifier, {
         kind: 'LinkedField',
-        ...flattenedSelection,
+        alias: flattenedSelection.alias,
+        args: flattenedSelection.args,
+        directives: flattenedSelection.directives,
         handles: mergeHandles(flattenedSelection, selection),
+        loc: flattenedSelection.loc,
+        metadata: flattenedSelection.metadata,
+        name: flattenedSelection.name,
         selections: mergeSelections(
           flattenedSelection,
           selection,
           state,
           selection.type,
         ),
+        type: flattenedSelection.type,
       });
     } else if (flattenedSelection.kind === 'ScalarField') {
       if (selection.kind !== 'ScalarField') {

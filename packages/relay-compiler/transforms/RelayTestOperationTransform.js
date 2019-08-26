@@ -79,7 +79,7 @@ function visitRoot(node: Root) {
   const queue = [
     {
       selections: node.selections,
-      path: [],
+      path: null,
     },
   ];
   const selectionsTypeInfo = {};
@@ -97,18 +97,16 @@ function visitRoot(node: Root) {
           }
           break;
         case 'ScalarField': {
-          const nextPath = [...path, selection.alias];
-          selectionsTypeInfo[nextPath.join('.')] = getTypeDetails(
-            selection.type,
-          );
+          const nextPath =
+            path === null ? selection.alias : `${path}.${selection.alias}`;
+          selectionsTypeInfo[nextPath] = getTypeDetails(selection.type);
           break;
         }
         case 'ConnectionField':
         case 'LinkedField': {
-          const nextPath = [...path, selection.alias];
-          selectionsTypeInfo[nextPath.join('.')] = getTypeDetails(
-            selection.type,
-          );
+          const nextPath =
+            path === null ? selection.alias : `${path}.${selection.alias}`;
+          selectionsTypeInfo[nextPath] = getTypeDetails(selection.type);
           queue.unshift({
             selections: selection.selections,
             path: nextPath,

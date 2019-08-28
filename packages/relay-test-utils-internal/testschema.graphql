@@ -26,6 +26,7 @@ type Query {
   defaultSettings: Settings,
   route(waypoints: [WayPoint!]!): Route
   items(filter: ItemFilterInput): ItemFilterResult
+  maybeNodeInterface: MaybeNodeInterface
   maybeNode: MaybeNode
   neverNode: NeverNode
   named: Named
@@ -42,6 +43,10 @@ type Query {
   _mutation: Mutation
 }
 
+interface MaybeNodeInterface {
+  name: String
+}
+
 union MaybeNode = Story | FakeNode | NonNode
 
 type FakeNode {
@@ -50,6 +55,10 @@ type FakeNode {
 
 type NonNode {
   id: String
+  name: String
+}
+
+type NonNodeNoID implements MaybeNodeInterface {
   name: String
 }
 
@@ -593,7 +602,7 @@ type PhotoStory implements FeedUnit & Node {
   viewerSavedState: String
 }
 
-type Story implements FeedUnit & Node {
+type Story implements FeedUnit & Node & MaybeNodeInterface {
   attachments: [StoryAttachment]
 
   # FeedUnit

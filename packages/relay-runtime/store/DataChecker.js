@@ -19,6 +19,7 @@ const RelayStoreUtils = require('./RelayStoreUtils');
 const cloneRelayHandleSourceField = require('./cloneRelayHandleSourceField');
 const invariant = require('invariant');
 
+const {isClientID} = require('./ClientID');
 const {EXISTENT, UNKNOWN} = require('./RelayRecordState');
 
 import type {
@@ -160,6 +161,9 @@ class DataChecker {
     field: NormalizationScalarField,
     dataID: DataID,
   ): mixed {
+    if (field.name === 'id' && field.alias == null && isClientID(dataID)) {
+      return undefined;
+    }
     const {args, record} = this._getDataForHandlers(field, dataID);
     for (const handler of this._handlers) {
       if (handler.kind === 'scalar') {

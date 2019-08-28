@@ -41,8 +41,10 @@ extend type User {
 
 ## Querying local state
 
-Accessing local data is no different from querying your GraphQL server.  
-Here, we use a [QueryRenderer](./query-renderer) to get the current `User` via the `viewer` field, along with their name and the list of notes.
+Accessing local data is no different from querying your GraphQL server, although you are required to include atleast one server field in the query.
+The field can be from the server schema, or it can be schema agnostic, like an introspection field (i.e. `__typename`).
+
+Here, we use a [QueryRenderer](./query-renderer) to get the current `User` via the `viewer` field, along with their id, name and the local list of notes.
 
 ```javascript
 // Example.js

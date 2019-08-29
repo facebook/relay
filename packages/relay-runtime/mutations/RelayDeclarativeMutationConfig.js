@@ -20,23 +20,18 @@ import type {
   SelectorStoreUpdater,
 } from '../store/RelayStoreTypes';
 import type {ConcreteRequest} from '../util/RelayConcreteNode';
-import type {DataID, Variables} from '../util/RelayRuntimeTypes';
+import type {Variables} from '../util/RelayRuntimeTypes';
 
 const MutationTypes = Object.freeze({
   RANGE_ADD: 'RANGE_ADD',
   RANGE_DELETE: 'RANGE_DELETE',
   NODE_DELETE: 'NODE_DELETE',
-  FIELDS_CHANGE: 'FIELDS_CHANGE',
-  REQUIRED_CHILDREN: 'REQUIRED_CHILDREN',
 });
 export type MutationType = $Values<typeof MutationTypes>;
 
 const RangeOperations = Object.freeze({
   APPEND: 'append',
-  IGNORE: 'ignore',
   PREPEND: 'prepend',
-  REFETCH: 'refetch', // legacy only
-  REMOVE: 'remove', // legacy only
 });
 export type RangeOperation = $Values<typeof RangeOperations>;
 
@@ -83,24 +78,10 @@ type NodeDeleteConfig = {|
   deletedIDFieldName: string,
 |};
 
-// Unused in Relay Modern
-type LegacyFieldsChangeConfig = {|
-  type: 'FIELDS_CHANGE',
-  fieldIDs: {[fieldName: string]: DataID | Array<DataID>},
-|};
-
-// Unused in Relay Modern
-type LegacyRequiredChildrenConfig = {|
-  type: 'REQUIRED_CHILDREN',
-  children: Array<mixed>,
-|};
-
 export type DeclarativeMutationConfig =
   | RangeAddConfig
   | RangeDeleteConfig
-  | NodeDeleteConfig
-  | LegacyFieldsChangeConfig
-  | LegacyRequiredChildrenConfig;
+  | NodeDeleteConfig;
 
 function convert(
   configs: Array<DeclarativeMutationConfig>,
@@ -230,9 +211,6 @@ function rangeAdd(
         case 'append':
           RelayConnectionHandler.insertEdgeAfter(connection, clientEdge);
           break;
-        case 'ignore':
-          // Do nothing
-          break;
         case 'prepend':
           RelayConnectionHandler.insertEdgeBefore(connection, clientEdge);
           break;
@@ -241,7 +219,7 @@ function rangeAdd(
             false,
             'RelayDeclarativeMutationConfig: RANGE_ADD range behavior `%s` ' +
               'will not work as expected in RelayModern, supported range ' +
-              "behaviors are 'append', 'prepend', and 'ignore'.",
+              "behaviors are 'append', 'prepend'.",
             info.rangeBehavior,
           );
           break;

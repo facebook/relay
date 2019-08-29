@@ -23,7 +23,6 @@ const RelayRecordSource = require('./RelayRecordSource');
 const defaultGetDataID = require('./defaultGetDataID');
 const invariant = require('invariant');
 const normalizeRelayPayload = require('./normalizeRelayPayload');
-const warning = require('warning');
 
 import type {HandlerProvider} from '../handlers/RelayDefaultHandlerProvider';
 import type {LoggerTransactionConfig} from '../network/RelayNetworkLoggerTransaction';
@@ -31,7 +30,6 @@ import type {
   GraphQLResponse,
   Network,
   PayloadData,
-  PayloadError,
   UploadableMap,
 } from '../network/RelayNetworkTypes';
 import type {CacheConfig, Disposable} from '../util/RelayRuntimeTypes';
@@ -411,77 +409,6 @@ class RelayModernEnvironment implements Environment {
         getDataID: this._getDataID,
       });
       return () => executor.cancel();
-    });
-  }
-
-  /**
-   * @deprecated Use Environment.execute().subscribe()
-   */
-  sendQuery({
-    cacheConfig,
-    onCompleted,
-    onError,
-    onNext,
-    operation,
-  }: {
-    cacheConfig?: ?CacheConfig,
-    onCompleted?: ?() => void,
-    onError?: ?(error: Error) => void,
-    onNext?: ?(payload: GraphQLResponse) => void,
-    operation: OperationDescriptor,
-  }): Disposable {
-    warning(
-      false,
-      'environment.sendQuery() is deprecated. Update to the latest ' +
-        'version of react-relay, and use environment.execute().',
-    );
-    return this.execute({operation, cacheConfig}).subscribeLegacy({
-      onNext,
-      onError,
-      onCompleted,
-    });
-  }
-
-  /**
-   * @deprecated Use Environment.executeMutation().subscribe()
-   */
-  sendMutation({
-    onCompleted,
-    onError,
-    operation,
-    optimisticResponse,
-    optimisticUpdater,
-    updater,
-    uploadables,
-  }: {
-    onCompleted?: ?(errors: ?Array<PayloadError>) => void,
-    onError?: ?(error: Error) => void,
-    operation: OperationDescriptor,
-    optimisticUpdater?: ?SelectorStoreUpdater,
-    optimisticResponse?: Object,
-    updater?: ?SelectorStoreUpdater,
-    uploadables?: UploadableMap,
-  }): Disposable {
-    warning(
-      false,
-      'environment.sendMutation() is deprecated. Update to the latest ' +
-        'version of react-relay, and use environment.executeMutation().',
-    );
-    return this.executeMutation({
-      operation,
-      optimisticResponse,
-      optimisticUpdater,
-      updater,
-      uploadables,
-    }).subscribeLegacy({
-      // NOTE: sendMutation has a non-standard use of onCompleted() by passing
-      // it a value. When switching to use executeMutation(), the next()
-      // Observer should be used to preserve behavior.
-      onNext: payload => {
-        onCompleted && onCompleted(payload.errors);
-      },
-      onError,
-      onCompleted,
     });
   }
 

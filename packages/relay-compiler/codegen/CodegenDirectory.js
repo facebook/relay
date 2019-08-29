@@ -148,32 +148,41 @@ class CodegenDirectory {
     );
   }
 
+  static formatChanges(
+    changes: Changes,
+    options: {onlyValidate: boolean},
+  ): string {
+    const output = [];
+    function formatFiles(label, files) {
+      if (files.length > 0) {
+        output.push(label + ':');
+        files.forEach(file => {
+          output.push(' - ' + file);
+        });
+      }
+    }
+    if (options.onlyValidate) {
+      formatFiles('Missing', changes.created);
+      formatFiles('Out of date', changes.updated);
+      formatFiles('Extra', changes.deleted);
+    } else {
+      formatFiles('Created', changes.created);
+      formatFiles('Updated', changes.updated);
+      formatFiles('Deleted', changes.deleted);
+      output.push(`Unchanged: ${changes.unchanged.length} files`);
+    }
+
+    return output.join('\n');
+  }
+
   static printChanges(
     changes: Changes,
     options: {onlyValidate: boolean},
   ): void {
     Profiler.run('CodegenDirectory.printChanges', () => {
-      const output = [];
-      function printFiles(label, files) {
-        if (files.length > 0) {
-          output.push(label + ':');
-          files.forEach(file => {
-            output.push(' - ' + file);
-          });
-        }
-      }
-      if (options.onlyValidate) {
-        printFiles('Missing', changes.created);
-        printFiles('Out of date', changes.updated);
-        printFiles('Extra', changes.deleted);
-      } else {
-        printFiles('Created', changes.created);
-        printFiles('Updated', changes.updated);
-        printFiles('Deleted', changes.deleted);
-        output.push(`Unchanged: ${changes.unchanged.length} files`);
-      }
-      // eslint-disable-next-line no-console
-      console.log(output.join('\n'));
+      const output = CodegenDirectory.formatChanges(changes, options);
+
+      console.log(output);
     });
   }
 

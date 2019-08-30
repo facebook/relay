@@ -32,14 +32,16 @@ query TestQuery(
 ) {
   node(id: $id) {
     id
-    ...Profile @arguments(pictureSize: $pictureSize, includeFriends: $includeFriends)
+    ...Profile
+      @arguments(pictureSize: $pictureSize, includeFriends: $includeFriends)
   }
 }
 
-fragment Profile on User @argumentDefinitions(
-  pictureSize: {type: "[Int]"}
-  includeFriends: {type: "Boolean!", defaultValue: false}
-) {
+fragment Profile on User
+  @argumentDefinitions(
+    pictureSize: {type: "[Int]"}
+    includeFriends: {type: "Boolean!", defaultValue: false}
+  ) {
   id
   name
   profilePicture(size: $pictureSize) {
@@ -93,19 +95,18 @@ fragment Profile_4CNNX6 on User {
 
 exports[`RelayApplyFragmentArgumentTransform matches expected output: inlines-literal-fragment-arguments.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
-query TestQuery(
-  $id: ID!
-) {
+query TestQuery($id: ID!) {
   node(id: $id) {
     id
     ...Profile @arguments(pictureSize: [128], includeFriends: true)
   }
 }
 
-fragment Profile on User @argumentDefinitions(
-  pictureSize: {type: "[Int]"}
-  includeFriends: {type: "Boolean!", defaultValue: false}
-) {
+fragment Profile on User
+  @argumentDefinitions(
+    pictureSize: {type: "[Int]"}
+    includeFriends: {type: "Boolean!", defaultValue: false}
+  ) {
   id
   name
   profilePicture(size: $pictureSize) {
@@ -175,9 +176,7 @@ fragment ProfileFriends on User {
   }
 }
 
-fragment Profile on User @argumentDefinitions(
-  pictureSize: {type: "[Int]"}
-) {
+fragment Profile on User @argumentDefinitions(pictureSize: {type: "[Int]"}) {
   profilePicture(size: $pictureSize) {
     uri
   }
@@ -223,7 +222,8 @@ query TestQuery($id: ID!) {
   }
 }
 
-fragment ProfileFriends on User @argumentDefinitions(pictureSize: {type: "[Int]", defaultValue: [128]}){
+fragment ProfileFriends on User
+  @argumentDefinitions(pictureSize: {type: "[Int]", defaultValue: [128]}) {
   friends(first: 10) {
     edges {
       node {
@@ -233,9 +233,7 @@ fragment ProfileFriends on User @argumentDefinitions(pictureSize: {type: "[Int]"
   }
 }
 
-fragment Profile on User @argumentDefinitions(
-  pictureSize: {type: "[Int]"}
-) {
+fragment Profile on User @argumentDefinitions(pictureSize: {type: "[Int]"}) {
   profilePicture(size: $pictureSize) {
     uri
   }
@@ -273,10 +271,7 @@ fragment ProfileFriends on User {
 exports[`RelayApplyFragmentArgumentTransform matches expected output: rejects-cyclic-fragments.invalid.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 # expected-to-throw
-query TestQuery(
-  $id: ID!
-  $pictureSize: [Int] = [128]
-) {
+query TestQuery($id: ID!, $pictureSize: [Int] = [128]) {
   node(id: $id) {
     id
     ...Profile
@@ -305,21 +300,21 @@ Error: Found a circular reference from fragment 'Profile'.
 
 Source: GraphQL request (2:1)
 1: # expected-to-throw
-2: query TestQuery(
+2: query TestQuery($id: ID!, $pictureSize: [Int] = [128]) {
    ^
-3:   $id: ID!
+3:   node(id: $id) {
 
-Source: GraphQL request (8:5)
-7:     id
-8:     ...Profile
+Source: GraphQL request (5:5)
+4:     id
+5:     ...Profile
        ^
-9:   }
+6:   }
 
-Source: GraphQL request (21:9)
-20:       node {
-21:         ...Profile
+Source: GraphQL request (18:9)
+17:       node {
+18:         ...Profile
             ^
-22:       }
+19:       }
 
 `;
 
@@ -333,14 +328,16 @@ query TestQuery(
 ) {
   node(id: $id) {
     id
-    ...Profile @arguments(pictureSize: $pictureSize, includeFriends: $includeFriends2)
+    ...Profile
+      @arguments(pictureSize: $pictureSize, includeFriends: $includeFriends2)
   }
 }
 
-fragment Profile on User @argumentDefinitions(
-  pictureSize: {type: "[Int]"}
-  includeFriends: {type: "Boolean!", defaultValue: false}
-) {
+fragment Profile on User
+  @argumentDefinitions(
+    pictureSize: {type: "[Int]"}
+    includeFriends: {type: "Boolean!", defaultValue: false}
+  ) {
   id
   name
   profilePicture(size: $pictureSize) {
@@ -361,11 +358,11 @@ THROWN EXCEPTION:
 Error: RelayParser: Encountered 1 error(s):
 - Query 'TestQuery' references undefined variables.
   
-  GraphQL request (9:70)
-   8:     id
-   9:     ...Profile @arguments(pictureSize: $pictureSize, includeFriends: $includeFriends2)
-                                                                           ^
-  10:   }
+  GraphQL request (10:61)
+   9:     ...Profile
+  10:       @arguments(pictureSize: $pictureSize, includeFriends: $includeFriends2)
+                                                                  ^
+  11:   }
   
 `;
 
@@ -379,7 +376,8 @@ query TestQuery($id: ID!) {
   }
 }
 
-fragment ProfileFriends on User @argumentDefinitions(pictureSize: {type: "[Int]", defaultValue: [128]}){
+fragment ProfileFriends on User
+  @argumentDefinitions(pictureSize: {type: "[Int]", defaultValue: [128]}) {
   friends(first: 10) {
     edges {
       node {
@@ -389,9 +387,7 @@ fragment ProfileFriends on User @argumentDefinitions(pictureSize: {type: "[Int]"
   }
 }
 
-fragment Profile on User @argumentDefinitions(
-  pictureSize: {type: "[Int]"}
-) {
+fragment Profile on User @argumentDefinitions(pictureSize: {type: "[Int]"}) {
   profilePicture(size: $pictureSize) {
     uri
   }

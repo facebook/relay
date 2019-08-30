@@ -1,4 +1,5 @@
 # expected-to-throw
-fragment UserName on UserNameRenderable @refetchable(queryName: "RefetchableFragmentQuery") {
+fragment UserName on UserNameRenderable
+  @refetchable(queryName: "RefetchableFragmentQuery") {
   name
 }

@@ -6,7 +6,8 @@ query NameRendererQuery($id: ID!) {
 
 fragment NameRendererFragment on User {
   id
-  nameRenderer { # note: intentionally no @match here
+  nameRenderer {
+    # note: intentionally no @match here
     ...MarkdownUserNameRenderer_name
       @module(name: "MarkdownUserNameRenderer.react")
   }

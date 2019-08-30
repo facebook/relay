@@ -15,16 +15,18 @@ query PaginationQuery(
   }
 }
 
-fragment FeedbackFragment on Feedback @argumentDefinitions(
-  count: {type: "Int", defaultValue: 2},
-  cursor: {type: "ID"}
-) {
-  id
-  comments(after: $cursor, first: $count, orderby: "date") @connection(
-    key: "FeedbackFragment_comments"
-    dynamicKey_UNSTABLE: $commentsKey
-    filters: ["orderby"]
+fragment FeedbackFragment on Feedback
+  @argumentDefinitions(
+    count: {type: "Int", defaultValue: 2}
+    cursor: {type: "ID"}
   ) {
+  id
+  comments(after: $cursor, first: $count, orderby: "date")
+    @connection(
+      key: "FeedbackFragment_comments"
+      dynamicKey_UNSTABLE: $commentsKey
+      filters: ["orderby"]
+    ) {
     edges {
       node {
         id

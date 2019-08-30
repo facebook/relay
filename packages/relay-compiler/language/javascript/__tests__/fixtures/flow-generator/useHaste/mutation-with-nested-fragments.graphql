@@ -1,4 +1,4 @@
-mutation CommentCreateMutation (
+mutation CommentCreateMutation(
   $input: CommentCreateInput!
   $first: Int
   $orderBy: [String!]
@@ -16,7 +16,6 @@ mutation CommentCreateMutation (
     }
   }
 }
-
 
 fragment FriendFragment on User {
   name

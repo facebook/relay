@@ -1,4 +1,5 @@
-fragment RefetchableFragment on Actor @refetchable(queryName: "RefetchableFragmentQuery") {
+fragment RefetchableFragment on Actor
+  @refetchable(queryName: "RefetchableFragmentQuery") {
   id
   ... on User {
     name

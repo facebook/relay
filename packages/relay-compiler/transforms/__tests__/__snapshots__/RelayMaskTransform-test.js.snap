@@ -149,9 +149,7 @@ Error: Encountered 1 error(s):
 exports[`RelayMaskTransform matches expected output: relay-mask-transform-mixed-local-root-invalid.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 # expected-to-throw
-fragment ParentQuery on Query @argumentDefinitions(
-  id: {type: "ID!"}
-) {
+fragment ParentQuery on Query @argumentDefinitions(id: {type: "ID!"}) {
   ...NonNullIDFragment @relay(mask: false)
 }
 
@@ -167,17 +165,17 @@ THROWN EXCEPTION:
 Error: Encountered 1 error(s):
 - Cannot combine global and local variables when applying @relay(unmask: true).
   
-  Source: GraphQL request (3:3)
-  2: fragment ParentQuery on Query @argumentDefinitions(
-  3:   id: {type: "ID!"}
-       ^
-  4: ) {
+  Source: GraphQL request (2:52)
+  1: # expected-to-throw
+  2: fragment ParentQuery on Query @argumentDefinitions(id: {type: "ID!"}) {
+                                                        ^
+  3:   ...NonNullIDFragment @relay(mask: false)
   
-  Source: GraphQL request (9:24)
-   8: fragment NonNullIDFragment on Query {
-   9:   node_id_required(id: $id) {
-                             ^
-  10:     id
+  Source: GraphQL request (7:24)
+  6: fragment NonNullIDFragment on Query {
+  7:   node_id_required(id: $id) {
+                            ^
+  8:     id
   
 `;
 

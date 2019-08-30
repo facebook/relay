@@ -1,8 +1,6 @@
 fragment Example on User {
-  friends(
-    first: $friendsFirst
-    after: $friendsAfter
-  ) @connection(key: "Example_friends") {
+  friends(first: $friendsFirst, after: $friendsAfter)
+    @connection(key: "Example_friends") {
     edges {
       node {
         profilePicture(preset: $preset) {

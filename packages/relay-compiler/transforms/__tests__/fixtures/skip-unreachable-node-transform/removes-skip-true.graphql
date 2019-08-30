@@ -1,15 +1,16 @@
 query EmptyQuery($id: ID!) {
   node(id: $id) {
     id @skip(if: true)
-    ... on User @skip(if: true) { id }
+    ... on User @skip(if: true) {
+      id
+    }
     ...SkippedFragment
     ...EmptyFragment
   }
 }
 
-fragment SkippedFragment on User @argumentDefinitions(
-  cond: {type: "Boolean!", defaultValue: true}
-) {
+fragment SkippedFragment on User
+  @argumentDefinitions(cond: {type: "Boolean!", defaultValue: true}) {
   id @skip(if: $cond)
 }
 
@@ -22,7 +23,9 @@ query TestQuery {
     actor {
       name
       id @skip(if: true)
-      ... on User @skip(if: true) { id }
+      ... on User @skip(if: true) {
+        id
+      }
       ...SkippedFragment
       ...EmptyFragment
     }

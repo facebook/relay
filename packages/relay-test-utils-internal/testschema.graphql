@@ -23,7 +23,7 @@ directive @stream(
 
 type Query {
   checkinSearchQuery(query: CheckinSearchInput): CheckinSearchResult
-  defaultSettings: Settings,
+  defaultSettings: Settings
   route(waypoints: [WayPoint!]!): Route
   items(filter: ItemFilterInput): ItemFilterResult
   maybeNodeInterface: MaybeNodeInterface
@@ -86,20 +86,26 @@ type RouteStep {
 type Mutation {
   actorSubscribe(input: ActorSubscribeInput): ActorSubscribeResponsePayload
   actorNameChange(input: ActorNameChangeInput): ActorNameChangePayload
-  applicationRequestDeleteAll(input: ApplicationRequestDeleteAllInput): ApplicationRequestDeleteAllResponsePayload
+  applicationRequestDeleteAll(
+    input: ApplicationRequestDeleteAllInput
+  ): ApplicationRequestDeleteAllResponsePayload
   commentCreate(input: CommentCreateInput): CommentCreateResponsePayload
   commentDelete(input: CommentDeleteInput): CommentDeleteResponsePayload
   feedbackLike(input: FeedbackLikeInput): FeedbackLikeResponsePayload
   feedbackLikeSubscribe(input: FeedbackLikeInput): FeedbackLikeResponsePayload
   nodeSavedState(input: NodeSaveStateInput): NodeSavedStateResponsePayload
   unfriend(input: UnfriendInput): UnfriendResponsePayload
-  viewerNotificationsUpdateAllSeenState(input: UpdateAllSeenStateInput): ViewerNotificationsUpdateAllSeenStateResponsePayload
+  viewerNotificationsUpdateAllSeenState(
+    input: UpdateAllSeenStateInput
+  ): ViewerNotificationsUpdateAllSeenStateResponsePayload
   setLocation(input: LocationInput): setLocationResponsePayload
 }
 
 type Subscription {
   feedbackLikeSubscribe(input: FeedbackLikeInput): FeedbackLikeResponsePayload
-  commentCreateSubscribe(input: CommentCreateSubscriptionInput): CommentCreateResponsePayload
+  commentCreateSubscribe(
+    input: CommentCreateSubscriptionInput
+  ): CommentCreateResponsePayload
 }
 
 input ActorSubscribeInput {
@@ -214,12 +220,29 @@ type Comment implements Node {
   canViewerComment: Boolean
   canViewerLike: Boolean
   commentBody(supported: [String!]!): CommentBody
-  comments(after: ID, before: ID, first: Int, last: Int, orderby: String): CommentsConnection
+  comments(
+    after: ID
+    before: ID
+    first: Int
+    last: Int
+    orderby: String
+  ): CommentsConnection
   doesViewerLike: Boolean
   emailAddresses: [String]
   feedback: Feedback
   firstName(if: Boolean, unless: Boolean): String
-  friends(after: ID, before: ID, first: Int, last: Int, orderby: [String], find: String, isViewerFriend: Boolean, if: Boolean, unless: Boolean, traits: [PersonalityTraits]): FriendsConnection
+  friends(
+    after: ID
+    before: ID
+    first: Int
+    last: Int
+    orderby: [String]
+    find: String
+    isViewerFriend: Boolean
+    if: Boolean
+    unless: Boolean
+    traits: [PersonalityTraits]
+  ): FriendsConnection
   hometown: Page
   id: ID!
   lastName: String
@@ -306,12 +329,29 @@ type Feedback implements Node {
   body: Text
   canViewerComment: Boolean
   canViewerLike: Boolean
-  comments(after: ID, before: ID, first: Int, last: Int, orderby: String): CommentsConnection
+  comments(
+    after: ID
+    before: ID
+    first: Int
+    last: Int
+    orderby: String
+  ): CommentsConnection
   doesViewerLike: Boolean
   emailAddresses: [String]
   feedback: Feedback
   firstName(if: Boolean, unless: Boolean): String
-  friends(after: ID, before: ID, first: Int, last: Int, orderby: [String], find: String, isViewerFriend: Boolean, if: Boolean, unless: Boolean, traits: [PersonalityTraits]): FriendsConnection
+  friends(
+    after: ID
+    before: ID
+    first: Int
+    last: Int
+    orderby: [String]
+    find: String
+    isViewerFriend: Boolean
+    if: Boolean
+    unless: Boolean
+    traits: [PersonalityTraits]
+  ): FriendsConnection
   hometown: Page
   id: ID!
   lastName: String
@@ -324,7 +364,10 @@ type Feedback implements Node {
   screennames: [Screenname]
   subscribeStatus: String
   subscribers(first: Int): SubscribersConnection
-  topLevelComments(orderBy: [TopLevelCommentsOrdering], first: Int): TopLevelCommentsConnection
+  topLevelComments(
+    orderBy: [TopLevelCommentsOrdering]
+    first: Int
+  ): TopLevelCommentsConnection
   tracking: String
   url(relative: Boolean, site: String): String
   websites: [String]
@@ -409,12 +452,29 @@ interface Node {
   body: Text
   canViewerComment: Boolean
   canViewerLike: Boolean
-  comments(after: ID, before: ID, first: Int, last: Int, orderby: String): CommentsConnection
+  comments(
+    after: ID
+    before: ID
+    first: Int
+    last: Int
+    orderby: String
+  ): CommentsConnection
   doesViewerLike: Boolean
   emailAddresses: [String]
   feedback: Feedback
   firstName(if: Boolean, unless: Boolean): String
-  friends(after: ID, before: ID, first: Int, last: Int, orderby: [String], find: String, isViewerFriend: Boolean, if: Boolean, unless: Boolean, traits: [PersonalityTraits]): FriendsConnection
+  friends(
+    after: ID
+    before: ID
+    first: Int
+    last: Int
+    orderby: [String]
+    find: String
+    isViewerFriend: Boolean
+    if: Boolean
+    unless: Boolean
+    traits: [PersonalityTraits]
+  ): FriendsConnection
   hometown: Page
   id: ID!
   lastName: String
@@ -441,7 +501,18 @@ interface Actor {
   birthdate: Date
   emailAddresses: [String]
   firstName(if: Boolean, unless: Boolean): String
-  friends(after: ID, before: ID, first: Int, last: Int, orderby: [String], find: String, isViewerFriend: Boolean, if: Boolean, unless: Boolean, traits: [PersonalityTraits]): FriendsConnection
+  friends(
+    after: ID
+    before: ID
+    first: Int
+    last: Int
+    orderby: [String]
+    find: String
+    isViewerFriend: Boolean
+    if: Boolean
+    unless: Boolean
+    traits: [PersonalityTraits]
+  ): FriendsConnection
   hometown: Page
   id: ID!
   lastName: String
@@ -473,12 +544,29 @@ type Page implements Node & Actor {
   body: Text
   canViewerComment: Boolean
   canViewerLike: Boolean
-  comments(after: ID, before: ID, first: Int, last: Int, orderby: String): CommentsConnection
+  comments(
+    after: ID
+    before: ID
+    first: Int
+    last: Int
+    orderby: String
+  ): CommentsConnection
   doesViewerLike: Boolean
   emailAddresses: [String]
   feedback: Feedback
   firstName(if: Boolean, unless: Boolean): String
-  friends(after: ID, before: ID, first: Int, last: Int, orderby: [String], find: String, isViewerFriend: Boolean, if: Boolean, unless: Boolean, traits: [PersonalityTraits]): FriendsConnection
+  friends(
+    after: ID
+    before: ID
+    first: Int
+    last: Int
+    orderby: [String]
+    find: String
+    isViewerFriend: Boolean
+    if: Boolean
+    unless: Boolean
+    traits: [PersonalityTraits]
+  ): FriendsConnection
   hometown: Page
   id: ID!
   lastName: String
@@ -576,12 +664,29 @@ type PhotoStory implements FeedUnit & Node {
   body: Text
   canViewerComment: Boolean
   canViewerLike: Boolean
-  comments(after: ID, before: ID, first: Int, last: Int, orderby: String): CommentsConnection
+  comments(
+    after: ID
+    before: ID
+    first: Int
+    last: Int
+    orderby: String
+  ): CommentsConnection
   doesViewerLike: Boolean
   emailAddresses: [String]
   feedback: Feedback
   firstName(if: Boolean, unless: Boolean): String
-  friends(after: ID, before: ID, first: Int, last: Int, orderby: [String], find: String, isViewerFriend: Boolean, if: Boolean, unless: Boolean, traits: [PersonalityTraits]): FriendsConnection
+  friends(
+    after: ID
+    before: ID
+    first: Int
+    last: Int
+    orderby: [String]
+    find: String
+    isViewerFriend: Boolean
+    if: Boolean
+    unless: Boolean
+    traits: [PersonalityTraits]
+  ): FriendsConnection
   hometown: Page
   id: ID!
   lastName: String
@@ -621,12 +726,29 @@ type Story implements FeedUnit & Node & MaybeNodeInterface {
   body: Text
   canViewerComment: Boolean
   canViewerLike: Boolean
-  comments(after: ID, before: ID, first: Int, last: Int, orderby: String): CommentsConnection
+  comments(
+    after: ID
+    before: ID
+    first: Int
+    last: Int
+    orderby: String
+  ): CommentsConnection
   doesViewerLike: Boolean
   emailAddresses: [String]
   feedback: Feedback
   firstName(if: Boolean, unless: Boolean): String
-  friends(after: ID, before: ID, first: Int, last: Int, orderby: [String], find: String, isViewerFriend: Boolean, if: Boolean, unless: Boolean, traits: [PersonalityTraits]): FriendsConnection
+  friends(
+    after: ID
+    before: ID
+    first: Int
+    last: Int
+    orderby: [String]
+    find: String
+    isViewerFriend: Boolean
+    if: Boolean
+    unless: Boolean
+    traits: [PersonalityTraits]
+  ): FriendsConnection
   hometown: Page
   id: ID!
   lastName: String
@@ -659,7 +781,6 @@ type StreetAddress {
   postal_code: String
   street: String
 }
-
 
 type SubscribersConnection {
   count: Int
@@ -736,7 +857,10 @@ type CustomNameRenderer {
   customField: String
 }
 
-union UserNameRenderer = PlainUserNameRenderer | MarkdownUserNameRenderer | CustomNameRenderer
+union UserNameRenderer =
+    PlainUserNameRenderer
+  | MarkdownUserNameRenderer
+  | CustomNameRenderer
 
 interface UserNameRenderable {
   name: String
@@ -755,7 +879,13 @@ type User implements Named & Node & Actor & HasJsField {
   canViewerComment: Boolean
   canViewerLike: Boolean
   checkins(environments: [Environment!]!): CheckinSearchResult
-  comments(after: ID, before: ID, first: Int, last: Int, orderby: String): CommentsConnection
+  comments(
+    after: ID
+    before: ID
+    first: Int
+    last: Int
+    orderby: String
+  ): CommentsConnection
   doesViewerLike: Boolean
   emailAddresses: [String]
   environment: Environment
@@ -785,14 +915,14 @@ type User implements Named & Node & Actor & HasJsField {
   name: String
   nameRenderable(supported: [String!]): UserNameRenderable
   nameRenderer(supported: [String!]): UserNameRenderer
-  nameRendererForContext(context: NameRendererContext, supported: [String!]!): UserNameRenderer
+  nameRendererForContext(
+    context: NameRendererContext
+    supported: [String!]!
+  ): UserNameRenderer
   nameRenderers(supported: [String!]): [UserNameRenderer]
   storySearch(query: StorySearchInput): [Story]
   storyCommentSearch(query: StoryCommentSearchInput): [Comment]
-  profilePicture(
-    size: [Int],
-    preset: PhotoSize
-  ): Image
+  profilePicture(size: [Int], preset: PhotoSize): Image
   profile_picture(scale: Float): Image
   segments(first: Int): Segments
   screennames: [Screenname]
@@ -844,20 +974,20 @@ type Viewer {
   primaryEmail: String
   timezoneEstimate: TimezoneInfo
   marketplace_explore(
-    marketplace_browse_context: MarketplaceBrowseContext,
-    with_price_between: [Float],
+    marketplace_browse_context: MarketplaceBrowseContext
+    with_price_between: [Float]
   ): MarketplaceExploreConnection
   marketplace_settings: MarketPlaceSettings
 }
 
 type MarketPlaceSettings {
   location: MarketPlaceSellLocation
-  categories: [String],
+  categories: [String]
 }
 
 type MarketPlaceSellLocation {
-  longitude: Float,
-  latitude: Float,
+  longitude: Float
+  latitude: Float
 }
 
 type MarketplaceExploreConnection {

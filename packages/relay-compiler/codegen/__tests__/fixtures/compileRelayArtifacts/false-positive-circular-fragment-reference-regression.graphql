@@ -1,4 +1,4 @@
-query TestQuery{
+query TestQuery {
   viewer {
     ...MyViewer
     ...MyOtherViewer
@@ -16,8 +16,7 @@ fragment MyOtherViewer on Viewer {
   ...MyNestedViewer
 }
 
-fragment MyNestedViewer on Viewer @argumentDefinitions(
-  includeEmail: {type: "Boolean!", defaultValue: false}
-) {
+fragment MyNestedViewer on Viewer
+  @argumentDefinitions(includeEmail: {type: "Boolean!", defaultValue: false}) {
   primaryEmail @include(if: $includeEmail)
 }

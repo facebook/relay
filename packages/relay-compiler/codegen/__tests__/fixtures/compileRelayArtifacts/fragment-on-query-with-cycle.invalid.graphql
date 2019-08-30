@@ -1,5 +1,7 @@
 # expected-to-throw
-fragment RefetchableFragment on Query @refetchable(queryName: "RefetchableFragmentQuery") @argumentDefinitions(id: {type: "ID!"}) {
+fragment RefetchableFragment on Query
+  @refetchable(queryName: "RefetchableFragmentQuery")
+  @argumentDefinitions(id: {type: "ID!"}) {
   node(id: $id) {
     ... on User {
       id
@@ -9,7 +11,10 @@ fragment RefetchableFragment on Query @refetchable(queryName: "RefetchableFragme
   }
 }
 
-fragment Profile on User @argumentDefinitions(includeProfile: {type: "Boolean!", defaultValue: false}) {
+fragment Profile on User
+  @argumentDefinitions(
+    includeProfile: {type: "Boolean!", defaultValue: false}
+  ) {
   id
   name
   profilePicture(size: $pictureSize) {

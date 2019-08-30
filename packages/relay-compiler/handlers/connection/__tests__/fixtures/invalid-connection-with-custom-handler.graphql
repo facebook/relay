@@ -1,7 +1,5 @@
 # expected-to-throw
-query NodeQuery(
-  $id: ID!
-) {
+query NodeQuery($id: ID!) {
   node(id: $id) {
     id
     ... on Story {
@@ -10,7 +8,8 @@ query NodeQuery(
           node {
             actor {
               name
-              friends(first: 10) @connection(key: "NodeQuery_friends", handler: false) {
+              friends(first: 10)
+                @connection(key: "NodeQuery_friends", handler: false) {
                 edges {
                   node {
                     name

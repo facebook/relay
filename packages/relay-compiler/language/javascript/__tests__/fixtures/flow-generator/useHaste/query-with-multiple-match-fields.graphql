@@ -31,8 +31,6 @@ fragment AnotherNameRendererFragment on User {
   }
 }
 
-
-
 fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
   plaintext
   data {

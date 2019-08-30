@@ -1,7 +1,8 @@
 # expected-to-throw
 query EnumValueQuery1 {
   me {
-    profilePicture(preset: "LARGE") { # error: string not enum
+    profilePicture(preset: "LARGE") {
+      # error: string not enum
       uri
     }
   }
@@ -9,7 +10,8 @@ query EnumValueQuery1 {
 
 query EnumValueQuery2 {
   me {
-    profilePicture(preset: 128) { # error: int not enum
+    profilePicture(preset: 128) {
+      # error: int not enum
       uri
     }
   }
@@ -17,7 +19,8 @@ query EnumValueQuery2 {
 
 query EnumValueQuery3 {
   me {
-    profilePicture(preset: [LARGE]) { # error: list of enum, not enum
+    profilePicture(preset: [LARGE]) {
+      # error: list of enum, not enum
       uri
     }
   }

@@ -1,6 +1,4 @@
-query TestQuery(
-  $id: ID!
-) {
+query TestQuery($id: ID!) {
   node(id: $id) {
     ... on User {
       ... on Node {

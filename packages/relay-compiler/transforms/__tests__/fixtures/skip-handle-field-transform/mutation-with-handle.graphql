@@ -1,6 +1,8 @@
 mutation ViewerMutation($input: CommentCreateInput!) {
   commentCreate(input: $input) {
-    viewer @__clientField(handle: "otherViewer") @__clientField(handle: "viewer") {
+    viewer
+      @__clientField(handle: "otherViewer")
+      @__clientField(handle: "viewer") {
       actor {
         id
       }

@@ -4,7 +4,9 @@ exports[`RelaySkipHandleFieldTransform matches expected output: mutation-with-ha
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 mutation ViewerMutation($input: CommentCreateInput!) {
   commentCreate(input: $input) {
-    viewer @__clientField(handle: "otherViewer") @__clientField(handle: "viewer") {
+    viewer
+      @__clientField(handle: "otherViewer")
+      @__clientField(handle: "viewer") {
       actor {
         id
       }
@@ -30,7 +32,9 @@ mutation ViewerMutation(
 exports[`RelaySkipHandleFieldTransform matches expected output: query-with-handle.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query ViewerQuery {
-  viewer @__clientField(handle: "otherViewer") @__clientField(handle: "viewer") {
+  viewer
+    @__clientField(handle: "otherViewer")
+    @__clientField(handle: "viewer") {
     actor {
       id
     }

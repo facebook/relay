@@ -1,6 +1,4 @@
-mutation TestMutation (
-  $input: CommentCreateInput!
-) @raw_response_type {
+mutation TestMutation($input: CommentCreateInput!) @raw_response_type {
   commentCreate(input: $input) {
     viewer {
       actor {
@@ -9,7 +7,6 @@ mutation TestMutation (
     }
   }
 }
-
 
 fragment InlineFragmentWithOverlappingFields on Actor {
   ... on User {

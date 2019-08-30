@@ -2,7 +2,8 @@
 
 exports[`Snapshot tests for useAnyDirectory matches expected output: refetchable-fragment.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
-fragment RefetchableFragment on Node @refetchable(queryName: "RefetchableFragmentQuery") {
+fragment RefetchableFragment on Node
+  @refetchable(queryName: "RefetchableFragmentQuery") {
   id
   fragAndField: profilePicture {
     uri
@@ -88,13 +89,14 @@ export type NestedCondition$key = {
 exports[`Snapshot tests for useHaste matches expected output: derived-field.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query QueryWithConnectionField($id: ID!) {
-  feedback: node(id: $id)  {
+  feedback: node(id: $id) {
     ...FeedbackComments_feedback
   }
 }
 
 fragment FeedbackComments_feedback on Feedback {
-  comments(first: 10) @connection_resolver(resolver: "FeedbackCommentsResolver") {
+  comments(first: 10)
+    @connection_resolver(resolver: "FeedbackCommentsResolver") {
     edges {
       node {
         id
@@ -747,7 +749,7 @@ export type MarkdownUserNameRenderer_name$key = {
 
 exports[`Snapshot tests for useHaste matches expected output: mutaion-with-client-extension.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
-mutation Test($input: UpdateAllSeenStateInput) @raw_response_type{
+mutation Test($input: UpdateAllSeenStateInput) @raw_response_type {
   viewerNotificationsUpdateAllSeenState(input: $input) {
     stories {
       foos {
@@ -756,7 +758,6 @@ mutation Test($input: UpdateAllSeenStateInput) @raw_response_type{
     }
   }
 }
-
 
 extend type Story {
   foos: [Foo]
@@ -803,9 +804,7 @@ export type Test = {|
 
 exports[`Snapshot tests for useHaste matches expected output: mutaion-with-response-on-inline-fragments.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
-mutation TestMutation (
-  $input: CommentCreateInput!
-) @raw_response_type {
+mutation TestMutation($input: CommentCreateInput!) @raw_response_type {
   commentCreate(input: $input) {
     viewer {
       actor {
@@ -814,7 +813,6 @@ mutation TestMutation (
     }
   }
 }
-
 
 fragment InlineFragmentWithOverlappingFields on Actor {
   ... on User {
@@ -970,7 +968,7 @@ export type CommentCreateMutation = {|
 
 exports[`Snapshot tests for useHaste matches expected output: mutation-input-has-array.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
-mutation InputHasArray($input: UpdateAllSeenStateInput) @raw_response_type{
+mutation InputHasArray($input: UpdateAllSeenStateInput) @raw_response_type {
   viewerNotificationsUpdateAllSeenState(input: $input) {
     stories {
       actorCount
@@ -1011,7 +1009,7 @@ export type InputHasArray = {|
 
 exports[`Snapshot tests for useHaste matches expected output: mutation-with-enums-on-fragment.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
-mutation CommentCreateMutation (
+mutation CommentCreateMutation(
   $input: CommentCreateInput!
   $first: Int
   $orderBy: [String!]
@@ -1030,7 +1028,6 @@ mutation CommentCreateMutation (
     }
   }
 }
-
 
 fragment FriendFragment on User {
   name
@@ -1123,7 +1120,7 @@ export type FriendFragment$key = {
 
 exports[`Snapshot tests for useHaste matches expected output: mutation-with-nested-fragments.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
-mutation CommentCreateMutation (
+mutation CommentCreateMutation(
   $input: CommentCreateInput!
   $first: Int
   $orderBy: [String!]
@@ -1141,7 +1138,6 @@ mutation CommentCreateMutation (
     }
   }
 }
-
 
 fragment FriendFragment on User {
   name
@@ -1280,8 +1276,7 @@ query TestDefer @raw_response_type {
       name
       friends(first: 10) {
         edges {
-          ... on FriendsConnection
-            @defer {
+          ... on FriendsConnection @defer {
             pageInfo {
               endCursor
               hasNextPage
@@ -1591,8 +1586,6 @@ fragment AnotherNameRendererFragment on User {
   }
 }
 
-
-
 fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
   plaintext
   data {
@@ -1776,7 +1769,7 @@ export type MarkdownUserNameRenderer_name$key = {
 
 exports[`Snapshot tests for useHaste matches expected output: query-with-raw-response-on-conditional.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
-query ExampleQuery($id: ID!, $condition: Boolean!) @raw_response_type{
+query ExampleQuery($id: ID!, $condition: Boolean!) @raw_response_type {
   node(id: $id) {
     ...FriendFragment
   }
@@ -1853,7 +1846,10 @@ query TestStream @raw_response_type {
     ... on User {
       name
       friends(first: 10)
-        @stream_connection(key: "PaginationFragment_friends", initial_count: 1) {
+        @stream_connection(
+          key: "PaginationFragment_friends"
+          initial_count: 1
+        ) {
         edges {
           node {
             id
@@ -1937,7 +1933,8 @@ export type FragmentSpread$key = {
 
 exports[`Snapshot tests for useHaste matches expected output: refetchable-fragment.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
-fragment RefetchableFragment on Node @refetchable(queryName: "RefetchableFragmentQuery") {
+fragment RefetchableFragment on Node
+  @refetchable(queryName: "RefetchableFragmentQuery") {
   id
   fragAndField: profilePicture {
     uri
@@ -2228,7 +2225,6 @@ fragment TypenameWithoutSpreadsAbstractType on Node {
   __typename
   id
 }
-
 
 fragment TypenameWithCommonSelections on Actor {
   __typename
@@ -2530,7 +2526,8 @@ export type AnotherRecursiveFragment$key = {
 
 exports[`Snapshot tests for useSingleDirectory matches expected output: refetchable-fragment.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
-fragment RefetchableFragment on Node @refetchable(queryName: "RefetchableFragmentQuery") {
+fragment RefetchableFragment on Node
+  @refetchable(queryName: "RefetchableFragmentQuery") {
   id
   fragAndField: profilePicture {
     uri

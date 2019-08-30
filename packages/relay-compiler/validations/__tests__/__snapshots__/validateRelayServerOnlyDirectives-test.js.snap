@@ -133,11 +133,9 @@ fragment FeedbackFragment on Feedback {
   }
 }
 
-
 extend type Feedback {
   foo: Foo
 }
-
 
 type Foo {
   bar: Bar
@@ -183,7 +181,6 @@ fragment FeedbackFragment on Feedback {
     bar
   }
 }
-
 
 extend type Feedback {
   foos: [Foo]
@@ -330,8 +327,7 @@ type Bar {
 
 fragment SomeUser on User {
   nameRenderer {
-    ...PlainUserNameRenderer_name
-      @module(name: "PlainUserNameRenderer.react")
+    ...PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
     ...MarkdownUserNameRenderer_name
       @module(name: "MarkdownUserNameRenderer.react")
   }
@@ -373,18 +369,16 @@ PASSED
 exports[`ValidateRelayServerOnlyDirectives matches expected output: stream-connection-on-client.invalid.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 # expected-to-throw
-query NodeQuery(
-  $id: ID!
-) {
+query NodeQuery($id: ID!) {
   node(id: $id) {
     id
     ... on Story {
       clientComments(first: 10)
-      @stream_connection(
-        key: "NodeQuery_clientComments"
-        initial_count: 0
-        label: "comments"
-      ) {
+        @stream_connection(
+          key: "NodeQuery_clientComments"
+          initial_count: 0
+          label: "comments"
+        ) {
         edges {
           node {
             actor {
@@ -411,16 +405,16 @@ THROWN EXCEPTION:
 Error: Encountered 1 error(s):
 - Unexpected directive: @stream. This directive can only be used on fields/fragments that are fetched from the server schema, but it is used inside a client-only selection.
   
-  Source (derived): GraphQL request (9:7)
-   8:       clientComments(first: 10)
-   9:       @stream_connection(
-            ^
-  10:         key: "NodeQuery_clientComments"
+  Source (derived): GraphQL request (7:9)
+  6:       clientComments(first: 10)
+  7:         @stream_connection(
+             ^
+  8:           key: "NodeQuery_clientComments"
   
-  Source: GraphQL request (8:7)
-  7:     ... on Story {
-  8:       clientComments(first: 10)
+  Source: GraphQL request (6:7)
+  5:     ... on Story {
+  6:       clientComments(first: 10)
            ^
-  9:       @stream_connection(
+  7:         @stream_connection(
   
 `;

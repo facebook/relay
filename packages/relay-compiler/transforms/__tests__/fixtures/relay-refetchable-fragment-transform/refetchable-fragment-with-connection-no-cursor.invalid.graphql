@@ -1,9 +1,7 @@
 # expected-to-throw
 fragment PaginationFragment on Node
   @refetchable(queryName: "RefetchableFragmentQuery")
-  @argumentDefinitions(
-    count: {type: "Int", defaultValue: 10},
-  ) {
+  @argumentDefinitions(count: {type: "Int", defaultValue: 10}) {
   id
   ... on User {
     name

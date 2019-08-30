@@ -3,7 +3,10 @@ query TestStream @raw_response_type {
     ... on User {
       name
       friends(first: 10)
-        @stream_connection(key: "PaginationFragment_friends", initial_count: 1) {
+        @stream_connection(
+          key: "PaginationFragment_friends"
+          initial_count: 1
+        ) {
         edges {
           node {
             id

@@ -2,9 +2,7 @@
 
 exports[`RelayConnectionTransform matches expected output: connection.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
-query NodeQuery(
-  $id: ID!
-) {
+query NodeQuery($id: ID!) {
   node(id: $id) {
     id
     ... on Story {
@@ -102,29 +100,28 @@ query NodeQuery(
 
 exports[`RelayConnectionTransform matches expected output: connection-directions.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
-query NodeQuery(
-  $id: ID!
-  $last: Int,
-  $first: Int,
-) {
+query NodeQuery($id: ID!, $last: Int, $first: Int) {
   node(id: $id) {
     id
     ... on Story {
-      forwardComments: comments(first: 1) @connection(key: "NodeQuery_forwardComments") {
+      forwardComments: comments(first: 1)
+        @connection(key: "NodeQuery_forwardComments") {
         edges {
           node {
             id
           }
         }
       }
-      backwardComments: comments(last: 2) @connection(key: "NodeQuery_backwardComments") {
+      backwardComments: comments(last: 2)
+        @connection(key: "NodeQuery_backwardComments") {
         edges {
           node {
             id
           }
         }
       }
-      mixedDirectionComments: comments(last: $last, first: $first) @connection(key: "NodeQuery_mixedDirectionComments") {
+      mixedDirectionComments: comments(last: $last, first: $first)
+        @connection(key: "NodeQuery_mixedDirectionComments") {
         edges {
           node {
             id
@@ -242,14 +239,12 @@ query NodeQuery(
 
 exports[`RelayConnectionTransform matches expected output: connection-empty-filters.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
-query NodeQuery(
-  $id: ID!
-  $orderBy: String
-) {
+query NodeQuery($id: ID!, $orderBy: String) {
   node(id: $id) {
     id
     ... on Story {
-      comments(first: 10, orderby: $orderBy) @connection(key: "NodeQuery_comments", filters: []) {
+      comments(first: 10, orderby: $orderBy)
+        @connection(key: "NodeQuery_comments", filters: []) {
         edges {
           node {
             actor {
@@ -312,14 +307,12 @@ query NodeQuery(
 
 exports[`RelayConnectionTransform matches expected output: connection-filters.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
-query NodeQuery(
-  $id: ID!
-  $orderBy: String
-) {
+query NodeQuery($id: ID!, $orderBy: String) {
   node(id: $id) {
     id
     ... on Story {
-      comments(first: 10, orderby: $orderBy) @connection(key: "NodeQuery_comments", filters: ["orderby", "first"]) {
+      comments(first: 10, orderby: $orderBy)
+        @connection(key: "NodeQuery_comments", filters: ["orderby", "first"]) {
         edges {
           node {
             actor {
@@ -414,22 +407,18 @@ query NodeQuery(
 
 exports[`RelayConnectionTransform matches expected output: connection-generate-filters.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
-query NodeQuery(
-  $id: ID!
-  $orderBy: String
-  $traits: [PersonalityTraits]
-) {
+query NodeQuery($id: ID!, $orderBy: String, $traits: [PersonalityTraits]) {
   node(id: $id) {
     id
     ... on Story {
-      comments(first: 10, orderby: $orderBy) @connection(key: "NodeQuery_comments") {
+      comments(first: 10, orderby: $orderBy)
+        @connection(key: "NodeQuery_comments") {
         edges {
           node {
             actor {
               name
-              friends(first: 10, isViewerFriend: true, traits: $traits) @connection(
-                key: "NodeQuery_friends"
-              ) {
+              friends(first: 10, isViewerFriend: true, traits: $traits)
+                @connection(key: "NodeQuery_friends") {
                 edges {
                   node {
                     name
@@ -521,9 +510,7 @@ query NodeQuery(
 exports[`RelayConnectionTransform matches expected output: connection-missing-first-arg.invalid.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 # expected-to-throw
-query NodeQuery(
-  $id: ID!
-) {
+query NodeQuery($id: ID!) {
   node(id: $id) {
     id
     ... on Story {
@@ -546,19 +533,17 @@ THROWN EXCEPTION:
 Error: Encountered 1 error(s):
 - Expected field 'comments' to have a 'first' or 'last' argument.
   
-  Source: GraphQL request (8:7)
-  7:     ... on Story {
-  8:       comments @connection(key: "NodeQuery_comments") {
+  Source: GraphQL request (6:7)
+  5:     ... on Story {
+  6:       comments @connection(key: "NodeQuery_comments") {
            ^
-  9:         edges {
+  7:         edges {
   
 `;
 
 exports[`RelayConnectionTransform matches expected output: connection-with-aliased-edges-pageInfo.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
-query NodeQuery(
-  $id: ID!
-) {
+query NodeQuery($id: ID!) {
   node(id: $id) {
     id
     ... on Story {
@@ -632,18 +617,21 @@ query NodeQuery(
 
 exports[`RelayConnectionTransform matches expected output: connection-with-custom-handler.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
-query NodeQuery(
-  $id: ID!
-) {
+query NodeQuery($id: ID!) {
   node(id: $id) {
     id
     ... on Story {
-      comments(first: 10) @connection(key: "NodeQuery_comments", handler: "my_comments_handler") {
+      comments(first: 10)
+        @connection(key: "NodeQuery_comments", handler: "my_comments_handler") {
         edges {
           node {
             actor {
               name
-              friends(first: 10) @connection(key: "NodeQuery_friends", handler: "my_friends_handler") {
+              friends(first: 10)
+                @connection(
+                  key: "NodeQuery_friends"
+                  handler: "my_friends_handler"
+                ) {
                 edges {
                   node {
                     name
@@ -733,10 +721,8 @@ query NodeQuery(
 exports[`RelayConnectionTransform matches expected output: connection-with-page-info.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 fragment Example on User {
-  friends(
-    first: $friendsFirst
-    after: $friendsAfter
-  ) @connection(key: "Example_friends") {
+  friends(first: $friendsFirst, after: $friendsAfter)
+    @connection(key: "Example_friends") {
     edges {
       node {
         profilePicture(preset: $preset) {
@@ -793,10 +779,8 @@ fragment Example on User {
 exports[`RelayConnectionTransform matches expected output: connection-with-variables.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 fragment Example on User {
-  friends(
-    first: $friendsFirst
-    after: $friendsAfter
-  ) @connection(key: "Example_friends") {
+  friends(first: $friendsFirst, after: $friendsAfter)
+    @connection(key: "Example_friends") {
     edges {
       node {
         profilePicture(preset: $preset) {
@@ -849,9 +833,7 @@ fragment Example on User {
 exports[`RelayConnectionTransform matches expected output: invalid-connection-key-name.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 # expected-to-throw
-query NodeQuery(
-  $id: ID!
-) {
+query NodeQuery($id: ID!) {
   node(id: $id) {
     id
     ... on Story {
@@ -872,20 +854,18 @@ THROWN EXCEPTION:
 Error: Encountered 1 error(s):
 - Expected the key argument to @connection to be of form <SomeName>_comments, got 'invalid'. For a detailed explanation, check out https://relay.dev/docs/en/pagination-container#connection
   
-  Source: GraphQL request (8:44)
-  7:     ... on Story {
-  8:       comments(first: 10) @connection(key: "invalid") {
+  Source: GraphQL request (6:44)
+  5:     ... on Story {
+  6:       comments(first: 10) @connection(key: "invalid") {
                                                 ^
-  9:         edges {
+  7:         edges {
   
 `;
 
 exports[`RelayConnectionTransform matches expected output: invalid-connection-key-type.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 # expected-to-throw
-query NodeQuery(
-  $id: ID!
-) {
+query NodeQuery($id: ID!) {
   node(id: $id) {
     id
     ... on Story {
@@ -906,20 +886,18 @@ THROWN EXCEPTION:
 Error: RelayParser: Encountered 1 error(s):
 - Expected a value matching type 'String!'.
   
-  GraphQL request (8:44)
-  7:     ... on Story {
-  8:       comments(first: 10) @connection(key: 10) {
+  GraphQL request (6:44)
+  5:     ... on Story {
+  6:       comments(first: 10) @connection(key: 10) {
                                                 ^
-  9:         edges {
+  7:         edges {
   
 `;
 
 exports[`RelayConnectionTransform matches expected output: invalid-connection-with-custom-handler.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 # expected-to-throw
-query NodeQuery(
-  $id: ID!
-) {
+query NodeQuery($id: ID!) {
   node(id: $id) {
     id
     ... on Story {
@@ -928,7 +906,8 @@ query NodeQuery(
           node {
             actor {
               name
-              friends(first: 10) @connection(key: "NodeQuery_friends", handler: false) {
+              friends(first: 10)
+                @connection(key: "NodeQuery_friends", handler: false) {
                 edges {
                   node {
                     name
@@ -949,20 +928,18 @@ THROWN EXCEPTION:
 Error: RelayParser: Encountered 1 error(s):
 - Expected a value matching type 'String'.
   
-  GraphQL request (8:75)
-  7:     ... on Story {
-  8:       comments(first: 10) @connection(key: "NodeQuery_comments", handler: 10) {
+  GraphQL request (6:75)
+  5:     ... on Story {
+  6:       comments(first: 10) @connection(key: "NodeQuery_comments", handler: 10) {
                                                                                ^
-  9:         edges {
+  7:         edges {
   
 `;
 
 exports[`RelayConnectionTransform matches expected output: invalid-type.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 # expected-to-throw
-query NodeQuery(
-  $id: ID!
-) {
+query NodeQuery($id: ID!) {
   node(id: $id) {
     id
     ... on Story {
@@ -979,28 +956,26 @@ THROWN EXCEPTION:
 Error: Encountered 1 error(s):
 - @connection used on invalid field 'actors'. Expected the return type to be a non-plural interface or object, got '[Actor]'.
   
-  Source: GraphQL request (8:7)
-  7:     ... on Story {
-  8:       actors @connection {
+  Source: GraphQL request (6:7)
+  5:     ... on Story {
+  6:       actors @connection {
            ^
-  9:         name
+  7:         name
   
 `;
 
 exports[`RelayConnectionTransform matches expected output: stream-connection.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
-query NodeQuery(
-  $id: ID!
-) {
+query NodeQuery($id: ID!) {
   node(id: $id) {
     id
     ... on Story {
       comments(first: 10)
-      @stream_connection(
-        key: "NodeQuery_comments"
-        initial_count: 0
-        label: "comments"
-      ) {
+        @stream_connection(
+          key: "NodeQuery_comments"
+          initial_count: 0
+          label: "comments"
+        ) {
         edges {
           node {
             actor {
@@ -1071,17 +1046,12 @@ query NodeQuery(
 
 exports[`RelayConnectionTransform matches expected output: stream-connection-no-label.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
-query NodeQuery(
-  $id: ID!
-) {
+query NodeQuery($id: ID!) {
   node(id: $id) {
     id
     ... on Story {
       comments(first: 10)
-      @stream_connection(
-        key: "NodeQuery_comments"
-        initial_count: 0
-      ) {
+        @stream_connection(key: "NodeQuery_comments", initial_count: 0) {
         edges {
           node {
             actor {
@@ -1153,18 +1123,16 @@ query NodeQuery(
 exports[`RelayConnectionTransform matches expected output: stream-connection-with-aliased-edges.invalid.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 # expected-to-throw
-query NodeQuery(
-  $id: ID!
-) {
+query NodeQuery($id: ID!) {
   node(id: $id) {
     id
     ... on Story {
       comments(first: 10)
-      @stream_connection(
-        key: "NodeQuery_comments"
-        initial_count: 0
-        label: "comments"
-      ) {
+        @stream_connection(
+          key: "NodeQuery_comments"
+          initial_count: 0
+          label: "comments"
+        ) {
         commentEdges: edges {
           node {
             actor {
@@ -1186,29 +1154,27 @@ THROWN EXCEPTION:
 Error: Encountered 1 error(s):
 - @stream_connection does not support aliasing the 'edges' field.
   
-  Source: GraphQL request (14:9)
-  13:       ) {
-  14:         commentEdges: edges {
+  Source: GraphQL request (12:9)
+  11:         ) {
+  12:         commentEdges: edges {
               ^
-  15:           node {
+  13:           node {
   
 `;
 
 exports[`RelayConnectionTransform matches expected output: stream-connection-with-aliased-pageInfo.invalid.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 # expected-to-throw
-query NodeQuery(
-  $id: ID!
-) {
+query NodeQuery($id: ID!) {
   node(id: $id) {
     id
     ... on Story {
       comments(first: 10)
-      @stream_connection(
-        key: "NodeQuery_comments"
-        initial_count: 0
-        label: "comments"
-      ) {
+        @stream_connection(
+          key: "NodeQuery_comments"
+          initial_count: 0
+          label: "comments"
+        ) {
         edges {
           node {
             actor {
@@ -1230,10 +1196,10 @@ THROWN EXCEPTION:
 Error: Encountered 1 error(s):
 - @stream_connection does not support aliasing the 'pageInfo' field.
   
-  Source: GraphQL request (21:9)
-  20:         }
-  21:         commentPageInfo: pageInfo {
+  Source: GraphQL request (19:9)
+  18:         }
+  19:         commentPageInfo: pageInfo {
               ^
-  22:           hasNextPage
+  20:           hasNextPage
   
 `;

@@ -182,6 +182,7 @@ class CodegenDirectory {
     Profiler.run('CodegenDirectory.printChanges', () => {
       const output = CodegenDirectory.formatChanges(changes, options);
 
+      // eslint-disable-next-line no-console
       console.log(output);
     });
   }

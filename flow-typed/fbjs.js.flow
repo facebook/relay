@@ -5,3 +5,21 @@ declare module 'mapObject' {
 declare module 'ErrorUtils' {
   declare module.exports: any;
 }
+
+declare module 'warning' {
+  declare module.exports: (
+    condition: boolean,
+    format: string,
+    ...args: $ReadOnlyArray<mixed>
+  ) => void;
+}
+
+declare module 'fbjs/lib/ExecutionEnvironment' {
+  declare module.exports: {
+    canUseDOM: boolean,
+  };
+}
+
+declare module 'react-test-renderer' {
+  declare module.exports: any;
+}

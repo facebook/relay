@@ -48,6 +48,7 @@ const fetchQueryInternal = require('./query/fetchQueryInternal');
 const getFragmentIdentifier = require('./util/getFragmentIdentifier');
 const getFragmentSpecIdentifier = require('./util/getFragmentSpecIdentifier');
 const getRelayHandleKey = require('./util/getRelayHandleKey');
+const isPromise = require('./util/isPromise');
 const isRelayModernEnvironment = require('./store/isRelayModernEnvironment');
 const isScalarAndEqual = require('./util/isScalarAndEqual');
 const recycleNodesInto = require('./util/recycleNodesInto');
@@ -295,6 +296,7 @@ module.exports = {
   deepFreeze: deepFreeze,
   generateClientID: generateClientID,
   getRelayHandleKey: getRelayHandleKey,
+  isPromise: isPromise,
   isScalarAndEqual: isScalarAndEqual,
   recycleNodesInto: recycleNodesInto,
   stableCopy: stableCopy,

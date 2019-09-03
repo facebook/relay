@@ -72,26 +72,6 @@ export type EnvironmentConfig = {|
   +UNSTABLE_DO_NOT_USE_getDataID?: ?GetDataID,
 |};
 
-let DefaultLoggerProvider = null;
-if (__DEV__) {
-  if (console.groupCollapsed) {
-    const RelayNetworkLoggerTransaction = require('../network/RelayNetworkLoggerTransaction');
-    DefaultLoggerProvider = {
-      getLogger(config: LoggerTransactionConfig) {
-        const logger = new RelayNetworkLoggerTransaction(config);
-        return {
-          log(message: string, ...args: Array<mixed>) {
-            return logger.addLog(message, ...args);
-          },
-          flushLogs() {
-            return logger.flushLogs();
-          },
-        };
-      },
-    };
-  }
-}
-
 class RelayModernEnvironment implements Environment {
   _loggerProvider: ?LoggerProvider;
   _operationLoader: ?OperationLoader;
@@ -122,7 +102,7 @@ class RelayModernEnvironment implements Environment {
         );
       }
     }
-    this._loggerProvider = config.loggerProvider ?? DefaultLoggerProvider;
+    this._loggerProvider = config.loggerProvider;
     this._operationLoader = operationLoader;
     this._network = config.network;
     this._getDataID = config.UNSTABLE_DO_NOT_USE_getDataID ?? defaultGetDataID;

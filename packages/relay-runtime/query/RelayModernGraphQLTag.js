@@ -26,10 +26,7 @@ import type {ConcreteRequest} from '../util/RelayConcreteNode';
 export type GraphQLTaggedNode =
   | ReaderFragment
   | ConcreteRequest
-  | (() => ReaderFragment | ConcreteRequest)
-  | {
-      modern: () => ReaderFragment | ConcreteRequest,
-    };
+  | (() => ReaderFragment | ConcreteRequest);
 
 /**
  * Runtime function to correspond to the `graphql` tagged template function.
@@ -45,17 +42,10 @@ function graphql(strings: Array<string>): GraphQLTaggedNode {
 }
 
 function getNode(taggedNode) {
-  const fn =
-    typeof taggedNode === 'function'
-      ? taggedNode
-      : typeof taggedNode.modern === 'function'
-      ? taggedNode.modern
-      : null;
-  // Support for classic raw nodes (used in test mock)
-  if (fn === null) {
+  if (typeof taggedNode !== 'function') {
     return (taggedNode: any);
   }
-  const data: any = fn();
+  const data: any = taggedNode();
   // Support for languages that work (best) with ES6 modules, such as TypeScript.
   return data.default ? data.default : data;
 }

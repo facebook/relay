@@ -29,7 +29,7 @@ module.exports = function(options) {
     {
       map: {
         ErrorUtils: 'fbjs/lib/ErrorUtils',
-        Promise: 'fbjs/lib/Promise',
+        Promise: 'promise-polyfill',
         areEqual: 'fbjs/lib/areEqual',
         invariant: 'fbjs/lib/invariant',
         mapObject: 'fbjs/lib/mapObject',

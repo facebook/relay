@@ -63,7 +63,7 @@
     "gulp-once": "2.0.3",
     "gulp-util": "3.0.8",
     "immutable": "~3.7.6",
-    "jest": "^24.1.0",
+    "jest": "^24.8.0",
     "nullthrows": "^1.1.0",
     "object-assign": "4.1.1",
     "prettier": "1.17.0",

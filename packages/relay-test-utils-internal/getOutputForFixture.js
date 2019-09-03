@@ -15,7 +15,8 @@ function getOutputForFixture(
   operation: (input: string) => string,
   file: string,
 ): string {
-  const shouldThrow = /^# *expected-to-throw/.test(input);
+  const shouldThrow =
+    /^# *expected-to-throw/.test(input) || /\.error\.\w+$/.test(file);
   if (shouldThrow) {
     let result;
     try {

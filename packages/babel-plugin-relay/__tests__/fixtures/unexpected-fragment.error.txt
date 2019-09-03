@@ -1,15 +1,15 @@
 /**
- * Copyright 2004-present Facebook. All Rights Reserved.
+ * Copyright (c) Facebook, Inc. and its affiliates.
  *
- * @providesModule Compat
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  */
 
 'use strict';
 
-const graphql = require('graphql');
-const CompatProfilePic = require('CompatProfilePic');
+const {graphql} = require('relay-runtime');
 
-const CompatCommentCreateMutation = graphql`
+const testMutation = graphql`
   mutation CompatCommentCreateMutation($input: CommentCreateInput!) {
     commentCreate(input: $input) {
       viewer {

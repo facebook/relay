@@ -26,9 +26,20 @@ export type GraphiQLPrinter = (
   variables: Variables,
 ) => string;
 
+export type NetworkLogger = {|
+  wrapFetch: (
+    fetch: FetchFunction,
+    graphiQLPrinter?: GraphiQLPrinter,
+  ) => FetchFunction,
+  wrapSubscribe: (
+    subscribe: SubscribeFunction,
+    graphiQLPrinter?: GraphiQLPrinter,
+  ) => SubscribeFunction,
+|};
+
 function createRelayNetworkLogger(
   LoggerTransaction: Class<IRelayNetworkLoggerTransaction>,
-): * {
+): NetworkLogger {
   return {
     wrapFetch(
       fetch: FetchFunction,

@@ -100,7 +100,10 @@ export type {
   Subscribable,
   Subscription,
 } from './network/RelayObservable';
-export type {GraphiQLPrinter} from './network/createRelayNetworkLogger';
+export type {
+  GraphiQLPrinter,
+  NetworkLogger,
+} from './network/createRelayNetworkLogger';
 export type {GraphQLTaggedNode} from './query/RelayModernGraphQLTag';
 export type {
   ConnectionID,

@@ -142,6 +142,12 @@ const users = [
     infoLink: 'https://www.butterflynetwork.com/',
     pinned: false,
   },
+  {
+    caption: 'Mindworking',
+    image: '/img/logos/mindworking.png',
+    infoLink: 'https://mindworking.eu/',
+    pinned: false,
+  },
 ];
 
 const siteConfig = {

@@ -32,6 +32,7 @@ import type {ConnectionResolver} from '../RelayConnection';
 
 type ConnectionEdge = {|
   +cursor: ?string,
+  +node: ?{[string]: mixed},
 |};
 type ConnectionState = {|
   +edgeData: {[DataID]: ?ConnectionEdge},
@@ -59,6 +60,7 @@ describe('@connection_resolver connection field', () => {
   let operation;
   let paginationQuery;
   let query;
+  let snapshot;
   let source;
   let store;
 
@@ -136,10 +138,21 @@ describe('@connection_resolver connection field', () => {
               event.kind,
             );
         }
+        const nextEdges = [];
+        const filteredEdgeIDs = [];
+        nextEdgeIDs.forEach(edgeID => {
+          if (edgeID != null) {
+            const edgeData = nextEdgeData[edgeID];
+            if (edgeData != null && edgeData.node != null) {
+              filteredEdgeIDs.push(edgeID);
+              nextEdges.push(edgeData);
+            }
+          }
+        });
         return {
           edgeData: nextEdgeData,
-          edgeIDs: nextEdgeIDs,
-          edges: nextEdgeIDs.map(id => (id != null ? nextEdgeData[id] : null)),
+          edgeIDs: filteredEdgeIDs,
+          edges: nextEdges,
           pageInfo: nextPageInfo,
         };
       }),
@@ -321,7 +334,7 @@ describe('@connection_resolver connection field', () => {
     const selector = nullthrows(
       getSingularSelector(fragment, nextOperationSnapshot.data?.node),
     );
-    const snapshot = environment.lookup(selector);
+    snapshot = environment.lookup(selector);
     expect(snapshot.isMissingData).toBe(false);
     expect(snapshot.data).toEqual({
       id: '<feedbackid>',
@@ -375,6 +388,7 @@ describe('@connection_resolver connection field', () => {
     let callback;
     let connectionCallback;
     let connectionSnapshot;
+    let connectionSubscription;
 
     beforeEach(() => {
       environment.execute({operation}).subscribe(callbacks);
@@ -422,7 +436,7 @@ describe('@connection_resolver connection field', () => {
       const selector = nullthrows(
         getSingularSelector(fragment, operationSnapshot.data?.node),
       );
-      const snapshot = environment.lookup(selector);
+      snapshot = environment.lookup(selector);
       callback = jest.fn();
       environment.subscribe(snapshot, callback);
 
@@ -432,7 +446,7 @@ describe('@connection_resolver connection field', () => {
           (snapshot.data: $FlowFixMe).comments.__connection,
         );
       connectionCallback = jest.fn();
-      environment
+      connectionSubscription = environment
         .getStore()
         .subscribeConnection_UNSTABLE(connectionSnapshot, connectionCallback);
       connectionResolver.reduce.mockClear();
@@ -737,7 +751,6 @@ describe('@connection_resolver connection field', () => {
       expect(nextSnapshot).toEqual(
         expect.objectContaining({
           edges: [
-            {cursor: 'cursor-1', node: null},
             {
               cursor: 'cursor-2',
               node: {
@@ -771,7 +784,6 @@ describe('@connection_resolver connection field', () => {
       expect(nextSnapshot).toEqual(
         expect.objectContaining({
           edges: [
-            null,
             {
               cursor: 'cursor-2',
               node: {
@@ -936,6 +948,318 @@ describe('@connection_resolver connection field', () => {
         startCursor: 'cursor-1',
       });
       expect(connectionResolver.reduce).toBeCalledTimes(1);
+    });
+
+    describe('optimistic edge deletion', () => {
+      it('updates when an edge is deleted', () => {
+        const edgeID =
+          'client:<feedbackid>:comments(first:2,orderby:"date"):edges:0';
+        environment.applyUpdate({
+          storeUpdater: storeProxy => {
+            storeProxy.delete(edgeID);
+          },
+        });
+
+        expect(connectionCallback).toBeCalledTimes(1);
+        const nextSnapshot = connectionCallback.mock.calls[0][0];
+        expect(nextSnapshot.edges).toEqual([
+          {
+            cursor: 'cursor-2',
+            node: {
+              id: 'node-2',
+              message: {text: 'Comment 2'},
+              __fragmentOwner: operation.request,
+              __fragments: {CommentFragment: {}},
+              __id: 'node-2',
+            },
+          },
+        ]);
+        expect(nextSnapshot.pageInfo).toEqual({
+          endCursor: 'cursor-2',
+          hasNextPage: true,
+          hasPrevPage: null,
+          startCursor: 'cursor-1',
+        });
+        expect(connectionResolver.reduce).toBeCalledTimes(1);
+      });
+
+      it('updates when an edge is deleted (new lookup)', () => {
+        const edgeID =
+          'client:<feedbackid>:comments(first:2,orderby:"date"):edges:0';
+        environment.applyUpdate({
+          storeUpdater: storeProxy => {
+            storeProxy.delete(edgeID);
+          },
+        });
+
+        const latestSnapshot = environment
+          .getStore()
+          .lookupConnection_UNSTABLE(
+            (snapshot.data: $FlowFixMe).comments.__connection,
+          ).state;
+        expect(latestSnapshot.edges).toEqual([
+          {
+            cursor: 'cursor-2',
+            node: {
+              id: 'node-2',
+              message: {text: 'Comment 2'},
+              __fragmentOwner: operation.request,
+              __fragments: {CommentFragment: {}},
+              __id: 'node-2',
+            },
+          },
+        ]);
+        expect(latestSnapshot.pageInfo).toEqual({
+          endCursor: 'cursor-2',
+          hasNextPage: true,
+          hasPrevPage: null,
+          startCursor: 'cursor-1',
+        });
+      });
+
+      it('restores deleted edges to their prior state when reverted', () => {
+        const edgeID =
+          'client:<feedbackid>:comments(first:2,orderby:"date"):edges:0';
+        const disposable = environment.applyUpdate({
+          storeUpdater: storeProxy => {
+            storeProxy.delete(edgeID);
+          },
+        });
+        connectionCallback.mockClear();
+        connectionResolver.reduce.mockClear();
+
+        disposable.dispose();
+        expect(connectionCallback).toBeCalledTimes(1);
+        const nextSnapshot = connectionCallback.mock.calls[0][0];
+        expect(nextSnapshot.edges).toEqual([
+          {
+            cursor: 'cursor-1',
+            node: {
+              id: 'node-1',
+              message: {text: 'Comment 1'},
+              __fragmentOwner: operation.request,
+              __fragments: {CommentFragment: {}},
+              __id: 'node-1',
+            },
+          },
+          {
+            cursor: 'cursor-2',
+            node: {
+              id: 'node-2',
+              message: {text: 'Comment 2'},
+              __fragmentOwner: operation.request,
+              __fragments: {CommentFragment: {}},
+              __id: 'node-2',
+            },
+          },
+        ]);
+        expect(nextSnapshot.pageInfo).toEqual({
+          endCursor: 'cursor-2',
+          hasNextPage: true,
+          hasPrevPage: null,
+          startCursor: 'cursor-1',
+        });
+        expect(connectionResolver.reduce).toBeCalledTimes(0);
+      });
+
+      it('restores deleted edges to their prior state when reverted (new lookup)', () => {
+        const edgeID =
+          'client:<feedbackid>:comments(first:2,orderby:"date"):edges:0';
+        const disposable = environment.applyUpdate({
+          storeUpdater: storeProxy => {
+            storeProxy.delete(edgeID);
+          },
+        });
+        connectionCallback.mockClear();
+        connectionResolver.reduce.mockClear();
+
+        disposable.dispose();
+        const latestSnapshot = environment
+          .getStore()
+          .lookupConnection_UNSTABLE(
+            (snapshot.data: $FlowFixMe).comments.__connection,
+          ).state;
+        expect(latestSnapshot.edges).toEqual([
+          {
+            cursor: 'cursor-1',
+            node: {
+              id: 'node-1',
+              message: {text: 'Comment 1'},
+              __fragmentOwner: operation.request,
+              __fragments: {CommentFragment: {}},
+              __id: 'node-1',
+            },
+          },
+          {
+            cursor: 'cursor-2',
+            node: {
+              id: 'node-2',
+              message: {text: 'Comment 2'},
+              __fragmentOwner: operation.request,
+              __fragments: {CommentFragment: {}},
+              __id: 'node-2',
+            },
+          },
+        ]);
+        expect(latestSnapshot.pageInfo).toEqual({
+          endCursor: 'cursor-2',
+          hasNextPage: true,
+          hasPrevPage: null,
+          startCursor: 'cursor-1',
+        });
+      });
+    });
+
+    describe('optimistic edge.node deletion', () => {
+      it('updates when an edge node is deleted', () => {
+        environment.applyUpdate({
+          storeUpdater: storeProxy => {
+            storeProxy.delete('node-1');
+          },
+        });
+
+        expect(connectionCallback).toBeCalledTimes(1);
+        const nextSnapshot = connectionCallback.mock.calls[0][0];
+        expect(nextSnapshot.edges).toEqual([
+          {
+            cursor: 'cursor-2',
+            node: {
+              id: 'node-2',
+              message: {text: 'Comment 2'},
+              __fragmentOwner: operation.request,
+              __fragments: {CommentFragment: {}},
+              __id: 'node-2',
+            },
+          },
+        ]);
+        expect(nextSnapshot.pageInfo).toEqual({
+          endCursor: 'cursor-2',
+          hasNextPage: true,
+          hasPrevPage: null,
+          startCursor: 'cursor-1',
+        });
+        expect(connectionResolver.reduce).toBeCalledTimes(1);
+      });
+
+      it('updates when an edge node is deleted (new lookup)', () => {
+        environment.applyUpdate({
+          storeUpdater: storeProxy => {
+            storeProxy.delete('node-1');
+          },
+        });
+
+        const latestSnapshot = environment
+          .getStore()
+          .lookupConnection_UNSTABLE(
+            (snapshot.data: $FlowFixMe).comments.__connection,
+          ).state;
+        expect(latestSnapshot.edges).toEqual([
+          {
+            cursor: 'cursor-2',
+            node: {
+              id: 'node-2',
+              message: {text: 'Comment 2'},
+              __fragmentOwner: operation.request,
+              __fragments: {CommentFragment: {}},
+              __id: 'node-2',
+            },
+          },
+        ]);
+        expect(latestSnapshot.pageInfo).toEqual({
+          endCursor: 'cursor-2',
+          hasNextPage: true,
+          hasPrevPage: null,
+          startCursor: 'cursor-1',
+        });
+      });
+
+      it('restores deleted edges/nodes to their prior state when reverted', () => {
+        const disposable = environment.applyUpdate({
+          storeUpdater: storeProxy => {
+            storeProxy.delete('node-1');
+          },
+        });
+        connectionCallback.mockClear();
+        connectionResolver.reduce.mockClear();
+
+        disposable.dispose();
+        expect(connectionCallback).toBeCalledTimes(1);
+        const nextSnapshot = connectionCallback.mock.calls[0][0];
+        expect(nextSnapshot.edges).toEqual([
+          {
+            cursor: 'cursor-1',
+            node: {
+              id: 'node-1',
+              message: {text: 'Comment 1'},
+              __fragmentOwner: operation.request,
+              __fragments: {CommentFragment: {}},
+              __id: 'node-1',
+            },
+          },
+          {
+            cursor: 'cursor-2',
+            node: {
+              id: 'node-2',
+              message: {text: 'Comment 2'},
+              __fragmentOwner: operation.request,
+              __fragments: {CommentFragment: {}},
+              __id: 'node-2',
+            },
+          },
+        ]);
+        expect(nextSnapshot.pageInfo).toEqual({
+          endCursor: 'cursor-2',
+          hasNextPage: true,
+          hasPrevPage: null,
+          startCursor: 'cursor-1',
+        });
+        expect(connectionResolver.reduce).toBeCalledTimes(0);
+      });
+
+      it('restores deleted edges/nodes to their prior state when reverted (new lookup)', () => {
+        const disposable = environment.applyUpdate({
+          storeUpdater: storeProxy => {
+            storeProxy.delete('node-1');
+          },
+        });
+        connectionCallback.mockClear();
+        connectionResolver.reduce.mockClear();
+
+        disposable.dispose();
+        const latestSnapshot = environment
+          .getStore()
+          .lookupConnection_UNSTABLE(
+            (snapshot.data: $FlowFixMe).comments.__connection,
+          ).state;
+        expect(latestSnapshot.edges).toEqual([
+          {
+            cursor: 'cursor-1',
+            node: {
+              id: 'node-1',
+              message: {text: 'Comment 1'},
+              __fragmentOwner: operation.request,
+              __fragments: {CommentFragment: {}},
+              __id: 'node-1',
+            },
+          },
+          {
+            cursor: 'cursor-2',
+            node: {
+              id: 'node-2',
+              message: {text: 'Comment 2'},
+              __fragmentOwner: operation.request,
+              __fragments: {CommentFragment: {}},
+              __id: 'node-2',
+            },
+          },
+        ]);
+        expect(latestSnapshot.pageInfo).toEqual({
+          endCursor: 'cursor-2',
+          hasNextPage: true,
+          hasPrevPage: null,
+          startCursor: 'cursor-1',
+        });
+      });
     });
 
     describe('optimistic edge inserts', () => {
@@ -1158,6 +1482,110 @@ describe('@connection_resolver connection field', () => {
         expect(connectionResolver.reduce).toBeCalledTimes(0);
       });
 
+      it('rebases optimistic inserts on edge data changes, and reverts w/o losing those changes (new lookup)', () => {
+        connectionSubscription.dispose();
+        connectionCallback.mockClear();
+        connectionResolver.reduce.mockClear();
+
+        const edgeID =
+          'client:<feedbackid>:comments(first:2,orderby:"date"):edges:0';
+        environment.commitUpdate(storeProxy => {
+          const edge = storeProxy.get(edgeID);
+          invariant(edge, 'Expected edge to exist');
+          const node = edge.getLinkedRecord('node');
+          invariant(node, 'Expected node to exist');
+          const message = node.getLinkedRecord('message');
+          invariant(message, 'Expected message to exist');
+          message.setValue('Comment 1 changed!', 'text');
+        });
+        const latestSnapshot = environment
+          .getStore()
+          .lookupConnection_UNSTABLE(
+            (snapshot.data: $FlowFixMe).comments.__connection,
+          ).state;
+        expect(latestSnapshot.edges.length).toBe(3);
+        expect(latestSnapshot.edges).toEqual([
+          {
+            cursor: 'cursor-1',
+            node: {
+              id: 'node-1',
+              message: {text: 'Comment 1 changed!'}, // existing data changed
+              __fragmentOwner: operation.request,
+              __fragments: {CommentFragment: {}},
+              __id: 'node-1',
+            },
+          },
+          {
+            cursor: 'cursor-2',
+            node: {
+              id: 'node-2',
+              message: {text: 'Comment 2'},
+              __fragmentOwner: operation.request,
+              __fragments: {CommentFragment: {}},
+              __id: 'node-2',
+            },
+          },
+          {
+            cursor: 'cursor-x', // insert is rebased
+            node: {
+              id: 'node-x',
+              message: {text: 'Comment x'},
+              __fragmentOwner: mutation.request,
+              __fragments: {CommentFragment: {}},
+              __id: 'node-x',
+            },
+          },
+        ]);
+        expect(latestSnapshot.pageInfo).toEqual({
+          endCursor: 'cursor-x', // insert is rebased
+          hasNextPage: true,
+          hasPrevPage: null,
+          startCursor: 'cursor-1',
+        });
+        expect(connectionResolver.reduce).toBeCalledTimes(2); // update + rebased insert
+        connectionCallback.mockClear();
+        connectionResolver.reduce.mockClear();
+
+        subscription.unsubscribe();
+        expect(error.mock.calls.map(call => call[0].stack)).toEqual([]);
+        const revertSnapshot = environment
+          .getStore()
+          .lookupConnection_UNSTABLE(
+            (snapshot.data: $FlowFixMe).comments.__connection,
+          ).state;
+        expect(revertSnapshot.edges.length).toBe(2);
+        expect(revertSnapshot.edges).toEqual([
+          {
+            cursor: 'cursor-1',
+            node: {
+              id: 'node-1',
+              message: {text: 'Comment 1 changed!'}, // edit preserved
+              __fragmentOwner: operation.request,
+              __fragments: {CommentFragment: {}},
+              __id: 'node-1',
+            },
+          },
+          {
+            cursor: 'cursor-2',
+            node: {
+              id: 'node-2',
+              message: {text: 'Comment 2'},
+              __fragmentOwner: operation.request,
+              __fragments: {CommentFragment: {}},
+              __id: 'node-2',
+            },
+          },
+          // insert reverted
+        ]);
+        expect(revertSnapshot.pageInfo).toEqual({
+          endCursor: 'cursor-2', // insert reverted
+          hasNextPage: true,
+          hasPrevPage: null,
+          startCursor: 'cursor-1',
+        });
+        expect(connectionResolver.reduce).toBeCalledTimes(1); // fetch
+      });
+
       it('rebases optimistic inserts on fetch, and reverts w/o losing those changes', () => {
         connectionCallback.mockClear();
         connectionResolver.reduce.mockClear();
@@ -1294,6 +1722,265 @@ describe('@connection_resolver connection field', () => {
           startCursor: 'cursor-1',
         });
         expect(connectionResolver.reduce).toBeCalledTimes(0);
+      });
+
+      it('rebases optimistic inserts on node deletions, and reverts w/o losing those changes', () => {
+        connectionCallback.mockClear();
+        connectionResolver.reduce.mockClear();
+
+        const edgeID =
+          'client:<feedbackid>:comments(first:2,orderby:"date"):edges:0';
+        environment.commitUpdate(storeProxy => {
+          const edge = storeProxy.get(edgeID);
+          invariant(edge, 'Expected edge to exist');
+          const node = edge.getLinkedRecord('node');
+          invariant(node, 'Expected node to exist');
+          storeProxy.delete(node.getDataID());
+        });
+        expect(connectionCallback).toBeCalledTimes(1);
+        const changeSnapshot = connectionCallback.mock.calls[0][0];
+        expect(changeSnapshot.edges).toEqual([
+          // edge removed bc node deleted
+          {
+            cursor: 'cursor-2',
+            node: {
+              id: 'node-2',
+              message: {text: 'Comment 2'},
+              __fragmentOwner: operation.request,
+              __fragments: {CommentFragment: {}},
+              __id: 'node-2',
+            },
+          },
+          {
+            cursor: 'cursor-x', // insert is rebased
+            node: {
+              id: 'node-x',
+              message: {text: 'Comment x'},
+              __fragmentOwner: mutation.request,
+              __fragments: {CommentFragment: {}},
+              __id: 'node-x',
+            },
+          },
+        ]);
+        expect(changeSnapshot.pageInfo).toEqual({
+          endCursor: 'cursor-x', // insert is rebased
+          hasNextPage: true,
+          hasPrevPage: null,
+          startCursor: 'cursor-1',
+        });
+        expect(connectionResolver.reduce).toBeCalledTimes(2); // update + rebased insert
+        connectionCallback.mockClear();
+        connectionResolver.reduce.mockClear();
+
+        subscription.unsubscribe();
+        expect(error.mock.calls.map(call => call[0].stack)).toEqual([]);
+        expect(connectionCallback).toBeCalledTimes(1);
+        const revertSnapshot = connectionCallback.mock.calls[0][0];
+        expect(revertSnapshot.edges).toEqual([
+          // node deletion (and edge removal) preserved
+          {
+            cursor: 'cursor-2',
+            node: {
+              id: 'node-2',
+              message: {text: 'Comment 2'},
+              __fragmentOwner: operation.request,
+              __fragments: {CommentFragment: {}},
+              __id: 'node-2',
+            },
+          },
+          // insert reverted
+        ]);
+        expect(revertSnapshot.pageInfo).toEqual({
+          endCursor: 'cursor-2', // insert reverted, fetch preserved
+          hasNextPage: true,
+          hasPrevPage: null,
+          startCursor: 'cursor-1',
+        });
+        expect(connectionResolver.reduce).toBeCalledTimes(0);
+      });
+
+      it('applies additional optimistic edits to inserted edges', () => {
+        connectionCallback.mockClear();
+        connectionResolver.reduce.mockClear();
+
+        environment.applyUpdate({
+          storeUpdater: storeProxy => {
+            const node = storeProxy.get('node-x');
+            invariant(node, 'Expected `node` to exist');
+            const message = node.getLinkedRecord('message');
+            invariant(message, 'Expected `node.message` to exist');
+            message.setValue('Comment x message updated!', 'text');
+          },
+        });
+        expect(error.mock.calls.map(call => call[0].stack)).toEqual([]);
+        expect(connectionCallback).toBeCalledTimes(1);
+        const nextSnapshot = connectionCallback.mock.calls[0][0];
+        expect(nextSnapshot.edges).toEqual([
+          {
+            cursor: 'cursor-1',
+            node: {
+              id: 'node-1',
+              message: {text: 'Comment 1'},
+              __fragmentOwner: operation.request,
+              __fragments: {CommentFragment: {}},
+              __id: 'node-1',
+            },
+          },
+          {
+            cursor: 'cursor-2',
+            node: {
+              id: 'node-2',
+              message: {text: 'Comment 2'},
+              __fragmentOwner: operation.request,
+              __fragments: {CommentFragment: {}},
+              __id: 'node-2',
+            },
+          },
+          {
+            cursor: 'cursor-x',
+            node: {
+              id: 'node-x',
+              message: {text: 'Comment x message updated!'},
+              __fragmentOwner: mutation.request,
+              __fragments: {CommentFragment: {}},
+              __id: 'node-x',
+            },
+          },
+        ]);
+        expect(nextSnapshot.pageInfo).toEqual({
+          endCursor: 'cursor-x',
+          hasNextPage: true,
+          hasPrevPage: null,
+          startCursor: 'cursor-1',
+        });
+        expect(connectionResolver.reduce).toBeCalledTimes(1);
+      });
+
+      it('reverts additional optimistic edits to inserted edges', () => {
+        connectionCallback.mockClear();
+        connectionResolver.reduce.mockClear();
+
+        const disposable = environment.applyUpdate({
+          storeUpdater: storeProxy => {
+            const node = storeProxy.get('node-x');
+            invariant(node, 'Expected `node` to exist');
+            const message = node.getLinkedRecord('message');
+            invariant(message, 'Expected `node.message` to exist');
+            message.setValue('Comment x message updated!', 'text');
+          },
+        });
+        connectionCallback.mockClear();
+        connectionResolver.reduce.mockClear();
+
+        disposable.dispose();
+        expect(error.mock.calls.map(call => call[0].stack)).toEqual([]);
+        expect(connectionCallback).toBeCalledTimes(1);
+        const nextSnapshot = connectionCallback.mock.calls[0][0];
+        expect(nextSnapshot.edges).toEqual([
+          {
+            cursor: 'cursor-1',
+            node: {
+              id: 'node-1',
+              message: {text: 'Comment 1'},
+              __fragmentOwner: operation.request,
+              __fragments: {CommentFragment: {}},
+              __id: 'node-1',
+            },
+          },
+          {
+            cursor: 'cursor-2',
+            node: {
+              id: 'node-2',
+              message: {text: 'Comment 2'},
+              __fragmentOwner: operation.request,
+              __fragments: {CommentFragment: {}},
+              __id: 'node-2',
+            },
+          },
+          {
+            cursor: 'cursor-x',
+            node: {
+              id: 'node-x',
+              message: {text: 'Comment x'},
+              __fragmentOwner: mutation.request,
+              __fragments: {CommentFragment: {}},
+              __id: 'node-x',
+            },
+          },
+        ]);
+        expect(nextSnapshot.pageInfo).toEqual({
+          endCursor: 'cursor-x',
+          hasNextPage: true,
+          hasPrevPage: null,
+          startCursor: 'cursor-1',
+        });
+        expect(connectionResolver.reduce).toBeCalledTimes(1);
+      });
+
+      it('reverts additional optimistic edits to inserted edges (new lookup)', () => {
+        connectionSubscription.dispose();
+        connectionCallback.mockClear();
+        connectionResolver.reduce.mockClear();
+
+        const disposable = environment.applyUpdate({
+          storeUpdater: storeProxy => {
+            const node = storeProxy.get('node-x');
+            invariant(node, 'Expected `node` to exist');
+            const message = node.getLinkedRecord('message');
+            invariant(message, 'Expected `node.message` to exist');
+            message.setValue('Comment x message updated!', 'text');
+          },
+        });
+        connectionCallback.mockClear();
+        connectionResolver.reduce.mockClear();
+
+        disposable.dispose();
+        expect(error.mock.calls.map(call => call[0].stack)).toEqual([]);
+        const latestSnapshot = environment
+          .getStore()
+          .lookupConnection_UNSTABLE(
+            (snapshot.data: $FlowFixMe).comments.__connection,
+          ).state;
+        expect(latestSnapshot.edges.length).toBe(3);
+        expect(latestSnapshot.edges).toEqual([
+          {
+            cursor: 'cursor-1',
+            node: {
+              id: 'node-1',
+              message: {text: 'Comment 1'},
+              __fragmentOwner: operation.request,
+              __fragments: {CommentFragment: {}},
+              __id: 'node-1',
+            },
+          },
+          {
+            cursor: 'cursor-2',
+            node: {
+              id: 'node-2',
+              message: {text: 'Comment 2'},
+              __fragmentOwner: operation.request,
+              __fragments: {CommentFragment: {}},
+              __id: 'node-2',
+            },
+          },
+          {
+            cursor: 'cursor-x',
+            node: {
+              id: 'node-x',
+              message: {text: 'Comment x'},
+              __fragmentOwner: mutation.request,
+              __fragments: {CommentFragment: {}},
+              __id: 'node-x',
+            },
+          },
+        ]);
+        expect(latestSnapshot.pageInfo).toEqual({
+          endCursor: 'cursor-x',
+          hasNextPage: true,
+          hasPrevPage: null,
+          startCursor: 'cursor-1',
+        });
+        expect(connectionResolver.reduce).toBeCalledTimes(2); // fetch + insert
       });
     });
   });

@@ -490,19 +490,32 @@ class RelayModernStore implements Store {
     };
   }
 
-  snapshotConnections_UNSTABLE(): $ReadOnlyArray<
-    ConnectionSubscriptionSnapshot<mixed, mixed>,
-  > {
-    return Array.from(this._connectionSubscriptions.values(), subscription => ({
-      id: subscription.id,
-      snapshot: subscription.snapshot,
-    }));
+  snapshotConnections_UNSTABLE(): {|
+    events: $ReadOnlyArray<[ConnectionID, Array<ConnectionInternalEvent>]>,
+    subscriptions: $ReadOnlyArray<ConnectionSubscriptionSnapshot<mixed, mixed>>,
+  |} {
+    const events = Array.from(
+      this._connectionEvents.entries(),
+      ([connectionID, connectionEvents]) => [
+        connectionID,
+        connectionEvents.slice(),
+      ],
+    );
+    const subscriptions = Array.from(
+      this._connectionSubscriptions.values(),
+      subscription => ({
+        id: subscription.id,
+        snapshot: subscription.snapshot,
+      }),
+    );
+    return {events, subscriptions};
   }
 
-  restoreConnections_UNSTABLE(
-    connections: $ReadOnlyArray<ConnectionSubscriptionSnapshot<mixed, mixed>>,
-  ): void {
-    connections.forEach(subscription => {
+  restoreConnections_UNSTABLE(connections: {|
+    events: $ReadOnlyArray<[ConnectionID, Array<ConnectionInternalEvent>]>,
+    subscriptions: $ReadOnlyArray<ConnectionSubscriptionSnapshot<mixed, mixed>>,
+  |}): void {
+    connections.subscriptions.forEach(subscription => {
       const prevSubscription = this._connectionSubscriptions.get(
         subscription.id,
       );
@@ -516,6 +529,10 @@ class RelayModernStore implements Store {
           prevSubscription.stale = true;
         }
       }
+    });
+    this._connectionEvents.clear();
+    connections.events.forEach(([connectionID, events]) => {
+      this._connectionEvents.set(connectionID, events);
     });
   }
 

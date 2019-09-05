@@ -87,6 +87,11 @@ export type ConnectionSubscriptionSnapshot<TEdge, TState> = {|
   +snapshot: ConnectionSnapshot<TEdge, TState>,
 |};
 
+export type ConnectionStoreSnapshot = {|
+  events: $ReadOnlyArray<[ConnectionID, Array<ConnectionInternalEvent>]>,
+  subscriptions: $ReadOnlyArray<ConnectionSubscriptionSnapshot<mixed, mixed>>,
+|};
+
 export type PageInfo = {|
   endCursor: ?string,
   hasNextPage: ?boolean,

@@ -21,7 +21,7 @@ const invariant = require('invariant');
 
 import type {HandlerProvider} from '../handlers/RelayDefaultHandlerProvider';
 import type {Disposable} from '../util/RelayRuntimeTypes';
-import type {ConnectionSubscriptionSnapshot} from './RelayConnection';
+import type {ConnectionStoreSnapshot} from './RelayConnection';
 import type {GetDataID} from './RelayResponseNormalizer';
 import type {
   MutableRecordSource,
@@ -73,9 +73,7 @@ class RelayPublishQueue implements PublishQueue {
   // A "negative" of all applied updaters. It can be published to the store to
   // undo them in order to re-apply some of them for a rebase.
   _backup: MutableRecordSource;
-  _backupConnections: ?$ReadOnlyArray<
-    ConnectionSubscriptionSnapshot<mixed, mixed>,
-  >;
+  _backupConnections: ?ConnectionStoreSnapshot;
   // True if the next `run()` should apply the backup and rerun all optimistic
   // updates performing a rebase.
   _pendingBackupRebase: boolean;
@@ -199,7 +197,9 @@ class RelayPublishQueue implements PublishQueue {
       this._pendingOptimisticUpdates.size ||
       (this._pendingBackupRebase && this._appliedOptimisticUpdates.size)
     ) {
-      this._backupConnections = this._store.snapshotConnections_UNSTABLE();
+      if (this._backupConnections == null) {
+        this._backupConnections = this._store.snapshotConnections_UNSTABLE();
+      }
       this._applyUpdates();
     }
     this._pendingBackupRebase = false;

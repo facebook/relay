@@ -185,10 +185,11 @@ it('returns false when owner fetch completed', () => {
   expect(pending).toBe(false);
 });
 
-// TODO(T52981865): Re-enable when we figure out how to handle assertions
-// when throwing errors inside observables
-it.skip('returns false when owner fetch errored', () => {
-  fetchQuery(environment, operation).subscribe({});
+it('returns false when owner fetch errored', () => {
+  const onError = jest.fn();
+  fetchQuery(environment, operation).subscribe({
+    error: onError,
+  });
   expect(fetch).toBeCalledTimes(1);
   dataSource.next({
     data: {
@@ -210,6 +211,7 @@ it.skip('returns false when owner fetch errored', () => {
       <Component />
     </RelayEnvironmentProvider>,
   );
+  expect(onError).toBeCalledTimes(1);
   expect(pending).toBe(false);
 });
 
@@ -290,10 +292,11 @@ it('updates the component when a pending owner fetch completes', () => {
   expect(states).toEqual([true, false]);
 });
 
-// TODO(T52981865): Re-enable when we figure out how to handle assertions
-// when throwing errors inside observables
-it.skip('updates the component when a pending owner fetch errors', () => {
-  fetchQuery(environment, operation).subscribe({});
+it('updates the component when a pending owner fetch errors', () => {
+  const onError = jest.fn();
+  fetchQuery(environment, operation).subscribe({
+    error: onError,
+  });
   expect(fetch).toBeCalledTimes(1);
   const states = [];
   function Component() {
@@ -313,6 +316,7 @@ it.skip('updates the component when a pending owner fetch errors', () => {
     dataSource.error(new Error('wtf'));
     jest.runAllImmediates();
   });
+  expect(onError).toBeCalledTimes(1);
   expect(states).toEqual([true, false]);
 });
 

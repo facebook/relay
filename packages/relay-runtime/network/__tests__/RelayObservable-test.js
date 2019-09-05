@@ -1728,65 +1728,6 @@ describe('RelayObservable', () => {
     });
   });
 
-  describe('subscribeLegacy', () => {
-    it('Handle values and complete', () => {
-      const list = [];
-
-      RelayObservable.create(sink => {
-        sink.next(1);
-        sink.next(2);
-        sink.next(3);
-        sink.complete();
-      }).subscribeLegacy({
-        onNext: val => list.push('next:' + val),
-        onError: err => list.push(err),
-        onCompleted: () => list.push('complete'),
-      });
-
-      expect(list).toEqual(['next:1', 'next:2', 'next:3', 'complete']);
-    });
-
-    it('Does not handle values after handling error', () => {
-      const list = [];
-      const error = new Error();
-
-      RelayObservable.create(sink => {
-        sink.next(1);
-        sink.next(2);
-        sink.error(error);
-        sink.next(3);
-      }).subscribeLegacy({
-        onNext: val => list.push('next:' + val),
-        onError: err => list.push(err),
-        onCompleted: () => list.push('complete'),
-      });
-
-      expect(list).toEqual(['next:1', 'next:2', error]);
-    });
-
-    it('Cleans up and does not handle values after dispose', () => {
-      let sink;
-      const list = [];
-
-      const obs = RelayObservable.create(_sink => {
-        sink = _sink;
-        return () => list.push('cleanup');
-      });
-
-      const disposable = obs.subscribeLegacy({
-        onNext: val => list.push('next:' + val),
-        onError: err => list.push(err),
-        onCompleted: () => list.push('complete'),
-      });
-
-      sink.next(1);
-      disposable.dispose();
-      sink.next(2);
-
-      expect(list).toEqual(['next:1', 'cleanup']);
-    });
-  });
-
   describe('poll', () => {
     it('Throws error if polling interval is too small', () => {
       expect(() => RelayObservable.create(() => {}).poll(0)).toThrow(

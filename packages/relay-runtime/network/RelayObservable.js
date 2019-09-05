@@ -333,20 +333,6 @@ class RelayObservable<+T> implements Subscribable<T> {
   }
 
   /**
-   * Supports subscription of a legacy Relay Observer, returning a Disposable.
-   */
-  subscribeLegacy(legacyObserver: LegacyObserver<T>): Disposable {
-    const subscription = this.subscribe({
-      next: legacyObserver.onNext,
-      error: legacyObserver.onError,
-      complete: legacyObserver.onCompleted,
-    });
-    return {
-      dispose: subscription.unsubscribe,
-    };
-  }
-
-  /**
    * Returns a new Observerable where each value has been transformed by
    * the mapping function.
    */

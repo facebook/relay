@@ -59,7 +59,7 @@ function requestSubscription<TSubscriptionPayload>(
       )
     : config;
 
-  return environment
+  const sub = environment
     .execute({
       operation,
       updater,
@@ -70,11 +70,14 @@ function requestSubscription<TSubscriptionPayload>(
       // $FlowFixMe
       return (data: TSubscriptionPayload);
     })
-    .subscribeLegacy({
-      onNext,
-      onError,
-      onCompleted,
+    .subscribe({
+      next: onNext,
+      error: onError,
+      complete: onCompleted,
     });
+  return {
+    dispose: sub.unsubscribe,
+  };
 }
 
 module.exports = requestSubscription;

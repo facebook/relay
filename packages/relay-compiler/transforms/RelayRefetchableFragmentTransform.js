@@ -606,12 +606,17 @@ function getRefetchQueryName(fragment: Fragment): string | null {
   }
   const refetchArguments = getLiteralArgumentValues(refetchableDirective.args);
   const queryName = refetchArguments.queryName;
-  if (typeof queryName !== 'string') {
+  if (queryName == null) {
+    throw createUserError(
+      "Expected the 'queryName' argument of @refetchable to be provided",
+      [refetchableDirective.loc],
+    );
+  } else if (typeof queryName !== 'string') {
     const queryNameArg = refetchableDirective.args.find(
       arg => arg.name === 'queryName',
     );
-    throw createCompilerError(
-      `Expected the 'name' argument of @refetchable to be a string, got '${String(
+    throw createUserError(
+      `Expected the 'queryName' argument of @refetchable to be a string, got '${String(
         queryName,
       )}'.`,
       [queryNameArg?.loc ?? refetchableDirective.loc],

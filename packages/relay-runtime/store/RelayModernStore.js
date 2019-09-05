@@ -34,6 +34,7 @@ import type {
   ConnectionInternalEvent,
   ConnectionReference,
   ConnectionSnapshot,
+  ConnectionSubscriptionSnapshot,
 } from './RelayConnection';
 import type {GetDataID} from './RelayResponseNormalizer';
 import type {
@@ -56,8 +57,10 @@ type Subscription = {
 
 type UpdatedConnections = {[ConnectionID]: boolean};
 type ConnectionSubscription<TEdge, TState> = {|
+  +callback: (state: TState) => void,
+  +id: string,
   snapshot: ConnectionSnapshot<TEdge, TState>,
-  callback: (state: TState) => void,
+  stale: boolean,
 |};
 
 /**
@@ -74,12 +77,11 @@ type ConnectionSubscription<TEdge, TState> = {|
  */
 class RelayModernStore implements Store {
   _connectionEvents: Map<ConnectionID, Array<ConnectionInternalEvent>>;
-  _connectionSubscriptions: Set<ConnectionSubscription<mixed, mixed>>;
+  _connectionSubscriptions: Map<string, ConnectionSubscription<mixed, mixed>>;
   _gcScheduler: Scheduler;
   _hasScheduledGC: boolean;
   _index: number;
   _operationLoader: ?OperationLoader;
-  _pendingConnectionEvents: Map<ConnectionID, Array<ConnectionInternalEvent>>;
   _recordSource: MutableRecordSource;
   _roots: Map<number, NormalizationSelector>;
   _subscriptions: Set<Subscription>;
@@ -106,12 +108,11 @@ class RelayModernStore implements Store {
       }
     }
     this._connectionEvents = new Map();
-    this._connectionSubscriptions = new Set();
+    this._connectionSubscriptions = new Map();
     this._gcScheduler = gcScheduler;
     this._hasScheduledGC = false;
     this._index = 0;
     this._operationLoader = operationLoader;
-    this._pendingConnectionEvents = new Map();
     this._recordSource = source;
     this._roots = new Map();
     this._subscriptions = new Set();
@@ -164,18 +165,11 @@ class RelayModernStore implements Store {
         updatedOwners.push(owner);
       }
     });
-    this._connectionSubscriptions.forEach(subscription => {
-      this._updateConnection_UNSTABLE(subscription);
-    });
-    this._pendingConnectionEvents.forEach((newEvents, connectionID) => {
-      const events = this._connectionEvents.get(connectionID);
-      if (events == null) {
-        this._connectionEvents.set(connectionID, newEvents);
-      } else {
-        this._connectionEvents.set(connectionID, events.concat(newEvents));
+    this._connectionSubscriptions.forEach((subscription, id) => {
+      if (subscription.stale) {
+        subscription.callback(subscription.snapshot.state);
       }
     });
-    this._pendingConnectionEvents.clear();
     this._updatedConnectionIDs = {};
     this._updatedRecordIDs = {};
     return updatedOwners;
@@ -183,27 +177,23 @@ class RelayModernStore implements Store {
 
   publish(source: RecordSource): void {
     updateTargetFromSource(this._recordSource, source, this._updatedRecordIDs);
-  }
-
-  publishConnectionEvents_UNSTABLE(
-    events: Array<ConnectionInternalEvent>,
-  ): void {
-    if (events.length === 0) {
-      return;
-    }
-    invariant(
-      RelayFeatureFlags.ENABLE_CONNECTION_RESOLVERS,
-      'RelayModernStore: Connection resolvers are not yet supported.',
-    );
-    events.forEach(event => {
-      let connectionEvents = this._pendingConnectionEvents.get(
-        event.connectionID,
+    this._connectionSubscriptions.forEach((subscription, id) => {
+      const hasStoreUpdates = hasOverlappingIDs(
+        subscription.snapshot.seenRecords,
+        this._updatedRecordIDs,
       );
-      if (connectionEvents == null) {
-        connectionEvents = [];
-        this._pendingConnectionEvents.set(event.connectionID, connectionEvents);
+      if (!hasStoreUpdates) {
+        return;
       }
-      connectionEvents.push(event);
+      const nextSnapshot = this._updateConnection_UNSTABLE(
+        subscription.snapshot,
+        source,
+        null,
+      );
+      if (nextSnapshot) {
+        subscription.snapshot = nextSnapshot;
+        subscription.stale = true;
+      }
     });
   }
 
@@ -231,6 +221,39 @@ class RelayModernStore implements Store {
       }
     };
     return {dispose};
+  }
+
+  toJSON(): mixed {
+    return 'RelayModernStore()';
+  }
+
+  // Internal API
+  __getUpdatedRecordIDs(): UpdatedRecords {
+    return this._updatedRecordIDs;
+  }
+
+  // We are returning an instance of RequestDescriptor here if the snapshot
+  // were updated. We will use this information in the RelayOperationTracker
+  // in order to track which owner was affected by which operation.
+  _updateSubscription(subscription: Subscription): ?RequestDescriptor {
+    const {callback, snapshot} = subscription;
+    if (!hasOverlappingIDs(snapshot.seenRecords, this._updatedRecordIDs)) {
+      return;
+    }
+    let nextSnapshot = RelayReader.read(this._recordSource, snapshot.selector);
+    const nextData = recycleNodesInto(snapshot.data, nextSnapshot.data);
+    nextSnapshot = {
+      ...nextSnapshot,
+      data: nextData,
+    };
+    if (__DEV__) {
+      deepFreeze(nextSnapshot);
+    }
+    subscription.snapshot = nextSnapshot;
+    if (nextSnapshot.data !== snapshot.data) {
+      callback(nextSnapshot);
+      return snapshot.selector.owner;
+    }
   }
 
   lookupConnection_UNSTABLE<TEdge, TState>(
@@ -262,11 +285,101 @@ class RelayModernStore implements Store {
     );
   }
 
+  subscribeConnection_UNSTABLE<TEdge, TState>(
+    snapshot: ConnectionSnapshot<TEdge, TState>,
+    callback: TState => void,
+  ): Disposable {
+    invariant(
+      RelayFeatureFlags.ENABLE_CONNECTION_RESOLVERS,
+      'RelayModernStore: Connection resolvers are not yet supported.',
+    );
+    const id = String(this._index++);
+    const subscription: ConnectionSubscription<TEdge, TState> = {
+      callback,
+      id,
+      snapshot,
+      stale: false,
+    };
+    const dispose = () => {
+      this._connectionSubscriptions.delete(id);
+    };
+    this._connectionSubscriptions.set(id, (subscription: $FlowFixMe));
+    return {dispose};
+  }
+
+  publishConnectionEvents_UNSTABLE(
+    events: Array<ConnectionInternalEvent>,
+  ): void {
+    if (events.length === 0) {
+      return;
+    }
+    invariant(
+      RelayFeatureFlags.ENABLE_CONNECTION_RESOLVERS,
+      'RelayModernStore: Connection resolvers are not yet supported.',
+    );
+    const pendingConnectionEvents = new Map<
+      ConnectionID,
+      Array<ConnectionInternalEvent>,
+    >();
+    events.forEach(event => {
+      const {connectionID} = event;
+      let pendingEvents = pendingConnectionEvents.get(connectionID);
+      if (pendingEvents == null) {
+        pendingEvents = [];
+        pendingConnectionEvents.set(connectionID, pendingEvents);
+      }
+      pendingEvents.push(event);
+      let connectionEvents = this._connectionEvents.get(connectionID);
+      if (connectionEvents == null) {
+        connectionEvents = [];
+        this._connectionEvents.set(connectionID, pendingEvents);
+      }
+      connectionEvents.push(event);
+    });
+    this._connectionSubscriptions.forEach((subscription, id) => {
+      const pendingEvents = pendingConnectionEvents.get(
+        subscription.snapshot.reference.id,
+      );
+      if (pendingEvents == null) {
+        return;
+      }
+      const nextSnapshot = this._updateConnection_UNSTABLE(
+        subscription.snapshot,
+        null,
+        pendingEvents,
+      );
+      if (nextSnapshot) {
+        subscription.snapshot = nextSnapshot;
+        subscription.stale = true;
+      }
+    });
+  }
+
+  _updateConnection_UNSTABLE<TEdge, TState>(
+    snapshot: ConnectionSnapshot<TEdge, TState>,
+    source: ?RecordSource,
+    pendingEvents: ?Array<ConnectionInternalEvent>,
+  ): ?ConnectionSnapshot<TEdge, TState> {
+    const nextSnapshot = this._reduceConnection_UNSTABLE(
+      snapshot.reference,
+      snapshot,
+      pendingEvents ?? [],
+      source,
+    );
+    const state = recycleNodesInto(snapshot.state, nextSnapshot.state);
+    if (__DEV__) {
+      deepFreeze(nextSnapshot);
+    }
+    if (state !== snapshot.state) {
+      return {...nextSnapshot, state};
+    }
+  }
+
   _reduceConnection_UNSTABLE<TEdge, TState>(
     connectionReference: ConnectionReference<TEdge, TState>,
     snapshot: ConnectionSnapshot<TEdge, TState>,
     events: $ReadOnlyArray<ConnectionInternalEvent>,
-    hasStoreUpdates: boolean = false,
+    source: ?RecordSource = null,
   ): ConnectionSnapshot<TEdge, TState> {
     const {edgeField, id, resolver, variables} = connectionReference;
     const fragment: ReaderFragment = {
@@ -280,7 +393,7 @@ class RelayModernStore implements Store {
     const seenRecords = {};
     const edgeSnapshots = {...snapshot.edgeSnapshots};
     let initialState = snapshot.state;
-    if (hasStoreUpdates) {
+    if (source) {
       const edgeData = {};
       Object.keys(edgeSnapshots).forEach(edgeID => {
         const prevSnapshot = edgeSnapshots[edgeID];
@@ -298,7 +411,11 @@ class RelayModernStore implements Store {
           ...nextSnapshot,
           data,
         };
-        if (data !== prevSnapshot.data) {
+        if (
+          data !== prevSnapshot.data &&
+          (data !== undefined ||
+            source.get(edgeID) !== UNPUBLISH_RECORD_SENTINEL)
+        ) {
           edgeData[edgeID] = data;
           edgeSnapshots[edgeID] = nextSnapshot;
         }
@@ -373,86 +490,33 @@ class RelayModernStore implements Store {
     };
   }
 
-  subscribeConnection_UNSTABLE<TEdge, TState>(
-    snapshot: ConnectionSnapshot<TEdge, TState>,
-    callback: TState => void,
-  ): Disposable {
-    invariant(
-      RelayFeatureFlags.ENABLE_CONNECTION_RESOLVERS,
-      'RelayModernStore: Connection resolvers are not yet supported.',
-    );
-    const subscription: ConnectionSubscription<mixed, mixed> = ({
-      callback,
-      snapshot,
-    }: $FlowFixMe);
-    const dispose = () => {
-      this._connectionSubscriptions.delete(subscription);
-    };
-    this._connectionSubscriptions.add(subscription);
-    return {dispose};
+  snapshotConnections_UNSTABLE(): $ReadOnlyArray<
+    ConnectionSubscriptionSnapshot<mixed, mixed>,
+  > {
+    return Array.from(this._connectionSubscriptions.values(), subscription => ({
+      id: subscription.id,
+      snapshot: subscription.snapshot,
+    }));
   }
 
-  toJSON(): mixed {
-    return 'RelayModernStore()';
-  }
-
-  // Internal API
-  __getUpdatedRecordIDs(): UpdatedRecords {
-    return this._updatedRecordIDs;
-  }
-
-  // We are returning an instance of RequestDescriptor here if the snapshot
-  // were updated. We will use this information in the RelayOperationTracker
-  // in order to track which owner was affected by which operation.
-  _updateSubscription(subscription: Subscription): ?RequestDescriptor {
-    const {callback, snapshot} = subscription;
-    if (!hasOverlappingIDs(snapshot.seenRecords, this._updatedRecordIDs)) {
-      return;
-    }
-    let nextSnapshot = RelayReader.read(this._recordSource, snapshot.selector);
-    const nextData = recycleNodesInto(snapshot.data, nextSnapshot.data);
-    nextSnapshot = {
-      ...nextSnapshot,
-      data: nextData,
-    };
-    if (__DEV__) {
-      deepFreeze(nextSnapshot);
-    }
-    subscription.snapshot = nextSnapshot;
-    if (nextSnapshot.data !== snapshot.data) {
-      callback(nextSnapshot);
-      return snapshot.selector.owner;
-    }
-  }
-
-  _updateConnection_UNSTABLE<TEdge, TState>(
-    connection: ConnectionSubscription<TEdge, TState>,
+  restoreConnections_UNSTABLE(
+    connections: $ReadOnlyArray<ConnectionSubscriptionSnapshot<mixed, mixed>>,
   ): void {
-    const {snapshot, callback} = connection;
-    const hasStoreUpdates = hasOverlappingIDs(
-      snapshot.seenRecords,
-      this._updatedRecordIDs,
-    );
-    const pendingEvents = this._pendingConnectionEvents.get(
-      snapshot.reference.id,
-    );
-    if (pendingEvents == null && !hasStoreUpdates) {
-      return;
-    }
-    const nextSnapshot = this._reduceConnection_UNSTABLE(
-      snapshot.reference,
-      snapshot,
-      pendingEvents ?? [],
-      hasStoreUpdates,
-    );
-    const state = recycleNodesInto(snapshot.state, nextSnapshot.state);
-    if (__DEV__) {
-      deepFreeze(nextSnapshot);
-    }
-    connection.snapshot = nextSnapshot;
-    if (state !== snapshot.state) {
-      callback(state);
-    }
+    connections.forEach(subscription => {
+      const prevSubscription = this._connectionSubscriptions.get(
+        subscription.id,
+      );
+      if (prevSubscription) {
+        // Always restore the snapshot to account for other properties such as
+        // seenRecords
+        prevSubscription.snapshot = subscription.snapshot;
+        if (prevSubscription.snapshot.state !== subscription.snapshot.state) {
+          // Mark stale only if the last published value is different from the
+          // value being restored
+          prevSubscription.stale = true;
+        }
+      }
+    });
   }
 
   _scheduleGC() {

@@ -94,6 +94,7 @@ const {
       mutator = new RelayRecordSourceMutator(
         baseSource,
         sinkSource,
+        [],
         backupSource,
       );
       store = new RelayRecordSourceProxy(mutator, defaultGetDataID);

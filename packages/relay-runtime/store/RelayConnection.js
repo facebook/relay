@@ -82,6 +82,11 @@ export type ConnectionSnapshot<TEdge, TState> = {|
   +state: TState,
 |};
 
+export type ConnectionSubscriptionSnapshot<TEdge, TState> = {|
+  +id: string,
+  +snapshot: ConnectionSnapshot<TEdge, TState>,
+|};
+
 export type PageInfo = {|
   endCursor: ?string,
   hasNextPage: ?boolean,

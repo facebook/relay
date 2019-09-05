@@ -35,9 +35,11 @@ import type {
 } from '../util/RelayRuntimeTypes';
 import type {RequestIdentifier} from '../util/getRequestIdentifier';
 import type {
+  ConnectionID,
   ConnectionInternalEvent,
   ConnectionReference,
   ConnectionSnapshot,
+  ConnectionSubscriptionSnapshot,
 } from './RelayConnection';
 import type RelayOperationTracker from './RelayOperationTracker';
 import type {RecordState} from './RelayRecordState';
@@ -245,14 +247,6 @@ export interface Store {
   publish(source: RecordSource): void;
 
   /**
-   * Publish connection events, updating the store's list of events. As with
-   * publish(), subscribers are only notified after notify() is called.
-   */
-  publishConnectionEvents_UNSTABLE(
-    events: Array<ConnectionInternalEvent>,
-  ): void;
-
-  /**
    * Ensure that all the records necessary to fulfill the given selector are
    * retained in-memory. The records will not be eligible for garbage collection
    * until the returned reference is disposed.
@@ -283,6 +277,31 @@ export interface Store {
     snapshot: ConnectionSnapshot<TEdge, TState>,
     callback: (state: TState) => void,
   ): Disposable;
+
+  /**
+   * Publish connection events, updating the store's list of events. As with
+   * publish(), subscribers are only notified after notify() is called.
+   */
+  publishConnectionEvents_UNSTABLE(
+    events: Array<ConnectionInternalEvent>,
+  ): void;
+
+  /**
+   * Record a backup/snapshot of the current state of all connections in the
+   * store, which can be used to restore connection state via
+   * restoreConnection_UNSTABLE().
+   */
+  snapshotConnections_UNSTABLE(): $ReadOnlyArray<
+    ConnectionSubscriptionSnapshot<mixed, mixed>,
+  >;
+
+  /**
+   * Reset the state of connections to a previous state recorded with
+   * snapshotConnections_UNSTABLE.
+   */
+  restoreConnections_UNSTABLE(
+    snapshot: $ReadOnlyArray<ConnectionSubscriptionSnapshot<mixed, mixed>>,
+  ): void;
 }
 
 /**
@@ -355,6 +374,11 @@ export interface ReadOnlyRecordSourceProxy {
 export interface RecordSourceSelectorProxy extends RecordSourceProxy {
   getRootField(fieldName: string): ?RecordProxy;
   getPluralRootField(fieldName: string): ?Array<?RecordProxy>;
+  insertConnectionEdge_UNSTABLE(
+    connectionID: ConnectionID,
+    args: Variables,
+    edge: RecordProxy,
+  ): void;
 }
 
 export interface Logger {

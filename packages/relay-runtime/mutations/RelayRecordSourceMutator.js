@@ -20,6 +20,7 @@ const {
   UNPUBLISH_RECORD_SENTINEL,
 } = require('../store/RelayStoreUtils');
 
+import type {ConnectionInternalEvent} from '../store/RelayConnection';
 import type {RecordState} from '../store/RelayRecordState';
 import type {
   MutableRecordSource,
@@ -52,16 +53,19 @@ class RelayRecordSourceMutator {
   __sources: Array<RecordSource>;
   _backup: ?MutableRecordSource;
   _base: RecordSource;
+  _connectionEvents: Array<ConnectionInternalEvent>;
   _sink: MutableRecordSource;
 
   constructor(
     base: RecordSource,
     sink: MutableRecordSource,
+    connectionEvents: Array<ConnectionInternalEvent>,
     backup?: ?MutableRecordSource,
   ) {
     this.__sources = [sink, base];
     this._backup = backup;
     this._base = base;
+    this._connectionEvents = connectionEvents;
     this._sink = sink;
   }
 
@@ -311,6 +315,10 @@ class RelayRecordSourceMutator {
     const sinkRecord = this._getSinkRecord(dataID);
     RelayModernRecord.setLinkedRecordIDs(sinkRecord, storageKey, linkedIDs);
     this._setSentinelFieldInBackupRecord(dataID, storageKey);
+  }
+
+  appendConnectionEvent_UNSTABLE(event: ConnectionInternalEvent): void {
+    this._connectionEvents.push(event);
   }
 }
 

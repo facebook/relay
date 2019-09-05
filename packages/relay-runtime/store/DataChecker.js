@@ -113,7 +113,16 @@ class DataChecker {
   ) {
     this._operationLoader = operationLoader ?? null;
     this._handlers = handlers;
-    this._mutator = new RelayRecordSourceMutator(source, target);
+    const connectionEvents = [];
+    this._mutator = new RelayRecordSourceMutator(
+      source,
+      target,
+      connectionEvents,
+    );
+    invariant(
+      connectionEvents.length === 0,
+      'DataChecker: Unexpected connection events.',
+    );
     this._recordWasMissing = false;
     this._source = source;
     this._variables = variables;

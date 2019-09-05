@@ -92,10 +92,11 @@ const {EXISTENT, NONEXISTENT, UNKNOWN} = RelayRecordState;
       baseSource = new RecordSourceImpl(baseData);
       backupSource = new RecordSourceImpl(backupData);
       sinkSource = new RecordSourceImpl(sinkData);
-      mutator = new RelayRecordSourceMutator(baseSource, sinkSource);
+      mutator = new RelayRecordSourceMutator(baseSource, sinkSource, []);
       backupMutator = new RelayRecordSourceMutator(
         baseSource,
         sinkSource,
+        [],
         backupSource,
       );
     });

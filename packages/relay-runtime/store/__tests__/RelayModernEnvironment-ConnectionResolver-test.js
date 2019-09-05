@@ -118,6 +118,10 @@ describe('@connection_resolver connection field', () => {
             nextEdgeIDs = [...state.edgeIDs, event.edgeID];
             nextEdgeData = {...state.edgeData};
             nextEdgeData[event.edgeID] = event.edge;
+            nextPageInfo = {
+              ...state.pageInfo,
+              endCursor: event.edge?.cursor ?? state.pageInfo.endCursor,
+            };
             break;
           }
           case 'update': {
@@ -855,8 +859,7 @@ describe('@connection_resolver connection field', () => {
       expect(connectionResolver.reduce).toBeCalledTimes(0);
     });
 
-    // eslint-disable-next-line jest/no-disabled-tests
-    xit('updates when an edge is inserted', () => {
+    it('updates when an edge is inserted', () => {
       const payload = {
         data: {
           commentCreate: {
@@ -878,8 +881,11 @@ describe('@connection_resolver connection field', () => {
         invariant(commentCreate, 'Expected `commentCreate` to exist');
         const edge = commentCreate.getLinkedRecord('feedbackCommentEdge');
         invariant(edge, 'Expected `feedbackCommentEdge` to exist');
-        // TODO: insert an edge from an updater (or a better alternative!)
-        // storeProxy.insertConnectionEdge(connectionSnapshot.id, {}, edge);
+        storeProxy.insertConnectionEdge_UNSTABLE(
+          connectionSnapshot.id,
+          {},
+          edge,
+        );
       });
       const mutation = createOperationDescriptor(CommentCreateMutation, {});
       environment
@@ -891,49 +897,404 @@ describe('@connection_resolver connection field', () => {
       expect(error.mock.calls.map(call => call[0].stack)).toEqual([]);
       expect(connectionCallback).toBeCalledTimes(1);
       const nextSnapshot = connectionCallback.mock.calls[0][0];
-      expect(nextSnapshot).toEqual(
-        expect.objectContaining({
-          edges: [
-            {
-              cursor: 'cursor-1',
-              node: {
-                id: 'node-1',
-                message: {text: 'Comment 1'},
-                __fragmentOwner: operation.request,
-                __fragments: {CommentFragment: {}},
-                __id: 'node-1',
-              },
-            },
-            {
-              cursor: 'cursor-2',
-              node: {
-                id: 'node-2',
-                message: {text: 'Comment 2'},
-                __fragmentOwner: operation.request,
-                __fragments: {CommentFragment: {}},
-                __id: 'node-2',
-              },
-            },
-            {
-              cursor: 'cursor-3',
-              node: {
-                id: 'node-3',
-                message: {text: 'Comment 3'},
-                __fragmentOwner: mutation.request,
-                __fragments: {CommentFragment: {}},
-                __id: 'node-3',
-              },
-            },
-          ],
-          pageInfo: {
-            endCursor: 'cursor-3',
-            hasNextPage: true,
-            hasPrevPage: null,
-            startCursor: 'cursor-1',
+      expect(nextSnapshot.edges).toEqual([
+        {
+          cursor: 'cursor-1',
+          node: {
+            id: 'node-1',
+            message: {text: 'Comment 1'},
+            __fragmentOwner: operation.request,
+            __fragments: {CommentFragment: {}},
+            __id: 'node-1',
           },
-        }),
-      );
+        },
+        {
+          cursor: 'cursor-2',
+          node: {
+            id: 'node-2',
+            message: {text: 'Comment 2'},
+            __fragmentOwner: operation.request,
+            __fragments: {CommentFragment: {}},
+            __id: 'node-2',
+          },
+        },
+        {
+          cursor: 'cursor-3',
+          node: {
+            id: 'node-3',
+            message: {text: 'Comment 3'},
+            __fragmentOwner: mutation.request,
+            __fragments: {CommentFragment: {}},
+            __id: 'node-3',
+          },
+        },
+      ]);
+      expect(nextSnapshot.pageInfo).toEqual({
+        endCursor: 'cursor-3',
+        hasNextPage: true,
+        hasPrevPage: null,
+        startCursor: 'cursor-1',
+      });
       expect(connectionResolver.reduce).toBeCalledTimes(1);
+    });
+
+    describe('optimistic edge inserts', () => {
+      let mutation;
+      let optimisticResponse;
+      let optimisticUpdater;
+      let subscription;
+
+      beforeEach(() => {
+        optimisticResponse = {
+          commentCreate: {
+            feedbackCommentEdge: {
+              cursor: 'cursor-x',
+              node: {
+                id: 'node-x',
+                message: {text: 'Comment x'},
+              },
+            },
+          },
+        };
+        optimisticUpdater = jest.fn(storeProxy => {
+          const commentCreate = storeProxy.getRootField('commentCreate');
+          invariant(commentCreate, 'Expected `commentCreate` to exist');
+          const edge = commentCreate.getLinkedRecord('feedbackCommentEdge');
+          invariant(edge, 'Expected `feedbackCommentEdge` to exist');
+          storeProxy.insertConnectionEdge_UNSTABLE(
+            connectionSnapshot.id,
+            {},
+            edge,
+          );
+        });
+        mutation = createOperationDescriptor(CommentCreateMutation, {});
+        subscription = environment
+          .executeMutation({
+            operation: mutation,
+            optimisticResponse,
+            optimisticUpdater,
+          })
+          .subscribe(callbacks);
+      });
+
+      it('updates when an edge is optimistically inserted', () => {
+        expect(optimisticUpdater).toBeCalledTimes(1);
+        expect(error.mock.calls.map(call => call[0].stack)).toEqual([]);
+        expect(connectionCallback).toBeCalledTimes(1);
+        const nextSnapshot = connectionCallback.mock.calls[0][0];
+        expect(nextSnapshot.edges).toEqual([
+          {
+            cursor: 'cursor-1',
+            node: {
+              id: 'node-1',
+              message: {text: 'Comment 1'},
+              __fragmentOwner: operation.request,
+              __fragments: {CommentFragment: {}},
+              __id: 'node-1',
+            },
+          },
+          {
+            cursor: 'cursor-2',
+            node: {
+              id: 'node-2',
+              message: {text: 'Comment 2'},
+              __fragmentOwner: operation.request,
+              __fragments: {CommentFragment: {}},
+              __id: 'node-2',
+            },
+          },
+          {
+            cursor: 'cursor-x',
+            node: {
+              id: 'node-x',
+              message: {text: 'Comment x'},
+              __fragmentOwner: mutation.request,
+              __fragments: {CommentFragment: {}},
+              __id: 'node-x',
+            },
+          },
+        ]);
+        expect(nextSnapshot.pageInfo).toEqual({
+          endCursor: 'cursor-x',
+          hasNextPage: true,
+          hasPrevPage: null,
+          startCursor: 'cursor-1',
+        });
+        expect(connectionResolver.reduce).toBeCalledTimes(1);
+      });
+
+      it('reverts optimistic updates', () => {
+        connectionCallback.mockClear();
+        connectionResolver.reduce.mockClear();
+        subscription.unsubscribe();
+
+        expect(error.mock.calls.map(call => call[0].stack)).toEqual([]);
+        expect(connectionCallback).toBeCalledTimes(1);
+        const nextSnapshot = connectionCallback.mock.calls[0][0];
+        expect(nextSnapshot.edges).toEqual([
+          {
+            cursor: 'cursor-1',
+            node: {
+              id: 'node-1',
+              message: {text: 'Comment 1'},
+              __fragmentOwner: operation.request,
+              __fragments: {CommentFragment: {}},
+              __id: 'node-1',
+            },
+          },
+          {
+            cursor: 'cursor-2',
+            node: {
+              id: 'node-2',
+              message: {text: 'Comment 2'},
+              __fragmentOwner: operation.request,
+              __fragments: {CommentFragment: {}},
+              __id: 'node-2',
+            },
+          },
+          // edge removed
+        ]);
+        expect(nextSnapshot.pageInfo).toEqual({
+          endCursor: 'cursor-2', // reverted
+          hasNextPage: true,
+          hasPrevPage: null,
+          startCursor: 'cursor-1',
+        });
+        expect(connectionResolver.reduce).toBeCalledTimes(0);
+      });
+
+      it('rebases optimistic inserts on edge data changes, and reverts w/o losing those changes', () => {
+        connectionCallback.mockClear();
+        connectionResolver.reduce.mockClear();
+
+        const edgeID =
+          'client:<feedbackid>:comments(first:2,orderby:"date"):edges:0';
+        environment.commitUpdate(storeProxy => {
+          const edge = storeProxy.get(edgeID);
+          invariant(edge, 'Expected edge to exist');
+          const node = edge.getLinkedRecord('node');
+          invariant(node, 'Expected node to exist');
+          const message = node.getLinkedRecord('message');
+          invariant(message, 'Expected message to exist');
+          message.setValue('Comment 1 changed!', 'text');
+        });
+        expect(connectionCallback).toBeCalledTimes(1);
+        const changeSnapshot = connectionCallback.mock.calls[0][0];
+        expect(changeSnapshot.edges).toEqual([
+          {
+            cursor: 'cursor-1',
+            node: {
+              id: 'node-1',
+              message: {text: 'Comment 1 changed!'}, // existing data changed
+              __fragmentOwner: operation.request,
+              __fragments: {CommentFragment: {}},
+              __id: 'node-1',
+            },
+          },
+          {
+            cursor: 'cursor-2',
+            node: {
+              id: 'node-2',
+              message: {text: 'Comment 2'},
+              __fragmentOwner: operation.request,
+              __fragments: {CommentFragment: {}},
+              __id: 'node-2',
+            },
+          },
+          {
+            cursor: 'cursor-x', // insert is rebased
+            node: {
+              id: 'node-x',
+              message: {text: 'Comment x'},
+              __fragmentOwner: mutation.request,
+              __fragments: {CommentFragment: {}},
+              __id: 'node-x',
+            },
+          },
+        ]);
+        expect(changeSnapshot.pageInfo).toEqual({
+          endCursor: 'cursor-x', // insert is rebased
+          hasNextPage: true,
+          hasPrevPage: null,
+          startCursor: 'cursor-1',
+        });
+        expect(connectionResolver.reduce).toBeCalledTimes(2); // update + rebased insert
+        connectionCallback.mockClear();
+        connectionResolver.reduce.mockClear();
+
+        subscription.unsubscribe();
+        expect(error.mock.calls.map(call => call[0].stack)).toEqual([]);
+        expect(connectionCallback).toBeCalledTimes(1);
+        const revertSnapshot = connectionCallback.mock.calls[0][0];
+        expect(revertSnapshot.edges).toEqual([
+          {
+            cursor: 'cursor-1',
+            node: {
+              id: 'node-1',
+              message: {text: 'Comment 1 changed!'}, // edit preserved
+              __fragmentOwner: operation.request,
+              __fragments: {CommentFragment: {}},
+              __id: 'node-1',
+            },
+          },
+          {
+            cursor: 'cursor-2',
+            node: {
+              id: 'node-2',
+              message: {text: 'Comment 2'},
+              __fragmentOwner: operation.request,
+              __fragments: {CommentFragment: {}},
+              __id: 'node-2',
+            },
+          },
+          // insert reverted
+        ]);
+        expect(revertSnapshot.pageInfo).toEqual({
+          endCursor: 'cursor-2', // insert reverted
+          hasNextPage: true,
+          hasPrevPage: null,
+          startCursor: 'cursor-1',
+        });
+        expect(connectionResolver.reduce).toBeCalledTimes(0);
+      });
+
+      it('rebases optimistic inserts on fetch, and reverts w/o losing those changes', () => {
+        connectionCallback.mockClear();
+        connectionResolver.reduce.mockClear();
+
+        const paginationOperation = createOperationDescriptor(paginationQuery, {
+          id: '<feedbackid>',
+          count: 2,
+          cursor: 'cursor-2',
+        });
+        environment.execute({operation: paginationOperation}).subscribe({});
+        const paginationPayload = {
+          data: {
+            node: {
+              __typename: 'Feedback',
+              id: '<feedbackid>',
+              comments: {
+                edges: [
+                  {
+                    cursor: 'cursor-3',
+                    node: {
+                      __typename: 'Comment',
+                      id: 'node-3',
+                      message: {text: 'Comment 3'},
+                    },
+                  },
+                ],
+                pageInfo: {
+                  endCursor: 'cursor-3',
+                  hasNextPage: true,
+                  hasPreviousPage: null,
+                  startCursor: 'cursor-3',
+                },
+              },
+            },
+          },
+        };
+        dataSource.next(paginationPayload);
+        jest.runAllTimers();
+        expect(connectionCallback).toBeCalledTimes(1);
+        const changeSnapshot = connectionCallback.mock.calls[0][0];
+        expect(changeSnapshot.edges).toEqual([
+          {
+            cursor: 'cursor-1',
+            node: {
+              id: 'node-1',
+              message: {text: 'Comment 1'},
+              __fragmentOwner: operation.request,
+              __fragments: {CommentFragment: {}},
+              __id: 'node-1',
+            },
+          },
+          {
+            cursor: 'cursor-2',
+            node: {
+              id: 'node-2',
+              message: {text: 'Comment 2'},
+              __fragmentOwner: operation.request,
+              __fragments: {CommentFragment: {}},
+              __id: 'node-2',
+            },
+          },
+          {
+            cursor: 'cursor-3', // pagination result added
+            node: {
+              id: 'node-3',
+              message: {text: 'Comment 3'},
+              __fragmentOwner: paginationOperation.request,
+              __fragments: {CommentFragment: {}},
+              __id: 'node-3',
+            },
+          },
+          {
+            cursor: 'cursor-x', // insert is rebased
+            node: {
+              id: 'node-x',
+              message: {text: 'Comment x'},
+              __fragmentOwner: mutation.request,
+              __fragments: {CommentFragment: {}},
+              __id: 'node-x',
+            },
+          },
+        ]);
+        expect(changeSnapshot.pageInfo).toEqual({
+          endCursor: 'cursor-x',
+          hasNextPage: true,
+          hasPrevPage: null,
+          startCursor: 'cursor-1',
+        });
+        expect(connectionResolver.reduce).toBeCalledTimes(2); // fetch + rebased insert
+        connectionCallback.mockClear();
+        connectionResolver.reduce.mockClear();
+
+        subscription.unsubscribe();
+        expect(error.mock.calls.map(call => call[0].stack)).toEqual([]);
+        expect(connectionCallback).toBeCalledTimes(1);
+        const revertSnapshot = connectionCallback.mock.calls[0][0];
+        expect(revertSnapshot.edges).toEqual([
+          {
+            cursor: 'cursor-1',
+            node: {
+              id: 'node-1',
+              message: {text: 'Comment 1'},
+              __fragmentOwner: operation.request,
+              __fragments: {CommentFragment: {}},
+              __id: 'node-1',
+            },
+          },
+          {
+            cursor: 'cursor-2',
+            node: {
+              id: 'node-2',
+              message: {text: 'Comment 2'},
+              __fragmentOwner: operation.request,
+              __fragments: {CommentFragment: {}},
+              __id: 'node-2',
+            },
+          },
+          {
+            cursor: 'cursor-3', // fetch preserved
+            node: {
+              id: 'node-3',
+              message: {text: 'Comment 3'},
+              __fragmentOwner: paginationOperation.request,
+              __fragments: {CommentFragment: {}},
+              __id: 'node-3',
+            },
+          },
+          // insert reverted
+        ]);
+        expect(revertSnapshot.pageInfo).toEqual({
+          endCursor: 'cursor-3', // insert reverted, fetch preserved
+          hasNextPage: true,
+          hasPrevPage: null,
+          startCursor: 'cursor-1',
+        });
+        expect(connectionResolver.reduce).toBeCalledTimes(0);
+      });
     });
   });
 });

@@ -21,6 +21,7 @@ const invariant = require('invariant');
 
 import type {HandlerProvider} from '../handlers/RelayDefaultHandlerProvider';
 import type {Disposable} from '../util/RelayRuntimeTypes';
+import type {ConnectionSubscriptionSnapshot} from './RelayConnection';
 import type {GetDataID} from './RelayResponseNormalizer';
 import type {
   MutableRecordSource,
@@ -72,6 +73,9 @@ class RelayPublishQueue implements PublishQueue {
   // A "negative" of all applied updaters. It can be published to the store to
   // undo them in order to re-apply some of them for a rebase.
   _backup: MutableRecordSource;
+  _backupConnections: ?$ReadOnlyArray<
+    ConnectionSubscriptionSnapshot<mixed, mixed>,
+  >;
   // True if the next `run()` should apply the backup and rerun all optimistic
   // updates performing a rebase.
   _pendingBackupRebase: boolean;
@@ -91,6 +95,7 @@ class RelayPublishQueue implements PublishQueue {
     getDataID: GetDataID,
   ) {
     this._backup = RelayRecordSource.create();
+    this._backupConnections = null;
     this._handlerProvider = handlerProvider || null;
     this._pendingBackupRebase = false;
     this._pendingData = new Set();
@@ -179,12 +184,24 @@ class RelayPublishQueue implements PublishQueue {
    * Execute all queued up operations from the other public methods.
    */
   run(): $ReadOnlyArray<RequestDescriptor> {
-    if (this._pendingBackupRebase && this._backup.size()) {
-      this._store.publish(this._backup);
-      this._backup = RelayRecordSource.create();
+    if (this._pendingBackupRebase) {
+      if (this._backup.size()) {
+        this._store.publish(this._backup);
+        this._backup = RelayRecordSource.create();
+      }
+      if (this._backupConnections) {
+        this._store.restoreConnections_UNSTABLE(this._backupConnections);
+        this._backupConnections = null;
+      }
     }
     this._commitData();
-    this._applyUpdates();
+    if (
+      this._pendingOptimisticUpdates.size ||
+      (this._pendingBackupRebase && this._appliedOptimisticUpdates.size)
+    ) {
+      this._backupConnections = this._store.snapshotConnections_UNSTABLE();
+      this._applyUpdates();
+    }
     this._pendingBackupRebase = false;
     if (this._appliedOptimisticUpdates.size > 0) {
       if (!this._gcHold) {
@@ -199,12 +216,16 @@ class RelayPublishQueue implements PublishQueue {
     return this._store.notify();
   }
 
-  _getSourceFromPayload(pendingPayload: PendingRelayPayload): RecordSource {
+  _publishSourceFromPayload(pendingPayload: PendingRelayPayload): void {
     const {payload, operation, updater} = pendingPayload;
-    const {source, fieldPayloads} = payload;
+    const {connectionEvents, source, fieldPayloads} = payload;
+    const combinedConnectionEvents = connectionEvents
+      ? connectionEvents.slice()
+      : [];
     const mutator = new RelayRecordSourceMutator(
       this._store.getSource(),
       source,
+      combinedConnectionEvents,
     );
     const store = new RelayRecordSourceProxy(mutator, this._getDataID);
     if (fieldPayloads && fieldPayloads.length) {
@@ -226,11 +247,18 @@ class RelayPublishQueue implements PublishQueue {
         selector != null,
         'RelayModernEnvironment: Expected a selector to be provided with updater function.',
       );
-      const selectorStore = new RelayRecordSourceSelectorProxy(store, selector);
+      const selectorStore = new RelayRecordSourceSelectorProxy(
+        mutator,
+        store,
+        selector,
+      );
       const selectorData = lookupSelector(source, selector);
       updater(selectorStore, selectorData);
     }
-    return source;
+    this._store.publish(source);
+    if (combinedConnectionEvents.length !== 0) {
+      this._store.publishConnectionEvents_UNSTABLE(combinedConnectionEvents);
+    }
   }
 
   _commitData(): void {
@@ -239,22 +267,18 @@ class RelayPublishQueue implements PublishQueue {
     }
     this._pendingData.forEach(data => {
       if (data.kind === 'payload') {
-        const source = this._getSourceFromPayload(data);
-        this._store.publish(source);
-        if (data.payload.connectionEvents) {
-          this._store.publishConnectionEvents_UNSTABLE(
-            data.payload.connectionEvents,
-          );
-        }
+        this._publishSourceFromPayload(data);
       } else if (data.kind === 'source') {
         const source = data.source;
         this._store.publish(source);
       } else {
         const updater = data.updater;
         const sink = RelayRecordSource.create();
+        const connectionEvents = [];
         const mutator = new RelayRecordSourceMutator(
           this._store.getSource(),
           sink,
+          connectionEvents,
         );
         const store = new RelayRecordSourceProxy(mutator, this._getDataID);
         ErrorUtils.applyWithGuard(
@@ -265,77 +289,84 @@ class RelayPublishQueue implements PublishQueue {
           'RelayPublishQueue:commitData',
         );
         this._store.publish(sink);
+        if (connectionEvents.length !== 0) {
+          this._store.publishConnectionEvents_UNSTABLE(connectionEvents);
+        }
       }
     });
     this._pendingData.clear();
   }
 
   _applyUpdates(): void {
-    if (
-      this._pendingOptimisticUpdates.size ||
-      (this._pendingBackupRebase && this._appliedOptimisticUpdates.size)
-    ) {
-      const sink = RelayRecordSource.create();
-      const mutator = new RelayRecordSourceMutator(
-        this._store.getSource(),
-        sink,
-        this._backup,
-      );
-      const store = new RelayRecordSourceProxy(
-        mutator,
-        this._getDataID,
-        this._handlerProvider,
-      );
+    const sink = RelayRecordSource.create();
+    const combinedConnectionEvents = [];
+    const mutator = new RelayRecordSourceMutator(
+      this._store.getSource(),
+      sink,
+      combinedConnectionEvents,
+      this._backup,
+    );
+    const store = new RelayRecordSourceProxy(
+      mutator,
+      this._getDataID,
+      this._handlerProvider,
+    );
 
-      const processUpdate = optimisticUpdate => {
-        if (optimisticUpdate.storeUpdater) {
-          const {storeUpdater} = optimisticUpdate;
+    const processUpdate = optimisticUpdate => {
+      if (optimisticUpdate.storeUpdater) {
+        const {storeUpdater} = optimisticUpdate;
+        ErrorUtils.applyWithGuard(
+          storeUpdater,
+          null,
+          [store],
+          null,
+          'RelayPublishQueue:applyUpdates',
+        );
+      } else {
+        const {operation, payload, updater} = optimisticUpdate;
+        const {connectionEvents, source, fieldPayloads} = payload;
+        const selectorStore = new RelayRecordSourceSelectorProxy(
+          mutator,
+          store,
+          operation.fragment,
+        );
+        let selectorData;
+        if (source) {
+          store.publishSource(source, fieldPayloads);
+          selectorData = lookupSelector(source, operation.fragment);
+        }
+        if (connectionEvents) {
+          combinedConnectionEvents.push(...connectionEvents);
+        }
+        if (updater) {
           ErrorUtils.applyWithGuard(
-            storeUpdater,
+            updater,
             null,
-            [store],
+            [selectorStore, selectorData],
             null,
             'RelayPublishQueue:applyUpdates',
           );
-        } else {
-          const {operation, payload, updater} = optimisticUpdate;
-          const {source, fieldPayloads} = payload;
-          const selectorStore = new RelayRecordSourceSelectorProxy(
-            store,
-            operation.fragment,
-          );
-          let selectorData;
-          if (source) {
-            store.publishSource(source, fieldPayloads);
-            selectorData = lookupSelector(source, operation.fragment);
-          }
-          if (updater) {
-            ErrorUtils.applyWithGuard(
-              updater,
-              null,
-              [selectorStore, selectorData],
-              null,
-              'RelayPublishQueue:applyUpdates',
-            );
-          }
         }
-      };
-
-      // rerun all updaters in case we are running a rebase
-      if (this._pendingBackupRebase && this._appliedOptimisticUpdates.size) {
-        this._appliedOptimisticUpdates.forEach(processUpdate);
       }
+    };
 
-      // apply any new updaters
-      if (this._pendingOptimisticUpdates.size) {
-        this._pendingOptimisticUpdates.forEach(optimisticUpdate => {
-          processUpdate(optimisticUpdate);
-          this._appliedOptimisticUpdates.add(optimisticUpdate);
-        });
-        this._pendingOptimisticUpdates.clear();
-      }
+    // rerun all updaters in case we are running a rebase
+    if (this._pendingBackupRebase && this._appliedOptimisticUpdates.size) {
+      this._appliedOptimisticUpdates.forEach(processUpdate);
+    }
 
-      this._store.publish(sink);
+    // apply any new updaters
+    if (this._pendingOptimisticUpdates.size) {
+      this._pendingOptimisticUpdates.forEach(optimisticUpdate => {
+        processUpdate(optimisticUpdate);
+        this._appliedOptimisticUpdates.add(optimisticUpdate);
+      });
+      this._pendingOptimisticUpdates.clear();
+    }
+
+    this._store.publish(sink);
+    if (combinedConnectionEvents.length !== 0) {
+      this._store.publishConnectionEvents_UNSTABLE(combinedConnectionEvents);
     }
   }
 }

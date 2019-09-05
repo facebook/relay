@@ -56,13 +56,6 @@ class RelayRecordSourceObjectImpl implements MutableRecordSource {
     return this._records.hasOwnProperty(dataID);
   }
 
-  load(
-    dataID: DataID,
-    callback: (error: ?Error, record: ?Record) => void,
-  ): void {
-    callback(null, this.get(dataID));
-  }
-
   remove(dataID: DataID): void {
     delete this._records[dataID];
   }

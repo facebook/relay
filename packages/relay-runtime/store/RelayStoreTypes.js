@@ -190,11 +190,8 @@ export interface RecordSource {
   getRecordIDs(): Array<DataID>;
   getStatus(dataID: DataID): RecordState;
   has(dataID: DataID): boolean;
-  load(
-    dataID: DataID,
-    callback: (error: ?Error, record: ?Record) => void,
-  ): void;
   size(): number;
+  toJSON(): {[DataID]: ?Record};
 }
 
 /**
@@ -205,7 +202,6 @@ export interface MutableRecordSource extends RecordSource {
   delete(dataID: DataID): void;
   remove(dataID: DataID): void;
   set(dataID: DataID, record: Record): void;
-  toJSON(): {[DataID]: ?Record};
 }
 
 /**

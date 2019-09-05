@@ -11,6 +11,7 @@
 'use strict';
 
 const createModernNode = require('./createModernNode');
+const getTopScope = require('./getTopScope');
 
 import type {BabelState} from './BabelPluginRelay';
 import type {DocumentNode} from 'graphql';
@@ -51,26 +52,24 @@ function createAST(t, state, path, graphqlDefinition) {
   const artifactDirectory = state.opts && state.opts.artifactDirectory;
   const buildCommand =
     (state.opts && state.opts.buildCommand) || 'relay-compiler';
+  const esmodules = state.opts && state.opts.esmodules;
 
   // Fallback is 'true'
   const isDevelopment =
     (process.env.BABEL_ENV || process.env.NODE_ENV) !== 'production';
 
-  return createModernNode(t, graphqlDefinition, state, {
+  return createModernNode(t, path, graphqlDefinition, state, {
     artifactDirectory,
     buildCommand,
     isDevelopment,
     isHasteMode,
     isDevVariable,
+    esmodules,
   });
 }
 
 function replaceMemoized(t, path, ast) {
-  let topScope = path.scope;
-  while (topScope.parent) {
-    topScope = topScope.parent;
-  }
-
+  const topScope = getTopScope(path);
   if (path.scope === topScope) {
     path.replaceWith(ast);
   } else {

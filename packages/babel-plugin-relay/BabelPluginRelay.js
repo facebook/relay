@@ -32,6 +32,9 @@ export type RelayPluginOptions = {
 
   // Directory as specified by artifactDirectory when running relay-compiler
   artifactDirectory?: string,
+
+  // Generate output with esmodule imports instead of commonjs requires
+  esmodules?: boolean,
 };
 
 export type BabelState = {

@@ -12,6 +12,7 @@
 
 const crypto = require('crypto');
 const path = require('path');
+const getTopScope = require('./getTopScope');
 
 const {print} = require('graphql');
 
@@ -26,6 +27,7 @@ import type {BabelState} from './BabelPluginRelay';
  */
 function createModernNode(
   t: $FlowFixMe,
+  path: Object,
   graphqlDefinition: OperationDefinitionNode | FragmentDefinitionNode,
   state: BabelState,
   options: {
@@ -39,6 +41,8 @@ function createModernNode(
     isDevVariable: ?string,
     // Use haste style global requires, defaults to false.
     isHasteMode: boolean,
+    // Should output esmodule imports instead of requires
+    esmodules: ?boolean,
   },
 ): Object {
   const definitionName = graphqlDefinition.name && graphqlDefinition.name.value;
@@ -57,40 +61,98 @@ function createModernNode(
     .update(print(graphqlDefinition), 'utf8')
     .digest('hex');
 
-  const requireGraphQLModule = t.callExpression(t.identifier('require'), [
-    t.stringLiteral(requiredPath),
-  ]);
+  const {esmodules = false} = options;
 
-  const bodyStatements = [t.returnStatement(requireGraphQLModule)];
-  if (options.isDevVariable != null || options.isDevelopment) {
-    const nodeVariable = t.identifier('node');
+  const bodyStatements = [];
+
+  if (esmodules) {
+    const topScope = getTopScope(path);
+
+    // create default import variable name
+    const nodeVariable = topScope.generateUidIdentifier(definitionName);
     const nodeDotHash = t.memberExpression(nodeVariable, t.identifier('hash'));
-    let checkStatements = [
-      t.variableDeclaration('const', [
-        t.variableDeclarator(nodeVariable, requireGraphQLModule),
-      ]),
-      t.ifStatement(
-        t.logicalExpression(
-          '&&',
-          nodeDotHash,
-          t.binaryExpression('!==', nodeDotHash, t.stringLiteral(hash)),
-        ),
-        t.blockStatement([
-          t.expressionStatement(
-            warnNeedsRebuild(t, definitionName, options.buildCommand),
-          ),
+
+    // create top-level import statement
+    const importDefaultSpecifier = t.importDefaultSpecifier(nodeVariable);
+    const importDeclaration = t.importDeclaration(
+      [importDefaultSpecifier],
+      t.stringLiteral(requiredPath),
+    );
+    topScope.path.unshiftContainer('body', importDeclaration);
+
+    bodyStatements.push(t.returnStatement(nodeVariable));
+    if (options.isDevVariable != null || options.isDevelopment) {
+      const localNodeVariable = topScope.generateUidIdentifier(definitionName);
+      const localNodeDotHash = t.memberExpression(
+        localNodeVariable,
+        t.identifier('hash'),
+      );
+      let checkStatements = [
+        t.variableDeclaration('const', [
+          t.variableDeclarator(localNodeVariable, nodeVariable),
         ]),
-      ),
-    ];
-    if (options.isDevVariable != null) {
-      checkStatements = [
         t.ifStatement(
-          t.identifier(options.isDevVariable),
-          t.blockStatement(checkStatements),
+          t.logicalExpression(
+            '&&',
+            localNodeDotHash,
+            t.binaryExpression('!==', localNodeDotHash, t.stringLiteral(hash)),
+          ),
+          t.blockStatement([
+            t.expressionStatement(
+              warnNeedsRebuild(t, definitionName, options.buildCommand),
+            ),
+          ]),
         ),
       ];
+      if (options.isDevVariable != null) {
+        checkStatements = [
+          t.ifStatement(
+            t.identifier(options.isDevVariable),
+            t.blockStatement(checkStatements),
+          ),
+        ];
+      }
+      bodyStatements.unshift(...checkStatements);
     }
-    bodyStatements.unshift(...checkStatements);
+  } else {
+    const requireGraphQLModule = t.callExpression(t.identifier('require'), [
+      t.stringLiteral(requiredPath),
+    ]);
+    bodyStatements.push(t.returnStatement(requireGraphQLModule));
+
+    if (options.isDevVariable != null || options.isDevelopment) {
+      const nodeVariable = t.identifier('node');
+      const nodeDotHash = t.memberExpression(
+        nodeVariable,
+        t.identifier('hash'),
+      );
+      let checkStatements = [
+        t.variableDeclaration('const', [
+          t.variableDeclarator(nodeVariable, requireGraphQLModule),
+        ]),
+        t.ifStatement(
+          t.logicalExpression(
+            '&&',
+            nodeDotHash,
+            t.binaryExpression('!==', nodeDotHash, t.stringLiteral(hash)),
+          ),
+          t.blockStatement([
+            t.expressionStatement(
+              warnNeedsRebuild(t, definitionName, options.buildCommand),
+            ),
+          ]),
+        ),
+      ];
+      if (options.isDevVariable != null) {
+        checkStatements = [
+          t.ifStatement(
+            t.identifier(options.isDevVariable),
+            t.blockStatement(checkStatements),
+          ),
+        ];
+      }
+      bodyStatements.unshift(...checkStatements);
+    }
   }
   return t.functionExpression(null, [], t.blockStatement(bodyStatements));
 }

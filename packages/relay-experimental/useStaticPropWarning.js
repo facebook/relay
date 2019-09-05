@@ -11,10 +11,7 @@
 
 'use strict';
 
-// flowlint untyped-import:off
 const warning = require('warning');
-
-// flowlint untyped-import:error
 
 const {useRef} = require('react');
 
@@ -27,7 +24,7 @@ function useStaticPropWarning(prop: mixed, context: string): void {
     const initialPropRef = useRef(prop);
     warning(
       initialPropRef.current === prop,
-      'The %s has to remain the same over the lifetime of a component. ' +
+      'Relay: The %s has to remain the same over the lifetime of a component. ' +
         'Changing it is not supported and will result in unexpected behavior.',
       context,
     );

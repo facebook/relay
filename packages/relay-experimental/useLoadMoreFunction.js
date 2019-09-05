@@ -22,10 +22,7 @@ const invariant = require('invariant');
 const useFetchTrackingRef = require('./useFetchTrackingRef');
 const useIsMountedRef = require('./useIsMountedRef');
 const useRelayEnvironment = require('./useRelayEnvironment');
-// flowlint untyped-import:off
 const warning = require('warning');
-
-// flowlint untyped-import:error
 
 const {useCallback, useEffect, useState} = require('react');
 const {

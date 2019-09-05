@@ -770,6 +770,121 @@ describe('QueryResource', () => {
             expect(release).toBeCalledTimes(1);
           });
         });
+
+        describe('when using incremental data', () => {
+          it('should suspend and send a network request when some data is missing in fragment', () => {
+            const {UserQuery} = generateAndCompile(
+              `
+                fragment UserFragment on User {
+                  id
+                  username
+                }
+                query UserQuery($id: ID!) {
+                  node(id: $id) {
+                    __typename
+                    id
+                    ...UserFragment @defer
+                  }
+                }
+              `,
+            );
+            const queryWithFragments = createOperationDescriptor(
+              UserQuery,
+              variables,
+            );
+            const fetchObservableWithFragments = fetchQuery(
+              environment,
+              queryWithFragments,
+              {
+                networkCacheConfig: {force: true},
+              },
+            );
+            expect(environment.check(queryWithFragments.root)).toEqual(false);
+
+            // Should suspend until first payload is received
+            let thrown = false;
+            try {
+              QueryResource.prepare(
+                queryWithFragments,
+                fetchObservableWithFragments,
+                fetchPolicy,
+                renderPolicy,
+              );
+            } catch (p) {
+              expect(typeof p.then).toBe('function');
+              thrown = true;
+            }
+
+            expect(environment.execute).toBeCalledTimes(1);
+            expect(environment.retain).toBeCalledTimes(1);
+            expect(thrown).toEqual(true);
+
+            // Resolve first payload
+            environment.mock.nextValue(queryWithFragments, {
+              data: {
+                node: {
+                  id: '4',
+                  __typename: 'User',
+                },
+              },
+            });
+            // Data should still be missing after first payload
+            expect(environment.check(queryWithFragments.root)).toEqual(false);
+
+            // Calling prepare again shouldn't suspend; the fragment with
+            // the deferred data would suspend further down the tree
+            const result = QueryResource.prepare(
+              queryWithFragments,
+              fetchObservableWithFragments,
+              fetchPolicy,
+              renderPolicy,
+            );
+            const expectedResult = {
+              cacheKey: expect.any(String),
+              fragmentNode: queryWithFragments.fragment.node,
+              fragmentRef: {
+                __id: ROOT_ID,
+                __fragments: {
+                  UserQuery: variables,
+                },
+                __fragmentOwner: queryWithFragments.request,
+              },
+              operation: queryWithFragments,
+            };
+            expect(result).toEqual(expectedResult);
+
+            expect(environment.execute).toBeCalledTimes(1);
+            expect(environment.retain).toBeCalledTimes(1);
+            expect(thrown).toEqual(true);
+
+            // Resolve deferred payload
+            environment.mock.nextValue(queryWithFragments, {
+              data: {
+                id: '1',
+                __typename: 'User',
+                username: 'zuck',
+              },
+              label: 'UserQuery$defer$UserFragment',
+              path: ['node'],
+            });
+            // Data should not be missing anymore
+            expect(environment.check(queryWithFragments.root)).toEqual(true);
+
+            // Calling prepare again should return same result
+            const result2 = QueryResource.prepare(
+              queryWithFragments,
+              fetchObservableWithFragments,
+              fetchPolicy,
+              renderPolicy,
+            );
+            expect(result2).toEqual(expectedResult);
+
+            // Assert that query is released after enough time has passed without
+            // calling QueryResource.retain
+            jest.runAllTimers();
+            expect(release).toBeCalledTimes(1);
+          });
+        });
       });
     });
 

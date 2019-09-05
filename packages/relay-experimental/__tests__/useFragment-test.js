@@ -44,7 +44,6 @@ describe('useFragment', () => {
   let ContextProvider;
 
   function useFragment(fragmentNode, fragmentRef) {
-    // $FlowFixMe
     const data = useFragmentOriginal(fragmentNode, fragmentRef);
     renderSpy(data);
     return data;
@@ -153,7 +152,10 @@ describe('useFragment', () => {
     // Set up renderers
     SingularRenderer = props => null;
     PluralRenderer = props => null;
-    const SingularContainer = (props: {userRef?: {}, owner: $FlowFixMe}) => {
+    const SingularContainer = (props: {
+      userRef?: {$data?: {}},
+      owner: $FlowFixMe,
+    }) => {
       // We need a render a component to run a Hook
       const owner = props.owner;
       const userRef = props.hasOwnProperty('userRef')
@@ -170,7 +172,7 @@ describe('useFragment', () => {
     };
 
     const PluralContainer = (props: {
-      usersRef?: $ReadOnlyArray<{}>,
+      usersRef?: $ReadOnlyArray<{$data?: {}}>,
       owner: $FlowFixMe,
     }) => {
       // We need a render a component to run a Hook

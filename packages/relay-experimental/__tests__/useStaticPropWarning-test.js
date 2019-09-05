@@ -21,7 +21,7 @@ const TestRenderer = require('react-test-renderer');
 const useStaticPropWarning = require('../useStaticPropWarning');
 
 const warningMessage =
-  'The %s has to remain the same over the lifetime of a component. Changing ' +
+  'Relay: The %s has to remain the same over the lifetime of a component. Changing ' +
   'it is not supported and will result in unexpected behavior.';
 const notWarned = [true, warningMessage, 'prop foo'];
 const warned = [false, warningMessage, 'prop foo'];

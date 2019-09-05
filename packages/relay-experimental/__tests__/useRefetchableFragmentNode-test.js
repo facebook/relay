@@ -1386,7 +1386,7 @@ describe('useRefetchableFragmentNode', () => {
       expect(warningCalls.length).toEqual(4); // the other warnings are from FragmentResource.js
       expect(
         warningCalls[1][1].includes(
-          'Relay: Call to `refetch` returns data with a different __typename:',
+          'Relay: Call to `refetch` returned data with a different __typename:',
         ),
       ).toEqual(true);
     });
@@ -1449,7 +1449,7 @@ describe('useRefetchableFragmentNode', () => {
       expect(warningCalls.length).toEqual(2);
       expect(
         warningCalls[0][1].includes(
-          'Relay: Call to `refetch` returns a different id, expected',
+          'Relay: Call to `refetch` returned a different id, expected',
         ),
       ).toEqual(true);
     });

@@ -451,7 +451,7 @@ function useRefetchFunction<TQuery: OperationType>(
         if (typeof dataID !== 'string') {
           warning(
             false,
-            'useRefetchableFragment(): Expected result to have a string  ' +
+            'Relay: Expected result to have a string  ' +
               '`id` in order to refetch, got `%s`.',
             dataID,
           );
@@ -570,7 +570,7 @@ if (__DEV__) {
       if (typename !== previousIDAndType.typename) {
         warning(
           false,
-          'Relay: Call to `refetch` returns data with a different ' +
+          'Relay: Call to `refetch` returned data with a different ' +
             '__typename: was `%s`, now `%s`, on `%s` in `%s`. ' +
             'Please make sure the server correctly implements' +
             'unique id requirement.',
@@ -597,7 +597,7 @@ if (__DEV__) {
       if (resultID != null && resultID !== previousIDAndTypename.id) {
         warning(
           false,
-          'Relay: Call to `refetch` returns a different id, expected ' +
+          'Relay: Call to `refetch` returned a different id, expected ' +
             '`%s`, got `%s`, on `%s` in `%s`. ' +
             'Please make sure the server correctly implements ' +
             'unique id requirement.',

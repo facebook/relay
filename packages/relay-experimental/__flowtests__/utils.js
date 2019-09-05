@@ -27,7 +27,7 @@ export type NonNullableData = {|
 export type NullableData = ?NonNullableData;
 
 export type NonNullablePluralData = $ReadOnlyArray<NonNullableData>;
-export type NullablePluralData = $ReadOnlyArray<NullableData>;
+export type NullablePluralData = ?$ReadOnlyArray<NonNullableData>;
 
 export type AnotherNonNullableData = {|
   +name: ?string,
@@ -44,8 +44,8 @@ declare export var keyNonNullablePlural: $ReadOnlyArray<{
   +$fragmentRefs: FragmentReference,
 }>;
 
-declare export var keyNullablePlural: $ReadOnlyArray<{
-  +$data?: NullablePluralData,
+declare export var keyNullablePlural: ?$ReadOnlyArray<{
+  +$data?: NonNullablePluralData,
   +$fragmentRefs: FragmentReference,
 }>;
 

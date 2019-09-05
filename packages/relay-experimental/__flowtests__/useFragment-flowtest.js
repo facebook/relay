@@ -46,3 +46,8 @@ import type {
 (useFragment(fragmentInput, keyAnotherNonNullable): NonNullableData);
 // $FlowExpectedError
 (useFragment(fragmentInput, keyAnotherNullable): NullableData);
+
+// $FlowExpectedError: Key should be one of the generated types
+(useFragment(fragmentInput, 'INVALID_KEY'): NullableData);
+
+/* eslint-enable react-hooks/rules-of-hooks */

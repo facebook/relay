@@ -43,17 +43,17 @@ declare function useFragment<TKey: $ReadOnlyArray<{+$data?: mixed}>>(
   TKey,
 >;
 
-declare function useFragment<TKey: $ReadOnlyArray<?{+$data?: mixed}>>(
+declare function useFragment<TKey: ?$ReadOnlyArray<{+$data?: mixed}>>(
   fragmentInput: GraphQLTaggedNode,
   fragmentRef: TKey,
 ): $Call<
-  <TFragmentData>($ReadOnlyArray<?{+$data?: TFragmentData}>) => ?TFragmentData,
+  <TFragmentData>(?$ReadOnlyArray<{+$data?: TFragmentData}>) => ?TFragmentData,
   TKey,
 >;
 
 function useFragment(
   fragmentInput: GraphQLTaggedNode,
-  fragmentRef: mixed,
+  fragmentRef: ?$ReadOnlyArray<{+$data?: mixed}> | ?{+$data?: mixed},
 ): mixed {
   useStaticPropWarning(fragmentInput, 'first argument of useFragment()');
   const fragmentNode = getFragment(fragmentInput);

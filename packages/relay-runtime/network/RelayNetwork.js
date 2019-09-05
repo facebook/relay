@@ -12,7 +12,7 @@
 
 const invariant = require('invariant');
 
-const {convertFetch, convertSubscribe} = require('./ConvertToExecuteFunction');
+const {convertFetch} = require('./ConvertToExecuteFunction');
 
 import type {RequestParameters} from '../util/RelayConcreteNode';
 import type {CacheConfig, Variables} from '../util/RelayRuntimeTypes';
@@ -31,13 +31,10 @@ import type RelayObservable from './RelayObservable';
  */
 function create(
   fetchFn: FetchFunction,
-  subscribeFn?: SubscribeFunction,
+  subscribe?: SubscribeFunction,
 ): Network {
   // Convert to functions that returns RelayObservable.
   const observeFetch = convertFetch(fetchFn);
-  const observeSubscribe = subscribeFn
-    ? convertSubscribe(subscribeFn)
-    : undefined;
 
   function execute(
     request: RequestParameters,
@@ -47,7 +44,7 @@ function create(
   ): RelayObservable<GraphQLResponse> {
     if (request.operationKind === 'subscription') {
       invariant(
-        observeSubscribe,
+        subscribe,
         'RelayNetwork: This network layer does not support Subscriptions. ' +
           'To use Subscriptions, provide a custom network layer.',
       );
@@ -56,7 +53,7 @@ function create(
         !uploadables,
         'RelayNetwork: Cannot provide uploadables while subscribing.',
       );
-      return observeSubscribe(request, variables, cacheConfig);
+      return subscribe(request, variables, cacheConfig);
     }
 
     const pollInterval = cacheConfig.poll;

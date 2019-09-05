@@ -11,11 +11,7 @@
 'use strict';
 
 import type {RequestParameters} from '../util/RelayConcreteNode';
-import type {
-  CacheConfig,
-  Disposable,
-  Variables,
-} from '../util/RelayRuntimeTypes';
+import type {CacheConfig, Variables} from '../util/RelayRuntimeTypes';
 import type RelayObservable, {ObservableFromValue} from './RelayObservable';
 
 /**
@@ -86,27 +82,16 @@ export type FetchFunction = (
 ) => ObservableFromValue<GraphQLResponse>;
 
 /**
- * A function that executes a GraphQL subscription operation, returning one or
+ * A function that executes a GraphQL subscription operation, returning zero or
  * more raw server responses over time.
- *
- * May return an Observable, otherwise must call the callbacks found in the
- * fourth parameter.
  */
 export type SubscribeFunction = (
   request: RequestParameters,
   variables: Variables,
   cacheConfig: CacheConfig,
-  observer?: LegacyObserver<GraphQLResponse>,
-) => RelayObservable<GraphQLResponse> | Disposable;
+) => RelayObservable<GraphQLResponse>;
 
 // $FlowFixMe(site=react_native_fb) this is compatible with classic api see D4658012
 export type Uploadable = File | Blob;
 // $FlowFixMe(site=mobile,www)
 export type UploadableMap = {[key: string]: Uploadable};
-
-// Supports legacy SubscribeFunction definitions. Do not use in new code.
-export type LegacyObserver<-T> = {|
-  +onCompleted?: ?() => void,
-  +onError?: ?(error: Error) => void,
-  +onNext?: ?(data: T) => void,
-|};

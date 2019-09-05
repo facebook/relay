@@ -86,7 +86,6 @@ export type {
   ExecuteFunction,
   FetchFunction,
   GraphQLResponse,
-  LegacyObserver,
   Network as INetwork,
   PayloadData,
   PayloadError,

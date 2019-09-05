@@ -12,11 +12,7 @@
 
 const RelayObservable = require('./RelayObservable');
 
-import type {
-  ExecuteFunction,
-  FetchFunction,
-  SubscribeFunction,
-} from './RelayNetworkTypes';
+import type {ExecuteFunction, FetchFunction} from './RelayNetworkTypes';
 
 /**
  * Converts a FetchFunction into an ExecuteFunction for use by RelayNetwork.
@@ -34,18 +30,6 @@ function convertFetch(fn: FetchFunction): ExecuteFunction {
   };
 }
 
-/**
- * Converts a SubscribeFunction into an ExecuteFunction for use by RelayNetwork.
- */
-function convertSubscribe(fn: SubscribeFunction): ExecuteFunction {
-  return function subscribe(operation, variables, cacheConfig) {
-    return RelayObservable.fromLegacy(observer =>
-      fn(operation, variables, cacheConfig, observer),
-    );
-  };
-}
-
 module.exports = {
   convertFetch,
-  convertSubscribe,
 };

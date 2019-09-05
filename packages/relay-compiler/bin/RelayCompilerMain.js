@@ -65,6 +65,7 @@ export type Config = {|
   persistFunction?: ?string | ?((text: string) => Promise<string>),
   artifactDirectory?: ?string,
   customScalars?: ScalarTypeMapping,
+  esmodules?: ?boolean,
 |};
 
 function buildWatchExpression(config: {
@@ -284,6 +285,7 @@ function getCodegenRunner(config: Config): CodegenRunner {
       ? path.resolve(process.cwd(), providedArtifactDirectory)
       : null;
   const generatedDirectoryName = artifactDirectory || '__generated__';
+  const esmodules = config.esmodules ?? false;
   const sourceSearchOptions = {
     extensions: inputExtensions,
     include: config.include,
@@ -329,6 +331,7 @@ function getCodegenRunner(config: Config): CodegenRunner {
         config.persistOutput,
         config.customScalars,
         persistQueryFunction,
+        esmodules,
       ),
       isGeneratedFile: (filePath: string) =>
         filePath.endsWith('.graphql.' + outputExtension) &&
@@ -363,6 +366,7 @@ function getRelayFileWriter(
   persistedQueryPath?: ?string,
   customScalars?: ScalarTypeMapping,
   persistFunction?: ?(text: string) => Promise<string>,
+  esmodules: boolean,
 ) {
   return async ({
     onlyValidate,
@@ -408,6 +412,7 @@ function getRelayFileWriter(
         typeGenerator: languagePlugin.typeGenerator,
         outputDir,
         persistQuery,
+        esmodules,
       },
       onlyValidate,
       schema,

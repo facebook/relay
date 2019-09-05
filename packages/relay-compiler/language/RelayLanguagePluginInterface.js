@@ -175,6 +175,11 @@ export type FormatModule = ({|
    * The generated node being written.
    */
   node: GeneratedNode,
+
+  /**
+   * Flag which enables esmodule import output instead of commonjs requires.
+   */
+  esmodules: boolean,
 |}) => string;
 
 /**

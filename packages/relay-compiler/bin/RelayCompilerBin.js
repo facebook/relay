@@ -125,6 +125,13 @@ const options = {
       '--customScalars.URL=String)',
     type: 'object',
   },
+  esmodules: {
+    describe:
+      'Flag which changes the compiler output to use esmodule imports ' +
+      'instead of commonjs requires.',
+    type: 'boolean',
+    default: false,
+  },
 };
 
 // Load external config

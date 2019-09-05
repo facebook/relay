@@ -76,6 +76,7 @@ export type WriterConfig = {
   },
   printModuleDependency?: string => string,
   repersist?: boolean,
+  esmodules: boolean,
 };
 
 function compileAll({
@@ -342,6 +343,7 @@ function writeAll({
             writerConfig.extension,
             writerConfig.printModuleDependency,
             writerConfig.repersist ?? false,
+            writerConfig.esmodules,
           );
         }),
       );

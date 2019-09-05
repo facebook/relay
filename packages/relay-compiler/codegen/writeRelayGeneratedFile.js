@@ -58,6 +58,7 @@ async function writeRelayGeneratedFile(
     moduleName: string,
   ) => string = printRequireModuleDependency,
   shouldRepersist: boolean,
+  esmodules: boolean,
 ): Promise<?GeneratedNode> {
   let generatedNode = _generatedNode;
   // Copy to const so Flow can refine.
@@ -146,6 +147,7 @@ async function writeRelayGeneratedFile(
     ),
     sourceHash,
     node: generatedNode,
+    esmodules,
   });
   codegenDir.writeFile(filename, moduleText, shouldRepersist);
   return generatedNode;

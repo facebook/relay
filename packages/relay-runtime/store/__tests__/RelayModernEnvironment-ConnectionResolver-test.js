@@ -1108,6 +1108,66 @@ describe('@connection_resolver connection field', () => {
           startCursor: 'cursor-1',
         });
       });
+
+      it('restores deleted edges to their prior state when reverted (subscribed on optimistic state)', () => {
+        connectionSubscription.dispose();
+        const edgeID =
+          'client:<feedbackid>:comments(first:2,orderby:"date"):edges:0';
+        const disposable = environment.applyUpdate({
+          storeUpdater: storeProxy => {
+            storeProxy.delete(edgeID);
+          },
+        });
+        connectionCallback.mockClear();
+        connectionResolver.reduce.mockClear();
+
+        connectionSnapshot = environment
+          .getStore()
+          .lookupConnection_UNSTABLE(
+            (snapshot.data: $FlowFixMe).comments.__connection,
+          );
+        connectionSubscription = environment
+          .getStore()
+          .subscribeConnection_UNSTABLE(connectionSnapshot, connectionCallback);
+        expect(connectionResolver.reduce).toBeCalledTimes(1);
+        connectionResolver.reduce.mockClear();
+
+        disposable.dispose();
+        expect(connectionCallback).toBeCalledTimes(1);
+        const nextSnapshot = connectionCallback.mock.calls[0][0];
+        expect(nextSnapshot.edges.length).toBe(2);
+        expect(nextSnapshot.edges).toEqual([
+          {
+            cursor: 'cursor-1',
+            node: {
+              id: 'node-1',
+              message: {text: 'Comment 1'},
+              __fragmentOwner: operation.request,
+              __fragments: {CommentFragment: {}},
+              __id: 'node-1',
+            },
+          },
+          {
+            cursor: 'cursor-2',
+            node: {
+              id: 'node-2',
+              message: {text: 'Comment 2'},
+              __fragmentOwner: operation.request,
+              __fragments: {CommentFragment: {}},
+              __id: 'node-2',
+            },
+          },
+        ]);
+        expect(nextSnapshot.pageInfo).toEqual({
+          endCursor: 'cursor-2',
+          hasNextPage: true,
+          hasPrevPage: null,
+          startCursor: 'cursor-1',
+        });
+        // should re-run the reducer with just the original fetch event
+        // plus an update for the reverted record
+        expect(connectionResolver.reduce).toBeCalledTimes(2);
+      });
     });
 
     describe('optimistic edge.node deletion', () => {
@@ -1260,6 +1320,64 @@ describe('@connection_resolver connection field', () => {
           startCursor: 'cursor-1',
         });
       });
+
+      it('restores deleted edges to their prior state when reverted (subscribed on optimistic state)', () => {
+        connectionSubscription.dispose();
+        const disposable = environment.applyUpdate({
+          storeUpdater: storeProxy => {
+            storeProxy.delete('node-1');
+          },
+        });
+        connectionCallback.mockClear();
+        connectionResolver.reduce.mockClear();
+
+        connectionSnapshot = environment
+          .getStore()
+          .lookupConnection_UNSTABLE(
+            (snapshot.data: $FlowFixMe).comments.__connection,
+          );
+        connectionSubscription = environment
+          .getStore()
+          .subscribeConnection_UNSTABLE(connectionSnapshot, connectionCallback);
+        expect(connectionResolver.reduce).toBeCalledTimes(1);
+        connectionResolver.reduce.mockClear();
+
+        disposable.dispose();
+        expect(connectionCallback).toBeCalledTimes(1);
+        const nextSnapshot = connectionCallback.mock.calls[0][0];
+        expect(nextSnapshot.edges.length).toBe(2);
+        expect(nextSnapshot.edges).toEqual([
+          {
+            cursor: 'cursor-1',
+            node: {
+              id: 'node-1',
+              message: {text: 'Comment 1'},
+              __fragmentOwner: operation.request,
+              __fragments: {CommentFragment: {}},
+              __id: 'node-1',
+            },
+          },
+          {
+            cursor: 'cursor-2',
+            node: {
+              id: 'node-2',
+              message: {text: 'Comment 2'},
+              __fragmentOwner: operation.request,
+              __fragments: {CommentFragment: {}},
+              __id: 'node-2',
+            },
+          },
+        ]);
+        expect(nextSnapshot.pageInfo).toEqual({
+          endCursor: 'cursor-2',
+          hasNextPage: true,
+          hasPrevPage: null,
+          startCursor: 'cursor-1',
+        });
+        // should re-run the reducer with just the original fetch event
+        // plus an update for reverted edge record
+        expect(connectionResolver.reduce).toBeCalledTimes(2);
+      });
     });
 
     describe('optimistic edge inserts', () => {
@@ -1385,6 +1503,101 @@ describe('@connection_resolver connection field', () => {
           startCursor: 'cursor-1',
         });
         expect(connectionResolver.reduce).toBeCalledTimes(0);
+      });
+
+      it('reverts optimistic updates (new lookup)', () => {
+        connectionSubscription.dispose();
+        connectionCallback.mockClear();
+        connectionResolver.reduce.mockClear();
+        subscription.unsubscribe();
+
+        expect(error.mock.calls.map(call => call[0].stack)).toEqual([]);
+        const latestSnapshot = environment
+          .getStore()
+          .lookupConnection_UNSTABLE(
+            (snapshot.data: $FlowFixMe).comments.__connection,
+          ).state;
+        expect(latestSnapshot.edges).toEqual([
+          {
+            cursor: 'cursor-1',
+            node: {
+              id: 'node-1',
+              message: {text: 'Comment 1'},
+              __fragmentOwner: operation.request,
+              __fragments: {CommentFragment: {}},
+              __id: 'node-1',
+            },
+          },
+          {
+            cursor: 'cursor-2',
+            node: {
+              id: 'node-2',
+              message: {text: 'Comment 2'},
+              __fragmentOwner: operation.request,
+              __fragments: {CommentFragment: {}},
+              __id: 'node-2',
+            },
+          },
+          // edge removed
+        ]);
+        expect(latestSnapshot.pageInfo).toEqual({
+          endCursor: 'cursor-2', // reverted
+          hasNextPage: true,
+          hasPrevPage: null,
+          startCursor: 'cursor-1',
+        });
+      });
+
+      it('reverts optimistic updates (subscribed on optimistic state)', () => {
+        connectionSubscription.dispose();
+        connectionCallback.mockClear();
+
+        connectionSnapshot = environment
+          .getStore()
+          .lookupConnection_UNSTABLE(
+            (snapshot.data: $FlowFixMe).comments.__connection,
+          );
+        connectionSubscription = environment
+          .getStore()
+          .subscribeConnection_UNSTABLE(connectionSnapshot, connectionCallback);
+        expect(connectionSnapshot.state.edges.length).toBe(3);
+        connectionResolver.reduce.mockClear();
+        subscription.unsubscribe();
+
+        expect(error.mock.calls.map(call => call[0].stack)).toEqual([]);
+        expect(connectionCallback).toBeCalledTimes(1);
+        const nextSnapshot = connectionCallback.mock.calls[0][0];
+        expect(nextSnapshot.edges.length).toBe(2);
+        expect(nextSnapshot.edges).toEqual([
+          {
+            cursor: 'cursor-1',
+            node: {
+              id: 'node-1',
+              message: {text: 'Comment 1'},
+              __fragmentOwner: operation.request,
+              __fragments: {CommentFragment: {}},
+              __id: 'node-1',
+            },
+          },
+          {
+            cursor: 'cursor-2',
+            node: {
+              id: 'node-2',
+              message: {text: 'Comment 2'},
+              __fragmentOwner: operation.request,
+              __fragments: {CommentFragment: {}},
+              __id: 'node-2',
+            },
+          },
+          // edge removed
+        ]);
+        expect(nextSnapshot.pageInfo).toEqual({
+          endCursor: 'cursor-2', // reverted
+          hasNextPage: true,
+          hasPrevPage: null,
+          startCursor: 'cursor-1',
+        });
+        expect(connectionResolver.reduce).toBeCalledTimes(1);
       });
 
       it('rebases optimistic inserts on edge data changes, and reverts w/o losing those changes', () => {

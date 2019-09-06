@@ -34,7 +34,7 @@ import type {
   ConnectionInternalEvent,
   ConnectionReference,
   ConnectionSnapshot,
-  ConnectionSubscriptionSnapshot,
+  ConnectionStoreSnapshot,
 } from './RelayConnection';
 import type {GetDataID} from './RelayResponseNormalizer';
 import type {
@@ -167,6 +167,7 @@ class RelayModernStore implements Store {
     });
     this._connectionSubscriptions.forEach((subscription, id) => {
       if (subscription.stale) {
+        subscription.stale = false;
         subscription.callback(subscription.snapshot.state);
       }
     });
@@ -490,49 +491,53 @@ class RelayModernStore implements Store {
     };
   }
 
-  snapshotConnections_UNSTABLE(): {|
-    events: $ReadOnlyArray<[ConnectionID, Array<ConnectionInternalEvent>]>,
-    subscriptions: $ReadOnlyArray<ConnectionSubscriptionSnapshot<mixed, mixed>>,
-  |} {
-    const events = Array.from(
-      this._connectionEvents.entries(),
-      ([connectionID, connectionEvents]) => [
-        connectionID,
-        connectionEvents.slice(),
-      ],
+  snapshotConnections_UNSTABLE(): ConnectionStoreSnapshot {
+    const events = new Map(
+      Array.from(
+        this._connectionEvents.entries(),
+        ([connectionID, connectionEvents]) => [
+          connectionID,
+          connectionEvents.slice(),
+        ],
+      ),
     );
-    const subscriptions = Array.from(
-      this._connectionSubscriptions.values(),
-      subscription => ({
-        id: subscription.id,
-        snapshot: subscription.snapshot,
-      }),
+    const subscriptions = new Map(
+      Array.from(this._connectionSubscriptions.values(), subscription => [
+        subscription.id,
+        subscription.snapshot,
+      ]),
     );
     return {events, subscriptions};
   }
 
-  restoreConnections_UNSTABLE(connections: {|
-    events: $ReadOnlyArray<[ConnectionID, Array<ConnectionInternalEvent>]>,
-    subscriptions: $ReadOnlyArray<ConnectionSubscriptionSnapshot<mixed, mixed>>,
-  |}): void {
-    connections.subscriptions.forEach(subscription => {
-      const prevSubscription = this._connectionSubscriptions.get(
-        subscription.id,
-      );
-      if (prevSubscription) {
-        // Always restore the snapshot to account for other properties such as
-        // seenRecords
-        prevSubscription.snapshot = subscription.snapshot;
-        if (prevSubscription.snapshot.state !== subscription.snapshot.state) {
-          // Mark stale only if the last published value is different from the
-          // value being restored
-          prevSubscription.stale = true;
-        }
-      }
-    });
+  restoreConnections_UNSTABLE(snapshot: ConnectionStoreSnapshot): void {
     this._connectionEvents.clear();
-    connections.events.forEach(([connectionID, events]) => {
-      this._connectionEvents.set(connectionID, events);
+    snapshot.events.forEach((connectionEvents, connectionID) => {
+      this._connectionEvents.set(connectionID, connectionEvents);
+    });
+    this._connectionSubscriptions.forEach(subscription => {
+      const backup = snapshot.subscriptions.get(subscription.id);
+      if (backup) {
+        if (backup.state !== subscription.snapshot.state) {
+          subscription.stale = true;
+        }
+        subscription.snapshot = backup;
+      } else {
+        // This subscription was established after the creation of the
+        // connection snapshot so there's nothing to restore to. Recreate the
+        // connection from scratch and check ifs value changes.
+        const baseSnapshot = this.lookupConnection_UNSTABLE(
+          subscription.snapshot.reference,
+        );
+        const nextState = recycleNodesInto(
+          subscription.snapshot.state,
+          baseSnapshot.state,
+        );
+        if (nextState !== subscription.snapshot.state) {
+          subscription.stale = true;
+        }
+        subscription.snapshot = {...baseSnapshot, state: nextState};
+      }
     });
   }
 

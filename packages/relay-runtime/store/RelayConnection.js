@@ -82,14 +82,9 @@ export type ConnectionSnapshot<TEdge, TState> = {|
   +state: TState,
 |};
 
-export type ConnectionSubscriptionSnapshot<TEdge, TState> = {|
-  +id: string,
-  +snapshot: ConnectionSnapshot<TEdge, TState>,
-|};
-
 export type ConnectionStoreSnapshot = {|
-  events: $ReadOnlyArray<[ConnectionID, Array<ConnectionInternalEvent>]>,
-  subscriptions: $ReadOnlyArray<ConnectionSubscriptionSnapshot<mixed, mixed>>,
+  events: Map<ConnectionID, Array<ConnectionInternalEvent>>,
+  subscriptions: Map<string, ConnectionSnapshot<mixed, mixed>>,
 |};
 
 export type PageInfo = {|

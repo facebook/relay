@@ -16,7 +16,6 @@ const CodeMarker = require('./util/CodeMarker');
 const CodegenDirectory = require('./codegen/CodegenDirectory');
 const CodegenRunner = require('./codegen/CodegenRunner');
 const CodegenWatcher = require('./codegen/CodegenWatcher');
-const Compiler = require('./codegen/Compiler');
 const DotGraphQLParser = require('./core/DotGraphQLParser');
 const FindGraphQLTags = require('./language/javascript/FindGraphQLTags');
 const GraphQLCompilerContext = require('./core/GraphQLCompilerContext');
@@ -38,6 +37,7 @@ const RelaySourceModuleParser = require('./core/RelaySourceModuleParser');
 const RelayValidator = require('./core/RelayValidator');
 const Rollout = require('./util/Rollout');
 
+const compileRelayArtifacts = require('./codegen/compileRelayArtifacts');
 const filterContextForNode = require('./core/filterContextForNode');
 const formatGeneratedModule = require('./language/javascript/formatGeneratedModule');
 const getIdentifierForArgumentValue = require('./core/getIdentifierForArgumentValue');
@@ -63,11 +63,11 @@ export type {
 } from './codegen/CodegenRunner';
 export type {CompileResult, File} from './codegen/CodegenTypes';
 export type {FileFilter, WatchmanExpression} from './codegen/CodegenWatcher';
+export type {SourceControl} from './codegen/SourceControl';
 export type {
   RelayCompilerTransforms,
   RelayCompilerValidations,
-} from './codegen/Compiler';
-export type {SourceControl} from './codegen/SourceControl';
+} from './codegen/compileRelayArtifacts';
 export type {IRTransform} from './core/GraphQLCompilerContext';
 export type {
   Argument,
@@ -152,8 +152,7 @@ module.exports = {
   JSModuleParser: RelayJSModuleParser,
   MultiReporter: GraphQLMultiReporter,
   Runner: CodegenRunner,
-  Compiler: Compiler,
-  compileRelayArtifacts: Compiler.compileRelayArtifacts,
+  compileRelayArtifacts,
   formatGeneratedModule,
   convertASTDocuments: ASTConvert.convertASTDocuments,
   transformASTSchema: ASTConvert.transformASTSchema,

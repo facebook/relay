@@ -25,10 +25,7 @@ const useFragmentNode = require('./useFragmentNode');
 const useIsMountedRef = require('./useIsMountedRef');
 const useMemoVariables = require('./useMemoVariables');
 const useRelayEnvironment = require('./useRelayEnvironment');
-// flowlint untyped-import:off
 const warning = require('warning');
-
-// flowlint untyped-import:error
 
 const {getFragmentResourceForEnvironment} = require('./FragmentResource');
 const {getQueryResourceForEnvironment} = require('./QueryResource');

@@ -43,7 +43,6 @@ function captureAssertion(fn) {
 }
 
 function assertYieldsWereCleared(_scheduler) {
-  // $FlowFixMe
   const actualYields = _scheduler.unstable_clearYields();
   if (actualYields.length !== 0) {
     throw new Error(

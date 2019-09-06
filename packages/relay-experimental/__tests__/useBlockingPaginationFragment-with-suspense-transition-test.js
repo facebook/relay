@@ -498,7 +498,6 @@ describe('useBlockingPaginationFragment with useSuspenseTransition', () => {
       );
       renderSpy.mockClear();
 
-      // $FlowExpectedError batchedUpdats is not part of the public Flow types
       TestRenderer.unstable_batchedUpdates(() => {
         runScheduledCallback();
         jest.runAllImmediates();

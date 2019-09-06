@@ -19,7 +19,6 @@ const RelayResponseNormalizer = require('./RelayResponseNormalizer');
 
 const invariant = require('invariant');
 const stableCopy = require('../util/stableCopy');
-// flowlint-next-line untyped-import:off
 const warning = require('warning');
 
 const {generateClientID} = require('./ClientID');

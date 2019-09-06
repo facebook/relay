@@ -196,7 +196,6 @@ describe('useQueryNode', () => {
       environment
         .getStore()
         .getSource()
-        // $FlowFixMe
         .toJSON(),
     ).toEqual({});
 

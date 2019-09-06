@@ -17,8 +17,7 @@ const CompilerContext = require('../../core/GraphQLCompilerContext');
 const RelayIRTransforms = require('../../core/RelayIRTransforms');
 const RelayIRValidations = require('../../core/RelayIRValidations');
 
-const compileRelayArtifacts = require('../compileRelayArtifacts');
-
+const {compileRelayArtifacts} = require('../Compiler');
 const {RelayFeatureFlags} = require('relay-runtime');
 const {
   TestSchema,

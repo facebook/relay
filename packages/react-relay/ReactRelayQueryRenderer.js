@@ -54,8 +54,6 @@ export type RenderProps<T> = {|
  */
 const requestCache = {};
 
-const STORE_AND_NETWORK = 'store-and-network';
-
 export type Props = {|
   cacheConfig?: ?CacheConfig,
   fetchPolicy?: FetchPolicy,
@@ -380,10 +378,11 @@ function fetchQueryAndComputeStateFromProps(
     }
 
     try {
-      const storeSnapshot =
-        props.fetchPolicy === STORE_AND_NETWORK
-          ? queryFetcher.lookupInStore(genericEnvironment, operation)
-          : null;
+      const storeSnapshot = queryFetcher.lookupInStore(
+        genericEnvironment,
+        operation,
+        props.fetchPolicy,
+      );
       const querySnapshot = queryFetcher.fetch({
         cacheConfig: props.cacheConfig,
         environment: genericEnvironment,

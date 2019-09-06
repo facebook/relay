@@ -566,6 +566,23 @@ describe('ReactRelayRefetchContainer', () => {
       });
     });
 
+    it('reads data from the store without sending a network request when data is available in store and using store-or-network', () => {
+      expect.assertions(3);
+      const refetchVariables = {
+        cond: false,
+        id: '4',
+      };
+      const refetchOptions = {
+        fetchPolicy: 'store-or-network',
+      };
+      refetch(refetchVariables, null, jest.fn(), refetchOptions);
+      expect(render.mock.calls.length).toBe(2);
+      expect(environment.mock.isLoading(UserQuery, refetchVariables)).toBe(
+        false,
+      );
+      expect(environment.execute).toBeCalledTimes(0);
+    });
+
     it('calls the callback when the fetch succeeds', () => {
       expect.assertions(2);
       const callback = jest.fn();

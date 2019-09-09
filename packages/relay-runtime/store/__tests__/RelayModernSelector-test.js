@@ -11,8 +11,6 @@
 
 'use strict';
 
-const warning = require('warning');
-
 const {getRequest} = require('../../query/RelayModernGraphQLTag');
 const {
   createOperationDescriptor,
@@ -134,17 +132,8 @@ describe('RelayModernSelector', () => {
       );
     });
 
-    it('returns null and warns for unfetched fragment data', () => {
+    it('returns null for unfetched fragment data', () => {
       const selector = getSingularSelector(UserFragment, {});
-      expect(warning).toHaveBeenCalledWith(
-        false,
-        'RelayModernSelector: Expected object to contain data for fragment ' +
-          '`%s`, got `%s`. Make sure that the parent ' +
-          'operation/fragment included fragment `...%s` without `@relay(mask: false)`.',
-        'UserFragment',
-        '{}',
-        'UserFragment',
-      );
       expect(selector).toBe(null);
     });
 
@@ -194,17 +183,8 @@ describe('RelayModernSelector', () => {
       );
     });
 
-    it('returns null and warns for unfetched fragment data', () => {
+    it('returns null for unfetched fragment data', () => {
       const selectors = getPluralSelector(UserFragment, [{}]);
-      expect(warning).toHaveBeenCalledWith(
-        false,
-        'RelayModernSelector: Expected object to contain data for fragment ' +
-          '`%s`, got `%s`. Make sure that the parent ' +
-          'operation/fragment included fragment `...%s` without `@relay(mask: false)`.',
-        'UserFragment',
-        '{}',
-        'UserFragment',
-      );
       expect(selectors).toBe(null);
     });
 
@@ -260,19 +240,10 @@ describe('RelayModernSelector', () => {
       );
     });
 
-    it('returns null and warns for unfetched fragment data', () => {
+    it('returns null for unfetched fragment data', () => {
       const selectors = getSelectorsFromObject(
         {user: UserFragment},
         {user: {}},
-      );
-      expect(warning).toHaveBeenCalledWith(
-        false,
-        'RelayModernSelector: Expected object to contain data for fragment ' +
-          '`%s`, got `%s`. Make sure that the parent ' +
-          'operation/fragment included fragment `...%s` without `@relay(mask: false)`.',
-        'UserFragment',
-        '{}',
-        'UserFragment',
       );
       expect(selectors).toEqual({user: null});
     });
@@ -459,17 +430,8 @@ describe('RelayModernSelector', () => {
       );
     });
 
-    it('returns null and warns for unfetched fragment data', () => {
+    it('returns null for unfetched fragment data', () => {
       const ids = getDataIDsFromObject({user: UserFragment}, {user: {}});
-      expect(warning).toHaveBeenCalledWith(
-        false,
-        'RelayModernSelector: Expected object to contain data for fragment ' +
-          '`%s`, got `%s`. Make sure that the parent ' +
-          'operation/fragment included fragment `...%s` without `@relay(mask: false)`.',
-        'UserFragment',
-        '{}',
-        'UserFragment',
-      );
       expect(ids).toEqual({user: null});
     });
 
@@ -533,19 +495,10 @@ describe('RelayModernSelector', () => {
       );
     });
 
-    it('returns empty variables and warns for unfetched fragment data', () => {
+    it('returns empty variables for unfetched fragment data', () => {
       const fragmentVariables = getVariablesFromObject(
         {user: UserFragment},
         {user: {}},
-      );
-      expect(warning).toHaveBeenCalledWith(
-        false,
-        'RelayModernSelector: Expected object to contain data for fragment ' +
-          '`%s`, got `%s`. Make sure that the parent ' +
-          'operation/fragment included fragment `...%s` without `@relay(mask: false)`.',
-        'UserFragment',
-        '{}',
-        'UserFragment',
       );
       expect(fragmentVariables).toEqual({});
     });

@@ -498,6 +498,7 @@ describe('useBlockingPaginationFragment with useSuspenseTransition', () => {
       );
       renderSpy.mockClear();
 
+      // $FlowFixMe(site=www) batchedUpdats is not part of the public Flow types
       TestRenderer.unstable_batchedUpdates(() => {
         runScheduledCallback();
         jest.runAllImmediates();

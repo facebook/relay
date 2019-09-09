@@ -12,7 +12,7 @@
 'use strict';
 
 const React = require('react');
-const ReactRelayContext = require('react-relay/ReactRelayContext');
+const {ReactRelayContext} = require('react-relay');
 
 import type {IEnvironment} from 'relay-runtime';
 

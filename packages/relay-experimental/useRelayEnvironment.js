@@ -11,7 +11,7 @@
 
 'use strict';
 
-const ReactRelayContext = require('react-relay/ReactRelayContext');
+const {ReactRelayContext} = require('react-relay');
 
 const invariant = require('invariant');
 

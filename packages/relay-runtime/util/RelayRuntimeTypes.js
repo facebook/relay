@@ -51,10 +51,10 @@ export type OperationType = {|
  * - `transactionId`: a user-supplied value, intended for use as a unique id for
  *   a given instance of executing an operation.
  */
-export type CacheConfig = {
+export type CacheConfig = {|
   force?: ?boolean,
   poll?: ?number,
   liveConfigId?: ?string,
   metadata?: {[key: string]: mixed},
   transactionId?: ?string,
-};
+|};

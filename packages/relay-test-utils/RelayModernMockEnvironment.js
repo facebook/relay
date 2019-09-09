@@ -343,13 +343,13 @@ function createMockEnvironment(config?: {|
   const isLoading = (
     request: ConcreteRequest | OperationDescriptor,
     variables: Variables,
-    cacheConfig?: CacheConfig = {},
+    cacheConfig?: CacheConfig,
   ): boolean => {
     return pendingRequests.some(
       pending =>
         areEqual(pending.request, getConcreteRequest(request).params) &&
         areEqual(pending.variables, variables) &&
-        areEqual(pending.cacheConfig, cacheConfig),
+        areEqual(pending.cacheConfig, cacheConfig ?? {}),
     );
   };
 

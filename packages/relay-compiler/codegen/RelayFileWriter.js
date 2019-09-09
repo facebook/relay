@@ -18,6 +18,7 @@ const RelayParser = require('../core/RelayParser');
 const RelayValidator = require('../core/RelayValidator');
 const SchemaUtils = require('../core/GraphQLSchemaUtils');
 
+const compileRelayArtifacts = require('./compileRelayArtifacts');
 const crypto = require('crypto');
 const graphql = require('graphql');
 const invariant = require('invariant');
@@ -28,7 +29,6 @@ const writeRelayGeneratedFile = require('./writeRelayGeneratedFile');
 const {
   getReaderSourceDefinitionName,
 } = require('../core/GraphQLDerivedFromMetadata');
-const {compileRelayArtifacts} = require('./Compiler');
 const {Map: ImmutableMap} = require('immutable');
 
 import type {
@@ -37,8 +37,8 @@ import type {
 } from '../language/RelayLanguagePluginInterface';
 import type {ScalarTypeMapping} from '../language/javascript/RelayFlowTypeTransformers';
 import type {GraphQLReporter as Reporter} from '../reporters/GraphQLReporter';
-import type {RelayCompilerTransforms} from './Compiler';
 import type {SourceControl} from './SourceControl';
+import type {RelayCompilerTransforms} from './compileRelayArtifacts';
 import type {DocumentNode, GraphQLSchema, ValidationContext} from 'graphql';
 
 const {isExecutableDefinitionAST} = SchemaUtils;

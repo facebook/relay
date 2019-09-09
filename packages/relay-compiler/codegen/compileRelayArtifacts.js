@@ -191,10 +191,4 @@ function compileRelayArtifacts(
   });
 }
 
-module.exports = {
-  createFragmentContext,
-  createPrintContext,
-  createCodeGenContext,
-  compile,
-  compileRelayArtifacts,
-};
+module.exports = compileRelayArtifacts;

@@ -64,6 +64,23 @@
 <p>Install React and Relay using <code>yarn</code> or <code>npm</code>:</p>
 <pre><code class="hljs css language-sh">yarn add react react-dom react-relay
 </code></pre>
+<h2><a class="anchor" aria-hidden="true" id="set-up-relay-with-a-single-config-file"></a><a href="#set-up-relay-with-a-single-config-file" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Set up Relay with a single config file</h2>
+<p>The below configuration of <code>babel-plugin-relay</code> and <code>relay-compiler</code> can be applied using a single configuration file by
+using the <code>relay-config</code> package. Besides unifying all Relay configuration in a single place, other tooling can leverage
+this to provide zero-config setup (e.g. <a href="https://github.com/relay-tools/vscode-apollo-relay">vscode-apollo-relay</a>).</p>
+<p>Install the package:</p>
+<pre><code class="hljs css language-sh">yarn add --dev relay-config
+</code></pre>
+<p>And create the configuration file:</p>
+<pre><code class="hljs css language-javascript"><span class="hljs-comment">// relay.config.js</span>
+<span class="hljs-built_in">module</span>.exports = {
+  <span class="hljs-comment">// ...</span>
+  <span class="hljs-comment">// Configuration options accepted by the `relay-compiler` command-line tool and `babel-plugin-relay`.</span>
+  src: <span class="hljs-string">"./src"</span>,
+  <span class="hljs-attr">schema</span>: <span class="hljs-string">"./data/schema.graphql"</span>,
+  <span class="hljs-attr">exclude</span>: [<span class="hljs-string">"**/node_modules/**"</span>, <span class="hljs-string">"**/__mocks__/**"</span>, <span class="hljs-string">"**/__generated__/**"</span>],
+}
+</code></pre>
 <h2><a class="anchor" aria-hidden="true" id="set-up-babel-plugin-relay"></a><a href="#set-up-babel-plugin-relay" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Set up babel-plugin-relay</h2>
 <p>Relay Modern requires a Babel plugin to convert GraphQL to runtime artifacts:</p>
 <pre><code class="hljs css language-sh">yarn add --dev babel-plugin-relay graphql
@@ -83,12 +100,12 @@ Babel's <a href="https://babeljs.io/docs/plugins/#pluginpreset-ordering">documen
 </code></pre>
 <p>If you need to configure <code>babel-plugin-relay</code> further (e.g. to enable <code>compat</code> mode), you can do so by <a href="https://github.com/kentcdodds/babel-plugin-macros/blob/master/other/docs/user.md#config-experimental">specifying the options in a number of ways</a>.</p>
 <p>For example:</p>
-<pre><code class="hljs"><span class="hljs-comment">// babel-plugin-macros.config.js</span>
-<span class="hljs-keyword">module</span>.<span class="hljs-keyword">exports</span> = {
+<pre><code class="hljs css language-javascript"><span class="hljs-comment">// babel-plugin-macros.config.js</span>
+<span class="hljs-built_in">module</span>.exports = {
   <span class="hljs-comment">// ...</span>
   <span class="hljs-comment">// Other macros config</span>
   relay: {
-    compat: <span class="hljs-keyword">true</span>,
+    <span class="hljs-attr">compat</span>: <span class="hljs-literal">true</span>,
   },
 }
 </code></pre>
@@ -130,7 +147,7 @@ might look like:</p>
 
 <span class="hljs-built_in">require</span>(<span class="hljs-string">'./myRelayApplication'</span>);
 </code></pre>
-</span></div></article></div><div class="docLastUpdate"><em>Last updated on 2019-6-6 by Igor Strebezhev</em></div><div class="docs-prevnext"><a class="docs-prev button" href="/docs/en/next/prerequisites"><span class="arrow-prev">← </span><span>Prerequisites</span></a><a class="docs-next button" href="/docs/en/next/quick-start-guide"><span>Quick Start Guide</span><span class="arrow-next"> →</span></a></div></div></div></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/" class="nav-home"><img src="/img/relay.svg" alt="Relay" width="66" height="58"/></a><div><h5>Docs</h5><a href="/docs/en/introduction-to-relay.html">Introduction</a></div><div><h5>Community</h5><a href="/en/users.html">User Showcase</a></div><div><h5>More</h5><a href="https://github.com/facebook/relay">GitHub</a><a class="github-button" href="https://github.com/facebook/relay" data-icon="octicon-star" data-count-href="/facebook/relay/stargazers" data-count-api="/repos/facebook/relay#stargazers_count" data-count-aria-label="# stargazers on GitHub" aria-label="Star this project on GitHub">Star</a></div></section><a href="https://code.facebook.com/projects/" target="_blank" class="fbOpenSource"><img src="/img/oss_logo.png" alt="Facebook Open Source" width="170" height="45"/></a><section class="copyright">Copyright © 2019 Facebook Inc.</section></footer></div><script type="text/javascript" src="https://cdn.jsdelivr.net/docsearch.js/1/docsearch.min.js"></script><script>
+</span></div></article></div><div class="docLastUpdate"><em>Last updated on 2019-9-9 by Eloy Durán</em></div><div class="docs-prevnext"><a class="docs-prev button" href="/docs/en/next/prerequisites"><span class="arrow-prev">← </span><span>Prerequisites</span></a><a class="docs-next button" href="/docs/en/next/quick-start-guide"><span>Quick Start Guide</span><span class="arrow-next"> →</span></a></div></div></div></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/" class="nav-home"><img src="/img/relay.svg" alt="Relay" width="66" height="58"/></a><div><h5>Docs</h5><a href="/docs/en/introduction-to-relay.html">Introduction</a></div><div><h5>Community</h5><a href="/en/users.html">User Showcase</a></div><div><h5>More</h5><a href="https://github.com/facebook/relay">GitHub</a><a class="github-button" href="https://github.com/facebook/relay" data-icon="octicon-star" data-count-href="/facebook/relay/stargazers" data-count-api="/repos/facebook/relay#stargazers_count" data-count-aria-label="# stargazers on GitHub" aria-label="Star this project on GitHub">Star</a></div></section><a href="https://code.facebook.com/projects/" target="_blank" class="fbOpenSource"><img src="/img/oss_logo.png" alt="Facebook Open Source" width="170" height="45"/></a><section class="copyright">Copyright © 2019 Facebook Inc.</section></footer></div><script type="text/javascript" src="https://cdn.jsdelivr.net/docsearch.js/1/docsearch.min.js"></script><script>
                 document.addEventListener('keyup', function(e) {
                   if (e.target !== document.body) {
                     return;

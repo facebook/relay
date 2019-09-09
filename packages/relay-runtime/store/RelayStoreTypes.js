@@ -39,7 +39,6 @@ import type {
   ConnectionInternalEvent,
   ConnectionReference,
   ConnectionSnapshot,
-  ConnectionStoreSnapshot,
 } from './RelayConnection';
 import type RelayOperationTracker from './RelayOperationTracker';
 import type {RecordState} from './RelayRecordState';
@@ -280,6 +279,7 @@ export interface Store {
    */
   publishConnectionEvents_UNSTABLE(
     events: Array<ConnectionInternalEvent>,
+    final: boolean,
   ): void;
 
   /**
@@ -287,13 +287,13 @@ export interface Store {
    * store, which can be used to restore connection state via
    * restoreConnection_UNSTABLE().
    */
-  snapshotConnections_UNSTABLE(): ConnectionStoreSnapshot;
+  snapshotConnections_UNSTABLE(): void;
 
   /**
    * Reset the state of connections to a previous state recorded with
    * snapshotConnections_UNSTABLE.
    */
-  restoreConnections_UNSTABLE(snapshot: ConnectionStoreSnapshot): void;
+  restoreConnections_UNSTABLE(): void;
 }
 
 /**

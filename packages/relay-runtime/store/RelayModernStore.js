@@ -34,7 +34,6 @@ import type {
   ConnectionInternalEvent,
   ConnectionReference,
   ConnectionSnapshot,
-  ConnectionStoreSnapshot,
 } from './RelayConnection';
 import type {GetDataID} from './RelayResponseNormalizer';
 import type {
@@ -56,10 +55,15 @@ type Subscription = {
 };
 
 type UpdatedConnections = {[ConnectionID]: boolean};
+type ConnectionEvents = {|
+  final: Array<ConnectionInternalEvent>,
+  optimistic: ?Array<ConnectionInternalEvent>,
+|};
 type ConnectionSubscription<TEdge, TState> = {|
   +callback: (state: TState) => void,
   +id: string,
   snapshot: ConnectionSnapshot<TEdge, TState>,
+  backup: ?ConnectionSnapshot<TEdge, TState>,
   stale: boolean,
 |};
 
@@ -76,7 +80,7 @@ type ConnectionSubscription<TEdge, TState> = {|
  * is also enforced in development mode by freezing all records passed to a store.
  */
 class RelayModernStore implements Store {
-  _connectionEvents: Map<ConnectionID, Array<ConnectionInternalEvent>>;
+  _connectionEvents: Map<ConnectionID, ConnectionEvents>;
   _connectionSubscriptions: Map<string, ConnectionSubscription<mixed, mixed>>;
   _gcScheduler: Scheduler;
   _hasScheduledGC: boolean;
@@ -266,9 +270,11 @@ class RelayModernStore implements Store {
     );
     const {id, resolver} = connectionReference;
     const initialState: TState = resolver.initialize();
-    const events: ?$ReadOnlyArray<ConnectionInternalEvent> = this._connectionEvents.get(
-      id,
-    );
+    const connectionEvents = this._connectionEvents.get(id);
+    const events: ?$ReadOnlyArray<ConnectionInternalEvent> =
+      connectionEvents != null
+        ? connectionEvents.optimistic ?? connectionEvents.final
+        : null;
     const initialSnapshot = {
       edgeSnapshots: {},
       id,
@@ -296,6 +302,7 @@ class RelayModernStore implements Store {
     );
     const id = String(this._index++);
     const subscription: ConnectionSubscription<TEdge, TState> = {
+      backup: null,
       callback,
       id,
       snapshot,
@@ -310,6 +317,7 @@ class RelayModernStore implements Store {
 
   publishConnectionEvents_UNSTABLE(
     events: Array<ConnectionInternalEvent>,
+    final: boolean,
   ): void {
     if (events.length === 0) {
       return;
@@ -330,12 +338,26 @@ class RelayModernStore implements Store {
         pendingConnectionEvents.set(connectionID, pendingEvents);
       }
       pendingEvents.push(event);
-      let connectionEvents = this._connectionEvents.get(connectionID);
+      let connectionEvents: ?ConnectionEvents = this._connectionEvents.get(
+        connectionID,
+      );
       if (connectionEvents == null) {
-        connectionEvents = [];
-        this._connectionEvents.set(connectionID, pendingEvents);
+        connectionEvents = {
+          final: [],
+          optimistic: null,
+        };
+        this._connectionEvents.set(connectionID, connectionEvents);
       }
-      connectionEvents.push(event);
+      if (final) {
+        connectionEvents.final.push(event);
+      } else {
+        let optimisticEvents = connectionEvents.optimistic;
+        if (optimisticEvents == null) {
+          optimisticEvents = connectionEvents.final.slice();
+          connectionEvents.optimistic = optimisticEvents;
+        }
+        optimisticEvents.push(event);
+      }
     });
     this._connectionSubscriptions.forEach((subscription, id) => {
       const pendingEvents = pendingConnectionEvents.get(
@@ -491,32 +513,19 @@ class RelayModernStore implements Store {
     };
   }
 
-  snapshotConnections_UNSTABLE(): ConnectionStoreSnapshot {
-    const events = new Map(
-      Array.from(
-        this._connectionEvents.entries(),
-        ([connectionID, connectionEvents]) => [
-          connectionID,
-          connectionEvents.slice(),
-        ],
-      ),
-    );
-    const subscriptions = new Map(
-      Array.from(this._connectionSubscriptions.values(), subscription => [
-        subscription.id,
-        subscription.snapshot,
-      ]),
-    );
-    return {events, subscriptions};
+  snapshotConnections_UNSTABLE(): void {
+    this._connectionSubscriptions.forEach(subscription => {
+      subscription.backup = subscription.snapshot;
+    });
   }
 
-  restoreConnections_UNSTABLE(snapshot: ConnectionStoreSnapshot): void {
-    this._connectionEvents.clear();
-    snapshot.events.forEach((connectionEvents, connectionID) => {
-      this._connectionEvents.set(connectionID, connectionEvents);
+  restoreConnections_UNSTABLE(): void {
+    this._connectionEvents.forEach(events => {
+      events.optimistic = null;
     });
     this._connectionSubscriptions.forEach(subscription => {
-      const backup = snapshot.subscriptions.get(subscription.id);
+      const backup = subscription.backup;
+      subscription.backup = null;
       if (backup) {
         if (backup.state !== subscription.snapshot.state) {
           subscription.stale = true;

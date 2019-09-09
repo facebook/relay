@@ -21,7 +21,6 @@ const invariant = require('invariant');
 
 import type {HandlerProvider} from '../handlers/RelayDefaultHandlerProvider';
 import type {Disposable} from '../util/RelayRuntimeTypes';
-import type {ConnectionStoreSnapshot} from './RelayConnection';
 import type {GetDataID} from './RelayResponseNormalizer';
 import type {
   MutableRecordSource,
@@ -73,7 +72,7 @@ class RelayPublishQueue implements PublishQueue {
   // A "negative" of all applied updaters. It can be published to the store to
   // undo them in order to re-apply some of them for a rebase.
   _backup: MutableRecordSource;
-  _backupConnections: ?ConnectionStoreSnapshot;
+  _backupConnections: boolean;
   // True if the next `run()` should apply the backup and rerun all optimistic
   // updates performing a rebase.
   _pendingBackupRebase: boolean;
@@ -93,7 +92,7 @@ class RelayPublishQueue implements PublishQueue {
     getDataID: GetDataID,
   ) {
     this._backup = RelayRecordSource.create();
-    this._backupConnections = null;
+    this._backupConnections = false;
     this._handlerProvider = handlerProvider || null;
     this._pendingBackupRebase = false;
     this._pendingData = new Set();
@@ -188,8 +187,8 @@ class RelayPublishQueue implements PublishQueue {
         this._backup = RelayRecordSource.create();
       }
       if (this._backupConnections) {
-        this._store.restoreConnections_UNSTABLE(this._backupConnections);
-        this._backupConnections = null;
+        this._store.restoreConnections_UNSTABLE();
+        this._backupConnections = false;
       }
     }
     this._commitData();
@@ -197,8 +196,9 @@ class RelayPublishQueue implements PublishQueue {
       this._pendingOptimisticUpdates.size ||
       (this._pendingBackupRebase && this._appliedOptimisticUpdates.size)
     ) {
-      if (this._backupConnections == null) {
-        this._backupConnections = this._store.snapshotConnections_UNSTABLE();
+      if (!this._backupConnections) {
+        this._store.snapshotConnections_UNSTABLE();
+        this._backupConnections = true;
       }
       this._applyUpdates();
     }
@@ -257,7 +257,10 @@ class RelayPublishQueue implements PublishQueue {
     }
     this._store.publish(source);
     if (combinedConnectionEvents.length !== 0) {
-      this._store.publishConnectionEvents_UNSTABLE(combinedConnectionEvents);
+      this._store.publishConnectionEvents_UNSTABLE(
+        combinedConnectionEvents,
+        true,
+      );
     }
   }
 
@@ -290,7 +293,7 @@ class RelayPublishQueue implements PublishQueue {
         );
         this._store.publish(sink);
         if (connectionEvents.length !== 0) {
-          this._store.publishConnectionEvents_UNSTABLE(connectionEvents);
+          this._store.publishConnectionEvents_UNSTABLE(connectionEvents, true);
         }
       }
     });
@@ -366,7 +369,10 @@ class RelayPublishQueue implements PublishQueue {
 
     this._store.publish(sink);
     if (combinedConnectionEvents.length !== 0) {
-      this._store.publishConnectionEvents_UNSTABLE(combinedConnectionEvents);
+      this._store.publishConnectionEvents_UNSTABLE(
+        combinedConnectionEvents,
+        false,
+      );
     }
   }
 }

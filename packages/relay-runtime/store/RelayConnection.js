@@ -82,11 +82,6 @@ export type ConnectionSnapshot<TEdge, TState> = {|
   +state: TState,
 |};
 
-export type ConnectionStoreSnapshot = {|
-  events: Map<ConnectionID, Array<ConnectionInternalEvent>>,
-  subscriptions: Map<string, ConnectionSnapshot<mixed, mixed>>,
-|};
-
 export type PageInfo = {|
   endCursor: ?string,
   hasNextPage: ?boolean,

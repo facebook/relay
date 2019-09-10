@@ -12,6 +12,7 @@
 'use strict';
 
 const MatchContainer = require('./MatchContainer');
+const ProfilerContext = require('./ProfilerContext');
 const RelayEnvironmentProvider = require('./RelayEnvironmentProvider');
 
 const fetchQuery = require('./fetchQuery');
@@ -23,12 +24,17 @@ const useRefetchableFragment = require('./useRefetchableFragment');
 const useRelayEnvironment = require('./useRelayEnvironment');
 
 export type {MatchContainerProps, MatchPointer} from './MatchContainer';
+export type {ProfilerContextType} from './ProfilerContext';
 export type {FetchPolicy} from './QueryResource';
 export type {Direction, LoadMoreFn} from './useLoadMoreFunction';
-export type {RefetchFn} from './useRefetchableFragmentNode';
+export type {
+  RefetchFn,
+  Options as RefetchOptions,
+} from './useRefetchableFragmentNode';
 
 module.exports = {
   MatchContainer: MatchContainer,
+  ProfilerContext: ProfilerContext,
   RelayEnvironmentProvider: RelayEnvironmentProvider,
 
   fetchQuery: fetchQuery,

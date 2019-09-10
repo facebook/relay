@@ -34,6 +34,7 @@ const {Map: ImmutableMap} = require('immutable');
 import type {DocumentNode, GraphQLSchema, ValidationContext} from 'graphql';
 import type {
   FormatModule,
+  PluginInterface,
   TypeGenerator,
 } from '../language/RelayLanguagePluginInterface';
 import type {ScalarTypeMapping} from '../language/javascript/RelayFlowTypeTransformers';
@@ -90,6 +91,7 @@ function compileAll({
   reporter,
   schemaExtensions,
   typeGenerator,
+  languagePlugin,
 }: {|
   baseDir: string,
   baseDocuments: $ReadOnlyArray<DocumentNode>,
@@ -103,6 +105,7 @@ function compileAll({
   reporter: Reporter,
   schemaExtensions: $ReadOnlyArray<string>,
   typeGenerator: TypeGenerator,
+  languagePlugin: PluginInterface,
 |}) {
   // Can't convert to IR unless the schema already has Relay-local extensions
   const transformedSchema = ASTConvert.transformASTSchema(
@@ -152,11 +155,12 @@ function compileAll({
     ],
     reporter,
   );
-  const artifacts = compileRelayArtifacts(
-    compilerContext,
-    compilerTransforms,
+  const artifacts = compileRelayArtifacts({
+    context: compilerContext,
+    transforms: compilerTransforms,
     reporter,
-  );
+    languagePlugin,
+  });
 
   return {
     artifacts,
@@ -174,6 +178,7 @@ function writeAll({
   schema: baseSchema,
   reporter,
   sourceControl,
+  languagePlugin,
 }: {|
   config: WriterConfig,
   onlyValidate: boolean,
@@ -182,6 +187,7 @@ function writeAll({
   schema: GraphQLSchema,
   reporter: Reporter,
   sourceControl: ?SourceControl,
+  languagePlugin: PluginInterface,
 |}): Promise<Map<string, CodegenDirectory>> {
   return Profiler.asyncContext('RelayFileWriter.writeAll', async () => {
     const {
@@ -199,6 +205,7 @@ function writeAll({
       reporter,
       schemaExtensions: writerConfig.schemaExtensions,
       typeGenerator: writerConfig.typeGenerator,
+      languagePlugin,
     });
     // Build a context from all the documents
     const baseDefinitionNames = new Set();

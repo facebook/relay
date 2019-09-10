@@ -16,6 +16,7 @@ const CodeMarker = require('../../util/CodeMarker');
 const CompilerContext = require('../../core/GraphQLCompilerContext');
 const RelayIRTransforms = require('../../core/RelayIRTransforms');
 const RelayIRValidations = require('../../core/RelayIRValidations');
+const getLanguagePlugin = require('../../language/javascript/RelayLanguagePluginJavaScript');
 
 const compileRelayArtifacts = require('../compileRelayArtifacts');
 
@@ -47,12 +48,12 @@ describe('compileRelayArtifacts', () => {
       const compilerContext = new CompilerContext(TestSchema, schema).addAll(
         definitions,
       );
-      return compileRelayArtifacts(
-        compilerContext,
-        RelayIRTransforms,
-        undefined,
-        RelayIRValidations,
-      )
+      return compileRelayArtifacts({
+        context: compilerContext,
+        transforms: RelayIRTransforms,
+        validations: RelayIRValidations,
+        languagePlugin: getLanguagePlugin(),
+      })
         .map(([_definition, node]) => {
           if (node.kind === 'Request') {
             const {

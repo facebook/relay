@@ -664,6 +664,54 @@ describe('QueryResource', () => {
           expect(release).toBeCalledTimes(1);
         });
 
+        it('should discard old promise cache when query observable is unsubscribed, and create a new promise on a new request', () => {
+          let promise1;
+          let subscription;
+          try {
+            QueryResource.prepare(
+              queryMissingData,
+              fetchObservableMissingData,
+              fetchPolicy,
+              renderPolicy,
+              {
+                start: sub => {
+                  subscription = sub;
+                },
+              },
+            );
+          } catch (p) {
+            expect(typeof p.then).toBe('function');
+            promise1 = p;
+          }
+          subscription && subscription.unsubscribe();
+
+          // Assert cache is cleared
+          expect(
+            QueryResource.getCacheEntry(
+              queryMissingData,
+              fetchPolicy,
+              renderPolicy,
+            ),
+          ).toBeUndefined();
+
+          let promise2;
+          try {
+            QueryResource.prepare(
+              queryMissingData,
+              fetchObservableMissingData,
+              fetchPolicy,
+              renderPolicy,
+            );
+          } catch (p) {
+            expect(typeof p.then).toBe('function');
+            promise2 = p;
+          }
+
+          // Assert that different promises were thrown
+          expect(promise1).not.toBe(promise2);
+          expect(environment.execute).toBeCalledTimes(2);
+        });
+
         describe('when using fragments', () => {
           it('should return result and not send a network request if all data is locally available', () => {
             const {UserQuery} = generateAndCompile(

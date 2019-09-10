@@ -481,7 +481,11 @@ class QueryResourceImpl {
           const observerComplete = observer?.complete;
           observerComplete && observerComplete();
         },
-        unsubscribe: observer?.unsubscribe,
+        unsubscribe: subscription => {
+          this._cache.delete(cacheKey);
+          const observerUnsubscribe = observer?.unsubscribe;
+          observerUnsubscribe && observerUnsubscribe(subscription);
+        },
       });
 
       let cacheEntry = this._cache.get(cacheKey);

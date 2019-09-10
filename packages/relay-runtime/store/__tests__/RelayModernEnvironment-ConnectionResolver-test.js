@@ -1165,8 +1165,7 @@ describe('@connection_resolver connection field', () => {
           startCursor: 'cursor-1',
         });
         // should re-run the reducer with just the original fetch event
-        // plus an update for the reverted record
-        expect(connectionResolver.reduce).toBeCalledTimes(2);
+        expect(connectionResolver.reduce).toBeCalledTimes(1);
       });
     });
 
@@ -1375,8 +1374,7 @@ describe('@connection_resolver connection field', () => {
           startCursor: 'cursor-1',
         });
         // should re-run the reducer with just the original fetch event
-        // plus an update for reverted edge record
-        expect(connectionResolver.reduce).toBeCalledTimes(2);
+        expect(connectionResolver.reduce).toBeCalledTimes(1);
       });
     });
 

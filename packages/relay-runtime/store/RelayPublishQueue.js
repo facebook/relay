@@ -69,10 +69,7 @@ class RelayPublishQueue implements PublishQueue {
   _handlerProvider: ?HandlerProvider;
   _getDataID: GetDataID;
 
-  // A "negative" of all applied updaters. It can be published to the store to
-  // undo them in order to re-apply some of them for a rebase.
-  _backup: MutableRecordSource;
-  _backupConnections: boolean;
+  _hasStoreSnapshot: boolean;
   // True if the next `run()` should apply the backup and rerun all optimistic
   // updates performing a rebase.
   _pendingBackupRebase: boolean;
@@ -91,8 +88,7 @@ class RelayPublishQueue implements PublishQueue {
     handlerProvider?: ?HandlerProvider,
     getDataID: GetDataID,
   ) {
-    this._backup = RelayRecordSource.create();
-    this._backupConnections = false;
+    this._hasStoreSnapshot = false;
     this._handlerProvider = handlerProvider || null;
     this._pendingBackupRebase = false;
     this._pendingData = new Set();
@@ -182,13 +178,9 @@ class RelayPublishQueue implements PublishQueue {
    */
   run(): $ReadOnlyArray<RequestDescriptor> {
     if (this._pendingBackupRebase) {
-      if (this._backup.size()) {
-        this._store.publish(this._backup);
-        this._backup = RelayRecordSource.create();
-      }
-      if (this._backupConnections) {
-        this._store.restoreConnections_UNSTABLE();
-        this._backupConnections = false;
+      if (this._hasStoreSnapshot) {
+        this._store.restore();
+        this._hasStoreSnapshot = false;
       }
     }
     this._commitData();
@@ -196,9 +188,9 @@ class RelayPublishQueue implements PublishQueue {
       this._pendingOptimisticUpdates.size ||
       (this._pendingBackupRebase && this._appliedOptimisticUpdates.size)
     ) {
-      if (!this._backupConnections) {
-        this._store.snapshotConnections_UNSTABLE();
-        this._backupConnections = true;
+      if (!this._hasStoreSnapshot) {
+        this._store.snapshot();
+        this._hasStoreSnapshot = true;
       }
       this._applyUpdates();
     }
@@ -307,7 +299,6 @@ class RelayPublishQueue implements PublishQueue {
       this._store.getSource(),
       sink,
       combinedConnectionEvents,
-      this._backup,
     );
     const store = new RelayRecordSourceProxy(
       mutator,

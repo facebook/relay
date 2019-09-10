@@ -638,7 +638,8 @@ const {generateAndCompile, simpleClone} = require('relay-test-utils-internal');
       });
 
       it('reverts executed changes', () => {
-        store.publish = jest.fn(store.publish.bind(store));
+        const publish = jest.spyOn(store, 'publish');
+        const restore = jest.spyOn(store, 'restore');
         const queue = new RelayPublishQueue(store, null, defaultGetDataID);
         // Run the updates
         queue.applyUpdate({
@@ -655,20 +656,23 @@ const {generateAndCompile, simpleClone} = require('relay-test-utils-internal');
         });
         queue.run();
         expect(store.publish.mock.calls.length).toBe(1);
-        store.publish.mockClear();
+        publish.mockClear();
 
         // Then run the revert
         queue.revertAll();
         let sourceData = store.getSource().toJSON();
         expect(sourceData).not.toEqual(initialData);
+        expect(restore).toBeCalledTimes(0);
         queue.run();
         sourceData = store.getSource().toJSON();
         expect(sourceData).toEqual(initialData);
-        expect(store.publish.mock.calls.length).toBe(1);
+        expect(publish).toBeCalledTimes(0);
+        expect(restore).toBeCalledTimes(1);
       });
 
       it('reverts partially executed/unexecuted changes', () => {
-        store.publish = jest.fn(store.publish.bind(store));
+        const publish = jest.spyOn(store, 'publish');
+        const restore = jest.spyOn(store, 'restore');
         const queue = new RelayPublishQueue(store, null, defaultGetDataID);
         // Run the first update
         queue.applyUpdate({
@@ -685,16 +689,18 @@ const {generateAndCompile, simpleClone} = require('relay-test-utils-internal');
             zuck.setValue(zuck.getValue('name').toUpperCase(), 'name');
           },
         });
-        store.publish.mockClear();
+        publish.mockClear();
 
         // Then run the revert
         queue.revertAll();
         let sourceData = store.getSource().toJSON();
         expect(sourceData).not.toEqual(initialData);
+        expect(restore).toBeCalledTimes(0);
         queue.run();
         sourceData = store.getSource().toJSON();
         expect(sourceData).toEqual(initialData);
-        expect(store.publish.mock.calls.length).toBe(1);
+        expect(publish).toBeCalledTimes(0);
+        expect(restore).toBeCalledTimes(1);
       });
 
       it('reverts unexecuted changes', () => {
@@ -795,8 +801,8 @@ const {generateAndCompile, simpleClone} = require('relay-test-utils-internal');
           publish,
           holdGC: jest.fn(),
           publishConnectionEvents_UNSTABLE: jest.fn(),
-          restoreConnections_UNSTABLE: jest.fn(),
-          snapshotConnections_UNSTABLE: jest.fn(() => []),
+          restore: jest.fn(),
+          snapshot: jest.fn(() => []),
         };
         const queue = new RelayPublishQueue(store, null, defaultGetDataID);
         const publishSource = new RecordSourceImplementation();
@@ -831,8 +837,8 @@ const {generateAndCompile, simpleClone} = require('relay-test-utils-internal');
           publish,
           holdGC: jest.fn(),
           publishConnectionEvents_UNSTABLE: jest.fn(),
-          restoreConnections_UNSTABLE: jest.fn(),
-          snapshotConnections_UNSTABLE: jest.fn(() => []),
+          restore: jest.fn(),
+          snapshot: jest.fn(() => []),
         };
         const queue = new RelayPublishQueue(store, null, defaultGetDataID);
         const {ActorQuery} = generateAndCompile(
@@ -928,8 +934,8 @@ const {generateAndCompile, simpleClone} = require('relay-test-utils-internal');
           publish,
           holdGC: jest.fn(),
           publishConnectionEvents_UNSTABLE: jest.fn(),
-          restoreConnections_UNSTABLE: jest.fn(),
-          snapshotConnections_UNSTABLE: jest.fn(() => []),
+          restore: jest.fn(),
+          snapshot: jest.fn(() => []),
         };
         const ScreennameHandler = {
           update(storeProxy, payload) {
@@ -1266,7 +1272,7 @@ const {generateAndCompile, simpleClone} = require('relay-test-utils-internal');
           amp.setValue(10, 'volume');
         };
 
-        const getVolume = () => source.get('84872').volume;
+        const getVolume = () => store.getSource().get('84872').volume;
 
         expect(getVolume()).toBe(3);
 
@@ -1359,8 +1365,8 @@ const {generateAndCompile, simpleClone} = require('relay-test-utils-internal');
           publish,
           holdGC: jest.fn(),
           publishConnectionEvents_UNSTABLE: jest.fn(),
-          restoreConnections_UNSTABLE: jest.fn(),
-          snapshotConnections_UNSTABLE: jest.fn(() => []),
+          restore: jest.fn(),
+          snapshot: jest.fn(() => []),
         };
         const queue = new RelayPublishQueue(store, null, defaultGetDataID);
 
@@ -1555,8 +1561,8 @@ const {generateAndCompile, simpleClone} = require('relay-test-utils-internal');
           publish,
           holdGC: jest.fn(),
           publishConnectionEvents_UNSTABLE: jest.fn(),
-          restoreConnections_UNSTABLE: jest.fn(),
-          snapshotConnections_UNSTABLE: jest.fn(() => []),
+          restore: jest.fn(),
+          snapshot: jest.fn(() => []),
         };
         const queue = new RelayPublishQueue(store, null, defaultGetDataID);
         queue.commitUpdate(storeProxy => {
@@ -1588,8 +1594,8 @@ const {generateAndCompile, simpleClone} = require('relay-test-utils-internal');
           publish,
           holdGC: jest.fn(),
           publishConnectionEvents_UNSTABLE: jest.fn(),
-          restoreConnections_UNSTABLE: jest.fn(),
-          snapshotConnections_UNSTABLE: jest.fn(() => []),
+          restore: jest.fn(),
+          snapshot: jest.fn(() => []),
         };
         const queue = new RelayPublishQueue(store, null, defaultGetDataID);
         queue.run();
@@ -1607,8 +1613,8 @@ const {generateAndCompile, simpleClone} = require('relay-test-utils-internal');
           publish,
           holdGC: jest.fn(),
           publishConnectionEvents_UNSTABLE: jest.fn(),
-          restoreConnections_UNSTABLE: jest.fn(),
-          snapshotConnections_UNSTABLE: jest.fn(() => []),
+          restore: jest.fn(),
+          snapshot: jest.fn(() => []),
         };
         const queue = new RelayPublishQueue(store, null, defaultGetDataID);
         queue.applyUpdate({
@@ -1624,6 +1630,7 @@ const {generateAndCompile, simpleClone} = require('relay-test-utils-internal');
       it('notifies the store if an optimistic mutation is reverted', () => {
         const notify = jest.fn();
         const publish = jest.fn();
+        const restore = jest.fn();
         const source = new RecordSourceImplementation();
         const store = {
           getSource: () => source,
@@ -1631,8 +1638,8 @@ const {generateAndCompile, simpleClone} = require('relay-test-utils-internal');
           publish,
           holdGC: jest.fn(),
           publishConnectionEvents_UNSTABLE: jest.fn(),
-          restoreConnections_UNSTABLE: jest.fn(),
-          snapshotConnections_UNSTABLE: jest.fn(() => []),
+          restore,
+          snapshot: jest.fn(() => []),
         };
         const queue = new RelayPublishQueue(store, null, defaultGetDataID);
         const mutation = {
@@ -1647,8 +1654,9 @@ const {generateAndCompile, simpleClone} = require('relay-test-utils-internal');
 
         queue.revertUpdate(mutation);
         queue.run();
-        expect(publish).toBeCalled();
-        expect(notify).toBeCalled();
+        expect(publish).toBeCalledTimes(0);
+        expect(notify).toBeCalledTimes(1);
+        expect(restore).toBeCalledTimes(1);
       });
 
       it('notifies the store if a server mutation is committed', () => {
@@ -1661,8 +1669,8 @@ const {generateAndCompile, simpleClone} = require('relay-test-utils-internal');
           publish,
           holdGC: jest.fn(),
           publishConnectionEvents_UNSTABLE: jest.fn(),
-          restoreConnections_UNSTABLE: jest.fn(),
-          snapshotConnections_UNSTABLE: jest.fn(() => []),
+          restore: jest.fn(),
+          snapshot: jest.fn(() => []),
         };
         const queue = new RelayPublishQueue(store, null, defaultGetDataID);
 
@@ -1699,8 +1707,8 @@ const {generateAndCompile, simpleClone} = require('relay-test-utils-internal');
           publish: jest.fn(),
           holdGC,
           publishConnectionEvents_UNSTABLE: jest.fn(),
-          restoreConnections_UNSTABLE: jest.fn(),
-          snapshotConnections_UNSTABLE: jest.fn(() => []),
+          restore: jest.fn(),
+          snapshot: jest.fn(() => []),
         };
         const queue = new RelayPublishQueue(store, null, defaultGetDataID);
         const mutation = {
@@ -1722,8 +1730,8 @@ const {generateAndCompile, simpleClone} = require('relay-test-utils-internal');
           publish: jest.fn(),
           holdGC,
           publishConnectionEvents_UNSTABLE: jest.fn(),
-          restoreConnections_UNSTABLE: jest.fn(),
-          snapshotConnections_UNSTABLE: jest.fn(() => []),
+          restore: jest.fn(),
+          snapshot: jest.fn(() => []),
         };
         const queue = new RelayPublishQueue(store, null, defaultGetDataID);
         queue.run();
@@ -1742,8 +1750,8 @@ const {generateAndCompile, simpleClone} = require('relay-test-utils-internal');
           publish: jest.fn(),
           holdGC,
           publishConnectionEvents_UNSTABLE: jest.fn(),
-          restoreConnections_UNSTABLE: jest.fn(),
-          snapshotConnections_UNSTABLE: jest.fn(() => []),
+          restore: jest.fn(),
+          snapshot: jest.fn(() => []),
         };
         const queue = new RelayPublishQueue(store, null, defaultGetDataID);
         const mutation = {

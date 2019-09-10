@@ -12,6 +12,7 @@
 
 const RelayModernRecord = require('../RelayModernRecord');
 const RelayModernStore = require('../RelayModernStore');
+const RelayOptimisticRecordSource = require('../RelayOptimisticRecordSource');
 const RelayRecordSourceMapImpl = require('../RelayRecordSourceMapImpl');
 const RelayRecordSourceObjectImpl = require('../RelayRecordSourceObjectImpl');
 
@@ -20,12 +21,7 @@ const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
 const {createReaderSelector} = require('../RelayModernSelector');
-const {
-  REF_KEY,
-  ROOT_ID,
-  ROOT_TYPE,
-  UNPUBLISH_RECORD_SENTINEL,
-} = require('../RelayStoreUtils');
+const {REF_KEY, ROOT_ID, ROOT_TYPE} = require('../RelayStoreUtils');
 const {
   generateAndCompile,
   matchers,
@@ -35,9 +31,14 @@ const {
 expect.extend(matchers);
 
 [
-  [RelayRecordSourceObjectImpl, 'Object'],
-  [RelayRecordSourceMapImpl, 'Map'],
-].forEach(([RecordSourceImplementation, ImplementationName]) => {
+  [data => new RelayRecordSourceObjectImpl(data), 'Object'],
+  [data => new RelayRecordSourceMapImpl(data), 'Map'],
+  [
+    data =>
+      RelayOptimisticRecordSource.create(new RelayRecordSourceMapImpl(data)),
+    'Optimistic',
+  ],
+].forEach(([getRecordSourceImplementation, ImplementationName]) => {
   describe(`Relay Store with ${ImplementationName} Record Source`, () => {
     describe('retain()', () => {
       let UserFragment;
@@ -61,7 +62,7 @@ expect.extend(matchers);
           },
         };
         initialData = simpleClone(data);
-        source = new RecordSourceImplementation(data);
+        source = getRecordSourceImplementation(data);
         store = new RelayModernStore(source);
         ({UserFragment} = generateAndCompile(`
           query UserQuery($size: Int) {
@@ -107,7 +108,7 @@ expect.extend(matchers);
             }
           }
         `);
-        const nextSource = new RecordSourceImplementation({
+        const nextSource = getRecordSourceImplementation({
           842472: {
             __id: '842472',
             __typename: 'User',
@@ -154,7 +155,7 @@ expect.extend(matchers);
             uri: 'https://photo1.jpg',
           },
         };
-        source = new RecordSourceImplementation(data);
+        source = getRecordSourceImplementation(data);
         store = new RelayModernStore(source);
         ({UserFragment, UserQuery} = generateAndCompile(`
           fragment UserFragment on User {
@@ -285,7 +286,7 @@ expect.extend(matchers);
             uri: 'https://photo1.jpg',
           },
         };
-        const nextSource = new RecordSourceImplementation(nextData);
+        const nextSource = getRecordSourceImplementation(nextData);
         store.publish(nextSource); // takes effect w/o calling notify()
 
         const owner = createOperationDescriptor(UserQuery, {size: 32});
@@ -335,7 +336,7 @@ expect.extend(matchers);
             uri: 'https://photo1.jpg',
           },
         };
-        source = new RecordSourceImplementation(data);
+        source = getRecordSourceImplementation(data);
         store = new RelayModernStore(source);
         ({UserFragment, UserQuery} = generateAndCompile(`
           fragment UserFragment on User {
@@ -367,7 +368,7 @@ expect.extend(matchers);
         const callback = jest.fn();
         store.subscribe(snapshot, callback);
         // Publish a change to profilePicture.uri
-        const nextSource = new RecordSourceImplementation({
+        const nextSource = getRecordSourceImplementation({
           'client:1': {
             __id: 'client:1',
             uri: 'https://photo2.jpg',
@@ -427,7 +428,7 @@ expect.extend(matchers);
         const callback = jest.fn();
         store.subscribe(snapshot, callback);
         // Publish a change to profilePicture.uri
-        const nextSource = new RecordSourceImplementation({
+        const nextSource = getRecordSourceImplementation({
           'client:1': {
             __id: 'client:1',
             uri: 'https://photo2.jpg',
@@ -469,7 +470,7 @@ expect.extend(matchers);
         const callback = jest.fn();
         store.subscribe(snapshot, callback);
         // Publish a change to profilePicture.uri
-        const nextSource = new RecordSourceImplementation({
+        const nextSource = getRecordSourceImplementation({
           'client:1': {
             __id: 'client:1',
             uri: 'https://photo2.jpg',
@@ -497,7 +498,7 @@ expect.extend(matchers);
         const callback = jest.fn();
         store.subscribe(snapshot, callback);
         // Publish a change to profilePicture.uri
-        let nextSource = new RecordSourceImplementation({
+        let nextSource = getRecordSourceImplementation({
           4: {
             __id: '4',
             __typename: 'User',
@@ -510,7 +511,7 @@ expect.extend(matchers);
           },
         });
         store.publish(nextSource);
-        nextSource = new RecordSourceImplementation({
+        nextSource = getRecordSourceImplementation({
           'client:1': {
             __id: 'client:1',
             uri: 'https://photo3.jpg',
@@ -557,7 +558,7 @@ expect.extend(matchers);
             uri: 'https://photo1.jpg',
           },
         };
-        source = new RecordSourceImplementation(data);
+        source = getRecordSourceImplementation(data);
         store = new RelayModernStore(source);
         const owner = createOperationDescriptor(UserQuery, {});
         const selector = createReaderSelector(
@@ -572,7 +573,7 @@ expect.extend(matchers);
         const callback = jest.fn();
         // Record does not exist when subscribed
         store.subscribe(snapshot, callback);
-        const nextSource = new RecordSourceImplementation({
+        const nextSource = getRecordSourceImplementation({
           4: {
             __id: '4',
             __typename: 'User',
@@ -618,7 +619,7 @@ expect.extend(matchers);
         const callback = jest.fn();
         // Record does not exist when subscribed
         store.subscribe(snapshot, callback);
-        const nextSource = new RecordSourceImplementation({
+        const nextSource = getRecordSourceImplementation({
           842472: {
             __id: '842472',
             __typename: 'User',
@@ -656,7 +657,7 @@ expect.extend(matchers);
         // Record does not exist when subscribed
         store.subscribe(snapshot, callback);
         // Create it again
-        const nextSource = new RecordSourceImplementation({
+        const nextSource = getRecordSourceImplementation({
           842472: {
             __id: '842472',
             __typename: 'User',
@@ -690,7 +691,7 @@ expect.extend(matchers);
         const callback = jest.fn();
         store.subscribe(snapshot, callback);
         // Publish a change to profilePicture.uri
-        const nextSource = new RecordSourceImplementation({
+        const nextSource = getRecordSourceImplementation({
           842472: {
             __id: '842472',
             __typename: 'User',
@@ -715,7 +716,7 @@ expect.extend(matchers);
         const callback = jest.fn();
         const {dispose} = store.subscribe(snapshot, callback);
         // Publish a change to profilePicture.uri
-        const nextSource = new RecordSourceImplementation({
+        const nextSource = getRecordSourceImplementation({
           'client:1': {
             __id: 'client:1',
             uri: 'https://photo2.jpg',
@@ -727,15 +728,6 @@ expect.extend(matchers);
         expect(callback).not.toBeCalled();
       });
 
-      it('unpublishes records via a sentinel value', () => {
-        const nextSource = new RecordSourceImplementation({});
-        nextSource.set('4', UNPUBLISH_RECORD_SENTINEL);
-        store.publish(nextSource);
-
-        expect(source.has('4')).toBe(false);
-        expect(source.get('4')).toBe(undefined);
-      });
-
       it('throws if source records are modified', () => {
         const zuck = source.get('4');
         expect(() => {
@@ -745,7 +737,7 @@ expect.extend(matchers);
 
       it('throws if published records are modified', () => {
         // Create and publish a source with a new record
-        const nextSource = new RecordSourceImplementation();
+        const nextSource = getRecordSourceImplementation();
         const beast = RelayModernRecord.create('beast', 'Pet');
         nextSource.set('beast', beast);
         store.publish(nextSource);
@@ -756,7 +748,7 @@ expect.extend(matchers);
 
       it('throws if updated records are modified', () => {
         // Create and publish a source with a record of the same id
-        const nextSource = new RecordSourceImplementation();
+        const nextSource = getRecordSourceImplementation();
         const beast = RelayModernRecord.create('beast', 'Pet');
         nextSource.set('beast', beast);
         const zuck = RelayModernRecord.create('4', 'User');
@@ -798,7 +790,7 @@ expect.extend(matchers);
             uri: 'https://photo1.jpg',
           },
         };
-        source = new RecordSourceImplementation(data);
+        source = getRecordSourceImplementation(data);
         store = new RelayModernStore(source);
         ({UserFragment} = generateAndCompile(`
           fragment UserFragment on User {
@@ -818,7 +810,7 @@ expect.extend(matchers);
       it('returns false if a scalar field is missing', () => {
         const selector = createReaderSelector(UserFragment, '4', {size: 32});
         store.publish(
-          new RecordSourceImplementation({
+          getRecordSourceImplementation({
             'client:1': {
               __id: 'client:1',
               uri: undefined, // unpublish the field
@@ -835,7 +827,7 @@ expect.extend(matchers);
 
       it('returns false if a linked record is missing', () => {
         delete data['client:1']; // profile picture
-        source = new RecordSourceImplementation(data);
+        source = getRecordSourceImplementation(data);
         store = new RelayModernStore(source);
         const selector = createReaderSelector(UserFragment, '4', {size: 32});
         expect(store.check(selector)).toBe(false);
@@ -875,7 +867,7 @@ expect.extend(matchers);
         initialData = simpleClone(data);
         callbacks = [];
         scheduler = jest.fn(callbacks.push.bind(callbacks));
-        source = new RecordSourceImplementation(data);
+        source = getRecordSourceImplementation(data);
         store = new RelayModernStore(source, scheduler);
         ({UserFragment} = generateAndCompile(`
           fragment UserFragment on User {
@@ -930,7 +922,7 @@ expect.extend(matchers);
           },
         };
         initialData = simpleClone(data);
-        source = new RecordSourceImplementation(data);
+        source = getRecordSourceImplementation(data);
         store = new RelayModernStore(source);
         ({UserFragment} = generateAndCompile(`
           fragment UserFragment on User {

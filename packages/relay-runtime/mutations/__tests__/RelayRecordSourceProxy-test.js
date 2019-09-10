@@ -31,7 +31,6 @@ const {
   ROOT_ID,
   ROOT_TYPE,
   TYPENAME_KEY,
-  UNPUBLISH_FIELD_SENTINEL,
 } = RelayStoreUtils;
 
 [
@@ -39,7 +38,6 @@ const {
   [RelayRecordSourceMapImpl, 'Map'],
 ].forEach(([RecordSourceImplementation, ImplementationName]) => {
   describe(`RelayRecordSourceProxy with ${ImplementationName} RecordSource`, () => {
-    let backupSource;
     let baseSource;
     let mutator;
     let store;
@@ -89,14 +87,8 @@ const {
     beforeEach(() => {
       jest.resetModules();
       baseSource = new RecordSourceImplementation(simpleClone(initialData));
-      backupSource = new RecordSourceImplementation({});
       sinkSource = new RecordSourceImplementation({});
-      mutator = new RelayRecordSourceMutator(
-        baseSource,
-        sinkSource,
-        [],
-        backupSource,
-      );
+      mutator = new RelayRecordSourceMutator(baseSource, sinkSource, []);
       store = new RelayRecordSourceProxy(mutator, defaultGetDataID);
     });
 
@@ -134,7 +126,6 @@ const {
       it('synthesizes a root if it does not exist', () => {
         baseSource.remove(ROOT_ID);
         sinkSource.remove(ROOT_ID);
-        backupSource.remove(ROOT_ID);
         const root = store.getRoot();
         expect(root instanceof RelayRecordProxy).toBe(true);
         expect(root.getDataID()).toBe(ROOT_ID);
@@ -460,13 +451,6 @@ const {
           [TYPENAME_KEY]: 'Page',
           name: 'Dog',
         },
-      });
-      expect(backupSource.get('4')).toBe(markBackup); // Same record (referential equality).
-      expect(backupSource.get('4')).toEqual(initialData['4']); // And not mutated.
-      expect(backupSource.get('660361306')).toEqual({
-        ...initialData['660361306'],
-        blockedPages: UNPUBLISH_FIELD_SENTINEL,
-        hometown: UNPUBLISH_FIELD_SENTINEL,
       });
     });
   });

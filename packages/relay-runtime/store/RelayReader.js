@@ -91,8 +91,8 @@ class RelayReader {
     const data = this._traverse(node, dataID, null);
     return {
       data,
-      seenRecords: this._seenRecords,
       isMissingData: this._isMissingData,
+      seenRecords: this._seenRecords,
       selector: this._selector,
     };
   }

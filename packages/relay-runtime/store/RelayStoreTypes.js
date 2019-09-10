@@ -99,8 +99,8 @@ export type NormalizationSelector = {|
  */
 export type TypedSnapshot<TData> = {|
   +data: TData,
-  +seenRecords: RecordMap,
   +isMissingData: boolean,
+  +seenRecords: RecordMap,
   +selector: SingularReaderSelector,
 |};
 export type Snapshot = TypedSnapshot<?SelectorData>;
@@ -283,17 +283,16 @@ export interface Store {
   ): void;
 
   /**
-   * Record a backup/snapshot of the current state of all connections in the
-   * store, which can be used to restore connection state via
-   * restoreConnection_UNSTABLE().
+   * Record a backup/snapshot of the current state of the store, including
+   * records and derived data such as fragment and connection subscriptions.
+   * This state can be restored with restore().
    */
-  snapshotConnections_UNSTABLE(): void;
+  snapshot(): void;
 
   /**
-   * Reset the state of connections to a previous state recorded with
-   * snapshotConnections_UNSTABLE.
+   * Reset the state of the store to the point that snapshot() was last called.
    */
-  restoreConnections_UNSTABLE(): void;
+  restore(): void;
 }
 
 /**

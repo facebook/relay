@@ -13,6 +13,7 @@
 const DataChecker = require('./DataChecker');
 const RelayFeatureFlags = require('../util/RelayFeatureFlags');
 const RelayModernRecord = require('./RelayModernRecord');
+const RelayOptimisticRecordSource = require('./RelayOptimisticRecordSource');
 const RelayProfiler = require('../util/RelayProfiler');
 const RelayReader = require('./RelayReader');
 const RelayReferenceMarker = require('./RelayReferenceMarker');
@@ -25,7 +26,6 @@ const recycleNodesInto = require('../util/recycleNodesInto');
 const resolveImmediate = require('../util/resolveImmediate');
 
 const {createReaderSelector} = require('./RelayModernSelector');
-const {UNPUBLISH_RECORD_SENTINEL} = require('./RelayStoreUtils');
 
 import type {ReaderFragment} from '../util/ReaderNode';
 import type {Disposable} from '../util/RelayRuntimeTypes';
@@ -52,6 +52,8 @@ import type {
 type Subscription = {
   callback: (snapshot: Snapshot) => void,
   snapshot: Snapshot,
+  stale: boolean,
+  backup: ?Snapshot,
 };
 
 type UpdatedConnections = {[ConnectionID]: boolean};
@@ -86,6 +88,7 @@ class RelayModernStore implements Store {
   _hasScheduledGC: boolean;
   _index: number;
   _operationLoader: ?OperationLoader;
+  _optimisticSource: ?MutableRecordSource;
   _recordSource: MutableRecordSource;
   _roots: Map<number, NormalizationSelector>;
   _subscriptions: Set<Subscription>;
@@ -117,6 +120,7 @@ class RelayModernStore implements Store {
     this._hasScheduledGC = false;
     this._index = 0;
     this._operationLoader = operationLoader;
+    this._optimisticSource = null;
     this._recordSource = source;
     this._roots = new Map();
     this._subscriptions = new Set();
@@ -128,13 +132,14 @@ class RelayModernStore implements Store {
   }
 
   getSource(): RecordSource {
-    return this._recordSource;
+    return this._optimisticSource ?? this._recordSource;
   }
 
   check(selector: NormalizationSelector): boolean {
+    const source = this._optimisticSource ?? this._recordSource;
     return DataChecker.check(
-      this._recordSource,
-      this._recordSource,
+      source,
+      source,
       selector,
       [],
       this._operationLoader,
@@ -153,7 +158,8 @@ class RelayModernStore implements Store {
   }
 
   lookup(selector: SingularReaderSelector): Snapshot {
-    const snapshot = RelayReader.read(this._recordSource, selector);
+    const source = this.getSource();
+    const snapshot = RelayReader.read(source, selector);
     if (__DEV__) {
       deepFreeze(snapshot);
     }
@@ -162,9 +168,10 @@ class RelayModernStore implements Store {
 
   // This method will return a list of updated owners form the subscriptions
   notify(): $ReadOnlyArray<RequestDescriptor> {
+    const source = this.getSource();
     const updatedOwners = [];
     this._subscriptions.forEach(subscription => {
-      const owner = this._updateSubscription(subscription);
+      const owner = this._updateSubscription(source, subscription);
       if (owner != null) {
         updatedOwners.push(owner);
       }
@@ -181,7 +188,8 @@ class RelayModernStore implements Store {
   }
 
   publish(source: RecordSource): void {
-    updateTargetFromSource(this._recordSource, source, this._updatedRecordIDs);
+    const target = this._optimisticSource ?? this._recordSource;
+    updateTargetFromSource(target, source, this._updatedRecordIDs);
     this._connectionSubscriptions.forEach((subscription, id) => {
       const hasStoreUpdates = hasOverlappingIDs(
         subscription.snapshot.seenRecords,
@@ -206,7 +214,7 @@ class RelayModernStore implements Store {
     snapshot: Snapshot,
     callback: (snapshot: Snapshot) => void,
   ): Disposable {
-    const subscription = {callback, snapshot};
+    const subscription = {backup: null, callback, snapshot, stale: false};
     const dispose = () => {
       this._subscriptions.delete(subscription);
     };
@@ -237,24 +245,36 @@ class RelayModernStore implements Store {
     return this._updatedRecordIDs;
   }
 
-  // We are returning an instance of RequestDescriptor here if the snapshot
-  // were updated. We will use this information in the RelayOperationTracker
-  // in order to track which owner was affected by which operation.
-  _updateSubscription(subscription: Subscription): ?RequestDescriptor {
-    const {callback, snapshot} = subscription;
-    if (!hasOverlappingIDs(snapshot.seenRecords, this._updatedRecordIDs)) {
+  // Returns the owner (RequestDescriptor) if the subscription was affected by the
+  // latest update, or null if it was not affected.
+  _updateSubscription(
+    source: RecordSource,
+    subscription: Subscription,
+  ): ?RequestDescriptor {
+    const {backup, callback, snapshot, stale} = subscription;
+    const hasOverlappingUpdates = hasOverlappingIDs(
+      snapshot.seenRecords,
+      this._updatedRecordIDs,
+    );
+    if (!stale && !hasOverlappingUpdates) {
       return;
     }
-    let nextSnapshot = RelayReader.read(this._recordSource, snapshot.selector);
+    let nextSnapshot: Snapshot =
+      hasOverlappingUpdates || !backup
+        ? RelayReader.read(source, snapshot.selector)
+        : backup;
     const nextData = recycleNodesInto(snapshot.data, nextSnapshot.data);
-    nextSnapshot = {
-      ...nextSnapshot,
+    nextSnapshot = ({
       data: nextData,
-    };
+      isMissingData: nextSnapshot.isMissingData,
+      seenRecords: nextSnapshot.seenRecords,
+      selector: nextSnapshot.selector,
+    }: Snapshot);
     if (__DEV__) {
       deepFreeze(nextSnapshot);
     }
     subscription.snapshot = nextSnapshot;
+    subscription.stale = false;
     if (nextSnapshot.data !== snapshot.data) {
       callback(nextSnapshot);
       return snapshot.selector.owner;
@@ -421,7 +441,7 @@ class RelayModernStore implements Store {
       Object.keys(edgeSnapshots).forEach(edgeID => {
         const prevSnapshot = edgeSnapshots[edgeID];
         let nextSnapshot = RelayReader.read(
-          this._recordSource,
+          this.getSource(),
           createReaderSelector(
             fragment,
             edgeID,
@@ -431,14 +451,12 @@ class RelayModernStore implements Store {
         );
         const data = recycleNodesInto(prevSnapshot.data, nextSnapshot.data);
         nextSnapshot = {
-          ...nextSnapshot,
           data,
+          isMissingData: nextSnapshot.isMissingData,
+          seenRecords: nextSnapshot.seenRecords,
+          selector: nextSnapshot.selector,
         };
-        if (
-          data !== prevSnapshot.data &&
-          (data !== undefined ||
-            source.get(edgeID) !== UNPUBLISH_RECORD_SENTINEL)
-        ) {
+        if (data !== prevSnapshot.data) {
           edgeData[edgeID] = data;
           edgeSnapshots[edgeID] = nextSnapshot;
         }
@@ -459,7 +477,7 @@ class RelayModernStore implements Store {
               return edgeID;
             }
             const edgeSnapshot = RelayReader.read(
-              this._recordSource,
+              this.getSource(),
               createReaderSelector(fragment, edgeID, variables, event.request),
             );
             Object.assign(seenRecords, edgeSnapshot.seenRecords);
@@ -476,7 +494,7 @@ class RelayModernStore implements Store {
           });
         } else if (event.kind === 'insert') {
           const edgeSnapshot = RelayReader.read(
-            this._recordSource,
+            this.getSource(),
             createReaderSelector(
               fragment,
               event.edgeID,
@@ -513,15 +531,49 @@ class RelayModernStore implements Store {
     };
   }
 
-  snapshotConnections_UNSTABLE(): void {
+  snapshot(): void {
+    invariant(
+      this._optimisticSource == null,
+      'RelayModernStore: Unexpected call to snapshot() while a previous ' +
+        'snapshot exists.',
+    );
     this._connectionSubscriptions.forEach(subscription => {
       subscription.backup = subscription.snapshot;
     });
+    this._subscriptions.forEach(subscription => {
+      subscription.backup = subscription.snapshot;
+    });
+    this._optimisticSource = RelayOptimisticRecordSource.create(
+      this.getSource(),
+    );
   }
 
-  restoreConnections_UNSTABLE(): void {
+  restore(): void {
+    invariant(
+      this._optimisticSource != null,
+      'RelayModernStore: Unexpected call to restore(), expected a snapshot ' +
+        'to exist (make sure to call snapshot()).',
+    );
+    this._optimisticSource = null;
     this._connectionEvents.forEach(events => {
       events.optimistic = null;
+    });
+    this._subscriptions.forEach(subscription => {
+      const backup = subscription.backup;
+      subscription.backup = null;
+      if (backup) {
+        if (backup.data !== subscription.snapshot.data) {
+          subscription.stale = true;
+        }
+        subscription.snapshot = {
+          data: subscription.snapshot.data,
+          isMissingData: backup.isMissingData,
+          seenRecords: backup.seenRecords,
+          selector: backup.selector,
+        };
+      } else {
+        subscription.stale = true;
+      }
     });
     this._connectionSubscriptions.forEach(subscription => {
       const backup = subscription.backup;
@@ -566,6 +618,10 @@ class RelayModernStore implements Store {
   }
 
   __gc(): void {
+    // Don't run GC while there are optimistic updates applied
+    if (this._optimisticSource != null) {
+      return;
+    }
     const references = new Set();
     // Mark all records that are traversable from a root
     this._roots.forEach(selector => {
@@ -612,11 +668,7 @@ function updateTargetFromSource(
         RelayModernRecord.freeze(sourceRecord);
       }
     }
-    if (sourceRecord === UNPUBLISH_RECORD_SENTINEL) {
-      // Unpublish a record
-      target.remove(dataID);
-      updatedRecordIDs[dataID] = true;
-    } else if (sourceRecord && targetRecord) {
+    if (sourceRecord && targetRecord) {
       const nextRecord = RelayModernRecord.update(targetRecord, sourceRecord);
       if (nextRecord !== targetRecord) {
         // Prevent mutation of a record from outside the store.

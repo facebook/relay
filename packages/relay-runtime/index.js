@@ -51,6 +51,7 @@ const getRelayHandleKey = require('./util/getRelayHandleKey');
 const isPromise = require('./util/isPromise');
 const isRelayModernEnvironment = require('./store/isRelayModernEnvironment');
 const isScalarAndEqual = require('./util/isScalarAndEqual');
+const readInlineData = require('./store/readInlineData');
 const recycleNodesInto = require('./util/recycleNodesInto');
 const requestSubscription = require('./subscription/requestSubscription');
 const stableCopy = require('./util/stableCopy');
@@ -253,6 +254,7 @@ module.exports = {
   getVariablesFromSingularFragment:
     RelayModernSelector.getVariablesFromSingularFragment,
   graphql: RelayModernGraphQLTag.graphql,
+  readInlineData,
 
   // Declarative mutation API
   MutationTypes: RelayDeclarativeMutationConfig.MutationTypes,

@@ -12,6 +12,7 @@
 
 const areEqual = require('areEqual');
 const invariant = require('invariant');
+const warning = require('warning');
 
 const {getFragmentVariables} = require('./RelayConcreteVariables');
 const {
@@ -93,6 +94,23 @@ function getSingularSelector(
       argumentVariables,
     );
     return createReaderSelector(fragment, dataID, fragmentVariables, owner);
+  }
+
+  if (__DEV__) {
+    let stringifiedItem = JSON.stringify(item);
+    if (stringifiedItem.length > 499) {
+      stringifiedItem = stringifiedItem.substr(0, 498) + '\u2026';
+    }
+
+    warning(
+      false,
+      'RelayModernSelector: Expected object to contain data for fragment `%s`, got ' +
+        '`%s`. Make sure that the parent operation/fragment included fragment ' +
+        '`...%s` without `@relay(mask: false)`.',
+      fragment.name,
+      stringifiedItem,
+      fragment.name,
+    );
   }
 
   return null;
@@ -277,6 +295,15 @@ function getDataID(fragment: ReaderFragment, item: mixed): ?DataID {
   if (typeof dataID === 'string') {
     return dataID;
   }
+  warning(
+    false,
+    'RelayModernSelector: Expected object to contain data for fragment `%s`, got ' +
+      '`%s`. Make sure that the parent operation/fragment included fragment ' +
+      '`...%s` without `@relay(mask: false)`.',
+    fragment.name,
+    JSON.stringify(item),
+    fragment.name,
+  );
   return null;
 }
 

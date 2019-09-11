@@ -19,7 +19,7 @@ const useQueryNode = require('../useQueryNode');
 
 const {createOperationDescriptor} = require('relay-runtime');
 
-const fetchPolicy = 'network-only';
+const defaultFetchPolicy = 'network-only';
 
 function expectToBeRendered(renderFn, readyState) {
   // Ensure useEffect is called before other timers
@@ -55,6 +55,7 @@ describe('useQueryNode', () => {
   let createMockEnvironment;
   let generateAndCompile;
   let Container;
+  let setProps;
 
   beforeEach(() => {
     jest.resetModules();
@@ -87,14 +88,16 @@ describe('useQueryNode', () => {
       const query = createOperationDescriptor(gqlQuery, props.variables);
       const data = useQueryNode<_>({
         query,
-        fetchPolicy,
+        fetchPolicy: props.fetchPolicy || defaultFetchPolicy,
         componentDisplayName: 'TestDisplayName',
       });
       return renderFn(data);
     };
 
     Container = (props: Props) => {
-      return <Renderer {...props} />;
+      const [nextProps, setNextProps] = React.useState(props);
+      setProps = setNextProps;
+      return <Renderer {...nextProps} />;
     };
 
     render = (environment, children) => {
@@ -120,12 +123,13 @@ describe('useQueryNode', () => {
       query UserQuery($id: ID) {
         node(id: $id) {
           id
+          name
           ...UserFragment
         }
       }
     `);
     gqlQuery = generated.UserQuery;
-    renderFn = jest.fn(() => <div />);
+    renderFn = jest.fn(result => result?.node?.name ?? 'Empty');
   });
 
   afterEach(() => {
@@ -216,5 +220,81 @@ describe('useQueryNode', () => {
 
     const data = environment.lookup(operation.fragment).data;
     expectToBeRendered(renderFn, data);
+  });
+
+  it('fetches and renders correctly if the same query was unsubscribed before', () => {
+    // Render the component
+    const initialDescriptor = createOperationDescriptor(gqlQuery, {
+      id: 'first-render',
+    });
+    environment.commitPayload(initialDescriptor, {
+      node: {
+        __typename: 'User',
+        id: 'first-render',
+        name: 'Bob',
+      },
+    });
+
+    const instance = render(
+      environment,
+      <Container variables={{id: 'first-render'}} fetchPolicy="store-only" />,
+    );
+    expect(instance.toJSON()).toEqual('Bob');
+    renderFn.mockClear();
+
+    // Suspend on the first query
+    const variables = {id: '1'};
+    ReactTestRenderer.act(() => {
+      setProps({variables});
+    });
+
+    expect(instance.toJSON()).toEqual('Fallback');
+    expectToBeFetched(environment, gqlQuery, variables);
+    expect(renderFn).not.toBeCalled();
+    renderFn.mockClear();
+    environment.retain.mockClear();
+    environment.execute.mockClear();
+
+    // Switch to the second query to cancel the first query
+    const nextVariables = {id: '2'};
+    ReactTestRenderer.act(() => {
+      setProps({variables: nextVariables});
+    });
+
+    expect(instance.toJSON()).toEqual('Fallback');
+    expectToBeFetched(environment, gqlQuery, nextVariables);
+    expect(renderFn).not.toBeCalled();
+    expect(environment.retain).toHaveBeenCalledTimes(1);
+    renderFn.mockClear();
+    environment.retain.mockClear();
+    environment.execute.mockClear();
+
+    // Switch back to the first query and it should request again
+    ReactTestRenderer.act(() => {
+      setProps({variables});
+    });
+
+    expect(instance.toJSON()).toEqual('Fallback');
+    expectToBeFetched(environment, gqlQuery, variables);
+    expect(renderFn).not.toBeCalled();
+    expect(environment.retain).toHaveBeenCalledTimes(1);
+
+    const operation = createOperationDescriptor(gqlQuery, variables);
+    const payload = {
+      data: {
+        node: {
+          __typename: 'User',
+          id: variables.id,
+          name: 'Alice',
+        },
+      },
+    };
+    ReactTestRenderer.act(() => {
+      environment.mock.resolve(gqlQuery, payload);
+      jest.runAllImmediates();
+    });
+    const data = environment.lookup(operation.fragment).data;
+    expect(renderFn.mock.calls[0][0]).toEqual(data);
+    expect(instance.toJSON()).toEqual('Alice');
   });
 });

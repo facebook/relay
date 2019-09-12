@@ -12,9 +12,11 @@
 
 const invariant = require('invariant');
 
-const {getInlineDataFragment, FRAGMENTS_KEY} = require('relay-runtime');
+const {getInlineDataFragment} = require('../query/RelayModernGraphQLTag');
+const {FRAGMENTS_KEY} = require('./RelayStoreUtils');
 
-import type {FragmentReference, GraphQLTaggedNode} from 'relay-runtime';
+import type {GraphQLTaggedNode} from '../query/RelayModernGraphQLTag';
+import type {FragmentReference} from './RelayStoreTypes';
 
 /**
  * Reads an @inline data fragment that was spread into the parent fragment.

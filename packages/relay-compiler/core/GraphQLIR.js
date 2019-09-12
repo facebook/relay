@@ -332,6 +332,7 @@ export type SplitOperation = {|
   +selections: $ReadOnlyArray<Selection>,
   +loc: Location,
   +metadata: Metadata,
+  +parentSources: Set<string>,
   +type: GraphQLCompositeType,
 |};
 

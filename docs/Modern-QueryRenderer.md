@@ -1,6 +1,6 @@
 ---
 id: query-renderer
-title: <QueryRenderer />
+title: QueryRenderer
 ---
 
 A `QueryRenderer` is a React Component at the root of a Relay component tree. It takes a query, fetches the given query, and uses the `render` prop to render the resulting data.

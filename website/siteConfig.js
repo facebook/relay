@@ -54,7 +54,7 @@ const users = [
     caption: '1stdibs',
     image: '/img/logos/1stdibs.png',
     infoLink: 'https://www.1stdibs.com/',
-    pinned: false,
+    pinned: true,
   },
   {
     caption: 'Parabol',

@@ -40,7 +40,7 @@ With the MockPayloadGenerator and @relay_test_operation, we want to get rid of t
 
 ## RelayMockEnvironment API Overview
 
-RelayMockEnvironment is a special version of Relay Environment with an additional API methods for controlling the operation flow: resolving and rejection operations, providing incremental payloads for subscriptions, working with cache.
+RelayMockEnvironment is a special version of Relay Environment with additional API methods for controlling the operation flow: resolving and rejection operations, providing incremental payloads for subscriptions, working with cache.
 
 
 * Methods for finding operations executed on the environment

@@ -24,6 +24,7 @@ const RelayModernEnvironment = require('./store/RelayModernEnvironment');
 const RelayModernFragmentOwner = require('./store/RelayModernFragmentOwner');
 const RelayModernGraphQLTag = require('./query/RelayModernGraphQLTag');
 const RelayModernOperationDescriptor = require('./store/RelayModernOperationDescriptor');
+const RelayModernRecord = require('./store/RelayModernRecord');
 const RelayModernSelector = require('./store/RelayModernSelector');
 const RelayModernStore = require('./store/RelayModernStore');
 const RelayNetwork = require('./network/RelayNetwork');
@@ -221,6 +222,7 @@ module.exports = {
   Observable: RelayObservable,
   QueryResponseCache: RelayQueryResponseCache,
   RecordSource: RelayRecordSource,
+  Record: RelayModernRecord,
   Store: RelayModernStore,
 
   areEqualSelectors: RelayModernSelector.areEqualSelectors,

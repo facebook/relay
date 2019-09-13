@@ -128,6 +128,7 @@ const builds = [
     package: 'react-relay',
     exports: {
       index: 'index.js',
+      ReactRelayContext: 'ReactRelayContext.js',
     },
     bundles: [
       {

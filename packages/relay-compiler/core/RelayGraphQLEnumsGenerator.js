@@ -28,7 +28,7 @@ function writeForSchema(
     licenseHeader.map(line => ` * ${line}\n`).join('') +
     ' *\n' +
     ` * ${SignedSource.getSigningToken()}\n` +
-    ' * @flow\n' +
+    ' * @flow strict\n' +
     ' */\n' +
     '\n';
 

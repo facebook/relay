@@ -326,6 +326,8 @@ function writeAll({
                 useHaste: writerConfig.useHaste,
                 useSingleArtifactDirectory: !!writerConfig.outputDir,
                 noFutureProofEnums: writerConfig.noFutureProofEnums,
+                normalizationIR:
+                  definition.kind === 'Request' ? definition.root : undefined,
               })
             : '';
 

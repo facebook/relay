@@ -93,7 +93,7 @@ fragment TodoApp_app on App {
 
 By default Relay will only expose the data for fields explicitly requested by a [component's fragment](./fragment-container.html#createfragmentcontainer), which is known as [data masking](./thinking-in-relay#data-masking). Fragment data is unmasked for use in React components by `createFragmentContainer`. However, you may want to use fragment data in non-React functions that are called from React.
 
-Non-React functions can also take advantage of data masking. A fragment can be defined with the `@inline` directive and stored in a local variable. The non-React function can than "unmask" the data using the `readInlineData` function.
+Non-React functions can also take advantage of data masking. A fragment can be defined with the `@inline` directive and stored in a local variable. The non-React function can then "unmask" the data using the `readInlineData` function.
 
 In the example below, the function `processItemData` is called from a React component. It requires an item object with a specific set of fields. All React components that use this function should spread the `processItemData_item` fragment to ensure all of the correct item data is loaded for this function. 
 

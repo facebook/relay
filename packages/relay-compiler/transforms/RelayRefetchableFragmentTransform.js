@@ -492,7 +492,6 @@ function buildRefetchOperationOnNodeType(
       nodeField.type instanceof GraphQLInterfaceType &&
       isEquivalentType(nodeField.type, nodeType) &&
       nodeField.args.length === 1 &&
-      nodeField.args[0].name === 'id' &&
       isEquivalentType(getNullableType(nodeField.args[0].type), GraphQLID) &&
       // the fragment must be on Node or on a type that implements Node
       ((fragment.type instanceof GraphQLObjectType &&
@@ -508,33 +507,42 @@ function buildRefetchOperationOnNodeType(
     )
   ) {
     throw createUserError(
-      `Invalid use of @refetchable on fragment '${
-        fragment.name
-      }', check that your schema defines a 'Node { id: ID }' interface and has a 'node(id: ID): Node' field on the query type (the id argument may also be non-null).`,
+      `Invalid use of @refetchable on fragment '${fragment.name}', check ` +
+        'that your schema defines a `Node { id: ID }` interface and has a ' +
+        '`node(id: ID): Node` field on the query type (the id argument may ' +
+        'also be non-null).',
       [fragment.loc],
     );
   }
+
+  // name and type of the node(_: ID) field parameter
+  const idArgName = nodeField.args[0].name;
+  const idArgType = nodeField.args[0].type;
+  // name and type of the query variable
+  const idVariableType = new GraphQLNonNull(GraphQLID);
+  const idVariableName = 'id';
+
   const argumentDefinitions = buildOperationArgumentDefinitions(
     fragment.argumentDefinitions,
   );
-  const idArgument = argumentDefinitions.find(argDef => argDef.name === 'id');
+  const idArgument = argumentDefinitions.find(
+    argDef => argDef.name === idVariableName,
+  );
   if (idArgument != null) {
     throw createUserError(
-      `Invalid use of @refetchable on fragment '${
-        fragment.name
-      }', this fragment already has an '\$id' variable in scope.`,
+      `Invalid use of @refetchable on fragment \`${fragment.name}\`, this ` +
+        'fragment already has an `$id` variable in scope.',
       [idArgument.loc],
     );
   }
-  const idArgType = new GraphQLNonNull(GraphQLID);
   const argumentDefinitionsWithId = [
     ...argumentDefinitions,
     {
       defaultValue: null,
       kind: 'LocalArgumentDefinition',
       loc: {kind: 'Derived', source: fragment.loc},
-      name: 'id',
-      type: idArgType,
+      name: idVariableName,
+      type: idVariableType,
     },
   ];
   return {
@@ -554,13 +562,13 @@ function buildRefetchOperationOnNodeType(
             {
               kind: 'Argument',
               loc: {kind: 'Derived', source: fragment.loc},
-              name: 'id',
+              name: idArgName,
               type: idArgType,
               value: {
                 kind: 'Variable',
                 loc: {kind: 'Derived', source: fragment.loc},
-                variableName: 'id',
-                type: idArgType,
+                variableName: idVariableName,
+                type: idVariableType,
               },
             },
           ],

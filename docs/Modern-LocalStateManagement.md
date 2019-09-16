@@ -49,7 +49,7 @@ Here, we use a [QueryRenderer](./query-renderer) to get the current `User` via t
 ```javascript
 // Example.js
 import React from 'react';
-import { QueryRenderer, graphql } from 'react-relay';
+import {QueryRenderer, graphql} from 'react-relay';
 
 const renderQuery = ({error, props}) => {
   if (error) {
@@ -58,20 +58,18 @@ const renderQuery = ({error, props}) => {
     return (
       <div>
         {props.viewer.notes.map(({id, title, body}) => (
-          <div key={id}>
-            {title}
-          </div>
-          <div key={id}>
-            {body}
-          </div>
+          <>
+            <div key={id}>{title}</div>
+            <div key={id}>{body}</div>
+          </>
         ))}
       </div>
     );
   }
   return <div>Loading</div>;
-}
+};
 
-const Example = (props) => {
+const Example = props => {
   return (
     <QueryRenderer
       render={renderQuery}
@@ -91,7 +89,36 @@ const Example = (props) => {
       `}
     />
   );
-}
+};
+```
+
+In the example above, a request is sent to the server in order to fetch some data alongside the local data.
+
+It is however, also possible to query for local store data without having to send a server request at the same time.  
+To do so, you would instead use the [LocalQueryRenderer](./local-query-renderer) component.
+
+```javascript
+// Example.js
+import React from 'react';
+import {LocalQueryRenderer, graphql} from 'react-relay';
+
+const Example = props => {
+  return (
+    <LocalQueryRenderer
+      render={renderQuery}
+      environment={environment}
+      query={graphql`
+        query ExampleQuery {
+          __typename
+          localSettings {
+            name
+            active
+          }
+        }
+      `}
+    />
+  );
+};
 ```
 
 ## Mutating local state

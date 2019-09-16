@@ -50,7 +50,7 @@ Here, we use a [QueryRenderer](./query-renderer) to get the current `User` via t
 ```javascript
 // Example.js
 import React from 'react';
-import { QueryRenderer, graphql } from 'react-relay';
+import {QueryRenderer, graphql} from 'react-relay';
 
 const renderQuery = ({error, props}) => {
   if (error) {
@@ -59,20 +59,18 @@ const renderQuery = ({error, props}) => {
     return (
       <div>
         {props.viewer.notes.map(({id, title, body}) => (
-          <div key={id}>
-            {title}
-          </div>
-          <div key={id}>
-            {body}
-          </div>
+          <>
+            <div key={id}>{title}</div>
+            <div key={id}>{body}</div>
+          </>
         ))}
       </div>
     );
   }
   return <div>Loading</div>;
-}
-  
-const Example = (props) => {
+};
+
+const Example = props => {
   return (
     <QueryRenderer
       render={renderQuery}
@@ -92,7 +90,7 @@ const Example = (props) => {
       `}
     />
   );
-}
+};
 ```
 
 ## Mutating local state
@@ -121,17 +119,23 @@ function createUserNote() {
     //Create a new note record.
     const newNoteRecord = store.create(dataID, 'Note');
 
-    // Tell garbage collection to retain the record.
-    environment.retain({
-      dataID,
-      variables: {},
-      node: { selections: [] }
-    });
-
     // Add the record to the user's list of notes.
     user.setLinkedRecords([...userNoteRecords, newNoteRecord], 'notes');
   });
 }
+```
+
+Note that since this record will be rendered by the `ExampleQuery` in our `QueryRenderer`, the QueryRenderer will automatically retain this data so it isn't garbage collected.
+
+If no component is rendering the local data and you want to manually retain it, you can do so by calling `environment.retain()`:
+
+```javascript
+// Tell Relay to retain the record so it isn't garbage collected
+environment.retain({
+  dataID,
+  variables: {},
+  node: { selections: [] }
+});
 ```
 
 ### Update

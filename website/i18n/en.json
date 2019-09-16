@@ -466,6 +466,27 @@
       },
       "version-v5.0.0/version-v5.0.0-type-emission": {
         "title": "Type Emission"
+      },
+      "version-v6.0.0/version-v6.0.0-community-learning-resources": {
+        "title": "Community Learning Resources"
+      },
+      "version-v6.0.0/version-v6.0.0-installation-and-setup": {
+        "title": "Installation and Setup"
+      },
+      "version-v6.0.0/version-v6.0.0-graphql-in-relay": {
+        "title": "GraphQL in Relay"
+      },
+      "version-v6.0.0/version-v6.0.0-local-state-management": {
+        "title": "Local State Management"
+      },
+      "version-v6.0.0/version-v6.0.0-query-renderer": {
+        "title": "QueryRenderer"
+      },
+      "version-v6.0.0/version-v6.0.0-refetch-container": {
+        "title": "Refetch Container"
+      },
+      "version-v6.0.0/version-v6.0.0-relay-environment": {
+        "title": "Relay Environment"
       }
     },
     "links": {

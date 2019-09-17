@@ -18,7 +18,11 @@ const {
   createUserError,
 } = require('../core/RelayCompilerError');
 const {GraphQLList} = require('graphql');
-const {getStorageKey, stableCopy} = require('relay-runtime');
+const {
+  ConnectionInterface,
+  getStorageKey,
+  stableCopy,
+} = require('relay-runtime');
 
 import type {
   Argument,
@@ -30,7 +34,7 @@ import type {
 import type {
   ReaderArgument,
   ReaderArgumentDefinition,
-  ReaderConnectionField,
+  ReaderConnection,
   ReaderField,
   ReaderFragment,
   ReaderInlineDataFragmentSpread,
@@ -114,6 +118,8 @@ function generateSelections(
           return generateLinkedField(selection);
         case 'ConnectionField':
           return generateConnectionField(selection);
+        case 'Connection':
+          return generateConnection(selection);
         case 'Defer':
         case 'Stream':
           throw createCompilerError(
@@ -235,31 +241,48 @@ function generateLinkedField(node): ReaderLinkedField {
   return field;
 }
 
-function generateConnectionField(node): ReaderConnectionField {
-  const type = getRawType(node.type);
-  if (isPlural(node.type)) {
+function generateConnectionField(node): ReaderLinkedField {
+  return generateLinkedField({
+    ...node,
+    handles: null,
+    args: node.args.filter(
+      arg =>
+        !ConnectionInterface.isConnectionCall({name: arg.name, value: null}),
+    ),
+    kind: 'LinkedField',
+  });
+}
+
+function generateConnection(node): ReaderConnection {
+  const {EDGES, PAGE_INFO} = ConnectionInterface.get();
+  const selections = generateSelections(node.selections);
+  let edges: ?ReaderLinkedField;
+  let pageInfo: ?ReaderLinkedField;
+  selections.forEach(selection => {
+    if (selection.kind === 'LinkedField') {
+      if (selection.name === EDGES) {
+        edges = selection;
+      } else if (selection.name === PAGE_INFO) {
+        pageInfo = selection;
+      }
+    }
+  });
+  if (edges == null || pageInfo == null) {
     throw createUserError(
-      'Connection fields cannot return a plural (list) value.',
+      `Invalid connection, expected the '${EDGES}' and '${PAGE_INFO}' fields ` +
+        'to exist.',
       [node.loc],
     );
   }
-  let field: ReaderConnectionField = {
-    kind: 'ConnectionField',
-    alias: node.alias === node.name ? null : node.alias,
+  return {
+    kind: 'Connection',
     label: node.label,
     name: node.name,
     resolver: (CodeMarker.moduleDependency(node.resolver): $FlowFixMe),
-    storageKey: null,
     args: generateArgs(node.args),
-    concreteType: !isAbstractType(type) ? type.toString() : null,
-    selections: generateSelections(node.selections),
+    edges,
+    pageInfo,
   };
-  // Precompute storageKey if possible
-  const storageKey = getStaticStorageKey(field, node.metadata);
-  if (storageKey) {
-    field = {...field, storageKey};
-  }
-  return field;
 }
 
 function generateModuleImport(node): ReaderModuleImport {

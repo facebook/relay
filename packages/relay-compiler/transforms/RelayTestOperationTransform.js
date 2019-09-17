@@ -114,6 +114,7 @@ function visitRoot(node: Root) {
           break;
         }
         case 'Condition':
+        case 'Connection':
         case 'ClientExtension':
         case 'Defer':
         case 'InlineDataFragmentSpread':

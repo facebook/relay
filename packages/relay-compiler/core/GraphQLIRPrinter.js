@@ -135,13 +135,16 @@ function printSelection(
   let str;
   const parentDirectives = options?.parentDirectives ?? '';
   const isClientExtension = options?.isClientExtension === true;
-  if (selection.kind === 'LinkedField') {
+  if (
+    selection.kind === 'LinkedField' ||
+    selection.kind === 'ConnectionField'
+  ) {
     str = printField(selection, {parentDirectives, isClientExtension});
     str += printSelections(selection, indent + INDENT, {isClientExtension});
-  } else if (selection.kind === 'ConnectionField') {
-    str = printField(selection, {parentDirectives, isClientExtension});
-    str += printSelections(selection, indent + INDENT, {isClientExtension});
-  } else if (selection.kind === 'ModuleImport') {
+  } else if (
+    selection.kind === 'ModuleImport' ||
+    selection.kind === 'Connection'
+  ) {
     str = selection.selections
       .map(matchSelection =>
         printSelection(matchSelection, indent, {

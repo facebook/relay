@@ -424,14 +424,14 @@ class RelayModernStore implements Store {
     events: $ReadOnlyArray<ConnectionInternalEvent>,
     source: ?RecordSource = null,
   ): ConnectionSnapshot<TEdge, TState> {
-    const {edgeField, id, resolver, variables} = connectionReference;
+    const {edgesField, id, resolver, variables} = connectionReference;
     const fragment: ReaderFragment = {
       kind: 'Fragment',
-      name: edgeField.name,
-      type: edgeField.concreteType ?? '__Any',
+      name: edgesField.name,
+      type: edgesField.concreteType ?? '__Any',
       metadata: null,
       argumentDefinitions: [],
-      selections: edgeField.selections,
+      selections: edgesField.selections,
     };
     const seenRecords = {};
     const edgeSnapshots = {...snapshot.edgeSnapshots};

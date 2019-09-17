@@ -68,7 +68,7 @@ export type ConnectionReferenceObject<TEdge, TState> = {
 
 export type ConnectionReference<TEdge, TState> = {|
   +variables: Variables,
-  +edgeField: ReaderLinkedField,
+  +edgesField: ReaderLinkedField,
   +id: ConnectionID,
   +label: string,
   +resolver: ConnectionResolver<TEdge, TState>,

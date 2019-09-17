@@ -18,7 +18,7 @@ const invariant = require('invariant');
 const {
   CONDITION,
   CLIENT_EXTENSION,
-  CONNECTION_FIELD,
+  CONNECTION,
   FRAGMENT_SPREAD,
   INLINE_DATA_FRAGMENT_SPREAD,
   INLINE_FRAGMENT,
@@ -38,7 +38,7 @@ const {
 } = require('./RelayStoreUtils');
 
 import type {
-  ReaderConnectionField,
+  ReaderConnection,
   ReaderFragmentSpread,
   ReaderInlineDataFragmentSpread,
   ReaderLinkedField,
@@ -168,8 +168,8 @@ class RelayReader {
           this._traverseSelections(selection.selections, record, data);
           this._isMissingData = isMissingData;
           break;
-        case CONNECTION_FIELD:
-          this._readConnectionField(selection, record, data);
+        case CONNECTION:
+          this._readConnection(selection, record, data);
           break;
         default:
           (selection: empty);
@@ -182,8 +182,8 @@ class RelayReader {
     }
   }
 
-  _readConnectionField(
-    field: ReaderConnectionField,
+  _readConnection(
+    field: ReaderConnection,
     record: Record,
     data: SelectorData,
   ): void {
@@ -192,37 +192,15 @@ class RelayReader {
       parentID,
       field.label,
     );
-    const edgeField: ?ReaderSelection = field.selections.find(
-      selection =>
-        selection.kind === 'LinkedField' &&
-        selection.plural &&
-        selection.name === 'edges',
-    );
-    invariant(
-      edgeField && edgeField.kind === 'LinkedField',
-      'RelayReader: Expected connection field to have an `edges` selection.',
-    );
+    const edgesField: ReaderLinkedField = field.edges;
     const reference: ConnectionReference<mixed, mixed> = {
       variables: this._variables,
-      edgeField,
+      edgesField,
       id: connectionID,
       label: field.label,
       resolver: field.resolver,
     };
-    const applicationName = field.alias ?? field.name;
-    const prevData = data[applicationName];
-    invariant(
-      prevData == null || typeof prevData === 'object',
-      'RelayReader(): Expected data for field `%s` on record `%s` ' +
-        'to be an object, got `%s`.',
-      applicationName,
-      parentID,
-      prevData,
-    );
-    // data[applicationName] = this._traverse(field, linkedID, prevData);
-    const nextData = ((prevData: $FlowFixMe): SelectorData) ?? {};
-    data[applicationName] = nextData;
-    nextData[RelayConnection.CONNECTION_KEY] = reference;
+    data[RelayConnection.CONNECTION_KEY] = reference;
   }
 
   _readScalar(

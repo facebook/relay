@@ -35,7 +35,7 @@ const {
   CONDITION,
   CLIENT_EXTENSION,
   DEFER,
-  CONNECTION_FIELD,
+  CONNECTION,
   FRAGMENT_SPREAD,
   INLINE_FRAGMENT,
   LINKED_FIELD,
@@ -173,7 +173,7 @@ class RelayReferenceMarker {
         case CLIENT_EXTENSION:
           this._traverseSelections(selection.selections, record);
           break;
-        case CONNECTION_FIELD:
+        case CONNECTION:
           invariant(
             false,
             'RelayReferenceMarker(): Connection fields are not supported yet.',

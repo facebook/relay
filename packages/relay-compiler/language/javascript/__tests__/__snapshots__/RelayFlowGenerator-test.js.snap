@@ -97,6 +97,7 @@ query QueryWithConnectionField($id: ID!) {
 fragment FeedbackComments_feedback on Feedback {
   comments(first: 10)
     @connection_resolver(resolver: "FeedbackCommentsResolver") {
+    count
     edges {
       node {
         id
@@ -125,19 +126,13 @@ export type QueryWithConnectionField = {|
 |};
 
 // FeedbackComments_feedback.graphql
-import type { FragmentReference } from "relay-runtime";
+import type { ConnectionReference, FragmentReference } from "relay-runtime";
 declare export opaque type FeedbackComments_feedback$ref: FragmentReference;
 declare export opaque type FeedbackComments_feedback$fragmentType: FeedbackComments_feedback$ref;
 export type FeedbackComments_feedback = {|
   +comments: ?{|
-    +edges: ?$ReadOnlyArray<?{|
-      +node: ?{|
-        +id: string
-      |}
-    |}>,
-    +pageInfo: ?{|
-      +hasNextPage: ?boolean
-    |},
+    +count: ?number,
+    +__connection?: ConnectionReference,
   |},
   +$refType: FeedbackComments_feedback$ref,
 |};

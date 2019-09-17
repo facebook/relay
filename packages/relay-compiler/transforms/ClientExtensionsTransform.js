@@ -110,6 +110,7 @@ function traverseSelections<T: Node>(
           [selection.loc],
         );
       case 'Condition':
+      case 'Connection':
       case 'Defer':
       case 'InlineDataFragmentSpread':
       case 'ModuleImport':

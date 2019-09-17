@@ -60,6 +60,7 @@ export type State = {|
   +generatedInputObjectTypes: {
     [name: string]: GraphQLInputObjectType | 'pending',
   },
+  hasConnectionResolver: boolean,
   +usedEnums: {[name: string]: GraphQLEnumType},
   +usedFragments: Set<string>,
   +matchFields: Map<string, mixed>,
@@ -277,6 +278,7 @@ function createVisitor(options: TypeGeneratorOptions) {
     existingFragmentNames: options.existingFragmentNames,
     generatedFragments: new Set(),
     generatedInputObjectTypes: {},
+    hasConnectionResolver: false,
     optionalInputFields: options.optionalInputFields,
     usedEnums: {},
     usedFragments: new Set(),
@@ -327,10 +329,15 @@ function createVisitor(options: TypeGeneratorOptions) {
           state,
           node.metadata,
         );
+        let importedTypes: ?Array<string>;
+        if (state.hasConnectionResolver) {
+          importedTypes = ['ConnectionReference'];
+        }
         const babelNodes = [
           ...(refetchableFragmentName
             ? generateFragmentRefsForRefetchable(refetchableFragmentName)
             : getFragmentImports(state)),
+          ...(importedTypes ? importTypes(importedTypes, 'relay-runtime') : []),
           ...getEnumDefinitions(state),
           ...inputObjectTypes,
           inputVariablesType,
@@ -416,11 +423,14 @@ function createVisitor(options: TypeGeneratorOptions) {
           ? readOnlyArrayOfType(baseType)
           : baseType;
         const importedTypes = ['FragmentReference'];
+        if (state.hasConnectionResolver) {
+          importedTypes.push('ConnectionReference');
+        }
 
         return t.program([
           ...getFragmentImports(state),
           ...getEnumDefinitions(state),
-          importTypes(importedTypes, 'relay-runtime'),
+          importTypes(importedTypes.sort(), 'relay-runtime'),
           ...fragmentTypes,
           exportType(node.name, type),
           exportType(dataTypeName, dataType),
@@ -451,7 +461,10 @@ function createVisitor(options: TypeGeneratorOptions) {
       ScalarField(node) {
         return visitScalarField(node, state);
       },
-      ConnectionField: visitConnectionField,
+      Connection(node) {
+        return visitConnection(node, state);
+      },
+      ConnectionField: visitLinkedField,
       LinkedField: visitLinkedField,
       ModuleImport(node) {
         return [
@@ -506,23 +519,13 @@ function visitScalarField(node, state) {
   ];
 }
 
-function visitConnectionField(node) {
+function visitConnection(node, state) {
+  state.hasConnectionResolver = true;
   return [
     {
-      key: node.alias,
-      schemaName: node.name,
-      nodeType: node.type,
-      nodeSelections: selectionsToMap(
-        flattenArray(
-          // $FlowFixMe
-          node.selections,
-        ),
-        /*
-         * append concreteType to key so overlapping fields with different
-         * concreteTypes don't get overwritten by each other
-         */
-        true,
-      ),
+      key: '__connection',
+      conditional: true,
+      value: t.genericTypeAnnotation(t.identifier('ConnectionReference')),
     },
   ];
 }
@@ -674,7 +677,10 @@ function createRawResponseTypeVisitor(state: State) {
       ScalarField(node) {
         return visitScalarField(node, state);
       },
-      ConnectionField: visitConnectionField,
+      Connection(node) {
+        return visitConnection(node, state);
+      },
+      ConnectionField: visitLinkedField,
       LinkedField: visitLinkedField,
       ClientExtension(node) {
         return flattenArray(

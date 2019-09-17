@@ -90,6 +90,9 @@ function transformNode<T: Node>(
       case 'ConnectionField':
         nextSelection = transformNode(context, fragments, selection);
         break;
+      case 'Connection':
+        nextSelection = transformNode(context, fragments, selection);
+        break;
       case 'InlineFragment':
         // TODO combine with the LinkedField case when flow supports this
         nextSelection = transformNode(context, fragments, selection);

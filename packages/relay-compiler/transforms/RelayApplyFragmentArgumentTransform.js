@@ -26,6 +26,7 @@ import type {
   Argument,
   ArgumentValue,
   Condition,
+  Connection,
   Directive,
   Field,
   Fragment,
@@ -190,6 +191,31 @@ function transformField<T: Field>(
   }
 }
 
+function transformConnection(
+  context: CompilerContext,
+  fragments: Map<string, PendingFragment>,
+  scope: Scope,
+  connection: Connection,
+  errorContext: $ReadOnlyArray<IR>,
+): ?Connection {
+  const args = transformArguments(scope, connection.args, errorContext);
+  const selections = transformSelections(
+    context,
+    fragments,
+    scope,
+    connection.selections,
+    errorContext,
+  );
+  if (!selections) {
+    return null;
+  }
+  return ({
+    ...connection,
+    args,
+    selections,
+  }: $FlowFixMe);
+}
+
 function transformCondition(
   context: CompilerContext,
   fragments: Map<string, PendingFragment>,
@@ -279,6 +305,14 @@ function transformSelections(
         nextSelections = nextSelections || [];
         nextSelections.push(...conditionSelections);
       }
+    } else if (selection.kind === 'Connection') {
+      nextSelection = transformConnection(
+        context,
+        fragments,
+        scope,
+        selection,
+        errorContext,
+      );
     } else if (
       selection.kind === 'LinkedField' ||
       selection.kind === 'ScalarField' ||

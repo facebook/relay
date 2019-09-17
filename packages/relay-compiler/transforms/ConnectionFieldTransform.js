@@ -17,11 +17,13 @@ const getLiteralArgumentValues = require('../core/getLiteralArgumentValues');
 const {getNullableType} = require('../core/GraphQLSchemaUtils');
 const {createUserError} = require('../core/RelayCompilerError');
 const {GraphQLList} = require('graphql');
+const {ConnectionInterface} = require('relay-runtime');
 
 import type CompilerContext from '../core/GraphQLCompilerContext';
 import type {
-  Directive,
+  Connection,
   ConnectionField,
+  Directive,
   LinkedField,
   ScalarField,
 } from '../core/GraphQLIR';
@@ -36,14 +38,13 @@ type State = {|
 |};
 
 /**
- * This transform rewrites LinkedField nodes with @connection_resolver and rewrites them
- * into `ConnectionField` nodes.
+ * This transform rewrites LinkedField nodes with @connection_resolver and
+ * rewrites their edges/pageInfo selections to be wrapped in a Connection node.
  */
 function connectionFieldTransform(context: CompilerContext): CompilerContext {
   return IRTransformer.transform(
     context,
     {
-      // TODO: type IRTransformer to allow changing result type
       LinkedField: (visitLinkedField: $FlowFixMe),
       ScalarField: visitScalarField,
     },
@@ -107,21 +108,62 @@ function visitLinkedField(
     }
   }
   state.labels.set(label, connectionDirective);
-  return ({
+
+  const {EDGES, PAGE_INFO} = ConnectionInterface.get();
+  let edgeField;
+  let pageInfoField;
+  const selections = [];
+  transformed.selections.forEach(selection => {
+    if (
+      !(selection.kind === 'LinkedField' || selection.kind === 'ScalarField')
+    ) {
+      throw createUserError(
+        'Invalid use of @connection_resolver, selections on the connection ' +
+          'must be linked or scalar fields.',
+        [selection.loc],
+      );
+    }
+    if (selection.name === EDGES) {
+      edgeField = selection;
+    } else if (selection.name === PAGE_INFO) {
+      pageInfoField = selection;
+    } else {
+      selections.push(selection);
+    }
+  });
+  if (edgeField == null || pageInfoField == null) {
+    throw createUserError(
+      `Invalid use of @connection_resolver, fields '${EDGES}' and ` +
+        `'${PAGE_INFO}' must be  fetched.`,
+      [connectionDirective.loc],
+    );
+  }
+  selections.push(
+    ({
+      args: transformed.args,
+      kind: 'Connection',
+      label,
+      loc: transformed.loc,
+      name: transformed.name,
+      resolver,
+      selections: [edgeField, pageInfoField],
+      type: transformed.type,
+    }: Connection),
+  );
+
+  return {
     alias: transformed.alias,
     args: transformed.args,
     directives: transformed.directives.filter(
       directive => directive !== connectionDirective,
     ),
     kind: 'ConnectionField',
-    label,
     loc: transformed.loc,
-    metadata: transformed.metadata,
+    metadata: null,
     name: transformed.name,
-    resolver,
-    selections: transformed.selections,
+    selections,
     type: transformed.type,
-  }: ConnectionField);
+  };
 }
 
 function visitScalarField(field: ScalarField): ScalarField {
@@ -130,7 +172,8 @@ function visitScalarField(field: ScalarField): ScalarField {
   );
   if (connectionDirective != null) {
     throw createUserError(
-      'The @connection_resolver direction is not supported on scalar fields, only fields returning an object/interface/union',
+      'The @connection_resolver direction is not supported on scalar fields, ' +
+        'only fields returning an object/interface/union',
       [connectionDirective.loc],
     );
   }

@@ -184,6 +184,7 @@ const RelayStoreUtils = {
   ROOT_TYPE: '__Root',
   TYPENAME_KEY: '__typename',
 
+  formatStorageKey,
   getArgumentValues,
   getHandleStorageKey,
   getStorageKey,

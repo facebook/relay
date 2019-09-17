@@ -155,7 +155,7 @@ export type {
 export type {
   NormalizationArgument,
   NormalizationDefer,
-  NormalizationConnectionField,
+  NormalizationConnection,
   NormalizationField,
   NormalizationLinkedField,
   NormalizationLinkedHandle,
@@ -170,7 +170,7 @@ export type {NormalizationOperation} from './util/NormalizationNode';
 export type {
   ReaderArgument,
   ReaderArgumentDefinition,
-  ReaderConnectionField,
+  ReaderConnection,
   ReaderField,
   ReaderFragment,
   ReaderInlineDataFragment,

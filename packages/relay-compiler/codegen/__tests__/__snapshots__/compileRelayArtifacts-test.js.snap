@@ -2171,67 +2171,73 @@ fragment FeedbackComments_feedback on Feedback {
             "type": "Feedback",
             "selections": [
               {
-                "kind": "ConnectionField",
+                "kind": "LinkedField",
                 "alias": null,
-                "label": "FeedbackComments_feedback$connection$comments",
                 "name": "comments",
-                "resolver": require('FeedbackCommentsResolver'),
-                "storageKey": "comments(first:10)",
-                "args": [
-                  {
-                    "kind": "Literal",
-                    "name": "first",
-                    "value": 10
-                  }
-                ],
+                "storageKey": null,
+                "args": null,
                 "concreteType": "CommentsConnection",
+                "plural": false,
                 "selections": [
                   {
-                    "kind": "LinkedField",
-                    "alias": null,
-                    "name": "edges",
-                    "storageKey": null,
-                    "args": null,
-                    "concreteType": "CommentsEdge",
-                    "plural": true,
-                    "selections": [
+                    "kind": "Connection",
+                    "label": "FeedbackComments_feedback$connection$comments",
+                    "name": "comments",
+                    "resolver": require('FeedbackCommentsResolver'),
+                    "args": [
                       {
-                        "kind": "LinkedField",
-                        "alias": null,
-                        "name": "node",
-                        "storageKey": null,
-                        "args": null,
-                        "concreteType": "Comment",
-                        "plural": false,
-                        "selections": [
-                          {
-                            "kind": "ScalarField",
-                            "alias": null,
-                            "name": "id",
-                            "args": null,
-                            "storageKey": null
-                          }
-                        ]
+                        "kind": "Literal",
+                        "name": "first",
+                        "value": 10
                       }
-                    ]
-                  },
-                  {
-                    "kind": "LinkedField",
-                    "alias": null,
-                    "name": "pageInfo",
-                    "storageKey": null,
-                    "args": null,
-                    "concreteType": "PageInfo",
-                    "plural": false,
-                    "selections": [
-                      {
-                        "kind": "ScalarField",
-                        "alias": null,
-                        "name": "hasNextPage",
-                        "args": null,
-                        "storageKey": null
-                      }
-                    ]
+                    ],
+                    "edges": {
+                      "kind": "LinkedField",
+                      "alias": null,
+                      "name": "edges",
+                      "storageKey": null,
+                      "args": null,
+                      "concreteType": "CommentsEdge",
+                      "plural": true,
+                      "selections": [
+                        {
+                          "kind": "LinkedField",
+                          "alias": null,
+                          "name": "node",
+                          "storageKey": null,
+                          "args": null,
+                          "concreteType": "Comment",
+                          "plural": false,
+                          "selections": [
+                            {
+                              "kind": "ScalarField",
+                              "alias": null,
+                              "name": "id",
+                              "args": null,
+                              "storageKey": null
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    "pageInfo": {
+                      "kind": "LinkedField",
+                      "alias": null,
+                      "name": "pageInfo",
+                      "storageKey": null,
+                      "args": null,
+                      "concreteType": "PageInfo",
+                      "plural": false,
+                      "selections": [
+                        {
+                          "kind": "ScalarField",
+                          "alias": null,
+                          "name": "hasNextPage",
+                          "args": null,
+                          "storageKey": null
+                        }
+                      ]
+                    }
                   }
                 ]
               }
@@ -2277,67 +2283,73 @@ fragment FeedbackComments_feedback on Feedback {
   "argumentDefinitions": [],
   "selections": [
     {
-      "kind": "ConnectionField",
+      "kind": "LinkedField",
       "alias": null,
-      "label": "FeedbackComments_feedback$connection$comments",
       "name": "comments",
-      "resolver": require('FeedbackCommentsResolver'),
-      "storageKey": "comments(first:10)",
-      "args": [
-        {
-          "kind": "Literal",
-          "name": "first",
-          "value": 10
-        }
-      ],
+      "storageKey": null,
+      "args": null,
       "concreteType": "CommentsConnection",
+      "plural": false,
       "selections": [
         {
-          "kind": "LinkedField",
-          "alias": null,
-          "name": "edges",
-          "storageKey": null,
-          "args": null,
-          "concreteType": "CommentsEdge",
-          "plural": true,
-          "selections": [
+          "kind": "Connection",
+          "label": "FeedbackComments_feedback$connection$comments",
+          "name": "comments",
+          "resolver": require('FeedbackCommentsResolver'),
+          "args": [
             {
-              "kind": "LinkedField",
-              "alias": null,
-              "name": "node",
-              "storageKey": null,
-              "args": null,
-              "concreteType": "Comment",
-              "plural": false,
-              "selections": [
-                {
-                  "kind": "ScalarField",
-                  "alias": null,
-                  "name": "id",
-                  "args": null,
-                  "storageKey": null
-                }
-              ]
+              "kind": "Literal",
+              "name": "first",
+              "value": 10
             }
-          ]
-        },
-        {
-          "kind": "LinkedField",
-          "alias": null,
-          "name": "pageInfo",
-          "storageKey": null,
-          "args": null,
-          "concreteType": "PageInfo",
-          "plural": false,
-          "selections": [
-            {
-              "kind": "ScalarField",
-              "alias": null,
-              "name": "hasNextPage",
-              "args": null,
-              "storageKey": null
-            }
-          ]
+          ],
+          "edges": {
+            "kind": "LinkedField",
+            "alias": null,
+            "name": "edges",
+            "storageKey": null,
+            "args": null,
+            "concreteType": "CommentsEdge",
+            "plural": true,
+            "selections": [
+              {
+                "kind": "LinkedField",
+                "alias": null,
+                "name": "node",
+                "storageKey": null,
+                "args": null,
+                "concreteType": "Comment",
+                "plural": false,
+                "selections": [
+                  {
+                    "kind": "ScalarField",
+                    "alias": null,
+                    "name": "id",
+                    "args": null,
+                    "storageKey": null
+                  }
+                ]
+              }
+            ]
+          },
+          "pageInfo": {
+            "kind": "LinkedField",
+            "alias": null,
+            "name": "pageInfo",
+            "storageKey": null,
+            "args": null,
+            "concreteType": "PageInfo",
+            "plural": false,
+            "selections": [
+              {
+                "kind": "ScalarField",
+                "alias": null,
+                "name": "hasNextPage",
+                "args": null,
+                "storageKey": null
+              }
+            ]
+          }
         }
       ]
     }
@@ -2474,132 +2486,133 @@ fragment FeedbackTopComments_feedback on Feedback {
             "type": "Feedback",
             "selections": [
               {
-                "kind": "ConnectionField",
+                "kind": "LinkedField",
                 "alias": null,
-                "label": "FeedbackComments_feedback$connection$comments",
                 "name": "comments",
-                "resolver": require('FeedbackCommentsResolver'),
-                "storageKey": "comments(first:10)",
-                "args": [
-                  {
-                    "kind": "Literal",
-                    "name": "first",
-                    "value": 10
-                  }
-                ],
+                "storageKey": null,
+                "args": null,
                 "concreteType": "CommentsConnection",
+                "plural": false,
                 "selections": [
                   {
-                    "kind": "LinkedField",
-                    "alias": null,
-                    "name": "edges",
-                    "storageKey": null,
-                    "args": null,
-                    "concreteType": "CommentsEdge",
-                    "plural": true,
-                    "selections": [
+                    "kind": "Connection",
+                    "label": "FeedbackComments_feedback$connection$comments",
+                    "name": "comments",
+                    "resolver": require('FeedbackCommentsResolver'),
+                    "args": [
                       {
-                        "kind": "LinkedField",
-                        "alias": null,
-                        "name": "node",
-                        "storageKey": null,
-                        "args": null,
-                        "concreteType": "Comment",
-                        "plural": false,
-                        "selections": [
-                          {
-                            "kind": "ScalarField",
-                            "alias": null,
-                            "name": "id",
-                            "args": null,
-                            "storageKey": null
-                          }
-                        ]
+                        "kind": "Literal",
+                        "name": "first",
+                        "value": 10
                       }
-                    ]
+                    ],
+                    "edges": {
+                      "kind": "LinkedField",
+                      "alias": null,
+                      "name": "edges",
+                      "storageKey": null,
+                      "args": null,
+                      "concreteType": "CommentsEdge",
+                      "plural": true,
+                      "selections": [
+                        {
+                          "kind": "LinkedField",
+                          "alias": null,
+                          "name": "node",
+                          "storageKey": null,
+                          "args": null,
+                          "concreteType": "Comment",
+                          "plural": false,
+                          "selections": [
+                            {
+                              "kind": "ScalarField",
+                              "alias": null,
+                              "name": "id",
+                              "args": null,
+                              "storageKey": null
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    "pageInfo": {
+                      "kind": "LinkedField",
+                      "alias": null,
+                      "name": "pageInfo",
+                      "storageKey": null,
+                      "args": null,
+                      "concreteType": "PageInfo",
+                      "plural": false,
+                      "selections": [
+                        {
+                          "kind": "ScalarField",
+                          "alias": null,
+                          "name": "hasNextPage",
+                          "args": null,
+                          "storageKey": null
+                        }
+                      ]
+                    }
                   },
                   {
-                    "kind": "LinkedField",
-                    "alias": null,
-                    "name": "pageInfo",
-                    "storageKey": null,
-                    "args": null,
-                    "concreteType": "PageInfo",
-                    "plural": false,
-                    "selections": [
+                    "kind": "Connection",
+                    "label": "FeedbackTopComments_feedback$connection$comments",
+                    "name": "comments",
+                    "resolver": require('FeedbackCommentsResolver'),
+                    "args": [
                       {
-                        "kind": "ScalarField",
-                        "alias": null,
-                        "name": "hasNextPage",
-                        "args": null,
-                        "storageKey": null
+                        "kind": "Literal",
+                        "name": "first",
+                        "value": 10
                       }
-                    ]
-                  }
-                ]
-              },
-              {
-                "kind": "ConnectionField",
-                "alias": null,
-                "label": "FeedbackTopComments_feedback$connection$comments",
-                "name": "comments",
-                "resolver": require('FeedbackCommentsResolver'),
-                "storageKey": "comments(first:10)",
-                "args": [
-                  {
-                    "kind": "Literal",
-                    "name": "first",
-                    "value": 10
-                  }
-                ],
-                "concreteType": "CommentsConnection",
-                "selections": [
-                  {
-                    "kind": "LinkedField",
-                    "alias": null,
-                    "name": "edges",
-                    "storageKey": null,
-                    "args": null,
-                    "concreteType": "CommentsEdge",
-                    "plural": true,
-                    "selections": [
-                      {
-                        "kind": "LinkedField",
-                        "alias": null,
-                        "name": "node",
-                        "storageKey": null,
-                        "args": null,
-                        "concreteType": "Comment",
-                        "plural": false,
-                        "selections": [
-                          {
-                            "kind": "ScalarField",
-                            "alias": null,
-                            "name": "id",
-                            "args": null,
-                            "storageKey": null
-                          }
-                        ]
-                      }
-                    ]
-                  },
-                  {
-                    "kind": "LinkedField",
-                    "alias": null,
-                    "name": "pageInfo",
-                    "storageKey": null,
-                    "args": null,
-                    "concreteType": "PageInfo",
-                    "plural": false,
-                    "selections": [
-                      {
-                        "kind": "ScalarField",
-                        "alias": null,
-                        "name": "hasNextPage",
-                        "args": null,
-                        "storageKey": null
-                      }
-                    ]
+                    ],
+                    "edges": {
+                      "kind": "LinkedField",
+                      "alias": null,
+                      "name": "edges",
+                      "storageKey": null,
+                      "args": null,
+                      "concreteType": "CommentsEdge",
+                      "plural": true,
+                      "selections": [
+                        {
+                          "kind": "LinkedField",
+                          "alias": null,
+                          "name": "node",
+                          "storageKey": null,
+                          "args": null,
+                          "concreteType": "Comment",
+                          "plural": false,
+                          "selections": [
+                            {
+                              "kind": "ScalarField",
+                              "alias": null,
+                              "name": "id",
+                              "args": null,
+                              "storageKey": null
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    "pageInfo": {
+                      "kind": "LinkedField",
+                      "alias": null,
+                      "name": "pageInfo",
+                      "storageKey": null,
+                      "args": null,
+                      "concreteType": "PageInfo",
+                      "plural": false,
+                      "selections": [
+                        {
+                          "kind": "ScalarField",
+                          "alias": null,
+                          "name": "hasNextPage",
+                          "args": null,
+                          "storageKey": null
+                        }
+                      ]
+                    }
                   }
                 ]
               }
@@ -2659,67 +2672,73 @@ fragment FeedbackTopComments_feedback on Feedback {
   "argumentDefinitions": [],
   "selections": [
     {
-      "kind": "ConnectionField",
+      "kind": "LinkedField",
       "alias": null,
-      "label": "FeedbackComments_feedback$connection$comments",
       "name": "comments",
-      "resolver": require('FeedbackCommentsResolver'),
-      "storageKey": "comments(first:10)",
-      "args": [
-        {
-          "kind": "Literal",
-          "name": "first",
-          "value": 10
-        }
-      ],
+      "storageKey": null,
+      "args": null,
       "concreteType": "CommentsConnection",
+      "plural": false,
       "selections": [
         {
-          "kind": "LinkedField",
-          "alias": null,
-          "name": "edges",
-          "storageKey": null,
-          "args": null,
-          "concreteType": "CommentsEdge",
-          "plural": true,
-          "selections": [
+          "kind": "Connection",
+          "label": "FeedbackComments_feedback$connection$comments",
+          "name": "comments",
+          "resolver": require('FeedbackCommentsResolver'),
+          "args": [
             {
-              "kind": "LinkedField",
-              "alias": null,
-              "name": "node",
-              "storageKey": null,
-              "args": null,
-              "concreteType": "Comment",
-              "plural": false,
-              "selections": [
-                {
-                  "kind": "ScalarField",
-                  "alias": null,
-                  "name": "id",
-                  "args": null,
-                  "storageKey": null
-                }
-              ]
+              "kind": "Literal",
+              "name": "first",
+              "value": 10
             }
-          ]
-        },
-        {
-          "kind": "LinkedField",
-          "alias": null,
-          "name": "pageInfo",
-          "storageKey": null,
-          "args": null,
-          "concreteType": "PageInfo",
-          "plural": false,
-          "selections": [
-            {
-              "kind": "ScalarField",
-              "alias": null,
-              "name": "hasNextPage",
-              "args": null,
-              "storageKey": null
-            }
-          ]
+          ],
+          "edges": {
+            "kind": "LinkedField",
+            "alias": null,
+            "name": "edges",
+            "storageKey": null,
+            "args": null,
+            "concreteType": "CommentsEdge",
+            "plural": true,
+            "selections": [
+              {
+                "kind": "LinkedField",
+                "alias": null,
+                "name": "node",
+                "storageKey": null,
+                "args": null,
+                "concreteType": "Comment",
+                "plural": false,
+                "selections": [
+                  {
+                    "kind": "ScalarField",
+                    "alias": null,
+                    "name": "id",
+                    "args": null,
+                    "storageKey": null
+                  }
+                ]
+              }
+            ]
+          },
+          "pageInfo": {
+            "kind": "LinkedField",
+            "alias": null,
+            "name": "pageInfo",
+            "storageKey": null,
+            "args": null,
+            "concreteType": "PageInfo",
+            "plural": false,
+            "selections": [
+              {
+                "kind": "ScalarField",
+                "alias": null,
+                "name": "hasNextPage",
+                "args": null,
+                "storageKey": null
+              }
+            ]
+          }
         }
       ]
     }
@@ -2734,67 +2753,73 @@ fragment FeedbackTopComments_feedback on Feedback {
   "argumentDefinitions": [],
   "selections": [
     {
-      "kind": "ConnectionField",
+      "kind": "LinkedField",
       "alias": null,
-      "label": "FeedbackTopComments_feedback$connection$comments",
       "name": "comments",
-      "resolver": require('FeedbackCommentsResolver'),
-      "storageKey": "comments(first:10)",
-      "args": [
-        {
-          "kind": "Literal",
-          "name": "first",
-          "value": 10
-        }
-      ],
+      "storageKey": null,
+      "args": null,
       "concreteType": "CommentsConnection",
+      "plural": false,
       "selections": [
         {
-          "kind": "LinkedField",
-          "alias": null,
-          "name": "edges",
-          "storageKey": null,
-          "args": null,
-          "concreteType": "CommentsEdge",
-          "plural": true,
-          "selections": [
+          "kind": "Connection",
+          "label": "FeedbackTopComments_feedback$connection$comments",
+          "name": "comments",
+          "resolver": require('FeedbackCommentsResolver'),
+          "args": [
             {
-              "kind": "LinkedField",
-              "alias": null,
-              "name": "node",
-              "storageKey": null,
-              "args": null,
-              "concreteType": "Comment",
-              "plural": false,
-              "selections": [
-                {
-                  "kind": "ScalarField",
-                  "alias": null,
-                  "name": "id",
-                  "args": null,
-                  "storageKey": null
-                }
-              ]
+              "kind": "Literal",
+              "name": "first",
+              "value": 10
             }
-          ]
-        },
-        {
-          "kind": "LinkedField",
-          "alias": null,
-          "name": "pageInfo",
-          "storageKey": null,
-          "args": null,
-          "concreteType": "PageInfo",
-          "plural": false,
-          "selections": [
-            {
-              "kind": "ScalarField",
-              "alias": null,
-              "name": "hasNextPage",
-              "args": null,
-              "storageKey": null
-            }
-          ]
+          ],
+          "edges": {
+            "kind": "LinkedField",
+            "alias": null,
+            "name": "edges",
+            "storageKey": null,
+            "args": null,
+            "concreteType": "CommentsEdge",
+            "plural": true,
+            "selections": [
+              {
+                "kind": "LinkedField",
+                "alias": null,
+                "name": "node",
+                "storageKey": null,
+                "args": null,
+                "concreteType": "Comment",
+                "plural": false,
+                "selections": [
+                  {
+                    "kind": "ScalarField",
+                    "alias": null,
+                    "name": "id",
+                    "args": null,
+                    "storageKey": null
+                  }
+                ]
+              }
+            ]
+          },
+          "pageInfo": {
+            "kind": "LinkedField",
+            "alias": null,
+            "name": "pageInfo",
+            "storageKey": null,
+            "args": null,
+            "concreteType": "PageInfo",
+            "plural": false,
+            "selections": [
+              {
+                "kind": "ScalarField",
+                "alias": null,
+                "name": "hasNextPage",
+                "args": null,
+                "storageKey": null
+              }
+            ]
+          }
         }
       ]
     }
@@ -2931,132 +2956,133 @@ fragment FeedbackTopComments_feedback on Feedback {
             "type": "Feedback",
             "selections": [
               {
-                "kind": "ConnectionField",
+                "kind": "LinkedField",
                 "alias": null,
-                "label": "FeedbackComments_feedback$connection$comments",
                 "name": "comments",
-                "resolver": require('FeedbackCommentsResolver'),
-                "storageKey": "comments(first:10)",
-                "args": [
-                  {
-                    "kind": "Literal",
-                    "name": "first",
-                    "value": 10
-                  }
-                ],
+                "storageKey": null,
+                "args": null,
                 "concreteType": "CommentsConnection",
+                "plural": false,
                 "selections": [
                   {
-                    "kind": "LinkedField",
-                    "alias": null,
-                    "name": "edges",
-                    "storageKey": null,
-                    "args": null,
-                    "concreteType": "CommentsEdge",
-                    "plural": true,
-                    "selections": [
+                    "kind": "Connection",
+                    "label": "FeedbackComments_feedback$connection$comments",
+                    "name": "comments",
+                    "resolver": require('FeedbackCommentsResolver'),
+                    "args": [
                       {
-                        "kind": "LinkedField",
-                        "alias": null,
-                        "name": "node",
-                        "storageKey": null,
-                        "args": null,
-                        "concreteType": "Comment",
-                        "plural": false,
-                        "selections": [
-                          {
-                            "kind": "ScalarField",
-                            "alias": null,
-                            "name": "id",
-                            "args": null,
-                            "storageKey": null
-                          }
-                        ]
+                        "kind": "Literal",
+                        "name": "first",
+                        "value": 10
                       }
-                    ]
+                    ],
+                    "edges": {
+                      "kind": "LinkedField",
+                      "alias": null,
+                      "name": "edges",
+                      "storageKey": null,
+                      "args": null,
+                      "concreteType": "CommentsEdge",
+                      "plural": true,
+                      "selections": [
+                        {
+                          "kind": "LinkedField",
+                          "alias": null,
+                          "name": "node",
+                          "storageKey": null,
+                          "args": null,
+                          "concreteType": "Comment",
+                          "plural": false,
+                          "selections": [
+                            {
+                              "kind": "ScalarField",
+                              "alias": null,
+                              "name": "id",
+                              "args": null,
+                              "storageKey": null
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    "pageInfo": {
+                      "kind": "LinkedField",
+                      "alias": null,
+                      "name": "pageInfo",
+                      "storageKey": null,
+                      "args": null,
+                      "concreteType": "PageInfo",
+                      "plural": false,
+                      "selections": [
+                        {
+                          "kind": "ScalarField",
+                          "alias": null,
+                          "name": "hasNextPage",
+                          "args": null,
+                          "storageKey": null
+                        }
+                      ]
+                    }
                   },
                   {
-                    "kind": "LinkedField",
-                    "alias": null,
-                    "name": "pageInfo",
-                    "storageKey": null,
-                    "args": null,
-                    "concreteType": "PageInfo",
-                    "plural": false,
-                    "selections": [
+                    "kind": "Connection",
+                    "label": "FeedbackTopComments_feedback$connection$comments",
+                    "name": "comments",
+                    "resolver": require('FeedbackTopCommentsResolver'),
+                    "args": [
                       {
-                        "kind": "ScalarField",
-                        "alias": null,
-                        "name": "hasNextPage",
-                        "args": null,
-                        "storageKey": null
+                        "kind": "Literal",
+                        "name": "first",
+                        "value": 10
                       }
-                    ]
-                  }
-                ]
-              },
-              {
-                "kind": "ConnectionField",
-                "alias": null,
-                "label": "FeedbackTopComments_feedback$connection$comments",
-                "name": "comments",
-                "resolver": require('FeedbackTopCommentsResolver'),
-                "storageKey": "comments(first:10)",
-                "args": [
-                  {
-                    "kind": "Literal",
-                    "name": "first",
-                    "value": 10
-                  }
-                ],
-                "concreteType": "CommentsConnection",
-                "selections": [
-                  {
-                    "kind": "LinkedField",
-                    "alias": null,
-                    "name": "edges",
-                    "storageKey": null,
-                    "args": null,
-                    "concreteType": "CommentsEdge",
-                    "plural": true,
-                    "selections": [
-                      {
-                        "kind": "LinkedField",
-                        "alias": null,
-                        "name": "node",
-                        "storageKey": null,
-                        "args": null,
-                        "concreteType": "Comment",
-                        "plural": false,
-                        "selections": [
-                          {
-                            "kind": "ScalarField",
-                            "alias": null,
-                            "name": "id",
-                            "args": null,
-                            "storageKey": null
-                          }
-                        ]
-                      }
-                    ]
-                  },
-                  {
-                    "kind": "LinkedField",
-                    "alias": null,
-                    "name": "pageInfo",
-                    "storageKey": null,
-                    "args": null,
-                    "concreteType": "PageInfo",
-                    "plural": false,
-                    "selections": [
-                      {
-                        "kind": "ScalarField",
-                        "alias": null,
-                        "name": "hasNextPage",
-                        "args": null,
-                        "storageKey": null
-                      }
-                    ]
+                    ],
+                    "edges": {
+                      "kind": "LinkedField",
+                      "alias": null,
+                      "name": "edges",
+                      "storageKey": null,
+                      "args": null,
+                      "concreteType": "CommentsEdge",
+                      "plural": true,
+                      "selections": [
+                        {
+                          "kind": "LinkedField",
+                          "alias": null,
+                          "name": "node",
+                          "storageKey": null,
+                          "args": null,
+                          "concreteType": "Comment",
+                          "plural": false,
+                          "selections": [
+                            {
+                              "kind": "ScalarField",
+                              "alias": null,
+                              "name": "id",
+                              "args": null,
+                              "storageKey": null
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    "pageInfo": {
+                      "kind": "LinkedField",
+                      "alias": null,
+                      "name": "pageInfo",
+                      "storageKey": null,
+                      "args": null,
+                      "concreteType": "PageInfo",
+                      "plural": false,
+                      "selections": [
+                        {
+                          "kind": "ScalarField",
+                          "alias": null,
+                          "name": "hasNextPage",
+                          "args": null,
+                          "storageKey": null
+                        }
+                      ]
+                    }
                   }
                 ]
               }
@@ -3116,67 +3142,73 @@ fragment FeedbackTopComments_feedback on Feedback {
   "argumentDefinitions": [],
   "selections": [
     {
-      "kind": "ConnectionField",
+      "kind": "LinkedField",
       "alias": null,
-      "label": "FeedbackComments_feedback$connection$comments",
       "name": "comments",
-      "resolver": require('FeedbackCommentsResolver'),
-      "storageKey": "comments(first:10)",
-      "args": [
-        {
-          "kind": "Literal",
-          "name": "first",
-          "value": 10
-        }
-      ],
+      "storageKey": null,
+      "args": null,
       "concreteType": "CommentsConnection",
+      "plural": false,
       "selections": [
         {
-          "kind": "LinkedField",
-          "alias": null,
-          "name": "edges",
-          "storageKey": null,
-          "args": null,
-          "concreteType": "CommentsEdge",
-          "plural": true,
-          "selections": [
+          "kind": "Connection",
+          "label": "FeedbackComments_feedback$connection$comments",
+          "name": "comments",
+          "resolver": require('FeedbackCommentsResolver'),
+          "args": [
             {
-              "kind": "LinkedField",
-              "alias": null,
-              "name": "node",
-              "storageKey": null,
-              "args": null,
-              "concreteType": "Comment",
-              "plural": false,
-              "selections": [
-                {
-                  "kind": "ScalarField",
-                  "alias": null,
-                  "name": "id",
-                  "args": null,
-                  "storageKey": null
-                }
-              ]
+              "kind": "Literal",
+              "name": "first",
+              "value": 10
             }
-          ]
-        },
-        {
-          "kind": "LinkedField",
-          "alias": null,
-          "name": "pageInfo",
-          "storageKey": null,
-          "args": null,
-          "concreteType": "PageInfo",
-          "plural": false,
-          "selections": [
-            {
-              "kind": "ScalarField",
-              "alias": null,
-              "name": "hasNextPage",
-              "args": null,
-              "storageKey": null
-            }
-          ]
+          ],
+          "edges": {
+            "kind": "LinkedField",
+            "alias": null,
+            "name": "edges",
+            "storageKey": null,
+            "args": null,
+            "concreteType": "CommentsEdge",
+            "plural": true,
+            "selections": [
+              {
+                "kind": "LinkedField",
+                "alias": null,
+                "name": "node",
+                "storageKey": null,
+                "args": null,
+                "concreteType": "Comment",
+                "plural": false,
+                "selections": [
+                  {
+                    "kind": "ScalarField",
+                    "alias": null,
+                    "name": "id",
+                    "args": null,
+                    "storageKey": null
+                  }
+                ]
+              }
+            ]
+          },
+          "pageInfo": {
+            "kind": "LinkedField",
+            "alias": null,
+            "name": "pageInfo",
+            "storageKey": null,
+            "args": null,
+            "concreteType": "PageInfo",
+            "plural": false,
+            "selections": [
+              {
+                "kind": "ScalarField",
+                "alias": null,
+                "name": "hasNextPage",
+                "args": null,
+                "storageKey": null
+              }
+            ]
+          }
         }
       ]
     }
@@ -3191,67 +3223,73 @@ fragment FeedbackTopComments_feedback on Feedback {
   "argumentDefinitions": [],
   "selections": [
     {
-      "kind": "ConnectionField",
+      "kind": "LinkedField",
       "alias": null,
-      "label": "FeedbackTopComments_feedback$connection$comments",
       "name": "comments",
-      "resolver": require('FeedbackTopCommentsResolver'),
-      "storageKey": "comments(first:10)",
-      "args": [
-        {
-          "kind": "Literal",
-          "name": "first",
-          "value": 10
-        }
-      ],
+      "storageKey": null,
+      "args": null,
       "concreteType": "CommentsConnection",
+      "plural": false,
       "selections": [
         {
-          "kind": "LinkedField",
-          "alias": null,
-          "name": "edges",
-          "storageKey": null,
-          "args": null,
-          "concreteType": "CommentsEdge",
-          "plural": true,
-          "selections": [
+          "kind": "Connection",
+          "label": "FeedbackTopComments_feedback$connection$comments",
+          "name": "comments",
+          "resolver": require('FeedbackTopCommentsResolver'),
+          "args": [
             {
-              "kind": "LinkedField",
-              "alias": null,
-              "name": "node",
-              "storageKey": null,
-              "args": null,
-              "concreteType": "Comment",
-              "plural": false,
-              "selections": [
-                {
-                  "kind": "ScalarField",
-                  "alias": null,
-                  "name": "id",
-                  "args": null,
-                  "storageKey": null
-                }
-              ]
+              "kind": "Literal",
+              "name": "first",
+              "value": 10
             }
-          ]
-        },
-        {
-          "kind": "LinkedField",
-          "alias": null,
-          "name": "pageInfo",
-          "storageKey": null,
-          "args": null,
-          "concreteType": "PageInfo",
-          "plural": false,
-          "selections": [
-            {
-              "kind": "ScalarField",
-              "alias": null,
-              "name": "hasNextPage",
-              "args": null,
-              "storageKey": null
-            }
-          ]
+          ],
+          "edges": {
+            "kind": "LinkedField",
+            "alias": null,
+            "name": "edges",
+            "storageKey": null,
+            "args": null,
+            "concreteType": "CommentsEdge",
+            "plural": true,
+            "selections": [
+              {
+                "kind": "LinkedField",
+                "alias": null,
+                "name": "node",
+                "storageKey": null,
+                "args": null,
+                "concreteType": "Comment",
+                "plural": false,
+                "selections": [
+                  {
+                    "kind": "ScalarField",
+                    "alias": null,
+                    "name": "id",
+                    "args": null,
+                    "storageKey": null
+                  }
+                ]
+              }
+            ]
+          },
+          "pageInfo": {
+            "kind": "LinkedField",
+            "alias": null,
+            "name": "pageInfo",
+            "storageKey": null,
+            "args": null,
+            "concreteType": "PageInfo",
+            "plural": false,
+            "selections": [
+              {
+                "kind": "ScalarField",
+                "alias": null,
+                "name": "hasNextPage",
+                "args": null,
+                "storageKey": null
+              }
+            ]
+          }
         }
       ]
     }
@@ -4826,67 +4864,73 @@ fragment FeedbackText_feedback on Feedback {
                 "type": "Feedback",
                 "selections": [
                   {
-                    "kind": "ConnectionField",
+                    "kind": "LinkedField",
                     "alias": null,
-                    "label": "FeedbackComments_feedback$connection$comments",
                     "name": "comments",
-                    "resolver": require('FeedbackCommentsResolver'),
-                    "storageKey": "comments(first:10)",
-                    "args": [
-                      {
-                        "kind": "Literal",
-                        "name": "first",
-                        "value": 10
-                      }
-                    ],
+                    "storageKey": null,
+                    "args": null,
                     "concreteType": "CommentsConnection",
+                    "plural": false,
                     "selections": [
                       {
-                        "kind": "LinkedField",
-                        "alias": null,
-                        "name": "edges",
-                        "storageKey": null,
-                        "args": null,
-                        "concreteType": "CommentsEdge",
-                        "plural": true,
-                        "selections": [
+                        "kind": "Connection",
+                        "label": "FeedbackComments_feedback$connection$comments",
+                        "name": "comments",
+                        "resolver": require('FeedbackCommentsResolver'),
+                        "args": [
                           {
-                            "kind": "LinkedField",
-                            "alias": null,
-                            "name": "node",
-                            "storageKey": null,
-                            "args": null,
-                            "concreteType": "Comment",
-                            "plural": false,
-                            "selections": [
-                              {
-                                "kind": "ScalarField",
-                                "alias": null,
-                                "name": "id",
-                                "args": null,
-                                "storageKey": null
-                              }
-                            ]
+                            "kind": "Literal",
+                            "name": "first",
+                            "value": 10
                           }
-                        ]
-                      },
-                      {
-                        "kind": "LinkedField",
-                        "alias": null,
-                        "name": "pageInfo",
-                        "storageKey": null,
-                        "args": null,
-                        "concreteType": "PageInfo",
-                        "plural": false,
-                        "selections": [
-                          {
-                            "kind": "ScalarField",
-                            "alias": null,
-                            "name": "hasNextPage",
-                            "args": null,
-                            "storageKey": null
-                          }
-                        ]
+                        ],
+                        "edges": {
+                          "kind": "LinkedField",
+                          "alias": null,
+                          "name": "edges",
+                          "storageKey": null,
+                          "args": null,
+                          "concreteType": "CommentsEdge",
+                          "plural": true,
+                          "selections": [
+                            {
+                              "kind": "LinkedField",
+                              "alias": null,
+                              "name": "node",
+                              "storageKey": null,
+                              "args": null,
+                              "concreteType": "Comment",
+                              "plural": false,
+                              "selections": [
+                                {
+                                  "kind": "ScalarField",
+                                  "alias": null,
+                                  "name": "id",
+                                  "args": null,
+                                  "storageKey": null
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        "pageInfo": {
+                          "kind": "LinkedField",
+                          "alias": null,
+                          "name": "pageInfo",
+                          "storageKey": null,
+                          "args": null,
+                          "concreteType": "PageInfo",
+                          "plural": false,
+                          "selections": [
+                            {
+                              "kind": "ScalarField",
+                              "alias": null,
+                              "name": "hasNextPage",
+                              "args": null,
+                              "storageKey": null
+                            }
+                          ]
+                        }
                       }
                     ]
                   }
@@ -4973,67 +5017,73 @@ fragment FeedbackText_feedback on Feedback {
   "argumentDefinitions": [],
   "selections": [
     {
-      "kind": "ConnectionField",
+      "kind": "LinkedField",
       "alias": null,
-      "label": "FeedbackComments_feedback$connection$comments",
       "name": "comments",
-      "resolver": require('FeedbackCommentsResolver'),
-      "storageKey": "comments(first:10)",
-      "args": [
-        {
-          "kind": "Literal",
-          "name": "first",
-          "value": 10
-        }
-      ],
+      "storageKey": null,
+      "args": null,
       "concreteType": "CommentsConnection",
+      "plural": false,
       "selections": [
         {
-          "kind": "LinkedField",
-          "alias": null,
-          "name": "edges",
-          "storageKey": null,
-          "args": null,
-          "concreteType": "CommentsEdge",
-          "plural": true,
-          "selections": [
+          "kind": "Connection",
+          "label": "FeedbackComments_feedback$connection$comments",
+          "name": "comments",
+          "resolver": require('FeedbackCommentsResolver'),
+          "args": [
             {
-              "kind": "LinkedField",
-              "alias": null,
-              "name": "node",
-              "storageKey": null,
-              "args": null,
-              "concreteType": "Comment",
-              "plural": false,
-              "selections": [
-                {
-                  "kind": "ScalarField",
-                  "alias": null,
-                  "name": "id",
-                  "args": null,
-                  "storageKey": null
-                }
-              ]
+              "kind": "Literal",
+              "name": "first",
+              "value": 10
             }
-          ]
-        },
-        {
-          "kind": "LinkedField",
-          "alias": null,
-          "name": "pageInfo",
-          "storageKey": null,
-          "args": null,
-          "concreteType": "PageInfo",
-          "plural": false,
-          "selections": [
-            {
-              "kind": "ScalarField",
-              "alias": null,
-              "name": "hasNextPage",
-              "args": null,
-              "storageKey": null
-            }
-          ]
+          ],
+          "edges": {
+            "kind": "LinkedField",
+            "alias": null,
+            "name": "edges",
+            "storageKey": null,
+            "args": null,
+            "concreteType": "CommentsEdge",
+            "plural": true,
+            "selections": [
+              {
+                "kind": "LinkedField",
+                "alias": null,
+                "name": "node",
+                "storageKey": null,
+                "args": null,
+                "concreteType": "Comment",
+                "plural": false,
+                "selections": [
+                  {
+                    "kind": "ScalarField",
+                    "alias": null,
+                    "name": "id",
+                    "args": null,
+                    "storageKey": null
+                  }
+                ]
+              }
+            ]
+          },
+          "pageInfo": {
+            "kind": "LinkedField",
+            "alias": null,
+            "name": "pageInfo",
+            "storageKey": null,
+            "args": null,
+            "concreteType": "PageInfo",
+            "plural": false,
+            "selections": [
+              {
+                "kind": "ScalarField",
+                "alias": null,
+                "name": "hasNextPage",
+                "args": null,
+                "storageKey": null
+              }
+            ]
+          }
         }
       ]
     }

@@ -22,7 +22,7 @@ const {
   CONDITION,
   CLIENT_EXTENSION,
   DEFER,
-  CONNECTION_FIELD,
+  CONNECTION,
   INLINE_FRAGMENT,
   LINKED_FIELD,
   LINKED_HANDLE,
@@ -34,6 +34,7 @@ const {
 const {generateClientID, isClientID} = require('./ClientID');
 const {createNormalizationSelector} = require('./RelayModernSelector');
 const {
+  formatStorageKey,
   getArgumentValues,
   getHandleStorageKey,
   getModuleComponentKey,
@@ -44,7 +45,7 @@ const {
 
 import type {PayloadData} from '../network/RelayNetworkTypes';
 import type {
-  NormalizationConnectionField,
+  NormalizationConnection,
   NormalizationDefer,
   NormalizationLinkedField,
   NormalizationModuleImport,
@@ -224,8 +225,8 @@ class RelayResponseNormalizer {
           this._traverseSelections(selection, record, data);
           this._isClientExtension = isClientExtension;
           break;
-        case CONNECTION_FIELD:
-          this._normalizeConnectionField(node, selection, record, data);
+        case CONNECTION:
+          this._normalizeConnection(node, selection, record, data);
           break;
         default:
           (selection: empty);
@@ -343,24 +344,44 @@ class RelayResponseNormalizer {
     }
   }
 
-  _normalizeConnectionField(
+  /**
+   * Connections are represented in the AST as a LinkedField (with connection-
+   * specific args like after/first stripped) that wraps any metadata fields
+   * such as count, plus a Connection node that represents the page of data
+   * being fetched (the edges + pageInfo). The outer LinkedField is normalized
+   * like any other, and the Connection field is normalized by synthesizing
+   * a record to represent the page that was fetched and normalizing the edges
+   * and pageInfo into that page record - as well as recording a "fetch" event.
+   */
+  _normalizeConnection(
     parent: NormalizationNode,
-    selection: NormalizationConnectionField,
+    selection: NormalizationConnection,
     record: Record,
     data: PayloadData,
   ) {
-    this._normalizeField(parent, selection, record, data);
-
+    // Normalize the data for the page
     const parentID = RelayModernRecord.getDataID(record);
-    const connectionID = RelayConnection.createConnectionID(
-      parentID,
-      selection.label,
-    );
     const args =
       selection.args != null
         ? getArgumentValues(selection.args, this._variables)
         : {};
-    const storageKey = getStorageKey(selection, this._variables);
+    const pageStorageKey = formatStorageKey('__connection_page', args);
+    const pageID = generateClientID(parentID, pageStorageKey);
+    let pageRecord = this._recordSource.get(pageID);
+    if (pageRecord == null) {
+      pageRecord = RelayModernRecord.create(pageID, '__ConnectionPage');
+      this._recordSource.set(pageID, pageRecord);
+    }
+    RelayModernRecord.setLinkedRecordID(record, pageStorageKey, pageID);
+
+    this._normalizeField(parent, selection.edges, pageRecord, data);
+    this._normalizeField(parent, selection.pageInfo, pageRecord, data);
+
+    // Construct a "fetch" connection event
+    const connectionID = RelayConnection.createConnectionID(
+      parentID,
+      selection.label,
+    );
     const {
       EDGES,
       END_CURSOR,
@@ -370,27 +391,12 @@ class RelayResponseNormalizer {
       START_CURSOR,
     } = RelayConnectionInterface.get();
 
-    const connectionRecordID = RelayModernRecord.getLinkedRecordID(
-      record,
-      storageKey,
-    );
-    const connectionRecord =
-      connectionRecordID != null
-        ? this._recordSource.get(connectionRecordID)
-        : null;
-    if (connectionRecord == null) {
-      // TODO
-      return;
-    }
-    const edgeIDs = RelayModernRecord.getLinkedRecordIDs(
-      connectionRecord,
-      EDGES,
-    );
+    const edgeIDs = RelayModernRecord.getLinkedRecordIDs(pageRecord, EDGES);
     if (edgeIDs == null) {
       return;
     }
     const pageInfoID = RelayModernRecord.getLinkedRecordID(
-      connectionRecord,
+      pageRecord,
       PAGE_INFO,
     );
     const pageInfoRecord =
@@ -423,10 +429,7 @@ class RelayResponseNormalizer {
 
   _normalizeField(
     parent: NormalizationNode,
-    selection:
-      | NormalizationLinkedField
-      | NormalizationScalarField
-      | NormalizationConnectionField,
+    selection: NormalizationLinkedField | NormalizationScalarField,
     record: Record,
     data: PayloadData,
   ) {
@@ -470,10 +473,7 @@ class RelayResponseNormalizer {
 
     if (selection.kind === SCALAR_FIELD) {
       RelayModernRecord.setValue(record, storageKey, fieldValue);
-    } else if (
-      selection.kind === LINKED_FIELD ||
-      selection.kind === CONNECTION_FIELD
-    ) {
+    } else if (selection.kind === LINKED_FIELD) {
       this._path.push(responseKey);
       if (selection.plural) {
         this._normalizePluralLink(selection, record, storageKey, fieldValue);
@@ -492,7 +492,7 @@ class RelayResponseNormalizer {
   }
 
   _normalizeLink(
-    field: NormalizationLinkedField | NormalizationConnectionField,
+    field: NormalizationLinkedField,
     record: Record,
     storageKey: string,
     fieldValue: mixed,
@@ -616,7 +616,7 @@ class RelayResponseNormalizer {
    */
   _validateRecordType(
     record: Record,
-    field: NormalizationLinkedField | NormalizationConnectionField,
+    field: NormalizationLinkedField,
     payload: Object,
   ): void {
     const typeName = field.concreteType ?? this._getRecordType(payload);

@@ -52,7 +52,7 @@ const RelayConcreteNode = {
   CONDITION: 'Condition',
   CLIENT_EXTENSION: 'ClientExtension',
   DEFER: 'Defer',
-  CONNECTION_FIELD: 'ConnectionField',
+  CONNECTION: 'Connection',
   FRAGMENT: 'Fragment',
   FRAGMENT_SPREAD: 'FragmentSpread',
   INLINE_DATA_FRAGMENT_SPREAD: 'InlineDataFragmentSpread',

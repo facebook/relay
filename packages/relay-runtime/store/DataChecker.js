@@ -12,6 +12,7 @@
 'use strict';
 
 const RelayConcreteNode = require('../util/RelayConcreteNode');
+const RelayConnection = require('./RelayConnection');
 const RelayRecordSourceMutator = require('../mutations/RelayRecordSourceMutator');
 const RelayRecordSourceProxy = require('../mutations/RelayRecordSourceProxy');
 const RelayStoreUtils = require('./RelayStoreUtils');
@@ -23,6 +24,7 @@ const {isClientID} = require('./ClientID');
 const {EXISTENT, UNKNOWN} = require('./RelayRecordState');
 
 import type {
+  NormalizationConnection,
   NormalizationField,
   NormalizationLinkedField,
   NormalizationModuleImport,
@@ -45,7 +47,7 @@ const {
   CONDITION,
   CLIENT_EXTENSION,
   DEFER,
-  CONNECTION_FIELD,
+  CONNECTION,
   FRAGMENT_SPREAD,
   INLINE_FRAGMENT,
   LINKED_FIELD,
@@ -312,12 +314,8 @@ class DataChecker {
           this._traverseSelections(selection.selections, dataID);
           this._recordWasMissing = recordWasMissing;
           break;
-        case CONNECTION_FIELD:
-          invariant(
-            false,
-            'DataChecker(): Connection fields are not supported yet.',
-          );
-          // $FlowExpectedError - we need the break; for OSS linter
+        case CONNECTION:
+          this._checkConnection(selection, dataID);
           break;
         default:
           (selection: empty);
@@ -355,6 +353,10 @@ class DataChecker {
       // processed yet and must therefore be missing.
       this._handleMissing();
     }
+  }
+
+  _checkConnection(field: NormalizationConnection, dataID: DataID): void {
+    invariant(false, 'DataChecker: Connection fields are not supported.');
   }
 
   _checkScalar(field: NormalizationScalarField, dataID: DataID): void {

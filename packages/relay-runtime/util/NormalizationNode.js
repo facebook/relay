@@ -71,8 +71,7 @@ export type NormalizationClientExtension = {|
 
 export type NormalizationField =
   | NormalizationScalarField
-  | NormalizationLinkedField
-  | NormalizationConnectionField;
+  | NormalizationLinkedField;
 
 export type NormalizationInlineFragment = {|
   +kind: 'InlineFragment',
@@ -91,16 +90,14 @@ export type NormalizationLinkedField = {|
   +selections: $ReadOnlyArray<NormalizationSelection>,
 |};
 
-export type NormalizationConnectionField = {|
-  +kind: 'ConnectionField',
-  +alias: ?string,
+export type NormalizationConnection = {|
+  +kind: 'Connection',
   +label: string,
   +name: string,
   +resolver: ConnectionResolver<mixed, mixed>,
-  +storageKey: ?string,
   +args: ?$ReadOnlyArray<NormalizationArgument>,
-  +concreteType: ?string,
-  +selections: $ReadOnlyArray<NormalizationSelection>,
+  +edges: NormalizationLinkedField,
+  +pageInfo: NormalizationLinkedField,
 |};
 
 export type NormalizationModuleImport = {|
@@ -128,9 +125,8 @@ export type NormalizationNode =
   | NormalizationClientExtension
   | NormalizationCondition
   | NormalizationDefer
-  | NormalizationLinkedField
-  | NormalizationConnectionField
   | NormalizationInlineFragment
+  | NormalizationLinkedField
   | NormalizationOperation
   | NormalizationSplitOperation
   | NormalizationStream;
@@ -145,6 +141,7 @@ export type NormalizationScalarField = {|
 
 export type NormalizationSelection =
   | NormalizationCondition
+  | NormalizationConnection
   | NormalizationClientExtension
   | NormalizationDefer
   | NormalizationField
@@ -186,7 +183,6 @@ export type NormalizationVariable = {|
 export type NormalizationSelectableNode =
   | NormalizationDefer
   | NormalizationLinkedField
-  | NormalizationConnectionField
   | NormalizationOperation
   | NormalizationSplitOperation
   | NormalizationStream;

@@ -283,6 +283,14 @@ export interface Store {
   ): void;
 
   /**
+   * Get a read-only view of the store's internal connection events for a given
+   * connection.
+   */
+  getConnectionEvents_UNSTABLE(
+    connectionID: ConnectionID,
+  ): ?$ReadOnlyArray<ConnectionInternalEvent>;
+
+  /**
    * Record a backup/snapshot of the current state of the store, including
    * records and derived data such as fragment and connection subscriptions.
    * This state can be restored with restore().

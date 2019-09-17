@@ -28,6 +28,10 @@ export type ConnectionRecord = {|
 
 export type ConnectionMap = {[ConnectionID]: ?ConnectionRecord};
 
+export type GetConnectionEvents = (
+  connectionID: ConnectionID,
+) => ?$ReadOnlyArray<ConnectionInternalEvent>;
+
 export type ConnectionInternalEvent =
   | {|
       +kind: 'fetch',

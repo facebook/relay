@@ -259,6 +259,7 @@ class RelayModernEnvironment implements Environment {
       handlers,
       this._operationLoader,
       this._getDataID,
+      id => this._store.getConnectionEvents_UNSTABLE(id),
     );
     if (target.size() > 0) {
       this._publishQueue.commitSource(target);

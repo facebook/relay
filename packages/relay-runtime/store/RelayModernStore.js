@@ -135,6 +135,15 @@ class RelayModernStore implements Store {
     return this._optimisticSource ?? this._recordSource;
   }
 
+  getConnectionEvents_UNSTABLE(
+    connectionID: ConnectionID,
+  ): ?$ReadOnlyArray<ConnectionInternalEvent> {
+    const events = this._connectionEvents.get(connectionID);
+    if (events != null) {
+      return events.optimistic ?? events.final;
+    }
+  }
+
   check(selector: NormalizationSelector): boolean {
     const source = this._optimisticSource ?? this._recordSource;
     return DataChecker.check(
@@ -144,6 +153,7 @@ class RelayModernStore implements Store {
       [],
       this._operationLoader,
       this._getDataID,
+      id => this.getConnectionEvents_UNSTABLE(id),
     );
   }
 
@@ -623,26 +633,39 @@ class RelayModernStore implements Store {
       return;
     }
     const references = new Set();
+    const connectionReferences = new Set();
     // Mark all records that are traversable from a root
     this._roots.forEach(selector => {
       RelayReferenceMarker.mark(
         this._recordSource,
         selector,
         references,
+        connectionReferences,
+        id => this.getConnectionEvents_UNSTABLE(id),
         this._operationLoader,
       );
     });
-    // Short-circuit if *nothing* is referenced
-    if (!references.size) {
+    if (references.size === 0) {
+      // Short-circuit if *nothing* is referenced
       this._recordSource.clear();
-      return;
+    } else {
+      // Evict any unreferenced nodes
+      const storeIDs = this._recordSource.getRecordIDs();
+      for (let ii = 0; ii < storeIDs.length; ii++) {
+        const dataID = storeIDs[ii];
+        if (!references.has(dataID)) {
+          this._recordSource.remove(dataID);
+        }
+      }
     }
-    // Evict any unreferenced nodes
-    const storeIDs = this._recordSource.getRecordIDs();
-    for (let ii = 0; ii < storeIDs.length; ii++) {
-      const dataID = storeIDs[ii];
-      if (!references.has(dataID)) {
-        this._recordSource.remove(dataID);
+    if (connectionReferences.size === 0) {
+      this._connectionEvents.clear();
+    } else {
+      // Evict any unreferenced connections
+      for (const connectionID of this._connectionEvents.keys()) {
+        if (!connectionReferences.has(connectionID)) {
+          this._connectionEvents.delete(connectionID);
+        }
       }
     }
   }

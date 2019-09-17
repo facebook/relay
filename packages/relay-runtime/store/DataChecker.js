@@ -33,6 +33,7 @@ import type {
   NormalizationSelection,
 } from '../util/NormalizationNode';
 import type {DataID, Variables} from '../util/RelayRuntimeTypes';
+import type {GetConnectionEvents} from './RelayConnection';
 import type {GetDataID} from './RelayResponseNormalizer';
 import type {
   MissingFieldHandler,
@@ -80,6 +81,7 @@ function check(
   handlers: $ReadOnlyArray<MissingFieldHandler>,
   operationLoader: ?OperationLoader,
   getDataID: GetDataID,
+  getConnectionEvents: GetConnectionEvents,
 ): boolean {
   const {dataID, node, variables} = selector;
   const checker = new DataChecker(
@@ -89,6 +91,7 @@ function check(
     handlers,
     operationLoader,
     getDataID,
+    getConnectionEvents,
   );
   return checker.check(node, dataID);
 }
@@ -97,6 +100,7 @@ function check(
  * @private
  */
 class DataChecker {
+  _getConnectionEvents: GetConnectionEvents;
   _operationLoader: OperationLoader | null;
   _handlers: $ReadOnlyArray<MissingFieldHandler>;
   _mutator: RelayRecordSourceMutator;
@@ -112,26 +116,22 @@ class DataChecker {
     handlers: $ReadOnlyArray<MissingFieldHandler>,
     operationLoader: ?OperationLoader,
     getDataID: GetDataID,
+    getConnectionEvents: GetConnectionEvents,
   ) {
-    this._operationLoader = operationLoader ?? null;
-    this._handlers = handlers;
-    const connectionEvents = [];
-    this._mutator = new RelayRecordSourceMutator(
+    const newConnectionEvents = [];
+    const mutator = new RelayRecordSourceMutator(
       source,
       target,
-      connectionEvents,
+      newConnectionEvents,
     );
-    invariant(
-      connectionEvents.length === 0,
-      'DataChecker: Unexpected connection events.',
-    );
+    this._getConnectionEvents = getConnectionEvents;
+    this._handlers = handlers;
+    this._mutator = mutator;
+    this._operationLoader = operationLoader ?? null;
+    this._recordSourceProxy = new RelayRecordSourceProxy(mutator, getDataID);
     this._recordWasMissing = false;
     this._source = source;
     this._variables = variables;
-    this._recordSourceProxy = new RelayRecordSourceProxy(
-      this._mutator,
-      getDataID,
-    );
   }
 
   check(node: NormalizationNode, dataID: DataID): boolean {
@@ -355,8 +355,33 @@ class DataChecker {
     }
   }
 
-  _checkConnection(field: NormalizationConnection, dataID: DataID): void {
-    invariant(false, 'DataChecker: Connection fields are not supported.');
+  _checkConnection(connection: NormalizationConnection, dataID: DataID): void {
+    const connectionID = RelayConnection.createConnectionID(
+      dataID,
+      connection.label,
+    );
+    const connectionEvents = this._getConnectionEvents(connectionID);
+    if (connectionEvents == null || connectionEvents.length === 0) {
+      return;
+    }
+    connectionEvents.forEach(event => {
+      if (event.kind === 'fetch') {
+        event.edgeIDs.forEach(edgeID => {
+          if (edgeID != null) {
+            this._traverse(connection.edges, edgeID);
+          }
+        });
+      } else if (event.kind === 'insert') {
+        this._traverse(connection.edges, event.edgeID);
+      } else {
+        (event: empty);
+        invariant(
+          false,
+          'DataChecker: Unexpected connection event kind `%s`.',
+          event.kind,
+        );
+      }
+    });
   }
 
   _checkScalar(field: NormalizationScalarField, dataID: DataID): void {

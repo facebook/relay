@@ -68,6 +68,14 @@ describe('@connection_resolver connection field', () => {
 
   let enableConnectionResolvers;
 
+  function runGC() {
+    // We don't currently offer a way to run the GC immediately; the only way to
+    // force a GC is to retain+dispose. The actual query here doesn't matter,
+    // we just need *something* to retain/dispose.
+    environment.retain(operation.root).dispose();
+    jest.runAllTimers();
+  }
+
   beforeEach(() => {
     jest.resetModules();
     jest.mock('warning');
@@ -284,6 +292,152 @@ describe('@connection_resolver connection field', () => {
     expect(connectionField?.resolver).toBe(connectionResolver);
   });
 
+  it('cannot fulfill queries from the store if the connection is unfetched', () => {
+    environment.execute({operation}).subscribe(callbacks);
+    const payload = {
+      data: {
+        node: {
+          __typename: 'Feedback',
+          id: '<feedbackid>',
+          comments: undefined,
+        },
+      },
+    };
+    dataSource.next(payload);
+    jest.runAllTimers();
+
+    expect(environment.check(operation.root)).toBe(false);
+  });
+
+  it('cannot fulfill queries from the store if a connection edge is missing data', () => {
+    environment.execute({operation}).subscribe(callbacks);
+    const payload = {
+      data: {
+        node: {
+          __typename: 'Feedback',
+          id: '<feedbackid>',
+          comments: {
+            count: 42,
+            edges: [
+              {
+                cursor: undefined, // MISSING CURSOR
+                node: {
+                  __typename: 'Comment',
+                  id: 'node-1',
+                  message: {text: 'Comment 1'},
+                },
+              },
+              {
+                cursor: 'cursor-2',
+                node: {
+                  __typename: 'Comment',
+                  id: 'node-2',
+                  message: {text: 'Comment 2'},
+                },
+              },
+            ],
+            pageInfo: {
+              endCursor: 'cursor-2',
+              hasNextPage: true,
+              hasPreviousPage: null,
+              startCursor: 'cursor-1',
+            },
+          },
+        },
+      },
+    };
+    dataSource.next(payload);
+    jest.runAllTimers();
+
+    expect(environment.check(operation.root)).toBe(false);
+  });
+
+  it('cannot fulfill queries from the store if a connection node is missing data', () => {
+    environment.execute({operation}).subscribe(callbacks);
+    const payload = {
+      data: {
+        node: {
+          __typename: 'Feedback',
+          id: '<feedbackid>',
+          comments: {
+            count: 42,
+            edges: [
+              {
+                cursor: 'cursor-1',
+                node: {
+                  __typename: 'Comment',
+                  id: 'node-1',
+                  message: {text: undefined}, // MISSING text
+                },
+              },
+              {
+                cursor: 'cursor-2',
+                node: {
+                  __typename: 'Comment',
+                  id: 'node-2',
+                  message: {text: 'Comment 2'},
+                },
+              },
+            ],
+            pageInfo: {
+              endCursor: 'cursor-2',
+              hasNextPage: true,
+              hasPreviousPage: null,
+              startCursor: 'cursor-1',
+            },
+          },
+        },
+      },
+    };
+    dataSource.next(payload);
+    jest.runAllTimers();
+
+    expect(environment.check(operation.root)).toBe(false);
+  });
+
+  it('can fulfill queries from the store if all connection fields are present', () => {
+    environment.execute({operation}).subscribe(callbacks);
+    const payload = {
+      data: {
+        node: {
+          __typename: 'Feedback',
+          id: '<feedbackid>',
+          comments: {
+            count: 42,
+            edges: [
+              {
+                cursor: 'cursor-1',
+                node: {
+                  __typename: 'Comment',
+                  id: 'node-1',
+                  message: {text: 'Comment 1'},
+                },
+              },
+              {
+                cursor: 'cursor-2',
+                node: {
+                  __typename: 'Comment',
+                  id: 'node-2',
+                  message: {text: 'Comment 2'},
+                },
+              },
+            ],
+            pageInfo: {
+              endCursor: 'cursor-2',
+              hasNextPage: true,
+              hasPreviousPage: null,
+              startCursor: 'cursor-1',
+            },
+          },
+        },
+      },
+    };
+    dataSource.next(payload);
+    jest.runAllTimers();
+
+    expect(environment.check(operation.root)).toBe(true);
+  });
+
   it('publishes initial results to the store', () => {
     const operationSnapshot = environment.lookup(operation.fragment);
     const operationCallback = jest.fn();
@@ -466,6 +620,71 @@ describe('@connection_resolver connection field', () => {
       connectionResolver.reduce.mockClear();
     });
 
+    it('retains edge data when the connection field is retained', () => {
+      environment.retain(operation.root);
+      runGC();
+      connectionSnapshot = environment
+        .getStore()
+        .lookupConnection_UNSTABLE(
+          (snapshot.data: $FlowFixMe).comments.__connection,
+        );
+      expect(connectionSnapshot.state).toEqual(
+        expect.objectContaining({
+          edges: [
+            {
+              cursor: 'cursor-1',
+              node: {
+                id: 'node-1',
+                message: {text: 'Comment 1'},
+                __fragmentOwner: operation.request,
+                __fragments: {CommentFragment: {}},
+                __id: 'node-1',
+              },
+            },
+            {
+              cursor: 'cursor-2',
+              node: {
+                id: 'node-2',
+                message: {text: 'Comment 2'},
+                __fragmentOwner: operation.request,
+                __fragments: {CommentFragment: {}},
+                __id: 'node-2',
+              },
+            },
+          ],
+          pageInfo: {
+            endCursor: 'cursor-2',
+            hasNextPage: true,
+            hasPrevPage: null,
+            startCursor: 'cursor-1',
+          },
+        }),
+      );
+      expect(connectionResolver.reduce).toBeCalledTimes(1);
+    });
+
+    it('frees edge data when the connection field is not retained', () => {
+      runGC();
+      jest.runAllTimers();
+      connectionSnapshot = environment
+        .getStore()
+        .lookupConnection_UNSTABLE(
+          (snapshot.data: $FlowFixMe).comments.__connection,
+        );
+      expect(connectionResolver.reduce).toBeCalledTimes(0);
+      expect(connectionSnapshot.state).toEqual(
+        expect.objectContaining({
+          edges: [],
+          pageInfo: {
+            endCursor: null,
+            hasNextPage: null,
+            hasPrevPage: null,
+            startCursor: null,
+          },
+        }),
+      );
+    });
+
     it('updates when paginated forward', () => {
       const paginationOperation = createOperationDescriptor(paginationQuery, {
         id: '<feedbackid>',
@@ -564,6 +783,111 @@ describe('@connection_resolver connection field', () => {
         startCursor: 'cursor-1',
       });
       expect(connectionResolver.reduce).toBeCalledTimes(1);
+    });
+
+    it('retains new data when paginated forward', () => {
+      const paginationOperation = createOperationDescriptor(paginationQuery, {
+        id: '<feedbackid>',
+        count: 2,
+        cursor: 'cursor-2',
+      });
+      environment.execute({operation: paginationOperation}).subscribe({});
+      const paginationPayload = {
+        data: {
+          node: {
+            __typename: 'Feedback',
+            id: '<feedbackid>',
+            comments: {
+              count: 42,
+              edges: [
+                {
+                  cursor: 'cursor-3',
+                  node: {
+                    __typename: 'Comment',
+                    id: 'node-3',
+                    message: {text: 'Comment 3'},
+                  },
+                },
+                {
+                  cursor: 'cursor-4',
+                  node: {
+                    __typename: 'Comment',
+                    id: 'node-4',
+                    message: {text: 'Comment 4'},
+                  },
+                },
+              ],
+              pageInfo: {
+                endCursor: 'cursor-4',
+                hasNextPage: true,
+                hasPreviousPage: null,
+                startCursor: 'cursor-3',
+              },
+            },
+          },
+        },
+      };
+      dataSource.next(paginationPayload);
+      jest.runAllTimers();
+      connectionResolver.reduce.mockClear();
+
+      environment.retain(operation.root);
+      runGC();
+
+      const nextSnapshot = environment
+        .getStore()
+        .lookupConnection_UNSTABLE(
+          (snapshot.data: $FlowFixMe).comments.__connection,
+        );
+      expect(nextSnapshot.state.edges).toEqual([
+        {
+          cursor: 'cursor-1',
+          node: {
+            id: 'node-1',
+            message: {text: 'Comment 1'},
+            __fragmentOwner: operation.request,
+            __fragments: {CommentFragment: {}},
+            __id: 'node-1',
+          },
+        },
+        {
+          cursor: 'cursor-2',
+          node: {
+            id: 'node-2',
+            message: {text: 'Comment 2'},
+            __fragmentOwner: operation.request,
+            __fragments: {CommentFragment: {}},
+            __id: 'node-2',
+          },
+        },
+        {
+          cursor: 'cursor-3',
+          node: {
+            id: 'node-3',
+            message: {text: 'Comment 3'},
+            __fragmentOwner: paginationOperation.request,
+            __fragments: {CommentFragment: {}},
+            __id: 'node-3',
+          },
+        },
+        {
+          cursor: 'cursor-4',
+          node: {
+            id: 'node-4',
+            message: {text: 'Comment 4'},
+            __fragmentOwner: paginationOperation.request,
+            __fragments: {CommentFragment: {}},
+            __id: 'node-4',
+          },
+        },
+      ]);
+      expect(nextSnapshot.state.pageInfo).toEqual({
+        endCursor: 'cursor-4',
+        hasNextPage: true,
+        hasPrevPage: null,
+        startCursor: 'cursor-1',
+      });
+      expect(connectionResolver.reduce).toBeCalledTimes(2);
     });
 
     it('updates when paginated backward', () => {
@@ -666,7 +990,7 @@ describe('@connection_resolver connection field', () => {
       expect(connectionResolver.reduce).toBeCalledTimes(1);
     });
 
-    it('resets state when refetched', () => {
+    it('updates when refetched', () => {
       const refetchOperation = createOperationDescriptor(paginationQuery, {
         id: '<feedbackid>',
         count: 2,
@@ -960,6 +1284,90 @@ describe('@connection_resolver connection field', () => {
         startCursor: 'cursor-1',
       });
       expect(connectionResolver.reduce).toBeCalledTimes(1);
+    });
+
+    it('retains data when an edge is inserted', () => {
+      const payload = {
+        data: {
+          commentCreate: {
+            feedbackCommentEdge: {
+              cursor: 'cursor-3',
+              node: {
+                id: 'node-3',
+                message: {text: 'Comment 3'},
+              },
+            },
+          },
+        },
+        extensions: {
+          is_final: true,
+        },
+      };
+      const updater = jest.fn(storeProxy => {
+        const commentCreate = storeProxy.getRootField('commentCreate');
+        invariant(commentCreate, 'Expected `commentCreate` to exist');
+        const edge = commentCreate.getLinkedRecord('feedbackCommentEdge');
+        invariant(edge, 'Expected `feedbackCommentEdge` to exist');
+        storeProxy.insertConnectionEdge_UNSTABLE(
+          connectionSnapshot.id,
+          {},
+          edge,
+        );
+      });
+      const mutation = createOperationDescriptor(CommentCreateMutation, {});
+      environment
+        .executeMutation({operation: mutation, updater})
+        .subscribe(callbacks);
+      dataSource.next(payload);
+
+      environment.retain(operation.root);
+      runGC();
+      connectionResolver.reduce.mockClear();
+
+      const nextSnapshot = environment
+        .getStore()
+        .lookupConnection_UNSTABLE(
+          (snapshot.data: $FlowFixMe).comments.__connection,
+        );
+      expect(nextSnapshot.state.edges).toEqual([
+        {
+          cursor: 'cursor-1',
+          node: {
+            id: 'node-1',
+            message: {text: 'Comment 1'},
+            __fragmentOwner: operation.request,
+            __fragments: {CommentFragment: {}},
+            __id: 'node-1',
+          },
+        },
+        {
+          cursor: 'cursor-2',
+          node: {
+            id: 'node-2',
+            message: {text: 'Comment 2'},
+            __fragmentOwner: operation.request,
+            __fragments: {CommentFragment: {}},
+            __id: 'node-2',
+          },
+        },
+        {
+          cursor: 'cursor-3',
+          node: {
+            id: 'node-3',
+            message: {text: 'Comment 3'},
+            __fragmentOwner: mutation.request,
+            __fragments: {CommentFragment: {}},
+            __id: 'node-3',
+          },
+        },
+      ]);
+      expect(nextSnapshot.state.pageInfo).toEqual({
+        endCursor: 'cursor-3',
+        hasNextPage: true,
+        hasPrevPage: null,
+        startCursor: 'cursor-1',
+      });
+      expect(connectionResolver.reduce).toBeCalledTimes(2);
     });
 
     describe('optimistic edge deletion', () => {
@@ -1463,6 +1871,57 @@ describe('@connection_resolver connection field', () => {
           startCursor: 'cursor-1',
         });
         expect(connectionResolver.reduce).toBeCalledTimes(1);
+      });
+
+      it('retains optimistic edge data', () => {
+        environment.retain(operation.root);
+        runGC();
+        connectionResolver.reduce.mockClear();
+
+        const nextSnapshot = environment
+          .getStore()
+          .lookupConnection_UNSTABLE(
+            (snapshot.data: $FlowFixMe).comments.__connection,
+          );
+        expect(nextSnapshot.state.edges).toEqual([
+          {
+            cursor: 'cursor-1',
+            node: {
+              id: 'node-1',
+              message: {text: 'Comment 1'},
+              __fragmentOwner: operation.request,
+              __fragments: {CommentFragment: {}},
+              __id: 'node-1',
+            },
+          },
+          {
+            cursor: 'cursor-2',
+            node: {
+              id: 'node-2',
+              message: {text: 'Comment 2'},
+              __fragmentOwner: operation.request,
+              __fragments: {CommentFragment: {}},
+              __id: 'node-2',
+            },
+          },
+          {
+            cursor: 'cursor-x',
+            node: {
+              id: 'node-x',
+              message: {text: 'Comment x'},
+              __fragmentOwner: mutation.request,
+              __fragments: {CommentFragment: {}},
+              __id: 'node-x',
+            },
+          },
+        ]);
+        expect(nextSnapshot.state.pageInfo).toEqual({
+          endCursor: 'cursor-x',
+          hasNextPage: true,
+          hasPrevPage: null,
+          startCursor: 'cursor-1',
+        });
+        expect(connectionResolver.reduce).toBeCalledTimes(2);
       });
 
       it('reverts optimistic updates', () => {

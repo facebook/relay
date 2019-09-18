@@ -122,6 +122,12 @@ const users = [
     infoLink: 'https://clubhouse.io/',
     pinned: false,
   },
+  {
+    caption: 'Habilelabs',
+    image: '/img/logos/habilelabs.png',
+    infoLink: 'http://www.habilelabs.io/',
+    pinned: false,
+  },
 ];
 
 const siteConfig = {

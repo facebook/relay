@@ -20,6 +20,7 @@ const RelayRefetchableFragmentTransform = require('../../transforms/RelayRefetch
 const RelayRelayDirectiveTransform = require('../../transforms/RelayRelayDirectiveTransform');
 
 const {isAbstractType} = require('../../core/GraphQLSchemaUtils');
+const {createUserError} = require('../../core/RelayCompilerError');
 const {
   anyTypeAlias,
   declareExportOpaqueType,
@@ -521,11 +522,48 @@ function visitScalarField(node, state) {
 
 function visitConnection(node, state) {
   state.hasConnectionResolver = true;
+  /* $FlowFixMe: selections have already been transformed */
+  const babel = selectionsToBabel(node.selections, state, false, null);
+  if (
+    babel == null ||
+    typeof babel !== 'object' ||
+    babel.type !== 'ObjectTypeAnnotation' ||
+    !Array.isArray(babel.properties)
+  ) {
+    throw createUserError(
+      'Cannot generate flow types for connection field, expected an edges ' +
+        'selection.',
+      [node.loc],
+    );
+  }
+  const edgesProperty: $FlowFixMe = babel.properties.find(prop => {
+    return (
+      prop != null &&
+      typeof prop === 'object' &&
+      prop.type === 'ObjectTypeProperty' &&
+      prop.key != null &&
+      typeof prop.key === 'object' &&
+      prop.key.name === 'edges'
+    );
+  });
+  const edgeTypeParams =
+    edgesProperty?.value?.typeAnnotation?.typeParameters?.params;
+  const edgeType = Array.isArray(edgeTypeParams) ? edgeTypeParams[0] : null;
+  if (edgeType == null) {
+    throw createUserError(
+      'Cannot generate flow types for connection field, expected an edges ' +
+        'selection.',
+      [node.loc],
+    );
+  }
   return [
     {
       key: '__connection',
       conditional: true,
-      value: t.genericTypeAnnotation(t.identifier('ConnectionReference')),
+      value: t.genericTypeAnnotation(
+        t.identifier('ConnectionReference'),
+        t.typeParameterInstantiation([edgeType]),
+      ),
     },
   ];
 }

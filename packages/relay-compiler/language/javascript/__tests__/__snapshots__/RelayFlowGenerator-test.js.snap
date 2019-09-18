@@ -132,7 +132,11 @@ declare export opaque type FeedbackComments_feedback$fragmentType: FeedbackComme
 export type FeedbackComments_feedback = {|
   +comments: ?{|
     +count: ?number,
-    +__connection?: ConnectionReference,
+    +__connection?: ConnectionReference<?{|
+      +node: ?{|
+        +id: string
+      |}
+    |}>,
   |},
   +$refType: FeedbackComments_feedback$ref,
 |};

@@ -9,6 +9,9 @@ https://twitter.com/sseraphini/status/1078595758801203202
 ## Relay examples - common patterns explained via code and videos
 https://github.com/kiwicom/relay-example
 
+## Sample project how to use React and Relay
+https://github.com/juffalow/react-relay-example
+
 # Basics
 
 ## Relay Modern: What is a fragment?

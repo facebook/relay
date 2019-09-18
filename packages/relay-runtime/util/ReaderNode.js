@@ -11,7 +11,6 @@
 'use strict';
 
 import type {ConnectionMetadata} from '../handlers/connection/RelayConnectionHandler';
-import type {ConnectionResolver} from '../store/RelayConnection';
 import type {ConcreteRequest} from './RelayConcreteNode';
 
 export type ReaderFragmentSpread = {|
@@ -130,7 +129,6 @@ export type ReaderConnection = {|
   +kind: 'Connection',
   +label: string,
   +name: string,
-  +resolver: ConnectionResolver<mixed, mixed>,
   +args: ?$ReadOnlyArray<ReaderArgument>,
   +edges: ReaderLinkedField,
   +pageInfo: ReaderLinkedField,

@@ -6,5 +6,5 @@ query QueryWithConnectionField($id: ID!) {
 }
 
 fragment FeedbackComments_feedback on Feedback {
-  id @connection_resolver(resolver: "FeedbackIDResolver") # error: scalar
+  id @connection_resolver # error: scalar
 }

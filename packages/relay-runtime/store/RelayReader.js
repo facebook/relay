@@ -193,12 +193,11 @@ class RelayReader {
       field.label,
     );
     const edgesField: ReaderLinkedField = field.edges;
-    const reference: ConnectionReference<mixed, mixed> = {
+    const reference: ConnectionReference<mixed> = {
       variables: this._variables,
       edgesField,
       id: connectionID,
       label: field.label,
-      resolver: field.resolver,
     };
     data[RelayConnection.CONNECTION_KEY] = reference;
   }

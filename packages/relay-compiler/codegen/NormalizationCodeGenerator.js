@@ -10,7 +10,6 @@
 
 'use strict';
 
-const CodeMarker = require('../util/CodeMarker');
 const SchemaUtils = require('../core/GraphQLSchemaUtils');
 
 const {
@@ -303,7 +302,6 @@ function generateConnection(node): NormalizationConnection {
     kind: 'Connection',
     label: node.label,
     name: node.name,
-    resolver: (CodeMarker.moduleDependency(node.resolver): $FlowFixMe),
     args: generateArgs(node.args),
     edges,
     pageInfo,

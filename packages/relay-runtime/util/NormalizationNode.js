@@ -10,8 +10,6 @@
 
 'use strict';
 
-import type {ConnectionResolver} from '../store/RelayConnection';
-
 /**
  * Represents a single operation used to processing and normalize runtime
  * request results.
@@ -94,7 +92,6 @@ export type NormalizationConnection = {|
   +kind: 'Connection',
   +label: string,
   +name: string,
-  +resolver: ConnectionResolver<mixed, mixed>,
   +args: ?$ReadOnlyArray<NormalizationArgument>,
   +edges: NormalizationLinkedField,
   +pageInfo: NormalizationLinkedField,

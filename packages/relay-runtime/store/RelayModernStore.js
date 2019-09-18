@@ -33,6 +33,7 @@ import type {
   ConnectionID,
   ConnectionInternalEvent,
   ConnectionReference,
+  ConnectionResolver,
   ConnectionSnapshot,
 } from './RelayConnection';
 import type {GetDataID} from './RelayResponseNormalizer';
@@ -64,6 +65,7 @@ type ConnectionEvents = {|
 type ConnectionSubscription<TEdge, TState> = {|
   +callback: (state: TState) => void,
   +id: string,
+  +resolver: ConnectionResolver<TEdge, TState>,
   snapshot: ConnectionSnapshot<TEdge, TState>,
   backup: ?ConnectionSnapshot<TEdge, TState>,
   stale: boolean,
@@ -209,6 +211,7 @@ class RelayModernStore implements Store {
         return;
       }
       const nextSnapshot = this._updateConnection_UNSTABLE(
+        subscription.resolver,
         subscription.snapshot,
         source,
         null,
@@ -292,13 +295,14 @@ class RelayModernStore implements Store {
   }
 
   lookupConnection_UNSTABLE<TEdge, TState>(
-    connectionReference: ConnectionReference<TEdge, TState>,
+    connectionReference: ConnectionReference<TEdge>,
+    resolver: ConnectionResolver<TEdge, TState>,
   ): ConnectionSnapshot<TEdge, TState> {
     invariant(
       RelayFeatureFlags.ENABLE_CONNECTION_RESOLVERS,
       'RelayModernStore: Connection resolvers are not yet supported.',
     );
-    const {id, resolver} = connectionReference;
+    const {id} = connectionReference;
     const initialState: TState = resolver.initialize();
     const connectionEvents = this._connectionEvents.get(id);
     const events: ?$ReadOnlyArray<ConnectionInternalEvent> =
@@ -316,6 +320,7 @@ class RelayModernStore implements Store {
       return initialSnapshot;
     }
     return this._reduceConnection_UNSTABLE(
+      resolver,
       connectionReference,
       initialSnapshot,
       events,
@@ -324,6 +329,7 @@ class RelayModernStore implements Store {
 
   subscribeConnection_UNSTABLE<TEdge, TState>(
     snapshot: ConnectionSnapshot<TEdge, TState>,
+    resolver: ConnectionResolver<TEdge, TState>,
     callback: TState => void,
   ): Disposable {
     invariant(
@@ -335,6 +341,7 @@ class RelayModernStore implements Store {
       backup: null,
       callback,
       id,
+      resolver,
       snapshot,
       stale: false,
     };
@@ -397,6 +404,7 @@ class RelayModernStore implements Store {
         return;
       }
       const nextSnapshot = this._updateConnection_UNSTABLE(
+        subscription.resolver,
         subscription.snapshot,
         null,
         pendingEvents,
@@ -409,11 +417,13 @@ class RelayModernStore implements Store {
   }
 
   _updateConnection_UNSTABLE<TEdge, TState>(
+    resolver: ConnectionResolver<TEdge, TState>,
     snapshot: ConnectionSnapshot<TEdge, TState>,
     source: ?RecordSource,
     pendingEvents: ?Array<ConnectionInternalEvent>,
   ): ?ConnectionSnapshot<TEdge, TState> {
     const nextSnapshot = this._reduceConnection_UNSTABLE(
+      resolver,
       snapshot.reference,
       snapshot,
       pendingEvents ?? [],
@@ -429,12 +439,13 @@ class RelayModernStore implements Store {
   }
 
   _reduceConnection_UNSTABLE<TEdge, TState>(
-    connectionReference: ConnectionReference<TEdge, TState>,
+    resolver: ConnectionResolver<TEdge, TState>,
+    connectionReference: ConnectionReference<TEdge>,
     snapshot: ConnectionSnapshot<TEdge, TState>,
     events: $ReadOnlyArray<ConnectionInternalEvent>,
     source: ?RecordSource = null,
   ): ConnectionSnapshot<TEdge, TState> {
-    const {edgesField, id, resolver, variables} = connectionReference;
+    const {edgesField, id, variables} = connectionReference;
     const fragment: ReaderFragment = {
       kind: 'Fragment',
       name: edgesField.name,
@@ -598,6 +609,7 @@ class RelayModernStore implements Store {
         // connection from scratch and check ifs value changes.
         const baseSnapshot = this.lookupConnection_UNSTABLE(
           subscription.snapshot.reference,
+          subscription.resolver,
         );
         const nextState = recycleNodesInto(
           subscription.snapshot.state,

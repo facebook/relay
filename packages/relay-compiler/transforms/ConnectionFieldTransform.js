@@ -29,7 +29,7 @@ import type {
 } from '../core/GraphQLIR';
 
 const SCHEMA_EXTENSION = `
-  directive @connection_resolver(resolver: String!, label: String) on FIELD
+  directive @connection_resolver(label: String) on FIELD
 `;
 
 type State = {|
@@ -68,16 +68,6 @@ function visitLinkedField(
       "@connection_resolver fields must return a single value, not a list, found '" +
         `${String(transformed.type)}'`,
       [transformed.loc],
-    );
-  }
-  const {resolver} = getLiteralArgumentValues(connectionDirective.args);
-  if (typeof resolver !== 'string') {
-    const resolverArg = transformed.args.find(arg => arg.name === 'resolver');
-    throw createUserError(
-      "Expected @connection_resolver field to specify a 'resolver' as a literal string. " +
-        'The resolver should be the name of a JS module to use at runtime ' +
-        "to derive the field's value.",
-      [resolverArg?.loc ?? connectionDirective.loc],
     );
   }
   const rawLabel =
@@ -166,7 +156,6 @@ function visitLinkedField(
       label,
       loc: transformed.loc,
       name: transformed.name,
-      resolver,
       selections: [edgeField, pageInfoField],
       type: transformed.type,
     }: Connection),

@@ -231,7 +231,7 @@ describe('@connection_resolver connection field', () => {
           first: $count
           last: $beforeCount
           orderby: "date"
-        ) @connection_resolver(resolver: "connectionResolver") {
+        ) @connection_resolver {
           count
           edges {
             cursor
@@ -255,9 +255,6 @@ describe('@connection_resolver connection field', () => {
       }
     `,
       null,
-      {
-        connectionResolver,
-      },
     ));
     const variables = {
       id: '<feedbackid>',
@@ -283,22 +280,6 @@ describe('@connection_resolver connection field', () => {
 
   afterEach(() => {
     RelayFeatureFlags.ENABLE_CONNECTION_RESOLVERS = enableConnectionResolvers;
-  });
-
-  it('loads the resolver object for a Connection', () => {
-    const commentsField = fragment.selections.find(
-      selection =>
-        selection.kind === 'LinkedField' && selection.name === 'comments',
-    );
-    expect(commentsField).toBeTruthy();
-    const connectionField =
-      commentsField &&
-      commentsField.selections.find(
-        selection => selection.kind === 'Connection',
-      );
-    expect(connectionField?.name).toBe('comments');
-    expect(connectionField?.label).toBe('FeedbackFragment$connection$comments');
-    expect(connectionField?.resolver).toBe(connectionResolver);
   });
 
   it('cannot fulfill queries from the store if the connection is unfetched', () => {
@@ -524,6 +505,7 @@ describe('@connection_resolver connection field', () => {
       .getStore()
       .lookupConnection_UNSTABLE(
         (snapshot.data: $FlowFixMe).comments.__connection,
+        connectionResolver,
       );
     expect(connectionSnapshot.state).toEqual(
       expect.objectContaining({
@@ -623,11 +605,16 @@ describe('@connection_resolver connection field', () => {
         .getStore()
         .lookupConnection_UNSTABLE(
           (snapshot.data: $FlowFixMe).comments.__connection,
+          connectionResolver,
         );
       connectionCallback = jest.fn();
       connectionSubscription = environment
         .getStore()
-        .subscribeConnection_UNSTABLE(connectionSnapshot, connectionCallback);
+        .subscribeConnection_UNSTABLE(
+          connectionSnapshot,
+          connectionResolver,
+          connectionCallback,
+        );
       connectionResolver.reduce.mockClear();
     });
 
@@ -638,6 +625,7 @@ describe('@connection_resolver connection field', () => {
         .getStore()
         .lookupConnection_UNSTABLE(
           (snapshot.data: $FlowFixMe).comments.__connection,
+          connectionResolver,
         );
       expect(connectionSnapshot.state).toEqual(
         expect.objectContaining({
@@ -683,6 +671,7 @@ describe('@connection_resolver connection field', () => {
         .getStore()
         .lookupConnection_UNSTABLE(
           (snapshot.data: $FlowFixMe).comments.__connection,
+          connectionResolver,
         );
       expect(connectionResolver.reduce).toBeCalledTimes(0);
       expect(connectionSnapshot.state).toEqual(
@@ -855,6 +844,7 @@ describe('@connection_resolver connection field', () => {
         .getStore()
         .lookupConnection_UNSTABLE(
           (snapshot.data: $FlowFixMe).comments.__connection,
+          connectionResolver,
         );
       expect(nextSnapshot.state.edges).toEqual([
         {
@@ -1362,6 +1352,7 @@ describe('@connection_resolver connection field', () => {
         .getStore()
         .lookupConnection_UNSTABLE(
           (snapshot.data: $FlowFixMe).comments.__connection,
+          connectionResolver,
         );
       expect(nextSnapshot.state.edges).toEqual([
         {
@@ -1450,6 +1441,7 @@ describe('@connection_resolver connection field', () => {
           .getStore()
           .lookupConnection_UNSTABLE(
             (snapshot.data: $FlowFixMe).comments.__connection,
+            connectionResolver,
           ).state;
         expect(latestSnapshot.edges).toEqual([
           {
@@ -1531,6 +1523,7 @@ describe('@connection_resolver connection field', () => {
           .getStore()
           .lookupConnection_UNSTABLE(
             (snapshot.data: $FlowFixMe).comments.__connection,
+            connectionResolver,
           ).state;
         expect(latestSnapshot.edges).toEqual([
           {
@@ -1578,10 +1571,15 @@ describe('@connection_resolver connection field', () => {
           .getStore()
           .lookupConnection_UNSTABLE(
             (snapshot.data: $FlowFixMe).comments.__connection,
+            connectionResolver,
           );
         connectionSubscription = environment
           .getStore()
-          .subscribeConnection_UNSTABLE(connectionSnapshot, connectionCallback);
+          .subscribeConnection_UNSTABLE(
+            connectionSnapshot,
+            connectionResolver,
+            connectionCallback,
+          );
         expect(connectionResolver.reduce).toBeCalledTimes(1);
         connectionResolver.reduce.mockClear();
 
@@ -1667,6 +1665,7 @@ describe('@connection_resolver connection field', () => {
           .getStore()
           .lookupConnection_UNSTABLE(
             (snapshot.data: $FlowFixMe).comments.__connection,
+            connectionResolver,
           ).state;
         expect(latestSnapshot.edges).toEqual([
           {
@@ -1748,6 +1747,7 @@ describe('@connection_resolver connection field', () => {
           .getStore()
           .lookupConnection_UNSTABLE(
             (snapshot.data: $FlowFixMe).comments.__connection,
+            connectionResolver,
           ).state;
         expect(latestSnapshot.edges).toEqual([
           {
@@ -1795,10 +1795,15 @@ describe('@connection_resolver connection field', () => {
           .getStore()
           .lookupConnection_UNSTABLE(
             (snapshot.data: $FlowFixMe).comments.__connection,
+            connectionResolver,
           );
         connectionSubscription = environment
           .getStore()
-          .subscribeConnection_UNSTABLE(connectionSnapshot, connectionCallback);
+          .subscribeConnection_UNSTABLE(
+            connectionSnapshot,
+            connectionResolver,
+            connectionCallback,
+          );
         expect(connectionResolver.reduce).toBeCalledTimes(1);
         connectionResolver.reduce.mockClear();
 
@@ -1938,6 +1943,7 @@ describe('@connection_resolver connection field', () => {
           .getStore()
           .lookupConnection_UNSTABLE(
             (snapshot.data: $FlowFixMe).comments.__connection,
+            connectionResolver,
           );
         expect(nextSnapshot.state.edges).toEqual([
           {
@@ -2036,6 +2042,7 @@ describe('@connection_resolver connection field', () => {
           .getStore()
           .lookupConnection_UNSTABLE(
             (snapshot.data: $FlowFixMe).comments.__connection,
+            connectionResolver,
           ).state;
         expect(latestSnapshot.edges).toEqual([
           {
@@ -2078,10 +2085,15 @@ describe('@connection_resolver connection field', () => {
           .getStore()
           .lookupConnection_UNSTABLE(
             (snapshot.data: $FlowFixMe).comments.__connection,
+            connectionResolver,
           );
         connectionSubscription = environment
           .getStore()
-          .subscribeConnection_UNSTABLE(connectionSnapshot, connectionCallback);
+          .subscribeConnection_UNSTABLE(
+            connectionSnapshot,
+            connectionResolver,
+            connectionCallback,
+          );
         expect(connectionSnapshot.state.edges.length).toBe(3);
         connectionResolver.reduce.mockClear();
         subscription.unsubscribe();
@@ -2240,6 +2252,7 @@ describe('@connection_resolver connection field', () => {
           .getStore()
           .lookupConnection_UNSTABLE(
             (snapshot.data: $FlowFixMe).comments.__connection,
+            connectionResolver,
           ).state;
         expect(latestSnapshot.edges.length).toBe(3);
         expect(latestSnapshot.edges).toEqual([
@@ -2293,6 +2306,7 @@ describe('@connection_resolver connection field', () => {
           .getStore()
           .lookupConnection_UNSTABLE(
             (snapshot.data: $FlowFixMe).comments.__connection,
+            connectionResolver,
           ).state;
         expect(revertSnapshot.edges.length).toBe(2);
         expect(revertSnapshot.edges).toEqual([
@@ -2698,6 +2712,7 @@ describe('@connection_resolver connection field', () => {
           .getStore()
           .lookupConnection_UNSTABLE(
             (snapshot.data: $FlowFixMe).comments.__connection,
+            connectionResolver,
           ).state;
         expect(latestSnapshot.edges.length).toBe(3);
         expect(latestSnapshot.edges).toEqual([

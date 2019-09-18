@@ -38,6 +38,7 @@ import type {
   ConnectionID,
   ConnectionInternalEvent,
   ConnectionReference,
+  ConnectionResolver,
   ConnectionSnapshot,
 } from './RelayConnection';
 import type RelayOperationTracker from './RelayOperationTracker';
@@ -265,11 +266,13 @@ export interface Store {
   holdGC(): Disposable;
 
   lookupConnection_UNSTABLE<TEdge, TState>(
-    connectionReference: ConnectionReference<TEdge, TState>,
+    connectionReference: ConnectionReference<TEdge>,
+    resolver: ConnectionResolver<TEdge, TState>,
   ): ConnectionSnapshot<TEdge, TState>;
 
   subscribeConnection_UNSTABLE<TEdge, TState>(
     snapshot: ConnectionSnapshot<TEdge, TState>,
+    resolver: ConnectionResolver<TEdge, TState>,
     callback: (state: TState) => void,
   ): Disposable;
 

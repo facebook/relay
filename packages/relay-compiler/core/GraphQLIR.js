@@ -185,7 +185,6 @@ export type Connection = {|
   +label: string,
   +loc: Location,
   +name: string,
-  +resolver: string,
   +selections: $ReadOnlyArray<Selection>,
   +type: GraphQLOutputType,
 |};

@@ -6,8 +6,7 @@ query QueryWithConnectionField($id: ID!) {
 }
 
 fragment FeedbackComments_feedback on Feedback {
-  comments(first: 10)
-    @connection_resolver(resolver: "FeedbackCommentsEdgesResolver") {
+  comments(first: 10) @connection_resolver {
     edges {
       node {
         id
@@ -18,8 +17,7 @@ fragment FeedbackComments_feedback on Feedback {
     }
   }
   ... {
-    comments(first: 10)
-      @connection_resolver(resolver: "FeedbackCommentsEdgesResolver") {
+    comments(first: 10) @connection_resolver {
       #error: same default label
       count
     }

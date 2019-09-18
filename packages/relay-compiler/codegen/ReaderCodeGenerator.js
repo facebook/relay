@@ -278,7 +278,6 @@ function generateConnection(node): ReaderConnection {
     kind: 'Connection',
     label: node.label,
     name: node.name,
-    resolver: (CodeMarker.moduleDependency(node.resolver): $FlowFixMe),
     args: generateArgs(node.args),
     edges,
     pageInfo,

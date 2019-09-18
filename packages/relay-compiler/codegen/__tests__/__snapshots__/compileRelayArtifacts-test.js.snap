@@ -2071,8 +2071,7 @@ query QueryWithConnectionField($id: ID!) {
 }
 
 fragment FeedbackComments_feedback on Feedback {
-  comments(first: 10)
-    @connection_resolver(resolver: "FeedbackCommentsResolver") {
+  comments(first: 10) @connection_resolver {
     edges {
       node {
         id
@@ -2183,7 +2182,6 @@ fragment FeedbackComments_feedback on Feedback {
                     "kind": "Connection",
                     "label": "FeedbackComments_feedback$connection$comments",
                     "name": "comments",
-                    "resolver": require('FeedbackCommentsResolver'),
                     "args": [
                       {
                         "kind": "Literal",
@@ -2307,7 +2305,6 @@ fragment FeedbackComments_feedback on Feedback {
           "kind": "Connection",
           "label": "FeedbackComments_feedback$connection$comments",
           "name": "comments",
-          "resolver": require('FeedbackCommentsResolver'),
           "args": [
             {
               "kind": "Literal",
@@ -2391,8 +2388,7 @@ query QueryWithConnectionField($id: ID!) {
 }
 
 fragment FeedbackComments_feedback on Feedback {
-  comments(first: 10)
-    @connection_resolver(resolver: "FeedbackCommentsResolver") {
+  comments(first: 10) @connection_resolver {
     edges {
       node {
         id
@@ -2405,8 +2401,7 @@ fragment FeedbackComments_feedback on Feedback {
 }
 
 fragment FeedbackTopComments_feedback on Feedback {
-  comments(first: 10)
-    @connection_resolver(resolver: "FeedbackCommentsResolver") {
+  comments(first: 10) @connection_resolver {
     edges {
       node {
         id
@@ -2522,7 +2517,6 @@ fragment FeedbackTopComments_feedback on Feedback {
                     "kind": "Connection",
                     "label": "FeedbackComments_feedback$connection$comments",
                     "name": "comments",
-                    "resolver": require('FeedbackCommentsResolver'),
                     "args": [
                       {
                         "kind": "Literal",
@@ -2594,7 +2588,6 @@ fragment FeedbackTopComments_feedback on Feedback {
                     "kind": "Connection",
                     "label": "FeedbackTopComments_feedback$connection$comments",
                     "name": "comments",
-                    "resolver": require('FeedbackCommentsResolver'),
                     "args": [
                       {
                         "kind": "Literal",
@@ -2732,7 +2725,6 @@ fragment FeedbackTopComments_feedback on Feedback {
           "kind": "Connection",
           "label": "FeedbackComments_feedback$connection$comments",
           "name": "comments",
-          "resolver": require('FeedbackCommentsResolver'),
           "args": [
             {
               "kind": "Literal",
@@ -2825,7 +2817,6 @@ fragment FeedbackTopComments_feedback on Feedback {
           "kind": "Connection",
           "label": "FeedbackTopComments_feedback$connection$comments",
           "name": "comments",
-          "resolver": require('FeedbackCommentsResolver'),
           "args": [
             {
               "kind": "Literal",
@@ -2909,8 +2900,7 @@ query QueryWithConnectionField($id: ID!) {
 }
 
 fragment FeedbackComments_feedback on Feedback {
-  comments(first: 10)
-    @connection_resolver(resolver: "FeedbackCommentsResolver") {
+  comments(first: 10) @connection_resolver {
     edges {
       node {
         id
@@ -2923,8 +2913,7 @@ fragment FeedbackComments_feedback on Feedback {
 }
 
 fragment FeedbackTopComments_feedback on Feedback {
-  comments(first: 10)
-    @connection_resolver(resolver: "FeedbackTopCommentsResolver") {
+  comments(first: 10) @connection_resolver {
     edges {
       node {
         id
@@ -3040,7 +3029,6 @@ fragment FeedbackTopComments_feedback on Feedback {
                     "kind": "Connection",
                     "label": "FeedbackComments_feedback$connection$comments",
                     "name": "comments",
-                    "resolver": require('FeedbackCommentsResolver'),
                     "args": [
                       {
                         "kind": "Literal",
@@ -3112,7 +3100,6 @@ fragment FeedbackTopComments_feedback on Feedback {
                     "kind": "Connection",
                     "label": "FeedbackTopComments_feedback$connection$comments",
                     "name": "comments",
-                    "resolver": require('FeedbackTopCommentsResolver'),
                     "args": [
                       {
                         "kind": "Literal",
@@ -3250,7 +3237,6 @@ fragment FeedbackTopComments_feedback on Feedback {
           "kind": "Connection",
           "label": "FeedbackComments_feedback$connection$comments",
           "name": "comments",
-          "resolver": require('FeedbackCommentsResolver'),
           "args": [
             {
               "kind": "Literal",
@@ -3343,7 +3329,6 @@ fragment FeedbackTopComments_feedback on Feedback {
           "kind": "Connection",
           "label": "FeedbackTopComments_feedback$connection$comments",
           "name": "comments",
-          "resolver": require('FeedbackTopCommentsResolver'),
           "args": [
             {
               "kind": "Literal",
@@ -3427,8 +3412,7 @@ query QueryWithConnectionField($id: ID!) {
 }
 
 fragment FeedbackComments_feedback on Feedback {
-  comments(first: 10)
-    @connection_resolver(resolver: "FeedbackCommentsEdgesResolver") {
+  comments(first: 10) @connection_resolver {
     edges {
       node {
         id
@@ -3439,8 +3423,7 @@ fragment FeedbackComments_feedback on Feedback {
     }
   }
   ... {
-    comments(first: 10)
-      @connection_resolver(resolver: "FeedbackCommentsEdgesResolver") {
+    comments(first: 10) @connection_resolver {
       #error: same default label
       count
     }
@@ -3453,17 +3436,17 @@ THROWN EXCEPTION:
 Error: Encountered 1 error(s):
 - Invalid use of @connection_resolver, could not generate a default label that is unique. Specify a unique 'label' as a literal string.
   
-  Source: GraphQL request (22:7)
-  21:     comments(first: 10)
-  22:       @connection_resolver(resolver: "FeedbackCommentsEdgesResolver") {
-            ^
-  23:       #error: same default label
+  Source: GraphQL request (20:25)
+  19:   ... {
+  20:     comments(first: 10) @connection_resolver {
+                              ^
+  21:       #error: same default label
   
-  Source: GraphQL request (10:5)
-   9:   comments(first: 10)
-  10:     @connection_resolver(resolver: "FeedbackCommentsEdgesResolver") {
-          ^
-  11:     edges {
+  Source: GraphQL request (9:23)
+   8: fragment FeedbackComments_feedback on Feedback {
+   9:   comments(first: 10) @connection_resolver {
+                            ^
+  10:     edges {
   
 `;
 
@@ -3477,11 +3460,7 @@ query QueryWithConnectionField($id: ID!) {
 }
 
 fragment FeedbackComments_feedback on Feedback {
-  comments(first: 10)
-    @connection_resolver(
-      resolver: "FeedbackCommentsEdgesResolver"
-      label: "comments"
-    ) {
+  comments(first: 10) @connection_resolver(label: "comments") {
     edges {
       # error: plural
       node {
@@ -3493,11 +3472,7 @@ fragment FeedbackComments_feedback on Feedback {
     }
   }
   ... {
-    comments(first: 10)
-      @connection_resolver(
-        resolver: "FeedbackCommentsEdgesResolver"
-        label: "comments"
-      ) {
+    comments(first: 10) @connection_resolver(label: "comments") {
       #error: same label
       count
     }
@@ -3510,17 +3485,17 @@ THROWN EXCEPTION:
 Error: Encountered 1 error(s):
 - Invalid use of @connection_resolver, the provided label is not unique. Specify a unique 'label' as a literal string.
   
-  Source: GraphQL request (28:9)
-  27:         resolver: "FeedbackCommentsEdgesResolver"
-  28:         label: "comments"
-              ^
-  29:       ) {
+  Source: GraphQL request (21:46)
+  20:   ... {
+  21:     comments(first: 10) @connection_resolver(label: "comments") {
+                                                   ^
+  22:       #error: same label
   
-  Source: GraphQL request (12:7)
-  11:       resolver: "FeedbackCommentsEdgesResolver"
-  12:       label: "comments"
-            ^
-  13:     ) {
+  Source: GraphQL request (9:44)
+   8: fragment FeedbackComments_feedback on Feedback {
+   9:   comments(first: 10) @connection_resolver(label: "comments") {
+                                                 ^
+  10:     edges {
   
 `;
 
@@ -3535,7 +3510,7 @@ query QueryWithConnectionField($id: ID!) {
 
 fragment FeedbackComments_feedback on Feedback {
   comments(first: 10) {
-    edges @connection_resolver(resolver: "FeedbackCommentsEdgesResolver") {
+    edges @connection_resolver {
       # error: plural
       node {
         id
@@ -3555,7 +3530,7 @@ Error: Encountered 1 error(s):
   
   Source: GraphQL request (10:5)
    9:   comments(first: 10) {
-  10:     edges @connection_resolver(resolver: "FeedbackCommentsEdgesResolver") {
+  10:     edges @connection_resolver {
           ^
   11:       # error: plural
   
@@ -3571,7 +3546,7 @@ query QueryWithConnectionField($id: ID!) {
 }
 
 fragment FeedbackComments_feedback on Feedback {
-  id @connection_resolver(resolver: "FeedbackIDResolver") # error: scalar
+  id @connection_resolver # error: scalar
 }
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
@@ -3582,7 +3557,7 @@ Error: Encountered 1 error(s):
   
   Source: GraphQL request (9:6)
    8: fragment FeedbackComments_feedback on Feedback {
-   9:   id @connection_resolver(resolver: "FeedbackIDResolver") # error: scalar
+   9:   id @connection_resolver # error: scalar
            ^
   10: }
   
@@ -4860,8 +4835,7 @@ query QueryWithMultipeDeferredFragmentsOnSameParent($id: ID!) {
 }
 
 fragment FeedbackComments_feedback on Feedback {
-  comments(first: 10)
-    @connection_resolver(resolver: "FeedbackCommentsResolver") {
+  comments(first: 10) @connection_resolver {
     edges {
       node {
         id
@@ -4996,7 +4970,6 @@ fragment FeedbackText_feedback on Feedback {
                         "kind": "Connection",
                         "label": "FeedbackComments_feedback$connection$comments",
                         "name": "comments",
-                        "resolver": require('FeedbackCommentsResolver'),
                         "args": [
                           {
                             "kind": "Literal",
@@ -5161,7 +5134,6 @@ fragment FeedbackText_feedback on Feedback {
           "kind": "Connection",
           "label": "FeedbackComments_feedback$connection$comments",
           "name": "comments",
-          "resolver": require('FeedbackCommentsResolver'),
           "args": [
             {
               "kind": "Literal",

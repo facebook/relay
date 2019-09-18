@@ -7,7 +7,7 @@ query QueryWithConnectionField($id: ID!) {
 
 fragment FeedbackComments_feedback on Feedback {
   comments(first: 10) {
-    edges @connection_resolver(resolver: "FeedbackCommentsEdgesResolver") {
+    edges @connection_resolver {
       # error: plural
       node {
         id

@@ -65,22 +65,21 @@ export interface ConnectionResolver<TEdge, TState> {
 }
 
 // Intentionally inexact
-export type ConnectionReferenceObject<TEdge, TState> = {
-  +__connection: ConnectionReference<TEdge, TState>,
+export type ConnectionReferenceObject<TEdge> = {
+  +__connection: ConnectionReference<TEdge>,
 };
 
-export type ConnectionReference<TEdge, TState> = {|
+export type ConnectionReference<TEdge> = {|
   +variables: Variables,
   +edgesField: ReaderLinkedField,
   +id: ConnectionID,
   +label: string,
-  +resolver: ConnectionResolver<TEdge, TState>,
 |};
 
 export type ConnectionSnapshot<TEdge, TState> = {|
   +edgeSnapshots: {[DataID]: TypedSnapshot<TEdge>},
   +id: ConnectionID,
-  +reference: ConnectionReference<TEdge, TState>,
+  +reference: ConnectionReference<TEdge>,
   +seenRecords: RecordMap,
   +state: TState,
 |};

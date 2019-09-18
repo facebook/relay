@@ -5,6 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  *
  * @format
+ * @flow strict-local
  * @emails oncall+relay
  */
 
@@ -20,15 +21,28 @@ const {getRequest} = require('../../query/RelayModernGraphQLTag');
 const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
-const {createReaderSelector} = require('../RelayModernSelector');
-const {REF_KEY, ROOT_ID, ROOT_TYPE} = require('../RelayStoreUtils');
 const {
-  generateAndCompile,
-  matchers,
-  simpleClone,
-} = require('relay-test-utils-internal');
+  createReaderSelector,
+  createNormalizationSelector,
+} = require('../RelayModernSelector');
+const {REF_KEY, ROOT_ID, ROOT_TYPE} = require('../RelayStoreUtils');
+const {generateAndCompile, simpleClone} = require('relay-test-utils-internal');
 
-expect.extend(matchers);
+function assertIsDeeplyFrozen(value: ?{} | ?$ReadOnlyArray<{}>) {
+  if (!value) {
+    throw new Error(
+      'Expected value to be a non-null object or array of objects',
+    );
+  }
+  expect(Object.isFrozen(value)).toBe(true);
+  if (Array.isArray(value)) {
+    value.forEach(item => assertIsDeeplyFrozen(item));
+  } else if (typeof value === 'object' && value !== null) {
+    for (const key in value) {
+      assertIsDeeplyFrozen(value[key]);
+    }
+  }
+}
 
 [
   [data => new RelayRecordSourceObjectImpl(data), 'Object'],
@@ -81,14 +95,16 @@ expect.extend(matchers);
       });
 
       it('prevents data from being collected', () => {
-        store.retain(createReaderSelector(UserFragment, '4', {size: 32}));
+        store.retain(
+          createNormalizationSelector(UserFragment, '4', {size: 32}),
+        );
         jest.runAllTimers();
         expect(source.toJSON()).toEqual(initialData);
       });
 
       it('frees data when disposed', () => {
         const {dispose} = store.retain(
-          createReaderSelector(UserFragment, '4', {size: 32}),
+          createNormalizationSelector(UserFragment, '4', {size: 32}),
         );
         dispose();
         expect(data).toEqual(initialData);
@@ -109,7 +125,7 @@ expect.extend(matchers);
           }
         `);
         const nextSource = getRecordSourceImplementation({
-          842472: {
+          '842472': {
             __id: '842472',
             __typename: 'User',
             name: 'Joe',
@@ -122,10 +138,10 @@ expect.extend(matchers);
         });
         store.publish(nextSource);
         const {dispose} = store.retain(
-          createReaderSelector(UserFragment, '4', {size: 32}),
+          createNormalizationSelector(UserFragment, '4', {size: 32}),
         );
         store.retain(
-          createReaderSelector(JoeFragment, ROOT_ID, {id: '842472'}),
+          createNormalizationSelector(JoeFragment, ROOT_ID, {id: '842472'}),
         );
 
         dispose(); // release one of the holds but not the other
@@ -269,13 +285,13 @@ expect.extend(matchers);
         );
         const snapshot = store.lookup(selector);
         expect(Object.isFrozen(snapshot)).toBe(true);
-        expect(snapshot.data).toBeDeeplyFrozen();
-        expect(snapshot.variables).toBeDeeplyFrozen();
+        assertIsDeeplyFrozen(snapshot.data);
+        assertIsDeeplyFrozen(snapshot.selector.variables);
       });
 
       it('returns updated data after a publish', () => {
         const nextData = {
-          4: {
+          '4': {
             __id: '4',
             __typename: 'User',
             'profilePicture(size:32)': {[REF_KEY]: 'client:2'},
@@ -306,7 +322,7 @@ expect.extend(matchers);
             },
           },
           seenRecords: {
-            4: {...data['4'], ...nextData['4']},
+            '4': {...data['4'], ...nextData['4']},
             'client:2': nextData['client:2'],
           },
           isMissingData: false,
@@ -481,8 +497,8 @@ expect.extend(matchers);
         expect(callback.mock.calls.length).toBe(1);
         const nextSnapshot = callback.mock.calls[0][0];
         expect(Object.isFrozen(nextSnapshot)).toBe(true);
-        expect(nextSnapshot.data).toBeDeeplyFrozen();
-        expect(nextSnapshot.variables).toBeDeeplyFrozen();
+        assertIsDeeplyFrozen(nextSnapshot.data);
+        assertIsDeeplyFrozen(nextSnapshot.selector.variables);
       });
 
       it('calls affected subscribers only once', () => {
@@ -499,7 +515,7 @@ expect.extend(matchers);
         store.subscribe(snapshot, callback);
         // Publish a change to profilePicture.uri
         let nextSource = getRecordSourceImplementation({
-          4: {
+          '4': {
             __id: '4',
             __typename: 'User',
             name: 'Mark',
@@ -531,7 +547,7 @@ expect.extend(matchers);
             emailAddresses: ['a@b.com', 'c@d.net'],
           },
           seenRecords: {
-            4: {
+            '4': {
               ...data['4'],
               name: 'Mark',
               emailAddresses: ['a@b.com', 'c@d.net'],
@@ -574,7 +590,7 @@ expect.extend(matchers);
         // Record does not exist when subscribed
         store.subscribe(snapshot, callback);
         const nextSource = getRecordSourceImplementation({
-          4: {
+          '4': {
             __id: '4',
             __typename: 'User',
             emailAddresses: ['a@b.com'],
@@ -594,7 +610,7 @@ expect.extend(matchers);
             emailAddresses: ['a@b.com'],
           },
           seenRecords: {
-            4: {
+            '4': {
               ...data['4'],
               emailAddresses: ['a@b.com'],
             },
@@ -620,7 +636,7 @@ expect.extend(matchers);
         // Record does not exist when subscribed
         store.subscribe(snapshot, callback);
         const nextSource = getRecordSourceImplementation({
-          842472: {
+          '842472': {
             __id: '842472',
             __typename: 'User',
             name: 'Joe',
@@ -658,7 +674,7 @@ expect.extend(matchers);
         store.subscribe(snapshot, callback);
         // Create it again
         const nextSource = getRecordSourceImplementation({
-          842472: {
+          '842472': {
             __id: '842472',
             __typename: 'User',
             name: 'Joe',
@@ -692,7 +708,7 @@ expect.extend(matchers);
         store.subscribe(snapshot, callback);
         // Publish a change to profilePicture.uri
         const nextSource = getRecordSourceImplementation({
-          842472: {
+          '842472': {
             __id: '842472',
             __typename: 'User',
             name: 'Joe',
@@ -730,7 +746,9 @@ expect.extend(matchers);
 
       it('throws if source records are modified', () => {
         const zuck = source.get('4');
+        expect(zuck).toBeTruthy();
         expect(() => {
+          // $FlowFixMe
           RelayModernRecord.setValue(zuck, 'pet', 'Beast');
         }).toThrow(TypeError);
       });
@@ -759,6 +777,8 @@ expect.extend(matchers);
         // Cannot modify merged record
         expect(() => {
           const mergedRecord = source.get('4');
+          expect(mergedRecord).toBeTruthy();
+          // $FlowFixMe
           RelayModernRecord.setValue(mergedRecord, 'pet', null);
         }).toThrow(TypeError);
         // Cannot modify the published record, even though it isn't in the store
@@ -803,12 +823,16 @@ expect.extend(matchers);
       });
 
       it('returns true if all data exists in the cache', () => {
-        const selector = createReaderSelector(UserFragment, '4', {size: 32});
+        const selector = createNormalizationSelector(UserFragment, '4', {
+          size: 32,
+        });
         expect(store.check(selector)).toBe(true);
       });
 
       it('returns false if a scalar field is missing', () => {
-        const selector = createReaderSelector(UserFragment, '4', {size: 32});
+        const selector = createNormalizationSelector(UserFragment, '4', {
+          size: 32,
+        });
         store.publish(
           getRecordSourceImplementation({
             'client:1': {
@@ -821,7 +845,9 @@ expect.extend(matchers);
       });
 
       it('returns false if a linked field is missing', () => {
-        const selector = createReaderSelector(UserFragment, '4', {size: 64});
+        const selector = createNormalizationSelector(UserFragment, '4', {
+          size: 64,
+        });
         expect(store.check(selector)).toBe(false);
       });
 
@@ -829,12 +855,14 @@ expect.extend(matchers);
         delete data['client:1']; // profile picture
         source = getRecordSourceImplementation(data);
         store = new RelayModernStore(source);
-        const selector = createReaderSelector(UserFragment, '4', {size: 32});
+        const selector = createNormalizationSelector(UserFragment, '4', {
+          size: 32,
+        });
         expect(store.check(selector)).toBe(false);
       });
 
       it('returns false if the root record is missing', () => {
-        const selector = createReaderSelector(UserFragment, '842472', {
+        const selector = createNormalizationSelector(UserFragment, '842472', {
           size: 32,
         });
         expect(store.check(selector)).toBe(false);
@@ -881,7 +909,7 @@ expect.extend(matchers);
 
       it('calls the gc scheduler function when GC should run', () => {
         const {dispose} = store.retain(
-          createReaderSelector(UserFragment, '4', {size: 32}),
+          createNormalizationSelector(UserFragment, '4', {size: 32}),
         );
         expect(scheduler).not.toBeCalled();
         dispose();
@@ -891,7 +919,7 @@ expect.extend(matchers);
 
       it('Runs GC when the GC scheduler executes the task', () => {
         const {dispose} = store.retain(
-          createReaderSelector(UserFragment, '4', {size: 32}),
+          createNormalizationSelector(UserFragment, '4', {size: 32}),
         );
         dispose();
         expect(source.toJSON()).toEqual(initialData);
@@ -937,7 +965,7 @@ expect.extend(matchers);
       it('prevents data from being collected with disabled GC, and reruns GC when it is enabled', () => {
         const gcHold = store.holdGC();
         const {dispose} = store.retain(
-          createReaderSelector(UserFragment, '4', {size: 32}),
+          createNormalizationSelector(UserFragment, '4', {size: 32}),
         );
         dispose();
         expect(data).toEqual(initialData);

@@ -31,13 +31,13 @@ import type {DataID} from '../../util/RelayRuntimeTypes';
 import type {ConnectionResolver} from '../RelayConnection';
 
 type ConnectionEdge = {|
+  +__id: DataID,
   +cursor: ?string,
   +node: ?{[string]: mixed},
 |};
+
 type ConnectionState = {|
-  +edgeData: {[DataID]: ?ConnectionEdge},
-  +edgeIDs: $ReadOnlyArray<?DataID>,
-  +edges: $ReadOnlyArray<?ConnectionEdge>,
+  +edges: $ReadOnlyArray<ConnectionEdge>,
   +pageInfo: {
     endCursor: ?string,
     hasNextPage: ?boolean,
@@ -47,8 +47,19 @@ type ConnectionState = {|
 |};
 
 describe('@connection_resolver connection field', () => {
-  const edgeID =
+  const edgeID1 =
     'client:<feedbackid>:comments(orderby:"date"):__connection_page(first:2,orderby:"date"):edges:0';
+  const edgeID2 =
+    'client:<feedbackid>:comments(orderby:"date"):__connection_page(first:2,orderby:"date"):edges:1';
+  const edgeID3 =
+    'client:<feedbackid>:comments(orderby:"date"):__connection_page(after:"cursor-2",first:2,orderby:"date"):edges:0';
+  const edgeID4 =
+    'client:<feedbackid>:comments(orderby:"date"):__connection_page(after:"cursor-2",first:2,orderby:"date"):edges:1';
+  const edgeIDY =
+    'client:<feedbackid>:comments(orderby:"date"):__connection_page(before:"cursor-1",last:2,orderby:"date"):edges:0';
+  const edgeIDZ =
+    'client:<feedbackid>:comments(orderby:"date"):__connection_page(before:"cursor-1",last:2,orderby:"date"):edges:1';
+  const edgeIDMutation = 'client:root:commentCreate:feedbackCommentEdge';
   let CommentCreateMutation;
   let connectionResolver: ConnectionResolver<ConnectionEdge, ConnectionState>;
   let callbacks;
@@ -87,8 +98,6 @@ describe('@connection_resolver connection field', () => {
     connectionResolver = {
       initialize() {
         return {
-          edgeIDs: [],
-          edgeData: {},
           edges: [],
           pageInfo: {
             endCursor: null,
@@ -99,69 +108,69 @@ describe('@connection_resolver connection field', () => {
         };
       },
       reduce: jest.fn((state, event) => {
-        let nextEdgeIDs = state.edgeIDs;
-        let nextEdgeData = state.edgeData;
-        let nextPageInfo = state.pageInfo;
-        switch (event.kind) {
-          case 'fetch': {
-            const {args} = event;
-            if (args.after != null) {
-              nextEdgeIDs = [...state.edgeIDs, ...event.edgeIDs];
-              nextPageInfo = {
-                ...state.pageInfo,
-                hasNextPage: event.pageInfo.hasNextPage,
-                endCursor: event.pageInfo.endCursor,
-              };
-            } else if (args.before != null) {
-              nextEdgeIDs = [...event.edgeIDs, ...state.edgeIDs];
-              nextPageInfo = {
-                ...state.pageInfo,
-                hasPrevPage: event.pageInfo.hasPrevPage,
-                startCursor: event.pageInfo.startCursor,
-              };
+        let nextEdges;
+        let nextPageInfo = {...state.pageInfo};
+        if (event.kind === 'update') {
+          nextEdges = [];
+          state.edges.forEach(edge => {
+            if (event.edgeData.hasOwnProperty(edge.__id)) {
+              const nextEdge = event.edgeData[edge.__id];
+              if (nextEdge != null && nextEdge.node != null) {
+                nextEdges.push(nextEdge);
+              }
             } else {
-              nextEdgeIDs = event.edgeIDs;
-              nextPageInfo = event.pageInfo;
+              nextEdges.push(edge);
             }
-            nextEdgeData = {...state.edgeData, ...event.edgeData};
-            break;
+          });
+        } else if (event.kind === 'fetch') {
+          if (event.args.after != null) {
+            nextEdges = [...state.edges];
+            event.edges.forEach(nextEdge => {
+              if (nextEdge != null && nextEdge.node != null) {
+                nextEdges.push(nextEdge);
+              }
+            });
+            nextPageInfo.endCursor =
+              event.pageInfo.endCursor ?? nextPageInfo.endCursor;
+            nextPageInfo.hasNextPage =
+              event.pageInfo.hasNextPage ?? nextPageInfo.hasNextPage;
+          } else if (event.args.before != null) {
+            nextEdges = [];
+            event.edges.forEach(nextEdge => {
+              if (nextEdge != null && nextEdge.node != null) {
+                nextEdges.push(nextEdge);
+              }
+            });
+            nextEdges.push(...state.edges);
+            nextPageInfo.startCursor =
+              event.pageInfo.startCursor ?? nextPageInfo.startCursor;
+            nextPageInfo.hasPrevPage =
+              event.pageInfo.hasPrevPage ?? nextPageInfo.hasPrevPage;
+          } else {
+            nextEdges = [];
+            event.edges.forEach(nextEdge => {
+              if (nextEdge != null && nextEdge.node != null) {
+                nextEdges.push(nextEdge);
+              }
+            });
+            nextPageInfo = event.pageInfo;
           }
-          case 'insert': {
-            nextEdgeIDs = [...state.edgeIDs, event.edgeID];
-            nextEdgeData = {...state.edgeData};
-            nextEdgeData[event.edgeID] = event.edge;
-            nextPageInfo = {
-              ...state.pageInfo,
-              endCursor: event.edge?.cursor ?? state.pageInfo.endCursor,
-            };
-            break;
+        } else if (event.kind === 'insert') {
+          nextEdges = [...state.edges];
+          const nextEdge = event.edge;
+          if (nextEdge != null && nextEdge.node != null) {
+            nextEdges.push(nextEdge);
+            nextPageInfo.endCursor = nextEdge.cursor ?? nextPageInfo.endCursor;
           }
-          case 'update': {
-            nextEdgeData = {...state.edgeData, ...event.edgeData};
-            break;
-          }
-          default:
-            (event.kind: empty);
-            invariant(
-              false,
-              'ConnectionResolver-test: Unhandled event kind `%s`.',
-              event.kind,
-            );
+        } else {
+          (event: empty);
+          invariant(
+            false,
+            'ConnectionResolver-test: Unexpected event kind `%s`.',
+            event.kind,
+          );
         }
-        const nextEdges = [];
-        const filteredEdgeIDs = [];
-        nextEdgeIDs.forEach(edgeID => {
-          if (edgeID != null) {
-            const edgeData = nextEdgeData[edgeID];
-            if (edgeData != null && edgeData.node != null) {
-              filteredEdgeIDs.push(edgeID);
-              nextEdges.push(edgeData);
-            }
-          }
-        });
         return {
-          edgeData: nextEdgeData,
-          edgeIDs: filteredEdgeIDs,
           edges: nextEdges,
           pageInfo: nextPageInfo,
         };
@@ -520,6 +529,7 @@ describe('@connection_resolver connection field', () => {
       expect.objectContaining({
         edges: [
           {
+            __id: edgeID1,
             cursor: 'cursor-1',
             node: {
               id: 'node-1',
@@ -530,6 +540,7 @@ describe('@connection_resolver connection field', () => {
             },
           },
           {
+            __id: edgeID2,
             cursor: 'cursor-2',
             node: {
               id: 'node-2',
@@ -632,6 +643,7 @@ describe('@connection_resolver connection field', () => {
         expect.objectContaining({
           edges: [
             {
+              __id: edgeID1,
               cursor: 'cursor-1',
               node: {
                 id: 'node-1',
@@ -642,6 +654,7 @@ describe('@connection_resolver connection field', () => {
               },
             },
             {
+              __id: edgeID2,
               cursor: 'cursor-2',
               node: {
                 id: 'node-2',
@@ -736,6 +749,7 @@ describe('@connection_resolver connection field', () => {
       const nextSnapshot = connectionCallback.mock.calls[0][0];
       expect(nextSnapshot.edges).toEqual([
         {
+          __id: edgeID1,
           cursor: 'cursor-1',
           node: {
             id: 'node-1',
@@ -746,6 +760,7 @@ describe('@connection_resolver connection field', () => {
           },
         },
         {
+          __id: edgeID2,
           cursor: 'cursor-2',
           node: {
             id: 'node-2',
@@ -756,6 +771,7 @@ describe('@connection_resolver connection field', () => {
           },
         },
         {
+          __id: edgeID3,
           cursor: 'cursor-3',
           node: {
             id: 'node-3',
@@ -766,6 +782,7 @@ describe('@connection_resolver connection field', () => {
           },
         },
         {
+          __id: edgeID4,
           cursor: 'cursor-4',
           node: {
             id: 'node-4',
@@ -841,6 +858,7 @@ describe('@connection_resolver connection field', () => {
         );
       expect(nextSnapshot.state.edges).toEqual([
         {
+          __id: edgeID1,
           cursor: 'cursor-1',
           node: {
             id: 'node-1',
@@ -851,6 +869,7 @@ describe('@connection_resolver connection field', () => {
           },
         },
         {
+          __id: edgeID2,
           cursor: 'cursor-2',
           node: {
             id: 'node-2',
@@ -861,6 +880,7 @@ describe('@connection_resolver connection field', () => {
           },
         },
         {
+          __id: edgeID3,
           cursor: 'cursor-3',
           node: {
             id: 'node-3',
@@ -871,6 +891,7 @@ describe('@connection_resolver connection field', () => {
           },
         },
         {
+          __id: edgeID4,
           cursor: 'cursor-4',
           node: {
             id: 'node-4',
@@ -941,6 +962,7 @@ describe('@connection_resolver connection field', () => {
       const nextSnapshot = connectionCallback.mock.calls[0][0];
       expect(nextSnapshot.edges).toEqual([
         {
+          __id: edgeIDY,
           cursor: 'cursor-y',
           node: {
             id: 'node-y',
@@ -951,6 +973,7 @@ describe('@connection_resolver connection field', () => {
           },
         },
         {
+          __id: edgeIDZ,
           cursor: 'cursor-z',
           node: {
             id: 'node-z',
@@ -961,6 +984,7 @@ describe('@connection_resolver connection field', () => {
           },
         },
         {
+          __id: edgeID1,
           cursor: 'cursor-1',
           node: {
             id: 'node-1',
@@ -971,6 +995,7 @@ describe('@connection_resolver connection field', () => {
           },
         },
         {
+          __id: edgeID2,
           cursor: 'cursor-2',
           node: {
             id: 'node-2',
@@ -1041,6 +1066,7 @@ describe('@connection_resolver connection field', () => {
       const nextSnapshot = connectionCallback.mock.calls[0][0];
       expect(nextSnapshot.edges).toEqual([
         {
+          __id: edgeID1,
           cursor: 'cursor-1a',
           node: {
             id: 'node-1a',
@@ -1051,6 +1077,7 @@ describe('@connection_resolver connection field', () => {
           },
         },
         {
+          __id: edgeID2,
           cursor: 'cursor-2a',
           node: {
             id: 'node-2a',
@@ -1104,6 +1131,7 @@ describe('@connection_resolver connection field', () => {
       const nextSnapshot = connectionCallback.mock.calls[0][0];
       expect(nextSnapshot.edges).toEqual([
         {
+          __id: edgeID2,
           cursor: 'cursor-2',
           node: {
             id: 'node-2',
@@ -1125,12 +1153,13 @@ describe('@connection_resolver connection field', () => {
 
     it('updates when an edge is deleted', () => {
       environment.commitUpdate(storeProxy => {
-        storeProxy.delete(edgeID);
+        storeProxy.delete(edgeID1);
       });
       expect(connectionCallback).toBeCalledTimes(1);
       const nextSnapshot = connectionCallback.mock.calls[0][0];
       expect(nextSnapshot.edges).toEqual([
         {
+          __id: edgeID2,
           cursor: 'cursor-2',
           node: {
             id: 'node-2',
@@ -1152,7 +1181,7 @@ describe('@connection_resolver connection field', () => {
 
     it('updates when edge data changes', () => {
       environment.commitUpdate(storeProxy => {
-        const edge = storeProxy.get(edgeID);
+        const edge = storeProxy.get(edgeID1);
         invariant(edge, 'Expected edge to exist');
         const node = edge.getLinkedRecord('node');
         invariant(node, 'Expected node to exist');
@@ -1164,6 +1193,7 @@ describe('@connection_resolver connection field', () => {
       const nextSnapshot = connectionCallback.mock.calls[0][0];
       expect(nextSnapshot.edges).toEqual([
         {
+          __id: edgeID1,
           cursor: 'cursor-1',
           node: {
             id: 'node-1',
@@ -1174,6 +1204,7 @@ describe('@connection_resolver connection field', () => {
           },
         },
         {
+          __id: edgeID2,
           cursor: 'cursor-2',
           node: {
             id: 'node-2',
@@ -1195,7 +1226,7 @@ describe('@connection_resolver connection field', () => {
 
     it('does not update when unrelated edge data changes', () => {
       environment.commitUpdate(storeProxy => {
-        const edge = storeProxy.get(edgeID);
+        const edge = storeProxy.get(edgeID1);
         invariant(edge, 'Expected edge to exist');
         const node = edge.getLinkedRecord('node');
         invariant(node, 'Expected node to exist');
@@ -1247,6 +1278,7 @@ describe('@connection_resolver connection field', () => {
       const nextSnapshot = connectionCallback.mock.calls[0][0];
       expect(nextSnapshot.edges).toEqual([
         {
+          __id: edgeID1,
           cursor: 'cursor-1',
           node: {
             id: 'node-1',
@@ -1257,6 +1289,7 @@ describe('@connection_resolver connection field', () => {
           },
         },
         {
+          __id: edgeID2,
           cursor: 'cursor-2',
           node: {
             id: 'node-2',
@@ -1267,6 +1300,7 @@ describe('@connection_resolver connection field', () => {
           },
         },
         {
+          __id: edgeIDMutation,
           cursor: 'cursor-3',
           node: {
             id: 'node-3',
@@ -1331,6 +1365,7 @@ describe('@connection_resolver connection field', () => {
         );
       expect(nextSnapshot.state.edges).toEqual([
         {
+          __id: edgeID1,
           cursor: 'cursor-1',
           node: {
             id: 'node-1',
@@ -1341,6 +1376,7 @@ describe('@connection_resolver connection field', () => {
           },
         },
         {
+          __id: edgeID2,
           cursor: 'cursor-2',
           node: {
             id: 'node-2',
@@ -1351,6 +1387,7 @@ describe('@connection_resolver connection field', () => {
           },
         },
         {
+          __id: edgeIDMutation,
           cursor: 'cursor-3',
           node: {
             id: 'node-3',
@@ -1374,7 +1411,7 @@ describe('@connection_resolver connection field', () => {
       it('updates when an edge is deleted', () => {
         environment.applyUpdate({
           storeUpdater: storeProxy => {
-            storeProxy.delete(edgeID);
+            storeProxy.delete(edgeID1);
           },
         });
 
@@ -1382,6 +1419,7 @@ describe('@connection_resolver connection field', () => {
         const nextSnapshot = connectionCallback.mock.calls[0][0];
         expect(nextSnapshot.edges).toEqual([
           {
+            __id: edgeID2,
             cursor: 'cursor-2',
             node: {
               id: 'node-2',
@@ -1404,7 +1442,7 @@ describe('@connection_resolver connection field', () => {
       it('updates when an edge is deleted (new lookup)', () => {
         environment.applyUpdate({
           storeUpdater: storeProxy => {
-            storeProxy.delete(edgeID);
+            storeProxy.delete(edgeID1);
           },
         });
 
@@ -1415,6 +1453,7 @@ describe('@connection_resolver connection field', () => {
           ).state;
         expect(latestSnapshot.edges).toEqual([
           {
+            __id: edgeID2,
             cursor: 'cursor-2',
             node: {
               id: 'node-2',
@@ -1436,7 +1475,7 @@ describe('@connection_resolver connection field', () => {
       it('restores deleted edges to their prior state when reverted', () => {
         const disposable = environment.applyUpdate({
           storeUpdater: storeProxy => {
-            storeProxy.delete(edgeID);
+            storeProxy.delete(edgeID1);
           },
         });
         connectionCallback.mockClear();
@@ -1447,6 +1486,7 @@ describe('@connection_resolver connection field', () => {
         const nextSnapshot = connectionCallback.mock.calls[0][0];
         expect(nextSnapshot.edges).toEqual([
           {
+            __id: edgeID1,
             cursor: 'cursor-1',
             node: {
               id: 'node-1',
@@ -1457,6 +1497,7 @@ describe('@connection_resolver connection field', () => {
             },
           },
           {
+            __id: edgeID2,
             cursor: 'cursor-2',
             node: {
               id: 'node-2',
@@ -1479,7 +1520,7 @@ describe('@connection_resolver connection field', () => {
       it('restores deleted edges to their prior state when reverted (new lookup)', () => {
         const disposable = environment.applyUpdate({
           storeUpdater: storeProxy => {
-            storeProxy.delete(edgeID);
+            storeProxy.delete(edgeID1);
           },
         });
         connectionCallback.mockClear();
@@ -1493,6 +1534,7 @@ describe('@connection_resolver connection field', () => {
           ).state;
         expect(latestSnapshot.edges).toEqual([
           {
+            __id: edgeID1,
             cursor: 'cursor-1',
             node: {
               id: 'node-1',
@@ -1503,6 +1545,7 @@ describe('@connection_resolver connection field', () => {
             },
           },
           {
+            __id: edgeID2,
             cursor: 'cursor-2',
             node: {
               id: 'node-2',
@@ -1525,7 +1568,7 @@ describe('@connection_resolver connection field', () => {
         connectionSubscription.dispose();
         const disposable = environment.applyUpdate({
           storeUpdater: storeProxy => {
-            storeProxy.delete(edgeID);
+            storeProxy.delete(edgeID1);
           },
         });
         connectionCallback.mockClear();
@@ -1548,6 +1591,7 @@ describe('@connection_resolver connection field', () => {
         expect(nextSnapshot.edges.length).toBe(2);
         expect(nextSnapshot.edges).toEqual([
           {
+            __id: edgeID1,
             cursor: 'cursor-1',
             node: {
               id: 'node-1',
@@ -1558,6 +1602,7 @@ describe('@connection_resolver connection field', () => {
             },
           },
           {
+            __id: edgeID2,
             cursor: 'cursor-2',
             node: {
               id: 'node-2',
@@ -1591,6 +1636,7 @@ describe('@connection_resolver connection field', () => {
         const nextSnapshot = connectionCallback.mock.calls[0][0];
         expect(nextSnapshot.edges).toEqual([
           {
+            __id: edgeID2,
             cursor: 'cursor-2',
             node: {
               id: 'node-2',
@@ -1624,6 +1670,7 @@ describe('@connection_resolver connection field', () => {
           ).state;
         expect(latestSnapshot.edges).toEqual([
           {
+            __id: edgeID2,
             cursor: 'cursor-2',
             node: {
               id: 'node-2',
@@ -1656,6 +1703,7 @@ describe('@connection_resolver connection field', () => {
         const nextSnapshot = connectionCallback.mock.calls[0][0];
         expect(nextSnapshot.edges).toEqual([
           {
+            __id: edgeID1,
             cursor: 'cursor-1',
             node: {
               id: 'node-1',
@@ -1666,6 +1714,7 @@ describe('@connection_resolver connection field', () => {
             },
           },
           {
+            __id: edgeID2,
             cursor: 'cursor-2',
             node: {
               id: 'node-2',
@@ -1702,6 +1751,7 @@ describe('@connection_resolver connection field', () => {
           ).state;
         expect(latestSnapshot.edges).toEqual([
           {
+            __id: edgeID1,
             cursor: 'cursor-1',
             node: {
               id: 'node-1',
@@ -1712,6 +1762,7 @@ describe('@connection_resolver connection field', () => {
             },
           },
           {
+            __id: edgeID2,
             cursor: 'cursor-2',
             node: {
               id: 'node-2',
@@ -1757,6 +1808,7 @@ describe('@connection_resolver connection field', () => {
         expect(nextSnapshot.edges.length).toBe(2);
         expect(nextSnapshot.edges).toEqual([
           {
+            __id: edgeID1,
             cursor: 'cursor-1',
             node: {
               id: 'node-1',
@@ -1767,6 +1819,7 @@ describe('@connection_resolver connection field', () => {
             },
           },
           {
+            __id: edgeID2,
             cursor: 'cursor-2',
             node: {
               id: 'node-2',
@@ -1834,6 +1887,7 @@ describe('@connection_resolver connection field', () => {
         const nextSnapshot = connectionCallback.mock.calls[0][0];
         expect(nextSnapshot.edges).toEqual([
           {
+            __id: edgeID1,
             cursor: 'cursor-1',
             node: {
               id: 'node-1',
@@ -1844,6 +1898,7 @@ describe('@connection_resolver connection field', () => {
             },
           },
           {
+            __id: edgeID2,
             cursor: 'cursor-2',
             node: {
               id: 'node-2',
@@ -1854,6 +1909,7 @@ describe('@connection_resolver connection field', () => {
             },
           },
           {
+            __id: edgeIDMutation,
             cursor: 'cursor-x',
             node: {
               id: 'node-x',
@@ -1885,6 +1941,7 @@ describe('@connection_resolver connection field', () => {
           );
         expect(nextSnapshot.state.edges).toEqual([
           {
+            __id: edgeID1,
             cursor: 'cursor-1',
             node: {
               id: 'node-1',
@@ -1895,6 +1952,7 @@ describe('@connection_resolver connection field', () => {
             },
           },
           {
+            __id: edgeID2,
             cursor: 'cursor-2',
             node: {
               id: 'node-2',
@@ -1905,6 +1963,7 @@ describe('@connection_resolver connection field', () => {
             },
           },
           {
+            __id: edgeIDMutation,
             cursor: 'cursor-x',
             node: {
               id: 'node-x',
@@ -1934,6 +1993,7 @@ describe('@connection_resolver connection field', () => {
         const nextSnapshot = connectionCallback.mock.calls[0][0];
         expect(nextSnapshot.edges).toEqual([
           {
+            __id: edgeID1,
             cursor: 'cursor-1',
             node: {
               id: 'node-1',
@@ -1944,6 +2004,7 @@ describe('@connection_resolver connection field', () => {
             },
           },
           {
+            __id: edgeID2,
             cursor: 'cursor-2',
             node: {
               id: 'node-2',
@@ -1978,6 +2039,7 @@ describe('@connection_resolver connection field', () => {
           ).state;
         expect(latestSnapshot.edges).toEqual([
           {
+            __id: edgeID1,
             cursor: 'cursor-1',
             node: {
               id: 'node-1',
@@ -1988,6 +2050,7 @@ describe('@connection_resolver connection field', () => {
             },
           },
           {
+            __id: edgeID2,
             cursor: 'cursor-2',
             node: {
               id: 'node-2',
@@ -2029,6 +2092,7 @@ describe('@connection_resolver connection field', () => {
         expect(nextSnapshot.edges.length).toBe(2);
         expect(nextSnapshot.edges).toEqual([
           {
+            __id: edgeID1,
             cursor: 'cursor-1',
             node: {
               id: 'node-1',
@@ -2039,6 +2103,7 @@ describe('@connection_resolver connection field', () => {
             },
           },
           {
+            __id: edgeID2,
             cursor: 'cursor-2',
             node: {
               id: 'node-2',
@@ -2064,7 +2129,7 @@ describe('@connection_resolver connection field', () => {
         connectionResolver.reduce.mockClear();
 
         environment.commitUpdate(storeProxy => {
-          const edge = storeProxy.get(edgeID);
+          const edge = storeProxy.get(edgeID1);
           invariant(edge, 'Expected edge to exist');
           const node = edge.getLinkedRecord('node');
           invariant(node, 'Expected node to exist');
@@ -2076,6 +2141,7 @@ describe('@connection_resolver connection field', () => {
         const changeSnapshot = connectionCallback.mock.calls[0][0];
         expect(changeSnapshot.edges).toEqual([
           {
+            __id: edgeID1,
             cursor: 'cursor-1',
             node: {
               id: 'node-1',
@@ -2086,6 +2152,7 @@ describe('@connection_resolver connection field', () => {
             },
           },
           {
+            __id: edgeID2,
             cursor: 'cursor-2',
             node: {
               id: 'node-2',
@@ -2096,6 +2163,7 @@ describe('@connection_resolver connection field', () => {
             },
           },
           {
+            __id: edgeIDMutation,
             cursor: 'cursor-x', // insert is rebased
             node: {
               id: 'node-x',
@@ -2122,6 +2190,7 @@ describe('@connection_resolver connection field', () => {
         const revertSnapshot = connectionCallback.mock.calls[0][0];
         expect(revertSnapshot.edges).toEqual([
           {
+            __id: edgeID1,
             cursor: 'cursor-1',
             node: {
               id: 'node-1',
@@ -2132,6 +2201,7 @@ describe('@connection_resolver connection field', () => {
             },
           },
           {
+            __id: edgeID2,
             cursor: 'cursor-2',
             node: {
               id: 'node-2',
@@ -2158,7 +2228,7 @@ describe('@connection_resolver connection field', () => {
         connectionResolver.reduce.mockClear();
 
         environment.commitUpdate(storeProxy => {
-          const edge = storeProxy.get(edgeID);
+          const edge = storeProxy.get(edgeID1);
           invariant(edge, 'Expected edge to exist');
           const node = edge.getLinkedRecord('node');
           invariant(node, 'Expected node to exist');
@@ -2174,6 +2244,7 @@ describe('@connection_resolver connection field', () => {
         expect(latestSnapshot.edges.length).toBe(3);
         expect(latestSnapshot.edges).toEqual([
           {
+            __id: edgeID1,
             cursor: 'cursor-1',
             node: {
               id: 'node-1',
@@ -2184,6 +2255,7 @@ describe('@connection_resolver connection field', () => {
             },
           },
           {
+            __id: edgeID2,
             cursor: 'cursor-2',
             node: {
               id: 'node-2',
@@ -2194,6 +2266,7 @@ describe('@connection_resolver connection field', () => {
             },
           },
           {
+            __id: edgeIDMutation,
             cursor: 'cursor-x', // insert is rebased
             node: {
               id: 'node-x',
@@ -2224,6 +2297,7 @@ describe('@connection_resolver connection field', () => {
         expect(revertSnapshot.edges.length).toBe(2);
         expect(revertSnapshot.edges).toEqual([
           {
+            __id: edgeID1,
             cursor: 'cursor-1',
             node: {
               id: 'node-1',
@@ -2234,6 +2308,7 @@ describe('@connection_resolver connection field', () => {
             },
           },
           {
+            __id: edgeID2,
             cursor: 'cursor-2',
             node: {
               id: 'node-2',
@@ -2297,6 +2372,7 @@ describe('@connection_resolver connection field', () => {
         const changeSnapshot = connectionCallback.mock.calls[0][0];
         expect(changeSnapshot.edges).toEqual([
           {
+            __id: edgeID1,
             cursor: 'cursor-1',
             node: {
               id: 'node-1',
@@ -2307,6 +2383,7 @@ describe('@connection_resolver connection field', () => {
             },
           },
           {
+            __id: edgeID2,
             cursor: 'cursor-2',
             node: {
               id: 'node-2',
@@ -2317,6 +2394,7 @@ describe('@connection_resolver connection field', () => {
             },
           },
           {
+            __id: edgeID3,
             cursor: 'cursor-3', // pagination result added
             node: {
               id: 'node-3',
@@ -2327,6 +2405,7 @@ describe('@connection_resolver connection field', () => {
             },
           },
           {
+            __id: edgeIDMutation,
             cursor: 'cursor-x', // insert is rebased
             node: {
               id: 'node-x',
@@ -2353,6 +2432,7 @@ describe('@connection_resolver connection field', () => {
         const revertSnapshot = connectionCallback.mock.calls[0][0];
         expect(revertSnapshot.edges).toEqual([
           {
+            __id: edgeID1,
             cursor: 'cursor-1',
             node: {
               id: 'node-1',
@@ -2363,6 +2443,7 @@ describe('@connection_resolver connection field', () => {
             },
           },
           {
+            __id: edgeID2,
             cursor: 'cursor-2',
             node: {
               id: 'node-2',
@@ -2373,6 +2454,7 @@ describe('@connection_resolver connection field', () => {
             },
           },
           {
+            __id: edgeID3,
             cursor: 'cursor-3', // fetch preserved
             node: {
               id: 'node-3',
@@ -2398,7 +2480,7 @@ describe('@connection_resolver connection field', () => {
         connectionResolver.reduce.mockClear();
 
         environment.commitUpdate(storeProxy => {
-          const edge = storeProxy.get(edgeID);
+          const edge = storeProxy.get(edgeID1);
           invariant(edge, 'Expected edge to exist');
           const node = edge.getLinkedRecord('node');
           invariant(node, 'Expected node to exist');
@@ -2409,6 +2491,7 @@ describe('@connection_resolver connection field', () => {
         expect(changeSnapshot.edges).toEqual([
           // edge removed bc node deleted
           {
+            __id: edgeID2,
             cursor: 'cursor-2',
             node: {
               id: 'node-2',
@@ -2419,6 +2502,7 @@ describe('@connection_resolver connection field', () => {
             },
           },
           {
+            __id: edgeIDMutation,
             cursor: 'cursor-x', // insert is rebased
             node: {
               id: 'node-x',
@@ -2446,6 +2530,7 @@ describe('@connection_resolver connection field', () => {
         expect(revertSnapshot.edges).toEqual([
           // node deletion (and edge removal) preserved
           {
+            __id: edgeID2,
             cursor: 'cursor-2',
             node: {
               id: 'node-2',
@@ -2484,6 +2569,7 @@ describe('@connection_resolver connection field', () => {
         const nextSnapshot = connectionCallback.mock.calls[0][0];
         expect(nextSnapshot.edges).toEqual([
           {
+            __id: edgeID1,
             cursor: 'cursor-1',
             node: {
               id: 'node-1',
@@ -2494,6 +2580,7 @@ describe('@connection_resolver connection field', () => {
             },
           },
           {
+            __id: edgeID2,
             cursor: 'cursor-2',
             node: {
               id: 'node-2',
@@ -2504,6 +2591,7 @@ describe('@connection_resolver connection field', () => {
             },
           },
           {
+            __id: edgeIDMutation,
             cursor: 'cursor-x',
             node: {
               id: 'node-x',
@@ -2545,6 +2633,7 @@ describe('@connection_resolver connection field', () => {
         const nextSnapshot = connectionCallback.mock.calls[0][0];
         expect(nextSnapshot.edges).toEqual([
           {
+            __id: edgeID1,
             cursor: 'cursor-1',
             node: {
               id: 'node-1',
@@ -2555,6 +2644,7 @@ describe('@connection_resolver connection field', () => {
             },
           },
           {
+            __id: edgeID2,
             cursor: 'cursor-2',
             node: {
               id: 'node-2',
@@ -2565,6 +2655,7 @@ describe('@connection_resolver connection field', () => {
             },
           },
           {
+            __id: edgeIDMutation,
             cursor: 'cursor-x',
             node: {
               id: 'node-x',
@@ -2611,6 +2702,7 @@ describe('@connection_resolver connection field', () => {
         expect(latestSnapshot.edges.length).toBe(3);
         expect(latestSnapshot.edges).toEqual([
           {
+            __id: edgeID1,
             cursor: 'cursor-1',
             node: {
               id: 'node-1',
@@ -2621,6 +2713,7 @@ describe('@connection_resolver connection field', () => {
             },
           },
           {
+            __id: edgeID2,
             cursor: 'cursor-2',
             node: {
               id: 'node-2',
@@ -2631,6 +2724,7 @@ describe('@connection_resolver connection field', () => {
             },
           },
           {
+            __id: edgeIDMutation,
             cursor: 'cursor-x',
             node: {
               id: 'node-x',

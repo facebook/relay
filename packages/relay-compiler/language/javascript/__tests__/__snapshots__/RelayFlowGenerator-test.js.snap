@@ -135,7 +135,8 @@ export type FeedbackComments_feedback = {|
     +__connection?: ConnectionReference<?{|
       +node: ?{|
         +id: string
-      |}
+      |},
+      +__id: string,
     |}>,
   |},
   +$refType: FeedbackComments_feedback$ref,

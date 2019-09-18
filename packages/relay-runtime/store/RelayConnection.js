@@ -53,12 +53,11 @@ export type ConnectionEvent<TEdge> =
   | {|
       +kind: 'fetch',
       +args: Variables,
-      +edgeIDs: $ReadOnlyArray<?DataID>,
-      +edgeData: {[DataID]: ?TEdge},
+      +edges: $ReadOnlyArray<?TEdge>,
       +pageInfo: PageInfo,
     |}
   | {|+kind: 'update', edgeData: {[DataID]: ?TEdge}|}
-  | {|+kind: 'insert', args: Variables, edge: ?TEdge, edgeID: DataID|};
+  | {|+kind: 'insert', args: Variables, edge: ?TEdge|};
 
 export interface ConnectionResolver<TEdge, TState> {
   initialize(): TState;

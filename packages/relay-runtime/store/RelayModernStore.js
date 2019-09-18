@@ -481,10 +481,11 @@ class RelayModernStore implements Store {
     const state: TState = events.reduce(
       (prevState: TState, event: ConnectionInternalEvent) => {
         if (event.kind === 'fetch') {
-          const edgeData = {};
+          const edges = [];
           event.edgeIDs.forEach(edgeID => {
             if (edgeID == null) {
-              return edgeID;
+              edges.push(edgeID);
+              return;
             }
             const edgeSnapshot = RelayReader.read(
               this.getSource(),
@@ -493,13 +494,12 @@ class RelayModernStore implements Store {
             Object.assign(seenRecords, edgeSnapshot.seenRecords);
             const itemData = ((edgeSnapshot.data: $FlowFixMe): ?TEdge);
             edgeSnapshots[edgeID] = edgeSnapshot;
-            edgeData[edgeID] = itemData;
+            edges.push(itemData);
           });
           return resolver.reduce(prevState, {
             kind: 'fetch',
             args: event.args,
-            edgeIDs: event.edgeIDs,
-            edgeData,
+            edges,
             pageInfo: event.pageInfo,
           });
         } else if (event.kind === 'insert') {
@@ -518,7 +518,6 @@ class RelayModernStore implements Store {
           return resolver.reduce(prevState, {
             args: event.args,
             edge: itemData,
-            edgeID: event.edgeID,
             kind: 'insert',
           });
         } else {

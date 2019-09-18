@@ -16,7 +16,7 @@ const getLiteralArgumentValues = require('../core/getLiteralArgumentValues');
 
 const {getNullableType} = require('../core/GraphQLSchemaUtils');
 const {createUserError} = require('../core/RelayCompilerError');
-const {GraphQLList} = require('graphql');
+const {GraphQLID, GraphQLList, GraphQLNonNull} = require('graphql');
 const {ConnectionInterface} = require('relay-runtime');
 
 import type CompilerContext from '../core/GraphQLCompilerContext';
@@ -123,10 +123,14 @@ function visitLinkedField(
         [selection.loc],
       );
     }
-    if (selection.name === EDGES) {
-      edgeField = selection;
-    } else if (selection.name === PAGE_INFO) {
-      pageInfoField = selection;
+    if (selection.kind === 'LinkedField') {
+      if (selection.name === EDGES) {
+        edgeField = selection;
+      } else if (selection.name === PAGE_INFO) {
+        pageInfoField = selection;
+      } else {
+        selections.push(selection);
+      }
     } else {
       selections.push(selection);
     }
@@ -138,6 +142,23 @@ function visitLinkedField(
       [connectionDirective.loc],
     );
   }
+  edgeField = {
+    ...edgeField,
+    selections: [
+      ...edgeField.selections,
+      {
+        alias: '__id',
+        args: [],
+        directives: [],
+        handles: null,
+        kind: 'ScalarField',
+        loc: edgeField.loc,
+        metadata: null,
+        name: '__id',
+        type: new GraphQLNonNull(GraphQLID),
+      },
+    ],
+  };
   selections.push(
     ({
       args: transformed.args,

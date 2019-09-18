@@ -2217,6 +2217,18 @@ fragment FeedbackComments_feedback on Feedback {
                               "storageKey": null
                             }
                           ]
+                        },
+                        {
+                          "kind": "ClientExtension",
+                          "selections": [
+                            {
+                              "kind": "ScalarField",
+                              "alias": null,
+                              "name": "__id",
+                              "args": null,
+                              "storageKey": null
+                            }
+                          ]
                         }
                       ]
                     },
@@ -2325,6 +2337,18 @@ fragment FeedbackComments_feedback on Feedback {
                     "kind": "ScalarField",
                     "alias": null,
                     "name": "id",
+                    "args": null,
+                    "storageKey": null
+                  }
+                ]
+              },
+              {
+                "kind": "ClientExtension",
+                "selections": [
+                  {
+                    "kind": "ScalarField",
+                    "alias": null,
+                    "name": "__id",
                     "args": null,
                     "storageKey": null
                   }
@@ -2532,6 +2556,18 @@ fragment FeedbackTopComments_feedback on Feedback {
                               "storageKey": null
                             }
                           ]
+                        },
+                        {
+                          "kind": "ClientExtension",
+                          "selections": [
+                            {
+                              "kind": "ScalarField",
+                              "alias": null,
+                              "name": "__id",
+                              "args": null,
+                              "storageKey": null
+                            }
+                          ]
                         }
                       ]
                     },
@@ -2588,6 +2624,18 @@ fragment FeedbackTopComments_feedback on Feedback {
                               "kind": "ScalarField",
                               "alias": null,
                               "name": "id",
+                              "args": null,
+                              "storageKey": null
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "ClientExtension",
+                          "selections": [
+                            {
+                              "kind": "ScalarField",
+                              "alias": null,
+                              "name": "__id",
                               "args": null,
                               "storageKey": null
                             }
@@ -2718,6 +2766,18 @@ fragment FeedbackTopComments_feedback on Feedback {
                     "storageKey": null
                   }
                 ]
+              },
+              {
+                "kind": "ClientExtension",
+                "selections": [
+                  {
+                    "kind": "ScalarField",
+                    "alias": null,
+                    "name": "__id",
+                    "args": null,
+                    "storageKey": null
+                  }
+                ]
               }
             ]
           },
@@ -2795,6 +2855,18 @@ fragment FeedbackTopComments_feedback on Feedback {
                     "kind": "ScalarField",
                     "alias": null,
                     "name": "id",
+                    "args": null,
+                    "storageKey": null
+                  }
+                ]
+              },
+              {
+                "kind": "ClientExtension",
+                "selections": [
+                  {
+                    "kind": "ScalarField",
+                    "alias": null,
+                    "name": "__id",
                     "args": null,
                     "storageKey": null
                   }
@@ -3002,6 +3074,18 @@ fragment FeedbackTopComments_feedback on Feedback {
                               "storageKey": null
                             }
                           ]
+                        },
+                        {
+                          "kind": "ClientExtension",
+                          "selections": [
+                            {
+                              "kind": "ScalarField",
+                              "alias": null,
+                              "name": "__id",
+                              "args": null,
+                              "storageKey": null
+                            }
+                          ]
                         }
                       ]
                     },
@@ -3058,6 +3142,18 @@ fragment FeedbackTopComments_feedback on Feedback {
                               "kind": "ScalarField",
                               "alias": null,
                               "name": "id",
+                              "args": null,
+                              "storageKey": null
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "ClientExtension",
+                          "selections": [
+                            {
+                              "kind": "ScalarField",
+                              "alias": null,
+                              "name": "__id",
                               "args": null,
                               "storageKey": null
                             }
@@ -3188,6 +3284,18 @@ fragment FeedbackTopComments_feedback on Feedback {
                     "storageKey": null
                   }
                 ]
+              },
+              {
+                "kind": "ClientExtension",
+                "selections": [
+                  {
+                    "kind": "ScalarField",
+                    "alias": null,
+                    "name": "__id",
+                    "args": null,
+                    "storageKey": null
+                  }
+                ]
               }
             ]
           },
@@ -3265,6 +3373,18 @@ fragment FeedbackTopComments_feedback on Feedback {
                     "kind": "ScalarField",
                     "alias": null,
                     "name": "id",
+                    "args": null,
+                    "storageKey": null
+                  }
+                ]
+              },
+              {
+                "kind": "ClientExtension",
+                "selections": [
+                  {
+                    "kind": "ScalarField",
+                    "alias": null,
+                    "name": "__id",
                     "args": null,
                     "storageKey": null
                   }
@@ -4910,6 +5030,18 @@ fragment FeedbackText_feedback on Feedback {
                                   "storageKey": null
                                 }
                               ]
+                            },
+                            {
+                              "kind": "ClientExtension",
+                              "selections": [
+                                {
+                                  "kind": "ScalarField",
+                                  "alias": null,
+                                  "name": "__id",
+                                  "args": null,
+                                  "storageKey": null
+                                }
+                              ]
                             }
                           ]
                         },
@@ -5059,6 +5191,18 @@ fragment FeedbackText_feedback on Feedback {
                     "kind": "ScalarField",
                     "alias": null,
                     "name": "id",
+                    "args": null,
+                    "storageKey": null
+                  }
+                ]
+              },
+              {
+                "kind": "ClientExtension",
+                "selections": [
+                  {
+                    "kind": "ScalarField",
+                    "alias": null,
+                    "name": "__id",
                     "args": null,
                     "storageKey": null
                   }

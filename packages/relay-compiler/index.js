@@ -43,7 +43,7 @@ const formatGeneratedModule = require('./language/javascript/formatGeneratedModu
 const getIdentifierForArgumentValue = require('./core/getIdentifierForArgumentValue');
 const getLiteralArgumentValues = require('./core/getLiteralArgumentValues');
 const getNormalizationOperationName = require('./core/getNormalizationOperationName');
-const writeRelayGeneratedFile = require('./codegen/writeRelayGeneratedFile');
+const {writeRelayGeneratedFile} = require('./codegen/writeRelayGeneratedFile');
 
 const {main} = require('./bin/RelayCompilerMain');
 const {SourceControlMercurial} = require('./codegen/SourceControl');

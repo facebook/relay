@@ -22,7 +22,7 @@ const graphql = require('graphql');
 const invariant = require('invariant');
 const nullthrows = require('nullthrows');
 const path = require('path');
-const writeRelayGeneratedFile = require('./writeRelayGeneratedFile');
+const {writeRelayGeneratedFile} = require('./writeRelayGeneratedFile');
 
 const {
   getReaderSourceDefinitionName,

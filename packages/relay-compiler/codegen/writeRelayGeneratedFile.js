@@ -169,4 +169,7 @@ function extractHash(text: ?string): ?string {
   return match && match[1];
 }
 
-module.exports = writeRelayGeneratedFile;
+module.exports = {
+  createPrintRequireModuleDependency,
+  writeRelayGeneratedFile,
+};

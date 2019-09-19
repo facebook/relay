@@ -100,6 +100,9 @@ describe('useBlockingPaginationFragment with useSuspenseTransition', () => {
     const [startTransition, isPendingNext] = useSuspenseTransition(
       PAGINATION_SUSPENSE_CONFIG,
     );
+    /* $FlowFixMe(>=0.108.0 site=www,mobile,react_native_fb,oss) This comment suppresses an error found
+     * when Flow v0.108.0 was deployed. To see the error delete this comment
+     * and run Flow. */
     const {data, ...result} = useBlockingPaginationFragmentOriginal(
       fragmentNode,
       // $FlowFixMe
@@ -357,6 +360,9 @@ describe('useBlockingPaginationFragment with useSuspenseTransition', () => {
         data: userData,
       } = useBlockingPaginationFragmentWithSuspenseTransition(
         fragment,
+        /* $FlowFixMe(>=0.108.0 site=www,mobile,react_native_fb,oss) This comment suppresses an error found
+         * when Flow v0.108.0 was deployed. To see the error delete this comment
+         * and run Flow. */
         userRef,
       );
       return <Renderer user={userData} />;

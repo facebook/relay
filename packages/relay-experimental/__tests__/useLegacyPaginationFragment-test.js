@@ -70,6 +70,9 @@ describe('useLegacyPaginationFragment', () => {
   }
 
   function useLegacyPaginationFragment(fragmentNode, fragmentRef) {
+    /* $FlowFixMe(>=0.108.0 site=www,mobile,react_native_fb,oss) This comment suppresses an error found
+     * when Flow v0.108.0 was deployed. To see the error delete this comment
+     * and run Flow. */
     const {data, ...result} = useLegacyPaginationFragmentOriginal(
       fragmentNode,
       // $FlowFixMe
@@ -332,6 +335,9 @@ describe('useLegacyPaginationFragment', () => {
 
       setOwner = _setOwner;
 
+      /* $FlowFixMe(>=0.108.0 site=www,mobile,react_native_fb,oss) This comment suppresses an error found
+       * when Flow v0.108.0 was deployed. To see the error delete this comment
+       * and run Flow. */
       const {data: userData} = useLegacyPaginationFragment(fragment, userRef);
       return <Renderer user={userData} />;
     };

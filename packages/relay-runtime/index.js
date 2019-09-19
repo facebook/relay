@@ -14,6 +14,7 @@ const RelayConcreteNode = require('./util/RelayConcreteNode');
 const RelayConcreteVariables = require('./store/RelayConcreteVariables');
 const RelayConnectionHandler = require('./handlers/connection/RelayConnectionHandler');
 const RelayConnectionInterface = require('./handlers/connection/RelayConnectionInterface');
+const RelayConnectionResolver = require('./store/RelayConnectionResolver');
 const RelayDeclarativeMutationConfig = require('./mutations/RelayDeclarativeMutationConfig');
 const RelayDefaultHandleKey = require('./util/RelayDefaultHandleKey');
 const RelayDefaultHandlerProvider = require('./handlers/RelayDefaultHandlerProvider');
@@ -107,12 +108,14 @@ export type {
 } from './network/createRelayNetworkLogger';
 export type {GraphQLTaggedNode} from './query/RelayModernGraphQLTag';
 export type {
+  ConnectionEvent,
   ConnectionID,
   ConnectionReference,
   ConnectionReferenceObject,
   ConnectionResolver,
   ConnectionSnapshot,
 } from './store/RelayConnection';
+export type {ConnectionState} from './store/RelayConnectionResolver';
 export type {TaskScheduler} from './store/RelayModernQueryExecutor';
 export type {RecordState} from './store/RelayRecordState';
 export type {
@@ -266,6 +269,7 @@ module.exports = {
   DefaultHandlerProvider: RelayDefaultHandlerProvider,
   DefaultMissingFieldHandlers: RelayDefaultMissingFieldHandlers,
   ConnectionHandler: RelayConnectionHandler,
+  ConnectionResolver_UNSTABLE: RelayConnectionResolver,
   VIEWER_ID: ViewerPattern.VIEWER_ID,
   VIEWER_TYPE: ViewerPattern.VIEWER_TYPE,
 

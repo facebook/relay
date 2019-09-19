@@ -69,6 +69,9 @@ export type ConnectionReferenceObject<TEdge> = {
   +__connection: ConnectionReference<TEdge>,
 };
 
+// Note: The phantom TEdge type allows propagation of the `edges` field
+// selections.
+// eslint-disable-next-line no-unused-vars
 export type ConnectionReference<TEdge> = {|
   +variables: Variables,
   +edgesField: ReaderLinkedField,

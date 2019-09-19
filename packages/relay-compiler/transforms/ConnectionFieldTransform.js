@@ -12,11 +12,15 @@
 
 const IRTransformer = require('../core/GraphQLIRTransformer');
 
-const getLiteralArgumentValues = require('../core/getLiteralArgumentValues');
-
-const {getNullableType} = require('../core/GraphQLSchemaUtils');
+const {getNullableType, getRawType} = require('../core/GraphQLSchemaUtils');
 const {createUserError} = require('../core/RelayCompilerError');
-const {GraphQLID, GraphQLList, GraphQLNonNull} = require('graphql');
+const {
+  GraphQLID,
+  GraphQLInterfaceType,
+  GraphQLList,
+  GraphQLNonNull,
+  GraphQLObjectType,
+} = require('graphql');
 const {ConnectionInterface} = require('relay-runtime');
 
 import type CompilerContext from '../core/GraphQLCompilerContext';
@@ -132,6 +136,32 @@ function visitLinkedField(
       [connectionDirective.loc],
     );
   }
+  const connectionType = getRawType(transformed.type);
+  const edgesFieldDef =
+    connectionType instanceof GraphQLObjectType
+      ? connectionType.getFields().edges
+      : null;
+  const edgesType =
+    edgesFieldDef != null ? getRawType(edgesFieldDef.type) : null;
+  const nodeFieldDef =
+    edgesType != null && edgesType instanceof GraphQLObjectType
+      ? edgesType.getFields().node
+      : null;
+  const nodeType = nodeFieldDef != null ? getRawType(nodeFieldDef.type) : null;
+  if (
+    edgesType == null ||
+    nodeType == null ||
+    !(
+      nodeType instanceof GraphQLObjectType ||
+      nodeType instanceof GraphQLInterfaceType
+    )
+  ) {
+    throw createUserError(
+      'Invalid usage of @connection_resolver, expected field to have shape ' +
+        "'field { edges { node { ...} } }'.",
+      [transformed.loc],
+    );
+  }
   edgeField = {
     ...edgeField,
     selections: [
@@ -146,6 +176,30 @@ function visitLinkedField(
         metadata: null,
         name: '__id',
         type: new GraphQLNonNull(GraphQLID),
+      },
+      {
+        alias: 'node',
+        args: [],
+        directives: [],
+        handles: null,
+        kind: 'LinkedField',
+        loc: edgeField.loc,
+        metadata: null,
+        name: 'node',
+        selections: [
+          {
+            alias: '__id',
+            args: [],
+            directives: [],
+            handles: null,
+            kind: 'ScalarField',
+            loc: edgeField.loc,
+            metadata: null,
+            name: '__id',
+            type: new GraphQLNonNull(GraphQLID),
+          },
+        ],
+        type: nodeType,
       },
     ],
   };

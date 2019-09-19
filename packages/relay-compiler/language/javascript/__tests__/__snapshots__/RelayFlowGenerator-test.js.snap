@@ -133,7 +133,8 @@ export type FeedbackComments_feedback = {|
     +count: ?number,
     +__connection?: ConnectionReference<?{|
       +node: ?{|
-        +id: string
+        +id: string,
+        +__id: string,
       |},
       +__id: string,
     |}>,

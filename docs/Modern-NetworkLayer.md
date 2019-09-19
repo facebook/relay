@@ -66,7 +66,8 @@ import {
   RecordSource,
   Store,
 } from 'relay-runtime';
-import RelayQueryResponseCache from 'relay-runtime/lib/RelayQueryResponseCache';
+import { QueryResponseCache as RelayQueryResponseCache } from 'relay-runtime/lib';
+// or import RelayQueryResponseCache from 'relay-runtime/lib/network/RelayQueryResponseCache';
 
 const oneMinute = 60 * 1000;
 const cache = new RelayQueryResponseCache({ size: 250, ttl: oneMinute });

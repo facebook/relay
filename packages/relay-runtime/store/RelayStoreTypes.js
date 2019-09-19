@@ -392,6 +392,19 @@ export interface LoggerProvider {
   getLogger(config: LoggerTransactionConfig): Logger;
 }
 
+export type LogEvent =
+  | {|
+      +name: 'execute.start',
+      +transactionID: number,
+      request: ConcreteRequest,
+      variables: Variables,
+    |}
+  | {|+name: 'execute.next', +transactionID: number, response: GraphQLResponse|}
+  | {|+name: 'execute.error', +transactionID: number, error: Error|}
+  | {|+name: 'execute.complete', +transactionID: number|}
+  | {|+name: 'execute.unsubscribe', +transactionID: number|};
+export type LogFunction = LogEvent => void;
+
 /**
  * The public API of Relay core. Represents an encapsulated environment with its
  * own in-memory cache.

@@ -21,6 +21,7 @@ const RelayPublishQueue = require('./RelayPublishQueue');
 const RelayRecordSource = require('./RelayRecordSource');
 
 const defaultGetDataID = require('./defaultGetDataID');
+const generateID = require('../util/generateID');
 const invariant = require('invariant');
 const normalizeRelayPayload = require('./normalizeRelayPayload');
 
@@ -32,12 +33,14 @@ import type {
   PayloadData,
   UploadableMap,
 } from '../network/RelayNetworkTypes';
+import type {Observer} from '../network/RelayObservable';
 import type {CacheConfig, Disposable} from '../util/RelayRuntimeTypes';
 import type {TaskScheduler} from './RelayModernQueryExecutor';
 import type {GetDataID} from './RelayResponseNormalizer';
 import type {
   Environment,
   Logger,
+  LogFunction,
   LoggerProvider,
   MissingFieldHandler,
   NormalizationSelector,
@@ -57,6 +60,7 @@ import type {
 export type EnvironmentConfig = {|
   +configName?: string,
   +handlerProvider?: ?HandlerProvider,
+  +log?: ?LogFunction,
   +operationLoader?: ?OperationLoader,
   +network: Network,
   +scheduler?: ?TaskScheduler,
@@ -64,15 +68,16 @@ export type EnvironmentConfig = {|
   +missingFieldHandlers?: ?$ReadOnlyArray<MissingFieldHandler>,
   +operationTracker?: ?OperationTracker,
   +loggerProvider?: ?LoggerProvider,
-  /*
-    This method is likely to change in future versions, use at your own risk.
-    It can potentially break existing calls like store.get(<id>),
-    because the internal ID might not be the `id` field on the node anymore
-  */
+  /**
+   * This method is likely to change in future versions, use at your own risk.
+   * It can potentially break existing calls like store.get(<id>),
+   * because the internal ID might not be the `id` field on the node anymore
+   */
   +UNSTABLE_DO_NOT_USE_getDataID?: ?GetDataID,
 |};
 
 class RelayModernEnvironment implements Environment {
+  _log: LogFunction;
   _loggerProvider: ?LoggerProvider;
   _operationLoader: ?OperationLoader;
   _network: Network;
@@ -102,6 +107,7 @@ class RelayModernEnvironment implements Environment {
         );
       }
     }
+    this._log = config.log ?? emptyFunction;
     this._loggerProvider = config.loggerProvider;
     this._operationLoader = operationLoader;
     this._network = config.network;
@@ -304,7 +310,7 @@ class RelayModernEnvironment implements Environment {
         getDataID: this._getDataID,
       });
       return () => executor.cancel();
-    });
+    }).do(createLogObserver(this._log, operation));
   }
 
   /**
@@ -358,7 +364,7 @@ class RelayModernEnvironment implements Environment {
         getDataID: this._getDataID,
       });
       return () => executor.cancel();
-    });
+    }).do(createLogObserver(this._log, operation));
   }
 
   /**
@@ -390,7 +396,7 @@ class RelayModernEnvironment implements Environment {
         getDataID: this._getDataID,
       });
       return () => executor.cancel();
-    });
+    }).do(createLogObserver(this._log, operation));
   }
 
   toJSON(): mixed {
@@ -402,5 +408,50 @@ class RelayModernEnvironment implements Environment {
 // realm-specific instanceof check, and to aid in module tree-shaking to
 // avoid requiring all of RelayRuntime just to detect its environment.
 (RelayModernEnvironment: any).prototype['@@RelayModernEnvironment'] = true;
+
+function emptyFunction() {}
+
+function createLogObserver(
+  log: LogFunction,
+  operation,
+): Observer<GraphQLResponse> {
+  const transactionID = generateID();
+  return {
+    start: subscription => {
+      log({
+        name: 'execute.start',
+        transactionID,
+        request: operation.request.node,
+        variables: operation.request.variables,
+      });
+    },
+    next: response => {
+      log({
+        name: 'execute.next',
+        transactionID,
+        response,
+      });
+    },
+    error: error => {
+      log({
+        name: 'execute.error',
+        transactionID,
+        error,
+      });
+    },
+    complete: () => {
+      log({
+        name: 'execute.complete',
+        transactionID,
+      });
+    },
+    unsubscribe: () => {
+      log({
+        name: 'execute.unsubscribe',
+        transactionID,
+      });
+    },
+  };
+}
 
 module.exports = RelayModernEnvironment;

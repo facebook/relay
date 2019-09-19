@@ -28,7 +28,7 @@ import type {GeneratedNode} from 'relay-runtime';
 function createPrintRequireModuleDependency(
   extension: string,
 ): string => string {
-  return moduleName => `require('./${moduleName + extension}')`;
+  return moduleName => `require('./${moduleName}.${extension}')`;
 }
 
 function getConcreteType(node: GeneratedNode): string {

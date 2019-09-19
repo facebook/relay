@@ -12,7 +12,7 @@
 'use strict';
 
 const useRefetchableFragmentNode = require('./useRefetchableFragmentNode');
-const useStaticPropWarning = require('./useStaticPropWarning');
+const useStaticFragmentNodeWarning = require('./useStaticFragmentNodeWarning');
 
 const {getFragment} = require('relay-runtime');
 
@@ -36,11 +36,11 @@ function useRefetchableFragment<TQuery: OperationType, TKey: ?{+$data?: mixed}>(
   fragmentInput: GraphQLTaggedNode,
   fragmentRef: TKey,
 ): ReturnType<TQuery, TKey> {
-  useStaticPropWarning(
-    fragmentInput,
+  const fragmentNode = getFragment(fragmentInput);
+  useStaticFragmentNodeWarning(
+    fragmentNode,
     'first argument of useRefetchableFragment()',
   );
-  const fragmentNode = getFragment(fragmentInput);
   const {fragmentData, refetch} = useRefetchableFragmentNode<TQuery, TKey>(
     fragmentNode,
     fragmentRef,

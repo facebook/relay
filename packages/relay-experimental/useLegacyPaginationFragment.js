@@ -14,7 +14,7 @@
 const getPaginationMetadata = require('./getPaginationMetadata');
 const useLoadMoreFunction = require('./useLoadMoreFunction');
 const useRefetchableFragmentNode = require('./useRefetchableFragmentNode');
-const useStaticPropWarning = require('./useStaticPropWarning');
+const useStaticFragmentNodeWarning = require('./useStaticFragmentNodeWarning');
 
 const {useCallback, useState} = require('react');
 const {
@@ -62,12 +62,12 @@ function useLegacyPaginationFragment<
     TKey,
   >,
 > {
-  useStaticPropWarning(
-    fragmentInput,
+  const fragmentNode = getFragment(fragmentInput);
+  useStaticFragmentNodeWarning(
+    fragmentNode,
     'first argument of useLegacyPaginationFragment()',
   );
   const componentDisplayName = 'useLegacyPaginationFragment()';
-  const fragmentNode = getFragment(fragmentInput);
 
   const {
     connectionPathInFragmentData,

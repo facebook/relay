@@ -15,7 +15,7 @@ const React = require('react');
 
 const invariant = require('invariant');
 const useRelayEnvironment = require('./useRelayEnvironment');
-const useStaticPropWarning = require('./useStaticPropWarning');
+const useStaticFragmentNodeWarning = require('./useStaticFragmentNodeWarning');
 
 const {
   __internal: {getObservableForRequestInFlight},
@@ -32,11 +32,11 @@ function useIsParentQueryInFlight<TKey: ?{+$data?: mixed}>(
   fragmentRef: TKey,
 ): boolean {
   const environment = useRelayEnvironment();
-  useStaticPropWarning(
-    fragmentInput,
+  const fragmentNode = getFragment(fragmentInput);
+  useStaticFragmentNodeWarning(
+    fragmentNode,
     'first argument of useIsParentQueryInFlight()',
   );
-  const fragmentNode = getFragment(fragmentInput);
   const observable = useMemo(() => {
     // $FlowFixMe - TODO T39154660 Use FragmentPointer type instead of mixed
     const fragmentOwnerOrOwners = getFragmentOwner(fragmentNode, fragmentRef);

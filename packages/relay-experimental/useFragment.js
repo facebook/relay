@@ -12,7 +12,7 @@
 'use strict';
 
 const useFragmentNode = require('./useFragmentNode');
-const useStaticPropWarning = require('./useStaticPropWarning');
+const useStaticFragmentNodeWarning = require('./useStaticFragmentNodeWarning');
 
 const {getFragment} = require('relay-runtime');
 
@@ -55,8 +55,8 @@ function useFragment(
   fragmentInput: GraphQLTaggedNode,
   fragmentRef: ?$ReadOnlyArray<{+$data?: mixed}> | ?{+$data?: mixed},
 ): mixed {
-  useStaticPropWarning(fragmentInput, 'first argument of useFragment()');
   const fragmentNode = getFragment(fragmentInput);
+  useStaticFragmentNodeWarning(fragmentNode, 'first argument of useFragment()');
   const {data} = useFragmentNode<_>(fragmentNode, fragmentRef, 'useFragment()');
   return data;
 }

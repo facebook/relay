@@ -20,7 +20,7 @@ const getPaginationMetadata = require('./getPaginationMetadata');
 const invariant = require('invariant');
 const useLoadMoreFunction = require('./useLoadMoreFunction');
 const useRefetchableFragmentNode = require('./useRefetchableFragmentNode');
-const useStaticPropWarning = require('./useStaticPropWarning');
+const useStaticFragmentNodeWarning = require('./useStaticFragmentNodeWarning');
 const warning = require('warning');
 
 const {useCallback, useEffect, useRef, useState} = require('react');
@@ -68,11 +68,11 @@ function useBlockingPaginationFragment<
     TKey,
   >,
 > {
-  useStaticPropWarning(
-    fragmentInput,
+  const fragmentNode = getFragment(fragmentInput);
+  useStaticFragmentNodeWarning(
+    fragmentNode,
     `first argument of ${componentDisplayName}`,
   );
-  const fragmentNode = getFragment(fragmentInput);
 
   const {
     connectionPathInFragmentData,

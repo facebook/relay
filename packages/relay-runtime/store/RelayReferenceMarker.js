@@ -188,7 +188,6 @@ class RelayReferenceMarker {
           break;
         case CONNECTION:
           this._traverseConnection(selection, record);
-          // $FlowExpectedError - we need the break; for OSS linter
           break;
         default:
           (selection: empty);

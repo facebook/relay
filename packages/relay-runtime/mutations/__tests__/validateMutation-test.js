@@ -51,7 +51,7 @@ describe('validateOptimisticResponse', () => {
       shouldWarn: false,
     },
     {
-      name: 'Logs a warning when a field is undefined',
+      name: 'Logs a warning when a field is is not specified',
       mutation: generateAndCompile(`
           mutation ChangeNameMutation(
             $input: ActorNameChangeInput!
@@ -72,7 +72,7 @@ describe('validateOptimisticResponse', () => {
       shouldWarn: true,
     },
     {
-      name: 'Logs a warning when an id is undefined',
+      name: 'Logs a warning when an id is is not specified',
       mutation: generateAndCompile(`
           mutation ChangeNameMutation(
             $input: ActorNameChangeInput!
@@ -96,7 +96,7 @@ describe('validateOptimisticResponse', () => {
       shouldWarn: true,
     },
     {
-      name: 'Logs a warning when a object is undefined',
+      name: 'Logs a warning when a object is is not specified',
       mutation: generateAndCompile(`
           mutation ChangeNameMutation(
             $input: ActorNameChangeInput!
@@ -361,6 +361,48 @@ describe('validateOptimisticResponse', () => {
         myVar: false,
       },
       shouldWarn: false,
+    },
+    {
+      name: 'Does not warn when a field is specified as undefined',
+      mutation: generateAndCompile(`
+          mutation ChangeNameMutation(
+            $input: ActorNameChangeInput!
+          ) {
+            actorNameChange(input: $input) {
+              actor {
+                name
+              }
+            }
+          }
+      `).ChangeNameMutation,
+      optimisticResponse: {
+        actorNameChange: {
+          actor: {__typename: null, id: null, name: undefined},
+        },
+      },
+      variables: null,
+      shouldWarn: false,
+    },
+    {
+      name: 'Does not warn when an object is specified as undefined',
+      mutation: generateAndCompile(`
+          mutation ChangeNameMutation(
+            $input: ActorNameChangeInput!
+          ) {
+            actorNameChange(input: $input) {
+              actor {
+                name
+              }
+            }
+          }
+      `).ChangeNameMutation,
+      optimisticResponse: {
+        actorNameChange: {
+          actor: undefined,
+        },
+      },
+      variables: null,
+      shouldWarn: true,
     },
   ].forEach(({name, mutation, optimisticResponse, shouldWarn, variables}) => {
     it(name, () => {

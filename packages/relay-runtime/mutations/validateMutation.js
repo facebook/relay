@@ -138,13 +138,17 @@ if (__DEV__) {
     context.visitedPaths.add(path);
     switch (field.kind) {
       case 'ScalarField':
-        if (optimisticResponse[fieldName] === undefined) {
+        if (optimisticResponse.hasOwnProperty(fieldName) === false) {
           addFieldToDiff(path, context.missingDiff, true);
         }
         return;
       case 'LinkedField':
         const selections = field.selections;
-        if (optimisticResponse[fieldName] === null) {
+        if (
+          optimisticResponse[fieldName] === null ||
+          (Object.hasOwnProperty(fieldName) &&
+            optimisticResponse[fieldName] === undefined)
+        ) {
           return;
         }
         if (field.plural) {

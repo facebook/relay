@@ -89,6 +89,7 @@ export type {
   ExecuteFunction,
   FetchFunction,
   GraphQLResponse,
+  LogRequestInfoFunction,
   Network as INetwork,
   PayloadData,
   PayloadError,

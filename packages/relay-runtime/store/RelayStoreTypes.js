@@ -26,7 +26,10 @@ import type {
   NormalizationSplitOperation,
 } from '../util/NormalizationNode';
 import type {ReaderFragment} from '../util/ReaderNode';
-import type {ConcreteRequest} from '../util/RelayConcreteNode';
+import type {
+  ConcreteRequest,
+  RequestParameters,
+} from '../util/RelayConcreteNode';
 import type {
   CacheConfig,
   DataID,
@@ -394,16 +397,36 @@ export interface LoggerProvider {
 
 export type LogEvent =
   | {|
+      +name: 'execute.info',
+      +transactionID: number,
+      +info: mixed,
+    |}
+  | {|
       +name: 'execute.start',
       +transactionID: number,
-      request: ConcreteRequest,
-      variables: Variables,
+      +params: RequestParameters,
+      +variables: Variables,
     |}
-  | {|+name: 'execute.next', +transactionID: number, response: GraphQLResponse|}
-  | {|+name: 'execute.error', +transactionID: number, error: Error|}
-  | {|+name: 'execute.complete', +transactionID: number|}
-  | {|+name: 'execute.unsubscribe', +transactionID: number|};
+  | {|
+      +name: 'execute.next',
+      +transactionID: number,
+      +response: GraphQLResponse,
+    |}
+  | {|
+      +name: 'execute.error',
+      +transactionID: number,
+      +error: Error,
+    |}
+  | {|
+      +name: 'execute.complete',
+      +transactionID: number,
+    |}
+  | {|
+      +name: 'execute.unsubscribe',
+      +transactionID: number,
+    |};
 export type LogFunction = LogEvent => void;
+export type LogRequestInfoFunction = mixed => void;
 
 /**
  * The public API of Relay core. Represents an encapsulated environment with its

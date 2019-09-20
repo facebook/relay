@@ -29,12 +29,18 @@ import type {HandlerProvider} from '../handlers/RelayDefaultHandlerProvider';
 import type {LoggerTransactionConfig} from '../network/RelayNetworkLoggerTransaction';
 import type {
   GraphQLResponse,
+  LogRequestInfoFunction,
   Network,
   PayloadData,
   UploadableMap,
 } from '../network/RelayNetworkTypes';
 import type {Observer} from '../network/RelayObservable';
-import type {CacheConfig, Disposable} from '../util/RelayRuntimeTypes';
+import type {RequestParameters} from '../util/RelayConcreteNode';
+import type {
+  CacheConfig,
+  Disposable,
+  Variables,
+} from '../util/RelayRuntimeTypes';
 import type {TaskScheduler} from './RelayModernQueryExecutor';
 import type {GetDataID} from './RelayResponseNormalizer';
 import type {
@@ -291,11 +297,17 @@ class RelayModernEnvironment implements Environment {
     cacheConfig?: ?CacheConfig,
     updater?: ?SelectorStoreUpdater,
   }): RelayObservable<GraphQLResponse> {
+    const [logObserver, logRequestInfo] = this.__createLogObserver(
+      operation.request.node.params,
+      operation.request.variables,
+    );
     return RelayObservable.create(sink => {
       const source = this._network.execute(
         operation.request.node.params,
         operation.request.variables,
         cacheConfig || {},
+        null,
+        logRequestInfo,
       );
       const executor = RelayModernQueryExecutor.execute({
         operation,
@@ -310,7 +322,7 @@ class RelayModernEnvironment implements Environment {
         getDataID: this._getDataID,
       });
       return () => executor.cancel();
-    }).do(createLogObserver(this._log, operation));
+    }).do(logObserver);
   }
 
   /**
@@ -336,6 +348,10 @@ class RelayModernEnvironment implements Environment {
     updater?: ?SelectorStoreUpdater,
     uploadables?: ?UploadableMap,
   |}): RelayObservable<GraphQLResponse> {
+    const [logObserver, logRequestInfo] = this.__createLogObserver(
+      operation.request.node.params,
+      operation.request.variables,
+    );
     return RelayObservable.create(sink => {
       let optimisticConfig;
       if (optimisticResponse || optimisticUpdater) {
@@ -350,6 +366,7 @@ class RelayModernEnvironment implements Environment {
         operation.request.variables,
         {force: true},
         uploadables,
+        logRequestInfo,
       );
       const executor = RelayModernQueryExecutor.execute({
         operation,
@@ -364,7 +381,7 @@ class RelayModernEnvironment implements Environment {
         getDataID: this._getDataID,
       });
       return () => executor.cancel();
-    }).do(createLogObserver(this._log, operation));
+    }).do(logObserver);
   }
 
   /**
@@ -396,11 +413,63 @@ class RelayModernEnvironment implements Environment {
         getDataID: this._getDataID,
       });
       return () => executor.cancel();
-    }).do(createLogObserver(this._log, operation));
+    });
   }
 
   toJSON(): mixed {
     return `RelayModernEnvironment(${this.configName ?? ''})`;
+  }
+
+  __createLogObserver(
+    params: RequestParameters,
+    variables: Variables,
+  ): [Observer<GraphQLResponse>, LogRequestInfoFunction] {
+    const transactionID = generateID();
+    const log = this._log;
+    const logObserver = {
+      start: subscription => {
+        log({
+          name: 'execute.start',
+          transactionID,
+          params,
+          variables,
+        });
+      },
+      next: response => {
+        log({
+          name: 'execute.next',
+          transactionID,
+          response,
+        });
+      },
+      error: error => {
+        log({
+          name: 'execute.error',
+          transactionID,
+          error,
+        });
+      },
+      complete: () => {
+        log({
+          name: 'execute.complete',
+          transactionID,
+        });
+      },
+      unsubscribe: () => {
+        log({
+          name: 'execute.unsubscribe',
+          transactionID,
+        });
+      },
+    };
+    const logRequestInfo = info => {
+      log({
+        name: 'execute.info',
+        transactionID,
+        info,
+      });
+    };
+    return [logObserver, logRequestInfo];
   }
 }
 
@@ -410,48 +479,5 @@ class RelayModernEnvironment implements Environment {
 (RelayModernEnvironment: any).prototype['@@RelayModernEnvironment'] = true;
 
 function emptyFunction() {}
-
-function createLogObserver(
-  log: LogFunction,
-  operation,
-): Observer<GraphQLResponse> {
-  const transactionID = generateID();
-  return {
-    start: subscription => {
-      log({
-        name: 'execute.start',
-        transactionID,
-        request: operation.request.node,
-        variables: operation.request.variables,
-      });
-    },
-    next: response => {
-      log({
-        name: 'execute.next',
-        transactionID,
-        response,
-      });
-    },
-    error: error => {
-      log({
-        name: 'execute.error',
-        transactionID,
-        error,
-      });
-    },
-    complete: () => {
-      log({
-        name: 'execute.complete',
-        transactionID,
-      });
-    },
-    unsubscribe: () => {
-      log({
-        name: 'execute.unsubscribe',
-        transactionID,
-      });
-    },
-  };
-}
 
 module.exports = RelayModernEnvironment;

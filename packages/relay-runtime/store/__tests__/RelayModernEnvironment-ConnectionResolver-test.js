@@ -231,7 +231,7 @@ describe('@connection_resolver connection field', () => {
           first: $count
           last: $beforeCount
           orderby: "date"
-        ) @connection_resolver {
+        ) @connection_resolver(label: "FeedbackFragment$comments") {
           count
           edges {
             cursor
@@ -497,7 +497,7 @@ describe('@connection_resolver connection field', () => {
         count: 42,
         __connection: expect.objectContaining({
           id:
-            'connection:client:<feedbackid>:comments(orderby:"date"):FeedbackFragment$connection$comments',
+            'connection:client:<feedbackid>:comments(orderby:"date"):FeedbackFragment$comments',
         }),
       },
     });
@@ -1105,7 +1105,7 @@ describe('@connection_resolver connection field', () => {
           count: 43,
           __connection: expect.objectContaining({
             id:
-              'connection:client:<feedbackid>:comments(orderby:"date"):FeedbackFragment$connection$comments',
+              'connection:client:<feedbackid>:comments(orderby:"date"):FeedbackFragment$comments',
           }),
         },
       });

@@ -33,7 +33,7 @@ import type {
 } from '../core/GraphQLIR';
 
 const SCHEMA_EXTENSION = `
-  directive @connection_resolver(label: String) on FIELD
+  directive @connection_resolver(label: String!) on FIELD
 `;
 
 type State = {|
@@ -74,14 +74,24 @@ function visitLinkedField(
       [transformed.loc],
     );
   }
-  const rawLabel =
-    getLiteralStringArgument(connectionDirective, 'label') ?? transformed.alias;
-  const label = transformLabel(state.documentName, 'connection', rawLabel);
+  const labelArg = connectionDirective.args.find(({name}) => name === 'label');
+  const label = getLiteralStringArgument(connectionDirective, 'label');
+  if (
+    typeof label !== 'string' ||
+    (label !== state.documentName &&
+      label.indexOf(state.documentName + '$') !== 0)
+  ) {
+    throw createUserError(
+      'Invalid usage of @connection_resolver, expected a static string ' +
+        `'label'. Labels may be the document name ('${state.documentName}') ` +
+        `or be prefixed with the document name ('${
+          state.documentName
+        }$<name>')`,
+      [labelArg?.loc ?? connectionDirective.loc],
+    );
+  }
   const previousDirective = state.labels.get(label);
   if (previousDirective != null) {
-    const labelArg = connectionDirective.args.find(
-      ({name}) => name === 'label',
-    );
     const prevLabelArg = previousDirective.args.find(
       ({name}) => name === 'label',
     );
@@ -262,14 +272,6 @@ function getLiteralStringArgument(
     );
   }
   return value;
-}
-
-function transformLabel(
-  parentName: string,
-  directive: string,
-  label: string,
-): string {
-  return `${parentName}$${directive}$${label}`;
 }
 
 module.exports = {

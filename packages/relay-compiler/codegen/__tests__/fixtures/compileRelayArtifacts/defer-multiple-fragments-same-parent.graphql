@@ -7,7 +7,7 @@ query QueryWithMultipeDeferredFragmentsOnSameParent($id: ID!) {
 }
 
 fragment FeedbackComments_feedback on Feedback {
-  comments(first: 10) @connection_resolver {
+  comments(first: 10) @connection_resolver(label: "FeedbackComments_feedback") {
     edges {
       node {
         id

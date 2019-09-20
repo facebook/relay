@@ -2071,7 +2071,7 @@ query QueryWithConnectionField($id: ID!) {
 }
 
 fragment FeedbackComments_feedback on Feedback {
-  comments(first: 10) @connection_resolver {
+  comments(first: 10) @connection_resolver(label: "FeedbackComments_feedback") {
     edges {
       node {
         id
@@ -2180,7 +2180,7 @@ fragment FeedbackComments_feedback on Feedback {
                 "selections": [
                   {
                     "kind": "Connection",
-                    "label": "FeedbackComments_feedback$connection$comments",
+                    "label": "FeedbackComments_feedback",
                     "name": "comments",
                     "args": [
                       {
@@ -2315,7 +2315,7 @@ fragment FeedbackComments_feedback on Feedback {
       "selections": [
         {
           "kind": "Connection",
-          "label": "FeedbackComments_feedback$connection$comments",
+          "label": "FeedbackComments_feedback",
           "name": "comments",
           "args": [
             {
@@ -2412,7 +2412,8 @@ query QueryWithConnectionField($id: ID!) {
 }
 
 fragment FeedbackComments_feedback on Feedback {
-  comments(first: 10) @connection_resolver {
+  comments(first: 10)
+    @connection_resolver(label: "FeedbackComments_feedback$one") {
     edges {
       node {
         id
@@ -2425,7 +2426,8 @@ fragment FeedbackComments_feedback on Feedback {
 }
 
 fragment FeedbackTopComments_feedback on Feedback {
-  comments(first: 10) @connection_resolver {
+  comments(first: 10)
+    @connection_resolver(label: "FeedbackTopComments_feedback$two") {
     edges {
       node {
         id
@@ -2539,7 +2541,7 @@ fragment FeedbackTopComments_feedback on Feedback {
                 "selections": [
                   {
                     "kind": "Connection",
-                    "label": "FeedbackComments_feedback$connection$comments",
+                    "label": "FeedbackComments_feedback$one",
                     "name": "comments",
                     "args": [
                       {
@@ -2622,7 +2624,7 @@ fragment FeedbackTopComments_feedback on Feedback {
                   },
                   {
                     "kind": "Connection",
-                    "label": "FeedbackTopComments_feedback$connection$comments",
+                    "label": "FeedbackTopComments_feedback$two",
                     "name": "comments",
                     "args": [
                       {
@@ -2771,7 +2773,7 @@ fragment FeedbackTopComments_feedback on Feedback {
       "selections": [
         {
           "kind": "Connection",
-          "label": "FeedbackComments_feedback$connection$comments",
+          "label": "FeedbackComments_feedback$one",
           "name": "comments",
           "args": [
             {
@@ -2875,7 +2877,7 @@ fragment FeedbackTopComments_feedback on Feedback {
       "selections": [
         {
           "kind": "Connection",
-          "label": "FeedbackTopComments_feedback$connection$comments",
+          "label": "FeedbackTopComments_feedback$two",
           "name": "comments",
           "args": [
             {
@@ -2960,614 +2962,6 @@ fragment FeedbackTopComments_feedback on Feedback {
     }
   ]
 }
-`;
-
-exports[`compileRelayArtifacts matches expected output: connection-resolver-field-different-resolver.graphql 1`] = `
-~~~~~~~~~~ INPUT ~~~~~~~~~~
-query QueryWithConnectionField($id: ID!) {
-  feedback: node(id: $id) {
-    ...FeedbackComments_feedback
-    ...FeedbackTopComments_feedback
-  }
-}
-
-fragment FeedbackComments_feedback on Feedback {
-  comments(first: 10) @connection_resolver {
-    edges {
-      node {
-        id
-      }
-    }
-    pageInfo {
-      hasNextPage
-    }
-  }
-}
-
-fragment FeedbackTopComments_feedback on Feedback {
-  comments(first: 10) @connection_resolver {
-    edges {
-      node {
-        id
-      }
-    }
-    pageInfo {
-      hasNextPage
-    }
-  }
-}
-
-~~~~~~~~~~ OUTPUT ~~~~~~~~~~
-{
-  "kind": "Request",
-  "fragment": {
-    "kind": "Fragment",
-    "name": "QueryWithConnectionField",
-    "type": "Query",
-    "metadata": null,
-    "argumentDefinitions": [
-      {
-        "kind": "LocalArgument",
-        "name": "id",
-        "type": "ID!",
-        "defaultValue": null
-      }
-    ],
-    "selections": [
-      {
-        "kind": "LinkedField",
-        "alias": "feedback",
-        "name": "node",
-        "storageKey": null,
-        "args": [
-          {
-            "kind": "Variable",
-            "name": "id",
-            "variableName": "id"
-          }
-        ],
-        "concreteType": null,
-        "plural": false,
-        "selections": [
-          {
-            "kind": "FragmentSpread",
-            "name": "FeedbackComments_feedback",
-            "args": null
-          },
-          {
-            "kind": "FragmentSpread",
-            "name": "FeedbackTopComments_feedback",
-            "args": null
-          }
-        ]
-      }
-    ]
-  },
-  "operation": {
-    "kind": "Operation",
-    "name": "QueryWithConnectionField",
-    "argumentDefinitions": [
-      {
-        "kind": "LocalArgument",
-        "name": "id",
-        "type": "ID!",
-        "defaultValue": null
-      }
-    ],
-    "selections": [
-      {
-        "kind": "LinkedField",
-        "alias": "feedback",
-        "name": "node",
-        "storageKey": null,
-        "args": [
-          {
-            "kind": "Variable",
-            "name": "id",
-            "variableName": "id"
-          }
-        ],
-        "concreteType": null,
-        "plural": false,
-        "selections": [
-          {
-            "kind": "ScalarField",
-            "alias": null,
-            "name": "__typename",
-            "args": null,
-            "storageKey": null
-          },
-          {
-            "kind": "ScalarField",
-            "alias": null,
-            "name": "id",
-            "args": null,
-            "storageKey": null
-          },
-          {
-            "kind": "InlineFragment",
-            "type": "Feedback",
-            "selections": [
-              {
-                "kind": "LinkedField",
-                "alias": null,
-                "name": "comments",
-                "storageKey": null,
-                "args": null,
-                "concreteType": "CommentsConnection",
-                "plural": false,
-                "selections": [
-                  {
-                    "kind": "Connection",
-                    "label": "FeedbackComments_feedback$connection$comments",
-                    "name": "comments",
-                    "args": [
-                      {
-                        "kind": "Literal",
-                        "name": "first",
-                        "value": 10
-                      }
-                    ],
-                    "edges": {
-                      "kind": "LinkedField",
-                      "alias": null,
-                      "name": "edges",
-                      "storageKey": null,
-                      "args": null,
-                      "concreteType": "CommentsEdge",
-                      "plural": true,
-                      "selections": [
-                        {
-                          "kind": "LinkedField",
-                          "alias": null,
-                          "name": "node",
-                          "storageKey": null,
-                          "args": null,
-                          "concreteType": "Comment",
-                          "plural": false,
-                          "selections": [
-                            {
-                              "kind": "ScalarField",
-                              "alias": null,
-                              "name": "id",
-                              "args": null,
-                              "storageKey": null
-                            },
-                            {
-                              "kind": "ClientExtension",
-                              "selections": [
-                                {
-                                  "kind": "ScalarField",
-                                  "alias": null,
-                                  "name": "__id",
-                                  "args": null,
-                                  "storageKey": null
-                                }
-                              ]
-                            }
-                          ]
-                        },
-                        {
-                          "kind": "ClientExtension",
-                          "selections": [
-                            {
-                              "kind": "ScalarField",
-                              "alias": null,
-                              "name": "__id",
-                              "args": null,
-                              "storageKey": null
-                            }
-                          ]
-                        }
-                      ]
-                    },
-                    "pageInfo": {
-                      "kind": "LinkedField",
-                      "alias": null,
-                      "name": "pageInfo",
-                      "storageKey": null,
-                      "args": null,
-                      "concreteType": "PageInfo",
-                      "plural": false,
-                      "selections": [
-                        {
-                          "kind": "ScalarField",
-                          "alias": null,
-                          "name": "hasNextPage",
-                          "args": null,
-                          "storageKey": null
-                        }
-                      ]
-                    }
-                  },
-                  {
-                    "kind": "Connection",
-                    "label": "FeedbackTopComments_feedback$connection$comments",
-                    "name": "comments",
-                    "args": [
-                      {
-                        "kind": "Literal",
-                        "name": "first",
-                        "value": 10
-                      }
-                    ],
-                    "edges": {
-                      "kind": "LinkedField",
-                      "alias": null,
-                      "name": "edges",
-                      "storageKey": null,
-                      "args": null,
-                      "concreteType": "CommentsEdge",
-                      "plural": true,
-                      "selections": [
-                        {
-                          "kind": "LinkedField",
-                          "alias": null,
-                          "name": "node",
-                          "storageKey": null,
-                          "args": null,
-                          "concreteType": "Comment",
-                          "plural": false,
-                          "selections": [
-                            {
-                              "kind": "ScalarField",
-                              "alias": null,
-                              "name": "id",
-                              "args": null,
-                              "storageKey": null
-                            },
-                            {
-                              "kind": "ClientExtension",
-                              "selections": [
-                                {
-                                  "kind": "ScalarField",
-                                  "alias": null,
-                                  "name": "__id",
-                                  "args": null,
-                                  "storageKey": null
-                                }
-                              ]
-                            }
-                          ]
-                        },
-                        {
-                          "kind": "ClientExtension",
-                          "selections": [
-                            {
-                              "kind": "ScalarField",
-                              "alias": null,
-                              "name": "__id",
-                              "args": null,
-                              "storageKey": null
-                            }
-                          ]
-                        }
-                      ]
-                    },
-                    "pageInfo": {
-                      "kind": "LinkedField",
-                      "alias": null,
-                      "name": "pageInfo",
-                      "storageKey": null,
-                      "args": null,
-                      "concreteType": "PageInfo",
-                      "plural": false,
-                      "selections": [
-                        {
-                          "kind": "ScalarField",
-                          "alias": null,
-                          "name": "hasNextPage",
-                          "args": null,
-                          "storageKey": null
-                        }
-                      ]
-                    }
-                  }
-                ]
-              }
-            ]
-          }
-        ]
-      }
-    ]
-  }
-}
-
-QUERY:
-
-query QueryWithConnectionField(
-  $id: ID!
-) {
-  feedback: node(id: $id) {
-    __typename
-    ...FeedbackComments_feedback
-    ...FeedbackTopComments_feedback
-    id
-  }
-}
-
-fragment FeedbackComments_feedback on Feedback {
-  comments(first: 10) {
-    edges {
-      node {
-        id
-      }
-    }
-    pageInfo {
-      hasNextPage
-    }
-  }
-}
-
-fragment FeedbackTopComments_feedback on Feedback {
-  comments(first: 10) {
-    edges {
-      node {
-        id
-      }
-    }
-    pageInfo {
-      hasNextPage
-    }
-  }
-}
-
-
-{
-  "kind": "Fragment",
-  "name": "FeedbackComments_feedback",
-  "type": "Feedback",
-  "metadata": null,
-  "argumentDefinitions": [],
-  "selections": [
-    {
-      "kind": "LinkedField",
-      "alias": null,
-      "name": "comments",
-      "storageKey": null,
-      "args": null,
-      "concreteType": "CommentsConnection",
-      "plural": false,
-      "selections": [
-        {
-          "kind": "Connection",
-          "label": "FeedbackComments_feedback$connection$comments",
-          "name": "comments",
-          "args": [
-            {
-              "kind": "Literal",
-              "name": "first",
-              "value": 10
-            }
-          ],
-          "edges": {
-            "kind": "LinkedField",
-            "alias": null,
-            "name": "edges",
-            "storageKey": null,
-            "args": null,
-            "concreteType": "CommentsEdge",
-            "plural": true,
-            "selections": [
-              {
-                "kind": "LinkedField",
-                "alias": null,
-                "name": "node",
-                "storageKey": null,
-                "args": null,
-                "concreteType": "Comment",
-                "plural": false,
-                "selections": [
-                  {
-                    "kind": "ScalarField",
-                    "alias": null,
-                    "name": "id",
-                    "args": null,
-                    "storageKey": null
-                  },
-                  {
-                    "kind": "ClientExtension",
-                    "selections": [
-                      {
-                        "kind": "ScalarField",
-                        "alias": null,
-                        "name": "__id",
-                        "args": null,
-                        "storageKey": null
-                      }
-                    ]
-                  }
-                ]
-              },
-              {
-                "kind": "ClientExtension",
-                "selections": [
-                  {
-                    "kind": "ScalarField",
-                    "alias": null,
-                    "name": "__id",
-                    "args": null,
-                    "storageKey": null
-                  }
-                ]
-              }
-            ]
-          },
-          "pageInfo": {
-            "kind": "LinkedField",
-            "alias": null,
-            "name": "pageInfo",
-            "storageKey": null,
-            "args": null,
-            "concreteType": "PageInfo",
-            "plural": false,
-            "selections": [
-              {
-                "kind": "ScalarField",
-                "alias": null,
-                "name": "hasNextPage",
-                "args": null,
-                "storageKey": null
-              }
-            ]
-          }
-        }
-      ]
-    }
-  ]
-}
-
-{
-  "kind": "Fragment",
-  "name": "FeedbackTopComments_feedback",
-  "type": "Feedback",
-  "metadata": null,
-  "argumentDefinitions": [],
-  "selections": [
-    {
-      "kind": "LinkedField",
-      "alias": null,
-      "name": "comments",
-      "storageKey": null,
-      "args": null,
-      "concreteType": "CommentsConnection",
-      "plural": false,
-      "selections": [
-        {
-          "kind": "Connection",
-          "label": "FeedbackTopComments_feedback$connection$comments",
-          "name": "comments",
-          "args": [
-            {
-              "kind": "Literal",
-              "name": "first",
-              "value": 10
-            }
-          ],
-          "edges": {
-            "kind": "LinkedField",
-            "alias": null,
-            "name": "edges",
-            "storageKey": null,
-            "args": null,
-            "concreteType": "CommentsEdge",
-            "plural": true,
-            "selections": [
-              {
-                "kind": "LinkedField",
-                "alias": null,
-                "name": "node",
-                "storageKey": null,
-                "args": null,
-                "concreteType": "Comment",
-                "plural": false,
-                "selections": [
-                  {
-                    "kind": "ScalarField",
-                    "alias": null,
-                    "name": "id",
-                    "args": null,
-                    "storageKey": null
-                  },
-                  {
-                    "kind": "ClientExtension",
-                    "selections": [
-                      {
-                        "kind": "ScalarField",
-                        "alias": null,
-                        "name": "__id",
-                        "args": null,
-                        "storageKey": null
-                      }
-                    ]
-                  }
-                ]
-              },
-              {
-                "kind": "ClientExtension",
-                "selections": [
-                  {
-                    "kind": "ScalarField",
-                    "alias": null,
-                    "name": "__id",
-                    "args": null,
-                    "storageKey": null
-                  }
-                ]
-              }
-            ]
-          },
-          "pageInfo": {
-            "kind": "LinkedField",
-            "alias": null,
-            "name": "pageInfo",
-            "storageKey": null,
-            "args": null,
-            "concreteType": "PageInfo",
-            "plural": false,
-            "selections": [
-              {
-                "kind": "ScalarField",
-                "alias": null,
-                "name": "hasNextPage",
-                "args": null,
-                "storageKey": null
-              }
-            ]
-          }
-        }
-      ]
-    }
-  ]
-}
-`;
-
-exports[`compileRelayArtifacts matches expected output: connection-resolver-field-duplicate-default-label.invalid.graphql 1`] = `
-~~~~~~~~~~ INPUT ~~~~~~~~~~
-# expected-to-throw
-query QueryWithConnectionField($id: ID!) {
-  feedback: node(id: $id) {
-    ...FeedbackComments_feedback
-  }
-}
-
-fragment FeedbackComments_feedback on Feedback {
-  comments(first: 10) @connection_resolver {
-    edges {
-      node {
-        id
-      }
-    }
-    pageInfo {
-      hasNextPage
-    }
-  }
-  ... {
-    comments(first: 10) @connection_resolver {
-      #error: same default label
-      count
-    }
-  }
-}
-
-~~~~~~~~~~ OUTPUT ~~~~~~~~~~
-THROWN EXCEPTION:
-
-Error: Encountered 1 error(s):
-- Invalid use of @connection_resolver, could not generate a default label that is unique. Specify a unique 'label' as a literal string.
-  
-  Source: GraphQL request (20:25)
-  19:   ... {
-  20:     comments(first: 10) @connection_resolver {
-                              ^
-  21:       #error: same default label
-  
-  Source: GraphQL request (9:23)
-   8: fragment FeedbackComments_feedback on Feedback {
-   9:   comments(first: 10) @connection_resolver {
-                            ^
-  10:     edges {
-  
 `;
 
 exports[`compileRelayArtifacts matches expected output: connection-resolver-field-duplicate-explicit-label.invalid.graphql 1`] = `
@@ -3580,7 +2974,7 @@ query QueryWithConnectionField($id: ID!) {
 }
 
 fragment FeedbackComments_feedback on Feedback {
-  comments(first: 10) @connection_resolver(label: "comments") {
+  comments(first: 10) @connection_resolver(label: "FeedbackComments_feedback") {
     edges {
       # error: plural
       node {
@@ -3592,7 +2986,8 @@ fragment FeedbackComments_feedback on Feedback {
     }
   }
   ... {
-    comments(first: 10) @connection_resolver(label: "comments") {
+    comments(first: 10)
+      @connection_resolver(label: "FeedbackComments_feedback") {
       #error: same label
       count
     }
@@ -3605,16 +3000,52 @@ THROWN EXCEPTION:
 Error: Encountered 1 error(s):
 - Invalid use of @connection_resolver, the provided label is not unique. Specify a unique 'label' as a literal string.
   
-  Source: GraphQL request (21:46)
-  20:   ... {
-  21:     comments(first: 10) @connection_resolver(label: "comments") {
-                                                   ^
-  22:       #error: same label
+  Source: GraphQL request (22:28)
+  21:     comments(first: 10)
+  22:       @connection_resolver(label: "FeedbackComments_feedback") {
+                                 ^
+  23:       #error: same label
   
   Source: GraphQL request (9:44)
    8: fragment FeedbackComments_feedback on Feedback {
-   9:   comments(first: 10) @connection_resolver(label: "comments") {
+   9:   comments(first: 10) @connection_resolver(label: "FeedbackComments_feedback") {
                                                  ^
+  10:     edges {
+  
+`;
+
+exports[`compileRelayArtifacts matches expected output: connection-resolver-field-missing-label.invalid.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+# expected-to-throw
+query QueryWithConnectionField($id: ID!) {
+  feedback: node(id: $id) {
+    ...FeedbackComments_feedback
+  }
+}
+
+fragment FeedbackComments_feedback on Feedback {
+  comments(first: 10) @connection_resolver {
+    edges {
+      node {
+        id
+      }
+    }
+    pageInfo {
+      hasNextPage
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+THROWN EXCEPTION:
+
+Error: Encountered 1 error(s):
+- Invalid usage of @connection_resolver, expected a static string 'label'. Labels may be the document name ('FeedbackComments_feedback') or be prefixed with the document name ('FeedbackComments_feedback$<name>')
+  
+  Source: GraphQL request (9:23)
+   8: fragment FeedbackComments_feedback on Feedback {
+   9:   comments(first: 10) @connection_resolver {
+                            ^
   10:     edges {
   
 `;
@@ -3630,7 +3061,7 @@ query QueryWithConnectionField($id: ID!) {
 
 fragment FeedbackComments_feedback on Feedback {
   comments(first: 10) {
-    edges @connection_resolver {
+    edges @connection_resolver(label: "FeedbackComments_feedback") {
       # error: plural
       node {
         id
@@ -3650,7 +3081,7 @@ Error: Encountered 1 error(s):
   
   Source: GraphQL request (10:5)
    9:   comments(first: 10) {
-  10:     edges @connection_resolver {
+  10:     edges @connection_resolver(label: "FeedbackComments_feedback") {
           ^
   11:       # error: plural
   
@@ -3666,7 +3097,7 @@ query QueryWithConnectionField($id: ID!) {
 }
 
 fragment FeedbackComments_feedback on Feedback {
-  id @connection_resolver # error: scalar
+  id @connection_resolver(label: "FeedbackComments_feedback") # error: scalar
 }
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
@@ -3677,7 +3108,7 @@ Error: Encountered 1 error(s):
   
   Source: GraphQL request (9:6)
    8: fragment FeedbackComments_feedback on Feedback {
-   9:   id @connection_resolver # error: scalar
+   9:   id @connection_resolver(label: "FeedbackComments_feedback") # error: scalar
            ^
   10: }
   
@@ -4955,7 +4386,7 @@ query QueryWithMultipeDeferredFragmentsOnSameParent($id: ID!) {
 }
 
 fragment FeedbackComments_feedback on Feedback {
-  comments(first: 10) @connection_resolver {
+  comments(first: 10) @connection_resolver(label: "FeedbackComments_feedback") {
     edges {
       node {
         id
@@ -5088,7 +4519,7 @@ fragment FeedbackText_feedback on Feedback {
                     "selections": [
                       {
                         "kind": "Connection",
-                        "label": "FeedbackComments_feedback$connection$comments",
+                        "label": "FeedbackComments_feedback",
                         "name": "comments",
                         "args": [
                           {
@@ -5264,7 +4695,7 @@ fragment FeedbackText_feedback on Feedback {
       "selections": [
         {
           "kind": "Connection",
-          "label": "FeedbackComments_feedback$connection$comments",
+          "label": "FeedbackComments_feedback",
           "name": "comments",
           "args": [
             {

@@ -6,7 +6,7 @@ query QueryWithConnectionField($id: ID!) {
 }
 
 fragment FeedbackComments_feedback on Feedback {
-  comments(first: 10) @connection_resolver(label: "comments") {
+  comments(first: 10) @connection_resolver(label: "FeedbackComments_feedback") {
     edges {
       # error: plural
       node {
@@ -18,7 +18,8 @@ fragment FeedbackComments_feedback on Feedback {
     }
   }
   ... {
-    comments(first: 10) @connection_resolver(label: "comments") {
+    comments(first: 10)
+      @connection_resolver(label: "FeedbackComments_feedback") {
       #error: same label
       count
     }

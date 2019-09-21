@@ -73,6 +73,7 @@ function buildReactRelayContainer<TBase: React$ComponentType<any>>(
   if (__DEV__) {
     // Used by RelayModernTestUtils
     (ForwardContainer: any).__ComponentClass = ComponentClass;
+    ForwardContainer.displayName = containerName;
   }
 
   // $FlowFixMe

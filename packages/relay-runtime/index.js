@@ -205,14 +205,15 @@ export type {
 // As early as possible, check for the existence of the JavaScript globals which
 // Relay Runtime relies upon, and produce a clear message if they do not exist.
 if (__DEV__) {
-  if (
-    typeof Map !== 'function' ||
-    typeof Set !== 'function' ||
-    typeof Promise !== 'function' ||
-    typeof Object.assign !== 'function'
-  ) {
+  const mapStr = typeof Map !== 'function' ? 'Map' : null;
+  const setStr = typeof Set !== 'function' ? 'Set' : null;
+  const promiseStr = typeof Promise !== 'function' ? 'Promise' : null;
+  const objStr = typeof Object.assign !== 'function' ? 'Object.assign' : null;
+  if (mapStr || setStr || promiseStr || objStr) {
     throw new Error(
-      'relay-runtime requires Map, Set, Promise, and Object.assign to exist. ' +
+      `relay-runtime requires ${[mapStr, setStr, promiseStr, objStr]
+        .filter(Boolean)
+        .join(', and ')} to exist. ` +
         'Use a polyfill to provide these for older browsers.',
     );
   }

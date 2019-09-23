@@ -12,7 +12,6 @@
 
 const invariant = require('invariant');
 const isRelayEnvironment = require('./isRelayEnvironment');
-const isRelayVariables = require('./isRelayVariables');
 
 import type {RelayContext} from 'relay-runtime';
 
@@ -39,8 +38,7 @@ function isRelayContext(context: mixed): boolean {
     typeof context === 'object' &&
     context !== null &&
     !Array.isArray(context) &&
-    isRelayEnvironment(context.environment) &&
-    isRelayVariables(context.variables)
+    isRelayEnvironment(context.environment)
   );
 }
 

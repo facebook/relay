@@ -120,12 +120,12 @@ export type {ConnectionState} from './store/RelayConnectionResolver';
 export type {TaskScheduler} from './store/RelayModernQueryExecutor';
 export type {RecordState} from './store/RelayRecordState';
 export type {
-  Environment as IEnvironment,
   FragmentMap,
   FragmentPointer,
   FragmentReference,
   FragmentSpecResolver,
   HandleFieldPayload,
+  IEnvironment,
   LogEvent,
   LogFunction,
   Logger,

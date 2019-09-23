@@ -134,7 +134,7 @@ export type Props = {[key: string]: mixed};
  * integration layer (e.g. QueryRenderer, FragmentContainer, etc).
  */
 export type RelayContext = {
-  environment: Environment,
+  environment: IEnvironment,
   variables: Variables,
 };
 
@@ -432,7 +432,7 @@ export type LogRequestInfoFunction = mixed => void;
  * The public API of Relay core. Represents an encapsulated environment with its
  * own in-memory cache.
  */
-export interface Environment {
+export interface IEnvironment {
   /**
    * Determine if the selector can be resolved with data in the store (i.e. no
    * fields are missing).

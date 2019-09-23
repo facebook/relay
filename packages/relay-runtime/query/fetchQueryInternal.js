@@ -18,7 +18,7 @@ const invariant = require('invariant');
 import type {GraphQLResponse} from '../network/RelayNetworkTypes';
 import type {Subscription} from '../network/RelayObservable';
 import type {
-  Environment,
+  IEnvironment,
   OperationDescriptor,
   RequestDescriptor,
 } from '../store/RelayStoreTypes';
@@ -97,7 +97,7 @@ const requestCachesByEnvironment = new Map();
  * ```
  */
 function fetchQuery(
-  environment: Environment,
+  environment: IEnvironment,
   operation: OperationDescriptor,
   options?: {|
     networkCacheConfig?: CacheConfig,
@@ -119,7 +119,7 @@ function fetchQuery(
  * have an `OperationDescriptor` when they are called).
  */
 function fetchQueryDeduped(
-  environment: Environment,
+  environment: IEnvironment,
   request: RequestDescriptor,
   fetchFn: () => Observable<GraphQLResponse>,
 ): Observable<GraphQLResponse> {
@@ -197,7 +197,7 @@ function getObservableForCachedRequest(
  * If no request is in flight, null will be returned
  */
 function getPromiseForRequestInFlight(
-  environment: Environment,
+  environment: IEnvironment,
   request: RequestDescriptor,
 ): Promise<?GraphQLResponse> | null {
   const requestCache = getRequestCache(environment);
@@ -234,7 +234,7 @@ function getPromiseForRequestInFlight(
  * issue a fetch if there isn't already one pending.
  */
 function getObservableForRequestInFlight(
-  environment: Environment,
+  environment: IEnvironment,
   request: RequestDescriptor,
 ): Observable<GraphQLResponse> | null {
   const requestCache = getRequestCache(environment);
@@ -247,7 +247,7 @@ function getObservableForRequestInFlight(
 }
 
 function hasRequestInFlight(
-  environment: Environment,
+  environment: IEnvironment,
   request: RequestDescriptor,
 ): boolean {
   const requestCache = getRequestCache(environment);
@@ -258,7 +258,7 @@ function hasRequestInFlight(
  * @private
  */
 function getRequestCache(
-  environment: Environment,
+  environment: IEnvironment,
 ): Map<RequestIdentifier, RequestCacheEntry> {
   const cached: ?Map<
     RequestIdentifier,

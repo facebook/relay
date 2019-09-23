@@ -24,7 +24,7 @@ const {
 import type {ConcreteRequest} from '../util/RelayConcreteNode';
 import type {Disposable, Variables} from '../util/RelayRuntimeTypes';
 import type {
-  Environment,
+  IEnvironment,
   FragmentMap,
   FragmentSpecResolver,
   FragmentSpecResults,
@@ -203,12 +203,12 @@ class RelayModernFragmentSpecResolver implements FragmentSpecResolver {
 class SelectorResolver {
   _callback: () => void;
   _data: ?SelectorData;
-  _environment: Environment;
+  _environment: IEnvironment;
   _selector: SingularReaderSelector;
   _subscription: ?Disposable;
 
   constructor(
-    environment: Environment,
+    environment: IEnvironment,
     selector: SingularReaderSelector,
     callback: () => void,
   ) {
@@ -285,12 +285,12 @@ class SelectorResolver {
 class SelectorListResolver {
   _callback: () => void;
   _data: Array<?SelectorData>;
-  _environment: Environment;
+  _environment: IEnvironment;
   _resolvers: Array<SelectorResolver>;
   _stale: boolean;
 
   constructor(
-    environment: Environment,
+    environment: IEnvironment,
     selector: PluralReaderSelector,
     callback: () => void,
   ) {

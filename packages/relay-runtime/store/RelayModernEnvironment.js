@@ -44,9 +44,9 @@ import type {
 import type {TaskScheduler} from './RelayModernQueryExecutor';
 import type {GetDataID} from './RelayResponseNormalizer';
 import type {
-  Environment,
-  Logger,
+  IEnvironment,
   LogFunction,
+  Logger,
   LoggerProvider,
   MissingFieldHandler,
   NormalizationSelector,
@@ -82,7 +82,7 @@ export type EnvironmentConfig = {|
   +UNSTABLE_DO_NOT_USE_getDataID?: ?GetDataID,
 |};
 
-class RelayModernEnvironment implements Environment {
+class RelayModernEnvironment implements IEnvironment {
   _log: LogFunction;
   _loggerProvider: ?LoggerProvider;
   _operationLoader: ?OperationLoader;

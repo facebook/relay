@@ -21,7 +21,10 @@ const {
 } = require('../store/RelayModernOperationDescriptor');
 
 import type {GraphQLTaggedNode} from '../query/RelayModernGraphQLTag';
-import type {Environment, SelectorStoreUpdater} from '../store/RelayStoreTypes';
+import type {
+  IEnvironment,
+  SelectorStoreUpdater,
+} from '../store/RelayStoreTypes';
 import type {Disposable, Variables} from '../util/RelayRuntimeTypes';
 import type {DeclarativeMutationConfig} from './RelayDeclarativeMutationConfig';
 
@@ -38,7 +41,7 @@ export type OptimisticMutationConfig = {|
  * environment.
  */
 function applyOptimisticMutation(
-  environment: Environment,
+  environment: IEnvironment,
   config: OptimisticMutationConfig,
 ): Disposable {
   invariant(

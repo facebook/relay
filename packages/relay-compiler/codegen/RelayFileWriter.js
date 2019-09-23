@@ -376,7 +376,7 @@ function writeAll({
       }
 
       allOutputDirectories.forEach(dir => {
-        dir.deleteExtraFiles();
+        dir.deleteExtraFiles(languagePlugin.isGeneratedFile);
       });
       if (sourceControl && !onlyValidate) {
         await CodegenDirectory.sourceControlAddRemove(

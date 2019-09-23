@@ -35,6 +35,7 @@ export type PluginInterface = {
   findGraphQLTags: GraphQLTagFinder,
   formatModule: FormatModule,
   typeGenerator: TypeGenerator,
+  getModuleName?: (operationName: string) => string,
 };
 
 /**

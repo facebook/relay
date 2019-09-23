@@ -255,7 +255,7 @@ describe('validateOptimisticResponse', () => {
       shouldWarn: false,
     },
     {
-      name: 'Handles include and skip directives when var is true',
+      name: 'Warns when conditional branches are not specified',
       mutation: generateAndCompile(`
           mutation ChangeNameMutation(
             $input: ActorNameChangeInput!,
@@ -289,10 +289,10 @@ describe('validateOptimisticResponse', () => {
       variables: {
         myVar: true,
       },
-      shouldWarn: false,
+      shouldWarn: true,
     },
     {
-      name: 'Handles include directive and skip directives when var is false',
+      name: 'Does not warns when conditional branches are specified',
       mutation: generateAndCompile(`
           mutation ChangeNameMutation(
             $input: ActorNameChangeInput!,
@@ -320,13 +320,14 @@ describe('validateOptimisticResponse', () => {
             id: 3,
             __typename: 'Page',
             username: null,
+            canViewerLike: false,
           },
         },
       },
       variables: {
         myVar: false,
       },
-      shouldWarn: true,
+      shouldWarn: false,
     },
     {
       name: 'Handles Lists',

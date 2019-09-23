@@ -20,6 +20,7 @@ import typeof {createContext} from 'react';
 type React = {
   createContext: createContext<RelayContext | null>,
   version: string,
+  ...
 };
 
 let relayContext: ?React$Context<RelayContext | null>;

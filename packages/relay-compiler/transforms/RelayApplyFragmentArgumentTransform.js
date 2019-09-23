@@ -26,6 +26,7 @@ import type {
   Argument,
   ArgumentValue,
   Condition,
+  Connection,
   Directive,
   Field,
   Fragment,
@@ -37,6 +38,10 @@ import type {
 import type {Scope} from '../core/RelayCompilerScope';
 
 const {getFragmentScope, getRootScope} = RelayCompilerScope;
+
+type PendingFragment =
+  | {|kind: 'pending'|}
+  | {|kind: 'resolved', value: ?Fragment|};
 
 /**
  * A tranform that converts a set of documents containing fragments/fragment
@@ -63,8 +68,8 @@ const {getFragmentScope, getRootScope} = RelayCompilerScope;
 function relayApplyFragmentArgumentTransform(
   context: CompilerContext,
 ): CompilerContext {
-  const fragments: Map<string, ?Fragment> = new Map();
-  const nextContext = IRTransformer.transform(context, {
+  const fragments: Map<string, PendingFragment> = new Map();
+  let nextContext = IRTransformer.transform(context, {
     Root: node => {
       const scope = getRootScope(node.argumentDefinitions);
       return transformNode(context, fragments, scope, node, [node]);
@@ -74,15 +79,17 @@ function relayApplyFragmentArgumentTransform(
     Fragment: () => null,
   });
 
-  return (Array.from(fragments.values()): $ReadOnlyArray<?Fragment>).reduce(
-    (ctx: CompilerContext, fragment) => (fragment ? ctx.add(fragment) : ctx),
-    nextContext,
-  );
+  for (const pendingFragment of fragments.values()) {
+    if (pendingFragment.kind === 'resolved' && pendingFragment.value) {
+      nextContext = nextContext.add(pendingFragment.value);
+    }
+  }
+  return nextContext;
 }
 
 function transformNode<T: Node>(
   context: CompilerContext,
-  fragments: Map<string, ?Fragment>,
+  fragments: Map<string, PendingFragment>,
   scope: Scope,
   node: T,
   errorContext: $ReadOnlyArray<IR>,
@@ -118,7 +125,7 @@ function transformNode<T: Node>(
 
 function transformFragmentSpread(
   context: CompilerContext,
-  fragments: Map<string, ?Fragment>,
+  fragments: Map<string, PendingFragment>,
   scope: Scope,
   spread: FragmentSpread,
   errorContext: $ReadOnlyArray<IR>,
@@ -151,7 +158,7 @@ function transformFragmentSpread(
 
 function transformField<T: Field>(
   context: CompilerContext,
-  fragments: Map<string, ?Fragment>,
+  fragments: Map<string, PendingFragment>,
   scope: Scope,
   field: T,
   errorContext: $ReadOnlyArray<IR>,
@@ -184,9 +191,34 @@ function transformField<T: Field>(
   }
 }
 
+function transformConnection(
+  context: CompilerContext,
+  fragments: Map<string, PendingFragment>,
+  scope: Scope,
+  connection: Connection,
+  errorContext: $ReadOnlyArray<IR>,
+): ?Connection {
+  const args = transformArguments(scope, connection.args, errorContext);
+  const selections = transformSelections(
+    context,
+    fragments,
+    scope,
+    connection.selections,
+    errorContext,
+  );
+  if (!selections) {
+    return null;
+  }
+  return ({
+    ...connection,
+    args,
+    selections,
+  }: $FlowFixMe);
+}
+
 function transformCondition(
   context: CompilerContext,
-  fragments: Map<string, ?Fragment>,
+  fragments: Map<string, PendingFragment>,
   scope: Scope,
   node: Condition,
   errorContext: $ReadOnlyArray<IR>,
@@ -232,7 +264,7 @@ function transformCondition(
 
 function transformSelections(
   context: CompilerContext,
-  fragments: Map<string, ?Fragment>,
+  fragments: Map<string, PendingFragment>,
   scope: Scope,
   selections: $ReadOnlyArray<Selection>,
   errorContext: $ReadOnlyArray<IR>,
@@ -273,6 +305,14 @@ function transformSelections(
         nextSelections = nextSelections || [];
         nextSelections.push(...conditionSelections);
       }
+    } else if (selection.kind === 'Connection') {
+      nextSelection = transformConnection(
+        context,
+        fragments,
+        scope,
+        selection,
+        errorContext,
+      );
     } else if (
       selection.kind === 'LinkedField' ||
       selection.kind === 'ScalarField' ||
@@ -345,7 +385,7 @@ function transformValue(
       // additional spurious errors.
       throw createNonRecoverableUserError(
         `Variable '\$${value.variableName}' is not in scope.`,
-        [value.loc],
+        [errorContext[0]?.loc, value.loc].filter(Boolean),
       );
     }
     return scopeValue;
@@ -372,7 +412,7 @@ function transformValue(
  */
 function transformFragment(
   context: CompilerContext,
-  fragments: Map<string, ?Fragment>,
+  fragments: Map<string, PendingFragment>,
   parentScope: Scope,
   spread: FragmentSpread,
   args: $ReadOnlyArray<Argument>,
@@ -385,7 +425,17 @@ function transformFragment(
     : fragment.name;
   const appliedFragment = fragments.get(fragmentName);
   if (appliedFragment) {
-    return appliedFragment;
+    if (appliedFragment.kind === 'resolved') {
+      return appliedFragment.value;
+    } else {
+      // This transform does whole-program optimization, errors in
+      // a single document could break invariants and/or cause
+      // additional spurious errors.
+      throw createNonRecoverableUserError(
+        `Found a circular reference from fragment '${fragment.name}'.`,
+        errorContext.map(node => node.loc),
+      );
+    }
   }
   const fragmentScope = getFragmentScope(
     fragment.argumentDefinitions,
@@ -393,16 +443,8 @@ function transformFragment(
     parentScope,
     spread,
   );
-  if (fragments.get(fragmentName) === null) {
-    // This transform does whole-program optimization, errors in
-    // a single document could break invariants and/or cause
-    // additional spurious errors.
-    throw createNonRecoverableUserError(
-      `Found a circular reference from fragment '${fragment.name}'.`,
-      errorContext.map(node => node.loc),
-    );
-  }
-  fragments.set(fragmentName, null); // to detect circular references
+  // record that this fragment is pending to detect circular references
+  fragments.set(fragmentName, {kind: 'pending'});
   let transformedFragment = null;
   const selections = transformSelections(
     context,
@@ -419,7 +461,7 @@ function transformFragment(
       argumentDefinitions: [],
     };
   }
-  fragments.set(fragmentName, transformedFragment);
+  fragments.set(fragmentName, {kind: 'resolved', value: transformedFragment});
   return transformedFragment;
 }
 
@@ -445,7 +487,7 @@ function hashArguments(
           // additional spurious errors.
           throw createNonRecoverableUserError(
             `Variable '\$${arg.value.variableName}' is not in scope.`,
-            [arg.value.loc],
+            [errorContext[0]?.loc, arg.value.loc].filter(Boolean),
           );
         }
       } else {

@@ -65,7 +65,7 @@ describe('RelayModernFragmentOwner', () => {
           },
         });
 
-        zuck = environment.lookup(owner.fragment, owner).data?.node;
+        zuck = environment.lookup(owner.fragment).data?.node;
       });
 
       it('throws if fragment ref is not an object', () => {
@@ -89,7 +89,7 @@ describe('RelayModernFragmentOwner', () => {
           UserFragment,
           (zuck: $FlowFixMe),
         );
-        expect(fragmentOwner).toBe(owner);
+        expect(fragmentOwner).toBe(owner.request);
       });
     });
 
@@ -120,7 +120,7 @@ describe('RelayModernFragmentOwner', () => {
           ],
         });
 
-        zuck = environment.lookup(owner.fragment, owner).data?.nodes;
+        zuck = environment.lookup(owner.fragment).data?.nodes;
       });
 
       it('throws if fragment ref is not an object', () => {
@@ -144,9 +144,9 @@ describe('RelayModernFragmentOwner', () => {
           UsersFragment,
           (zuck: $FlowFixMe),
         );
-        expect(fragmentOwner).toEqual([owner]);
+        expect(fragmentOwner).toEqual([owner.request]);
         // $FlowFixMe
-        expect(fragmentOwner[0]).toBe(owner);
+        expect(fragmentOwner[0]).toBe(owner.request);
       });
     });
   });
@@ -192,8 +192,8 @@ describe('RelayModernFragmentOwner', () => {
         ],
       });
 
-      zuck = environment.lookup(owner.fragment, owner).data?.node;
-      zucks = environment.lookup(owner.fragment, owner).data?.nodes;
+      zuck = environment.lookup(owner.fragment).data?.node;
+      zucks = environment.lookup(owner.fragment).data?.nodes;
     });
 
     it('throws if fragment ref is not an object', () => {
@@ -249,12 +249,12 @@ describe('RelayModernFragmentOwner', () => {
         {zuck, zucks},
       );
       expect(fragmentOwners).toEqual({
-        zuck: owner,
-        zucks: [owner],
+        zuck: owner.request,
+        zucks: [owner.request],
       });
-      expect(fragmentOwners.zuck).toBe(owner);
+      expect(fragmentOwners.zuck).toBe(owner.request);
       // $FlowFixMe
-      expect(fragmentOwners.zucks[0]).toBe(owner);
+      expect(fragmentOwners.zucks[0]).toBe(owner.request);
     });
   });
 });

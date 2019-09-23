@@ -13,7 +13,14 @@
 const invariant = require('invariant');
 
 import type {RelayContext} from './RelayStoreTypes.js';
-import typeof React from 'React';
+import typeof {createContext} from 'react';
+
+// Ideally, we'd just import the type of the react module, but this causes Flow
+// problems.
+type React = {
+  createContext: createContext<RelayContext | null>,
+  version: string,
+};
 
 let relayContext: ?React$Context<RelayContext | null>;
 let firstReact: ?React;

@@ -12,12 +12,16 @@
 
 type FeatureFlags = {|
   ENABLE_VARIABLE_CONNECTION_KEY: boolean,
+  ENABLE_CONNECTION_RESOLVERS: boolean,
+  ENABLE_PARTIAL_RENDERING_DEFAULT: boolean,
   USE_RECORD_SOURCE_MAP_IMPL: boolean,
 |};
 
 const RelayFeatureFlags: FeatureFlags = {
   // T45504512: new connection model
   ENABLE_VARIABLE_CONNECTION_KEY: false,
+  ENABLE_CONNECTION_RESOLVERS: false,
+  ENABLE_PARTIAL_RENDERING_DEFAULT: false,
   USE_RECORD_SOURCE_MAP_IMPL: false,
 };
 

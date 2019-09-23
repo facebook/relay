@@ -10,7 +10,6 @@
 
 'use strict';
 
-const CompilerContext = require('../core/GraphQLCompilerContext');
 const IRTransformer = require('../core/GraphQLIRTransformer');
 
 const invariant = require('invariant');
@@ -18,6 +17,7 @@ const invariant = require('invariant');
 const {GraphQLString} = require('graphql');
 const {getRelayHandleKey} = require('relay-runtime');
 
+import type CompilerContext from '../core/GraphQLCompilerContext';
 import type {LinkedField, ScalarField} from '../core/GraphQLIR';
 
 function relayFieldHandleTransform(context: CompilerContext): CompilerContext {
@@ -57,7 +57,6 @@ function visitField<F: LinkedField | ScalarField>(field: F): F {
     args.push({
       kind: 'Argument',
       loc: handle.dynamicKey.loc,
-      metadata: null,
       name: '__dynamicKey',
       type: GraphQLString,
       value: handle.dynamicKey,

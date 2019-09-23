@@ -10,8 +10,9 @@
 
 'use strict';
 
-const GraphQLCompilerContext = require('../core/GraphQLCompilerContext');
 const GraphQLIRTransformer = require('../core/GraphQLIRTransformer');
+
+import type GraphQLCompilerContext from '../core/GraphQLCompilerContext';
 const IMap = require('immutable').Map;
 const partitionArray = require('../util/partitionArray');
 const getIdentifierForSelection = require('../core/getIdentifierForSelection');
@@ -178,6 +179,7 @@ function transformNode<T: Node>(
       case 'ModuleImport':
       case 'ClientExtension':
       case 'InlineDataFragmentSpread':
+      case 'Connection':
       case 'ConnectionField':
       case 'LinkedField': {
         const transformed = transformNode(

@@ -12,30 +12,16 @@
 'use strict';
 
 const RelayModernEnvironment = require('../RelayModernEnvironment');
-const RelayModernOperationDescriptor = require('../RelayModernOperationDescriptor');
 const RelayModernStore = require('../RelayModernStore');
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
 const RelayRecordSource = require('../RelayRecordSource');
 
+const {
+  createOperationDescriptor,
+} = require('../RelayModernOperationDescriptor');
 const {createReaderSelector} = require('../RelayModernSelector');
 const {generateAndCompile} = require('relay-test-utils-internal');
-
-function createOperationDescriptor(...args) {
-  const operation = RelayModernOperationDescriptor.createOperationDescriptor(
-    ...args,
-  );
-  // For convenience of the test output, override toJSON to print
-  // a more succinct description of the operation.
-  // $FlowFixMe
-  operation.toJSON = () => {
-    return {
-      name: operation.fragment.node.name,
-      variables: operation.variables,
-    };
-  };
-  return operation;
-}
 
 describe('execute() a query with multiple @stream selections on the same record', () => {
   let callbacks;
@@ -83,7 +69,7 @@ describe('execute() a query with multiple @stream selections on the same record'
       `));
     variables = {id: '1', enableStream: true};
     operation = createOperationDescriptor(query, variables);
-    selector = createReaderSelector(fragment, '1', {});
+    selector = createReaderSelector(fragment, '1', {}, operation.request);
 
     // Handler to upper-case the value of the (string) field to which it's
     // applied
@@ -142,7 +128,7 @@ describe('execute() a query with multiple @stream selections on the same record'
   });
 
   it('calls next() and publishes the initial payload to the store', () => {
-    const initialSnapshot = environment.lookup(selector, operation);
+    const initialSnapshot = environment.lookup(selector);
     const callback = jest.fn();
     environment.subscribe(initialSnapshot, callback);
 
@@ -173,7 +159,7 @@ describe('execute() a query with multiple @stream selections on the same record'
   });
 
   it('processes sequential payloads (all actors, then all viewedBy)', () => {
-    const initialSnapshot = environment.lookup(selector, operation);
+    const initialSnapshot = environment.lookup(selector);
     const callback = jest.fn();
     environment.subscribe(initialSnapshot, callback);
 
@@ -289,7 +275,7 @@ describe('execute() a query with multiple @stream selections on the same record'
   });
 
   it('processes interleaved streamed payloads (actor/viewedBy/actor/viewedBy)', () => {
-    const initialSnapshot = environment.lookup(selector, operation);
+    const initialSnapshot = environment.lookup(selector);
     const callback = jest.fn();
     environment.subscribe(initialSnapshot, callback);
 

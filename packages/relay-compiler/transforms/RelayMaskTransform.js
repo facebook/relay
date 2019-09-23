@@ -12,7 +12,6 @@
 
 'use strict';
 
-const CompilerContext = require('../core/GraphQLCompilerContext');
 const IRTransformer = require('../core/GraphQLIRTransformer');
 
 const invariant = require('invariant');
@@ -20,6 +19,7 @@ const joinArgumentDefinitions = require('../util/joinArgumentDefinitions');
 
 const {createUserError} = require('../core/RelayCompilerError');
 
+import type CompilerContext from '../core/GraphQLCompilerContext';
 import type {
   Fragment,
   FragmentSpread,

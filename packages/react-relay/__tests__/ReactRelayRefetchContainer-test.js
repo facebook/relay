@@ -10,14 +10,17 @@
 
 'use strict';
 
-const React = require('React');
+const React = require('react');
 const ReactRelayContext = require('../ReactRelayContext');
 const ReactRelayRefetchContainer = require('../ReactRelayRefetchContainer');
-const ReactTestRenderer = require('ReactTestRenderer');
+const ReactTestRenderer = require('react-test-renderer');
 
 const readContext = require('../readContext');
 
-const {createOperationDescriptor} = require('relay-runtime');
+const {
+  createReaderSelector,
+  createOperationDescriptor,
+} = require('relay-runtime');
 const {
   createMockEnvironment,
   generateAndCompile,
@@ -233,16 +236,18 @@ describe('ReactRelayRefetchContainer', () => {
     // Subscribes for updates
     expect(environment.subscribe.mock.calls.length).toBe(1);
     expect(environment.subscribe.mock.calls[0][0]).toEqual({
-      dataID: '4',
       data: {
         id: '4',
         name: 'Zuck',
       },
-      node: UserFragment,
-      seenRecords: expect.any(Object),
-      variables: {cond: true},
       isMissingData: false,
-      owner: ownerUser1,
+      seenRecords: expect.any(Object),
+      selector: createReaderSelector(
+        UserFragment,
+        '4',
+        {cond: true},
+        ownerUser1.request,
+      ),
     });
   });
 
@@ -320,16 +325,18 @@ describe('ReactRelayRefetchContainer', () => {
     // Container subscribes for updates on new props
     expect(environment.subscribe.mock.calls.length).toBe(1);
     expect(environment.subscribe.mock.calls[0][0]).toEqual({
-      dataID: '842472',
       data: {
         id: '842472',
         name: 'Joe',
       },
-      node: UserFragment,
-      seenRecords: expect.any(Object),
-      variables: {cond: true},
       isMissingData: false,
-      owner: ownerUser2,
+      seenRecords: expect.any(Object),
+      selector: createReaderSelector(
+        UserFragment,
+        '842472',
+        {cond: true},
+        ownerUser2.request,
+      ),
     });
   });
 
@@ -365,16 +372,18 @@ describe('ReactRelayRefetchContainer', () => {
     // Container subscribes for updates on new props
     expect(environment.subscribe.mock.calls.length).toBe(1);
     expect(environment.subscribe.mock.calls[0][0]).toEqual({
-      dataID: '4',
       data: {
         id: '4',
         name: 'Zuck',
       },
-      node: UserFragment,
-      seenRecords: expect.any(Object),
-      variables: {cond: true},
       isMissingData: false,
-      owner: ownerUser1,
+      seenRecords: expect.any(Object),
+      selector: createReaderSelector(
+        UserFragment,
+        '4',
+        {cond: true},
+        ownerUser1.request,
+      ),
     });
   });
 
@@ -555,6 +564,23 @@ describe('ReactRelayRefetchContainer', () => {
           },
         },
       });
+    });
+
+    it('reads data from the store without sending a network request when data is available in store and using store-or-network', () => {
+      expect.assertions(3);
+      const refetchVariables = {
+        cond: false,
+        id: '4',
+      };
+      const refetchOptions = {
+        fetchPolicy: 'store-or-network',
+      };
+      refetch(refetchVariables, null, jest.fn(), refetchOptions);
+      expect(render.mock.calls.length).toBe(2);
+      expect(environment.mock.isLoading(UserQuery, refetchVariables)).toBe(
+        false,
+      );
+      expect(environment.execute).toBeCalledTimes(0);
     });
 
     it('calls the callback when the fetch succeeds', () => {

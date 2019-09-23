@@ -13,7 +13,6 @@
 
 'use strict';
 
-const CompilerContext = require('../core/GraphQLCompilerContext');
 const IRTransformer = require('../core/GraphQLIRTransformer');
 
 const {
@@ -23,6 +22,7 @@ const {
   isListType,
 } = require('graphql');
 
+import type CompilerContext from '../core/GraphQLCompilerContext';
 import type {Fragment, Root} from '../core/GraphQLIR';
 import type {GraphQLOutputType, GraphQLList} from 'graphql';
 
@@ -79,7 +79,7 @@ function visitRoot(node: Root) {
   const queue = [
     {
       selections: node.selections,
-      path: [],
+      path: null,
     },
   ];
   const selectionsTypeInfo = {};
@@ -97,18 +97,16 @@ function visitRoot(node: Root) {
           }
           break;
         case 'ScalarField': {
-          const nextPath = [...path, selection.alias];
-          selectionsTypeInfo[nextPath.join('.')] = getTypeDetails(
-            selection.type,
-          );
+          const nextPath =
+            path === null ? selection.alias : `${path}.${selection.alias}`;
+          selectionsTypeInfo[nextPath] = getTypeDetails(selection.type);
           break;
         }
         case 'ConnectionField':
         case 'LinkedField': {
-          const nextPath = [...path, selection.alias];
-          selectionsTypeInfo[nextPath.join('.')] = getTypeDetails(
-            selection.type,
-          );
+          const nextPath =
+            path === null ? selection.alias : `${path}.${selection.alias}`;
+          selectionsTypeInfo[nextPath] = getTypeDetails(selection.type);
           queue.unshift({
             selections: selection.selections,
             path: nextPath,
@@ -116,6 +114,7 @@ function visitRoot(node: Root) {
           break;
         }
         case 'Condition':
+        case 'Connection':
         case 'ClientExtension':
         case 'Defer':
         case 'InlineDataFragmentSpread':

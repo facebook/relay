@@ -12,30 +12,16 @@
 'use strict';
 
 const RelayModernEnvironment = require('../RelayModernEnvironment');
-const RelayModernOperationDescriptor = require('../RelayModernOperationDescriptor');
 const RelayModernStore = require('../RelayModernStore');
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
 const RelayRecordSource = require('../RelayRecordSource');
 
+const {
+  createOperationDescriptor,
+} = require('../RelayModernOperationDescriptor');
 const {createReaderSelector} = require('../RelayModernSelector');
 const {generateAndCompile} = require('relay-test-utils-internal');
-
-function createOperationDescriptor(...args) {
-  const operation = RelayModernOperationDescriptor.createOperationDescriptor(
-    ...args,
-  );
-  // For convenience of the test output, override toJSON to print
-  // a more succint description of the operation.
-  // $FlowFixMe
-  operation.toJSON = () => {
-    return {
-      name: operation.fragment.node.name,
-      variables: operation.variables,
-    };
-  };
-  return operation;
-}
 
 function createOperationLoader() {
   const cache = new Map();
@@ -159,13 +145,23 @@ describe('execute() a query with @defer', () => {
       store,
     });
 
-    const userSelector = createReaderSelector(fragment, '1', {});
-    const userSnapshot = environment.lookup(userSelector, operation);
+    const userSelector = createReaderSelector(
+      fragment,
+      '1',
+      {},
+      operation.request,
+    );
+    const userSnapshot = environment.lookup(userSelector);
     userCallback = jest.fn();
     environment.subscribe(userSnapshot, userCallback);
 
-    const actorSelector = createReaderSelector(fragment, '2', {});
-    const actorSnapshot = environment.lookup(actorSelector, operation);
+    const actorSelector = createReaderSelector(
+      fragment,
+      '2',
+      {},
+      operation.request,
+    );
+    const actorSnapshot = environment.lookup(actorSelector);
     actorCallback = jest.fn();
     environment.subscribe(actorSnapshot, actorCallback);
   });

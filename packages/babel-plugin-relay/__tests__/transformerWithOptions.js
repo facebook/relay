@@ -30,8 +30,6 @@ function transformerWithOptions(
         parserOpts: {plugins: ['jsx']},
         plugins: [[BabelPluginRelay, options]],
       }).code;
-    } catch (e) {
-      return 'ERROR:\n\n' + e;
     } finally {
       process.env.BABEL_ENV = previousEnv;
     }

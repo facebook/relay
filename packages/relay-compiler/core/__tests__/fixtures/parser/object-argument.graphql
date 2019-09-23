@@ -1,7 +1,5 @@
 query ObjectArgument($text: String!) {
-  checkinSearchQuery(query: {
-    query: $text
-  }) {
+  checkinSearchQuery(query: {query: $text}) {
     query
   }
 }

@@ -12,6 +12,7 @@
 'use strict';
 
 const RelayConcreteNode = require('../util/RelayConcreteNode');
+const RelayConnection = require('./RelayConnection');
 const RelayRecordSourceMutator = require('../mutations/RelayRecordSourceMutator');
 const RelayRecordSourceProxy = require('../mutations/RelayRecordSourceProxy');
 const RelayStoreUtils = require('./RelayStoreUtils');
@@ -19,9 +20,11 @@ const RelayStoreUtils = require('./RelayStoreUtils');
 const cloneRelayHandleSourceField = require('./cloneRelayHandleSourceField');
 const invariant = require('invariant');
 
+const {isClientID} = require('./ClientID');
 const {EXISTENT, UNKNOWN} = require('./RelayRecordState');
 
 import type {
+  NormalizationConnection,
   NormalizationField,
   NormalizationLinkedField,
   NormalizationModuleImport,
@@ -30,6 +33,7 @@ import type {
   NormalizationSelection,
 } from '../util/NormalizationNode';
 import type {DataID, Variables} from '../util/RelayRuntimeTypes';
+import type {GetConnectionEvents} from './RelayConnection';
 import type {GetDataID} from './RelayResponseNormalizer';
 import type {
   MissingFieldHandler,
@@ -44,7 +48,7 @@ const {
   CONDITION,
   CLIENT_EXTENSION,
   DEFER,
-  CONNECTION_FIELD,
+  CONNECTION,
   FRAGMENT_SPREAD,
   INLINE_FRAGMENT,
   LINKED_FIELD,
@@ -77,6 +81,7 @@ function check(
   handlers: $ReadOnlyArray<MissingFieldHandler>,
   operationLoader: ?OperationLoader,
   getDataID: GetDataID,
+  getConnectionEvents: GetConnectionEvents,
 ): boolean {
   const {dataID, node, variables} = selector;
   const checker = new DataChecker(
@@ -86,6 +91,7 @@ function check(
     handlers,
     operationLoader,
     getDataID,
+    getConnectionEvents,
   );
   return checker.check(node, dataID);
 }
@@ -94,6 +100,7 @@ function check(
  * @private
  */
 class DataChecker {
+  _getConnectionEvents: GetConnectionEvents;
   _operationLoader: OperationLoader | null;
   _handlers: $ReadOnlyArray<MissingFieldHandler>;
   _mutator: RelayRecordSourceMutator;
@@ -109,17 +116,22 @@ class DataChecker {
     handlers: $ReadOnlyArray<MissingFieldHandler>,
     operationLoader: ?OperationLoader,
     getDataID: GetDataID,
+    getConnectionEvents: GetConnectionEvents,
   ) {
-    this._operationLoader = operationLoader ?? null;
+    const newConnectionEvents = [];
+    const mutator = new RelayRecordSourceMutator(
+      source,
+      target,
+      newConnectionEvents,
+    );
+    this._getConnectionEvents = getConnectionEvents;
     this._handlers = handlers;
-    this._mutator = new RelayRecordSourceMutator(source, target);
+    this._mutator = mutator;
+    this._operationLoader = operationLoader ?? null;
+    this._recordSourceProxy = new RelayRecordSourceProxy(mutator, getDataID);
     this._recordWasMissing = false;
     this._source = source;
     this._variables = variables;
-    this._recordSourceProxy = new RelayRecordSourceProxy(
-      this._mutator,
-      getDataID,
-    );
   }
 
   check(node: NormalizationNode, dataID: DataID): boolean {
@@ -160,6 +172,9 @@ class DataChecker {
     field: NormalizationScalarField,
     dataID: DataID,
   ): mixed {
+    if (field.name === 'id' && field.alias == null && isClientID(dataID)) {
+      return undefined;
+    }
     const {args, record} = this._getDataForHandlers(field, dataID);
     for (const handler of this._handlers) {
       if (handler.kind === 'scalar') {
@@ -299,12 +314,8 @@ class DataChecker {
           this._traverseSelections(selection.selections, dataID);
           this._recordWasMissing = recordWasMissing;
           break;
-        case CONNECTION_FIELD:
-          invariant(
-            false,
-            'DataChecker(): Connection fields are not supported yet.',
-          );
-          // $FlowExpectedError - we need the break; for OSS linter
+        case CONNECTION:
+          this._checkConnection(selection, dataID);
           break;
         default:
           (selection: empty);
@@ -342,6 +353,35 @@ class DataChecker {
       // processed yet and must therefore be missing.
       this._handleMissing();
     }
+  }
+
+  _checkConnection(connection: NormalizationConnection, dataID: DataID): void {
+    const connectionID = RelayConnection.createConnectionID(
+      dataID,
+      connection.label,
+    );
+    const connectionEvents = this._getConnectionEvents(connectionID);
+    if (connectionEvents == null || connectionEvents.length === 0) {
+      return;
+    }
+    connectionEvents.forEach(event => {
+      if (event.kind === 'fetch') {
+        event.edgeIDs.forEach(edgeID => {
+          if (edgeID != null) {
+            this._traverse(connection.edges, edgeID);
+          }
+        });
+      } else if (event.kind === 'insert') {
+        this._traverse(connection.edges, event.edgeID);
+      } else {
+        (event: empty);
+        invariant(
+          false,
+          'DataChecker: Unexpected connection event kind `%s`.',
+          event.kind,
+        );
+      }
+    });
   }
 
   _checkScalar(field: NormalizationScalarField, dataID: DataID): void {

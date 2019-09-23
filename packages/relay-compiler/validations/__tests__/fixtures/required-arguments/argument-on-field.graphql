@@ -1,6 +1,6 @@
 query TestQuery {
   node {
-    hometown{
+    hometown {
       nameWithArgs(capitalize: true)
     }
   }

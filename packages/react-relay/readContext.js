@@ -10,7 +10,7 @@
 
 'use strict';
 
-const React = require('React');
+const React = require('react');
 
 const {ReactCurrentDispatcher, ReactCurrentOwner} =
   /* $FlowFixMe Flow doesn't know about React's internals for good reason,

@@ -6,8 +6,7 @@ fragment RefetchableFragment on User
   ...ProfilePicture @arguments(size: $size)
 }
 
-fragment ProfilePicture on User
-  @argumentDefinitions(size: {type: "[Int]"}) {
+fragment ProfilePicture on User @argumentDefinitions(size: {type: "[Int]"}) {
   pic: profilePicture(size: $size) {
     uri
   }

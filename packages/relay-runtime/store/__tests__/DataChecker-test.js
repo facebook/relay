@@ -26,6 +26,10 @@ beforeEach(() => {
   jest.resetModules();
 });
 
+function getEmptyConnectionEvents() {
+  return null;
+}
+
 describe('check()', () => {
   let Query;
   let sampleData;
@@ -123,6 +127,7 @@ describe('check()', () => {
       [],
       null,
       defaultGetDataID,
+      getEmptyConnectionEvents,
     );
     expect(status).toBe(true);
     expect(target.size()).toBe(0);
@@ -194,6 +199,7 @@ describe('check()', () => {
       [],
       null,
       defaultGetDataID,
+      getEmptyConnectionEvents,
     );
     expect(status).toBe(true);
     expect(target.size()).toBe(0);
@@ -238,6 +244,7 @@ describe('check()', () => {
       [],
       null,
       defaultGetDataID,
+      getEmptyConnectionEvents,
     );
     expect(status).toBe(true);
     expect(target.size()).toBe(0);
@@ -336,6 +343,7 @@ describe('check()', () => {
         [],
         loader,
         defaultGetDataID,
+        getEmptyConnectionEvents,
       );
       expect(loader.get).toBeCalledTimes(1);
       expect(loader.get.mock.calls[0][0]).toBe(
@@ -390,6 +398,7 @@ describe('check()', () => {
         [],
         loader,
         defaultGetDataID,
+        getEmptyConnectionEvents,
       );
       expect(status).toBe(true);
       expect(target.size()).toBe(0);
@@ -436,6 +445,7 @@ describe('check()', () => {
           load: _ => Promise.resolve(null),
         },
         defaultGetDataID,
+        getEmptyConnectionEvents,
       );
       // The data for the field isn't in the store yet, so we have to return false
       expect(status).toBe(false);
@@ -484,6 +494,7 @@ describe('check()', () => {
         [],
         loader,
         defaultGetDataID,
+        getEmptyConnectionEvents,
       );
       // The data for the field 'data' isn't in the store yet, so we have to return false
       expect(status).toBe(false);
@@ -526,6 +537,7 @@ describe('check()', () => {
         [],
         loader,
         defaultGetDataID,
+        getEmptyConnectionEvents,
       );
       // The data for the field 'data' isn't in the store yet, so we have to return false
       expect(status).toBe(false);
@@ -566,6 +578,7 @@ describe('check()', () => {
         [],
         loader,
         defaultGetDataID,
+        getEmptyConnectionEvents,
       );
       expect(status).toBe(true);
       expect(target.size()).toBe(0);
@@ -596,6 +609,7 @@ describe('check()', () => {
         [],
         loader,
         defaultGetDataID,
+        getEmptyConnectionEvents,
       );
       expect(status).toBe(true);
       expect(target.size()).toBe(0);
@@ -625,6 +639,7 @@ describe('check()', () => {
         [],
         loader,
         defaultGetDataID,
+        getEmptyConnectionEvents,
       );
       expect(status).toBe(false);
       expect(target.size()).toBe(0);
@@ -722,6 +737,7 @@ describe('check()', () => {
         [],
         loader,
         defaultGetDataID,
+        getEmptyConnectionEvents,
       );
       expect(loader.get).toBeCalledTimes(1);
       expect(loader.get.mock.calls[0][0]).toBe(
@@ -774,6 +790,7 @@ describe('check()', () => {
         [],
         loader,
         defaultGetDataID,
+        getEmptyConnectionEvents,
       );
       expect(status).toBe(true);
       expect(target.size()).toBe(0);
@@ -818,6 +835,7 @@ describe('check()', () => {
           load: _ => Promise.resolve(null),
         },
         defaultGetDataID,
+        getEmptyConnectionEvents,
       );
       // The data for the field isn't in the store yet, so we have to return false
       expect(status).toBe(false);
@@ -864,6 +882,7 @@ describe('check()', () => {
         [],
         loader,
         defaultGetDataID,
+        getEmptyConnectionEvents,
       );
       // The data for the field 'data' isn't in the store yet, so we have to return false
       expect(status).toBe(false);
@@ -904,6 +923,7 @@ describe('check()', () => {
         [],
         loader,
         defaultGetDataID,
+        getEmptyConnectionEvents,
       );
       // The data for the field 'data' isn't in the store yet, so we have to return false
       expect(status).toBe(false);
@@ -942,6 +962,7 @@ describe('check()', () => {
         [],
         loader,
         defaultGetDataID,
+        getEmptyConnectionEvents,
       );
       expect(status).toBe(true);
       expect(target.size()).toBe(0);
@@ -989,6 +1010,7 @@ describe('check()', () => {
         [],
         null,
         defaultGetDataID,
+        getEmptyConnectionEvents,
       );
       expect(status).toBe(true);
       expect(target.size()).toBe(0);
@@ -1017,6 +1039,7 @@ describe('check()', () => {
         [],
         null,
         defaultGetDataID,
+        getEmptyConnectionEvents,
       );
       expect(status).toBe(false);
       expect(target.size()).toBe(0);
@@ -1072,6 +1095,7 @@ describe('check()', () => {
         [],
         null,
         defaultGetDataID,
+        getEmptyConnectionEvents,
       );
       expect(status).toBe(true);
       expect(target.size()).toBe(0);
@@ -1106,6 +1130,7 @@ describe('check()', () => {
         [],
         null,
         defaultGetDataID,
+        getEmptyConnectionEvents,
       );
       expect(status).toBe(false);
       expect(target.size()).toBe(0);
@@ -1126,6 +1151,7 @@ describe('check()', () => {
         [],
         null,
         defaultGetDataID,
+        getEmptyConnectionEvents,
       );
       expect(status).toBe(true);
       expect(target.size()).toBe(0);
@@ -1166,6 +1192,7 @@ describe('check()', () => {
         [],
         null,
         defaultGetDataID,
+        getEmptyConnectionEvents,
       );
       expect(status).toBe(false);
       expect(target.size()).toBe(0);
@@ -1207,6 +1234,7 @@ describe('check()', () => {
         [],
         null,
         defaultGetDataID,
+        getEmptyConnectionEvents,
       );
       expect(status).toBe(false);
       expect(target.size()).toBe(0);
@@ -1255,6 +1283,7 @@ describe('check()', () => {
         ],
         null,
         defaultGetDataID,
+        getEmptyConnectionEvents,
       );
       expect(status).toBe(true);
       expect(target.toJSON()).toEqual({
@@ -1328,6 +1357,7 @@ describe('check()', () => {
         ],
         null,
         defaultGetDataID,
+        getEmptyConnectionEvents,
       );
       expect(status).toBe(true);
       expect(target.toJSON()).toEqual({
@@ -1419,9 +1449,91 @@ describe('check()', () => {
         [],
         null,
         defaultGetDataID,
+        getEmptyConnectionEvents,
       );
       expect(status).toBe(true);
       expect(target.size()).toBe(0);
     });
+  });
+
+  it('returns true when a non-Node record is "missing" an id', () => {
+    const {TestFragment} = generateAndCompile(`
+      fragment TestFragment on Query {
+        maybeNodeInterface {
+          # This "... on Node { id }" selection would be generated if not
+          # present, and is flattened since Node is abstract
+          ... on Node { id }
+          ... on NonNodeNoID {
+            name
+          }
+        }
+      }
+    `);
+    const data = {
+      'client:root': {
+        __id: 'client:root',
+        __typename: 'Query',
+        maybeNodeInterface: {__ref: 'client:root:maybeNodeInterface'},
+      },
+      'client:root:maybeNodeInterface': {
+        __id: 'client:root:maybeNodeInterface',
+        __typename: 'NonNodeNoID',
+        name: 'Alice',
+      },
+    };
+    const source = RelayRecordSource.create(data);
+    const target = RelayRecordSource.create();
+    const status = check(
+      source,
+      target,
+      createNormalizationSelector(TestFragment, 'client:root', {}),
+      [],
+      null,
+      defaultGetDataID,
+      getEmptyConnectionEvents,
+    );
+    expect(status).toBe(true);
+    expect(target.size()).toBe(0);
+  });
+
+  it('returns false when a Node record is missing an id', () => {
+    const {TestFragment} = generateAndCompile(`
+      fragment TestFragment on Query {
+        maybeNodeInterface {
+          # This "... on Node { id }" selection would be generated if not
+          # present, and is flattened since Node is abstract
+          ... on Node { id }
+          ... on NonNodeNoID {
+            name
+          }
+        }
+      }
+    `);
+    const data = {
+      'client:root': {
+        __id: 'client:root',
+        __typename: 'Query',
+        maybeNodeInterface: {__ref: '1'},
+      },
+      '1': {
+        __id: '1',
+        __typename: 'User',
+        name: 'Alice',
+        // no `id` value
+      },
+    };
+    const source = RelayRecordSource.create(data);
+    const target = RelayRecordSource.create();
+    const status = check(
+      source,
+      target,
+      createNormalizationSelector(TestFragment, 'client:root', {}),
+      [],
+      null,
+      defaultGetDataID,
+      getEmptyConnectionEvents,
+    );
+    expect(status).toBe(false);
+    expect(target.size()).toBe(0);
   });
 });

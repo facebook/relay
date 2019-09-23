@@ -10,10 +10,10 @@
 
 'use strict';
 
-const React = require('React');
+const React = require('react');
 const ReactRelayContext = require('../ReactRelayContext');
 const ReactRelayLocalQueryRenderer = require('../ReactRelayLocalQueryRenderer');
-const ReactTestRenderer = require('ReactTestRenderer');
+const ReactTestRenderer = require('react-test-renderer');
 
 const readContext = require('../readContext');
 

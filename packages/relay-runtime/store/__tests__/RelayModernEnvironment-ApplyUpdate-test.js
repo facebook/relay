@@ -12,29 +12,15 @@
 'use strict';
 
 const RelayModernEnvironment = require('../RelayModernEnvironment');
-const RelayModernOperationDescriptor = require('../RelayModernOperationDescriptor');
 const RelayModernStore = require('../RelayModernStore');
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayRecordSource = require('../RelayRecordSource');
 
+const {
+  createOperationDescriptor,
+} = require('../RelayModernOperationDescriptor');
 const {createReaderSelector} = require('../RelayModernSelector');
 const {generateAndCompile} = require('relay-test-utils-internal');
-
-function createOperationDescriptor(...args) {
-  const operation = RelayModernOperationDescriptor.createOperationDescriptor(
-    ...args,
-  );
-  // For convenience of the test output, override toJSON to print
-  // a more succint description of the operation.
-  // $FlowFixMe
-  operation.toJSON = () => {
-    return {
-      name: operation.fragment.node.name,
-      variables: operation.variables,
-    };
-  };
-  return operation;
-}
 
 describe('applyUpdate()', () => {
   let environment;
@@ -70,9 +56,14 @@ describe('applyUpdate()', () => {
   });
 
   it('applies the mutation to the store', () => {
-    const selector = createReaderSelector(UserFragment, '4', {});
+    const selector = createReaderSelector(
+      UserFragment,
+      '4',
+      {},
+      operation.request,
+    );
     const callback = jest.fn();
-    const snapshot = environment.lookup(selector, operation);
+    const snapshot = environment.lookup(selector);
     environment.subscribe(snapshot, callback);
 
     environment.applyUpdate({
@@ -90,9 +81,14 @@ describe('applyUpdate()', () => {
   });
 
   it('reverts mutations when disposed', () => {
-    const selector = createReaderSelector(UserFragment, '4', {});
+    const selector = createReaderSelector(
+      UserFragment,
+      '4',
+      {},
+      operation.request,
+    );
     const callback = jest.fn();
-    const snapshot = environment.lookup(selector, operation);
+    const snapshot = environment.lookup(selector);
     environment.subscribe(snapshot, callback);
 
     const {dispose} = environment.applyUpdate({
@@ -108,9 +104,14 @@ describe('applyUpdate()', () => {
   });
 
   it('can replace one mutation with another', () => {
-    const selector = createReaderSelector(UserFragment, '4', {});
+    const selector = createReaderSelector(
+      UserFragment,
+      '4',
+      {},
+      operation.request,
+    );
     const callback = jest.fn();
-    const snapshot = environment.lookup(selector, operation);
+    const snapshot = environment.lookup(selector);
     environment.subscribe(snapshot, callback);
 
     callback.mockClear();

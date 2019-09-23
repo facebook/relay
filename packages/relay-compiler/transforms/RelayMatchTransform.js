@@ -10,7 +10,6 @@
 
 'use strict';
 
-const CompilerContext = require('../core/GraphQLCompilerContext');
 const IRTransformer = require('../core/GraphQLIRTransformer');
 
 const getLiteralArgumentValues = require('../core/getLiteralArgumentValues');
@@ -31,6 +30,7 @@ const {
 } = require('graphql');
 const {getModuleComponentKey, getModuleOperationKey} = require('relay-runtime');
 
+import type CompilerContext from '../core/GraphQLCompilerContext';
 import type {
   InlineFragment,
   FragmentSpread,
@@ -183,6 +183,13 @@ function visitLinkedField(node: LinkedField, state: State): LinkedField {
   const seenTypes: Map<GraphQLCompositeType, InlineFragment> = new Map();
   const selections = [];
   transformedNode.selections.forEach(matchSelection => {
+    if (
+      matchSelection.kind === 'ScalarField' &&
+      matchSelection.name === '__typename'
+    ) {
+      selections.push(matchSelection);
+      return;
+    }
     const moduleImport =
       matchSelection.kind === 'InlineFragment'
         ? matchSelection.selections[0]
@@ -195,7 +202,7 @@ function visitLinkedField(node: LinkedField, state: State): LinkedField {
       throw createUserError(
         'Invalid @match selection: all selections should be ' +
           'fragment spreads with @module.',
-        [matchSelection.loc, moduleImport?.loc].filter(Boolean),
+        [matchSelection.loc],
       );
     }
     const matchedType = matchSelection.typeCondition;
@@ -236,6 +243,14 @@ function visitLinkedField(node: LinkedField, state: State): LinkedField {
     selections.push(matchSelection);
   });
 
+  if (seenTypes.size === 0) {
+    throw createUserError(
+      'Invalid @match selection: expected at least one @module selection. ' +
+        "Remove @match or add a '...Fragment @module()' selection.",
+      [matchDirective.loc],
+    );
+  }
+
   const supportedArg = transformedNode.args.find(
     arg => arg.name === SUPPORTED_ARGUMENT_NAME,
   );
@@ -259,11 +274,9 @@ function visitLinkedField(node: LinkedField, state: State): LinkedField {
         value: {
           kind: 'Literal',
           loc: node.loc,
-          metadata: {},
           value: Array.from(seenTypes.keys()).map(type => type.name),
         },
         loc: node.loc,
-        metadata: {},
       },
     ],
     directives: [],
@@ -370,11 +383,9 @@ function visitFragmentSpread(
         value: {
           kind: 'Literal',
           loc: moduleDirective.args[0]?.loc ?? moduleDirective.loc,
-          metadata: {},
           value: moduleName,
         },
         loc: moduleDirective.loc,
-        metadata: {},
       },
       jsFieldIdArg != null
         ? {
@@ -384,11 +395,9 @@ function visitFragmentSpread(
             value: {
               kind: 'Literal',
               loc: moduleDirective.args[0]?.loc ?? moduleDirective.loc,
-              metadata: {},
               value: moduleId,
             },
             loc: moduleDirective.loc,
-            metadata: {},
           }
         : null,
     ].filter(Boolean),
@@ -411,11 +420,9 @@ function visitFragmentSpread(
         value: {
           kind: 'Literal',
           loc: moduleDirective.loc,
-          metadata: {},
           value: normalizationName,
         },
         loc: moduleDirective.loc,
-        metadata: {},
       },
       jsFieldIdArg != null
         ? {
@@ -425,11 +432,9 @@ function visitFragmentSpread(
             value: {
               kind: 'Literal',
               loc: moduleDirective.args[0]?.loc ?? moduleDirective.loc,
-              metadata: {},
               value: moduleId,
             },
             loc: moduleDirective.loc,
-            metadata: {},
           }
         : null,
     ].filter(Boolean),

@@ -1,7 +1,5 @@
 query LiteralObjectArgument {
-  checkinSearchQuery(query: {
-    query: "Facebook"
-  }) {
+  checkinSearchQuery(query: {query: "Facebook"}) {
     query
   }
 }

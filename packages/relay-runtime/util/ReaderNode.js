@@ -12,7 +12,6 @@
 
 import type {ConnectionMetadata} from '../handlers/connection/RelayConnectionHandler';
 import type {ConcreteRequest} from './RelayConcreteNode';
-import type {ConnectionFieldResolver} from './RelayRuntimeTypes';
 
 export type ReaderFragmentSpread = {|
   +kind: 'FragmentSpread',
@@ -101,10 +100,7 @@ export type ReaderClientExtension = {|
   +selections: $ReadOnlyArray<ReaderSelection>,
 |};
 
-export type ReaderField =
-  | ReaderScalarField
-  | ReaderLinkedField
-  | ReaderConnectionField;
+export type ReaderField = ReaderScalarField | ReaderLinkedField;
 
 export type ReaderRootArgument = {|
   +kind: 'RootArgument',
@@ -129,16 +125,13 @@ export type ReaderLinkedField = {|
   +selections: $ReadOnlyArray<ReaderSelection>,
 |};
 
-export type ReaderConnectionField = {|
-  +kind: 'ConnectionField',
-  +alias: ?string,
+export type ReaderConnection = {|
+  +kind: 'Connection',
   +label: string,
   +name: string,
-  +resolver: ConnectionFieldResolver,
-  +storageKey: ?string,
   +args: ?$ReadOnlyArray<ReaderArgument>,
-  +concreteType: ?string,
-  +selections: $ReadOnlyArray<ReaderSelection>,
+  +edges: ReaderLinkedField,
+  +pageInfo: ReaderLinkedField,
 |};
 
 export type ReaderModuleImport = {|
@@ -165,7 +158,6 @@ export type ReaderLocalArgument = {|
 export type ReaderNode =
   | ReaderCondition
   | ReaderLinkedField
-  | ReaderConnectionField
   | ReaderFragment
   | ReaderInlineFragment;
 
@@ -179,6 +171,7 @@ export type ReaderScalarField = {|
 
 export type ReaderSelection =
   | ReaderCondition
+  | ReaderConnection
   | ReaderClientExtension
   | ReaderField
   | ReaderFragmentSpread

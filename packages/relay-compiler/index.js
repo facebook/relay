@@ -152,7 +152,7 @@ module.exports = {
   JSModuleParser: RelayJSModuleParser,
   MultiReporter: GraphQLMultiReporter,
   Runner: CodegenRunner,
-  compileRelayArtifacts,
+  compileRelayArtifacts: compileRelayArtifacts,
   formatGeneratedModule,
   convertASTDocuments: ASTConvert.convertASTDocuments,
   transformASTSchema: ASTConvert.transformASTSchema,

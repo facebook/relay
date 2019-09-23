@@ -89,11 +89,64 @@ fragment TodoApp_app on App {
 }
 ```
 
+### `@inline`
+
+By default Relay will only expose the data for fields explicitly requested by a [component's fragment](./fragment-container.html#createfragmentcontainer), which is known as [data masking](./thinking-in-relay#data-masking). Fragment data is unmasked for use in React components by `createFragmentContainer`. However, you may want to use fragment data in non-React functions that are called from React.
+
+Non-React functions can also take advantage of data masking. A fragment can be defined with the `@inline` directive and stored in a local variable. The non-React function can then "unmask" the data using the `readInlineData` function.
+
+In the example below, the function `processItemData` is called from a React component. It requires an item object with a specific set of fields. All React components that use this function should spread the `processItemData_item` fragment to ensure all of the correct item data is loaded for this function.
+
+```javascript
+import {graphql, readInlineData} from 'react-relay';
+
+// non-React function called from React
+function processItemData(itemRef) {
+  const item = readInlineData(graphql`
+    fragment processItemData_item on Item @inline {
+      title
+      price
+      creator {
+        name
+      }
+    }
+  `, itemRef);
+  sendToThirdPartyApi({
+    title: item.title,
+    price: item.price,
+    creatorName: item.creator.name
+  });
+}
+```
+
+```javascript
+// React Component
+function MyComponent({item}) {
+  function handleClick() {
+    processItemData(item);
+  }
+
+  return (
+    <button onClick={handleClick}>Process {item.title}</button>
+  );
+}
+
+export default createFragmentContainer(MyComponent, {
+  item: graphql`
+    fragment MyComponent_item on Item {
+      ...processItemData_item
+      title
+    }
+  `
+});
+```
+
+
 ### `@relay(mask: Boolean)`
 
-By default Relay will only expose the data for fields explicitly requested by a [component's fragment](./fragment-container.html#createfragmentcontainer), which is known as [data masking](./thinking-in-relay#data-masking).
+ It is not recommended to use `@relay(mask: false)`. Please instead consider using the `@inline` fragment.
 
-However, `@relay(mask: false)` can be used to prevent data masking; when including a fragment and annotating it with `@relay(mask: false)`, its data will be available directly to the parent instead of being masked for a different container.
+`@relay(mask: false)` can be used to prevent data masking; when including a fragment and annotating it with `@relay(mask: false)`, its data will be available directly to the parent instead of being masked for a different container.
 
 Applied to a fragment definition, `@relay(mask: false)` changes the generated Flow types to be better usable when the fragment is included with the same directive. The Flow types will no longer be exact objects and no longer contain internal marker fields.
 
@@ -254,6 +307,43 @@ However the Relay Compiler also automatically generates [Flow](https://flow.org)
 ```javascript
 import type {DictionaryComponent_word} from './__generated__/DictionaryComponent_word.graphql';
 ```
+
+### Client schema extensions
+
+The Relay Compiler fully supports client-side schema extensions, which allows you to extend the server schema by defining additional GraphQL types and fields on the client. Relay expects the client schema to be located in your `--src` directory.
+
+For example, assuming the server schema `./schema.graphql`:
+
+```graphql
+schema {
+  query: Root
+}
+
+type Root {
+  title: String!
+}
+```
+
+We can create a `./src/clientSchema.graphql` and define a new type called `Setting`:
+
+```graphql
+type Setting {
+  name: String!
+  active: Boolean!
+}
+```
+
+We can then extend existing server types in the client schema `./src/clientSchema.graphql` with our new `Setting` type, like so:
+
+```graphql
+extend type Root {
+  settings: [Setting]
+}
+```
+
+Any fields specified in the client schema, can be fetched from the [Relay Store](./relay-store), by selecting it in a query or fragment.
+
+For more details, refer to the [Local state management section](./local-state-management.html).
 
 ### Advanced usage
 

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @noformat
+ * @format
  */
 
 'use strict';
@@ -13,10 +13,9 @@ module.exports = function(options) {
   options = Object.assign(
     {
       env: 'production',
-      moduleMap: {},
       plugins: [],
     },
-    options
+    options,
   );
 
   const fbjsPreset = require('babel-preset-fbjs/configure')({
@@ -25,20 +24,17 @@ module.exports = function(options) {
     stripDEV: options.env === 'production',
   });
 
-  // The module rewrite transform needs to be positioned relative to fbjs's
-  // many other transforms.
-  const moduleMap = Object.assign(
-    {},
-    require('fbjs/module-map'),
-    options.moduleMap
-  );
-  // TODO: Delete `nullthrows` from fbjs.
-  moduleMap.nullthrows = 'nullthrows';
-
   fbjsPreset.presets[0].plugins.push([
     require('./rewrite-modules'),
     {
-      map: moduleMap,
+      map: {
+        ErrorUtils: 'fbjs/lib/ErrorUtils',
+        Promise: 'promise-polyfill',
+        areEqual: 'fbjs/lib/areEqual',
+        invariant: 'fbjs/lib/invariant',
+        mapObject: 'fbjs/lib/mapObject',
+        warning: 'fbjs/lib/warning',
+      },
     },
   ]);
 

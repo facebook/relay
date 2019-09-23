@@ -49,13 +49,16 @@ function cloneRelayHandleSourceField(
     handleField.handle,
   );
   const handleKey = getHandleStorageKey(handleField, variables);
-  const clonedField = {
-    ...sourceField,
-    args: null,
+  return {
+    kind: 'LinkedField',
+    alias: sourceField.alias,
     name: handleKey,
     storageKey: handleKey,
+    args: null,
+    concreteType: sourceField.concreteType,
+    plural: sourceField.plural,
+    selections: sourceField.selections,
   };
-  return clonedField;
 }
 
 module.exports = cloneRelayHandleSourceField;

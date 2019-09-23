@@ -12,9 +12,6 @@
 
 const isPromise = require('../util/isPromise');
 
-import type {Disposable} from '../util/RelayRuntimeTypes';
-import type {LegacyObserver} from './RelayNetworkTypes';
-
 /**
  * A Subscription object is returned from .subscribe(), which can be
  * unsubscribed or checked to see if the resulting subscription has closed.
@@ -148,28 +145,6 @@ class RelayObservable<+T> implements Subscribable<T> {
       : isPromise(obj)
       ? fromPromise(obj)
       : fromValue(obj);
-  }
-
-  /**
-   * Creates a RelayObservable, given a function which expects a legacy
-   * Relay Observer as the last argument and which returns a Disposable.
-   *
-   * To support migration to Observable, the function may ignore the
-   * legacy Relay observer and directly return an Observable instead.
-   */
-  static fromLegacy<V>(
-    callback: (LegacyObserver<V>) => Disposable | RelayObservable<V>,
-  ): RelayObservable<V> {
-    return RelayObservable.create(sink => {
-      const result = callback({
-        onNext: sink.next,
-        onError: sink.error,
-        onCompleted: sink.complete,
-      });
-      return isObservable(result)
-        ? result.subscribe(sink)
-        : () => result.dispose();
-    });
   }
 
   /**
@@ -330,20 +305,6 @@ class RelayObservable<+T> implements Subscribable<T> {
       }
     }
     return subscribe(this._source, observer);
-  }
-
-  /**
-   * Supports subscription of a legacy Relay Observer, returning a Disposable.
-   */
-  subscribeLegacy(legacyObserver: LegacyObserver<T>): Disposable {
-    const subscription = this.subscribe({
-      next: legacyObserver.onNext,
-      error: legacyObserver.onError,
-      complete: legacyObserver.onCompleted,
-    });
-    return {
-      dispose: subscription.unsubscribe,
-    };
   }
 
   /**

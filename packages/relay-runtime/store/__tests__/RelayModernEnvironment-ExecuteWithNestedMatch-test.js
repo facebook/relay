@@ -12,7 +12,6 @@
 'use strict';
 
 const RelayModernEnvironment = require('../RelayModernEnvironment');
-const RelayModernOperationDescriptor = require('../RelayModernOperationDescriptor');
 const RelayModernStore = require('../RelayModernStore');
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
@@ -20,24 +19,11 @@ const RelayRecordSource = require('../RelayRecordSource');
 
 const nullthrows = require('nullthrows');
 
+const {
+  createOperationDescriptor,
+} = require('../RelayModernOperationDescriptor');
 const {getSingularSelector} = require('../RelayModernSelector');
 const {generateAndCompile} = require('relay-test-utils-internal');
-
-function createOperationDescriptor(...args) {
-  const operation = RelayModernOperationDescriptor.createOperationDescriptor(
-    ...args,
-  );
-  // For convenience of the test output, override toJSON to print
-  // a more succint description of the operation.
-  // $FlowFixMe
-  operation.toJSON = () => {
-    return {
-      name: operation.fragment.node.name,
-      variables: operation.variables,
-    };
-  };
-  return operation;
-}
 
 describe('execute() a query with nested @match', () => {
   let callbacks;
@@ -148,7 +134,7 @@ describe('execute() a query with nested @match', () => {
         }
       },
     });
-    const operationSnapshot = environment.lookup(operation.fragment, operation);
+    const operationSnapshot = environment.lookup(operation.fragment);
     operationCallback = jest.fn();
     environment.subscribe(operationSnapshot, operationCallback);
   });
@@ -201,10 +187,12 @@ describe('execute() a query with nested @match', () => {
         outerRenderer: {
           __id: 'client:1:nameRenderer(supported:["MarkdownUserNameRenderer"])',
           __fragmentPropName: 'name',
+
           __fragments: {
             MarkdownUserNameRenderer_name: {},
           },
-          __fragmentOwner: operation,
+
+          __fragmentOwner: operation.request,
           __module_component: 'MarkdownUserNameRenderer.react',
         },
       },
@@ -216,7 +204,7 @@ describe('execute() a query with nested @match', () => {
         (operationSnapshot.data?.node: any)?.outerRenderer,
       ),
     );
-    const matchSnapshot = environment.lookup(matchSelector.selector, operation);
+    const matchSnapshot = environment.lookup(matchSelector);
     expect(matchSnapshot.isMissingData).toBe(true);
     expect(matchSnapshot.data).toEqual({
       __typename: 'MarkdownUserNameRenderer',
@@ -281,10 +269,7 @@ describe('execute() a query with nested @match', () => {
       ),
     );
     // initial outer fragment snapshot is tested above
-    const initialOuterMatchSnapshot = environment.lookup(
-      outerMatchSelector.selector,
-      operation,
-    );
+    const initialOuterMatchSnapshot = environment.lookup(outerMatchSelector);
     expect(initialOuterMatchSnapshot.isMissingData).toBe(true);
     const outerMatchCallback = jest.fn();
     environment.subscribe(initialOuterMatchSnapshot, outerMatchCallback);
@@ -307,11 +292,13 @@ describe('execute() a query with nested @match', () => {
       markdown: 'markdown payload',
       user: {
         innerRenderer: {
-          __fragmentOwner: operation,
+          __fragmentOwner: operation.request,
           __fragmentPropName: 'name',
+
           __fragments: {
             PlainUserNameRenderer_name: {},
           },
+
           __id: 'client:2:nameRenderer(supported:["PlainUserNameRenderer"])',
           __module_component: 'PlainUserNameRenderer.react',
         },
@@ -324,10 +311,7 @@ describe('execute() a query with nested @match', () => {
         (outerMatchSnapshot.data?.user: $FlowFixMe)?.innerRenderer,
       ),
     );
-    const initialInnerMatchSnapshot = environment.lookup(
-      innerMatchSelector.selector,
-      operation,
-    );
+    const initialInnerMatchSnapshot = environment.lookup(innerMatchSelector);
     expect(initialInnerMatchSnapshot.isMissingData).toBe(true);
     const innerMatchCallback = jest.fn();
     environment.subscribe(initialInnerMatchSnapshot, innerMatchCallback);
@@ -593,10 +577,7 @@ describe('execute() a query with nested @match', () => {
       ),
     );
     // initial outer fragment snapshot is tested above
-    const outerMatchSnapshot = environment.lookup(
-      outerMatchSelector.selector,
-      operation,
-    );
+    const outerMatchSnapshot = environment.lookup(outerMatchSelector);
     expect(outerMatchSnapshot.isMissingData).toBe(true);
     expect(outerMatchSnapshot.data).toEqual({
       __typename: 'MarkdownUserNameRenderer',
@@ -670,20 +651,14 @@ describe('execute() a query with nested @match', () => {
       ),
     );
     // initial outer fragment snapshot is tested above
-    const outerMatchSnapshot = environment.lookup(
-      outerMatchSelector.selector,
-      operation,
-    );
+    const outerMatchSnapshot = environment.lookup(outerMatchSelector);
     const innerMatchSelector = nullthrows(
       getSingularSelector(
         plaintextRendererFragment,
         (outerMatchSnapshot.data?.user: $FlowFixMe)?.innerRenderer,
       ),
     );
-    const innerMatchSnapshot = environment.lookup(
-      innerMatchSelector.selector,
-      operation,
-    );
+    const innerMatchSnapshot = environment.lookup(innerMatchSelector);
     expect(innerMatchSnapshot.isMissingData).toBe(true);
     expect(innerMatchSnapshot.data).toEqual({});
   });

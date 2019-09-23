@@ -1,8 +1,0 @@
-var Relay = require('react-relay');
-var x = Relay.QL`
-  query {
-    customScalar(arg: {give: "relay"}) {
-      title
-    }
-  }
-`;

@@ -638,7 +638,6 @@ class GraphQLDefinitionParser {
       argumentDefinitions.push({
         kind: 'RootArgumentDefinition',
         loc: buildLocation(variableReference.ast.loc),
-        metadata: null,
         name,
         // $FlowFixMe - could be null
         type: variableReference.type,
@@ -852,7 +851,6 @@ class GraphQLDefinitionParser {
           return {
             kind: 'Argument',
             loc: buildLocation(arg.loc),
-            metadata: null,
             name: argName,
             value: this._transformVariable(argValue, null),
             type: null,
@@ -871,7 +869,6 @@ class GraphQLDefinitionParser {
           return {
             kind: 'Argument',
             loc: buildLocation(arg.loc),
-            metadata: null,
             name: argName,
             value,
             type: argumentType,
@@ -1085,7 +1082,6 @@ class GraphQLDefinitionParser {
       return {
         kind: 'Directive',
         loc: buildLocation(directive.loc),
-        metadata: null,
         name,
         args,
       };
@@ -1106,7 +1102,6 @@ class GraphQLDefinitionParser {
       return {
         kind: 'Argument',
         loc: buildLocation(arg.loc),
-        metadata: null,
         name: argName,
         value,
         type: argDef.type,
@@ -1142,7 +1137,6 @@ class GraphQLDefinitionParser {
         kind: 'Condition',
         condition: arg.value,
         loc: directive.loc,
-        metadata: null,
         passingValue,
         selections: [],
       };
@@ -1175,7 +1169,6 @@ class GraphQLDefinitionParser {
     return {
       kind: 'Variable',
       loc: buildLocation(ast.loc),
-      metadata: null,
       variableName,
       type: usedAsType,
     };
@@ -1216,7 +1209,6 @@ function transformValue(
     return {
       kind: 'Literal',
       loc: buildLocation(ast.loc),
-      metadata: null,
       value: null,
     };
   } else {
@@ -1275,14 +1267,12 @@ function transformNonNullLiteral(
       return {
         kind: 'Literal',
         loc: buildLocation(ast.loc),
-        metadata: null,
         value: literalList,
       };
     } else {
       return {
         kind: 'ListValue',
         loc: buildLocation(ast.loc),
-        metadata: null,
         items,
       };
     }
@@ -1321,7 +1311,6 @@ function transformNonNullLiteral(
       fields.push({
         kind: 'ObjectFieldValue',
         loc: buildLocation(field.loc),
-        metadata: null,
         name: fieldName,
         value: fieldValue,
       });
@@ -1331,14 +1320,12 @@ function transformNonNullLiteral(
       return {
         kind: 'Literal',
         loc: buildLocation(ast.loc),
-        metadata: null,
         value: literalObject,
       };
     } else {
       return {
         kind: 'ObjectValue',
         loc: buildLocation(ast.loc),
-        metadata: null,
         fields,
       };
     }
@@ -1350,14 +1337,12 @@ function transformNonNullLiteral(
       return {
         kind: 'Literal',
         loc: buildLocation(ast.loc),
-        metadata: null,
         value: parseInt(ast.value, 10),
       };
     } else if (ast.kind === 'StringValue') {
       return {
         kind: 'Literal',
         loc: buildLocation(ast.loc),
-        metadata: null,
         value: ast.value,
       };
     } else {
@@ -1380,7 +1365,6 @@ function transformNonNullLiteral(
             return {
               kind: 'Literal',
               loc: buildLocation(ast.loc),
-              metadata: null,
               value: ast.value,
             };
           }
@@ -1397,7 +1381,6 @@ function transformNonNullLiteral(
     return {
       kind: 'Literal',
       loc: buildLocation(ast.loc),
-      metadata: null,
       value,
     };
   } else if (nullableType instanceof GraphQLScalarType) {
@@ -1414,7 +1397,6 @@ function transformNonNullLiteral(
     return {
       kind: 'Literal',
       loc: buildLocation(ast.loc),
-      metadata: null,
       value,
     };
   } else {
@@ -1482,7 +1464,6 @@ function buildArgumentDefinitions(
     return {
       kind: 'LocalArgumentDefinition',
       loc: buildLocation(ast.loc),
-      metadata: null,
       name,
       type,
       defaultValue,

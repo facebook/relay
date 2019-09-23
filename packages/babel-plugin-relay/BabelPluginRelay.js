@@ -11,11 +11,7 @@
 'use strict';
 
 const compileGraphQLTag = require('./compileGraphQLTag');
-const compileRelayQLTag = require('./compileRelayQLTag');
-const getDocumentName = require('./getDocumentName');
 const getValidGraphQLTag = require('./getValidGraphQLTag');
-const getValidRelayQLTag = require('./getValidRelayQLTag');
-const invariant = require('./invariant');
 
 let RelayConfig;
 try {
@@ -24,8 +20,6 @@ try {
   // eslint-disable-next-line lint/no-unused-catch-bindings
 } catch (_) {}
 
-import type {Validator} from './RelayQLTransformer';
-
 export type RelayPluginOptions = {
   // The command to run to compile Relay files, used for error messages.
   buildCommand?: string,
@@ -33,18 +27,9 @@ export type RelayPluginOptions = {
   // Use haste style global requires, defaults to false.
   haste?: boolean,
 
-  // Enable compat mode compiling for modern and classic runtime.
-  compat?: boolean,
-
   // Check this global variable before validation.
   isDevVariable?: string,
 
-  // Classic options
-  inputArgumentName?: string,
-  schema?: string,
-  snakeCase?: boolean,
-  substituteVariables?: boolean,
-  validator?: Validator<any>,
   // Directory as specified by artifactDirectory when running relay-compiler
   artifactDirectory?: string,
 };
@@ -62,15 +47,6 @@ export type BabelState = {
  *         "relay"
  *       ]
  *     }
- *
- * Using babel-plugin-relay in compatability or classic mode?
- *
- *     {
- *       plugins: [
- *         ["relay", {"compat": true, "schema": "path/to/schema.graphql"}]
- *       ]
- *     }
- *
  */
 module.exports = function BabelPluginRelay(context: {types: $FlowFixMe}): any {
   const {types: t} = context;
@@ -88,40 +64,6 @@ module.exports = function BabelPluginRelay(context: {types: $FlowFixMe}): any {
       if (ast) {
         compileGraphQLTag(t, path, state, ast);
         return;
-      }
-
-      // Convert graphql_DEPRECATED`` literals
-      const deprecatedAst = getValidGraphQLTag(path, 'graphql_DEPRECATED');
-      if (deprecatedAst != null) {
-        compileGraphQLTag(t, path, state, deprecatedAst, /* deprecated */ true);
-        return;
-      }
-
-      // Convert Relay.QL`` literals
-      const [quasi, tagName, propName] = getValidRelayQLTag(path);
-      if (quasi && tagName) {
-        const schema = state.opts && state.opts.schema;
-        invariant(
-          schema,
-          'babel-plugin-relay: Missing schema option. ' +
-            'Check your .babelrc file or wherever you configure your Babel ' +
-            'plugins to ensure the "relay" plugin has a "schema" option.\n' +
-            'https://relay.dev/docs/en/installation-and-setup#set-up-babel-plugin-relay',
-        );
-        const documentName = getDocumentName(path, state);
-        path.replaceWith(
-          compileRelayQLTag(
-            t,
-            path,
-            schema,
-            quasi,
-            documentName,
-            propName,
-            tagName,
-            true, // enableValidation
-            state,
-          ),
-        );
       }
     },
   };

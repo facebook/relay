@@ -145,10 +145,14 @@ describe('requestSubscription-test', () => {
     };
     environment.mock.nextValue(CommentCreateSubscription, subscriptionPayload);
     const snapshot = store.lookup(
-      createReaderSelector(FeedbackCommentQuery.fragment, ROOT_ID, {
-        id: feedbackId,
-      }),
-      operationDescriptor,
+      createReaderSelector(
+        FeedbackCommentQuery.fragment,
+        ROOT_ID,
+        {
+          id: feedbackId,
+        },
+        operationDescriptor.request,
+      ),
     );
     expect(snapshot.data).toEqual({
       node: {

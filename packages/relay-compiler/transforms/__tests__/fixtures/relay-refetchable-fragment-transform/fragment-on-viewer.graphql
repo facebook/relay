@@ -1,4 +1,5 @@
-fragment RefetchableFragment on Viewer @refetchable(queryName: "RefetchableFragmentQuery") {
+fragment RefetchableFragment on Viewer
+  @refetchable(queryName: "RefetchableFragmentQuery") {
   actor {
     id
     name

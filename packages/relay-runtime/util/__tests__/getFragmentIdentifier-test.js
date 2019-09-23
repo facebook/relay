@@ -148,10 +148,7 @@ describe('getFragmentIdentifier', () => {
   });
 
   it('returns correct identifier when using singular fragment', () => {
-    const fragmentRef = environment.lookup(
-      singularQuery.fragment,
-      singularQuery,
-    ).data?.node;
+    const fragmentRef = environment.lookup(singularQuery.fragment).data?.node;
     const identifier = getFragmentIdentifier(singularFragment, fragmentRef);
     expect(identifier).toEqual(
       'UserFragment-{"dataIDs":"1","fragmentOwnerID":"UserQuery","fragmentOwnerVariables":{"id":"1","scale":16},"fragmentVariables":{"scale":16}}',
@@ -159,10 +156,7 @@ describe('getFragmentIdentifier', () => {
   });
 
   it('returns correct identifier when using fragment with variables', () => {
-    const fragmentRef = environment.lookup(
-      queryWithArgs.fragment,
-      queryWithArgs,
-    ).data?.node;
+    const fragmentRef = environment.lookup(queryWithArgs.fragment).data?.node;
     const identifier = getFragmentIdentifier(fragmentWithArgs, fragmentRef);
     expect(identifier).toEqual(
       'UserFragmentWithArgs-{"dataIDs":"1","fragmentOwnerID":"UserQueryWithArgs","fragmentOwnerVariables":{"id":"1","scale":16},"fragmentVariables":{"scaleLocal":16}}',
@@ -170,8 +164,7 @@ describe('getFragmentIdentifier', () => {
   });
 
   it('returns correct identifier when using plural fragment', () => {
-    const fragmentRef = environment.lookup(pluralQuery.fragment, pluralQuery)
-      .data?.nodes;
+    const fragmentRef = environment.lookup(pluralQuery.fragment).data?.nodes;
     const identifier = getFragmentIdentifier(pluralFragment, fragmentRef);
     expect(identifier).toEqual(
       'UsersFragment-{"dataIDs":["1"],"fragmentOwnerID":["UsersQuery"],"fragmentOwnerVariables":[{"ids":["1"],"scale":16}],"fragmentVariables":{"scale":16}}',

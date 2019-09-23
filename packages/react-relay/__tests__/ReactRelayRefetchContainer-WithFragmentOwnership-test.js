@@ -10,11 +10,11 @@
 
 'use strict';
 
-const React = require('React');
+const React = require('react');
 const ReactRelayContext = require('../ReactRelayContext');
 const ReactRelayFragmentContainer = require('../ReactRelayFragmentContainer');
 const ReactRelayRefetchContainer = require('../ReactRelayRefetchContainer');
-const ReactTestRenderer = require('ReactTestRenderer');
+const ReactTestRenderer = require('react-test-renderer');
 
 const readContext = require('../readContext');
 
@@ -22,6 +22,7 @@ const {
   createNormalizationSelector,
   createOperationDescriptor,
   createReaderSelector,
+  createRequestDescriptor,
   ROOT_ID,
 } = require('relay-runtime');
 const {
@@ -92,12 +93,18 @@ describe('ReactRelayRefetchContainer with fragment ownerhsip', () => {
   }
 
   function createOwnerWithUnalteredVariables(request, vars) {
-    return {
-      fragment: createReaderSelector(request.fragment, ROOT_ID, vars),
-      node: request,
+    const requestDescriptor = createRequestDescriptor(request, vars);
+    const operationDescriptor = {
+      fragment: createReaderSelector(
+        request.fragment,
+        ROOT_ID,
+        vars,
+        requestDescriptor,
+      ),
+      request: requestDescriptor,
       root: createNormalizationSelector(request.operation, ROOT_ID, vars),
-      variables: vars,
     };
+    return operationDescriptor;
   }
 
   beforeEach(() => {
@@ -207,7 +214,7 @@ describe('ReactRelayRefetchContainer with fragment ownerhsip', () => {
         },
         __id: '4',
         __fragments: {UserFriendFragment: {cond: true}},
-        __fragmentOwner: ownerUser1,
+        __fragmentOwner: ownerUser1.request,
       });
       expect(TestChildComponent.mock.calls.length).toBe(1);
       expect(TestChildComponent.mock.calls[0][0].user).toEqual({
@@ -254,7 +261,7 @@ describe('ReactRelayRefetchContainer with fragment ownerhsip', () => {
         },
         __id: '4',
         __fragments: {UserFriendFragment: {cond: false}},
-        __fragmentOwner: expectedOwner,
+        __fragmentOwner: expectedOwner.request,
       });
       expect(render.mock.calls[0][0].user.name).toBe(undefined);
 
@@ -275,7 +282,7 @@ describe('ReactRelayRefetchContainer with fragment ownerhsip', () => {
         },
         __id: '4',
         __fragments: {UserFriendFragment: {cond: true}},
-        __fragmentOwner: ownerUser1,
+        __fragmentOwner: ownerUser1.request,
       });
       expect(TestChildComponent.mock.calls.length).toBe(1);
       expect(TestChildComponent.mock.calls[0][0].user).toEqual({
@@ -328,7 +335,7 @@ describe('ReactRelayRefetchContainer with fragment ownerhsip', () => {
         },
         __id: '4',
         __fragments: {UserFriendFragment: {cond: false}},
-        __fragmentOwner: expectedOwner,
+        __fragmentOwner: expectedOwner.request,
       });
       expect(render.mock.calls[0][0].user.name).toBe(undefined);
 

@@ -13,31 +13,17 @@
 
 const RelayConnectionHandler = require('../../handlers/connection/RelayConnectionHandler');
 const RelayModernEnvironment = require('../RelayModernEnvironment');
-const RelayModernOperationDescriptor = require('../RelayModernOperationDescriptor');
 const RelayModernStore = require('../RelayModernStore');
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
 const RelayRecordSource = require('../RelayRecordSource');
 
+const {
+  createOperationDescriptor,
+} = require('../RelayModernOperationDescriptor');
 const {createReaderSelector} = require('../RelayModernSelector');
 const {VIEWER_ID} = require('../ViewerPattern');
 const {generateAndCompile} = require('relay-test-utils-internal');
-
-function createOperationDescriptor(...args) {
-  const operation = RelayModernOperationDescriptor.createOperationDescriptor(
-    ...args,
-  );
-  // For convenience of the test output, override toJSON to print
-  // a more succint description of the operation.
-  // $FlowFixMe
-  operation.toJSON = () => {
-    return {
-      name: operation.fragment.node.name,
-      variables: operation.variables,
-    };
-  };
-  return operation;
-}
 
 describe('execute() fetches a @stream-ed @connection', () => {
   let callback;
@@ -109,7 +95,12 @@ describe('execute() fetches a @stream-ed @connection', () => {
       `));
     variables = {enableStream: true, after: null};
     operation = createOperationDescriptor(query, variables);
-    selector = createReaderSelector(feedFragment, VIEWER_ID, variables);
+    selector = createReaderSelector(
+      feedFragment,
+      VIEWER_ID,
+      variables,
+      operation.request,
+    );
 
     const NameHandler = {
       update(storeProxy, payload) {
@@ -150,7 +141,7 @@ describe('execute() fetches a @stream-ed @connection', () => {
   });
 
   it('initializes the connection with the first edge (0 => 1 edges)', () => {
-    const initialSnapshot = environment.lookup(selector, operation);
+    const initialSnapshot = environment.lookup(selector);
     callback = jest.fn();
     environment.subscribe(initialSnapshot, callback);
 
@@ -254,7 +245,7 @@ describe('execute() fetches a @stream-ed @connection', () => {
   });
 
   it('initializes the connection with subsequent edges (1 => 2 edges)', () => {
-    const initialSnapshot = environment.lookup(selector, operation);
+    const initialSnapshot = environment.lookup(selector);
     callback = jest.fn();
     environment.subscribe(initialSnapshot, callback);
 
@@ -356,7 +347,7 @@ describe('execute() fetches a @stream-ed @connection', () => {
   });
 
   it('initializes the connection with subsequent edges (1 => 2 edges) when initial_count=1', () => {
-    const initialSnapshot = environment.lookup(selector, operation);
+    const initialSnapshot = environment.lookup(selector);
     callback = jest.fn();
     environment.subscribe(initialSnapshot, callback);
 
@@ -454,7 +445,7 @@ describe('execute() fetches a @stream-ed @connection', () => {
   });
 
   it('initializes the connection with subsequent edges (0 => 2 edges) when edges arrive out of order', () => {
-    const initialSnapshot = environment.lookup(selector, operation);
+    const initialSnapshot = environment.lookup(selector);
     callback = jest.fn();
     environment.subscribe(initialSnapshot, callback);
 
@@ -598,7 +589,7 @@ describe('execute() fetches a @stream-ed @connection', () => {
     error.mockClear();
     next.mockClear();
 
-    const initialSnapshot = environment.lookup(selector, operation);
+    const initialSnapshot = environment.lookup(selector);
     callback = jest.fn();
     environment.subscribe(initialSnapshot, callback);
 
@@ -841,7 +832,7 @@ describe('execute() fetches a @stream-ed @connection', () => {
     error.mockClear();
     next.mockClear();
 
-    const initialSnapshot = environment.lookup(selector, operation);
+    const initialSnapshot = environment.lookup(selector);
     callback = jest.fn();
     environment.subscribe(initialSnapshot, callback);
 
@@ -889,5 +880,99 @@ describe('execute() fetches a @stream-ed @connection', () => {
     // connection not updated with new edge, the after cursor doesn't match
     // pageInfo.endCursor
     expect(callback).toBeCalledTimes(0);
+  });
+
+  it('warns if executed in non-streaming mode and initializes the connection', () => {
+    const initialSnapshot = environment.lookup(selector);
+    callback = jest.fn();
+    environment.subscribe(initialSnapshot, callback);
+
+    environment.execute({operation}).subscribe(callbacks);
+    dataSource.next({
+      data: {
+        viewer: {
+          newsFeed: {
+            edges: [
+              {
+                cursor: 'cursor-1',
+                node: {
+                  __typename: 'Story',
+                  id: '1',
+                  feedback: {
+                    id: 'feedback-1',
+                    actors: [
+                      {
+                        id: 'actor-1',
+                        __typename: 'User',
+                        name: 'Alice',
+                      },
+                    ],
+                  },
+                },
+              },
+            ],
+            pageInfo: {
+              endCursor: 'cursor-1',
+              hasNextPage: true,
+            },
+          },
+        },
+      },
+      extensions: {
+        is_final: true,
+      },
+    });
+    jest.runAllTimers();
+
+    expect(error.mock.calls.map(call => call[0].stack)).toEqual([]);
+    expect(next).toBeCalledTimes(1);
+    expect(callback).toBeCalledTimes(2);
+    const snapshot = callback.mock.calls[0][0];
+    expect(snapshot.isMissingData).toBe(false);
+    expect(snapshot.data).toEqual({
+      newsFeed: {
+        edges: [
+          {
+            cursor: 'cursor-1',
+            node: {
+              __typename: 'Story',
+              id: '1',
+              feedback: {
+                id: 'feedback-1',
+                actors: [{id: 'actor-1', name: 'ALICE'}],
+              },
+            },
+          },
+        ],
+        pageInfo: {
+          endCursor: null, // not initially processed
+          hasNextPage: false, // not initially processed
+        },
+      },
+    });
+    expect(callback).toBeCalledTimes(2);
+    const snapshot2 = callback.mock.calls[1][0];
+    expect(snapshot2.isMissingData).toBe(false);
+    expect(snapshot2.data).toEqual({
+      newsFeed: {
+        edges: [
+          {
+            cursor: 'cursor-1',
+            node: {
+              __typename: 'Story',
+              id: '1',
+              feedback: {
+                id: 'feedback-1',
+                actors: [{id: 'actor-1', name: 'ALICE'}],
+              },
+            },
+          },
+        ],
+        pageInfo: {
+          endCursor: 'cursor-1', // updated
+          hasNextPage: true, // updated
+        },
+      },
+    });
   });
 });

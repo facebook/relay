@@ -11,6 +11,7 @@
 'use strict';
 
 const deepFreeze = require('../util/deepFreeze');
+const getRequestIdentifier = require('../util/getRequestIdentifier');
 
 const {getOperationVariables} = require('./RelayConcreteVariables');
 const {
@@ -21,7 +22,7 @@ const {ROOT_ID} = require('./RelayStoreUtils');
 
 import type {ConcreteRequest} from '../util/RelayConcreteNode';
 import type {Variables} from '../util/RelayRuntimeTypes';
-import type {OperationDescriptor} from './RelayStoreTypes';
+import type {OperationDescriptor, RequestDescriptor} from './RelayStoreTypes';
 
 /**
  * Creates an instance of the `OperationDescriptor` type defined in
@@ -36,31 +37,50 @@ function createOperationDescriptor(
   const operation = request.operation;
   const operationVariables = getOperationVariables(operation, variables);
   const dataID = ROOT_ID;
+  const requestDescriptor = createRequestDescriptor(
+    request,
+    operationVariables,
+  );
   const operationDescriptor = {
     fragment: createReaderSelector(
       request.fragment,
       dataID,
       operationVariables,
+      requestDescriptor,
     ),
-    node: request,
+    request: requestDescriptor,
     root: createNormalizationSelector(operation, dataID, operationVariables),
-    variables: operationVariables,
   };
+
   if (__DEV__) {
-    // Freeze the properties of an OperationDescriptor but not the object:
-    // - Freezing properties short-circuits a deepFreeze of snapshots
-    //   that contain an OperationDescriptor via their selector's owner,
-    //   avoiding stack overflow on larger queries.
-    // - Not freezing the object allows overriding properties in tests,
-    //   such as configuring a custom  toJSON() for debugging.
+    // Freezing properties short-circuits a deepFreeze of snapshots that contain
+    // an OperationDescriptor via their selector's owner, avoiding stack
+    // overflow on larger queries.
     Object.freeze(operationDescriptor.fragment);
-    Object.freeze(operationDescriptor.node);
     Object.freeze(operationDescriptor.root);
-    deepFreeze(operationDescriptor.variables);
+    Object.freeze(operationDescriptor);
   }
   return operationDescriptor;
 }
 
+function createRequestDescriptor(
+  request: ConcreteRequest,
+  variables: Variables,
+): RequestDescriptor {
+  const requestDescriptor = {
+    identifier: getRequestIdentifier(request.params, variables),
+    node: request,
+    variables: variables,
+  };
+  if (__DEV__) {
+    deepFreeze(variables);
+    Object.freeze(request);
+    Object.freeze(requestDescriptor);
+  }
+  return requestDescriptor;
+}
+
 module.exports = {
   createOperationDescriptor,
+  createRequestDescriptor,
 };

@@ -46,7 +46,6 @@ export type Location =
 export type Argument = {|
   +kind: 'Argument',
   +loc: Location,
-  +metadata: Metadata,
   +name: string,
   +type: ?GraphQLInputType,
   +value: ArgumentValue,
@@ -62,7 +61,6 @@ export type Condition = {|
   +kind: 'Condition',
   +condition: Literal | Variable,
   +loc: Location,
-  +metadata: Metadata,
   +passingValue: boolean,
   +selections: $ReadOnlyArray<Selection>,
 |};
@@ -71,7 +69,6 @@ export type Directive = {|
   +args: $ReadOnlyArray<Argument>,
   +kind: 'Directive',
   +loc: Location,
-  +metadata: Metadata,
   +name: string,
 |};
 
@@ -128,11 +125,13 @@ export type IR =
   | Argument
   | ClientExtension
   | Condition
-  | Defer
+  | Connection
   | ConnectionField
+  | Defer
   | Directive
   | Fragment
   | FragmentSpread
+  | InlineDataFragmentSpread
   | InlineFragment
   | LinkedField
   | ListValue
@@ -147,13 +146,11 @@ export type IR =
   | ScalarField
   | SplitOperation
   | Stream
-  | InlineDataFragmentSpread
   | Variable;
 
 export type RootArgumentDefinition = {|
   +kind: 'RootArgumentDefinition',
   +loc: Location,
-  +metadata: Metadata,
   +name: string,
   +type: GraphQLInputType,
 |};
@@ -182,16 +179,12 @@ export type ClientExtension = {|
   +selections: $ReadOnlyArray<Selection>,
 |};
 
-export type ConnectionField = {|
-  +alias: string,
+export type Connection = {|
   +args: $ReadOnlyArray<Argument>,
-  +directives: $ReadOnlyArray<Directive>,
-  +kind: 'ConnectionField',
+  +kind: 'Connection',
   +label: string,
   +loc: Location,
-  +metadata: Metadata,
   +name: string,
-  +resolver: string,
   +selections: $ReadOnlyArray<Selection>,
   +type: GraphQLOutputType,
 |};
@@ -209,17 +202,27 @@ export type LinkedField = {|
   +type: GraphQLOutputType,
 |};
 
+export type ConnectionField = {|
+  +alias: string,
+  +args: $ReadOnlyArray<Argument>,
+  +directives: $ReadOnlyArray<Directive>,
+  +kind: 'ConnectionField',
+  +loc: Location,
+  +metadata: Metadata,
+  +name: string,
+  +selections: $ReadOnlyArray<Selection>,
+  +type: GraphQLOutputType,
+|};
+
 export type ListValue = {|
   +kind: 'ListValue',
   +items: $ReadOnlyArray<ArgumentValue>,
   +loc: Location,
-  +metadata: Metadata,
 |};
 
 export type Literal = {|
   +kind: 'Literal',
   +loc: Location,
-  +metadata: Metadata,
   +value: mixed,
 |};
 
@@ -227,7 +230,6 @@ export type LocalArgumentDefinition = {|
   +defaultValue: mixed,
   +kind: 'LocalArgumentDefinition',
   +loc: Location,
-  +metadata: Metadata,
   +name: string,
   +type: GraphQLInputType,
 |};
@@ -253,8 +255,9 @@ export type ModuleImport = {|
 export type Node =
   | ClientExtension
   | Condition
-  | Defer
+  | Connection
   | ConnectionField
+  | Defer
   | Fragment
   | InlineDataFragmentSpread
   | InlineFragment
@@ -267,7 +270,6 @@ export type Node =
 export type ObjectFieldValue = {|
   +kind: 'ObjectFieldValue',
   +loc: Location,
-  +metadata: Metadata,
   +name: string,
   +value: ArgumentValue,
 |};
@@ -276,7 +278,6 @@ export type ObjectValue = {|
   +kind: 'ObjectValue',
   +fields: $ReadOnlyArray<ObjectFieldValue>,
   +loc: Location,
-  +metadata: Metadata,
 |};
 
 export type Request = {|
@@ -322,14 +323,15 @@ export type ScalarField = {|
 export type Selection =
   | ClientExtension
   | Condition
-  | Defer
+  | Connection
   | ConnectionField
+  | Defer
   | FragmentSpread
+  | InlineDataFragmentSpread
   | InlineFragment
   | LinkedField
   | ModuleImport
   | ScalarField
-  | InlineDataFragmentSpread
   | Stream;
 
 export type Definition = Fragment | Root | SplitOperation;
@@ -341,13 +343,13 @@ export type SplitOperation = {|
   +selections: $ReadOnlyArray<Selection>,
   +loc: Location,
   +metadata: Metadata,
+  +parentSources: Set<string>,
   +type: GraphQLCompositeType,
 |};
 
 export type Variable = {|
   +kind: 'Variable',
   +loc: Location,
-  +metadata: Metadata,
   +variableName: string,
   +type: ?GraphQLInputType,
 |};

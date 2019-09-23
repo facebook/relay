@@ -10,13 +10,12 @@
 
 'use strict';
 
-const React = require('React');
+const React = require('react');
 const ReactRelayContext = require('./ReactRelayContext');
 const ReactRelayQueryFetcher = require('./ReactRelayQueryFetcher');
 
 const areEqual = require('areEqual');
 const buildReactRelayContainer = require('./buildReactRelayContainer');
-const forEachObject = require('forEachObject');
 const invariant = require('invariant');
 const warning = require('warning');
 
@@ -617,7 +616,7 @@ function createContainerWithFragments<
       const {END_CURSOR, START_CURSOR} = ConnectionInterface.get();
       const cursor = connectionData.cursor;
       warning(
-        cursor,
+        cursor != null && cursor !== '',
         'ReactRelayPaginationContainer: Cannot `loadMore` without valid `%s` (got `%s`)',
         direction === FORWARD ? END_CURSOR : START_CURSOR,
         cursor,
@@ -679,7 +678,7 @@ function createContainerWithFragments<
       // For extra safety, we make sure the rootVariables include the
       // variables from all owners in this fragmentSpec, even though they
       // should all point to the same owner
-      forEachObject(fragments, (__, key) => {
+      Object.keys(fragments).forEach(key => {
         const fragmentOwner = fragmentOwners[key];
         const fragmentOwnerVariables = Array.isArray(fragmentOwner)
           ? fragmentOwner[0]?.variables ?? {}
@@ -746,7 +745,7 @@ function createContainerWithFragments<
             fragmentVariables,
             paginatingVariables.totalCount,
           ),
-          operation.node,
+          operation.request.node,
         );
         const nextData = this._resolver.resolve();
 

@@ -1,13 +1,14 @@
 # expected-to-throw
 query QueryWithConnectionField($id: ID!) {
-  feedback: node(id: $id)  {
+  feedback: node(id: $id) {
     ...FeedbackComments_feedback
   }
 }
 
 fragment FeedbackComments_feedback on Feedback {
   comments(first: 10) {
-    edges @connection_resolver(resolver: "FeedbackCommentsEdgesResolver") { # error: plural
+    edges @connection_resolver(label: "FeedbackComments_feedback") {
+      # error: plural
       node {
         id
       }

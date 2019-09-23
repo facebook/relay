@@ -18,12 +18,11 @@ const {isRequiredArgument} = require('graphql');
 
 import type GraphQLCompilerContext from '../core/GraphQLCompilerContext';
 import type {
-  ConnectionField,
+  Connection,
   Directive,
+  Field,
   Fragment,
-  LinkedField,
   Root,
-  ScalarField,
   SplitOperation,
 } from '../core/GraphQLIR';
 import type {GraphQLOutputType, GraphQLArgument} from 'graphql';
@@ -34,15 +33,15 @@ type State = {|
 |};
 
 /*
- * Validate requierd arguments are provided after transforms filling in arguments
+ * Validate required arguments are provided after transforms filling in arguments
  */
 function validateRelayRequiredArguments(context: GraphQLCompilerContext): void {
   GraphQLIRValidator.validate(
     context,
     {
       Directive: visitDirective,
-      InlineFragment: visitInlineFragment,
       ConnectionField: visitField,
+      InlineFragment: visitInlineFragment,
       LinkedField: visitField,
       ScalarField: visitField,
       // FragmentSpread validation is done in RelayApplyFragmentArgumentTransform
@@ -67,10 +66,7 @@ function visitInlineFragment(fragment, {rootNode}: State): void {
   });
 }
 
-function visitField(
-  node: LinkedField | ScalarField | ConnectionField,
-  {parentType, rootNode}: State,
-): void {
+function visitField(node: Field, {parentType, rootNode}: State): void {
   const context = this.getContext();
   const definition = getFieldDefinitionStrict(
     context.serverSchema,
@@ -97,7 +93,7 @@ function visitField(
 }
 
 function validateRequiredArguments(
-  node: ConnectionField | Directive | LinkedField | ScalarField,
+  node: Connection | Directive | Field,
   definitionArgs: $ReadOnlyArray<GraphQLArgument>,
   rootNode,
 ): void {

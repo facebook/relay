@@ -135,13 +135,16 @@ function printSelection(
   let str;
   const parentDirectives = options?.parentDirectives ?? '';
   const isClientExtension = options?.isClientExtension === true;
-  if (selection.kind === 'LinkedField') {
+  if (
+    selection.kind === 'LinkedField' ||
+    selection.kind === 'ConnectionField'
+  ) {
     str = printField(selection, {parentDirectives, isClientExtension});
     str += printSelections(selection, indent + INDENT, {isClientExtension});
-  } else if (selection.kind === 'ConnectionField') {
-    str = printField(selection, {parentDirectives, isClientExtension});
-    str += printSelections(selection, indent + INDENT, {isClientExtension});
-  } else if (selection.kind === 'ModuleImport') {
+  } else if (
+    selection.kind === 'ModuleImport' ||
+    selection.kind === 'Connection'
+  ) {
     str = selection.selections
       .map(matchSelection =>
         printSelection(matchSelection, indent, {
@@ -427,6 +430,10 @@ function printLiteral(value: mixed, type: ?GraphQLInputType): string {
     return (
       '[' + value.map(item => printLiteral(item, itemType)).join(', ') + ']'
     );
+  } else if (type instanceof GraphQLList && value != null) {
+    // Not an array, but still a list. Treat as list-of-one as per spec 3.1.7:
+    // http://facebook.github.io/graphql/October2016/#sec-Lists
+    return printLiteral(value, type.ofType);
   } else if (typeof value === 'object' && value != null) {
     const fields = [];
     invariant(
@@ -442,10 +449,6 @@ function printLiteral(value: mixed, type: ?GraphQLInputType): string {
       }
     }
     return '{' + fields.join(', ') + '}';
-  } else if (type instanceof GraphQLList && value != null) {
-    // Not an array, but still a list. Treat as list-of-one as per spec 3.1.7:
-    // http://facebook.github.io/graphql/October2016/#sec-Lists
-    return printLiteral(value, type.ofType);
   } else {
     // $FlowFixMe(>=0.95.0) JSON.stringify can return undefined
     return JSON.stringify(value);

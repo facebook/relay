@@ -27,6 +27,12 @@ const users = [
     pinned: true,
   },
   {
+    caption: 'Lattice',
+    image: '/img/logos/lattice_logo_full_color.png',
+    infoLink: 'https://lattice.com/',
+    pinned: false,
+  },
+  {
     caption: 'Cirrus CI',
     image: '/img/logos/cirrus.png',
     infoLink: 'https://cirrus-ci.com/',
@@ -84,6 +90,36 @@ const users = [
     caption: 'Up',
     image: '/img/logos/up.png',
     infoLink: 'https://up.com.au/',
+    pinned: false,
+  },
+  {
+    caption: 'AutoGuru',
+    image: '/img/logos/autoguru.png',
+    infoLink: 'https://www.autoguru.com.au/',
+    pinned: false,
+  },
+  {
+    caption: 'Foton',
+    image: '/img/logos/foton.png',
+    infoLink: 'https://fotontech.io',
+    pinned: false,
+  },
+  {
+    caption: 'M1 Finance',
+    image: '/img/logos/m1finance.png',
+    infoLink: 'https://www.m1finance.com/',
+    pinned: false,
+  },
+  {
+    caption: 'Bumped',
+    image: '/img/logos/bumped.png',
+    infoLink: 'https://bumped.com/',
+    pinned: false,
+  },
+  {
+    caption: 'Clubhouse',
+    image: '/img/logos/clubhouse.png',
+    infoLink: 'https://clubhouse.io/',
     pinned: false,
   },
 ];

@@ -9,8 +9,7 @@ fragment FooNameRendererFragment on User {
   nameRenderer {
     ...MarkdownUserNameRenderer_name
       @module(name: "MarkdownUserNameRenderer.react")
-    ...PlainUserNameRenderer_name
-      @module(name: "PlainUserNameRenderer.react")
+    ...PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
   }
 }
 

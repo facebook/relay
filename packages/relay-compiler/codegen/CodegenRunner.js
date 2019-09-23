@@ -20,12 +20,12 @@ const path = require('path');
 
 const {Map: ImmutableMap} = require('immutable');
 
+import type {DocumentNode, GraphQLSchema} from 'graphql';
 import type ASTCache from '../core/ASTCache';
 import type {GraphQLReporter} from '../reporters/GraphQLReporter';
 import type {CompileResult, File} from './CodegenTypes';
 import type {FileFilter, WatchmanExpression} from './CodegenWatcher';
 import type {SourceControl} from './SourceControl';
-import type {DocumentNode, GraphQLSchema} from 'graphql';
 
 export type ParserConfig = {|
   baseDir: string,
@@ -65,8 +65,6 @@ export type WriteFilesOptions = {|
   sourceControl: ?SourceControl,
   reporter: GraphQLReporter,
   generatedDirectories?: Array<string>,
-  experimental_noDeleteExtraFiles?: boolean,
-  experimental_extraFilesPatternToKeep?: RegExp,
 |};
 
 export type WriteFiles = WriteFilesOptions => Promise<
@@ -341,9 +339,13 @@ class CodegenRunner {
         const combinedChanges = CodegenDirectory.combineChanges(
           Array.from(outputDirectories.values()),
         );
-        CodegenDirectory.printChanges(combinedChanges, {
-          onlyValidate: this.onlyValidate,
-        });
+
+        this._reporter.reportMessage(
+          CodegenDirectory.formatChanges(combinedChanges, {
+            onlyValidate: this.onlyValidate,
+          }),
+        );
+
         return CodegenDirectory.hasChanges(combinedChanges)
           ? 'HAS_CHANGES'
           : 'NO_CHANGES';

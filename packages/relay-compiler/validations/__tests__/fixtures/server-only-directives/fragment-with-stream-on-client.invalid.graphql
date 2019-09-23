@@ -13,7 +13,6 @@ fragment FeedbackFragment on Feedback {
   }
 }
 
-
 extend type Feedback {
   foos: [Foo]
 }

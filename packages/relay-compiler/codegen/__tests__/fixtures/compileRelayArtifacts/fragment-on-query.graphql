@@ -1,4 +1,6 @@
-fragment RefetchableFragment on Query @refetchable(queryName: "RefetchableFragmentQuery") @argumentDefinitions(id: {type: "ID!"}) {
+fragment RefetchableFragment on Query
+  @refetchable(queryName: "RefetchableFragmentQuery")
+  @argumentDefinitions(id: {type: "ID!"}) {
   node(id: $id) {
     ... on User {
       id

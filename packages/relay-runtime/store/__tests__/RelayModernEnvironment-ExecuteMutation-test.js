@@ -12,30 +12,16 @@
 'use strict';
 
 const RelayModernEnvironment = require('../RelayModernEnvironment');
-const RelayModernOperationDescriptor = require('../RelayModernOperationDescriptor');
 const RelayModernStore = require('../RelayModernStore');
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
 const RelayRecordSource = require('../RelayRecordSource');
 
+const {
+  createOperationDescriptor,
+} = require('../RelayModernOperationDescriptor');
 const {createReaderSelector} = require('../RelayModernSelector');
 const {generateAndCompile} = require('relay-test-utils-internal');
-
-function createOperationDescriptor(...args) {
-  const operation = RelayModernOperationDescriptor.createOperationDescriptor(
-    ...args,
-  );
-  // For convenience of the test output, override toJSON to print
-  // a more succint description of the operation.
-  // $FlowFixMe
-  operation.toJSON = () => {
-    return {
-      name: operation.fragment.node.name,
-      variables: operation.variables,
-    };
-  };
-  return operation;
-}
 
 describe('executeMutation()', () => {
   let callbacks;
@@ -120,8 +106,13 @@ describe('executeMutation()', () => {
 
   it('executes the optimistic updater immediately', () => {
     const commentID = 'comment';
-    const selector = createReaderSelector(CommentFragment, commentID, {});
-    const snapshot = environment.lookup(selector, operation);
+    const selector = createReaderSelector(
+      CommentFragment,
+      commentID,
+      {},
+      operation.request,
+    );
+    const snapshot = environment.lookup(selector);
     const callback = jest.fn();
     environment.subscribe(snapshot, callback);
 
@@ -150,8 +141,13 @@ describe('executeMutation()', () => {
 
   it('reverts the optimistic update if disposed', () => {
     const commentID = 'comment';
-    const selector = createReaderSelector(CommentFragment, commentID, {});
-    const snapshot = environment.lookup(selector, operation);
+    const selector = createReaderSelector(
+      CommentFragment,
+      commentID,
+      {},
+      operation.request,
+    );
+    const snapshot = environment.lookup(selector);
     const callback = jest.fn();
     environment.subscribe(snapshot, callback);
 
@@ -177,8 +173,13 @@ describe('executeMutation()', () => {
 
   it('reverts the optimistic update and commits the server payload', () => {
     const commentID = 'comment';
-    const selector = createReaderSelector(CommentFragment, commentID, {});
-    const snapshot = environment.lookup(selector, operation);
+    const selector = createReaderSelector(
+      CommentFragment,
+      commentID,
+      {},
+      operation.request,
+    );
+    const snapshot = environment.lookup(selector);
     const callback = jest.fn();
     environment.subscribe(snapshot, callback);
 
@@ -223,8 +224,13 @@ describe('executeMutation()', () => {
 
   it('commits the server payload and runs the updater', () => {
     const commentID = 'comment';
-    const selector = createReaderSelector(CommentFragment, commentID, {});
-    const snapshot = environment.lookup(selector, operation);
+    const selector = createReaderSelector(
+      CommentFragment,
+      commentID,
+      {},
+      operation.request,
+    );
+    const snapshot = environment.lookup(selector);
     const callback = jest.fn();
     environment.subscribe(snapshot, callback);
 
@@ -277,8 +283,13 @@ describe('executeMutation()', () => {
 
   it('reverts the optimistic update if the fetch is rejected', () => {
     const commentID = 'comment';
-    const selector = createReaderSelector(CommentFragment, commentID, {});
-    const snapshot = environment.lookup(selector, operation);
+    const selector = createReaderSelector(
+      CommentFragment,
+      commentID,
+      {},
+      operation.request,
+    );
+    const snapshot = environment.lookup(selector);
     const callback = jest.fn();
     environment.subscribe(snapshot, callback);
 
@@ -311,8 +322,13 @@ describe('executeMutation()', () => {
     );
 
     const commentID = 'comment';
-    const selector = createReaderSelector(CommentFragment, commentID, {});
-    const snapshot = environment.lookup(selector, operation);
+    const selector = createReaderSelector(
+      CommentFragment,
+      commentID,
+      {},
+      operation.request,
+    );
+    const snapshot = environment.lookup(selector);
     const callback = jest.fn();
     environment.subscribe(snapshot, callback);
 
@@ -345,8 +361,13 @@ describe('executeMutation()', () => {
 
   it('does not commit the server payload if disposed', () => {
     const commentID = 'comment';
-    const selector = createReaderSelector(CommentFragment, commentID, {});
-    const snapshot = environment.lookup(selector, operation);
+    const selector = createReaderSelector(
+      CommentFragment,
+      commentID,
+      {},
+      operation.request,
+    );
+    const snapshot = environment.lookup(selector);
     const callback = jest.fn();
     environment.subscribe(snapshot, callback);
 

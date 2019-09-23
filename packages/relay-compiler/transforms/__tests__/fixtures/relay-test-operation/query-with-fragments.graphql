@@ -12,7 +12,7 @@ fragment UserFragment on User {
 }
 
 fragment UserProfileFragment on User
-@argumentDefinitions(scale: {type: "Float"}) {
+  @argumentDefinitions(scale: {type: "Float"}) {
   id
   name
   profile_picture(scale: $scale) {

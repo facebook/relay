@@ -10,7 +10,7 @@
 
 'use strict';
 
-const React = require('React');
+const React = require('react');
 const ReactRelayContext = require('./ReactRelayContext');
 const ReactRelayQueryFetcher = require('./ReactRelayQueryFetcher');
 
@@ -53,8 +53,6 @@ export type RenderProps<T> = {|
  * constructor, just reuse the query fetcher and wait for the response.
  */
 const requestCache = {};
-
-const STORE_AND_NETWORK = 'store-and-network';
 
 export type Props = {|
   cacheConfig?: ?CacheConfig,
@@ -345,7 +343,10 @@ function fetchQueryAndComputeStateFromProps(
   if (query) {
     const request = getRequest(query);
     const operation = createOperationDescriptor(request, variables);
-    const relayContext = getContext(genericEnvironment, operation.variables);
+    const relayContext = getContext(
+      genericEnvironment,
+      operation.request.variables,
+    );
     if (typeof requestCacheKey === 'string' && requestCache[requestCacheKey]) {
       // This same request is already in flight.
 
@@ -377,10 +378,11 @@ function fetchQueryAndComputeStateFromProps(
     }
 
     try {
-      const storeSnapshot =
-        props.fetchPolicy === STORE_AND_NETWORK
-          ? queryFetcher.lookupInStore(genericEnvironment, operation)
-          : null;
+      const storeSnapshot = queryFetcher.lookupInStore(
+        genericEnvironment,
+        operation,
+        props.fetchPolicy,
+      );
       const querySnapshot = queryFetcher.fetch({
         cacheConfig: props.cacheConfig,
         environment: genericEnvironment,

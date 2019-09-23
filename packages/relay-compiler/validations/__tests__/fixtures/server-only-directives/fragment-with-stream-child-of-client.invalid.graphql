@@ -18,11 +18,9 @@ fragment FeedbackFragment on Feedback {
   }
 }
 
-
 extend type Feedback {
   foo: Foo
 }
-
 
 type Foo {
   bar: Bar

@@ -15,6 +15,7 @@ const {
   fetchQuery,
   getPromiseForRequestInFlight,
   getObservableForRequestInFlight,
+  hasRequestInFlight,
 } = require('../fetchQueryInternal');
 const {createOperationDescriptor} = require('relay-runtime');
 const {
@@ -122,18 +123,18 @@ describe('fetchQueryInternal', () => {
         },
       };
       const subscription = fetchQuery(environment, query).subscribe(observer);
-      expect(environment.mock.isLoading(gqlQuery, query.variables)).toEqual(
-        true,
-      );
+      expect(
+        environment.mock.isLoading(gqlQuery, query.request.variables),
+      ).toEqual(true);
 
       environment.mock.nextValue(gqlQuery, response);
       environment.mock.complete(gqlQuery);
       subscription.unsubscribe();
       subscription.unsubscribe();
       expect(calledObserver).toEqual(true);
-      expect(environment.mock.isLoading(gqlQuery, query.variables)).toEqual(
-        false,
-      );
+      expect(
+        environment.mock.isLoading(gqlQuery, query.request.variables),
+      ).toEqual(false);
     });
 
     it('unsubscribes from request until the last observer is disposed', () => {
@@ -159,9 +160,9 @@ describe('fetchQueryInternal', () => {
       environment.mock.nextValue(gqlQuery, response);
       expect(unsubscribedObserver1).toEqual(false);
       expect(unsubscribedObserver2).toEqual(false);
-      expect(environment.mock.isLoading(gqlQuery, query.variables)).toEqual(
-        true,
-      );
+      expect(
+        environment.mock.isLoading(gqlQuery, query.request.variables),
+      ).toEqual(true);
 
       // Disposing same request twice has no effect
       subscription1.unsubscribe();
@@ -169,17 +170,17 @@ describe('fetchQueryInternal', () => {
 
       expect(unsubscribedObserver1).toEqual(true);
       expect(unsubscribedObserver2).toEqual(false);
-      expect(environment.mock.isLoading(gqlQuery, query.variables)).toEqual(
-        true,
-      );
+      expect(
+        environment.mock.isLoading(gqlQuery, query.request.variables),
+      ).toEqual(true);
 
       subscription2.unsubscribe();
 
       expect(unsubscribedObserver1).toEqual(true);
       expect(unsubscribedObserver2).toEqual(true);
-      expect(environment.mock.isLoading(gqlQuery, query.variables)).toEqual(
-        false,
-      );
+      expect(
+        environment.mock.isLoading(gqlQuery, query.request.variables),
+      ).toEqual(false);
 
       expect(environment.execute).toHaveBeenCalledTimes(1);
     });
@@ -187,31 +188,31 @@ describe('fetchQueryInternal', () => {
     describe('.toPromise()', () => {
       it('fetches request and does not retain query data', async () => {
         const promise = fetchQuery(environment, query).toPromise();
-        expect(environment.mock.isLoading(gqlQuery, query.variables)).toEqual(
-          true,
-        );
+        expect(
+          environment.mock.isLoading(gqlQuery, query.request.variables),
+        ).toEqual(true);
         environment.mock.nextValue(gqlQuery, response);
         const result = await promise;
         expect(result).toEqual(response);
-        expect(environment.mock.isLoading(gqlQuery, query.variables)).toEqual(
-          false,
-        );
+        expect(
+          environment.mock.isLoading(gqlQuery, query.request.variables),
+        ).toEqual(false);
       });
 
       it('rejects when error occurs', async () => {
         const promise = fetchQuery(environment, query).toPromise();
-        expect(environment.mock.isLoading(gqlQuery, query.variables)).toEqual(
-          true,
-        );
+        expect(
+          environment.mock.isLoading(gqlQuery, query.request.variables),
+        ).toEqual(true);
         environment.mock.reject(gqlQuery, new Error('Oops'));
         try {
           await promise;
         } catch (error) {
           expect(error.message).toEqual('Oops');
         }
-        expect(environment.mock.isLoading(gqlQuery, query.variables)).toEqual(
-          false,
-        );
+        expect(
+          environment.mock.isLoading(gqlQuery, query.request.variables),
+        ).toEqual(false);
       });
     });
 
@@ -236,12 +237,12 @@ describe('fetchQueryInternal', () => {
         const subscription2 = fetchQuery(environment2, query).subscribe(
           observer2,
         );
-        expect(environment.mock.isLoading(gqlQuery, query.variables)).toEqual(
-          true,
-        );
-        expect(environment2.mock.isLoading(gqlQuery, query.variables)).toEqual(
-          true,
-        );
+        expect(
+          environment.mock.isLoading(gqlQuery, query.request.variables),
+        ).toEqual(true);
+        expect(
+          environment2.mock.isLoading(gqlQuery, query.request.variables),
+        ).toEqual(true);
 
         environment.mock.nextValue(gqlQuery, response);
         environment2.mock.nextValue(gqlQuery, response);
@@ -251,12 +252,12 @@ describe('fetchQueryInternal', () => {
         expect(calledObserver2).toEqual(true);
         subscription1.unsubscribe();
         subscription2.unsubscribe();
-        expect(environment.mock.isLoading(gqlQuery, query.variables)).toEqual(
-          false,
-        );
-        expect(environment2.mock.isLoading(gqlQuery, query.variables)).toEqual(
-          false,
-        );
+        expect(
+          environment.mock.isLoading(gqlQuery, query.request.variables),
+        ).toEqual(false);
+        expect(
+          environment2.mock.isLoading(gqlQuery, query.request.variables),
+        ).toEqual(false);
         expect(environment.execute).toHaveBeenCalledTimes(1);
         expect(environment2.execute).toHaveBeenCalledTimes(1);
       });
@@ -280,17 +281,17 @@ describe('fetchQueryInternal', () => {
         const subscription2 = fetchQuery(environment, query).subscribe(
           observer2,
         );
-        expect(environment.mock.isLoading(gqlQuery, query.variables)).toEqual(
-          true,
-        );
+        expect(
+          environment.mock.isLoading(gqlQuery, query.request.variables),
+        ).toEqual(true);
 
         environment.mock.nextValue(gqlQuery, response);
         environment.mock.complete(gqlQuery);
         subscription1.unsubscribe();
         subscription2.unsubscribe();
-        expect(environment.mock.isLoading(gqlQuery, query.variables)).toEqual(
-          false,
-        );
+        expect(
+          environment.mock.isLoading(gqlQuery, query.request.variables),
+        ).toEqual(false);
         expect(environment.execute).toHaveBeenCalledTimes(1);
         expect(calledObserver1).toEqual(true);
         expect(calledObserver2).toEqual(true);
@@ -327,9 +328,9 @@ describe('fetchQueryInternal', () => {
           observer2,
         );
 
-        expect(environment.mock.isLoading(gqlQuery, query.variables)).toEqual(
-          true,
-        );
+        expect(
+          environment.mock.isLoading(gqlQuery, query.request.variables),
+        ).toEqual(true);
         environment.mock.complete(gqlQuery);
         subscription1.unsubscribe();
         subscription2.unsubscribe();
@@ -346,9 +347,23 @@ describe('fetchQueryInternal', () => {
     });
   });
 
+  describe('hasRequestInFlight', () => {
+    it('returns false if request is not in flight', () => {
+      const inFlight = hasRequestInFlight(environment, query.request);
+      expect(inFlight).toEqual(false);
+    });
+
+    it('returns true when request is in flight', () => {
+      fetchQuery(environment, query).subscribe({});
+
+      const inFlight = hasRequestInFlight(environment, query.request);
+      expect(inFlight).toEqual(true);
+    });
+  });
+
   describe('getPromiseForRequestInFlight', () => {
     it('returns null if request is not in flight', () => {
-      const promise = getPromiseForRequestInFlight(environment, query);
+      const promise = getPromiseForRequestInFlight(environment, query.request);
       expect(promise).toEqual(null);
     });
 
@@ -364,7 +379,10 @@ describe('fetchQueryInternal', () => {
       });
       it('returns a promise that rejects when error occurs', () => {
         expect.assertions(5);
-        const promise = getPromiseForRequestInFlight(environment, query);
+        const promise = getPromiseForRequestInFlight(
+          environment,
+          query.request,
+        );
         expect(promise).not.toEqual(null);
         if (!promise) {
           return;
@@ -390,7 +408,10 @@ describe('fetchQueryInternal', () => {
       describe("when `next` hasn't been called", () => {
         it('returns a promise that resolves when the next call to `next` occurs', () => {
           expect.assertions(4);
-          const promise = getPromiseForRequestInFlight(environment, query);
+          const promise = getPromiseForRequestInFlight(
+            environment,
+            query.request,
+          );
           expect(promise).not.toEqual(null);
           if (!promise) {
             return;
@@ -414,7 +435,10 @@ describe('fetchQueryInternal', () => {
 
         it('returns a promise that resolves when the request completes', () => {
           expect.assertions(4);
-          const promise = getPromiseForRequestInFlight(environment, query);
+          const promise = getPromiseForRequestInFlight(
+            environment,
+            query.request,
+          );
           expect(promise).not.toEqual(null);
           if (!promise) {
             return;
@@ -445,7 +469,10 @@ describe('fetchQueryInternal', () => {
 
         it('returns a promise that resolves when the next call to `next` occurs', () => {
           expect.assertions(5);
-          const promise = getPromiseForRequestInFlight(environment, query);
+          const promise = getPromiseForRequestInFlight(
+            environment,
+            query.request,
+          );
           expect(promise).not.toEqual(null);
           if (!promise) {
             return;
@@ -475,7 +502,10 @@ describe('fetchQueryInternal', () => {
           environment.mock.nextValue(gqlQuery, response);
           expect(observer.next).toHaveBeenCalledTimes(2);
 
-          const promise = getPromiseForRequestInFlight(environment, query);
+          const promise = getPromiseForRequestInFlight(
+            environment,
+            query.request,
+          );
           expect(promise).not.toEqual(null);
           if (!promise) {
             return;
@@ -500,7 +530,10 @@ describe('fetchQueryInternal', () => {
 
         it('returns a promise that resolves when the request completes', () => {
           expect.assertions(5);
-          const promise = getPromiseForRequestInFlight(environment, query);
+          const promise = getPromiseForRequestInFlight(
+            environment,
+            query.request,
+          );
           expect(promise).not.toEqual(null);
           if (!promise) {
             return;
@@ -539,7 +572,10 @@ describe('fetchQueryInternal', () => {
     });
 
     it('returns null if request is not in flight', () => {
-      const observable = getObservableForRequestInFlight(environment, query);
+      const observable = getObservableForRequestInFlight(
+        environment,
+        query.request,
+      );
       expect(observable).toEqual(null);
     });
 
@@ -547,13 +583,19 @@ describe('fetchQueryInternal', () => {
       fetchQuery(environment, query).subscribe({error: jest.fn()});
       const error = new Error('Oops');
       environment.mock.reject(gqlQuery, error);
-      const observable = getObservableForRequestInFlight(environment, query);
+      const observable = getObservableForRequestInFlight(
+        environment,
+        query.request,
+      );
       expect(observable).toBe(null);
     });
 
     it('errors asynchronously if the request errors', () => {
       fetchQuery(environment, query).subscribe({error: jest.fn()});
-      const observable = getObservableForRequestInFlight(environment, query);
+      const observable = getObservableForRequestInFlight(
+        environment,
+        query.request,
+      );
       expect(observable).not.toEqual(null);
       if (!observable) {
         return;
@@ -570,13 +612,19 @@ describe('fetchQueryInternal', () => {
     it('returns null if the request has already completed', () => {
       fetchQuery(environment, query).subscribe({});
       environment.mock.complete(gqlQuery);
-      const observable = getObservableForRequestInFlight(environment, query);
+      const observable = getObservableForRequestInFlight(
+        environment,
+        query.request,
+      );
       expect(observable).toBe(null);
     });
 
     it('completes asynchronously if the request completes', () => {
       fetchQuery(environment, query).subscribe({});
-      const observable = getObservableForRequestInFlight(environment, query);
+      const observable = getObservableForRequestInFlight(
+        environment,
+        query.request,
+      );
       expect(observable).not.toEqual(null);
       if (!observable) {
         return;
@@ -592,7 +640,10 @@ describe('fetchQueryInternal', () => {
     it('calls next synchronously with already fetched payloads', () => {
       fetchQuery(environment, query).subscribe({});
       environment.mock.nextValue(gqlQuery, response);
-      const observable = getObservableForRequestInFlight(environment, query);
+      const observable = getObservableForRequestInFlight(
+        environment,
+        query.request,
+      );
       expect(observable).not.toEqual(null);
       if (!observable) {
         return;
@@ -604,7 +655,10 @@ describe('fetchQueryInternal', () => {
 
     it('calls next asynchronously with subsequent payloads', () => {
       fetchQuery(environment, query).subscribe({});
-      const observable = getObservableForRequestInFlight(environment, query);
+      const observable = getObservableForRequestInFlight(
+        environment,
+        query.request,
+      );
       expect(observable).not.toEqual(null);
       if (!observable) {
         return;

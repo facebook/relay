@@ -13,7 +13,8 @@ fragment UserFragment on User {
     id
     name
   }
-  ... on User @defer { # invalid: duplicate label
+  ... on User @defer {
+    # invalid: duplicate label
     name
   }
 }

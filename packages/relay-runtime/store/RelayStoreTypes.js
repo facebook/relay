@@ -10,6 +10,7 @@
 
 'use strict';
 
+import type {LoggerTransactionConfig} from '../network/RelayNetworkLoggerTransaction';
 import type {
   GraphQLResponse,
   Network,
@@ -25,13 +26,24 @@ import type {
   NormalizationSplitOperation,
 } from '../util/NormalizationNode';
 import type {ReaderFragment} from '../util/ReaderNode';
-import type {ConcreteRequest} from '../util/RelayConcreteNode';
+import type {
+  ConcreteRequest,
+  RequestParameters,
+} from '../util/RelayConcreteNode';
 import type {
   CacheConfig,
   DataID,
   Disposable,
   Variables,
 } from '../util/RelayRuntimeTypes';
+import type {RequestIdentifier} from '../util/getRequestIdentifier';
+import type {
+  ConnectionID,
+  ConnectionInternalEvent,
+  ConnectionReference,
+  ConnectionResolver,
+  ConnectionSnapshot,
+} from './RelayConnection';
 import type RelayOperationTracker from './RelayOperationTracker';
 import type {RecordState} from './RelayRecordState';
 
@@ -55,31 +67,24 @@ export type FragmentMap = {[key: string]: ReaderFragment};
  */
 export type SelectorData = {[key: string]: mixed};
 
-export type ReaderSelector = {
-  dataID: DataID,
-  node: ReaderFragment,
-  variables: Variables,
-};
-
-export type OwnedReaderSelector =
-  | SingularOwnedReaderSelector
-  | PluralOwnedReaderSelector;
-
-export type SingularOwnedReaderSelector = {|
-  kind: 'SingularOwnedReaderSelector',
-  owner: RequestDescriptor,
-  selector: ReaderSelector,
+export type SingularReaderSelector = {|
+  +kind: 'SingularReaderSelector',
+  +dataID: DataID,
+  +node: ReaderFragment,
+  +owner: RequestDescriptor,
+  +variables: Variables,
 |};
 
-export type PluralOwnedReaderSelector = {|
-  kind: 'PluralOwnedReaderSelector',
-  selectors: $ReadOnlyArray<SingularOwnedReaderSelector>,
+export type ReaderSelector = SingularReaderSelector | PluralReaderSelector;
+
+export type PluralReaderSelector = {|
+  +kind: 'PluralReaderSelector',
+  +selectors: $ReadOnlyArray<SingularReaderSelector>,
 |};
 
 export type RequestDescriptor = {|
-  +fragment: mixed,
+  +identifier: RequestIdentifier,
   +node: ConcreteRequest,
-  +root: mixed,
   +variables: Variables,
 |};
 
@@ -87,21 +92,22 @@ export type RequestDescriptor = {|
  * A selector defines the starting point for a traversal into the graph for the
  * purposes of targeting a subgraph.
  */
-export type NormalizationSelector = {
-  dataID: DataID,
-  node: NormalizationSelectableNode,
-  variables: Variables,
-};
+export type NormalizationSelector = {|
+  +dataID: DataID,
+  +node: NormalizationSelectableNode,
+  +variables: Variables,
+|};
 
 /**
  * A representation of a selector and its results at a particular point in time.
  */
-export type Snapshot = ReaderSelector & {
-  data: ?SelectorData,
-  seenRecords: RecordMap,
-  isMissingData: boolean,
-  owner: RequestDescriptor,
-};
+export type TypedSnapshot<TData> = {|
+  +data: TData,
+  +isMissingData: boolean,
+  +seenRecords: RecordMap,
+  +selector: SingularReaderSelector,
+|};
+export type Snapshot = TypedSnapshot<?SelectorData>;
 
 /**
  * An operation selector describes a specific instance of a GraphQL operation
@@ -113,10 +119,9 @@ export type Snapshot = ReaderSelector & {
  *   the results of the the operation.
  */
 export type OperationDescriptor = {|
-  +fragment: ReaderSelector,
-  +node: ConcreteRequest,
+  +fragment: SingularReaderSelector,
+  +request: RequestDescriptor,
   +root: NormalizationSelector,
-  +variables: Variables,
 |};
 
 /**
@@ -188,11 +193,8 @@ export interface RecordSource {
   getRecordIDs(): Array<DataID>;
   getStatus(dataID: DataID): RecordState;
   has(dataID: DataID): boolean;
-  load(
-    dataID: DataID,
-    callback: (error: ?Error, record: ?Record) => void,
-  ): void;
   size(): number;
+  toJSON(): {[DataID]: ?Record};
 }
 
 /**
@@ -203,7 +205,6 @@ export interface MutableRecordSource extends RecordSource {
   delete(dataID: DataID): void;
   remove(dataID: DataID): void;
   set(dataID: DataID, record: Record): void;
-  toJSON(): {[DataID]: ?Record};
 }
 
 /**
@@ -227,7 +228,7 @@ export interface Store {
    * Optionally takes an owner, corresponding to the operation that
    * owns this selector (fragment).
    */
-  lookup(selector: ReaderSelector, owner: RequestDescriptor): Snapshot;
+  lookup(selector: SingularReaderSelector): Snapshot;
 
   /**
    * Notify subscribers (see `subscribe`) of any data that was published
@@ -266,6 +267,46 @@ export interface Store {
    * the returned reference is disposed.
    */
   holdGC(): Disposable;
+
+  lookupConnection_UNSTABLE<TEdge, TState>(
+    connectionReference: ConnectionReference<TEdge>,
+    resolver: ConnectionResolver<TEdge, TState>,
+  ): ConnectionSnapshot<TEdge, TState>;
+
+  subscribeConnection_UNSTABLE<TEdge, TState>(
+    snapshot: ConnectionSnapshot<TEdge, TState>,
+    resolver: ConnectionResolver<TEdge, TState>,
+    callback: (state: TState) => void,
+  ): Disposable;
+
+  /**
+   * Publish connection events, updating the store's list of events. As with
+   * publish(), subscribers are only notified after notify() is called.
+   */
+  publishConnectionEvents_UNSTABLE(
+    events: Array<ConnectionInternalEvent>,
+    final: boolean,
+  ): void;
+
+  /**
+   * Get a read-only view of the store's internal connection events for a given
+   * connection.
+   */
+  getConnectionEvents_UNSTABLE(
+    connectionID: ConnectionID,
+  ): ?$ReadOnlyArray<ConnectionInternalEvent>;
+
+  /**
+   * Record a backup/snapshot of the current state of the store, including
+   * records and derived data such as fragment and connection subscriptions.
+   * This state can be restored with restore().
+   */
+  snapshot(): void;
+
+  /**
+   * Reset the state of the store to the point that snapshot() was last called.
+   */
+  restore(): void;
 }
 
 /**
@@ -335,14 +376,57 @@ export interface ReadOnlyRecordSourceProxy {
  * Extends the RecordSourceProxy interface with methods for accessing the root
  * fields of a Selector.
  */
-export interface RecordSourceSelectorProxy {
-  create(dataID: DataID, typeName: string): RecordProxy;
-  delete(dataID: DataID): void;
-  get(dataID: DataID): ?RecordProxy;
-  getRoot(): RecordProxy;
+export interface RecordSourceSelectorProxy extends RecordSourceProxy {
   getRootField(fieldName: string): ?RecordProxy;
   getPluralRootField(fieldName: string): ?Array<?RecordProxy>;
+  insertConnectionEdge_UNSTABLE(
+    connectionID: ConnectionID,
+    args: Variables,
+    edge: RecordProxy,
+  ): void;
 }
+
+export interface Logger {
+  log(message: string, ...values: Array<mixed>): void;
+  flushLogs(): void;
+}
+
+export interface LoggerProvider {
+  getLogger(config: LoggerTransactionConfig): Logger;
+}
+
+export type LogEvent =
+  | {|
+      +name: 'execute.info',
+      +transactionID: number,
+      +info: mixed,
+    |}
+  | {|
+      +name: 'execute.start',
+      +transactionID: number,
+      +params: RequestParameters,
+      +variables: Variables,
+    |}
+  | {|
+      +name: 'execute.next',
+      +transactionID: number,
+      +response: GraphQLResponse,
+    |}
+  | {|
+      +name: 'execute.error',
+      +transactionID: number,
+      +error: Error,
+    |}
+  | {|
+      +name: 'execute.complete',
+      +transactionID: number,
+    |}
+  | {|
+      +name: 'execute.unsubscribe',
+      +transactionID: number,
+    |};
+export type LogFunction = LogEvent => void;
+export type LogRequestInfoFunction = mixed => void;
 
 /**
  * The public API of Relay core. Represents an encapsulated environment with its
@@ -380,7 +464,13 @@ export interface Environment {
    * Apply an optimistic update to the environment. The mutation can be reverted
    * by calling `dispose()` on the returned value.
    */
-  applyUpdate(optimisticUpdate: OptimisticUpdate): Disposable;
+  applyUpdate(optimisticUpdate: OptimisticUpdateFunction): Disposable;
+
+  /**
+   * Apply an optimistic mutation response and/or updater. The mutation can be
+   * reverted by calling `dispose()` on the returned value.
+   */
+  applyMutation(optimisticConfig: OptimisticResponseConfig): Disposable;
 
   /**
    * Commit an updater to the environment. This mutation cannot be reverted and
@@ -408,6 +498,11 @@ export interface Environment {
   getStore(): Store;
 
   /**
+   * Get an instance of a logger
+   */
+  getLogger(config: LoggerTransactionConfig): ?Logger;
+
+  /**
    * Returns the environment specific OperationTracker.
    */
   getOperationTracker(): RelayOperationTracker;
@@ -417,7 +512,7 @@ export interface Environment {
    * Optionally takes an owner, corresponding to the operation that
    * owns this selector (fragment).
    */
-  lookup(selector: ReaderSelector, owner: RequestDescriptor): Snapshot;
+  lookup(selector: SingularReaderSelector): Snapshot;
 
   /**
    * Send a query to the server with Observer semantics: one or more
@@ -559,6 +654,7 @@ export type ModuleImportPayload = {|
  */
 export type DeferPlaceholder = {|
   +kind: 'defer',
+  +data: PayloadData,
   +label: string,
   +path: $ReadOnlyArray<string>,
   +selector: NormalizationSelector,
@@ -614,22 +710,26 @@ export type SelectorStoreUpdater = (
 /**
  * A set of configs that can be used to apply an optimistic update into the
  * store.
- * TODO: we should probably only expose `storeUpdater` and `source` to the
- * publish queue.
  */
 export type OptimisticUpdate =
-  | {|
-      storeUpdater: StoreUpdater,
-    |}
-  | {|
-      selectorStoreUpdater: ?SelectorStoreUpdater,
-      operation: OperationDescriptor,
-      response: ?Object,
-    |}
-  | {|
-      source: RecordSource,
-      fieldPayloads?: ?Array<HandleFieldPayload>,
-    |};
+  | OptimisticUpdateFunction
+  | OptimisticUpdateRelayPayload;
+
+export type OptimisticUpdateFunction = {|
+  +storeUpdater: StoreUpdater,
+|};
+
+export type OptimisticUpdateRelayPayload = {|
+  +operation: OperationDescriptor,
+  +payload: RelayResponsePayload,
+  +updater: ?SelectorStoreUpdater,
+|};
+
+export type OptimisticResponseConfig = {|
+  +operation: OperationDescriptor,
+  +response: ?PayloadData,
+  +updater: ?SelectorStoreUpdater,
+|};
 
 /**
  * A set of handlers that can be used to provide substitute data for missing
@@ -668,11 +768,12 @@ export type MissingFieldHandler =
  * The results of normalizing a query.
  */
 export type RelayResponsePayload = {|
-  incrementalPlaceholders: ?Array<IncrementalDataPlaceholder>,
-  fieldPayloads: ?Array<HandleFieldPayload>,
-  moduleImportPayloads: ?Array<ModuleImportPayload>,
-  source: MutableRecordSource,
-  errors: ?Array<PayloadError>,
+  +connectionEvents: ?Array<ConnectionInternalEvent>,
+  +errors: ?Array<PayloadError>,
+  +fieldPayloads: ?Array<HandleFieldPayload>,
+  +incrementalPlaceholders: ?Array<IncrementalDataPlaceholder>,
+  +moduleImportPayloads: ?Array<ModuleImportPayload>,
+  +source: MutableRecordSource,
 |};
 
 /**

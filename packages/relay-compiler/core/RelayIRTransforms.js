@@ -16,7 +16,6 @@ const FilterDirectivesTransform = require('../transforms/FilterDirectivesTransfo
 const FlattenTransform = require('../transforms/FlattenTransform');
 const InlineDataFragmentTransform = require('../transforms/InlineDataFragmentTransform');
 const InlineFragmentsTransform = require('../transforms/InlineFragmentsTransform');
-const RefineOperationVariablesTransform = require('../transforms/RefineOperationVariablesTransform');
 const RelayApplyFragmentArgumentTransform = require('../transforms/RelayApplyFragmentArgumentTransform');
 const RelayConnectionTransform = require('../handlers/connection//RelayConnectionTransform');
 const RelayDeferStreamTransform = require('../transforms/RelayDeferStreamTransform');
@@ -34,6 +33,8 @@ const RelayTestOperationTransform = require('../transforms/RelayTestOperationTra
 const SkipClientExtensionsTransform = require('../transforms/SkipClientExtensionsTransform');
 const SkipRedundantNodesTransform = require('../transforms/SkipRedundantNodesTransform');
 const SkipUnreachableNodeTransform = require('../transforms/SkipUnreachableNodeTransform');
+const SkipUnusedVariablesTransform = require('../transforms/SkipUnusedVariablesTransform');
+const ValidateGlobalVariablesTransform = require('../transforms/ValidateGlobalVariablesTransform');
 
 import type {IRTransform} from './GraphQLCompilerContext';
 
@@ -73,6 +74,7 @@ const relayFragmentTransforms: $ReadOnlyArray<IRTransform> = [
 // fetching data from the server and parsing those responses.
 const relayQueryTransforms: $ReadOnlyArray<IRTransform> = [
   RelayApplyFragmentArgumentTransform.transform,
+  ValidateGlobalVariablesTransform.transform,
   RelayGenerateIDFieldTransform.transform,
   RelayDeferStreamTransform.transform,
   RelayTestOperationTransform.transform,
@@ -90,10 +92,6 @@ const relayCodegenTransforms: $ReadOnlyArray<IRTransform> = [
   FlattenTransform.transformWithOptions({flattenAbstractTypes: true}),
   SkipRedundantNodesTransform.transform,
   RelayGenerateTypeNameTransform.transform,
-  FilterDirectivesTransform.transform,
-  RefineOperationVariablesTransform.transformWithOptions({
-    removeUnusedVariables: false,
-  }),
 ];
 
 // Transforms applied before printing the query sent to the server.
@@ -107,9 +105,7 @@ const relayPrintTransforms: $ReadOnlyArray<IRTransform> = [
   RelayGenerateTypeNameTransform.transform,
   RelaySkipHandleFieldTransform.transform,
   FilterDirectivesTransform.transform,
-  RefineOperationVariablesTransform.transformWithOptions({
-    removeUnusedVariables: true,
-  }),
+  SkipUnusedVariablesTransform.transform,
 ];
 
 module.exports = {

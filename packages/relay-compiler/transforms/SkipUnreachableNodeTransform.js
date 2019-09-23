@@ -10,11 +10,11 @@
 
 'use strict';
 
-const GraphQLCompilerContext = require('../core/GraphQLCompilerContext');
 const GraphQLIRTransformer = require('../core/GraphQLIRTransformer');
 
 const invariant = require('invariant');
 
+import type GraphQLCompilerContext from '../core/GraphQLCompilerContext';
 import type {Condition, Fragment, Node, Selection} from '../core/GraphQLIR';
 
 type ConditionResult = 'fail' | 'pass' | 'variable';
@@ -88,6 +88,9 @@ function transformNode<T: Node>(
         nextSelection = transformNode(context, fragments, selection);
         break;
       case 'ConnectionField':
+        nextSelection = transformNode(context, fragments, selection);
+        break;
+      case 'Connection':
         nextSelection = transformNode(context, fragments, selection);
         break;
       case 'InlineFragment':

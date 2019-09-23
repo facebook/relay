@@ -1,9 +1,13 @@
 # expected-to-throw
 query LiteralListArgumentQuery1 {
-  route(waypoints: [{
-    lat: 0.0 # error: float not string
-    lon: "0.0"
-  }]) {
+  route(
+    waypoints: [
+      {
+        lat: 0.0 # error: float not string
+        lon: "0.0"
+      }
+    ]
+  ) {
     steps {
       note
     }
@@ -11,7 +15,8 @@ query LiteralListArgumentQuery1 {
 }
 
 query LiteralListArgumentQuery2 {
-  route(waypoints: ["waypoint"]) { # error: string not input object
+  route(waypoints: ["waypoint"]) {
+    # error: string not input object
     steps {
       note
     }
@@ -19,7 +24,8 @@ query LiteralListArgumentQuery2 {
 }
 
 query LiteralListArgumentQuery3 {
-  route(waypoints: "waypoint") { # error: string not list
+  route(waypoints: "waypoint") {
+    # error: string not list
     steps {
       note
     }

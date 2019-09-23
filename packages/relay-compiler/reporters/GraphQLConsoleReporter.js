@@ -36,10 +36,7 @@ class GraphQLConsoleReporter implements GraphQLReporter {
   }
 
   reportTime(name: string, ms: number): void {
-    /* $FlowFixMe(>=0.68.0 site=react_native_fb,react_native_oss) This comment
-     * suppresses an error found when Flow v0.68 was deployed. To see the error
-     * delete this comment and run Flow. */
-    if (this._verbose && !this.quiet) {
+    if (this._verbose && !this._quiet) {
       const time =
         ms === 0
           ? chalk.gray(' <1ms')

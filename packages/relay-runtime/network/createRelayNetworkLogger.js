@@ -10,7 +10,7 @@
 
 'use strict';
 
-const {convertFetch, convertSubscribe} = require('./ConvertToExecuteFunction');
+const {convertFetch} = require('./ConvertToExecuteFunction');
 
 import type {RequestParameters} from '../util/RelayConcreteNode';
 import type {Variables} from '../util/RelayRuntimeTypes';
@@ -26,9 +26,20 @@ export type GraphiQLPrinter = (
   variables: Variables,
 ) => string;
 
+export type NetworkLogger = {|
+  wrapFetch: (
+    fetch: FetchFunction,
+    graphiQLPrinter?: GraphiQLPrinter,
+  ) => FetchFunction,
+  wrapSubscribe: (
+    subscribe: SubscribeFunction,
+    graphiQLPrinter?: GraphiQLPrinter,
+  ) => SubscribeFunction,
+|};
+
 function createRelayNetworkLogger(
   LoggerTransaction: Class<IRelayNetworkLoggerTransaction>,
-): * {
+): NetworkLogger {
   return {
     wrapFetch(
       fetch: FetchFunction,
@@ -50,7 +61,7 @@ function createRelayNetworkLogger(
     ): SubscribeFunction {
       return (request, variables, cacheConfig) => {
         const wrapped = wrapExecute(
-          convertSubscribe(subscribe),
+          subscribe,
           LoggerTransaction,
           graphiQLPrinter,
         );

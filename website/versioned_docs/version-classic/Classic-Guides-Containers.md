@@ -93,7 +93,7 @@ Relay containers are higher-order components — `Relay.createContainer` is a fu
 Here's what happens when the container is rendered:
 
 <div class="diagram">
-  <img src="/relay/img/docs/Guides-Containers-HOC-Relay.png" title="Relay Containers" />
+  <img src="/img/docs/Guides-Containers-HOC-Relay.png" title="Relay Containers" />
 </div>
 
 In the diagram above:

@@ -38,7 +38,7 @@ function fetchQuery<T: OperationType>(
   const operation = createOperationDescriptor(query, variables);
   return environment
     .execute({operation, cacheConfig})
-    .map(() => environment.lookup(operation.fragment, operation).data)
+    .map(() => environment.lookup(operation.fragment).data)
     .toPromise();
 }
 

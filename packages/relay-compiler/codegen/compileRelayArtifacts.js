@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @flow
+ * @flow strict-local
  * @format
  */
 
@@ -36,6 +36,117 @@ export type RelayCompilerValidations = {
   printValidations: $ReadOnlyArray<IRValidation>,
 };
 
+function createFragmentContext(
+  context: CompilerContext,
+  transforms: RelayCompilerTransforms,
+  reporter?: Reporter,
+): CompilerContext {
+  // The fragment is used for reading data from the normalized store.
+  return context.applyTransforms(
+    [...transforms.commonTransforms, ...transforms.fragmentTransforms],
+    reporter,
+  );
+}
+
+function createPrintContext(
+  context: CompilerContext,
+  transforms: RelayCompilerTransforms,
+  reporter?: Reporter,
+  validations?: RelayCompilerValidations,
+): CompilerContext {
+  // The unflattened query is used for printing, since flattening creates an
+  // invalid query.
+  const printContext = context.applyTransforms(
+    [
+      ...transforms.commonTransforms,
+      ...transforms.queryTransforms,
+      ...transforms.printTransforms,
+    ],
+    reporter,
+  );
+  if (validations) {
+    printContext.applyValidations(validations.printValidations, reporter);
+  }
+  return printContext;
+}
+
+function createCodeGenContext(
+  context: CompilerContext,
+  transforms: RelayCompilerTransforms,
+  reporter?: Reporter,
+  validations?: RelayCompilerValidations,
+): CompilerContext {
+  // The flattened query is used for codegen in order to reduce the number of
+  // duplicate fields that must be processed during response normalization.
+  const codeGenContext = context.applyTransforms(
+    [
+      ...transforms.commonTransforms,
+      ...transforms.queryTransforms,
+      ...transforms.codegenTransforms,
+    ],
+    reporter,
+  );
+  if (validations) {
+    codeGenContext.applyValidations(validations.codegenValidations, reporter);
+  }
+  return codeGenContext;
+}
+
+function compile(
+  context: CompilerContext,
+  fragmentContext: CompilerContext,
+  printContext: CompilerContext,
+  codeGenContext: CompilerContext,
+): $ReadOnlyArray<[GeneratedDefinition, GeneratedNode]> {
+  const results = [];
+
+  // Add everything from codeGenContext, these are the operations as well as
+  // SplitOperations from @match.
+  for (const node of codeGenContext.documents()) {
+    if (node.kind === 'Root') {
+      const fragment = fragmentContext.getRoot(node.name);
+      const request = {
+        kind: 'Request',
+        fragment: {
+          kind: 'Fragment',
+          argumentDefinitions: fragment.argumentDefinitions,
+          directives: fragment.directives,
+          loc: {kind: 'Derived', source: node.loc},
+          metadata: null,
+          name: fragment.name,
+          selections: fragment.selections,
+          type: fragment.type,
+        },
+        id: null,
+        loc: node.loc,
+        metadata: node.metadata || {},
+        name: fragment.name,
+        root: node,
+        text: printOperation(printContext, fragment.name),
+      };
+      results.push([request, RelayCodeGenerator.generate(request)]);
+    } else {
+      results.push([node, RelayCodeGenerator.generate(node)]);
+    }
+  }
+
+  // Add all the Fragments from the fragmentContext for the reader ASTs.
+  for (const node of fragmentContext.documents()) {
+    if (node.kind === 'Fragment') {
+      results.push([node, RelayCodeGenerator.generate(node)]);
+    }
+  }
+  return results;
+}
+
+function printOperation(printContext: CompilerContext, name: string): string {
+  const printableRoot = printContext.getRoot(name);
+  return filterContextForNode(printableRoot, printContext)
+    .documents()
+    .map(Printer.print)
+    .join('\n');
+}
+
 /**
  * Transforms the provided compiler context
  *
@@ -59,88 +170,25 @@ function compileRelayArtifacts(
   validations?: RelayCompilerValidations,
 ): $ReadOnlyArray<[GeneratedDefinition, GeneratedNode]> {
   return Profiler.run('GraphQLCompiler.compile', () => {
-    // The fragment is used for reading data from the normalized store.
-    const fragmentContext = context.applyTransforms(
-      [...transforms.commonTransforms, ...transforms.fragmentTransforms],
+    const fragmentContext = createFragmentContext(
+      context,
+      transforms,
       reporter,
     );
-
-    // The unflattened query is used for printing, since flattening creates an
-    // invalid query.
-    const printContext = context.applyTransforms(
-      [
-        ...transforms.commonTransforms,
-        ...transforms.queryTransforms,
-        ...transforms.printTransforms,
-      ],
+    const printContext = createPrintContext(
+      context,
+      transforms,
       reporter,
+      validations,
     );
-    if (validations) {
-      printContext.applyValidations(validations.printValidations, reporter);
-    }
-
-    // The flattened query is used for codegen in order to reduce the number of
-    // duplicate fields that must be processed during response normalization.
-    const codeGenContext = context.applyTransforms(
-      [
-        ...transforms.commonTransforms,
-        ...transforms.queryTransforms,
-        ...transforms.codegenTransforms,
-      ],
+    const codeGenContext = createCodeGenContext(
+      context,
+      transforms,
       reporter,
+      validations,
     );
-    if (validations) {
-      codeGenContext.applyValidations(validations.codegenValidations, reporter);
-    }
-
-    const results = [];
-
-    // Add everything from codeGenContext, these are the operations as well as
-    // SplitOperations from @match.
-    for (const node of codeGenContext.documents()) {
-      if (node.kind === 'Root') {
-        const fragment = fragmentContext.getRoot(node.name);
-        const request = {
-          kind: 'Request',
-          fragment: {
-            kind: 'Fragment',
-            argumentDefinitions: fragment.argumentDefinitions,
-            directives: fragment.directives,
-            loc: {kind: 'Derived', source: node.loc},
-            metadata: null,
-            name: fragment.name,
-            selections: fragment.selections,
-            type: fragment.type,
-          },
-          id: null,
-          loc: node.loc,
-          metadata: node.metadata || {},
-          name: fragment.name,
-          root: node,
-          text: printOperation(printContext, fragment.name),
-        };
-        results.push([request, RelayCodeGenerator.generate(request)]);
-      } else {
-        results.push([node, RelayCodeGenerator.generate(node)]);
-      }
-    }
-
-    // Add all the Fragments from the fragmentContext for the reader ASTs.
-    for (const node of fragmentContext.documents()) {
-      if (node.kind === 'Fragment') {
-        results.push([node, RelayCodeGenerator.generate(node)]);
-      }
-    }
-    return results;
+    return compile(context, fragmentContext, printContext, codeGenContext);
   });
-}
-
-function printOperation(printContext: CompilerContext, name: string): string {
-  const printableRoot = printContext.getRoot(name);
-  return filterContextForNode(printableRoot, printContext)
-    .documents()
-    .map(Printer.print)
-    .join('\n');
 }
 
 module.exports = compileRelayArtifacts;

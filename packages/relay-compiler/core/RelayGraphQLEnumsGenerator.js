@@ -21,38 +21,36 @@ function writeForSchema(
   schema: GraphQLSchema,
   licenseHeader: $ReadOnlyArray<string>,
   codegenDir: CodegenDirectory,
-  moduleName: string,
+  getModuleName: (enumName: string) => string,
 ): void {
-  const typeMap = schema.getTypeMap();
-  const stableTypeNames = Object.keys(typeMap).sort();
-  const types = [];
-  for (const name of stableTypeNames) {
-    const type = typeMap[name];
-    if (type instanceof GraphQLEnumType) {
-      const values = type.getValues().map(({value}) => value);
-      values.sort();
-      types.push(
-        `export type ${name} =\n  | '` +
-          values.join("'\n  | '") +
-          "'\n  | '%future added value';",
-      );
-    }
-  }
-
-  const content =
+  const header =
     '/**\n' +
     licenseHeader.map(line => ` * ${line}\n`).join('') +
     ' *\n' +
     ` * ${SignedSource.getSigningToken()}\n` +
-    ' * @flow\n' +
+    ' * @flow strict\n' +
     ' */\n' +
-    '\n' +
-    // use Flow comment to avoid long Babel compile times
-    '/*::\n' +
-    types.join('\n\n') +
-    '\n*/\n';
+    '\n';
 
-  codegenDir.writeFile(moduleName + '.js', SignedSource.signFile(content));
+  const typeMap = schema.getTypeMap();
+  for (const name of Object.keys(typeMap)) {
+    const type = typeMap[name];
+    if (type instanceof GraphQLEnumType) {
+      const values = type
+        .getValues()
+        .map(({value}) => value)
+        .sort();
+      const enumFileContent =
+        header +
+        `export type ${name} =\n  | '` +
+        values.join("'\n  | '") +
+        "'\n  | '%future added value';\n";
+      codegenDir.writeFile(
+        `${getModuleName(name)}.js`,
+        SignedSource.signFile(enumFileContent),
+      );
+    }
+  }
 }
 
 module.exports = {

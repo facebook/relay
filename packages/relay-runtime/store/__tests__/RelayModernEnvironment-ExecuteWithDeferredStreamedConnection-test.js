@@ -13,31 +13,17 @@
 
 const RelayConnectionHandler = require('../../handlers/connection/RelayConnectionHandler');
 const RelayModernEnvironment = require('../RelayModernEnvironment');
-const RelayModernOperationDescriptor = require('../RelayModernOperationDescriptor');
 const RelayModernStore = require('../RelayModernStore');
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
 const RelayRecordSource = require('../RelayRecordSource');
 
+const {
+  createOperationDescriptor,
+} = require('../RelayModernOperationDescriptor');
 const {createReaderSelector} = require('../RelayModernSelector');
 const {VIEWER_ID} = require('../ViewerPattern');
 const {generateAndCompile} = require('relay-test-utils-internal');
-
-function createOperationDescriptor(...args) {
-  const operation = RelayModernOperationDescriptor.createOperationDescriptor(
-    ...args,
-  );
-  // For convenience of the test output, override toJSON to print
-  // a more succint description of the operation.
-  // $FlowFixMe
-  operation.toJSON = () => {
-    return {
-      name: operation.fragment.node.name,
-      variables: operation.variables,
-    };
-  };
-  return operation;
-}
 
 describe('execute() fetches a @defer-ed @stream-ed @connection', () => {
   let callback;
@@ -106,7 +92,12 @@ describe('execute() fetches a @defer-ed @stream-ed @connection', () => {
       `));
     variables = {enableStream: true, after: null};
     operation = createOperationDescriptor(query, variables);
-    selector = createReaderSelector(feedFragment, VIEWER_ID, variables);
+    selector = createReaderSelector(
+      feedFragment,
+      VIEWER_ID,
+      variables,
+      operation.request,
+    );
 
     const NameHandler = {
       update(storeProxy, payload) {
@@ -147,7 +138,7 @@ describe('execute() fetches a @defer-ed @stream-ed @connection', () => {
   });
 
   it('does not initialize the connection with the root payload', () => {
-    const initialSnapshot = environment.lookup(selector, operation);
+    const initialSnapshot = environment.lookup(selector);
     callback = jest.fn();
     environment.subscribe(initialSnapshot, callback);
 
@@ -170,7 +161,7 @@ describe('execute() fetches a @defer-ed @stream-ed @connection', () => {
   });
 
   it('initializes the connection with the deferred payload', () => {
-    const initialSnapshot = environment.lookup(selector, operation);
+    const initialSnapshot = environment.lookup(selector);
     callback = jest.fn();
     environment.subscribe(initialSnapshot, callback);
 
@@ -211,7 +202,7 @@ describe('execute() fetches a @defer-ed @stream-ed @connection', () => {
   });
 
   it('initializes the connection with the first edge (0 => 1 edges)', () => {
-    const initialSnapshot = environment.lookup(selector, operation);
+    const initialSnapshot = environment.lookup(selector);
     callback = jest.fn();
     environment.subscribe(initialSnapshot, callback);
 
@@ -286,7 +277,7 @@ describe('execute() fetches a @defer-ed @stream-ed @connection', () => {
   });
 
   it('initializes the connection with subsequent edges (1 => 2 edges)', () => {
-    const initialSnapshot = environment.lookup(selector, operation);
+    const initialSnapshot = environment.lookup(selector);
     callback = jest.fn();
     environment.subscribe(initialSnapshot, callback);
 
@@ -395,7 +386,7 @@ describe('execute() fetches a @defer-ed @stream-ed @connection', () => {
   });
 
   it('initializes the connection with subsequent edges (1 => 2 edges) when initial_count=1', () => {
-    const initialSnapshot = environment.lookup(selector, operation);
+    const initialSnapshot = environment.lookup(selector);
     callback = jest.fn();
     environment.subscribe(initialSnapshot, callback);
 

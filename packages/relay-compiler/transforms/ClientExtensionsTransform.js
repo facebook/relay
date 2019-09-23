@@ -102,61 +102,45 @@ function traverseSelections<T: Node>(
   }
   const {serverSchema, clientSchema} = compilerContext;
   const clientSelections = [];
-  const serverSelections = [];
-  node.selections.forEach(selection => {
+  const serverSelections = cowMap(node.selections, selection => {
     switch (selection.kind) {
-      case 'ClientExtension': {
-        serverSelections.push(selection);
-        break;
-      }
+      case 'ClientExtension':
+        throw createCompilerError(
+          'Unexpected ClientExtension node before ClientExtensionTransform',
+          [selection.loc],
+        );
       case 'Condition':
+      case 'Connection':
       case 'Defer':
       case 'InlineDataFragmentSpread':
       case 'ModuleImport':
-      case 'Stream': {
-        const transformed = traverseSelections(
-          selection,
-          compilerContext,
-          parentType,
-        );
-        serverSelections.push(transformed);
-        break;
-      }
-      case 'ConnectionField':
+      case 'Stream':
+        return traverseSelections(selection, compilerContext, parentType);
       case 'ScalarField':
-      case 'LinkedField': {
-        const isClientField = isClientDefinedField(
-          selection,
-          compilerContext,
-          parentType,
-        );
-
-        if (isClientField) {
+        if (isClientDefinedField(selection, compilerContext, parentType)) {
           clientSelections.push(selection);
-          break;
-        }
-        if (selection.kind === 'ScalarField') {
-          serverSelections.push(selection);
+          return null;
         } else {
-          const rawType = getRawType(selection.type);
-          const fieldType =
-            serverSchema.getType(rawType.name) ??
-            clientSchema.getType(rawType.name);
-          if (fieldType == null) {
-            throw createCompilerError(
-              'ClientExtensionTransform: Expected to be able to determine ' +
-                `type of field \`${selection.name}\`.`,
-              [selection.loc],
-            );
-          }
-          const transformed = traverseSelections(
-            selection,
-            compilerContext,
-            fieldType,
-          );
-          serverSelections.push(transformed);
+          return selection;
         }
-        break;
+      case 'ConnectionField':
+      case 'LinkedField': {
+        if (isClientDefinedField(selection, compilerContext, parentType)) {
+          clientSelections.push(selection);
+          return null;
+        }
+        const rawType = getRawType(selection.type);
+        const fieldType =
+          serverSchema.getType(rawType.name) ??
+          clientSchema.getType(rawType.name);
+        if (fieldType == null) {
+          throw createCompilerError(
+            'ClientExtensionTransform: Expected to be able to determine ' +
+              `type of field \`${selection.name}\`.`,
+            [selection.loc],
+          );
+        }
+        return traverseSelections(selection, compilerContext, fieldType);
       }
       case 'InlineFragment': {
         const typeName = selection.typeCondition.name;
@@ -166,34 +150,19 @@ function traverseSelections<T: Node>(
 
         if (isClientType) {
           clientSelections.push(selection);
-        } else {
-          const type = serverType ?? clientType;
-          if (type == null) {
-            throw createCompilerError(
-              'ClientExtensionTransform: Expected to be able to determine ' +
-                `type of inline fragment on \`${typeName}\`.`,
-              [selection.loc],
-            );
-          }
-          const transformed = traverseSelections(
-            selection,
-            compilerContext,
-            type,
-          );
-          serverSelections.push(transformed);
+          return null;
         }
-        break;
+        const type = serverType ?? clientType;
+        if (type == null) {
+          throw createCompilerError(
+            'ClientExtensionTransform: Expected to be able to determine ' +
+              `type of inline fragment on \`${typeName}\`.`,
+            [selection.loc],
+          );
+        }
+        return traverseSelections(selection, compilerContext, type);
       }
       case 'FragmentSpread': {
-        if (!compilerContext.get(selection.name)) {
-          // NOTE: Calling `get` will check if the fragment definition for this
-          // fragment spread exists. If it doesn't, which can happen if the
-          // fragment spread is referencing a fragment defined with Relay Classic,
-          // we will treat this selection as a client-only selection
-          // This will ensure that it is properly skipped for the print context.
-          clientSelections.push(selection);
-          break;
-        }
         const fragment = compilerContext.getFragment(
           selection.name,
           selection.loc,
@@ -205,10 +174,9 @@ function traverseSelections<T: Node>(
 
         if (isClientType) {
           clientSelections.push(selection);
-        } else {
-          serverSelections.push(selection);
+          return null;
         }
-        break;
+        return selection;
       }
       default:
         (selection: empty);
@@ -220,28 +188,62 @@ function traverseSelections<T: Node>(
         );
     }
   });
-  result =
-    clientSelections.length === 0
-      ? {
-          ...node,
-          selections: [...serverSelections],
-        }
-      : {
-          ...node,
-          selections: [
-            ...serverSelections,
-            // Group client fields under a single ClientExtension node
-            {
-              kind: 'ClientExtension',
-              loc: node.loc,
-              metadata: null,
-              selections: [...clientSelections],
-            },
-          ],
-        };
+  if (clientSelections.length === 0) {
+    if (serverSelections === node.selections) {
+      result = node;
+    } else {
+      result = {
+        ...node,
+        selections: serverSelections,
+      };
+    }
+  } else {
+    result = {
+      ...node,
+      selections: [
+        ...serverSelections,
+        // Group client fields under a single ClientExtension node
+        {
+          kind: 'ClientExtension',
+          loc: node.loc,
+          metadata: null,
+          selections: clientSelections,
+        },
+      ],
+    };
+  }
   nodeCache.set(parentType, result);
   // $FlowFixMe - TODO: type IRTransformer to allow changing result type
   return result;
+}
+
+/**
+ * Maps an array with copy-on-write semantics.
+ * `null` return values from the map function are removals.
+ */
+function cowMap(
+  selections: $ReadOnlyArray<Selection>,
+  f: Selection => Selection | null,
+) {
+  for (let i = 0; i < selections.length; i++) {
+    const prevSelection = selections[i];
+    const nextSelection = f(prevSelection);
+    if (prevSelection !== nextSelection) {
+      const result = selections.slice(0, i);
+      if (nextSelection != null) {
+        result.push(nextSelection);
+      }
+      for (let j = i + 1; j < selections.length; j++) {
+        const innerNextSelection = f(selections[j]);
+        if (innerNextSelection != null) {
+          result.push(innerNextSelection);
+        }
+      }
+      return result;
+    }
+  }
+  // nothing changed, return original
+  return selections;
 }
 
 module.exports = {

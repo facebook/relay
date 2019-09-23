@@ -8,6 +8,5 @@ query TestQuery {
 
 fragment User_user on User
   @argumentDefinitions(isRelative: {type: "Boolean!", defaultValue: false}) {
-
   url(relative: $isRelative)
 }

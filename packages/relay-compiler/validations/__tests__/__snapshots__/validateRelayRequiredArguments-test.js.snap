@@ -4,7 +4,7 @@ exports[`validateRelayRequiredArguments-test matches expected output: argument-o
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query TestQuery {
   node {
-    hometown{
+    hometown {
       nameWithArgs(capitalize: true)
     }
   }
@@ -126,7 +126,7 @@ exports[`validateRelayRequiredArguments-test matches expected output: missing-ar
 # expected-to-throw
 query TestQuery {
   node {
-    hometown{
+    hometown {
       nameWithArgs
     }
   }
@@ -139,7 +139,7 @@ Error: Encountered 1 error(s):
 - Required argument 'capitalize: Boolean!' is missing on 'nameWithArgs' in 'TestQuery'.
   
   Source: GraphQL request (5:7)
-  4:     hometown{
+  4:     hometown {
   5:       nameWithArgs
            ^
   6:     }
@@ -232,7 +232,8 @@ exports[`validateRelayRequiredArguments-test matches expected output: missing-ar
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query ViewerQuery {
   node {
-    commentBody @fixme_fat_interface { # don't validate fixme_fat_interface
+    commentBody @fixme_fat_interface {
+      # don't validate fixme_fat_interface
       ... on PlainCommentBody {
         text {
           text

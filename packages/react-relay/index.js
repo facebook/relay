@@ -18,8 +18,6 @@ const ReactRelayQueryRenderer = require('./ReactRelayQueryRenderer');
 const ReactRelayRefetchContainer = require('./ReactRelayRefetchContainer');
 const RelayRuntime = require('relay-runtime');
 
-const readInlineData = require('./readInlineData');
-
 export type {
   $FragmentRef,
   $RelayProps,
@@ -52,6 +50,7 @@ export type {
  * The public interface to React Relay.
  */
 module.exports = {
+  ConnectionHandler: RelayRuntime.ConnectionHandler,
   QueryRenderer: ReactRelayQueryRenderer,
   LocalQueryRenderer: ReactRelayLocalQueryRenderer,
 
@@ -68,6 +67,6 @@ module.exports = {
   createRefetchContainer: ReactRelayRefetchContainer.createContainer,
   fetchQuery: RelayRuntime.fetchQuery,
   graphql: RelayRuntime.graphql,
+  readInlineData: RelayRuntime.readInlineData,
   requestSubscription: RelayRuntime.requestSubscription,
-  readInlineData_EXPERIMENTAL: readInlineData,
 };

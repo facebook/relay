@@ -12,29 +12,15 @@
 'use strict';
 
 const RelayModernEnvironment = require('../RelayModernEnvironment');
-const RelayModernOperationDescriptor = require('../RelayModernOperationDescriptor');
 const RelayModernStore = require('../RelayModernStore');
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
 const RelayRecordSource = require('../RelayRecordSource');
 
+const {
+  createOperationDescriptor,
+} = require('../RelayModernOperationDescriptor');
 const {generateAndCompile} = require('relay-test-utils-internal');
-
-function createOperationDescriptor(...args) {
-  const operation = RelayModernOperationDescriptor.createOperationDescriptor(
-    ...args,
-  );
-  // For convenience of the test output, override toJSON to print
-  // a more succint description of the operation.
-  // $FlowFixMe
-  operation.toJSON = () => {
-    return {
-      name: operation.fragment.node.name,
-      variables: operation.variables,
-    };
-  };
-  return operation;
-}
 
 describe('execute() multiple queries with overlapping @module-s', () => {
   let actorOperation;
@@ -146,16 +132,10 @@ describe('execute() multiple queries with overlapping @module-s', () => {
         }
       },
     });
-    const actorOperationSnapshot = environment.lookup(
-      actorOperation.fragment,
-      actorOperation,
-    );
+    const actorOperationSnapshot = environment.lookup(actorOperation.fragment);
     actorOperationCallback = jest.fn();
     environment.subscribe(actorOperationSnapshot, actorOperationCallback);
-    const userOperationSnapshot = environment.lookup(
-      userOperation.fragment,
-      userOperation,
-    );
+    const userOperationSnapshot = environment.lookup(userOperation.fragment);
     userOperationCallback = jest.fn();
     environment.subscribe(userOperationSnapshot, userOperationCallback);
   });
@@ -191,10 +171,12 @@ describe('execute() multiple queries with overlapping @module-s', () => {
         nameRenderer: {
           __id: 'client:1:nameRenderer',
           __fragmentPropName: 'name',
+
           __fragments: {
             MarkdownUserNameRenderer_name: {},
           },
-          __fragmentOwner: userOperation,
+
+          __fragmentOwner: userOperation.request,
           __module_component: 'MarkdownUserNameRenderer.react',
         },
       },
@@ -230,10 +212,12 @@ describe('execute() multiple queries with overlapping @module-s', () => {
         nameRenderer: {
           __id: 'client:1:nameRenderer',
           __fragmentPropName: 'name',
+
           __fragments: {
             PlainUserNameRenderer_name: {},
           },
-          __fragmentOwner: userOperation,
+
+          __fragmentOwner: userOperation.request,
           __module_component: 'PlainUserNameRenderer.react',
         },
       },
@@ -272,10 +256,12 @@ describe('execute() multiple queries with overlapping @module-s', () => {
         nameRenderer: {
           __id: 'client:1:nameRenderer',
           __fragmentPropName: 'name',
+
           __fragments: {
             MarkdownUserNameRenderer_name: {},
           },
-          __fragmentOwner: userOperation,
+
+          __fragmentOwner: userOperation.request,
           __module_component: 'MarkdownUserNameRenderer.react',
         },
       },
@@ -327,10 +313,12 @@ describe('execute() multiple queries with overlapping @module-s', () => {
         nameRenderer: {
           __id: 'client:1:nameRenderer',
           __fragmentPropName: 'name',
+
           __fragments: {
             MarkdownActorNameRenderer_name: {},
           },
-          __fragmentOwner: actorOperation,
+
+          __fragmentOwner: actorOperation.request,
           __module_component: 'MarkdownActorNameRenderer.react',
         },
       },

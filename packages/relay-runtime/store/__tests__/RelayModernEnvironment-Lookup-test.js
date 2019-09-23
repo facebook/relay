@@ -12,31 +12,17 @@
 'use strict';
 
 const RelayModernEnvironment = require('../RelayModernEnvironment');
-const RelayModernOperationDescriptor = require('../RelayModernOperationDescriptor');
 const RelayModernStore = require('../RelayModernStore');
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayRecordSource = require('../RelayRecordSource');
 
 const {getRequest} = require('../../query/RelayModernGraphQLTag');
+const {
+  createOperationDescriptor,
+} = require('../RelayModernOperationDescriptor');
 const {createReaderSelector} = require('../RelayModernSelector');
 const {ROOT_ID} = require('../RelayStoreUtils');
 const {generateAndCompile} = require('relay-test-utils-internal');
-
-function createOperationDescriptor(...args) {
-  const operation = RelayModernOperationDescriptor.createOperationDescriptor(
-    ...args,
-  );
-  // For convenience of the test output, override toJSON to print
-  // a more succint description of the operation.
-  // $FlowFixMe
-  operation.toJSON = () => {
-    return {
-      name: operation.fragment.node.name,
-      variables: operation.variables,
-    };
-  };
-  return operation;
-}
 
 describe('lookup()', () => {
   let ParentQuery;
@@ -75,8 +61,12 @@ describe('lookup()', () => {
 
   it('returns the results of executing a query', () => {
     const snapshot = environment.lookup(
-      createReaderSelector(ParentQuery.fragment, ROOT_ID, {}),
-      operation,
+      createReaderSelector(
+        ParentQuery.fragment,
+        ROOT_ID,
+        {},
+        operation.request,
+      ),
     );
     expect(snapshot.data).toEqual({
       me: {
@@ -84,7 +74,7 @@ describe('lookup()', () => {
         name: 'Zuck',
         __id: '4',
         __fragments: {ChildFragment: {}},
-        __fragmentOwner: operation,
+        __fragmentOwner: operation.request,
       },
     });
   });
@@ -93,8 +83,7 @@ describe('lookup()', () => {
     const queryNode = getRequest(ParentQuery);
     const owner = createOperationDescriptor(queryNode, {});
     const snapshot = environment.lookup(
-      createReaderSelector(ParentQuery.fragment, ROOT_ID, {}),
-      owner,
+      createReaderSelector(ParentQuery.fragment, ROOT_ID, {}, owner.request),
     );
     expect(snapshot.data).toEqual({
       me: {
@@ -102,10 +91,10 @@ describe('lookup()', () => {
         name: 'Zuck',
         __id: '4',
         __fragments: {ChildFragment: {}},
-        __fragmentOwner: owner,
+        __fragmentOwner: owner.request,
       },
     });
     // $FlowFixMe
-    expect(snapshot.data?.me?.__fragmentOwner).toBe(owner);
+    expect(snapshot.data?.me?.__fragmentOwner).toBe(owner.request);
   });
 });

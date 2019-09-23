@@ -15,19 +15,22 @@ query NodeQuery(
     }
     ...UserFragment @include(if: $cond) @arguments(size: $size)
   }
-  checkinSearchQuery(query: {query: $query, inputs: [{query: $query}, {query: "test"}]}) {
+  checkinSearchQuery(
+    query: {query: $query, inputs: [{query: $query}, {query: "test"}]}
+  ) {
     query
   }
 }
 
-fragment UserFragment on User @argumentDefinitions(
-  after: {type: "ID"}
-  first: {type: "Int", defaultValue: 5}
-  size: {type: "[Int]"}
-  storyType: {type: "StoryType", defaultValue: DIRECTED},
-  storyType_invalid_string: {type: "StoryType", defaultValue: "DIRECTED"},
-  storyType_invalid_lowercase: {type: "StoryType", defaultValue: directed},
-) {
+fragment UserFragment on User
+  @argumentDefinitions(
+    after: {type: "ID"}
+    first: {type: "Int", defaultValue: 5}
+    size: {type: "[Int]"}
+    storyType: {type: "StoryType", defaultValue: DIRECTED}
+    storyType_invalid_string: {type: "StoryType", defaultValue: "DIRECTED"}
+    storyType_invalid_lowercase: {type: "StoryType", defaultValue: directed}
+  ) {
   id
   __typename
   checkins(environments: [WEB]) {
@@ -45,10 +48,10 @@ fragment UserFragment on User @argumentDefinitions(
   name @include(if: $cond)
   otherName: name @customDirective(level: 3)
   thumbnail: profilePicture2(
-    size: 32,
-    cropPosition: CENTER,
-    fileExtension: PNG,
-    additionalParameters: { filter: "Boston" },
+    size: 32
+    cropPosition: CENTER
+    fileExtension: PNG
+    additionalParameters: {filter: "Boston"}
     options: {newName: null}
   ) {
     height
@@ -127,9 +130,8 @@ fragment UserFragment on User @argumentDefinitions(
 
 exports[`GraphQLIRPrinter matches expected output: lowercase-enum-fragment-arg.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
-fragment UserFragment on User @argumentDefinitions(
-  environments: {type: "Environment", defaultValue: web}
-) {
+fragment UserFragment on User
+  @argumentDefinitions(environments: {type: "Environment", defaultValue: web}) {
   checkins(environments: [$environments]) {
     __typename
   }
@@ -141,6 +143,29 @@ fragment UserFragment on User @argumentDefinitions(
 ) {
   checkins(environments: [$environments]) {
     __typename
+  }
+}
+
+`;
+
+exports[`GraphQLIRPrinter matches expected output: single-value-array-of-objects.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query SingleValueArrayQuery {
+  route(waypoints: {lat: "123", lon: "456"}) {
+    steps {
+      lat
+      lon
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+query SingleValueArrayQuery {
+  route(waypoints: {lat: "123", lon: "456"}) {
+    steps {
+      lat
+      lon
+    }
   }
 }
 
@@ -171,9 +196,10 @@ Error: RelayParser: Encountered 1 error(s):
 
 exports[`GraphQLIRPrinter matches expected output: string-enum-fragment-arg.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
-fragment UserFragment on User @argumentDefinitions(
-  environments: {type: "Environment", defaultValue: "WEB"}
-) {
+fragment UserFragment on User
+  @argumentDefinitions(
+    environments: {type: "Environment", defaultValue: "WEB"}
+  ) {
   checkins(environments: [$environments]) {
     __typename
   }

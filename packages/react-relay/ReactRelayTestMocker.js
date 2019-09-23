@@ -11,7 +11,6 @@
 'use strict';
 
 const areEqual = require('areEqual');
-const emptyFunction = require('emptyFunction');
 const invariant = require('invariant');
 const warning = require('warning');
 
@@ -67,12 +66,16 @@ class ReactRelayTestMocker {
     } else {
       warning(
         false,
-        'Netork mocking is currently only supported in Relay Modern. ' +
+        'Network mocking is currently only supported in Relay Modern. ' +
           'You will not be able to resolve requests made with Relay ' +
           'Classic environments.',
       );
     }
     this._environment = env;
+  }
+
+  static mockOutEnvironment(env: IEnvironment): ReactRelayTestMocker {
+    return new ReactRelayTestMocker(env);
   }
 
   /**
@@ -130,8 +133,8 @@ class ReactRelayTestMocker {
    */
   _mockNetworkLayer(env: IEnvironment): IEnvironment {
     const fetch = (request, variables, cacheConfig) => {
-      let resolve = emptyFunction;
-      let reject = emptyFunction;
+      let resolve;
+      let reject;
       const promise = new Promise((res, rej) => {
         resolve = res;
         reject = rej;
@@ -262,7 +265,7 @@ class ReactRelayTestMocker {
     if (variables) {
       const operationDescriptor = createOperationDescriptor(query, variables);
       usedVars = ReactRelayTestMocker.stripUnused(
-        operationDescriptor.variables,
+        operationDescriptor.request.variables,
       );
     }
 

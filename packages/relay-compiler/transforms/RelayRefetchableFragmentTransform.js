@@ -10,7 +10,6 @@
 
 'use strict';
 
-const GraphQLCompilerContext = require('../core/GraphQLCompilerContext');
 const GraphQLIRVisitor = require('../core/GraphQLIRVisitor');
 const GraphQLSchemaUtils = require('../core/GraphQLSchemaUtils');
 
@@ -37,6 +36,7 @@ const {
   GraphQLSchema,
 } = require('graphql');
 
+import type GraphQLCompilerContext from '../core/GraphQLCompilerContext';
 import type {GraphQLCompositeType} from 'graphql';
 const {
   isAbstractType,
@@ -360,7 +360,6 @@ function buildOperationArgumentDefinitions(
         type: argDef.type,
         defaultValue: null,
         loc: argDef.loc,
-        metadata: null,
       };
     }
   });
@@ -375,13 +374,11 @@ function buildFragmentSpread(fragment: Fragment): FragmentSpread {
     args.push({
       kind: 'Argument',
       loc: {kind: 'Derived', source: argDef.loc},
-      metadata: null,
       name: argDef.name,
       type: argDef.type,
       value: {
         kind: 'Variable',
         loc: {kind: 'Derived', source: argDef.loc},
-        metadata: null,
         variableName: argDef.name,
         type: argDef.type,
       },
@@ -495,7 +492,6 @@ function buildRefetchOperationOnNodeType(
       nodeField.type instanceof GraphQLInterfaceType &&
       isEquivalentType(nodeField.type, nodeType) &&
       nodeField.args.length === 1 &&
-      nodeField.args[0].name === 'id' &&
       isEquivalentType(getNullableType(nodeField.args[0].type), GraphQLID) &&
       // the fragment must be on Node or on a type that implements Node
       ((fragment.type instanceof GraphQLObjectType &&
@@ -511,34 +507,42 @@ function buildRefetchOperationOnNodeType(
     )
   ) {
     throw createUserError(
-      `Invalid use of @refetchable on fragment '${
-        fragment.name
-      }', check that your schema defines a 'Node { id: ID }' interface and has a 'node(id: ID): Node' field on the query type (the id argument may also be non-null).`,
+      `Invalid use of @refetchable on fragment '${fragment.name}', check ` +
+        'that your schema defines a `Node { id: ID }` interface and has a ' +
+        '`node(id: ID): Node` field on the query type (the id argument may ' +
+        'also be non-null).',
       [fragment.loc],
     );
   }
+
+  // name and type of the node(_: ID) field parameter
+  const idArgName = nodeField.args[0].name;
+  const idArgType = nodeField.args[0].type;
+  // name and type of the query variable
+  const idVariableType = new GraphQLNonNull(GraphQLID);
+  const idVariableName = 'id';
+
   const argumentDefinitions = buildOperationArgumentDefinitions(
     fragment.argumentDefinitions,
   );
-  const idArgument = argumentDefinitions.find(argDef => argDef.name === 'id');
+  const idArgument = argumentDefinitions.find(
+    argDef => argDef.name === idVariableName,
+  );
   if (idArgument != null) {
     throw createUserError(
-      `Invalid use of @refetchable on fragment '${
-        fragment.name
-      }', this fragment already has an '\$id' variable in scope.`,
+      `Invalid use of @refetchable on fragment \`${fragment.name}\`, this ` +
+        'fragment already has an `$id` variable in scope.',
       [idArgument.loc],
     );
   }
-  const idArgType = new GraphQLNonNull(GraphQLID);
   const argumentDefinitionsWithId = [
     ...argumentDefinitions,
     {
       defaultValue: null,
       kind: 'LocalArgumentDefinition',
       loc: {kind: 'Derived', source: fragment.loc},
-      metadata: null,
-      name: 'id',
-      type: idArgType,
+      name: idVariableName,
+      type: idVariableType,
     },
   ];
   return {
@@ -558,15 +562,13 @@ function buildRefetchOperationOnNodeType(
             {
               kind: 'Argument',
               loc: {kind: 'Derived', source: fragment.loc},
-              metadata: null,
-              name: 'id',
+              name: idArgName,
               type: idArgType,
               value: {
                 kind: 'Variable',
                 loc: {kind: 'Derived', source: fragment.loc},
-                metadata: null,
-                variableName: 'id',
-                type: idArgType,
+                variableName: idVariableName,
+                type: idVariableType,
               },
             },
           ],
@@ -612,12 +614,17 @@ function getRefetchQueryName(fragment: Fragment): string | null {
   }
   const refetchArguments = getLiteralArgumentValues(refetchableDirective.args);
   const queryName = refetchArguments.queryName;
-  if (typeof queryName !== 'string') {
+  if (queryName == null) {
+    throw createUserError(
+      "Expected the 'queryName' argument of @refetchable to be provided",
+      [refetchableDirective.loc],
+    );
+  } else if (typeof queryName !== 'string') {
     const queryNameArg = refetchableDirective.args.find(
       arg => arg.name === 'queryName',
     );
-    throw createCompilerError(
-      `Expected the 'name' argument of @refetchable to be a string, got '${String(
+    throw createUserError(
+      `Expected the 'queryName' argument of @refetchable to be a string, got '${String(
         queryName,
       )}'.`,
       [queryNameArg?.loc ?? refetchableDirective.loc],

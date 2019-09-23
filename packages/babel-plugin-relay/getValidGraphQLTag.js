@@ -19,10 +19,10 @@ import type {DocumentNode} from 'graphql';
  * a graphql literal being used in a valid way.
  * If it is some other type of template literal then return nothing.
  */
-function getValidGraphQLTag(path: any, tagName?: string): ?DocumentNode {
+function getValidGraphQLTag(path: any): ?DocumentNode {
   const tag = path.get('tag');
 
-  if (!tag.isIdentifier({name: tagName || 'graphql'})) {
+  if (!tag.isIdentifier({name: 'graphql'})) {
     return null;
   }
 

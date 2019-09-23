@@ -256,6 +256,43 @@ However the Relay Compiler also automatically generates [Flow](https://flow.org)
 import type {DictionaryComponent_word} from './__generated__/DictionaryComponent_word.graphql';
 ```
 
+### Client schema extensions
+
+The Relay Compiler fully supports client-side schema extensions, which allows you to extend the server schema by defining additional GraphQL types and fields on the client. Relay expects the client schema to be located in your `--src` directory.
+
+For example, let's create `./src/clientSchema.graphql` and define a new type called `Setting`:
+
+```graphql
+type Setting {
+  name: String!
+  active: Boolean!
+}
+```
+
+Assuming the server schema `./schema.graphql`:
+
+```graphql
+schema {
+  query: Root
+}
+
+type Root {
+  title: String!
+}
+```
+
+We can then extend existing server types in the client schema `./src/clientSchema.graphql` with our new `Setting` type, like so: 
+
+```graphql
+extend type Root {
+  settings: [Setting]
+}
+```
+
+Any fields specified in the client schema, can be fetched from the [Relay Store](./relay-store), by requesting it in a query.
+
+For more details, refer to the [Local state management section](./local-state-management.html).
+
 ### Advanced usage
 
 In addition to the bin script, the `relay-compiler` package also [exports library code](https://github.com/facebook/relay/blob/master/packages/relay-compiler/index.js) which you may use to create more complex configurations for the compiler, or to extend the compiler with your own custom output.

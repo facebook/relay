@@ -420,9 +420,24 @@ function getRelayFileWriter(
       sourceControl,
     });
     if (queryMap != null && persistedQueryPath != null) {
-      const object = {};
-      for (const [key, value] of queryMap.entries()) {
-        object[key] = value;
+      let object = {};
+      if (fs.existsSync(persistedQueryPath)) {
+        try {
+          const prevText = fs.readFileSync(persistedQueryPath, 'utf8');
+          const prevData = JSON.parse(prevText);
+          if (prevData != null && typeof prevData === 'object') {
+            object = prevData;
+          } else {
+            console.error(
+              `Invalid data in persisted query file '${persistedQueryPath}', expected an object.`,
+            );
+          }
+        } catch (error) {
+          console.error(error);
+        }
+      }
+      for (const [id, text] of queryMap.entries()) {
+        object[id] = text;
       }
       const data = JSON.stringify(object, null, 2);
       fs.writeFileSync(persistedQueryPath, data, 'utf8');

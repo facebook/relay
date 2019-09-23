@@ -1,8 +1,8 @@
 fragment PaginationFragment on Node
   @refetchable(queryName: "RefetchableFragmentQuery")
   @argumentDefinitions(
-    count: {type: "Int", defaultValue: 10},
-    cursor: {type: "ID"},
+    count: {type: "Int", defaultValue: 10}
+    cursor: {type: "ID"}
   ) {
   id
   ... on User {

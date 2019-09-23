@@ -53,11 +53,12 @@ query QueryWithFragmentWithDefer {
 fragment UserFragment on User {
   id
   emailAddresses
-  ...DeferredFragment @defer(label: "DeferredFragmentLabel") @arguments(scale: 1.5)
+  ...DeferredFragment
+    @defer(label: "DeferredFragmentLabel")
+    @arguments(scale: 1.5)
 }
 
-fragment DeferredFragment on User
-@argumentDefinitions(scale: {type: "Float"}) {
+fragment DeferredFragment on User @argumentDefinitions(scale: {type: "Float"}) {
   id
   name
   profile_picture(scale: $scale) {
@@ -348,8 +349,8 @@ fragment FeedbackFragment on Feedback {
   actors @stream(initial_count: 1, label: "actors") {
     name
   }
-  otherActors: actors
-  @stream(initial_count: 1, label: "actors") { # invalid: duplicate label
+  otherActors: actors @stream(initial_count: 1, label: "actors") {
+    # invalid: duplicate label
     name
   }
 }
@@ -360,11 +361,11 @@ THROWN EXCEPTION:
 Error: Encountered 1 error(s):
 - Invalid use of @stream, the provided label is not unique. Specify a unique 'label' as a literal string.
   
-  Source: GraphQL request (15:29)
-  14:   otherActors: actors
-  15:   @stream(initial_count: 1, label: "actors") { # invalid: duplicate label
-                                  ^
-  16:     name
+  Source: GraphQL request (14:49)
+  13:   }
+  14:   otherActors: actors @stream(initial_count: 1, label: "actors") {
+                                                      ^
+  15:     # invalid: duplicate label
   
   Source: GraphQL request (11:36)
   10:   id
@@ -385,7 +386,8 @@ query QueryWithFragmentWithStream($id: ID!, $enableStream: Boolean) {
 
 fragment FeedbackFragment on Feedback {
   id
-  actors @stream(initial_count: 1, label: "StreamedActorsLabel", if: $enableStream) {
+  actors
+    @stream(initial_count: 1, label: "StreamedActorsLabel", if: $enableStream) {
     name
   }
 }
@@ -458,7 +460,8 @@ query QueryWithFragmentWithStream($id: ID!, $initialCount: Int) {
 
 fragment FeedbackFragment on Feedback {
   id
-  actors @stream(label: "StreamedActorsLabel") { # invalid: missing initial_count
+  actors @stream(label: "StreamedActorsLabel") {
+    # invalid: missing initial_count
     name
   }
 }
@@ -471,9 +474,9 @@ Error: Encountered 1 error(s):
   
   Source: GraphQL request (11:10)
   10:   id
-  11:   actors @stream(label: "StreamedActorsLabel") { # invalid: missing initial_count
+  11:   actors @stream(label: "StreamedActorsLabel") {
                ^
-  12:     name
+  12:     # invalid: missing initial_count
   
 `;
 
@@ -669,7 +672,8 @@ fragment UserFragment on User {
     id
     name
   }
-  ... on User @defer { # invalid: duplicate label
+  ... on User @defer {
+    # invalid: duplicate label
     name
   }
 }
@@ -682,9 +686,9 @@ Error: Encountered 1 error(s):
   
   Source: GraphQL request (16:15)
   15:   }
-  16:   ... on User @defer { # invalid: duplicate label
+  16:   ... on User @defer {
                     ^
-  17:     name
+  17:     # invalid: duplicate label
   
   Source: GraphQL request (12:15)
   11:   emailAddresses

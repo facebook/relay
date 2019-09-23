@@ -11,13 +11,13 @@
 'use strict';
 
 const ASTConvert = require('../core/ASTConvert');
-const CodegenDirectory = require('../codegen/CodegenDirectory');
 const CompilerContext = require('../core/GraphQLCompilerContext');
 const Profiler = require('../core/GraphQLCompilerProfiler');
 const RelayParser = require('../core/RelayParser');
 const RelayValidator = require('../core/RelayValidator');
 const SchemaUtils = require('../core/GraphQLSchemaUtils');
 
+const CodegenDirectory = require('./CodegenDirectory');
 const compileRelayArtifacts = require('./compileRelayArtifacts');
 const crypto = require('crypto');
 const graphql = require('graphql');
@@ -31,15 +31,16 @@ const {
 } = require('../core/GraphQLDerivedFromMetadata');
 const {Map: ImmutableMap} = require('immutable');
 
+import type {DocumentNode, GraphQLSchema, ValidationContext} from 'graphql';
 import type {
   FormatModule,
   TypeGenerator,
 } from '../language/RelayLanguagePluginInterface';
 import type {ScalarTypeMapping} from '../language/javascript/RelayFlowTypeTransformers';
 import type {GraphQLReporter as Reporter} from '../reporters/GraphQLReporter';
+import type {Filesystem} from './CodegenDirectory';
 import type {SourceControl} from './SourceControl';
 import type {RelayCompilerTransforms} from './compileRelayArtifacts';
-import type {DocumentNode, GraphQLSchema, ValidationContext} from 'graphql';
 
 const {isExecutableDefinitionAST} = SchemaUtils;
 
@@ -75,13 +76,7 @@ export type WriterConfig = {
     LOCAL_RULES?: $ReadOnlyArray<ValidationRule>,
   },
   printModuleDependency?: string => string,
-  // EXPERIMENTAL: skips deleting extra files in the generated directories
-  experimental_noDeleteExtraFiles?: boolean,
-  // EXPERIMENTAL: skips deleting extra files with the supplied pattern in
-  // the generated directories.
-  // TODO (T35012551): Remove this when no longer necessary with a better
-  // directory structure.
-  experimental_extraFilesPatternToKeep?: RegExp,
+  filesystem?: Filesystem,
   repersist?: boolean,
 };
 
@@ -266,6 +261,7 @@ function writeAll({
     const addCodegenDir = dirPath => {
       const codegenDir = new CodegenDirectory(dirPath, {
         onlyValidate: onlyValidate,
+        filesystem: writerConfig.filesystem,
       });
       allOutputDirectories.set(dirPath, codegenDir);
       return codegenDir;
@@ -330,6 +326,8 @@ function writeAll({
                 useHaste: writerConfig.useHaste,
                 useSingleArtifactDirectory: !!writerConfig.outputDir,
                 noFutureProofEnums: writerConfig.noFutureProofEnums,
+                normalizationIR:
+                  definition.kind === 'Request' ? definition.root : undefined,
               })
             : '';
 
@@ -377,14 +375,9 @@ function writeAll({
         });
       }
 
-      // clean output directories
-      if (writerConfig.experimental_noDeleteExtraFiles !== true) {
-        allOutputDirectories.forEach(dir => {
-          dir.deleteExtraFiles(
-            writerConfig.experimental_extraFilesPatternToKeep,
-          );
-        });
-      }
+      allOutputDirectories.forEach(dir => {
+        dir.deleteExtraFiles();
+      });
       if (sourceControl && !onlyValidate) {
         await CodegenDirectory.sourceControlAddRemove(
           sourceControl,

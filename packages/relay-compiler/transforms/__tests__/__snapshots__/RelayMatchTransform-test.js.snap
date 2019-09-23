@@ -96,7 +96,9 @@ exports[`RelayMatchTransform matches expected output: invalid-non-empty-selectio
 fragment NameRendererFragment on User {
   id
   nameRenderer @match {
-    __typename
+    ... on PlainUserNameRenderer {
+      plaintext
+    }
     ...PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
     ...MarkdownUserNameRenderer_name
       @module(name: "MarkdownUserNameRenderer.react")
@@ -125,9 +127,9 @@ Error: Encountered 1 error(s):
   
   Source: GraphQL request (5:5)
   4:   nameRenderer @match {
-  5:     __typename
+  5:     ... on PlainUserNameRenderer {
          ^
-  6:     ...PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
+  6:       plaintext
   
 `;
 
@@ -201,7 +203,8 @@ fragment NameRendererFragment on User {
   nameRenderer @match {
     ...PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
     ...MarkdownUserNameRenderer_name
-      @module(name: "MarkdownUserNameRenderer.react") @arguments(cond: true)
+      @module(name: "MarkdownUserNameRenderer.react")
+      @arguments(cond: true)
   }
 }
 
@@ -213,9 +216,7 @@ fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
 }
 
 fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer
-@argumentDefinitions(
-  cond: {type: "Boolean!", defaultValue: false}
-){
+  @argumentDefinitions(cond: {type: "Boolean!", defaultValue: false}) {
   markdown
   data @include(if: $cond) {
     markup
@@ -228,11 +229,11 @@ THROWN EXCEPTION:
 Error: Encountered 1 error(s):
 - @module does not support @arguments.
   
-  Source: GraphQL request (7:66)
-  6:     ...MarkdownUserNameRenderer_name
-  7:       @module(name: "MarkdownUserNameRenderer.react") @arguments(cond: true)
-                                                                      ^
-  8:   }
+  Source: GraphQL request (8:18)
+  7:       @module(name: "MarkdownUserNameRenderer.react")
+  8:       @arguments(cond: true)
+                      ^
+  9:   }
   
 `;
 
@@ -241,12 +242,13 @@ exports[`RelayMatchTransform matches expected output: match-with-explicit-suppor
 # expected-to-throw
 fragment NameRendererFragment on User {
   id
-  nameRenderer(supported: ["PlainUserNameRenderer",  "MarkdownUserNameRenderer"])
-    @match {
-      ...PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
-      ...MarkdownUserNameRenderer_name
-        @module(name: "MarkdownUserNameRenderer.react")
-    }
+  nameRenderer(
+    supported: ["PlainUserNameRenderer", "MarkdownUserNameRenderer"]
+  ) @match {
+    ...PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
+    ...MarkdownUserNameRenderer_name
+      @module(name: "MarkdownUserNameRenderer.react")
+  }
 }
 
 fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
@@ -269,11 +271,11 @@ THROWN EXCEPTION:
 Error: Encountered 1 error(s):
 - Invalid @match selection: the 'supported' argument is automatically added and cannot be supplied explicitly.
   
-  Source: GraphQL request (4:16)
-  3:   id
-  4:   nameRenderer(supported: ["PlainUserNameRenderer",  "MarkdownUserNameRenderer"])
-                    ^
-  5:     @match {
+  Source: GraphQL request (5:5)
+  4:   nameRenderer(
+  5:     supported: ["PlainUserNameRenderer", "MarkdownUserNameRenderer"]
+         ^
+  6:   ) @match {
   
 `;
 

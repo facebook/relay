@@ -35,6 +35,9 @@
       "graphql-in-relay": {
         "title": "GraphQL in Relay"
       },
+      "local-state-management": {
+        "title": "Local State Management"
+      },
       "mutations": {
         "title": "Mutations"
       },
@@ -48,7 +51,7 @@
         "title": "Persisted Queries"
       },
       "query-renderer": {
-        "title": "<QueryRenderer />"
+        "title": "QueryRenderer"
       },
       "refetch-container": {
         "title": "Refetch Container"
@@ -409,6 +412,9 @@
       },
       "version-v4.0.0/version-v4.0.0-graphql-in-relay": {
         "title": "GraphQL in Relay"
+      },
+      "version-v4.0.0/version-v4.0.0-local-state-management": {
+        "title": "Local State Management"
       },
       "version-v4.0.0/version-v4.0.0-mutations": {
         "title": "Mutations"

@@ -106,7 +106,6 @@ fragment CommentFragment_comment on Comment {
                   }
                 }
               },
-              "metadata": null,
               "name": "first",
               "value": {
                 "kind": "Literal",
@@ -123,7 +122,6 @@ fragment CommentFragment_comment on Comment {
                     }
                   }
                 },
-                "metadata": null,
                 "value": 10
               },
               "type": "Int"
@@ -383,7 +381,6 @@ fragment CommentFragment_comment on Comment {
               }
             }
           },
-          "metadata": null,
           "name": "id",
           "value": {
             "kind": "Literal",
@@ -400,7 +397,6 @@ fragment CommentFragment_comment on Comment {
                 }
               }
             },
-            "metadata": null,
             "value": "123"
           },
           "type": "ID"
@@ -455,7 +451,6 @@ fragment CommentFragment_comment on Comment {
                   }
                 }
               },
-              "metadata": null,
               "name": "first",
               "value": {
                 "kind": "Literal",
@@ -472,7 +467,6 @@ fragment CommentFragment_comment on Comment {
                     }
                   }
                 },
-                "metadata": null,
                 "value": 10
               },
               "type": "Int"
@@ -731,7 +725,6 @@ fragment CommentFragment_comment on Comment {
                   }
                 }
               },
-              "metadata": null,
               "name": "first",
               "value": {
                 "kind": "Literal",
@@ -748,7 +741,6 @@ fragment CommentFragment_comment on Comment {
                     }
                   }
                 },
-                "metadata": null,
                 "value": 10
               },
               "type": "Int"
@@ -1026,7 +1018,6 @@ fragment CommentFragment_comment on Comment {
               }
             }
           },
-          "metadata": null,
           "name": "id",
           "value": {
             "kind": "Literal",
@@ -1043,7 +1034,6 @@ fragment CommentFragment_comment on Comment {
                 }
               }
             },
-            "metadata": null,
             "value": "123"
           },
           "type": "ID"
@@ -1098,7 +1088,6 @@ fragment CommentFragment_comment on Comment {
                   }
                 }
               },
-              "metadata": null,
               "name": "first",
               "value": {
                 "kind": "Literal",
@@ -1115,7 +1104,6 @@ fragment CommentFragment_comment on Comment {
                     }
                   }
                 },
-                "metadata": null,
                 "value": 10
               },
               "type": "Int"

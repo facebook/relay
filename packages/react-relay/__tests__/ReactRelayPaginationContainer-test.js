@@ -10,12 +10,13 @@
 
 'use strict';
 
-const React = require('React');
+const React = require('react');
 const ReactRelayContext = require('../ReactRelayContext');
 const ReactRelayPaginationContainer = require('../ReactRelayPaginationContainer');
-const ReactTestRenderer = require('ReactTestRenderer');
+const ReactTestRenderer = require('react-test-renderer');
 
 const {
+  createReaderSelector,
   createOperationDescriptor,
   ConnectionHandler,
   ConnectionInterface,
@@ -311,18 +312,20 @@ describe('ReactRelayPaginationContainer', () => {
     // Subscribes for updates
     expect(environment.subscribe.mock.calls.length).toBe(1);
     expect(environment.subscribe.mock.calls[0][0]).toEqual({
-      dataID: '4',
       data: expect.any(Object),
-      node: UserFragment,
-      seenRecords: expect.any(Object),
-      variables: {
-        after: null,
-        count: 1,
-        orderby: ['name'],
-        isViewerFriendLocal: false,
-      },
       isMissingData: false,
-      owner: ownerUser1,
+      seenRecords: expect.any(Object),
+      selector: createReaderSelector(
+        UserFragment,
+        '4',
+        {
+          after: null,
+          count: 1,
+          orderby: ['name'],
+          isViewerFriendLocal: false,
+        },
+        ownerUser1.request,
+      ),
     });
   });
 
@@ -412,18 +415,20 @@ describe('ReactRelayPaginationContainer', () => {
     // Container subscribes for updates on new props
     expect(environment.subscribe.mock.calls.length).toBe(1);
     expect(environment.subscribe.mock.calls[0][0]).toEqual({
-      dataID: '842472',
       data: expect.any(Object),
-      node: UserFragment,
-      seenRecords: expect.any(Object),
-      variables: {
-        after: null,
-        count: 1,
-        orderby: ['name'],
-        isViewerFriendLocal: false,
-      },
       isMissingData: false,
-      owner: ownerUser2,
+      seenRecords: expect.any(Object),
+      selector: createReaderSelector(
+        UserFragment,
+        '842472',
+        {
+          after: null,
+          count: 1,
+          orderby: ['name'],
+          isViewerFriendLocal: false,
+        },
+        ownerUser2.request,
+      ),
     });
   });
 
@@ -477,18 +482,20 @@ describe('ReactRelayPaginationContainer', () => {
     // Subscribes for updates
     expect(environment.subscribe.mock.calls.length).toBe(1);
     expect(environment.subscribe.mock.calls[0][0]).toEqual({
-      dataID: '4',
       data: expect.any(Object),
-      node: UserFragment,
-      seenRecords: expect.any(Object),
-      variables: {
-        after: null,
-        count: 1,
-        orderby: ['name'],
-        isViewerFriendLocal: false,
-      },
       isMissingData: false,
-      owner: ownerUser1,
+      seenRecords: expect.any(Object),
+      selector: createReaderSelector(
+        UserFragment,
+        '4',
+        {
+          after: null,
+          count: 1,
+          orderby: ['name'],
+          isViewerFriendLocal: false,
+        },
+        ownerUser1.request,
+      ),
     });
 
     // Data & Variables are passed to component
@@ -523,18 +530,20 @@ describe('ReactRelayPaginationContainer', () => {
     // Subscribes for updates
     expect(environment.subscribe.mock.calls.length).toBe(1);
     expect(environment.subscribe.mock.calls[0][0]).toEqual({
-      dataID: '4',
       data: expect.any(Object),
-      node: UserFragment,
-      seenRecords: expect.any(Object),
-      variables: {
-        after: null,
-        count: 1,
-        orderby: ['name'],
-        isViewerFriendLocal: false,
-      },
       isMissingData: false,
-      owner: ownerUser1,
+      seenRecords: expect.any(Object),
+      selector: createReaderSelector(
+        UserFragment,
+        '4',
+        {
+          after: null,
+          count: 1,
+          orderby: ['name'],
+          isViewerFriendLocal: false,
+        },
+        ownerUser1.request,
+      ),
     });
   });
 

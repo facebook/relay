@@ -12,7 +12,6 @@
 'use strict';
 
 const RelayModernEnvironment = require('../RelayModernEnvironment');
-const RelayModernOperationDescriptor = require('../RelayModernOperationDescriptor');
 const RelayModernSelector = require('../RelayModernSelector');
 const RelayModernStore = require('../RelayModernStore');
 const RelayNetwork = require('../../network/RelayNetwork');
@@ -21,23 +20,10 @@ const RelayRecordSource = require('../RelayRecordSource');
 
 const invariant = require('invariant');
 
+const {
+  createOperationDescriptor,
+} = require('../RelayModernOperationDescriptor');
 const {generateAndCompile} = require('relay-test-utils-internal');
-
-function createOperationDescriptor(...args) {
-  const operation = RelayModernOperationDescriptor.createOperationDescriptor(
-    ...args,
-  );
-  // For convenience of the test output, override toJSON to print
-  // a more succint description of the operation.
-  // $FlowFixMe
-  operation.toJSON = () => {
-    return {
-      name: operation.fragment.node.name,
-      variables: operation.variables,
-    };
-  };
-  return operation;
-}
 
 // Regression test
 describe('query with undeclared, unused fragment argument', () => {
@@ -111,14 +97,16 @@ describe('query with undeclared, unused fragment argument', () => {
       },
     });
     subject.complete();
-    const snapshot = environment.lookup(operation.fragment, operation);
+    const snapshot = environment.lookup(operation.fragment);
     expect(snapshot.isMissingData).toBe(false);
     expect(snapshot.data).toEqual({
       node: {
-        __fragmentOwner: operation,
+        __fragmentOwner: operation.request,
+
         __fragments: {
           Profile: {},
         },
+
         __id: '4',
       },
     });
@@ -127,17 +115,16 @@ describe('query with undeclared, unused fragment argument', () => {
       (snapshot.data: $FlowFixMe).node,
     );
     invariant(fragmentSelector != null, 'Expected a singular selector.');
-    const fragmentSnapshot = environment.lookup(
-      fragmentSelector.selector,
-      fragmentSelector.owner,
-    );
+    const fragmentSnapshot = environment.lookup(fragmentSelector);
     expect(fragmentSnapshot.isMissingData).toBe(false);
     expect(fragmentSnapshot.data).toEqual({
       __id: '4',
-      __fragmentOwner: operation,
+      __fragmentOwner: operation.request,
+
       __fragments: {
         ProfilePhotoWrapper: {size: undefined},
       },
+
       id: '4',
       name: 'Zuck',
     });
@@ -146,17 +133,16 @@ describe('query with undeclared, unused fragment argument', () => {
       (fragmentSnapshot.data: $FlowFixMe),
     );
     invariant(innerSelector != null, 'Expected a singular selector.');
-    const innerSnapshot = environment.lookup(
-      innerSelector.selector,
-      innerSelector.owner,
-    );
+    const innerSnapshot = environment.lookup(innerSelector);
     expect(innerSnapshot.isMissingData).toBe(false);
     expect(innerSnapshot.data).toEqual({
       __id: '4',
-      __fragmentOwner: operation,
+      __fragmentOwner: operation.request,
+
       __fragments: {
         ProfilePhoto: {size: undefined},
       },
+
       __typename: 'User',
     });
   });

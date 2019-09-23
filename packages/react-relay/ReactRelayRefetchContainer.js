@@ -10,7 +10,7 @@
 
 'use strict';
 
-const React = require('React');
+const React = require('react');
 const ReactRelayContext = require('./ReactRelayContext');
 const ReactRelayQueryFetcher = require('./ReactRelayQueryFetcher');
 
@@ -342,30 +342,32 @@ function createContainerWithFragments<
       // synchronous completion may call callbacks .subscribe() returns.
       let refetchSubscription;
 
-      if (options?.fetchPolicy === 'store-or-network') {
-        const storeSnapshot = this._getQueryFetcher().lookupInStore(
-          environment,
-          operation,
+      const storeSnapshot = this._getQueryFetcher().lookupInStore(
+        environment,
+        operation,
+        options?.fetchPolicy,
+      );
+      if (storeSnapshot != null) {
+        this.state.resolver.setVariables(
+          fragmentVariables,
+          operation.request.node,
         );
-        if (storeSnapshot != null) {
-          this.state.resolver.setVariables(fragmentVariables, operation.node);
-          this.setState(
-            latestState => ({
-              data: latestState.resolver.resolve(),
-              contextForChildren: {
-                environment: this.props.__relayContext.environment,
-                variables: fragmentVariables,
-              },
-            }),
-            () => {
-              observer.next && observer.next();
-              observer.complete && observer.complete();
+        this.setState(
+          latestState => ({
+            data: latestState.resolver.resolve(),
+            contextForChildren: {
+              environment: this.props.__relayContext.environment,
+              variables: fragmentVariables,
             },
-          );
-          return {
-            dispose() {},
-          };
-        }
+          }),
+          () => {
+            observer.next && observer.next();
+            observer.complete && observer.complete();
+          },
+        );
+        return {
+          dispose() {},
+        };
       }
 
       this._getQueryFetcher()
@@ -377,7 +379,10 @@ function createContainerWithFragments<
           preservePreviousReferences: true,
         })
         .mergeMap(response => {
-          this.state.resolver.setVariables(fragmentVariables, operation.node);
+          this.state.resolver.setVariables(
+            fragmentVariables,
+            operation.request.node,
+          );
           return Observable.create(sink =>
             this.setState(
               latestState => ({

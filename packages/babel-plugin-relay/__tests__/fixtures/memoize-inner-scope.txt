@@ -1,0 +1,28 @@
+/**
+ * Copyright (c) Facebook, Inc. and its affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+'use strict';
+
+function SomeTopLevelView() {
+  const _graphql = 'unrelated';
+
+  return (
+    <View>
+      <QueryRenderer
+        environment={RelayEnvironment}
+        query={graphql`
+          query ExampleQuery($id: ID!) {
+            node(id: $id) {
+              ...ProfilePic_user
+            }
+          }
+        `}
+        variables={{id: '12345'}}
+      />
+    </View>
+  );
+}

@@ -10,7 +10,6 @@
 
 'use strict';
 
-import type {LoggerTransactionConfig} from '../network/RelayNetworkLoggerTransaction';
 import type {
   GraphQLResponse,
   Network,
@@ -386,15 +385,6 @@ export interface RecordSourceSelectorProxy extends RecordSourceProxy {
   ): void;
 }
 
-export interface Logger {
-  log(message: string, ...values: Array<mixed>): void;
-  flushLogs(): void;
-}
-
-export interface LoggerProvider {
-  getLogger(config: LoggerTransactionConfig): Logger;
-}
-
 export type LogEvent =
   | {|
       +name: 'queryresource.fetch',
@@ -511,11 +501,6 @@ export interface IEnvironment {
    * Get the environment's internal Store.
    */
   getStore(): Store;
-
-  /**
-   * Get an instance of a logger
-   */
-  getLogger(config: LoggerTransactionConfig): ?Logger;
 
   /**
    * Returns the environment specific OperationTracker.

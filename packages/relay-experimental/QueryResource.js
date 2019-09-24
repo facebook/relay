@@ -205,52 +205,10 @@ function createQueryResourceCacheEntry(
 class QueryResourceImpl {
   _environment: IEnvironment;
   _cache: QueryResourceCache;
-  _logQueryResource: ?(
-    operation: OperationDescriptor,
-    fetchPolicy: FetchPolicy,
-    renderPolicy: RenderPolicy,
-    hasFullQuery: boolean,
-    shouldFetch: boolean,
-  ) => void;
 
   constructor(environment: IEnvironment) {
     this._environment = environment;
     this._cache = LRUCache.create(CACHE_CAPACITY);
-    if (__DEV__) {
-      this._logQueryResource = (
-        operation: OperationDescriptor,
-        fetchPolicy: FetchPolicy,
-        renderPolicy: RenderPolicy,
-        hasFullQuery: boolean,
-        shouldFetch: boolean,
-      ): void => {
-        if (
-          // Disable relay network logging while performing Server-Side
-          // Rendering (SSR)
-          !ExecutionEnvironment.canUseDOM
-        ) {
-          return;
-        }
-        const logger = environment.getLogger({
-          // $FlowFixMe
-          request: {
-            ...operation.request.node.params,
-            name: `${operation.request.node.params.name} (Store Cache)`,
-          },
-          variables: operation.request.variables,
-          cacheConfig: {},
-        });
-        if (!logger) {
-          return;
-        }
-        logger.log('Fetch Policy', fetchPolicy);
-        logger.log('Render Policy', renderPolicy);
-        logger.log('Query', hasFullQuery ? 'Fully cached' : 'Has missing data');
-        logger.log('Network Request', shouldFetch ? 'Required' : 'Skipped');
-        logger.log('Variables', operation.request.variables);
-        logger.flushLogs();
-      };
-    }
   }
 
   /**
@@ -425,25 +383,6 @@ class QueryResourceImpl {
       hasFullQuery,
       shouldFetch,
     });
-
-    if (__DEV__) {
-      switch (fetchPolicy) {
-        case 'store-only':
-        case 'store-or-network':
-        case 'store-and-network':
-          this._logQueryResource &&
-            this._logQueryResource(
-              operation,
-              fetchPolicy,
-              renderPolicy,
-              hasFullQuery,
-              shouldFetch,
-            );
-          break;
-        default:
-          break;
-      }
-    }
 
     if (shouldFetch) {
       const queryResult = getQueryResult(operation, cacheKey);

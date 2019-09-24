@@ -26,7 +26,6 @@ const invariant = require('invariant');
 const normalizeRelayPayload = require('./normalizeRelayPayload');
 
 import type {HandlerProvider} from '../handlers/RelayDefaultHandlerProvider';
-import type {LoggerTransactionConfig} from '../network/RelayNetworkLoggerTransaction';
 import type {
   GraphQLResponse,
   LogRequestInfoFunction,
@@ -46,8 +45,6 @@ import type {GetDataID} from './RelayResponseNormalizer';
 import type {
   IEnvironment,
   LogFunction,
-  Logger,
-  LoggerProvider,
   MissingFieldHandler,
   NormalizationSelector,
   OperationDescriptor,
@@ -73,7 +70,6 @@ export type EnvironmentConfig = {|
   +store: Store,
   +missingFieldHandlers?: ?$ReadOnlyArray<MissingFieldHandler>,
   +operationTracker?: ?OperationTracker,
-  +loggerProvider?: ?LoggerProvider,
   /**
    * This method is likely to change in future versions, use at your own risk.
    * It can potentially break existing calls like store.get(<id>),
@@ -84,7 +80,6 @@ export type EnvironmentConfig = {|
 
 class RelayModernEnvironment implements IEnvironment {
   __log: LogFunction;
-  _loggerProvider: ?LoggerProvider;
   _operationLoader: ?OperationLoader;
   _network: Network;
   _publishQueue: PublishQueue;
@@ -114,7 +109,6 @@ class RelayModernEnvironment implements IEnvironment {
       }
     }
     this.__log = config.log ?? emptyFunction;
-    this._loggerProvider = config.loggerProvider;
     this._operationLoader = operationLoader;
     this._network = config.network;
     this._getDataID = config.UNSTABLE_DO_NOT_USE_getDataID ?? defaultGetDataID;
@@ -162,13 +156,6 @@ class RelayModernEnvironment implements IEnvironment {
 
   getOperationTracker(): RelayOperationTracker {
     return this._operationTracker;
-  }
-
-  getLogger(config: LoggerTransactionConfig): ?Logger {
-    if (!this._loggerProvider) {
-      return null;
-    }
-    return this._loggerProvider.getLogger(config);
   }
 
   applyUpdate(optimisticUpdate: OptimisticUpdateFunction): Disposable {

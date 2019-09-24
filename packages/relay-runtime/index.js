@@ -128,8 +128,6 @@ export type {
   IEnvironment,
   LogEvent,
   LogFunction,
-  Logger,
-  LoggerProvider,
   MissingFieldHandler,
   ModuleImportPointer,
   NormalizationSelector,

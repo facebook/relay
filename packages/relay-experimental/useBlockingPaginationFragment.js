@@ -227,7 +227,7 @@ function useLoadMore(args: {|
   }
 
   useEffect(() => {
-    if (requestPromise == null) {
+    if (requestPromise !== requestPromiseRef.current) {
       // NOTE: After suspense pagination has resolved, we re-enable store updates
       // for this fragment. This may cause the component to re-render if
       // we missed any updates to the fragment data other than the pagination update.

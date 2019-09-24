@@ -1030,7 +1030,6 @@ describe('useBlockingPaginationFragment', () => {
 
       it('warns if load more scheduled at high priority', () => {
         const warning = require('warning');
-        const Scheduler = require('scheduler');
         renderFragment();
         expectFragmentResults([
           {
@@ -1667,6 +1666,167 @@ describe('useBlockingPaginationFragment', () => {
           },
         ]);
         expect(callback).toBeCalledTimes(1);
+      });
+
+      it('correctly updates when fragment data changes after pagination', () => {
+        const callback = jest.fn();
+        const renderer = renderFragment();
+        expectFragmentResults([
+          {
+            data: initialUser,
+
+            hasNext: true,
+            hasPrevious: false,
+          },
+        ]);
+
+        TestRenderer.act(() => {
+          loadNext(1, {onComplete: callback});
+        });
+        const paginationVariables = {
+          id: '1',
+          after: 'cursor:1',
+          first: 1,
+          before: null,
+          last: null,
+          isViewerFriendLocal: false,
+          orderby: ['name'],
+        };
+        expectFragmentIsLoadingMore(renderer, direction, {
+          data: initialUser,
+          hasNext: true,
+          hasPrevious: false,
+          paginationVariables,
+          gqlPaginationQuery,
+        });
+        expect(callback).toBeCalledTimes(0);
+
+        environment.mock.resolve(gqlPaginationQuery, {
+          data: {
+            node: {
+              __typename: 'User',
+              id: '1',
+              name: 'Alice',
+              friends: {
+                edges: [
+                  {
+                    cursor: 'cursor:2',
+                    node: {
+                      __typename: 'User',
+                      id: 'node:2',
+                      name: 'name:node:2',
+                      username: 'username:node:2',
+                    },
+                  },
+                ],
+                pageInfo: {
+                  startCursor: 'cursor:2',
+                  endCursor: 'cursor:2',
+                  hasNextPage: true,
+                  hasPreviousPage: true,
+                },
+              },
+            },
+          },
+        });
+
+        const expectedUser = {
+          ...initialUser,
+          friends: {
+            ...initialUser.friends,
+            edges: [
+              {
+                cursor: 'cursor:1',
+                node: {
+                  __typename: 'User',
+                  id: 'node:1',
+                  name: 'name:node:1',
+                  ...createFragmentRef('node:1', query),
+                },
+              },
+              {
+                cursor: 'cursor:2',
+                node: {
+                  __typename: 'User',
+                  id: 'node:2',
+                  name: 'name:node:2',
+                  ...createFragmentRef('node:2', query),
+                },
+              },
+            ],
+            pageInfo: {
+              endCursor: 'cursor:2',
+              hasNextPage: true,
+              hasPreviousPage: false,
+              startCursor: 'cursor:1',
+            },
+          },
+        };
+        expectFragmentResults([
+          {
+            data: expectedUser,
+            hasNext: true,
+            hasPrevious: false,
+          },
+        ]);
+        expect(callback).toBeCalledTimes(1);
+
+        // Update parent record
+        environment.commitPayload(query, {
+          node: {
+            __typename: 'User',
+            id: '1',
+            // Update name
+            name: 'Alice in Wonderland',
+          },
+        });
+        expectFragmentResults([
+          {
+            data: {
+              ...initialUser,
+              // Assert that name is updated
+              name: 'Alice in Wonderland',
+            },
+            hasNext: true,
+            hasPrevious: false,
+          },
+        ]);
+
+        // Update edge
+        environment.commitPayload(query, {
+          node: {
+            __typename: 'User',
+            id: 'node:1',
+            // Update name
+            name: 'name:node:1-updated',
+          },
+        });
+        expectFragmentResults([
+          {
+            data: {
+              ...initialUser,
+              name: 'Alice in Wonderland',
+              friends: {
+                ...initialUser.friends,
+                edges: [
+                  {
+                    cursor: 'cursor:1',
+                    node: {
+                      __typename: 'User',
+                      id: 'node:1',
+                      // Assert that name is updated
+                      name: 'name:node:1-updated',
+                      ...createFragmentRef('node:1', query),
+                    },
+                  },
+                ],
+              },
+            },
+
+            hasNext: true,
+            hasPrevious: false,
+          },
+        ]);
       });
 
       it('loads more correctly when original variables do not include an id', () => {

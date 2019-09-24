@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @flow
+ * @flow strict
  * @format
  */
 
@@ -15,6 +15,7 @@ const Profiler = require('./GraphQLCompilerProfiler');
 const invariant = require('invariant');
 
 const {createUserError} = require('./RelayCompilerError');
+// $FlowFixMe - immutable.js is not flow-typed
 const {OrderedMap: ImmutableOrderedMap} = require('immutable');
 
 import type {GraphQLReporter} from '../reporters/GraphQLReporter';

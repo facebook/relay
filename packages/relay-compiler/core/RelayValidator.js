@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @flow
+ * @flow strict
  * @format
  */
 
@@ -36,13 +36,14 @@ import type {
   DocumentNode,
   FieldNode,
   GraphQLSchema,
+  ValidationRule,
   ValidationContext,
 } from 'graphql';
 
 function validateOrThrow(
   document: DocumentNode,
   schema: GraphQLSchema,
-  rules: $ReadOnlyArray<Function>,
+  rules: $ReadOnlyArray<ValidationRule>,
 ): void {
   const validationErrors = validate(schema, document, rules);
   if (validationErrors && validationErrors.length > 0) {
@@ -55,7 +56,7 @@ function validateOrThrow(
         errorMessages.join('\n'),
       ),
     );
-    (error: any).validationErrors = formattedErrors;
+    (error: $FlowFixMe).validationErrors = formattedErrors;
     throw error;
   }
 }
@@ -131,6 +132,6 @@ module.exports = {
   validate: (Profiler.instrument(validateOrThrow, 'RelayValidator.validate'): (
     document: DocumentNode,
     schema: GraphQLSchema,
-    rules: $ReadOnlyArray<any>,
+    rules: $ReadOnlyArray<ValidationRule>,
   ) => void),
 };

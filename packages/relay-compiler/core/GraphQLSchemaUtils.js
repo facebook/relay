@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @flow
+ * @flow strict
  * @format
  */
 
@@ -44,14 +44,17 @@ import type {
 const ID = 'id';
 const ID_TYPE = 'ID';
 
-type GraphQLSingularType =
+type GraphQLSingularBaseType =
   | GraphQLScalarType
   | GraphQLObjectType
   | GraphQLInterfaceType
   | GraphQLUnionType
   | GraphQLEnumType
-  | GraphQLInputObjectType
-  | GraphQLNonNull<*>;
+  | GraphQLInputObjectType;
+
+type GraphQLSingularType =
+  | GraphQLSingularBaseType
+  | GraphQLNonNull<GraphQLSingularBaseType>;
 
 /**
  * Determine if the given type may implement the named type:
@@ -133,7 +136,7 @@ function getSingularType(type: GraphQLType): GraphQLSingularType {
   while (unmodifiedType instanceof GraphQLList) {
     unmodifiedType = unmodifiedType.ofType;
   }
-  return (unmodifiedType: any);
+  return (unmodifiedType: $FlowFixMe);
 }
 
 /**

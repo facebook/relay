@@ -1926,6 +1926,32 @@ fragment Foo on User @argumentDefinitions(localId: {type: "ID!"}) {
 ]
 `;
 
+exports[`RelayParser matches expected output: fragment-with-arguments-invalid-type.invalid.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+# expected-to-throw
+fragment TestFragment on User
+  @argumentDefinitions(myArg: {type: "UnknownType"}) {
+  profilePicture(size: $PictureSize) {
+    uri
+  }
+  withDefaultArg: profilePicture(size: $size) {
+    uri
+  }
+  ...Foo @arguments(localId: $myArg)
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+THROWN EXCEPTION:
+
+Error: RelayParser: Encountered 1 error(s):
+- Unknown type: 'UnknownType'.
+  
+  GraphQL request (1:1)
+  1: UnknownType
+     ^
+  
+`;
+
 exports[`RelayParser matches expected output: fragment-with-literal-arguments.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 fragment ParentFragment on User {
@@ -3917,6 +3943,29 @@ Error: RelayParser: Encountered 1 error(s):
   
 `;
 
+exports[`RelayParser matches expected output: inline-fragment-with-invalid-type.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+# expected-to-throw
+fragment InlineFragment on Node {
+  ... on UnkwnownType {
+    name
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+THROWN EXCEPTION:
+
+Error: RelayParser: Encountered 1 error(s):
+- Unknown type: 'UnkwnownType'.
+  
+  GraphQL request (3:10)
+  2: fragment InlineFragment on Node {
+  3:   ... on UnkwnownType {
+              ^
+  4:     name
+  
+`;
+
 exports[`RelayParser matches expected output: inline-untyped-fragment.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 fragment InlineUntypedFragment on User {
@@ -5863,6 +5912,27 @@ Error: RelayParser: Encountered 1 error(s):
   2: query TestQuery($id: UnknownType) {
                           ^
   3:   node(id: "someid") {
+  
+`;
+
+exports[`RelayParser matches expected output: unknown-fragment-type.invalid.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+# expected-to-throw
+fragment Foo on UnknownType {
+  id
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+THROWN EXCEPTION:
+
+Error: RelayParser: Encountered 1 error(s):
+- Unknown type: 'UnknownType'.
+  
+  GraphQL request (2:17)
+  1: # expected-to-throw
+  2: fragment Foo on UnknownType {
+                     ^
+  3:   id
   
 `;
 

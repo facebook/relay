@@ -34,6 +34,11 @@ import type {
 
 const SCHEMA_EXTENSION = `
   directive @connection_resolver(label: String!) on FIELD
+  directive @stream_connection_resolver(
+    label: String!
+    initial_count: Int!
+    if: Boolean = true
+  ) on FIELD
 `;
 
 type State = {|
@@ -62,7 +67,9 @@ function visitLinkedField(
 ): LinkedField | ConnectionField {
   const transformed: LinkedField = this.traverse(field, state);
   const connectionDirective = transformed.directives.find(
-    directive => directive.name === 'connection_resolver',
+    directive =>
+      directive.name === 'connection_resolver' ||
+      directive.name === 'stream_connection_resolver',
   );
   if (connectionDirective == null) {
     return transformed;
@@ -112,6 +119,31 @@ function visitLinkedField(
     }
   }
   state.labels.set(label, connectionDirective);
+
+  let stream = null;
+  if (connectionDirective.name === 'stream_connection_resolver') {
+    const initialCountArg = connectionDirective.args.find(
+      arg => arg.name === 'initial_count',
+    );
+    const ifArg = connectionDirective.args.find(arg => arg.name === 'if');
+    if (
+      initialCountArg == null ||
+      (initialCountArg.value.kind === 'Literal' &&
+        !Number.isInteger(initialCountArg.value.value))
+    ) {
+      throw createUserError(
+        "Invalid use of @connection_resolver, 'initial_count' is required " +
+          "and must be an integer or variable of type 'Int!''.",
+        [initialCountArg?.loc ?? connectionDirective.loc],
+      );
+    }
+    stream = {
+      deferLabel: label,
+      initialCount: initialCountArg.value,
+      if: ifArg != null ? ifArg.value : null,
+      streamLabel: label,
+    };
+  }
 
   const {EDGES, PAGE_INFO} = ConnectionInterface.get();
   let edgeField;
@@ -221,6 +253,7 @@ function visitLinkedField(
       loc: transformed.loc,
       name: transformed.name,
       selections: [edgeField, pageInfoField],
+      stream,
       type: transformed.type,
     }: Connection),
   );

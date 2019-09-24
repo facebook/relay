@@ -186,6 +186,12 @@ export type Connection = {|
   +loc: Location,
   +name: string,
   +selections: $ReadOnlyArray<Selection>,
+  +stream: {|
+    +deferLabel: string,
+    +if: ArgumentValue | null,
+    +initialCount: ArgumentValue,
+    +streamLabel: string,
+  |} | null,
   +type: GraphQLOutputType,
 |};
 

@@ -25,6 +25,7 @@ const {
 
 import type {
   Argument,
+  ArgumentValue,
   ClientExtension,
   Metadata,
   Root,
@@ -289,6 +290,24 @@ function generateConnection(node): NormalizationConnection {
       } else if (selection.name === PAGE_INFO) {
         pageInfo = selection;
       }
+    } else if (selection.kind === 'Stream') {
+      selection.selections.forEach(subselection => {
+        if (
+          subselection.kind === 'LinkedField' &&
+          subselection.name === EDGES
+        ) {
+          edges = subselection;
+        }
+      });
+    } else if (selection.kind === 'Defer') {
+      selection.selections.forEach(subselection => {
+        if (
+          subselection.kind === 'LinkedField' &&
+          subselection.name === PAGE_INFO
+        ) {
+          pageInfo = subselection;
+        }
+      });
     }
   });
   if (edges == null || pageInfo == null) {
@@ -298,6 +317,22 @@ function generateConnection(node): NormalizationConnection {
       [node.loc],
     );
   }
+  let stream = null;
+  if (node.stream != null) {
+    const trueLiteral: NormalizationArgument = {
+      kind: 'Literal',
+      name: 'if',
+      value: true,
+    };
+    stream = {
+      if:
+        node.stream.if != null
+          ? generateArgumentValue('if', node.stream.if) ?? trueLiteral
+          : trueLiteral,
+      deferLabel: node.stream.deferLabel,
+      streamLabel: node.stream.streamLabel,
+    };
+  }
   return {
     kind: 'Connection',
     label: node.label,
@@ -305,6 +340,7 @@ function generateConnection(node): NormalizationConnection {
     args: generateArgs(node.args),
     edges,
     pageInfo,
+    stream,
   };
 }
 
@@ -404,13 +440,15 @@ function generateStream(node, key): NormalizationStream {
   };
 }
 
-function generateArgument(node: Argument): NormalizationArgument | null {
-  const value = node.value;
+function generateArgumentValue(
+  name: string,
+  value: ArgumentValue,
+): NormalizationArgument | null {
   switch (value.kind) {
     case 'Variable':
       return {
         kind: 'Variable',
-        name: node.name,
+        name: name,
         variableName: value.variableName,
       };
     case 'Literal':
@@ -418,14 +456,14 @@ function generateArgument(node: Argument): NormalizationArgument | null {
         ? null
         : {
             kind: 'Literal',
-            name: node.name,
+            name: name,
             value: stableCopy(value.value),
           };
     default:
       throw createUserError(
         'NormalizationCodeGenerator: Complex argument values (Lists or ' +
           'InputObjects with nested variables) are not supported.',
-        [node.value.loc],
+        [value.loc],
       );
   }
 }
@@ -439,7 +477,7 @@ function generateArgs(
 ): ?$ReadOnlyArray<NormalizationArgument> {
   const concreteArguments = [];
   args.forEach(arg => {
-    const concreteArgument = generateArgument(arg);
+    const concreteArgument = generateArgumentValue(arg.name, arg.value);
     if (concreteArgument !== null) {
       concreteArguments.push(concreteArgument);
     }

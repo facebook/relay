@@ -199,6 +199,17 @@ function transformConnection(
   errorContext: $ReadOnlyArray<IR>,
 ): ?Connection {
   const args = transformArguments(scope, connection.args, errorContext);
+  let stream = connection.stream;
+  if (stream != null) {
+    stream = {
+      ...stream,
+      if:
+        stream.if != null
+          ? transformValue(scope, stream.if, errorContext)
+          : null,
+      initialCount: transformValue(scope, stream.initialCount, errorContext),
+    };
+  }
   const selections = transformSelections(
     context,
     fragments,
@@ -213,7 +224,8 @@ function transformConnection(
     ...connection,
     args,
     selections,
-  }: $FlowFixMe);
+    stream,
+  }: Connection);
 }
 
 function transformCondition(

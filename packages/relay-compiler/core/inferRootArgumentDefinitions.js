@@ -260,20 +260,21 @@ function visit(
       }
     },
     Stream(stream: Stream) {
-      const variable = stream.if;
-      if (variable == null || variable.kind !== 'Variable') {
-        return;
-      }
-      const type = variable.type ?? new GraphQLNonNull(GraphQLBoolean);
-      if (!argumentDefinitions.has(variable.variableName)) {
-        // root variable
-        argumentDefinitions.set(variable.variableName, {
-          kind: 'RootArgumentDefinition',
-          loc: {kind: 'Derived', source: variable.loc},
-          name: variable.variableName,
-          type,
-        });
-      }
+      [stream.if, stream.initialCount].forEach(variable => {
+        if (variable == null || variable.kind !== 'Variable') {
+          return;
+        }
+        const type = variable.type ?? new GraphQLNonNull(GraphQLBoolean);
+        if (!argumentDefinitions.has(variable.variableName)) {
+          // root variable
+          argumentDefinitions.set(variable.variableName, {
+            kind: 'RootArgumentDefinition',
+            loc: {kind: 'Derived', source: variable.loc},
+            name: variable.variableName,
+            type,
+          });
+        }
+      });
     },
     LinkedField(field: LinkedField) {
       if (!field.handles) {

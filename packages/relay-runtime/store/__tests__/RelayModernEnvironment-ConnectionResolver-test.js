@@ -162,6 +162,15 @@ describe('@connection_resolver connection field', () => {
             nextEdges.push(nextEdge);
             nextPageInfo.endCursor = nextEdge.cursor ?? nextPageInfo.endCursor;
           }
+        } else if (
+          event.kind === 'stream.edge' ||
+          event.kind === 'stream.pageInfo'
+        ) {
+          invariant(
+            false,
+            'ConnectionResolver-test: Unexpected stream event `%s`.',
+            event.kind,
+          );
         } else {
           (event: empty);
           invariant(

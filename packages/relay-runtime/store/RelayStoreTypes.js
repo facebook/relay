@@ -668,7 +668,31 @@ export type StreamPlaceholder = {|
   +node: NormalizationSelectableNode,
   +variables: Variables,
 |};
-export type IncrementalDataPlaceholder = DeferPlaceholder | StreamPlaceholder;
+export type ConnectionEdgePlaceholder = {|
+  +kind: 'connection_edge',
+  +args: Variables,
+  +label: string,
+  +path: $ReadOnlyArray<string>,
+  +parentID: DataID,
+  +node: NormalizationLinkedField,
+  +variables: Variables,
+  +connectionID: ConnectionID,
+|};
+export type ConnectionPageInfoPlaceholder = {|
+  +kind: 'connection_page_info',
+  +args: Variables,
+  +data: PayloadData,
+  +label: string,
+  +path: $ReadOnlyArray<string>,
+  +selector: NormalizationSelector,
+  +typeName: string,
+  +connectionID: ConnectionID,
+|};
+export type IncrementalDataPlaceholder =
+  | DeferPlaceholder
+  | StreamPlaceholder
+  | ConnectionEdgePlaceholder
+  | ConnectionPageInfoPlaceholder;
 
 /**
  * A user-supplied object to load a generated operation (SplitOperation) AST

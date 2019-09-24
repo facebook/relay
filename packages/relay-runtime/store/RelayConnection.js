@@ -40,12 +40,28 @@ export type ConnectionInternalEvent =
       +edgeIDs: $ReadOnlyArray<?DataID>,
       +pageInfo: PageInfo,
       +request: RequestDescriptor,
+      +stream: boolean,
     |}
   | {|
       +kind: 'insert',
       +args: Variables,
       +connectionID: ConnectionID,
       +edgeID: DataID,
+      +request: RequestDescriptor,
+    |}
+  | {|
+      +kind: 'stream.edge',
+      +args: Variables,
+      +connectionID: ConnectionID,
+      +edgeID: DataID,
+      +index: number,
+      +request: RequestDescriptor,
+    |}
+  | {|
+      +kind: 'stream.pageInfo',
+      +args: Variables,
+      +connectionID: ConnectionID,
+      +pageInfo: PageInfo,
       +request: RequestDescriptor,
     |};
 
@@ -55,9 +71,21 @@ export type ConnectionEvent<TEdge> =
       +args: Variables,
       +edges: $ReadOnlyArray<?TEdge>,
       +pageInfo: PageInfo,
+      +stream: boolean,
     |}
-  | {|+kind: 'update', edgeData: {[DataID]: ?TEdge}|}
-  | {|+kind: 'insert', args: Variables, edge: ?TEdge|};
+  | {|+kind: 'update', +edgeData: {[DataID]: ?TEdge}|}
+  | {|+kind: 'insert', +args: Variables, +edge: ?TEdge|}
+  | {|
+      +kind: 'stream.edge',
+      +args: Variables,
+      +edge: ?TEdge,
+      +index: number,
+    |}
+  | {|
+      +kind: 'stream.pageInfo',
+      +args: Variables,
+      +pageInfo: PageInfo,
+    |};
 
 export interface ConnectionResolver<TEdge, TState> {
   initialize(): TState;

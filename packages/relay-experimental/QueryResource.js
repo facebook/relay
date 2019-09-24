@@ -417,6 +417,15 @@ class QueryResourceImpl {
       this._cacheResult(operation, cacheKey);
     }
 
+    environment.__log({
+      name: 'queryresource.fetch',
+      operation,
+      fetchPolicy,
+      renderPolicy,
+      hasFullQuery,
+      shouldFetch,
+    });
+
     if (__DEV__) {
       switch (fetchPolicy) {
         case 'store-only':

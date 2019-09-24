@@ -83,7 +83,7 @@ export type EnvironmentConfig = {|
 |};
 
 class RelayModernEnvironment implements IEnvironment {
-  _log: LogFunction;
+  __log: LogFunction;
   _loggerProvider: ?LoggerProvider;
   _operationLoader: ?OperationLoader;
   _network: Network;
@@ -113,7 +113,7 @@ class RelayModernEnvironment implements IEnvironment {
         );
       }
     }
-    this._log = config.log ?? emptyFunction;
+    this.__log = config.log ?? emptyFunction;
     this._loggerProvider = config.loggerProvider;
     this._operationLoader = operationLoader;
     this._network = config.network;
@@ -425,7 +425,7 @@ class RelayModernEnvironment implements IEnvironment {
     variables: Variables,
   ): [Observer<GraphQLResponse>, LogRequestInfoFunction] {
     const transactionID = generateID();
-    const log = this._log;
+    const log = this.__log;
     const logObserver = {
       start: subscription => {
         log({

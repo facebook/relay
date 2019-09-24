@@ -397,6 +397,16 @@ export interface LoggerProvider {
 
 export type LogEvent =
   | {|
+      +name: 'queryresource.fetch',
+      +operation: OperationDescriptor,
+      // FetchPolicy from relay-experimental
+      +fetchPolicy: string,
+      // RenderPolicy from relay-experimental
+      +renderPolicy: string,
+      +hasFullQuery: boolean,
+      +shouldFetch: boolean,
+    |}
+  | {|
       +name: 'execute.info',
       +transactionID: number,
       +info: mixed,
@@ -433,6 +443,11 @@ export type LogRequestInfoFunction = mixed => void;
  * own in-memory cache.
  */
 export interface IEnvironment {
+  /**
+   * **UNSTABLE** Event based logging API thats scoped to the environment.
+   */
+  __log: LogFunction;
+
   /**
    * Determine if the selector can be resolved with data in the store (i.e. no
    * fields are missing).

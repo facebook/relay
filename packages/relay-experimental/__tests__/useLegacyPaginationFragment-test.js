@@ -750,66 +750,6 @@ describe('useLegacyPaginationFragment', () => {
         expect(environment.execute).toHaveBeenCalledTimes(0);
       });
 
-      it('does not load more if there are no more items to load and calls onComplete callback', () => {
-        (environment.getStore().getSource(): $FlowFixMe).clear();
-        environment.commitPayload(query, {
-          node: {
-            __typename: 'User',
-            id: '1',
-            name: 'Alice',
-            friends: {
-              edges: [
-                {
-                  cursor: 'cursor:1',
-                  node: {
-                    __typename: 'User',
-                    id: 'node:1',
-                    name: 'name:node:1',
-                    username: 'username:node:1',
-                  },
-                },
-              ],
-              pageInfo: {
-                endCursor: 'cursor:1',
-                hasNextPage: false,
-                hasPreviousPage: false,
-                startCursor: 'cursor:1',
-              },
-            },
-          },
-        });
-        const callback = jest.fn();
-
-        renderFragment();
-        expectFragmentResults([
-          {
-            data: {
-              ...initialUser,
-              friends: {
-                ...initialUser.friends,
-                pageInfo: expect.objectContaining({hasNextPage: false}),
-              },
-            },
-            isLoadingNext: false,
-            isLoadingPrevious: false,
-            hasNext: false,
-            hasPrevious: false,
-          },
-        ]);
-
-        TestRenderer.act(() => {
-          loadNext(1, {onComplete: callback});
-        });
-        expect(environment.execute).toBeCalledTimes(0);
-        expect(callback).toBeCalledTimes(0);
-        expect(renderSpy).toBeCalledTimes(0);
-
-        TestRenderer.act(() => {
-          runScheduledCallback();
-        });
-        expect(callback).toBeCalledTimes(1);
-      });
-
       it('does not load more if request is already in flight', () => {
         const callback = jest.fn();
         const renderer = renderFragment();
@@ -1027,6 +967,106 @@ describe('useLegacyPaginationFragment', () => {
         expect(environment.execute).toBeCalledTimes(2);
         expect(callback).toBeCalledTimes(0);
         expect(renderSpy).toBeCalledTimes(0);
+      });
+
+      it('attempts to load more even if there are no more items to load', () => {
+        (environment.getStore().getSource(): $FlowFixMe).clear();
+        environment.commitPayload(query, {
+          node: {
+            __typename: 'User',
+            id: '1',
+            name: 'Alice',
+            friends: {
+              edges: [
+                {
+                  cursor: 'cursor:1',
+                  node: {
+                    __typename: 'User',
+                    id: 'node:1',
+                    name: 'name:node:1',
+                    username: 'username:node:1',
+                  },
+                },
+              ],
+              pageInfo: {
+                endCursor: 'cursor:1',
+                hasNextPage: false,
+                hasPreviousPage: false,
+                startCursor: 'cursor:1',
+              },
+            },
+          },
+        });
+        const callback = jest.fn();
+
+        const renderer = renderFragment();
+        const expectedUser = {
+          ...initialUser,
+          friends: {
+            ...initialUser.friends,
+            pageInfo: expect.objectContaining({hasNextPage: false}),
+          },
+        };
+        expectFragmentResults([
+          {
+            data: expectedUser,
+            isLoadingNext: false,
+            isLoadingPrevious: false,
+            hasNext: false,
+            hasPrevious: false,
+          },
+        ]);
+
+        TestRenderer.act(() => {
+          loadNext(1, {onComplete: callback});
+        });
+
+        const paginationVariables = {
+          id: '1',
+          after: 'cursor:1',
+          first: 1,
+          before: null,
+          last: null,
+          isViewerFriendLocal: false,
+          orderby: ['name'],
+        };
+        expectFragmentIsLoadingMore(renderer, direction, {
+          data: expectedUser,
+          hasNext: false,
+          hasPrevious: false,
+          paginationVariables,
+          gqlPaginationQuery,
+        });
+        expect(callback).toBeCalledTimes(0);
+
+        environment.mock.resolve(gqlPaginationQuery, {
+          data: {
+            node: {
+              __typename: 'User',
+              id: '1',
+              name: 'Alice',
+              friends: {
+                edges: [],
+                pageInfo: {
+                  startCursor: null,
+                  endCursor: null,
+                  hasNextPage: null,
+                  hasPreviousPage: null,
+                },
+              },
+            },
+          },
+        });
+        expectFragmentResults([
+          {
+            data: expectedUser,
+            isLoadingNext: false,
+            isLoadingPrevious: false,
+            hasNext: false,
+            hasPrevious: false,
+          },
+        ]);
+        expect(callback).toBeCalledTimes(1);
       });
 
       it('loads and renders next items in connection', () => {

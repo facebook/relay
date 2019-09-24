@@ -147,7 +147,11 @@ function useLoadMoreFunction(
         fragmentOwner != null &&
         !Array.isArray(fragmentOwner) &&
         hasRequestInFlight(environment, fragmentOwner);
-      if (isFetchingRef.current === true || !hasMore || isParentQueryInFlight) {
+      if (
+        isFetchingRef.current === true ||
+        fragmentData == null ||
+        isParentQueryInFlight
+      ) {
         if (fragmentOwner == null) {
           warning(
             false,
@@ -237,11 +241,11 @@ function useLoadMoreFunction(
       dataID,
       direction,
       cursor,
-      hasMore,
       startFetch,
       disposeFetch,
       completeFetch,
       isFetchingRef,
+      fragmentData,
       fragmentNode.name,
       fragmentOwner,
       componentDisplayName,

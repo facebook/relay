@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @flow
+ * @flow strict-local
  * @format
  */
 
@@ -58,7 +58,7 @@ const {getRawType, isAbstractType, getNullableType} = SchemaUtils;
 declare function generate(node: Root): NormalizationOperation;
 declare function generate(node: SplitOperation): NormalizationSplitOperation;
 function generate(
-  node: any,
+  node: $FlowFixMe,
 ): NormalizationOperation | NormalizationSplitOperation {
   switch (node.kind) {
     case 'Root':
@@ -260,7 +260,7 @@ function generateLinkedField(node): $ReadOnlyArray<NormalizationSelection> {
   };
   // Precompute storageKey if possible
   const storageKey = getStaticStorageKey(field, node.metadata);
-  if (storageKey) {
+  if (storageKey != null) {
     field = {...field, storageKey};
   }
   return [field].concat(handles);
@@ -408,7 +408,7 @@ function generateScalarField(node): Array<NormalizationSelection> {
   };
   // Precompute storageKey if possible
   const storageKey = getStaticStorageKey(field, node.metadata);
-  if (storageKey) {
+  if (storageKey != null) {
     field = {...field, storageKey};
   }
   return [field].concat(handles);
@@ -468,7 +468,7 @@ function generateArgumentValue(
   }
 }
 
-function isPlural(type: any): boolean {
+function isPlural(type: $FlowFixMe): boolean {
   return getNullableType(type) instanceof GraphQLList;
 }
 

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @flow
+ * @flow strict-local
  * @format
  */
 
@@ -18,14 +18,15 @@ const Profiler = require('../core/GraphQLCompilerProfiler');
 const invariant = require('invariant');
 const path = require('path');
 
+// $FlowFixMe - importing immutable, which is untyped (and flow is sad about it)
 const {Map: ImmutableMap} = require('immutable');
 
-import type {DocumentNode, GraphQLSchema} from 'graphql';
 import type ASTCache from '../core/ASTCache';
 import type {GraphQLReporter} from '../reporters/GraphQLReporter';
 import type {CompileResult, File} from './CodegenTypes';
 import type {FileFilter, WatchmanExpression} from './CodegenWatcher';
 import type {SourceControl} from './SourceControl';
+import type {DocumentNode, GraphQLSchema} from 'graphql';
 
 export type ParserConfig = {|
   baseDir: string,

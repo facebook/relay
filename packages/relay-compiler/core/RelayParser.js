@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @flow
+ * @flow strict-local
  * @format
  */
 
@@ -150,8 +150,10 @@ function parse(
 ): $ReadOnlyArray<Root | Fragment> {
   const ast = parseGraphQL(new Source(text, filename));
   // TODO T24511737 figure out if this is dangerous
-  schema = extendSchema(schema, ast, {assumeValid: true});
-  const parser = new RelayParser(schema, ast.definitions);
+  const parser = new RelayParser(
+    extendSchema(schema, ast, {assumeValid: true}),
+    ast.definitions,
+  );
   return parser.transform();
 }
 
@@ -1506,7 +1508,7 @@ function assertScalarFieldType(type: GraphQLOutputType): ScalarFieldType {
       `Expected a scalar field type, got type '${String(type)}'.`,
     );
   }
-  return (type: any);
+  return (type: $FlowFixMe);
 }
 
 /**

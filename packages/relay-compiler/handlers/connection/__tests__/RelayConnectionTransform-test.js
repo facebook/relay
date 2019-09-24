@@ -4,6 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
+ * @flow strict-local
  * @format
  * @emails oncall+relay
  */
@@ -35,7 +36,7 @@ describe('RelayConnectionTransform', () => {
         doc =>
           GraphQLIRPrinter.print(doc) +
           '# Metadata:\n' +
-          JSON.stringify(doc.metadata, null, 2),
+          JSON.stringify(doc.metadata ?? null, null, 2),
       )
       .join('\n');
   });

@@ -4,6 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
+ * @flow strict-local
  * @format
  * @emails oncall+relay
  */
@@ -109,7 +110,7 @@ describe('GraphQLIRValidator', () => {
       astKinds.forEach(kind => {
         visitors[kind] = createRecorder(kind);
       });
-
+      // $FlowFixMe: Cannot call `func` with `visitors` bound to `visitor`
       func(context, visitors, node => {
         sequence.push(`${node.kind} ${node.name}`);
         return {};

@@ -4,6 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
+ * @flow strict-local
  * @format
  * @emails oncall+relay
  */
@@ -28,6 +29,7 @@ describe('filterContextForNode', () => {
     const {definitions} = parseGraphQLText(TestSchema, text);
     const context = new GraphQLCompilerContext(TestSchema).addAll(definitions);
     const printerContext = filterContextForNode(
+      // $FlowFixMe - null or undefined is incompatible with union type
       context.get(MAIN_QUERY_NAME),
       context,
     );

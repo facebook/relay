@@ -280,6 +280,7 @@ describe('scope', () => {
         name: '<name>',
       };
       expect(() => {
+        // $FlowFixMe - loc is missing, but exists in LocalArgumentDefinition
         getFragmentScope(definitions, calls, outerScope, fragmentSpread);
       }).toThrowErrorMatchingSnapshot();
     });

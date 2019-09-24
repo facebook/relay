@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @flow
+ * @flow strict-local
  * @format
  */
 
@@ -29,6 +29,7 @@ import type {
   OperationDefinitionNode,
   TypeSystemDefinitionNode,
   TypeSystemExtensionNode,
+  ValidationRule,
 } from 'graphql';
 
 type ASTDefinitionNode = FragmentDefinitionNode | OperationDefinitionNode;
@@ -40,7 +41,7 @@ type TransformFn = (
 function convertASTDocuments(
   schema: GraphQLSchema,
   documents: $ReadOnlyArray<DocumentNode>,
-  validationRules: $ReadOnlyArray<Function>,
+  validationRules: $ReadOnlyArray<ValidationRule>,
   transform: TransformFn,
 ): $ReadOnlyArray<Fragment | Root> {
   return Profiler.run('ASTConvert.convertASTDocuments', () => {
@@ -68,7 +69,7 @@ function convertASTDocumentsWithBase(
   schema: GraphQLSchema,
   baseDocuments: $ReadOnlyArray<DocumentNode>,
   documents: $ReadOnlyArray<DocumentNode>,
-  validationRules: $ReadOnlyArray<Function>,
+  validationRules: $ReadOnlyArray<ValidationRule>,
   transform: TransformFn,
 ): $ReadOnlyArray<Fragment | Root> {
   return Profiler.run('ASTConvert.convertASTDocumentsWithBase', () => {
@@ -81,7 +82,7 @@ function convertASTDocumentsWithBase(
       if (isExecutableDefinitionAST(definition)) {
         const definitionName = definition.name && definition.name.value;
         // If there's no name, no reason to put in the map
-        if (definitionName) {
+        if (definitionName != null) {
           if (baseMap.has(definitionName)) {
             throw new Error(`Duplicate definition of '${definitionName}'.`);
           }
@@ -99,7 +100,7 @@ function convertASTDocumentsWithBase(
     while (definitionsToVisit.length > 0) {
       const definition = definitionsToVisit.pop();
       const name = definition.name && definition.name.value;
-      if (!name) {
+      if (name == null) {
         continue;
       }
       if (requiredDefinitions.has(name)) {
@@ -137,7 +138,7 @@ function convertASTDocumentsWithBase(
 function convertASTDefinitions(
   schema: GraphQLSchema,
   definitions: $ReadOnlyArray<DefinitionNode>,
-  validationRules: $ReadOnlyArray<Function>,
+  validationRules: $ReadOnlyArray<ValidationRule>,
   transform: TransformFn,
 ): $ReadOnlyArray<Fragment | Root> {
   const operationDefinitions: Array<ASTDefinitionNode> = [];

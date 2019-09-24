@@ -4,6 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
+ * @flow strict-local
  * @emails oncall+relay
  * @format
  */
@@ -33,7 +34,7 @@ describe('RelayMatchTransform', () => {
         schema,
         text,
       );
-      return new GraphQLCompilerContext(TestSchema, clientSchema)
+      return new GraphQLCompilerContext(TestSchema, clientSchema ?? TestSchema)
         .addAll(definitions)
         .applyTransforms([
           // Requires Relay directive transform first.

@@ -4,6 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
+ * @flow strict-local
  * @format
  * @emails oncall+relay
  */
@@ -40,6 +41,7 @@ function generate(text, options: TypeGeneratorOptions, context?) {
     .documents()
     .map(
       doc =>
+        // $FlowFixMe - `SplitOperation` is incompatible with union type.
         `// ${doc.name}.graphql\n${RelayFlowGenerator.generate(doc, {
           ...options,
           normalizationIR: context ? context.get(doc.name) : undefined,
@@ -72,11 +74,11 @@ describe('Snapshot tests', () => {
           text,
           {
             customScalars: {},
-            enumsHasteModule: null,
             existingFragmentNames: new Set(['PhotoFragment']),
             optionalInputFields: [],
             useHaste: true,
             useSingleArtifactDirectory: false,
+            noFutureProofEnums: false,
           },
           context,
         );
@@ -92,11 +94,11 @@ describe('Snapshot tests', () => {
           text,
           {
             customScalars: {},
-            enumsHasteModule: null,
             existingFragmentNames: new Set(['PhotoFragment']),
             optionalInputFields: [],
             useHaste: false,
             useSingleArtifactDirectory: true,
+            noFutureProofEnums: false,
           },
           context,
         );
@@ -112,11 +114,11 @@ describe('Snapshot tests', () => {
           text,
           {
             customScalars: {},
-            enumsHasteModule: null,
             existingFragmentNames: new Set(['PhotoFragment']),
             optionalInputFields: [],
             useHaste: false,
             useSingleArtifactDirectory: false,
+            noFutureProofEnums: false,
           },
           context,
         );
@@ -133,7 +135,6 @@ it('does not add `%future added values` when the noFutureProofEnums option is se
   `;
   const types = generate(text, {
     customScalars: {},
-    enumsHasteModule: null,
     existingFragmentNames: new Set(['PhotoFragment']),
     optionalInputFields: [],
     useHaste: true,
@@ -159,6 +160,8 @@ test('import enum definitions from single module', () => {
     existingFragmentNames: new Set([]),
     optionalInputFields: [],
     useHaste: true,
+    noFutureProofEnums: false,
+    useSingleArtifactDirectory: false,
   });
   expect(types).toContain(
     'import type { PersonalityTraits } from "MyGraphQLEnums";',
@@ -177,6 +180,8 @@ test('import enum definitions from enum specific module', () => {
     existingFragmentNames: new Set([]),
     optionalInputFields: [],
     useHaste: true,
+    noFutureProofEnums: false,
+    useSingleArtifactDirectory: false,
   });
   expect(types).toContain(
     'import type { PersonalityTraits } from "PersonalityTraits.graphqlenum";',
@@ -192,7 +197,12 @@ describe('custom scalars', () => {
   `;
   const generateWithMapping = mapping =>
     generate(text, {
+      existingFragmentNames: new Set([]),
+      optionalInputFields: [],
+      useHaste: false,
       customScalars: mapping,
+      noFutureProofEnums: false,
+      useSingleArtifactDirectory: false,
     });
 
   it('maps unspecified types to `any`', () => {
@@ -234,11 +244,11 @@ it('imports fragment refs from siblings in a single artifact dir', () => {
   `;
   const types = generate(text, {
     customScalars: {},
-    enumsHasteModule: null,
     existingFragmentNames: new Set(['PhotoFragment']),
     optionalInputFields: [],
     // This is what's different from the tests above.
     useHaste: false,
+    noFutureProofEnums: false,
     useSingleArtifactDirectory: true,
   });
   expect(types).toContain(

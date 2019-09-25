@@ -179,6 +179,31 @@ describe('useLazyLoadQueryNode', () => {
     expectToBeRendered(renderFn, data);
   });
 
+  it('fetches and renders correctly even if fetched query data still has missing data', () => {
+    // This scenario might happen if for example we are making selections on
+    // abstract types which the concrete type doesn't implemenet
+
+    const instance = render(environment, <Container variables={variables} />);
+
+    expect(instance.toJSON()).toEqual('Fallback');
+    expectToHaveFetched(environment, query);
+    expect(renderFn).not.toBeCalled();
+    expect(environment.retain).toHaveBeenCalledTimes(1);
+
+    environment.mock.resolve(gqlQuery, {
+      data: {
+        node: {
+          __typename: 'User',
+          id: variables.id,
+          // name is missing in response
+        },
+      },
+    });
+
+    const data = environment.lookup(query.fragment).data;
+    expectToBeRendered(renderFn, data);
+  });
+
   it('fetches and renders correctly if component unmounts before it can commit', () => {
     const payload = {
       data: {

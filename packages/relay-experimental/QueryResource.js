@@ -448,16 +448,14 @@ class QueryResourceImpl {
         },
         next: () => {
           const snapshot = environment.lookup(operation.fragment);
-          if (!snapshot.isMissingData) {
-            const cacheEntry = this._getOrCreateCacheEntry(
-              cacheKey,
-              operation,
-              queryResult,
-              networkSubscription,
-            );
-            cacheEntry.setValue(queryResult);
-            resolveNetworkPromise();
-          }
+          const cacheEntry = this._getOrCreateCacheEntry(
+            cacheKey,
+            operation,
+            queryResult,
+            networkSubscription,
+          );
+          cacheEntry.setValue(queryResult);
+          resolveNetworkPromise();
 
           const observerNext = observer?.next;
           observerNext && observerNext(snapshot);

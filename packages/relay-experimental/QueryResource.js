@@ -277,7 +277,7 @@ class QueryResourceImpl {
         cacheKey,
         operation,
         queryResult,
-        this._onDispose,
+        this._clearCacheEntry,
       );
       this._cache.set(cacheKey, cacheEntry);
     }
@@ -286,12 +286,6 @@ class QueryResourceImpl {
     return {
       dispose: () => {
         disposable.dispose();
-        invariant(
-          cacheEntry != null,
-          'Relay: Expected to have cached a result when disposing query.' +
-            "If you're seeing this, this is likely a bug in Relay.",
-        );
-        this._onDispose(cacheEntry);
       },
     };
   }
@@ -306,7 +300,7 @@ class QueryResourceImpl {
     return this._cache.get(cacheKey);
   }
 
-  _onDispose = (cacheEntry: QueryResourceCacheEntry): void => {
+  _clearCacheEntry = (cacheEntry: QueryResourceCacheEntry): void => {
     if (cacheEntry.getRetainCount() <= 0) {
       this._cache.delete(cacheEntry.cacheKey);
     }
@@ -318,7 +312,7 @@ class QueryResourceImpl {
       cacheKey,
       operation,
       queryResult,
-      this._onDispose,
+      this._clearCacheEntry,
     );
     this._cache.set(cacheKey, cacheEntry);
   }
@@ -397,7 +391,7 @@ class QueryResourceImpl {
                 cacheKey,
                 operation,
                 queryResult,
-                this._onDispose,
+                this._clearCacheEntry,
               );
             cacheEntry.setValue(queryResult);
             this._cache.set(cacheKey, cacheEntry);
@@ -414,7 +408,7 @@ class QueryResourceImpl {
               cacheKey,
               operation,
               error,
-              this._onDispose,
+              this._clearCacheEntry,
             );
           cacheEntry.setValue(error);
           this._cache.set(cacheKey, cacheEntry);
@@ -450,7 +444,7 @@ class QueryResourceImpl {
           cacheKey,
           operation,
           networkPromise,
-          this._onDispose,
+          this._clearCacheEntry,
         );
         this._cache.set(cacheKey, cacheEntry);
       }

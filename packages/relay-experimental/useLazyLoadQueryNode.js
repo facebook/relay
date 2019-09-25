@@ -34,7 +34,7 @@ import type {
 
 const {useContext, useEffect} = React;
 
-function useQueryNode<TQuery: OperationType>(args: {|
+function useLazyLoadQueryNode<TQuery: OperationType>(args: {|
   query: OperationDescriptor,
   componentDisplayName: string,
   fetchObservable?: Observable<GraphQLResponse>,
@@ -85,4 +85,4 @@ function useQueryNode<TQuery: OperationType>(args: {|
   return data;
 }
 
-module.exports = useQueryNode;
+module.exports = useLazyLoadQueryNode;

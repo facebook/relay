@@ -18,8 +18,8 @@ const RelayEnvironmentProvider = require('./RelayEnvironmentProvider');
 const fetchQuery = require('./fetchQuery');
 const useBlockingPaginationFragment = require('./useBlockingPaginationFragment');
 const useFragment = require('./useFragment');
+const useLazyLoadQuery = require('./useLazyLoadQuery');
 const useLegacyPaginationFragment = require('./useLegacyPaginationFragment');
-const useQuery = require('./useQuery');
 const useRefetchableFragment = require('./useRefetchableFragment');
 const useRelayEnvironment = require('./useRelayEnvironment');
 
@@ -39,7 +39,7 @@ module.exports = {
 
   fetchQuery: fetchQuery,
 
-  useQuery: useQuery,
+  useLazyLoadQuery: useLazyLoadQuery,
   useFragment: useFragment,
   useBlockingPaginationFragment: useBlockingPaginationFragment,
   usePaginationFragment: useLegacyPaginationFragment,

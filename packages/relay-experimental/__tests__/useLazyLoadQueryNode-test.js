@@ -15,7 +15,7 @@ const React = require('react');
 const ReactTestRenderer = require('react-test-renderer');
 const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
 
-const useQueryNode = require('../useQueryNode');
+const useLazyLoadQueryNode = require('../useLazyLoadQueryNode');
 
 const {createOperationDescriptor} = require('relay-runtime');
 
@@ -50,7 +50,7 @@ type Props = {
   variables: Object,
 };
 
-describe('useQueryNode', () => {
+describe('useLazyLoadQueryNode', () => {
   let environment;
   let gqlQuery;
   let renderFn;
@@ -92,7 +92,7 @@ describe('useQueryNode', () => {
 
     const Renderer = props => {
       const _query = createOperationDescriptor(gqlQuery, props.variables);
-      const data = useQueryNode<_>({
+      const data = useLazyLoadQueryNode<_>({
         query: _query,
         fetchPolicy: props.fetchPolicy || defaultFetchPolicy,
         componentDisplayName: 'TestDisplayName',

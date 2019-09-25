@@ -11,8 +11,8 @@
 
 'use strict';
 
+const useLazyLoadQueryNode = require('./useLazyLoadQueryNode');
 const useMemoOperationDescriptor = require('./useMemoOperationDescriptor');
-const useQueryNode = require('./useQueryNode');
 
 import type {FetchPolicy} from './QueryResource';
 import type {
@@ -21,7 +21,7 @@ import type {
   OperationType,
 } from 'relay-runtime';
 
-function useQuery<TQuery: OperationType>(
+function useLazyLoadQuery<TQuery: OperationType>(
   gqlQuery: GraphQLTaggedNode,
   variables: $ElementType<TQuery, 'variables'>,
   options?: {|
@@ -31,13 +31,13 @@ function useQuery<TQuery: OperationType>(
   |},
 ): $ElementType<TQuery, 'response'> {
   const query = useMemoOperationDescriptor(gqlQuery, variables);
-  const data = useQueryNode({
+  const data = useLazyLoadQueryNode({
     query,
     fetchKey: options?.fetchKey,
     fetchPolicy: options?.fetchPolicy,
-    componentDisplayName: 'useQuery()',
+    componentDisplayName: 'useLazyLoadQuery()',
   });
   return data;
 }
 
-module.exports = useQuery;
+module.exports = useLazyLoadQuery;

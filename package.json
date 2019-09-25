@@ -63,7 +63,7 @@
     "gulp-util": "3.0.8",
     "immutable": "~3.7.6",
     "jest": "^24.8.0",
-    "nullthrows": "^1.1.0",
+    "nullthrows": "^1.1.1",
     "object-assign": "4.1.1",
     "prettier": "1.17.0",
     "promise-polyfill": "6.1.0",

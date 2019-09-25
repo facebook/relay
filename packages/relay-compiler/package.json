@@ -27,7 +27,7 @@
     "fb-watchman": "^2.0.0",
     "fbjs": "^1.0.0",
     "immutable": "~3.7.6",
-    "nullthrows": "^1.1.0",
+    "nullthrows": "^1.1.1",
     "relay-runtime": "6.0.0",
     "signedsource": "^1.0.0",
     "yargs": "^9.0.0"

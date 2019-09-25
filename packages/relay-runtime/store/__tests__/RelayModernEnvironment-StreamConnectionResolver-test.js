@@ -188,7 +188,7 @@ describe('execute() fetches a @stream-ed @connection', () => {
     expect(callback).toBeCalledTimes(0);
     expect(connectionCallback).toBeCalledTimes(1);
     const snapshot = connectionCallback.mock.calls[0][0];
-    expect(snapshot.edges).toEqual([
+    expect(snapshot.state.edges).toEqual([
       {
         __id: 'client:root:viewer:newsFeed:__connection_page(first:10):edges:0',
         cursor: 'cursor-1',
@@ -203,7 +203,7 @@ describe('execute() fetches a @stream-ed @connection', () => {
         },
       },
     ]);
-    expect(snapshot.pageInfo).toEqual({
+    expect(snapshot.state.pageInfo).toEqual({
       endCursor: 'cursor-1',
       hasNextPage: null,
       hasPrevPage: null,
@@ -224,7 +224,7 @@ describe('execute() fetches a @stream-ed @connection', () => {
     expect(callback).toBeCalledTimes(0);
     expect(connectionCallback).toBeCalledTimes(2);
     const snapshot2 = connectionCallback.mock.calls[1][0];
-    expect(snapshot2.edges).toEqual([
+    expect(snapshot2.state.edges).toEqual([
       {
         __id: 'client:root:viewer:newsFeed:__connection_page(first:10):edges:0',
         cursor: 'cursor-1',
@@ -239,7 +239,7 @@ describe('execute() fetches a @stream-ed @connection', () => {
         },
       },
     ]);
-    expect(snapshot2.pageInfo).toEqual({
+    expect(snapshot2.state.pageInfo).toEqual({
       endCursor: 'cursor-1',
       hasNextPage: true,
       hasPrevPage: null,
@@ -329,7 +329,7 @@ describe('execute() fetches a @stream-ed @connection', () => {
     expect(next).toBeCalledTimes(2);
     expect(connectionCallback).toBeCalledTimes(2);
     const snapshot = connectionCallback.mock.calls[1][0];
-    expect(snapshot.edges).toEqual([
+    expect(snapshot.state.edges).toEqual([
       {
         __id: 'client:root:viewer:newsFeed:__connection_page(first:10):edges:0',
         cursor: 'cursor-1',
@@ -357,7 +357,7 @@ describe('execute() fetches a @stream-ed @connection', () => {
         },
       },
     ]);
-    expect(snapshot.pageInfo).toEqual({
+    expect(snapshot.state.pageInfo).toEqual({
       endCursor: 'cursor-2',
       hasNextPage: null,
       hasPrevPage: null,
@@ -444,7 +444,7 @@ describe('execute() fetches a @stream-ed @connection', () => {
     expect(callback).toBeCalledTimes(0);
     expect(connectionCallback).toBeCalledTimes(1);
     const snapshot = connectionCallback.mock.calls[0][0];
-    expect(snapshot.edges).toEqual([
+    expect(snapshot.state.edges).toEqual([
       {
         __id: 'client:root:viewer:newsFeed:__connection_page(first:10):edges:0',
         cursor: 'cursor-1',
@@ -472,7 +472,7 @@ describe('execute() fetches a @stream-ed @connection', () => {
         },
       },
     ]);
-    expect(snapshot.pageInfo).toEqual({
+    expect(snapshot.state.pageInfo).toEqual({
       endCursor: 'cursor-2',
       hasNextPage: null,
       hasPrevPage: null,
@@ -607,7 +607,7 @@ describe('execute() fetches a @stream-ed @connection', () => {
     expect(callback).toBeCalledTimes(0);
     expect(connectionCallback).toBeCalledTimes(2);
     const snapshot = connectionCallback.mock.calls[0][0];
-    expect(snapshot.edges).toEqual([
+    expect(snapshot.state.edges).toEqual([
       {
         __id: 'client:root:viewer:newsFeed:__connection_page(first:10):edges:0',
         cursor: 'cursor-1',
@@ -636,14 +636,14 @@ describe('execute() fetches a @stream-ed @connection', () => {
         },
       },
     ]);
-    expect(snapshot.pageInfo).toEqual({
+    expect(snapshot.state.pageInfo).toEqual({
       endCursor: 'cursor-2',
       hasNextPage: true,
       hasPrevPage: null,
       startCursor: null,
     });
     const snapshot2 = connectionCallback.mock.calls[1][0];
-    expect(snapshot2.edges).toEqual([
+    expect(snapshot2.state.edges).toEqual([
       {
         __id: 'client:root:viewer:newsFeed:__connection_page(first:10):edges:0',
         cursor: 'cursor-1',
@@ -686,7 +686,7 @@ describe('execute() fetches a @stream-ed @connection', () => {
         },
       },
     ]);
-    expect(snapshot2.pageInfo).toEqual({
+    expect(snapshot2.state.pageInfo).toEqual({
       endCursor: 'cursor-3',
       hasNextPage: true,
       hasPrevPage: null,
@@ -706,7 +706,7 @@ describe('execute() fetches a @stream-ed @connection', () => {
     expect(error.mock.calls.map(call => call[0].stack)).toEqual([]);
     expect(connectionCallback).toBeCalledTimes(3);
     const snapshot3 = connectionCallback.mock.calls[2][0];
-    expect(snapshot3.edges).toEqual([
+    expect(snapshot3.state.edges).toEqual([
       {
         __id: 'client:root:viewer:newsFeed:__connection_page(first:10):edges:0',
         cursor: 'cursor-1',
@@ -749,7 +749,7 @@ describe('execute() fetches a @stream-ed @connection', () => {
         },
       },
     ]);
-    expect(snapshot3.pageInfo).toEqual({
+    expect(snapshot3.state.pageInfo).toEqual({
       endCursor: 'cursor-3',
       hasNextPage: false,
       hasPrevPage: null,
@@ -859,7 +859,7 @@ describe('execute() fetches a @stream-ed @connection', () => {
     expect(callback).toBeCalledTimes(0);
     expect(connectionCallback).toBeCalledTimes(1);
     const snapshot = connectionCallback.mock.calls[0][0];
-    expect(snapshot.edges).toEqual([
+    expect(snapshot.state.edges).toEqual([
       {
         __id: 'client:root:viewer:newsFeed:__connection_page(first:10):edges:0',
         cursor: 'cursor-1',
@@ -888,7 +888,7 @@ describe('execute() fetches a @stream-ed @connection', () => {
         },
       },
     ]);
-    expect(snapshot.pageInfo).toEqual({
+    expect(snapshot.state.pageInfo).toEqual({
       endCursor: 'cursor-2',
       hasNextPage: null,
       hasPrevPage: null,
@@ -945,8 +945,8 @@ describe('execute() fetches a @stream-ed @connection', () => {
       .lookupConnection_UNSTABLE(
         (callback.mock.calls[0][0].data: $FlowFixMe).newsFeed.__connection,
         RelayConnectionResolver,
-      ).state;
-    expect(connectionSnapshot.edges).toEqual([
+      );
+    expect(connectionSnapshot.state.edges).toEqual([
       {
         __id: 'client:root:viewer:newsFeed:__connection_page(first:10):edges:0',
         cursor: 'cursor-1',
@@ -961,7 +961,7 @@ describe('execute() fetches a @stream-ed @connection', () => {
         },
       },
     ]);
-    expect(connectionSnapshot.pageInfo).toEqual({
+    expect(connectionSnapshot.state.pageInfo).toEqual({
       endCursor: 'cursor-1',
       hasNextPage: true,
       hasPrevPage: null,

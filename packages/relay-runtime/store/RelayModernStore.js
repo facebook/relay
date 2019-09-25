@@ -63,7 +63,7 @@ type ConnectionEvents = {|
   optimistic: ?Array<ConnectionInternalEvent>,
 |};
 type ConnectionSubscription<TEdge, TState> = {|
-  +callback: (state: TState) => void,
+  +callback: (snapshot: ConnectionSnapshot<TEdge, TState>) => void,
   +id: string,
   +resolver: ConnectionResolver<TEdge, TState>,
   snapshot: ConnectionSnapshot<TEdge, TState>,
@@ -191,7 +191,7 @@ class RelayModernStore implements Store {
     this._connectionSubscriptions.forEach((subscription, id) => {
       if (subscription.stale) {
         subscription.stale = false;
-        subscription.callback(subscription.snapshot.state);
+        subscription.callback(subscription.snapshot);
       }
     });
     this._updatedConnectionIDs = {};
@@ -330,7 +330,7 @@ class RelayModernStore implements Store {
   subscribeConnection_UNSTABLE<TEdge, TState>(
     snapshot: ConnectionSnapshot<TEdge, TState>,
     resolver: ConnectionResolver<TEdge, TState>,
-    callback: TState => void,
+    callback: (ConnectionSnapshot<TEdge, TState>) => void,
   ): Disposable {
     invariant(
       RelayFeatureFlags.ENABLE_CONNECTION_RESOLVERS,

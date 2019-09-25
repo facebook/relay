@@ -16,7 +16,7 @@ import type {DataID} from '../util/RelayRuntimeTypes';
 import type {ConnectionEvent} from './RelayConnection';
 
 export type ConnectionState<
-  TEdge: {__id: DataID, cursor: ?string, node: ?{__id: DataID}},
+  TEdge: {+__id: DataID, +cursor: ?string, +node: ?{+__id: DataID}},
 > = $ReadOnly<{|
   edges: $ReadOnlyArray<TEdge>,
   pageInfo: {
@@ -29,7 +29,7 @@ export type ConnectionState<
 
 const ConnectionResolver = {
   initialize<
-    TEdge: {__id: DataID, cursor: ?string, node: ?{__id: DataID}},
+    TEdge: {+__id: DataID, +cursor: ?string, +node: ?{+__id: DataID}},
   >(): ConnectionState<TEdge> {
     return {
       edges: [],
@@ -41,7 +41,7 @@ const ConnectionResolver = {
       },
     };
   },
-  reduce<TEdge: {__id: DataID, cursor: ?string, node: ?{__id: DataID}}>(
+  reduce<TEdge: {+__id: DataID, +cursor: ?string, +node: ?{+__id: DataID}}>(
     state: ConnectionState<TEdge>,
     event: ConnectionEvent<TEdge>,
   ): ConnectionState<TEdge> {

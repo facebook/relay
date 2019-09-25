@@ -275,7 +275,7 @@ export interface Store {
   subscribeConnection_UNSTABLE<TEdge, TState>(
     snapshot: ConnectionSnapshot<TEdge, TState>,
     resolver: ConnectionResolver<TEdge, TState>,
-    callback: (state: TState) => void,
+    callback: (snapshot: ConnectionSnapshot<TEdge, TState>) => void,
   ): Disposable;
 
   /**

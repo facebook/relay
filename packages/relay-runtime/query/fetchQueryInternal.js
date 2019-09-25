@@ -28,6 +28,7 @@ import type {RequestIdentifier} from '../util/getRequestIdentifier';
 type RequestCacheEntry = {|
   +identifier: RequestIdentifier,
   +subject: RelayReplaySubject<GraphQLResponse>,
+  +subjectForInFlightStatus: RelayReplaySubject<GraphQLResponse>,
   +subscription: Subscription,
 |};
 
@@ -136,18 +137,25 @@ function fetchQueryDeduped(
             cachedRequest = {
               identifier,
               subject: new RelayReplaySubject(),
+              subjectForInFlightStatus: new RelayReplaySubject(),
               subscription: subscription,
             };
             requestCache.set(identifier, cachedRequest);
           },
           next: response => {
-            getCachedRequest(requestCache, identifier).subject.next(response);
+            const cachedReq = getCachedRequest(requestCache, identifier);
+            cachedReq.subject.next(response);
+            cachedReq.subjectForInFlightStatus.next(response);
           },
           error: error => {
-            getCachedRequest(requestCache, identifier).subject.error(error);
+            const cachedReq = getCachedRequest(requestCache, identifier);
+            cachedReq.subject.error(error);
+            cachedReq.subjectForInFlightStatus.error(error);
           },
           complete: () => {
-            getCachedRequest(requestCache, identifier).subject.complete();
+            const cachedReq = getCachedRequest(requestCache, identifier);
+            cachedReq.subject.complete();
+            cachedReq.subjectForInFlightStatus.complete();
           },
         });
     }
@@ -191,6 +199,22 @@ function getObservableForCachedRequest(
 }
 
 /**
+ * @private
+ */
+function getInFlightStatusObservableForCachedRequest(
+  requestCache: Map<RequestIdentifier, RequestCacheEntry>,
+  cachedRequest: RequestCacheEntry,
+): Observable<GraphQLResponse> {
+  return Observable.create(sink => {
+    const subscription = cachedRequest.subjectForInFlightStatus.subscribe(sink);
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  });
+}
+
+/**
  * If a request is in flight for the given query, variables and environment,
  * this function will return a Promise that will resolve when that request has
  * completed and the data has been saved to the store.
@@ -208,7 +232,10 @@ function getPromiseForRequestInFlight(
 
   return new Promise((resolve, reject) => {
     let resolveOnNext = false;
-    getObservableForCachedRequest(requestCache, cachedRequest).subscribe({
+    getInFlightStatusObservableForCachedRequest(
+      requestCache,
+      cachedRequest,
+    ).subscribe({
       complete: resolve,
       error: reject,
       next: response => {
@@ -243,7 +270,10 @@ function getObservableForRequestInFlight(
     return null;
   }
 
-  return getObservableForCachedRequest(requestCache, cachedRequest);
+  return getInFlightStatusObservableForCachedRequest(
+    requestCache,
+    cachedRequest,
+  );
 }
 
 function hasRequestInFlight(

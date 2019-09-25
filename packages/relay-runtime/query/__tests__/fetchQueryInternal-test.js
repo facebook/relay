@@ -369,13 +369,15 @@ describe('fetchQueryInternal', () => {
 
     describe('when request is in flight', () => {
       let observer;
+      let subscription;
       beforeEach(() => {
         observer = {
           complete: jest.fn(),
           error: jest.fn(),
           next: jest.fn(),
+          unsubscribe: jest.fn(),
         };
-        fetchQuery(environment, query).subscribe(observer);
+        subscription = fetchQuery(environment, query).subscribe(observer);
       });
       it('returns a promise that rejects when error occurs', () => {
         expect.assertions(5);
@@ -403,6 +405,33 @@ describe('fetchQueryInternal', () => {
           expect(observer.complete).toHaveBeenCalledTimes(0);
           expect(error.message).toEqual('Oops');
         });
+      });
+
+      it('calling getPromiseFromRequestInFlight does not prevent the request from being unsubscribed (canceled)', () => {
+        const promise = getPromiseForRequestInFlight(
+          environment,
+          query.request,
+        );
+        expect(promise).not.toEqual(null);
+        if (!promise) {
+          return;
+        }
+
+        // Assert that promise hasn't resolved
+        const spy = jest.fn();
+        promise.then(spy).catch(spy);
+        jest.runAllTimers();
+        expect(spy).toHaveBeenCalledTimes(0);
+
+        // Cancel the request
+        subscription.unsubscribe();
+
+        // Assert that unsubscribe is called and that the
+        // request is actually cancelled at the network level
+        expect(observer.unsubscribe).toBeCalledTimes(1);
+        expect(
+          environment.mock.isLoading(query, query.request.variables),
+        ).toEqual(false);
       });
 
       describe("when `next` hasn't been called", () => {

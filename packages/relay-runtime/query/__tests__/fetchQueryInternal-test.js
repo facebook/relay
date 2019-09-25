@@ -407,7 +407,35 @@ describe('fetchQueryInternal', () => {
         });
       });
 
+      it('returns a promise that resolves when the request is unsubcribed (canceled)', () => {
+        expect.assertions(4);
+        const promise = getPromiseForRequestInFlight(
+          environment,
+          query.request,
+        );
+        expect(promise).not.toEqual(null);
+        if (!promise) {
+          return;
+        }
+
+        // Assert that promise hasn't resolved
+        const spy = jest.fn();
+        promise.then(spy).catch(spy);
+        jest.runAllTimers();
+        expect(spy).toHaveBeenCalledTimes(0);
+
+        // Cancel the request
+        subscription.unsubscribe();
+
+        // Assert promise resolves after the request is cancelled
+        return promise.then(() => {
+          expect(observer.next).toHaveBeenCalledTimes(0);
+          expect(observer.unsubscribe).toHaveBeenCalledTimes(1);
+        });
+      });
+
       it('calling getPromiseFromRequestInFlight does not prevent the request from being unsubscribed (canceled)', () => {
+        expect.assertions(6);
         const promise = getPromiseForRequestInFlight(
           environment,
           query.request,
@@ -432,6 +460,12 @@ describe('fetchQueryInternal', () => {
         expect(
           environment.mock.isLoading(query, query.request.variables),
         ).toEqual(false);
+
+        // Assert promise resolves after the request is cancelled
+        return promise.then(() => {
+          expect(observer.next).toHaveBeenCalledTimes(0);
+          expect(observer.unsubscribe).toHaveBeenCalledTimes(1);
+        });
       });
 
       describe("when `next` hasn't been called", () => {

@@ -157,6 +157,11 @@ function fetchQueryDeduped(
             cachedReq.subject.complete();
             cachedReq.subjectForInFlightStatus.complete();
           },
+          unsubscribe: subscription => {
+            const cachedReq = getCachedRequest(requestCache, identifier);
+            cachedReq.subject.unsubscribe();
+            cachedReq.subjectForInFlightStatus.unsubscribe();
+          },
         });
     }
 
@@ -206,7 +211,14 @@ function getInFlightStatusObservableForCachedRequest(
   cachedRequest: RequestCacheEntry,
 ): Observable<GraphQLResponse> {
   return Observable.create(sink => {
-    const subscription = cachedRequest.subjectForInFlightStatus.subscribe(sink);
+    const subscription = cachedRequest.subjectForInFlightStatus.subscribe({
+      error: sink.error,
+      next: sink.next,
+      complete: sink.complete,
+      unsubscribe() {
+        sink.complete();
+      },
+    });
 
     return () => {
       subscription.unsubscribe();

@@ -23,6 +23,8 @@ const {
   generateAndCompile,
 } = require('relay-test-utils-internal');
 
+import type {Subscription} from 'relay-runtime';
+
 describe('QueryResource', () => {
   let environment;
   let QueryResource;
@@ -2180,11 +2182,17 @@ describe('QueryResource', () => {
         // NOTE: This simulates 2 separate query renderers mounting
         // simultaneously
 
+        let subscription1: ?Subscription;
         const result1 = QueryResource.prepare(
           queryMissingData,
           fetchObservableMissingData,
           fetchPolicy,
           renderPolicy,
+          {
+            start: sub => {
+              subscription1 = sub;
+            },
+          },
         );
         // Assert query is temporarily retained
         expect(release).toBeCalledTimes(0);
@@ -2201,11 +2209,17 @@ describe('QueryResource', () => {
         );
         expect(cacheEntry && cacheEntry.getRetainCount()).toEqual(1);
 
+        let subscription2: ?Subscription;
         const result2 = QueryResource.prepare(
           queryMissingData,
           fetchObservableMissingData,
           fetchPolicy,
           renderPolicy,
+          {
+            start: sub => {
+              subscription2 = sub;
+            },
+          },
         );
         // Assert query is still temporarily retained
         expect(release).toHaveBeenCalledTimes(0);
@@ -2236,6 +2250,9 @@ describe('QueryResource', () => {
         expect(cacheEntry && cacheEntry.getRetainCount()).toEqual(2);
 
         // Assert that disposing the first disposable doesn't release the query
+        // The component will cancel the request:
+        subscription1 && subscription1.unsubscribe();
+        // And then call dispose:
         disposable1.dispose();
         expect(release).toBeCalledTimes(0);
         expect(environment.retain).toBeCalledTimes(1);
@@ -2248,6 +2265,9 @@ describe('QueryResource', () => {
         ).toBeDefined();
 
         // Assert that disposing the last disposable fully releases the query
+        // The component will cancel the request:
+        subscription2 && subscription2.unsubscribe();
+        // And then call dispose:
         disposable2.dispose();
         expect(release).toBeCalledTimes(1);
         expect(environment.retain).toBeCalledTimes(1);
@@ -2264,11 +2284,17 @@ describe('QueryResource', () => {
         // NOTE: This simulates 2 separate query renderers mounting
         // simultaneously
 
+        let subscription1: ?Subscription;
         const result1 = QueryResource.prepare(
           queryMissingData,
           fetchObservableMissingData,
           fetchPolicy,
           renderPolicy,
+          {
+            start: sub => {
+              subscription1 = sub;
+            },
+          },
         );
         // Assert query is temporarily retained
         expect(release).toBeCalledTimes(0);
@@ -2285,11 +2311,17 @@ describe('QueryResource', () => {
         );
         expect(cacheEntry && cacheEntry.getRetainCount()).toEqual(1);
 
+        let subscription2: ?Subscription;
         const result2 = QueryResource.prepare(
           queryMissingData,
           fetchObservableMissingData,
           fetchPolicy,
           renderPolicy,
+          {
+            start: sub => {
+              subscription2 = sub;
+            },
+          },
         );
         // Assert query is still temporarily retained
         expect(release).toHaveBeenCalledTimes(0);
@@ -2328,6 +2360,9 @@ describe('QueryResource', () => {
         expect(cacheEntry && cacheEntry.getRetainCount()).toEqual(2);
 
         // Assert that disposing the first disposable doesn't release the query
+        // The component will cancel the request:
+        subscription1 && subscription1.unsubscribe();
+        // And then call dispose:
         disposable1.dispose();
         expect(release).toBeCalledTimes(0);
         expect(environment.retain).toBeCalledTimes(1);
@@ -2340,6 +2375,9 @@ describe('QueryResource', () => {
         ).toBeDefined();
 
         // Assert that disposing the last disposable fully releases the query
+        // The component will cancel the request:
+        subscription2 && subscription2.unsubscribe();
+        // And then call dispose:
         disposable2.dispose();
         expect(release).toBeCalledTimes(1);
         expect(environment.retain).toBeCalledTimes(1);

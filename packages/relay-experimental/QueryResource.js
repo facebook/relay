@@ -55,7 +55,7 @@ type QueryResourceCacheEntry = {|
   getRetainCount(): number,
   getValue(): Error | Promise<void> | QueryResult,
   setValue(Error | Promise<void> | QueryResult): void,
-  temporaryRetain(environment: IEnvironment): void,
+  temporaryRetain(environment: IEnvironment): Disposable,
   permanentRetain(environment: IEnvironment): Disposable,
 |};
 opaque type QueryResult: {
@@ -140,15 +140,15 @@ function createQueryResourceCacheEntry(
     getRetainCount() {
       return retainCount;
     },
-    temporaryRetain(environment: IEnvironment) {
+    temporaryRetain(environment: IEnvironment): Disposable {
       // NOTE: If we're executing in a server environment, there's no need
       // to create temporary retains, since the component will never commit.
       if (!ExecutionEnvironment.canUseDOM) {
-        return;
+        return {dispose: () => {}};
       }
 
       if (permanentlyRetained === true) {
-        return;
+        return {dispose: () => {}};
       }
 
       // NOTE: temporaryRetain is called during the render phase. However,
@@ -175,14 +175,23 @@ function createQueryResourceCacheEntry(
       // we only ever need a single temporary retain until the permanent retain is
       // established.
       // temporaryRetain may be called multiple times by React during the render
-      // phase, as well multiple times by sibling query components that are
+      // phase, as well multiple times by other query components that are
       // rendering the same query/variables.
       if (releaseTemporaryRetain != null) {
         releaseTemporaryRetain();
       }
       releaseTemporaryRetain = localReleaseTemporaryRetain;
+
+      return {
+        dispose: () => {
+          if (permanentlyRetained === true) {
+            return;
+          }
+          localReleaseTemporaryRetain();
+        },
+      };
     },
-    permanentRetain(environment: IEnvironment) {
+    permanentRetain(environment: IEnvironment): Disposable {
       const disposable = retain(environment);
       if (releaseTemporaryRetain != null) {
         releaseTemporaryRetain();
@@ -235,6 +244,7 @@ class QueryResourceImpl {
     // 1. Check if there's a cached value for this operation, and reuse it if
     // it's available
     let cacheEntry = this._cache.get(cacheKey);
+    let temporaryRetainDisposable: ?Disposable = null;
     if (cacheEntry == null) {
       // 2. If a cached value isn't available, try fetching the operation.
       // fetchAndSaveQuery will update the cache with either a Promise or
@@ -245,16 +255,30 @@ class QueryResourceImpl {
         fetchObservable,
         fetchPolicy,
         renderPolicy,
-        observer,
+        {
+          ...observer,
+          unsubscribe(subscription) {
+            // 4. If the request is cancelled, make sure to dispose
+            // of the temporary retain; this will ensure that a promise
+            // doesn't remain unnecessarilly cached until the temporary retain
+            // expires. Not clearing the temporary retain might cause the
+            // query to incorrectly re-suspend.
+            if (temporaryRetainDisposable != null) {
+              temporaryRetainDisposable.dispose();
+            }
+            const observerUnsubscribe = observer?.unsubscribe;
+            observerUnsubscribe && observerUnsubscribe(subscription);
+          },
+        },
       );
     }
 
-    // Retain here in render phase. When the Component reading the operation
-    // is committed, we will transfer ownership of data retention to the
-    // component.
-    // In case the component never mounts or updates from this render,
+    // 3. Temporarily retain here in render phase. When the Component reading
+    // the operation is committed, we will transfer ownership of data retention
+    // to the component.
+    // In case the component never commits (mounts or updates) from this render,
     // this data retention hold will auto-release itself afer a timeout.
-    cacheEntry.temporaryRetain(environment);
+    temporaryRetainDisposable = cacheEntry.temporaryRetain(environment);
 
     const cachedValue = cacheEntry.getValue();
     if (isPromise(cachedValue) || cachedValue instanceof Error) {
@@ -423,11 +447,7 @@ class QueryResourceImpl {
           const observerComplete = observer?.complete;
           observerComplete && observerComplete();
         },
-        unsubscribe: subscription => {
-          this._cache.delete(cacheKey);
-          const observerUnsubscribe = observer?.unsubscribe;
-          observerUnsubscribe && observerUnsubscribe(subscription);
-        },
+        unsubscribe: observer?.unsubscribe,
       });
 
       let cacheEntry = this._cache.get(cacheKey);

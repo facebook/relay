@@ -31,16 +31,19 @@ function expectToBeRendered(renderFn, readyState) {
   renderFn.mockClear();
 }
 
-function expectToBeFetched(environment, node, variables) {
+function expectToHaveFetched(environment, query) {
   expect(environment.execute).toBeCalledTimes(1);
   expect(environment.execute.mock.calls[0][0].operation).toMatchObject({
     fragment: expect.anything(),
     root: expect.anything(),
     request: {
-      node,
-      variables,
+      node: query.request.node,
+      variables: query.request.variables,
     },
   });
+  expect(
+    environment.mock.isLoading(query.request.node, query.request.variables),
+  ).toEqual(true);
 }
 
 type Props = {
@@ -52,8 +55,11 @@ describe('useQueryNode', () => {
   let gqlQuery;
   let renderFn;
   let render;
+  let release;
   let createMockEnvironment;
   let generateAndCompile;
+  let query;
+  let variables;
   let Container;
   let setProps;
 
@@ -85,9 +91,9 @@ describe('useQueryNode', () => {
     }
 
     const Renderer = props => {
-      const query = createOperationDescriptor(gqlQuery, props.variables);
+      const _query = createOperationDescriptor(gqlQuery, props.variables);
       const data = useQueryNode<_>({
-        query,
+        query: _query,
         fetchPolicy: props.fetchPolicy || defaultFetchPolicy,
         componentDisplayName: 'TestDisplayName',
       });
@@ -100,9 +106,9 @@ describe('useQueryNode', () => {
       return <Renderer {...nextProps} />;
     };
 
-    render = (environment, children) => {
+    render = (env, children) => {
       return ReactTestRenderer.create(
-        <RelayEnvironmentProvider environment={environment}>
+        <RelayEnvironmentProvider environment={env}>
           <ErrorBoundary
             fallback={({error}) =>
               `Error: ${error.message + ': ' + error.stack}`
@@ -114,6 +120,18 @@ describe('useQueryNode', () => {
     };
 
     environment = createMockEnvironment();
+    release = jest.fn();
+    const originalRetain = environment.retain.bind(environment);
+    // $FlowFixMe
+    environment.retain = jest.fn((...args) => {
+      const originalDisposable = originalRetain(...args);
+      return {
+        dispose: () => {
+          release(args[0].variables);
+          originalDisposable.dispose();
+        },
+      };
+    });
 
     const generated = generateAndCompile(`
       fragment UserFragment on User {
@@ -129,6 +147,8 @@ describe('useQueryNode', () => {
       }
     `);
     gqlQuery = generated.UserQuery;
+    variables = {id: '1'};
+    query = createOperationDescriptor(gqlQuery, variables);
     renderFn = jest.fn(result => result?.node?.name ?? 'Empty');
   });
 
@@ -138,12 +158,10 @@ describe('useQueryNode', () => {
   });
 
   it('fetches and renders the query data', () => {
-    const variables = {id: '1'};
     const instance = render(environment, <Container variables={variables} />);
-    const operation = createOperationDescriptor(gqlQuery, variables);
 
     expect(instance.toJSON()).toEqual('Fallback');
-    expectToBeFetched(environment, gqlQuery, variables);
+    expectToHaveFetched(environment, query);
     expect(renderFn).not.toBeCalled();
     expect(environment.retain).toHaveBeenCalledTimes(1);
 
@@ -157,14 +175,11 @@ describe('useQueryNode', () => {
       },
     });
 
-    const data = environment.lookup(operation.fragment).data;
+    const data = environment.lookup(query.fragment).data;
     expectToBeRendered(renderFn, data);
   });
 
-  it('fetches and renders correctly if previously useEffect does not run', () => {
-    const variables = {id: '1'};
-    const operation = createOperationDescriptor(gqlQuery, variables);
-
+  it('fetches and renders correctly if component unmounts before it can commit', () => {
     const payload = {
       data: {
         node: {
@@ -178,7 +193,7 @@ describe('useQueryNode', () => {
     let instance = render(environment, <Container variables={variables} />);
 
     expect(instance.toJSON()).toEqual('Fallback');
-    expectToBeFetched(environment, gqlQuery, variables);
+    expectToHaveFetched(environment, query);
     expect(renderFn).not.toBeCalled();
     expect(environment.retain).toHaveBeenCalledTimes(1);
 
@@ -210,7 +225,7 @@ describe('useQueryNode', () => {
     instance = render(environment, <Container variables={variables} />);
 
     expect(instance.toJSON()).toEqual('Fallback');
-    expectToBeFetched(environment, gqlQuery, variables);
+    expectToHaveFetched(environment, query);
     expect(renderFn).not.toBeCalled();
     expect(environment.retain).toHaveBeenCalledTimes(1);
 
@@ -218,16 +233,16 @@ describe('useQueryNode', () => {
       environment.mock.resolve(gqlQuery, payload);
     });
 
-    const data = environment.lookup(operation.fragment).data;
+    const data = environment.lookup(query.fragment).data;
     expectToBeRendered(renderFn, data);
   });
 
   it('fetches and renders correctly if the same query was unsubscribed before', () => {
     // Render the component
-    const initialDescriptor = createOperationDescriptor(gqlQuery, {
+    const initialQuery = createOperationDescriptor(gqlQuery, {
       id: 'first-render',
     });
-    environment.commitPayload(initialDescriptor, {
+    environment.commitPayload(initialQuery, {
       node: {
         __typename: 'User',
         id: 'first-render',
@@ -243,13 +258,12 @@ describe('useQueryNode', () => {
     renderFn.mockClear();
 
     // Suspend on the first query
-    const variables = {id: '1'};
     ReactTestRenderer.act(() => {
       setProps({variables});
     });
 
     expect(instance.toJSON()).toEqual('Fallback');
-    expectToBeFetched(environment, gqlQuery, variables);
+    expectToHaveFetched(environment, query);
     expect(renderFn).not.toBeCalled();
     renderFn.mockClear();
     environment.retain.mockClear();
@@ -257,12 +271,13 @@ describe('useQueryNode', () => {
 
     // Switch to the second query to cancel the first query
     const nextVariables = {id: '2'};
+    const nextQuery = createOperationDescriptor(gqlQuery, nextVariables);
     ReactTestRenderer.act(() => {
       setProps({variables: nextVariables});
     });
 
     expect(instance.toJSON()).toEqual('Fallback');
-    expectToBeFetched(environment, gqlQuery, nextVariables);
+    expectToHaveFetched(environment, nextQuery);
     expect(renderFn).not.toBeCalled();
     expect(environment.retain).toHaveBeenCalledTimes(1);
     renderFn.mockClear();
@@ -275,11 +290,10 @@ describe('useQueryNode', () => {
     });
 
     expect(instance.toJSON()).toEqual('Fallback');
-    expectToBeFetched(environment, gqlQuery, variables);
+    expectToHaveFetched(environment, query);
     expect(renderFn).not.toBeCalled();
     expect(environment.retain).toHaveBeenCalledTimes(1);
 
-    const operation = createOperationDescriptor(gqlQuery, variables);
     const payload = {
       data: {
         node: {
@@ -293,8 +307,90 @@ describe('useQueryNode', () => {
       environment.mock.resolve(gqlQuery, payload);
       jest.runAllImmediates();
     });
-    const data = environment.lookup(operation.fragment).data;
+    const data = environment.lookup(query.fragment).data;
     expect(renderFn.mock.calls[0][0]).toEqual(data);
     expect(instance.toJSON()).toEqual('Alice');
+  });
+
+  it('disposes ongoing network request when component unmounts while suspended', () => {
+    const initialVariables = {id: 'first-render'};
+    const initialQuery = createOperationDescriptor(gqlQuery, initialVariables);
+    environment.commitPayload(initialQuery, {
+      node: {
+        __typename: 'User',
+        id: 'first-render',
+        name: 'Bob',
+      },
+    });
+
+    const instance = render(
+      environment,
+      <Container variables={{id: 'first-render'}} fetchPolicy="store-only" />,
+    );
+
+    expect(instance.toJSON()).toEqual('Bob');
+    renderFn.mockClear();
+    environment.retain.mockClear();
+    environment.execute.mockClear();
+
+    // Suspend on the first query
+    ReactTestRenderer.act(() => {
+      setProps({variables, fetchPolicy: 'store-or-network'});
+    });
+
+    expect(instance.toJSON()).toEqual('Fallback');
+    expectToHaveFetched(environment, query);
+    expect(renderFn).not.toBeCalled();
+    expect(environment.retain).toHaveBeenCalledTimes(1);
+    renderFn.mockClear();
+    environment.retain.mockClear();
+    environment.execute.mockClear();
+    release.mockClear();
+
+    ReactTestRenderer.act(() => {
+      instance.unmount();
+    });
+
+    // Assert data is released
+    expect(release).toBeCalledTimes(2);
+    // Assert request in flight is cancelled
+    expect(environment.mock.isLoading(query.request.node, variables)).toEqual(
+      false,
+    );
+  });
+
+  it('disposes ongoing network request when component unmounts after committing', () => {
+    const instance = render(environment, <Container variables={variables} />);
+
+    expect(instance.toJSON()).toEqual('Fallback');
+    expectToHaveFetched(environment, query);
+    expect(renderFn).not.toBeCalled();
+    expect(environment.retain).toHaveBeenCalledTimes(1);
+
+    // Resolve a payload but don't complete the network request
+    environment.mock.nextValue(gqlQuery, {
+      data: {
+        node: {
+          __typename: 'User',
+          id: variables.id,
+          name: 'Alice',
+        },
+      },
+    });
+
+    // Assert that the component unsuspended and mounted
+    const data = environment.lookup(query.fragment).data;
+    expectToBeRendered(renderFn, data);
+
+    ReactTestRenderer.act(() => {
+      instance.unmount();
+    });
+
+    // Assert data is released
+    expect(release).toBeCalledTimes(1);
+    // Assert request in flight is cancelled
+    expect(environment.mock.isLoading(query.request.node, variables)).toEqual(
+      false,
+    );
   });
 });

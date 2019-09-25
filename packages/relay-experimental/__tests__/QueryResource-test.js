@@ -1990,6 +1990,43 @@ describe('QueryResource', () => {
       expect(environment.retain).toBeCalledTimes(2);
     });
 
+    it('cancels the query after releasing a query that was retaned if request is still in flight', () => {
+      const result = QueryResource.prepare(
+        queryMissingData,
+        fetchObservableMissingData,
+        fetchPolicy,
+        renderPolicy,
+      );
+      // Assert query is temporarily retained
+      expect(release).toBeCalledTimes(0);
+      expect(environment.retain).toBeCalledTimes(1);
+      expect(environment.retain.mock.calls[0][0]).toEqual(
+        queryMissingData.root,
+      );
+
+      // Assert rerquest was started
+      expect(environment.execute).toBeCalledTimes(1);
+      expect(
+        environment.mock.isLoading(
+          queryMissingData.request.node,
+          queryMissingData.request.variables,
+          {force: true},
+        ),
+      ).toEqual(true);
+
+      const disposable = QueryResource.retain(result);
+      disposable.dispose();
+
+      // Assert request was canceled
+      expect(
+        environment.mock.isLoading(
+          queryMissingData.request.node,
+          queryMissingData.request.variables,
+          {force: true},
+        ),
+      ).toEqual(false);
+    });
+
     describe('when retaining the same query multiple times', () => {
       it('correctly retains query after temporarily retaining multiple times during render phase', () => {
         QueryResource.prepare(
@@ -2025,7 +2062,7 @@ describe('QueryResource', () => {
         expect(environment.retain.mock.calls[0][0]).toEqual(
           queryMissingData.root,
         );
-        // Assert retain count is still 1
+        // Assert that retain count is still 1
         expect(cacheEntry && cacheEntry.getRetainCount()).toEqual(1);
 
         // Assert network is only called once
@@ -2178,11 +2215,14 @@ describe('QueryResource', () => {
         expect(environment.retain).toBeCalledTimes(1);
       });
 
-      it("should not release the query before all callers have released it and auto-release timers haven't expired", () => {
-        // NOTE: This simulates 2 separate query renderers mounting
+      it("when same query commits twice, should not release the query before all callers have released it and auto-release timers haven't expired", () => {
+        // NOTE: This simulates 2 separate query components mounting
         // simultaneously
 
-        let subscription1: ?Subscription;
+        let subscription1: Subscription = {
+          unsubscribe: () => {},
+          closed: false,
+        };
         const result1 = QueryResource.prepare(
           queryMissingData,
           fetchObservableMissingData,
@@ -2191,6 +2231,7 @@ describe('QueryResource', () => {
           {
             start: sub => {
               subscription1 = sub;
+              jest.spyOn(subscription1, 'unsubscribe');
             },
           },
         );
@@ -2209,17 +2250,11 @@ describe('QueryResource', () => {
         );
         expect(cacheEntry && cacheEntry.getRetainCount()).toEqual(1);
 
-        let subscription2: ?Subscription;
         const result2 = QueryResource.prepare(
           queryMissingData,
           fetchObservableMissingData,
           fetchPolicy,
           renderPolicy,
-          {
-            start: sub => {
-              subscription2 = sub;
-            },
-          },
         );
         // Assert query is still temporarily retained
         expect(release).toHaveBeenCalledTimes(0);
@@ -2250,9 +2285,6 @@ describe('QueryResource', () => {
         expect(cacheEntry && cacheEntry.getRetainCount()).toEqual(2);
 
         // Assert that disposing the first disposable doesn't release the query
-        // The component will cancel the request:
-        subscription1 && subscription1.unsubscribe();
-        // And then call dispose:
         disposable1.dispose();
         expect(release).toBeCalledTimes(0);
         expect(environment.retain).toBeCalledTimes(1);
@@ -2263,11 +2295,17 @@ describe('QueryResource', () => {
             renderPolicy,
           ),
         ).toBeDefined();
+        // Assert request is still in flight
+        expect(subscription1.unsubscribe).toBeCalledTimes(0);
+        expect(
+          environment.mock.isLoading(
+            queryMissingData.request.node,
+            queryMissingData.request.variables,
+            {force: true},
+          ),
+        ).toEqual(true);
 
         // Assert that disposing the last disposable fully releases the query
-        // The component will cancel the request:
-        subscription2 && subscription2.unsubscribe();
-        // And then call dispose:
         disposable2.dispose();
         expect(release).toBeCalledTimes(1);
         expect(environment.retain).toBeCalledTimes(1);
@@ -2278,13 +2316,25 @@ describe('QueryResource', () => {
             renderPolicy,
           ),
         ).toBeUndefined();
+        // Assert request is canceled
+        expect(
+          environment.mock.isLoading(
+            queryMissingData.request.node,
+            queryMissingData.request.variables,
+            {force: true},
+          ),
+        ).toEqual(false);
+        expect(subscription1.unsubscribe).toBeCalledTimes(1);
       });
 
-      it('should not release the query before all callers have released it and auto-release timers have expired', () => {
-        // NOTE: This simulates 2 separate query renderers mounting
+      it('when same query commits twice, should not release the query before all callers have released it and auto-release timers have expired', () => {
+        // NOTE: This simulates 2 separate query components mounting
         // simultaneously
 
-        let subscription1: ?Subscription;
+        let subscription1: Subscription = {
+          unsubscribe: () => {},
+          closed: false,
+        };
         const result1 = QueryResource.prepare(
           queryMissingData,
           fetchObservableMissingData,
@@ -2293,6 +2343,7 @@ describe('QueryResource', () => {
           {
             start: sub => {
               subscription1 = sub;
+              jest.spyOn(subscription1, 'unsubscribe');
             },
           },
         );
@@ -2311,17 +2362,11 @@ describe('QueryResource', () => {
         );
         expect(cacheEntry && cacheEntry.getRetainCount()).toEqual(1);
 
-        let subscription2: ?Subscription;
         const result2 = QueryResource.prepare(
           queryMissingData,
           fetchObservableMissingData,
           fetchPolicy,
           renderPolicy,
-          {
-            start: sub => {
-              subscription2 = sub;
-            },
-          },
         );
         // Assert query is still temporarily retained
         expect(release).toHaveBeenCalledTimes(0);
@@ -2356,13 +2401,10 @@ describe('QueryResource', () => {
         jest.runAllTimers();
         expect(release).toBeCalledTimes(0);
         expect(environment.retain).toBeCalledTimes(1);
-        // Assert that retain count is still 2
+        // Assert that retain count is now 2
         expect(cacheEntry && cacheEntry.getRetainCount()).toEqual(2);
 
         // Assert that disposing the first disposable doesn't release the query
-        // The component will cancel the request:
-        subscription1 && subscription1.unsubscribe();
-        // And then call dispose:
         disposable1.dispose();
         expect(release).toBeCalledTimes(0);
         expect(environment.retain).toBeCalledTimes(1);
@@ -2373,11 +2415,17 @@ describe('QueryResource', () => {
             renderPolicy,
           ),
         ).toBeDefined();
+        // Assert request is still in flight
+        expect(subscription1.unsubscribe).toBeCalledTimes(0);
+        expect(
+          environment.mock.isLoading(
+            queryMissingData.request.node,
+            queryMissingData.request.variables,
+            {force: true},
+          ),
+        ).toEqual(true);
 
         // Assert that disposing the last disposable fully releases the query
-        // The component will cancel the request:
-        subscription2 && subscription2.unsubscribe();
-        // And then call dispose:
         disposable2.dispose();
         expect(release).toBeCalledTimes(1);
         expect(environment.retain).toBeCalledTimes(1);
@@ -2388,10 +2436,19 @@ describe('QueryResource', () => {
             renderPolicy,
           ),
         ).toBeUndefined();
+        // Assert request is canceled
+        expect(
+          environment.mock.isLoading(
+            queryMissingData.request.node,
+            queryMissingData.request.variables,
+            {force: true},
+          ),
+        ).toEqual(false);
+        expect(subscription1.unsubscribe).toBeCalledTimes(1);
       });
 
       it('correctly retains query when releasing and re-retaining', () => {
-        // NOTE: This simulates a query renderer unmounting and re-mounting
+        // NOTE: This simulates a query component unmounting and re-mounting
 
         const result1 = QueryResource.prepare(
           queryMissingData,

@@ -229,7 +229,6 @@ function useRefetchableFragmentNode<
   let refetchedQueryResult;
   let fragmentRef = parentFragmentRef;
   if (shouldReset) {
-    disposeFetch();
     dispatch({
       type: 'reset',
       environment,
@@ -320,9 +319,9 @@ function useRefetchableFragmentNode<
         queryDisposable.dispose();
       }
     };
-    // NOTE: We disable react-hooks-deps warning because:
-    //   - queryResult is captured by including refetchQuery, which is
-    //     already capturing if the query or variables changed.
+    // NOTE: We disable react-hooks-deps warning because
+    // refetchedQueryResult is captured by including refetchQuery, which is
+    // already capturing if the query or variables changed.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [QueryResource, fragmentIdentifier, refetchQuery]);
 

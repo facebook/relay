@@ -20,6 +20,7 @@ const {
   GraphQLList,
   GraphQLNonNull,
   GraphQLObjectType,
+  GraphQLUnionType,
 } = require('graphql');
 const {ConnectionInterface} = require('relay-runtime');
 
@@ -146,8 +147,8 @@ function visitLinkedField(
   }
 
   const {EDGES, PAGE_INFO} = ConnectionInterface.get();
-  let edgeField;
-  let pageInfoField;
+  let edgeField: ?LinkedField;
+  let pageInfoField: ?LinkedField;
   const selections = [];
   transformed.selections.forEach(selection => {
     if (
@@ -194,8 +195,9 @@ function visitLinkedField(
     edgesType == null ||
     nodeType == null ||
     !(
+      nodeType instanceof GraphQLInterfaceType ||
       nodeType instanceof GraphQLObjectType ||
-      nodeType instanceof GraphQLInterfaceType
+      nodeType instanceof GraphQLUnionType
     )
   ) {
     throw createUserError(

@@ -235,7 +235,7 @@ function isServerDefinedField(
     (serverType != null &&
       parentServerType != null &&
       (canHaveSelections(parentType) &&
-        assertTypeWithFields(parentType).getFields()[field.name]) != null) ||
+        assertTypeWithFields(parentType).getFields()[field.name] != null)) ||
     // Allow metadata fields and fields defined on classic "fat" interfaces
     field.name === SchemaMetaFieldDef.name ||
     field.name === TypeMetaFieldDef.name ||

@@ -97,4 +97,78 @@ describe('lookup()', () => {
     // $FlowFixMe
     expect(snapshot.data?.me?.__fragmentOwner).toBe(owner.request);
   });
+
+  it('reads __id fields', () => {
+    const {TestQuery} = generateAndCompile(`
+      query TestQuery($id: ID!) {
+        __id # ok on query type
+        me {
+          __id # ok on object type with 'id'
+          __typename
+          id
+        }
+        node(id: $id) {
+          __id # ok on interface type
+          __typename
+          id
+          ... on Comment {
+            commentBody(supported: ["PlainCommentBody"]) {
+              __id # ok on union type
+              __typename
+              ... on PlainCommentBody {
+                __id # ok on object type w/o 'id'
+                text {
+                  __id # ok on object type w/o 'id'
+                  __typename
+                  text
+                }
+              }
+            }
+          }
+        }
+      }
+    `);
+    operation = createOperationDescriptor(TestQuery, {id: 'comment:1'});
+    environment.commitPayload(operation, {
+      me: {
+        id: '4',
+        __typename: 'User',
+      },
+      node: {
+        id: 'comment:1',
+        __typename: 'Comment',
+        commentBody: {
+          __typename: 'PlainCommentBody',
+          text: {
+            __typename: 'Text',
+            text: 'A comment!',
+          },
+        },
+      },
+    });
+    const snapshot = environment.lookup(operation.fragment);
+    expect(snapshot.data).toEqual({
+      __id: 'client:root',
+      me: {
+        __id: '4',
+        __typename: 'User',
+        id: '4',
+      },
+      node: {
+        __id: 'comment:1',
+        __typename: 'Comment',
+        id: 'comment:1',
+        commentBody: {
+          __id: 'client:comment:1:commentBody(supported:["PlainCommentBody"])',
+          __typename: 'PlainCommentBody',
+          text: {
+            __id:
+              'client:comment:1:commentBody(supported:["PlainCommentBody"]):text',
+            __typename: 'Text',
+            text: 'A comment!',
+          },
+        },
+      },
+    });
+  });
 });

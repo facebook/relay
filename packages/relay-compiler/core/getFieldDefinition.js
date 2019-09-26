@@ -10,6 +10,8 @@
 
 'use strict';
 
+const RelayRecordIDFieldDefinition = require('./RelayRecordIDFieldDefinition');
+
 const {getRawType} = require('./GraphQLSchemaUtils');
 const {createCompilerError} = require('./RelayCompilerError');
 const {
@@ -61,6 +63,8 @@ function getFieldDefinitionStrict(
     schemaFieldDef = TypeMetaFieldDef;
   } else if (hasTypeName && fieldName === TypeNameMetaFieldDef.name) {
     schemaFieldDef = TypeNameMetaFieldDef;
+  } else if (hasTypeName && fieldName === RelayRecordIDFieldDefinition.name) {
+    schemaFieldDef = RelayRecordIDFieldDefinition;
   } else if (
     type instanceof GraphQLInterfaceType ||
     type instanceof GraphQLObjectType

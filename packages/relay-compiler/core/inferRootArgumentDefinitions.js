@@ -20,6 +20,7 @@ import type {
   Argument,
   ArgumentDefinition,
   Condition,
+  Connection,
   Defer,
   Fragment,
   FragmentSpread,
@@ -242,6 +243,27 @@ function visit(
           type,
         });
       }
+    },
+    Connection(connection: Connection) {
+      const stream = connection.stream;
+      if (stream == null) {
+        return;
+      }
+      [stream.if, stream.initialCount].forEach(variable => {
+        if (variable == null || variable.kind !== 'Variable') {
+          return;
+        }
+        const type = variable.type ?? new GraphQLNonNull(GraphQLBoolean);
+        if (!argumentDefinitions.has(variable.variableName)) {
+          // root variable
+          argumentDefinitions.set(variable.variableName, {
+            kind: 'RootArgumentDefinition',
+            loc: {kind: 'Derived', source: variable.loc},
+            name: variable.variableName,
+            type,
+          });
+        }
+      });
     },
     Defer(defer: Defer) {
       const variable = defer.if;

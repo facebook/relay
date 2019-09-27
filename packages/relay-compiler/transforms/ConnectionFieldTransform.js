@@ -15,6 +15,9 @@ const IRTransformer = require('../core/GraphQLIRTransformer');
 const {getNullableType, getRawType} = require('../core/GraphQLSchemaUtils');
 const {createUserError} = require('../core/RelayCompilerError');
 const {
+  buildConnectionMetadata,
+} = require('../handlers/connection/RelayConnectionTransform');
+const {
   GraphQLID,
   GraphQLInterfaceType,
   GraphQLList,
@@ -29,9 +32,12 @@ import type {
   Connection,
   ConnectionField,
   Directive,
+  Fragment,
   LinkedField,
+  Root,
   ScalarField,
 } from '../core/GraphQLIR';
+import type {ConnectionMetadata} from 'relay-runtime';
 
 const SCHEMA_EXTENSION = `
   directive @connection_resolver(label: String!) on FIELD
@@ -45,6 +51,10 @@ const SCHEMA_EXTENSION = `
 type State = {|
   +documentName: string,
   +labels: Map<string, Directive>,
+  // The current path
+  path: Array<?string>,
+  // Metadata recorded for @connection fields
+  connectionMetadata: Array<ConnectionMetadata>,
 |};
 
 /**
@@ -55,18 +65,44 @@ function connectionFieldTransform(context: CompilerContext): CompilerContext {
   return IRTransformer.transform(
     context,
     {
+      Fragment: visitFragmentOrRoot,
       LinkedField: (visitLinkedField: $FlowFixMe),
+      Root: visitFragmentOrRoot,
       ScalarField: visitScalarField,
     },
-    node => ({documentName: node.name, labels: new Map()}),
+    node => ({
+      documentName: node.name,
+      labels: new Map(),
+      path: [],
+      connectionMetadata: [],
+    }),
   );
+}
+
+function visitFragmentOrRoot<N: Fragment | Root>(node: N, state: State): N {
+  const transformedNode = this.traverse(node, state);
+  const connectionMetadata = state.connectionMetadata;
+  if (connectionMetadata.length) {
+    return {
+      ...transformedNode,
+      metadata: {
+        ...transformedNode.metadata,
+        connection: connectionMetadata,
+      },
+    };
+  }
+  return transformedNode;
 }
 
 function visitLinkedField(
   field: LinkedField,
   state: State,
 ): LinkedField | ConnectionField {
-  const transformed: LinkedField = this.traverse(field, state);
+  const path = state.path.concat(field.alias);
+  const transformed: LinkedField = this.traverse(field, {
+    ...state,
+    path,
+  });
   const connectionDirective = transformed.directives.find(
     directive =>
       directive.name === 'connection_resolver' ||
@@ -261,6 +297,12 @@ function visitLinkedField(
     }: Connection),
   );
 
+  const connectionMetadata = buildConnectionMetadata(
+    transformed,
+    path,
+    stream != null,
+  );
+  state.connectionMetadata.push(connectionMetadata);
   return {
     alias: transformed.alias,
     args: transformed.args,

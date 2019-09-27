@@ -243,6 +243,28 @@ function extractConnectionMetadata(
   let connectionField = null;
   let path = null;
   GraphQLIRVisitor.visit(fragment, {
+    ConnectionField: {
+      enter(field) {
+        fields.push(field);
+        // Disallow connections within plurals
+        const pluralOnPath = fields.find(
+          pathField => getNullableType(pathField.type) instanceof GraphQLList,
+        );
+        if (pluralOnPath) {
+          throw createUserError(
+            `Invalid use of @refetchable with @connection in fragment '${
+              fragment.name
+            }', refetchable connections cannot appear inside plural fields.`,
+            [field.loc, pluralOnPath.loc],
+          );
+        }
+        connectionField = field;
+        path = fields.map(pathField => pathField.alias);
+      },
+      leave() {
+        fields.pop();
+      },
+    },
     LinkedField: {
       enter(field) {
         fields.push(field);

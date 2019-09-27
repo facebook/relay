@@ -1,11 +1,13 @@
-query QueryWithConnectionField($id: ID!) {
+query QueryWithConnectionField($id: ID!, $count: Int!, $cursor: ID) {
   feedback: node(id: $id) {
     ...FeedbackComments_feedback
   }
 }
 
-fragment FeedbackComments_feedback on Feedback {
-  comments(first: 10) @connection_resolver(label: "FeedbackComments_feedback") {
+fragment FeedbackComments_feedback on Feedback
+  @refetchable(queryName: "FeedbackCommentsRefetchQuery") {
+  comments(after: $cursor, first: $count)
+    @connection_resolver(label: "FeedbackComments_feedback") {
     edges {
       node {
         id

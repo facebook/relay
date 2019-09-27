@@ -2064,14 +2064,16 @@ query NodeQuery(
 
 exports[`compileRelayArtifacts matches expected output: connection-resolver-field.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
-query QueryWithConnectionField($id: ID!) {
+query QueryWithConnectionField($id: ID!, $count: Int!, $cursor: ID) {
   feedback: node(id: $id) {
     ...FeedbackComments_feedback
   }
 }
 
-fragment FeedbackComments_feedback on Feedback {
-  comments(first: 10) @connection_resolver(label: "FeedbackComments_feedback") {
+fragment FeedbackComments_feedback on Feedback
+  @refetchable(queryName: "FeedbackCommentsRefetchQuery") {
+  comments(after: $cursor, first: $count)
+    @connection_resolver(label: "FeedbackComments_feedback") {
     edges {
       node {
         id
@@ -2096,6 +2098,18 @@ fragment FeedbackComments_feedback on Feedback {
         "kind": "LocalArgument",
         "name": "id",
         "type": "ID!",
+        "defaultValue": null
+      },
+      {
+        "kind": "LocalArgument",
+        "name": "count",
+        "type": "Int!",
+        "defaultValue": null
+      },
+      {
+        "kind": "LocalArgument",
+        "name": "cursor",
+        "type": "ID",
         "defaultValue": null
       }
     ],
@@ -2132,6 +2146,18 @@ fragment FeedbackComments_feedback on Feedback {
         "kind": "LocalArgument",
         "name": "id",
         "type": "ID!",
+        "defaultValue": null
+      },
+      {
+        "kind": "LocalArgument",
+        "name": "count",
+        "type": "Int!",
+        "defaultValue": null
+      },
+      {
+        "kind": "LocalArgument",
+        "name": "cursor",
+        "type": "ID",
         "defaultValue": null
       }
     ],
@@ -2184,9 +2210,14 @@ fragment FeedbackComments_feedback on Feedback {
                     "name": "comments",
                     "args": [
                       {
-                        "kind": "Literal",
+                        "kind": "Variable",
+                        "name": "after",
+                        "variableName": "cursor"
+                      },
+                      {
+                        "kind": "Variable",
                         "name": "first",
-                        "value": 10
+                        "variableName": "count"
                       }
                     ],
                     "edges": {
@@ -2276,6 +2307,8 @@ QUERY:
 
 query QueryWithConnectionField(
   $id: ID!
+  $count: Int!
+  $cursor: ID
 ) {
   feedback: node(id: $id) {
     __typename
@@ -2285,7 +2318,7 @@ query QueryWithConnectionField(
 }
 
 fragment FeedbackComments_feedback on Feedback {
-  comments(first: 10) {
+  comments(after: $cursor, first: $count) {
     edges {
       node {
         id
@@ -2295,6 +2328,253 @@ fragment FeedbackComments_feedback on Feedback {
       hasNextPage
     }
   }
+  id
+}
+
+
+{
+  "kind": "Request",
+  "fragment": {
+    "kind": "Fragment",
+    "name": "FeedbackCommentsRefetchQuery",
+    "type": "Query",
+    "metadata": null,
+    "argumentDefinitions": [
+      {
+        "kind": "LocalArgument",
+        "name": "cursor",
+        "type": "ID",
+        "defaultValue": null
+      },
+      {
+        "kind": "LocalArgument",
+        "name": "count",
+        "type": "Int",
+        "defaultValue": null
+      },
+      {
+        "kind": "LocalArgument",
+        "name": "id",
+        "type": "ID!",
+        "defaultValue": null
+      }
+    ],
+    "selections": [
+      {
+        "kind": "LinkedField",
+        "alias": null,
+        "name": "node",
+        "storageKey": null,
+        "args": [
+          {
+            "kind": "Variable",
+            "name": "id",
+            "variableName": "id"
+          }
+        ],
+        "concreteType": null,
+        "plural": false,
+        "selections": [
+          {
+            "kind": "FragmentSpread",
+            "name": "FeedbackComments_feedback",
+            "args": null
+          }
+        ]
+      }
+    ]
+  },
+  "operation": {
+    "kind": "Operation",
+    "name": "FeedbackCommentsRefetchQuery",
+    "argumentDefinitions": [
+      {
+        "kind": "LocalArgument",
+        "name": "cursor",
+        "type": "ID",
+        "defaultValue": null
+      },
+      {
+        "kind": "LocalArgument",
+        "name": "count",
+        "type": "Int",
+        "defaultValue": null
+      },
+      {
+        "kind": "LocalArgument",
+        "name": "id",
+        "type": "ID!",
+        "defaultValue": null
+      }
+    ],
+    "selections": [
+      {
+        "kind": "LinkedField",
+        "alias": null,
+        "name": "node",
+        "storageKey": null,
+        "args": [
+          {
+            "kind": "Variable",
+            "name": "id",
+            "variableName": "id"
+          }
+        ],
+        "concreteType": null,
+        "plural": false,
+        "selections": [
+          {
+            "kind": "ScalarField",
+            "alias": null,
+            "name": "__typename",
+            "args": null,
+            "storageKey": null
+          },
+          {
+            "kind": "ScalarField",
+            "alias": null,
+            "name": "id",
+            "args": null,
+            "storageKey": null
+          },
+          {
+            "kind": "InlineFragment",
+            "type": "Feedback",
+            "selections": [
+              {
+                "kind": "LinkedField",
+                "alias": null,
+                "name": "comments",
+                "storageKey": null,
+                "args": null,
+                "concreteType": "CommentsConnection",
+                "plural": false,
+                "selections": [
+                  {
+                    "kind": "Connection",
+                    "label": "FeedbackComments_feedback",
+                    "name": "comments",
+                    "args": [
+                      {
+                        "kind": "Variable",
+                        "name": "after",
+                        "variableName": "cursor"
+                      },
+                      {
+                        "kind": "Variable",
+                        "name": "first",
+                        "variableName": "count"
+                      }
+                    ],
+                    "edges": {
+                      "kind": "LinkedField",
+                      "alias": null,
+                      "name": "edges",
+                      "storageKey": null,
+                      "args": null,
+                      "concreteType": "CommentsEdge",
+                      "plural": true,
+                      "selections": [
+                        {
+                          "kind": "LinkedField",
+                          "alias": null,
+                          "name": "node",
+                          "storageKey": null,
+                          "args": null,
+                          "concreteType": "Comment",
+                          "plural": false,
+                          "selections": [
+                            {
+                              "kind": "ScalarField",
+                              "alias": null,
+                              "name": "id",
+                              "args": null,
+                              "storageKey": null
+                            },
+                            {
+                              "kind": "ClientExtension",
+                              "selections": [
+                                {
+                                  "kind": "ScalarField",
+                                  "alias": null,
+                                  "name": "__id",
+                                  "args": null,
+                                  "storageKey": null
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "ClientExtension",
+                          "selections": [
+                            {
+                              "kind": "ScalarField",
+                              "alias": null,
+                              "name": "__id",
+                              "args": null,
+                              "storageKey": null
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    "pageInfo": {
+                      "kind": "LinkedField",
+                      "alias": null,
+                      "name": "pageInfo",
+                      "storageKey": null,
+                      "args": null,
+                      "concreteType": "PageInfo",
+                      "plural": false,
+                      "selections": [
+                        {
+                          "kind": "ScalarField",
+                          "alias": null,
+                          "name": "hasNextPage",
+                          "args": null,
+                          "storageKey": null
+                        }
+                      ]
+                    },
+                    "stream": null
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
+
+QUERY:
+
+query FeedbackCommentsRefetchQuery(
+  $cursor: ID
+  $count: Int
+  $id: ID!
+) {
+  node(id: $id) {
+    __typename
+    ...FeedbackComments_feedback
+    id
+  }
+}
+
+fragment FeedbackComments_feedback on Feedback {
+  comments(after: $cursor, first: $count) {
+    edges {
+      node {
+        id
+      }
+    }
+    pageInfo {
+      hasNextPage
+    }
+  }
+  id
 }
 
 
@@ -2302,9 +2582,54 @@ fragment FeedbackComments_feedback on Feedback {
   "kind": "Fragment",
   "name": "FeedbackComments_feedback",
   "type": "Feedback",
-  "metadata": null,
-  "argumentDefinitions": [],
+  "metadata": {
+    "connection": [
+      {
+        "count": "count",
+        "cursor": "cursor",
+        "direction": "forward",
+        "path": [
+          "comments"
+        ]
+      }
+    ],
+    "refetch": {
+      "connection": {
+        "forward": {
+          "count": "count",
+          "cursor": "cursor"
+        },
+        "backward": null,
+        "path": [
+          "comments"
+        ]
+      },
+      "operation": require('FeedbackCommentsRefetchQuery.graphql'),
+      "fragmentPathInResult": [
+        "node"
+      ]
+    }
+  },
+  "argumentDefinitions": [
+    {
+      "kind": "RootArgument",
+      "name": "cursor",
+      "type": "ID"
+    },
+    {
+      "kind": "RootArgument",
+      "name": "count",
+      "type": "Int"
+    }
+  ],
   "selections": [
+    {
+      "kind": "ScalarField",
+      "alias": null,
+      "name": "id",
+      "args": null,
+      "storageKey": null
+    },
     {
       "kind": "LinkedField",
       "alias": null,
@@ -2320,9 +2645,14 @@ fragment FeedbackComments_feedback on Feedback {
           "name": "comments",
           "args": [
             {
-              "kind": "Literal",
+              "kind": "Variable",
+              "name": "after",
+              "variableName": "cursor"
+            },
+            {
+              "kind": "Variable",
               "name": "first",
-              "value": 10
+              "variableName": "count"
             }
           ],
           "edges": {
@@ -2762,7 +3092,18 @@ fragment FeedbackTopComments_feedback on Feedback {
   "kind": "Fragment",
   "name": "FeedbackComments_feedback",
   "type": "Feedback",
-  "metadata": null,
+  "metadata": {
+    "connection": [
+      {
+        "count": null,
+        "cursor": null,
+        "direction": "forward",
+        "path": [
+          "comments"
+        ]
+      }
+    ]
+  },
   "argumentDefinitions": [],
   "selections": [
     {
@@ -2866,7 +3207,18 @@ fragment FeedbackTopComments_feedback on Feedback {
   "kind": "Fragment",
   "name": "FeedbackTopComments_feedback",
   "type": "Feedback",
-  "metadata": null,
+  "metadata": {
+    "connection": [
+      {
+        "count": null,
+        "cursor": null,
+        "direction": "forward",
+        "path": [
+          "comments"
+        ]
+      }
+    ]
+  },
   "argumentDefinitions": [],
   "selections": [
     {
@@ -3119,14 +3471,20 @@ Error: Encountered 1 error(s):
 
 exports[`compileRelayArtifacts matches expected output: connection-resolver-field-stream.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
-query QueryWithConnectionField($id: ID!, $enableStream: Boolean) {
+query QueryWithConnectionField(
+  $id: ID!
+  $count: Int!
+  $cursor: ID
+  $enableStream: Boolean!
+) {
   feedback: node(id: $id) {
     ...FeedbackComments_feedback
   }
 }
 
-fragment FeedbackComments_feedback on Feedback {
-  comments(first: 10)
+fragment FeedbackComments_feedback on Feedback
+  @refetchable(queryName: "FeedbackCommentsRefetchQuery") {
+  comments(after: $cursor, first: $count)
     @stream_connection_resolver(
       if: $enableStream
       initial_count: 1
@@ -3160,8 +3518,20 @@ fragment FeedbackComments_feedback on Feedback {
       },
       {
         "kind": "LocalArgument",
+        "name": "count",
+        "type": "Int!",
+        "defaultValue": null
+      },
+      {
+        "kind": "LocalArgument",
+        "name": "cursor",
+        "type": "ID",
+        "defaultValue": null
+      },
+      {
+        "kind": "LocalArgument",
         "name": "enableStream",
-        "type": "Boolean",
+        "type": "Boolean!",
         "defaultValue": null
       }
     ],
@@ -3202,8 +3572,20 @@ fragment FeedbackComments_feedback on Feedback {
       },
       {
         "kind": "LocalArgument",
+        "name": "count",
+        "type": "Int!",
+        "defaultValue": null
+      },
+      {
+        "kind": "LocalArgument",
+        "name": "cursor",
+        "type": "ID",
+        "defaultValue": null
+      },
+      {
+        "kind": "LocalArgument",
         "name": "enableStream",
-        "type": "Boolean",
+        "type": "Boolean!",
         "defaultValue": null
       }
     ],
@@ -3256,9 +3638,14 @@ fragment FeedbackComments_feedback on Feedback {
                     "name": "comments",
                     "args": [
                       {
-                        "kind": "Literal",
+                        "kind": "Variable",
+                        "name": "after",
+                        "variableName": "cursor"
+                      },
+                      {
+                        "kind": "Variable",
                         "name": "first",
-                        "value": 10
+                        "variableName": "count"
                       }
                     ],
                     "edges": {
@@ -3356,7 +3743,9 @@ QUERY:
 
 query QueryWithConnectionField(
   $id: ID!
-  $enableStream: Boolean
+  $count: Int!
+  $cursor: ID
+  $enableStream: Boolean!
 ) {
   feedback: node(id: $id) {
     __typename
@@ -3366,7 +3755,7 @@ query QueryWithConnectionField(
 }
 
 fragment FeedbackComments_feedback on Feedback {
-  comments(first: 10) {
+  comments(after: $cursor, first: $count) {
     edges @stream(label: "FeedbackComments_feedback$stream$FeedbackComments_feedback", if: $enableStream, initial_count: 1) {
       node {
         id
@@ -3378,6 +3767,276 @@ fragment FeedbackComments_feedback on Feedback {
       }
     }
   }
+  id
+}
+
+
+{
+  "kind": "Request",
+  "fragment": {
+    "kind": "Fragment",
+    "name": "FeedbackCommentsRefetchQuery",
+    "type": "Query",
+    "metadata": null,
+    "argumentDefinitions": [
+      {
+        "kind": "LocalArgument",
+        "name": "cursor",
+        "type": "ID",
+        "defaultValue": null
+      },
+      {
+        "kind": "LocalArgument",
+        "name": "count",
+        "type": "Int",
+        "defaultValue": null
+      },
+      {
+        "kind": "LocalArgument",
+        "name": "enableStream",
+        "type": "Boolean",
+        "defaultValue": null
+      },
+      {
+        "kind": "LocalArgument",
+        "name": "id",
+        "type": "ID!",
+        "defaultValue": null
+      }
+    ],
+    "selections": [
+      {
+        "kind": "LinkedField",
+        "alias": null,
+        "name": "node",
+        "storageKey": null,
+        "args": [
+          {
+            "kind": "Variable",
+            "name": "id",
+            "variableName": "id"
+          }
+        ],
+        "concreteType": null,
+        "plural": false,
+        "selections": [
+          {
+            "kind": "FragmentSpread",
+            "name": "FeedbackComments_feedback",
+            "args": null
+          }
+        ]
+      }
+    ]
+  },
+  "operation": {
+    "kind": "Operation",
+    "name": "FeedbackCommentsRefetchQuery",
+    "argumentDefinitions": [
+      {
+        "kind": "LocalArgument",
+        "name": "cursor",
+        "type": "ID",
+        "defaultValue": null
+      },
+      {
+        "kind": "LocalArgument",
+        "name": "count",
+        "type": "Int",
+        "defaultValue": null
+      },
+      {
+        "kind": "LocalArgument",
+        "name": "enableStream",
+        "type": "Boolean",
+        "defaultValue": null
+      },
+      {
+        "kind": "LocalArgument",
+        "name": "id",
+        "type": "ID!",
+        "defaultValue": null
+      }
+    ],
+    "selections": [
+      {
+        "kind": "LinkedField",
+        "alias": null,
+        "name": "node",
+        "storageKey": null,
+        "args": [
+          {
+            "kind": "Variable",
+            "name": "id",
+            "variableName": "id"
+          }
+        ],
+        "concreteType": null,
+        "plural": false,
+        "selections": [
+          {
+            "kind": "ScalarField",
+            "alias": null,
+            "name": "__typename",
+            "args": null,
+            "storageKey": null
+          },
+          {
+            "kind": "ScalarField",
+            "alias": null,
+            "name": "id",
+            "args": null,
+            "storageKey": null
+          },
+          {
+            "kind": "InlineFragment",
+            "type": "Feedback",
+            "selections": [
+              {
+                "kind": "LinkedField",
+                "alias": null,
+                "name": "comments",
+                "storageKey": null,
+                "args": null,
+                "concreteType": "CommentsConnection",
+                "plural": false,
+                "selections": [
+                  {
+                    "kind": "Connection",
+                    "label": "FeedbackComments_feedback",
+                    "name": "comments",
+                    "args": [
+                      {
+                        "kind": "Variable",
+                        "name": "after",
+                        "variableName": "cursor"
+                      },
+                      {
+                        "kind": "Variable",
+                        "name": "first",
+                        "variableName": "count"
+                      }
+                    ],
+                    "edges": {
+                      "kind": "LinkedField",
+                      "alias": null,
+                      "name": "edges",
+                      "storageKey": null,
+                      "args": null,
+                      "concreteType": "CommentsEdge",
+                      "plural": true,
+                      "selections": [
+                        {
+                          "kind": "LinkedField",
+                          "alias": null,
+                          "name": "node",
+                          "storageKey": null,
+                          "args": null,
+                          "concreteType": "Comment",
+                          "plural": false,
+                          "selections": [
+                            {
+                              "kind": "ScalarField",
+                              "alias": null,
+                              "name": "id",
+                              "args": null,
+                              "storageKey": null
+                            },
+                            {
+                              "kind": "ClientExtension",
+                              "selections": [
+                                {
+                                  "kind": "ScalarField",
+                                  "alias": null,
+                                  "name": "__id",
+                                  "args": null,
+                                  "storageKey": null
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "ClientExtension",
+                          "selections": [
+                            {
+                              "kind": "ScalarField",
+                              "alias": null,
+                              "name": "__id",
+                              "args": null,
+                              "storageKey": null
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    "pageInfo": {
+                      "kind": "LinkedField",
+                      "alias": null,
+                      "name": "pageInfo",
+                      "storageKey": null,
+                      "args": null,
+                      "concreteType": "PageInfo",
+                      "plural": false,
+                      "selections": [
+                        {
+                          "kind": "ScalarField",
+                          "alias": null,
+                          "name": "hasNextPage",
+                          "args": null,
+                          "storageKey": null
+                        }
+                      ]
+                    },
+                    "stream": {
+                      "if": {
+                        "kind": "Variable",
+                        "name": "if",
+                        "variableName": "enableStream"
+                      },
+                      "deferLabel": "FeedbackComments_feedback$defer$FeedbackComments_feedback",
+                      "streamLabel": "FeedbackComments_feedback$stream$FeedbackComments_feedback"
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
+
+QUERY:
+
+query FeedbackCommentsRefetchQuery(
+  $cursor: ID
+  $count: Int
+  $enableStream: Boolean
+  $id: ID!
+) {
+  node(id: $id) {
+    __typename
+    ...FeedbackComments_feedback
+    id
+  }
+}
+
+fragment FeedbackComments_feedback on Feedback {
+  comments(after: $cursor, first: $count) {
+    edges @stream(label: "FeedbackComments_feedback$stream$FeedbackComments_feedback", if: $enableStream, initial_count: 1) {
+      node {
+        id
+      }
+    }
+    ... @defer(label: "FeedbackComments_feedback$defer$FeedbackComments_feedback", if: $enableStream) {
+      pageInfo {
+        hasNextPage
+      }
+    }
+  }
+  id
 }
 
 
@@ -3385,8 +4044,46 @@ fragment FeedbackComments_feedback on Feedback {
   "kind": "Fragment",
   "name": "FeedbackComments_feedback",
   "type": "Feedback",
-  "metadata": null,
+  "metadata": {
+    "connection": [
+      {
+        "count": "count",
+        "cursor": "cursor",
+        "direction": "forward",
+        "path": [
+          "comments"
+        ],
+        "stream": true
+      }
+    ],
+    "refetch": {
+      "connection": {
+        "forward": {
+          "count": "count",
+          "cursor": "cursor"
+        },
+        "backward": null,
+        "path": [
+          "comments"
+        ]
+      },
+      "operation": require('FeedbackCommentsRefetchQuery.graphql'),
+      "fragmentPathInResult": [
+        "node"
+      ]
+    }
+  },
   "argumentDefinitions": [
+    {
+      "kind": "RootArgument",
+      "name": "cursor",
+      "type": "ID"
+    },
+    {
+      "kind": "RootArgument",
+      "name": "count",
+      "type": "Int"
+    },
     {
       "kind": "RootArgument",
       "name": "enableStream",
@@ -3394,6 +4091,13 @@ fragment FeedbackComments_feedback on Feedback {
     }
   ],
   "selections": [
+    {
+      "kind": "ScalarField",
+      "alias": null,
+      "name": "id",
+      "args": null,
+      "storageKey": null
+    },
     {
       "kind": "LinkedField",
       "alias": null,
@@ -3409,9 +4113,14 @@ fragment FeedbackComments_feedback on Feedback {
           "name": "comments",
           "args": [
             {
-              "kind": "Literal",
+              "kind": "Variable",
+              "name": "after",
+              "variableName": "cursor"
+            },
+            {
+              "kind": "Variable",
               "name": "first",
-              "value": 10
+              "variableName": "count"
             }
           ],
           "edges": {
@@ -3758,7 +4467,19 @@ fragment FeedbackComments_feedback on Feedback {
   "kind": "Fragment",
   "name": "FeedbackComments_feedback",
   "type": "Feedback",
-  "metadata": null,
+  "metadata": {
+    "connection": [
+      {
+        "count": null,
+        "cursor": null,
+        "direction": "forward",
+        "path": [
+          "comments"
+        ],
+        "stream": true
+      }
+    ]
+  },
   "argumentDefinitions": [],
   "selections": [
     {
@@ -4126,7 +4847,19 @@ fragment FeedbackComments_feedback on Feedback {
   "kind": "Fragment",
   "name": "FeedbackComments_feedback",
   "type": "Feedback",
-  "metadata": null,
+  "metadata": {
+    "connection": [
+      {
+        "count": null,
+        "cursor": null,
+        "direction": "forward",
+        "path": [
+          "comments"
+        ],
+        "stream": true
+      }
+    ]
+  },
   "argumentDefinitions": [],
   "selections": [
     {
@@ -4512,7 +5245,19 @@ fragment FeedbackComments_feedback on Feedback {
   "kind": "Fragment",
   "name": "FeedbackComments_feedback",
   "type": "Feedback",
-  "metadata": null,
+  "metadata": {
+    "connection": [
+      {
+        "count": null,
+        "cursor": null,
+        "direction": "forward",
+        "path": [
+          "comments"
+        ],
+        "stream": true
+      }
+    ]
+  },
   "argumentDefinitions": [
     {
       "kind": "RootArgument",
@@ -4865,7 +5610,18 @@ fragment FeedbackComments_feedback on Feedback {
   "kind": "Fragment",
   "name": "FeedbackComments_feedback",
   "type": "Feedback",
-  "metadata": null,
+  "metadata": {
+    "connection": [
+      {
+        "count": null,
+        "cursor": null,
+        "direction": "forward",
+        "path": [
+          "commentBodies"
+        ]
+      }
+    ]
+  },
   "argumentDefinitions": [],
   "selections": [
     {
@@ -6534,7 +7290,18 @@ fragment FeedbackText_feedback on Feedback {
   "kind": "Fragment",
   "name": "FeedbackComments_feedback",
   "type": "Feedback",
-  "metadata": null,
+  "metadata": {
+    "connection": [
+      {
+        "count": null,
+        "cursor": null,
+        "direction": "forward",
+        "path": [
+          "comments"
+        ]
+      }
+    ]
+  },
   "argumentDefinitions": [],
   "selections": [
     {

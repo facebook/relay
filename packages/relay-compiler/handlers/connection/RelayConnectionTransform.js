@@ -35,6 +35,7 @@ const {ConnectionInterface, RelayFeatureFlags} = require('relay-runtime');
 import type CompilerContext from '../../core/GraphQLCompilerContext';
 import type {
   Argument,
+  ConnectionField,
   Directive,
   Fragment,
   Handle,
@@ -176,7 +177,7 @@ function visitLinkedField(field: LinkedField, options: Options): LinkedField {
   const connectionMetadata = buildConnectionMetadata(
     transformedField,
     path,
-    connectionArguments,
+    connectionArguments.stream != null,
   );
   options.connectionMetadata.push(connectionMetadata);
 
@@ -332,9 +333,9 @@ function buildConnectionArguments(
 }
 
 function buildConnectionMetadata(
-  field: LinkedField,
+  field: LinkedField | ConnectionField,
   path: Array<?string>,
-  connectionArguments: ConnectionArguments,
+  stream: boolean,
 ): ConnectionMetadata {
   const pathHasPlural = path.includes(null);
   const firstArg = findArg(field, FIRST);
@@ -362,7 +363,7 @@ function buildConnectionMetadata(
     cursorArg && cursorArg.value.kind === 'Variable'
       ? cursorArg.value.variableName
       : null;
-  if (connectionArguments.stream != null) {
+  if (stream) {
     return {
       count: countVariable,
       cursor: cursorVariable,
@@ -671,7 +672,10 @@ function transformConnectionSelections(
   return selections;
 }
 
-function findArg(field: LinkedField, argName: string): ?Argument {
+function findArg(
+  field: LinkedField | ConnectionField,
+  argName: string,
+): ?Argument {
   return field.args && field.args.find(arg => arg.name === argName);
 }
 
@@ -849,6 +853,7 @@ function validateConnectionType(
 }
 
 module.exports = {
+  buildConnectionMetadata,
   CONNECTION,
   SCHEMA_EXTENSION,
   transform: relayConnectionTransform,

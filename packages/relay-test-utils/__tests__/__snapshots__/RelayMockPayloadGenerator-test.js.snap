@@ -1748,6 +1748,29 @@ query TestQuery @relay_test_operation {
 }
 `;
 
+exports[`with @relay_test_operation generate mock with null for enum 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query TestQuery @relay_test_operation {
+  node(id: "my-id") {
+    ... on User {
+      id
+      environment
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+{
+  "data": {
+    "node": {
+      "__typename": "User",
+      "id": "<Node-mock-id-1>",
+      "environment": null
+    }
+  }
+}
+`;
+
 exports[`with @relay_test_operation should generate data for @match with MarkdownUserNameRenderer_name 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query TestQuery @relay_test_operation {

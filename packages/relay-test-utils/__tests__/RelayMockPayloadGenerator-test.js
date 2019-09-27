@@ -1340,6 +1340,28 @@ describe('with @relay_test_operation', () => {
     );
   });
 
+  test('generate mock with null for enum', () => {
+    testGeneratedData(
+      `
+      query TestQuery @relay_test_operation {
+        node(id: "my-id") {
+          ... on User {
+            id
+            environment
+          }
+        }
+      }
+    `,
+      {
+        User(context) {
+          return {
+            environment: null,
+          };
+        },
+      },
+    );
+  });
+
   test('generate mock for client extensions', () => {
     testGeneratedData(
       `

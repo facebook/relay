@@ -198,6 +198,7 @@ export type Connection = {|
 export type LinkedField = {|
   +alias: string,
   +args: $ReadOnlyArray<Argument>,
+  +connection: boolean,
   +directives: $ReadOnlyArray<Directive>,
   +handles: ?$ReadOnlyArray<Handle>,
   +kind: 'LinkedField',

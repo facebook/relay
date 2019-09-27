@@ -70,6 +70,7 @@ fragment CommentFragment_comment on Comment {
       "kind": "LinkedField",
       "alias": "viewer",
       "args": [],
+      "connection": false,
       "directives": [],
       "loc": {
         "kind": "Source",
@@ -127,6 +128,7 @@ fragment CommentFragment_comment on Comment {
               "type": "Int"
             }
           ],
+          "connection": false,
           "directives": [],
           "loc": {
             "kind": "Source",
@@ -148,6 +150,7 @@ fragment CommentFragment_comment on Comment {
               "kind": "LinkedField",
               "alias": "edges",
               "args": [],
+              "connection": false,
               "directives": [],
               "loc": {
                 "kind": "Source",
@@ -169,6 +172,7 @@ fragment CommentFragment_comment on Comment {
                   "kind": "LinkedField",
                   "alias": "node",
                   "args": [],
+                  "connection": false,
                   "directives": [],
                   "loc": {
                     "kind": "Source",
@@ -225,6 +229,7 @@ fragment CommentFragment_comment on Comment {
                       "kind": "LinkedField",
                       "alias": "message",
                       "args": [],
+                      "connection": false,
                       "directives": [],
                       "loc": {
                         "kind": "Source",
@@ -271,6 +276,7 @@ fragment CommentFragment_comment on Comment {
                       "kind": "LinkedField",
                       "alias": "actor",
                       "args": [],
+                      "connection": false,
                       "directives": [],
                       "loc": {
                         "kind": "Source",
@@ -402,6 +408,7 @@ fragment CommentFragment_comment on Comment {
           "type": "ID"
         }
       ],
+      "connection": false,
       "directives": [],
       "loc": {
         "kind": "Source",
@@ -472,6 +479,7 @@ fragment CommentFragment_comment on Comment {
               "type": "Int"
             }
           ],
+          "connection": false,
           "directives": [],
           "loc": {
             "kind": "Source",
@@ -493,6 +501,7 @@ fragment CommentFragment_comment on Comment {
               "kind": "LinkedField",
               "alias": "edges",
               "args": [],
+              "connection": false,
               "directives": [],
               "loc": {
                 "kind": "Source",
@@ -514,6 +523,7 @@ fragment CommentFragment_comment on Comment {
                   "kind": "LinkedField",
                   "alias": "node",
                   "args": [],
+                  "connection": false,
                   "directives": [],
                   "loc": {
                     "kind": "Source",
@@ -557,6 +567,7 @@ fragment CommentFragment_comment on Comment {
                       "kind": "LinkedField",
                       "alias": "body",
                       "args": [],
+                      "connection": false,
                       "directives": [],
                       "loc": {
                         "kind": "Source",
@@ -689,6 +700,7 @@ fragment CommentFragment_comment on Comment {
       "kind": "LinkedField",
       "alias": "viewer",
       "args": [],
+      "connection": false,
       "directives": [],
       "loc": {
         "kind": "Source",
@@ -746,6 +758,7 @@ fragment CommentFragment_comment on Comment {
               "type": "Int"
             }
           ],
+          "connection": false,
           "directives": [],
           "loc": {
             "kind": "Source",
@@ -767,6 +780,7 @@ fragment CommentFragment_comment on Comment {
               "kind": "LinkedField",
               "alias": "edges",
               "args": [],
+              "connection": false,
               "directives": [],
               "loc": {
                 "kind": "Source",
@@ -788,6 +802,7 @@ fragment CommentFragment_comment on Comment {
                   "kind": "LinkedField",
                   "alias": "node",
                   "args": [],
+                  "connection": false,
                   "directives": [],
                   "loc": {
                     "kind": "Source",
@@ -853,6 +868,7 @@ fragment CommentFragment_comment on Comment {
                       "kind": "LinkedField",
                       "alias": "message",
                       "args": [],
+                      "connection": false,
                       "directives": [],
                       "loc": {
                         "kind": "Source",
@@ -899,6 +915,7 @@ fragment CommentFragment_comment on Comment {
                       "kind": "LinkedField",
                       "alias": "actor",
                       "args": [],
+                      "connection": false,
                       "directives": [],
                       "loc": {
                         "kind": "Source",
@@ -1039,6 +1056,7 @@ fragment CommentFragment_comment on Comment {
           "type": "ID"
         }
       ],
+      "connection": false,
       "directives": [],
       "loc": {
         "kind": "Source",
@@ -1109,6 +1127,7 @@ fragment CommentFragment_comment on Comment {
               "type": "Int"
             }
           ],
+          "connection": false,
           "directives": [],
           "loc": {
             "kind": "Source",
@@ -1130,6 +1149,7 @@ fragment CommentFragment_comment on Comment {
               "kind": "LinkedField",
               "alias": "edges",
               "args": [],
+              "connection": false,
               "directives": [],
               "loc": {
                 "kind": "Source",
@@ -1151,6 +1171,7 @@ fragment CommentFragment_comment on Comment {
                   "kind": "LinkedField",
                   "alias": "node",
                   "args": [],
+                  "connection": false,
                   "directives": [],
                   "loc": {
                     "kind": "Source",
@@ -1194,6 +1215,7 @@ fragment CommentFragment_comment on Comment {
                       "kind": "LinkedField",
                       "alias": "body",
                       "args": [],
+                      "connection": false,
                       "directives": [],
                       "loc": {
                         "kind": "Source",

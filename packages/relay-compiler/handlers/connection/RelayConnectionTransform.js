@@ -207,6 +207,7 @@ function visitLinkedField(field: LinkedField, options: Options): LinkedField {
     directives: transformedField.directives.filter(
       directive => directive !== connectionDirective,
     ),
+    connection: true,
     handles: transformedField.handles
       ? [...transformedField.handles, handle]
       : [handle],
@@ -521,6 +522,7 @@ function transformConnectionSelections(
     transformedEdgesSelection = {
       alias: EDGES,
       args: [],
+      connection: false,
       directives: [],
       handles: null,
       kind: 'LinkedField',
@@ -535,6 +537,7 @@ function transformConnectionSelections(
     transformedPageInfoSelection = {
       alias: PAGE_INFO,
       args: [],
+      connection: false,
       directives: [],
       handles: null,
       kind: 'LinkedField',

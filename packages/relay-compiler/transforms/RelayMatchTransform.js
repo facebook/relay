@@ -279,6 +279,7 @@ function visitLinkedField(node: LinkedField, state: State): LinkedField {
         loc: node.loc,
       },
     ],
+    connection: false,
     directives: [],
     handles: null,
     loc: node.loc,

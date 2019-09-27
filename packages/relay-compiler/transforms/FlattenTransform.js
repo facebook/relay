@@ -263,6 +263,7 @@ function flattenSelectionsInto(
         kind: 'LinkedField',
         alias: flattenedSelection.alias,
         args: flattenedSelection.args,
+        connection: flattenedSelection.connection || selection.connection,
         directives: flattenedSelection.directives,
         handles: mergeHandles(flattenedSelection, selection),
         loc: flattenedSelection.loc,

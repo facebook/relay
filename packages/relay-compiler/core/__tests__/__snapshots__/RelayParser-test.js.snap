@@ -153,6 +153,7 @@ type Foo {
             "type": "ID"
           }
         ],
+        "connection": false,
         "directives": [],
         "loc": {
           "kind": "Source",
@@ -241,6 +242,7 @@ type Foo {
         "kind": "LinkedField",
         "alias": "best_friends",
         "args": [],
+        "connection": false,
         "directives": [],
         "loc": {
           "kind": "Source",
@@ -262,6 +264,7 @@ type Foo {
             "kind": "LinkedField",
             "alias": "edges",
             "args": [],
+            "connection": false,
             "directives": [],
             "loc": {
               "kind": "Source",
@@ -305,6 +308,7 @@ type Foo {
                 "kind": "LinkedField",
                 "alias": "node",
                 "args": [],
+                "connection": false,
                 "directives": [],
                 "loc": {
                   "kind": "Source",
@@ -354,6 +358,7 @@ type Foo {
             "kind": "LinkedField",
             "alias": "pageInfo",
             "args": [],
+            "connection": false,
             "directives": [],
             "loc": {
               "kind": "Source",
@@ -1072,6 +1077,7 @@ query EnumValueQuery {
         "kind": "LinkedField",
         "alias": "me",
         "args": [],
+        "connection": false,
         "directives": [],
         "loc": {
           "kind": "Source",
@@ -1129,6 +1135,7 @@ query EnumValueQuery {
                 "type": "PhotoSize"
               }
             ],
+            "connection": false,
             "directives": [],
             "loc": {
               "kind": "Source",
@@ -1317,6 +1324,7 @@ query TestQuery {
             "type": "Int"
           }
         ],
+        "connection": false,
         "directives": [],
         "loc": {
           "kind": "Source",
@@ -1399,6 +1407,7 @@ query TestQuery {
             "type": "Environment"
           }
         ],
+        "connection": false,
         "directives": [],
         "loc": {
           "kind": "Source",
@@ -1483,6 +1492,7 @@ query TestQuery {
             "type": "CheckinSearchInput"
           }
         ],
+        "connection": false,
         "directives": [],
         "loc": {
           "kind": "Source",
@@ -1613,6 +1623,7 @@ fragment Foo on User @argumentDefinitions(localId: {type: "ID!"}) {
             "type": "[Int]"
           }
         ],
+        "connection": false,
         "directives": [],
         "loc": {
           "kind": "Source",
@@ -1696,6 +1707,7 @@ fragment Foo on User @argumentDefinitions(localId: {type: "ID!"}) {
             "type": "[Int]"
           }
         ],
+        "connection": false,
         "directives": [],
         "loc": {
           "kind": "Source",
@@ -2108,6 +2120,7 @@ fragment ChildFragment on User
             "type": "[Int]"
           }
         ],
+        "connection": false,
         "directives": [],
         "loc": {
           "kind": "Source",
@@ -2254,6 +2267,7 @@ fragment ChildFragment on Query
             "type": "Environment"
           }
         ],
+        "connection": false,
         "directives": [],
         "loc": {
           "kind": "Source",
@@ -2416,6 +2430,7 @@ fragment ChildFragment on Query
             "type": "Environment"
           }
         ],
+        "connection": false,
         "directives": [],
         "loc": {
           "kind": "Source",
@@ -2564,6 +2579,7 @@ fragment ChildFragment on User
             "type": "[Environment!]!"
           }
         ],
+        "connection": false,
         "directives": [],
         "loc": {
           "kind": "Source",
@@ -2726,6 +2742,7 @@ fragment ChildFragment on User
             "type": "[Environment!]!"
           }
         ],
+        "connection": false,
         "directives": [],
         "loc": {
           "kind": "Source",
@@ -2914,6 +2931,7 @@ fragment ChildFragment on User
             "type": "[Environment!]!"
           }
         ],
+        "connection": false,
         "directives": [],
         "loc": {
           "kind": "Source",
@@ -3078,6 +3096,7 @@ fragment ChildFragment on User
             "type": "[Environment!]!"
           }
         ],
+        "connection": false,
         "directives": [],
         "loc": {
           "kind": "Source",
@@ -3226,6 +3245,7 @@ fragment ChildFragment on Query
             "type": "CheckinSearchInput"
           }
         ],
+        "connection": false,
         "directives": [],
         "loc": {
           "kind": "Source",
@@ -3390,6 +3410,7 @@ fragment ChildFragment on Query
             "type": "CheckinSearchInput"
           }
         ],
+        "connection": false,
         "directives": [],
         "loc": {
           "kind": "Source",
@@ -3538,6 +3559,7 @@ fragment ChildFragment on Query
             "type": "CheckinSearchInput"
           }
         ],
+        "connection": false,
         "directives": [],
         "loc": {
           "kind": "Source",
@@ -3773,6 +3795,7 @@ fragment ChildFragment on Query
             "type": "CheckinSearchInput"
           }
         ],
+        "connection": false,
         "directives": [],
         "loc": {
           "kind": "Source",
@@ -4116,6 +4139,7 @@ fragment LinkedHandleField on User {
             "type": "Int"
           }
         ],
+        "connection": false,
         "directives": [],
         "handles": [
           {
@@ -4285,6 +4309,7 @@ fragment LinkedHandleField on User {
             "type": "[String]"
           }
         ],
+        "connection": false,
         "directives": [],
         "handles": [
           {
@@ -4434,6 +4459,7 @@ fragment LinkedHandleField on User {
             "type": "Int"
           }
         ],
+        "connection": false,
         "directives": [],
         "handles": [
           {
@@ -4562,6 +4588,7 @@ fragment LinkedHandleField on User {
             "type": "Int"
           }
         ],
+        "connection": false,
         "directives": [],
         "handles": [
           {
@@ -4759,6 +4786,7 @@ query ListArgumentQuery($waypoint: WayPoint!) {
             "type": "[WayPoint!]!"
           }
         ],
+        "connection": false,
         "directives": [],
         "loc": {
           "kind": "Source",
@@ -4780,6 +4808,7 @@ query ListArgumentQuery($waypoint: WayPoint!) {
             "kind": "LinkedField",
             "alias": "steps",
             "args": [],
+            "connection": false,
             "directives": [],
             "loc": {
               "kind": "Source",
@@ -4965,6 +4994,7 @@ query LiteralListArgumentQuery {
             "type": "[WayPoint!]!"
           }
         ],
+        "connection": false,
         "directives": [],
         "loc": {
           "kind": "Source",
@@ -4986,6 +5016,7 @@ query LiteralListArgumentQuery {
             "kind": "LinkedField",
             "alias": "steps",
             "args": [],
+            "connection": false,
             "directives": [],
             "loc": {
               "kind": "Source",
@@ -5176,6 +5207,7 @@ query LiteralObjectArgument {
             "type": "CheckinSearchInput"
           }
         ],
+        "connection": false,
         "directives": [],
         "loc": {
           "kind": "Source",
@@ -5357,6 +5389,7 @@ query NullValuesQuery {
             "type": "ItemFilterInput"
           }
         ],
+        "connection": false,
         "directives": [],
         "loc": {
           "kind": "Source",
@@ -5555,6 +5588,7 @@ query ObjectArgument($text: String!) {
             "type": "CheckinSearchInput"
           }
         ],
+        "connection": false,
         "directives": [],
         "loc": {
           "kind": "Source",
@@ -5823,6 +5857,7 @@ query TestQuery($id: ID!) {
             "type": "ID"
           }
         ],
+        "connection": false,
         "directives": [],
         "loc": {
           "kind": "Source",

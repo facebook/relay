@@ -224,6 +224,7 @@ function visitLinkedField(
       {
         alias: 'node',
         args: [],
+        connection: false,
         directives: [],
         handles: null,
         kind: 'LinkedField',

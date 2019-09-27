@@ -92,6 +92,7 @@ fragment PhotoFragment on Image {
       "kind": "LinkedField",
       "alias": "profilePicture",
       "args": [],
+      "connection": false,
       "directives": [],
       "loc": {
         "kind": "Source",

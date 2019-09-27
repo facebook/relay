@@ -965,6 +965,7 @@ class GraphQLDefinitionParser {
         kind: 'LinkedField',
         alias,
         args,
+        connection: false,
         directives,
         handles,
         loc: buildLocation(field.loc),

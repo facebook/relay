@@ -247,13 +247,9 @@ function extractConnectionMetadata(
       enter(field) {
         fields.push(field);
         if (
+          field.connection === true ||
           (field.handles &&
-            field.handles.some(handle => handle.name === 'connection')) ||
-          field.directives.some(
-            directive =>
-              directive.name === 'connection' ||
-              directive.name === 'stream_connection',
-          )
+            field.handles.some(handle => handle.name === 'connection'))
         ) {
           // Disallow multiple @connections
           if (connectionField != null) {
@@ -461,6 +457,7 @@ function buildRefetchOperationOnViewerType(
         {
           alias: VIEWER_FIELD_NAME,
           args: [],
+          connection: false,
           directives: [],
           handles: null,
           kind: 'LinkedField',
@@ -572,6 +569,7 @@ function buildRefetchOperationOnNodeType(
               },
             },
           ],
+          connection: false,
           directives: [],
           handles: null,
           kind: 'LinkedField',

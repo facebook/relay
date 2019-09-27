@@ -102,6 +102,7 @@ mutation SimpleMutation @relay_test_operation {
           "type": "CommentCreateInput"
         }
       ],
+      "connection": false,
       "directives": [],
       "loc": {
         "kind": "Source",
@@ -123,6 +124,7 @@ mutation SimpleMutation @relay_test_operation {
           "kind": "LinkedField",
           "alias": "feedback",
           "args": [],
+          "connection": false,
           "directives": [],
           "loc": {
             "kind": "Source",
@@ -320,6 +322,7 @@ query QueryWitEnums @relay_test_operation {
           "type": "ID"
         }
       ],
+      "connection": false,
       "directives": [],
       "loc": {
         "kind": "Source",
@@ -528,6 +531,7 @@ fragment UserProfileFragment on User
       "kind": "LinkedField",
       "alias": "me",
       "args": [],
+      "connection": false,
       "directives": [],
       "loc": {
         "kind": "Source",
@@ -820,6 +824,7 @@ fragment UserProfileFragment on User
           "type": "Float"
         }
       ],
+      "connection": false,
       "directives": [],
       "loc": {
         "kind": "Source",
@@ -1004,6 +1009,7 @@ query SimpleQuery @relay_test_operation {
           "type": "ID"
         }
       ],
+      "connection": false,
       "directives": [],
       "loc": {
         "kind": "Source",
@@ -1217,6 +1223,7 @@ query SimpleQuery @relay_test_operation {
           "type": "ID"
         }
       ],
+      "connection": false,
       "directives": [],
       "loc": {
         "kind": "Source",
@@ -1334,6 +1341,7 @@ query SimpleQuery @relay_test_operation {
                   "kind": "LinkedField",
                   "alias": "profile_picture",
                   "args": [],
+                  "connection": false,
                   "directives": [],
                   "loc": {
                     "kind": "Source",
@@ -1535,6 +1543,7 @@ subscription SimpleMutation @relay_test_operation {
           "type": "CommentCreateSubscriptionInput"
         }
       ],
+      "connection": false,
       "directives": [],
       "loc": {
         "kind": "Source",
@@ -1556,6 +1565,7 @@ subscription SimpleMutation @relay_test_operation {
           "kind": "LinkedField",
           "alias": "feedback",
           "args": [],
+          "connection": false,
           "directives": [],
           "loc": {
             "kind": "Source",

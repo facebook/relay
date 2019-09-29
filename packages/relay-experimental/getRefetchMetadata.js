@@ -47,7 +47,8 @@ function getRefetchMetadata(
     fragmentNode.name,
   );
 
-  const refetchableRequest = refetchMetadata.operation;
+  // handle both commonjs and es modules
+  const refetchableRequest = refetchMetadata.operation.default ? refetchMetadata.operation.default : refetchMetadata.operation;
   const fragmentRefPathInResponse = refetchMetadata.fragmentPathInResult;
   invariant(
     typeof refetchableRequest !== 'string',

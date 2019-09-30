@@ -383,7 +383,7 @@ export default createFragmentContainer(
 );
 ```
 
-As with the first fragment container we defined, `TodoList` declares it's data dependencies via a fragment. However, this component additionally re-uses the fragment previously defined by the `Todo` component, and passes the appropriate data when rendering the child `Todo` components (a.k.a. fragment containers).
+As with the first fragment container we defined, `TodoList` declares its data dependencies via a fragment. However, this component additionally re-uses the fragment previously defined by the `Todo` component, and passes the appropriate data when rendering the child `Todo` components (a.k.a. fragment containers).
 
 One final thing to note when composing fragment containers is that the parent will not have access to the data defined by the child container. Relay only allows components to access data they specifically ask for in GraphQL fragments — nothing more. This is called [Data Masking](./thinking-in-relay#data-masking), and it's intentional to prevent components from depending on data they didn't declare as a dependency.
 

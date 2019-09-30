@@ -12,7 +12,7 @@
 
 import type {
   GraphQLResponse,
-  Network,
+  INetwork,
   PayloadData,
   PayloadError,
   UploadableMap,
@@ -495,7 +495,7 @@ export interface IEnvironment {
   /**
    * Get the environment's internal Network.
    */
-  getNetwork(): Network;
+  getNetwork(): INetwork;
 
   /**
    * Get the environment's internal Store.

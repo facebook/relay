@@ -18,7 +18,7 @@ import type RelayObservable, {ObservableFromValue} from './RelayObservable';
  * An interface for fetching the data for one or more (possibly interdependent)
  * queries.
  */
-export type Network = {|
+export type INetwork = {|
   execute: ExecuteFunction,
 |};
 export type LogRequestInfoFunction = mixed => void;

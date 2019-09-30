@@ -28,8 +28,8 @@ const normalizeRelayPayload = require('./normalizeRelayPayload');
 import type {HandlerProvider} from '../handlers/RelayDefaultHandlerProvider';
 import type {
   GraphQLResponse,
+  INetwork,
   LogRequestInfoFunction,
-  Network,
   PayloadData,
   UploadableMap,
 } from '../network/RelayNetworkTypes';
@@ -65,7 +65,7 @@ export type EnvironmentConfig = {|
   +handlerProvider?: ?HandlerProvider,
   +log?: ?LogFunction,
   +operationLoader?: ?OperationLoader,
-  +network: Network,
+  +network: INetwork,
   +scheduler?: ?TaskScheduler,
   +store: Store,
   +missingFieldHandlers?: ?$ReadOnlyArray<MissingFieldHandler>,
@@ -81,7 +81,7 @@ export type EnvironmentConfig = {|
 class RelayModernEnvironment implements IEnvironment {
   __log: LogFunction;
   _operationLoader: ?OperationLoader;
-  _network: Network;
+  _network: INetwork;
   _publishQueue: PublishQueue;
   _scheduler: ?TaskScheduler;
   _store: Store;
@@ -150,7 +150,7 @@ class RelayModernEnvironment implements IEnvironment {
     return this._store;
   }
 
-  getNetwork(): Network {
+  getNetwork(): INetwork {
     return this._network;
   }
 

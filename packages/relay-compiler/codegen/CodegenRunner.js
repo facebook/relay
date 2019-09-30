@@ -18,21 +18,23 @@ const Profiler = require('../core/GraphQLCompilerProfiler');
 const invariant = require('invariant');
 const path = require('path');
 
+const {create: createSchema} = require('../core/Schema');
 // $FlowFixMe - importing immutable, which is untyped (and flow is sad about it)
 const {Map: ImmutableMap} = require('immutable');
 
 import type ASTCache from '../core/ASTCache';
+import type {Schema} from '../core/Schema';
 import type {GraphQLReporter} from '../reporters/GraphQLReporter';
 import type {CompileResult, File} from './CodegenTypes';
 import type {FileFilter, WatchmanExpression} from './CodegenWatcher';
 import type {SourceControl} from './SourceControl';
-import type {DocumentNode, GraphQLSchema} from 'graphql';
+import type {DocumentNode, Source} from 'graphql';
 
 export type ParserConfig = {|
   baseDir: string,
   getFileFilter?: (baseDir: string) => FileFilter,
   getParser: (baseDir: string) => ASTCache,
-  getSchema: () => GraphQLSchema,
+  getSchemaSource: () => Source,
   generatedDirectoriesWatchmanExpression?: ?WatchmanExpression,
   watchmanExpression?: ?WatchmanExpression,
   filepaths?: ?Array<string>,
@@ -58,7 +60,7 @@ type WriterConfigs = {
 
 export type WriteFilesOptions = {|
   onlyValidate: boolean,
-  schema: GraphQLSchema,
+  schema: Schema,
   documents: ImmutableMap<string, DocumentNode>,
   baseDocuments: ImmutableMap<string, DocumentNode>,
   sourceControl: ?SourceControl,
@@ -273,7 +275,7 @@ class CodegenRunner {
         if (baseParsers) {
           baseParsers.forEach(baseParserName => {
             invariant(
-              this.parsers[baseParserName],
+              this.parsers[baseParserName] == null,
               'Trying to access an uncompiled base parser config: %s',
               baseParserName,
             );
@@ -299,7 +301,11 @@ class CodegenRunner {
         // always create a new writer: we have to write everything anyways
         const documents = this.parsers[parser].documents();
         const schema = Profiler.run('getSchema', () =>
-          this.parserConfigs[parser].getSchema(),
+          createSchema(
+            this.parserConfigs[parser].getSchemaSource(),
+            baseDocuments.toArray(),
+            [],
+          ),
         );
 
         const outputDirectories = await writeFiles({
@@ -384,7 +390,7 @@ class CodegenRunner {
         : anyFileFilter,
       async files => {
         invariant(
-          this.parsers[parserName],
+          this.parsers[parserName] == null,
           'Trying to watch an uncompiled parser config: %s',
           parserName,
         );

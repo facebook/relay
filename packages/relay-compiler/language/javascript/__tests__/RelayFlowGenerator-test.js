@@ -14,6 +14,7 @@
 const GraphQLCompilerContext = require('../../../core/GraphQLCompilerContext');
 const RelayFlowGenerator = require('../RelayFlowGenerator');
 const RelayIRTransforms = require('../../../core/RelayIRTransforms');
+const Schema = require('../../../core/Schema');
 
 const {transformASTSchema} = require('../../../core/ASTConvert');
 const {
@@ -25,7 +26,7 @@ const {
 import type {TypeGeneratorOptions} from '../../RelayLanguagePluginInterface';
 
 function generate(text, options: TypeGeneratorOptions, context?) {
-  const schema = transformASTSchema(TestSchema, [
+  const relaySchema = transformASTSchema(TestSchema, [
     ...RelayIRTransforms.schemaExtensions,
     `
       scalar Color
@@ -34,30 +35,43 @@ function generate(text, options: TypeGeneratorOptions, context?) {
       }
     `,
   ]);
-  const {definitions} = parseGraphQLText(schema, text);
-  return new GraphQLCompilerContext(TestSchema, schema)
+  const {definitions} = parseGraphQLText(relaySchema, text);
+  const compilerSchema = Schema.DEPRECATED__create(TestSchema, relaySchema);
+  return new GraphQLCompilerContext(compilerSchema)
     .addAll(definitions)
     .applyTransforms(RelayFlowGenerator.transforms)
     .documents()
     .map(
       doc =>
-        // $FlowFixMe - `SplitOperation` is incompatible with union type.
-        `// ${doc.name}.graphql\n${RelayFlowGenerator.generate(doc, {
-          ...options,
-          normalizationIR: context ? context.get(doc.name) : undefined,
-        })}`,
+        `// ${doc.name}.graphql\n${RelayFlowGenerator.generate(
+          compilerSchema,
+          // $FlowFixMe - `SplitOperation` is incompatible with union type.
+          doc,
+          // $FlowFixMe - `SplitOperation` is incompatible with union type.
+          {
+            ...options,
+            normalizationIR: context ? context.get(doc.name) : undefined,
+          },
+        )}`,
     )
     .join('\n\n');
 }
 
 describe('Snapshot tests', () => {
   function generateContext(text) {
-    const schema = transformASTSchema(
+    const relaySchema = transformASTSchema(
       TestSchema,
       RelayIRTransforms.schemaExtensions,
     );
-    const {definitions} = parseGraphQLText(schema, text);
-    return new GraphQLCompilerContext(TestSchema, schema)
+    const {definitions, schema: extendedSchema} = parseGraphQLText(
+      relaySchema,
+      text,
+    );
+    const compilerSchema = Schema.DEPRECATED__create(
+      TestSchema,
+      extendedSchema,
+    );
+    return new GraphQLCompilerContext(compilerSchema)
       .addAll(definitions)
       .applyTransforms([
         ...RelayIRTransforms.commonTransforms,

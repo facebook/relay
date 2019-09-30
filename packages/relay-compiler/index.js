@@ -25,7 +25,6 @@ const GraphQLIRPrinter = require('./core/GraphQLIRPrinter');
 const GraphQLIRTransformer = require('./core/GraphQLIRTransformer');
 const GraphQLIRVisitor = require('./core/GraphQLIRVisitor');
 const GraphQLMultiReporter = require('./reporters/GraphQLMultiReporter');
-const GraphQLSchemaUtils = require('./core/GraphQLSchemaUtils');
 const GraphQLWatchmanClient = require('./core/GraphQLWatchmanClient');
 const RelayCodeGenerator = require('./codegen/RelayCodeGenerator');
 const RelayFileWriter = require('./codegen/RelayFileWriter');
@@ -33,9 +32,11 @@ const RelayFlowGenerator = require('./language/javascript/RelayFlowGenerator');
 const RelayIRTransforms = require('./core/RelayIRTransforms');
 const RelayIRValidations = require('./core/RelayIRValidations');
 const RelayParser = require('./core/RelayParser');
+const RelaySchema = require('./core/Schema');
 const RelaySourceModuleParser = require('./core/RelaySourceModuleParser');
 const RelayValidator = require('./core/RelayValidator');
 const Rollout = require('./util/Rollout');
+const SchemaUtils = require('./core/SchemaUtils');
 
 const compileRelayArtifacts = require('./codegen/compileRelayArtifacts');
 const filterContextForNode = require('./core/filterContextForNode');
@@ -43,7 +44,6 @@ const formatGeneratedModule = require('./language/javascript/formatGeneratedModu
 const getIdentifierForArgumentValue = require('./core/getIdentifierForArgumentValue');
 const getLiteralArgumentValues = require('./core/getLiteralArgumentValues');
 const getNormalizationOperationName = require('./core/getNormalizationOperationName');
-const isEquivalentType = require('./core/isEquivalentType');
 const nullthrows = require('./util/nullthrowsOSS');
 const writeRelayGeneratedFile = require('./codegen/writeRelayGeneratedFile');
 
@@ -96,11 +96,11 @@ export type {
   Root,
   RootArgumentDefinition,
   ScalarField,
-  ScalarFieldType,
   Selection,
   SplitOperation,
   Variable,
 } from './core/GraphQLIR';
+export type {Schema, TypeID, FieldID} from './core/Schema';
 export type {
   FormatModule,
   TypeGenerator,
@@ -129,17 +129,18 @@ module.exports = {
   Printer: GraphQLIRPrinter,
   Profiler: GraphQLCompilerProfiler,
   Rollout,
-  SchemaUtils: GraphQLSchemaUtils,
+  SchemaUtils: SchemaUtils,
   SourceControlMercurial,
   WatchmanClient: GraphQLWatchmanClient,
+
   filterContextForNode,
   getIdentifierForArgumentValue,
   getNormalizationOperationName,
   getLiteralArgumentValues,
-  isEquivalentType,
   nullthrows,
 
   Parser: RelayParser,
+  Schema: RelaySchema,
   Validator: RelayValidator,
   CodeGenerator: RelayCodeGenerator,
   FlowGenerator: RelayFlowGenerator,

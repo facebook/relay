@@ -14,6 +14,7 @@
 const GraphQLCompilerContext = require('../GraphQLCompilerContext');
 const GraphQLIRTransformer = require('../GraphQLIRTransformer');
 const GraphQLIRValidator = require('../GraphQLIRValidator');
+const Schema = require('../Schema');
 
 const {transformASTSchema} = require('../ASTConvert');
 const {TestSchema, parseGraphQLText} = require('relay-test-utils-internal');
@@ -73,7 +74,9 @@ describe('GraphQLIRValidator', () => {
    }
  `,
     );
-    const context = new GraphQLCompilerContext(TestSchema).addAll(definitions);
+    const context = new GraphQLCompilerContext(
+      Schema.DEPRECATED__create(TestSchema),
+    ).addAll(definitions);
 
     const astKinds = [
       'Argument',

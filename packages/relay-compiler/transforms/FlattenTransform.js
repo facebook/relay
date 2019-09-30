@@ -11,7 +11,6 @@
 'use strict';
 
 const GraphQLIRTransformer = require('../core/GraphQLIRTransformer');
-const GraphQLSchemaUtils = require('../core/GraphQLSchemaUtils');
 
 const areEqual = require('../util/areEqualOSS');
 const getIdentifierForSelection = require('../core/getIdentifierForSelection');
@@ -32,9 +31,7 @@ import type {
   ScalarField,
   Selection,
 } from '../core/GraphQLIR';
-import type {GraphQLType} from 'graphql';
-
-const {getRawType, isAbstractType} = GraphQLSchemaUtils;
+import type {Schema, TypeID} from '../core/Schema';
 
 export type FlattenOptions = {
   flattenAbstractTypes?: boolean,
@@ -42,7 +39,7 @@ export type FlattenOptions = {
 
 type State = {
   flattenAbstractTypes: boolean,
-  parentType: ?GraphQLType,
+  parentType: ?TypeID,
 };
 
 /**
@@ -82,6 +79,7 @@ function flattenTransformImpl(
 
 function memoizedFlattenSelection(cache) {
   return function flattenSelectionsFn<T: Node>(node: T, state: State): T {
+    const context: GraphQLCompilerContext = this.getContext();
     let nodeCache = cache.get(node);
     if (nodeCache == null) {
       nodeCache = new Map();
@@ -114,6 +112,7 @@ function memoizedFlattenSelection(cache) {
     // keeping track of the parent type.
     const nextSelections = new Map();
     const hasFlattened = flattenSelectionsInto(
+      context.getSchema(),
       nextSelections,
       node,
       state,
@@ -134,22 +133,29 @@ function memoizedFlattenSelection(cache) {
  * @private
  */
 function flattenSelectionsInto(
+  schema: Schema,
   flattenedSelections: Map<string, Selection>,
   node: Node,
   state: State,
-  type: GraphQLType,
+  type: TypeID,
 ): boolean {
   let hasFlattened = false;
   node.selections.forEach(selection => {
     if (
       selection.kind === 'InlineFragment' &&
-      shouldFlattenInlineFragment(selection, state, type)
+      shouldFlattenInlineFragment(schema, selection, state, type)
     ) {
       hasFlattened = true;
-      flattenSelectionsInto(flattenedSelections, selection, state, type);
+      flattenSelectionsInto(
+        schema,
+        flattenedSelections,
+        selection,
+        state,
+        type,
+      );
       return;
     }
-    const nodeIdentifier = getIdentifierForSelection(selection);
+    const nodeIdentifier = getIdentifierForSelection(schema, selection);
     const flattenedSelection = flattenedSelections.get(nodeIdentifier);
     // If this selection hasn't been seen before, keep track of it.
     if (!flattenedSelection) {
@@ -170,6 +176,7 @@ function flattenSelectionsInto(
       flattenedSelections.set(nodeIdentifier, {
         ...flattenedSelection,
         selections: mergeSelections(
+          schema,
           flattenedSelection,
           selection,
           state,
@@ -185,7 +192,13 @@ function flattenSelectionsInto(
       }
       flattenedSelections.set(nodeIdentifier, {
         ...flattenedSelection,
-        selections: mergeSelections(flattenedSelection, selection, state, type),
+        selections: mergeSelections(
+          schema,
+          flattenedSelection,
+          selection,
+          state,
+          type,
+        ),
       });
     } else if (flattenedSelection.kind === 'ClientExtension') {
       if (selection.kind !== 'ClientExtension') {
@@ -198,7 +211,13 @@ function flattenSelectionsInto(
       }
       flattenedSelections.set(nodeIdentifier, {
         ...flattenedSelection,
-        selections: mergeSelections(flattenedSelection, selection, state, type),
+        selections: mergeSelections(
+          schema,
+          flattenedSelection,
+          selection,
+          state,
+          type,
+        ),
       });
     } else if (flattenedSelection.kind === 'FragmentSpread') {
       // Ignore duplicate fragment spreads.
@@ -224,7 +243,13 @@ function flattenSelectionsInto(
       }
       flattenedSelections.set(nodeIdentifier, {
         ...flattenedSelection,
-        selections: mergeSelections(flattenedSelection, selection, state, type),
+        selections: mergeSelections(
+          schema,
+          flattenedSelection,
+          selection,
+          state,
+          type,
+        ),
       });
     } else if (flattenedSelection.kind === 'Defer') {
       if (selection.kind !== 'Defer') {
@@ -236,7 +261,13 @@ function flattenSelectionsInto(
       flattenedSelections.set(nodeIdentifier, {
         kind: 'Defer',
         ...flattenedSelection,
-        selections: mergeSelections(flattenedSelection, selection, state, type),
+        selections: mergeSelections(
+          schema,
+          flattenedSelection,
+          selection,
+          state,
+          type,
+        ),
       });
     } else if (flattenedSelection.kind === 'Stream') {
       if (selection.kind !== 'Stream') {
@@ -248,7 +279,13 @@ function flattenSelectionsInto(
       flattenedSelections.set(nodeIdentifier, {
         kind: 'Stream',
         ...flattenedSelection,
-        selections: mergeSelections(flattenedSelection, selection, state, type),
+        selections: mergeSelections(
+          schema,
+          flattenedSelection,
+          selection,
+          state,
+          type,
+        ),
       });
     } else if (flattenedSelection.kind === 'LinkedField') {
       if (selection.kind !== 'LinkedField') {
@@ -270,6 +307,7 @@ function flattenSelectionsInto(
         metadata: flattenedSelection.metadata,
         name: flattenedSelection.name,
         selections: mergeSelections(
+          schema,
           flattenedSelection,
           selection,
           state,
@@ -312,6 +350,7 @@ function flattenSelectionsInto(
         metadata: flattenedSelection.metadata,
         name: flattenedSelection.name,
         selections: mergeSelections(
+          schema,
           flattenedSelection,
           selection,
           state,
@@ -337,6 +376,7 @@ function flattenSelectionsInto(
         kind: 'Connection',
         ...flattenedSelection,
         selections: mergeSelections(
+          schema,
           flattenedSelection,
           selection,
           state,
@@ -357,14 +397,15 @@ function flattenSelectionsInto(
  * @private
  */
 function mergeSelections(
+  schema: Schema,
   nodeA: Node,
   nodeB: Node,
   state: State,
-  type: GraphQLType,
+  type: TypeID,
 ): $ReadOnlyArray<Selection> {
   const flattenedSelections = new Map();
-  flattenSelectionsInto(flattenedSelections, nodeA, state, type);
-  flattenSelectionsInto(flattenedSelections, nodeB, state, type);
+  flattenSelectionsInto(schema, flattenedSelections, nodeA, state, type);
+  flattenSelectionsInto(schema, flattenedSelections, nodeB, state, type);
   return Array.from(flattenedSelections.values());
 }
 
@@ -387,13 +428,15 @@ function assertUniqueArgsForAlias(field: Field, otherField: Field): void {
  * @private
  */
 function shouldFlattenInlineFragment(
+  schema: Schema,
   fragment: InlineFragment,
   state: State,
-  type: GraphQLType,
+  type: TypeID,
 ): boolean {
   return (
-    fragment.typeCondition.name === getRawType(type).name ||
-    (state.flattenAbstractTypes && isAbstractType(fragment.typeCondition))
+    schema.areEqualTypes(fragment.typeCondition, schema.getRawType(type)) ||
+    (state.flattenAbstractTypes &&
+      schema.isAbstractType(fragment.typeCondition))
   );
 }
 

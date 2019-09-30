@@ -6,17 +6,16 @@
  *
  * All rights reserved.
  *
- * @flow
+ * @flow strict-local
  * @format
  */
 
 'use strict';
 
 const {createUserError} = require('../core/RelayCompilerError');
-const {isTypeSubTypeOf} = require('graphql');
 
 import type {ArgumentDefinition, Fragment} from '../core/GraphQLIR';
-import type {GraphQLSchema} from 'graphql';
+import type {Schema} from '../core/Schema';
 
 /**
  * Attempts to join the argument definitions for a root fragment
@@ -25,7 +24,7 @@ import type {GraphQLSchema} from 'graphql';
  * variable(s) are used in incompatible ways in different fragments.
  */
 function joinArgumentDefinitions(
-  schema: GraphQLSchema,
+  schema: Schema,
   fragment: Fragment,
   reachableArguments: $ReadOnlyArray<ArgumentDefinition>,
   directiveName: string,
@@ -59,7 +58,7 @@ function joinArgumentDefinitions(
  *   null to indicate they cannot be joined.
  */
 function joinArgumentDefinition(
-  schema: GraphQLSchema,
+  schema: Schema,
   prevArgDef: ArgumentDefinition,
   nextArgDef: ArgumentDefinition,
   directiveName: string,
@@ -80,15 +79,17 @@ function joinArgumentDefinition(
         `applying ${directiveName}.`,
       [prevArgDef.loc, nextArgDef.loc],
     );
-  } else if (isTypeSubTypeOf(schema, nextArgDef.type, prevArgDef.type)) {
+  } else if (schema.isTypeSubTypeOf(nextArgDef.type, prevArgDef.type)) {
     // prevArgDef is less strict than nextArgDef
     return nextArgDef;
-  } else if (isTypeSubTypeOf(schema, prevArgDef.type, nextArgDef.type)) {
+  } else if (schema.isTypeSubTypeOf(prevArgDef.type, nextArgDef.type)) {
     return prevArgDef;
   } else {
     throw createUserError(
       'Cannot combine variables with incompatible types ' +
-        `${String(prevArgDef.type)} and ${String(nextArgDef.type)} ` +
+        `${schema.getTypeString(prevArgDef.type)} and ${schema.getTypeString(
+          nextArgDef.type,
+        )} ` +
         `when applying ${directiveName}.`,
       [prevArgDef.loc, nextArgDef.loc],
     );

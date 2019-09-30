@@ -14,6 +14,7 @@
 const ClientExtensionsTransform = require('../ClientExtensionsTransform');
 const GraphQLCompilerContext = require('../../core/GraphQLCompilerContext');
 const GraphQLIRPrinter = require('../../core/GraphQLIRPrinter');
+const Schema = require('../../core/Schema');
 const SkipClientExtensionsTransform = require('../SkipClientExtensionsTransform');
 
 const {
@@ -26,15 +27,22 @@ describe('SkipClientExtensionsTransform', () => {
   generateTestsFromFixtures(
     `${__dirname}/fixtures/skip-client-extensions-transform`,
     text => {
-      const {definitions, schema} = parseGraphQLText(TestSchema, text);
-      return new GraphQLCompilerContext(TestSchema, schema ?? TestSchema)
+      const {definitions, schema: extendedSchema} = parseGraphQLText(
+        TestSchema,
+        text,
+      );
+      const compilerSchema = Schema.DEPRECATED__create(
+        TestSchema,
+        extendedSchema,
+      );
+      return new GraphQLCompilerContext(compilerSchema)
         .addAll(definitions)
         .applyTransforms([
           ClientExtensionsTransform.transform,
           SkipClientExtensionsTransform.transform,
         ])
         .documents()
-        .map(GraphQLIRPrinter.print)
+        .map(doc => GraphQLIRPrinter.print(compilerSchema, doc))
         .join('\n');
     },
   );

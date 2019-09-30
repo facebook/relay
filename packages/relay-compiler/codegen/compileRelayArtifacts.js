@@ -99,6 +99,7 @@ function compile(
   codeGenContext: CompilerContext,
 ): $ReadOnlyArray<[GeneratedDefinition, GeneratedNode]> {
   const results = [];
+  const schema = context.getSchema();
 
   // Add everything from codeGenContext, these are the operations as well as
   // SplitOperations from @match.
@@ -124,16 +125,16 @@ function compile(
         root: node,
         text: printOperation(printContext, fragment.name),
       };
-      results.push([request, RelayCodeGenerator.generate(request)]);
+      results.push([request, RelayCodeGenerator.generate(schema, request)]);
     } else {
-      results.push([node, RelayCodeGenerator.generate(node)]);
+      results.push([node, RelayCodeGenerator.generate(schema, node)]);
     }
   }
 
   // Add all the Fragments from the fragmentContext for the reader ASTs.
   for (const node of fragmentContext.documents()) {
     if (node.kind === 'Fragment') {
-      results.push([node, RelayCodeGenerator.generate(node)]);
+      results.push([node, RelayCodeGenerator.generate(schema, node)]);
     }
   }
   return results;
@@ -143,7 +144,7 @@ function printOperation(printContext: CompilerContext, name: string): string {
   const printableRoot = printContext.getRoot(name);
   return filterContextForNode(printableRoot, printContext)
     .documents()
-    .map(Printer.print)
+    .map(doc => Printer.print(printContext.getSchema(), doc))
     .join('\n');
 }
 

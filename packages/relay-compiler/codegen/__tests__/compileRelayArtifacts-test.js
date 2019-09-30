@@ -16,6 +16,7 @@ const CodeMarker = require('../../util/CodeMarker');
 const CompilerContext = require('../../core/GraphQLCompilerContext');
 const RelayIRTransforms = require('../../core/RelayIRTransforms');
 const RelayIRValidations = require('../../core/RelayIRValidations');
+const Schema = require('../../core/Schema');
 
 const compileRelayArtifacts = require('../compileRelayArtifacts');
 
@@ -43,10 +44,9 @@ describe('compileRelayArtifacts', () => {
         RelayIRTransforms.schemaExtensions,
       );
       const {definitions, schema} = parseGraphQLText(relaySchema, text);
-      // $FlowFixMe
-      const compilerContext = new CompilerContext(TestSchema, schema).addAll(
-        definitions,
-      );
+      const compilerContext = new CompilerContext(
+        Schema.DEPRECATED__create(TestSchema, schema),
+      ).addAll(definitions);
       return compileRelayArtifacts(
         compilerContext,
         RelayIRTransforms,
@@ -71,8 +71,7 @@ describe('compileRelayArtifacts', () => {
 
 function stringifyAST(ast: mixed): string {
   return CodeMarker.postProcess(
-    // $FlowFixMe(>=0.95.0) JSON.stringify can return undefined
-    JSON.stringify(ast, null, 2),
+    JSON.stringify(ast, null, 2) ?? 'null',
     moduleName => `require('${moduleName}')`,
   );
 }

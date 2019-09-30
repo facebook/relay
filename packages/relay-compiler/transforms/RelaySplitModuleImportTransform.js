@@ -21,10 +21,10 @@ import type {
   ModuleImport,
   SplitOperation,
 } from '../core/GraphQLIR';
-import type {GraphQLCompositeType} from 'graphql';
+import type {TypeID} from '../core/Schema';
 
 type State = {|
-  parentType: GraphQLCompositeType,
+  parentType: TypeID,
   splitOperations: Map<string, SplitOperation>,
 |};
 
@@ -40,7 +40,10 @@ function relaySplitMatchTransform(context: CompilerContext): CompilerContext {
       InlineFragment: visitInlineFragment,
       ModuleImport: visitModuleImport,
     },
-    node => ({parentType: node.type, splitOperations}),
+    node => ({
+      parentType: node.type,
+      splitOperations,
+    }),
   );
   return transformedContext.addAll(Array.from(splitOperations.values()));
 }

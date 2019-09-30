@@ -14,6 +14,7 @@
 const GraphQLCompilerContext = require('../../core/GraphQLCompilerContext');
 const GraphQLIRPrinter = require('../../core/GraphQLIRPrinter');
 const RelaySkipHandleFieldTransform = require('../RelaySkipHandleFieldTransform');
+const Schema = require('../../core/Schema');
 
 const {
   TestSchema,
@@ -26,11 +27,12 @@ describe('RelaySkipHandleFieldTransform', () => {
     `${__dirname}/fixtures/skip-handle-field-transform`,
     text => {
       const {definitions} = parseGraphQLText(TestSchema, text);
-      return new GraphQLCompilerContext(TestSchema)
+      const compilerSchema = Schema.DEPRECATED__create(TestSchema);
+      return new GraphQLCompilerContext(compilerSchema)
         .addAll(definitions)
         .applyTransforms([RelaySkipHandleFieldTransform.transform])
         .documents()
-        .map(GraphQLIRPrinter.print)
+        .map(doc => GraphQLIRPrinter.print(compilerSchema, doc))
         .join('\n');
     },
   );

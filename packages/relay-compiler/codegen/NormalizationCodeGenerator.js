@@ -10,13 +10,10 @@
 
 'use strict';
 
-const SchemaUtils = require('../core/GraphQLSchemaUtils');
-
 const {
   createCompilerError,
   createUserError,
 } = require('../core/RelayCompilerError');
-const {GraphQLList} = require('graphql');
 const {
   ConnectionInterface,
   getStorageKey,
@@ -31,7 +28,16 @@ import type {
   Root,
   Selection,
   SplitOperation,
+  LinkedField,
+  Defer,
+  Stream,
+  Condition,
+  Connection,
+  ConnectionField,
+  InlineFragment,
+  LocalArgumentDefinition,
 } from '../core/GraphQLIR';
+import type {Schema, TypeID} from '../core/Schema';
 import type {
   NormalizationArgument,
   NormalizationDefer,
@@ -47,7 +53,6 @@ import type {
   NormalizationSplitOperation,
   NormalizationStream,
 } from 'relay-runtime';
-const {getRawType, isAbstractType, getNullableType} = SchemaUtils;
 
 /**
  * @public
@@ -55,16 +60,20 @@ const {getRawType, isAbstractType, getNullableType} = SchemaUtils;
  * Converts a GraphQLIR node into a plain JS object representation that can be
  * used at runtime.
  */
-declare function generate(node: Root): NormalizationOperation;
-declare function generate(node: SplitOperation): NormalizationSplitOperation;
+declare function generate(schema: Schema, node: Root): NormalizationOperation;
+declare function generate(
+  schema: Schema,
+  node: SplitOperation,
+): NormalizationSplitOperation;
 function generate(
-  node: $FlowFixMe,
+  schema: Schema,
+  node: Root | SplitOperation,
 ): NormalizationOperation | NormalizationSplitOperation {
   switch (node.kind) {
     case 'Root':
-      return generateRoot(node);
+      return generateRoot(schema, node);
     case 'SplitOperation':
-      return generateSplitOperation(node);
+      return generateSplitOperation(schema, node);
     default:
       throw createCompilerError(
         `NormalizationCodeGenerator: Unsupported AST kind '${node.kind}'.`,
@@ -73,35 +82,44 @@ function generate(
   }
 }
 
-function generateRoot(node: Root): NormalizationOperation {
+function generateRoot(schema: Schema, node: Root): NormalizationOperation {
   return {
     kind: 'Operation',
     name: node.name,
-    argumentDefinitions: generateArgumentDefinitions(node.argumentDefinitions),
-    selections: generateSelections(node.selections),
+    argumentDefinitions: generateArgumentDefinitions(
+      schema,
+      node.argumentDefinitions,
+    ),
+    selections: generateSelections(schema, node.selections),
   };
 }
 
-function generateSplitOperation(node, key): NormalizationSplitOperation {
+function generateSplitOperation(
+  schema: Schema,
+  node: SplitOperation,
+): NormalizationSplitOperation {
   return {
     kind: 'SplitOperation',
     name: node.name,
     metadata: node.metadata,
-    selections: generateSelections(node.selections),
+    selections: generateSelections(schema, node.selections),
   };
 }
 
 function generateSelections(
+  schema: Schema,
   selections: $ReadOnlyArray<Selection>,
 ): $ReadOnlyArray<NormalizationSelection> {
   const normalizationSelections: Array<NormalizationSelection> = [];
   selections.forEach(selection => {
     switch (selection.kind) {
       case 'Condition':
-        normalizationSelections.push(generateCondition(selection));
+        normalizationSelections.push(generateCondition(schema, selection));
         break;
       case 'ClientExtension':
-        normalizationSelections.push(generateClientExtension(selection));
+        normalizationSelections.push(
+          generateClientExtension(schema, selection),
+        );
         break;
       case 'ScalarField':
         normalizationSelections.push(...generateScalarField(selection));
@@ -110,22 +128,24 @@ function generateSelections(
         normalizationSelections.push(generateModuleImport(selection));
         break;
       case 'InlineFragment':
-        normalizationSelections.push(generateInlineFragment(selection));
+        normalizationSelections.push(generateInlineFragment(schema, selection));
         break;
       case 'LinkedField':
-        normalizationSelections.push(...generateLinkedField(selection));
+        normalizationSelections.push(...generateLinkedField(schema, selection));
         break;
       case 'ConnectionField':
-        normalizationSelections.push(...generateConnectionField(selection));
+        normalizationSelections.push(
+          ...generateConnectionField(schema, selection),
+        );
         break;
       case 'Connection':
-        normalizationSelections.push(generateConnection(selection));
+        normalizationSelections.push(generateConnection(schema, selection));
         break;
       case 'Defer':
-        normalizationSelections.push(generateDefer(selection));
+        normalizationSelections.push(generateDefer(schema, selection));
         break;
       case 'Stream':
-        normalizationSelections.push(generateStream(selection));
+        normalizationSelections.push(generateStream(schema, selection));
         break;
       case 'InlineDataFragmentSpread':
       case 'FragmentSpread':
@@ -142,28 +162,33 @@ function generateSelections(
 }
 
 function generateArgumentDefinitions(
-  nodes,
+  schema: Schema,
+  nodes: $ReadOnlyArray<LocalArgumentDefinition>,
 ): $ReadOnlyArray<NormalizationLocalArgumentDefinition> {
   return nodes.map(node => {
     return {
       kind: 'LocalArgument',
       name: node.name,
-      type: node.type.toString(),
+      type: schema.getTypeString(node.type),
       defaultValue: node.defaultValue,
     };
   });
 }
 
 function generateClientExtension(
+  schema: Schema,
   node: ClientExtension,
 ): NormalizationSelection {
   return {
     kind: 'ClientExtension',
-    selections: generateSelections(node.selections),
+    selections: generateSelections(schema, node.selections),
   };
 }
 
-function generateCondition(node, key): NormalizationSelection {
+function generateCondition(
+  schema: Schema,
+  node: Condition,
+): NormalizationSelection {
   if (node.condition.kind !== 'Variable') {
     throw createCompilerError(
       "NormalizationCodeGenerator: Expected 'Condition' with static " +
@@ -175,11 +200,11 @@ function generateCondition(node, key): NormalizationSelection {
     kind: 'Condition',
     passingValue: node.passingValue,
     condition: node.condition.variableName,
-    selections: generateSelections(node.selections),
+    selections: generateSelections(schema, node.selections),
   };
 }
 
-function generateDefer(node, key): NormalizationDefer {
+function generateDefer(schema: Schema, node: Defer): NormalizationDefer {
   if (
     !(
       node.if == null ||
@@ -201,19 +226,25 @@ function generateDefer(node, key): NormalizationDefer {
     kind: 'Defer',
     label: node.label,
     metadata: node.metadata,
-    selections: generateSelections(node.selections),
+    selections: generateSelections(schema, node.selections),
   };
 }
 
-function generateInlineFragment(node): NormalizationSelection {
+function generateInlineFragment(
+  schema: Schema,
+  node: InlineFragment,
+): NormalizationSelection {
   return {
     kind: 'InlineFragment',
-    type: node.typeCondition.toString(),
-    selections: generateSelections(node.selections),
+    type: schema.getTypeString(node.typeCondition),
+    selections: generateSelections(schema, node.selections),
   };
 }
 
-function generateLinkedField(node): $ReadOnlyArray<NormalizationSelection> {
+function generateLinkedField(
+  schema: Schema,
+  node: LinkedField,
+): $ReadOnlyArray<NormalizationSelection> {
   // Note: it is important that the arguments of this field be sorted to
   // ensure stable generation of storage keys for equivalent arguments
   // which may have originally appeared in different orders across an app.
@@ -247,16 +278,18 @@ function generateLinkedField(node): $ReadOnlyArray<NormalizationSelection> {
         return handleNode;
       })) ||
     [];
-  const type = getRawType(node.type);
+  const type = schema.getRawType(node.type);
   let field: NormalizationLinkedField = {
     kind: 'LinkedField',
     alias: node.alias === node.name ? null : node.alias,
     name: node.name,
     storageKey: null,
     args: generateArgs(node.args),
-    concreteType: !isAbstractType(type) ? type.toString() : null,
-    plural: isPlural(node.type),
-    selections: generateSelections(node.selections),
+    concreteType: !schema.isAbstractType(type)
+      ? schema.getTypeString(type)
+      : null,
+    plural: isPlural(schema, node.type),
+    selections: generateSelections(schema, node.selections),
   };
   // Precompute storageKey if possible
   const storageKey = getStaticStorageKey(field, node.metadata);
@@ -266,10 +299,20 @@ function generateLinkedField(node): $ReadOnlyArray<NormalizationSelection> {
   return [field].concat(handles);
 }
 
-function generateConnectionField(node): $ReadOnlyArray<NormalizationSelection> {
-  return generateLinkedField({
-    ...node,
+function generateConnectionField(
+  schema: Schema,
+  node: ConnectionField,
+): $ReadOnlyArray<NormalizationSelection> {
+  return generateLinkedField(schema, {
+    name: node.name,
+    alias: node.alias,
+    loc: node.loc,
+    directives: node.directives,
+    metadata: node.metadata,
+    selections: node.selections,
+    type: node.type,
     handles: null,
+    connection: false, // this is only on the linked fields with @conneciton
     args: node.args.filter(
       arg =>
         !ConnectionInterface.isConnectionCall({name: arg.name, value: null}),
@@ -278,9 +321,12 @@ function generateConnectionField(node): $ReadOnlyArray<NormalizationSelection> {
   });
 }
 
-function generateConnection(node): NormalizationConnection {
+function generateConnection(
+  schema: Schema,
+  node: Connection,
+): NormalizationConnection {
   const {EDGES, PAGE_INFO} = ConnectionInterface.get();
-  const selections = generateSelections(node.selections);
+  const selections = generateSelections(schema, node.selections);
   let edges: ?NormalizationLinkedField;
   let pageInfo: ?NormalizationLinkedField;
   selections.forEach(selection => {
@@ -414,7 +460,7 @@ function generateScalarField(node): Array<NormalizationSelection> {
   return [field].concat(handles);
 }
 
-function generateStream(node, key): NormalizationStream {
+function generateStream(schema: Schema, node: Stream): NormalizationStream {
   if (
     !(
       node.if == null ||
@@ -436,7 +482,7 @@ function generateStream(node, key): NormalizationStream {
     kind: 'Stream',
     label: node.label,
     metadata: node.metadata,
-    selections: generateSelections(node.selections),
+    selections: generateSelections(schema, node.selections),
   };
 }
 
@@ -466,10 +512,6 @@ function generateArgumentValue(
         [value.loc],
       );
   }
-}
-
-function isPlural(type: $FlowFixMe): boolean {
-  return getNullableType(type) instanceof GraphQLList;
 }
 
 function generateArgs(
@@ -512,6 +554,10 @@ function getStaticStorageKey(
     return null;
   }
   return getStorageKey(field, {});
+}
+
+function isPlural(schema: Schema, type: TypeID): boolean {
+  return schema.isList(schema.getNullableType(type));
 }
 
 module.exports = {generate};

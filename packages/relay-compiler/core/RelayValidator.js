@@ -29,23 +29,22 @@ const {
   ValuesOfCorrectTypeRule,
   VariablesAreInputTypesRule,
   formatError,
-  validate,
 } = require('graphql');
 
+import type {Schema} from './Schema';
 import type {
   DocumentNode,
   FieldNode,
-  GraphQLSchema,
   ValidationRule,
   ValidationContext,
 } from 'graphql';
 
 function validateOrThrow(
+  schema: Schema,
   document: DocumentNode,
-  schema: GraphQLSchema,
   rules: $ReadOnlyArray<ValidationRule>,
 ): void {
-  const validationErrors = validate(schema, document, rules);
+  const validationErrors = schema.DEPRECATED__validate(document, rules);
   if (validationErrors && validationErrors.length > 0) {
     const formattedErrors = validationErrors.map(formatError);
     const errorMessages = validationErrors.map(e => e.toString());
@@ -130,8 +129,8 @@ module.exports = {
     DisallowIdAsAliasValidationRule,
   ],
   validate: (Profiler.instrument(validateOrThrow, 'RelayValidator.validate'): (
+    schema: Schema,
     document: DocumentNode,
-    schema: GraphQLSchema,
     rules: $ReadOnlyArray<ValidationRule>,
   ) => void),
 };

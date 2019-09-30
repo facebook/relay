@@ -15,16 +15,9 @@
 
 const IRTransformer = require('../core/GraphQLIRTransformer');
 
-const {
-  getNullableType,
-  isEnumType,
-  isNullableType,
-  isListType,
-} = require('graphql');
-
 import type CompilerContext from '../core/GraphQLCompilerContext';
 import type {Fragment, Root} from '../core/GraphQLIR';
-import type {GraphQLOutputType, GraphQLList} from 'graphql';
+import type {Schema, TypeID} from '../core/Schema';
 
 // The purpose of this directive is to add GraphQL type inform for fields in
 // the operation selection in order to use in in RelayMockPayloadGenerator
@@ -47,27 +40,22 @@ type TypeDetails = {|
   +enumValues: null | $ReadOnlyArray<string>,
 |};
 
-function getTypeDetails(
-  fieldType: GraphQLOutputType | GraphQLList<GraphQLOutputType>,
-): TypeDetails {
-  const nullableType = getNullableType(fieldType);
-  const isNullable = isNullableType(fieldType);
-  const isPlural = isListType(nullableType);
-  const type = isListType(nullableType)
-    ? getNullableType(nullableType.ofType)
-    : nullableType;
+function getTypeDetails(schema: Schema, fieldType: TypeID): TypeDetails {
+  const nullableType = schema.getNullableType(fieldType);
+  const isNullable = !schema.isNonNull(fieldType);
+  const isPlural = schema.isList(nullableType);
+  const type = schema.getRawType(nullableType);
 
   return {
-    type: isListType(type) ? String(type) : type != null ? type.name : 'String',
-    enumValues: isEnumType(type)
-      ? type.getValues().map(val => val.value)
-      : null,
+    type: schema.getTypeString(type),
+    enumValues: schema.isEnum(type) ? schema.getEnumValues(type) : null,
     plural: isPlural,
     nullable: isNullable,
   };
 }
 
 function visitRoot(node: Root) {
+  const schema: Schema = this.getContext().getSchema();
   const testDirective = node.directives.find(
     directive => directive.name === 'relay_test_operation',
   );
@@ -99,14 +87,14 @@ function visitRoot(node: Root) {
         case 'ScalarField': {
           const nextPath =
             path === null ? selection.alias : `${path}.${selection.alias}`;
-          selectionsTypeInfo[nextPath] = getTypeDetails(selection.type);
+          selectionsTypeInfo[nextPath] = getTypeDetails(schema, selection.type);
           break;
         }
         case 'ConnectionField':
         case 'LinkedField': {
           const nextPath =
             path === null ? selection.alias : `${path}.${selection.alias}`;
-          selectionsTypeInfo[nextPath] = getTypeDetails(selection.type);
+          selectionsTypeInfo[nextPath] = getTypeDetails(schema, selection.type);
           queue.unshift({
             selections: selection.selections,
             path: nextPath,

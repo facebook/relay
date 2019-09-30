@@ -1956,11 +1956,13 @@ fragment TestFragment on User
 THROWN EXCEPTION:
 
 Error: RelayParser: Encountered 1 error(s):
-- Unknown type: 'UnknownType'.
+- Unknown type "UnknownType" referenced in the argument definitions.
   
-  GraphQL request (1:1)
-  1: UnknownType
-     ^
+  GraphQL request (3:24)
+  2: fragment TestFragment on User
+  3:   @argumentDefinitions(myArg: {type: "UnknownType"}) {
+                            ^
+  4:   profilePicture(size: $PictureSize) {
   
 `;
 
@@ -5290,7 +5292,7 @@ query LiteralObjectArgument3 {
 THROWN EXCEPTION:
 
 Error: RelayParser: Encountered 3 error(s):
-- Uknown field 'unknownField' on type 'CheckinSearchInput'.
+- Unknown field 'unknownField' on type 'CheckinSearchInput.'
   
   GraphQL request (5:7)
   4:     query: {
@@ -5961,7 +5963,7 @@ fragment Foo on UnknownType {
 THROWN EXCEPTION:
 
 Error: RelayParser: Encountered 1 error(s):
-- Unknown type: 'UnknownType'.
+- Unknown type 'UnknownType' on the fragment definition 'Foo'.
   
   GraphQL request (2:17)
   1: # expected-to-throw

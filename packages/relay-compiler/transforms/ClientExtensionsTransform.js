@@ -13,29 +13,20 @@
 const GraphQLIRTransformer = require('../core/GraphQLIRTransformer');
 
 const {
-  getRawType,
-  isClientDefinedField,
-} = require('../core/GraphQLSchemaUtils');
-const {
   createCompilerError,
   createUserError,
 } = require('../core/RelayCompilerError');
 
 import type GraphQLCompilerContext from '../core/GraphQLCompilerContext';
 import type {Definition, Node, Selection} from '../core/GraphQLIR';
-import type {GraphQLType} from 'graphql';
-
-type State = {|
-  clientFields: Map<string, Selection>,
-  parentType: GraphQLType | null,
-|};
+import type {TypeID} from '../core/Schema';
 
 let cachesByNode = new Map();
 function clientExtensionTransform(
   context: GraphQLCompilerContext,
 ): GraphQLCompilerContext {
   cachesByNode = new Map();
-  return GraphQLIRTransformer.transform<State>(context, {
+  return GraphQLIRTransformer.transform(context, {
     Fragment: traverseDefinition,
     Root: traverseDefinition,
     SplitOperation: traverseDefinition,
@@ -43,32 +34,39 @@ function clientExtensionTransform(
 }
 
 function traverseDefinition<T: Definition>(node: T): T {
-  const compilerContext = this.getContext();
-  const {serverSchema, clientSchema} = compilerContext;
+  const compilerContext: GraphQLCompilerContext = this.getContext();
+
+  const schema = compilerContext.getSchema();
+
   let rootType;
   switch (node.kind) {
     case 'Root':
       switch (node.operation) {
         case 'query':
-          rootType = serverSchema.getQueryType();
+          rootType = schema.getQueryType();
           break;
         case 'mutation':
-          rootType = serverSchema.getMutationType();
+          rootType = schema.getMutationType();
           break;
         case 'subscription':
-          rootType = serverSchema.getSubscriptionType();
+          rootType = schema.getSubscriptionType();
           break;
         default:
           (node.operation: empty);
       }
       break;
     case 'SplitOperation':
-      rootType = serverSchema.getType(node.type.name);
+      if (!schema.isServerType(node.type)) {
+        throw createUserError(
+          'ClientExtensionTransform: SplitOperation (@module) can be created ' +
+            'only for fragments that defined on a server type',
+          [node.loc],
+        );
+      }
+      rootType = node.type;
       break;
     case 'Fragment':
-      rootType =
-        serverSchema.getType(node.type.name) ??
-        clientSchema.getType(node.type.name);
+      rootType = node.type;
       break;
     default:
       (node: empty);
@@ -88,7 +86,7 @@ function traverseDefinition<T: Definition>(node: T): T {
 function traverseSelections<T: Node>(
   node: T,
   compilerContext: GraphQLCompilerContext,
-  parentType: GraphQLType,
+  parentType: TypeID,
 ): T {
   let nodeCache = cachesByNode.get(node);
   if (nodeCache == null) {
@@ -100,7 +98,8 @@ function traverseSelections<T: Node>(
     // $FlowFixMe - TODO: type IRTransformer to allow changing result type
     return result;
   }
-  const {serverSchema, clientSchema} = compilerContext;
+  const schema = compilerContext.getSchema();
+
   const clientSelections = [];
   const serverSelections = cowMap(node.selections, selection => {
     switch (selection.kind) {
@@ -117,7 +116,9 @@ function traverseSelections<T: Node>(
       case 'Stream':
         return traverseSelections(selection, compilerContext, parentType);
       case 'ScalarField':
-        if (isClientDefinedField(selection, compilerContext, parentType)) {
+        if (
+          schema.isClientDefinedField(schema.getRawType(parentType), selection)
+        ) {
           clientSelections.push(selection);
           return null;
         } else {
@@ -125,52 +126,33 @@ function traverseSelections<T: Node>(
         }
       case 'ConnectionField':
       case 'LinkedField': {
-        if (isClientDefinedField(selection, compilerContext, parentType)) {
+        if (
+          schema.isClientDefinedField(schema.getRawType(parentType), selection)
+        ) {
           clientSelections.push(selection);
           return null;
         }
-        const rawType = getRawType(selection.type);
-        const fieldType =
-          serverSchema.getType(rawType.name) ??
-          clientSchema.getType(rawType.name);
-        if (fieldType == null) {
-          throw createCompilerError(
-            'ClientExtensionTransform: Expected to be able to determine ' +
-              `type of field \`${selection.name}\`.`,
-            [selection.loc],
-          );
-        }
-        return traverseSelections(selection, compilerContext, fieldType);
+        return traverseSelections(selection, compilerContext, selection.type);
       }
       case 'InlineFragment': {
-        const typeName = selection.typeCondition.name;
-        const serverType = serverSchema.getType(typeName);
-        const clientType = clientSchema.getType(typeName);
-        const isClientType = serverType == null && clientType != null;
+        const isClientType = !schema.isServerType(selection.typeCondition);
 
         if (isClientType) {
           clientSelections.push(selection);
           return null;
         }
-        const type = serverType ?? clientType;
-        if (type == null) {
-          throw createCompilerError(
-            'ClientExtensionTransform: Expected to be able to determine ' +
-              `type of inline fragment on \`${typeName}\`.`,
-            [selection.loc],
-          );
-        }
-        return traverseSelections(selection, compilerContext, type);
+        return traverseSelections(
+          selection,
+          compilerContext,
+          selection.typeCondition,
+        );
       }
       case 'FragmentSpread': {
         const fragment = compilerContext.getFragment(
           selection.name,
           selection.loc,
         );
-        const typeName = fragment.type.name;
-        const serverType = serverSchema.getType(typeName);
-        const clientType = clientSchema.getType(typeName);
-        const isClientType = serverType == null && clientType != null;
+        const isClientType = !schema.isServerType(fragment.type);
 
         if (isClientType) {
           clientSelections.push(selection);

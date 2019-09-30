@@ -13,6 +13,7 @@
 
 const GraphQLCompilerContext = require('../../core/GraphQLCompilerContext');
 const RelayIRTransforms = require('../../core/RelayIRTransforms');
+const Schema = require('../../core/Schema');
 
 const validateRelayServerOnlyDirectives = require('../validateRelayServerOnlyDirectives');
 
@@ -33,8 +34,7 @@ describe('ValidateRelayServerOnlyDirectives', () => {
     text => {
       const {definitions, schema} = parseGraphQLText(relaySchema, text);
       const codegenContext = new GraphQLCompilerContext(
-        TestSchema,
-        schema ?? TestSchema,
+        Schema.DEPRECATED__create(TestSchema, schema),
       )
         .addAll(definitions)
         .applyTransforms([

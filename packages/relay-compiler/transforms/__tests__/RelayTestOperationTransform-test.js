@@ -14,6 +14,7 @@
 const GraphQLCompilerContext = require('../../core/GraphQLCompilerContext');
 const RelayParser = require('../../core/RelayParser');
 const RelayTestOperationTransform = require('../RelayTestOperationTransform');
+const Schema = require('../../core/Schema');
 
 const {transformASTSchema} = require('../../core/ASTConvert');
 const {
@@ -28,8 +29,9 @@ describe('RelayTestOperationTransform', () => {
       const schema = transformASTSchema(TestSchema, [
         RelayTestOperationTransform.SCHEMA_EXTENSION,
       ]);
-      const ast = RelayParser.parse(schema, text);
-      return new GraphQLCompilerContext(TestSchema, schema)
+      const compilerSchema = Schema.DEPRECATED__create(TestSchema, schema);
+      const ast = RelayParser.parse(compilerSchema, text);
+      return new GraphQLCompilerContext(compilerSchema)
         .addAll(ast)
         .applyTransforms([RelayTestOperationTransform.transform])
         .documents()

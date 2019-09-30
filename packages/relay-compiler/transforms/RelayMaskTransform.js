@@ -53,9 +53,8 @@ function visitFragment(fragment: Fragment, state: State): Fragment {
   if (state.reachableArguments.length === 0) {
     return result;
   }
-  const schema = this.getContext().serverSchema;
   const joinedArgumentDefinitions = joinArgumentDefinitions(
-    schema,
+    this.getContext().getSchema(),
     fragment,
     state.reachableArguments,
     '@relay(unmask: true)',
@@ -80,7 +79,7 @@ function visitFragmentSpread(
     fragmentSpread.name,
   );
   const context = this.getContext();
-  const fragment = context.getFragment(fragmentSpread.name);
+  const fragment: Fragment = context.getFragment(fragmentSpread.name);
   const result: InlineFragment = {
     kind: 'InlineFragment',
     directives: fragmentSpread.directives,

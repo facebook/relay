@@ -15,19 +15,7 @@ const IRTransformer = require('../core/GraphQLIRTransformer');
 const getLiteralArgumentValues = require('../core/getLiteralArgumentValues');
 const getNormalizationOperationName = require('../core/getNormalizationOperationName');
 
-const {getRawType} = require('../core/GraphQLSchemaUtils');
 const {createUserError} = require('../core/RelayCompilerError');
-const {
-  assertObjectType,
-  isObjectType,
-  GraphQLObjectType,
-  GraphQLScalarType,
-  GraphQLInterfaceType,
-  GraphQLUnionType,
-  GraphQLList,
-  GraphQLString,
-  getNullableType,
-} = require('graphql');
 const {getModuleComponentKey, getModuleOperationKey} = require('relay-runtime');
 
 import type CompilerContext from '../core/GraphQLCompilerContext';
@@ -37,7 +25,7 @@ import type {
   LinkedField,
   ScalarField,
 } from '../core/GraphQLIR';
-import type {GraphQLCompositeType, GraphQLType} from 'graphql';
+import type {TypeID} from '../core/Schema';
 
 const SUPPORTED_ARGUMENT_NAME = 'supported';
 
@@ -57,7 +45,7 @@ const SCHEMA_EXTENSION = `
 type State = {|
   +documentName: string,
   +path: Array<string>,
-  +parentType: GraphQLType,
+  +parentType: TypeID,
 |};
 
 /**
@@ -89,14 +77,21 @@ function visitInlineFragment(
 }
 
 function visitScalarField(field: ScalarField): ScalarField {
+  const context: CompilerContext = this.getContext();
+  const schema = context.getSchema();
+
   if (field.name === JS_FIELD_NAME) {
-    const context: CompilerContext = this.getContext();
-    const schema = context.serverSchema;
-    const jsModuleType = schema.getType(JS_FIELD_TYPE);
+    const jsModuleType = schema.getTypeFromString(JS_FIELD_TYPE);
+    if (jsModuleType == null || !schema.isServerType(jsModuleType)) {
+      throw new createUserError(
+        `'${JS_FIELD_NAME}' should be defined on the server schema.`,
+        [field.loc],
+      );
+    }
+
     if (
-      jsModuleType != null &&
-      jsModuleType instanceof GraphQLScalarType &&
-      getRawType(field.type).name === jsModuleType.name
+      schema.isScalar(jsModuleType) &&
+      schema.areEqualTypes(schema.getRawType(field.type), jsModuleType)
     ) {
       throw new createUserError(
         `Direct use of the '${JS_FIELD_NAME}' field is not allowed, use ` +
@@ -109,6 +104,9 @@ function visitScalarField(field: ScalarField): ScalarField {
 }
 
 function visitLinkedField(node: LinkedField, state: State): LinkedField {
+  const context: CompilerContext = this.getContext();
+  const schema = context.getSchema();
+
   state.path.push(node.alias);
   const transformedNode: LinkedField = this.traverse(node, {
     ...state,
@@ -124,41 +122,39 @@ function visitLinkedField(node: LinkedField, state: State): LinkedField {
   }
 
   const {parentType} = state;
-  const rawType = getRawType(parentType);
-  if (
-    !(
-      rawType instanceof GraphQLInterfaceType ||
-      rawType instanceof GraphQLObjectType
-    )
-  ) {
+  const rawType = schema.getRawType(parentType);
+  if (!(schema.isInterface(rawType) || schema.isObject(rawType))) {
     throw createUserError(
       `@match used on incompatible field '${transformedNode.name}'.` +
         '@match may only be used with fields whose parent type is an ' +
-        `interface or object, got invalid type '${String(parentType)}'.`,
+        `interface or object, got invalid type '${schema.getTypeString(
+          parentType,
+        )}'.`,
       [node.loc],
     );
   }
 
-  const context: CompilerContext = this.getContext();
+  const currentField = schema.getFieldConfig(
+    schema.expectField(rawType, transformedNode.name),
+  );
 
-  const currentField = rawType.getFields()[transformedNode.name];
   const supportedArgumentDefinition = currentField.args.find(
     ({name}) => name === SUPPORTED_ARGUMENT_NAME,
   );
 
   const supportedArgType =
     supportedArgumentDefinition != null
-      ? getNullableType(supportedArgumentDefinition.type)
+      ? schema.getNullableType(supportedArgumentDefinition.type)
       : null;
   const supportedArgOfType =
-    supportedArgType != null && supportedArgType instanceof GraphQLList
-      ? supportedArgType.ofType
+    supportedArgType != null && schema.isList(supportedArgType)
+      ? schema.getNonListType(supportedArgType)
       : null;
   if (
     supportedArgumentDefinition == null ||
     supportedArgType == null ||
     supportedArgOfType == null ||
-    getNullableType(supportedArgOfType) !== GraphQLString
+    !schema.isString(schema.getNullableType(supportedArgOfType))
   ) {
     throw createUserError(
       `@match used on incompatible field '${transformedNode.name}'. ` +
@@ -168,11 +164,9 @@ function visitLinkedField(node: LinkedField, state: State): LinkedField {
     );
   }
 
-  const rawFieldType = getRawType(transformedNode.type);
-  if (
-    !(rawFieldType instanceof GraphQLUnionType) &&
-    !(rawFieldType instanceof GraphQLInterfaceType)
-  ) {
+  const rawFieldType = schema.getRawType(transformedNode.type);
+
+  if (!schema.isAbstractType(rawFieldType)) {
     throw createUserError(
       `@match used on incompatible field '${transformedNode.name}'.` +
         '@match may only be used with fields that return a union or interface.',
@@ -180,7 +174,7 @@ function visitLinkedField(node: LinkedField, state: State): LinkedField {
     );
   }
 
-  const seenTypes: Map<GraphQLCompositeType, InlineFragment> = new Map();
+  const seenTypes: Map<TypeID, InlineFragment> = new Map();
   const selections = [];
   transformedNode.selections.forEach(matchSelection => {
     if (
@@ -210,32 +204,37 @@ function visitLinkedField(node: LinkedField, state: State): LinkedField {
     if (previousTypeUsage) {
       throw createUserError(
         'Invalid @match selection: each concrete variant/implementor of ' +
-          `'${String(rawFieldType)}' may be matched against at-most once, ` +
-          `but '${String(matchedType)}' was matched against multiple times.`,
+          `'${schema.getTypeString(
+            rawFieldType,
+          )}' may be matched against at-most once, ` +
+          `but '${schema.getTypeString(
+            matchedType,
+          )}' was matched against multiple times.`,
         [matchSelection.loc, previousTypeUsage.loc],
       );
     }
     seenTypes.set(matchedType, matchSelection);
 
-    const possibleConcreteTypes =
-      rawFieldType instanceof GraphQLUnionType
-        ? rawFieldType.getTypes()
-        : context.serverSchema.getPossibleTypes(rawFieldType);
-    const isPossibleConcreteType = possibleConcreteTypes.some(
-      type => type.name === matchedType.name,
-    );
+    const possibleConcreteTypes = schema.getPossibleTypes(rawFieldType);
+
+    const isPossibleConcreteType = possibleConcreteTypes.some(type => {
+      return schema.areEqualTypes(type, matchedType);
+    });
+
     if (!isPossibleConcreteType) {
       let suggestedTypesMessage = 'but no concrete types are defined.';
       if (possibleConcreteTypes.length !== 0) {
         suggestedTypesMessage = `expected one of ${possibleConcreteTypes
           .slice(0, 3)
-          .map(type => `'${String(type)}'`)
+          .map(type => `'${schema.getTypeString(type)}'`)
           .join(', ')}, etc.`;
       }
       throw createUserError(
         'Invalid @match selection: selections must match against concrete ' +
           'variants/implementors of type ' +
-          `'${String(transformedNode.type)}'. Got '${String(matchedType)}', ` +
+          `'${schema.getTypeString(
+            transformedNode.type,
+          )}'. Got '${schema.getTypeString(matchedType)}', ` +
           suggestedTypesMessage,
         [matchSelection.loc, context.getFragment(moduleImport.name).loc],
       );
@@ -274,7 +273,9 @@ function visitLinkedField(node: LinkedField, state: State): LinkedField {
         value: {
           kind: 'Literal',
           loc: node.loc,
-          value: Array.from(seenTypes.keys()).map(type => type.name),
+          value: Array.from(seenTypes.keys()).map(type =>
+            schema.getTypeString(type),
+          ),
         },
         loc: node.loc,
       },
@@ -311,9 +312,17 @@ function visitFragmentSpread(
   }
 
   const context: CompilerContext = this.getContext();
-  const schema = context.serverSchema;
-  const jsModuleType = schema.getType(JS_FIELD_TYPE);
-  if (jsModuleType == null || !(jsModuleType instanceof GraphQLScalarType)) {
+  const schema = context.getSchema();
+
+  const jsModuleType = schema.getTypeFromString(JS_FIELD_TYPE);
+  if (jsModuleType == null || !schema.isServerType(jsModuleType)) {
+    throw new createUserError(
+      `'${JS_FIELD_NAME}' should be defined on the server schema.`,
+      [spread.loc],
+    );
+  }
+
+  if (!schema.isScalar(jsModuleType)) {
     throw createUserError(
       'Using @module requires the schema to define a scalar ' +
         `'${JS_FIELD_TYPE}' type.`,
@@ -321,16 +330,32 @@ function visitFragmentSpread(
   }
 
   const fragment = context.getFragment(spread.name, spread.loc);
-  if (!isObjectType(fragment.type)) {
+  if (!schema.isObject(fragment.type)) {
     throw createUserError(
       `@module used on invalid fragment spread '...${spread.name}'. @module ` +
         'may only be used with fragments on a concrete (object) type, ' +
-        `but the fragment has abstract type '${String(fragment.type)}'.`,
+        `but the fragment has abstract type '${schema.getTypeString(
+          fragment.type,
+        )}'.`,
       [spread.loc, fragment.loc],
     );
   }
-  const type = assertObjectType(fragment.type);
-  const jsField = type.getFields()[JS_FIELD_NAME];
+  const field = schema.getFieldByName(fragment.type, JS_FIELD_NAME);
+  if (!field) {
+    throw createUserError(
+      `@module used on invalid fragment spread '...${spread.name}'. @module ` +
+        `requires the fragment type '${schema.getTypeString(
+          fragment.type,
+        )}' to have a ` +
+        `'${JS_FIELD_NAME}(${JS_FIELD_MODULE_ARG}: String! ` +
+        `[${JS_FIELD_ID_ARG}: String]): ${JS_FIELD_TYPE}' field (your ` +
+        "schema may choose to omit the 'id'  argument but if present it " +
+        "must accept a 'String').",
+      [moduleDirective.loc],
+    );
+  }
+  const jsField = schema.getFieldConfig(field);
+
   const jsFieldModuleArg = jsField
     ? jsField.args.find(arg => arg.name === JS_FIELD_MODULE_ARG)
     : null;
@@ -338,16 +363,16 @@ function visitFragmentSpread(
     ? jsField.args.find(arg => arg.name === JS_FIELD_ID_ARG)
     : null;
   if (
-    jsField == null ||
     jsFieldModuleArg == null ||
-    getNullableType(jsFieldModuleArg.type) !== GraphQLString ||
-    (jsFieldIdArg != null &&
-      getNullableType(jsFieldIdArg.type) !== GraphQLString) ||
-    jsField.type.name !== jsModuleType.name // object identity fails in tests
+    !schema.isString(schema.getNullableType(jsFieldModuleArg.type)) ||
+    ((jsFieldIdArg != null && !schema.isString(jsFieldIdArg.type)) ||
+      jsField.type !== jsModuleType)
   ) {
     throw createUserError(
       `@module used on invalid fragment spread '...${spread.name}'. @module ` +
-        `requires the fragment type '${String(fragment.type)}' to have a ` +
+        `requires the fragment type '${schema.getTypeString(
+          fragment.type,
+        )}' to have a ` +
         `'${JS_FIELD_NAME}(${JS_FIELD_MODULE_ARG}: String! ` +
         `[${JS_FIELD_ID_ARG}: String]): ${JS_FIELD_TYPE}' field (your ` +
         "schema may choose to omit the 'id'  argument but if present it " +

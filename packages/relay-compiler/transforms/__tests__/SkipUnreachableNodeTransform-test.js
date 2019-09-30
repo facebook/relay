@@ -14,6 +14,7 @@
 const GraphQLCompilerContext = require('../../core/GraphQLCompilerContext');
 const GraphQLIRPrinter = require('../../core/GraphQLIRPrinter');
 const RelayParser = require('../../core/RelayParser');
+const Schema = require('../../core/Schema');
 const SkipUnreachableNodeTransform = require('../SkipUnreachableNodeTransform');
 
 const {
@@ -25,12 +26,13 @@ describe('SkipUnreachableNodeTransform', () => {
   generateTestsFromFixtures(
     `${__dirname}/fixtures/skip-unreachable-node-transform`,
     text => {
-      const ast = RelayParser.parse(TestSchema, text);
-      return new GraphQLCompilerContext(TestSchema)
+      const schema = Schema.DEPRECATED__create(TestSchema);
+      const ast = RelayParser.parse(schema, text);
+      return new GraphQLCompilerContext(schema)
         .addAll(ast)
         .applyTransforms([SkipUnreachableNodeTransform.transform])
         .documents()
-        .map(GraphQLIRPrinter.print)
+        .map(doc => GraphQLIRPrinter.print(schema, doc))
         .join('\n');
     },
   );

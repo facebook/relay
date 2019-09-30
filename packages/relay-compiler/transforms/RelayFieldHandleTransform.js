@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @flow
+ * @flow strict-local
  * @format
  */
 
@@ -13,8 +13,8 @@
 const IRTransformer = require('../core/GraphQLIRTransformer');
 
 const invariant = require('invariant');
+const nullthrows = require('nullthrows');
 
-const {GraphQLString} = require('graphql');
 const {getRelayHandleKey} = require('relay-runtime');
 
 import type CompilerContext from '../core/GraphQLCompilerContext';
@@ -31,12 +31,10 @@ function relayFieldHandleTransform(context: CompilerContext): CompilerContext {
  * @internal
  */
 function visitField<F: LinkedField | ScalarField>(field: F): F {
-  if (field.kind === 'LinkedField') {
-    field = this.traverse(field);
-  }
-  const handles = field.handles;
+  const nextField = field.kind === 'LinkedField' ? this.traverse(field) : field;
+  const handles = nextField.handles;
   if (!handles || !handles.length) {
-    return field;
+    return nextField;
   }
   // ensure exactly one handle
   invariant(
@@ -45,12 +43,13 @@ function visitField<F: LinkedField | ScalarField>(field: F): F {
       '"handle" property, got `%s`.',
     handles.join(', '),
   );
-  const alias = field.alias;
+  const context: CompilerContext = this.getContext();
+  const alias = nextField.alias;
   const handle = handles[0];
-  const name = getRelayHandleKey(handle.name, handle.key, field.name);
+  const name = getRelayHandleKey(handle.name, handle.key, nextField.name);
   const filters = handle.filters;
   const args = filters
-    ? field.args.filter(arg => filters.indexOf(arg.name) !== -1)
+    ? nextField.args.filter(arg => filters.indexOf(arg.name) !== -1)
     : [];
   // T45504512: new connection model
   if (handle.dynamicKey != null) {
@@ -58,13 +57,13 @@ function visitField<F: LinkedField | ScalarField>(field: F): F {
       kind: 'Argument',
       loc: handle.dynamicKey.loc,
       name: '__dynamicKey',
-      type: GraphQLString,
-      value: handle.dynamicKey,
+      type: context.getSchema().expectStringType(),
+      value: nullthrows(handle.dynamicKey),
     });
   }
 
   return ({
-    ...field,
+    ...nextField,
     args,
     alias,
     name,

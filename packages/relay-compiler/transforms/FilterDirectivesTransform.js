@@ -23,8 +23,10 @@ function filterDirectivesTransform(
   context: GraphQLCompilerContext,
 ): GraphQLCompilerContext {
   const schemaDirectives = new Set(
-    context.serverSchema
+    context
+      .getSchema()
       .getDirectives()
+      .filter(directive => !directive.clientOnlyDirective)
       .map(schemaDirective => schemaDirective.name),
   );
   const visitDirective = (directive: Directive): ?Directive => {

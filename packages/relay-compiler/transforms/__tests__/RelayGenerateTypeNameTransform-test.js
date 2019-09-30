@@ -16,6 +16,7 @@ const GraphQLCompilerContext = require('../../core/GraphQLCompilerContext');
 const InlineFragmentsTransform = require('../InlineFragmentsTransform');
 const RelayGenerateTypeNameTransform = require('../RelayGenerateTypeNameTransform');
 const RelayParser = require('../../core/RelayParser');
+const Schema = require('../../core/Schema');
 
 const {
   TestSchema,
@@ -26,8 +27,9 @@ describe('RelayGenerateTypeNameTransform', () => {
   generateTestsFromFixtures(
     `${__dirname}/fixtures/generate-typename-transform`,
     text => {
-      const ast = RelayParser.parse(TestSchema, text);
-      return new GraphQLCompilerContext(TestSchema)
+      const compilerSchema = Schema.DEPRECATED__create(TestSchema);
+      const ast = RelayParser.parse(compilerSchema, text);
+      return new GraphQLCompilerContext(compilerSchema)
         .addAll(ast)
         .applyTransforms([
           InlineFragmentsTransform.transform,

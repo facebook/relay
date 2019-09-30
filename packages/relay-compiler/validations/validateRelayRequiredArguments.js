@@ -14,7 +14,6 @@ const GraphQLIRValidator = require('../core/GraphQLIRValidator');
 
 const {createUserError} = require('../core/RelayCompilerError');
 const {getFieldDefinitionStrict} = require('../core/getFieldDefinition');
-const {isRequiredArgument} = require('graphql');
 
 import type GraphQLCompilerContext from '../core/GraphQLCompilerContext';
 import type {
@@ -25,11 +24,11 @@ import type {
   Root,
   SplitOperation,
 } from '../core/GraphQLIR';
-import type {GraphQLOutputType, GraphQLArgument} from 'graphql';
+import type {Schema, TypeID, FieldArgument} from '../core/Schema';
 
 type State = {|
   +rootNode: Fragment | Root | SplitOperation,
-  +parentType: GraphQLOutputType,
+  +parentType: TypeID,
 |};
 
 /*
@@ -50,13 +49,18 @@ function validateRelayRequiredArguments(context: GraphQLCompilerContext): void {
   );
 }
 
-function visitDirective(node: Directive, {parentType, rootNode}: State): void {
-  const context = this.getContext();
-  const directiveDef = context.serverSchema.getDirective(node.name);
+function visitDirective(node: Directive, {rootNode}: State): void {
+  const context: GraphQLCompilerContext = this.getContext();
+  const directiveDef = context.getSchema().getDirective(node.name);
   if (directiveDef == null) {
     return;
   }
-  validateRequiredArguments(node, directiveDef.args, rootNode);
+  validateRequiredArguments(
+    context.getSchema(),
+    node,
+    directiveDef.args,
+    rootNode,
+  );
 }
 
 function visitInlineFragment(fragment, {rootNode}: State): void {
@@ -67,24 +71,28 @@ function visitInlineFragment(fragment, {rootNode}: State): void {
 }
 
 function visitField(node: Field, {parentType, rootNode}: State): void {
-  const context = this.getContext();
-  const definition = getFieldDefinitionStrict(
-    context.serverSchema,
-    parentType,
-    node.name,
-  );
+  const context: GraphQLCompilerContext = this.getContext();
+  const schema = context.getSchema();
+  const definition = getFieldDefinitionStrict(schema, parentType, node.name);
   if (definition == null) {
     const isLegacyFatInterface = node.directives.some(
       directive => directive.name === 'fixme_fat_interface',
     );
     if (!isLegacyFatInterface) {
       throw createUserError(
-        `Unknown field '${node.name}' on type '${String(parentType)}'.`,
+        `validateRelayRequiredArguments: Unknown field '${
+          node.name
+        }' on type '${schema.getTypeString(parentType)}'.`,
         [node.loc],
       );
     }
   } else {
-    validateRequiredArguments(node, definition.args, rootNode);
+    validateRequiredArguments(
+      schema,
+      node,
+      schema.getFieldConfig(definition).args,
+      rootNode,
+    );
   }
   this.traverse(node, {
     rootNode,
@@ -93,18 +101,20 @@ function visitField(node: Field, {parentType, rootNode}: State): void {
 }
 
 function validateRequiredArguments(
+  schema: Schema,
   node: Connection | Directive | Field,
-  definitionArgs: $ReadOnlyArray<GraphQLArgument>,
+  definitionArgs: $ReadOnlyArray<FieldArgument>,
   rootNode,
 ): void {
   for (const arg of definitionArgs) {
     if (
-      isRequiredArgument(arg) &&
+      schema.isNonNull(arg.type) &&
       !node.args.some(actualArg => actualArg.name === arg.name)
     ) {
       throw createUserError(
-        `Required argument '${arg.name}: ${String(arg.type)}' is missing ` +
-          `on '${node.name}' in '${rootNode.name}'.`,
+        `Required argument '${arg.name}: ${schema.getTypeString(
+          arg.type,
+        )}' is missing on '${node.name}' in '${rootNode.name}'.`,
         [node.loc, rootNode.loc],
       );
     }

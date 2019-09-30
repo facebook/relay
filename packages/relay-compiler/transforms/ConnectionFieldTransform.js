@@ -12,19 +12,10 @@
 
 const IRTransformer = require('../core/GraphQLIRTransformer');
 
-const {getNullableType, getRawType} = require('../core/GraphQLSchemaUtils');
 const {createUserError} = require('../core/RelayCompilerError');
 const {
   buildConnectionMetadata,
 } = require('../handlers/connection/RelayConnectionTransform');
-const {
-  GraphQLID,
-  GraphQLInterfaceType,
-  GraphQLList,
-  GraphQLNonNull,
-  GraphQLObjectType,
-  GraphQLUnionType,
-} = require('graphql');
 const {ConnectionInterface} = require('relay-runtime');
 
 import type CompilerContext from '../core/GraphQLCompilerContext';
@@ -98,6 +89,8 @@ function visitLinkedField(
   field: LinkedField,
   state: State,
 ): LinkedField | ConnectionField {
+  const context: CompilerContext = this.getContext();
+  const schema = context.getSchema();
   const path = state.path.concat(field.alias);
   const transformed: LinkedField = this.traverse(field, {
     ...state,
@@ -111,10 +104,10 @@ function visitLinkedField(
   if (connectionDirective == null) {
     return transformed;
   }
-  if (getNullableType(transformed.type) instanceof GraphQLList) {
+  if (schema.isList(schema.getNullableType(transformed.type))) {
     throw createUserError(
       "@connection_resolver fields must return a single value, not a list, found '" +
-        `${String(transformed.type)}'`,
+        `${schema.getTypeString(transformed.type)}'`,
       [transformed.loc],
     );
   }
@@ -215,25 +208,29 @@ function visitLinkedField(
       [connectionDirective.loc],
     );
   }
-  const connectionType = getRawType(transformed.type);
-  const edgesFieldDef =
-    connectionType instanceof GraphQLObjectType
-      ? connectionType.getFields().edges
-      : null;
+  const connectionType = schema.getRawType(transformed.type);
+  const edgesFieldDef = schema.isObject(connectionType)
+    ? schema.getFieldByName(connectionType, 'edges')
+    : null;
   const edgesType =
-    edgesFieldDef != null ? getRawType(edgesFieldDef.type) : null;
-  const nodeFieldDef =
-    edgesType != null && edgesType instanceof GraphQLObjectType
-      ? edgesType.getFields().node
+    edgesFieldDef != null
+      ? schema.getRawType(schema.getFieldType(edgesFieldDef))
       : null;
-  const nodeType = nodeFieldDef != null ? getRawType(nodeFieldDef.type) : null;
+  const nodeFieldDef =
+    edgesType != null && schema.isObject(edgesType)
+      ? schema.getFieldByName(edgesType, 'node')
+      : null;
+  const nodeType =
+    nodeFieldDef != null
+      ? schema.getRawType(schema.getFieldType(nodeFieldDef))
+      : null;
   if (
     edgesType == null ||
     nodeType == null ||
     !(
-      nodeType instanceof GraphQLInterfaceType ||
-      nodeType instanceof GraphQLObjectType ||
-      nodeType instanceof GraphQLUnionType
+      schema.isObject(nodeType) ||
+      schema.isInterface(nodeType) ||
+      schema.isUnion(nodeType)
     )
   ) {
     throw createUserError(
@@ -255,7 +252,7 @@ function visitLinkedField(
         loc: edgeField.loc,
         metadata: null,
         name: '__id',
-        type: new GraphQLNonNull(GraphQLID),
+        type: schema.getNonNullType(schema.expectIdType()),
       },
       {
         alias: 'node',
@@ -277,7 +274,7 @@ function visitLinkedField(
             loc: edgeField.loc,
             metadata: null,
             name: '__id',
-            type: new GraphQLNonNull(GraphQLID),
+            type: schema.getNonNullType(schema.expectIdType()),
           },
         ],
         type: nodeType,

@@ -16,10 +16,11 @@ const RelayValidator = require('./RelayValidator');
 const {
   isExecutableDefinitionAST,
   isSchemaDefinitionAST,
-} = require('./GraphQLSchemaUtils');
+} = require('./SchemaUtils');
 const {extendSchema, parse, print, visit} = require('graphql');
 
 import type {Fragment, Root} from './GraphQLIR';
+import type {Schema} from './Schema';
 import type {
   DefinitionNode,
   DocumentNode,
@@ -34,12 +35,12 @@ import type {
 
 type ASTDefinitionNode = FragmentDefinitionNode | OperationDefinitionNode;
 type TransformFn = (
-  schema: GraphQLSchema,
+  schema: Schema,
   definitions: $ReadOnlyArray<ASTDefinitionNode>,
 ) => $ReadOnlyArray<Root | Fragment>;
 
 function convertASTDocuments(
-  schema: GraphQLSchema,
+  schema: Schema,
   documents: $ReadOnlyArray<DocumentNode>,
   validationRules: $ReadOnlyArray<ValidationRule>,
   transform: TransformFn,
@@ -66,7 +67,7 @@ function convertASTDocuments(
 }
 
 function convertASTDocumentsWithBase(
-  schema: GraphQLSchema,
+  schema: Schema,
   baseDocuments: $ReadOnlyArray<DocumentNode>,
   documents: $ReadOnlyArray<DocumentNode>,
   validationRules: $ReadOnlyArray<ValidationRule>,
@@ -136,7 +137,7 @@ function convertASTDocumentsWithBase(
 }
 
 function convertASTDefinitions(
-  schema: GraphQLSchema,
+  schema: Schema,
   definitions: $ReadOnlyArray<DefinitionNode>,
   validationRules: $ReadOnlyArray<ValidationRule>,
   transform: TransformFn,
@@ -153,7 +154,7 @@ function convertASTDefinitions(
     definitions: operationDefinitions,
   };
   // Will throw an error if there are validation issues
-  RelayValidator.validate(validationAST, schema, validationRules);
+  RelayValidator.validate(schema, validationAST, validationRules);
   return transform(schema, operationDefinitions);
 }
 

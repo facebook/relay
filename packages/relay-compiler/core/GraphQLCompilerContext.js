@@ -20,7 +20,7 @@ const {OrderedMap: ImmutableOrderedMap} = require('immutable');
 
 import type {GraphQLReporter} from '../reporters/GraphQLReporter';
 import type {Fragment, Location, Root, SplitOperation} from './GraphQLIR';
-import type {GraphQLSchema} from 'graphql';
+import type {Schema} from './Schema';
 
 export type IRTransform = GraphQLCompilerContext => GraphQLCompilerContext;
 export type IRValidation = GraphQLCompilerContext => void;
@@ -35,16 +35,13 @@ class GraphQLCompilerContext {
   _isMutable: boolean;
   _documents: ImmutableOrderedMap<string, CompilerContextDocument>;
   _withTransform: WeakMap<IRTransform, GraphQLCompilerContext>;
-  +serverSchema: GraphQLSchema;
-  +clientSchema: GraphQLSchema;
+  +_schema: Schema;
 
-  constructor(serverSchema: GraphQLSchema, clientSchema?: GraphQLSchema) {
+  constructor(schema: Schema) {
     this._isMutable = false;
     this._documents = new ImmutableOrderedMap();
     this._withTransform = new WeakMap();
-    this.serverSchema = serverSchema;
-    // If a separate client schema doesn't exist, use the server schema.
-    this.clientSchema = clientSchema || serverSchema;
+    this._schema = schema;
   }
 
   /**
@@ -201,9 +198,13 @@ class GraphQLCompilerContext {
   ): GraphQLCompilerContext {
     const context = this._isMutable
       ? this
-      : new GraphQLCompilerContext(this.serverSchema, this.clientSchema);
+      : new GraphQLCompilerContext(this.getSchema());
     context._documents = documents;
     return context;
+  }
+
+  getSchema(): Schema {
+    return this._schema;
   }
 }
 

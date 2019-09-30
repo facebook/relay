@@ -430,6 +430,7 @@ function transformFragment(
   args: $ReadOnlyArray<Argument>,
   errorContext: $ReadOnlyArray<IR>,
 ): ?Fragment {
+  const schema = context.getSchema();
   const fragment = context.getFragment(spread.name, spread.loc);
   const argumentsHash = hashArguments(args, parentScope, errorContext);
   const fragmentName = argumentsHash
@@ -450,6 +451,7 @@ function transformFragment(
     }
   }
   const fragmentScope = getFragmentScope(
+    schema,
     fragment.argumentDefinitions,
     args,
     parentScope,

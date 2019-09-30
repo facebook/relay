@@ -12,9 +12,7 @@
 
 const IRTransformer = require('../core/GraphQLIRTransformer');
 
-const {getNullableType} = require('../core/GraphQLSchemaUtils');
 const {createUserError} = require('../core/RelayCompilerError');
-const {GraphQLList} = require('graphql');
 const {ConnectionInterface} = require('relay-runtime');
 
 import type CompilerContext from '../core/GraphQLCompilerContext';
@@ -151,6 +149,9 @@ function visitLinkedField(
   field: LinkedField,
   state: State,
 ): LinkedField | Stream {
+  const context: CompilerContext = this.getContext();
+  const schema = context.getSchema();
+
   let transformedField: LinkedField = this.traverse(field, state);
   const streamDirective = transformedField.directives.find(
     directive => directive.name === 'stream',
@@ -158,8 +159,8 @@ function visitLinkedField(
   if (streamDirective == null) {
     return transformedField;
   }
-  const type = getNullableType(field.type);
-  if (!(type instanceof GraphQLList)) {
+  const type = schema.getNullableType(field.type);
+  if (!schema.isList(type)) {
     throw createUserError(
       `Invalid use of @stream on non-plural field '${field.name}'`,
       [streamDirective.loc],
@@ -216,7 +217,10 @@ function visitInlineFragment(
   fragment: InlineFragment,
   state: State,
 ): InlineFragment | Defer {
-  let transformedFragment = this.traverse(fragment, state);
+  const context: CompilerContext = this.getContext();
+  const schema = context.getSchema();
+
+  let transformedFragment: InlineFragment = this.traverse(fragment, state);
   const deferDirective = transformedFragment.directives.find(
     directive => directive.name === 'defer',
   );
@@ -235,7 +239,8 @@ function visitInlineFragment(
   }
   const label =
     getLiteralStringArgument(deferDirective, 'label') ??
-    fragment.typeCondition.name;
+    schema.getTypeString(fragment.typeCondition);
+
   const transformedLabel = transformLabel(state.documentName, 'defer', label);
   state.recordLabel(transformedLabel, deferDirective);
   return {

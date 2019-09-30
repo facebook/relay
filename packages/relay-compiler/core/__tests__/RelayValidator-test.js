@@ -13,13 +13,18 @@
 
 const GraphQL = require('graphql');
 const RelayValidator = require('../RelayValidator');
+const Schema = require('../../core/Schema');
 
 const {TestSchema} = require('relay-test-utils-internal');
 
 function validateString(input) {
   const ast = GraphQL.parse(new GraphQL.Source(input, 'test.graphql'));
   return () => {
-    RelayValidator.validate(ast, TestSchema, RelayValidator.LOCAL_RULES);
+    RelayValidator.validate(
+      Schema.DEPRECATED__create(TestSchema),
+      ast,
+      RelayValidator.LOCAL_RULES,
+    );
   };
 }
 

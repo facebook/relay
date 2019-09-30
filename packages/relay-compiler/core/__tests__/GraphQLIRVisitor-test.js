@@ -13,6 +13,7 @@
 
 const GraphQLIRPrinter = require('../GraphQLIRPrinter');
 const RelayParser = require('../RelayParser');
+const Schema = require('../Schema');
 
 const {visit} = require('../GraphQLIRVisitor');
 const {
@@ -43,20 +44,22 @@ type VisitNodeWithName =
   | Directive
   | ArgumentDefinition;
 
+const schema = Schema.DEPRECATED__create(TestSchema);
+
 describe('GraphQLIRVisitor', () => {
   generateTestsFromFixtures(
     `${__dirname}/fixtures/visitor/no-op-visit`,
     text => {
-      const ast = RelayParser.parse(TestSchema, text);
+      const ast = RelayParser.parse(schema, text);
       const sameAst = ast.map(fragment => visit(fragment, {}));
-      return sameAst.map(doc => GraphQLIRPrinter.print(doc)).join('\n');
+      return sameAst.map(doc => GraphQLIRPrinter.print(schema, doc)).join('\n');
     },
   );
 
   generateTestsFromFixtures(
     `${__dirname}/fixtures/visitor/mutate-visit`,
     text => {
-      const ast = RelayParser.parse(TestSchema, text);
+      const ast = RelayParser.parse(schema, text);
       const mutateNameVisitor = {
         leave: (node: VisitNodeWithName) => {
           return {
@@ -129,7 +132,9 @@ describe('GraphQLIRVisitor', () => {
         }),
       );
 
-      return mutatedAst.map(doc => GraphQLIRPrinter.print(doc)).join('\n');
+      return mutatedAst
+        .map(doc => GraphQLIRPrinter.print(schema, doc))
+        .join('\n');
     },
   );
 });

@@ -14,6 +14,7 @@
 const GraphQLCompilerContext = require('../../core/GraphQLCompilerContext');
 const GraphQLIRPrinter = require('../../core/GraphQLIRPrinter');
 const InlineFragmentsTransform = require('../InlineFragmentsTransform');
+const Schema = require('../../core/Schema');
 
 const {
   TestSchema,
@@ -25,12 +26,13 @@ describe('InlineFragmentsTransform', () => {
   generateTestsFromFixtures(
     `${__dirname}/fixtures/inline-fragments-transform`,
     text => {
-      const {schema, definitions} = parseGraphQLText(TestSchema, text);
-      return new GraphQLCompilerContext(TestSchema, schema ?? TestSchema)
+      const {definitions} = parseGraphQLText(TestSchema, text);
+      const compilerSchema = Schema.DEPRECATED__create(TestSchema);
+      return new GraphQLCompilerContext(compilerSchema)
         .addAll(definitions)
         .applyTransforms([InlineFragmentsTransform.transform])
         .documents()
-        .map(doc => GraphQLIRPrinter.print(doc))
+        .map(doc => GraphQLIRPrinter.print(compilerSchema, doc))
         .join('\n');
     },
   );

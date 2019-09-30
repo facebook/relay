@@ -11,18 +11,14 @@
 'use strict';
 
 const IRTransformer = require('../core/GraphQLIRTransformer');
-const SchemaUtils = require('../core/GraphQLSchemaUtils');
 
 const {hasUnaliasedSelection} = require('./RelayTransformUtils');
-const {assertLeafType} = require('graphql');
 
 import type CompilerContext from '../core/GraphQLCompilerContext';
 import type {LinkedField, ScalarField} from '../core/GraphQLIR';
-
-const {isAbstractType} = SchemaUtils;
+import type {Schema} from '../core/Schema';
 
 const TYPENAME_KEY = '__typename';
-const STRING_TYPE = 'String';
 
 type State = {
   typenameField: ScalarField,
@@ -38,7 +34,6 @@ function relayGenerateTypeNameTransform(
   context: CompilerContext,
 ): CompilerContext {
   cache = new Map();
-  const stringType = assertLeafType(context.serverSchema.getType(STRING_TYPE));
   const typenameField: ScalarField = {
     kind: 'ScalarField',
     alias: TYPENAME_KEY,
@@ -48,7 +43,7 @@ function relayGenerateTypeNameTransform(
     loc: {kind: 'Generated'},
     metadata: null,
     name: TYPENAME_KEY,
-    type: stringType,
+    type: context.getSchema().expectStringType(),
   };
   const state = {
     typenameField,
@@ -63,13 +58,14 @@ function relayGenerateTypeNameTransform(
 }
 
 function visitLinkedField(field: LinkedField, state: State): LinkedField {
+  const schema: Schema = this.getContext().getSchema();
   let transformedNode = cache.get(field);
   if (transformedNode != null) {
     return transformedNode;
   }
-  transformedNode = this.traverse(field, state);
+  transformedNode = (this.traverse(field, state): LinkedField);
   if (
-    isAbstractType(transformedNode.type) &&
+    schema.isAbstractType(schema.getRawType(transformedNode.type)) &&
     !hasUnaliasedSelection(transformedNode, TYPENAME_KEY)
   ) {
     transformedNode = {

@@ -20,6 +20,7 @@ const invariant = require('invariant');
 const {RelayConcreteNode} = require('relay-runtime');
 
 import type {GeneratedDefinition} from '../core/GraphQLIR';
+import type {Schema} from '../core/Schema';
 import type {FormatModule} from '../language/RelayLanguagePluginInterface';
 import type CodegenDirectory from './CodegenDirectory';
 import type {GeneratedNode} from 'relay-runtime';
@@ -47,6 +48,7 @@ function getConcreteType(node: GeneratedNode): string {
 }
 
 async function writeRelayGeneratedFile(
+  schema: Schema,
   codegenDir: CodegenDirectory,
   definition: GeneratedDefinition,
   _generatedNode: GeneratedNode,
@@ -149,6 +151,7 @@ async function writeRelayGeneratedFile(
     ),
     sourceHash,
     node: generatedNode,
+    schema,
   });
   codegenDir.writeFile(filename, moduleText, shouldRepersist);
   return generatedNode;

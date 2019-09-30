@@ -10,15 +10,8 @@
 
 'use strict';
 
-import type {
-  GraphQLCompositeType,
-  GraphQLOutputType,
-  GraphQLInputType,
-  GraphQLLeafType,
-  GraphQLList,
-  GraphQLNonNull,
-  Source,
-} from 'graphql';
+import type {TypeID} from './Schema';
+import type {Source} from 'graphql';
 
 export type Metadata = ?{[key: string]: mixed};
 
@@ -47,7 +40,7 @@ export type Argument = {|
   +kind: 'Argument',
   +loc: Location,
   +name: string,
-  +type: ?GraphQLInputType,
+  +type: ?TypeID,
   +value: ArgumentValue,
 |};
 
@@ -82,7 +75,7 @@ export type Fragment = {|
   +metadata: Metadata,
   +name: string,
   +selections: $ReadOnlyArray<Selection>,
-  +type: GraphQLCompositeType,
+  +type: TypeID,
 |};
 
 export type FragmentSpread = {|
@@ -97,7 +90,9 @@ export type FragmentSpread = {|
 export type Defer = {|
   +kind: 'Defer',
   +loc: Location,
-  +metadata: Metadata,
+  +metadata: ?{|
+    +fragmentTypeCondition: TypeID,
+  |},
   +selections: $ReadOnlyArray<Selection>,
   +label: string,
   +if: ArgumentValue | null,
@@ -152,7 +147,7 @@ export type RootArgumentDefinition = {|
   +kind: 'RootArgumentDefinition',
   +loc: Location,
   +name: string,
-  +type: GraphQLInputType,
+  +type: TypeID,
 |};
 
 export type InlineFragment = {|
@@ -161,7 +156,7 @@ export type InlineFragment = {|
   +loc: Location,
   +metadata: Metadata,
   +selections: $ReadOnlyArray<Selection>,
-  +typeCondition: GraphQLCompositeType,
+  +typeCondition: TypeID,
 |};
 
 export type Handle = {|
@@ -192,7 +187,7 @@ export type Connection = {|
     +initialCount: ArgumentValue,
     +streamLabel: string,
   |} | null,
-  +type: GraphQLOutputType,
+  +type: TypeID,
 |};
 
 export type LinkedField = {|
@@ -206,7 +201,7 @@ export type LinkedField = {|
   +metadata: Metadata,
   +name: string,
   +selections: $ReadOnlyArray<Selection>,
-  +type: GraphQLOutputType,
+  +type: TypeID,
 |};
 
 export type ConnectionField = {|
@@ -218,7 +213,7 @@ export type ConnectionField = {|
   +metadata: Metadata,
   +name: string,
   +selections: $ReadOnlyArray<Selection>,
-  +type: GraphQLOutputType,
+  +type: TypeID,
 |};
 
 export type ListValue = {|
@@ -238,7 +233,7 @@ export type LocalArgumentDefinition = {|
   +kind: 'LocalArgumentDefinition',
   +loc: Location,
   +name: string,
-  +type: GraphQLInputType,
+  +type: TypeID,
 |};
 
 export type ModuleImport = {|
@@ -307,13 +302,8 @@ export type Root = {|
   +name: string,
   +operation: 'query' | 'mutation' | 'subscription',
   +selections: $ReadOnlyArray<Selection>,
-  +type: GraphQLCompositeType,
+  +type: TypeID,
 |};
-
-export type ScalarFieldType =
-  | GraphQLLeafType
-  | GraphQLList<ScalarFieldType>
-  | GraphQLNonNull<GraphQLLeafType | GraphQLList<ScalarFieldType>>;
 
 export type ScalarField = {|
   +alias: string,
@@ -324,7 +314,7 @@ export type ScalarField = {|
   +loc: Location,
   +metadata: Metadata,
   +name: string,
-  +type: ScalarFieldType,
+  +type: TypeID,
 |};
 
 export type Selection =
@@ -351,12 +341,12 @@ export type SplitOperation = {|
   +loc: Location,
   +metadata: Metadata,
   +parentSources: Set<string>,
-  +type: GraphQLCompositeType,
+  +type: TypeID,
 |};
 
 export type Variable = {|
   +kind: 'Variable',
   +loc: Location,
   +variableName: string,
-  +type: ?GraphQLInputType,
+  +type: ?TypeID,
 |};

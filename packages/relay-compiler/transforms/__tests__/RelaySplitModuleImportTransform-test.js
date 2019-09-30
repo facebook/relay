@@ -16,6 +16,7 @@ const GraphQLIRPrinter = require('../../core/GraphQLIRPrinter');
 const RelayMatchTransform = require('../RelayMatchTransform');
 const RelayRelayDirectiveTransform = require('../RelayRelayDirectiveTransform');
 const RelaySplitModuleImportTransform = require('../RelaySplitModuleImportTransform');
+const Schema = require('../../core/Schema');
 
 const {transformASTSchema} = require('../../core/ASTConvert');
 const {
@@ -25,15 +26,16 @@ const {
 } = require('relay-test-utils-internal');
 
 describe('RelayMatchTransform', () => {
-  const schema = transformASTSchema(TestSchema, [
+  const extendedSchema = transformASTSchema(TestSchema, [
     RelayMatchTransform.SCHEMA_EXTENSION,
   ]);
 
   generateTestsFromFixtures(
     `${__dirname}/fixtures/relay-split-module-import-transform`,
     text => {
-      const {definitions} = parseGraphQLText(schema, text);
-      return new GraphQLCompilerContext(TestSchema, schema)
+      const {definitions} = parseGraphQLText(extendedSchema, text);
+      const compilerSchema = Schema.DEPRECATED__create(TestSchema);
+      return new GraphQLCompilerContext(compilerSchema)
         .addAll(definitions)
         .applyTransforms([
           // Requires Relay directive transform first.
@@ -42,7 +44,7 @@ describe('RelayMatchTransform', () => {
           RelaySplitModuleImportTransform.transform,
         ])
         .documents()
-        .map(doc => GraphQLIRPrinter.print(doc))
+        .map(doc => GraphQLIRPrinter.print(compilerSchema, doc))
         .join('\n');
     },
   );

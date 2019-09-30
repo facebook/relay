@@ -15,6 +15,7 @@ const GraphQLCompilerContext = require('../../core/GraphQLCompilerContext');
 const GraphQLIRPrinter = require('../../core/GraphQLIRPrinter');
 const RelayApplyFragmentArgumentTransform = require('../RelayApplyFragmentArgumentTransform');
 const RelayParser = require('../../core/RelayParser');
+const Schema = require('../../core/Schema');
 
 const {
   TestSchema,
@@ -25,12 +26,13 @@ describe('RelayApplyFragmentArgumentTransform', () => {
   generateTestsFromFixtures(
     `${__dirname}/fixtures/apply-fragment-argument-transform`,
     text => {
-      const ast = RelayParser.parse(TestSchema, text);
-      return new GraphQLCompilerContext(TestSchema)
+      const compilerSchema = Schema.DEPRECATED__create(TestSchema);
+      const ast = RelayParser.parse(compilerSchema, text);
+      return new GraphQLCompilerContext(compilerSchema)
         .addAll(ast)
         .applyTransforms([RelayApplyFragmentArgumentTransform.transform])
         .documents()
-        .map(GraphQLIRPrinter.print)
+        .map(doc => GraphQLIRPrinter.print(compilerSchema, doc))
         .join('\n');
     },
   );

@@ -15,7 +15,6 @@ const {
   createUserError,
   eachWithErrors,
 } = require('./RelayCompilerError');
-const {GraphQLNonNull} = require('graphql');
 
 import type {
   Argument,
@@ -25,7 +24,7 @@ import type {
   LocalArgumentDefinition,
   Variable,
 } from './GraphQLIR';
-
+import type {Schema} from './Schema';
 /**
  * A scope is a mapping of the values for each argument defined by the nearest
  * ancestor root or fragment of a given IR selection. A scope maps argument
@@ -136,6 +135,7 @@ function getRootScope(
  * }
  */
 function getFragmentScope(
+  schema: Schema,
   definitions: $ReadOnlyArray<ArgumentDefinition>,
   args: $ReadOnlyArray<Argument>,
   parentScope: Scope,
@@ -175,13 +175,15 @@ function getFragmentScope(
         // value.
         if (
           definition.defaultValue == null &&
-          definition.type instanceof GraphQLNonNull
+          schema.isNonNull(definition.type)
         ) {
           const argNode = args.find(a => a.name === definition.name);
           throw createUserError(
-            `No value found for required argument '${definition.name}: ${String(
-              definition.type,
-            )}' on fragment '${spread.name}'.`,
+            `No value found for required argument '${
+              definition.name
+            }: ${schema.getTypeString(definition.type)}' on fragment '${
+              spread.name
+            }'.`,
             [argNode?.loc ?? spread.loc],
           );
         }

@@ -18,6 +18,8 @@ const partitionArray = require('../util/partitionArray');
 const getIdentifierForSelection = require('../core/getIdentifierForSelection');
 const invariant = require('invariant');
 
+import type {Schema} from '../core/Schema';
+
 import type {Fragment, Node, Root, Selection} from '../core/GraphQLIR';
 
 /**
@@ -131,7 +133,8 @@ function skipRedundantNodesTransform(
 let cache = new Map();
 function visitNode<T: Fragment | Root>(node: T): ?T {
   cache = new Map();
-  return transformNode(node, new IMap()).node;
+  const context: GraphQLCompilerContext = this.getContext();
+  return transformNode(context.getSchema(), node, new IMap()).node;
 }
 
 /**
@@ -148,6 +151,7 @@ function visitNode<T: Fragment | Root>(node: T): ?T {
  * prior to the clone.
  */
 function transformNode<T: Node>(
+  schema: Schema,
   node: T,
   selectionMap: SelectionMap,
 ): {selectionMap: SelectionMap, node: ?T} {
@@ -164,7 +168,7 @@ function transformNode<T: Node>(
   }
   const selections = [];
   sortSelections(node.selections).forEach(selection => {
-    const identifier = getIdentifierForSelection(selection);
+    const identifier = getIdentifierForSelection(schema, selection);
     switch (selection.kind) {
       case 'ScalarField':
       case 'FragmentSpread': {
@@ -183,6 +187,7 @@ function transformNode<T: Node>(
       case 'ConnectionField':
       case 'LinkedField': {
         const transformed = transformNode(
+          schema,
           selection,
           selectionMap.get(identifier) || new IMap(),
         );
@@ -197,6 +202,7 @@ function transformNode<T: Node>(
         // Fork the selection map to prevent conditional selections from
         // affecting the outer "guaranteed" selections.
         const transformed = transformNode(
+          schema,
           selection,
           selectionMap.get(identifier) || selectionMap,
         );

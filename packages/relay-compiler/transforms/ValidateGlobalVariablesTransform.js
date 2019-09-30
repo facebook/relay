@@ -51,7 +51,12 @@ function validateGlobalVariablesTransform(
         `Operation '${
           node.name
         }' references undefined variable(s):\n${undefinedVariables
-          .map(argDef => `- \$${argDef.name}: ${String(argDef.type)}`)
+          .map(
+            argDef =>
+              `- \$${argDef.name}: ${context
+                .getSchema()
+                .getTypeString(argDef.type)}`,
+          )
           .join('\n')}.`,
         undefinedVariables.map(argDef => argDef.loc),
       );

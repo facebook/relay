@@ -37,6 +37,7 @@ const {
   transformInputType,
   transformScalarType,
 } = require('./RelayFlowTypeTransformers');
+const {ConnectionInterface} = require('relay-runtime');
 
 import type {IRTransform} from '../../core/GraphQLCompilerContext';
 import type {
@@ -540,49 +541,45 @@ function visitScalarField(schema, node, state) {
 }
 
 function visitConnection(schema, node, state) {
+  const {EDGES} = ConnectionInterface.get();
   state.hasConnectionResolver = true;
-
-  /* $FlowFixMe: selections have already been transformed */
-  const babel = selectionsToBabel(schema, node.selections, state, false, null);
-  if (
-    babel == null ||
-    typeof babel !== 'object' ||
-    babel.type !== 'ObjectTypeAnnotation' ||
-    !Array.isArray(babel.properties)
-  ) {
-    throw createUserError(
-      'Cannot generate flow types for connection field, expected an edges ' +
-        'selection.',
-      [node.loc],
-    );
-  }
-  const edgesProperty: $FlowFixMe = babel.properties.find(prop => {
+  const edgesSelection = node.selections.find(selections => {
+    const mixedSelections = ((selections: $FlowFixMe): mixed);
     return (
-      prop != null &&
-      typeof prop === 'object' &&
-      prop.type === 'ObjectTypeProperty' &&
-      prop.key != null &&
-      typeof prop.key === 'object' &&
-      prop.key.name === 'edges'
+      Array.isArray(mixedSelections) &&
+      mixedSelections.some(
+        selection =>
+          selection != null &&
+          typeof selection === 'object' &&
+          selection.key === EDGES &&
+          selection.schemaName === EDGES,
+      )
     );
   });
-  const edgeTypeParams =
-    edgesProperty?.value?.typeAnnotation?.typeParameters?.params;
-  const edgeType = Array.isArray(edgeTypeParams) ? edgeTypeParams[0] : null;
-  if (edgeType == null) {
+  const edgesItem = Array.isArray(edgesSelection) ? edgesSelection[0] : null;
+  const nodeSelections =
+    edgesItem != null &&
+    typeof edgesItem === 'object' &&
+    edgesItem.nodeSelections instanceof Map
+      ? edgesItem.nodeSelections
+      : null;
+  if (nodeSelections == null) {
     throw createUserError(
       'Cannot generate flow types for connection field, expected an edges ' +
         'selection.',
       [node.loc],
     );
   }
+  const edgesFields = Array.from(nodeSelections.values());
+  const edgesType = selectionsToBabel(schema, [edgesFields], state, false);
+
   return [
     {
       key: '__connection',
       conditional: true,
       value: t.genericTypeAnnotation(
         t.identifier('ConnectionReference'),
-        t.typeParameterInstantiation([edgeType]),
+        t.typeParameterInstantiation([edgesType]),
       ),
     },
   ];

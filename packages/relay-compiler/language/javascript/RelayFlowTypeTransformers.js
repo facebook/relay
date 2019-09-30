@@ -17,7 +17,7 @@ const {
   readOnlyArrayOfType,
 } = require('./RelayFlowBabelFactories');
 
-import type {Schema, TypeID} from '../../core/Schema';
+import type {Schema, TypeID, EnumTypeID} from '../../core/Schema';
 
 export type ScalarTypeMapping = {
   [type: string]: string,
@@ -73,7 +73,7 @@ function transformNonNullableScalarType(
   } else if (schema.isScalar(type)) {
     return transformGraphQLScalarType(schema.getTypeString(type), state);
   } else if (schema.isEnum(type)) {
-    return transformGraphQLEnumType(schema, type, state);
+    return transformGraphQLEnumType(schema, schema.assertEnumType(type), state);
   } else {
     throw new Error(`Could not convert from GraphQL type ${String(type)}`);
   }
@@ -101,7 +101,11 @@ function transformGraphQLScalarType(typeName: string, state: State) {
   }
 }
 
-function transformGraphQLEnumType(schema: Schema, type: TypeID, state: State) {
+function transformGraphQLEnumType(
+  schema: Schema,
+  type: EnumTypeID,
+  state: State,
+) {
   state.usedEnums[schema.getTypeString(type)] = type;
   return t.genericTypeAnnotation(t.identifier(schema.getTypeString(type)));
 }
@@ -126,24 +130,24 @@ function transformInputType(
 
 function transformNonNullableInputType(
   schema: Schema,
-  typeID: TypeID,
+  type: TypeID,
   state: State,
 ) {
-  if (schema.isList(typeID)) {
+  if (schema.isList(type)) {
     return readOnlyArrayOfType(
-      transformInputType(schema, schema.getNonListType(typeID), state),
+      transformInputType(schema, schema.getNonListType(type), state),
     );
-  } else if (schema.isScalar(typeID)) {
-    return transformGraphQLScalarType(schema.getTypeString(typeID), state);
-  } else if (schema.isEnum(typeID)) {
-    return transformGraphQLEnumType(schema, typeID, state);
-  } else if (schema.isInput(typeID)) {
-    const typeIdentifier = getInputObjectTypeIdentifier(schema, typeID);
+  } else if (schema.isScalar(type)) {
+    return transformGraphQLScalarType(schema.getTypeString(type), state);
+  } else if (schema.isEnum(type)) {
+    return transformGraphQLEnumType(schema, schema.assertEnumType(type), state);
+  } else if (schema.isInput(type)) {
+    const typeIdentifier = getInputObjectTypeIdentifier(schema, type);
     if (state.generatedInputObjectTypes[typeIdentifier]) {
       return t.genericTypeAnnotation(t.identifier(typeIdentifier));
     }
     state.generatedInputObjectTypes[typeIdentifier] = 'pending';
-    const fields = schema.getFields(typeID);
+    const fields = schema.getFields(type);
     const props = fields.map(fieldID => {
       const fieldType = schema.getFieldType(fieldID);
       const fieldName = schema.getFieldName(fieldID);
@@ -165,7 +169,9 @@ function transformNonNullableInputType(
     );
     return t.genericTypeAnnotation(t.identifier(typeIdentifier));
   } else {
-    throw new Error(`Could not convert from GraphQL type ${String(typeID)}`);
+    throw new Error(
+      `Could not convert from GraphQL type ${schema.getTypeString(type)}`,
+    );
   }
 }
 

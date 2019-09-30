@@ -430,7 +430,7 @@ function printLiteral(schema: Schema, value: mixed, type: ?TypeID): string {
   }
 
   if (type && schema.isEnum(type)) {
-    let result = schema.serialize(type, value);
+    let result = schema.serialize(schema.assertEnumType(type), value);
     if (result == null && typeof value === 'string') {
       // For backwards compatibility, print invalid input values as-is. This
       // can occur with literals defined as an @argumentDefinitions
@@ -447,7 +447,7 @@ function printLiteral(schema: Schema, value: mixed, type: ?TypeID): string {
   } else if (type && (schema.isId(type) || schema.isInt(type))) {
     return JSON.stringify(value) ?? '';
   } else if (type && schema.isScalar(type)) {
-    const result = schema.serialize(type, value);
+    const result = schema.serialize(schema.assertScalarType(type), value);
     return JSON.stringify(result) ?? '';
   } else if (Array.isArray(value)) {
     invariant(

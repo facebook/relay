@@ -932,7 +932,7 @@ class GraphQLDefinitionParser {
         loc: buildLocation(field.loc),
         metadata: null,
         name,
-        type,
+        type: schema.assertScalarFieldType(type),
       };
     } else {
       const selections = field.selectionSet
@@ -1367,13 +1367,14 @@ function transformNonNullLiteral(
       );
     }
   } else if (schema.isEnum(nullableType)) {
-    const value = schema.parseLiteral(nullableType, ast);
+    const enumType = schema.assertEnumType(nullableType);
+    const value = schema.parseLiteral(enumType, ast);
     if (value == null) {
       if (options.nonStrictEnums) {
         if (ast.kind === 'StringValue' || ast.kind === 'EnumValue') {
           const alternateValue =
-            schema.parseValue(nullableType, ast.value.toUpperCase()) ??
-            schema.parseValue(nullableType, ast.value.toLowerCase());
+            schema.parseValue(enumType, ast.value.toUpperCase()) ??
+            schema.parseValue(enumType, ast.value.toLowerCase());
           if (alternateValue != null) {
             // Use the original raw value
             return {
@@ -1398,7 +1399,10 @@ function transformNonNullLiteral(
       value,
     };
   } else if (schema.isScalar(nullableType)) {
-    const value = schema.parseLiteral(nullableType, ast);
+    const value = schema.parseLiteral(
+      schema.assertScalarType(nullableType),
+      ast,
+    );
     if (value == null) {
       // parseLiteral() should return a non-null JavaScript value
       // if the ast value is valid for the type.

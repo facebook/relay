@@ -48,7 +48,9 @@ function getTypeDetails(schema: Schema, fieldType: TypeID): TypeDetails {
 
   return {
     type: schema.getTypeString(type),
-    enumValues: schema.isEnum(type) ? schema.getEnumValues(type) : null,
+    enumValues: schema.isEnum(type)
+      ? schema.getEnumValues(schema.assertEnumType(type))
+      : null,
     plural: isPlural,
     nullable: isNullable,
   };

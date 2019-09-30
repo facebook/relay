@@ -10,7 +10,7 @@
 
 'use strict';
 
-import type {TypeID} from './Schema';
+import type {TypeID, ScalarFieldTypeID} from './Schema';
 import type {Source} from 'graphql';
 
 export type Metadata = ?{[key: string]: mixed};
@@ -314,7 +314,7 @@ export type ScalarField = {|
   +loc: Location,
   +metadata: Metadata,
   +name: string,
-  +type: TypeID,
+  +type: ScalarFieldTypeID,
 |};
 
 export type Selection =

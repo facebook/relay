@@ -34,6 +34,7 @@ function relayGenerateTypeNameTransform(
   context: CompilerContext,
 ): CompilerContext {
   cache = new Map();
+  const schema = context.getSchema();
   const typenameField: ScalarField = {
     kind: 'ScalarField',
     alias: TYPENAME_KEY,
@@ -43,7 +44,7 @@ function relayGenerateTypeNameTransform(
     loc: {kind: 'Generated'},
     metadata: null,
     name: TYPENAME_KEY,
-    type: context.getSchema().expectStringType(),
+    type: schema.expectStringType(),
   };
   const state = {
     typenameField,

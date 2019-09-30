@@ -11,7 +11,7 @@
 'use strict';
 
 import type {ScalarField} from '../core/GraphQLIR';
-import type {TypeID} from './Schema';
+import type {ScalarFieldTypeID} from './Schema';
 import type {ASTNode} from 'graphql';
 
 const ID = 'id';
@@ -51,7 +51,7 @@ function isSchemaDefinitionAST(ast: ASTNode): boolean %checks {
   );
 }
 
-function generateIDField(idType: TypeID): ScalarField {
+function generateIDField(idType: ScalarFieldTypeID): ScalarField {
   return {
     kind: 'ScalarField',
     alias: ID,
@@ -61,7 +61,6 @@ function generateIDField(idType: TypeID): ScalarField {
     loc: {kind: 'Generated'},
     metadata: null,
     name: ID,
-    // $FlowFixMe ---> this will be fixed in the next diff in stack
     type: idType,
   };
 }

@@ -48,7 +48,30 @@ import type {
   ValueNode,
 } from 'graphql';
 
-export opaque type TypeID = Type | List | NonNull;
+export opaque type TypeID = BaseType | BaseList | BaseNonNull;
+
+type BaseType =
+  | ScalarType
+  | EnumType
+  | UnionType
+  | ObjectType
+  | InputType
+  | InterfaceType;
+
+type BaseList = List<TypeID>;
+type BaseNonNull = NonNull<BaseType | BaseList>;
+
+export opaque type ScalarTypeID: ScalarFieldTypeID = ScalarType;
+export opaque type EnumTypeID: ScalarFieldTypeID = EnumType;
+
+export opaque type ScalarFieldTypeID: TypeID =
+  | ScalarFieldType
+  | ScalarFieldList
+  | ScalarFieldNonNull;
+
+type ScalarFieldType = ScalarType | EnumType;
+type ScalarFieldList = List<ScalarFieldTypeID>;
+type ScalarFieldNonNull = NonNull<ScalarFieldType | ScalarFieldList>;
 
 export opaque type FieldID = Field;
 
@@ -98,11 +121,53 @@ class Type {
 /**
  * @private
  */
-class List {
-  +ofType: TypeID;
+class ScalarType extends Type {
+  +kind: 'Scalar';
+}
+
+/**
+ * @private
+ */
+class EnumType extends Type {
+  +kind: 'Enum';
+}
+
+/**
+ * @private
+ */
+class UnionType extends Type {
+  +kind: 'Union';
+}
+
+/**
+ * @private
+ */
+class ObjectType extends Type {
+  +kind: 'Object';
+}
+
+/**
+ * @private
+ */
+class InputType extends Type {
+  +kind: 'Input';
+}
+
+/**
+ * @private
+ */
+class InterfaceType extends Type {
+  +kind: 'Interface';
+}
+
+/**
+ * @private
+ */
+class List<+T> {
+  +ofType: T;
   +_typeString: string;
 
-  constructor(type: TypeID) {
+  constructor(type: T) {
     this.ofType = type;
     this._typeString = `[${String(this.ofType)}]`;
   }
@@ -119,11 +184,11 @@ class List {
 /**
  * @private
  */
-class NonNull {
-  +ofType: Type | List;
+class NonNull<+T> {
+  +ofType: T;
   +_typeString: string;
 
-  constructor(type: Type | List) {
+  constructor(type: T) {
     this.ofType = type;
     this._typeString = `${String(this.ofType)}!`;
   }
@@ -142,7 +207,7 @@ class NonNull {
  */
 class Field {
   +args: Map<string, FieldArgument>;
-  +belongsTo: TypeID;
+  +belongsTo: ObjectType | InterfaceType | InputType | UnionType;
   +name: string;
   +type: TypeID;
 
@@ -150,7 +215,7 @@ class Field {
     schema: Schema,
     name: string,
     type: TypeID,
-    belongsTo: TypeID,
+    belongsTo: ObjectType | InterfaceType | InputType | UnionType,
     argDefs: $ReadOnlyArray<GraphQLArgument>,
   ) {
     this.name = name;
@@ -174,11 +239,11 @@ class Field {
 /**
  * @private
  */
-function unwrap(type: TypeID): Type {
-  if (type instanceof Type) {
-    return type;
+function unwrap(type: TypeID): BaseType {
+  if (type instanceof NonNull || type instanceof List) {
+    return unwrap(type.ofType);
   }
-  return unwrap(type.ofType);
+  return type;
 }
 
 /**
@@ -211,6 +276,53 @@ function getConcreteTypes(
 
 const TYPENAME_FIELD = '__typename';
 const CLIENT_ID_FIELD = '__id';
+
+function isScalar(type: mixed): boolean %checks {
+  return type instanceof ScalarType;
+}
+
+function isObject(type: mixed): boolean %checks {
+  return type instanceof ObjectType;
+}
+
+function isEnum(type: mixed): boolean %checks {
+  return type instanceof EnumType;
+}
+
+function isUnion(type: mixed): boolean %checks {
+  return type instanceof UnionType;
+}
+
+function isInput(type: mixed): boolean %checks {
+  return type instanceof InputType;
+}
+
+function isInterface(type: mixed): boolean %checks {
+  return type instanceof InterfaceType;
+}
+
+function isWrapper(type: mixed): boolean %checks {
+  return type instanceof List || type instanceof NonNull;
+}
+
+function isBaseType(type: mixed): boolean %checks {
+  return (
+    type instanceof ScalarType ||
+    type instanceof ObjectType ||
+    type instanceof EnumType ||
+    type instanceof UnionType ||
+    type instanceof InputType ||
+    type instanceof InterfaceType
+  );
+}
+
+function isCompositeType(type: mixed): boolean %checks {
+  return (
+    type instanceof ObjectType ||
+    type instanceof UnionType ||
+    type instanceof InterfaceType
+  );
+}
 
 class Schema {
   +_baseSchema: GraphQLSchema;
@@ -319,22 +431,29 @@ class Schema {
         return;
       }
       let kind: Kind;
+      let TypeClass = Type;
       if (graphQLType instanceof GraphQLScalarType) {
         kind = 'Scalar';
+        TypeClass = ScalarType;
       } else if (graphQLType instanceof GraphQLInputObjectType) {
         kind = 'Input';
+        TypeClass = InputType;
       } else if (graphQLType instanceof GraphQLEnumType) {
         kind = 'Enum';
+        TypeClass = EnumType;
       } else if (graphQLType instanceof GraphQLUnionType) {
         kind = 'Union';
+        TypeClass = UnionType;
       } else if (graphQLType instanceof GraphQLInterfaceType) {
         kind = 'Interface';
+        TypeClass = InterfaceType;
       } else if (graphQLType instanceof GraphQLObjectType) {
         kind = 'Object';
+        TypeClass = ObjectType;
       } else {
         throw new createUserError(`Unknown GraphQL type: ${graphQLType}`);
       }
-      type = new Type(name, kind);
+      type = new TypeClass(name, kind);
       this._typeMap.set(name, type);
       return type;
     }
@@ -357,7 +476,7 @@ class Schema {
         graphQLType = this._baseSchema.getSubscriptionType();
       }
       if (graphQLType) {
-        const operationType = new Type(graphQLType.name, 'Object');
+        const operationType = new ObjectType(graphQLType.name, 'Object');
         this._typeMap.set(typeName, operationType);
         this._typeMap.set(graphQLType.name, operationType);
         return operationType;
@@ -445,7 +564,7 @@ class Schema {
     if (typeA instanceof List && typeB instanceof List) {
       return this.areEqualTypes(typeA.ofType, typeB.ofType);
     }
-    if (typeA instanceof Type && typeB instanceof Type) {
+    if (isBaseType(typeA) && isBaseType(typeB)) {
       return typeA.name === typeB.name;
     }
     return false;
@@ -524,8 +643,25 @@ class Schema {
     return isTypeSubTypeOf(this._extendedSchema, maybeSubType, superType);
   }
 
-  assertScalarType(type: TypeID): TypeID {
-    if (!this.isScalar(type)) {
+  assertScalarFieldType(type: mixed): ScalarFieldTypeID {
+    // Scalar type fields can be wrappers / or can be scalars/enums
+    if (
+      (isWrapper(type) && !isScalar(unwrap(type)) && !isEnum(unwrap(type))) ||
+      (!isWrapper(type) && !isScalar(type) && !isEnum(type))
+    ) {
+      throw new Error(`Expected ${String(type)} to be a Scalar or Enum type.`);
+    }
+    return type;
+  }
+
+  asScalarFieldType(type: ?TypeID): ?ScalarFieldTypeID {
+    if (type && (isScalar(type) || isEnum(type))) {
+      return type;
+    }
+  }
+
+  assertScalarType(type: TypeID): ScalarTypeID {
+    if (!isScalar(type)) {
       throw new Error(
         `Expected ${this.getTypeString(type)} to be a scalar type.`,
       );
@@ -533,47 +669,37 @@ class Schema {
     return type;
   }
 
-  assertObjectType(type: TypeID): TypeID {
-    if (!this.isObject(type)) {
-      throw new Error(
-        `Expected ${this.getTypeString(type)} to be an object type.`,
-      );
+  assertObjectType(type: mixed): TypeID {
+    if (!isObject(type)) {
+      throw new Error(`Expected ${String(type)} to be an object type.`);
     }
     return type;
   }
 
   assertInputType(type: TypeID): TypeID {
     if (!this.isInputType(type)) {
-      throw new Error(
-        `Expected ${this.getTypeString(type)} to be an input type.`,
-      );
+      throw new Error(`Expected ${String(type)} to be an input type.`);
     }
     return type;
   }
 
-  assertInterfaceType(type: TypeID): TypeID {
-    if (!this.isInterface(type)) {
-      throw new Error(
-        `Expected ${this.getTypeString(type)} to be an interface type.`,
-      );
+  assertInterfaceType(type: mixed): TypeID {
+    if (!isInterface(type)) {
+      throw new Error(`Expected ${String(type)} to be an interface type.`);
+    }
+    return type;
+  }
+
+  assertCompositeType(type: mixed): TypeID {
+    if (!isCompositeType(type)) {
+      throw new Error(`Expected ${String(type)} to be a composite type.`);
     }
     return type;
   }
 
   assertOutputType(type: TypeID): TypeID {
     if (!this.isOutputType(type)) {
-      throw new Error(
-        `Expected ${this.getTypeString(type)} to be an input type.`,
-      );
-    }
-    return type;
-  }
-
-  assertCompositeType(type: TypeID): TypeID {
-    if (!this.isCompositeType(type)) {
-      throw new Error(
-        `Expected ${this.getTypeString(type)} to be a composite type.`,
-      );
+      throw new Error(`Expected ${String(type)} to be an input type.`);
     }
     return type;
   }
@@ -597,7 +723,7 @@ class Schema {
   }
 
   assertUnionType(type: TypeID): TypeID {
-    if (!this.isUnion(type)) {
+    if (!isUnion(type)) {
       throw new Error(
         `Expected ${this.getTypeString(type)} to be a union type.`,
       );
@@ -605,26 +731,22 @@ class Schema {
     return type;
   }
 
-  assertEnumType(type: TypeID): TypeID {
-    if (!this.isEnum(type)) {
-      throw new Error(
-        `Expected ${this.getTypeString(type)} to be an enum type.`,
-      );
+  assertEnumType(type: TypeID): EnumTypeID {
+    if (!isEnum(type)) {
+      throw new Error(`Expected ${String(type)} to be an enum type.`);
     }
     return type;
   }
 
-  assertIntType(type: TypeID): TypeID {
-    if (!this.isInt(type)) {
-      throw new Error(
-        `Expected ${this.getTypeString(type)} to be an 'Int' type.`,
-      );
+  assertIntType(type: TypeID): ScalarTypeID {
+    if (!isScalar(type) || !this.isInt(type)) {
+      throw new Error(`Expected ${String(type)} to be an 'Int' type.`);
     }
     return type;
   }
 
-  assertFloatType(type: TypeID): TypeID {
-    if (!this.isFloat(type)) {
+  assertFloatType(type: TypeID): ScalarTypeID {
+    if (!isScalar(type) || !this.isFloat(type)) {
       throw new Error(
         `Expected ${this.getTypeString(type)} to be a 'Float' type.`,
       );
@@ -632,8 +754,8 @@ class Schema {
     return type;
   }
 
-  assertBooleanType(type: TypeID): TypeID {
-    if (!this.isBoolean(type)) {
+  assertBooleanType(type: TypeID): ScalarTypeID {
+    if (!isScalar(type) || !this.isBoolean(type)) {
       throw new Error(
         `Expected ${this.getTypeString(type)} to be a 'Boolean' type.`,
       );
@@ -641,8 +763,8 @@ class Schema {
     return type;
   }
 
-  assertStringType(type: TypeID): TypeID {
-    if (!this.isString(type)) {
+  assertStringType(type: TypeID): ScalarTypeID {
+    if (!isScalar(type) || !this.isString(type)) {
       throw new Error(
         `Expected ${this.getTypeString(type)} to be a 'String' type.`,
       );
@@ -650,31 +772,31 @@ class Schema {
     return type;
   }
 
-  assertIdType(type: TypeID): TypeID {
-    if (!this.isId(type)) {
+  assertIdType(type: TypeID): ScalarTypeID {
+    if (!isScalar(type) || !this.isId(type)) {
       throw new Error(`Expected ${this.getTypeString(type)} to be an ID type.`);
     }
     return type;
   }
 
-  expectBooleanType(): TypeID {
-    return this.expectTypeFromString('Boolean');
+  expectBooleanType(): ScalarTypeID {
+    return this.assertScalarType(this.expectTypeFromString('Boolean'));
   }
 
-  expectIntType(): TypeID {
-    return this.expectTypeFromString('Int');
+  expectIntType(): ScalarTypeID {
+    return this.assertScalarType(this.expectTypeFromString('Int'));
   }
 
-  expectFloatType(): TypeID {
-    return this.expectTypeFromString('Float');
+  expectFloatType(): ScalarTypeID {
+    return this.assertScalarType(this.expectTypeFromString('Float'));
   }
 
-  expectStringType(): TypeID {
-    return this.expectTypeFromString('String');
+  expectStringType(): ScalarTypeID {
+    return this.assertScalarType(this.expectTypeFromString('String'));
   }
 
-  expectIdType(): TypeID {
-    return this.expectTypeFromString('ID');
+  expectIdType(): ScalarTypeID {
+    return this.assertScalarType(this.expectTypeFromString('ID'));
   }
 
   getQueryType(): ?TypeID {
@@ -755,49 +877,31 @@ class Schema {
   }
 
   isWrapper(type: TypeID): boolean {
-    return this.isNonNull(type) || this.isList(type);
+    return isWrapper(type);
   }
 
   isScalar(type: TypeID): boolean {
-    if (type instanceof Type) {
-      return type.kind === 'Scalar';
-    }
-    return false;
+    return isScalar(type);
   }
 
   isObject(type: TypeID): boolean {
-    if (type instanceof Type) {
-      return type.kind === 'Object';
-    }
-    return false;
+    return isObject(type);
   }
 
   isEnum(type: TypeID): boolean {
-    if (type instanceof Type) {
-      return type.kind === 'Enum';
-    }
-    return false;
+    return isEnum(type);
   }
 
   isUnion(type: TypeID): boolean {
-    if (type instanceof Type) {
-      return type.kind === 'Union';
-    }
-    return false;
+    return isUnion(type);
   }
 
   isInput(type: TypeID): boolean {
-    if (type instanceof Type) {
-      return type.kind === 'Input';
-    }
-    return false;
+    return isInput(type);
   }
 
   isInterface(type: TypeID): boolean {
-    if (type instanceof Type) {
-      return type.kind === 'Interface';
-    }
-    return false;
+    return isInterface(type);
   }
 
   isInputType(type: TypeID): boolean {
@@ -811,7 +915,7 @@ class Schema {
   }
 
   isCompositeType(type: TypeID): boolean {
-    return this.isInterface(type) || this.isUnion(type) || this.isObject(type);
+    return isCompositeType(type);
   }
 
   isAbstractType(type: TypeID): boolean {
@@ -823,42 +927,49 @@ class Schema {
   }
 
   isId(type: TypeID): boolean {
-    if (type instanceof Type) {
+    if (type instanceof ScalarType) {
       return type.name === 'ID';
     }
     return false;
   }
 
   isInt(type: TypeID): boolean {
-    if (type instanceof Type) {
+    if (type instanceof ScalarType) {
       return type.name === 'Int';
     }
     return false;
   }
 
   isFloat(type: TypeID): boolean {
-    if (type instanceof Type) {
+    if (type instanceof ScalarType) {
       return type.name === 'Float';
     }
     return false;
   }
 
   isBoolean(type: TypeID): boolean {
-    if (type instanceof Type) {
+    if (type instanceof ScalarType) {
       return type.name === 'Boolean';
     }
     return false;
   }
 
   isString(type: TypeID): boolean {
-    if (type instanceof Type) {
+    if (type instanceof ScalarType) {
       return type.name === 'String';
     }
     return false;
   }
 
   hasField(type: TypeID, fieldName: string): boolean {
-    if (!(type instanceof Type)) {
+    if (
+      !(
+        type instanceof UnionType ||
+        type instanceof ObjectType ||
+        type instanceof InterfaceType ||
+        type instanceof InputType
+      )
+    ) {
       return false;
     }
     const canHaveTypename = this.isObject(type) || this.isAbstractType(type);
@@ -883,7 +994,7 @@ class Schema {
   }
 
   hasId(type: TypeID): boolean {
-    if (!(type instanceof Type)) {
+    if (!(type instanceof ObjectType || type instanceof InterfaceType)) {
       return false;
     }
     if (!this.canHaveSelections(type)) {
@@ -905,7 +1016,13 @@ class Schema {
   }
 
   getFields(type: TypeID): $ReadOnlyArray<FieldID> {
-    if (!(type instanceof Type)) {
+    if (
+      !(
+        type instanceof InputType ||
+        type instanceof ObjectType ||
+        type instanceof InterfaceType
+      )
+    ) {
       throw createUserError(
         `getFields(): Called with for unexpected type ${this.getTypeString(
           type,
@@ -916,7 +1033,7 @@ class Schema {
     return Array.from(fieldsMap.values());
   }
 
-  _getFieldsMap(type: Type): FieldsMap {
+  _getFieldsMap(type: BaseType): FieldsMap {
     const cachedMap = this._fieldsMap.get(type);
     if (cachedMap != null) {
       return cachedMap;
@@ -926,8 +1043,9 @@ class Schema {
     const name = type.name;
     const gqlType = this._extendedSchema.getType(name);
     if (
-      gqlType instanceof GraphQLObjectType ||
-      gqlType instanceof GraphQLInterfaceType
+      (type instanceof ObjectType || type instanceof InterfaceType) &&
+      (gqlType instanceof GraphQLObjectType ||
+        gqlType instanceof GraphQLInterfaceType)
     ) {
       const typeFields = gqlType.getFields();
       const fieldNames = Object.keys(typeFields);
@@ -945,7 +1063,10 @@ class Schema {
           new Field(this, fieldName, fieldType, type, field.args),
         );
       });
-    } else if (gqlType instanceof GraphQLInputObjectType) {
+    } else if (
+      type instanceof InputType &&
+      gqlType instanceof GraphQLInputObjectType
+    ) {
       const typeFields = gqlType.getFields();
       const fieldNames = Object.keys(typeFields);
       fieldNames.forEach(fieldName => {
@@ -968,7 +1089,14 @@ class Schema {
   }
 
   getFieldByName(type: TypeID, fieldName: string): ?FieldID {
-    if (!(type instanceof Type)) {
+    if (
+      !(
+        type instanceof UnionType ||
+        type instanceof ObjectType ||
+        type instanceof InterfaceType ||
+        type instanceof InputType
+      )
+    ) {
       throw createUserError(
         `getFieldByName(): Called with for unexpected type ${this.getTypeString(
           type,
@@ -1067,14 +1195,7 @@ class Schema {
     return field.args.get(argName);
   }
 
-  getEnumValues(type: TypeID): $ReadOnlyArray<string> {
-    if (!(type instanceof Type)) {
-      throw new createUserError(
-        `Expected "${this.getTypeString(
-          type,
-        )}" to be an Enum, but received wrapper.`,
-      );
-    }
+  getEnumValues(type: EnumTypeID): $ReadOnlyArray<string> {
     const gqlType = this._extendedSchema.getType(type.name);
     if (gqlType instanceof GraphQLEnumType) {
       return gqlType.getValues().map(({value}) => String(value));
@@ -1087,11 +1208,9 @@ class Schema {
   }
 
   getUnionTypes(type: TypeID): $ReadOnlyArray<TypeID> {
-    if (!(type instanceof Type)) {
+    if (!(type instanceof UnionType)) {
       throw new createUserError(
-        `Expected "${this.getTypeString(
-          type,
-        )}" to be a Union, but received wrapper.`,
+        `Expected "${this.getTypeString(type)}" to be a Union.`,
       );
     }
     const gqlType = this._extendedSchema.getType(type.name);
@@ -1106,11 +1225,15 @@ class Schema {
   }
 
   getInterfaces(type: TypeID): $ReadOnlyArray<TypeID> {
-    if (!(type instanceof Type)) {
+    if (
+      !(
+        type instanceof ObjectType ||
+        type instanceof UnionType ||
+        type instanceof InterfaceType
+      )
+    ) {
       throw new createUserError(
-        `Expected "${this.getTypeString(
-          type,
-        )}" to be an Object, but received wrapper.`,
+        `Expected "${this.getTypeString(type)}" to be an Object.`,
       );
     }
     const gqlType = this._extendedSchema.getType(type.name);
@@ -1123,11 +1246,9 @@ class Schema {
   }
 
   getPossibleTypes(type: TypeID): $ReadOnlyArray<TypeID> {
-    if (!(type instanceof Type)) {
+    if (!(type instanceof UnionType || type instanceof InterfaceType)) {
       throw new createUserError(
-        `Expected "${this.getTypeString(
-          type,
-        )}" to be an Abstract type, but received wrapper.`,
+        `Expected "${this.getTypeString(type)}" to be an Abstract type.`,
       );
     }
     const gqlType = this._extendedSchema.getType(type.name);
@@ -1144,15 +1265,13 @@ class Schema {
     return [];
   }
 
-  parseLiteral(type: TypeID, valueNode: ValueNode): mixed {
-    if (type instanceof Type) {
-      const gqlType = this._extendedSchema.getType(type.name);
-      if (
-        gqlType instanceof GraphQLEnumType ||
-        gqlType instanceof GraphQLScalarType
-      ) {
-        return gqlType.parseLiteral(valueNode);
-      }
+  parseLiteral(type: ScalarTypeID | EnumTypeID, valueNode: ValueNode): mixed {
+    const gqlType = this._extendedSchema.getType(type.name);
+    if (
+      gqlType instanceof GraphQLEnumType ||
+      gqlType instanceof GraphQLScalarType
+    ) {
+      return gqlType.parseLiteral(valueNode);
     }
     throw createUserError(
       `parseLiteral(...) is used with invalid type: ${this.getTypeString(
@@ -1161,30 +1280,26 @@ class Schema {
     );
   }
 
-  parseValue(type: TypeID, value: mixed): mixed {
-    if (type instanceof Type) {
-      const gqlType = this._extendedSchema.getType(type.name);
-      if (
-        gqlType instanceof GraphQLEnumType ||
-        gqlType instanceof GraphQLScalarType
-      ) {
-        return gqlType.parseValue(value);
-      }
+  parseValue(type: ScalarTypeID | EnumTypeID, value: mixed): mixed {
+    const gqlType = this._extendedSchema.getType(type.name);
+    if (
+      gqlType instanceof GraphQLEnumType ||
+      gqlType instanceof GraphQLScalarType
+    ) {
+      return gqlType.parseValue(value);
     }
     throw createUserError(
       `parseValue(...) is used with invalid type: ${this.getTypeString(type)}.`,
     );
   }
 
-  serialize(type: TypeID, value: mixed): mixed {
-    if (type instanceof Type) {
-      const gqlType = this._extendedSchema.getType(type.name);
-      if (
-        gqlType instanceof GraphQLEnumType ||
-        gqlType instanceof GraphQLScalarType
-      ) {
-        return gqlType.serialize(value);
-      }
+  serialize(type: ScalarTypeID | EnumTypeID, value: mixed): mixed {
+    const gqlType = this._extendedSchema.getType(type.name);
+    if (
+      gqlType instanceof GraphQLEnumType ||
+      gqlType instanceof GraphQLScalarType
+    ) {
+      return gqlType.serialize(value);
     }
     throw createUserError(
       `parseValue(...) is used with invalid type: ${this.getTypeString(type)}.`,

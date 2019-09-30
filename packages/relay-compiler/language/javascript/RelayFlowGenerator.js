@@ -46,7 +46,7 @@ import type {
   Metadata,
   ModuleImport,
 } from '../../core/GraphQLIR';
-import type {Schema, TypeID} from '../../core/Schema';
+import type {Schema, TypeID, EnumTypeID} from '../../core/Schema';
 import type {TypeGeneratorOptions} from '../RelayLanguagePluginInterface';
 
 const babelGenerator = require('@babel/generator').default;
@@ -63,7 +63,7 @@ export type State = {|
     [name: string]: TypeID | 'pending',
   },
   hasConnectionResolver: boolean,
-  +usedEnums: {[name: string]: TypeID},
+  +usedEnums: {[name: string]: EnumTypeID},
   +usedFragments: Set<string>,
   +matchFields: Map<string, mixed>,
 |};

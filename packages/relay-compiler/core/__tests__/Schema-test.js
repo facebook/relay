@@ -503,7 +503,7 @@ describe('Schema: RelayCompiler Internal GraphQL Schema Interface', () => {
   describe('enum | union | interface', () => {
     test('get enum values', () => {
       const schema = Schema.create(new Source('enum A { OK NOT_OK }'));
-      const type = schema.expectTypeFromString('A');
+      const type = schema.assertEnumType(schema.expectTypeFromString('A'));
       expect(schema.getEnumValues(type)).toEqual(['OK', 'NOT_OK']);
     });
 
@@ -573,7 +573,7 @@ describe('Schema: RelayCompiler Internal GraphQL Schema Interface', () => {
   describe('serialize | parseValue | parseLiteral', () => {
     test('serialize scalar value', () => {
       const schema = Schema.create(new Source('scalar Float'));
-      const type = schema.expectTypeFromString('Float');
+      const type = schema.expectFloatType();
       expect(schema.serialize(type, '1')).toBe(1);
       expect(schema.serialize(type, '4.2')).toBe(4.2);
       expect(() => {
@@ -583,7 +583,7 @@ describe('Schema: RelayCompiler Internal GraphQL Schema Interface', () => {
 
     test('serialize enum value', () => {
       const schema = Schema.create(new Source('enum A { OK NOT_OK }'));
-      const type = schema.expectTypeFromString('A');
+      const type = schema.assertEnumType(schema.expectTypeFromString('A'));
       expect(schema.serialize(type, 'OK')).toBe('OK');
       expect(schema.serialize(type, 'NOT_OK')).toBe('NOT_OK');
       expect(schema.serialize(type, 'invalid_value')).not.toBeDefined();
@@ -591,7 +591,7 @@ describe('Schema: RelayCompiler Internal GraphQL Schema Interface', () => {
 
     test('parse scalar value', () => {
       const schema = Schema.create(new Source('scalar Float'));
-      const type = schema.expectTypeFromString('Float');
+      const type = schema.expectFloatType();
       expect(schema.parseValue(type, 1)).toBe(1);
       expect(schema.parseValue(type, 4.2)).toBe(4.2);
       expect(() => {
@@ -604,7 +604,7 @@ describe('Schema: RelayCompiler Internal GraphQL Schema Interface', () => {
 
     test('parse enum value', () => {
       const schema = Schema.create(new Source('enum A { OK NOT_OK }'));
-      const type = schema.expectTypeFromString('A');
+      const type = schema.assertEnumType(schema.expectTypeFromString('A'));
       expect(schema.parseValue(type, 'OK')).toBe('OK');
       expect(schema.parseValue(type, 'NOT_OK')).toBe('NOT_OK');
       expect(schema.parseValue(type, 'invalid_value')).not.toBeDefined();
@@ -612,7 +612,7 @@ describe('Schema: RelayCompiler Internal GraphQL Schema Interface', () => {
 
     test('parse scalar literal', () => {
       const schema = Schema.create(new Source('scalar Float'));
-      const type = schema.expectTypeFromString('Float');
+      const type = schema.expectFloatType();
       expect(
         schema.parseLiteral(type, {
           kind: 'FloatValue',
@@ -629,7 +629,7 @@ describe('Schema: RelayCompiler Internal GraphQL Schema Interface', () => {
 
     test('parse enum literal', () => {
       const schema = Schema.create(new Source('enum A { OK NOT_OK }'));
-      const type = schema.expectTypeFromString('A');
+      const type = schema.assertEnumType(schema.expectTypeFromString('A'));
       expect(
         schema.parseLiteral(type, {
           kind: 'EnumValue',

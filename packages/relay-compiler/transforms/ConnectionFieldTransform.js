@@ -252,7 +252,9 @@ function visitLinkedField(
         loc: edgeField.loc,
         metadata: null,
         name: '__id',
-        type: schema.getNonNullType(schema.expectIdType()),
+        type: schema.assertScalarFieldType(
+          schema.getNonNullType(schema.expectIdType()),
+        ),
       },
       {
         alias: 'node',
@@ -274,7 +276,9 @@ function visitLinkedField(
             loc: edgeField.loc,
             metadata: null,
             name: '__id',
-            type: schema.getNonNullType(schema.expectIdType()),
+            type: schema.assertScalarFieldType(
+              schema.getNonNullType(schema.expectIdType()),
+            ),
           },
         ],
         type: nodeType,

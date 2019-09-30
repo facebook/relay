@@ -35,7 +35,7 @@ function relayGenerateIDFieldTransform(
   context: CompilerContext,
 ): CompilerContext {
   const schema = context.getSchema();
-  const idType = schema.assertLeafType(schema.expectIdType());
+  const idType = schema.expectIdType();
   const idField = generateIDField(idType);
   const state = {
     idField,

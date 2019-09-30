@@ -314,7 +314,9 @@ function visitFragmentSpread(
   const context: CompilerContext = this.getContext();
   const schema = context.getSchema();
 
-  const jsModuleType = schema.getTypeFromString(JS_FIELD_TYPE);
+  const jsModuleType = schema.asScalarFieldType(
+    schema.getTypeFromString(JS_FIELD_TYPE),
+  );
   if (jsModuleType == null || !schema.isServerType(jsModuleType)) {
     throw new createUserError(
       `'${JS_FIELD_NAME}' should be defined on the server schema.`,

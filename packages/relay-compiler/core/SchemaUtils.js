@@ -12,6 +12,7 @@
 
 import type {ScalarField} from '../core/GraphQLIR';
 import type {ScalarFieldTypeID} from './Schema';
+import type {Schema, InputTypeID} from './Schema';
 import type {ASTNode} from 'graphql';
 
 const ID = 'id';
@@ -65,8 +66,42 @@ function generateIDField(idType: ScalarFieldTypeID): ScalarField {
   };
 }
 
+function getNullableBooleanInput(schema: Schema): InputTypeID {
+  return schema.assertInputType(schema.expectBooleanType());
+}
+
+function getNonNullBooleanInput(schema: Schema): InputTypeID {
+  return schema.assertInputType(
+    schema.getNonNullType(schema.expectBooleanType()),
+  );
+}
+
+function getNullableStringInput(schema: Schema): InputTypeID {
+  return schema.assertInputType(schema.expectStringType());
+}
+
+function getNonNullStringInput(schema: Schema): InputTypeID {
+  return schema.assertInputType(
+    schema.getNonNullType(schema.expectStringType()),
+  );
+}
+
+function getNullableIdInput(schema: Schema): InputTypeID {
+  return schema.assertInputType(schema.expectIdType());
+}
+
+function getNonNullIdInput(schema: Schema): InputTypeID {
+  return schema.assertInputType(schema.getNonNullType(schema.expectIdType()));
+}
+
 module.exports = {
   generateIDField,
   isExecutableDefinitionAST,
   isSchemaDefinitionAST,
+  getNullableBooleanInput,
+  getNonNullBooleanInput,
+  getNullableStringInput,
+  getNonNullStringInput,
+  getNullableIdInput,
+  getNonNullIdInput,
 };

@@ -386,7 +386,7 @@ function printValue(
     return '$' + value.variableName;
   } else if (value.kind === 'ObjectValue') {
     invariant(
-      type && schema.isInput(type),
+      type && schema.isInputObject(type),
       'GraphQLIRPrinter: Need an InputObject type to print objects.',
     );
 
@@ -394,7 +394,7 @@ function printValue(
       .map(field => {
         const fieldConfig =
           type != null
-            ? schema.hasField(schema.assertInput(type), field.name)
+            ? schema.hasField(schema.assertInputObjectType(type), field.name)
               ? schema.getFieldConfig(schema.expectField(type, field.name))
               : null
             : null;
@@ -467,7 +467,7 @@ function printLiteral(schema: Schema, value: mixed, type: ?TypeID): string {
   } else if (typeof value === 'object' && value != null) {
     const fields = [];
     invariant(
-      type && schema.isInput(type),
+      type && schema.isInputObject(type),
       'GraphQLIRPrinter: Need an InputObject type to print objects.',
     );
     for (const key in value) {

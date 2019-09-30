@@ -10,7 +10,12 @@
 
 'use strict';
 
-import type {TypeID, LinkedFieldTypeID, ScalarFieldTypeID} from './Schema';
+import type {
+  TypeID,
+  LinkedFieldTypeID,
+  ScalarFieldTypeID,
+  InputTypeID,
+} from './Schema';
 import type {Source} from 'graphql';
 
 export type Metadata = ?{[key: string]: mixed};
@@ -40,7 +45,7 @@ export type Argument = {|
   +kind: 'Argument',
   +loc: Location,
   +name: string,
-  +type: ?TypeID,
+  +type: ?InputTypeID,
   +value: ArgumentValue,
 |};
 
@@ -147,7 +152,7 @@ export type RootArgumentDefinition = {|
   +kind: 'RootArgumentDefinition',
   +loc: Location,
   +name: string,
-  +type: TypeID,
+  +type: InputTypeID,
 |};
 
 export type InlineFragment = {|
@@ -233,7 +238,7 @@ export type LocalArgumentDefinition = {|
   +kind: 'LocalArgumentDefinition',
   +loc: Location,
   +name: string,
-  +type: TypeID,
+  +type: InputTypeID,
 |};
 
 export type ModuleImport = {|
@@ -348,5 +353,5 @@ export type Variable = {|
   +kind: 'Variable',
   +loc: Location,
   +variableName: string,
-  +type: ?TypeID,
+  +type: ?InputTypeID,
 |};

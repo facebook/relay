@@ -12,6 +12,7 @@
 
 const IRTransformer = require('../../core/GraphQLIRTransformer');
 const RelayParser = require('../../core/RelayParser');
+const SchemaUtils = require('../../core/SchemaUtils');
 
 const getLiteralArgumentValues = require('../../core/getLiteralArgumentValues');
 
@@ -450,7 +451,7 @@ function transformConnectionSelections(
           kind: 'Argument',
           loc: derivedDirectiveLocation,
           name: 'label',
-          type: context.getSchema().expectStringType(),
+          type: SchemaUtils.getNullableStringInput(schema),
           value: {
             kind: 'Literal',
             loc: derivedDirectiveLocation,
@@ -469,7 +470,7 @@ function transformConnectionSelections(
           kind: 'Argument',
           loc: derivedDirectiveLocation,
           name: 'label',
-          type: context.getSchema().expectStringType(),
+          type: SchemaUtils.getNullableStringInput(schema),
           value: {
             kind: 'Literal',
             loc: derivedDirectiveLocation,
@@ -584,7 +585,7 @@ function transformConnectionSelections(
     }`;
   }
   const pageInfoAst = parse(pageInfoText);
-  const pageInfoFragment = RelayParser.transform(context.getSchema(), [
+  const pageInfoFragment = RelayParser.transform(schema, [
     pageInfoAst.definitions[0],
   ])[0];
   if (transformedPageInfoSelection.kind !== 'LinkedField') {
@@ -631,7 +632,7 @@ function transformConnectionSelections(
     }
   `;
   const edgeAst = parse(edgeText);
-  const edgeFragment = RelayParser.transform(context.getSchema(), [
+  const edgeFragment = RelayParser.transform(schema, [
     edgeAst.definitions[0],
   ])[0];
   // When streaming the edges field needs @stream

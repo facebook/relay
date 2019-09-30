@@ -12,6 +12,7 @@
 
 const GraphQLCompilerContext = require('./GraphQLCompilerContext');
 const GraphQLIRVisitor = require('./GraphQLIRVisitor');
+const SchemaUtils = require('./SchemaUtils');
 
 const {createCompilerError} = require('./RelayCompilerError');
 
@@ -232,9 +233,7 @@ function visit(
       }
       const type =
         variable.type ??
-        context
-          .getSchema()
-          .getNonNullType(context.getSchema().expectBooleanType());
+        SchemaUtils.getNonNullBooleanInput(context.getSchema());
       if (!argumentDefinitions.has(variable.variableName)) {
         // root variable
         argumentDefinitions.set(variable.variableName, {
@@ -250,15 +249,15 @@ function visit(
       if (stream == null) {
         return;
       }
+      const defaultType = SchemaUtils.getNonNullBooleanInput(
+        context.getSchema(),
+      );
       [stream.if, stream.initialCount].forEach(variable => {
         if (variable == null || variable.kind !== 'Variable') {
           return;
         }
-        const type =
-          variable.type ??
-          context
-            .getSchema()
-            .getNonNullType(context.getSchema().expectBooleanType());
+        const type = variable.type ?? defaultType;
+
         if (!argumentDefinitions.has(variable.variableName)) {
           // root variable
           argumentDefinitions.set(variable.variableName, {
@@ -277,9 +276,7 @@ function visit(
       }
       const type =
         variable.type ??
-        context
-          .getSchema()
-          .getNonNullType(context.getSchema().expectBooleanType());
+        SchemaUtils.getNonNullBooleanInput(context.getSchema());
       if (!argumentDefinitions.has(variable.variableName)) {
         // root variable
         argumentDefinitions.set(variable.variableName, {
@@ -295,11 +292,10 @@ function visit(
         if (variable == null || variable.kind !== 'Variable') {
           return;
         }
+
         const type =
           variable.type ??
-          context
-            .getSchema()
-            .getNonNullType(context.getSchema().expectBooleanType());
+          SchemaUtils.getNonNullBooleanInput(context.getSchema());
         if (!argumentDefinitions.has(variable.variableName)) {
           // root variable
           argumentDefinitions.set(variable.variableName, {
@@ -320,7 +316,9 @@ function visit(
         if (variable == null) {
           return;
         }
-        const type = variable.type ?? context.getSchema().expectStringType();
+        const type =
+          variable.type ??
+          SchemaUtils.getNullableStringInput(context.getSchema());
         if (!argumentDefinitions.has(variable.variableName)) {
           // root variable
           argumentDefinitions.set(variable.variableName, {

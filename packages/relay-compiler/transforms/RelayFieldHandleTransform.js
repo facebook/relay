@@ -11,6 +11,7 @@
 'use strict';
 
 const IRTransformer = require('../core/GraphQLIRTransformer');
+const SchemaUtils = require('../core/SchemaUtils');
 
 const invariant = require('invariant');
 const nullthrows = require('nullthrows');
@@ -44,6 +45,7 @@ function visitField<F: LinkedField | ScalarField>(field: F): F {
     handles.join(', '),
   );
   const context: CompilerContext = this.getContext();
+  const schema = context.getSchema();
   const alias = nextField.alias;
   const handle = handles[0];
   const name = getRelayHandleKey(handle.name, handle.key, nextField.name);
@@ -57,7 +59,7 @@ function visitField<F: LinkedField | ScalarField>(field: F): F {
       kind: 'Argument',
       loc: handle.dynamicKey.loc,
       name: '__dynamicKey',
-      type: context.getSchema().expectStringType(),
+      type: SchemaUtils.getNullableStringInput(schema),
       value: nullthrows(handle.dynamicKey),
     });
   }

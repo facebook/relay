@@ -41,7 +41,7 @@ import type {
   Selection,
   Variable,
 } from './GraphQLIR';
-import type {Schema, TypeID, FieldArgument} from './Schema';
+import type {Schema, TypeID, InputTypeID, FieldArgument} from './Schema';
 import type {GetFieldDefinitionFn} from './getFieldDefinition';
 import type {
   ASTNode,
@@ -82,7 +82,7 @@ type VariableDefinition = {|
   ast: ASTNode,
   name: string,
   defaultValue: mixed,
-  type: TypeID,
+  type: InputTypeID,
   defined: boolean,
 |};
 
@@ -317,15 +317,24 @@ class RelayParser {
       }
 
       const typeAST = parseType(typeString);
-      const type = this._schema.assertInputType(
-        this._schema.expectTypeFromAST(
-          typeAST,
-          `Unknown type "${typeString}" referenced in the argument definitions.`,
-          null,
-          [arg],
-        ),
+      const argType = this._schema.expectTypeFromAST(
+        typeAST,
+        `Unknown type "${typeString}" referenced in the argument definitions.`,
+        null,
+        [arg],
       );
-
+      if (!this._schema.isInputType(argType)) {
+        throw createUserError(
+          `Expected type "${this._schema.getTypeString(
+            argType,
+          )}" to be an input type in the "${
+            arg.name.value
+          }" argument definitions.`,
+          null,
+          [arg.value],
+        );
+      }
+      const type = this._schema.assertInputType(argType);
       const defaultValue =
         defaultValueNode != null
           ? transformValue(
@@ -370,8 +379,18 @@ class RelayParser {
     const variableDefinitions = new Map();
     (operation.variableDefinitions || []).forEach(def => {
       const name = getName(def.variable);
-      const type = schema.assertInputType(schema.expectTypeFromAST(def.type));
+      const defType = schema.expectTypeFromAST(def.type);
+      if (!schema.isInputType(defType)) {
+        throw createUserError(
+          `Expected type "${schema.getTypeString(
+            defType,
+          )}" to be an input type.`,
+          null,
+          [def.type],
+        );
+      }
 
+      const type = schema.assertInputType(defType);
       const defaultValue = def.defaultValue
         ? transformLiteralValue(def.defaultValue, def)
         : null;
@@ -1156,7 +1175,7 @@ class GraphQLDefinitionParser {
     return [sortedConditions, otherDirectives];
   }
 
-  _transformVariable(ast: VariableNode, usedAsType: ?TypeID): Variable {
+  _transformVariable(ast: VariableNode, usedAsType: ?InputTypeID): Variable {
     const variableName = getName(ast);
     this._recordAndVerifyVariableReference(ast, variableName, usedAsType);
     return {
@@ -1167,7 +1186,7 @@ class GraphQLDefinitionParser {
     };
   }
 
-  _transformValue(ast: ValueNode, type: TypeID): ArgumentValue {
+  _transformValue(ast: ValueNode, type: InputTypeID): ArgumentValue {
     return transformValue(
       this._schema,
       ast,
@@ -1185,10 +1204,10 @@ class GraphQLDefinitionParser {
 function transformValue(
   schema: Schema,
   ast: ValueNode,
-  type: TypeID,
+  type: InputTypeID,
   transformVariable: (
     variableAst: VariableNode,
-    variableType: TypeID,
+    variableType: InputTypeID,
   ) => ArgumentValue,
   options: {|+nonStrictEnums: boolean|} = {nonStrictEnums: false},
 ): ArgumentValue {
@@ -1227,10 +1246,10 @@ function transformValue(
 function transformNonNullLiteral(
   schema: Schema,
   ast: NonNullLiteralValueNode,
-  type: TypeID,
+  type: InputTypeID,
   transformVariable: (
     variableAst: VariableNode,
-    variableType: TypeID,
+    variableType: InputTypeID,
   ) => ArgumentValue,
   options: {|+nonStrictEnums: boolean|},
 ): ArgumentValue {
@@ -1244,10 +1263,19 @@ function transformNonNullLiteral(
     if (ast.kind !== 'ListValue') {
       // Parse singular (non-list) values flowing into a list type
       // as scalars, ie without wrapping them in an array.
+      if (!schema.isInputType(schema.getNonListType(nullableType))) {
+        throw new createUserError(
+          `Expected type ${schema.getTypeString(
+            nullableType,
+          )} to be an input type.`,
+          null,
+          [ast],
+        );
+      }
       return transformValue(
         schema,
         ast,
-        schema.getNonListType(nullableType),
+        schema.assertInputType(schema.getNonListType(nullableType)),
         transformVariable,
         options,
       );
@@ -1285,7 +1313,7 @@ function transformNonNullLiteral(
         items,
       };
     }
-  } else if (schema.isInput(nullableType)) {
+  } else if (schema.isInputObject(nullableType)) {
     if (ast.kind !== 'ObjectValue') {
       throw createUserError(
         `Expected a value matching type '${schema.getTypeString(type)}'.`,
@@ -1303,7 +1331,7 @@ function transformNonNullLiteral(
         throw createUserError(
           `Unknown field '${fieldName}' on type '${schema.getTypeString(
             type,
-          )}.'`,
+          )}'.`,
           null,
           [field],
         );

@@ -1541,6 +1541,27 @@ query TestQuery {
 ]
 `;
 
+exports[`RelayParser matches expected output: fragment-with-argument-type.invalid.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+# expected-to-throw
+fragment Foo on User @argumentDefinitions(user: {type: "User!"}) {
+  id
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+THROWN EXCEPTION:
+
+Error: RelayParser: Encountered 1 error(s):
+- Expected type "User!" to be an input type in the "user" argument definitions.
+  
+  GraphQL request (2:49)
+  1: # expected-to-throw
+  2: fragment Foo on User @argumentDefinitions(user: {type: "User!"}) {
+                                                     ^
+  3:   id
+  
+`;
+
 exports[`RelayParser matches expected output: fragment-with-arguments.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 fragment TestFragment on User
@@ -4070,6 +4091,29 @@ fragment InlineUntypedFragment on User {
 ]
 `;
 
+exports[`RelayParser matches expected output: invalid-argument-type.invalid.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+# expected-to-throw
+query InvalidQueryArgument($user: User!) {
+  node(id: $user) {
+    name
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+THROWN EXCEPTION:
+
+Error: RelayParser: Encountered 1 error(s):
+- Expected type "User!" to be an input type.
+  
+  GraphQL request (2:35)
+  1: # expected-to-throw
+  2: query InvalidQueryArgument($user: User!) {
+                                       ^
+  3:   node(id: $user) {
+  
+`;
+
 exports[`RelayParser matches expected output: linked-handle-field.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 fragment LinkedHandleField on User {
@@ -5292,7 +5336,7 @@ query LiteralObjectArgument3 {
 THROWN EXCEPTION:
 
 Error: RelayParser: Encountered 3 error(s):
-- Unknown field 'unknownField' on type 'CheckinSearchInput.'
+- Unknown field 'unknownField' on type 'CheckinSearchInput'.
   
   GraphQL request (5:7)
   4:     query: {

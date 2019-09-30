@@ -141,7 +141,7 @@ function transformNonNullableInputType(
     return transformGraphQLScalarType(schema.getTypeString(type), state);
   } else if (schema.isEnum(type)) {
     return transformGraphQLEnumType(schema, schema.assertEnumType(type), state);
-  } else if (schema.isInput(type)) {
+  } else if (schema.isInputObject(type)) {
     const typeIdentifier = getInputObjectTypeIdentifier(schema, type);
     if (state.generatedInputObjectTypes[typeIdentifier]) {
       return t.genericTypeAnnotation(t.identifier(typeIdentifier));

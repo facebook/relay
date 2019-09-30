@@ -26,7 +26,6 @@ const {
   GraphQLUnionType,
   buildASTSchema,
   extendSchema,
-  isInputType,
   isOutputType,
   isTypeSubTypeOf,
   parse,
@@ -55,7 +54,7 @@ type BaseType =
   | EnumType
   | UnionType
   | ObjectType
-  | InputType
+  | InputObjectType
   | InterfaceType;
 
 type BaseList = List<TypeID>;
@@ -66,32 +65,42 @@ export opaque type EnumTypeID: ScalarFieldTypeID = EnumType;
 export opaque type UnionTypeID: CompositeTypeID = UnionType;
 export opaque type InterfaceTypeID: CompositeTypeID = InterfaceType;
 export opaque type ObjectTypeID: CompositeTypeID = ObjectType;
-export opaque type InputID: TypeID = InputType;
-export opaque type CompositeTypeID: LinkedFieldTypeID = LinkedFieldType;
+export opaque type InputObjectTypeID: TypeID = InputObjectType;
+export opaque type CompositeTypeID: LinkedFieldTypeID = CompositeType;
 
 export opaque type ScalarFieldTypeID: TypeID =
-  | ScalarFieldType
+  | ScalarFieldBaseType
   | ScalarFieldList
   | ScalarFieldNonNull;
 
 export opaque type LinkedFieldTypeID: TypeID =
-  | LinkedFieldType
+  | LinkedFieldBaseType
   | LinkedFieldList
   | LinkedFieldNonNull;
 
-type ScalarFieldType = ScalarType | EnumType;
-type ScalarFieldList = List<ScalarFieldTypeID>;
-type ScalarFieldNonNull = NonNull<ScalarFieldType | ScalarFieldList>;
+export opaque type InputTypeID: TypeID =
+  | InputBaseType
+  | InputTypeList
+  | InputTypeNonNull;
 
-type LinkedFieldType = ObjectType | InterfaceType | UnionType;
+type ScalarFieldBaseType = ScalarType | EnumType;
+type ScalarFieldList = List<ScalarFieldTypeID>;
+type ScalarFieldNonNull = NonNull<ScalarFieldBaseType | ScalarFieldList>;
+
+type CompositeType = ObjectType | InterfaceType | UnionType;
+type LinkedFieldBaseType = CompositeType;
 type LinkedFieldList = List<LinkedFieldTypeID>;
-type LinkedFieldNonNull = NonNull<LinkedFieldType | LinkedFieldList>;
+type LinkedFieldNonNull = NonNull<LinkedFieldBaseType | LinkedFieldList>;
+
+type InputBaseType = InputObjectType | ScalarType | EnumType;
+type InputTypeList = List<InputTypeID>;
+type InputTypeNonNull = NonNull<InputBaseType | InputTypeList>;
 
 export opaque type FieldID = Field;
 
 export type FieldArgument = $ReadOnly<{|
   name: string,
-  type: TypeID,
+  type: InputTypeID,
   defaultValue: mixed,
 |}>;
 
@@ -104,7 +113,13 @@ export type Directive = $ReadOnly<{|
 
 export type {Schema};
 
-type Kind = 'Scalar' | 'Enum' | 'Input' | 'Union' | 'Interface' | 'Object';
+type Kind =
+  | 'Scalar'
+  | 'Enum'
+  | 'InputObject'
+  | 'Union'
+  | 'Interface'
+  | 'Object';
 
 type FieldsMap = Map<string, Field>;
 
@@ -163,8 +178,8 @@ class ObjectType extends Type {
 /**
  * @private
  */
-class InputType extends Type {
-  +kind: 'Input';
+class InputObjectType extends Type {
+  +kind: 'InputObject';
 }
 
 /**
@@ -221,7 +236,7 @@ class NonNull<+T> {
  */
 class Field {
   +args: Map<string, FieldArgument>;
-  +belongsTo: ObjectType | InterfaceType | InputType | UnionType;
+  +belongsTo: ObjectType | InterfaceType | InputObjectType | UnionType;
   +name: string;
   +type: TypeID;
 
@@ -229,7 +244,7 @@ class Field {
     schema: Schema,
     name: string,
     type: TypeID,
-    belongsTo: ObjectType | InterfaceType | InputType | UnionType,
+    belongsTo: ObjectType | InterfaceType | InputObjectType | UnionType,
     argDefs: $ReadOnlyArray<GraphQLArgument>,
   ) {
     this.name = name;
@@ -241,7 +256,9 @@ class Field {
           arg.name,
           {
             name: arg.name,
-            type: schema.expectTypeFromAST(nullthrows(arg.astNode?.type)),
+            type: schema.assertInputType(
+              schema.expectTypeFromAST(nullthrows(arg.astNode?.type)),
+            ),
             defaultValue: arg.defaultValue,
           },
         ];
@@ -310,8 +327,8 @@ function isUnion(type: mixed): boolean %checks {
   return type instanceof UnionType;
 }
 
-function isInput(type: mixed): boolean %checks {
-  return type instanceof InputType;
+function isInputObject(type: mixed): boolean %checks {
+  return type instanceof InputObjectType;
 }
 
 function isInterface(type: mixed): boolean %checks {
@@ -328,7 +345,7 @@ function isBaseType(type: mixed): boolean %checks {
     type instanceof ObjectType ||
     type instanceof EnumType ||
     type instanceof UnionType ||
-    type instanceof InputType ||
+    type instanceof InputObjectType ||
     type instanceof InterfaceType
   );
 }
@@ -338,6 +355,14 @@ function isCompositeType(type: mixed): boolean %checks {
     type instanceof ObjectType ||
     type instanceof UnionType ||
     type instanceof InterfaceType
+  );
+}
+
+function isInputType(type: mixed): boolean %checks {
+  return (
+    type instanceof InputObjectType ||
+    type instanceof ScalarType ||
+    type instanceof EnumType
   );
 }
 
@@ -393,9 +418,11 @@ class Schema {
               args: directive.args.map(arg => {
                 return {
                   name: arg.name,
-                  type: arg.astNode
-                    ? this.expectTypeFromAST(arg.astNode.type)
-                    : this.expectTypeFromString(String(arg.type)),
+                  type: this.assertInputType(
+                    arg.astNode
+                      ? this.expectTypeFromAST(arg.astNode.type)
+                      : this.expectTypeFromString(String(arg.type)),
+                  ),
                   defaultValue: arg.defaultValue,
                 };
               }),
@@ -453,8 +480,8 @@ class Schema {
         kind = 'Scalar';
         TypeClass = ScalarType;
       } else if (graphQLType instanceof GraphQLInputObjectType) {
-        kind = 'Input';
-        TypeClass = InputType;
+        kind = 'InputObject';
+        TypeClass = InputObjectType;
       } else if (graphQLType instanceof GraphQLEnumType) {
         kind = 'Enum';
         TypeClass = EnumType;
@@ -687,6 +714,19 @@ class Schema {
     return type;
   }
 
+  assertInputType(type: mixed): InputTypeID {
+    // Scalar type fields can be wrappers / or can be scalars/enums
+    if (
+      (isWrapper(type) && !isInputType(unwrap(type))) ||
+      (!isWrapper(type) && !isInputType(type))
+    ) {
+      throw new Error(
+        `Expected ${String(type)} to be a Input, Scalar or Enum type.`,
+      );
+    }
+    return type;
+  }
+
   asScalarFieldType(type: ?TypeID): ?ScalarFieldTypeID {
     if (type && (isScalar(type) || isEnum(type))) {
       return type;
@@ -711,17 +751,8 @@ class Schema {
     return type;
   }
 
-  assertInput(type: TypeID): InputID {
-    if (!isInput(type)) {
-      throw new Error(
-        `Expected ${this.getTypeString(type)} to be an input type.`,
-      );
-    }
-    return type;
-  }
-
-  assertInputType(type: TypeID): TypeID {
-    if (!this.isInputType(type)) {
+  assertInputObjectType(type: TypeID): InputObjectTypeID {
+    if (!isInputObject(type)) {
       throw new Error(
         `Expected ${this.getTypeString(type)} to be an input type.`,
       );
@@ -948,8 +979,8 @@ class Schema {
     return isUnion(type);
   }
 
-  isInput(type: TypeID): boolean {
-    return isInput(type);
+  isInputObject(type: TypeID): boolean {
+    return isInputObject(type);
   }
 
   isInterface(type: TypeID): boolean {
@@ -958,7 +989,7 @@ class Schema {
 
   isInputType(type: TypeID): boolean {
     // Wrappers can be input types (so it's save to check unwrapped type here)
-    return isInputType(this._extendedSchema.getType(unwrap(type).name));
+    return isInputType(type) || (isWrapper(type) && isInputType(unwrap(type)));
   }
 
   isOutputType(type: TypeID): boolean {
@@ -1013,7 +1044,10 @@ class Schema {
     return false;
   }
 
-  hasField(type: CompositeTypeID | InputID, fieldName: string): boolean {
+  hasField(
+    type: CompositeTypeID | InputObjectTypeID,
+    fieldName: string,
+  ): boolean {
     const canHaveTypename = this.isObject(type) || this.isAbstractType(type);
     // Special case for __typename field
     if (
@@ -1063,8 +1097,8 @@ class Schema {
   getFields(type: TypeID): $ReadOnlyArray<FieldID> {
     if (
       !(
-        type instanceof InputType ||
         type instanceof ObjectType ||
+        type instanceof InputObjectType ||
         type instanceof InterfaceType
       )
     ) {
@@ -1109,7 +1143,7 @@ class Schema {
         );
       });
     } else if (
-      type instanceof InputType &&
+      type instanceof InputObjectType &&
       gqlType instanceof GraphQLInputObjectType
     ) {
       const typeFields = gqlType.getFields();
@@ -1139,7 +1173,7 @@ class Schema {
         type instanceof UnionType ||
         type instanceof ObjectType ||
         type instanceof InterfaceType ||
-        type instanceof InputType
+        type instanceof InputObjectType
       )
     ) {
       throw createUserError(

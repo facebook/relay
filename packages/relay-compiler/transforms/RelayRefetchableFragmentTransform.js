@@ -11,6 +11,7 @@
 'use strict';
 
 const GraphQLIRVisitor = require('../core/GraphQLIRVisitor');
+const SchemaUtils = require('../core/SchemaUtils');
 
 const getLiteralArgumentValues = require('../core/getLiteralArgumentValues');
 const inferRootArgumentDefinitions = require('../core/inferRootArgumentDefinitions');
@@ -542,7 +543,7 @@ function buildRefetchOperationOnNodeType(
   const idArgName = nodeField.args[0].name;
   const idArgType = nodeField.args[0].type;
   // name and type of the query variable
-  const idVariableType = schema.getNonNullType(schema.expectIdType());
+  const idVariableType = SchemaUtils.getNonNullIdInput(schema);
   const idVariableName = 'id';
 
   const argumentDefinitions = buildOperationArgumentDefinitions(
@@ -586,7 +587,7 @@ function buildRefetchOperationOnNodeType(
               kind: 'Argument',
               loc: {kind: 'Derived', source: fragment.loc},
               name: idArgName,
-              type: idArgType,
+              type: schema.assertInputType(idArgType),
               value: {
                 kind: 'Variable',
                 loc: {kind: 'Derived', source: fragment.loc},

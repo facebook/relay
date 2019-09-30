@@ -343,7 +343,7 @@ class RelayParser {
               type,
               variableAst => {
                 throw createUserError(
-                  "RelayParser: Expected 'defaultValue' to be a literal, got a variable.",
+                  "Expected 'defaultValue' to be a literal, got a variable.",
                   null,
                   [variableAst],
                 );

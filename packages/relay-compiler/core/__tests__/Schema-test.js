@@ -357,18 +357,11 @@ describe('Schema: RelayCompiler Internal GraphQL Schema Interface', () => {
   describe('Type fields', () => {
     test('hasField', () => {
       const schema = Schema.create(new Source('type A { myField: ID }'));
-      const type = schema.expectTypeFromString('A');
+      const type = schema.assertCompositeType(schema.expectTypeFromString('A'));
       expect(schema.hasField(type, 'myField')).toBe(true);
       expect(schema.hasField(type, '__typename')).toBe(true);
       expect(schema.hasField(type, '__id')).toBe(true);
       expect(schema.hasField(type, 'unknownField')).toBe(false);
-      // hasField on a scalar type should always return false
-      expect(
-        schema.hasField(schema.expectTypeFromString('String'), 'field'),
-      ).toBe(false);
-      expect(
-        schema.hasField(schema.expectTypeFromString('String'), '__typename'),
-      ).toBe(false);
     });
 
     test('hasId', () => {
@@ -514,7 +507,7 @@ describe('Schema: RelayCompiler Internal GraphQL Schema Interface', () => {
       const type = schema.expectTypeFromString('AB');
       expect(
         schema
-          .getUnionTypes(type)
+          .getUnionTypes(schema.assertUnionType(type))
           .map(typeInUnion => schema.getTypeString(typeInUnion)),
       ).toEqual(['A', 'B']);
     });
@@ -524,7 +517,7 @@ describe('Schema: RelayCompiler Internal GraphQL Schema Interface', () => {
       const type = schema.expectTypeFromString('A');
       expect(() =>
         schema
-          .getUnionTypes(type)
+          .getUnionTypes(schema.assertUnionType(type))
           .map(typeInUnion => schema.getTypeString(typeInUnion)),
       ).toThrow();
     });
@@ -538,7 +531,7 @@ describe('Schema: RelayCompiler Internal GraphQL Schema Interface', () => {
       const type = schema.expectTypeFromString('AB');
       expect(
         schema
-          .getInterfaces(type)
+          .getInterfaces(schema.assertCompositeType(type))
           .map(interfaceType => schema.getTypeString(interfaceType)),
       ).toEqual(['A', 'B']);
     });
@@ -899,26 +892,26 @@ describe('Schema: RelayCompiler Internal GraphQL Schema Interface', () => {
     );
     expect(
       schema.implementsInterface(
-        schema.expectTypeFromString('A'),
-        schema.expectTypeFromString('Node'),
+        schema.assertCompositeType(schema.expectTypeFromString('A')),
+        schema.assertInterfaceType(schema.expectTypeFromString('Node')),
       ),
     ).toBe(true);
     expect(
       schema.implementsInterface(
-        schema.expectTypeFromString('A'),
-        schema.expectTypeFromString('Actor'),
+        schema.assertCompositeType(schema.expectTypeFromString('A')),
+        schema.assertInterfaceType(schema.expectTypeFromString('Actor')),
       ),
     ).toBe(false);
     expect(
       schema.implementsInterface(
-        schema.expectTypeFromString('B'),
-        schema.expectTypeFromString('Node'),
+        schema.assertCompositeType(schema.expectTypeFromString('B')),
+        schema.assertInterfaceType(schema.expectTypeFromString('Node')),
       ),
     ).toBe(true);
     expect(
       schema.implementsInterface(
-        schema.expectTypeFromString('B'),
-        schema.expectTypeFromString('Actor'),
+        schema.assertCompositeType(schema.expectTypeFromString('B')),
+        schema.assertInterfaceType(schema.expectTypeFromString('Actor')),
       ),
     ).toBe(true);
   });
@@ -934,52 +927,40 @@ describe('Schema: RelayCompiler Internal GraphQL Schema Interface', () => {
     );
     expect(
       schema.mayImplement(
-        schema.expectTypeFromString('A'),
-        schema.expectTypeFromString('Node'),
+        schema.assertCompositeType(schema.expectTypeFromString('A')),
+        schema.assertInterfaceType(schema.expectTypeFromString('Node')),
       ),
     ).toBe(true);
     expect(
       schema.mayImplement(
-        schema.expectTypeFromString('B'),
-        schema.expectTypeFromString('Node'),
+        schema.assertCompositeType(schema.expectTypeFromString('B')),
+        schema.assertInterfaceType(schema.expectTypeFromString('Node')),
       ),
     ).toBe(true);
     expect(
       schema.mayImplement(
-        schema.expectTypeFromString('A'),
-        schema.expectTypeFromString('Actor'),
+        schema.assertCompositeType(schema.expectTypeFromString('A')),
+        schema.assertInterfaceType(schema.expectTypeFromString('Actor')),
       ),
     ).toBe(false);
     expect(
       schema.mayImplement(
-        schema.expectTypeFromString('B'),
-        schema.expectTypeFromString('Actor'),
+        schema.assertCompositeType(schema.expectTypeFromString('B')),
+        schema.assertInterfaceType(schema.expectTypeFromString('Actor')),
       ),
     ).toBe(true);
     expect(
       schema.mayImplement(
-        schema.expectTypeFromString('Node'),
-        schema.expectTypeFromString('Actor'),
+        schema.assertCompositeType(schema.expectTypeFromString('Node')),
+        schema.assertInterfaceType(schema.expectTypeFromString('Actor')),
       ),
     ).toBe(true);
     expect(
       schema.mayImplement(
-        schema.expectTypeFromString('Actor'),
-        schema.expectTypeFromString('Node'),
+        schema.assertCompositeType(schema.expectTypeFromString('Actor')),
+        schema.assertInterfaceType(schema.expectTypeFromString('Node')),
       ),
     ).toBe(true);
-    expect(
-      schema.mayImplement(
-        schema.expectTypeFromString('A'),
-        schema.expectTypeFromString('B'),
-      ),
-    ).toBe(false);
-    expect(
-      schema.mayImplement(
-        schema.expectTypeFromString('B'),
-        schema.expectTypeFromString('A'),
-      ),
-    ).toBe(false);
   });
 
   test('canHaveSelections', () => {

@@ -63,15 +63,29 @@ type BaseNonNull = NonNull<BaseType | BaseList>;
 
 export opaque type ScalarTypeID: ScalarFieldTypeID = ScalarType;
 export opaque type EnumTypeID: ScalarFieldTypeID = EnumType;
+export opaque type UnionTypeID: CompositeTypeID = UnionType;
+export opaque type InterfaceTypeID: CompositeTypeID = InterfaceType;
+export opaque type ObjectTypeID: CompositeTypeID = ObjectType;
+export opaque type InputID: TypeID = InputType;
+export opaque type CompositeTypeID: LinkedFieldTypeID = LinkedFieldType;
 
 export opaque type ScalarFieldTypeID: TypeID =
   | ScalarFieldType
   | ScalarFieldList
   | ScalarFieldNonNull;
 
+export opaque type LinkedFieldTypeID: TypeID =
+  | LinkedFieldType
+  | LinkedFieldList
+  | LinkedFieldNonNull;
+
 type ScalarFieldType = ScalarType | EnumType;
 type ScalarFieldList = List<ScalarFieldTypeID>;
 type ScalarFieldNonNull = NonNull<ScalarFieldType | ScalarFieldList>;
+
+type LinkedFieldType = ObjectType | InterfaceType | UnionType;
+type LinkedFieldList = List<LinkedFieldTypeID>;
+type LinkedFieldNonNull = NonNull<LinkedFieldType | LinkedFieldList>;
 
 export opaque type FieldID = Field;
 
@@ -252,12 +266,15 @@ function unwrap(type: TypeID): BaseType {
 function hasConcreteTypeThatImplements(
   schema: Schema,
   type: TypeID,
-  interfaceType: TypeID,
+  interfaceType: InterfaceTypeID,
 ): boolean {
   return (
     schema.isAbstractType(type) &&
     getConcreteTypes(schema, type).some(concreteType =>
-      schema.implementsInterface(concreteType, interfaceType),
+      schema.implementsInterface(
+        schema.assertCompositeType(concreteType),
+        interfaceType,
+      ),
     )
   );
 }
@@ -577,7 +594,7 @@ class Schema {
    * - it is an abstract type and *some* of its concrete types may
    *   implement the named type
    */
-  mayImplement(type: TypeID, interfaceType: TypeID): boolean {
+  mayImplement(type: CompositeTypeID, interfaceType: InterfaceTypeID): boolean {
     return (
       this.areEqualTypes(type, interfaceType) ||
       this.implementsInterface(type, interfaceType) ||
@@ -586,7 +603,10 @@ class Schema {
     );
   }
 
-  implementsInterface(type: TypeID, interfaceType: TypeID): boolean {
+  implementsInterface(
+    type: CompositeTypeID,
+    interfaceType: InterfaceTypeID,
+  ): boolean {
     return this.getInterfaces(type).some(typeInterface =>
       this.areEqualTypes(typeInterface, interfaceType),
     );
@@ -654,6 +674,19 @@ class Schema {
     return type;
   }
 
+  assertLinkedFieldType(type: mixed): LinkedFieldTypeID {
+    // Linked Field types can be wrappers / or can be composite types
+    if (
+      (isWrapper(type) && !isCompositeType(unwrap(type))) ||
+      (!isWrapper(type) && !isCompositeType(type))
+    ) {
+      throw new Error(
+        `Expected ${String(type)} to be a Object, Interface or a Union Type.`,
+      );
+    }
+    return type;
+  }
+
   asScalarFieldType(type: ?TypeID): ?ScalarFieldTypeID {
     if (type && (isScalar(type) || isEnum(type))) {
       return type;
@@ -669,37 +702,56 @@ class Schema {
     return type;
   }
 
-  assertObjectType(type: mixed): TypeID {
+  assertObjectType(type: TypeID): ObjectTypeID {
     if (!isObject(type)) {
-      throw new Error(`Expected ${String(type)} to be an object type.`);
+      throw new Error(
+        `Expected ${this.getTypeString(type)} to be an object type.`,
+      );
+    }
+    return type;
+  }
+
+  assertInput(type: TypeID): InputID {
+    if (!isInput(type)) {
+      throw new Error(
+        `Expected ${this.getTypeString(type)} to be an input type.`,
+      );
     }
     return type;
   }
 
   assertInputType(type: TypeID): TypeID {
     if (!this.isInputType(type)) {
-      throw new Error(`Expected ${String(type)} to be an input type.`);
+      throw new Error(
+        `Expected ${this.getTypeString(type)} to be an input type.`,
+      );
     }
     return type;
   }
 
-  assertInterfaceType(type: mixed): TypeID {
+  assertInterfaceType(type: TypeID): InterfaceTypeID {
     if (!isInterface(type)) {
-      throw new Error(`Expected ${String(type)} to be an interface type.`);
+      throw new Error(
+        `Expected ${this.getTypeString(type)} to be an interface type.`,
+      );
     }
     return type;
   }
 
-  assertCompositeType(type: mixed): TypeID {
+  assertCompositeType(type: TypeID): CompositeTypeID {
     if (!isCompositeType(type)) {
-      throw new Error(`Expected ${String(type)} to be a composite type.`);
+      throw new Error(
+        `Expected ${this.getTypeString(type)} to be a composite type.`,
+      );
     }
     return type;
   }
 
   assertOutputType(type: TypeID): TypeID {
     if (!this.isOutputType(type)) {
-      throw new Error(`Expected ${String(type)} to be an input type.`);
+      throw new Error(
+        `Expected ${this.getTypeString(type)} to be an input type.`,
+      );
     }
     return type;
   }
@@ -722,7 +774,7 @@ class Schema {
     return type;
   }
 
-  assertUnionType(type: TypeID): TypeID {
+  assertUnionType(type: TypeID): UnionTypeID {
     if (!isUnion(type)) {
       throw new Error(
         `Expected ${this.getTypeString(type)} to be a union type.`,
@@ -961,17 +1013,7 @@ class Schema {
     return false;
   }
 
-  hasField(type: TypeID, fieldName: string): boolean {
-    if (
-      !(
-        type instanceof UnionType ||
-        type instanceof ObjectType ||
-        type instanceof InterfaceType ||
-        type instanceof InputType
-      )
-    ) {
-      return false;
-    }
+  hasField(type: CompositeTypeID | InputID, fieldName: string): boolean {
     const canHaveTypename = this.isObject(type) || this.isAbstractType(type);
     // Special case for __typename field
     if (
@@ -990,7 +1032,10 @@ class Schema {
     ) {
       return gqlType.getFields()[fieldName] != null;
     }
-    return false;
+    throw createUserError(
+      'hasId(): Expected a concrete type or interface, ' +
+        `got type ${type.name}`,
+    );
   }
 
   hasId(type: TypeID): boolean {
@@ -1207,12 +1252,7 @@ class Schema {
     );
   }
 
-  getUnionTypes(type: TypeID): $ReadOnlyArray<TypeID> {
-    if (!(type instanceof UnionType)) {
-      throw new createUserError(
-        `Expected "${this.getTypeString(type)}" to be a Union.`,
-      );
-    }
+  getUnionTypes(type: UnionTypeID): $ReadOnlyArray<TypeID> {
     const gqlType = this._extendedSchema.getType(type.name);
     if (gqlType instanceof GraphQLUnionType) {
       return gqlType.getTypes().map(typeFromUnion => {
@@ -1220,22 +1260,11 @@ class Schema {
       });
     }
     throw new createUserError(
-      `Expected "${type.name}" to be a Union, but received "${type.kind}" kind`,
+      `Unable to get union types for type "${this.getTypeString(type)}".`,
     );
   }
 
-  getInterfaces(type: TypeID): $ReadOnlyArray<TypeID> {
-    if (
-      !(
-        type instanceof ObjectType ||
-        type instanceof UnionType ||
-        type instanceof InterfaceType
-      )
-    ) {
-      throw new createUserError(
-        `Expected "${this.getTypeString(type)}" to be an Object.`,
-      );
-    }
+  getInterfaces(type: CompositeTypeID): $ReadOnlyArray<TypeID> {
     const gqlType = this._extendedSchema.getType(type.name);
     if (gqlType instanceof GraphQLObjectType) {
       return gqlType.getInterfaces().map(typeInterface => {
@@ -1358,7 +1387,7 @@ class Schema {
     return directive?.clientOnlyDirective === false;
   }
 
-  isServerDefinedField(type: TypeID, field: GraphQLIRField): boolean {
+  isServerDefinedField(type: CompositeTypeID, field: GraphQLIRField): boolean {
     return (
       (this.isAbstractType(type) &&
         field.directives.some(({name}) => name === 'fixme_fat_interface')) ||
@@ -1369,7 +1398,7 @@ class Schema {
     );
   }
 
-  isClientDefinedField(type: TypeID, field: GraphQLIRField): boolean {
+  isClientDefinedField(type: CompositeTypeID, field: GraphQLIRField): boolean {
     return !this.isServerDefinedField(type, field);
   }
 

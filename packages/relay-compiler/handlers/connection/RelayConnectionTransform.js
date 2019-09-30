@@ -37,7 +37,7 @@ import type {
   Variable,
   Location,
 } from '../../core/GraphQLIR';
-import type {Schema, TypeID} from '../../core/Schema';
+import type {Schema, TypeID, CompositeTypeID} from '../../core/Schema';
 import type {ConnectionMetadata} from 'relay-runtime';
 
 type Options = {
@@ -163,7 +163,7 @@ function visitLinkedField(field: LinkedField, options: Options): LinkedField {
   validateConnectionType(
     schema,
     transformedField,
-    nullableType,
+    schema.assertCompositeType(nullableType),
     connectionDirective,
   );
 
@@ -536,7 +536,7 @@ function transformConnectionSelections(
       metadata: null,
       name: EDGES,
       selections: [],
-      type: edgesType,
+      type: schema.assertLinkedFieldType(edgesType),
     };
   }
   if (transformedPageInfoSelection == null) {
@@ -551,7 +551,7 @@ function transformConnectionSelections(
       metadata: null,
       name: PAGE_INFO,
       selections: [],
-      type: pageInfoType,
+      type: schema.assertLinkedFieldType(pageInfoType),
     };
   }
 
@@ -737,7 +737,7 @@ function validateConnectionSelection(field: LinkedField): void {
 function validateConnectionType(
   schema: Schema,
   field: LinkedField,
-  nullableType: TypeID,
+  nullableType: CompositeTypeID,
   connectionDirective: Directive,
 ): void {
   const directiveName = connectionDirective.name;
@@ -774,7 +774,7 @@ function validateConnectionType(
       [field.loc],
     );
   }
-  const edgeType = schema.getNullableType(schema.getNonListType(edgesType));
+  let edgeType = schema.getNullableType(schema.getNonListType(edgesType));
   if (!schema.isObject(edgeType) && !schema.isInterface(edgeType)) {
     throw createUserError(
       `@${directiveName} used on invalid field '${field.name}'. Expected the ` +
@@ -783,6 +783,7 @@ function validateConnectionType(
       [field.loc],
     );
   }
+  edgeType = schema.assertCompositeType(edgeType);
 
   if (!schema.hasField(edgeType, NODE)) {
     throw createUserError(

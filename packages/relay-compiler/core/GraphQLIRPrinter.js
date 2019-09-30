@@ -394,7 +394,7 @@ function printValue(
       .map(field => {
         const fieldConfig =
           type != null
-            ? schema.hasField(type, field.name)
+            ? schema.hasField(schema.assertInput(type), field.name)
               ? schema.getFieldConfig(schema.expectField(type, field.name))
               : null
             : null;

@@ -281,7 +281,7 @@ function visitLinkedField(
             ),
           },
         ],
-        type: nodeType,
+        type: schema.assertLinkedFieldType(nodeType),
       },
     ],
   };

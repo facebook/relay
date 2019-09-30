@@ -83,16 +83,18 @@ function visitLinkedField(field: LinkedField, state: State): LinkedField {
     return transformedNode;
   }
 
+  const nodeInterface = schema.assertInterfaceType(nodeType);
+
   if (schema.isAbstractType(unmodifiedType)) {
     const selections = [...transformedNode.selections];
-    if (schema.mayImplement(unmodifiedType, nodeType)) {
+    if (schema.mayImplement(unmodifiedType, nodeInterface)) {
       selections.push(buildIDFragment(nodeType, state.idField));
     }
     schema.getPossibleTypes(unmodifiedType).forEach((possibleType: TypeID) => {
       if (
         !schema.implementsInterface(
-          possibleType,
-          schema.expectTypeFromString(NODE_TYPE),
+          schema.assertCompositeType(possibleType),
+          nodeInterface,
         ) &&
         schema.hasId(possibleType)
       ) {

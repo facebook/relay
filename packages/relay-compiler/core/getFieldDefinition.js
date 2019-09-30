@@ -50,7 +50,7 @@ function getFieldDefinitionStrict(
   } else if (hasTypeName && fieldName === '__id') {
     schemaFieldDef = schema.getFieldByName(type, '__id');
   } else if (schema.isInterface(type) || schema.isObject(type)) {
-    if (schema.hasField(type, fieldName)) {
+    if (schema.hasField(schema.assertCompositeType(type), fieldName)) {
       schemaFieldDef = schema.getFieldByName(type, fieldName);
     } else {
       return null;

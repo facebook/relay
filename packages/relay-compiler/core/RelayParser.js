@@ -958,7 +958,7 @@ class GraphQLDefinitionParser {
         metadata: null,
         name,
         selections,
-        type,
+        type: schema.assertLinkedFieldType(type),
       };
     }
   }

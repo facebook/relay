@@ -10,7 +10,7 @@
 
 'use strict';
 
-import type {TypeID, ScalarFieldTypeID} from './Schema';
+import type {TypeID, LinkedFieldTypeID, ScalarFieldTypeID} from './Schema';
 import type {Source} from 'graphql';
 
 export type Metadata = ?{[key: string]: mixed};
@@ -187,7 +187,7 @@ export type Connection = {|
     +initialCount: ArgumentValue,
     +streamLabel: string,
   |} | null,
-  +type: TypeID,
+  +type: LinkedFieldTypeID,
 |};
 
 export type LinkedField = {|
@@ -201,7 +201,7 @@ export type LinkedField = {|
   +metadata: Metadata,
   +name: string,
   +selections: $ReadOnlyArray<Selection>,
-  +type: TypeID,
+  +type: LinkedFieldTypeID,
 |};
 
 export type ConnectionField = {|
@@ -213,7 +213,7 @@ export type ConnectionField = {|
   +metadata: Metadata,
   +name: string,
   +selections: $ReadOnlyArray<Selection>,
-  +type: TypeID,
+  +type: LinkedFieldTypeID,
 |};
 
 export type ListValue = {|

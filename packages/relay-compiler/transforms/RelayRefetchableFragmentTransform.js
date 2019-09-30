@@ -105,7 +105,7 @@ function relayRefetchableFragmentTransform(
         schema.getTypeString(fragment.type) === NODE_TYPE_NAME ||
         (schema.isObject(fragment.type) &&
           schema
-            .getInterfaces(fragment.type)
+            .getInterfaces(schema.assertCompositeType(fragment.type))
             .some(interfaceType =>
               schema.areEqualTypes(
                 interfaceType,
@@ -117,8 +117,10 @@ function relayRefetchableFragmentTransform(
             .getPossibleTypes(fragment.type)
             .every(possibleType =>
               schema.implementsInterface(
-                possibleType,
-                schema.expectTypeFromString(NODE_TYPE_NAME),
+                schema.assertCompositeType(possibleType),
+                schema.assertInterfaceType(
+                  schema.expectTypeFromString(NODE_TYPE_NAME),
+                ),
               ),
             ))
       ) {
@@ -432,12 +434,13 @@ function buildRefetchOperationOnViewerType(
 ): RefetchRoot {
   // Handle fragments on viewer
   const queryType = schema.expectQueryType();
-  const viewerType = schema.expectTypeFromString(VIEWER_TYPE_NAME);
+  const viewerType = schema.getTypeFromString(VIEWER_TYPE_NAME);
   const viewerField = schema.getFieldConfig(
     schema.expectField(queryType, VIEWER_FIELD_NAME),
   );
   if (
     !(
+      viewerType &&
       schema.isObject(viewerType) &&
       schema.isObject(viewerField.type) &&
       schema.areEqualTypes(viewerField.type, viewerType) &&
@@ -476,7 +479,7 @@ function buildRefetchOperationOnViewerType(
           metadata: null,
           name: VIEWER_FIELD_NAME,
           selections: [buildFragmentSpread(fragment)],
-          type: viewerType,
+          type: schema.assertLinkedFieldType(viewerType),
         },
       ],
       type: queryType,
@@ -492,12 +495,13 @@ function buildRefetchOperationOnNodeType(
   queryName: string,
 ): RefetchRoot {
   const queryType = schema.expectQueryType();
-  const nodeType = schema.expectTypeFromString(NODE_TYPE_NAME);
+  const nodeType = schema.getTypeFromString(NODE_TYPE_NAME);
   const nodeField = schema.getFieldConfig(
     schema.expectField(queryType, NODE_FIELD_NAME),
   );
   if (
     !(
+      nodeType &&
       schema.isInterface(nodeType) &&
       schema.isInterface(nodeField.type) &&
       schema.areEqualTypes(nodeField.type, nodeType) &&
@@ -509,7 +513,7 @@ function buildRefetchOperationOnNodeType(
       // the fragment must be on Node or on a type that implements Node
       ((schema.isObject(fragment.type) &&
         schema
-          .getInterfaces(fragment.type)
+          .getInterfaces(schema.assertCompositeType(fragment.type))
           .some(interfaceType =>
             schema.areEqualTypes(interfaceType, nodeType),
           )) ||
@@ -518,7 +522,7 @@ function buildRefetchOperationOnNodeType(
             .getPossibleTypes(fragment.type)
             .every(possibleType =>
               schema
-                .getInterfaces(possibleType)
+                .getInterfaces(schema.assertCompositeType(possibleType))
                 .some(interfaceType =>
                   schema.areEqualTypes(interfaceType, nodeType),
                 ),
@@ -599,7 +603,7 @@ function buildRefetchOperationOnNodeType(
           metadata: null,
           name: NODE_FIELD_NAME,
           selections: [buildFragmentSpread(fragment)],
-          type: nodeType,
+          type: schema.assertLinkedFieldType(nodeType),
         },
       ],
       type: queryType,

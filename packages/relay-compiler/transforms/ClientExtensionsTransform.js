@@ -117,7 +117,10 @@ function traverseSelections<T: Node>(
         return traverseSelections(selection, compilerContext, parentType);
       case 'ScalarField':
         if (
-          schema.isClientDefinedField(schema.getRawType(parentType), selection)
+          schema.isClientDefinedField(
+            schema.assertCompositeType(schema.getRawType(parentType)),
+            selection,
+          )
         ) {
           clientSelections.push(selection);
           return null;
@@ -127,7 +130,10 @@ function traverseSelections<T: Node>(
       case 'ConnectionField':
       case 'LinkedField': {
         if (
-          schema.isClientDefinedField(schema.getRawType(parentType), selection)
+          schema.isClientDefinedField(
+            schema.assertCompositeType(schema.getRawType(parentType)),
+            selection,
+          )
         ) {
           clientSelections.push(selection);
           return null;

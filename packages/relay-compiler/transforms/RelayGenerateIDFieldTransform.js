@@ -17,7 +17,7 @@ const {hasUnaliasedSelection} = require('./RelayTransformUtils');
 
 import type CompilerContext from '../core/GraphQLCompilerContext';
 import type {InlineFragment, LinkedField, ScalarField} from '../core/GraphQLIR';
-import type {TypeID} from '../core/Schema';
+import type {ObjectTypeID, CompositeTypeID} from '../core/Schema';
 const {generateIDField} = SchemaUtils;
 
 const ID = 'id';
@@ -88,19 +88,21 @@ function visitLinkedField(field: LinkedField, state: State): LinkedField {
   if (schema.isAbstractType(unmodifiedType)) {
     const selections = [...transformedNode.selections];
     if (schema.mayImplement(unmodifiedType, nodeInterface)) {
-      selections.push(buildIDFragment(nodeType, state.idField));
+      selections.push(buildIDFragment(nodeInterface, state.idField));
     }
-    schema.getPossibleTypes(unmodifiedType).forEach((possibleType: TypeID) => {
-      if (
-        !schema.implementsInterface(
-          schema.assertCompositeType(possibleType),
-          nodeInterface,
-        ) &&
-        schema.hasId(possibleType)
-      ) {
-        selections.push(buildIDFragment(possibleType, state.idField));
-      }
-    });
+    schema
+      .getPossibleTypes(unmodifiedType)
+      .forEach((possibleType: ObjectTypeID) => {
+        if (
+          !schema.implementsInterface(
+            schema.assertCompositeType(possibleType),
+            nodeInterface,
+          ) &&
+          schema.hasId(possibleType)
+        ) {
+          selections.push(buildIDFragment(possibleType, state.idField));
+        }
+      });
     return {
       ...transformedNode,
       selections,
@@ -116,7 +118,7 @@ function visitLinkedField(field: LinkedField, state: State): LinkedField {
  * Returns IR for `... on FRAGMENT_TYPE { id }`
  */
 function buildIDFragment(
-  fragmentType: TypeID,
+  fragmentType: CompositeTypeID,
   idField: ScalarField,
 ): InlineFragment {
   return {

@@ -11,9 +11,9 @@
 'use strict';
 
 import type {
-  TypeID,
   LinkedFieldTypeID,
   ScalarFieldTypeID,
+  CompositeTypeID,
   InputTypeID,
 } from './Schema';
 import type {Source} from 'graphql';
@@ -80,7 +80,7 @@ export type Fragment = {|
   +metadata: Metadata,
   +name: string,
   +selections: $ReadOnlyArray<Selection>,
-  +type: TypeID,
+  +type: CompositeTypeID,
 |};
 
 export type FragmentSpread = {|
@@ -96,7 +96,7 @@ export type Defer = {|
   +kind: 'Defer',
   +loc: Location,
   +metadata: ?{|
-    +fragmentTypeCondition: TypeID,
+    +fragmentTypeCondition: CompositeTypeID,
   |},
   +selections: $ReadOnlyArray<Selection>,
   +label: string,
@@ -161,7 +161,7 @@ export type InlineFragment = {|
   +loc: Location,
   +metadata: Metadata,
   +selections: $ReadOnlyArray<Selection>,
-  +typeCondition: TypeID,
+  +typeCondition: CompositeTypeID,
 |};
 
 export type Handle = {|
@@ -307,7 +307,7 @@ export type Root = {|
   +name: string,
   +operation: 'query' | 'mutation' | 'subscription',
   +selections: $ReadOnlyArray<Selection>,
-  +type: TypeID,
+  +type: CompositeTypeID,
 |};
 
 export type ScalarField = {|
@@ -346,7 +346,7 @@ export type SplitOperation = {|
   +loc: Location,
   +metadata: Metadata,
   +parentSources: Set<string>,
-  +type: TypeID,
+  +type: CompositeTypeID,
 |};
 
 export type Variable = {|

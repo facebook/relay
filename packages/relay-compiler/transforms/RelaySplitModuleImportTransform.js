@@ -21,10 +21,10 @@ import type {
   ModuleImport,
   SplitOperation,
 } from '../core/GraphQLIR';
-import type {TypeID} from '../core/Schema';
+import type {CompositeTypeID} from '../core/Schema';
 
 type State = {|
-  parentType: TypeID,
+  parentType: CompositeTypeID,
   splitOperations: Map<string, SplitOperation>,
 |};
 

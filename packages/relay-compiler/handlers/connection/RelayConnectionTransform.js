@@ -192,7 +192,7 @@ function visitLinkedField(field: LinkedField, options: Options): LinkedField {
     const selections = transformConnectionSelections(
       this.getContext(),
       transformedField,
-      nullableType,
+      schema.assertCompositeType(nullableType),
       direction,
       connectionArguments,
       connectionDirective.loc,
@@ -389,7 +389,7 @@ function buildConnectionMetadata(
 function transformConnectionSelections(
   context: CompilerContext,
   field: LinkedField,
-  nullableType: TypeID,
+  nullableType: CompositeTypeID,
   direction: 'forward' | 'backward' | 'bidirectional',
   connectionArguments: ConnectionArguments,
   directiveLocation: Location,

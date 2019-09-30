@@ -882,23 +882,23 @@ class Schema {
     return this.assertScalarType(this.expectTypeFromString('ID'));
   }
 
-  getQueryType(): ?TypeID {
+  getQueryType(): ?ObjectTypeID {
     const queryType = this._getRawType(this.QUERY_TYPE_KEY);
-    if (queryType) {
+    if (queryType && isObject(queryType)) {
       return queryType;
     }
   }
 
-  getMutationType(): ?TypeID {
+  getMutationType(): ?ObjectTypeID {
     const mutationType = this._getRawType(this.MUTATION_TYPE_KEY);
-    if (mutationType) {
+    if (mutationType && isObject(mutationType)) {
       return mutationType;
     }
   }
 
-  getSubscriptionType(): ?TypeID {
+  getSubscriptionType(): ?ObjectTypeID {
     const subscriptionType = this._getRawType(this.SUBSCRIPTION_TYPE_KEY);
-    if (subscriptionType) {
+    if (subscriptionType && isObject(subscriptionType)) {
       return subscriptionType;
     }
   }
@@ -907,7 +907,7 @@ class Schema {
     message?: ?string,
     locations?: ?$ReadOnlyArray<Location>,
     nodes?: ?$ReadOnlyArray<ASTNode>,
-  ): TypeID {
+  ): ObjectTypeID {
     const queryType = this.getQueryType();
     if (!queryType) {
       throw createUserError(
@@ -923,7 +923,7 @@ class Schema {
     message?: ?string,
     locations?: ?$ReadOnlyArray<Location>,
     nodes?: ?$ReadOnlyArray<ASTNode>,
-  ): TypeID {
+  ): ObjectTypeID {
     const mutationType = this.getMutationType();
     if (!mutationType) {
       throw createUserError(
@@ -939,7 +939,7 @@ class Schema {
     message?: ?string,
     locations?: ?$ReadOnlyArray<Location>,
     nodes?: ?$ReadOnlyArray<ASTNode>,
-  ): TypeID {
+  ): ObjectTypeID {
     const subscriptionType = this.getSubscriptionType();
     if (!subscriptionType) {
       throw createUserError(
@@ -1308,7 +1308,7 @@ class Schema {
     return [];
   }
 
-  getPossibleTypes(type: TypeID): $ReadOnlyArray<TypeID> {
+  getPossibleTypes(type: TypeID): $ReadOnlyArray<ObjectTypeID> {
     if (!(type instanceof UnionType || type instanceof InterfaceType)) {
       throw new createUserError(
         `Expected "${this.getTypeString(type)}" to be an Abstract type.`,
@@ -1322,7 +1322,9 @@ class Schema {
       return this._extendedSchema
         .getPossibleTypes(gqlType)
         .map(possibleType => {
-          return this.expectTypeFromString(possibleType.name);
+          return this.assertObjectType(
+            this.expectTypeFromString(possibleType.name),
+          );
         });
     }
     return [];

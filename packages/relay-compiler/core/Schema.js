@@ -27,7 +27,6 @@ const {
   buildASTSchema,
   extendSchema,
   isOutputType,
-  isTypeSubTypeOf,
   parse,
   parseType,
   print,
@@ -67,6 +66,7 @@ export opaque type InterfaceTypeID: CompositeTypeID = InterfaceType;
 export opaque type ObjectTypeID: CompositeTypeID = ObjectType;
 export opaque type InputObjectTypeID: TypeID = InputObjectType;
 export opaque type CompositeTypeID: LinkedFieldTypeID = CompositeType;
+export opaque type AbstractTypeID: CompositeTypeID = UnionType | InterfaceType;
 
 export opaque type ScalarFieldTypeID: TypeID =
   | ScalarFieldBaseType
@@ -286,7 +286,7 @@ function hasConcreteTypeThatImplements(
   interfaceType: InterfaceTypeID,
 ): boolean {
   return (
-    schema.isAbstractType(type) &&
+    isAbstractType(type) &&
     getConcreteTypes(schema, type).some(concreteType =>
       schema.implementsInterface(
         schema.assertCompositeType(concreteType),
@@ -301,11 +301,15 @@ function hasConcreteTypeThatImplements(
  */
 function getConcreteTypes(
   schema: Schema,
-  type: TypeID,
-): $ReadOnlyArray<TypeID> {
-  return schema.getPossibleTypes(type).filter(possibleType => {
-    return !schema.isAbstractType(possibleType);
+  type: AbstractTypeID,
+): $ReadOnlyArray<ObjectTypeID> {
+  const concreteTypes = new Set();
+  schema.getPossibleTypes(type).forEach(possibleType => {
+    if (isObject(possibleType)) {
+      concreteTypes.add(possibleType);
+    }
   });
+  return Array.from(concreteTypes);
 }
 
 const TYPENAME_FIELD = '__typename';
@@ -350,6 +354,10 @@ function isBaseType(type: mixed): boolean %checks {
   );
 }
 
+function isAbstractType(type: mixed): boolean %checks {
+  return type instanceof UnionType || type instanceof InterfaceType;
+}
+
 function isCompositeType(type: mixed): boolean %checks {
   return (
     type instanceof ObjectType ||
@@ -374,6 +382,7 @@ class Schema {
   +_typeMap: TypeMap;
   +_typeNameMap: Map<Type, Field>;
   +_clientIdMap: Map<Type, Field>;
+  +_possibleTypesMap: Map<AbstractTypeID, Set<CompositeTypeID>>;
 
   +QUERY_TYPE_KEY: Symbol;
   +MUTATION_TYPE_KEY: Symbol;
@@ -389,6 +398,7 @@ class Schema {
     fieldsMap: Map<Type, FieldsMap>,
     typeNameMap: Map<Type, Field>,
     clientIdMap: Map<Type, Field>,
+    possibleTypesMap: Map<AbstractTypeID, Set<CompositeTypeID>>,
     directivesMap: Map<string, Directive> | null,
     QUERY_TYPE_KEY: Symbol,
     MUTATION_TYPE_KEY: Symbol,
@@ -404,6 +414,7 @@ class Schema {
     this._fieldsMap = fieldsMap;
     this._typeNameMap = typeNameMap;
     this._clientIdMap = clientIdMap;
+    this._possibleTypesMap = possibleTypesMap;
     this._directivesMap =
       directivesMap ??
       new Map(
@@ -647,47 +658,58 @@ class Schema {
     return type.toString();
   }
 
-  isTypeSubTypeOf(maybeSubTypeID: ?TypeID, superTypeID: ?TypeID): boolean {
-    if (maybeSubTypeID == null) {
-      return false;
+  isTypeSubTypeOf(maybeSubType: TypeID, superType: TypeID): boolean {
+    // Equivalent type is a valid subtype
+    if (maybeSubType === superType) {
+      return true;
     }
-    if (superTypeID == null) {
-      return false;
-    }
-    // This part is similar to the default implementation of isTypeSubTypeOf
-    if (superTypeID instanceof NonNull) {
-      if (maybeSubTypeID instanceof NonNull) {
-        return this.isTypeSubTypeOf(maybeSubTypeID.ofType, superTypeID.ofType);
+
+    // If superType is non-null, maybeSubType must also be non-null.
+    if (superType instanceof NonNull) {
+      if (maybeSubType instanceof NonNull) {
+        return this.isTypeSubTypeOf(maybeSubType.ofType, superType.ofType);
       }
       return false;
     }
-
-    if (maybeSubTypeID instanceof NonNull) {
+    if (maybeSubType instanceof NonNull) {
       // If superType is nullable, maybeSubType may be non-null or nullable.
-      return this.isTypeSubTypeOf(maybeSubTypeID.ofType, superTypeID);
+      return this.isTypeSubTypeOf(maybeSubType.ofType, superType);
     }
 
     // If superType type is a list, maybeSubType type must also be a list.
-    if (superTypeID instanceof List) {
-      if (maybeSubTypeID instanceof List) {
-        return this.isTypeSubTypeOf(maybeSubTypeID.ofType, superTypeID.ofType);
+    if (superType instanceof List) {
+      if (maybeSubType instanceof List) {
+        return this.isTypeSubTypeOf(maybeSubType.ofType, superType.ofType);
       }
       return false;
     }
-    if (maybeSubTypeID instanceof List) {
+    if (maybeSubType instanceof List) {
       // If superType is not a list, maybeSubType must also be not a list.
       return false;
     }
 
-    const maybeSubType = this._extendedSchema.getType(maybeSubTypeID.name);
-    const superType = this._extendedSchema.getType(superTypeID.name);
-    if (maybeSubType == null) {
-      return false;
+    // If superType type is an abstract type, maybeSubType type may be a currently
+    // possible object type.
+    if (
+      this.isAbstractType(superType) &&
+      this.isObject(maybeSubType) &&
+      this.isPossibleType(
+        this.assertAbstractType(superType),
+        this.assertObjectType(maybeSubType),
+      )
+    ) {
+      return true;
     }
-    if (superType == null) {
-      return false;
-    }
-    return isTypeSubTypeOf(this._extendedSchema, maybeSubType, superType);
+
+    // Otherwise, maybeSubType is not a valid subtype of the superType.
+    return false;
+  }
+
+  isPossibleType(
+    superType: AbstractTypeID,
+    maybeSubType: ObjectTypeID,
+  ): boolean {
+    return this._getPossibleTypeSet(superType).has(maybeSubType);
   }
 
   assertScalarFieldType(type: mixed): ScalarFieldTypeID {
@@ -787,8 +809,8 @@ class Schema {
     return type;
   }
 
-  assertAbstractType(type: TypeID): TypeID {
-    if (!this.isAbstractType(type)) {
+  assertAbstractType(type: TypeID): AbstractTypeID {
+    if (!isAbstractType(type)) {
       throw new Error(
         `Expected ${this.getTypeString(type)} to be an abstract type.`,
       );
@@ -1002,7 +1024,7 @@ class Schema {
   }
 
   isAbstractType(type: TypeID): boolean {
-    return this.isInterface(type) || this.isUnion(type);
+    return isAbstractType(type);
   }
 
   isLeafType(type: TypeID): boolean {
@@ -1308,26 +1330,33 @@ class Schema {
     return [];
   }
 
-  getPossibleTypes(type: TypeID): $ReadOnlyArray<ObjectTypeID> {
-    if (!(type instanceof UnionType || type instanceof InterfaceType)) {
-      throw new createUserError(
-        `Expected "${this.getTypeString(type)}" to be an Abstract type.`,
-      );
+  _getPossibleTypeSet(type: AbstractTypeID): Set<CompositeTypeID> {
+    let possibleTypes = this._possibleTypesMap.get(type);
+    if (!possibleTypes) {
+      const gqlType = this._extendedSchema.getType(type.name);
+      if (
+        gqlType instanceof GraphQLUnionType ||
+        gqlType instanceof GraphQLInterfaceType
+      ) {
+        possibleTypes = new Set(
+          this._extendedSchema.getPossibleTypes(gqlType).map(possibleType => {
+            return this.assertObjectType(
+              this.expectTypeFromString(possibleType.name),
+            );
+          }),
+        );
+        this._possibleTypesMap.set(type, possibleTypes);
+      } else {
+        throw new createUserError(
+          `Expected "${this.getTypeString(type)}" to be an Abstract type.`,
+        );
+      }
     }
-    const gqlType = this._extendedSchema.getType(type.name);
-    if (
-      gqlType instanceof GraphQLUnionType ||
-      gqlType instanceof GraphQLInterfaceType
-    ) {
-      return this._extendedSchema
-        .getPossibleTypes(gqlType)
-        .map(possibleType => {
-          return this.assertObjectType(
-            this.expectTypeFromString(possibleType.name),
-          );
-        });
-    }
-    return [];
+    return possibleTypes;
+  }
+
+  getPossibleTypes(type: AbstractTypeID): $ReadOnlySet<CompositeTypeID> {
+    return this._getPossibleTypeSet(type);
   }
 
   parseLiteral(type: ScalarTypeID | EnumTypeID, valueNode: ValueNode): mixed {
@@ -1464,6 +1493,7 @@ class Schema {
       this._fieldsMap,
       this._typeNameMap,
       this._clientIdMap,
+      this._possibleTypesMap,
       this._directivesMap,
       this.QUERY_TYPE_KEY,
       this.MUTATION_TYPE_KEY,
@@ -1511,6 +1541,7 @@ function DEPRECATED__create(
     new Map(),
     new Map(),
     new Map(),
+    new Map(),
     null,
     Symbol('Query'),
     Symbol('Mutation'),
@@ -1535,6 +1566,7 @@ function create(
   return new Schema(
     schema,
     extendedSchema,
+    new Map(),
     new Map(),
     new Map(),
     new Map(),

@@ -17,7 +17,7 @@ const {hasUnaliasedSelection} = require('./RelayTransformUtils');
 
 import type CompilerContext from '../core/GraphQLCompilerContext';
 import type {InlineFragment, LinkedField, ScalarField} from '../core/GraphQLIR';
-import type {ObjectTypeID, CompositeTypeID} from '../core/Schema';
+import type {CompositeTypeID} from '../core/Schema';
 const {generateIDField} = SchemaUtils;
 
 const ID = 'id';
@@ -91,8 +91,8 @@ function visitLinkedField(field: LinkedField, state: State): LinkedField {
       selections.push(buildIDFragment(nodeInterface, state.idField));
     }
     schema
-      .getPossibleTypes(unmodifiedType)
-      .forEach((possibleType: ObjectTypeID) => {
+      .getPossibleTypes(schema.assertAbstractType(unmodifiedType))
+      .forEach(possibleType => {
         if (
           !schema.implementsInterface(
             schema.assertCompositeType(possibleType),

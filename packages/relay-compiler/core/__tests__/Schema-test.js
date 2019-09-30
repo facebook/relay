@@ -542,11 +542,11 @@ describe('Schema: RelayCompiler Internal GraphQL Schema Interface', () => {
           'interface A { id: ID } interface B { value: String } type A1 implements A { id: ID } type A2 implements A & B { id: ID value: String }',
         ),
       );
-      const type = schema.expectTypeFromString('A');
+      const type = schema.assertAbstractType(schema.expectTypeFromString('A'));
       expect(
-        schema
-          .getPossibleTypes(type)
-          .map(possibleType => schema.getTypeString(possibleType)),
+        Array.from(schema.getPossibleTypes(type)).map(possibleType =>
+          schema.getTypeString(possibleType),
+        ),
       ).toEqual(['A1', 'A2']);
     });
 
@@ -554,11 +554,11 @@ describe('Schema: RelayCompiler Internal GraphQL Schema Interface', () => {
       const schema = Schema.create(
         new Source('type A { id: ID } type B { id: ID } union AB = A | B'),
       );
-      const type = schema.expectTypeFromString('AB');
+      const type = schema.assertAbstractType(schema.expectTypeFromString('AB'));
       expect(
-        schema
-          .getPossibleTypes(type)
-          .map(possibleType => schema.getTypeString(possibleType)),
+        Array.from(schema.getPossibleTypes(type)).map(possibleType =>
+          schema.getTypeString(possibleType),
+        ),
       ).toEqual(['A', 'B']);
     });
   });
@@ -1266,5 +1266,29 @@ describe('Schema: RelayCompiler Internal GraphQL Schema Interface', () => {
     );
     const subscriptionType = schema.getSubscriptionType();
     expect(subscriptionType).toBe(schema.getTypeFromString('Subscription'));
+  });
+
+  test('isPossibleType', () => {
+    const schema = Schema.create(
+      new Source(`
+        interface Node { id: ID }
+        type A implements Node { id: ID }
+        type B { id: ID }
+        type C { value: String }
+        union AB = A | B
+      `),
+    );
+    const A = schema.assertObjectType(schema.expectTypeFromString('A'));
+    const B = schema.assertObjectType(schema.expectTypeFromString('B'));
+    const C = schema.assertObjectType(schema.expectTypeFromString('C'));
+    const AB = schema.assertAbstractType(schema.expectTypeFromString('AB'));
+    const Node = schema.assertAbstractType(schema.expectTypeFromString('Node'));
+
+    expect(schema.isPossibleType(AB, A)).toBe(true);
+    expect(schema.isPossibleType(AB, B)).toBe(true);
+    expect(schema.isPossibleType(AB, C)).toBe(false);
+    expect(schema.isPossibleType(Node, A)).toBe(true);
+    expect(schema.isPossibleType(Node, B)).toBe(false);
+    expect(schema.isPossibleType(Node, C)).toBe(false);
   });
 });

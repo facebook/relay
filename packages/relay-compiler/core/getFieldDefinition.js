@@ -101,10 +101,12 @@ function getFieldDefinitionLegacyImpl(
       directive => getName(directive) === 'fixme_fat_interface',
     )
   ) {
-    const possibleTypes = schema.getPossibleTypes(rawType);
+    const possibleTypes = schema.getPossibleTypes(
+      schema.assertAbstractType(rawType),
+    );
     let schemaFieldDef;
-    for (let ii = 0; ii < possibleTypes.length; ii++) {
-      const possibleField = schema.getFieldByName(possibleTypes[ii], fieldName);
+    for (const possibleType of possibleTypes) {
+      const possibleField = schema.getFieldByName(possibleType, fieldName);
       if (possibleField) {
         // Fat interface fields can have differing arguments. Try to return
         // a field with matching arguments, but still return a field if the

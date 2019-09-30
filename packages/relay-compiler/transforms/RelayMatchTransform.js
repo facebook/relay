@@ -215,7 +215,9 @@ function visitLinkedField(node: LinkedField, state: State): LinkedField {
     }
     seenTypes.set(matchedType, matchSelection);
 
-    const possibleConcreteTypes = schema.getPossibleTypes(rawFieldType);
+    const possibleConcreteTypes = Array.from(
+      schema.getPossibleTypes(schema.assertAbstractType(rawFieldType)),
+    );
 
     const isPossibleConcreteType = possibleConcreteTypes.some(type => {
       return schema.areEqualTypes(type, matchedType);

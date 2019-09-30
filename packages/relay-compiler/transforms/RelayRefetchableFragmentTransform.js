@@ -114,16 +114,16 @@ function relayRefetchableFragmentTransform(
               ),
             )) ||
         (schema.isAbstractType(fragment.type) &&
-          schema
-            .getPossibleTypes(fragment.type)
-            .every(possibleType =>
-              schema.implementsInterface(
-                schema.assertCompositeType(possibleType),
-                schema.assertInterfaceType(
-                  schema.expectTypeFromString(NODE_TYPE_NAME),
-                ),
+          Array.from(
+            schema.getPossibleTypes(schema.assertAbstractType(fragment.type)),
+          ).every(possibleType =>
+            schema.implementsInterface(
+              schema.assertCompositeType(possibleType),
+              schema.assertInterfaceType(
+                schema.expectTypeFromString(NODE_TYPE_NAME),
               ),
-            ))
+            ),
+          ))
       ) {
         // Validate that the schema conforms to the Object Identity (Node) spec
         // and build the refetch query accordingly.
@@ -519,15 +519,15 @@ function buildRefetchOperationOnNodeType(
             schema.areEqualTypes(interfaceType, nodeType),
           )) ||
         (schema.isAbstractType(fragment.type) &&
-          schema
-            .getPossibleTypes(fragment.type)
-            .every(possibleType =>
-              schema
-                .getInterfaces(schema.assertCompositeType(possibleType))
-                .some(interfaceType =>
-                  schema.areEqualTypes(interfaceType, nodeType),
-                ),
-            )))
+          Array.from(
+            schema.getPossibleTypes(schema.assertAbstractType(fragment.type)),
+          ).every(possibleType =>
+            schema
+              .getInterfaces(schema.assertCompositeType(possibleType))
+              .some(interfaceType =>
+                schema.areEqualTypes(interfaceType, nodeType),
+              ),
+          )))
     )
   ) {
     throw createUserError(

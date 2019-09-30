@@ -775,7 +775,7 @@ function validateConnectionType(
       [field.loc],
     );
   }
-  let edgeType = schema.getNullableType(schema.getNonListType(edgesType));
+  let edgeType = schema.getNullableType(schema.getListItemType(edgesType));
   if (!schema.isObject(edgeType) && !schema.isInterface(edgeType)) {
     throw createUserError(
       `@${directiveName} used on invalid field '${field.name}'. Expected the ` +

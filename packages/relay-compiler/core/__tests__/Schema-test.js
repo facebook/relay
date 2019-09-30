@@ -236,7 +236,7 @@ describe('Schema: RelayCompiler Internal GraphQL Schema Interface', () => {
       ).toBe('MyType');
       expect(
         schema.getTypeString(
-          schema.getNonListType(schema.expectTypeFromString('[MyType]')),
+          schema.getListItemType(schema.expectTypeFromString('[MyType]')),
         ),
       ).toBe('MyType');
       expect(
@@ -246,12 +246,12 @@ describe('Schema: RelayCompiler Internal GraphQL Schema Interface', () => {
       ).toBe('[MyType]');
       expect(
         schema.getTypeString(
-          schema.getNonListType(schema.expectTypeFromString('[MyType!]')),
+          schema.getListItemType(schema.expectTypeFromString('[MyType!]')),
         ),
       ).toBe('MyType!');
       expect(
         schema.getTypeString(
-          schema.getNonListType(schema.expectTypeFromString('[MyType!]')),
+          schema.getListItemType(schema.expectTypeFromString('[MyType!]')),
         ),
       ).toBe('MyType!');
       expect(
@@ -276,7 +276,7 @@ describe('Schema: RelayCompiler Internal GraphQL Schema Interface', () => {
       ).toBe('MyType');
       expect(
         schema.getTypeString(
-          schema.getNonListType(schema.expectTypeFromString('[MyType]')),
+          schema.getListItemType(schema.expectTypeFromString('[MyType]')),
         ),
       ).toBe('MyType');
       expect(
@@ -287,7 +287,7 @@ describe('Schema: RelayCompiler Internal GraphQL Schema Interface', () => {
 
       expect(
         schema.getTypeString(
-          schema.getNonListType(schema.expectTypeFromString('MyType')),
+          schema.getListItemType(schema.expectTypeFromString('MyType')),
         ),
       ).toBe('MyType');
     });
@@ -879,7 +879,7 @@ describe('Schema: RelayCompiler Internal GraphQL Schema Interface', () => {
     const typeA = schema.expectTypeFromString('A');
     const typeB = schema.expectTypeFromString('B');
     const listOfA = schema.expectTypeFromString('[A]');
-    expect(schema.areEqualTypes(typeA, schema.getNonListType(listOfA))).toBe(
+    expect(schema.areEqualTypes(typeA, schema.getListItemType(listOfA))).toBe(
       true,
     );
     expect(schema.areEqualTypes(typeA, typeB)).toBe(false);

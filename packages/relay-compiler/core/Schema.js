@@ -591,7 +591,7 @@ class Schema {
     return type;
   }
 
-  getNonListType(type: TypeID): TypeID {
+  getListItemType(type: TypeID): TypeID {
     if (type instanceof List) {
       return type.ofType;
     }

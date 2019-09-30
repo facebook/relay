@@ -1263,7 +1263,7 @@ function transformNonNullLiteral(
     if (ast.kind !== 'ListValue') {
       // Parse singular (non-list) values flowing into a list type
       // as scalars, ie without wrapping them in an array.
-      if (!schema.isInputType(schema.getNonListType(nullableType))) {
+      if (!schema.isInputType(schema.getListItemType(nullableType))) {
         throw new createUserError(
           `Expected type ${schema.getTypeString(
             nullableType,
@@ -1275,13 +1275,13 @@ function transformNonNullLiteral(
       return transformValue(
         schema,
         ast,
-        schema.assertInputType(schema.getNonListType(nullableType)),
+        schema.assertInputType(schema.getListItemType(nullableType)),
         transformVariable,
         options,
       );
     }
     const itemType = schema.assertInputType(
-      schema.getNonListType(nullableType),
+      schema.getListItemType(nullableType),
     );
     const literalList = [];
     const items = [];

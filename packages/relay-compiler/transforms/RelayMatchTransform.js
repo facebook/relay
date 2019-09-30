@@ -148,7 +148,7 @@ function visitLinkedField(node: LinkedField, state: State): LinkedField {
       : null;
   const supportedArgOfType =
     supportedArgType != null && schema.isList(supportedArgType)
-      ? schema.getNonListType(supportedArgType)
+      ? schema.getListItemType(supportedArgType)
       : null;
   if (
     supportedArgumentDefinition == null ||

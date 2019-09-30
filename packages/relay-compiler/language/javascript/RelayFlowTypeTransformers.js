@@ -59,7 +59,7 @@ function transformNonNullableScalarType(
     return readOnlyArrayOfType(
       transformScalarType(
         schema,
-        schema.getNonListType(type),
+        schema.getListItemType(type),
         state,
         objectProps,
       ),
@@ -135,7 +135,7 @@ function transformNonNullableInputType(
 ) {
   if (schema.isList(type)) {
     return readOnlyArrayOfType(
-      transformInputType(schema, schema.getNonListType(type), state),
+      transformInputType(schema, schema.getListItemType(type), state),
     );
   } else if (schema.isScalar(type)) {
     return transformGraphQLScalarType(schema.getTypeString(type), state);

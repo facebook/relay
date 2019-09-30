@@ -410,7 +410,7 @@ function printValue(
       type && schema.isList(type),
       'GraphQLIRPrinter: Need a type in order to print arrays.',
     );
-    const innerType = schema.getNonListType(type);
+    const innerType = schema.getListItemType(type);
     return `[${value.items
       .map(i => printValue(schema, i, innerType))
       .join(', ')}]`;
@@ -454,7 +454,7 @@ function printLiteral(schema: Schema, value: mixed, type: ?TypeID): string {
       type && schema.isList(type),
       'GraphQLIRPrinter: Need a type in order to print arrays.',
     );
-    const itemType = schema.getNonListType(type);
+    const itemType = schema.getListItemType(type);
     return (
       '[' +
       value.map(item => printLiteral(schema, item, itemType)).join(', ') +
@@ -463,7 +463,7 @@ function printLiteral(schema: Schema, value: mixed, type: ?TypeID): string {
   } else if (type && schema.isList(type) && value != null) {
     // Not an array, but still a list. Treat as list-of-one as per spec 3.1.7:
     // http://facebook.github.io/graphql/October2016/#sec-Lists
-    return printLiteral(schema, value, schema.getNonListType(type));
+    return printLiteral(schema, value, schema.getListItemType(type));
   } else if (typeof value === 'object' && value != null) {
     const fields = [];
     invariant(

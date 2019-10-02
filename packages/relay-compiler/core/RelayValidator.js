@@ -17,7 +17,6 @@ const util = require('util');
 const {
   FragmentsOnCompositeTypesRule,
   KnownArgumentNamesRule,
-  KnownTypeNamesRule,
   LoneAnonymousOperationRule,
   NoUnusedVariablesRule,
   PossibleFragmentSpreadsRule,
@@ -119,7 +118,6 @@ module.exports = {
      *   variables.
      */
     FragmentsOnCompositeTypesRule,
-    KnownTypeNamesRule,
     LoneAnonymousOperationRule,
     PossibleFragmentSpreadsRule,
     ValuesOfCorrectTypeRule,

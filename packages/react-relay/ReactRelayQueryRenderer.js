@@ -52,7 +52,7 @@ export type RenderProps<T> = {|
  * constructor. If a request is already in flight from a previous call to the
  * constructor, just reuse the query fetcher and wait for the response.
  */
-const requestCache = {};
+let requestCache = {};
 
 export type Props = {|
   cacheConfig?: ?CacheConfig,
@@ -103,6 +103,13 @@ class ReactRelayQueryRenderer extends React.Component<Props, State> {
 
     let queryFetcher;
     let requestCacheKey;
+
+    // If there's not window, we're on the server and do not want a global
+    // request cache to persist.
+    if (typeof window !== 'object') {
+      requestCache = {};
+    }
+
     if (props.query) {
       const {query} = props;
 

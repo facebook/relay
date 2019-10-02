@@ -852,6 +852,7 @@ function assertIsDeeplyFrozen(value: ?{} | ?$ReadOnlyArray<{}>) {
       });
 
       it('returns false if a linked record is missing', () => {
+        // $FlowFixMe found deploying v0.109.0
         delete data['client:1']; // profile picture
         source = getRecordSourceImplementation(data);
         store = new RelayModernStore(source);

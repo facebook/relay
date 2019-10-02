@@ -16,7 +16,6 @@ const util = require('util');
 
 const {
   FragmentsOnCompositeTypesRule,
-  KnownArgumentNamesRule,
   LoneAnonymousOperationRule,
   NoUnusedVariablesRule,
   PossibleFragmentSpreadsRule,
@@ -79,7 +78,6 @@ function DisallowIdAsAliasValidationRule(
 
 module.exports = {
   GLOBAL_RULES: [
-    KnownArgumentNamesRule,
     /* Some rules are not enabled (potentially non-exhaustive)
      *
      * - KnownFragmentNamesRule: RelayClassic generates fragments at runtime,

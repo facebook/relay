@@ -1040,6 +1040,29 @@ Error: RelayParser: Encountered 1 error(s):
   
 `;
 
+exports[`RelayParser matches expected output: directive-unknown-argument.invalid.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+# expected-to-throw
+query TestQuery {
+  task(number: 123) {
+    title @include(shouldInclude: true)
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+THROWN EXCEPTION:
+
+Error: RelayParser: Encountered 1 error(s):
+- Unknown argument 'shouldInclude' on directive '@include'.
+  
+  GraphQL request (4:20)
+  3:   task(number: 123) {
+  4:     title @include(shouldInclude: true)
+                        ^
+  5:   }
+  
+`;
+
 exports[`RelayParser matches expected output: enum-values.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query EnumValueQuery {
@@ -1539,6 +1562,29 @@ query TestQuery {
     "type": "Query"
   }
 ]
+`;
+
+exports[`RelayParser matches expected output: field-unknown-argument.invalid.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+# expected-to-throw
+query TestQuery {
+  task(task_id: 123) {
+    title
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+THROWN EXCEPTION:
+
+Error: RelayParser: Encountered 1 error(s):
+- Unknown argument 'task_id' on field 'task' of type 'Query'.
+  
+  GraphQL request (3:8)
+  2: query TestQuery {
+  3:   task(task_id: 123) {
+            ^
+  4:     title
+  
 `;
 
 exports[`RelayParser matches expected output: fragment-with-argument-type.invalid.graphql 1`] = `

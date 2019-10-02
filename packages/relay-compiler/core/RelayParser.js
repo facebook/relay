@@ -42,7 +42,13 @@ import type {
   Selection,
   Variable,
 } from './GraphQLIR';
-import type {Schema, TypeID, InputTypeID, FieldArgument} from './Schema';
+import type {
+  Schema,
+  TypeID,
+  FieldID,
+  InputTypeID,
+  FieldArgument,
+} from './Schema';
 import type {GetFieldDefinitionFn} from './getFieldDefinition';
 import type {
   ASTNode,
@@ -922,6 +928,7 @@ class GraphQLDefinitionParser {
     const args = this._transformArguments(
       field.arguments || [],
       schema.getFieldArgs(fieldDef),
+      fieldDef,
     );
     const [otherDirectives, clientFieldDirectives] = partitionArray(
       field.directives || [],
@@ -1093,6 +1100,8 @@ class GraphQLDefinitionParser {
             defaultValue: item.defaultValue,
           };
         }),
+        null,
+        name,
       );
       return {
         kind: 'Directive',
@@ -1106,12 +1115,25 @@ class GraphQLDefinitionParser {
   _transformArguments(
     args: $ReadOnlyArray<ArgumentNode>,
     argumentDefinitions: $ReadOnlyArray<FieldArgument>,
+    field?: ?FieldID,
+    directiveName?: ?string,
   ): $ReadOnlyArray<Argument> {
     return args.map(arg => {
       const argName = getName(arg);
       const argDef = argumentDefinitions.find(def => def.name === argName);
       if (argDef == null) {
-        throw createUserError(`Unknown argument '${argName}'.`, null, [arg]);
+        const message =
+          `Unknown argument '${argName}'` +
+          (field
+            ? ` on field '${this._schema.getFieldName(field)}'` +
+              ` of type '${this._schema.getTypeString(
+                this._schema.getFieldParentType(field),
+              )}'.`
+            : directiveName != null
+            ? ` on directive '@${directiveName}'.`
+            : '.');
+
+        throw createUserError(message, null, [arg]);
       }
 
       const value = this._transformValue(arg.value, argDef.type);

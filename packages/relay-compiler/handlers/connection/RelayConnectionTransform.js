@@ -855,7 +855,12 @@ function validateConnectionType(
   [END_CURSOR, HAS_NEXT_PAGE, HAS_PREV_PAGE, START_CURSOR].forEach(
     fieldName => {
       const pageInfoField = schema.getFieldConfig(
-        schema.expectField(pageInfoType, fieldName, null, [field.loc]),
+        schema.expectField(
+          schema.assertObjectType(pageInfoType),
+          fieldName,
+          null,
+          [field.loc],
+        ),
       );
       if (!schema.isScalar(schema.getNullableType(pageInfoField.type))) {
         throw createUserError(

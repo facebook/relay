@@ -210,7 +210,7 @@ function visitLinkedField(
   }
   const connectionType = schema.getRawType(transformed.type);
   const edgesFieldDef = schema.isObject(connectionType)
-    ? schema.getFieldByName(connectionType, 'edges')
+    ? schema.getFieldByName(schema.assertObjectType(connectionType), 'edges')
     : null;
   const edgesType =
     edgesFieldDef != null
@@ -218,7 +218,7 @@ function visitLinkedField(
       : null;
   const nodeFieldDef =
     edgesType != null && schema.isObject(edgesType)
-      ? schema.getFieldByName(edgesType, 'node')
+      ? schema.getFieldByName(schema.assertObjectType(edgesType), 'node')
       : null;
   const nodeType =
     nodeFieldDef != null

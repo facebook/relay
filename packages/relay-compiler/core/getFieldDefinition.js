@@ -46,12 +46,19 @@ function getFieldDefinitionStrict(
     schemaFieldDef =
       queryType != null ? schema.getFieldByName(queryType, '__type') : null;
   } else if (hasTypeName && fieldName === '__typename') {
-    schemaFieldDef = schema.getFieldByName(type, '__typename');
+    schemaFieldDef = schema.getFieldByName(
+      schema.assertCompositeType(type),
+      '__typename',
+    );
   } else if (hasTypeName && fieldName === '__id') {
-    schemaFieldDef = schema.getFieldByName(type, '__id');
+    schemaFieldDef = schema.getFieldByName(
+      schema.assertCompositeType(type),
+      '__id',
+    );
   } else if (schema.isInterface(type) || schema.isObject(type)) {
-    if (schema.hasField(schema.assertCompositeType(type), fieldName)) {
-      schemaFieldDef = schema.getFieldByName(type, fieldName);
+    const compositeType = schema.assertCompositeType(type);
+    if (schema.hasField(compositeType, fieldName)) {
+      schemaFieldDef = schema.getFieldByName(compositeType, fieldName);
     } else {
       return null;
     }

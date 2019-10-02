@@ -135,7 +135,10 @@ function visitLinkedField(node: LinkedField, state: State): LinkedField {
   }
 
   const currentField = schema.getFieldConfig(
-    schema.expectField(rawType, transformedNode.name),
+    schema.expectField(
+      schema.assertCompositeType(rawType),
+      transformedNode.name,
+    ),
   );
 
   const supportedArgumentDefinition = currentField.args.find(

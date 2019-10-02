@@ -372,9 +372,21 @@ describe('Schema: RelayCompiler Internal GraphQL Schema Interface', () => {
           type C { name: ID }
         `),
       );
-      expect(schema.hasId(schema.expectTypeFromString('A'))).toBe(false);
-      expect(schema.hasId(schema.expectTypeFromString('B'))).toBe(true);
-      expect(schema.hasId(schema.expectTypeFromString('C'))).toBe(false);
+      expect(
+        schema.hasId(
+          schema.assertCompositeType(schema.expectTypeFromString('A')),
+        ),
+      ).toBe(false);
+      expect(
+        schema.hasId(
+          schema.assertCompositeType(schema.expectTypeFromString('B')),
+        ),
+      ).toBe(true);
+      expect(
+        schema.hasId(
+          schema.assertCompositeType(schema.expectTypeFromString('C')),
+        ),
+      ).toBe(false);
     });
 
     describe('getFieldByName | getFieldConfig | getFieldName | getFieldType', () => {
@@ -403,7 +415,9 @@ describe('Schema: RelayCompiler Internal GraphQL Schema Interface', () => {
       });
 
       test('get field', () => {
-        const type = schema.expectTypeFromString('A');
+        const type = schema.assertCompositeType(
+          schema.expectTypeFromString('A'),
+        );
         const idType = schema.expectTypeFromString('ID');
         const field = schema.expectField(type, 'field');
         const fieldConfig = schema.getFieldConfig(field);
@@ -418,7 +432,9 @@ describe('Schema: RelayCompiler Internal GraphQL Schema Interface', () => {
       });
 
       test('get filed with args', () => {
-        const type = schema.expectTypeFromString('A');
+        const type = schema.assertCompositeType(
+          schema.expectTypeFromString('A'),
+        );
         const field = schema.expectField(type, 'fieldWithArgs');
         expect(schema.getFieldConfig(field)).toEqual({
           args: [
@@ -453,7 +469,9 @@ describe('Schema: RelayCompiler Internal GraphQL Schema Interface', () => {
       });
 
       test('getArgByName should return argument config by name', () => {
-        const type = schema.expectTypeFromString('A');
+        const type = schema.assertCompositeType(
+          schema.expectTypeFromString('A'),
+        );
         const field = schema.expectField(type, 'fieldWithArgs');
         const requiredArg = schema.getFieldArgByName(field, 'requiredArg');
         expect(requiredArg).toEqual({
@@ -464,7 +482,9 @@ describe('Schema: RelayCompiler Internal GraphQL Schema Interface', () => {
       });
 
       test('getArgByName - unknown argument', () => {
-        const type = schema.expectTypeFromString('A');
+        const type = schema.assertCompositeType(
+          schema.expectTypeFromString('A'),
+        );
         const field = schema.expectField(type, 'fieldWithArgs');
         const unknownArg = schema.getFieldArgByName(field, 'unknown_arg');
         expect(unknownArg).not.toBeDefined();
@@ -473,7 +493,7 @@ describe('Schema: RelayCompiler Internal GraphQL Schema Interface', () => {
 
     test('getFieldByName for unknown field', () => {
       const schema = Schema.create(new Source('type A { myField: ID }'));
-      const type = schema.expectTypeFromString('A');
+      const type = schema.assertCompositeType(schema.expectTypeFromString('A'));
       const field = schema.getFieldByName(type, 'unknown_field');
       expect(field).not.toBeDefined();
       expect(() => {
@@ -483,7 +503,7 @@ describe('Schema: RelayCompiler Internal GraphQL Schema Interface', () => {
 
     test('getFieldByName for __typename', () => {
       const schema = Schema.create(new Source('type A { myField: ID }'));
-      const type = schema.expectTypeFromString('A');
+      const type = schema.assertCompositeType(schema.expectTypeFromString('A'));
       const field = schema.expectField(type, '__typename');
       const fieldConfig = schema.getFieldConfig(field);
       expect(fieldConfig).toEqual({
@@ -689,12 +709,14 @@ describe('Schema: RelayCompiler Internal GraphQL Schema Interface', () => {
         [],
         ['extend type User { client_id: ID }'],
       );
-      const userTypeID = schema.expectTypeFromString('User');
-      expect(schema.isServerField(schema.expectField(userTypeID, 'name'))).toBe(
+      const userType = schema.assertCompositeType(
+        schema.expectTypeFromString('User'),
+      );
+      expect(schema.isServerField(schema.expectField(userType, 'name'))).toBe(
         true,
       );
       expect(
-        schema.isServerField(schema.expectField(userTypeID, 'client_id')),
+        schema.isServerField(schema.expectField(userType, 'client_id')),
       ).toBe(false);
     });
 

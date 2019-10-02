@@ -1324,13 +1324,14 @@ function transformNonNullLiteral(
     const literalObject = {};
     const fields = [];
     let areAllFieldsScalar = true;
+    const inputType = schema.assertInputObjectType(nullableType);
     ast.fields.forEach(field => {
       const fieldName = getName(field);
-      const fieldID = schema.getFieldByName(nullableType, fieldName);
+      const fieldID = schema.getFieldByName(inputType, fieldName);
       if (!fieldID) {
         throw createUserError(
           `Unknown field '${fieldName}' on type '${schema.getTypeString(
-            type,
+            inputType,
           )}'.`,
           null,
           [field],

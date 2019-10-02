@@ -147,7 +147,7 @@ function transformNonNullableInputType(
       return t.genericTypeAnnotation(t.identifier(typeIdentifier));
     }
     state.generatedInputObjectTypes[typeIdentifier] = 'pending';
-    const fields = schema.getFields(type);
+    const fields = schema.getFields(schema.assertInputObjectType(type));
     const props = fields.map(fieldID => {
       const fieldType = schema.getFieldType(fieldID);
       const fieldName = schema.getFieldName(fieldID);

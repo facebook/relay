@@ -389,13 +389,13 @@ function printValue(
       type && schema.isInputObject(type),
       'GraphQLIRPrinter: Need an InputObject type to print objects.',
     );
-
+    const inputType = schema.assertInputObjectType(type);
     const pairs = value.fields
       .map(field => {
         const fieldConfig =
           type != null
-            ? schema.hasField(schema.assertInputObjectType(type), field.name)
-              ? schema.getFieldConfig(schema.expectField(type, field.name))
+            ? schema.hasField(inputType, field.name)
+              ? schema.getFieldConfig(schema.expectField(inputType, field.name))
               : null
             : null;
         const innerValue =
@@ -470,10 +470,11 @@ function printLiteral(schema: Schema, value: mixed, type: ?TypeID): string {
       type && schema.isInputObject(type),
       'GraphQLIRPrinter: Need an InputObject type to print objects.',
     );
+    const inputType = schema.assertInputObjectType(type);
     for (const key in value) {
       if (value.hasOwnProperty(key)) {
         const fieldConfig = schema.getFieldConfig(
-          schema.expectField(type, key),
+          schema.expectField(inputType, key),
         );
         fields.push(
           key + ': ' + printLiteral(schema, value[key], fieldConfig.type),

@@ -1221,7 +1221,7 @@ query EnumValueQuery3 {
 THROWN EXCEPTION:
 
 Error: RelayParser: Encountered 3 error(s):
-- Expected a value matching type 'PhotoSize'.
+- Expected a value matching type 'PhotoSize'. Possible values: SMALL or LARGE?'
   
   GraphQL request (4:28)
   3:   me {
@@ -1229,7 +1229,7 @@ Error: RelayParser: Encountered 3 error(s):
                                 ^
   5:       # error: string not enum
   
-- Expected a value matching type 'PhotoSize'.
+- Expected a value matching type 'PhotoSize'. Possible values: SMALL or LARGE?'
   
   GraphQL request (13:28)
   12:   me {
@@ -1237,7 +1237,7 @@ Error: RelayParser: Encountered 3 error(s):
                                  ^
   14:       # error: int not enum
   
-- Expected a value matching type 'PhotoSize'.
+- Expected a value matching type 'PhotoSize'. Possible values: SMALL or LARGE?'
   
   GraphQL request (22:28)
   21:   me {

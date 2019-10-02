@@ -12,6 +12,7 @@
 
 const Profiler = require('./GraphQLCompilerProfiler');
 
+const orList = require('../util/orList');
 const partitionArray = require('../util/partitionArray');
 
 const {DEFAULT_HANDLE_KEY} = require('../util/DefaultHandleKey');
@@ -1414,10 +1415,14 @@ function transformNonNullLiteral(
           }
         }
       }
+      const suggestions = schema.getEnumValues(enumType);
+
       // parseLiteral() should return a non-null JavaScript value
       // if the ast value is valid for the type.
       throw createUserError(
-        `Expected a value matching type '${schema.getTypeString(type)}'.`,
+        `Expected a value matching type '${schema.getTypeString(
+          type,
+        )}'. Possible values: ${orList(suggestions)}?'`,
         null,
         [ast],
       );

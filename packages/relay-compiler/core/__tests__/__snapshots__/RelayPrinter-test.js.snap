@@ -184,7 +184,7 @@ fragment UserFragment on User {
 THROWN EXCEPTION:
 
 Error: RelayParser: Encountered 1 error(s):
-- Expected a value matching type 'Environment!'.
+- Expected a value matching type 'Environment!'. Possible values: WEB or MOBILE?'
   
   GraphQL request (3:26)
   2: fragment UserFragment on User {
@@ -229,7 +229,7 @@ fragment UserFragment on User {
 THROWN EXCEPTION:
 
 Error: RelayParser: Encountered 1 error(s):
-- Expected a value matching type 'Environment!'.
+- Expected a value matching type 'Environment!'. Possible values: WEB or MOBILE?'
   
   GraphQL request (3:26)
   2: fragment UserFragment on User {

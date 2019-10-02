@@ -27,6 +27,7 @@ const GraphQLIRVisitor = require('./core/GraphQLIRVisitor');
 const GraphQLMultiReporter = require('./reporters/GraphQLMultiReporter');
 const GraphQLWatchmanClient = require('./core/GraphQLWatchmanClient');
 const RelayCodeGenerator = require('./codegen/RelayCodeGenerator');
+const RelayCompilerError = require('./core/RelayCompilerError');
 const RelayFileWriter = require('./codegen/RelayFileWriter');
 const RelayFlowGenerator = require('./language/javascript/RelayFlowGenerator');
 const RelayIRTransforms = require('./core/RelayIRTransforms');
@@ -121,6 +122,7 @@ module.exports = {
   CodegenWatcher,
   CodeMarker,
   CompilerContext: GraphQLCompilerContext,
+  CompilerError: RelayCompilerError,
   ConsoleReporter: GraphQLConsoleReporter,
   DotGraphQLParser,
   ASTCache,

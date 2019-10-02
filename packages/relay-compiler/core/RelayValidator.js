@@ -23,7 +23,6 @@ const {
   UniqueArgumentNamesRule,
   UniqueFragmentNamesRule,
   UniqueInputFieldNamesRule,
-  UniqueOperationNamesRule,
   UniqueVariableNamesRule,
   VariablesAreInputTypesRule,
   formatError,
@@ -99,7 +98,6 @@ module.exports = {
     UniqueArgumentNamesRule,
     UniqueFragmentNamesRule,
     UniqueInputFieldNamesRule,
-    UniqueOperationNamesRule,
     UniqueVariableNamesRule,
   ],
   LOCAL_RULES: [

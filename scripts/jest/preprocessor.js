@@ -9,7 +9,6 @@
 
 'use strict';
 
-const assign = require('object-assign');
 const babel = require('@babel/core');
 const createCacheKeyFunction = require('fbjs-scripts/jest/createCacheKeyFunction');
 const getBabelOptions = require('../getBabelOptions');
@@ -31,7 +30,7 @@ const babelOptions = getBabelOptions({
 
 module.exports = {
   process: function(src, filename) {
-    const options = assign({}, babelOptions, {
+    const options = Object.assign({}, babelOptions, {
       filename: filename,
       retainLines: true,
     });

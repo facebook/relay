@@ -320,13 +320,12 @@ class FragmentResourceImpl {
     },
     callback: () => void,
   ): Disposable {
-    const disposables = mapObject(fragmentResults, fragmentResult => {
-      return this.subscribe(fragmentResult, callback);
-    });
+    const disposables = Object.keys(fragmentResults).map(key =>
+      this.subscribe(fragmentResults[key], callback),
+    );
     return {
       dispose: () => {
-        Object.keys(disposables).forEach(key => {
-          const disposable = disposables[key];
+        disposables.forEach(disposable => {
           disposable.dispose();
         });
       },

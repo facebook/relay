@@ -32,10 +32,11 @@ function useLazyLoadQuery<TQuery: OperationType>(
 ): $ElementType<TQuery, 'response'> {
   const query = useMemoOperationDescriptor(gqlQuery, variables);
   const data = useLazyLoadQueryNode({
-    query,
+    componentDisplayName: 'useLazyLoadQuery()',
     fetchKey: options?.fetchKey,
     fetchPolicy: options?.fetchPolicy,
-    componentDisplayName: 'useLazyLoadQuery()',
+    networkCacheConfig: options?.networkCacheConfig,
+    query,
   });
   return data;
 }

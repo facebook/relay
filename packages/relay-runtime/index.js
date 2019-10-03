@@ -22,7 +22,6 @@ const RelayDefaultMissingFieldHandlers = require('./handlers/RelayDefaultMissing
 const RelayError = require('./util/RelayError');
 const RelayFeatureFlags = require('./util/RelayFeatureFlags');
 const RelayModernEnvironment = require('./store/RelayModernEnvironment');
-const RelayModernFragmentOwner = require('./store/RelayModernFragmentOwner');
 const RelayModernGraphQLTag = require('./query/RelayModernGraphQLTag');
 const RelayModernOperationDescriptor = require('./store/RelayModernOperationDescriptor');
 const RelayModernRecord = require('./store/RelayModernRecord');
@@ -231,8 +230,6 @@ module.exports = {
   getDataIDsFromFragment: RelayModernSelector.getDataIDsFromFragment,
   getDataIDsFromObject: RelayModernSelector.getDataIDsFromObject,
   getFragment: RelayModernGraphQLTag.getFragment,
-  getFragmentOwner: RelayModernFragmentOwner.getFragmentOwner,
-  getFragmentOwners: RelayModernFragmentOwner.getFragmentOwners,
   getInlineDataFragment: RelayModernGraphQLTag.getInlineDataFragment,
   getModuleComponentKey: RelayStoreUtils.getModuleComponentKey,
   getModuleOperationKey: RelayStoreUtils.getModuleOperationKey,

@@ -30,8 +30,8 @@ const {
   createFragmentSpecResolver,
   createOperationDescriptor,
   getDataIDsFromObject,
-  getFragmentOwners,
   getRequest,
+  getSelector,
   getVariablesFromObject,
   isScalarAndEqual,
 } = require('relay-runtime');
@@ -672,17 +672,19 @@ function createContainerWithFragments<
       };
       let rootVariables;
       let fragmentVariables;
-      const fragmentOwners = getFragmentOwners(fragments, restProps);
       // NOTE: rootVariables are spread down below in a couple of places,
       // so we compute them here from the fragment owners.
       // For extra safety, we make sure the rootVariables include the
       // variables from all owners in this fragmentSpec, even though they
       // should all point to the same owner
       Object.keys(fragments).forEach(key => {
-        const fragmentOwner = fragmentOwners[key];
-        const fragmentOwnerVariables = Array.isArray(fragmentOwner)
-          ? fragmentOwner[0]?.variables ?? {}
-          : fragmentOwner?.variables ?? {};
+        const fragmentNode = fragments[key];
+        const fragmentRef = restProps[key];
+        const selector = getSelector(fragmentNode, fragmentRef);
+        const fragmentOwnerVariables =
+          selector != null && selector.kind === 'PluralReaderSelector'
+            ? selector.selectors[0]?.owner.variables ?? {}
+            : selector?.owner.variables ?? {};
         rootVariables = {
           ...rootVariables,
           ...fragmentOwnerVariables,

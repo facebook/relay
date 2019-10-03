@@ -375,12 +375,9 @@ class FragmentResourceImpl {
   }
 
   checkMissedUpdatesSpec(fragmentResults: {[string]: FragmentResult}): boolean {
-    let didMissUpdates: boolean = false;
-    Object.keys(fragmentResults).forEach(key => {
-      const fragmentResult = fragmentResults[key];
-      didMissUpdates = this.checkMissedUpdates(fragmentResult)[0];
-    });
-    return didMissUpdates;
+    return Object.keys(fragmentResults).some(
+      key => this.checkMissedUpdates(fragmentResults[key])[0],
+    );
   }
 
   _getAndSavePromiseForFragmentRequestInFlight(

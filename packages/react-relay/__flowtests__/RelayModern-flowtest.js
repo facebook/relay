@@ -12,7 +12,7 @@
 
 const React = require('react');
 
-const nullthrows = require('nullthrows');
+declare function nullthrows<T>(x: ?T): T;
 
 const {
   createContainer: createFragmentContainer,
@@ -206,39 +206,15 @@ declare var aComplexUserRef: {
 // $FlowExpectedError - optional, not nullable!
 <PluralTest users={usersRef} nullableUsers={null} optionalUsers={null} />;
 
-class AnyTest extends React.Component<{
+class AnyTest extends React.Component<{|
   anything: any,
-  anyFunction: Function,
-  optionalFunction?: Function,
-  maybeFunction: ?Function,
-  optionalMaybeFunction?: ?Function,
-  anyObject: Object,
-}> {}
-AnyTest = createFragmentContainer(AnyTest, {});
+|}> {}
+const AnyTestContainer = createFragmentContainer(AnyTest, {});
 
-<AnyTest
-  anything={42}
-  anyFunction={() => {}}
-  maybeFunction={null}
-  anyObject={{}}
-/>;
-<AnyTest
-  anything={42}
-  anyFunction={() => {}}
-  maybeFunction={() => {}}
-  anyObject={{}}
-/>;
-// $FlowExpectedError - optional function cannot be null
-<AnyTest
-  anything={42}
-  anyFunction={() => {}}
-  optionalFunction={() => {}}
-  anyObject={{}}
-/>;
-// $FlowExpectedError - can't pass {} for a Function
-<AnyTest
-  anything={42}
-  anyFunction={{}}
-  maybeFunction={() => {}}
-  anyObject={{}}
-/>;
+<AnyTest anything={42} />;
+<AnyTest anything={null} />;
+<AnyTest anything={() => {}} />;
+// $FlowExpectedError - any other prop can not be passed
+<AnyTest anything={null} anythingElse={42} />;
+// $FlowExpectedError - anything has to be passed
+<AnyTest />;

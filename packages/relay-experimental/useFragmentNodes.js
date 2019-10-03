@@ -105,13 +105,11 @@ function useFragmentNodes<TFragmentSpec: {}>(
   const shouldUpdate = mustResubscribe || scalarNonFragmentRefPropsChanged;
 
   if (shouldUpdate) {
-    shouldUpdateGenerationRef.current =
-      (shouldUpdateGenerationRef.current ?? 0) + 1;
+    shouldUpdateGenerationRef.current++;
   }
 
   if (mustResubscribe) {
-    mustResubscribeGenerationRef.current =
-      (mustResubscribeGenerationRef.current ?? 0) + 1;
+    mustResubscribeGenerationRef.current++;
     if (environmentChanged) {
       setMirroredEnvironment(environment);
     }

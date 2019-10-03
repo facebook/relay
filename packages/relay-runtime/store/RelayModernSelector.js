@@ -26,7 +26,6 @@ import type {ReaderFragment} from '../util/ReaderNode';
 import type {DataID, Variables} from '../util/RelayRuntimeTypes';
 import type {
   NormalizationSelector,
-  OperationDescriptor,
   PluralReaderSelector,
   ReaderSelector,
   RequestDescriptor,

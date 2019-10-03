@@ -20,7 +20,7 @@ const useStaticFragmentNodeWarning = require('./useStaticFragmentNodeWarning');
 const {
   __internal: {getObservableForRequestInFlight},
   getFragment,
-  getFragmentOwner,
+  getSelector,
 } = require('relay-runtime');
 
 import type {GraphQLTaggedNode} from 'relay-runtime';
@@ -38,16 +38,15 @@ function useIsParentQueryInFlight<TKey: ?{+$data?: mixed}>(
     'first argument of useIsParentQueryInFlight()',
   );
   const observable = useMemo(() => {
-    // $FlowFixMe - TODO T39154660 Use FragmentPointer type instead of mixed
-    const fragmentOwnerOrOwners = getFragmentOwner(fragmentNode, fragmentRef);
-    if (fragmentOwnerOrOwners == null) {
+    const selector = getSelector(fragmentNode, fragmentRef);
+    if (selector == null) {
       return null;
     }
     invariant(
-      !Array.isArray(fragmentOwnerOrOwners),
+      selector.kind === 'SingularReaderSelector',
       'useIsParentQueryInFlight: Plural fragments are not supported.',
     );
-    return getObservableForRequestInFlight(environment, fragmentOwnerOrOwners);
+    return getObservableForRequestInFlight(environment, selector.owner);
   }, [environment, fragmentNode, fragmentRef]);
   const [isInFlight, setIsInFlight] = useState(observable != null);
 

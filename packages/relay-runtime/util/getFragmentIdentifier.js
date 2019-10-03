@@ -13,10 +13,10 @@
 
 const stableCopy = require('./stableCopy');
 
-const {getFragmentOwner} = require('../store/RelayModernFragmentOwner');
 const {
   getDataIDsFromFragment,
   getVariablesFromFragment,
+  getSelector,
 } = require('../store/RelayModernSelector');
 
 import type {ReaderFragment} from './ReaderNode';
@@ -25,22 +25,28 @@ function getFragmentIdentifier(
   fragmentNode: ReaderFragment,
   fragmentRef: mixed,
 ): string {
-  const fragmentOwner = getFragmentOwner(
-    fragmentNode,
-    // $FlowFixMe - TODO T39154660 Use FragmentPointer type instead of mixed
-    fragmentRef,
-  );
+  const selector = getSelector(fragmentNode, fragmentRef);
   const fragmentVariables = getVariablesFromFragment(fragmentNode, fragmentRef);
   const dataIDs = getDataIDsFromFragment(fragmentNode, fragmentRef);
 
-  const fragmentOwnerID = Array.isArray(fragmentOwner)
-    ? fragmentOwner.map(
-        owner => owner?.node.params.id ?? owner?.node.params.name ?? '',
-      )
-    : fragmentOwner?.node.params.id ?? fragmentOwner?.node.params.name ?? '';
-  const fragmentOwnerVariables = Array.isArray(fragmentOwner)
-    ? fragmentOwner.map(owner => owner?.variables ?? null)
-    : fragmentOwner?.variables ?? null;
+  let fragmentOwnerID;
+  let fragmentOwnerVariables;
+
+  if (selector == null) {
+    fragmentOwnerID = null;
+    fragmentOwnerVariables = null;
+  } else if (selector.kind === 'PluralReaderSelector') {
+    fragmentOwnerID = selector.selectors.map(
+      sel => sel.owner.node.params.id ?? sel.owner.node.params.name ?? '',
+    );
+    fragmentOwnerVariables = selector.selectors.map(
+      sel => sel.owner.variables ?? null,
+    );
+  } else {
+    fragmentOwnerID =
+      selector.owner.node.params.id ?? selector?.owner.node.params.name ?? '';
+    fragmentOwnerVariables = selector.owner.variables ?? null;
+  }
 
   return `${fragmentNode.name}-${JSON.stringify(
     stableCopy({

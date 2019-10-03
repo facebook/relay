@@ -136,14 +136,14 @@ describe('getFragmentIdentifier', () => {
   it('returns correct identifier when fragment ref is null', () => {
     const identifier = getFragmentIdentifier(singularFragment, null);
     expect(identifier).toEqual(
-      'UserFragment-{"dataIDs":null,"fragmentOwnerID":"","fragmentOwnerVariables":null,"fragmentVariables":{}}',
+      'UserFragment-{"dataIDs":null,"fragmentOwnerID":null,"fragmentOwnerVariables":null,"fragmentVariables":{}}',
     );
   });
 
   it('returns correct identifier when using plural fragment and fragment ref is empty', () => {
     const identifier = getFragmentIdentifier(pluralFragment, []);
     expect(identifier).toEqual(
-      'UsersFragment-{"dataIDs":null,"fragmentOwnerID":[],"fragmentOwnerVariables":[],"fragmentVariables":{}}',
+      'UsersFragment-{"dataIDs":null,"fragmentOwnerID":null,"fragmentOwnerVariables":null,"fragmentVariables":{}}',
     );
   });
 

@@ -45,7 +45,6 @@ const formatGeneratedModule = require('./language/javascript/formatGeneratedModu
 const getIdentifierForArgumentValue = require('./core/getIdentifierForArgumentValue');
 const getLiteralArgumentValues = require('./core/getLiteralArgumentValues');
 const getNormalizationOperationName = require('./core/getNormalizationOperationName');
-const nullthrows = require('./util/nullthrowsOSS');
 const writeRelayGeneratedFile = require('./codegen/writeRelayGeneratedFile');
 
 const {main} = require('./bin/RelayCompilerMain');
@@ -139,7 +138,6 @@ module.exports = {
   getIdentifierForArgumentValue,
   getNormalizationOperationName,
   getLiteralArgumentValues,
-  nullthrows,
 
   Parser: RelayParser,
   Schema: RelaySchema,

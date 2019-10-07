@@ -51,7 +51,13 @@ function ReactRelayLocalQueryRenderer(props: Props): React.Node {
     return createOperationDescriptor(request, latestVariables);
   }, [query, latestVariables]);
 
-  const relayContext = useMemo(() => ({environment}), [environment]);
+  const relayContext = useMemo(
+    () => ({
+      environment,
+      variables: {},
+    }),
+    [environment],
+  );
 
   // Use a ref to prevent rendering twice when data changes
   // because of props change

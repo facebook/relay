@@ -52,6 +52,7 @@ describe('ReactRelayPaginationContainer', () => {
 
       this.__relayContext = {
         environment: props.environment,
+        variables: {},
       };
 
       this.state = {
@@ -62,9 +63,10 @@ describe('ReactRelayPaginationContainer', () => {
     setProps(props) {
       this.setState({props});
     }
-    setContext(env) {
+    setContext(env, vars) {
       this.__relayContext = {
         environment: env,
+        variables: {},
       };
       this.setProps({});
     }

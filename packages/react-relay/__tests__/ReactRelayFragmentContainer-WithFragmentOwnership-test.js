@@ -52,7 +52,7 @@ describe('ReactRelayFragmentContainer with fragment ownerhsip', () => {
       // eslint-disable-next-line no-shadow
       const {environment} = nextProps;
       if (environment !== this.__relayContext.environment) {
-        this.__relayContext = {environment};
+        this.__relayContext = {environment, variables: {}};
       }
     }
     setProps(props) {
@@ -61,6 +61,7 @@ describe('ReactRelayFragmentContainer with fragment ownerhsip', () => {
     setContext(env, vars) {
       this.__relayContext = {
         environment: env,
+        variables: {},
       };
       this.setProps({});
     }

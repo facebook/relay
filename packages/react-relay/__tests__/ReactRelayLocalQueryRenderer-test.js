@@ -102,6 +102,7 @@ describe('ReactRelayLocalQueryRenderer', () => {
       });
       expect(relayContext).toEqual({
         environment,
+        variables: {},
       });
     });
 

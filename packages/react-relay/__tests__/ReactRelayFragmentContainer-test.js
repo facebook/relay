@@ -45,6 +45,7 @@ describe('ReactRelayFragmentContainer', () => {
       super();
       this.__relayContext = {
         environment: props.environment,
+        variables: {},
       };
       this.state = {props: null};
     }
@@ -52,15 +53,16 @@ describe('ReactRelayFragmentContainer', () => {
       // eslint-disable-next-line no-shadow
       const {environment} = nextProps;
       if (environment !== this.__relayContext.environment) {
-        this.__relayContext = {environment};
+        this.__relayContext = {environment, variables: {}};
       }
     }
     setProps(props) {
       this.setState({props});
     }
-    setContext(env) {
+    setContext(env, vars) {
       this.__relayContext = {
         environment: env,
+        variables: {},
       };
       this.setProps({});
     }

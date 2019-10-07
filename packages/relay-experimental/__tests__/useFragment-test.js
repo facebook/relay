@@ -191,7 +191,13 @@ describe('useFragment', () => {
       return <PluralRenderer users={usersData} />;
     };
 
-    const relayContext = {environment};
+    const relayContext = {
+      environment,
+      // TODO(T39494051) - We set empty variables in relay context to make
+      // Flow happy, but useFragmentNodes does not use them, instead it uses
+      // the variables from the fragment owner.
+      variables: {},
+    };
     ContextProvider = ({children}) => {
       return (
         <ReactRelayContext.Provider value={relayContext}>

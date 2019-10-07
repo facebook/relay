@@ -336,6 +336,7 @@ function fetchQueryAndComputeStateFromProps(
     const operation = createOperationDescriptor(request, variables);
     const relayContext: RelayContext = {
       environment: genericEnvironment,
+      variables: {},
     };
     if (typeof requestCacheKey === 'string' && requestCache[requestCacheKey]) {
       // This same request is already in flight.
@@ -424,6 +425,7 @@ function fetchQueryAndComputeStateFromProps(
     queryFetcher.dispose();
     const relayContext: RelayContext = {
       environment: genericEnvironment,
+      variables: {},
     };
     return {
       error: null,

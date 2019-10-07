@@ -159,7 +159,10 @@ describe('useRefetchableFragment', () => {
     };
 
     const ContextProvider = ({children}) => {
-      const relayContext = useMemo(() => ({environment}), []);
+      // TODO(T39494051) - We set empty variables in relay context to make
+      // Flow happy, but useRefetchableFragment does not use them, instead it uses
+      // the variables from the fragment owner.
+      const relayContext = useMemo(() => ({environment, variables: {}}), []);
 
       return (
         <ReactRelayContext.Provider value={relayContext}>

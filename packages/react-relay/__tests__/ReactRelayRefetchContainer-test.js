@@ -49,6 +49,7 @@ describe('ReactRelayRefetchContainer', () => {
 
       this.__relayContext = {
         environment: props.environment,
+        variables: {},
       };
 
       this.state = {
@@ -59,7 +60,7 @@ describe('ReactRelayRefetchContainer', () => {
       // eslint-disable-next-line no-shadow
       const {environment} = nextProps;
       if (environment !== this.__relayContext.environment) {
-        this.__relayContext = {environment};
+        this.__relayContext = {environment, variables: {}};
       }
     }
     setProps(props) {
@@ -68,6 +69,7 @@ describe('ReactRelayRefetchContainer', () => {
     setContext(env) {
       this.__relayContext = {
         environment: env,
+        variables: {},
       };
       this.setProps({});
     }

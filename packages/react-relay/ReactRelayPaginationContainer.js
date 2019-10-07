@@ -760,6 +760,7 @@ function createContainerWithFragments<
               data: nextData,
               contextForChildren: {
                 environment: this.props.__relayContext.environment,
+                variables: {},
               },
             },
             complete,

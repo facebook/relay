@@ -619,8 +619,8 @@ describe('ReactRelayQueryRenderer', () => {
       render = jest.fn(() => <ContextGetter />);
     });
 
-    it('sets an environment on context', () => {
-      expect.assertions(1);
+    it('sets an environment and variables on context', () => {
+      expect.assertions(2);
       ReactTestRenderer.create(
         <ReactRelayQueryRenderer
           environment={environment}
@@ -632,9 +632,10 @@ describe('ReactRelayQueryRenderer', () => {
       environment.mock.resolve(TestQuery, response);
 
       expect(relayContext.environment).toBe(environment);
+      expect(relayContext.variables).toEqual(variables);
     });
 
-    it('sets an environment on context with empty query', () => {
+    it('sets an environment and variables on context with empty query', () => {
       variables = {foo: 'bar'};
       ReactTestRenderer.create(
         <ReactRelayQueryRenderer
@@ -651,10 +652,11 @@ describe('ReactRelayQueryRenderer', () => {
         retry: null,
       }).toBeRendered();
       expect(relayContext.environment).toBe(environment);
+      expect(relayContext.variables).toEqual(variables);
     });
 
     it('updates the context when the environment changes', () => {
-      expect.assertions(2);
+      expect.assertions(3);
       const renderer = ReactTestRenderer.create(
         <PropsSetter>
           <ReactRelayQueryRenderer
@@ -677,10 +679,11 @@ describe('ReactRelayQueryRenderer', () => {
 
       expect(relayContext).not.toBe(previousContext);
       expect(relayContext.environment).toBe(environment);
+      expect(relayContext.variables).toEqual(variables);
     });
 
     it('updates the context when the query changes', () => {
-      expect.assertions(2);
+      expect.assertions(3);
       const renderer = ReactTestRenderer.create(
         <PropsSetter>
           <ReactRelayQueryRenderer
@@ -703,10 +706,11 @@ describe('ReactRelayQueryRenderer', () => {
 
       expect(relayContext).not.toBe(previousContext);
       expect(relayContext.environment).toBe(environment);
+      expect(relayContext.variables).toEqual(variables);
     });
 
     it('updates the context when variables change', () => {
-      expect.assertions(5);
+      expect.assertions(3);
       const renderer = ReactTestRenderer.create(
         <PropsSetter>
           <ReactRelayQueryRenderer
@@ -729,37 +733,13 @@ describe('ReactRelayQueryRenderer', () => {
 
       expect(relayContext).not.toBe(previousContext);
       expect(relayContext.environment).toBe(environment);
-
-      render.mockClear();
-
-      environment.mock.resolve(TestQuery, {
-        data: {
-          node: {
-            __typename: 'User',
-            id: '<default>',
-            name: 'Default',
-          },
-        },
+      expect(relayContext.variables).toEqual({
+        id: '<default>',
       });
-      const owner = createOperationDescriptor(TestQuery, variables);
-      expect({
-        error: null,
-        props: {
-          node: {
-            id: '<default>',
-            __fragments: {
-              TestFragment: {},
-            },
-            __fragmentOwner: owner.request,
-            __id: '<default>',
-          },
-        },
-        retry: expect.any(Function),
-      }).toBeRendered();
     });
 
     it('does not update the context for equivalent variables', () => {
-      expect.assertions(2);
+      expect.assertions(3);
       variables = {foo: ['bar']};
       const renderer = ReactTestRenderer.create(
         <PropsSetter>
@@ -774,6 +754,7 @@ describe('ReactRelayQueryRenderer', () => {
       environment.mock.resolve(TestQuery, response);
       variables = simpleClone(variables);
       const previousContext = relayContext;
+      const previousVariables = previousContext.variables;
       renderer.getInstance().setProps({
         environment,
         query: TestQuery,
@@ -783,6 +764,7 @@ describe('ReactRelayQueryRenderer', () => {
 
       expect(relayContext).toBe(previousContext);
       expect(relayContext.environment).toBe(environment);
+      expect(relayContext.variables).toBe(previousVariables);
     });
   });
 

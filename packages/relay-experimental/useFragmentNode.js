@@ -11,7 +11,6 @@
 
 'use strict';
 
-const mapObject = require('mapObject');
 const useRelayEnvironment = require('./useRelayEnvironment');
 const warning = require('warning');
 
@@ -109,20 +108,18 @@ function useFragmentNode<TFragmentData: mixed>(
   }
 
   // Read fragment data; this might suspend.
-  const fragmentSpecResult = {
-    result: FragmentResource.read(
-      fragmentNode,
-      fragmentRef,
-      componentDisplayName,
-    ),
-  };
+  const fragmentResult = FragmentResource.read(
+    fragmentNode,
+    fragmentRef,
+    componentDisplayName,
+  );
 
   const isListeningForUpdatesRef = useRef(true);
   function enableStoreUpdates() {
     isListeningForUpdatesRef.current = true;
-    const didMissUpdates = FragmentResource.checkMissedUpdatesSpec(
-      fragmentSpecResult,
-    );
+    const didMissUpdates = FragmentResource.checkMissedUpdates(
+      fragmentResult,
+    )[0];
     if (didMissUpdates) {
       handleDataUpdate();
     }
@@ -155,8 +152,8 @@ function useFragmentNode<TFragmentData: mixed>(
   // rendering for the first time, or if we need to subscribe to new data
   useEffect(() => {
     isMountedRef.current = true;
-    const disposable = FragmentResource.subscribeSpec(
-      fragmentSpecResult,
+    const disposable = FragmentResource.subscribe(
+      fragmentResult,
       handleDataUpdate,
     );
 
@@ -173,30 +170,27 @@ function useFragmentNode<TFragmentData: mixed>(
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mustResubscribeGenerationRef.current]);
 
-  const data = mapObject(fragmentSpecResult, (result, key) => {
-    if (__DEV__) {
-      if (props[key] != null && result.data == null) {
-        const fragmentName = fragmentNodes[key]?.name ?? 'Unknown fragment';
-        warning(
-          false,
-          'Relay: Expected to have been able to read non-null data for ' +
-            'fragment `%s` declared in ' +
-            '`%s`, since fragment reference was non-null. ' +
-            "Make sure that that `%s`'s parent isn't " +
-            'holding on to and/or passing a fragment reference for data that ' +
-            'has been deleted.',
-          fragmentName,
-          componentDisplayName,
-          componentDisplayName,
-        );
-      }
+  if (__DEV__) {
+    if (props.result != null && fragmentResult.data == null) {
+      const fragmentName = fragmentNodes.result?.name ?? 'Unknown fragment';
+      warning(
+        false,
+        'Relay: Expected to have been able to read non-null data for ' +
+          'fragment `%s` declared in ' +
+          '`%s`, since fragment reference was non-null. ' +
+          "Make sure that that `%s`'s parent isn't " +
+          'holding on to and/or passing a fragment reference for data that ' +
+          'has been deleted.',
+        fragmentName,
+        componentDisplayName,
+        componentDisplayName,
+      );
     }
-    return result.data;
-  });
+  }
 
   return {
     // $FlowFixMe
-    data: data.result,
+    data: fragmentResult.data,
     disableStoreUpdates,
     enableStoreUpdates,
     shouldUpdateGeneration: shouldUpdateGenerationRef.current,

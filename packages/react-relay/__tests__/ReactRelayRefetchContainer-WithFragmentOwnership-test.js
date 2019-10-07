@@ -52,7 +52,7 @@ describe('ReactRelayRefetchContainer with fragment ownerhsip', () => {
 
       this.__relayContext = {
         environment: props.environment,
-        variables: {},
+        variables: props.variables,
       };
 
       this.state = {
@@ -61,9 +61,12 @@ describe('ReactRelayRefetchContainer with fragment ownerhsip', () => {
     }
     UNSAFE_componentWillReceiveProps(nextProps) {
       // eslint-disable-next-line no-shadow
-      const {environment} = nextProps;
-      if (environment !== this.__relayContext.environment) {
-        this.__relayContext = {environment, variables: {}};
+      const {environment, variables} = nextProps;
+      if (
+        environment !== this.__relayContext.environment ||
+        variables !== this.__relayContext.variables
+      ) {
+        this.__relayContext = {environment, variables};
       }
     }
     setProps(props) {
@@ -72,7 +75,7 @@ describe('ReactRelayRefetchContainer with fragment ownerhsip', () => {
     setContext(env, vars) {
       this.__relayContext = {
         environment: env,
-        variables: {},
+        variables: vars,
       };
       this.setProps({});
     }
@@ -194,21 +197,6 @@ describe('ReactRelayRefetchContainer with fragment ownerhsip', () => {
         scale: 2,
       };
       const fetchedVariables = {id: '4', scale: 2};
-      refetch(refetchVariables, null, jest.fn());
-      expect(environment.mock.isLoading(UserQuery, fetchedVariables)).toBe(
-        true,
-      );
-    });
-
-    it('fetches the new variables correctly referencing variables from parent', () => {
-      const refetchVariables = {
-        cond: false,
-        id: '4',
-      };
-      const fetchedVariables = {
-        id: '4',
-        scale: 2, // it reuses value of scale from original parent vars
-      };
       refetch(refetchVariables, null, jest.fn());
       expect(environment.mock.isLoading(UserQuery, fetchedVariables)).toBe(
         true,
@@ -372,7 +360,7 @@ describe('ReactRelayRefetchContainer with fragment ownerhsip', () => {
         .data.node;
       environment.mock.clearCache();
       instance = ReactTestRenderer.create(
-        <ContextSetter environment={environment}>
+        <ContextSetter environment={environment} variables={{}}>
           <TestContainer user={userPointer} />
         </ContextSetter>,
       );
@@ -387,10 +375,11 @@ describe('ReactRelayRefetchContainer with fragment ownerhsip', () => {
     });
 
     it('updates context with the results of new variables', () => {
-      expect.assertions(3);
+      expect.assertions(6);
 
       // original context before refetch
       expect(relayContext.environment).toEqual(environment);
+      expect(relayContext.variables).toBe(variables);
 
       const refetchVariables = {
         cond: false,
@@ -401,6 +390,7 @@ describe('ReactRelayRefetchContainer with fragment ownerhsip', () => {
 
       // original context while pending refetch
       expect(relayContext.environment).toBe(environment);
+      expect(relayContext.variables).toBe(variables);
 
       environment.mock.resolve(UserQuery, {
         data: {
@@ -418,6 +408,36 @@ describe('ReactRelayRefetchContainer with fragment ownerhsip', () => {
 
       // new context after successful refetch
       expect(relayContext.environment).toBe(environment);
+      expect(relayContext.variables).toEqual(refetchVariables);
+    });
+
+    it('updates child context if updated with new variables', () => {
+      expect.assertions(2);
+      const refetchVariables = {
+        cond: false,
+        id: '4',
+        scale: 2,
+      };
+      refetch(refetchVariables, null, jest.fn());
+      environment.mock.resolve(UserQuery, {
+        data: {
+          node: {
+            id: '4',
+            __typename: 'User',
+            name: 'Zuck',
+          },
+        },
+      });
+
+      const updateVariables = {
+        cond: true,
+        id: '842472',
+        scale: 2,
+      };
+      instance.getInstance().setContext(environment, updateVariables);
+
+      expect(relayContext.environment).toBe(environment);
+      expect(relayContext.variables).toEqual(updateVariables);
     });
   });
 });

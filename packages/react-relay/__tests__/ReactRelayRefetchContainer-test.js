@@ -32,11 +32,9 @@ describe('ReactRelayRefetchContainer', () => {
   let TestContainer;
   let UserFragment;
   let UserQuery;
-  let UserQueryWithCond;
 
   let environment;
   let ownerUser1;
-  let ownerUser1WithCondVar;
   let ownerUser2;
   let refetch;
   let render;
@@ -49,7 +47,7 @@ describe('ReactRelayRefetchContainer', () => {
 
       this.__relayContext = {
         environment: props.environment,
-        variables: {},
+        variables: props.variables,
       };
 
       this.state = {
@@ -58,18 +56,21 @@ describe('ReactRelayRefetchContainer', () => {
     }
     UNSAFE_componentWillReceiveProps(nextProps) {
       // eslint-disable-next-line no-shadow
-      const {environment} = nextProps;
-      if (environment !== this.__relayContext.environment) {
-        this.__relayContext = {environment, variables: {}};
+      const {environment, variables} = nextProps;
+      if (
+        environment !== this.__relayContext.environment ||
+        variables !== this.__relayContext.variables
+      ) {
+        this.__relayContext = {environment, variables};
       }
     }
     setProps(props) {
       this.setState({props});
     }
-    setContext(env) {
+    setContext(env, vars) {
       this.__relayContext = {
         environment: env,
-        variables: {},
+        variables: vars,
       };
       this.setProps({});
     }
@@ -89,21 +90,12 @@ describe('ReactRelayRefetchContainer', () => {
     jest.resetModules();
 
     environment = createMockEnvironment();
-    ({UserFragment, UserQuery, UserQueryWithCond} = generateAndCompile(`
+    ({UserFragment, UserQuery} = generateAndCompile(`
       query UserQuery(
         $id: ID!
       ) {
         node(id: $id) {
           ...UserFragment
-        }
-      }
-
-      query UserQueryWithCond(
-        $id: ID!
-        $condGlobal: Boolean!
-      ) {
-        node(id: $id) {
-          ...UserFragment @arguments(cond: $condGlobal)
         }
       }
 
@@ -144,16 +136,6 @@ describe('ReactRelayRefetchContainer', () => {
         name: 'Zuck',
       },
     });
-    ownerUser1WithCondVar = createOperationDescriptor(UserQueryWithCond, {
-      id: '4',
-      condGlobal: false,
-    });
-    environment.commitPayload(ownerUser1, {
-      node: {
-        id: '4',
-        __typename: 'User',
-      },
-    });
     ownerUser2 = createOperationDescriptor(UserQuery, {id: '842472'});
     environment.commitPayload(ownerUser2, {
       node: {
@@ -183,7 +165,7 @@ describe('ReactRelayRefetchContainer', () => {
 
   it('passes non-fragment props to the component', () => {
     ReactTestRenderer.create(
-      <ContextSetter environment={environment}>
+      <ContextSetter environment={environment} variables={variables}>
         <TestContainer bar={1} foo="foo" />
       </ContextSetter>,
     );
@@ -203,7 +185,7 @@ describe('ReactRelayRefetchContainer', () => {
 
   it('passes through null props', () => {
     ReactTestRenderer.create(
-      <ContextSetter environment={environment}>
+      <ContextSetter environment={environment} variables={variables}>
         <TestContainer user={null} />
       </ContextSetter>,
     );
@@ -222,11 +204,12 @@ describe('ReactRelayRefetchContainer', () => {
 
   it('passes through context', () => {
     ReactTestRenderer.create(
-      <ContextSetter environment={environment}>
+      <ContextSetter environment={environment} variables={variables}>
         <TestContainer user={null} />
       </ContextSetter>,
     );
     expect(relayContext.environment).toBe(environment);
+    expect(relayContext.variables).toBe(variables);
   });
 
   it('resolves & subscribes fragment props', () => {
@@ -234,7 +217,7 @@ describe('ReactRelayRefetchContainer', () => {
       .node;
 
     ReactTestRenderer.create(
-      <ContextSetter environment={environment}>
+      <ContextSetter environment={environment} variables={variables}>
         <TestContainer user={userPointer} />
       </ContextSetter>,
     );
@@ -273,7 +256,7 @@ describe('ReactRelayRefetchContainer', () => {
       .node;
 
     ReactTestRenderer.create(
-      <ContextSetter environment={environment}>
+      <ContextSetter environment={environment} variables={variables}>
         <TestContainer user={userPointer} />
       </ContextSetter>,
     );
@@ -314,7 +297,7 @@ describe('ReactRelayRefetchContainer', () => {
     let userPointer = environment.lookup(ownerUser1.fragment, ownerUser1).data
       .node;
     const instance = ReactTestRenderer.create(
-      <ContextSetter environment={environment}>
+      <ContextSetter environment={environment} variables={variables}>
         <TestContainer user={userPointer} />
       </ContextSetter>,
     );
@@ -357,11 +340,11 @@ describe('ReactRelayRefetchContainer', () => {
     });
   });
 
-  it('resolves new props when ids dont change', () => {
-    let userPointer = environment.lookup(ownerUser1.fragment, ownerUser1).data
+  it('resolves for new variables in context', () => {
+    const userPointer = environment.lookup(ownerUser1.fragment, ownerUser1).data
       .node;
     const instance = ReactTestRenderer.create(
-      <ContextSetter environment={environment}>
+      <ContextSetter environment={environment} variables={variables}>
         <TestContainer user={userPointer} />
       </ContextSetter>,
     );
@@ -369,20 +352,17 @@ describe('ReactRelayRefetchContainer', () => {
     environment.lookup.mockClear();
     environment.subscribe.mockClear();
 
-    userPointer = environment.lookup(
-      ownerUser1WithCondVar.fragment,
-      ownerUser1WithCondVar,
-    ).data.node;
-    instance.getInstance().setProps({
-      user: userPointer,
-    });
+    // Update the variables in context
+    // Context object should be mutated (for compat with gDSFP).
+    const newVariables = {id: '4'};
+    instance.getInstance().setContext(environment, newVariables);
 
     // New data & variables are passed to component
     expect(render.mock.calls.length).toBe(1);
     expect(render.mock.calls[0][0]).toEqual({
       user: {
         id: '4',
-        // Name is excluded since value of cond is now false
+        name: 'Zuck',
       },
       relay: {
         environment: expect.any(Object),
@@ -394,14 +374,15 @@ describe('ReactRelayRefetchContainer', () => {
     expect(environment.subscribe.mock.calls[0][0]).toEqual({
       data: {
         id: '4',
+        name: 'Zuck',
       },
       isMissingData: false,
       seenRecords: expect.any(Object),
       selector: createReaderSelector(
         UserFragment,
         '4',
-        {cond: false},
-        ownerUser1WithCondVar.request,
+        {cond: true},
+        ownerUser1.request,
       ),
     });
   });
@@ -410,7 +391,7 @@ describe('ReactRelayRefetchContainer', () => {
     const userPointer = environment.lookup(ownerUser1.fragment, ownerUser1).data
       .node;
     const instance = ReactTestRenderer.create(
-      <ContextSetter environment={environment}>
+      <ContextSetter environment={environment} variables={variables}>
         <TestContainer user={userPointer} />
       </ContextSetter>,
     );
@@ -433,7 +414,7 @@ describe('ReactRelayRefetchContainer', () => {
     const scalar = 42;
     const fn = () => null;
     const instance = ReactTestRenderer.create(
-      <ContextSetter environment={environment}>
+      <ContextSetter environment={environment} variables={variables}>
         <TestContainer fn={fn} nil={null} scalar={scalar} user={userPointer} />
       </ContextSetter>,
     );
@@ -459,7 +440,7 @@ describe('ReactRelayRefetchContainer', () => {
     const scalar = 42;
     const fn = () => null;
     const instance = ReactTestRenderer.create(
-      <ContextSetter environment={environment}>
+      <ContextSetter environment={environment} variables={variables}>
         <TestContainer fn={fn} scalar={scalar} user={userPointer} />
       </ContextSetter>,
     );
@@ -490,7 +471,7 @@ describe('ReactRelayRefetchContainer', () => {
     const scalar = 42;
     const fn = () => null;
     const instance = ReactTestRenderer.create(
-      <ContextSetter environment={environment}>
+      <ContextSetter environment={environment} variables={variables}>
         <TestContainer fn={fn} scalar={scalar} user={userPointer} />
       </ContextSetter>,
     );
@@ -518,7 +499,7 @@ describe('ReactRelayRefetchContainer', () => {
     const userPointer = environment.lookup(ownerUser1.fragment, ownerUser1).data
       .node;
     const instance = ReactTestRenderer.create(
-      <ContextSetter environment={environment}>
+      <ContextSetter environment={environment} variables={variables}>
         <TestContainer arr={[]} obj={{}} user={userPointer} />
       </ContextSetter>,
     );
@@ -559,7 +540,7 @@ describe('ReactRelayRefetchContainer', () => {
         .data.node;
       environment.mock.clearCache();
       instance = ReactTestRenderer.create(
-        <ContextSetter environment={environment}>
+        <ContextSetter environment={environment} variables={variables}>
           <TestContainer user={userPointer} />
         </ContextSetter>,
       );
@@ -733,6 +714,38 @@ describe('ReactRelayRefetchContainer', () => {
       expect(render.mock.calls[1][0].user.name).toBe(undefined);
     });
 
+    it('updates context with the results of new variables', () => {
+      expect.assertions(6);
+
+      // original context before refetch
+      expect(relayContext.environment).toEqual(environment);
+      expect(relayContext.variables).toBe(variables);
+
+      const refetchVariables = {
+        cond: false,
+        id: '4',
+      };
+      refetch(refetchVariables, null, jest.fn());
+
+      // original context while pending refetch
+      expect(relayContext.environment).toBe(environment);
+      expect(relayContext.variables).toBe(variables);
+
+      environment.mock.resolve(UserQuery, {
+        data: {
+          node: {
+            id: '4',
+            __typename: 'User',
+            name: 'Zuck',
+          },
+        },
+      });
+
+      // new context after successful refetch
+      expect(relayContext.environment).toBe(environment);
+      expect(relayContext.variables).toEqual(refetchVariables);
+    });
+
     it('does not update variables on failure', () => {
       expect.assertions(4);
       expect(render.mock.calls.length).toBe(1);
@@ -837,6 +850,33 @@ describe('ReactRelayRefetchContainer', () => {
       expect(references[0].dispose).toBeCalled();
     });
 
+    it('updates child context if updated with new variables', () => {
+      expect.assertions(2);
+      const refetchVariables = {
+        cond: false,
+        id: '4',
+      };
+      refetch(refetchVariables, null, jest.fn());
+      environment.mock.resolve(UserQuery, {
+        data: {
+          node: {
+            id: '4',
+            __typename: 'User',
+            name: 'Zuck',
+          },
+        },
+      });
+
+      const updateVariables = {
+        cond: true,
+        id: '842472',
+      };
+      instance.getInstance().setContext(environment, updateVariables);
+
+      expect(relayContext.environment).toBe(environment);
+      expect(relayContext.variables).toEqual(updateVariables);
+    });
+
     it('cancels previous request when a new refetch occurs first', () => {
       const refetchVariables = {
         cond: false,
@@ -904,7 +944,7 @@ describe('ReactRelayRefetchContainer', () => {
       }
 
       instance = ReactTestRenderer.create(
-        <ContextSetter environment={environment}>
+        <ContextSetter environment={environment} variables={variables}>
           <TestContainerWrapper />
         </ContextSetter>,
       );

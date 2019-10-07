@@ -17,7 +17,6 @@ const util = require('util');
 const {
   NoUnusedVariablesRule,
   PossibleFragmentSpreadsRule,
-  UniqueArgumentNamesRule,
   UniqueInputFieldNamesRule,
   formatError,
 } = require('graphql');
@@ -88,7 +87,6 @@ module.exports = {
      *   overlapping fields by generating aliases.
      */
     NoUnusedVariablesRule,
-    UniqueArgumentNamesRule,
     UniqueInputFieldNamesRule,
   ],
   LOCAL_RULES: [

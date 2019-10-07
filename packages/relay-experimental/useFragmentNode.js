@@ -109,11 +109,13 @@ function useFragmentNode<TFragmentData: mixed>(
   }
 
   // Read fragment data; this might suspend.
-  const fragmentSpecResult = FragmentResource.readSpec(
-    fragmentNodes,
-    props,
-    componentDisplayName,
-  );
+  const fragmentSpecResult = {
+    result: FragmentResource.read(
+      fragmentNode,
+      fragmentRef,
+      componentDisplayName,
+    ),
+  };
 
   const isListeningForUpdatesRef = useRef(true);
   function enableStoreUpdates() {

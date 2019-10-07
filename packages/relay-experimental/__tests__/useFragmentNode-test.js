@@ -77,8 +77,6 @@ let singularVariables;
 let pluralVariables;
 let setEnvironment;
 let setSingularOwner;
-let setSingularFooScalar;
-let setSingularFooObject;
 let renderSingularFragment;
 let renderPluralFragment;
 let forceSingularUpdate;
@@ -248,19 +246,11 @@ beforeEach(() => {
 
   const SingularContainer = (props: {
     userRef?: {},
-    fooScalar?: boolean,
-    fooObject?: {},
     owner: OperationDescriptor,
   }) => {
     // We need a render a component to run a Hook
     const [owner, _setOwner] = useState<OperationDescriptor>(props.owner);
     const [, _setCount] = useState(0);
-    const [{fooScalar}, _setFooScalar] = useState({
-      fooScalar: props.fooScalar,
-    });
-    const [{fooObject}, _setFooObject] = useState({
-      fooObject: props.fooObject,
-    });
     const userRef = props.hasOwnProperty('userRef')
       ? props.userRef
       : {
@@ -272,21 +262,11 @@ beforeEach(() => {
         };
 
     setSingularOwner = _setOwner;
-    setSingularFooScalar = _setFooScalar;
-    setSingularFooObject = _setFooObject;
     forceSingularUpdate = () => _setCount(count => count + 1);
 
-    let fragmentRefs = {
+    const fragmentRefs = {
       user: userRef,
     };
-
-    // Pass extra props resembling component props
-    if (fooScalar != null) {
-      fragmentRefs = {...fragmentRefs, fooScalar};
-    }
-    if (fooObject != null) {
-      fragmentRefs = {...fragmentRefs, fooObject};
-    }
     const [userData] = useFragmentNodes(
       {user: gqlSingularFragment},
       fragmentRefs,
@@ -333,8 +313,6 @@ beforeEach(() => {
   };
 
   renderSingularFragment = (args?: {
-    fooScalar?: boolean,
-    fooObject?: {},
     isConcurrent?: boolean,
     owner?: $FlowFixMe,
     userRef?: $FlowFixMe,
@@ -1134,148 +1112,6 @@ it('should NOT update even if fragment ref changes but doesnt point to a differe
       },
       // Assert that update to consuming component wont be triggered
       shouldUpdate: false,
-    },
-  ]);
-});
-
-it('should NOT update if scalar props dont change', () => {
-  renderSingularFragment({fooScalar: false});
-  expectSingularFragmentResults([
-    {
-      data: {
-        user: {
-          id: '1',
-          name: 'Alice',
-          profile_picture: null,
-          ...createFragmentRef('1', singularQuery),
-        },
-      },
-      shouldUpdate: true,
-    },
-  ]);
-
-  // Re-render with same scalar value
-  TestRenderer.act(() => {
-    setSingularFooScalar({fooScalar: false});
-  });
-
-  expectSingularFragmentResults([
-    {
-      data: {
-        user: {
-          id: '1',
-          name: 'Alice',
-          profile_picture: null,
-          ...createFragmentRef('1', singularQuery),
-        },
-      },
-      // Assert that update to consuming component wont be triggered
-      shouldUpdate: false,
-    },
-  ]);
-});
-
-it('should update if scalar props change', () => {
-  renderSingularFragment({fooScalar: false});
-  expectSingularFragmentResults([
-    {
-      data: {
-        user: {
-          id: '1',
-          name: 'Alice',
-          profile_picture: null,
-          ...createFragmentRef('1', singularQuery),
-        },
-      },
-      shouldUpdate: true,
-    },
-  ]);
-
-  // Re-render with different scalar value
-  TestRenderer.act(() => {
-    setSingularFooScalar({fooScalar: true});
-  });
-
-  const expectedUser = {
-    id: '1',
-    name: 'Alice',
-    profile_picture: null,
-    ...createFragmentRef('1', singularQuery),
-  };
-  expectSingularFragmentResults([
-    {
-      data: {user: expectedUser},
-      // Assert that consuming component knows it needs to update
-      shouldUpdate: true,
-    },
-    {
-      data: {user: expectedUser},
-      shouldUpdate: false,
-    },
-  ]);
-});
-
-it('should update even if non-scalar props dont change', () => {
-  const fooObject = {};
-  const expectedUser = {
-    id: '1',
-    name: 'Alice',
-    profile_picture: null,
-    ...createFragmentRef('1', singularQuery),
-  };
-  renderSingularFragment({fooObject});
-  expectSingularFragmentResults([
-    {
-      data: {user: expectedUser},
-      shouldUpdate: true,
-    },
-  ]);
-
-  // Re-render with the exact same non-scalar prop
-  TestRenderer.act(() => {
-    setSingularFooObject({fooObject});
-  });
-
-  expectSingularFragmentResults([
-    {
-      data: {
-        user: expectedUser,
-      },
-      // Assert that consuming component knows it needs to update
-      shouldUpdate: true,
-    },
-  ]);
-});
-
-it('should update if non-scalar props change', () => {
-  const expectedUser = {
-    id: '1',
-    name: 'Alice',
-    profile_picture: null,
-    ...createFragmentRef('1', singularQuery),
-  };
-  renderSingularFragment({fooObject: {}});
-  expectSingularFragmentResults([
-    {
-      data: {user: expectedUser},
-      shouldUpdate: true,
-    },
-  ]);
-
-  // Re-render with different non-scalar value
-  TestRenderer.act(() => {
-    setSingularFooObject({fooObject: {}});
-  });
-
-  expectSingularFragmentResults([
-    {
-      data: {user: expectedUser},
-      // Assert that consuming component knows it needs to update
-      shouldUpdate: true,
-    },
-    {
-      data: {user: expectedUser},
-      shouldUpdate: true,
     },
   ]);
 });

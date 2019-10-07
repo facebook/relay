@@ -53,7 +53,7 @@ describe('ReactRelayPaginationContainer with fragment ownership', () => {
 
       this.__relayContext = {
         environment: props.environment,
-        variables: {},
+        variables: props.variables,
       };
 
       this.state = {
@@ -67,7 +67,7 @@ describe('ReactRelayPaginationContainer with fragment ownership', () => {
     setContext(env, vars) {
       this.__relayContext = {
         environment: env,
-        variables: {},
+        variables: vars,
       };
       this.setProps({});
     }
@@ -513,8 +513,6 @@ describe('ReactRelayPaginationContainer with fragment ownership', () => {
     });
 
     it('fetches the new variables', () => {
-      // Assert correct pagination variables and reusing
-      // vars from original parent query
       variables = {
         after: null,
         count: 1,
@@ -526,26 +524,6 @@ describe('ReactRelayPaginationContainer with fragment ownership', () => {
         force: true,
       };
       refetchConnection(1, jest.fn());
-      expect(
-        environment.mock.isLoading(UserQuery, variables, cacheConfig),
-      ).toBe(true);
-    });
-
-    it('fetches the new variables correctly when specifying vars', () => {
-      // Assert correct pagination variables and reusing
-      // vars from original parent query
-      variables = {
-        after: null,
-        count: 1,
-        id: '4',
-        orderby: ['name'],
-        // Should use the provided value of true
-        isViewerFriend: true,
-      };
-      const cacheConfig = {
-        force: true,
-      };
-      refetchConnection(1, jest.fn(), {isViewerFriend: true});
       expect(
         environment.mock.isLoading(UserQuery, variables, cacheConfig),
       ).toBe(true);

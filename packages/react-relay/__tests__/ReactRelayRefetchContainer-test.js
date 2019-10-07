@@ -394,6 +394,7 @@ describe('ReactRelayRefetchContainer', () => {
     expect(environment.subscribe.mock.calls[0][0]).toEqual({
       data: {
         id: '4',
+        // Name is excluded since value of cond is now false
       },
       isMissingData: false,
       seenRecords: expect.any(Object),

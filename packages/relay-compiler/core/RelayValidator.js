@@ -18,7 +18,6 @@ const {
   NoUnusedVariablesRule,
   PossibleFragmentSpreadsRule,
   UniqueArgumentNamesRule,
-  UniqueFragmentNamesRule,
   UniqueInputFieldNamesRule,
   UniqueVariableNamesRule,
   VariablesAreInputTypesRule,
@@ -92,7 +91,6 @@ module.exports = {
      */
     NoUnusedVariablesRule,
     UniqueArgumentNamesRule,
-    UniqueFragmentNamesRule,
     UniqueInputFieldNamesRule,
     UniqueVariableNamesRule,
   ],

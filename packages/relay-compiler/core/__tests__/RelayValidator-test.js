@@ -20,20 +20,15 @@ const {TestSchema} = require('relay-test-utils-internal');
 function validateString(input) {
   const ast = GraphQL.parse(new GraphQL.Source(input, 'test.graphql'));
   return () => {
-    RelayValidator.validate(
-      Schema.DEPRECATED__create(TestSchema),
-      ast,
-      RelayValidator.LOCAL_RULES,
-    );
+    RelayValidator.validate(Schema.DEPRECATED__create(TestSchema), ast, [
+      GraphQL.NoUnusedVariablesRule,
+    ]);
   };
 }
 
 test('id alias validation', () => {
   expect(validateString('fragment Test on User { id }')).not.toThrow();
-
-  expect(validateString('fragment Test on User { id: id }')).not.toThrow();
-
   expect(
-    validateString('fragment Test on User { id: name }'),
+    validateString('query Q($id: ID) { id: name }'),
   ).toThrowErrorMatchingSnapshot();
 });

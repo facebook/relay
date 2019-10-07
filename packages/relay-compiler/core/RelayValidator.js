@@ -17,12 +17,7 @@ const util = require('util');
 const {NoUnusedVariablesRule, formatError} = require('graphql');
 
 import type {Schema} from './Schema';
-import type {
-  DocumentNode,
-  FieldNode,
-  ValidationRule,
-  ValidationContext,
-} from 'graphql';
+import type {DocumentNode, ValidationRule} from 'graphql';
 
 function validateOrThrow(
   schema: Schema,
@@ -45,26 +40,6 @@ function validateOrThrow(
   }
 }
 
-function DisallowIdAsAliasValidationRule(
-  context: ValidationContext,
-): $TEMPORARY$object<{|Field: (field: FieldNode) => void|}> {
-  return {
-    Field(field: FieldNode): void {
-      if (
-        field.alias &&
-        field.alias.value === 'id' &&
-        field.name.value !== 'id'
-      ) {
-        throw new Error(
-          'RelayValidator: Relay does not allow aliasing fields to `id`. ' +
-            'This name is reserved for the globally unique `id` field on ' +
-            '`Node`.',
-        );
-      }
-    },
-  };
-}
-
 module.exports = {
   GLOBAL_RULES: [
     /* Some rules are not enabled (potentially non-exhaustive)
@@ -82,23 +57,6 @@ module.exports = {
      *   overlapping fields by generating aliases.
      */
     NoUnusedVariablesRule,
-  ],
-  LOCAL_RULES: [
-    /*
-     * GraphQL built-in rules: a subset of these rules are enabled, some of the
-     * default rules conflict with Relays-specific features:
-     * - FieldsOnCorrectTypeRule: is not aware of @fixme_fat_interface.
-     * - KnownDirectivesRule: doesn't pass with @arguments and other Relay
-     *   directives.
-     * - ScalarLeafsRule: is violated by the @match directive since these rules
-     *   run before any transform steps.
-     * - VariablesInAllowedPositionRule: violated by the @arguments directive,
-     *   since @arguments is not defined in the schema. relay-compiler does its
-     *   own type-checking for variable/argument usage that is aware of fragment
-     *   variables.
-     */
-    // Relay-specific validation
-    DisallowIdAsAliasValidationRule,
   ],
   validate: (Profiler.instrument(validateOrThrow, 'RelayValidator.validate'): (
     schema: Schema,

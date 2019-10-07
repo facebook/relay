@@ -103,10 +103,7 @@ function compileAll({
 |}) {
   // Verify using local and global rules, can run global verifications here
   // because all files are processed together
-  let validationRules = [
-    ...RelayValidator.LOCAL_RULES,
-    ...RelayValidator.GLOBAL_RULES,
-  ];
+  let validationRules = RelayValidator.GLOBAL_RULES;
   if (extraValidationRules) {
     validationRules = [
       ...validationRules,

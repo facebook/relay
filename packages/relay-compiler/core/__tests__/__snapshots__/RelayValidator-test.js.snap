@@ -1,3 +1,11 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`id alias validation 1`] = `"RelayValidator: Relay does not allow aliasing fields to \`id\`. This name is reserved for the globally unique \`id\` field on \`Node\`."`;
+exports[`id alias validation 1`] = `
+"You supplied a GraphQL document with validation errors:
+Variable \\"$id\\" is never used in operation \\"Q\\".
+
+test.graphql (1:9)
+1: query Q($id: ID) { id: name }
+           ^
+"
+`;

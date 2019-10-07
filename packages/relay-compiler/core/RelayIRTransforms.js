@@ -12,6 +12,7 @@
 
 const ClientExtensionsTransform = require('../transforms/ClientExtensionsTransform');
 const ConnectionFieldTransform = require('../transforms/ConnectionFieldTransform');
+const DisallowIdAsAlias = require('../transforms/DisallowIdAsAlias');
 const FilterDirectivesTransform = require('../transforms/FilterDirectivesTransform');
 const FlattenTransform = require('../transforms/FlattenTransform');
 const InlineDataFragmentTransform = require('../transforms/InlineDataFragmentTransform');
@@ -53,6 +54,7 @@ const relaySchemaExtensions: $ReadOnlyArray<string> = [
 // Transforms applied to both operations and fragments for both reading and
 // writing from the store.
 const relayCommonTransforms: $ReadOnlyArray<IRTransform> = [
+  DisallowIdAsAlias.transform,
   RelayConnectionTransform.transform,
   RelayRelayDirectiveTransform.transform,
   RelayMaskTransform.transform,

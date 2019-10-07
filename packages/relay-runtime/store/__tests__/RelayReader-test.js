@@ -1446,5 +1446,166 @@ describe('RelayReader', () => {
         expect(isMissingData).toBe(false);
       });
     });
+
+    describe('@stream_connection', () => {
+      let UserQuery;
+      let UserProfile;
+      beforeEach(() => {
+        const nodes = generateAndCompile(
+          ` fragment UserProfile on User {
+              friends(first: 3) @stream_connection(key: "UserProfile_friends", initial_count: 0) {
+                edges  {
+                  node {
+                    name
+                  }
+                }
+              }
+            }
+            query UserQuery($id: ID!) {
+              node(id: $id) {
+                ...UserProfile
+              }
+            }`,
+        );
+        UserQuery = nodes.UserQuery;
+        UserProfile = nodes.UserProfile;
+      });
+
+      it('should not have missing data if all data is fetched', () => {
+        const storeData = {
+          '1': {
+            __id: '1',
+            __typename: 'User',
+            id: '1',
+            __UserProfile_friends_connection: {__ref: 'client:1'},
+          },
+          '2': {
+            endCursor: '',
+            hasNextPage: false,
+          },
+          'client:1': {
+            __id: 'client:1',
+            __typename: 'FriendsConnection',
+            edges: {
+              __refs: [],
+            },
+            pageInfo: {__ref: '2'},
+          },
+          'client:root': {
+            __id: 'client:root',
+            __typename: '__Root',
+            'node(id:"1")': {__ref: '1'},
+          },
+        };
+        source = RelayRecordSource.create(storeData);
+        const owner = createOperationDescriptor(UserQuery, {});
+        const {data, isMissingData} = read(
+          source,
+          createReaderSelector(UserProfile, '1', {}, owner.request),
+        );
+        expect(isMissingData).toBe(false);
+        expect(data).toEqual({
+          friends: {
+            edges: [],
+            pageInfo: {
+              endCursor: '',
+              hasNextPage: false,
+            },
+          },
+        });
+      });
+
+      it('should not have missing data when all edge data is fetched by pageInfo is missing', () => {
+        const storeData = {
+          '1': {
+            __id: '1',
+            __typename: 'User',
+            id: '1',
+            __UserProfile_friends_connection: {__ref: 'client:1'},
+          },
+          '2': {
+            __id: '2',
+            __typename: 'User',
+            id: '2',
+            name: 'Bob',
+          },
+          'client:2': {
+            __id: 'client:2',
+            __typename: 'FriendsConnectionEdge',
+            cursor: 'cursor:2',
+            node: {__ref: '2'},
+          },
+          'client:1': {
+            __id: 'client:1',
+            __typename: 'FriendsConnection',
+            edges: {
+              __refs: ['client:2'],
+            },
+          },
+          'client:root': {
+            __id: 'client:root',
+            __typename: '__Root',
+            'node(id:"1")': {__ref: '1'},
+          },
+        };
+        source = RelayRecordSource.create(storeData);
+        const owner = createOperationDescriptor(UserQuery, {});
+        const {data, isMissingData} = read(
+          source,
+          createReaderSelector(UserProfile, '1', {}, owner.request),
+        );
+        expect(isMissingData).toBe(false);
+        expect(data).toEqual({
+          friends: {
+            edges: [
+              {
+                cursor: 'cursor:2',
+                node: {
+                  __typename: 'User',
+                  name: 'Bob',
+                },
+              },
+            ],
+            pageInfo: undefined,
+          },
+        });
+      });
+
+      it('should have missing data if an edge is missing data', () => {
+        const storeData = {
+          '1': {
+            __id: '1',
+            __typename: 'User',
+            id: '1',
+            __UserProfile_friends_connection: {__ref: 'client:1'},
+          },
+          'client:1': {
+            __id: 'client:1',
+            __typename: 'FriendsConnection',
+            edges: {
+              __refs: [undefined],
+            },
+          },
+          'client:root': {
+            __id: 'client:root',
+            __typename: '__Root',
+            'node(id:"1")': {__ref: '1'},
+          },
+        };
+        source = RelayRecordSource.create(storeData);
+        const owner = createOperationDescriptor(UserQuery, {});
+        const {data, isMissingData} = read(
+          source,
+          createReaderSelector(UserProfile, '1', {}, owner.request),
+        );
+        expect(isMissingData).toBe(true);
+        expect(data).toEqual({
+          friends: {
+            edges: [undefined],
+            pageInfo: undefined,
+          },
+        });
+      });
+    });
   });
 });

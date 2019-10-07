@@ -150,7 +150,7 @@ describe('execute() a query with multiple @stream selections on the same record'
     expect(error).not.toBeCalled();
     expect(callback.mock.calls.length).toBe(1);
     const snapshot = callback.mock.calls[0][0];
-    expect(snapshot.isMissingData).toBe(true);
+    expect(snapshot.isMissingData).toBe(false);
     expect(snapshot.data).toEqual({
       id: '1',
       actors: [],
@@ -189,7 +189,7 @@ describe('execute() a query with multiple @stream selections on the same record'
     expect(next).toBeCalledTimes(1);
     expect(callback).toBeCalledTimes(1);
     const snapshot = callback.mock.calls[0][0];
-    expect(snapshot.isMissingData).toBe(true);
+    expect(snapshot.isMissingData).toBe(false);
     expect(snapshot.data).toEqual({
       id: '1',
       actors: [{name: 'ALICE'}],
@@ -208,7 +208,7 @@ describe('execute() a query with multiple @stream selections on the same record'
     expect(next).toBeCalledTimes(2);
     expect(callback).toBeCalledTimes(2);
     const snapshot2 = callback.mock.calls[1][0];
-    expect(snapshot2.isMissingData).toBe(true);
+    expect(snapshot2.isMissingData).toBe(false);
     expect(snapshot2.data).toEqual({
       id: '1',
       actors: [{name: 'ALICE'}, {name: 'BOB'}],
@@ -306,7 +306,7 @@ describe('execute() a query with multiple @stream selections on the same record'
     expect(next).toBeCalledTimes(1);
     expect(callback).toBeCalledTimes(1);
     const snapshot = callback.mock.calls[0][0];
-    expect(snapshot.isMissingData).toBe(true);
+    expect(snapshot.isMissingData).toBe(false);
     expect(snapshot.data).toEqual({
       id: '1',
       actors: [{name: 'ALICE'}],

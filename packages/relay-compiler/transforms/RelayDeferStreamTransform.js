@@ -12,6 +12,8 @@
 
 const IRTransformer = require('../core/GraphQLIRTransformer');
 
+const murmurHash = require('../util/murmurHash');
+
 const {createUserError} = require('../core/RelayCompilerError');
 const {ConnectionInterface} = require('relay-runtime');
 
@@ -279,7 +281,8 @@ function visitFragmentSpread(
     return transformedSpread;
   }
   const label =
-    getLiteralStringArgument(deferDirective, 'label') ?? spread.name;
+    getLiteralStringArgument(deferDirective, 'label') ??
+    getFragmentSpreadName(spread);
   const transformedLabel = transformLabel(state.documentName, 'defer', label);
   state.recordLabel(transformedLabel, deferDirective);
   return {
@@ -324,6 +327,17 @@ function isLiteralFalse(arg: ?Argument): boolean {
   return (
     arg != null && arg.value.kind === 'Literal' && arg.value.value === false
   );
+}
+
+function getFragmentSpreadName(fragmentSpread: FragmentSpread): string {
+  if (fragmentSpread.args.length === 0) {
+    return fragmentSpread.name;
+  }
+  const sortedArgs = [...fragmentSpread.args].sort((a, b) => {
+    return a.name < b.name ? -1 : a.name > b.name ? 1 : 0;
+  });
+  const hash = murmurHash(JSON.stringify(sortedArgs));
+  return `${fragmentSpread.name}_${hash}`;
 }
 
 module.exports = {

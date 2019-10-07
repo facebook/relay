@@ -59,6 +59,7 @@ const relayCommonTransforms: $ReadOnlyArray<IRTransform> = [
   RelayMatchTransform.transform,
   ConnectionFieldTransform.transform,
   RelayRefetchableFragmentTransform.transform,
+  RelayDeferStreamTransform.transform,
 ];
 
 // Transforms applied to fragments used for reading data from a store
@@ -76,7 +77,6 @@ const relayQueryTransforms: $ReadOnlyArray<IRTransform> = [
   RelayApplyFragmentArgumentTransform.transform,
   ValidateGlobalVariablesTransform.transform,
   RelayGenerateIDFieldTransform.transform,
-  RelayDeferStreamTransform.transform,
   RelayTestOperationTransform.transform,
 ];
 

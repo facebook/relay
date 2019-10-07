@@ -169,15 +169,27 @@ export type ReaderScalarField = {|
   +storageKey: ?string,
 |};
 
+export type ReaderDefer = {|
+  +kind: 'Defer',
+  +selections: $ReadOnlyArray<ReaderSelection>,
+|};
+
+export type ReaderStream = {|
+  +kind: 'Stream',
+  +selections: $ReadOnlyArray<ReaderSelection>,
+|};
+
 export type ReaderSelection =
   | ReaderCondition
   | ReaderConnection
   | ReaderClientExtension
+  | ReaderDefer
   | ReaderField
   | ReaderFragmentSpread
   | ReaderInlineDataFragmentSpread
   | ReaderInlineFragment
-  | ReaderModuleImport;
+  | ReaderModuleImport
+  | ReaderStream;
 
 export type ReaderVariable = {|
   +kind: 'Variable',

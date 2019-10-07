@@ -26,6 +26,8 @@ import type {
   Argument,
   ArgumentDefinition,
   ClientExtension,
+  Defer,
+  Stream,
   Metadata,
   Fragment,
   Selection,
@@ -133,11 +135,9 @@ function generateSelections(
         case 'Connection':
           return generateConnection(schema, selection);
         case 'Defer':
+          return generateDefer(schema, selection);
         case 'Stream':
-          throw createCompilerError(
-            `Unexpected ${selection.kind} IR node in ReaderCodeGenerator.`,
-            [selection.loc],
-          );
+          return generateStream(schema, selection);
         default:
           (selection: empty);
           throw new Error();
@@ -177,6 +177,20 @@ function generateClientExtension(
 ): ReaderSelection {
   return {
     kind: 'ClientExtension',
+    selections: generateSelections(schema, node.selections),
+  };
+}
+
+function generateDefer(schema: Schema, node: Defer): ReaderSelection {
+  return {
+    kind: 'Defer',
+    selections: generateSelections(schema, node.selections),
+  };
+}
+
+function generateStream(schema: Schema, node: Stream): ReaderSelection {
+  return {
+    kind: 'Stream',
     selections: generateSelections(schema, node.selections),
   };
 }
@@ -304,6 +318,24 @@ function generateConnection(
       } else if (selection.name === PAGE_INFO) {
         pageInfo = selection;
       }
+    } else if (selection.kind === 'Stream') {
+      selection.selections.forEach(subselection => {
+        if (
+          subselection.kind === 'LinkedField' &&
+          subselection.name === EDGES
+        ) {
+          edges = subselection;
+        }
+      });
+    } else if (selection.kind === 'Defer') {
+      selection.selections.forEach(subselection => {
+        if (
+          subselection.kind === 'LinkedField' &&
+          subselection.name === PAGE_INFO
+        ) {
+          pageInfo = subselection;
+        }
+      });
     }
   });
   if (edges == null || pageInfo == null) {

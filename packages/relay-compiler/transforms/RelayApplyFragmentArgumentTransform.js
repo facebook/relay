@@ -288,7 +288,9 @@ function transformSelections(
       selection.kind === 'ClientExtension' ||
       selection.kind === 'InlineDataFragmentSpread' ||
       selection.kind === 'InlineFragment' ||
-      selection.kind === 'ModuleImport'
+      selection.kind === 'ModuleImport' ||
+      selection.kind === 'Defer' ||
+      selection.kind === 'Stream'
     ) {
       nextSelection = transformNode(
         context,
@@ -336,11 +338,6 @@ function transformSelections(
         scope,
         selection,
         errorContext,
-      );
-    } else if (selection.kind === 'Defer' || selection.kind === 'Stream') {
-      throw createCompilerError(
-        'RelayApplyFragmentArgumentTransform: Expected to be applied before processing @defer/@stream.',
-        [selection.loc],
       );
     } else {
       (selection: empty);

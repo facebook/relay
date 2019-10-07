@@ -7052,14 +7052,24 @@ fragment FeedbackText_feedback on Feedback {
             "storageKey": null
           },
           {
-            "kind": "FragmentSpread",
-            "name": "FeedbackComments_feedback",
-            "args": null
+            "kind": "Defer",
+            "selections": [
+              {
+                "kind": "FragmentSpread",
+                "name": "FeedbackComments_feedback",
+                "args": null
+              }
+            ]
           },
           {
-            "kind": "FragmentSpread",
-            "name": "FeedbackText_feedback",
-            "args": null
+            "kind": "Defer",
+            "selections": [
+              {
+                "kind": "FragmentSpread",
+                "name": "FeedbackText_feedback",
+                "args": null
+              }
+            ]
           }
         ]
       }
@@ -8970,13 +8980,348 @@ fragment DeferredFragment_QMvSr on User {
       "storageKey": null
     },
     {
-      "kind": "FragmentSpread",
-      "name": "DeferredFragment",
+      "kind": "Defer",
+      "selections": [
+        {
+          "kind": "FragmentSpread",
+          "name": "DeferredFragment",
+          "args": [
+            {
+              "kind": "Literal",
+              "name": "scale",
+              "value": 1.5
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
+
+{
+  "kind": "Fragment",
+  "name": "DeferredFragment",
+  "type": "User",
+  "metadata": null,
+  "argumentDefinitions": [
+    {
+      "kind": "LocalArgument",
+      "name": "scale",
+      "type": "Float",
+      "defaultValue": null
+    }
+  ],
+  "selections": [
+    {
+      "kind": "ScalarField",
+      "alias": null,
+      "name": "id",
+      "args": null,
+      "storageKey": null
+    },
+    {
+      "kind": "ScalarField",
+      "alias": null,
+      "name": "name",
+      "args": null,
+      "storageKey": null
+    },
+    {
+      "kind": "LinkedField",
+      "alias": null,
+      "name": "profile_picture",
+      "storageKey": null,
       "args": [
         {
-          "kind": "Literal",
+          "kind": "Variable",
           "name": "scale",
-          "value": 1.5
+          "variableName": "scale"
+        }
+      ],
+      "concreteType": "Image",
+      "plural": false,
+      "selections": [
+        {
+          "kind": "ScalarField",
+          "alias": null,
+          "name": "uri",
+          "args": null,
+          "storageKey": null
+        }
+      ]
+    }
+  ]
+}
+`;
+
+exports[`compileRelayArtifacts matches expected output: fragment-with-defer-arguments-without-label.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query QueryWithFragmentWithDefer {
+  me {
+    id
+    ...UserFragment
+  }
+}
+
+fragment UserFragment on User {
+  id
+  emailAddresses
+  ...DeferredFragment @defer @arguments(scale: 1.5)
+  ...DeferredFragment @defer @arguments(scale: 2)
+}
+
+fragment DeferredFragment on User @argumentDefinitions(scale: {type: "Float"}) {
+  id
+  name
+  profile_picture(scale: $scale) {
+    uri
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+{
+  "kind": "Request",
+  "fragment": {
+    "kind": "Fragment",
+    "name": "QueryWithFragmentWithDefer",
+    "type": "Query",
+    "metadata": null,
+    "argumentDefinitions": [],
+    "selections": [
+      {
+        "kind": "LinkedField",
+        "alias": null,
+        "name": "me",
+        "storageKey": null,
+        "args": null,
+        "concreteType": "User",
+        "plural": false,
+        "selections": [
+          {
+            "kind": "ScalarField",
+            "alias": null,
+            "name": "id",
+            "args": null,
+            "storageKey": null
+          },
+          {
+            "kind": "FragmentSpread",
+            "name": "UserFragment",
+            "args": null
+          }
+        ]
+      }
+    ]
+  },
+  "operation": {
+    "kind": "Operation",
+    "name": "QueryWithFragmentWithDefer",
+    "argumentDefinitions": [],
+    "selections": [
+      {
+        "kind": "LinkedField",
+        "alias": null,
+        "name": "me",
+        "storageKey": null,
+        "args": null,
+        "concreteType": "User",
+        "plural": false,
+        "selections": [
+          {
+            "kind": "ScalarField",
+            "alias": null,
+            "name": "id",
+            "args": null,
+            "storageKey": null
+          },
+          {
+            "kind": "ScalarField",
+            "alias": null,
+            "name": "emailAddresses",
+            "args": null,
+            "storageKey": null
+          },
+          {
+            "if": null,
+            "kind": "Defer",
+            "label": "UserFragment$defer$DeferredFragment_4edD5n",
+            "metadata": null,
+            "selections": [
+              {
+                "kind": "ScalarField",
+                "alias": null,
+                "name": "id",
+                "args": null,
+                "storageKey": null
+              },
+              {
+                "kind": "ScalarField",
+                "alias": null,
+                "name": "name",
+                "args": null,
+                "storageKey": null
+              },
+              {
+                "kind": "LinkedField",
+                "alias": null,
+                "name": "profile_picture",
+                "storageKey": "profile_picture(scale:1.5)",
+                "args": [
+                  {
+                    "kind": "Literal",
+                    "name": "scale",
+                    "value": 1.5
+                  }
+                ],
+                "concreteType": "Image",
+                "plural": false,
+                "selections": [
+                  {
+                    "kind": "ScalarField",
+                    "alias": null,
+                    "name": "uri",
+                    "args": null,
+                    "storageKey": null
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "if": null,
+            "kind": "Defer",
+            "label": "UserFragment$defer$DeferredFragment_2gdat4",
+            "metadata": null,
+            "selections": [
+              {
+                "kind": "ScalarField",
+                "alias": null,
+                "name": "id",
+                "args": null,
+                "storageKey": null
+              },
+              {
+                "kind": "ScalarField",
+                "alias": null,
+                "name": "name",
+                "args": null,
+                "storageKey": null
+              },
+              {
+                "kind": "LinkedField",
+                "alias": null,
+                "name": "profile_picture",
+                "storageKey": "profile_picture(scale:2)",
+                "args": [
+                  {
+                    "kind": "Literal",
+                    "name": "scale",
+                    "value": 2
+                  }
+                ],
+                "concreteType": "Image",
+                "plural": false,
+                "selections": [
+                  {
+                    "kind": "ScalarField",
+                    "alias": null,
+                    "name": "uri",
+                    "args": null,
+                    "storageKey": null
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
+
+QUERY:
+
+query QueryWithFragmentWithDefer {
+  me {
+    id
+    ...UserFragment
+  }
+}
+
+fragment UserFragment on User {
+  id
+  emailAddresses
+  ...DeferredFragment_QMvSr @defer(label: "UserFragment$defer$DeferredFragment_4edD5n")
+  ...DeferredFragment_42I9Ds @defer(label: "UserFragment$defer$DeferredFragment_2gdat4")
+}
+
+fragment DeferredFragment_QMvSr on User {
+  id
+  name
+  profile_picture(scale: 1.5) {
+    uri
+  }
+}
+
+fragment DeferredFragment_42I9Ds on User {
+  id
+  name
+  profile_picture(scale: 2) {
+    uri
+  }
+}
+
+
+{
+  "kind": "Fragment",
+  "name": "UserFragment",
+  "type": "User",
+  "metadata": null,
+  "argumentDefinitions": [],
+  "selections": [
+    {
+      "kind": "ScalarField",
+      "alias": null,
+      "name": "id",
+      "args": null,
+      "storageKey": null
+    },
+    {
+      "kind": "ScalarField",
+      "alias": null,
+      "name": "emailAddresses",
+      "args": null,
+      "storageKey": null
+    },
+    {
+      "kind": "Defer",
+      "selections": [
+        {
+          "kind": "FragmentSpread",
+          "name": "DeferredFragment",
+          "args": [
+            {
+              "kind": "Literal",
+              "name": "scale",
+              "value": 1.5
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "Defer",
+      "selections": [
+        {
+          "kind": "FragmentSpread",
+          "name": "DeferredFragment",
+          "args": [
+            {
+              "kind": "Literal",
+              "name": "scale",
+              "value": 2
+            }
+          ]
         }
       ]
     }
@@ -9083,9 +9428,14 @@ fragment NodeFragment on Node {
         "plural": false,
         "selections": [
           {
-            "kind": "FragmentSpread",
-            "name": "NodeFragment",
-            "args": null
+            "kind": "Defer",
+            "selections": [
+              {
+                "kind": "FragmentSpread",
+                "name": "NodeFragment",
+                "args": null
+              }
+            ]
           }
         ]
       }
@@ -9634,20 +9984,25 @@ fragment FeedbackFragment on Feedback {
       "storageKey": null
     },
     {
-      "kind": "LinkedField",
-      "alias": null,
-      "name": "actors",
-      "storageKey": null,
-      "args": null,
-      "concreteType": null,
-      "plural": true,
+      "kind": "Stream",
       "selections": [
         {
-          "kind": "ScalarField",
+          "kind": "LinkedField",
           "alias": null,
-          "name": "name",
+          "name": "actors",
+          "storageKey": null,
           "args": null,
-          "storageKey": null
+          "concreteType": null,
+          "plural": true,
+          "selections": [
+            {
+              "kind": "ScalarField",
+              "alias": null,
+              "name": "name",
+              "args": null,
+              "storageKey": null
+            }
+          ]
         }
       ]
     }
@@ -17531,7 +17886,7 @@ fragment PaginationFragment on Node
                   {
                     "if": null,
                     "kind": "Stream",
-                    "label": "PaginationFragment_1G22uz$stream$PaginationFragment_friends",
+                    "label": "PaginationFragment$stream$PaginationFragment_friends",
                     "metadata": null,
                     "selections": [
                       {
@@ -17582,7 +17937,7 @@ fragment PaginationFragment on Node
                   {
                     "if": null,
                     "kind": "Defer",
-                    "label": "PaginationFragment_1G22uz$defer$PaginationFragment_friends$pageInfo",
+                    "label": "PaginationFragment$defer$PaginationFragment_friends$pageInfo",
                     "metadata": {
                       "fragmentTypeCondition": "FriendsConnection"
                     },
@@ -17663,14 +18018,14 @@ fragment PaginationFragment_1G22uz on Node {
   ... on User {
     name
     friends(after: $cursor, first: $count) {
-      edges @stream(label: "PaginationFragment_1G22uz$stream$PaginationFragment_friends", initial_count: 1) {
+      edges @stream(label: "PaginationFragment$stream$PaginationFragment_friends", initial_count: 1) {
         node {
           id
           __typename
         }
         cursor
       }
-      ... on FriendsConnection @defer(label: "PaginationFragment_1G22uz$defer$PaginationFragment_friends$pageInfo") {
+      ... on FriendsConnection @defer(label: "PaginationFragment$defer$PaginationFragment_friends$pageInfo") {
         pageInfo {
           endCursor
           hasNextPage
@@ -17757,70 +18112,80 @@ fragment PaginationFragment_1G22uz on Node {
           "plural": false,
           "selections": [
             {
-              "kind": "LinkedField",
-              "alias": null,
-              "name": "edges",
-              "storageKey": null,
-              "args": null,
-              "concreteType": "FriendsEdge",
-              "plural": true,
+              "kind": "Stream",
               "selections": [
                 {
                   "kind": "LinkedField",
                   "alias": null,
-                  "name": "node",
+                  "name": "edges",
                   "storageKey": null,
                   "args": null,
-                  "concreteType": "User",
+                  "concreteType": "FriendsEdge",
+                  "plural": true,
+                  "selections": [
+                    {
+                      "kind": "LinkedField",
+                      "alias": null,
+                      "name": "node",
+                      "storageKey": null,
+                      "args": null,
+                      "concreteType": "User",
+                      "plural": false,
+                      "selections": [
+                        {
+                          "kind": "ScalarField",
+                          "alias": null,
+                          "name": "id",
+                          "args": null,
+                          "storageKey": null
+                        },
+                        {
+                          "kind": "ScalarField",
+                          "alias": null,
+                          "name": "__typename",
+                          "args": null,
+                          "storageKey": null
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "ScalarField",
+                      "alias": null,
+                      "name": "cursor",
+                      "args": null,
+                      "storageKey": null
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "kind": "Defer",
+              "selections": [
+                {
+                  "kind": "LinkedField",
+                  "alias": null,
+                  "name": "pageInfo",
+                  "storageKey": null,
+                  "args": null,
+                  "concreteType": "PageInfo",
                   "plural": false,
                   "selections": [
                     {
                       "kind": "ScalarField",
                       "alias": null,
-                      "name": "id",
+                      "name": "endCursor",
                       "args": null,
                       "storageKey": null
                     },
                     {
                       "kind": "ScalarField",
                       "alias": null,
-                      "name": "__typename",
+                      "name": "hasNextPage",
                       "args": null,
                       "storageKey": null
                     }
                   ]
-                },
-                {
-                  "kind": "ScalarField",
-                  "alias": null,
-                  "name": "cursor",
-                  "args": null,
-                  "storageKey": null
-                }
-              ]
-            },
-            {
-              "kind": "LinkedField",
-              "alias": null,
-              "name": "pageInfo",
-              "storageKey": null,
-              "args": null,
-              "concreteType": "PageInfo",
-              "plural": false,
-              "selections": [
-                {
-                  "kind": "ScalarField",
-                  "alias": null,
-                  "name": "endCursor",
-                  "args": null,
-                  "storageKey": null
-                },
-                {
-                  "kind": "ScalarField",
-                  "alias": null,
-                  "name": "hasNextPage",
-                  "args": null,
-                  "storageKey": null
                 }
               ]
             }
@@ -18858,36 +19223,48 @@ query NodeQuery($id: ID!) {
                 "plural": false,
                 "selections": [
                   {
-                    "kind": "LinkedField",
-                    "alias": null,
-                    "name": "edges",
-                    "storageKey": null,
-                    "args": null,
-                    "concreteType": "CommentsEdge",
-                    "plural": true,
+                    "kind": "Stream",
                     "selections": [
                       {
                         "kind": "LinkedField",
                         "alias": null,
-                        "name": "node",
+                        "name": "edges",
                         "storageKey": null,
                         "args": null,
-                        "concreteType": "Comment",
-                        "plural": false,
+                        "concreteType": "CommentsEdge",
+                        "plural": true,
                         "selections": [
                           {
                             "kind": "LinkedField",
                             "alias": null,
-                            "name": "actor",
+                            "name": "node",
                             "storageKey": null,
                             "args": null,
-                            "concreteType": null,
+                            "concreteType": "Comment",
                             "plural": false,
                             "selections": [
                               {
+                                "kind": "LinkedField",
+                                "alias": null,
+                                "name": "actor",
+                                "storageKey": null,
+                                "args": null,
+                                "concreteType": null,
+                                "plural": false,
+                                "selections": [
+                                  {
+                                    "kind": "ScalarField",
+                                    "alias": null,
+                                    "name": "name",
+                                    "args": null,
+                                    "storageKey": null
+                                  }
+                                ]
+                              },
+                              {
                                 "kind": "ScalarField",
                                 "alias": null,
-                                "name": "name",
+                                "name": "__typename",
                                 "args": null,
                                 "storageKey": null
                               }
@@ -18896,43 +19273,41 @@ query NodeQuery($id: ID!) {
                           {
                             "kind": "ScalarField",
                             "alias": null,
-                            "name": "__typename",
+                            "name": "cursor",
                             "args": null,
                             "storageKey": null
                           }
                         ]
-                      },
-                      {
-                        "kind": "ScalarField",
-                        "alias": null,
-                        "name": "cursor",
-                        "args": null,
-                        "storageKey": null
                       }
                     ]
                   },
                   {
-                    "kind": "LinkedField",
-                    "alias": null,
-                    "name": "pageInfo",
-                    "storageKey": null,
-                    "args": null,
-                    "concreteType": "PageInfo",
-                    "plural": false,
+                    "kind": "Defer",
                     "selections": [
                       {
-                        "kind": "ScalarField",
+                        "kind": "LinkedField",
                         "alias": null,
-                        "name": "endCursor",
+                        "name": "pageInfo",
+                        "storageKey": null,
                         "args": null,
-                        "storageKey": null
-                      },
-                      {
-                        "kind": "ScalarField",
-                        "alias": null,
-                        "name": "hasNextPage",
-                        "args": null,
-                        "storageKey": null
+                        "concreteType": "PageInfo",
+                        "plural": false,
+                        "selections": [
+                          {
+                            "kind": "ScalarField",
+                            "alias": null,
+                            "name": "endCursor",
+                            "args": null,
+                            "storageKey": null
+                          },
+                          {
+                            "kind": "ScalarField",
+                            "alias": null,
+                            "name": "hasNextPage",
+                            "args": null,
+                            "storageKey": null
+                          }
+                        ]
                       }
                     ]
                   }

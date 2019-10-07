@@ -15,7 +15,7 @@ const React = require('react');
 const {useMemo, useRef, useState} = React;
 const TestRenderer = require('react-test-renderer');
 
-const useFragmentNodesOriginal = require('../useFragmentNodes');
+const useFragmentNodeOriginal = require('../useFragmentNode');
 const ReactRelayContext = require('react-relay/ReactRelayContext');
 const {
   FRAGMENT_OWNER_KEY,
@@ -88,10 +88,10 @@ function resetRenderMock() {
   renderSpy.mockClear();
 }
 
-function useFragmentNodes(fragmentNodes, fragmentRefs) {
-  const result = useFragmentNodesOriginal(
-    fragmentNodes,
-    fragmentRefs,
+function useFragmentNode(fragmentNode, fragmentRef) {
+  const result = useFragmentNodeOriginal(
+    fragmentNode,
+    fragmentRef,
     'TestDisplayName',
   );
   const {data, shouldUpdateGeneration} = result;
@@ -109,31 +109,18 @@ function useFragmentNodes(fragmentNodes, fragmentRefs) {
   return [data, shouldUpdate];
 }
 
-function assertCall(key, expected, idx) {
-  const actualData = renderSpy.mock.calls[idx][0];
-  const actualShouldUpdate = renderSpy.mock.calls[idx][1];
-
-  expect(actualData[key]).toEqual(expected.data[key]);
-  expect(actualShouldUpdate).toEqual(expected.shouldUpdate);
-}
-
 function assertFragmentResults(
-  key,
   expectedCalls: $ReadOnlyArray<{|data: $FlowFixMe, shouldUpdate: boolean|}>,
 ) {
   // This ensures that useEffect runs
   TestRenderer.act(() => jest.runAllImmediates());
   expect(renderSpy).toBeCalledTimes(expectedCalls.length);
-  expectedCalls.forEach((expected, idx) => assertCall(key, expected, idx));
+  expectedCalls.forEach((expected, idx) => {
+    const [actualData, actualShouldUpdate] = renderSpy.mock.calls[idx];
+    expect(actualData).toEqual(expected.data);
+    expect(actualShouldUpdate).toEqual(expected.shouldUpdate);
+  });
   renderSpy.mockClear();
-}
-
-function expectSingularFragmentResults(expectedCalls) {
-  assertFragmentResults('user', expectedCalls);
-}
-
-function expectPluralFragmentResults(expectedCalls) {
-  assertFragmentResults('users', expectedCalls);
 }
 
 function createFragmentRef(id, owner) {
@@ -264,14 +251,8 @@ beforeEach(() => {
     setSingularOwner = _setOwner;
     forceSingularUpdate = () => _setCount(count => count + 1);
 
-    const fragmentRefs = {
-      user: userRef,
-    };
-    const [userData] = useFragmentNodes(
-      {user: gqlSingularFragment},
-      fragmentRefs,
-    );
-    return <SingularRenderer user={userData.user} />;
+    const [userData] = useFragmentNode(gqlSingularFragment, userRef);
+    return <SingularRenderer user={userData} />;
   };
 
   const PluralContainer = (props: {usersRef?: {}, owner: $FlowFixMe}) => {
@@ -287,11 +268,8 @@ beforeEach(() => {
           [FRAGMENT_OWNER_KEY]: owner.request,
         }));
 
-    const [usersData] = useFragmentNodes(
-      {users: gqlPluralFragment},
-      {users: usersRef},
-    );
-    return <PluralRenderer users={usersData.users} />;
+    const [usersData] = useFragmentNode(gqlPluralFragment, usersRef);
+    return <PluralRenderer users={usersData} />;
   };
 
   const ContextProvider = ({children}) => {
@@ -352,15 +330,13 @@ afterEach(() => {
 
 it('should render singular fragment without error when data is available', () => {
   renderSingularFragment();
-  expectSingularFragmentResults([
+  assertFragmentResults([
     {
       data: {
-        user: {
-          id: '1',
-          name: 'Alice',
-          profile_picture: null,
-          ...createFragmentRef('1', singularQuery),
-        },
+        id: '1',
+        name: 'Alice',
+        profile_picture: null,
+        ...createFragmentRef('1', singularQuery),
       },
       shouldUpdate: true,
     },
@@ -369,9 +345,9 @@ it('should render singular fragment without error when data is available', () =>
 
 it('should render singular fragment without error when ref is null', () => {
   renderSingularFragment({userRef: null});
-  expectSingularFragmentResults([
+  assertFragmentResults([
     {
-      data: {user: null},
+      data: null,
       shouldUpdate: true,
     },
   ]);
@@ -379,9 +355,9 @@ it('should render singular fragment without error when ref is null', () => {
 
 it('should render singular fragment without error when ref is undefined', () => {
   renderSingularFragment({userRef: undefined});
-  expectSingularFragmentResults([
+  assertFragmentResults([
     {
-      data: {user: null},
+      data: null,
       shouldUpdate: true,
     },
   ]);
@@ -389,24 +365,22 @@ it('should render singular fragment without error when ref is undefined', () => 
 
 it('should render plural fragment without error when data is available', () => {
   renderPluralFragment();
-  expectPluralFragmentResults([
+  assertFragmentResults([
     {
-      data: {
-        users: [
-          {
-            id: '1',
-            name: 'Alice',
-            profile_picture: null,
-            ...createFragmentRef('1', pluralQuery),
-          },
-          {
-            id: '2',
-            name: 'Bob',
-            profile_picture: null,
-            ...createFragmentRef('2', pluralQuery),
-          },
-        ],
-      },
+      data: [
+        {
+          id: '1',
+          name: 'Alice',
+          profile_picture: null,
+          ...createFragmentRef('1', pluralQuery),
+        },
+        {
+          id: '2',
+          name: 'Bob',
+          profile_picture: null,
+          ...createFragmentRef('2', pluralQuery),
+        },
+      ],
       shouldUpdate: true,
     },
   ]);
@@ -414,9 +388,9 @@ it('should render plural fragment without error when data is available', () => {
 
 it('should render plural fragment without error when plural field is empty', () => {
   renderPluralFragment({usersRef: []});
-  expectPluralFragmentResults([
+  assertFragmentResults([
     {
-      data: {users: []},
+      data: [],
       shouldUpdate: true,
     },
   ]);
@@ -424,15 +398,13 @@ it('should render plural fragment without error when plural field is empty', () 
 
 it('should update when fragment data changes', () => {
   renderSingularFragment();
-  expectSingularFragmentResults([
+  assertFragmentResults([
     {
       data: {
-        user: {
-          id: '1',
-          name: 'Alice',
-          profile_picture: null,
-          ...createFragmentRef('1', singularQuery),
-        },
+        id: '1',
+        name: 'Alice',
+        profile_picture: null,
+        ...createFragmentRef('1', singularQuery),
       },
       shouldUpdate: true,
     },
@@ -448,16 +420,14 @@ it('should update when fragment data changes', () => {
       },
     });
   });
-  expectSingularFragmentResults([
+  assertFragmentResults([
     {
       data: {
-        user: {
-          id: '1',
-          // Assert that name is updated
-          name: 'Alice in Wonderland',
-          profile_picture: null,
-          ...createFragmentRef('1', singularQuery),
-        },
+        id: '1',
+        // Assert that name is updated
+        name: 'Alice in Wonderland',
+        profile_picture: null,
+        ...createFragmentRef('1', singularQuery),
       },
       shouldUpdate: true,
     },
@@ -466,15 +436,13 @@ it('should update when fragment data changes', () => {
 
 it('should re-read and resubscribe to fragment when environment changes', () => {
   renderSingularFragment();
-  expectSingularFragmentResults([
+  assertFragmentResults([
     {
       data: {
-        user: {
-          id: '1',
-          name: 'Alice',
-          profile_picture: null,
-          ...createFragmentRef('1', singularQuery),
-        },
+        id: '1',
+        name: 'Alice',
+        profile_picture: null,
+        ...createFragmentRef('1', singularQuery),
       },
       shouldUpdate: true,
     },
@@ -500,9 +468,9 @@ it('should re-read and resubscribe to fragment when environment changes', () => 
     profile_picture: null,
     ...createFragmentRef('1', singularQuery),
   };
-  expectSingularFragmentResults([
-    {data: {user: expectedUser}, shouldUpdate: true},
-    {data: {user: expectedUser}, shouldUpdate: false},
+  assertFragmentResults([
+    {data: expectedUser, shouldUpdate: true},
+    {data: expectedUser, shouldUpdate: false},
   ]);
 
   TestRenderer.act(() => {
@@ -515,16 +483,14 @@ it('should re-read and resubscribe to fragment when environment changes', () => 
       },
     });
   });
-  expectSingularFragmentResults([
+  assertFragmentResults([
     {
       data: {
-        user: {
-          id: '1',
-          // Assert that name is updated
-          name: 'Alice in Wonderland',
-          profile_picture: null,
-          ...createFragmentRef('1', singularQuery),
-        },
+        id: '1',
+        // Assert that name is updated
+        name: 'Alice in Wonderland',
+        profile_picture: null,
+        ...createFragmentRef('1', singularQuery),
       },
       shouldUpdate: true,
     },
@@ -533,15 +499,13 @@ it('should re-read and resubscribe to fragment when environment changes', () => 
 
 it('should re-read and resubscribe to fragment when fragment pointers change', () => {
   renderSingularFragment();
-  expectSingularFragmentResults([
+  assertFragmentResults([
     {
       data: {
-        user: {
-          id: '1',
-          name: 'Alice',
-          profile_picture: null,
-          ...createFragmentRef('1', singularQuery),
-        },
+        id: '1',
+        name: 'Alice',
+        profile_picture: null,
+        ...createFragmentRef('1', singularQuery),
       },
       shouldUpdate: true,
     },
@@ -571,9 +535,9 @@ it('should re-read and resubscribe to fragment when fragment pointers change', (
     // Assert that ref now points to newQuery owner
     ...createFragmentRef('200', newQuery),
   };
-  expectSingularFragmentResults([
-    {data: {user: expectedUser}, shouldUpdate: true},
-    {data: {user: expectedUser}, shouldUpdate: false},
+  assertFragmentResults([
+    {data: expectedUser, shouldUpdate: true},
+    {data: expectedUser, shouldUpdate: false},
   ]);
 
   TestRenderer.act(() => {
@@ -586,16 +550,14 @@ it('should re-read and resubscribe to fragment when fragment pointers change', (
       },
     });
   });
-  expectSingularFragmentResults([
+  assertFragmentResults([
     {
       data: {
-        user: {
-          id: '200',
-          // Assert that name is updated
-          name: 'Foo Updated',
-          profile_picture: null,
-          ...createFragmentRef('200', newQuery),
-        },
+        id: '200',
+        // Assert that name is updated
+        name: 'Foo Updated',
+        profile_picture: null,
+        ...createFragmentRef('200', newQuery),
       },
       shouldUpdate: true,
     },
@@ -605,15 +567,13 @@ it('should re-read and resubscribe to fragment when fragment pointers change', (
 it('should render correct data when changing fragment refs multiple times', () => {
   // Render component with data for ID 1
   renderSingularFragment();
-  expectSingularFragmentResults([
+  assertFragmentResults([
     {
       data: {
-        user: {
-          id: '1',
-          name: 'Alice',
-          profile_picture: null,
-          ...createFragmentRef('1', singularQuery),
-        },
+        id: '1',
+        name: 'Alice',
+        profile_picture: null,
+        ...createFragmentRef('1', singularQuery),
       },
       shouldUpdate: true,
     },
@@ -644,9 +604,9 @@ it('should render correct data when changing fragment refs multiple times', () =
     // Assert that ref now points to newQuery owner
     ...createFragmentRef('200', newQuery),
   };
-  expectSingularFragmentResults([
-    {data: {user: expectedUser}, shouldUpdate: true},
-    {data: {user: expectedUser}, shouldUpdate: false},
+  assertFragmentResults([
+    {data: expectedUser, shouldUpdate: true},
+    {data: expectedUser, shouldUpdate: false},
   ]);
 
   // Udpate data for ID 1
@@ -673,9 +633,9 @@ it('should render correct data when changing fragment refs multiple times', () =
     // Assert that ref points to original singularQuery owner
     ...createFragmentRef('1', singularQuery),
   };
-  expectSingularFragmentResults([
-    {data: {user: expectedUser}, shouldUpdate: true},
-    {data: {user: expectedUser}, shouldUpdate: false},
+  assertFragmentResults([
+    {data: expectedUser, shouldUpdate: true},
+    {data: expectedUser, shouldUpdate: false},
   ]);
 
   // Assert it correctly subscribes to new data
@@ -689,16 +649,14 @@ it('should render correct data when changing fragment refs multiple times', () =
       },
     });
   });
-  expectSingularFragmentResults([
+  assertFragmentResults([
     {
       data: {
-        user: {
-          id: '1',
-          // Assert anme is updated
-          name: 'Alice Updated',
-          profile_picture: null,
-          ...createFragmentRef('1', singularQuery),
-        },
+        id: '1',
+        // Assert anme is updated
+        name: 'Alice Updated',
+        profile_picture: null,
+        ...createFragmentRef('1', singularQuery),
       },
       shouldUpdate: true,
     },
@@ -730,15 +688,13 @@ it.skip('should ignore updates to initially rendered data when fragment pointers
     'Alice',
     ['with id ', '1', '!'],
   ]);
-  expectSingularFragmentResults([
+  assertFragmentResults([
     {
       data: {
-        user: {
-          id: '1',
-          name: 'Alice',
-          profile_picture: null,
-          ...createFragmentRef('1', singularQuery),
-        },
+        id: '1',
+        name: 'Alice',
+        profile_picture: null,
+        ...createFragmentRef('1', singularQuery),
       },
       shouldUpdate: true,
     },
@@ -784,15 +740,13 @@ it.skip('should ignore updates to initially rendered data when fragment pointers
     'Foo',
     ['with id ', '200', '!'],
   ]);
-  expectSingularFragmentResults([
+  assertFragmentResults([
     {
       data: {
-        user: {
-          id: '200',
-          name: 'Foo',
-          profile_picture: null,
-          ...createFragmentRef('200', newQuery),
-        },
+        id: '200',
+        name: 'Foo',
+        profile_picture: null,
+        ...createFragmentRef('200', newQuery),
       },
       shouldUpdate: true,
     },
@@ -812,16 +766,14 @@ it.skip('should ignore updates to initially rendered data when fragment pointers
     'Foo Updated',
     ['with id ', '200', '!'],
   ]);
-  expectSingularFragmentResults([
+  assertFragmentResults([
     {
       data: {
-        user: {
-          id: '200',
-          // Assert name is updated
-          name: 'Foo Updated',
-          profile_picture: null,
-          ...createFragmentRef('200', newQuery),
-        },
+        id: '200',
+        // Assert name is updated
+        name: 'Foo Updated',
+        profile_picture: null,
+        ...createFragmentRef('200', newQuery),
       },
       shouldUpdate: true,
     },
@@ -830,15 +782,13 @@ it.skip('should ignore updates to initially rendered data when fragment pointers
 
 it('should re-read and resubscribe to fragment when variables change', () => {
   renderSingularFragment();
-  expectSingularFragmentResults([
+  assertFragmentResults([
     {
       data: {
-        user: {
-          id: '1',
-          name: 'Alice',
-          profile_picture: null,
-          ...createFragmentRef('1', singularQuery),
-        },
+        id: '1',
+        name: 'Alice',
+        profile_picture: null,
+        ...createFragmentRef('1', singularQuery),
       },
       shouldUpdate: true,
     },
@@ -872,9 +822,9 @@ it('should re-read and resubscribe to fragment when variables change', () => {
     // Assert that ref now points to newQuery owner
     ...createFragmentRef('1', newQuery),
   };
-  expectSingularFragmentResults([
-    {data: {user: expectedUser}, shouldUpdate: true},
-    {data: {user: expectedUser}, shouldUpdate: false},
+  assertFragmentResults([
+    {data: expectedUser, shouldUpdate: true},
+    {data: expectedUser, shouldUpdate: false},
   ]);
 
   TestRenderer.act(() => {
@@ -887,18 +837,16 @@ it('should re-read and resubscribe to fragment when variables change', () => {
       },
     });
   });
-  expectSingularFragmentResults([
+  assertFragmentResults([
     {
       data: {
-        user: {
-          id: '1',
-          // Assert that name is updated
-          name: 'Alice in Wonderland',
-          profile_picture: {
-            uri: 'uri32',
-          },
-          ...createFragmentRef('1', newQuery),
+        id: '1',
+        // Assert that name is updated
+        name: 'Alice in Wonderland',
+        profile_picture: {
+          uri: 'uri32',
         },
+        ...createFragmentRef('1', newQuery),
       },
       shouldUpdate: true,
     },
@@ -928,15 +876,13 @@ it.skip('should ignore updates to initially rendered data when variables change'
     'no uri',
     ['with id ', '1', '!'],
   ]);
-  expectSingularFragmentResults([
+  assertFragmentResults([
     {
       data: {
-        user: {
-          id: '1',
-          name: 'Alice',
-          profile_picture: null,
-          ...createFragmentRef('1', singularQuery),
-        },
+        id: '1',
+        name: 'Alice',
+        profile_picture: null,
+        ...createFragmentRef('1', singularQuery),
       },
       shouldUpdate: true,
     },
@@ -989,17 +935,15 @@ it.skip('should ignore updates to initially rendered data when variables change'
     'uri32',
     ['with id ', '1', '!'],
   ]);
-  expectSingularFragmentResults([
+  assertFragmentResults([
     {
       data: {
-        user: {
-          id: '1',
-          name: 'Alice',
-          profile_picture: {
-            uri: 'uri32',
-          },
-          ...createFragmentRef('1', newQuery),
+        id: '1',
+        name: 'Alice',
+        profile_picture: {
+          uri: 'uri32',
         },
+        ...createFragmentRef('1', newQuery),
       },
       shouldUpdate: true,
     },
@@ -1019,18 +963,16 @@ it.skip('should ignore updates to initially rendered data when variables change'
     'uri32',
     ['with id ', '1', '!'],
   ]);
-  expectSingularFragmentResults([
+  assertFragmentResults([
     {
       data: {
-        user: {
-          id: '1',
-          // Assert name is updated
-          name: 'Alice latest update',
-          profile_picture: {
-            uri: 'uri32',
-          },
-          ...createFragmentRef('1', newQuery),
+        id: '1',
+        // Assert name is updated
+        name: 'Alice latest update',
+        profile_picture: {
+          uri: 'uri32',
         },
+        ...createFragmentRef('1', newQuery),
       },
       shouldUpdate: true,
     },
@@ -1039,15 +981,13 @@ it.skip('should ignore updates to initially rendered data when variables change'
 
 it('should NOT update if fragment refs dont change', () => {
   renderSingularFragment();
-  expectSingularFragmentResults([
+  assertFragmentResults([
     {
       data: {
-        user: {
-          id: '1',
-          name: 'Alice',
-          profile_picture: null,
-          ...createFragmentRef('1', singularQuery),
-        },
+        id: '1',
+        name: 'Alice',
+        profile_picture: null,
+        ...createFragmentRef('1', singularQuery),
       },
       shouldUpdate: true,
     },
@@ -1058,15 +998,13 @@ it('should NOT update if fragment refs dont change', () => {
     forceSingularUpdate();
   });
 
-  expectSingularFragmentResults([
+  assertFragmentResults([
     {
       data: {
-        user: {
-          id: '1',
-          name: 'Alice',
-          profile_picture: null,
-          ...createFragmentRef('1', singularQuery),
-        },
+        id: '1',
+        name: 'Alice',
+        profile_picture: null,
+        ...createFragmentRef('1', singularQuery),
       },
       // Assert that update to consuming component wont be triggered
       shouldUpdate: false,
@@ -1076,15 +1014,13 @@ it('should NOT update if fragment refs dont change', () => {
 
 it('should NOT update even if fragment ref changes but doesnt point to a different ID', () => {
   renderSingularFragment();
-  expectSingularFragmentResults([
+  assertFragmentResults([
     {
       data: {
-        user: {
-          id: '1',
-          name: 'Alice',
-          profile_picture: null,
-          ...createFragmentRef('1', singularQuery),
-        },
+        id: '1',
+        name: 'Alice',
+        profile_picture: null,
+        ...createFragmentRef('1', singularQuery),
       },
       shouldUpdate: true,
     },
@@ -1100,15 +1036,13 @@ it('should NOT update even if fragment ref changes but doesnt point to a differe
     setSingularOwner(newOwner);
   });
 
-  expectSingularFragmentResults([
+  assertFragmentResults([
     {
       data: {
-        user: {
-          id: '1',
-          name: 'Alice',
-          profile_picture: null,
-          ...createFragmentRef('1', singularQuery),
-        },
+        id: '1',
+        name: 'Alice',
+        profile_picture: null,
+        ...createFragmentRef('1', singularQuery),
       },
       // Assert that update to consuming component wont be triggered
       shouldUpdate: false,
@@ -1142,7 +1076,7 @@ it('should throw a promise if if data is missing for fragment and request is in 
 
 it('should throw an error if fragment reference is non-null but read-out data is null', () => {
   // Clearing the data in the environment will make it so the fragment ref
-  // we pass to useFragmentNodes points to data that does not exist; we expect
+  // we pass to useFragmentNode points to data that does not exist; we expect
   // an error to be thrown in this case.
   (environment.getStore().getSource(): $FlowFixMe).clear();
   const warning = require('warning');
@@ -1206,15 +1140,13 @@ it('should warn if data is missing and there are no pending requests', () => {
   ]);
 
   // Assert render output with missing data
-  expectSingularFragmentResults([
+  assertFragmentResults([
     {
       data: {
-        user: {
-          id: '4',
-          name: undefined,
-          profile_picture: undefined,
-          ...createFragmentRef('4', missingDataQuery),
-        },
+        id: '4',
+        name: undefined,
+        profile_picture: undefined,
+        ...createFragmentRef('4', missingDataQuery),
       },
       shouldUpdate: true,
     },
@@ -1245,15 +1177,13 @@ it('should subscribe for updates even if there is missing data', () => {
   renderSingularFragment({owner: missingDataQuery});
 
   // Assert render output with missing data
-  expectSingularFragmentResults([
+  assertFragmentResults([
     {
       data: {
-        user: {
-          id: '4',
-          name: undefined,
-          profile_picture: undefined,
-          ...createFragmentRef('4', missingDataQuery),
-        },
+        id: '4',
+        name: undefined,
+        profile_picture: undefined,
+        ...createFragmentRef('4', missingDataQuery),
       },
       shouldUpdate: true,
     },
@@ -1269,15 +1199,13 @@ it('should subscribe for updates even if there is missing data', () => {
   });
 
   // Assert render output with updated data
-  expectSingularFragmentResults([
+  assertFragmentResults([
     {
       data: {
-        user: {
-          id: '4',
-          name: 'Mark',
-          profile_picture: undefined,
-          ...createFragmentRef('4', missingDataQuery),
-        },
+        id: '4',
+        name: 'Mark',
+        profile_picture: undefined,
+        ...createFragmentRef('4', missingDataQuery),
       },
       shouldUpdate: true,
     },
@@ -1287,15 +1215,13 @@ it('should subscribe for updates even if there is missing data', () => {
 describe('disableStoreUpdates', () => {
   it('does not listen to store updates after disableStoreUpdates is called', () => {
     renderSingularFragment();
-    expectSingularFragmentResults([
+    assertFragmentResults([
       {
         data: {
-          user: {
-            id: '1',
-            name: 'Alice',
-            profile_picture: null,
-            ...createFragmentRef('1', singularQuery),
-          },
+          id: '1',
+          name: 'Alice',
+          profile_picture: null,
+          ...createFragmentRef('1', singularQuery),
         },
         shouldUpdate: true,
       },
@@ -1319,15 +1245,13 @@ describe('disableStoreUpdates', () => {
 
   it('re-renders with latest data after re-enabling updates, if any updates were missed', () => {
     renderSingularFragment();
-    expectSingularFragmentResults([
+    assertFragmentResults([
       {
         data: {
-          user: {
-            id: '1',
-            name: 'Alice',
-            profile_picture: null,
-            ...createFragmentRef('1', singularQuery),
-          },
+          id: '1',
+          name: 'Alice',
+          profile_picture: null,
+          ...createFragmentRef('1', singularQuery),
         },
         shouldUpdate: true,
       },
@@ -1355,15 +1279,13 @@ describe('disableStoreUpdates', () => {
     });
 
     // Assert that component re-renders with latest updated data
-    expectSingularFragmentResults([
+    assertFragmentResults([
       {
         data: {
-          user: {
-            id: '1',
-            name: 'Alice updated',
-            profile_picture: null,
-            ...createFragmentRef('1', singularQuery),
-          },
+          id: '1',
+          name: 'Alice updated',
+          profile_picture: null,
+          ...createFragmentRef('1', singularQuery),
         },
         shouldUpdate: true,
       },
@@ -1372,15 +1294,13 @@ describe('disableStoreUpdates', () => {
 
   it('does not re-render after re-enabling updates, if no updates were missed', () => {
     renderSingularFragment();
-    expectSingularFragmentResults([
+    assertFragmentResults([
       {
         data: {
-          user: {
-            id: '1',
-            name: 'Alice',
-            profile_picture: null,
-            ...createFragmentRef('1', singularQuery),
-          },
+          id: '1',
+          name: 'Alice',
+          profile_picture: null,
+          ...createFragmentRef('1', singularQuery),
         },
         shouldUpdate: true,
       },
@@ -1398,15 +1318,13 @@ describe('disableStoreUpdates', () => {
 
   it('does not re-render after re-enabling updates, if data did not change', () => {
     renderSingularFragment();
-    expectSingularFragmentResults([
+    assertFragmentResults([
       {
         data: {
-          user: {
-            id: '1',
-            name: 'Alice',
-            profile_picture: null,
-            ...createFragmentRef('1', singularQuery),
-          },
+          id: '1',
+          name: 'Alice',
+          profile_picture: null,
+          ...createFragmentRef('1', singularQuery),
         },
         shouldUpdate: true,
       },

@@ -274,7 +274,12 @@ beforeEach(() => {
 
   const ContextProvider = ({children}) => {
     const [env, _setEnv] = useState(environment);
-    const relayContext = useMemo(() => ({environment: env}), [env]);
+    // TODO(T39494051) - We set empty variables in relay context to make
+    // Flow happy, but useFragmentNodes does not use them, instead it uses
+    // the variables from the fragment owner.
+    const relayContext = useMemo(() => ({environment: env, variables: {}}), [
+      env,
+    ]);
 
     setEnvironment = _setEnv;
 

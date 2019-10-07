@@ -19,7 +19,6 @@ const {
   PossibleFragmentSpreadsRule,
   UniqueArgumentNamesRule,
   UniqueInputFieldNamesRule,
-  UniqueVariableNamesRule,
   formatError,
 } = require('graphql');
 
@@ -91,7 +90,6 @@ module.exports = {
     NoUnusedVariablesRule,
     UniqueArgumentNamesRule,
     UniqueInputFieldNamesRule,
-    UniqueVariableNamesRule,
   ],
   LOCAL_RULES: [
     /*

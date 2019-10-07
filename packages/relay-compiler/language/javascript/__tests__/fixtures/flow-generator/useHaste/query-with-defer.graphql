@@ -3,12 +3,10 @@ query TestDefer @raw_response_type {
     ... on User {
       name
       friends(first: 10) {
-        edges {
-          ... on FriendsConnection @defer {
-            pageInfo {
-              endCursor
-              hasNextPage
-            }
+        ... on FriendsConnection @defer {
+          pageInfo {
+            endCursor
+            hasNextPage
           }
         }
       }

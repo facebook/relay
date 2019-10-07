@@ -364,15 +364,23 @@ fragment TestFragment on User @argumentDefinitions(condition: {type: "Boolean!"}
         width
         height
       }
+      feedback {
+        comments {
+          edges {
+            node {
+              ... on Comment @defer(if: $RELAY_INCREMENTAL_DELIVERY, label: "DeferLabel") {
+                body {
+                  text
+                }
+              }
+            }
+          }
+        }
+      }
     }
     ... on Page {
       id
       pageName: name
-    }
-    ... on Comment @defer(if: $RELAY_INCREMENTAL_DELIVERY, label: "DeferLabel") {
-      body {
-        text
-      }
     }
     username @__clientField(handle: "MyUserName")
   }
@@ -430,6 +438,21 @@ fragment TestFragment on User @argumentDefinitions(condition: {type: "Boolean!"}
           "uri": "<mock-value-for-field-\\"uri\\">",
           "width": "<mock-value-for-field-\\"width\\">",
           "height": "<mock-value-for-field-\\"height\\">"
+        },
+        "feedback": {
+          "comments": {
+            "edges": [
+              {
+                "node": {
+                  "id": "<Comment-mock-id-5>",
+                  "body": {
+                    "text": "<mock-value-for-field-\\"text\\">"
+                  }
+                }
+              }
+            ]
+          },
+          "id": "<Feedback-mock-id-6>"
         }
       }
     }
@@ -838,19 +861,21 @@ query TestQuery {
 }
 
 fragment TestFragment on Viewer {
-  ... on User {
-    id
-    name
-    traits
-    profile_picture {
-      uri
-      height
+  actor {
+    ... on User {
+      id
+      name
+      traits
+      profile_picture {
+        uri
+        height
+      }
     }
-  }
-  ... on Page {
-    id
-    name
-    websites
+    ... on Page {
+      id
+      name
+      websites
+    }
   }
 }
 
@@ -858,13 +883,15 @@ fragment TestFragment on Viewer {
 {
   "data": {
     "viewer": {
-      "__typename": "User",
-      "id": "<User-mock-id-1>",
-      "name": "<mock-value-for-field-\\"name\\">",
-      "traits": "<mock-value-for-field-\\"traits\\">",
-      "profile_picture": {
-        "uri": "<mock-value-for-field-\\"uri\\">",
-        "height": "<mock-value-for-field-\\"height\\">"
+      "actor": {
+        "__typename": "User",
+        "id": "<mock-id-1>",
+        "name": "<mock-value-for-field-\\"name\\">",
+        "traits": "<mock-value-for-field-\\"traits\\">",
+        "profile_picture": {
+          "uri": "<mock-value-for-field-\\"uri\\">",
+          "height": "<mock-value-for-field-\\"height\\">"
+        }
       }
     }
   }

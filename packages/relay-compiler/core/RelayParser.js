@@ -55,8 +55,8 @@ import type {
   ArgumentNode,
   BooleanValueNode,
   DefinitionNode,
-  DirectiveNode,
   DirectiveLocationEnum,
+  DirectiveNode,
   EnumValueNode,
   FieldNode,
   FloatValueNode,
@@ -70,6 +70,7 @@ import type {
   OperationDefinitionNode,
   SelectionSetNode,
   StringValueNode,
+  TypeNode,
   ValueNode,
   VariableNode,
 } from 'graphql';
@@ -809,8 +810,24 @@ class GraphQLDefinitionParser {
         [fragment.typeCondition ?? fragment],
       );
     }
-
     typeCondition = schema.assertCompositeType(typeCondition);
+
+    const rawParentType = this._schema.assertCompositeType(
+      this._schema.getRawType(parentType),
+    );
+    if (!this._schema.doTypesOverlap(typeCondition, rawParentType)) {
+      throw createUserError(
+        'Fragment cannot be spread here as objects of ' +
+          'type "'
+            .concat(
+              this._schema.getTypeString(rawParentType),
+              '" can never be of type "',
+            )
+            .concat(this._schema.getTypeString(typeCondition), '".'),
+        null,
+        fragment.typeCondition != null ? [fragment.typeCondition] : null,
+      );
+    }
 
     const directives = this._transformDirectives(
       fragment.directives || [],
@@ -855,6 +872,36 @@ class GraphQLDefinitionParser {
         fragmentSpread.name,
       ]);
     }
+
+    const fragmentTypeNode = getFragmentType(fragmentDefinition.definition);
+    const fragmentType = this._schema.assertCompositeType(
+      this._schema.expectTypeFromAST(fragmentTypeNode),
+    );
+    const rawParentType = this._schema.assertCompositeType(
+      this._schema.getRawType(parentType),
+    );
+    if (
+      !this._schema.doTypesOverlap(
+        fragmentType,
+        this._schema.assertCompositeType(rawParentType),
+      )
+    ) {
+      throw createUserError(
+        'Fragment "'.concat(
+          fragmentName,
+          '" cannot be spread here as objects of ',
+        ) +
+          'type "'
+            .concat(
+              this._schema.getTypeString(rawParentType),
+              '" can never be of type "',
+            )
+            .concat(this._schema.getTypeString(fragmentType), '".'),
+        null,
+        [fragmentSpread],
+      );
+    }
+
     const fragmentArgumentDefinitions = fragmentDefinition.variableDefinitions;
     const argumentsDirective = argumentDirectives[0];
     let args;
@@ -1306,7 +1353,7 @@ function transformNonNullLiteral(
       // Parse singular (non-list) values flowing into a list type
       // as scalars, ie without wrapping them in an array.
       if (!schema.isInputType(schema.getListItemType(nullableType))) {
-        throw new createUserError(
+        throw createUserError(
           `Expected type ${schema.getTypeString(
             nullableType,
           )} to be an input type.`,
@@ -1608,6 +1655,20 @@ function getName(ast): string {
     ]);
   }
   return name;
+}
+
+/**
+ * @private
+ */
+function getFragmentType(ast: ASTDefinitionNode): TypeNode {
+  if (ast.kind === 'FragmentDefinition') {
+    return ast.typeCondition;
+  }
+  throw createCompilerError(
+    'Expected ast node to be a FragmentDefinition node.',
+    null,
+    [ast],
+  );
 }
 
 module.exports = {parse, transform};

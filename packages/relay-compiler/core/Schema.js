@@ -705,6 +705,44 @@ class Schema {
     return false;
   }
 
+  /**
+   * Provided two composite types, determine if they "overlap". Two composite
+   * types overlap when the Sets of possible concrete types for each intersect.
+   *
+   * This is often used to determine if a fragment of a given type could possibly
+   * be visited in a context of another type.
+   *
+   * This function is commutative.
+   */
+  doTypesOverlap(typeA: CompositeTypeID, typeB: CompositeTypeID): boolean {
+    // Equivalent types overlap
+    if (typeA === typeB) {
+      return true;
+    }
+
+    if (isAbstractType(typeA)) {
+      if (isAbstractType(typeB)) {
+        // If both types are abstract, then determine if there is any intersection
+        // between possible concrete types of each.
+        return Array.from(this.getPossibleTypes(typeA)).some(type => {
+          if (isObject(type)) {
+            return this.isPossibleType(typeB, type);
+          }
+        });
+      }
+      // Determine if the latter type is a possible concrete type of the former.
+      return this.isPossibleType(typeA, typeB);
+    }
+
+    if (isAbstractType(typeB)) {
+      // Determine if the former type is a possible concrete type of the latter.
+      return this.isPossibleType(typeB, typeA);
+    }
+
+    // Otherwise the types do not overlap.
+    return false;
+  }
+
   isPossibleType(
     superType: AbstractTypeID,
     maybeSubType: ObjectTypeID,

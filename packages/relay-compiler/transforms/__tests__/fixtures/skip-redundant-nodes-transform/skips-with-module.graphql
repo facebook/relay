@@ -32,10 +32,18 @@ query MatchQuery {
     # We need this test, just for make sure we're not
     # regressing this case using `cache`
     ... on User {
-      ...MarkdownUserNameRenderer_name
-        @module(name: "MarkdownUserNameRenderer.react")
+      nameRenderable {
+        ...MarkdownUserNameRenderer_name
+          @module(name: "MarkdownUserNameRenderer.react")
+      }
     }
-    ...MarkdownUserNameRenderer_name
-      @module(name: "MarkdownUserNameRenderer.react")
+    ... on Actor {
+      ... on User {
+        nameRenderable {
+          ...MarkdownUserNameRenderer_name
+            @module(name: "MarkdownUserNameRenderer.react")
+        }
+      }
+    }
   }
 }

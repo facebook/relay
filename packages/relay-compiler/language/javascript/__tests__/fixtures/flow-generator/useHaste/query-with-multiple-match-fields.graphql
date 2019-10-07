@@ -6,9 +6,11 @@ query Test @raw_response_type {
     }
   }
   viewer {
-    ... on User {
-      name
-      ...AnotherNameRendererFragment
+    actor {
+      ... on User {
+        name
+        ...AnotherNameRendererFragment
+      }
     }
   }
 }

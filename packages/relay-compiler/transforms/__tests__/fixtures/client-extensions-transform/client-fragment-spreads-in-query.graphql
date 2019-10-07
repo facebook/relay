@@ -4,10 +4,15 @@ query FooQuery($id: ID!) {
   }
 }
 
+extend type User {
+  foo: ClientType
+}
+
 fragment Foo_user on User {
   id
-
-  ...ClientTypeFragment
+  foo {
+    ...ClientTypeFragment
+  }
 }
 
 fragment ClientTypeFragment on ClientType {

@@ -9,10 +9,16 @@ query QueryWithFragmentWithDefer {
   }
 }
 
+extend type User {
+  foo: ClientUser
+}
+
 fragment UserFragment on User {
   id
   emailAddresses
-  ...DeferredFragment
+  foo {
+    ...DeferredFragment
+  }
 }
 
 fragment DeferredFragment on ClientUser {
@@ -38,10 +44,16 @@ query QueryWithFragmentWithDefer {
   }
 }
 
+extend type User {
+  foo: ClientUser
+}
+
 fragment UserFragment on User {
   id
   emailAddresses
-  ...DeferredFragment @defer(label: "DeferredFragmentLabel")
+  foo {
+    ...DeferredFragment @defer(label: "DeferredFragmentLabel")
+  }
 }
 
 fragment DeferredFragment on ClientUser {
@@ -59,17 +71,17 @@ THROWN EXCEPTION:
 Error: Encountered 1 error(s):
 - Unexpected directive: @defer. This directive can only be used on fields/fragments that are fetched from the server schema, but it is used inside a client-only selection.
   
-  Source (derived): GraphQL request (12:23)
-  11:   emailAddresses
-  12:   ...DeferredFragment @defer(label: "DeferredFragmentLabel")
-                            ^
-  13: }
+  Source (derived): GraphQL request (17:25)
+  16:   foo {
+  17:     ...DeferredFragment @defer(label: "DeferredFragmentLabel")
+                              ^
+  18:   }
   
-  Source (derived): GraphQL request (12:3)
-  11:   emailAddresses
-  12:   ...DeferredFragment @defer(label: "DeferredFragmentLabel")
+  Source: GraphQL request (16:3)
+  15:   emailAddresses
+  16:   foo {
         ^
-  13: }
+  17:     ...DeferredFragment @defer(label: "DeferredFragmentLabel")
   
 `;
 
@@ -359,7 +371,9 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
 }
 
 query TestQuery {
-  ...NameRendererFragment
+  node {
+    ...NameRendererFragment
+  }
 }
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~

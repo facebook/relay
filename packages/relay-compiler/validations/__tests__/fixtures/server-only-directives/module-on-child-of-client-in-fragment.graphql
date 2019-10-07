@@ -44,5 +44,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
 }
 
 query TestQuery {
-  ...NameRendererFragment
+  node {
+    ...NameRendererFragment
+  }
 }

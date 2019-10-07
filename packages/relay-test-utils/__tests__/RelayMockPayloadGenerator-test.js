@@ -464,19 +464,21 @@ test('generate mock with multiple spreads', () => {
     }
 
     fragment TestFragment on Viewer {
-      ... on User {
-        id
-        name
-        traits
-        profile_picture {
-          uri
-          height
+      actor {
+        ... on User {
+          id
+          name
+          traits
+          profile_picture {
+            uri
+            height
+          }
         }
-      }
-      ... on Page {
-        id
-        name
-        websites
+        ... on Page {
+          id
+          name
+          websites
+        }
       }
     }
   `,
@@ -668,15 +670,23 @@ test('generate mock for with directives and handlers', () => {
             width
             height
           }
+          feedback {
+            comments {
+              edges {
+                node {
+                  ... on Comment @defer(if: $RELAY_INCREMENTAL_DELIVERY, label: "DeferLabel") {
+                    body {
+                      text
+                    }
+                  }
+                }
+              }
+            }
+          }
         }
         ... on Page {
           id
           pageName: name
-        }
-        ... on Comment @defer(if: $RELAY_INCREMENTAL_DELIVERY, label: "DeferLabel") {
-          body {
-            text
-          }
         }
         username @__clientField(handle: "MyUserName")
       }

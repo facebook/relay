@@ -48,11 +48,13 @@ fragment BestFriends on User {
       hasNextPage
     }
   }
-  ... on Node {
-    # fragments on extension types are skipped
-    ...FooFragment
-    ... on Foo {
-      id
+  ... on User {
+    foo {
+      # fragments on extension types are skipped
+      ...FooFragment
+      ... on Foo {
+        id
+      }
     }
   }
 }
@@ -63,6 +65,7 @@ fragment FooFragment on Foo {
 
 extend type User {
   best_friends: FriendsConnection
+  foo: Foo
 }
 
 type Foo {
@@ -79,7 +82,7 @@ type Foo {
       "start": 0,
       "end": 77,
       "source": {
-        "body": "query BestFriendsQuery($id: ID!) {\\n  node(id: $id) {\\n    ...BestFriends\\n  }\\n}\\n\\nfragment BestFriends on User {\\n  # this is the only field that is part of the base schema\\n  id\\n  # fields defined in type extensions are skipped\\n  best_friends {\\n    edges {\\n      cursor\\n      node {\\n        id\\n      }\\n    }\\n    pageInfo {\\n      hasNextPage\\n    }\\n  }\\n  ... on Node {\\n    # fragments on extension types are skipped\\n    ...FooFragment\\n    ... on Foo {\\n      id\\n    }\\n  }\\n}\\n\\nfragment FooFragment on Foo {\\n  id\\n}\\n\\nextend type User {\\n  best_friends: FriendsConnection\\n}\\n\\ntype Foo {\\n  id: ID!\\n}\\n",
+        "body": "query BestFriendsQuery($id: ID!) {\\n  node(id: $id) {\\n    ...BestFriends\\n  }\\n}\\n\\nfragment BestFriends on User {\\n  # this is the only field that is part of the base schema\\n  id\\n  # fields defined in type extensions are skipped\\n  best_friends {\\n    edges {\\n      cursor\\n      node {\\n        id\\n      }\\n    }\\n    pageInfo {\\n      hasNextPage\\n    }\\n  }\\n  ... on User {\\n    foo {\\n      # fragments on extension types are skipped\\n      ...FooFragment\\n      ... on Foo {\\n        id\\n      }\\n    }\\n  }\\n}\\n\\nfragment FooFragment on Foo {\\n  id\\n}\\n\\nextend type User {\\n  best_friends: FriendsConnection\\n  foo: Foo\\n}\\n\\ntype Foo {\\n  id: ID!\\n}\\n",
         "name": "GraphQL request",
         "locationOffset": {
           "line": 1,
@@ -97,7 +100,7 @@ type Foo {
           "start": 23,
           "end": 31,
           "source": {
-            "body": "query BestFriendsQuery($id: ID!) {\\n  node(id: $id) {\\n    ...BestFriends\\n  }\\n}\\n\\nfragment BestFriends on User {\\n  # this is the only field that is part of the base schema\\n  id\\n  # fields defined in type extensions are skipped\\n  best_friends {\\n    edges {\\n      cursor\\n      node {\\n        id\\n      }\\n    }\\n    pageInfo {\\n      hasNextPage\\n    }\\n  }\\n  ... on Node {\\n    # fragments on extension types are skipped\\n    ...FooFragment\\n    ... on Foo {\\n      id\\n    }\\n  }\\n}\\n\\nfragment FooFragment on Foo {\\n  id\\n}\\n\\nextend type User {\\n  best_friends: FriendsConnection\\n}\\n\\ntype Foo {\\n  id: ID!\\n}\\n",
+            "body": "query BestFriendsQuery($id: ID!) {\\n  node(id: $id) {\\n    ...BestFriends\\n  }\\n}\\n\\nfragment BestFriends on User {\\n  # this is the only field that is part of the base schema\\n  id\\n  # fields defined in type extensions are skipped\\n  best_friends {\\n    edges {\\n      cursor\\n      node {\\n        id\\n      }\\n    }\\n    pageInfo {\\n      hasNextPage\\n    }\\n  }\\n  ... on User {\\n    foo {\\n      # fragments on extension types are skipped\\n      ...FooFragment\\n      ... on Foo {\\n        id\\n      }\\n    }\\n  }\\n}\\n\\nfragment FooFragment on Foo {\\n  id\\n}\\n\\nextend type User {\\n  best_friends: FriendsConnection\\n  foo: Foo\\n}\\n\\ntype Foo {\\n  id: ID!\\n}\\n",
             "name": "GraphQL request",
             "locationOffset": {
               "line": 1,
@@ -123,7 +126,7 @@ type Foo {
               "start": 42,
               "end": 49,
               "source": {
-                "body": "query BestFriendsQuery($id: ID!) {\\n  node(id: $id) {\\n    ...BestFriends\\n  }\\n}\\n\\nfragment BestFriends on User {\\n  # this is the only field that is part of the base schema\\n  id\\n  # fields defined in type extensions are skipped\\n  best_friends {\\n    edges {\\n      cursor\\n      node {\\n        id\\n      }\\n    }\\n    pageInfo {\\n      hasNextPage\\n    }\\n  }\\n  ... on Node {\\n    # fragments on extension types are skipped\\n    ...FooFragment\\n    ... on Foo {\\n      id\\n    }\\n  }\\n}\\n\\nfragment FooFragment on Foo {\\n  id\\n}\\n\\nextend type User {\\n  best_friends: FriendsConnection\\n}\\n\\ntype Foo {\\n  id: ID!\\n}\\n",
+                "body": "query BestFriendsQuery($id: ID!) {\\n  node(id: $id) {\\n    ...BestFriends\\n  }\\n}\\n\\nfragment BestFriends on User {\\n  # this is the only field that is part of the base schema\\n  id\\n  # fields defined in type extensions are skipped\\n  best_friends {\\n    edges {\\n      cursor\\n      node {\\n        id\\n      }\\n    }\\n    pageInfo {\\n      hasNextPage\\n    }\\n  }\\n  ... on User {\\n    foo {\\n      # fragments on extension types are skipped\\n      ...FooFragment\\n      ... on Foo {\\n        id\\n      }\\n    }\\n  }\\n}\\n\\nfragment FooFragment on Foo {\\n  id\\n}\\n\\nextend type User {\\n  best_friends: FriendsConnection\\n  foo: Foo\\n}\\n\\ntype Foo {\\n  id: ID!\\n}\\n",
                 "name": "GraphQL request",
                 "locationOffset": {
                   "line": 1,
@@ -139,7 +142,7 @@ type Foo {
                 "start": 46,
                 "end": 49,
                 "source": {
-                  "body": "query BestFriendsQuery($id: ID!) {\\n  node(id: $id) {\\n    ...BestFriends\\n  }\\n}\\n\\nfragment BestFriends on User {\\n  # this is the only field that is part of the base schema\\n  id\\n  # fields defined in type extensions are skipped\\n  best_friends {\\n    edges {\\n      cursor\\n      node {\\n        id\\n      }\\n    }\\n    pageInfo {\\n      hasNextPage\\n    }\\n  }\\n  ... on Node {\\n    # fragments on extension types are skipped\\n    ...FooFragment\\n    ... on Foo {\\n      id\\n    }\\n  }\\n}\\n\\nfragment FooFragment on Foo {\\n  id\\n}\\n\\nextend type User {\\n  best_friends: FriendsConnection\\n}\\n\\ntype Foo {\\n  id: ID!\\n}\\n",
+                  "body": "query BestFriendsQuery($id: ID!) {\\n  node(id: $id) {\\n    ...BestFriends\\n  }\\n}\\n\\nfragment BestFriends on User {\\n  # this is the only field that is part of the base schema\\n  id\\n  # fields defined in type extensions are skipped\\n  best_friends {\\n    edges {\\n      cursor\\n      node {\\n        id\\n      }\\n    }\\n    pageInfo {\\n      hasNextPage\\n    }\\n  }\\n  ... on User {\\n    foo {\\n      # fragments on extension types are skipped\\n      ...FooFragment\\n      ... on Foo {\\n        id\\n      }\\n    }\\n  }\\n}\\n\\nfragment FooFragment on Foo {\\n  id\\n}\\n\\nextend type User {\\n  best_friends: FriendsConnection\\n  foo: Foo\\n}\\n\\ntype Foo {\\n  id: ID!\\n}\\n",
                   "name": "GraphQL request",
                   "locationOffset": {
                     "line": 1,
@@ -160,7 +163,7 @@ type Foo {
           "start": 37,
           "end": 75,
           "source": {
-            "body": "query BestFriendsQuery($id: ID!) {\\n  node(id: $id) {\\n    ...BestFriends\\n  }\\n}\\n\\nfragment BestFriends on User {\\n  # this is the only field that is part of the base schema\\n  id\\n  # fields defined in type extensions are skipped\\n  best_friends {\\n    edges {\\n      cursor\\n      node {\\n        id\\n      }\\n    }\\n    pageInfo {\\n      hasNextPage\\n    }\\n  }\\n  ... on Node {\\n    # fragments on extension types are skipped\\n    ...FooFragment\\n    ... on Foo {\\n      id\\n    }\\n  }\\n}\\n\\nfragment FooFragment on Foo {\\n  id\\n}\\n\\nextend type User {\\n  best_friends: FriendsConnection\\n}\\n\\ntype Foo {\\n  id: ID!\\n}\\n",
+            "body": "query BestFriendsQuery($id: ID!) {\\n  node(id: $id) {\\n    ...BestFriends\\n  }\\n}\\n\\nfragment BestFriends on User {\\n  # this is the only field that is part of the base schema\\n  id\\n  # fields defined in type extensions are skipped\\n  best_friends {\\n    edges {\\n      cursor\\n      node {\\n        id\\n      }\\n    }\\n    pageInfo {\\n      hasNextPage\\n    }\\n  }\\n  ... on User {\\n    foo {\\n      # fragments on extension types are skipped\\n      ...FooFragment\\n      ... on Foo {\\n        id\\n      }\\n    }\\n  }\\n}\\n\\nfragment FooFragment on Foo {\\n  id\\n}\\n\\nextend type User {\\n  best_friends: FriendsConnection\\n  foo: Foo\\n}\\n\\ntype Foo {\\n  id: ID!\\n}\\n",
             "name": "GraphQL request",
             "locationOffset": {
               "line": 1,
@@ -180,7 +183,7 @@ type Foo {
               "start": 57,
               "end": 71,
               "source": {
-                "body": "query BestFriendsQuery($id: ID!) {\\n  node(id: $id) {\\n    ...BestFriends\\n  }\\n}\\n\\nfragment BestFriends on User {\\n  # this is the only field that is part of the base schema\\n  id\\n  # fields defined in type extensions are skipped\\n  best_friends {\\n    edges {\\n      cursor\\n      node {\\n        id\\n      }\\n    }\\n    pageInfo {\\n      hasNextPage\\n    }\\n  }\\n  ... on Node {\\n    # fragments on extension types are skipped\\n    ...FooFragment\\n    ... on Foo {\\n      id\\n    }\\n  }\\n}\\n\\nfragment FooFragment on Foo {\\n  id\\n}\\n\\nextend type User {\\n  best_friends: FriendsConnection\\n}\\n\\ntype Foo {\\n  id: ID!\\n}\\n",
+                "body": "query BestFriendsQuery($id: ID!) {\\n  node(id: $id) {\\n    ...BestFriends\\n  }\\n}\\n\\nfragment BestFriends on User {\\n  # this is the only field that is part of the base schema\\n  id\\n  # fields defined in type extensions are skipped\\n  best_friends {\\n    edges {\\n      cursor\\n      node {\\n        id\\n      }\\n    }\\n    pageInfo {\\n      hasNextPage\\n    }\\n  }\\n  ... on User {\\n    foo {\\n      # fragments on extension types are skipped\\n      ...FooFragment\\n      ... on Foo {\\n        id\\n      }\\n    }\\n  }\\n}\\n\\nfragment FooFragment on Foo {\\n  id\\n}\\n\\nextend type User {\\n  best_friends: FriendsConnection\\n  foo: Foo\\n}\\n\\ntype Foo {\\n  id: ID!\\n}\\n",
                 "name": "GraphQL request",
                 "locationOffset": {
                   "line": 1,
@@ -203,9 +206,9 @@ type Foo {
     "loc": {
       "kind": "Source",
       "start": 79,
-      "end": 466,
+      "end": 492,
       "source": {
-        "body": "query BestFriendsQuery($id: ID!) {\\n  node(id: $id) {\\n    ...BestFriends\\n  }\\n}\\n\\nfragment BestFriends on User {\\n  # this is the only field that is part of the base schema\\n  id\\n  # fields defined in type extensions are skipped\\n  best_friends {\\n    edges {\\n      cursor\\n      node {\\n        id\\n      }\\n    }\\n    pageInfo {\\n      hasNextPage\\n    }\\n  }\\n  ... on Node {\\n    # fragments on extension types are skipped\\n    ...FooFragment\\n    ... on Foo {\\n      id\\n    }\\n  }\\n}\\n\\nfragment FooFragment on Foo {\\n  id\\n}\\n\\nextend type User {\\n  best_friends: FriendsConnection\\n}\\n\\ntype Foo {\\n  id: ID!\\n}\\n",
+        "body": "query BestFriendsQuery($id: ID!) {\\n  node(id: $id) {\\n    ...BestFriends\\n  }\\n}\\n\\nfragment BestFriends on User {\\n  # this is the only field that is part of the base schema\\n  id\\n  # fields defined in type extensions are skipped\\n  best_friends {\\n    edges {\\n      cursor\\n      node {\\n        id\\n      }\\n    }\\n    pageInfo {\\n      hasNextPage\\n    }\\n  }\\n  ... on User {\\n    foo {\\n      # fragments on extension types are skipped\\n      ...FooFragment\\n      ... on Foo {\\n        id\\n      }\\n    }\\n  }\\n}\\n\\nfragment FooFragment on Foo {\\n  id\\n}\\n\\nextend type User {\\n  best_friends: FriendsConnection\\n  foo: Foo\\n}\\n\\ntype Foo {\\n  id: ID!\\n}\\n",
         "name": "GraphQL request",
         "locationOffset": {
           "line": 1,
@@ -226,7 +229,7 @@ type Foo {
           "start": 171,
           "end": 173,
           "source": {
-            "body": "query BestFriendsQuery($id: ID!) {\\n  node(id: $id) {\\n    ...BestFriends\\n  }\\n}\\n\\nfragment BestFriends on User {\\n  # this is the only field that is part of the base schema\\n  id\\n  # fields defined in type extensions are skipped\\n  best_friends {\\n    edges {\\n      cursor\\n      node {\\n        id\\n      }\\n    }\\n    pageInfo {\\n      hasNextPage\\n    }\\n  }\\n  ... on Node {\\n    # fragments on extension types are skipped\\n    ...FooFragment\\n    ... on Foo {\\n      id\\n    }\\n  }\\n}\\n\\nfragment FooFragment on Foo {\\n  id\\n}\\n\\nextend type User {\\n  best_friends: FriendsConnection\\n}\\n\\ntype Foo {\\n  id: ID!\\n}\\n",
+            "body": "query BestFriendsQuery($id: ID!) {\\n  node(id: $id) {\\n    ...BestFriends\\n  }\\n}\\n\\nfragment BestFriends on User {\\n  # this is the only field that is part of the base schema\\n  id\\n  # fields defined in type extensions are skipped\\n  best_friends {\\n    edges {\\n      cursor\\n      node {\\n        id\\n      }\\n    }\\n    pageInfo {\\n      hasNextPage\\n    }\\n  }\\n  ... on User {\\n    foo {\\n      # fragments on extension types are skipped\\n      ...FooFragment\\n      ... on Foo {\\n        id\\n      }\\n    }\\n  }\\n}\\n\\nfragment FooFragment on Foo {\\n  id\\n}\\n\\nextend type User {\\n  best_friends: FriendsConnection\\n  foo: Foo\\n}\\n\\ntype Foo {\\n  id: ID!\\n}\\n",
             "name": "GraphQL request",
             "locationOffset": {
               "line": 1,
@@ -249,7 +252,7 @@ type Foo {
           "start": 226,
           "end": 346,
           "source": {
-            "body": "query BestFriendsQuery($id: ID!) {\\n  node(id: $id) {\\n    ...BestFriends\\n  }\\n}\\n\\nfragment BestFriends on User {\\n  # this is the only field that is part of the base schema\\n  id\\n  # fields defined in type extensions are skipped\\n  best_friends {\\n    edges {\\n      cursor\\n      node {\\n        id\\n      }\\n    }\\n    pageInfo {\\n      hasNextPage\\n    }\\n  }\\n  ... on Node {\\n    # fragments on extension types are skipped\\n    ...FooFragment\\n    ... on Foo {\\n      id\\n    }\\n  }\\n}\\n\\nfragment FooFragment on Foo {\\n  id\\n}\\n\\nextend type User {\\n  best_friends: FriendsConnection\\n}\\n\\ntype Foo {\\n  id: ID!\\n}\\n",
+            "body": "query BestFriendsQuery($id: ID!) {\\n  node(id: $id) {\\n    ...BestFriends\\n  }\\n}\\n\\nfragment BestFriends on User {\\n  # this is the only field that is part of the base schema\\n  id\\n  # fields defined in type extensions are skipped\\n  best_friends {\\n    edges {\\n      cursor\\n      node {\\n        id\\n      }\\n    }\\n    pageInfo {\\n      hasNextPage\\n    }\\n  }\\n  ... on User {\\n    foo {\\n      # fragments on extension types are skipped\\n      ...FooFragment\\n      ... on Foo {\\n        id\\n      }\\n    }\\n  }\\n}\\n\\nfragment FooFragment on Foo {\\n  id\\n}\\n\\nextend type User {\\n  best_friends: FriendsConnection\\n  foo: Foo\\n}\\n\\ntype Foo {\\n  id: ID!\\n}\\n",
             "name": "GraphQL request",
             "locationOffset": {
               "line": 1,
@@ -271,7 +274,7 @@ type Foo {
               "start": 245,
               "end": 303,
               "source": {
-                "body": "query BestFriendsQuery($id: ID!) {\\n  node(id: $id) {\\n    ...BestFriends\\n  }\\n}\\n\\nfragment BestFriends on User {\\n  # this is the only field that is part of the base schema\\n  id\\n  # fields defined in type extensions are skipped\\n  best_friends {\\n    edges {\\n      cursor\\n      node {\\n        id\\n      }\\n    }\\n    pageInfo {\\n      hasNextPage\\n    }\\n  }\\n  ... on Node {\\n    # fragments on extension types are skipped\\n    ...FooFragment\\n    ... on Foo {\\n      id\\n    }\\n  }\\n}\\n\\nfragment FooFragment on Foo {\\n  id\\n}\\n\\nextend type User {\\n  best_friends: FriendsConnection\\n}\\n\\ntype Foo {\\n  id: ID!\\n}\\n",
+                "body": "query BestFriendsQuery($id: ID!) {\\n  node(id: $id) {\\n    ...BestFriends\\n  }\\n}\\n\\nfragment BestFriends on User {\\n  # this is the only field that is part of the base schema\\n  id\\n  # fields defined in type extensions are skipped\\n  best_friends {\\n    edges {\\n      cursor\\n      node {\\n        id\\n      }\\n    }\\n    pageInfo {\\n      hasNextPage\\n    }\\n  }\\n  ... on User {\\n    foo {\\n      # fragments on extension types are skipped\\n      ...FooFragment\\n      ... on Foo {\\n        id\\n      }\\n    }\\n  }\\n}\\n\\nfragment FooFragment on Foo {\\n  id\\n}\\n\\nextend type User {\\n  best_friends: FriendsConnection\\n  foo: Foo\\n}\\n\\ntype Foo {\\n  id: ID!\\n}\\n",
                 "name": "GraphQL request",
                 "locationOffset": {
                   "line": 1,
@@ -292,7 +295,7 @@ type Foo {
                   "start": 259,
                   "end": 265,
                   "source": {
-                    "body": "query BestFriendsQuery($id: ID!) {\\n  node(id: $id) {\\n    ...BestFriends\\n  }\\n}\\n\\nfragment BestFriends on User {\\n  # this is the only field that is part of the base schema\\n  id\\n  # fields defined in type extensions are skipped\\n  best_friends {\\n    edges {\\n      cursor\\n      node {\\n        id\\n      }\\n    }\\n    pageInfo {\\n      hasNextPage\\n    }\\n  }\\n  ... on Node {\\n    # fragments on extension types are skipped\\n    ...FooFragment\\n    ... on Foo {\\n      id\\n    }\\n  }\\n}\\n\\nfragment FooFragment on Foo {\\n  id\\n}\\n\\nextend type User {\\n  best_friends: FriendsConnection\\n}\\n\\ntype Foo {\\n  id: ID!\\n}\\n",
+                    "body": "query BestFriendsQuery($id: ID!) {\\n  node(id: $id) {\\n    ...BestFriends\\n  }\\n}\\n\\nfragment BestFriends on User {\\n  # this is the only field that is part of the base schema\\n  id\\n  # fields defined in type extensions are skipped\\n  best_friends {\\n    edges {\\n      cursor\\n      node {\\n        id\\n      }\\n    }\\n    pageInfo {\\n      hasNextPage\\n    }\\n  }\\n  ... on User {\\n    foo {\\n      # fragments on extension types are skipped\\n      ...FooFragment\\n      ... on Foo {\\n        id\\n      }\\n    }\\n  }\\n}\\n\\nfragment FooFragment on Foo {\\n  id\\n}\\n\\nextend type User {\\n  best_friends: FriendsConnection\\n  foo: Foo\\n}\\n\\ntype Foo {\\n  id: ID!\\n}\\n",
                     "name": "GraphQL request",
                     "locationOffset": {
                       "line": 1,
@@ -315,7 +318,7 @@ type Foo {
                   "start": 272,
                   "end": 297,
                   "source": {
-                    "body": "query BestFriendsQuery($id: ID!) {\\n  node(id: $id) {\\n    ...BestFriends\\n  }\\n}\\n\\nfragment BestFriends on User {\\n  # this is the only field that is part of the base schema\\n  id\\n  # fields defined in type extensions are skipped\\n  best_friends {\\n    edges {\\n      cursor\\n      node {\\n        id\\n      }\\n    }\\n    pageInfo {\\n      hasNextPage\\n    }\\n  }\\n  ... on Node {\\n    # fragments on extension types are skipped\\n    ...FooFragment\\n    ... on Foo {\\n      id\\n    }\\n  }\\n}\\n\\nfragment FooFragment on Foo {\\n  id\\n}\\n\\nextend type User {\\n  best_friends: FriendsConnection\\n}\\n\\ntype Foo {\\n  id: ID!\\n}\\n",
+                    "body": "query BestFriendsQuery($id: ID!) {\\n  node(id: $id) {\\n    ...BestFriends\\n  }\\n}\\n\\nfragment BestFriends on User {\\n  # this is the only field that is part of the base schema\\n  id\\n  # fields defined in type extensions are skipped\\n  best_friends {\\n    edges {\\n      cursor\\n      node {\\n        id\\n      }\\n    }\\n    pageInfo {\\n      hasNextPage\\n    }\\n  }\\n  ... on User {\\n    foo {\\n      # fragments on extension types are skipped\\n      ...FooFragment\\n      ... on Foo {\\n        id\\n      }\\n    }\\n  }\\n}\\n\\nfragment FooFragment on Foo {\\n  id\\n}\\n\\nextend type User {\\n  best_friends: FriendsConnection\\n  foo: Foo\\n}\\n\\ntype Foo {\\n  id: ID!\\n}\\n",
                     "name": "GraphQL request",
                     "locationOffset": {
                       "line": 1,
@@ -336,7 +339,7 @@ type Foo {
                       "start": 287,
                       "end": 289,
                       "source": {
-                        "body": "query BestFriendsQuery($id: ID!) {\\n  node(id: $id) {\\n    ...BestFriends\\n  }\\n}\\n\\nfragment BestFriends on User {\\n  # this is the only field that is part of the base schema\\n  id\\n  # fields defined in type extensions are skipped\\n  best_friends {\\n    edges {\\n      cursor\\n      node {\\n        id\\n      }\\n    }\\n    pageInfo {\\n      hasNextPage\\n    }\\n  }\\n  ... on Node {\\n    # fragments on extension types are skipped\\n    ...FooFragment\\n    ... on Foo {\\n      id\\n    }\\n  }\\n}\\n\\nfragment FooFragment on Foo {\\n  id\\n}\\n\\nextend type User {\\n  best_friends: FriendsConnection\\n}\\n\\ntype Foo {\\n  id: ID!\\n}\\n",
+                        "body": "query BestFriendsQuery($id: ID!) {\\n  node(id: $id) {\\n    ...BestFriends\\n  }\\n}\\n\\nfragment BestFriends on User {\\n  # this is the only field that is part of the base schema\\n  id\\n  # fields defined in type extensions are skipped\\n  best_friends {\\n    edges {\\n      cursor\\n      node {\\n        id\\n      }\\n    }\\n    pageInfo {\\n      hasNextPage\\n    }\\n  }\\n  ... on User {\\n    foo {\\n      # fragments on extension types are skipped\\n      ...FooFragment\\n      ... on Foo {\\n        id\\n      }\\n    }\\n  }\\n}\\n\\nfragment FooFragment on Foo {\\n  id\\n}\\n\\nextend type User {\\n  best_friends: FriendsConnection\\n  foo: Foo\\n}\\n\\ntype Foo {\\n  id: ID!\\n}\\n",
                         "name": "GraphQL request",
                         "locationOffset": {
                           "line": 1,
@@ -365,7 +368,7 @@ type Foo {
               "start": 308,
               "end": 342,
               "source": {
-                "body": "query BestFriendsQuery($id: ID!) {\\n  node(id: $id) {\\n    ...BestFriends\\n  }\\n}\\n\\nfragment BestFriends on User {\\n  # this is the only field that is part of the base schema\\n  id\\n  # fields defined in type extensions are skipped\\n  best_friends {\\n    edges {\\n      cursor\\n      node {\\n        id\\n      }\\n    }\\n    pageInfo {\\n      hasNextPage\\n    }\\n  }\\n  ... on Node {\\n    # fragments on extension types are skipped\\n    ...FooFragment\\n    ... on Foo {\\n      id\\n    }\\n  }\\n}\\n\\nfragment FooFragment on Foo {\\n  id\\n}\\n\\nextend type User {\\n  best_friends: FriendsConnection\\n}\\n\\ntype Foo {\\n  id: ID!\\n}\\n",
+                "body": "query BestFriendsQuery($id: ID!) {\\n  node(id: $id) {\\n    ...BestFriends\\n  }\\n}\\n\\nfragment BestFriends on User {\\n  # this is the only field that is part of the base schema\\n  id\\n  # fields defined in type extensions are skipped\\n  best_friends {\\n    edges {\\n      cursor\\n      node {\\n        id\\n      }\\n    }\\n    pageInfo {\\n      hasNextPage\\n    }\\n  }\\n  ... on User {\\n    foo {\\n      # fragments on extension types are skipped\\n      ...FooFragment\\n      ... on Foo {\\n        id\\n      }\\n    }\\n  }\\n}\\n\\nfragment FooFragment on Foo {\\n  id\\n}\\n\\nextend type User {\\n  best_friends: FriendsConnection\\n  foo: Foo\\n}\\n\\ntype Foo {\\n  id: ID!\\n}\\n",
                 "name": "GraphQL request",
                 "locationOffset": {
                   "line": 1,
@@ -386,7 +389,7 @@ type Foo {
                   "start": 325,
                   "end": 336,
                   "source": {
-                    "body": "query BestFriendsQuery($id: ID!) {\\n  node(id: $id) {\\n    ...BestFriends\\n  }\\n}\\n\\nfragment BestFriends on User {\\n  # this is the only field that is part of the base schema\\n  id\\n  # fields defined in type extensions are skipped\\n  best_friends {\\n    edges {\\n      cursor\\n      node {\\n        id\\n      }\\n    }\\n    pageInfo {\\n      hasNextPage\\n    }\\n  }\\n  ... on Node {\\n    # fragments on extension types are skipped\\n    ...FooFragment\\n    ... on Foo {\\n      id\\n    }\\n  }\\n}\\n\\nfragment FooFragment on Foo {\\n  id\\n}\\n\\nextend type User {\\n  best_friends: FriendsConnection\\n}\\n\\ntype Foo {\\n  id: ID!\\n}\\n",
+                    "body": "query BestFriendsQuery($id: ID!) {\\n  node(id: $id) {\\n    ...BestFriends\\n  }\\n}\\n\\nfragment BestFriends on User {\\n  # this is the only field that is part of the base schema\\n  id\\n  # fields defined in type extensions are skipped\\n  best_friends {\\n    edges {\\n      cursor\\n      node {\\n        id\\n      }\\n    }\\n    pageInfo {\\n      hasNextPage\\n    }\\n  }\\n  ... on User {\\n    foo {\\n      # fragments on extension types are skipped\\n      ...FooFragment\\n      ... on Foo {\\n        id\\n      }\\n    }\\n  }\\n}\\n\\nfragment FooFragment on Foo {\\n  id\\n}\\n\\nextend type User {\\n  best_friends: FriendsConnection\\n  foo: Foo\\n}\\n\\ntype Foo {\\n  id: ID!\\n}\\n",
                     "name": "GraphQL request",
                     "locationOffset": {
                       "line": 1,
@@ -410,9 +413,9 @@ type Foo {
         "loc": {
           "kind": "Source",
           "start": 349,
-          "end": 464,
+          "end": 490,
           "source": {
-            "body": "query BestFriendsQuery($id: ID!) {\\n  node(id: $id) {\\n    ...BestFriends\\n  }\\n}\\n\\nfragment BestFriends on User {\\n  # this is the only field that is part of the base schema\\n  id\\n  # fields defined in type extensions are skipped\\n  best_friends {\\n    edges {\\n      cursor\\n      node {\\n        id\\n      }\\n    }\\n    pageInfo {\\n      hasNextPage\\n    }\\n  }\\n  ... on Node {\\n    # fragments on extension types are skipped\\n    ...FooFragment\\n    ... on Foo {\\n      id\\n    }\\n  }\\n}\\n\\nfragment FooFragment on Foo {\\n  id\\n}\\n\\nextend type User {\\n  best_friends: FriendsConnection\\n}\\n\\ntype Foo {\\n  id: ID!\\n}\\n",
+            "body": "query BestFriendsQuery($id: ID!) {\\n  node(id: $id) {\\n    ...BestFriends\\n  }\\n}\\n\\nfragment BestFriends on User {\\n  # this is the only field that is part of the base schema\\n  id\\n  # fields defined in type extensions are skipped\\n  best_friends {\\n    edges {\\n      cursor\\n      node {\\n        id\\n      }\\n    }\\n    pageInfo {\\n      hasNextPage\\n    }\\n  }\\n  ... on User {\\n    foo {\\n      # fragments on extension types are skipped\\n      ...FooFragment\\n      ... on Foo {\\n        id\\n      }\\n    }\\n  }\\n}\\n\\nfragment FooFragment on Foo {\\n  id\\n}\\n\\nextend type User {\\n  best_friends: FriendsConnection\\n  foo: Foo\\n}\\n\\ntype Foo {\\n  id: ID!\\n}\\n",
             "name": "GraphQL request",
             "locationOffset": {
               "line": 1,
@@ -423,34 +426,17 @@ type Foo {
         "metadata": null,
         "selections": [
           {
-            "kind": "FragmentSpread",
+            "kind": "LinkedField",
+            "alias": "foo",
             "args": [],
-            "metadata": null,
-            "loc": {
-              "kind": "Source",
-              "start": 414,
-              "end": 428,
-              "source": {
-                "body": "query BestFriendsQuery($id: ID!) {\\n  node(id: $id) {\\n    ...BestFriends\\n  }\\n}\\n\\nfragment BestFriends on User {\\n  # this is the only field that is part of the base schema\\n  id\\n  # fields defined in type extensions are skipped\\n  best_friends {\\n    edges {\\n      cursor\\n      node {\\n        id\\n      }\\n    }\\n    pageInfo {\\n      hasNextPage\\n    }\\n  }\\n  ... on Node {\\n    # fragments on extension types are skipped\\n    ...FooFragment\\n    ... on Foo {\\n      id\\n    }\\n  }\\n}\\n\\nfragment FooFragment on Foo {\\n  id\\n}\\n\\nextend type User {\\n  best_friends: FriendsConnection\\n}\\n\\ntype Foo {\\n  id: ID!\\n}\\n",
-                "name": "GraphQL request",
-                "locationOffset": {
-                  "line": 1,
-                  "column": 1
-                }
-              }
-            },
-            "name": "FooFragment",
-            "directives": []
-          },
-          {
-            "kind": "InlineFragment",
+            "connection": false,
             "directives": [],
             "loc": {
               "kind": "Source",
-              "start": 433,
-              "end": 460,
+              "start": 367,
+              "end": 486,
               "source": {
-                "body": "query BestFriendsQuery($id: ID!) {\\n  node(id: $id) {\\n    ...BestFriends\\n  }\\n}\\n\\nfragment BestFriends on User {\\n  # this is the only field that is part of the base schema\\n  id\\n  # fields defined in type extensions are skipped\\n  best_friends {\\n    edges {\\n      cursor\\n      node {\\n        id\\n      }\\n    }\\n    pageInfo {\\n      hasNextPage\\n    }\\n  }\\n  ... on Node {\\n    # fragments on extension types are skipped\\n    ...FooFragment\\n    ... on Foo {\\n      id\\n    }\\n  }\\n}\\n\\nfragment FooFragment on Foo {\\n  id\\n}\\n\\nextend type User {\\n  best_friends: FriendsConnection\\n}\\n\\ntype Foo {\\n  id: ID!\\n}\\n",
+                "body": "query BestFriendsQuery($id: ID!) {\\n  node(id: $id) {\\n    ...BestFriends\\n  }\\n}\\n\\nfragment BestFriends on User {\\n  # this is the only field that is part of the base schema\\n  id\\n  # fields defined in type extensions are skipped\\n  best_friends {\\n    edges {\\n      cursor\\n      node {\\n        id\\n      }\\n    }\\n    pageInfo {\\n      hasNextPage\\n    }\\n  }\\n  ... on User {\\n    foo {\\n      # fragments on extension types are skipped\\n      ...FooFragment\\n      ... on Foo {\\n        id\\n      }\\n    }\\n  }\\n}\\n\\nfragment FooFragment on Foo {\\n  id\\n}\\n\\nextend type User {\\n  best_friends: FriendsConnection\\n  foo: Foo\\n}\\n\\ntype Foo {\\n  id: ID!\\n}\\n",
                 "name": "GraphQL request",
                 "locationOffset": {
                   "line": 1,
@@ -459,18 +445,37 @@ type Foo {
               }
             },
             "metadata": null,
+            "name": "foo",
             "selections": [
               {
-                "kind": "ScalarField",
-                "alias": "id",
+                "kind": "FragmentSpread",
                 "args": [],
+                "metadata": null,
+                "loc": {
+                  "kind": "Source",
+                  "start": 428,
+                  "end": 442,
+                  "source": {
+                    "body": "query BestFriendsQuery($id: ID!) {\\n  node(id: $id) {\\n    ...BestFriends\\n  }\\n}\\n\\nfragment BestFriends on User {\\n  # this is the only field that is part of the base schema\\n  id\\n  # fields defined in type extensions are skipped\\n  best_friends {\\n    edges {\\n      cursor\\n      node {\\n        id\\n      }\\n    }\\n    pageInfo {\\n      hasNextPage\\n    }\\n  }\\n  ... on User {\\n    foo {\\n      # fragments on extension types are skipped\\n      ...FooFragment\\n      ... on Foo {\\n        id\\n      }\\n    }\\n  }\\n}\\n\\nfragment FooFragment on Foo {\\n  id\\n}\\n\\nextend type User {\\n  best_friends: FriendsConnection\\n  foo: Foo\\n}\\n\\ntype Foo {\\n  id: ID!\\n}\\n",
+                    "name": "GraphQL request",
+                    "locationOffset": {
+                      "line": 1,
+                      "column": 1
+                    }
+                  }
+                },
+                "name": "FooFragment",
+                "directives": []
+              },
+              {
+                "kind": "InlineFragment",
                 "directives": [],
                 "loc": {
                   "kind": "Source",
-                  "start": 452,
-                  "end": 454,
+                  "start": 449,
+                  "end": 480,
                   "source": {
-                    "body": "query BestFriendsQuery($id: ID!) {\\n  node(id: $id) {\\n    ...BestFriends\\n  }\\n}\\n\\nfragment BestFriends on User {\\n  # this is the only field that is part of the base schema\\n  id\\n  # fields defined in type extensions are skipped\\n  best_friends {\\n    edges {\\n      cursor\\n      node {\\n        id\\n      }\\n    }\\n    pageInfo {\\n      hasNextPage\\n    }\\n  }\\n  ... on Node {\\n    # fragments on extension types are skipped\\n    ...FooFragment\\n    ... on Foo {\\n      id\\n    }\\n  }\\n}\\n\\nfragment FooFragment on Foo {\\n  id\\n}\\n\\nextend type User {\\n  best_friends: FriendsConnection\\n}\\n\\ntype Foo {\\n  id: ID!\\n}\\n",
+                    "body": "query BestFriendsQuery($id: ID!) {\\n  node(id: $id) {\\n    ...BestFriends\\n  }\\n}\\n\\nfragment BestFriends on User {\\n  # this is the only field that is part of the base schema\\n  id\\n  # fields defined in type extensions are skipped\\n  best_friends {\\n    edges {\\n      cursor\\n      node {\\n        id\\n      }\\n    }\\n    pageInfo {\\n      hasNextPage\\n    }\\n  }\\n  ... on User {\\n    foo {\\n      # fragments on extension types are skipped\\n      ...FooFragment\\n      ... on Foo {\\n        id\\n      }\\n    }\\n  }\\n}\\n\\nfragment FooFragment on Foo {\\n  id\\n}\\n\\nextend type User {\\n  best_friends: FriendsConnection\\n  foo: Foo\\n}\\n\\ntype Foo {\\n  id: ID!\\n}\\n",
                     "name": "GraphQL request",
                     "locationOffset": {
                       "line": 1,
@@ -479,14 +484,37 @@ type Foo {
                   }
                 },
                 "metadata": null,
-                "name": "id",
-                "type": "ID!"
+                "selections": [
+                  {
+                    "kind": "ScalarField",
+                    "alias": "id",
+                    "args": [],
+                    "directives": [],
+                    "loc": {
+                      "kind": "Source",
+                      "start": 470,
+                      "end": 472,
+                      "source": {
+                        "body": "query BestFriendsQuery($id: ID!) {\\n  node(id: $id) {\\n    ...BestFriends\\n  }\\n}\\n\\nfragment BestFriends on User {\\n  # this is the only field that is part of the base schema\\n  id\\n  # fields defined in type extensions are skipped\\n  best_friends {\\n    edges {\\n      cursor\\n      node {\\n        id\\n      }\\n    }\\n    pageInfo {\\n      hasNextPage\\n    }\\n  }\\n  ... on User {\\n    foo {\\n      # fragments on extension types are skipped\\n      ...FooFragment\\n      ... on Foo {\\n        id\\n      }\\n    }\\n  }\\n}\\n\\nfragment FooFragment on Foo {\\n  id\\n}\\n\\nextend type User {\\n  best_friends: FriendsConnection\\n  foo: Foo\\n}\\n\\ntype Foo {\\n  id: ID!\\n}\\n",
+                        "name": "GraphQL request",
+                        "locationOffset": {
+                          "line": 1,
+                          "column": 1
+                        }
+                      }
+                    },
+                    "metadata": null,
+                    "name": "id",
+                    "type": "ID!"
+                  }
+                ],
+                "typeCondition": "Foo"
               }
             ],
-            "typeCondition": "Foo"
+            "type": "Foo"
           }
         ],
-        "typeCondition": "Node"
+        "typeCondition": "User"
       }
     ],
     "type": "User",
@@ -497,10 +525,10 @@ type Foo {
     "directives": [],
     "loc": {
       "kind": "Source",
-      "start": 468,
-      "end": 504,
+      "start": 494,
+      "end": 530,
       "source": {
-        "body": "query BestFriendsQuery($id: ID!) {\\n  node(id: $id) {\\n    ...BestFriends\\n  }\\n}\\n\\nfragment BestFriends on User {\\n  # this is the only field that is part of the base schema\\n  id\\n  # fields defined in type extensions are skipped\\n  best_friends {\\n    edges {\\n      cursor\\n      node {\\n        id\\n      }\\n    }\\n    pageInfo {\\n      hasNextPage\\n    }\\n  }\\n  ... on Node {\\n    # fragments on extension types are skipped\\n    ...FooFragment\\n    ... on Foo {\\n      id\\n    }\\n  }\\n}\\n\\nfragment FooFragment on Foo {\\n  id\\n}\\n\\nextend type User {\\n  best_friends: FriendsConnection\\n}\\n\\ntype Foo {\\n  id: ID!\\n}\\n",
+        "body": "query BestFriendsQuery($id: ID!) {\\n  node(id: $id) {\\n    ...BestFriends\\n  }\\n}\\n\\nfragment BestFriends on User {\\n  # this is the only field that is part of the base schema\\n  id\\n  # fields defined in type extensions are skipped\\n  best_friends {\\n    edges {\\n      cursor\\n      node {\\n        id\\n      }\\n    }\\n    pageInfo {\\n      hasNextPage\\n    }\\n  }\\n  ... on User {\\n    foo {\\n      # fragments on extension types are skipped\\n      ...FooFragment\\n      ... on Foo {\\n        id\\n      }\\n    }\\n  }\\n}\\n\\nfragment FooFragment on Foo {\\n  id\\n}\\n\\nextend type User {\\n  best_friends: FriendsConnection\\n  foo: Foo\\n}\\n\\ntype Foo {\\n  id: ID!\\n}\\n",
         "name": "GraphQL request",
         "locationOffset": {
           "line": 1,
@@ -518,10 +546,10 @@ type Foo {
         "directives": [],
         "loc": {
           "kind": "Source",
-          "start": 500,
-          "end": 502,
+          "start": 526,
+          "end": 528,
           "source": {
-            "body": "query BestFriendsQuery($id: ID!) {\\n  node(id: $id) {\\n    ...BestFriends\\n  }\\n}\\n\\nfragment BestFriends on User {\\n  # this is the only field that is part of the base schema\\n  id\\n  # fields defined in type extensions are skipped\\n  best_friends {\\n    edges {\\n      cursor\\n      node {\\n        id\\n      }\\n    }\\n    pageInfo {\\n      hasNextPage\\n    }\\n  }\\n  ... on Node {\\n    # fragments on extension types are skipped\\n    ...FooFragment\\n    ... on Foo {\\n      id\\n    }\\n  }\\n}\\n\\nfragment FooFragment on Foo {\\n  id\\n}\\n\\nextend type User {\\n  best_friends: FriendsConnection\\n}\\n\\ntype Foo {\\n  id: ID!\\n}\\n",
+            "body": "query BestFriendsQuery($id: ID!) {\\n  node(id: $id) {\\n    ...BestFriends\\n  }\\n}\\n\\nfragment BestFriends on User {\\n  # this is the only field that is part of the base schema\\n  id\\n  # fields defined in type extensions are skipped\\n  best_friends {\\n    edges {\\n      cursor\\n      node {\\n        id\\n      }\\n    }\\n    pageInfo {\\n      hasNextPage\\n    }\\n  }\\n  ... on User {\\n    foo {\\n      # fragments on extension types are skipped\\n      ...FooFragment\\n      ... on Foo {\\n        id\\n      }\\n    }\\n  }\\n}\\n\\nfragment FooFragment on Foo {\\n  id\\n}\\n\\nextend type User {\\n  best_friends: FriendsConnection\\n  foo: Foo\\n}\\n\\ntype Foo {\\n  id: ID!\\n}\\n",
             "name": "GraphQL request",
             "locationOffset": {
               "line": 1,
@@ -538,6 +566,39 @@ type Foo {
     "argumentDefinitions": []
   }
 ]
+`;
+
+exports[`RelayParser matches expected output: client-fields.invalid.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+# expected-to-throw
+query NodeWithInvalidClientTypeSpread($id: ID!) {
+  node(id: $id) {
+    ... on Node {
+      ...FooFragment
+    }
+  }
+}
+
+fragment FooFragment on Foo {
+  id
+}
+
+type Foo {
+  id: ID!
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+THROWN EXCEPTION:
+
+Error: RelayParser: Encountered 1 error(s):
+- Fragment "FooFragment" cannot be spread here as objects of type "Node" can never be of type "Foo".
+  
+  GraphQL request (5:7)
+  4:     ... on Node {
+  5:       ...FooFragment
+           ^
+  6:     }
+  
 `;
 
 exports[`RelayParser matches expected output: directive-generic.graphql 1`] = `
@@ -1584,6 +1645,33 @@ Error: RelayParser: Encountered 1 error(s):
   3:   task(task_id: 123) {
             ^
   4:     title
+  
+`;
+
+exports[`RelayParser matches expected output: fragment-spread-on-wrong-type.invalid.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+# expected-to-throw
+fragment Foo on Image {
+  uri
+}
+
+query myQuery {
+  node(id: "<my-id>") {
+    ...Foo
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+THROWN EXCEPTION:
+
+Error: RelayParser: Encountered 1 error(s):
+- Fragment "Foo" cannot be spread here as objects of type "Node" can never be of type "Image".
+  
+  GraphQL request (8:5)
+  7:   node(id: "<my-id>") {
+  8:     ...Foo
+         ^
+  9:   }
   
 `;
 
@@ -4032,6 +4120,29 @@ Error: RelayParser: Encountered 1 error(s):
   13:   ...Foo @uncheckedArguments_DEPRECATED(localId: $id)
                ^
   14: }
+  
+`;
+
+exports[`RelayParser matches expected output: inline-fragment-on-wrong-type.invalid.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+# expected-to-throw
+fragment InlineFragment on Node {
+  ... on Image {
+    url
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+THROWN EXCEPTION:
+
+Error: RelayParser: Encountered 1 error(s):
+- Fragment cannot be spread here as objects of type "Node" can never be of type "Image".
+  
+  GraphQL request (3:10)
+  2: fragment InlineFragment on Node {
+  3:   ... on Image {
+              ^
+  4:     url
   
 `;
 

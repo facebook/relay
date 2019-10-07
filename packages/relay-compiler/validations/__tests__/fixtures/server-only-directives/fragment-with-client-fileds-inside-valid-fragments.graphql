@@ -5,10 +5,16 @@ query QueryWithFragmentWithDefer {
   }
 }
 
+extend type User {
+  foo: ClientUser
+}
+
 fragment UserFragment on User {
   id
   emailAddresses
-  ...DeferredFragment
+  foo {
+    ...DeferredFragment
+  }
 }
 
 fragment DeferredFragment on ClientUser {

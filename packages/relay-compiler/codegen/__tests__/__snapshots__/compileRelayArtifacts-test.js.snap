@@ -8,9 +8,11 @@ fragment Foo_user on User {
 
   client_nickname @include(if: $shouldInclude)
 
-  ... on ClientNamed @include(if: $shouldInclude) {
-    client_name
-    client_name_2
+  foo {
+    ... on ClientNamed @include(if: $shouldInclude) {
+      client_name
+      client_name_2
+    }
   }
 
   ... on Actor @include(if: $shouldInclude) {
@@ -25,6 +27,7 @@ fragment Foo_user on User {
 extend type User {
   client_nickname: String
   client_actor_field: String
+  foo: ClientNamed
 }
 
 extend type StreetAddress {
@@ -131,23 +134,46 @@ interface ClientNamed {
             {
               "kind": "ScalarField",
               "alias": null,
-              "name": "client_name",
-              "args": null,
-              "storageKey": null
-            },
-            {
-              "kind": "ScalarField",
-              "alias": null,
-              "name": "client_name_2",
-              "args": null,
-              "storageKey": null
-            },
-            {
-              "kind": "ScalarField",
-              "alias": null,
               "name": "client_actor_field",
               "args": null,
               "storageKey": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "ClientExtension",
+      "selections": [
+        {
+          "kind": "LinkedField",
+          "alias": null,
+          "name": "foo",
+          "storageKey": null,
+          "args": null,
+          "concreteType": null,
+          "plural": false,
+          "selections": [
+            {
+              "kind": "Condition",
+              "passingValue": true,
+              "condition": "shouldInclude",
+              "selections": [
+                {
+                  "kind": "ScalarField",
+                  "alias": null,
+                  "name": "client_name",
+                  "args": null,
+                  "storageKey": null
+                },
+                {
+                  "kind": "ScalarField",
+                  "alias": null,
+                  "name": "client_name_2",
+                  "args": null,
+                  "storageKey": null
+                }
+              ]
             }
           ]
         }
@@ -761,8 +787,13 @@ exports[`compileRelayArtifacts matches expected output: client-fragment-spreads.
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 fragment Foo_user on User {
   id
+  foo {
+    ...ClientTypeFragment # include fragment on client-only type
+  }
+}
 
-  ...ClientTypeFragment # include fragment on client-only type
+extend type User {
+  foo: ClientType
 }
 
 fragment ClientTypeFragment on ClientType {
@@ -792,9 +823,20 @@ type ClientType {
       "kind": "ClientExtension",
       "selections": [
         {
-          "kind": "FragmentSpread",
-          "name": "ClientTypeFragment",
-          "args": null
+          "kind": "LinkedField",
+          "alias": null,
+          "name": "foo",
+          "storageKey": null,
+          "args": null,
+          "concreteType": "ClientType",
+          "plural": false,
+          "selections": [
+            {
+              "kind": "FragmentSpread",
+              "name": "ClientTypeFragment",
+              "args": null
+            }
+          ]
         }
       ]
     }
@@ -834,8 +876,13 @@ query FooQuery($id: ID!) {
 
 fragment Foo_user on User {
   id
+  foo {
+    ...ClientTypeFragment
+  }
+}
 
-  ...ClientTypeFragment
+extend type User {
+  foo: ClientType
 }
 
 fragment ClientTypeFragment on ClientType {
@@ -936,8 +983,13 @@ type ClientType {
                 "kind": "ClientExtension",
                 "selections": [
                   {
-                    "kind": "InlineFragment",
-                    "type": "ClientType",
+                    "kind": "LinkedField",
+                    "alias": null,
+                    "name": "foo",
+                    "storageKey": null,
+                    "args": null,
+                    "concreteType": "ClientType",
+                    "plural": false,
                     "selections": [
                       {
                         "kind": "ScalarField",
@@ -993,9 +1045,20 @@ fragment Foo_user on User {
       "kind": "ClientExtension",
       "selections": [
         {
-          "kind": "FragmentSpread",
-          "name": "ClientTypeFragment",
-          "args": null
+          "kind": "LinkedField",
+          "alias": null,
+          "name": "foo",
+          "storageKey": null,
+          "args": null,
+          "concreteType": "ClientType",
+          "plural": false,
+          "selections": [
+            {
+              "kind": "FragmentSpread",
+              "name": "ClientTypeFragment",
+              "args": null
+            }
+          ]
         }
       ]
     }
@@ -1029,10 +1092,15 @@ exports[`compileRelayArtifacts matches expected output: client-inline-fragments.
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 fragment Foo_user on User {
   id
-
-  ... on ClientNamed {
-    client_name
+  foo {
+    ... on ClientNamed {
+      client_name
+    }
   }
+}
+
+extend type User {
+  foo: ClientNamed
 }
 
 interface ClientNamed {
@@ -1058,8 +1126,13 @@ interface ClientNamed {
       "kind": "ClientExtension",
       "selections": [
         {
-          "kind": "InlineFragment",
-          "type": "ClientNamed",
+          "kind": "LinkedField",
+          "alias": null,
+          "name": "foo",
+          "storageKey": null,
+          "args": null,
+          "concreteType": null,
+          "plural": false,
           "selections": [
             {
               "kind": "ScalarField",
@@ -1086,10 +1159,15 @@ query FooQuery($id: ID!) {
 
 fragment Foo_user on User {
   id
-
-  ... on ClientNamed {
-    client_name
+  foo {
+    ... on ClientNamed {
+      client_name
+    }
   }
+}
+
+extend type User {
+  foo: ClientNamed
 }
 
 interface ClientNamed {
@@ -1186,9 +1264,21 @@ interface ClientNamed {
                 "kind": "ClientExtension",
                 "selections": [
                   {
-                    "kind": "InlineFragment",
-                    "type": "ClientNamed",
+                    "kind": "LinkedField",
+                    "alias": null,
+                    "name": "foo",
+                    "storageKey": null,
+                    "args": null,
+                    "concreteType": null,
+                    "plural": false,
                     "selections": [
+                      {
+                        "kind": "ScalarField",
+                        "alias": null,
+                        "name": "__typename",
+                        "args": null,
+                        "storageKey": null
+                      },
                       {
                         "kind": "ScalarField",
                         "alias": null,
@@ -1243,8 +1333,13 @@ fragment Foo_user on User {
       "kind": "ClientExtension",
       "selections": [
         {
-          "kind": "InlineFragment",
-          "type": "ClientNamed",
+          "kind": "LinkedField",
+          "alias": null,
+          "name": "foo",
+          "storageKey": null,
+          "args": null,
+          "concreteType": null,
+          "plural": false,
           "selections": [
             {
               "kind": "ScalarField",
@@ -9600,7 +9695,13 @@ query QueryWithFragmentWithDefer {
 fragment UserFragment on User {
   id
   emailAddresses
-  ...DeferredFragment @defer(label: "DeferredFragmentLabel")
+  clientUser {
+    ...DeferredFragment @defer(label: "DeferredFragmentLabel")
+  }
+}
+
+extend type User {
+  clientUser: ClientUser
 }
 
 fragment DeferredFragment on ClientUser {
@@ -9618,17 +9719,17 @@ THROWN EXCEPTION:
 Error: Encountered 1 error(s):
 - Unexpected directive: @defer. This directive can only be used on fields/fragments that are fetched from the server schema, but it is used inside a client-only selection.
   
-  Source (derived): GraphQL request (12:23)
-  11:   emailAddresses
-  12:   ...DeferredFragment @defer(label: "DeferredFragmentLabel")
-                            ^
-  13: }
+  Source (derived): GraphQL request (13:25)
+  12:   clientUser {
+  13:     ...DeferredFragment @defer(label: "DeferredFragmentLabel")
+                              ^
+  14:   }
   
-  Source (derived): GraphQL request (12:3)
+  Source: GraphQL request (12:3)
   11:   emailAddresses
-  12:   ...DeferredFragment @defer(label: "DeferredFragmentLabel")
+  12:   clientUser {
         ^
-  13: }
+  13:     ...DeferredFragment @defer(label: "DeferredFragmentLabel")
   
 `;
 
@@ -18836,10 +18937,14 @@ fragment Foo_user on User {
       }
     }
   }
-  ... on ClientNamed {
-    client_name
+  client_foo {
+    ... on ClientNamed {
+      client_name
+    }
   }
-  ...ClientTypeFragment # include fragment on client-only type
+  client_foo2 {
+    ...ClientTypeFragment # include fragment on client-only type
+  }
 }
 
 fragment ClientTypeFragment on ClientType {
@@ -18850,6 +18955,7 @@ extend type User {
   client_friends: FriendsConnection
   client_nickname: String
   client_foo: Foo
+  client_foo2: ClientType
 }
 
 extend type FriendsEdge {
@@ -18860,7 +18966,7 @@ type ClientType {
   client_field: String
 }
 
-type Foo {
+type Foo implements ClientNamed {
   client_name: String
 }
 
@@ -18966,22 +19072,20 @@ interface ClientNamed {
           ]
         },
         {
-          "kind": "InlineFragment",
-          "type": "ClientNamed",
+          "kind": "LinkedField",
+          "alias": null,
+          "name": "client_foo2",
+          "storageKey": null,
+          "args": null,
+          "concreteType": "ClientType",
+          "plural": false,
           "selections": [
             {
-              "kind": "ScalarField",
-              "alias": null,
-              "name": "client_name",
-              "args": null,
-              "storageKey": null
+              "kind": "FragmentSpread",
+              "name": "ClientTypeFragment",
+              "args": null
             }
           ]
-        },
-        {
-          "kind": "FragmentSpread",
-          "name": "ClientTypeFragment",
-          "args": null
         }
       ]
     }

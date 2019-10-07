@@ -6,8 +6,10 @@ mutation SimpleMutation @relay_test_operation {
   commentCreate(input: null) {
     feedback {
       id
-      ... on Actor {
-        name
+      actor {
+        ... on Actor {
+          name
+        }
       }
     }
   }
@@ -20,9 +22,9 @@ mutation SimpleMutation @relay_test_operation {
   "loc": {
     "kind": "Source",
     "start": 0,
-    "end": 156,
+    "end": 184,
     "source": {
-      "body": "mutation SimpleMutation @relay_test_operation {\\n  commentCreate(input: null) {\\n    feedback {\\n      id\\n      ... on Actor {\\n        name\\n      }\\n    }\\n  }\\n}\\n",
+      "body": "mutation SimpleMutation @relay_test_operation {\\n  commentCreate(input: null) {\\n    feedback {\\n      id\\n      actor {\\n        ... on Actor {\\n          name\\n        }\\n      }\\n    }\\n  }\\n}\\n",
       "name": "GraphQL request",
       "locationOffset": {
         "line": 1,
@@ -50,7 +52,13 @@ mutation SimpleMutation @relay_test_operation {
         "plural": false,
         "nullable": false
       },
-      "commentCreate.feedback.name": {
+      "commentCreate.feedback.actor": {
+        "type": "Actor",
+        "enumValues": null,
+        "plural": false,
+        "nullable": true
+      },
+      "commentCreate.feedback.actor.name": {
         "type": "String",
         "enumValues": null,
         "plural": false,
@@ -73,7 +81,7 @@ mutation SimpleMutation @relay_test_operation {
             "start": 64,
             "end": 75,
             "source": {
-              "body": "mutation SimpleMutation @relay_test_operation {\\n  commentCreate(input: null) {\\n    feedback {\\n      id\\n      ... on Actor {\\n        name\\n      }\\n    }\\n  }\\n}\\n",
+              "body": "mutation SimpleMutation @relay_test_operation {\\n  commentCreate(input: null) {\\n    feedback {\\n      id\\n      actor {\\n        ... on Actor {\\n          name\\n        }\\n      }\\n    }\\n  }\\n}\\n",
               "name": "GraphQL request",
               "locationOffset": {
                 "line": 1,
@@ -89,7 +97,7 @@ mutation SimpleMutation @relay_test_operation {
               "start": 71,
               "end": 75,
               "source": {
-                "body": "mutation SimpleMutation @relay_test_operation {\\n  commentCreate(input: null) {\\n    feedback {\\n      id\\n      ... on Actor {\\n        name\\n      }\\n    }\\n  }\\n}\\n",
+                "body": "mutation SimpleMutation @relay_test_operation {\\n  commentCreate(input: null) {\\n    feedback {\\n      id\\n      actor {\\n        ... on Actor {\\n          name\\n        }\\n      }\\n    }\\n  }\\n}\\n",
                 "name": "GraphQL request",
                 "locationOffset": {
                   "line": 1,
@@ -107,9 +115,9 @@ mutation SimpleMutation @relay_test_operation {
       "loc": {
         "kind": "Source",
         "start": 50,
-        "end": 154,
+        "end": 182,
         "source": {
-          "body": "mutation SimpleMutation @relay_test_operation {\\n  commentCreate(input: null) {\\n    feedback {\\n      id\\n      ... on Actor {\\n        name\\n      }\\n    }\\n  }\\n}\\n",
+          "body": "mutation SimpleMutation @relay_test_operation {\\n  commentCreate(input: null) {\\n    feedback {\\n      id\\n      actor {\\n        ... on Actor {\\n          name\\n        }\\n      }\\n    }\\n  }\\n}\\n",
           "name": "GraphQL request",
           "locationOffset": {
             "line": 1,
@@ -129,9 +137,9 @@ mutation SimpleMutation @relay_test_operation {
           "loc": {
             "kind": "Source",
             "start": 83,
-            "end": 150,
+            "end": 178,
             "source": {
-              "body": "mutation SimpleMutation @relay_test_operation {\\n  commentCreate(input: null) {\\n    feedback {\\n      id\\n      ... on Actor {\\n        name\\n      }\\n    }\\n  }\\n}\\n",
+              "body": "mutation SimpleMutation @relay_test_operation {\\n  commentCreate(input: null) {\\n    feedback {\\n      id\\n      actor {\\n        ... on Actor {\\n          name\\n        }\\n      }\\n    }\\n  }\\n}\\n",
               "name": "GraphQL request",
               "locationOffset": {
                 "line": 1,
@@ -152,7 +160,7 @@ mutation SimpleMutation @relay_test_operation {
                 "start": 100,
                 "end": 102,
                 "source": {
-                  "body": "mutation SimpleMutation @relay_test_operation {\\n  commentCreate(input: null) {\\n    feedback {\\n      id\\n      ... on Actor {\\n        name\\n      }\\n    }\\n  }\\n}\\n",
+                  "body": "mutation SimpleMutation @relay_test_operation {\\n  commentCreate(input: null) {\\n    feedback {\\n      id\\n      actor {\\n        ... on Actor {\\n          name\\n        }\\n      }\\n    }\\n  }\\n}\\n",
                   "name": "GraphQL request",
                   "locationOffset": {
                     "line": 1,
@@ -165,14 +173,17 @@ mutation SimpleMutation @relay_test_operation {
               "type": "ID!"
             },
             {
-              "kind": "InlineFragment",
+              "kind": "LinkedField",
+              "alias": "actor",
+              "args": [],
+              "connection": false,
               "directives": [],
               "loc": {
                 "kind": "Source",
                 "start": 109,
-                "end": 144,
+                "end": 172,
                 "source": {
-                  "body": "mutation SimpleMutation @relay_test_operation {\\n  commentCreate(input: null) {\\n    feedback {\\n      id\\n      ... on Actor {\\n        name\\n      }\\n    }\\n  }\\n}\\n",
+                  "body": "mutation SimpleMutation @relay_test_operation {\\n  commentCreate(input: null) {\\n    feedback {\\n      id\\n      actor {\\n        ... on Actor {\\n          name\\n        }\\n      }\\n    }\\n  }\\n}\\n",
                   "name": "GraphQL request",
                   "locationOffset": {
                     "line": 1,
@@ -181,18 +192,17 @@ mutation SimpleMutation @relay_test_operation {
                 }
               },
               "metadata": null,
+              "name": "actor",
               "selections": [
                 {
-                  "kind": "ScalarField",
-                  "alias": "name",
-                  "args": [],
+                  "kind": "InlineFragment",
                   "directives": [],
                   "loc": {
                     "kind": "Source",
-                    "start": 132,
-                    "end": 136,
+                    "start": 125,
+                    "end": 164,
                     "source": {
-                      "body": "mutation SimpleMutation @relay_test_operation {\\n  commentCreate(input: null) {\\n    feedback {\\n      id\\n      ... on Actor {\\n        name\\n      }\\n    }\\n  }\\n}\\n",
+                      "body": "mutation SimpleMutation @relay_test_operation {\\n  commentCreate(input: null) {\\n    feedback {\\n      id\\n      actor {\\n        ... on Actor {\\n          name\\n        }\\n      }\\n    }\\n  }\\n}\\n",
                       "name": "GraphQL request",
                       "locationOffset": {
                         "line": 1,
@@ -201,11 +211,34 @@ mutation SimpleMutation @relay_test_operation {
                     }
                   },
                   "metadata": null,
-                  "name": "name",
-                  "type": "String"
+                  "selections": [
+                    {
+                      "kind": "ScalarField",
+                      "alias": "name",
+                      "args": [],
+                      "directives": [],
+                      "loc": {
+                        "kind": "Source",
+                        "start": 150,
+                        "end": 154,
+                        "source": {
+                          "body": "mutation SimpleMutation @relay_test_operation {\\n  commentCreate(input: null) {\\n    feedback {\\n      id\\n      actor {\\n        ... on Actor {\\n          name\\n        }\\n      }\\n    }\\n  }\\n}\\n",
+                          "name": "GraphQL request",
+                          "locationOffset": {
+                            "line": 1,
+                            "column": 1
+                          }
+                        }
+                      },
+                      "metadata": null,
+                      "name": "name",
+                      "type": "String"
+                    }
+                  ],
+                  "typeCondition": "Actor"
                 }
               ],
-              "typeCondition": "Actor"
+              "type": "Actor"
             }
           ],
           "type": "Feedback"
@@ -1447,8 +1480,10 @@ subscription SimpleMutation @relay_test_operation {
   commentCreateSubscribe(input: null) {
     feedback {
       id
-      ... on Actor {
-        name
+      actor {
+        ... on Actor {
+          name
+        }
       }
     }
   }
@@ -1461,9 +1496,9 @@ subscription SimpleMutation @relay_test_operation {
   "loc": {
     "kind": "Source",
     "start": 0,
-    "end": 169,
+    "end": 197,
     "source": {
-      "body": "subscription SimpleMutation @relay_test_operation {\\n  commentCreateSubscribe(input: null) {\\n    feedback {\\n      id\\n      ... on Actor {\\n        name\\n      }\\n    }\\n  }\\n}\\n",
+      "body": "subscription SimpleMutation @relay_test_operation {\\n  commentCreateSubscribe(input: null) {\\n    feedback {\\n      id\\n      actor {\\n        ... on Actor {\\n          name\\n        }\\n      }\\n    }\\n  }\\n}\\n",
       "name": "GraphQL request",
       "locationOffset": {
         "line": 1,
@@ -1491,7 +1526,13 @@ subscription SimpleMutation @relay_test_operation {
         "plural": false,
         "nullable": false
       },
-      "commentCreateSubscribe.feedback.name": {
+      "commentCreateSubscribe.feedback.actor": {
+        "type": "Actor",
+        "enumValues": null,
+        "plural": false,
+        "nullable": true
+      },
+      "commentCreateSubscribe.feedback.actor.name": {
         "type": "String",
         "enumValues": null,
         "plural": false,
@@ -1514,7 +1555,7 @@ subscription SimpleMutation @relay_test_operation {
             "start": 77,
             "end": 88,
             "source": {
-              "body": "subscription SimpleMutation @relay_test_operation {\\n  commentCreateSubscribe(input: null) {\\n    feedback {\\n      id\\n      ... on Actor {\\n        name\\n      }\\n    }\\n  }\\n}\\n",
+              "body": "subscription SimpleMutation @relay_test_operation {\\n  commentCreateSubscribe(input: null) {\\n    feedback {\\n      id\\n      actor {\\n        ... on Actor {\\n          name\\n        }\\n      }\\n    }\\n  }\\n}\\n",
               "name": "GraphQL request",
               "locationOffset": {
                 "line": 1,
@@ -1530,7 +1571,7 @@ subscription SimpleMutation @relay_test_operation {
               "start": 84,
               "end": 88,
               "source": {
-                "body": "subscription SimpleMutation @relay_test_operation {\\n  commentCreateSubscribe(input: null) {\\n    feedback {\\n      id\\n      ... on Actor {\\n        name\\n      }\\n    }\\n  }\\n}\\n",
+                "body": "subscription SimpleMutation @relay_test_operation {\\n  commentCreateSubscribe(input: null) {\\n    feedback {\\n      id\\n      actor {\\n        ... on Actor {\\n          name\\n        }\\n      }\\n    }\\n  }\\n}\\n",
                 "name": "GraphQL request",
                 "locationOffset": {
                   "line": 1,
@@ -1548,9 +1589,9 @@ subscription SimpleMutation @relay_test_operation {
       "loc": {
         "kind": "Source",
         "start": 54,
-        "end": 167,
+        "end": 195,
         "source": {
-          "body": "subscription SimpleMutation @relay_test_operation {\\n  commentCreateSubscribe(input: null) {\\n    feedback {\\n      id\\n      ... on Actor {\\n        name\\n      }\\n    }\\n  }\\n}\\n",
+          "body": "subscription SimpleMutation @relay_test_operation {\\n  commentCreateSubscribe(input: null) {\\n    feedback {\\n      id\\n      actor {\\n        ... on Actor {\\n          name\\n        }\\n      }\\n    }\\n  }\\n}\\n",
           "name": "GraphQL request",
           "locationOffset": {
             "line": 1,
@@ -1570,9 +1611,9 @@ subscription SimpleMutation @relay_test_operation {
           "loc": {
             "kind": "Source",
             "start": 96,
-            "end": 163,
+            "end": 191,
             "source": {
-              "body": "subscription SimpleMutation @relay_test_operation {\\n  commentCreateSubscribe(input: null) {\\n    feedback {\\n      id\\n      ... on Actor {\\n        name\\n      }\\n    }\\n  }\\n}\\n",
+              "body": "subscription SimpleMutation @relay_test_operation {\\n  commentCreateSubscribe(input: null) {\\n    feedback {\\n      id\\n      actor {\\n        ... on Actor {\\n          name\\n        }\\n      }\\n    }\\n  }\\n}\\n",
               "name": "GraphQL request",
               "locationOffset": {
                 "line": 1,
@@ -1593,7 +1634,7 @@ subscription SimpleMutation @relay_test_operation {
                 "start": 113,
                 "end": 115,
                 "source": {
-                  "body": "subscription SimpleMutation @relay_test_operation {\\n  commentCreateSubscribe(input: null) {\\n    feedback {\\n      id\\n      ... on Actor {\\n        name\\n      }\\n    }\\n  }\\n}\\n",
+                  "body": "subscription SimpleMutation @relay_test_operation {\\n  commentCreateSubscribe(input: null) {\\n    feedback {\\n      id\\n      actor {\\n        ... on Actor {\\n          name\\n        }\\n      }\\n    }\\n  }\\n}\\n",
                   "name": "GraphQL request",
                   "locationOffset": {
                     "line": 1,
@@ -1606,14 +1647,17 @@ subscription SimpleMutation @relay_test_operation {
               "type": "ID!"
             },
             {
-              "kind": "InlineFragment",
+              "kind": "LinkedField",
+              "alias": "actor",
+              "args": [],
+              "connection": false,
               "directives": [],
               "loc": {
                 "kind": "Source",
                 "start": 122,
-                "end": 157,
+                "end": 185,
                 "source": {
-                  "body": "subscription SimpleMutation @relay_test_operation {\\n  commentCreateSubscribe(input: null) {\\n    feedback {\\n      id\\n      ... on Actor {\\n        name\\n      }\\n    }\\n  }\\n}\\n",
+                  "body": "subscription SimpleMutation @relay_test_operation {\\n  commentCreateSubscribe(input: null) {\\n    feedback {\\n      id\\n      actor {\\n        ... on Actor {\\n          name\\n        }\\n      }\\n    }\\n  }\\n}\\n",
                   "name": "GraphQL request",
                   "locationOffset": {
                     "line": 1,
@@ -1622,18 +1666,17 @@ subscription SimpleMutation @relay_test_operation {
                 }
               },
               "metadata": null,
+              "name": "actor",
               "selections": [
                 {
-                  "kind": "ScalarField",
-                  "alias": "name",
-                  "args": [],
+                  "kind": "InlineFragment",
                   "directives": [],
                   "loc": {
                     "kind": "Source",
-                    "start": 145,
-                    "end": 149,
+                    "start": 138,
+                    "end": 177,
                     "source": {
-                      "body": "subscription SimpleMutation @relay_test_operation {\\n  commentCreateSubscribe(input: null) {\\n    feedback {\\n      id\\n      ... on Actor {\\n        name\\n      }\\n    }\\n  }\\n}\\n",
+                      "body": "subscription SimpleMutation @relay_test_operation {\\n  commentCreateSubscribe(input: null) {\\n    feedback {\\n      id\\n      actor {\\n        ... on Actor {\\n          name\\n        }\\n      }\\n    }\\n  }\\n}\\n",
                       "name": "GraphQL request",
                       "locationOffset": {
                         "line": 1,
@@ -1642,11 +1685,34 @@ subscription SimpleMutation @relay_test_operation {
                     }
                   },
                   "metadata": null,
-                  "name": "name",
-                  "type": "String"
+                  "selections": [
+                    {
+                      "kind": "ScalarField",
+                      "alias": "name",
+                      "args": [],
+                      "directives": [],
+                      "loc": {
+                        "kind": "Source",
+                        "start": 163,
+                        "end": 167,
+                        "source": {
+                          "body": "subscription SimpleMutation @relay_test_operation {\\n  commentCreateSubscribe(input: null) {\\n    feedback {\\n      id\\n      actor {\\n        ... on Actor {\\n          name\\n        }\\n      }\\n    }\\n  }\\n}\\n",
+                          "name": "GraphQL request",
+                          "locationOffset": {
+                            "line": 1,
+                            "column": 1
+                          }
+                        }
+                      },
+                      "metadata": null,
+                      "name": "name",
+                      "type": "String"
+                    }
+                  ],
+                  "typeCondition": "Actor"
                 }
               ],
-              "typeCondition": "Actor"
+              "type": "Actor"
             }
           ],
           "type": "Feedback"

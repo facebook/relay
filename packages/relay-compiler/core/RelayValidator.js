@@ -14,11 +14,7 @@ const Profiler = require('./GraphQLCompilerProfiler');
 
 const util = require('util');
 
-const {
-  NoUnusedVariablesRule,
-  PossibleFragmentSpreadsRule,
-  formatError,
-} = require('graphql');
+const {NoUnusedVariablesRule, formatError} = require('graphql');
 
 import type {Schema} from './Schema';
 import type {
@@ -101,8 +97,6 @@ module.exports = {
      *   own type-checking for variable/argument usage that is aware of fragment
      *   variables.
      */
-    PossibleFragmentSpreadsRule,
-
     // Relay-specific validation
     DisallowIdAsAliasValidationRule,
   ],

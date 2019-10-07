@@ -217,33 +217,6 @@ function visitLinkedField(node: LinkedField, state: State): LinkedField {
       );
     }
     seenTypes.set(matchedType, matchSelection);
-
-    const possibleConcreteTypes = Array.from(
-      schema.getPossibleTypes(schema.assertAbstractType(rawFieldType)),
-    );
-
-    const isPossibleConcreteType = possibleConcreteTypes.some(type => {
-      return schema.areEqualTypes(type, matchedType);
-    });
-
-    if (!isPossibleConcreteType) {
-      let suggestedTypesMessage = 'but no concrete types are defined.';
-      if (possibleConcreteTypes.length !== 0) {
-        suggestedTypesMessage = `expected one of ${possibleConcreteTypes
-          .slice(0, 3)
-          .map(type => `'${schema.getTypeString(type)}'`)
-          .join(', ')}, etc.`;
-      }
-      throw createUserError(
-        'Invalid @match selection: selections must match against concrete ' +
-          'variants/implementors of type ' +
-          `'${schema.getTypeString(
-            transformedNode.type,
-          )}'. Got '${schema.getTypeString(matchedType)}', ` +
-          suggestedTypesMessage,
-        [matchSelection.loc, context.getFragment(moduleImport.name).loc],
-      );
-    }
     selections.push(matchSelection);
   });
 

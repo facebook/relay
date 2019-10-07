@@ -191,11 +191,11 @@ fragment PageFragment on Page {
   __typename
 }
 
-fragment UserFrag1 on Page {
+fragment UserFrag1 on User {
   __typename
 }
 
-fragment UserFrag2 on Page {
+fragment UserFrag2 on User {
   __typename
 }
 
@@ -309,7 +309,7 @@ import type { FragmentReference } from "relay-runtime";
 declare export opaque type UserFrag1$ref: FragmentReference;
 declare export opaque type UserFrag1$fragmentType: UserFrag1$ref;
 export type UserFrag1 = {|
-  +__typename: "Page",
+  +__typename: "User",
   +$refType: UserFrag1$ref,
 |} | {|
   // This will never be '%other', but we need some
@@ -328,7 +328,7 @@ import type { FragmentReference } from "relay-runtime";
 declare export opaque type UserFrag2$ref: FragmentReference;
 declare export opaque type UserFrag2$fragmentType: UserFrag2$ref;
 export type UserFrag2 = {|
-  +__typename: "Page",
+  +__typename: "User",
   +$refType: UserFrag2$ref,
 |} | {|
   // This will never be '%other', but we need some
@@ -1275,12 +1275,10 @@ query TestDefer @raw_response_type {
     ... on User {
       name
       friends(first: 10) {
-        edges {
-          ... on FriendsConnection @defer {
-            pageInfo {
-              endCursor
-              hasNextPage
-            }
+        ... on FriendsConnection @defer {
+          pageInfo {
+            endCursor
+            hasNextPage
           }
         }
       }
@@ -1295,12 +1293,10 @@ export type TestDeferResponse = {|
   +node: ?{|
     +name?: ?string,
     +friends?: ?{|
-      +edges: ?$ReadOnlyArray<?{|
-        +pageInfo?: ?{|
-          +endCursor: ?string,
-          +hasNextPage: ?boolean,
-        |}
-      |}>
+      +pageInfo: ?{|
+        +endCursor: ?string,
+        +hasNextPage: ?boolean,
+      |}
     |},
   |}
 |};
@@ -1310,12 +1306,10 @@ export type TestDeferRawResponse = {|
     +id: ?string,
     +name: ?string,
     +friends: ?{|
-      +edges: ?$ReadOnlyArray<?{|
-        +pageInfo: ?{|
-          +endCursor: ?string,
-          +hasNextPage: ?boolean,
-        |}
-      |}>
+      +pageInfo: ?{|
+        +endCursor: ?string,
+        +hasNextPage: ?boolean,
+      |}
     |},
   |} | {|
     +__typename: ?string,
@@ -1561,9 +1555,11 @@ query Test @raw_response_type {
     }
   }
   viewer {
-    ... on User {
-      name
-      ...AnotherNameRendererFragment
+    actor {
+      ... on User {
+        name
+        ...AnotherNameRendererFragment
+      }
     }
   }
 }
@@ -1611,8 +1607,10 @@ export type TestResponse = {|
     +$fragmentRefs: NameRendererFragment$ref,
   |},
   +viewer: ?{|
-    +name?: ?string,
-    +$fragmentRefs: AnotherNameRendererFragment$ref,
+    +actor: ?{|
+      +name?: ?string,
+      +$fragmentRefs: AnotherNameRendererFragment$ref,
+    |}
   |},
 |};
 type PlainUserNameRenderer_name = {|
@@ -1660,28 +1658,35 @@ export type TestRawResponse = {|
     +id: ?string,
   |}),
   +viewer: ?{|
-    +name: ?string,
-    +nameRenderer: ?({|
-      +__typename: "PlainUserNameRenderer",
-      +__module_operation_AnotherNameRendererFragment: ?{|
-        __dr: string
-      |},
-      +__module_component_AnotherNameRendererFragment: ?{|
-        __dr: string
-      |},
-      ...PlainUserNameRenderer_name,
+    +actor: ?({|
+      +__typename: "User",
+      +id: ?string,
+      +name: ?string,
+      +nameRenderer: ?({|
+        +__typename: "PlainUserNameRenderer",
+        +__module_operation_AnotherNameRendererFragment: ?{|
+          __dr: string
+        |},
+        +__module_component_AnotherNameRendererFragment: ?{|
+          __dr: string
+        |},
+        ...PlainUserNameRenderer_name,
+      |} | {|
+        +__typename: "MarkdownUserNameRenderer",
+        +__module_operation_AnotherNameRendererFragment: ?{|
+          __dr: string
+        |},
+        +__module_component_AnotherNameRendererFragment: ?{|
+          __dr: string
+        |},
+        ...MarkdownUserNameRenderer_name,
+      |} | {|
+        +__typename: ?string
+      |}),
     |} | {|
-      +__typename: "MarkdownUserNameRenderer",
-      +__module_operation_AnotherNameRendererFragment: ?{|
-        __dr: string
-      |},
-      +__module_component_AnotherNameRendererFragment: ?{|
-        __dr: string
-      |},
-      ...MarkdownUserNameRenderer_name,
-    |} | {|
-      +__typename: ?string
-    |}),
+      +__typename: ?string,
+      +id: ?string,
+    |})
   |},
 |};
 export type Test = {|

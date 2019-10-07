@@ -370,7 +370,6 @@ function createContainerWithFragments<
             data: latestState.resolver.resolve(),
             contextForChildren: {
               environment: this.props.__relayContext.environment,
-              variables: {},
             },
           }),
           () => {
@@ -402,7 +401,6 @@ function createContainerWithFragments<
                 data: latestState.resolver.resolve(),
                 contextForChildren: {
                   environment: this.props.__relayContext.environment,
-                  variables: {},
                 },
               }),
               () => {

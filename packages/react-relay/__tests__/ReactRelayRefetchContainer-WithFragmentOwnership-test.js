@@ -52,7 +52,6 @@ describe('ReactRelayRefetchContainer with fragment ownerhsip', () => {
 
       this.__relayContext = {
         environment: props.environment,
-        variables: {},
       };
 
       this.state = {
@@ -63,7 +62,7 @@ describe('ReactRelayRefetchContainer with fragment ownerhsip', () => {
       // eslint-disable-next-line no-shadow
       const {environment} = nextProps;
       if (environment !== this.__relayContext.environment) {
-        this.__relayContext = {environment, variables: {}};
+        this.__relayContext = {environment};
       }
     }
     setProps(props) {
@@ -72,7 +71,6 @@ describe('ReactRelayRefetchContainer with fragment ownerhsip', () => {
     setContext(env, vars) {
       this.__relayContext = {
         environment: env,
-        variables: {},
       };
       this.setProps({});
     }
@@ -181,7 +179,7 @@ describe('ReactRelayRefetchContainer with fragment ownerhsip', () => {
         .data.node;
       environment.mock.clearCache();
       instance = ReactTestRenderer.create(
-        <ContextSetter environment={environment} variables={variables}>
+        <ContextSetter environment={environment}>
           <TestContainer user={userPointer} />
         </ContextSetter>,
       );

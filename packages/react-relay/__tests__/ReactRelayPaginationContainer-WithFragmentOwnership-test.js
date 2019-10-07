@@ -53,7 +53,6 @@ describe('ReactRelayPaginationContainer with fragment ownership', () => {
 
       this.__relayContext = {
         environment: props.environment,
-        variables: {},
       };
 
       this.state = {
@@ -64,10 +63,9 @@ describe('ReactRelayPaginationContainer with fragment ownership', () => {
     setProps(props) {
       this.setState({props});
     }
-    setContext(env, vars) {
+    setContext(env) {
       this.__relayContext = {
         environment: env,
-        variables: {},
       };
       this.setProps({});
     }

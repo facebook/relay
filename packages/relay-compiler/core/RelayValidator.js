@@ -15,7 +15,6 @@ const Profiler = require('./GraphQLCompilerProfiler');
 const util = require('util');
 
 const {
-  LoneAnonymousOperationRule,
   NoUnusedVariablesRule,
   PossibleFragmentSpreadsRule,
   UniqueArgumentNamesRule,
@@ -111,7 +110,6 @@ module.exports = {
      *   own type-checking for variable/argument usage that is aware of fragment
      *   variables.
      */
-    LoneAnonymousOperationRule,
     PossibleFragmentSpreadsRule,
     VariablesAreInputTypesRule,
 

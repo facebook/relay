@@ -20,7 +20,6 @@ const {
   UniqueArgumentNamesRule,
   UniqueInputFieldNamesRule,
   UniqueVariableNamesRule,
-  VariablesAreInputTypesRule,
   formatError,
 } = require('graphql');
 
@@ -109,7 +108,6 @@ module.exports = {
      *   variables.
      */
     PossibleFragmentSpreadsRule,
-    VariablesAreInputTypesRule,
 
     // Relay-specific validation
     DisallowIdAsAliasValidationRule,

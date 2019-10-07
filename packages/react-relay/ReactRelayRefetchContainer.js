@@ -26,6 +26,7 @@ const {
   createOperationDescriptor,
   getDataIDsFromObject,
   getRequest,
+  getSelector,
   getVariablesFromObject,
   isScalarAndEqual,
 } = require('relay-runtime');
@@ -154,7 +155,6 @@ function createContainerWithFragments<
       // - Pending fetches are for the previous records.
       if (
         prevState.prevPropsContext.environment !== relayContext.environment ||
-        prevState.prevPropsContext.variables !== relayContext.variables ||
         !areEqual(prevIDs, nextIDs)
       ) {
         // Do not provide a subscription/callback here.
@@ -215,9 +215,7 @@ function createContainerWithFragments<
         if (key === '__relayContext') {
           if (
             this.state.prevPropsContext.environment !==
-              nextState.prevPropsContext.environment ||
-            this.state.prevPropsContext.variables !==
-              nextState.prevPropsContext.variables
+            nextState.prevPropsContext.environment
           ) {
             return true;
           }
@@ -298,9 +296,24 @@ function createContainerWithFragments<
         };
       }
 
-      const {environment, variables: rootVariables} = assertRelayContext(
-        this.props.__relayContext,
-      );
+      const {environment} = assertRelayContext(this.props.__relayContext);
+      let rootVariables;
+      // NOTE: For extra safety, we make sure the rootVariables include the
+      // variables from all owners in this fragmentSpec, even though they
+      // should all point to the same owner
+      Object.keys(fragments).forEach(key => {
+        const fragmentNode = fragments[key];
+        const fragmentRef = this.props[key];
+        const selector = getSelector(fragmentNode, fragmentRef);
+        const fragmentOwnerVariables =
+          selector != null && selector.kind === 'PluralReaderSelector'
+            ? selector.selectors[0]?.owner.variables ?? {}
+            : selector?.owner.variables ?? {};
+        rootVariables = {
+          ...rootVariables,
+          ...fragmentOwnerVariables,
+        };
+      });
       let fetchVariables =
         typeof refetchVariables === 'function'
           ? refetchVariables(this._getFragmentVariables())
@@ -357,7 +370,7 @@ function createContainerWithFragments<
             data: latestState.resolver.resolve(),
             contextForChildren: {
               environment: this.props.__relayContext.environment,
-              variables: fragmentVariables,
+              variables: {},
             },
           }),
           () => {
@@ -389,7 +402,7 @@ function createContainerWithFragments<
                 data: latestState.resolver.resolve(),
                 contextForChildren: {
                   environment: this.props.__relayContext.environment,
-                  variables: fragmentVariables,
+                  variables: {},
                 },
               }),
               () => {

@@ -630,16 +630,23 @@ class GraphQLDefinitionParser {
       ),
       'FRAGMENT_DEFINITION',
     );
-    const type = this._schema.assertCompositeType(
-      this._schema.expectTypeFromAST(
-        fragment.typeCondition,
-        `Unknown type '${
-          fragment.typeCondition.name.value
-        }' on the fragment definition '${fragment.name.value}'.`,
-        null,
-        [fragment.typeCondition],
-      ),
+    let type = this._schema.expectTypeFromAST(
+      fragment.typeCondition,
+      `Unknown type '${
+        fragment.typeCondition.name.value
+      }' on the fragment definition '${fragment.name.value}'.`,
+      null,
+      [fragment.typeCondition],
     );
+    if (!this._schema.isCompositeType(type)) {
+      throw createUserError(
+        `Fragment "${fragment.name.value}" cannot condition on non composite ` +
+          `type "${this._schema.getTypeString(type)}".`,
+        null,
+        [fragment.typeCondition ?? fragment],
+      );
+    }
+    type = this._schema.assertCompositeType(type);
 
     const selections = this._transformSelections(fragment.selectionSet, type);
     const argumentDefinitions = [
@@ -788,11 +795,23 @@ class GraphQLDefinitionParser {
     parentType: TypeID,
   ): InlineFragment {
     const schema = this._schema;
-    const typeCondition = schema.assertCompositeType(
+    let typeCondition =
       fragment.typeCondition != null
         ? schema.expectTypeFromAST(fragment.typeCondition)
-        : parentType,
-    );
+        : parentType;
+
+    if (!schema.isCompositeType(typeCondition)) {
+      throw createUserError(
+        `Fragment cannot condition on non composite type '${schema.getTypeString(
+          typeCondition,
+        )}'.`,
+        null,
+        [fragment.typeCondition ?? fragment],
+      );
+    }
+
+    typeCondition = schema.assertCompositeType(typeCondition);
+
     const directives = this._transformDirectives(
       fragment.directives || [],
       'INLINE_FRAGMENT',

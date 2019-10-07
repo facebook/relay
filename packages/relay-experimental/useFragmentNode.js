@@ -74,13 +74,9 @@ function useFragmentNode<TFragmentData: mixed>(
   // with the same props, which is a common case when the parent updates due
   // to change in the data /it/ is subscribed to, but which doesn't affect the
   // child.
-  const shouldUpdate = mustResubscribe;
-
-  if (shouldUpdate) {
-    shouldUpdateGenerationRef.current++;
-  }
 
   if (mustResubscribe) {
+    shouldUpdateGenerationRef.current++;
     mustResubscribeGenerationRef.current++;
   }
 
@@ -116,8 +112,7 @@ function useFragmentNode<TFragmentData: mixed>(
 
     // If we receive an update from the Relay store, we need to make sure the
     // consuming component updates.
-    shouldUpdateGenerationRef.current =
-      (shouldUpdateGenerationRef.current ?? 0) + 1;
+    shouldUpdateGenerationRef.current++;
 
     // React bails out on noop state updates as an optimization.
     // If we want to force an update via setState, we need to pass an value.

@@ -389,7 +389,6 @@ function createContainerWithFragments<
       // - Pending fetches are for the previous records.
       if (
         relayContext.environment !== this.state.prevContext.environment ||
-        relayContext.variables !== this.state.prevContext.variables ||
         !areEqual(prevIDs, nextIDs)
       ) {
         this._cleanup();
@@ -436,8 +435,7 @@ function createContainerWithFragments<
         if (key === '__relayContext') {
           if (
             nextState.prevContext.environment !==
-              this.state.prevContext.environment ||
-            nextState.prevContext.variables !== this.state.prevContext.variables
+            this.state.prevContext.environment
           ) {
             return true;
           }
@@ -737,10 +735,6 @@ function createContainerWithFragments<
       this._hasFetched = true;
 
       const onNext = (payload, complete) => {
-        const contextVariables = {
-          ...this.props.__relayContext.variables,
-          ...fragmentVariables,
-        };
         const prevData = this._resolver.resolve();
         this._resolver.setVariables(
           getFragmentVariables(
@@ -766,7 +760,7 @@ function createContainerWithFragments<
               data: nextData,
               contextForChildren: {
                 environment: this.props.__relayContext.environment,
-                variables: contextVariables,
+                variables: {},
               },
             },
             complete,

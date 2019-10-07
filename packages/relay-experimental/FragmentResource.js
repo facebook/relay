@@ -100,14 +100,34 @@ class FragmentResourceImpl {
     componentDisplayName: string,
     fragmentKey?: string,
   ): FragmentResult {
+    return this.readWithIdentifier(
+      fragmentNode,
+      fragmentRef,
+      getFragmentIdentifier(fragmentNode, fragmentRef),
+      componentDisplayName,
+      fragmentKey,
+    );
+  }
+
+  /**
+   * Like `read`, but with pre-computed fragmentIdentifier that should be
+   * equal to `getFragmentIdentifier(fragmentNode, fragmentRef)` from the
+   * arguments.
+   */
+  readWithIdentifier(
+    fragmentNode: ReaderFragment,
+    fragmentRef: mixed,
+    fragmentIdentifier: string,
+    componentDisplayName: string,
+    fragmentKey?: ?string,
+  ): FragmentResult {
     const environment = this._environment;
-    const cacheKey = getFragmentIdentifier(fragmentNode, fragmentRef);
 
     // If fragmentRef is null or undefined, pass it directly through.
     // This is a convenience when consuming fragments via a HOC api, when the
     // prop corresponding to the fragment ref might be passed as null.
     if (fragmentRef == null) {
-      return {cacheKey, data: null, snapshot: null};
+      return {cacheKey: fragmentIdentifier, data: null, snapshot: null};
     }
 
     // If fragmentRef is plural, ensure that it is an array.
@@ -124,19 +144,19 @@ class FragmentResourceImpl {
         fragmentNode.name,
       );
       if (fragmentRef.length === 0) {
-        return {cacheKey, data: [], snapshot: []};
+        return {cacheKey: fragmentIdentifier, data: [], snapshot: []};
       }
     }
 
     // Now we actually attempt to read the fragment:
 
     // 1. Check if there's a cached value for this fragment
-    const cachedValue = this._cache.get(cacheKey);
+    const cachedValue = this._cache.get(fragmentIdentifier);
     if (cachedValue != null) {
       if (isPromise(cachedValue) || cachedValue instanceof Error) {
         throw cachedValue;
       }
-      return getFragmentResult(cacheKey, cachedValue);
+      return getFragmentResult(fragmentIdentifier, cachedValue);
     }
 
     // 2. If not, try reading the fragment from the Relay store.
@@ -163,8 +183,8 @@ class FragmentResourceImpl {
       fragmentOwner.node.params.name ?? 'Unknown Parent Query';
 
     if (!isMissingData(snapshot)) {
-      this._cache.set(cacheKey, snapshot);
-      return getFragmentResult(cacheKey, snapshot);
+      this._cache.set(fragmentIdentifier, snapshot);
+      return getFragmentResult(fragmentIdentifier, snapshot);
     }
 
     // 3. If we don't have data in the store, check if a request is in
@@ -173,7 +193,7 @@ class FragmentResourceImpl {
     // or subscription. If a promise exists, cache the promise and use it
     // to suspend.
     const networkPromise = this._getAndSavePromiseForFragmentRequestInFlight(
-      cacheKey,
+      fragmentIdentifier,
       fragmentOwner,
     );
     if (networkPromise != null) {
@@ -203,7 +223,7 @@ class FragmentResourceImpl {
       parentQueryName,
       parentQueryName,
     );
-    return getFragmentResult(cacheKey, snapshot);
+    return getFragmentResult(fragmentIdentifier, snapshot);
   }
 
   readSpec(

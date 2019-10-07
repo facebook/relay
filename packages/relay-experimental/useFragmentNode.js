@@ -74,9 +74,10 @@ function useFragmentNode<TFragmentData: mixed>(
   }
 
   // Read fragment data; this might suspend.
-  const fragmentResult = FragmentResource.read(
+  const fragmentResult = FragmentResource.readWithIdentifier(
     fragmentNode,
     fragmentRef,
+    fragmentIdentifier,
     componentDisplayName,
   );
 

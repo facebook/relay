@@ -15,7 +15,7 @@ const useRelayEnvironment = require('./useRelayEnvironment');
 const warning = require('warning');
 
 const {getFragmentResourceForEnvironment} = require('./FragmentResource');
-const {useMemo, useEffect, useRef, useState} = require('react');
+const {useEffect, useRef, useState} = require('react');
 const {getFragmentIdentifier} = require('relay-runtime');
 
 import type {ReaderFragment} from 'relay-runtime';
@@ -32,9 +32,6 @@ function useFragmentNode<TFragmentData: mixed>(
   fragmentRef: mixed,
   componentDisplayName: string,
 ): ReturnType<TFragmentData> {
-  const fragmentNodes = useMemo(() => ({result: fragmentNode}), [fragmentNode]);
-  const props = useMemo(() => ({result: fragmentRef}), [fragmentRef]);
-
   const environment = useRelayEnvironment();
   const FragmentResource = getFragmentResourceForEnvironment(environment);
 
@@ -53,7 +50,7 @@ function useFragmentNode<TFragmentData: mixed>(
   const fragmentIdentifierChanged = useHasChanged(fragmentIdentifier);
 
   // If the fragment identifier changes, it means that the variables on the
-  // fragment owner changed, or the fragment refs point to different records.
+  // fragment owner changed, or the fragment ref points to different records.
   // In this case, we need to resubscribe to the Relay store.
   const mustResubscribe = environmentChanged || fragmentIdentifierChanged;
 
@@ -65,7 +62,6 @@ function useFragmentNode<TFragmentData: mixed>(
   //   now point to different records, or the context changed).
   //   Note that even if identity of the fragment ref objects changes, we
   //   don't consider them as different unless they point to a different data ID.
-  // - Any props that are /not/ fragment refs have changed.
   //
   // This prevents unnecessary updates when a parent re-renders this component
   // with the same props, which is a common case when the parent updates due
@@ -140,8 +136,7 @@ function useFragmentNode<TFragmentData: mixed>(
   }, [mustResubscribeGenerationRef.current]);
 
   if (__DEV__) {
-    if (props.result != null && fragmentResult.data == null) {
-      const fragmentName = fragmentNodes.result?.name ?? 'Unknown fragment';
+    if (fragmentRef != null && fragmentResult.data == null) {
       warning(
         false,
         'Relay: Expected to have been able to read non-null data for ' +
@@ -150,7 +145,7 @@ function useFragmentNode<TFragmentData: mixed>(
           "Make sure that that `%s`'s parent isn't " +
           'holding on to and/or passing a fragment reference for data that ' +
           'has been deleted.',
-        fragmentName,
+        fragmentNode.name,
         componentDisplayName,
         componentDisplayName,
       );

@@ -762,9 +762,7 @@ function validateConnectionType(
     );
   }
 
-  const edges = schema.getFieldConfig(
-    schema.expectField(nullableType, EDGES, null, [field.loc]),
-  );
+  const edges = schema.getFieldConfig(schema.expectField(nullableType, EDGES));
 
   const edgesType = schema.getNullableType(edges.type);
   if (!schema.isList(edgesType)) {
@@ -794,9 +792,7 @@ function validateConnectionType(
       [field.loc],
     );
   }
-  const node = schema.getFieldConfig(
-    schema.expectField(edgeType, NODE, null, [field.loc]),
-  );
+  const node = schema.getFieldConfig(schema.expectField(edgeType, NODE));
 
   const nodeType = schema.getNullableType(node.type);
   if (!(schema.isAbstractType(nodeType) || schema.isObject(nodeType))) {
@@ -816,9 +812,7 @@ function validateConnectionType(
       [field.loc],
     );
   }
-  const cursor = schema.getFieldConfig(
-    schema.expectField(edgeType, CURSOR, null, [field.loc]),
-  );
+  const cursor = schema.getFieldConfig(schema.expectField(edgeType, CURSOR));
 
   if (!schema.isScalar(schema.getNullableType(cursor.type))) {
     throw createUserError(
@@ -839,7 +833,7 @@ function validateConnectionType(
   }
 
   const pageInfo = schema.getFieldConfig(
-    schema.expectField(nullableType, PAGE_INFO, null, [field.loc]),
+    schema.expectField(nullableType, PAGE_INFO),
   );
 
   const pageInfoType = schema.getNullableType(pageInfo.type);
@@ -855,12 +849,7 @@ function validateConnectionType(
   [END_CURSOR, HAS_NEXT_PAGE, HAS_PREV_PAGE, START_CURSOR].forEach(
     fieldName => {
       const pageInfoField = schema.getFieldConfig(
-        schema.expectField(
-          schema.assertObjectType(pageInfoType),
-          fieldName,
-          null,
-          [field.loc],
-        ),
+        schema.expectField(schema.assertObjectType(pageInfoType), fieldName),
       );
       if (!schema.isScalar(schema.getNullableType(pageInfoField.type))) {
         throw createUserError(

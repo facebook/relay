@@ -13,7 +13,7 @@
 
 const Schema = require('../Schema');
 
-const {Source, parse} = require('graphql');
+const {Source, parse, parseType} = require('graphql');
 
 describe('Schema: RelayCompiler Internal GraphQL Schema Interface', () => {
   describe('getTypeFromString | expectTypeFromString | getTypeString ', () => {
@@ -31,7 +31,7 @@ describe('Schema: RelayCompiler Internal GraphQL Schema Interface', () => {
     it('should throw if type is not available', () => {
       const schema = Schema.create(new Source('type MyType { id: String }'));
       expect(() => schema.expectTypeFromString('UnknownType')).toThrow(
-        'Unable to find type: UnknownType',
+        "Unknown type: 'UnknownType'",
       );
     });
 
@@ -151,6 +151,17 @@ describe('Schema: RelayCompiler Internal GraphQL Schema Interface', () => {
       expect(
         schema.getTypeString(schema.expectTypeFromString('[[MyType]!]!')),
       ).toBe('[[MyType]!]!');
+    });
+
+    test('getTypeFromAST', () => {
+      const schema = Schema.create(new Source('type MyType { id: String }'));
+      const typeAST = parseType('MyType');
+      const unknownTypeAST = parseType('UnknownType');
+      const typeId = schema.getTypeFromAST(typeAST);
+      expect(typeId ? schema.getTypeString(typeId) : 'UnknownType').toBe(
+        'MyType',
+      );
+      expect(schema.getTypeFromAST(unknownTypeAST)).not.toBeDefined();
     });
 
     test('expectTypeFromAST', () => {

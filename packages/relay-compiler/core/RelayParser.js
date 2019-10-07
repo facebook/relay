@@ -24,7 +24,7 @@ const {
 } = require('./RelayCompilerError');
 const {isExecutableDefinitionAST} = require('./SchemaUtils');
 const {getFieldDefinitionLegacy} = require('./getFieldDefinition');
-const {parse: parseGraphQL, parseType, Source} = require('graphql');
+const {parse: parseGraphQL, parseType, print, Source} = require('graphql');
 
 import type {
   Argument,
@@ -323,26 +323,24 @@ class RelayParser {
           [arg.value],
         );
       }
-
-      const typeAST = parseType(typeString);
-      const argType = this._schema.expectTypeFromAST(
-        typeAST,
-        `Unknown type "${typeString}" referenced in the argument definitions.`,
-        null,
-        [arg],
-      );
-      if (!this._schema.isInputType(argType)) {
+      const typeFromAST = this._schema.getTypeFromAST(parseType(typeString));
+      if (typeFromAST == null) {
         throw createUserError(
-          `Expected type "${this._schema.getTypeString(
-            argType,
-          )}" to be an input type in the "${
+          `Unknown type "${typeString}" referenced in the argument definitions.`,
+          null,
+          [arg],
+        );
+      }
+      const type = this._schema.asInputType(typeFromAST);
+      if (type == null) {
+        throw createUserError(
+          `Expected type "${typeString}" to be an input type in the "${
             arg.name.value
           }" argument definitions.`,
           null,
           [arg.value],
         );
       }
-      const type = this._schema.assertInputType(argType);
       const defaultValue =
         defaultValueNode != null
           ? transformValue(
@@ -387,18 +385,24 @@ class RelayParser {
     const variableDefinitions = new Map();
     (operation.variableDefinitions || []).forEach(def => {
       const name = getName(def.variable);
-      const defType = schema.expectTypeFromAST(def.type);
-      if (!schema.isInputType(defType)) {
+      const typeFromAST = schema.getTypeFromAST(def.type);
+      if (typeFromAST == null) {
         throw createUserError(
-          `Expected type "${schema.getTypeString(
-            defType,
-          )}" to be an input type.`,
+          `Unknown type: '${getTypeName(def.type)}'.`,
           null,
           [def.type],
         );
       }
 
-      const type = schema.assertInputType(defType);
+      const type = schema.asInputType(typeFromAST);
+      if (type == null) {
+        throw createUserError(
+          `Expected type "${getTypeName(def.type)}" to be an input type.`,
+          null,
+          [def.type],
+        );
+      }
+
       const defaultValue = def.defaultValue
         ? transformLiteralValue(def.defaultValue, def)
         : null;
@@ -631,23 +635,26 @@ class GraphQLDefinitionParser {
       ),
       'FRAGMENT_DEFINITION',
     );
-    let type = this._schema.expectTypeFromAST(
-      fragment.typeCondition,
-      `Unknown type '${
-        fragment.typeCondition.name.value
-      }' on the fragment definition '${fragment.name.value}'.`,
-      null,
-      [fragment.typeCondition],
-    );
-    if (!this._schema.isCompositeType(type)) {
+
+    const typeFromAST = this._schema.getTypeFromAST(fragment.typeCondition);
+    if (typeFromAST == null) {
       throw createUserError(
-        `Fragment "${fragment.name.value}" cannot condition on non composite ` +
-          `type "${this._schema.getTypeString(type)}".`,
+        `Fragment "${fragment.name.value}" cannot condition on unknown ` +
+          `type "${String(fragment.typeCondition.name.value)}".`,
         null,
-        [fragment.typeCondition ?? fragment],
+        [fragment.typeCondition],
       );
     }
-    type = this._schema.assertCompositeType(type);
+
+    const type = this._schema.asCompositeType(typeFromAST);
+    if (type == null) {
+      throw createUserError(
+        `Fragment "${fragment.name.value}" cannot condition on non composite ` +
+          `type "${String(type)}".`,
+        null,
+        [fragment.typeCondition],
+      );
+    }
 
     const selections = this._transformSelections(fragment.selectionSet, type);
     const argumentDefinitions = [
@@ -706,15 +713,15 @@ class GraphQLDefinitionParser {
     switch (definition.operation) {
       case 'query':
         operation = 'query';
-        type = schema.expectQueryType(null, null, [definition]);
+        type = schema.expectQueryType();
         break;
       case 'mutation':
         operation = 'mutation';
-        type = schema.expectMutationType(null, null, [definition]);
+        type = schema.expectMutationType();
         break;
       case 'subscription':
         operation = 'subscription';
-        type = schema.expectSubscriptionType(null, null, [definition]);
+        type = schema.expectSubscriptionType();
         break;
       default:
         (definition.operation: empty);
@@ -798,23 +805,31 @@ class GraphQLDefinitionParser {
     const schema = this._schema;
     let typeCondition =
       fragment.typeCondition != null
-        ? schema.expectTypeFromAST(fragment.typeCondition)
+        ? schema.getTypeFromAST(fragment.typeCondition)
         : parentType;
 
-    if (!schema.isCompositeType(typeCondition)) {
+    if (typeCondition == null) {
       throw createUserError(
-        `Fragment cannot condition on non composite type '${schema.getTypeString(
-          typeCondition,
-        )}'.`,
+        'Inline fragments can only be on object, interface or union types' +
+          `, got unknown type '${getTypeName(fragment.typeCondition)}'.`,
         null,
         [fragment.typeCondition ?? fragment],
       );
     }
-    typeCondition = schema.assertCompositeType(typeCondition);
-
+    const typeConditionName = schema.getTypeString(typeCondition);
+    typeCondition = schema.asCompositeType(typeCondition);
+    if (typeCondition == null) {
+      throw createUserError(
+        'Inline fragments can only be on object, interface or union types' +
+          `, got '${typeConditionName}'.`,
+        null,
+        [fragment.typeCondition ?? fragment],
+      );
+    }
     const rawParentType = this._schema.assertCompositeType(
       this._schema.getRawType(parentType),
     );
+
     if (!this._schema.doTypesOverlap(typeCondition, rawParentType)) {
       throw createUserError(
         'Fragment cannot be spread here as objects of ' +
@@ -1655,6 +1670,10 @@ function getName(ast): string {
     ]);
   }
   return name;
+}
+
+function getTypeName(ast: ?TypeNode): string {
+  return ast ? print(ast) : 'Undefined Type Name';
 }
 
 /**

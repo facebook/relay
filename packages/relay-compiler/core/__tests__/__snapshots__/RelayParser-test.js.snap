@@ -4159,7 +4159,7 @@ fragment InlineFragment on Node {
 THROWN EXCEPTION:
 
 Error: RelayParser: Encountered 1 error(s):
-- Unknown type: 'UnkwnownType'.
+- Inline fragments can only be on object, interface or union types, got unknown type 'UnkwnownType'.
   
   GraphQL request (3:10)
   2: fragment InlineFragment on Node {
@@ -6164,7 +6164,7 @@ fragment Foo on UnknownType {
 THROWN EXCEPTION:
 
 Error: RelayParser: Encountered 1 error(s):
-- Unknown type 'UnknownType' on the fragment definition 'Foo'.
+- Fragment "Foo" cannot condition on unknown type "UnknownType".
   
   GraphQL request (2:17)
   1: # expected-to-throw

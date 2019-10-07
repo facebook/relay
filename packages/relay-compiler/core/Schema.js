@@ -15,7 +15,7 @@ const ASTConvert = require('./ASTConvert');
 
 const nullthrows = require('../util/nullthrowsOSS');
 
-const {createUserError, createCompilerError} = require('./RelayCompilerError');
+const {createCompilerError} = require('./RelayCompilerError');
 const {
   GraphQLEnumType,
   GraphQLInputObjectType,
@@ -33,9 +33,8 @@ const {
   validate,
 } = require('graphql');
 
-import type {Location, Field as GraphQLIRField} from './GraphQLIR';
+import type {Field as GraphQLIRField} from './GraphQLIR';
 import type {
-  ASTNode,
   DirectiveLocationEnum,
   DocumentNode,
   GraphQLArgument,
@@ -443,14 +442,14 @@ class Schema {
       );
   }
 
-  _getTypeFromNode(typeNode: TypeNode): ?TypeID {
+  getTypeFromAST(typeNode: TypeNode): ?TypeID {
     if (typeNode.kind === 'NonNullType') {
-      const innerType = this._getTypeFromNode(typeNode.type);
+      const innerType = this.getTypeFromAST(typeNode.type);
       if (!innerType) {
         return;
       }
       if (innerType instanceof NonNull) {
-        throw createUserError(
+        throw createCompilerError(
           'Unable to wrap non-nullable type with non-null wrapper.',
         );
       }
@@ -463,7 +462,7 @@ class Schema {
       this._typeMap.set(cacheKey, type);
       return type;
     } else if (typeNode.kind === 'ListType') {
-      const innerType = this._getTypeFromNode(typeNode.type);
+      const innerType = this.getTypeFromAST(typeNode.type);
       if (!innerType) {
         return;
       }
@@ -506,7 +505,7 @@ class Schema {
         kind = 'Object';
         TypeClass = ObjectType;
       } else {
-        throw createUserError(`Unknown GraphQL type: ${graphQLType}`);
+        throw createCompilerError(`Unknown GraphQL type: ${graphQLType}`);
       }
       type = new TypeClass(name, kind);
       this._typeMap.set(name, type);
@@ -520,7 +519,7 @@ class Schema {
       return type;
     }
     if (typeof typeName === 'string') {
-      return this._getTypeFromNode(parseType(typeName));
+      return this.getTypeFromAST(parseType(typeName));
     } else {
       let graphQLType;
       if (typeName === this.QUERY_TYPE_KEY) {
@@ -543,36 +542,18 @@ class Schema {
     return this._getRawType(typeName);
   }
 
-  expectTypeFromString(
-    typeName: string,
-    message?: ?string,
-    locations?: ?$ReadOnlyArray<Location>,
-    nodes?: ?$ReadOnlyArray<ASTNode>,
-  ): TypeID {
+  expectTypeFromString(typeName: string): TypeID {
     const type = this.getTypeFromString(typeName);
-    if (!type) {
-      throw createUserError(
-        message ?? `Unable to find type: ${typeName}.`,
-        locations,
-        nodes,
-      );
+    if (type == null) {
+      throw createCompilerError(`Unknown type: '${typeName}'.`);
     }
     return type;
   }
 
-  expectTypeFromAST(
-    ast: TypeNode,
-    message?: ?string,
-    locations?: ?$ReadOnlyArray<Location>,
-    nodes?: ?$ReadOnlyArray<ASTNode>,
-  ): TypeID {
-    const type = this._getTypeFromNode(ast);
-    if (!type) {
-      throw createUserError(
-        message ?? `Unknown type: '${print(ast)}'.`,
-        locations,
-        nodes ?? [ast],
-      );
+  expectTypeFromAST(ast: TypeNode): TypeID {
+    const type = this.getTypeFromAST(ast);
+    if (type == null) {
+      throw createCompilerError(`Unknown type: '${print(ast)}'.`, null, [ast]);
     }
     return type;
   }
@@ -789,8 +770,23 @@ class Schema {
     return type;
   }
 
-  asScalarFieldType(type: ?TypeID): ?ScalarFieldTypeID {
-    if (type && (isScalar(type) || isEnum(type))) {
+  asCompositeType(type: mixed): ?CompositeTypeID {
+    if (isCompositeType(type)) {
+      return type;
+    }
+  }
+
+  asInputType(type: mixed): ?InputTypeID {
+    if (
+      (isWrapper(type) && isInputType(unwrap(type))) ||
+      (!isWrapper(type) && isInputType(type))
+    ) {
+      return type;
+    }
+  }
+
+  asScalarFieldType(type: mixed): ?ScalarFieldTypeID {
+    if (isScalar(type) || isEnum(type)) {
       return type;
     }
   }
@@ -969,50 +965,26 @@ class Schema {
     }
   }
 
-  expectQueryType(
-    message?: ?string,
-    locations?: ?$ReadOnlyArray<Location>,
-    nodes?: ?$ReadOnlyArray<ASTNode>,
-  ): ObjectTypeID {
+  expectQueryType(): ObjectTypeID {
     const queryType = this.getQueryType();
-    if (!queryType) {
-      throw createUserError(
-        'Query type is not defined on the Schema' ?? message,
-        locations,
-        nodes,
-      );
+    if (queryType == null) {
+      throw createCompilerError('Query type is not defined on the Schema');
     }
     return queryType;
   }
 
-  expectMutationType(
-    message?: ?string,
-    locations?: ?$ReadOnlyArray<Location>,
-    nodes?: ?$ReadOnlyArray<ASTNode>,
-  ): ObjectTypeID {
+  expectMutationType(): ObjectTypeID {
     const mutationType = this.getMutationType();
-    if (!mutationType) {
-      throw createUserError(
-        'Mutation type is not defined the Schema' ?? message,
-        locations,
-        nodes,
-      );
+    if (mutationType == null) {
+      throw createCompilerError('Mutation type is not defined the Schema');
     }
     return mutationType;
   }
 
-  expectSubscriptionType(
-    message?: ?string,
-    locations?: ?$ReadOnlyArray<Location>,
-    nodes?: ?$ReadOnlyArray<ASTNode>,
-  ): ObjectTypeID {
+  expectSubscriptionType(): ObjectTypeID {
     const subscriptionType = this.getSubscriptionType();
-    if (!subscriptionType) {
-      throw createUserError(
-        'Subscription type is not defined the Schema' ?? message,
-        locations,
-        nodes,
-      );
+    if (subscriptionType == null) {
+      throw createCompilerError('Subscription type is not defined the Schema');
     }
     return subscriptionType;
   }
@@ -1132,7 +1104,7 @@ class Schema {
     ) {
       return gqlType.getFields()[fieldName] != null;
     }
-    throw createUserError(
+    throw createCompilerError(
       'hasField(): Expected a concrete type or interface, ' +
         `got type ${type.name}`,
     );
@@ -1254,7 +1226,7 @@ class Schema {
     }
 
     if (isUnion(type)) {
-      throw createUserError(
+      throw createCompilerError(
         `Unexpected union type '${this.getTypeString(
           type,
         )}' in the 'getFieldByName(...)'. Expected type with fields`,
@@ -1268,17 +1240,11 @@ class Schema {
   expectField(
     type: CompositeTypeID | InputObjectTypeID,
     fieldName: string,
-    message?: ?string,
-    locations?: ?$ReadOnlyArray<Location>,
-    nodes?: ?$ReadOnlyArray<ASTNode>,
   ): FieldID {
     const field = this.getFieldByName(type, fieldName);
     if (!field) {
       throw createCompilerError(
-        message ??
-          `Unknown field '${fieldName}' on type '${this.getTypeString(type)}'.`,
-        locations,
-        nodes,
+        `Unknown field '${fieldName}' on type '${this.getTypeString(type)}'.`,
       );
     }
     return field;
@@ -1321,7 +1287,7 @@ class Schema {
     if (gqlType instanceof GraphQLEnumType) {
       return gqlType.getValues().map(({value}) => String(value));
     }
-    throw createUserError(
+    throw createCompilerError(
       `Expected "${type.name}" to be an Enum, but received "${
         type.kind
       }" kind.`,
@@ -1335,7 +1301,7 @@ class Schema {
         return this.expectTypeFromString(typeFromUnion.name);
       });
     }
-    throw createUserError(
+    throw createCompilerError(
       `Unable to get union types for type "${this.getTypeString(type)}".`,
     );
   }
@@ -1367,7 +1333,7 @@ class Schema {
         );
         this._possibleTypesMap.set(type, possibleTypes);
       } else {
-        throw createUserError(
+        throw createCompilerError(
           `Expected "${this.getTypeString(type)}" to be an Abstract type.`,
         );
       }
@@ -1387,7 +1353,7 @@ class Schema {
     ) {
       return gqlType.parseLiteral(valueNode);
     }
-    throw createUserError(
+    throw createCompilerError(
       `parseLiteral(...) is used with invalid type: ${this.getTypeString(
         type,
       )}.`,
@@ -1402,7 +1368,7 @@ class Schema {
     ) {
       return gqlType.parseValue(value);
     }
-    throw createUserError(
+    throw createCompilerError(
       `parseValue(...) is used with invalid type: ${this.getTypeString(type)}.`,
     );
   }
@@ -1415,7 +1381,7 @@ class Schema {
     ) {
       return gqlType.serialize(value);
     }
-    throw createUserError(
+    throw createCompilerError(
       `parseValue(...) is used with invalid type: ${this.getTypeString(type)}.`,
     );
   }
@@ -1477,9 +1443,7 @@ class Schema {
       (this.isAbstractType(type) &&
         field.directives.some(({name}) => name === 'fixme_fat_interface')) ||
       (this.hasField(type, field.name) &&
-        this.isServerField(
-          this.expectField(type, field.name, null, [field.loc]),
-        ))
+        this.isServerField(this.expectField(type, field.name)))
     );
   }
 

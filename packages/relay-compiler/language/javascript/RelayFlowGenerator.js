@@ -470,7 +470,17 @@ function createVisitor(schema: Schema, options: TypeGeneratorOptions) {
               };
         });
       },
-      Condition: visitCondition,
+      Condition(node) {
+        return flattenArray(
+          /* $FlowFixMe: selections have already been transformed */
+          (node.selections: $ReadOnlyArray<$ReadOnlyArray<Selection>>),
+        ).map(selection => {
+          return {
+            ...selection,
+            conditional: true,
+          };
+        });
+      },
       ScalarField(node) {
         return visitScalarField(schema, node, state);
       },
@@ -518,16 +528,11 @@ function createVisitor(schema: Schema, options: TypeGeneratorOptions) {
   };
 }
 
-function visitCondition(node, state) {
+function visitNodeWithSelectionsOnly(node) {
   return flattenArray(
     /* $FlowFixMe: selections have already been transformed */
     (node.selections: $ReadOnlyArray<$ReadOnlyArray<Selection>>),
-  ).map(selection => {
-    return {
-      ...selection,
-      conditional: true,
-    };
-  });
+  );
 }
 
 function visitScalarField(schema, node, state) {
@@ -673,33 +678,22 @@ function selectionsToRawResponseBabel(
             selectionsToMap(byConcreteType[concreteType]),
             false,
           ).values(),
-        ).map(selection => {
-          if (isTypenameSelection(selection)) {
-            return makeRawResponseProp(
-              schema,
-              {...selection, conditional: false},
-              state,
-              concreteType,
-            );
-          }
-          return makeRawResponseProp(schema, selection, state, concreteType);
-        }),
+        ).map(selection =>
+          makeRawResponseProp(schema, selection, state, concreteType),
+        ),
       );
     }
   }
   if (baseFields.length) {
     types.push(
-      baseFields.map(selection => {
-        if (isTypenameSelection(selection)) {
-          return makeRawResponseProp(
-            schema,
-            {...selection, conditional: false},
-            state,
-            nodeTypeName,
-          );
-        }
-        return makeRawResponseProp(schema, selection, state, null);
-      }),
+      baseFields.map(selection =>
+        makeRawResponseProp(
+          schema,
+          selection,
+          state,
+          isTypenameSelection(selection) ? nodeTypeName : null,
+        ),
+      ),
     );
   }
   return unionTypeAnnotation(
@@ -737,15 +731,12 @@ function createRawResponseTypeVisitor(schema: Schema, state: State) {
               };
         });
       },
-      Condition: visitCondition,
       ScalarField(node) {
         return visitScalarField(schema, node, state);
       },
       Connection(node) {
         return visitConnection(schema, node, state);
       },
-      ConnectionField: visitLinkedField,
-      LinkedField: visitLinkedField,
       ClientExtension(node) {
         return flattenArray(
           /* $FlowFixMe: selections have already been transformed */
@@ -755,18 +746,11 @@ function createRawResponseTypeVisitor(schema: Schema, state: State) {
           conditional: true,
         }));
       },
-      Defer(node) {
-        return flattenArray(
-          /* $FlowFixMe: selections have already been transformed */
-          (node.selections: $ReadOnlyArray<$ReadOnlyArray<Selection>>),
-        );
-      },
-      Stream(node) {
-        return flattenArray(
-          /* $FlowFixMe: selections have already been transformed */
-          (node.selections: $ReadOnlyArray<$ReadOnlyArray<Selection>>),
-        );
-      },
+      ConnectionField: visitLinkedField,
+      LinkedField: visitLinkedField,
+      Condition: visitNodeWithSelectionsOnly,
+      Defer: visitNodeWithSelectionsOnly,
+      Stream: visitNodeWithSelectionsOnly,
       ModuleImport(node) {
         return visitRawResposneModuleImport(schema, node, state);
       },

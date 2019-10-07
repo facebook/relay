@@ -16,7 +16,7 @@ const warning = require('warning');
 
 const {getFragmentResourceForEnvironment} = require('./FragmentResource');
 const {useMemo, useEffect, useRef, useState} = require('react');
-const {getFragmentSpecIdentifier} = require('relay-runtime');
+const {getFragmentIdentifier} = require('relay-runtime');
 
 import type {ReaderFragment} from 'relay-runtime';
 
@@ -40,10 +40,7 @@ function useFragmentNode<TFragmentData: mixed>(
 
   const isMountedRef = useRef(false);
   const [, forceUpdate] = useState(0);
-  const fragmentSpecIdentifier = getFragmentSpecIdentifier(
-    fragmentNodes,
-    props,
-  );
+  const fragmentIdentifier = getFragmentIdentifier(fragmentNode, fragmentRef);
 
   // The values of these React refs are counters that should be incremented
   // under their respective conditions. This allows us to use the counters as
@@ -53,12 +50,12 @@ function useFragmentNode<TFragmentData: mixed>(
   const shouldUpdateGenerationRef = useRef(0);
 
   const environmentChanged = useHasChanged(environment);
-  const fragmentSpecIdentifierChanged = useHasChanged(fragmentSpecIdentifier);
+  const fragmentIdentifierChanged = useHasChanged(fragmentIdentifier);
 
   // If the fragment identifier changes, it means that the variables on the
   // fragment owner changed, or the fragment refs point to different records.
   // In this case, we need to resubscribe to the Relay store.
-  const mustResubscribe = environmentChanged || fragmentSpecIdentifierChanged;
+  const mustResubscribe = environmentChanged || fragmentIdentifierChanged;
 
   // We only want to update the component consuming this fragment under the
   // following circumstances:

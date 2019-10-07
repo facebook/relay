@@ -104,6 +104,7 @@ function createContainerWithFragments<
       // - Pending fetches are for the previous records.
       if (
         prevState.prevPropsContext.environment !== relayContext.environment ||
+        prevState.prevPropsContext.variables !== relayContext.variables ||
         !areEqual(prevIDs, nextIDs)
       ) {
         // Do not provide a subscription/callback here.
@@ -172,7 +173,9 @@ function createContainerWithFragments<
         if (key === '__relayContext') {
           if (
             nextState.prevPropsContext.environment !==
-            this.state.prevPropsContext.environment
+              this.state.prevPropsContext.environment ||
+            nextState.prevPropsContext.variables !==
+              this.state.prevPropsContext.variables
           ) {
             return true;
           }

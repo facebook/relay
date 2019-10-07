@@ -16,7 +16,7 @@ const warning = require('warning');
 
 const {getFragmentResourceForEnvironment} = require('./FragmentResource');
 const {useMemo, useEffect, useRef, useState} = require('react');
-const {getFragmentSpecIdentifier, isScalarAndEqual} = require('relay-runtime');
+const {getFragmentSpecIdentifier} = require('relay-runtime');
 
 import type {ReaderFragment} from 'relay-runtime';
 
@@ -60,22 +60,6 @@ function useFragmentNode<TFragmentData: mixed>(
   // In this case, we need to resubscribe to the Relay store.
   const mustResubscribe = environmentChanged || fragmentSpecIdentifierChanged;
 
-  // We mirror the props to check if they have changed between renders
-  const [mirroredProps, setMirroredProps] = useState(props);
-
-  // `props` contains both fragment refs and regular component
-  // props, so we extract here the props that aren't fragment refs.
-  // TODO(T38931859) This can be simplified if we use named fragment refs
-  const nonFragmentRefPropKeys = Object.keys(props).filter(
-    key => !fragmentNodes.hasOwnProperty(key),
-  );
-  const nonFragmentRefPropsChanged = nonFragmentRefPropKeys.some(
-    key => mirroredProps[key] !== props[key],
-  );
-  const scalarNonFragmentRefPropsChanged = nonFragmentRefPropKeys.some(
-    key => !isScalarAndEqual(mirroredProps[key], props[key]),
-  );
-
   // We only want to update the component consuming this fragment under the
   // following circumstances:
   // - We receive an update from the Relay store, indicating that the data
@@ -90,7 +74,7 @@ function useFragmentNode<TFragmentData: mixed>(
   // with the same props, which is a common case when the parent updates due
   // to change in the data /it/ is subscribed to, but which doesn't affect the
   // child.
-  const shouldUpdate = mustResubscribe || scalarNonFragmentRefPropsChanged;
+  const shouldUpdate = mustResubscribe;
 
   if (shouldUpdate) {
     shouldUpdateGenerationRef.current++;
@@ -98,13 +82,6 @@ function useFragmentNode<TFragmentData: mixed>(
 
   if (mustResubscribe) {
     mustResubscribeGenerationRef.current++;
-  }
-
-  // Since `props` contains both fragment refs and regular props, we need to
-  // ensure we keep the mirrored version in sync if non fragment ref props
-  // change , to be able to compare them between renders
-  if (nonFragmentRefPropsChanged) {
-    setMirroredProps(props);
   }
 
   // Read fragment data; this might suspend.

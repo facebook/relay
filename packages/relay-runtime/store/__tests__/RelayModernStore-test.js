@@ -870,6 +870,163 @@ function assertIsDeeplyFrozen(value: ?{} | ?$ReadOnlyArray<{}>) {
       });
     });
 
+    describe('GC with a release buffer', () => {
+      let UserFragment;
+      let data;
+      let initialData;
+      let source;
+      let store;
+
+      beforeEach(() => {
+        data = {
+          '4': {
+            __id: '4',
+            id: '4',
+            __typename: 'User',
+            name: 'Zuck',
+            'profilePicture(size:32)': {[REF_KEY]: 'client:1'},
+          },
+          '5': {
+            __id: '5',
+            id: '5',
+            __typename: 'User',
+            name: 'Other',
+            'profilePicture(size:32)': {[REF_KEY]: 'client:2'},
+          },
+          'client:1': {
+            __id: 'client:1',
+            uri: 'https://photo1.jpg',
+          },
+          'client:2': {
+            __id: 'client:2',
+            uri: 'https://photo2.jpg',
+          },
+        };
+        initialData = simpleClone(data);
+        source = getRecordSourceImplementation(data);
+        store = new RelayModernStore(source, {gcReleaseBufferSize: 1});
+        ({UserFragment} = generateAndCompile(`
+          fragment UserFragment on User {
+            name
+            profilePicture(size: $size) {
+              uri
+            }
+          }
+        `));
+      });
+
+      it('keeps the data retained in the release buffer after released by caller', () => {
+        const disposable = store.retain(
+          createNormalizationSelector(UserFragment, '4', {size: 32}),
+        );
+
+        jest.runAllTimers();
+        // Assert data is not collected
+        expect(source.toJSON()).toEqual(initialData);
+
+        // Assert data is still not collected since it's still
+        // retained in the release buffer
+        disposable.dispose();
+        jest.runAllTimers();
+        expect(source.toJSON()).toEqual(initialData);
+      });
+
+      it('releases the operation and collects data after release buffer reaches capacity', () => {
+        const disposable = store.retain(
+          createNormalizationSelector(UserFragment, '4', {size: 32}),
+        );
+        jest.runAllTimers();
+        // Assert data is not collected
+        expect(source.toJSON()).toEqual(initialData);
+
+        // Assert data is still not collected since it's still
+        // retained in the release buffer
+        disposable.dispose();
+        jest.runAllTimers();
+        expect(source.toJSON()).toEqual(initialData);
+
+        const disposable2 = store.retain(
+          createNormalizationSelector(UserFragment, '5', {size: 32}),
+        );
+        jest.runAllTimers();
+        expect(source.toJSON()).toEqual(initialData);
+
+        // Releasing second operation should cause release buffer to
+        // go over capacity
+        disposable2.dispose();
+        jest.runAllTimers();
+        // Assert that the data for the first operation is collected, while
+        // data for second operation is still retained via the release buffer
+        expect(source.toJSON()).toEqual({
+          '5': {
+            __id: '5',
+            id: '5',
+            __typename: 'User',
+            name: 'Other',
+            'profilePicture(size:32)': {[REF_KEY]: 'client:2'},
+          },
+          'client:2': {
+            __id: 'client:2',
+            uri: 'https://photo2.jpg',
+          },
+        });
+      });
+
+      it('when same operation retained multiple times, data is only collected until fully released from buffer', () => {
+        const disposable = store.retain(
+          createNormalizationSelector(UserFragment, '4', {size: 32}),
+        );
+        jest.runAllTimers();
+        expect(source.toJSON()).toEqual(initialData);
+
+        // Retain the same operation again
+        const disposable2 = store.retain(
+          createNormalizationSelector(UserFragment, '4', {size: 32}),
+        );
+        jest.runAllTimers();
+        expect(source.toJSON()).toEqual(initialData);
+
+        // Retain different operation
+        const disposable3 = store.retain(
+          createNormalizationSelector(UserFragment, '5', {size: 32}),
+        );
+        jest.runAllTimers();
+        expect(source.toJSON()).toEqual(initialData);
+
+        // Assert data is still not collected since it's still
+        // retained in the release buffer
+        disposable.dispose();
+        jest.runAllTimers();
+        expect(source.toJSON()).toEqual(initialData);
+
+        // Assert data is still not collected since it's still
+        // retained in the release buffer via the equivalent operation
+        disposable2.dispose();
+        jest.runAllTimers();
+        expect(source.toJSON()).toEqual(initialData);
+
+        // Releasing different operation should cause release buffer to
+        // go over capacity
+        disposable3.dispose();
+        jest.runAllTimers();
+        // Assert that the data for the first operation is collected, while
+        // data for secont operation is still retained via the release buffer
+        expect(source.toJSON()).toEqual({
+          '5': {
+            __id: '5',
+            id: '5',
+            __typename: 'User',
+            name: 'Other',
+            'profilePicture(size:32)': {[REF_KEY]: 'client:2'},
+          },
+          'client:2': {
+            __id: 'client:2',
+            uri: 'https://photo2.jpg',
+          },
+        });
+      });
+    });
+
     describe('GC Scheduler', () => {
       let UserFragment;
       let data;
@@ -897,7 +1054,7 @@ function assertIsDeeplyFrozen(value: ?{} | ?$ReadOnlyArray<{}>) {
         callbacks = [];
         scheduler = jest.fn(callbacks.push.bind(callbacks));
         source = getRecordSourceImplementation(data);
-        store = new RelayModernStore(source, scheduler);
+        store = new RelayModernStore(source, {gcScheduler: scheduler});
         ({UserFragment} = generateAndCompile(`
           fragment UserFragment on User {
             name

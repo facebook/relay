@@ -43,11 +43,12 @@ import type {
   Variable,
 } from './GraphQLIR';
 import type {
-  Schema,
-  TypeID,
+  CompositeTypeID,
+  FieldArgument,
   FieldID,
   InputTypeID,
-  FieldArgument,
+  Schema,
+  TypeID,
 } from './Schema';
 import type {GetFieldDefinitionFn} from './getFieldDefinition';
 import type {
@@ -656,7 +657,11 @@ class GraphQLDefinitionParser {
       );
     }
 
-    const selections = this._transformSelections(fragment.selectionSet, type);
+    const selections = this._transformSelections(
+      fragment.selectionSet,
+      type,
+      fragment.typeCondition,
+    );
     const argumentDefinitions = [
       ...buildArgumentDefinitions(this._variableDefinitions),
     ];
@@ -766,15 +771,24 @@ class GraphQLDefinitionParser {
   _transformSelections(
     selectionSet: SelectionSetNode,
     parentType: TypeID,
+    parentTypeAST?: TypeNode,
   ): $ReadOnlyArray<Selection> {
     return selectionSet.selections.map(selection => {
       let node;
       if (selection.kind === 'Field') {
         node = this._transformField(selection, parentType);
       } else if (selection.kind === 'FragmentSpread') {
-        node = this._transformFragmentSpread(selection, parentType);
+        node = this._transformFragmentSpread(
+          selection,
+          parentType,
+          parentTypeAST,
+        );
       } else if (selection.kind === 'InlineFragment') {
-        node = this._transformInlineFragment(selection, parentType);
+        node = this._transformInlineFragment(
+          selection,
+          parentType,
+          parentTypeAST,
+        );
       } else {
         (selection.kind: empty);
         throw createCompilerError(`Unknown ast kind '${selection.kind}'.`, [
@@ -801,6 +815,7 @@ class GraphQLDefinitionParser {
   _transformInlineFragment(
     fragment: InlineFragmentNode,
     parentType: TypeID,
+    parentTypeAST: ?TypeNode,
   ): InlineFragment {
     const schema = this._schema;
     let typeCondition =
@@ -830,19 +845,14 @@ class GraphQLDefinitionParser {
       this._schema.getRawType(parentType),
     );
 
-    if (!this._schema.doTypesOverlap(typeCondition, rawParentType)) {
-      throw createUserError(
-        'Fragment cannot be spread here as objects of ' +
-          'type "'
-            .concat(
-              this._schema.getTypeString(rawParentType),
-              '" can never be of type "',
-            )
-            .concat(this._schema.getTypeString(typeCondition), '".'),
-        null,
-        fragment.typeCondition != null ? [fragment.typeCondition] : null,
-      );
-    }
+    checkFragmentSpreadTypeCompatibility(
+      this._schema,
+      typeCondition,
+      rawParentType,
+      null,
+      fragment.typeCondition,
+      parentTypeAST,
+    );
 
     const directives = this._transformDirectives(
       fragment.directives || [],
@@ -851,6 +861,7 @@ class GraphQLDefinitionParser {
     const selections = this._transformSelections(
       fragment.selectionSet,
       typeCondition,
+      fragment.typeCondition,
     );
     return {
       kind: 'InlineFragment',
@@ -865,6 +876,7 @@ class GraphQLDefinitionParser {
   _transformFragmentSpread(
     fragmentSpread: FragmentSpreadNode,
     parentType: TypeID,
+    parentTypeAST: ?TypeNode,
   ): FragmentSpread {
     const fragmentName = getName(fragmentSpread);
     const [argumentDirectives, otherDirectives] = partitionArray(
@@ -895,27 +907,15 @@ class GraphQLDefinitionParser {
     const rawParentType = this._schema.assertCompositeType(
       this._schema.getRawType(parentType),
     );
-    if (
-      !this._schema.doTypesOverlap(
-        fragmentType,
-        this._schema.assertCompositeType(rawParentType),
-      )
-    ) {
-      throw createUserError(
-        'Fragment "'.concat(
-          fragmentName,
-          '" cannot be spread here as objects of ',
-        ) +
-          'type "'
-            .concat(
-              this._schema.getTypeString(rawParentType),
-              '" can never be of type "',
-            )
-            .concat(this._schema.getTypeString(fragmentType), '".'),
-        null,
-        [fragmentSpread],
-      );
-    }
+
+    checkFragmentSpreadTypeCompatibility(
+      this._schema,
+      fragmentType,
+      rawParentType,
+      fragmentSpread.name.value,
+      fragmentSpread,
+      parentTypeAST,
+    );
 
     const fragmentArgumentDefinitions = fragmentDefinition.variableDefinitions;
     const argumentsDirective = argumentDirectives[0];
@@ -1688,6 +1688,51 @@ function getFragmentType(ast: ASTDefinitionNode): TypeNode {
     null,
     [ast],
   );
+}
+
+function checkFragmentSpreadTypeCompatibility(
+  schema: Schema,
+  fragmentType: CompositeTypeID,
+  parentType: TypeID,
+  fragmentName: ?string,
+  fragmentTypeAST: ?TypeNode | ?FragmentSpreadNode,
+  parentTypeAST: ?TypeNode,
+) {
+  if (
+    !schema.doTypesOverlap(fragmentType, schema.assertCompositeType(parentType))
+  ) {
+    const nodes = [];
+    if (parentTypeAST) {
+      nodes.push(parentTypeAST);
+    }
+    if (fragmentTypeAST) {
+      nodes.push(fragmentTypeAST);
+    }
+
+    const possibleConcreteTypes = schema.isAbstractType(parentType)
+      ? Array.from(
+          schema.getPossibleTypes(schema.assertAbstractType(parentType)),
+        )
+      : [];
+    let suggestedTypesMessage = '';
+    if (possibleConcreteTypes.length !== 0) {
+      suggestedTypesMessage = ` Possible concrete types include ${possibleConcreteTypes
+        .slice(0, 3)
+        .map(type => `'${schema.getTypeString(type)}'`)
+        .join(', ')}, etc.`;
+    }
+
+    throw createUserError(
+      (fragmentName != null
+        ? `Fragment '${fragmentName}' cannot be spread here as objects of `
+        : 'Fragment cannot be spread here as objects of ') +
+        `type '${schema.getTypeString(parentType)}' ` +
+        `can never be of type '${schema.getTypeString(fragmentType)}'.` +
+        suggestedTypesMessage,
+      null,
+      nodes,
+    );
+  }
 }
 
 module.exports = {parse, transform};

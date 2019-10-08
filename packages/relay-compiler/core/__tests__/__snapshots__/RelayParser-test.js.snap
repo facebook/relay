@@ -591,7 +591,13 @@ type Foo {
 THROWN EXCEPTION:
 
 Error: RelayParser: Encountered 1 error(s):
-- Fragment "FooFragment" cannot be spread here as objects of type "Node" can never be of type "Foo".
+- Fragment 'FooFragment' cannot be spread here as objects of type 'Node' can never be of type 'Foo'. Possible concrete types include 'Story', 'User', 'Comment', etc.
+  
+  GraphQL request (4:12)
+  3:   node(id: $id) {
+  4:     ... on Node {
+                ^
+  5:       ...FooFragment
   
   GraphQL request (5:7)
   4:     ... on Node {
@@ -1665,7 +1671,7 @@ query myQuery {
 THROWN EXCEPTION:
 
 Error: RelayParser: Encountered 1 error(s):
-- Fragment "Foo" cannot be spread here as objects of type "Node" can never be of type "Image".
+- Fragment 'Foo' cannot be spread here as objects of type 'Node' can never be of type 'Image'. Possible concrete types include 'Story', 'User', 'Comment', etc.
   
   GraphQL request (8:5)
   7:   node(id: "<my-id>") {
@@ -4136,7 +4142,13 @@ fragment InlineFragment on Node {
 THROWN EXCEPTION:
 
 Error: RelayParser: Encountered 1 error(s):
-- Fragment cannot be spread here as objects of type "Node" can never be of type "Image".
+- Fragment cannot be spread here as objects of type 'Node' can never be of type 'Image'. Possible concrete types include 'Story', 'User', 'Comment', etc.
+  
+  GraphQL request (2:28)
+  1: # expected-to-throw
+  2: fragment InlineFragment on Node {
+                                ^
+  3:   ... on Image {
   
   GraphQL request (3:10)
   2: fragment InlineFragment on Node {

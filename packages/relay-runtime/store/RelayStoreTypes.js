@@ -132,10 +132,9 @@ export type Props = {[key: string]: mixed};
  * The type of the `relay` property set on React context by the React/Relay
  * integration layer (e.g. QueryRenderer, FragmentContainer, etc).
  */
-export type RelayContext = {
+export type RelayContext = {|
   environment: IEnvironment,
-  variables: Variables,
-};
+|};
 
 /**
  * The results of reading the results of a FragmentMap given some input

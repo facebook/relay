@@ -141,23 +141,19 @@ describe('getFragmentIdentifier', () => {
 
   it('returns correct identifier when fragment ref is null', () => {
     const identifier = getFragmentIdentifier(singularFragment, null);
-    expect(identifier).toEqual(
-      'UserFragment-{"dataIDs":null,"fragmentOwnerID":null,"fragmentOwnerVariables":null,"fragmentVariables":{}}',
-    );
+    expect(identifier).toEqual('null/UserFragment/{}/null');
   });
 
   it('returns correct identifier when using plural fragment and fragment ref is empty', () => {
     const identifier = getFragmentIdentifier(pluralFragment, []);
-    expect(identifier).toEqual(
-      'UsersFragment-{"dataIDs":null,"fragmentOwnerID":null,"fragmentOwnerVariables":null,"fragmentVariables":{}}',
-    );
+    expect(identifier).toEqual('null/UsersFragment/{}/null');
   });
 
   it('returns correct identifier when using singular fragment', () => {
     const fragmentRef = environment.lookup(singularQuery.fragment).data?.node;
     const identifier = getFragmentIdentifier(singularFragment, fragmentRef);
     expect(identifier).toEqual(
-      'UserFragment-{"dataIDs":"1","fragmentOwnerID":"UserQuery","fragmentOwnerVariables":{"id":"1","scale":16},"fragmentVariables":{"scale":16}}',
+      singularQuery.request.identifier + '/UserFragment/{"scale":16}/"1"',
     );
   });
 
@@ -165,7 +161,8 @@ describe('getFragmentIdentifier', () => {
     const fragmentRef = environment.lookup(queryWithArgs.fragment).data?.node;
     const identifier = getFragmentIdentifier(fragmentWithArgs, fragmentRef);
     expect(identifier).toEqual(
-      'UserFragmentWithArgs-{"dataIDs":"1","fragmentOwnerID":"UserQueryWithArgs","fragmentOwnerVariables":{"id":"1","scale":16},"fragmentVariables":{"scaleLocal":16}}',
+      queryWithArgs.request.identifier +
+        '/UserFragmentWithArgs/{"scaleLocal":16}/"1"',
     );
   });
 
@@ -174,7 +171,9 @@ describe('getFragmentIdentifier', () => {
     invariant(Array.isArray(fragmentRef), 'Expected a plural fragment ref.');
     const identifier = getFragmentIdentifier(pluralFragment, [fragmentRef[0]]);
     expect(identifier).toEqual(
-      'UsersFragment-{"dataIDs":["1"],"fragmentOwnerID":["UsersQuery"],"fragmentOwnerVariables":[{"ids":["1"],"scale":16}],"fragmentVariables":{"scale":16}}',
+      '[' +
+        pluralQuery.request.identifier +
+        ']/UsersFragment/{"scale":16}/["1"]',
     );
   });
 
@@ -182,7 +181,11 @@ describe('getFragmentIdentifier', () => {
     const fragmentRef = environment.lookup(pluralQuery.fragment).data?.nodes;
     const identifier = getFragmentIdentifier(pluralFragment, fragmentRef);
     expect(identifier).toEqual(
-      'UsersFragment-{"dataIDs":["1","2"],"fragmentOwnerID":["UsersQuery","UsersQuery"],"fragmentOwnerVariables":[{"ids":["1"],"scale":16},{"ids":["1"],"scale":16}],"fragmentVariables":{"scale":16}}',
+      '[' +
+        pluralQuery.request.identifier +
+        ',' +
+        pluralQuery.request.identifier +
+        ']/UsersFragment/{"scale":16}/["1","2"]',
     );
   });
 });

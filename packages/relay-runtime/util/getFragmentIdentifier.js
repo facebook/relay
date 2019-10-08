@@ -26,36 +26,25 @@ function getFragmentIdentifier(
   fragmentRef: mixed,
 ): string {
   const selector = getSelector(fragmentNode, fragmentRef);
+  const fragmentOwnerIdentifier =
+    selector == null
+      ? 'null'
+      : selector.kind === 'SingularReaderSelector'
+      ? selector.owner.identifier
+      : '[' +
+        selector.selectors.map(sel => sel.owner.identifier).join(',') +
+        ']';
   const fragmentVariables = getVariablesFromFragment(fragmentNode, fragmentRef);
   const dataIDs = getDataIDsFromFragment(fragmentNode, fragmentRef);
-
-  let fragmentOwnerID;
-  let fragmentOwnerVariables;
-
-  if (selector == null) {
-    fragmentOwnerID = null;
-    fragmentOwnerVariables = null;
-  } else if (selector.kind === 'PluralReaderSelector') {
-    fragmentOwnerID = selector.selectors.map(
-      sel => sel.owner.node.params.id ?? sel.owner.node.params.name ?? '',
-    );
-    fragmentOwnerVariables = selector.selectors.map(
-      sel => sel.owner.variables ?? null,
-    );
-  } else {
-    fragmentOwnerID =
-      selector.owner.node.params.id ?? selector?.owner.node.params.name ?? '';
-    fragmentOwnerVariables = selector.owner.variables ?? null;
-  }
-
-  return `${fragmentNode.name}-${JSON.stringify(
-    stableCopy({
-      dataIDs,
-      fragmentVariables,
-      fragmentOwnerID,
-      fragmentOwnerVariables,
-    }),
-  )}`;
+  return (
+    fragmentOwnerIdentifier +
+    '/' +
+    fragmentNode.name +
+    '/' +
+    JSON.stringify(stableCopy(fragmentVariables)) +
+    '/' +
+    (JSON.stringify(dataIDs) ?? 'missing')
+  );
 }
 
 module.exports = getFragmentIdentifier;

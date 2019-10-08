@@ -12,6 +12,7 @@
 'use strict';
 
 const getFragmentIdentifier = require('../getFragmentIdentifier');
+const invariant = require('invariant');
 
 const {createOperationDescriptor, getFragment} = require('relay-runtime');
 const {
@@ -38,8 +39,7 @@ describe('getFragmentIdentifier', () => {
 
   beforeEach(() => {
     environment = createMockEnvironment();
-    const generated = generateAndCompile(
-      `
+    const generated = generateAndCompile(`
       fragment NestedUserFragment on User {
         username
       }
@@ -89,8 +89,7 @@ describe('getFragmentIdentifier', () => {
           ...UserFragmentWithArgs @arguments(scaleLocal: $scale)
         }
       }
-    `,
-    );
+    `);
     pluralVariables = {ids: ['1'], scale: 16};
     singularVariables = {id: '1', scale: 16};
     gqlQueryWithArgs = generated.UserQueryWithArgs;
@@ -129,6 +128,13 @@ describe('getFragmentIdentifier', () => {
           username: 'useralice',
           profile_picture: null,
         },
+        {
+          __typename: 'User',
+          id: '2',
+          name: 'Bob',
+          username: 'userbob',
+          profile_picture: null,
+        },
       ],
     });
   });
@@ -163,11 +169,20 @@ describe('getFragmentIdentifier', () => {
     );
   });
 
+  it('returns correct identifier when using plural fragment with single element', () => {
+    const fragmentRef = environment.lookup(pluralQuery.fragment).data?.nodes;
+    invariant(Array.isArray(fragmentRef), 'Expected a plural fragment ref.');
+    const identifier = getFragmentIdentifier(pluralFragment, [fragmentRef[0]]);
+    expect(identifier).toEqual(
+      'UsersFragment-{"dataIDs":["1"],"fragmentOwnerID":["UsersQuery"],"fragmentOwnerVariables":[{"ids":["1"],"scale":16}],"fragmentVariables":{"scale":16}}',
+    );
+  });
+
   it('returns correct identifier when using plural fragment', () => {
     const fragmentRef = environment.lookup(pluralQuery.fragment).data?.nodes;
     const identifier = getFragmentIdentifier(pluralFragment, fragmentRef);
     expect(identifier).toEqual(
-      'UsersFragment-{"dataIDs":["1"],"fragmentOwnerID":["UsersQuery"],"fragmentOwnerVariables":[{"ids":["1"],"scale":16}],"fragmentVariables":{"scale":16}}',
+      'UsersFragment-{"dataIDs":["1","2"],"fragmentOwnerID":["UsersQuery","UsersQuery"],"fragmentOwnerVariables":[{"ids":["1"],"scale":16},{"ids":["1"],"scale":16}],"fragmentVariables":{"scale":16}}',
     );
   });
 });

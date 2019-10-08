@@ -20,8 +20,13 @@ const RelayRecordSource = require('../RelayRecordSource');
 const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
-const {createReaderSelector} = require('../RelayModernSelector');
+const {
+  createReaderSelector,
+  getSingularSelector,
+} = require('../RelayModernSelector');
 const {generateAndCompile} = require('relay-test-utils-internal');
+
+import nullthrows from 'nullthrows';
 
 describe('execute() a query with multiple @stream selections on the same record', () => {
   let callbacks;
@@ -38,13 +43,18 @@ describe('execute() a query with multiple @stream selections on the same record'
   let variables;
   let source;
   let store;
+  let deferFragment;
 
   beforeEach(() => {
     jest.resetModules();
     jest.mock('warning');
     jest.spyOn(console, 'warn').mockImplementation(() => undefined);
 
-    ({FeedbackQuery: query, FeedbackFragment: fragment} = generateAndCompile(`
+    ({
+      FeedbackQuery: query,
+      FeedbackFragment: fragment,
+      DeferFragment: deferFragment,
+    } = generateAndCompile(`
         query FeedbackQuery($id: ID!, $enableStream: Boolean!) {
           node(id: $id) {
             ...FeedbackFragment
@@ -58,19 +68,20 @@ describe('execute() a query with multiple @stream selections on the same record'
           @__clientField(handle: "actors_handler") {
             name @__clientField(handle: "name_handler")
           }
-          ... @defer(label: "viewedBy", if: $enableStream) {
-            viewedBy
-            @stream(label: "viewedBy", if: $enableStream, initial_count: 0)
-            @__clientField(handle: "actors_handler") {
-              name @__clientField(handle: "name_handler")
-            }
+          ... DeferFragment @defer(label: "viewedBy", if: $enableStream)
+        }
+
+        fragment DeferFragment on Feedback {
+          viewedBy
+          @stream(label: "viewedBy", if: $enableStream, initial_count: 0)
+          @__clientField(handle: "actors_handler") {
+            name @__clientField(handle: "name_handler")
           }
         }
       `));
     variables = {id: '1', enableStream: true};
     operation = createOperationDescriptor(query, variables);
     selector = createReaderSelector(fragment, '1', {}, operation.request);
-
     // Handler to upper-case the value of the (string) field to which it's
     // applied
     const NameHandler = {
@@ -154,6 +165,18 @@ describe('execute() a query with multiple @stream selections on the same record'
     expect(snapshot.data).toEqual({
       id: '1',
       actors: [],
+      __fragments: {
+        DeferFragment: {},
+      },
+      __fragmentOwner: operation.request,
+      __id: '1',
+    });
+    const deferSelector = nullthrows(
+      getSingularSelector(deferFragment, snapshot.data),
+    );
+    const deferSnapshot = environment.lookup(deferSelector);
+    expect(deferSnapshot.isMissingData).toBe(true);
+    expect(deferSnapshot.data).toEqual({
       viewedBy: undefined,
     });
   });
@@ -161,6 +184,8 @@ describe('execute() a query with multiple @stream selections on the same record'
   it('processes sequential payloads (all actors, then all viewedBy)', () => {
     const initialSnapshot = environment.lookup(selector);
     const callback = jest.fn();
+    const deferCallback = jest.fn();
+
     environment.subscribe(initialSnapshot, callback);
 
     environment.execute({operation}).subscribe(callbacks);
@@ -174,6 +199,12 @@ describe('execute() a query with multiple @stream selections on the same record'
       },
     });
     jest.runAllTimers();
+    const deferSelector = nullthrows(
+      getSingularSelector(deferFragment, callback.mock.calls[0][0].data),
+    );
+    const deferSnapshot = environment.lookup(deferSelector);
+    expect(deferSnapshot.isMissingData).toBe(true);
+    environment.subscribe(deferSnapshot, deferCallback);
     next.mockClear();
     callback.mockClear();
 
@@ -188,12 +219,17 @@ describe('execute() a query with multiple @stream selections on the same record'
     });
     expect(next).toBeCalledTimes(1);
     expect(callback).toBeCalledTimes(1);
+    expect(deferCallback).toBeCalledTimes(0);
     const snapshot = callback.mock.calls[0][0];
     expect(snapshot.isMissingData).toBe(false);
     expect(snapshot.data).toEqual({
       id: '1',
       actors: [{name: 'ALICE'}],
-      viewedBy: undefined,
+      __fragments: {
+        DeferFragment: {},
+      },
+      __fragmentOwner: operation.request,
+      __id: '1',
     });
 
     dataSource.next({
@@ -207,12 +243,17 @@ describe('execute() a query with multiple @stream selections on the same record'
     });
     expect(next).toBeCalledTimes(2);
     expect(callback).toBeCalledTimes(2);
+    expect(deferCallback).toBeCalledTimes(0);
     const snapshot2 = callback.mock.calls[1][0];
     expect(snapshot2.isMissingData).toBe(false);
     expect(snapshot2.data).toEqual({
       id: '1',
       actors: [{name: 'ALICE'}, {name: 'BOB'}],
-      viewedBy: undefined,
+      __fragments: {
+        DeferFragment: {},
+      },
+      __fragmentOwner: operation.request,
+      __id: '1',
     });
 
     dataSource.next({
@@ -223,12 +264,11 @@ describe('execute() a query with multiple @stream selections on the same record'
       path: ['node'],
     });
     expect(next).toBeCalledTimes(3);
-    expect(callback).toBeCalledTimes(3);
-    const snapshot3 = callback.mock.calls[2][0];
-    expect(snapshot3.isMissingData).toBe(false);
-    expect(snapshot3.data).toEqual({
-      id: '1',
-      actors: [{name: 'ALICE'}, {name: 'BOB'}],
+    expect(callback).toBeCalledTimes(2);
+    expect(deferCallback).toBeCalledTimes(1);
+    const snapshot3 = deferCallback.mock.calls[0][0];
+    expect(snapshot3.isMissingData).toEqual(false);
+    expect(deferCallback.mock.calls[0][0].data).toEqual({
       viewedBy: [],
     });
 
@@ -238,16 +278,15 @@ describe('execute() a query with multiple @stream selections on the same record'
         id: '4',
         name: 'Claire',
       },
-      label: 'FeedbackFragment$stream$viewedBy',
+      label: 'DeferFragment$stream$viewedBy',
       path: ['node', 'viewedBy', 0],
     });
     expect(next).toBeCalledTimes(4);
-    expect(callback).toBeCalledTimes(4);
-    const snapshot4 = callback.mock.calls[3][0];
-    expect(snapshot4.isMissingData).toBe(false);
+    expect(callback).toBeCalledTimes(2);
+    expect(deferCallback).toBeCalledTimes(2);
+    const snapshot4 = deferCallback.mock.calls[1][0];
+    expect(snapshot4.isMissingData).toEqual(false);
     expect(snapshot4.data).toEqual({
-      id: '1',
-      actors: [{name: 'ALICE'}, {name: 'BOB'}],
       viewedBy: [{name: 'CLAIRE'}],
     });
 
@@ -257,16 +296,15 @@ describe('execute() a query with multiple @stream selections on the same record'
         id: '5',
         name: 'Dave',
       },
-      label: 'FeedbackFragment$stream$viewedBy',
+      label: 'DeferFragment$stream$viewedBy',
       path: ['node', 'viewedBy', 1],
     });
     expect(next).toBeCalledTimes(5);
-    expect(callback).toBeCalledTimes(5);
-    const snapshot5 = callback.mock.calls[4][0];
+    expect(callback).toBeCalledTimes(2);
+    expect(deferCallback).toBeCalledTimes(3);
+    const snapshot5 = deferCallback.mock.calls[2][0];
     expect(snapshot5.isMissingData).toBe(false);
     expect(snapshot5.data).toEqual({
-      id: '1',
-      actors: [{name: 'ALICE'}, {name: 'BOB'}],
       viewedBy: [{name: 'CLAIRE'}, {name: 'DAVE'}],
     });
 
@@ -277,6 +315,7 @@ describe('execute() a query with multiple @stream selections on the same record'
   it('processes interleaved streamed payloads (actor/viewedBy/actor/viewedBy)', () => {
     const initialSnapshot = environment.lookup(selector);
     const callback = jest.fn();
+    const deferCallback = jest.fn();
     environment.subscribe(initialSnapshot, callback);
 
     environment.execute({operation}).subscribe(callbacks);
@@ -290,6 +329,12 @@ describe('execute() a query with multiple @stream selections on the same record'
       },
     });
     jest.runAllTimers();
+    const deferSelector = nullthrows(
+      getSingularSelector(deferFragment, callback.mock.calls[0][0].data),
+    );
+    const deferSnapshot = environment.lookup(deferSelector);
+    expect(deferSnapshot.isMissingData).toBe(true);
+    environment.subscribe(deferSnapshot, deferCallback);
     next.mockClear();
     callback.mockClear();
 
@@ -305,12 +350,17 @@ describe('execute() a query with multiple @stream selections on the same record'
     expect(error.mock.calls.map(call => call[0].stack)).toEqual([]);
     expect(next).toBeCalledTimes(1);
     expect(callback).toBeCalledTimes(1);
+    expect(deferCallback).toBeCalledTimes(0);
     const snapshot = callback.mock.calls[0][0];
     expect(snapshot.isMissingData).toBe(false);
     expect(snapshot.data).toEqual({
       id: '1',
       actors: [{name: 'ALICE'}],
-      viewedBy: undefined,
+      __fragments: {
+        DeferFragment: {},
+      },
+      __fragmentOwner: operation.request,
+      __id: '1',
     });
 
     dataSource.next({
@@ -322,12 +372,11 @@ describe('execute() a query with multiple @stream selections on the same record'
     });
     expect(error.mock.calls.map(call => call[0].stack)).toEqual([]);
     expect(next).toBeCalledTimes(2);
-    expect(callback).toBeCalledTimes(2);
-    const snapshot2 = callback.mock.calls[1][0];
+    expect(callback).toBeCalledTimes(1);
+    expect(deferCallback).toBeCalledTimes(1);
+    const snapshot2 = deferCallback.mock.calls[0][0];
     expect(snapshot2.isMissingData).toBe(false);
     expect(snapshot2.data).toEqual({
-      id: '1',
-      actors: [{name: 'ALICE'}],
       viewedBy: [],
     });
 
@@ -337,17 +386,16 @@ describe('execute() a query with multiple @stream selections on the same record'
         id: '4',
         name: 'Claire',
       },
-      label: 'FeedbackFragment$stream$viewedBy',
+      label: 'DeferFragment$stream$viewedBy',
       path: ['node', 'viewedBy', 0],
     });
     expect(error.mock.calls.map(call => call[0].stack)).toEqual([]);
     expect(next).toBeCalledTimes(3);
-    expect(callback).toBeCalledTimes(3);
-    const snapshot3 = callback.mock.calls[2][0];
+    expect(callback).toBeCalledTimes(1);
+    expect(deferCallback).toBeCalledTimes(2);
+    const snapshot3 = deferCallback.mock.calls[1][0];
     expect(snapshot3.isMissingData).toBe(false);
     expect(snapshot3.data).toEqual({
-      id: '1',
-      actors: [{name: 'ALICE'}],
       viewedBy: [{name: 'CLAIRE'}],
     });
 
@@ -362,13 +410,18 @@ describe('execute() a query with multiple @stream selections on the same record'
     });
     expect(error.mock.calls.map(call => call[0].stack)).toEqual([]);
     expect(next).toBeCalledTimes(4);
-    expect(callback).toBeCalledTimes(4);
-    const snapshot4 = callback.mock.calls[3][0];
+    expect(callback).toBeCalledTimes(2);
+    expect(deferCallback).toBeCalledTimes(2);
+    const snapshot4 = callback.mock.calls[1][0];
     expect(snapshot4.isMissingData).toBe(false);
     expect(snapshot4.data).toEqual({
       id: '1',
       actors: [{name: 'ALICE'}, {name: 'BOB'}],
-      viewedBy: [{name: 'CLAIRE'}],
+      __fragments: {
+        DeferFragment: {},
+      },
+      __fragmentOwner: operation.request,
+      __id: '1',
     });
 
     dataSource.next({
@@ -377,16 +430,16 @@ describe('execute() a query with multiple @stream selections on the same record'
         id: '5',
         name: 'Dave',
       },
-      label: 'FeedbackFragment$stream$viewedBy',
+      label: 'DeferFragment$stream$viewedBy',
       path: ['node', 'viewedBy', 1],
     });
     expect(next).toBeCalledTimes(5);
-    expect(callback).toBeCalledTimes(5);
-    const snapshot5 = callback.mock.calls[4][0];
+    expect(callback).toBeCalledTimes(2);
+    expect(deferCallback).toBeCalledTimes(3);
+
+    const snapshot5 = deferCallback.mock.calls[2][0];
     expect(snapshot5.isMissingData).toBe(false);
     expect(snapshot5.data).toEqual({
-      id: '1',
-      actors: [{name: 'ALICE'}, {name: 'BOB'}],
       viewedBy: [{name: 'CLAIRE'}, {name: 'DAVE'}],
     });
 

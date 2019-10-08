@@ -13,6 +13,7 @@
 
 const GraphQLCompilerContext = require('../../core/GraphQLCompilerContext');
 const GraphQLIRPrinter = require('../../core/GraphQLIRPrinter');
+const RelayConnectionTransform = require('../../handlers/connection//RelayConnectionTransform');
 const RelayDeferStreamTransform = require('../RelayDeferStreamTransform');
 const Schema = require('../../core/Schema');
 
@@ -24,7 +25,9 @@ const {
 } = require('relay-test-utils-internal');
 
 describe('RelayDeferStreamTransform', () => {
-  const extendedSchema = transformASTSchema(TestSchema, []);
+  const extendedSchema = transformASTSchema(TestSchema, [
+    RelayConnectionTransform.SCHEMA_EXTENSION,
+  ]);
 
   describe('when streaming is enabled', () => {
     generateTestsFromFixtures(
@@ -37,7 +40,10 @@ describe('RelayDeferStreamTransform', () => {
         );
         return new GraphQLCompilerContext(compilerSchema)
           .addAll(definitions)
-          .applyTransforms([RelayDeferStreamTransform.transform])
+          .applyTransforms([
+            RelayConnectionTransform.transform,
+            RelayDeferStreamTransform.transform,
+          ])
           .documents()
           .map(doc => GraphQLIRPrinter.print(compilerSchema, doc))
           .join('\n');

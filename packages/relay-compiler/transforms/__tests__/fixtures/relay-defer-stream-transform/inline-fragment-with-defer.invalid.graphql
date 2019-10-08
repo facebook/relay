@@ -1,3 +1,4 @@
+# expected-to-throw
 query QueryWithFragmentWithDefer {
   me {
     id
@@ -8,7 +9,7 @@ query QueryWithFragmentWithDefer {
 fragment UserFragment on User {
   id
   emailAddresses
-  ... on User @defer(label: "DeferredFragmentLabel", if: false) {
+  ... on User @defer(label: "DeferredFragmentLabel") {
     id
     name
   }

@@ -368,11 +368,7 @@ fragment TestFragment on User @argumentDefinitions(condition: {type: "Boolean!"}
         comments {
           edges {
             node {
-              ... on Comment @defer(if: $RELAY_INCREMENTAL_DELIVERY, label: "DeferLabel") {
-                body {
-                  text
-                }
-              }
+              ...DeferFragment @defer(if: $RELAY_INCREMENTAL_DELIVERY, label: "DeferLabel")
             }
           }
         }
@@ -383,6 +379,12 @@ fragment TestFragment on User @argumentDefinitions(condition: {type: "Boolean!"}
       pageName: name
     }
     username @__clientField(handle: "MyUserName")
+  }
+}
+
+fragment DeferFragment on Comment {
+  body {
+    text
   }
 }
 

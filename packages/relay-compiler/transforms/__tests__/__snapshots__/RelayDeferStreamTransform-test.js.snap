@@ -581,8 +581,9 @@ Error: Encountered 1 error(s):
   
 `;
 
-exports[`RelayDeferStreamTransform when streaming is enabled matches expected output: inline-fragment-with-defer.graphql 1`] = `
+exports[`RelayDeferStreamTransform when streaming is enabled matches expected output: inline-fragment-with-defer.invalid.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
+# expected-to-throw
 query QueryWithFragmentWithDefer {
   me {
     id
@@ -600,170 +601,15 @@ fragment UserFragment on User {
 }
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
-query QueryWithFragmentWithDefer {
-  me {
-    id
-    ...UserFragment
-  }
-}
-
-fragment UserFragment on User {
-  id
-  emailAddresses
-  ... on User @defer(label: "UserFragment$defer$DeferredFragmentLabel") {
-    id
-    name
-  }
-}
-
-`;
-
-exports[`RelayDeferStreamTransform when streaming is enabled matches expected output: inline-fragment-with-defer-default-label.graphql 1`] = `
-~~~~~~~~~~ INPUT ~~~~~~~~~~
-query QueryWithFragmentWithDefer {
-  me {
-    id
-    ...UserFragment
-  }
-}
-
-fragment UserFragment on User {
-  id
-  emailAddresses
-  ... on User @defer {
-    id
-    name
-  }
-}
-
-~~~~~~~~~~ OUTPUT ~~~~~~~~~~
-query QueryWithFragmentWithDefer {
-  me {
-    id
-    ...UserFragment
-  }
-}
-
-fragment UserFragment on User {
-  id
-  emailAddresses
-  ... on User @defer(label: "UserFragment$defer$User") {
-    id
-    name
-  }
-}
-
-`;
-
-exports[`RelayDeferStreamTransform when streaming is enabled matches expected output: inline-fragment-with-defer-duplicate-label.invalid.graphql 1`] = `
-~~~~~~~~~~ INPUT ~~~~~~~~~~
-# expected-to-throw
-query QueryWithFragmentWithDefer {
-  me {
-    id
-    ...UserFragment
-  }
-}
-
-fragment UserFragment on User {
-  id
-  emailAddresses
-  ... on User @defer {
-    id
-    name
-  }
-  ... on User @defer {
-    # invalid: duplicate label
-    name
-  }
-}
-
-~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
 Error: Encountered 1 error(s):
-- Invalid use of @defer, could not generate a default label that is unique. Specify a unique 'label' as a literal string.
+- Invalid use of @defer on an inline fragment, @defer is only supported on fragment spreads.
   
-  Source: GraphQL request (16:15)
-  15:   }
-  16:   ... on User @defer {
-                    ^
-  17:     # invalid: duplicate label
-  
-  Source: GraphQL request (12:15)
+  Source: GraphQL request (12:3)
   11:   emailAddresses
-  12:   ... on User @defer {
-                    ^
-  13:     id
-  
-`;
-
-exports[`RelayDeferStreamTransform when streaming is enabled matches expected output: inline-fragment-with-defer-statically-disabled.graphql 1`] = `
-~~~~~~~~~~ INPUT ~~~~~~~~~~
-query QueryWithFragmentWithDefer {
-  me {
-    id
-    ...UserFragment
-  }
-}
-
-fragment UserFragment on User {
-  id
-  emailAddresses
-  ... on User @defer(label: "DeferredFragmentLabel", if: false) {
-    id
-    name
-  }
-}
-
-~~~~~~~~~~ OUTPUT ~~~~~~~~~~
-query QueryWithFragmentWithDefer {
-  me {
-    id
-    ...UserFragment
-  }
-}
-
-fragment UserFragment on User {
-  id
-  emailAddresses
-  ... on User {
-    id
-    name
-  }
-}
-
-`;
-
-exports[`RelayDeferStreamTransform when streaming is enabled matches expected output: inline-fragment-with-variable-label.invalid.graphql 1`] = `
-~~~~~~~~~~ INPUT ~~~~~~~~~~
-# expected-to-throw
-query QueryWithFragmentWithDefer($label: String!) {
-  me {
-    id
-    ...UserFragment
-  }
-}
-
-fragment UserFragment on User {
-  id
-  emailAddresses
-  ... on User @defer(label: $label) {
-    id
-    name
-  }
-}
-
-~~~~~~~~~~ OUTPUT ~~~~~~~~~~
-THROWN EXCEPTION:
-
-Error: Encountered 1 error(s):
-- Expected the 'label' value to @defer to be a string literal if provided.
-  
-  Source: GraphQL request (12:29)
-  11:   emailAddresses
-  12:   ... on User @defer(label: $label) {
-                                  ^
+  12:   ... on User @defer(label: "DeferredFragmentLabel") {
+        ^
   13:     id
   
 `;

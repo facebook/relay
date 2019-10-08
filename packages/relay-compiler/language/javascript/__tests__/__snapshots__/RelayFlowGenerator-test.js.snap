@@ -1268,61 +1268,6 @@ export type PluralFragment$key = $ReadOnlyArray<{
 }>;
 `;
 
-exports[`Snapshot tests for useHaste matches expected output: query-with-defer.graphql 1`] = `
-~~~~~~~~~~ INPUT ~~~~~~~~~~
-query TestDefer @raw_response_type {
-  node(id: "1") {
-    ... on User {
-      name
-      friends(first: 10) {
-        ... on FriendsConnection @defer {
-          pageInfo {
-            endCursor
-            hasNextPage
-          }
-        }
-      }
-    }
-  }
-}
-
-~~~~~~~~~~ OUTPUT ~~~~~~~~~~
-// TestDefer.graphql
-export type TestDeferVariables = {||};
-export type TestDeferResponse = {|
-  +node: ?{|
-    +name?: ?string,
-    +friends?: ?{|
-      +pageInfo: ?{|
-        +endCursor: ?string,
-        +hasNextPage: ?boolean,
-      |}
-    |},
-  |}
-|};
-export type TestDeferRawResponse = {|
-  +node: ?({|
-    +__typename: "User",
-    +id: ?string,
-    +name: ?string,
-    +friends: ?{|
-      +pageInfo: ?{|
-        +endCursor: ?string,
-        +hasNextPage: ?boolean,
-      |}
-    |},
-  |} | {|
-    +__typename: ?string,
-    +id: ?string,
-  |})
-|};
-export type TestDefer = {|
-  variables: TestDeferVariables,
-  response: TestDeferResponse,
-  rawResponse: TestDeferRawResponse,
-|};
-`;
-
 exports[`Snapshot tests for useHaste matches expected output: query-with-handles.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query LinkedHandleField($id: ID!) @raw_response_type {
@@ -1980,6 +1925,78 @@ export type TestStream = {|
   variables: TestStreamVariables,
   response: TestStreamResponse,
   rawResponse: TestStreamRawResponse,
+|};
+`;
+
+exports[`Snapshot tests for useHaste matches expected output: query-with-stream-connection.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query TestDefer @raw_response_type {
+  node(id: "1") {
+    ... on User {
+      name
+      friends(first: 10)
+        @stream_connection(key: "TestDefer_friends", initial_count: 0) {
+        edges {
+          node {
+            actor {
+              name
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+// TestDefer.graphql
+export type TestDeferVariables = {||};
+export type TestDeferResponse = {|
+  +node: ?{|
+    +name?: ?string,
+    +friends?: ?{|
+      +edges: ?$ReadOnlyArray<?{|
+        +node: ?{|
+          +actor: ?{|
+            +name: ?string
+          |}
+        |}
+      |}>
+    |},
+  |}
+|};
+export type TestDeferRawResponse = {|
+  +node: ?({|
+    +__typename: "User",
+    +id: ?string,
+    +name: ?string,
+    +friends: ?{|
+      +edges: ?$ReadOnlyArray<?{|
+        +node: ?{|
+          +actor: ?{|
+            +__typename: ?string,
+            +name: ?string,
+            +id: ?string,
+          |},
+          +id: ?string,
+          +__typename: "User",
+        |},
+        +cursor: ?string,
+      |}>,
+      +pageInfo: ?{|
+        +endCursor: ?string,
+        +hasNextPage: ?boolean,
+      |},
+    |},
+  |} | {|
+    +__typename: ?string,
+    +id: ?string,
+  |})
+|};
+export type TestDefer = {|
+  variables: TestDeferVariables,
+  response: TestDeferResponse,
+  rawResponse: TestDeferRawResponse,
 |};
 `;
 

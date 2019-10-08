@@ -674,11 +674,7 @@ test('generate mock for with directives and handlers', () => {
             comments {
               edges {
                 node {
-                  ... on Comment @defer(if: $RELAY_INCREMENTAL_DELIVERY, label: "DeferLabel") {
-                    body {
-                      text
-                    }
-                  }
+                  ... DeferFragment @defer(if: $RELAY_INCREMENTAL_DELIVERY, label: "DeferLabel")
                 }
               }
             }
@@ -690,7 +686,14 @@ test('generate mock for with directives and handlers', () => {
         }
         username @__clientField(handle: "MyUserName")
       }
-    }`,
+    }
+
+    fragment DeferFragment on Comment {
+      body {
+        text
+      }
+    }
+    `,
   );
 });
 

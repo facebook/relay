@@ -219,44 +219,16 @@ function visitInlineFragment(
   fragment: InlineFragment,
   state: State,
 ): InlineFragment | Defer {
-  const context: CompilerContext = this.getContext();
-  const schema = context.getSchema();
-
-  let transformedFragment: InlineFragment = this.traverse(fragment, state);
-  const deferDirective = transformedFragment.directives.find(
+  const deferDirective = fragment.directives.find(
     directive => directive.name === 'defer',
   );
-  if (deferDirective == null) {
-    return transformedFragment;
+  if (deferDirective != null) {
+    throw createUserError(
+      'Invalid use of @defer on an inline fragment, @defer is only supported on fragment spreads.',
+      [fragment.loc],
+    );
   }
-  transformedFragment = {
-    ...transformedFragment,
-    directives: transformedFragment.directives.filter(
-      directive => directive.name !== 'defer',
-    ),
-  };
-  const ifArg = deferDirective.args.find(arg => arg.name === 'if');
-  if (isLiteralFalse(ifArg)) {
-    return transformedFragment;
-  }
-  const label =
-    getLiteralStringArgument(deferDirective, 'label') ??
-    schema.getTypeString(fragment.typeCondition);
-
-  const transformedLabel = transformLabel(state.documentName, 'defer', label);
-  state.recordLabel(transformedLabel, deferDirective);
-  return {
-    if: ifArg?.value ?? null,
-    kind: 'Defer',
-    label: transformedLabel,
-    loc: {kind: 'Derived', source: deferDirective.loc},
-    metadata: {
-      // We may lose this information during FlattenTransform
-      // Keeping it on metadata will allow us to read it during IRPrinting step
-      fragmentTypeCondition: transformedFragment.typeCondition,
-    },
-    selections: [transformedFragment],
-  };
+  return this.traverse(fragment, state);
 }
 
 function visitFragmentSpread(

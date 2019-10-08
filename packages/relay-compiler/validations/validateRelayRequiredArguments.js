@@ -104,13 +104,11 @@ function validateRequiredArguments(
   schema: Schema,
   node: Connection | Directive | Field,
   definitionArgs: $ReadOnlyArray<FieldArgument>,
-  rootNode,
+  rootNode: Fragment | Root | SplitOperation,
 ): void {
+  const nodeArgsSet = new Set(node.args.map(arg => arg.name));
   for (const arg of definitionArgs) {
-    if (
-      schema.isNonNull(arg.type) &&
-      !node.args.some(actualArg => actualArg.name === arg.name)
-    ) {
+    if (schema.isNonNull(arg.type) && !nodeArgsSet.has(arg.name)) {
       throw createUserError(
         `Required argument '${arg.name}: ${schema.getTypeString(
           arg.type,

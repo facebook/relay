@@ -25,7 +25,7 @@ const useRelayEnvironment = require('./useRelayEnvironment');
 
 export type {MatchContainerProps, MatchPointer} from './MatchContainer';
 export type {ProfilerContextType} from './ProfilerContext';
-export type {FetchPolicy} from './QueryResource';
+export type {FetchPolicy, RenderPolicy} from './QueryResource';
 export type {Direction, LoadMoreFn} from './useLoadMoreFunction';
 export type {
   RefetchFn,

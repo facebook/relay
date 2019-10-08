@@ -89,12 +89,12 @@ export type ReturnType<
 export type Options = {|
   fetchPolicy?: FetchPolicy,
   onComplete?: (Error | null) => void,
+  renderPolicy_UNSTABLE?: RenderPolicy,
 |};
 
 type InternalOptions = {|
   ...Options,
   __environment?: IEnvironment,
-  renderPolicy?: RenderPolicy,
 |};
 
 type RefetchFnBase<TVars, TOptions> = (
@@ -410,7 +410,7 @@ function useRefetchFunction<TQuery: OperationType>(
 
       const environment = options?.__environment;
       const fetchPolicy = options?.fetchPolicy;
-      const renderPolicy = options?.renderPolicy;
+      const renderPolicy = options?.renderPolicy_UNSTABLE;
       const onComplete = options?.onComplete;
       const fragmentSelector = getSelector(fragmentNode, parentFragmentRef);
       let parentVariables;

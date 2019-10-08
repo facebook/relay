@@ -14,7 +14,7 @@
 const useLazyLoadQueryNode = require('./useLazyLoadQueryNode');
 const useMemoOperationDescriptor = require('./useMemoOperationDescriptor');
 
-import type {FetchPolicy} from './QueryResource';
+import type {FetchPolicy, RenderPolicy} from './QueryResource';
 import type {
   CacheConfig,
   GraphQLTaggedNode,
@@ -28,6 +28,7 @@ function useLazyLoadQuery<TQuery: OperationType>(
     fetchKey?: string | number,
     fetchPolicy?: FetchPolicy,
     networkCacheConfig?: CacheConfig,
+    renderPolicy_UNSTABLE?: RenderPolicy,
   |},
 ): $ElementType<TQuery, 'response'> {
   const query = useMemoOperationDescriptor(gqlQuery, variables);
@@ -37,6 +38,7 @@ function useLazyLoadQuery<TQuery: OperationType>(
     fetchPolicy: options?.fetchPolicy,
     networkCacheConfig: options?.networkCacheConfig,
     query,
+    renderPolicy: options?.renderPolicy_UNSTABLE,
   });
   return data;
 }

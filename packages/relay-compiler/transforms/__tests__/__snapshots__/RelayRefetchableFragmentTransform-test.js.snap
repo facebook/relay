@@ -889,7 +889,7 @@ fragment PaginationFragment on Node @argumentDefinitions(
           }
         }
       }
-      ... on FriendsConnection @defer(label: "PaginationFragment_friends$pageInfo") {
+      ... on FriendsConnection @defer(label: "PaginationFragment$defer$PaginationFragment_friends$pageInfo") {
         pageInfo {
           ... on PageInfo {
             endCursor

@@ -1013,7 +1013,7 @@ query NodeQuery(
             }
           }
         }
-        ... on CommentsConnection @defer(label: "comments$pageInfo") {
+        ... on CommentsConnection @defer(label: "NodeQuery$defer$comments$pageInfo") {
           pageInfo {
             endCursor
             hasNextPage
@@ -1089,7 +1089,7 @@ query NodeQuery(
             }
           }
         }
-        ... on CommentsConnection @defer(label: "NodeQuery_comments$pageInfo") {
+        ... on CommentsConnection @defer(label: "NodeQuery$defer$NodeQuery_comments$pageInfo") {
           pageInfo {
             endCursor
             hasNextPage

@@ -37,11 +37,13 @@ import type {
   Selection,
   Variable,
   Location,
+  Defer,
 } from '../../core/GraphQLIR';
-import type {Schema, TypeID, CompositeTypeID} from '../../core/Schema';
+import type {Schema, CompositeTypeID} from '../../core/Schema';
 import type {ConnectionMetadata} from 'relay-runtime';
 
 type Options = {
+  documentName: string,
   // The current path
   path: Array<?string>,
   // Metadata recorded for @connection fields
@@ -83,6 +85,7 @@ function relayConnectionTransform(context: CompilerContext): CompilerContext {
       Root: visitFragmentOrRoot,
     },
     node => ({
+      documentName: node.name,
       path: [],
       connectionMetadata: [],
     }),
@@ -196,6 +199,7 @@ function visitLinkedField(field: LinkedField, options: Options): LinkedField {
       direction,
       connectionArguments,
       connectionDirective.loc,
+      options.documentName,
     );
     transformedField = {
       ...transformedField,
@@ -393,6 +397,7 @@ function transformConnectionSelections(
   direction: 'forward' | 'backward' | 'bidirectional',
   connectionArguments: ConnectionArguments,
   directiveLocation: Location,
+  documentName: string,
 ): $ReadOnlyArray<Selection> {
   const schema = context.getSchema();
   const derivedFieldLocation = {kind: 'Derived', source: field.loc};
@@ -440,7 +445,6 @@ function transformConnectionSelections(
   // If streaming is enabled, construct directives to apply to the edges/
   // pageInfo fields
   let streamDirective;
-  let deferDirective;
   const stream = connectionArguments.stream;
   if (stream != null) {
     streamDirective = {
@@ -462,25 +466,6 @@ function transformConnectionSelections(
       kind: 'Directive',
       loc: derivedDirectiveLocation,
       name: 'stream',
-    };
-    deferDirective = {
-      args: [
-        stream.if,
-        {
-          kind: 'Argument',
-          loc: derivedDirectiveLocation,
-          name: 'label',
-          type: SchemaUtils.getNullableStringInput(schema),
-          value: {
-            kind: 'Literal',
-            loc: derivedDirectiveLocation,
-            value: stream.label + '$' + PAGE_INFO,
-          },
-        },
-      ].filter(Boolean),
-      kind: 'Directive',
-      loc: derivedDirectiveLocation,
-      name: 'defer',
     };
   }
   // For backwards compatibility with earlier versions of this transform,
@@ -514,8 +499,9 @@ function transformConnectionSelections(
   // later replace the originals at the same point within the selection array
   let transformedEdgesSelection: ?LinkedField = edgesSelection;
   let transformedPageInfoSelection: ?(
-    | LinkedField
+    | Defer
     | InlineFragment
+    | LinkedField
   ) = pageInfoSelection;
   const edgesType = schema.getFieldConfig(
     schema.expectField(nullableType, EDGES),
@@ -610,14 +596,16 @@ function transformConnectionSelections(
     ],
   };
   // When streaming the pageInfo field has to be deferred
-  if (deferDirective != null) {
+  if (stream != null) {
     transformedPageInfoSelection = {
-      directives: [deferDirective],
-      kind: 'InlineFragment',
+      if: stream.if?.value ?? null,
+      label: `${documentName}$defer$${stream.label}$${PAGE_INFO}`,
+      kind: 'Defer',
       loc: derivedFieldLocation,
-      metadata: null,
+      metadata: {
+        fragmentTypeCondition: nullableType,
+      },
       selections: [transformedPageInfoSelection],
-      typeCondition: nullableType,
     };
   }
 

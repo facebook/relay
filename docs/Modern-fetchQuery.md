@@ -32,6 +32,7 @@ fetchQuery(environment, query, variables)
 * `environment`: The [Relay Environment](./relay-environment.html)
 * `query`: The `graphql` tagged query. **Note:** `relay-compiler` enforces the query to be named as `<FileName>Query`.
 * `variables`: Object containing set of variables to pass to the GraphQL query, i.e. a mapping from variable name to value.
+* `cacheConfig?`: Optional object containing a set of cache configuration options, i.e. `force: true` requires the fetch to be issued regardless of the state of any configured response cache. See [the types](https://github.com/DefinitelyTyped/DefinitelyTyped/blob/master/types/relay-runtime/lib/util/RelayRuntimeTypes.d.ts#L22-L35) for more `cacheConfig` options.
 
 ## Return Value
 

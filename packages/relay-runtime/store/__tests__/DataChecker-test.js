@@ -85,36 +85,34 @@ describe('check()', () => {
         'node(id:"1")': {__ref: '1'},
       },
     };
-    ({Query} = generateAndCompile(
-      `
-        query Query($id: ID, $size: [Int]) {
-          node(id: $id) {
-            id
-            __typename
-            ... on Page {
-              actors {
-                name
-              }
+    ({Query} = generateAndCompile(`
+      query Query($id: ID, $size: [Int]) {
+        node(id: $id) {
+          id
+          __typename
+          ... on Page {
+            actors {
+              name
             }
-            ... on User {
-              firstName
-              friends(first: 3) {
-                edges {
-                  cursor
-                  node {
-                    id
-                    firstName
-                  }
+          }
+          ... on User {
+            firstName
+            friends(first: 3) {
+              edges {
+                cursor
+                node {
+                  id
+                  firstName
                 }
               }
-              profilePicture(size: $size) {
-                uri
-              }
+            }
+            profilePicture(size: $size) {
+              uri
             }
           }
         }
-      `,
-    ));
+      }
+    `));
   });
 
   it('reads query data', () => {
@@ -170,28 +168,26 @@ describe('check()', () => {
     };
     const source = RelayRecordSource.create(data);
     const target = RelayRecordSource.create();
-    const {BarFragment} = generateAndCompile(
-      `
-        fragment BarFragment on User @argumentDefinitions(
-          size: {type: "[Int]"}
-        ) {
-          id
-          firstName
-          friends(first: 1) {
-            edges {
-              cursor
-              node {
-                id
-                firstName
-              }
+    const {BarFragment} = generateAndCompile(`
+      fragment BarFragment on User @argumentDefinitions(
+        size: {type: "[Int]"}
+      ) {
+        id
+        firstName
+        friends(first: 1) {
+          edges {
+            cursor
+            node {
+              id
+              firstName
             }
           }
-          profilePicture(size: $size) {
-            uri
-          }
         }
-      `,
-    );
+        profilePicture(size: $size) {
+          uri
+        }
+      }
+    `);
     const status = check(
       source,
       target,
@@ -228,15 +224,13 @@ describe('check()', () => {
     };
     const source = RelayRecordSource.create(data);
     const target = RelayRecordSource.create();
-    const {Fragment} = generateAndCompile(
-      `
-          fragment Fragment on User {
-            profilePicture(size: 32) @__clientField(handle: "test") {
-              uri
-            }
-          }
-        `,
-    );
+    const {Fragment} = generateAndCompile(`
+      fragment Fragment on User {
+        profilePicture(size: 32) @__clientField(handle: "test") {
+          uri
+        }
+      }
+    `);
     const status = check(
       source,
       target,
@@ -255,38 +249,37 @@ describe('check()', () => {
     let loader;
 
     beforeEach(() => {
-      const nodes = generateAndCompile(
-        `
-          fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
-            plaintext
-            data {
-              text
-            }
+      const nodes = generateAndCompile(`
+        fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
+          plaintext
+          data {
+            text
           }
+        }
 
-          fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
-            markdown
-            data {
-              markup
-            }
+        fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+          markdown
+          data {
+            markup
           }
+        }
 
-          fragment BarFragment on User {
-            id
-            nameRenderer @match {
-              ...PlainUserNameRenderer_name
-                @module(name: "PlainUserNameRenderer.react")
-              ...MarkdownUserNameRenderer_name
-                @module(name: "MarkdownUserNameRenderer.react")
-            }
+        fragment BarFragment on User {
+          id
+          nameRenderer @match {
+            ...PlainUserNameRenderer_name
+              @module(name: "PlainUserNameRenderer.react")
+            ...MarkdownUserNameRenderer_name
+              @module(name: "MarkdownUserNameRenderer.react")
           }
+        }
 
-          query BarQuery($id: ID!) {
-            node(id: $id) {
-              ...BarFragment
-            }
-          }`,
-      );
+        query BarQuery($id: ID!) {
+          node(id: $id) {
+            ...BarFragment
+          }
+        }
+      `);
       BarQuery = nodes.BarQuery;
       loader = {
         get: jest.fn(
@@ -651,38 +644,37 @@ describe('check()', () => {
     let loader;
 
     beforeEach(() => {
-      const nodes = generateAndCompile(
-        `
-          fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
-            plaintext
-            data {
-              text
-            }
+      const nodes = generateAndCompile(`
+        fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
+          plaintext
+          data {
+            text
           }
+        }
 
-          fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
-            markdown
-            data {
-              markup
-            }
+        fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+          markdown
+          data {
+            markup
           }
+        }
 
-          fragment BarFragment on User {
-            id
-            nameRenderer { # no @match
-              ...PlainUserNameRenderer_name
-                @module(name: "PlainUserNameRenderer.react")
-              ...MarkdownUserNameRenderer_name
-                @module(name: "MarkdownUserNameRenderer.react")
-            }
+        fragment BarFragment on User {
+          id
+          nameRenderer { # no @match
+            ...PlainUserNameRenderer_name
+              @module(name: "PlainUserNameRenderer.react")
+            ...MarkdownUserNameRenderer_name
+              @module(name: "MarkdownUserNameRenderer.react")
           }
+        }
 
-          query BarQuery($id: ID!) {
-            node(id: $id) {
-              ...BarFragment
-            }
-          }`,
-      );
+        query BarQuery($id: ID!) {
+          node(id: $id) {
+            ...BarFragment
+          }
+        }
+      `);
       BarQuery = nodes.BarQuery;
       loader = {
         get: jest.fn(
@@ -971,19 +963,18 @@ describe('check()', () => {
 
   describe('when @defer directive is present', () => {
     beforeEach(() => {
-      const nodes = generateAndCompile(
-        `
-          fragment TestFragment on User {
-            id
-            name
-          }
+      const nodes = generateAndCompile(`
+        fragment TestFragment on User {
+          id
+          name
+        }
 
-          query TestQuery($id: ID!) {
-            node(id: $id) {
-              ...TestFragment @defer(label: "TestFragment")
-            }
-          }`,
-      );
+        query TestQuery($id: ID!) {
+          node(id: $id) {
+            ...TestFragment @defer(label: "TestFragment")
+          }
+        }
+      `);
       Query = nodes.TestQuery;
     });
 
@@ -1048,21 +1039,20 @@ describe('check()', () => {
 
   describe('when @stream directive is present', () => {
     beforeEach(() => {
-      const nodes = generateAndCompile(
-        `
-          fragment TestFragment on Feedback {
-            id
-            actors @stream(label: "TestFragmentActors", initial_count: 0) {
-              name
-            }
+      const nodes = generateAndCompile(`
+        fragment TestFragment on Feedback {
+          id
+          actors @stream(label: "TestFragmentActors", initial_count: 0) {
+            name
           }
+        }
 
-          query TestQuery($id: ID!) {
-            node(id: $id) {
-              ...TestFragment
-            }
-          }`,
-      );
+        query TestQuery($id: ID!) {
+          node(id: $id) {
+            ...TestFragment
+          }
+        }
+      `);
       Query = nodes.TestQuery;
     });
 
@@ -1172,19 +1162,17 @@ describe('check()', () => {
       };
       const source = RelayRecordSource.create(data);
       const target = RelayRecordSource.create();
-      const {BarFragment} = generateAndCompile(
-        `
-            fragment BarFragment on User @argumentDefinitions(
-              size: {type: "[Int]"}
-            ) {
-              id
-              firstName
-              profilePicture(size: $size) {
-                uri
-              }
-            }
-          `,
-      );
+      const {BarFragment} = generateAndCompile(`
+        fragment BarFragment on User @argumentDefinitions(
+          size: {type: "[Int]"}
+        ) {
+          id
+          firstName
+          profilePicture(size: $size) {
+            uri
+          }
+        }
+      `);
       const status = check(
         source,
         target,
@@ -1214,19 +1202,17 @@ describe('check()', () => {
       };
       const source = RelayRecordSource.create(data);
       const target = RelayRecordSource.create();
-      const {BarFragment} = generateAndCompile(
-        `
-          fragment BarFragment on User @argumentDefinitions(
-            size: {type: "[Int]"}
-          ) {
-            id
-            firstName
-            profilePicture(size: $size) {
-              uri
-            }
+      const {BarFragment} = generateAndCompile(`
+        fragment BarFragment on User @argumentDefinitions(
+          size: {type: "[Int]"}
+        ) {
+          id
+          firstName
+          profilePicture(size: $size) {
+            uri
           }
-        `,
-      );
+        }
+      `);
       const status = check(
         source,
         target,
@@ -1256,19 +1242,17 @@ describe('check()', () => {
       };
       const source = RelayRecordSource.create(data);
       const target = RelayRecordSource.create();
-      const {BarFragment} = generateAndCompile(
-        `
-          fragment BarFragment on User @argumentDefinitions(
-            size: {type: "[Int]"}
-          ) {
-            id
-            firstName
-            profilePicture(size: $size) {
-              uri
-            }
+      const {BarFragment} = generateAndCompile(`
+        fragment BarFragment on User @argumentDefinitions(
+          size: {type: "[Int]"}
+        ) {
+          id
+          firstName
+          profilePicture(size: $size) {
+            uri
           }
-        `,
-      );
+        }
+      `);
       const status = check(
         source,
         target,
@@ -1311,19 +1295,17 @@ describe('check()', () => {
       };
       const source = RelayRecordSource.create(data);
       const target = RelayRecordSource.create();
-      const {BarFragment} = generateAndCompile(
-        `
-          fragment BarFragment on User @argumentDefinitions(
-            size: {type: "[Int]"}
-          ) {
-            id
-            firstName
-            profilePicture(size: $size) {
-              uri
-            }
+      const {BarFragment} = generateAndCompile(`
+        fragment BarFragment on User @argumentDefinitions(
+          size: {type: "[Int]"}
+        ) {
+          id
+          firstName
+          profilePicture(size: $size) {
+            uri
           }
-        `,
-      );
+        }
+      `);
       const status = check(
         source,
         target,
@@ -1382,8 +1364,8 @@ describe('check()', () => {
       };
       const source = RelayRecordSource.create(data);
       const target = RelayRecordSource.create();
-      const {BarFragment} = generateAndCompile(
-        `fragment BarFragment on User @argumentDefinitions(
+      const {BarFragment} = generateAndCompile(`
+        fragment BarFragment on User @argumentDefinitions(
           size: {type: "[Int]"}
         ) {
           id
@@ -1440,8 +1422,8 @@ describe('check()', () => {
         type Foo {
           client_name: String
           profile_picture(scale: Float): Image
-        }`,
-      );
+        }
+      `);
       const status = check(
         source,
         target,

@@ -22,10 +22,6 @@ const {createNormalizationSelector} = require('../RelayModernSelector');
 const {ROOT_ID} = require('../RelayStoreUtils');
 const {generateAndCompile} = require('relay-test-utils-internal');
 
-beforeEach(() => {
-  jest.resetModules();
-});
-
 function getEmptyConnectionEvents() {
   return null;
 }
@@ -1226,7 +1222,7 @@ describe('check()', () => {
       expect(target.size()).toBe(0);
     });
 
-    it('allows handlers to supplement missing fields', () => {
+    it('allows handlers to supplement missing scalar fields', () => {
       const data = {
         '1': {
           __id: '1',
@@ -1237,6 +1233,7 @@ describe('check()', () => {
         },
         'client:3': {
           __id: 'client:3',
+          __typename: 'Image',
           // missing 'uri'
         },
       };
@@ -1273,11 +1270,215 @@ describe('check()', () => {
       expect(target.toJSON()).toEqual({
         'client:3': {
           __id: 'client:3',
-          __typename: undefined,
+          __typename: 'Image',
           uri: 'thebestimage.uri',
         },
       });
     });
+
+    test.each([
+      ['undefined', {handleReturnValue: undefined, expectedStatus: false}],
+      ['null', {handleReturnValue: null, expectedStatus: false}],
+      [
+        "'hometown-exists'",
+        {
+          handleReturnValue: 'hometown-exists',
+          expectedStatus: true,
+          updatedHometown: 'hometown-exists',
+        },
+      ],
+      [
+        "'hometown-deleted'",
+        {
+          handleReturnValue: 'hometown-deleted',
+          expectedStatus: false,
+        },
+      ],
+      [
+        "'hometown-unknown'",
+        {
+          handleReturnValue: 'hometown-unknown',
+          expectedStatus: false,
+        },
+      ],
+    ])(
+      'linked field handler handler that returns %s',
+      (_name, {handleReturnValue, expectedStatus, updatedHometown}) => {
+        const data = {
+          user1: {
+            __id: 'user1',
+            id: 'user1',
+            __typename: 'User',
+            firstName: 'Alice',
+            // hometown: missing
+          },
+          'hometown-exists': {
+            __id: 'hometown',
+            __typename: 'Page',
+            name: 'New York City',
+          },
+          'hometown-deleted': null,
+        };
+        const source = RelayRecordSource.create(data);
+        const target = RelayRecordSource.create();
+        const {UserFragment} = generateAndCompile(`
+          fragment UserFragment on User {
+            hometown {
+              name
+            }
+          }
+        `);
+        const handle = jest.fn((field, record, argValues) => {
+          return handleReturnValue;
+        });
+        const status = check(
+          source,
+          target,
+          createNormalizationSelector(UserFragment, 'user1', {}),
+          [
+            {
+              kind: 'linked',
+              handle,
+            },
+          ],
+          null,
+          defaultGetDataID,
+          getEmptyConnectionEvents,
+        );
+        expect(handle).toBeCalledTimes(1);
+        expect(status).toBe(expectedStatus);
+        expect(target.toJSON()).toEqual(
+          updatedHometown == null
+            ? {}
+            : {
+                user1: {
+                  __id: 'user1',
+                  __typename: 'User',
+                  hometown: {
+                    __ref: updatedHometown,
+                  },
+                },
+              },
+        );
+      },
+    );
+
+    test.each([
+      ['undefined', {handleReturnValue: undefined, expectedStatus: false}],
+      ['null', {handleReturnValue: null, expectedStatus: false}],
+      [
+        '[]',
+        {handleReturnValue: [], expectedStatus: true, updatedScreennames: []},
+      ],
+      [
+        '[undefined]',
+        {
+          handleReturnValue: [undefined],
+          expectedStatus: true,
+          updatedScreennames: [],
+        },
+      ],
+      [
+        '[null]',
+        {
+          handleReturnValue: [null],
+          expectedStatus: true,
+          updatedScreennames: [],
+        },
+      ],
+      [
+        "['screenname-exists']",
+        {
+          handleReturnValue: ['screenname-exists'],
+          expectedStatus: true,
+          updatedScreennames: ['screenname-exists'],
+        },
+      ],
+      [
+        "['screenname-deleted']",
+        {
+          handleReturnValue: ['screenname-deleted'],
+          expectedStatus: true,
+          updatedScreennames: [],
+        },
+      ],
+      [
+        "['screenname-unknown']",
+        {
+          handleReturnValue: ['screenname-unknown'],
+          expectedStatus: true,
+          updatedScreennames: [],
+        },
+      ],
+      [
+        "['screenname-exists', 'screenname-unknown']",
+        {
+          handleReturnValue: ['screenname-exists', 'screenname-unknown'],
+          expectedStatus: true,
+          updatedScreennames: ['screenname-exists'],
+        },
+      ],
+    ])(
+      'plural linked field handler handler that returns %s',
+      (_name, {handleReturnValue, expectedStatus, updatedScreennames}) => {
+        const data = {
+          user1: {
+            __id: 'user1',
+            id: 'user1',
+            __typename: 'User',
+            firstName: 'Alice',
+            // screennames: missing
+          },
+          'screenname-exists': {
+            __id: 'screenname-exists',
+            __typename: 'Screenname',
+            name: 'Bert',
+          },
+          'screenname-deleted': null,
+        };
+        const source = RelayRecordSource.create(data);
+        const target = RelayRecordSource.create();
+        const {UserFragment} = generateAndCompile(`
+          fragment UserFragment on User {
+            screennames {
+              name
+            }
+          }
+        `);
+        const handle = jest.fn((field, record, argValues) => {
+          return handleReturnValue;
+        });
+        const status = check(
+          source,
+          target,
+          createNormalizationSelector(UserFragment, 'user1', {}),
+          [
+            {
+              kind: 'pluralLinked',
+              handle,
+            },
+          ],
+          null,
+          defaultGetDataID,
+          getEmptyConnectionEvents,
+        );
+        expect(handle).toBeCalledTimes(1);
+        expect(status).toBe(expectedStatus);
+        expect(target.toJSON()).toEqual(
+          updatedScreennames == null
+            ? {}
+            : {
+                user1: {
+                  __id: 'user1',
+                  __typename: 'User',
+                  screennames: {
+                    __refs: updatedScreennames,
+                  },
+                },
+              },
+        );
+      },
+    );
 
     it('returns modified records with the target', () => {
       const data = {

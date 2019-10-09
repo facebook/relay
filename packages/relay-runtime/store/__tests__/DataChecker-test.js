@@ -1370,22 +1370,8 @@ describe('check()', () => {
         '[]',
         {handleReturnValue: [], expectedStatus: true, updatedScreennames: []},
       ],
-      [
-        '[undefined]',
-        {
-          handleReturnValue: [undefined],
-          expectedStatus: true,
-          updatedScreennames: [],
-        },
-      ],
-      [
-        '[null]',
-        {
-          handleReturnValue: [null],
-          expectedStatus: true,
-          updatedScreennames: [],
-        },
-      ],
+      ['[undefined]', {handleReturnValue: [undefined], expectedStatus: false}],
+      ['[null]', {handleReturnValue: [null], expectedStatus: false}],
       [
         "['screenname-exists']",
         {
@@ -1398,24 +1384,21 @@ describe('check()', () => {
         "['screenname-deleted']",
         {
           handleReturnValue: ['screenname-deleted'],
-          expectedStatus: true,
-          updatedScreennames: [],
+          expectedStatus: false,
         },
       ],
       [
         "['screenname-unknown']",
         {
           handleReturnValue: ['screenname-unknown'],
-          expectedStatus: true,
-          updatedScreennames: [],
+          expectedStatus: false,
         },
       ],
       [
         "['screenname-exists', 'screenname-unknown']",
         {
           handleReturnValue: ['screenname-exists', 'screenname-unknown'],
-          expectedStatus: true,
-          updatedScreennames: ['screenname-exists'],
+          expectedStatus: false,
         },
       ],
     ])(

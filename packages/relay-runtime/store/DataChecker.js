@@ -230,11 +230,14 @@ class DataChecker {
           this._recordSourceProxy,
         );
         if (newValue != null) {
-          return newValue.filter(
+          const allItemsKnown = newValue.every(
             linkedID =>
               linkedID != null &&
               this._mutator.getStatus(linkedID) === EXISTENT,
           );
+          if (allItemsKnown) {
+            return newValue;
+          }
         }
       }
     }

@@ -1166,22 +1166,6 @@ describe('Schema: RelayCompiler Internal GraphQL Schema Interface', () => {
       ]);
     });
 
-    test('assert output type', () => {
-      testValidTypeNames('assertOutputType', [
-        'String',
-        'String!',
-        '[String]',
-        'A',
-        'B',
-        'AB',
-        'A!',
-        '[B]',
-        'Node',
-        'E',
-      ]);
-      testInvalidTypeNames('assertOutputType', ['I']);
-    });
-
     test('assert composite type', () => {
       testValidTypeNames('assertCompositeType', ['A', 'B', 'AB', 'Node']);
       testInvalidTypeNames('assertCompositeType', [

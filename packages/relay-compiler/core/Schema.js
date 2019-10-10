@@ -26,7 +26,6 @@ const {
   GraphQLUnionType,
   buildASTSchema,
   extendSchema,
-  isOutputType,
   parse,
   parseType,
   print,
@@ -801,15 +800,6 @@ class Schema {
     return type;
   }
 
-  assertOutputType(type: TypeID): TypeID {
-    if (!this.isOutputType(type)) {
-      throw createCompilerError(
-        `Expected ${this.getTypeString(type)} to be an input type.`,
-      );
-    }
-    return type;
-  }
-
   assertAbstractType(type: TypeID): AbstractTypeID {
     if (!isAbstractType(type)) {
       throw createCompilerError(
@@ -993,11 +983,6 @@ class Schema {
   isInputType(type: TypeID): boolean {
     // Wrappers can be input types (so it's save to check unwrapped type here)
     return isInputType(type) || (isWrapper(type) && isInputType(unwrap(type)));
-  }
-
-  isOutputType(type: TypeID): boolean {
-    // Wrappers can be output types (so it's save to check unwrapped type here)
-    return isOutputType(this._extendedSchema.getType(unwrap(type).name));
   }
 
   isCompositeType(type: TypeID): boolean {

@@ -14,7 +14,7 @@ const Profiler = require('./GraphQLCompilerProfiler');
 
 const util = require('util');
 
-const {NoUnusedVariablesRule, formatError} = require('graphql');
+const {formatError} = require('graphql');
 
 import type {Schema} from './Schema';
 import type {DocumentNode, ValidationRule} from 'graphql';
@@ -41,23 +41,6 @@ function validateOrThrow(
 }
 
 module.exports = {
-  GLOBAL_RULES: [
-    /* Some rules are not enabled (potentially non-exhaustive)
-     *
-     * - KnownFragmentNamesRule: RelayClassic generates fragments at runtime,
-     *   so RelayCompat queries might reference fragments unknown in build time.
-     * - NoFragmentCyclesRule: Because of @argumentDefinitions, this validation
-     *   incorrectly flags a subset of fragments using @include/@skip as
-     *   recursive.
-     * - NoUndefinedVariablesRule: Because of @argumentDefinitions, this
-     *   validation incorrectly marks some fragment variables as undefined.
-     * - NoUnusedFragmentsRule: Queries generated dynamically with RelayCompat
-     *   might use unused fragments.
-     * - OverlappingFieldsCanBeMergedRule: RelayClassic auto-resolves
-     *   overlapping fields by generating aliases.
-     */
-    NoUnusedVariablesRule,
-  ],
   validate: (Profiler.instrument(validateOrThrow, 'RelayValidator.validate'): (
     schema: Schema,
     document: DocumentNode,

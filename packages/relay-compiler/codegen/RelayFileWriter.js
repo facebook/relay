@@ -15,7 +15,6 @@ const CodegenDirectory = require('./CodegenDirectory');
 const CompilerContext = require('../core/GraphQLCompilerContext');
 const Profiler = require('../core/GraphQLCompilerProfiler');
 const RelayParser = require('../core/RelayParser');
-const RelayValidator = require('../core/RelayValidator');
 
 const compileRelayArtifacts = require('./compileRelayArtifacts');
 const crypto = require('crypto');
@@ -103,14 +102,12 @@ function compileAll({
 |}) {
   // Verify using local and global rules, can run global verifications here
   // because all files are processed together
-  let validationRules = RelayValidator.GLOBAL_RULES;
-  if (extraValidationRules) {
-    validationRules = [
-      ...validationRules,
-      ...(extraValidationRules.LOCAL_RULES || []),
-      ...(extraValidationRules.GLOBAL_RULES || []),
-    ];
-  }
+  const validationRules = extraValidationRules
+    ? [
+        ...(extraValidationRules.LOCAL_RULES || []),
+        ...(extraValidationRules.GLOBAL_RULES || []),
+      ]
+    : [];
 
   const definitions = ASTConvert.convertASTDocumentsWithBase(
     schema,

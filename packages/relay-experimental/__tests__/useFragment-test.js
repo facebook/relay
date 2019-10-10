@@ -104,7 +104,7 @@ describe('useFragment', () => {
           ...NestedUserFragment
         }
 
-        query UsersQuery($ids: [ID!]!, $scale: Int!) {
+        query UsersQuery($ids: [ID!]!) {
           nodes(ids: $ids) {
             ...UsersFragment
           }

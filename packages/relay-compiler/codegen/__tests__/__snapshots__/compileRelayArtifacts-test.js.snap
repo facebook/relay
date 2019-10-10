@@ -376,7 +376,7 @@ type Foo {
 
 exports[`compileRelayArtifacts matches expected output: client-fields-on-roots.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
-query FooQuery($id: ID!, $arg: String) {
+query FooQuery($id: ID!) {
   client_root_field
 
   node(id: $id) {
@@ -423,12 +423,6 @@ extend type Subscription {
         "kind": "LocalArgument",
         "name": "id",
         "type": "ID!",
-        "defaultValue": null
-      },
-      {
-        "kind": "LocalArgument",
-        "name": "arg",
-        "type": "String",
         "defaultValue": null
       }
     ],
@@ -479,12 +473,6 @@ extend type Subscription {
         "kind": "LocalArgument",
         "name": "id",
         "type": "ID!",
-        "defaultValue": null
-      },
-      {
-        "kind": "LocalArgument",
-        "name": "arg",
-        "type": "String",
         "defaultValue": null
       }
     ],
@@ -4299,7 +4287,7 @@ fragment FeedbackComments_feedback on Feedback {
 
 exports[`compileRelayArtifacts matches expected output: connection-resolver-field-stream-if-default-true.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
-query QueryWithConnectionField($id: ID!, $enableStream: Boolean) {
+query QueryWithConnectionField($id: ID!) {
   feedback: node(id: $id) {
     ...FeedbackComments_feedback
   }
@@ -4336,12 +4324,6 @@ fragment FeedbackComments_feedback on Feedback {
         "name": "id",
         "type": "ID!",
         "defaultValue": null
-      },
-      {
-        "kind": "LocalArgument",
-        "name": "enableStream",
-        "type": "Boolean",
-        "defaultValue": null
       }
     ],
     "selections": [
@@ -4377,12 +4359,6 @@ fragment FeedbackComments_feedback on Feedback {
         "kind": "LocalArgument",
         "name": "id",
         "type": "ID!",
-        "defaultValue": null
-      },
-      {
-        "kind": "LocalArgument",
-        "name": "enableStream",
-        "type": "Boolean",
         "defaultValue": null
       }
     ],
@@ -4678,7 +4654,7 @@ fragment FeedbackComments_feedback on Feedback {
 
 exports[`compileRelayArtifacts matches expected output: connection-resolver-field-stream-if-explicit-true.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
-query QueryWithConnectionField($id: ID!, $enableStream: Boolean) {
+query QueryWithConnectionField($id: ID!) {
   feedback: node(id: $id) {
     ...FeedbackComments_feedback
   }
@@ -4716,12 +4692,6 @@ fragment FeedbackComments_feedback on Feedback {
         "name": "id",
         "type": "ID!",
         "defaultValue": null
-      },
-      {
-        "kind": "LocalArgument",
-        "name": "enableStream",
-        "type": "Boolean",
-        "defaultValue": null
       }
     ],
     "selections": [
@@ -4757,12 +4727,6 @@ fragment FeedbackComments_feedback on Feedback {
         "kind": "LocalArgument",
         "name": "id",
         "type": "ID!",
-        "defaultValue": null
-      },
-      {
-        "kind": "LocalArgument",
-        "name": "enableStream",
-        "type": "Boolean",
         "defaultValue": null
       }
     ],
@@ -19865,7 +19829,7 @@ query UnionQuery {
 exports[`compileRelayArtifacts matches expected output: unknown-root-variable-in-fragment.invalid.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 # expected-to-throw
-query TestQuery($id: ID!, $pictureSize: [Int] = [128]) {
+query TestQuery($id: ID!) {
   node(id: $id) {
     id
     ...Profile @relay(mask: false)
@@ -19894,7 +19858,7 @@ Error: Variable '$includeFriends' is not in scope.
 
 Source: GraphQL request (2:1)
 1: # expected-to-throw
-2: query TestQuery($id: ID!, $pictureSize: [Int] = [128]) {
+2: query TestQuery($id: ID!) {
    ^
 3:   node(id: $id) {
 

@@ -197,14 +197,10 @@ function visit(
       // Merge any root variables referenced by the spread fragment
       // into this (parent) fragment's arguments.
       for (const argDef of referencedFragmentArguments.values()) {
-        if (
-          argDef.kind === 'RootArgumentDefinition' &&
-          !argumentDefinitions.has(argDef.name)
-        ) {
+        if (argDef.kind === 'RootArgumentDefinition') {
           argumentDefinitions.set(argDef.name, argDef);
         }
       }
-      return false;
     },
     Argument(argument: Argument) {
       if (argument.value.kind !== 'Variable') {

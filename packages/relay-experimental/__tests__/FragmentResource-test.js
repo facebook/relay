@@ -351,6 +351,7 @@ describe('FragmentResource', () => {
           query UserQuery($id: ID!, $foo: Boolean!) {
             node(id: $id) {
               __typename
+              name @include(if: $foo)
               ...UserFragment
             }
           }

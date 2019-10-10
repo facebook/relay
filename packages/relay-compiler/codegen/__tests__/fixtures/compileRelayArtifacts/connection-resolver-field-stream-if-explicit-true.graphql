@@ -1,4 +1,4 @@
-query QueryWithConnectionField($id: ID!, $enableStream: Boolean) {
+query QueryWithConnectionField($id: ID!) {
   feedback: node(id: $id) {
     ...FeedbackComments_feedback
   }

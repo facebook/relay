@@ -36,6 +36,7 @@ const SkipRedundantNodesTransform = require('../transforms/SkipRedundantNodesTra
 const SkipUnreachableNodeTransform = require('../transforms/SkipUnreachableNodeTransform');
 const SkipUnusedVariablesTransform = require('../transforms/SkipUnusedVariablesTransform');
 const ValidateGlobalVariablesTransform = require('../transforms/ValidateGlobalVariablesTransform');
+const ValidateUnusedVariablesTransform = require('../transforms/ValidateUnusedVariablesTransform');
 
 import type {IRTransform} from './GraphQLCompilerContext';
 
@@ -49,6 +50,7 @@ const relaySchemaExtensions: $ReadOnlyArray<string> = [
   RelayTestOperationTransform.SCHEMA_EXTENSION,
   InlineDataFragmentTransform.SCHEMA_EXTENSION,
   RelayFlowGenerator.SCHEMA_EXTENSION,
+  ValidateUnusedVariablesTransform.SCHEMA_EXTENSION,
 ];
 
 // Transforms applied to both operations and fragments for both reading and
@@ -76,6 +78,7 @@ const relayFragmentTransforms: $ReadOnlyArray<IRTransform> = [
 // Transforms applied to queries/mutations/subscriptions that are used for
 // fetching data from the server and parsing those responses.
 const relayQueryTransforms: $ReadOnlyArray<IRTransform> = [
+  ValidateUnusedVariablesTransform.transform,
   RelayApplyFragmentArgumentTransform.transform,
   ValidateGlobalVariablesTransform.transform,
   RelayGenerateIDFieldTransform.transform,

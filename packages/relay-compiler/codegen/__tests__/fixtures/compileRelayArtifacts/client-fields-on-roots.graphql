@@ -1,4 +1,4 @@
-query FooQuery($id: ID!, $arg: String) {
+query FooQuery($id: ID!) {
   client_root_field
 
   node(id: $id) {

@@ -226,8 +226,6 @@ describe('useLegacyPaginationFragment', () => {
           $first: Int
           $before: ID
           $last: Int
-          $orderby: [String]
-          $isViewerFriend: Boolean
         ) {
           node(id: $id) {
             ...UserFragment @arguments(isViewerFriendLocal: true, orderby: ["name"])

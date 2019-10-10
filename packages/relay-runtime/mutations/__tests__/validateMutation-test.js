@@ -333,8 +333,7 @@ describe('validateOptimisticResponse', () => {
       name: 'Handles Lists',
       mutation: generateAndCompile(`
           mutation ChangeNameMutation(
-            $input: ActorNameChangeInput!,
-            $myVar: Boolean!,
+            $input: ActorNameChangeInput!
           ) {
             actorNameChange(input: $input) {
               actor {

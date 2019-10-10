@@ -112,14 +112,6 @@ export type Directive = $ReadOnly<{|
 
 export type {Schema};
 
-type Kind =
-  | 'Scalar'
-  | 'Enum'
-  | 'InputObject'
-  | 'Union'
-  | 'Interface'
-  | 'Object';
-
 type FieldsMap = Map<string, Field>;
 
 type TypeMapKey = string | Symbol;
@@ -129,18 +121,13 @@ type TypeMap = Map<TypeMapKey, TypeID>;
  * @private
  */
 class Type {
-  +kind: Kind;
   +name: string;
-
-  constructor(name: string, kind: Kind) {
+  constructor(name: string) {
     this.name = name;
-    this.kind = kind;
   }
-
   toString(): string {
     return this.name;
   }
-
   toJSON(): string {
     return String(this);
   }
@@ -149,44 +136,32 @@ class Type {
 /**
  * @private
  */
-class ScalarType extends Type {
-  +kind: 'Scalar';
-}
+class ScalarType extends Type {}
 
 /**
  * @private
  */
-class EnumType extends Type {
-  +kind: 'Enum';
-}
+class EnumType extends Type {}
 
 /**
  * @private
  */
-class UnionType extends Type {
-  +kind: 'Union';
-}
+class UnionType extends Type {}
 
 /**
  * @private
  */
-class ObjectType extends Type {
-  +kind: 'Object';
-}
+class ObjectType extends Type {}
 
 /**
  * @private
  */
-class InputObjectType extends Type {
-  +kind: 'InputObject';
-}
+class InputObjectType extends Type {}
 
 /**
  * @private
  */
-class InterfaceType extends Type {
-  +kind: 'Interface';
-}
+class InterfaceType extends Type {}
 
 /**
  * @private
@@ -484,30 +459,23 @@ class Schema {
       if (!graphQLType) {
         return;
       }
-      let kind: Kind;
       let TypeClass = Type;
       if (graphQLType instanceof GraphQLScalarType) {
-        kind = 'Scalar';
         TypeClass = ScalarType;
       } else if (graphQLType instanceof GraphQLInputObjectType) {
-        kind = 'InputObject';
         TypeClass = InputObjectType;
       } else if (graphQLType instanceof GraphQLEnumType) {
-        kind = 'Enum';
         TypeClass = EnumType;
       } else if (graphQLType instanceof GraphQLUnionType) {
-        kind = 'Union';
         TypeClass = UnionType;
       } else if (graphQLType instanceof GraphQLInterfaceType) {
-        kind = 'Interface';
         TypeClass = InterfaceType;
       } else if (graphQLType instanceof GraphQLObjectType) {
-        kind = 'Object';
         TypeClass = ObjectType;
       } else {
         throw createCompilerError(`Unknown GraphQL type: ${graphQLType}`);
       }
-      type = new TypeClass(name, kind);
+      type = new TypeClass(name);
       this._typeMap.set(name, type);
       return type;
     }
@@ -530,7 +498,7 @@ class Schema {
         graphQLType = this._baseSchema.getSubscriptionType();
       }
       if (graphQLType) {
-        const operationType = new ObjectType(graphQLType.name, 'Object');
+        const operationType = new ObjectType(graphQLType.name);
         this._typeMap.set(typeName, operationType);
         this._typeMap.set(graphQLType.name, operationType);
         return operationType;
@@ -1287,11 +1255,7 @@ class Schema {
     if (gqlType instanceof GraphQLEnumType) {
       return gqlType.getValues().map(({value}) => String(value));
     }
-    throw createCompilerError(
-      `Expected "${type.name}" to be an Enum, but received "${
-        type.kind
-      }" kind.`,
-    );
+    throw createCompilerError(`Expected '${type.name}' to be an enum.`);
   }
 
   getUnionTypes(type: UnionTypeID): $ReadOnlyArray<TypeID> {
@@ -1302,7 +1266,7 @@ class Schema {
       });
     }
     throw createCompilerError(
-      `Unable to get union types for type "${this.getTypeString(type)}".`,
+      `Unable to get union types for type '${this.getTypeString(type)}'.`,
     );
   }
 

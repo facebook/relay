@@ -1277,8 +1277,22 @@ describe('check()', () => {
     });
 
     test.each([
-      ['undefined', {handleReturnValue: undefined, expectedStatus: false}],
-      ['null', {handleReturnValue: null, expectedStatus: false}],
+      [
+        'undefined',
+        {
+          handleReturnValue: undefined,
+          expectedStatus: false,
+          updatedHometown: undefined,
+        },
+      ],
+      [
+        'null',
+        {
+          handleReturnValue: null,
+          expectedStatus: false,
+          updatedHometown: undefined,
+        },
+      ],
       [
         "'hometown-exists'",
         {
@@ -1292,6 +1306,7 @@ describe('check()', () => {
         {
           handleReturnValue: 'hometown-deleted',
           expectedStatus: false,
+          updatedHometown: undefined,
         },
       ],
       [
@@ -1299,6 +1314,7 @@ describe('check()', () => {
         {
           handleReturnValue: 'hometown-unknown',
           expectedStatus: false,
+          updatedHometown: undefined,
         },
       ],
     ])(
@@ -1348,7 +1364,7 @@ describe('check()', () => {
         expect(handle).toBeCalledTimes(1);
         expect(status).toBe(expectedStatus);
         expect(target.toJSON()).toEqual(
-          updatedHometown == null
+          updatedHometown === undefined
             ? {}
             : {
                 user1: {
@@ -1364,14 +1380,46 @@ describe('check()', () => {
     );
 
     test.each([
-      ['undefined', {handleReturnValue: undefined, expectedStatus: false}],
-      ['null', {handleReturnValue: null, expectedStatus: false}],
+      [
+        'undefined',
+        {
+          handleReturnValue: undefined,
+          expectedStatus: false,
+          updatedScreennames: undefined,
+        },
+      ],
+      [
+        'null',
+        {
+          handleReturnValue: null,
+          expectedStatus: false,
+          updatedScreennames: undefined,
+        },
+      ],
       [
         '[]',
-        {handleReturnValue: [], expectedStatus: true, updatedScreennames: []},
+        {
+          handleReturnValue: [],
+          expectedStatus: true,
+          updatedScreennames: [],
+        },
       ],
-      ['[undefined]', {handleReturnValue: [undefined], expectedStatus: false}],
-      ['[null]', {handleReturnValue: [null], expectedStatus: false}],
+      [
+        '[undefined]',
+        {
+          handleReturnValue: [undefined],
+          expectedStatus: false,
+          updatedScreennames: undefined,
+        },
+      ],
+      [
+        '[null]',
+        {
+          handleReturnValue: [null],
+          expectedStatus: false,
+          updatedScreennames: undefined,
+        },
+      ],
       [
         "['screenname-exists']",
         {
@@ -1385,6 +1433,7 @@ describe('check()', () => {
         {
           handleReturnValue: ['screenname-deleted'],
           expectedStatus: false,
+          updatedScreennames: undefined,
         },
       ],
       [
@@ -1392,6 +1441,7 @@ describe('check()', () => {
         {
           handleReturnValue: ['screenname-unknown'],
           expectedStatus: false,
+          updatedScreennames: undefined,
         },
       ],
       [
@@ -1399,6 +1449,7 @@ describe('check()', () => {
         {
           handleReturnValue: ['screenname-exists', 'screenname-unknown'],
           expectedStatus: false,
+          updatedScreennames: undefined,
         },
       ],
     ])(

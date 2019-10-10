@@ -69,10 +69,6 @@ export type WriterConfig = {
   // Haste style module that exports flow types for GraphQL enums.
   // TODO(T22422153) support non-haste environments
   enumsHasteModule?: string,
-  validationRules?: {
-    GLOBAL_RULES?: $ReadOnlyArray<ValidationRule>,
-    LOCAL_RULES?: $ReadOnlyArray<ValidationRule>,
-  },
   printModuleDependency?: string => string,
   filesystem?: Filesystem,
   repersist?: boolean,
@@ -84,7 +80,6 @@ function compileAll({
   schema,
   compilerTransforms,
   documents,
-  extraValidationRules,
   reporter,
   typeGenerator,
 }: {|
@@ -93,27 +88,13 @@ function compileAll({
   schema: Schema,
   compilerTransforms: RelayCompilerTransforms,
   documents: $ReadOnlyArray<DocumentNode>,
-  extraValidationRules?: {
-    GLOBAL_RULES?: $ReadOnlyArray<ValidationRule>,
-    LOCAL_RULES?: $ReadOnlyArray<ValidationRule>,
-  },
   reporter: Reporter,
   typeGenerator: TypeGenerator,
 |}) {
-  // Verify using local and global rules, can run global verifications here
-  // because all files are processed together
-  const validationRules = extraValidationRules
-    ? [
-        ...(extraValidationRules.LOCAL_RULES || []),
-        ...(extraValidationRules.GLOBAL_RULES || []),
-      ]
-    : [];
-
   const definitions = ASTConvert.convertASTDocumentsWithBase(
     schema,
     baseDocuments,
     documents,
-    validationRules,
     RelayParser.transform,
   );
   const compilerContext = new CompilerContext(schema).addAll(definitions);
@@ -172,7 +153,6 @@ function writeAll({
       baseDocuments: baseDocuments.valueSeq().toArray(),
       compilerTransforms: writerConfig.compilerTransforms,
       documents: documents.valueSeq().toArray(),
-      extraValidationRules: writerConfig.validationRules,
       reporter,
       typeGenerator: writerConfig.typeGenerator,
     });

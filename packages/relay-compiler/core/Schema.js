@@ -30,7 +30,6 @@ const {
   parse,
   parseType,
   print,
-  validate,
 } = require('graphql');
 
 import type {Field as GraphQLIRField} from './GraphQLIR';
@@ -38,10 +37,8 @@ import type {
   DirectiveLocationEnum,
   DocumentNode,
   GraphQLArgument,
-  GraphQLError,
   Source,
   TypeNode,
-  ValidationRule,
   ValueNode,
 } from 'graphql';
 
@@ -1413,16 +1410,6 @@ class Schema {
 
   isClientDefinedField(type: CompositeTypeID, field: GraphQLIRField): boolean {
     return !this.isServerDefinedField(type, field);
-  }
-
-  /**
-   * This method should be replaced with the specific Relay validations
-   */
-  DEPRECATED__validate(
-    document: DocumentNode,
-    rules: $ReadOnlyArray<ValidationRule>,
-  ): $ReadOnlyArray<GraphQLError> {
-    return validate(this._extendedSchema, document, rules);
   }
 
   /**

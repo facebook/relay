@@ -11,7 +11,6 @@
 'use strict';
 
 const Profiler = require('./GraphQLCompilerProfiler');
-const RelayValidator = require('./RelayValidator');
 
 const {
   isExecutableDefinitionAST,
@@ -30,7 +29,6 @@ import type {
   OperationDefinitionNode,
   TypeSystemDefinitionNode,
   TypeSystemExtensionNode,
-  ValidationRule,
 } from 'graphql';
 
 type ASTDefinitionNode = FragmentDefinitionNode | OperationDefinitionNode;
@@ -42,7 +40,6 @@ type TransformFn = (
 function convertASTDocuments(
   schema: Schema,
   documents: $ReadOnlyArray<DocumentNode>,
-  validationRules: $ReadOnlyArray<ValidationRule>,
   transform: TransformFn,
 ): $ReadOnlyArray<Fragment | Root> {
   return Profiler.run('ASTConvert.convertASTDocuments', () => {
@@ -57,12 +54,7 @@ function convertASTDocuments(
       });
     });
 
-    return convertASTDefinitions(
-      schema,
-      definitions,
-      validationRules,
-      transform,
-    );
+    return convertASTDefinitions(schema, definitions, transform);
   });
 }
 
@@ -70,7 +62,6 @@ function convertASTDocumentsWithBase(
   schema: Schema,
   baseDocuments: $ReadOnlyArray<DocumentNode>,
   documents: $ReadOnlyArray<DocumentNode>,
-  validationRules: $ReadOnlyArray<ValidationRule>,
   transform: TransformFn,
 ): $ReadOnlyArray<Fragment | Root> {
   return Profiler.run('ASTConvert.convertASTDocumentsWithBase', () => {
@@ -127,19 +118,13 @@ function convertASTDocumentsWithBase(
     requiredDefinitions.forEach(definition =>
       definitionsToConvert.push(definition),
     );
-    return convertASTDefinitions(
-      schema,
-      definitionsToConvert,
-      validationRules,
-      transform,
-    );
+    return convertASTDefinitions(schema, definitionsToConvert, transform);
   });
 }
 
 function convertASTDefinitions(
   schema: Schema,
   definitions: $ReadOnlyArray<DefinitionNode>,
-  validationRules: $ReadOnlyArray<ValidationRule>,
   transform: TransformFn,
 ): $ReadOnlyArray<Fragment | Root> {
   const operationDefinitions: Array<ASTDefinitionNode> = [];
@@ -148,13 +133,6 @@ function convertASTDefinitions(
       operationDefinitions.push(definition);
     }
   });
-
-  const validationAST = {
-    kind: 'Document',
-    definitions: operationDefinitions,
-  };
-  // Will throw an error if there are validation issues
-  RelayValidator.validate(schema, validationAST, validationRules);
   return transform(schema, operationDefinitions);
 }
 

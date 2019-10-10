@@ -28,7 +28,6 @@ function parseGraphQLText(
   const definitions = convertASTDocuments(
     Schema.DEPRECATED__create(schema, extendedSchema),
     [ast],
-    [],
     Parser.transform.bind(Parser),
   );
   return {

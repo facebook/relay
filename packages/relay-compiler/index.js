@@ -35,7 +35,6 @@ const RelayIRValidations = require('./core/RelayIRValidations');
 const RelayParser = require('./core/RelayParser');
 const RelaySchema = require('./core/Schema');
 const RelaySourceModuleParser = require('./core/RelaySourceModuleParser');
-const RelayValidator = require('./core/RelayValidator');
 const Rollout = require('./util/Rollout');
 const SchemaUtils = require('./core/SchemaUtils');
 
@@ -143,7 +142,6 @@ module.exports = {
 
   Parser: RelayParser,
   Schema: RelaySchema,
-  Validator: RelayValidator,
   CodeGenerator: RelayCodeGenerator,
   FlowGenerator: RelayFlowGenerator,
 

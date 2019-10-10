@@ -35,16 +35,8 @@ describe('GraphQLIRTransformer', () => {
      }
    }
 
-   query ObjectArgumentQuery($text: String!) {
-     checkinSearchQuery(query: {
-       query: $text
-     }) {
-       query
-     }
-   }
-
-   query ListArgumentQuery($waypoint: WayPoint!) {
-     route(waypoints: [$waypoint, {
+   query ListArgumentQuery {
+     route(waypoints: [{
        lat: "0.0"
        lon: "0.0"
      }]) {
@@ -85,11 +77,8 @@ describe('GraphQLIRTransformer', () => {
       'FragmentSpread',
       'InlineFragment',
       'LinkedField',
-      'ListValue',
       'Literal',
       'LocalArgumentDefinition',
-      'ObjectFieldValue',
-      'ObjectValue',
       'Root',
       'ScalarField',
       'Variable',

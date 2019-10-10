@@ -1,3 +1,4 @@
+# expected-to-throw
 query ObjectArgument($text: String!) {
   checkinSearchQuery(query: {query: $text}) {
     query

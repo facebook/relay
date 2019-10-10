@@ -1016,7 +1016,7 @@ class GraphQLDefinitionParser {
       directive => getName(directive) !== CLIENT_FIELD,
     );
     const directives = this._transformDirectives(otherDirectives, 'FIELD');
-    const type = schema.assertOutputType(schema.getFieldType(fieldDef));
+    const type = schema.getFieldType(fieldDef);
 
     const handles = this._transformHandle(name, args, clientFieldDirectives);
     if (schema.isLeafType(schema.getRawType(type))) {
@@ -1400,6 +1400,12 @@ function transformNonNullLiteral(
       );
       if (itemValue.kind === 'Literal') {
         literalList.push(itemValue.value);
+      } else if (itemValue.kind === 'Variable') {
+        throw createUserError(
+          'Complex argument values (Lists or InputObjects with nested variables) are not supported.',
+          null,
+          [item],
+        );
       }
       items.push(itemValue);
       areAllItemsScalar = areAllItemsScalar && itemValue.kind === 'Literal';
@@ -1452,6 +1458,12 @@ function transformNonNullLiteral(
       );
       if (fieldValue.kind === 'Literal') {
         literalObject[field.name.value] = fieldValue.value;
+      } else if (fieldValue.kind === 'Variable') {
+        throw createUserError(
+          'Complex argument values (Lists or InputObjects with nested variables) are not supported.',
+          null,
+          [field.value],
+        );
       }
       fields.push({
         kind: 'ObjectFieldValue',

@@ -1564,14 +1564,15 @@ query TestQuery($date: String) {
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-ReaderCodeGenerator: Complex argument values (Lists or InputObjects with nested variables) are not supported.
-
-Source: GraphQL request (3:17)
-2: query TestQuery($date: String) {
-3:   items(filter: {date: $date}) {
-                   ^
-4:     date
-
+Error: RelayParser: Encountered 1 error(s):
+- Complex argument values (Lists or InputObjects with nested variables) are not supported.
+  
+  GraphQL request (3:24)
+  2: query TestQuery($date: String) {
+  3:   items(filter: {date: $date}) {
+                            ^
+  4:     date
+  
 `;
 
 exports[`compileRelayArtifacts matches expected output: connection.graphql 1`] = `

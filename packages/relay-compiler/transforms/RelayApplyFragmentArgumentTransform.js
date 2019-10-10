@@ -44,7 +44,7 @@ type PendingFragment =
   | {|kind: 'resolved', value: ?Fragment|};
 
 /**
- * A tranform that converts a set of documents containing fragments/fragment
+ * A transform that converts a set of documents containing fragments/fragment
  * spreads *with* arguments to one where all arguments have been inlined. This
  * is effectively static currying of functions. Nodes are changed as follows:
  * - Fragment spreads with arguments are replaced with references to an inlined

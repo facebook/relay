@@ -40,7 +40,7 @@ query QueryWithUnusedVariable {
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-Error: RelayParser: Encountered 1 error(s):
+Error: Encountered 1 error(s):
 - Query 'QueryWithUnusedVariable' references undefined variables.
   
   GraphQL request (3:12)

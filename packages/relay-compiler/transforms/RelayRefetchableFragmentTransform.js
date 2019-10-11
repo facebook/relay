@@ -17,9 +17,8 @@ const getLiteralArgumentValues = require('../core/getLiteralArgumentValues');
 const inferRootArgumentDefinitions = require('../core/inferRootArgumentDefinitions');
 
 const {
-  createCombinedError,
   createUserError,
-  eachWithErrors,
+  eachWithCombinedError,
 } = require('../core/RelayCompilerError');
 const {generateIDField} = require('../core/SchemaUtils');
 
@@ -78,100 +77,94 @@ function relayRefetchableFragmentTransform(
 
   const refetchOperations = buildRefetchMap(context);
   let nextContext = context;
-  const errors = eachWithErrors(
-    refetchOperations,
-    ([refetchName, fragment]) => {
-      // Build a refetch operation according to the fragment's type:
-      // the logic here is purely name-based, the actual transform
-      // functions provide detailed validation as well as case-specific
-      // error messages.
-      let refetchDescriptor;
-      if (schema.areEqualTypes(fragment.type, queryType)) {
-        refetchDescriptor = buildRefetchOperationOnQueryType(
-          context,
-          schema,
-          fragment,
-          refetchName,
-        );
-      } else if (schema.getTypeString(fragment.type) === VIEWER_TYPE_NAME) {
-        // Validate that the schema conforms to the informal Viewer spec
-        // and build the refetch query accordingly.
-        refetchDescriptor = buildRefetchOperationOnViewerType(
-          context,
-          schema,
-          fragment,
-          refetchName,
-        );
-      } else if (
-        schema.getTypeString(fragment.type) === NODE_TYPE_NAME ||
-        (schema.isObject(fragment.type) &&
-          schema
-            .getInterfaces(schema.assertCompositeType(fragment.type))
-            .some(interfaceType =>
-              schema.areEqualTypes(
-                interfaceType,
-                schema.expectTypeFromString(NODE_TYPE_NAME),
-              ),
-            )) ||
-        (schema.isAbstractType(fragment.type) &&
-          Array.from(
-            schema.getPossibleTypes(schema.assertAbstractType(fragment.type)),
-          ).every(possibleType =>
-            schema.implementsInterface(
-              schema.assertCompositeType(possibleType),
-              schema.assertInterfaceType(
-                schema.expectTypeFromString(NODE_TYPE_NAME),
-              ),
+  eachWithCombinedError(refetchOperations, ([refetchName, fragment]) => {
+    // Build a refetch operation according to the fragment's type:
+    // the logic here is purely name-based, the actual transform
+    // functions provide detailed validation as well as case-specific
+    // error messages.
+    let refetchDescriptor;
+    if (schema.areEqualTypes(fragment.type, queryType)) {
+      refetchDescriptor = buildRefetchOperationOnQueryType(
+        context,
+        schema,
+        fragment,
+        refetchName,
+      );
+    } else if (schema.getTypeString(fragment.type) === VIEWER_TYPE_NAME) {
+      // Validate that the schema conforms to the informal Viewer spec
+      // and build the refetch query accordingly.
+      refetchDescriptor = buildRefetchOperationOnViewerType(
+        context,
+        schema,
+        fragment,
+        refetchName,
+      );
+    } else if (
+      schema.getTypeString(fragment.type) === NODE_TYPE_NAME ||
+      (schema.isObject(fragment.type) &&
+        schema
+          .getInterfaces(schema.assertCompositeType(fragment.type))
+          .some(interfaceType =>
+            schema.areEqualTypes(
+              interfaceType,
+              schema.expectTypeFromString(NODE_TYPE_NAME),
             ),
-          ))
-      ) {
-        // Validate that the schema conforms to the Object Identity (Node) spec
-        // and build the refetch query accordingly.
-        refetchDescriptor = buildRefetchOperationOnNodeType(
-          context,
-          schema,
-          fragment,
-          refetchName,
-        );
-      } else {
-        throw createUserError(
-          `Invalid use of @refetchable on fragment '${
-            fragment.name
-          }', only fragments on the Query type, Viewer type, Node type, or types implementing Node are supported.`,
-          [fragment.loc],
-        );
-      }
-      if (refetchDescriptor != null) {
-        const {path, node, transformedFragment} = refetchDescriptor;
-        const connectionMetadata = extractConnectionMetadata(
-          context.getSchema(),
-          transformedFragment,
-        );
-        nextContext = nextContext.replace({
-          ...transformedFragment,
-          metadata: {
-            ...(transformedFragment.metadata || {}),
-            refetch: {
-              connection: connectionMetadata ?? null,
-              operation: refetchName,
-              fragmentPathInResult: path,
-            },
+          )) ||
+      (schema.isAbstractType(fragment.type) &&
+        Array.from(
+          schema.getPossibleTypes(schema.assertAbstractType(fragment.type)),
+        ).every(possibleType =>
+          schema.implementsInterface(
+            schema.assertCompositeType(possibleType),
+            schema.assertInterfaceType(
+              schema.expectTypeFromString(NODE_TYPE_NAME),
+            ),
+          ),
+        ))
+    ) {
+      // Validate that the schema conforms to the Object Identity (Node) spec
+      // and build the refetch query accordingly.
+      refetchDescriptor = buildRefetchOperationOnNodeType(
+        context,
+        schema,
+        fragment,
+        refetchName,
+      );
+    } else {
+      throw createUserError(
+        `Invalid use of @refetchable on fragment '${
+          fragment.name
+        }', only fragments on the Query type, Viewer type, Node type, or types implementing Node are supported.`,
+        [fragment.loc],
+      );
+    }
+    if (refetchDescriptor != null) {
+      const {path, node, transformedFragment} = refetchDescriptor;
+      const connectionMetadata = extractConnectionMetadata(
+        context.getSchema(),
+        transformedFragment,
+      );
+      nextContext = nextContext.replace({
+        ...transformedFragment,
+        metadata: {
+          ...(transformedFragment.metadata || {}),
+          refetch: {
+            connection: connectionMetadata ?? null,
+            operation: refetchName,
+            fragmentPathInResult: path,
           },
-        });
-        nextContext = nextContext.add({
-          ...node,
-          metadata: {
-            ...(node.metadata || {}),
-            derivedFrom: transformedFragment.name,
-            isRefetchableQuery: true,
-          },
-        });
-      }
-    },
-  );
-  if (errors != null && errors.length) {
-    throw createCombinedError(errors, 'RelayRefetchableFragmentTransform');
-  }
+        },
+      });
+      nextContext = nextContext.add({
+        ...node,
+        metadata: {
+          ...(node.metadata || {}),
+          derivedFrom: transformedFragment.name,
+          isRefetchableQuery: true,
+        },
+      });
+    }
+  });
   return nextContext;
 }
 
@@ -184,7 +177,7 @@ function buildRefetchMap(
   context: GraphQLCompilerContext,
 ): Map<string, Fragment> {
   const refetchOperations = new Map();
-  const errors = eachWithErrors(context.documents(), node => {
+  eachWithCombinedError(context.documents(), node => {
     if (node.kind !== 'Fragment') {
       return;
     }
@@ -203,9 +196,6 @@ function buildRefetchMap(
     }
     refetchOperations.set(refetchName, node);
   });
-  if (errors != null && errors.length !== 0) {
-    throw createCombinedError(errors, 'RelayRefetchableFragmentTransform');
-  }
   const transformed = inferRootArgumentDefinitions(context);
   return new Map(
     Array.from(refetchOperations.entries(), ([name, fragment]) => {

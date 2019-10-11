@@ -12,7 +12,7 @@
 
 const invariant = require('invariant');
 
-const {createCombinedError, eachWithErrors} = require('./RelayCompilerError');
+const {eachWithCombinedError} = require('./RelayCompilerError');
 
 import type GraphQLCompilerContext, {
   CompilerContextDocument,
@@ -82,7 +82,7 @@ function validate<S>(
   stateInitializer: void | (CompilerContextDocument => ?S),
 ): void {
   const validator = new Validator(context, visitor);
-  const errors = eachWithErrors(context.documents(), prevNode => {
+  eachWithCombinedError(context.documents(), prevNode => {
     if (stateInitializer === undefined) {
       validator.visit(prevNode, (undefined: $FlowFixMe));
     } else {
@@ -92,9 +92,6 @@ function validate<S>(
       }
     }
   });
-  if (errors != null && errors.length !== 0) {
-    throw createCombinedError(errors);
-  }
 }
 
 /**

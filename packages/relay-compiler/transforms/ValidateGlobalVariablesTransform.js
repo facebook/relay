@@ -13,9 +13,8 @@
 const inferRootArgumentDefinitions = require('../core/inferRootArgumentDefinitions');
 
 const {
-  createCombinedError,
   createUserError,
-  eachWithErrors,
+  eachWithCombinedError,
 } = require('../core/RelayCompilerError');
 
 import type GraphQLCompilerContext from '../core/GraphQLCompilerContext';
@@ -30,7 +29,7 @@ function validateGlobalVariablesTransform(
   context: GraphQLCompilerContext,
 ): GraphQLCompilerContext {
   const contextWithUsedArguments = inferRootArgumentDefinitions(context);
-  const errors = eachWithErrors(context.documents(), node => {
+  eachWithCombinedError(context.documents(), node => {
     if (node.kind !== 'Root') {
       return;
     }
@@ -62,9 +61,6 @@ function validateGlobalVariablesTransform(
       );
     }
   });
-  if (errors != null && errors.length !== 0) {
-    throw createCombinedError(errors);
-  }
   return context;
 }
 

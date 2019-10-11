@@ -1552,7 +1552,7 @@ query TestQuery($date: String) {
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-Error: RelayParser: Encountered 1 error(s):
+Error: Encountered 1 error(s):
 - Complex argument values (Lists or InputObjects with nested variables) are not supported.
   
   GraphQL request (3:24)
@@ -20713,7 +20713,7 @@ fragment ProfilePhoto on User {
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-Error: RelayParser: Encountered 1 error(s):
+Error: Encountered 1 error(s):
 - Variable @arguments values are only supported when the argument is defined with @argumentDefinitions. Check the definition of fragment 'ProfilePhoto'.
   
   GraphQL request (16:36)

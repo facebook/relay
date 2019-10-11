@@ -183,7 +183,7 @@ fragment UserFragment on User {
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-Error: RelayParser: Encountered 1 error(s):
+Error: Encountered 1 error(s):
 - Expected a value matching type 'Environment!'. Possible values: WEB or MOBILE?'
   
   GraphQL request (3:26)
@@ -231,7 +231,7 @@ fragment UserFragment on User
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-Error: RelayParser: Encountered 1 error(s):
+Error: Encountered 1 error(s):
 - Complex argument values (Lists or InputObjects with nested variables) are not supported.
   
   GraphQL request (6:27)
@@ -254,7 +254,7 @@ fragment UserFragment on User {
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-Error: RelayParser: Encountered 1 error(s):
+Error: Encountered 1 error(s):
 - Expected a value matching type 'Environment!'. Possible values: WEB or MOBILE?'
   
   GraphQL request (3:26)

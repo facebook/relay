@@ -17,10 +17,9 @@ const partitionArray = require('../util/partitionArray');
 
 const {DEFAULT_HANDLE_KEY} = require('../util/DefaultHandleKey');
 const {
-  createCombinedError,
   createCompilerError,
   createUserError,
-  eachWithErrors,
+  eachWithCombinedError,
 } = require('./RelayCompilerError');
 const {isExecutableDefinitionAST} = require('./SchemaUtils');
 const {getFieldDefinitionLegacy} = require('./getFieldDefinition');
@@ -192,35 +191,29 @@ class RelayParser {
   }
 
   transform(): $ReadOnlyArray<Root | Fragment> {
-    let errors;
     const nodes = [];
     const entries = new Map();
     // Construct a mapping of name to definition ast + variable definitions.
     // This allows the subsequent AST -> IR tranformation to reference the
     // defined arguments of referenced fragments.
-    errors = eachWithErrors(this._definitions, ([name, definition]) => {
+    eachWithCombinedError(this._definitions, ([name, definition]) => {
       const variableDefinitions = this._buildArgumentDefinitions(definition);
       entries.set(name, {definition, variableDefinitions});
     });
     // Convert the ASTs to IR.
-    if (errors == null) {
-      errors = eachWithErrors(
-        entries.values(),
-        ({definition, variableDefinitions}) => {
-          const node = parseDefinition(
-            this._schema,
-            this._getFieldDefinition,
-            entries,
-            definition,
-            variableDefinitions,
-          );
-          nodes.push(node);
-        },
-      );
-    }
-    if (errors != null && errors.length !== 0) {
-      throw createCombinedError(errors, 'RelayParser');
-    }
+    eachWithCombinedError(
+      entries.values(),
+      ({definition, variableDefinitions}) => {
+        const node = parseDefinition(
+          this._schema,
+          this._getFieldDefinition,
+          entries,
+          definition,
+          variableDefinitions,
+        );
+        nodes.push(node);
+      },
+    );
     return nodes;
   }
 

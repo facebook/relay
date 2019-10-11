@@ -14,7 +14,7 @@ fragment TestFragment on User
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-Error: RelayParser: Encountered 1 error(s):
+Error: Encountered 1 error(s):
 - Expected definition for variable '$size' to be an object with the shape: '{type: string, defaultValue?: mixed}.
   
   GraphQL request (5:11)
@@ -590,7 +590,7 @@ type Foo {
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-Error: RelayParser: Encountered 1 error(s):
+Error: Encountered 1 error(s):
 - Fragment 'FooFragment' cannot be spread here as objects of type 'Node' can never be of type 'Foo'. Possible concrete types include 'Story', 'User', 'Comment', etc.
   
   GraphQL request (4:12)
@@ -1038,7 +1038,7 @@ fragment Example on User @match(key: "Example") {
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-Error: RelayParser: Encountered 1 error(s):
+Error: Encountered 1 error(s):
 - Invalid directives @match found on FRAGMENT_DEFINITION.
   
   GraphQL request (2:26)
@@ -1061,7 +1061,7 @@ query TestQuery($id: ID!) @module @match {
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-Error: RelayParser: Encountered 1 error(s):
+Error: Encountered 1 error(s):
 - Invalid directives @module, @match found on QUERY.
   
   GraphQL request (2:27)
@@ -1096,7 +1096,7 @@ fragment Example on User {
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-Error: RelayParser: Encountered 1 error(s):
+Error: Encountered 1 error(s):
 - Invalid directives @module found on FIELD.
   
   GraphQL request (6:24)
@@ -1119,7 +1119,7 @@ query TestQuery {
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-Error: RelayParser: Encountered 1 error(s):
+Error: Encountered 1 error(s):
 - Unknown argument 'shouldInclude' on directive '@include'.
   
   GraphQL request (4:20)
@@ -1310,7 +1310,7 @@ query EnumValueQuery3 {
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-Error: RelayParser: Encountered 3 error(s):
+Error: Encountered 3 error(s):
 - Expected a value matching type 'PhotoSize'. Possible values: SMALL or LARGE?'
   
   GraphQL request (4:28)
@@ -1643,7 +1643,7 @@ query TestQuery {
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-Error: RelayParser: Encountered 1 error(s):
+Error: Encountered 1 error(s):
 - Unknown argument 'task_id' on field 'task' of type 'Query'.
   
   GraphQL request (3:8)
@@ -1670,7 +1670,7 @@ query myQuery {
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-Error: RelayParser: Encountered 1 error(s):
+Error: Encountered 1 error(s):
 - Fragment 'Foo' cannot be spread here as objects of type 'Node' can never be of type 'Image'. Possible concrete types include 'Story', 'User', 'Comment', etc.
   
   GraphQL request (8:5)
@@ -1691,7 +1691,7 @@ fragment Foo on User @argumentDefinitions(user: {type: "User!"}) {
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-Error: RelayParser: Encountered 1 error(s):
+Error: Encountered 1 error(s):
 - Expected type "User!" to be an input type in the "user" argument definitions.
   
   GraphQL request (2:49)
@@ -2116,7 +2116,7 @@ fragment TestFragment on User
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-Error: RelayParser: Encountered 1 error(s):
+Error: Encountered 1 error(s):
 - Unknown type "UnknownType" referenced in the argument definitions.
   
   GraphQL request (3:24)
@@ -2998,7 +2998,7 @@ fragment ChildFragment on User
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-Error: RelayParser: Encountered 1 error(s):
+Error: Encountered 1 error(s):
 - Variable '$environment' was defined as type 'Environment!' but used in a location expecting the type '[Environment!]!'
   
   GraphQL request (10:24)
@@ -3663,7 +3663,7 @@ fragment ChildFragment on Query
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-Error: RelayParser: Encountered 1 error(s):
+Error: Encountered 1 error(s):
 - Complex argument values (Lists or InputObjects with nested variables) are not supported.
   
   GraphQL request (11:52)
@@ -3690,7 +3690,7 @@ fragment ChildFragment on User {
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-Error: RelayParser: Encountered 1 error(s):
+Error: Encountered 1 error(s):
 - Literal @arguments values are only supported when the argument is defined with @argumentDefinitions. Check the definition of fragment 'ChildFragment'.
   
   GraphQL request (3:44)
@@ -3723,7 +3723,7 @@ fragment ChildFragment on User {
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-Error: RelayParser: Encountered 1 error(s):
+Error: Encountered 1 error(s):
 - Variable @arguments values are only supported when the argument is defined with @argumentDefinitions. Check the definition of fragment 'ChildFragment'.
   
   GraphQL request (3:44)
@@ -3764,7 +3764,7 @@ fragment Foo on User @argumentDefinitions(localId: {type: "ID!"}) {
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-Error: RelayParser: Encountered 1 error(s):
+Error: Encountered 1 error(s):
 - Invalid use of @uncheckedArguments_DEPRECATED: all arguments are defined, use @arguments instead.
   
   GraphQL request (13:10)
@@ -3787,7 +3787,7 @@ fragment InlineFragment on Node {
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-Error: RelayParser: Encountered 1 error(s):
+Error: Encountered 1 error(s):
 - Fragment cannot be spread here as objects of type 'Node' can never be of type 'Image'. Possible concrete types include 'Story', 'User', 'Comment', etc.
   
   GraphQL request (2:28)
@@ -3816,7 +3816,7 @@ fragment InlineFragment on Node {
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-Error: RelayParser: Encountered 1 error(s):
+Error: Encountered 1 error(s):
 - Inline fragments can only be on object, interface or union types, got unknown type 'UnkwnownType'.
   
   GraphQL request (3:10)
@@ -3918,7 +3918,7 @@ query InvalidQueryArgument($user: User!) {
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-Error: RelayParser: Encountered 1 error(s):
+Error: Encountered 1 error(s):
 - Expected type "User!" to be an input type.
   
   GraphQL request (2:35)
@@ -4681,7 +4681,7 @@ query ListArgumentQuery($waypoint: WayPoint!) {
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-Error: RelayParser: Encountered 1 error(s):
+Error: Encountered 1 error(s):
 - Complex argument values (Lists or InputObjects with nested variables) are not supported.
   
   GraphQL request (3:21)
@@ -4939,7 +4939,7 @@ query LiteralListArgumentQuery3 {
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-Error: RelayParser: Encountered 3 error(s):
+Error: Encountered 3 error(s):
 - Expected a value matching type 'String'.
   
   GraphQL request (6:14)
@@ -5121,7 +5121,7 @@ query LiteralObjectArgument3 {
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-Error: RelayParser: Encountered 3 error(s):
+Error: Encountered 3 error(s):
 - Unknown field 'unknownField' on type 'CheckinSearchInput'.
   
   GraphQL request (5:7)
@@ -5282,7 +5282,7 @@ query NullValuesQuery {
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-Error: RelayParser: Encountered 1 error(s):
+Error: Encountered 1 error(s):
 - Expected a value matching type 'ID!'.
   
   GraphQL request (3:24)
@@ -5305,7 +5305,7 @@ query ObjectArgument($text: String!) {
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-Error: RelayParser: Encountered 1 error(s):
+Error: Encountered 1 error(s):
 - Complex argument values (Lists or InputObjects with nested variables) are not supported.
   
   GraphQL request (3:37)
@@ -5595,7 +5595,7 @@ fragment Foo on User {
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-Error: RelayParser: Encountered 1 error(s):
+Error: Encountered 1 error(s):
 - Unknown fragment 'SomeUndefinedFragment'.
   
   GraphQL request (3:6)
@@ -5618,7 +5618,7 @@ query TestQuery($id: UnknownType) {
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-Error: RelayParser: Encountered 1 error(s):
+Error: Encountered 1 error(s):
 - Unknown type: 'UnknownType'.
   
   GraphQL request (2:22)
@@ -5639,7 +5639,7 @@ fragment Foo on UnknownType {
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-Error: RelayParser: Encountered 1 error(s):
+Error: Encountered 1 error(s):
 - Fragment "Foo" cannot condition on unknown type "UnknownType".
   
   GraphQL request (2:17)
@@ -5651,7 +5651,7 @@ Error: RelayParser: Encountered 1 error(s):
 `;
 
 exports[`RelayParser should error on fragment spread arguments with literal out of bounds values 1`] = `
-"RelayParser: Encountered 1 error(s):
+"Encountered 1 error(s):
 - Expected a value matching type 'Int'.
   
   GraphQL request (4:38)
@@ -5663,7 +5663,7 @@ exports[`RelayParser should error on fragment spread arguments with literal out 
 `;
 
 exports[`RelayParser should error when parsing fragment that references undeclared variables are used with differing types 1`] = `
-"RelayParser: Encountered 1 error(s):
+"Encountered 1 error(s):
 - Variable '$id' was used in locations expecting the conflicting types 'ID' and 'Int'.
   
   GraphQL request (2:14)

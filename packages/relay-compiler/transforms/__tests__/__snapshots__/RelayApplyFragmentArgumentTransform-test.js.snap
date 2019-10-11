@@ -355,7 +355,7 @@ fragment Profile on User
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-Error: RelayParser: Encountered 1 error(s):
+Error: Encountered 1 error(s):
 - Query 'TestQuery' references undefined variables.
   
   GraphQL request (10:61)

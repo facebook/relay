@@ -12,7 +12,7 @@
 
 const invariant = require('invariant');
 
-const {createCombinedError, eachWithErrors} = require('./RelayCompilerError');
+const {eachWithCombinedError} = require('./RelayCompilerError');
 
 import type GraphQLCompilerContext, {
   CompilerContextDocument,
@@ -118,7 +118,7 @@ function transform<S>(
   const transformer = new Transformer(context, visitor);
   return context.withMutations(ctx => {
     let nextContext = ctx;
-    const errors = eachWithErrors(context.documents(), prevNode => {
+    eachWithCombinedError(context.documents(), prevNode => {
       let nextNode;
       if (stateInitializer === undefined) {
         nextNode = transformer.visit(prevNode, (undefined: $FlowFixMe));
@@ -134,9 +134,6 @@ function transform<S>(
         nextContext = nextContext.replace(nextNode);
       }
     });
-    if (errors != null && errors.length !== 0) {
-      throw createCombinedError(errors);
-    }
     return nextContext;
   });
 }

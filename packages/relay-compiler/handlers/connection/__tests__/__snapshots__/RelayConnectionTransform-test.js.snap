@@ -883,7 +883,7 @@ query NodeQuery($id: ID!) {
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-Error: RelayParser: Encountered 1 error(s):
+Error: Encountered 1 error(s):
 - Expected a value matching type 'String!'.
   
   GraphQL request (6:44)
@@ -925,7 +925,7 @@ query NodeQuery($id: ID!) {
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-Error: RelayParser: Encountered 1 error(s):
+Error: Encountered 1 error(s):
 - Expected a value matching type 'String'.
   
   GraphQL request (6:75)

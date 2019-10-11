@@ -11,9 +11,8 @@
 'use strict';
 
 const {
-  createCombinedError,
   createUserError,
-  eachWithErrors,
+  eachWithCombinedError,
 } = require('./RelayCompilerError');
 
 import type {
@@ -151,7 +150,7 @@ function getFragmentScope(
   });
 
   const fragmentScope = {};
-  const errors = eachWithErrors(definitions, definition => {
+  eachWithCombinedError(definitions, definition => {
     if (definition.kind === 'RootArgumentDefinition') {
       if (argMap.has(definition.name)) {
         const argNode = args.find(a => a.name === definition.name);
@@ -197,9 +196,6 @@ function getFragmentScope(
       }
     }
   });
-  if (errors != null && errors.length) {
-    throw createCombinedError(errors);
-  }
   return fragmentScope;
 }
 

@@ -283,7 +283,7 @@ query ViewerQuery {
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-Error: RelayParser: Encountered 1 error(s):
+Error: Encountered 1 error(s):
 - Unknown field 'commentBody' on type 'Node'.
   
   GraphQL request (4:5)

@@ -54,7 +54,7 @@ fragment UserName on UserNameRenderable
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-Error: RelayRefetchableFragmentTransform: Encountered 1 error(s):
+Error: Encountered 1 error(s):
 - Invalid use of @refetchable on fragment 'UserName', only fragments on the Query type, Viewer type, Node type, or types implementing Node are supported.
   
   Source: GraphQL request (2:1)
@@ -366,7 +366,7 @@ fragment RefetchableFragment on Query
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-Error: RelayRefetchableFragmentTransform: Encountered 1 error(s):
+Error: Encountered 1 error(s):
 - Expected the 'queryName' argument of @refetchable to be provided
   
   Source: GraphQL request (3:3)
@@ -741,7 +741,7 @@ fragment PaginationFragment on Node
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-Error: RelayRefetchableFragmentTransform: Encountered 1 error(s):
+Error: Encountered 1 error(s):
 - Invalid use of @refetchable with @connection in fragment 'PaginationFragment', refetchable connections must use variables for the after and first arguments.
   
   Source: GraphQL request (8:5)
@@ -781,7 +781,7 @@ fragment PaginationFragment on Node
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-Error: RelayRefetchableFragmentTransform: Encountered 1 error(s):
+Error: Encountered 1 error(s):
 - Invalid use of @refetchable with @connection in fragment 'PaginationFragment', refetchable connections must use variables for the after and first arguments.
   
   Source: GraphQL request (8:5)
@@ -830,7 +830,7 @@ fragment PaginationFragment on Node
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-Error: RelayRefetchableFragmentTransform: Encountered 1 error(s):
+Error: Encountered 1 error(s):
 - Invalid use of @refetchable with @connection in fragment 'PaginationFragment', refetchable connections cannot appear inside plural fields.
   
   Source: GraphQL request (14:11)

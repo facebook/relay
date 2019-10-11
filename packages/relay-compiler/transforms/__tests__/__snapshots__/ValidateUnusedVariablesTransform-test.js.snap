@@ -223,7 +223,7 @@ query Q2($size: Int) {
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-Error: RelayParser: Encountered 2 error(s):
+Error: Encountered 2 error(s):
 - Complex argument values (Lists or InputObjects with nested variables) are not supported.
   
   GraphQL request (3:24)

@@ -54,7 +54,10 @@ fragment UserName on UserNameRenderable
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-Invalid use of @refetchable on fragment 'UserName', only fragments on the Query type, Viewer type, Node type, or types implementing Node are supported.
+Invalid use of @refetchable on fragment 'UserName', only supported are fragments on:
+ - the Viewer type
+ - the query type
+ - the Node interface or types implementing the Node interface
 
 Source: GraphQL request (2:1)
 1: # expected-to-throw

@@ -24,7 +24,7 @@ const {Map: ImmutableMap} = require('immutable');
 
 import type ASTCache from '../core/ASTCache';
 import type {Schema} from '../core/Schema';
-import type {GraphQLReporter} from '../reporters/GraphQLReporter';
+import type {Reporter} from '../reporters/Reporter';
 import type {CompileResult, File} from './CodegenTypes';
 import type {FileFilter, WatchmanExpression} from './CodegenWatcher';
 import type {SourceControl} from './SourceControl';
@@ -64,7 +64,7 @@ export type WriteFilesOptions = {|
   documents: ImmutableMap<string, DocumentNode>,
   baseDocuments: ImmutableMap<string, DocumentNode>,
   sourceControl: ?SourceControl,
-  reporter: GraphQLReporter,
+  reporter: Reporter,
   generatedDirectories?: Array<string>,
 |};
 
@@ -85,14 +85,14 @@ class CodegenRunner {
 
   // parser => writers that are affected by it
   parserWriters: {[parser: string]: Set<string>};
-  _reporter: GraphQLReporter;
+  _reporter: Reporter;
   _sourceControl: ?SourceControl;
 
   constructor(options: {
     parserConfigs: ParserConfigs,
     writerConfigs: WriterConfigs,
     onlyValidate: boolean,
-    reporter: GraphQLReporter,
+    reporter: Reporter,
     sourceControl: ?SourceControl,
     onComplete?: OnCompleteCallback,
   }) {

@@ -11,7 +11,7 @@
 'use strict';
 
 const CodegenRunner = require('../codegen/CodegenRunner');
-const ConsoleReporter = require('../reporters/GraphQLConsoleReporter');
+const ConsoleReporter = require('../reporters/ConsoleReporter');
 const DotGraphQLParser = require('../core/DotGraphQLParser');
 const RelayFileWriter = require('../codegen/RelayFileWriter');
 const RelayIRTransforms = require('../core/RelayIRTransforms');

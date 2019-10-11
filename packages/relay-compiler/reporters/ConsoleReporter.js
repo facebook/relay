@@ -12,7 +12,7 @@
 
 const chalk = require('chalk');
 
-import type {GraphQLReporter} from './GraphQLReporter';
+import type {Reporter} from './Reporter';
 
 function getMemoryUsageString() {
   return chalk.blue(
@@ -20,7 +20,7 @@ function getMemoryUsageString() {
   );
 }
 
-class GraphQLConsoleReporter implements GraphQLReporter {
+class ConsoleReporter implements Reporter {
   _verbose: boolean;
   _quiet: boolean;
 
@@ -76,4 +76,4 @@ function leftPad(len, str) {
   return new Array(len - str.length + 1).join(' ') + str;
 }
 
-module.exports = GraphQLConsoleReporter;
+module.exports = ConsoleReporter;

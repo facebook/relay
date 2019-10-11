@@ -18,7 +18,7 @@ const {createUserError} = require('./RelayCompilerError');
 // $FlowFixMe - immutable.js is not flow-typed
 const {OrderedMap: ImmutableOrderedMap} = require('immutable');
 
-import type {GraphQLReporter} from '../reporters/GraphQLReporter';
+import type {Reporter} from '../reporters/Reporter';
 import type {Fragment, Location, Root, SplitOperation} from './GraphQLIR';
 import type {Schema} from './Schema';
 
@@ -96,7 +96,7 @@ class GraphQLCompilerContext {
    */
   applyTransforms(
     transforms: $ReadOnlyArray<IRTransform>,
-    reporter?: GraphQLReporter,
+    reporter?: Reporter,
   ): GraphQLCompilerContext {
     return Profiler.run('applyTransforms', () =>
       transforms.reduce(
@@ -114,7 +114,7 @@ class GraphQLCompilerContext {
    */
   applyTransform(
     transform: IRTransform,
-    reporter?: GraphQLReporter,
+    reporter?: Reporter,
   ): GraphQLCompilerContext {
     let transformed = this._withTransform.get(transform);
     if (!transformed) {
@@ -130,7 +130,7 @@ class GraphQLCompilerContext {
 
   applyValidations(
     validations: $ReadOnlyArray<IRValidation>,
-    reporter?: GraphQLReporter,
+    reporter?: Reporter,
   ): void {
     Profiler.run('applyValidaitons', () => {
       for (const validate of validations) {

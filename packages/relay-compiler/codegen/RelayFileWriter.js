@@ -36,7 +36,7 @@ import type {
   TypeGenerator,
 } from '../language/RelayLanguagePluginInterface';
 import type {ScalarTypeMapping} from '../language/javascript/RelayFlowTypeTransformers';
-import type {GraphQLReporter as Reporter} from '../reporters/GraphQLReporter';
+import type {Reporter} from '../reporters/Reporter';
 import type {Filesystem} from './CodegenDirectory';
 import type {SourceControl} from './SourceControl';
 import type {RelayCompilerTransforms} from './compileRelayArtifacts';

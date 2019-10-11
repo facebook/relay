@@ -10,12 +10,12 @@
 
 'use strict';
 
-import type {GraphQLReporter} from './GraphQLReporter';
+import type {Reporter} from './Reporter';
 
-class GraphQLMultiReporter implements GraphQLReporter {
-  _reporters: $ReadOnlyArray<GraphQLReporter>;
+class MultiReporter implements Reporter {
+  _reporters: $ReadOnlyArray<Reporter>;
 
-  constructor(...reporters: $ReadOnlyArray<GraphQLReporter>) {
+  constructor(...reporters: $ReadOnlyArray<Reporter>) {
     this._reporters = reporters;
   }
 
@@ -38,4 +38,4 @@ class GraphQLMultiReporter implements GraphQLReporter {
   }
 }
 
-module.exports = GraphQLMultiReporter;
+module.exports = MultiReporter;

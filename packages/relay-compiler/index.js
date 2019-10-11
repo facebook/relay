@@ -16,16 +16,16 @@ const CodeMarker = require('./util/CodeMarker');
 const CodegenDirectory = require('./codegen/CodegenDirectory');
 const CodegenRunner = require('./codegen/CodegenRunner');
 const CodegenWatcher = require('./codegen/CodegenWatcher');
+const ConsoleReporter = require('./reporters/ConsoleReporter');
 const DotGraphQLParser = require('./core/DotGraphQLParser');
 const FindGraphQLTags = require('./language/javascript/FindGraphQLTags');
 const GraphQLCompilerContext = require('./core/GraphQLCompilerContext');
 const GraphQLCompilerProfiler = require('./core/GraphQLCompilerProfiler');
-const GraphQLConsoleReporter = require('./reporters/GraphQLConsoleReporter');
 const GraphQLIRPrinter = require('./core/GraphQLIRPrinter');
 const GraphQLIRTransformer = require('./core/GraphQLIRTransformer');
 const GraphQLIRVisitor = require('./core/GraphQLIRVisitor');
-const GraphQLMultiReporter = require('./reporters/GraphQLMultiReporter');
 const GraphQLWatchmanClient = require('./core/GraphQLWatchmanClient');
+const MultiReporter = require('./reporters/MultiReporter');
 const RelayCodeGenerator = require('./codegen/RelayCodeGenerator');
 const RelayCompilerError = require('./core/RelayCompilerError');
 const RelayFileWriter = require('./codegen/RelayFileWriter');
@@ -103,7 +103,7 @@ export type {
   FormatModule,
   TypeGenerator,
 } from './language/RelayLanguagePluginInterface';
-export type {GraphQLReporter as Reporter} from './reporters/GraphQLReporter';
+export type {Reporter} from './reporters/Reporter';
 export type {FlattenOptions} from './transforms/FlattenTransform';
 
 const RelayJSModuleParser: $FlowFixMe = RelaySourceModuleParser(
@@ -120,7 +120,7 @@ module.exports = {
   CodeMarker,
   CompilerContext: GraphQLCompilerContext,
   CompilerError: RelayCompilerError,
-  ConsoleReporter: GraphQLConsoleReporter,
+  ConsoleReporter,
   DotGraphQLParser,
   ASTCache,
   IRTransformer: GraphQLIRTransformer,
@@ -148,7 +148,7 @@ module.exports = {
   IRTransforms: RelayIRTransforms,
   IRValidations: RelayIRValidations,
   JSModuleParser: RelayJSModuleParser,
-  MultiReporter: GraphQLMultiReporter,
+  MultiReporter,
   Runner: CodegenRunner,
   compileRelayArtifacts: compileRelayArtifacts,
   formatGeneratedModule,

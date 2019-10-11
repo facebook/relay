@@ -20,7 +20,7 @@ import type CompilerContext from '../core/GraphQLCompilerContext';
 import type {IRTransform} from '../core/GraphQLCompilerContext';
 import type {IRValidation} from '../core/GraphQLCompilerContext';
 import type {GeneratedDefinition} from '../core/GraphQLIR';
-import type {GraphQLReporter as Reporter} from '../reporters/GraphQLReporter';
+import type {Reporter} from '../reporters/Reporter';
 import type {GeneratedNode} from 'relay-runtime';
 
 export type RelayCompilerTransforms = {

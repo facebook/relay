@@ -342,9 +342,7 @@ function transformSelections(
     } else {
       (selection: empty);
       throw createCompilerError(
-        `RelayApplyFragmentArgumentTransform: Unsupported kind '${
-          selection.kind
-        }'.`,
+        `ApplyFragmentArgumentTransform: Unsupported kind '${selection.kind}'.`,
         [selection.loc],
       );
     }

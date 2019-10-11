@@ -13,7 +13,7 @@
 const IRTransformer = require('../core/GraphQLIRTransformer');
 const SchemaUtils = require('../core/SchemaUtils');
 
-const {hasUnaliasedSelection} = require('./RelayTransformUtils');
+const {hasUnaliasedSelection} = require('./TransformUtils');
 
 import type CompilerContext from '../core/GraphQLCompilerContext';
 import type {InlineFragment, LinkedField, ScalarField} from '../core/GraphQLIR';

@@ -20273,7 +20273,7 @@ fragment User_user on User
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-RelayMaskTransform: Cannot use @relay(mask: false) on fragment spread because the fragment definition uses @argumentDefinitions.
+MaskTransform: Cannot use @relay(mask: false) on fragment spread because the fragment definition uses @argumentDefinitions.
 
 Source: GraphQL request (5:5)
 4:   me {

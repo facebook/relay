@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`RelayGenerateIDFieldTransform matches expected output: abstract-plural.graphql 1`] = `
+exports[`GenerateIDFieldTransform matches expected output: abstract-plural.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query CommentQuery {
   node(id: "comment") {
@@ -26,7 +26,7 @@ query CommentQuery {
 
 `;
 
-exports[`RelayGenerateIDFieldTransform matches expected output: node-union.graphql 1`] = `
+exports[`GenerateIDFieldTransform matches expected output: node-union.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query UnionQuery {
   maybeNode {
@@ -54,7 +54,7 @@ query UnionQuery {
 
 `;
 
-exports[`RelayGenerateIDFieldTransform matches expected output: non-node-union.graphql 1`] = `
+exports[`GenerateIDFieldTransform matches expected output: non-node-union.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query UnionQuery {
   neverNode {
@@ -80,7 +80,7 @@ query UnionQuery {
 
 `;
 
-exports[`RelayGenerateIDFieldTransform matches expected output: query-with-fragment-variables.graphql 1`] = `
+exports[`GenerateIDFieldTransform matches expected output: query-with-fragment-variables.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query NodeQuery($id: ID!) {
   node(id: $id) {

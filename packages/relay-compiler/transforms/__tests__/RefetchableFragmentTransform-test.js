@@ -13,9 +13,9 @@
 
 const GraphQLCompilerContext = require('../../core/GraphQLCompilerContext');
 const GraphQLIRPrinter = require('../../core/GraphQLIRPrinter');
-const RelayMatchTransform = require('../RelayMatchTransform');
-const RelayRelayDirectiveTransform = require('../RelayRelayDirectiveTransform');
-const RelaySplitModuleImportTransform = require('../RelaySplitModuleImportTransform');
+const RefetchableFragmentTransform = require('../RefetchableFragmentTransform');
+const RelayConnectionTransform = require('../../handlers/connection/RelayConnectionTransform');
+const RelayDirectiveTransform = require('../RelayDirectiveTransform');
 const Schema = require('../../core/Schema');
 
 const {transformASTSchema} = require('../../core/ASTConvert');
@@ -25,23 +25,27 @@ const {
   parseGraphQLText,
 } = require('relay-test-utils-internal');
 
-describe('RelayMatchTransform', () => {
+describe('RefetchableFragmentTransform', () => {
   const extendedSchema = transformASTSchema(TestSchema, [
-    RelayMatchTransform.SCHEMA_EXTENSION,
+    RelayConnectionTransform.SCHEMA_EXTENSION,
+    RefetchableFragmentTransform.SCHEMA_EXTENSION,
   ]);
 
   generateTestsFromFixtures(
-    `${__dirname}/fixtures/relay-split-module-import-transform`,
+    `${__dirname}/fixtures/relay-refetchable-fragment-transform`,
     text => {
       const {definitions} = parseGraphQLText(extendedSchema, text);
-      const compilerSchema = Schema.DEPRECATED__create(TestSchema);
+      const compilerSchema = Schema.DEPRECATED__create(
+        TestSchema,
+        extendedSchema,
+      );
       return new GraphQLCompilerContext(compilerSchema)
         .addAll(definitions)
         .applyTransforms([
           // Requires Relay directive transform first.
-          RelayRelayDirectiveTransform.transform,
-          RelayMatchTransform.transform,
-          RelaySplitModuleImportTransform.transform,
+          RelayDirectiveTransform.transform,
+          RelayConnectionTransform.transform,
+          RefetchableFragmentTransform.transform,
         ])
         .documents()
         .map(doc => GraphQLIRPrinter.print(compilerSchema, doc))

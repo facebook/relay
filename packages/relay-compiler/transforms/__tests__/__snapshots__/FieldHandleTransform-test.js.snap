@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`RelayFieldHandleTransform matches expected output: linked-handle-field.graphql 1`] = `
+exports[`FieldHandleTransform matches expected output: linked-handle-field.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 fragment LinkedHandleField on User {
   friends(first: 10) @__clientField(handle: "clientFriends") {
@@ -17,7 +17,7 @@ fragment LinkedHandleField on User {
 
 `;
 
-exports[`RelayFieldHandleTransform matches expected output: linked-handle-field-filter.graphql 1`] = `
+exports[`FieldHandleTransform matches expected output: linked-handle-field-filter.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 fragment LinkedHandleField on User {
   friends(first: 10, orderby: $orderby)
@@ -35,7 +35,7 @@ fragment LinkedHandleField on User {
 
 `;
 
-exports[`RelayFieldHandleTransform matches expected output: scalar-handle-field.graphql 1`] = `
+exports[`FieldHandleTransform matches expected output: scalar-handle-field.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 fragment ScalarHandleField on User {
   name @__clientField(handle: "clientName")

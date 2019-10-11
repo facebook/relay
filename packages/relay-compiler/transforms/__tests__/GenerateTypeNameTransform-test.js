@@ -11,29 +11,31 @@
 
 'use strict';
 
+const FlattenTransform = require('../FlattenTransform');
+const GenerateTypeNameTransform = require('../GenerateTypeNameTransform');
 const GraphQLCompilerContext = require('../../core/GraphQLCompilerContext');
+const InlineFragmentsTransform = require('../InlineFragmentsTransform');
 const RelayParser = require('../../core/RelayParser');
-const RelayTestOperationTransform = require('../RelayTestOperationTransform');
 const Schema = require('../../core/Schema');
 
-const {transformASTSchema} = require('../../core/ASTConvert');
 const {
   TestSchema,
   generateTestsFromFixtures,
 } = require('relay-test-utils-internal');
 
-describe('RelayTestOperationTransform', () => {
+describe('GenerateTypeNameTransform', () => {
   generateTestsFromFixtures(
-    `${__dirname}/fixtures/relay-test-operation`,
+    `${__dirname}/fixtures/generate-typename-transform`,
     text => {
-      const schema = transformASTSchema(TestSchema, [
-        RelayTestOperationTransform.SCHEMA_EXTENSION,
-      ]);
-      const compilerSchema = Schema.DEPRECATED__create(TestSchema, schema);
+      const compilerSchema = Schema.DEPRECATED__create(TestSchema);
       const ast = RelayParser.parse(compilerSchema, text);
       return new GraphQLCompilerContext(compilerSchema)
         .addAll(ast)
-        .applyTransforms([RelayTestOperationTransform.transform])
+        .applyTransforms([
+          InlineFragmentsTransform.transform,
+          FlattenTransform.transformWithOptions({flattenAbstractTypes: true}),
+          GenerateTypeNameTransform.transform,
+        ])
         .documents()
         .map(doc => JSON.stringify(doc, null, 2))
         .join('\n');

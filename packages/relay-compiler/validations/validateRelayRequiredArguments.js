@@ -43,7 +43,7 @@ function validateRelayRequiredArguments(context: GraphQLCompilerContext): void {
       InlineFragment: visitInlineFragment,
       LinkedField: visitField,
       ScalarField: visitField,
-      // FragmentSpread validation is done in RelayApplyFragmentArgumentTransform
+      // FragmentSpread validation is done in ApplyFragmentArgumentTransform
     },
     node => ({rootNode: node, parentType: node.type}),
   );

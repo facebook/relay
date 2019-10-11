@@ -253,7 +253,7 @@ function generateLinkedField(
   // which may have originally appeared in different orders across an app.
 
   // TODO(T37646905) enable this invariant after splitting the
-  // RelayCodeGenerator-test and running the RelayFieldHandleTransform on
+  // RelayCodeGenerator-test and running the FieldHandleTransform on
   // Reader ASTs.
   //
   //   invariant(
@@ -395,7 +395,7 @@ function generateScalarField(
   // which may have originally appeared in different orders across an app.
 
   // TODO(T37646905) enable this invariant after splitting the
-  // RelayCodeGenerator-test and running the RelayFieldHandleTransform on
+  // RelayCodeGenerator-test and running the FieldHandleTransform on
   // Reader ASTs.
   //
   //   invariant(

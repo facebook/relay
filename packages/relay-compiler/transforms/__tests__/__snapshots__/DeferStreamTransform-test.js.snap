@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`RelayDeferStreamTransform when streaming is enabled matches expected output: fragment-with-defer.graphql 1`] = `
+exports[`DeferStreamTransform when streaming is enabled matches expected output: fragment-with-defer.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query QueryWithFragmentWithDefer {
   me {
@@ -41,7 +41,7 @@ fragment DeferredFragment on User {
 
 `;
 
-exports[`RelayDeferStreamTransform when streaming is enabled matches expected output: fragment-with-defer-arguments.graphql 1`] = `
+exports[`DeferStreamTransform when streaming is enabled matches expected output: fragment-with-defer-arguments.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query QueryWithFragmentWithDefer {
   me {
@@ -92,7 +92,7 @@ fragment DeferredFragment on User @argumentDefinitions(
 
 `;
 
-exports[`RelayDeferStreamTransform when streaming is enabled matches expected output: fragment-with-defer-default-label.graphql 1`] = `
+exports[`DeferStreamTransform when streaming is enabled matches expected output: fragment-with-defer-default-label.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query QueryWithFragmentWithDefer {
   me {
@@ -133,7 +133,7 @@ fragment DeferredFragment on User {
 
 `;
 
-exports[`RelayDeferStreamTransform when streaming is enabled matches expected output: fragment-with-defer-duplicate-label.invalid.graphql 1`] = `
+exports[`DeferStreamTransform when streaming is enabled matches expected output: fragment-with-defer-duplicate-label.invalid.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 # expected-to-throw
 query QueryWithFragmentWithDefer {
@@ -179,7 +179,7 @@ Source: GraphQL request (12:30)
 
 `;
 
-exports[`RelayDeferStreamTransform when streaming is enabled matches expected output: fragment-with-defer-if-arg.graphql 1`] = `
+exports[`DeferStreamTransform when streaming is enabled matches expected output: fragment-with-defer-if-arg.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query QueryWithFragmentWithDefer($enableDefer: Boolean) {
   me {
@@ -222,7 +222,7 @@ fragment DeferredFragment on User {
 
 `;
 
-exports[`RelayDeferStreamTransform when streaming is enabled matches expected output: fragment-with-defer-statically-disabled.graphql 1`] = `
+exports[`DeferStreamTransform when streaming is enabled matches expected output: fragment-with-defer-statically-disabled.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query QueryWithFragmentWithDefer {
   me {
@@ -263,7 +263,7 @@ fragment DeferredFragment on User {
 
 `;
 
-exports[`RelayDeferStreamTransform when streaming is enabled matches expected output: fragment-with-stream.graphql 1`] = `
+exports[`DeferStreamTransform when streaming is enabled matches expected output: fragment-with-stream.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query QueryWithFragmentWithStream($id: ID!) {
   node(id: $id) {
@@ -298,7 +298,7 @@ fragment FeedbackFragment on Feedback {
 
 `;
 
-exports[`RelayDeferStreamTransform when streaming is enabled matches expected output: fragment-with-stream-default-label.graphql 1`] = `
+exports[`DeferStreamTransform when streaming is enabled matches expected output: fragment-with-stream-default-label.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query QueryWithFragmentWithStream($id: ID!) {
   node(id: $id) {
@@ -333,7 +333,7 @@ fragment FeedbackFragment on Feedback {
 
 `;
 
-exports[`RelayDeferStreamTransform when streaming is enabled matches expected output: fragment-with-stream-duplicate-label.invalid.graphql 1`] = `
+exports[`DeferStreamTransform when streaming is enabled matches expected output: fragment-with-stream-duplicate-label.invalid.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 # expected-to-throw
 query QueryWithFragmentWithStream($id: ID!) {
@@ -373,7 +373,7 @@ Source: GraphQL request (11:36)
 
 `;
 
-exports[`RelayDeferStreamTransform when streaming is enabled matches expected output: fragment-with-stream-if-arg.graphql 1`] = `
+exports[`DeferStreamTransform when streaming is enabled matches expected output: fragment-with-stream-if-arg.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query QueryWithFragmentWithStream($id: ID!, $enableStream: Boolean) {
   node(id: $id) {
@@ -410,7 +410,7 @@ fragment FeedbackFragment on Feedback {
 
 `;
 
-exports[`RelayDeferStreamTransform when streaming is enabled matches expected output: fragment-with-stream-initial-count-arg.graphql 1`] = `
+exports[`DeferStreamTransform when streaming is enabled matches expected output: fragment-with-stream-initial-count-arg.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query QueryWithFragmentWithStream($id: ID!, $initialCount: Int) {
   node(id: $id) {
@@ -446,7 +446,7 @@ fragment FeedbackFragment on Feedback {
 
 `;
 
-exports[`RelayDeferStreamTransform when streaming is enabled matches expected output: fragment-with-stream-missing-initial-count-arg.invalid.graphql 1`] = `
+exports[`DeferStreamTransform when streaming is enabled matches expected output: fragment-with-stream-missing-initial-count-arg.invalid.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 # expected-to-throw
 query QueryWithFragmentWithStream($id: ID!, $initialCount: Int) {
@@ -477,7 +477,7 @@ Source: GraphQL request (11:10)
 
 `;
 
-exports[`RelayDeferStreamTransform when streaming is enabled matches expected output: fragment-with-stream-statically-disabled.graphql 1`] = `
+exports[`DeferStreamTransform when streaming is enabled matches expected output: fragment-with-stream-statically-disabled.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query QueryWithFragmentWithStream($id: ID!) {
   node(id: $id) {
@@ -512,7 +512,7 @@ fragment FeedbackFragment on Feedback {
 
 `;
 
-exports[`RelayDeferStreamTransform when streaming is enabled matches expected output: fragment-with-stream-variable-label.invalid.graphql 1`] = `
+exports[`DeferStreamTransform when streaming is enabled matches expected output: fragment-with-stream-variable-label.invalid.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 # expected-to-throw
 query QueryWithFragmentWithStream($id: ID!, $label: String!) {
@@ -542,7 +542,7 @@ Source: GraphQL request (11:43)
 
 `;
 
-exports[`RelayDeferStreamTransform when streaming is enabled matches expected output: fragment-with-variable-label.invalid.graphql 1`] = `
+exports[`DeferStreamTransform when streaming is enabled matches expected output: fragment-with-variable-label.invalid.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 # expected-to-throw
 query QueryWithFragmentWithDefer($label: String!) {
@@ -576,7 +576,7 @@ Source: GraphQL request (12:37)
 
 `;
 
-exports[`RelayDeferStreamTransform when streaming is enabled matches expected output: inline-fragment-with-defer.invalid.graphql 1`] = `
+exports[`DeferStreamTransform when streaming is enabled matches expected output: inline-fragment-with-defer.invalid.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 # expected-to-throw
 query QueryWithFragmentWithDefer {
@@ -608,7 +608,7 @@ Source: GraphQL request (12:3)
 
 `;
 
-exports[`RelayDeferStreamTransform when streaming is enabled matches expected output: query-with-defer.graphql 1`] = `
+exports[`DeferStreamTransform when streaming is enabled matches expected output: query-with-defer.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query QueryWithDefer {
   me {
@@ -637,7 +637,7 @@ fragment DeferredFragment on User {
 
 `;
 
-exports[`RelayDeferStreamTransform when streaming is enabled matches expected output: query-with-stream.graphql 1`] = `
+exports[`DeferStreamTransform when streaming is enabled matches expected output: query-with-stream.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query QueryWithStream($id: ID!) {
   node(id: $id) {

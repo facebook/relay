@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`RelayMaskTransform matches expected output: relay-mask-transform.graphql 1`] = `
+exports[`MaskTransform matches expected output: relay-mask-transform.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 fragment UserProfile on User {
   profilePicture(size: $ProfilePicture_SIZE) {
@@ -66,7 +66,7 @@ fragment AnotherRecursiveFragment on Image {
 
 `;
 
-exports[`RelayMaskTransform matches expected output: relay-mask-transform-incompatible-type-invalid.graphql 1`] = `
+exports[`MaskTransform matches expected output: relay-mask-transform-incompatible-type-invalid.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 # expected-to-throw
 fragment ParentFragment on Query {
@@ -105,7 +105,7 @@ Source: GraphQL request (8:12)
 
 `;
 
-exports[`RelayMaskTransform matches expected output: relay-mask-transform-incompatible-type-invalid2.graphql 1`] = `
+exports[`MaskTransform matches expected output: relay-mask-transform-incompatible-type-invalid2.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 # expected-to-throw
 fragment ParentFragment on Query {
@@ -144,7 +144,7 @@ Source: GraphQL request (8:12)
 
 `;
 
-exports[`RelayMaskTransform matches expected output: relay-mask-transform-mixed-local-root-invalid.graphql 1`] = `
+exports[`MaskTransform matches expected output: relay-mask-transform-mixed-local-root-invalid.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 # expected-to-throw
 fragment ParentQuery on Query @argumentDefinitions(id: {type: "ID!"}) {
@@ -176,7 +176,7 @@ Source: GraphQL request (7:24)
 
 `;
 
-exports[`RelayMaskTransform matches expected output: relay-mask-transform-mixed-null.graphql 1`] = `
+exports[`MaskTransform matches expected output: relay-mask-transform-mixed-null.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 fragment NullableIDFirstFragment on Query {
   ...NullableIDFragment @relay(mask: false)

@@ -13,8 +13,8 @@
 
 const GraphQLCompilerContext = require('../../core/GraphQLCompilerContext');
 const GraphQLIRPrinter = require('../../core/GraphQLIRPrinter');
-const RelayMatchTransform = require('../RelayMatchTransform');
-const RelayRelayDirectiveTransform = require('../RelayRelayDirectiveTransform');
+const MatchTransform = require('../MatchTransform');
+const RelayDirectiveTransform = require('../RelayDirectiveTransform');
 const Schema = require('../../core/Schema');
 
 const {transformASTSchema} = require('../../core/ASTConvert');
@@ -24,9 +24,9 @@ const {
   parseGraphQLText,
 } = require('relay-test-utils-internal');
 
-describe('RelayMatchTransform', () => {
+describe('MatchTransform', () => {
   const extendedSchema = transformASTSchema(TestSchema, [
-    RelayMatchTransform.SCHEMA_EXTENSION,
+    MatchTransform.SCHEMA_EXTENSION,
   ]);
   generateTestsFromFixtures(
     `${__dirname}/fixtures/relay-match-transform`,
@@ -40,8 +40,8 @@ describe('RelayMatchTransform', () => {
         .addAll(definitions)
         .applyTransforms([
           // Requires Relay directive transform first.
-          RelayRelayDirectiveTransform.transform,
-          RelayMatchTransform.transform,
+          RelayDirectiveTransform.transform,
+          MatchTransform.transform,
         ])
         .documents()
         .map(doc => GraphQLIRPrinter.print(compilerSchema, doc))

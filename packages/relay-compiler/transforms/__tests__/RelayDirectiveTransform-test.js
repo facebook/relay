@@ -12,27 +12,30 @@
 'use strict';
 
 const GraphQLCompilerContext = require('../../core/GraphQLCompilerContext');
-const GraphQLIRPrinter = require('../../core/GraphQLIRPrinter');
-const RelayApplyFragmentArgumentTransform = require('../RelayApplyFragmentArgumentTransform');
+const RelayDirectiveTransform = require('../RelayDirectiveTransform');
 const RelayParser = require('../../core/RelayParser');
 const Schema = require('../../core/Schema');
 
+const {transformASTSchema} = require('../../core/ASTConvert');
 const {
   TestSchema,
   generateTestsFromFixtures,
 } = require('relay-test-utils-internal');
 
-describe('RelayApplyFragmentArgumentTransform', () => {
+describe('RelayDirectiveTransform', () => {
   generateTestsFromFixtures(
-    `${__dirname}/fixtures/apply-fragment-argument-transform`,
+    `${__dirname}/fixtures/relay-directive-transform`,
     text => {
-      const compilerSchema = Schema.DEPRECATED__create(TestSchema);
+      const schema = transformASTSchema(TestSchema, [
+        RelayDirectiveTransform.SCHEMA_EXTENSION,
+      ]);
+      const compilerSchema = Schema.DEPRECATED__create(TestSchema, schema);
       const ast = RelayParser.parse(compilerSchema, text);
       return new GraphQLCompilerContext(compilerSchema)
         .addAll(ast)
-        .applyTransforms([RelayApplyFragmentArgumentTransform.transform])
+        .applyTransforms([RelayDirectiveTransform.transform])
         .documents()
-        .map(doc => GraphQLIRPrinter.print(compilerSchema, doc))
+        .map(doc => JSON.stringify(doc, null, 2))
         .join('\n');
     },
   );

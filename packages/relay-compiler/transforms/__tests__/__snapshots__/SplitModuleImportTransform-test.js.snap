@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`RelayMatchTransform matches expected output: module-in-match-field.graphql 1`] = `
+exports[`MatchTransform matches expected output: module-in-match-field.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 fragment NameRendererFragment on User {
   id

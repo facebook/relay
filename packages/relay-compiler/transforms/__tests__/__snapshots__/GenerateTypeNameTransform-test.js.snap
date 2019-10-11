@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`RelayGenerateTypeNameTransform matches expected output: type-name-does-not-exist.graphql 1`] = `
+exports[`GenerateTypeNameTransform matches expected output: type-name-does-not-exist.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query EasyTypeNameNotExistsQuery {
   viewer {
@@ -627,7 +627,7 @@ fragment CommentFragment_comment on Comment {
 }
 `;
 
-exports[`RelayGenerateTypeNameTransform matches expected output: type-name-exists.graphql 1`] = `
+exports[`GenerateTypeNameTransform matches expected output: type-name-exists.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query EasyTypeNameExistsQuery {
   viewer {

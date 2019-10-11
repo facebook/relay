@@ -14,8 +14,8 @@
 const GraphQLCompilerContext = require('../../core/GraphQLCompilerContext');
 const GraphQLIRPrinter = require('../../core/GraphQLIRPrinter');
 const InlineFragmentsTransform = require('../InlineFragmentsTransform');
-const RelayMatchTransform = require('../RelayMatchTransform');
-const RelayRelayDirectiveTransform = require('../RelayRelayDirectiveTransform');
+const MatchTransform = require('../MatchTransform');
+const RelayDirectiveTransform = require('../RelayDirectiveTransform');
 const Schema = require('../../core/Schema');
 const SkipRedundantNodesTransform = require('../SkipRedundantNodesTransform');
 
@@ -28,7 +28,7 @@ const {
 
 describe('SkipRedundantNodesTransform', () => {
   const extendedSchema = transformASTSchema(TestSchema, [
-    RelayMatchTransform.SCHEMA_EXTENSION,
+    MatchTransform.SCHEMA_EXTENSION,
   ]);
   generateTestsFromFixtures(
     `${__dirname}/fixtures/skip-redundant-nodes-transform`,
@@ -41,8 +41,8 @@ describe('SkipRedundantNodesTransform', () => {
       return new GraphQLCompilerContext(compilerSchema)
         .addAll(definitions)
         .applyTransforms([
-          RelayRelayDirectiveTransform.transform,
-          RelayMatchTransform.transform,
+          RelayDirectiveTransform.transform,
+          MatchTransform.transform,
           InlineFragmentsTransform.transform,
           SkipRedundantNodesTransform.transform,
         ])

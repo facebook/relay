@@ -13,8 +13,8 @@
 
 const GraphQLCompilerContext = require('../../core/GraphQLCompilerContext');
 const GraphQLIRPrinter = require('../../core/GraphQLIRPrinter');
-const RelayFieldHandleTransform = require('../RelayFieldHandleTransform');
 const Schema = require('../../core/Schema');
+const SkipHandleFieldTransform = require('../SkipHandleFieldTransform');
 
 const {
   TestSchema,
@@ -22,15 +22,15 @@ const {
   parseGraphQLText,
 } = require('relay-test-utils-internal');
 
-describe('RelayFieldHandleTransform', () => {
+describe('SkipHandleFieldTransform', () => {
   generateTestsFromFixtures(
-    `${__dirname}/fixtures/field-handle-transform`,
+    `${__dirname}/fixtures/skip-handle-field-transform`,
     text => {
       const {definitions} = parseGraphQLText(TestSchema, text);
       const compilerSchema = Schema.DEPRECATED__create(TestSchema);
       return new GraphQLCompilerContext(compilerSchema)
         .addAll(definitions)
-        .applyTransforms([RelayFieldHandleTransform.transform])
+        .applyTransforms([SkipHandleFieldTransform.transform])
         .documents()
         .map(doc => GraphQLIRPrinter.print(compilerSchema, doc))
         .join('\n');

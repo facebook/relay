@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`RelayMatchTransform matches expected output: direct-js-field.invalid.graphql 1`] = `
+exports[`MatchTransform matches expected output: direct-js-field.invalid.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 # expected-to-throw
 fragment NameRendererFragment on User {
@@ -25,7 +25,7 @@ Source: GraphQL request (6:7)
 
 `;
 
-exports[`RelayMatchTransform matches expected output: invalid-match-type.graphql 1`] = `
+exports[`MatchTransform matches expected output: invalid-match-type.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 # expected-to-throw
 fragment NameRendererFragment on User {
@@ -60,7 +60,7 @@ GraphQL request (6:5)
 
 `;
 
-exports[`RelayMatchTransform matches expected output: invalid-no-matches.graphql 1`] = `
+exports[`MatchTransform matches expected output: invalid-no-matches.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 # expected-to-throw
 fragment NameRendererFragment on User {
@@ -81,7 +81,7 @@ GraphQL request (4:3)
 
 `;
 
-exports[`RelayMatchTransform matches expected output: invalid-non-empty-selections.graphql 1`] = `
+exports[`MatchTransform matches expected output: invalid-non-empty-selections.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 # expected-to-throw
 fragment NameRendererFragment on User {
@@ -123,7 +123,7 @@ Source: GraphQL request (5:5)
 
 `;
 
-exports[`RelayMatchTransform matches expected output: match-on-child-of-plural.graphql 1`] = `
+exports[`MatchTransform matches expected output: match-on-child-of-plural.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 fragment ActorsRendererFragment on Node {
   id
@@ -185,7 +185,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
 
 `;
 
-exports[`RelayMatchTransform matches expected output: match-with-arguments.invalid.graphql 1`] = `
+exports[`MatchTransform matches expected output: match-with-arguments.invalid.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 # expected-to-throw
 fragment NameRendererFragment on User {
@@ -226,7 +226,7 @@ Source: GraphQL request (8:18)
 
 `;
 
-exports[`RelayMatchTransform matches expected output: match-with-explicit-support-arg.invalid.graphql 1`] = `
+exports[`MatchTransform matches expected output: match-with-explicit-support-arg.invalid.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 # expected-to-throw
 fragment NameRendererFragment on User {
@@ -267,7 +267,7 @@ Source: GraphQL request (5:5)
 
 `;
 
-exports[`RelayMatchTransform matches expected output: match-with-extra-args.graphql 1`] = `
+exports[`MatchTransform matches expected output: match-with-extra-args.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 fragment NameRendererFragment on User {
   id
@@ -325,7 +325,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
 
 `;
 
-exports[`RelayMatchTransform matches expected output: module-without-match.graphql 1`] = `
+exports[`MatchTransform matches expected output: module-without-match.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 fragment NameRendererFragment on User {
   id
@@ -383,7 +383,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
 
 `;
 
-exports[`RelayMatchTransform matches expected output: relay-match-on-interface.graphql 1`] = `
+exports[`MatchTransform matches expected output: relay-match-on-interface.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 fragment NameRendererFragment on User {
   id
@@ -441,7 +441,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
 
 `;
 
-exports[`RelayMatchTransform matches expected output: relay-match-on-union.graphql 1`] = `
+exports[`MatchTransform matches expected output: relay-match-on-union.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 fragment NameRendererFragment on User {
   id
@@ -499,7 +499,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
 
 `;
 
-exports[`RelayMatchTransform matches expected output: relay-match-on-union-plural.graphql 1`] = `
+exports[`MatchTransform matches expected output: relay-match-on-union-plural.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 fragment NameRendererFragment on User {
   id

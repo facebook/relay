@@ -69,12 +69,12 @@ function visitRelayMetadata<T: Fragment | FragmentSpread>(
 function fragmentMetadata({mask, plural}): MixedObj {
   invariant(
     plural === undefined || typeof plural === 'boolean',
-    'RelayRelayDirectiveTransform: Expected the "plural" argument to @relay ' +
+    'RelayDirectiveTransform: Expected the "plural" argument to @relay ' +
       'to be a boolean literal if specified.',
   );
   invariant(
     mask === undefined || typeof mask === 'boolean',
-    'RelayRelayDirectiveTransform: Expected the "mask" argument to @relay ' +
+    'RelayDirectiveTransform: Expected the "mask" argument to @relay ' +
       'to be a boolean literal if specified.',
   );
   return {mask, plural};
@@ -83,7 +83,7 @@ function fragmentMetadata({mask, plural}): MixedObj {
 function fragmentSpreadMetadata({mask}): MixedObj {
   invariant(
     mask === undefined || typeof mask === 'boolean',
-    'RelayRelayDirectiveTransform: Expected the "mask" argument to @relay ' +
+    'RelayDirectiveTransform: Expected the "mask" argument to @relay ' +
       'to be a boolean literal if specified.',
   );
   return {mask};

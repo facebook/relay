@@ -40,7 +40,7 @@ function visitField<F: LinkedField | ScalarField>(field: F): F {
   // ensure exactly one handle
   invariant(
     handles.length === 1,
-    'RelayFieldHandleTransform: Expected fields to have at most one ' +
+    'FieldHandleTransform: Expected fields to have at most one ' +
       '"handle" property, got `%s`.',
     handles.join(', '),
   );

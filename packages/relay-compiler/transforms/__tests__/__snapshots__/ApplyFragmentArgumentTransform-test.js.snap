@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`RelayApplyFragmentArgumentTransform matches expected output: deletes-unreferenced-fragments.graphql 1`] = `
+exports[`ApplyFragmentArgumentTransform matches expected output: deletes-unreferenced-fragments.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query TestQuery($id: ID!) {
   node(id: $id) {
@@ -23,7 +23,7 @@ query TestQuery(
 
 `;
 
-exports[`RelayApplyFragmentArgumentTransform matches expected output: inlines-fragment-arguments.graphql 1`] = `
+exports[`ApplyFragmentArgumentTransform matches expected output: inlines-fragment-arguments.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query TestQuery(
   $id: ID!
@@ -93,7 +93,7 @@ fragment Profile_4CNNX6 on User {
 
 `;
 
-exports[`RelayApplyFragmentArgumentTransform matches expected output: inlines-literal-fragment-arguments.graphql 1`] = `
+exports[`ApplyFragmentArgumentTransform matches expected output: inlines-literal-fragment-arguments.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query TestQuery($id: ID!) {
   node(id: $id) {
@@ -156,7 +156,7 @@ fragment Profile_17y1Ti on User {
 
 `;
 
-exports[`RelayApplyFragmentArgumentTransform matches expected output: merges-identical-fragments.graphql 1`] = `
+exports[`ApplyFragmentArgumentTransform matches expected output: merges-identical-fragments.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query TestQuery($id: ID!, $pictureSize: [Int] = [128]) {
   node(id: $id) {
@@ -212,7 +212,7 @@ fragment ProfileFriends on User {
 
 `;
 
-exports[`RelayApplyFragmentArgumentTransform matches expected output: merges-identical-fragments-literal-arguments.graphql 1`] = `
+exports[`ApplyFragmentArgumentTransform matches expected output: merges-identical-fragments-literal-arguments.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query TestQuery($id: ID!) {
   node(id: $id) {
@@ -268,7 +268,7 @@ fragment ProfileFriends on User {
 
 `;
 
-exports[`RelayApplyFragmentArgumentTransform matches expected output: rejects-cyclic-fragments.invalid.graphql 1`] = `
+exports[`ApplyFragmentArgumentTransform matches expected output: rejects-cyclic-fragments.invalid.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 # expected-to-throw
 query TestQuery($id: ID!, $pictureSize: [Int] = [128]) {
@@ -318,7 +318,7 @@ Source: GraphQL request (18:9)
 
 `;
 
-exports[`RelayApplyFragmentArgumentTransform matches expected output: rejects-unknown-query-variables.invalid.graphql 1`] = `
+exports[`ApplyFragmentArgumentTransform matches expected output: rejects-unknown-query-variables.invalid.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 # expected-to-throw
 query TestQuery(
@@ -365,7 +365,7 @@ GraphQL request (10:61)
 
 `;
 
-exports[`RelayApplyFragmentArgumentTransform matches expected output: uses-defaults-for-literal-null-arguments.graphql 1`] = `
+exports[`ApplyFragmentArgumentTransform matches expected output: uses-defaults-for-literal-null-arguments.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query TestQuery($id: ID!) {
   node(id: $id) {

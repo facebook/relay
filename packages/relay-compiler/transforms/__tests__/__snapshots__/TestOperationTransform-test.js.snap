@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`RelayTestOperationTransform matches expected output: mutation.graphql 1`] = `
+exports[`TestOperationTransform matches expected output: mutation.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 mutation SimpleMutation @relay_test_operation {
   commentCreate(input: null) {
@@ -251,7 +251,7 @@ mutation SimpleMutation @relay_test_operation {
 }
 `;
 
-exports[`RelayTestOperationTransform matches expected output: query-with-enums.graphql 1`] = `
+exports[`TestOperationTransform matches expected output: query-with-enums.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query QueryWitEnums @relay_test_operation {
   node(id: "test-id") {
@@ -468,7 +468,7 @@ query QueryWitEnums @relay_test_operation {
 }
 `;
 
-exports[`RelayTestOperationTransform matches expected output: query-with-fragments.graphql 1`] = `
+exports[`TestOperationTransform matches expected output: query-with-fragments.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query QueryWithFragment @relay_test_operation {
   me {
@@ -948,7 +948,7 @@ fragment UserProfileFragment on User
 }
 `;
 
-exports[`RelayTestOperationTransform matches expected output: simple-query.graphql 1`] = `
+exports[`TestOperationTransform matches expected output: simple-query.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query SimpleQuery @relay_test_operation {
   node(id: "test-id") {
@@ -1133,7 +1133,7 @@ query SimpleQuery @relay_test_operation {
 }
 `;
 
-exports[`RelayTestOperationTransform matches expected output: simple-query-with-condition.graphql 1`] = `
+exports[`TestOperationTransform matches expected output: simple-query-with-condition.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query SimpleQuery @relay_test_operation {
   node(id: "test-id") {
@@ -1474,7 +1474,7 @@ query SimpleQuery @relay_test_operation {
 }
 `;
 
-exports[`RelayTestOperationTransform matches expected output: subscription.graphql 1`] = `
+exports[`TestOperationTransform matches expected output: subscription.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 subscription SimpleMutation @relay_test_operation {
   commentCreateSubscribe(input: null) {

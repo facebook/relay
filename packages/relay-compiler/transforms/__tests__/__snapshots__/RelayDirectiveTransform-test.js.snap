@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`RelayRelayDirectiveTransform matches expected output: plural-fragment.graphql 1`] = `
+exports[`RelayDirectiveTransform matches expected output: plural-fragment.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 fragment PluralFragment on User @relay(plural: true) {
   name
@@ -56,7 +56,7 @@ fragment PluralFragment on User @relay(plural: true) {
 }
 `;
 
-exports[`RelayRelayDirectiveTransform matches expected output: unmasked-spread.graphql 1`] = `
+exports[`RelayDirectiveTransform matches expected output: unmasked-spread.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 fragment UserProfile on User {
   profilePicture {

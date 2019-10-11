@@ -14,9 +14,9 @@
 const FlattenTransform = require('../FlattenTransform');
 const GraphQLCompilerContext = require('../../core/GraphQLCompilerContext');
 const GraphQLIRPrinter = require('../../core/GraphQLIRPrinter');
-const RelayMatchTransform = require('../../transforms/RelayMatchTransform');
+const MatchTransform = require('../../transforms/MatchTransform');
+const RelayDirectiveTransform = require('../RelayDirectiveTransform');
 const RelayParser = require('../../core/RelayParser');
-const RelayRelayDirectiveTransform = require('../RelayRelayDirectiveTransform');
 const Schema = require('../../core/Schema');
 
 const {
@@ -33,8 +33,8 @@ describe('FlattenTransform', () => {
     return text => {
       const {transformASTSchema} = require('../../core/ASTConvert');
       const extendedSchema = transformASTSchema(TestSchema, [
-        RelayMatchTransform.SCHEMA_EXTENSION,
-        RelayRelayDirectiveTransform.SCHEMA_EXTENSION,
+        MatchTransform.SCHEMA_EXTENSION,
+        RelayDirectiveTransform.SCHEMA_EXTENSION,
       ]);
       const compilerSchema = Schema.DEPRECATED__create(
         TestSchema,
@@ -43,7 +43,7 @@ describe('FlattenTransform', () => {
       return new GraphQLCompilerContext(compilerSchema)
         .addAll(RelayParser.parse(compilerSchema, text))
         .applyTransforms([
-          RelayMatchTransform.transform,
+          MatchTransform.transform,
           FlattenTransform.transformWithOptions(options),
         ])
         .documents()

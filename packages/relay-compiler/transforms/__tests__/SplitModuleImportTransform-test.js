@@ -5,32 +5,44 @@
  * LICENSE file in the root directory of this source tree.
  *
  * @flow strict-local
- * @format
  * @emails oncall+relay
+ * @format
  */
 
 'use strict';
 
 const GraphQLCompilerContext = require('../../core/GraphQLCompilerContext');
 const GraphQLIRPrinter = require('../../core/GraphQLIRPrinter');
-const RelayGenerateIDFieldTransform = require('../RelayGenerateIDFieldTransform');
-const RelayParser = require('../../core/RelayParser');
+const MatchTransform = require('../MatchTransform');
+const RelayDirectiveTransform = require('../RelayDirectiveTransform');
 const Schema = require('../../core/Schema');
+const SplitModuleImportTransform = require('../SplitModuleImportTransform');
 
+const {transformASTSchema} = require('../../core/ASTConvert');
 const {
   TestSchema,
   generateTestsFromFixtures,
+  parseGraphQLText,
 } = require('relay-test-utils-internal');
 
-describe('RelayGenerateIDFieldTransform', () => {
+describe('MatchTransform', () => {
+  const extendedSchema = transformASTSchema(TestSchema, [
+    MatchTransform.SCHEMA_EXTENSION,
+  ]);
+
   generateTestsFromFixtures(
-    `${__dirname}/fixtures/generate-id-field-transform`,
+    `${__dirname}/fixtures/relay-split-module-import-transform`,
     text => {
+      const {definitions} = parseGraphQLText(extendedSchema, text);
       const compilerSchema = Schema.DEPRECATED__create(TestSchema);
-      const ast = RelayParser.parse(compilerSchema, text);
       return new GraphQLCompilerContext(compilerSchema)
-        .addAll(ast)
-        .applyTransforms([RelayGenerateIDFieldTransform.transform])
+        .addAll(definitions)
+        .applyTransforms([
+          // Requires Relay directive transform first.
+          RelayDirectiveTransform.transform,
+          MatchTransform.transform,
+          SplitModuleImportTransform.transform,
+        ])
         .documents()
         .map(doc => GraphQLIRPrinter.print(compilerSchema, doc))
         .join('\n');

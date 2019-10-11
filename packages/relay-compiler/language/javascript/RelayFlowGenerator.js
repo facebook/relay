@@ -13,11 +13,11 @@
 const ConnectionFieldTransform = require('../../transforms/ConnectionFieldTransform');
 const FlattenTransform = require('../../transforms/FlattenTransform');
 const IRVisitor = require('../../core/GraphQLIRVisitor');
+const MaskTransform = require('../../transforms/MaskTransform');
+const MatchTransform = require('../../transforms/MatchTransform');
 const Profiler = require('../../core/GraphQLCompilerProfiler');
-const RelayMaskTransform = require('../../transforms/RelayMaskTransform');
-const RelayMatchTransform = require('../../transforms/RelayMatchTransform');
-const RelayRefetchableFragmentTransform = require('../../transforms/RelayRefetchableFragmentTransform');
-const RelayRelayDirectiveTransform = require('../../transforms/RelayRelayDirectiveTransform');
+const RefetchableFragmentTransform = require('../../transforms/RefetchableFragmentTransform');
+const RelayDirectiveTransform = require('../../transforms/RelayDirectiveTransform');
 
 const {createUserError} = require('../../core/RelayCompilerError');
 const {
@@ -1038,12 +1038,12 @@ function getDataTypeName(name: string): string {
 }
 
 const FLOW_TRANSFORMS: $ReadOnlyArray<IRTransform> = [
-  RelayRelayDirectiveTransform.transform,
-  RelayMaskTransform.transform,
+  RelayDirectiveTransform.transform,
+  MaskTransform.transform,
   ConnectionFieldTransform.transform,
-  RelayMatchTransform.transform,
+  MatchTransform.transform,
   FlattenTransform.transformWithOptions({}),
-  RelayRefetchableFragmentTransform.transform,
+  RefetchableFragmentTransform.transform,
 ];
 
 const DIRECTIVE_NAME = 'raw_response_type';

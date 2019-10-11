@@ -13,8 +13,8 @@
 
 const GraphQLCompilerContext = require('../../core/GraphQLCompilerContext');
 const GraphQLIRPrinter = require('../../core/GraphQLIRPrinter');
-const RelayMaskTransform = require('../RelayMaskTransform');
-const RelayRelayDirectiveTransform = require('../RelayRelayDirectiveTransform');
+const MaskTransform = require('../MaskTransform');
+const RelayDirectiveTransform = require('../RelayDirectiveTransform');
 const Schema = require('../../core/Schema');
 
 const {transformASTSchema} = require('../../core/ASTConvert');
@@ -24,9 +24,9 @@ const {
   parseGraphQLText,
 } = require('relay-test-utils-internal');
 
-describe('RelayMaskTransform', () => {
+describe('MaskTransform', () => {
   const extendedSchema = transformASTSchema(TestSchema, [
-    RelayRelayDirectiveTransform.SCHEMA_EXTENSION,
+    RelayDirectiveTransform.SCHEMA_EXTENSION,
   ]);
 
   generateTestsFromFixtures(
@@ -41,8 +41,8 @@ describe('RelayMaskTransform', () => {
         .addAll(definitions)
         .applyTransforms([
           // Requires Relay directive transform first.
-          RelayRelayDirectiveTransform.transform,
-          RelayMaskTransform.transform,
+          RelayDirectiveTransform.transform,
+          MaskTransform.transform,
         ])
         .documents()
         .map(doc => GraphQLIRPrinter.print(compilerSchema, doc))
@@ -62,8 +62,8 @@ describe('RelayMaskTransform', () => {
         .addAll(definitions)
         .applyTransforms([
           // Requires Relay directive transform first.
-          RelayRelayDirectiveTransform.transform,
-          RelayMaskTransform.transform,
+          RelayDirectiveTransform.transform,
+          MaskTransform.transform,
         ])
         .documents()
         .map(doc => {

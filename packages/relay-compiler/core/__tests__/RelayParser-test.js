@@ -12,7 +12,7 @@
 'use strict';
 
 const ASTConvert = require('../ASTConvert');
-const RelayMatchTransform = require('../../transforms/RelayMatchTransform');
+const MatchTransform = require('../../transforms/MatchTransform');
 const RelayParser = require('../RelayParser');
 const Schema = require('../Schema');
 
@@ -25,7 +25,7 @@ describe('RelayParser', () => {
   const schema = Schema.DEPRECATED__create(
     TestSchema,
     ASTConvert.transformASTSchema(TestSchema, [
-      RelayMatchTransform.SCHEMA_EXTENSION,
+      MatchTransform.SCHEMA_EXTENSION,
     ]),
   );
 

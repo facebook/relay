@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`RelayRefetchableFragmentTransform matches expected output: fragment-on-interface-which-implmentations-implement-node.graphql 1`] = `
+exports[`RefetchableFragmentTransform matches expected output: fragment-on-interface-which-implmentations-implement-node.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 fragment RefetchableFragment on Actor
   @refetchable(queryName: "RefetchableFragmentQuery") {
@@ -43,7 +43,7 @@ query RefetchableFragmentQuery(
 
 `;
 
-exports[`RelayRefetchableFragmentTransform matches expected output: fragment-on-interface-which-implmentations-not-implement-node.invalid.graphql 1`] = `
+exports[`RefetchableFragmentTransform matches expected output: fragment-on-interface-which-implmentations-not-implement-node.invalid.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 # expected-to-throw
 fragment UserName on UserNameRenderable
@@ -67,7 +67,7 @@ Source: GraphQL request (2:1)
 
 `;
 
-exports[`RelayRefetchableFragmentTransform matches expected output: fragment-on-node-interface.graphql 1`] = `
+exports[`RefetchableFragmentTransform matches expected output: fragment-on-node-interface.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 fragment RefetchableFragment on Node
   @refetchable(queryName: "RefetchableFragmentQuery") {
@@ -110,7 +110,7 @@ query RefetchableFragmentQuery(
 
 `;
 
-exports[`RelayRefetchableFragmentTransform matches expected output: fragment-on-node-interface-without-id.graphql 1`] = `
+exports[`RefetchableFragmentTransform matches expected output: fragment-on-node-interface-without-id.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 fragment RefetchableFragment on Node
   @refetchable(queryName: "RefetchableFragmentQuery") {
@@ -152,7 +152,7 @@ query RefetchableFragmentQuery(
 
 `;
 
-exports[`RelayRefetchableFragmentTransform matches expected output: fragment-on-object-implementing-node-interface.graphql 1`] = `
+exports[`RefetchableFragmentTransform matches expected output: fragment-on-object-implementing-node-interface.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 fragment RefetchableFragment on User
   @refetchable(queryName: "RefetchableFragmentQuery") {
@@ -191,7 +191,7 @@ query RefetchableFragmentQuery(
 
 `;
 
-exports[`RelayRefetchableFragmentTransform matches expected output: fragment-on-object-implementing-node-interface-with-alias-id.graphql 1`] = `
+exports[`RefetchableFragmentTransform matches expected output: fragment-on-object-implementing-node-interface-with-alias-id.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 fragment RefetchableFragment on User
   @refetchable(queryName: "RefetchableFragmentQuery") {
@@ -231,7 +231,7 @@ query RefetchableFragmentQuery(
 
 `;
 
-exports[`RelayRefetchableFragmentTransform matches expected output: fragment-on-query.graphql 1`] = `
+exports[`RefetchableFragmentTransform matches expected output: fragment-on-query.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 fragment RefetchableFragment on Query
   @refetchable(queryName: "RefetchableFragmentQuery")
@@ -279,7 +279,7 @@ query RefetchableFragmentQuery(
 
 `;
 
-exports[`RelayRefetchableFragmentTransform matches expected output: fragment-on-query-with-cycle.graphql 1`] = `
+exports[`RefetchableFragmentTransform matches expected output: fragment-on-query-with-cycle.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 fragment RefetchableFragment on Query
   @refetchable(queryName: "RefetchableFragmentQuery")
@@ -351,7 +351,7 @@ query RefetchableFragmentQuery(
 
 `;
 
-exports[`RelayRefetchableFragmentTransform matches expected output: fragment-on-query-without-queryName.invalid.graphql 1`] = `
+exports[`RefetchableFragmentTransform matches expected output: fragment-on-query-without-queryName.invalid.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 # expected-to-throw
 fragment RefetchableFragment on Query
@@ -378,7 +378,7 @@ Source: GraphQL request (3:3)
 
 `;
 
-exports[`RelayRefetchableFragmentTransform matches expected output: fragment-on-viewer.graphql 1`] = `
+exports[`RefetchableFragmentTransform matches expected output: fragment-on-viewer.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 fragment RefetchableFragment on Viewer
   @refetchable(queryName: "RefetchableFragmentQuery") {
@@ -420,7 +420,7 @@ query RefetchableFragmentQuery(
 
 `;
 
-exports[`RelayRefetchableFragmentTransform matches expected output: fragment-with-args-on-object-implementing-node-interface.graphql 1`] = `
+exports[`RefetchableFragmentTransform matches expected output: fragment-with-args-on-object-implementing-node-interface.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 fragment RefetchableFragment on User
   @refetchable(queryName: "RefetchableFragmentQuery")
@@ -471,7 +471,7 @@ query RefetchableFragmentQuery(
 
 `;
 
-exports[`RelayRefetchableFragmentTransform matches expected output: fragment-with-args-on-query.graphql 1`] = `
+exports[`RefetchableFragmentTransform matches expected output: fragment-with-args-on-query.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 fragment RefetchableFragment on Query
   @refetchable(queryName: "RefetchableFragmentQuery")
@@ -529,7 +529,7 @@ query RefetchableFragmentQuery(
 
 `;
 
-exports[`RelayRefetchableFragmentTransform matches expected output: fragment-with-args-on-viewer.graphql 1`] = `
+exports[`RefetchableFragmentTransform matches expected output: fragment-with-args-on-viewer.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 fragment RefetchableFragment on Viewer
   @refetchable(queryName: "RefetchableFragmentQuery")
@@ -583,7 +583,7 @@ query RefetchableFragmentQuery(
 
 `;
 
-exports[`RelayRefetchableFragmentTransform matches expected output: refetchable-fragment-with-connection.graphql 1`] = `
+exports[`RefetchableFragmentTransform matches expected output: refetchable-fragment-with-connection.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 fragment PaginationFragment on Node
   @refetchable(queryName: "RefetchableFragmentQuery")
@@ -647,7 +647,7 @@ query RefetchableFragmentQuery(
 
 `;
 
-exports[`RelayRefetchableFragmentTransform matches expected output: refetchable-fragment-with-connection-bidirectional.graphql 1`] = `
+exports[`RefetchableFragmentTransform matches expected output: refetchable-fragment-with-connection-bidirectional.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 fragment PaginationFragment on Node
   @refetchable(queryName: "RefetchableFragmentQuery")
@@ -719,7 +719,7 @@ query RefetchableFragmentQuery(
 
 `;
 
-exports[`RelayRefetchableFragmentTransform matches expected output: refetchable-fragment-with-connection-literal-count.invalid.graphql 1`] = `
+exports[`RefetchableFragmentTransform matches expected output: refetchable-fragment-with-connection-literal-count.invalid.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 # expected-to-throw
 fragment PaginationFragment on Node
@@ -758,7 +758,7 @@ Source: GraphQL request (8:36)
 
 `;
 
-exports[`RelayRefetchableFragmentTransform matches expected output: refetchable-fragment-with-connection-no-cursor.invalid.graphql 1`] = `
+exports[`RefetchableFragmentTransform matches expected output: refetchable-fragment-with-connection-no-cursor.invalid.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 # expected-to-throw
 fragment PaginationFragment on Node
@@ -797,7 +797,7 @@ Source: GraphQL request (8:20)
 
 `;
 
-exports[`RelayRefetchableFragmentTransform matches expected output: refetchable-fragment-with-connection-unstable-path.invalid.graphql 1`] = `
+exports[`RefetchableFragmentTransform matches expected output: refetchable-fragment-with-connection-unstable-path.invalid.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 # expected-to-throw
 fragment PaginationFragment on Node
@@ -845,7 +845,7 @@ Source: GraphQL request (12:7)
 
 `;
 
-exports[`RelayRefetchableFragmentTransform matches expected output: refetchable-fragment-with-connection-with-stream.graphql 1`] = `
+exports[`RefetchableFragmentTransform matches expected output: refetchable-fragment-with-connection-with-stream.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 fragment PaginationFragment on Node
   @refetchable(queryName: "RefetchableFragmentQuery")

@@ -12,7 +12,7 @@
 
 const IRTransformer = require('../core/GraphQLIRTransformer');
 
-const {hasUnaliasedSelection} = require('./RelayTransformUtils');
+const {hasUnaliasedSelection} = require('./TransformUtils');
 
 import type CompilerContext from '../core/GraphQLCompilerContext';
 import type {LinkedField, ScalarField} from '../core/GraphQLIR';

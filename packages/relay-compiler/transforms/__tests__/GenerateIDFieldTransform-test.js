@@ -11,10 +11,9 @@
 
 'use strict';
 
-const FlattenTransform = require('../FlattenTransform');
+const GenerateIDFieldTransform = require('../GenerateIDFieldTransform');
 const GraphQLCompilerContext = require('../../core/GraphQLCompilerContext');
-const InlineFragmentsTransform = require('../InlineFragmentsTransform');
-const RelayGenerateTypeNameTransform = require('../RelayGenerateTypeNameTransform');
+const GraphQLIRPrinter = require('../../core/GraphQLIRPrinter');
 const RelayParser = require('../../core/RelayParser');
 const Schema = require('../../core/Schema');
 
@@ -23,21 +22,17 @@ const {
   generateTestsFromFixtures,
 } = require('relay-test-utils-internal');
 
-describe('RelayGenerateTypeNameTransform', () => {
+describe('GenerateIDFieldTransform', () => {
   generateTestsFromFixtures(
-    `${__dirname}/fixtures/generate-typename-transform`,
+    `${__dirname}/fixtures/generate-id-field-transform`,
     text => {
       const compilerSchema = Schema.DEPRECATED__create(TestSchema);
       const ast = RelayParser.parse(compilerSchema, text);
       return new GraphQLCompilerContext(compilerSchema)
         .addAll(ast)
-        .applyTransforms([
-          InlineFragmentsTransform.transform,
-          FlattenTransform.transformWithOptions({flattenAbstractTypes: true}),
-          RelayGenerateTypeNameTransform.transform,
-        ])
+        .applyTransforms([GenerateIDFieldTransform.transform])
         .documents()
-        .map(doc => JSON.stringify(doc, null, 2))
+        .map(doc => GraphQLIRPrinter.print(compilerSchema, doc))
         .join('\n');
     },
   );

@@ -74,7 +74,7 @@ function visitFragmentSpread(
   }
   invariant(
     fragmentSpread.args.length === 0,
-    'RelayMaskTransform: Cannot unmask fragment spread `%s` with ' +
+    'MaskTransform: Cannot unmask fragment spread `%s` with ' +
       'arguments. Use the `ApplyFragmentArgumentTransform` before flattening',
     fragmentSpread.name,
   );
@@ -102,7 +102,7 @@ function visitFragmentSpread(
   );
   if (localArgDef != null) {
     throw createUserError(
-      'RelayMaskTransform: Cannot use @relay(mask: false) on fragment spread ' +
+      'MaskTransform: Cannot use @relay(mask: false) on fragment spread ' +
         'because the fragment definition uses @argumentDefinitions.',
       [fragmentSpread.loc, localArgDef.loc],
     );

@@ -85,7 +85,6 @@ function relayRefetchableFragmentTransform(
     let refetchDescriptor;
     if (schema.areEqualTypes(fragment.type, queryType)) {
       refetchDescriptor = buildRefetchOperationOnQueryType(
-        context,
         schema,
         fragment,
         refetchName,
@@ -94,7 +93,6 @@ function relayRefetchableFragmentTransform(
       // Validate that the schema conforms to the informal Viewer spec
       // and build the refetch query accordingly.
       refetchDescriptor = buildRefetchOperationOnViewerType(
-        context,
         schema,
         fragment,
         refetchName,
@@ -125,7 +123,6 @@ function relayRefetchableFragmentTransform(
       // Validate that the schema conforms to the Object Identity (Node) spec
       // and build the refetch query accordingly.
       refetchDescriptor = buildRefetchOperationOnNodeType(
-        context,
         schema,
         fragment,
         refetchName,
@@ -392,7 +389,6 @@ function buildFragmentSpread(fragment: Fragment): FragmentSpread {
 }
 
 function buildRefetchOperationOnQueryType(
-  context: GraphQLCompilerContext,
   schema: Schema,
   fragment: Fragment,
   queryName: string,
@@ -418,7 +414,6 @@ function buildRefetchOperationOnQueryType(
 }
 
 function buildRefetchOperationOnViewerType(
-  context: GraphQLCompilerContext,
   schema: Schema,
   fragment: Fragment,
   queryName: string,
@@ -480,7 +475,6 @@ function buildRefetchOperationOnViewerType(
 }
 
 function buildRefetchOperationOnNodeType(
-  context: GraphQLCompilerContext,
   schema: Schema,
   fragment: Fragment,
   queryName: string,
@@ -599,7 +593,7 @@ function buildRefetchOperationOnNodeType(
       ],
       type: queryType,
     },
-    transformedFragment: enforceIDField(context.getSchema(), fragment),
+    transformedFragment: enforceIDField(schema, fragment),
   };
 }
 

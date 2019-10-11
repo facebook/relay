@@ -1552,15 +1552,14 @@ query TestQuery($date: String) {
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-Error: Encountered 1 error(s):
-- Complex argument values (Lists or InputObjects with nested variables) are not supported.
-  
-  GraphQL request (3:24)
-  2: query TestQuery($date: String) {
-  3:   items(filter: {date: $date}) {
-                            ^
-  4:     date
-  
+Complex argument values (Lists or InputObjects with nested variables) are not supported.
+
+GraphQL request (3:24)
+2: query TestQuery($date: String) {
+3:   items(filter: {date: $date}) {
+                          ^
+4:     date
+
 `;
 
 exports[`compileRelayArtifacts matches expected output: connection.graphql 1`] = `
@@ -3436,21 +3435,20 @@ fragment FeedbackComments_feedback on Feedback {
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-Error: Encountered 1 error(s):
-- Invalid use of @connection_resolver, the provided label is not unique. Specify a unique 'label' as a literal string.
-  
-  Source: GraphQL request (22:28)
-  21:     comments(first: 10)
-  22:       @connection_resolver(label: "FeedbackComments_feedback") {
-                                 ^
-  23:       #error: same label
-  
-  Source: GraphQL request (9:44)
-   8: fragment FeedbackComments_feedback on Feedback {
-   9:   comments(first: 10) @connection_resolver(label: "FeedbackComments_feedback") {
-                                                 ^
-  10:     edges {
-  
+Invalid use of @connection_resolver, the provided label is not unique. Specify a unique 'label' as a literal string.
+
+Source: GraphQL request (22:28)
+21:     comments(first: 10)
+22:       @connection_resolver(label: "FeedbackComments_feedback") {
+                               ^
+23:       #error: same label
+
+Source: GraphQL request (9:44)
+ 8: fragment FeedbackComments_feedback on Feedback {
+ 9:   comments(first: 10) @connection_resolver(label: "FeedbackComments_feedback") {
+                                               ^
+10:     edges {
+
 `;
 
 exports[`compileRelayArtifacts matches expected output: connection-resolver-field-missing-label.invalid.graphql 1`] = `
@@ -3478,15 +3476,14 @@ fragment FeedbackComments_feedback on Feedback {
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-Error: Encountered 1 error(s):
-- Invalid usage of @connection_resolver, expected a static string 'label'. Labels may be the document name ('FeedbackComments_feedback') or be prefixed with the document name ('FeedbackComments_feedback$<name>')
-  
-  Source: GraphQL request (9:23)
-   8: fragment FeedbackComments_feedback on Feedback {
-   9:   comments(first: 10) @connection_resolver {
-                            ^
-  10:     edges {
-  
+Invalid usage of @connection_resolver, expected a static string 'label'. Labels may be the document name ('FeedbackComments_feedback') or be prefixed with the document name ('FeedbackComments_feedback$<name>')
+
+Source: GraphQL request (9:23)
+ 8: fragment FeedbackComments_feedback on Feedback {
+ 9:   comments(first: 10) @connection_resolver {
+                          ^
+10:     edges {
+
 `;
 
 exports[`compileRelayArtifacts matches expected output: connection-resolver-field-on-plural.invalid.graphql 1`] = `
@@ -3515,15 +3512,14 @@ fragment FeedbackComments_feedback on Feedback {
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-Error: Encountered 1 error(s):
-- @connection_resolver fields must return a single value, not a list, found '[CommentsEdge]'
-  
-  Source: GraphQL request (10:5)
-   9:   comments(first: 10) {
-  10:     edges @connection_resolver(label: "FeedbackComments_feedback") {
-          ^
-  11:       # error: plural
-  
+@connection_resolver fields must return a single value, not a list, found '[CommentsEdge]'
+
+Source: GraphQL request (10:5)
+ 9:   comments(first: 10) {
+10:     edges @connection_resolver(label: "FeedbackComments_feedback") {
+        ^
+11:       # error: plural
+
 `;
 
 exports[`compileRelayArtifacts matches expected output: connection-resolver-field-on-scalar.invalid.graphql 1`] = `
@@ -3542,15 +3538,14 @@ fragment FeedbackComments_feedback on Feedback {
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-Error: Encountered 1 error(s):
-- The @connection_resolver direction is not supported on scalar fields, only fields returning an object/interface/union
-  
-  Source: GraphQL request (9:6)
-   8: fragment FeedbackComments_feedback on Feedback {
-   9:   id @connection_resolver(label: "FeedbackComments_feedback") # error: scalar
-           ^
-  10: }
-  
+The @connection_resolver direction is not supported on scalar fields, only fields returning an object/interface/union
+
+Source: GraphQL request (9:6)
+ 8: fragment FeedbackComments_feedback on Feedback {
+ 9:   id @connection_resolver(label: "FeedbackComments_feedback") # error: scalar
+         ^
+10: }
+
 `;
 
 exports[`compileRelayArtifacts matches expected output: connection-resolver-field-stream.graphql 1`] = `
@@ -7022,7 +7017,7 @@ fragment FeedbackFragment on Feedback
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-Error: Encountered 2 error(s):
+Encountered 2 errors:
 - Operation 'FeedbackQuery' references undefined variable(s):
   - $commentsKey: String.
   
@@ -9681,21 +9676,20 @@ interface ClientUser {
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-Error: Encountered 1 error(s):
-- Unexpected directive: @defer. This directive can only be used on fields/fragments that are fetched from the server schema, but it is used inside a client-only selection.
-  
-  Source (derived): GraphQL request (13:25)
-  12:   clientUser {
-  13:     ...DeferredFragment @defer(label: "DeferredFragmentLabel")
-                              ^
-  14:   }
-  
-  Source: GraphQL request (12:3)
-  11:   emailAddresses
-  12:   clientUser {
-        ^
-  13:     ...DeferredFragment @defer(label: "DeferredFragmentLabel")
-  
+Unexpected directive: @defer. This directive can only be used on fields/fragments that are fetched from the server schema, but it is used inside a client-only selection.
+
+Source (derived): GraphQL request (13:25)
+12:   clientUser {
+13:     ...DeferredFragment @defer(label: "DeferredFragmentLabel")
+                            ^
+14:   }
+
+Source: GraphQL request (12:3)
+11:   emailAddresses
+12:   clientUser {
+      ^
+13:     ...DeferredFragment @defer(label: "DeferredFragmentLabel")
+
 `;
 
 exports[`compileRelayArtifacts matches expected output: fragment-with-match-directive.graphql 1`] = `
@@ -10093,21 +10087,20 @@ fragment Profile on User @inline {
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-Error: Encountered 1 error(s):
-- Cannot use @relay(mask: false) on fragment spreads for fragments with directives.
-  
-  Source: GraphQL request (5:5)
-  4:   me {
-  5:     ...Profile @relay(mask: false)
-         ^
-  6:   }
-  
-  Source: GraphQL request (9:26)
-   8: 
-   9: fragment Profile on User @inline {
-                               ^
-  10:   id
-  
+Cannot use @relay(mask: false) on fragment spreads for fragments with directives.
+
+Source: GraphQL request (5:5)
+4:   me {
+5:     ...Profile @relay(mask: false)
+       ^
+6:   }
+
+Source: GraphQL request (9:26)
+ 8: 
+ 9: fragment Profile on User @inline {
+                             ^
+10:   id
+
 `;
 
 exports[`compileRelayArtifacts matches expected output: inline-data-fragment.graphql 1`] = `
@@ -10493,15 +10486,14 @@ fragment Profile on User @inline {
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-Error: Encountered 1 error(s):
-- Variables are not yet supported inside @inline fragments.
-  
-  Source: GraphQL request (10:24)
-   9: fragment Profile on User @inline {
-  10:   profilePicture(size: $pictureSize) {
-                             ^
-  11:     uri
-  
+Variables are not yet supported inside @inline fragments.
+
+Source: GraphQL request (10:24)
+ 9: fragment Profile on User @inline {
+10:   profilePicture(size: $pictureSize) {
+                           ^
+11:     uri
+
 `;
 
 exports[`compileRelayArtifacts matches expected output: inline-data-fragment-local-args.graphql 1`] = `
@@ -10531,15 +10523,14 @@ fragment Profile on User
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-Error: Encountered 1 error(s):
-- Variables are not yet supported inside @inline fragments.
-  
-  Source: GraphQL request (17:24)
-  16:   @inline
-  17:   @argumentDefinitions(sizeArg: {type: "[Int]", defaultValue: [50]}) {
-                             ^
-  18:   profilePicture(size: $sizeArg) {
-  
+Variables are not yet supported inside @inline fragments.
+
+Source: GraphQL request (17:24)
+16:   @inline
+17:   @argumentDefinitions(sizeArg: {type: "[Int]", defaultValue: [50]}) {
+                           ^
+18:   profilePicture(size: $sizeArg) {
+
 `;
 
 exports[`compileRelayArtifacts matches expected output: is-as-alias.invalid.graphql 1`] = `
@@ -10552,15 +10543,14 @@ fragment User_fragment on User {
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-Error: Encountered 1 error(s):
-- Relay does not allow aliasing fields to \`id\`. This name is reserved for the globally unique \`id\` field on \`Node\`.
-  
-  Source: GraphQL request (3:3)
-  2: fragment User_fragment on User {
-  3:   id: name
-       ^
-  4: }
-  
+Relay does not allow aliasing fields to \`id\`. This name is reserved for the globally unique \`id\` field on \`Node\`.
+
+Source: GraphQL request (3:3)
+2: fragment User_fragment on User {
+3:   id: name
+     ^
+4: }
+
 `;
 
 exports[`compileRelayArtifacts matches expected output: kitchen-sink.graphql 1`] = `
@@ -11362,21 +11352,20 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-Error: Encountered 1 error(s):
-- Found conflicting @module selections: use a unique alias on the parent fields.
-  
-  Source: GraphQL request (22:7)
-  21:     ...MarkdownUserNameRenderer_name
-  22:       @module(name: "BarMarkdownUserNameRenderer.react")
-            ^
-  23:   }
-  
-  Source: GraphQL request (13:7)
-  12:     ...MarkdownUserNameRenderer_name
-  13:       @module(name: "FooMarkdownUserNameRenderer.react")
-            ^
-  14:   }
-  
+Found conflicting @module selections: use a unique alias on the parent fields.
+
+Source: GraphQL request (22:7)
+21:     ...MarkdownUserNameRenderer_name
+22:       @module(name: "BarMarkdownUserNameRenderer.react")
+          ^
+23:   }
+
+Source: GraphQL request (13:7)
+12:     ...MarkdownUserNameRenderer_name
+13:       @module(name: "FooMarkdownUserNameRenderer.react")
+          ^
+14:   }
+
 `;
 
 exports[`compileRelayArtifacts matches expected output: match-on-child-of-plural.graphql 1`] = `
@@ -11564,21 +11553,20 @@ query TestQuery {
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-Error: Encountered 1 error(s):
-- Required argument 'capitalize: Boolean!' is missing on 'nameWithArgs' in 'TestQuery'.
-  
-  Source: GraphQL request (5:7)
-  4:     hometown {
-  5:       nameWithArgs
-           ^
-  6:     }
-  
-  Source: GraphQL request (2:1)
-  1: # expected-to-throw
-  2: query TestQuery {
-     ^
-  3:   node {
-  
+Required argument 'capitalize: Boolean!' is missing on 'nameWithArgs' in 'TestQuery'.
+
+Source: GraphQL request (5:7)
+4:     hometown {
+5:       nameWithArgs
+         ^
+6:     }
+
+Source: GraphQL request (2:1)
+1: # expected-to-throw
+2: query TestQuery {
+   ^
+3:   node {
+
 `;
 
 exports[`compileRelayArtifacts matches expected output: module-overlap-across-documents.graphql 1`] = `
@@ -12252,21 +12240,20 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-Error: Encountered 1 error(s):
-- Found conflicting @module selections: use a unique alias on the parent fields.
-  
-  Source: GraphQL request (25:7)
-  24:     ...MarkdownUserNameRenderer_name
-  25:       @module(name: "BarMarkdownUserNameRenderer.react")
-            ^
-  26:   }
-  
-  Source: GraphQL request (13:7)
-  12:     ...MarkdownUserNameRenderer_name
-  13:       @module(name: "FooMarkdownUserNameRenderer.react")
-            ^
-  14:     ...PlainUserNameRenderer_name
-  
+Found conflicting @module selections: use a unique alias on the parent fields.
+
+Source: GraphQL request (25:7)
+24:     ...MarkdownUserNameRenderer_name
+25:       @module(name: "BarMarkdownUserNameRenderer.react")
+          ^
+26:   }
+
+Source: GraphQL request (13:7)
+12:     ...MarkdownUserNameRenderer_name
+13:       @module(name: "FooMarkdownUserNameRenderer.react")
+          ^
+14:     ...PlainUserNameRenderer_name
+
 `;
 
 exports[`compileRelayArtifacts matches expected output: original-client-fields-test.graphql 1`] = `
@@ -14387,15 +14374,14 @@ fragment NameRendererFragment on User {
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-Error: Encountered 1 error(s):
-- Invalid @match selection: expected at least one @module selection. Remove @match or add a '...Fragment @module()' selection.
-  
-  Source: GraphQL request (10:16)
-   9:   id
-  10:   nameRenderer @match {
-                     ^
-  11:     __typename
-  
+Invalid @match selection: expected at least one @module selection. Remove @match or add a '...Fragment @module()' selection.
+
+Source: GraphQL request (10:16)
+ 9:   id
+10:   nameRenderer @match {
+                   ^
+11:     __typename
+
 `;
 
 exports[`compileRelayArtifacts matches expected output: query-with-match-directive-with-extra-argument.graphql 1`] = `
@@ -20287,21 +20273,20 @@ fragment User_user on User
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-Error: Encountered 1 error(s):
-- RelayMaskTransform: Cannot use @relay(mask: false) on fragment spread because the fragment definition uses @argumentDefinitions.
-  
-  Source: GraphQL request (5:5)
-  4:   me {
-  5:     ...User_user @relay(mask: false)
-         ^
-  6:   }
-  
-  Source: GraphQL request (10:24)
-   9: fragment User_user on User
-  10:   @argumentDefinitions(isRelative: {type: "Boolean!", defaultValue: false}) {
-                             ^
-  11:   url(relative: $isRelative)
-  
+RelayMaskTransform: Cannot use @relay(mask: false) on fragment spread because the fragment definition uses @argumentDefinitions.
+
+Source: GraphQL request (5:5)
+4:   me {
+5:     ...User_user @relay(mask: false)
+       ^
+6:   }
+
+Source: GraphQL request (10:24)
+ 9: fragment User_user on User
+10:   @argumentDefinitions(isRelative: {type: "Boolean!", defaultValue: false}) {
+                           ^
+11:   url(relative: $isRelative)
+
 `;
 
 exports[`compileRelayArtifacts matches expected output: unmasked-fragment-spreads-recursive.graphql 1`] = `
@@ -20713,21 +20698,20 @@ fragment ProfilePhoto on User {
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-Error: Encountered 1 error(s):
-- Variable @arguments values are only supported when the argument is defined with @argumentDefinitions. Check the definition of fragment 'ProfilePhoto'.
-  
-  GraphQL request (16:36)
-  15:   __typename
-  16:   ...ProfilePhoto @arguments(size: $size)
-                                         ^
-  17: }
-  
-  GraphQL request (19:1)
-  18: 
-  19: fragment ProfilePhoto on User {
-      ^
-  20:   profilePicture(size: [100]) {
-  
+Variable @arguments values are only supported when the argument is defined with @argumentDefinitions. Check the definition of fragment 'ProfilePhoto'.
+
+GraphQL request (16:36)
+15:   __typename
+16:   ...ProfilePhoto @arguments(size: $size)
+                                       ^
+17: }
+
+GraphQL request (19:1)
+18: 
+19: fragment ProfilePhoto on User {
+    ^
+20:   profilePicture(size: [100]) {
+
 `;
 
 exports[`compileRelayArtifacts matches expected output: unused-fragment-argdef-unchecked.graphql 1`] = `

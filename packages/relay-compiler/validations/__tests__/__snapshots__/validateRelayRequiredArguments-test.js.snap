@@ -104,21 +104,20 @@ query ViewerQuery {
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-Error: Encountered 1 error(s):
-- Required argument 'level: Int!' is missing on 'customDirective' in 'ViewerQuery'.
-  
-  Source: GraphQL request (5:10)
-  4:   node {
-  5:     body @customDirective {
-              ^
-  6:       text
-  
-  Source: GraphQL request (3:1)
-  2: 
-  3: query ViewerQuery {
-     ^
-  4:   node {
-  
+Required argument 'level: Int!' is missing on 'customDirective' in 'ViewerQuery'.
+
+Source: GraphQL request (5:10)
+4:   node {
+5:     body @customDirective {
+            ^
+6:       text
+
+Source: GraphQL request (3:1)
+2: 
+3: query ViewerQuery {
+   ^
+4:   node {
+
 `;
 
 exports[`validateRelayRequiredArguments-test matches expected output: missing-argument-on-field.invalid.graphql 1`] = `
@@ -135,21 +134,20 @@ query TestQuery {
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-Error: Encountered 1 error(s):
-- Required argument 'capitalize: Boolean!' is missing on 'nameWithArgs' in 'TestQuery'.
-  
-  Source: GraphQL request (5:7)
-  4:     hometown {
-  5:       nameWithArgs
-           ^
-  6:     }
-  
-  Source: GraphQL request (2:1)
-  1: # expected-to-throw
-  2: query TestQuery {
-     ^
-  3:   node {
-  
+Required argument 'capitalize: Boolean!' is missing on 'nameWithArgs' in 'TestQuery'.
+
+Source: GraphQL request (5:7)
+4:     hometown {
+5:       nameWithArgs
+         ^
+6:     }
+
+Source: GraphQL request (2:1)
+1: # expected-to-throw
+2: query TestQuery {
+   ^
+3:   node {
+
 `;
 
 exports[`validateRelayRequiredArguments-test matches expected output: missing-argument-on-linked-field.invalid.graphql 1`] = `
@@ -174,21 +172,20 @@ query ViewerQuery {
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-Error: Encountered 1 error(s):
-- Required argument 'supported: [String!]!' is missing on 'commentBody' in 'SomeComment'.
-  
-  Source: GraphQL request (3:3)
-  2: fragment SomeComment on Comment {
-  3:   commentBody {
-       ^
-  4:     ... on PlainCommentBody {
-  
-  Source: GraphQL request (2:1)
-  1: # expected-to-throw
-  2: fragment SomeComment on Comment {
+Required argument 'supported: [String!]!' is missing on 'commentBody' in 'SomeComment'.
+
+Source: GraphQL request (3:3)
+2: fragment SomeComment on Comment {
+3:   commentBody {
      ^
-  3:   commentBody {
-  
+4:     ... on PlainCommentBody {
+
+Source: GraphQL request (2:1)
+1: # expected-to-throw
+2: fragment SomeComment on Comment {
+   ^
+3:   commentBody {
+
 `;
 
 exports[`validateRelayRequiredArguments-test matches expected output: missing-argument-on-linked-field-in-inline-fragment.invalid.graphql 1`] = `
@@ -211,21 +208,20 @@ query ViewerQuery {
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-Error: Encountered 1 error(s):
-- Required argument 'supported: [String!]!' is missing on 'commentBody' in 'ViewerQuery'.
-  
-  Source: GraphQL request (5:7)
-  4:     ... on Comment {
-  5:       commentBody {
-           ^
-  6:         ... on PlainCommentBody {
-  
-  Source: GraphQL request (2:1)
-  1: # expected-to-throw
-  2: query ViewerQuery {
-     ^
-  3:   node {
-  
+Required argument 'supported: [String!]!' is missing on 'commentBody' in 'ViewerQuery'.
+
+Source: GraphQL request (5:7)
+4:     ... on Comment {
+5:       commentBody {
+         ^
+6:         ... on PlainCommentBody {
+
+Source: GraphQL request (2:1)
+1: # expected-to-throw
+2: query ViewerQuery {
+   ^
+3:   node {
+
 `;
 
 exports[`validateRelayRequiredArguments-test matches expected output: missing-argument-on-linked-field-on-abstract-type.graphql 1`] = `
@@ -283,13 +279,12 @@ query ViewerQuery {
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-Error: Encountered 1 error(s):
-- Unknown field 'commentBody' on type 'Node'.
-  
-  GraphQL request (4:5)
-  3:   node {
-  4:     commentBody {
-         ^
-  5:       ... on PlainCommentBody {
-  
+Unknown field 'commentBody' on type 'Node'.
+
+GraphQL request (4:5)
+3:   node {
+4:     commentBody {
+       ^
+5:       ... on PlainCommentBody {
+
 `;

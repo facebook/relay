@@ -183,15 +183,14 @@ fragment UserFragment on User {
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-Error: Encountered 1 error(s):
-- Expected a value matching type 'Environment!'. Possible values: WEB or MOBILE?'
-  
-  GraphQL request (3:26)
-  2: fragment UserFragment on User {
-  3:   checkins(environments: "WEB") {
-                              ^
-  4:     __typename
-  
+Expected a value matching type 'Environment!'. Possible values: WEB or MOBILE?'
+
+GraphQL request (3:26)
+2: fragment UserFragment on User {
+3:   checkins(environments: "WEB") {
+                            ^
+4:     __typename
+
 `;
 
 exports[`GraphQLIRPrinter matches expected output: string-enum-fragment-arg.graphql 1`] = `
@@ -231,15 +230,14 @@ fragment UserFragment on User
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-Error: Encountered 1 error(s):
-- Complex argument values (Lists or InputObjects with nested variables) are not supported.
-  
-  GraphQL request (6:27)
-  5:   ) {
-  6:   checkins(environments: [$environments]) {
-                               ^
-  7:     __typename
-  
+Complex argument values (Lists or InputObjects with nested variables) are not supported.
+
+GraphQL request (6:27)
+5:   ) {
+6:   checkins(environments: [$environments]) {
+                             ^
+7:     __typename
+
 `;
 
 exports[`GraphQLIRPrinter matches expected output: unknown-enum-arg.invalid.graphql 1`] = `
@@ -254,13 +252,12 @@ fragment UserFragment on User {
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-Error: Encountered 1 error(s):
-- Expected a value matching type 'Environment!'. Possible values: WEB or MOBILE?'
-  
-  GraphQL request (3:26)
-  2: fragment UserFragment on User {
-  3:   checkins(environments: UNKNOWN_ENUM_VALUE) {
-                              ^
-  4:     __typename
-  
+Expected a value matching type 'Environment!'. Possible values: WEB or MOBILE?'
+
+GraphQL request (3:26)
+2: fragment UserFragment on User {
+3:   checkins(environments: UNKNOWN_ENUM_VALUE) {
+                            ^
+4:     __typename
+
 `;

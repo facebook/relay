@@ -15,15 +15,14 @@ fragment NameRendererFragment on User {
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-Error: Encountered 1 error(s):
-- Direct use of the 'js' field is not allowed, use @match/@module instead.
-  
-  Source: GraphQL request (6:7)
-  5:     ... on PlainUserNameRenderer {
-  6:       js(module: "PlainUserNameRenderer.react")
-           ^
-  7:     }
-  
+Direct use of the 'js' field is not allowed, use @match/@module instead.
+
+Source: GraphQL request (6:7)
+5:     ... on PlainUserNameRenderer {
+6:       js(module: "PlainUserNameRenderer.react")
+         ^
+7:     }
+
 `;
 
 exports[`RelayMatchTransform matches expected output: invalid-match-type.graphql 1`] = `
@@ -51,15 +50,14 @@ fragment User_user on User {
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-Error: Encountered 1 error(s):
-- Fragment 'User_user' cannot be spread here as objects of type 'UserNameRenderer' can never be of type 'User'. Possible concrete types include 'PlainUserNameRenderer', 'MarkdownUserNameRenderer', 'CustomNameRenderer', etc.
-  
-  GraphQL request (6:5)
-  5:     ...PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
-  6:     ...User_user @module(name: "User.react")
-         ^
-  7:   }
-  
+Fragment 'User_user' cannot be spread here as objects of type 'UserNameRenderer' can never be of type 'User'. Possible concrete types include 'PlainUserNameRenderer', 'MarkdownUserNameRenderer', 'CustomNameRenderer', etc.
+
+GraphQL request (6:5)
+5:     ...PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
+6:     ...User_user @module(name: "User.react")
+       ^
+7:   }
+
 `;
 
 exports[`RelayMatchTransform matches expected output: invalid-no-matches.graphql 1`] = `
@@ -73,15 +71,14 @@ fragment NameRendererFragment on User {
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-Error: Encountered 1 error(s):
-- Expected at least one selection for non-scalar field 'nameRenderer' on type 'UserNameRenderer'.
-  
-  GraphQL request (4:3)
-  3:   id
-  4:   nameRenderer @match
-       ^
-  5: }
-  
+Expected at least one selection for non-scalar field 'nameRenderer' on type 'UserNameRenderer'.
+
+GraphQL request (4:3)
+3:   id
+4:   nameRenderer @match
+     ^
+5: }
+
 `;
 
 exports[`RelayMatchTransform matches expected output: invalid-non-empty-selections.graphql 1`] = `
@@ -116,15 +113,14 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-Error: Encountered 1 error(s):
-- Invalid @match selection: all selections should be fragment spreads with @module.
-  
-  Source: GraphQL request (5:5)
-  4:   nameRenderer @match {
-  5:     ... on PlainUserNameRenderer {
-         ^
-  6:       plaintext
-  
+Invalid @match selection: all selections should be fragment spreads with @module.
+
+Source: GraphQL request (5:5)
+4:   nameRenderer @match {
+5:     ... on PlainUserNameRenderer {
+       ^
+6:       plaintext
+
 `;
 
 exports[`RelayMatchTransform matches expected output: match-on-child-of-plural.graphql 1`] = `
@@ -220,15 +216,14 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-Error: Encountered 1 error(s):
-- @module does not support @arguments.
-  
-  Source: GraphQL request (8:18)
-  7:       @module(name: "MarkdownUserNameRenderer.react")
-  8:       @arguments(cond: true)
-                      ^
-  9:   }
-  
+@module does not support @arguments.
+
+Source: GraphQL request (8:18)
+7:       @module(name: "MarkdownUserNameRenderer.react")
+8:       @arguments(cond: true)
+                    ^
+9:   }
+
 `;
 
 exports[`RelayMatchTransform matches expected output: match-with-explicit-support-arg.invalid.graphql 1`] = `
@@ -262,15 +257,14 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-Error: Encountered 1 error(s):
-- Invalid @match selection: the 'supported' argument is automatically added and cannot be supplied explicitly.
-  
-  Source: GraphQL request (5:5)
-  4:   nameRenderer(
-  5:     supported: ["PlainUserNameRenderer", "MarkdownUserNameRenderer"]
-         ^
-  6:   ) @match {
-  
+Invalid @match selection: the 'supported' argument is automatically added and cannot be supplied explicitly.
+
+Source: GraphQL request (5:5)
+4:   nameRenderer(
+5:     supported: ["PlainUserNameRenderer", "MarkdownUserNameRenderer"]
+       ^
+6:   ) @match {
+
 `;
 
 exports[`RelayMatchTransform matches expected output: match-with-extra-args.graphql 1`] = `

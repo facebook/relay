@@ -96,9 +96,13 @@ describe('RelayParser', () => {
         viewer { actor { id } }
       }
     `;
-    expect(() =>
-      RelayParser.parse(schema, text),
-    ).toThrowErrorMatchingSnapshot();
+    expect(() => {
+      try {
+        RelayParser.parse(schema, text);
+      } catch (e) {
+        throw new Error(String(e));
+      }
+    }).toThrowErrorMatchingSnapshot();
   });
 
   it("should correctly parse fragment when input is a non-null type and it's passed to calls expecting both null and non-null types, regardless of order", () => {
@@ -151,14 +155,13 @@ describe('RelayParser', () => {
       title
     }
   }`;
-    let error;
-    try {
-      RelayParser.parse(schema, text);
-    } catch (error_) {
-      error = error_;
-    }
-    expect(error).not.toBe(null);
-    expect(error?.message).toMatchSnapshot();
+    expect(() => {
+      try {
+        RelayParser.parse(schema, text);
+      } catch (e) {
+        throw new Error(String(e));
+      }
+    }).toThrowErrorMatchingSnapshot();
   });
 
   generateTestsFromFixtures(`${__dirname}/fixtures/parser`, text => {

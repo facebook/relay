@@ -67,15 +67,14 @@ query QueryWithId($id: ID) @DEPRECATED__relay_ignore_unused_variables_error {
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-Error: Encountered 1 error(s):
-- Invalid usage of '@DEPRECATED__relay_ignore_unused_variables_error.'No unused variables found in the query 'QueryWithId'
-  
-  Source: GraphQL request (2:28)
-  1: # expected-to-throw
-  2: query QueryWithId($id: ID) @DEPRECATED__relay_ignore_unused_variables_error {
-                                ^
-  3:   node(id: $id) {
-  
+Invalid usage of '@DEPRECATED__relay_ignore_unused_variables_error.'No unused variables found in the query 'QueryWithId'
+
+Source: GraphQL request (2:28)
+1: # expected-to-throw
+2: query QueryWithId($id: ID) @DEPRECATED__relay_ignore_unused_variables_error {
+                              ^
+3:   node(id: $id) {
+
 `;
 
 exports[`matches expected output: query-with-unused-root-variable-shadowed-by-local.invalid.graphql 1`] = `
@@ -100,15 +99,14 @@ fragment User_data_with_args on User
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-Error: Encountered 1 error(s):
-- Variable '$foo' is never used in operation 'QueryWithId'.
-  
-  Source: GraphQL request (2:28)
-  1: # expected-to-throw
-  2: query QueryWithId($id: ID, $foo: Boolean!) {
-                                ^
-  3:   node(id: $id) {
-  
+Variable '$foo' is never used in operation 'QueryWithId'.
+
+Source: GraphQL request (2:28)
+1: # expected-to-throw
+2: query QueryWithId($id: ID, $foo: Boolean!) {
+                              ^
+3:   node(id: $id) {
+
 `;
 
 exports[`matches expected output: query-with-unused-variable.invalid.graphql 1`] = `
@@ -129,7 +127,7 @@ query QueryWithUnusedVariables($unused: ID, $antother_unused: String) {
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-Error: Encountered 2 error(s):
+Encountered 2 errors:
 - Variable '$unused' is never used in operation 'QueryWithUnusedVariable'.
   
   Source: GraphQL request (2:31)
@@ -223,7 +221,7 @@ query Q2($size: Int) {
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-Error: Encountered 2 error(s):
+Encountered 2 errors:
 - Complex argument values (Lists or InputObjects with nested variables) are not supported.
   
   GraphQL request (3:24)

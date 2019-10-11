@@ -33,7 +33,7 @@ fragment Page_fragemnt on Node {
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-Error: Encountered 2 error(s):
+Encountered 2 errors:
 - Relay does not allow aliasing fields to \`id\`. This name is reserved for the globally unique \`id\` field on \`Node\`.
   
   Source: GraphQL request (3:3)

@@ -355,15 +355,14 @@ fragment Profile on User
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-Error: Encountered 1 error(s):
-- Query 'TestQuery' references undefined variables.
-  
-  GraphQL request (10:61)
-   9:     ...Profile
-  10:       @arguments(pictureSize: $pictureSize, includeFriends: $includeFriends2)
-                                                                  ^
-  11:   }
-  
+Query 'TestQuery' references undefined variables.
+
+GraphQL request (10:61)
+ 9:     ...Profile
+10:       @arguments(pictureSize: $pictureSize, includeFriends: $includeFriends2)
+                                                                ^
+11:   }
+
 `;
 
 exports[`RelayApplyFragmentArgumentTransform matches expected output: uses-defaults-for-literal-null-arguments.graphql 1`] = `

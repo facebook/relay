@@ -163,21 +163,20 @@ fragment OtherDeferredFragment on User {
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-Error: Encountered 1 error(s):
-- Invalid use of @defer, the provided label is not unique. Specify a unique 'label' as a literal string.
-  
-  Source: GraphQL request (13:35)
-  12:   ...DeferredFragment @defer(label: "deferred")
-  13:   ...OtherDeferredFragment @defer(label: "deferred")
-                                        ^
-  14: }
-  
-  Source: GraphQL request (12:30)
-  11:   emailAddresses
-  12:   ...DeferredFragment @defer(label: "deferred")
-                                   ^
-  13:   ...OtherDeferredFragment @defer(label: "deferred")
-  
+Invalid use of @defer, the provided label is not unique. Specify a unique 'label' as a literal string.
+
+Source: GraphQL request (13:35)
+12:   ...DeferredFragment @defer(label: "deferred")
+13:   ...OtherDeferredFragment @defer(label: "deferred")
+                                      ^
+14: }
+
+Source: GraphQL request (12:30)
+11:   emailAddresses
+12:   ...DeferredFragment @defer(label: "deferred")
+                                 ^
+13:   ...OtherDeferredFragment @defer(label: "deferred")
+
 `;
 
 exports[`RelayDeferStreamTransform when streaming is enabled matches expected output: fragment-with-defer-if-arg.graphql 1`] = `
@@ -358,21 +357,20 @@ fragment FeedbackFragment on Feedback {
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-Error: Encountered 1 error(s):
-- Invalid use of @stream, the provided label is not unique. Specify a unique 'label' as a literal string.
-  
-  Source: GraphQL request (14:49)
-  13:   }
-  14:   otherActors: actors @stream(initial_count: 1, label: "actors") {
-                                                      ^
-  15:     # invalid: duplicate label
-  
-  Source: GraphQL request (11:36)
-  10:   id
-  11:   actors @stream(initial_count: 1, label: "actors") {
-                                         ^
-  12:     name
-  
+Invalid use of @stream, the provided label is not unique. Specify a unique 'label' as a literal string.
+
+Source: GraphQL request (14:49)
+13:   }
+14:   otherActors: actors @stream(initial_count: 1, label: "actors") {
+                                                    ^
+15:     # invalid: duplicate label
+
+Source: GraphQL request (11:36)
+10:   id
+11:   actors @stream(initial_count: 1, label: "actors") {
+                                       ^
+12:     name
+
 `;
 
 exports[`RelayDeferStreamTransform when streaming is enabled matches expected output: fragment-with-stream-if-arg.graphql 1`] = `
@@ -469,15 +467,14 @@ fragment FeedbackFragment on Feedback {
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-Error: Encountered 1 error(s):
-- Invalid use of @stream, the 'initial_count' argument is required.
-  
-  Source: GraphQL request (11:10)
-  10:   id
-  11:   actors @stream(label: "StreamedActorsLabel") {
-               ^
-  12:     # invalid: missing initial_count
-  
+Invalid use of @stream, the 'initial_count' argument is required.
+
+Source: GraphQL request (11:10)
+10:   id
+11:   actors @stream(label: "StreamedActorsLabel") {
+             ^
+12:     # invalid: missing initial_count
+
 `;
 
 exports[`RelayDeferStreamTransform when streaming is enabled matches expected output: fragment-with-stream-statically-disabled.graphql 1`] = `
@@ -535,15 +532,14 @@ fragment FeedbackFragment on Feedback {
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-Error: Encountered 1 error(s):
-- Expected the 'label' value to @stream to be a string literal if provided.
-  
-  Source: GraphQL request (11:43)
-  10:   id
-  11:   actors @stream(initial_count: 1, label: $label) {
-                                                ^
-  12:     name
-  
+Expected the 'label' value to @stream to be a string literal if provided.
+
+Source: GraphQL request (11:43)
+10:   id
+11:   actors @stream(initial_count: 1, label: $label) {
+                                              ^
+12:     name
+
 `;
 
 exports[`RelayDeferStreamTransform when streaming is enabled matches expected output: fragment-with-variable-label.invalid.graphql 1`] = `
@@ -570,15 +566,14 @@ fragment DeferredFragment on User {
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-Error: Encountered 1 error(s):
-- Expected the 'label' value to @defer to be a string literal if provided.
-  
-  Source: GraphQL request (12:37)
-  11:   emailAddresses
-  12:   ...DeferredFragment @defer(label: $label)
-                                          ^
-  13: }
-  
+Expected the 'label' value to @defer to be a string literal if provided.
+
+Source: GraphQL request (12:37)
+11:   emailAddresses
+12:   ...DeferredFragment @defer(label: $label)
+                                        ^
+13: }
+
 `;
 
 exports[`RelayDeferStreamTransform when streaming is enabled matches expected output: inline-fragment-with-defer.invalid.graphql 1`] = `
@@ -603,15 +598,14 @@ fragment UserFragment on User {
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-Error: Encountered 1 error(s):
-- Invalid use of @defer on an inline fragment, @defer is only supported on fragment spreads.
-  
-  Source: GraphQL request (12:3)
-  11:   emailAddresses
-  12:   ... on User @defer(label: "DeferredFragmentLabel") {
-        ^
-  13:     id
-  
+Invalid use of @defer on an inline fragment, @defer is only supported on fragment spreads.
+
+Source: GraphQL request (12:3)
+11:   emailAddresses
+12:   ... on User @defer(label: "DeferredFragmentLabel") {
+      ^
+13:     id
+
 `;
 
 exports[`RelayDeferStreamTransform when streaming is enabled matches expected output: query-with-defer.graphql 1`] = `

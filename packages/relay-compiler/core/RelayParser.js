@@ -1388,8 +1388,6 @@ function transformNonNullLiteral(
       schema.getListItemType(nullableType),
     );
     const literalList = [];
-    const items = [];
-    let areAllItemsScalar = true;
     ast.values.forEach(item => {
       const itemValue = transformValue(
         schema,
@@ -1407,22 +1405,12 @@ function transformNonNullLiteral(
           [item],
         );
       }
-      items.push(itemValue);
-      areAllItemsScalar = areAllItemsScalar && itemValue.kind === 'Literal';
     });
-    if (areAllItemsScalar) {
-      return {
-        kind: 'Literal',
-        loc: buildLocation(ast.loc),
-        value: literalList,
-      };
-    } else {
-      return {
-        kind: 'ListValue',
-        loc: buildLocation(ast.loc),
-        items,
-      };
-    }
+    return {
+      kind: 'Literal',
+      loc: buildLocation(ast.loc),
+      value: literalList,
+    };
   } else if (schema.isInputObject(nullableType)) {
     if (ast.kind !== 'ObjectValue') {
       throw createUserError(
@@ -1432,8 +1420,6 @@ function transformNonNullLiteral(
       );
     }
     const literalObject = {};
-    const fields = [];
-    let areAllFieldsScalar = true;
     const inputType = schema.assertInputObjectType(nullableType);
     ast.fields.forEach(field => {
       const fieldName = getName(field);
@@ -1465,27 +1451,12 @@ function transformNonNullLiteral(
           [field.value],
         );
       }
-      fields.push({
-        kind: 'ObjectFieldValue',
-        loc: buildLocation(field.loc),
-        name: fieldName,
-        value: fieldValue,
-      });
-      areAllFieldsScalar = areAllFieldsScalar && fieldValue.kind === 'Literal';
     });
-    if (areAllFieldsScalar) {
-      return {
-        kind: 'Literal',
-        loc: buildLocation(ast.loc),
-        value: literalObject,
-      };
-    } else {
-      return {
-        kind: 'ObjectValue',
-        loc: buildLocation(ast.loc),
-        fields,
-      };
-    }
+    return {
+      kind: 'Literal',
+      loc: buildLocation(ast.loc),
+      value: literalObject,
+    };
   } else if (schema.isId(nullableType)) {
     // GraphQLID's parseLiteral() always returns the string value. However
     // the int/string distinction may be important at runtime, so this

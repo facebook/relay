@@ -30,12 +30,9 @@ import type {
   InlineFragment,
   IR,
   LinkedField,
-  ListValue,
   Literal,
   LocalArgumentDefinition,
   ModuleImport,
-  ObjectFieldValue,
-  ObjectValue,
   Request,
   Root,
   RootArgumentDefinition,
@@ -58,12 +55,9 @@ type NodeVisitor<S> = {|
   FragmentSpread?: NodeVisitorFunction<FragmentSpread, S>,
   InlineFragment?: NodeVisitorFunction<InlineFragment, S>,
   LinkedField?: NodeVisitorFunction<LinkedField, S>,
-  ListValue?: NodeVisitorFunction<ListValue, S>,
   Literal?: NodeVisitorFunction<Literal, S>,
   LocalArgumentDefinition?: NodeVisitorFunction<LocalArgumentDefinition, S>,
   ModuleImport?: NodeVisitorFunction<ModuleImport, S>,
-  ObjectFieldValue?: NodeVisitorFunction<ObjectFieldValue, S>,
-  ObjectValue?: NodeVisitorFunction<ObjectValue, S>,
   Request?: NodeVisitorFunction<Request, S>,
   Root?: NodeVisitorFunction<Root, S>,
   InlineDataFragmentSpread?: NodeVisitorFunction<InlineDataFragmentSpread, S>,
@@ -274,15 +268,6 @@ class Transformer<S> {
         if (!nextNode.selections.length) {
           nextNode = null;
         }
-        break;
-      case 'ListValue':
-        nextNode = this._traverseChildren(prevNode, ['items']);
-        break;
-      case 'ObjectFieldValue':
-        nextNode = this._traverseChildren(prevNode, null, ['value']);
-        break;
-      case 'ObjectValue':
-        nextNode = this._traverseChildren(prevNode, ['fields']);
         break;
       case 'Condition':
         nextNode = this._traverseChildren(

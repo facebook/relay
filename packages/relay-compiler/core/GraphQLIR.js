@@ -53,7 +53,7 @@ export type ArgumentDefinition =
   | LocalArgumentDefinition
   | RootArgumentDefinition;
 
-export type ArgumentValue = ListValue | Literal | ObjectValue | Variable;
+export type ArgumentValue = Literal | Variable;
 
 export type Condition = {|
   +kind: 'Condition',
@@ -134,12 +134,9 @@ export type IR =
   | InlineDataFragmentSpread
   | InlineFragment
   | LinkedField
-  | ListValue
   | Literal
   | LocalArgumentDefinition
   | ModuleImport
-  | ObjectFieldValue
-  | ObjectValue
   | Request
   | Root
   | RootArgumentDefinition
@@ -221,12 +218,6 @@ export type ConnectionField = {|
   +type: LinkedFieldTypeID,
 |};
 
-export type ListValue = {|
-  +kind: 'ListValue',
-  +items: $ReadOnlyArray<ArgumentValue>,
-  +loc: Location,
-|};
-
 export type Literal = {|
   +kind: 'Literal',
   +loc: Location,
@@ -273,19 +264,6 @@ export type Node =
   | Root
   | SplitOperation
   | Stream;
-
-export type ObjectFieldValue = {|
-  +kind: 'ObjectFieldValue',
-  +loc: Location,
-  +name: string,
-  +value: ArgumentValue,
-|};
-
-export type ObjectValue = {|
-  +kind: 'ObjectValue',
-  +fields: $ReadOnlyArray<ObjectFieldValue>,
-  +loc: Location,
-|};
 
 export type Request = {|
   +kind: 'Request',

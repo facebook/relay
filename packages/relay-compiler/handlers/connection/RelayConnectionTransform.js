@@ -20,7 +20,6 @@ const {
   createCompilerError,
   createUserError,
 } = require('../../core/RelayCompilerError');
-const {AFTER, BEFORE, FIRST, KEY, LAST} = require('./RelayConnectionConstants');
 const {parse} = require('graphql');
 const {ConnectionInterface, RelayFeatureFlags} = require('relay-runtime');
 
@@ -61,6 +60,12 @@ type ConnectionArguments = {|
     label: string,
   |},
 |};
+
+const AFTER = 'after';
+const BEFORE = 'before';
+const FIRST = 'first';
+const KEY = 'key';
+const LAST = 'last';
 
 const CONNECTION = 'connection';
 const STREAM_CONNECTION = 'stream_connection';

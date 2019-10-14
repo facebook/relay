@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`ValidateRelayServerOnlyDirectives matches expected output: fragment-with-client-fileds-inside-valid-fragments.graphql 1`] = `
+exports[`ValidateServerOnlyDirectives matches expected output: fragment-with-client-fileds-inside-valid-fragments.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query QueryWithFragmentWithDefer {
   me {
@@ -34,7 +34,7 @@ interface ClientUser {
 PASSED
 `;
 
-exports[`ValidateRelayServerOnlyDirectives matches expected output: fragment-with-defer-on-client.invalid.graphql 1`] = `
+exports[`ValidateServerOnlyDirectives matches expected output: fragment-with-defer-on-client.invalid.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 # expected-to-throw
 query QueryWithFragmentWithDefer {
@@ -84,7 +84,7 @@ Source: GraphQL request (16:3)
 
 `;
 
-exports[`ValidateRelayServerOnlyDirectives matches expected output: fragment-with-defer-on-fragment-with-only-client-fields.invalid.graphql 1`] = `
+exports[`ValidateServerOnlyDirectives matches expected output: fragment-with-defer-on-fragment-with-only-client-fields.invalid.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 # expected-to-throw
 query QueryWithFragmentWithDefer {
@@ -121,7 +121,7 @@ Source: GraphQL request (10:3)
 
 `;
 
-exports[`ValidateRelayServerOnlyDirectives matches expected output: fragment-with-stream-child-of-client.invalid.graphql 1`] = `
+exports[`ValidateServerOnlyDirectives matches expected output: fragment-with-stream-child-of-client.invalid.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 # expected-to-throw
 query QueryWithFragmentWithStream($id: ID!) {
@@ -174,7 +174,7 @@ Source: GraphQL request (11:3)
 
 `;
 
-exports[`ValidateRelayServerOnlyDirectives matches expected output: fragment-with-stream-on-client.invalid.graphql 1`] = `
+exports[`ValidateServerOnlyDirectives matches expected output: fragment-with-stream-on-client.invalid.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 # expected-to-throw
 query QueryWithFragmentWithStream($id: ID!) {
@@ -218,7 +218,7 @@ Source: GraphQL request (11:3)
 
 `;
 
-exports[`ValidateRelayServerOnlyDirectives matches expected output: match.graphql 1`] = `
+exports[`ValidateServerOnlyDirectives matches expected output: match.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 fragment ActorsRendererFragment on Node {
   id
@@ -265,7 +265,7 @@ extend type MarkdownUserNameRenderer {
 PASSED
 `;
 
-exports[`ValidateRelayServerOnlyDirectives matches expected output: module-on-child-of-client.graphql 1`] = `
+exports[`ValidateServerOnlyDirectives matches expected output: module-on-child-of-client.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 fragment NameRendererFragment on User {
   id
@@ -319,7 +319,7 @@ query Test {
 PASSED
 `;
 
-exports[`ValidateRelayServerOnlyDirectives matches expected output: module-on-child-of-client-in-fragment.graphql 1`] = `
+exports[`ValidateServerOnlyDirectives matches expected output: module-on-child-of-client-in-fragment.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 extend type User {
   foo: Foo
@@ -376,7 +376,7 @@ query TestQuery {
 PASSED
 `;
 
-exports[`ValidateRelayServerOnlyDirectives matches expected output: stream-connection-on-client.invalid.graphql 1`] = `
+exports[`ValidateServerOnlyDirectives matches expected output: stream-connection-on-client.invalid.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 # expected-to-throw
 query NodeQuery($id: ID!) {

@@ -15,7 +15,7 @@ const GraphQLCompilerContext = require('../../core/GraphQLCompilerContext');
 const RelayIRTransforms = require('../../core/RelayIRTransforms');
 const Schema = require('../../core/Schema');
 
-const validateRelayRequiredArguments = require('../validateRelayRequiredArguments');
+const validateRelayServerOnlyDirectives = require('../ValidateServerOnlyDirectivesTransform');
 
 const {transformASTSchema} = require('../../core/ASTConvert');
 const {
@@ -23,26 +23,29 @@ const {
   generateTestsFromFixtures,
   parseGraphQLText,
 } = require('relay-test-utils-internal');
-describe('validateRelayRequiredArguments-test', () => {
+describe('ValidateServerOnlyDirectives', () => {
   const relaySchema = transformASTSchema(
     TestSchema,
     RelayIRTransforms.schemaExtensions,
   );
 
   generateTestsFromFixtures(
-    `${__dirname}/fixtures/required-arguments`,
+    `${__dirname}/fixtures/server-only-directives`,
     text => {
-      const {definitions} = parseGraphQLText(relaySchema, text);
+      const {definitions, schema} = parseGraphQLText(relaySchema, text);
       const codegenContext = new GraphQLCompilerContext(
-        Schema.DEPRECATED__create(TestSchema, relaySchema),
+        Schema.DEPRECATED__create(TestSchema, schema),
       )
         .addAll(definitions)
         .applyTransforms([
           ...RelayIRTransforms.commonTransforms,
           ...RelayIRTransforms.queryTransforms,
-          ...RelayIRTransforms.printTransforms,
+          ...RelayIRTransforms.codegenTransforms,
         ]);
-      validateRelayRequiredArguments(codegenContext);
+      // This should be an identity transform, just throw on errors.
+      expect(validateRelayServerOnlyDirectives.transform(codegenContext)).toBe(
+        codegenContext,
+      );
       return 'PASSED';
     },
   );

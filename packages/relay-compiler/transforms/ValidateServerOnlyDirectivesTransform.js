@@ -35,9 +35,9 @@ const NODEKIND_DIRECTIVE_MAP = {
 /*
  * Validate that server-only directives are not used inside client fields
  */
-function validateRelayServerOnlyDirectives(
+function validateServerOnlyDirectives(
   context: GraphQLCompilerContext,
-): void {
+): GraphQLCompilerContext {
   GraphQLIRValidator.validate(
     context,
     {
@@ -51,6 +51,7 @@ function validateRelayServerOnlyDirectives(
       rootClientSelection: null,
     }),
   );
+  return context;
 }
 
 // If an empty visitor is defined, we no longer automatically visit child nodes
@@ -106,4 +107,6 @@ function throwError(directiveName, directiveLoc, clientExtensionLoc) {
   );
 }
 
-module.exports = validateRelayServerOnlyDirectives;
+module.exports = {
+  transform: validateServerOnlyDirectives,
+};

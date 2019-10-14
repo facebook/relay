@@ -15,7 +15,6 @@ const ASTConvert = require('../../core/ASTConvert');
 const CodeMarker = require('../../util/CodeMarker');
 const CompilerContext = require('../../core/GraphQLCompilerContext');
 const RelayIRTransforms = require('../../core/RelayIRTransforms');
-const RelayIRValidations = require('../../core/RelayIRValidations');
 const Schema = require('../../core/Schema');
 
 const compileRelayArtifacts = require('../compileRelayArtifacts');
@@ -47,12 +46,7 @@ describe('compileRelayArtifacts', () => {
       const compilerContext = new CompilerContext(
         Schema.DEPRECATED__create(TestSchema, schema),
       ).addAll(definitions);
-      return compileRelayArtifacts(
-        compilerContext,
-        RelayIRTransforms,
-        undefined,
-        RelayIRValidations,
-      )
+      return compileRelayArtifacts(compilerContext, RelayIRTransforms)
         .map(([_definition, node]) => {
           if (node.kind === 'Request') {
             const {

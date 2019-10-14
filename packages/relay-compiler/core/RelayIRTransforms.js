@@ -36,6 +36,8 @@ const SkipUnusedVariablesTransform = require('../transforms/SkipUnusedVariablesT
 const SplitModuleImportTransform = require('../transforms/SplitModuleImportTransform');
 const TestOperationTransform = require('../transforms/TestOperationTransform');
 const ValidateGlobalVariablesTransform = require('../transforms/ValidateGlobalVariablesTransform');
+const ValidateRequiredArgumentsTransform = require('../transforms/ValidateRequiredArgumentsTransform');
+const ValidateServerOnlyDirectivesTransform = require('../transforms/ValidateServerOnlyDirectivesTransform');
 const ValidateUnusedVariablesTransform = require('../transforms/ValidateUnusedVariablesTransform');
 
 import type {IRTransform} from './GraphQLCompilerContext';
@@ -97,6 +99,7 @@ const relayCodegenTransforms: $ReadOnlyArray<IRTransform> = [
   FlattenTransform.transformWithOptions({flattenAbstractTypes: true}),
   SkipRedundantNodesTransform.transform,
   GenerateTypeNameTransform.transform,
+  ValidateServerOnlyDirectivesTransform.transform,
 ];
 
 // Transforms applied before printing the query sent to the server.
@@ -111,6 +114,7 @@ const relayPrintTransforms: $ReadOnlyArray<IRTransform> = [
   SkipHandleFieldTransform.transform,
   FilterDirectivesTransform.transform,
   SkipUnusedVariablesTransform.transform,
+  ValidateRequiredArgumentsTransform.transform,
 ];
 
 module.exports = {

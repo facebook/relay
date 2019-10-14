@@ -34,7 +34,9 @@ type State = {|
 /*
  * Validate required arguments are provided after transforms filling in arguments
  */
-function validateRelayRequiredArguments(context: GraphQLCompilerContext): void {
+function validateRequiredArguments(
+  context: GraphQLCompilerContext,
+): GraphQLCompilerContext {
   GraphQLIRValidator.validate(
     context,
     {
@@ -47,6 +49,7 @@ function validateRelayRequiredArguments(context: GraphQLCompilerContext): void {
     },
     node => ({rootNode: node, parentType: node.type}),
   );
+  return context;
 }
 
 function visitDirective(node: Directive, {rootNode}: State): void {
@@ -55,7 +58,7 @@ function visitDirective(node: Directive, {rootNode}: State): void {
   if (directiveDef == null) {
     return;
   }
-  validateRequiredArguments(
+  validateRequiredArgumentsOnNode(
     context.getSchema(),
     node,
     directiveDef.args,
@@ -80,14 +83,13 @@ function visitField(node: Field, {parentType, rootNode}: State): void {
     );
     if (!isLegacyFatInterface) {
       throw createUserError(
-        `validateRelayRequiredArguments: Unknown field '${
-          node.name
-        }' on type '${schema.getTypeString(parentType)}'.`,
+        `Unknown field '${node.name}' on type ` +
+          `'${schema.getTypeString(parentType)}'.`,
         [node.loc],
       );
     }
   } else {
-    validateRequiredArguments(
+    validateRequiredArgumentsOnNode(
       schema,
       node,
       schema.getFieldConfig(definition).args,
@@ -100,7 +102,7 @@ function visitField(node: Field, {parentType, rootNode}: State): void {
   });
 }
 
-function validateRequiredArguments(
+function validateRequiredArgumentsOnNode(
   schema: Schema,
   node: Connection | Directive | Field,
   definitionArgs: $ReadOnlyArray<FieldArgument>,
@@ -110,13 +112,14 @@ function validateRequiredArguments(
   for (const arg of definitionArgs) {
     if (schema.isNonNull(arg.type) && !nodeArgsSet.has(arg.name)) {
       throw createUserError(
-        `Required argument '${arg.name}: ${schema.getTypeString(
-          arg.type,
-        )}' is missing on '${node.name}' in '${rootNode.name}'.`,
+        `Required argument '${arg.name}: ${schema.getTypeString(arg.type)}' ` +
+          `is missing on '${node.name}' in '${rootNode.name}'.`,
         [node.loc, rootNode.loc],
       );
     }
   }
 }
 
-module.exports = validateRelayRequiredArguments;
+module.exports = {
+  transform: validateRequiredArguments,
+};

@@ -23,7 +23,6 @@ import type {Fragment, Location, Root, SplitOperation} from './GraphQLIR';
 import type {Schema} from './Schema';
 
 export type IRTransform = GraphQLCompilerContext => GraphQLCompilerContext;
-export type IRValidation = GraphQLCompilerContext => void;
 
 export type CompilerContextDocument = Fragment | Root | SplitOperation;
 
@@ -126,21 +125,6 @@ class GraphQLCompilerContext {
       this._withTransform.set(transform, transformed);
     }
     return transformed;
-  }
-
-  applyValidations(
-    validations: $ReadOnlyArray<IRValidation>,
-    reporter?: Reporter,
-  ): void {
-    Profiler.run('applyValidaitons', () => {
-      for (const validate of validations) {
-        const start = process.hrtime();
-        Profiler.instrument(validate)(this);
-        const delta = process.hrtime(start);
-        const deltaMs = Math.round((delta[0] * 1e9 + delta[1]) / 1e6);
-        reporter && reporter.reportTime(validate.name, deltaMs);
-      }
-    });
   }
 
   get(name: string): ?CompilerContextDocument {

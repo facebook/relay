@@ -10,20 +10,20 @@
 
 'use strict';
 
-const IRTransformer = require('../../core/GraphQLIRTransformer');
-const RelayParser = require('../../core/RelayParser');
-const SchemaUtils = require('../../core/SchemaUtils');
+const IRTransformer = require('../core/GraphQLIRTransformer');
+const RelayParser = require('../core/RelayParser');
+const SchemaUtils = require('../core/SchemaUtils');
 
-const getLiteralArgumentValues = require('../../core/getLiteralArgumentValues');
+const getLiteralArgumentValues = require('../core/getLiteralArgumentValues');
 
 const {
   createCompilerError,
   createUserError,
-} = require('../../core/RelayCompilerError');
+} = require('../core/RelayCompilerError');
 const {parse} = require('graphql');
 const {ConnectionInterface, RelayFeatureFlags} = require('relay-runtime');
 
-import type CompilerContext from '../../core/GraphQLCompilerContext';
+import type CompilerContext from '../core/GraphQLCompilerContext';
 import type {
   Argument,
   ConnectionField,
@@ -37,8 +37,8 @@ import type {
   Variable,
   Location,
   Defer,
-} from '../../core/GraphQLIR';
-import type {Schema, CompositeTypeID} from '../../core/Schema';
+} from '../core/GraphQLIR';
+import type {Schema, CompositeTypeID} from '../core/Schema';
 import type {ConnectionMetadata} from 'relay-runtime';
 
 type Options = {
@@ -81,7 +81,7 @@ const HANDLER = 'handler';
  * - Inserts a sub-fragment on the field to ensure that standard connection
  *   fields are fetched (e.g. cursors, node ids, page info).
  */
-function relayConnectionTransform(context: CompilerContext): CompilerContext {
+function connectionTransform(context: CompilerContext): CompilerContext {
   return IRTransformer.transform(
     context,
     {
@@ -429,7 +429,7 @@ function transformConnectionSelections(
       if (selection.name === EDGES) {
         if (edgesSelection != null) {
           throw createCompilerError(
-            `RelayConnectionTransform: Unexpected duplicate field '${EDGES}'.`,
+            `ConnectionTransform: Unexpected duplicate field '${EDGES}'.`,
             [edgesSelection.loc, selection.loc],
           );
         }
@@ -438,7 +438,7 @@ function transformConnectionSelections(
       } else if (selection.name === PAGE_INFO) {
         if (pageInfoSelection != null) {
           throw createCompilerError(
-            `RelayConnectionTransform: Unexpected duplicate field '${PAGE_INFO}'.`,
+            `ConnectionTransform: Unexpected duplicate field '${PAGE_INFO}'.`,
             [pageInfoSelection.loc, selection.loc],
           );
         }
@@ -581,7 +581,7 @@ function transformConnectionSelections(
   ])[0];
   if (transformedPageInfoSelection.kind !== 'LinkedField') {
     throw createCompilerError(
-      'RelayConnectionTransform: Expected generated pageInfo selection to be ' +
+      'ConnectionTransform: Expected generated pageInfo selection to be ' +
         'a LinkedField',
       [field.loc],
     );
@@ -860,5 +860,5 @@ module.exports = {
   buildConnectionMetadata,
   CONNECTION,
   SCHEMA_EXTENSION,
-  transform: relayConnectionTransform,
+  transform: connectionTransform,
 };

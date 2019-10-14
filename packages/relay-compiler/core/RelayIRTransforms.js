@@ -13,6 +13,7 @@
 const ApplyFragmentArgumentTransform = require('../transforms/ApplyFragmentArgumentTransform');
 const ClientExtensionsTransform = require('../transforms/ClientExtensionsTransform');
 const ConnectionFieldTransform = require('../transforms/ConnectionFieldTransform');
+const ConnectionTransform = require('../transforms/ConnectionTransform');
 const DeferStreamTransform = require('../transforms/DeferStreamTransform');
 const DisallowIdAsAlias = require('../transforms/DisallowIdAsAlias');
 const FieldHandleTransform = require('../transforms/FieldHandleTransform');
@@ -25,7 +26,6 @@ const InlineFragmentsTransform = require('../transforms/InlineFragmentsTransform
 const MaskTransform = require('../transforms/MaskTransform');
 const MatchTransform = require('../transforms/MatchTransform');
 const RefetchableFragmentTransform = require('../transforms/RefetchableFragmentTransform');
-const RelayConnectionTransform = require('../handlers/connection//RelayConnectionTransform');
 const RelayDirectiveTransform = require('../transforms/RelayDirectiveTransform');
 const RelayFlowGenerator = require('../language/javascript/RelayFlowGenerator');
 const SkipClientExtensionsTransform = require('../transforms/SkipClientExtensionsTransform');
@@ -44,7 +44,7 @@ import type {IRTransform} from './GraphQLCompilerContext';
 
 // Transforms applied to the code used to process a query response.
 const relaySchemaExtensions: $ReadOnlyArray<string> = [
-  RelayConnectionTransform.SCHEMA_EXTENSION,
+  ConnectionTransform.SCHEMA_EXTENSION,
   MatchTransform.SCHEMA_EXTENSION,
   ConnectionFieldTransform.SCHEMA_EXTENSION,
   RelayDirectiveTransform.SCHEMA_EXTENSION,
@@ -59,7 +59,7 @@ const relaySchemaExtensions: $ReadOnlyArray<string> = [
 // writing from the store.
 const relayCommonTransforms: $ReadOnlyArray<IRTransform> = [
   DisallowIdAsAlias.transform,
-  RelayConnectionTransform.transform,
+  ConnectionTransform.transform,
   RelayDirectiveTransform.transform,
   MaskTransform.transform,
   MatchTransform.transform,

@@ -11,22 +11,23 @@
 
 'use strict';
 
-const GraphQLCompilerContext = require('../../../core/GraphQLCompilerContext');
-const GraphQLIRPrinter = require('../../../core/GraphQLIRPrinter');
-const RelayConnectionTransform = require('../RelayConnectionTransform');
-const Schema = require('../../../core/Schema');
+const ConnectionTransform = require('../ConnectionTransform');
+const GraphQLCompilerContext = require('../../core/GraphQLCompilerContext');
+const GraphQLIRPrinter = require('../../core/GraphQLIRPrinter');
+const Schema = require('../../core/Schema');
 
-const {transformASTSchema} = require('../../../core/ASTConvert');
+const {transformASTSchema} = require('../../core/ASTConvert');
 const {
   TestSchema,
   generateTestsFromFixtures,
   parseGraphQLText,
 } = require('relay-test-utils-internal');
 
-describe('RelayConnectionTransform', () => {
-  generateTestsFromFixtures(`${__dirname}/fixtures`, text => {
+generateTestsFromFixtures(
+  `${__dirname}/fixtures/connection-transform`,
+  text => {
     const extendedSchema = transformASTSchema(TestSchema, [
-      RelayConnectionTransform.SCHEMA_EXTENSION,
+      ConnectionTransform.SCHEMA_EXTENSION,
     ]);
     const {definitions} = parseGraphQLText(extendedSchema, text);
     const compilerSchema = Schema.DEPRECATED__create(
@@ -35,7 +36,7 @@ describe('RelayConnectionTransform', () => {
     );
     return new GraphQLCompilerContext(compilerSchema)
       .addAll(definitions)
-      .applyTransforms([RelayConnectionTransform.transform])
+      .applyTransforms([ConnectionTransform.transform])
       .documents()
       .map(
         doc =>
@@ -44,5 +45,5 @@ describe('RelayConnectionTransform', () => {
           JSON.stringify(doc.metadata ?? null, null, 2),
       )
       .join('\n');
-  });
-});
+  },
+);

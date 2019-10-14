@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`RelayConnectionTransform matches expected output: connection.graphql 1`] = `
+exports[`matches expected output: connection.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query NodeQuery($id: ID!) {
   node(id: $id) {
@@ -98,7 +98,7 @@ query NodeQuery(
 }
 `;
 
-exports[`RelayConnectionTransform matches expected output: connection-directions.graphql 1`] = `
+exports[`matches expected output: connection-directions.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query NodeQuery($id: ID!, $last: Int, $first: Int) {
   node(id: $id) {
@@ -237,7 +237,7 @@ query NodeQuery(
 }
 `;
 
-exports[`RelayConnectionTransform matches expected output: connection-empty-filters.graphql 1`] = `
+exports[`matches expected output: connection-empty-filters.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query NodeQuery($id: ID!, $orderBy: String) {
   node(id: $id) {
@@ -305,7 +305,7 @@ query NodeQuery(
 }
 `;
 
-exports[`RelayConnectionTransform matches expected output: connection-filters.graphql 1`] = `
+exports[`matches expected output: connection-filters.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query NodeQuery($id: ID!, $orderBy: String) {
   node(id: $id) {
@@ -405,7 +405,7 @@ query NodeQuery(
 }
 `;
 
-exports[`RelayConnectionTransform matches expected output: connection-generate-filters.graphql 1`] = `
+exports[`matches expected output: connection-generate-filters.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query NodeQuery($id: ID!, $orderBy: String, $traits: [PersonalityTraits]) {
   node(id: $id) {
@@ -507,7 +507,7 @@ query NodeQuery(
 }
 `;
 
-exports[`RelayConnectionTransform matches expected output: connection-missing-first-arg.invalid.graphql 1`] = `
+exports[`matches expected output: connection-missing-first-arg.invalid.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 # expected-to-throw
 query NodeQuery($id: ID!) {
@@ -540,7 +540,7 @@ Source: GraphQL request (6:7)
 
 `;
 
-exports[`RelayConnectionTransform matches expected output: connection-with-aliased-edges-pageInfo.graphql 1`] = `
+exports[`matches expected output: connection-with-aliased-edges-pageInfo.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query NodeQuery($id: ID!) {
   node(id: $id) {
@@ -614,7 +614,7 @@ query NodeQuery(
 }
 `;
 
-exports[`RelayConnectionTransform matches expected output: connection-with-custom-handler.graphql 1`] = `
+exports[`matches expected output: connection-with-custom-handler.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query NodeQuery($id: ID!) {
   node(id: $id) {
@@ -717,7 +717,7 @@ query NodeQuery(
 }
 `;
 
-exports[`RelayConnectionTransform matches expected output: connection-with-page-info.graphql 1`] = `
+exports[`matches expected output: connection-with-page-info.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 fragment Example on User {
   friends(first: $friendsFirst, after: $friendsAfter)
@@ -775,7 +775,7 @@ fragment Example on User {
 }
 `;
 
-exports[`RelayConnectionTransform matches expected output: connection-with-variables.graphql 1`] = `
+exports[`matches expected output: connection-with-variables.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 fragment Example on User {
   friends(first: $friendsFirst, after: $friendsAfter)
@@ -829,7 +829,7 @@ fragment Example on User {
 }
 `;
 
-exports[`RelayConnectionTransform matches expected output: invalid-connection-key-name.graphql 1`] = `
+exports[`matches expected output: invalid-connection-key-name.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 # expected-to-throw
 query NodeQuery($id: ID!) {
@@ -860,7 +860,7 @@ Source: GraphQL request (6:44)
 
 `;
 
-exports[`RelayConnectionTransform matches expected output: invalid-connection-key-type.graphql 1`] = `
+exports[`matches expected output: invalid-connection-key-type.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 # expected-to-throw
 query NodeQuery($id: ID!) {
@@ -891,7 +891,7 @@ GraphQL request (6:44)
 
 `;
 
-exports[`RelayConnectionTransform matches expected output: invalid-connection-with-custom-handler.graphql 1`] = `
+exports[`matches expected output: invalid-connection-with-custom-handler.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 # expected-to-throw
 query NodeQuery($id: ID!) {
@@ -932,7 +932,7 @@ GraphQL request (6:75)
 
 `;
 
-exports[`RelayConnectionTransform matches expected output: invalid-type.graphql 1`] = `
+exports[`matches expected output: invalid-type.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 # expected-to-throw
 query NodeQuery($id: ID!) {
@@ -959,7 +959,7 @@ Source: GraphQL request (6:7)
 
 `;
 
-exports[`RelayConnectionTransform matches expected output: stream-connection.graphql 1`] = `
+exports[`matches expected output: stream-connection.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query NodeQuery($id: ID!) {
   node(id: $id) {
@@ -1039,7 +1039,7 @@ query NodeQuery(
 }
 `;
 
-exports[`RelayConnectionTransform matches expected output: stream-connection-no-label.graphql 1`] = `
+exports[`matches expected output: stream-connection-no-label.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query NodeQuery($id: ID!) {
   node(id: $id) {
@@ -1115,7 +1115,7 @@ query NodeQuery(
 }
 `;
 
-exports[`RelayConnectionTransform matches expected output: stream-connection-with-aliased-edges.invalid.graphql 1`] = `
+exports[`matches expected output: stream-connection-with-aliased-edges.invalid.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 # expected-to-throw
 query NodeQuery($id: ID!) {
@@ -1156,7 +1156,7 @@ Source: GraphQL request (12:9)
 
 `;
 
-exports[`RelayConnectionTransform matches expected output: stream-connection-with-aliased-pageInfo.invalid.graphql 1`] = `
+exports[`matches expected output: stream-connection-with-aliased-pageInfo.invalid.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 # expected-to-throw
 query NodeQuery($id: ID!) {

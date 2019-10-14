@@ -13,9 +13,7 @@
 const IRTransformer = require('../core/GraphQLIRTransformer');
 
 const {createUserError} = require('../core/RelayCompilerError');
-const {
-  buildConnectionMetadata,
-} = require('../handlers/connection/RelayConnectionTransform');
+const {buildConnectionMetadata} = require('./ConnectionTransform');
 const {ConnectionInterface} = require('relay-runtime');
 
 import type CompilerContext from '../core/GraphQLCompilerContext';

@@ -11,10 +11,10 @@
 
 'use strict';
 
+const ConnectionTransform = require('../ConnectionTransform');
 const DeferStreamTransform = require('../DeferStreamTransform');
 const GraphQLCompilerContext = require('../../core/GraphQLCompilerContext');
 const GraphQLIRPrinter = require('../../core/GraphQLIRPrinter');
-const RelayConnectionTransform = require('../../handlers/connection//RelayConnectionTransform');
 const Schema = require('../../core/Schema');
 
 const {transformASTSchema} = require('../../core/ASTConvert');
@@ -26,7 +26,7 @@ const {
 
 describe('DeferStreamTransform', () => {
   const extendedSchema = transformASTSchema(TestSchema, [
-    RelayConnectionTransform.SCHEMA_EXTENSION,
+    ConnectionTransform.SCHEMA_EXTENSION,
   ]);
 
   describe('when streaming is enabled', () => {
@@ -41,7 +41,7 @@ describe('DeferStreamTransform', () => {
         return new GraphQLCompilerContext(compilerSchema)
           .addAll(definitions)
           .applyTransforms([
-            RelayConnectionTransform.transform,
+            ConnectionTransform.transform,
             DeferStreamTransform.transform,
           ])
           .documents()

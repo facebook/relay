@@ -11,10 +11,10 @@
 
 'use strict';
 
+const ConnectionTransform = require('../ConnectionTransform');
 const GraphQLCompilerContext = require('../../core/GraphQLCompilerContext');
 const GraphQLIRPrinter = require('../../core/GraphQLIRPrinter');
 const RefetchableFragmentTransform = require('../RefetchableFragmentTransform');
-const RelayConnectionTransform = require('../../handlers/connection/RelayConnectionTransform');
 const RelayDirectiveTransform = require('../RelayDirectiveTransform');
 const Schema = require('../../core/Schema');
 
@@ -27,7 +27,7 @@ const {
 
 describe('RefetchableFragmentTransform', () => {
   const extendedSchema = transformASTSchema(TestSchema, [
-    RelayConnectionTransform.SCHEMA_EXTENSION,
+    ConnectionTransform.SCHEMA_EXTENSION,
     RefetchableFragmentTransform.SCHEMA_EXTENSION,
   ]);
 
@@ -44,7 +44,7 @@ describe('RefetchableFragmentTransform', () => {
         .applyTransforms([
           // Requires Relay directive transform first.
           RelayDirectiveTransform.transform,
-          RelayConnectionTransform.transform,
+          ConnectionTransform.transform,
           RefetchableFragmentTransform.transform,
         ])
         .documents()

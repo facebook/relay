@@ -19,9 +19,7 @@ import type {Field} from '../core/GraphQLIR';
  * A transform that removes field `handles`. Intended for use when e.g.
  * printing queries to send to a GraphQL server.
  */
-function relaySkipHandleFieldTransform(
-  context: CompilerContext,
-): CompilerContext {
+function skipHandleFieldTransform(context: CompilerContext): CompilerContext {
   return IRTransformer.transform(context, {
     LinkedField: visitField,
     ScalarField: visitField,
@@ -40,5 +38,5 @@ function visitField<F: Field>(field: F): ?F {
 }
 
 module.exports = {
-  transform: relaySkipHandleFieldTransform,
+  transform: skipHandleFieldTransform,
 };

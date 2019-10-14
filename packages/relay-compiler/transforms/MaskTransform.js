@@ -35,7 +35,7 @@ type State = {
  * A transform that inlines fragment spreads with the @relay(mask: false)
  * directive.
  */
-function relayMaskTransform(context: CompilerContext): CompilerContext {
+function maskTransform(context: CompilerContext): CompilerContext {
   return IRTransformer.transform(
     context,
     {
@@ -124,5 +124,5 @@ function isUnmaskedSpread(spread: FragmentSpread): boolean {
 }
 
 module.exports = {
-  transform: relayMaskTransform,
+  transform: maskTransform,
 };

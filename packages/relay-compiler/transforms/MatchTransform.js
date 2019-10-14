@@ -52,7 +52,7 @@ type State = {|
  * This transform rewrites LinkedField nodes with @match and rewrites them
  * into `LinkedField` nodes with a `supported` argument.
  */
-function relayMatchTransform(context: CompilerContext): CompilerContext {
+function matchTransform(context: CompilerContext): CompilerContext {
   return IRTransformer.transform(
     context,
     {
@@ -484,5 +484,5 @@ function visitFragmentSpread(
 
 module.exports = {
   SCHEMA_EXTENSION,
-  transform: relayMatchTransform,
+  transform: matchTransform,
 };

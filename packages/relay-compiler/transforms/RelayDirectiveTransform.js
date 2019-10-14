@@ -33,9 +33,7 @@ directive @relay(
  * A transform that extracts `@relay(plural: Boolean)` directives and converts
  * them to metadata that can be accessed at runtime.
  */
-function relayRelayDirectiveTransform(
-  context: CompilerContext,
-): CompilerContext {
+function relayDirectiveTransform(context: CompilerContext): CompilerContext {
   return IRTransformer.transform(context, {
     Fragment: visitRelayMetadata(fragmentMetadata),
     FragmentSpread: visitRelayMetadata(fragmentSpreadMetadata),
@@ -92,5 +90,5 @@ function fragmentSpreadMetadata({mask}): MixedObj {
 module.exports = {
   RELAY,
   SCHEMA_EXTENSION,
-  transform: relayRelayDirectiveTransform,
+  transform: relayDirectiveTransform,
 };

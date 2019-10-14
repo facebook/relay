@@ -48,7 +48,7 @@ const SCHEMA_EXTENSION = `
  * 3. Building the refetch queries, a straightforward copying transform from
  *    Fragment to Root IR nodes.
  */
-function relayRefetchableFragmentTransform(
+function refetchableFragmentTransform(
   context: GraphQLCompilerContext,
 ): GraphQLCompilerContext {
   const schema = context.getSchema();
@@ -298,5 +298,5 @@ function findArgument(field: Field, argumentName: string): Argument | null {
 
 module.exports = {
   SCHEMA_EXTENSION,
-  transform: relayRefetchableFragmentTransform,
+  transform: refetchableFragmentTransform,
 };

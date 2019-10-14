@@ -31,9 +31,7 @@ type State = {
  * A transform that adds an `id` field on any type that has an id field but
  * where there is no unaliased `id` selection.
  */
-function relayGenerateIDFieldTransform(
-  context: CompilerContext,
-): CompilerContext {
+function generateIDFieldTransform(context: CompilerContext): CompilerContext {
   const schema = context.getSchema();
   const idType = schema.expectIdType();
   const idField = generateIDField(idType);
@@ -132,5 +130,5 @@ function buildIDFragment(
 }
 
 module.exports = {
-  transform: relayGenerateIDFieldTransform,
+  transform: generateIDFieldTransform,
 };

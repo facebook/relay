@@ -65,7 +65,7 @@ type PendingFragment =
  *
  * Note that unreferenced fragments are not added to the output.
  */
-function relayApplyFragmentArgumentTransform(
+function applyFragmentArgumentTransform(
   context: CompilerContext,
 ): CompilerContext {
   const fragments: Map<string, PendingFragment> = new Map();
@@ -391,7 +391,7 @@ function transformValue(
       // a single document could break invariants and/or cause
       // additional spurious errors.
       throw createNonRecoverableUserError(
-        `Variable '\$${value.variableName}' is not in scope.`,
+        `Variable '$${value.variableName}' is not in scope.`,
         [errorContext[0]?.loc, value.loc].filter(Boolean),
       );
     }
@@ -482,7 +482,7 @@ function hashArguments(
           // a single document could break invariants and/or cause
           // additional spurious errors.
           throw createNonRecoverableUserError(
-            `Variable '\$${arg.value.variableName}' is not in scope.`,
+            `Variable '$${arg.value.variableName}' is not in scope.`,
             [errorContext[0]?.loc, arg.value.loc].filter(Boolean),
           );
         }
@@ -499,5 +499,5 @@ function hashArguments(
 }
 
 module.exports = {
-  transform: relayApplyFragmentArgumentTransform,
+  transform: applyFragmentArgumentTransform,
 };

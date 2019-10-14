@@ -30,9 +30,7 @@ let cache = new Map();
  * A transform that adds `__typename` field on any `LinkedField` of a union or
  * interface type where there is no unaliased `__typename` selection.
  */
-function relayGenerateTypeNameTransform(
-  context: CompilerContext,
-): CompilerContext {
+function generateTypeNameTransform(context: CompilerContext): CompilerContext {
   cache = new Map();
   const schema = context.getSchema();
   const typenameField: ScalarField = {
@@ -79,5 +77,5 @@ function visitLinkedField(field: LinkedField, state: State): LinkedField {
 }
 
 module.exports = {
-  transform: relayGenerateTypeNameTransform,
+  transform: generateTypeNameTransform,
 };

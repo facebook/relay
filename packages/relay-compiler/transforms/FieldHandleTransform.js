@@ -21,7 +21,7 @@ const {getRelayHandleKey} = require('relay-runtime');
 import type CompilerContext from '../core/GraphQLCompilerContext';
 import type {LinkedField, ScalarField} from '../core/GraphQLIR';
 
-function relayFieldHandleTransform(context: CompilerContext): CompilerContext {
+function fieldHandleTransform(context: CompilerContext): CompilerContext {
   return IRTransformer.transform(context, {
     LinkedField: visitField,
     ScalarField: visitField,
@@ -74,5 +74,5 @@ function visitField<F: LinkedField | ScalarField>(field: F): F {
 }
 
 module.exports = {
-  transform: relayFieldHandleTransform,
+  transform: fieldHandleTransform,
 };

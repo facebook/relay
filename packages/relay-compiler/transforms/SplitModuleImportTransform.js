@@ -31,7 +31,7 @@ type State = {|
 /**
  * This transform creates a SplitOperation root for every ModuleImport.
  */
-function relaySplitMatchTransform(context: CompilerContext): CompilerContext {
+function splitMatchTransform(context: CompilerContext): CompilerContext {
   const splitOperations = new Map();
   const transformedContext = IRTransformer.transform(
     context,
@@ -92,5 +92,5 @@ function visitModuleImport(node: ModuleImport, state: State): ModuleImport {
 }
 
 module.exports = {
-  transform: relaySplitMatchTransform,
+  transform: splitMatchTransform,
 };

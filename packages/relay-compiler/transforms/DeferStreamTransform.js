@@ -39,7 +39,7 @@ type State = {|
  * This transform finds usages of @defer and @stream, validates them, and
  * converts the using node to specialized IR nodes (Defer/Stream).
  */
-function relayDeferStreamTransform(context: CompilerContext): CompilerContext {
+function deferStreamTransform(context: CompilerContext): CompilerContext {
   return IRTransformer.transform(
     context,
     {
@@ -313,5 +313,5 @@ function getFragmentSpreadName(fragmentSpread: FragmentSpread): string {
 }
 
 module.exports = {
-  transform: relayDeferStreamTransform,
+  transform: deferStreamTransform,
 };

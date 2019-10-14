@@ -26,22 +26,6 @@ const {
 
 import type {OperationDescriptor} from 'relay-runtime';
 
-function captureAssertion(fn) {
-  // Trick to use a Jest matcher inside another Jest matcher. `fn` contains an
-  // assertion; if it throws, we capture the error and return it, so the stack
-  // trace presented to the user points to the original assertion in the
-  // test file.
-  try {
-    fn();
-  } catch (error) {
-    return {
-      pass: false,
-      message: () => error.message,
-    };
-  }
-  return {pass: true};
-}
-
 function assertYieldsWereCleared(_scheduler) {
   const actualYields = _scheduler.unstable_clearYields();
   if (actualYields.length !== 0) {
@@ -53,11 +37,21 @@ function assertYieldsWereCleared(_scheduler) {
 }
 
 function expectSchedulerToFlushAndYield(expectedYields) {
-  const Scheduler = require('scheduler');
-  assertYieldsWereCleared(Scheduler);
-  Scheduler.unstable_flushAllWithoutAsserting();
-  const actualYields = Scheduler.unstable_clearYields();
-  return captureAssertion(() => {
+  TestRenderer.act(() => {
+    const Scheduler = require('scheduler');
+    assertYieldsWereCleared(Scheduler);
+    Scheduler.unstable_flushAllWithoutAsserting();
+    const actualYields = Scheduler.unstable_clearYields();
+    expect(actualYields).toEqual(expectedYields);
+  });
+}
+
+function expectSchedulerToFlushAndYieldThrough(expectedYields) {
+  TestRenderer.act(() => {
+    const Scheduler = require('scheduler');
+    assertYieldsWereCleared(Scheduler);
+    Scheduler.unstable_flushNumberOfYields(expectedYields.length);
+    const actualYields = Scheduler.unstable_clearYields();
     expect(actualYields).toEqual(expectedYields);
   });
 }
@@ -658,8 +652,7 @@ it('should render correct data when changing fragment refs multiple times', () =
   ]);
 });
 
-// TODO(T52977316) Re-enable concurent mode tests
-it.skip('should ignore updates to initially rendered data when fragment pointers change', () => {
+it('should ignore updates to initially rendered data when fragment pointers change', () => {
   const Scheduler = require('scheduler');
   const YieldChild = props => {
     // NOTE the unstable_yield method will move to the static renderer.
@@ -697,82 +690,86 @@ it.skip('should ignore updates to initially rendered data when fragment pointers
 
   const newVariables = {...singularVariables, id: '200'};
   const newQuery = createOperationDescriptor(gqlSingularQuery, newVariables);
-  environment.commitPayload(newQuery, {
-    node: {
-      __typename: 'User',
-      id: '200',
-      name: 'Foo',
-      username: 'userfoo',
-      profile_picture: null,
-    },
-  });
-
-  // Pass new fragment ref that points to new ID 200
-  setSingularOwner(newQuery);
-
-  // Flush some of the changes, but don't commit
-  expectSchedulerToFlushAndYield(['Hey user,', 'Foo']);
-
-  // In Concurrent mode component gets rendered even if not committed
-  // so we reset our mock here
-  resetRenderMock();
-
-  // Trigger an update for initially rendered data while second
-  // render is in progress
-  environment.commitPayload(singularQuery, {
-    node: {
-      __typename: 'User',
-      id: '1',
-      name: 'Alice in Wonderland',
-    },
-  });
-
-  // Assert the component renders the data from newQuery/newVariables,
-  // ignoring any updates triggered while render was in progress
-  expectSchedulerToFlushAndYield([
-    ['with id ', '200', '!'],
-    'Hey user,',
-    'Foo',
-    ['with id ', '200', '!'],
-  ]);
-  assertFragmentResults([
-    {
-      data: {
+  TestRenderer.act(() => {
+    environment.commitPayload(newQuery, {
+      node: {
+        __typename: 'User',
         id: '200',
         name: 'Foo',
+        username: 'userfoo',
         profile_picture: null,
-        ...createFragmentRef('200', newQuery),
       },
-      shouldUpdate: true,
-    },
-  ]);
-
-  // Update latest rendered data
-  environment.commitPayload(newQuery, {
-    node: {
-      __typename: 'User',
-      id: '200',
-      // Update name
-      name: 'Foo Updated',
-    },
+    });
   });
-  expectSchedulerToFlushAndYield([
-    'Hey user,',
-    'Foo Updated',
-    ['with id ', '200', '!'],
-  ]);
-  assertFragmentResults([
-    {
-      data: {
-        id: '200',
-        // Assert name is updated
-        name: 'Foo Updated',
-        profile_picture: null,
-        ...createFragmentRef('200', newQuery),
+
+  TestRenderer.act(() => {
+    // Pass new fragment ref that points to new ID 200
+    setSingularOwner(newQuery);
+
+    // Flush some of the changes, but don't commit
+    expectSchedulerToFlushAndYieldThrough(['Hey user,', 'Foo']);
+
+    // In Concurrent mode component gets rendered even if not committed
+    // so we reset our mock here
+    resetRenderMock();
+
+    // Trigger an update for initially rendered data while second
+    // render is in progress
+    environment.commitPayload(singularQuery, {
+      node: {
+        __typename: 'User',
+        id: '1',
+        name: 'Alice in Wonderland',
       },
-      shouldUpdate: true,
-    },
-  ]);
+    });
+
+    // Assert the component renders the data from newQuery/newVariables,
+    // ignoring any updates triggered while render was in progress
+    expectSchedulerToFlushAndYield([
+      ['with id ', '200', '!'],
+      'Hey user,',
+      'Foo',
+      ['with id ', '200', '!'],
+    ]);
+    assertFragmentResults([
+      {
+        data: {
+          id: '200',
+          name: 'Foo',
+          profile_picture: null,
+          ...createFragmentRef('200', newQuery),
+        },
+        shouldUpdate: true,
+      },
+    ]);
+
+    // Update latest rendered data
+    environment.commitPayload(newQuery, {
+      node: {
+        __typename: 'User',
+        id: '200',
+        // Update name
+        name: 'Foo Updated',
+      },
+    });
+    expectSchedulerToFlushAndYield([
+      'Hey user,',
+      'Foo Updated',
+      ['with id ', '200', '!'],
+    ]);
+    assertFragmentResults([
+      {
+        data: {
+          id: '200',
+          // Assert name is updated
+          name: 'Foo Updated',
+          profile_picture: null,
+          ...createFragmentRef('200', newQuery),
+        },
+        shouldUpdate: true,
+      },
+    ]);
+  });
 });
 
 it('should re-read and resubscribe to fragment when variables change', () => {
@@ -848,8 +845,7 @@ it('should re-read and resubscribe to fragment when variables change', () => {
   ]);
 });
 
-// TODO(T52977316) Re-enable concurent mode tests
-it.skip('should ignore updates to initially rendered data when variables change', () => {
+it('should ignore updates to initially rendered data when variables change', () => {
   const Scheduler = require('scheduler');
   const YieldChild = props => {
     Scheduler.unstable_yieldValue(props.children);
@@ -885,93 +881,97 @@ it.skip('should ignore updates to initially rendered data when variables change'
 
   const newVariables = {...singularVariables, id: '1', scale: 32};
   const newQuery = createOperationDescriptor(gqlSingularQuery, newVariables);
-  environment.commitPayload(newQuery, {
-    node: {
-      __typename: 'User',
-      id: '1',
-      name: 'Alice',
-      username: 'useralice',
-      profile_picture: {
-        uri: 'uri32',
-      },
-    },
-  });
-
-  // Pass new fragment ref which contains newVariables
-  setSingularOwner(newQuery);
-
-  // Flush some of the changes, but don't commit
-  expectSchedulerToFlushAndYield(['Hey user,', 'uri32']);
-
-  // In Concurrent mode component gets rendered even if not committed
-  // so we reset our mock here
-  resetRenderMock();
-
-  // Trigger an update for initially rendered data while second
-  // render is in progress
-  environment.commitPayload(singularQuery, {
-    node: {
-      __typename: 'User',
-      id: '1',
-      // Update name
-      name: 'Alice',
-      // Update profile_picture value
-      profile_picture: {
-        uri: 'uri16',
-      },
-    },
-  });
-
-  // Assert the component renders the data from newQuery/newVariables,
-  // ignoring any updates triggered while render was in progress
-  expectSchedulerToFlushAndYield([
-    ['with id ', '1', '!'],
-    'Hey user,',
-    'uri32',
-    ['with id ', '1', '!'],
-  ]);
-  assertFragmentResults([
-    {
-      data: {
+  TestRenderer.act(() => {
+    environment.commitPayload(newQuery, {
+      node: {
+        __typename: 'User',
         id: '1',
         name: 'Alice',
+        username: 'useralice',
         profile_picture: {
           uri: 'uri32',
         },
-        ...createFragmentRef('1', newQuery),
       },
-      shouldUpdate: true,
-    },
-  ]);
-
-  // Update latest rendered data
-  environment.commitPayload(newQuery, {
-    node: {
-      __typename: 'User',
-      id: '1',
-      // Update name
-      name: 'Alice latest update',
-    },
+    });
   });
-  expectSchedulerToFlushAndYield([
-    'Hey user,',
-    'uri32',
-    ['with id ', '1', '!'],
-  ]);
-  assertFragmentResults([
-    {
-      data: {
+
+  TestRenderer.act(() => {
+    // Pass new fragment ref which contains newVariables
+    setSingularOwner(newQuery);
+
+    // Flush some of the changes, but don't commit
+    expectSchedulerToFlushAndYieldThrough(['Hey user,', 'uri32']);
+
+    // In Concurrent mode component gets rendered even if not committed
+    // so we reset our mock here
+    resetRenderMock();
+
+    // Trigger an update for initially rendered data while second
+    // render is in progress
+    environment.commitPayload(singularQuery, {
+      node: {
+        __typename: 'User',
         id: '1',
-        // Assert name is updated
-        name: 'Alice latest update',
+        // Update name
+        name: 'Alice',
+        // Update profile_picture value
         profile_picture: {
-          uri: 'uri32',
+          uri: 'uri16',
         },
-        ...createFragmentRef('1', newQuery),
       },
-      shouldUpdate: true,
-    },
-  ]);
+    });
+
+    // Assert the component renders the data from newQuery/newVariables,
+    // ignoring any updates triggered while render was in progress
+    expectSchedulerToFlushAndYield([
+      ['with id ', '1', '!'],
+      'Hey user,',
+      'uri32',
+      ['with id ', '1', '!'],
+    ]);
+    assertFragmentResults([
+      {
+        data: {
+          id: '1',
+          name: 'Alice',
+          profile_picture: {
+            uri: 'uri32',
+          },
+          ...createFragmentRef('1', newQuery),
+        },
+        shouldUpdate: true,
+      },
+    ]);
+
+    // Update latest rendered data
+    environment.commitPayload(newQuery, {
+      node: {
+        __typename: 'User',
+        id: '1',
+        // Update name
+        name: 'Alice latest update',
+      },
+    });
+    expectSchedulerToFlushAndYield([
+      'Hey user,',
+      'uri32',
+      ['with id ', '1', '!'],
+    ]);
+    assertFragmentResults([
+      {
+        data: {
+          id: '1',
+          // Assert name is updated
+          name: 'Alice latest update',
+          profile_picture: {
+            uri: 'uri32',
+          },
+          ...createFragmentRef('1', newQuery),
+        },
+        shouldUpdate: true,
+      },
+    ]);
+  });
 });
 
 it('should NOT update if fragment refs dont change', () => {

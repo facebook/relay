@@ -41,6 +41,7 @@ type Query {
   usernames(names: [String!]!): [Actor]
   viewer: Viewer
   _mutation: Mutation
+  relay_early_flush: [JSDependency!]!
 }
 
 interface MaybeNodeInterface {

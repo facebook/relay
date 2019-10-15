@@ -20,6 +20,7 @@ const {transformASTSchema} = require('../../core/ASTConvert');
 const {
   TestSchema,
   generateTestsFromFixtures,
+  printAST,
 } = require('relay-test-utils-internal');
 
 describe('TestOperationTransform', () => {
@@ -35,7 +36,7 @@ describe('TestOperationTransform', () => {
         .addAll(ast)
         .applyTransforms([TestOperationTransform.transform])
         .documents()
-        .map(doc => JSON.stringify(doc, null, 2))
+        .map(doc => printAST(doc))
         .join('\n');
     },
   );

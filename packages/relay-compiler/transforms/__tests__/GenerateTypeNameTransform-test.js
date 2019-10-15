@@ -21,6 +21,7 @@ const Schema = require('../../core/Schema');
 const {
   TestSchema,
   generateTestsFromFixtures,
+  printAST,
 } = require('relay-test-utils-internal');
 
 describe('GenerateTypeNameTransform', () => {
@@ -37,7 +38,7 @@ describe('GenerateTypeNameTransform', () => {
           GenerateTypeNameTransform.transform,
         ])
         .documents()
-        .map(doc => JSON.stringify(doc, null, 2))
+        .map(doc => printAST(doc))
         .join('\n');
     },
   );

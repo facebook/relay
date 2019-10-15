@@ -148,7 +148,7 @@ type Foo {
         ],
         connection: false,
         directives: [],
-        handles: undefined,
+        handles: null,
         loc: Source {
           start: 37,
           end: 75,
@@ -209,7 +209,7 @@ type Foo {
         alias: "id",
         args: [],
         directives: [],
-        handles: undefined,
+        handles: null,
         loc: Source {
           start: 171,
           end: 173,
@@ -231,7 +231,7 @@ type Foo {
         args: [],
         connection: false,
         directives: [],
-        handles: undefined,
+        handles: null,
         loc: Source {
           start: 226,
           end: 346,
@@ -252,7 +252,7 @@ type Foo {
             args: [],
             connection: false,
             directives: [],
-            handles: undefined,
+            handles: null,
             loc: Source {
               start: 245,
               end: 303,
@@ -272,7 +272,7 @@ type Foo {
                 alias: "cursor",
                 args: [],
                 directives: [],
-                handles: undefined,
+                handles: null,
                 loc: Source {
                   start: 259,
                   end: 265,
@@ -294,7 +294,7 @@ type Foo {
                 args: [],
                 connection: false,
                 directives: [],
-                handles: undefined,
+                handles: null,
                 loc: Source {
                   start: 272,
                   end: 297,
@@ -314,7 +314,7 @@ type Foo {
                     alias: "id",
                     args: [],
                     directives: [],
-                    handles: undefined,
+                    handles: null,
                     loc: Source {
                       start: 287,
                       end: 289,
@@ -342,7 +342,7 @@ type Foo {
             args: [],
             connection: false,
             directives: [],
-            handles: undefined,
+            handles: null,
             loc: Source {
               start: 308,
               end: 342,
@@ -362,7 +362,7 @@ type Foo {
                 alias: "hasNextPage",
                 args: [],
                 directives: [],
-                handles: undefined,
+                handles: null,
                 loc: Source {
                   start: 325,
                   end: 336,
@@ -406,7 +406,7 @@ type Foo {
             args: [],
             connection: false,
             directives: [],
-            handles: undefined,
+            handles: null,
             loc: Source {
               start: 367,
               end: 486,
@@ -460,7 +460,7 @@ type Foo {
                     alias: "id",
                     args: [],
                     directives: [],
-                    handles: undefined,
+                    handles: null,
                     loc: Source {
                       start: 470,
                       end: 472,
@@ -511,7 +511,7 @@ type Foo {
         alias: "id",
         args: [],
         directives: [],
-        handles: undefined,
+        handles: null,
         loc: Source {
           start: 526,
           end: 528,
@@ -651,7 +651,7 @@ fragment TestFragment on User {
             ],
           },
         ],
-        handles: undefined,
+        handles: null,
         loc: Source {
           start: 34,
           end: 64,
@@ -743,7 +743,7 @@ fragment Foo on User {
             alias: "id",
             args: [],
             directives: [],
-            handles: undefined,
+            handles: null,
             loc: Source {
               start: 34,
               end: 56,
@@ -813,7 +813,7 @@ fragment Foo on User {
                 alias: "firstName",
                 args: [],
                 directives: [],
-                handles: undefined,
+                handles: null,
                 loc: Source {
                   start: 97,
                   end: 106,
@@ -928,7 +928,7 @@ fragment Foo on User {
         alias: "id",
         args: [],
         directives: [],
-        handles: undefined,
+        handles: null,
         loc: Source {
           start: 168,
           end: 170,
@@ -1094,7 +1094,7 @@ query EnumValueQuery {
         args: [],
         connection: false,
         directives: [],
-        handles: undefined,
+        handles: null,
         loc: Source {
           start: 25,
           end: 85,
@@ -1147,7 +1147,7 @@ query EnumValueQuery {
             ],
             connection: false,
             directives: [],
-            handles: undefined,
+            handles: null,
             loc: Source {
               start: 34,
               end: 81,
@@ -1167,7 +1167,7 @@ query EnumValueQuery {
                 alias: "uri",
                 args: [],
                 directives: [],
-                handles: undefined,
+                handles: null,
                 loc: Source {
                   start: 72,
                   end: 75,
@@ -1328,7 +1328,7 @@ query TestQuery {
         ],
         connection: false,
         directives: [],
-        handles: undefined,
+        handles: null,
         loc: Source {
           start: 20,
           end: 53,
@@ -1348,7 +1348,7 @@ query TestQuery {
             alias: "title",
             args: [],
             directives: [],
-            handles: undefined,
+            handles: null,
             loc: Source {
               start: 44,
               end: 49,
@@ -1405,7 +1405,7 @@ query TestQuery {
         ],
         connection: false,
         directives: [],
-        handles: undefined,
+        handles: null,
         loc: Source {
           start: 56,
           end: 111,
@@ -1425,7 +1425,7 @@ query TestQuery {
             alias: "notificationSounds",
             args: [],
             directives: [],
-            handles: undefined,
+            handles: null,
             loc: Source {
               start: 89,
               end: 107,
@@ -1484,7 +1484,7 @@ query TestQuery {
         ],
         connection: false,
         directives: [],
-        handles: undefined,
+        handles: null,
         loc: Source {
           start: 114,
           end: 173,
@@ -1504,7 +1504,7 @@ query TestQuery {
             alias: "query",
             args: [],
             directives: [],
-            handles: undefined,
+            handles: null,
             loc: Source {
               start: 164,
               end: 169,
@@ -1675,7 +1675,7 @@ fragment Foo on User @argumentDefinitions(localId: {type: "ID!"}) {
         ],
         connection: false,
         directives: [],
-        handles: undefined,
+        handles: null,
         loc: Source {
           start: 131,
           end: 179,
@@ -1695,7 +1695,7 @@ fragment Foo on User @argumentDefinitions(localId: {type: "ID!"}) {
             alias: "uri",
             args: [],
             directives: [],
-            handles: undefined,
+            handles: null,
             loc: Source {
               start: 172,
               end: 175,
@@ -1753,7 +1753,7 @@ fragment Foo on User @argumentDefinitions(localId: {type: "ID!"}) {
         ],
         connection: false,
         directives: [],
-        handles: undefined,
+        handles: null,
         loc: Source {
           start: 182,
           end: 239,
@@ -1773,7 +1773,7 @@ fragment Foo on User @argumentDefinitions(localId: {type: "ID!"}) {
             alias: "uri",
             args: [],
             directives: [],
-            handles: undefined,
+            handles: null,
             loc: Source {
               start: 232,
               end: 235,
@@ -1922,7 +1922,7 @@ fragment Foo on User @argumentDefinitions(localId: {type: "ID!"}) {
         alias: "id",
         args: [],
         directives: [],
-        handles: undefined,
+        handles: null,
         loc: Source {
           start: 347,
           end: 349,
@@ -2134,7 +2134,7 @@ fragment ChildFragment on User
         ],
         connection: false,
         directives: [],
-        handles: undefined,
+        handles: null,
         loc: Source {
           start: 174,
           end: 222,
@@ -2154,7 +2154,7 @@ fragment ChildFragment on User
             alias: "uri",
             args: [],
             directives: [],
-            handles: undefined,
+            handles: null,
             loc: Source {
               start: 215,
               end: 218,
@@ -2271,7 +2271,7 @@ fragment ChildFragment on Query
         ],
         connection: false,
         directives: [],
-        handles: undefined,
+        handles: null,
         loc: Source {
           start: 37,
           end: 102,
@@ -2291,7 +2291,7 @@ fragment ChildFragment on Query
             alias: "cache_id",
             args: [],
             directives: [],
-            handles: undefined,
+            handles: null,
             loc: Source {
               start: 90,
               end: 98,
@@ -2420,7 +2420,7 @@ fragment ChildFragment on Query
         ],
         connection: false,
         directives: [],
-        handles: undefined,
+        handles: null,
         loc: Source {
           start: 250,
           end: 304,
@@ -2440,7 +2440,7 @@ fragment ChildFragment on Query
             alias: "cache_id",
             args: [],
             directives: [],
-            handles: undefined,
+            handles: null,
             loc: Source {
               start: 292,
               end: 300,
@@ -2559,7 +2559,7 @@ fragment ChildFragment on User
         ],
         connection: false,
         directives: [],
-        handles: undefined,
+        handles: null,
         loc: Source {
           start: 36,
           end: 101,
@@ -2579,7 +2579,7 @@ fragment ChildFragment on User
             alias: "query",
             args: [],
             directives: [],
-            handles: undefined,
+            handles: null,
             loc: Source {
               start: 92,
               end: 97,
@@ -2708,7 +2708,7 @@ fragment ChildFragment on User
         ],
         connection: false,
         directives: [],
-        handles: undefined,
+        handles: null,
         loc: Source {
           start: 253,
           end: 306,
@@ -2728,7 +2728,7 @@ fragment ChildFragment on User
             alias: "query",
             args: [],
             directives: [],
-            handles: undefined,
+            handles: null,
             loc: Source {
               start: 297,
               end: 302,
@@ -2886,7 +2886,7 @@ fragment ChildFragment on User
         ],
         connection: false,
         directives: [],
-        handles: undefined,
+        handles: null,
         loc: Source {
           start: 36,
           end: 101,
@@ -2906,7 +2906,7 @@ fragment ChildFragment on User
             alias: "query",
             args: [],
             directives: [],
-            handles: undefined,
+            handles: null,
             loc: Source {
               start: 92,
               end: 97,
@@ -3037,7 +3037,7 @@ fragment ChildFragment on User
         ],
         connection: false,
         directives: [],
-        handles: undefined,
+        handles: null,
         loc: Source {
           start: 255,
           end: 308,
@@ -3057,7 +3057,7 @@ fragment ChildFragment on User
             alias: "query",
             args: [],
             directives: [],
-            handles: undefined,
+            handles: null,
             loc: Source {
               start: 299,
               end: 304,
@@ -3176,7 +3176,7 @@ fragment ChildFragment on Query
         ],
         connection: false,
         directives: [],
-        handles: undefined,
+        handles: null,
         loc: Source {
           start: 37,
           end: 114,
@@ -3196,7 +3196,7 @@ fragment ChildFragment on Query
             alias: "query",
             args: [],
             directives: [],
-            handles: undefined,
+            handles: null,
             loc: Source {
               start: 105,
               end: 110,
@@ -3327,7 +3327,7 @@ fragment ChildFragment on Query
         ],
         connection: false,
         directives: [],
-        handles: undefined,
+        handles: null,
         loc: Source {
           start: 268,
           end: 317,
@@ -3347,7 +3347,7 @@ fragment ChildFragment on Query
             alias: "query",
             args: [],
             directives: [],
-            handles: undefined,
+            handles: null,
             loc: Source {
               start: 308,
               end: 313,
@@ -3617,7 +3617,7 @@ fragment InlineUntypedFragment on User {
             alias: "name",
             args: [],
             directives: [],
-            handles: undefined,
+            handles: null,
             loc: Source {
               start: 53,
               end: 57,
@@ -3765,7 +3765,7 @@ fragment LinkedHandleField on User {
             alias: "count",
             args: [],
             directives: [],
-            handles: undefined,
+            handles: null,
             loc: Source {
               start: 151,
               end: 156,
@@ -3919,7 +3919,7 @@ fragment LinkedHandleField on User {
             alias: "count",
             args: [],
             directives: [],
-            handles: undefined,
+            handles: null,
             loc: Source {
               start: 158,
               end: 163,
@@ -4055,7 +4055,7 @@ fragment LinkedHandleField on User {
             alias: "count",
             args: [],
             directives: [],
-            handles: undefined,
+            handles: null,
             loc: Source {
               start: 142,
               end: 147,
@@ -4183,7 +4183,7 @@ fragment LinkedHandleField on User {
             alias: "count",
             args: [],
             directives: [],
-            handles: undefined,
+            handles: null,
             loc: Source {
               start: 171,
               end: 176,
@@ -4283,7 +4283,7 @@ query ListArgumentQuery {
         ],
         connection: false,
         directives: [],
-        handles: undefined,
+        handles: null,
         loc: Source {
           start: 28,
           end: 107,
@@ -4304,7 +4304,7 @@ query ListArgumentQuery {
             args: [],
             connection: false,
             directives: [],
-            handles: undefined,
+            handles: null,
             loc: Source {
               start: 79,
               end: 103,
@@ -4324,7 +4324,7 @@ query ListArgumentQuery {
                 alias: "note",
                 args: [],
                 directives: [],
-                handles: undefined,
+                handles: null,
                 loc: Source {
                   start: 93,
                   end: 97,
@@ -4406,7 +4406,7 @@ fragment TestFragment on User {
         alias: "traits",
         args: [],
         directives: [],
-        handles: undefined,
+        handles: null,
         loc: Source {
           start: 34,
           end: 40,
@@ -4503,7 +4503,7 @@ query LiteralListArgumentQuery {
         ],
         connection: false,
         directives: [],
-        handles: undefined,
+        handles: null,
         loc: Source {
           start: 35,
           end: 114,
@@ -4524,7 +4524,7 @@ query LiteralListArgumentQuery {
             args: [],
             connection: false,
             directives: [],
-            handles: undefined,
+            handles: null,
             loc: Source {
               start: 86,
               end: 110,
@@ -4544,7 +4544,7 @@ query LiteralListArgumentQuery {
                 alias: "note",
                 args: [],
                 directives: [],
-                handles: undefined,
+                handles: null,
                 loc: Source {
                   start: 100,
                   end: 104,
@@ -4707,7 +4707,7 @@ query LiteralObjectArgument {
         ],
         connection: false,
         directives: [],
-        handles: undefined,
+        handles: null,
         loc: Source {
           start: 32,
           end: 94,
@@ -4727,7 +4727,7 @@ query LiteralObjectArgument {
             alias: "query",
             args: [],
             directives: [],
-            handles: undefined,
+            handles: null,
             loc: Source {
               start: 85,
               end: 90,
@@ -4881,7 +4881,7 @@ query NullValuesQuery {
         ],
         connection: false,
         directives: [],
-        handles: undefined,
+        handles: null,
         loc: Source {
           start: 26,
           end: 68,
@@ -4901,7 +4901,7 @@ query NullValuesQuery {
             alias: "date",
             args: [],
             directives: [],
-            handles: undefined,
+            handles: null,
             loc: Source {
               start: 60,
               end: 64,
@@ -5068,7 +5068,7 @@ fragment TestFragment on User {
         alias: "id",
         args: [],
         directives: [],
-        handles: undefined,
+        handles: null,
         loc: Source {
           start: 34,
           end: 36,
@@ -5177,7 +5177,7 @@ query TestQuery($id: ID!) {
         ],
         connection: false,
         directives: [],
-        handles: undefined,
+        handles: null,
         loc: Source {
           start: 30,
           end: 61,
@@ -5197,7 +5197,7 @@ query TestQuery($id: ID!) {
             alias: "id",
             args: [],
             directives: [],
-            handles: undefined,
+            handles: null,
             loc: Source {
               start: 55,
               end: 57,

@@ -1069,7 +1069,7 @@ class GraphQLDefinitionParser {
     fieldArgs: $ReadOnlyArray<Argument>,
     clientFieldDirectives: $ReadOnlyArray<DirectiveNode>,
   ): ?$ReadOnlyArray<Handle> {
-    let handles: ?Array<Handle>;
+    let handles: ?Array<Handle> = null;
     clientFieldDirectives.forEach(clientFieldDirective => {
       const handleArgument = (clientFieldDirective.arguments || []).find(
         arg => getName(arg) === CLIENT_FIELD_HANDLE,

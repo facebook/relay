@@ -69,7 +69,7 @@ Root {
       args: [],
       connection: false,
       directives: [],
-      handles: undefined,
+      handles: null,
       loc: Source {
         start: 37,
         end: 225,
@@ -122,7 +122,7 @@ Root {
           ],
           connection: false,
           directives: [],
-          handles: undefined,
+          handles: null,
           loc: Source {
             start: 50,
             end: 221,
@@ -143,7 +143,7 @@ Root {
               args: [],
               connection: false,
               directives: [],
-              handles: undefined,
+              handles: null,
               loc: Source {
                 start: 78,
                 end: 215,
@@ -164,7 +164,7 @@ Root {
                   args: [],
                   connection: false,
                   directives: [],
-                  handles: undefined,
+                  handles: null,
                   loc: Source {
                     start: 94,
                     end: 207,
@@ -195,7 +195,7 @@ Root {
                       alias: "id",
                       args: [],
                       directives: [],
-                      handles: undefined,
+                      handles: null,
                       loc: Source {
                         start: 111,
                         end: 113,
@@ -217,7 +217,7 @@ Root {
                       args: [],
                       connection: false,
                       directives: [],
-                      handles: undefined,
+                      handles: null,
                       loc: Source {
                         start: 124,
                         end: 162,
@@ -237,7 +237,7 @@ Root {
                           alias: "text",
                           args: [],
                           directives: [],
-                          handles: undefined,
+                          handles: null,
                           loc: Source {
                             start: 146,
                             end: 150,
@@ -262,7 +262,7 @@ Root {
                       args: [],
                       connection: false,
                       directives: [],
-                      handles: undefined,
+                      handles: null,
                       loc: Source {
                         start: 281,
                         end: 301,
@@ -293,7 +293,7 @@ Root {
                           alias: "name",
                           args: [],
                           directives: [],
-                          handles: undefined,
+                          handles: null,
                           loc: Source {
                             start: 293,
                             end: 297,
@@ -384,7 +384,7 @@ Root {
       ],
       connection: false,
       directives: [],
-      handles: undefined,
+      handles: null,
       loc: Source {
         start: 358,
         end: 508,
@@ -448,7 +448,7 @@ Root {
           ],
           connection: false,
           directives: [],
-          handles: undefined,
+          handles: null,
           loc: Source {
             start: 380,
             end: 504,
@@ -469,7 +469,7 @@ Root {
               args: [],
               connection: false,
               directives: [],
-              handles: undefined,
+              handles: null,
               loc: Source {
                 start: 408,
                 end: 498,
@@ -490,7 +490,7 @@ Root {
                   args: [],
                   connection: false,
                   directives: [],
-                  handles: undefined,
+                  handles: null,
                   loc: Source {
                     start: 424,
                     end: 490,
@@ -510,7 +510,7 @@ Root {
                       alias: "id",
                       args: [],
                       directives: [],
-                      handles: undefined,
+                      handles: null,
                       loc: Source {
                         start: 441,
                         end: 443,
@@ -532,7 +532,7 @@ Root {
                       args: [],
                       connection: false,
                       directives: [],
-                      handles: undefined,
+                      handles: null,
                       loc: Source {
                         start: 560,
                         end: 579,
@@ -552,7 +552,7 @@ Root {
                           alias: "text",
                           args: [],
                           directives: [],
-                          handles: undefined,
+                          handles: null,
                           loc: Source {
                             start: 571,
                             end: 575,
@@ -661,7 +661,7 @@ Root {
       args: [],
       connection: false,
       directives: [],
-      handles: undefined,
+      handles: null,
       loc: Source {
         start: 34,
         end: 243,
@@ -714,7 +714,7 @@ Root {
           ],
           connection: false,
           directives: [],
-          handles: undefined,
+          handles: null,
           loc: Source {
             start: 47,
             end: 239,
@@ -735,7 +735,7 @@ Root {
               args: [],
               connection: false,
               directives: [],
-              handles: undefined,
+              handles: null,
               loc: Source {
                 start: 75,
                 end: 233,
@@ -756,7 +756,7 @@ Root {
                   args: [],
                   connection: false,
                   directives: [],
-                  handles: undefined,
+                  handles: null,
                   loc: Source {
                     start: 91,
                     end: 225,
@@ -776,7 +776,7 @@ Root {
                       alias: "id",
                       args: [],
                       directives: [],
-                      handles: undefined,
+                      handles: null,
                       loc: Source {
                         start: 108,
                         end: 110,
@@ -797,7 +797,7 @@ Root {
                       alias: "__typename",
                       args: [],
                       directives: [],
-                      handles: undefined,
+                      handles: null,
                       loc: Source {
                         start: 121,
                         end: 131,
@@ -819,7 +819,7 @@ Root {
                       args: [],
                       connection: false,
                       directives: [],
-                      handles: undefined,
+                      handles: null,
                       loc: Source {
                         start: 142,
                         end: 180,
@@ -839,7 +839,7 @@ Root {
                           alias: "text",
                           args: [],
                           directives: [],
-                          handles: undefined,
+                          handles: null,
                           loc: Source {
                             start: 164,
                             end: 168,
@@ -864,7 +864,7 @@ Root {
                       args: [],
                       connection: false,
                       directives: [],
-                      handles: undefined,
+                      handles: null,
                       loc: Source {
                         start: 312,
                         end: 347,
@@ -884,7 +884,7 @@ Root {
                           alias: "name",
                           args: [],
                           directives: [],
-                          handles: undefined,
+                          handles: null,
                           loc: Source {
                             start: 324,
                             end: 328,
@@ -905,7 +905,7 @@ Root {
                           alias: "__typename",
                           args: [],
                           directives: [],
-                          handles: undefined,
+                          handles: null,
                           loc: Source {
                             start: 333,
                             end: 343,
@@ -996,7 +996,7 @@ Root {
       ],
       connection: false,
       directives: [],
-      handles: undefined,
+      handles: null,
       loc: Source {
         start: 401,
         end: 551,
@@ -1060,7 +1060,7 @@ Root {
           ],
           connection: false,
           directives: [],
-          handles: undefined,
+          handles: null,
           loc: Source {
             start: 423,
             end: 547,
@@ -1081,7 +1081,7 @@ Root {
               args: [],
               connection: false,
               directives: [],
-              handles: undefined,
+              handles: null,
               loc: Source {
                 start: 451,
                 end: 541,
@@ -1102,7 +1102,7 @@ Root {
                   args: [],
                   connection: false,
                   directives: [],
-                  handles: undefined,
+                  handles: null,
                   loc: Source {
                     start: 467,
                     end: 533,
@@ -1122,7 +1122,7 @@ Root {
                       alias: "id",
                       args: [],
                       directives: [],
-                      handles: undefined,
+                      handles: null,
                       loc: Source {
                         start: 484,
                         end: 486,
@@ -1144,7 +1144,7 @@ Root {
                       args: [],
                       connection: false,
                       directives: [],
-                      handles: undefined,
+                      handles: null,
                       loc: Source {
                         start: 603,
                         end: 622,
@@ -1164,7 +1164,7 @@ Root {
                           alias: "text",
                           args: [],
                           directives: [],
-                          handles: undefined,
+                          handles: null,
                           loc: Source {
                             start: 614,
                             end: 618,

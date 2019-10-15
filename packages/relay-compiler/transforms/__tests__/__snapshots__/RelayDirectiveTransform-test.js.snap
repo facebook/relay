@@ -31,7 +31,7 @@ Fragment {
       alias: "name",
       args: [],
       directives: [],
-      handles: undefined,
+      handles: null,
       loc: Source {
         start: 57,
         end: 61,
@@ -89,7 +89,7 @@ Fragment {
       args: [],
       connection: false,
       directives: [],
-      handles: undefined,
+      handles: null,
       loc: Source {
         start: 33,
         end: 94,
@@ -153,7 +153,7 @@ Fragment {
       alias: "uri",
       args: [],
       directives: [],
-      handles: undefined,
+      handles: null,
       loc: Source {
         start: 134,
         end: 137,

@@ -24,6 +24,7 @@ const {
   TestSchema,
   generateTestsFromFixtures,
   parseGraphQLText,
+  printAST,
 } = require('relay-test-utils-internal');
 
 describe('compileRelayArtifacts', () => {
@@ -65,7 +66,7 @@ describe('compileRelayArtifacts', () => {
 
 function stringifyAST(ast: mixed): string {
   return CodeMarker.postProcess(
-    JSON.stringify(ast, null, 2) ?? 'null',
+    printAST(ast),
     moduleName => `require('${moduleName}')`,
   );
 }

@@ -18,6 +18,7 @@ const Schema = require('../Schema');
 
 const {
   TestSchema,
+  printAST,
   generateTestsFromFixtures,
 } = require('relay-test-utils-internal');
 
@@ -166,6 +167,6 @@ describe('RelayParser', () => {
 
   generateTestsFromFixtures(`${__dirname}/fixtures/parser`, text => {
     const ir = RelayParser.parse(schema, text);
-    return JSON.stringify(ir, null, 2);
+    return printAST(ir);
   });
 });

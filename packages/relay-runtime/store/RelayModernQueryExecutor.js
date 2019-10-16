@@ -394,8 +394,7 @@ class Executor {
     }
     this._optimisticUpdates = optimisticUpdates;
     optimisticUpdates.forEach(update => this._publishQueue.applyUpdate(update));
-    const updatedOwners = this._publishQueue.run();
-    this._updateOperationTracker(updatedOwners);
+    this._publishQueue.run();
   }
 
   _processResponse(response: GraphQLResponseWithData): void {

@@ -68,7 +68,7 @@ class RelayRecordSourceObjectImpl implements MutableRecordSource {
     return Object.keys(this._records).length;
   }
 
-  toJSON(): Object {
+  toJSON(): RecordMap {
     return this._records;
   }
 }

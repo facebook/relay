@@ -29,6 +29,7 @@ export type {FetchPolicy, RenderPolicy} from './QueryResource';
 export type {Direction, LoadMoreFn} from './useLoadMoreFunction';
 export type {
   RefetchFn,
+  RefetchFnDynamic,
   Options as RefetchOptions,
 } from './useRefetchableFragmentNode';
 

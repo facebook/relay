@@ -115,6 +115,7 @@ export type {
   FragmentSpecResolver,
   HandleFieldPayload,
   IEnvironment,
+  Local3DPayload,
   LogEvent,
   LogFunction,
   MissingFieldHandler,

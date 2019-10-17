@@ -293,6 +293,7 @@ function getCodegenRunner(config: Config): CodegenRunner {
       getFileFilter: sourceModuleParser.getFileFilter,
       getParser: sourceModuleParser.getParser,
       getSchemaSource: () => schema,
+      schemaExtensions,
       watchmanExpression: config.watchman
         ? buildWatchExpression(sourceSearchOptions)
         : null,
@@ -304,6 +305,7 @@ function getCodegenRunner(config: Config): CodegenRunner {
       baseDir: config.src,
       getParser: DotGraphQLParser.getParser,
       getSchemaSource: () => schema,
+      schemaExtensions,
       watchmanExpression: config.watchman
         ? buildWatchExpression(graphqlSearchOptions)
         : null,

@@ -35,6 +35,7 @@ export type ParserConfig = {|
   getFileFilter?: (baseDir: string) => FileFilter,
   getParser: (baseDir: string) => ASTCache,
   getSchemaSource: () => Source,
+  schemaExtensions: $ReadOnlyArray<string>,
   generatedDirectoriesWatchmanExpression?: ?WatchmanExpression,
   watchmanExpression?: ?WatchmanExpression,
   filepaths?: ?Array<string>,
@@ -304,7 +305,7 @@ class CodegenRunner {
           createSchema(
             this.parserConfigs[parser].getSchemaSource(),
             baseDocuments.toArray(),
-            [],
+            this.parserConfigs[parser].schemaExtensions,
           ),
         );
 

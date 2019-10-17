@@ -10,8 +10,9 @@
 
 'use strict';
 
-const {main} = require('./RelayCompilerMain');
 const yargs = require('yargs');
+
+const {main} = require('./RelayCompilerMain');
 
 let RelayConfig;
 try {

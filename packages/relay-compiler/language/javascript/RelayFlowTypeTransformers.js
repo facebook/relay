@@ -19,8 +19,9 @@ const {
 
 import type {Schema, TypeID, EnumTypeID} from '../../core/Schema';
 
+export type BabelTypes = typeof t;
 export type ScalarTypeMapping = {
-  [type: string]: string,
+  [type: string]: string | (BabelTypes => mixed),
 };
 
 import type {State} from './RelayFlowGenerator';
@@ -81,6 +82,9 @@ function transformNonNullableScalarType(
 
 function transformGraphQLScalarType(typeName: string, state: State) {
   const customType = state.customScalars[typeName];
+  if (typeof customType === 'function') {
+    return customType(t);
+  }
   switch (customType ?? typeName) {
     case 'ID':
     case 'String':
@@ -90,10 +94,6 @@ function transformGraphQLScalarType(typeName: string, state: State) {
       return t.numberTypeAnnotation();
     case 'Boolean':
       return t.booleanTypeAnnotation();
-    case 'JSDependency':
-      return exactObjectTypeAnnotation([
-        t.objectTypeProperty(t.identifier('__dr'), t.stringTypeAnnotation()),
-      ]);
     default:
       return customType == null
         ? t.anyTypeAnnotation()

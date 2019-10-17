@@ -1404,21 +1404,13 @@ export type TestRawResponse = {|
     +id: ?string,
     +nameRenderer: ?({|
       +__typename: "PlainUserNameRenderer",
-      +__module_operation_NameRendererFragment: ?{|
-        __dr: string
-      |},
-      +__module_component_NameRendererFragment: ?{|
-        __dr: string
-      |},
+      +__module_operation_NameRendererFragment: ?any,
+      +__module_component_NameRendererFragment: ?any,
       ...PlainUserNameRenderer_name,
     |} | {|
       +__typename: "MarkdownUserNameRenderer",
-      +__module_operation_NameRendererFragment: ?{|
-        __dr: string
-      |},
-      +__module_component_NameRendererFragment: ?{|
-        __dr: string
-      |},
+      +__module_operation_NameRendererFragment: ?any,
+      +__module_component_NameRendererFragment: ?any,
       ...MarkdownUserNameRenderer_name,
     |} | {|
       +__typename: ?string
@@ -1579,21 +1571,13 @@ export type TestRawResponse = {|
     +username: ?string,
     +nameRenderer: ?({|
       +__typename: "PlainUserNameRenderer",
-      +__module_operation_NameRendererFragment: ?{|
-        __dr: string
-      |},
-      +__module_component_NameRendererFragment: ?{|
-        __dr: string
-      |},
+      +__module_operation_NameRendererFragment: ?any,
+      +__module_component_NameRendererFragment: ?any,
       ...PlainUserNameRenderer_name,
     |} | {|
       +__typename: "MarkdownUserNameRenderer",
-      +__module_operation_NameRendererFragment: ?{|
-        __dr: string
-      |},
-      +__module_component_NameRendererFragment: ?{|
-        __dr: string
-      |},
+      +__module_operation_NameRendererFragment: ?any,
+      +__module_component_NameRendererFragment: ?any,
       ...MarkdownUserNameRenderer_name,
     |} | {|
       +__typename: ?string
@@ -1609,21 +1593,13 @@ export type TestRawResponse = {|
       +name: ?string,
       +nameRenderer: ?({|
         +__typename: "PlainUserNameRenderer",
-        +__module_operation_AnotherNameRendererFragment: ?{|
-          __dr: string
-        |},
-        +__module_component_AnotherNameRendererFragment: ?{|
-          __dr: string
-        |},
+        +__module_operation_AnotherNameRendererFragment: ?any,
+        +__module_component_AnotherNameRendererFragment: ?any,
         ...PlainUserNameRenderer_name,
       |} | {|
         +__typename: "MarkdownUserNameRenderer",
-        +__module_operation_AnotherNameRendererFragment: ?{|
-          __dr: string
-        |},
-        +__module_component_AnotherNameRendererFragment: ?{|
-          __dr: string
-        |},
+        +__module_operation_AnotherNameRendererFragment: ?any,
+        +__module_component_AnotherNameRendererFragment: ?any,
         ...MarkdownUserNameRenderer_name,
       |} | {|
         +__typename: ?string

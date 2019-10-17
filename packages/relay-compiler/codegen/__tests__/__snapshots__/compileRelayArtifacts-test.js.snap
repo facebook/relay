@@ -7035,17 +7035,17 @@ query RefetchableFragmentQuery(
   }
 }
 
+fragment ProfilePicture on User {
+  profilePicture(size: $size) {
+    uri
+  }
+}
+
 fragment RefetchableFragment on Node {
   id
   ... on User {
     name
     ...ProfilePicture
-  }
-}
-
-fragment ProfilePicture on User {
-  profilePicture(size: $size) {
-    uri
   }
 }
 
@@ -7275,16 +7275,16 @@ query RefetchableFragmentQuery(
   }
 }
 
-fragment RefetchableFragment on User {
-  id
-  name
-  ...ProfilePicture
-}
-
 fragment ProfilePicture on User {
   profilePicture(size: $size) {
     uri
   }
+}
+
+fragment RefetchableFragment on User {
+  id
+  name
+  ...ProfilePicture
 }
 
 
@@ -7499,6 +7499,12 @@ query RefetchableFragmentQuery(
   ...RefetchableFragment_1Bmzm5
 }
 
+fragment ProfilePicture on User {
+  profilePicture(size: $size) {
+    uri
+  }
+}
+
 fragment RefetchableFragment_1Bmzm5 on Query {
   node(id: $id) {
     __typename
@@ -7508,12 +7514,6 @@ fragment RefetchableFragment_1Bmzm5 on Query {
       ...ProfilePicture
     }
     id
-  }
-}
-
-fragment ProfilePicture on User {
-  profilePicture(size: $size) {
-    uri
   }
 }
 
@@ -7820,18 +7820,18 @@ query RefetchableFragmentQuery(
   }
 }
 
+fragment ProfilePicture on User {
+  profilePicture(size: $size) {
+    uri
+  }
+}
+
 fragment RefetchableFragment on Viewer {
   actor {
     __typename
     id
     name
     ...ProfilePicture
-  }
-}
-
-fragment ProfilePicture on User {
-  profilePicture(size: $size) {
-    uri
   }
 }
 
@@ -8054,18 +8054,18 @@ query QueryWithFragmentWithDefer {
   }
 }
 
-fragment UserFragment on User {
-  id
-  emailAddresses
-  ...DeferredFragment_QMvSr @defer(label: "UserFragment$defer$DeferredFragmentLabel")
-}
-
 fragment DeferredFragment_QMvSr on User {
   id
   name
   profile_picture(scale: 1.5) {
     uri
   }
+}
+
+fragment UserFragment on User {
+  id
+  emailAddresses
+  ...DeferredFragment_QMvSr @defer(label: "UserFragment$defer$DeferredFragmentLabel")
 }
 
 
@@ -8325,11 +8325,12 @@ query QueryWithFragmentWithDefer {
   }
 }
 
-fragment UserFragment on User {
+fragment DeferredFragment_42I9Ds on User {
   id
-  emailAddresses
-  ...DeferredFragment_QMvSr @defer(label: "UserFragment$defer$DeferredFragment_4edD5n")
-  ...DeferredFragment_42I9Ds @defer(label: "UserFragment$defer$DeferredFragment_2gdat4")
+  name
+  profile_picture(scale: 2) {
+    uri
+  }
 }
 
 fragment DeferredFragment_QMvSr on User {
@@ -8340,12 +8341,11 @@ fragment DeferredFragment_QMvSr on User {
   }
 }
 
-fragment DeferredFragment_42I9Ds on User {
+fragment UserFragment on User {
   id
-  name
-  profile_picture(scale: 2) {
-    uri
-  }
+  emailAddresses
+  ...DeferredFragment_QMvSr @defer(label: "UserFragment$defer$DeferredFragment_4edD5n")
+  ...DeferredFragment_42I9Ds @defer(label: "UserFragment$defer$DeferredFragment_2gdat4")
 }
 
 
@@ -11570,6 +11570,14 @@ query NameRendererQuery(
   }
 }
 
+fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+  markdown
+  data {
+    markup
+    id
+  }
+}
+
 fragment NameRendererFragment on User {
   id
   nameRenderer {
@@ -11579,14 +11587,6 @@ fragment NameRendererFragment on User {
       __module_operation_NameRendererFragment: js(module: "MarkdownUserNameRenderer_name$normalization.graphql", id: "NameRendererFragment.nameRenderer")
       __module_component_NameRendererFragment: js(module: "MarkdownUserNameRenderer.react", id: "NameRendererFragment.nameRenderer")
     }
-  }
-}
-
-fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
-  markdown
-  data {
-    markup
-    id
   }
 }
 
@@ -11967,12 +11967,6 @@ query TestQuery(
   }
 }
 
-fragment Profile_4CNNX6 on User {
-  profilePicture(size: $pictureSize) {
-    uri
-  }
-}
-
 fragment ProfileFriends on User {
   friends(first: 10) {
     edges {
@@ -11981,6 +11975,12 @@ fragment ProfileFriends on User {
         id
       }
     }
+  }
+}
+
+fragment Profile_4CNNX6 on User {
+  profilePicture(size: $pictureSize) {
+    uri
   }
 }
 
@@ -12248,6 +12248,14 @@ query NameRendererQuery(
   }
 }
 
+fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+  markdown
+  data {
+    markup
+    id
+  }
+}
+
 fragment NameRendererFragment on User {
   id
   nameRenderer(supported: ["PlainUserNameRenderer", "MarkdownUserNameRenderer"]) {
@@ -12269,14 +12277,6 @@ fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
   plaintext
   data {
     text
-    id
-  }
-}
-
-fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
-  markdown
-  data {
-    markup
     id
   }
 }
@@ -12640,6 +12640,14 @@ query NameRendererQuery(
   }
 }
 
+fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+  markdown
+  data {
+    markup
+    id
+  }
+}
+
 fragment NameRendererFragment on User {
   id
   nameRenderer(supported: ["PlainUserNameRenderer", "MarkdownUserNameRenderer"]) {
@@ -12661,14 +12669,6 @@ fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
   plaintext
   data {
     text
-    id
-  }
-}
-
-fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
-  markdown
-  data {
-    markup
     id
   }
 }
@@ -13065,6 +13065,14 @@ query NameRendererQuery(
   }
 }
 
+fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+  markdown
+  data {
+    markup
+    id
+  }
+}
+
 fragment NameRendererFragment on User {
   id
   nameRendererForContext(context: HEADER, supported: ["PlainUserNameRenderer", "MarkdownUserNameRenderer"]) {
@@ -13086,14 +13094,6 @@ fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
   plaintext
   data {
     text
-    id
-  }
-}
-
-fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
-  markdown
-  data {
-    markup
     id
   }
 }
@@ -13462,6 +13462,14 @@ query NameRendererQuery(
   }
 }
 
+fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+  markdown
+  data {
+    markup
+    id
+  }
+}
+
 fragment NameRendererFragment on User {
   id
   nameRenderer(supported: ["PlainUserNameRenderer", "MarkdownUserNameRenderer"]) {
@@ -13483,14 +13491,6 @@ fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
   plaintext
   data {
     text
-    id
-  }
-}
-
-fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
-  markdown
-  data {
-    markup
     id
   }
 }
@@ -13835,6 +13835,14 @@ query NameRendererQuery(
   }
 }
 
+fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+  markdown
+  data {
+    markup
+    id
+  }
+}
+
 fragment NameRendererFragment on User {
   id
   nameRenderer {
@@ -13844,14 +13852,6 @@ fragment NameRendererFragment on User {
       __module_operation_NameRendererFragment: js(module: "MarkdownUserNameRenderer_name$normalization.graphql", id: "NameRendererFragment.nameRenderer")
       __module_component_NameRendererFragment: js(module: "MarkdownUserNameRenderer.react", id: "NameRendererFragment.nameRenderer")
     }
-  }
-}
-
-fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
-  markdown
-  data {
-    markup
-    id
   }
 }
 
@@ -14948,18 +14948,18 @@ query RefetchableFragmentQuery(
   }
 }
 
+fragment ProfilePicture on User {
+  profilePicture(size: $size) {
+    uri
+  }
+}
+
 fragment RefetchableFragment on Node {
   ... on User {
     name
     ...ProfilePicture
   }
   id
-}
-
-fragment ProfilePicture on User {
-  profilePicture(size: $size) {
-    uri
-  }
 }
 
 

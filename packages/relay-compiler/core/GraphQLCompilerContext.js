@@ -46,7 +46,7 @@ class GraphQLCompilerContext {
   /**
    * Returns the documents for the context in the order they were added.
    */
-  documents(): $ReadOnlyArray<CompilerContextDocument> {
+  documents(): Array<CompilerContextDocument> {
     return this._documents.toArray();
   }
 

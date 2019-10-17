@@ -50,7 +50,7 @@ jobs:
   master-release:
     name: Publish master tag to npm
     runs-on: ubuntu-latest
-    if: github.event_name == 'push' && github.repository == 'facebook/relay' && github.ref == 'master'
+    if: github.event_name == 'push' && github.repository == 'facebook/relay' && github.ref == 'refs/heads/master'
     needs: [build, lint, typecheck]
     steps:
       - uses: actions/checkout@v1

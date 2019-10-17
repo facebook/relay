@@ -275,7 +275,7 @@ class CodegenRunner {
         if (baseParsers) {
           baseParsers.forEach(baseParserName => {
             invariant(
-              this.parsers[baseParserName] == null,
+              this.parsers[baseParserName] != null,
               'Trying to access an uncompiled base parser config: %s',
               baseParserName,
             );
@@ -390,7 +390,7 @@ class CodegenRunner {
         : anyFileFilter,
       async files => {
         invariant(
-          this.parsers[parserName] == null,
+          this.parsers[parserName] != null,
           'Trying to watch an uncompiled parser config: %s',
           parserName,
         );

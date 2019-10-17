@@ -23,7 +23,6 @@ const RelayRecordSource = require('./RelayRecordSource');
 const defaultGetDataID = require('./defaultGetDataID');
 const generateID = require('../util/generateID');
 const invariant = require('invariant');
-const normalizeRelayPayload = require('./normalizeRelayPayload');
 
 import type {HandlerProvider} from '../handlers/RelayDefaultHandlerProvider';
 import type {
@@ -215,15 +214,21 @@ class RelayModernEnvironment implements IEnvironment {
   }
 
   commitPayload(operation: OperationDescriptor, payload: PayloadData): void {
-    // Do not handle stripped nulls when committing a payload
-    const relayPayload = normalizeRelayPayload(
-      operation.root,
-      payload,
-      null /* errors */,
-      {getDataID: this._getDataID, request: operation.request},
-    );
-    this._publishQueue.commitPayload(operation, relayPayload);
-    this._publishQueue.run();
+    RelayObservable.create(sink => {
+      const executor = RelayModernQueryExecutor.execute({
+        operation: operation,
+        operationLoader: this._operationLoader,
+        optimisticConfig: null,
+        publishQueue: this._publishQueue,
+        scheduler: null, // make sure the first payload is sync
+        sink,
+        source: RelayObservable.from({data: payload}),
+        updater: null,
+        operationTracker: this._operationTracker,
+        getDataID: this._getDataID,
+      });
+      return () => executor.cancel();
+    }).subscribe({});
   }
 
   commitUpdate(updater: StoreUpdater): void {

@@ -247,7 +247,6 @@ builds.forEach(build => {
     function copyLicense() {
       return gulp
         .src(['LICENSE'])
-        .pipe(once())
         .pipe(gulp.dest(path.join(DIST, build.package)));
     },
     function copyTestschema() {

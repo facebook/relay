@@ -55,8 +55,6 @@ const t = require('@babel/types');
 const invariant = require('invariant');
 const nullthrows = require('nullthrows');
 
-const MODULE_IMPORT_FIELD = 'MODULE_IMPORT_FIELD';
-
 export type State = {|
   ...TypeGeneratorOptions,
   +generatedFragments: Set<string>,
@@ -67,6 +65,7 @@ export type State = {|
   +usedEnums: {[name: string]: EnumTypeID},
   +usedFragments: Set<string>,
   +matchFields: Map<string, mixed>,
+  +runtimeImports: Set<string>,
 |};
 
 function generate(
@@ -78,16 +77,19 @@ function generate(
   return babelGenerator(ast).code;
 }
 
-type Selection = {
-  key: string,
-  schemaName?: string,
-  value?: any,
-  nodeType?: TypeID | 'MODULE_IMPORT_FIELD',
-  conditional?: boolean,
-  concreteType?: string,
-  ref?: string,
-  nodeSelections?: ?SelectionMap,
-};
+type Selection = {|
+  +key: string,
+  +schemaName?: string,
+  +value?: any,
+  +nodeType?: TypeID,
+  +conditional?: boolean,
+  +concreteType?: string,
+  +ref?: string,
+  +nodeSelections?: ?SelectionMap,
+  +kind?: string,
+  +documentName?: string,
+|};
+
 type SelectionMap = Map<string, Selection>;
 
 function makeProp(
@@ -97,7 +99,9 @@ function makeProp(
   unmasked: boolean,
   concreteType?: string,
 ) {
-  if (nodeType && nodeType !== 'MODULE_IMPORT_FIELD') {
+  if (schemaName === '__typename' && concreteType) {
+    value = t.stringLiteralTypeAnnotation(concreteType);
+  } else if (nodeType) {
     value = transformScalarType(
       schema,
       nodeType,
@@ -109,9 +113,6 @@ function makeProp(
         unmasked,
       ),
     );
-  }
-  if (schemaName === '__typename' && concreteType) {
-    value = t.stringLiteralTypeAnnotation(concreteType);
   }
   const typeProperty = readOnlyObjectTypeProperty(key, value);
   if (conditional) {
@@ -294,6 +295,7 @@ function createVisitor(schema: Schema, options: TypeGeneratorOptions) {
     useSingleArtifactDirectory: options.useSingleArtifactDirectory,
     noFutureProofEnums: options.noFutureProofEnums,
     matchFields: new Map(),
+    runtimeImports: new Set(),
   };
   return {
     leave: {
@@ -342,20 +344,30 @@ function createVisitor(schema: Schema, options: TypeGeneratorOptions) {
           state,
           node.metadata,
         );
-        let importedTypes: ?Array<string>;
         if (state.hasConnectionResolver) {
-          importedTypes = ['ConnectionReference'];
+          state.runtimeImports.add('ConnectionReference');
         }
-        const babelNodes = [
+        if (refetchableFragmentName != null) {
+          state.runtimeImports.add('FragmentReference');
+        }
+        const babelNodes = [];
+        if (state.runtimeImports.size) {
+          babelNodes.push(
+            importTypes(
+              Array.from(state.runtimeImports).sort(),
+              'relay-runtime',
+            ),
+          );
+        }
+        babelNodes.push(
           ...(refetchableFragmentName
             ? generateFragmentRefsForRefetchable(refetchableFragmentName)
             : getFragmentImports(state)),
-          ...(importedTypes ? importTypes(importedTypes, 'relay-runtime') : []),
           ...getEnumDefinitions(schema, state),
           ...inputObjectTypes,
           inputVariablesType,
           responseType,
-        ];
+        );
 
         if (rawResponseType) {
           for (const [key, ast] of state.matchFields) {
@@ -436,15 +448,15 @@ function createVisitor(schema: Schema, options: TypeGeneratorOptions) {
         const type = isPluralFragment
           ? readOnlyArrayOfType(baseType)
           : baseType;
-        const importedTypes = ['FragmentReference'];
+        state.runtimeImports.add('FragmentReference');
         if (state.hasConnectionResolver) {
-          importedTypes.push('ConnectionReference');
+          state.runtimeImports.add('ConnectionReference');
         }
 
         return t.program([
           ...getFragmentImports(state),
           ...getEnumDefinitions(schema, state),
-          importTypes(importedTypes.sort(), 'relay-runtime'),
+          importTypes(Array.from(state.runtimeImports).sort(), 'relay-runtime'),
           ...fragmentTypes,
           exportType(node.name, type),
           exportType(dataTypeName, dataType),
@@ -613,14 +625,25 @@ function visitLinkedField(node) {
 
 function makeRawResponseProp(
   schema: Schema,
-  {key, schemaName, value, conditional, nodeType, nodeSelections}: Selection,
+  {
+    key,
+    schemaName,
+    value,
+    conditional,
+    nodeType,
+    nodeSelections,
+    kind,
+  }: Selection,
   state: State,
   concreteType: ?string,
 ) {
-  if (nodeType === 'MODULE_IMPORT_FIELD') {
+  if (kind === 'ModuleImport') {
     return t.objectTypeSpreadProperty(
       t.genericTypeAnnotation(t.identifier(key)),
     );
+  }
+  if (schemaName === '__typename' && concreteType) {
+    value = t.stringLiteralTypeAnnotation(concreteType);
   } else if (nodeType) {
     value = transformScalarType(
       schema,
@@ -635,10 +658,6 @@ function makeRawResponseProp(
           : schema.getTypeString(nodeType),
       ),
     );
-  }
-
-  if (schemaName === '__typename' && concreteType) {
-    value = t.stringLiteralTypeAnnotation(concreteType);
   }
   const typeProperty = readOnlyObjectTypeProperty(key, value);
   if (conditional) {
@@ -671,34 +690,67 @@ function selectionsToRawResponseBabel(
   if (Object.keys(byConcreteType).length) {
     const baseFieldsMap = selectionsToMap(baseFields);
     for (const concreteType in byConcreteType) {
-      types.push(
-        Array.from(
-          mergeSelections(
-            baseFieldsMap,
-            selectionsToMap(byConcreteType[concreteType]),
-            false,
-          ).values(),
-        ).map(selection =>
-          makeRawResponseProp(schema, selection, state, concreteType),
-        ),
+      const mergedSeletions = Array.from(
+        mergeSelections(
+          baseFieldsMap,
+          selectionsToMap(byConcreteType[concreteType]),
+          false,
+        ).values(),
       );
+      const moduleImport = mergedSeletions.find(
+        sel => sel.kind === 'ModuleImport',
+      );
+      if (moduleImport) {
+        types.push(
+          exactObjectTypeAnnotation(
+            mergedSeletions.map(selection =>
+              makeRawResponseProp(schema, selection, state, concreteType),
+            ),
+          ),
+        );
+        // Generate an extra opaque type for client 3D fields
+        state.runtimeImports.add('Local3DPayload');
+        types.push(
+          t.genericTypeAnnotation(
+            t.identifier('Local3DPayload'),
+            t.typeParameterInstantiation([
+              t.stringLiteralTypeAnnotation(moduleImport.documentName),
+              exactObjectTypeAnnotation(
+                mergedSeletions
+                  .filter(sel => sel.schemaName !== 'js')
+                  .map(selection =>
+                    makeRawResponseProp(schema, selection, state, concreteType),
+                  ),
+              ),
+            ]),
+          ),
+        );
+      } else {
+        types.push(
+          exactObjectTypeAnnotation(
+            mergedSeletions.map(selection =>
+              makeRawResponseProp(schema, selection, state, concreteType),
+            ),
+          ),
+        );
+      }
     }
   }
   if (baseFields.length) {
     types.push(
-      baseFields.map(selection =>
-        makeRawResponseProp(
-          schema,
-          selection,
-          state,
-          isTypenameSelection(selection) ? nodeTypeName : null,
+      exactObjectTypeAnnotation(
+        baseFields.map(selection =>
+          makeRawResponseProp(
+            schema,
+            selection,
+            state,
+            isTypenameSelection(selection) ? nodeTypeName : null,
+          ),
         ),
       ),
     );
   }
-  return unionTypeAnnotation(
-    types.map(props => exactObjectTypeAnnotation(props)),
-  );
+  return unionTypeAnnotation(types);
 }
 
 // Visitor for generating raw response type
@@ -795,7 +847,8 @@ function visitRawResposneModuleImport(
     ...moduleSelections,
     {
       key,
-      nodeType: MODULE_IMPORT_FIELD,
+      kind: 'ModuleImport',
+      documentName: node.documentName,
     },
   ];
 }
@@ -997,7 +1050,6 @@ function generateFragmentRefsForRefetchable(name: string) {
   const oldFragmentTypeName = getOldFragmentTypeName(name);
   const newFragmentTypeName = getNewFragmentTypeName(name);
   return [
-    importTypes(['FragmentReference'], 'relay-runtime'),
     declareExportOpaqueType(oldFragmentTypeName, 'FragmentReference'),
     declareExportOpaqueType(newFragmentTypeName, oldFragmentTypeName),
   ];

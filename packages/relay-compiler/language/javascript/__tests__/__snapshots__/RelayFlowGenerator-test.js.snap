@@ -1377,6 +1377,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 // Test.graphql
+import type { Local3DPayload } from "relay-runtime";
 type NameRendererFragment$ref = any;
 export type TestVariables = {||};
 export type TestResponse = {|
@@ -1407,12 +1408,18 @@ export type TestRawResponse = {|
       +__module_operation_NameRendererFragment: ?any,
       +__module_component_NameRendererFragment: ?any,
       ...PlainUserNameRenderer_name,
-    |} | {|
+    |} | Local3DPayload<"NameRendererFragment", {|
+      +__typename: "PlainUserNameRenderer",
+      ...PlainUserNameRenderer_name,
+    |}> | {|
       +__typename: "MarkdownUserNameRenderer",
       +__module_operation_NameRendererFragment: ?any,
       +__module_component_NameRendererFragment: ?any,
       ...MarkdownUserNameRenderer_name,
-    |} | {|
+    |} | Local3DPayload<"NameRendererFragment", {|
+      +__typename: "MarkdownUserNameRenderer",
+      ...MarkdownUserNameRenderer_name,
+    |}> | {|
       +__typename: ?string
     |}),
   |} | {|
@@ -1535,6 +1542,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 // Test.graphql
+import type { Local3DPayload } from "relay-runtime";
 type AnotherNameRendererFragment$ref = any;
 type NameRendererFragment$ref = any;
 export type TestVariables = {||};
@@ -1574,12 +1582,18 @@ export type TestRawResponse = {|
       +__module_operation_NameRendererFragment: ?any,
       +__module_component_NameRendererFragment: ?any,
       ...PlainUserNameRenderer_name,
-    |} | {|
+    |} | Local3DPayload<"NameRendererFragment", {|
+      +__typename: "PlainUserNameRenderer",
+      ...PlainUserNameRenderer_name,
+    |}> | {|
       +__typename: "MarkdownUserNameRenderer",
       +__module_operation_NameRendererFragment: ?any,
       +__module_component_NameRendererFragment: ?any,
       ...MarkdownUserNameRenderer_name,
-    |} | {|
+    |} | Local3DPayload<"NameRendererFragment", {|
+      +__typename: "MarkdownUserNameRenderer",
+      ...MarkdownUserNameRenderer_name,
+    |}> | {|
       +__typename: ?string
     |}),
   |} | {|
@@ -1596,12 +1610,18 @@ export type TestRawResponse = {|
         +__module_operation_AnotherNameRendererFragment: ?any,
         +__module_component_AnotherNameRendererFragment: ?any,
         ...PlainUserNameRenderer_name,
-      |} | {|
+      |} | Local3DPayload<"AnotherNameRendererFragment", {|
+        +__typename: "PlainUserNameRenderer",
+        ...PlainUserNameRenderer_name,
+      |}> | {|
         +__typename: "MarkdownUserNameRenderer",
         +__module_operation_AnotherNameRendererFragment: ?any,
         +__module_component_AnotherNameRendererFragment: ?any,
         ...MarkdownUserNameRenderer_name,
-      |} | {|
+      |} | Local3DPayload<"AnotherNameRendererFragment", {|
+        +__typename: "MarkdownUserNameRenderer",
+        ...MarkdownUserNameRenderer_name,
+      |}> | {|
         +__typename: ?string
       |}),
     |} | {|

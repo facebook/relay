@@ -36,21 +36,32 @@ const path = require('path');
 const webpack = require('webpack');
 const webpackStream = require('webpack-stream');
 
+const RELEASE_COMMIT_SHA = process.env.RELEASE_COMMIT_SHA;
+if (RELEASE_COMMIT_SHA && RELEASE_COMMIT_SHA.length !== 40) {
+  throw new Error(
+    'If the RELEASE_COMMIT_SHA env variable is set, it should be set to the ' +
+      '40 character git commit hash.',
+  );
+}
+
+const VERSION = RELEASE_COMMIT_SHA
+  ? `0.0.0-master-${RELEASE_COMMIT_SHA.substr(0, 8)}`
+  : process.env.npm_package_version;
+
 const SCRIPT_HASHBANG = '#!/usr/bin/env node\n';
-const DEVELOPMENT_HEADER =
-  ['/**', ' * Relay v' + process.env.npm_package_version, ' */'].join('\n') +
-  '\n';
-const PRODUCTION_HEADER =
-  [
-    '/**',
-    ' * Relay v' + process.env.npm_package_version,
-    ' *',
-    ' * Copyright (c) Facebook, Inc. and its affiliates.',
-    ' *',
-    ' * This source code is licensed under the MIT license found in the',
-    ' * LICENSE file in the root directory of this source tree.',
-    ' */',
-  ].join('\n') + '\n';
+const DEVELOPMENT_HEADER = `/**
+ * Relay v${VERSION}
+ */
+`;
+const PRODUCTION_HEADER = `/**
+ * Relay v${VERSION}
+ *
+ * Copyright (c) Facebook, Inc. and its affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+`;
 
 const buildDist = function(filename, opts, isProduction) {
   const webpackOpts = {
@@ -347,8 +358,44 @@ const watch = gulp.series(dist, () =>
   gulp.watch(INCLUDE_GLOBS, {cwd: PACKAGES}, dist),
 );
 
+/**
+ * Updates the package.json files `/dist/` with a version to release to npm under
+ * the master tag.
+ */
+const setMasterVersion = async () => {
+  if (!RELEASE_COMMIT_SHA) {
+    throw new Error('Expected the RELEASE_COMMIT_SHA env variable to be set.');
+  }
+  const packages = builds.map(build => build.package);
+  packages.forEach(pkg => {
+    const pkgJsonPath = path.join('.', 'dist', pkg, 'package.json');
+    const packageJson = JSON.parse(fs.readFileSync(pkgJsonPath, 'utf8'));
+    packageJson.version = VERSION;
+    for (const depKind of [
+      'dependencies',
+      'devDependencies',
+      'peerDependencies',
+    ]) {
+      const deps = packageJson[depKind];
+      for (const dep in deps) {
+        if (packages.includes(dep)) {
+          deps[dep] = VERSION;
+        }
+      }
+    }
+    fs.writeFileSync(
+      pkgJsonPath,
+      JSON.stringify(packageJson, null, 2) + '\n',
+      'utf8',
+    );
+  });
+};
+
+const cleanbuild = gulp.series(clean, dist);
+
 exports.clean = clean;
 exports.dist = dist;
 exports.watch = watch;
-exports.cleanbuild = gulp.series(clean, dist);
-exports.default = exports.cleanbuild;
+exports.masterrelease = gulp.series(cleanbuild, setMasterVersion);
+exports.cleanbuild = cleanbuild;
+exports.default = cleanbuild;

@@ -30,3 +30,11 @@ declare module 'fbjs/lib/ExecutionEnvironment' {
 declare module 'react-test-renderer' {
   declare module.exports: any;
 }
+
+declare module 'JSResourceReference' {
+  declare export interface JSResourceReference<T> {
+    getModuleId(): string;
+    getModuleIfRequired(): T;
+    load(): Promise<T>;
+  }
+}

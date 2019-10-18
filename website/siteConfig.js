@@ -122,6 +122,12 @@ const users = [
     infoLink: 'https://clubhouse.io/',
     pinned: false,
   },
+  {
+    caption: 'Butterfly Network',
+    image: '/img/logos/butterfly.png',
+    infoLink: 'https://www.butterflynetwork.com/',
+    pinned: false,
+  },
 ];
 
 const siteConfig = {

@@ -7,6 +7,8 @@
  * @format
  */
 
+'use strict';
+
 const users = [
   {
     caption: 'Facebook',
@@ -128,6 +130,12 @@ const users = [
     infoLink: 'http://www.habilelabs.io/',
     pinned: false,
   },
+  {
+    caption: 'Quanto',
+    image: '/relay/img/logos/quanto.png',
+    infoLink: 'https://www.contaquanto.com.br/',
+    pinned: false,
+  },
 ];
 
 const siteConfig = {
@@ -161,8 +169,8 @@ const siteConfig = {
     apiKey: '3d7d5825d50ea36bca0e6ad06c926f06',
     indexName: 'relay',
     algoliaOptions: {
-      facetFilters: ['version:VERSION']
-    }
+      facetFilters: ['version:VERSION'],
+    },
   },
   cleanUrl: true,
   scrollToTop: true,

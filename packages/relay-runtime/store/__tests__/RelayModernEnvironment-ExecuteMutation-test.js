@@ -155,7 +155,7 @@ describe('executeMutation()', () => {
     });
   });
 
-  it('executes the optimistic updater immediately, does not mark the mutation as being in flight in the operation tracker', () => {
+  it('executes the optimistic updater immediately, does not mark mutation as being in flight in operation tracker', () => {
     const selector = createReaderSelector(
       CommentFragment,
       commentID,
@@ -180,16 +180,10 @@ describe('executeMutation()', () => {
       .subscribe(callbacks);
     expect(complete).not.toBeCalled();
     expect(error).not.toBeCalled();
-    expect(callback.mock.calls.length).toBe(1);
-    expect(callback.mock.calls[0][0].data).toEqual({
-      id: commentID,
-      body: {
-        text: 'Give Relay',
-      },
-    });
+    expect(callback).toBeCalledTimes(1);
+    // result tested in previous test
 
-    // The mutation should not be marked as in flight and affecting the
-    // query owner yet
+    // The mutation affecting the query should not be marked as in flight yet
     expect(
       environment
         .getOperationTracker()
@@ -455,5 +449,13 @@ describe('executeMutation()', () => {
     expect(error).not.toBeCalled();
     // The optimistic update has already been reverted
     expect(callback.mock.calls.length).toBe(0);
+
+    // The mutation affecting the query should not be marked as in flight
+    // since it was disposed
+    expect(
+      environment
+        .getOperationTracker()
+        .getPromiseForPendingOperationsAffectingOwner(queryOperation.request),
+    ).toBe(null);
   });
 });

@@ -28,7 +28,7 @@ const {
 } = require('../RelayModernSelector');
 const {generateAndCompile} = require('relay-test-utils-internal');
 
-describe('executeMutation() with @match', () => {
+describe('executeSubscrption() with @match', () => {
   let callbacks;
   let commentFragment;
   let commentID;
@@ -36,11 +36,12 @@ describe('executeMutation() with @match', () => {
   let dataSource;
   let environment;
   let error;
-  let fetch;
+  let fetchFn;
+  let subscribeFn;
   let fragmentCallback;
   let markdownRendererFragment;
   let markdownRendererNormalizationFragment;
-  let mutation;
+  let subscription;
   let next;
   let operation;
   let commentQuery;
@@ -60,12 +61,12 @@ describe('executeMutation() with @match', () => {
     ({
       CommentFragment: commentFragment,
       CommentQuery: commentQuery,
-      CreateCommentMutation: mutation,
+      CommentCreateSubscription: subscription,
       MarkdownUserNameRenderer_name: markdownRendererFragment,
       MarkdownUserNameRenderer_name$normalization: markdownRendererNormalizationFragment,
     } = generateAndCompile(`
-        mutation CreateCommentMutation($input: CommentCreateInput!) {
-          commentCreate(input: $input) {
+        subscription CommentCreateSubscription($input: CommentCreateSubscriptionInput!) {
+          commentCreateSubscribe(input: $input) {
             comment {
               actor {
                 name
@@ -124,7 +125,7 @@ describe('executeMutation() with @match', () => {
     queryVariables = {
       id: commentID,
     };
-    operation = createOperationDescriptor(mutation, variables);
+    operation = createOperationDescriptor(subscription, variables);
     queryOperation = createOperationDescriptor(commentQuery, queryVariables);
 
     const MarkupHandler = {
@@ -144,11 +145,14 @@ describe('executeMutation() with @match', () => {
     error = jest.fn();
     next = jest.fn();
     callbacks = {complete, error, next};
-    fetch = (_query, _variables, _cacheConfig) => {
-      return RelayObservable.create(sink => {
+    fetchFn = jest.fn((_query, _variables, _cacheConfig) =>
+      RelayObservable.create(sink => {}),
+    );
+    subscribeFn = jest.fn((_query, _variables, _cacheConfig) =>
+      RelayObservable.create(sink => {
         dataSource = sink;
-      });
-    };
+      }),
+    );
     operationLoader = {
       load: jest.fn(moduleName => {
         return new Promise(resolve => {
@@ -160,7 +164,7 @@ describe('executeMutation() with @match', () => {
     source = RelayRecordSource.create();
     store = new RelayModernStore(source);
     environment = new RelayModernEnvironment({
-      network: RelayNetwork.create(fetch),
+      network: RelayNetwork.create(fetchFn, subscribeFn),
       store,
       operationLoader,
       handlerProvider: name => {
@@ -185,43 +189,11 @@ describe('executeMutation() with @match', () => {
     environment.subscribe(operationSnapshot, operationCallback);
   });
 
-  it('executes the optimistic updater immediately, does not mark the mutation as being in flight in the operation tracker', () => {
-    environment
-      .executeMutation({
-        operation,
-        optimisticUpdater: _store => {
-          const comment = _store.create(commentID, 'Comment');
-          comment.setValue(commentID, 'id');
-          const actor = _store.create('4', 'User');
-          comment.setLinkedRecord(actor, 'actor');
-          actor.setValue('optimistic-name', 'name');
-        },
-      })
-      .subscribe(callbacks);
-    expect(complete).not.toBeCalled();
-    expect(error).not.toBeCalled();
-    expect(fragmentCallback.mock.calls.length).toBe(1);
-    expect(fragmentCallback.mock.calls[0][0].data).toEqual({
-      id: commentID,
-      actor: {
-        name: 'optimistic-name',
-        nameRenderer: undefined,
-      },
-    });
-
-    // The mutation affecting the query should not be marked as in flight yet
-    expect(
-      environment
-        .getOperationTracker()
-        .getPromiseForPendingOperationsAffectingOwner(queryOperation.request),
-    ).toBe(null);
-  });
-
   it('calls next() and publishes the initial payload to the store', () => {
-    environment.executeMutation({operation}).subscribe(callbacks);
+    environment.execute({operation}).subscribe(callbacks);
     const payload = {
       data: {
-        commentCreate: {
+        commentCreateSubscribe: {
           comment: {
             id: commentID,
             actor: {
@@ -230,9 +202,9 @@ describe('executeMutation() with @match', () => {
               __typename: 'User',
               nameRenderer: {
                 __typename: 'MarkdownUserNameRenderer',
-                __module_component_CreateCommentMutation:
+                __module_component_CommentCreateSubscription:
                   'MarkdownUserNameRenderer.react',
-                __module_operation_CreateCommentMutation:
+                __module_operation_CommentCreateSubscription:
                   'MarkdownUserNameRenderer_name$normalization.graphql',
                 markdown: 'markdown payload',
                 data: {
@@ -255,7 +227,7 @@ describe('executeMutation() with @match', () => {
     const operationSnapshot = operationCallback.mock.calls[0][0];
     expect(operationSnapshot.isMissingData).toBe(false);
     expect(operationSnapshot.data).toEqual({
-      commentCreate: {
+      commentCreateSubscribe: {
         comment: {
           actor: {
             name: 'actor-name',
@@ -289,7 +261,7 @@ describe('executeMutation() with @match', () => {
     const matchSelector = nullthrows(
       getSingularSelector(
         markdownRendererFragment,
-        (operationSnapshot.data: any)?.commentCreate?.comment?.actor
+        (operationSnapshot.data: any)?.commentCreateSubscribe?.comment?.actor
           ?.nameRenderer,
       ),
     );
@@ -302,7 +274,7 @@ describe('executeMutation() with @match', () => {
       markdown: undefined,
     });
 
-    // The mutation affecting the query should be marked as in flight now
+    // The subscription affecting the owner should be marked as in flight now
     expect(
       environment
         .getOperationTracker()
@@ -311,10 +283,10 @@ describe('executeMutation() with @match', () => {
   });
 
   it('loads the @match fragment and normalizes/publishes the field payload', () => {
-    environment.executeMutation({operation}).subscribe(callbacks);
+    environment.execute({operation}).subscribe(callbacks);
     const payload = {
       data: {
-        commentCreate: {
+        commentCreateSubscribe: {
           comment: {
             id: commentID,
             actor: {
@@ -323,9 +295,9 @@ describe('executeMutation() with @match', () => {
               __typename: 'User',
               nameRenderer: {
                 __typename: 'MarkdownUserNameRenderer',
-                __module_component_CreateCommentMutation:
+                __module_component_CommentCreateSubscription:
                   'MarkdownUserNameRenderer.react',
-                __module_operation_CreateCommentMutation:
+                __module_operation_CommentCreateSubscription:
                   'MarkdownUserNameRenderer_name$normalization.graphql',
                 markdown: 'markdown payload',
                 data: {
@@ -354,7 +326,7 @@ describe('executeMutation() with @match', () => {
     const matchSelector = nullthrows(
       getSingularSelector(
         markdownRendererFragment,
-        (operationSnapshot.data: any)?.commentCreate?.comment?.actor
+        (operationSnapshot.data: any)?.commentCreateSubscribe?.comment?.actor
           ?.nameRenderer,
       ),
     );
@@ -382,19 +354,20 @@ describe('executeMutation() with @match', () => {
       markdown: 'markdown payload',
     });
 
-    // The mutation affecting the query should still be marked as in flight
+    // The subscription should no longer be marked as in flight since incremental
+    // payloads for the initial server payload have been resolved
     expect(
       environment
         .getOperationTracker()
         .getPromiseForPendingOperationsAffectingOwner(queryOperation.request),
-    ).not.toBe(null);
+    ).toBe(null);
   });
 
-  it('calls complete() only after match payloads are processed (network completes first)', () => {
-    environment.executeMutation({operation}).subscribe(callbacks);
+  it('calls complete() only after match payloads are processed (root network completes first)', () => {
+    environment.execute({operation}).subscribe(callbacks);
     const payload = {
       data: {
-        commentCreate: {
+        commentCreateSubscribe: {
           comment: {
             id: commentID,
             actor: {
@@ -403,9 +376,9 @@ describe('executeMutation() with @match', () => {
               __typename: 'User',
               nameRenderer: {
                 __typename: 'MarkdownUserNameRenderer',
-                __module_component_CreateCommentMutation:
+                __module_component_CommentCreateSubscription:
                   'MarkdownUserNameRenderer.react',
-                __module_operation_CreateCommentMutation:
+                __module_operation_CommentCreateSubscription:
                   'MarkdownUserNameRenderer_name$normalization.graphql',
                 markdown: 'markdown payload',
                 data: {
@@ -424,8 +397,9 @@ describe('executeMutation() with @match', () => {
     expect(error).toBeCalledTimes(0);
     expect(next).toBeCalledTimes(1);
 
-    // The mutation affecting the query should still be in flight
-    // even if the network completed, since we're waiting for a 3d payload
+    // The subscription affecting the query should still appear in flight;
+    // even though the root request has completed, we're still waiting on the
+    // module resource
     expect(
       environment
         .getOperationTracker()
@@ -443,7 +417,7 @@ describe('executeMutation() with @match', () => {
     expect(error).toBeCalledTimes(0);
     expect(next).toBeCalledTimes(1);
 
-    // The mutation affecting the query should no longer be in flight
+    // The subscription affecting the query should no longer be in flight
     expect(
       environment
         .getOperationTracker()
@@ -451,11 +425,11 @@ describe('executeMutation() with @match', () => {
     ).toBe(null);
   });
 
-  it('calls complete() only after match payloads are processed (network completes last)', () => {
-    environment.executeMutation({operation}).subscribe(callbacks);
+  it('calls complete() only after match payloads are processed (root network completes last)', () => {
+    environment.execute({operation}).subscribe(callbacks);
     const payload = {
       data: {
-        commentCreate: {
+        commentCreateSubscribe: {
           comment: {
             id: commentID,
             actor: {
@@ -464,9 +438,9 @@ describe('executeMutation() with @match', () => {
               __typename: 'User',
               nameRenderer: {
                 __typename: 'MarkdownUserNameRenderer',
-                __module_component_CreateCommentMutation:
+                __module_component_CommentCreateSubscription:
                   'MarkdownUserNameRenderer.react',
-                __module_operation_CreateCommentMutation:
+                __module_operation_CommentCreateSubscription:
                   'MarkdownUserNameRenderer_name$normalization.graphql',
                 markdown: 'markdown payload',
                 data: {
@@ -481,6 +455,14 @@ describe('executeMutation() with @match', () => {
     dataSource.next(payload);
     jest.runAllTimers();
 
+    // The subscription affecting the query should appear in flight
+    // since module hasn't been resolved
+    expect(
+      environment
+        .getOperationTracker()
+        .getPromiseForPendingOperationsAffectingOwner(queryOperation.request),
+    ).not.toBe(null);
+
     expect(operationLoader.load).toBeCalledTimes(1);
     expect(operationLoader.load.mock.calls[0][0]).toEqual(
       'MarkdownUserNameRenderer_name$normalization.graphql',
@@ -488,24 +470,24 @@ describe('executeMutation() with @match', () => {
     resolveFragment(markdownRendererNormalizationFragment);
     jest.runAllTimers();
 
-    // The mutation affecting the query should still be in flight
-    // since the network hasn't completed
+    expect(complete).toBeCalledTimes(0);
+    expect(error).toBeCalledTimes(0);
+    expect(next).toBeCalledTimes(1);
+
+    // The subscription affecting the query should no longer be in flight
+    // since module was resolved
     expect(
       environment
         .getOperationTracker()
         .getPromiseForPendingOperationsAffectingOwner(queryOperation.request),
-    ).not.toBe(null);
-
-    expect(complete).toBeCalledTimes(0);
-    expect(error).toBeCalledTimes(0);
-    expect(next).toBeCalledTimes(1);
+    ).toBe(null);
 
     dataSource.complete();
     expect(complete).toBeCalledTimes(1);
     expect(error).toBeCalledTimes(0);
     expect(next).toBeCalledTimes(1);
 
-    // The mutation affecting the query should no longer be in flight
+    // The subscription affecting the query should no longer be in flight
     expect(
       environment
         .getOperationTracker()
@@ -513,81 +495,59 @@ describe('executeMutation() with @match', () => {
     ).toBe(null);
   });
 
-  it('optimistically creates @match fields', () => {
-    const optimisticResponse = {
-      commentCreate: {
-        comment: {
-          id: commentID,
-          actor: {
-            id: '4',
-            name: 'actor-name',
-            __typename: 'User',
-            nameRenderer: {
-              __typename: 'MarkdownUserNameRenderer',
-              __module_component_CreateCommentMutation:
-                'MarkdownUserNameRenderer.react',
-              __module_operation_CreateCommentMutation:
-                'MarkdownUserNameRenderer_name$normalization.graphql',
-              markdown: 'markdown payload',
-              data: {
-                markup: '<markup/>', // server data is lowercase
+  it('calls error() even if match payloads have not been resolved', () => {
+    environment.execute({operation}).subscribe(callbacks);
+    const payload = {
+      data: {
+        commentCreateSubscribe: {
+          comment: {
+            id: commentID,
+            actor: {
+              id: '4',
+              name: 'actor-name',
+              __typename: 'User',
+              nameRenderer: {
+                __typename: 'MarkdownUserNameRenderer',
+                __module_component_CommentCreateSubscription:
+                  'MarkdownUserNameRenderer.react',
+                __module_operation_CommentCreateSubscription:
+                  'MarkdownUserNameRenderer_name$normalization.graphql',
+                markdown: 'markdown payload',
+                data: {
+                  markup: '<markup/>', // server data is lowercase
+                },
               },
             },
           },
         },
       },
     };
-    operationLoader.get.mockImplementationOnce(name => {
-      return markdownRendererNormalizationFragment;
-    });
-    environment
-      .executeMutation({operation, optimisticResponse})
-      .subscribe(callbacks);
+    dataSource.next(payload);
     jest.runAllTimers();
 
-    expect(next.mock.calls.length).toBe(0);
-    expect(complete).not.toBeCalled();
-    expect(error.mock.calls.map(call => call[0].message)).toEqual([]);
-    expect(operationCallback).toBeCalledTimes(1);
-    const operationSnapshot = operationCallback.mock.calls[0][0];
-    expect(operationSnapshot.isMissingData).toBe(false);
-    expect(operationSnapshot.data).toEqual({
-      commentCreate: {
-        comment: {
-          actor: {
-            name: 'actor-name',
-            nameRenderer: {
-              __id:
-                'client:4:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
-              __fragmentPropName: 'name',
-              __fragments: {
-                MarkdownUserNameRenderer_name: {},
-              },
-              __fragmentOwner: operation.request,
-              __module_component: 'MarkdownUserNameRenderer.react',
-            },
-          },
-        },
-      },
-    });
-    operationCallback.mockClear();
+    // The subscription affecting the query should appear in flight
+    // since module hasn't been resolved
+    expect(
+      environment
+        .getOperationTracker()
+        .getPromiseForPendingOperationsAffectingOwner(queryOperation.request),
+    ).not.toBe(null);
 
-    const matchSelector = nullthrows(
-      getSingularSelector(
-        markdownRendererFragment,
-        (operationSnapshot.data: any)?.commentCreate?.comment?.actor
-          ?.nameRenderer,
-      ),
-    );
-    const initialMatchSnapshot = environment.lookup(matchSelector);
-    expect(initialMatchSnapshot.isMissingData).toBe(false);
-    expect(initialMatchSnapshot.data).toEqual({
-      __typename: 'MarkdownUserNameRenderer',
-      data: {
-        // NOTE: should be uppercased by the MarkupHandler
-        markup: '<MARKUP/>',
-      },
-      markdown: 'markdown payload',
-    });
+    const err = new Error('Oops');
+    dataSource.error(err);
+
+    expect(complete).toBeCalledTimes(0);
+    expect(error).toBeCalledTimes(1);
+    expect(error.mock.calls[0][0]).toBe(err);
+    expect(next).toBeCalledTimes(1);
+    expect(fragmentCallback).toBeCalledTimes(1);
+
+    // The subscription affecting the query should no longer be in flight
+    // since request errored
+    expect(
+      environment
+        .getOperationTracker()
+        .getPromiseForPendingOperationsAffectingOwner(queryOperation.request),
+    ).toBe(null);
   });
 });

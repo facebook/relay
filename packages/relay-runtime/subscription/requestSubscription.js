@@ -66,7 +66,6 @@ function requestSubscription<TSubscriptionPayload>(
     .execute({
       operation,
       updater,
-      cacheConfig: {force: true},
     })
     .map(() => {
       const data = environment.lookup(operation.fragment).data;

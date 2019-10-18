@@ -122,6 +122,8 @@ class Executor {
   _subscriptions: Map<number, Subscription>;
   _operationTracker: ?OperationTracker;
   _getDataID: GetDataID;
+  _incrementalPayloadsPending: boolean;
+  _pendingModulePayloadsCount: number;
 
   constructor({
     operation,
@@ -149,6 +151,8 @@ class Executor {
     this._subscriptions = new Map();
     this._operationTracker = operationTracker;
     this._getDataID = getDataID;
+    this._incrementalPayloadsPending = false;
+    this._pendingModulePayloadsCount = 0;
 
     const id = this._nextSubscriptionId++;
     source.subscribe({
@@ -241,6 +245,7 @@ class Executor {
   _next(_id: number, response: GraphQLResponse): void {
     this._schedule(() => {
       this._handleNext(response);
+      this._maybeCompleteSubscriptionOperationTracking();
     });
   }
 
@@ -279,6 +284,10 @@ class Executor {
     }
     const isFinal = response.extensions?.is_final === true;
     this._state = isFinal ? 'loading_final' : 'loading_incremental';
+    if (isFinal) {
+      this._incrementalPayloadsPending = false;
+    }
+
     if (isOptimistic) {
       this._processOptimisticResponse(responseWithData, null);
     } else {
@@ -410,6 +419,7 @@ class Executor {
       ROOT_TYPE,
       {getDataID: this._getDataID, path: [], request: this._operation.request},
     );
+    this._incrementalPayloadsPending = false;
     this._incrementalResults.clear();
     this._source.clear();
     this._publishQueue.commitPayload(this._operation, payload, this._updater);
@@ -420,7 +430,7 @@ class Executor {
 
   /**
    * Handles any follow-up actions for a Relay payload for @match, @defer,
-   * and (in the future) @stream directives.
+   * and @stream directives.
    */
   _processPayloadFollowups(payload: RelayResponsePayload): void {
     if (this._state === 'completed') {
@@ -439,9 +449,11 @@ class Executor {
       });
     }
     if (incrementalPlaceholders && incrementalPlaceholders.length !== 0) {
+      this._incrementalPayloadsPending = this._state !== 'loading_final';
       incrementalPlaceholders.forEach(incrementalPlaceholder => {
         this._processIncrementalPlaceholder(payload, incrementalPlaceholder);
       });
+
       if (this._state === 'loading_final') {
         // The query has defer/stream selections that are enabled, but the
         // server indicated that this is a "final" payload: no incremental
@@ -470,6 +482,20 @@ class Executor {
     }
   }
 
+  _maybeCompleteSubscriptionOperationTracking() {
+    const isSubscriptionOperation =
+      this._operation.request.node.params.operationKind === 'subscription';
+    if (!isSubscriptionOperation) {
+      return;
+    }
+    if (
+      this._pendingModulePayloadsCount === 0 &&
+      this._incrementalPayloadsPending === false
+    ) {
+      this._completeOperationTracker();
+    }
+  }
+
   /**
    * Processes a ModuleImportPayload, asynchronously resolving the normalization
    * AST and using it to normalize the field data into a RelayResponsePayload.
@@ -489,11 +515,18 @@ class Executor {
       // data synchronously.
       this._schedule(() => {
         this._handleModuleImportPayload(moduleImportPayload, syncOperation);
+        this._maybeCompleteSubscriptionOperationTracking();
       });
     } else {
       // Otherwise load the operation module and schedule a task to normalize
       // the data when the module is available.
       const id = this._nextSubscriptionId++;
+      this._pendingModulePayloadsCount++;
+
+      const decrementPendingCount = () => {
+        this._pendingModulePayloadsCount--;
+        this._maybeCompleteSubscriptionOperationTracking();
+      };
 
       // Observable.from(operationLoader.load()) wouldn't catch synchronous
       // errors thrown by the load function, which is user-defined. Guard
@@ -513,8 +546,14 @@ class Executor {
           }
         })
         .subscribe({
-          complete: () => this._complete(id),
-          error: error => this._error(error),
+          complete: () => {
+            this._complete(id);
+            decrementPendingCount();
+          },
+          error: error => {
+            this._error(error);
+            decrementPendingCount();
+          },
           start: subscription => this._start(id, subscription),
         });
     }

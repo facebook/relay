@@ -10,26 +10,20 @@
 
 'use strict';
 
+const crypto = require('crypto');
+const invariant = require('invariant');
+const {RelayConcreteNode} = require('relay-runtime');
+
 const CodeMarker = require('../util/CodeMarker');
 const Profiler = require('../core/GraphQLCompilerProfiler');
-
-const crypto = require('crypto');
 const dedupeJSONStringify = require('../util/dedupeJSONStringify');
-const invariant = require('invariant');
-
-const {RelayConcreteNode} = require('relay-runtime');
+const createPrintRequireModuleDependency = require('./createPrintRequireModuleDependency');
 
 import type {GeneratedDefinition} from '../core/GraphQLIR';
 import type {Schema} from '../core/Schema';
 import type {FormatModule} from '../language/RelayLanguagePluginInterface';
 import type CodegenDirectory from './CodegenDirectory';
 import type {GeneratedNode} from 'relay-runtime';
-
-function createPrintRequireModuleDependency(
-  extension: string,
-): string => string {
-  return moduleName => `require('./${moduleName}.${extension}')`;
-}
 
 function getConcreteType(node: GeneratedNode): string {
   switch (node.kind) {
@@ -169,7 +163,4 @@ function extractHash(text: ?string): ?string {
   return match && match[1];
 }
 
-module.exports = {
-  createPrintRequireModuleDependency,
-  writeRelayGeneratedFile,
-};
+module.exports = writeRelayGeneratedFile;

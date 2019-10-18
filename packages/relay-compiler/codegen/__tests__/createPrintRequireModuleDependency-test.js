@@ -11,9 +11,7 @@
 
 'use strict';
 
-const {
-  createPrintRequireModuleDependency,
-} = require('../writeRelayGeneratedFile');
+const createPrintRequireModuleDependency = require('../createPrintRequireModuleDependency');
 
 describe('createPrintRequireModuleDependency', () => {
   it('outputs the correct dependency path', () => {

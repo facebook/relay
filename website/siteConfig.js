@@ -136,6 +136,12 @@ const users = [
     infoLink: 'https://www.contaquanto.com.br/',
     pinned: false,
   },
+  {
+    caption: 'Butterfly Network',
+    image: '/img/logos/butterfly.png',
+    infoLink: 'https://www.butterflynetwork.com/',
+    pinned: false,
+  },
 ];
 
 const siteConfig = {

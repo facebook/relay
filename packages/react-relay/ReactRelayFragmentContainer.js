@@ -14,6 +14,7 @@ const React = require('react');
 
 const areEqual = require('areEqual');
 const buildReactRelayContainer = require('./buildReactRelayContainer');
+const getRootVariablesForFragments = require('./getRootVariablesForFragments');
 
 const {getContainerName} = require('./ReactRelayContainerUtils');
 const {assertRelayContext} = require('./RelayContext');
@@ -94,7 +95,6 @@ function createContainerWithFragments<
       const relayContext = assertRelayContext(nextProps.__relayContext);
       const prevIDs = getDataIDsFromObject(fragments, prevProps);
       const nextIDs = getDataIDsFromObject(fragments, nextProps);
-
       let resolver: FragmentSpecResolver = prevState.resolver;
 
       // If the environment has changed or props point to new records then

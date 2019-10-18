@@ -16,6 +16,7 @@ const ReactRelayQueryFetcher = require('./ReactRelayQueryFetcher');
 
 const areEqual = require('areEqual');
 const buildReactRelayContainer = require('./buildReactRelayContainer');
+const getRootVariablesForFragments = require('./getRootVariablesForFragments');
 const warning = require('warning');
 
 const {getContainerName} = require('./ReactRelayContainerUtils');
@@ -146,6 +147,15 @@ function createContainerWithFragments<
       const prevIDs = getDataIDsFromObject(fragments, prevProps);
       const nextIDs = getDataIDsFromObject(fragments, nextProps);
 
+      const prevRootVariables = getRootVariablesForFragments(
+        fragments,
+        prevProps,
+      );
+      const nextRootVariables = getRootVariablesForFragments(
+        fragments,
+        nextProps,
+      );
+
       let resolver = prevState.resolver;
 
       // If the environment has changed or props point to new records then
@@ -155,6 +165,7 @@ function createContainerWithFragments<
       // - Pending fetches are for the previous records.
       if (
         prevState.prevPropsContext.environment !== relayContext.environment ||
+        !areEqual(prevRootVariables, nextRootVariables) ||
         !areEqual(prevIDs, nextIDs)
       ) {
         // Do not provide a subscription/callback here.
@@ -297,23 +308,7 @@ function createContainerWithFragments<
       }
 
       const {environment} = assertRelayContext(this.props.__relayContext);
-      let rootVariables;
-      // NOTE: For extra safety, we make sure the rootVariables include the
-      // variables from all owners in this fragmentSpec, even though they
-      // should all point to the same owner
-      Object.keys(fragments).forEach(key => {
-        const fragmentNode = fragments[key];
-        const fragmentRef = this.props[key];
-        const selector = getSelector(fragmentNode, fragmentRef);
-        const fragmentOwnerVariables =
-          selector != null && selector.kind === 'PluralReaderSelector'
-            ? selector.selectors[0]?.owner.variables ?? {}
-            : selector?.owner.variables ?? {};
-        rootVariables = {
-          ...rootVariables,
-          ...fragmentOwnerVariables,
-        };
-      });
+      const rootVariables = getRootVariablesForFragments(fragments, this.props);
       let fetchVariables =
         typeof refetchVariables === 'function'
           ? refetchVariables(this._getFragmentVariables())

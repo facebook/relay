@@ -405,6 +405,76 @@ describe('ReactRelayRefetchContainer', () => {
     });
   });
 
+  it('resolves new props when ids dont change even after it has refetched', () => {
+    let userPointer = environment.lookup(ownerUser1.fragment, ownerUser1).data
+      .node;
+    const instance = ReactTestRenderer.create(
+      <ContextSetter environment={environment}>
+        <TestContainer user={userPointer} />
+      </ContextSetter>,
+    );
+    render.mockClear();
+    environment.lookup.mockClear();
+    environment.subscribe.mockClear();
+
+    // Call refetch first
+    const refetchVariables = {
+      cond: false,
+      id: '4',
+    };
+    const fetchedVariables = {id: '4'};
+    refetch(refetchVariables, null, jest.fn());
+    expect(environment.mock.isLoading(UserQuery, fetchedVariables)).toBe(true);
+    environment.mock.resolve(UserQuery, {
+      data: {
+        node: {
+          id: '4',
+          __typename: 'User',
+        },
+      },
+    });
+    render.mockClear();
+    environment.subscribe.mockClear();
+
+    // Pass an updated user pointer that references different variables
+    userPointer = environment.lookup(
+      ownerUser1WithCondVar.fragment,
+      ownerUser1WithCondVar,
+    ).data.node;
+    instance.getInstance().setProps({
+      user: userPointer,
+    });
+
+    // New data & variables are passed to component
+    expect(render.mock.calls.length).toBe(1);
+    expect(render.mock.calls[0][0]).toEqual({
+      user: {
+        id: '4',
+        // Name is excluded since value of cond is now false
+      },
+      relay: {
+        environment: expect.any(Object),
+        refetch: expect.any(Function),
+      },
+    });
+    // Container subscribes for updates on new props
+    expect(environment.subscribe.mock.calls.length).toBe(1);
+    expect(environment.subscribe.mock.calls[0][0]).toEqual({
+      data: {
+        id: '4',
+        // Name is excluded since value of cond is now false
+      },
+      isMissingData: false,
+      seenRecords: expect.any(Object),
+      selector: createReaderSelector(
+        UserFragment,
+        '4',
+        {cond: false},
+        ownerUser1WithCondVar.request,
+      ),
+    });
+  });
+
   it('does not update for same props/data', () => {
     const userPointer = environment.lookup(ownerUser1.fragment, ownerUser1).data
       .node;

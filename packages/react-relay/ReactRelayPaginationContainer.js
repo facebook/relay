@@ -16,6 +16,7 @@ const ReactRelayQueryFetcher = require('./ReactRelayQueryFetcher');
 
 const areEqual = require('areEqual');
 const buildReactRelayContainer = require('./buildReactRelayContainer');
+const getRootVariablesForFragments = require('./getRootVariablesForFragments');
 const invariant = require('invariant');
 const warning = require('warning');
 
@@ -381,6 +382,14 @@ function createContainerWithFragments<
       const relayContext = assertRelayContext(nextProps.__relayContext);
       const prevIDs = getDataIDsFromObject(fragments, this.props);
       const nextIDs = getDataIDsFromObject(fragments, nextProps);
+      const prevRootVariables = getRootVariablesForFragments(
+        fragments,
+        this.props,
+      );
+      const nextRootVariables = getRootVariablesForFragments(
+        fragments,
+        nextProps,
+      );
 
       // If the environment has changed or props point to new records then
       // previously fetched data and any pending fetches no longer apply:
@@ -389,6 +398,7 @@ function createContainerWithFragments<
       // - Pending fetches are for the previous records.
       if (
         relayContext.environment !== this.state.prevContext.environment ||
+        !areEqual(prevRootVariables, nextRootVariables) ||
         !areEqual(prevIDs, nextIDs)
       ) {
         this._cleanup();
@@ -668,26 +678,8 @@ function createContainerWithFragments<
         ...restProps,
         ...this.state.data,
       };
-      let rootVariables;
       let fragmentVariables;
-      // NOTE: rootVariables are spread down below in a couple of places,
-      // so we compute them here from the fragment owners.
-      // For extra safety, we make sure the rootVariables include the
-      // variables from all owners in this fragmentSpec, even though they
-      // should all point to the same owner
-      Object.keys(fragments).forEach(key => {
-        const fragmentNode = fragments[key];
-        const fragmentRef = restProps[key];
-        const selector = getSelector(fragmentNode, fragmentRef);
-        const fragmentOwnerVariables =
-          selector != null && selector.kind === 'PluralReaderSelector'
-            ? selector.selectors[0]?.owner.variables ?? {}
-            : selector?.owner.variables ?? {};
-        rootVariables = {
-          ...rootVariables,
-          ...fragmentOwnerVariables,
-        };
-      });
+      const rootVariables = getRootVariablesForFragments(fragments, restProps);
       fragmentVariables = getVariablesFromObject(fragments, restProps);
       fragmentVariables = {
         ...rootVariables,

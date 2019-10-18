@@ -511,6 +511,100 @@ describe('ReactRelayPaginationContainer', () => {
     });
   });
 
+  it('resolves new props when ids dont change after paginating', () => {
+    let userPointer = environment.lookup(ownerUser1.fragment, ownerUser1).data
+      .node;
+
+    const instance = ReactTestRenderer.create(
+      <ContextSetter environment={environment}>
+        <TestContainer user={userPointer} />
+      </ContextSetter>,
+    );
+
+    render.mockClear();
+    environment.lookup.mockClear();
+    environment.subscribe.mockClear();
+
+    // Paginate first
+    loadMore(1, jest.fn());
+    environment.mock.resolve(UserQuery, {
+      data: {
+        node: {
+          id: '4',
+          __typename: 'User',
+          friends: {
+            edges: [
+              {
+                cursor: 'cursor:2',
+                node: {
+                  __typename: 'User',
+                  id: 'node:2',
+                },
+              },
+            ],
+            pageInfo: {
+              endCursor: 'cursor:2',
+              hasNextPage: true,
+            },
+          },
+        },
+      },
+    });
+    expect(render.mock.calls.length).toBe(1);
+    expect(render.mock.calls[0][0].user.friends.edges.length).toBe(2);
+    render.mockClear();
+    environment.subscribe.mockClear();
+
+    // Pass an updated user pointer that references different variables
+    userPointer = environment.lookup(
+      ownerUser1WithOtherVar.fragment,
+      ownerUser1WithOtherVar,
+    ).data.node;
+    instance.getInstance().setProps({
+      user: userPointer,
+    });
+
+    // Data & Variables are passed to component
+    expect(render.mock.calls.length).toBe(1);
+    expect(render.mock.calls[0][0]).toEqual({
+      user: {
+        id: '4',
+        friends: {
+          edges: [],
+          pageInfo: {
+            endCursor: null,
+            hasNextPage: false,
+          },
+        },
+      },
+      relay: {
+        environment: expect.any(Object),
+        hasMore: expect.any(Function),
+        isLoading: expect.any(Function),
+        loadMore: expect.any(Function),
+        refetchConnection: expect.any(Function),
+      },
+    });
+    // Subscribes for updates
+    expect(environment.subscribe.mock.calls.length).toBe(1);
+    expect(environment.subscribe.mock.calls[0][0]).toEqual({
+      data: expect.any(Object),
+      isMissingData: false,
+      seenRecords: expect.any(Object),
+      selector: createReaderSelector(
+        UserFragment,
+        '4',
+        {
+          after: null,
+          count: 1,
+          orderby: ['name'],
+          isViewerFriendLocal: true,
+        },
+        ownerUser1WithOtherVar.request,
+      ),
+    });
+  });
+
   it('does not update for same props/data', () => {
     const userPointer = environment.lookup(ownerUser1.fragment, ownerUser1).data
       .node;

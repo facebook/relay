@@ -13,6 +13,7 @@
 const CodeMarker = require('../util/CodeMarker');
 const Profiler = require('../core/GraphQLCompilerProfiler');
 
+const createPrintRequireModuleDependency = require('./createPrintRequireModuleDependency');
 const crypto = require('crypto');
 const dedupeJSONStringify = require('../util/dedupeJSONStringify');
 const invariant = require('invariant');
@@ -24,12 +25,6 @@ import type {Schema} from '../core/Schema';
 import type {FormatModule} from '../language/RelayLanguagePluginInterface';
 import type CodegenDirectory from './CodegenDirectory';
 import type {GeneratedNode} from 'relay-runtime';
-
-function createPrintRequireModuleDependency(
-  extension: string,
-): string => string {
-  return moduleName => `require('./${moduleName + extension}')`;
-}
 
 function getConcreteType(node: GeneratedNode): string {
   switch (node.kind) {

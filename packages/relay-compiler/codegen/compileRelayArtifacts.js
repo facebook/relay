@@ -13,7 +13,6 @@
 const Printer = require('../core/GraphQLIRPrinter');
 const Profiler = require('../core/GraphQLCompilerProfiler');
 const RelayCodeGenerator = require('./RelayCodeGenerator');
-const Rollout = require('../util/Rollout');
 
 const filterContextForNode = require('../core/filterContextForNode');
 
@@ -132,19 +131,14 @@ const OPERATION_ORDER = {
 };
 function printOperation(printContext: CompilerContext, name: string): string {
   const printableRoot = printContext.getRoot(name);
-  const documents = filterContextForNode(
-    printableRoot,
-    printContext,
-  ).documents();
-  if (Rollout.check('sort-documents', name)) {
-    documents.sort((a, b) => {
+  return filterContextForNode(printableRoot, printContext)
+    .documents()
+    .sort((a, b) => {
       if (a.kind !== b.kind) {
         return OPERATION_ORDER[a.kind] - OPERATION_ORDER[b.kind];
       }
       return a.name < b.name ? -1 : 1;
-    });
-  }
-  return documents
+    })
     .map(doc => Printer.print(printContext.getSchema(), doc))
     .join('\n');
 }

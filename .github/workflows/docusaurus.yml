@@ -27,5 +27,5 @@ jobs:
         run: |
           git config --global user.email "relay-bot@users.noreply.github.com"
           git config --global user.name "Relay Bot"
-          echo "machine github.com login relay-bot password ${{secrets.GITHUB_TOKEN}}" > ~/.netrc
+          echo "machine github.com login relay-bot password ${{secrets.GITHUB_PUSH_TOKEN}}" > ~/.netrc
           ORGANIZATION_NAME=$(dirname $GITHUB_REPOSITORY) GIT_USER=relay-bot yarn run publish-gh-pages

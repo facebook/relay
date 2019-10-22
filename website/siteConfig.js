@@ -132,7 +132,7 @@ const users = [
   },
   {
     caption: 'Quanto',
-    image: '/relay/img/logos/quanto.png',
+    image: '/img/logos/quanto.png',
     infoLink: 'https://www.contaquanto.com.br/',
     pinned: false,
   },

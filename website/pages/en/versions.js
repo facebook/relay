@@ -76,6 +76,23 @@ class Versions extends React.Component {
               </tbody>
             </table>
             <a name="archive" />
+            <h3>Experimental</h3>
+            <table className="versions">
+              <tbody>
+                {versions.map(version =>
+                    version === 'experimental' && (
+                      <tr key={version}>
+                        <th>{version}</th>
+                        <td>
+                          <a href={`${siteConfig.baseUrl}docs/en/${version}/a-guided-tour-of-relay`}>
+                            Documentation
+                          </a>
+                        </td>
+                      </tr>
+                    ),
+                )}
+              </tbody>
+            </table>
             <h3>Past Versions</h3>
             <p>
               This section contains documentation and release notes for previous

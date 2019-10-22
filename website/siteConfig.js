@@ -193,6 +193,7 @@ const siteConfig = {
   enableUpdateBy: true,
   docsSideNavCollapsible: true,
   scripts: ['/js/redirect.js'],
+  onPageNav: 'separate',
 };
 
 module.exports = siteConfig;

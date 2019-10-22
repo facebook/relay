@@ -84,7 +84,7 @@ class Versions extends React.Component {
                       <tr key={version}>
                         <th>{version}</th>
                         <td>
-                          <a href={`${siteConfig.baseUrl}docs/en/${version}/a-guided-tour-of-relay`}>
+                          <a href={`${siteConfig.baseUrl}docs/en/${version}/api-reference`}>
                             Documentation
                           </a>
                         </td>
@@ -103,7 +103,7 @@ class Versions extends React.Component {
               <tbody>
                 {versions.map(
                   version =>
-                    version !== latestVersion && (
+                    version !== latestVersion && version !== 'experimental' && (
                       <tr key={version}>
                         <th>{version}</th>
                         <td>

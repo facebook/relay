@@ -59,7 +59,7 @@ class GraphQLCompilerContext {
       this._documents.update(node.name, existing => {
         invariant(
           existing,
-          'GraphQLCompilerContext: Expected to replace existing node %s, but' +
+          'GraphQLCompilerContext: Expected to replace existing node %s, but ' +
             'one was not found in the context.',
           node.name,
         );

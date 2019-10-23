@@ -13,15 +13,6 @@
 const invariant = require('invariant');
 
 const {DEFAULT_HANDLE_KEY} = require('../util/DefaultHandleKey');
-const {
-  GraphQLEnumType,
-  GraphQLID,
-  GraphQLInt,
-  GraphQLInputObjectType,
-  GraphQLList,
-  GraphQLNonNull,
-  GraphQLScalarType,
-} = require('graphql');
 
 import type {CompilerContextDocument} from './GraphQLCompilerContext';
 import type {
@@ -34,7 +25,7 @@ import type {
   Node,
   Selection,
 } from './GraphQLIR';
-import type {GraphQLInputType} from 'graphql';
+import type {Schema, TypeID} from './Schema';
 
 const INDENT = '  ';
 
@@ -44,28 +35,28 @@ const INDENT = '  ';
  * variables or fragment spreads with arguments, transform the node
  * prior to printing.
  */
-function print(node: CompilerContextDocument): string {
+function print(schema: Schema, node: CompilerContextDocument): string {
   switch (node.kind) {
     case 'Fragment':
       return (
-        `fragment ${node.name} on ${String(node.type)}` +
-        printFragmentArgumentDefinitions(node.argumentDefinitions) +
-        printDirectives(node.directives) +
-        printSelections(node, '') +
+        `fragment ${node.name} on ${schema.getTypeString(node.type)}` +
+        printFragmentArgumentDefinitions(schema, node.argumentDefinitions) +
+        printDirectives(schema, node.directives) +
+        printSelections(schema, node, '', {}) +
         '\n'
       );
     case 'Root':
       return (
         `${node.operation} ${node.name}` +
-        printArgumentDefinitions(node.argumentDefinitions) +
-        printDirectives(node.directives) +
-        printSelections(node, '') +
+        printArgumentDefinitions(schema, node.argumentDefinitions) +
+        printDirectives(schema, node.directives) +
+        printSelections(schema, node, '', {}) +
         '\n'
       );
     case 'SplitOperation':
       return (
-        `SplitOperation ${node.name} on ${String(node.type)}` +
-        printSelections(node, '') +
+        `SplitOperation ${node.name} on ${schema.getTypeString(node.type)}` +
+        printSelections(schema, node, '', {}) +
         '\n'
       );
     default:
@@ -79,6 +70,7 @@ function print(node: CompilerContextDocument): string {
 }
 
 function printSelections(
+  schema: Schema,
   node: Node,
   indent: string,
   options?: {
@@ -91,7 +83,7 @@ function printSelections(
     return '';
   }
   const printed = selections.map(selection =>
-    printSelection(selection, indent, options),
+    printSelection(schema, selection, indent, options),
   );
   return printed.length
     ? ` {\n${indent + INDENT}${printed.join(
@@ -104,6 +96,7 @@ function printSelections(
  * Prints a field without subselections.
  */
 function printField(
+  schema: Schema,
   field: Field,
   options?: {
     parentDirectives?: string,
@@ -117,14 +110,15 @@ function printField(
     (field.alias === field.name
       ? field.name
       : field.alias + ': ' + field.name) +
-    printArguments(field.args) +
+    printArguments(schema, field.args) +
     parentDirectives +
-    printDirectives(field.directives) +
-    printHandles(field)
+    printDirectives(schema, field.directives) +
+    printHandles(schema, field)
   );
 }
 
 function printSelection(
+  schema: Schema,
   selection: Selection,
   indent: string,
   options?: {
@@ -135,32 +129,39 @@ function printSelection(
   let str;
   const parentDirectives = options?.parentDirectives ?? '';
   const isClientExtension = options?.isClientExtension === true;
-  if (selection.kind === 'LinkedField') {
-    str = printField(selection, {parentDirectives, isClientExtension});
-    str += printSelections(selection, indent + INDENT, {isClientExtension});
-  } else if (selection.kind === 'ConnectionField') {
-    str = printField(selection, {parentDirectives, isClientExtension});
-    str += printSelections(selection, indent + INDENT, {isClientExtension});
-  } else if (selection.kind === 'ModuleImport') {
+  if (
+    selection.kind === 'LinkedField' ||
+    selection.kind === 'ConnectionField'
+  ) {
+    str = printField(schema, selection, {parentDirectives, isClientExtension});
+    str += printSelections(schema, selection, indent + INDENT, {
+      isClientExtension,
+    });
+  } else if (
+    selection.kind === 'ModuleImport' ||
+    selection.kind === 'Connection'
+  ) {
     str = selection.selections
       .map(matchSelection =>
-        printSelection(matchSelection, indent, {
+        printSelection(schema, matchSelection, indent, {
           parentDirectives,
           isClientExtension,
         }),
       )
       .join('\n' + indent + INDENT);
   } else if (selection.kind === 'ScalarField') {
-    str = printField(selection, {parentDirectives, isClientExtension});
+    str = printField(schema, selection, {parentDirectives, isClientExtension});
   } else if (selection.kind === 'InlineFragment') {
     str = '';
     if (isClientExtension) {
       str += '# ';
     }
-    str += '... on ' + selection.typeCondition.toString();
+    str += '... on ' + schema.getTypeString(selection.typeCondition);
     str += parentDirectives;
-    str += printDirectives(selection.directives);
-    str += printSelections(selection, indent + INDENT, {isClientExtension});
+    str += printDirectives(schema, selection.directives);
+    str += printSelections(schema, selection, indent + INDENT, {
+      isClientExtension,
+    });
   } else if (selection.kind === 'FragmentSpread') {
     str = '';
     if (isClientExtension) {
@@ -168,16 +169,16 @@ function printSelection(
     }
     str += '...' + selection.name;
     str += parentDirectives;
-    str += printFragmentArguments(selection.args);
-    str += printDirectives(selection.directives);
+    str += printFragmentArguments(schema, selection.args);
+    str += printDirectives(schema, selection.directives);
   } else if (selection.kind === 'InlineDataFragmentSpread') {
     str =
       `# ${selection.name} @inline` +
       `\n${indent}${INDENT}...` +
       parentDirectives +
-      printSelections(selection, indent + INDENT);
+      printSelections(schema, selection, indent + INDENT, {});
   } else if (selection.kind === 'Condition') {
-    const value = printValue(selection.condition);
+    const value = printValue(schema, selection.condition, null);
     // For Flow
     invariant(
       value != null,
@@ -188,7 +189,7 @@ function printSelection(
     condStr += parentDirectives;
     // For multi-selection conditions, pushes the condition down to each
     const subSelections = selection.selections.map(sel =>
-      printSelection(sel, indent, {
+      printSelection(schema, sel, indent, {
         parentDirectives: condStr,
         isClientExtension,
       }),
@@ -197,16 +198,19 @@ function printSelection(
   } else if (selection.kind === 'Stream') {
     let streamStr = ` @stream(label: "${selection.label}"`;
     if (selection.if !== null) {
-      streamStr += `, if: ${printValue(selection.if) ?? ''}`;
+      streamStr += `, if: ${printValue(schema, selection.if, null) ?? ''}`;
     }
     if (selection.initialCount !== null) {
-      streamStr += `, initial_count: ${printValue(selection.initialCount) ??
-        ''}`;
+      streamStr += `, initial_count: ${printValue(
+        schema,
+        selection.initialCount,
+        null,
+      ) ?? ''}`;
     }
     streamStr += ')';
     streamStr += parentDirectives;
     const subSelections = selection.selections.map(sel =>
-      printSelection(sel, indent, {
+      printSelection(schema, sel, indent, {
         parentDirectives: streamStr,
         isClientExtension,
       }),
@@ -215,7 +219,7 @@ function printSelection(
   } else if (selection.kind === 'Defer') {
     let deferStr = ` @defer(label: "${selection.label}"`;
     if (selection.if !== null) {
-      deferStr += `, if: ${printValue(selection.if) ?? ''}`;
+      deferStr += `, if: ${printValue(schema, selection.if, null) ?? ''}`;
     }
     deferStr += ')';
     deferStr += parentDirectives;
@@ -227,7 +231,7 @@ function printSelection(
       )
     ) {
       const subSelections = selection.selections.map(sel =>
-        printSelection(sel, indent, {
+        printSelection(schema, sel, indent, {
           parentDirectives: deferStr,
           isClientExtension,
         }),
@@ -239,12 +243,15 @@ function printSelection(
         selection.metadata.fragmentTypeCondition != null
       ) {
         str =
-          `... on ${String(selection.metadata.fragmentTypeCondition)}` +
-          deferStr;
+          `... on ${schema.getTypeString(
+            selection.metadata.fragmentTypeCondition,
+          )}` + deferStr;
       } else {
         str = '...' + deferStr;
       }
-      str += printSelections(selection, indent + INDENT, {isClientExtension});
+      str += printSelections(schema, selection, indent + INDENT, {
+        isClientExtension,
+      });
     }
   } else if (selection.kind === 'ClientExtension') {
     invariant(
@@ -258,7 +265,7 @@ function printSelection(
       INDENT +
       selection.selections
         .map(sel =>
-          printSelection(sel, indent, {
+          printSelection(schema, sel, indent, {
             parentDirectives,
             isClientExtension: true,
           }),
@@ -276,12 +283,13 @@ function printSelection(
 }
 
 function printArgumentDefinitions(
+  schema: Schema,
   argumentDefinitions: $ReadOnlyArray<LocalArgumentDefinition>,
 ): string {
   const printed = argumentDefinitions.map(def => {
-    let str = `$${def.name}: ${def.type.toString()}`;
+    let str = `$${def.name}: ${schema.getTypeString(def.type)}`;
     if (def.defaultValue != null) {
-      str += ' = ' + printLiteral(def.defaultValue, def.type);
+      str += ' = ' + printLiteral(schema, def.defaultValue, def.type);
     }
     return str;
   });
@@ -289,6 +297,7 @@ function printArgumentDefinitions(
 }
 
 function printFragmentArgumentDefinitions(
+  schema: Schema,
   argumentDefinitions: $ReadOnlyArray<ArgumentDefinition>,
 ): string {
   let printed;
@@ -297,9 +306,13 @@ function printFragmentArgumentDefinitions(
       return;
     }
     printed = printed || [];
-    let str = `${def.name}: {type: "${def.type.toString()}"`;
+    let str = `${def.name}: {type: "${schema.getTypeString(def.type)}"`;
     if (def.defaultValue != null) {
-      str += `, defaultValue: ${printLiteral(def.defaultValue, def.type)}`;
+      str += `, defaultValue: ${printLiteral(
+        schema,
+        def.defaultValue,
+        def.type,
+      )}`;
     }
     str += '}';
     printed.push(str);
@@ -309,7 +322,7 @@ function printFragmentArgumentDefinitions(
     : '';
 }
 
-function printHandles(field: Field): string {
+function printHandles(schema: Schema, field: Field): string {
   if (!field.handles) {
     return '';
   }
@@ -326,25 +339,34 @@ function printHandles(field: Field): string {
   return printed.length ? ' ' + printed.join(' ') : '';
 }
 
-function printDirectives(directives: $ReadOnlyArray<Directive>): string {
+function printDirectives(
+  schema: Schema,
+  directives: $ReadOnlyArray<Directive>,
+): string {
   const printed = directives.map(directive => {
-    return '@' + directive.name + printArguments(directive.args);
+    return '@' + directive.name + printArguments(schema, directive.args);
   });
   return printed.length ? ' ' + printed.join(' ') : '';
 }
 
-function printFragmentArguments(args: $ReadOnlyArray<Argument>) {
-  const printedArgs = printArguments(args);
+function printFragmentArguments(
+  schema: Schema,
+  args: $ReadOnlyArray<Argument>,
+) {
+  const printedArgs = printArguments(schema, args);
   if (!printedArgs.length) {
     return '';
   }
   return ` @arguments${printedArgs}`;
 }
 
-function printArguments(args: $ReadOnlyArray<Argument>): string {
+function printArguments(
+  schema: Schema,
+  args: $ReadOnlyArray<Argument>,
+): string {
   const printed = [];
   args.forEach(arg => {
-    const printedValue = printValue(arg.value, arg.type);
+    const printedValue = printValue(schema, arg.value, arg.type);
     if (printedValue != null) {
       printed.push(arg.name + ': ' + printedValue);
     }
@@ -352,51 +374,33 @@ function printArguments(args: $ReadOnlyArray<Argument>): string {
   return printed.length ? '(' + printed.join(', ') + ')' : '';
 }
 
-function printValue(value: ArgumentValue, type: ?GraphQLInputType): ?string {
-  if (type instanceof GraphQLNonNull) {
-    type = type.ofType;
+function printValue(
+  schema: Schema,
+  value: ArgumentValue,
+  type: ?TypeID,
+): ?string {
+  if (type != null && schema.isNonNull(type)) {
+    type = schema.getNullableType(type);
   }
   if (value.kind === 'Variable') {
     return '$' + value.variableName;
-  } else if (value.kind === 'ObjectValue') {
-    invariant(
-      type instanceof GraphQLInputObjectType,
-      'GraphQLIRPrinter: Need an InputObject type to print objects.',
-    );
-
-    const typeFields = type.getFields();
-    const pairs = value.fields
-      .map(field => {
-        const innerValue = printValue(field.value, typeFields[field.name].type);
-        return innerValue == null ? null : field.name + ': ' + innerValue;
-      })
-      .filter(Boolean);
-
-    return '{' + pairs.join(', ') + '}';
-  } else if (value.kind === 'ListValue') {
-    invariant(
-      type instanceof GraphQLList,
-      'GraphQLIRPrinter: Need a type in order to print arrays.',
-    );
-    const innerType = type.ofType;
-    return `[${value.items.map(i => printValue(i, innerType)).join(', ')}]`;
   } else if (value.value != null) {
-    return printLiteral(value.value, type);
+    return printLiteral(schema, value.value, type);
   } else {
     return null;
   }
 }
 
-function printLiteral(value: mixed, type: ?GraphQLInputType): string {
+function printLiteral(schema: Schema, value: mixed, type: ?TypeID): string {
   if (value == null) {
-    // $FlowFixMe(>=0.95.0) JSON.stringify can return undefined
-    return JSON.stringify(value);
+    return JSON.stringify(value) ?? 'null';
   }
-  if (type instanceof GraphQLNonNull) {
-    type = type.ofType;
+  if (type != null && schema.isNonNull(type)) {
+    type = schema.getNullableType(type);
   }
-  if (type instanceof GraphQLEnumType) {
-    let result = type.serialize(value);
+
+  if (type && schema.isEnum(type)) {
+    let result = schema.serialize(schema.assertEnumType(type), value);
     if (result == null && typeof value === 'string') {
       // For backwards compatibility, print invalid input values as-is. This
       // can occur with literals defined as an @argumentDefinitions
@@ -406,49 +410,50 @@ function printLiteral(value: mixed, type: ?GraphQLInputType): string {
     invariant(
       typeof result === 'string',
       'GraphQLIRPrinter: Expected value of type %s to be a valid enum value, got `%s`.',
-      type.name,
-      JSON.stringify(value),
+      schema.getTypeString(type),
+      JSON.stringify(value) ?? 'null',
     );
     return result;
-  } else if (type === GraphQLID || type === GraphQLInt) {
-    // For backwards compatibility, print integer and ID values as-is
-    // $FlowFixMe(>=0.95.0) JSON.stringify can return undefined
-    return JSON.stringify(value);
-  } else if (type instanceof GraphQLScalarType) {
-    const result = type.serialize(value);
-    // $FlowFixMe(>=0.95.0) JSON.stringify can return undefined
-    return JSON.stringify(result);
+  } else if (type && (schema.isId(type) || schema.isInt(type))) {
+    return JSON.stringify(value) ?? '';
+  } else if (type && schema.isScalar(type)) {
+    const result = schema.serialize(schema.assertScalarType(type), value);
+    return JSON.stringify(result) ?? '';
   } else if (Array.isArray(value)) {
     invariant(
-      type instanceof GraphQLList,
+      type && schema.isList(type),
       'GraphQLIRPrinter: Need a type in order to print arrays.',
     );
-    const itemType = type.ofType;
+    const itemType = schema.getListItemType(type);
     return (
-      '[' + value.map(item => printLiteral(item, itemType)).join(', ') + ']'
+      '[' +
+      value.map(item => printLiteral(schema, item, itemType)).join(', ') +
+      ']'
     );
+  } else if (type && schema.isList(type) && value != null) {
+    // Not an array, but still a list. Treat as list-of-one as per spec 3.1.7:
+    // http://facebook.github.io/graphql/October2016/#sec-Lists
+    return printLiteral(schema, value, schema.getListItemType(type));
   } else if (typeof value === 'object' && value != null) {
     const fields = [];
     invariant(
-      type instanceof GraphQLInputObjectType,
+      type && schema.isInputObject(type),
       'GraphQLIRPrinter: Need an InputObject type to print objects.',
     );
-    const typeFields = type.getFields();
+    const inputType = schema.assertInputObjectType(type);
     for (const key in value) {
       if (value.hasOwnProperty(key)) {
+        const fieldConfig = schema.getFieldConfig(
+          schema.expectField(inputType, key),
+        );
         fields.push(
-          key + ': ' + printLiteral(value[key], typeFields[key].type),
+          key + ': ' + printLiteral(schema, value[key], fieldConfig.type),
         );
       }
     }
     return '{' + fields.join(', ') + '}';
-  } else if (type instanceof GraphQLList && value != null) {
-    // Not an array, but still a list. Treat as list-of-one as per spec 3.1.7:
-    // http://facebook.github.io/graphql/October2016/#sec-Lists
-    return printLiteral(value, type.ofType);
   } else {
-    // $FlowFixMe(>=0.95.0) JSON.stringify can return undefined
-    return JSON.stringify(value);
+    return JSON.stringify(value) ?? 'null';
   }
 }
 

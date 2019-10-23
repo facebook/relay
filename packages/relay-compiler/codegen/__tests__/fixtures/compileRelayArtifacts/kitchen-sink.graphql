@@ -1,4 +1,4 @@
-query NodeQuery($id: ID! $cond: Boolean! $PictureSize: [Int]!) {
+query NodeQuery($id: ID!, $cond: Boolean!, $PictureSize: [Int]!) {
   node(id: $id) {
     id
     ... on User @include(if: $cond) {
@@ -8,12 +8,13 @@ query NodeQuery($id: ID! $cond: Boolean! $PictureSize: [Int]!) {
   }
 }
 
-fragment UserFragment on User @argumentDefinitions(
-  after: {type: "ID"}
-  cond: {type: "Boolean!", defaultValue: false}
-  first: {type: "Int", defaultValue: 5}
-  size: {type: "[Int]"}
-) {
+fragment UserFragment on User
+  @argumentDefinitions(
+    after: {type: "ID"}
+    cond: {type: "Boolean!", defaultValue: false}
+    first: {type: "Int", defaultValue: 5}
+    size: {type: "[Int]"}
+  ) {
   id
   __typename
   friends(after: $after, first: $first) {

@@ -12,7 +12,7 @@
 
 const invariant = require('invariant');
 
-const {createCombinedError, eachWithErrors} = require('./RelayCompilerError');
+const {eachWithCombinedError} = require('./RelayCompilerError');
 
 import type GraphQLCompilerContext, {
   CompilerContextDocument,
@@ -22,6 +22,7 @@ import type {
   ClientExtension,
   Condition,
   Defer,
+  Connection,
   ConnectionField,
   Directive,
   Fragment,
@@ -30,12 +31,9 @@ import type {
   InlineFragment,
   IR,
   LinkedField,
-  ListValue,
   Literal,
   LocalArgumentDefinition,
   ModuleImport,
-  ObjectFieldValue,
-  ObjectValue,
   Request,
   Root,
   RootArgumentDefinition,
@@ -50,18 +48,16 @@ type NodeVisitor<S> = {|
   ClientExtension?: NodeVisitorFunction<ClientExtension, S>,
   Condition?: NodeVisitorFunction<Condition, S>,
   Defer?: NodeVisitorFunction<Defer, S>,
+  Connection?: NodeVisitorFunction<Connection, S>,
   ConnectionField?: NodeVisitorFunction<ConnectionField, S>,
   Directive?: NodeVisitorFunction<Directive, S>,
   Fragment?: NodeVisitorFunction<Fragment, S>,
   FragmentSpread?: NodeVisitorFunction<FragmentSpread, S>,
   InlineFragment?: NodeVisitorFunction<InlineFragment, S>,
   LinkedField?: NodeVisitorFunction<LinkedField, S>,
-  ListValue?: NodeVisitorFunction<ListValue, S>,
   Literal?: NodeVisitorFunction<Literal, S>,
   LocalArgumentDefinition?: NodeVisitorFunction<LocalArgumentDefinition, S>,
   ModuleImport?: NodeVisitorFunction<ModuleImport, S>,
-  ObjectFieldValue?: NodeVisitorFunction<ObjectFieldValue, S>,
-  ObjectValue?: NodeVisitorFunction<ObjectValue, S>,
   Request?: NodeVisitorFunction<Request, S>,
   Root?: NodeVisitorFunction<Root, S>,
   InlineDataFragmentSpread?: NodeVisitorFunction<InlineDataFragmentSpread, S>,
@@ -86,7 +82,7 @@ function validate<S>(
   stateInitializer: void | (CompilerContextDocument => ?S),
 ): void {
   const validator = new Validator(context, visitor);
-  const errors = eachWithErrors(context.documents(), prevNode => {
+  eachWithCombinedError(context.documents(), prevNode => {
     if (stateInitializer === undefined) {
       validator.visit(prevNode, (undefined: $FlowFixMe));
     } else {
@@ -96,9 +92,6 @@ function validate<S>(
       }
     }
   });
-  if (errors != null && errors.length !== 0) {
-    throw createCombinedError(errors);
-  }
 }
 
 /**
@@ -180,20 +173,12 @@ class Validator<S> {
       case 'InlineDataFragmentSpread':
         this._traverseChildren(prevNode, ['selections']);
         break;
+      case 'ConnectionField':
       case 'LinkedField':
         this._traverseChildren(prevNode, ['args', 'directives', 'selections']);
         break;
-      case 'ConnectionField':
-        this._traverseChildren(prevNode, ['args', 'directives', 'selections']);
-        break;
-      case 'ListValue':
-        this._traverseChildren(prevNode, ['items']);
-        break;
-      case 'ObjectFieldValue':
-        this._traverseChildren(prevNode, null, ['value']);
-        break;
-      case 'ObjectValue':
-        this._traverseChildren(prevNode, ['fields']);
+      case 'Connection':
+        this._traverseChildren(prevNode, ['args', 'selections']);
         break;
       case 'Condition':
         this._traverseChildren(

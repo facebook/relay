@@ -12,6 +12,7 @@
 
 const Profiler = require('../core/GraphQLCompilerProfiler');
 
+const crypto = require('crypto');
 const invariant = require('invariant');
 const path = require('path');
 
@@ -64,39 +65,54 @@ export interface Filesystem {
  *   dir.changes.deleted
  *   dir.changes.unchanged
  */
+
+type Options = {|
+  filesystem?: Filesystem,
+  onlyValidate: boolean,
+  shards?: number,
+|};
+
 class CodegenDirectory {
   changes: Changes;
   _filesystem: Filesystem;
   _files: Set<string>;
   _dir: string;
   onlyValidate: boolean;
+  _shards: number;
 
-  constructor(
-    dir: string,
-    {
-      filesystem,
-      onlyValidate,
-    }: {|
-      filesystem?: Filesystem,
-      onlyValidate: boolean,
-    |},
-  ) {
-    this._filesystem = filesystem || require('fs');
-    this.onlyValidate = onlyValidate;
+  constructor(dir: string, options: Options) {
+    this._filesystem = options.filesystem ?? require('fs');
+    this.onlyValidate = options.onlyValidate;
+    this._shards = options.shards ?? 1;
     if (this._filesystem.existsSync(dir)) {
       invariant(
         this._filesystem.statSync(dir).isDirectory(),
         'Expected `%s` to be a directory.',
         dir,
       );
-    } else if (!this.onlyValidate) {
-      const dirs = [dir];
-      let parent = path.dirname(dir);
+    }
+    if (!this.onlyValidate) {
+      const dirs = [];
+      let parent = dir;
       while (!this._filesystem.existsSync(parent)) {
         dirs.unshift(parent);
         parent = path.dirname(parent);
       }
       dirs.forEach(d => this._filesystem.mkdirSync(d));
+      if (this._shards > 1) {
+        for (let shard = 0; shard < this._shards; shard++) {
+          const shardDir = path.join(dir, this._getShardName(shard));
+          if (this._filesystem.existsSync(shardDir)) {
+            invariant(
+              this._filesystem.statSync(dir).isDirectory(),
+              'Expected `%s` to be a directory.',
+              dir,
+            );
+          } else {
+            this._filesystem.mkdirSync(shardDir);
+          }
+        }
+      }
     }
     this._files = new Set();
     this.changes = {
@@ -132,32 +148,42 @@ class CodegenDirectory {
     );
   }
 
+  static formatChanges(
+    changes: Changes,
+    options: {onlyValidate: boolean},
+  ): string {
+    const output = [];
+    function formatFiles(label, files) {
+      if (files.length > 0) {
+        output.push(label + ':');
+        files.forEach(file => {
+          output.push(' - ' + file);
+        });
+      }
+    }
+    if (options.onlyValidate) {
+      formatFiles('Missing', changes.created);
+      formatFiles('Out of date', changes.updated);
+      formatFiles('Extra', changes.deleted);
+    } else {
+      formatFiles('Created', changes.created);
+      formatFiles('Updated', changes.updated);
+      formatFiles('Deleted', changes.deleted);
+      output.push(`Unchanged: ${changes.unchanged.length} files`);
+    }
+
+    return output.join('\n');
+  }
+
   static printChanges(
     changes: Changes,
     options: {onlyValidate: boolean},
   ): void {
     Profiler.run('CodegenDirectory.printChanges', () => {
-      const output = [];
-      function printFiles(label, files) {
-        if (files.length > 0) {
-          output.push(label + ':');
-          files.forEach(file => {
-            output.push(' - ' + file);
-          });
-        }
-      }
-      if (options.onlyValidate) {
-        printFiles('Missing', changes.created);
-        printFiles('Out of date', changes.updated);
-        printFiles('Extra', changes.deleted);
-      } else {
-        printFiles('Created', changes.created);
-        printFiles('Updated', changes.updated);
-        printFiles('Deleted', changes.deleted);
-        output.push(`Unchanged: ${changes.unchanged.length} files`);
-      }
+      const output = CodegenDirectory.formatChanges(changes, options);
+
       // eslint-disable-next-line no-console
-      console.log(output.join('\n'));
+      console.log(output);
     });
   }
 
@@ -227,7 +253,7 @@ class CodegenDirectory {
   ): void {
     Profiler.run('CodegenDirectory.writeFile', () => {
       this._addGenerated(filename);
-      const filePath = path.join(this._dir, filename);
+      const filePath = this.getPath(filename);
       if (this._filesystem.existsSync(filePath)) {
         const existingContent = this._filesystem.readFileSync(filePath, 'utf8');
         if (existingContent === content && !shouldRepersist) {
@@ -251,39 +277,82 @@ class CodegenDirectory {
 
   /**
    * Deletes all non-generated files, except for invisible "dot" files (ie.
-   * files with names starting with ".") and any files matching the supplied
-   * filePatternToKeep.
+   * files with names starting with ".").
    */
-  deleteExtraFiles(filePatternToKeep?: RegExp): void {
+  deleteExtraFiles(): void {
     Profiler.run('CodegenDirectory.deleteExtraFiles', () => {
-      this._filesystem.readdirSync(this._dir).forEach(actualFile => {
-        const shouldFileExist =
-          this._files.has(actualFile) ||
-          /^\./.test(actualFile) ||
-          (filePatternToKeep != null && filePatternToKeep.test(actualFile));
-        if (shouldFileExist) {
-          return;
-        }
-        if (!this.onlyValidate) {
-          try {
-            this._filesystem.unlinkSync(path.join(this._dir, actualFile));
-          } catch {
-            throw new Error(
-              'CodegenDirectory: Failed to delete `' +
-                actualFile +
-                '` in `' +
-                this._dir +
-                '`.',
-            );
+      if (this._shards > 1) {
+        this._filesystem.readdirSync(this._dir).forEach(firstLevel => {
+          if (firstLevel.startsWith('.')) {
+            // allow hidden files on the first level of the codegen directory
+            return;
           }
-        }
-        this.changes.deleted.push(actualFile);
-      });
+          const firstLevelPath = path.join(this._dir, firstLevel);
+          if (!this._filesystem.statSync(firstLevelPath).isDirectory()) {
+            // Delete all files on the top level, all files need to be in a
+            // shard directory.
+            this._filesystem.unlinkSync(firstLevelPath);
+            return;
+          }
+          this._filesystem.readdirSync(firstLevelPath).forEach(actualFile => {
+            if (this._files.has(actualFile)) {
+              return;
+            }
+            if (!this.onlyValidate) {
+              try {
+                this._filesystem.unlinkSync(
+                  path.join(firstLevelPath, actualFile),
+                );
+              } catch {
+                throw new Error(
+                  'CodegenDirectory: Failed to delete `' +
+                    actualFile +
+                    '` in `' +
+                    this._dir +
+                    '`.',
+                );
+              }
+            }
+            this.changes.deleted.push(actualFile);
+          });
+        });
+      } else {
+        this._filesystem.readdirSync(this._dir).forEach(actualFile => {
+          if (actualFile.startsWith('.') || this._files.has(actualFile)) {
+            return;
+          }
+          if (!this.onlyValidate) {
+            try {
+              this._filesystem.unlinkSync(path.join(this._dir, actualFile));
+            } catch {
+              throw new Error(
+                'CodegenDirectory: Failed to delete `' +
+                  actualFile +
+                  '` in `' +
+                  this._dir +
+                  '`.',
+              );
+            }
+          }
+          this.changes.deleted.push(actualFile);
+        });
+      }
     });
   }
 
   getPath(filename: string): string {
+    if (this._shards > 1) {
+      const hasher = crypto.createHash('md5');
+      hasher.update(filename, 'utf8');
+      const shard = hasher.digest().readUInt32BE(0) % this._shards;
+      return path.join(this._dir, this._getShardName(shard), filename);
+    }
     return path.join(this._dir, filename);
+  }
+
+  _getShardName(shardNumber: number): string {
+    const base16length = Math.ceil(Math.log2(256) / 4);
+    return shardNumber.toString(16).padStart(base16length, '0');
   }
 
   _addGenerated(filename: string): void {

@@ -35,6 +35,9 @@
       "graphql-in-relay": {
         "title": "GraphQL in Relay"
       },
+      "local-state-management": {
+        "title": "Local State Management"
+      },
       "mutations": {
         "title": "Mutations"
       },
@@ -48,7 +51,7 @@
         "title": "Persisted Queries"
       },
       "query-renderer": {
-        "title": "<QueryRenderer />"
+        "title": "QueryRenderer"
       },
       "refetch-container": {
         "title": "Refetch Container"
@@ -108,7 +111,7 @@
         "title": "Pagination Container"
       },
       "version-1.5.0/version-1.5.0-query-renderer": {
-        "title": "<QueryRenderer />"
+        "title": "QueryRenderer"
       },
       "version-1.5.0/version-1.5.0-refetch-container": {
         "title": "Refetch Container"
@@ -141,7 +144,7 @@
         "title": "Pagination Container"
       },
       "version-1.6.0/version-1.6.0-query-renderer": {
-        "title": "<QueryRenderer />"
+        "title": "QueryRenderer"
       },
       "version-1.6.0/version-1.6.0-thinking-in-relay": {
         "title": "Thinking In Relay"
@@ -159,7 +162,7 @@
         "title": "Pagination Container"
       },
       "version-1.6.1/version-1.6.1-query-renderer": {
-        "title": "<QueryRenderer />"
+        "title": "QueryRenderer"
       },
       "version-1.6.1/version-1.6.1-relay-store": {
         "title": "Relay Store"
@@ -279,7 +282,7 @@
         "title": "Pagination Container"
       },
       "version-classic/version-classic-query-renderer": {
-        "title": "<QueryRenderer />"
+        "title": "QueryRenderer"
       },
       "version-classic/version-classic-refetch-container": {
         "title": "Refetch Container"
@@ -345,7 +348,7 @@
         "title": "Pagination Container"
       },
       "version-v1.7.0/version-v1.7.0-query-renderer": {
-        "title": "<QueryRenderer />"
+        "title": "QueryRenderer"
       },
       "version-v1.7.0/version-v1.7.0-refetch-container": {
         "title": "Refetch Container"
@@ -410,6 +413,9 @@
       "version-v4.0.0/version-v4.0.0-graphql-in-relay": {
         "title": "GraphQL in Relay"
       },
+      "version-v4.0.0/version-v4.0.0-local-state-management": {
+        "title": "Local State Management"
+      },
       "version-v4.0.0/version-v4.0.0-mutations": {
         "title": "Mutations"
       },
@@ -417,7 +423,7 @@
         "title": "Pagination Container"
       },
       "version-v4.0.0/version-v4.0.0-query-renderer": {
-        "title": "<QueryRenderer />"
+        "title": "QueryRenderer"
       },
       "version-v4.0.0/version-v4.0.0-refetch-container": {
         "title": "Refetch Container"
@@ -444,7 +450,7 @@
         "title": "Pagination Container"
       },
       "version-v5.0.0/version-v5.0.0-query-renderer": {
-        "title": "<QueryRenderer />"
+        "title": "QueryRenderer"
       },
       "version-v5.0.0/version-v5.0.0-refetch-container": {
         "title": "Refetch Container"
@@ -460,6 +466,39 @@
       },
       "version-v5.0.0/version-v5.0.0-type-emission": {
         "title": "Type Emission"
+      },
+      "version-v6.0.0/version-v6.0.0-community-learning-resources": {
+        "title": "Community Learning Resources"
+      },
+      "version-v6.0.0/version-v6.0.0-installation-and-setup": {
+        "title": "Installation and Setup"
+      },
+      "version-v6.0.0/version-v6.0.0-graphql-in-relay": {
+        "title": "GraphQL in Relay"
+      },
+      "version-v6.0.0/version-v6.0.0-local-state-management": {
+        "title": "Local State Management"
+      },
+      "version-v6.0.0/version-v6.0.0-query-renderer": {
+        "title": "QueryRenderer"
+      },
+      "version-v6.0.0/version-v6.0.0-refetch-container": {
+        "title": "Refetch Container"
+      },
+      "version-v6.0.0/version-v6.0.0-relay-environment": {
+        "title": "Relay Environment"
+      },
+      "version-v7.0.0/version-v7.0.0-community-learning-resources": {
+        "title": "Community Learning Resources"
+      },
+      "version-v7.0.0/version-v7.0.0-fetch-query": {
+        "title": "fetchQuery"
+      },
+      "version-v7.0.0/version-v7.0.0-graphql-in-relay": {
+        "title": "GraphQL in Relay"
+      },
+      "version-v7.0.0/version-v7.0.0-network-layer": {
+        "title": "Network Layer"
       }
     },
     "links": {

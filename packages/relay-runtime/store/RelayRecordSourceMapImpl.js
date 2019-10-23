@@ -61,13 +61,6 @@ class RelayMapRecordSourceMapImpl implements MutableRecordSource {
     return this._records.has(dataID);
   }
 
-  load(
-    dataID: DataID,
-    callback: (error: ?Error, record: ?Record) => void,
-  ): void {
-    callback(null, this.get(dataID));
-  }
-
   remove(dataID: DataID): void {
     this._records.delete(dataID);
   }

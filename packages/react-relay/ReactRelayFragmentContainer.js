@@ -10,10 +10,11 @@
 
 'use strict';
 
-const React = require('React');
+const React = require('react');
 
 const areEqual = require('areEqual');
 const buildReactRelayContainer = require('./buildReactRelayContainer');
+const getRootVariablesForFragments = require('./getRootVariablesForFragments');
 
 const {getContainerName} = require('./ReactRelayContainerUtils');
 const {assertRelayContext} = require('./RelayContext');
@@ -94,7 +95,6 @@ function createContainerWithFragments<
       const relayContext = assertRelayContext(nextProps.__relayContext);
       const prevIDs = getDataIDsFromObject(fragments, prevProps);
       const nextIDs = getDataIDsFromObject(fragments, nextProps);
-
       let resolver: FragmentSpecResolver = prevState.resolver;
 
       // If the environment has changed or props point to new records then
@@ -104,7 +104,6 @@ function createContainerWithFragments<
       // - Pending fetches are for the previous records.
       if (
         prevState.prevPropsContext.environment !== relayContext.environment ||
-        prevState.prevPropsContext.variables !== relayContext.variables ||
         !areEqual(prevIDs, nextIDs)
       ) {
         // Do not provide a subscription/callback here.
@@ -173,9 +172,7 @@ function createContainerWithFragments<
         if (key === '__relayContext') {
           if (
             nextState.prevPropsContext.environment !==
-              this.state.prevPropsContext.environment ||
-            nextState.prevPropsContext.variables !==
-              this.state.prevPropsContext.variables
+            this.state.prevPropsContext.environment
           ) {
             return true;
           }

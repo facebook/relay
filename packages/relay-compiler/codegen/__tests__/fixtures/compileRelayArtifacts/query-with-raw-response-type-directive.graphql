@@ -1,4 +1,4 @@
-query ViewerQuery @raw_response_type{
+query ViewerQuery @raw_response_type {
   viewer {
     actor {
       id

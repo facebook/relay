@@ -10,12 +10,13 @@
 
 'use strict';
 
-const React = require('React');
+const React = require('react');
 const ReactRelayContext = require('./ReactRelayContext');
 const ReactRelayQueryFetcher = require('./ReactRelayQueryFetcher');
 
 const areEqual = require('areEqual');
 const buildReactRelayContainer = require('./buildReactRelayContainer');
+const getRootVariablesForFragments = require('./getRootVariablesForFragments');
 const warning = require('warning');
 
 const {getContainerName} = require('./ReactRelayContainerUtils');
@@ -26,6 +27,7 @@ const {
   createOperationDescriptor,
   getDataIDsFromObject,
   getRequest,
+  getSelector,
   getVariablesFromObject,
   isScalarAndEqual,
 } = require('relay-runtime');
@@ -145,6 +147,15 @@ function createContainerWithFragments<
       const prevIDs = getDataIDsFromObject(fragments, prevProps);
       const nextIDs = getDataIDsFromObject(fragments, nextProps);
 
+      const prevRootVariables = getRootVariablesForFragments(
+        fragments,
+        prevProps,
+      );
+      const nextRootVariables = getRootVariablesForFragments(
+        fragments,
+        nextProps,
+      );
+
       let resolver = prevState.resolver;
 
       // If the environment has changed or props point to new records then
@@ -154,7 +165,7 @@ function createContainerWithFragments<
       // - Pending fetches are for the previous records.
       if (
         prevState.prevPropsContext.environment !== relayContext.environment ||
-        prevState.prevPropsContext.variables !== relayContext.variables ||
+        !areEqual(prevRootVariables, nextRootVariables) ||
         !areEqual(prevIDs, nextIDs)
       ) {
         // Do not provide a subscription/callback here.
@@ -215,9 +226,7 @@ function createContainerWithFragments<
         if (key === '__relayContext') {
           if (
             this.state.prevPropsContext.environment !==
-              nextState.prevPropsContext.environment ||
-            this.state.prevPropsContext.variables !==
-              nextState.prevPropsContext.variables
+            nextState.prevPropsContext.environment
           ) {
             return true;
           }
@@ -298,9 +307,8 @@ function createContainerWithFragments<
         };
       }
 
-      const {environment, variables: rootVariables} = assertRelayContext(
-        this.props.__relayContext,
-      );
+      const {environment} = assertRelayContext(this.props.__relayContext);
+      const rootVariables = getRootVariablesForFragments(fragments, this.props);
       let fetchVariables =
         typeof refetchVariables === 'function'
           ? refetchVariables(this._getFragmentVariables())
@@ -342,30 +350,31 @@ function createContainerWithFragments<
       // synchronous completion may call callbacks .subscribe() returns.
       let refetchSubscription;
 
-      if (options?.fetchPolicy === 'store-or-network') {
-        const storeSnapshot = this._getQueryFetcher().lookupInStore(
-          environment,
-          operation,
+      const storeSnapshot = this._getQueryFetcher().lookupInStore(
+        environment,
+        operation,
+        options?.fetchPolicy,
+      );
+      if (storeSnapshot != null) {
+        this.state.resolver.setVariables(
+          fragmentVariables,
+          operation.request.node,
         );
-        if (storeSnapshot != null) {
-          this.state.resolver.setVariables(fragmentVariables, operation.node);
-          this.setState(
-            latestState => ({
-              data: latestState.resolver.resolve(),
-              contextForChildren: {
-                environment: this.props.__relayContext.environment,
-                variables: fragmentVariables,
-              },
-            }),
-            () => {
-              observer.next && observer.next();
-              observer.complete && observer.complete();
+        this.setState(
+          latestState => ({
+            data: latestState.resolver.resolve(),
+            contextForChildren: {
+              environment: this.props.__relayContext.environment,
             },
-          );
-          return {
-            dispose() {},
-          };
-        }
+          }),
+          () => {
+            observer.next && observer.next();
+            observer.complete && observer.complete();
+          },
+        );
+        return {
+          dispose() {},
+        };
       }
 
       this._getQueryFetcher()
@@ -377,14 +386,16 @@ function createContainerWithFragments<
           preservePreviousReferences: true,
         })
         .mergeMap(response => {
-          this.state.resolver.setVariables(fragmentVariables, operation.node);
+          this.state.resolver.setVariables(
+            fragmentVariables,
+            operation.request.node,
+          );
           return Observable.create(sink =>
             this.setState(
               latestState => ({
                 data: latestState.resolver.resolve(),
                 contextForChildren: {
                   environment: this.props.__relayContext.environment,
-                  variables: fragmentVariables,
                 },
               }),
               () => {

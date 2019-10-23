@@ -10,17 +10,18 @@
 
 'use strict';
 
-const React = require('React');
+const React = require('react');
 const ReactRelayContext = require('../ReactRelayContext');
 const ReactRelayFragmentContainer = require('../ReactRelayFragmentContainer');
 const ReactRelayPaginationContainer = require('../ReactRelayPaginationContainer');
-const ReactTestRenderer = require('ReactTestRenderer');
+const ReactTestRenderer = require('react-test-renderer');
 
 const {
   ConnectionHandler,
   createNormalizationSelector,
   createOperationDescriptor,
   createReaderSelector,
+  createRequestDescriptor,
   ROOT_ID,
 } = require('relay-runtime');
 const {
@@ -52,7 +53,6 @@ describe('ReactRelayPaginationContainer with fragment ownership', () => {
 
       this.__relayContext = {
         environment: props.environment,
-        variables: props.variables,
       };
 
       this.state = {
@@ -63,10 +63,9 @@ describe('ReactRelayPaginationContainer with fragment ownership', () => {
     setProps(props) {
       this.setState({props});
     }
-    setContext(env, vars) {
+    setContext(env) {
       this.__relayContext = {
         environment: env,
-        variables: vars,
       };
       this.setProps({});
     }
@@ -86,12 +85,18 @@ describe('ReactRelayPaginationContainer with fragment ownership', () => {
   }
 
   function createOwnerWithUnalteredVariables(request, vars) {
-    return {
-      fragment: createReaderSelector(request.fragment, ROOT_ID, vars),
-      node: request,
+    const requestDescriptor = createRequestDescriptor(request, vars);
+    const operationDescriptor = {
+      fragment: createReaderSelector(
+        request.fragment,
+        ROOT_ID,
+        vars,
+        requestDescriptor,
+      ),
+      request: requestDescriptor,
       root: createNormalizationSelector(request.operation, ROOT_ID, vars),
-      variables: vars,
     };
+    return operationDescriptor;
   }
 
   beforeEach(() => {
@@ -247,7 +252,7 @@ describe('ReactRelayPaginationContainer with fragment ownership', () => {
                     __fragments: {
                       UserFriendFragment: {isViewerFriendLocal: false},
                     },
-                    __fragmentOwner: ownerUser1,
+                    __fragmentOwner: ownerUser1.request,
                   },
                 },
               ],
@@ -298,7 +303,7 @@ describe('ReactRelayPaginationContainer with fragment ownership', () => {
                     __fragments: {
                       UserFriendFragment: {isViewerFriendLocal: false},
                     },
-                    __fragmentOwner: ownerUser1,
+                    __fragmentOwner: ownerUser1.request,
                   },
                 },
               ],
@@ -385,7 +390,7 @@ describe('ReactRelayPaginationContainer with fragment ownership', () => {
       });
 
       const expectedFragmentVariables = {
-        ...ownerUser1.variables,
+        ...ownerUser1.request.variables,
         count: 2,
         // Variables propagated in fragment owner variables also include
         // fragment variables
@@ -407,7 +412,7 @@ describe('ReactRelayPaginationContainer with fragment ownership', () => {
             __fragments: {
               UserFriendFragment: {isViewerFriendLocal: false},
             },
-            __fragmentOwner: expectedOwner,
+            __fragmentOwner: expectedOwner.request,
           },
         },
         {
@@ -419,7 +424,7 @@ describe('ReactRelayPaginationContainer with fragment ownership', () => {
             __fragments: {
               UserFriendFragment: {isViewerFriendLocal: false},
             },
-            __fragmentOwner: expectedOwner,
+            __fragmentOwner: expectedOwner.request,
           },
         },
       ]);
@@ -479,7 +484,7 @@ describe('ReactRelayPaginationContainer with fragment ownership', () => {
                     __fragments: {
                       UserFriendFragment: {isViewerFriendLocal: false},
                     },
-                    __fragmentOwner: ownerUser1,
+                    __fragmentOwner: ownerUser1.request,
                   },
                 },
               ],
@@ -506,6 +511,8 @@ describe('ReactRelayPaginationContainer with fragment ownership', () => {
     });
 
     it('fetches the new variables', () => {
+      // Assert correct pagination variables and reusing
+      // vars from original parent query
       variables = {
         after: null,
         count: 1,
@@ -517,6 +524,26 @@ describe('ReactRelayPaginationContainer with fragment ownership', () => {
         force: true,
       };
       refetchConnection(1, jest.fn());
+      expect(
+        environment.mock.isLoading(UserQuery, variables, cacheConfig),
+      ).toBe(true);
+    });
+
+    it('fetches the new variables correctly when specifying vars', () => {
+      // Assert correct pagination variables and reusing
+      // vars from original parent query
+      variables = {
+        after: null,
+        count: 1,
+        id: '4',
+        orderby: ['name'],
+        // Should use the provided value of true
+        isViewerFriend: true,
+      };
+      const cacheConfig = {
+        force: true,
+      };
+      refetchConnection(1, jest.fn(), {isViewerFriend: true});
       expect(
         environment.mock.isLoading(UserQuery, variables, cacheConfig),
       ).toBe(true);
@@ -553,7 +580,7 @@ describe('ReactRelayPaginationContainer with fragment ownership', () => {
         },
       });
       const expectedFragmentVariables = {
-        ...ownerUser1.variables,
+        ...ownerUser1.request.variables,
         // Variables propagated in fragment owner variables also include
         // fragment variables
         isViewerFriendLocal: false,
@@ -578,7 +605,7 @@ describe('ReactRelayPaginationContainer with fragment ownership', () => {
                   __fragments: {
                     UserFriendFragment: {isViewerFriendLocal: false},
                   },
-                  __fragmentOwner: expectedOwner,
+                  __fragmentOwner: expectedOwner.request,
                 },
               },
             ],
@@ -720,7 +747,7 @@ describe('ReactRelayPaginationContainer with fragment ownership', () => {
       });
 
       const expectedFragmentVariables = {
-        ...ownerUser1.variables,
+        ...ownerUser1.request.variables,
         orderby: ['last_name'],
         // Variables propagated in fragment owner variables also include
         // fragment variables
@@ -749,7 +776,7 @@ describe('ReactRelayPaginationContainer with fragment ownership', () => {
                   __fragments: {
                     UserFriendFragment: {isViewerFriendLocal: false},
                   },
-                  __fragmentOwner: expectedFragmentOwner,
+                  __fragmentOwner: expectedFragmentOwner.request,
                 },
               },
             ],
@@ -801,7 +828,7 @@ describe('ReactRelayPaginationContainer with fragment ownership', () => {
       });
 
       let expectedFragmentVariables = {
-        ...ownerUser1.variables,
+        ...ownerUser1.request.variables,
         orderby: ['last_name'],
         isViewerFriend: true,
         // Variables propagated in fragment owner variables also include
@@ -828,7 +855,7 @@ describe('ReactRelayPaginationContainer with fragment ownership', () => {
                   __fragments: {
                     UserFriendFragment: {isViewerFriendLocal: true},
                   },
-                  __fragmentOwner: expectedFragmentOwner,
+                  __fragmentOwner: expectedFragmentOwner.request,
                 },
               },
             ],
@@ -886,7 +913,7 @@ describe('ReactRelayPaginationContainer with fragment ownership', () => {
       });
 
       expectedFragmentVariables = {
-        ...ownerUser1.variables,
+        ...ownerUser1.request.variables,
         count: 2,
         orderby: ['last_name'],
         isViewerFriend: true,
@@ -914,7 +941,7 @@ describe('ReactRelayPaginationContainer with fragment ownership', () => {
                   __fragments: {
                     UserFriendFragment: {isViewerFriendLocal: true},
                   },
-                  __fragmentOwner: expectedFragmentOwner,
+                  __fragmentOwner: expectedFragmentOwner.request,
                 },
               },
               {
@@ -926,7 +953,7 @@ describe('ReactRelayPaginationContainer with fragment ownership', () => {
                   __fragments: {
                     UserFriendFragment: {isViewerFriendLocal: true},
                   },
-                  __fragmentOwner: expectedFragmentOwner,
+                  __fragmentOwner: expectedFragmentOwner.request,
                 },
               },
             ],

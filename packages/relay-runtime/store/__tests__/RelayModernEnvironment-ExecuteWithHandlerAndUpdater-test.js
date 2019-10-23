@@ -5,36 +5,22 @@
  * LICENSE file in the root directory of this source tree.
  *
  * @format
- * @flow
+ * @flow strict-local
  * @emails oncall+relay
  */
 
 'use strict';
 
 const RelayModernEnvironment = require('../RelayModernEnvironment');
-const RelayModernOperationDescriptor = require('../RelayModernOperationDescriptor');
 const RelayModernStore = require('../RelayModernStore');
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
 const RelayRecordSource = require('../RelayRecordSource');
 
+const {
+  createOperationDescriptor,
+} = require('../RelayModernOperationDescriptor');
 const {generateAndCompile} = require('relay-test-utils-internal');
-
-function createOperationDescriptor(...args) {
-  const operation = RelayModernOperationDescriptor.createOperationDescriptor(
-    ...args,
-  );
-  // For convenience of the test output, override toJSON to print
-  // a more succint description of the operation.
-  // $FlowFixMe
-  operation.toJSON = () => {
-    return {
-      name: operation.fragment.node.name,
-      variables: operation.variables,
-    };
-  };
-  return operation;
-}
 
 // Regression test: updaters read the store using the selector used to
 // publish, which can fail if a normalization ast was passed as the
@@ -117,7 +103,7 @@ describe('execute() with handler and updater', () => {
     expect(complete).toBeCalledTimes(0);
     expect(error).toBeCalledTimes(0);
     expect(updater).toBeCalledTimes(1);
-    expect(environment.lookup(operation.fragment, operation).data).toEqual({
+    expect(environment.lookup(operation.fragment).data).toEqual({
       me: {
         name: 'ALICE',
       },

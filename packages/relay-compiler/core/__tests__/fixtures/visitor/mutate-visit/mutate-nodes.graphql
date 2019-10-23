@@ -1,8 +1,4 @@
-query NodeQuery(
-  $id: ID!
-  $cond: Boolean!
-  $size: [Int]
-) {
+query NodeQuery($id: ID!, $cond: Boolean!, $size: [Int]) {
   node(id: $id) {
     id
     ... on Node @include(if: $cond) {
@@ -16,12 +12,13 @@ query NodeQuery(
   }
 }
 
-fragment UserFragment on User @argumentDefinitions(
-  after: {type: "ID"}
-  cond: {type: "Boolean!", defaultValue: false}
-  first: {type: "Int", defaultValue: 5}
-  size: {type: "[Int]"}
-) {
+fragment UserFragment on User
+  @argumentDefinitions(
+    after: {type: "ID"}
+    cond: {type: "Boolean!", defaultValue: false}
+    first: {type: "Int", defaultValue: 5}
+    size: {type: "[Int]"}
+  ) {
   ... on User @skip(if: $cond) {
     id
     __typename

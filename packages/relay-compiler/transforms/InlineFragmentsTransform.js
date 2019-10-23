@@ -10,11 +10,11 @@
 
 'use strict';
 
-const GraphQLCompilerContext = require('../core/GraphQLCompilerContext');
 const GraphQLIRTransformer = require('../core/GraphQLIRTransformer');
 
 const invariant = require('invariant');
 
+import type GraphQLCompilerContext from '../core/GraphQLCompilerContext';
 import type {InlineFragment, Fragment, FragmentSpread} from '../core/GraphQLIR';
 
 type FragmentVisitorCache = Map<FragmentSpread, FragmentSpread>;
@@ -48,7 +48,7 @@ function fragmentSpreadVisitor(cache: FragmentVisitorCache): FragmentVisitor {
         'arguments. Use the `ApplyFragmentArgumentTransform` before flattening',
       fragmentSpread.name,
     );
-    const fragment = this.getContext().getFragment(
+    const fragment: Fragment = this.getContext().getFragment(
       fragmentSpread.name,
       fragmentSpread.loc,
     );

@@ -16,13 +16,7 @@ const invariant = require('invariant');
 const warning = require('warning');
 
 const {isClientID} = require('./ClientID');
-const {
-  ID_KEY,
-  REF_KEY,
-  REFS_KEY,
-  TYPENAME_KEY,
-  UNPUBLISH_FIELD_SENTINEL,
-} = require('./RelayStoreUtils');
+const {ID_KEY, REF_KEY, REFS_KEY, TYPENAME_KEY} = require('./RelayStoreUtils');
 
 import type {DataID} from '../util/RelayRuntimeTypes';
 import type {Record} from './RelayStoreTypes';
@@ -242,11 +236,7 @@ function update(prevRecord: Record, nextRecord: Record): Record {
     const key = keys[ii];
     if (updated || !areEqual(prevRecord[key], nextRecord[key])) {
       updated = updated !== null ? updated : {...prevRecord};
-      if (nextRecord[key] !== UNPUBLISH_FIELD_SENTINEL) {
-        updated[key] = nextRecord[key];
-      } else {
-        delete updated[key];
-      }
+      updated[key] = nextRecord[key];
     }
   }
   return updated !== null ? updated : prevRecord;

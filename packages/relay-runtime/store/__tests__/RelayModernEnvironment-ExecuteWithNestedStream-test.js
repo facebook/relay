@@ -5,38 +5,24 @@
  * LICENSE file in the root directory of this source tree.
  *
  * @format
- * @flow
+ * @flow strict-local
  * @emails oncall+relay
  */
 
 'use strict';
 
 const RelayModernEnvironment = require('../RelayModernEnvironment');
-const RelayModernOperationDescriptor = require('../RelayModernOperationDescriptor');
 const RelayModernStore = require('../RelayModernStore');
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
 const RelayRecordSource = require('../RelayRecordSource');
 
+const {
+  createOperationDescriptor,
+} = require('../RelayModernOperationDescriptor');
 const {createReaderSelector} = require('../RelayModernSelector');
 const {VIEWER_ID} = require('../ViewerPattern');
 const {generateAndCompile} = require('relay-test-utils-internal');
-
-function createOperationDescriptor(...args) {
-  const operation = RelayModernOperationDescriptor.createOperationDescriptor(
-    ...args,
-  );
-  // For convenience of the test output, override toJSON to print
-  // a more succint description of the operation.
-  // $FlowFixMe
-  operation.toJSON = () => {
-    return {
-      name: operation.fragment.node.name,
-      variables: operation.variables,
-    };
-  };
-  return operation;
-}
 
 describe('execute() a query with nested @stream', () => {
   let actorFragment;
@@ -107,7 +93,12 @@ describe('execute() a query with nested @stream', () => {
       `));
     variables = {enableStream: true};
     operation = createOperationDescriptor(query, variables);
-    selector = createReaderSelector(feedFragment, VIEWER_ID, variables);
+    selector = createReaderSelector(
+      feedFragment,
+      VIEWER_ID,
+      variables,
+      operation.request,
+    );
 
     const NameHandler = {
       update(storeProxy, payload) {
@@ -145,7 +136,7 @@ describe('execute() a query with nested @stream', () => {
     });
 
     // Publish an initial root payload and a parent nested stream payload
-    const initialSnapshot = environment.lookup(selector, operation);
+    const initialSnapshot = environment.lookup(selector);
     callback = jest.fn();
     environment.subscribe(initialSnapshot, callback);
 
@@ -314,8 +305,7 @@ describe('execute() a query with nested @stream', () => {
 
     // but the streamed entity is added to the store
     const actorSnapshot = environment.lookup(
-      createReaderSelector(actorFragment, 'user-1', {}),
-      operation,
+      createReaderSelector(actorFragment, 'user-1', {}, operation.request),
     );
     expect(actorSnapshot.isMissingData).toBe(false);
     expect(actorSnapshot.data).toEqual({
@@ -367,8 +357,7 @@ describe('execute() a query with nested @stream', () => {
 
     // but the streamed entity is added to the store
     const actorSnapshot = environment.lookup(
-      createReaderSelector(actorFragment, 'user-1', {}),
-      operation,
+      createReaderSelector(actorFragment, 'user-1', {}, operation.request),
     );
     expect(actorSnapshot.isMissingData).toBe(false);
     expect(actorSnapshot.data).toEqual({
@@ -434,8 +423,7 @@ describe('execute() a query with nested @stream', () => {
 
       // but the streamed entity is added to the store
       const actorSnapshot = environment.lookup(
-        createReaderSelector(actorFragment, 'user-1', {}),
-        operation,
+        createReaderSelector(actorFragment, 'user-1', {}, operation.request),
       );
       expect(actorSnapshot.isMissingData).toBe(false);
       expect(actorSnapshot.data).toEqual({
@@ -502,8 +490,7 @@ describe('execute() a query with nested @stream', () => {
 
       // but the streamed entity is added to the store
       const actorSnapshot = environment.lookup(
-        createReaderSelector(actorFragment, 'user-2', {}),
-        operation,
+        createReaderSelector(actorFragment, 'user-2', {}, operation.request),
       );
       expect(actorSnapshot.isMissingData).toBe(false);
       expect(actorSnapshot.data).toEqual({

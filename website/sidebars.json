@@ -25,7 +25,8 @@
       "graphql-server-specification",
       "persisted-queries",
       "type-emission",
-      "testing-relay-components"
+      "testing-relay-components",
+      "local-state-management"
     ],
     "Principles & Architecture": [
       "thinking-in-graphql",

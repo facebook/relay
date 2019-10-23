@@ -1,4 +1,4 @@
-mutation Test($input: UpdateAllSeenStateInput) @raw_response_type{
+mutation Test($input: UpdateAllSeenStateInput) @raw_response_type {
   viewerNotificationsUpdateAllSeenState(input: $input) {
     stories {
       foos {
@@ -7,7 +7,6 @@ mutation Test($input: UpdateAllSeenStateInput) @raw_response_type{
     }
   }
 }
-
 
 extend type Story {
   foos: [Foo]

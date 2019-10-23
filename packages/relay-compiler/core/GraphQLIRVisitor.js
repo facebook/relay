@@ -10,11 +10,14 @@
 
 'use strict';
 
+const {visit} = require('graphql');
+
 import type {
   Argument,
   ClientExtension,
   Condition,
   Defer,
+  Connection,
   ConnectionField,
   Directive,
   Fragment,
@@ -34,13 +37,12 @@ import type {
   Variable,
 } from './GraphQLIR';
 
-const visit = require('graphql').visit;
-
 const NodeKeys = {
   Argument: ['value'],
   ClientExtension: ['selections'],
   Condition: ['condition', 'selections'],
   Defer: ['selections', 'if'],
+  Connection: ['args', 'selections'],
   ConnectionField: ['args', 'directives', 'selections'],
   Directive: ['args'],
   Fragment: ['argumentDefinitions', 'directives', 'selections'],
@@ -65,6 +67,7 @@ export type VisitNode =
   | ClientExtension
   | Condition
   | Defer
+  | Connection
   | ConnectionField
   | Directive
   | Fragment
@@ -105,6 +108,7 @@ export type NodeVisitor =
       ClientExtension?: VisitFn<ClientExtension>,
       Condition?: VisitFn<Condition>,
       Defer?: VisitFn<Defer>,
+      Connection?: VisitFn<Connection>,
       ConnectionField?: VisitFn<ConnectionField>,
       Directive?: VisitFn<Directive>,
       Fragment?: VisitFn<Fragment>,
@@ -127,6 +131,7 @@ export type NodeVisitor =
       ClientExtension?: VisitFn<ClientExtension>,
       Condition?: NodeVisitorObject<Condition>,
       Defer?: NodeVisitorObject<Defer>,
+      Connection?: NodeVisitorObject<Connection>,
       ConnectionField?: NodeVisitorObject<ConnectionField>,
       Directive?: NodeVisitorObject<Directive>,
       Fragment?: NodeVisitorObject<Fragment>,

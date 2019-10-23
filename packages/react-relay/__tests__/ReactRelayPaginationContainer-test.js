@@ -10,12 +10,13 @@
 
 'use strict';
 
-const React = require('React');
+const React = require('react');
 const ReactRelayContext = require('../ReactRelayContext');
 const ReactRelayPaginationContainer = require('../ReactRelayPaginationContainer');
-const ReactTestRenderer = require('ReactTestRenderer');
+const ReactTestRenderer = require('react-test-renderer');
 
 const {
+  createReaderSelector,
   createOperationDescriptor,
   ConnectionHandler,
   ConnectionInterface,
@@ -39,6 +40,7 @@ describe('ReactRelayPaginationContainer', () => {
   let isLoading;
   let loadMore;
   let ownerUser1;
+  let ownerUser1WithOtherVar;
   let ownerUser2;
   let refetchConnection;
   let render;
@@ -50,7 +52,6 @@ describe('ReactRelayPaginationContainer', () => {
 
       this.__relayContext = {
         environment: props.environment,
-        variables: props.variables,
       };
 
       this.state = {
@@ -61,10 +62,9 @@ describe('ReactRelayPaginationContainer', () => {
     setProps(props) {
       this.setState({props});
     }
-    setContext(env, vars) {
+    setContext(env) {
       this.__relayContext = {
         environment: env,
-        variables: vars,
       };
       this.setProps({});
     }
@@ -189,6 +189,23 @@ describe('ReactRelayPaginationContainer', () => {
         },
       },
     });
+    ownerUser1WithOtherVar = createOperationDescriptor(UserQuery, {
+      ...variables,
+      isViewerFriend: true,
+    });
+    environment.commitPayload(ownerUser1WithOtherVar, {
+      node: {
+        id: '4',
+        __typename: 'User',
+        friends: {
+          edges: [],
+          pageInfo: {
+            endCursor: null,
+            hasNextPage: false,
+          },
+        },
+      },
+    });
     ownerUser2 = createOperationDescriptor(UserQuery, {
       ...variables,
       id: '842472',
@@ -227,7 +244,7 @@ describe('ReactRelayPaginationContainer', () => {
 
   it('passes non-fragment props to the component', () => {
     ReactTestRenderer.create(
-      <ContextSetter environment={environment} variables={variables}>
+      <ContextSetter environment={environment}>
         <TestContainer bar={1} foo="foo" />
       </ContextSetter>,
     );
@@ -250,7 +267,7 @@ describe('ReactRelayPaginationContainer', () => {
 
   it('passes through null props', () => {
     ReactTestRenderer.create(
-      <ContextSetter environment={environment} variables={variables}>
+      <ContextSetter environment={environment}>
         <TestContainer user={null} />
       </ContextSetter>,
     );
@@ -275,7 +292,7 @@ describe('ReactRelayPaginationContainer', () => {
       .node;
 
     ReactTestRenderer.create(
-      <ContextSetter environment={environment} variables={variables}>
+      <ContextSetter environment={environment}>
         <TestContainer user={userPointer} />
       </ContextSetter>,
     );
@@ -311,18 +328,20 @@ describe('ReactRelayPaginationContainer', () => {
     // Subscribes for updates
     expect(environment.subscribe.mock.calls.length).toBe(1);
     expect(environment.subscribe.mock.calls[0][0]).toEqual({
-      dataID: '4',
       data: expect.any(Object),
-      node: UserFragment,
-      seenRecords: expect.any(Object),
-      variables: {
-        after: null,
-        count: 1,
-        orderby: ['name'],
-        isViewerFriendLocal: false,
-      },
       isMissingData: false,
-      owner: ownerUser1,
+      seenRecords: expect.any(Object),
+      selector: createReaderSelector(
+        UserFragment,
+        '4',
+        {
+          after: null,
+          count: 1,
+          orderby: ['name'],
+          isViewerFriendLocal: false,
+        },
+        ownerUser1.request,
+      ),
     });
   });
 
@@ -331,7 +350,7 @@ describe('ReactRelayPaginationContainer', () => {
       .node;
 
     ReactTestRenderer.create(
-      <ContextSetter environment={environment} variables={variables}>
+      <ContextSetter environment={environment}>
         <TestContainer user={userPointer} />
       </ContextSetter>,
     );
@@ -375,7 +394,7 @@ describe('ReactRelayPaginationContainer', () => {
     let userPointer = environment.lookup(ownerUser1.fragment, ownerUser1).data
       .node;
     const instance = ReactTestRenderer.create(
-      <ContextSetter environment={environment} variables={variables}>
+      <ContextSetter environment={environment}>
         <TestContainer user={userPointer} />
       </ContextSetter>,
     );
@@ -412,27 +431,29 @@ describe('ReactRelayPaginationContainer', () => {
     // Container subscribes for updates on new props
     expect(environment.subscribe.mock.calls.length).toBe(1);
     expect(environment.subscribe.mock.calls[0][0]).toEqual({
-      dataID: '842472',
       data: expect.any(Object),
-      node: UserFragment,
-      seenRecords: expect.any(Object),
-      variables: {
-        after: null,
-        count: 1,
-        orderby: ['name'],
-        isViewerFriendLocal: false,
-      },
       isMissingData: false,
-      owner: ownerUser2,
+      seenRecords: expect.any(Object),
+      selector: createReaderSelector(
+        UserFragment,
+        '842472',
+        {
+          after: null,
+          count: 1,
+          orderby: ['name'],
+          isViewerFriendLocal: false,
+        },
+        ownerUser2.request,
+      ),
     });
   });
 
-  it('resolves for new variables in context', () => {
-    const userPointer = environment.lookup(ownerUser1.fragment, ownerUser1).data
+  it('resolves new props when ids dont change', () => {
+    let userPointer = environment.lookup(ownerUser1.fragment, ownerUser1).data
       .node;
 
     const instance = ReactTestRenderer.create(
-      <ContextSetter environment={environment} variables={variables}>
+      <ContextSetter environment={environment}>
         <TestContainer user={userPointer} />
       </ContextSetter>,
     );
@@ -441,9 +462,13 @@ describe('ReactRelayPaginationContainer', () => {
     environment.lookup.mockClear();
     environment.subscribe.mockClear();
 
-    // Update the variables in context
-    const newVariables = {...variables, id: '6'};
-    instance.getInstance().setContext(environment, newVariables);
+    userPointer = environment.lookup(
+      ownerUser1WithOtherVar.fragment,
+      ownerUser1WithOtherVar,
+    ).data.node;
+    instance.getInstance().setProps({
+      user: userPointer,
+    });
 
     // Data & Variables are passed to component
     expect(render.mock.calls.length).toBe(1);
@@ -451,18 +476,10 @@ describe('ReactRelayPaginationContainer', () => {
       user: {
         id: '4',
         friends: {
-          edges: [
-            {
-              cursor: 'cursor:1',
-              node: {
-                __typename: 'User',
-                id: 'node:1',
-              },
-            },
-          ],
+          edges: [],
           pageInfo: {
-            endCursor: 'cursor:1',
-            hasNextPage: true,
+            endCursor: null,
+            hasNextPage: false,
           },
         },
       },
@@ -477,18 +494,74 @@ describe('ReactRelayPaginationContainer', () => {
     // Subscribes for updates
     expect(environment.subscribe.mock.calls.length).toBe(1);
     expect(environment.subscribe.mock.calls[0][0]).toEqual({
-      dataID: '4',
       data: expect.any(Object),
-      node: UserFragment,
-      seenRecords: expect.any(Object),
-      variables: {
-        after: null,
-        count: 1,
-        orderby: ['name'],
-        isViewerFriendLocal: false,
-      },
       isMissingData: false,
-      owner: ownerUser1,
+      seenRecords: expect.any(Object),
+      selector: createReaderSelector(
+        UserFragment,
+        '4',
+        {
+          after: null,
+          count: 1,
+          orderby: ['name'],
+          isViewerFriendLocal: true,
+        },
+        ownerUser1WithOtherVar.request,
+      ),
+    });
+  });
+
+  it('resolves new props when ids dont change after paginating', () => {
+    let userPointer = environment.lookup(ownerUser1.fragment, ownerUser1).data
+      .node;
+
+    const instance = ReactTestRenderer.create(
+      <ContextSetter environment={environment}>
+        <TestContainer user={userPointer} />
+      </ContextSetter>,
+    );
+
+    render.mockClear();
+    environment.lookup.mockClear();
+    environment.subscribe.mockClear();
+
+    // Paginate first
+    loadMore(1, jest.fn());
+    environment.mock.resolve(UserQuery, {
+      data: {
+        node: {
+          id: '4',
+          __typename: 'User',
+          friends: {
+            edges: [
+              {
+                cursor: 'cursor:2',
+                node: {
+                  __typename: 'User',
+                  id: 'node:2',
+                },
+              },
+            ],
+            pageInfo: {
+              endCursor: 'cursor:2',
+              hasNextPage: true,
+            },
+          },
+        },
+      },
+    });
+    expect(render.mock.calls.length).toBe(1);
+    expect(render.mock.calls[0][0].user.friends.edges.length).toBe(2);
+    render.mockClear();
+    environment.subscribe.mockClear();
+
+    // Pass an updated user pointer that references different variables
+    userPointer = environment.lookup(
+      ownerUser1WithOtherVar.fragment,
+      ownerUser1WithOtherVar,
+    ).data.node;
+    instance.getInstance().setProps({
+      user: userPointer,
     });
 
     // Data & Variables are passed to component
@@ -497,18 +570,10 @@ describe('ReactRelayPaginationContainer', () => {
       user: {
         id: '4',
         friends: {
-          edges: [
-            {
-              cursor: 'cursor:1',
-              node: {
-                __typename: 'User',
-                id: 'node:1',
-              },
-            },
-          ],
+          edges: [],
           pageInfo: {
-            endCursor: 'cursor:1',
-            hasNextPage: true,
+            endCursor: null,
+            hasNextPage: false,
           },
         },
       },
@@ -523,18 +588,20 @@ describe('ReactRelayPaginationContainer', () => {
     // Subscribes for updates
     expect(environment.subscribe.mock.calls.length).toBe(1);
     expect(environment.subscribe.mock.calls[0][0]).toEqual({
-      dataID: '4',
       data: expect.any(Object),
-      node: UserFragment,
-      seenRecords: expect.any(Object),
-      variables: {
-        after: null,
-        count: 1,
-        orderby: ['name'],
-        isViewerFriendLocal: false,
-      },
       isMissingData: false,
-      owner: ownerUser1,
+      seenRecords: expect.any(Object),
+      selector: createReaderSelector(
+        UserFragment,
+        '4',
+        {
+          after: null,
+          count: 1,
+          orderby: ['name'],
+          isViewerFriendLocal: true,
+        },
+        ownerUser1WithOtherVar.request,
+      ),
     });
   });
 
@@ -542,7 +609,7 @@ describe('ReactRelayPaginationContainer', () => {
     const userPointer = environment.lookup(ownerUser1.fragment, ownerUser1).data
       .node;
     const instance = ReactTestRenderer.create(
-      <ContextSetter environment={environment} variables={variables}>
+      <ContextSetter environment={environment}>
         <TestContainer user={userPointer} />
       </ContextSetter>,
     );
@@ -565,7 +632,7 @@ describe('ReactRelayPaginationContainer', () => {
     const scalar = 42;
     const fn = () => null;
     const instance = ReactTestRenderer.create(
-      <ContextSetter environment={environment} variables={variables}>
+      <ContextSetter environment={environment}>
         <TestContainer fn={fn} nil={null} scalar={scalar} user={userPointer} />
       </ContextSetter>,
     );
@@ -591,7 +658,7 @@ describe('ReactRelayPaginationContainer', () => {
     const scalar = 42;
     const fn = () => null;
     const instance = ReactTestRenderer.create(
-      <ContextSetter environment={environment} variables={variables}>
+      <ContextSetter environment={environment}>
         <TestContainer fn={fn} scalar={scalar} user={userPointer} />
       </ContextSetter>,
     );
@@ -622,7 +689,7 @@ describe('ReactRelayPaginationContainer', () => {
     const scalar = 42;
     const fn = () => null;
     const instance = ReactTestRenderer.create(
-      <ContextSetter environment={environment} variables={variables}>
+      <ContextSetter environment={environment}>
         <TestContainer fn={fn} scalar={scalar} user={userPointer} />
       </ContextSetter>,
     );
@@ -650,7 +717,7 @@ describe('ReactRelayPaginationContainer', () => {
     const userPointer = environment.lookup(ownerUser1.fragment, ownerUser1).data
       .node;
     const instance = ReactTestRenderer.create(
-      <ContextSetter environment={environment} variables={variables}>
+      <ContextSetter environment={environment}>
         <TestContainer arr={[]} obj={{}} user={userPointer} />
       </ContextSetter>,
     );
@@ -787,7 +854,7 @@ describe('ReactRelayPaginationContainer', () => {
 
     expect(() => {
       ReactTestRenderer.create(
-        <ContextSetter environment={environment} variables={variables}>
+        <ContextSetter environment={environment}>
           <TestContainer />
         </ContextSetter>,
       );
@@ -799,7 +866,7 @@ describe('ReactRelayPaginationContainer', () => {
       const userPointer = environment.lookup(ownerUser1.fragment, ownerUser1)
         .data.node;
       ReactTestRenderer.create(
-        <ContextSetter environment={environment} variables={variables}>
+        <ContextSetter environment={environment}>
           <TestContainer user={userPointer} />
         </ContextSetter>,
       );
@@ -914,7 +981,7 @@ describe('ReactRelayPaginationContainer', () => {
         .data.node;
       environment.mock.clearCache();
       ReactTestRenderer.create(
-        <ContextSetter environment={environment} variables={variables}>
+        <ContextSetter environment={environment}>
           <TestContainer user={userPointer} />
         </ContextSetter>,
       );
@@ -1027,7 +1094,7 @@ describe('ReactRelayPaginationContainer', () => {
 
       environment.mock.clearCache();
       instance = ReactTestRenderer.create(
-        <ContextSetter environment={environment} variables={variables}>
+        <ContextSetter environment={environment}>
           <TestContainer user={userPointer} />
         </ContextSetter>,
       );
@@ -1348,7 +1415,7 @@ describe('ReactRelayPaginationContainer', () => {
       const userPointer = environment.lookup(ownerUser1.fragment, ownerUser1)
         .data.node;
       instance = ReactTestRenderer.create(
-        <ContextSetter environment={environment} variables={variables}>
+        <ContextSetter environment={environment}>
           <TestContainer user={userPointer} />
         </ContextSetter>,
       );
@@ -1375,7 +1442,7 @@ describe('ReactRelayPaginationContainer', () => {
       const userPointer = environment.lookup(ownerUser1.fragment, ownerUser1)
         .data.node;
       instance = ReactTestRenderer.create(
-        <ContextSetter environment={environment} variables={variables}>
+        <ContextSetter environment={environment}>
           <TestContainer user={userPointer} />
         </ContextSetter>,
       );
@@ -1800,7 +1867,7 @@ describe('ReactRelayPaginationContainer', () => {
       const userPointer = environment.lookup(ownerUser1.fragment, ownerUser1)
         .data.node;
       instance = ReactTestRenderer.create(
-        <ContextSetter environment={environment} variables={variables}>
+        <ContextSetter environment={environment}>
           <TestContainer user={userPointer} />
         </ContextSetter>,
       );

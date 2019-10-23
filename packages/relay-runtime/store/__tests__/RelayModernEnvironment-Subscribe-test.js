@@ -5,37 +5,23 @@
  * LICENSE file in the root directory of this source tree.
  *
  * @format
- * @flow
+ * @flow strict-local
  * @emails oncall+relay
  */
 
 'use strict';
 
 const RelayModernEnvironment = require('../RelayModernEnvironment');
-const RelayModernOperationDescriptor = require('../RelayModernOperationDescriptor');
 const RelayModernStore = require('../RelayModernStore');
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayRecordSource = require('../RelayRecordSource');
 
+const {
+  createOperationDescriptor,
+} = require('../RelayModernOperationDescriptor');
 const {createReaderSelector} = require('../RelayModernSelector');
 const {ROOT_ID} = require('../RelayStoreUtils');
 const {generateAndCompile} = require('relay-test-utils-internal');
-
-function createOperationDescriptor(...args) {
-  const operation = RelayModernOperationDescriptor.createOperationDescriptor(
-    ...args,
-  );
-  // For convenience of the test output, override toJSON to print
-  // a more succint description of the operation.
-  // $FlowFixMe
-  operation.toJSON = () => {
-    return {
-      name: operation.fragment.node.name,
-      variables: operation.variables,
-    };
-  };
-  return operation;
-}
 
 describe('subscribe()', () => {
   let ParentQuery;
@@ -85,8 +71,12 @@ describe('subscribe()', () => {
 
   it('calls the callback if data changes', () => {
     const snapshot = environment.lookup(
-      createReaderSelector(ParentQuery.fragment, ROOT_ID, {}),
-      operation,
+      createReaderSelector(
+        ParentQuery.fragment,
+        ROOT_ID,
+        {},
+        operation.request,
+      ),
     );
     const callback = jest.fn();
     environment.subscribe(snapshot, callback);
@@ -103,8 +93,12 @@ describe('subscribe()', () => {
 
   it('does not call the callback if disposed', () => {
     const snapshot = environment.lookup(
-      createReaderSelector(ParentQuery.fragment, ROOT_ID, {}),
-      operation,
+      createReaderSelector(
+        ParentQuery.fragment,
+        ROOT_ID,
+        {},
+        operation.request,
+      ),
     );
     const callback = jest.fn();
     const {dispose} = environment.subscribe(snapshot, callback);

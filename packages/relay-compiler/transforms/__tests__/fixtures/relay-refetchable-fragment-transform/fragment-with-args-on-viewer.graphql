@@ -8,8 +8,7 @@ fragment RefetchableFragment on Viewer
   }
 }
 
-fragment ProfilePicture on User
-  @argumentDefinitions(size: {type: "[Int]"}) {
+fragment ProfilePicture on User @argumentDefinitions(size: {type: "[Int]"}) {
   pic: profilePicture(size: $size) {
     uri
   }

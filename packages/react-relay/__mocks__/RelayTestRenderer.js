@@ -10,7 +10,7 @@
 
 'use strict';
 
-const React = require('React');
+const React = require('react');
 const ReactRelayContext = require('../ReactRelayContext');
 
 const invariant = require('invariant');
@@ -65,8 +65,6 @@ class RelayTestRenderer extends React.Component<Props, $FlowFixMe> {
         value={{
           environment:
             this.props.environment || this.props.children.props.environment,
-          variables:
-            this.props.variables || this.props.children.props.variables,
         }}>
         {React.cloneElement(
           this.props.children,

@@ -1,7 +1,8 @@
-fragment TestFragment on User @argumentDefinitions(
-  id: {type: "ID!"}
-  size: {type: "[Int]", defaultValue: [100]}
-) {
+fragment TestFragment on User
+  @argumentDefinitions(
+    id: {type: "ID!"}
+    size: {type: "[Int]", defaultValue: [100]}
+  ) {
   profilePicture(size: $PictureSize) {
     uri
   }
@@ -11,6 +12,6 @@ fragment TestFragment on User @argumentDefinitions(
   ...Foo @arguments(localId: $id)
 }
 
-fragment Foo on User @argumentDefinitions(localId: {type: "ID!"}){
+fragment Foo on User @argumentDefinitions(localId: {type: "ID!"}) {
   id
 }

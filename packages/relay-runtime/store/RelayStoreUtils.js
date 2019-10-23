@@ -24,7 +24,7 @@ import type {
 import type {ReaderArgument, ReaderField} from '../util/ReaderNode';
 import type {Variables} from '../util/RelayRuntimeTypes';
 
-export type Arguments = {[argName: string]: mixed};
+export type Arguments = {+[string]: mixed};
 
 const {VARIABLE} = RelayConcreteNode;
 
@@ -183,9 +183,8 @@ const RelayStoreUtils = {
   ROOT_ID: 'client:root',
   ROOT_TYPE: '__Root',
   TYPENAME_KEY: '__typename',
-  UNPUBLISH_RECORD_SENTINEL: Object.freeze({__UNPUBLISH_RECORD_SENTINEL: true}),
-  UNPUBLISH_FIELD_SENTINEL: Object.freeze({__UNPUBLISH_FIELD_SENTINEL: true}),
 
+  formatStorageKey,
   getArgumentValues,
   getHandleStorageKey,
   getStorageKey,

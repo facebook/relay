@@ -1,0 +1,11 @@
+# expected-to-throw
+fragment RefetchableFragment on Query
+  @refetchable
+  @argumentDefinitions(id: {type: "ID!"}) {
+  node(id: $id) {
+    ... on User {
+      id
+      name
+    }
+  }
+}

@@ -11,26 +11,41 @@
 'use strict';
 
 const CodeMarker = require('../util/CodeMarker');
-const SchemaUtils = require('../core/GraphQLSchemaUtils');
 
 const {
   createCompilerError,
   createUserError,
 } = require('../core/RelayCompilerError');
-const {GraphQLList} = require('graphql');
-const {getStorageKey, stableCopy} = require('relay-runtime');
+const {
+  ConnectionInterface,
+  getStorageKey,
+  stableCopy,
+} = require('relay-runtime');
 
 import type {
   Argument,
+  ArgumentDefinition,
   ClientExtension,
+  Defer,
+  Stream,
   Metadata,
   Fragment,
   Selection,
+  Condition,
+  LinkedField,
+  ScalarField,
+  FragmentSpread,
+  InlineFragment,
+  ModuleImport,
+  Connection,
+  ConnectionField,
+  InlineDataFragmentSpread,
 } from '../core/GraphQLIR';
+import type {Schema, TypeID} from '../core/Schema';
 import type {
   ReaderArgument,
   ReaderArgumentDefinition,
-  ReaderConnectionField,
+  ReaderConnection,
   ReaderField,
   ReaderFragment,
   ReaderInlineDataFragmentSpread,
@@ -39,7 +54,6 @@ import type {
   ReaderScalarField,
   ReaderSelection,
 } from 'relay-runtime';
-const {getRawType, isAbstractType, getNullableType} = SchemaUtils;
 
 /**
  * @public
@@ -47,7 +61,7 @@ const {getRawType, isAbstractType, getNullableType} = SchemaUtils;
  * Converts a GraphQLIR node into a plain JS object representation that can be
  * used at runtime.
  */
-function generate(node: Fragment): ReaderFragment {
+function generate(schema: Schema, node: Fragment): ReaderFragment {
   if (node == null) {
     return node;
   }
@@ -82,44 +96,48 @@ function generate(node: Fragment): ReaderFragment {
   return {
     kind: 'Fragment',
     name: node.name,
-    type: node.type.toString(),
+    type: schema.getTypeString(node.type),
     // $FlowFixMe
     metadata,
-    argumentDefinitions: generateArgumentDefinitions(node.argumentDefinitions),
-    selections: generateSelections(node.selections),
+    argumentDefinitions: generateArgumentDefinitions(
+      schema,
+      node.argumentDefinitions,
+    ),
+    selections: generateSelections(schema, node.selections),
   };
 }
 
 function generateSelections(
+  schema: Schema,
   selections: $ReadOnlyArray<Selection>,
 ): $ReadOnlyArray<ReaderSelection> {
   return selections
     .map(selection => {
       switch (selection.kind) {
         case 'ClientExtension':
-          return generateClientExtension(selection);
+          return generateClientExtension(schema, selection);
         case 'FragmentSpread':
-          return generateFragmentSpread(selection);
+          return generateFragmentSpread(schema, selection);
         case 'Condition':
-          return generateCondition(selection);
+          return generateCondition(schema, selection);
         case 'ScalarField':
-          return generateScalarField(selection);
+          return generateScalarField(schema, selection);
         case 'ModuleImport':
-          return generateModuleImport(selection);
+          return generateModuleImport(schema, selection);
         case 'InlineDataFragmentSpread':
-          return generateInlineDataFragmentSpread(selection);
+          return generateInlineDataFragmentSpread(schema, selection);
         case 'InlineFragment':
-          return generateInlineFragment(selection);
+          return generateInlineFragment(schema, selection);
         case 'LinkedField':
-          return generateLinkedField(selection);
+          return generateLinkedField(schema, selection);
         case 'ConnectionField':
-          return generateConnectionField(selection);
+          return generateConnectionField(schema, selection);
+        case 'Connection':
+          return generateConnection(schema, selection);
         case 'Defer':
+          return generateDefer(schema, selection);
         case 'Stream':
-          throw createCompilerError(
-            `Unexpected ${selection.kind} IR node in ReaderCodeGenerator.`,
-            [selection.loc],
-          );
+          return generateStream(schema, selection);
         default:
           (selection: empty);
           throw new Error();
@@ -129,7 +147,8 @@ function generateSelections(
 }
 
 function generateArgumentDefinitions(
-  nodes,
+  schema: Schema,
+  nodes: $ReadOnlyArray<ArgumentDefinition>,
 ): $ReadOnlyArray<ReaderArgumentDefinition> {
   return nodes.map(node => {
     switch (node.kind) {
@@ -137,30 +156,46 @@ function generateArgumentDefinitions(
         return {
           kind: 'LocalArgument',
           name: node.name,
-          type: node.type.toString(),
+          type: schema.getTypeString(node.type),
           defaultValue: node.defaultValue,
         };
       case 'RootArgumentDefinition':
         return {
           kind: 'RootArgument',
           name: node.name,
-          type: node.type ? node.type.toString() : null,
+          type: node.type ? schema.getTypeString(node.type) : null,
         };
       default:
-        (node: empty);
         throw new Error();
     }
   });
 }
 
-function generateClientExtension(node: ClientExtension): ReaderSelection {
+function generateClientExtension(
+  schema: Schema,
+  node: ClientExtension,
+): ReaderSelection {
   return {
     kind: 'ClientExtension',
-    selections: generateSelections(node.selections),
+    selections: generateSelections(schema, node.selections),
   };
 }
 
-function generateCondition(node): ReaderSelection {
+function generateDefer(schema: Schema, node: Defer): ReaderSelection {
+  return {
+    kind: 'Defer',
+    selections: generateSelections(schema, node.selections),
+  };
+}
+
+function generateStream(schema: Schema, node: Stream): ReaderSelection {
+  return {
+    kind: 'Stream',
+    selections: generateSelections(schema, node.selections),
+  };
+}
+
+function generateCondition(schema: Schema, node: Condition): ReaderSelection {
   if (node.condition.kind !== 'Variable') {
     throw createCompilerError(
       "ReaderCodeGenerator: Expected 'Condition' with static value to be " +
@@ -172,11 +207,14 @@ function generateCondition(node): ReaderSelection {
     kind: 'Condition',
     passingValue: node.passingValue,
     condition: node.condition.variableName,
-    selections: generateSelections(node.selections),
+    selections: generateSelections(schema, node.selections),
   };
 }
 
-function generateFragmentSpread(node): ReaderSelection {
+function generateFragmentSpread(
+  schema: Schema,
+  node: FragmentSpread,
+): ReaderSelection {
   return {
     kind: 'FragmentSpread',
     name: node.name,
@@ -184,48 +222,56 @@ function generateFragmentSpread(node): ReaderSelection {
   };
 }
 
-function generateInlineFragment(node): ReaderSelection {
+function generateInlineFragment(
+  schema: Schema,
+  node: InlineFragment,
+): ReaderSelection {
   return {
     kind: 'InlineFragment',
-    type: node.typeCondition.toString(),
-    selections: generateSelections(node.selections),
+    type: schema.getTypeString(node.typeCondition),
+    selections: generateSelections(schema, node.selections),
   };
 }
 
 function generateInlineDataFragmentSpread(
-  node,
+  schema: Schema,
+  node: InlineDataFragmentSpread,
 ): ReaderInlineDataFragmentSpread {
   return {
     kind: 'InlineDataFragmentSpread',
     name: node.name,
-    selections: generateSelections(node.selections),
+    selections: generateSelections(schema, node.selections),
   };
 }
 
-function generateLinkedField(node): ReaderLinkedField {
+function generateLinkedField(
+  schema: Schema,
+  node: LinkedField,
+): ReaderLinkedField {
   // Note: it is important that the arguments of this field be sorted to
   // ensure stable generation of storage keys for equivalent arguments
   // which may have originally appeared in different orders across an app.
 
   // TODO(T37646905) enable this invariant after splitting the
-  // RelayCodeGenerator-test and running the RelayFieldHandleTransform on
+  // RelayCodeGenerator-test and running the FieldHandleTransform on
   // Reader ASTs.
   //
   //   invariant(
   //     node.handles == null,
   //     'ReaderCodeGenerator: unexpected handles',
   //   );
-
-  const type = getRawType(node.type);
+  const rawType = schema.getRawType(node.type);
   let field: ReaderLinkedField = {
     kind: 'LinkedField',
     alias: node.alias === node.name ? null : node.alias,
     name: node.name,
     storageKey: null,
     args: generateArgs(node.args),
-    concreteType: !isAbstractType(type) ? type.toString() : null,
-    plural: isPlural(node.type),
-    selections: generateSelections(node.selections),
+    concreteType: !schema.isAbstractType(rawType)
+      ? schema.getTypeString(rawType)
+      : null,
+    plural: isPlural(schema, node.type),
+    selections: generateSelections(schema, node.selections),
   };
   // Precompute storageKey if possible
   const storageKey = getStaticStorageKey(field, node.metadata);
@@ -235,34 +281,84 @@ function generateLinkedField(node): ReaderLinkedField {
   return field;
 }
 
-function generateConnectionField(node): ReaderConnectionField {
-  const type = getRawType(node.type);
-  if (isPlural(node.type)) {
+function generateConnectionField(
+  schema: Schema,
+  node: ConnectionField,
+): ReaderLinkedField {
+  return generateLinkedField(schema, {
+    name: node.name,
+    alias: node.alias,
+    loc: node.loc,
+    directives: node.directives,
+    metadata: node.metadata,
+    selections: node.selections,
+    type: node.type,
+    connection: false, // this is only on the linked fields with @conneciton
+    handles: null,
+    args: node.args.filter(
+      arg =>
+        !ConnectionInterface.isConnectionCall({name: arg.name, value: null}),
+    ),
+    kind: 'LinkedField',
+  });
+}
+
+function generateConnection(
+  schema: Schema,
+  node: Connection,
+): ReaderConnection {
+  const {EDGES, PAGE_INFO} = ConnectionInterface.get();
+  const selections = generateSelections(schema, node.selections);
+  let edges: ?ReaderLinkedField;
+  let pageInfo: ?ReaderLinkedField;
+  selections.forEach(selection => {
+    if (selection.kind === 'LinkedField') {
+      if (selection.name === EDGES) {
+        edges = selection;
+      } else if (selection.name === PAGE_INFO) {
+        pageInfo = selection;
+      }
+    } else if (selection.kind === 'Stream') {
+      selection.selections.forEach(subselection => {
+        if (
+          subselection.kind === 'LinkedField' &&
+          subselection.name === EDGES
+        ) {
+          edges = subselection;
+        }
+      });
+    } else if (selection.kind === 'Defer') {
+      selection.selections.forEach(subselection => {
+        if (
+          subselection.kind === 'LinkedField' &&
+          subselection.name === PAGE_INFO
+        ) {
+          pageInfo = subselection;
+        }
+      });
+    }
+  });
+  if (edges == null || pageInfo == null) {
     throw createUserError(
-      'Connection fields cannot return a plural (list) value.',
+      `Invalid connection, expected the '${EDGES}' and '${PAGE_INFO}' fields ` +
+        'to exist.',
       [node.loc],
     );
   }
-  let field: ReaderConnectionField = {
-    kind: 'ConnectionField',
-    alias: node.alias === node.name ? null : node.alias,
+  return {
+    kind: 'Connection',
     label: node.label,
     name: node.name,
-    resolver: (CodeMarker.moduleDependency(node.resolver): $FlowFixMe),
-    storageKey: null,
     args: generateArgs(node.args),
-    concreteType: !isAbstractType(type) ? type.toString() : null,
-    selections: generateSelections(node.selections),
+    edges,
+    pageInfo,
   };
-  // Precompute storageKey if possible
-  const storageKey = getStaticStorageKey(field, node.metadata);
-  if (storageKey) {
-    field = {...field, storageKey};
-  }
-  return field;
 }
 
-function generateModuleImport(node): ReaderModuleImport {
+function generateModuleImport(
+  schema: Schema,
+  node: ModuleImport,
+): ReaderModuleImport {
   const fragmentName = node.name;
   const regExpMatch = fragmentName.match(
     /^([a-zA-Z][a-zA-Z0-9]*)(?:_([a-zA-Z][_a-zA-Z0-9]*))?$/,
@@ -290,13 +386,16 @@ function generateModuleImport(node): ReaderModuleImport {
   };
 }
 
-function generateScalarField(node): ReaderScalarField {
+function generateScalarField(
+  schema: Schema,
+  node: ScalarField,
+): ReaderScalarField {
   // Note: it is important that the arguments of this field be sorted to
   // ensure stable generation of storage keys for equivalent arguments
   // which may have originally appeared in different orders across an app.
 
   // TODO(T37646905) enable this invariant after splitting the
-  // RelayCodeGenerator-test and running the RelayFieldHandleTransform on
+  // RelayCodeGenerator-test and running the FieldHandleTransform on
   // Reader ASTs.
   //
   //   invariant(
@@ -345,10 +444,6 @@ function generateArgument(node: Argument): ReaderArgument | null {
   }
 }
 
-function isPlural(type: any): boolean {
-  return getNullableType(type) instanceof GraphQLList;
-}
-
 function generateArgs(
   args: $ReadOnlyArray<Argument>,
 ): ?$ReadOnlyArray<ReaderArgument> {
@@ -386,6 +481,10 @@ function getStaticStorageKey(field: ReaderField, metadata: Metadata): ?string {
     return null;
   }
   return getStorageKey(field, {});
+}
+
+function isPlural(schema: Schema, type: TypeID): boolean {
+  return schema.isList(schema.getNullableType(type));
 }
 
 module.exports = {

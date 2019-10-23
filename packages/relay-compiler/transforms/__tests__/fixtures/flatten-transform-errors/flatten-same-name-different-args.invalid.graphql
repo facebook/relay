@@ -1,7 +1,5 @@
 # expected-to-throw
-query TestQuery(
-  $id: ID!
-) {
+query TestQuery($id: ID!) {
   node(id: $id) {
     id
     ... on User {

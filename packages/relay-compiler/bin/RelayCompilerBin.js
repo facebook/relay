@@ -10,10 +10,9 @@
 
 'use strict';
 
-require('@babel/polyfill');
+const yargs = require('yargs');
 
 const {main} = require('./RelayCompilerMain');
-const yargs = require('yargs');
 
 let RelayConfig;
 try {

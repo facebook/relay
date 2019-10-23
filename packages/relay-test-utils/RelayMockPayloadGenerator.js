@@ -21,22 +21,21 @@ const {
 } = require('relay-runtime');
 
 const {
-  CONDITION,
-  CONNECTION_FIELD,
   CLIENT_EXTENSION,
+  CONDITION,
+  CONNECTION,
+  DEFER,
   INLINE_FRAGMENT,
   LINKED_FIELD,
+  LINKED_HANDLE,
   MODULE_IMPORT,
   SCALAR_FIELD,
-  LINKED_HANDLE,
   SCALAR_HANDLE,
-  DEFER,
   STREAM,
 } = RelayConcreteNode;
 
 import type {
   Variables,
-  NormalizationConnectionField,
   NormalizationField,
   NormalizationOperation,
   NormalizationSelection,
@@ -257,7 +256,17 @@ class RelayMockPayloadGenerator {
           );
           break;
         }
-        case CONNECTION_FIELD:
+        case CONNECTION: {
+          mockData = this._traverseSelections(
+            [selection.edges, selection.pageInfo],
+            typeName,
+            isAbstractType,
+            path,
+            prevData,
+            defaultValues,
+          );
+          break;
+        }
         case LINKED_FIELD: {
           mockData = this._mockLink(selection, path, mockData, defaultValues);
           break;
@@ -461,6 +470,11 @@ class RelayMockPayloadGenerator {
       return value;
     }
 
+    if (value === null) {
+      // null is a valid enum value
+      return value;
+    }
+
     const valueToValidate = Array.isArray(value)
       ? value.map(v => String(v).toUpperCase())
       : [String(value).toUpperCase()];
@@ -582,7 +596,7 @@ class RelayMockPayloadGenerator {
    * Generate mock data for linked fields in the selection
    */
   _mockLink(
-    field: NormalizationLinkedField | NormalizationConnectionField,
+    field: NormalizationLinkedField,
     path: $ReadOnlyArray<string>,
     prevData: ?MockData,
     defaultValues: ?MockData,
@@ -801,7 +815,7 @@ function getSelectionMetadataFromOperation(
   operation: OperationDescriptor,
 ): SelectionMetadata | null {
   const selectionTypeInfo =
-    operation.node.params.metadata?.relayTestingSelectionTypeInfo;
+    operation.request.node.params.metadata?.relayTestingSelectionTypeInfo;
   if (
     selectionTypeInfo != null &&
     !Array.isArray(selectionTypeInfo) &&
@@ -838,8 +852,8 @@ function generateDataForOperation(
   mockResolvers: ?MockResolvers,
 ): GraphQLResponse {
   const data = generateData(
-    operation.node.operation,
-    operation.variables,
+    operation.request.node.operation,
+    operation.request.variables,
     mockResolvers ?? null,
     getSelectionMetadataFromOperation(operation),
   );

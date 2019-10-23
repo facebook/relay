@@ -20,7 +20,7 @@ fragment BestFriends on User {
     }
   }
   ... on Named {
-   # fragments on extension types are skipped
+    # fragments on extension types are skipped
     ...FooFragment
     ... on Foo {
       name

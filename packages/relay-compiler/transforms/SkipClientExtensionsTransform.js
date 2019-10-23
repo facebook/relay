@@ -10,9 +10,9 @@
 
 'use strict';
 
-const GraphQLCompilerContext = require('../core/GraphQLCompilerContext');
 const GraphQLIRTransformer = require('../core/GraphQLIRTransformer');
 
+import type GraphQLCompilerContext from '../core/GraphQLCompilerContext';
 import type {ClientExtension, Fragment} from '../core/GraphQLIR';
 
 function skipClientExtensionTransform(
@@ -25,8 +25,8 @@ function skipClientExtensionTransform(
 }
 
 function visitFragment(node: Fragment): ?Fragment {
-  const {serverSchema} = this.getContext();
-  if (serverSchema.getType(node.type.name)) {
+  const context: GraphQLCompilerContext = this.getContext();
+  if (context.getSchema().isServerType(node.type)) {
     return this.traverse(node);
   }
   return null;

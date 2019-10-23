@@ -25,7 +25,8 @@
       "version-v4.0.0-graphql-server-specification",
       "version-v4.0.0-persisted-queries",
       "version-v4.0.0-type-emission",
-      "version-v4.0.0-testing-relay-components"
+      "version-v4.0.0-testing-relay-components",
+      "version-v4.0.0-local-state-management"
     ],
     "Principles & Architecture": [
       "version-v4.0.0-thinking-in-graphql",

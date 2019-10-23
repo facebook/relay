@@ -4,6 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
+ * @flow strict-local
  * @format
  * @emails oncall+relay
  */
@@ -13,8 +14,9 @@
 const GraphQLCompilerContext = require('../../core/GraphQLCompilerContext');
 const GraphQLIRPrinter = require('../../core/GraphQLIRPrinter');
 const InlineFragmentsTransform = require('../InlineFragmentsTransform');
-const RelayMatchTransform = require('../RelayMatchTransform');
-const RelayRelayDirectiveTransform = require('../RelayRelayDirectiveTransform');
+const MatchTransform = require('../MatchTransform');
+const RelayDirectiveTransform = require('../RelayDirectiveTransform');
+const Schema = require('../../core/Schema');
 const SkipRedundantNodesTransform = require('../SkipRedundantNodesTransform');
 
 const {transformASTSchema} = require('../../core/ASTConvert');
@@ -25,26 +27,27 @@ const {
 } = require('relay-test-utils-internal');
 
 describe('SkipRedundantNodesTransform', () => {
-  const schema = transformASTSchema(TestSchema, [
-    RelayMatchTransform.SCHEMA_EXTENSION,
+  const extendedSchema = transformASTSchema(TestSchema, [
+    MatchTransform.SCHEMA_EXTENSION,
   ]);
   generateTestsFromFixtures(
     `${__dirname}/fixtures/skip-redundant-nodes-transform`,
     text => {
-      const {definitions, schema: clientSchema} = parseGraphQLText(
-        schema,
-        text,
+      const {definitions} = parseGraphQLText(extendedSchema, text);
+      const compilerSchema = Schema.DEPRECATED__create(
+        TestSchema,
+        extendedSchema,
       );
-      return new GraphQLCompilerContext(TestSchema, clientSchema)
+      return new GraphQLCompilerContext(compilerSchema)
         .addAll(definitions)
         .applyTransforms([
-          RelayRelayDirectiveTransform.transform,
-          RelayMatchTransform.transform,
+          RelayDirectiveTransform.transform,
+          MatchTransform.transform,
           InlineFragmentsTransform.transform,
           SkipRedundantNodesTransform.transform,
         ])
         .documents()
-        .map(GraphQLIRPrinter.print)
+        .map(doc => GraphQLIRPrinter.print(compilerSchema, doc))
         .join('\n');
     },
   );

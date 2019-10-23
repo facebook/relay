@@ -12,7 +12,6 @@ module.system.haste.name_reducers='^\(.*\)\.js\(\.flow\)?$' -> '\1'
 module.system.haste.paths.blacklist=.*/__tests__/.*
 module.system.haste.paths.blacklist=.*/__mocks__/.*
 module.system.haste.paths.whitelist=<PROJECT_ROOT>/node_modules/fbjs/lib/.*
-module.system.haste.paths.blacklist=<PROJECT_ROOT>/node_modules/fbjs/lib/emptyFunction\\.js\\.flow
 
 esproposal.class_static_fields=enable
 esproposal.class_instance_fields=enable
@@ -30,6 +29,9 @@ suppress_comment=\\(.\\|\n\\)*\\$FlowIssue\\((\\(<VERSION>\\)? *\\(site=[a-z,_]*
 suppress_comment=\\(.\\|\n\\)*\\$FlowExpectedError
 
 experimental.well_formed_exports=true
+experimental.types_first=true
+experimental.abstract_locations=true
+experimental.cache_direct_dependents=true
 
 [lints]
 untyped-type-import=error
@@ -45,4 +47,4 @@ untyped-import
 untyped-type-import
 
 [version]
-^0.104.0
+^0.110.0

@@ -7,7 +7,6 @@
  * @format
  * @flow strict
  * @emails oncall+relay
- *
  */
 
 'use strict';

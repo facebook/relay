@@ -12,7 +12,7 @@
 
 const invariant = require('invariant');
 
-const {createCombinedError, eachWithErrors} = require('./RelayCompilerError');
+const {eachWithCombinedError} = require('./RelayCompilerError');
 
 import type GraphQLCompilerContext, {
   CompilerContextDocument,
@@ -22,6 +22,7 @@ import type {
   ClientExtension,
   Condition,
   Defer,
+  Connection,
   ConnectionField,
   Directive,
   Fragment,
@@ -29,12 +30,9 @@ import type {
   InlineFragment,
   IR,
   LinkedField,
-  ListValue,
   Literal,
   LocalArgumentDefinition,
   ModuleImport,
-  ObjectFieldValue,
-  ObjectValue,
   Request,
   Root,
   RootArgumentDefinition,
@@ -50,18 +48,16 @@ type NodeVisitor<S> = {|
   ClientExtension?: NodeVisitorFunction<ClientExtension, S>,
   Condition?: NodeVisitorFunction<Condition, S>,
   Defer?: NodeVisitorFunction<Defer, S>,
+  Connection?: NodeVisitorFunction<Connection, S>,
   ConnectionField?: NodeVisitorFunction<ConnectionField, S>,
   Directive?: NodeVisitorFunction<Directive, S>,
   Fragment?: NodeVisitorFunction<Fragment, S>,
   FragmentSpread?: NodeVisitorFunction<FragmentSpread, S>,
   InlineFragment?: NodeVisitorFunction<InlineFragment, S>,
   LinkedField?: NodeVisitorFunction<LinkedField, S>,
-  ListValue?: NodeVisitorFunction<ListValue, S>,
   Literal?: NodeVisitorFunction<Literal, S>,
   LocalArgumentDefinition?: NodeVisitorFunction<LocalArgumentDefinition, S>,
   ModuleImport?: NodeVisitorFunction<ModuleImport, S>,
-  ObjectFieldValue?: NodeVisitorFunction<ObjectFieldValue, S>,
-  ObjectValue?: NodeVisitorFunction<ObjectValue, S>,
   Request?: NodeVisitorFunction<Request, S>,
   Root?: NodeVisitorFunction<Root, S>,
   InlineDataFragmentSpread?: NodeVisitorFunction<InlineDataFragmentSpread, S>,
@@ -122,7 +118,7 @@ function transform<S>(
   const transformer = new Transformer(context, visitor);
   return context.withMutations(ctx => {
     let nextContext = ctx;
-    const errors = eachWithErrors(context.documents(), prevNode => {
+    eachWithCombinedError(context.documents(), prevNode => {
       let nextNode;
       if (stateInitializer === undefined) {
         nextNode = transformer.visit(prevNode, (undefined: $FlowFixMe));
@@ -138,9 +134,6 @@ function transform<S>(
         nextContext = nextContext.replace(nextNode);
       }
     });
-    if (errors != null && errors.length !== 0) {
-      throw createCombinedError(errors);
-    }
     return nextContext;
   });
 }
@@ -256,6 +249,7 @@ class Transformer<S> {
       case 'InlineDataFragmentSpread':
         nextNode = this._traverseChildren(prevNode, ['selections']);
         break;
+      case 'ConnectionField':
       case 'LinkedField':
         nextNode = this._traverseChildren(prevNode, [
           'args',
@@ -266,24 +260,11 @@ class Transformer<S> {
           nextNode = null;
         }
         break;
-      case 'ConnectionField':
-        nextNode = this._traverseChildren(prevNode, [
-          'args',
-          'directives',
-          'selections',
-        ]);
+      case 'Connection':
+        nextNode = this._traverseChildren(prevNode, ['args', 'selections']);
         if (!nextNode.selections.length) {
           nextNode = null;
         }
-        break;
-      case 'ListValue':
-        nextNode = this._traverseChildren(prevNode, ['items']);
-        break;
-      case 'ObjectFieldValue':
-        nextNode = this._traverseChildren(prevNode, null, ['value']);
-        break;
-      case 'ObjectValue':
-        nextNode = this._traverseChildren(prevNode, ['fields']);
         break;
       case 'Condition':
         nextNode = this._traverseChildren(

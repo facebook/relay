@@ -5,14 +5,13 @@
  * LICENSE file in the root directory of this source tree.
  *
  * @format
- * @flow
+ * @flow strict-local
  * @emails oncall+relay
  */
 
 'use strict';
 
 const RelayModernEnvironment = require('../RelayModernEnvironment');
-const RelayModernOperationDescriptor = require('../RelayModernOperationDescriptor');
 const RelayModernStore = require('../RelayModernStore');
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
@@ -21,24 +20,11 @@ const RelayRecordSource = require('../RelayRecordSource');
 const nullthrows = require('nullthrows');
 
 const {getHandleStorageKey} = require('../../store/RelayStoreUtils');
+const {
+  createOperationDescriptor,
+} = require('../RelayModernOperationDescriptor');
 const {getSingularSelector} = require('../RelayModernSelector');
 const {generateAndCompile} = require('relay-test-utils-internal');
-
-function createOperationDescriptor(...args) {
-  const operation = RelayModernOperationDescriptor.createOperationDescriptor(
-    ...args,
-  );
-  // For convenience of the test output, override toJSON to print
-  // a more succint description of the operation.
-  // $FlowFixMe
-  operation.toJSON = () => {
-    return {
-      name: operation.fragment.node.name,
-      variables: operation.variables,
-    };
-  };
-  return operation;
-}
 
 describe('@connection', () => {
   let callbacks;
@@ -121,7 +107,7 @@ describe('@connection', () => {
   });
 
   it('publishes initial results to the store', () => {
-    const operationSnapshot = environment.lookup(operation.fragment, operation);
+    const operationSnapshot = environment.lookup(operation.fragment);
     const operationCallback = jest.fn();
     environment.subscribe(operationSnapshot, operationCallback);
 
@@ -165,17 +151,19 @@ describe('@connection', () => {
     expect(nextOperationSnapshot.data).toEqual({
       node: {
         __id: '<feedbackid>',
+
         __fragments: {
           FeedbackFragment: {},
         },
-        __fragmentOwner: operation,
+
+        __fragmentOwner: operation.request,
       },
     });
 
     const selector = nullthrows(
       getSingularSelector(fragment, nextOperationSnapshot.data?.node),
     );
-    const snapshot = environment.lookup(selector.selector, selector.owner);
+    const snapshot = environment.lookup(selector);
     expect(snapshot.isMissingData).toBe(false);
     expect(snapshot.data).toEqual({
       id: '<feedbackid>',
@@ -232,15 +220,12 @@ describe('@connection', () => {
       fetch.mockClear();
       jest.runAllTimers();
 
-      const operationSnapshot = environment.lookup(
-        operation.fragment,
-        operation,
-      );
+      const operationSnapshot = environment.lookup(operation.fragment);
 
       const selector = nullthrows(
         getSingularSelector(fragment, operationSnapshot.data?.node),
       );
-      const snapshot = environment.lookup(selector.selector, selector.owner);
+      const snapshot = environment.lookup(selector);
       callback = jest.fn();
       environment.subscribe(snapshot, callback);
     });

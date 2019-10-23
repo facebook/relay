@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @flow
+ * @flow strict
  * @format
  */
 
@@ -15,14 +15,14 @@ const Profiler = require('./GraphQLCompilerProfiler');
 const invariant = require('invariant');
 
 const {createUserError} = require('./RelayCompilerError');
+// $FlowFixMe - immutable.js is not flow-typed
 const {OrderedMap: ImmutableOrderedMap} = require('immutable');
 
-import type {GraphQLReporter} from '../reporters/GraphQLReporter';
+import type {Reporter} from '../reporters/Reporter';
 import type {Fragment, Location, Root, SplitOperation} from './GraphQLIR';
-import type {GraphQLSchema} from 'graphql';
+import type {Schema} from './Schema';
 
 export type IRTransform = GraphQLCompilerContext => GraphQLCompilerContext;
-export type IRValidation = GraphQLCompilerContext => void;
 
 export type CompilerContextDocument = Fragment | Root | SplitOperation;
 
@@ -34,22 +34,19 @@ class GraphQLCompilerContext {
   _isMutable: boolean;
   _documents: ImmutableOrderedMap<string, CompilerContextDocument>;
   _withTransform: WeakMap<IRTransform, GraphQLCompilerContext>;
-  +serverSchema: GraphQLSchema;
-  +clientSchema: GraphQLSchema;
+  +_schema: Schema;
 
-  constructor(serverSchema: GraphQLSchema, clientSchema?: GraphQLSchema) {
+  constructor(schema: Schema) {
     this._isMutable = false;
     this._documents = new ImmutableOrderedMap();
     this._withTransform = new WeakMap();
-    this.serverSchema = serverSchema;
-    // If a separate client schema doesn't exist, use the server schema.
-    this.clientSchema = clientSchema || serverSchema;
+    this._schema = schema;
   }
 
   /**
    * Returns the documents for the context in the order they were added.
    */
-  documents(): $ReadOnlyArray<CompilerContextDocument> {
+  documents(): Array<CompilerContextDocument> {
     return this._documents.toArray();
   }
 
@@ -62,7 +59,7 @@ class GraphQLCompilerContext {
       this._documents.update(node.name, existing => {
         invariant(
           existing,
-          'GraphQLCompilerContext: Expected to replace existing node %s, but' +
+          'GraphQLCompilerContext: Expected to replace existing node %s, but ' +
             'one was not found in the context.',
           node.name,
         );
@@ -98,7 +95,7 @@ class GraphQLCompilerContext {
    */
   applyTransforms(
     transforms: $ReadOnlyArray<IRTransform>,
-    reporter?: GraphQLReporter,
+    reporter?: Reporter,
   ): GraphQLCompilerContext {
     return Profiler.run('applyTransforms', () =>
       transforms.reduce(
@@ -116,7 +113,7 @@ class GraphQLCompilerContext {
    */
   applyTransform(
     transform: IRTransform,
-    reporter?: GraphQLReporter,
+    reporter?: Reporter,
   ): GraphQLCompilerContext {
     let transformed = this._withTransform.get(transform);
     if (!transformed) {
@@ -128,21 +125,6 @@ class GraphQLCompilerContext {
       this._withTransform.set(transform, transformed);
     }
     return transformed;
-  }
-
-  applyValidations(
-    validations: $ReadOnlyArray<IRValidation>,
-    reporter?: GraphQLReporter,
-  ): void {
-    Profiler.run('applyValidaitons', () => {
-      for (const validate of validations) {
-        const start = process.hrtime();
-        Profiler.instrument(validate)(this);
-        const delta = process.hrtime(start);
-        const deltaMs = Math.round((delta[0] * 1e9 + delta[1]) / 1e6);
-        reporter && reporter.reportTime(validate.name, deltaMs);
-      }
-    });
   }
 
   get(name: string): ?CompilerContextDocument {
@@ -200,9 +182,13 @@ class GraphQLCompilerContext {
   ): GraphQLCompilerContext {
     const context = this._isMutable
       ? this
-      : new GraphQLCompilerContext(this.serverSchema, this.clientSchema);
+      : new GraphQLCompilerContext(this.getSchema());
     context._documents = documents;
     return context;
+  }
+
+  getSchema(): Schema {
+    return this._schema;
   }
 }
 

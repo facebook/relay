@@ -10,9 +10,9 @@
 
 'use strict';
 
-const GraphQLCompilerContext = require('../core/GraphQLCompilerContext');
 const GraphQLIRTransformer = require('../core/GraphQLIRTransformer');
 
+import type GraphQLCompilerContext from '../core/GraphQLCompilerContext';
 import type {Directive} from '../core/GraphQLIR';
 
 /**
@@ -23,8 +23,10 @@ function filterDirectivesTransform(
   context: GraphQLCompilerContext,
 ): GraphQLCompilerContext {
   const schemaDirectives = new Set(
-    context.serverSchema
+    context
+      .getSchema()
       .getDirectives()
+      .filter(directive => !directive.clientOnlyDirective)
       .map(schemaDirective => schemaDirective.name),
   );
   const visitDirective = (directive: Directive): ?Directive => {

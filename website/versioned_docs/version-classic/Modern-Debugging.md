@@ -11,8 +11,8 @@ Relay DevTools is tool designed to help developers inspect their Relay state and
 - [Chrome Extension][extension] creates a Relay tab in the developer tools interface for debugging apps in Chrome
 - [Electron App][app] that connects to React Native apps running Relay
 
-![Store Explorer](/relay/img/docs/store-explorer.png)
-![Mutations View](/relay/img/docs/mutations-view.png)
+![Store Explorer](/img/docs/store-explorer.png)
+![Mutations View](/img/docs/mutations-view.png)
 
 [extension]:https://chrome.google.com/webstore/detail/relay-devtools/oppikflppfjfdpjimpdadhelffjpciba
 [app]: https://www.npmjs.com/package/relay-devtools

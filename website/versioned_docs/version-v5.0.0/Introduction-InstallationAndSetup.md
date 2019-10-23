@@ -12,6 +12,31 @@ Install React and Relay using `yarn` or `npm`:
 yarn add react react-dom react-relay
 ```
 
+## Set up Relay with a single config file
+
+The below configuration of `babel-plugin-relay` and `relay-compiler` can be applied using a single configuration file by
+using the `relay-config` package. Besides unifying all Relay configuration in a single place, other tooling can leverage
+this to provide zero-config setup (e.g. [vscode-apollo-relay](https://github.com/relay-tools/vscode-apollo-relay)).
+
+Install the package:
+
+```sh
+yarn add --dev relay-config
+```
+
+And create the configuration file:
+
+```javascript
+// relay.config.js
+module.exports = {
+  // ...
+  // Configuration options accepted by the `relay-compiler` command-line tool and `babel-plugin-relay`.
+  src: "./src",
+  schema: "./data/schema.graphql",
+  exclude: ["**/node_modules/**", "**/__mocks__/**", "**/__generated__/**"],
+}
+```
+
 ## Set up babel-plugin-relay
 
 Relay Modern requires a Babel plugin to convert GraphQL to runtime artifacts:
@@ -44,7 +69,7 @@ If you need to configure `babel-plugin-relay` further (e.g. to enable `compat` m
 
 For example:
 
-```
+```javascript
 // babel-plugin-macros.config.js
 module.exports = {
   // ...

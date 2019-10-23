@@ -7,6 +7,7 @@
  * @flow
  * @format
  */
+
 'use strict';
 
 const GraphQLWatchmanClient = require('../core/GraphQLWatchmanClient');
@@ -25,13 +26,14 @@ export type WatchmanExpression = $ReadOnlyArray<string | WatchmanExpression>;
 
 export type FileFilter = (file: File) => boolean;
 
-type WatchmanChange = {
+type WatchmanChange = {|
   name: string,
   exists: boolean,
   'content.sha1hex': ?string,
-};
+|};
 type WatchmanChanges = {
   files?: $ReadOnlyArray<WatchmanChange>,
+  ...
 };
 
 async function queryFiles(
@@ -106,7 +108,7 @@ async function queryFilepaths(
 async function watch(
   baseDir: string,
   expression: WatchmanExpression,
-  callback: (changes: WatchmanChanges) => any,
+  callback: (changes: WatchmanChanges) => mixed,
 ): Promise<void> {
   return await Profiler.waitFor('Watchman:subscribe', async () => {
     const client = new GraphQLWatchmanClient();

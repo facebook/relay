@@ -24,7 +24,10 @@ const {
 
 import type {PayloadError, UploadableMap} from '../network/RelayNetworkTypes';
 import type {GraphQLTaggedNode} from '../query/RelayModernGraphQLTag';
-import type {Environment, SelectorStoreUpdater} from '../store/RelayStoreTypes';
+import type {
+  IEnvironment,
+  SelectorStoreUpdater,
+} from '../store/RelayStoreTypes';
 import type {Disposable, Variables} from '../util/RelayRuntimeTypes';
 import type {DeclarativeMutationConfig} from './RelayDeclarativeMutationConfig';
 
@@ -66,7 +69,7 @@ export type MutationConfig<T: MutationParameters> = {|
  * environment.
  */
 function commitMutation<T: MutationParameters>(
-  environment: Environment,
+  environment: IEnvironment,
   config: MutationConfig<T>,
 ): Disposable {
   invariant(
@@ -124,7 +127,7 @@ function commitMutation<T: MutationParameters>(
       complete: () => {
         const {onCompleted} = config;
         if (onCompleted) {
-          const snapshot = environment.lookup(operation.fragment, operation);
+          const snapshot = environment.lookup(operation.fragment);
           onCompleted(
             (snapshot.data: $FlowFixMe),
             errors.length !== 0 ? errors : null,

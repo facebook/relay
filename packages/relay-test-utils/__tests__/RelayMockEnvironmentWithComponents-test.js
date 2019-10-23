@@ -11,7 +11,7 @@
 
 'use strict';
 
-const React = require('React');
+const React = require('react');
 // $FlowFixMe - untyped import
 const ReactTestRenderer = require('react-test-renderer');
 
@@ -43,7 +43,7 @@ describe('ReactRelayTestMocker with Containers', () => {
 
     beforeEach(() => {
       const {TestQuery} = generateAndCompile(`
-        query TestQuery($id: ID = "<default>", $scale: Float = 1) {
+        query TestQuery($id: ID = "<default>") {
           user: node(id: $id) {
             id
             name
@@ -76,10 +76,9 @@ describe('ReactRelayTestMocker with Containers', () => {
 
     it('should return most recent operation', () => {
       const operation = environment.mock.getMostRecentOperation();
-      expect(operation.node.operation.name).toBe('TestQuery');
-      expect(operation.variables).toEqual({
+      expect(operation.request.node.operation.name).toBe('TestQuery');
+      expect(operation.request.variables).toEqual({
         id: '<default>',
-        scale: 1,
       });
     });
 
@@ -110,7 +109,8 @@ describe('ReactRelayTestMocker with Containers', () => {
 
     it('should reject query with function', () => {
       environment.mock.rejectMostRecentOperation(
-        operation => new Error(`Uh-oh: ${operation.node.fragment.name}`),
+        operation =>
+          new Error(`Uh-oh: ${operation.request.node.fragment.name}`),
       );
 
       const errorMessage = testComponentTree.root.find(
@@ -331,7 +331,7 @@ describe('ReactRelayTestMocker with Containers', () => {
           MockPayloadGenerator.generate(operation, {
             ID({path}, generateId) {
               if (path != null && path.join('.') === 'user.id') {
-                return operation.variables.id;
+                return operation.request.variables.id;
               }
             },
             User() {
@@ -367,7 +367,7 @@ describe('ReactRelayTestMocker with Containers', () => {
             ID({path}, generateId) {
               // Just to make sure we're generating list data for the same parent id
               if (path != null && path.join('.') === 'user.id') {
-                return operation.variables.id;
+                return operation.request.variables.id;
               }
               return `my-custom-id-${generateId() + 5}`;
             },
@@ -406,7 +406,7 @@ describe('ReactRelayTestMocker with Containers', () => {
             ID({path}, generateId) {
               // Just to make sure we're generating list data for the same parent id
               if (path != null && path.join('.') === 'user.id') {
-                return operation.variables.id;
+                return operation.request.variables.id;
               }
               return `my-custom-id-${generateId() + 10}`;
             },
@@ -442,7 +442,7 @@ describe('ReactRelayTestMocker with Containers', () => {
 
     beforeEach(() => {
       const {UserQuery, PageQuery, PageFragment} = generateAndCompile(`
-        query UserQuery($id: ID = "<default>", $first: Int = 5, $cursor: String = "") {
+        query UserQuery($id: ID = "<default>") {
           user: node(id: $id) {
             id
             name
@@ -555,8 +555,8 @@ describe('ReactRelayTestMocker with Containers', () => {
 
       // Verify the query params
       const operation = environment.mock.getMostRecentOperation();
-      expect(operation.node.operation.name).toBe('PageQuery');
-      expect(operation.variables).toEqual({id: 'my-page-id'});
+      expect(operation.request.node.operation.name).toBe('PageQuery');
+      expect(operation.request.variables).toEqual({id: 'my-page-id'});
 
       // Resolve refetch query
       environment.mock.resolve(
@@ -694,7 +694,7 @@ describe('ReactRelayTestMocker with Containers', () => {
         environment.mock.resolveMostRecentOperation(operation =>
           MockPayloadGenerator.generate(operation, {
             ID() {
-              return operation.variables.id;
+              return operation.request.variables.id;
             },
             Feedback() {
               return {
@@ -731,7 +731,7 @@ describe('ReactRelayTestMocker with Containers', () => {
           MockPayloadGenerator.generate(operation, {
             Feedback() {
               return {
-                id: operation.variables?.input?.feedbackId,
+                id: operation.request.variables?.input?.feedbackId,
                 doesViewerLike: true,
               };
             },
@@ -931,7 +931,7 @@ describe('ReactRelayTestMocker with Containers', () => {
       environment.mock.resolveMostRecentOperation(operation =>
         MockPayloadGenerator.generate(operation, {
           ID() {
-            return operation.variables.id;
+            return operation.request.variables.id;
           },
           Feedback() {
             return {
@@ -954,7 +954,7 @@ describe('ReactRelayTestMocker with Containers', () => {
 
       const operation = environment.mock.getMostRecentOperation();
       expect(operation.fragment.node.name).toBe('FeedbackLikeSubscription');
-      expect(operation.variables).toEqual({
+      expect(operation.request.variables).toEqual({
         input: {
           feedbackId: 'my-feedback-id',
         },
@@ -962,11 +962,11 @@ describe('ReactRelayTestMocker with Containers', () => {
 
       ReactTestRenderer.act(() => {
         environment.mock.nextValue(
-          operation.node,
+          operation.request.node,
           MockPayloadGenerator.generate(operation, {
             Feedback() {
               return {
-                id: operation.variables?.input?.feedbackId,
+                id: operation.request.variables?.input?.feedbackId,
                 doesViewerLike: true,
               };
             },
@@ -1043,7 +1043,7 @@ describe('ReactRelayTestMocker with Containers', () => {
         userQuery,
         MockPayloadGenerator.generate(userQuery, {
           Node: () => ({
-            id: userQuery.variables.userId,
+            id: userQuery.request.variables.userId,
             name: 'Alice',
           }),
         }),
@@ -1052,7 +1052,7 @@ describe('ReactRelayTestMocker with Containers', () => {
         pageQuery,
         MockPayloadGenerator.generate(pageQuery, {
           Node: () => ({
-            id: pageQuery.variables.pageId,
+            id: pageQuery.request.variables.pageId,
             name: 'My Page',
           }),
         }),

@@ -1,4 +1,5 @@
-fragment RefetchableFragment on Node @refetchable(queryName: "RefetchableFragmentQuery") {
+fragment RefetchableFragment on Node
+  @refetchable(queryName: "RefetchableFragmentQuery") {
   id
   ... on User {
     name

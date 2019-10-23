@@ -10,11 +10,11 @@
 
 'use strict';
 
-const React = require('React');
+const React = require('react');
 const ReactRelayContext = require('../ReactRelayContext');
 const ReactRelayFragmentContainer = require('../ReactRelayFragmentContainer');
 const ReactRelayRefetchContainer = require('../ReactRelayRefetchContainer');
-const ReactTestRenderer = require('ReactTestRenderer');
+const ReactTestRenderer = require('react-test-renderer');
 
 const readContext = require('../readContext');
 
@@ -22,6 +22,7 @@ const {
   createNormalizationSelector,
   createOperationDescriptor,
   createReaderSelector,
+  createRequestDescriptor,
   ROOT_ID,
 } = require('relay-runtime');
 const {
@@ -51,7 +52,6 @@ describe('ReactRelayRefetchContainer with fragment ownerhsip', () => {
 
       this.__relayContext = {
         environment: props.environment,
-        variables: props.variables,
       };
 
       this.state = {
@@ -60,12 +60,9 @@ describe('ReactRelayRefetchContainer with fragment ownerhsip', () => {
     }
     UNSAFE_componentWillReceiveProps(nextProps) {
       // eslint-disable-next-line no-shadow
-      const {environment, variables} = nextProps;
-      if (
-        environment !== this.__relayContext.environment ||
-        variables !== this.__relayContext.variables
-      ) {
-        this.__relayContext = {environment, variables};
+      const {environment} = nextProps;
+      if (environment !== this.__relayContext.environment) {
+        this.__relayContext = {environment};
       }
     }
     setProps(props) {
@@ -74,7 +71,6 @@ describe('ReactRelayRefetchContainer with fragment ownerhsip', () => {
     setContext(env, vars) {
       this.__relayContext = {
         environment: env,
-        variables: vars,
       };
       this.setProps({});
     }
@@ -92,12 +88,18 @@ describe('ReactRelayRefetchContainer with fragment ownerhsip', () => {
   }
 
   function createOwnerWithUnalteredVariables(request, vars) {
-    return {
-      fragment: createReaderSelector(request.fragment, ROOT_ID, vars),
-      node: request,
+    const requestDescriptor = createRequestDescriptor(request, vars);
+    const operationDescriptor = {
+      fragment: createReaderSelector(
+        request.fragment,
+        ROOT_ID,
+        vars,
+        requestDescriptor,
+      ),
+      request: requestDescriptor,
       root: createNormalizationSelector(request.operation, ROOT_ID, vars),
-      variables: vars,
     };
+    return operationDescriptor;
   }
 
   beforeEach(() => {
@@ -177,7 +179,7 @@ describe('ReactRelayRefetchContainer with fragment ownerhsip', () => {
         .data.node;
       environment.mock.clearCache();
       instance = ReactTestRenderer.create(
-        <ContextSetter environment={environment} variables={variables}>
+        <ContextSetter environment={environment}>
           <TestContainer user={userPointer} />
         </ContextSetter>,
       );
@@ -196,6 +198,21 @@ describe('ReactRelayRefetchContainer with fragment ownerhsip', () => {
       );
     });
 
+    it('fetches the new variables correctly referencing variables from parent', () => {
+      const refetchVariables = {
+        cond: false,
+        id: '4',
+      };
+      const fetchedVariables = {
+        id: '4',
+        scale: 2, // it reuses value of scale from original parent vars
+      };
+      refetch(refetchVariables, null, jest.fn());
+      expect(environment.mock.isLoading(UserQuery, fetchedVariables)).toBe(
+        true,
+      );
+    });
+
     it('renders with the results of the new variables on success', () => {
       expect.assertions(10);
       expect(render.mock.calls.length).toBe(1);
@@ -207,7 +224,7 @@ describe('ReactRelayRefetchContainer with fragment ownerhsip', () => {
         },
         __id: '4',
         __fragments: {UserFriendFragment: {cond: true}},
-        __fragmentOwner: ownerUser1,
+        __fragmentOwner: ownerUser1.request,
       });
       expect(TestChildComponent.mock.calls.length).toBe(1);
       expect(TestChildComponent.mock.calls[0][0].user).toEqual({
@@ -254,7 +271,7 @@ describe('ReactRelayRefetchContainer with fragment ownerhsip', () => {
         },
         __id: '4',
         __fragments: {UserFriendFragment: {cond: false}},
-        __fragmentOwner: expectedOwner,
+        __fragmentOwner: expectedOwner.request,
       });
       expect(render.mock.calls[0][0].user.name).toBe(undefined);
 
@@ -275,7 +292,7 @@ describe('ReactRelayRefetchContainer with fragment ownerhsip', () => {
         },
         __id: '4',
         __fragments: {UserFriendFragment: {cond: true}},
-        __fragmentOwner: ownerUser1,
+        __fragmentOwner: ownerUser1.request,
       });
       expect(TestChildComponent.mock.calls.length).toBe(1);
       expect(TestChildComponent.mock.calls[0][0].user).toEqual({
@@ -328,7 +345,7 @@ describe('ReactRelayRefetchContainer with fragment ownerhsip', () => {
         },
         __id: '4',
         __fragments: {UserFriendFragment: {cond: false}},
-        __fragmentOwner: expectedOwner,
+        __fragmentOwner: expectedOwner.request,
       });
       expect(render.mock.calls[0][0].user.name).toBe(undefined);
 
@@ -353,7 +370,7 @@ describe('ReactRelayRefetchContainer with fragment ownerhsip', () => {
         .data.node;
       environment.mock.clearCache();
       instance = ReactTestRenderer.create(
-        <ContextSetter environment={environment} variables={{}}>
+        <ContextSetter environment={environment}>
           <TestContainer user={userPointer} />
         </ContextSetter>,
       );
@@ -368,11 +385,10 @@ describe('ReactRelayRefetchContainer with fragment ownerhsip', () => {
     });
 
     it('updates context with the results of new variables', () => {
-      expect.assertions(6);
+      expect.assertions(3);
 
       // original context before refetch
       expect(relayContext.environment).toEqual(environment);
-      expect(relayContext.variables).toBe(variables);
 
       const refetchVariables = {
         cond: false,
@@ -383,7 +399,6 @@ describe('ReactRelayRefetchContainer with fragment ownerhsip', () => {
 
       // original context while pending refetch
       expect(relayContext.environment).toBe(environment);
-      expect(relayContext.variables).toBe(variables);
 
       environment.mock.resolve(UserQuery, {
         data: {
@@ -401,36 +416,6 @@ describe('ReactRelayRefetchContainer with fragment ownerhsip', () => {
 
       // new context after successful refetch
       expect(relayContext.environment).toBe(environment);
-      expect(relayContext.variables).toEqual(refetchVariables);
-    });
-
-    it('updates child context if updated with new variables', () => {
-      expect.assertions(2);
-      const refetchVariables = {
-        cond: false,
-        id: '4',
-        scale: 2,
-      };
-      refetch(refetchVariables, null, jest.fn());
-      environment.mock.resolve(UserQuery, {
-        data: {
-          node: {
-            id: '4',
-            __typename: 'User',
-            name: 'Zuck',
-          },
-        },
-      });
-
-      const updateVariables = {
-        cond: true,
-        id: '842472',
-        scale: 2,
-      };
-      instance.getInstance().setContext(environment, updateVariables);
-
-      expect(relayContext.environment).toBe(environment);
-      expect(relayContext.variables).toEqual(updateVariables);
     });
   });
 });

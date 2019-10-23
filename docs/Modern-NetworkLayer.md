@@ -57,19 +57,19 @@ Note that this is a basic example to help you get started. This example could be
 
 Relay modern makes no assumptions about what to cache and will garbage collect any data that is no longer referenced.
 
-You have to implement your own cache strategy. A simple solution is to use `RelayQueryResponseCache`(an in-memory cache):
+You have to implement your own cache strategy. A simple solution is to use `QueryResponseCache` (an in-memory cache):
 
 ```javascript
 import {
   Environment,
   Network,
+  QueryResponseCache,
   RecordSource,
   Store,
 } from 'relay-runtime';
-import RelayQueryResponseCache from 'relay-runtime/lib/RelayQueryResponseCache';
 
 const oneMinute = 60 * 1000;
-const cache = new RelayQueryResponseCache({ size: 250, ttl: oneMinute });
+const cache = new QueryResponseCache({ size: 250, ttl: oneMinute });
 
 function fetchQuery(
   operation,

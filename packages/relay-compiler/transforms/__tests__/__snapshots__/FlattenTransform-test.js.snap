@@ -3,9 +3,7 @@
 exports[`FlattenTransform matches expected output: flatten-same-alias-different-args.invalid.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 # expected-to-throw
-query TestQuery(
-  $id: ID!
-) {
+query TestQuery($id: ID!) {
   node(id: $id) {
     id
     ... on User {
@@ -30,29 +28,26 @@ query TestQuery(
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-Error: Encountered 1 error(s):
-- Expected all fields on the same parent with the name or alias 'friendsAlias' to have the same name and arguments.
-  
-  Source: GraphQL request (14:9)
-  13:       ... on User {
-  14:         friendsAlias: friends(first: 10) {
-              ^
-  15:           edges {
-  
-  Source: GraphQL request (9:9)
-   8:       ... on User {
-   9:         friendsAlias: friends(first: 5) {
-              ^
-  10:           count
-  
+Expected all fields on the same parent with the name or alias 'friendsAlias' to have the same name and arguments.
+
+Source: GraphQL request (12:9)
+11:       ... on User {
+12:         friendsAlias: friends(first: 10) {
+            ^
+13:           edges {
+
+Source: GraphQL request (7:9)
+6:       ... on User {
+7:         friendsAlias: friends(first: 5) {
+           ^
+8:           count
+
 `;
 
 exports[`FlattenTransform matches expected output: flatten-same-name-different-args.invalid.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 # expected-to-throw
-query TestQuery(
-  $id: ID!
-) {
+query TestQuery($id: ID!) {
   node(id: $id) {
     id
     ... on User {
@@ -77,21 +72,20 @@ query TestQuery(
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-Error: Encountered 1 error(s):
-- Expected all fields on the same parent with the name or alias 'friends' to have the same name and arguments.
-  
-  Source: GraphQL request (14:9)
-  13:       ... on User {
-  14:         friends(first: 10) {
-              ^
-  15:           edges {
-  
-  Source: GraphQL request (9:9)
-   8:       ... on User {
-   9:         friends(first: 5) {
-              ^
-  10:           count
-  
+Expected all fields on the same parent with the name or alias 'friends' to have the same name and arguments.
+
+Source: GraphQL request (12:9)
+11:       ... on User {
+12:         friends(first: 10) {
+            ^
+13:           edges {
+
+Source: GraphQL request (7:9)
+6:       ... on User {
+7:         friends(first: 5) {
+           ^
+8:           count
+
 `;
 
 exports[`FlattenTransform matches expected output: flattens-inline-inside-condition.graphql 1`] = `
@@ -133,9 +127,7 @@ fragment NestedFragment2 on User {
 
 exports[`FlattenTransform matches expected output: flattens-inside-plural.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
-query TestQuery(
-  $id: ID!
-) {
+query TestQuery($id: ID!) {
   flattened: usernames(names: []) {
     ... on Actor {
       name
@@ -452,21 +444,20 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-Error: Encountered 1 error(s):
-- Expected all fields on the same parent with the name or alias 'nameRenderer' to have the same name and arguments.
-  
-  Source: GraphQL request (11:5)
-  10:     # conflicts with above: same alias but different types are matched
-  11:     nameRenderer @match {
-          ^
-  12:       ...MarkdownUserNameRenderer_name
-  
-  Source: GraphQL request (4:3)
-  3:   id
-  4:   nameRenderer @match {
-       ^
-  5:     ...PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
-  
+Expected all fields on the same parent with the name or alias 'nameRenderer' to have the same name and arguments.
+
+Source: GraphQL request (11:5)
+10:     # conflicts with above: same alias but different types are matched
+11:     nameRenderer @match {
+        ^
+12:       ...MarkdownUserNameRenderer_name
+
+Source: GraphQL request (4:3)
+3:   id
+4:   nameRenderer @match {
+     ^
+5:     ...PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
+
 `;
 
 exports[`FlattenTransform matches expected output: match-field-overlap-different-react-modules.invalid.graphql 1`] = `
@@ -482,7 +473,8 @@ fragment NameRendererFragment on User {
   ... on User {
     # conflicts with above: same alias but different module names
     nameRenderer @match {
-      ...PlainUserNameRenderer_name @module(name: "OtherPlainUserNameRenderer.react")
+      ...PlainUserNameRenderer_name
+        @module(name: "OtherPlainUserNameRenderer.react")
       ...MarkdownUserNameRenderer_name
         @module(name: "OtherMarkdownUserNameRenderer.react")
     }
@@ -506,21 +498,20 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-Error: Encountered 1 error(s):
-- Found conflicting @module selections: use a unique alias on the parent fields.
-  
-  Source: GraphQL request (12:37)
-  11:     nameRenderer @match {
-  12:       ...PlainUserNameRenderer_name @module(name: "OtherPlainUserNameRenderer.react")
-                                          ^
-  13:       ...MarkdownUserNameRenderer_name
-  
-  Source: GraphQL request (5:35)
-  4:   nameRenderer @match {
-  5:     ...PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
-                                       ^
-  6:     ...MarkdownUserNameRenderer_name
-  
+Found conflicting @module selections: use a unique alias on the parent fields.
+
+Source: GraphQL request (13:9)
+12:       ...PlainUserNameRenderer_name
+13:         @module(name: "OtherPlainUserNameRenderer.react")
+            ^
+14:       ...MarkdownUserNameRenderer_name
+
+Source: GraphQL request (5:35)
+4:   nameRenderer @match {
+5:     ...PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
+                                     ^
+6:     ...MarkdownUserNameRenderer_name
+
 `;
 
 exports[`FlattenTransform matches expected output: scalar-handle-field.graphql 1`] = `

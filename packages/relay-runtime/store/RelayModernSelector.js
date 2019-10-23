@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @flow
+ * @flow strict-local
  * @format
  */
 
@@ -26,11 +26,10 @@ import type {ReaderFragment} from '../util/ReaderNode';
 import type {DataID, Variables} from '../util/RelayRuntimeTypes';
 import type {
   NormalizationSelector,
-  OperationDescriptor,
-  OwnedReaderSelector,
-  PluralOwnedReaderSelector,
+  PluralReaderSelector,
   ReaderSelector,
-  SingularOwnedReaderSelector,
+  RequestDescriptor,
+  SingularReaderSelector,
 } from './RelayStoreTypes';
 
 /**
@@ -65,7 +64,7 @@ import type {
 function getSingularSelector(
   fragment: ReaderFragment,
   item: mixed,
-): ?SingularOwnedReaderSelector {
+): ?SingularReaderSelector {
   invariant(
     typeof item === 'object' && item !== null && !Array.isArray(item),
     'RelayModernSelector: Expected value for fragment `%s` to be an object, got ' +
@@ -85,22 +84,15 @@ function getSingularSelector(
     typeof mixedOwner === 'object' &&
     mixedOwner !== null
   ) {
-    const owner: OperationDescriptor = (mixedOwner: $FlowFixMe);
+    const owner: RequestDescriptor = (mixedOwner: $FlowFixMe);
     const argumentVariables = fragments[fragment.name];
 
     const fragmentVariables = getFragmentVariables(
       fragment,
       owner.variables,
-      /* $FlowFixMe(>=0.98.0 site=www,mobile,react_native_fb,oss) This comment
-       * suppresses an error found when Flow v0.98 was deployed. To see the
-       * error delete this comment and run Flow. */
       argumentVariables,
     );
-    return {
-      kind: 'SingularOwnedReaderSelector',
-      owner,
-      selector: createReaderSelector(fragment, dataID, fragmentVariables),
-    };
+    return createReaderSelector(fragment, dataID, fragmentVariables, owner);
   }
 
   if (__DEV__) {
@@ -133,8 +125,8 @@ function getSingularSelector(
  */
 function getPluralSelector(
   fragment: ReaderFragment,
-  items: Array<mixed>,
-): ?PluralOwnedReaderSelector {
+  items: $ReadOnlyArray<mixed>,
+): ?PluralReaderSelector {
   let selectors = null;
   items.forEach((item, ii) => {
     const selector = item != null ? getSingularSelector(fragment, item) : null;
@@ -147,7 +139,7 @@ function getPluralSelector(
     return null;
   } else {
     return {
-      kind: 'PluralOwnedReaderSelector',
+      kind: 'PluralReaderSelector',
       selectors,
     };
   }
@@ -156,7 +148,7 @@ function getPluralSelector(
 function getSelector(
   fragment: ReaderFragment,
   item: mixed | Array<mixed>,
-): ?OwnedReaderSelector {
+): ?ReaderSelector {
   if (item == null) {
     return item;
   } else if (fragment.metadata && fragment.metadata.plural === true) {
@@ -168,13 +160,7 @@ function getSelector(
       JSON.stringify(item),
       fragment.name,
     );
-    return getPluralSelector(
-      fragment,
-      /* $FlowFixMe(>=0.98.0 site=www,mobile,react_native_fb,oss) This comment
-       * suppresses an error found when Flow v0.98 was deployed. To see the
-       * error delete this comment and run Flow. */
-      item,
-    );
+    return getPluralSelector(fragment, item);
   } else {
     invariant(
       !Array.isArray(item),
@@ -201,7 +187,7 @@ function getSelector(
 function getSelectorsFromObject(
   fragments: {[key: string]: ReaderFragment},
   object: {[key: string]: mixed},
-): {[key: string]: ?OwnedReaderSelector} {
+): {[key: string]: ?ReaderSelector} {
   const selectors = {};
   for (const key in fragments) {
     if (fragments.hasOwnProperty(key)) {
@@ -240,7 +226,7 @@ function getDataIDsFromObject(
 function getDataIDsFromFragment(
   fragment: ReaderFragment,
   item: mixed | Array<mixed>,
-): ?DataID | ?Array<DataID> {
+): ?DataID | ?$ReadOnlyArray<DataID> {
   if (item == null) {
     return item;
   } else if (fragment.metadata && fragment.metadata.plural === true) {
@@ -252,9 +238,6 @@ function getDataIDsFromFragment(
       JSON.stringify(item),
       fragment.name,
     );
-    /* $FlowFixMe(>=0.98.0 site=www,mobile,react_native_fb,oss) This comment
-     * suppresses an error found when Flow v0.98 was deployed. To see the error
-     * delete this comment and run Flow. */
     return getDataIDs(fragment, item);
   } else {
     invariant(
@@ -274,8 +257,8 @@ function getDataIDsFromFragment(
  */
 function getDataIDs(
   fragment: ReaderFragment,
-  items: Array<mixed>,
-): ?Array<DataID> {
+  items: $ReadOnlyArray<mixed>,
+): ?$ReadOnlyArray<DataID> {
   let ids = null;
   items.forEach(item => {
     const id = item != null ? getDataID(fragment, item) : null;
@@ -342,7 +325,7 @@ function getVariablesFromObject(
 
 function getVariablesFromFragment(
   fragment: ReaderFragment,
-  item: mixed | Array<mixed>,
+  item: mixed | $ReadOnlyArray<mixed>,
 ): Variables {
   if (item == null) {
     return {};
@@ -356,13 +339,7 @@ function getVariablesFromFragment(
       fragment.name,
     );
 
-    return getVariablesFromPluralFragment(
-      fragment,
-      /* $FlowFixMe(>=0.98.0 site=www,mobile,react_native_fb,oss) This comment
-       * suppresses an error found when Flow v0.98 was deployed. To see the
-       * error delete this comment and run Flow. */
-      item,
-    );
+    return getVariablesFromPluralFragment(fragment, item);
   } else {
     invariant(
       !Array.isArray(item),
@@ -381,16 +358,16 @@ function getVariablesFromSingularFragment(
   fragment: ReaderFragment,
   item: mixed,
 ): ?Variables {
-  const ownedSelector = getSingularSelector(fragment, item);
-  if (!ownedSelector) {
+  const selector = getSingularSelector(fragment, item);
+  if (!selector) {
     return null;
   }
-  return ownedSelector.selector.variables;
+  return selector.variables;
 }
 
 function getVariablesFromPluralFragment(
   fragment: ReaderFragment,
-  items: Array<mixed>,
+  items: $ReadOnlyArray<mixed>,
 ): Variables {
   const variables = {};
   items.forEach((value, ii) => {
@@ -412,14 +389,14 @@ function getVariablesFromPluralFragment(
  * different objects, even if they select the same fields.
  */
 function areEqualSelectors(
-  thisSelector: SingularOwnedReaderSelector,
-  thatSelector: SingularOwnedReaderSelector,
+  thisSelector: SingularReaderSelector,
+  thatSelector: SingularReaderSelector,
 ): boolean {
   return (
     thisSelector.owner === thatSelector.owner &&
-    thisSelector.selector.dataID === thatSelector.selector.dataID &&
-    thisSelector.selector.node === thatSelector.selector.node &&
-    areEqual(thisSelector.selector.variables, thatSelector.selector.variables)
+    thisSelector.dataID === thatSelector.dataID &&
+    thisSelector.node === thatSelector.node &&
+    areEqual(thisSelector.variables, thatSelector.variables)
   );
 }
 
@@ -427,8 +404,15 @@ function createReaderSelector(
   fragment: ReaderFragment,
   dataID: DataID,
   variables: Variables,
-): ReaderSelector {
-  return {dataID, node: fragment, variables};
+  request: RequestDescriptor,
+): SingularReaderSelector {
+  return {
+    kind: 'SingularReaderSelector',
+    dataID,
+    node: fragment,
+    variables,
+    owner: request,
+  };
 }
 
 function createNormalizationSelector(

@@ -11,7 +11,7 @@
 'use strict';
 
 const CodegenRunner = require('../codegen/CodegenRunner');
-const ConsoleReporter = require('../reporters/GraphQLConsoleReporter');
+const ConsoleReporter = require('../reporters/ConsoleReporter');
 const DotGraphQLParser = require('../core/DotGraphQLParser');
 const RelayFileWriter = require('../codegen/RelayFileWriter');
 const RelayIRTransforms = require('../core/RelayIRTransforms');
@@ -24,12 +24,7 @@ const fs = require('fs');
 const invariant = require('invariant');
 const path = require('path');
 
-const {
-  buildASTSchema,
-  buildClientSchema,
-  parse,
-  printSchema,
-} = require('graphql');
+const {buildClientSchema, Source, printSchema} = require('graphql');
 
 const {
   commonTransforms,
@@ -42,7 +37,6 @@ const {
 
 import type {ScalarTypeMapping} from '../language/javascript/RelayFlowTypeTransformers';
 import type {WriteFilesOptions} from '../codegen/CodegenRunner';
-import type {GraphQLSchema} from 'graphql';
 import type {
   PluginInitializer,
   PluginInterface,
@@ -94,7 +88,6 @@ function getFilepathsFromGlob(
 ): Array<string> {
   const {extensions, include, exclude} = config;
   const patterns = include.map(inc => `${inc}/*.+(${extensions.join('|')})`);
-
   const glob = require('fast-glob');
   return glob.sync(patterns, {
     cwd: baseDir,
@@ -143,7 +136,7 @@ function getLanguagePlugin(
     } else {
       languagePlugin = language;
     }
-    if (languagePlugin.default) {
+    if (languagePlugin.default != null) {
       // $FlowFixMe - Flow no longer considers statics of functions as any
       languagePlugin = languagePlugin.default;
     }
@@ -188,12 +181,12 @@ function getPersistQueryFunction(
   }
 }
 
-async function main(config: Config) {
-  if (config.verbose && config.quiet) {
+async function main(defaultConfig: Config) {
+  if (defaultConfig.verbose && defaultConfig.quiet) {
     throw new Error("I can't be quiet and verbose at the same time");
   }
 
-  config = getPathBasedConfig(config);
+  let config = getPathBasedConfig(defaultConfig);
   config = await getWatchConfig(config);
 
   // Use function from module.exports to be able to mock it for tests
@@ -268,7 +261,7 @@ function getCodegenRunner(config: Config): CodegenRunner {
     verbose: config.verbose,
     quiet: config.quiet,
   });
-  const schema = getSchema(config.schema);
+  const schema = getSchemaSource(config.schema);
   const languagePlugin = getLanguagePlugin(config.language);
   const persistQueryFunction = getPersistQueryFunction(config);
   const inputExtensions = config.extensions || languagePlugin.inputExtensions;
@@ -284,7 +277,7 @@ function getCodegenRunner(config: Config): CodegenRunner {
     providedArtifactDirectory != null
       ? path.resolve(process.cwd(), providedArtifactDirectory)
       : null;
-  const generatedDirectoryName = artifactDirectory || '__generated__';
+  const generatedDirectoryName = artifactDirectory ?? '__generated__';
   const sourceSearchOptions = {
     extensions: inputExtensions,
     include: config.include,
@@ -300,7 +293,8 @@ function getCodegenRunner(config: Config): CodegenRunner {
       baseDir: config.src,
       getFileFilter: sourceModuleParser.getFileFilter,
       getParser: sourceModuleParser.getParser,
-      getSchema: () => schema,
+      getSchemaSource: () => schema,
+      schemaExtensions,
       watchmanExpression: config.watchman
         ? buildWatchExpression(sourceSearchOptions)
         : null,
@@ -311,7 +305,8 @@ function getCodegenRunner(config: Config): CodegenRunner {
     graphql: {
       baseDir: config.src,
       getParser: DotGraphQLParser.getParser,
-      getSchema: () => schema,
+      getSchemaSource: () => schema,
+      schemaExtensions,
       watchmanExpression: config.watchman
         ? buildWatchExpression(graphqlSearchOptions)
         : null,
@@ -418,9 +413,24 @@ function getRelayFileWriter(
       sourceControl,
     });
     if (queryMap != null && persistedQueryPath != null) {
-      const object = {};
-      for (const [key, value] of queryMap.entries()) {
-        object[key] = value;
+      let object = {};
+      if (fs.existsSync(persistedQueryPath)) {
+        try {
+          const prevText = fs.readFileSync(persistedQueryPath, 'utf8');
+          const prevData = JSON.parse(prevText);
+          if (prevData != null && typeof prevData === 'object') {
+            object = prevData;
+          } else {
+            console.error(
+              `Invalid data in persisted query file '${persistedQueryPath}', expected an object.`,
+            );
+          }
+        } catch (error) {
+          console.error(error);
+        }
+      }
+      for (const [id, text] of queryMap.entries()) {
+        object[id] = text;
       }
       const data = JSON.stringify(object, null, 2);
       fs.writeFileSync(persistedQueryPath, data, 'utf8');
@@ -429,29 +439,18 @@ function getRelayFileWriter(
   };
 }
 
-function getSchema(schemaPath: string): GraphQLSchema {
-  try {
-    let source = fs.readFileSync(schemaPath, 'utf8');
-    if (path.extname(schemaPath) === '.json') {
-      source = printSchema(buildClientSchema(JSON.parse(source).data));
-    }
-    source = `
+function getSchemaSource(schemaPath: string): Source {
+  let source = fs.readFileSync(schemaPath, 'utf8');
+  if (path.extname(schemaPath) === '.json') {
+    source = printSchema(buildClientSchema(JSON.parse(source).data));
+  }
+  source = `
   directive @include(if: Boolean) on FRAGMENT_SPREAD | FIELD | INLINE_FRAGMENT
   directive @skip(if: Boolean) on FRAGMENT_SPREAD | FIELD | INLINE_FRAGMENT
 
   ${source}
   `;
-    return buildASTSchema(parse(source), {assumeValid: true});
-  } catch (error) {
-    throw new Error(
-      `
-Error loading schema. Expected the schema to be a .graphql or a .json
-file, describing your GraphQL server's API. Error detail:
-
-${error.stack}
-    `.trim(),
-    );
-  }
+  return new Source(source, schemaPath);
 }
 
 // Ensure that a watchman "root" file exists in the given directory

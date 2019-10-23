@@ -13,6 +13,7 @@
 const CodeMarker = require('../util/CodeMarker');
 const Profiler = require('../core/GraphQLCompilerProfiler');
 
+const createPrintRequireModuleDependency = require('./createPrintRequireModuleDependency');
 const crypto = require('crypto');
 const dedupeJSONStringify = require('../util/dedupeJSONStringify');
 const invariant = require('invariant');
@@ -20,13 +21,10 @@ const invariant = require('invariant');
 const {RelayConcreteNode} = require('relay-runtime');
 
 import type {GeneratedDefinition} from '../core/GraphQLIR';
+import type {Schema} from '../core/Schema';
 import type {FormatModule} from '../language/RelayLanguagePluginInterface';
 import type CodegenDirectory from './CodegenDirectory';
-import type {GeneratedNode} from 'relay-runtime';
-
-function printRequireModuleDependency(moduleName: string): string {
-  return `require('${moduleName}')`;
-}
+import type {GeneratedNode, RequestParameters} from 'relay-runtime';
 
 function getConcreteType(node: GeneratedNode): string {
   switch (node.kind) {
@@ -45,6 +43,7 @@ function getConcreteType(node: GeneratedNode): string {
 }
 
 async function writeRelayGeneratedFile(
+  schema: Schema,
   codegenDir: CodegenDirectory,
   definition: GeneratedDefinition,
   _generatedNode: GeneratedNode,
@@ -56,7 +55,7 @@ async function writeRelayGeneratedFile(
   extension: string,
   printModuleDependency: (
     moduleName: string,
-  ) => string = printRequireModuleDependency,
+  ) => string = createPrintRequireModuleDependency(extension),
   shouldRepersist: boolean,
 ): Promise<?GeneratedNode> {
   let generatedNode = _generatedNode;
@@ -70,6 +69,7 @@ async function writeRelayGeneratedFile(
     platform != null && platform.length > 0
       ? moduleName + '.' + platform
       : moduleName;
+
   const filename = platformName + '.' + extension;
   const typeName = getConcreteType(generatedNode);
 
@@ -80,8 +80,9 @@ async function writeRelayGeneratedFile(
 
   let hash = null;
   if (generatedNode.kind === RelayConcreteNode.REQUEST) {
+    let oldContent;
     const oldHash = Profiler.run('RelayFileWriter:compareHash', () => {
-      const oldContent = codegenDir.read(filename);
+      oldContent = codegenDir.read(filename);
       // Hash the concrete node including the query text.
       const hasher = crypto.createHash('md5');
       hasher.update('cache-breaker-9');
@@ -96,9 +97,16 @@ async function writeRelayGeneratedFile(
       hash = hasher.digest('hex');
       return extractHash(oldContent);
     });
+    const oldRequestParameters = extractRelayRequestParams(oldContent);
+
     if (!shouldRepersist && hash === oldHash) {
       codegenDir.markUnchanged(filename);
-      return null;
+      return oldRequestParameters
+        ? {
+            ...generatedNode,
+            params: oldRequestParameters,
+          }
+        : null;
     }
     if (codegenDir.onlyValidate) {
       codegenDir.markUpdated(filename);
@@ -146,6 +154,7 @@ async function writeRelayGeneratedFile(
     ),
     sourceHash,
     node: generatedNode,
+    schema,
   });
   codegenDir.writeFile(filename, moduleText, shouldRepersist);
   return generatedNode;
@@ -161,6 +170,22 @@ function extractHash(text: ?string): ?string {
   }
   const match = text.match(/@relayHash (\w{32})\b/m);
   return match && match[1];
+}
+
+function extractRelayRequestParams(text: ?string): ?RequestParameters {
+  if (text == null || text.length === 0) {
+    return null;
+  }
+  if (/<<<<<|>>>>>/.test(text)) {
+    // looks like a merge conflict
+    return null;
+  }
+  const match = text.match(/@relayRequestParams (.+)/);
+  let requestParams;
+  try {
+    requestParams = JSON.parse(match?.[1] ?? '');
+  } catch {}
+  return requestParams;
 }
 
 module.exports = writeRelayGeneratedFile;

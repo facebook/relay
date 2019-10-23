@@ -5,14 +5,13 @@
  * LICENSE file in the root directory of this source tree.
  *
  * @format
- * @flow
+ * @flow strict-local
  * @emails oncall+relay
  */
 
 'use strict';
 
 const RelayModernEnvironment = require('../RelayModernEnvironment');
-const RelayModernOperationDescriptor = require('../RelayModernOperationDescriptor');
 const RelayModernStore = require('../RelayModernStore');
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
@@ -20,24 +19,11 @@ const RelayRecordSource = require('../RelayRecordSource');
 
 const warning = require('warning');
 
+const {
+  createOperationDescriptor,
+} = require('../RelayModernOperationDescriptor');
 const {createReaderSelector} = require('../RelayModernSelector');
 const {generateAndCompile} = require('relay-test-utils-internal');
-
-function createOperationDescriptor(...args) {
-  const operation = RelayModernOperationDescriptor.createOperationDescriptor(
-    ...args,
-  );
-  // For convenience of the test output, override toJSON to print
-  // a more succint description of the operation.
-  // $FlowFixMe
-  operation.toJSON = () => {
-    return {
-      name: operation.fragment.node.name,
-      variables: operation.variables,
-    };
-  };
-  return operation;
-}
 
 describe('execute() a query with @stream', () => {
   let actorFragment;
@@ -87,7 +73,7 @@ describe('execute() a query with @stream', () => {
       `));
     variables = {id: '1', enableStream: true};
     operation = createOperationDescriptor(query, variables);
-    selector = createReaderSelector(fragment, '1', {});
+    selector = createReaderSelector(fragment, '1', {}, operation.request);
 
     NameHandler = {
       update(storeProxy, payload) {
@@ -134,7 +120,7 @@ describe('execute() a query with @stream', () => {
   });
 
   it('calls next() and publishes the initial payload to the store', () => {
-    const initialSnapshot = environment.lookup(selector, operation);
+    const initialSnapshot = environment.lookup(selector);
     const callback = jest.fn();
     environment.subscribe(initialSnapshot, callback);
 
@@ -164,7 +150,7 @@ describe('execute() a query with @stream', () => {
   });
 
   it('processes streamed payloads', () => {
-    const initialSnapshot = environment.lookup(selector, operation);
+    const initialSnapshot = environment.lookup(selector);
     const callback = jest.fn();
     environment.subscribe(initialSnapshot, callback);
 
@@ -254,7 +240,7 @@ describe('execute() a query with @stream', () => {
       },
     });
 
-    const initialSnapshot = environment.lookup(selector, operation);
+    const initialSnapshot = environment.lookup(selector);
     const callback = jest.fn();
     environment.subscribe(initialSnapshot, callback);
 
@@ -353,7 +339,7 @@ describe('execute() a query with @stream', () => {
       },
     });
 
-    const initialSnapshot = environment.lookup(selector, operation);
+    const initialSnapshot = environment.lookup(selector);
     const callback = jest.fn();
     environment.subscribe(initialSnapshot, callback);
 
@@ -393,7 +379,7 @@ describe('execute() a query with @stream', () => {
   });
 
   it('processes @stream payloads when the parent record has been deleted', () => {
-    const initialSnapshot = environment.lookup(selector, operation);
+    const initialSnapshot = environment.lookup(selector);
     const callback = jest.fn();
     environment.subscribe(initialSnapshot, callback);
 
@@ -434,8 +420,7 @@ describe('execute() a query with @stream', () => {
 
     // but the streamed entity is added to the store
     const actorSnapshot = environment.lookup(
-      createReaderSelector(actorFragment, '2', {}),
-      operation,
+      createReaderSelector(actorFragment, '2', {}, operation.request),
     );
     expect(actorSnapshot.isMissingData).toBe(false);
     expect(actorSnapshot.data).toEqual({
@@ -447,7 +432,7 @@ describe('execute() a query with @stream', () => {
   });
 
   it('processes @stream payloads when the streamed field has been deleted on the parent record', () => {
-    const initialSnapshot = environment.lookup(selector, operation);
+    const initialSnapshot = environment.lookup(selector);
     const callback = jest.fn();
     environment.subscribe(initialSnapshot, callback);
 
@@ -494,8 +479,7 @@ describe('execute() a query with @stream', () => {
 
     // but the streamed entity is added to the store
     const actorSnapshot = environment.lookup(
-      createReaderSelector(actorFragment, '2', {}),
-      operation,
+      createReaderSelector(actorFragment, '2', {}, operation.request),
     );
     expect(actorSnapshot.isMissingData).toBe(false);
     expect(actorSnapshot.data).toEqual({
@@ -510,7 +494,7 @@ describe('execute() a query with @stream', () => {
     'processes @stream payloads when the identity of the item at the ' +
       'target index has changed on the parent record ()',
     () => {
-      const initialSnapshot = environment.lookup(selector, operation);
+      const initialSnapshot = environment.lookup(selector);
       const callback = jest.fn();
       environment.subscribe(initialSnapshot, callback);
 
@@ -561,8 +545,7 @@ describe('execute() a query with @stream', () => {
 
       // but the streamed entity is added to the store
       const actorSnapshot = environment.lookup(
-        createReaderSelector(actorFragment, '2', {}),
-        operation,
+        createReaderSelector(actorFragment, '2', {}, operation.request),
       );
       expect(actorSnapshot.isMissingData).toBe(false);
       expect(actorSnapshot.data).toEqual({
@@ -578,7 +561,7 @@ describe('execute() a query with @stream', () => {
     'processes @stream payloads when the identity of the item at the ' +
       'an index other than the target has changed on the parent record ()',
     () => {
-      const initialSnapshot = environment.lookup(selector, operation);
+      const initialSnapshot = environment.lookup(selector);
       const callback = jest.fn();
       environment.subscribe(initialSnapshot, callback);
 
@@ -650,8 +633,7 @@ describe('execute() a query with @stream', () => {
 
       // but the streamed entity is added to the store
       const actorSnapshot = environment.lookup(
-        createReaderSelector(actorFragment, '2', {}),
-        operation,
+        createReaderSelector(actorFragment, '2', {}, operation.request),
       );
       expect(actorSnapshot.isMissingData).toBe(false);
       expect(actorSnapshot.data).toEqual({
@@ -664,7 +646,7 @@ describe('execute() a query with @stream', () => {
   );
 
   it('processes streamed payloads that arrive out of order', () => {
-    const initialSnapshot = environment.lookup(selector, operation);
+    const initialSnapshot = environment.lookup(selector);
     const callback = jest.fn();
     environment.subscribe(initialSnapshot, callback);
 
@@ -725,7 +707,7 @@ describe('execute() a query with @stream', () => {
   });
 
   it('processes streamed payloads relative to the most recent root payload', () => {
-    const initialSnapshot = environment.lookup(selector, operation);
+    const initialSnapshot = environment.lookup(selector);
     const callback = jest.fn();
     environment.subscribe(initialSnapshot, callback);
 
@@ -773,8 +755,7 @@ describe('execute() a query with @stream', () => {
     expect(callback).toBeCalledTimes(0);
 
     const snapshot = environment.lookup(
-      createReaderSelector(fragment, 'not1', {}),
-      operation,
+      createReaderSelector(fragment, 'not1', {}, operation.request),
     );
     expect(snapshot.isMissingData).toBe(false);
     expect(snapshot.data).toEqual({
@@ -787,7 +768,7 @@ describe('execute() a query with @stream', () => {
   });
 
   it('calls complete() when server completes after streamed payload resolves', () => {
-    const initialSnapshot = environment.lookup(selector, operation);
+    const initialSnapshot = environment.lookup(selector);
     const callback = jest.fn();
     environment.subscribe(initialSnapshot, callback);
 
@@ -827,7 +808,7 @@ describe('execute() a query with @stream', () => {
   });
 
   it('calls complete() when server completes before streamed payload resolves', () => {
-    const initialSnapshot = environment.lookup(selector, operation);
+    const initialSnapshot = environment.lookup(selector);
     const callback = jest.fn();
     environment.subscribe(initialSnapshot, callback);
 
@@ -857,7 +838,7 @@ describe('execute() a query with @stream', () => {
   });
 
   it('calls error() when server errors after streamed payload resolves', () => {
-    const initialSnapshot = environment.lookup(selector, operation);
+    const initialSnapshot = environment.lookup(selector);
     const callback = jest.fn();
     environment.subscribe(initialSnapshot, callback);
 
@@ -899,7 +880,7 @@ describe('execute() a query with @stream', () => {
   });
 
   it('calls error() when server errors before streamed payload resolves', () => {
-    const initialSnapshot = environment.lookup(selector, operation);
+    const initialSnapshot = environment.lookup(selector);
     const callback = jest.fn();
     environment.subscribe(initialSnapshot, callback);
 
@@ -931,7 +912,7 @@ describe('execute() a query with @stream', () => {
   });
 
   it('calls error() when streamed payload is missing data', () => {
-    const initialSnapshot = environment.lookup(selector, operation);
+    const initialSnapshot = environment.lookup(selector);
     const callback = jest.fn();
     environment.subscribe(initialSnapshot, callback);
 
@@ -974,7 +955,7 @@ describe('execute() a query with @stream', () => {
   });
 
   it('uses user-defined getDataID to generate ID from streamed payload.', () => {
-    const initialSnapshot = environment.lookup(selector, operation);
+    const initialSnapshot = environment.lookup(selector);
     const callback = jest.fn();
     environment.subscribe(initialSnapshot, callback);
 
@@ -1038,7 +1019,7 @@ describe('execute() a query with @stream', () => {
   });
 
   it('warns if executed in non-streaming mode', () => {
-    const initialSnapshot = environment.lookup(selector, operation);
+    const initialSnapshot = environment.lookup(selector);
     const callback = jest.fn();
     environment.subscribe(initialSnapshot, callback);
 

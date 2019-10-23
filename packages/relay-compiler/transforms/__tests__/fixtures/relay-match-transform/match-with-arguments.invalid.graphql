@@ -4,7 +4,8 @@ fragment NameRendererFragment on User {
   nameRenderer @match {
     ...PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
     ...MarkdownUserNameRenderer_name
-      @module(name: "MarkdownUserNameRenderer.react") @arguments(cond: true)
+      @module(name: "MarkdownUserNameRenderer.react")
+      @arguments(cond: true)
   }
 }
 
@@ -16,9 +17,7 @@ fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
 }
 
 fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer
-@argumentDefinitions(
-  cond: {type: "Boolean!", defaultValue: false}
-){
+  @argumentDefinitions(cond: {type: "Boolean!", defaultValue: false}) {
   markdown
   data @include(if: $cond) {
     markup

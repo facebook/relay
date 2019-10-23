@@ -17,6 +17,7 @@ const {
   __internal: {fetchQuery},
 } = require('relay-runtime');
 
+import type {FetchPolicy} from './ReactRelayTypes';
 import type {
   CacheConfig,
   Disposable,
@@ -86,10 +87,16 @@ class ReactRelayQueryFetcher {
   lookupInStore(
     environment: IEnvironment,
     operation: OperationDescriptor,
+    fetchPolicy: ?(FetchPolicy | 'store-or-network'),
   ): ?Snapshot {
-    if (environment.check(operation.root)) {
-      this._retainCachedOperation(environment, operation);
-      return environment.lookup(operation.fragment, operation);
+    if (
+      fetchPolicy === 'store-and-network' ||
+      fetchPolicy === 'store-or-network'
+    ) {
+      if (environment.check(operation.root)) {
+        this._retainCachedOperation(environment, operation);
+        return environment.lookup(operation.fragment);
+      }
     }
     return null;
   }
@@ -321,7 +328,7 @@ class ReactRelayQueryFetcher {
       return;
     }
 
-    this._snapshot = environment.lookup(operation.fragment, operation);
+    this._snapshot = environment.lookup(operation.fragment);
 
     // Subscribe to changes in the data of the root fragment
     this._rootSubscription = environment.subscribe(this._snapshot, snapshot => {

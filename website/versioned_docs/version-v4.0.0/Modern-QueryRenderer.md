@@ -1,6 +1,6 @@
 ---
 id: version-v4.0.0-query-renderer
-title: <QueryRenderer />
+title: QueryRenderer
 original_id: query-renderer
 ---
 

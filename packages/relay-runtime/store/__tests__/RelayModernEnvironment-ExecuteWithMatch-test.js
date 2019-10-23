@@ -12,7 +12,6 @@
 'use strict';
 
 const RelayModernEnvironment = require('../RelayModernEnvironment');
-const RelayModernOperationDescriptor = require('../RelayModernOperationDescriptor');
 const RelayModernStore = require('../RelayModernStore');
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
@@ -20,24 +19,11 @@ const RelayRecordSource = require('../RelayRecordSource');
 
 const nullthrows = require('nullthrows');
 
+const {
+  createOperationDescriptor,
+} = require('../RelayModernOperationDescriptor');
 const {getSingularSelector} = require('../RelayModernSelector');
 const {generateAndCompile} = require('relay-test-utils-internal');
-
-function createOperationDescriptor(...args) {
-  const operation = RelayModernOperationDescriptor.createOperationDescriptor(
-    ...args,
-  );
-  // For convenience of the test output, override toJSON to print
-  // a more succint description of the operation.
-  // $FlowFixMe
-  operation.toJSON = () => {
-    return {
-      name: operation.fragment.node.name,
-      variables: operation.variables,
-    };
-  };
-  return operation;
-}
 
 describe('execute() a query with @match', () => {
   let callbacks;
@@ -71,6 +57,7 @@ describe('execute() a query with @match', () => {
           node(id: $id) {
             ... on User {
               nameRenderer @match {
+                __typename
                 ...PlainUserNameRenderer_name
                   @module(name: "PlainUserNameRenderer.react")
                 ...MarkdownUserNameRenderer_name
@@ -141,7 +128,7 @@ describe('execute() a query with @match', () => {
       },
     });
 
-    const operationSnapshot = environment.lookup(operation.fragment, operation);
+    const operationSnapshot = environment.lookup(operation.fragment);
     operationCallback = jest.fn();
     environment.subscribe(operationSnapshot, operationCallback);
   });
@@ -185,11 +172,12 @@ describe('execute() a query with @match', () => {
         nameRenderer: {
           __id:
             'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+          __typename: 'MarkdownUserNameRenderer',
           __fragmentPropName: 'name',
           __fragments: {
             MarkdownUserNameRenderer_name: {},
           },
-          __fragmentOwner: operation,
+          __fragmentOwner: operation.request,
           __module_component: 'MarkdownUserNameRenderer.react',
         },
       },
@@ -201,7 +189,7 @@ describe('execute() a query with @match', () => {
         (operationSnapshot.data?.node: any)?.nameRenderer,
       ),
     );
-    const matchSnapshot = environment.lookup(matchSelector.selector, operation);
+    const matchSnapshot = environment.lookup(matchSelector);
     // ref exists but match field data hasn't been processed yet
     expect(matchSnapshot.isMissingData).toBe(true);
     expect(matchSnapshot.data).toEqual({
@@ -246,10 +234,7 @@ describe('execute() a query with @match', () => {
       ),
     );
     // initial results tested above
-    const initialMatchSnapshot = environment.lookup(
-      matchSelector.selector,
-      operation,
-    );
+    const initialMatchSnapshot = environment.lookup(matchSelector);
     expect(initialMatchSnapshot.isMissingData).toBe(true);
     const matchCallback = jest.fn();
     environment.subscribe(initialMatchSnapshot, matchCallback);
@@ -316,7 +301,7 @@ describe('execute() a query with @match', () => {
 
     // At this point the matchSnapshot should contain all the data,
     // since it should've been normalized synchronously
-    const matchSnapshot = environment.lookup(matchSelector.selector, operation);
+    const matchSnapshot = environment.lookup(matchSelector);
     expect(matchSnapshot.isMissingData).toBe(false);
     expect(matchSnapshot.data).toEqual({
       __typename: 'MarkdownUserNameRenderer',
@@ -398,10 +383,7 @@ describe('execute() a query with @match', () => {
       ),
     );
     // initial results tested above
-    const initialMatchSnapshot = environment.lookup(
-      matchSelector.selector,
-      operation,
-    );
+    const initialMatchSnapshot = environment.lookup(matchSelector);
     expect(initialMatchSnapshot.isMissingData).toBe(true);
     const matchCallback = jest.fn();
     environment.subscribe(initialMatchSnapshot, matchCallback);
@@ -499,10 +481,7 @@ describe('execute() a query with @match', () => {
       ),
     );
     // initial results tested above
-    const initialMatchSnapshot = environment.lookup(
-      matchSelector.selector,
-      operation,
-    );
+    const initialMatchSnapshot = environment.lookup(matchSelector);
     expect(initialMatchSnapshot.isMissingData).toBe(true);
     const matchCallback = jest.fn();
     environment.subscribe(initialMatchSnapshot, matchCallback);
@@ -548,6 +527,14 @@ describe('execute() a query with @match', () => {
     expect(callbacks.error).toBeCalledTimes(0);
     expect(callbacks.next).toBeCalledTimes(1);
 
+    // The query should still be tracked as in flight
+    // even if the network completed, since we're waiting for a 3d payload
+    expect(
+      environment
+        .getOperationTracker()
+        .getPromiseForPendingOperationsAffectingOwner(operation.request),
+    ).not.toBe(null);
+
     expect(operationLoader.load).toBeCalledTimes(1);
     expect(operationLoader.load.mock.calls[0][0]).toBe(
       'MarkdownUserNameRenderer_name$normalization.graphql',
@@ -557,6 +544,13 @@ describe('execute() a query with @match', () => {
     expect(callbacks.complete).toBeCalledTimes(1);
     expect(callbacks.error).toBeCalledTimes(0);
     expect(callbacks.next).toBeCalledTimes(1);
+
+    // The query should no longer be tracked as in flight
+    expect(
+      environment
+        .getOperationTracker()
+        .getPromiseForPendingOperationsAffectingOwner(operation.request),
+    ).toBe(null);
   });
 
   it('calls complete() if the network completes after processing the match', () => {
@@ -592,10 +586,25 @@ describe('execute() a query with @match', () => {
     expect(callbacks.error).toBeCalledTimes(0);
     expect(callbacks.next).toBeCalledTimes(1);
 
+    // The query should still be tracked as in flight
+    // since the network hasn't completed
+    expect(
+      environment
+        .getOperationTracker()
+        .getPromiseForPendingOperationsAffectingOwner(operation.request),
+    ).not.toBe(null);
+
     dataSource.complete();
     expect(callbacks.complete).toBeCalledTimes(1);
     expect(callbacks.error).toBeCalledTimes(0);
     expect(callbacks.next).toBeCalledTimes(1);
+
+    // The query should no longer be tracked as in flight
+    expect(
+      environment
+        .getOperationTracker()
+        .getPromiseForPendingOperationsAffectingOwner(operation.request),
+    ).toBe(null);
   });
 
   it('calls error() if the operationLoader function throws synchronously', () => {
@@ -761,10 +770,7 @@ describe('execute() a query with @match', () => {
       ),
     );
     // initial results tested above
-    const initialMatchSnapshot = environment.lookup(
-      matchSelector.selector,
-      operation,
-    );
+    const initialMatchSnapshot = environment.lookup(matchSelector);
     expect(initialMatchSnapshot.isMissingData).toBe(true);
     const matchCallback = jest.fn();
     environment.subscribe(initialMatchSnapshot, matchCallback);

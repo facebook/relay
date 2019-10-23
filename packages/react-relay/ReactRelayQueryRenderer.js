@@ -10,7 +10,7 @@
 
 'use strict';
 
-const React = require('React');
+const React = require('react');
 const ReactRelayContext = require('./ReactRelayContext');
 const ReactRelayQueryFetcher = require('./ReactRelayQueryFetcher');
 
@@ -53,8 +53,6 @@ export type RenderProps<T> = {|
  * constructor, just reuse the query fetcher and wait for the response.
  */
 const requestCache = {};
-
-const STORE_AND_NETWORK = 'store-and-network';
 
 export type Props = {|
   cacheConfig?: ?CacheConfig,
@@ -270,15 +268,6 @@ class ReactRelayQueryRenderer extends React.Component<Props, State> {
   }
 }
 
-function getContext(
-  environment: IEnvironment,
-  variables: Variables,
-): RelayContext {
-  return {
-    environment,
-    variables,
-  };
-}
 function getLoadingRenderProps(): RenderProps<Object> {
   return {
     error: null,
@@ -345,7 +334,9 @@ function fetchQueryAndComputeStateFromProps(
   if (query) {
     const request = getRequest(query);
     const operation = createOperationDescriptor(request, variables);
-    const relayContext = getContext(genericEnvironment, operation.variables);
+    const relayContext: RelayContext = {
+      environment: genericEnvironment,
+    };
     if (typeof requestCacheKey === 'string' && requestCache[requestCacheKey]) {
       // This same request is already in flight.
 
@@ -377,10 +368,11 @@ function fetchQueryAndComputeStateFromProps(
     }
 
     try {
-      const storeSnapshot =
-        props.fetchPolicy === STORE_AND_NETWORK
-          ? queryFetcher.lookupInStore(genericEnvironment, operation)
-          : null;
+      const storeSnapshot = queryFetcher.lookupInStore(
+        genericEnvironment,
+        operation,
+        props.fetchPolicy,
+      );
       const querySnapshot = queryFetcher.fetch({
         cacheConfig: props.cacheConfig,
         environment: genericEnvironment,
@@ -430,7 +422,9 @@ function fetchQueryAndComputeStateFromProps(
     }
   } else {
     queryFetcher.dispose();
-    const relayContext = getContext(genericEnvironment, variables);
+    const relayContext: RelayContext = {
+      environment: genericEnvironment,
+    };
     return {
       error: null,
       relayContext,

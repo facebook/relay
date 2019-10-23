@@ -5,53 +5,54 @@
  * LICENSE file in the root directory of this source tree.
  *
  * @format
+ * @flow strict-local
  * @emails oncall+relay
  */
 
 'use strict';
 
-const RelayModernOperationDescriptor = require('../RelayModernOperationDescriptor');
 const RelayModernRecord = require('../RelayModernRecord');
 const RelayModernStore = require('../RelayModernStore');
+const RelayOptimisticRecordSource = require('../RelayOptimisticRecordSource');
 const RelayRecordSourceMapImpl = require('../RelayRecordSourceMapImpl');
 const RelayRecordSourceObjectImpl = require('../RelayRecordSourceObjectImpl');
 
 const {getRequest} = require('../../query/RelayModernGraphQLTag');
-const {createReaderSelector} = require('../RelayModernSelector');
 const {
-  REF_KEY,
-  ROOT_ID,
-  ROOT_TYPE,
-  UNPUBLISH_RECORD_SENTINEL,
-} = require('../RelayStoreUtils');
+  createOperationDescriptor,
+} = require('../RelayModernOperationDescriptor');
 const {
-  generateAndCompile,
-  matchers,
-  simpleClone,
-} = require('relay-test-utils-internal');
+  createReaderSelector,
+  createNormalizationSelector,
+} = require('../RelayModernSelector');
+const {REF_KEY, ROOT_ID, ROOT_TYPE} = require('../RelayStoreUtils');
+const {generateAndCompile, simpleClone} = require('relay-test-utils-internal');
 
-expect.extend(matchers);
-
-function createOperationDescriptor(...args) {
-  const operation = RelayModernOperationDescriptor.createOperationDescriptor(
-    ...args,
-  );
-  // For convenience of the test output, override toJSON to print
-  // a more succint description of the operation.
-  // $FlowFixMe
-  operation.toJSON = () => {
-    return {
-      name: operation.fragment.node.name,
-      variables: operation.variables,
-    };
-  };
-  return operation;
+function assertIsDeeplyFrozen(value: ?{} | ?$ReadOnlyArray<{}>) {
+  if (!value) {
+    throw new Error(
+      'Expected value to be a non-null object or array of objects',
+    );
+  }
+  expect(Object.isFrozen(value)).toBe(true);
+  if (Array.isArray(value)) {
+    value.forEach(item => assertIsDeeplyFrozen(item));
+  } else if (typeof value === 'object' && value !== null) {
+    for (const key in value) {
+      assertIsDeeplyFrozen(value[key]);
+    }
+  }
 }
 
 [
-  [RelayRecordSourceObjectImpl, 'Object'],
-  [RelayRecordSourceMapImpl, 'Map'],
-].forEach(([RecordSourceImplementation, ImplementationName]) => {
+  [data => new RelayRecordSourceObjectImpl(data), 'Object'],
+  [data => new RelayRecordSourceMapImpl(data), 'Map'],
+  [
+    data =>
+      RelayOptimisticRecordSource.create(new RelayRecordSourceMapImpl(data)),
+    'Optimistic',
+  ],
+].forEach(([getRecordSourceImplementation, ImplementationName]) => {
   describe(`Relay Store with ${ImplementationName} Record Source`, () => {
     describe('retain()', () => {
       let UserFragment;
@@ -75,7 +76,7 @@ function createOperationDescriptor(...args) {
           },
         };
         initialData = simpleClone(data);
-        source = new RecordSourceImplementation(data);
+        source = getRecordSourceImplementation(data);
         store = new RelayModernStore(source);
         ({UserFragment} = generateAndCompile(`
           query UserQuery($size: Int) {
@@ -94,14 +95,16 @@ function createOperationDescriptor(...args) {
       });
 
       it('prevents data from being collected', () => {
-        store.retain(createReaderSelector(UserFragment, '4', {size: 32}));
+        store.retain(
+          createNormalizationSelector(UserFragment, '4', {size: 32}),
+        );
         jest.runAllTimers();
         expect(source.toJSON()).toEqual(initialData);
       });
 
       it('frees data when disposed', () => {
         const {dispose} = store.retain(
-          createReaderSelector(UserFragment, '4', {size: 32}),
+          createNormalizationSelector(UserFragment, '4', {size: 32}),
         );
         dispose();
         expect(data).toEqual(initialData);
@@ -121,8 +124,8 @@ function createOperationDescriptor(...args) {
             }
           }
         `);
-        const nextSource = new RecordSourceImplementation({
-          842472: {
+        const nextSource = getRecordSourceImplementation({
+          '842472': {
             __id: '842472',
             __typename: 'User',
             name: 'Joe',
@@ -135,10 +138,10 @@ function createOperationDescriptor(...args) {
         });
         store.publish(nextSource);
         const {dispose} = store.retain(
-          createReaderSelector(UserFragment, '4', {size: 32}),
+          createNormalizationSelector(UserFragment, '4', {size: 32}),
         );
         store.retain(
-          createReaderSelector(JoeFragment, ROOT_ID, {id: '842472'}),
+          createNormalizationSelector(JoeFragment, ROOT_ID, {id: '842472'}),
         );
 
         dispose(); // release one of the holds but not the other
@@ -168,7 +171,7 @@ function createOperationDescriptor(...args) {
             uri: 'https://photo1.jpg',
           },
         };
-        source = new RecordSourceImplementation(data);
+        source = getRecordSourceImplementation(data);
         store = new RelayModernStore(source);
         ({UserFragment, UserQuery} = generateAndCompile(`
           fragment UserFragment on User {
@@ -187,11 +190,16 @@ function createOperationDescriptor(...args) {
       });
 
       it('returns selector data', () => {
-        const selector = createReaderSelector(UserFragment, '4', {size: 32});
         const owner = createOperationDescriptor(UserQuery, {});
-        const snapshot = store.lookup(selector, owner);
+        const selector = createReaderSelector(
+          UserFragment,
+          '4',
+          {size: 32},
+          owner.request,
+        );
+        const snapshot = store.lookup(selector);
         expect(snapshot).toEqual({
-          ...selector,
+          selector,
           data: {
             name: 'Zuck',
             profilePicture: {
@@ -202,7 +210,6 @@ function createOperationDescriptor(...args) {
             ...data,
           },
           isMissingData: false,
-          owner,
         });
         for (const id in snapshot.seenRecords) {
           if (snapshot.seenRecords.hasOwnProperty(id)) {
@@ -232,28 +239,34 @@ function createOperationDescriptor(...args) {
             username
           }
         `));
-        const selector = createReaderSelector(UserFragment, '4', {size: 32});
         const queryNode = getRequest(UserQuery);
         const owner = createOperationDescriptor(queryNode, {size: 32});
-        const snapshot = store.lookup(selector, owner);
+        const selector = createReaderSelector(
+          UserFragment,
+          '4',
+          {size: 32},
+          owner.request,
+        );
+        const snapshot = store.lookup(selector);
         expect(snapshot).toEqual({
-          ...selector,
+          selector,
           data: {
             name: 'Zuck',
+
             profilePicture: {
               uri: 'https://photo1.jpg',
             },
+
             __id: '4',
             __fragments: {ChildUserFragment: {}},
-            __fragmentOwner: owner,
+            __fragmentOwner: owner.request,
           },
           seenRecords: {
             ...data,
           },
           isMissingData: false,
-          owner: owner,
         });
-        expect(snapshot.data?.__fragmentOwner).toBe(owner);
+        expect(snapshot.data?.__fragmentOwner).toBe(owner.request);
         for (const id in snapshot.seenRecords) {
           if (snapshot.seenRecords.hasOwnProperty(id)) {
             const record = snapshot.seenRecords[id];
@@ -263,17 +276,22 @@ function createOperationDescriptor(...args) {
       });
 
       it('returns deeply-frozen objects', () => {
-        const selector = createReaderSelector(UserFragment, '4', {size: 32});
         const owner = createOperationDescriptor(UserQuery, {});
-        const snapshot = store.lookup(selector, owner);
+        const selector = createReaderSelector(
+          UserFragment,
+          '4',
+          {size: 32},
+          owner.request,
+        );
+        const snapshot = store.lookup(selector);
         expect(Object.isFrozen(snapshot)).toBe(true);
-        expect(snapshot.data).toBeDeeplyFrozen();
-        expect(snapshot.variables).toBeDeeplyFrozen();
+        assertIsDeeplyFrozen(snapshot.data);
+        assertIsDeeplyFrozen(snapshot.selector.variables);
       });
 
       it('returns updated data after a publish', () => {
         const nextData = {
-          4: {
+          '4': {
             __id: '4',
             __typename: 'User',
             'profilePicture(size:32)': {[REF_KEY]: 'client:2'},
@@ -284,14 +302,19 @@ function createOperationDescriptor(...args) {
             uri: 'https://photo1.jpg',
           },
         };
-        const nextSource = new RecordSourceImplementation(nextData);
+        const nextSource = getRecordSourceImplementation(nextData);
         store.publish(nextSource); // takes effect w/o calling notify()
 
         const owner = createOperationDescriptor(UserQuery, {size: 32});
-        const selector = createReaderSelector(UserFragment, '4', {size: 32});
-        const snapshot = store.lookup(selector, owner);
+        const selector = createReaderSelector(
+          UserFragment,
+          '4',
+          {size: 32},
+          owner.request,
+        );
+        const snapshot = store.lookup(selector);
         expect(snapshot).toEqual({
-          ...selector,
+          selector,
           data: {
             name: 'Zuck',
             profilePicture: {
@@ -299,11 +322,10 @@ function createOperationDescriptor(...args) {
             },
           },
           seenRecords: {
-            4: {...data['4'], ...nextData['4']},
+            '4': {...data['4'], ...nextData['4']},
             'client:2': nextData['client:2'],
           },
           isMissingData: false,
-          owner,
         });
       });
     });
@@ -330,7 +352,7 @@ function createOperationDescriptor(...args) {
             uri: 'https://photo1.jpg',
           },
         };
-        source = new RecordSourceImplementation(data);
+        source = getRecordSourceImplementation(data);
         store = new RelayModernStore(source);
         ({UserFragment, UserQuery} = generateAndCompile(`
           fragment UserFragment on User {
@@ -351,13 +373,18 @@ function createOperationDescriptor(...args) {
 
       it('calls subscribers whose data has changed since previous notify', () => {
         // subscribe(), publish(), notify() -> subscriber called
-        const selector = createReaderSelector(UserFragment, '4', {size: 32});
         const owner = createOperationDescriptor(UserQuery, {});
-        const snapshot = store.lookup(selector, owner);
+        const selector = createReaderSelector(
+          UserFragment,
+          '4',
+          {size: 32},
+          owner.request,
+        );
+        const snapshot = store.lookup(selector);
         const callback = jest.fn();
         store.subscribe(snapshot, callback);
         // Publish a change to profilePicture.uri
-        const nextSource = new RecordSourceImplementation({
+        const nextSource = getRecordSourceImplementation({
           'client:1': {
             __id: 'client:1',
             uri: 'https://photo2.jpg',
@@ -403,16 +430,21 @@ function createOperationDescriptor(...args) {
             emailAddresses
           }
         `));
-        const selector = createReaderSelector(UserFragment, '4', {size: 32});
         const queryNode = getRequest(UserQuery);
         const owner = createOperationDescriptor(queryNode, {size: 32});
-        const snapshot = store.lookup(selector, owner);
-        expect(snapshot.owner).toBe(owner);
+        const selector = createReaderSelector(
+          UserFragment,
+          '4',
+          {size: 32},
+          owner.request,
+        );
+        const snapshot = store.lookup(selector);
+        expect(snapshot.selector).toBe(selector);
 
         const callback = jest.fn();
         store.subscribe(snapshot, callback);
         // Publish a change to profilePicture.uri
-        const nextSource = new RecordSourceImplementation({
+        const nextSource = getRecordSourceImplementation({
           'client:1': {
             __id: 'client:1',
             uri: 'https://photo2.jpg',
@@ -439,17 +471,22 @@ function createOperationDescriptor(...args) {
             },
           },
         });
-        expect(callback.mock.calls[0][0].owner).toBe(owner);
+        expect(callback.mock.calls[0][0].selector).toBe(selector);
       });
 
       it('vends deeply-frozen objects', () => {
-        const selector = createReaderSelector(UserFragment, '4', {size: 32});
         const owner = createOperationDescriptor(UserQuery, {});
-        const snapshot = store.lookup(selector, owner);
+        const selector = createReaderSelector(
+          UserFragment,
+          '4',
+          {size: 32},
+          owner.request,
+        );
+        const snapshot = store.lookup(selector);
         const callback = jest.fn();
         store.subscribe(snapshot, callback);
         // Publish a change to profilePicture.uri
-        const nextSource = new RecordSourceImplementation({
+        const nextSource = getRecordSourceImplementation({
           'client:1': {
             __id: 'client:1',
             uri: 'https://photo2.jpg',
@@ -460,20 +497,25 @@ function createOperationDescriptor(...args) {
         expect(callback.mock.calls.length).toBe(1);
         const nextSnapshot = callback.mock.calls[0][0];
         expect(Object.isFrozen(nextSnapshot)).toBe(true);
-        expect(nextSnapshot.data).toBeDeeplyFrozen();
-        expect(nextSnapshot.variables).toBeDeeplyFrozen();
+        assertIsDeeplyFrozen(nextSnapshot.data);
+        assertIsDeeplyFrozen(nextSnapshot.selector.variables);
       });
 
       it('calls affected subscribers only once', () => {
         // subscribe(), publish(), publish(), notify() -> subscriber called once
-        const selector = createReaderSelector(UserFragment, '4', {size: 32});
         const owner = createOperationDescriptor(UserQuery, {});
-        const snapshot = store.lookup(selector, owner);
+        const selector = createReaderSelector(
+          UserFragment,
+          '4',
+          {size: 32},
+          owner.request,
+        );
+        const snapshot = store.lookup(selector);
         const callback = jest.fn();
         store.subscribe(snapshot, callback);
         // Publish a change to profilePicture.uri
-        let nextSource = new RecordSourceImplementation({
-          4: {
+        let nextSource = getRecordSourceImplementation({
+          '4': {
             __id: '4',
             __typename: 'User',
             name: 'Mark',
@@ -485,7 +527,7 @@ function createOperationDescriptor(...args) {
           },
         });
         store.publish(nextSource);
-        nextSource = new RecordSourceImplementation({
+        nextSource = getRecordSourceImplementation({
           'client:1': {
             __id: 'client:1',
             uri: 'https://photo3.jpg',
@@ -505,7 +547,7 @@ function createOperationDescriptor(...args) {
             emailAddresses: ['a@b.com', 'c@d.net'],
           },
           seenRecords: {
-            4: {
+            '4': {
               ...data['4'],
               name: 'Mark',
               emailAddresses: ['a@b.com', 'c@d.net'],
@@ -532,18 +574,23 @@ function createOperationDescriptor(...args) {
             uri: 'https://photo1.jpg',
           },
         };
-        source = new RecordSourceImplementation(data);
+        source = getRecordSourceImplementation(data);
         store = new RelayModernStore(source);
-        const selector = createReaderSelector(UserFragment, '4', {size: 32});
         const owner = createOperationDescriptor(UserQuery, {});
-        const snapshot = store.lookup(selector, owner);
+        const selector = createReaderSelector(
+          UserFragment,
+          '4',
+          {size: 32},
+          owner.request,
+        );
+        const snapshot = store.lookup(selector);
         expect(snapshot.isMissingData).toEqual(true);
 
         const callback = jest.fn();
         // Record does not exist when subscribed
         store.subscribe(snapshot, callback);
-        const nextSource = new RecordSourceImplementation({
-          4: {
+        const nextSource = getRecordSourceImplementation({
+          '4': {
             __id: '4',
             __typename: 'User',
             emailAddresses: ['a@b.com'],
@@ -563,7 +610,7 @@ function createOperationDescriptor(...args) {
             emailAddresses: ['a@b.com'],
           },
           seenRecords: {
-            4: {
+            '4': {
               ...data['4'],
               emailAddresses: ['a@b.com'],
             },
@@ -575,16 +622,21 @@ function createOperationDescriptor(...args) {
       });
 
       it('notifies subscribers of changes to unfetched records', () => {
-        const selector = createReaderSelector(UserFragment, '842472', {
-          size: 32,
-        });
         const owner = createOperationDescriptor(UserQuery, {});
-        const snapshot = store.lookup(selector, owner);
+        const selector = createReaderSelector(
+          UserFragment,
+          '842472',
+          {
+            size: 32,
+          },
+          owner.request,
+        );
+        const snapshot = store.lookup(selector);
         const callback = jest.fn();
         // Record does not exist when subscribed
         store.subscribe(snapshot, callback);
-        const nextSource = new RecordSourceImplementation({
-          842472: {
+        const nextSource = getRecordSourceImplementation({
+          '842472': {
             __id: '842472',
             __typename: 'User',
             name: 'Joe',
@@ -605,19 +657,24 @@ function createOperationDescriptor(...args) {
       });
 
       it('notifies subscribers of changes to deleted records', () => {
-        const selector = createReaderSelector(UserFragment, '842472', {
-          size: 32,
-        });
+        const owner = createOperationDescriptor(UserQuery, {});
+        const selector = createReaderSelector(
+          UserFragment,
+          '842472',
+          {
+            size: 32,
+          },
+          owner.request,
+        );
         // Initially delete the record
         source.delete('842472');
-        const owner = createOperationDescriptor(UserQuery, {});
-        const snapshot = store.lookup(selector, owner);
+        const snapshot = store.lookup(selector);
         const callback = jest.fn();
         // Record does not exist when subscribed
         store.subscribe(snapshot, callback);
         // Create it again
-        const nextSource = new RecordSourceImplementation({
-          842472: {
+        const nextSource = getRecordSourceImplementation({
+          '842472': {
             __id: '842472',
             __typename: 'User',
             name: 'Joe',
@@ -639,14 +696,19 @@ function createOperationDescriptor(...args) {
 
       it('does not call subscribers whose data has not changed', () => {
         // subscribe(), publish() -> subscriber *not* called
-        const selector = createReaderSelector(UserFragment, '4', {size: 32});
         const owner = createOperationDescriptor(UserQuery, {});
-        const snapshot = store.lookup(selector, owner);
+        const selector = createReaderSelector(
+          UserFragment,
+          '4',
+          {size: 32},
+          owner.request,
+        );
+        const snapshot = store.lookup(selector);
         const callback = jest.fn();
         store.subscribe(snapshot, callback);
         // Publish a change to profilePicture.uri
-        const nextSource = new RecordSourceImplementation({
-          842472: {
+        const nextSource = getRecordSourceImplementation({
+          '842472': {
             __id: '842472',
             __typename: 'User',
             name: 'Joe',
@@ -659,13 +721,18 @@ function createOperationDescriptor(...args) {
 
       it('does not notify disposed subscribers', () => {
         // subscribe(), publish(), dispose(), notify() -> subscriber *not* called
-        const selector = createReaderSelector(UserFragment, '4', {size: 32});
         const owner = createOperationDescriptor(UserQuery, {});
-        const snapshot = store.lookup(selector, owner);
+        const selector = createReaderSelector(
+          UserFragment,
+          '4',
+          {size: 32},
+          owner.request,
+        );
+        const snapshot = store.lookup(selector);
         const callback = jest.fn();
         const {dispose} = store.subscribe(snapshot, callback);
         // Publish a change to profilePicture.uri
-        const nextSource = new RecordSourceImplementation({
+        const nextSource = getRecordSourceImplementation({
           'client:1': {
             __id: 'client:1',
             uri: 'https://photo2.jpg',
@@ -677,25 +744,18 @@ function createOperationDescriptor(...args) {
         expect(callback).not.toBeCalled();
       });
 
-      it('unpublishes records via a sentinel value', () => {
-        const nextSource = new RecordSourceImplementation({});
-        nextSource.set('4', UNPUBLISH_RECORD_SENTINEL);
-        store.publish(nextSource);
-
-        expect(source.has('4')).toBe(false);
-        expect(source.get('4')).toBe(undefined);
-      });
-
       it('throws if source records are modified', () => {
         const zuck = source.get('4');
+        expect(zuck).toBeTruthy();
         expect(() => {
+          // $FlowFixMe
           RelayModernRecord.setValue(zuck, 'pet', 'Beast');
         }).toThrow(TypeError);
       });
 
       it('throws if published records are modified', () => {
         // Create and publish a source with a new record
-        const nextSource = new RecordSourceImplementation();
+        const nextSource = getRecordSourceImplementation();
         const beast = RelayModernRecord.create('beast', 'Pet');
         nextSource.set('beast', beast);
         store.publish(nextSource);
@@ -706,7 +766,7 @@ function createOperationDescriptor(...args) {
 
       it('throws if updated records are modified', () => {
         // Create and publish a source with a record of the same id
-        const nextSource = new RecordSourceImplementation();
+        const nextSource = getRecordSourceImplementation();
         const beast = RelayModernRecord.create('beast', 'Pet');
         nextSource.set('beast', beast);
         const zuck = RelayModernRecord.create('4', 'User');
@@ -717,6 +777,8 @@ function createOperationDescriptor(...args) {
         // Cannot modify merged record
         expect(() => {
           const mergedRecord = source.get('4');
+          expect(mergedRecord).toBeTruthy();
+          // $FlowFixMe
           RelayModernRecord.setValue(mergedRecord, 'pet', null);
         }).toThrow(TypeError);
         // Cannot modify the published record, even though it isn't in the store
@@ -748,7 +810,7 @@ function createOperationDescriptor(...args) {
             uri: 'https://photo1.jpg',
           },
         };
-        source = new RecordSourceImplementation(data);
+        source = getRecordSourceImplementation(data);
         store = new RelayModernStore(source);
         ({UserFragment} = generateAndCompile(`
           fragment UserFragment on User {
@@ -761,14 +823,18 @@ function createOperationDescriptor(...args) {
       });
 
       it('returns true if all data exists in the cache', () => {
-        const selector = createReaderSelector(UserFragment, '4', {size: 32});
+        const selector = createNormalizationSelector(UserFragment, '4', {
+          size: 32,
+        });
         expect(store.check(selector)).toBe(true);
       });
 
       it('returns false if a scalar field is missing', () => {
-        const selector = createReaderSelector(UserFragment, '4', {size: 32});
+        const selector = createNormalizationSelector(UserFragment, '4', {
+          size: 32,
+        });
         store.publish(
-          new RecordSourceImplementation({
+          getRecordSourceImplementation({
             'client:1': {
               __id: 'client:1',
               uri: undefined, // unpublish the field
@@ -779,23 +845,185 @@ function createOperationDescriptor(...args) {
       });
 
       it('returns false if a linked field is missing', () => {
-        const selector = createReaderSelector(UserFragment, '4', {size: 64});
+        const selector = createNormalizationSelector(UserFragment, '4', {
+          size: 64,
+        });
         expect(store.check(selector)).toBe(false);
       });
 
       it('returns false if a linked record is missing', () => {
+        // $FlowFixMe found deploying v0.109.0
         delete data['client:1']; // profile picture
-        source = new RecordSourceImplementation(data);
+        source = getRecordSourceImplementation(data);
         store = new RelayModernStore(source);
-        const selector = createReaderSelector(UserFragment, '4', {size: 32});
+        const selector = createNormalizationSelector(UserFragment, '4', {
+          size: 32,
+        });
         expect(store.check(selector)).toBe(false);
       });
 
       it('returns false if the root record is missing', () => {
-        const selector = createReaderSelector(UserFragment, '842472', {
+        const selector = createNormalizationSelector(UserFragment, '842472', {
           size: 32,
         });
         expect(store.check(selector)).toBe(false);
+      });
+    });
+
+    describe('GC with a release buffer', () => {
+      let UserFragment;
+      let data;
+      let initialData;
+      let source;
+      let store;
+
+      beforeEach(() => {
+        data = {
+          '4': {
+            __id: '4',
+            id: '4',
+            __typename: 'User',
+            name: 'Zuck',
+            'profilePicture(size:32)': {[REF_KEY]: 'client:1'},
+          },
+          '5': {
+            __id: '5',
+            id: '5',
+            __typename: 'User',
+            name: 'Other',
+            'profilePicture(size:32)': {[REF_KEY]: 'client:2'},
+          },
+          'client:1': {
+            __id: 'client:1',
+            uri: 'https://photo1.jpg',
+          },
+          'client:2': {
+            __id: 'client:2',
+            uri: 'https://photo2.jpg',
+          },
+        };
+        initialData = simpleClone(data);
+        source = getRecordSourceImplementation(data);
+        store = new RelayModernStore(source, {gcReleaseBufferSize: 1});
+        ({UserFragment} = generateAndCompile(`
+          fragment UserFragment on User {
+            name
+            profilePicture(size: $size) {
+              uri
+            }
+          }
+        `));
+      });
+
+      it('keeps the data retained in the release buffer after released by caller', () => {
+        const disposable = store.retain(
+          createNormalizationSelector(UserFragment, '4', {size: 32}),
+        );
+
+        jest.runAllTimers();
+        // Assert data is not collected
+        expect(source.toJSON()).toEqual(initialData);
+
+        // Assert data is still not collected since it's still
+        // retained in the release buffer
+        disposable.dispose();
+        jest.runAllTimers();
+        expect(source.toJSON()).toEqual(initialData);
+      });
+
+      it('releases the operation and collects data after release buffer reaches capacity', () => {
+        const disposable = store.retain(
+          createNormalizationSelector(UserFragment, '4', {size: 32}),
+        );
+        jest.runAllTimers();
+        // Assert data is not collected
+        expect(source.toJSON()).toEqual(initialData);
+
+        // Assert data is still not collected since it's still
+        // retained in the release buffer
+        disposable.dispose();
+        jest.runAllTimers();
+        expect(source.toJSON()).toEqual(initialData);
+
+        const disposable2 = store.retain(
+          createNormalizationSelector(UserFragment, '5', {size: 32}),
+        );
+        jest.runAllTimers();
+        expect(source.toJSON()).toEqual(initialData);
+
+        // Releasing second operation should cause release buffer to
+        // go over capacity
+        disposable2.dispose();
+        jest.runAllTimers();
+        // Assert that the data for the first operation is collected, while
+        // data for second operation is still retained via the release buffer
+        expect(source.toJSON()).toEqual({
+          '5': {
+            __id: '5',
+            id: '5',
+            __typename: 'User',
+            name: 'Other',
+            'profilePicture(size:32)': {[REF_KEY]: 'client:2'},
+          },
+          'client:2': {
+            __id: 'client:2',
+            uri: 'https://photo2.jpg',
+          },
+        });
+      });
+
+      it('when same operation retained multiple times, data is only collected until fully released from buffer', () => {
+        const disposable = store.retain(
+          createNormalizationSelector(UserFragment, '4', {size: 32}),
+        );
+        jest.runAllTimers();
+        expect(source.toJSON()).toEqual(initialData);
+
+        // Retain the same operation again
+        const disposable2 = store.retain(
+          createNormalizationSelector(UserFragment, '4', {size: 32}),
+        );
+        jest.runAllTimers();
+        expect(source.toJSON()).toEqual(initialData);
+
+        // Retain different operation
+        const disposable3 = store.retain(
+          createNormalizationSelector(UserFragment, '5', {size: 32}),
+        );
+        jest.runAllTimers();
+        expect(source.toJSON()).toEqual(initialData);
+
+        // Assert data is still not collected since it's still
+        // retained in the release buffer
+        disposable.dispose();
+        jest.runAllTimers();
+        expect(source.toJSON()).toEqual(initialData);
+
+        // Assert data is still not collected since it's still
+        // retained in the release buffer via the equivalent operation
+        disposable2.dispose();
+        jest.runAllTimers();
+        expect(source.toJSON()).toEqual(initialData);
+
+        // Releasing different operation should cause release buffer to
+        // go over capacity
+        disposable3.dispose();
+        jest.runAllTimers();
+        // Assert that the data for the first operation is collected, while
+        // data for secont operation is still retained via the release buffer
+        expect(source.toJSON()).toEqual({
+          '5': {
+            __id: '5',
+            id: '5',
+            __typename: 'User',
+            name: 'Other',
+            'profilePicture(size:32)': {[REF_KEY]: 'client:2'},
+          },
+          'client:2': {
+            __id: 'client:2',
+            uri: 'https://photo2.jpg',
+          },
+        });
       });
     });
 
@@ -825,8 +1053,8 @@ function createOperationDescriptor(...args) {
         initialData = simpleClone(data);
         callbacks = [];
         scheduler = jest.fn(callbacks.push.bind(callbacks));
-        source = new RecordSourceImplementation(data);
-        store = new RelayModernStore(source, scheduler);
+        source = getRecordSourceImplementation(data);
+        store = new RelayModernStore(source, {gcScheduler: scheduler});
         ({UserFragment} = generateAndCompile(`
           fragment UserFragment on User {
             name
@@ -839,7 +1067,7 @@ function createOperationDescriptor(...args) {
 
       it('calls the gc scheduler function when GC should run', () => {
         const {dispose} = store.retain(
-          createReaderSelector(UserFragment, '4', {size: 32}),
+          createNormalizationSelector(UserFragment, '4', {size: 32}),
         );
         expect(scheduler).not.toBeCalled();
         dispose();
@@ -849,7 +1077,7 @@ function createOperationDescriptor(...args) {
 
       it('Runs GC when the GC scheduler executes the task', () => {
         const {dispose} = store.retain(
-          createReaderSelector(UserFragment, '4', {size: 32}),
+          createNormalizationSelector(UserFragment, '4', {size: 32}),
         );
         dispose();
         expect(source.toJSON()).toEqual(initialData);
@@ -880,7 +1108,7 @@ function createOperationDescriptor(...args) {
           },
         };
         initialData = simpleClone(data);
-        source = new RecordSourceImplementation(data);
+        source = getRecordSourceImplementation(data);
         store = new RelayModernStore(source);
         ({UserFragment} = generateAndCompile(`
           fragment UserFragment on User {
@@ -895,7 +1123,7 @@ function createOperationDescriptor(...args) {
       it('prevents data from being collected with disabled GC, and reruns GC when it is enabled', () => {
         const gcHold = store.holdGC();
         const {dispose} = store.retain(
-          createReaderSelector(UserFragment, '4', {size: 32}),
+          createNormalizationSelector(UserFragment, '4', {size: 32}),
         );
         dispose();
         expect(data).toEqual(initialData);

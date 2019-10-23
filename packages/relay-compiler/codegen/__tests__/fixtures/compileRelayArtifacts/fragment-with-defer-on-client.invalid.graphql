@@ -9,7 +9,13 @@ query QueryWithFragmentWithDefer {
 fragment UserFragment on User {
   id
   emailAddresses
-  ...DeferredFragment @defer(label: "DeferredFragmentLabel")
+  clientUser {
+    ...DeferredFragment @defer(label: "DeferredFragmentLabel")
+  }
+}
+
+extend type User {
+  clientUser: ClientUser
 }
 
 fragment DeferredFragment on ClientUser {

@@ -5,40 +5,26 @@
  * LICENSE file in the root directory of this source tree.
  *
  * @format
- * @flow
+ * @flow strict-local
  * @emails oncall+relay
  */
 
 'use strict';
 
 const RelayModernEnvironment = require('../RelayModernEnvironment');
-const RelayModernOperationDescriptor = require('../RelayModernOperationDescriptor');
 const RelayModernStore = require('../RelayModernStore');
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayRecordSource = require('../RelayRecordSource');
 
+const {
+  createOperationDescriptor,
+} = require('../RelayModernOperationDescriptor');
 const {
   createReaderSelector,
   createNormalizationSelector,
 } = require('../RelayModernSelector');
 const {ROOT_ID} = require('../RelayStoreUtils');
 const {generateAndCompile} = require('relay-test-utils-internal');
-
-function createOperationDescriptor(...args) {
-  const operation = RelayModernOperationDescriptor.createOperationDescriptor(
-    ...args,
-  );
-  // For convenience of the test output, override toJSON to print
-  // a more succint description of the operation.
-  // $FlowFixMe
-  operation.toJSON = () => {
-    return {
-      name: operation.fragment.node.name,
-      variables: operation.variables,
-    };
-  };
-  return operation;
-}
 
 describe('retain()', () => {
   let ParentQuery;
@@ -79,8 +65,12 @@ describe('retain()', () => {
       createNormalizationSelector(ParentQuery.root, ROOT_ID, {}),
     );
     const snapshot = environment.lookup(
-      createReaderSelector(ParentQuery.fragment, ROOT_ID, {}),
-      operation,
+      createReaderSelector(
+        ParentQuery.fragment,
+        ROOT_ID,
+        {},
+        operation.request,
+      ),
     );
     // data is still in the store
     expect(snapshot.data).toEqual({
@@ -95,10 +85,15 @@ describe('retain()', () => {
     const {dispose} = environment.retain(
       createNormalizationSelector(ParentQuery.root, ROOT_ID, {}),
     );
-    const selector = createReaderSelector(ParentQuery.fragment, ROOT_ID, {});
+    const selector = createReaderSelector(
+      ParentQuery.fragment,
+      ROOT_ID,
+      {},
+      operation.request,
+    );
     dispose();
     // GC runs asynchronously; data should still be in the store
-    expect(environment.lookup(selector, operation).data).toEqual({
+    expect(environment.lookup(selector).data).toEqual({
       me: {
         id: '4',
         name: 'Zuck',
@@ -106,6 +101,6 @@ describe('retain()', () => {
     });
     jest.runAllTimers();
     // After GC runs data is missing
-    expect(environment.lookup(selector, operation).data).toBe(undefined);
+    expect(environment.lookup(selector).data).toBe(undefined);
   });
 });

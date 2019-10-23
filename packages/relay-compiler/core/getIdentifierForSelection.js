@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @flow
+ * @flow strict-local
  * @format
  */
 
@@ -15,23 +15,28 @@ const invariant = require('invariant');
 const {printArguments, printDirectives} = require('./GraphQLIRPrinter');
 
 import type {Selection} from './GraphQLIR';
+import type {Schema} from './Schema';
 
 /**
  * Generates an identifier that is unique to a given selection: the alias for
  * fields, the type for inline fragments, and a summary of the condition
  * variable and passing value for conditions.
  */
-function getIdentifierForSelection(node: Selection): string {
-  if (node.kind === 'LinkedField' || node.kind === 'ScalarField') {
+function getIdentifierForSelection(schema: Schema, node: Selection): string {
+  if (
+    node.kind === 'LinkedField' ||
+    node.kind === 'ScalarField' ||
+    node.kind === 'ConnectionField'
+  ) {
     return 'Field: ' + node.directives.length === 0
-      ? node.alias || node.name
-      : (node.alias || node.name) + printDirectives(node.directives);
-  } else if (node.kind === 'ConnectionField') {
-    return 'ConnectionField:' + node.label;
+      ? node.alias
+      : node.alias + printDirectives(schema, node.directives);
+  } else if (node.kind === 'Connection') {
+    return 'Connection:' + node.label;
   } else if (node.kind === 'FragmentSpread') {
     return 'FragmentSpread:' + node.args.length === 0
       ? node.name
-      : node.name + printArguments(node.args);
+      : node.name + printArguments(schema, node.args);
   } else if (node.kind === 'ModuleImport') {
     return 'ModuleImport:';
   } else if (node.kind === 'Defer') {
@@ -39,7 +44,7 @@ function getIdentifierForSelection(node: Selection): string {
   } else if (node.kind === 'Stream') {
     return 'Stream:' + node.label;
   } else if (node.kind === 'InlineFragment') {
-    return 'InlineFragment:' + node.typeCondition.name;
+    return 'InlineFragment:' + schema.getTypeString(node.typeCondition);
   } else if (node.kind === 'ClientExtension') {
     return 'ClientExtension:';
   } else if (node.kind === 'InlineDataFragmentSpread') {

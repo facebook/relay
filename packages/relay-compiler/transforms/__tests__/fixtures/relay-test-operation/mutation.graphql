@@ -2,8 +2,10 @@ mutation SimpleMutation @relay_test_operation {
   commentCreate(input: null) {
     feedback {
       id
-      ... on Actor {
-        name
+      actor {
+        ... on Actor {
+          name
+        }
       }
     }
   }

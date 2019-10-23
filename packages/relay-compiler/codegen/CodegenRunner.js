@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @flow
+ * @flow strict-local
  * @format
  */
 
@@ -18,20 +18,24 @@ const Profiler = require('../core/GraphQLCompilerProfiler');
 const invariant = require('invariant');
 const path = require('path');
 
+const {create: createSchema} = require('../core/Schema');
+// $FlowFixMe - importing immutable, which is untyped (and flow is sad about it)
 const {Map: ImmutableMap} = require('immutable');
 
 import type ASTCache from '../core/ASTCache';
-import type {GraphQLReporter} from '../reporters/GraphQLReporter';
+import type {Schema} from '../core/Schema';
+import type {Reporter} from '../reporters/Reporter';
 import type {CompileResult, File} from './CodegenTypes';
 import type {FileFilter, WatchmanExpression} from './CodegenWatcher';
 import type {SourceControl} from './SourceControl';
-import type {DocumentNode, GraphQLSchema} from 'graphql';
+import type {DocumentNode, Source} from 'graphql';
 
 export type ParserConfig = {|
   baseDir: string,
   getFileFilter?: (baseDir: string) => FileFilter,
   getParser: (baseDir: string) => ASTCache,
-  getSchema: () => GraphQLSchema,
+  getSchemaSource: () => Source,
+  schemaExtensions: $ReadOnlyArray<string>,
   generatedDirectoriesWatchmanExpression?: ?WatchmanExpression,
   watchmanExpression?: ?WatchmanExpression,
   filepaths?: ?Array<string>,
@@ -57,14 +61,12 @@ type WriterConfigs = {
 
 export type WriteFilesOptions = {|
   onlyValidate: boolean,
-  schema: GraphQLSchema,
+  schema: Schema,
   documents: ImmutableMap<string, DocumentNode>,
   baseDocuments: ImmutableMap<string, DocumentNode>,
   sourceControl: ?SourceControl,
-  reporter: GraphQLReporter,
+  reporter: Reporter,
   generatedDirectories?: Array<string>,
-  experimental_noDeleteExtraFiles?: boolean,
-  experimental_extraFilesPatternToKeep?: RegExp,
 |};
 
 export type WriteFiles = WriteFilesOptions => Promise<
@@ -84,14 +86,14 @@ class CodegenRunner {
 
   // parser => writers that are affected by it
   parserWriters: {[parser: string]: Set<string>};
-  _reporter: GraphQLReporter;
+  _reporter: Reporter;
   _sourceControl: ?SourceControl;
 
   constructor(options: {
     parserConfigs: ParserConfigs,
     writerConfigs: WriterConfigs,
     onlyValidate: boolean,
-    reporter: GraphQLReporter,
+    reporter: Reporter,
     sourceControl: ?SourceControl,
     onComplete?: OnCompleteCallback,
   }) {
@@ -274,7 +276,7 @@ class CodegenRunner {
         if (baseParsers) {
           baseParsers.forEach(baseParserName => {
             invariant(
-              this.parsers[baseParserName],
+              this.parsers[baseParserName] != null,
               'Trying to access an uncompiled base parser config: %s',
               baseParserName,
             );
@@ -300,7 +302,11 @@ class CodegenRunner {
         // always create a new writer: we have to write everything anyways
         const documents = this.parsers[parser].documents();
         const schema = Profiler.run('getSchema', () =>
-          this.parserConfigs[parser].getSchema(),
+          createSchema(
+            this.parserConfigs[parser].getSchemaSource(),
+            baseDocuments.toArray(),
+            this.parserConfigs[parser].schemaExtensions,
+          ),
         );
 
         const outputDirectories = await writeFiles({
@@ -339,9 +345,13 @@ class CodegenRunner {
         const combinedChanges = CodegenDirectory.combineChanges(
           Array.from(outputDirectories.values()),
         );
-        CodegenDirectory.printChanges(combinedChanges, {
-          onlyValidate: this.onlyValidate,
-        });
+
+        this._reporter.reportMessage(
+          CodegenDirectory.formatChanges(combinedChanges, {
+            onlyValidate: this.onlyValidate,
+          }),
+        );
+
         return CodegenDirectory.hasChanges(combinedChanges)
           ? 'HAS_CHANGES'
           : 'NO_CHANGES';
@@ -381,7 +391,7 @@ class CodegenRunner {
         : anyFileFilter,
       async files => {
         invariant(
-          this.parsers[parserName],
+          this.parsers[parserName] != null,
           'Trying to watch an uncompiled parser config: %s',
           parserName,
         );

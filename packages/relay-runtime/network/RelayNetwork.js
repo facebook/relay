@@ -10,21 +10,21 @@
 
 'use strict';
 
-const RelayObservable = require('./RelayObservable');
-
 const invariant = require('invariant');
 
-const {convertFetch, convertSubscribe} = require('./ConvertToExecuteFunction');
+const {convertFetch} = require('./ConvertToExecuteFunction');
 
 import type {RequestParameters} from '../util/RelayConcreteNode';
 import type {CacheConfig, Variables} from '../util/RelayRuntimeTypes';
 import type {
   FetchFunction,
   GraphQLResponse,
-  Network,
+  LogRequestInfoFunction,
+  INetwork,
   SubscribeFunction,
   UploadableMap,
 } from './RelayNetworkTypes';
+import type RelayObservable from './RelayObservable';
 
 /**
  * Creates an implementation of the `Network` interface defined in
@@ -32,23 +32,21 @@ import type {
  */
 function create(
   fetchFn: FetchFunction,
-  subscribeFn?: SubscribeFunction,
-): Network {
+  subscribe?: SubscribeFunction,
+): INetwork {
   // Convert to functions that returns RelayObservable.
   const observeFetch = convertFetch(fetchFn);
-  const observeSubscribe = subscribeFn
-    ? convertSubscribe(subscribeFn)
-    : undefined;
 
   function execute(
     request: RequestParameters,
     variables: Variables,
     cacheConfig: CacheConfig,
     uploadables?: ?UploadableMap,
+    logRequestInfo: ?LogRequestInfoFunction,
   ): RelayObservable<GraphQLResponse> {
     if (request.operationKind === 'subscription') {
       invariant(
-        observeSubscribe,
+        subscribe,
         'RelayNetwork: This network layer does not support Subscriptions. ' +
           'To use Subscriptions, provide a custom network layer.',
       );
@@ -57,7 +55,7 @@ function create(
         !uploadables,
         'RelayNetwork: Cannot provide uploadables while subscribing.',
       );
-      return observeSubscribe(request, variables, cacheConfig);
+      return subscribe(request, variables, cacheConfig);
     }
 
     const pollInterval = cacheConfig.poll;
@@ -69,7 +67,13 @@ function create(
       return observeFetch(request, variables, {force: true}).poll(pollInterval);
     }
 
-    return observeFetch(request, variables, cacheConfig, uploadables);
+    return observeFetch(
+      request,
+      variables,
+      cacheConfig,
+      uploadables,
+      logRequestInfo,
+    );
   }
 
   return {execute};

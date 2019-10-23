@@ -32,7 +32,7 @@ export type GetFileFilter = (baseDir: string) => FileFilter;
 module.exports = (
   tagFinder: GraphQLTagFinder,
   getFileFilter?: GetFileFilter,
-): $TEMPORARY$object<{|
+): {|
   getFileFilter: GetFileFilter,
   getParser: (baseDir: string) => ASTCache,
   parseFile: (baseDir: string, file: File) => ?DocumentNode,
@@ -43,7 +43,7 @@ module.exports = (
     +document: DocumentNode,
     +sources: $ReadOnlyArray<string>,
   |},
-|}> => {
+|} => {
   const memoizedTagFinder = memoizedFind.bind(null, tagFinder);
 
   function parseFile(baseDir: string, file: File): ?DocumentNode {

@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  *
  * @format
- * @flow
+ * @flow strict-local
  * @emails oncall+relay
  */
 
@@ -22,9 +22,9 @@ const {createNormalizationSelector} = require('../RelayModernSelector');
 const {ROOT_ID} = require('../RelayStoreUtils');
 const {generateAndCompile} = require('relay-test-utils-internal');
 
-beforeEach(() => {
-  jest.resetModules();
-});
+function getEmptyConnectionEvents() {
+  return null;
+}
 
 describe('check()', () => {
   let Query;
@@ -81,36 +81,34 @@ describe('check()', () => {
         'node(id:"1")': {__ref: '1'},
       },
     };
-    ({Query} = generateAndCompile(
-      `
-        query Query($id: ID, $size: [Int]) {
-          node(id: $id) {
-            id
-            __typename
-            ... on Page {
-              actors {
-                name
-              }
+    ({Query} = generateAndCompile(`
+      query Query($id: ID, $size: [Int]) {
+        node(id: $id) {
+          id
+          __typename
+          ... on Page {
+            actors {
+              name
             }
-            ... on User {
-              firstName
-              friends(first: 3) {
-                edges {
-                  cursor
-                  node {
-                    id
-                    firstName
-                  }
+          }
+          ... on User {
+            firstName
+            friends(first: 3) {
+              edges {
+                cursor
+                node {
+                  id
+                  firstName
                 }
               }
-              profilePicture(size: $size) {
-                uri
-              }
+            }
+            profilePicture(size: $size) {
+              uri
             }
           }
         }
-      `,
-    ));
+      }
+    `));
   });
 
   it('reads query data', () => {
@@ -123,6 +121,7 @@ describe('check()', () => {
       [],
       null,
       defaultGetDataID,
+      getEmptyConnectionEvents,
     );
     expect(status).toBe(true);
     expect(target.size()).toBe(0);
@@ -165,28 +164,26 @@ describe('check()', () => {
     };
     const source = RelayRecordSource.create(data);
     const target = RelayRecordSource.create();
-    const {BarFragment} = generateAndCompile(
-      `
-        fragment BarFragment on User @argumentDefinitions(
-          size: {type: "[Int]"}
-        ) {
-          id
-          firstName
-          friends(first: 1) {
-            edges {
-              cursor
-              node {
-                id
-                firstName
-              }
+    const {BarFragment} = generateAndCompile(`
+      fragment BarFragment on User @argumentDefinitions(
+        size: {type: "[Int]"}
+      ) {
+        id
+        firstName
+        friends(first: 1) {
+          edges {
+            cursor
+            node {
+              id
+              firstName
             }
           }
-          profilePicture(size: $size) {
-            uri
-          }
         }
-      `,
-    );
+        profilePicture(size: $size) {
+          uri
+        }
+      }
+    `);
     const status = check(
       source,
       target,
@@ -194,6 +191,7 @@ describe('check()', () => {
       [],
       null,
       defaultGetDataID,
+      getEmptyConnectionEvents,
     );
     expect(status).toBe(true);
     expect(target.size()).toBe(0);
@@ -222,15 +220,13 @@ describe('check()', () => {
     };
     const source = RelayRecordSource.create(data);
     const target = RelayRecordSource.create();
-    const {Fragment} = generateAndCompile(
-      `
-          fragment Fragment on User {
-            profilePicture(size: 32) @__clientField(handle: "test") {
-              uri
-            }
-          }
-        `,
-    );
+    const {Fragment} = generateAndCompile(`
+      fragment Fragment on User {
+        profilePicture(size: 32) @__clientField(handle: "test") {
+          uri
+        }
+      }
+    `);
     const status = check(
       source,
       target,
@@ -238,6 +234,7 @@ describe('check()', () => {
       [],
       null,
       defaultGetDataID,
+      getEmptyConnectionEvents,
     );
     expect(status).toBe(true);
     expect(target.size()).toBe(0);
@@ -248,38 +245,37 @@ describe('check()', () => {
     let loader;
 
     beforeEach(() => {
-      const nodes = generateAndCompile(
-        `
-          fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
-            plaintext
-            data {
-              text
-            }
+      const nodes = generateAndCompile(`
+        fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
+          plaintext
+          data {
+            text
           }
+        }
 
-          fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
-            markdown
-            data {
-              markup
-            }
+        fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+          markdown
+          data {
+            markup
           }
+        }
 
-          fragment BarFragment on User {
-            id
-            nameRenderer @match {
-              ...PlainUserNameRenderer_name
-                @module(name: "PlainUserNameRenderer.react")
-              ...MarkdownUserNameRenderer_name
-                @module(name: "MarkdownUserNameRenderer.react")
-            }
+        fragment BarFragment on User {
+          id
+          nameRenderer @match {
+            ...PlainUserNameRenderer_name
+              @module(name: "PlainUserNameRenderer.react")
+            ...MarkdownUserNameRenderer_name
+              @module(name: "MarkdownUserNameRenderer.react")
           }
+        }
 
-          query BarQuery($id: ID!) {
-            node(id: $id) {
-              ...BarFragment
-            }
-          }`,
-      );
+        query BarQuery($id: ID!) {
+          node(id: $id) {
+            ...BarFragment
+          }
+        }
+      `);
       BarQuery = nodes.BarQuery;
       loader = {
         get: jest.fn(
@@ -336,6 +332,7 @@ describe('check()', () => {
         [],
         loader,
         defaultGetDataID,
+        getEmptyConnectionEvents,
       );
       expect(loader.get).toBeCalledTimes(1);
       expect(loader.get.mock.calls[0][0]).toBe(
@@ -390,6 +387,7 @@ describe('check()', () => {
         [],
         loader,
         defaultGetDataID,
+        getEmptyConnectionEvents,
       );
       expect(status).toBe(true);
       expect(target.size()).toBe(0);
@@ -436,6 +434,7 @@ describe('check()', () => {
           load: _ => Promise.resolve(null),
         },
         defaultGetDataID,
+        getEmptyConnectionEvents,
       );
       // The data for the field isn't in the store yet, so we have to return false
       expect(status).toBe(false);
@@ -484,6 +483,7 @@ describe('check()', () => {
         [],
         loader,
         defaultGetDataID,
+        getEmptyConnectionEvents,
       );
       // The data for the field 'data' isn't in the store yet, so we have to return false
       expect(status).toBe(false);
@@ -526,6 +526,7 @@ describe('check()', () => {
         [],
         loader,
         defaultGetDataID,
+        getEmptyConnectionEvents,
       );
       // The data for the field 'data' isn't in the store yet, so we have to return false
       expect(status).toBe(false);
@@ -566,6 +567,7 @@ describe('check()', () => {
         [],
         loader,
         defaultGetDataID,
+        getEmptyConnectionEvents,
       );
       expect(status).toBe(true);
       expect(target.size()).toBe(0);
@@ -596,6 +598,7 @@ describe('check()', () => {
         [],
         loader,
         defaultGetDataID,
+        getEmptyConnectionEvents,
       );
       expect(status).toBe(true);
       expect(target.size()).toBe(0);
@@ -625,6 +628,7 @@ describe('check()', () => {
         [],
         loader,
         defaultGetDataID,
+        getEmptyConnectionEvents,
       );
       expect(status).toBe(false);
       expect(target.size()).toBe(0);
@@ -636,38 +640,37 @@ describe('check()', () => {
     let loader;
 
     beforeEach(() => {
-      const nodes = generateAndCompile(
-        `
-          fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
-            plaintext
-            data {
-              text
-            }
+      const nodes = generateAndCompile(`
+        fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
+          plaintext
+          data {
+            text
           }
+        }
 
-          fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
-            markdown
-            data {
-              markup
-            }
+        fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+          markdown
+          data {
+            markup
           }
+        }
 
-          fragment BarFragment on User {
-            id
-            nameRenderer { # no @match
-              ...PlainUserNameRenderer_name
-                @module(name: "PlainUserNameRenderer.react")
-              ...MarkdownUserNameRenderer_name
-                @module(name: "MarkdownUserNameRenderer.react")
-            }
+        fragment BarFragment on User {
+          id
+          nameRenderer { # no @match
+            ...PlainUserNameRenderer_name
+              @module(name: "PlainUserNameRenderer.react")
+            ...MarkdownUserNameRenderer_name
+              @module(name: "MarkdownUserNameRenderer.react")
           }
+        }
 
-          query BarQuery($id: ID!) {
-            node(id: $id) {
-              ...BarFragment
-            }
-          }`,
-      );
+        query BarQuery($id: ID!) {
+          node(id: $id) {
+            ...BarFragment
+          }
+        }
+      `);
       BarQuery = nodes.BarQuery;
       loader = {
         get: jest.fn(
@@ -722,6 +725,7 @@ describe('check()', () => {
         [],
         loader,
         defaultGetDataID,
+        getEmptyConnectionEvents,
       );
       expect(loader.get).toBeCalledTimes(1);
       expect(loader.get.mock.calls[0][0]).toBe(
@@ -774,6 +778,7 @@ describe('check()', () => {
         [],
         loader,
         defaultGetDataID,
+        getEmptyConnectionEvents,
       );
       expect(status).toBe(true);
       expect(target.size()).toBe(0);
@@ -818,6 +823,7 @@ describe('check()', () => {
           load: _ => Promise.resolve(null),
         },
         defaultGetDataID,
+        getEmptyConnectionEvents,
       );
       // The data for the field isn't in the store yet, so we have to return false
       expect(status).toBe(false);
@@ -864,6 +870,7 @@ describe('check()', () => {
         [],
         loader,
         defaultGetDataID,
+        getEmptyConnectionEvents,
       );
       // The data for the field 'data' isn't in the store yet, so we have to return false
       expect(status).toBe(false);
@@ -904,6 +911,7 @@ describe('check()', () => {
         [],
         loader,
         defaultGetDataID,
+        getEmptyConnectionEvents,
       );
       // The data for the field 'data' isn't in the store yet, so we have to return false
       expect(status).toBe(false);
@@ -942,6 +950,7 @@ describe('check()', () => {
         [],
         loader,
         defaultGetDataID,
+        getEmptyConnectionEvents,
       );
       expect(status).toBe(true);
       expect(target.size()).toBe(0);
@@ -950,19 +959,18 @@ describe('check()', () => {
 
   describe('when @defer directive is present', () => {
     beforeEach(() => {
-      const nodes = generateAndCompile(
-        `
-          fragment TestFragment on User {
-            id
-            name
-          }
+      const nodes = generateAndCompile(`
+        fragment TestFragment on User {
+          id
+          name
+        }
 
-          query TestQuery($id: ID!) {
-            node(id: $id) {
-              ...TestFragment @defer(label: "TestFragment")
-            }
-          }`,
-      );
+        query TestQuery($id: ID!) {
+          node(id: $id) {
+            ...TestFragment @defer(label: "TestFragment")
+          }
+        }
+      `);
       Query = nodes.TestQuery;
     });
 
@@ -989,6 +997,7 @@ describe('check()', () => {
         [],
         null,
         defaultGetDataID,
+        getEmptyConnectionEvents,
       );
       expect(status).toBe(true);
       expect(target.size()).toBe(0);
@@ -1017,6 +1026,7 @@ describe('check()', () => {
         [],
         null,
         defaultGetDataID,
+        getEmptyConnectionEvents,
       );
       expect(status).toBe(false);
       expect(target.size()).toBe(0);
@@ -1025,21 +1035,20 @@ describe('check()', () => {
 
   describe('when @stream directive is present', () => {
     beforeEach(() => {
-      const nodes = generateAndCompile(
-        `
-          fragment TestFragment on Feedback {
-            id
-            actors @stream(label: "TestFragmentActors", initial_count: 0) {
-              name
-            }
+      const nodes = generateAndCompile(`
+        fragment TestFragment on Feedback {
+          id
+          actors @stream(label: "TestFragmentActors", initial_count: 0) {
+            name
           }
+        }
 
-          query TestQuery($id: ID!) {
-            node(id: $id) {
-              ...TestFragment
-            }
-          }`,
-      );
+        query TestQuery($id: ID!) {
+          node(id: $id) {
+            ...TestFragment
+          }
+        }
+      `);
       Query = nodes.TestQuery;
     });
 
@@ -1072,6 +1081,7 @@ describe('check()', () => {
         [],
         null,
         defaultGetDataID,
+        getEmptyConnectionEvents,
       );
       expect(status).toBe(true);
       expect(target.size()).toBe(0);
@@ -1106,6 +1116,7 @@ describe('check()', () => {
         [],
         null,
         defaultGetDataID,
+        getEmptyConnectionEvents,
       );
       expect(status).toBe(false);
       expect(target.size()).toBe(0);
@@ -1126,6 +1137,7 @@ describe('check()', () => {
         [],
         null,
         defaultGetDataID,
+        getEmptyConnectionEvents,
       );
       expect(status).toBe(true);
       expect(target.size()).toBe(0);
@@ -1146,19 +1158,17 @@ describe('check()', () => {
       };
       const source = RelayRecordSource.create(data);
       const target = RelayRecordSource.create();
-      const {BarFragment} = generateAndCompile(
-        `
-            fragment BarFragment on User @argumentDefinitions(
-              size: {type: "[Int]"}
-            ) {
-              id
-              firstName
-              profilePicture(size: $size) {
-                uri
-              }
-            }
-          `,
-      );
+      const {BarFragment} = generateAndCompile(`
+        fragment BarFragment on User @argumentDefinitions(
+          size: {type: "[Int]"}
+        ) {
+          id
+          firstName
+          profilePicture(size: $size) {
+            uri
+          }
+        }
+      `);
       const status = check(
         source,
         target,
@@ -1166,6 +1176,7 @@ describe('check()', () => {
         [],
         null,
         defaultGetDataID,
+        getEmptyConnectionEvents,
       );
       expect(status).toBe(false);
       expect(target.size()).toBe(0);
@@ -1187,19 +1198,17 @@ describe('check()', () => {
       };
       const source = RelayRecordSource.create(data);
       const target = RelayRecordSource.create();
-      const {BarFragment} = generateAndCompile(
-        `
-          fragment BarFragment on User @argumentDefinitions(
-            size: {type: "[Int]"}
-          ) {
-            id
-            firstName
-            profilePicture(size: $size) {
-              uri
-            }
+      const {BarFragment} = generateAndCompile(`
+        fragment BarFragment on User @argumentDefinitions(
+          size: {type: "[Int]"}
+        ) {
+          id
+          firstName
+          profilePicture(size: $size) {
+            uri
           }
-        `,
-      );
+        }
+      `);
       const status = check(
         source,
         target,
@@ -1207,12 +1216,13 @@ describe('check()', () => {
         [],
         null,
         defaultGetDataID,
+        getEmptyConnectionEvents,
       );
       expect(status).toBe(false);
       expect(target.size()).toBe(0);
     });
 
-    it('allows handlers to supplement missing fields', () => {
+    it('allows handlers to supplement missing scalar fields', () => {
       const data = {
         '1': {
           __id: '1',
@@ -1223,24 +1233,23 @@ describe('check()', () => {
         },
         'client:3': {
           __id: 'client:3',
+          __typename: 'Image',
           // missing 'uri'
         },
       };
       const source = RelayRecordSource.create(data);
       const target = RelayRecordSource.create();
-      const {BarFragment} = generateAndCompile(
-        `
-          fragment BarFragment on User @argumentDefinitions(
-            size: {type: "[Int]"}
-          ) {
-            id
-            firstName
-            profilePicture(size: $size) {
-              uri
-            }
+      const {BarFragment} = generateAndCompile(`
+        fragment BarFragment on User @argumentDefinitions(
+          size: {type: "[Int]"}
+        ) {
+          id
+          firstName
+          profilePicture(size: $size) {
+            uri
           }
-        `,
-      );
+        }
+      `);
       const status = check(
         source,
         target,
@@ -1255,16 +1264,255 @@ describe('check()', () => {
         ],
         null,
         defaultGetDataID,
+        getEmptyConnectionEvents,
       );
       expect(status).toBe(true);
       expect(target.toJSON()).toEqual({
         'client:3': {
           __id: 'client:3',
-          __typename: undefined,
+          __typename: 'Image',
           uri: 'thebestimage.uri',
         },
       });
     });
+
+    test.each([
+      [
+        'undefined',
+        {
+          handleReturnValue: undefined,
+          expectedStatus: false,
+          updatedHometown: undefined,
+        },
+      ],
+      [
+        'null',
+        {
+          handleReturnValue: null,
+          expectedStatus: false,
+          updatedHometown: undefined,
+        },
+      ],
+      [
+        "'hometown-exists'",
+        {
+          handleReturnValue: 'hometown-exists',
+          expectedStatus: true,
+          updatedHometown: 'hometown-exists',
+        },
+      ],
+      [
+        "'hometown-deleted'",
+        {
+          handleReturnValue: 'hometown-deleted',
+          expectedStatus: false,
+          updatedHometown: undefined,
+        },
+      ],
+      [
+        "'hometown-unknown'",
+        {
+          handleReturnValue: 'hometown-unknown',
+          expectedStatus: false,
+          updatedHometown: undefined,
+        },
+      ],
+    ])(
+      'linked field handler handler that returns %s',
+      (_name, {handleReturnValue, expectedStatus, updatedHometown}) => {
+        const data = {
+          user1: {
+            __id: 'user1',
+            id: 'user1',
+            __typename: 'User',
+            firstName: 'Alice',
+            // hometown: missing
+          },
+          'hometown-exists': {
+            __id: 'hometown',
+            __typename: 'Page',
+            name: 'New York City',
+          },
+          'hometown-deleted': null,
+        };
+        const source = RelayRecordSource.create(data);
+        const target = RelayRecordSource.create();
+        const {UserFragment} = generateAndCompile(`
+          fragment UserFragment on User {
+            hometown {
+              name
+            }
+          }
+        `);
+        const handle = jest.fn((field, record, argValues) => {
+          return handleReturnValue;
+        });
+        const status = check(
+          source,
+          target,
+          createNormalizationSelector(UserFragment, 'user1', {}),
+          [
+            {
+              kind: 'linked',
+              handle,
+            },
+          ],
+          null,
+          defaultGetDataID,
+          getEmptyConnectionEvents,
+        );
+        expect(handle).toBeCalledTimes(1);
+        expect(status).toBe(expectedStatus);
+        expect(target.toJSON()).toEqual(
+          updatedHometown === undefined
+            ? {}
+            : {
+                user1: {
+                  __id: 'user1',
+                  __typename: 'User',
+                  hometown: {
+                    __ref: updatedHometown,
+                  },
+                },
+              },
+        );
+      },
+    );
+
+    test.each([
+      [
+        'undefined',
+        {
+          handleReturnValue: undefined,
+          expectedStatus: false,
+          updatedScreennames: undefined,
+        },
+      ],
+      [
+        'null',
+        {
+          handleReturnValue: null,
+          expectedStatus: false,
+          updatedScreennames: undefined,
+        },
+      ],
+      [
+        '[]',
+        {
+          handleReturnValue: [],
+          expectedStatus: true,
+          updatedScreennames: [],
+        },
+      ],
+      [
+        '[undefined]',
+        {
+          handleReturnValue: [undefined],
+          expectedStatus: false,
+          updatedScreennames: undefined,
+        },
+      ],
+      [
+        '[null]',
+        {
+          handleReturnValue: [null],
+          expectedStatus: false,
+          updatedScreennames: undefined,
+        },
+      ],
+      [
+        "['screenname-exists']",
+        {
+          handleReturnValue: ['screenname-exists'],
+          expectedStatus: true,
+          updatedScreennames: ['screenname-exists'],
+        },
+      ],
+      [
+        "['screenname-deleted']",
+        {
+          handleReturnValue: ['screenname-deleted'],
+          expectedStatus: false,
+          updatedScreennames: undefined,
+        },
+      ],
+      [
+        "['screenname-unknown']",
+        {
+          handleReturnValue: ['screenname-unknown'],
+          expectedStatus: false,
+          updatedScreennames: undefined,
+        },
+      ],
+      [
+        "['screenname-exists', 'screenname-unknown']",
+        {
+          handleReturnValue: ['screenname-exists', 'screenname-unknown'],
+          expectedStatus: false,
+          updatedScreennames: undefined,
+        },
+      ],
+    ])(
+      'plural linked field handler handler that returns %s',
+      (_name, {handleReturnValue, expectedStatus, updatedScreennames}) => {
+        const data = {
+          user1: {
+            __id: 'user1',
+            id: 'user1',
+            __typename: 'User',
+            firstName: 'Alice',
+            // screennames: missing
+          },
+          'screenname-exists': {
+            __id: 'screenname-exists',
+            __typename: 'Screenname',
+            name: 'Bert',
+          },
+          'screenname-deleted': null,
+        };
+        const source = RelayRecordSource.create(data);
+        const target = RelayRecordSource.create();
+        const {UserFragment} = generateAndCompile(`
+          fragment UserFragment on User {
+            screennames {
+              name
+            }
+          }
+        `);
+        const handle = jest.fn((field, record, argValues) => {
+          return handleReturnValue;
+        });
+        const status = check(
+          source,
+          target,
+          createNormalizationSelector(UserFragment, 'user1', {}),
+          [
+            {
+              kind: 'pluralLinked',
+              handle,
+            },
+          ],
+          null,
+          defaultGetDataID,
+          getEmptyConnectionEvents,
+        );
+        expect(handle).toBeCalledTimes(1);
+        expect(status).toBe(expectedStatus);
+        expect(target.toJSON()).toEqual(
+          updatedScreennames == null
+            ? {}
+            : {
+                user1: {
+                  __id: 'user1',
+                  __typename: 'User',
+                  screennames: {
+                    __refs: updatedScreennames,
+                  },
+                },
+              },
+        );
+      },
+    );
 
     it('returns modified records with the target', () => {
       const data = {
@@ -1282,19 +1530,17 @@ describe('check()', () => {
       };
       const source = RelayRecordSource.create(data);
       const target = RelayRecordSource.create();
-      const {BarFragment} = generateAndCompile(
-        `
-          fragment BarFragment on User @argumentDefinitions(
-            size: {type: "[Int]"}
-          ) {
-            id
-            firstName
-            profilePicture(size: $size) {
-              uri
-            }
+      const {BarFragment} = generateAndCompile(`
+        fragment BarFragment on User @argumentDefinitions(
+          size: {type: "[Int]"}
+        ) {
+          id
+          firstName
+          profilePicture(size: $size) {
+            uri
           }
-        `,
-      );
+        }
+      `);
       const status = check(
         source,
         target,
@@ -1328,6 +1574,7 @@ describe('check()', () => {
         ],
         null,
         defaultGetDataID,
+        getEmptyConnectionEvents,
       );
       expect(status).toBe(true);
       expect(target.toJSON()).toEqual({
@@ -1352,8 +1599,8 @@ describe('check()', () => {
       };
       const source = RelayRecordSource.create(data);
       const target = RelayRecordSource.create();
-      const {BarFragment} = generateAndCompile(
-        `fragment BarFragment on User @argumentDefinitions(
+      const {BarFragment} = generateAndCompile(`
+        fragment BarFragment on User @argumentDefinitions(
           size: {type: "[Int]"}
         ) {
           id
@@ -1410,8 +1657,8 @@ describe('check()', () => {
         type Foo {
           client_name: String
           profile_picture(scale: Float): Image
-        }`,
-      );
+        }
+      `);
       const status = check(
         source,
         target,
@@ -1419,9 +1666,91 @@ describe('check()', () => {
         [],
         null,
         defaultGetDataID,
+        getEmptyConnectionEvents,
       );
       expect(status).toBe(true);
       expect(target.size()).toBe(0);
     });
+  });
+
+  it('returns true when a non-Node record is "missing" an id', () => {
+    const {TestFragment} = generateAndCompile(`
+      fragment TestFragment on Query {
+        maybeNodeInterface {
+          # This "... on Node { id }" selection would be generated if not
+          # present, and is flattened since Node is abstract
+          ... on Node { id }
+          ... on NonNodeNoID {
+            name
+          }
+        }
+      }
+    `);
+    const data = {
+      'client:root': {
+        __id: 'client:root',
+        __typename: 'Query',
+        maybeNodeInterface: {__ref: 'client:root:maybeNodeInterface'},
+      },
+      'client:root:maybeNodeInterface': {
+        __id: 'client:root:maybeNodeInterface',
+        __typename: 'NonNodeNoID',
+        name: 'Alice',
+      },
+    };
+    const source = RelayRecordSource.create(data);
+    const target = RelayRecordSource.create();
+    const status = check(
+      source,
+      target,
+      createNormalizationSelector(TestFragment, 'client:root', {}),
+      [],
+      null,
+      defaultGetDataID,
+      getEmptyConnectionEvents,
+    );
+    expect(status).toBe(true);
+    expect(target.size()).toBe(0);
+  });
+
+  it('returns false when a Node record is missing an id', () => {
+    const {TestFragment} = generateAndCompile(`
+      fragment TestFragment on Query {
+        maybeNodeInterface {
+          # This "... on Node { id }" selection would be generated if not
+          # present, and is flattened since Node is abstract
+          ... on Node { id }
+          ... on NonNodeNoID {
+            name
+          }
+        }
+      }
+    `);
+    const data = {
+      'client:root': {
+        __id: 'client:root',
+        __typename: 'Query',
+        maybeNodeInterface: {__ref: '1'},
+      },
+      '1': {
+        __id: '1',
+        __typename: 'User',
+        name: 'Alice',
+        // no `id` value
+      },
+    };
+    const source = RelayRecordSource.create(data);
+    const target = RelayRecordSource.create();
+    const status = check(
+      source,
+      target,
+      createNormalizationSelector(TestFragment, 'client:root', {}),
+      [],
+      null,
+      defaultGetDataID,
+      getEmptyConnectionEvents,
+    );
+    expect(status).toBe(false);
+    expect(target.size()).toBe(0);
   });
 });

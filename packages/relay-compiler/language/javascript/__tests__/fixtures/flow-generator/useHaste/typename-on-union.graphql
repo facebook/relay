@@ -47,7 +47,6 @@ fragment TypenameWithoutSpreadsAbstractType on Node {
   id
 }
 
-
 fragment TypenameWithCommonSelections on Actor {
   __typename
   name

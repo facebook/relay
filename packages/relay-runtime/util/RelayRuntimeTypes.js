@@ -26,7 +26,7 @@ export type Disposable = {
 export type DataID = string;
 
 // Variables
-export type Variables = {[name: string]: $FlowFixMe};
+export type Variables = {+[string]: $FlowFixMe};
 
 /**
  * Generated operation flow types are subtypes of this.
@@ -51,13 +51,10 @@ export type OperationType = {|
  * - `transactionId`: a user-supplied value, intended for use as a unique id for
  *   a given instance of executing an operation.
  */
-export type CacheConfig = {
+export type CacheConfig = {|
   force?: ?boolean,
   poll?: ?number,
   liveConfigId?: ?string,
   metadata?: {[key: string]: mixed},
   transactionId?: ?string,
-};
-
-// TODO: define the resolver interface
-export type ConnectionFieldResolver = {||};
+|};

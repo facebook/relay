@@ -94,16 +94,24 @@ class RelayRecordSourceProxy implements RecordSourceProxy {
     response: ?Object,
   ): RecordSourceSelectorProxy {
     if (!response) {
-      return new RelayRecordSourceSelectorProxy(this, operation.fragment);
+      return new RelayRecordSourceSelectorProxy(
+        this.__mutator,
+        this,
+        operation.fragment,
+      );
     }
     const {source, fieldPayloads} = normalizeRelayPayload(
       operation.root,
       response,
       null,
-      {getDataID: this._getDataID},
+      {getDataID: this._getDataID, request: operation.request},
     );
     this.publishSource(source, fieldPayloads);
-    return new RelayRecordSourceSelectorProxy(this, operation.fragment);
+    return new RelayRecordSourceSelectorProxy(
+      this.__mutator,
+      this,
+      operation.fragment,
+    );
   }
 
   create(dataID: DataID, typeName: string): RecordProxy {

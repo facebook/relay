@@ -14,7 +14,7 @@ fragment ParentFragment on Query {
 
 fragment Profile on User
   @inline
-  @argumentDefinitions(sizeArg: { type: "[Int]", defaultValue: [50] }) {
+  @argumentDefinitions(sizeArg: {type: "[Int]", defaultValue: [50]}) {
   profilePicture(size: $sizeArg) {
     uri
   }

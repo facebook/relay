@@ -16,13 +16,7 @@ const RelayStoreUtils = require('../RelayStoreUtils');
 
 const deepFreeze = require('../../util/deepFreeze');
 
-const {
-  ID_KEY,
-  REF_KEY,
-  REFS_KEY,
-  TYPENAME_KEY,
-  UNPUBLISH_FIELD_SENTINEL,
-} = RelayStoreUtils;
+const {ID_KEY, REF_KEY, REFS_KEY, TYPENAME_KEY} = RelayStoreUtils;
 
 describe('RelayModernRecord', () => {
   beforeEach(() => {
@@ -265,20 +259,6 @@ describe('RelayModernRecord', () => {
       });
     });
 
-    it('returns a new record with unpublished fields removed', () => {
-      const prev = RelayModernRecord.create('4', 'User');
-      RelayModernRecord.setValue(prev, 'name', 'Zuck');
-      const next = RelayModernRecord.clone(prev);
-      RelayModernRecord.setValue(next, 'name', UNPUBLISH_FIELD_SENTINEL);
-      const updated = RelayModernRecord.update(prev, next);
-      expect(updated).not.toBe(prev);
-      expect(updated).not.toBe(next);
-      expect(updated).toEqual({
-        [ID_KEY]: '4',
-        [TYPENAME_KEY]: 'User',
-      });
-    });
-
     it('warns if __id does not match', () => {
       jest.mock('warning');
       const prev = RelayModernRecord.create('4', 'User');
@@ -341,21 +321,6 @@ describe('RelayModernRecord', () => {
         [ID_KEY]: '4',
         [TYPENAME_KEY]: 'User',
         name: 'Zuck',
-      });
-    });
-
-    it('includes unpublished field sentinels', () => {
-      const prev = RelayModernRecord.create('4', 'User');
-      RelayModernRecord.setValue(prev, 'name', 'Zuck');
-      const next = RelayModernRecord.clone(prev);
-      RelayModernRecord.setValue(next, 'name', UNPUBLISH_FIELD_SENTINEL);
-      const updated = RelayModernRecord.merge(prev, next);
-      expect(updated).not.toBe(prev);
-      expect(updated).not.toBe(next);
-      expect(updated).toEqual({
-        [ID_KEY]: '4',
-        [TYPENAME_KEY]: 'User',
-        name: UNPUBLISH_FIELD_SENTINEL,
       });
     });
 

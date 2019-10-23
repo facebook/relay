@@ -10,12 +10,15 @@
 
 'use strict';
 
-const React = require('React');
+const React = require('react');
 const ReactRelayContext = require('../ReactRelayContext');
 const ReactRelayFragmentContainer = require('../ReactRelayFragmentContainer');
-const ReactTestRenderer = require('ReactTestRenderer');
+const ReactTestRenderer = require('react-test-renderer');
 
-const {createOperationDescriptor} = require('relay-runtime');
+const {
+  createReaderSelector,
+  createOperationDescriptor,
+} = require('relay-runtime');
 const {
   createMockEnvironment,
   generateAndCompile,
@@ -27,9 +30,11 @@ describe('ReactRelayFragmentContainer', () => {
   let TestContainer;
   let UserFragment;
   let UserQuery;
+  let UserQueryWithCond;
 
   let environment;
   let ownerUser1;
+  let ownerUser1WithCondVar;
   let ownerUser2;
   let render;
   let spec;
@@ -40,27 +45,22 @@ describe('ReactRelayFragmentContainer', () => {
       super();
       this.__relayContext = {
         environment: props.environment,
-        variables: props.variables,
       };
       this.state = {props: null};
     }
     UNSAFE_componentWillReceiveProps(nextProps) {
       // eslint-disable-next-line no-shadow
-      const {environment, variables} = nextProps;
-      if (
-        environment !== this.__relayContext.environment ||
-        variables !== this.__relayContext.variables
-      ) {
-        this.__relayContext = {environment, variables};
+      const {environment} = nextProps;
+      if (environment !== this.__relayContext.environment) {
+        this.__relayContext = {environment};
       }
     }
     setProps(props) {
       this.setState({props});
     }
-    setContext(env, vars) {
+    setContext(env) {
       this.__relayContext = {
         environment: env,
-        variables: vars,
       };
       this.setProps({});
     }
@@ -81,10 +81,19 @@ describe('ReactRelayFragmentContainer', () => {
     jest.resetModules();
 
     environment = createMockEnvironment();
-    ({UserFragment, UserQuery} = generateAndCompile(`
+    ({UserFragment, UserQuery, UserQueryWithCond} = generateAndCompile(`
       query UserQuery($id: ID!) {
         node(id: $id) {
           ...UserFragment
+        }
+      }
+
+      query UserQueryWithCond(
+        $id: ID!
+        $condGlobal: Boolean!
+      ) {
+        node(id: $id) {
+          ...UserFragment @arguments(cond: $condGlobal)
         }
       }
 
@@ -115,6 +124,16 @@ describe('ReactRelayFragmentContainer', () => {
         id: '4',
         __typename: 'User',
         name: 'Zuck',
+      },
+    });
+    ownerUser1WithCondVar = createOperationDescriptor(UserQueryWithCond, {
+      id: '4',
+      condGlobal: false,
+    });
+    environment.commitPayload(ownerUser1, {
+      node: {
+        id: '4',
+        __typename: 'User',
       },
     });
     ownerUser2 = createOperationDescriptor(UserQuery, {id: '842472'});
@@ -163,7 +182,7 @@ describe('ReactRelayFragmentContainer', () => {
 
   it('passes non-fragment props to the component', () => {
     ReactTestRenderer.create(
-      <ContextSetter environment={environment} variables={variables}>
+      <ContextSetter environment={environment}>
         <TestContainer bar={1} foo="foo" />
       </ContextSetter>,
     );
@@ -182,7 +201,7 @@ describe('ReactRelayFragmentContainer', () => {
 
   it('passes through null props', () => {
     ReactTestRenderer.create(
-      <ContextSetter environment={environment} variables={variables}>
+      <ContextSetter environment={environment}>
         <TestContainer user={null} />
       </ContextSetter>,
     );
@@ -203,7 +222,7 @@ describe('ReactRelayFragmentContainer', () => {
       .node;
 
     ReactTestRenderer.create(
-      <ContextSetter environment={environment} variables={variables}>
+      <ContextSetter environment={environment}>
         <TestContainer user={userPointer} />
       </ContextSetter>,
     );
@@ -221,16 +240,18 @@ describe('ReactRelayFragmentContainer', () => {
     // Subscribes for updates
     expect(environment.subscribe.mock.calls.length).toBe(1);
     expect(environment.subscribe.mock.calls[0][0]).toEqual({
-      dataID: '4',
       data: {
         id: '4',
         name: 'Zuck',
       },
-      node: UserFragment,
-      seenRecords: expect.any(Object),
-      variables: {cond: true},
       isMissingData: false,
-      owner: ownerUser1,
+      seenRecords: expect.any(Object),
+      selector: createReaderSelector(
+        UserFragment,
+        '4',
+        {cond: true},
+        ownerUser1.request,
+      ),
     });
   });
 
@@ -239,7 +260,7 @@ describe('ReactRelayFragmentContainer', () => {
       .node;
 
     ReactTestRenderer.create(
-      <ContextSetter environment={environment} variables={variables}>
+      <ContextSetter environment={environment}>
         <TestContainer user={userPointer} />
       </ContextSetter>,
     );
@@ -279,7 +300,7 @@ describe('ReactRelayFragmentContainer', () => {
     let userPointer = environment.lookup(ownerUser1.fragment, ownerUser1).data
       .node;
     const instance = ReactTestRenderer.create(
-      <ContextSetter environment={environment} variables={variables}>
+      <ContextSetter environment={environment}>
         <TestContainer user={userPointer} />
       </ContextSetter>,
     );
@@ -306,24 +327,26 @@ describe('ReactRelayFragmentContainer', () => {
     // Container subscribes for updates on new props
     expect(environment.subscribe.mock.calls.length).toBe(1);
     expect(environment.subscribe.mock.calls[0][0]).toEqual({
-      dataID: '842472',
       data: {
         id: '842472',
         name: 'Joe',
       },
-      node: UserFragment,
-      seenRecords: expect.any(Object),
-      variables: {cond: true},
       isMissingData: false,
-      owner: ownerUser2,
+      seenRecords: expect.any(Object),
+      selector: createReaderSelector(
+        UserFragment,
+        '842472',
+        {cond: true},
+        ownerUser2.request,
+      ),
     });
   });
 
-  it('resolves for new variables in context', () => {
-    const userPointer = environment.lookup(ownerUser1.fragment, ownerUser1).data
+  it('resolves new props when ids dont change', () => {
+    let userPointer = environment.lookup(ownerUser1.fragment, ownerUser1).data
       .node;
     const instance = ReactTestRenderer.create(
-      <ContextSetter environment={environment} variables={variables}>
+      <ContextSetter environment={environment}>
         <TestContainer user={userPointer} />
       </ContextSetter>,
     );
@@ -331,7 +354,13 @@ describe('ReactRelayFragmentContainer', () => {
     environment.lookup.mockClear();
     environment.subscribe.mockClear();
 
-    instance.getInstance().setContext(environment, {id: '6'});
+    userPointer = environment.lookup(
+      ownerUser1WithCondVar.fragment,
+      ownerUser1WithCondVar,
+    ).data.node;
+    instance.getInstance().setProps({
+      user: userPointer,
+    });
 
     // New data & variables are passed to component
     expect(render.mock.calls.length).toBe(1);
@@ -341,22 +370,24 @@ describe('ReactRelayFragmentContainer', () => {
       },
       user: {
         id: '4',
-        name: 'Zuck',
+        // Name is excluded since value of cond is now false
       },
     });
     // Container subscribes for updates on new props
     expect(environment.subscribe.mock.calls.length).toBe(1);
     expect(environment.subscribe.mock.calls[0][0]).toEqual({
-      dataID: '4',
       data: {
         id: '4',
-        name: 'Zuck',
+        // Name is excluded since value of cond is now false
       },
-      node: UserFragment,
-      seenRecords: expect.any(Object),
-      variables: {cond: true},
       isMissingData: false,
-      owner: ownerUser1,
+      seenRecords: expect.any(Object),
+      selector: createReaderSelector(
+        UserFragment,
+        '4',
+        {cond: false},
+        ownerUser1WithCondVar.request,
+      ),
     });
   });
 
@@ -364,7 +395,7 @@ describe('ReactRelayFragmentContainer', () => {
     const userPointer = environment.lookup(ownerUser1.fragment, ownerUser1).data
       .node;
     const instance = ReactTestRenderer.create(
-      <ContextSetter environment={environment} variables={variables}>
+      <ContextSetter environment={environment}>
         <TestContainer user={userPointer} />
       </ContextSetter>,
     );
@@ -387,7 +418,7 @@ describe('ReactRelayFragmentContainer', () => {
     const scalar = 42;
     const fn = () => null;
     const instance = ReactTestRenderer.create(
-      <ContextSetter environment={environment} variables={variables}>
+      <ContextSetter environment={environment}>
         <TestContainer fn={fn} nil={null} scalar={scalar} user={userPointer} />
       </ContextSetter>,
     );
@@ -413,7 +444,7 @@ describe('ReactRelayFragmentContainer', () => {
     const scalar = 42;
     const fn = () => null;
     const instance = ReactTestRenderer.create(
-      <ContextSetter environment={environment} variables={variables}>
+      <ContextSetter environment={environment}>
         <TestContainer fn={fn} scalar={scalar} user={userPointer} />
       </ContextSetter>,
     );
@@ -444,7 +475,7 @@ describe('ReactRelayFragmentContainer', () => {
     const scalar = 42;
     const fn = () => null;
     const instance = ReactTestRenderer.create(
-      <ContextSetter environment={environment} variables={variables}>
+      <ContextSetter environment={environment}>
         <TestContainer fn={fn} scalar={scalar} user={userPointer} />
       </ContextSetter>,
     );
@@ -472,7 +503,7 @@ describe('ReactRelayFragmentContainer', () => {
     const userPointer = environment.lookup(ownerUser1.fragment, ownerUser1).data
       .node;
     const instance = ReactTestRenderer.create(
-      <ContextSetter environment={environment} variables={variables}>
+      <ContextSetter environment={environment}>
         <TestContainer arr={[]} obj={{}} user={userPointer} />
       </ContextSetter>,
     );

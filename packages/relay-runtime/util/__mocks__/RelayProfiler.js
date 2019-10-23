@@ -9,18 +9,15 @@
 
 'use strict';
 
-const emptyFunction = require('emptyFunction');
-const forEachObject = require('forEachObject');
-
 const RelayProfiler = {
   instrumentMethods: jest.fn((object, names) => {
-    forEachObject(names, (name, key) => {
+    for (const [key, name] of Object.entries(names)) {
       object[key] = RelayProfiler.instrument(name, object[key]);
-    });
+    }
   }),
   instrument: jest.fn((name, handler) => {
-    handler.attachHandler = emptyFunction;
-    handler.detachHandler = emptyFunction;
+    handler.attachHandler = () => {};
+    handler.detachHandler = () => {};
     return handler;
   }),
   attachAggregateHandler: jest.fn(),

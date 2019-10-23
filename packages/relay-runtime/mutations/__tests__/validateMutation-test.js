@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @flow
+ * @flow strict-local
  * @format
  * @emails oncall+relay
  */
@@ -51,7 +51,7 @@ describe('validateOptimisticResponse', () => {
       shouldWarn: false,
     },
     {
-      name: 'Logs a warning when a field is undefined',
+      name: 'Logs a warning when a field is is not specified',
       mutation: generateAndCompile(`
           mutation ChangeNameMutation(
             $input: ActorNameChangeInput!
@@ -72,7 +72,7 @@ describe('validateOptimisticResponse', () => {
       shouldWarn: true,
     },
     {
-      name: 'Logs a warning when an id is undefined',
+      name: 'Logs a warning when an id is is not specified',
       mutation: generateAndCompile(`
           mutation ChangeNameMutation(
             $input: ActorNameChangeInput!
@@ -96,7 +96,7 @@ describe('validateOptimisticResponse', () => {
       shouldWarn: true,
     },
     {
-      name: 'Logs a warning when a object is undefined',
+      name: 'Logs a warning when a object is is not specified',
       mutation: generateAndCompile(`
           mutation ChangeNameMutation(
             $input: ActorNameChangeInput!
@@ -255,7 +255,7 @@ describe('validateOptimisticResponse', () => {
       shouldWarn: false,
     },
     {
-      name: 'Handles include and skip directives when var is true',
+      name: 'Warns when conditional branches are not specified',
       mutation: generateAndCompile(`
           mutation ChangeNameMutation(
             $input: ActorNameChangeInput!,
@@ -289,10 +289,10 @@ describe('validateOptimisticResponse', () => {
       variables: {
         myVar: true,
       },
-      shouldWarn: false,
+      shouldWarn: true,
     },
     {
-      name: 'Handles include directive and skip directives when var is false',
+      name: 'Does not warns when conditional branches are specified',
       mutation: generateAndCompile(`
           mutation ChangeNameMutation(
             $input: ActorNameChangeInput!,
@@ -320,20 +320,20 @@ describe('validateOptimisticResponse', () => {
             id: 3,
             __typename: 'Page',
             username: null,
+            canViewerLike: false,
           },
         },
       },
       variables: {
         myVar: false,
       },
-      shouldWarn: true,
+      shouldWarn: false,
     },
     {
       name: 'Handles Lists',
       mutation: generateAndCompile(`
           mutation ChangeNameMutation(
-            $input: ActorNameChangeInput!,
-            $myVar: Boolean!,
+            $input: ActorNameChangeInput!
           ) {
             actorNameChange(input: $input) {
               actor {
@@ -361,6 +361,48 @@ describe('validateOptimisticResponse', () => {
         myVar: false,
       },
       shouldWarn: false,
+    },
+    {
+      name: 'Does not warn when a field is specified as undefined',
+      mutation: generateAndCompile(`
+          mutation ChangeNameMutation(
+            $input: ActorNameChangeInput!
+          ) {
+            actorNameChange(input: $input) {
+              actor {
+                name
+              }
+            }
+          }
+      `).ChangeNameMutation,
+      optimisticResponse: {
+        actorNameChange: {
+          actor: {__typename: null, id: null, name: undefined},
+        },
+      },
+      variables: null,
+      shouldWarn: false,
+    },
+    {
+      name: 'Does not warn when an object is specified as undefined',
+      mutation: generateAndCompile(`
+          mutation ChangeNameMutation(
+            $input: ActorNameChangeInput!
+          ) {
+            actorNameChange(input: $input) {
+              actor {
+                name
+              }
+            }
+          }
+      `).ChangeNameMutation,
+      optimisticResponse: {
+        actorNameChange: {
+          actor: undefined,
+        },
+      },
+      variables: null,
+      shouldWarn: true,
     },
   ].forEach(({name, mutation, optimisticResponse, shouldWarn, variables}) => {
     it(name, () => {

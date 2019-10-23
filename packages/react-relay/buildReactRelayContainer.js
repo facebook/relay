@@ -10,7 +10,7 @@
 
 'use strict';
 
-const React = require('React');
+const React = require('react');
 const ReactRelayContext = require('./ReactRelayContext');
 
 const assertFragmentMap = require('./assertFragmentMap');
@@ -73,6 +73,7 @@ function buildReactRelayContainer<TBase: React$ComponentType<any>>(
   if (__DEV__) {
     // Used by RelayModernTestUtils
     (ForwardContainer: any).__ComponentClass = ComponentClass;
+    ForwardContainer.displayName = containerName;
   }
 
   // $FlowFixMe

@@ -20,6 +20,7 @@ const RelayRecordSourceObjectImpl = require('../RelayRecordSourceObjectImpl');
 const defaultGetDataID = require('../defaultGetDataID');
 const getRelayHandleKey = require('../../util/getRelayHandleKey');
 const invariant = require('invariant');
+const normalizeRelayPayload = require('../normalizeRelayPayload');
 
 const {
   createOperationDescriptor,
@@ -145,10 +146,10 @@ const {generateAndCompile, simpleClone} = require('relay-test-utils-internal');
           },
         };
         queue.applyUpdate(optimisticUpdate);
-        let sourceData = source.toJSON();
+        let sourceData = store.getSource().toJSON();
         expect(sourceData).toEqual(initialData);
         queue.run();
-        sourceData = source.toJSON();
+        sourceData = store.getSource().toJSON();
         expect(sourceData).toEqual({
           ...initialData,
           4: {
@@ -160,9 +161,9 @@ const {generateAndCompile, simpleClone} = require('relay-test-utils-internal');
 
       it('runs an `selectorStoreUpdater` and applies the changes to the store', () => {
         const queue = new RelayPublishQueue(store, null, defaultGetDataID);
-        const optimisticUpdate = {
-          operation: operationDescriptor,
-          response: {
+        const payload = normalizeRelayPayload(
+          operationDescriptor.root,
+          {
             actorNameChange: {
               actor: {
                 id: '4',
@@ -171,20 +172,27 @@ const {generateAndCompile, simpleClone} = require('relay-test-utils-internal');
               },
             },
           },
+          null,
+          {getDataID: defaultGetDataID},
+        );
+        const optimisticUpdate = {
+          operation: operationDescriptor,
+          payload,
+          updater: null,
         };
         queue.applyUpdate(optimisticUpdate);
-        let sourceData = source.toJSON();
+        let sourceData = store.getSource().toJSON();
         expect(sourceData).toEqual(initialData);
         queue.run();
-        sourceData = source.toJSON();
+        sourceData = store.getSource().toJSON();
         expect(sourceData['4'].name).toEqual('zuck');
       });
 
       it('handles aliases correctly when used with optimistic update', () => {
         const queue = new RelayPublishQueue(store, null, defaultGetDataID);
-        const optimisticUpdate = {
-          operation: operationDescriptorAliased,
-          response: {
+        const payload = normalizeRelayPayload(
+          operationDescriptorAliased.root,
+          {
             changeName: {
               actor: {
                 id: '4',
@@ -193,12 +201,19 @@ const {generateAndCompile, simpleClone} = require('relay-test-utils-internal');
               },
             },
           },
+          null,
+          {getDataID: defaultGetDataID},
+        );
+        const optimisticUpdate = {
+          operation: operationDescriptorAliased,
+          payload,
+          updater: null,
         };
         queue.applyUpdate(optimisticUpdate);
-        let sourceData = source.toJSON();
+        let sourceData = store.getSource().toJSON();
         expect(sourceData).toEqual(initialData);
         queue.run();
-        sourceData = source.toJSON();
+        sourceData = store.getSource().toJSON();
         expect(sourceData['4'].name).toEqual('zuck');
       });
 
@@ -212,18 +227,18 @@ const {generateAndCompile, simpleClone} = require('relay-test-utils-internal');
         };
         queue.applyUpdate(optimisticUpdate);
         queue.revertUpdate(optimisticUpdate);
-        let sourceData = source.toJSON();
+        let sourceData = store.getSource().toJSON();
         expect(sourceData).toEqual(initialData);
         queue.run();
-        sourceData = source.toJSON();
+        sourceData = store.getSource().toJSON();
         expect(sourceData).toEqual(initialData);
       });
 
       it('unpublishes changes from `selectorStoreUpdater` when reverted in the same run()', () => {
         const queue = new RelayPublishQueue(store, null, defaultGetDataID);
-        const optimisticUpdate = {
-          operation: operationDescriptor,
-          response: {
+        const payload = normalizeRelayPayload(
+          operationDescriptor.root,
+          {
             actorNameChange: {
               actor: {
                 id: '4',
@@ -232,13 +247,19 @@ const {generateAndCompile, simpleClone} = require('relay-test-utils-internal');
               },
             },
           },
+          null,
+          {getDataID: defaultGetDataID},
+        );
+        const optimisticUpdate = {
+          operation: operationDescriptor,
+          source: payload.source,
         };
         queue.applyUpdate(optimisticUpdate);
         queue.revertUpdate(optimisticUpdate);
-        let sourceData = source.toJSON();
+        let sourceData = store.getSource().toJSON();
         expect(sourceData).toEqual(initialData);
         queue.run();
-        sourceData = source.toJSON();
+        sourceData = store.getSource().toJSON();
         expect(sourceData).toEqual(initialData);
       });
 
@@ -253,18 +274,18 @@ const {generateAndCompile, simpleClone} = require('relay-test-utils-internal');
         queue.applyUpdate(optimisticUpdate);
         queue.run();
         queue.revertUpdate(optimisticUpdate);
-        let sourceData = source.toJSON();
+        let sourceData = store.getSource().toJSON();
         expect(sourceData).not.toEqual(initialData);
         queue.run();
-        sourceData = source.toJSON();
+        sourceData = store.getSource().toJSON();
         expect(sourceData).toEqual(initialData);
       });
 
       it('unpublishes changes from `selectorStoreUpdater` when reverted in a subsequent run()', () => {
         const queue = new RelayPublishQueue(store, null, defaultGetDataID);
-        const optimisticUpdate = {
-          operation: operationDescriptor,
-          response: {
+        const payload = normalizeRelayPayload(
+          operationDescriptor.root,
+          {
             actorNameChange: {
               actor: {
                 id: '4',
@@ -273,22 +294,29 @@ const {generateAndCompile, simpleClone} = require('relay-test-utils-internal');
               },
             },
           },
+          null,
+          {getDataID: defaultGetDataID},
+        );
+        const optimisticUpdate = {
+          operation: operationDescriptor,
+          payload,
+          updater: null,
         };
         queue.applyUpdate(optimisticUpdate);
         queue.run();
         queue.revertUpdate(optimisticUpdate);
-        let sourceData = source.toJSON();
+        let sourceData = store.getSource().toJSON();
         expect(sourceData).not.toEqual(initialData);
         queue.run();
-        sourceData = source.toJSON();
+        sourceData = store.getSource().toJSON();
         expect(sourceData).toEqual(initialData);
       });
 
       it('applies multiple updaters in the same run()', () => {
         const queue = new RelayPublishQueue(store, null, defaultGetDataID);
-        queue.applyUpdate({
-          operation: operationDescriptor,
-          response: {
+        const payload = normalizeRelayPayload(
+          operationDescriptor.root,
+          {
             actorNameChange: {
               actor: {
                 id: '4',
@@ -297,6 +325,13 @@ const {generateAndCompile, simpleClone} = require('relay-test-utils-internal');
               },
             },
           },
+          null,
+          {getDataID: defaultGetDataID},
+        );
+        queue.applyUpdate({
+          operation: operationDescriptor,
+          payload,
+          updater: null,
         });
         queue.applyUpdate({
           storeUpdater: storeProxy => {
@@ -304,18 +339,18 @@ const {generateAndCompile, simpleClone} = require('relay-test-utils-internal');
             zuck.setValue(zuck.getValue('name').toUpperCase(), 'name');
           },
         });
-        let sourceData = source.toJSON();
+        let sourceData = store.getSource().toJSON();
         expect(sourceData).toEqual(initialData);
         queue.run();
-        sourceData = source.toJSON();
+        sourceData = store.getSource().toJSON();
         expect(sourceData['4'].name).toEqual('ZUCK');
       });
 
       it('applies updates in subsequent run()s (payload then updater)', () => {
         const queue = new RelayPublishQueue(store, null, defaultGetDataID);
-        queue.applyUpdate({
-          operation: operationDescriptor,
-          response: {
+        const payload = normalizeRelayPayload(
+          operationDescriptor.root,
+          {
             actorNameChange: {
               actor: {
                 id: '4',
@@ -324,6 +359,13 @@ const {generateAndCompile, simpleClone} = require('relay-test-utils-internal');
               },
             },
           },
+          null,
+          {getDataID: defaultGetDataID},
+        );
+        queue.applyUpdate({
+          operation: operationDescriptor,
+          payload,
+          updater: null,
         });
         queue.run();
         queue.applyUpdate({
@@ -333,7 +375,7 @@ const {generateAndCompile, simpleClone} = require('relay-test-utils-internal');
           },
         });
         queue.run();
-        const sourceData = source.toJSON();
+        const sourceData = store.getSource().toJSON();
         expect(sourceData['4'].name).toEqual('ZUCK');
       });
 
@@ -354,7 +396,7 @@ const {generateAndCompile, simpleClone} = require('relay-test-utils-internal');
         queue.applyUpdate(optimisticUpdate);
         queue.applyUpdate(optimisticUpdate2);
         queue.run();
-        const sourceData = source.toJSON();
+        const sourceData = store.getSource().toJSON();
         expect(sourceData).toEqual({
           ...initialData,
           4: {
@@ -382,9 +424,9 @@ const {generateAndCompile, simpleClone} = require('relay-test-utils-internal');
         const nameMutationDescriptor = createOperationDescriptor(nameMutation, {
           input: {},
         });
-        queue.applyUpdate({
-          operation: nameMutationDescriptor,
-          response: {
+        const nameMutatorPayload = normalizeRelayPayload(
+          nameMutationDescriptor.root,
+          {
             actorNameChange: {
               actor: {
                 __typename: 'User',
@@ -393,6 +435,13 @@ const {generateAndCompile, simpleClone} = require('relay-test-utils-internal');
               },
             },
           },
+          null,
+          {getDataID: defaultGetDataID},
+        );
+        queue.applyUpdate({
+          operation: nameMutationDescriptor,
+          payload: nameMutatorPayload,
+          updater: null,
         });
         // Next set `lastName`.
         const lastNameMutation = generateAndCompile(`
@@ -410,9 +459,9 @@ const {generateAndCompile, simpleClone} = require('relay-test-utils-internal');
           lastNameMutation,
           {input: {}},
         );
-        queue.applyUpdate({
-          operation: lastNameMutationDescriptor,
-          response: {
+        const lastNamePayload = normalizeRelayPayload(
+          lastNameMutationDescriptor.root,
+          {
             actorNameChange: {
               actor: {
                 __typename: 'User',
@@ -421,9 +470,16 @@ const {generateAndCompile, simpleClone} = require('relay-test-utils-internal');
               },
             },
           },
+          null,
+          {getDataID: defaultGetDataID},
+        );
+        queue.applyUpdate({
+          operation: lastNameMutationDescriptor,
+          payload: lastNamePayload,
+          updater: null,
         });
         queue.run();
-        const sourceData = source.toJSON();
+        const sourceData = store.getSource().toJSON();
         expect(sourceData).toEqual({
           ...initialData,
           [ROOT_ID]: {
@@ -448,9 +504,9 @@ const {generateAndCompile, simpleClone} = require('relay-test-utils-internal');
 
       it('rebases changes when an earlier change is reverted', () => {
         const queue = new RelayPublishQueue(store, null, defaultGetDataID);
-        const optimisticUpdate = {
-          operation: operationDescriptor,
-          response: {
+        const payload = normalizeRelayPayload(
+          operationDescriptor.root,
+          {
             actorNameChange: {
               actor: {
                 id: '4',
@@ -459,6 +515,13 @@ const {generateAndCompile, simpleClone} = require('relay-test-utils-internal');
               },
             },
           },
+          null,
+          {getDataID: defaultGetDataID},
+        );
+        const optimisticUpdate = {
+          operation: operationDescriptor,
+          payload,
+          updater: null,
         };
         queue.applyUpdate(optimisticUpdate);
         // The second update should be applied to the reverted store state
@@ -472,7 +535,7 @@ const {generateAndCompile, simpleClone} = require('relay-test-utils-internal');
         // Cause a rebase
         queue.revertUpdate(optimisticUpdate);
         queue.run();
-        const sourceData = source.toJSON();
+        const sourceData = store.getSource().toJSON();
         expect(sourceData).toEqual({
           ...initialData,
           4: {
@@ -502,7 +565,7 @@ const {generateAndCompile, simpleClone} = require('relay-test-utils-internal');
         };
 
         const getPopulation = () => {
-          const sourceData = source.toJSON();
+          const sourceData = store.getSource().toJSON();
           return sourceData.mpk.population;
         };
 
@@ -544,10 +607,10 @@ const {generateAndCompile, simpleClone} = require('relay-test-utils-internal');
         queue.run();
         // Revert the rebased change
         queue.revertUpdate(mutation2);
-        let sourceData = source.toJSON();
+        let sourceData = store.getSource().toJSON();
         expect(sourceData).not.toEqual(initialData);
         queue.run();
-        sourceData = source.toJSON();
+        sourceData = store.getSource().toJSON();
         // Ensures the intermediate backup was correct
         expect(sourceData).toEqual(initialData);
       });
@@ -575,7 +638,8 @@ const {generateAndCompile, simpleClone} = require('relay-test-utils-internal');
       });
 
       it('reverts executed changes', () => {
-        store.publish = jest.fn(store.publish.bind(store));
+        const publish = jest.spyOn(store, 'publish');
+        const restore = jest.spyOn(store, 'restore');
         const queue = new RelayPublishQueue(store, null, defaultGetDataID);
         // Run the updates
         queue.applyUpdate({
@@ -592,20 +656,23 @@ const {generateAndCompile, simpleClone} = require('relay-test-utils-internal');
         });
         queue.run();
         expect(store.publish.mock.calls.length).toBe(1);
-        store.publish.mockClear();
+        publish.mockClear();
 
         // Then run the revert
         queue.revertAll();
-        let sourceData = source.toJSON();
+        let sourceData = store.getSource().toJSON();
         expect(sourceData).not.toEqual(initialData);
+        expect(restore).toBeCalledTimes(0);
         queue.run();
-        sourceData = source.toJSON();
+        sourceData = store.getSource().toJSON();
         expect(sourceData).toEqual(initialData);
-        expect(store.publish.mock.calls.length).toBe(1);
+        expect(publish).toBeCalledTimes(0);
+        expect(restore).toBeCalledTimes(1);
       });
 
       it('reverts partially executed/unexecuted changes', () => {
-        store.publish = jest.fn(store.publish.bind(store));
+        const publish = jest.spyOn(store, 'publish');
+        const restore = jest.spyOn(store, 'restore');
         const queue = new RelayPublishQueue(store, null, defaultGetDataID);
         // Run the first update
         queue.applyUpdate({
@@ -622,16 +689,18 @@ const {generateAndCompile, simpleClone} = require('relay-test-utils-internal');
             zuck.setValue(zuck.getValue('name').toUpperCase(), 'name');
           },
         });
-        store.publish.mockClear();
+        publish.mockClear();
 
         // Then run the revert
         queue.revertAll();
-        let sourceData = source.toJSON();
+        let sourceData = store.getSource().toJSON();
         expect(sourceData).not.toEqual(initialData);
+        expect(restore).toBeCalledTimes(0);
         queue.run();
-        sourceData = source.toJSON();
+        sourceData = store.getSource().toJSON();
         expect(sourceData).toEqual(initialData);
-        expect(store.publish.mock.calls.length).toBe(1);
+        expect(publish).toBeCalledTimes(0);
+        expect(restore).toBeCalledTimes(1);
       });
 
       it('reverts unexecuted changes', () => {
@@ -652,10 +721,10 @@ const {generateAndCompile, simpleClone} = require('relay-test-utils-internal');
         });
 
         queue.revertAll();
-        let sourceData = source.toJSON();
+        let sourceData = store.getSource().toJSON();
         expect(sourceData).toEqual(initialData);
         queue.run();
-        sourceData = source.toJSON();
+        sourceData = store.getSource().toJSON();
         expect(sourceData).toEqual(initialData);
         expect(store.publish.mock.calls.length).toBe(0);
       });
@@ -670,11 +739,11 @@ const {generateAndCompile, simpleClone} = require('relay-test-utils-internal');
           },
         });
         queue.run();
-        let sourceData = source.toJSON();
+        let sourceData = store.getSource().toJSON();
         expect(sourceData).not.toEqual(initialData);
         queue.revertAll();
         queue.run();
-        sourceData = source.toJSON();
+        sourceData = store.getSource().toJSON();
         expect(sourceData).toEqual(initialData);
       });
 
@@ -690,11 +759,11 @@ const {generateAndCompile, simpleClone} = require('relay-test-utils-internal');
           },
         });
         queue.run();
-        let sourceData = source.toJSON();
+        let sourceData = store.getSource().toJSON();
         expect(sourceData).not.toEqual(initialData);
         queue.revertAll();
         queue.run();
-        sourceData = source.toJSON();
+        sourceData = store.getSource().toJSON();
         expect(sourceData).toEqual(initialData);
       });
 
@@ -712,11 +781,11 @@ const {generateAndCompile, simpleClone} = require('relay-test-utils-internal');
           },
         });
         queue.run();
-        let sourceData = source.toJSON();
+        let sourceData = store.getSource().toJSON();
         expect(sourceData).not.toEqual(initialData);
         queue.revertAll();
         queue.run();
-        sourceData = source.toJSON();
+        sourceData = store.getSource().toJSON();
         expect(sourceData).toEqual(initialData);
       });
     });
@@ -731,6 +800,9 @@ const {generateAndCompile, simpleClone} = require('relay-test-utils-internal');
           notify,
           publish,
           holdGC: jest.fn(),
+          publishConnectionEvents_UNSTABLE: jest.fn(),
+          restore: jest.fn(),
+          snapshot: jest.fn(() => []),
         };
         const queue = new RelayPublishQueue(store, null, defaultGetDataID);
         const publishSource = new RecordSourceImplementation();
@@ -764,6 +836,9 @@ const {generateAndCompile, simpleClone} = require('relay-test-utils-internal');
           notify,
           publish,
           holdGC: jest.fn(),
+          publishConnectionEvents_UNSTABLE: jest.fn(),
+          restore: jest.fn(),
+          snapshot: jest.fn(() => []),
         };
         const queue = new RelayPublishQueue(store, null, defaultGetDataID);
         const {ActorQuery} = generateAndCompile(
@@ -795,7 +870,7 @@ const {generateAndCompile, simpleClone} = require('relay-test-utils-internal');
             me: {
               __id: '4',
               __fragments: {UserFragment: {}},
-              __fragmentOwner: operation,
+              __fragmentOwner: operation.request,
               name: 'Zuck',
             },
             nodes: [{name: 'Zuck'}],
@@ -858,6 +933,9 @@ const {generateAndCompile, simpleClone} = require('relay-test-utils-internal');
           notify,
           publish,
           holdGC: jest.fn(),
+          publishConnectionEvents_UNSTABLE: jest.fn(),
+          restore: jest.fn(),
+          snapshot: jest.fn(() => []),
         };
         const ScreennameHandler = {
           update(storeProxy, payload) {
@@ -1035,7 +1113,7 @@ const {generateAndCompile, simpleClone} = require('relay-test-utils-internal');
         });
         // Run both the optimisitc and server update
         queue.run();
-        expect(source.toJSON()).toEqual({
+        expect(store.getSource().toJSON()).toEqual({
           [ROOT_ID]: {
             __id: ROOT_ID,
             __typename: ROOT_TYPE,
@@ -1095,7 +1173,7 @@ const {generateAndCompile, simpleClone} = require('relay-test-utils-internal');
         });
         queue.run();
         // Optimistic update should rebase, capitalizing the new name
-        expect(source.toJSON()).toEqual({
+        expect(store.getSource().toJSON()).toEqual({
           [ROOT_ID]: {
             __id: ROOT_ID,
             __typename: ROOT_TYPE,
@@ -1157,7 +1235,7 @@ const {generateAndCompile, simpleClone} = require('relay-test-utils-internal');
 
         queue.revertUpdate(mutation);
         queue.run();
-        expect(source.toJSON()).toEqual({
+        expect(store.getSource().toJSON()).toEqual({
           [ROOT_ID]: {
             __id: ROOT_ID,
             __typename: ROOT_TYPE,
@@ -1194,7 +1272,7 @@ const {generateAndCompile, simpleClone} = require('relay-test-utils-internal');
           amp.setValue(10, 'volume');
         };
 
-        const getVolume = () => source.get('84872').volume;
+        const getVolume = () => store.getSource().get('84872').volume;
 
         expect(getVolume()).toBe(3);
 
@@ -1261,7 +1339,7 @@ const {generateAndCompile, simpleClone} = require('relay-test-utils-internal');
           }),
         });
         queue.run();
-        expect(source.toJSON()).toEqual({
+        expect(store.getSource().toJSON()).toEqual({
           [ROOT_ID]: {
             __id: ROOT_ID,
             __typename: ROOT_TYPE,
@@ -1286,6 +1364,9 @@ const {generateAndCompile, simpleClone} = require('relay-test-utils-internal');
           notify,
           publish,
           holdGC: jest.fn(),
+          publishConnectionEvents_UNSTABLE: jest.fn(),
+          restore: jest.fn(),
+          snapshot: jest.fn(() => []),
         };
         const queue = new RelayPublishQueue(store, null, defaultGetDataID);
 
@@ -1308,10 +1389,10 @@ const {generateAndCompile, simpleClone} = require('relay-test-utils-internal');
       });
 
       describe('it commits in order', () => {
-        let namePayload, nameSelector, nameSource, queue, source;
+        let namePayload, nameSelector, nameSource, queue, source, store;
         beforeEach(() => {
           source = new RecordSourceImplementation({});
-          const store = new RelayModernStore(source);
+          store = new RelayModernStore(source);
           queue = new RelayPublishQueue(store, null, defaultGetDataID);
           const {nameQuery} = generateAndCompile(
             `
@@ -1352,7 +1433,7 @@ const {generateAndCompile, simpleClone} = require('relay-test-utils-internal');
           queue.commitSource(nameSource); // sets name as mark
           queue.commitPayload(nameSelector, namePayload); // sets name as zuck
           queue.run();
-          expect(source.toJSON()).toEqual({
+          expect(store.getSource().toJSON()).toEqual({
             [ROOT_ID]: {
               __id: ROOT_ID,
               __typename: ROOT_TYPE,
@@ -1370,7 +1451,7 @@ const {generateAndCompile, simpleClone} = require('relay-test-utils-internal');
           queue.commitPayload(nameSelector, namePayload); // sets name as zuck
           queue.commitSource(nameSource); // sets name as mark
           queue.run();
-          expect(source.toJSON()).toEqual({
+          expect(store.getSource().toJSON()).toEqual({
             [ROOT_ID]: {
               __id: ROOT_ID,
               __typename: ROOT_TYPE,
@@ -1417,7 +1498,7 @@ const {generateAndCompile, simpleClone} = require('relay-test-utils-internal');
         );
         queue.run();
         // Optimistic update should rebase, capitalizing the new name
-        expect(source.toJSON()).toEqual({
+        expect(store.getSource().toJSON()).toEqual({
           4: {
             ...initialData['4'],
             id: '4', // added by server payload
@@ -1459,7 +1540,7 @@ const {generateAndCompile, simpleClone} = require('relay-test-utils-internal');
 
         queue.revertUpdate(mutation);
         queue.run();
-        expect(source.toJSON()).toEqual({
+        expect(store.getSource().toJSON()).toEqual({
           4: {
             ...initialData['4'],
             id: '4', // added by server payload
@@ -1479,6 +1560,9 @@ const {generateAndCompile, simpleClone} = require('relay-test-utils-internal');
           notify,
           publish,
           holdGC: jest.fn(),
+          publishConnectionEvents_UNSTABLE: jest.fn(),
+          restore: jest.fn(),
+          snapshot: jest.fn(() => []),
         };
         const queue = new RelayPublishQueue(store, null, defaultGetDataID);
         queue.commitUpdate(storeProxy => {
@@ -1509,6 +1593,9 @@ const {generateAndCompile, simpleClone} = require('relay-test-utils-internal');
           notify,
           publish,
           holdGC: jest.fn(),
+          publishConnectionEvents_UNSTABLE: jest.fn(),
+          restore: jest.fn(),
+          snapshot: jest.fn(() => []),
         };
         const queue = new RelayPublishQueue(store, null, defaultGetDataID);
         queue.run();
@@ -1525,6 +1612,9 @@ const {generateAndCompile, simpleClone} = require('relay-test-utils-internal');
           notify,
           publish,
           holdGC: jest.fn(),
+          publishConnectionEvents_UNSTABLE: jest.fn(),
+          restore: jest.fn(),
+          snapshot: jest.fn(() => []),
         };
         const queue = new RelayPublishQueue(store, null, defaultGetDataID);
         queue.applyUpdate({
@@ -1540,12 +1630,16 @@ const {generateAndCompile, simpleClone} = require('relay-test-utils-internal');
       it('notifies the store if an optimistic mutation is reverted', () => {
         const notify = jest.fn();
         const publish = jest.fn();
+        const restore = jest.fn();
         const source = new RecordSourceImplementation();
         const store = {
           getSource: () => source,
           notify,
           publish,
           holdGC: jest.fn(),
+          publishConnectionEvents_UNSTABLE: jest.fn(),
+          restore,
+          snapshot: jest.fn(() => []),
         };
         const queue = new RelayPublishQueue(store, null, defaultGetDataID);
         const mutation = {
@@ -1560,8 +1654,9 @@ const {generateAndCompile, simpleClone} = require('relay-test-utils-internal');
 
         queue.revertUpdate(mutation);
         queue.run();
-        expect(publish).toBeCalled();
-        expect(notify).toBeCalled();
+        expect(publish).toBeCalledTimes(0);
+        expect(notify).toBeCalledTimes(1);
+        expect(restore).toBeCalledTimes(1);
       });
 
       it('notifies the store if a server mutation is committed', () => {
@@ -1573,6 +1668,9 @@ const {generateAndCompile, simpleClone} = require('relay-test-utils-internal');
           notify,
           publish,
           holdGC: jest.fn(),
+          publishConnectionEvents_UNSTABLE: jest.fn(),
+          restore: jest.fn(),
+          snapshot: jest.fn(() => []),
         };
         const queue = new RelayPublishQueue(store, null, defaultGetDataID);
 
@@ -1608,6 +1706,9 @@ const {generateAndCompile, simpleClone} = require('relay-test-utils-internal');
           notify: jest.fn(),
           publish: jest.fn(),
           holdGC,
+          publishConnectionEvents_UNSTABLE: jest.fn(),
+          restore: jest.fn(),
+          snapshot: jest.fn(() => []),
         };
         const queue = new RelayPublishQueue(store, null, defaultGetDataID);
         const mutation = {
@@ -1628,6 +1729,9 @@ const {generateAndCompile, simpleClone} = require('relay-test-utils-internal');
           notify: jest.fn(),
           publish: jest.fn(),
           holdGC,
+          publishConnectionEvents_UNSTABLE: jest.fn(),
+          restore: jest.fn(),
+          snapshot: jest.fn(() => []),
         };
         const queue = new RelayPublishQueue(store, null, defaultGetDataID);
         queue.run();
@@ -1645,6 +1749,9 @@ const {generateAndCompile, simpleClone} = require('relay-test-utils-internal');
           notify: jest.fn(),
           publish: jest.fn(),
           holdGC,
+          publishConnectionEvents_UNSTABLE: jest.fn(),
+          restore: jest.fn(),
+          snapshot: jest.fn(() => []),
         };
         const queue = new RelayPublishQueue(store, null, defaultGetDataID);
         const mutation = {

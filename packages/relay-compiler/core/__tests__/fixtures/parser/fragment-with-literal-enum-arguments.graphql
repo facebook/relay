@@ -5,7 +5,8 @@ fragment ParentFragment on Query {
   ...ChildFragment @arguments(environment: WEB)
 }
 
-fragment ChildFragment on Query @argumentDefinitions(environment: {type: "Environment!"}){
+fragment ChildFragment on Query
+  @argumentDefinitions(environment: {type: "Environment!"}) {
   settings(environment: $environment) {
     cache_id
   }

@@ -9,7 +9,8 @@ fragment NameRendererFragment on User {
   ... on User {
     # conflicts with above: same alias but different module names
     nameRenderer @match {
-      ...PlainUserNameRenderer_name @module(name: "OtherPlainUserNameRenderer.react")
+      ...PlainUserNameRenderer_name
+        @module(name: "OtherPlainUserNameRenderer.react")
       ...MarkdownUserNameRenderer_name
         @module(name: "OtherMarkdownUserNameRenderer.react")
     }

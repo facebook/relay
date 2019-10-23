@@ -10,83 +10,123 @@
 
 'use strict';
 
-const CompilerContext = require('../core/GraphQLCompilerContext');
 const IRTransformer = require('../core/GraphQLIRTransformer');
 
-const getLiteralArgumentValues = require('../core/getLiteralArgumentValues');
-
-const {getNullableType} = require('../core/GraphQLSchemaUtils');
 const {createUserError} = require('../core/RelayCompilerError');
-const {GraphQLList} = require('graphql');
+const {buildConnectionMetadata} = require('./ConnectionTransform');
+const {ConnectionInterface} = require('relay-runtime');
 
+import type CompilerContext from '../core/GraphQLCompilerContext';
 import type {
-  Directive,
+  Connection,
   ConnectionField,
+  Directive,
+  Fragment,
   LinkedField,
+  Root,
   ScalarField,
 } from '../core/GraphQLIR';
+import type {ConnectionMetadata} from 'relay-runtime';
 
 const SCHEMA_EXTENSION = `
-  directive @connection_resolver(resolver: String!, label: String) on FIELD
+  directive @connection_resolver(label: String!) on FIELD
+  directive @stream_connection_resolver(
+    label: String!
+    initial_count: Int!
+    if: Boolean = true
+  ) on FIELD
 `;
 
 type State = {|
   +documentName: string,
   +labels: Map<string, Directive>,
+  // The current path
+  path: Array<?string>,
+  // Metadata recorded for @connection fields
+  connectionMetadata: Array<ConnectionMetadata>,
 |};
 
 /**
- * This transform rewrites LinkedField nodes with @connection_resolver and rewrites them
- * into `ConnectionField` nodes.
+ * This transform rewrites LinkedField nodes with @connection_resolver and
+ * rewrites their edges/pageInfo selections to be wrapped in a Connection node.
  */
 function connectionFieldTransform(context: CompilerContext): CompilerContext {
   return IRTransformer.transform(
     context,
     {
-      // TODO: type IRTransformer to allow changing result type
+      Fragment: visitFragmentOrRoot,
       LinkedField: (visitLinkedField: $FlowFixMe),
+      Root: visitFragmentOrRoot,
       ScalarField: visitScalarField,
     },
-    node => ({documentName: node.name, labels: new Map()}),
+    node => ({
+      documentName: node.name,
+      labels: new Map(),
+      path: [],
+      connectionMetadata: [],
+    }),
   );
+}
+
+function visitFragmentOrRoot<N: Fragment | Root>(node: N, state: State): N {
+  const transformedNode = this.traverse(node, state);
+  const connectionMetadata = state.connectionMetadata;
+  if (connectionMetadata.length) {
+    return {
+      ...transformedNode,
+      metadata: {
+        ...transformedNode.metadata,
+        connection: connectionMetadata,
+      },
+    };
+  }
+  return transformedNode;
 }
 
 function visitLinkedField(
   field: LinkedField,
   state: State,
 ): LinkedField | ConnectionField {
-  const transformed: LinkedField = this.traverse(field, state);
+  const context: CompilerContext = this.getContext();
+  const schema = context.getSchema();
+  const path = state.path.concat(field.alias);
+  const transformed: LinkedField = this.traverse(field, {
+    ...state,
+    path,
+  });
   const connectionDirective = transformed.directives.find(
-    directive => directive.name === 'connection_resolver',
+    directive =>
+      directive.name === 'connection_resolver' ||
+      directive.name === 'stream_connection_resolver',
   );
   if (connectionDirective == null) {
     return transformed;
   }
-  if (getNullableType(transformed.type) instanceof GraphQLList) {
+  if (schema.isList(schema.getNullableType(transformed.type))) {
     throw createUserError(
       "@connection_resolver fields must return a single value, not a list, found '" +
-        `${String(transformed.type)}'`,
+        `${schema.getTypeString(transformed.type)}'`,
       [transformed.loc],
     );
   }
-  const {resolver} = getLiteralArgumentValues(connectionDirective.args);
-  if (typeof resolver !== 'string') {
-    const resolverArg = transformed.args.find(arg => arg.name === 'resolver');
+  const labelArg = connectionDirective.args.find(({name}) => name === 'label');
+  const label = getLiteralStringArgument(connectionDirective, 'label');
+  if (
+    typeof label !== 'string' ||
+    (label !== state.documentName &&
+      label.indexOf(state.documentName + '$') !== 0)
+  ) {
     throw createUserError(
-      "Expected @connection_resolver field to specify a 'resolver' as a literal string. " +
-        'The resolver should be the name of a JS module to use at runtime ' +
-        "to derive the field's value.",
-      [resolverArg?.loc ?? connectionDirective.loc],
+      'Invalid usage of @connection_resolver, expected a static string ' +
+        `'label'. Labels may be the document name ('${state.documentName}') ` +
+        `or be prefixed with the document name ('${
+          state.documentName
+        }$<name>')`,
+      [labelArg?.loc ?? connectionDirective.loc],
     );
   }
-  const rawLabel =
-    getLiteralStringArgument(connectionDirective, 'label') ?? transformed.alias;
-  const label = transformLabel(state.documentName, 'connection', rawLabel);
   const previousDirective = state.labels.get(label);
   if (previousDirective != null) {
-    const labelArg = connectionDirective.args.find(
-      ({name}) => name === 'label',
-    );
     const prevLabelArg = previousDirective.args.find(
       ({name}) => name === 'label',
     );
@@ -107,21 +147,174 @@ function visitLinkedField(
     }
   }
   state.labels.set(label, connectionDirective);
-  return ({
+
+  let stream = null;
+  if (connectionDirective.name === 'stream_connection_resolver') {
+    const initialCountArg = connectionDirective.args.find(
+      arg => arg.name === 'initial_count',
+    );
+    const ifArg = connectionDirective.args.find(arg => arg.name === 'if');
+    if (
+      initialCountArg == null ||
+      (initialCountArg.value.kind === 'Literal' &&
+        !Number.isInteger(initialCountArg.value.value))
+    ) {
+      throw createUserError(
+        "Invalid use of @connection_resolver, 'initial_count' is required " +
+          "and must be an integer or variable of type 'Int!''.",
+        [initialCountArg?.loc ?? connectionDirective.loc],
+      );
+    }
+    stream = {
+      deferLabel: label,
+      initialCount: initialCountArg.value,
+      if: ifArg != null ? ifArg.value : null,
+      streamLabel: label,
+    };
+  }
+
+  const {EDGES, PAGE_INFO} = ConnectionInterface.get();
+  let edgeField: ?LinkedField;
+  let pageInfoField: ?LinkedField;
+  const selections = [];
+  transformed.selections.forEach(selection => {
+    if (
+      !(selection.kind === 'LinkedField' || selection.kind === 'ScalarField')
+    ) {
+      throw createUserError(
+        'Invalid use of @connection_resolver, selections on the connection ' +
+          'must be linked or scalar fields.',
+        [selection.loc],
+      );
+    }
+    if (selection.kind === 'LinkedField') {
+      if (selection.name === EDGES) {
+        edgeField = selection;
+      } else if (selection.name === PAGE_INFO) {
+        pageInfoField = selection;
+      } else {
+        selections.push(selection);
+      }
+    } else {
+      selections.push(selection);
+    }
+  });
+  if (edgeField == null || pageInfoField == null) {
+    throw createUserError(
+      `Invalid use of @connection_resolver, fields '${EDGES}' and ` +
+        `'${PAGE_INFO}' must be  fetched.`,
+      [connectionDirective.loc],
+    );
+  }
+  const connectionType = schema.getRawType(transformed.type);
+  const edgesFieldDef = schema.isObject(connectionType)
+    ? schema.getFieldByName(schema.assertObjectType(connectionType), 'edges')
+    : null;
+  const edgesType =
+    edgesFieldDef != null
+      ? schema.getRawType(schema.getFieldType(edgesFieldDef))
+      : null;
+  const nodeFieldDef =
+    edgesType != null && schema.isObject(edgesType)
+      ? schema.getFieldByName(schema.assertObjectType(edgesType), 'node')
+      : null;
+  const nodeType =
+    nodeFieldDef != null
+      ? schema.getRawType(schema.getFieldType(nodeFieldDef))
+      : null;
+  if (
+    edgesType == null ||
+    nodeType == null ||
+    !(
+      schema.isObject(nodeType) ||
+      schema.isInterface(nodeType) ||
+      schema.isUnion(nodeType)
+    )
+  ) {
+    throw createUserError(
+      'Invalid usage of @connection_resolver, expected field to have shape ' +
+        "'field { edges { node { ...} } }'.",
+      [transformed.loc],
+    );
+  }
+  edgeField = {
+    ...edgeField,
+    selections: [
+      ...edgeField.selections,
+      {
+        alias: '__id',
+        args: [],
+        directives: [],
+        handles: null,
+        kind: 'ScalarField',
+        loc: edgeField.loc,
+        metadata: null,
+        name: '__id',
+        type: schema.assertScalarFieldType(
+          schema.getNonNullType(schema.expectIdType()),
+        ),
+      },
+      {
+        alias: 'node',
+        args: [],
+        connection: false,
+        directives: [],
+        handles: null,
+        kind: 'LinkedField',
+        loc: edgeField.loc,
+        metadata: null,
+        name: 'node',
+        selections: [
+          {
+            alias: '__id',
+            args: [],
+            directives: [],
+            handles: null,
+            kind: 'ScalarField',
+            loc: edgeField.loc,
+            metadata: null,
+            name: '__id',
+            type: schema.assertScalarFieldType(
+              schema.getNonNullType(schema.expectIdType()),
+            ),
+          },
+        ],
+        type: schema.assertLinkedFieldType(nodeType),
+      },
+    ],
+  };
+  selections.push(
+    ({
+      args: transformed.args,
+      kind: 'Connection',
+      label,
+      loc: transformed.loc,
+      name: transformed.name,
+      selections: [edgeField, pageInfoField],
+      stream,
+      type: transformed.type,
+    }: Connection),
+  );
+
+  const connectionMetadata = buildConnectionMetadata(
+    transformed,
+    path,
+    stream != null,
+  );
+  state.connectionMetadata.push(connectionMetadata);
+  return {
     alias: transformed.alias,
     args: transformed.args,
     directives: transformed.directives.filter(
       directive => directive !== connectionDirective,
     ),
     kind: 'ConnectionField',
-    label,
     loc: transformed.loc,
-    metadata: transformed.metadata,
+    metadata: null,
     name: transformed.name,
-    resolver,
-    selections: transformed.selections,
+    selections,
     type: transformed.type,
-  }: ConnectionField);
+  };
 }
 
 function visitScalarField(field: ScalarField): ScalarField {
@@ -130,7 +323,8 @@ function visitScalarField(field: ScalarField): ScalarField {
   );
   if (connectionDirective != null) {
     throw createUserError(
-      'The @connection_resolver direction is not supported on scalar fields, only fields returning an object/interface/union',
+      'The @connection_resolver direction is not supported on scalar fields, ' +
+        'only fields returning an object/interface/union',
       [connectionDirective.loc],
     );
   }
@@ -155,14 +349,6 @@ function getLiteralStringArgument(
     );
   }
   return value;
-}
-
-function transformLabel(
-  parentName: string,
-  directive: string,
-  label: string,
-): string {
-  return `${parentName}$${directive}$${label}`;
 }
 
 module.exports = {

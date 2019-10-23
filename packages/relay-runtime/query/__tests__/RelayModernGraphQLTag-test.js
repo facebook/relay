@@ -48,15 +48,6 @@ describe('RelayModernRefetchableFragment', () => {
       expect(isFragment(() => fragment)).toBe(true);
       expect(getFragment(() => fragment)).toBe(fragment);
     });
-
-    it('returns fragments wrapped in a compat object', () => {
-      const taggedNode = {
-        modern: () => fragment,
-        classic: jest.fn(),
-      };
-      expect(isFragment(taggedNode)).toBe(true);
-      expect(getFragment(taggedNode)).toBe(fragment);
-    });
   });
 
   describe('isRequest/getRequest()', () => {
@@ -80,15 +71,6 @@ describe('RelayModernRefetchableFragment', () => {
     it('returns queries wrapped in a thunk', () => {
       expect(isRequest(() => query)).toBe(true);
       expect(getRequest(() => query)).toBe(query);
-    });
-
-    it('returns queries wrapped in a compat object', () => {
-      const taggedNode = {
-        modern: () => query,
-        classic: jest.fn(),
-      };
-      expect(isRequest(taggedNode)).toBe(true);
-      expect(getRequest(taggedNode)).toBe(query);
     });
   });
 

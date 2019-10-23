@@ -1,0 +1,6 @@
+# expected-to-throw
+query QueryWithId($id: ID) @DEPRECATED__relay_ignore_unused_variables_error {
+  node(id: $id) {
+    __typename
+  }
+}

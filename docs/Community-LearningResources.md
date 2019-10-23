@@ -9,6 +9,9 @@ https://twitter.com/sseraphini/status/1078595758801203202
 ## Relay examples - common patterns explained via code and videos
 https://github.com/kiwicom/relay-example
 
+## Sample project how to use React and Relay
+https://github.com/juffalow/react-relay-example
+
 # Basics
 
 ## Relay Modern: What is a fragment?
@@ -52,6 +55,21 @@ https://medium.com/entria/wrangling-the-client-store-with-the-relay-modern-updat
 
 How to update your UI before server responds.
 https://medium.com/entria/relay-modern-optimistic-update-a09ba22d83c9
+
+## Relay Modern: Local State Management, part 1
+
+How to create a controlled input using Relay.
+https://babangsund.com/relay_local_state_management/
+
+## Relay Modern: Local State Management, part 2
+
+How to manage global state and localStorage persistence on the client, using Relay.
+https://babangsund.com/relay_local_state_management_2/
+
+## Relay Modern: Local State Management, part 3
+
+Using LocalQueryRenderer and local state to manage nested fragments.
+https://babangsund.com/relay_local_state_management_3/
 
 # Network Layer
 

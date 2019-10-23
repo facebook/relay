@@ -10,16 +10,12 @@
 
 'use strict';
 
-const React = require('React');
+const React = require('react');
 const ReactRelayContext = require('./ReactRelayContext');
 
 function ReactRelayFragmentMockRenderer(props: Object): React.Node {
   return (
-    <ReactRelayContext.Provider
-      value={{
-        environment: props.environment,
-        variables: {},
-      }}>
+    <ReactRelayContext.Provider value={{environment: props.environment}}>
       {props.render()}
     </ReactRelayContext.Provider>
   );

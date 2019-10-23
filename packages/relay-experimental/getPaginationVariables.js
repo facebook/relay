@@ -20,7 +20,7 @@ function getPaginationVariables(
   direction: Direction,
   count: number,
   cursor: ?string,
-  parentVariables: Variables,
+  baseVariables: Variables,
   paginationMetadata: ReaderPaginationMetadata,
 ): {[string]: mixed} {
   const {
@@ -37,7 +37,7 @@ function getPaginationVariables(
         "If you're seeing this, this is likely a bug in Relay.",
     );
     const paginationVariables = {
-      ...parentVariables,
+      ...baseVariables,
       [backwardMetadata.cursor]: cursor,
       [backwardMetadata.count]: count,
     };
@@ -58,7 +58,7 @@ function getPaginationVariables(
       "If you're seeing this, this is likely a bug in Relay.",
   );
   const paginationVariables = {
-    ...parentVariables,
+    ...baseVariables,
     [forwardMetadata.cursor]: cursor,
     [forwardMetadata.count]: count,
   };

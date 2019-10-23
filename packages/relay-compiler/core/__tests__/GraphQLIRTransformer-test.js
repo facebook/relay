@@ -4,6 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
+ * @flow strict-local
  * @format
  * @emails oncall+relay
  */
@@ -12,6 +13,7 @@
 
 const GraphQLCompilerContext = require('../GraphQLCompilerContext');
 const GraphQLIRTransformer = require('../GraphQLIRTransformer');
+const Schema = require('../Schema');
 
 const {transformASTSchema} = require('../ASTConvert');
 const {TestSchema, parseGraphQLText} = require('relay-test-utils-internal');
@@ -33,16 +35,8 @@ describe('GraphQLIRTransformer', () => {
      }
    }
 
-   query ObjectArgumentQuery($text: String!) {
-     checkinSearchQuery(query: {
-       query: $text
-     }) {
-       query
-     }
-   }
-
-   query ListArgumentQuery($waypoint: WayPoint!) {
-     route(waypoints: [$waypoint, {
+   query ListArgumentQuery {
+     route(waypoints: [{
        lat: "0.0"
        lon: "0.0"
      }]) {
@@ -71,7 +65,9 @@ describe('GraphQLIRTransformer', () => {
    }
  `,
     );
-    const context = new GraphQLCompilerContext(TestSchema).addAll(definitions);
+    const context = new GraphQLCompilerContext(
+      Schema.DEPRECATED__create(TestSchema),
+    ).addAll(definitions);
 
     const astKinds = [
       'Argument',
@@ -81,11 +77,8 @@ describe('GraphQLIRTransformer', () => {
       'FragmentSpread',
       'InlineFragment',
       'LinkedField',
-      'ListValue',
       'Literal',
       'LocalArgumentDefinition',
-      'ObjectFieldValue',
-      'ObjectValue',
       'Root',
       'ScalarField',
       'Variable',

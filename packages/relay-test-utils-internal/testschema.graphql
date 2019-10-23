@@ -41,6 +41,7 @@ type Query {
   usernames(names: [String!]!): [Actor]
   viewer: Viewer
   _mutation: Mutation
+  relay_early_flush: [JSDependency!]!
 }
 
 interface MaybeNodeInterface {
@@ -297,6 +298,18 @@ type CommentsEdge {
   source: Feedback
 }
 
+type CommentBodiesConnection {
+  count: Int
+  edges: [CommentBodiesEdge]
+  pageInfo: PageInfo
+}
+
+type CommentBodiesEdge {
+  cursor: String
+  node: CommentBody # union type
+  source: Feedback
+}
+
 type ConfigsConnection {
   edges: [ConfigsConnectionEdge]
   pageInfo: PageInfo
@@ -336,6 +349,13 @@ type Feedback implements Node {
     last: Int
     orderby: String
   ): CommentsConnection
+  commentBodies(
+    after: ID
+    before: ID
+    first: Int
+    last: Int
+    orderby: String
+  ): CommentBodiesConnection
   doesViewerLike: Boolean
   emailAddresses: [String]
   feedback: Feedback

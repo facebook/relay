@@ -470,6 +470,11 @@ class RelayMockPayloadGenerator {
       return value;
     }
 
+    if (value === null) {
+      // null is a valid enum value
+      return value;
+    }
+
     const valueToValidate = Array.isArray(value)
       ? value.map(v => String(v).toUpperCase())
       : [String(value).toUpperCase()];

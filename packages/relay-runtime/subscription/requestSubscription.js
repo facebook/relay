@@ -21,7 +21,10 @@ const {
 
 import type {DeclarativeMutationConfig} from '../mutations/RelayDeclarativeMutationConfig';
 import type {GraphQLTaggedNode} from '../query/RelayModernGraphQLTag';
-import type {Environment, SelectorStoreUpdater} from '../store/RelayStoreTypes';
+import type {
+  IEnvironment,
+  SelectorStoreUpdater,
+} from '../store/RelayStoreTypes';
 import type {Disposable, Variables} from '../util/RelayRuntimeTypes';
 
 export type GraphQLSubscriptionConfig<TSubscriptionPayload> = {|
@@ -35,7 +38,7 @@ export type GraphQLSubscriptionConfig<TSubscriptionPayload> = {|
 |};
 
 function requestSubscription<TSubscriptionPayload>(
-  environment: Environment,
+  environment: IEnvironment,
   config: GraphQLSubscriptionConfig<TSubscriptionPayload>,
 ): Disposable {
   const subscription = getRequest(config.subscription);
@@ -63,7 +66,6 @@ function requestSubscription<TSubscriptionPayload>(
     .execute({
       operation,
       updater,
-      cacheConfig: {force: true},
     })
     .map(() => {
       const data = environment.lookup(operation.fragment).data;

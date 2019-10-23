@@ -16,10 +16,14 @@ fragment Foo_user on User {
       }
     }
   }
-  ... on ClientNamed {
-    client_name
+  client_foo {
+    ... on ClientNamed {
+      client_name
+    }
   }
-  ...ClientTypeFragment # include fragment on client-only type
+  client_foo2 {
+    ...ClientTypeFragment # include fragment on client-only type
+  }
 }
 
 fragment ClientTypeFragment on ClientType {
@@ -30,6 +34,7 @@ extend type User {
   client_friends: FriendsConnection
   client_nickname: String
   client_foo: Foo
+  client_foo2: ClientType
 }
 
 extend type FriendsEdge {
@@ -40,7 +45,7 @@ type ClientType {
   client_field: String
 }
 
-type Foo {
+type Foo implements ClientNamed {
   client_name: String
 }
 

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @flow
+ * @flow strict
  * @format
  */
 
@@ -116,14 +116,14 @@ function run<T>(name: string, fn: () => T): T {
  * Run the provided async function as part context in a stack profile.
  * See instrumentAsyncContext() for limitations and usage notes.
  */
-function asyncContext<T: Promise<any>>(name: string, fn: () => T): T {
+function asyncContext<T: Promise<$FlowFixMe>>(name: string, fn: () => T): T {
   return instrumentAsyncContext(fn, name)();
 }
 
 /**
  * Wait for the provided async operation as an async profile.
  */
-function waitFor<T: Promise<any>>(name: string, fn: () => T): T {
+function waitFor<T: Promise<$FlowFixMe>>(name: string, fn: () => T): T {
   return instrumentWait(fn, name)();
 }
 
@@ -134,11 +134,15 @@ function waitFor<T: Promise<any>>(name: string, fn: () => T): T {
  * visualization. To instrument async functions, see instrumentAsyncContext()
  * and instrumentWait().
  */
-function instrument<F: Function>(fn: F, name?: string): F {
+function instrument<F: (...$FlowFixMe) => mixed>(fn: F, name?: string): F {
   if (!enabled) {
     return fn;
   }
-  const profileName = name || fn.displayName || fn.name;
+  const profileName =
+    name ??
+    // $FlowFixMe - Flow no longer considers statics of functions as any
+    fn.displayName ??
+    fn.name;
   const instrumented = function() {
     const traceId = start(profileName);
     try {
@@ -148,7 +152,7 @@ function instrument<F: Function>(fn: F, name?: string): F {
     }
   };
   instrumented.displayName = profileName;
-  return (instrumented: any);
+  return (instrumented: $FlowFixMe);
 }
 
 /**
@@ -163,7 +167,7 @@ function instrument<F: Function>(fn: F, name?: string): F {
  *
  * To instrument functions which will run in parallel, use instrumentWait().
  */
-function instrumentAsyncContext<F: (...any) => Promise<any>>(
+function instrumentAsyncContext<F: (...$FlowFixMe) => Promise<$FlowFixMe>>(
   fn: F,
   name?: string,
 ): F {
@@ -172,9 +176,9 @@ function instrumentAsyncContext<F: (...any) => Promise<any>>(
   }
 
   const profileName: string =
-    name ||
+    name ??
     // $FlowFixMe - Flow no longer considers statics of functions as any
-    fn.displayName ||
+    fn.displayName ??
     fn.name;
   const instrumented = async function() {
     const traceId = start(profileName);
@@ -185,7 +189,7 @@ function instrumentAsyncContext<F: (...any) => Promise<any>>(
     }
   };
   instrumented.displayName = profileName;
-  return (instrumented: any);
+  return (instrumented: $FlowFixMe);
 }
 
 /**
@@ -195,14 +199,17 @@ function instrumentAsyncContext<F: (...any) => Promise<any>>(
  * compiler, instead it captures the time waiting on some asynchronous external
  * resource such as network or filesystem which are often run in parallel.
  */
-function instrumentWait<F: (...any) => Promise<any>>(fn: F, name?: string): F {
+function instrumentWait<F: (...$FlowFixMe) => Promise<$FlowFixMe>>(
+  fn: F,
+  name?: string,
+): F {
   if (!enabled) {
     return fn;
   }
   const profileName: string =
-    name ||
+    name ??
     // $FlowFixMe - Flow no longer considers statics of functions as any
-    fn.displayName ||
+    fn.displayName ??
     fn.name;
   const instrumented = async function() {
     const traceId = startWait(profileName);
@@ -213,7 +220,7 @@ function instrumentWait<F: (...any) => Promise<any>>(fn: F, name?: string): F {
     }
   };
   instrumented.displayName = profileName;
-  return (instrumented: any);
+  return (instrumented: $FlowFixMe);
 }
 
 const T_ZERO = process.hrtime();

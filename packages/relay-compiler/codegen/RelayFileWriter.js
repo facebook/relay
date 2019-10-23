@@ -11,13 +11,11 @@
 'use strict';
 
 const ASTConvert = require('../core/ASTConvert');
+const CodegenDirectory = require('./CodegenDirectory');
 const CompilerContext = require('../core/GraphQLCompilerContext');
 const Profiler = require('../core/GraphQLCompilerProfiler');
 const RelayParser = require('../core/RelayParser');
-const RelayValidator = require('../core/RelayValidator');
-const SchemaUtils = require('../core/GraphQLSchemaUtils');
 
-const CodegenDirectory = require('./CodegenDirectory');
 const compileRelayArtifacts = require('./compileRelayArtifacts');
 const crypto = require('crypto');
 const graphql = require('graphql');
@@ -29,20 +27,20 @@ const writeRelayGeneratedFile = require('./writeRelayGeneratedFile');
 const {
   getReaderSourceDefinitionName,
 } = require('../core/GraphQLDerivedFromMetadata');
+const {isExecutableDefinitionAST} = require('../core/SchemaUtils');
 const {Map: ImmutableMap} = require('immutable');
 
-import type {DocumentNode, GraphQLSchema, ValidationContext} from 'graphql';
+import type {Schema} from '../core/Schema';
 import type {
   FormatModule,
   TypeGenerator,
 } from '../language/RelayLanguagePluginInterface';
 import type {ScalarTypeMapping} from '../language/javascript/RelayFlowTypeTransformers';
-import type {GraphQLReporter as Reporter} from '../reporters/GraphQLReporter';
+import type {Reporter} from '../reporters/Reporter';
 import type {Filesystem} from './CodegenDirectory';
 import type {SourceControl} from './SourceControl';
 import type {RelayCompilerTransforms} from './compileRelayArtifacts';
-
-const {isExecutableDefinitionAST} = SchemaUtils;
+import type {DocumentNode, ValidationContext} from 'graphql';
 
 export type GenerateExtraFiles = (
   getOutputDirectory: (path?: string) => CodegenDirectory,
@@ -71,10 +69,6 @@ export type WriterConfig = {
   // Haste style module that exports flow types for GraphQL enums.
   // TODO(T22422153) support non-haste environments
   enumsHasteModule?: string,
-  validationRules?: {
-    GLOBAL_RULES?: $ReadOnlyArray<ValidationRule>,
-    LOCAL_RULES?: $ReadOnlyArray<ValidationRule>,
-  },
   printModuleDependency?: string => string,
   filesystem?: Filesystem,
   repersist?: boolean,
@@ -83,63 +77,27 @@ export type WriterConfig = {
 function compileAll({
   baseDir,
   baseDocuments,
-  baseSchema,
+  schema,
   compilerTransforms,
   documents,
-  extraValidationRules,
   reporter,
-  schemaExtensions,
   typeGenerator,
 }: {|
   baseDir: string,
   baseDocuments: $ReadOnlyArray<DocumentNode>,
-  baseSchema: GraphQLSchema,
+  schema: Schema,
   compilerTransforms: RelayCompilerTransforms,
   documents: $ReadOnlyArray<DocumentNode>,
-  extraValidationRules?: {
-    GLOBAL_RULES?: $ReadOnlyArray<ValidationRule>,
-    LOCAL_RULES?: $ReadOnlyArray<ValidationRule>,
-  },
   reporter: Reporter,
-  schemaExtensions: $ReadOnlyArray<string>,
   typeGenerator: TypeGenerator,
 |}) {
-  // Can't convert to IR unless the schema already has Relay-local extensions
-  const transformedSchema = ASTConvert.transformASTSchema(
-    baseSchema,
-    schemaExtensions,
-  );
-  const extendedSchema = ASTConvert.extendASTSchema(transformedSchema, [
-    ...baseDocuments,
-    ...documents,
-  ]);
-
-  // Verify using local and global rules, can run global verifications here
-  // because all files are processed together
-  let validationRules = [
-    ...RelayValidator.LOCAL_RULES,
-    ...RelayValidator.GLOBAL_RULES,
-  ];
-  if (extraValidationRules) {
-    validationRules = [
-      ...validationRules,
-      ...(extraValidationRules.LOCAL_RULES || []),
-      ...(extraValidationRules.GLOBAL_RULES || []),
-    ];
-  }
-
   const definitions = ASTConvert.convertASTDocumentsWithBase(
-    extendedSchema,
+    schema,
     baseDocuments,
     documents,
-    validationRules,
     RelayParser.transform,
   );
-
-  const compilerContext = new CompilerContext(
-    baseSchema,
-    extendedSchema,
-  ).addAll(definitions);
+  const compilerContext = new CompilerContext(schema).addAll(definitions);
 
   const transformedTypeContext = compilerContext.applyTransforms(
     typeGenerator.transforms,
@@ -171,7 +129,7 @@ function writeAll({
   onlyValidate,
   baseDocuments,
   documents,
-  schema: baseSchema,
+  schema,
   reporter,
   sourceControl,
 }: {|
@@ -179,7 +137,7 @@ function writeAll({
   onlyValidate: boolean,
   baseDocuments: ImmutableMap<string, DocumentNode>,
   documents: ImmutableMap<string, DocumentNode>,
-  schema: GraphQLSchema,
+  schema: Schema,
   reporter: Reporter,
   sourceControl: ?SourceControl,
 |}): Promise<Map<string, CodegenDirectory>> {
@@ -190,14 +148,12 @@ function writeAll({
       transformedTypeContext,
       transformedQueryContext,
     } = compileAll({
+      schema,
       baseDir: writerConfig.baseDir,
       baseDocuments: baseDocuments.valueSeq().toArray(),
-      baseSchema,
       compilerTransforms: writerConfig.compilerTransforms,
       documents: documents.valueSeq().toArray(),
-      extraValidationRules: writerConfig.validationRules,
       reporter,
-      schemaExtensions: writerConfig.schemaExtensions,
       typeGenerator: writerConfig.typeGenerator,
     });
     // Build a context from all the documents
@@ -315,20 +271,21 @@ function writeAll({
 
           const typeNode = transformedTypeContext.get(nodeName);
           const typeText = typeNode
-            ? /* $FlowFixMe(>=0.98.0 site=react_native_fb,oss) This comment
-               * suppresses an error found when Flow v0.98 was deployed. To see
-               * the error delete this comment and run Flow. */
-              writerConfig.typeGenerator.generate(typeNode, {
-                customScalars: writerConfig.customScalars,
-                enumsHasteModule: writerConfig.enumsHasteModule,
-                existingFragmentNames,
-                optionalInputFields: writerConfig.optionalInputFieldsForFlow,
-                useHaste: writerConfig.useHaste,
-                useSingleArtifactDirectory: !!writerConfig.outputDir,
-                noFutureProofEnums: writerConfig.noFutureProofEnums,
-                normalizationIR:
-                  definition.kind === 'Request' ? definition.root : undefined,
-              })
+            ? writerConfig.typeGenerator.generate(
+                schema,
+                (typeNode: $FlowFixMe),
+                {
+                  customScalars: writerConfig.customScalars,
+                  enumsHasteModule: writerConfig.enumsHasteModule,
+                  existingFragmentNames,
+                  optionalInputFields: writerConfig.optionalInputFieldsForFlow,
+                  useHaste: writerConfig.useHaste,
+                  useSingleArtifactDirectory: !!writerConfig.outputDir,
+                  noFutureProofEnums: writerConfig.noFutureProofEnums,
+                  normalizationIR:
+                    definition.kind === 'Request' ? definition.root : undefined,
+                },
+              )
             : '';
 
           const sourceHash = Profiler.run('hashGraphQL', () =>
@@ -336,6 +293,7 @@ function writeAll({
           );
 
           await writeRelayGeneratedFile(
+            schema,
             getGeneratedDirectory(nodeName),
             definition,
             node,

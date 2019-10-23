@@ -7,6 +7,8 @@
  * @format
  */
 
+'use strict';
+
 const users = [
   {
     caption: 'Facebook',
@@ -122,6 +124,30 @@ const users = [
     infoLink: 'https://clubhouse.io/',
     pinned: false,
   },
+  {
+    caption: 'Habilelabs',
+    image: '/img/logos/habilelabs.png',
+    infoLink: 'http://www.habilelabs.io/',
+    pinned: false,
+  },
+  {
+    caption: 'Quanto',
+    image: '/relay/img/logos/quanto.png',
+    infoLink: 'https://www.contaquanto.com.br/',
+    pinned: false,
+  },
+  {
+    caption: 'Butterfly Network',
+    image: '/img/logos/butterfly.png',
+    infoLink: 'https://www.butterflynetwork.com/',
+    pinned: false,
+  },
+  {
+    caption: 'Mindworking',
+    image: '/img/logos/mindworking.png',
+    infoLink: 'https://mindworking.eu/',
+    pinned: false,
+  },
 ];
 
 const siteConfig = {
@@ -154,6 +180,9 @@ const siteConfig = {
   algolia: {
     apiKey: '3d7d5825d50ea36bca0e6ad06c926f06',
     indexName: 'relay',
+    algoliaOptions: {
+      facetFilters: ['version:VERSION'],
+    },
   },
   cleanUrl: true,
   scrollToTop: true,

@@ -10,10 +10,9 @@
 
 'use strict';
 
-import type {LoggerTransactionConfig} from '../network/RelayNetworkLoggerTransaction';
 import type {
   GraphQLResponse,
-  Network,
+  INetwork,
   PayloadData,
   PayloadError,
   UploadableMap,
@@ -48,6 +47,7 @@ import type RelayOperationTracker from './RelayOperationTracker';
 import type {RecordState} from './RelayRecordState';
 
 export opaque type FragmentReference = empty;
+export opaque type Local3DPayload<DocumentName: string, Response> = empty;
 export type OperationTracker = RelayOperationTracker;
 
 /*
@@ -133,10 +133,9 @@ export type Props = {[key: string]: mixed};
  * The type of the `relay` property set on React context by the React/Relay
  * integration layer (e.g. QueryRenderer, FragmentContainer, etc).
  */
-export type RelayContext = {
-  environment: Environment,
-  variables: Variables,
-};
+export type RelayContext = {|
+  environment: IEnvironment,
+|};
 
 /**
  * The results of reading the results of a FragmentMap given some input
@@ -276,7 +275,7 @@ export interface Store {
   subscribeConnection_UNSTABLE<TEdge, TState>(
     snapshot: ConnectionSnapshot<TEdge, TState>,
     resolver: ConnectionResolver<TEdge, TState>,
-    callback: (state: TState) => void,
+    callback: (snapshot: ConnectionSnapshot<TEdge, TState>) => void,
   ): Disposable;
 
   /**
@@ -386,16 +385,17 @@ export interface RecordSourceSelectorProxy extends RecordSourceProxy {
   ): void;
 }
 
-export interface Logger {
-  log(message: string, ...values: Array<mixed>): void;
-  flushLogs(): void;
-}
-
-export interface LoggerProvider {
-  getLogger(config: LoggerTransactionConfig): Logger;
-}
-
 export type LogEvent =
+  | {|
+      +name: 'queryresource.fetch',
+      +operation: OperationDescriptor,
+      // FetchPolicy from relay-experimental
+      +fetchPolicy: string,
+      // RenderPolicy from relay-experimental
+      +renderPolicy: string,
+      +hasFullQuery: boolean,
+      +shouldFetch: boolean,
+    |}
   | {|
       +name: 'execute.info',
       +transactionID: number,
@@ -432,7 +432,12 @@ export type LogRequestInfoFunction = mixed => void;
  * The public API of Relay core. Represents an encapsulated environment with its
  * own in-memory cache.
  */
-export interface Environment {
+export interface IEnvironment {
+  /**
+   * **UNSTABLE** Event based logging API thats scoped to the environment.
+   */
+  __log: LogFunction;
+
   /**
    * Determine if the selector can be resolved with data in the store (i.e. no
    * fields are missing).
@@ -490,17 +495,12 @@ export interface Environment {
   /**
    * Get the environment's internal Network.
    */
-  getNetwork(): Network;
+  getNetwork(): INetwork;
 
   /**
    * Get the environment's internal Store.
    */
   getStore(): Store;
-
-  /**
-   * Get an instance of a logger
-   */
-  getLogger(config: LoggerTransactionConfig): ?Logger;
 
   /**
    * Returns the environment specific OperationTracker.
@@ -668,7 +668,31 @@ export type StreamPlaceholder = {|
   +node: NormalizationSelectableNode,
   +variables: Variables,
 |};
-export type IncrementalDataPlaceholder = DeferPlaceholder | StreamPlaceholder;
+export type ConnectionEdgePlaceholder = {|
+  +kind: 'connection_edge',
+  +args: Variables,
+  +label: string,
+  +path: $ReadOnlyArray<string>,
+  +parentID: DataID,
+  +node: NormalizationLinkedField,
+  +variables: Variables,
+  +connectionID: ConnectionID,
+|};
+export type ConnectionPageInfoPlaceholder = {|
+  +kind: 'connection_page_info',
+  +args: Variables,
+  +data: PayloadData,
+  +label: string,
+  +path: $ReadOnlyArray<string>,
+  +selector: NormalizationSelector,
+  +typeName: string,
+  +connectionID: ConnectionID,
+|};
+export type IncrementalDataPlaceholder =
+  | DeferPlaceholder
+  | StreamPlaceholder
+  | ConnectionEdgePlaceholder
+  | ConnectionPageInfoPlaceholder;
 
 /**
  * A user-supplied object to load a generated operation (SplitOperation) AST

@@ -29,6 +29,7 @@ const {
   ConnectionInterface,
   __internal: {fetchQuery, hasRequestInFlight},
   createOperationDescriptor,
+  getSelector,
 } = require('relay-runtime');
 
 import type {
@@ -53,8 +54,8 @@ export type LoadMoreFn = (
 export type UseLoadMoreFunctionArgs = {|
   direction: Direction,
   fragmentNode: ReaderFragment,
+  fragmentRef: mixed,
   fragmentIdentifier: string,
-  fragmentOwner: ?RequestDescriptor | $ReadOnlyArray<?RequestDescriptor>,
   fragmentData: mixed,
   connectionPathInFragmentData: $ReadOnlyArray<string | number>,
   fragmentRefPathInResponse: $ReadOnlyArray<string | number>,
@@ -71,8 +72,8 @@ function useLoadMoreFunction(
   const {
     direction,
     fragmentNode,
+    fragmentRef,
     fragmentIdentifier,
-    fragmentOwner,
     fragmentData,
     connectionPathInFragmentData,
     fragmentRefPathInResponse,
@@ -143,12 +144,17 @@ function useLoadMoreFunction(
         return {dispose: () => {}};
       }
 
+      const fragmentSelector = getSelector(fragmentNode, fragmentRef);
       const isParentQueryInFlight =
-        fragmentOwner != null &&
-        !Array.isArray(fragmentOwner) &&
-        hasRequestInFlight(environment, fragmentOwner);
-      if (isFetchingRef.current === true || !hasMore || isParentQueryInFlight) {
-        if (fragmentOwner == null) {
+        fragmentSelector != null &&
+        fragmentSelector.kind !== 'PluralReaderSelector' &&
+        hasRequestInFlight(environment, fragmentSelector.owner);
+      if (
+        isFetchingRef.current === true ||
+        fragmentData == null ||
+        isParentQueryInFlight
+      ) {
+        if (fragmentSelector == null) {
           warning(
             false,
             'Relay: Unexpected fetch while using a null fragment ref ' +
@@ -170,7 +176,8 @@ function useLoadMoreFunction(
       }
 
       invariant(
-        fragmentOwner != null && !Array.isArray(fragmentOwner),
+        fragmentSelector != null &&
+          fragmentSelector.kind !== 'PluralReaderSelector',
         'Relay: Expected to be able to find a non-plural fragment owner for ' +
           "fragment `%s` when using `%s`. If you're seeing this, " +
           'this is likely a bug in Relay.',
@@ -178,12 +185,17 @@ function useLoadMoreFunction(
         componentDisplayName,
       );
 
-      const parentVariables = fragmentOwner.variables;
+      const parentVariables = fragmentSelector.owner.variables;
+      const fragmentVariables = fragmentSelector.variables;
+      const baseVariables = {
+        ...parentVariables,
+        ...fragmentVariables,
+      };
       const paginationVariables = getPaginationVariables(
         direction,
         count,
         cursor,
-        parentVariables,
+        baseVariables,
         paginationMetadata,
       );
 
@@ -237,13 +249,13 @@ function useLoadMoreFunction(
       dataID,
       direction,
       cursor,
-      hasMore,
       startFetch,
       disposeFetch,
       completeFetch,
       isFetchingRef,
+      fragmentData,
       fragmentNode.name,
-      fragmentOwner,
+      fragmentRef,
       componentDisplayName,
     ],
   );

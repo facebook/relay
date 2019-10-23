@@ -4,22 +4,22 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @flow
+ * @flow strict
  * @format
  */
 
 'use strict';
 
 const Profiler = require('./GraphQLCompilerProfiler');
-const RelayValidator = require('./RelayValidator');
 
 const {
   isExecutableDefinitionAST,
   isSchemaDefinitionAST,
-} = require('./GraphQLSchemaUtils');
+} = require('./SchemaUtils');
 const {extendSchema, parse, print, visit} = require('graphql');
 
 import type {Fragment, Root} from './GraphQLIR';
+import type {Schema} from './Schema';
 import type {
   DefinitionNode,
   DocumentNode,
@@ -33,14 +33,13 @@ import type {
 
 type ASTDefinitionNode = FragmentDefinitionNode | OperationDefinitionNode;
 type TransformFn = (
-  schema: GraphQLSchema,
+  schema: Schema,
   definitions: $ReadOnlyArray<ASTDefinitionNode>,
 ) => $ReadOnlyArray<Root | Fragment>;
 
 function convertASTDocuments(
-  schema: GraphQLSchema,
+  schema: Schema,
   documents: $ReadOnlyArray<DocumentNode>,
-  validationRules: $ReadOnlyArray<Function>,
   transform: TransformFn,
 ): $ReadOnlyArray<Fragment | Root> {
   return Profiler.run('ASTConvert.convertASTDocuments', () => {
@@ -55,20 +54,14 @@ function convertASTDocuments(
       });
     });
 
-    return convertASTDefinitions(
-      schema,
-      definitions,
-      validationRules,
-      transform,
-    );
+    return convertASTDefinitions(schema, definitions, transform);
   });
 }
 
 function convertASTDocumentsWithBase(
-  schema: GraphQLSchema,
+  schema: Schema,
   baseDocuments: $ReadOnlyArray<DocumentNode>,
   documents: $ReadOnlyArray<DocumentNode>,
-  validationRules: $ReadOnlyArray<Function>,
   transform: TransformFn,
 ): $ReadOnlyArray<Fragment | Root> {
   return Profiler.run('ASTConvert.convertASTDocumentsWithBase', () => {
@@ -81,7 +74,7 @@ function convertASTDocumentsWithBase(
       if (isExecutableDefinitionAST(definition)) {
         const definitionName = definition.name && definition.name.value;
         // If there's no name, no reason to put in the map
-        if (definitionName) {
+        if (definitionName != null) {
           if (baseMap.has(definitionName)) {
             throw new Error(`Duplicate definition of '${definitionName}'.`);
           }
@@ -99,7 +92,7 @@ function convertASTDocumentsWithBase(
     while (definitionsToVisit.length > 0) {
       const definition = definitionsToVisit.pop();
       const name = definition.name && definition.name.value;
-      if (!name) {
+      if (name == null) {
         continue;
       }
       if (requiredDefinitions.has(name)) {
@@ -125,19 +118,13 @@ function convertASTDocumentsWithBase(
     requiredDefinitions.forEach(definition =>
       definitionsToConvert.push(definition),
     );
-    return convertASTDefinitions(
-      schema,
-      definitionsToConvert,
-      validationRules,
-      transform,
-    );
+    return convertASTDefinitions(schema, definitionsToConvert, transform);
   });
 }
 
 function convertASTDefinitions(
-  schema: GraphQLSchema,
+  schema: Schema,
   definitions: $ReadOnlyArray<DefinitionNode>,
-  validationRules: $ReadOnlyArray<Function>,
   transform: TransformFn,
 ): $ReadOnlyArray<Fragment | Root> {
   const operationDefinitions: Array<ASTDefinitionNode> = [];
@@ -146,13 +133,6 @@ function convertASTDefinitions(
       operationDefinitions.push(definition);
     }
   });
-
-  const validationAST = {
-    kind: 'Document',
-    definitions: operationDefinitions,
-  };
-  // Will throw an error if there are validation issues
-  RelayValidator.validate(validationAST, schema, validationRules);
   return transform(schema, operationDefinitions);
 }
 

@@ -89,12 +89,12 @@ export type ReturnType<
 export type Options = {|
   fetchPolicy?: FetchPolicy,
   onComplete?: (Error | null) => void,
+  renderPolicy_UNSTABLE?: RenderPolicy,
 |};
 
 type InternalOptions = {|
   ...Options,
   __environment?: IEnvironment,
-  renderPolicy?: RenderPolicy,
 |};
 
 type RefetchFnBase<TVars, TOptions> = (
@@ -229,7 +229,6 @@ function useRefetchableFragmentNode<
   let refetchedQueryResult;
   let fragmentRef = parentFragmentRef;
   if (shouldReset) {
-    disposeFetch();
     dispatch({
       type: 'reset',
       environment,
@@ -320,9 +319,9 @@ function useRefetchableFragmentNode<
         queryDisposable.dispose();
       }
     };
-    // NOTE: We disable react-hooks-deps warning because:
-    //   - queryResult is captured by including refetchQuery, which is
-    //     already capturing if the query or variables changed.
+    // NOTE: We disable react-hooks-deps warning because
+    // refetchedQueryResult is captured by including refetchQuery, which is
+    // already capturing if the query or variables changed.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [QueryResource, fragmentIdentifier, refetchQuery]);
 
@@ -411,7 +410,7 @@ function useRefetchFunction<TQuery: OperationType>(
 
       const environment = options?.__environment;
       const fetchPolicy = options?.fetchPolicy;
-      const renderPolicy = options?.renderPolicy;
+      const renderPolicy = options?.renderPolicy_UNSTABLE;
       const onComplete = options?.onComplete;
       const fragmentSelector = getSelector(fragmentNode, parentFragmentRef);
       let parentVariables;

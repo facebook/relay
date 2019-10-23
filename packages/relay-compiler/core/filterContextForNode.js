@@ -25,10 +25,9 @@ function filterContextForNode(
   context: GraphQLCompilerContext,
 ): GraphQLCompilerContext {
   const queue = [node];
-  let filteredContext = new GraphQLCompilerContext(
-    context.serverSchema,
-    context.clientSchema,
-  ).add(node);
+  let filteredContext = new GraphQLCompilerContext(context.getSchema()).add(
+    node,
+  );
   const visitFragmentSpread = (fragmentSpread: FragmentSpread) => {
     const {name} = fragmentSpread;
     if (!filteredContext.get(name)) {

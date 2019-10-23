@@ -6,7 +6,7 @@ query NodeQuery(
   $cond: Boolean! = false
   $id: ID!
   $size: [Int] = [32]
-  $query: String!
+  $query: CheckinSearchInput!
 ) {
   node(id: $id) {
     id
@@ -15,9 +15,7 @@ query NodeQuery(
     }
     ...UserFragment @include(if: $cond) @arguments(size: $size)
   }
-  checkinSearchQuery(
-    query: {query: $query, inputs: [{query: $query}, {query: "test"}]}
-  ) {
+  checkinSearchQuery(query: $query) {
     query
   }
 }
@@ -73,7 +71,7 @@ query NodeQuery(
   $cond: Boolean! = false
   $id: ID!
   $size: [Int] = [32]
-  $query: String!
+  $query: CheckinSearchInput!
 ) {
   node(id: $id) {
     id
@@ -82,7 +80,7 @@ query NodeQuery(
     }
     ...UserFragment @include(if: $cond) @arguments(size: $size)
   }
-  checkinSearchQuery(query: {query: $query, inputs: [{query: $query}, {query: "test"}]}) {
+  checkinSearchQuery(query: $query) {
     query
   }
 }
@@ -131,17 +129,19 @@ fragment UserFragment on User @argumentDefinitions(
 exports[`GraphQLIRPrinter matches expected output: lowercase-enum-fragment-arg.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 fragment UserFragment on User
-  @argumentDefinitions(environments: {type: "Environment", defaultValue: web}) {
-  checkins(environments: [$environments]) {
+  @argumentDefinitions(
+    environments: {type: "[Environment!]!", defaultValue: [web]}
+  ) {
+  checkins(environments: $environments) {
     __typename
   }
 }
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 fragment UserFragment on User @argumentDefinitions(
-  environments: {type: "Environment", defaultValue: web}
+  environments: {type: "[Environment!]!", defaultValue: [web]}
 ) {
-  checkins(environments: [$environments]) {
+  checkins(environments: $environments) {
     __typename
   }
 }
@@ -183,19 +183,41 @@ fragment UserFragment on User {
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-Error: RelayParser: Encountered 1 error(s):
-- Expected a value matching type 'Environment!'.
-  
-  GraphQL request (3:26)
-  2: fragment UserFragment on User {
-  3:   checkins(environments: "WEB") {
-                              ^
-  4:     __typename
-  
+Expected a value matching type 'Environment!'. Possible values: WEB or MOBILE?'
+
+GraphQL request (3:26)
+2: fragment UserFragment on User {
+3:   checkins(environments: "WEB") {
+                            ^
+4:     __typename
+
 `;
 
 exports[`GraphQLIRPrinter matches expected output: string-enum-fragment-arg.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment UserFragment on User
+  @argumentDefinitions(
+    environments: {type: "[Environment!]!", defaultValue: [WEB]}
+  ) {
+  checkins(environments: $environments) {
+    __typename
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+fragment UserFragment on User @argumentDefinitions(
+  environments: {type: "[Environment!]!", defaultValue: [WEB]}
+) {
+  checkins(environments: $environments) {
+    __typename
+  }
+}
+
+`;
+
+exports[`GraphQLIRPrinter matches expected output: string-enum-fragment-arg.invalid.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+# expected-to-throw
 fragment UserFragment on User
   @argumentDefinitions(
     environments: {type: "Environment", defaultValue: "WEB"}
@@ -206,13 +228,15 @@ fragment UserFragment on User
 }
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
-fragment UserFragment on User @argumentDefinitions(
-  environments: {type: "Environment", defaultValue: WEB}
-) {
-  checkins(environments: [$environments]) {
-    __typename
-  }
-}
+THROWN EXCEPTION:
+
+Complex argument values (Lists or InputObjects with nested variables) are not supported.
+
+GraphQL request (6:27)
+5:   ) {
+6:   checkins(environments: [$environments]) {
+                             ^
+7:     __typename
 
 `;
 
@@ -228,13 +252,12 @@ fragment UserFragment on User {
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-Error: RelayParser: Encountered 1 error(s):
-- Expected a value matching type 'Environment!'.
-  
-  GraphQL request (3:26)
-  2: fragment UserFragment on User {
-  3:   checkins(environments: UNKNOWN_ENUM_VALUE) {
-                              ^
-  4:     __typename
-  
+Expected a value matching type 'Environment!'. Possible values: WEB or MOBILE?'
+
+GraphQL request (3:26)
+2: fragment UserFragment on User {
+3:   checkins(environments: UNKNOWN_ENUM_VALUE) {
+                            ^
+4:     __typename
+
 `;

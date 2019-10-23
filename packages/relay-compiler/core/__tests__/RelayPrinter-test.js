@@ -4,6 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
+ * @flow strict-local
  * @format
  * @emails oncall+relay
  */
@@ -13,6 +14,7 @@
 const GraphQLCompilerContext = require('../GraphQLCompilerContext');
 const GraphQLIRPrinter = require('../GraphQLIRPrinter');
 const RelayParser = require('../RelayParser');
+const Schema = require('../Schema');
 
 const {
   TestSchema,
@@ -21,11 +23,12 @@ const {
 
 describe('GraphQLIRPrinter', () => {
   generateTestsFromFixtures(`${__dirname}/fixtures/printer`, text => {
-    const ast = RelayParser.parse(TestSchema, text);
-    const context = new GraphQLCompilerContext(TestSchema).addAll(ast);
+    const compilerSchema = Schema.DEPRECATED__create(TestSchema);
+    const ast = RelayParser.parse(compilerSchema, text);
+    const context = new GraphQLCompilerContext(compilerSchema).addAll(ast);
     const documents = [];
     context.forEachDocument(doc => {
-      documents.push(GraphQLIRPrinter.print(doc));
+      documents.push(GraphQLIRPrinter.print(compilerSchema, doc));
     });
     return documents.join('\n');
   });

@@ -25,7 +25,9 @@ const {generateAndCompile} = require('relay-test-utils-internal');
 
 describe('executeMutation()', () => {
   let callbacks;
+  let commentID;
   let CommentFragment;
+  let CommentQuery;
   let complete;
   let CreateCommentMutation;
   let CreateCommentWithSpreadMutation;
@@ -33,18 +35,22 @@ describe('executeMutation()', () => {
   let error;
   let fetch;
   let operation;
+  let queryOperation;
   let source;
   let store;
   let subject;
   let variables;
+  let queryVariables;
 
   beforeEach(() => {
     jest.resetModules();
+    commentID = 'comment-id';
 
     ({
       CreateCommentMutation,
       CreateCommentWithSpreadMutation,
       CommentFragment,
+      CommentQuery,
     } = generateAndCompile(`
         mutation CreateCommentMutation($input: CommentCreateInput!) {
           commentCreate(input: $input) {
@@ -71,6 +77,13 @@ describe('executeMutation()', () => {
             }
           }
         }
+
+        query CommentQuery($id: ID!) {
+          node(id: $id) {
+            id
+            ...CommentFragment
+          }
+        }
       `));
     variables = {
       input: {
@@ -78,7 +91,11 @@ describe('executeMutation()', () => {
         feedbackId: '1',
       },
     };
+    queryVariables = {
+      id: commentID,
+    };
     operation = createOperationDescriptor(CreateCommentMutation, variables);
+    queryOperation = createOperationDescriptor(CommentQuery, queryVariables);
 
     fetch = jest.fn((_query, _variables, _cacheConfig) =>
       RelayObservable.create(sink => {
@@ -105,12 +122,11 @@ describe('executeMutation()', () => {
   });
 
   it('executes the optimistic updater immediately', () => {
-    const commentID = 'comment';
     const selector = createReaderSelector(
       CommentFragment,
       commentID,
       {},
-      operation.request,
+      queryOperation.request,
     );
     const snapshot = environment.lookup(selector);
     const callback = jest.fn();
@@ -139,13 +155,48 @@ describe('executeMutation()', () => {
     });
   });
 
-  it('reverts the optimistic update if disposed', () => {
-    const commentID = 'comment';
+  it('executes the optimistic updater immediately, does not mark mutation as being in flight in operation tracker', () => {
     const selector = createReaderSelector(
       CommentFragment,
       commentID,
       {},
-      operation.request,
+      queryOperation.request,
+    );
+    const snapshot = environment.lookup(selector);
+    const callback = jest.fn();
+    environment.subscribe(snapshot, callback);
+
+    environment
+      .executeMutation({
+        operation,
+        optimisticUpdater: _store => {
+          const comment = _store.create(commentID, 'Comment');
+          comment.setValue(commentID, 'id');
+          const body = _store.create(commentID + '.text', 'Text');
+          comment.setLinkedRecord(body, 'body');
+          body.setValue('Give Relay', 'text');
+        },
+      })
+      .subscribe(callbacks);
+    expect(complete).not.toBeCalled();
+    expect(error).not.toBeCalled();
+    expect(callback).toBeCalledTimes(1);
+    // result tested in previous test
+
+    // The mutation affecting the query should not be marked as in flight yet
+    expect(
+      environment
+        .getOperationTracker()
+        .getPromiseForPendingOperationsAffectingOwner(queryOperation.request),
+    ).toBe(null);
+  });
+
+  it('reverts the optimistic update if disposed', () => {
+    const selector = createReaderSelector(
+      CommentFragment,
+      commentID,
+      {},
+      queryOperation.request,
     );
     const snapshot = environment.lookup(selector);
     const callback = jest.fn();
@@ -172,12 +223,11 @@ describe('executeMutation()', () => {
   });
 
   it('reverts the optimistic update and commits the server payload', () => {
-    const commentID = 'comment';
     const selector = createReaderSelector(
       CommentFragment,
       commentID,
       {},
-      operation.request,
+      queryOperation.request,
     );
     const snapshot = environment.lookup(selector);
     const callback = jest.fn();
@@ -223,12 +273,11 @@ describe('executeMutation()', () => {
   });
 
   it('commits the server payload and runs the updater', () => {
-    const commentID = 'comment';
     const selector = createReaderSelector(
       CommentFragment,
       commentID,
       {},
-      operation.request,
+      queryOperation.request,
     );
     const snapshot = environment.lookup(selector);
     const callback = jest.fn();
@@ -282,12 +331,11 @@ describe('executeMutation()', () => {
   });
 
   it('reverts the optimistic update if the fetch is rejected', () => {
-    const commentID = 'comment';
     const selector = createReaderSelector(
       CommentFragment,
       commentID,
       {},
-      operation.request,
+      queryOperation.request,
     );
     const snapshot = environment.lookup(selector);
     const callback = jest.fn();
@@ -321,12 +369,11 @@ describe('executeMutation()', () => {
       variables,
     );
 
-    const commentID = 'comment';
     const selector = createReaderSelector(
       CommentFragment,
       commentID,
       {},
-      operation.request,
+      queryOperation.request,
     );
     const snapshot = environment.lookup(selector);
     const callback = jest.fn();
@@ -360,12 +407,11 @@ describe('executeMutation()', () => {
   });
 
   it('does not commit the server payload if disposed', () => {
-    const commentID = 'comment';
     const selector = createReaderSelector(
       CommentFragment,
       commentID,
       {},
-      operation.request,
+      queryOperation.request,
     );
     const snapshot = environment.lookup(selector);
     const callback = jest.fn();
@@ -403,5 +449,13 @@ describe('executeMutation()', () => {
     expect(error).not.toBeCalled();
     // The optimistic update has already been reverted
     expect(callback.mock.calls.length).toBe(0);
+
+    // The mutation affecting the query should not be marked as in flight
+    // since it was disposed
+    expect(
+      environment
+        .getOperationTracker()
+        .getPromiseForPendingOperationsAffectingOwner(queryOperation.request),
+    ).toBe(null);
   });
 });

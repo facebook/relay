@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @flow
+ * @flow strict-local
  * @format
  */
 
@@ -26,7 +26,6 @@ import type {ReaderFragment} from '../util/ReaderNode';
 import type {DataID, Variables} from '../util/RelayRuntimeTypes';
 import type {
   NormalizationSelector,
-  OperationDescriptor,
   PluralReaderSelector,
   ReaderSelector,
   RequestDescriptor,
@@ -126,7 +125,7 @@ function getSingularSelector(
  */
 function getPluralSelector(
   fragment: ReaderFragment,
-  items: Array<mixed>,
+  items: $ReadOnlyArray<mixed>,
 ): ?PluralReaderSelector {
   let selectors = null;
   items.forEach((item, ii) => {
@@ -161,13 +160,7 @@ function getSelector(
       JSON.stringify(item),
       fragment.name,
     );
-    return getPluralSelector(
-      fragment,
-      /* $FlowFixMe(>=0.98.0 site=www,mobile,react_native_fb,oss) This comment
-       * suppresses an error found when Flow v0.98 was deployed. To see the
-       * error delete this comment and run Flow. */
-      item,
-    );
+    return getPluralSelector(fragment, item);
   } else {
     invariant(
       !Array.isArray(item),
@@ -233,7 +226,7 @@ function getDataIDsFromObject(
 function getDataIDsFromFragment(
   fragment: ReaderFragment,
   item: mixed | Array<mixed>,
-): ?DataID | ?Array<DataID> {
+): ?DataID | ?$ReadOnlyArray<DataID> {
   if (item == null) {
     return item;
   } else if (fragment.metadata && fragment.metadata.plural === true) {
@@ -245,9 +238,6 @@ function getDataIDsFromFragment(
       JSON.stringify(item),
       fragment.name,
     );
-    /* $FlowFixMe(>=0.98.0 site=www,mobile,react_native_fb,oss) This comment
-     * suppresses an error found when Flow v0.98 was deployed. To see the error
-     * delete this comment and run Flow. */
     return getDataIDs(fragment, item);
   } else {
     invariant(
@@ -267,8 +257,8 @@ function getDataIDsFromFragment(
  */
 function getDataIDs(
   fragment: ReaderFragment,
-  items: Array<mixed>,
-): ?Array<DataID> {
+  items: $ReadOnlyArray<mixed>,
+): ?$ReadOnlyArray<DataID> {
   let ids = null;
   items.forEach(item => {
     const id = item != null ? getDataID(fragment, item) : null;
@@ -335,7 +325,7 @@ function getVariablesFromObject(
 
 function getVariablesFromFragment(
   fragment: ReaderFragment,
-  item: mixed | Array<mixed>,
+  item: mixed | $ReadOnlyArray<mixed>,
 ): Variables {
   if (item == null) {
     return {};
@@ -349,13 +339,7 @@ function getVariablesFromFragment(
       fragment.name,
     );
 
-    return getVariablesFromPluralFragment(
-      fragment,
-      /* $FlowFixMe(>=0.98.0 site=www,mobile,react_native_fb,oss) This comment
-       * suppresses an error found when Flow v0.98 was deployed. To see the
-       * error delete this comment and run Flow. */
-      item,
-    );
+    return getVariablesFromPluralFragment(fragment, item);
   } else {
     invariant(
       !Array.isArray(item),
@@ -383,7 +367,7 @@ function getVariablesFromSingularFragment(
 
 function getVariablesFromPluralFragment(
   fragment: ReaderFragment,
-  items: Array<mixed>,
+  items: $ReadOnlyArray<mixed>,
 ): Variables {
   const variables = {};
   items.forEach((value, ii) => {

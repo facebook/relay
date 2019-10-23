@@ -6,10 +6,15 @@ query FooQuery($id: ID!) {
 
 fragment Foo_user on User {
   id
-
-  ... on ClientNamed {
-    client_name
+  foo {
+    ... on ClientNamed {
+      client_name
+    }
   }
+}
+
+extend type User {
+  foo: ClientNamed
 }
 
 interface ClientNamed {

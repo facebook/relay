@@ -95,6 +95,11 @@ export type NormalizationConnection = {|
   +args: ?$ReadOnlyArray<NormalizationArgument>,
   +edges: NormalizationLinkedField,
   +pageInfo: NormalizationLinkedField,
+  +stream: ?{|
+    if: NormalizationArgument,
+    deferLabel: string,
+    streamLabel: string,
+  |},
 |};
 
 export type NormalizationModuleImport = {|

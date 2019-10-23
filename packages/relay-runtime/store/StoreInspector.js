@@ -11,9 +11,9 @@
 
 'use strict';
 
-import type {Environment, RecordSource} from '../store/RelayStoreTypes';
+import type {IEnvironment, RecordSource} from '../store/RelayStoreTypes';
 
-type InspectFn = (environment: Environment, dataID?: ?string) => mixed;
+type InspectFn = (environment: IEnvironment, dataID?: ?string) => mixed;
 
 let inspect: InspectFn = () => {};
 
@@ -154,7 +154,7 @@ if (__DEV__) {
     );
   };
 
-  inspect = (environment: Environment, dataID: ?string) => {
+  inspect = (environment: IEnvironment, dataID: ?string) => {
     installDevtoolFormatters();
     return getWrappedRecord(
       environment.getStore().getSource(),

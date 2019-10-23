@@ -10,6 +10,8 @@
 
 'use strict';
 
+const {visit} = require('graphql');
+
 import type {
   Argument,
   ClientExtension,
@@ -34,8 +36,6 @@ import type {
   Stream,
   Variable,
 } from './GraphQLIR';
-
-const visit = require('graphql').visit;
 
 const NodeKeys = {
   Argument: ['value'],

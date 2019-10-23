@@ -4,6 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
+ * @flow strict-local
  * @format
  * @emails oncall+relay
  */
@@ -12,6 +13,7 @@
 
 const GraphQLIRPrinter = require('../GraphQLIRPrinter');
 const RelayParser = require('../RelayParser');
+const Schema = require('../Schema');
 
 const {visit} = require('../GraphQLIRVisitor');
 const {
@@ -31,7 +33,7 @@ import type {
   Literal,
   Root,
   Variable,
-} from 'GraphQLIR';
+} from '../GraphQLIR';
 
 type VisitNodeWithName =
   | Root
@@ -42,20 +44,22 @@ type VisitNodeWithName =
   | Directive
   | ArgumentDefinition;
 
+const schema = Schema.DEPRECATED__create(TestSchema);
+
 describe('GraphQLIRVisitor', () => {
   generateTestsFromFixtures(
     `${__dirname}/fixtures/visitor/no-op-visit`,
     text => {
-      const ast = RelayParser.parse(TestSchema, text);
+      const ast = RelayParser.parse(schema, text);
       const sameAst = ast.map(fragment => visit(fragment, {}));
-      return sameAst.map(doc => GraphQLIRPrinter.print(doc)).join('\n');
+      return sameAst.map(doc => GraphQLIRPrinter.print(schema, doc)).join('\n');
     },
   );
 
   generateTestsFromFixtures(
     `${__dirname}/fixtures/visitor/mutate-visit`,
     text => {
-      const ast = RelayParser.parse(TestSchema, text);
+      const ast = RelayParser.parse(schema, text);
       const mutateNameVisitor = {
         leave: (node: VisitNodeWithName) => {
           return {
@@ -64,8 +68,8 @@ describe('GraphQLIRVisitor', () => {
           };
         },
       };
-
       const mutatedAst = ast.map(fragment =>
+        // $FlowFixMe: Cannot call `visit` with object literal bound to `visitor`
         visit(fragment, {
           Argument: mutateNameVisitor,
           Directive: mutateNameVisitor,
@@ -128,7 +132,9 @@ describe('GraphQLIRVisitor', () => {
         }),
       );
 
-      return mutatedAst.map(doc => GraphQLIRPrinter.print(doc)).join('\n');
+      return mutatedAst
+        .map(doc => GraphQLIRPrinter.print(schema, doc))
+        .join('\n');
     },
   );
 });

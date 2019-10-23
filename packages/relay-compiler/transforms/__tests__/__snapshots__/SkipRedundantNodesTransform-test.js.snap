@@ -243,11 +243,19 @@ query MatchQuery {
     # We need this test, just for make sure we're not
     # regressing this case using \`cache\`
     ... on User {
-      ...MarkdownUserNameRenderer_name
-        @module(name: "MarkdownUserNameRenderer.react")
+      nameRenderable {
+        ...MarkdownUserNameRenderer_name
+          @module(name: "MarkdownUserNameRenderer.react")
+      }
     }
-    ...MarkdownUserNameRenderer_name
-      @module(name: "MarkdownUserNameRenderer.react")
+    ... on Actor {
+      ... on User {
+        nameRenderable {
+          ...MarkdownUserNameRenderer_name
+            @module(name: "MarkdownUserNameRenderer.react")
+        }
+      }
+    }
   }
 }
 
@@ -284,24 +292,16 @@ query MatchQuery {
   }
   user: node(id: "<user-id>") {
     ... on User {
-      ... on MarkdownUserNameRenderer {
-        __module_operation_MatchQuery: js(module: "MarkdownUserNameRenderer_name$normalization.graphql", id: "MatchQuery.user")
-        __module_component_MatchQuery: js(module: "MarkdownUserNameRenderer.react", id: "MatchQuery.user")
+      nameRenderable {
         ... on MarkdownUserNameRenderer {
-          markdown
-          data {
-            markup
+          __module_operation_MatchQuery: js(module: "MarkdownUserNameRenderer_name$normalization.graphql", id: "MatchQuery.user.nameRenderable")
+          __module_component_MatchQuery: js(module: "MarkdownUserNameRenderer.react", id: "MatchQuery.user.nameRenderable")
+          ... on MarkdownUserNameRenderer {
+            markdown
+            data {
+              markup
+            }
           }
-        }
-      }
-    }
-    ... on MarkdownUserNameRenderer {
-      __module_operation_MatchQuery: js(module: "MarkdownUserNameRenderer_name$normalization.graphql", id: "MatchQuery.user")
-      __module_component_MatchQuery: js(module: "MarkdownUserNameRenderer.react", id: "MatchQuery.user")
-      ... on MarkdownUserNameRenderer {
-        markdown
-        data {
-          markup
         }
       }
     }

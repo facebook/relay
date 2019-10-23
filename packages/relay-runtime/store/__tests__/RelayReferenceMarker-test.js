@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  *
  * @format
- * @flow
+ * @flow strict-local
  * @emails oncall+relay
  */
 
@@ -415,7 +415,7 @@ describe('RelayReferenceMarker', () => {
     source = RelayRecordSource.create(data);
     const {FooQuery} = generateAndCompile(
       `
-      query FooQuery($id: ID, $size: [Int]) {
+      query FooQuery($id: ID) {
         node(id: $id) {
           id
           __typename

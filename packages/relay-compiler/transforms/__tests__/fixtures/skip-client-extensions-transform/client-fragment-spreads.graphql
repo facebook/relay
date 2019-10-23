@@ -1,7 +1,12 @@
 fragment Foo_user on User {
   id
+  foo {
+    ...ClientTypeFragment # include fragment on client-only type
+  }
+}
 
-  ...ClientTypeFragment # include fragment on client-only type
+extend type User {
+  foo: ClientType
 }
 
 fragment ClientTypeFragment on ClientType {

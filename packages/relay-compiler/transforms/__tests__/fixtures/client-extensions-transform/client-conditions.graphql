@@ -4,9 +4,11 @@ fragment Foo_user on User {
 
   client_nickname @include(if: $shouldInclude)
 
-  ... on ClientNamed @include(if: $shouldInclude) {
-    client_name
-    client_name_2
+  foo {
+    ... on ClientNamed @include(if: $shouldInclude) {
+      client_name
+      client_name_2
+    }
   }
 
   ... on Actor @include(if: $shouldInclude) {
@@ -21,6 +23,7 @@ fragment Foo_user on User {
 extend type User {
   client_nickname: String
   client_actor_field: String
+  foo: ClientNamed
 }
 
 extend type StreetAddress {

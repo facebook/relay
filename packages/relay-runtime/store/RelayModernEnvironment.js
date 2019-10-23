@@ -23,14 +23,12 @@ const RelayRecordSource = require('./RelayRecordSource');
 const defaultGetDataID = require('./defaultGetDataID');
 const generateID = require('../util/generateID');
 const invariant = require('invariant');
-const normalizeRelayPayload = require('./normalizeRelayPayload');
 
 import type {HandlerProvider} from '../handlers/RelayDefaultHandlerProvider';
-import type {LoggerTransactionConfig} from '../network/RelayNetworkLoggerTransaction';
 import type {
   GraphQLResponse,
+  INetwork,
   LogRequestInfoFunction,
-  Network,
   PayloadData,
   UploadableMap,
 } from '../network/RelayNetworkTypes';
@@ -44,10 +42,8 @@ import type {
 import type {TaskScheduler} from './RelayModernQueryExecutor';
 import type {GetDataID} from './RelayResponseNormalizer';
 import type {
-  Environment,
-  Logger,
+  IEnvironment,
   LogFunction,
-  LoggerProvider,
   MissingFieldHandler,
   NormalizationSelector,
   OperationDescriptor,
@@ -68,12 +64,11 @@ export type EnvironmentConfig = {|
   +handlerProvider?: ?HandlerProvider,
   +log?: ?LogFunction,
   +operationLoader?: ?OperationLoader,
-  +network: Network,
+  +network: INetwork,
   +scheduler?: ?TaskScheduler,
   +store: Store,
   +missingFieldHandlers?: ?$ReadOnlyArray<MissingFieldHandler>,
   +operationTracker?: ?OperationTracker,
-  +loggerProvider?: ?LoggerProvider,
   /**
    * This method is likely to change in future versions, use at your own risk.
    * It can potentially break existing calls like store.get(<id>),
@@ -82,11 +77,10 @@ export type EnvironmentConfig = {|
   +UNSTABLE_DO_NOT_USE_getDataID?: ?GetDataID,
 |};
 
-class RelayModernEnvironment implements Environment {
-  _log: LogFunction;
-  _loggerProvider: ?LoggerProvider;
+class RelayModernEnvironment implements IEnvironment {
+  __log: LogFunction;
   _operationLoader: ?OperationLoader;
-  _network: Network;
+  _network: INetwork;
   _publishQueue: PublishQueue;
   _scheduler: ?TaskScheduler;
   _store: Store;
@@ -113,8 +107,7 @@ class RelayModernEnvironment implements Environment {
         );
       }
     }
-    this._log = config.log ?? emptyFunction;
-    this._loggerProvider = config.loggerProvider;
+    this.__log = config.log ?? emptyFunction;
     this._operationLoader = operationLoader;
     this._network = config.network;
     this._getDataID = config.UNSTABLE_DO_NOT_USE_getDataID ?? defaultGetDataID;
@@ -156,19 +149,12 @@ class RelayModernEnvironment implements Environment {
     return this._store;
   }
 
-  getNetwork(): Network {
+  getNetwork(): INetwork {
     return this._network;
   }
 
   getOperationTracker(): RelayOperationTracker {
     return this._operationTracker;
-  }
-
-  getLogger(config: LoggerTransactionConfig): ?Logger {
-    if (!this._loggerProvider) {
-      return null;
-    }
-    return this._loggerProvider.getLogger(config);
   }
 
   applyUpdate(optimisticUpdate: OptimisticUpdateFunction): Disposable {
@@ -228,15 +214,21 @@ class RelayModernEnvironment implements Environment {
   }
 
   commitPayload(operation: OperationDescriptor, payload: PayloadData): void {
-    // Do not handle stripped nulls when committing a payload
-    const relayPayload = normalizeRelayPayload(
-      operation.root,
-      payload,
-      null /* errors */,
-      {getDataID: this._getDataID, request: operation.request},
-    );
-    this._publishQueue.commitPayload(operation, relayPayload);
-    this._publishQueue.run();
+    RelayObservable.create(sink => {
+      const executor = RelayModernQueryExecutor.execute({
+        operation: operation,
+        operationLoader: this._operationLoader,
+        optimisticConfig: null,
+        publishQueue: this._publishQueue,
+        scheduler: null, // make sure the first payload is sync
+        sink,
+        source: RelayObservable.from({data: payload}),
+        updater: null,
+        operationTracker: this._operationTracker,
+        getDataID: this._getDataID,
+      });
+      return () => executor.cancel();
+    }).subscribe({});
   }
 
   commitUpdate(updater: StoreUpdater): void {
@@ -425,7 +417,7 @@ class RelayModernEnvironment implements Environment {
     variables: Variables,
   ): [Observer<GraphQLResponse>, LogRequestInfoFunction] {
     const transactionID = generateID();
-    const log = this._log;
+    const log = this.__log;
     const logObserver = {
       start: subscription => {
         log({

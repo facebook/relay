@@ -104,7 +104,7 @@ describe('useFragment', () => {
           ...NestedUserFragment
         }
 
-        query UsersQuery($ids: [ID!]!, $scale: Int!) {
+        query UsersQuery($ids: [ID!]!) {
           nodes(ids: $ids) {
             ...UsersFragment
           }
@@ -191,13 +191,7 @@ describe('useFragment', () => {
       return <PluralRenderer users={usersData} />;
     };
 
-    const relayContext = {
-      environment,
-      // TODO(T39494051) - We set empty variables in relay context to make
-      // Flow happy, but useFragmentNodes does not use them, instead it uses
-      // the variables from the fragment owner.
-      variables: {},
-    };
+    const relayContext = {environment};
     ContextProvider = ({children}) => {
       return (
         <ReactRelayContext.Provider value={relayContext}>

@@ -13,7 +13,7 @@
 const inferRootArgumentDefinitions = require('../core/inferRootArgumentDefinitions');
 
 import type GraphQLCompilerContext from '../core/GraphQLCompilerContext';
-import type {ArgumentDefinition, Root} from '../core/GraphQLIR';
+import type {Root} from '../core/GraphQLIR';
 
 /**
  * Refines the argument definitions for operations to remove unused arguments

@@ -13,10 +13,10 @@
 
 const stableCopy = require('./stableCopy');
 
-const {getFragmentOwner} = require('../store/RelayModernFragmentOwner');
 const {
   getDataIDsFromFragment,
   getVariablesFromFragment,
+  getSelector,
 } = require('../store/RelayModernSelector');
 
 import type {ReaderFragment} from './ReaderNode';
@@ -25,31 +25,26 @@ function getFragmentIdentifier(
   fragmentNode: ReaderFragment,
   fragmentRef: mixed,
 ): string {
-  const fragmentOwner = getFragmentOwner(
-    fragmentNode,
-    // $FlowFixMe - TODO T39154660 Use FragmentPointer type instead of mixed
-    fragmentRef,
-  );
+  const selector = getSelector(fragmentNode, fragmentRef);
+  const fragmentOwnerIdentifier =
+    selector == null
+      ? 'null'
+      : selector.kind === 'SingularReaderSelector'
+      ? selector.owner.identifier
+      : '[' +
+        selector.selectors.map(sel => sel.owner.identifier).join(',') +
+        ']';
   const fragmentVariables = getVariablesFromFragment(fragmentNode, fragmentRef);
   const dataIDs = getDataIDsFromFragment(fragmentNode, fragmentRef);
-
-  const fragmentOwnerID = Array.isArray(fragmentOwner)
-    ? fragmentOwner.map(
-        owner => owner?.node.params.id ?? owner?.node.params.name ?? '',
-      )
-    : fragmentOwner?.node.params.id ?? fragmentOwner?.node.params.name ?? '';
-  const fragmentOwnerVariables = Array.isArray(fragmentOwner)
-    ? fragmentOwner.map(owner => owner?.variables ?? null)
-    : fragmentOwner?.variables ?? null;
-
-  return `${fragmentNode.name}-${JSON.stringify(
-    stableCopy({
-      dataIDs,
-      fragmentVariables,
-      fragmentOwnerID,
-      fragmentOwnerVariables,
-    }),
-  )}`;
+  return (
+    fragmentOwnerIdentifier +
+    '/' +
+    fragmentNode.name +
+    '/' +
+    JSON.stringify(stableCopy(fragmentVariables)) +
+    '/' +
+    (JSON.stringify(dataIDs) ?? 'missing')
+  );
 }
 
 module.exports = getFragmentIdentifier;

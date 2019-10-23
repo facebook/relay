@@ -29,9 +29,11 @@ describe('ReactRelayFragmentContainer with fragment ownerhsip', () => {
   let TestContainer;
   let UserFragment;
   let UserQuery;
+  let UserQueryWithCond;
 
   let environment;
   let ownerUser1;
+  let ownerUser1WithCondVar;
   let ownerUser2;
   let render;
   let spec;
@@ -48,12 +50,9 @@ describe('ReactRelayFragmentContainer with fragment ownerhsip', () => {
     }
     UNSAFE_componentWillReceiveProps(nextProps) {
       // eslint-disable-next-line no-shadow
-      const {environment, variables} = nextProps;
-      if (
-        environment !== this.__relayContext.environment ||
-        variables !== this.__relayContext.variables
-      ) {
-        this.__relayContext = {environment, variables};
+      const {environment} = nextProps;
+      if (environment !== this.__relayContext.environment) {
+        this.__relayContext = {environment};
       }
     }
     setProps(props) {
@@ -62,7 +61,6 @@ describe('ReactRelayFragmentContainer with fragment ownerhsip', () => {
     setContext(env, vars) {
       this.__relayContext = {
         environment: env,
-        variables: vars,
       };
       this.setProps({});
     }
@@ -83,10 +81,19 @@ describe('ReactRelayFragmentContainer with fragment ownerhsip', () => {
     jest.resetModules();
 
     environment = createMockEnvironment();
-    ({UserFragment, UserQuery} = generateAndCompile(`
+    ({UserFragment, UserQuery, UserQueryWithCond} = generateAndCompile(`
       query UserQuery($id: ID!) {
         node(id: $id) {
           ...UserFragment
+        }
+      }
+
+      query UserQueryWithCond(
+        $id: ID!
+        $condGlobal: Boolean!
+      ) {
+        node(id: $id) {
+          ...UserFragment @arguments(cond: $condGlobal)
         }
       }
 
@@ -122,6 +129,17 @@ describe('ReactRelayFragmentContainer with fragment ownerhsip', () => {
         id: '4',
         __typename: 'User',
         name: 'Zuck',
+        username: 'zuck',
+      },
+    });
+    ownerUser1WithCondVar = createOperationDescriptor(UserQueryWithCond, {
+      id: '4',
+      condGlobal: false,
+    });
+    environment.commitPayload(ownerUser1, {
+      node: {
+        id: '4',
+        __typename: 'User',
         username: 'zuck',
       },
     });
@@ -282,11 +300,11 @@ describe('ReactRelayFragmentContainer with fragment ownerhsip', () => {
     });
   });
 
-  it('resolves for new variables in context', () => {
-    const userPointer = environment.lookup(ownerUser1.fragment, ownerUser1).data
+  it('resolves new props when ids dont change', () => {
+    let userPointer = environment.lookup(ownerUser1.fragment, ownerUser1).data
       .node;
     const instance = ReactTestRenderer.create(
-      <ContextSetter environment={environment} variables={variables}>
+      <ContextSetter environment={environment}>
         <TestContainer user={userPointer} />
       </ContextSetter>,
     );
@@ -294,7 +312,13 @@ describe('ReactRelayFragmentContainer with fragment ownerhsip', () => {
     environment.lookup.mockClear();
     environment.subscribe.mockClear();
 
-    instance.getInstance().setContext(environment, {id: '6'});
+    userPointer = environment.lookup(
+      ownerUser1WithCondVar.fragment,
+      ownerUser1WithCondVar,
+    ).data.node;
+    instance.getInstance().setProps({
+      user: userPointer,
+    });
 
     // New data & variables are passed to component
     expect(render.mock.calls.length).toBe(1);
@@ -304,10 +328,10 @@ describe('ReactRelayFragmentContainer with fragment ownerhsip', () => {
       },
       user: {
         id: '4',
-        name: 'Zuck',
+        // Name is excluded since value of cond is now false
         __id: '4',
         __fragments: {NestedUserFragment: {}},
-        __fragmentOwner: ownerUser1.request,
+        __fragmentOwner: ownerUser1WithCondVar.request,
       },
     });
     // Container subscribes for updates on new props
@@ -315,18 +339,18 @@ describe('ReactRelayFragmentContainer with fragment ownerhsip', () => {
     expect(environment.subscribe.mock.calls[0][0]).toEqual({
       data: {
         id: '4',
-        name: 'Zuck',
+        // Name is excluded since value of cond is now false
         __id: '4',
         __fragments: {NestedUserFragment: {}},
-        __fragmentOwner: ownerUser1.request,
+        __fragmentOwner: ownerUser1WithCondVar.request,
       },
       isMissingData: false,
       seenRecords: expect.any(Object),
       selector: createReaderSelector(
         UserFragment,
         '4',
-        {cond: true},
-        ownerUser1.request,
+        {cond: false},
+        ownerUser1WithCondVar.request,
       ),
     });
   });

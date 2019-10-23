@@ -1460,7 +1460,7 @@ const {ROOT_ID, ROOT_TYPE} = require('../RelayStoreUtils');
     describe('Client Extensions', () => {
       const {StrippedQuery} = generateAndCompile(
         `
-        query StrippedQuery($id: ID, $size: [Int]) {
+        query StrippedQuery($id: ID) {
           node(id: $id) {
             id
             __typename

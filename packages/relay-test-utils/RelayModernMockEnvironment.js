@@ -178,9 +178,9 @@ function createMockEnvironment(config?: {|
   +missingFieldHandlers?: $ReadOnlyArray<MissingFieldHandler>,
   +operationTracker?: OperationTracker,
   +operationLoader?: OperationLoader,
+  +store?: Store,
 |}): RelayMockEnvironment {
-  const source = new RecordSource();
-  const store = new Store(source);
+  const store = config?.store ?? new Store(new RecordSource());
   const cache = new QueryResponseCache({
     size: MAX_SIZE,
     ttl: MAX_TTL,

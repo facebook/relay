@@ -12,15 +12,8 @@
 
 const IRTransformer = require('../core/GraphQLIRTransformer');
 
-const {getNullableType, getRawType} = require('../core/GraphQLSchemaUtils');
 const {createUserError} = require('../core/RelayCompilerError');
-const {
-  GraphQLID,
-  GraphQLInterfaceType,
-  GraphQLList,
-  GraphQLNonNull,
-  GraphQLObjectType,
-} = require('graphql');
+const {buildConnectionMetadata} = require('./ConnectionTransform');
 const {ConnectionInterface} = require('relay-runtime');
 
 import type CompilerContext from '../core/GraphQLCompilerContext';
@@ -28,17 +21,29 @@ import type {
   Connection,
   ConnectionField,
   Directive,
+  Fragment,
   LinkedField,
+  Root,
   ScalarField,
 } from '../core/GraphQLIR';
+import type {ConnectionMetadata} from 'relay-runtime';
 
 const SCHEMA_EXTENSION = `
   directive @connection_resolver(label: String!) on FIELD
+  directive @stream_connection_resolver(
+    label: String!
+    initial_count: Int!
+    if: Boolean = true
+  ) on FIELD
 `;
 
 type State = {|
   +documentName: string,
   +labels: Map<string, Directive>,
+  // The current path
+  path: Array<?string>,
+  // Metadata recorded for @connection fields
+  connectionMetadata: Array<ConnectionMetadata>,
 |};
 
 /**
@@ -49,28 +54,58 @@ function connectionFieldTransform(context: CompilerContext): CompilerContext {
   return IRTransformer.transform(
     context,
     {
+      Fragment: visitFragmentOrRoot,
       LinkedField: (visitLinkedField: $FlowFixMe),
+      Root: visitFragmentOrRoot,
       ScalarField: visitScalarField,
     },
-    node => ({documentName: node.name, labels: new Map()}),
+    node => ({
+      documentName: node.name,
+      labels: new Map(),
+      path: [],
+      connectionMetadata: [],
+    }),
   );
+}
+
+function visitFragmentOrRoot<N: Fragment | Root>(node: N, state: State): N {
+  const transformedNode = this.traverse(node, state);
+  const connectionMetadata = state.connectionMetadata;
+  if (connectionMetadata.length) {
+    return {
+      ...transformedNode,
+      metadata: {
+        ...transformedNode.metadata,
+        connection: connectionMetadata,
+      },
+    };
+  }
+  return transformedNode;
 }
 
 function visitLinkedField(
   field: LinkedField,
   state: State,
 ): LinkedField | ConnectionField {
-  const transformed: LinkedField = this.traverse(field, state);
+  const context: CompilerContext = this.getContext();
+  const schema = context.getSchema();
+  const path = state.path.concat(field.alias);
+  const transformed: LinkedField = this.traverse(field, {
+    ...state,
+    path,
+  });
   const connectionDirective = transformed.directives.find(
-    directive => directive.name === 'connection_resolver',
+    directive =>
+      directive.name === 'connection_resolver' ||
+      directive.name === 'stream_connection_resolver',
   );
   if (connectionDirective == null) {
     return transformed;
   }
-  if (getNullableType(transformed.type) instanceof GraphQLList) {
+  if (schema.isList(schema.getNullableType(transformed.type))) {
     throw createUserError(
       "@connection_resolver fields must return a single value, not a list, found '" +
-        `${String(transformed.type)}'`,
+        `${schema.getTypeString(transformed.type)}'`,
       [transformed.loc],
     );
   }
@@ -113,9 +148,34 @@ function visitLinkedField(
   }
   state.labels.set(label, connectionDirective);
 
+  let stream = null;
+  if (connectionDirective.name === 'stream_connection_resolver') {
+    const initialCountArg = connectionDirective.args.find(
+      arg => arg.name === 'initial_count',
+    );
+    const ifArg = connectionDirective.args.find(arg => arg.name === 'if');
+    if (
+      initialCountArg == null ||
+      (initialCountArg.value.kind === 'Literal' &&
+        !Number.isInteger(initialCountArg.value.value))
+    ) {
+      throw createUserError(
+        "Invalid use of @connection_resolver, 'initial_count' is required " +
+          "and must be an integer or variable of type 'Int!''.",
+        [initialCountArg?.loc ?? connectionDirective.loc],
+      );
+    }
+    stream = {
+      deferLabel: label,
+      initialCount: initialCountArg.value,
+      if: ifArg != null ? ifArg.value : null,
+      streamLabel: label,
+    };
+  }
+
   const {EDGES, PAGE_INFO} = ConnectionInterface.get();
-  let edgeField;
-  let pageInfoField;
+  let edgeField: ?LinkedField;
+  let pageInfoField: ?LinkedField;
   const selections = [];
   transformed.selections.forEach(selection => {
     if (
@@ -146,24 +206,29 @@ function visitLinkedField(
       [connectionDirective.loc],
     );
   }
-  const connectionType = getRawType(transformed.type);
-  const edgesFieldDef =
-    connectionType instanceof GraphQLObjectType
-      ? connectionType.getFields().edges
-      : null;
+  const connectionType = schema.getRawType(transformed.type);
+  const edgesFieldDef = schema.isObject(connectionType)
+    ? schema.getFieldByName(schema.assertObjectType(connectionType), 'edges')
+    : null;
   const edgesType =
-    edgesFieldDef != null ? getRawType(edgesFieldDef.type) : null;
-  const nodeFieldDef =
-    edgesType != null && edgesType instanceof GraphQLObjectType
-      ? edgesType.getFields().node
+    edgesFieldDef != null
+      ? schema.getRawType(schema.getFieldType(edgesFieldDef))
       : null;
-  const nodeType = nodeFieldDef != null ? getRawType(nodeFieldDef.type) : null;
+  const nodeFieldDef =
+    edgesType != null && schema.isObject(edgesType)
+      ? schema.getFieldByName(schema.assertObjectType(edgesType), 'node')
+      : null;
+  const nodeType =
+    nodeFieldDef != null
+      ? schema.getRawType(schema.getFieldType(nodeFieldDef))
+      : null;
   if (
     edgesType == null ||
     nodeType == null ||
     !(
-      nodeType instanceof GraphQLObjectType ||
-      nodeType instanceof GraphQLInterfaceType
+      schema.isObject(nodeType) ||
+      schema.isInterface(nodeType) ||
+      schema.isUnion(nodeType)
     )
   ) {
     throw createUserError(
@@ -185,11 +250,14 @@ function visitLinkedField(
         loc: edgeField.loc,
         metadata: null,
         name: '__id',
-        type: new GraphQLNonNull(GraphQLID),
+        type: schema.assertScalarFieldType(
+          schema.getNonNullType(schema.expectIdType()),
+        ),
       },
       {
         alias: 'node',
         args: [],
+        connection: false,
         directives: [],
         handles: null,
         kind: 'LinkedField',
@@ -206,10 +274,12 @@ function visitLinkedField(
             loc: edgeField.loc,
             metadata: null,
             name: '__id',
-            type: new GraphQLNonNull(GraphQLID),
+            type: schema.assertScalarFieldType(
+              schema.getNonNullType(schema.expectIdType()),
+            ),
           },
         ],
-        type: nodeType,
+        type: schema.assertLinkedFieldType(nodeType),
       },
     ],
   };
@@ -221,10 +291,17 @@ function visitLinkedField(
       loc: transformed.loc,
       name: transformed.name,
       selections: [edgeField, pageInfoField],
+      stream,
       type: transformed.type,
     }: Connection),
   );
 
+  const connectionMetadata = buildConnectionMetadata(
+    transformed,
+    path,
+    stream != null,
+  );
+  state.connectionMetadata.push(connectionMetadata);
   return {
     alias: transformed.alias,
     args: transformed.args,

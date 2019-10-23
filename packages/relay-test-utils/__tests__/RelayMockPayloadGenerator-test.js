@@ -464,19 +464,21 @@ test('generate mock with multiple spreads', () => {
     }
 
     fragment TestFragment on Viewer {
-      ... on User {
-        id
-        name
-        traits
-        profile_picture {
-          uri
-          height
+      actor {
+        ... on User {
+          id
+          name
+          traits
+          profile_picture {
+            uri
+            height
+          }
         }
-      }
-      ... on Page {
-        id
-        name
-        websites
+        ... on Page {
+          id
+          name
+          websites
+        }
       }
     }
   `,
@@ -668,19 +670,30 @@ test('generate mock for with directives and handlers', () => {
             width
             height
           }
+          feedback {
+            comments {
+              edges {
+                node {
+                  ... DeferFragment @defer(if: $RELAY_INCREMENTAL_DELIVERY, label: "DeferLabel")
+                }
+              }
+            }
+          }
         }
         ... on Page {
           id
           pageName: name
         }
-        ... on Comment @defer(if: $RELAY_INCREMENTAL_DELIVERY, label: "DeferLabel") {
-          body {
-            text
-          }
-        }
         username @__clientField(handle: "MyUserName")
       }
-    }`,
+    }
+
+    fragment DeferFragment on Comment {
+      body {
+        text
+      }
+    }
+    `,
   );
 });
 
@@ -1337,6 +1350,28 @@ describe('with @relay_test_operation', () => {
       );
     }).toThrow(
       'RelayMockPayloadGenerator: Invalid value "INVALID_VALUE" provided for enum field',
+    );
+  });
+
+  test('generate mock with null for enum', () => {
+    testGeneratedData(
+      `
+      query TestQuery @relay_test_operation {
+        node(id: "my-id") {
+          ... on User {
+            id
+            environment
+          }
+        }
+      }
+    `,
+      {
+        User(context) {
+          return {
+            environment: null,
+          };
+        },
+      },
     );
   });
 

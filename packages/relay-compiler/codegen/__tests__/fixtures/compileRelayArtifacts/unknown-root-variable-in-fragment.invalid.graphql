@@ -1,5 +1,5 @@
 # expected-to-throw
-query TestQuery($id: ID!, $pictureSize: [Int] = [128]) {
+query TestQuery($id: ID!) {
   node(id: $id) {
     id
     ...Profile @relay(mask: false)

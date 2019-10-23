@@ -351,6 +351,7 @@ describe('FragmentResource', () => {
           query UserQuery($id: ID!, $foo: Boolean!) {
             node(id: $id) {
               __typename
+              name @include(if: $foo)
               ...UserFragment
             }
           }
@@ -1288,6 +1289,73 @@ describe('FragmentResource', () => {
       disposable.dispose();
       expect(unsubscribe).toBeCalledTimes(1);
       expect(environment.subscribe).toBeCalledTimes(1);
+    });
+
+    describe('checkMissedUpdatesSpec', () => {
+      beforeEach(() => {
+        unsubscribe = jest.fn();
+        callback = jest.fn();
+        jest.spyOn(environment, 'subscribe').mockImplementation(() => ({
+          dispose: jest.fn(),
+        }));
+      });
+      test('returns true if one fragment missed updates', () => {
+        queryPlural = createOperationDescriptor(UsersQuery, {
+          ids: ['4', '5'],
+        });
+        environment.commitPayload(queryPlural, {
+          nodes: [
+            {
+              __typename: 'User',
+              id: '4',
+              name: 'Mark',
+            },
+            {
+              __typename: 'User',
+              id: '5',
+              name: 'User 5',
+            },
+          ],
+        });
+        const userARef = {
+          __id: '4',
+          __fragments: {
+            UserFragment: {},
+          },
+          __fragmentOwner: query.request,
+        };
+        const userBRef = {
+          __id: '5',
+          __fragments: {
+            UserFragment: {},
+          },
+          __fragmentOwner: query.request,
+        };
+        function readUsersSpec() {
+          return FragmentResource.readSpec(
+            {
+              userA: getFragment(UserFragment),
+              userB: getFragment(UserFragment),
+            },
+            {
+              userA: userARef,
+              userB: userBRef,
+            },
+            componentDisplayName,
+          );
+        }
+        const result = readUsersSpec();
+        expect(FragmentResource.checkMissedUpdatesSpec(result)).toBe(false);
+        // Update data once, before subscribe has been called
+        environment.commitPayload(query, {
+          node: {
+            __typename: 'User',
+            id: '4',
+            name: 'Mark Updated 1',
+          },
+        });
+        expect(FragmentResource.checkMissedUpdatesSpec(result)).toBe(true);
+      });
     });
   });
 });

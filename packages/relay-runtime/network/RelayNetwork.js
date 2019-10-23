@@ -20,7 +20,7 @@ import type {
   FetchFunction,
   GraphQLResponse,
   LogRequestInfoFunction,
-  Network,
+  INetwork,
   SubscribeFunction,
   UploadableMap,
 } from './RelayNetworkTypes';
@@ -33,7 +33,7 @@ import type RelayObservable from './RelayObservable';
 function create(
   fetchFn: FetchFunction,
   subscribe?: SubscribeFunction,
-): Network {
+): INetwork {
   // Convert to functions that returns RelayObservable.
   const observeFetch = convertFetch(fetchFn);
 

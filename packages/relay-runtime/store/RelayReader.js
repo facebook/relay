@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @flow
+ * @flow strict-local
  * @format
  */
 
@@ -16,15 +16,17 @@ const RelayModernRecord = require('./RelayModernRecord');
 const invariant = require('invariant');
 
 const {
-  CONDITION,
   CLIENT_EXTENSION,
   CONNECTION,
+  CONDITION,
+  DEFER,
   FRAGMENT_SPREAD,
   INLINE_DATA_FRAGMENT_SPREAD,
   INLINE_FRAGMENT,
   LINKED_FIELD,
   MODULE_IMPORT,
   SCALAR_FIELD,
+  STREAM,
 } = require('../util/RelayConcreteNode');
 const {
   FRAGMENTS_KEY,
@@ -163,6 +165,7 @@ class RelayReader {
         case INLINE_DATA_FRAGMENT_SPREAD:
           this._createInlineDataFragmentPointer(selection, record, data);
           break;
+        case DEFER:
         case CLIENT_EXTENSION:
           const isMissingData = this._isMissingData;
           this._traverseSelections(selection.selections, record, data);
@@ -170,6 +173,9 @@ class RelayReader {
           break;
         case CONNECTION:
           this._readConnection(selection, record, data);
+          break;
+        case STREAM:
+          this._traverseSelections(selection.selections, record, data);
           break;
         default:
           (selection: empty);

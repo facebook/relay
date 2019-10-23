@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  *
  * @format
- * @flow
+ * @flow strict-local
  * @emails oncall+relay
  */
 
@@ -15,7 +15,7 @@ const ASTConvert = require('../../core/ASTConvert');
 const CodeMarker = require('../../util/CodeMarker');
 const CompilerContext = require('../../core/GraphQLCompilerContext');
 const RelayIRTransforms = require('../../core/RelayIRTransforms');
-const RelayIRValidations = require('../../core/RelayIRValidations');
+const Schema = require('../../core/Schema');
 
 const compileRelayArtifacts = require('../compileRelayArtifacts');
 
@@ -24,6 +24,7 @@ const {
   TestSchema,
   generateTestsFromFixtures,
   parseGraphQLText,
+  printAST,
 } = require('relay-test-utils-internal');
 
 describe('compileRelayArtifacts', () => {
@@ -43,16 +44,10 @@ describe('compileRelayArtifacts', () => {
         RelayIRTransforms.schemaExtensions,
       );
       const {definitions, schema} = parseGraphQLText(relaySchema, text);
-      // $FlowFixMe
-      const compilerContext = new CompilerContext(TestSchema, schema).addAll(
-        definitions,
-      );
-      return compileRelayArtifacts(
-        compilerContext,
-        RelayIRTransforms,
-        undefined,
-        RelayIRValidations,
-      )
+      const compilerContext = new CompilerContext(
+        Schema.DEPRECATED__create(TestSchema, schema),
+      ).addAll(definitions);
+      return compileRelayArtifacts(compilerContext, RelayIRTransforms)
         .map(([_definition, node]) => {
           if (node.kind === 'Request') {
             const {
@@ -71,8 +66,7 @@ describe('compileRelayArtifacts', () => {
 
 function stringifyAST(ast: mixed): string {
   return CodeMarker.postProcess(
-    // $FlowFixMe(>=0.95.0) JSON.stringify can return undefined
-    JSON.stringify(ast, null, 2),
+    printAST(ast),
     moduleName => `require('${moduleName}')`,
   );
 }

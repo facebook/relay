@@ -4,6 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
+ * @flow strict-local
  * @format
  * @emails oncall+relay
  */
@@ -13,6 +14,7 @@
 const ClientExtensionsTransform = require('../ClientExtensionsTransform');
 const GraphQLCompilerContext = require('../../core/GraphQLCompilerContext');
 const GraphQLIRPrinter = require('../../core/GraphQLIRPrinter');
+const Schema = require('../../core/Schema');
 
 const {
   TestSchema,
@@ -24,12 +26,19 @@ describe('ClientExtensionsTransform', () => {
   generateTestsFromFixtures(
     `${__dirname}/fixtures/client-extensions-transform`,
     text => {
-      const {definitions, schema} = parseGraphQLText(TestSchema, text);
-      return new GraphQLCompilerContext(TestSchema, schema)
+      const {definitions, schema: extendedSchema} = parseGraphQLText(
+        TestSchema,
+        text,
+      );
+      const compilerSchema = Schema.DEPRECATED__create(
+        TestSchema,
+        extendedSchema,
+      );
+      return new GraphQLCompilerContext(compilerSchema)
         .addAll(definitions)
         .applyTransforms([ClientExtensionsTransform.transform])
         .documents()
-        .map(GraphQLIRPrinter.print)
+        .map(doc => GraphQLIRPrinter.print(compilerSchema, doc))
         .join('\n');
     },
   );

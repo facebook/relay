@@ -131,7 +131,7 @@ declare export opaque type FeedbackComments_feedback$fragmentType: FeedbackComme
 export type FeedbackComments_feedback = {|
   +comments: ?{|
     +count: ?number,
-    +__connection?: ConnectionReference<?{|
+    +__connection?: ConnectionReference<{|
       +node: ?{|
         +id: string,
         +__id: string,
@@ -191,11 +191,11 @@ fragment PageFragment on Page {
   __typename
 }
 
-fragment UserFrag1 on Page {
+fragment UserFrag1 on User {
   __typename
 }
 
-fragment UserFrag2 on Page {
+fragment UserFrag2 on User {
   __typename
 }
 
@@ -309,7 +309,7 @@ import type { FragmentReference } from "relay-runtime";
 declare export opaque type UserFrag1$ref: FragmentReference;
 declare export opaque type UserFrag1$fragmentType: UserFrag1$ref;
 export type UserFrag1 = {|
-  +__typename: "Page",
+  +__typename: "User",
   +$refType: UserFrag1$ref,
 |} | {|
   // This will never be '%other', but we need some
@@ -328,7 +328,7 @@ import type { FragmentReference } from "relay-runtime";
 declare export opaque type UserFrag2$ref: FragmentReference;
 declare export opaque type UserFrag2$fragmentType: UserFrag2$ref;
 export type UserFrag2 = {|
-  +__typename: "Page",
+  +__typename: "User",
   +$refType: UserFrag2$ref,
 |} | {|
   // This will never be '%other', but we need some
@@ -1268,67 +1268,6 @@ export type PluralFragment$key = $ReadOnlyArray<{
 }>;
 `;
 
-exports[`Snapshot tests for useHaste matches expected output: query-with-defer.graphql 1`] = `
-~~~~~~~~~~ INPUT ~~~~~~~~~~
-query TestDefer @raw_response_type {
-  node(id: "1") {
-    ... on User {
-      name
-      friends(first: 10) {
-        edges {
-          ... on FriendsConnection @defer {
-            pageInfo {
-              endCursor
-              hasNextPage
-            }
-          }
-        }
-      }
-    }
-  }
-}
-
-~~~~~~~~~~ OUTPUT ~~~~~~~~~~
-// TestDefer.graphql
-export type TestDeferVariables = {||};
-export type TestDeferResponse = {|
-  +node: ?{|
-    +name?: ?string,
-    +friends?: ?{|
-      +edges: ?$ReadOnlyArray<?{|
-        +pageInfo?: ?{|
-          +endCursor: ?string,
-          +hasNextPage: ?boolean,
-        |}
-      |}>
-    |},
-  |}
-|};
-export type TestDeferRawResponse = {|
-  +node: ?({|
-    +__typename: "User",
-    +id: ?string,
-    +name: ?string,
-    +friends: ?{|
-      +edges: ?$ReadOnlyArray<?{|
-        +pageInfo: ?{|
-          +endCursor: ?string,
-          +hasNextPage: ?boolean,
-        |}
-      |}>
-    |},
-  |} | {|
-    +__typename: ?string,
-    +id: ?string,
-  |})
-|};
-export type TestDefer = {|
-  variables: TestDeferVariables,
-  response: TestDeferResponse,
-  rawResponse: TestDeferRawResponse,
-|};
-`;
-
 exports[`Snapshot tests for useHaste matches expected output: query-with-handles.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query LinkedHandleField($id: ID!) @raw_response_type {
@@ -1438,6 +1377,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 // Test.graphql
+import type { Local3DPayload } from "relay-runtime";
 type NameRendererFragment$ref = any;
 export type TestVariables = {||};
 export type TestResponse = {|
@@ -1465,23 +1405,21 @@ export type TestRawResponse = {|
     +id: ?string,
     +nameRenderer: ?({|
       +__typename: "PlainUserNameRenderer",
-      +__module_operation_NameRendererFragment: ?{|
-        __dr: string
-      |},
-      +__module_component_NameRendererFragment: ?{|
-        __dr: string
-      |},
+      +__module_operation_NameRendererFragment: ?any,
+      +__module_component_NameRendererFragment: ?any,
       ...PlainUserNameRenderer_name,
-    |} | {|
+    |} | Local3DPayload<"NameRendererFragment", {|
+      +__typename: "PlainUserNameRenderer",
+      ...PlainUserNameRenderer_name,
+    |}> | {|
       +__typename: "MarkdownUserNameRenderer",
-      +__module_operation_NameRendererFragment: ?{|
-        __dr: string
-      |},
-      +__module_component_NameRendererFragment: ?{|
-        __dr: string
-      |},
+      +__module_operation_NameRendererFragment: ?any,
+      +__module_component_NameRendererFragment: ?any,
       ...MarkdownUserNameRenderer_name,
-    |} | {|
+    |} | Local3DPayload<"NameRendererFragment", {|
+      +__typename: "MarkdownUserNameRenderer",
+      ...MarkdownUserNameRenderer_name,
+    |}> | {|
       +__typename: ?string
     |}),
   |} | {|
@@ -1561,9 +1499,11 @@ query Test @raw_response_type {
     }
   }
   viewer {
-    ... on User {
-      name
-      ...AnotherNameRendererFragment
+    actor {
+      ... on User {
+        name
+        ...AnotherNameRendererFragment
+      }
     }
   }
 }
@@ -1602,6 +1542,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 // Test.graphql
+import type { Local3DPayload } from "relay-runtime";
 type AnotherNameRendererFragment$ref = any;
 type NameRendererFragment$ref = any;
 export type TestVariables = {||};
@@ -1611,8 +1552,10 @@ export type TestResponse = {|
     +$fragmentRefs: NameRendererFragment$ref,
   |},
   +viewer: ?{|
-    +name?: ?string,
-    +$fragmentRefs: AnotherNameRendererFragment$ref,
+    +actor: ?{|
+      +name?: ?string,
+      +$fragmentRefs: AnotherNameRendererFragment$ref,
+    |}
   |},
 |};
 type PlainUserNameRenderer_name = {|
@@ -1636,23 +1579,21 @@ export type TestRawResponse = {|
     +username: ?string,
     +nameRenderer: ?({|
       +__typename: "PlainUserNameRenderer",
-      +__module_operation_NameRendererFragment: ?{|
-        __dr: string
-      |},
-      +__module_component_NameRendererFragment: ?{|
-        __dr: string
-      |},
+      +__module_operation_NameRendererFragment: ?any,
+      +__module_component_NameRendererFragment: ?any,
       ...PlainUserNameRenderer_name,
-    |} | {|
+    |} | Local3DPayload<"NameRendererFragment", {|
+      +__typename: "PlainUserNameRenderer",
+      ...PlainUserNameRenderer_name,
+    |}> | {|
       +__typename: "MarkdownUserNameRenderer",
-      +__module_operation_NameRendererFragment: ?{|
-        __dr: string
-      |},
-      +__module_component_NameRendererFragment: ?{|
-        __dr: string
-      |},
+      +__module_operation_NameRendererFragment: ?any,
+      +__module_component_NameRendererFragment: ?any,
       ...MarkdownUserNameRenderer_name,
-    |} | {|
+    |} | Local3DPayload<"NameRendererFragment", {|
+      +__typename: "MarkdownUserNameRenderer",
+      ...MarkdownUserNameRenderer_name,
+    |}> | {|
       +__typename: ?string
     |}),
   |} | {|
@@ -1660,28 +1601,33 @@ export type TestRawResponse = {|
     +id: ?string,
   |}),
   +viewer: ?{|
-    +name: ?string,
-    +nameRenderer: ?({|
-      +__typename: "PlainUserNameRenderer",
-      +__module_operation_AnotherNameRendererFragment: ?{|
-        __dr: string
-      |},
-      +__module_component_AnotherNameRendererFragment: ?{|
-        __dr: string
-      |},
-      ...PlainUserNameRenderer_name,
+    +actor: ?({|
+      +__typename: "User",
+      +id: ?string,
+      +name: ?string,
+      +nameRenderer: ?({|
+        +__typename: "PlainUserNameRenderer",
+        +__module_operation_AnotherNameRendererFragment: ?any,
+        +__module_component_AnotherNameRendererFragment: ?any,
+        ...PlainUserNameRenderer_name,
+      |} | Local3DPayload<"AnotherNameRendererFragment", {|
+        +__typename: "PlainUserNameRenderer",
+        ...PlainUserNameRenderer_name,
+      |}> | {|
+        +__typename: "MarkdownUserNameRenderer",
+        +__module_operation_AnotherNameRendererFragment: ?any,
+        +__module_component_AnotherNameRendererFragment: ?any,
+        ...MarkdownUserNameRenderer_name,
+      |} | Local3DPayload<"AnotherNameRendererFragment", {|
+        +__typename: "MarkdownUserNameRenderer",
+        ...MarkdownUserNameRenderer_name,
+      |}> | {|
+        +__typename: ?string
+      |}),
     |} | {|
-      +__typename: "MarkdownUserNameRenderer",
-      +__module_operation_AnotherNameRendererFragment: ?{|
-        __dr: string
-      |},
-      +__module_component_AnotherNameRendererFragment: ?{|
-        __dr: string
-      |},
-      ...MarkdownUserNameRenderer_name,
-    |} | {|
-      +__typename: ?string
-    |}),
+      +__typename: ?string,
+      +id: ?string,
+    |})
   |},
 |};
 export type Test = {|
@@ -1802,9 +1748,9 @@ export type ExampleQueryRawResponse = {|
   +node: ?({|
     +__typename: "User",
     +id: ?string,
-    +name?: ?string,
-    +lastName?: ?string,
-    +feedback?: ?{|
+    +name: ?string,
+    +lastName: ?string,
+    +feedback: ?{|
       +id: string,
       +name: ?string,
     |},
@@ -1812,6 +1758,79 @@ export type ExampleQueryRawResponse = {|
     +__typename: ?string,
     +id: ?string,
   |})
+|};
+export type ExampleQuery = {|
+  variables: ExampleQueryVariables,
+  response: ExampleQueryResponse,
+  rawResponse: ExampleQueryRawResponse,
+|};
+
+// FriendFragment.graphql
+import type { FragmentReference } from "relay-runtime";
+declare export opaque type FriendFragment$ref: FragmentReference;
+declare export opaque type FriendFragment$fragmentType: FriendFragment$ref;
+export type FriendFragment = {|
+  +name?: ?string,
+  +lastName?: ?string,
+  +feedback?: ?{|
+    +id: string,
+    +name: ?string,
+  |},
+  +$refType: FriendFragment$ref,
+|};
+export type FriendFragment$data = FriendFragment;
+export type FriendFragment$key = {
+  +$data?: FriendFragment$data,
+  +$fragmentRefs: FriendFragment$ref,
+};
+`;
+
+exports[`Snapshot tests for useHaste matches expected output: query-with-raw-response-on-literal-conditional.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query ExampleQuery($id: ID!) @raw_response_type {
+  node(id: $id) {
+    username
+    ...FriendFragment
+    ... @include(if: false) {
+      friends(first: 0) {
+        count
+      }
+    }
+  }
+}
+
+fragment FriendFragment on User {
+  ... @include(if: false) {
+    name
+    lastName
+    feedback {
+      id
+      name
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+// ExampleQuery.graphql
+type FriendFragment$ref = any;
+export type ExampleQueryVariables = {|
+  id: string
+|};
+export type ExampleQueryResponse = {|
+  +node: ?{|
+    +username: ?string,
+    +friends?: ?{|
+      +count: ?number
+    |},
+    +$fragmentRefs: FriendFragment$ref,
+  |}
+|};
+export type ExampleQueryRawResponse = {|
+  +node: ?{|
+    +__typename: ?string,
+    +username: ?string,
+    +id: ?string,
+  |}
 |};
 export type ExampleQuery = {|
   variables: ExampleQueryVariables,
@@ -1905,6 +1924,78 @@ export type TestStream = {|
 |};
 `;
 
+exports[`Snapshot tests for useHaste matches expected output: query-with-stream-connection.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query TestDefer @raw_response_type {
+  node(id: "1") {
+    ... on User {
+      name
+      friends(first: 10)
+        @stream_connection(key: "TestDefer_friends", initial_count: 0) {
+        edges {
+          node {
+            actor {
+              name
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+// TestDefer.graphql
+export type TestDeferVariables = {||};
+export type TestDeferResponse = {|
+  +node: ?{|
+    +name?: ?string,
+    +friends?: ?{|
+      +edges: ?$ReadOnlyArray<?{|
+        +node: ?{|
+          +actor: ?{|
+            +name: ?string
+          |}
+        |}
+      |}>
+    |},
+  |}
+|};
+export type TestDeferRawResponse = {|
+  +node: ?({|
+    +__typename: "User",
+    +id: ?string,
+    +name: ?string,
+    +friends: ?{|
+      +edges: ?$ReadOnlyArray<?{|
+        +node: ?{|
+          +actor: ?{|
+            +__typename: ?string,
+            +name: ?string,
+            +id: ?string,
+          |},
+          +id: ?string,
+          +__typename: "User",
+        |},
+        +cursor: ?string,
+      |}>,
+      +pageInfo: ?{|
+        +endCursor: ?string,
+        +hasNextPage: ?boolean,
+      |},
+    |},
+  |} | {|
+    +__typename: ?string,
+    +id: ?string,
+  |})
+|};
+export type TestDefer = {|
+  variables: TestDeferVariables,
+  response: TestDeferResponse,
+  rawResponse: TestDeferRawResponse,
+|};
+`;
+
 exports[`Snapshot tests for useHaste matches expected output: recursive-fragments.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 fragment FragmentSpread on Node {
@@ -1974,6 +2065,69 @@ export type RefetchableFragmentQueryResponse = {|
 export type RefetchableFragmentQuery = {|
   variables: RefetchableFragmentQueryVariables,
   response: RefetchableFragmentQueryResponse,
+|};
+`;
+
+exports[`Snapshot tests for useHaste matches expected output: relay-client-id-field.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query RelayClientIDFieldQuery($id: ID!) {
+  __id # ok on query type
+  me {
+    __id # ok on object type with 'id'
+    __typename
+    id
+  }
+  node(id: $id) {
+    __id # ok on interface type
+    __typename
+    id
+    ... on Comment {
+      commentBody(supported: ["PlainCommentBody"]) {
+        __id # ok on union type
+        __typename
+        ... on PlainCommentBody {
+          __id # ok on object type w/o 'id'
+          text {
+            __id # ok on object type w/o 'id'
+            __typename
+            text
+          }
+        }
+      }
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+// RelayClientIDFieldQuery.graphql
+export type RelayClientIDFieldQueryVariables = {|
+  id: string
+|};
+export type RelayClientIDFieldQueryResponse = {|
+  +__id: string,
+  +me: ?{|
+    +__id: string,
+    +__typename: string,
+    +id: string,
+  |},
+  +node: ?{|
+    +__id: string,
+    +__typename: string,
+    +id: string,
+    +commentBody?: ?{|
+      +__id: string,
+      +__typename: string,
+      +text?: ?{|
+        +__id: string,
+        +__typename: string,
+        +text: ?string,
+      |},
+    |},
+  |},
+|};
+export type RelayClientIDFieldQuery = {|
+  variables: RelayClientIDFieldQueryVariables,
+  response: RelayClientIDFieldQueryResponse,
 |};
 `;
 

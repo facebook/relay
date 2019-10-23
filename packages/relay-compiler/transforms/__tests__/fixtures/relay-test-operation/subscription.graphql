@@ -2,8 +2,10 @@ subscription SimpleMutation @relay_test_operation {
   commentCreateSubscribe(input: null) {
     feedback {
       id
-      ... on Actor {
-        name
+      actor {
+        ... on Actor {
+          name
+        }
       }
     }
   }

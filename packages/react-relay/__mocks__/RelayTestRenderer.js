@@ -65,8 +65,6 @@ class RelayTestRenderer extends React.Component<Props, $FlowFixMe> {
         value={{
           environment:
             this.props.environment || this.props.children.props.environment,
-          variables:
-            this.props.variables || this.props.children.props.variables,
         }}>
         {React.cloneElement(
           this.props.children,

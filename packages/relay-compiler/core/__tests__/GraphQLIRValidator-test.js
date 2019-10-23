@@ -4,6 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
+ * @flow strict-local
  * @format
  * @emails oncall+relay
  */
@@ -13,6 +14,7 @@
 const GraphQLCompilerContext = require('../GraphQLCompilerContext');
 const GraphQLIRTransformer = require('../GraphQLIRTransformer');
 const GraphQLIRValidator = require('../GraphQLIRValidator');
+const Schema = require('../Schema');
 
 const {transformASTSchema} = require('../ASTConvert');
 const {TestSchema, parseGraphQLText} = require('relay-test-utils-internal');
@@ -34,16 +36,8 @@ describe('GraphQLIRValidator', () => {
      }
    }
 
-   query ObjectArgumentQuery($text: String!) {
-     checkinSearchQuery(query: {
-       query: $text
-     }) {
-       query
-     }
-   }
-
-   query ListArgumentQuery($waypoint: WayPoint!) {
-     route(waypoints: [$waypoint, {
+   query ListArgumentQuery {
+     route(waypoints: [{
        lat: "0.0"
        lon: "0.0"
      }]) {
@@ -72,7 +66,9 @@ describe('GraphQLIRValidator', () => {
    }
  `,
     );
-    const context = new GraphQLCompilerContext(TestSchema).addAll(definitions);
+    const context = new GraphQLCompilerContext(
+      Schema.DEPRECATED__create(TestSchema),
+    ).addAll(definitions);
 
     const astKinds = [
       'Argument',
@@ -82,11 +78,8 @@ describe('GraphQLIRValidator', () => {
       'FragmentSpread',
       'InlineFragment',
       'LinkedField',
-      'ListValue',
       'Literal',
       'LocalArgumentDefinition',
-      'ObjectFieldValue',
-      'ObjectValue',
       'Root',
       'ScalarField',
       'Variable',
@@ -109,7 +102,7 @@ describe('GraphQLIRValidator', () => {
       astKinds.forEach(kind => {
         visitors[kind] = createRecorder(kind);
       });
-
+      // $FlowFixMe: Cannot call `func` with `visitors` bound to `visitor`
       func(context, visitors, node => {
         sequence.push(`${node.kind} ${node.name}`);
         return {};

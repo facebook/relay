@@ -16,70 +16,76 @@ const {
   exactObjectTypeAnnotation,
   readOnlyArrayOfType,
 } = require('./RelayFlowBabelFactories');
-const {
-  GraphQLEnumType,
-  GraphQLInputObjectType,
-  GraphQLInterfaceType,
-  GraphQLList,
-  GraphQLNonNull,
-  GraphQLObjectType,
-  GraphQLScalarType,
-  GraphQLUnionType,
-} = require('graphql');
 
+import type {Schema, TypeID, EnumTypeID} from '../../core/Schema';
+
+export type BabelTypes = typeof t;
 export type ScalarTypeMapping = {
-  [type: string]: string,
+  [type: string]: string | (BabelTypes => mixed),
 };
-
-import type {GraphQLInputType, GraphQLType} from 'graphql';
 
 import type {State} from './RelayFlowGenerator';
 
-function getInputObjectTypeIdentifier(type: GraphQLInputObjectType): string {
-  return type.name;
+function getInputObjectTypeIdentifier(schema: Schema, typeID: TypeID): string {
+  return schema.getTypeString(typeID);
 }
 
 function transformScalarType(
-  type: GraphQLType,
+  schema: Schema,
+  type: TypeID,
   state: State,
   objectProps?: mixed,
 ): mixed {
-  if (type instanceof GraphQLNonNull) {
-    return transformNonNullableScalarType(type.ofType, state, objectProps);
+  if (schema.isNonNull(type)) {
+    return transformNonNullableScalarType(
+      schema,
+      schema.getNullableType(type),
+      state,
+      objectProps,
+    );
   } else {
     return t.nullableTypeAnnotation(
-      transformNonNullableScalarType(type, state, objectProps),
+      transformNonNullableScalarType(schema, type, state, objectProps),
     );
   }
 }
 
 function transformNonNullableScalarType(
-  type: GraphQLType,
+  schema: Schema,
+  type: TypeID,
   state: State,
   objectProps,
 ) {
-  if (type instanceof GraphQLList) {
+  if (schema.isList(type)) {
     return readOnlyArrayOfType(
-      transformScalarType(type.ofType, state, objectProps),
+      transformScalarType(
+        schema,
+        schema.getListItemType(type),
+        state,
+        objectProps,
+      ),
     );
   } else if (
-    type instanceof GraphQLObjectType ||
-    type instanceof GraphQLUnionType ||
-    type instanceof GraphQLInterfaceType
+    schema.isObject(type) ||
+    schema.isUnion(type) ||
+    schema.isInterface(type)
   ) {
     return objectProps;
-  } else if (type instanceof GraphQLScalarType) {
-    return transformGraphQLScalarType(type, state);
-  } else if (type instanceof GraphQLEnumType) {
-    return transformGraphQLEnumType(type, state);
+  } else if (schema.isScalar(type)) {
+    return transformGraphQLScalarType(schema.getTypeString(type), state);
+  } else if (schema.isEnum(type)) {
+    return transformGraphQLEnumType(schema, schema.assertEnumType(type), state);
   } else {
-    throw new Error(`Could not convert from GraphQL type ${type.toString()}`);
+    throw new Error(`Could not convert from GraphQL type ${String(type)}`);
   }
 }
 
-function transformGraphQLScalarType(type: GraphQLScalarType, state: State) {
-  const customType = state.customScalars[type.name];
-  switch (customType || type.name) {
+function transformGraphQLScalarType(typeName: string, state: State) {
+  const customType = state.customScalars[typeName];
+  if (typeof customType === 'function') {
+    return customType(t);
+  }
+  switch (customType ?? typeName) {
     case 'ID':
     case 'String':
       return t.stringTypeAnnotation();
@@ -88,10 +94,6 @@ function transformGraphQLScalarType(type: GraphQLScalarType, state: State) {
       return t.numberTypeAnnotation();
     case 'Boolean':
       return t.booleanTypeAnnotation();
-    case 'JSDependency':
-      return exactObjectTypeAnnotation([
-        t.objectTypeProperty(t.identifier('__dr'), t.stringTypeAnnotation()),
-      ]);
     default:
       return customType == null
         ? t.anyTypeAnnotation()
@@ -99,54 +101,77 @@ function transformGraphQLScalarType(type: GraphQLScalarType, state: State) {
   }
 }
 
-function transformGraphQLEnumType(type: GraphQLEnumType, state: State) {
-  state.usedEnums[type.name] = type;
-  return t.genericTypeAnnotation(t.identifier(type.name));
+function transformGraphQLEnumType(
+  schema: Schema,
+  type: EnumTypeID,
+  state: State,
+) {
+  state.usedEnums[schema.getTypeString(type)] = type;
+  return t.genericTypeAnnotation(t.identifier(schema.getTypeString(type)));
 }
 
-function transformInputType(type: GraphQLInputType, state: State): $FlowFixMe {
-  if (type instanceof GraphQLNonNull) {
-    return transformNonNullableInputType(type.ofType, state);
+function transformInputType(
+  schema: Schema,
+  type: TypeID,
+  state: State,
+): $FlowFixMe {
+  if (schema.isNonNull(type)) {
+    return transformNonNullableInputType(
+      schema,
+      schema.getNullableType(type),
+      state,
+    );
   } else {
-    return t.nullableTypeAnnotation(transformNonNullableInputType(type, state));
+    return t.nullableTypeAnnotation(
+      transformNonNullableInputType(schema, type, state),
+    );
   }
 }
 
-function transformNonNullableInputType(type: GraphQLInputType, state: State) {
-  if (type instanceof GraphQLList) {
-    return readOnlyArrayOfType(transformInputType(type.ofType, state));
-  } else if (type instanceof GraphQLScalarType) {
-    return transformGraphQLScalarType(type, state);
-  } else if (type instanceof GraphQLEnumType) {
-    return transformGraphQLEnumType(type, state);
-  } else if (type instanceof GraphQLInputObjectType) {
-    const typeIdentifier = getInputObjectTypeIdentifier(type);
+function transformNonNullableInputType(
+  schema: Schema,
+  type: TypeID,
+  state: State,
+) {
+  if (schema.isList(type)) {
+    return readOnlyArrayOfType(
+      transformInputType(schema, schema.getListItemType(type), state),
+    );
+  } else if (schema.isScalar(type)) {
+    return transformGraphQLScalarType(schema.getTypeString(type), state);
+  } else if (schema.isEnum(type)) {
+    return transformGraphQLEnumType(schema, schema.assertEnumType(type), state);
+  } else if (schema.isInputObject(type)) {
+    const typeIdentifier = getInputObjectTypeIdentifier(schema, type);
     if (state.generatedInputObjectTypes[typeIdentifier]) {
       return t.genericTypeAnnotation(t.identifier(typeIdentifier));
     }
     state.generatedInputObjectTypes[typeIdentifier] = 'pending';
-    const fields = type.getFields();
-    const props = Object.keys(fields)
-      .map(key => fields[key])
-      .map(field => {
-        const property = t.objectTypeProperty(
-          t.identifier(field.name),
-          transformInputType(field.type, state),
-        );
-        if (
-          state.optionalInputFields.indexOf(field.name) >= 0 ||
-          !(field.type instanceof GraphQLNonNull)
-        ) {
-          property.optional = true;
-        }
-        return property;
-      });
+    const fields = schema.getFields(schema.assertInputObjectType(type));
+    const props = fields.map(fieldID => {
+      const fieldType = schema.getFieldType(fieldID);
+      const fieldName = schema.getFieldName(fieldID);
+      const property = t.objectTypeProperty(
+        t.identifier(fieldName),
+        transformInputType(schema, fieldType, state),
+      );
+      if (
+        state.optionalInputFields.indexOf(fieldName) >= 0 ||
+        !schema.isNonNull(fieldType)
+      ) {
+        property.optional = true;
+      }
+      return property;
+    });
+
     state.generatedInputObjectTypes[typeIdentifier] = exactObjectTypeAnnotation(
       props,
     );
     return t.genericTypeAnnotation(t.identifier(typeIdentifier));
   } else {
-    throw new Error(`Could not convert from GraphQL type ${type.toString()}`);
+    throw new Error(
+      `Could not convert from GraphQL type ${schema.getTypeString(type)}`,
+    );
   }
 }
 

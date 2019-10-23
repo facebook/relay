@@ -24,11 +24,7 @@ const useStaticFragmentNodeWarning = require('./useStaticFragmentNodeWarning');
 const warning = require('warning');
 
 const {useCallback, useEffect, useRef, useState} = require('react');
-const {
-  getFragment,
-  getFragmentIdentifier,
-  getFragmentOwner,
-} = require('relay-runtime');
+const {getFragment, getFragmentIdentifier} = require('relay-runtime');
 
 import type {LoadMoreFn, UseLoadMoreFunctionArgs} from './useLoadMoreFunction';
 import type {RefetchFnDynamic} from './useRefetchableFragmentNode';
@@ -100,15 +96,12 @@ function useBlockingPaginationFragment<
   );
   const fragmentIdentifier = getFragmentIdentifier(fragmentNode, fragmentRef);
 
-  // $FlowFixMe - TODO T39154660 Use FragmentPointer type instead of mixed
-  const fragmentOwner = getFragmentOwner(fragmentNode, fragmentRef);
-
   // Backward pagination
   const [loadPrevious, hasPrevious, disposeFetchPrevious] = useLoadMore({
     direction: 'backward',
     fragmentNode,
+    fragmentRef,
     fragmentIdentifier,
-    fragmentOwner,
     fragmentData,
     connectionPathInFragmentData,
     fragmentRefPathInResponse,
@@ -123,8 +116,8 @@ function useBlockingPaginationFragment<
   const [loadNext, hasNext, disposeFetchNext] = useLoadMore({
     direction: 'forward',
     fragmentNode,
+    fragmentRef,
     fragmentIdentifier,
-    fragmentOwner,
     fragmentData,
     connectionPathInFragmentData,
     fragmentRefPathInResponse,
@@ -227,7 +220,7 @@ function useLoadMore(args: {|
   }
 
   useEffect(() => {
-    if (requestPromise == null) {
+    if (requestPromise !== requestPromiseRef.current) {
       // NOTE: After suspense pagination has resolved, we re-enable store updates
       // for this fragment. This may cause the component to re-render if
       // we missed any updates to the fragment data other than the pagination update.

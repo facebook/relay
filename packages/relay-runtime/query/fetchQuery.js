@@ -15,7 +15,7 @@ const {
 } = require('../store/RelayModernOperationDescriptor');
 const {getRequest} = require('./RelayModernGraphQLTag');
 
-import type {Environment} from '../store/RelayStoreTypes';
+import type {IEnvironment} from '../store/RelayStoreTypes';
 import type {CacheConfig, OperationType} from '../util/RelayRuntimeTypes';
 import type {GraphQLTaggedNode} from './RelayModernGraphQLTag';
 
@@ -26,7 +26,7 @@ import type {GraphQLTaggedNode} from './RelayModernGraphQLTag';
  */
 
 function fetchQuery<T: OperationType>(
-  environment: Environment,
+  environment: IEnvironment,
   taggedNode: GraphQLTaggedNode,
   variables: $PropertyType<T, 'variables'>,
   cacheConfig?: ?CacheConfig,

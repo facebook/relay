@@ -25,8 +25,8 @@ function skipClientExtensionTransform(
 }
 
 function visitFragment(node: Fragment): ?Fragment {
-  const {serverSchema} = this.getContext();
-  if (serverSchema.getType(node.type.name)) {
+  const context: GraphQLCompilerContext = this.getContext();
+  if (context.getSchema().isServerType(node.type)) {
     return this.traverse(node);
   }
   return null;

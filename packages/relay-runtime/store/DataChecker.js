@@ -230,11 +230,14 @@ class DataChecker {
           this._recordSourceProxy,
         );
         if (newValue != null) {
-          return newValue.filter(
+          const allItemsKnown = newValue.every(
             linkedID =>
               linkedID != null &&
               this._mutator.getStatus(linkedID) === EXISTENT,
           );
+          if (allItemsKnown) {
+            return newValue;
+          }
         }
       }
     }
@@ -373,6 +376,10 @@ class DataChecker {
         });
       } else if (event.kind === 'insert') {
         this._traverse(connection.edges, event.edgeID);
+      } else if (event.kind === 'stream.edge') {
+        this._traverse(connection.edges, event.edgeID);
+      } else if (event.kind === 'stream.pageInfo') {
+        // no-op
       } else {
         (event: empty);
         invariant(

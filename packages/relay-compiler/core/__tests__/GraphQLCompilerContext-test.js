@@ -4,32 +4,37 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
+ * @flow strict-local
  * @format
  * @emails oncall+relay
  */
 
 'use strict';
 
+const Schema = require('../Schema');
+
 describe('GraphQLCompilerContext', () => {
   let GraphQLCompilerContext;
   let RelayParser;
-  let TestSchema;
 
   let queryFoo;
   let fragmentBar;
   let fragmentFoo;
+  let compilerSchema;
+  let TestSchema;
 
   beforeEach(() => {
     jest.resetModules();
     GraphQLCompilerContext = require('../GraphQLCompilerContext');
     RelayParser = require('../RelayParser');
     ({TestSchema} = require('relay-test-utils-internal'));
+    compilerSchema = Schema.DEPRECATED__create(TestSchema);
   });
 
   describe('add()', () => {
     it('adds multiple roots', () => {
       [queryFoo, fragmentBar] = RelayParser.parse(
-        TestSchema,
+        compilerSchema,
         `
           query Foo { node(id: 1) { ...Bar } }
           fragment Bar on Node { id }
@@ -37,7 +42,7 @@ describe('GraphQLCompilerContext', () => {
       );
       const context = [queryFoo, fragmentBar].reduce(
         (ctx, node) => ctx.add(node),
-        new GraphQLCompilerContext(TestSchema),
+        new GraphQLCompilerContext(compilerSchema),
       );
 
       expect(context.getRoot('Foo')).toBe(queryFoo);
@@ -46,14 +51,14 @@ describe('GraphQLCompilerContext', () => {
 
     it('throws if the document names are not unique', () => {
       [queryFoo, fragmentBar] = RelayParser.parse(
-        TestSchema,
+        compilerSchema,
         `
           query Foo { node(id: 1) { ...Bar } }
           fragment Bar on Node { id }
         `,
       );
       [fragmentFoo] = RelayParser.parse(
-        TestSchema,
+        compilerSchema,
         `
           fragment Foo on Node { id }
         `,
@@ -61,7 +66,7 @@ describe('GraphQLCompilerContext', () => {
       expect(() => {
         [queryFoo, fragmentBar, fragmentFoo].reduce(
           (ctx, node) => ctx.add(node),
-          new GraphQLCompilerContext(TestSchema),
+          new GraphQLCompilerContext(compilerSchema),
         );
       }).toThrowError(
         'GraphQLCompilerContext: Duplicate document named `Foo`. GraphQL ' +

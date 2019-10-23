@@ -5,13 +5,14 @@
  * LICENSE file in the root directory of this source tree.
  *
  * @emails oncall+relay
- * @flow
+ * @flow strict-local
  * @format
  */
 
 'use strict';
 
 const getFragmentIdentifier = require('../getFragmentIdentifier');
+const invariant = require('invariant');
 
 const {createOperationDescriptor, getFragment} = require('relay-runtime');
 const {
@@ -38,8 +39,7 @@ describe('getFragmentIdentifier', () => {
 
   beforeEach(() => {
     environment = createMockEnvironment();
-    const generated = generateAndCompile(
-      `
+    const generated = generateAndCompile(`
       fragment NestedUserFragment on User {
         username
       }
@@ -89,8 +89,7 @@ describe('getFragmentIdentifier', () => {
           ...UserFragmentWithArgs @arguments(scaleLocal: $scale)
         }
       }
-    `,
-    );
+    `);
     pluralVariables = {ids: ['1'], scale: 16};
     singularVariables = {id: '1', scale: 16};
     gqlQueryWithArgs = generated.UserQueryWithArgs;
@@ -129,29 +128,32 @@ describe('getFragmentIdentifier', () => {
           username: 'useralice',
           profile_picture: null,
         },
+        {
+          __typename: 'User',
+          id: '2',
+          name: 'Bob',
+          username: 'userbob',
+          profile_picture: null,
+        },
       ],
     });
   });
 
   it('returns correct identifier when fragment ref is null', () => {
     const identifier = getFragmentIdentifier(singularFragment, null);
-    expect(identifier).toEqual(
-      'UserFragment-{"dataIDs":null,"fragmentOwnerID":"","fragmentOwnerVariables":null,"fragmentVariables":{}}',
-    );
+    expect(identifier).toEqual('null/UserFragment/{}/null');
   });
 
   it('returns correct identifier when using plural fragment and fragment ref is empty', () => {
     const identifier = getFragmentIdentifier(pluralFragment, []);
-    expect(identifier).toEqual(
-      'UsersFragment-{"dataIDs":null,"fragmentOwnerID":[],"fragmentOwnerVariables":[],"fragmentVariables":{}}',
-    );
+    expect(identifier).toEqual('null/UsersFragment/{}/null');
   });
 
   it('returns correct identifier when using singular fragment', () => {
     const fragmentRef = environment.lookup(singularQuery.fragment).data?.node;
     const identifier = getFragmentIdentifier(singularFragment, fragmentRef);
     expect(identifier).toEqual(
-      'UserFragment-{"dataIDs":"1","fragmentOwnerID":"UserQuery","fragmentOwnerVariables":{"id":"1","scale":16},"fragmentVariables":{"scale":16}}',
+      singularQuery.request.identifier + '/UserFragment/{"scale":16}/"1"',
     );
   });
 
@@ -159,7 +161,19 @@ describe('getFragmentIdentifier', () => {
     const fragmentRef = environment.lookup(queryWithArgs.fragment).data?.node;
     const identifier = getFragmentIdentifier(fragmentWithArgs, fragmentRef);
     expect(identifier).toEqual(
-      'UserFragmentWithArgs-{"dataIDs":"1","fragmentOwnerID":"UserQueryWithArgs","fragmentOwnerVariables":{"id":"1","scale":16},"fragmentVariables":{"scaleLocal":16}}',
+      queryWithArgs.request.identifier +
+        '/UserFragmentWithArgs/{"scaleLocal":16}/"1"',
+    );
+  });
+
+  it('returns correct identifier when using plural fragment with single element', () => {
+    const fragmentRef = environment.lookup(pluralQuery.fragment).data?.nodes;
+    invariant(Array.isArray(fragmentRef), 'Expected a plural fragment ref.');
+    const identifier = getFragmentIdentifier(pluralFragment, [fragmentRef[0]]);
+    expect(identifier).toEqual(
+      '[' +
+        pluralQuery.request.identifier +
+        ']/UsersFragment/{"scale":16}/["1"]',
     );
   });
 
@@ -167,7 +181,11 @@ describe('getFragmentIdentifier', () => {
     const fragmentRef = environment.lookup(pluralQuery.fragment).data?.nodes;
     const identifier = getFragmentIdentifier(pluralFragment, fragmentRef);
     expect(identifier).toEqual(
-      'UsersFragment-{"dataIDs":["1"],"fragmentOwnerID":["UsersQuery"],"fragmentOwnerVariables":[{"ids":["1"],"scale":16}],"fragmentVariables":{"scale":16}}',
+      '[' +
+        pluralQuery.request.identifier +
+        ',' +
+        pluralQuery.request.identifier +
+        ']/UsersFragment/{"scale":16}/["1","2"]',
     );
   });
 });

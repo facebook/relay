@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @flow
+ * @flow strict-local
  * @emails oncall+relay
  * @format
  */
@@ -369,13 +369,15 @@ describe('fetchQueryInternal', () => {
 
     describe('when request is in flight', () => {
       let observer;
+      let subscription;
       beforeEach(() => {
         observer = {
           complete: jest.fn(),
           error: jest.fn(),
           next: jest.fn(),
+          unsubscribe: jest.fn(),
         };
-        fetchQuery(environment, query).subscribe(observer);
+        subscription = fetchQuery(environment, query).subscribe(observer);
       });
       it('returns a promise that rejects when error occurs', () => {
         expect.assertions(5);
@@ -402,6 +404,67 @@ describe('fetchQueryInternal', () => {
           expect(observer.next).toHaveBeenCalledTimes(0);
           expect(observer.complete).toHaveBeenCalledTimes(0);
           expect(error.message).toEqual('Oops');
+        });
+      });
+
+      it('returns a promise that resolves when the request is unsubcribed (canceled)', () => {
+        expect.assertions(4);
+        const promise = getPromiseForRequestInFlight(
+          environment,
+          query.request,
+        );
+        expect(promise).not.toEqual(null);
+        if (!promise) {
+          return;
+        }
+
+        // Assert that promise hasn't resolved
+        const spy = jest.fn();
+        promise.then(spy).catch(spy);
+        jest.runAllTimers();
+        expect(spy).toHaveBeenCalledTimes(0);
+
+        // Cancel the request
+        subscription.unsubscribe();
+
+        // Assert promise resolves after the request is cancelled
+        return promise.then(() => {
+          expect(observer.next).toHaveBeenCalledTimes(0);
+          expect(observer.unsubscribe).toHaveBeenCalledTimes(1);
+        });
+      });
+
+      it('calling getPromiseFromRequestInFlight does not prevent the request from being unsubscribed (canceled)', () => {
+        expect.assertions(6);
+        const promise = getPromiseForRequestInFlight(
+          environment,
+          query.request,
+        );
+        expect(promise).not.toEqual(null);
+        if (!promise) {
+          return;
+        }
+
+        // Assert that promise hasn't resolved
+        const spy = jest.fn();
+        promise.then(spy).catch(spy);
+        jest.runAllTimers();
+        expect(spy).toHaveBeenCalledTimes(0);
+
+        // Cancel the request
+        subscription.unsubscribe();
+
+        // Assert that unsubscribe is called and that the
+        // request is actually cancelled at the network level
+        expect(observer.unsubscribe).toBeCalledTimes(1);
+        expect(
+          environment.mock.isLoading(query, query.request.variables),
+        ).toEqual(false);
+
+        // Assert promise resolves after the request is cancelled
+        return promise.then(() => {
+          expect(observer.next).toHaveBeenCalledTimes(0);
+          expect(observer.unsubscribe).toHaveBeenCalledTimes(1);
         });
       });
 

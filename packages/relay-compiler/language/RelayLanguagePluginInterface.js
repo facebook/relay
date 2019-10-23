@@ -14,6 +14,7 @@ const {RelayConcreteNode} = require('relay-runtime');
 
 import type {IRTransform} from '../core/GraphQLCompilerContext';
 import type {GeneratedDefinition, Root, Fragment} from '../core/GraphQLIR';
+import type {Schema} from '../core/Schema';
 import type {ScalarTypeMapping} from './javascript/RelayFlowTypeTransformers';
 import type {GeneratedNode} from 'relay-runtime';
 
@@ -176,6 +177,11 @@ export type FormatModule = ({|
    * The generated node being written.
    */
   node: GeneratedNode,
+
+  /**
+   * GraphQL Schema Interface
+   */
+  schema: Schema,
 |}) => string;
 
 /**
@@ -264,5 +270,9 @@ export type TypeGenerator = {
    * for e.g. the selections made. It can, however, also generate any other
    * content such as importing other files, including other artifacts.
    */
-  generate: (node: Root | Fragment, options: TypeGeneratorOptions) => string,
+  generate: (
+    schema: Schema,
+    node: Root | Fragment,
+    options: TypeGeneratorOptions,
+  ) => string,
 };

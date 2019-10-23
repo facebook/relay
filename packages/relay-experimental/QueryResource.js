@@ -38,6 +38,7 @@ import type {
   OperationDescriptor,
   ReaderFragment,
   Snapshot,
+  Subscription,
 } from 'relay-runtime';
 import type {Cache} from './LRUCache';
 
@@ -53,9 +54,11 @@ type QueryResourceCache = Cache<QueryResourceCacheEntry>;
 type QueryResourceCacheEntry = {|
   +cacheKey: string,
   getRetainCount(): number,
+  getNetworkSubscription(): ?Subscription,
+  setNetworkSubscription(?Subscription): void,
   getValue(): Error | Promise<void> | QueryResult,
   setValue(Error | Promise<void> | QueryResult): void,
-  temporaryRetain(environment: IEnvironment): void,
+  temporaryRetain(environment: IEnvironment): Disposable,
   permanentRetain(environment: IEnvironment): Disposable,
 |};
 opaque type QueryResult: {
@@ -95,10 +98,11 @@ function getQueryResult(
   };
 }
 
-function createQueryResourceCacheEntry(
+function createCacheEntry(
   cacheKey: string,
   operation: OperationDescriptor,
   value: Error | Promise<void> | QueryResult,
+  networkSubscription: ?Subscription,
   onDispose: QueryResourceCacheEntry => void,
 ): QueryResourceCacheEntry {
   let currentValue: Error | Promise<void> | QueryResult = value;
@@ -106,6 +110,7 @@ function createQueryResourceCacheEntry(
   let permanentlyRetained = false;
   let retainDisposable: ?Disposable = null;
   let releaseTemporaryRetain: ?() => void = null;
+  let currentNetworkSubscription: ?Subscription = networkSubscription;
 
   const retain = (environment: IEnvironment) => {
     retainCount++;
@@ -140,15 +145,24 @@ function createQueryResourceCacheEntry(
     getRetainCount() {
       return retainCount;
     },
-    temporaryRetain(environment: IEnvironment) {
+    getNetworkSubscription() {
+      return currentNetworkSubscription;
+    },
+    setNetworkSubscription(subscription: ?Subscription) {
+      if (currentNetworkSubscription != null) {
+        currentNetworkSubscription.unsubscribe();
+      }
+      currentNetworkSubscription = subscription;
+    },
+    temporaryRetain(environment: IEnvironment): Disposable {
       // NOTE: If we're executing in a server environment, there's no need
       // to create temporary retains, since the component will never commit.
       if (!ExecutionEnvironment.canUseDOM) {
-        return;
+        return {dispose: () => {}};
       }
 
       if (permanentlyRetained === true) {
-        return;
+        return {dispose: () => {}};
       }
 
       // NOTE: temporaryRetain is called during the render phase. However,
@@ -175,14 +189,23 @@ function createQueryResourceCacheEntry(
       // we only ever need a single temporary retain until the permanent retain is
       // established.
       // temporaryRetain may be called multiple times by React during the render
-      // phase, as well multiple times by sibling query components that are
+      // phase, as well multiple times by other query components that are
       // rendering the same query/variables.
       if (releaseTemporaryRetain != null) {
         releaseTemporaryRetain();
       }
       releaseTemporaryRetain = localReleaseTemporaryRetain;
+
+      return {
+        dispose: () => {
+          if (permanentlyRetained === true) {
+            return;
+          }
+          releaseTemporaryRetain && releaseTemporaryRetain();
+        },
+      };
     },
-    permanentRetain(environment: IEnvironment) {
+    permanentRetain(environment: IEnvironment): Disposable {
       const disposable = retain(environment);
       if (releaseTemporaryRetain != null) {
         releaseTemporaryRetain();
@@ -193,6 +216,9 @@ function createQueryResourceCacheEntry(
       return {
         dispose: () => {
           disposable.dispose();
+          if (retainCount <= 0 && currentNetworkSubscription != null) {
+            currentNetworkSubscription.unsubscribe();
+          }
           permanentlyRetained = false;
         },
       };
@@ -205,52 +231,10 @@ function createQueryResourceCacheEntry(
 class QueryResourceImpl {
   _environment: IEnvironment;
   _cache: QueryResourceCache;
-  _logQueryResource: ?(
-    operation: OperationDescriptor,
-    fetchPolicy: FetchPolicy,
-    renderPolicy: RenderPolicy,
-    hasFullQuery: boolean,
-    shouldFetch: boolean,
-  ) => void;
 
   constructor(environment: IEnvironment) {
     this._environment = environment;
     this._cache = LRUCache.create(CACHE_CAPACITY);
-    if (__DEV__) {
-      this._logQueryResource = (
-        operation: OperationDescriptor,
-        fetchPolicy: FetchPolicy,
-        renderPolicy: RenderPolicy,
-        hasFullQuery: boolean,
-        shouldFetch: boolean,
-      ): void => {
-        if (
-          // Disable relay network logging while performing Server-Side
-          // Rendering (SSR)
-          !ExecutionEnvironment.canUseDOM
-        ) {
-          return;
-        }
-        const logger = environment.getLogger({
-          // $FlowFixMe
-          request: {
-            ...operation.request.node.params,
-            name: `${operation.request.node.params.name} (Store Cache)`,
-          },
-          variables: operation.request.variables,
-          cacheConfig: {},
-        });
-        if (!logger) {
-          return;
-        }
-        logger.log('Fetch Policy', fetchPolicy);
-        logger.log('Render Policy', renderPolicy);
-        logger.log('Query', hasFullQuery ? 'Fully cached' : 'Has missing data');
-        logger.log('Network Request', shouldFetch ? 'Required' : 'Skipped');
-        logger.log('Variables', operation.request.variables);
-        logger.flushLogs();
-      };
-    }
   }
 
   /**
@@ -277,6 +261,7 @@ class QueryResourceImpl {
     // 1. Check if there's a cached value for this operation, and reuse it if
     // it's available
     let cacheEntry = this._cache.get(cacheKey);
+    let temporaryRetainDisposable: ?Disposable = null;
     if (cacheEntry == null) {
       // 2. If a cached value isn't available, try fetching the operation.
       // fetchAndSaveQuery will update the cache with either a Promise or
@@ -287,16 +272,30 @@ class QueryResourceImpl {
         fetchObservable,
         fetchPolicy,
         renderPolicy,
-        observer,
+        {
+          ...observer,
+          unsubscribe(subscription) {
+            // 4. If the request is cancelled, make sure to dispose
+            // of the temporary retain; this will ensure that a promise
+            // doesn't remain unnecessarilly cached until the temporary retain
+            // expires. Not clearing the temporary retain might cause the
+            // query to incorrectly re-suspend.
+            if (temporaryRetainDisposable != null) {
+              temporaryRetainDisposable.dispose();
+            }
+            const observerUnsubscribe = observer?.unsubscribe;
+            observerUnsubscribe && observerUnsubscribe(subscription);
+          },
+        },
       );
     }
 
-    // Retain here in render phase. When the Component reading the operation
-    // is committed, we will transfer ownership of data retention to the
-    // component.
-    // In case the component never mounts or updates from this render,
+    // 3. Temporarily retain here in render phase. When the Component reading
+    // the operation is committed, we will transfer ownership of data retention
+    // to the component.
+    // In case the component never commits (mounts or updates) from this render,
     // this data retention hold will auto-release itself afer a timeout.
-    cacheEntry.temporaryRetain(environment);
+    temporaryRetainDisposable = cacheEntry.temporaryRetain(environment);
 
     const cachedValue = cacheEntry.getValue();
     if (isPromise(cachedValue) || cachedValue instanceof Error) {
@@ -313,27 +312,17 @@ class QueryResourceImpl {
   retain(queryResult: QueryResult): Disposable {
     const environment = this._environment;
     const {cacheKey, operation} = queryResult;
-    let cacheEntry = this._cache.get(cacheKey);
-    if (cacheEntry == null) {
-      cacheEntry = createQueryResourceCacheEntry(
-        cacheKey,
-        operation,
-        queryResult,
-        this._onDispose,
-      );
-      this._cache.set(cacheKey, cacheEntry);
-    }
+    const cacheEntry = this._getOrCreateCacheEntry(
+      cacheKey,
+      operation,
+      queryResult,
+      null,
+    );
     const disposable = cacheEntry.permanentRetain(environment);
 
     return {
       dispose: () => {
         disposable.dispose();
-        invariant(
-          cacheEntry != null,
-          'Relay: Expected to have cached a result when disposing query.' +
-            "If you're seeing this, this is likely a bug in Relay.",
-        );
-        this._onDispose(cacheEntry);
       },
     };
   }
@@ -348,21 +337,30 @@ class QueryResourceImpl {
     return this._cache.get(cacheKey);
   }
 
-  _onDispose = (cacheEntry: QueryResourceCacheEntry): void => {
+  _clearCacheEntry = (cacheEntry: QueryResourceCacheEntry): void => {
     if (cacheEntry.getRetainCount() <= 0) {
       this._cache.delete(cacheEntry.cacheKey);
     }
   };
 
-  _cacheResult(operation: OperationDescriptor, cacheKey: string): void {
-    const queryResult = getQueryResult(operation, cacheKey);
-    const cacheEntry = createQueryResourceCacheEntry(
-      cacheKey,
-      operation,
-      queryResult,
-      this._onDispose,
-    );
-    this._cache.set(cacheKey, cacheEntry);
+  _getOrCreateCacheEntry(
+    cacheKey: string,
+    operation: OperationDescriptor,
+    value: Error | Promise<void> | QueryResult,
+    networkSubscription: ?Subscription,
+  ): QueryResourceCacheEntry {
+    let cacheEntry = this._cache.get(cacheKey);
+    if (cacheEntry == null) {
+      cacheEntry = createCacheEntry(
+        cacheKey,
+        operation,
+        value,
+        networkSubscription,
+        this._clearCacheEntry,
+      );
+      this._cache.set(cacheKey, cacheEntry);
+    }
+    return cacheEntry;
   }
 
   _fetchAndSaveQuery(
@@ -414,78 +412,81 @@ class QueryResourceImpl {
     // If it's true, we will cache the query resource and allow rendering to
     // continue.
     if (shouldAllowRender) {
-      this._cacheResult(operation, cacheKey);
+      const queryResult = getQueryResult(operation, cacheKey);
+      const cacheEntry = createCacheEntry(
+        cacheKey,
+        operation,
+        queryResult,
+        null,
+        this._clearCacheEntry,
+      );
+      this._cache.set(cacheKey, cacheEntry);
     }
 
-    if (__DEV__) {
-      switch (fetchPolicy) {
-        case 'store-only':
-        case 'store-or-network':
-        case 'store-and-network':
-          this._logQueryResource &&
-            this._logQueryResource(
-              operation,
-              fetchPolicy,
-              renderPolicy,
-              hasFullQuery,
-              shouldFetch,
-            );
-          break;
-        default:
-          break;
-      }
-    }
+    environment.__log({
+      name: 'queryresource.fetch',
+      operation,
+      fetchPolicy,
+      renderPolicy,
+      hasFullQuery,
+      shouldFetch,
+    });
 
     if (shouldFetch) {
       const queryResult = getQueryResult(operation, cacheKey);
+      let networkSubscription;
       fetchObservable.subscribe({
-        start: observer?.start,
+        start: subscription => {
+          networkSubscription = subscription;
+          const cacheEntry = this._cache.get(cacheKey);
+          if (cacheEntry) {
+            cacheEntry.setNetworkSubscription(networkSubscription);
+          }
+
+          const observerStart = observer?.start;
+          observerStart && observerStart(subscription);
+        },
         next: () => {
           const snapshot = environment.lookup(operation.fragment);
-          if (!snapshot.isMissingData) {
-            const cacheEntry =
-              this._cache.get(cacheKey) ??
-              createQueryResourceCacheEntry(
-                cacheKey,
-                operation,
-                queryResult,
-                this._onDispose,
-              );
-            cacheEntry.setValue(queryResult);
-            this._cache.set(cacheKey, cacheEntry);
-            resolveNetworkPromise();
-          }
+          const cacheEntry = this._getOrCreateCacheEntry(
+            cacheKey,
+            operation,
+            queryResult,
+            networkSubscription,
+          );
+          cacheEntry.setValue(queryResult);
+          resolveNetworkPromise();
 
           const observerNext = observer?.next;
           observerNext && observerNext(snapshot);
         },
         error: error => {
-          const cacheEntry =
-            this._cache.get(cacheKey) ??
-            createQueryResourceCacheEntry(
-              cacheKey,
-              operation,
-              error,
-              this._onDispose,
-            );
+          const cacheEntry = this._getOrCreateCacheEntry(
+            cacheKey,
+            operation,
+            error,
+            networkSubscription,
+          );
           cacheEntry.setValue(error);
-          this._cache.set(cacheKey, cacheEntry);
           resolveNetworkPromise();
 
+          networkSubscription = null;
+          cacheEntry.setNetworkSubscription(null);
           const observerError = observer?.error;
           observerError && observerError(error);
         },
         complete: () => {
           resolveNetworkPromise();
 
+          networkSubscription = null;
+          const cacheEntry = this._cache.get(cacheKey);
+          if (cacheEntry) {
+            cacheEntry.setNetworkSubscription(null);
+          }
           const observerComplete = observer?.complete;
           observerComplete && observerComplete();
         },
-        unsubscribe: subscription => {
-          this._cache.delete(cacheKey);
-          const observerUnsubscribe = observer?.unsubscribe;
-          observerUnsubscribe && observerUnsubscribe(subscription);
-        },
+        unsubscribe: observer?.unsubscribe,
       });
 
       let cacheEntry = this._cache.get(cacheKey);
@@ -498,11 +499,12 @@ class QueryResourceImpl {
         networkPromise.displayName =
           'Relay(' + operation.fragment.node.name + ')';
 
-        cacheEntry = createQueryResourceCacheEntry(
+        cacheEntry = createCacheEntry(
           cacheKey,
           operation,
           networkPromise,
-          this._onDispose,
+          networkSubscription,
+          this._clearCacheEntry,
         );
         this._cache.set(cacheKey, cacheEntry);
       }

@@ -16,6 +16,7 @@ const ReaderCodeGenerator = require('./ReaderCodeGenerator');
 const {createCompilerError} = require('../core/RelayCompilerError');
 
 import type {Fragment, Request, SplitOperation} from '../core/GraphQLIR';
+import type {Schema} from '../core/Schema';
 import type {
   ConcreteRequest,
   NormalizationSplitOperation,
@@ -28,10 +29,16 @@ import type {
  * Converts a GraphQLIR node into a plain JS object representation that can be
  * used at runtime.
  */
-declare function generate(node: Fragment): ReaderFragment;
-declare function generate(node: Request): ConcreteRequest;
-declare function generate(node: SplitOperation): NormalizationSplitOperation;
-function generate(node: Fragment | Request | SplitOperation): any {
+declare function generate(schema: Schema, node: Fragment): ReaderFragment;
+declare function generate(schema: Schema, node: Request): ConcreteRequest;
+declare function generate(
+  schema: Schema,
+  node: SplitOperation,
+): NormalizationSplitOperation;
+function generate(
+  schema: Schema,
+  node: Fragment | Request | SplitOperation,
+): any {
   switch (node.kind) {
     case 'Fragment':
       if (node.metadata?.inlineData === true) {
@@ -40,12 +47,12 @@ function generate(node: Fragment | Request | SplitOperation): any {
           name: node.name,
         };
       }
-      return ReaderCodeGenerator.generate(node);
+      return ReaderCodeGenerator.generate(schema, node);
     case 'Request':
       return {
         kind: 'Request',
-        fragment: ReaderCodeGenerator.generate(node.fragment),
-        operation: NormalizationCodeGenerator.generate(node.root),
+        fragment: ReaderCodeGenerator.generate(schema, node.fragment),
+        operation: NormalizationCodeGenerator.generate(schema, node.root),
         params: {
           operationKind: node.root.operation,
           name: node.name,
@@ -55,7 +62,7 @@ function generate(node: Fragment | Request | SplitOperation): any {
         },
       };
     case 'SplitOperation':
-      return NormalizationCodeGenerator.generate(node);
+      return NormalizationCodeGenerator.generate(schema, node);
   }
   throw createCompilerError(
     `RelayCodeGenerator: Unknown AST kind '${node.kind}'.`,

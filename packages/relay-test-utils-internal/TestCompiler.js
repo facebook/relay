@@ -19,6 +19,7 @@ const {
   IRTransforms,
   compileRelayArtifacts,
   transformASTSchema,
+  Schema,
 } = require('relay-compiler');
 
 import type {GraphQLSchema} from 'graphql';
@@ -73,10 +74,13 @@ function generate(
   moduleMap: ?{[string]: mixed},
 ): {[key: string]: GeneratedNode} {
   const relaySchema = transformASTSchema(schema, IRTransforms.schemaExtensions);
-  const compilerContext = new GraphQLCompilerContext(
-    schema,
+  const {definitions, schema: extendedSchema} = parseGraphQLText(
     relaySchema,
-  ).addAll(parseGraphQLText(relaySchema, text).definitions);
+    text,
+  );
+  const compilerContext = new GraphQLCompilerContext(
+    Schema.DEPRECATED__create(schema, extendedSchema),
+  ).addAll(definitions);
   const documentMap = {};
   compileRelayArtifacts(compilerContext, transforms).forEach(
     ([_definition, node]) => {

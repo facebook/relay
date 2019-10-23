@@ -1,0 +1,76 @@
+# Copyright (c) Facebook, Inc. and its affiliates.
+#
+# This source code is licensed under the MIT license found in the
+# LICENSE file in the root directory of this source tree.
+
+name: CI
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    name: Tests (Node ${{ matrix.node-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [8.x, 10.x, 12.x]
+    steps:
+      - uses: actions/checkout@v1
+      - uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+      - name: Run tests
+        run: yarn run jest
+
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 12.x
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile --ignore-scripts
+      - name: Test dependencies
+        run: yarn run test-dependencies
+      - name: Lint
+        run: yarn run lint
+
+  typecheck:
+    name: Typecheck
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 12.x
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile --ignore-scripts
+      - name: Flow
+        run: yarn run typecheck
+
+  master-release:
+    name: Publish master tag to npm
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.repository == 'facebook/relay' && github.ref == 'refs/heads/master'
+    needs: [build, lint, typecheck]
+    steps:
+      - uses: actions/checkout@v1
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 12.x
+          registry-url: https://registry.npmjs.org/
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile --ignore-scripts
+      - name: Build master version
+        run:  RELEASE_COMMIT_SHA=${{github.sha}} yarn gulp masterrelease
+      - name: Publish to npm
+        run: |
+          for pkg in dist/*; do
+            npm publish "$pkg" --tag master
+          done
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}

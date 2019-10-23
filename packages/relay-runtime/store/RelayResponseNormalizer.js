@@ -412,6 +412,50 @@ class RelayResponseNormalizer {
       startCursor = RelayModernRecord.getValue(pageInfoRecord, START_CURSOR);
     }
 
+    // If streaming is enabled, also emit incremental placeholders for the
+    // edges and pageInfo
+    const stream = selection.stream;
+    const enableStream =
+      stream != null
+        ? stream.if.kind === 'Variable'
+          ? this._variables[stream.if.variableName]
+          : stream.if.value
+        : false;
+    if (stream != null && enableStream === true) {
+      this._incrementalPlaceholders.push({
+        kind: 'connection_edge',
+        args,
+        connectionID,
+        label: stream.streamLabel,
+        path: [...this._path],
+        parentID: pageID,
+        node: selection.edges,
+        variables: this._variables,
+      });
+      this._incrementalPlaceholders.push({
+        kind: 'connection_page_info',
+        args,
+        connectionID,
+        data,
+        label: stream.deferLabel,
+        path: [...this._path],
+        selector: createNormalizationSelector(
+          {
+            alias: null,
+            args: null,
+            concreteType: RelayModernRecord.getType(pageRecord),
+            kind: 'LinkedField',
+            name: '',
+            plural: false,
+            selections: [selection.pageInfo],
+            storageKey: null,
+          },
+          pageID,
+          this._variables,
+        ),
+        typeName: RelayModernRecord.getType(pageRecord),
+      });
+    }
     this._connectionEvents.push({
       kind: 'fetch',
       connectionID,
@@ -424,6 +468,7 @@ class RelayResponseNormalizer {
         hasPrevPage: typeof hasPrevPage === 'boolean' ? hasPrevPage : null,
       },
       request: this._request,
+      stream: enableStream === true,
     });
   }
 

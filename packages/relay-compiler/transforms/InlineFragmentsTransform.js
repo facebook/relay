@@ -48,7 +48,7 @@ function fragmentSpreadVisitor(cache: FragmentVisitorCache): FragmentVisitor {
         'arguments. Use the `ApplyFragmentArgumentTransform` before flattening',
       fragmentSpread.name,
     );
-    const fragment = this.getContext().getFragment(
+    const fragment: Fragment = this.getContext().getFragment(
       fragmentSpread.name,
       fragmentSpread.loc,
     );

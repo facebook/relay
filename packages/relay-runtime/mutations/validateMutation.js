@@ -90,9 +90,7 @@ if (__DEV__) {
   ) => {
     switch (selection.kind) {
       case 'Condition':
-        if (selection.passingValue === context.variables[selection.condition]) {
-          validateSelections(optimisticResponse, selection.selections, context);
-        }
+        validateSelections(optimisticResponse, selection.selections, context);
         return;
       case 'ScalarField':
       case 'LinkedField':

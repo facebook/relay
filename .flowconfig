@@ -29,6 +29,9 @@ suppress_comment=\\(.\\|\n\\)*\\$FlowIssue\\((\\(<VERSION>\\)? *\\(site=[a-z,_]*
 suppress_comment=\\(.\\|\n\\)*\\$FlowExpectedError
 
 experimental.well_formed_exports=true
+experimental.types_first=true
+experimental.abstract_locations=true
+experimental.cache_direct_dependents=true
 
 [lints]
 untyped-type-import=error
@@ -44,4 +47,4 @@ untyped-import
 untyped-type-import
 
 [version]
-^0.108.0
+^0.110.0

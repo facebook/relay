@@ -63,13 +63,15 @@ type ConnectionEvents = {|
   optimistic: ?Array<ConnectionInternalEvent>,
 |};
 type ConnectionSubscription<TEdge, TState> = {|
-  +callback: (state: TState) => void,
+  +callback: (snapshot: ConnectionSnapshot<TEdge, TState>) => void,
   +id: string,
   +resolver: ConnectionResolver<TEdge, TState>,
   snapshot: ConnectionSnapshot<TEdge, TState>,
   backup: ?ConnectionSnapshot<TEdge, TState>,
   stale: boolean,
 |};
+
+const DEFAULT_RELEASE_BUFFER_SIZE = 0;
 
 /**
  * @public
@@ -86,25 +88,30 @@ type ConnectionSubscription<TEdge, TState> = {|
 class RelayModernStore implements Store {
   _connectionEvents: Map<ConnectionID, ConnectionEvents>;
   _connectionSubscriptions: Map<string, ConnectionSubscription<mixed, mixed>>;
+  _gcHoldCounter: number;
+  _gcReleaseBufferSize: number;
   _gcScheduler: Scheduler;
+  _getDataID: GetDataID;
   _hasScheduledGC: boolean;
   _index: number;
   _operationLoader: ?OperationLoader;
   _optimisticSource: ?MutableRecordSource;
   _recordSource: MutableRecordSource;
+  _releaseBuffer: Array<number>;
   _roots: Map<number, NormalizationSelector>;
+  _shouldScheduleGC: boolean;
   _subscriptions: Set<Subscription>;
   _updatedConnectionIDs: UpdatedConnections;
   _updatedRecordIDs: UpdatedRecords;
-  _gcHoldCounter: number;
-  _shouldScheduleGC: boolean;
-  _getDataID: GetDataID;
 
   constructor(
     source: MutableRecordSource,
-    gcScheduler: Scheduler = resolveImmediate,
-    operationLoader: ?OperationLoader = null,
-    UNSTABLE_DO_NOT_USE_getDataID?: ?GetDataID,
+    options?: {|
+      gcScheduler?: ?Scheduler,
+      operationLoader?: ?OperationLoader,
+      UNSTABLE_DO_NOT_USE_getDataID?: ?GetDataID,
+      gcReleaseBufferSize?: ?number,
+    |},
   ) {
     // Prevent mutation of a record from outside the store.
     if (__DEV__) {
@@ -118,19 +125,23 @@ class RelayModernStore implements Store {
     }
     this._connectionEvents = new Map();
     this._connectionSubscriptions = new Map();
-    this._gcScheduler = gcScheduler;
+    this._gcHoldCounter = 0;
+    this._gcReleaseBufferSize =
+      options?.gcReleaseBufferSize ?? DEFAULT_RELEASE_BUFFER_SIZE;
+    this._gcScheduler = options?.gcScheduler ?? resolveImmediate;
+    this._getDataID =
+      options?.UNSTABLE_DO_NOT_USE_getDataID ?? defaultGetDataID;
     this._hasScheduledGC = false;
     this._index = 0;
-    this._operationLoader = operationLoader;
+    this._operationLoader = options?.operationLoader ?? null;
     this._optimisticSource = null;
     this._recordSource = source;
+    this._releaseBuffer = [];
     this._roots = new Map();
+    this._shouldScheduleGC = false;
     this._subscriptions = new Set();
     this._updatedConnectionIDs = {};
     this._updatedRecordIDs = {};
-    this._gcHoldCounter = 0;
-    this._shouldScheduleGC = false;
-    this._getDataID = UNSTABLE_DO_NOT_USE_getDataID ?? defaultGetDataID;
   }
 
   getSource(): RecordSource {
@@ -162,8 +173,16 @@ class RelayModernStore implements Store {
   retain(selector: NormalizationSelector): Disposable {
     const index = this._index++;
     const dispose = () => {
-      this._roots.delete(index);
-      this._scheduleGC();
+      // When disposing, move the selector onto the release buffer
+      this._releaseBuffer.push(index);
+
+      // Only when the release buffer is full do we actually
+      // release the selector and run GC
+      if (this._releaseBuffer.length > this._gcReleaseBufferSize) {
+        const idx = this._releaseBuffer.shift();
+        this._roots.delete(idx);
+        this._scheduleGC();
+      }
     };
     this._roots.set(index, selector);
     return {dispose};
@@ -191,7 +210,7 @@ class RelayModernStore implements Store {
     this._connectionSubscriptions.forEach((subscription, id) => {
       if (subscription.stale) {
         subscription.stale = false;
-        subscription.callback(subscription.snapshot.state);
+        subscription.callback(subscription.snapshot);
       }
     });
     this._updatedConnectionIDs = {};
@@ -330,7 +349,7 @@ class RelayModernStore implements Store {
   subscribeConnection_UNSTABLE<TEdge, TState>(
     snapshot: ConnectionSnapshot<TEdge, TState>,
     resolver: ConnectionResolver<TEdge, TState>,
-    callback: TState => void,
+    callback: (ConnectionSnapshot<TEdge, TState>) => void,
   ): Disposable {
     invariant(
       RelayFeatureFlags.ENABLE_CONNECTION_RESOLVERS,
@@ -512,6 +531,7 @@ class RelayModernStore implements Store {
             args: event.args,
             edges,
             pageInfo: event.pageInfo,
+            stream: event.stream,
           });
         } else if (event.kind === 'insert') {
           const edgeSnapshot = RelayReader.read(
@@ -530,6 +550,31 @@ class RelayModernStore implements Store {
             args: event.args,
             edge: itemData,
             kind: 'insert',
+          });
+        } else if (event.kind === 'stream.edge') {
+          const edgeSnapshot = RelayReader.read(
+            this.getSource(),
+            createReaderSelector(
+              fragment,
+              event.edgeID,
+              variables,
+              event.request,
+            ),
+          );
+          Object.assign(seenRecords, edgeSnapshot.seenRecords);
+          const itemData = ((edgeSnapshot.data: $FlowFixMe): ?TEdge);
+          edgeSnapshots[event.edgeID] = edgeSnapshot;
+          return resolver.reduce(prevState, {
+            args: event.args,
+            edge: itemData,
+            index: event.index,
+            kind: 'stream.edge',
+          });
+        } else if (event.kind === 'stream.pageInfo') {
+          return resolver.reduce(prevState, {
+            args: event.args,
+            kind: 'stream.pageInfo',
+            pageInfo: event.pageInfo,
           });
         } else {
           (event.kind: empty);

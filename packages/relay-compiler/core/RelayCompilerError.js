@@ -98,40 +98,14 @@ function createCompilerError(
 }
 
 /**
- * Merges the results of multiple user errors into one so that they
- * can be reported in bulk.
- */
-function createCombinedError(
-  errors: $ReadOnlyArray<UserError>,
-  maybePrefix?: ?string,
-): CombinedUserError {
-  const prefix = maybePrefix != null ? `${maybePrefix}: ` : '';
-  return new Error(
-    `${prefix}Encountered ${errors.length} error(s):\n` +
-      errors
-        .map(error =>
-          String(error)
-            .split('\n')
-            .map((line, index) => (index === 0 ? `- ${line}` : `  ${line}`))
-            .join('\n'),
-        )
-        .join('\n'),
-  );
-}
-
-/**
  * Iterates over the elements of some iterable value, calling the
  * supplied callback for each item with a guard for user errors.
- * Returns null if the iteration completed without errors, otherwise
- * returns an array of all the user errors encountered.
  *
- * Note that non-user errors are rethrown since they are
- * non-recoverable.
+ * Non-user errors abort the iteration and are instantly rethrown.
+ * User errors are collected and rethrown at the end, if multiple user errors
+ * occur, a combined error is thrown.
  */
-function eachWithErrors<T, T2>(
-  iterable: Iterable<T>,
-  fn: T => T2,
-): $ReadOnlyArray<UserError> | null {
+function eachWithCombinedError<T>(iterable: Iterable<T>, fn: T => void): void {
   const errors: Array<UserError> = [];
   for (const item of iterable) {
     try {
@@ -144,10 +118,22 @@ function eachWithErrors<T, T2>(
       }
     }
   }
-  if (errors.length !== 0) {
-    return errors;
+  if (errors.length > 0) {
+    if (errors.length === 1) {
+      throw errors[0];
+    }
+    throw createUserError(
+      `Encountered ${errors.length} errors:\n` +
+        errors
+          .map(error =>
+            String(error)
+              .split('\n')
+              .map((line, index) => (index === 0 ? `- ${line}` : `  ${line}`))
+              .join('\n'),
+          )
+          .join('\n'),
+    );
   }
-  return null;
 }
 
 function printLocations(locations: $ReadOnlyArray<Location>): Array<string> {
@@ -257,9 +243,8 @@ function getLocation(source: Source, position: number): SourceLocation {
 }
 
 module.exports = {
-  createCombinedError,
   createCompilerError,
   createNonRecoverableUserError,
   createUserError,
-  eachWithErrors,
+  eachWithCombinedError,
 };

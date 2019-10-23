@@ -527,6 +527,14 @@ describe('execute() a query with @match', () => {
     expect(callbacks.error).toBeCalledTimes(0);
     expect(callbacks.next).toBeCalledTimes(1);
 
+    // The query should still be tracked as in flight
+    // even if the network completed, since we're waiting for a 3d payload
+    expect(
+      environment
+        .getOperationTracker()
+        .getPromiseForPendingOperationsAffectingOwner(operation.request),
+    ).not.toBe(null);
+
     expect(operationLoader.load).toBeCalledTimes(1);
     expect(operationLoader.load.mock.calls[0][0]).toBe(
       'MarkdownUserNameRenderer_name$normalization.graphql',
@@ -536,6 +544,13 @@ describe('execute() a query with @match', () => {
     expect(callbacks.complete).toBeCalledTimes(1);
     expect(callbacks.error).toBeCalledTimes(0);
     expect(callbacks.next).toBeCalledTimes(1);
+
+    // The query should no longer be tracked as in flight
+    expect(
+      environment
+        .getOperationTracker()
+        .getPromiseForPendingOperationsAffectingOwner(operation.request),
+    ).toBe(null);
   });
 
   it('calls complete() if the network completes after processing the match', () => {
@@ -571,10 +586,25 @@ describe('execute() a query with @match', () => {
     expect(callbacks.error).toBeCalledTimes(0);
     expect(callbacks.next).toBeCalledTimes(1);
 
+    // The query should still be tracked as in flight
+    // since the network hasn't completed
+    expect(
+      environment
+        .getOperationTracker()
+        .getPromiseForPendingOperationsAffectingOwner(operation.request),
+    ).not.toBe(null);
+
     dataSource.complete();
     expect(callbacks.complete).toBeCalledTimes(1);
     expect(callbacks.error).toBeCalledTimes(0);
     expect(callbacks.next).toBeCalledTimes(1);
+
+    // The query should no longer be tracked as in flight
+    expect(
+      environment
+        .getOperationTracker()
+        .getPromiseForPendingOperationsAffectingOwner(operation.request),
+    ).toBe(null);
   });
 
   it('calls error() if the operationLoader function throws synchronously', () => {

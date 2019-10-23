@@ -18,7 +18,7 @@ const invariant = require('invariant');
 import type {GraphQLResponse} from '../network/RelayNetworkTypes';
 import type {Subscription} from '../network/RelayObservable';
 import type {
-  Environment,
+  IEnvironment,
   OperationDescriptor,
   RequestDescriptor,
 } from '../store/RelayStoreTypes';
@@ -28,6 +28,7 @@ import type {RequestIdentifier} from '../util/getRequestIdentifier';
 type RequestCacheEntry = {|
   +identifier: RequestIdentifier,
   +subject: RelayReplaySubject<GraphQLResponse>,
+  +subjectForInFlightStatus: RelayReplaySubject<GraphQLResponse>,
   +subscription: Subscription,
 |};
 
@@ -97,7 +98,7 @@ const requestCachesByEnvironment = new Map();
  * ```
  */
 function fetchQuery(
-  environment: Environment,
+  environment: IEnvironment,
   operation: OperationDescriptor,
   options?: {|
     networkCacheConfig?: CacheConfig,
@@ -119,7 +120,7 @@ function fetchQuery(
  * have an `OperationDescriptor` when they are called).
  */
 function fetchQueryDeduped(
-  environment: Environment,
+  environment: IEnvironment,
   request: RequestDescriptor,
   fetchFn: () => Observable<GraphQLResponse>,
 ): Observable<GraphQLResponse> {
@@ -136,18 +137,30 @@ function fetchQueryDeduped(
             cachedRequest = {
               identifier,
               subject: new RelayReplaySubject(),
+              subjectForInFlightStatus: new RelayReplaySubject(),
               subscription: subscription,
             };
             requestCache.set(identifier, cachedRequest);
           },
           next: response => {
-            getCachedRequest(requestCache, identifier).subject.next(response);
+            const cachedReq = getCachedRequest(requestCache, identifier);
+            cachedReq.subject.next(response);
+            cachedReq.subjectForInFlightStatus.next(response);
           },
           error: error => {
-            getCachedRequest(requestCache, identifier).subject.error(error);
+            const cachedReq = getCachedRequest(requestCache, identifier);
+            cachedReq.subject.error(error);
+            cachedReq.subjectForInFlightStatus.error(error);
           },
           complete: () => {
-            getCachedRequest(requestCache, identifier).subject.complete();
+            const cachedReq = getCachedRequest(requestCache, identifier);
+            cachedReq.subject.complete();
+            cachedReq.subjectForInFlightStatus.complete();
+          },
+          unsubscribe: subscription => {
+            const cachedReq = getCachedRequest(requestCache, identifier);
+            cachedReq.subject.unsubscribe();
+            cachedReq.subjectForInFlightStatus.unsubscribe();
           },
         });
     }
@@ -191,13 +204,36 @@ function getObservableForCachedRequest(
 }
 
 /**
+ * @private
+ */
+function getInFlightStatusObservableForCachedRequest(
+  requestCache: Map<RequestIdentifier, RequestCacheEntry>,
+  cachedRequest: RequestCacheEntry,
+): Observable<GraphQLResponse> {
+  return Observable.create(sink => {
+    const subscription = cachedRequest.subjectForInFlightStatus.subscribe({
+      error: sink.error,
+      next: sink.next,
+      complete: sink.complete,
+      unsubscribe() {
+        sink.complete();
+      },
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  });
+}
+
+/**
  * If a request is in flight for the given query, variables and environment,
  * this function will return a Promise that will resolve when that request has
  * completed and the data has been saved to the store.
  * If no request is in flight, null will be returned
  */
 function getPromiseForRequestInFlight(
-  environment: Environment,
+  environment: IEnvironment,
   request: RequestDescriptor,
 ): Promise<?GraphQLResponse> | null {
   const requestCache = getRequestCache(environment);
@@ -208,7 +244,10 @@ function getPromiseForRequestInFlight(
 
   return new Promise((resolve, reject) => {
     let resolveOnNext = false;
-    getObservableForCachedRequest(requestCache, cachedRequest).subscribe({
+    getInFlightStatusObservableForCachedRequest(
+      requestCache,
+      cachedRequest,
+    ).subscribe({
       complete: resolve,
       error: reject,
       next: response => {
@@ -234,7 +273,7 @@ function getPromiseForRequestInFlight(
  * issue a fetch if there isn't already one pending.
  */
 function getObservableForRequestInFlight(
-  environment: Environment,
+  environment: IEnvironment,
   request: RequestDescriptor,
 ): Observable<GraphQLResponse> | null {
   const requestCache = getRequestCache(environment);
@@ -243,11 +282,14 @@ function getObservableForRequestInFlight(
     return null;
   }
 
-  return getObservableForCachedRequest(requestCache, cachedRequest);
+  return getInFlightStatusObservableForCachedRequest(
+    requestCache,
+    cachedRequest,
+  );
 }
 
 function hasRequestInFlight(
-  environment: Environment,
+  environment: IEnvironment,
   request: RequestDescriptor,
 ): boolean {
   const requestCache = getRequestCache(environment);
@@ -258,7 +300,7 @@ function hasRequestInFlight(
  * @private
  */
 function getRequestCache(
-  environment: Environment,
+  environment: IEnvironment,
 ): Map<RequestIdentifier, RequestCacheEntry> {
   const cached: ?Map<
     RequestIdentifier,

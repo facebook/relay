@@ -268,15 +268,6 @@ class ReactRelayQueryRenderer extends React.Component<Props, State> {
   }
 }
 
-function getContext(
-  environment: IEnvironment,
-  variables: Variables,
-): RelayContext {
-  return {
-    environment,
-    variables,
-  };
-}
 function getLoadingRenderProps(): RenderProps<Object> {
   return {
     error: null,
@@ -343,10 +334,9 @@ function fetchQueryAndComputeStateFromProps(
   if (query) {
     const request = getRequest(query);
     const operation = createOperationDescriptor(request, variables);
-    const relayContext = getContext(
-      genericEnvironment,
-      operation.request.variables,
-    );
+    const relayContext: RelayContext = {
+      environment: genericEnvironment,
+    };
     if (typeof requestCacheKey === 'string' && requestCache[requestCacheKey]) {
       // This same request is already in flight.
 
@@ -432,7 +422,9 @@ function fetchQueryAndComputeStateFromProps(
     }
   } else {
     queryFetcher.dispose();
-    const relayContext = getContext(genericEnvironment, variables);
+    const relayContext: RelayContext = {
+      environment: genericEnvironment,
+    };
     return {
       error: null,
       relayContext,

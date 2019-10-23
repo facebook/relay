@@ -29,7 +29,7 @@ const parseGraphQL = Profiler.instrument(GraphQL.parse, 'GraphQL.parse');
 
 module.exports = (
   tagFinder: GraphQLTagFinder,
-): $TEMPORARY$object<{|
+): {|
   getFileFilter: (baseDir: string) => FileFilter,
   getParser: (baseDir: string) => ASTCache,
   parseFile: (baseDir: string, file: File) => ?DocumentNode,
@@ -40,7 +40,7 @@ module.exports = (
     +document: DocumentNode,
     +sources: $ReadOnlyArray<string>,
   |},
-|}> => {
+|} => {
   const memoizedTagFinder = memoizedFind.bind(null, tagFinder);
 
   function parseFile(baseDir: string, file: File): ?DocumentNode {

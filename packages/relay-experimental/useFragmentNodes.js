@@ -41,7 +41,7 @@ function useFragmentNodes<TFragmentSpec: {}>(
   const FragmentResource = getFragmentResourceForEnvironment(environment);
 
   const isMountedRef = useRef(false);
-  const [_, forceUpdate] = useState(0);
+  const [, forceUpdate] = useState(0);
   const fragmentSpecIdentifier = getFragmentSpecIdentifier(
     fragmentNodes,
     props,
@@ -54,18 +54,8 @@ function useFragmentNodes<TFragmentSpec: {}>(
   const mustResubscribeGenerationRef = useRef(0);
   const shouldUpdateGenerationRef = useRef(0);
 
-  // We mirror the environment to check if it has changed between renders
-  const [mirroredEnvironment, setMirroredEnvironment] = useState(environment);
-  const environmentChanged = mirroredEnvironment !== environment;
-
-  // We mirror the fragmentSpec identifier to check if it has changed between
-  // renders
-  const [
-    mirroredFragmentSpecIdentifier,
-    setMirroredFragmentSpecIdentifier,
-  ] = useState(fragmentSpecIdentifier);
-  const fragmentSpecIdentifierChanged =
-    mirroredFragmentSpecIdentifier !== fragmentSpecIdentifier;
+  const environmentChanged = useHasChanged(environment);
+  const fragmentSpecIdentifierChanged = useHasChanged(fragmentSpecIdentifier);
 
   // If the fragment identifier changes, it means that the variables on the
   // fragment owner changed, or the fragment refs point to different records.
@@ -105,19 +95,11 @@ function useFragmentNodes<TFragmentSpec: {}>(
   const shouldUpdate = mustResubscribe || scalarNonFragmentRefPropsChanged;
 
   if (shouldUpdate) {
-    shouldUpdateGenerationRef.current =
-      (shouldUpdateGenerationRef.current ?? 0) + 1;
+    shouldUpdateGenerationRef.current++;
   }
 
   if (mustResubscribe) {
-    mustResubscribeGenerationRef.current =
-      (mustResubscribeGenerationRef.current ?? 0) + 1;
-    if (environmentChanged) {
-      setMirroredEnvironment(environment);
-    }
-    if (fragmentSpecIdentifierChanged) {
-      setMirroredFragmentSpecIdentifier(fragmentSpecIdentifier);
-    }
+    mustResubscribeGenerationRef.current++;
   }
 
   // Since `props` contains both fragment refs and regular props, we need to
@@ -217,6 +199,15 @@ function useFragmentNodes<TFragmentSpec: {}>(
     enableStoreUpdates,
     shouldUpdateGeneration: shouldUpdateGenerationRef.current,
   };
+}
+
+function useHasChanged(value: mixed): boolean {
+  const [mirroredValue, setMirroredValue] = useState(value);
+  const valueChanged = mirroredValue !== value;
+  if (valueChanged) {
+    setMirroredValue(value);
+  }
+  return valueChanged;
 }
 
 module.exports = (RelayProfiler.instrument(

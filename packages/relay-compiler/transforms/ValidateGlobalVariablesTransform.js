@@ -13,9 +13,8 @@
 const inferRootArgumentDefinitions = require('../core/inferRootArgumentDefinitions');
 
 const {
-  createCombinedError,
   createUserError,
-  eachWithErrors,
+  eachWithCombinedError,
 } = require('../core/RelayCompilerError');
 
 import type GraphQLCompilerContext from '../core/GraphQLCompilerContext';
@@ -30,7 +29,7 @@ function validateGlobalVariablesTransform(
   context: GraphQLCompilerContext,
 ): GraphQLCompilerContext {
   const contextWithUsedArguments = inferRootArgumentDefinitions(context);
-  const errors = eachWithErrors(context.documents(), node => {
+  eachWithCombinedError(context.documents(), node => {
     if (node.kind !== 'Root') {
       return;
     }
@@ -51,15 +50,17 @@ function validateGlobalVariablesTransform(
         `Operation '${
           node.name
         }' references undefined variable(s):\n${undefinedVariables
-          .map(argDef => `- \$${argDef.name}: ${String(argDef.type)}`)
+          .map(
+            argDef =>
+              `- \$${argDef.name}: ${context
+                .getSchema()
+                .getTypeString(argDef.type)}`,
+          )
           .join('\n')}.`,
         undefinedVariables.map(argDef => argDef.loc),
       );
     }
   });
-  if (errors != null && errors.length !== 0) {
-    throw createCombinedError(errors);
-  }
   return context;
 }
 

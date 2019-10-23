@@ -4,6 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
+ * @flow strict-local
  * @format
  * @emails oncall+relay
  */
@@ -12,6 +13,7 @@
 
 const GraphQLCompilerContext = require('../../core/GraphQLCompilerContext');
 const GraphQLIRPrinter = require('../../core/GraphQLIRPrinter');
+const Schema = require('../../core/Schema');
 const SkipUnusedVariablesTransform = require('../SkipUnusedVariablesTransform');
 
 const {
@@ -24,11 +26,12 @@ generateTestsFromFixtures(
   `${__dirname}/fixtures/skip-unused-variables-transform`,
   text => {
     const {definitions} = parseGraphQLText(TestSchema, text);
-    return new GraphQLCompilerContext(TestSchema)
+    const compilerSchema = Schema.DEPRECATED__create(TestSchema);
+    return new GraphQLCompilerContext(compilerSchema)
       .addAll(definitions)
       .applyTransforms([SkipUnusedVariablesTransform.transform])
       .documents()
-      .map(GraphQLIRPrinter.print)
+      .map(doc => GraphQLIRPrinter.print(compilerSchema, doc))
       .join('\n');
   },
 );

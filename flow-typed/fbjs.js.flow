@@ -1,3 +1,10 @@
+/**
+ * Copyright (c) Facebook, Inc. and its affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
 declare module 'mapObject' {
   declare module.exports: any;
 }
@@ -22,4 +29,12 @@ declare module 'fbjs/lib/ExecutionEnvironment' {
 
 declare module 'react-test-renderer' {
   declare module.exports: any;
+}
+
+declare module 'JSResourceReference' {
+  declare export interface JSResourceReference<T> {
+    getModuleId(): string;
+    getModuleIfRequired(): T;
+    load(): Promise<T>;
+  }
 }

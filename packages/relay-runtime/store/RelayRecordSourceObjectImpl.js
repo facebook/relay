@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @flow
+ * @flow strict-local
  * @format
  */
 
@@ -68,7 +68,7 @@ class RelayRecordSourceObjectImpl implements MutableRecordSource {
     return Object.keys(this._records).length;
   }
 
-  toJSON(): Object {
+  toJSON(): RecordMap {
     return this._records;
   }
 }

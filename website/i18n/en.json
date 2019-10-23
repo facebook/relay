@@ -323,6 +323,12 @@
       "version-classic/version-classic-videos": {
         "title": "Videos"
       },
+      "version-experimental/version-experimental-a-guided-tour-of-relay": {
+        "title": "A Guided Tour of Relay"
+      },
+      "version-experimental/version-experimental-api-reference": {
+        "title": "API Reference"
+      },
       "version-v1.7.0/version-v1.7.0-installation-and-setup": {
         "title": "Installation and Setup"
       },
@@ -513,6 +519,7 @@
       "Principles & Architecture": "Principles & Architecture",
       "Community": "Community",
       "Migration Guides": "Migration Guides",
+      "Relay Hooks": "Relay Hooks",
       "Relay Classic Guides": "Relay Classic Guides",
       "Relay Classic API": "Relay Classic API",
       "Relay Classic Interfaces": "Relay Classic Interfaces"

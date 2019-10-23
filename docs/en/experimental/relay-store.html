@@ -1,0 +1,376 @@
+<!DOCTYPE html><html lang="en"><head><meta charSet="utf-8"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><title>Relay Store · Relay</title><meta name="viewport" content="width=device-width"/><meta name="generator" content="Docusaurus"/><meta name="description" content="The Relay Store can be used to programatically update client-side data inside [`updater` functions](./mutations.html#using-updater-and-optimisticupdater). The following is a reference of the Relay Store interface."/><meta name="docsearch:version" content="experimental"/><meta name="docsearch:language" content="en"/><meta property="og:title" content="Relay Store · Relay"/><meta property="og:type" content="website"/><meta property="og:url" content="https://relay.dev/"/><meta property="og:description" content="The Relay Store can be used to programatically update client-side data inside [`updater` functions](./mutations.html#using-updater-and-optimisticupdater). The following is a reference of the Relay Store interface."/><meta name="twitter:card" content="summary"/><link rel="shortcut icon" href="/img/favicon.png"/><link rel="stylesheet" href="https://cdn.jsdelivr.net/docsearch.js/1/docsearch.min.css"/><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css"/><script type="text/javascript" src="/js/redirect.js"></script><script src="https://unpkg.com/vanilla-back-to-top@7.1.14/dist/vanilla-back-to-top.min.js"></script><script>
+        document.addEventListener('DOMContentLoaded', function() {
+          addBackToTop(
+            {"zIndex":100}
+          )
+        });
+        </script><script src="/js/scrollSpy.js"></script><link rel="stylesheet" href="/css/main.css"/><script src="/js/codetabs.js"></script></head><body class="sideNavVisible separateOnPageNav"><div class="fixedHeaderContainer"><div class="headerWrapper wrapper"><header><a href="/en"><img class="logo" src="/img/relay-white.svg" alt="Relay"/><h2 class="headerTitleWithLogo">Relay</h2></a><a href="/en/versions"><h3>experimental</h3></a><div class="navigationWrapper navigationSlider"><nav class="slidingNav"><ul class="nav-site nav-site-internal"><li class=""><a href="/docs/en/experimental/introduction-to-relay" target="_self">Docs</a></li><li class=""><a href="/en/help" target="_self">Support</a></li><li class=""><a href="https://github.com/facebook/relay" target="_self">GitHub</a></li><li class=""><a target="_self"></a></li><li class="navSearchWrapper reactNavSearchWrapper"><input type="text" id="search_input_react" placeholder="Search" title="Search"/></li></ul></nav></div></header></div></div><div class="navPusher"><div class="docMainWrapper wrapper"><div class="container mainContainer"><div class="wrapper"><div class="post"><header class="postHeader"><a class="edit-page-link button" href="https://github.com/facebook/relay/edit/master/docs/Modern-RelayStore.md" target="_blank" rel="noreferrer noopener">Edit</a><h1 class="postHeaderTitle">Relay Store</h1></header><article><div><span><p>The Relay Store can be used to programatically update client-side data inside <a href="./mutations.html#using-updater-and-optimisticupdater"><code>updater</code> functions</a>. The following is a reference of the Relay Store interface.</p>
+<p>Table of Contents:</p>
+<ul>
+<li><a href="#recordsourceselectorproxy">RecordSourceSelectorProxy</a></li>
+<li><a href="#recordproxy">RecordProxy</a></li>
+<li><a href="#connectionhandler">ConnectionHandler</a></li>
+</ul>
+<h2><a class="anchor" aria-hidden="true" id="recordsourceselectorproxy"></a><a href="#recordsourceselectorproxy" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>RecordSourceSelectorProxy</h2>
+<p>The <code>RecordSourceSelectorProxy</code> is the type of the <code>store</code> that <a href="./mutations.html#using-updater-and-optimisticupdater"><code>updater</code> functions</a> receive as an argument. The following is the <code>RecordSourceSelectorProxy</code> interface:</p>
+<pre><code class="hljs css language-javascript">interface RecordSourceSelectorProxy {
+  create(dataID: string, <span class="hljs-attr">typeName</span>: string): RecordProxy;
+  <span class="hljs-keyword">delete</span>(dataID: string): <span class="hljs-keyword">void</span>;
+  <span class="hljs-keyword">get</span>(dataID: string): ?RecordProxy;
+  getRoot(): RecordProxy;
+  getRootField(fieldName: string): ?RecordProxy;
+  getPluralRootField(fieldName: string): ?Array&lt;?RecordProxy&gt;;
+}
+</code></pre>
+<h3><a class="anchor" aria-hidden="true" id="createdataid-string-typename-string-recordproxy"></a><a href="#createdataid-string-typename-string-recordproxy" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>create(dataID: string, typeName: string): RecordProxy</code></h3>
+<p>Creates a new record in the store given a <code>dataID</code> and the <code>typeName</code> as defined by the GraphQL schema. Returns a <a href="#recordproxy"><code>RecordProxy</code></a> which serves as an interface to mutate the newly created record.</p>
+<h4><a class="anchor" aria-hidden="true" id="example"></a><a href="#example" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Example</h4>
+<pre><code class="hljs css language-javascript"><span class="hljs-keyword">const</span> record = store.create(dataID, <span class="hljs-string">'Todo'</span>);
+</code></pre>
+<h3><a class="anchor" aria-hidden="true" id="deletedataid-string-void"></a><a href="#deletedataid-string-void" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>delete(dataID: string): void</code></h3>
+<p>Deletes a record from the store given its <code>dataID</code>.</p>
+<h4><a class="anchor" aria-hidden="true" id="example-1"></a><a href="#example-1" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Example</h4>
+<pre><code class="hljs css language-javascript">store.delete(dataID);
+</code></pre>
+<h3><a class="anchor" aria-hidden="true" id="getdataid-string-recordproxy"></a><a href="#getdataid-string-recordproxy" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>get(dataID: string): ?RecordProxy</code></h3>
+<p>Retrieves a record from the store given its <code>dataID</code>. Returns a <a href="#recordproxy"><code>RecordProxy</code></a> which serves as an interface to mutate the record.</p>
+<h4><a class="anchor" aria-hidden="true" id="example-2"></a><a href="#example-2" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Example</h4>
+<pre><code class="hljs css language-javascript"><span class="hljs-keyword">const</span> record = store.get(dataID);
+</code></pre>
+<h3><a class="anchor" aria-hidden="true" id="getroot-recordproxy"></a><a href="#getroot-recordproxy" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>getRoot(): RecordProxy</code></h3>
+<p>Returns the <a href="#recordproxy"><code>RecordProxy</code></a> representing the root of the GraphQL document.</p>
+<h4><a class="anchor" aria-hidden="true" id="example-3"></a><a href="#example-3" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Example</h4>
+<p>Given the GraphQL document:</p>
+<pre><code class="hljs css language-graphql"><span class="hljs-section">viewer</span> {
+  <span class="hljs-attribute">id</span>
+}
+</code></pre>
+<p>Usage:</p>
+<pre><code class="hljs css language-javascript"><span class="hljs-comment">// Represents root query</span>
+<span class="hljs-keyword">const</span> root = store.getRoot();
+</code></pre>
+<h3><a class="anchor" aria-hidden="true" id="getrootfieldfieldname-string-recordproxy"></a><a href="#getrootfieldfieldname-string-recordproxy" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>getRootField(fieldName: string): ?RecordProxy</code></h3>
+<p>Retrieves a root field from the store given the <code>fieldName</code>, as defined by the GraphQL document. Returns a <a href="#recordproxy"><code>RecordProxy</code></a> which serves as an interface to mutate the record.</p>
+<h4><a class="anchor" aria-hidden="true" id="example-4"></a><a href="#example-4" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Example</h4>
+<p>Given the GraphQL document:</p>
+<pre><code class="hljs css language-graphql"><span class="hljs-section">viewer</span> {
+  <span class="hljs-attribute">id</span>
+}
+</code></pre>
+<p>Usage:</p>
+<pre><code class="hljs css language-javascript"><span class="hljs-keyword">const</span> viewer = store.getRootField(<span class="hljs-string">'viewer'</span>);
+</code></pre>
+<h3><a class="anchor" aria-hidden="true" id="getpluralrootfieldfieldname-string-array-recordproxy"></a><a href="#getpluralrootfieldfieldname-string-array-recordproxy" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>getPluralRootField(fieldName: string): ?Array&lt;?RecordProxy&gt;</code></h3>
+<p>Retrieves a root field that represents a collection from the store given the <code>fieldName</code>, as defined by the GraphQL document. Returns an array of <a href="#recordproxy"><code>RecordProxies</code></a>.</p>
+<h4><a class="anchor" aria-hidden="true" id="example-5"></a><a href="#example-5" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Example</h4>
+<p>Given the GraphQL document:</p>
+<pre><code class="hljs css language-graphql">nodes(<span class="hljs-keyword">first</span>: <span class="hljs-number">10</span>) {
+  <span class="hljs-comment"># ...</span>
+}
+</code></pre>
+<p>Usage:</p>
+<pre><code class="hljs css language-javascript"><span class="hljs-keyword">const</span> nodes = store.getPluralRootField(<span class="hljs-string">'nodes'</span>);
+</code></pre>
+<h2><a class="anchor" aria-hidden="true" id="recordproxy"></a><a href="#recordproxy" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>RecordProxy</h2>
+<p>The <code>RecordProxy</code> serves as an interface to mutate records:</p>
+<pre><code class="hljs css language-javascript">interface RecordProxy {
+  copyFieldsFrom(sourceRecord: RecordProxy): <span class="hljs-keyword">void</span>;
+  getDataID(): string;
+  getLinkedRecord(name: string, <span class="hljs-built_in">arguments</span>?: ?<span class="hljs-built_in">Object</span>): ?RecordProxy;
+  getLinkedRecords(name: string, <span class="hljs-built_in">arguments</span>?: ?<span class="hljs-built_in">Object</span>): ?<span class="hljs-built_in">Array</span>&lt;?RecordProxy&gt;;
+  getOrCreateLinkedRecord(
+    name: string,
+    <span class="hljs-attr">typeName</span>: string,
+    <span class="hljs-built_in">arguments</span>?: ?<span class="hljs-built_in">Object</span>,
+  ): RecordProxy;
+  getType(): string;
+  getValue(name: string, <span class="hljs-built_in">arguments</span>?: ?<span class="hljs-built_in">Object</span>): mixed;
+  setLinkedRecord(
+    record: RecordProxy,
+    <span class="hljs-attr">name</span>: string,
+    <span class="hljs-built_in">arguments</span>?: ?<span class="hljs-built_in">Object</span>,
+  ): RecordProxy;
+  setLinkedRecords(
+    records: <span class="hljs-built_in">Array</span>&lt;?RecordProxy&gt;,
+    <span class="hljs-attr">name</span>: string,
+    <span class="hljs-built_in">arguments</span>?: ?<span class="hljs-built_in">Object</span>,
+  ): RecordProxy;
+  setValue(value: mixed, <span class="hljs-attr">name</span>: string, <span class="hljs-built_in">arguments</span>?: ?<span class="hljs-built_in">Object</span>): RecordProxy;
+}
+</code></pre>
+<h3><a class="anchor" aria-hidden="true" id="getdataid-string"></a><a href="#getdataid-string" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>getDataID(): string</code></h3>
+<p>Returns the dataID of the current record.</p>
+<h4><a class="anchor" aria-hidden="true" id="example-6"></a><a href="#example-6" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Example</h4>
+<pre><code class="hljs css language-javascript"><span class="hljs-keyword">const</span> id = record.getDataID();
+</code></pre>
+<h3><a class="anchor" aria-hidden="true" id="gettype-string"></a><a href="#gettype-string" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>getType(): string</code></h3>
+<p>Gets the type of the current record, as defined by the GraphQL schema.</p>
+<h4><a class="anchor" aria-hidden="true" id="example-7"></a><a href="#example-7" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Example</h4>
+<pre><code class="hljs css language-javascript"><span class="hljs-keyword">const</span> type = user.getType();  <span class="hljs-comment">// User</span>
+</code></pre>
+<h3><a class="anchor" aria-hidden="true" id="getvaluename-string-arguments-object-mixed"></a><a href="#getvaluename-string-arguments-object-mixed" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>getValue(name: string, arguments?: ?Object): mixed</code></h3>
+<p>Gets the value of a field in the current record given the field name.</p>
+<h4><a class="anchor" aria-hidden="true" id="example-8"></a><a href="#example-8" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Example</h4>
+<p>Given the GraphQL document:</p>
+<pre><code class="hljs css language-graphql">viewer {
+  <span class="hljs-built_in">id</span>
+  <span class="hljs-built_in">name</span>
+}
+</code></pre>
+<p>Usage:</p>
+<pre><code class="hljs css language-javascript"><span class="hljs-keyword">const</span> name = viewer.getValue(<span class="hljs-string">'name'</span>);
+</code></pre>
+<p>Optionally, if the field takes arguments, you can pass a bag of <code>variables</code>.</p>
+<h4><a class="anchor" aria-hidden="true" id="example-9"></a><a href="#example-9" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Example</h4>
+<p>Given the GraphQL document:</p>
+<pre><code class="hljs css language-graphql"><span class="hljs-section">viewer</span> {
+  <span class="hljs-attribute">id</span>
+  name(arg: <span class="hljs-variable">$arg</span>)
+}
+</code></pre>
+<p>Usage:</p>
+<pre><code class="hljs css language-javascript"><span class="hljs-keyword">const</span> name = viewer.getValue(<span class="hljs-string">'name'</span>, {<span class="hljs-attr">arg</span>: <span class="hljs-string">'value'</span>});
+</code></pre>
+<h3><a class="anchor" aria-hidden="true" id="getlinkedrecordname-string-arguments-object-recordproxy"></a><a href="#getlinkedrecordname-string-arguments-object-recordproxy" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>getLinkedRecord(name: string, arguments?: ?Object): ?RecordProxy</code></h3>
+<p>Retrieves the a record associated with the current record given the field name, as defined by the GraphQL document. Returns a <code>RecordProxy</code>.</p>
+<h4><a class="anchor" aria-hidden="true" id="example-10"></a><a href="#example-10" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Example</h4>
+<p>Given the GraphQL document:</p>
+<pre><code class="hljs css language-graphql"><span class="hljs-section">rootField</span> {
+  <span class="hljs-section">viewer</span> {
+    <span class="hljs-attribute">id</span>
+    name
+  }
+}
+</code></pre>
+<p>Usage:</p>
+<pre><code class="hljs css language-javascript"><span class="hljs-keyword">const</span> rootField = store.getRootField(<span class="hljs-string">'rootField'</span>);
+<span class="hljs-keyword">const</span> viewer = rootField.getLinkedRecord(<span class="hljs-string">'viewer'</span>);
+</code></pre>
+<p>Optionally, if the linked record takes arguments, you can pass a bag of <code>variables</code> as well.</p>
+<h4><a class="anchor" aria-hidden="true" id="example-11"></a><a href="#example-11" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Example</h4>
+<p>Given the GraphQL document:</p>
+<pre><code class="hljs css language-graphql">rootField {
+  viewer(<span class="hljs-keyword">arg</span>: $<span class="hljs-keyword">arg</span>) {
+    id
+  }
+}
+</code></pre>
+<p>Usage:</p>
+<pre><code class="hljs css language-javascript"><span class="hljs-keyword">const</span> rootField = store.getRootField(<span class="hljs-string">'rootField'</span>);
+<span class="hljs-keyword">const</span> viewer = rootField.getLinkedRecord(<span class="hljs-string">'viewer'</span>, {<span class="hljs-attr">arg</span>: <span class="hljs-string">'value'</span>});
+</code></pre>
+<h3><a class="anchor" aria-hidden="true" id="getlinkedrecordsname-string-arguments-object-array-recordproxy"></a><a href="#getlinkedrecordsname-string-arguments-object-array-recordproxy" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>getLinkedRecords(name: string, arguments?: ?Object): ?Array&lt;?RecordProxy&gt;</code></h3>
+<p>Retrieves the set of records associated with the current record given the field name, as defined by the GraphQL document. Returns an array of <code>RecordProxies</code>.</p>
+<h4><a class="anchor" aria-hidden="true" id="example-12"></a><a href="#example-12" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Example</h4>
+<p>Given the GraphQL document:</p>
+<pre><code class="hljs css language-graphql"><span class="hljs-class">rootField </span>{
+  <span class="hljs-class">nodes </span>{
+    <span class="hljs-meta"># ...</span>
+  }
+}
+</code></pre>
+<p>Usage:</p>
+<pre><code class="hljs css language-javascript"><span class="hljs-keyword">const</span> rootField = store.getRootField(<span class="hljs-string">'rootField'</span>);
+<span class="hljs-keyword">const</span> nodes = rootField.getLinkedRecord(<span class="hljs-string">'nodes'</span>);
+</code></pre>
+<p>Optionally, if the linked record takes arguments, you can pass a bag of <code>variables</code> as well.</p>
+<h4><a class="anchor" aria-hidden="true" id="example-13"></a><a href="#example-13" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Example</h4>
+<p>Given the GraphQL document:</p>
+<pre><code class="hljs css language-graphql">rootField {
+  nodes(<span class="hljs-keyword">first</span>: $<span class="hljs-built_in">count</span>) {
+    <span class="hljs-comment"># ...</span>
+  }
+}
+</code></pre>
+<p>Usage:</p>
+<pre><code class="hljs css language-javascript"><span class="hljs-keyword">const</span> rootField = store.getRootField(<span class="hljs-string">'rootField'</span>);
+<span class="hljs-keyword">const</span> viewer = rootField.getLinkedRecord(<span class="hljs-string">'viewer'</span>, {<span class="hljs-attr">count</span>: <span class="hljs-number">10</span>});
+</code></pre>
+<h3><a class="anchor" aria-hidden="true" id="getorcreatelinkedrecordname-string-typename-string-arguments-object"></a><a href="#getorcreatelinkedrecordname-string-typename-string-arguments-object" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>getOrCreateLinkedRecord(name: string, typeName: string, arguments?: ?Object)</code></h3>
+<p>Retrieves the a record associated with the current record given the field name, as defined by the GraphQL document. If the linked record does not exist, it will be created given the type name. Returns a <code>RecordProxy</code>.</p>
+<h4><a class="anchor" aria-hidden="true" id="example-14"></a><a href="#example-14" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Example</h4>
+<p>Given the GraphQL document:</p>
+<pre><code class="hljs css language-graphql"><span class="hljs-section">rootField</span> {
+  <span class="hljs-section">viewer</span> {
+    <span class="hljs-attribute">id</span>
+  }
+}
+</code></pre>
+<p>Usage:</p>
+<pre><code class="hljs css language-javascript"><span class="hljs-keyword">const</span> rootField = store.getRootField(<span class="hljs-string">'rootField'</span>);
+<span class="hljs-keyword">const</span> newViewer = rootField.getOrCreateLinkedRecord(<span class="hljs-string">'viewer'</span>, <span class="hljs-string">'User'</span>); <span class="hljs-comment">// Will create if it doesn't exist</span>
+</code></pre>
+<p>Optionally, if the linked record takes arguments, you can pass a bag of <code>variables</code> as well.</p>
+<h3><a class="anchor" aria-hidden="true" id="setvaluevalue-mixed-name-string-arguments-object-recordproxy"></a><a href="#setvaluevalue-mixed-name-string-arguments-object-recordproxy" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>setValue(value: mixed, name: string, arguments?: ?Object): RecordProxy</code></h3>
+<p>Mutates the current record by setting a new value on the specified field. Returns the mutated record.</p>
+<p>Given the GraphQL document:</p>
+<pre><code class="hljs css language-graphql">viewer {
+  <span class="hljs-built_in">id</span>
+  <span class="hljs-built_in">name</span>
+}
+</code></pre>
+<p>Usage:</p>
+<pre><code class="hljs css language-javascript">viewer.setValue(<span class="hljs-string">'New Name'</span>, <span class="hljs-string">'name'</span>);
+</code></pre>
+<p>Optionally, if the field takes arguments, you can pass a bag of <code>variables</code>.</p>
+<pre><code class="hljs css language-javascript">viewer.setValue(<span class="hljs-string">'New Name'</span>, <span class="hljs-string">'name'</span>, {<span class="hljs-attr">arg</span>: <span class="hljs-string">'value'</span>});
+</code></pre>
+<h3><a class="anchor" aria-hidden="true" id="copyfieldsfromsourcerecord-recordproxy-void"></a><a href="#copyfieldsfromsourcerecord-recordproxy-void" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>copyFieldsFrom(sourceRecord: RecordProxy): void</code></h3>
+<p>Mutates the current record by copying the fields over from the passed in record <code>sourceRecord</code>.</p>
+<h4><a class="anchor" aria-hidden="true" id="example-15"></a><a href="#example-15" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Example</h4>
+<pre><code class="hljs css language-javascript"><span class="hljs-keyword">const</span> record = store.get(id1);
+<span class="hljs-keyword">const</span> otherRecord = store.get(id2);
+record.copyFieldsFrom(otherRecord); <span class="hljs-comment">// Mutates `record`</span>
+</code></pre>
+<h3><a class="anchor" aria-hidden="true" id="setlinkedrecordrecord-recordproxy-name-string-arguments-object"></a><a href="#setlinkedrecordrecord-recordproxy-name-string-arguments-object" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>setLinkedRecord(record: RecordProxy, name: string, arguments?: ?Object)</code></h3>
+<p>Mutates the current record by setting a new linked record on the given the field name.</p>
+<h4><a class="anchor" aria-hidden="true" id="example-16"></a><a href="#example-16" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Example</h4>
+<p>Given the GraphQL document:</p>
+<pre><code class="hljs css language-graphql"><span class="hljs-section">rootField</span> {
+  <span class="hljs-section">viewer</span> {
+    <span class="hljs-attribute">id</span>
+  }
+}
+</code></pre>
+<p>Usage:</p>
+<pre><code class="hljs css language-javascript"><span class="hljs-keyword">const</span> rootField = store.getRootField(<span class="hljs-string">'rootField'</span>);
+<span class="hljs-keyword">const</span> newViewer = store.create(<span class="hljs-comment">/* ... */</span>)<span class="hljs-string">''</span>
+rootField.setLinkedRecord(newViewer, <span class="hljs-string">'viewer'</span>); <span class="hljs-comment">//</span>
+</code></pre>
+<p>Optionally, if the linked record takes arguments, you can pass a bag of <code>variables</code> as well.</p>
+<h3><a class="anchor" aria-hidden="true" id="setlinkedrecordsrecords-array-recordproxy-name-string-variables-object"></a><a href="#setlinkedrecordsrecords-array-recordproxy-name-string-variables-object" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>setLinkedRecords(records: Array&lt;RecordProxy&gt;, name: string, variables?: ?Object)</code></h3>
+<p>Mutates the current record by setting a new set of linked records on the given the field name.</p>
+<h4><a class="anchor" aria-hidden="true" id="example-17"></a><a href="#example-17" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Example</h4>
+<p>Given the GraphQL document:</p>
+<pre><code class="hljs css language-graphql"><span class="hljs-class">rootField </span>{
+  <span class="hljs-class">nodes </span>{
+    <span class="hljs-meta"># ...</span>
+  }
+}
+</code></pre>
+<p>Usage:</p>
+<pre><code class="hljs css language-javascript"><span class="hljs-keyword">const</span> rootField = store.getRootField(<span class="hljs-string">'rootField'</span>);
+<span class="hljs-keyword">const</span> newNode = store.create(<span class="hljs-comment">/* ... */</span>);
+<span class="hljs-keyword">const</span> newNodes = [...rootField.getLinkedRecords(<span class="hljs-string">'nodes'</span>), newNode];
+rootField.setLinkedRecords(newNodes, <span class="hljs-string">'nodes'</span>); <span class="hljs-comment">//</span>
+</code></pre>
+<p>Optionally, if the linked record takes arguments, you can pass a bag of <code>variables</code> as well.</p>
+<h2><a class="anchor" aria-hidden="true" id="connectionhandler"></a><a href="#connectionhandler" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>ConnectionHandler</h2>
+<p><code>ConnectionHandler</code> is a utility module exposed by <code>relay-runtime</code> that aids in the manipulation of connections. <code>ConnectionHandler</code> exposes the following interface:</p>
+<pre><code class="hljs css language-javascript">interface ConnectionHandler {
+  getConnection(
+    record: RecordProxy,
+    <span class="hljs-attr">key</span>: string,
+    filters?: ?<span class="hljs-built_in">Object</span>,
+  ): ?RecordProxy,
+  createEdge(
+    store: RecordSourceProxy,
+    <span class="hljs-attr">connection</span>: RecordProxy,
+    <span class="hljs-attr">node</span>: RecordProxy,
+    <span class="hljs-attr">edgeType</span>: string,
+  ): RecordProxy,
+  insertEdgeBefore(
+    connection: RecordProxy,
+    <span class="hljs-attr">newEdge</span>: RecordProxy,
+    cursor?: ?string,
+  ): <span class="hljs-keyword">void</span>,
+  insertEdgeAfter(
+    connection: RecordProxy,
+    <span class="hljs-attr">newEdge</span>: RecordProxy,
+    cursor?: ?string,
+  ): <span class="hljs-keyword">void</span>,
+  deleteNode(connection: RecordProxy, <span class="hljs-attr">nodeID</span>: string): <span class="hljs-keyword">void</span>
+}
+</code></pre>
+<h3><a class="anchor" aria-hidden="true" id="getconnectionrecord-recordproxy-key-string-filters-object"></a><a href="#getconnectionrecord-recordproxy-key-string-filters-object" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>getConnection(record: RecordProxy, key: string, filters?: ?Object)</code></h3>
+<p>Given a record and a connection key, and optionally a set of filters, <code>getConnection</code> retrieves a <a href="#recordproxy"><code>RecordProxy</code></a> that represents a connection that was annotated with a <code>@connection</code> directive.</p>
+<p>First, let's take a look at a plain connection:</p>
+<pre><code class="hljs css language-graphql">fragment FriendsFragment on<span class="hljs-built_in"> User </span>{
+  friends(first: 10) {
+    edges {
+      node {
+        id
+      }
+    }
+  }
+}
+</code></pre>
+<p>Accessing a plain connection field like this is the same as other regular field:</p>
+<pre><code class="hljs css language-javascript"><span class="hljs-comment">// The `friends` connection record can be accessed with:</span>
+<span class="hljs-keyword">const</span> user = store.get(userID);
+<span class="hljs-keyword">const</span> friends = user &amp;&amp; user.getLinkedRecord(user, <span class="hljs-string">'friends'</span>);
+
+<span class="hljs-comment">// Access fields on the connection:</span>
+<span class="hljs-keyword">const</span> edges = friends.getLinkedRecords(<span class="hljs-string">'edges'</span>);
+</code></pre>
+<p>In a <a href="./pagination-container.html">pagination container</a>, we usually annotate the actual connection field with <code>@connection</code> to tell Relay which part needs to be paginated:</p>
+<pre><code class="hljs css language-graphql">fragment FriendsFragment on<span class="hljs-built_in"> User </span>{
+  friends(first: 10, orderby: <span class="hljs-string">"firstname"</span>) @connection(
+    key: <span class="hljs-string">"FriendsFragment_friends"</span>,
+  ) {
+    edges {
+      node {
+        id
+      }
+    }
+  }
+}
+</code></pre>
+<p>For connections like the above, <code>ConnectionHandler</code> helps us find the record:</p>
+<pre><code class="hljs">import {ConnectionHandler} <span class="hljs-keyword">from</span> <span class="hljs-string">'relay-runtime'</span>;
+
+<span class="hljs-comment">// The `friends` connection record can be accessed with:</span>
+<span class="hljs-keyword">const</span> user = store.<span class="hljs-keyword">get</span>(userID);
+<span class="hljs-keyword">const</span> friends = RelayConnectionHandler.getConnection(
+ user,                        <span class="hljs-comment">// parent record</span>
+ <span class="hljs-string">'FriendsFragment_friends'</span>    <span class="hljs-comment">// connection key</span>
+ {<span class="hljs-keyword">orderby</span>: <span class="hljs-string">'firstname'</span>}       <span class="hljs-comment">// 'filters' that is used to identify the connection</span>
+);
+<span class="hljs-comment">// Access fields on the connection:</span>
+<span class="hljs-keyword">const</span> edges = friends.getLinkedRecords(<span class="hljs-string">'edges'</span>);
+</code></pre>
+<h3><a class="anchor" aria-hidden="true" id="edge-creation-and-insertion"></a><a href="#edge-creation-and-insertion" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Edge creation and insertion</h3>
+<h4><a class="anchor" aria-hidden="true" id="createedgestore-recordsourceproxy-connection-recordproxy-node-recordproxy-edgetype-string"></a><a href="#createedgestore-recordsourceproxy-connection-recordproxy-node-recordproxy-edgetype-string" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>createEdge(store: RecordSourceProxy, connection: RecordProxy, node: RecordProxy, edgeType: string)</code></h4>
+<p>Creates an edge given a <a href="#recordsourceselectorproxy"><code>store</code></a>, a connection, the edge type, and a record that holds that connection.</p>
+<h4><a class="anchor" aria-hidden="true" id="insertedgebeforeconnection-recordproxy-newedge-recordproxy-cursor-string"></a><a href="#insertedgebeforeconnection-recordproxy-newedge-recordproxy-cursor-string" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>insertEdgeBefore(connection: RecordProxy, newEdge: RecordProxy, cursor?: ?string)</code></h4>
+<p>Given a connection, inserts the edge at the beginning of the connection, or before the specified <code>cursor</code>.</p>
+<h4><a class="anchor" aria-hidden="true" id="inseredgeafterconnection-recordproxy-newedge-recordproxy-cursor-string"></a><a href="#inseredgeafterconnection-recordproxy-newedge-recordproxy-cursor-string" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>inserEdgeAfter(connection: RecordProxy, newEdge: RecordProxy, cursor?: ?string)</code></h4>
+<p>Given a connection, inserts the edge at the end of the connection, or after the specified <code>cursor</code>.</p>
+<h4><a class="anchor" aria-hidden="true" id="example-18"></a><a href="#example-18" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Example</h4>
+<pre><code class="hljs">const user = store.get(userID);
+const friends = <span class="hljs-module-access"><span class="hljs-module"><span class="hljs-identifier">RelayConnectionHandler</span>.</span></span>get<span class="hljs-constructor">Connection(<span class="hljs-params">user</span>, '<span class="hljs-params">friends</span>')</span>;
+const edge = <span class="hljs-module-access"><span class="hljs-module"><span class="hljs-identifier">RelayConnectionHandler</span>.</span></span>create<span class="hljs-constructor">Edge(<span class="hljs-params">store</span>, <span class="hljs-params">friends</span>, <span class="hljs-params">user</span>, 'UserEdge')</span>;
+
+<span class="hljs-comment">// No cursor provided, append the edge at the end.</span>
+<span class="hljs-module-access"><span class="hljs-module"><span class="hljs-identifier">RelayConnectionHandler</span>.</span></span>insert<span class="hljs-constructor">EdgeAfter(<span class="hljs-params">friends</span>, <span class="hljs-params">edge</span>)</span>;
+
+<span class="hljs-comment">// No cursor provided, Insert the edge at the front:</span>
+<span class="hljs-module-access"><span class="hljs-module"><span class="hljs-identifier">RelayConnectionHandler</span>.</span></span>insert<span class="hljs-constructor">EdgeBefore(<span class="hljs-params">friends</span>, <span class="hljs-params">edge</span>)</span>;
+</code></pre>
+<h3><a class="anchor" aria-hidden="true" id="deletenodeconnection-recordproxy-nodeid-string-void"></a><a href="#deletenodeconnection-recordproxy-nodeid-string-void" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>deleteNode(connection: RecordProxy, nodeID: string): void</code></h3>
+<p>Given a connection, deletes any edges whose id matches the given id.</p>
+<h4><a class="anchor" aria-hidden="true" id="example-19"></a><a href="#example-19" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Example</h4>
+<pre><code class="hljs">const user = store.get(userID);
+const friends = <span class="hljs-module-access"><span class="hljs-module"><span class="hljs-identifier">RelayConnectionHandler</span>.</span></span>get<span class="hljs-constructor">Connection(<span class="hljs-params">user</span>, '<span class="hljs-params">friends</span>')</span>;
+<span class="hljs-module-access"><span class="hljs-module"><span class="hljs-identifier">RelayConnectionHandler</span>.</span></span>delete<span class="hljs-constructor">Node(<span class="hljs-params">friends</span>, <span class="hljs-params">idToDelete</span>)</span>;
+</code></pre>
+</span></div></article></div><div class="docLastUpdate"><em>Last updated on 12/19/2017 by Juan Tejada</em></div><div class="docs-prevnext"></div></div></div><nav class="onPageNav"><ul class="toc-headings"><li><a href="#recordsourceselectorproxy">RecordSourceSelectorProxy</a><ul class="toc-headings"><li><a href="#createdataid-string-typename-string-recordproxy"><code>create(dataID: string, typeName: string): RecordProxy</code></a></li><li><a href="#deletedataid-string-void"><code>delete(dataID: string): void</code></a></li><li><a href="#getdataid-string-recordproxy"><code>get(dataID: string): ?RecordProxy</code></a></li><li><a href="#getroot-recordproxy"><code>getRoot(): RecordProxy</code></a></li><li><a href="#getrootfieldfieldname-string-recordproxy"><code>getRootField(fieldName: string): ?RecordProxy</code></a></li><li><a href="#getpluralrootfieldfieldname-string-array-recordproxy"><code>getPluralRootField(fieldName: string): ?Array&lt;?RecordProxy&gt;</code></a></li></ul></li><li><a href="#recordproxy">RecordProxy</a><ul class="toc-headings"><li><a href="#getdataid-string"><code>getDataID(): string</code></a></li><li><a href="#gettype-string"><code>getType(): string</code></a></li><li><a href="#getvaluename-string-arguments-object-mixed"><code>getValue(name: string, arguments?: ?Object): mixed</code></a></li><li><a href="#getlinkedrecordname-string-arguments-object-recordproxy"><code>getLinkedRecord(name: string, arguments?: ?Object): ?RecordProxy</code></a></li><li><a href="#getlinkedrecordsname-string-arguments-object-array-recordproxy"><code>getLinkedRecords(name: string, arguments?: ?Object): ?Array&lt;?RecordProxy&gt;</code></a></li><li><a href="#getorcreatelinkedrecordname-string-typename-string-arguments-object"><code>getOrCreateLinkedRecord(name: string, typeName: string, arguments?: ?Object)</code></a></li><li><a href="#setvaluevalue-mixed-name-string-arguments-object-recordproxy"><code>setValue(value: mixed, name: string, arguments?: ?Object): RecordProxy</code></a></li><li><a href="#copyfieldsfromsourcerecord-recordproxy-void"><code>copyFieldsFrom(sourceRecord: RecordProxy): void</code></a></li><li><a href="#setlinkedrecordrecord-recordproxy-name-string-arguments-object"><code>setLinkedRecord(record: RecordProxy, name: string, arguments?: ?Object)</code></a></li><li><a href="#setlinkedrecordsrecords-array-recordproxy-name-string-variables-object"><code>setLinkedRecords(records: Array&lt;RecordProxy&gt;, name: string, variables?: ?Object)</code></a></li></ul></li><li><a href="#connectionhandler">ConnectionHandler</a><ul class="toc-headings"><li><a href="#getconnectionrecord-recordproxy-key-string-filters-object"><code>getConnection(record: RecordProxy, key: string, filters?: ?Object)</code></a></li><li><a href="#edge-creation-and-insertion">Edge creation and insertion</a></li><li><a href="#deletenodeconnection-recordproxy-nodeid-string-void"><code>deleteNode(connection: RecordProxy, nodeID: string): void</code></a></li></ul></li></ul></nav></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/" class="nav-home"><img src="/img/relay.svg" alt="Relay" width="66" height="58"/></a><div><h5>Docs</h5><a href="/docs/en/introduction-to-relay.html">Introduction</a></div><div><h5>Community</h5><a href="/en/users.html">User Showcase</a></div><div><h5>More</h5><a href="https://github.com/facebook/relay">GitHub</a><a class="github-button" href="https://github.com/facebook/relay" data-icon="octicon-star" data-count-href="/facebook/relay/stargazers" data-count-api="/repos/facebook/relay#stargazers_count" data-count-aria-label="# stargazers on GitHub" aria-label="Star this project on GitHub">Star</a></div></section><a href="https://code.facebook.com/projects/" target="_blank" class="fbOpenSource"><img src="/img/oss_logo.png" alt="Facebook Open Source" width="170" height="45"/></a><section class="copyright">Copyright © 2019 Facebook Inc.</section></footer></div><script type="text/javascript" src="https://cdn.jsdelivr.net/docsearch.js/1/docsearch.min.js"></script><script>
+                document.addEventListener('keyup', function(e) {
+                  if (e.target !== document.body) {
+                    return;
+                  }
+                  // keyCode for '/' (slash)
+                  if (e.keyCode === 191) {
+                    const search = document.getElementById('search_input_react');
+                    search && search.focus();
+                  }
+                });
+              </script><script>
+              var search = docsearch({
+                
+                apiKey: '3d7d5825d50ea36bca0e6ad06c926f06',
+                indexName: 'relay',
+                inputSelector: '#search_input_react',
+                algoliaOptions: {"facetFilters":["version:experimental"]}
+              });
+            </script></body></html>

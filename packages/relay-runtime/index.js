@@ -33,6 +33,7 @@ const RelayOperationTracker = require('./store/RelayOperationTracker');
 const RelayProfiler = require('./util/RelayProfiler');
 const RelayQueryResponseCache = require('./network/RelayQueryResponseCache');
 const RelayRecordSource = require('./store/RelayRecordSource');
+const RelayReplaySubject = require('./util/RelayReplaySubject');
 const RelayStoreUtils = require('./store/RelayStoreUtils');
 const ViewerPattern = require('./store/ViewerPattern');
 
@@ -47,6 +48,7 @@ const fetchQueryInternal = require('./query/fetchQueryInternal');
 const getFragmentIdentifier = require('./util/getFragmentIdentifier');
 const getFragmentSpecIdentifier = require('./util/getFragmentSpecIdentifier');
 const getRelayHandleKey = require('./util/getRelayHandleKey');
+const getRequestIdentifier = require('./util/getRequestIdentifier');
 const isPromise = require('./util/isPromise');
 const isRelayModernEnvironment = require('./store/isRelayModernEnvironment');
 const isScalarAndEqual = require('./util/isScalarAndEqual');
@@ -218,6 +220,7 @@ module.exports = {
   QueryResponseCache: RelayQueryResponseCache,
   RecordSource: RelayRecordSource,
   Record: RelayModernRecord,
+  ReplaySubject: RelayReplaySubject,
   Store: RelayModernStore,
 
   areEqualSelectors: RelayModernSelector.areEqualSelectors,
@@ -238,6 +241,7 @@ module.exports = {
   getPluralSelector: RelayModernSelector.getPluralSelector,
   getRefetchableFragment: RelayModernGraphQLTag.getRefetchableFragment,
   getRequest: RelayModernGraphQLTag.getRequest,
+  getRequestIdentifier: getRequestIdentifier,
   getSelector: RelayModernSelector.getSelector,
   getSelectorsFromObject: RelayModernSelector.getSelectorsFromObject,
   getSingularSelector: RelayModernSelector.getSingularSelector,

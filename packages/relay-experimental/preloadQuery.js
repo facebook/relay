@@ -12,15 +12,15 @@
 'use strict';
 
 const ExecutionEnvironment = require('fbjs/lib/ExecutionEnvironment');
-const RelayReplaySubject = require('relay-runtime/util/RelayReplaySubject');
 
-const getRequestIdentifier = require('relay-runtime/util/getRequestIdentifier');
 const invariant = require('invariant');
 
 const {
   Environment,
   Observable,
+  ReplaySubject,
   createOperationDescriptor,
+  getRequestIdentifier,
 } = require('relay-runtime');
 
 import type {
@@ -52,7 +52,7 @@ type PendingQueryEntry =
       fetchKey: ?string | ?number,
       fetchPolicy: PreloadFetchPolicy,
       kind: 'network',
-      subject: RelayReplaySubject<GraphQLResponse>,
+      subject: ReplaySubject<GraphQLResponse>,
       subscription: Subscription,
     |}>
   | $ReadOnly<{|
@@ -157,7 +157,7 @@ function preloadQueryDeduped<TQuery: OperationType>(
       variables,
     );
     const source = network.execute(params, variables, {}, null, logRequestInfo);
-    const subject = new RelayReplaySubject();
+    const subject = new ReplaySubject();
     nextQueryEntry = {
       cacheKey,
       fetchKey,

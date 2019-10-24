@@ -121,6 +121,15 @@ describe('store-or-network', () => {
     expect(fetch.mock.calls[0][2]).toEqual({});
   });
 
+  it('fetches from network if data is not available with concrete query', () => {
+    const preloaded = preloadQuery(environment, query, variables);
+    expect(preloaded.source).toEqual(expect.any(Observable));
+    expect(fetch).toBeCalledTimes(1);
+    expect(fetch.mock.calls[0][0]).toBe(query.params);
+    expect(fetch.mock.calls[0][1]).toEqual(variables);
+    expect(fetch.mock.calls[0][2]).toEqual({});
+  });
+
   it('returns a cached entry wo refetching if a previous fetch is pending', () => {
     const preloaded1 = preloadQuery(environment, params, variables);
     const preloaded2 = preloadQuery(environment, params, variables);
@@ -186,6 +195,18 @@ describe('store-or-network', () => {
     params.getModuleIfRequired = () => query;
 
     const preloaded = preloadQuery(environment, params, variables);
+    expect(preloaded.source).toBe(null);
+    expect(check).toBeCalledTimes(1);
+    expect(fetch).toBeCalledTimes(0);
+    expect(preloaded.source).toBe(null);
+  });
+
+  it('resolves from cache if data is available with a concrete query', () => {
+    environment.commitPayload(operation, response.data);
+    expect(environment.check(operation.root)).toBe(true);
+    check.mockClear();
+
+    const preloaded = preloadQuery(environment, query, variables);
     expect(preloaded.source).toBe(null);
     expect(check).toBeCalledTimes(1);
     expect(fetch).toBeCalledTimes(0);

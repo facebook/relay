@@ -1,12 +1,12 @@
 ---
 id: version-experimental-a-guided-tour-of-relay
-title: A Guided Tour of Relay
+title: A Guided Tour
 original_id: a-guided-tour-of-relay
 ---
 
 [Relay](https://facebook.github.io/relay/) is a framework for managing and declaratively fetching GraphQL data. Specifically, it provides a set of APIs to fetch and declare data dependencies for React components, in colocation with component definitions themselves.
 
-In this guide, we're going to go over how to use Relay to build out some of the more common use cases in apps. If you're interested in a detailed reference of our APIs, check out our [Relay API Reference](api-reference.html) page. Before getting started, bear in mind that we assume some level of familiarity with JavaScript, [React](https://reactjs.org/docs/getting-started.html), [GraphQL](https://graphql.org/learn/), and assume that you have set up a GraphQL Server that adheres to the [Relay specification](graphql-server-specification.html)
+In this guide, we're going to go over how to use Relay to build out some of the more common use cases in apps. If you're interested in a detailed reference of our APIs, check out our [API Reference](api-reference.html) page. Before getting started, bear in mind that we assume some level of familiarity with JavaScript, [React](https://reactjs.org/docs/getting-started.html), [GraphQL](https://graphql.org/learn/), and assume that you have set up a GraphQL Server that adheres to the [Relay specification](graphql-server-specification.html)
 
 
 ## Setup and Workflow
@@ -196,11 +196,9 @@ Let's distill what's going on here:
 * A ***fragment reference*** is an object that Relay uses to ***read*** the data declared in the fragment definition; as you can see, the `UserComponent_user` fragment itself just declares fields on the `User` type, but we need to know ***which*** specific user to read those fields from; this is what the fragment reference corresponds to. In other words, a fragment reference is like ***a pointer to a specific instance of a type*** that we want to read data from.
 * Note that ***the component is automatically subscribed to updates to the fragment data:*** if the data for this particular `User` is updated anywhere in the app (e.g. via fetching new data, or mutating existing data), the component will automatically re-render with the latest updated data.
 * Relay will automatically generate Flow types for any declared fragments when the compiler is run, so you can use these types to declare the type for your Component's `props`.
-    * The generated Flow types include a type for the fragment reference, which is the type with the **`$key`** suffix: `<fragment_name>$key`, and a type for the shape of the data, which is the type with the **`$data`** suffix:  `<fragment_name>$data`.  
-    * These types are available to import from files that are generated with the following name: `<fragment_name>.graphql.js`.
-    * In our example, we're typing the `user` prop as the fragment reference we need for `useFragment`, which corresponds to the `UserComponent_user$key` imported from  `UserComponent_user.graphql`.
-    * By using a properly typed fragment reference as input, the type of the `data` will automatically be properly Flow typed
-    * Note that the `data` is already properly Flow typed without requiring an explicit annotation, and is based on the types from the GraphQL schema. For example, the type of `data` above would be: `{| name: ?string, profile_picture: ?{| uri: ?string |} |}`.
+    * The generated Flow types include a type for the fragment reference, which is the type with the **`$key`** suffix: `<fragment_name>$key`, and a type for the shape of the data, which is the type with the **`$data`** suffix:  `<fragment_name>$data`; these types are available to import from files that are generated with the following name: `<fragment_name>.graphql.js`.
+    * We use our [lint rule](https://github.com/relayjs/eslint-plugin-relay) to enforce that the type of the fragment reference prop is correctly declared when using `useFragment`. By using a properly typed fragment reference as input, the type of the returned `data` will automatically be Flow typed without requiring an explicit annotation.
+    * In our example, we're typing the `user` prop as the fragment reference we need for `useFragment`, which corresponds to the `UserComponent_user$key` imported from  `UserComponent_user.graphql`, which means that the type of `data` above would be: `{| name: ?string, profile_picture: ?{| uri: ?string |} |}`.
 * Fragment names need to be globally unique. In order to easily achieve this, we name fragments using the following convention based on the module name followed by an identifier: `<module_name>_<property_name>`. This makes it easy to identify which fragments are defined in which modules and avoids name collisions when multiple fragments are defined in the same module.
 
 
@@ -1875,11 +1873,10 @@ function App() {
 
 Sometimes, upon an event or user interaction, we'd like to render the *same* exact fragment that was originally rendered under the initial query, but with a different data. Conceptually, this means fetching and rendering the currently rendered fragment again, but under a new query with different variables; or in other words, *making the rendered fragment a new query root*. Remember that ***fragments can't be fetched by themselves: they need to be part of a query,*** so we can't just “fetch” the fragment again by itself.
 
-To do so, Relay offers the **`useRefetchableFragment`** hook, in order to allow *refetching* a fragment under new query and variables.
 
-Specifically, you can use the **`refetch`** function, available from  **`useRefetchableFragment`**:
+To do so, you can use the **`useRefetchableFragment`** hook, in order to refetch a fragment under new query and variables, using the **`refetch`** function:
 
-```
+```javascript
 import type {CommentBodyRefetchQuery} from 'CommentBodyRefetchQuery.graphql';
 import type {CommentBody_comment$key} from 'CommentBody_comment.graphql';
 
@@ -2839,7 +2836,7 @@ const storyFragment = graphql`
 2) An easier API alternative to manage multiple connections with multiple filter values is still pending
 
 
-> **TBD**
+> **TODO**
 
 
 
@@ -3007,39 +3004,39 @@ However, it is possible that you'd need different behavior for how to merge and 
 To address these more complex use cases, Relay is still working on a solution:
 
 
-> **TBD**
+> **TODO**
 
 
 
 
 #### Refreshing connections
 
-> **TBD**
+> **TODO**
 
 
 
 
 #### Prefetching Pages of a Connection
 
-> **TBD**
+> **TODO**
 
 
 
 
 #### Rendering One Page of Items at a Time
 
-> **TBD**
+> **TODO**
 
 
 
 
-## Advanced Data Fetching [www-only]
+## Advanced Data Fetching
 
 ### Preloading Data
 
 #### Preloading Data for Initial Load (Server Preloading)
 
-> OSS TBD
+> OSS TODO
 
 #### Preloading Data for Transitions, in Parallel With Code (Client Preloading)
 
@@ -3052,18 +3049,16 @@ This not only applies to transitions to other pages, but also for displaying ele
 
 The problem with this naive approach is that we have to wait for a significant amount of time before we can actually start fetching the data we need. Ideally, by the time a user interaction occurs, we’d already know what data we will need in order to fulfill that interaction, and we could start *preloading* it from the client immediately, ***in parallel*** with loading the JS code that we’re going to need; by doing so, we can significantly speed up the amount of time it takes to show content to users after an interaction.
 
-In order to do so, we can use **Relay EntryPoints**, which are a set of APIs for efficiently loading both the code and data dependencies of *any* view in parallel. Check out our api reference for Entry Points:
-
-* TBD
+In order to do so, we can use **Relay EntryPoints**, which are a set of APIs for efficiently loading both the code and data dependencies of *any* view in parallel. Check out our api reference for Entry Points: <TODO>
 
 
 ### Incremental Data Delivery
 
-> OSS TBD
+> OSS TODO
 
 ### Data-driven Dependencies
 
-> OSS TBD
+> OSS TODO
 
 ### Image Prefetching
 
@@ -3071,7 +3066,7 @@ The standard approach to loading images with Relay is to first request image URI
 
 #### Usage
 
-> OSS TBD
+> OSS TODO
 
 #### When To Use Image Prefetching
 
@@ -3504,7 +3499,7 @@ Let's distill this example, according to the execution order of the updaters:
 
 #### Mutation Queueing
 
-> **TBD:** Left to be implemented in user space
+> **TODO:** Left to be implemented in user space
 
 
 
@@ -3846,7 +3841,7 @@ In order to update client-only data, you can do so regularly inside [mutation](#
 ## Local Application State Management
 
 
-> **TBD**
+> **TODO**
 
 Roughly, at a high level:
 
@@ -3927,27 +3922,27 @@ fetchQuery<AppQuery>(
 This section covers prefetching queries from the client (if you're interested in preloading for initial load or transitions,  see our [Preloading Data](#preloading-data) section). Prefetching queries can be useful to anticipate user actions and increase the likelihood of data being immediately available when the user requests it.
 
 
-> **TBD**
+> **TODO**
 
 
 
 ### Subscribing to Queries
 
-> **TBD**
+> **TODO**
 
 
 
 
 ### Reading Queries from Local Cache
 
-> **TBD**
+> **TODO**
 
 
 
 
 ### Reading Fragments from Local Cache
 
-> **TBD**
+> **TODO**
 
 
 

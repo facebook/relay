@@ -16,11 +16,12 @@ const ExecutionEnvironment = require('fbjs/lib/ExecutionEnvironment');
 const invariant = require('invariant');
 
 const {
+  createOperationDescriptor,
   Environment,
+  getRequest,
+  getRequestIdentifier,
   Observable,
   ReplaySubject,
-  createOperationDescriptor,
-  getRequestIdentifier,
 } = require('relay-runtime');
 
 import type {
@@ -30,7 +31,9 @@ import type {
   PreloadOptions,
 } from './EntryPointTypes.flow';
 import type {
+  ConcreteRequest,
   GraphQLResponse,
+  GraphQLTaggedNode,
   IEnvironment,
   OperationType,
   Subscription,
@@ -52,6 +55,7 @@ type PendingQueryEntry =
       fetchKey: ?string | ?number,
       fetchPolicy: PreloadFetchPolicy,
       kind: 'network',
+      name: string,
       subject: ReplaySubject<GraphQLResponse>,
       subscription: Subscription,
     |}>
@@ -60,11 +64,12 @@ type PendingQueryEntry =
       fetchKey: ?string | ?number,
       fetchPolicy: PreloadFetchPolicy,
       kind: 'cache',
+      name: string,
     |}>;
 
 function preloadQuery<TQuery: OperationType, TEnvironmentProviderOptions>(
   environment: IEnvironment,
-  preloadableRequest: PreloadableConcreteRequest<TQuery>,
+  preloadableRequest: GraphQLTaggedNode | PreloadableConcreteRequest<TQuery>,
   variables: $ElementType<TQuery, 'variables'>,
   options?: ?PreloadOptions,
   environmentProviderOptions?: ?TEnvironmentProviderOptions,
@@ -101,7 +106,7 @@ function preloadQuery<TQuery: OperationType, TEnvironmentProviderOptions>(
     environmentProviderOptions,
     fetchKey: queryEntry.fetchKey,
     fetchPolicy: queryEntry.fetchPolicy,
-    name: preloadableRequest.params.name,
+    name: queryEntry.name,
     source,
     variables,
   };
@@ -110,11 +115,20 @@ function preloadQuery<TQuery: OperationType, TEnvironmentProviderOptions>(
 function preloadQueryDeduped<TQuery: OperationType>(
   environment: Environment,
   pendingQueries: Map<string, PendingQueryEntry>,
-  preloadableRequest: PreloadableConcreteRequest<TQuery>,
+  preloadableRequest: GraphQLTaggedNode | PreloadableConcreteRequest<TQuery>,
   variables: $ElementType<TQuery, 'variables'>,
   options: ?PreloadOptions,
 ): PendingQueryEntry {
-  const {params} = preloadableRequest;
+  let params;
+  let query: ?ConcreteRequest;
+  if (typeof preloadableRequest.getModuleIfRequired === 'function') {
+    const preloadableConcreteRequest: PreloadableConcreteRequest<TQuery> = (preloadableRequest: $FlowFixMe);
+    params = preloadableConcreteRequest.params;
+    query = preloadableConcreteRequest.getModuleIfRequired();
+  } else {
+    query = getRequest((preloadableRequest: $FlowFixMe));
+    params = query.params;
+  }
   const network = environment.getNetwork();
   const fetchPolicy = options?.fetchPolicy ?? STORE_OR_NETWORK_DEFAULT;
   const fetchKey = options?.fetchKey;
@@ -122,7 +136,6 @@ function preloadQueryDeduped<TQuery: OperationType>(
     fetchKey != null ? `-${fetchKey}` : ''
   }`;
   const prevQueryEntry = pendingQueries.get(cacheKey);
-  const query = preloadableRequest.getModuleIfRequired();
 
   const shouldFulfillFromCache =
     fetchPolicy === STORE_OR_NETWORK_DEFAULT &&
@@ -140,6 +153,7 @@ function preloadQueryDeduped<TQuery: OperationType>(
             fetchKey,
             fetchPolicy,
             kind: 'cache',
+            name: params.name,
           };
     if (ExecutionEnvironment.canUseDOM && prevQueryEntry == null) {
       setTimeout(() => {
@@ -163,6 +177,7 @@ function preloadQueryDeduped<TQuery: OperationType>(
       fetchKey,
       fetchPolicy,
       kind: 'network',
+      name: params.name,
       subject,
       subscription: source
         .finally(() => {

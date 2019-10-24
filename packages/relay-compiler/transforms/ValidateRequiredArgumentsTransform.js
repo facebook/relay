@@ -110,7 +110,11 @@ function validateRequiredArgumentsOnNode(
 ): void {
   const nodeArgsSet = new Set(node.args.map(arg => arg.name));
   for (const arg of definitionArgs) {
-    if (schema.isNonNull(arg.type) && !nodeArgsSet.has(arg.name)) {
+    if (
+      arg.defaultValue == null &&
+      schema.isNonNull(arg.type) &&
+      !nodeArgsSet.has(arg.name)
+    ) {
       throw createUserError(
         `Required argument '${arg.name}: ${schema.getTypeString(arg.type)}' ` +
           `is missing on '${node.name}' in '${rootNode.name}'.`,

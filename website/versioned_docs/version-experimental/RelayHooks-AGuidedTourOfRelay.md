@@ -758,9 +758,9 @@ Relay currently does not expose the resolved variables (i.e. after applying argu
 
 ### Loading States with Suspense
 
-As you may have noticed, we mentioned that using `useLazyLoadQuery` will ***fetch*** a query from the server, but we didn't elaborate on how to render UI to show that the request is in flight. We will cover that in this section.
+As you may have noticed, we mentioned that using `useLazyLoadQuery` will ***fetch*** a query from the server, but we didn't elaborate on how to render a loading UI while the query is being loaded. We will cover that in this section.
 
-To render loading states while a query is being fetched, we rely on *React Suspense*. [Suspense](https://reactjs.org/docs/concurrent-mode-suspense.html) is a new feature in React that allows components to interrupt or *“suspend”* rendering by throwing a promise during render; this indicates to React that the component isn't *“ready”* to be rendered yet, and wont be until the promise that was thrown resolves. When the promise finally resolves, React will try to render the component again.
+To render loading states while a query is being fetched, we rely on [React Suspense](https://reactjs.org/docs/concurrent-mode-suspense.html). Suspense is a new feature in React that allows components to interrupt or *“suspend”* rendering in order to wait for some asynchronous resource (such as code, images or data) to be loaded; when a component "suspends", it indicates to React that the component isn't *“ready”* to be rendered yet, and wont be until the asynchronous resource it's waiting for is loaded. When the resource finally loads, React will try to render the component again.
 
 This capability is useful for components to express asynchronous dependencies like data, code, or images that they require in order to render, and lets React coordinate rendering the loading states across a component tree as these asynchronous resources become available. More generally, the use of Suspense give us better control to implement more deliberately designed loading states when our app is loading for the first time or when it’s transitioning to different states, and helps prevent accidental flickering of loading elements (such as spinners), which can commonly occur when loading sequences aren’t explicitly designed and coordinated.
 

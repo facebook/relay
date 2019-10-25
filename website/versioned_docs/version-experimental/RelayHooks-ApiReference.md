@@ -7,7 +7,7 @@ original_id: api-reference
 
 ## Relay Hooks
 
-**Relay Hooks** apis are fully compatible with [existing Relay APIs](https://relay.dev/docs/en/introduction-to-relay), meaning that they can be used together in the same application; Relay components will interop correctly regardless of whether they were written as Relay Hooks or as Relay containers.
+**Relay Hooks** apis are fully compatible with [React Concurrent Mode](https://reactjs.org/docs/concurrent-mode-intro.html). They are also fully compatible with [existing Relay APIs](https://relay.dev/docs/en/introduction-to-relay), meaning that they can be used together in the same application; Relay components will interop correctly regardless of whether they were written as Relay Hooks or as Relay containers.
 
 For a usage guide, see: [**A Guided Tour of Relay**](a-guided-tour-of-relay.html).
 
@@ -23,7 +23,7 @@ For a usage guide, see: [**A Guided Tour of Relay**](a-guided-tour-of-relay.html
 * We also took the opportunity to simplify some of our apis that were previously notoriously complicated, such as refetching and pagination. We’ve highlighted some of the main differences in those apis in our documentation below ([Differences with RefetchContainer](#differences-with-refetchcontainer), [Differences with PaginationContainer](#differences-with-paginationcontainer)).
 * Finally, Hooks were written to be compatible with React's Concurrent Mode, as opposed to our HOC / Renderer apis which are unsafe to use in Concurrent Mode.
 
-### Caveats
+#### Caveats
 
 * Relay Hooks are integrated with [React Suspense](a-guided-tour-of-relay.html#loading-states-with-suspense), and there are some caveats to using Suspense in React’s Legacy Mode (non-concurrent mode), which will *also* apply to using Relay Hooks in Legacy Mode. For example, there are some Suspense capabilities that are only supported in Concurrent Mode, and some use cases that specifically rely on these capabilities that you wont be able to implement in Legacy Mode (e.g. [`useBlockingPaginationFragment`](#useblockingpaginationfragment)).
 
@@ -352,7 +352,7 @@ Tuple containing the following values
         * `disposable`: Object containing a `dispose` function. Calling `disposable.dispose()` will cancel the refetch request.
     * Behavior:
         * Calling `refetch` with a new set of variables will fetch the fragment again ***with the newly provided variables***. Note that the variables you need to provide are only the ones referenced inside the fragment. In this example, it means fetching the translated body of the currently rendered Comment, by passing a new value to the `lang` variable.
-        * Calling `refetch` will re-render your component and may cause it to _*[suspend](a-guided-tour-of-relay.html#loading-states-with-suspense)*_, depending on the specified `fetchPolicy` and whether cached data is available or if it needs to send and wait for a network request. If refetch causes the component to suspend, you'll need to make sure that there's a `Suspense` boundary wrapping this component from above, and/or that you are using [`useTransition`](https://reactjs.org/docs/getting-started.html) with a Suspense Config ([Transitions and Updates that Suspend](a-guided-tour-of-relay.html#transitions-and-updates-that-suspend)) in order to show the appropriate pending or loading state.
+        * Calling `refetch` will re-render your component and may cause it to _*[suspend](a-guided-tour-of-relay.html#loading-states-with-suspense)*_, depending on the specified `fetchPolicy` and whether cached data is available or if it needs to send and wait for a network request. If refetch causes the component to suspend, you'll need to make sure that there's a `Suspense` boundary wrapping this component from above, and/or that you are using [`useTransition`](https://reactjs.org/docs/concurrent-mode-patterns.html#transitions) with a Suspense Config ([Transitions and Updates that Suspend](a-guided-tour-of-relay.html#transitions-and-updates-that-suspend)) in order to show the appropriate pending or loading state.
             * Note that since `refetch` may cause the component to suspend, regardless of whether we are rendering a pending state, we should use `startTransition` from `useTransition` to schedule that update; any update that may cause a component to suspend should be scheduled using this pattern.
             * For more details on Suspense, see our [Loading States with Suspense](a-guided-tour-of-relay.html#loading-states-with-suspense) guide.
 
@@ -492,7 +492,7 @@ Object containing the following properties:
         * `disposable`: Object containing a `dispose` function. Calling `disposable.dispose()` will cancel the refetch request.
     * Behavior:
         * Calling `refetch` with a new set of variables will fetch the fragment again ***with the newly provided variables***. Note that the variables you need to provide are only the ones referenced inside the fragment. In this example, it means fetching the translated body of the currently rendered Comment, by passing a new value to the `lang` variable.
-        * Calling `refetch` will re-render your component and may cause it to [*_suspend_*](a-guided-tour-of-relay.html#loading-states-with-suspense), depending on the specified `fetchPolicy` and whether cached data is available or if it needs to send and wait for a network request. If refetch causes the component to suspend, you'll need to make sure that there's a `Suspense` boundary wrapping this component from above, and/or that you are using [`useTransition`](https://reactjs.org/docs/getting-started.html) with a Suspense Config ([Transitions and Updates that Suspend](a-guided-tour-of-relay.html#transitions-and-updates)) in order to show the appropriate pending or loading state.
+        * Calling `refetch` will re-render your component and may cause it to [*_suspend_*](a-guided-tour-of-relay.html#loading-states-with-suspense), depending on the specified `fetchPolicy` and whether cached data is available or if it needs to send and wait for a network request. If refetch causes the component to suspend, you'll need to make sure that there's a `Suspense` boundary wrapping this component from above, and/or that you are using [`useTransition`](https://reactjs.org/docs/concurrent-mode-patterns.html#transitions) with a Suspense Config ([Transitions and Updates that Suspend](a-guided-tour-of-relay.html#transitions-and-updates)) in order to show the appropriate pending or loading state.
             * Note that since `refetch` may cause the component to suspend, regardless of whether we are rendering a pending state, we should use `startTransition` from `useTransition` to schedule that update; any update that may cause a component to suspend should be scheduled using this pattern.
             * For more details on Suspense, see our [Loading States with Suspense](a-guided-tour-of-relay.html#loading-states-with-suspense) guide.
 
@@ -529,7 +529,7 @@ In the meantime, see our **[Blocking ("all-at-once") Pagination Guide](a-guided-
 
 ## Non-React APIs
 
-## `preloadQuery`
+### `preloadQuery`
 
 This function is designed to be used with the `usePreloadedQuery()` hook to implement the "render-as-you-fetch" pattern in conjunction with `usePreloadedQuery`. See the [`usePreloadedQuery()`](#usepreloadedquery) docs for a more complete example.
 
@@ -569,11 +569,11 @@ const result = preloadQuery(
     * `fetchKey`: A `fetchKey` can be passed to force a refetch of the query and variables. `preloadQuery()` will cache requests while they are in-flight and for a brief duration afterwards, but using a distinct `fetchKey` can ensure that data is refetched (generally when used in conjunction with fetchPolicy=network-only).
     * `networkCacheConfig`: _*[Optional]*_ Object containing cache config options for the ***network layer.*** Note the the network layer may contain an *additional* query response cache which will reuse network responses for identical queries. If you want to bypass this cache completely, pass `{force: true}` as the value for this option.
 
-### Flow Type Parameters
+#### Flow Type Parameters
 
 * `TQuery`: Type parameter that should correspond to the Flow type for the specified query. This type is available to import from the the auto-generated file: `<query_name>.graphql.js`.
 
-### Return Value
+#### Return Value
 
 The exact format of the return value is *unstable and highly likely to change*. We strongly recommend not inspecting the contents in your code, as such code would be highly likely to break when upgrading to future versions of Relay. Instead, pass the result of `preloadQuery()` to `usePreloadedQuery()`.
 
@@ -614,11 +614,11 @@ fetchQuery<AppQuery>(
     * `networkCacheConfig`: *_[Optional] _*Object containing cache config options
         * `force`: Boolean value. If true, will bypass the network response cache.
 
-### Flow Type Parameters
+#### Flow Type Parameters
 
 * `TQuery`: Type parameter that should correspond to the Flow type for the specified query. This type is available to import from the the auto-generated file: `<query_name>.graphql.js`.
 
-### Return Value
+#### Return Value
 
 * `observable`: Returns an observable instance. To start the request, `subscribe` or `toPromise` must be called on the observable. Exposes the following methods:
     * `susbcribe`: Function that can be called to subscribe to the observable for the network request

@@ -8,7 +8,6 @@ original_id: a-guided-tour-of-relay
 
 In this guide, we're going to go over how to use Relay to build out some of the more common use cases in apps. If you're interested in a detailed reference of our APIs, check out our [API Reference](api-reference.html) page. Before getting started, bear in mind that we assume some level of familiarity with JavaScript, [React](https://reactjs.org/docs/getting-started.html), [GraphQL](https://graphql.org/learn/), and assume that you have set up a GraphQL Server that adheres to the [Relay specification](graphql-server-specification.html)
 
-
 ## Setup and Workflow
 
 In case you've never worked with Relay before, here's a rundown of what you need to set up to get up and running developing with Relay:
@@ -50,7 +49,6 @@ const graphql = require('babel-plugin-relay/macro');
 ```
 
 If you need to configure `babel-plugin-relay` further, you can do so by [specifying the options in a number of ways](https://github.com/kentcdodds/babel-plugin-macros/blob/master/other/docs/user.md#config-experimental).
-
 
 ### Relay Compiler
 
@@ -250,7 +248,6 @@ function UserComponent(props: Props) {
 module.exports = UserComponent;
 ```
 
-
 ### Composing Fragments
 
 In GraphQL, fragments are reusable units, which means they can include *other* fragments, and consequently a fragment can be included within other fragments or [Queries](#queries):
@@ -306,7 +303,7 @@ function UsernameSection(props: Props) {
 module.exports = UsernameSection;
 ```
 
-```
+```javascript
 /**
  * UserComponent.react.js
  *
@@ -365,7 +362,6 @@ There are a few things to note here:
 *  Note that in this case the `user` passed to `UsernameSection`, i.e. the fragment reference, *doesn't actually contain any of the data declared by the child `UsernameSection` component*; instead, `UsernameSection` will use the fragment reference to read the data *it* declared internally, using `useFragment`. This prevents the parent from implicitly creating dependencies on data declared by its children, and vice-versa, which allows us to reason locally about our components and modify them without worrying about affecting other components. If this wasn't the case, and the parent had access to the child's data, modifying the data declared by the child could break the parent. This is known as [***data masking***](https://relay.dev/docs/en/thinking-in-relay.html#data-masking).
 * The ***fragment reference*** that the child (i.e.  `UsernameSection`) expects is the result of reading a parent fragment that *includes* the child fragment. In our particular example, that means the result of reading a fragment that includes `...UsernameSection_user` will be the fragment reference that `UsernameSection` expects. In other words, the data obtained as a result of reading a fragment via `useFragment` also serves as the fragment reference for any child fragments included in that fragment.
 
-
 ### Queries
 
 A [GraphQL query](https://graphql.github.io/learn/queries/) is a request that can be sent to a GraphQL server in combination with a set of [Variables](#variables), in order to fetch some data. It consists of a selection of fields, and potentially includes other fragments:
@@ -407,14 +403,13 @@ Sample response:
 }
 ```
 
-
 ***NOTE:*** Fragments in Relay allow declaring data dependencies for a component, but they can't be fetched by themselves; they need to be included by a query, either directly or transitively. This implies that ***all fragments must belong to a query when they are rendered***, or in other words, they must be *rooted* under some query. Note that a single fragment can still be included by multiple queries, but when rendering a specific *instance* of a fragment component, it must have been included as part of a specific query request.
 
 * * *
 
 To ***fetch*** *and* render a query in Relay, you can use **`useLazyLoadQuery`** Hook:
 
-```
+```javascript
 import type {AppQuery} from 'AppQuery.graphql';
 
 const React = require('React');
@@ -450,7 +445,6 @@ Lets see what's going on here:
 * Note that if you re-render your component and pass ***different query variables*** than the ones originally used, it will cause the query to be fetched again with the new variables, and potentially re-render with different data.
 * Finally, make sure you're providing a Relay environment at the root of your app before trying to render a query: [Relay Environment Provider](#relay-environment-provider).
 
-
 To fetch and render a query that includes a fragment, you can compose them in the same way fragments are composed, as shown in the [Composing Fragments](#composing-fragments) section:
 
 ```javascript
@@ -481,7 +475,7 @@ function UserComponent(props: Props) {
 module.exports = UserComponent;
 ```
 
-```
+```javascript
 /**
  * App.react.js
  *
@@ -525,15 +519,13 @@ Note that:
 * The ***fragment reference*** that `UserComponent` expects is is the result of reading a parent query that includes its fragment, which in our case means a query that includes `...UsernameSection_user`. In other words, the `data` obtained as a result of `useLazyLoadQuery` also serves as the fragment reference for any child fragments included in that query.
 * As mentioned previously, ***all fragments must belong to a query when they are rendered,*** which means that all fragment components *must* be descendants of a query. This guarantees that you will always be able to provide a fragment reference for `useFragment`, by starting from the result of reading a root query with `useLazyLoadQuery`.
 
-
-
 ### Variables
 
 You may have noticed that the query declarations in our examples above contain references to an `$id` symbol inside the GraphQL code: these are [GraphQL Variables](https://graphql.github.io/learn/queries/#variables).
 
 GraphQL variables are a construct that allows referencing dynamic values inside a GraphQL query. When fetching a query from the server, we also need to provide as input the actual set of values to use for the variables declared inside the query:
 
-```
+```graphql
 # `$id` is a variable of type `ID!`
 query UserQuery($id: ID!) {
 
@@ -547,7 +539,7 @@ query UserQuery($id: ID!) {
 
 When sending a network request to fetch the query above, we need to provide both the query, and the variables to be used for this particular execution of the query. For example:
 
-```
+```graphql
 # Query:
 query UserQuery($id: ID!) {
   # ...
@@ -560,7 +552,7 @@ query UserQuery($id: ID!) {
 
 Fetching the above query and variables from the server would produce the following response:
 
-```
+```javascript
 {
   "data": {
     "user": {
@@ -577,7 +569,7 @@ Fetching the above query and variables from the server would produce the followi
 
 Fragments can also reference variables that have been declared by a query:
 
-```
+```graphql
 fragment UserFragment on User {
   name
   profile_picture(scale: $scale) {
@@ -599,7 +591,7 @@ query ViewerQuery($scale: Float!) {
 
 In Relay, fragment declarations inside components can also reference query variables:
 
-```
+```javascript
 function UserComponent(props: Props) {
   const data = useFragment(
     graphql`
@@ -667,7 +659,7 @@ function UserComponent(props) {
 }
 ```
 
-```
+```javascript
 /**
  * Include same fragment using _different_ @arguments
  */
@@ -753,7 +745,6 @@ This capability is useful for components to express asynchronous dependencies li
 
 For a lot more details on Suspense, check the [React docs on Suspense](https://reactjs.org/docs/concurrent-mode-suspense.html).
 
-
 #### Loading fallbacks with Suspense Boundaries
 
 When a component is suspended, we need to render a *fallback* in place of the component while we await for it to become *"ready"*. In order to do so, we use the `Suspense` component provided by React:
@@ -771,7 +762,6 @@ function App() {
   );
 }
 ```
-
 
 `Suspense` components can be used to wrap any component; if the target component suspends, `Suspense` will render the provided fallback until all its descendants become *"ready"* (i.e. until *all* of the promises thrown inside its subtree of descendants resolve). Usually, the fallback is used to render a loading state, such as a glimmer.
 
@@ -832,7 +822,7 @@ function App() {
 
 Conversely, you can also decide to be more granular about your loading UI and wrap Suspense components around smaller or individual parts of your component tree:
 
-```
+```javascript
 /**
  * App.react.js
  */
@@ -1309,7 +1299,7 @@ To do this, we rely on the ability of fragment containers to [*suspend*](#loadin
 
 Let's explain what this means with an example. Say we have the following fragment component:
 
-```
+```javascript
 /**
  * UsernameComponent.react.js
  *
@@ -1342,7 +1332,7 @@ module.exports = UsernameComponent;
 
 And we have the following query component, which queries for some data, and also includes the fragment above:
 
-```
+```javascript
 /**
  * App.react.js
  *
@@ -1442,7 +1432,7 @@ In the previous section we covered how to reuse data that is fully or partially 
 
 However, when using different queries, there might still be cases where different queries point to the same data, which we'd want to be able to reuse. For example, imagine the following two queries:
 
-```
+```graphql
 // Query 1
 query UserQuery {
   user(id: 4) {
@@ -1466,7 +1456,7 @@ These two queries are different, but reference the exact same data. Ideally, if 
 
 To do so, we can provide **`missingFieldHandlers`** to the `RelayEnvironment`, which specify this knowledge:
 
-```
+```javascript
 const {ROOT_TYPE, Environment} = require('react-relay');
 
 const missingFieldHandlers = [
@@ -1692,7 +1682,7 @@ Some examples of when you might want to do this:
 
 As mentioned in the [Queries](#queries) section, passing ***different query variables*** than the ones originally passed when using `useLazyLoadQuery` will cause the query to be fetched with the new variables, and re-render your component with the new data:
 
-```
+```javascript
 import type {AppQuery} from 'AppQuery.graphql';
 
 const React = require('React');
@@ -1740,7 +1730,7 @@ Let's distill what's going on here:
 
 You can also provide a different **`fetchPolicy`** when refetching the query in order to specify whether to use locally cached data (as we covered in [Reusing Cached Data for Render](#reusing-cached-data-for-render)):
 
-```
+```javascript
 import type {AppQuery} from 'AppQuery.graphql';
 
 const React = require('React');
@@ -2307,7 +2297,7 @@ function FriendsListComponent(props: Props) {
 
 If we want to refetch the connection with *different* variables, we can use the **`refetch`** function provided by `usePaginationFragment`, similarly to how we do so when [Re-rendering Fragments With Different Data](#re-rendering-fragments-with-different-data):
 
-```
+```javascript
 /**
  * FriendsListComponent.react.js
  */
@@ -3251,7 +3241,7 @@ _**Full Example**_
 
 This means that in more complicated scenarios you can still provide all 3 options: `optimisticResponse`, `optimisticUpdater` and `updater`. For example, the mutation to add a new comment could like something like the following (for full details on updating connections, check out our [Adding and Removing Items From a Connection](#adding-and-removing-items-from-a-connection) guide):
 
-```
+```javascript
 import type {Environment} from 'react-relay';
 import type {CommentCreateData, CreateCommentMutation} from 'CreateCommentMutation.graphql';
 
@@ -3378,7 +3368,7 @@ subscription LikePostSubscription($input: LikePostSubscribeData!) {
 
 An example of a subscription payload received by the client could look like this:
 
-```
+```javascript
 {
   "like_post_subscribe": {
     "post": {
@@ -3392,7 +3382,7 @@ An example of a subscription payload received by the client could look like this
 
 In Relay, we can declare GraphQL subcriptions using the `graphql` tag too:
 
-```
+```javascript
 const {graphql} = require('react-relay');
 
 const postLikeSubscription = graphql`
@@ -3412,7 +3402,7 @@ const postLikeSubscription = graphql`
 
 In order to *execute* a subscription against the server in Relay, we can use the **`requestSubscription`** API:
 
-```
+```javascript
 import type {Environment} from 'react-relay';
 import type {LikePostSubscribeData} from 'LikePostSubscription.graphql';
 
@@ -3458,7 +3448,7 @@ Let's distill what's happening here:
 
 However, if the updates you wish to perform on the local data in response to the subscription are more complex than just updating the values of fields, like deleting or creating new records, or [Adding and Removing Items From a Connection](#adding-and-removing-items-from-a-connection), you can provide an `**updater**` function to **`requestSubscription`** for full control over how to update the store:
 
-```
+```javascript
 import type {Environment} from 'react-relay';
 import type {CommentCreateSubscribeData} from 'CommentCreateSubscription.graphql';
 
@@ -3528,9 +3518,6 @@ Let's distill this example:
 * Note that the subscription payload is a *root field* record that can be read from the `store`, specifically using the `store.getRootField` API. In our case, we're reading the `comment_create_subcribe` root field, which is a root field in the subscription response.
 * Note that any local data updates caused by the mutation `updater` will automatically cause components subscribed to the data to be notified of the change and re-render.
 
-
-
-
 ### Local Data Updates
 
 There are a couple of APIs that Relay provides in order to make purely local updates to the Relay store (i.e. updates not tied to a server operation).
@@ -3541,7 +3528,7 @@ Note that local data updates can be made both on [client-only data](#client-only
 
 To make updates using an `updater` function, you can use the **`commitLocalUpdate`** API:
 
-```
+```javascript
 import type {Environment} from 'react-relay';
 
 const {commitLocalUpdate, graphql} = require('react-relay');
@@ -3637,7 +3624,6 @@ extend type Comment {
 
 You can define types using the same regular GraphQL syntax, by defining it inside your client schema file:
 
-
 ```graphql
 enum FetchStatus {
   FETCHED
@@ -3684,15 +3670,11 @@ const data = *useFragment*(
 );
 ```
 
-
-
 #### Updating Client-Only Data
 
 In order to update client-only data, you can do so regularly inside [mutation](#graphql-mutations) or [subscription](#graphql-subscriptions) updaters, or by using our primitives for doing [local updates](#local-data-updates) to the store.
 
-
 ## Local Application State Management
-
 
 > **TODO**
 
@@ -3702,17 +3684,15 @@ Roughly, at a high level:
 2. Keep your state in React, possibly derive it from Relay data
 3. Write data back to Relay via mutations or local update
 
-
 ## Accessing Data Outside React
 
 This section covers less common use cases, which involve fetching and accessing data outside of our React APIs. Most of the time you will be directly using our React APIs, so you don't need to know this to start building with Relay. However, these APIs can be useful for more advanced use cases when you need more control over how data is fetched and managed, for example when writing pieces of infrastructure on top of Relay.
-
 
 ### Fetching Queries
 
 If you want to fetch a query outside of React, you can use the **`fetchQuery`** function, which returns an observable:
 
-```
+```javascript
 import type {AppQuery} from 'AppQuery.graphql';
 
 const {fetchQuery} = require('react-relay/hooks');
@@ -3741,10 +3721,9 @@ fetchQuery<AppQuery>(
 * The data provided in the `next` callback represents a snapshot of the query data read from the Relay store at the moment a payload was received from the server.
 * Note that we specify the `AppQuery` Flow type; this ensures that the type of the data provided by the observable matches the shape of the query, and enforces that the `variables` passed as input to `fetchQuery` match the type of the variables expected by the query.
 
-
 If desired, you can convert the request into a Promise using **`.toPromise()`**:
 
-```
+```javascript
 import type {AppQuery} from 'AppQuery.graphql';
 
 const {fetchQuery} = require('react-relay/hooks');

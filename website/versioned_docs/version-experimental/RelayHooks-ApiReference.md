@@ -8,7 +8,7 @@ original_id: api-reference
 
 **Relay Hooks** apis are fully compatible with [React Concurrent Mode](https://reactjs.org/docs/concurrent-mode-intro.html). They are also fully compatible with [existing Relay APIs](https://relay.dev/docs/en/introduction-to-relay), meaning that they can be used together in the same application; Relay components will interop correctly regardless of whether they were written as Relay Hooks or as Relay containers.
 
-For a usage guide, see: [**A Guided Tour of Relay**](a-guided-tour-of-relay). // TODO(yangshun): check this link.
+For a usage guide, see: [**A Guided Tour of Relay**](a-guided-tour-of-relay).
 
 ### Benefits and Caveats of Relay Hooks
 

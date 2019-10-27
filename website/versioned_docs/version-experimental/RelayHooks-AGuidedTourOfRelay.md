@@ -842,7 +842,7 @@ function App() {
 ```
 
 * In this case, both `MainContent` and `SecondaryContent` may suspend while they load their asynchronous resources; by wrapping both in a `Suspense`, we can show a single loading state up until they are ***all*** ready, and then render the entire content in a single paint, after everything has successfully loaded.
-* In fact, `MainContent` and `SecondaryContent` may suspend for different reasons other than fetching data, but the same `Suspense` component can be used to render a fallback up until ***all ***components in the subtree are ready to be rendered. Note that this also transitively includes descendants of `MainContent` or `SecondaryContent`, which might also suspend.
+* In fact, `MainContent` and `SecondaryContent` may suspend for different reasons other than fetching data, but the same `Suspense` component can be used to render a fallback up until ***all*** components in the subtree are ready to be rendered. Note that this also transitively includes descendants of `MainContent` or `SecondaryContent`, which might also suspend.
 
 
 Conversely, you can also decide to be more granular about your loading UI and wrap Suspense components around smaller or individual parts of your component tree:
@@ -912,8 +912,7 @@ function TabSwitcher() {
             // Schedule an update that might suspend
             setSelectedTab('Photos');
           })
-        }
-        disabled={isPending}>
+        }>
         Show Photos
       </Button>
     </div>
@@ -924,7 +923,7 @@ function TabSwitcher() {
 Let’s take a look at what’s happening here:
 
 * We have a `MainContent` component that takes a tab to render. This component might suspend while it loads the content for the current tab. During initial render, if this component suspends, we’ll show the `LoadingGlimmer` fallback from the `Suspense` boundary that is wrapping it.
-* Additionally, in order to change tabs, we’re keeping some state for the currently selected tab; when se set state to change the current tab, this will be an update that can cause the `MainContent` component to suspend again, since it may have to load the content for the new tab. Since this update may cause the component to suspend, **we need to make sure to schedule it using the `startTransition` function we get from `useTransition`**. By doing so, we’re letting React know that the update may suspend, so React can coordinate and render it at the right priority.
+* Additionally, in order to change tabs, we’re keeping some state for the currently selected tab; when we set state to change the current tab, this will be an update that can cause the `MainContent` component to suspend again, since it may have to load the content for the new tab. Since this update may cause the component to suspend, **we need to make sure to schedule it using the `startTransition` function we get from `useTransition`**. By doing so, we’re letting React know that the update may suspend, so React can coordinate and render it at the right priority.
 
 
 However, when we make these sorts of transitions, we ideally want to avoid “bad loading states”, that is, loading states (e.g. a glimmer) that would replace content that has already been rendered on the screen. In this case for example, if we’re already showing content for a tab, instead of immediately replacing the content with a glimmer, we might instead want to render some sort of “pending” or “busy” state to let the user know that we’re changing tabs, and then render the new selected tab when it’s hopefully mostly ready. In order to do so, this is where we need to take into account the different [stages](https://reactjs.org/docs/concurrent-mode-patterns.html#the-three-steps) of a transition (***pending*** → ***loading*** → ***complete***), and make use of additional Suspense [primitives](https://reactjs.org/docs/concurrent-mode-patterns.html#transitions), that allow us to control what we want to show at each stage.
@@ -1284,7 +1283,7 @@ Specifically, `fetchPolicy` can be any of the following options:
 * **"store-or-network"**: *(default)* ***will*** reuse locally cached data and will ***only*** send a network request if any data for the query is missing. If the query is fully cached, a network request will ***not*** be made.
 * **"store-and-network"**: ***will*** reuse locally cached data and will ***always*** send a network request, regardless of whether any data was missing from the local cache or not.
 * **"network-only"**: ***will not*** reuse locally cached data, and will ***always*** send a network request to fetch the query, ignoring any data that might be locally cached in Relay.
-* **"store-only"**: ***will only*** reuse locally cached data, and will ***never*** send a network request to fetch the query. In this case, the responsibility of fetching the query falls to the caller, but this policy could also be used to read and operate and data that is entirely [local](#local-data-updates).
+* **"store-only"**: ***will only*** reuse locally cached data, and will ***never*** send a network request to fetch the query. In this case, the responsibility of fetching the query falls to the caller, but this policy could also be used to read and operate on data that is entirely [local](#local-data-updates).
 
 
 Note that the `refetch` function discussed in the [Fetching More Data and Rendering Different Data](#fetching-more-data-and-rendering-different-data) section  also takes a `fetchPolicy`.

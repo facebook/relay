@@ -6,7 +6,7 @@ original_id: api-reference
 
 ## Relay Hooks
 
-**Relay Hooks** apis are fully compatible with [React Concurrent Mode](https://reactjs.org/docs/concurrent-mode-intro.html). They are also fully compatible with [existing Relay APIs](https://relay.dev/docs/en/introduction-to-relay), meaning that they can be used together in the same application; Relay components will interop correctly regardless of whether they were written as Relay Hooks or as Relay containers.
+**Relay Hooks** APIs are fully compatible with [React Concurrent Mode](https://reactjs.org/docs/concurrent-mode-intro.html). They are also fully compatible with [existing Relay APIs](https://relay.dev/docs/en/introduction-to-relay), meaning that they can be used together in the same application; Relay components will interop correctly regardless of whether they were written as Relay Hooks or as Relay containers.
 
 For a usage guide, see: [**A Guided Tour of Relay**](a-guided-tour-of-relay).
 
@@ -16,10 +16,10 @@ For a usage guide, see: [**A Guided Tour of Relay**](a-guided-tour-of-relay).
 
 * Using Hooks in general make for a somewhat simpler api; our hope is that the fact that they are functions that have specific inputs and outputs might be more clear than the “magic” that happens in Higher Order Components, where the prop you pass from above is not the same as the prop you receive inside the component.
 * They also allow us to not pollute the React tree with multiple nested layers of Higher Order Components that wrap your actual components, which make them easier to inspect and debug in dev tools, and can help speed up React rendering.
-* Hooks are also a lot simpler to Flow type, and with Relay Hooks we were able to guarantee better type safety than we could with our HOC / Renderer apis.
+* Hooks are also a lot simpler to Flow type, and with Relay Hooks we were able to guarantee better type safety than we could with our HOC / Renderer APIs.
 * Relay Hooks have more capabilities compared to their container counterparts, for example by being integrated with [Suspense](a-guided-tour-of-relay#loading-states-with-suspense) for loading states, and providing new capabilities such as directly rendering data that is cached in the Relay store, which were previously not available.
-* We also took the opportunity to simplify some of our apis that were previously notoriously complicated, such as refetching and pagination. We've highlighted some of the main differences in those apis in our documentation below ([Differences with RefetchContainer](#differences-with-refetchcontainer), [Differences with PaginationContainer](#differences-with-paginationcontainer)).
-* Finally, Hooks were written to be compatible with React's Concurrent Mode, as opposed to our HOC / Renderer apis which are unsafe to use in Concurrent Mode.
+* We also took the opportunity to simplify some of our APIs that were previously notoriously complicated, such as refetching and pagination. We've highlighted some of the main differences in those APIs in our documentation below ([Differences with RefetchContainer](#differences-with-refetchcontainer), [Differences with PaginationContainer](#differences-with-paginationcontainer)).
+* Finally, Hooks were written to be compatible with React's Concurrent Mode, as opposed to our HOC / Renderer APIs which are unsafe to use in Concurrent Mode.
 
 #### Caveats
 
@@ -51,7 +51,7 @@ module.exports = Root;
 
 * `environment`: The Relay environment to set in React Context. Any Relay Hooks (like [`useLazyLoadQuery`](#uselazyloadquery) or [useFragment](#usefragment)) used as descendants of this provider component will use the Relay environment specified here
 
-#### Differences with current apis
+#### Differences with current APIs
 
 * In Relay Modern, we used the `QueryRenderer` component to both set an environment in Context and fetch a query. With Relay Hooks, these 2 concepts are separate: we use a single `RelayEnvironmentProvider` to set the environment in context for the whole application, and we can use one or more `useLazyLoadQuery` hooks to fetch any queries under the same environment set by the provider.
 

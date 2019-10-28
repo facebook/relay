@@ -246,7 +246,7 @@ export default class Todo extends React.Component<Props> {
 }
 ```
 
-From our [schema](https://github.com/relayjs/relay-examples/blob/master/todo/data/schema.graphql#L107), we know that we can query this data on the `Todo` type. However, we don't want to have to send a separate query for each todo item; that would defeat the purpose of using GraphQL over a traditional REST API. We could manually query for these fields directly in our `QueryRenderer` query, but that would hurt re-usability: what if we want to query the same set of fields as part of a different query? Additionally, we wouldn't know which component needs the data we're querying, which is a problem Relay directly tries to address.
+From our [schema](https://github.com/relayjs/relay-examples/blob/master/todo/data/schema.graphql#L112), we know that we can query this data on the `Todo` type. However, we don't want to have to send a separate query for each todo item; that would defeat the purpose of using GraphQL over a traditional REST API. We could manually query for these fields directly in our `QueryRenderer` query, but that would hurt re-usability: what if we want to query the same set of fields as part of a different query? Additionally, we wouldn't know which component needs the data we're querying, which is a problem Relay directly tries to address.
 
 Instead, we can define a reusable [Fragment](http://graphql.org/learn/queries/#fragments), which allows us to define a set of fields on a type and reuse them within our queries wherever we need to:
 

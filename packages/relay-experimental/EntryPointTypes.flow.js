@@ -30,6 +30,7 @@ export type PreloadFetchPolicy =
 export type PreloadOptions = {|
   +fetchKey?: string | number,
   +fetchPolicy?: ?PreloadFetchPolicy,
+  +extraOptions?: ?{},
 |};
 
 // Note: the phantom type parameter here helps ensures that the

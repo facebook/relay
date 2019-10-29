@@ -21,6 +21,7 @@ const defaultGetDataID = require('../defaultGetDataID');
 const getRelayHandleKey = require('../../util/getRelayHandleKey');
 const invariant = require('invariant');
 const normalizeRelayPayload = require('../normalizeRelayPayload');
+const warning = require('warning');
 
 const {
   createOperationDescriptor,
@@ -1770,6 +1771,24 @@ const {generateAndCompile, simpleClone} = require('relay-test-utils-internal');
         queue.run();
         // Now, it's time to release GC
         expect(disposeGC).toBeCalled();
+      });
+
+      it('should warn if run() is called during a run()', () => {
+        jest.mock('warning');
+        const source = new RecordSourceImplementation();
+        const store = new RelayModernStore(source);
+        const queue = new RelayPublishQueue(store, null, defaultGetDataID);
+        queue.applyUpdate({
+          storeUpdater: storeProxy => {
+            storeProxy.create('4', 'User');
+            queue.run();
+          },
+        });
+        queue.run();
+        expect(warning).toHaveBeenCalledWith(
+          false,
+          'A store update was detected within another store update. Please make sure new store updates aren’t being executed within an updater function for a different update.',
+        );
       });
     });
   });

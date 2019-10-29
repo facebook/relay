@@ -11,7 +11,6 @@
 'use strict';
 
 const ErrorUtils = require('ErrorUtils');
-import warning from 'warning';
 const RelayReader = require('./RelayReader');
 const RelayRecordSource = require('./RelayRecordSource');
 const RelayRecordSourceMutator = require('../mutations/RelayRecordSourceMutator');
@@ -19,6 +18,7 @@ const RelayRecordSourceProxy = require('../mutations/RelayRecordSourceProxy');
 const RelayRecordSourceSelectorProxy = require('../mutations/RelayRecordSourceSelectorProxy');
 
 const invariant = require('invariant');
+const warning = require('warning');
 
 import type {HandlerProvider} from '../handlers/RelayDefaultHandlerProvider';
 import type {Disposable} from '../util/RelayRuntimeTypes';

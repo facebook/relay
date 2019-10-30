@@ -21,11 +21,11 @@ class StrictMap<K, V> {
     return this;
   }
 
-  clear(): $FlowFixMe {
-    return this._map.clear();
+  clear(): void {
+    this._map.clear();
   }
 
-  delete(key: K): $FlowFixMe {
+  delete(key: K): boolean {
     return this._map.delete(key);
   }
 
@@ -36,8 +36,8 @@ class StrictMap<K, V> {
   forEach(
     callbackfn: (value: V, index: K, map: Map<K, V>) => mixed,
     thisArg?: mixed,
-  ): $FlowFixMe {
-    return this._map.forEach(callbackfn, thisArg);
+  ): void {
+    this._map.forEach(callbackfn, thisArg);
   }
 
   map<V2>(
@@ -67,8 +67,7 @@ class StrictMap<K, V> {
       'StrictMap: trying to read non-existent key `%s`.',
       String(key),
     );
-    /* $FlowFixMe: default definition for Map's get method
-    is `get(key: K): V | void`. We need to get rid of `| void` */
+    // $FlowFixMe - we checked the key exists
     return this._map.get(key);
   }
 
@@ -76,7 +75,7 @@ class StrictMap<K, V> {
     return this._map.has(key);
   }
 
-  keys(): $FlowFixMe {
+  keys(): Iterator<K> {
     return this._map.keys();
   }
 
@@ -85,7 +84,7 @@ class StrictMap<K, V> {
     return this;
   }
 
-  values(): $FlowFixMe {
+  values(): Iterator<V> {
     return this._map.values();
   }
 }

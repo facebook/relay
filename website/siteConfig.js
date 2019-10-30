@@ -170,6 +170,7 @@ const siteConfig = {
   headerIcon: 'img/relay-white.svg',
   footerIcon: 'img/relay.svg',
   favicon: 'img/favicon.png',
+  twitterImage: 'img/relay.png',
   colors: {
     primaryColor: '#f26b00',
     secondaryColor: '#f26b00',

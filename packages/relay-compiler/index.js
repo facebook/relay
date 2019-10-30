@@ -12,6 +12,7 @@
 
 const ASTCache = require('./core/ASTCache');
 const ASTConvert = require('./core/ASTConvert');
+const BufferedFilesystem = require('./runner/BufferedFilesystem');
 const CodeMarker = require('./util/CodeMarker');
 const CodegenDirectory = require('./codegen/CodegenDirectory');
 const CodegenRunner = require('./codegen/CodegenRunner');
@@ -19,6 +20,7 @@ const CodegenWatcher = require('./codegen/CodegenWatcher');
 const ConsoleReporter = require('./reporters/ConsoleReporter');
 const DotGraphQLParser = require('./core/DotGraphQLParser');
 const FindGraphQLTags = require('./language/javascript/FindGraphQLTags');
+const GraphQLASTUtils = require('./runner/GraphQLASTUtils');
 const GraphQLCompilerContext = require('./core/GraphQLCompilerContext');
 const GraphQLCompilerProfiler = require('./core/GraphQLCompilerProfiler');
 const GraphQLIRPrinter = require('./core/GraphQLIRPrinter');
@@ -36,6 +38,7 @@ const RelaySchema = require('./core/Schema');
 const RelaySourceModuleParser = require('./core/RelaySourceModuleParser');
 const Rollout = require('./util/Rollout');
 const SchemaUtils = require('./core/SchemaUtils');
+const StrictMap_ = require('./runner/StrictMap');
 
 const compileRelayArtifacts = require('./codegen/compileRelayArtifacts');
 const filterContextForNode = require('./core/filterContextForNode');
@@ -101,6 +104,7 @@ export type {
 } from './language/RelayLanguagePluginInterface';
 export type {Reporter} from './reporters/Reporter';
 export type {FlattenOptions} from './transforms/FlattenTransform';
+export type StrictMap<K, V> = StrictMap_<K, V>;
 
 const RelayJSModuleParser: $FlowFixMe = RelaySourceModuleParser(
   FindGraphQLTags.find,
@@ -154,4 +158,10 @@ module.exports = {
   getSourceDefinitionName,
 
   writeRelayGeneratedFile,
+
+  __internal: {
+    BufferedFilesystem,
+    GraphQLASTUtils,
+    StrictMap: StrictMap_,
+  },
 };

@@ -103,6 +103,7 @@ export type {
   TypeGenerator,
 } from './language/RelayLanguagePluginInterface';
 export type {Reporter} from './reporters/Reporter';
+export type {SavedStateCollection, WatchmanFile} from './runner/types';
 export type {FlattenOptions} from './transforms/FlattenTransform';
 export type StrictMap<K, V> = StrictMap_<K, V>;
 

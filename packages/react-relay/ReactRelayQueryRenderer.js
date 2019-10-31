@@ -54,6 +54,15 @@ export type RenderProps<T> = {|
  */
 let requestCache = {};
 
+/**
+ * isBrowser will be true in *real* browser environments. Unfortunately,
+ * the best way to detect this in all environments is to use `new Function`.
+ * As a result, eslint needs to be disabled on this to allow for eval.
+ */
+const isBrowser = new Function( // eslint-disable-line
+  'try {return this===window;}catch(e){ return false;}',
+);
+
 export type Props = {|
   cacheConfig?: ?CacheConfig,
   fetchPolicy?: FetchPolicy,
@@ -104,9 +113,8 @@ class ReactRelayQueryRenderer extends React.Component<Props, State> {
     let queryFetcher;
     let requestCacheKey;
 
-    // If there's not window, we're on the server and do not want a global
-    // request cache to persist.
-    if (typeof window !== 'object') {
+    // When server-side rendering the global request cache should not persist.
+    if (!isBrowser) {
       requestCache = {};
     }
 

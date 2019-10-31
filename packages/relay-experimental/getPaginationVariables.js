@@ -33,7 +33,7 @@ function getPaginationVariables(
       backwardMetadata != null &&
         backwardMetadata.count != null &&
         backwardMetadata.cursor != null,
-      'Relay: Expected backward pagination metadata to be avialable. ' +
+      'Relay: Expected backward pagination metadata to be available. ' +
         "If you're seeing this, this is likely a bug in Relay.",
     );
     const paginationVariables = {
@@ -54,7 +54,7 @@ function getPaginationVariables(
     forwardMetadata != null &&
       forwardMetadata.count != null &&
       forwardMetadata.cursor != null,
-    'Relay: Expected forward pagination metadata to be avialable. ' +
+    'Relay: Expected forward pagination metadata to be available. ' +
       "If you're seeing this, this is likely a bug in Relay.",
   );
   const paginationVariables = {

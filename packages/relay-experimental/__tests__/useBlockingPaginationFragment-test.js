@@ -3150,7 +3150,7 @@ describe('useBlockingPaginationFragment', () => {
         ]);
       });
 
-      it('updates after pagination if more results are avialable', () => {
+      it('updates after pagination if more results are available', () => {
         const callback = jest.fn();
         const renderer = renderFragment();
         expectFragmentResults([
@@ -3255,7 +3255,7 @@ describe('useBlockingPaginationFragment', () => {
         expect(callback).toBeCalledTimes(1);
       });
 
-      it('updates after pagination if no more results are avialable', () => {
+      it('updates after pagination if no more results are available', () => {
         const callback = jest.fn();
         const renderer = renderFragment();
         expectFragmentResults([

@@ -114,7 +114,7 @@ class ReactRelayQueryRenderer extends React.Component<Props, State> {
     let requestCacheKey;
 
     // When server-side rendering the global request cache should not persist.
-    if (!isBrowser) {
+    if (!isBrowser()) {
       requestCache = {};
     }
 

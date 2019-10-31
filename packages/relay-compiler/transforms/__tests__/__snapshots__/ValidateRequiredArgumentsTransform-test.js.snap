@@ -89,6 +89,21 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
 PASSED
 `;
 
+exports[`validateRelayRequiredArguments-test matches expected output: default-argument-on-field.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query TestQuery {
+  node {
+    hometown {
+      a: nameWithDefaultArgs
+      b: nameWithDefaultArgs(capitalize: true)
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+PASSED
+`;
+
 exports[`validateRelayRequiredArguments-test matches expected output: missing-argument-on-directive.invalid.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 # expected-to-throw

@@ -19,7 +19,6 @@ const CodegenRunner = require('./codegen/CodegenRunner');
 const CodegenWatcher = require('./codegen/CodegenWatcher');
 const ConsoleReporter = require('./reporters/ConsoleReporter');
 const DotGraphQLParser = require('./core/DotGraphQLParser');
-const FindGraphQLTags = require('./language/javascript/FindGraphQLTags');
 const GraphQLASTUtils = require('./runner/GraphQLASTUtils');
 const GraphQLCompilerContext = require('./core/GraphQLCompilerContext');
 const GraphQLCompilerProfiler = require('./core/GraphQLCompilerProfiler');
@@ -27,6 +26,7 @@ const GraphQLIRPrinter = require('./core/GraphQLIRPrinter');
 const GraphQLIRTransformer = require('./core/GraphQLIRTransformer');
 const GraphQLIRVisitor = require('./core/GraphQLIRVisitor');
 const GraphQLWatchmanClient = require('./core/GraphQLWatchmanClient');
+const JSModuleParser = require('./core/JSModuleParser');
 const MultiReporter = require('./reporters/MultiReporter');
 const RelayCodeGenerator = require('./codegen/RelayCodeGenerator');
 const RelayCompilerError = require('./core/RelayCompilerError');
@@ -35,12 +35,13 @@ const RelayFlowGenerator = require('./language/javascript/RelayFlowGenerator');
 const RelayIRTransforms = require('./core/RelayIRTransforms');
 const RelayParser = require('./core/RelayParser');
 const RelaySchema = require('./core/Schema');
-const RelaySourceModuleParser = require('./core/RelaySourceModuleParser');
 const Rollout = require('./util/Rollout');
 const SchemaUtils = require('./core/SchemaUtils');
+const Sources = require('./runner/Sources');
 const StrictMap_ = require('./runner/StrictMap');
 
 const compileRelayArtifacts = require('./codegen/compileRelayArtifacts');
+const extractAST = require('./runner/extractAST');
 const filterContextForNode = require('./core/filterContextForNode');
 const formatGeneratedModule = require('./language/javascript/formatGeneratedModule');
 const getIdentifierForArgumentValue = require('./core/getIdentifierForArgumentValue');
@@ -103,13 +104,11 @@ export type {
   TypeGenerator,
 } from './language/RelayLanguagePluginInterface';
 export type {Reporter} from './reporters/Reporter';
+export type {SourceChanges} from './runner/Sources';
+export type {ExtractFn} from './runner/extractAST';
 export type {SavedStateCollection, WatchmanFile} from './runner/types';
 export type {FlattenOptions} from './transforms/FlattenTransform';
 export type StrictMap<K, V> = StrictMap_<K, V>;
-
-const RelayJSModuleParser: $FlowFixMe = RelaySourceModuleParser(
-  FindGraphQLTags.find,
-);
 
 module.exports = {
   relayCompiler: main,
@@ -147,7 +146,7 @@ module.exports = {
 
   FileWriter: RelayFileWriter,
   IRTransforms: RelayIRTransforms,
-  JSModuleParser: RelayJSModuleParser,
+  JSModuleParser,
   MultiReporter,
   Runner: CodegenRunner,
   compileRelayArtifacts: compileRelayArtifacts,
@@ -160,9 +159,13 @@ module.exports = {
 
   writeRelayGeneratedFile,
 
+  Sources,
   __internal: {
     BufferedFilesystem,
     GraphQLASTUtils,
     StrictMap: StrictMap_,
+    extractFromJS: extractAST.extractFromJS,
+    parseExecutableNode: extractAST.parseExecutableNode,
+    toASTRecord: extractAST.toASTRecord,
   },
 };

@@ -25,11 +25,7 @@ import type {FileFilter} from '../codegen/CodegenWatcher';
 import type {GraphQLTagFinder} from '../language/RelayLanguagePluginInterface';
 import type {DocumentNode} from 'graphql';
 
-const parseGraphQL = Profiler.instrument(GraphQL.parse, 'GraphQL.parse');
-
-module.exports = (
-  tagFinder: GraphQLTagFinder,
-): {|
+export type SourceModuleParser = {|
   getFileFilter: (baseDir: string) => FileFilter,
   getParser: (baseDir: string) => ASTCache,
   parseFile: (baseDir: string, file: File) => ?DocumentNode,
@@ -40,7 +36,11 @@ module.exports = (
     +document: DocumentNode,
     +sources: $ReadOnlyArray<string>,
   |},
-|} => {
+|};
+
+const parseGraphQL = Profiler.instrument(GraphQL.parse, 'GraphQL.parse');
+
+module.exports = (tagFinder: GraphQLTagFinder): SourceModuleParser => {
   const memoizedTagFinder = memoizedFind.bind(null, tagFinder);
 
   function parseFile(baseDir: string, file: File): ?DocumentNode {

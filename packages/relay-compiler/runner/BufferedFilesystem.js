@@ -14,7 +14,8 @@
 const fs = require('fs');
 const invariant = require('invariant');
 
-import type {Filesystem, SourceControl} from 'relay-compiler';
+import type {Filesystem} from '../codegen/CodegenDirectory';
+import type {SourceControl} from '../codegen/SourceControl';
 
 /**
  * A filesystem wrapper that buffers file reads and writes until `commit()` is

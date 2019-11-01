@@ -43,6 +43,7 @@ const SchemaUtils = require('./core/SchemaUtils');
 const Sources = require('./runner/Sources');
 const StrictMap_ = require('./runner/StrictMap');
 
+const compileArtifacts = require('./runner/compileArtifacts');
 const compileRelayArtifacts = require('./codegen/compileRelayArtifacts');
 const extractAST = require('./runner/extractAST');
 const filterContextForNode = require('./core/filterContextForNode');
@@ -177,6 +178,7 @@ module.exports = {
     GraphQLASTUtils,
     GraphQLNodeMap,
     StrictMap: StrictMap_,
+    compileArtifacts,
     extractFromJS: extractAST.extractFromJS,
     parseExecutableNode: extractAST.parseExecutableNode,
     toASTRecord: extractAST.toASTRecord,

@@ -876,6 +876,12 @@ type MarkdownUserNameData {
 
 type CustomNameRenderer {
   customField: String
+  user: User
+}
+
+type PlainUserRenderer {
+  user: User
+  js(module: String!, id: String): JSDependency
 }
 
 union UserNameRenderer =
@@ -956,6 +962,7 @@ type User implements Named & Node & Actor & HasJsField {
   websites: [String]
   username: String
   viewerSavedState: String
+  plainUserRenderer: PlainUserRenderer
 }
 
 enum NameRendererContext {

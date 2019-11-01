@@ -697,60 +697,56 @@ function selectionsToRawResponseBabel(
           false,
         ).values(),
       );
-      const moduleImport = mergedSeletions.find(
-        sel => sel.kind === 'ModuleImport',
+      types.push(
+        exactObjectTypeAnnotation(
+          mergedSeletions.map(selection =>
+            makeRawResponseProp(schema, selection, state, concreteType),
+          ),
+        ),
       );
-      if (moduleImport) {
-        types.push(
-          exactObjectTypeAnnotation(
-            mergedSeletions.map(selection =>
-              makeRawResponseProp(schema, selection, state, concreteType),
-            ),
-          ),
-        );
-        // Generate an extra opaque type for client 3D fields
-        state.runtimeImports.add('Local3DPayload');
-        types.push(
-          t.genericTypeAnnotation(
-            t.identifier('Local3DPayload'),
-            t.typeParameterInstantiation([
-              t.stringLiteralTypeAnnotation(moduleImport.documentName),
-              exactObjectTypeAnnotation(
-                mergedSeletions
-                  .filter(sel => sel.schemaName !== 'js')
-                  .map(selection =>
-                    makeRawResponseProp(schema, selection, state, concreteType),
-                  ),
-              ),
-            ]),
-          ),
-        );
-      } else {
-        types.push(
-          exactObjectTypeAnnotation(
-            mergedSeletions.map(selection =>
-              makeRawResponseProp(schema, selection, state, concreteType),
-            ),
-          ),
-        );
-      }
+      appendLocal3DPayload(types, mergedSeletions, schema, state, concreteType);
     }
   }
-  if (baseFields.length) {
+  if (baseFields.length > 0) {
     types.push(
       exactObjectTypeAnnotation(
         baseFields.map(selection =>
-          makeRawResponseProp(
-            schema,
-            selection,
-            state,
-            isTypenameSelection(selection) ? nodeTypeName : null,
-          ),
+          makeRawResponseProp(schema, selection, state, nodeTypeName),
         ),
       ),
     );
+    appendLocal3DPayload(types, baseFields, schema, state, nodeTypeName);
   }
   return unionTypeAnnotation(types);
+}
+
+function appendLocal3DPayload(
+  types: Array<mixed>,
+  selections: $ReadOnlyArray<Selection>,
+  schema: Schema,
+  state: State,
+  currentType: ?string,
+): void {
+  const moduleImport = selections.find(sel => sel.kind === 'ModuleImport');
+  if (moduleImport) {
+    // Generate an extra opaque type for client 3D fields
+    state.runtimeImports.add('Local3DPayload');
+    types.push(
+      t.genericTypeAnnotation(
+        t.identifier('Local3DPayload'),
+        t.typeParameterInstantiation([
+          t.stringLiteralTypeAnnotation(moduleImport.documentName),
+          exactObjectTypeAnnotation(
+            selections
+              .filter(sel => sel.schemaName !== 'js')
+              .map(selection =>
+                makeRawResponseProp(schema, selection, state, currentType),
+              ),
+          ),
+        ]),
+      ),
+    );
+  }
 }
 
 // Visitor for generating raw response type

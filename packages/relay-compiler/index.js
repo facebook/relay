@@ -20,12 +20,14 @@ const CodegenRunner = require('./codegen/CodegenRunner');
 const CodegenWatcher = require('./codegen/CodegenWatcher');
 const ConsoleReporter = require('./reporters/ConsoleReporter');
 const DotGraphQLParser = require('./core/DotGraphQLParser');
+const GraphQLASTNodeGroup = require('./runner/GraphQLASTNodeGroup');
 const GraphQLASTUtils = require('./runner/GraphQLASTUtils');
 const GraphQLCompilerContext = require('./core/GraphQLCompilerContext');
 const GraphQLCompilerProfiler = require('./core/GraphQLCompilerProfiler');
 const GraphQLIRPrinter = require('./core/GraphQLIRPrinter');
 const GraphQLIRTransformer = require('./core/GraphQLIRTransformer');
 const GraphQLIRVisitor = require('./core/GraphQLIRVisitor');
+const GraphQLNodeMap = require('./runner/GraphQLNodeMap');
 const GraphQLWatchmanClient = require('./core/GraphQLWatchmanClient');
 const JSModuleParser = require('./core/JSModuleParser');
 const MultiReporter = require('./reporters/MultiReporter');
@@ -110,10 +112,12 @@ export type {
   ArtifactState,
   SerializedArtifactState,
 } from './runner/Artifacts';
+export type {NodeGroup} from './runner/GraphQLASTNodeGroup';
 export type {SourceChanges} from './runner/Sources';
 export type {ExtractFn} from './runner/extractAST';
 export type {SavedStateCollection, WatchmanFile} from './runner/types';
 export type {FlattenOptions} from './transforms/FlattenTransform';
+
 export type StrictMap<K, V> = StrictMap_<K, V>;
 
 module.exports = {
@@ -169,7 +173,9 @@ module.exports = {
   __internal: {
     Artifacts,
     BufferedFilesystem,
+    GraphQLASTNodeGroup,
     GraphQLASTUtils,
+    GraphQLNodeMap,
     StrictMap: StrictMap_,
     extractFromJS: extractAST.extractFromJS,
     parseExecutableNode: extractAST.parseExecutableNode,

@@ -15,7 +15,7 @@ const ReaderCodeGenerator = require('./ReaderCodeGenerator');
 
 const {createCompilerError} = require('../core/CompilerError');
 
-import type {Fragment, Request, SplitOperation} from '../core/GraphQLIR';
+import type {Fragment, Request, SplitOperation} from '../core/IR';
 import type {Schema} from '../core/Schema';
 import type {
   ConcreteRequest,
@@ -26,7 +26,7 @@ import type {
 /**
  * @public
  *
- * Converts a GraphQLIR node into a plain JS object representation that can be
+ * Converts an IR node into a plain JS object representation that can be
  * used at runtime.
  */
 declare function generate(schema: Schema, node: Fragment): ReaderFragment;

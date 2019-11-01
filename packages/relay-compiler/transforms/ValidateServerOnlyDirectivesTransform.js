@@ -10,7 +10,7 @@
 
 'use strict';
 
-const GraphQLIRValidator = require('../core/GraphQLIRValidator');
+const IRValidator = require('../core/IRValidator');
 
 const {createUserError} = require('../core/CompilerError');
 
@@ -21,7 +21,7 @@ import type {
   LinkedField,
   Selection,
   Stream,
-} from '../core/GraphQLIR';
+} from '../core/IR';
 
 type State = {
   rootClientSelection: ?Selection,
@@ -38,7 +38,7 @@ const NODEKIND_DIRECTIVE_MAP = {
 function validateServerOnlyDirectives(
   context: CompilerContext,
 ): CompilerContext {
-  GraphQLIRValidator.validate(
+  IRValidator.validate(
     context,
     {
       ClientExtension: visitClientExtension,

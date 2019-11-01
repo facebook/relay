@@ -10,12 +10,12 @@
 
 'use strict';
 
-const IRTransformer = require('../core/GraphQLIRTransformer');
+const IRTransformer = require('../core/IRTransformer');
 
 const {hasUnaliasedSelection} = require('./TransformUtils');
 
 import type CompilerContext from '../core/CompilerContext';
-import type {LinkedField, ScalarField} from '../core/GraphQLIR';
+import type {LinkedField, ScalarField} from '../core/IR';
 import type {Schema} from '../core/Schema';
 
 const TYPENAME_KEY = '__typename';

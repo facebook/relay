@@ -10,7 +10,7 @@
 
 'use strict';
 
-const IRTransformer = require('../core/GraphQLIRTransformer');
+const IRTransformer = require('../core/IRTransformer');
 
 const invariant = require('invariant');
 const joinArgumentDefinitions = require('../util/joinArgumentDefinitions');
@@ -23,7 +23,7 @@ import type {
   FragmentSpread,
   InlineFragment,
   ArgumentDefinition,
-} from '../core/GraphQLIR';
+} from '../core/IR';
 
 type State = {
   reachableArguments: Array<ArgumentDefinition>,

@@ -10,7 +10,7 @@
 
 'use strict';
 
-const GraphQLIRTransformer = require('../core/GraphQLIRTransformer');
+const IRTransformer = require('../core/IRTransformer');
 
 const {createUserError} = require('../core/CompilerError');
 
@@ -19,7 +19,7 @@ import type {
   Fragment,
   FragmentSpread,
   InlineDataFragmentSpread,
-} from '../core/GraphQLIR';
+} from '../core/IR';
 
 const SCHEMA_EXTENSION = `
 directive @inline on FRAGMENT_DEFINITION
@@ -33,7 +33,7 @@ directive @inline on FRAGMENT_DEFINITION
 function inlineDataFragmentTransform(
   context: CompilerContext,
 ): CompilerContext {
-  return GraphQLIRTransformer.transform(context, {
+  return IRTransformer.transform(context, {
     // $FlowFixMe - this visitor intentionally changes node types
     FragmentSpread: visitFragmentSpread,
     Fragment: visitFragment,

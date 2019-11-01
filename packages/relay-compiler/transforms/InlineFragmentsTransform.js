@@ -10,12 +10,12 @@
 
 'use strict';
 
-const GraphQLIRTransformer = require('../core/GraphQLIRTransformer');
+const IRTransformer = require('../core/IRTransformer');
 
 const invariant = require('invariant');
 
 import type CompilerContext from '../core/CompilerContext';
-import type {InlineFragment, Fragment, FragmentSpread} from '../core/GraphQLIR';
+import type {InlineFragment, Fragment, FragmentSpread} from '../core/IR';
 
 type FragmentVisitorCache = Map<FragmentSpread, FragmentSpread>;
 type FragmentVisitor = (fragmentSpread: FragmentSpread) => ?FragmentSpread;
@@ -24,7 +24,7 @@ type FragmentVisitor = (fragmentSpread: FragmentSpread) => ?FragmentSpread;
  */
 function inlineFragmentsTransform(context: CompilerContext): CompilerContext {
   const visitFragmentSpread = fragmentSpreadVisitor(new Map());
-  return GraphQLIRTransformer.transform(context, {
+  return IRTransformer.transform(context, {
     Fragment: visitFragment,
     FragmentSpread: visitFragmentSpread,
   });

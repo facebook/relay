@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`GraphQLIRPrinter matches expected output: kitchen-sink.graphql 1`] = `
+exports[`IRPrinter matches expected output: kitchen-sink.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query NodeQuery(
   $cond: Boolean! = false
@@ -126,7 +126,7 @@ fragment UserFragment on User @argumentDefinitions(
 
 `;
 
-exports[`GraphQLIRPrinter matches expected output: lowercase-enum-fragment-arg.graphql 1`] = `
+exports[`IRPrinter matches expected output: lowercase-enum-fragment-arg.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 fragment UserFragment on User
   @argumentDefinitions(
@@ -148,7 +148,7 @@ fragment UserFragment on User @argumentDefinitions(
 
 `;
 
-exports[`GraphQLIRPrinter matches expected output: single-value-array-of-objects.graphql 1`] = `
+exports[`IRPrinter matches expected output: single-value-array-of-objects.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query SingleValueArrayQuery {
   route(waypoints: {lat: "123", lon: "456"}) {
@@ -171,7 +171,7 @@ query SingleValueArrayQuery {
 
 `;
 
-exports[`GraphQLIRPrinter matches expected output: string-enum-arg.invalid.graphql 1`] = `
+exports[`IRPrinter matches expected output: string-enum-arg.invalid.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 # expected-to-throw
 fragment UserFragment on User {
@@ -193,7 +193,7 @@ GraphQL request (3:26)
 
 `;
 
-exports[`GraphQLIRPrinter matches expected output: string-enum-fragment-arg.graphql 1`] = `
+exports[`IRPrinter matches expected output: string-enum-fragment-arg.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 fragment UserFragment on User
   @argumentDefinitions(
@@ -215,7 +215,7 @@ fragment UserFragment on User @argumentDefinitions(
 
 `;
 
-exports[`GraphQLIRPrinter matches expected output: string-enum-fragment-arg.invalid.graphql 1`] = `
+exports[`IRPrinter matches expected output: string-enum-fragment-arg.invalid.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 # expected-to-throw
 fragment UserFragment on User
@@ -240,7 +240,7 @@ GraphQL request (6:27)
 
 `;
 
-exports[`GraphQLIRPrinter matches expected output: unknown-enum-arg.invalid.graphql 1`] = `
+exports[`IRPrinter matches expected output: unknown-enum-arg.invalid.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 # expected-to-throw
 fragment UserFragment on User {

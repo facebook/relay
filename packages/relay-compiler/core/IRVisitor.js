@@ -35,7 +35,7 @@ import type {
   SplitOperation,
   Stream,
   Variable,
-} from './GraphQLIR';
+} from './IR';
 
 const NodeKeys = {
   Argument: ['value'],

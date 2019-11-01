@@ -39,7 +39,7 @@ import type {
   InlineDataFragmentSpread,
   Stream,
   Variable,
-} from './GraphQLIR';
+} from './IR';
 
 type NodeVisitor<S> = {|
   Argument?: NodeVisitorFunction<Argument, S>,
@@ -299,11 +299,7 @@ class Transformer<S> {
         break;
       default:
         (prevNode: empty);
-        invariant(
-          false,
-          'GraphQLIRTransformer: Unknown kind `%s`.',
-          prevNode.kind,
-        );
+        invariant(false, 'IRTransformer: Unknown kind `%s`.', prevNode.kind);
     }
     return nextNode;
   }
@@ -322,7 +318,7 @@ class Transformer<S> {
         }
         invariant(
           Array.isArray(prevItems),
-          'GraphQLIRTransformer: Expected data for `%s` to be an array, got `%s`.',
+          'IRTransformer: Expected data for `%s` to be an array, got `%s`.',
           key,
           prevItems,
         );
@@ -364,7 +360,7 @@ class Transformer<S> {
   _getState(): S {
     invariant(
       this._states.length,
-      'GraphQLIRTransformer: Expected a current state to be set but found none. ' +
+      'IRTransformer: Expected a current state to be set but found none. ' +
         'This is usually the result of mismatched number of pushState()/popState() ' +
         'calls.',
     );

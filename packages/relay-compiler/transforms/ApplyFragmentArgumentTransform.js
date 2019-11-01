@@ -10,7 +10,7 @@
 
 'use strict';
 
-const IRTransformer = require('../core/GraphQLIRTransformer');
+const IRTransformer = require('../core/IRTransformer');
 const RelayCompilerScope = require('../core/RelayCompilerScope');
 
 const getIdentifierForArgumentValue = require('../core/getIdentifierForArgumentValue');
@@ -34,7 +34,7 @@ import type {
   IR,
   Node,
   Selection,
-} from '../core/GraphQLIR';
+} from '../core/IR';
 import type {Scope} from '../core/RelayCompilerScope';
 
 const {getFragmentScope, getRootScope} = RelayCompilerScope;

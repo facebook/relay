@@ -20,7 +20,7 @@ const invariant = require('invariant');
 
 const {RelayConcreteNode} = require('relay-runtime');
 
-import type {GeneratedDefinition} from '../core/GraphQLIR';
+import type {GeneratedDefinition} from '../core/IR';
 import type {Schema} from '../core/Schema';
 import type {FormatModule} from '../language/RelayLanguagePluginInterface';
 import type CodegenDirectory from './CodegenDirectory';

@@ -40,7 +40,7 @@ import type {
   Root,
   Selection,
   Variable,
-} from './GraphQLIR';
+} from './IR';
 import type {
   CompositeTypeID,
   FieldArgument,

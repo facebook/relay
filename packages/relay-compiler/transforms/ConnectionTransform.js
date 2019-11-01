@@ -10,7 +10,7 @@
 
 'use strict';
 
-const IRTransformer = require('../core/GraphQLIRTransformer');
+const IRTransformer = require('../core/IRTransformer');
 const RelayParser = require('../core/RelayParser');
 const SchemaUtils = require('../core/SchemaUtils');
 
@@ -34,7 +34,7 @@ import type {
   Variable,
   Location,
   Defer,
-} from '../core/GraphQLIR';
+} from '../core/IR';
 import type {Schema, CompositeTypeID} from '../core/Schema';
 import type {ConnectionMetadata} from 'relay-runtime';
 

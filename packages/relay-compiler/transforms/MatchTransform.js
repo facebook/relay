@@ -10,7 +10,7 @@
 
 'use strict';
 
-const IRTransformer = require('../core/GraphQLIRTransformer');
+const IRTransformer = require('../core/IRTransformer');
 
 const getLiteralArgumentValues = require('../core/getLiteralArgumentValues');
 const getNormalizationOperationName = require('../core/getNormalizationOperationName');
@@ -24,7 +24,7 @@ import type {
   FragmentSpread,
   LinkedField,
   ScalarField,
-} from '../core/GraphQLIR';
+} from '../core/IR';
 import type {TypeID} from '../core/Schema';
 
 const SUPPORTED_ARGUMENT_NAME = 'supported';

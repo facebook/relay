@@ -25,11 +25,11 @@ const DotGraphQLParser = require('./core/DotGraphQLParser');
 const GraphQLASTNodeGroup = require('./runner/GraphQLASTNodeGroup');
 const GraphQLASTUtils = require('./runner/GraphQLASTUtils');
 const GraphQLCompilerProfiler = require('./core/GraphQLCompilerProfiler');
-const GraphQLIRPrinter = require('./core/GraphQLIRPrinter');
-const GraphQLIRTransformer = require('./core/GraphQLIRTransformer');
-const GraphQLIRVisitor = require('./core/GraphQLIRVisitor');
 const GraphQLNodeMap = require('./runner/GraphQLNodeMap');
 const GraphQLWatchmanClient = require('./core/GraphQLWatchmanClient');
+const IRPrinter = require('./core/IRPrinter');
+const IRTransformer = require('./core/IRTransformer');
+const IRVisitor = require('./core/IRVisitor');
 const JSModuleParser = require('./core/JSModuleParser');
 const MultiReporter = require('./reporters/MultiReporter');
 const RelayCodeGenerator = require('./codegen/RelayCodeGenerator');
@@ -101,7 +101,7 @@ export type {
   Selection,
   SplitOperation,
   Variable,
-} from './core/GraphQLIR';
+} from './core/IR';
 export type {Schema, TypeID, FieldID} from './core/Schema';
 export type {
   FormatModule,
@@ -134,12 +134,12 @@ module.exports = {
   ConsoleReporter,
   DotGraphQLParser,
   ASTCache,
-  IRTransformer: GraphQLIRTransformer,
-  IRVisitor: GraphQLIRVisitor,
-  Printer: GraphQLIRPrinter,
+  IRTransformer,
+  IRVisitor,
+  Printer: IRPrinter,
   Profiler: GraphQLCompilerProfiler,
   Rollout,
-  SchemaUtils: SchemaUtils,
+  SchemaUtils,
   SourceControlMercurial,
   WatchmanClient: GraphQLWatchmanClient,
 
@@ -158,7 +158,7 @@ module.exports = {
   JSModuleParser,
   MultiReporter,
   Runner: CodegenRunner,
-  compileRelayArtifacts: compileRelayArtifacts,
+  compileRelayArtifacts,
   formatGeneratedModule,
   convertASTDocuments: ASTConvert.convertASTDocuments,
   transformASTSchema: ASTConvert.transformASTSchema,

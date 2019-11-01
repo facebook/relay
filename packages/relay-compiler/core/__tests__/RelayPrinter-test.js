@@ -12,7 +12,7 @@
 'use strict';
 
 const CompilerContext = require('../CompilerContext');
-const GraphQLIRPrinter = require('../GraphQLIRPrinter');
+const IRPrinter = require('../IRPrinter');
 const RelayParser = require('../RelayParser');
 const Schema = require('../Schema');
 
@@ -21,14 +21,14 @@ const {
   generateTestsFromFixtures,
 } = require('relay-test-utils-internal');
 
-describe('GraphQLIRPrinter', () => {
+describe('IRPrinter', () => {
   generateTestsFromFixtures(`${__dirname}/fixtures/printer`, text => {
     const compilerSchema = Schema.DEPRECATED__create(TestSchema);
     const ast = RelayParser.parse(compilerSchema, text);
     const context = new CompilerContext(compilerSchema).addAll(ast);
     const documents = [];
     context.forEachDocument(doc => {
-      documents.push(GraphQLIRPrinter.print(compilerSchema, doc));
+      documents.push(IRPrinter.print(compilerSchema, doc));
     });
     return documents.join('\n');
   });

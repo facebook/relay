@@ -12,9 +12,9 @@
 
 const CompilerContext = require('./CompilerContext');
 
-const {visit} = require('./GraphQLIRVisitor');
+const {visit} = require('./IRVisitor');
 
-import type {Fragment, FragmentSpread, Root} from './GraphQLIR';
+import type {Fragment, FragmentSpread, Root} from './IR';
 
 /**
  * Returns a CompilerContext containing only the documents referenced

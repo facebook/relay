@@ -10,7 +10,7 @@
 
 'use strict';
 
-const IRTransformer = require('../core/GraphQLIRTransformer');
+const IRTransformer = require('../core/IRTransformer');
 
 const murmurHash = require('../util/murmurHash');
 
@@ -28,7 +28,7 @@ import type {
   LinkedField,
   ScalarField,
   Stream,
-} from '../core/GraphQLIR';
+} from '../core/IR';
 
 type State = {|
   +documentName: string,

@@ -18,7 +18,7 @@ const {
 } = require('./SchemaUtils');
 const {extendSchema, parse, print, visit} = require('graphql');
 
-import type {Fragment, Root} from './GraphQLIR';
+import type {Fragment, Root} from './IR';
 import type {Schema} from './Schema';
 import type {
   DefinitionNode,

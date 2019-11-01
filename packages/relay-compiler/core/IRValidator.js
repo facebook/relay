@@ -39,7 +39,7 @@ import type {
   SplitOperation,
   Stream,
   Variable,
-} from './GraphQLIR';
+} from './IR';
 
 type NodeVisitor<S> = {|
   Argument?: NodeVisitorFunction<Argument, S>,
@@ -204,11 +204,7 @@ class Validator<S> {
         break;
       default:
         (prevNode: empty);
-        invariant(
-          false,
-          'GraphQLIRValidator: Unknown kind `%s`.',
-          prevNode.kind,
-        );
+        invariant(false, 'IRValidator: Unknown kind `%s`.', prevNode.kind);
     }
   }
 
@@ -225,7 +221,7 @@ class Validator<S> {
         }
         invariant(
           Array.isArray(prevItems),
-          'GraphQLIRValidator: Expected data for `%s` to be an array, got `%s`.',
+          'IRValidator: Expected data for `%s` to be an array, got `%s`.',
           key,
           prevItems,
         );
@@ -244,7 +240,7 @@ class Validator<S> {
   _getState(): S {
     invariant(
       this._states.length,
-      'GraphQLIRValidator: Expected a current state to be set but found none. ' +
+      'IRValidator: Expected a current state to be set but found none. ' +
         'This is usually the result of mismatched number of pushState()/popState() ' +
         'calls.',
     );

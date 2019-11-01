@@ -15,7 +15,7 @@ import type {
   Fragment,
   FragmentSpread,
   LocalArgumentDefinition,
-} from '../../core/GraphQLIR';
+} from '../../core/IR';
 
 function buildFragmentSpread(fragment: Fragment): FragmentSpread {
   const args = [];

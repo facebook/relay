@@ -12,7 +12,7 @@
 
 const invariant = require('invariant');
 
-import type {ArgumentValue} from './GraphQLIR';
+import type {ArgumentValue} from './IR';
 
 /**
  * Generates an identifier for an argument value. The identifier is based on the

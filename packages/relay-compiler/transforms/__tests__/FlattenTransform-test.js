@@ -13,7 +13,7 @@
 
 const CompilerContext = require('../../core/CompilerContext');
 const FlattenTransform = require('../FlattenTransform');
-const GraphQLIRPrinter = require('../../core/GraphQLIRPrinter');
+const IRPrinter = require('../../core/IRPrinter');
 const MatchTransform = require('../../transforms/MatchTransform');
 const RelayDirectiveTransform = require('../RelayDirectiveTransform');
 const RelayParser = require('../../core/RelayParser');
@@ -47,7 +47,7 @@ describe('FlattenTransform', () => {
           FlattenTransform.transformWithOptions(options),
         ])
         .documents()
-        .map(doc => GraphQLIRPrinter.print(compilerSchema, doc))
+        .map(doc => IRPrinter.print(compilerSchema, doc))
         .join('\n');
     };
   }

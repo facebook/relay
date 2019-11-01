@@ -19,7 +19,7 @@ const {createUserError} = require('./CompilerError');
 const {OrderedMap: ImmutableOrderedMap} = require('immutable');
 
 import type {Reporter} from '../reporters/Reporter';
-import type {Fragment, Location, Root, SplitOperation} from './GraphQLIR';
+import type {Fragment, Location, Root, SplitOperation} from './IR';
 import type {Schema} from './Schema';
 
 export type IRTransform = CompilerContext => CompilerContext;

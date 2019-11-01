@@ -11,11 +11,11 @@
 
 'use strict';
 
-const GraphQLIRPrinter = require('../GraphQLIRPrinter');
+const IRPrinter = require('../IRPrinter');
 const RelayParser = require('../RelayParser');
 const Schema = require('../Schema');
 
-const {visit} = require('../GraphQLIRVisitor');
+const {visit} = require('../IRVisitor');
 const {
   TestSchema,
   generateTestsFromFixtures,
@@ -33,7 +33,7 @@ import type {
   Literal,
   Root,
   Variable,
-} from '../GraphQLIR';
+} from '../IR';
 
 type VisitNodeWithName =
   | Root
@@ -46,13 +46,13 @@ type VisitNodeWithName =
 
 const schema = Schema.DEPRECATED__create(TestSchema);
 
-describe('GraphQLIRVisitor', () => {
+describe('IRVisitor', () => {
   generateTestsFromFixtures(
     `${__dirname}/fixtures/visitor/no-op-visit`,
     text => {
       const ast = RelayParser.parse(schema, text);
       const sameAst = ast.map(fragment => visit(fragment, {}));
-      return sameAst.map(doc => GraphQLIRPrinter.print(schema, doc)).join('\n');
+      return sameAst.map(doc => IRPrinter.print(schema, doc)).join('\n');
     },
   );
 
@@ -132,9 +132,7 @@ describe('GraphQLIRVisitor', () => {
         }),
       );
 
-      return mutatedAst
-        .map(doc => GraphQLIRPrinter.print(schema, doc))
-        .join('\n');
+      return mutatedAst.map(doc => IRPrinter.print(schema, doc)).join('\n');
     },
   );
 });

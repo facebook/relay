@@ -12,7 +12,7 @@
 'use strict';
 
 const CompilerContext = require('../../core/CompilerContext');
-const GraphQLIRPrinter = require('../../core/GraphQLIRPrinter');
+const IRPrinter = require('../../core/IRPrinter');
 const Schema = require('../../core/Schema');
 const SkipHandleFieldTransform = require('../SkipHandleFieldTransform');
 
@@ -32,7 +32,7 @@ describe('SkipHandleFieldTransform', () => {
         .addAll(definitions)
         .applyTransforms([SkipHandleFieldTransform.transform])
         .documents()
-        .map(doc => GraphQLIRPrinter.print(compilerSchema, doc))
+        .map(doc => IRPrinter.print(compilerSchema, doc))
         .join('\n');
     },
   );

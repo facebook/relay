@@ -12,7 +12,7 @@
 
 const ConnectionFieldTransform = require('../../transforms/ConnectionFieldTransform');
 const FlattenTransform = require('../../transforms/FlattenTransform');
-const IRVisitor = require('../../core/GraphQLIRVisitor');
+const IRVisitor = require('../../core/IRVisitor');
 const MaskTransform = require('../../transforms/MaskTransform');
 const MatchTransform = require('../../transforms/MatchTransform');
 const Profiler = require('../../core/GraphQLCompilerProfiler');
@@ -46,7 +46,7 @@ import type {
   Directive,
   Metadata,
   ModuleImport,
-} from '../../core/GraphQLIR';
+} from '../../core/IR';
 import type {Schema, TypeID, EnumTypeID} from '../../core/Schema';
 import type {TypeGeneratorOptions} from '../RelayLanguagePluginInterface';
 

@@ -12,7 +12,7 @@
 'use strict';
 
 const CompilerContext = require('../CompilerContext');
-const GraphQLIRPrinter = require('../GraphQLIRPrinter');
+const IRPrinter = require('../IRPrinter');
 const Schema = require('../Schema');
 
 const filterContextForNode = require('../filterContextForNode');
@@ -38,7 +38,7 @@ describe('filterContextForNode', () => {
     );
     return printerContext
       .documents()
-      .map(doc => GraphQLIRPrinter.print(compilerSchema, doc))
+      .map(doc => IRPrinter.print(compilerSchema, doc))
       .join('\n');
   });
 });

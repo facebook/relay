@@ -10,7 +10,7 @@
 
 'use strict';
 
-import type {LinkedField} from '../core/GraphQLIR';
+import type {LinkedField} from '../core/IR';
 
 function hasUnaliasedSelection(field: LinkedField, fieldName: string): boolean {
   return field.selections.some(

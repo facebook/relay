@@ -18,7 +18,7 @@ const {
 } = require('../core/CompilerError');
 
 import type CompilerContext from '../core/CompilerContext';
-import type {ArgumentDefinition} from '../core/GraphQLIR';
+import type {ArgumentDefinition} from '../core/IR';
 
 const SCHEMA_EXTENSION =
   'directive @DEPRECATED__relay_ignore_unused_variables_error on QUERY | MUTATION | SUBSCRIPTION';

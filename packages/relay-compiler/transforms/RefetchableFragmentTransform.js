@@ -10,7 +10,7 @@
 
 'use strict';
 
-const GraphQLIRVisitor = require('../core/GraphQLIRVisitor');
+const IRVisitor = require('../core/IRVisitor');
 
 const getLiteralArgumentValues = require('../core/getLiteralArgumentValues');
 const inferRootArgumentDefinitions = require('../core/inferRootArgumentDefinitions');
@@ -22,7 +22,7 @@ const {
 const {buildRefetchOperation} = require('./query-generators');
 
 import type CompilerContext from '../core/CompilerContext';
-import type {Argument, Field, Fragment} from '../core/GraphQLIR';
+import type {Argument, Field, Fragment} from '../core/IR';
 import type {Schema} from '../core/Schema';
 import type {ReaderPaginationMetadata} from 'relay-runtime';
 
@@ -139,7 +139,7 @@ function extractConnectionMetadata(
   const fields = [];
   let connectionField = null;
   let path = null;
-  GraphQLIRVisitor.visit(fragment, {
+  IRVisitor.visit(fragment, {
     ConnectionField: {
       enter(field) {
         fields.push(field);

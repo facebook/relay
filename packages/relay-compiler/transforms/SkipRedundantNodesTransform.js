@@ -10,7 +10,7 @@
 
 'use strict';
 
-const GraphQLIRTransformer = require('../core/GraphQLIRTransformer');
+const IRTransformer = require('../core/IRTransformer');
 
 import type CompilerContext from '../core/CompilerContext';
 const IMap = require('immutable').Map;
@@ -20,7 +20,7 @@ const invariant = require('invariant');
 
 import type {Schema} from '../core/Schema';
 
-import type {Fragment, Node, Root, Selection} from '../core/GraphQLIR';
+import type {Fragment, Node, Root, Selection} from '../core/IR';
 
 /**
  * A simplified representation of a document: keys in the map are unique
@@ -124,7 +124,7 @@ type SelectionMap = IMap<string, ?SelectionMap>;
 function skipRedundantNodesTransform(
   context: CompilerContext,
 ): CompilerContext {
-  return GraphQLIRTransformer.transform(context, {
+  return IRTransformer.transform(context, {
     Root: visitNode,
     Fragment: visitNode,
   });

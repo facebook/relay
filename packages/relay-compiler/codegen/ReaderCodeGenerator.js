@@ -37,7 +37,7 @@ import type {
   Connection,
   ConnectionField,
   InlineDataFragmentSpread,
-} from '../core/GraphQLIR';
+} from '../core/IR';
 import type {Schema, TypeID} from '../core/Schema';
 import type {
   ReaderArgument,
@@ -55,7 +55,7 @@ import type {
 /**
  * @public
  *
- * Converts a GraphQLIR node into a plain JS object representation that can be
+ * Converts an IR node into a plain JS object representation that can be
  * used at runtime.
  */
 function generate(schema: Schema, node: Fragment): ReaderFragment {

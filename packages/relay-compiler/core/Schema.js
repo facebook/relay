@@ -31,7 +31,7 @@ const {
   print,
 } = require('graphql');
 
-import type {Field as GraphQLIRField} from './GraphQLIR';
+import type {Field as IRField} from './IR';
 import type {
   DirectiveLocationEnum,
   DocumentNode,
@@ -1384,7 +1384,7 @@ class Schema {
     return directive?.clientOnlyDirective === false;
   }
 
-  isServerDefinedField(type: CompositeTypeID, field: GraphQLIRField): boolean {
+  isServerDefinedField(type: CompositeTypeID, field: IRField): boolean {
     return (
       (this.isAbstractType(type) &&
         field.directives.some(({name}) => name === 'fixme_fat_interface')) ||
@@ -1393,7 +1393,7 @@ class Schema {
     );
   }
 
-  isClientDefinedField(type: CompositeTypeID, field: GraphQLIRField): boolean {
+  isClientDefinedField(type: CompositeTypeID, field: IRField): boolean {
     return !this.isServerDefinedField(type, field);
   }
 

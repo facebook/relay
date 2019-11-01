@@ -10,7 +10,7 @@
 
 'use strict';
 
-const IRTransformer = require('../core/GraphQLIRTransformer');
+const IRTransformer = require('../core/IRTransformer');
 
 const {createUserError} = require('../core/CompilerError');
 const {buildConnectionMetadata} = require('./ConnectionTransform');
@@ -25,7 +25,7 @@ import type {
   LinkedField,
   Root,
   ScalarField,
-} from '../core/GraphQLIR';
+} from '../core/IR';
 import type {ConnectionMetadata} from 'relay-runtime';
 
 const SCHEMA_EXTENSION = `

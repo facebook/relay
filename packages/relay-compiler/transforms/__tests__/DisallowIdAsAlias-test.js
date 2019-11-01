@@ -13,7 +13,7 @@
 
 const CompilerContext = require('../../core/CompilerContext');
 const DisallowIdAsAlias = require('../DisallowIdAsAlias');
-const GraphQLIRPrinter = require('../../core/GraphQLIRPrinter');
+const IRPrinter = require('../../core/IRPrinter');
 const Schema = require('../../core/Schema');
 
 const {
@@ -29,7 +29,7 @@ generateTestsFromFixtures(`${__dirname}/fixtures/DisallowIdAsAlias`, text => {
     .addAll(definitions)
     .applyTransforms([DisallowIdAsAlias.transform])
     .documents()
-    .map(doc => GraphQLIRPrinter.print(schema, doc))
+    .map(doc => IRPrinter.print(schema, doc))
     .join('\n');
 });
 //

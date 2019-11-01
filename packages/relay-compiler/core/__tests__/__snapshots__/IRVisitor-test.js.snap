@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`GraphQLIRVisitor matches expected output: mutate-nodes.graphql 1`] = `
+exports[`IRVisitor matches expected output: mutate-nodes.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query NodeQuery($id: ID!, $cond: Boolean!, $size: [Int]) {
   node(id: $id) {
@@ -100,7 +100,7 @@ fragment UserFragment_mutated on User @argumentDefinitions(
 
 `;
 
-exports[`GraphQLIRVisitor matches expected output: no-op.graphql 1`] = `
+exports[`IRVisitor matches expected output: no-op.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query NodeQuery($id: ID!, $cond: Boolean!, $size: [Int]) {
   node(id: $id) {

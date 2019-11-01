@@ -24,13 +24,13 @@ import type {
   LocalArgumentDefinition,
   Node,
   Selection,
-} from './GraphQLIR';
+} from './IR';
 import type {Schema, TypeID} from './Schema';
 
 const INDENT = '  ';
 
 /**
- * Converts a GraphQLIR node into a GraphQL string. Custom Relay
+ * Converts an IR node into a GraphQL string. Custom Relay
  * extensions (directives) are not supported; to print fragments with
  * variables or fragment spreads with arguments, transform the node
  * prior to printing.
@@ -61,11 +61,7 @@ function print(schema: Schema, node: CompilerContextDocument): string {
       );
     default:
       (node: empty);
-      invariant(
-        false,
-        'GraphQLIRPrinter: Unsupported IR node `%s`.',
-        node.kind,
-      );
+      invariant(false, 'IRPrinter: Unsupported IR node `%s`.', node.kind);
   }
 }
 
@@ -182,7 +178,7 @@ function printSelection(
     // For Flow
     invariant(
       value != null,
-      'GraphQLIRPrinter: Expected a variable for condition, got a literal `null`.',
+      'IRPrinter: Expected a variable for condition, got a literal `null`.',
     );
     let condStr = selection.passingValue ? ' @include' : ' @skip';
     condStr += '(if: ' + value + ')';
@@ -256,7 +252,7 @@ function printSelection(
   } else if (selection.kind === 'ClientExtension') {
     invariant(
       isClientExtension === false,
-      'GraphQLIRPrinter: Did not expect to encounter a ClientExtension node ' +
+      'IRPrinter: Did not expect to encounter a ClientExtension node ' +
         'as a descendant of another ClientExtension node.',
     );
     str =
@@ -273,11 +269,7 @@ function printSelection(
         .join('\n' + indent + INDENT);
   } else {
     (selection: empty);
-    invariant(
-      false,
-      'GraphQLIRPrinter: Unknown selection kind `%s`.',
-      selection.kind,
-    );
+    invariant(false, 'IRPrinter: Unknown selection kind `%s`.', selection.kind);
   }
   return str;
 }
@@ -409,7 +401,7 @@ function printLiteral(schema: Schema, value: mixed, type: ?TypeID): string {
     }
     invariant(
       typeof result === 'string',
-      'GraphQLIRPrinter: Expected value of type %s to be a valid enum value, got `%s`.',
+      'IRPrinter: Expected value of type %s to be a valid enum value, got `%s`.',
       schema.getTypeString(type),
       JSON.stringify(value) ?? 'null',
     );
@@ -422,7 +414,7 @@ function printLiteral(schema: Schema, value: mixed, type: ?TypeID): string {
   } else if (Array.isArray(value)) {
     invariant(
       type && schema.isList(type),
-      'GraphQLIRPrinter: Need a type in order to print arrays.',
+      'IRPrinter: Need a type in order to print arrays.',
     );
     const itemType = schema.getListItemType(type);
     return (
@@ -438,7 +430,7 @@ function printLiteral(schema: Schema, value: mixed, type: ?TypeID): string {
     const fields = [];
     invariant(
       type && schema.isInputObject(type),
-      'GraphQLIRPrinter: Need an InputObject type to print objects.',
+      'IRPrinter: Need an InputObject type to print objects.',
     );
     const inputType = schema.assertInputObjectType(type);
     for (const key in value) {

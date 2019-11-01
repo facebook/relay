@@ -10,7 +10,7 @@
 
 'use strict';
 
-const IRTransformer = require('../core/GraphQLIRTransformer');
+const IRTransformer = require('../core/IRTransformer');
 const SchemaUtils = require('../core/SchemaUtils');
 
 const invariant = require('invariant');
@@ -19,7 +19,7 @@ const nullthrows = require('nullthrows');
 const {getRelayHandleKey} = require('relay-runtime');
 
 import type CompilerContext from '../core/CompilerContext';
-import type {LinkedField, ScalarField} from '../core/GraphQLIR';
+import type {LinkedField, ScalarField} from '../core/IR';
 
 function fieldHandleTransform(context: CompilerContext): CompilerContext {
   return IRTransformer.transform(context, {

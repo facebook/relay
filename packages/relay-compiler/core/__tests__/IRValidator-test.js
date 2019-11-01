@@ -12,14 +12,15 @@
 'use strict';
 
 const CompilerContext = require('../CompilerContext');
-const GraphQLIRTransformer = require('../GraphQLIRTransformer');
+const IRTransformer = require('../IRTransformer');
+const IRValidator = require('../IRValidator');
 const Schema = require('../Schema');
 
 const {transformASTSchema} = require('../ASTConvert');
 const {TestSchema, parseGraphQLText} = require('relay-test-utils-internal');
 
-describe('GraphQLIRTransformer', () => {
-  it('visits all node types', () => {
+describe('IRValidator', () => {
+  it('should have same behavior as the IRTransformer', () => {
     const {definitions} = parseGraphQLText(
       transformASTSchema(TestSchema, [
         'directive @test on FRAGMENT_DEFINITION',
@@ -84,27 +85,33 @@ describe('GraphQLIRTransformer', () => {
       'Variable',
     ];
 
-    const sequence = [];
-    const seenKinds = new Set();
-    function createRecorder(kind) {
-      return function(node, state) {
-        expect(node.kind).toBe(kind);
-        sequence.push(kind);
-        seenKinds.add(kind);
-        return this.traverse(node, state);
-      };
+    function recordSequnce(func) {
+      const sequence = [];
+      const seenKinds = new Set();
+      function createRecorder(kind) {
+        return function(node, state) {
+          expect(node.kind).toBe(kind);
+          sequence.push(kind);
+          seenKinds.add(kind);
+          this.traverse(node, state);
+        };
+      }
+
+      const visitors = {};
+
+      astKinds.forEach(kind => {
+        visitors[kind] = createRecorder(kind);
+      });
+      // $FlowFixMe: Cannot call `func` with `visitors` bound to `visitor`
+      func(context, visitors, node => {
+        sequence.push(`${node.kind} ${node.name}`);
+        return {};
+      });
+      expect(Array.from(astKinds).sort()).toEqual(Array.from(seenKinds).sort());
+      return sequence;
     }
-
-    const visitors = {};
-    astKinds.forEach(kind => {
-      visitors[kind] = createRecorder(kind);
-    });
-    GraphQLIRTransformer.transform(context, visitors, node => {
-      sequence.push(`init state: ${node.kind} ${node.name}`);
-      return {};
-    });
-
-    expect(Array.from(astKinds).sort()).toEqual(Array.from(seenKinds).sort());
-    expect(sequence).toMatchSnapshot();
+    const validatorSeq = recordSequnce(IRValidator.validate);
+    const transformerSeq = recordSequnce(IRTransformer.transform);
+    expect(validatorSeq).toEqual(transformerSeq);
   });
 });

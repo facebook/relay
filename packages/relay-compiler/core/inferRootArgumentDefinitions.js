@@ -11,7 +11,7 @@
 'use strict';
 
 const CompilerContext = require('./CompilerContext');
-const GraphQLIRVisitor = require('./GraphQLIRVisitor');
+const IRVisitor = require('./IRVisitor');
 const SchemaUtils = require('./SchemaUtils');
 
 const {createCompilerError} = require('./CompilerError');
@@ -28,7 +28,7 @@ import type {
   Root,
   SplitOperation,
   Stream,
-} from './GraphQLIR';
+} from './IR';
 
 type ArgumentMap = Map<string, ArgumentDefinition>;
 
@@ -166,7 +166,7 @@ function visit(
   argumentDefinitions: ArgumentMap,
   node: Fragment | Root,
 ): void {
-  GraphQLIRVisitor.visit(node, {
+  IRVisitor.visit(node, {
     FragmentSpread(fragmentSpread: FragmentSpread) {
       const fragment = context.getFragment(
         fragmentSpread.name,

@@ -12,7 +12,7 @@
 'use strict';
 
 const CompilerContext = require('../../core/CompilerContext');
-const GraphQLIRPrinter = require('../../core/GraphQLIRPrinter');
+const IRPrinter = require('../../core/IRPrinter');
 const MaskTransform = require('../MaskTransform');
 const RelayDirectiveTransform = require('../RelayDirectiveTransform');
 const Schema = require('../../core/Schema');
@@ -45,7 +45,7 @@ describe('MaskTransform', () => {
           MaskTransform.transform,
         ])
         .documents()
-        .map(doc => GraphQLIRPrinter.print(compilerSchema, doc))
+        .map(doc => IRPrinter.print(compilerSchema, doc))
         .join('\n');
     },
   );
@@ -67,7 +67,7 @@ describe('MaskTransform', () => {
         ])
         .documents()
         .map(doc => {
-          const printed = GraphQLIRPrinter.print(compilerSchema, doc);
+          const printed = IRPrinter.print(compilerSchema, doc);
           const argumentDefinitions =
             doc.kind === 'Root' || doc.kind === 'Fragment'
               ? doc.argumentDefinitions

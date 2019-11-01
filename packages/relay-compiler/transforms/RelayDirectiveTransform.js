@@ -10,13 +10,13 @@
 
 'use strict';
 
-const IRTransformer = require('../core/GraphQLIRTransformer');
+const IRTransformer = require('../core/IRTransformer');
 
 const getLiteralArgumentValues = require('../core/getLiteralArgumentValues');
 const invariant = require('invariant');
 
 import type CompilerContext from '../core/CompilerContext';
-import type {Fragment, FragmentSpread} from '../core/GraphQLIR';
+import type {Fragment, FragmentSpread} from '../core/IR';
 
 const RELAY = 'relay';
 const SCHEMA_EXTENSION = `

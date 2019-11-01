@@ -10,12 +10,12 @@
 
 'use strict';
 
-const GraphQLIRTransformer = require('../core/GraphQLIRTransformer');
+const IRTransformer = require('../core/IRTransformer');
 
 const invariant = require('invariant');
 
 import type CompilerContext from '../core/CompilerContext';
-import type {Condition, Fragment, Node, Selection} from '../core/GraphQLIR';
+import type {Condition, Fragment, Node, Selection} from '../core/IR';
 
 type ConditionResult = 'fail' | 'pass' | 'variable';
 
@@ -34,7 +34,7 @@ function skipUnreachableNodeTransform(
   context: CompilerContext,
 ): CompilerContext {
   const fragments: Map<string, ?Fragment> = new Map();
-  const nextContext = GraphQLIRTransformer.transform(context, {
+  const nextContext = IRTransformer.transform(context, {
     Root: node => transformNode(context, fragments, node),
     // Fragments are included below where referenced.
     // Unreferenced fragments are not included.

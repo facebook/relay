@@ -10,7 +10,7 @@
 
 'use strict';
 
-const IRTransformer = require('../core/GraphQLIRTransformer');
+const IRTransformer = require('../core/IRTransformer');
 
 const getNormalizationOperationName = require('../core/getNormalizationOperationName');
 
@@ -20,7 +20,7 @@ import type {
   InlineFragment,
   ModuleImport,
   SplitOperation,
-} from '../core/GraphQLIR';
+} from '../core/IR';
 import type {CompositeTypeID} from '../core/Schema';
 
 type State = {|

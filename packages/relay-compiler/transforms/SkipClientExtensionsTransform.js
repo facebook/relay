@@ -10,15 +10,15 @@
 
 'use strict';
 
-const GraphQLIRTransformer = require('../core/GraphQLIRTransformer');
+const IRTransformer = require('../core/IRTransformer');
 
 import type CompilerContext from '../core/CompilerContext';
-import type {ClientExtension, Fragment} from '../core/GraphQLIR';
+import type {ClientExtension, Fragment} from '../core/IR';
 
 function skipClientExtensionTransform(
   context: CompilerContext,
 ): CompilerContext {
-  return GraphQLIRTransformer.transform(context, {
+  return IRTransformer.transform(context, {
     Fragment: visitFragment,
     ClientExtension: visitClientExtension,
   });

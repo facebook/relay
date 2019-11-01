@@ -13,7 +13,7 @@
 
 const CompilerContext = require('../../core/CompilerContext');
 const GenerateIDFieldTransform = require('../GenerateIDFieldTransform');
-const GraphQLIRPrinter = require('../../core/GraphQLIRPrinter');
+const IRPrinter = require('../../core/IRPrinter');
 const RelayParser = require('../../core/RelayParser');
 const Schema = require('../../core/Schema');
 
@@ -32,7 +32,7 @@ describe('GenerateIDFieldTransform', () => {
         .addAll(ast)
         .applyTransforms([GenerateIDFieldTransform.transform])
         .documents()
-        .map(doc => GraphQLIRPrinter.print(compilerSchema, doc))
+        .map(doc => IRPrinter.print(compilerSchema, doc))
         .join('\n');
     },
   );

@@ -13,7 +13,7 @@
 
 const CompilerContext = require('../../core/CompilerContext');
 const ConnectionTransform = require('../ConnectionTransform');
-const GraphQLIRPrinter = require('../../core/GraphQLIRPrinter');
+const IRPrinter = require('../../core/IRPrinter');
 const Schema = require('../../core/Schema');
 
 const {transformASTSchema} = require('../../core/ASTConvert');
@@ -40,7 +40,7 @@ generateTestsFromFixtures(
       .documents()
       .map(
         doc =>
-          GraphQLIRPrinter.print(compilerSchema, doc) +
+          IRPrinter.print(compilerSchema, doc) +
           '# Metadata:\n' +
           JSON.stringify(doc.metadata ?? null, null, 2),
       )

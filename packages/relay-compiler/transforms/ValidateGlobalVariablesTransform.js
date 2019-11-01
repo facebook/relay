@@ -18,7 +18,7 @@ const {
 } = require('../core/CompilerError');
 
 import type CompilerContext from '../core/CompilerContext';
-import type {ArgumentDefinition} from '../core/GraphQLIR';
+import type {ArgumentDefinition} from '../core/IR';
 
 /**
  * Validates that all global variables used in operations are defined at the

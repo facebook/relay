@@ -13,7 +13,7 @@
 const {RelayConcreteNode} = require('relay-runtime');
 
 import type {IRTransform} from '../core/CompilerContext';
-import type {GeneratedDefinition, Root, Fragment} from '../core/GraphQLIR';
+import type {GeneratedDefinition, Root, Fragment} from '../core/IR';
 import type {Schema} from '../core/Schema';
 import type {ScalarTypeMapping} from './javascript/RelayFlowTypeTransformers';
 import type {GeneratedNode} from 'relay-runtime';

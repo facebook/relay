@@ -12,7 +12,7 @@
 
 const {GraphQLError} = require('graphql');
 
-import type {Location} from './GraphQLIR';
+import type {Location} from './IR';
 import type {ASTNode, Source, SourceLocation} from 'graphql';
 
 // Combined results of multiple user errors

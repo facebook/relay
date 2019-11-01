@@ -10,7 +10,7 @@
 
 'use strict';
 
-const GraphQLIRTransformer = require('../core/GraphQLIRTransformer');
+const IRTransformer = require('../core/IRTransformer');
 
 const areEqual = require('../util/areEqualOSS');
 const getIdentifierForSelection = require('../core/getIdentifierForSelection');
@@ -27,7 +27,7 @@ import type {
   Node,
   ScalarField,
   Selection,
-} from '../core/GraphQLIR';
+} from '../core/IR';
 import type {Schema, TypeID} from '../core/Schema';
 
 export type FlattenOptions = {
@@ -56,7 +56,7 @@ function flattenTransformImpl(
     parentType: null,
   };
   const visitorFn = memoizedFlattenSelection(new Map());
-  return GraphQLIRTransformer.transform(
+  return IRTransformer.transform(
     context,
     {
       Condition: visitorFn,

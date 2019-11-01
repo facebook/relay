@@ -10,18 +10,18 @@
 
 'use strict';
 
-const GraphQLIRTransformer = require('../core/GraphQLIRTransformer');
+const IRTransformer = require('../core/IRTransformer');
 
 const {createCompilerError, createUserError} = require('../core/CompilerError');
 
 import type CompilerContext from '../core/CompilerContext';
-import type {Definition, Node, Selection} from '../core/GraphQLIR';
+import type {Definition, Node, Selection} from '../core/IR';
 import type {TypeID} from '../core/Schema';
 
 let cachesByNode = new Map();
 function clientExtensionTransform(context: CompilerContext): CompilerContext {
   cachesByNode = new Map();
-  return GraphQLIRTransformer.transform(context, {
+  return IRTransformer.transform(context, {
     Fragment: traverseDefinition,
     Root: traverseDefinition,
     SplitOperation: traverseDefinition,

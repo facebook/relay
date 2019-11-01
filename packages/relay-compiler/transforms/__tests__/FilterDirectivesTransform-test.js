@@ -13,7 +13,7 @@
 
 const CompilerContext = require('../../core/CompilerContext');
 const FilterDirectivesTransform = require('../FilterDirectivesTransform');
-const GraphQLIRPrinter = require('../../core/GraphQLIRPrinter');
+const IRPrinter = require('../../core/IRPrinter');
 const Schema = require('../../core/Schema');
 
 const {transformASTSchema} = require('../../core/ASTConvert');
@@ -41,7 +41,7 @@ describe('FilterDirectivesTransform', () => {
         .addAll(definitions)
         .applyTransforms([FilterDirectivesTransform.transform])
         .documents()
-        .map(doc => GraphQLIRPrinter.print(compilerSchema, doc))
+        .map(doc => IRPrinter.print(compilerSchema, doc))
         .join('\n');
     },
   );

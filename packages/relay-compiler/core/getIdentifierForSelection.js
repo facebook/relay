@@ -12,9 +12,9 @@
 
 const invariant = require('invariant');
 
-const {printArguments, printDirectives} = require('./GraphQLIRPrinter');
+const {printArguments, printDirectives} = require('./IRPrinter');
 
-import type {Selection} from './GraphQLIR';
+import type {Selection} from './IR';
 import type {Schema} from './Schema';
 
 /**

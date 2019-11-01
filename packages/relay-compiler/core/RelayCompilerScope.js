@@ -19,7 +19,7 @@ import type {
   FragmentSpread,
   LocalArgumentDefinition,
   Variable,
-} from './GraphQLIR';
+} from './IR';
 import type {Schema} from './Schema';
 /**
  * A scope is a mapping of the values for each argument defined by the nearest

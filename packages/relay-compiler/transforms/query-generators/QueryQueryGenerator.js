@@ -15,7 +15,7 @@ const {
   buildOperationArgumentDefinitions,
 } = require('./utils');
 
-import type {Fragment} from '../../core/GraphQLIR';
+import type {Fragment} from '../../core/IR';
 import type {Schema} from '../../core/Schema';
 import type {QueryGenerator, RefetchRoot} from '.';
 

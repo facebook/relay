@@ -10,7 +10,7 @@
 
 'use strict';
 
-const GraphQLIRValidator = require('../core/GraphQLIRValidator');
+const IRValidator = require('../core/IRValidator');
 
 const {createUserError} = require('../core/CompilerError');
 const {getFieldDefinitionStrict} = require('../core/getFieldDefinition');
@@ -23,7 +23,7 @@ import type {
   Fragment,
   Root,
   SplitOperation,
-} from '../core/GraphQLIR';
+} from '../core/IR';
 import type {Schema, TypeID, FieldArgument} from '../core/Schema';
 
 type State = {|
@@ -35,7 +35,7 @@ type State = {|
  * Validate required arguments are provided after transforms filling in arguments
  */
 function validateRequiredArguments(context: CompilerContext): CompilerContext {
-  GraphQLIRValidator.validate(
+  IRValidator.validate(
     context,
     {
       Directive: visitDirective,

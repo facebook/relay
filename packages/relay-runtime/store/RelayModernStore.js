@@ -498,6 +498,9 @@ class RelayModernStore implements Store {
         };
         if (data !== prevSnapshot.data) {
           edgeData[edgeID] = data;
+          /* $FlowFixMe(>=0.111.0) This comment suppresses an error found when
+           * Flow v0.111.0 was deployed. To see the error, delete this comment
+           * and run Flow. */
           edgeSnapshots[edgeID] = nextSnapshot;
         }
       });
@@ -523,6 +526,9 @@ class RelayModernStore implements Store {
             );
             Object.assign(seenRecords, edgeSnapshot.seenRecords);
             const itemData = ((edgeSnapshot.data: $FlowFixMe): ?TEdge);
+            /* $FlowFixMe(>=0.111.0) This comment suppresses an error found
+             * when Flow v0.111.0 was deployed. To see the error, delete this
+             * comment and run Flow. */
             edgeSnapshots[edgeID] = edgeSnapshot;
             edges.push(itemData);
           });
@@ -545,6 +551,9 @@ class RelayModernStore implements Store {
           );
           Object.assign(seenRecords, edgeSnapshot.seenRecords);
           const itemData = ((edgeSnapshot.data: $FlowFixMe): ?TEdge);
+          /* $FlowFixMe(>=0.111.0) This comment suppresses an error found when
+           * Flow v0.111.0 was deployed. To see the error, delete this comment
+           * and run Flow. */
           edgeSnapshots[event.edgeID] = edgeSnapshot;
           return resolver.reduce(prevState, {
             args: event.args,
@@ -563,6 +572,9 @@ class RelayModernStore implements Store {
           );
           Object.assign(seenRecords, edgeSnapshot.seenRecords);
           const itemData = ((edgeSnapshot.data: $FlowFixMe): ?TEdge);
+          /* $FlowFixMe(>=0.111.0) This comment suppresses an error found when
+           * Flow v0.111.0 was deployed. To see the error, delete this comment
+           * and run Flow. */
           edgeSnapshots[event.edgeID] = edgeSnapshot;
           return resolver.reduce(prevState, {
             args: event.args,

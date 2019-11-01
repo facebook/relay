@@ -683,6 +683,9 @@ function createContainerWithFragments<
       fragmentVariables = getVariablesFromObject(fragments, restProps);
       fragmentVariables = {
         ...rootVariables,
+        /* $FlowFixMe(>=0.111.0) This comment suppresses an error found when
+         * Flow v0.111.0 was deployed. To see the error, delete this comment
+         * and run Flow. */
         ...fragmentVariables,
         ...this._refetchVariables,
       };
@@ -703,6 +706,9 @@ function createContainerWithFragments<
       );
       fetchVariables = {
         ...fetchVariables,
+        /* $FlowFixMe(>=0.111.0) This comment suppresses an error found when
+         * Flow v0.111.0 was deployed. To see the error, delete this comment
+         * and run Flow. */
         ...this._refetchVariables,
       };
       fragmentVariables = {

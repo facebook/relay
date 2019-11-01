@@ -170,6 +170,9 @@ class Sources<T: ASTNode> {
         // Finally, update the state with the changes
         state[file.name] = {
           nodes: newEntry,
+          /* $FlowFixMe(>=0.111.0) This comment suppresses an error found when
+           * Flow v0.111.0 was deployed. To see the error, delete this comment
+           * and run Flow. */
           sources: newSources,
         };
       } else {
@@ -186,6 +189,9 @@ class Sources<T: ASTNode> {
     }
 
     return {
+      /* $FlowFixMe(>=0.111.0) This comment suppresses an error found when Flow
+       * v0.111.0 was deployed. To see the error, delete this comment and run
+       * Flow. */
       changes: {added, removed},
       sources: new Sources({
         extractFromFile: this._extractFromFile,

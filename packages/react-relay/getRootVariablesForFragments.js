@@ -32,6 +32,9 @@ function getRootVariablesForFragments<TProps: {}>(
         : selector?.owner.variables ?? {};
     rootVariables = {
       ...rootVariables,
+      /* $FlowFixMe(>=0.111.0) This comment suppresses an error found when Flow
+       * v0.111.0 was deployed. To see the error, delete this comment and run
+       * Flow. */
       ...fragmentOwnerVariables,
     };
   });

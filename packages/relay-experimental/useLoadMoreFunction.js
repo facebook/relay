@@ -189,6 +189,9 @@ function useLoadMoreFunction(
       const fragmentVariables = fragmentSelector.variables;
       const baseVariables = {
         ...parentVariables,
+        /* $FlowFixMe(>=0.111.0) This comment suppresses an error found when
+         * Flow v0.111.0 was deployed. To see the error, delete this comment
+         * and run Flow. */
         ...fragmentVariables,
       };
       const paginationVariables = getPaginationVariables(

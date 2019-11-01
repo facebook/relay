@@ -11,7 +11,7 @@
 
 'use strict';
 
-const GraphQLCompilerContext = require('../../core/GraphQLCompilerContext');
+const CompilerContext = require('../../core/CompilerContext');
 const RelayParser = require('../../core/RelayParser');
 const Schema = require('../../core/Schema');
 const TestOperationTransform = require('../TestOperationTransform');
@@ -32,7 +32,7 @@ describe('TestOperationTransform', () => {
       ]);
       const compilerSchema = Schema.DEPRECATED__create(TestSchema, schema);
       const ast = RelayParser.parse(compilerSchema, text);
-      return new GraphQLCompilerContext(compilerSchema)
+      return new CompilerContext(compilerSchema)
         .addAll(ast)
         .applyTransforms([TestOperationTransform.transform])
         .documents()

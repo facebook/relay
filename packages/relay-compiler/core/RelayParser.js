@@ -20,7 +20,7 @@ const {
   createCompilerError,
   createUserError,
   eachWithCombinedError,
-} = require('./RelayCompilerError');
+} = require('./CompilerError');
 const {isExecutableDefinitionAST} = require('./SchemaUtils');
 const {getFieldDefinitionLegacy} = require('./getFieldDefinition');
 const {parse: parseGraphQL, parseType, print, Source} = require('graphql');

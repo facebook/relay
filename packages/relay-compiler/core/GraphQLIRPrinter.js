@@ -14,7 +14,7 @@ const invariant = require('invariant');
 
 const {DEFAULT_HANDLE_KEY} = require('../util/DefaultHandleKey');
 
-import type {CompilerContextDocument} from './GraphQLCompilerContext';
+import type {CompilerContextDocument} from './CompilerContext';
 import type {
   Argument,
   ArgumentDefinition,

@@ -10,10 +10,7 @@
 
 'use strict';
 
-const {
-  createCompilerError,
-  createUserError,
-} = require('../core/RelayCompilerError');
+const {createCompilerError, createUserError} = require('../core/CompilerError');
 const {
   ConnectionInterface,
   getStorageKey,

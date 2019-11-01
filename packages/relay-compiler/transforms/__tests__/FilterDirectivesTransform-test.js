@@ -11,8 +11,8 @@
 
 'use strict';
 
+const CompilerContext = require('../../core/CompilerContext');
 const FilterDirectivesTransform = require('../FilterDirectivesTransform');
-const GraphQLCompilerContext = require('../../core/GraphQLCompilerContext');
 const GraphQLIRPrinter = require('../../core/GraphQLIRPrinter');
 const Schema = require('../../core/Schema');
 
@@ -37,7 +37,7 @@ describe('FilterDirectivesTransform', () => {
         extendedSchema,
       );
 
-      return new GraphQLCompilerContext(compilerSchema)
+      return new CompilerContext(compilerSchema)
         .addAll(definitions)
         .applyTransforms([FilterDirectivesTransform.transform])
         .documents()

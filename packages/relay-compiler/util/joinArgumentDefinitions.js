@@ -10,7 +10,7 @@
 
 'use strict';
 
-const {createUserError} = require('../core/RelayCompilerError');
+const {createUserError} = require('../core/CompilerError');
 
 import type {ArgumentDefinition, Fragment} from '../core/GraphQLIR';
 import type {Schema} from '../core/Schema';

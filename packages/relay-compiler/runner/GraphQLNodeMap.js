@@ -10,10 +10,7 @@
 
 'use strict';
 
-const {
-  createUserError,
-  createCompilerError,
-} = require('../core/RelayCompilerError');
+const {createUserError, createCompilerError} = require('../core/CompilerError');
 const {getName} = require('./GraphQLASTUtils');
 
 import type {ExecutableDefinitionNode} from 'graphql';

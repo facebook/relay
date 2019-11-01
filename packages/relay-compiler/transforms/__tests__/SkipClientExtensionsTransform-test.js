@@ -12,7 +12,7 @@
 'use strict';
 
 const ClientExtensionsTransform = require('../ClientExtensionsTransform');
-const GraphQLCompilerContext = require('../../core/GraphQLCompilerContext');
+const CompilerContext = require('../../core/CompilerContext');
 const GraphQLIRPrinter = require('../../core/GraphQLIRPrinter');
 const Schema = require('../../core/Schema');
 const SkipClientExtensionsTransform = require('../SkipClientExtensionsTransform');
@@ -35,7 +35,7 @@ describe('SkipClientExtensionsTransform', () => {
         TestSchema,
         extendedSchema,
       );
-      return new GraphQLCompilerContext(compilerSchema)
+      return new CompilerContext(compilerSchema)
         .addAll(definitions)
         .applyTransforms([
           ClientExtensionsTransform.transform,

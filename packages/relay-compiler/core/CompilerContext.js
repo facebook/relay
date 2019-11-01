@@ -14,7 +14,7 @@ const Profiler = require('./GraphQLCompilerProfiler');
 
 const invariant = require('invariant');
 
-const {createUserError} = require('./RelayCompilerError');
+const {createUserError} = require('./CompilerError');
 // $FlowFixMe - immutable.js is not flow-typed
 const {OrderedMap: ImmutableOrderedMap} = require('immutable');
 
@@ -22,7 +22,7 @@ import type {Reporter} from '../reporters/Reporter';
 import type {Fragment, Location, Root, SplitOperation} from './GraphQLIR';
 import type {Schema} from './Schema';
 
-export type IRTransform = GraphQLCompilerContext => GraphQLCompilerContext;
+export type IRTransform = CompilerContext => CompilerContext;
 
 export type CompilerContextDocument = Fragment | Root | SplitOperation;
 
@@ -30,10 +30,10 @@ export type CompilerContextDocument = Fragment | Root | SplitOperation;
  * An immutable representation of a corpus of documents being compiled together.
  * For each document, the context stores the IR and any validation errors.
  */
-class GraphQLCompilerContext {
+class CompilerContext {
   _isMutable: boolean;
   _documents: ImmutableOrderedMap<string, CompilerContextDocument>;
-  _withTransform: WeakMap<IRTransform, GraphQLCompilerContext>;
+  _withTransform: WeakMap<IRTransform, CompilerContext>;
   +_schema: Schema;
 
   constructor(schema: Schema) {
@@ -54,12 +54,12 @@ class GraphQLCompilerContext {
     this._documents.forEach(fn);
   }
 
-  replace(node: CompilerContextDocument): GraphQLCompilerContext {
+  replace(node: CompilerContextDocument): CompilerContext {
     return this._update(
       this._documents.update(node.name, existing => {
         invariant(
           existing,
-          'GraphQLCompilerContext: Expected to replace existing node %s, but ' +
+          'CompilerContext: Expected to replace existing node %s, but ' +
             'one was not found in the context.',
           node.name,
         );
@@ -68,12 +68,12 @@ class GraphQLCompilerContext {
     );
   }
 
-  add(node: CompilerContextDocument): GraphQLCompilerContext {
+  add(node: CompilerContextDocument): CompilerContext {
     return this._update(
       this._documents.update(node.name, existing => {
         invariant(
           !existing,
-          'GraphQLCompilerContext: Duplicate document named `%s`. GraphQL ' +
+          'CompilerContext: Duplicate document named `%s`. GraphQL ' +
             'fragments and roots must have unique names.',
           node.name,
         );
@@ -82,9 +82,7 @@ class GraphQLCompilerContext {
     );
   }
 
-  addAll(
-    nodes: $ReadOnlyArray<CompilerContextDocument>,
-  ): GraphQLCompilerContext {
+  addAll(nodes: $ReadOnlyArray<CompilerContextDocument>): CompilerContext {
     return this.withMutations(mutable =>
       nodes.reduce((ctx, definition) => ctx.add(definition), mutable),
     );
@@ -96,7 +94,7 @@ class GraphQLCompilerContext {
   applyTransforms(
     transforms: $ReadOnlyArray<IRTransform>,
     reporter?: Reporter,
-  ): GraphQLCompilerContext {
+  ): CompilerContext {
     return Profiler.run('applyTransforms', () =>
       transforms.reduce(
         (ctx, transform) => ctx.applyTransform(transform, reporter),
@@ -111,10 +109,7 @@ class GraphQLCompilerContext {
    * This is memoized such that applying the same sequence of transforms will
    * not result in duplicated work.
    */
-  applyTransform(
-    transform: IRTransform,
-    reporter?: Reporter,
-  ): GraphQLCompilerContext {
+  applyTransform(transform: IRTransform, reporter?: Reporter): CompilerContext {
     let transformed = this._withTransform.get(transform);
     if (!transformed) {
       const start = process.hrtime();
@@ -162,13 +157,11 @@ class GraphQLCompilerContext {
     return node;
   }
 
-  remove(name: string): GraphQLCompilerContext {
+  remove(name: string): CompilerContext {
     return this._update(this._documents.delete(name));
   }
 
-  withMutations(
-    fn: GraphQLCompilerContext => GraphQLCompilerContext,
-  ): GraphQLCompilerContext {
+  withMutations(fn: CompilerContext => CompilerContext): CompilerContext {
     const mutableCopy = this._update(this._documents.asMutable());
     mutableCopy._isMutable = true;
     const result = fn(mutableCopy);
@@ -179,10 +172,10 @@ class GraphQLCompilerContext {
 
   _update(
     documents: ImmutableOrderedMap<string, CompilerContextDocument>,
-  ): GraphQLCompilerContext {
+  ): CompilerContext {
     const context = this._isMutable
       ? this
-      : new GraphQLCompilerContext(this.getSchema());
+      : new CompilerContext(this.getSchema());
     context._documents = documents;
     return context;
   }
@@ -192,4 +185,4 @@ class GraphQLCompilerContext {
   }
 }
 
-module.exports = GraphQLCompilerContext;
+module.exports = CompilerContext;

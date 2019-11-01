@@ -11,7 +11,7 @@
 'use strict';
 
 const ASTConvert = require('../core/ASTConvert');
-const GraphQLCompilerContext = require('../core/GraphQLCompilerContext');
+const CompilerContext = require('../core/CompilerContext');
 const RelayParser = require('../core/RelayParser');
 
 const compileRelayArtifacts = require('../codegen/compileRelayArtifacts');
@@ -42,7 +42,7 @@ function compileArtifacts({
   typeGenerator: TypeGenerator,
 |}): {|
   artifacts: $ReadOnlyArray<[GeneratedDefinition, GeneratedNode]>,
-  transformedTypeContext: GraphQLCompilerContext,
+  transformedTypeContext: CompilerContext,
 |} {
   const definitions = ASTConvert.convertASTDocuments(
     schema,
@@ -55,9 +55,7 @@ function compileArtifacts({
     RelayParser.transform,
   );
 
-  const compilerContext = new GraphQLCompilerContext(schema).addAll(
-    definitions,
-  );
+  const compilerContext = new CompilerContext(schema).addAll(definitions);
   const transformedTypeContext = compilerContext.applyTransforms(
     typeGenerator.transforms,
     reporter,

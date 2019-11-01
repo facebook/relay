@@ -15,10 +15,10 @@ const IRTransformer = require('../core/GraphQLIRTransformer');
 const getLiteralArgumentValues = require('../core/getLiteralArgumentValues');
 const getNormalizationOperationName = require('../core/getNormalizationOperationName');
 
-const {createUserError} = require('../core/RelayCompilerError');
+const {createUserError} = require('../core/CompilerError');
 const {getModuleComponentKey, getModuleOperationKey} = require('relay-runtime');
 
-import type CompilerContext from '../core/GraphQLCompilerContext';
+import type CompilerContext from '../core/CompilerContext';
 import type {
   InlineFragment,
   FragmentSpread,

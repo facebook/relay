@@ -12,7 +12,7 @@
 
 const IRTransformer = require('../core/GraphQLIRTransformer');
 
-import type CompilerContext from '../core/GraphQLCompilerContext';
+import type CompilerContext from '../core/CompilerContext';
 import type {Field} from '../core/GraphQLIR';
 
 /**

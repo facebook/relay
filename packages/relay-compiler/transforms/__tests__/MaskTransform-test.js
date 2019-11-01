@@ -11,7 +11,7 @@
 
 'use strict';
 
-const GraphQLCompilerContext = require('../../core/GraphQLCompilerContext');
+const CompilerContext = require('../../core/CompilerContext');
 const GraphQLIRPrinter = require('../../core/GraphQLIRPrinter');
 const MaskTransform = require('../MaskTransform');
 const RelayDirectiveTransform = require('../RelayDirectiveTransform');
@@ -37,7 +37,7 @@ describe('MaskTransform', () => {
         TestSchema,
         extendedSchema,
       );
-      return new GraphQLCompilerContext(compilerSchema)
+      return new CompilerContext(compilerSchema)
         .addAll(definitions)
         .applyTransforms([
           // Requires Relay directive transform first.
@@ -58,7 +58,7 @@ describe('MaskTransform', () => {
         TestSchema,
         extendedSchema,
       );
-      return new GraphQLCompilerContext(compilerSchema)
+      return new CompilerContext(compilerSchema)
         .addAll(definitions)
         .applyTransforms([
           // Requires Relay directive transform first.

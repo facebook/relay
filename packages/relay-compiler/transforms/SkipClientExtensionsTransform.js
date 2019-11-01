@@ -12,12 +12,12 @@
 
 const GraphQLIRTransformer = require('../core/GraphQLIRTransformer');
 
-import type GraphQLCompilerContext from '../core/GraphQLCompilerContext';
+import type CompilerContext from '../core/CompilerContext';
 import type {ClientExtension, Fragment} from '../core/GraphQLIR';
 
 function skipClientExtensionTransform(
-  context: GraphQLCompilerContext,
-): GraphQLCompilerContext {
+  context: CompilerContext,
+): CompilerContext {
   return GraphQLIRTransformer.transform(context, {
     Fragment: visitFragment,
     ClientExtension: visitClientExtension,
@@ -25,7 +25,7 @@ function skipClientExtensionTransform(
 }
 
 function visitFragment(node: Fragment): ?Fragment {
-  const context: GraphQLCompilerContext = this.getContext();
+  const context: CompilerContext = this.getContext();
   if (context.getSchema().isServerType(node.type)) {
     return this.traverse(node);
   }

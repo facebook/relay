@@ -12,7 +12,7 @@
 
 const GraphQLIRTransformer = require('../core/GraphQLIRTransformer');
 
-import type GraphQLCompilerContext from '../core/GraphQLCompilerContext';
+import type CompilerContext from '../core/CompilerContext';
 const IMap = require('immutable').Map;
 const partitionArray = require('../util/partitionArray');
 const getIdentifierForSelection = require('../core/getIdentifierForSelection');
@@ -122,8 +122,8 @@ type SelectionMap = IMap<string, ?SelectionMap>;
  * 1 can be skipped because it is already fetched at the outer level.
  */
 function skipRedundantNodesTransform(
-  context: GraphQLCompilerContext,
-): GraphQLCompilerContext {
+  context: CompilerContext,
+): CompilerContext {
   return GraphQLIRTransformer.transform(context, {
     Root: visitNode,
     Fragment: visitNode,
@@ -133,7 +133,7 @@ function skipRedundantNodesTransform(
 let cache = new Map();
 function visitNode<T: Fragment | Root>(node: T): ?T {
   cache = new Map();
-  const context: GraphQLCompilerContext = this.getContext();
+  const context: CompilerContext = this.getContext();
   return transformNode(context.getSchema(), node, new IMap()).node;
 }
 

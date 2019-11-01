@@ -12,9 +12,9 @@
 
 const GraphQLIRValidator = require('../core/GraphQLIRValidator');
 
-const {createUserError} = require('../core/RelayCompilerError');
+const {createUserError} = require('../core/CompilerError');
 
-import type GraphQLCompilerContext from '../core/GraphQLCompilerContext';
+import type CompilerContext from '../core/CompilerContext';
 import type {
   ClientExtension,
   Defer,
@@ -36,8 +36,8 @@ const NODEKIND_DIRECTIVE_MAP = {
  * Validate that server-only directives are not used inside client fields
  */
 function validateServerOnlyDirectives(
-  context: GraphQLCompilerContext,
-): GraphQLCompilerContext {
+  context: CompilerContext,
+): CompilerContext {
   GraphQLIRValidator.validate(
     context,
     {

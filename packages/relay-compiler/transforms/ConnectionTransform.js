@@ -16,14 +16,11 @@ const SchemaUtils = require('../core/SchemaUtils');
 
 const getLiteralArgumentValues = require('../core/getLiteralArgumentValues');
 
-const {
-  createCompilerError,
-  createUserError,
-} = require('../core/RelayCompilerError');
+const {createCompilerError, createUserError} = require('../core/CompilerError');
 const {parse} = require('graphql');
 const {ConnectionInterface, RelayFeatureFlags} = require('relay-runtime');
 
-import type CompilerContext from '../core/GraphQLCompilerContext';
+import type CompilerContext from '../core/CompilerContext';
 import type {
   Argument,
   ConnectionField,

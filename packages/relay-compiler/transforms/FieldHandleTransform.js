@@ -18,7 +18,7 @@ const nullthrows = require('nullthrows');
 
 const {getRelayHandleKey} = require('relay-runtime');
 
-import type CompilerContext from '../core/GraphQLCompilerContext';
+import type CompilerContext from '../core/CompilerContext';
 import type {LinkedField, ScalarField} from '../core/GraphQLIR';
 
 function fieldHandleTransform(context: CompilerContext): CompilerContext {

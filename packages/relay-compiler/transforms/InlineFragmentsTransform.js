@@ -14,7 +14,7 @@ const GraphQLIRTransformer = require('../core/GraphQLIRTransformer');
 
 const invariant = require('invariant');
 
-import type GraphQLCompilerContext from '../core/GraphQLCompilerContext';
+import type CompilerContext from '../core/CompilerContext';
 import type {InlineFragment, Fragment, FragmentSpread} from '../core/GraphQLIR';
 
 type FragmentVisitorCache = Map<FragmentSpread, FragmentSpread>;
@@ -22,9 +22,7 @@ type FragmentVisitor = (fragmentSpread: FragmentSpread) => ?FragmentSpread;
 /**
  * A transform that inlines all fragments and removes them.
  */
-function inlineFragmentsTransform(
-  context: GraphQLCompilerContext,
-): GraphQLCompilerContext {
+function inlineFragmentsTransform(context: CompilerContext): CompilerContext {
   const visitFragmentSpread = fragmentSpreadVisitor(new Map());
   return GraphQLIRTransformer.transform(context, {
     Fragment: visitFragment,

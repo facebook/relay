@@ -15,7 +15,7 @@ const ASTConvert = require('./ASTConvert');
 
 const nullthrows = require('../util/nullthrowsOSS');
 
-const {createCompilerError} = require('./RelayCompilerError');
+const {createCompilerError} = require('./CompilerError');
 const {
   GraphQLEnumType,
   GraphQLInputObjectType,

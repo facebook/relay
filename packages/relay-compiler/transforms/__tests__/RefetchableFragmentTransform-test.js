@@ -11,8 +11,8 @@
 
 'use strict';
 
+const CompilerContext = require('../../core/CompilerContext');
 const ConnectionTransform = require('../ConnectionTransform');
-const GraphQLCompilerContext = require('../../core/GraphQLCompilerContext');
 const GraphQLIRPrinter = require('../../core/GraphQLIRPrinter');
 const RefetchableFragmentTransform = require('../RefetchableFragmentTransform');
 const RelayDirectiveTransform = require('../RelayDirectiveTransform');
@@ -39,7 +39,7 @@ describe('RefetchableFragmentTransform', () => {
         TestSchema,
         extendedSchema,
       );
-      return new GraphQLCompilerContext(compilerSchema)
+      return new CompilerContext(compilerSchema)
         .addAll(definitions)
         .applyTransforms([
           // Requires Relay directive transform first.

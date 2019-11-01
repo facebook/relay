@@ -11,7 +11,7 @@
 
 'use strict';
 
-const GraphQLCompilerContext = require('../../core/GraphQLCompilerContext');
+const CompilerContext = require('../../core/CompilerContext');
 const RelayIRTransforms = require('../../core/RelayIRTransforms');
 const Schema = require('../../core/Schema');
 
@@ -33,7 +33,7 @@ describe('ValidateServerOnlyDirectives', () => {
     `${__dirname}/fixtures/server-only-directives`,
     text => {
       const {definitions, schema} = parseGraphQLText(relaySchema, text);
-      const codegenContext = new GraphQLCompilerContext(
+      const codegenContext = new CompilerContext(
         Schema.DEPRECATED__create(TestSchema, schema),
       )
         .addAll(definitions)

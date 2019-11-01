@@ -168,9 +168,7 @@ function printLocations(locations: $ReadOnlyArray<Location>): Array<string> {
       default: {
         (sourceLocation: empty);
         throw createCompilerError(
-          `RelayCompilerError: cannot print location '${String(
-            sourceLocation,
-          )}'.`,
+          `CompilerError: cannot print location '${String(sourceLocation)}'.`,
         );
       }
     }

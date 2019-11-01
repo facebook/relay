@@ -11,7 +11,7 @@
 
 'use strict';
 
-const GraphQLCompilerContext = require('../GraphQLCompilerContext');
+const CompilerContext = require('../CompilerContext');
 const GraphQLIRPrinter = require('../GraphQLIRPrinter');
 const RelayParser = require('../RelayParser');
 const Schema = require('../Schema');
@@ -25,7 +25,7 @@ describe('GraphQLIRPrinter', () => {
   generateTestsFromFixtures(`${__dirname}/fixtures/printer`, text => {
     const compilerSchema = Schema.DEPRECATED__create(TestSchema);
     const ast = RelayParser.parse(compilerSchema, text);
-    const context = new GraphQLCompilerContext(compilerSchema).addAll(ast);
+    const context = new CompilerContext(compilerSchema).addAll(ast);
     const documents = [];
     context.forEachDocument(doc => {
       documents.push(GraphQLIRPrinter.print(compilerSchema, doc));

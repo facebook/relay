@@ -11,7 +11,7 @@
 
 'use strict';
 
-const GraphQLCompilerContext = require('../../core/GraphQLCompilerContext');
+const CompilerContext = require('../../core/CompilerContext');
 const GraphQLIRPrinter = require('../../core/GraphQLIRPrinter');
 const MatchTransform = require('../MatchTransform');
 const RelayDirectiveTransform = require('../RelayDirectiveTransform');
@@ -35,7 +35,7 @@ describe('MatchTransform', () => {
     text => {
       const {definitions} = parseGraphQLText(extendedSchema, text);
       const compilerSchema = Schema.DEPRECATED__create(TestSchema);
-      return new GraphQLCompilerContext(compilerSchema)
+      return new CompilerContext(compilerSchema)
         .addAll(definitions)
         .applyTransforms([
           // Requires Relay directive transform first.

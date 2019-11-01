@@ -12,10 +12,10 @@
 
 const GraphQLIRValidator = require('../core/GraphQLIRValidator');
 
-const {createUserError} = require('../core/RelayCompilerError');
+const {createUserError} = require('../core/CompilerError');
 const {getFieldDefinitionStrict} = require('../core/getFieldDefinition');
 
-import type GraphQLCompilerContext from '../core/GraphQLCompilerContext';
+import type CompilerContext from '../core/CompilerContext';
 import type {
   Connection,
   Directive,
@@ -34,9 +34,7 @@ type State = {|
 /*
  * Validate required arguments are provided after transforms filling in arguments
  */
-function validateRequiredArguments(
-  context: GraphQLCompilerContext,
-): GraphQLCompilerContext {
+function validateRequiredArguments(context: CompilerContext): CompilerContext {
   GraphQLIRValidator.validate(
     context,
     {
@@ -53,7 +51,7 @@ function validateRequiredArguments(
 }
 
 function visitDirective(node: Directive, {rootNode}: State): void {
-  const context: GraphQLCompilerContext = this.getContext();
+  const context: CompilerContext = this.getContext();
   const directiveDef = context.getSchema().getDirective(node.name);
   if (directiveDef == null) {
     return;
@@ -74,7 +72,7 @@ function visitInlineFragment(fragment, {rootNode}: State): void {
 }
 
 function visitField(node: Field, {parentType, rootNode}: State): void {
-  const context: GraphQLCompilerContext = this.getContext();
+  const context: CompilerContext = this.getContext();
   const schema = context.getSchema();
   const definition = getFieldDefinitionStrict(schema, parentType, node.name);
   if (definition == null) {

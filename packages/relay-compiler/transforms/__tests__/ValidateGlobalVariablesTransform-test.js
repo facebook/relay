@@ -11,7 +11,7 @@
 
 'use strict';
 
-const GraphQLCompilerContext = require('../../core/GraphQLCompilerContext');
+const CompilerContext = require('../../core/CompilerContext');
 const Schema = require('../../core/Schema');
 const ValidateGlobalVariablesTransform = require('../ValidateGlobalVariablesTransform');
 
@@ -26,7 +26,7 @@ generateTestsFromFixtures(
   text => {
     const {definitions} = parseGraphQLText(TestSchema, text);
     const compilerSchema = Schema.DEPRECATED__create(TestSchema);
-    return new GraphQLCompilerContext(compilerSchema)
+    return new CompilerContext(compilerSchema)
       .addAll(definitions)
       .applyTransforms([ValidateGlobalVariablesTransform.transform])
       .documents()

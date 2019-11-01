@@ -14,7 +14,7 @@ const IRTransformer = require('../core/GraphQLIRTransformer');
 
 const getNormalizationOperationName = require('../core/getNormalizationOperationName');
 
-import type CompilerContext from '../core/GraphQLCompilerContext';
+import type CompilerContext from '../core/CompilerContext';
 import type {
   LinkedField,
   InlineFragment,

@@ -18,11 +18,12 @@ const CodeMarker = require('./util/CodeMarker');
 const CodegenDirectory = require('./codegen/CodegenDirectory');
 const CodegenRunner = require('./codegen/CodegenRunner');
 const CodegenWatcher = require('./codegen/CodegenWatcher');
+const CompilerContext = require('./core/CompilerContext');
+const CompilerError = require('./core/CompilerError');
 const ConsoleReporter = require('./reporters/ConsoleReporter');
 const DotGraphQLParser = require('./core/DotGraphQLParser');
 const GraphQLASTNodeGroup = require('./runner/GraphQLASTNodeGroup');
 const GraphQLASTUtils = require('./runner/GraphQLASTUtils');
-const GraphQLCompilerContext = require('./core/GraphQLCompilerContext');
 const GraphQLCompilerProfiler = require('./core/GraphQLCompilerProfiler');
 const GraphQLIRPrinter = require('./core/GraphQLIRPrinter');
 const GraphQLIRTransformer = require('./core/GraphQLIRTransformer');
@@ -32,7 +33,6 @@ const GraphQLWatchmanClient = require('./core/GraphQLWatchmanClient');
 const JSModuleParser = require('./core/JSModuleParser');
 const MultiReporter = require('./reporters/MultiReporter');
 const RelayCodeGenerator = require('./codegen/RelayCodeGenerator');
-const RelayCompilerError = require('./core/RelayCompilerError');
 const RelayFileWriter = require('./codegen/RelayFileWriter');
 const RelayFlowGenerator = require('./language/javascript/RelayFlowGenerator');
 const RelayIRTransforms = require('./core/RelayIRTransforms');
@@ -71,7 +71,7 @@ export type {CompileResult, File} from './codegen/CodegenTypes';
 export type {FileFilter, WatchmanExpression} from './codegen/CodegenWatcher';
 export type {SourceControl} from './codegen/SourceControl';
 export type {RelayCompilerTransforms} from './codegen/compileRelayArtifacts';
-export type {IRTransform} from './core/GraphQLCompilerContext';
+export type {IRTransform} from './core/CompilerContext';
 export type {
   Argument,
   ArgumentDefinition,
@@ -129,8 +129,8 @@ module.exports = {
   CodegenRunner,
   CodegenWatcher,
   CodeMarker,
-  CompilerContext: GraphQLCompilerContext,
-  CompilerError: RelayCompilerError,
+  CompilerContext,
+  CompilerError,
   ConsoleReporter,
   DotGraphQLParser,
   ASTCache,
@@ -152,8 +152,6 @@ module.exports = {
   Schema: RelaySchema,
   CodeGenerator: RelayCodeGenerator,
   FlowGenerator: RelayFlowGenerator,
-
-  GraphQLCompilerContext,
 
   FileWriter: RelayFileWriter,
   IRTransforms: RelayIRTransforms,

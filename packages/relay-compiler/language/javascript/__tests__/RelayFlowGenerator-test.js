@@ -11,7 +11,7 @@
 
 'use strict';
 
-const GraphQLCompilerContext = require('../../../core/GraphQLCompilerContext');
+const CompilerContext = require('../../../core/CompilerContext');
 const RelayFlowGenerator = require('../RelayFlowGenerator');
 const RelayIRTransforms = require('../../../core/RelayIRTransforms');
 const Schema = require('../../../core/Schema');
@@ -37,7 +37,7 @@ function generate(text, options: TypeGeneratorOptions, context?) {
   ]);
   const {definitions} = parseGraphQLText(relaySchema, text);
   const compilerSchema = Schema.DEPRECATED__create(TestSchema, relaySchema);
-  return new GraphQLCompilerContext(compilerSchema)
+  return new CompilerContext(compilerSchema)
     .addAll(definitions)
     .applyTransforms(RelayFlowGenerator.transforms)
     .documents()
@@ -71,7 +71,7 @@ describe('Snapshot tests', () => {
       TestSchema,
       extendedSchema,
     );
-    return new GraphQLCompilerContext(compilerSchema)
+    return new CompilerContext(compilerSchema)
       .addAll(definitions)
       .applyTransforms([
         ...RelayIRTransforms.commonTransforms,

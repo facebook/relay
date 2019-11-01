@@ -19,9 +19,9 @@ const murmurHash = require('../util/murmurHash');
 const {
   createCompilerError,
   createNonRecoverableUserError,
-} = require('../core/RelayCompilerError');
+} = require('../core/CompilerError');
 
-import type CompilerContext from '../core/GraphQLCompilerContext';
+import type CompilerContext from '../core/CompilerContext';
 import type {
   Argument,
   ArgumentValue,

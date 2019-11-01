@@ -11,7 +11,7 @@
 
 'use strict';
 
-const GraphQLCompilerContext = require('../../core/GraphQLCompilerContext');
+const CompilerContext = require('../../core/CompilerContext');
 const GraphQLIRPrinter = require('../../core/GraphQLIRPrinter');
 const InlineFragmentsTransform = require('../InlineFragmentsTransform');
 const MatchTransform = require('../MatchTransform');
@@ -38,7 +38,7 @@ describe('SkipRedundantNodesTransform', () => {
         TestSchema,
         extendedSchema,
       );
-      return new GraphQLCompilerContext(compilerSchema)
+      return new CompilerContext(compilerSchema)
         .addAll(definitions)
         .applyTransforms([
           RelayDirectiveTransform.transform,

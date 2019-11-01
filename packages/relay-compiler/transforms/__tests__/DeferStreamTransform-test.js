@@ -11,9 +11,9 @@
 
 'use strict';
 
+const CompilerContext = require('../../core/CompilerContext');
 const ConnectionTransform = require('../ConnectionTransform');
 const DeferStreamTransform = require('../DeferStreamTransform');
-const GraphQLCompilerContext = require('../../core/GraphQLCompilerContext');
 const GraphQLIRPrinter = require('../../core/GraphQLIRPrinter');
 const Schema = require('../../core/Schema');
 
@@ -38,7 +38,7 @@ describe('DeferStreamTransform', () => {
           TestSchema,
           extendedSchema,
         );
-        return new GraphQLCompilerContext(compilerSchema)
+        return new CompilerContext(compilerSchema)
           .addAll(definitions)
           .applyTransforms([
             ConnectionTransform.transform,

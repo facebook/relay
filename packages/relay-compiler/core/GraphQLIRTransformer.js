@@ -12,11 +12,9 @@
 
 const invariant = require('invariant');
 
-const {eachWithCombinedError} = require('./RelayCompilerError');
+const {eachWithCombinedError} = require('./CompilerError');
 
-import type GraphQLCompilerContext, {
-  CompilerContextDocument,
-} from './GraphQLCompilerContext';
+import type CompilerContext, {CompilerContextDocument} from './CompilerContext';
 import type {
   Argument,
   ClientExtension,
@@ -111,10 +109,10 @@ type NodeVisitorFunction<N: IR, S> = (node: N, state: S) => ?N;
  * ```
  */
 function transform<S>(
-  context: GraphQLCompilerContext,
+  context: CompilerContext,
   visitor: NodeVisitor<S>,
   stateInitializer: void | (CompilerContextDocument => ?S),
-): GraphQLCompilerContext {
+): CompilerContext {
   const transformer = new Transformer(context, visitor);
   return context.withMutations(ctx => {
     let nextContext = ctx;
@@ -142,11 +140,11 @@ function transform<S>(
  * @internal
  */
 class Transformer<S> {
-  _context: GraphQLCompilerContext;
+  _context: CompilerContext;
   _states: Array<S>;
   _visitor: NodeVisitor<S>;
 
-  constructor(context: GraphQLCompilerContext, visitor: NodeVisitor<S>) {
+  constructor(context: CompilerContext, visitor: NodeVisitor<S>) {
     this._context = context;
     this._states = [];
     this._visitor = visitor;
@@ -158,7 +156,7 @@ class Transformer<S> {
    * Returns the original compiler context that is being transformed. This can
    * be used to look up fragments by name, for example.
    */
-  getContext(): GraphQLCompilerContext {
+  getContext(): CompilerContext {
     return this._context;
   }
 

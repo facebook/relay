@@ -10,7 +10,7 @@
 
 'use strict';
 
-const {createUserError} = require('../../core/RelayCompilerError');
+const {createUserError} = require('../../core/CompilerError');
 const {
   buildFragmentSpread,
   buildOperationArgumentDefinitions,

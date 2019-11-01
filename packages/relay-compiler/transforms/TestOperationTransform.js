@@ -13,7 +13,7 @@
 
 const IRTransformer = require('../core/GraphQLIRTransformer');
 
-import type CompilerContext from '../core/GraphQLCompilerContext';
+import type CompilerContext from '../core/CompilerContext';
 import type {Fragment, Root} from '../core/GraphQLIR';
 import type {Schema, TypeID} from '../core/Schema';
 

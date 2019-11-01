@@ -10,10 +10,7 @@
 
 'use strict';
 
-const {
-  createUserError,
-  eachWithCombinedError,
-} = require('./RelayCompilerError');
+const {createUserError, eachWithCombinedError} = require('./CompilerError');
 
 import type {
   Argument,

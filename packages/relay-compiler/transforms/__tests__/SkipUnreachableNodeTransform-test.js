@@ -11,7 +11,7 @@
 
 'use strict';
 
-const GraphQLCompilerContext = require('../../core/GraphQLCompilerContext');
+const CompilerContext = require('../../core/CompilerContext');
 const GraphQLIRPrinter = require('../../core/GraphQLIRPrinter');
 const RelayParser = require('../../core/RelayParser');
 const Schema = require('../../core/Schema');
@@ -28,7 +28,7 @@ describe('SkipUnreachableNodeTransform', () => {
     text => {
       const schema = Schema.DEPRECATED__create(TestSchema);
       const ast = RelayParser.parse(schema, text);
-      return new GraphQLCompilerContext(schema)
+      return new CompilerContext(schema)
         .addAll(ast)
         .applyTransforms([SkipUnreachableNodeTransform.transform])
         .documents()

@@ -11,9 +11,9 @@
 
 'use strict';
 
+const CompilerContext = require('../../core/CompilerContext');
 const FlattenTransform = require('../FlattenTransform');
 const GenerateTypeNameTransform = require('../GenerateTypeNameTransform');
-const GraphQLCompilerContext = require('../../core/GraphQLCompilerContext');
 const InlineFragmentsTransform = require('../InlineFragmentsTransform');
 const RelayParser = require('../../core/RelayParser');
 const Schema = require('../../core/Schema');
@@ -30,7 +30,7 @@ describe('GenerateTypeNameTransform', () => {
     text => {
       const compilerSchema = Schema.DEPRECATED__create(TestSchema);
       const ast = RelayParser.parse(compilerSchema, text);
-      return new GraphQLCompilerContext(compilerSchema)
+      return new CompilerContext(compilerSchema)
         .addAll(ast)
         .applyTransforms([
           InlineFragmentsTransform.transform,

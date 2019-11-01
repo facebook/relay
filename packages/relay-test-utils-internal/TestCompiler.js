@@ -15,7 +15,7 @@ const parseGraphQLText = require('./parseGraphQLText');
 
 const {
   CodeMarker,
-  GraphQLCompilerContext,
+  CompilerContext,
   IRTransforms,
   compileRelayArtifacts,
   transformASTSchema,
@@ -78,7 +78,7 @@ function generate(
     relaySchema,
     text,
   );
-  const compilerContext = new GraphQLCompilerContext(
+  const compilerContext = new CompilerContext(
     Schema.DEPRECATED__create(schema, extendedSchema),
   ).addAll(definitions);
   const documentMap = {};

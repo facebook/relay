@@ -12,7 +12,7 @@
 
 const SchemaUtils = require('../../core/SchemaUtils');
 
-const {createUserError} = require('../../core/RelayCompilerError');
+const {createUserError} = require('../../core/CompilerError');
 const {
   buildFragmentSpread,
   buildOperationArgumentDefinitions,

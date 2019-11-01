@@ -12,7 +12,7 @@
 
 const OR_LIST_MAX_LENGTH = 5;
 
-const {createCompilerError} = require('../core/RelayCompilerError');
+const {createCompilerError} = require('../core/CompilerError');
 
 function orList(items: $ReadOnlyArray<string>): string {
   if (items.length === 0) {

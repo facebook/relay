@@ -11,8 +11,8 @@
 
 'use strict';
 
+const CompilerContext = require('../../core/CompilerContext');
 const GenerateIDFieldTransform = require('../GenerateIDFieldTransform');
-const GraphQLCompilerContext = require('../../core/GraphQLCompilerContext');
 const GraphQLIRPrinter = require('../../core/GraphQLIRPrinter');
 const RelayParser = require('../../core/RelayParser');
 const Schema = require('../../core/Schema');
@@ -28,7 +28,7 @@ describe('GenerateIDFieldTransform', () => {
     text => {
       const compilerSchema = Schema.DEPRECATED__create(TestSchema);
       const ast = RelayParser.parse(compilerSchema, text);
-      return new GraphQLCompilerContext(compilerSchema)
+      return new CompilerContext(compilerSchema)
         .addAll(ast)
         .applyTransforms([GenerateIDFieldTransform.transform])
         .documents()

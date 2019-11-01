@@ -13,7 +13,7 @@
 
 const ASTConvert = require('../../core/ASTConvert');
 const CodeMarker = require('../../util/CodeMarker');
-const CompilerContext = require('../../core/GraphQLCompilerContext');
+const CompilerContext = require('../../core/CompilerContext');
 const RelayIRTransforms = require('../../core/RelayIRTransforms');
 const Schema = require('../../core/Schema');
 

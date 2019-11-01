@@ -13,7 +13,7 @@
 const NormalizationCodeGenerator = require('./NormalizationCodeGenerator');
 const ReaderCodeGenerator = require('./ReaderCodeGenerator');
 
-const {createCompilerError} = require('../core/RelayCompilerError');
+const {createCompilerError} = require('../core/CompilerError');
 
 import type {Fragment, Request, SplitOperation} from '../core/GraphQLIR';
 import type {Schema} from '../core/Schema';

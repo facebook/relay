@@ -11,7 +11,7 @@
 
 'use strict';
 
-const GraphQLCompilerContext = require('../../core/GraphQLCompilerContext');
+const CompilerContext = require('../../core/CompilerContext');
 const GraphQLIRPrinter = require('../../core/GraphQLIRPrinter');
 const InlineFragmentsTransform = require('../InlineFragmentsTransform');
 const Schema = require('../../core/Schema');
@@ -28,7 +28,7 @@ describe('InlineFragmentsTransform', () => {
     text => {
       const {definitions} = parseGraphQLText(TestSchema, text);
       const compilerSchema = Schema.DEPRECATED__create(TestSchema);
-      return new GraphQLCompilerContext(compilerSchema)
+      return new CompilerContext(compilerSchema)
         .addAll(definitions)
         .applyTransforms([InlineFragmentsTransform.transform])
         .documents()

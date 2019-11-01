@@ -11,7 +11,7 @@
 
 'use strict';
 
-const GraphQLCompilerContext = require('../../core/GraphQLCompilerContext');
+const CompilerContext = require('../../core/CompilerContext');
 const Schema = require('../../core/Schema');
 const ValidateUnusedVariablesTransform = require('../ValidateUnusedVariablesTransform');
 
@@ -33,7 +33,7 @@ generateTestsFromFixtures(
       TestSchema,
       extendedSchema,
     );
-    return new GraphQLCompilerContext(compilerSchema)
+    return new CompilerContext(compilerSchema)
       .addAll(definitions)
       .applyTransforms([ValidateUnusedVariablesTransform.transform])
       .documents()

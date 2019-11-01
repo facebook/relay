@@ -15,9 +15,9 @@ const IRTransformer = require('../core/GraphQLIRTransformer');
 const invariant = require('invariant');
 const joinArgumentDefinitions = require('../util/joinArgumentDefinitions');
 
-const {createUserError} = require('../core/RelayCompilerError');
+const {createUserError} = require('../core/CompilerError');
 
-import type CompilerContext from '../core/GraphQLCompilerContext';
+import type CompilerContext from '../core/CompilerContext';
 import type {
   Fragment,
   FragmentSpread,

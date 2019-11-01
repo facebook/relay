@@ -14,10 +14,10 @@ const IRTransformer = require('../core/GraphQLIRTransformer');
 
 const murmurHash = require('../util/murmurHash');
 
-const {createUserError} = require('../core/RelayCompilerError');
+const {createUserError} = require('../core/CompilerError');
 const {ConnectionInterface} = require('relay-runtime');
 
-import type CompilerContext from '../core/GraphQLCompilerContext';
+import type CompilerContext from '../core/CompilerContext';
 import type {
   Argument,
   Connection,

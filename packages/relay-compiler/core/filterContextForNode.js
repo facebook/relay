@@ -10,24 +10,22 @@
 
 'use strict';
 
-const GraphQLCompilerContext = require('./GraphQLCompilerContext');
+const CompilerContext = require('./CompilerContext');
 
 const {visit} = require('./GraphQLIRVisitor');
 
 import type {Fragment, FragmentSpread, Root} from './GraphQLIR';
 
 /**
- * Returns a GraphQLCompilerContext containing only the documents referenced
+ * Returns a CompilerContext containing only the documents referenced
  * by and including the provided node.
  */
 function filterContextForNode(
   node: Fragment | Root,
-  context: GraphQLCompilerContext,
-): GraphQLCompilerContext {
+  context: CompilerContext,
+): CompilerContext {
   const queue = [node];
-  let filteredContext = new GraphQLCompilerContext(context.getSchema()).add(
-    node,
-  );
+  let filteredContext = new CompilerContext(context.getSchema()).add(node);
   const visitFragmentSpread = (fragmentSpread: FragmentSpread) => {
     const {name} = fragmentSpread;
     if (!filteredContext.get(name)) {

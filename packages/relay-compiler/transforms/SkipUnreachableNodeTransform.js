@@ -14,7 +14,7 @@ const GraphQLIRTransformer = require('../core/GraphQLIRTransformer');
 
 const invariant = require('invariant');
 
-import type GraphQLCompilerContext from '../core/GraphQLCompilerContext';
+import type CompilerContext from '../core/CompilerContext';
 import type {Condition, Fragment, Node, Selection} from '../core/GraphQLIR';
 
 type ConditionResult = 'fail' | 'pass' | 'variable';
@@ -31,8 +31,8 @@ const VARIABLE = 'variable';
  * - Any node with empty `selections`
  */
 function skipUnreachableNodeTransform(
-  context: GraphQLCompilerContext,
-): GraphQLCompilerContext {
+  context: CompilerContext,
+): CompilerContext {
   const fragments: Map<string, ?Fragment> = new Map();
   const nextContext = GraphQLIRTransformer.transform(context, {
     Root: node => transformNode(context, fragments, node),
@@ -41,14 +41,13 @@ function skipUnreachableNodeTransform(
     Fragment: id => null,
   });
   return (Array.from(fragments.values()): Array<?Fragment>).reduce(
-    (ctx: GraphQLCompilerContext, fragment) =>
-      fragment ? ctx.add(fragment) : ctx,
+    (ctx: CompilerContext, fragment) => (fragment ? ctx.add(fragment) : ctx),
     nextContext,
   );
 }
 
 function transformNode<T: Node>(
-  context: GraphQLCompilerContext,
+  context: CompilerContext,
   fragments: Map<string, ?Fragment>,
   node: T,
 ): ?T {

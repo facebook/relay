@@ -10,7 +10,7 @@
 
 'use strict';
 
-const {createCompilerError} = require('./RelayCompilerError');
+const {createCompilerError} = require('./CompilerError');
 const {SchemaMetaFieldDef, TypeMetaFieldDef} = require('graphql');
 
 import type {Schema, TypeID, FieldID} from './Schema';

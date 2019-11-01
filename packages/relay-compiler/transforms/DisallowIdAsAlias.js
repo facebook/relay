@@ -12,9 +12,9 @@
 
 const GraphQLIRTransformer = require('../core/GraphQLIRTransformer');
 
-const {createUserError} = require('../core/RelayCompilerError');
+const {createUserError} = require('../core/CompilerError');
 
-import type GraphQLCompilerContext from '../core/GraphQLCompilerContext';
+import type CompilerContext from '../core/CompilerContext';
 import type {ScalarField, LinkedField} from '../core/GraphQLIR';
 
 function visitField<T: ScalarField | LinkedField>(field: T): T {
@@ -33,9 +33,7 @@ function visitField<T: ScalarField | LinkedField>(field: T): T {
  * This is not an actual transform (but more a validation)
  * Relay does not allow aliasing fields to `id`.
  */
-function disallowIdAsAlias(
-  context: GraphQLCompilerContext,
-): GraphQLCompilerContext {
+function disallowIdAsAlias(context: CompilerContext): CompilerContext {
   return GraphQLIRTransformer.transform(context, {
     ScalarField: visitField,
     LinkedField: visitField,

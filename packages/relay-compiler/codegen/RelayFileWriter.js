@@ -12,7 +12,7 @@
 
 const ASTConvert = require('../core/ASTConvert');
 const CodegenDirectory = require('./CodegenDirectory');
-const CompilerContext = require('../core/GraphQLCompilerContext');
+const CompilerContext = require('../core/CompilerContext');
 const Profiler = require('../core/GraphQLCompilerProfiler');
 const RelayParser = require('../core/RelayParser');
 

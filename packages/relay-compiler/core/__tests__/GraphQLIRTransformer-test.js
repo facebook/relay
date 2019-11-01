@@ -11,7 +11,7 @@
 
 'use strict';
 
-const GraphQLCompilerContext = require('../GraphQLCompilerContext');
+const CompilerContext = require('../CompilerContext');
 const GraphQLIRTransformer = require('../GraphQLIRTransformer');
 const Schema = require('../Schema');
 
@@ -65,7 +65,7 @@ describe('GraphQLIRTransformer', () => {
    }
  `,
     );
-    const context = new GraphQLCompilerContext(
+    const context = new CompilerContext(
       Schema.DEPRECATED__create(TestSchema),
     ).addAll(definitions);
 

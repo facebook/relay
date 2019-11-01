@@ -12,19 +12,14 @@
 
 const GraphQLIRTransformer = require('../core/GraphQLIRTransformer');
 
-const {
-  createCompilerError,
-  createUserError,
-} = require('../core/RelayCompilerError');
+const {createCompilerError, createUserError} = require('../core/CompilerError');
 
-import type GraphQLCompilerContext from '../core/GraphQLCompilerContext';
+import type CompilerContext from '../core/CompilerContext';
 import type {Definition, Node, Selection} from '../core/GraphQLIR';
 import type {TypeID} from '../core/Schema';
 
 let cachesByNode = new Map();
-function clientExtensionTransform(
-  context: GraphQLCompilerContext,
-): GraphQLCompilerContext {
+function clientExtensionTransform(context: CompilerContext): CompilerContext {
   cachesByNode = new Map();
   return GraphQLIRTransformer.transform(context, {
     Fragment: traverseDefinition,
@@ -34,7 +29,7 @@ function clientExtensionTransform(
 }
 
 function traverseDefinition<T: Definition>(node: T): T {
-  const compilerContext: GraphQLCompilerContext = this.getContext();
+  const compilerContext: CompilerContext = this.getContext();
 
   const schema = compilerContext.getSchema();
 
@@ -85,7 +80,7 @@ function traverseDefinition<T: Definition>(node: T): T {
 
 function traverseSelections<T: Node>(
   node: T,
-  compilerContext: GraphQLCompilerContext,
+  compilerContext: CompilerContext,
   parentType: TypeID,
 ): T {
   let nodeCache = cachesByNode.get(node);

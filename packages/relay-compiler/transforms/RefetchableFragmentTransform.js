@@ -18,10 +18,10 @@ const inferRootArgumentDefinitions = require('../core/inferRootArgumentDefinitio
 const {
   createUserError,
   eachWithCombinedError,
-} = require('../core/RelayCompilerError');
+} = require('../core/CompilerError');
 const {buildRefetchOperation} = require('./query-generators');
 
-import type GraphQLCompilerContext from '../core/GraphQLCompilerContext';
+import type CompilerContext from '../core/CompilerContext';
 import type {Argument, Field, Fragment} from '../core/GraphQLIR';
 import type {Schema} from '../core/Schema';
 import type {ReaderPaginationMetadata} from 'relay-runtime';
@@ -49,8 +49,8 @@ const SCHEMA_EXTENSION = `
  *    Fragment to Root IR nodes.
  */
 function refetchableFragmentTransform(
-  context: GraphQLCompilerContext,
-): GraphQLCompilerContext {
+  context: CompilerContext,
+): CompilerContext {
   const schema = context.getSchema();
 
   const refetchOperations = buildRefetchMap(context);
@@ -93,9 +93,7 @@ function refetchableFragmentTransform(
  * refetch operation names to the source fragment from which the refetch
  * operation should be derived.
  */
-function buildRefetchMap(
-  context: GraphQLCompilerContext,
-): Map<string, Fragment> {
+function buildRefetchMap(context: CompilerContext): Map<string, Fragment> {
   const refetchOperations = new Map();
   eachWithCombinedError(context.documents(), node => {
     if (node.kind !== 'Fragment') {

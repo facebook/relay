@@ -15,7 +15,7 @@ const SchemaUtils = require('../core/SchemaUtils');
 
 const {hasUnaliasedSelection} = require('./TransformUtils');
 
-import type CompilerContext from '../core/GraphQLCompilerContext';
+import type CompilerContext from '../core/CompilerContext';
 import type {InlineFragment, LinkedField, ScalarField} from '../core/GraphQLIR';
 import type {CompositeTypeID} from '../core/Schema';
 const {generateIDField} = SchemaUtils;

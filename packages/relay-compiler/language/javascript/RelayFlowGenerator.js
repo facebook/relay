@@ -19,7 +19,7 @@ const Profiler = require('../../core/GraphQLCompilerProfiler');
 const RefetchableFragmentTransform = require('../../transforms/RefetchableFragmentTransform');
 const RelayDirectiveTransform = require('../../transforms/RelayDirectiveTransform');
 
-const {createUserError} = require('../../core/RelayCompilerError');
+const {createUserError} = require('../../core/CompilerError');
 const {
   anyTypeAlias,
   declareExportOpaqueType,
@@ -39,7 +39,7 @@ const {
 } = require('./RelayFlowTypeTransformers');
 const {ConnectionInterface} = require('relay-runtime');
 
-import type {IRTransform} from '../../core/GraphQLCompilerContext';
+import type {IRTransform} from '../../core/CompilerContext';
 import type {
   Fragment,
   Root,

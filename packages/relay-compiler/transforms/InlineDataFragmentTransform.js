@@ -12,9 +12,9 @@
 
 const GraphQLIRTransformer = require('../core/GraphQLIRTransformer');
 
-const {createUserError} = require('../core/RelayCompilerError');
+const {createUserError} = require('../core/CompilerError');
 
-import type GraphQLCompilerContext from '../core/GraphQLCompilerContext';
+import type CompilerContext from '../core/CompilerContext';
 import type {
   Fragment,
   FragmentSpread,
@@ -31,8 +31,8 @@ directive @inline on FRAGMENT_DEFINITION
  * InlineDataFragmentSpreads have the selections of the referenced fragment inlined.
  */
 function inlineDataFragmentTransform(
-  context: GraphQLCompilerContext,
-): GraphQLCompilerContext {
+  context: CompilerContext,
+): CompilerContext {
   return GraphQLIRTransformer.transform(context, {
     // $FlowFixMe - this visitor intentionally changes node types
     FragmentSpread: visitFragmentSpread,
@@ -68,7 +68,7 @@ function visitFragmentSpread(
     fragmentSpread,
   );
 
-  const context: GraphQLCompilerContext = this.getContext();
+  const context: CompilerContext = this.getContext();
   const fragment = context.get(transformedFragmentSpread.name);
   if (
     !fragment ||

@@ -12,6 +12,7 @@
 
 const ASTCache = require('./core/ASTCache');
 const ASTConvert = require('./core/ASTConvert');
+const Artifacts = require('./runner/Artifacts');
 const BufferedFilesystem = require('./runner/BufferedFilesystem');
 const CodeMarker = require('./util/CodeMarker');
 const CodegenDirectory = require('./codegen/CodegenDirectory');
@@ -104,6 +105,11 @@ export type {
   TypeGenerator,
 } from './language/RelayLanguagePluginInterface';
 export type {Reporter} from './reporters/Reporter';
+export type {
+  ArtifactMap,
+  ArtifactState,
+  SerializedArtifactState,
+} from './runner/Artifacts';
 export type {SourceChanges} from './runner/Sources';
 export type {ExtractFn} from './runner/extractAST';
 export type {SavedStateCollection, WatchmanFile} from './runner/types';
@@ -161,6 +167,7 @@ module.exports = {
 
   Sources,
   __internal: {
+    Artifacts,
     BufferedFilesystem,
     GraphQLASTUtils,
     StrictMap: StrictMap_,

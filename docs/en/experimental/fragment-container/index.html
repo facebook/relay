@@ -91,7 +91,7 @@ If the fragment name doesn't specify a prop name, the data will be available as 
   <span class="hljs-comment">// For each of the props that depend on server data, we define a corresponding</span>
   <span class="hljs-comment">// key in this object. Here, the component expects server data to populate the</span>
   <span class="hljs-comment">// `item` prop, so we'll specify the fragment from above at the `item` key.</span>
-  item: graphql<span class="hljs-string">`
+  <span class="hljs-attr">item</span>: graphql<span class="hljs-string">`
     fragment TodoItem_item on Todo {
       text
       isComplete

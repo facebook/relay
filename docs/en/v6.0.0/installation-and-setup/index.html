@@ -76,7 +76,7 @@ this to provide zero-config setup (e.g. <a href="https://github.com/relay-tools/
 <span class="hljs-built_in">module</span>.exports = {
   <span class="hljs-comment">// ...</span>
   <span class="hljs-comment">// Configuration options accepted by the `relay-compiler` command-line tool and `babel-plugin-relay`.</span>
-  src: <span class="hljs-string">"./src"</span>,
+  <span class="hljs-attr">src</span>: <span class="hljs-string">"./src"</span>,
   <span class="hljs-attr">schema</span>: <span class="hljs-string">"./data/schema.graphql"</span>,
   <span class="hljs-attr">exclude</span>: [<span class="hljs-string">"**/node_modules/**"</span>, <span class="hljs-string">"**/__mocks__/**"</span>, <span class="hljs-string">"**/__generated__/**"</span>],
 }
@@ -104,7 +104,7 @@ Babel's <a href="https://babeljs.io/docs/plugins/#pluginpreset-ordering">documen
 <span class="hljs-built_in">module</span>.exports = {
   <span class="hljs-comment">// ...</span>
   <span class="hljs-comment">// Other macros config</span>
-  relay: {
+  <span class="hljs-attr">relay</span>: {
     <span class="hljs-attr">compat</span>: <span class="hljs-literal">true</span>,
   },
 }

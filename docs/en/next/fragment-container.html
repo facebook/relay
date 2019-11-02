@@ -144,7 +144,7 @@
   <span class="hljs-comment">// For each of the props that depend on server data, we define a corresponding</span>
   <span class="hljs-comment">// key in this object. Here, the component expects server data to populate the</span>
   <span class="hljs-comment">// `item` prop, so we'll specify the fragment from above at the `item` key.</span>
-  item: graphql<span class="hljs-string">`
+  <span class="hljs-attr">item</span>: graphql<span class="hljs-string">`
     fragment TodoItem_item on Todo {
       text
       isComplete
@@ -179,7 +179,7 @@
 <span class="hljs-keyword">export</span> <span class="hljs-keyword">default</span> createFragmentContainer(TodoList, {
   <span class="hljs-comment">// This `list` fragment corresponds to the prop named `list` that is</span>
   <span class="hljs-comment">// expected to be populated with server data by the `&lt;TodoList&gt;` component.</span>
-  list: graphql<span class="hljs-string">`
+  <span class="hljs-attr">list</span>: graphql<span class="hljs-string">`
     fragment TodoList_list on TodoList {
       # Specify any fields required by '&lt;TodoList&gt;' itself.
       title

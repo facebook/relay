@@ -123,7 +123,7 @@ requestSubscription(
     subscription,
     variables,
     <span class="hljs-comment">// optional but recommended:</span>
-    onCompleted: <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {<span class="hljs-comment">/* server closed the subscription */</span>},
+    <span class="hljs-attr">onCompleted</span>: <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {<span class="hljs-comment">/* server closed the subscription */</span>},
     <span class="hljs-attr">onError</span>: <span class="hljs-function"><span class="hljs-params">error</span> =&gt;</span> <span class="hljs-built_in">console</span>.error(error),
   }
 );

@@ -513,14 +513,14 @@ describe('executeMutation() with @match', () => {
     ).toBe(null);
   });
 
-  it('optimistically creates @match fields', () => {
+  describe('optimistic updates', () => {
     const optimisticResponse = {
       commentCreate: {
         comment: {
           id: commentID,
           actor: {
             id: '4',
-            name: 'actor-name',
+            name: 'optimisitc-actor-name',
             __typename: 'User',
             nameRenderer: {
               __typename: 'MarkdownUserNameRenderer',
@@ -530,64 +530,259 @@ describe('executeMutation() with @match', () => {
                 'MarkdownUserNameRenderer_name$normalization.graphql',
               markdown: 'markdown payload',
               data: {
-                markup: '<markup/>', // server data is lowercase
+                markup: '<optimistic_markup/>', // server data is lowercase
               },
             },
           },
         },
       },
     };
-    operationLoader.get.mockImplementationOnce(name => {
-      return markdownRendererNormalizationFragment;
-    });
-    environment
-      .executeMutation({operation, optimisticResponse})
-      .subscribe(callbacks);
-    jest.runAllTimers();
 
-    expect(next.mock.calls.length).toBe(0);
-    expect(complete).not.toBeCalled();
-    expect(error.mock.calls.map(call => call[0].message)).toEqual([]);
-    expect(operationCallback).toBeCalledTimes(1);
-    const operationSnapshot = operationCallback.mock.calls[0][0];
-    expect(operationSnapshot.isMissingData).toBe(false);
-    expect(operationSnapshot.data).toEqual({
-      commentCreate: {
-        comment: {
-          actor: {
-            name: 'actor-name',
-            nameRenderer: {
-              __id:
-                'client:4:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
-              __fragmentPropName: 'name',
-              __fragments: {
-                MarkdownUserNameRenderer_name: {},
+    it('optimistically creates @match fields', () => {
+      operationLoader.get.mockImplementationOnce(name => {
+        return markdownRendererNormalizationFragment;
+      });
+      environment
+        .executeMutation({operation, optimisticResponse})
+        .subscribe(callbacks);
+      jest.runAllTimers();
+
+      expect(next.mock.calls.length).toBe(0);
+      expect(complete).not.toBeCalled();
+      expect(error.mock.calls.map(call => call[0].message)).toEqual([]);
+      expect(operationCallback).toBeCalledTimes(1);
+      const operationSnapshot = operationCallback.mock.calls[0][0];
+      expect(operationSnapshot.isMissingData).toBe(false);
+      expect(operationSnapshot.data).toEqual({
+        commentCreate: {
+          comment: {
+            actor: {
+              name: 'optimisitc-actor-name',
+              nameRenderer: {
+                __id:
+                  'client:4:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+                __fragmentPropName: 'name',
+                __fragments: {
+                  MarkdownUserNameRenderer_name: {},
+                },
+                __fragmentOwner: operation.request,
+                __module_component: 'MarkdownUserNameRenderer.react',
               },
-              __fragmentOwner: operation.request,
-              __module_component: 'MarkdownUserNameRenderer.react',
             },
           },
         },
-      },
-    });
-    operationCallback.mockClear();
+      });
+      operationCallback.mockClear();
 
-    const matchSelector = nullthrows(
-      getSingularSelector(
-        markdownRendererFragment,
-        (operationSnapshot.data: any)?.commentCreate?.comment?.actor
-          ?.nameRenderer,
-      ),
-    );
-    const initialMatchSnapshot = environment.lookup(matchSelector);
-    expect(initialMatchSnapshot.isMissingData).toBe(false);
-    expect(initialMatchSnapshot.data).toEqual({
-      __typename: 'MarkdownUserNameRenderer',
-      data: {
-        // NOTE: should be uppercased by the MarkupHandler
-        markup: '<MARKUP/>',
-      },
-      markdown: 'markdown payload',
+      const matchSelector = nullthrows(
+        getSingularSelector(
+          markdownRendererFragment,
+          (operationSnapshot.data: any)?.commentCreate?.comment?.actor
+            ?.nameRenderer,
+        ),
+      );
+      const initialMatchSnapshot = environment.lookup(matchSelector);
+      expect(initialMatchSnapshot.isMissingData).toBe(false);
+      expect(initialMatchSnapshot.data).toEqual({
+        __typename: 'MarkdownUserNameRenderer',
+        data: {
+          // NOTE: should be uppercased by the MarkupHandler
+          markup: '<OPTIMISTIC_MARKUP/>',
+        },
+        markdown: 'markdown payload',
+      });
+    });
+
+    it('optimistically creates @match fields and loads resources', () => {
+      operationLoader.load.mockImplementationOnce(() => {
+        return new Promise(resolve => {
+          setImmediate(() => {
+            resolve(markdownRendererNormalizationFragment);
+          });
+        });
+      });
+      environment
+        .executeMutation({operation, optimisticResponse})
+        .subscribe(callbacks);
+      jest.runAllTimers();
+
+      expect(next.mock.calls.length).toBe(0);
+      expect(complete).not.toBeCalled();
+      expect(error.mock.calls.map(call => call[0].message)).toEqual([]);
+      expect(operationCallback).toBeCalledTimes(1);
+      const operationSnapshot = operationCallback.mock.calls[0][0];
+      expect(operationSnapshot.isMissingData).toBe(false);
+      expect(operationSnapshot.data).toEqual({
+        commentCreate: {
+          comment: {
+            actor: {
+              name: 'optimisitc-actor-name',
+              nameRenderer: {
+                __id:
+                  'client:4:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+                __fragmentPropName: 'name',
+                __fragments: {
+                  MarkdownUserNameRenderer_name: {},
+                },
+                __fragmentOwner: operation.request,
+                __module_component: 'MarkdownUserNameRenderer.react',
+              },
+            },
+          },
+        },
+      });
+      operationCallback.mockClear();
+
+      const matchSelector = nullthrows(
+        getSingularSelector(
+          markdownRendererFragment,
+          (operationSnapshot.data: any)?.commentCreate?.comment?.actor
+            ?.nameRenderer,
+        ),
+      );
+      const initialMatchSnapshot = environment.lookup(matchSelector);
+      expect(initialMatchSnapshot.isMissingData).toBe(false);
+      expect(initialMatchSnapshot.data).toEqual({
+        __typename: 'MarkdownUserNameRenderer',
+        data: {
+          // NOTE: should be uppercased by the MarkupHandler
+          markup: '<OPTIMISTIC_MARKUP/>',
+        },
+        markdown: 'markdown payload',
+      });
+    });
+
+    it('does not apply aysnc 3D optimistic updates if the server response arrives first', () => {
+      operationLoader.load.mockImplementationOnce(() => {
+        return new Promise(resolve => {
+          setTimeout(() => {
+            resolve(markdownRendererNormalizationFragment);
+          }, 1000);
+        });
+      });
+
+      environment
+        .executeMutation({operation, optimisticResponse})
+        .subscribe(callbacks);
+
+      const serverPayload = {
+        data: {
+          commentCreate: {
+            comment: {
+              id: commentID,
+              actor: {
+                id: '4',
+                name: 'actor-name',
+                __typename: 'User',
+                nameRenderer: {
+                  __typename: 'MarkdownUserNameRenderer',
+                  __module_component_CreateCommentMutation:
+                    'MarkdownUserNameRenderer.react',
+                  __module_operation_CreateCommentMutation:
+                    'MarkdownUserNameRenderer_name$normalization.graphql',
+                  markdown: 'markdown payload',
+                  data: {
+                    markup: '<markup/>', // server data is lowercase
+                  },
+                },
+              },
+            },
+          },
+        },
+      };
+      dataSource.next(serverPayload);
+      jest.runAllTimers();
+
+      expect(next.mock.calls.length).toBe(1);
+      expect(complete).not.toBeCalled();
+      expect(error).not.toBeCalled();
+
+      expect(operationCallback).toBeCalledTimes(2);
+      const operationSnapshot = operationCallback.mock.calls[1][0];
+      expect(operationSnapshot.isMissingData).toBe(false);
+      expect(operationSnapshot.data).toEqual({
+        commentCreate: {
+          comment: {
+            actor: {
+              name: 'actor-name',
+              nameRenderer: {
+                __id:
+                  'client:4:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+                __fragmentPropName: 'name',
+                __fragments: {
+                  MarkdownUserNameRenderer_name: {},
+                },
+                __fragmentOwner: operation.request,
+                __module_component: 'MarkdownUserNameRenderer.react',
+              },
+            },
+          },
+        },
+      });
+
+      const matchSelector = nullthrows(
+        getSingularSelector(
+          markdownRendererFragment,
+          (operationSnapshot.data: any)?.commentCreate?.comment?.actor
+            ?.nameRenderer,
+        ),
+      );
+      const matchSnapshot = environment.lookup(matchSelector);
+      // optimistic update should not be applied
+      expect(matchSnapshot.isMissingData).toBe(true);
+      expect(matchSnapshot.data).toEqual({
+        __typename: 'MarkdownUserNameRenderer',
+        data: undefined,
+        markdown: undefined,
+      });
+    });
+
+    it('does not apply async 3D optimistic updates if the operation is cancelled', () => {
+      operationLoader.load.mockImplementationOnce(() => {
+        return new Promise(resolve => {
+          setTimeout(() => {
+            resolve(markdownRendererNormalizationFragment);
+          }, 1000);
+        });
+      });
+      const disposable = environment
+        .executeMutation({operation, optimisticResponse})
+        .subscribe(callbacks);
+      disposable.unsubscribe();
+
+      jest.runAllImmediates();
+      jest.runAllTimers();
+
+      expect(next).not.toBeCalled();
+      expect(complete).not.toBeCalled();
+      expect(error).not.toBeCalled();
+      expect(operationCallback).toBeCalledTimes(2);
+      // get the match snapshot from sync optimistic response
+      const operationSnapshot = operationCallback.mock.calls[0][0];
+      expect(operationSnapshot.isMissingData).toBe(false);
+      const matchSelector = nullthrows(
+        getSingularSelector(
+          markdownRendererFragment,
+          (operationSnapshot.data: any)?.commentCreate?.comment?.actor
+            ?.nameRenderer,
+        ),
+      );
+      const matchSnapshot = environment.lookup(matchSelector);
+      // optimistic update should not be applied
+      expect(matchSnapshot.isMissingData).toBe(true);
+      expect(matchSnapshot.data).toEqual(undefined);
+    });
+
+    it('catches error when opeartionLoader.load fails synchoronously', () => {
+      operationLoader.load.mockImplementationOnce(() => {
+        throw new Error('<user-error>');
+      });
+      environment
+        .executeMutation({operation, optimisticResponse})
+        .subscribe(callbacks);
+      jest.runAllTimers();
+      expect(error.mock.calls.length).toBe(1);
+      expect(error.mock.calls[0][0]).toEqual(new Error('<user-error>'));
     });
   });
 });

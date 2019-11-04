@@ -54,6 +54,7 @@ import type {
 import type {
   NormalizationLinkedField,
   NormalizationSplitOperation,
+  NormalizationSelectableNode,
 } from '../util/NormalizationNode';
 import type {DataID, Variables} from '../util/RelayRuntimeTypes';
 import type {GetDataID} from './RelayResponseNormalizer';
@@ -345,48 +346,7 @@ class Executor {
         payload,
         updater,
       });
-      if (payload.moduleImportPayloads && payload.moduleImportPayloads.length) {
-        const moduleImportPayloads = payload.moduleImportPayloads;
-        const operationLoader = this._operationLoader;
-        invariant(
-          operationLoader,
-          'RelayModernEnvironment: Expected an operationLoader to be ' +
-            'configured when using `@match`.',
-        );
-        while (moduleImportPayloads.length) {
-          const moduleImportPayload = moduleImportPayloads.shift();
-          const operation = operationLoader.get(
-            moduleImportPayload.operationReference,
-          );
-          if (operation == null) {
-            continue;
-          }
-          const selector = createNormalizationSelector(
-            operation,
-            moduleImportPayload.dataID,
-            moduleImportPayload.variables,
-          );
-          const modulePayload = normalizeResponse(
-            {data: moduleImportPayload.data},
-            selector,
-            moduleImportPayload.typeName,
-            {
-              getDataID: this._getDataID,
-              path: moduleImportPayload.path,
-              request: this._operation.request,
-            },
-          );
-          validateOptimisticResponsePayload(modulePayload);
-          optimisticUpdates.push({
-            operation: this._operation,
-            payload: modulePayload,
-            updater: null,
-          });
-          if (modulePayload.moduleImportPayloads) {
-            moduleImportPayloads.push(...modulePayload.moduleImportPayloads);
-          }
-        }
-      }
+      this._processOptimisticFollowups(payload, optimisticUpdates);
     } else if (updater) {
       optimisticUpdates.push({
         operation: this._operation,
@@ -404,6 +364,109 @@ class Executor {
     this._optimisticUpdates = optimisticUpdates;
     optimisticUpdates.forEach(update => this._publishQueue.applyUpdate(update));
     this._publishQueue.run();
+  }
+
+  _processOptimisticFollowups(
+    payload: RelayResponsePayload,
+    optimisticUpdates: Array<OptimisticUpdate>,
+  ): void {
+    if (payload.moduleImportPayloads && payload.moduleImportPayloads.length) {
+      const moduleImportPayloads = payload.moduleImportPayloads;
+      const operationLoader = this._operationLoader;
+      invariant(
+        operationLoader,
+        'RelayModernEnvironment: Expected an operationLoader to be ' +
+          'configured when using `@match`.',
+      );
+      for (const moduleImportPayload of moduleImportPayloads) {
+        const operation = operationLoader.get(
+          moduleImportPayload.operationReference,
+        );
+        if (operation == null) {
+          this._processAsyncOptimisticModuleImport(
+            operationLoader,
+            moduleImportPayload,
+          );
+        } else {
+          const moduleImportOptimisitcUpdates = this._processOptimisticModuleImport(
+            operation,
+            moduleImportPayload,
+          );
+          optimisticUpdates.push(...moduleImportOptimisitcUpdates);
+        }
+      }
+    }
+  }
+
+  _normalizeModuleImport(
+    moduleImportPayload: ModuleImportPayload,
+    operation: NormalizationSelectableNode,
+  ) {
+    const selector = createNormalizationSelector(
+      operation,
+      moduleImportPayload.dataID,
+      moduleImportPayload.variables,
+    );
+    return normalizeResponse(
+      {data: moduleImportPayload.data},
+      selector,
+      moduleImportPayload.typeName,
+      {
+        getDataID: this._getDataID,
+        path: moduleImportPayload.path,
+        request: this._operation.request,
+      },
+    );
+  }
+
+  _processOptimisticModuleImport(
+    operation: NormalizationSplitOperation,
+    moduleImportPayload: ModuleImportPayload,
+  ): $ReadOnlyArray<OptimisticUpdate> {
+    const optimisticUpdates = [];
+    const modulePayload = this._normalizeModuleImport(
+      moduleImportPayload,
+      operation,
+    );
+    validateOptimisticResponsePayload(modulePayload);
+    optimisticUpdates.push({
+      operation: this._operation,
+      payload: modulePayload,
+      updater: null,
+    });
+    this._processOptimisticFollowups(modulePayload, optimisticUpdates);
+    return optimisticUpdates;
+  }
+
+  _processAsyncOptimisticModuleImport(
+    operationLoader: OperationLoader,
+    moduleImportPayload: ModuleImportPayload,
+  ): void {
+    operationLoader
+      .load(moduleImportPayload.operationReference)
+      .then(operation => {
+        if (operation == null || this._state !== 'started') {
+          return;
+        }
+        const moduleImportOptimisitcUpdates = this._processOptimisticModuleImport(
+          operation,
+          moduleImportPayload,
+        );
+        moduleImportOptimisitcUpdates.forEach(update =>
+          this._publishQueue.applyUpdate(update),
+        );
+        if (this._optimisticUpdates == null) {
+          warning(
+            false,
+            'RelayModernQueryExecutor: Unexpected ModuleImport optimisitc ' +
+              'update in operation %s.' +
+              this._operation.request.node.params.name,
+          );
+        } else {
+          this._optimisticUpdates.push(...moduleImportOptimisitcUpdates);
+          this._publishQueue.run();
+        }
+      });
   }
 
   _processResponse(response: GraphQLResponseWithData): void {
@@ -563,20 +626,9 @@ class Executor {
     moduleImportPayload: ModuleImportPayload,
     operation: NormalizationSplitOperation,
   ): void {
-    const selector = createNormalizationSelector(
+    const relayPayload = this._normalizeModuleImport(
+      moduleImportPayload,
       operation,
-      moduleImportPayload.dataID,
-      moduleImportPayload.variables,
-    );
-    const relayPayload = normalizeResponse(
-      {data: moduleImportPayload.data},
-      selector,
-      moduleImportPayload.typeName,
-      {
-        getDataID: this._getDataID,
-        path: moduleImportPayload.path,
-        request: this._operation.request,
-      },
     );
     this._publishQueue.commitPayload(this._operation, relayPayload);
     const updatedOwners = this._publishQueue.run();

@@ -3,27 +3,26 @@ id: version-experimental-api-reference
 title: API Reference
 original_id: api-reference
 ---
-
 ## Relay Hooks
 
 **Relay Hooks** APIs are fully compatible with [React Concurrent Mode](https://reactjs.org/docs/concurrent-mode-intro.html). They are also fully compatible with [existing Relay APIs](https://relay.dev/docs/en/introduction-to-relay), meaning that they can be used together in the same application; Relay components will interop correctly regardless of whether they were written as Relay Hooks or as Relay containers.
 
 For a usage guide, see: [**A Guided Tour of Relay**](a-guided-tour-of-relay).
 
-### Benefits and Caveats of Relay Hooks
+For a full example using Relay Hooks and our integration with [Suspense for Data Fetching](https://reactjs.org/docs/concurrent-mode-suspense.html), check out [relay-examples/issue-tracker](https://github.com/relayjs/relay-examples/tree/master/issue-tracker).
 
-#### Benefits
+### Benefits
 
-* Using Hooks in general make for a somewhat simpler api; our hope is that the fact that they are functions that have specific inputs and outputs might be more clear than the “magic” that happens in Higher Order Components, where the prop you pass from above is not the same as the prop you receive inside the component.
+* Using Hooks in general make for a somewhat simpler API; our hope is that the fact that they are functions that have specific inputs and outputs might be more clear than the “magic” that happens in Higher Order Components, where the prop you pass from above is not the same as the prop you receive inside the component.
 * They also allow us to not pollute the React tree with multiple nested layers of Higher Order Components that wrap your actual components, which make them easier to inspect and debug in dev tools, and can help speed up React rendering.
 * Hooks are also a lot simpler to Flow type, and with Relay Hooks we were able to guarantee better type safety than we could with our HOC / Renderer APIs.
 * Relay Hooks have more capabilities compared to their container counterparts, for example by being integrated with [Suspense](a-guided-tour-of-relay#loading-states-with-suspense) for loading states, and providing new capabilities such as directly rendering data that is cached in the Relay store, which were previously not available.
 * We also took the opportunity to simplify some of our APIs that were previously notoriously complicated, such as refetching and pagination. We've highlighted some of the main differences in those APIs in our documentation below ([Differences with RefetchContainer](#differences-with-refetchcontainer), [Differences with PaginationContainer](#differences-with-paginationcontainer)).
 * Finally, Hooks were written to be compatible with React's Concurrent Mode, as opposed to our HOC / Renderer APIs which are unsafe to use in Concurrent Mode.
 
-#### Caveats
+### Caveats
 
-* Relay Hooks are integrated with [React Suspense](a-guided-tour-of-relay#loading-states-with-suspense), and there are some caveats to using Suspense in React's Legacy Mode (non-concurrent mode), which will *also* apply to using Relay Hooks in Legacy Mode. For example, there are some Suspense capabilities that are only supported in Concurrent Mode, and some use cases that specifically rely on these capabilities that you wont be able to implement in Legacy Mode (e.g. [`useBlockingPaginationFragment`](#useblockingpaginationfragment)).
+* Relay Hooks are integrated with [React Concurrent Mode](https://reactjs.org/docs/concurrent-mode-intro.html) and [Suspense](a-guided-tour-of-relay#loading-states-with-suspense), which means that they are designed to work in conjunction with apis like [`useTransition`](https://reactjs.org/docs/concurrent-mode-patterns.html#transitions). However, APIs like `useTransition` will not work as expected in React Legacy Mode (i.e. outside of Concurrent Mode), in particular when providing a timeout in a Suspense config; this affects apis like [`useBlockingPaginationFragment`](#useblockingpaginationfragment). For this reason, we recommend using Relay Hooks apis in Concurrent Mode.
 
 * * *
 

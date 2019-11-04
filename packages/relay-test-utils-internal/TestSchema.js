@@ -10,9 +10,10 @@
 
 'use strict';
 
-const RelayTestSchemaPath = require('./RelayTestSchemaPath');
-
 const fs = require('fs');
+const path = require('path');
+
+const testSchemaPath = (path.join(__dirname, 'testschema.graphql'): string);
 
 const {
   GraphQLEnumType,
@@ -51,10 +52,7 @@ function buildSchema() {
   let schema = new GraphQLSchema({
     types: [CropPosition, FileExtension, TestEnums, GraphQLJSONType],
   });
-  schema = extendSchema(
-    schema,
-    parse(fs.readFileSync(RelayTestSchemaPath, 'utf8')),
-  );
+  schema = extendSchema(schema, parse(fs.readFileSync(testSchemaPath, 'utf8')));
   // AST Builder doesn't allow things undefined in AST to be argument types it
   // seems
   return extendSchema(
@@ -126,4 +124,7 @@ const GraphQLJSONType = new GraphQLScalarType({
   parseLiteral,
 });
 
-module.exports = (buildSchema(): GraphQLSchema);
+module.exports = {
+  TestSchema: (buildSchema(): GraphQLSchema),
+  testSchemaPath,
+};

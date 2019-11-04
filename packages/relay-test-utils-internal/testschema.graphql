@@ -252,7 +252,8 @@ type Comment implements Node {
   message: Text
   name: String
   profilePicture(size: [Int], preset: PhotoSize): Image
-  # This is added in RelayTestSchema
+  # This is added in TestSchema.js
+  #
   # profilePicture2(
   #   size: [Int],
   #   preset: PhotoSize,
@@ -1060,7 +1061,8 @@ enum TopLevelCommentsOrdering {
   toplevel
 }
 
-# This is added in RelayTestSchema
+# This is added in TestSchema.js
+#
 # enum CropPosition {
 #   TOP
 #   CENTER

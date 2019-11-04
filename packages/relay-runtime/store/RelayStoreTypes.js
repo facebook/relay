@@ -47,7 +47,6 @@ import type RelayOperationTracker from './RelayOperationTracker';
 import type {RecordState} from './RelayRecordState';
 
 export opaque type FragmentReference = empty;
-export opaque type Local3DPayload<DocumentName: string, Response> = empty;
 export type OperationTracker = RelayOperationTracker;
 
 /*

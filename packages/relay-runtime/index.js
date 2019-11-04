@@ -41,6 +41,7 @@ const applyOptimisticMutation = require('./mutations/applyOptimisticMutation');
 const commitLocalUpdate = require('./mutations/commitLocalUpdate');
 const commitMutation = require('./mutations/commitMutation');
 const createFragmentSpecResolver = require('./store/createFragmentSpecResolver');
+const createPayloadFor3DField = require('./util/createPayloadFor3DField');
 const createRelayContext = require('./store/createRelayContext');
 const deepFreeze = require('./util/deepFreeze');
 const fetchQuery = require('./query/fetchQuery');
@@ -117,7 +118,6 @@ export type {
   FragmentSpecResolver,
   HandleFieldPayload,
   IEnvironment,
-  Local3DPayload,
   LogEvent,
   LogFunction,
   MissingFieldHandler,
@@ -191,6 +191,7 @@ export type {
   OperationType,
   Variables,
 } from './util/RelayRuntimeTypes';
+export type {Local3DPayload} from './util/createPayloadFor3DField';
 
 // As early as possible, check for the existence of the JavaScript globals which
 // Relay Runtime relies upon, and produce a clear message if they do not exist.
@@ -280,6 +281,7 @@ module.exports = {
 
   // Utilities
   RelayProfiler: RelayProfiler,
+  createPayloadFor3DField: createPayloadFor3DField,
 
   // INTERNAL-ONLY: These exports might be removed at any point.
   RelayConcreteNode: RelayConcreteNode,

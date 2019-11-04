@@ -8,6 +8,10 @@ original_id: a-guided-tour-of-relay
 
 In this guide, we're going to go over how to use Relay to build out some of the more common use cases in apps. If you're interested in a detailed reference of our APIs, check out our [API Reference](api-reference.html) page. Before getting started, bear in mind that we assume some level of familiarity with JavaScript, [React](https://reactjs.org/docs/getting-started.html), [GraphQL](https://graphql.org/learn/), and assume that you have set up a GraphQL Server that adheres to the [Relay specification](graphql-server-specification.html)
 
+## Example App
+
+To see a full example using Relay Hooks and our integration with [Suspense for Data Fetching](https://reactjs.org/docs/concurrent-mode-suspense.html), check out: [relay-examples/issue-tracker](https://github.com/relayjs/relay-examples/tree/master/issue-tracker).
+
 ## Setup and Workflow
 
 In case you've never worked with Relay before, here's a rundown of what you need to set up to get up and running developing with Relay:

@@ -36,9 +36,11 @@ const query = generateAndCompile(`
 `).TestQuery;
 const params = {
   params: query.params,
-  getModuleIfRequired: () => {
-    return null;
-  },
+  queryResource: ({
+    getModuleIfRequired: () => {
+      return null;
+    },
+  }: $FlowFixMe),
 };
 
 const response = {
@@ -111,7 +113,7 @@ describe('store-or-network', () => {
   });
 
   it('fetches from network if data is not available but query is', () => {
-    params.getModuleIfRequired = () => query;
+    params.queryResource.getModuleIfRequired = () => query;
 
     const preloaded = preloadQuery(environment, params, variables);
     expect(preloaded.source).toEqual(expect.any(Observable));
@@ -192,7 +194,7 @@ describe('store-or-network', () => {
     environment.commitPayload(operation, response.data);
     expect(environment.check(operation.root)).toBe(true);
     check.mockClear();
-    params.getModuleIfRequired = () => query;
+    params.queryResource.getModuleIfRequired = () => query;
 
     const preloaded = preloadQuery(environment, params, variables);
     expect(preloaded.source).toBe(null);
@@ -220,7 +222,7 @@ describe('store-or-network', () => {
     environment.commitPayload(operation, response.data);
     expect(environment.check(operation.root)).toBe(true);
     check.mockClear();
-    params.getModuleIfRequired = () => query;
+    params.queryResource.getModuleIfRequired = () => query;
 
     const preloaded = preloadQuery(environment, params, variables);
     expect(check).toBeCalledTimes(1);
@@ -232,7 +234,7 @@ describe('store-or-network', () => {
     environment.commitPayload(operation, response.data);
     expect(environment.check(operation.root)).toBe(true);
     check.mockClear();
-    params.getModuleIfRequired = () => query;
+    params.queryResource.getModuleIfRequired = () => query;
 
     preloadQuery(environment, params, variables);
     const preloaded = preloadQuery(environment, params, variables);
@@ -246,7 +248,7 @@ describe('store-or-network', () => {
     environment.commitPayload(operation, response.data);
     expect(environment.check(operation.root)).toBe(true);
     check.mockClear();
-    params.getModuleIfRequired = () => query;
+    params.queryResource.getModuleIfRequired = () => query;
 
     preloadQuery(environment, params, variables);
     check.mockClear();
@@ -264,7 +266,7 @@ describe('store-and-network', () => {
   it('fetches from network even if query/data are available', () => {
     environment.commitPayload(operation, response.data);
     expect(environment.check(operation.root)).toBe(true);
-    params.getModuleIfRequired = () => query;
+    params.queryResource.getModuleIfRequired = () => query;
 
     const preloaded = preloadQuery(environment, params, variables, {
       fetchPolicy: 'store-and-network',
@@ -359,7 +361,7 @@ describe('network-only', () => {
   it('fetches from network even if query/data are available', () => {
     environment.commitPayload(operation, response.data);
     expect(environment.check(operation.root)).toBe(true);
-    params.getModuleIfRequired = () => query;
+    params.queryResource.getModuleIfRequired = () => query;
 
     const preloaded = preloadQuery(environment, params, variables, {
       fetchPolicy: 'network-only',

@@ -62,8 +62,10 @@ test('it should preload entry point with queries', () => {
                 text: null,
                 metadata: {},
               },
-              getModuleIfRequired() {
-                return null;
+              queryResource: {
+                getModuleIfRequired() {
+                  return null;
+                },
               },
             },
             variables: {
@@ -108,8 +110,10 @@ test('it should preload entry point with nested entry points', () => {
                 text: null,
                 metadata: {},
               },
-              getModuleIfRequired() {
-                return null;
+              queryResource: {
+                getModuleIfRequired() {
+                  return null;
+                },
               },
             },
             variables: {
@@ -177,8 +181,10 @@ test('it should preload entry point with both queries and nested entry points', 
                 text: null,
                 metadata: {},
               },
-              getModuleIfRequired() {
-                return null;
+              queryResource: {
+                getModuleIfRequired() {
+                  return null;
+                },
               },
             },
             variables: {
@@ -203,8 +209,10 @@ test('it should preload entry point with both queries and nested entry points', 
                 text: null,
                 metadata: {},
               },
-              getModuleIfRequired() {
-                return null;
+              queryResource: {
+                getModuleIfRequired() {
+                  return null;
+                },
               },
             },
             variables: {
@@ -271,8 +279,10 @@ test('with `getEnvironment` function', () => {
                 text: null,
                 metadata: {},
               },
-              getModuleIfRequired() {
-                return null;
+              queryResource: {
+                getModuleIfRequired() {
+                  return null;
+                },
               },
             },
             variables: {

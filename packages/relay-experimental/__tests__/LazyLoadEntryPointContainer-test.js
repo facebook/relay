@@ -109,9 +109,7 @@ beforeEach(() => {
   queryResource = new FakeJSResource();
   params = {
     params: query.params,
-    getModuleIfRequired: () => {
-      return queryResource.getModuleIfRequired() ?? null;
-    },
+    queryResource: (queryResource: $FlowFixMe),
   };
   entryPoint = {
     getPreloadProps: jest.fn(entryPointParams => {

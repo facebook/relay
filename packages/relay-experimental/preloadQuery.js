@@ -121,10 +121,10 @@ function preloadQueryDeduped<TQuery: OperationType>(
 ): PendingQueryEntry {
   let params;
   let query: ?ConcreteRequest;
-  if (typeof preloadableRequest.getModuleIfRequired === 'function') {
+  if (preloadableRequest.queryResource != null) {
     const preloadableConcreteRequest: PreloadableConcreteRequest<TQuery> = (preloadableRequest: $FlowFixMe);
     params = preloadableConcreteRequest.params;
-    query = preloadableConcreteRequest.getModuleIfRequired();
+    query = preloadableConcreteRequest.queryResource.getModuleIfRequired();
   } else {
     query = getRequest((preloadableRequest: $FlowFixMe));
     params = query.params;

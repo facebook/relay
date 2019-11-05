@@ -11,9 +11,12 @@
 
 'use strict';
 
-const {getModuleComponentKey, getModuleOperationKey} = require('relay-runtime');
+const {
+  getModuleComponentKey,
+  getModuleOperationKey,
+} = require('../store/RelayStoreUtils');
 
-import type {NormalizationSplitOperation} from 'relay-runtime';
+import type {NormalizationSplitOperation} from '../util/NormalizationNode';
 
 export opaque type Local3DPayload<+DocumentName: string, +Response: {}> = empty;
 

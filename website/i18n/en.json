@@ -329,6 +329,9 @@
       "version-experimental/version-experimental-api-reference": {
         "title": "API Reference"
       },
+      "version-experimental/version-experimental-step-by-step": {
+        "title": "A Step By Step Guide"
+      },
       "version-v1.7.0/version-v1.7.0-installation-and-setup": {
         "title": "Installation and Setup"
       },

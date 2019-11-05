@@ -28,12 +28,18 @@ function createPayloadFor3DField<+DocumentName: string, +Response>(
   operation: Resource<NormalizationSplitOperation>,
   component: Resource<mixed>,
   response: Response,
+  /* $FlowFixMe(>=0.111.0) This comment suppresses an error found when Flow
+   * v0.111.0 was deployed. To see the error, delete this comment and run Flow.
+   */
 ): Local3DPayload<DocumentName, Response> {
   const data = {
     ...response,
   };
   data[getModuleComponentKey(name)] = component;
   data[getModuleOperationKey(name)] = operation;
+  /* $FlowFixMe(>=0.111.0) This comment suppresses an error found when Flow
+   * v0.111.0 was deployed. To see the error, delete this comment and run Flow.
+   */
   return data;
 }
 

@@ -41,6 +41,7 @@ import type {Filesystem} from './CodegenDirectory';
 import type {SourceControl} from './SourceControl';
 import type {RelayCompilerTransforms} from './compileRelayArtifacts';
 import type {DocumentNode, ValidationContext} from 'graphql';
+import type {RequestParameters} from 'relay-runtime';
 
 export type GenerateExtraFiles = (
   getOutputDirectory: (path?: string) => CodegenDirectory,
@@ -72,6 +73,12 @@ export type WriterConfig = {
   printModuleDependency?: string => string,
   filesystem?: Filesystem,
   repersist?: boolean,
+  writeQueryParameters?: (
+    outputDirectory: CodegenDirectory,
+    filename: string,
+    moduleName: string,
+    requestParams: RequestParameters,
+  ) => void,
 };
 
 function compileAll({
@@ -305,6 +312,7 @@ function writeAll({
             writerConfig.extension,
             writerConfig.printModuleDependency,
             writerConfig.repersist ?? false,
+            writerConfig.writeQueryParameters ?? function noop() {},
           );
         }),
       );

@@ -88,7 +88,7 @@ class Versions extends React.Component {
                           <a
                             href={`${
                               siteConfig.baseUrl
-                            }docs/en/${version}/api-reference`}>
+                            }docs/en/${version}/step-by-step`}>
                             Documentation
                           </a>
                         </td>

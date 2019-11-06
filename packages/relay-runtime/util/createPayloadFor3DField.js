@@ -18,7 +18,10 @@ const {
 
 import type {NormalizationSplitOperation} from '../util/NormalizationNode';
 
-export opaque type Local3DPayload<+DocumentName: string, +Response: {}> = empty;
+export opaque type Local3DPayload<
+  +DocumentName: string,
+  +Response: {},
+> = Response;
 
 interface Resource<T> {
   +getModuleIfRequired: () => ?T;
@@ -26,23 +29,17 @@ interface Resource<T> {
   +load: () => Promise<T>;
 }
 
-function createPayloadFor3DField<+DocumentName: string, +Response>(
+function createPayloadFor3DField<+DocumentName: string, +Response: {}>(
   name: DocumentName,
   operation: Resource<NormalizationSplitOperation>,
   component: Resource<mixed>,
   response: Response,
-  /* $FlowFixMe(>=0.111.0) This comment suppresses an error found when Flow
-   * v0.111.0 was deployed. To see the error, delete this comment and run Flow.
-   */
 ): Local3DPayload<DocumentName, Response> {
   const data = {
     ...response,
   };
   data[getModuleComponentKey(name)] = component;
   data[getModuleOperationKey(name)] = operation;
-  /* $FlowFixMe(>=0.111.0) This comment suppresses an error found when Flow
-   * v0.111.0 was deployed. To see the error, delete this comment and run Flow.
-   */
   return data;
 }
 

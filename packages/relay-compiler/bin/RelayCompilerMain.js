@@ -232,7 +232,10 @@ async function getWatchConfig(config: Config): Promise<Config> {
 
   if (config.watch) {
     if (!watchman) {
-      throw new Error('Watchman is required to watch for changes.');
+      console.error(
+        'Watchman is required to watch for changes. Running with watch mode disabled.',
+      );
+      return {...config, watch: false, watchman: false};
     }
     if (!module.exports.hasWatchmanRootFile(config.src)) {
       throw new Error(

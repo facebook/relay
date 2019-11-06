@@ -1308,4 +1308,54 @@ describe('Schema: RelayCompiler Internal GraphQL Schema Interface', () => {
     expect(schema.isPossibleType(Node, B)).toBe(false);
     expect(schema.isPossibleType(Node, C)).toBe(false);
   });
+
+  test('doTypesOverlap', () => {
+    const schema = Schema.create(
+      new Source(`
+        schema {
+          query: MyQueries
+        }
+        type MyQueries {
+          node: Node
+        }
+        interface Node {
+          id: ID
+        }
+        type User implements Node {
+          id: ID
+        }
+        type Actor {
+          name: String
+        }
+
+        union ActorUser = Actor | User
+      `),
+    );
+    const myQuery = schema.assertCompositeType(
+      schema.expectTypeFromString('MyQueries'),
+    );
+    const query = schema.expectQueryType();
+    const node = schema.assertCompositeType(
+      schema.expectTypeFromString('Node'),
+    );
+    const user = schema.assertCompositeType(
+      schema.expectTypeFromString('User'),
+    );
+    const actor = schema.assertCompositeType(
+      schema.expectTypeFromString('Actor'),
+    );
+    const actorUser = schema.assertCompositeType(
+      schema.expectTypeFromString('ActorUser'),
+    );
+
+    expect(schema.doTypesOverlap(myQuery, query)).toBe(true);
+    expect(schema.doTypesOverlap(node, user)).toBe(true);
+    expect(schema.doTypesOverlap(user, node)).toBe(true);
+    expect(schema.doTypesOverlap(actor, node)).toBe(false);
+    expect(schema.doTypesOverlap(actor, user)).toBe(false);
+    expect(schema.doTypesOverlap(query, user)).toBe(false);
+    expect(schema.doTypesOverlap(actorUser, user)).toBe(true);
+    expect(schema.doTypesOverlap(actorUser, actor)).toBe(true);
+    expect(schema.doTypesOverlap(actorUser, node)).toBe(true);
+  });
 });

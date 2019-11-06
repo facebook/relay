@@ -284,6 +284,9 @@ function getConcreteTypes(
 
 const TYPENAME_FIELD = '__typename';
 const CLIENT_ID_FIELD = '__id';
+const QUERY_TYPE_KEY = Symbol('Query');
+const MUTATION_TYPE_KEY = Symbol('Mutation');
+const SUBSCRIPTION_TYPE_KEY = Symbol('Subscription');
 
 function isScalar(type: mixed): boolean %checks {
   return type instanceof ScalarType;
@@ -353,11 +356,6 @@ class Schema {
   +_typeNameMap: Map<Type, Field>;
   +_clientIdMap: Map<Type, Field>;
   +_possibleTypesMap: Map<AbstractTypeID, Set<CompositeTypeID>>;
-
-  +QUERY_TYPE_KEY: Symbol;
-  +MUTATION_TYPE_KEY: Symbol;
-  +SUBSCRIPTION_TYPE_KEY: Symbol;
-
   /**
    * @private
    */
@@ -370,14 +368,7 @@ class Schema {
     clientIdMap: Map<Type, Field>,
     possibleTypesMap: Map<AbstractTypeID, Set<CompositeTypeID>>,
     directivesMap: Map<string, Directive> | null,
-    QUERY_TYPE_KEY: Symbol,
-    MUTATION_TYPE_KEY: Symbol,
-    SUBSCRIPTION_TYPE_KEY: Symbol,
   ) {
-    this.QUERY_TYPE_KEY = QUERY_TYPE_KEY;
-    this.MUTATION_TYPE_KEY = MUTATION_TYPE_KEY;
-    this.SUBSCRIPTION_TYPE_KEY = SUBSCRIPTION_TYPE_KEY;
-
     this._baseSchema = baseSchema;
     this._extendedSchema = extendedSchema;
     this._typeMap = typeMap;
@@ -486,17 +477,19 @@ class Schema {
       return this.getTypeFromAST(parseType(typeName));
     } else {
       let graphQLType;
-      if (typeName === this.QUERY_TYPE_KEY) {
+      if (typeName === QUERY_TYPE_KEY) {
         graphQLType = this._baseSchema.getQueryType();
-      } else if (typeName === this.MUTATION_TYPE_KEY) {
+      } else if (typeName === MUTATION_TYPE_KEY) {
         graphQLType = this._baseSchema.getMutationType();
-      } else if (typeName === this.SUBSCRIPTION_TYPE_KEY) {
+      } else if (typeName === SUBSCRIPTION_TYPE_KEY) {
         graphQLType = this._baseSchema.getSubscriptionType();
       }
       if (graphQLType) {
-        const operationType = new ObjectType(graphQLType.name);
+        const graphQLTypeName = graphQLType.name;
+        const operationType =
+          this._typeMap.get(graphQLTypeName) ?? new ObjectType(graphQLTypeName);
         this._typeMap.set(typeName, operationType);
-        this._typeMap.set(graphQLType.name, operationType);
+        this._typeMap.set(graphQLTypeName, operationType);
         return operationType;
       }
     }
@@ -900,21 +893,21 @@ class Schema {
   }
 
   getQueryType(): ?ObjectTypeID {
-    const queryType = this._getRawType(this.QUERY_TYPE_KEY);
+    const queryType = this._getRawType(QUERY_TYPE_KEY);
     if (queryType && isObject(queryType)) {
       return queryType;
     }
   }
 
   getMutationType(): ?ObjectTypeID {
-    const mutationType = this._getRawType(this.MUTATION_TYPE_KEY);
+    const mutationType = this._getRawType(MUTATION_TYPE_KEY);
     if (mutationType && isObject(mutationType)) {
       return mutationType;
     }
   }
 
   getSubscriptionType(): ?ObjectTypeID {
-    const subscriptionType = this._getRawType(this.SUBSCRIPTION_TYPE_KEY);
+    const subscriptionType = this._getRawType(SUBSCRIPTION_TYPE_KEY);
     if (subscriptionType && isObject(subscriptionType)) {
       return subscriptionType;
     }
@@ -1415,9 +1408,6 @@ class Schema {
       this._clientIdMap,
       this._possibleTypesMap,
       this._directivesMap,
-      this.QUERY_TYPE_KEY,
-      this.MUTATION_TYPE_KEY,
-      this.SUBSCRIPTION_TYPE_KEY,
     );
   }
 }
@@ -1463,9 +1453,6 @@ function DEPRECATED__create(
     new Map(),
     new Map(),
     null,
-    Symbol('Query'),
-    Symbol('Mutation'),
-    Symbol('Subsription'),
   );
 }
 
@@ -1492,9 +1479,6 @@ function create(
     new Map(),
     new Map(),
     null,
-    Symbol('Query'),
-    Symbol('Mutation'),
-    Symbol('Subsription'),
   );
 }
 

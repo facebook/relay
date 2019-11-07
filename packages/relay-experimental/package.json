@@ -1,7 +1,7 @@
 {
   "name": "relay-experimental",
   "description": "Contains unstable, experimental code",
-  "version": "7.0.0",
+  "version": "7.1.0",
   "keywords": [
     "graphql",
     "relay"
@@ -13,8 +13,8 @@
   "dependencies": {
     "@babel/runtime": "^7.0.0",
     "fbjs": "^1.0.0",
-    "react-relay": "7.0.0",
-    "relay-runtime": "7.0.0"
+    "react-relay": "7.1.0",
+    "relay-runtime": "7.1.0"
   },
   "directories": {
     "": "./"

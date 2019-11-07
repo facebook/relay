@@ -359,49 +359,38 @@ class Schema {
   /**
    * @private
    */
-  constructor(
-    baseSchema: GraphQLSchema,
-    extendedSchema: GraphQLSchema,
-    typeMap: TypeMap,
-    fieldsMap: Map<Type, FieldsMap>,
-    typeNameMap: Map<Type, Field>,
-    clientIdMap: Map<Type, Field>,
-    possibleTypesMap: Map<AbstractTypeID, Set<CompositeTypeID>>,
-    directivesMap: Map<string, Directive> | null,
-  ) {
+  constructor(baseSchema: GraphQLSchema, extendedSchema: GraphQLSchema) {
     this._baseSchema = baseSchema;
     this._extendedSchema = extendedSchema;
-    this._typeMap = typeMap;
-    this._fieldsMap = fieldsMap;
-    this._typeNameMap = typeNameMap;
-    this._clientIdMap = clientIdMap;
-    this._possibleTypesMap = possibleTypesMap;
-    this._directivesMap =
-      directivesMap ??
-      new Map(
-        this._extendedSchema.getDirectives().map(directive => {
-          return [
-            directive.name,
-            {
-              clientOnlyDirective:
-                this._baseSchema.getDirective(directive.name) == null,
-              name: directive.name,
-              locations: directive.locations,
-              args: directive.args.map(arg => {
-                return {
-                  name: arg.name,
-                  type: this.assertInputType(
-                    arg.astNode
-                      ? this.expectTypeFromAST(arg.astNode.type)
-                      : this.expectTypeFromString(String(arg.type)),
-                  ),
-                  defaultValue: arg.defaultValue,
-                };
-              }),
-            },
-          ];
-        }),
-      );
+    this._typeMap = new Map();
+    this._fieldsMap = new Map();
+    this._typeNameMap = new Map();
+    this._clientIdMap = new Map();
+    this._possibleTypesMap = new Map();
+    this._directivesMap = new Map(
+      this._extendedSchema.getDirectives().map(directive => {
+        return [
+          directive.name,
+          {
+            clientOnlyDirective:
+              this._baseSchema.getDirective(directive.name) == null,
+            name: directive.name,
+            locations: directive.locations,
+            args: directive.args.map(arg => {
+              return {
+                name: arg.name,
+                type: this.assertInputType(
+                  arg.astNode
+                    ? this.expectTypeFromAST(arg.astNode.type)
+                    : this.expectTypeFromString(String(arg.type)),
+                ),
+                defaultValue: arg.defaultValue,
+              };
+            }),
+          },
+        ];
+      }),
+    );
   }
 
   getTypeFromAST(typeNode: TypeNode): ?TypeID {
@@ -1395,20 +1384,12 @@ class Schema {
    * We should either refactor RelayParser.parse(...) to not-rely on the `
    * extendSchema` method. Or actually implement it here.
    */
-  DEPRECATED__extend(document: DocumentNode): Schema {
+  extend(document: DocumentNode): Schema {
+    // TODO T24511737 figure out if this is dangerous
     const extendedSchema = extendSchema(this._extendedSchema, document, {
       assumeValid: true,
     });
-    return new Schema(
-      this._baseSchema,
-      extendedSchema,
-      this._typeMap,
-      this._fieldsMap,
-      this._typeNameMap,
-      this._clientIdMap,
-      this._possibleTypesMap,
-      this._directivesMap,
-    );
+    return new Schema(this._baseSchema, extendedSchema);
   }
 }
 
@@ -1444,16 +1425,7 @@ function DEPRECATED__create(
   baseSchema: GraphQLSchema,
   extendedSchema: ?GraphQLSchema,
 ): Schema {
-  return new Schema(
-    baseSchema,
-    extendedSchema ?? baseSchema,
-    new Map(),
-    new Map(),
-    new Map(),
-    new Map(),
-    new Map(),
-    null,
-  );
+  return new Schema(baseSchema, extendedSchema ?? baseSchema);
 }
 
 function create(
@@ -1470,16 +1442,7 @@ function create(
     transformedSchema,
     schemaExtensionDocuments ?? [],
   );
-  return new Schema(
-    schema,
-    extendedSchema,
-    new Map(),
-    new Map(),
-    new Map(),
-    new Map(),
-    new Map(),
-    null,
-  );
+  return new Schema(schema, extendedSchema);
 }
 
 module.exports = {

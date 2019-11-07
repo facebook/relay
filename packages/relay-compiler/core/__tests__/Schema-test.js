@@ -13,6 +13,8 @@
 
 const Schema = require('../Schema');
 
+const nullthrows = require('../../util/nullthrowsOSS');
+
 const {Source, parse, parseType} = require('graphql');
 
 describe('Schema: RelayCompiler Internal GraphQL Schema Interface', () => {
@@ -1357,5 +1359,40 @@ describe('Schema: RelayCompiler Internal GraphQL Schema Interface', () => {
     expect(schema.doTypesOverlap(actorUser, user)).toBe(true);
     expect(schema.doTypesOverlap(actorUser, actor)).toBe(true);
     expect(schema.doTypesOverlap(actorUser, node)).toBe(true);
+  });
+
+  test('extend', () => {
+    let schema = Schema.create(
+      new Source(`
+        directive @my_server_directive on QUERY
+        type User {
+          name: String
+        }
+    `),
+    );
+    expect(schema.getDirective('my_server_directive')).toBeDefined();
+    expect(schema.getDirective('my_client_directive')).not.toBeDefined();
+    schema = schema.extend(
+      parse(`
+      directive @my_client_directive on QUERY
+      type ClientType {
+        value: String
+      }
+      extend type User {
+        lastName: String
+      }
+    `),
+    );
+    expect(schema.getDirective('my_client_directive')).toBeDefined();
+    const user = schema.assertCompositeType(
+      schema.expectTypeFromString('User'),
+    );
+    expect(
+      schema.isServerField(nullthrows(schema.getFieldByName(user, 'name'))),
+    ).toBe(true);
+    expect(
+      schema.isServerField(nullthrows(schema.getFieldByName(user, 'lastName'))),
+    ).toBe(false);
+    expect(schema.getTypeFromString('ClientType')).toBeDefined();
   });
 });

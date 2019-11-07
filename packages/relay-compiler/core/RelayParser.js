@@ -133,12 +133,7 @@ function parse(
   filename?: string,
 ): $ReadOnlyArray<Root | Fragment> {
   const ast = parseGraphQL(new Source(text, filename));
-
-  // TODO T24511737 figure out if this is dangerous
-  const parser = new RelayParser(
-    schema.DEPRECATED__extend(ast),
-    ast.definitions,
-  );
+  const parser = new RelayParser(schema.extend(ast), ast.definitions);
   return parser.transform();
 }
 

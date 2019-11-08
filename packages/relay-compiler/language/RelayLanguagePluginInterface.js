@@ -36,6 +36,7 @@ export type PluginInterface = {
   findGraphQLTags: GraphQLTagFinder,
   formatModule: FormatModule,
   typeGenerator: TypeGenerator,
+  schemaExtensions?: $ReadOnlyArray<string>,
 };
 
 /**

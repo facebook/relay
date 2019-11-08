@@ -32,7 +32,7 @@ const {
   fragmentTransforms,
   printTransforms,
   queryTransforms,
-  schemaExtensions,
+  schemaExtensions: relaySchemaExtensions,
 } = RelayIRTransforms;
 
 import type {ScalarTypeMapping} from '../language/javascript/RelayFlowTypeTransformers';
@@ -290,6 +290,9 @@ function getCodegenRunner(config: Config): CodegenRunner {
     include: config.include,
     exclude: [path.relative(config.src, config.schema)].concat(config.exclude),
   };
+  const schemaExtensions = languagePlugin.schemaExtensions
+    ? [...languagePlugin.schemaExtensions, ...relaySchemaExtensions]
+    : relaySchemaExtensions;
   const parserConfigs = {
     [sourceParserName]: {
       baseDir: config.src,
@@ -386,6 +389,9 @@ function getRelayFileWriter(
         return id;
       };
     }
+    const schemaExtensions = languagePlugin.schemaExtensions
+      ? [...languagePlugin.schemaExtensions, ...relaySchemaExtensions]
+      : relaySchemaExtensions;
     const results = await RelayFileWriter.writeAll({
       config: {
         baseDir,

@@ -1688,6 +1688,7 @@ function checkFragmentSpreadTypeCompatibility(
     let suggestedTypesMessage = '';
     if (possibleConcreteTypes.length !== 0) {
       suggestedTypesMessage = ` Possible concrete types include ${possibleConcreteTypes
+        .sort()
         .slice(0, 3)
         .map(type => `'${schema.getTypeString(type)}'`)
         .join(', ')}, etc.`;

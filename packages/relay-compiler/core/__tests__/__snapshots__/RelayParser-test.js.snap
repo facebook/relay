@@ -557,7 +557,7 @@ type Foo {
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-Fragment 'FooFragment' cannot be spread here as objects of type 'Node' can never be of type 'Foo'. Possible concrete types include 'Story', 'User', 'Comment', etc.
+Fragment 'FooFragment' cannot be spread here as objects of type 'Node' can never be of type 'Foo'. Possible concrete types include 'Comment', 'Feedback', 'Page', etc.
 
 GraphQL request (4:12)
 3:   node(id: $id) {
@@ -1568,7 +1568,7 @@ query myQuery {
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-Fragment 'Foo' cannot be spread here as objects of type 'Node' can never be of type 'Image'. Possible concrete types include 'Story', 'User', 'Comment', etc.
+Fragment 'Foo' cannot be spread here as objects of type 'Node' can never be of type 'Image'. Possible concrete types include 'Comment', 'Feedback', 'Page', etc.
 
 GraphQL request (8:5)
 7:   node(id: "<my-id>") {
@@ -3532,7 +3532,7 @@ fragment InlineFragment on Node {
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-Fragment cannot be spread here as objects of type 'Node' can never be of type 'Image'. Possible concrete types include 'Story', 'User', 'Comment', etc.
+Fragment cannot be spread here as objects of type 'Node' can never be of type 'Image'. Possible concrete types include 'Comment', 'Feedback', 'Page', etc.
 
 GraphQL request (2:28)
 1: # expected-to-throw

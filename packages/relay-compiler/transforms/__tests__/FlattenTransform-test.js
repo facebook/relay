@@ -17,7 +17,6 @@ const IRPrinter = require('../../core/IRPrinter');
 const MatchTransform = require('../../transforms/MatchTransform');
 const RelayDirectiveTransform = require('../RelayDirectiveTransform');
 const RelayParser = require('../../core/RelayParser');
-const Schema = require('../../core/Schema');
 
 const {
   TestSchema,
@@ -31,23 +30,18 @@ describe('FlattenTransform', () => {
     options: FlattenOptions,
   ): (text: string) => string {
     return text => {
-      const {transformASTSchema} = require('../../core/ASTConvert');
-      const extendedSchema = transformASTSchema(TestSchema, [
+      const extendedSchema = TestSchema.extend([
         MatchTransform.SCHEMA_EXTENSION,
         RelayDirectiveTransform.SCHEMA_EXTENSION,
       ]);
-      const compilerSchema = Schema.DEPRECATED__create(
-        TestSchema,
-        extendedSchema,
-      );
-      return new CompilerContext(compilerSchema)
-        .addAll(RelayParser.parse(compilerSchema, text))
+      return new CompilerContext(extendedSchema)
+        .addAll(RelayParser.parse(extendedSchema, text))
         .applyTransforms([
           MatchTransform.transform,
           FlattenTransform.transformWithOptions(options),
         ])
         .documents()
-        .map(doc => IRPrinter.print(compilerSchema, doc))
+        .map(doc => IRPrinter.print(extendedSchema, doc))
         .join('\n');
     };
   }

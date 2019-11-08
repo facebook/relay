@@ -14,9 +14,7 @@
 const CompilerContext = require('../../core/CompilerContext');
 const ConnectionTransform = require('../ConnectionTransform');
 const IRPrinter = require('../../core/IRPrinter');
-const Schema = require('../../core/Schema');
 
-const {transformASTSchema} = require('../../core/ASTConvert');
 const {
   TestSchema,
   generateTestsFromFixtures,
@@ -26,21 +24,17 @@ const {
 generateTestsFromFixtures(
   `${__dirname}/fixtures/connection-transform`,
   text => {
-    const extendedSchema = transformASTSchema(TestSchema, [
+    const extendedSchema = TestSchema.extend([
       ConnectionTransform.SCHEMA_EXTENSION,
     ]);
     const {definitions} = parseGraphQLText(extendedSchema, text);
-    const compilerSchema = Schema.DEPRECATED__create(
-      TestSchema,
-      extendedSchema,
-    );
-    return new CompilerContext(compilerSchema)
+    return new CompilerContext(extendedSchema)
       .addAll(definitions)
       .applyTransforms([ConnectionTransform.transform])
       .documents()
       .map(
         doc =>
-          IRPrinter.print(compilerSchema, doc) +
+          IRPrinter.print(extendedSchema, doc) +
           '# Metadata:\n' +
           JSON.stringify(doc.metadata ?? null, null, 2),
       )

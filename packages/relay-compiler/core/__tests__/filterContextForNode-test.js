@@ -13,7 +13,6 @@
 
 const CompilerContext = require('../CompilerContext');
 const IRPrinter = require('../IRPrinter');
-const Schema = require('../Schema');
 
 const filterContextForNode = require('../filterContextForNode');
 
@@ -28,9 +27,8 @@ const MAIN_QUERY_NAME = 'MainQuery';
 describe('filterContextForNode', () => {
   generateTestsFromFixtures(`${__dirname}/fixtures/filter-context`, text => {
     const {definitions} = parseGraphQLText(TestSchema, text);
-    const compilerSchema = Schema.DEPRECATED__create(TestSchema);
 
-    const context = new CompilerContext(compilerSchema).addAll(definitions);
+    const context = new CompilerContext(TestSchema).addAll(definitions);
     const printerContext = filterContextForNode(
       // $FlowFixMe - null or undefined is incompatible with union type
       context.get(MAIN_QUERY_NAME),
@@ -38,7 +36,7 @@ describe('filterContextForNode', () => {
     );
     return printerContext
       .documents()
-      .map(doc => IRPrinter.print(compilerSchema, doc))
+      .map(doc => IRPrinter.print(TestSchema, doc))
       .join('\n');
   });
 });

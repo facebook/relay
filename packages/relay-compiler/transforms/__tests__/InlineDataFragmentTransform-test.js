@@ -12,20 +12,15 @@
 'use strict';
 
 const InlineDataFragmentTransform = require('../InlineDataFragmentTransform');
-const Schema = require('../../core/Schema');
 
-const {
-  CompilerContext,
-  Printer,
-  transformASTSchema,
-} = require('relay-compiler');
+const {CompilerContext, Printer} = require('relay-compiler');
 const {
   TestSchema,
   parseGraphQLText,
   generateTestsFromFixtures,
 } = require('relay-test-utils-internal');
 
-const extendedSchema = transformASTSchema(TestSchema, [
+const extendedSchema = TestSchema.extend([
   InlineDataFragmentTransform.SCHEMA_EXTENSION,
 ]);
 
@@ -33,15 +28,11 @@ generateTestsFromFixtures(
   `${__dirname}/fixtures/inline-data-fragment-transform`,
   text => {
     const {definitions} = parseGraphQLText(extendedSchema, text);
-    const compilerSchema = Schema.DEPRECATED__create(
-      TestSchema,
-      extendedSchema,
-    );
-    return new CompilerContext(compilerSchema)
+    return new CompilerContext(extendedSchema)
       .addAll(definitions)
       .applyTransforms([InlineDataFragmentTransform.transform])
       .documents()
-      .map(doc => Printer.print(compilerSchema, doc))
+      .map(doc => Printer.print(extendedSchema, doc))
       .join('\n');
   },
 );

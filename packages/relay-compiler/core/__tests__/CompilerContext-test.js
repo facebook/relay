@@ -11,7 +11,7 @@
 
 'use strict';
 
-const Schema = require('../Schema');
+const {TestSchema} = require('relay-test-utils-internal');
 
 describe('CompilerContext', () => {
   let CompilerContext;
@@ -20,21 +20,17 @@ describe('CompilerContext', () => {
   let queryFoo;
   let fragmentBar;
   let fragmentFoo;
-  let compilerSchema;
-  let TestSchema;
 
   beforeEach(() => {
     jest.resetModules();
     CompilerContext = require('../CompilerContext');
     RelayParser = require('../RelayParser');
-    ({TestSchema} = require('relay-test-utils-internal'));
-    compilerSchema = Schema.DEPRECATED__create(TestSchema);
   });
 
   describe('add()', () => {
     it('adds multiple roots', () => {
       [queryFoo, fragmentBar] = RelayParser.parse(
-        compilerSchema,
+        TestSchema,
         `
           query Foo { node(id: 1) { ...Bar } }
           fragment Bar on Node { id }
@@ -42,7 +38,7 @@ describe('CompilerContext', () => {
       );
       const context = [queryFoo, fragmentBar].reduce(
         (ctx, node) => ctx.add(node),
-        new CompilerContext(compilerSchema),
+        new CompilerContext(TestSchema),
       );
 
       expect(context.getRoot('Foo')).toBe(queryFoo);
@@ -51,14 +47,14 @@ describe('CompilerContext', () => {
 
     it('throws if the document names are not unique', () => {
       [queryFoo, fragmentBar] = RelayParser.parse(
-        compilerSchema,
+        TestSchema,
         `
           query Foo { node(id: 1) { ...Bar } }
           fragment Bar on Node { id }
         `,
       );
       [fragmentFoo] = RelayParser.parse(
-        compilerSchema,
+        TestSchema,
         `
           fragment Foo on Node { id }
         `,
@@ -66,7 +62,7 @@ describe('CompilerContext', () => {
       expect(() => {
         [queryFoo, fragmentBar, fragmentFoo].reduce(
           (ctx, node) => ctx.add(node),
-          new CompilerContext(compilerSchema),
+          new CompilerContext(TestSchema),
         );
       }).toThrowError(
         'CompilerContext: Duplicate document named `Foo`. GraphQL ' +

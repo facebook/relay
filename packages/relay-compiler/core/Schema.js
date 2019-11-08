@@ -1379,14 +1379,13 @@ class Schema {
     return !this.isServerDefinedField(type, field);
   }
 
-  /**
-   * The only consumer of this is RelayParser.parse(...)
-   * We should either refactor RelayParser.parse(...) to not-rely on the `
-   * extendSchema` method. Or actually implement it here.
-   */
-  extend(document: DocumentNode): Schema {
+  extend(extensions: DocumentNode | $ReadOnlyArray<string>): Schema {
+    const doc = Array.isArray(extensions)
+      ? parse(extensions.join('\n'))
+      : extensions;
+
     // TODO T24511737 figure out if this is dangerous
-    const extendedSchema = extendSchema(this._extendedSchema, document, {
+    const extendedSchema = extendSchema(this._extendedSchema, doc, {
       assumeValid: true,
     });
     return new Schema(this._baseSchema, extendedSchema);
@@ -1416,17 +1415,6 @@ function DEPRECATED__buildGraphQLSchema(source: Source): GraphQLSchema {
     });
   }
 }
-/**
- * We need this in order to make unit-test works
- * In most of the unit-tests the schema is created from the instance of the
- * GraphQLSchema.
- */
-function DEPRECATED__create(
-  baseSchema: GraphQLSchema,
-  extendedSchema: ?GraphQLSchema,
-): Schema {
-  return new Schema(baseSchema, extendedSchema ?? baseSchema);
-}
 
 function create(
   baseSchema: Source,
@@ -1447,6 +1435,5 @@ function create(
 
 module.exports = {
   DEPRECATED__buildGraphQLSchema,
-  DEPRECATED__create,
   create,
 };

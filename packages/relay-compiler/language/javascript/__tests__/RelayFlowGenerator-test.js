@@ -14,9 +14,7 @@
 const CompilerContext = require('../../../core/CompilerContext');
 const RelayFlowGenerator = require('../RelayFlowGenerator');
 const RelayIRTransforms = require('../../../core/RelayIRTransforms');
-const Schema = require('../../../core/Schema');
 
-const {transformASTSchema} = require('../../../core/ASTConvert');
 const {
   TestSchema,
   generateTestsFromFixtures,
@@ -26,7 +24,7 @@ const {
 import type {TypeGeneratorOptions} from '../../RelayLanguagePluginInterface';
 
 function generate(text, options: TypeGeneratorOptions, context?) {
-  const relaySchema = transformASTSchema(TestSchema, [
+  const relaySchema = TestSchema.extend([
     ...RelayIRTransforms.schemaExtensions,
     `
       scalar Color
@@ -36,15 +34,14 @@ function generate(text, options: TypeGeneratorOptions, context?) {
     `,
   ]);
   const {definitions} = parseGraphQLText(relaySchema, text);
-  const compilerSchema = Schema.DEPRECATED__create(TestSchema, relaySchema);
-  return new CompilerContext(compilerSchema)
+  return new CompilerContext(relaySchema)
     .addAll(definitions)
     .applyTransforms(RelayFlowGenerator.transforms)
     .documents()
     .map(
       doc =>
         `// ${doc.name}.graphql\n${RelayFlowGenerator.generate(
-          compilerSchema,
+          relaySchema,
           // $FlowFixMe - `SplitOperation` is incompatible with union type.
           doc,
           // $FlowFixMe - `SplitOperation` is incompatible with union type.
@@ -59,19 +56,12 @@ function generate(text, options: TypeGeneratorOptions, context?) {
 
 describe('Snapshot tests', () => {
   function generateContext(text) {
-    const relaySchema = transformASTSchema(
-      TestSchema,
-      RelayIRTransforms.schemaExtensions,
-    );
+    const relaySchema = TestSchema.extend(RelayIRTransforms.schemaExtensions);
     const {definitions, schema: extendedSchema} = parseGraphQLText(
       relaySchema,
       text,
     );
-    const compilerSchema = Schema.DEPRECATED__create(
-      TestSchema,
-      extendedSchema,
-    );
-    return new CompilerContext(compilerSchema)
+    return new CompilerContext(extendedSchema)
       .addAll(definitions)
       .applyTransforms([
         ...RelayIRTransforms.commonTransforms,

@@ -14,9 +14,7 @@
 const CompilerContext = require('../../core/CompilerContext');
 const RelayDirectiveTransform = require('../RelayDirectiveTransform');
 const RelayParser = require('../../core/RelayParser');
-const Schema = require('../../core/Schema');
 
-const {transformASTSchema} = require('../../core/ASTConvert');
 const {
   TestSchema,
   generateTestsFromFixtures,
@@ -27,12 +25,11 @@ describe('RelayDirectiveTransform', () => {
   generateTestsFromFixtures(
     `${__dirname}/fixtures/relay-directive-transform`,
     text => {
-      const schema = transformASTSchema(TestSchema, [
+      const schema = TestSchema.extend([
         RelayDirectiveTransform.SCHEMA_EXTENSION,
       ]);
-      const compilerSchema = Schema.DEPRECATED__create(TestSchema, schema);
-      const ast = RelayParser.parse(compilerSchema, text);
-      return new CompilerContext(compilerSchema)
+      const ast = RelayParser.parse(schema, text);
+      return new CompilerContext(schema)
         .addAll(ast)
         .applyTransforms([RelayDirectiveTransform.transform])
         .documents()

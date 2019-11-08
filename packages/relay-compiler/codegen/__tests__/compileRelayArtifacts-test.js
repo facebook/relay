@@ -11,11 +11,9 @@
 
 'use strict';
 
-const ASTConvert = require('../../core/ASTConvert');
 const CodeMarker = require('../../util/CodeMarker');
 const CompilerContext = require('../../core/CompilerContext');
 const RelayIRTransforms = require('../../core/RelayIRTransforms');
-const Schema = require('../../core/Schema');
 
 const compileRelayArtifacts = require('../compileRelayArtifacts');
 
@@ -39,14 +37,9 @@ describe('compileRelayArtifacts', () => {
   generateTestsFromFixtures(
     `${__dirname}/fixtures/compileRelayArtifacts`,
     text => {
-      const relaySchema = ASTConvert.transformASTSchema(
-        TestSchema,
-        RelayIRTransforms.schemaExtensions,
-      );
+      const relaySchema = TestSchema.extend(RelayIRTransforms.schemaExtensions);
       const {definitions, schema} = parseGraphQLText(relaySchema, text);
-      const compilerContext = new CompilerContext(
-        Schema.DEPRECATED__create(TestSchema, schema),
-      ).addAll(definitions);
+      const compilerContext = new CompilerContext(schema).addAll(definitions);
       return compileRelayArtifacts(compilerContext, RelayIRTransforms)
         .map(([_definition, node]) => {
           if (node.kind === 'Request') {

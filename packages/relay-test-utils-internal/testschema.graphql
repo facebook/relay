@@ -48,6 +48,8 @@ interface MaybeNodeInterface {
   name: String
 }
 
+scalar JSON
+
 union MaybeNode = Story | FakeNode | NonNode
 
 type FakeNode {
@@ -428,6 +430,7 @@ type Image {
   uri: String
   width: Int
   height: Int
+  test_enums: TestEnums
 }
 
 type LikersOfContentConnection {
@@ -894,6 +897,10 @@ interface UserNameRenderable {
   name: String
 }
 
+input ProfilePictureOptions {
+  newName: String
+}
+
 type User implements Named & Node & Actor & HasJsField {
   actor: Actor
   actors: [Actor]
@@ -964,6 +971,14 @@ type User implements Named & Node & Actor & HasJsField {
   username: String
   viewerSavedState: String
   plainUserRenderer: PlainUserRenderer
+  profilePicture2(
+    size: [Int]
+    preset: PhotoSize
+    cropPosition: CropPosition
+    fileExtension: FileExtension
+    additionalParameters: JSON
+    options: ProfilePictureOptions
+  ): Image
 }
 
 enum NameRendererContext {
@@ -1061,20 +1076,23 @@ enum TopLevelCommentsOrdering {
   toplevel
 }
 
-# This is added in TestSchema.js
-#
-# enum CropPosition {
-#   TOP
-#   CENTER
-#   BOTTOM
-#   LEFT
-#   RIGHT
-# }
-#
-# enum FileExtension {
-#   JPG
-#   PNG
-# }
+enum CropPosition {
+  TOP
+  CENTER
+  BOTTOM
+  LEFT
+  RIGHT
+}
+
+enum FileExtension {
+  JPG
+  PNG
+}
+
+enum TestEnums {
+  mark
+  zuck
+}
 
 type Settings {
   cache_id: ID

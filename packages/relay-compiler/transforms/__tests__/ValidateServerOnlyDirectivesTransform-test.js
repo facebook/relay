@@ -13,29 +13,22 @@
 
 const CompilerContext = require('../../core/CompilerContext');
 const RelayIRTransforms = require('../../core/RelayIRTransforms');
-const Schema = require('../../core/Schema');
 
 const validateRelayServerOnlyDirectives = require('../ValidateServerOnlyDirectivesTransform');
 
-const {transformASTSchema} = require('../../core/ASTConvert');
 const {
   TestSchema,
   generateTestsFromFixtures,
   parseGraphQLText,
 } = require('relay-test-utils-internal');
 describe('ValidateServerOnlyDirectives', () => {
-  const relaySchema = transformASTSchema(
-    TestSchema,
-    RelayIRTransforms.schemaExtensions,
-  );
+  const relaySchema = TestSchema.extend(RelayIRTransforms.schemaExtensions);
 
   generateTestsFromFixtures(
     `${__dirname}/fixtures/server-only-directives`,
     text => {
       const {definitions, schema} = parseGraphQLText(relaySchema, text);
-      const codegenContext = new CompilerContext(
-        Schema.DEPRECATED__create(TestSchema, schema),
-      )
+      const codegenContext = new CompilerContext(schema)
         .addAll(definitions)
         .applyTransforms([
           ...RelayIRTransforms.commonTransforms,

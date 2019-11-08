@@ -13,10 +13,8 @@
 
 const CompilerContext = require('../../core/CompilerContext');
 const RelayParser = require('../../core/RelayParser');
-const Schema = require('../../core/Schema');
 const TestOperationTransform = require('../TestOperationTransform');
 
-const {transformASTSchema} = require('../../core/ASTConvert');
 const {
   TestSchema,
   generateTestsFromFixtures,
@@ -27,12 +25,11 @@ describe('TestOperationTransform', () => {
   generateTestsFromFixtures(
     `${__dirname}/fixtures/relay-test-operation`,
     text => {
-      const schema = transformASTSchema(TestSchema, [
+      const schema = TestSchema.extend([
         TestOperationTransform.SCHEMA_EXTENSION,
       ]);
-      const compilerSchema = Schema.DEPRECATED__create(TestSchema, schema);
-      const ast = RelayParser.parse(compilerSchema, text);
-      return new CompilerContext(compilerSchema)
+      const ast = RelayParser.parse(schema, text);
+      return new CompilerContext(schema)
         .addAll(ast)
         .applyTransforms([TestOperationTransform.transform])
         .documents()

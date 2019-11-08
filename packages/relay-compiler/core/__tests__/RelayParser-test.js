@@ -11,10 +11,8 @@
 
 'use strict';
 
-const ASTConvert = require('../ASTConvert');
 const MatchTransform = require('../../transforms/MatchTransform');
 const RelayParser = require('../RelayParser');
-const Schema = require('../Schema');
 
 const {
   TestSchema,
@@ -23,17 +21,10 @@ const {
 } = require('relay-test-utils-internal');
 
 describe('RelayParser', () => {
-  const schema = Schema.DEPRECATED__create(
-    TestSchema,
-    ASTConvert.transformASTSchema(TestSchema, [
-      MatchTransform.SCHEMA_EXTENSION,
-    ]),
-  );
-
+  const schema = TestSchema.extend([MatchTransform.SCHEMA_EXTENSION]);
   /**
    * Regression tests for T24258497
    */
-
   it("should correctly parse query when input is a non-null type and it's passed to calls expecting both null and non-null types, regardless of order", () => {
     let text;
     // Should work with the call requiring an ID! placed first in the query

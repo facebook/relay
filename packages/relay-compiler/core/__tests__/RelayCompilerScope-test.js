@@ -10,13 +10,11 @@
 
 'use strict';
 
-const Schema = require('../Schema');
-
 const {getRootScope, getFragmentScope} = require('../RelayCompilerScope');
 const {TestSchema} = require('relay-test-utils-internal');
 
 describe('scope', () => {
-  const schema = Schema.DEPRECATED__create(TestSchema);
+  const schema = TestSchema;
 
   const optionalIntType = schema.expectIntType();
   const requiredIntType = schema.getNonNullType(schema.expectIntType());

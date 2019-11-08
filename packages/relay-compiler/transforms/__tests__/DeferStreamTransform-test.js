@@ -15,9 +15,7 @@ const CompilerContext = require('../../core/CompilerContext');
 const ConnectionTransform = require('../ConnectionTransform');
 const DeferStreamTransform = require('../DeferStreamTransform');
 const IRPrinter = require('../../core/IRPrinter');
-const Schema = require('../../core/Schema');
 
-const {transformASTSchema} = require('../../core/ASTConvert');
 const {
   TestSchema,
   generateTestsFromFixtures,
@@ -25,7 +23,7 @@ const {
 } = require('relay-test-utils-internal');
 
 describe('DeferStreamTransform', () => {
-  const extendedSchema = transformASTSchema(TestSchema, [
+  const extendedSchema = TestSchema.extend([
     ConnectionTransform.SCHEMA_EXTENSION,
   ]);
 
@@ -34,18 +32,14 @@ describe('DeferStreamTransform', () => {
       `${__dirname}/fixtures/relay-defer-stream-transform`,
       text => {
         const {definitions} = parseGraphQLText(extendedSchema, text);
-        const compilerSchema = Schema.DEPRECATED__create(
-          TestSchema,
-          extendedSchema,
-        );
-        return new CompilerContext(compilerSchema)
+        return new CompilerContext(extendedSchema)
           .addAll(definitions)
           .applyTransforms([
             ConnectionTransform.transform,
             DeferStreamTransform.transform,
           ])
           .documents()
-          .map(doc => IRPrinter.print(compilerSchema, doc))
+          .map(doc => IRPrinter.print(extendedSchema, doc))
           .join('\n');
       },
     );

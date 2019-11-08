@@ -15,7 +15,6 @@ const ApplyFragmentArgumentTransform = require('../ApplyFragmentArgumentTransfor
 const CompilerContext = require('../../core/CompilerContext');
 const IRPrinter = require('../../core/IRPrinter');
 const RelayParser = require('../../core/RelayParser');
-const Schema = require('../../core/Schema');
 
 const {
   TestSchema,
@@ -26,13 +25,12 @@ describe('ApplyFragmentArgumentTransform', () => {
   generateTestsFromFixtures(
     `${__dirname}/fixtures/apply-fragment-argument-transform`,
     text => {
-      const compilerSchema = Schema.DEPRECATED__create(TestSchema);
-      const ast = RelayParser.parse(compilerSchema, text);
-      return new CompilerContext(compilerSchema)
+      const ast = RelayParser.parse(TestSchema, text);
+      return new CompilerContext(TestSchema)
         .addAll(ast)
         .applyTransforms([ApplyFragmentArgumentTransform.transform])
         .documents()
-        .map(doc => IRPrinter.print(compilerSchema, doc))
+        .map(doc => IRPrinter.print(TestSchema, doc))
         .join('\n');
     },
   );

@@ -15,9 +15,7 @@ const CompilerContext = require('../../core/CompilerContext');
 const IRPrinter = require('../../core/IRPrinter');
 const MaskTransform = require('../MaskTransform');
 const RelayDirectiveTransform = require('../RelayDirectiveTransform');
-const Schema = require('../../core/Schema');
 
-const {transformASTSchema} = require('../../core/ASTConvert');
 const {
   TestSchema,
   generateTestsFromFixtures,
@@ -25,7 +23,7 @@ const {
 } = require('relay-test-utils-internal');
 
 describe('MaskTransform', () => {
-  const extendedSchema = transformASTSchema(TestSchema, [
+  const extendedSchema = TestSchema.extend([
     RelayDirectiveTransform.SCHEMA_EXTENSION,
   ]);
 
@@ -33,11 +31,7 @@ describe('MaskTransform', () => {
     `${__dirname}/fixtures/relay-mask-transform`,
     text => {
       const {definitions} = parseGraphQLText(extendedSchema, text);
-      const compilerSchema = Schema.DEPRECATED__create(
-        TestSchema,
-        extendedSchema,
-      );
-      return new CompilerContext(compilerSchema)
+      return new CompilerContext(extendedSchema)
         .addAll(definitions)
         .applyTransforms([
           // Requires Relay directive transform first.
@@ -45,7 +39,7 @@ describe('MaskTransform', () => {
           MaskTransform.transform,
         ])
         .documents()
-        .map(doc => IRPrinter.print(compilerSchema, doc))
+        .map(doc => IRPrinter.print(extendedSchema, doc))
         .join('\n');
     },
   );
@@ -54,11 +48,7 @@ describe('MaskTransform', () => {
     `${__dirname}/fixtures/relay-mask-transform-variables`,
     text => {
       const {definitions} = parseGraphQLText(extendedSchema, text);
-      const compilerSchema = Schema.DEPRECATED__create(
-        TestSchema,
-        extendedSchema,
-      );
-      return new CompilerContext(compilerSchema)
+      return new CompilerContext(extendedSchema)
         .addAll(definitions)
         .applyTransforms([
           // Requires Relay directive transform first.
@@ -67,7 +57,7 @@ describe('MaskTransform', () => {
         ])
         .documents()
         .map(doc => {
-          const printed = IRPrinter.print(compilerSchema, doc);
+          const printed = IRPrinter.print(extendedSchema, doc);
           const argumentDefinitions =
             doc.kind === 'Root' || doc.kind === 'Fragment'
               ? doc.argumentDefinitions

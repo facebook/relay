@@ -12,7 +12,6 @@
 'use strict';
 
 const CompilerContext = require('../../core/CompilerContext');
-const Schema = require('../../core/Schema');
 const ValidateGlobalVariablesTransform = require('../ValidateGlobalVariablesTransform');
 
 const {
@@ -24,9 +23,8 @@ const {
 generateTestsFromFixtures(
   `${__dirname}/fixtures/ValidateGlobalVariablesTransform`,
   text => {
-    const {definitions} = parseGraphQLText(TestSchema, text);
-    const compilerSchema = Schema.DEPRECATED__create(TestSchema);
-    return new CompilerContext(compilerSchema)
+    const {definitions, schema} = parseGraphQLText(TestSchema, text);
+    return new CompilerContext(schema)
       .addAll(definitions)
       .applyTransforms([ValidateGlobalVariablesTransform.transform])
       .documents()

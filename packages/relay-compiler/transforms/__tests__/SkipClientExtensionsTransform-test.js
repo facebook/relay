@@ -14,7 +14,6 @@
 const ClientExtensionsTransform = require('../ClientExtensionsTransform');
 const CompilerContext = require('../../core/CompilerContext');
 const IRPrinter = require('../../core/IRPrinter');
-const Schema = require('../../core/Schema');
 const SkipClientExtensionsTransform = require('../SkipClientExtensionsTransform');
 
 const {
@@ -31,18 +30,14 @@ describe('SkipClientExtensionsTransform', () => {
         TestSchema,
         text,
       );
-      const compilerSchema = Schema.DEPRECATED__create(
-        TestSchema,
-        extendedSchema,
-      );
-      return new CompilerContext(compilerSchema)
+      return new CompilerContext(extendedSchema)
         .addAll(definitions)
         .applyTransforms([
           ClientExtensionsTransform.transform,
           SkipClientExtensionsTransform.transform,
         ])
         .documents()
-        .map(doc => IRPrinter.print(compilerSchema, doc))
+        .map(doc => IRPrinter.print(extendedSchema, doc))
         .join('\n');
     },
   );

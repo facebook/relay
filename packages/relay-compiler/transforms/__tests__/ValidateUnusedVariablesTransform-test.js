@@ -12,10 +12,8 @@
 'use strict';
 
 const CompilerContext = require('../../core/CompilerContext');
-const Schema = require('../../core/Schema');
 const ValidateUnusedVariablesTransform = require('../ValidateUnusedVariablesTransform');
 
-const {transformASTSchema} = require('../../core/ASTConvert');
 const {
   TestSchema,
   generateTestsFromFixtures,
@@ -25,15 +23,11 @@ const {
 generateTestsFromFixtures(
   `${__dirname}/fixtures/ValidateUnusedVariablesTransform`,
   text => {
-    const extendedSchema = transformASTSchema(TestSchema, [
+    const extendedSchema = TestSchema.extend([
       ValidateUnusedVariablesTransform.SCHEMA_EXTENSION,
     ]);
     const {definitions} = parseGraphQLText(extendedSchema, text);
-    const compilerSchema = Schema.DEPRECATED__create(
-      TestSchema,
-      extendedSchema,
-    );
-    return new CompilerContext(compilerSchema)
+    return new CompilerContext(extendedSchema)
       .addAll(definitions)
       .applyTransforms([ValidateUnusedVariablesTransform.transform])
       .documents()

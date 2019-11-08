@@ -10,23 +10,22 @@
 
 'use strict';
 
-const {extendSchema, parse} = require('graphql');
-const {Parser, Schema, convertASTDocuments} = require('relay-compiler');
+const {parse} = require('graphql');
+const {Parser, convertASTDocuments} = require('relay-compiler');
 
-import type {GraphQLSchema} from 'graphql';
-import type {Fragment, Root} from 'relay-compiler';
+import type {Fragment, Root, Schema} from 'relay-compiler';
 
 function parseGraphQLText(
-  schema: GraphQLSchema,
+  schema: Schema,
   text: string,
 ): {
   definitions: $ReadOnlyArray<Fragment | Root>,
-  schema: GraphQLSchema,
+  schema: Schema,
 } {
   const ast = parse(text);
-  const extendedSchema = extendSchema(schema, ast, {assumeValid: true});
+  const extendedSchema = schema.extend(ast);
   const definitions = convertASTDocuments(
-    Schema.DEPRECATED__create(schema, extendedSchema),
+    extendedSchema,
     [ast],
     Parser.transform.bind(Parser),
   );

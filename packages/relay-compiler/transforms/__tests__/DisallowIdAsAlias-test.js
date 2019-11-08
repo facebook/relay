@@ -14,7 +14,6 @@
 const CompilerContext = require('../../core/CompilerContext');
 const DisallowIdAsAlias = require('../DisallowIdAsAlias');
 const IRPrinter = require('../../core/IRPrinter');
-const Schema = require('../../core/Schema');
 
 const {
   TestSchema,
@@ -24,12 +23,11 @@ const {
 
 generateTestsFromFixtures(`${__dirname}/fixtures/DisallowIdAsAlias`, text => {
   const {definitions} = parseGraphQLText(TestSchema, text);
-  const schema = Schema.DEPRECATED__create(TestSchema);
-  return new CompilerContext(schema)
+  return new CompilerContext(TestSchema)
     .addAll(definitions)
     .applyTransforms([DisallowIdAsAlias.transform])
     .documents()
-    .map(doc => IRPrinter.print(schema, doc))
+    .map(doc => IRPrinter.print(TestSchema, doc))
     .join('\n');
 });
 //

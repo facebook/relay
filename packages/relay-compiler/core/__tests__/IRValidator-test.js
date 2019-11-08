@@ -14,17 +14,13 @@
 const CompilerContext = require('../CompilerContext');
 const IRTransformer = require('../IRTransformer');
 const IRValidator = require('../IRValidator');
-const Schema = require('../Schema');
 
-const {transformASTSchema} = require('../ASTConvert');
 const {TestSchema, parseGraphQLText} = require('relay-test-utils-internal');
 
 describe('IRValidator', () => {
   it('should have same behavior as the IRTransformer', () => {
-    const {definitions} = parseGraphQLText(
-      transformASTSchema(TestSchema, [
-        'directive @test on FRAGMENT_DEFINITION',
-      ]),
+    const {definitions, schema: extendedSchema} = parseGraphQLText(
+      TestSchema.extend(['directive @test on FRAGMENT_DEFINITION']),
       `
    query TestQuery($id: ID!, $condition: Boolean = false) {
      node(id: $id) {
@@ -66,9 +62,7 @@ describe('IRValidator', () => {
    }
  `,
     );
-    const context = new CompilerContext(
-      Schema.DEPRECATED__create(TestSchema),
-    ).addAll(definitions);
+    const context = new CompilerContext(extendedSchema).addAll(definitions);
 
     const astKinds = [
       'Argument',

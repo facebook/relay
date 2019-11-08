@@ -16,10 +16,8 @@ const IRPrinter = require('../../core/IRPrinter');
 const InlineFragmentsTransform = require('../InlineFragmentsTransform');
 const MatchTransform = require('../MatchTransform');
 const RelayDirectiveTransform = require('../RelayDirectiveTransform');
-const Schema = require('../../core/Schema');
 const SkipRedundantNodesTransform = require('../SkipRedundantNodesTransform');
 
-const {transformASTSchema} = require('../../core/ASTConvert');
 const {
   TestSchema,
   parseGraphQLText,
@@ -27,18 +25,12 @@ const {
 } = require('relay-test-utils-internal');
 
 describe('SkipRedundantNodesTransform', () => {
-  const extendedSchema = transformASTSchema(TestSchema, [
-    MatchTransform.SCHEMA_EXTENSION,
-  ]);
+  const extendedSchema = TestSchema.extend([MatchTransform.SCHEMA_EXTENSION]);
   generateTestsFromFixtures(
     `${__dirname}/fixtures/skip-redundant-nodes-transform`,
     text => {
       const {definitions} = parseGraphQLText(extendedSchema, text);
-      const compilerSchema = Schema.DEPRECATED__create(
-        TestSchema,
-        extendedSchema,
-      );
-      return new CompilerContext(compilerSchema)
+      return new CompilerContext(extendedSchema)
         .addAll(definitions)
         .applyTransforms([
           RelayDirectiveTransform.transform,
@@ -47,7 +39,7 @@ describe('SkipRedundantNodesTransform', () => {
           SkipRedundantNodesTransform.transform,
         ])
         .documents()
-        .map(doc => IRPrinter.print(compilerSchema, doc))
+        .map(doc => IRPrinter.print(extendedSchema, doc))
         .join('\n');
     },
   );

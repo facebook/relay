@@ -13,7 +13,6 @@
 
 const IRPrinter = require('../IRPrinter');
 const RelayParser = require('../RelayParser');
-const Schema = require('../Schema');
 
 const {visit} = require('../IRVisitor');
 const {
@@ -44,22 +43,20 @@ type VisitNodeWithName =
   | Directive
   | ArgumentDefinition;
 
-const schema = Schema.DEPRECATED__create(TestSchema);
-
 describe('IRVisitor', () => {
   generateTestsFromFixtures(
     `${__dirname}/fixtures/visitor/no-op-visit`,
     text => {
-      const ast = RelayParser.parse(schema, text);
+      const ast = RelayParser.parse(TestSchema, text);
       const sameAst = ast.map(fragment => visit(fragment, {}));
-      return sameAst.map(doc => IRPrinter.print(schema, doc)).join('\n');
+      return sameAst.map(doc => IRPrinter.print(TestSchema, doc)).join('\n');
     },
   );
 
   generateTestsFromFixtures(
     `${__dirname}/fixtures/visitor/mutate-visit`,
     text => {
-      const ast = RelayParser.parse(schema, text);
+      const ast = RelayParser.parse(TestSchema, text);
       const mutateNameVisitor = {
         leave: (node: VisitNodeWithName) => {
           return {
@@ -132,7 +129,7 @@ describe('IRVisitor', () => {
         }),
       );
 
-      return mutatedAst.map(doc => IRPrinter.print(schema, doc)).join('\n');
+      return mutatedAst.map(doc => IRPrinter.print(TestSchema, doc)).join('\n');
     },
   );
 });

@@ -14,7 +14,6 @@
 const CompilerContext = require('../../core/CompilerContext');
 const FieldHandleTransform = require('../FieldHandleTransform');
 const IRPrinter = require('../../core/IRPrinter');
-const Schema = require('../../core/Schema');
 
 const {
   TestSchema,
@@ -27,12 +26,11 @@ describe('FieldHandleTransform', () => {
     `${__dirname}/fixtures/field-handle-transform`,
     text => {
       const {definitions} = parseGraphQLText(TestSchema, text);
-      const compilerSchema = Schema.DEPRECATED__create(TestSchema);
-      return new CompilerContext(compilerSchema)
+      return new CompilerContext(TestSchema)
         .addAll(definitions)
         .applyTransforms([FieldHandleTransform.transform])
         .documents()
-        .map(doc => IRPrinter.print(compilerSchema, doc))
+        .map(doc => IRPrinter.print(TestSchema, doc))
         .join('\n');
     },
   );

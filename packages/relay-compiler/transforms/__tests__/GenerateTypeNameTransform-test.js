@@ -16,7 +16,6 @@ const FlattenTransform = require('../FlattenTransform');
 const GenerateTypeNameTransform = require('../GenerateTypeNameTransform');
 const InlineFragmentsTransform = require('../InlineFragmentsTransform');
 const RelayParser = require('../../core/RelayParser');
-const Schema = require('../../core/Schema');
 
 const {
   TestSchema,
@@ -28,9 +27,8 @@ describe('GenerateTypeNameTransform', () => {
   generateTestsFromFixtures(
     `${__dirname}/fixtures/generate-typename-transform`,
     text => {
-      const compilerSchema = Schema.DEPRECATED__create(TestSchema);
-      const ast = RelayParser.parse(compilerSchema, text);
-      return new CompilerContext(compilerSchema)
+      const ast = RelayParser.parse(TestSchema, text);
+      return new CompilerContext(TestSchema)
         .addAll(ast)
         .applyTransforms([
           InlineFragmentsTransform.transform,

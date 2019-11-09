@@ -71,7 +71,7 @@
     "signedsource": "^1.0.0",
     "webpack": "^4.30.0",
     "webpack-stream": "^5.1.1",
-    "yargs": "^9.0.0"
+    "yargs": "^14.2.0"
   },
   "private": true,
   "devEngines": {

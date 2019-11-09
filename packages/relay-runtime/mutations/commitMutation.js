@@ -51,6 +51,7 @@ export type MutationParameters = {|
 
 export type MutationConfig<T: MutationParameters> = {|
   configs?: Array<DeclarativeMutationConfig>,
+  metadata?: {[key: string]: mixed},
   mutation: GraphQLTaggedNode,
   onError?: ?(error: Error) => void,
   onCompleted?: ?(
@@ -85,7 +86,7 @@ function commitMutation<T: MutationParameters>(
     throw new Error('commitMutation: Expected mutation to be of type request');
   }
   let {optimisticResponse, optimisticUpdater, updater} = config;
-  const {configs, onError, variables, uploadables} = config;
+  const {configs, metadata, onError, variables, uploadables} = config;
   const operation = createOperationDescriptor(mutation, variables);
   // TODO: remove this check after we fix flow.
   if (typeof optimisticResponse === 'function') {
@@ -112,6 +113,7 @@ function commitMutation<T: MutationParameters>(
   const errors = [];
   const subscription = environment
     .executeMutation({
+      metadata,
       operation,
       optimisticResponse,
       optimisticUpdater,

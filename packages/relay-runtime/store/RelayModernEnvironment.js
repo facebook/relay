@@ -328,12 +328,14 @@ class RelayModernEnvironment implements IEnvironment {
    * environment.executeMutation({...}).subscribe({...}).
    */
   executeMutation({
+    metadata,
     operation,
     optimisticResponse,
     optimisticUpdater,
     updater,
     uploadables,
   }: {|
+    metadata?: {[key: string]: mixed},
     operation: OperationDescriptor,
     optimisticUpdater?: ?SelectorStoreUpdater,
     optimisticResponse?: ?Object,
@@ -356,7 +358,7 @@ class RelayModernEnvironment implements IEnvironment {
       const source = this._network.execute(
         operation.request.node.params,
         operation.request.variables,
-        {force: true},
+        {force: true, metadata},
         uploadables,
         logRequestInfo,
       );

@@ -16,23 +16,18 @@ const {
   getModuleOperationKey,
 } = require('../store/RelayStoreUtils');
 
-import type {NormalizationSplitOperation} from '../util/NormalizationNode';
+import type {NormalizationSplitOperation} from './NormalizationNode';
+import type {JSResourceReference} from 'JSResourceReference';
 
 export opaque type Local3DPayload<
   +DocumentName: string,
   +Response: {},
 > = Response;
 
-interface Resource<T> {
-  +getModuleIfRequired: () => ?T;
-  +getModuleId: () => string;
-  +load: () => Promise<T>;
-}
-
 function createPayloadFor3DField<+DocumentName: string, +Response: {}>(
   name: DocumentName,
-  operation: Resource<NormalizationSplitOperation>,
-  component: Resource<mixed>,
+  operation: JSResourceReference<NormalizationSplitOperation>,
+  component: JSResourceReference<mixed>,
   response: Response,
 ): Local3DPayload<DocumentName, Response> {
   const data = {

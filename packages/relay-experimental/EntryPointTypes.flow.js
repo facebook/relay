@@ -64,7 +64,7 @@ The Interface of the EntryPoints .entrypoint files
 Every .entrypoint file it's an object that must have two required fields:
 - getPreloadProps(...)  function that will return the description of preloaded
   queries and preloaded (nested) entry points for the current entry point
-- root - JSResource of the module that will render those preloaded queries
+- root - JSResourceReference of the module that will render those preloaded queries
 
 TEntryPointParams - object that contains all necessary information to execute
 the preloaders (routeParams, query variables)

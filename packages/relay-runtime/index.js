@@ -148,6 +148,7 @@ export type {
 export type {
   GraphQLSubscriptionConfig,
 } from './subscription/requestSubscription';
+export type {JSResourceReference} from './util/JSResourceTypes.flow';
 export type {
   NormalizationArgument,
   NormalizationDefer,

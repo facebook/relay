@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @flow
+ * @flow strict
  * @format
  */
 
@@ -12,6 +12,7 @@
 
 const Profiler = require('./GraphQLCompilerProfiler');
 
+// $FlowFixMe: Immutable is not typed
 const {Map: ImmutableMap} = require('immutable');
 
 import type {File} from '../codegen/CodegenTypes';

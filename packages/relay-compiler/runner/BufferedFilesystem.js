@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  *
  * @emails oncall+relay
- * @flow strict-local
+ * @flow strict
  * @format
  */
 

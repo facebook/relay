@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @flow
+ * @flow strict
  * @format
  */
 
@@ -90,13 +90,13 @@ type EnterLeave<T> = {|+enter?: T, +leave?: T|};
 
 export type VisitFn<T: VisitNode> = (
   node: T, // node we're visiting
-  key?: any, // index/key to node from parent array/object
+  key?: $FlowFixMe, // index/key to node from parent array/object
   parent?: ?(VisitNode | Array<VisitNode>), // Object immediately above node
-  path?: Array<any>, // keys to get from root: [keyForChild, ..., keyForParent]
+  path?: Array<$FlowFixMe>, // keys to get from root: [keyForChild, ..., keyForParent]
   ancestors?: Array<VisitNode | Array<VisitNode>>, // [root, child1, ..., grandparent]
   // Note: ancestors includes arrays which contain the visited node
   // These correspond to array indices in `path`.
-) => any;
+) => $FlowFixMe;
 
 export type NodeVisitorObject<T: VisitNode> =
   | EnterLeave<VisitFn<T>>
@@ -151,7 +151,7 @@ export type NodeVisitor =
       Variable?: NodeVisitorObject<Variable>,
     |};
 
-function visitIR(root: VisitNode, visitor: NodeVisitor): any {
+function visitIR(root: VisitNode, visitor: NodeVisitor): $FlowFixMe {
   return (visit: $FlowFixMe)(root, visitor, NodeKeys);
 }
 

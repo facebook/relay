@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @flow
+ * @flow strict-local
  * @format
  */
 
@@ -24,8 +24,9 @@ const formatGeneratedModule: FormatModule = ({
   const documentTypeImport = documentType
     ? `import type { ${documentType} } from 'relay-runtime';`
     : '';
-  const docTextComment = docText ? '\n/*\n' + docText.trim() + '\n*/\n' : '';
-  const hashText = hash ? `\n * ${hash}` : '';
+  const docTextComment =
+    docText != null ? '\n/*\n' + docText.trim() + '\n*/\n' : '';
+  const hashText = hash != null ? `\n * ${hash}` : '';
   return `/**
  * ${'@'}flow${hashText}
  */

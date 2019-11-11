@@ -18,6 +18,7 @@ const MatchTransform = require('../../transforms/MatchTransform');
 const Profiler = require('../../core/GraphQLCompilerProfiler');
 const RefetchableFragmentTransform = require('../../transforms/RefetchableFragmentTransform');
 const RelayDirectiveTransform = require('../../transforms/RelayDirectiveTransform');
+const Rollout = require('../../util/Rollout');
 
 const {createUserError} = require('../../core/CompilerError');
 const {
@@ -27,6 +28,7 @@ const {
   exportType,
   exportTypes,
   importTypes,
+  inexactObjectTypeAnnotation: explicitInexactObjectTypeAnnotation,
   intersectionTypeAnnotation,
   lineComments,
   readOnlyArrayOfType,
@@ -68,11 +70,32 @@ export type State = {|
   +runtimeImports: Set<string>,
 |};
 
+/**
+ * @deprecated should use inexactObjectTypeAnnotation which
+ * explicitly marks the object as inexact using the `...` syntax.
+ *
+ * {
+ *   PROPS
+ * }
+ */
+function implicitInexactObjectTypeAnnotation(
+  props: $ReadOnlyArray<mixed>,
+): $FlowFixMe {
+  return t.objectTypeAnnotation(props);
+}
+let inexactObjectTypeAnnotation = explicitInexactObjectTypeAnnotation;
+
 function generate(
   schema: Schema,
   node: Root | Fragment,
   options: TypeGeneratorOptions,
 ): string {
+  inexactObjectTypeAnnotation = Rollout.check(
+    'explicit-inexact-object-types',
+    node.name,
+  )
+    ? explicitInexactObjectTypeAnnotation
+    : implicitInexactObjectTypeAnnotation;
   const ast = IRVisitor.visit(node, createVisitor(schema, options));
   return babelGenerator(ast).code;
 }
@@ -228,7 +251,7 @@ function selectionsToBabel(
         );
       }
       return unmasked
-        ? t.objectTypeAnnotation(props)
+        ? inexactObjectTypeAnnotation(props)
         : exactObjectTypeAnnotation(props);
     }),
   );
@@ -429,7 +452,7 @@ function createVisitor(schema: Schema, options: TypeGeneratorOptions) {
           ),
         );
         const isPluralFragment = isPlural(node);
-        const refType = t.objectTypeAnnotation([
+        const refType = inexactObjectTypeAnnotation([
           refTypeDataProperty,
           refTypeFragmentRefProperty,
         ]);

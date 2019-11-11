@@ -36,6 +36,20 @@ function exactObjectTypeAnnotation(
 }
 
 /**
+ * {
+ *   PROPS
+ *   ...
+ * }
+ */
+function inexactObjectTypeAnnotation(
+  props: $ReadOnlyArray<BabelAST>,
+): $FlowFixMe {
+  const typeAnnotation = t.objectTypeAnnotation(props);
+  typeAnnotation.inexact = true;
+  return typeAnnotation;
+}
+
+/**
  * export type NAME = TYPE
  */
 function exportType(name: string, type: BabelAST): $FlowFixMe {
@@ -151,6 +165,7 @@ module.exports = {
   anyTypeAlias,
   declareExportOpaqueType,
   exactObjectTypeAnnotation,
+  inexactObjectTypeAnnotation,
   exportType,
   exportTypes,
   importTypes,

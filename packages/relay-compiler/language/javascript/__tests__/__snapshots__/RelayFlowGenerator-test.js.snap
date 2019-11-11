@@ -26,6 +26,7 @@ export type RefetchableFragment$data = RefetchableFragment;
 export type RefetchableFragment$key = {
   +$data?: RefetchableFragment$data,
   +$fragmentRefs: RefetchableFragment$ref,
+  ...
 };
 
 // RefetchableFragmentQuery.graphql
@@ -69,6 +70,7 @@ export type ConditionField$data = ConditionField;
 export type ConditionField$key = {
   +$data?: ConditionField$data,
   +$fragmentRefs: ConditionField$ref,
+  ...
 };
 
 // NestedCondition.graphql
@@ -83,6 +85,7 @@ export type NestedCondition$data = NestedCondition;
 export type NestedCondition$key = {
   +$data?: NestedCondition$data,
   +$fragmentRefs: NestedCondition$ref,
+  ...
 };
 `;
 
@@ -145,6 +148,7 @@ export type FeedbackComments_feedback$data = FeedbackComments_feedback;
 export type FeedbackComments_feedback$key = {
   +$data?: FeedbackComments_feedback$data,
   +$fragmentRefs: FeedbackComments_feedback$ref,
+  ...
 };
 `;
 
@@ -224,6 +228,7 @@ export type FragmentSpread$data = FragmentSpread;
 export type FragmentSpread$key = {
   +$data?: FragmentSpread$data,
   +$fragmentRefs: FragmentSpread$ref,
+  ...
 };
 
 // ConcreateTypes.graphql
@@ -250,6 +255,7 @@ export type ConcreateTypes$data = ConcreateTypes;
 export type ConcreateTypes$key = {
   +$data?: ConcreateTypes$data,
   +$fragmentRefs: ConcreateTypes$ref,
+  ...
 };
 
 // PictureFragment.graphql
@@ -269,6 +275,7 @@ export type PictureFragment$data = PictureFragment;
 export type PictureFragment$key = {
   +$data?: PictureFragment$data,
   +$fragmentRefs: PictureFragment$ref,
+  ...
 };
 
 // OtherFragment.graphql
@@ -283,6 +290,7 @@ export type OtherFragment$data = OtherFragment;
 export type OtherFragment$key = {
   +$data?: OtherFragment$data,
   +$fragmentRefs: OtherFragment$ref,
+  ...
 };
 
 // PageFragment.graphql
@@ -302,6 +310,7 @@ export type PageFragment$data = PageFragment;
 export type PageFragment$key = {
   +$data?: PageFragment$data,
   +$fragmentRefs: PageFragment$ref,
+  ...
 };
 
 // UserFrag1.graphql
@@ -321,6 +330,7 @@ export type UserFrag1$data = UserFrag1;
 export type UserFrag1$key = {
   +$data?: UserFrag1$data,
   +$fragmentRefs: UserFrag1$ref,
+  ...
 };
 
 // UserFrag2.graphql
@@ -340,6 +350,7 @@ export type UserFrag2$data = UserFrag2;
 export type UserFrag2$key = {
   +$data?: UserFrag2$data,
   +$fragmentRefs: UserFrag2$ref,
+  ...
 };
 `;
 
@@ -427,6 +438,7 @@ export type InlineFragment$data = InlineFragment;
 export type InlineFragment$key = {
   +$data?: InlineFragment$data,
   +$fragmentRefs: InlineFragment$ref,
+  ...
 };
 
 // InlineFragmentWithOverlappingFields.graphql
@@ -448,6 +460,7 @@ export type InlineFragmentWithOverlappingFields$data = InlineFragmentWithOverlap
 export type InlineFragmentWithOverlappingFields$key = {
   +$data?: InlineFragmentWithOverlappingFields$data,
   +$fragmentRefs: InlineFragmentWithOverlappingFields$ref,
+  ...
 };
 
 // InlineFragmentConditionalID.graphql
@@ -463,6 +476,7 @@ export type InlineFragmentConditionalID$data = InlineFragmentConditionalID;
 export type InlineFragmentConditionalID$key = {
   +$data?: InlineFragmentConditionalID$data,
   +$fragmentRefs: InlineFragmentConditionalID$ref,
+  ...
 };
 
 // InlineFragmentKitchenSink.graphql
@@ -487,6 +501,7 @@ export type InlineFragmentKitchenSink$data = InlineFragmentKitchenSink;
 export type InlineFragmentKitchenSink$key = {
   +$data?: InlineFragmentKitchenSink$data,
   +$fragmentRefs: InlineFragmentKitchenSink$ref,
+  ...
 };
 
 // SomeFragment.graphql
@@ -506,6 +521,7 @@ export type SomeFragment$data = SomeFragment;
 export type SomeFragment$key = {
   +$data?: SomeFragment$data,
   +$fragmentRefs: SomeFragment$ref,
+  ...
 };
 `;
 
@@ -565,6 +581,7 @@ export type LinkedField$data = LinkedField;
 export type LinkedField$key = {
   +$data?: LinkedField$data,
   +$fragmentRefs: LinkedField$ref,
+  ...
 };
 
 // UnionTypeTest.graphql
@@ -630,6 +647,7 @@ export type NameRendererFragment$data = NameRendererFragment;
 export type NameRendererFragment$key = {
   +$data?: NameRendererFragment$data,
   +$fragmentRefs: NameRendererFragment$ref,
+  ...
 };
 
 // PlainUserNameRenderer_name.graphql
@@ -647,6 +665,7 @@ export type PlainUserNameRenderer_name$data = PlainUserNameRenderer_name;
 export type PlainUserNameRenderer_name$key = {
   +$data?: PlainUserNameRenderer_name$data,
   +$fragmentRefs: PlainUserNameRenderer_name$ref,
+  ...
 };
 
 // MarkdownUserNameRenderer_name.graphql
@@ -664,6 +683,7 @@ export type MarkdownUserNameRenderer_name$data = MarkdownUserNameRenderer_name;
 export type MarkdownUserNameRenderer_name$key = {
   +$data?: MarkdownUserNameRenderer_name$data,
   +$fragmentRefs: MarkdownUserNameRenderer_name$ref,
+  ...
 };
 `;
 
@@ -727,6 +747,7 @@ export type PlainUserNameRenderer_name$data = PlainUserNameRenderer_name;
 export type PlainUserNameRenderer_name$key = {
   +$data?: PlainUserNameRenderer_name$data,
   +$fragmentRefs: PlainUserNameRenderer_name$ref,
+  ...
 };
 
 // MarkdownUserNameRenderer_name.graphql
@@ -744,6 +765,7 @@ export type MarkdownUserNameRenderer_name$data = MarkdownUserNameRenderer_name;
 export type MarkdownUserNameRenderer_name$key = {
   +$data?: MarkdownUserNameRenderer_name$data,
   +$fragmentRefs: MarkdownUserNameRenderer_name$ref,
+  ...
 };
 `;
 
@@ -910,6 +932,7 @@ export type InlineFragmentWithOverlappingFields$data = InlineFragmentWithOverlap
 export type InlineFragmentWithOverlappingFields$key = {
   +$data?: InlineFragmentWithOverlappingFields$data,
   +$fragmentRefs: InlineFragmentWithOverlappingFields$ref,
+  ...
 };
 `;
 
@@ -1115,6 +1138,7 @@ export type FriendFragment$data = FriendFragment;
 export type FriendFragment$key = {
   +$data?: FriendFragment$data,
   +$fragmentRefs: FriendFragment$ref,
+  ...
 };
 `;
 
@@ -1228,6 +1252,7 @@ export type FriendFragment$data = FriendFragment;
 export type FriendFragment$key = {
   +$data?: FriendFragment$data,
   +$fragmentRefs: FriendFragment$ref,
+  ...
 };
 
 // FeedbackFragment.graphql
@@ -1243,6 +1268,7 @@ export type FeedbackFragment$data = FeedbackFragment;
 export type FeedbackFragment$key = {
   +$data?: FeedbackFragment$data,
   +$fragmentRefs: FeedbackFragment$ref,
+  ...
 };
 `;
 
@@ -1265,6 +1291,7 @@ export type PluralFragment$data = PluralFragment;
 export type PluralFragment$key = $ReadOnlyArray<{
   +$data?: PluralFragment$data,
   +$fragmentRefs: PluralFragment$ref,
+  ...
 }>;
 `;
 
@@ -1452,6 +1479,7 @@ export type NameRendererFragment$data = NameRendererFragment;
 export type NameRendererFragment$key = {
   +$data?: NameRendererFragment$data,
   +$fragmentRefs: NameRendererFragment$ref,
+  ...
 };
 
 // PlainUserNameRenderer_name.graphql
@@ -1469,6 +1497,7 @@ export type PlainUserNameRenderer_name$data = PlainUserNameRenderer_name;
 export type PlainUserNameRenderer_name$key = {
   +$data?: PlainUserNameRenderer_name$data,
   +$fragmentRefs: PlainUserNameRenderer_name$ref,
+  ...
 };
 
 // MarkdownUserNameRenderer_name.graphql
@@ -1486,6 +1515,7 @@ export type MarkdownUserNameRenderer_name$data = MarkdownUserNameRenderer_name;
 export type MarkdownUserNameRenderer_name$key = {
   +$data?: MarkdownUserNameRenderer_name$data,
   +$fragmentRefs: MarkdownUserNameRenderer_name$ref,
+  ...
 };
 `;
 
@@ -1563,6 +1593,7 @@ export type Test_user$data = Test_user;
 export type Test_user$key = {
   +$data?: Test_user$data,
   +$fragmentRefs: Test_user$ref,
+  ...
 };
 
 // Test_userRenderer.graphql
@@ -1579,6 +1610,7 @@ export type Test_userRenderer$data = Test_userRenderer;
 export type Test_userRenderer$key = {
   +$data?: Test_userRenderer$data,
   +$fragmentRefs: Test_userRenderer$ref,
+  ...
 };
 `;
 
@@ -1748,6 +1780,7 @@ export type NameRendererFragment$data = NameRendererFragment;
 export type NameRendererFragment$key = {
   +$data?: NameRendererFragment$data,
   +$fragmentRefs: NameRendererFragment$ref,
+  ...
 };
 
 // AnotherNameRendererFragment.graphql
@@ -1769,6 +1802,7 @@ export type AnotherNameRendererFragment$data = AnotherNameRendererFragment;
 export type AnotherNameRendererFragment$key = {
   +$data?: AnotherNameRendererFragment$data,
   +$fragmentRefs: AnotherNameRendererFragment$ref,
+  ...
 };
 
 // PlainUserNameRenderer_name.graphql
@@ -1786,6 +1820,7 @@ export type PlainUserNameRenderer_name$data = PlainUserNameRenderer_name;
 export type PlainUserNameRenderer_name$key = {
   +$data?: PlainUserNameRenderer_name$data,
   +$fragmentRefs: PlainUserNameRenderer_name$ref,
+  ...
 };
 
 // MarkdownUserNameRenderer_name.graphql
@@ -1803,6 +1838,7 @@ export type MarkdownUserNameRenderer_name$data = MarkdownUserNameRenderer_name;
 export type MarkdownUserNameRenderer_name$key = {
   +$data?: MarkdownUserNameRenderer_name$data,
   +$fragmentRefs: MarkdownUserNameRenderer_name$ref,
+  ...
 };
 `;
 
@@ -1875,6 +1911,7 @@ export type FriendFragment$data = FriendFragment;
 export type FriendFragment$key = {
   +$data?: FriendFragment$data,
   +$fragmentRefs: FriendFragment$ref,
+  ...
 };
 `;
 
@@ -1948,6 +1985,7 @@ export type FriendFragment$data = FriendFragment;
 export type FriendFragment$key = {
   +$data?: FriendFragment$data,
   +$fragmentRefs: FriendFragment$ref,
+  ...
 };
 `;
 
@@ -2112,6 +2150,7 @@ export type FragmentSpread$data = FragmentSpread;
 export type FragmentSpread$key = {
   +$data?: FragmentSpread$data,
   +$fragmentRefs: FragmentSpread$ref,
+  ...
 };
 `;
 
@@ -2141,6 +2180,7 @@ export type RefetchableFragment$data = RefetchableFragment;
 export type RefetchableFragment$key = {
   +$data?: RefetchableFragment$data,
   +$fragmentRefs: RefetchableFragment$ref,
+  ...
 };
 
 // RefetchableFragmentQuery.graphql
@@ -2279,6 +2319,7 @@ export type ExampleFragment$data = ExampleFragment;
 export type ExampleFragment$key = {
   +$data?: ExampleFragment$data,
   +$fragmentRefs: ExampleFragment$ref,
+  ...
 };
 
 // TestMutation.graphql
@@ -2369,6 +2410,7 @@ export type ScalarField$data = ScalarField;
 export type ScalarField$key = {
   +$data?: ScalarField$data,
   +$fragmentRefs: ScalarField$ref,
+  ...
 };
 `;
 
@@ -2419,6 +2461,7 @@ export type TypenameInsideWithOverlappingFields$data = TypenameInsideWithOverlap
 export type TypenameInsideWithOverlappingFields$key = {
   +$data?: TypenameInsideWithOverlappingFields$data,
   +$fragmentRefs: TypenameInsideWithOverlappingFields$ref,
+  ...
 };
 `;
 
@@ -2528,6 +2571,7 @@ export type TypenameInside$data = TypenameInside;
 export type TypenameInside$key = {
   +$data?: TypenameInside$data,
   +$fragmentRefs: TypenameInside$ref,
+  ...
 };
 
 // TypenameOutside.graphql
@@ -2552,6 +2596,7 @@ export type TypenameOutside$data = TypenameOutside;
 export type TypenameOutside$key = {
   +$data?: TypenameOutside$data,
   +$fragmentRefs: TypenameOutside$ref,
+  ...
 };
 
 // TypenameOutsideWithAbstractType.graphql
@@ -2573,6 +2618,7 @@ export type TypenameOutsideWithAbstractType$data = TypenameOutsideWithAbstractTy
 export type TypenameOutsideWithAbstractType$key = {
   +$data?: TypenameOutsideWithAbstractType$data,
   +$fragmentRefs: TypenameOutsideWithAbstractType$ref,
+  ...
 };
 
 // TypenameWithoutSpreads.graphql
@@ -2588,6 +2634,7 @@ export type TypenameWithoutSpreads$data = TypenameWithoutSpreads;
 export type TypenameWithoutSpreads$key = {
   +$data?: TypenameWithoutSpreads$data,
   +$fragmentRefs: TypenameWithoutSpreads$ref,
+  ...
 };
 
 // TypenameWithoutSpreadsAbstractType.graphql
@@ -2603,6 +2650,7 @@ export type TypenameWithoutSpreadsAbstractType$data = TypenameWithoutSpreadsAbst
 export type TypenameWithoutSpreadsAbstractType$key = {
   +$data?: TypenameWithoutSpreadsAbstractType$data,
   +$fragmentRefs: TypenameWithoutSpreadsAbstractType$ref,
+  ...
 };
 
 // TypenameWithCommonSelections.graphql
@@ -2620,6 +2668,7 @@ export type TypenameWithCommonSelections$data = TypenameWithCommonSelections;
 export type TypenameWithCommonSelections$key = {
   +$data?: TypenameWithCommonSelections$data,
   +$fragmentRefs: TypenameWithCommonSelections$ref,
+  ...
 };
 
 // TypenameAlias.graphql
@@ -2644,6 +2693,7 @@ export type TypenameAlias$data = TypenameAlias;
 export type TypenameAlias$key = {
   +$data?: TypenameAlias$data,
   +$fragmentRefs: TypenameAlias$ref,
+  ...
 };
 
 // TypenameAliases.graphql
@@ -2673,6 +2723,7 @@ export type TypenameAliases$data = TypenameAliases;
 export type TypenameAliases$key = {
   +$data?: TypenameAliases$data,
   +$fragmentRefs: TypenameAliases$ref,
+  ...
 };
 `;
 
@@ -2724,6 +2775,7 @@ export type UserProfile$data = UserProfile;
 export type UserProfile$key = {
   +$data?: UserProfile$data,
   +$fragmentRefs: UserProfile$ref,
+  ...
 };
 
 // PhotoFragment.graphql
@@ -2739,6 +2791,7 @@ export type PhotoFragment$data = PhotoFragment;
 export type PhotoFragment$key = {
   +$data?: PhotoFragment$data,
   +$fragmentRefs: PhotoFragment$ref,
+  ...
 };
 
 // RecursiveFragment.graphql
@@ -2748,11 +2801,13 @@ declare export opaque type RecursiveFragment$fragmentType: RecursiveFragment$ref
 export type RecursiveFragment = {
   +uri: ?string,
   +width: ?number,
+  ...
 };
 export type RecursiveFragment$data = RecursiveFragment;
 export type RecursiveFragment$key = {
   +$data?: RecursiveFragment$data,
   +$fragmentRefs: RecursiveFragment$ref,
+  ...
 };
 
 // AnotherRecursiveFragment.graphql
@@ -2768,6 +2823,7 @@ export type AnotherRecursiveFragment$data = AnotherRecursiveFragment;
 export type AnotherRecursiveFragment$key = {
   +$data?: AnotherRecursiveFragment$data,
   +$fragmentRefs: AnotherRecursiveFragment$ref,
+  ...
 };
 `;
 
@@ -2797,6 +2853,7 @@ export type RefetchableFragment$data = RefetchableFragment;
 export type RefetchableFragment$key = {
   +$data?: RefetchableFragment$data,
   +$fragmentRefs: RefetchableFragment$ref,
+  ...
 };
 
 // RefetchableFragmentQuery.graphql

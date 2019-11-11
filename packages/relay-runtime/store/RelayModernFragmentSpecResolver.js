@@ -4,12 +4,13 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @flow
+ * @flow strict
  * @format
  */
 
 'use strict';
 
+// $FlowFixMe: Dependencies of a @flow strict module must also be @flow strict!
 const areEqual = require('areEqual');
 const invariant = require('invariant');
 const isScalarAndEqual = require('../util/isScalarAndEqual');
@@ -60,7 +61,7 @@ type Resolvers = {[key: string]: ?(SelectorListResolver | SelectorResolver)};
 class RelayModernFragmentSpecResolver implements FragmentSpecResolver {
   _callback: ?() => void;
   _context: RelayContext;
-  _data: Object;
+  _data: $FlowFixMe;
   _fragments: FragmentMap;
   _props: Props;
   _resolvers: Resolvers;
@@ -227,7 +228,7 @@ class SelectorResolver {
     }
   }
 
-  resolve(): ?Object {
+  resolve(): ?$FlowFixMe {
     return this._data;
   }
 
@@ -307,7 +308,7 @@ class SelectorListResolver {
     this._resolvers.forEach(disposeCallback);
   }
 
-  resolve(): Array<?Object> {
+  resolve(): Array<?$FlowFixMe> {
     if (this._stale) {
       // Avoid mapping the array multiple times, which could occur if data for
       // multiple indices changes in the same event loop.
@@ -357,7 +358,7 @@ class SelectorListResolver {
     this._stale = true;
   }
 
-  _onChange = (data: ?Object): void => {
+  _onChange = (data: ?$FlowFixMe): void => {
     this._stale = true;
     this._callback();
   };

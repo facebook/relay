@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @flow
+ * @flow strict
  * @format
  */
 
@@ -16,7 +16,7 @@
  * results.
  */
 function stableCopy<T: mixed>(value: T): T {
-  if (!value || typeof value !== 'object') {
+  if (value == null || typeof value !== 'object') {
     return value;
   }
   if (Array.isArray(value)) {
@@ -27,7 +27,7 @@ function stableCopy<T: mixed>(value: T): T {
   for (let i = 0; i < keys.length; i++) {
     stable[keys[i]] = stableCopy(value[keys[i]]);
   }
-  return (stable: any);
+  return (stable: $FlowFixMe);
 }
 
 module.exports = stableCopy;

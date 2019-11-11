@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @flow
+ * @flow strict
  * @format
  */
 
@@ -142,7 +142,7 @@ function nodeDelete(
 ): ?SelectorStoreUpdater {
   const {deletedIDFieldName} = config;
   const rootField = getRootField(request);
-  if (!rootField) {
+  if (rootField == null) {
     return null;
   }
   return (store: RecordSourceSelectorProxy, data: ?SelectorData) => {
@@ -153,7 +153,7 @@ function nodeDelete(
     const deleteID = payload.getValue(deletedIDFieldName);
     const deleteIDs = Array.isArray(deleteID) ? deleteID : [deleteID];
     deleteIDs.forEach(id => {
-      if (id && typeof id === 'string') {
+      if (typeof id === 'string') {
         store.delete(id);
       }
     });
@@ -165,7 +165,7 @@ function rangeAdd(
   request: ConcreteRequest,
 ): ?SelectorStoreUpdater {
   const {parentID, connectionInfo, edgeName} = config;
-  if (!parentID) {
+  if (parentID == null) {
     warning(
       false,
       'RelayDeclarativeMutationConfig: For mutation config RANGE_ADD ' +
@@ -174,7 +174,7 @@ function rangeAdd(
     return null;
   }
   const rootField = getRootField(request);
-  if (!connectionInfo || !rootField) {
+  if (!connectionInfo || rootField == null) {
     return null;
   }
   return (store: RecordSourceSelectorProxy, data: ?SelectorData) => {
@@ -238,7 +238,7 @@ function rangeDelete(
     pathToConnection,
     deletedIDFieldName,
   } = config;
-  if (!parentID) {
+  if (parentID == null) {
     warning(
       false,
       'RelayDeclarativeMutationConfig: For mutation config RANGE_DELETE ' +
@@ -247,7 +247,7 @@ function rangeDelete(
     return null;
   }
   const rootField = getRootField(request);
-  if (!rootField) {
+  if (rootField == null) {
     return null;
   }
   return (store: RecordSourceSelectorProxy, data: ?SelectorData) => {
@@ -256,17 +256,17 @@ function rangeDelete(
     }
     const deleteIDs = [];
     let deletedIDField = data[rootField];
-    if (deletedIDField && Array.isArray(deletedIDFieldName)) {
+    if (deletedIDField != null && Array.isArray(deletedIDFieldName)) {
       for (const eachField of deletedIDFieldName) {
-        if (deletedIDField && typeof deletedIDField === 'object') {
+        if (deletedIDField != null && typeof deletedIDField === 'object') {
           deletedIDField = deletedIDField[eachField];
         }
       }
       if (Array.isArray(deletedIDField)) {
         deletedIDField.forEach(idObject => {
           if (
-            idObject &&
-            idObject.id &&
+            idObject != null &&
+            idObject.id != null &&
             typeof idObject === 'object' &&
             typeof idObject.id === 'string'
           ) {
@@ -274,14 +274,14 @@ function rangeDelete(
           }
         });
       } else if (
-        deletedIDField &&
-        deletedIDField.id &&
+        deletedIDField != null &&
+        deletedIDField.id !== null &&
         typeof deletedIDField.id === 'string'
       ) {
         deleteIDs.push(deletedIDField.id);
       }
     } else if (
-      deletedIDField &&
+      deletedIDField != null &&
       typeof deletedIDFieldName === 'string' &&
       typeof deletedIDField === 'object'
     ) {

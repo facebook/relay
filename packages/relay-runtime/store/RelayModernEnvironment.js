@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @flow
+ * @flow strict
  * @emails oncall+relay
  * @format
  */
@@ -119,11 +119,12 @@ class RelayModernEnvironment implements IEnvironment {
     this._scheduler = config.scheduler ?? null;
     this._store = config.store;
 
-    (this: any).__setNet = newNet => (this._network = newNet);
+    (this: $FlowFixMe).__setNet = newNet => (this._network = newNet);
 
     if (__DEV__) {
       const {inspect} = require('./StoreInspector');
-      (this: any).DEBUG_inspect = (dataID: ?string) => inspect(this, dataID);
+      (this: $FlowFixMe).DEBUG_inspect = (dataID: ?string) =>
+        inspect(this, dataID);
     }
 
     // Register this Relay Environment with Relay DevTools if it exists.
@@ -336,7 +337,7 @@ class RelayModernEnvironment implements IEnvironment {
   }: {|
     operation: OperationDescriptor,
     optimisticUpdater?: ?SelectorStoreUpdater,
-    optimisticResponse?: ?Object,
+    optimisticResponse?: ?$FlowFixMe,
     updater?: ?SelectorStoreUpdater,
     uploadables?: ?UploadableMap,
   |}): RelayObservable<GraphQLResponse> {
@@ -468,7 +469,9 @@ class RelayModernEnvironment implements IEnvironment {
 // Add a sigil for detection by `isRelayModernEnvironment()` to avoid a
 // realm-specific instanceof check, and to aid in module tree-shaking to
 // avoid requiring all of RelayRuntime just to detect its environment.
-(RelayModernEnvironment: any).prototype['@@RelayModernEnvironment'] = true;
+(RelayModernEnvironment: $FlowFixMe).prototype[
+  '@@RelayModernEnvironment'
+] = true;
 
 function emptyFunction() {}
 

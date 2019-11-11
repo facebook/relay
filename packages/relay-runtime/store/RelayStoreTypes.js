@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @flow
+ * @flow strict
  * @format
  */
 
@@ -543,7 +543,7 @@ export interface IEnvironment {
   executeMutation({|
     operation: OperationDescriptor,
     optimisticUpdater?: ?SelectorStoreUpdater,
-    optimisticResponse?: ?Object,
+    optimisticResponse?: ?$FlowFixMe,
     updater?: ?SelectorStoreUpdater,
     uploadables?: ?UploadableMap,
   |}): RelayObservable<GraphQLResponse>;

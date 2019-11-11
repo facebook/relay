@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @flow
+ * @flow strict
  * @format
  */
 
@@ -39,7 +39,7 @@ export type DEPRECATED_MutationConfig<T> = {|
   onCompleted?: ?(response: T, errors: ?Array<PayloadError>) => void,
   onError?: ?(error: Error) => void,
   optimisticUpdater?: ?SelectorStoreUpdater,
-  optimisticResponse?: Object,
+  optimisticResponse?: $FlowFixMe,
   updater?: ?SelectorStoreUpdater,
 |};
 

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @flow
+ * @flow strict
  * @format
  */
 
@@ -16,8 +16,8 @@
 function createError(type: string, name: string, message: string): Error {
   const error = new Error(message);
   error.name = name;
-  (error: any).type = type;
-  (error: any).framesToPop = 2;
+  (error: $FlowFixMe).type = type;
+  (error: $FlowFixMe).framesToPop = 2;
   return error;
 }
 

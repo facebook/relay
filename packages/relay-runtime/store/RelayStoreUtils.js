@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @flow
+ * @flow strict
  * @format
  */
 
@@ -103,7 +103,7 @@ function getStorageKey(
   field: NormalizationField | NormalizationHandle | ReaderField,
   variables: Variables,
 ): string {
-  if (field.storageKey) {
+  if (field.storageKey != null) {
     // TODO T23663664: Handle nodes do not yet define a static storageKey.
     return (field: $FlowFixMe).storageKey;
   }

@@ -4,12 +4,13 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @flow
+ * @flow strict
  * @format
  */
 
 'use strict';
 
+// $FlowFixMe: areEqual: Dependencies of a @flow strict module must also be @flow strict!
 const areEqual = require('areEqual');
 const deepFreeze = require('../util/deepFreeze');
 const invariant = require('invariant');
@@ -115,7 +116,7 @@ function create(dataID: DataID, typeName: string): Record {
  * Get the record's `id` if available or the client-generated identifier.
  */
 function getDataID(record: Record): DataID {
-  return (record[ID_KEY]: any);
+  return (record[ID_KEY]: $FlowFixMe);
 }
 
 /**
@@ -124,7 +125,7 @@ function getDataID(record: Record): DataID {
  * Get the concrete type of the record.
  */
 function getType(record: Record): string {
-  return (record[TYPENAME_KEY]: any);
+  return (record[TYPENAME_KEY]: $FlowFixMe);
 }
 
 /**
@@ -134,7 +135,7 @@ function getType(record: Record): string {
  */
 function getValue(record: Record, storageKey: string): mixed {
   const value = record[storageKey];
-  if (value && typeof value === 'object') {
+  if (value != null && typeof value === 'object') {
     invariant(
       !value.hasOwnProperty(REF_KEY) && !value.hasOwnProperty(REFS_KEY),
       'RelayModernRecord.getValue(): Expected a scalar (non-link) value for `%s.%s` ' +
@@ -194,7 +195,7 @@ function getLinkedRecordIDs(
     JSON.stringify(links),
   );
   // assume items of the array are ids
-  return (links[REFS_KEY]: any);
+  return (links[REFS_KEY]: $FlowFixMe);
 }
 
 /**

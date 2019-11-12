@@ -4,17 +4,14 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @flow strict
+ * @flow
  * @format
  */
 
 'use strict';
 
 type Handler = (name: string, callback: () => void) => void;
-type ProfileHandler = (
-  name: string,
-  state?: $FlowFixMe,
-) => (error?: Error) => void;
+type ProfileHandler = (name: string, state?: any) => (error?: Error) => void;
 
 function emptyFunction() {}
 
@@ -82,7 +79,10 @@ const RelayProfiler = {
    * As a result, the methods will be replaced by wrappers that provide the
    * `attachHandler` and `detachHandler` methods.
    */
-  instrumentMethods(object: $FlowFixMe, names: {[key: string]: string}): void {
+  instrumentMethods(
+    object: Function | Object,
+    names: {[key: string]: string},
+  ): void {
     for (const key in names) {
       if (names.hasOwnProperty(key)) {
         if (typeof object[key] === 'function') {
@@ -104,7 +104,7 @@ const RelayProfiler = {
    * NOTE: The instrumentation assumes that no handlers are attached or detached
    * in the course of executing another handler.
    */
-  instrument<T: $FlowFixMe>(name: string, originalFunction: T): T {
+  instrument<T: Function>(name: string, originalFunction: T): T {
     if (!shouldInstrument(name)) {
       originalFunction.attachHandler = emptyFunction;
       originalFunction.detachHandler = emptyFunction;
@@ -116,9 +116,7 @@ const RelayProfiler = {
     const catchallHandlers = aggregateHandlersByName['*'];
     const aggregateHandlers = aggregateHandlersByName[name];
     const handlers: Array<Handler> = [];
-    const contexts: Array<
-      [number, number, number, $FlowFixMe, $FlowFixMe, $FlowFixMe],
-    > = [];
+    const contexts: Array<[number, number, number, any, any, any]> = [];
     const invokeHandlers = function() {
       const context = contexts[contexts.length - 1];
       if (context[0]) {
@@ -169,7 +167,7 @@ const RelayProfiler = {
       removeFromArray(handlers, handler);
     };
     instrumentedCallback.displayName = '(instrumented ' + name + ')';
-    return (instrumentedCallback: $FlowFixMe);
+    return (instrumentedCallback: any);
   },
 
   /**
@@ -221,7 +219,7 @@ const RelayProfiler = {
    * Arbitrary state can also be passed into `profile` as a second argument. The
    * attached profile handlers will receive this as the second argument.
    */
-  profile(name: string, state?: $FlowFixMe): {stop: (error?: Error) => void} {
+  profile(name: string, state?: any): {stop: (error?: Error) => void} {
     const hasCatchAllHandlers = profileHandlersByName['*'].length > 0;
     const hasNamedHandlers = profileHandlersByName.hasOwnProperty(name);
     if (hasNamedHandlers || hasCatchAllHandlers) {

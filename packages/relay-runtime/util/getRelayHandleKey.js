@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @flow strict
+ * @flow
  * @format
  */
 
@@ -25,7 +25,7 @@ function getRelayHandleKey(
   key: ?string,
   fieldName: ?string,
 ): string {
-  if (key != null && key !== DEFAULT_HANDLE_KEY) {
+  if (key && key !== DEFAULT_HANDLE_KEY) {
     return `__${key}_${handleName}`;
   }
 

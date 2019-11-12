@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @flow strict
+ * @flow
  * @format
  */
 
@@ -90,7 +90,7 @@ class RelayObservable<+T> implements Subscribable<T> {
   +_source: Source<T>;
 
   static create<V>(source: Source<V>): RelayObservable<V> {
-    return new RelayObservable((source: $FlowFixMe));
+    return new RelayObservable((source: any));
   }
 
   // Use RelayObservable.create()
@@ -101,7 +101,7 @@ class RelayObservable<+T> implements Subscribable<T> {
         throw new Error('Source must be a Function: ' + String(source));
       }
     }
-    (this: $FlowFixMe)._source = source;
+    (this: any)._source = source;
   }
 
   /**
@@ -219,7 +219,7 @@ class RelayObservable<+T> implements Subscribable<T> {
    */
   do(observer: Observer<T>): RelayObservable<T> {
     return RelayObservable.create(sink => {
-      const both = (action: $FlowFixMe) =>
+      const both = (action: any) =>
         function() {
           try {
             observer[action] && observer[action].apply(observer, arguments);
@@ -484,11 +484,7 @@ function subscribe<T>(
   // Relay to be used within will support property getters, and many minifier
   // tools still do not support ES5 syntax. Instead, we can use defineProperty.
   const withClosed: <O>(obj: O) => {|...O, +closed: boolean|} = (obj =>
-    Object.defineProperty(
-      obj,
-      'closed',
-      ({get: () => closed}: $FlowFixMe),
-    ): $FlowFixMe);
+    Object.defineProperty(obj, 'closed', ({get: () => closed}: any)): any);
 
   function doCleanup() {
     if (cleanup) {

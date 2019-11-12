@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @flow strict
+ * @flow
  * @format
  */
 
@@ -21,14 +21,14 @@ type ValidationContext = {
   visitedPaths: Set<string>,
   path: string,
   variables: Variables,
-  missingDiff: $FlowFixMe,
-  extraDiff: $FlowFixMe,
+  missingDiff: Object,
+  extraDiff: Object,
 };
 const warning = require('warning');
 
 let validateMutation = () => {};
 if (__DEV__) {
-  const addFieldToDiff = (path: string, diff: $FlowFixMe, isScalar) => {
+  const addFieldToDiff = (path: string, diff: Object, isScalar) => {
     let deepLoc = diff;
     path.split('.').forEach((key, index, arr) => {
       if (deepLoc[key] == null) {
@@ -41,9 +41,9 @@ if (__DEV__) {
     });
   };
   validateMutation = (
-    optimisticResponse: $FlowFixMe,
+    optimisticResponse: Object,
     mutation: ConcreteRequest,
-    variables: ?$FlowFixMe,
+    variables: ?Object,
   ) => {
     const operationName = mutation.operation.name;
     const context: ValidationContext = {
@@ -74,7 +74,7 @@ if (__DEV__) {
   };
 
   const validateSelections = (
-    optimisticResponse: $FlowFixMe,
+    optimisticResponse: Object,
     selections: $ReadOnlyArray<NormalizationSelection>,
     context: ValidationContext,
   ) => {
@@ -84,7 +84,7 @@ if (__DEV__) {
   };
 
   const validateSelection = (
-    optimisticResponse: $FlowFixMe,
+    optimisticResponse: Object,
     selection: NormalizationSelection,
     context: ValidationContext,
   ) => {
@@ -127,11 +127,11 @@ if (__DEV__) {
   };
 
   const validateField = (
-    optimisticResponse: $FlowFixMe,
+    optimisticResponse: Object,
     field: NormalizationField,
     context: ValidationContext,
   ) => {
-    const fieldName = field.alias ?? field.name;
+    const fieldName = field.alias || field.name;
     const path = `${context.path}.${fieldName}`;
     context.visitedPaths.add(path);
     switch (field.kind) {
@@ -178,7 +178,7 @@ if (__DEV__) {
   };
 
   const validateOptimisticResponse = (
-    optimisticResponse: $FlowFixMe,
+    optimisticResponse: Object,
     context: ValidationContext,
   ) => {
     if (Array.isArray(optimisticResponse)) {
@@ -202,8 +202,4 @@ if (__DEV__) {
   };
 }
 
-module.exports = (validateMutation: (
-  $FlowFixMe,
-  ConcreteRequest,
-  ?$FlowFixMe,
-) => void);
+module.exports = (validateMutation: (Object, ConcreteRequest, ?Object) => void);

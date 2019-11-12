@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @flow strict
+ * @flow
  * @format
  */
 
@@ -525,7 +525,7 @@ function mergeEdges(
     }
     const node = edge.getLinkedRecord(NODE);
     const nodeID = node && node.getDataID();
-    if (nodeID != null) {
+    if (nodeID) {
       if (nodeIDs.has(nodeID)) {
         continue;
       }

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @flow strict
+ * @flow
  * @format
  */
 
@@ -162,7 +162,7 @@ class RelayResponseNormalizer {
   }
 
   _getRecordType(data: PayloadData): string {
-    const typeName = (data: $FlowFixMe)[TYPENAME_KEY];
+    const typeName = (data: any)[TYPENAME_KEY];
     invariant(
       typeName != null,
       'RelayResponseNormalizer(): Expected a typename for record `%s`.',
@@ -483,7 +483,7 @@ class RelayResponseNormalizer {
       'writeField(): Expected data for field `%s` to be an object.',
       selection.name,
     );
-    const responseKey = selection.alias ?? selection.name;
+    const responseKey = selection.alias || selection.name;
     const storageKey = getStorageKey(selection, this._variables);
     const fieldValue = data[responseKey];
     if (fieldValue == null) {
@@ -662,7 +662,7 @@ class RelayResponseNormalizer {
   _validateRecordType(
     record: Record,
     field: NormalizationLinkedField,
-    payload: $FlowFixMe,
+    payload: Object,
   ): void {
     const typeName = field.concreteType ?? this._getRecordType(payload);
     warning(

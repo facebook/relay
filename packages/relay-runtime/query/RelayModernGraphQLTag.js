@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @flow strict
+ * @flow
  * @format
  */
 
@@ -43,9 +43,9 @@ function graphql(strings: Array<string>): GraphQLTaggedNode {
 
 function getNode(taggedNode) {
   if (typeof taggedNode !== 'function') {
-    return (taggedNode: $FlowFixMe);
+    return (taggedNode: any);
   }
-  const data: $FlowFixMe = taggedNode();
+  const data: any = taggedNode();
   // Support for languages that work (best) with ES6 modules, such as TypeScript.
   return data.default ? data.default : data;
 }
@@ -84,7 +84,7 @@ function getFragment(taggedNode: GraphQLTaggedNode): ReaderFragment {
     'RelayModernGraphQLTag: Expected a fragment, got `%s`.',
     JSON.stringify(fragment),
   );
-  return (fragment: $FlowFixMe);
+  return (fragment: any);
 }
 
 function getPaginationFragment(
@@ -101,7 +101,7 @@ function getPaginationFragment(
   ) {
     return null;
   }
-  return (fragment: $FlowFixMe);
+  return (fragment: any);
 }
 
 function getRefetchableFragment(
@@ -112,7 +112,7 @@ function getRefetchableFragment(
   if (refetch === null || typeof refetch !== 'object') {
     return null;
   }
-  return (fragment: $FlowFixMe);
+  return (fragment: any);
 }
 
 function getRequest(taggedNode: GraphQLTaggedNode): ConcreteRequest {
@@ -122,7 +122,7 @@ function getRequest(taggedNode: GraphQLTaggedNode): ConcreteRequest {
     'RelayModernGraphQLTag: Expected a request, got `%s`.',
     JSON.stringify(request),
   );
-  return (request: $FlowFixMe);
+  return (request: any);
 }
 
 function getInlineDataFragment(
@@ -134,7 +134,7 @@ function getInlineDataFragment(
     'RelayModernGraphQLTag: Expected an inline data fragment, got `%s`.',
     JSON.stringify(fragment),
   );
-  return (fragment: $FlowFixMe);
+  return (fragment: any);
 }
 
 module.exports = {

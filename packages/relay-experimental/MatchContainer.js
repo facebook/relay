@@ -148,6 +148,9 @@ function MatchContainer<TProps: {}, TFallback: React.Node | null>({
   }, [__id, __fragments, __fragmentOwner, __fragmentPropName]);
 
   if (LoadedContainer != null && fragmentProps != null) {
+    /* $FlowFixMe(>=0.111.0) This comment suppresses an error found when Flow
+     * v0.111.0 was deployed. To see the error, delete this comment and run
+     * Flow. */
     return <LoadedContainer {...props} {...fragmentProps} />;
   } else {
     return fallback ?? null;

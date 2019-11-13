@@ -408,6 +408,10 @@ class Schema {
     );
   }
 
+  getTypes(): $ReadOnlyArray<TypeID> {
+    return this._typeMap.getTypes();
+  }
+
   getTypeFromAST(typeNode: TypeNode): ?TypeID {
     if (typeNode.kind === 'NonNullType') {
       const innerType = this.getTypeFromAST(typeNode.type);
@@ -1771,6 +1775,10 @@ class TypeMap {
         );
       }
     });
+  }
+
+  getTypes(): $ReadOnlyArray<BaseType> {
+    return Array.from(this._types.values());
   }
 
   getTypeByName(typename: string): ?BaseType {

@@ -33,15 +33,18 @@ function generate(text, options: TypeGeneratorOptions, context?) {
       }
     `,
   ]);
-  const {definitions} = parseGraphQLText(relaySchema, text);
-  return new CompilerContext(relaySchema)
+  const {definitions, schema: extendedSchema} = parseGraphQLText(
+    relaySchema,
+    text,
+  );
+  return new CompilerContext(extendedSchema)
     .addAll(definitions)
     .applyTransforms(RelayFlowGenerator.transforms)
     .documents()
     .map(
       doc =>
         `// ${doc.name}.graphql\n${RelayFlowGenerator.generate(
-          relaySchema,
+          extendedSchema,
           // $FlowFixMe - `SplitOperation` is incompatible with union type.
           doc,
           // $FlowFixMe - `SplitOperation` is incompatible with union type.

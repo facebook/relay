@@ -17,13 +17,12 @@ const {
   CompilerContext,
   IRTransforms,
   compileRelayArtifacts,
-  Schema,
 } = require('relay-compiler');
 
 import type {
   RelayCompilerTransforms,
   IRTransform,
-  Schema as RelaySchema,
+  Schema,
 } from 'relay-compiler';
 import type {GeneratedNode} from 'relay-runtime';
 
@@ -57,10 +56,10 @@ function generateWithTransforms(
  */
 function generateAndCompile(
   text: string,
-  schema?: ?RelaySchema,
+  schema?: ?Schema,
   moduleMap?: ?{[string]: mixed},
 ): {[key: string]: GeneratedNode} {
-  return generate(text, schema || TestSchema, IRTransforms, moduleMap ?? null);
+  return generate(text, schema ?? TestSchema, IRTransforms, moduleMap ?? null);
 }
 
 function generate(

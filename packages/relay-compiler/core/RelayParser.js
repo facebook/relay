@@ -43,7 +43,7 @@ import type {
 } from './IR';
 import type {
   CompositeTypeID,
-  FieldArgument,
+  Argument as FieldArgument,
   FieldID,
   InputTypeID,
   Schema,

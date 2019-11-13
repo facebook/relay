@@ -24,7 +24,7 @@ function filterDirectivesTransform(context: CompilerContext): CompilerContext {
     context
       .getSchema()
       .getDirectives()
-      .filter(directive => !directive.clientOnlyDirective)
+      .filter(directive => !directive.isClient)
       .map(schemaDirective => schemaDirective.name),
   );
   const visitDirective = (directive: Directive): ?Directive => {

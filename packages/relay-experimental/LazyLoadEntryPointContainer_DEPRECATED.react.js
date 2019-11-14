@@ -53,7 +53,7 @@ function stableStringify(value: mixed): string {
   return JSON.stringify(stableCopy(value)) ?? 'null';
 }
 
-function LazyLoadEntryPointContainer<
+function LazyLoadEntryPointContainer_DEPRECATED<
   TEntryPointParams: {},
   TPreloadedQueries: {},
   TPreloadedEntryPoints: {},
@@ -101,4 +101,4 @@ function LazyLoadEntryPointContainer<
   );
 }
 
-module.exports = LazyLoadEntryPointContainer;
+module.exports = LazyLoadEntryPointContainer_DEPRECATED;

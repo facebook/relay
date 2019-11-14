@@ -12,7 +12,7 @@
 'use strict';
 
 const EntryPointContainer = require('./EntryPointContainer.react');
-const LazyLoadEntryPointContainer = require('./LazyLoadEntryPointContainer.react');
+const LazyLoadEntryPointContainer_DEPRECATED = require('./LazyLoadEntryPointContainer_DEPRECATED.react');
 const MatchContainer = require('./MatchContainer');
 const ProfilerContext = require('./ProfilerContext');
 const RelayEnvironmentProvider = require('./RelayEnvironmentProvider');
@@ -41,7 +41,7 @@ export type {
 
 module.exports = {
   EntryPointContainer: EntryPointContainer,
-  LazyLoadEntryPointContainer: LazyLoadEntryPointContainer,
+  LazyLoadEntryPointContainer_DEPRECATED: LazyLoadEntryPointContainer_DEPRECATED,
   MatchContainer: MatchContainer,
   ProfilerContext: ProfilerContext,
   RelayEnvironmentProvider: RelayEnvironmentProvider,

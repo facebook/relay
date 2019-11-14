@@ -21,7 +21,7 @@ const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
 const TestRenderer = require('react-test-renderer');
 
 const invariant = require('invariant');
-const preloadQuery = require('../preloadQuery');
+const preloadQuery_DEPRECATED = require('../preloadQuery_DEPRECATED');
 const usePreloadedQuery = require('../usePreloadedQuery');
 
 const {
@@ -145,7 +145,7 @@ it('suspends while the query and component are pending', () => {
 });
 
 it('suspends while the component is loading', () => {
-  preloadQuery(environment, params, {id: '4'});
+  preloadQuery_DEPRECATED(environment, params, {id: '4'});
   expect(fetch).toBeCalledTimes(1);
   dataSource.next(response);
   dataSource.complete();
@@ -234,7 +234,7 @@ it('renders synchronously when the query and component are already loaded', () =
     return data.node.name;
   }
   entryPoint.root.resolve(Component);
-  preloadQuery(environment, params, {id: '4'});
+  preloadQuery_DEPRECATED(environment, params, {id: '4'});
   expect(fetch).toBeCalledTimes(1);
   dataSource.next(response);
   dataSource.complete();
@@ -263,7 +263,7 @@ it('re-renders without reloading when non-prefetch props change', () => {
     return data.node.name;
   });
   entryPoint.root.resolve(Component);
-  preloadQuery(environment, params, {id: '4'});
+  preloadQuery_DEPRECATED(environment, params, {id: '4'});
   expect(fetch).toBeCalledTimes(1);
   dataSource.next(response);
   dataSource.complete();
@@ -303,7 +303,7 @@ it('re-renders and reloads when prefetch params change', () => {
     return data.node.name;
   });
   entryPoint.root.resolve(Component);
-  preloadQuery(environment, params, {id: '4'});
+  preloadQuery_DEPRECATED(environment, params, {id: '4'});
   expect(fetch).toBeCalledTimes(1);
   dataSource.next(response);
   dataSource.complete();
@@ -394,7 +394,7 @@ it('fetches and renders synchronously when the query data is cached, then update
   expect(entryPoint.root.load).toBeCalledTimes(0);
   expect(receivedProps).not.toBe(null);
   expect(receivedProps?.props).toBe(otherProps);
-  // fetch() is still called, preloadQuery() doesn't have the AST to check
+  // fetch() is still called, preloadQuery_DEPRECATED() doesn't have the AST to check
   // if the query can be fulfilled locally
   expect(fetch).toBeCalledTimes(1);
   expect(fetch.mock.calls[0][0]).toBe(query.params);

@@ -20,7 +20,7 @@ const React = require('react');
 const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
 const TestRenderer = require('react-test-renderer');
 
-const preloadQuery = require('../preloadQuery');
+const loadQuery = require('../loadQuery');
 const prepareEntryPoint = require('../prepareEntryPoint');
 const usePreloadedQuery = require('../usePreloadedQuery');
 
@@ -221,7 +221,7 @@ it('renders synchronously when the query and component are already loaded', () =
     return data.node.name;
   }
   nestedEntryPointResource.resolve(Component);
-  preloadQuery(environment, params, {id: 'my-id'});
+  loadQuery(environment, params, {id: 'my-id'});
   expect(fetch).toBeCalledTimes(1);
   dataSource.next(response);
   dataSource.complete();

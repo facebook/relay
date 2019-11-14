@@ -11,7 +11,7 @@
 
 'use strict';
 
-const preloadQuery = require('./preloadQuery');
+const loadQuery = require('./loadQuery');
 
 import type {
   EntryPoint,
@@ -62,7 +62,7 @@ function prepareEntryPoint<
         environmentProviderOptions,
       );
 
-      preloadedQueries[queryPropName] = preloadQuery(
+      preloadedQueries[queryPropName] = loadQuery(
         environment,
         parameters,
         variables,

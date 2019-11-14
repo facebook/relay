@@ -15,7 +15,7 @@ jest.mock('fbjs/lib/ExecutionEnvironment', () => ({
   canUseDOM: true,
 }));
 
-const preloadQuery = require('../preloadQuery');
+const preloadQuery_DEPRECATED = require('../preloadQuery_DEPRECATED');
 
 const {
   Environment,
@@ -96,7 +96,7 @@ describe('store-or-network', () => {
     expect(environment.check(operation.root)).toBe(true);
     check.mockClear();
 
-    const preloaded = preloadQuery(environment, params, variables);
+    const preloaded = preloadQuery_DEPRECATED(environment, params, variables);
     expect(preloaded.source).toEqual(expect.any(Observable));
     expect(fetch).toBeCalledTimes(1);
     expect(fetch.mock.calls[0][0]).toBe(query.params);
@@ -115,7 +115,7 @@ describe('store-or-network', () => {
   it('fetches from network if data is not available but query is', () => {
     params.queryResource.getModuleIfRequired = () => query;
 
-    const preloaded = preloadQuery(environment, params, variables);
+    const preloaded = preloadQuery_DEPRECATED(environment, params, variables);
     expect(preloaded.source).toEqual(expect.any(Observable));
     expect(fetch).toBeCalledTimes(1);
     expect(fetch.mock.calls[0][0]).toBe(query.params);
@@ -124,7 +124,7 @@ describe('store-or-network', () => {
   });
 
   it('fetches from network if data is not available with concrete query', () => {
-    const preloaded = preloadQuery(environment, query, variables);
+    const preloaded = preloadQuery_DEPRECATED(environment, query, variables);
     expect(preloaded.source).toEqual(expect.any(Observable));
     expect(fetch).toBeCalledTimes(1);
     expect(fetch.mock.calls[0][0]).toBe(query.params);
@@ -133,8 +133,8 @@ describe('store-or-network', () => {
   });
 
   it('returns a cached entry wo refetching if a previous fetch is pending', () => {
-    const preloaded1 = preloadQuery(environment, params, variables);
-    const preloaded2 = preloadQuery(environment, params, variables);
+    const preloaded1 = preloadQuery_DEPRECATED(environment, params, variables);
+    const preloaded2 = preloadQuery_DEPRECATED(environment, params, variables);
     expect(fetch).toBeCalledTimes(1);
     expect(fetch.mock.calls[0][0]).toBe(query.params);
     expect(fetch.mock.calls[0][1]).toEqual(variables);
@@ -159,7 +159,7 @@ describe('store-or-network', () => {
   });
 
   it('fetches from network if data/query are still missing and cache entry is consumed', () => {
-    const preloaded1 = preloadQuery(environment, params, variables);
+    const preloaded1 = preloadQuery_DEPRECATED(environment, params, variables);
     fetch.mockClear();
     const [events, observer] = createObserver();
     if (preloaded1.source) {
@@ -168,7 +168,7 @@ describe('store-or-network', () => {
     sink.next(response);
     sink.complete();
     expect(events).toEqual(['next', response, 'complete']);
-    const preloaded2 = preloadQuery(environment, params, variables);
+    const preloaded2 = preloadQuery_DEPRECATED(environment, params, variables);
     expect(preloaded2.source).toEqual(expect.any(Observable));
     expect(fetch).toBeCalledTimes(1);
     expect(fetch.mock.calls[0][0]).toBe(query.params);
@@ -177,12 +177,12 @@ describe('store-or-network', () => {
   });
 
   it('fetches from network if data/query are still missing and cache entry has expired', () => {
-    preloadQuery(environment, params, variables);
+    preloadQuery_DEPRECATED(environment, params, variables);
     fetch.mockClear();
     sink.next(response);
     sink.complete();
     jest.runAllTimers();
-    const preloaded = preloadQuery(environment, params, variables);
+    const preloaded = preloadQuery_DEPRECATED(environment, params, variables);
     expect(preloaded.source).toEqual(expect.any(Observable));
     expect(fetch).toBeCalledTimes(1);
     expect(fetch.mock.calls[0][0]).toBe(query.params);
@@ -196,7 +196,7 @@ describe('store-or-network', () => {
     check.mockClear();
     params.queryResource.getModuleIfRequired = () => query;
 
-    const preloaded = preloadQuery(environment, params, variables);
+    const preloaded = preloadQuery_DEPRECATED(environment, params, variables);
     expect(preloaded.source).toBe(null);
     expect(check).toBeCalledTimes(1);
     expect(fetch).toBeCalledTimes(0);
@@ -208,7 +208,7 @@ describe('store-or-network', () => {
     expect(environment.check(operation.root)).toBe(true);
     check.mockClear();
 
-    const preloaded = preloadQuery(environment, query, variables);
+    const preloaded = preloadQuery_DEPRECATED(environment, query, variables);
     expect(preloaded.source).toBe(null);
     expect(check).toBeCalledTimes(1);
     expect(fetch).toBeCalledTimes(0);
@@ -216,7 +216,7 @@ describe('store-or-network', () => {
   });
 
   it('resolves from cache if data & query become available after previously fetching', () => {
-    preloadQuery(environment, params, variables);
+    preloadQuery_DEPRECATED(environment, params, variables);
     fetch.mockClear();
 
     environment.commitPayload(operation, response.data);
@@ -224,7 +224,7 @@ describe('store-or-network', () => {
     check.mockClear();
     params.queryResource.getModuleIfRequired = () => query;
 
-    const preloaded = preloadQuery(environment, params, variables);
+    const preloaded = preloadQuery_DEPRECATED(environment, params, variables);
     expect(check).toBeCalledTimes(1);
     expect(fetch).toBeCalledTimes(0);
     expect(preloaded.source).toBe(null);
@@ -236,8 +236,8 @@ describe('store-or-network', () => {
     check.mockClear();
     params.queryResource.getModuleIfRequired = () => query;
 
-    preloadQuery(environment, params, variables);
-    const preloaded = preloadQuery(environment, params, variables);
+    preloadQuery_DEPRECATED(environment, params, variables);
+    const preloaded = preloadQuery_DEPRECATED(environment, params, variables);
     expect(preloaded.source).toBe(null);
     expect(check).toBeCalledTimes(1);
     expect(fetch).toBeCalledTimes(0);
@@ -250,11 +250,11 @@ describe('store-or-network', () => {
     check.mockClear();
     params.queryResource.getModuleIfRequired = () => query;
 
-    preloadQuery(environment, params, variables);
+    preloadQuery_DEPRECATED(environment, params, variables);
     check.mockClear();
     jest.runAllTimers();
 
-    const preloaded = preloadQuery(environment, params, variables);
+    const preloaded = preloadQuery_DEPRECATED(environment, params, variables);
     expect(preloaded.source).toBe(null);
     expect(check).toBeCalledTimes(1); //  rechecked after a timeout
     expect(fetch).toBeCalledTimes(0);
@@ -268,7 +268,7 @@ describe('store-and-network', () => {
     expect(environment.check(operation.root)).toBe(true);
     params.queryResource.getModuleIfRequired = () => query;
 
-    const preloaded = preloadQuery(environment, params, variables, {
+    const preloaded = preloadQuery_DEPRECATED(environment, params, variables, {
       fetchPolicy: 'store-and-network',
     });
     expect(preloaded.source).toEqual(expect.any(Observable));
@@ -287,10 +287,10 @@ describe('store-and-network', () => {
   });
 
   it('does not fetch again if a previous fetch is pending', () => {
-    const preloaded1 = preloadQuery(environment, params, variables, {
+    const preloaded1 = preloadQuery_DEPRECATED(environment, params, variables, {
       fetchPolicy: 'store-and-network',
     });
-    const preloaded2 = preloadQuery(environment, params, variables, {
+    const preloaded2 = preloadQuery_DEPRECATED(environment, params, variables, {
       fetchPolicy: 'store-and-network',
     });
     expect(fetch).toBeCalledTimes(1);
@@ -317,7 +317,7 @@ describe('store-and-network', () => {
   });
 
   it('fetches from network if data/query are still missing and cache entry is consumed', () => {
-    const preloaded1 = preloadQuery(environment, params, variables, {
+    const preloaded1 = preloadQuery_DEPRECATED(environment, params, variables, {
       fetchPolicy: 'store-and-network',
     });
     fetch.mockClear();
@@ -328,7 +328,7 @@ describe('store-and-network', () => {
     sink.next(response);
     sink.complete();
     expect(events).toEqual(['next', response, 'complete']);
-    const preloaded2 = preloadQuery(environment, params, variables, {
+    const preloaded2 = preloadQuery_DEPRECATED(environment, params, variables, {
       fetchPolicy: 'store-and-network',
     });
     expect(preloaded2.source).toEqual(expect.any(Observable));
@@ -339,14 +339,14 @@ describe('store-and-network', () => {
   });
 
   it('fetches from network if data/query are still missing and cache entry has expired', () => {
-    preloadQuery(environment, params, variables, {
+    preloadQuery_DEPRECATED(environment, params, variables, {
       fetchPolicy: 'store-and-network',
     });
     fetch.mockClear();
     sink.next(response);
     sink.complete();
     jest.runAllTimers();
-    const preloaded = preloadQuery(environment, params, variables, {
+    const preloaded = preloadQuery_DEPRECATED(environment, params, variables, {
       fetchPolicy: 'store-and-network',
     });
     expect(preloaded.source).toEqual(expect.any(Observable));
@@ -363,7 +363,7 @@ describe('network-only', () => {
     expect(environment.check(operation.root)).toBe(true);
     params.queryResource.getModuleIfRequired = () => query;
 
-    const preloaded = preloadQuery(environment, params, variables, {
+    const preloaded = preloadQuery_DEPRECATED(environment, params, variables, {
       fetchPolicy: 'network-only',
     });
     expect(preloaded.source).toEqual(expect.any(Observable));
@@ -382,10 +382,10 @@ describe('network-only', () => {
   });
 
   it('does not fetch again if a previous fetch is pending', () => {
-    const preloaded1 = preloadQuery(environment, params, variables, {
+    const preloaded1 = preloadQuery_DEPRECATED(environment, params, variables, {
       fetchPolicy: 'network-only',
     });
-    const preloaded2 = preloadQuery(environment, params, variables, {
+    const preloaded2 = preloadQuery_DEPRECATED(environment, params, variables, {
       fetchPolicy: 'network-only',
     });
     expect(fetch).toBeCalledTimes(1);
@@ -412,7 +412,7 @@ describe('network-only', () => {
   });
 
   it('fetches from network if data/query are still missing and cache entry is consumed', () => {
-    const preloaded1 = preloadQuery(environment, params, variables, {
+    const preloaded1 = preloadQuery_DEPRECATED(environment, params, variables, {
       fetchPolicy: 'network-only',
     });
     fetch.mockClear();
@@ -423,7 +423,7 @@ describe('network-only', () => {
     sink.next(response);
     sink.complete();
     expect(events).toEqual(['next', response, 'complete']);
-    const preloaded2 = preloadQuery(environment, params, variables, {
+    const preloaded2 = preloadQuery_DEPRECATED(environment, params, variables, {
       fetchPolicy: 'network-only',
     });
     expect(preloaded2.source).toEqual(expect.any(Observable));
@@ -434,12 +434,14 @@ describe('network-only', () => {
   });
 
   it('fetches from network if data/query are still missing and cache entry has expired', () => {
-    preloadQuery(environment, params, variables, {fetchPolicy: 'network-only'});
+    preloadQuery_DEPRECATED(environment, params, variables, {
+      fetchPolicy: 'network-only',
+    });
     fetch.mockClear();
     sink.next(response);
     sink.complete();
     jest.runAllTimers();
-    const preloaded = preloadQuery(environment, params, variables, {
+    const preloaded = preloadQuery_DEPRECATED(environment, params, variables, {
       fetchPolicy: 'network-only',
     });
     expect(preloaded.source).toEqual(expect.any(Observable));

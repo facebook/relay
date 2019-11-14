@@ -18,7 +18,7 @@ const ProfilerContext = require('./ProfilerContext');
 const RelayEnvironmentProvider = require('./RelayEnvironmentProvider');
 
 const fetchQuery = require('./fetchQuery');
-const preloadQuery = require('./preloadQuery');
+const loadQuery = require('./loadQuery');
 const prepareEntryPoint = require('./prepareEntryPoint');
 const useBlockingPaginationFragment = require('./useBlockingPaginationFragment');
 const useFragment = require('./useFragment');
@@ -48,7 +48,7 @@ module.exports = {
 
   fetchQuery: fetchQuery,
 
-  preloadQuery: preloadQuery,
+  preloadQuery: loadQuery,
   prepareEntryPoint: prepareEntryPoint,
 
   useBlockingPaginationFragment: useBlockingPaginationFragment,

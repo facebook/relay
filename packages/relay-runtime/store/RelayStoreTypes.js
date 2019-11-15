@@ -584,15 +584,6 @@ export type ModuleImportPointer = {
 };
 
 /**
- * A callback for resolving a Selector from a source.
- */
-export type AsyncLoadCallback = (loadingState: LoadingState) => void;
-export type LoadingState = $Exact<{
-  status: 'aborted' | 'complete' | 'error' | 'missing',
-  error?: Error,
-}>;
-
-/**
  * A map of records affected by an update operation.
  */
 export type UpdatedRecords = {[dataID: DataID]: boolean};

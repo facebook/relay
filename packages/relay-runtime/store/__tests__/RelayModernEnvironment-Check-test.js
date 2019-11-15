@@ -51,7 +51,7 @@ describe('check()', () => {
     operationDescriptor = createOperationDescriptor(ParentQuery, {size: 32});
   });
 
-  it('returns true if all data exists in the environment', () => {
+  it('returns avialable if all data exists in the environment', () => {
     environment.commitPayload(operationDescriptor, {
       me: {
         id: '4',
@@ -61,10 +61,10 @@ describe('check()', () => {
         },
       },
     });
-    expect(environment.check(operationDescriptor)).toBe(true);
+    expect(environment.check(operationDescriptor)).toBe('available');
   });
 
-  it('returns false if data is missing from the environment', () => {
+  it('returns missing if data is missing from the environment', () => {
     environment.commitPayload(operationDescriptor, {
       me: {
         id: '4',
@@ -74,6 +74,6 @@ describe('check()', () => {
         },
       },
     });
-    expect(environment.check(operationDescriptor)).toBe(false);
+    expect(environment.check(operationDescriptor)).toBe('missing');
   });
 });

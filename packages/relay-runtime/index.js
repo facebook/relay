@@ -123,6 +123,7 @@ export type {
   MissingFieldHandler,
   ModuleImportPointer,
   NormalizationSelector,
+  OperationAvailability,
   OperationDescriptor,
   OperationLoader,
   OperationTracker,

@@ -305,7 +305,7 @@ describe('@connection_resolver connection field', () => {
     dataSource.next(payload);
     jest.runAllTimers();
 
-    expect(environment.check(operation)).toBe(false);
+    expect(environment.check(operation)).toBe('missing');
   });
 
   it('cannot fulfill queries from the store if a connection edge is missing data', () => {
@@ -348,7 +348,7 @@ describe('@connection_resolver connection field', () => {
     dataSource.next(payload);
     jest.runAllTimers();
 
-    expect(environment.check(operation)).toBe(false);
+    expect(environment.check(operation)).toBe('missing');
   });
 
   it('cannot fulfill queries from the store if a connection node is missing data', () => {
@@ -391,7 +391,7 @@ describe('@connection_resolver connection field', () => {
     dataSource.next(payload);
     jest.runAllTimers();
 
-    expect(environment.check(operation)).toBe(false);
+    expect(environment.check(operation)).toBe('missing');
   });
 
   it('can fulfill queries from the store if all connection fields are present', () => {
@@ -434,7 +434,7 @@ describe('@connection_resolver connection field', () => {
     dataSource.next(payload);
     jest.runAllTimers();
 
-    expect(environment.check(operation)).toBe(true);
+    expect(environment.check(operation)).toBe('available');
   });
 
   it('publishes initial results to the store', () => {

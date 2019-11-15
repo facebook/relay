@@ -45,6 +45,7 @@ import type {
   LogFunction,
   MissingFieldHandler,
   NormalizationSelector,
+  OperationAvailability,
   OperationDescriptor,
   OperationLoader,
   OperationTracker,
@@ -206,7 +207,7 @@ class RelayModernEnvironment implements IEnvironment {
     };
   }
 
-  check(operation: OperationDescriptor): boolean {
+  check(operation: OperationDescriptor): OperationAvailability {
     if (this._missingFieldHandlers == null) {
       return this._store.check(operation);
     }
@@ -258,7 +259,7 @@ class RelayModernEnvironment implements IEnvironment {
   _checkSelectorAndHandleMissingFields(
     operation: OperationDescriptor,
     handlers: $ReadOnlyArray<MissingFieldHandler>,
-  ): boolean {
+  ): OperationAvailability {
     const target = RelayRecordSource.create();
     const result = this._store.check(operation, {target, handlers});
     if (target.size() > 0) {

@@ -40,6 +40,7 @@ import type {GetDataID} from './RelayResponseNormalizer';
 import type {
   CheckOptions,
   MutableRecordSource,
+  OperationAvailability,
   OperationDescriptor,
   OperationLoader,
   RecordSource,
@@ -166,7 +167,10 @@ class RelayModernStore implements Store {
     }
   }
 
-  check(operation: OperationDescriptor, options?: CheckOptions): boolean {
+  check(
+    operation: OperationDescriptor,
+    options?: CheckOptions,
+  ): OperationAvailability {
     const selector = operation.root;
     const source = this._optimisticSource ?? this._recordSource;
     const globalInvalidationEpoch = this._globalInvalidationEpoch;
@@ -186,7 +190,7 @@ class RelayModernStore implements Store {
         // or if this operation has never been written to the store before,
         // we will consider the data for this operation to be stale
         //  (i.e. not resolvable from the store).
-        return false;
+        return 'stale';
       }
     }
 
@@ -200,7 +204,9 @@ class RelayModernStore implements Store {
       this._operationLoader,
       this._getDataID,
       id => this.getConnectionEvents_UNSTABLE(id),
-    );
+    )
+      ? 'available'
+      : 'missing';
   }
 
   retain(operation: OperationDescriptor): Disposable {

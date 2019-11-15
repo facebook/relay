@@ -377,7 +377,8 @@ class QueryResourceImpl {
     // missing data handlers specified on the environment;
     // We run it here first to make the handlers get a chance to populate
     // missing data.
-    const hasFullQuery = environment.check(operation);
+    const checkResult = environment.check(operation);
+    const hasFullQuery = checkResult === 'available';
     const canPartialRender = hasFullQuery || renderPolicy === 'partial';
 
     let shouldFetch;

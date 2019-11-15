@@ -68,7 +68,7 @@ describe('check() with global invalidation', () => {
   });
 
   describe('when store is invalidated before query has ever been written to the store', () => {
-    it('returns true after receiving query from the server', () => {
+    it('returns available after receiving query from the server', () => {
       store.invalidate();
 
       environment.retain(operation);
@@ -89,10 +89,10 @@ describe('check() with global invalidation', () => {
       dataSource.complete();
       jest.runAllTimers();
 
-      expect(environment.check(operation)).toBe(true);
+      expect(environment.check(operation)).toBe('available');
     });
 
-    it('returns false if some data is missing after receiving query from the server', () => {
+    it('returns missing if some data is missing after receiving query from the server', () => {
       store.invalidate();
 
       environment.retain(operation);
@@ -113,12 +113,12 @@ describe('check() with global invalidation', () => {
       dataSource.complete();
       jest.runAllTimers();
 
-      expect(environment.check(operation)).toBe(false);
+      expect(environment.check(operation)).toBe('missing');
     });
   });
 
   describe('when store is invalidated after query has been written to the store', () => {
-    it('returns false even if full query is cached', () => {
+    it('returns stale even if full query is cached', () => {
       environment.retain(operation);
       environment.execute({operation}).subscribe(callbacks);
       const payload = {
@@ -139,12 +139,12 @@ describe('check() with global invalidation', () => {
 
       store.invalidate();
 
-      // Should return false even if all data is cached since
+      // Should return stale even if all data is cached since
       // store was invalidated after query completed
-      expect(environment.check(operation)).toBe(false);
+      expect(environment.check(operation)).toBe('stale');
     });
 
-    it('returns false if some data is missing', () => {
+    it('returns stale if some data is missing', () => {
       environment.retain(operation);
       environment.execute({operation}).subscribe(callbacks);
       const payload = {
@@ -165,12 +165,12 @@ describe('check() with global invalidation', () => {
 
       store.invalidate();
 
-      expect(environment.check(operation)).toBe(false);
+      expect(environment.check(operation)).toBe('stale');
     });
   });
 
   describe('when query is refetched after store is invalidated', () => {
-    it('returns true if data is available after refetch', () => {
+    it('returns available if data is available after refetch', () => {
       environment.retain(operation);
       environment.execute({operation}).subscribe(callbacks);
       let payload = {
@@ -192,7 +192,7 @@ describe('check() with global invalidation', () => {
       store.invalidate();
 
       // Expect data to not be available after invalidation
-      expect(environment.check(operation)).toBe(false);
+      expect(environment.check(operation)).toBe('stale');
 
       environment.execute({operation}).subscribe(callbacks);
       payload = {
@@ -212,10 +212,10 @@ describe('check() with global invalidation', () => {
       jest.runAllTimers();
 
       // Expect data be available after refetch
-      expect(environment.check(operation)).toBe(true);
+      expect(environment.check(operation)).toBe('available');
     });
 
-    it('returns false if data is not available after refetch', () => {
+    it('returns missing if data is not available after refetch', () => {
       environment.retain(operation);
       environment.execute({operation}).subscribe(callbacks);
       let payload = {
@@ -237,7 +237,7 @@ describe('check() with global invalidation', () => {
       store.invalidate();
 
       // Expect data to not be available after invalidation
-      expect(environment.check(operation)).toBe(false);
+      expect(environment.check(operation)).toBe('stale');
 
       environment.execute({operation}).subscribe(callbacks);
       payload = {
@@ -256,8 +256,7 @@ describe('check() with global invalidation', () => {
       dataSource.complete();
       jest.runAllTimers();
 
-      // Expect data be available after refetch
-      expect(environment.check(operation)).toBe(false);
+      expect(environment.check(operation)).toBe('missing');
     });
   });
 
@@ -282,7 +281,7 @@ describe('check() with global invalidation', () => {
     });
 
     describe('when store is invalidated before query has been written to the store', () => {
-      it('returns true after receiving payloads from the server', () => {
+      it('returns available after receiving payloads from the server', () => {
         store.invalidate();
 
         environment.retain(operation);
@@ -301,7 +300,7 @@ describe('check() with global invalidation', () => {
         next.mockClear();
 
         // Still missing incremental payload
-        expect(environment.check(operation)).toBe(false);
+        expect(environment.check(operation)).toBe('missing');
 
         dataSource.next({
           data: {
@@ -318,10 +317,10 @@ describe('check() with global invalidation', () => {
         jest.runAllTimers();
 
         // Data for whole query should be available now
-        expect(environment.check(operation)).toBe(true);
+        expect(environment.check(operation)).toBe('available');
       });
 
-      it('returns false after receiving payloads from the server if data is still missing', () => {
+      it('returns missing after receiving payloads from the server if data is still missing', () => {
         store.invalidate();
 
         environment.retain(operation);
@@ -340,7 +339,7 @@ describe('check() with global invalidation', () => {
         next.mockClear();
 
         // Still missing incremental payload
-        expect(environment.check(operation)).toBe(false);
+        expect(environment.check(operation)).toBe('missing');
 
         dataSource.next({
           data: {
@@ -357,12 +356,12 @@ describe('check() with global invalidation', () => {
         jest.runAllTimers();
 
         // Data is still missing
-        expect(environment.check(operation)).toBe(false);
+        expect(environment.check(operation)).toBe('missing');
       });
     });
 
     describe('when store is invalidated in between incremental payloads', () => {
-      it('returns false after receiving payloads from the server', () => {
+      it('returns stale after receiving payloads from the server', () => {
         environment.retain(operation);
         environment.execute({operation}).subscribe(callbacks);
         const payload = {
@@ -379,7 +378,7 @@ describe('check() with global invalidation', () => {
         next.mockClear();
 
         // Still missing incremental payload
-        expect(environment.check(operation)).toBe(false);
+        expect(environment.check(operation)).toBe('missing');
 
         // Invalidate the store in between incremental payloads
         store.invalidate();
@@ -400,10 +399,10 @@ describe('check() with global invalidation', () => {
 
         // Should return false even if all data is cached since
         // store was invalidated after first payload was written
-        expect(environment.check(operation)).toBe(false);
+        expect(environment.check(operation)).toBe('stale');
       });
 
-      it('returns false after receiving payloads from the server and data is still missing', () => {
+      it('returns stale after receiving payloads from the server and data is still missing', () => {
         environment.retain(operation);
         environment.execute({operation}).subscribe(callbacks);
         const payload = {
@@ -420,7 +419,7 @@ describe('check() with global invalidation', () => {
         next.mockClear();
 
         // Still missing incremental payload
-        expect(environment.check(operation)).toBe(false);
+        expect(environment.check(operation)).toBe('missing');
 
         // Invalidate the store in between incremental payloads
         store.invalidate();
@@ -439,12 +438,12 @@ describe('check() with global invalidation', () => {
         dataSource.complete();
         jest.runAllTimers();
 
-        expect(environment.check(operation)).toBe(false);
+        expect(environment.check(operation)).toBe('stale');
       });
     });
 
     describe('when store is invalidated after all incremental payloads have been written to the store', () => {
-      it('returns false after receiving payloads from the server', () => {
+      it('returns stale after receiving payloads from the server', () => {
         environment.retain(operation);
         environment.execute({operation}).subscribe(callbacks);
         const payload = {
@@ -461,7 +460,7 @@ describe('check() with global invalidation', () => {
         next.mockClear();
 
         // Still missing incremental payload
-        expect(environment.check(operation)).toBe(false);
+        expect(environment.check(operation)).toBe('missing');
 
         dataSource.next({
           data: {
@@ -480,12 +479,12 @@ describe('check() with global invalidation', () => {
         // Invalidate the store after query has completed
         store.invalidate();
 
-        // Should return false even if all data is cached since
+        // Should return stale even if all data is cached since
         // store was invalidated after query completed
-        expect(environment.check(operation)).toBe(false);
+        expect(environment.check(operation)).toBe('stale');
       });
 
-      it('returns false after receiving payloads from the server and data is still missing', () => {
+      it('returns stale after receiving payloads from the server and data is still missing', () => {
         environment.retain(operation);
         environment.execute({operation}).subscribe(callbacks);
         const payload = {
@@ -502,7 +501,7 @@ describe('check() with global invalidation', () => {
         next.mockClear();
 
         // Still missing incremental payload
-        expect(environment.check(operation)).toBe(false);
+        expect(environment.check(operation)).toBe('missing');
 
         dataSource.next({
           data: {
@@ -518,10 +517,10 @@ describe('check() with global invalidation', () => {
         dataSource.complete();
         jest.runAllTimers();
 
-        // Invalidate the store in between incremental payloads
+        // Invalidate the store after query has completed
         store.invalidate();
 
-        expect(environment.check(operation)).toBe(false);
+        expect(environment.check(operation)).toBe('stale');
       });
     });
   });

@@ -210,6 +210,8 @@ export type CheckOptions = {|
   handlers: $ReadOnlyArray<MissingFieldHandler>,
 |};
 
+export type OperationAvailability = 'available' | 'stale' | 'missing';
+
 /**
  * An interface for keeping multiple views of data consistent across an
  * application.
@@ -224,7 +226,10 @@ export interface Store {
    * Determine if the operation can be resolved with data in the store (i.e. no
    * fields are missing).
    */
-  check(operation: OperationDescriptor, options?: CheckOptions): boolean;
+  check(
+    operation: OperationDescriptor,
+    options?: CheckOptions,
+  ): OperationAvailability;
 
   /**
    * Read the results of a selector from in-memory records in the store.
@@ -464,7 +469,7 @@ export interface IEnvironment {
    * cache and therefore takes time proportional to the size/complexity of the
    * selector.
    */
-  check(operation: OperationDescriptor): boolean;
+  check(operation: OperationDescriptor): OperationAvailability;
 
   /**
    * Subscribe to changes to the results of a selector. The callback is called

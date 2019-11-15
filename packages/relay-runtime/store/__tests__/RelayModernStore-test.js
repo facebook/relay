@@ -836,15 +836,15 @@ function assertIsDeeplyFrozen(value: ?{} | ?$ReadOnlyArray<{}>) {
         `));
       });
 
-      it('returns true if all data exists in the cache', () => {
+      it('returns available if all data exists in the cache', () => {
         const operation = createOperationDescriptor(UserQuery, {
           id: '4',
           size: 32,
         });
-        expect(store.check(operation)).toBe(true);
+        expect(store.check(operation)).toBe('available');
       });
 
-      it('returns false if a scalar field is missing', () => {
+      it('returns missing if a scalar field is missing', () => {
         const operation = createOperationDescriptor(UserQuery, {
           id: '4',
           size: 32,
@@ -857,18 +857,18 @@ function assertIsDeeplyFrozen(value: ?{} | ?$ReadOnlyArray<{}>) {
             },
           }),
         );
-        expect(store.check(operation)).toBe(false);
+        expect(store.check(operation)).toBe('missing');
       });
 
-      it('returns false if a linked field is missing', () => {
+      it('returns missing if a linked field is missing', () => {
         const operation = createOperationDescriptor(UserQuery, {
           id: '4',
           size: 64,
         });
-        expect(store.check(operation)).toBe(false);
+        expect(store.check(operation)).toBe('missing');
       });
 
-      it('returns false if a linked record is missing', () => {
+      it('returns missing if a linked record is missing', () => {
         // $FlowFixMe found deploying v0.109.0
         delete data['client:1']; // profile picture
         source = getRecordSourceImplementation(data);
@@ -877,40 +877,40 @@ function assertIsDeeplyFrozen(value: ?{} | ?$ReadOnlyArray<{}>) {
           id: '4',
           size: 32,
         });
-        expect(store.check(operation)).toBe(false);
+        expect(store.check(operation)).toBe('missing');
       });
 
-      it('returns false if the root record is missing', () => {
+      it('returns missing if the root record is missing', () => {
         const operation = createOperationDescriptor(UserQuery, {
           id: '842472',
           size: 32,
         });
-        expect(store.check(operation)).toBe(false);
+        expect(store.check(operation)).toBe('missing');
       });
 
       describe('with global store invalidation', () => {
         describe("when query hasn't been written to the store before", () => {
-          it('returns false if data is cached and store has been invalidated', () => {
+          it('returns stale if data is cached and store has been invalidated', () => {
             store.invalidate();
             const operation = createOperationDescriptor(UserQuery, {
               id: '4',
               size: 32,
             });
-            expect(store.check(operation)).toBe(false);
+            expect(store.check(operation)).toBe('stale');
           });
 
-          it('returns false if data is not cached and store has been invalidated', () => {
+          it('returns stale if data is not cached and store has been invalidated', () => {
             store.invalidate();
             const operation = createOperationDescriptor(UserQuery, {
               id: '842472',
               size: 32,
             });
-            expect(store.check(operation)).toBe(false);
+            expect(store.check(operation)).toBe('stale');
           });
         });
 
         describe('when query has been written to the store before', () => {
-          it('returns false even if data is cached but store was invalidated after query was written', () => {
+          it('returns stale even if data is cached but store was invalidated after query was written', () => {
             const operation = createOperationDescriptor(UserQuery, {
               id: '4',
               size: 32,
@@ -922,10 +922,10 @@ function assertIsDeeplyFrozen(value: ?{} | ?$ReadOnlyArray<{}>) {
             store.notify(operation);
 
             store.invalidate();
-            expect(store.check(operation)).toBe(false);
+            expect(store.check(operation)).toBe('stale');
           });
 
-          it('returns true if data is cached and store was invalidated before query was written', () => {
+          it('returns available if data is cached and store was invalidated before query was written', () => {
             store.invalidate();
             const operation = createOperationDescriptor(UserQuery, {
               id: '4',
@@ -937,10 +937,10 @@ function assertIsDeeplyFrozen(value: ?{} | ?$ReadOnlyArray<{}>) {
             store.publish(source);
             store.notify(operation);
 
-            expect(store.check(operation)).toBe(true);
+            expect(store.check(operation)).toBe('available');
           });
 
-          it('returns false if data is not cached and store was invalidated after query was written', () => {
+          it('returns stale if data is not cached and store was invalidated after query was written', () => {
             const operation = createOperationDescriptor(UserQuery, {
               id: '842472',
               size: 32,
@@ -952,10 +952,10 @@ function assertIsDeeplyFrozen(value: ?{} | ?$ReadOnlyArray<{}>) {
             store.notify(operation);
 
             store.invalidate();
-            expect(store.check(operation)).toBe(false);
+            expect(store.check(operation)).toBe('stale');
           });
 
-          it('returns false if data is not cached and store was invalidated before query was written', () => {
+          it('returns missing if data is not cached and store was invalidated before query was written', () => {
             store.invalidate();
             const operation = createOperationDescriptor(UserQuery, {
               id: '842472',
@@ -967,7 +967,7 @@ function assertIsDeeplyFrozen(value: ?{} | ?$ReadOnlyArray<{}>) {
             store.publish(source);
             store.notify(operation);
 
-            expect(store.check(operation)).toBe(false);
+            expect(store.check(operation)).toBe('missing');
           });
         });
       });

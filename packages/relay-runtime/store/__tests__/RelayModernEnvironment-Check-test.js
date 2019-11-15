@@ -61,7 +61,7 @@ describe('check()', () => {
         },
       },
     });
-    expect(environment.check(operationDescriptor.root)).toBe(true);
+    expect(environment.check(operationDescriptor)).toBe(true);
   });
 
   it('returns false if data is missing from the environment', () => {
@@ -74,6 +74,6 @@ describe('check()', () => {
         },
       },
     });
-    expect(environment.check(operationDescriptor.root)).toBe(false);
+    expect(environment.check(operationDescriptor)).toBe(false);
   });
 });

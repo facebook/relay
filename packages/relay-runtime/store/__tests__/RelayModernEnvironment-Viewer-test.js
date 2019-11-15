@@ -176,7 +176,7 @@ describe('Mutations on viewer', () => {
         },
       },
     });
-    environment.check(operationDescriptor.root); // fill in missing viewer
+    environment.check(operationDescriptor); // fill in missing viewer
     expect(callback).toBeCalledTimes(2);
     expect(callback.mock.calls[0][0].data).toEqual({
       viewer: undefined,

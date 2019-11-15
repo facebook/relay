@@ -792,6 +792,7 @@ function assertIsDeeplyFrozen(value: ?{} | ?$ReadOnlyArray<{}>) {
 
     describe('check()', () => {
       let UserFragment;
+      let UserQuery;
       let data;
       let source;
       let store;
@@ -809,28 +810,41 @@ function assertIsDeeplyFrozen(value: ?{} | ?$ReadOnlyArray<{}>) {
             __id: 'client:1',
             uri: 'https://photo1.jpg',
           },
+          'client:root': {
+            __id: 'client:root',
+            __typename: '__Root',
+            'node(id:"4")': {__ref: '4'},
+          },
         };
         source = getRecordSourceImplementation(data);
         store = new RelayModernStore(source);
-        ({UserFragment} = generateAndCompile(`
+        ({UserFragment, UserQuery} = generateAndCompile(`
           fragment UserFragment on User {
             name
             profilePicture(size: $size) {
               uri
             }
           }
+
+          query UserQuery($id: ID!, $size: [Int]) {
+            node(id: $id) {
+              ...UserFragment
+            }
+          }
         `));
       });
 
       it('returns true if all data exists in the cache', () => {
-        const selector = createNormalizationSelector(UserFragment, '4', {
+        const operation = createOperationDescriptor(UserQuery, {
+          id: '4',
           size: 32,
         });
-        expect(store.check(selector)).toBe(true);
+        expect(store.check(operation)).toBe(true);
       });
 
       it('returns false if a scalar field is missing', () => {
-        const selector = createNormalizationSelector(UserFragment, '4', {
+        const operation = createOperationDescriptor(UserQuery, {
+          id: '4',
           size: 32,
         });
         store.publish(
@@ -841,14 +855,15 @@ function assertIsDeeplyFrozen(value: ?{} | ?$ReadOnlyArray<{}>) {
             },
           }),
         );
-        expect(store.check(selector)).toBe(false);
+        expect(store.check(operation)).toBe(false);
       });
 
       it('returns false if a linked field is missing', () => {
-        const selector = createNormalizationSelector(UserFragment, '4', {
+        const operation = createOperationDescriptor(UserQuery, {
+          id: '4',
           size: 64,
         });
-        expect(store.check(selector)).toBe(false);
+        expect(store.check(operation)).toBe(false);
       });
 
       it('returns false if a linked record is missing', () => {
@@ -856,17 +871,19 @@ function assertIsDeeplyFrozen(value: ?{} | ?$ReadOnlyArray<{}>) {
         delete data['client:1']; // profile picture
         source = getRecordSourceImplementation(data);
         store = new RelayModernStore(source);
-        const selector = createNormalizationSelector(UserFragment, '4', {
+        const operation = createOperationDescriptor(UserQuery, {
+          id: '4',
           size: 32,
         });
-        expect(store.check(selector)).toBe(false);
+        expect(store.check(operation)).toBe(false);
       });
 
       it('returns false if the root record is missing', () => {
-        const selector = createNormalizationSelector(UserFragment, '842472', {
+        const operation = createOperationDescriptor(UserQuery, {
+          id: '842472',
           size: 32,
         });
-        expect(store.check(selector)).toBe(false);
+        expect(store.check(operation)).toBe(false);
       });
     });
 

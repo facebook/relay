@@ -206,12 +206,12 @@ class RelayModernEnvironment implements IEnvironment {
     };
   }
 
-  check(readSelector: NormalizationSelector): boolean {
+  check(operation: OperationDescriptor): boolean {
     if (this._missingFieldHandlers == null) {
-      return this._store.check(readSelector);
+      return this._store.check(operation);
     }
     return this._checkSelectorAndHandleMissingFields(
-      readSelector,
+      operation,
       this._missingFieldHandlers,
     );
   }
@@ -255,9 +255,10 @@ class RelayModernEnvironment implements IEnvironment {
   }
 
   _checkSelectorAndHandleMissingFields(
-    selector: NormalizationSelector,
+    operation: OperationDescriptor,
     handlers: $ReadOnlyArray<MissingFieldHandler>,
   ): boolean {
+    const selector = operation.root;
     const target = RelayRecordSource.create();
     const result = DataChecker.check(
       this._store.getSource(),

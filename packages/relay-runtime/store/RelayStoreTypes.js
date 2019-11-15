@@ -216,10 +216,10 @@ export interface Store {
   getSource(): RecordSource;
 
   /**
-   * Determine if the selector can be resolved with data in the store (i.e. no
+   * Determine if the operation can be resolved with data in the store (i.e. no
    * fields are missing).
    */
-  check(selector: NormalizationSelector): boolean;
+  check(operation: OperationDescriptor): boolean;
 
   /**
    * Read the results of a selector from in-memory records in the store.
@@ -443,14 +443,14 @@ export interface IEnvironment {
   __log: LogFunction;
 
   /**
-   * Determine if the selector can be resolved with data in the store (i.e. no
+   * Determine if the operation can be resolved with data in the store (i.e. no
    * fields are missing).
    *
    * Note that this operation effectively "executes" the selector against the
    * cache and therefore takes time proportional to the size/complexity of the
    * selector.
    */
-  check(selector: NormalizationSelector): boolean;
+  check(operation: OperationDescriptor): boolean;
 
   /**
    * Subscribe to changes to the results of a selector. The callback is called

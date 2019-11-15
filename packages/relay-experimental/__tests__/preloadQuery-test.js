@@ -93,7 +93,7 @@ describe('store-or-network', () => {
   it('fetches from network if data is available but query is not', () => {
     // load data in store
     environment.commitPayload(operation, response.data);
-    expect(environment.check(operation.root)).toBe(true);
+    expect(environment.check(operation)).toBe(true);
     check.mockClear();
 
     const preloaded = preloadQuery_DEPRECATED(environment, params, variables);
@@ -192,7 +192,7 @@ describe('store-or-network', () => {
 
   it('resolves from cache if data and query are available', () => {
     environment.commitPayload(operation, response.data);
-    expect(environment.check(operation.root)).toBe(true);
+    expect(environment.check(operation)).toBe(true);
     check.mockClear();
     params.queryResource.getModuleIfRequired = () => query;
 
@@ -205,7 +205,7 @@ describe('store-or-network', () => {
 
   it('resolves from cache if data is available with a concrete query', () => {
     environment.commitPayload(operation, response.data);
-    expect(environment.check(operation.root)).toBe(true);
+    expect(environment.check(operation)).toBe(true);
     check.mockClear();
 
     const preloaded = preloadQuery_DEPRECATED(environment, query, variables);
@@ -220,7 +220,7 @@ describe('store-or-network', () => {
     fetch.mockClear();
 
     environment.commitPayload(operation, response.data);
-    expect(environment.check(operation.root)).toBe(true);
+    expect(environment.check(operation)).toBe(true);
     check.mockClear();
     params.queryResource.getModuleIfRequired = () => query;
 
@@ -232,7 +232,7 @@ describe('store-or-network', () => {
 
   it('resolves from cache wo re-check()-ing if the entry is still cached', () => {
     environment.commitPayload(operation, response.data);
-    expect(environment.check(operation.root)).toBe(true);
+    expect(environment.check(operation)).toBe(true);
     check.mockClear();
     params.queryResource.getModuleIfRequired = () => query;
 
@@ -246,7 +246,7 @@ describe('store-or-network', () => {
 
   it('resolves from cache and rechecks if data/query are available but cache entry has expired', () => {
     environment.commitPayload(operation, response.data);
-    expect(environment.check(operation.root)).toBe(true);
+    expect(environment.check(operation)).toBe(true);
     check.mockClear();
     params.queryResource.getModuleIfRequired = () => query;
 
@@ -265,7 +265,7 @@ describe('store-or-network', () => {
 describe('store-and-network', () => {
   it('fetches from network even if query/data are available', () => {
     environment.commitPayload(operation, response.data);
-    expect(environment.check(operation.root)).toBe(true);
+    expect(environment.check(operation)).toBe(true);
     params.queryResource.getModuleIfRequired = () => query;
 
     const preloaded = preloadQuery_DEPRECATED(environment, params, variables, {
@@ -360,7 +360,7 @@ describe('store-and-network', () => {
 describe('network-only', () => {
   it('fetches from network even if query/data are available', () => {
     environment.commitPayload(operation, response.data);
-    expect(environment.check(operation.root)).toBe(true);
+    expect(environment.check(operation)).toBe(true);
     params.queryResource.getModuleIfRequired = () => query;
 
     const preloaded = preloadQuery_DEPRECATED(environment, params, variables, {

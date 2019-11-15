@@ -60,7 +60,7 @@ function ReactRelayLocalQueryRenderer(props: Props): React.Node {
   const cleanupFnRef = useRef(null);
 
   const snapshot = useMemo(() => {
-    environment.check(operation.root);
+    environment.check(operation);
     const res = environment.lookup(operation.fragment);
     dataRef.current = res.data;
 

@@ -40,6 +40,7 @@ import type {GetDataID} from './RelayResponseNormalizer';
 import type {
   MutableRecordSource,
   NormalizationSelector,
+  OperationDescriptor,
   OperationLoader,
   RecordSource,
   RequestDescriptor,
@@ -157,7 +158,8 @@ class RelayModernStore implements Store {
     }
   }
 
-  check(selector: NormalizationSelector): boolean {
+  check(operation: OperationDescriptor): boolean {
+    const selector = operation.root;
     const source = this._optimisticSource ?? this._recordSource;
     return DataChecker.check(
       source,

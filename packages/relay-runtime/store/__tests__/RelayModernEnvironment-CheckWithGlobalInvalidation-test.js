@@ -71,6 +71,7 @@ describe('check() with global invalidation', () => {
     it('returns true after receiving query from the server', () => {
       store.invalidate();
 
+      environment.retain(operation);
       environment.execute({operation}).subscribe(callbacks);
       const payload = {
         data: {
@@ -94,6 +95,7 @@ describe('check() with global invalidation', () => {
     it('returns false if some data is missing after receiving query from the server', () => {
       store.invalidate();
 
+      environment.retain(operation);
       environment.execute({operation}).subscribe(callbacks);
       const payload = {
         data: {
@@ -117,6 +119,7 @@ describe('check() with global invalidation', () => {
 
   describe('when store is invalidated after query has been written to the store', () => {
     it('returns false even if full query is cached', () => {
+      environment.retain(operation);
       environment.execute({operation}).subscribe(callbacks);
       const payload = {
         data: {
@@ -142,6 +145,7 @@ describe('check() with global invalidation', () => {
     });
 
     it('returns false if some data is missing', () => {
+      environment.retain(operation);
       environment.execute({operation}).subscribe(callbacks);
       const payload = {
         data: {
@@ -167,6 +171,7 @@ describe('check() with global invalidation', () => {
 
   describe('when query is refetched after store is invalidated', () => {
     it('returns true if data is available after refetch', () => {
+      environment.retain(operation);
       environment.execute({operation}).subscribe(callbacks);
       let payload = {
         data: {
@@ -211,6 +216,7 @@ describe('check() with global invalidation', () => {
     });
 
     it('returns false if data is not available after refetch', () => {
+      environment.retain(operation);
       environment.execute({operation}).subscribe(callbacks);
       let payload = {
         data: {
@@ -279,6 +285,7 @@ describe('check() with global invalidation', () => {
       it('returns true after receiving payloads from the server', () => {
         store.invalidate();
 
+        environment.retain(operation);
         environment.execute({operation}).subscribe(callbacks);
         const payload = {
           data: {
@@ -317,6 +324,7 @@ describe('check() with global invalidation', () => {
       it('returns false after receiving payloads from the server if data is still missing', () => {
         store.invalidate();
 
+        environment.retain(operation);
         environment.execute({operation}).subscribe(callbacks);
         const payload = {
           data: {
@@ -355,6 +363,7 @@ describe('check() with global invalidation', () => {
 
     describe('when store is invalidated in between incremental payloads', () => {
       it('returns false after receiving payloads from the server', () => {
+        environment.retain(operation);
         environment.execute({operation}).subscribe(callbacks);
         const payload = {
           data: {
@@ -395,6 +404,7 @@ describe('check() with global invalidation', () => {
       });
 
       it('returns false after receiving payloads from the server and data is still missing', () => {
+        environment.retain(operation);
         environment.execute({operation}).subscribe(callbacks);
         const payload = {
           data: {
@@ -435,6 +445,7 @@ describe('check() with global invalidation', () => {
 
     describe('when store is invalidated after all incremental payloads have been written to the store', () => {
       it('returns false after receiving payloads from the server', () => {
+        environment.retain(operation);
         environment.execute({operation}).subscribe(callbacks);
         const payload = {
           data: {
@@ -475,6 +486,7 @@ describe('check() with global invalidation', () => {
       });
 
       it('returns false after receiving payloads from the server and data is still missing', () => {
+        environment.retain(operation);
         environment.execute({operation}).subscribe(callbacks);
         const payload = {
           data: {

@@ -917,6 +917,7 @@ function assertIsDeeplyFrozen(value: ?{} | ?$ReadOnlyArray<{}>) {
             });
 
             // Write query data and record operation write
+            store.retain(operation);
             store.publish(source);
             store.notify(operation);
 
@@ -932,6 +933,7 @@ function assertIsDeeplyFrozen(value: ?{} | ?$ReadOnlyArray<{}>) {
             });
 
             // Write query data and record operation write
+            store.retain(operation);
             store.publish(source);
             store.notify(operation);
 
@@ -945,6 +947,7 @@ function assertIsDeeplyFrozen(value: ?{} | ?$ReadOnlyArray<{}>) {
             });
 
             // Write query data and record operation write
+            store.retain(operation);
             store.publish(source);
             store.notify(operation);
 
@@ -960,6 +963,7 @@ function assertIsDeeplyFrozen(value: ?{} | ?$ReadOnlyArray<{}>) {
             });
 
             // Write query data and record operation write
+            store.retain(operation);
             store.publish(source);
             store.notify(operation);
 

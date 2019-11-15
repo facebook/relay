@@ -40,7 +40,6 @@ import type {GetDataID} from './RelayResponseNormalizer';
 import type {
   CheckOptions,
   MutableRecordSource,
-  NormalizationSelector,
   OperationDescriptor,
   OperationLoader,
   RecordSource,
@@ -102,8 +101,11 @@ class RelayModernStore implements Store {
   _operationWriteEpochs: Map<string, number>;
   _optimisticSource: ?MutableRecordSource;
   _recordSource: MutableRecordSource;
-  _releaseBuffer: Array<number>;
-  _roots: Map<number, NormalizationSelector>;
+  _releaseBuffer: Array<string>;
+  _roots: Map<
+    string,
+    {|operation: OperationDescriptor, refCount: number, epoch: ?number|},
+  >;
   _shouldScheduleGC: boolean;
   _subscriptions: Set<Subscription>;
   _updatedConnectionIDs: UpdatedConnections;
@@ -141,7 +143,6 @@ class RelayModernStore implements Store {
     this._hasScheduledGC = false;
     this._index = 0;
     this._operationLoader = options?.operationLoader ?? null;
-    this._operationWriteEpochs = new Map();
     this._optimisticSource = null;
     this._recordSource = source;
     this._releaseBuffer = [];
@@ -172,9 +173,8 @@ class RelayModernStore implements Store {
 
     // Check if store has been globally invalidated
     if (globalInvalidationEpoch != null) {
-      const operationWriteEpoch = this._operationWriteEpochs.get(
-        operation.request.identifier,
-      );
+      const rootEntry = this._roots.get(operation.request.identifier);
+      const operationWriteEpoch = rootEntry != null ? rootEntry.epoch : null;
 
       // If so, check if the operation we're checking was last written
       // before or after invalidation occured.
@@ -204,21 +204,49 @@ class RelayModernStore implements Store {
   }
 
   retain(operation: OperationDescriptor): Disposable {
-    const selector = operation.root;
-    const index = this._index++;
+    const id = operation.request.identifier;
     const dispose = () => {
-      // When disposing, move the selector onto the release buffer
-      this._releaseBuffer.push(index);
+      // When disposing, instead of immediately decrementing the refCount and
+      // potentially deleting/collecting the root, move the operation onto
+      // the release buffer. When the operation is extracted from the release
+      // buffer, we will determine if it needs to be collected.
+      this._releaseBuffer.push(id);
 
-      // Only when the release buffer is full do we actually
-      // release the selector and run GC
+      // Only when the release buffer is full do we actually:
+      // - extract the least recent operation in the release buffer
+      // - attempt to release it and run GC if it's no longer referenced
+      //   (refCount reached 0).
       if (this._releaseBuffer.length > this._gcReleaseBufferSize) {
-        const idx = this._releaseBuffer.shift();
-        this._roots.delete(idx);
-        this._scheduleGC();
+        const _id = this._releaseBuffer.shift();
+
+        const entry = this._roots.get(_id);
+        if (entry == null) {
+          // If operation has already been fully released, we don't need
+          // to do anything.
+          return;
+        }
+
+        if (entry.refCount > 0) {
+          // If the operation is still retained by other callers
+          // decrement the refCount
+          entry.refCount -= 1;
+        } else {
+          // Otherwise fully release the query and run GC.
+          this._roots.delete(_id);
+          this._scheduleGC();
+        }
       }
     };
-    this._roots.set(index, selector);
+
+    const entry = this._roots.get(id);
+    if (entry != null) {
+      // If we've previously retained this operation, inrement the refCount
+      entry.refCount += 1;
+    } else {
+      // Otherwise create a new entry for the operation
+      this._roots.set(id, {operation, refCount: 0, epoch: null});
+    }
+
     return {dispose};
   }
 
@@ -256,11 +284,23 @@ class RelayModernStore implements Store {
     this._updatedConnectionIDs = {};
     this._updatedRecordIDs = {};
 
+    // If a source operation was provided (indicating the operation
+    // that produced this update to the store), record the current epoch
+    // at which this operation was written.
     if (sourceOperation != null) {
-      this._operationWriteEpochs.set(
-        sourceOperation.request.identifier,
-        this._currentWriteEpoch,
-      );
+      // We only track the epoch at which the operation was written if
+      // it was previously retained, to keep the size of our operation
+      // epoch map bounded. If a query wasn't retained, we assume it can
+      // may be deleted at any moment and thus is not relevant for us to track
+      // for the purposes of invalidation.
+      const id = sourceOperation.request.identifier;
+      const rootEntry = this._roots.get(id);
+      if (rootEntry != null) {
+        this._roots.set(id, {
+          ...rootEntry,
+          epoch: this._currentWriteEpoch,
+        });
+      }
     }
 
     return updatedOwners;
@@ -755,7 +795,8 @@ class RelayModernStore implements Store {
     const references = new Set();
     const connectionReferences = new Set();
     // Mark all records that are traversable from a root
-    this._roots.forEach(selector => {
+    this._roots.forEach(({operation}) => {
+      const selector = operation.root;
       RelayReferenceMarker.mark(
         this._recordSource,
         selector,

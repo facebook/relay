@@ -75,6 +75,7 @@ export type EnvironmentConfig = {|
    * because the internal ID might not be the `id` field on the node anymore
    */
   +UNSTABLE_DO_NOT_USE_getDataID?: ?GetDataID,
+  +options?: mixed,
 |};
 
 class RelayModernEnvironment implements IEnvironment {
@@ -88,6 +89,7 @@ class RelayModernEnvironment implements IEnvironment {
   _missingFieldHandlers: ?$ReadOnlyArray<MissingFieldHandler>;
   _operationTracker: OperationTracker;
   _getDataID: GetDataID;
+  +options: mixed;
 
   constructor(config: EnvironmentConfig) {
     this.configName = config.configName;
@@ -118,6 +120,7 @@ class RelayModernEnvironment implements IEnvironment {
     );
     this._scheduler = config.scheduler ?? null;
     this._store = config.store;
+    this.options = config.options;
 
     (this: any).__setNet = newNet => (this._network = newNet);
 

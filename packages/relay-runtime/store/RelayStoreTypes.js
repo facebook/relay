@@ -433,6 +433,11 @@ export type LogRequestInfoFunction = mixed => void;
  */
 export interface IEnvironment {
   /**
+   * Extra information attached to the environment instance
+   */
+  +options: mixed;
+
+  /**
    * **UNSTABLE** Event based logging API thats scoped to the environment.
    */
   __log: LogFunction;

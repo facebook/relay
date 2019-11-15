@@ -411,7 +411,7 @@ export type LogEvent =
       +fetchPolicy: string,
       // RenderPolicy from relay-experimental
       +renderPolicy: string,
-      +hasFullQuery: boolean,
+      +queryAvailability: OperationAvailability,
       +shouldFetch: boolean,
     |}
   | {|

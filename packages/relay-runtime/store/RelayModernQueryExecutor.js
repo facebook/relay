@@ -49,6 +49,7 @@ import type {
   Record,
   RelayResponsePayload,
   SelectorStoreUpdater,
+  Store,
   StreamPlaceholder,
 } from '../store/RelayStoreTypes';
 import type {
@@ -70,6 +71,7 @@ export type ExecuteConfig = {|
   +scheduler?: ?TaskScheduler,
   +sink: Sink<GraphQLResponse>,
   +source: RelayObservable<GraphQLResponse>,
+  +store: Store,
   +updater?: ?SelectorStoreUpdater,
 |};
 
@@ -106,11 +108,16 @@ function execute(config: ExecuteConfig): Executor {
  * dependencies, etc.
  */
 class Executor {
+  _getDataID: GetDataID;
+  _incrementalPayloadsPending: boolean;
   _incrementalResults: Map<Label, Map<PathKey, IncrementalResults>>;
   _nextSubscriptionId: number;
   _operation: OperationDescriptor;
   _operationLoader: ?OperationLoader;
+  _operationTracker: ?OperationTracker;
+  _operationUpdateEpochs: Map<string, number>;
   _optimisticUpdates: null | Array<OptimisticUpdate>;
+  _pendingModulePayloadsCount: number;
   _publishQueue: PublishQueue;
   _scheduler: ?TaskScheduler;
   _sink: Sink<GraphQLResponse>;
@@ -119,12 +126,9 @@ class Executor {
     {|+record: Record, +fieldPayloads: Array<HandleFieldPayload>|},
   >;
   _state: 'started' | 'loading_incremental' | 'loading_final' | 'completed';
-  _updater: ?SelectorStoreUpdater;
+  _store: Store;
   _subscriptions: Map<number, Subscription>;
-  _operationTracker: ?OperationTracker;
-  _getDataID: GetDataID;
-  _incrementalPayloadsPending: boolean;
-  _pendingModulePayloadsCount: number;
+  _updater: ?SelectorStoreUpdater;
 
   constructor({
     operation,
@@ -134,26 +138,29 @@ class Executor {
     scheduler,
     sink,
     source,
+    store,
     updater,
     operationTracker,
     getDataID,
   }: ExecuteConfig): void {
+    this._getDataID = getDataID;
+    this._incrementalPayloadsPending = false;
     this._incrementalResults = new Map();
     this._nextSubscriptionId = 0;
     this._operation = operation;
     this._operationLoader = operationLoader;
+    this._operationTracker = operationTracker;
+    this._operationUpdateEpochs = new Map();
     this._optimisticUpdates = null;
+    this._pendingModulePayloadsCount = 0;
     this._publishQueue = publishQueue;
     this._scheduler = scheduler;
     this._sink = sink;
     this._source = new Map();
     this._state = 'started';
-    this._updater = updater;
+    this._store = store;
     this._subscriptions = new Map();
-    this._operationTracker = operationTracker;
-    this._getDataID = getDataID;
-    this._incrementalPayloadsPending = false;
-    this._pendingModulePayloadsCount = 0;
+    this._updater = updater;
 
     const id = this._nextSubscriptionId++;
     source.subscribe({
@@ -486,7 +493,7 @@ class Executor {
     this._incrementalResults.clear();
     this._source.clear();
     this._publishQueue.commitPayload(this._operation, payload, this._updater);
-    const updatedOwners = this._publishQueue.run();
+    const updatedOwners = this._publishQueue.run(this._operation);
     this._updateOperationTracker(updatedOwners);
     this._processPayloadFollowups(payload);
   }

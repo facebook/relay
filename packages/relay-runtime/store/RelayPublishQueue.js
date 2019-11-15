@@ -177,7 +177,9 @@ class RelayPublishQueue implements PublishQueue {
   /**
    * Execute all queued up operations from the other public methods.
    */
-  run(): $ReadOnlyArray<RequestDescriptor> {
+  run(
+    sourceOperation?: OperationDescriptor,
+  ): $ReadOnlyArray<RequestDescriptor> {
     if (__DEV__) {
       warning(
         this._isRunning !== true,
@@ -218,7 +220,7 @@ class RelayPublishQueue implements PublishQueue {
     if (__DEV__) {
       this._isRunning = false;
     }
-    return this._store.notify();
+    return this._store.notify(sourceOperation);
   }
 
   _publishSourceFromPayload(pendingPayload: PendingRelayPayload): void {

@@ -9,7 +9,7 @@
  * @emails oncall+relay
  */
 
-'use strict';
+('use strict');
 
 const RelayModernRecord = require('../RelayModernRecord');
 const RelayModernStore = require('../RelayModernStore');
@@ -21,10 +21,7 @@ const {getRequest} = require('../../query/RelayModernGraphQLTag');
 const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
-const {
-  createReaderSelector,
-  createNormalizationSelector,
-} = require('../RelayModernSelector');
+const {createReaderSelector} = require('../RelayModernSelector');
 const {REF_KEY, ROOT_ID, ROOT_TYPE} = require('../RelayStoreUtils');
 const {generateAndCompile, simpleClone} = require('relay-test-utils-internal');
 
@@ -889,6 +886,86 @@ function assertIsDeeplyFrozen(value: ?{} | ?$ReadOnlyArray<{}>) {
           size: 32,
         });
         expect(store.check(operation)).toBe(false);
+      });
+
+      describe('with global store invalidation', () => {
+        describe("when query hasn't been written to the store before", () => {
+          it('returns false if data is cached and store has been invalidated', () => {
+            store.invalidate();
+            const operation = createOperationDescriptor(UserQuery, {
+              id: '4',
+              size: 32,
+            });
+            expect(store.check(operation)).toBe(false);
+          });
+
+          it('returns false if data is not cached and store has been invalidated', () => {
+            store.invalidate();
+            const operation = createOperationDescriptor(UserQuery, {
+              id: '842472',
+              size: 32,
+            });
+            expect(store.check(operation)).toBe(false);
+          });
+        });
+
+        describe('when query has been written to the store before', () => {
+          it('returns false even if data is cached but store was invalidated after query was written', () => {
+            const operation = createOperationDescriptor(UserQuery, {
+              id: '4',
+              size: 32,
+            });
+
+            // Write query data and record operation write
+            store.publish(source);
+            store.notify(operation);
+
+            store.invalidate();
+            expect(store.check(operation)).toBe(false);
+          });
+
+          it('returns true if data is cached and store was invalidated before query was written', () => {
+            store.invalidate();
+            const operation = createOperationDescriptor(UserQuery, {
+              id: '4',
+              size: 32,
+            });
+
+            // Write query data and record operation write
+            store.publish(source);
+            store.notify(operation);
+
+            expect(store.check(operation)).toBe(true);
+          });
+
+          it('returns false if data is not cached and store was invalidated after query was written', () => {
+            const operation = createOperationDescriptor(UserQuery, {
+              id: '842472',
+              size: 32,
+            });
+
+            // Write query data and record operation write
+            store.publish(source);
+            store.notify(operation);
+
+            store.invalidate();
+            expect(store.check(operation)).toBe(false);
+          });
+
+          it('returns false if data is not cached and store was invalidated before query was written', () => {
+            store.invalidate();
+            const operation = createOperationDescriptor(UserQuery, {
+              id: '842472',
+              size: 32,
+            });
+
+            // Write query data and record operation write
+            store.publish(source);
+            store.notify(operation);
+
+            expect(store.check(operation)).toBe(false);
+          });
+        });
       });
     });
 

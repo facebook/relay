@@ -38,6 +38,7 @@ import type {
 } from './RelayConnection';
 import type {GetDataID} from './RelayResponseNormalizer';
 import type {
+  CheckOptions,
   MutableRecordSource,
   NormalizationSelector,
   OperationDescriptor,
@@ -89,13 +90,16 @@ const DEFAULT_RELEASE_BUFFER_SIZE = 0;
 class RelayModernStore implements Store {
   _connectionEvents: Map<ConnectionID, ConnectionEvents>;
   _connectionSubscriptions: Map<string, ConnectionSubscription<mixed, mixed>>;
+  _currentWriteEpoch: number;
   _gcHoldCounter: number;
   _gcReleaseBufferSize: number;
   _gcScheduler: Scheduler;
   _getDataID: GetDataID;
+  _globalInvalidationEpoch: ?number;
   _hasScheduledGC: boolean;
   _index: number;
   _operationLoader: ?OperationLoader;
+  _operationWriteEpochs: Map<string, number>;
   _optimisticSource: ?MutableRecordSource;
   _recordSource: MutableRecordSource;
   _releaseBuffer: Array<number>;
@@ -126,15 +130,18 @@ class RelayModernStore implements Store {
     }
     this._connectionEvents = new Map();
     this._connectionSubscriptions = new Map();
+    this._currentWriteEpoch = 0;
     this._gcHoldCounter = 0;
     this._gcReleaseBufferSize =
       options?.gcReleaseBufferSize ?? DEFAULT_RELEASE_BUFFER_SIZE;
     this._gcScheduler = options?.gcScheduler ?? resolveImmediate;
     this._getDataID =
       options?.UNSTABLE_DO_NOT_USE_getDataID ?? defaultGetDataID;
+    this._globalInvalidationEpoch = null;
     this._hasScheduledGC = false;
     this._index = 0;
     this._operationLoader = options?.operationLoader ?? null;
+    this._operationWriteEpochs = new Map();
     this._optimisticSource = null;
     this._recordSource = source;
     this._releaseBuffer = [];
@@ -158,14 +165,38 @@ class RelayModernStore implements Store {
     }
   }
 
-  check(operation: OperationDescriptor): boolean {
+  check(operation: OperationDescriptor, options?: CheckOptions): boolean {
     const selector = operation.root;
     const source = this._optimisticSource ?? this._recordSource;
+    const globalInvalidationEpoch = this._globalInvalidationEpoch;
+
+    // Check if store has been globally invalidated
+    if (globalInvalidationEpoch != null) {
+      const operationWriteEpoch = this._operationWriteEpochs.get(
+        operation.request.identifier,
+      );
+
+      // If so, check if the operation we're checking was last written
+      // before or after invalidation occured.
+      if (
+        operationWriteEpoch == null ||
+        operationWriteEpoch <= globalInvalidationEpoch
+      ) {
+        // If the operation was written /before/ global invalidation ocurred,
+        // or if this operation has never been written to the store before,
+        // we will consider the data for this operation to be stale
+        //  (i.e. not resolvable from the store).
+        return false;
+      }
+    }
+
+    const target = options?.target ?? source;
+    const handlers = options?.handlers ?? [];
     return DataChecker.check(
       source,
-      source,
+      target,
       selector,
-      [],
+      handlers,
       this._operationLoader,
       this._getDataID,
       id => this.getConnectionEvents_UNSTABLE(id),
@@ -201,7 +232,13 @@ class RelayModernStore implements Store {
   }
 
   // This method will return a list of updated owners form the subscriptions
-  notify(): $ReadOnlyArray<RequestDescriptor> {
+  notify(
+    sourceOperation?: OperationDescriptor,
+  ): $ReadOnlyArray<RequestDescriptor> {
+    // Increment the current write when notifying after executing
+    // a set of changes to the store.
+    this._currentWriteEpoch++;
+
     const source = this.getSource();
     const updatedOwners = [];
     this._subscriptions.forEach(subscription => {
@@ -218,6 +255,14 @@ class RelayModernStore implements Store {
     });
     this._updatedConnectionIDs = {};
     this._updatedRecordIDs = {};
+
+    if (sourceOperation != null) {
+      this._operationWriteEpochs.set(
+        sourceOperation.request.identifier,
+        this._currentWriteEpoch,
+      );
+    }
+
     return updatedOwners;
   }
 
@@ -243,6 +288,10 @@ class RelayModernStore implements Store {
         subscription.stale = true;
       }
     });
+  }
+
+  invalidate() {
+    this._globalInvalidationEpoch = this._currentWriteEpoch;
   }
 
   subscribe(

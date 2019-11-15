@@ -205,6 +205,11 @@ export interface MutableRecordSource extends RecordSource {
   set(dataID: DataID, record: Record): void;
 }
 
+export type CheckOptions = {|
+  target: MutableRecordSource,
+  handlers: $ReadOnlyArray<MissingFieldHandler>,
+|};
+
 /**
  * An interface for keeping multiple views of data consistent across an
  * application.
@@ -219,7 +224,7 @@ export interface Store {
    * Determine if the operation can be resolved with data in the store (i.e. no
    * fields are missing).
    */
-  check(operation: OperationDescriptor): boolean;
+  check(operation: OperationDescriptor, options?: CheckOptions): boolean;
 
   /**
    * Read the results of a selector from in-memory records in the store.
@@ -231,10 +236,14 @@ export interface Store {
   /**
    * Notify subscribers (see `subscribe`) of any data that was published
    * (`publish()`) since the last time `notify` was called.
+   * Optionally provide an OperationDescriptor indicating the source operation
+   * that was being processed to produce this run.
    *
-   * Also this method should return an array of the affected fragment owners
+   * This method should return an array of the affected fragment owners
    */
-  notify(): $ReadOnlyArray<RequestDescriptor>;
+  notify(
+    sourceOperation?: OperationDescriptor,
+  ): $ReadOnlyArray<RequestDescriptor>;
 
   /**
    * Publish new information (e.g. from the network) to the store, updating its
@@ -251,6 +260,11 @@ export interface Store {
   retain(operation: OperationDescriptor): Disposable;
 
   /**
+   * Globally invalidates the store.
+   */
+  invalidate(): void;
+
+  /**
    * Subscribe to changes to the results of a selector. The callback is called
    * when `notify()` is called *and* records have been published that affect the
    * selector results relative to the last `notify()`.
@@ -265,17 +279,6 @@ export interface Store {
    * the returned reference is disposed.
    */
   holdGC(): Disposable;
-
-  lookupConnection_UNSTABLE<TEdge, TState>(
-    connectionReference: ConnectionReference<TEdge>,
-    resolver: ConnectionResolver<TEdge, TState>,
-  ): ConnectionSnapshot<TEdge, TState>;
-
-  subscribeConnection_UNSTABLE<TEdge, TState>(
-    snapshot: ConnectionSnapshot<TEdge, TState>,
-    resolver: ConnectionResolver<TEdge, TState>,
-    callback: (snapshot: ConnectionSnapshot<TEdge, TState>) => void,
-  ): Disposable;
 
   /**
    * Publish connection events, updating the store's list of events. As with
@@ -305,6 +308,17 @@ export interface Store {
    * Reset the state of the store to the point that snapshot() was last called.
    */
   restore(): void;
+
+  lookupConnection_UNSTABLE<TEdge, TState>(
+    connectionReference: ConnectionReference<TEdge>,
+    resolver: ConnectionResolver<TEdge, TState>,
+  ): ConnectionSnapshot<TEdge, TState>;
+
+  subscribeConnection_UNSTABLE<TEdge, TState>(
+    snapshot: ConnectionSnapshot<TEdge, TState>,
+    resolver: ConnectionResolver<TEdge, TState>,
+    callback: (snapshot: ConnectionSnapshot<TEdge, TState>) => void,
+  ): Disposable;
 }
 
 /**
@@ -838,6 +852,8 @@ export interface PublishQueue {
 
   /**
    * Execute all queued up operations from the other public methods.
+   * Optionally provide an OperationDescriptor indicating the source operation
+   * that was being processed to produce this run.
    */
-  run(): $ReadOnlyArray<RequestDescriptor>;
+  run(sourceOperation?: OperationDescriptor): $ReadOnlyArray<RequestDescriptor>;
 }

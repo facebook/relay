@@ -11,7 +11,6 @@
 
 'use strict';
 
-const DataChecker = require('./DataChecker');
 const RelayDefaultHandlerProvider = require('../handlers/RelayDefaultHandlerProvider');
 const RelayDefaultMissingFieldHandlers = require('../handlers/RelayDefaultMissingFieldHandlers');
 const RelayModernQueryExecutor = require('./RelayModernQueryExecutor');
@@ -195,6 +194,7 @@ class RelayModernEnvironment implements IEnvironment {
         scheduler: this._scheduler,
         sink,
         source,
+        store: this._store,
         updater: null,
         operationTracker: this._operationTracker,
         getDataID: this._getDataID,
@@ -226,6 +226,7 @@ class RelayModernEnvironment implements IEnvironment {
         scheduler: null, // make sure the first payload is sync
         sink,
         source: RelayObservable.from({data: payload}),
+        store: this._store,
         updater: null,
         operationTracker: this._operationTracker,
         getDataID: this._getDataID,
@@ -258,17 +259,8 @@ class RelayModernEnvironment implements IEnvironment {
     operation: OperationDescriptor,
     handlers: $ReadOnlyArray<MissingFieldHandler>,
   ): boolean {
-    const selector = operation.root;
     const target = RelayRecordSource.create();
-    const result = DataChecker.check(
-      this._store.getSource(),
-      target,
-      selector,
-      handlers,
-      this._operationLoader,
-      this._getDataID,
-      id => this._store.getConnectionEvents_UNSTABLE(id),
-    );
+    const result = this._store.check(operation, {target, handlers});
     if (target.size() > 0) {
       this._publishQueue.commitSource(target);
       this._publishQueue.run();
@@ -313,6 +305,7 @@ class RelayModernEnvironment implements IEnvironment {
         scheduler: this._scheduler,
         sink,
         source,
+        store: this._store,
         updater,
         operationTracker: this._operationTracker,
         getDataID: this._getDataID,
@@ -372,6 +365,7 @@ class RelayModernEnvironment implements IEnvironment {
         scheduler: this._scheduler,
         sink,
         source,
+        store: this._store,
         updater,
         operationTracker: this._operationTracker,
         getDataID: this._getDataID,
@@ -406,6 +400,7 @@ class RelayModernEnvironment implements IEnvironment {
         scheduler: this._scheduler,
         sink,
         source,
+        store: this._store,
         getDataID: this._getDataID,
       });
       return () => executor.cancel();

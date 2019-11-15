@@ -250,8 +250,8 @@ class RelayModernEnvironment implements IEnvironment {
     return this._store.subscribe(snapshot, callback);
   }
 
-  retain(selector: NormalizationSelector): Disposable {
-    return this._store.retain(selector);
+  retain(operation: OperationDescriptor): Disposable {
+    return this._store.retain(operation);
   }
 
   _checkSelectorAndHandleMissingFields(

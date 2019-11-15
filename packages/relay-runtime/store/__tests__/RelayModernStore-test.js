@@ -55,7 +55,7 @@ function assertIsDeeplyFrozen(value: ?{} | ?$ReadOnlyArray<{}>) {
 ].forEach(([getRecordSourceImplementation, ImplementationName]) => {
   describe(`Relay Store with ${ImplementationName} Record Source`, () => {
     describe('retain()', () => {
-      let UserFragment;
+      let UserQuery;
       let data;
       let initialData;
       let source;
@@ -74,13 +74,18 @@ function assertIsDeeplyFrozen(value: ?{} | ?$ReadOnlyArray<{}>) {
             __id: 'client:1',
             uri: 'https://photo1.jpg',
           },
+          'client:root': {
+            __id: 'client:root',
+            __typename: '__Root',
+            'node(id:"4")': {__ref: '4'},
+          },
         };
         initialData = simpleClone(data);
         source = getRecordSourceImplementation(data);
         store = new RelayModernStore(source);
-        ({UserFragment} = generateAndCompile(`
-          query UserQuery($size: Int) {
-            me {
+        ({UserQuery} = generateAndCompile(`
+          query UserQuery($id: ID!, $size: Int) {
+            node(id: $id) {
               ...UserFragment
             }
           }
@@ -95,16 +100,14 @@ function assertIsDeeplyFrozen(value: ?{} | ?$ReadOnlyArray<{}>) {
       });
 
       it('prevents data from being collected', () => {
-        store.retain(
-          createNormalizationSelector(UserFragment, '4', {size: 32}),
-        );
+        store.retain(createOperationDescriptor(UserQuery, {id: '4', size: 32}));
         jest.runAllTimers();
         expect(source.toJSON()).toEqual(initialData);
       });
 
       it('frees data when disposed', () => {
         const {dispose} = store.retain(
-          createNormalizationSelector(UserFragment, '4', {size: 32}),
+          createOperationDescriptor(UserQuery, {id: '4', size: 32}),
         );
         dispose();
         expect(data).toEqual(initialData);
@@ -113,7 +116,7 @@ function assertIsDeeplyFrozen(value: ?{} | ?$ReadOnlyArray<{}>) {
       });
 
       it('only collects unreferenced data', () => {
-        const {JoeFragment} = generateAndCompile(`
+        const {JoeQuery} = generateAndCompile(`
           fragment JoeFragment on Query @argumentDefinitions(
             id: {type: "ID"}
           ) {
@@ -122,6 +125,10 @@ function assertIsDeeplyFrozen(value: ?{} | ?$ReadOnlyArray<{}>) {
                 name
               }
             }
+          }
+
+          query JoeQuery($id: ID!) {
+            ...JoeFragment @arguments(id: $id)
           }
         `);
         const nextSource = getRecordSourceImplementation({
@@ -134,15 +141,14 @@ function assertIsDeeplyFrozen(value: ?{} | ?$ReadOnlyArray<{}>) {
             __id: ROOT_ID,
             __typename: ROOT_TYPE,
             'node(id:"842472")': {[REF_KEY]: '842472'},
+            'node(id:"4")': {[REF_KEY]: '4'},
           },
         });
         store.publish(nextSource);
         const {dispose} = store.retain(
-          createNormalizationSelector(UserFragment, '4', {size: 32}),
+          createOperationDescriptor(UserQuery, {id: '4', size: 32}),
         );
-        store.retain(
-          createNormalizationSelector(JoeFragment, ROOT_ID, {id: '842472'}),
-        );
+        store.retain(createOperationDescriptor(JoeQuery, {id: '842472'}));
 
         dispose(); // release one of the holds but not the other
         jest.runAllTimers();
@@ -791,7 +797,6 @@ function assertIsDeeplyFrozen(value: ?{} | ?$ReadOnlyArray<{}>) {
     });
 
     describe('check()', () => {
-      let UserFragment;
       let UserQuery;
       let data;
       let source;
@@ -818,7 +823,7 @@ function assertIsDeeplyFrozen(value: ?{} | ?$ReadOnlyArray<{}>) {
         };
         source = getRecordSourceImplementation(data);
         store = new RelayModernStore(source);
-        ({UserFragment, UserQuery} = generateAndCompile(`
+        ({UserQuery} = generateAndCompile(`
           fragment UserFragment on User {
             name
             profilePicture(size: $size) {
@@ -888,7 +893,7 @@ function assertIsDeeplyFrozen(value: ?{} | ?$ReadOnlyArray<{}>) {
     });
 
     describe('GC with a release buffer', () => {
-      let UserFragment;
+      let UserQuery;
       let data;
       let initialData;
       let source;
@@ -918,15 +923,27 @@ function assertIsDeeplyFrozen(value: ?{} | ?$ReadOnlyArray<{}>) {
             __id: 'client:2',
             uri: 'https://photo2.jpg',
           },
+          'client:root': {
+            __id: 'client:root',
+            __typename: '__Root',
+            'node(id:"4")': {__ref: '4'},
+            'node(id:"5")': {__ref: '5'},
+          },
         };
         initialData = simpleClone(data);
         source = getRecordSourceImplementation(data);
         store = new RelayModernStore(source, {gcReleaseBufferSize: 1});
-        ({UserFragment} = generateAndCompile(`
+        ({UserQuery} = generateAndCompile(`
           fragment UserFragment on User {
             name
             profilePicture(size: $size) {
               uri
+            }
+          }
+
+          query UserQuery($id: ID!, $size: [Int]) {
+            node(id: $id) {
+              ...UserFragment
             }
           }
         `));
@@ -934,7 +951,7 @@ function assertIsDeeplyFrozen(value: ?{} | ?$ReadOnlyArray<{}>) {
 
       it('keeps the data retained in the release buffer after released by caller', () => {
         const disposable = store.retain(
-          createNormalizationSelector(UserFragment, '4', {size: 32}),
+          createOperationDescriptor(UserQuery, {id: '4', size: 32}),
         );
 
         jest.runAllTimers();
@@ -950,7 +967,7 @@ function assertIsDeeplyFrozen(value: ?{} | ?$ReadOnlyArray<{}>) {
 
       it('releases the operation and collects data after release buffer reaches capacity', () => {
         const disposable = store.retain(
-          createNormalizationSelector(UserFragment, '4', {size: 32}),
+          createOperationDescriptor(UserQuery, {id: '4', size: 32}),
         );
         jest.runAllTimers();
         // Assert data is not collected
@@ -963,7 +980,7 @@ function assertIsDeeplyFrozen(value: ?{} | ?$ReadOnlyArray<{}>) {
         expect(source.toJSON()).toEqual(initialData);
 
         const disposable2 = store.retain(
-          createNormalizationSelector(UserFragment, '5', {size: 32}),
+          createOperationDescriptor(UserQuery, {id: '5', size: 32}),
         );
         jest.runAllTimers();
         expect(source.toJSON()).toEqual(initialData);
@@ -986,26 +1003,32 @@ function assertIsDeeplyFrozen(value: ?{} | ?$ReadOnlyArray<{}>) {
             __id: 'client:2',
             uri: 'https://photo2.jpg',
           },
+          'client:root': {
+            __id: 'client:root',
+            __typename: '__Root',
+            'node(id:"4")': {__ref: '4'},
+            'node(id:"5")': {__ref: '5'},
+          },
         });
       });
 
       it('when same operation retained multiple times, data is only collected until fully released from buffer', () => {
         const disposable = store.retain(
-          createNormalizationSelector(UserFragment, '4', {size: 32}),
+          createOperationDescriptor(UserQuery, {id: '4', size: 32}),
         );
         jest.runAllTimers();
         expect(source.toJSON()).toEqual(initialData);
 
         // Retain the same operation again
         const disposable2 = store.retain(
-          createNormalizationSelector(UserFragment, '4', {size: 32}),
+          createOperationDescriptor(UserQuery, {id: '4', size: 32}),
         );
         jest.runAllTimers();
         expect(source.toJSON()).toEqual(initialData);
 
         // Retain different operation
         const disposable3 = store.retain(
-          createNormalizationSelector(UserFragment, '5', {size: 32}),
+          createOperationDescriptor(UserQuery, {id: '5', size: 32}),
         );
         jest.runAllTimers();
         expect(source.toJSON()).toEqual(initialData);
@@ -1040,12 +1063,18 @@ function assertIsDeeplyFrozen(value: ?{} | ?$ReadOnlyArray<{}>) {
             __id: 'client:2',
             uri: 'https://photo2.jpg',
           },
+          'client:root': {
+            __id: 'client:root',
+            __typename: '__Root',
+            'node(id:"4")': {__ref: '4'},
+            'node(id:"5")': {__ref: '5'},
+          },
         });
       });
     });
 
     describe('GC Scheduler', () => {
-      let UserFragment;
+      let UserQuery;
       let data;
       let initialData;
       let source;
@@ -1066,17 +1095,28 @@ function assertIsDeeplyFrozen(value: ?{} | ?$ReadOnlyArray<{}>) {
             __id: 'client:1',
             uri: 'https://photo1.jpg',
           },
+          'client:root': {
+            __id: 'client:root',
+            __typename: '__Root',
+            'node(id:"4")': {__ref: '4'},
+          },
         };
         initialData = simpleClone(data);
         callbacks = [];
         scheduler = jest.fn(callbacks.push.bind(callbacks));
         source = getRecordSourceImplementation(data);
         store = new RelayModernStore(source, {gcScheduler: scheduler});
-        ({UserFragment} = generateAndCompile(`
+        ({UserQuery} = generateAndCompile(`
           fragment UserFragment on User {
             name
             profilePicture(size: $size) {
               uri
+            }
+          }
+
+          query UserQuery($id: ID!, $size: [Int]) {
+            node(id: $id) {
+              ...UserFragment
             }
           }
         `));
@@ -1084,7 +1124,7 @@ function assertIsDeeplyFrozen(value: ?{} | ?$ReadOnlyArray<{}>) {
 
       it('calls the gc scheduler function when GC should run', () => {
         const {dispose} = store.retain(
-          createNormalizationSelector(UserFragment, '4', {size: 32}),
+          createOperationDescriptor(UserQuery, {id: '4', size: 32}),
         );
         expect(scheduler).not.toBeCalled();
         dispose();
@@ -1094,7 +1134,7 @@ function assertIsDeeplyFrozen(value: ?{} | ?$ReadOnlyArray<{}>) {
 
       it('Runs GC when the GC scheduler executes the task', () => {
         const {dispose} = store.retain(
-          createNormalizationSelector(UserFragment, '4', {size: 32}),
+          createOperationDescriptor(UserQuery, {id: '4', size: 32}),
         );
         dispose();
         expect(source.toJSON()).toEqual(initialData);
@@ -1104,7 +1144,7 @@ function assertIsDeeplyFrozen(value: ?{} | ?$ReadOnlyArray<{}>) {
     });
 
     describe('holdGC()', () => {
-      let UserFragment;
+      let UserQuery;
       let data;
       let initialData;
       let source;
@@ -1123,15 +1163,26 @@ function assertIsDeeplyFrozen(value: ?{} | ?$ReadOnlyArray<{}>) {
             __id: 'client:1',
             uri: 'https://photo1.jpg',
           },
+          'client:root': {
+            __id: 'client:root',
+            __typename: '__Root',
+            'node(id:"4")': {__ref: '4'},
+          },
         };
         initialData = simpleClone(data);
         source = getRecordSourceImplementation(data);
         store = new RelayModernStore(source);
-        ({UserFragment} = generateAndCompile(`
+        ({UserQuery} = generateAndCompile(`
           fragment UserFragment on User {
             name
             profilePicture(size: $size) {
               uri
+            }
+          }
+
+          query UserQuery($id: ID!, $size: [Int]) {
+            node(id: $id) {
+              ...UserFragment
             }
           }
         `));
@@ -1140,7 +1191,7 @@ function assertIsDeeplyFrozen(value: ?{} | ?$ReadOnlyArray<{}>) {
       it('prevents data from being collected with disabled GC, and reruns GC when it is enabled', () => {
         const gcHold = store.holdGC();
         const {dispose} = store.retain(
-          createNormalizationSelector(UserFragment, '4', {size: 32}),
+          createOperationDescriptor(UserQuery, {id: '4', size: 32}),
         );
         dispose();
         expect(data).toEqual(initialData);

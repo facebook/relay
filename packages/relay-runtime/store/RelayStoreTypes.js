@@ -248,7 +248,7 @@ export interface Store {
    * retained in-memory. The records will not be eligible for garbage collection
    * until the returned reference is disposed.
    */
-  retain(selector: NormalizationSelector): Disposable;
+  retain(operation: OperationDescriptor): Disposable;
 
   /**
    * Subscribe to changes to the results of a selector. The callback is called
@@ -467,7 +467,7 @@ export interface IEnvironment {
    * retained in-memory. The records will not be eligible for garbage collection
    * until the returned reference is disposed.
    */
-  retain(selector: NormalizationSelector): Disposable;
+  retain(operation: OperationDescriptor): Disposable;
 
   /**
    * Apply an optimistic update to the environment. The mutation can be reverted

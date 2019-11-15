@@ -493,7 +493,7 @@ describe('useRefetchableFragmentNode', () => {
       // Assert query is tentatively retained while component is suspended
       expect(env.retain).toBeCalledTimes(1);
       expect(env.retain.mock.calls[0][0]).toEqual(
-        expected.refetchQuery?.root ?? refetchQuery.root,
+        expected.refetchQuery ?? refetchQuery,
       );
     }
 
@@ -683,7 +683,7 @@ describe('useRefetchableFragmentNode', () => {
       // Assert refetch query was retained
       expect(release).not.toBeCalled();
       expect(environment.retain).toBeCalledTimes(1);
-      expect(environment.retain.mock.calls[0][0]).toEqual(refetchQuery.root);
+      expect(environment.retain.mock.calls[0][0]).toEqual(refetchQuery);
     });
 
     it('refetches new variables correctly when refetching same id', () => {
@@ -744,7 +744,7 @@ describe('useRefetchableFragmentNode', () => {
       // Assert refetch query was retained
       expect(release).not.toBeCalled();
       expect(environment.retain).toBeCalledTimes(1);
-      expect(environment.retain.mock.calls[0][0]).toEqual(refetchQuery.root);
+      expect(environment.retain.mock.calls[0][0]).toEqual(refetchQuery);
     });
 
     it('with correct id from refetchable fragment when using nested fragment', () => {
@@ -826,7 +826,7 @@ describe('useRefetchableFragmentNode', () => {
       // Assert refetch query was retained
       expect(release).not.toBeCalled();
       expect(environment.retain).toBeCalledTimes(1);
-      expect(environment.retain.mock.calls[0][0]).toEqual(refetchQuery.root);
+      expect(environment.retain.mock.calls[0][0]).toEqual(refetchQuery);
     });
 
     it('refetches correctly when refetching multiple times', () => {
@@ -896,7 +896,7 @@ describe('useRefetchableFragmentNode', () => {
         // Assert refetch query was retained
         expect(release).not.toBeCalled();
         expect(environment.retain).toBeCalledTimes(1);
-        expect(environment.retain.mock.calls[0][0]).toEqual(refetchQuery.root);
+        expect(environment.retain.mock.calls[0][0]).toEqual(refetchQuery);
       };
 
       // Refetch once
@@ -969,9 +969,7 @@ describe('useRefetchableFragmentNode', () => {
       // Assert refetch query was retained
       expect(release).not.toBeCalled();
       expect(environment.retain).toBeCalledTimes(1);
-      expect(environment.retain.mock.calls[0][0]).toEqual(
-        refetchQueryWithArgs.root,
-      );
+      expect(environment.retain.mock.calls[0][0]).toEqual(refetchQueryWithArgs);
     });
 
     it('refetches new variables correctly when using @arguments with literal values', () => {
@@ -1038,9 +1036,7 @@ describe('useRefetchableFragmentNode', () => {
       // Assert refetch query was retained
       expect(release).not.toBeCalled();
       expect(environment.retain).toBeCalledTimes(1);
-      expect(environment.retain.mock.calls[0][0]).toEqual(
-        refetchQueryWithArgs.root,
-      );
+      expect(environment.retain.mock.calls[0][0]).toEqual(refetchQueryWithArgs);
     });
 
     it('subscribes to changes in refetched data', () => {
@@ -1087,7 +1083,7 @@ describe('useRefetchableFragmentNode', () => {
       // Assert refetch query was retained
       expect(release).not.toBeCalled();
       expect(environment.retain).toBeCalledTimes(1);
-      expect(environment.retain.mock.calls[0][0]).toEqual(refetchQuery.root);
+      expect(environment.retain.mock.calls[0][0]).toEqual(refetchQuery);
 
       // Update refetched data
       environment.commitPayload(refetchQuery, {
@@ -1158,7 +1154,7 @@ describe('useRefetchableFragmentNode', () => {
       // Assert refetch query was retained
       expect(release).not.toBeCalled();
       expect(environment.retain).toBeCalledTimes(1);
-      expect(environment.retain.mock.calls[0][0]).toEqual(refetchQuery.root);
+      expect(environment.retain.mock.calls[0][0]).toEqual(refetchQuery);
 
       // Set new environment
       const newEnvironment = createMockEnvironment();
@@ -1258,7 +1254,7 @@ describe('useRefetchableFragmentNode', () => {
       // Assert refetch query was retained
       expect(release).not.toBeCalled();
       expect(environment.retain).toBeCalledTimes(1);
-      expect(environment.retain.mock.calls[0][0]).toEqual(refetchQuery.root);
+      expect(environment.retain.mock.calls[0][0]).toEqual(refetchQuery);
 
       // Pass new parent fragment ref with different variables
       const newVariables = {...variables, scale: 32};
@@ -2841,7 +2837,7 @@ describe('useRefetchableFragmentNode', () => {
         // Assert refetch query was retained
         expect(release).not.toBeCalled();
         expect(environment.retain).toBeCalledTimes(1);
-        expect(environment.retain.mock.calls[0][0]).toEqual(refetchQuery.root);
+        expect(environment.retain.mock.calls[0][0]).toEqual(refetchQuery);
       });
 
       it('refetches new variables correctly when refetching same id', () => {
@@ -2913,7 +2909,7 @@ describe('useRefetchableFragmentNode', () => {
         // Assert refetch query was retained
         expect(release).not.toBeCalled();
         expect(environment.retain).toBeCalledTimes(1);
-        expect(environment.retain.mock.calls[0][0]).toEqual(refetchQuery.root);
+        expect(environment.retain.mock.calls[0][0]).toEqual(refetchQuery);
       });
     });
 
@@ -3002,9 +2998,7 @@ describe('useRefetchableFragmentNode', () => {
         // Assert refetch query was retained
         expect(newRelease).not.toBeCalled();
         expect(newEnvironment.retain).toBeCalledTimes(1);
-        expect(newEnvironment.retain.mock.calls[0][0]).toEqual(
-          refetchQuery.root,
-        );
+        expect(newEnvironment.retain.mock.calls[0][0]).toEqual(refetchQuery);
 
         // Should be able to use the new data if switched to new environment
         renderSpy.mockClear();

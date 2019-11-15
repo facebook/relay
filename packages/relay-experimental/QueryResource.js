@@ -115,7 +115,7 @@ function createCacheEntry(
   const retain = (environment: IEnvironment) => {
     retainCount++;
     if (retainCount === 1) {
-      retainDisposable = environment.retain(operation.root);
+      retainDisposable = environment.retain(operation);
     }
     return {
       dispose: () => {

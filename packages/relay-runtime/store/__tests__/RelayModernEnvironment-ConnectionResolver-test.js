@@ -83,7 +83,7 @@ describe('@connection_resolver connection field', () => {
     // We don't currently offer a way to run the GC immediately; the only way to
     // force a GC is to retain+dispose. The actual query here doesn't matter,
     // we just need *something* to retain/dispose.
-    environment.retain(operation.root).dispose();
+    environment.retain(operation).dispose();
     jest.runAllTimers();
   }
 
@@ -628,7 +628,7 @@ describe('@connection_resolver connection field', () => {
     });
 
     it('retains edge data when the connection field is retained', () => {
-      environment.retain(operation.root);
+      environment.retain(operation);
       runGC();
       connectionSnapshot = environment
         .getStore()
@@ -846,7 +846,7 @@ describe('@connection_resolver connection field', () => {
       jest.runAllTimers();
       connectionResolver.reduce.mockClear();
 
-      environment.retain(operation.root);
+      environment.retain(operation);
       runGC();
 
       const nextSnapshot = environment
@@ -1353,7 +1353,7 @@ describe('@connection_resolver connection field', () => {
         .subscribe(callbacks);
       dataSource.next(payload);
 
-      environment.retain(operation.root);
+      environment.retain(operation);
       runGC();
       connectionResolver.reduce.mockClear();
 
@@ -1944,7 +1944,7 @@ describe('@connection_resolver connection field', () => {
       });
 
       it('retains optimistic edge data', () => {
-        environment.retain(operation.root);
+        environment.retain(operation);
         runGC();
         connectionResolver.reduce.mockClear();
 

@@ -1885,9 +1885,7 @@ describe('QueryResource', () => {
       );
       expect(environment.execute).toBeCalledTimes(1);
       expect(environment.retain).toBeCalledTimes(1);
-      expect(environment.retain.mock.calls[0][0]).toEqual(
-        queryMissingData.root,
-      );
+      expect(environment.retain.mock.calls[0][0]).toEqual(queryMissingData);
 
       // Data retention ownership is established permanently:
       // - Temporary retain is released
@@ -1895,9 +1893,7 @@ describe('QueryResource', () => {
       const disposable = QueryResource.retain(result);
       expect(release).toBeCalledTimes(0);
       expect(environment.retain).toBeCalledTimes(1);
-      expect(environment.retain.mock.calls[0][0]).toEqual(
-        queryMissingData.root,
-      );
+      expect(environment.retain.mock.calls[0][0]).toEqual(queryMissingData);
 
       // Running timers won't release the query since it has been
       // permanently retained
@@ -1928,9 +1924,7 @@ describe('QueryResource', () => {
       expect(environment.execute).toBeCalledTimes(1);
       expect(release).toBeCalledTimes(0);
       expect(environment.retain).toBeCalledTimes(1);
-      expect(environment.retain.mock.calls[0][0]).toEqual(
-        queryMissingData.root,
-      );
+      expect(environment.retain.mock.calls[0][0]).toEqual(queryMissingData);
 
       // Running timers before calling `retain` auto-releases the query
       // retained during `read`
@@ -1951,9 +1945,7 @@ describe('QueryResource', () => {
       const disposable = QueryResource.retain(result);
       expect(release).toBeCalledTimes(1);
       expect(environment.retain).toBeCalledTimes(2);
-      expect(environment.retain.mock.calls[1][0]).toEqual(
-        queryMissingData.root,
-      );
+      expect(environment.retain.mock.calls[1][0]).toEqual(queryMissingData);
 
       // Assert that disposing releases the query
       disposable.dispose();
@@ -1971,7 +1963,7 @@ describe('QueryResource', () => {
       expect(environment.execute).toBeCalledTimes(0);
       expect(release).toBeCalledTimes(0);
       expect(environment.retain).toBeCalledTimes(1);
-      expect(environment.retain.mock.calls[0][0]).toEqual(query.root);
+      expect(environment.retain.mock.calls[0][0]).toEqual(query);
 
       // Running timers before calling `retain` auto-releases the query
       // retained during `read`
@@ -1982,7 +1974,7 @@ describe('QueryResource', () => {
       const disposable = QueryResource.retain(result);
       expect(release).toBeCalledTimes(1);
       expect(environment.retain).toBeCalledTimes(2);
-      expect(environment.retain.mock.calls[1][0]).toEqual(query.root);
+      expect(environment.retain.mock.calls[1][0]).toEqual(query);
 
       // Assert that disposing releases the query
       disposable.dispose();
@@ -2000,9 +1992,7 @@ describe('QueryResource', () => {
       // Assert query is temporarily retained
       expect(release).toBeCalledTimes(0);
       expect(environment.retain).toBeCalledTimes(1);
-      expect(environment.retain.mock.calls[0][0]).toEqual(
-        queryMissingData.root,
-      );
+      expect(environment.retain.mock.calls[0][0]).toEqual(queryMissingData);
 
       // Assert rerquest was started
       expect(environment.execute).toBeCalledTimes(1);
@@ -2038,9 +2028,7 @@ describe('QueryResource', () => {
         // Assert query is temporarily retained
         expect(release).toBeCalledTimes(0);
         expect(environment.retain).toBeCalledTimes(1);
-        expect(environment.retain.mock.calls[0][0]).toEqual(
-          queryMissingData.root,
-        );
+        expect(environment.retain.mock.calls[0][0]).toEqual(queryMissingData);
 
         // Assert that retain count is 1
         const cacheEntry = QueryResource.getCacheEntry(
@@ -2059,9 +2047,7 @@ describe('QueryResource', () => {
         // Assert query is still temporarily retained
         expect(release).toHaveBeenCalledTimes(0);
         expect(environment.retain).toBeCalledTimes(1);
-        expect(environment.retain.mock.calls[0][0]).toEqual(
-          queryMissingData.root,
-        );
+        expect(environment.retain.mock.calls[0][0]).toEqual(queryMissingData);
         // Assert that retain count is still 1
         expect(cacheEntry && cacheEntry.getRetainCount()).toEqual(1);
 
@@ -2094,9 +2080,7 @@ describe('QueryResource', () => {
         // Assert query is temporarily retained
         expect(release).toBeCalledTimes(0);
         expect(environment.retain).toBeCalledTimes(1);
-        expect(environment.retain.mock.calls[0][0]).toEqual(
-          queryMissingData.root,
-        );
+        expect(environment.retain.mock.calls[0][0]).toEqual(queryMissingData);
 
         // Assert that retain count is 1
         const cacheEntry = QueryResource.getCacheEntry(
@@ -2115,9 +2099,7 @@ describe('QueryResource', () => {
         // Assert query is still temporarily retained
         expect(release).toHaveBeenCalledTimes(0);
         expect(environment.retain).toBeCalledTimes(1);
-        expect(environment.retain.mock.calls[0][0]).toEqual(
-          queryMissingData.root,
-        );
+        expect(environment.retain.mock.calls[0][0]).toEqual(queryMissingData);
         // Assert that retain count is still 1
         expect(cacheEntry && cacheEntry.getRetainCount()).toEqual(1);
 
@@ -2158,9 +2140,7 @@ describe('QueryResource', () => {
         // Assert query is temporarily retained
         expect(release).toBeCalledTimes(0);
         expect(environment.retain).toBeCalledTimes(1);
-        expect(environment.retain.mock.calls[0][0]).toEqual(
-          queryMissingData.root,
-        );
+        expect(environment.retain.mock.calls[0][0]).toEqual(queryMissingData);
 
         // Assert that retain count is 1
         const cacheEntry = QueryResource.getCacheEntry(
@@ -2205,9 +2185,7 @@ describe('QueryResource', () => {
         // Assert query is still retained
         expect(release).toHaveBeenCalledTimes(0);
         expect(environment.retain).toBeCalledTimes(1);
-        expect(environment.retain.mock.calls[0][0]).toEqual(
-          queryMissingData.root,
-        );
+        expect(environment.retain.mock.calls[0][0]).toEqual(queryMissingData);
 
         // Assert that disposing the first disposable doesn't release the query
         disposable.dispose();
@@ -2238,9 +2216,7 @@ describe('QueryResource', () => {
         // Assert query is temporarily retained
         expect(release).toBeCalledTimes(0);
         expect(environment.retain).toBeCalledTimes(1);
-        expect(environment.retain.mock.calls[0][0]).toEqual(
-          queryMissingData.root,
-        );
+        expect(environment.retain.mock.calls[0][0]).toEqual(queryMissingData);
 
         // Assert that retain count is 1
         const cacheEntry = QueryResource.getCacheEntry(
@@ -2259,9 +2235,7 @@ describe('QueryResource', () => {
         // Assert query is still temporarily retained
         expect(release).toHaveBeenCalledTimes(0);
         expect(environment.retain).toBeCalledTimes(1);
-        expect(environment.retain.mock.calls[0][0]).toEqual(
-          queryMissingData.root,
-        );
+        expect(environment.retain.mock.calls[0][0]).toEqual(queryMissingData);
         // Assert that retain count is still 1
         expect(cacheEntry && cacheEntry.getRetainCount()).toEqual(1);
 
@@ -2350,9 +2324,7 @@ describe('QueryResource', () => {
         // Assert query is temporarily retained
         expect(release).toBeCalledTimes(0);
         expect(environment.retain).toBeCalledTimes(1);
-        expect(environment.retain.mock.calls[0][0]).toEqual(
-          queryMissingData.root,
-        );
+        expect(environment.retain.mock.calls[0][0]).toEqual(queryMissingData);
 
         // Assert that retain count is 1
         const cacheEntry = QueryResource.getCacheEntry(
@@ -2371,9 +2343,7 @@ describe('QueryResource', () => {
         // Assert query is still temporarily retained
         expect(release).toHaveBeenCalledTimes(0);
         expect(environment.retain).toBeCalledTimes(1);
-        expect(environment.retain.mock.calls[0][0]).toEqual(
-          queryMissingData.root,
-        );
+        expect(environment.retain.mock.calls[0][0]).toEqual(queryMissingData);
         // Assert that retain count is still 1
         expect(cacheEntry && cacheEntry.getRetainCount()).toEqual(1);
 
@@ -2459,9 +2429,7 @@ describe('QueryResource', () => {
         // Assert query is temporarily retained
         expect(release).toBeCalledTimes(0);
         expect(environment.retain).toBeCalledTimes(1);
-        expect(environment.retain.mock.calls[0][0]).toEqual(
-          queryMissingData.root,
-        );
+        expect(environment.retain.mock.calls[0][0]).toEqual(queryMissingData);
         // Assert that retain count is 1
         let cacheEntry = QueryResource.getCacheEntry(
           queryMissingData,
@@ -2491,9 +2459,7 @@ describe('QueryResource', () => {
         // Assert query is still retained
         expect(release).toHaveBeenCalledTimes(0);
         expect(environment.retain).toBeCalledTimes(1);
-        expect(environment.retain.mock.calls[0][0]).toEqual(
-          queryMissingData.root,
-        );
+        expect(environment.retain.mock.calls[0][0]).toEqual(queryMissingData);
         // Assert that retain count is still 1
         expect(cacheEntry && cacheEntry.getRetainCount()).toEqual(1);
 

@@ -107,7 +107,7 @@ class ReactRelayQueryFetcher {
     cacheConfig,
     preservePreviousReferences = false,
   }: ExecuteConfig): Observable<mixed> {
-    const reference = environment.retain(operation.root);
+    const reference = environment.retain(operation);
     const fetchQueryOptions =
       cacheConfig != null
         ? {
@@ -300,7 +300,7 @@ class ReactRelayQueryFetcher {
     operation: OperationDescriptor,
   ) {
     this._disposeCacheSelectionReference();
-    this._cacheSelectionReference = environment.retain(operation.root);
+    this._cacheSelectionReference = environment.retain(operation);
   }
 
   _disposeCacheSelectionReference() {

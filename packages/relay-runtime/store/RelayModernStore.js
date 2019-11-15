@@ -172,7 +172,8 @@ class RelayModernStore implements Store {
     );
   }
 
-  retain(selector: NormalizationSelector): Disposable {
+  retain(operation: OperationDescriptor): Disposable {
+    const selector = operation.root;
     const index = this._index++;
     const dispose = () => {
       // When disposing, move the selector onto the release buffer

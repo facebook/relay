@@ -61,9 +61,7 @@ describe('retain()', () => {
   });
 
   it('retains data when not disposed', () => {
-    environment.retain(
-      createNormalizationSelector(ParentQuery.root, ROOT_ID, {}),
-    );
+    environment.retain(operation);
     const snapshot = environment.lookup(
       createReaderSelector(
         ParentQuery.fragment,
@@ -82,9 +80,7 @@ describe('retain()', () => {
   });
 
   it('releases data when disposed', () => {
-    const {dispose} = environment.retain(
-      createNormalizationSelector(ParentQuery.root, ROOT_ID, {}),
-    );
+    const {dispose} = environment.retain(operation);
     const selector = createReaderSelector(
       ParentQuery.fragment,
       ROOT_ID,

@@ -66,7 +66,7 @@ function ReactRelayLocalQueryRenderer(props: Props): React.Node {
 
     // Run effects here so that the data can be retained
     // and subscribed before the component commits
-    const retainDisposable = environment.retain(operation.root);
+    const retainDisposable = environment.retain(operation);
     const subscribeDisposable = environment.subscribe(res, newSnapshot => {
       dataRef.current = newSnapshot.data;
       forceUpdate(dataRef.current);

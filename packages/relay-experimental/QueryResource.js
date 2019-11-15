@@ -379,7 +379,8 @@ class QueryResourceImpl {
     // missing data.
     const checkResult = environment.check(operation);
     const hasFullQuery = checkResult === 'available';
-    const canPartialRender = hasFullQuery || renderPolicy === 'partial';
+    const canPartialRender =
+      hasFullQuery || (renderPolicy === 'partial' && checkResult !== 'stale');
 
     let shouldFetch;
     let shouldAllowRender;

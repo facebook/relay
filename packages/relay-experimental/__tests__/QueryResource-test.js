@@ -17,6 +17,8 @@ const {
   ROOT_ID,
   __internal: {fetchQuery},
   createOperationDescriptor,
+  RecordSource,
+  Store,
 } = require('relay-runtime');
 const {
   createMockEnvironment,
@@ -37,6 +39,7 @@ describe('QueryResource', () => {
   let gqlQueryMissingData;
   let release;
   let renderPolicy;
+  let store;
   const variables = {
     id: '4',
   };
@@ -45,7 +48,8 @@ describe('QueryResource', () => {
     jest.mock('fbjs/lib/ExecutionEnvironment', () => ({
       canUseDOM: () => true,
     }));
-    environment = createMockEnvironment();
+    store = new Store(new RecordSource());
+    environment = createMockEnvironment({store});
     QueryResource = getQueryResourceForEnvironment(environment);
     gqlQuery = generateAndCompile(
       `query UserQuery($id: ID!) {
@@ -161,6 +165,32 @@ describe('QueryResource', () => {
           });
           expect(environment.execute).toBeCalledTimes(1);
           expect(environment.retain).toBeCalledTimes(1);
+
+          // Assert that query is released after enough time has passed without
+          // calling QueryResource.retain
+          jest.runAllTimers();
+          expect(release).toBeCalledTimes(1);
+        });
+
+        it('should suspend and send a network request if data for query is cached but stale', () => {
+          store.invalidate();
+          expect(environment.check(query)).toEqual('stale');
+
+          let thrown = false;
+          try {
+            QueryResource.prepare(
+              query,
+              fetchObservableMissingData,
+              fetchPolicy,
+              renderPolicy,
+            );
+          } catch (promise) {
+            expect(typeof promise.then).toBe('function');
+            thrown = true;
+          }
+          expect(environment.execute).toBeCalledTimes(1);
+          expect(environment.retain).toBeCalledTimes(1);
+          expect(thrown).toBe(true);
 
           // Assert that query is released after enough time has passed without
           // calling QueryResource.retain
@@ -431,6 +461,63 @@ describe('QueryResource', () => {
             });
             expect(environment.execute).toBeCalledTimes(1);
             expect(environment.retain).toBeCalledTimes(1);
+
+            // Assert that query is released after enough time has passed without
+            // calling QueryResource.retain
+            jest.runAllTimers();
+            expect(release).toBeCalledTimes(1);
+          });
+
+          it('should suspend and send a network request if data for query is cached but stale', () => {
+            const {UserQuery} = generateAndCompile(
+              `
+              fragment UserFragment on User {
+                id
+              }
+              query UserQuery($id: ID!) {
+                node(id: $id) {
+                  __typename
+                  ...UserFragment
+                }
+              }
+            `,
+            );
+            const queryWithFragments = createOperationDescriptor(
+              UserQuery,
+              variables,
+            );
+            environment.commitPayload(queryWithFragments, {
+              node: {
+                __typename: 'User',
+                id: '4',
+              },
+            });
+            const fetchObservableWithFragments = fetchQuery(
+              environment,
+              queryWithFragments,
+              {
+                networkCacheConfig: {force: true},
+              },
+            );
+
+            store.invalidate();
+            expect(environment.check(queryWithFragments)).toEqual('stale');
+
+            let thrown = false;
+            try {
+              QueryResource.prepare(
+                queryWithFragments,
+                fetchObservableWithFragments,
+                fetchPolicy,
+                renderPolicy,
+              );
+            } catch (promise) {
+              expect(typeof promise.then).toBe('function');
+              thrown = true;
+            }
+            expect(environment.execute).toBeCalledTimes(1);
+            expect(environment.retain).toBeCalledTimes(1);
+            expect(thrown).toBe(true);
 
             // Assert that query is released after enough time has passed without
             // calling QueryResource.retain
@@ -1008,6 +1095,32 @@ describe('QueryResource', () => {
           expect(release).toBeCalledTimes(1);
         });
 
+        it('should suspend and send a network request if data for query is cached but stale', () => {
+          store.invalidate();
+          expect(environment.check(query)).toEqual('stale');
+
+          let thrown = false;
+          try {
+            QueryResource.prepare(
+              query,
+              fetchObservableMissingData,
+              fetchPolicy,
+              renderPolicy,
+            );
+          } catch (promise) {
+            expect(typeof promise.then).toBe('function');
+            thrown = true;
+          }
+          expect(environment.execute).toBeCalledTimes(1);
+          expect(environment.retain).toBeCalledTimes(1);
+          expect(thrown).toBe(true);
+
+          // Assert that query is released after enough time has passed without
+          // calling QueryResource.retain
+          jest.runAllTimers();
+          expect(release).toBeCalledTimes(1);
+        });
+
         it('should send a single network request when same query is read multiple times', () => {
           const result1 = QueryResource.prepare(
             queryMissingData,
@@ -1445,6 +1558,32 @@ describe('QueryResource', () => {
           expect(release).toBeCalledTimes(1);
         });
 
+        it('should suspend and send a network request if data for query is cached but stale', () => {
+          store.invalidate();
+          expect(environment.check(query)).toEqual('stale');
+
+          let thrown = false;
+          try {
+            QueryResource.prepare(
+              query,
+              fetchObservableMissingData,
+              fetchPolicy,
+              renderPolicy,
+            );
+          } catch (promise) {
+            expect(typeof promise.then).toBe('function');
+            thrown = true;
+          }
+          expect(environment.execute).toBeCalledTimes(1);
+          expect(environment.retain).toBeCalledTimes(1);
+          expect(thrown).toBe(true);
+
+          // Assert that query is released after enough time has passed without
+          // calling QueryResource.retain
+          jest.runAllTimers();
+          expect(release).toBeCalledTimes(1);
+        });
+
         it('should throw error if network request errors', () => {
           let thrownPromise = false;
           let thrownError = false;
@@ -1792,6 +1931,37 @@ describe('QueryResource', () => {
               __fragmentOwner: queryMissingData.request,
             },
             operation: queryMissingData,
+          });
+          expect(environment.execute).toBeCalledTimes(0);
+          expect(environment.retain).toBeCalledTimes(1);
+
+          // Assert that query is released after enough time has passed without
+          // calling QueryResource.retain
+          jest.runAllTimers();
+          expect(release).toBeCalledTimes(1);
+        });
+
+        it('should not send a network request if data for query is cached but stale', () => {
+          store.invalidate();
+          expect(environment.check(query)).toEqual('stale');
+
+          const result = QueryResource.prepare(
+            query,
+            fetchObservable,
+            fetchPolicy,
+            renderPolicy,
+          );
+          expect(result).toEqual({
+            cacheKey: expect.any(String),
+            fragmentNode: query.fragment.node,
+            fragmentRef: {
+              __id: ROOT_ID,
+              __fragments: {
+                UserQuery: variables,
+              },
+              __fragmentOwner: query.request,
+            },
+            operation: query,
           });
           expect(environment.execute).toBeCalledTimes(0);
           expect(environment.retain).toBeCalledTimes(1);

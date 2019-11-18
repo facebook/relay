@@ -14,6 +14,7 @@
 const useFragmentNode = require('./useFragmentNode');
 const useStaticFragmentNodeWarning = require('./useStaticFragmentNodeWarning');
 
+const {useTrackLoadQueryInRender} = require('./loadQuery');
 const {getFragment} = require('relay-runtime');
 
 import type {GraphQLTaggedNode} from 'relay-runtime';
@@ -55,6 +56,10 @@ function useFragment(
   fragmentInput: GraphQLTaggedNode,
   fragmentRef: ?$ReadOnlyArray<{+$data?: mixed}> | ?{+$data?: mixed},
 ): mixed {
+  // We need to use this hook in order to be able to track if
+  // loadQuery was called during render
+  useTrackLoadQueryInRender();
+
   const fragmentNode = getFragment(fragmentInput);
   useStaticFragmentNodeWarning(fragmentNode, 'first argument of useFragment()');
   const {data} = useFragmentNode<_>(fragmentNode, fragmentRef, 'useFragment()');

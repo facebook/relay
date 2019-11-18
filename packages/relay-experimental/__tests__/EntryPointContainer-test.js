@@ -20,7 +20,7 @@ const React = require('react');
 const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
 const TestRenderer = require('react-test-renderer');
 
-const loadQuery = require('../loadQuery');
+const {loadQuery} = require('../loadQuery');
 const prepareEntryPoint = require('../prepareEntryPoint');
 const usePreloadedQuery = require('../usePreloadedQuery');
 

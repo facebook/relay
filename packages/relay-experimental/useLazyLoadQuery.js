@@ -14,6 +14,8 @@
 const useLazyLoadQueryNode = require('./useLazyLoadQueryNode');
 const useMemoOperationDescriptor = require('./useMemoOperationDescriptor');
 
+const {useTrackLoadQueryInRender} = require('./loadQuery');
+
 import type {FetchPolicy, RenderPolicy} from './QueryResource';
 import type {
   CacheConfig,
@@ -31,6 +33,10 @@ function useLazyLoadQuery<TQuery: OperationType>(
     renderPolicy_UNSTABLE?: RenderPolicy,
   |},
 ): $ElementType<TQuery, 'response'> {
+  // We need to use this hook in order to be able to track if
+  // loadQuery was called during render
+  useTrackLoadQueryInRender();
+
   const query = useMemoOperationDescriptor(gqlQuery, variables);
   const data = useLazyLoadQueryNode({
     componentDisplayName: 'useLazyLoadQuery()',

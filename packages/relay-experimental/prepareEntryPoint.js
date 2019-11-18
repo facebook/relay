@@ -11,7 +11,7 @@
 
 'use strict';
 
-const loadQuery = require('./loadQuery');
+const {loadQuery} = require('./loadQuery');
 
 import type {
   EntryPoint,

@@ -18,7 +18,6 @@ const ProfilerContext = require('./ProfilerContext');
 const RelayEnvironmentProvider = require('./RelayEnvironmentProvider');
 
 const fetchQuery = require('./fetchQuery');
-const loadQuery = require('./loadQuery');
 const prepareEntryPoint = require('./prepareEntryPoint');
 const useBlockingPaginationFragment = require('./useBlockingPaginationFragment');
 const useFragment = require('./useFragment');
@@ -27,6 +26,8 @@ const useLegacyPaginationFragment = require('./useLegacyPaginationFragment');
 const usePreloadedQuery = require('./usePreloadedQuery');
 const useRefetchableFragment = require('./useRefetchableFragment');
 const useRelayEnvironment = require('./useRelayEnvironment');
+
+const {loadQuery} = require('./loadQuery');
 
 export type * from './EntryPointTypes.flow';
 export type {MatchContainerProps, MatchPointer} from './MatchContainer';

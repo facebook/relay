@@ -48,6 +48,7 @@ const compileRelayArtifacts = require('./codegen/compileRelayArtifacts');
 const extractAST = require('./runner/extractAST');
 const filterContextForNode = require('./core/filterContextForNode');
 const formatGeneratedModule = require('./language/javascript/formatGeneratedModule');
+const getDefinitionNodeHash = require('./util/getDefinitionNodeHash');
 const getIdentifierForArgumentValue = require('./core/getIdentifierForArgumentValue');
 const getLiteralArgumentValues = require('./core/getLiteralArgumentValues');
 const getNormalizationOperationName = require('./core/getNormalizationOperationName');
@@ -179,8 +180,9 @@ module.exports = {
     StrictMap: StrictMap_,
     compileArtifacts,
     extractFromJS: extractAST.extractFromJS,
-    parseExecutableNode: extractAST.parseExecutableNode,
+    getDefinitionNodeHash,
     md5,
+    parseExecutableNode: extractAST.parseExecutableNode,
     toASTRecord: extractAST.toASTRecord,
   },
 };

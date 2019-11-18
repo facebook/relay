@@ -31,7 +31,6 @@ suppress_comment=\\(.\\|\n\\)*\\$FlowExpectedError
 experimental.well_formed_exports=true
 experimental.types_first=true
 experimental.abstract_locations=true
-experimental.cache_direct_dependents=true
 
 [lints]
 untyped-type-import=error

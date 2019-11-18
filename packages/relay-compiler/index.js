@@ -51,6 +51,7 @@ const formatGeneratedModule = require('./language/javascript/formatGeneratedModu
 const getIdentifierForArgumentValue = require('./core/getIdentifierForArgumentValue');
 const getLiteralArgumentValues = require('./core/getLiteralArgumentValues');
 const getNormalizationOperationName = require('./core/getNormalizationOperationName');
+const md5 = require('./util/md5');
 const writeRelayGeneratedFile = require('./codegen/writeRelayGeneratedFile');
 
 const {main} = require('./bin/RelayCompilerMain');
@@ -179,6 +180,7 @@ module.exports = {
     compileArtifacts,
     extractFromJS: extractAST.extractFromJS,
     parseExecutableNode: extractAST.parseExecutableNode,
+    md5,
     toASTRecord: extractAST.toASTRecord,
   },
 };

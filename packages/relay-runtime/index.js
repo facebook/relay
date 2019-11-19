@@ -109,6 +109,7 @@ export type {
   ConnectionSnapshot,
 } from './store/RelayConnection';
 export type {ConnectionState} from './store/RelayConnectionResolver';
+export type {EnvironmentConfig} from './store/RelayModernEnvironment';
 export type {TaskScheduler} from './store/RelayModernQueryExecutor';
 export type {RecordState} from './store/RelayRecordState';
 export type {

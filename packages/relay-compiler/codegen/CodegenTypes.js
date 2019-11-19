@@ -8,14 +8,21 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 export type CompileResult = 'HAS_CHANGES' | 'NO_CHANGES' | 'ERROR';
 
 export type File =
-  | {exists: false, relPath: string}
+  | {
+      exists: false,
+      relPath: string,
+      ...
+    }
   | {
       exists: true,
       relPath: string,
       hash: string,
+      ...
     };

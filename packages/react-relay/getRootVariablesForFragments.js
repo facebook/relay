@@ -8,13 +8,15 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const {getSelector} = require('relay-runtime');
 
 import type {FragmentMap, Variables} from 'relay-runtime';
 
-function getRootVariablesForFragments<TProps: {}>(
+function getRootVariablesForFragments<TProps: {...}>(
   fragments: FragmentMap,
   props: TProps,
 ): Variables {

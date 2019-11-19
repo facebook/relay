@@ -9,6 +9,8 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const {
@@ -21,10 +23,10 @@ import type {JSResourceReference} from 'JSResourceReference';
 
 export opaque type Local3DPayload<
   +DocumentName: string,
-  +Response: {},
+  +Response: {...},
 > = Response;
 
-function createPayloadFor3DField<+DocumentName: string, +Response: {}>(
+function createPayloadFor3DField<+DocumentName: string, +Response: {...}>(
   name: DocumentName,
   operation: JSResourceReference<NormalizationSplitOperation>,
   component: JSResourceReference<mixed>,

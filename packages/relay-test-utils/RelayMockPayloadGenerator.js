@@ -9,6 +9,8 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const invariant = require('invariant');
@@ -58,21 +60,21 @@ type Traversable = {|
   +isAbstractType: ?boolean,
   +name: ?string,
   +alias: ?string,
-  +args: ?{[string]: mixed},
+  +args: ?{[string]: mixed, ...},
 |};
-type MockData = {[string]: mixed};
+type MockData = {[string]: mixed, ...};
 type MockResolverContext = {|
   +parentType: ?string,
   +name: ?string,
   +alias: ?string,
   +path: ?$ReadOnlyArray<string>,
-  +args: ?{[string]: mixed},
+  +args: ?{[string]: mixed, ...},
 |};
 type MockResolver = (
   context: MockResolverContext,
   generateId: () => number,
 ) => mixed;
-export type MockResolvers = {[typeName: string]: MockResolver};
+export type MockResolvers = {[typeName: string]: MockResolver, ...};
 
 type SelectionMetadata = {
   [selectionPath: string]: {|
@@ -81,6 +83,7 @@ type SelectionMetadata = {
     +nullable: boolean,
     +enumValues: $ReadOnlyArray<string> | null,
   |},
+  ...,
 };
 
 function createIdGenerator() {
@@ -719,9 +722,7 @@ class RelayMockPayloadGenerator {
     fieldName: ?string,
     fieldAlias: ?string,
     path: $ReadOnlyArray<string>,
-    args: ?{
-      [string]: mixed,
-    },
+    args: ?{[string]: mixed, ...},
   ): ?MockData {
     let data;
     if (typeName != null && this._mockResolvers[typeName] != null) {
@@ -748,11 +749,7 @@ class RelayMockPayloadGenerator {
   /**
    * Get object with variables for field
    */
-  _getFieldArgs(
-    field: NormalizationField,
-  ): {
-    [string]: mixed,
-  } {
+  _getFieldArgs(field: NormalizationField): {[string]: mixed, ...} {
     const args = {};
     if (field.args != null) {
       field.args.forEach(arg => {

@@ -8,6 +8,8 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const IRTransformer = require('../core/IRTransformer');
@@ -44,6 +46,7 @@ type Options = {
   path: Array<?string>,
   // Metadata recorded for @connection fields
   connectionMetadata: Array<ConnectionMetadata>,
+  ...
 };
 
 type ConnectionArguments = {|

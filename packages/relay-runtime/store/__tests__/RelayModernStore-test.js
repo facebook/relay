@@ -9,6 +9,8 @@
  * @emails oncall+relay
  */
 
+// flowlint ambiguous-object-type:error
+
 ('use strict');
 
 const RelayModernRecord = require('../RelayModernRecord');
@@ -25,7 +27,7 @@ const {createReaderSelector} = require('../RelayModernSelector');
 const {REF_KEY, ROOT_ID, ROOT_TYPE} = require('../RelayStoreUtils');
 const {generateAndCompile, simpleClone} = require('relay-test-utils-internal');
 
-function assertIsDeeplyFrozen(value: ?{} | ?$ReadOnlyArray<{}>) {
+function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
   if (!value) {
     throw new Error(
       'Expected value to be a non-null object or array of objects',

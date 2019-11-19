@@ -8,6 +8,8 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const RelayConnectionHandler = require('../handlers/connection/RelayConnectionHandler');
@@ -37,10 +39,9 @@ export type RangeOperation = $Values<typeof RangeOperations>;
 
 type RangeBehaviorsFunction = (connectionArgs: {
   [name: string]: $FlowFixMe,
+  ...,
 }) => RangeOperation;
-type RangeBehaviorsObject = {
-  [key: string]: RangeOperation,
-};
+type RangeBehaviorsObject = {[key: string]: RangeOperation, ...};
 export type RangeBehaviors = RangeBehaviorsFunction | RangeBehaviorsObject;
 
 type RangeAddConfig = {|
@@ -91,6 +92,7 @@ function convert(
 ): {
   optimisticUpdater: SelectorStoreUpdater,
   updater: SelectorStoreUpdater,
+  ...
 } {
   const configOptimisticUpdates = optimisticUpdater ? [optimisticUpdater] : [];
   const configUpdates = updater ? [updater] : [];

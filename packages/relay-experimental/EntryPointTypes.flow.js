@@ -9,6 +9,8 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 import type {JSResourceReference} from 'JSResourceReference';
@@ -32,7 +34,7 @@ export type PreloadOptions = {|
   +fetchKey?: string | number,
   +fetchPolicy?: ?PreloadFetchPolicy,
   +networkCacheConfig?: ?CacheConfig,
-  +extraOptions?: ?{},
+  +extraOptions?: ?{...},
 |};
 
 // Note: the phantom type parameter here helps ensures that the
@@ -43,9 +45,7 @@ export type PreloadableConcreteRequest<TQuery: OperationType> = {|
   params: RequestParameters,
 |};
 
-export type EnvironmentProviderOptions = {
-  [string]: mixed,
-};
+export type EnvironmentProviderOptions = {[string]: mixed, ...};
 
 export type PreloadedQuery<
   TQuery: OperationType,
@@ -138,8 +138,8 @@ export type EntryPointComponent<
 // Return type of the `getPreloadProps(...)` of the entry point
 export type PreloadProps<
   TPreloadParams,
-  TPreloadedQueries: {},
-  TPreloadedEntryPoints: {},
+  TPreloadedQueries: {...},
+  TPreloadedEntryPoints: {...},
   TExtraProps = null,
   TEnvironmentProviderOptions = EnvironmentProviderOptions,
 > = $ReadOnly<{|

@@ -9,6 +9,8 @@
  * @emails oncall+relay
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const FindGraphQLTags = require('../../language/javascript/FindGraphQLTags');

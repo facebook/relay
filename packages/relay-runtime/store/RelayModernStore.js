@@ -8,6 +8,8 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const DataChecker = require('./DataChecker');
@@ -57,9 +59,10 @@ type Subscription = {
   snapshot: Snapshot,
   stale: boolean,
   backup: ?Snapshot,
+  ...
 };
 
-type UpdatedConnections = {[ConnectionID]: boolean};
+type UpdatedConnections = {[ConnectionID]: boolean, ...};
 type ConnectionEvents = {|
   final: Array<ConnectionInternalEvent>,
   optimistic: ?Array<ConnectionInternalEvent>,

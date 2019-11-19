@@ -8,6 +8,8 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const {parse} = require('graphql');
@@ -21,6 +23,7 @@ function parseGraphQLText(
 ): {
   definitions: $ReadOnlyArray<Fragment | Root>,
   schema: Schema,
+  ...
 } {
   const ast = parse(text);
   const extendedSchema = schema.extend(ast);

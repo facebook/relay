@@ -9,6 +9,8 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const React = require('react');
@@ -107,6 +109,7 @@ type FeedbackFragment_feedback$data = FeedbackFragment_feedback;
 type FeedbackFragment_feedback$key = {
   +$data?: FeedbackFragment_feedback$data,
   +$fragmentRefs: FeedbackFragment_feedback$ref,
+  ...
 };
 type Props = {|
   +feedback: FeedbackFragment_feedback$key,

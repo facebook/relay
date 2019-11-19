@@ -8,6 +8,8 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const RelayConcreteNode = require('../util/RelayConcreteNode');
@@ -24,7 +26,7 @@ import type {
 import type {ReaderArgument, ReaderField} from '../util/ReaderNode';
 import type {Variables} from '../util/RelayRuntimeTypes';
 
-export type Arguments = {+[string]: mixed};
+export type Arguments = {+[string]: mixed, ...};
 
 const {VARIABLE} = RelayConcreteNode;
 

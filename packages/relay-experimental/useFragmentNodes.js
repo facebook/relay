@@ -9,6 +9,8 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const mapObject = require('mapObject');
@@ -25,16 +27,16 @@ const {
 
 import type {ReaderFragment} from 'relay-runtime';
 
-type ReturnType<TFragmentSpec: {}> = {|
+type ReturnType<TFragmentSpec: {...}> = {|
   data: TFragmentSpec,
   disableStoreUpdates: () => void,
   enableStoreUpdates: () => void,
   shouldUpdateGeneration: number | null,
 |};
 
-function useFragmentNodes<TFragmentSpec: {}>(
-  fragmentNodes: {[key: string]: ReaderFragment},
-  props: {[key: string]: mixed},
+function useFragmentNodes<TFragmentSpec: {...}>(
+  fragmentNodes: {[key: string]: ReaderFragment, ...},
+  props: {[key: string]: mixed, ...},
   componentDisplayName: string,
 ): ReturnType<TFragmentSpec> {
   const environment = useRelayEnvironment();
@@ -213,8 +215,8 @@ function useHasChanged(value: mixed): boolean {
 module.exports = (RelayProfiler.instrument(
   'useFragmentNodes',
   useFragmentNodes,
-): <TFragmentSpec: {}>(
-  fragmentNodes: {[key: string]: ReaderFragment},
-  props: {[key: string]: mixed},
+): <TFragmentSpec: {...}>(
+  fragmentNodes: {[key: string]: ReaderFragment, ...},
+  props: {[key: string]: mixed, ...},
   componentDisplayName: string,
 ) => ReturnType<TFragmentSpec>);

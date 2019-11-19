@@ -9,6 +9,8 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const RelayDefaultHandlerProvider = require('../handlers/RelayDefaultHandlerProvider');
@@ -285,6 +287,7 @@ class RelayModernEnvironment implements IEnvironment {
     operation: OperationDescriptor,
     cacheConfig?: ?CacheConfig,
     updater?: ?SelectorStoreUpdater,
+    ...
   }): RelayObservable<GraphQLResponse> {
     const [logObserver, logRequestInfo] = this.__createLogObserver(
       operation.request.node.params,

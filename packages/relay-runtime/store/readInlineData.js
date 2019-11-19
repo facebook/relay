@@ -8,6 +8,8 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const invariant = require('invariant');
@@ -25,7 +27,11 @@ import type {FragmentReference} from './RelayStoreTypes';
 declare function readInlineData<
   TRef: FragmentReference,
   TData,
-  TKey: {+$data?: TData, +$fragmentRefs: TRef},
+  TKey: {
+    +$data?: TData,
+    +$fragmentRefs: TRef,
+    ...
+  },
 >(
   fragment: GraphQLTaggedNode,
   fragmentRef: TKey,
@@ -33,7 +39,11 @@ declare function readInlineData<
 declare function readInlineData<
   TRef: FragmentReference,
   TData,
-  TKey: ?{+$data?: TData, +$fragmentRefs: TRef},
+  TKey: ?{
+    +$data?: TData,
+    +$fragmentRefs: TRef,
+    ...
+  },
 >(
   fragment: GraphQLTaggedNode,
   fragmentRef: null | void,

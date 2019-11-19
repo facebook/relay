@@ -9,6 +9,8 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const React = require('react');
@@ -55,10 +57,10 @@ function stableStringify(value: mixed): string {
 }
 
 function prepareEntryPoint<
-  TEntryPointParams: {},
-  TPreloadedQueries: {},
-  TPreloadedEntryPoints: {},
-  TRuntimeProps: {},
+  TEntryPointParams: {...},
+  TPreloadedQueries: {...},
+  TPreloadedEntryPoints: {...},
+  TRuntimeProps: {...},
   TExtraProps,
   TEntryPointComponent: EntryPointComponent<
     TPreloadedQueries,
@@ -140,10 +142,10 @@ function prepareEntryPoint<
 }
 
 function LazyLoadEntryPointContainer_DEPRECATED<
-  TEntryPointParams: {},
-  TPreloadedQueries: {},
-  TPreloadedEntryPoints: {},
-  TRuntimeProps: {},
+  TEntryPointParams: {...},
+  TPreloadedQueries: {...},
+  TPreloadedEntryPoints: {...},
+  TRuntimeProps: {...},
   TExtraProps,
 >({
   entryPoint,

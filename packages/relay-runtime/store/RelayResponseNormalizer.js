@@ -8,6 +8,8 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const RelayConnection = require('./RelayConnection');
@@ -67,7 +69,7 @@ import type {
 } from './RelayStoreTypes';
 
 export type GetDataID = (
-  fieldValue: {[string]: mixed},
+  fieldValue: {[string]: mixed, ...},
   typeName: string,
 ) => mixed;
 

@@ -8,17 +8,18 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 import type {Record} from '../../store/RelayStoreTypes';
 
-type Call = {
-  name: string,
-};
+type Call = {name: string, ...};
 
 export type EdgeRecord = Record & {
   cursor: mixed,
   node: Record,
+  ...
 };
 
 export type PageInfo = {
@@ -26,6 +27,7 @@ export type PageInfo = {
   hasNextPage: boolean,
   hasPreviousPage: boolean,
   startCursor: ?string,
+  ...
 };
 
 type ConnectionConfig = {|

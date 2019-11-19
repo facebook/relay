@@ -9,6 +9,8 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const React = require('react');
@@ -46,9 +48,7 @@ function expectToHaveFetched(environment, query) {
   ).toEqual(true);
 }
 
-type Props = {
-  variables: Object,
-};
+type Props = {variables: Object, ...};
 
 describe('useLazyLoadQueryNode', () => {
   let environment;

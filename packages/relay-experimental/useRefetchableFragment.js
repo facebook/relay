@@ -9,6 +9,8 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const useRefetchableFragmentNode = require('./useRefetchableFragmentNode');
@@ -19,20 +21,23 @@ const {getFragment} = require('relay-runtime');
 import type {RefetchFnDynamic} from './useRefetchableFragmentNode';
 import type {GraphQLTaggedNode, OperationType} from 'relay-runtime';
 
-type ReturnType<TQuery: OperationType, TKey: ?{+$data?: mixed}> = [
+type ReturnType<TQuery: OperationType, TKey: ?{+$data?: mixed, ...}> = [
   // NOTE: This $Call ensures that the type of the returned data is either:
   //   - nullable if the provided ref type is nullable
   //   - non-nullable if the provided ref type is non-nullable
   // prettier-ignore
   $Call<
-    & (<TFragmentData>( {+$data?: TFragmentData}) =>  TFragmentData)
-    & (<TFragmentData>(?{+$data?: TFragmentData}) => ?TFragmentData),
+    & (<TFragmentData>( { +$data?: TFragmentData, ... }) =>  TFragmentData)
+    & (<TFragmentData>(?{ +$data?: TFragmentData, ... }) => ?TFragmentData),
     TKey,
   >,
   RefetchFnDynamic<TQuery, TKey>,
 ];
 
-function useRefetchableFragment<TQuery: OperationType, TKey: ?{+$data?: mixed}>(
+function useRefetchableFragment<
+  TQuery: OperationType,
+  TKey: ?{+$data?: mixed, ...},
+>(
   fragmentInput: GraphQLTaggedNode,
   fragmentRef: TKey,
 ): ReturnType<TQuery, TKey> {

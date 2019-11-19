@@ -8,6 +8,8 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const Profiler = require('./GraphQLCompilerProfiler');
@@ -26,7 +28,7 @@ class ASTCache {
   _baseDir: string;
   _parse: ParseFn;
 
-  constructor(config: {baseDir: string, parse: ParseFn}) {
+  constructor(config: {baseDir: string, parse: ParseFn, ...}) {
     this._documents = new Map();
     this._baseDir = config.baseDir;
     this._parse = Profiler.instrument(config.parse, 'ASTCache.parseFn');

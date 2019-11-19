@@ -8,6 +8,8 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const childProcess = require('child_process');
@@ -32,6 +34,7 @@ export type SourceControl = {
     added: $ReadOnlyArray<string>,
     removed: $ReadOnlyArray<string>,
   ): Promise<void>,
+  ...
 };
 
 const SourceControlMercurial: SourceControl = {

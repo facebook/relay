@@ -9,6 +9,8 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const React = require('react');
@@ -241,10 +243,11 @@ beforeEach(() => {
   PluralRenderer = props => null;
 
   const SingularContainer = (props: {
-    userRef?: {},
+    userRef?: {...},
     fooScalar?: boolean,
-    fooObject?: {},
+    fooObject?: {...},
     owner: OperationDescriptor,
+    ...
   }) => {
     // We need a render a component to run a Hook
     const [owner, _setOwner] = useState<OperationDescriptor>(props.owner);
@@ -288,7 +291,11 @@ beforeEach(() => {
     return <SingularRenderer user={userData.user} />;
   };
 
-  const PluralContainer = (props: {usersRef?: {}, owner: $FlowFixMe}) => {
+  const PluralContainer = (props: {
+    usersRef?: {...},
+    owner: $FlowFixMe,
+    ...
+  }) => {
     // We need a render a component to run a Hook
     const owner = props.owner;
     const usersRef = props.hasOwnProperty('usersRef')
@@ -323,10 +330,11 @@ beforeEach(() => {
 
   renderSingularFragment = (args?: {
     fooScalar?: boolean,
-    fooObject?: {},
+    fooObject?: {...},
     isConcurrent?: boolean,
     owner?: $FlowFixMe,
     userRef?: $FlowFixMe,
+    ...
   }) => {
     const {isConcurrent = false, ...props} = args ?? {};
     return TestRenderer.create(
@@ -343,6 +351,7 @@ beforeEach(() => {
     isConcurrent?: boolean,
     owner?: $FlowFixMe,
     usersRef?: $FlowFixMe,
+    ...
   }) => {
     const {isConcurrent = false, ...props} = args ?? {};
     return TestRenderer.create(

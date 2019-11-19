@@ -8,6 +8,8 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const RelayConnection = require('./RelayConnection');
@@ -75,7 +77,7 @@ class RelayReader {
   _isMissingData: boolean;
   _owner: RequestDescriptor;
   _recordSource: RecordSource;
-  _seenRecords: {[dataID: DataID]: ?Record};
+  _seenRecords: {[dataID: DataID]: ?Record, ...};
   _selector: SingularReaderSelector;
   _variables: Variables;
 

@@ -8,6 +8,8 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const React = require('react');
@@ -33,6 +35,7 @@ import type {
 
 class NotReferencedTest_ extends React.Component<{
   notref: RelayModernFlowtest_notref,
+  ...
 }> {
   render(): React.Node {
     return null;
@@ -50,6 +53,7 @@ const NotReferencedTest = createFragmentContainer(NotReferencedTest_, {
 
 class BadReferenceTest_ extends React.Component<{
   badref: RelayModernFlowtest_badref,
+  ...
 }> {
   render(): React.Node {
     (this.props.badref.id: string);
@@ -80,6 +84,7 @@ class SingularTest extends React.Component<{
   user: RelayModernFlowtest_user,
   nullableUser: ?RelayModernFlowtest_user,
   optionalUser?: RelayModernFlowtest_user,
+  ...
 }> {
   render(): React.Node {
     (nullthrows(this.props.user.name): string);
@@ -104,6 +109,7 @@ class PluralTest extends React.Component<{
   users: RelayModernFlowtest_users,
   nullableUsers: ?RelayModernFlowtest_users,
   optionalUsers?: RelayModernFlowtest_users,
+  ...
 }> {
   render(): React.Node {
     const names = this.props.users.map(user => user.name).filter(Boolean);
@@ -123,18 +129,22 @@ PluralTest = createFragmentContainer(PluralTest, {
 
 declare var aUserRef: {
   +$fragmentRefs: RelayModernFlowtest_user$ref,
+  ...
 };
 
 declare var oneOfUsersRef: {
   +$fragmentRefs: RelayModernFlowtest_users$ref,
+  ...
 };
 
 declare var usersRef: $ReadOnlyArray<{
   +$fragmentRefs: RelayModernFlowtest_users$ref,
+  ...
 }>;
 
 declare var nonUserRef: {
-  +$fragmentRefs: {thing: true},
+  +$fragmentRefs: {thing: true, ...},
+  ...
 };
 
 function cb(): void {}
@@ -174,9 +184,11 @@ function cb(): void {}
 />;
 
 declare var aComplexUserRef: {
-  +$fragmentRefs: {thing1: true} & RelayModernFlowtest_user$ref & {
+  +$fragmentRefs: {thing1: true, ...} & RelayModernFlowtest_user$ref & {
       thing2: true,
+      ...
     },
+  ...
 };
 <SingularTest
   string="x"

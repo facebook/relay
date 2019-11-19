@@ -8,6 +8,8 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 import type {
@@ -18,7 +20,7 @@ import type {
 } from './Schema';
 import type {Source} from 'graphql';
 
-export type Metadata = ?{[key: string]: mixed};
+export type Metadata = ?{[key: string]: mixed, ...};
 
 export type SourceLocation = {|
   +kind: 'Source',

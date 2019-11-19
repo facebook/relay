@@ -9,6 +9,8 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const React = require('react');
@@ -153,8 +155,9 @@ describe('useFragment', () => {
     SingularRenderer = props => null;
     PluralRenderer = props => null;
     const SingularContainer = (props: {
-      userRef?: {$data?: {}},
+      userRef?: {$data?: {...}, ...},
       owner: $FlowFixMe,
+      ...
     }) => {
       // We need a render a component to run a Hook
       const owner = props.owner;
@@ -172,8 +175,9 @@ describe('useFragment', () => {
     };
 
     const PluralContainer = (props: {
-      usersRef?: $ReadOnlyArray<{$data?: {}}>,
+      usersRef?: $ReadOnlyArray<{$data?: {...}, ...}>,
       owner: $FlowFixMe,
+      ...
     }) => {
       // We need a render a component to run a Hook
       const owner = props.owner;
@@ -203,6 +207,7 @@ describe('useFragment', () => {
     renderSingularFragment = (props?: {
       owner?: $FlowFixMe,
       userRef?: $FlowFixMe,
+      ...
     }) => {
       return TestRenderer.create(
         <React.Suspense fallback="Singular Fallback">
@@ -216,6 +221,7 @@ describe('useFragment', () => {
     renderPluralFragment = (props?: {
       owner?: $FlowFixMe,
       userRef?: $FlowFixMe,
+      ...
     }) => {
       return TestRenderer.create(
         <React.Suspense fallback="Plural Fallback">

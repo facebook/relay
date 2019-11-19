@@ -8,6 +8,8 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 import type {
@@ -23,6 +25,7 @@ type ValidationContext = {
   variables: Variables,
   missingDiff: Object,
   extraDiff: Object,
+  ...
 };
 const warning = require('warning');
 

@@ -9,6 +9,8 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const fs = require('fs');
@@ -113,7 +115,7 @@ class BufferedFilesystem implements Filesystem {
     return fs.readFileSync(path, encoding);
   }
 
-  statSync(path: string): {isDirectory(): boolean} {
+  statSync(path: string): {isDirectory(): boolean, ...} {
     this._assertNotComitted();
     return fs.statSync(path);
   }

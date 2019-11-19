@@ -8,6 +8,8 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const ASTConvert = require('../core/ASTConvert');
@@ -79,6 +81,7 @@ export type WriterConfig = {
     moduleName: string,
     requestParams: RequestParameters,
   ) => void,
+  ...
 };
 
 function compileAll({

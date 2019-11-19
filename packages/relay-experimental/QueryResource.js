@@ -9,6 +9,8 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const ExecutionEnvironment = require('fbjs/lib/ExecutionEnvironment');
@@ -64,6 +66,7 @@ type QueryResourceCacheEntry = {|
 opaque type QueryResult: {
   fragmentNode: ReaderFragment,
   fragmentRef: FragmentPointer,
+  ...
 } = {|
   cacheKey: string,
   fragmentNode: ReaderFragment,

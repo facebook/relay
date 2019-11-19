@@ -8,6 +8,8 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const RelayDeclarativeMutationConfig = require('./RelayDeclarativeMutationConfig');
@@ -44,9 +46,9 @@ export type DEPRECATED_MutationConfig<T> = {|
 |};
 
 export type MutationParameters = {|
-  +response: {},
-  +variables: {},
-  +rawResponse?: {},
+  +response: {...},
+  +variables: {...},
+  +rawResponse?: {...},
 |};
 
 export type MutationConfig<T: MutationParameters> = {|
@@ -57,7 +59,14 @@ export type MutationConfig<T: MutationParameters> = {|
     response: $ElementType<T, 'response'>,
     errors: ?Array<PayloadError>,
   ) => void,
-  optimisticResponse?: $ElementType<{+rawResponse?: {}, ...T}, 'rawResponse'>,
+  optimisticResponse?: $ElementType<
+    {
+      +rawResponse?: {...},
+      ...T,
+      ...
+    },
+    'rawResponse',
+  >,
   optimisticUpdater?: ?SelectorStoreUpdater,
   updater?: ?SelectorStoreUpdater,
   uploadables?: UploadableMap,

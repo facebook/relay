@@ -9,6 +9,8 @@
  * @emails oncall+relay
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
@@ -33,7 +35,7 @@ import type {ConnectionResolver} from '../RelayConnection';
 type ConnectionEdge = {|
   +__id: DataID,
   +cursor: ?string,
-  +node: ?{[string]: mixed},
+  +node: ?{[string]: mixed, ...},
 |};
 
 type ConnectionState = {|
@@ -43,6 +45,7 @@ type ConnectionState = {|
     hasNextPage: ?boolean,
     hasPrevPage: ?boolean,
     startCursor: ?string,
+    ...
   },
 |};
 

@@ -8,6 +8,8 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 /**
@@ -155,7 +157,7 @@ export type NormalizationSelection =
 export type NormalizationSplitOperation = {|
   +kind: 'SplitOperation',
   +name: string,
-  +metadata: ?{+[key: string]: mixed},
+  +metadata: ?{+[key: string]: mixed, ...},
   +selections: $ReadOnlyArray<NormalizationSelection>,
 |};
 
@@ -163,7 +165,7 @@ export type NormalizationStream = {|
   +if: string | null,
   +kind: 'Stream',
   +label: string,
-  +metadata: ?{+[key: string]: mixed},
+  +metadata: ?{+[key: string]: mixed, ...},
   +selections: $ReadOnlyArray<NormalizationSelection>,
 |};
 
@@ -171,7 +173,7 @@ export type NormalizationDefer = {|
   +if: string | null,
   +kind: 'Defer',
   +label: string,
-  +metadata: ?{+[key: string]: mixed},
+  +metadata: ?{+[key: string]: mixed, ...},
   +selections: $ReadOnlyArray<NormalizationSelection>,
 |};
 

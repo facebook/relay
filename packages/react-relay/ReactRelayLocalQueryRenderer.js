@@ -8,6 +8,8 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const React = require('react');
@@ -28,11 +30,12 @@ type Props = {
   environment: IEnvironment,
   query: GraphQLTaggedNode,
   // $FlowFixMe
-  render: ({props: ?Object}) => React.Node,
+  render: ({props: ?Object, ...}) => React.Node,
   variables: Variables,
+  ...
 };
 
-function useDeepCompare<T: {}>(value: T): T {
+function useDeepCompare<T: {...}>(value: T): T {
   const latestValue = React.useRef(value);
   if (!areEqual(latestValue.current, value)) {
     if (__DEV__) {

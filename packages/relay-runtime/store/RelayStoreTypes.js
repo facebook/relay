@@ -8,6 +8,8 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 import type {
@@ -52,19 +54,19 @@ export type OperationTracker = RelayOperationTracker;
 /*
  * An individual cached graph object.
  */
-export type Record = {[key: string]: mixed};
+export type Record = {[key: string]: mixed, ...};
 
 /**
  * A collection of records keyed by id.
  */
-export type RecordMap = {[dataID: DataID]: ?Record};
+export type RecordMap = {[dataID: DataID]: ?Record, ...};
 
-export type FragmentMap = {[key: string]: ReaderFragment};
+export type FragmentMap = {[key: string]: ReaderFragment, ...};
 
 /**
  * The results of a selector given a store/RecordSource.
  */
-export type SelectorData = {[key: string]: mixed};
+export type SelectorData = {[key: string]: mixed, ...};
 
 export type SingularReaderSelector = {|
   +kind: 'SingularReaderSelector',
@@ -126,7 +128,7 @@ export type OperationDescriptor = {|
 /**
  * Arbitrary data e.g. received by a container as props.
  */
-export type Props = {[key: string]: mixed};
+export type Props = {[key: string]: mixed, ...};
 
 /**
  * The type of the `relay` property set on React context by the React/Relay
@@ -140,7 +142,7 @@ export type RelayContext = {|
  * The results of reading the results of a FragmentMap given some input
  * `Props`.
  */
-export type FragmentSpecResults = {[key: string]: mixed};
+export type FragmentSpecResults = {[key: string]: mixed, ...};
 
 /**
  * A utility for resolving and subscribing to the results of a fragment spec
@@ -192,7 +194,7 @@ export interface RecordSource {
   getStatus(dataID: DataID): RecordState;
   has(dataID: DataID): boolean;
   size(): number;
-  toJSON(): {[DataID]: ?Record};
+  toJSON(): {[DataID]: ?Record, ...};
 }
 
 /**
@@ -593,8 +595,9 @@ export interface IEnvironment {
  */
 export type FragmentPointer = {
   __id: DataID,
-  __fragments: {[fragmentName: string]: Variables},
+  __fragments: {[fragmentName: string]: Variables, ...},
   __fragmentOwner: RequestDescriptor,
+  ...
 };
 
 /**
@@ -605,12 +608,13 @@ export type ModuleImportPointer = {
   +__fragmentPropName: ?string,
   +__module_component: mixed,
   +$fragmentRefs: mixed,
+  ...
 };
 
 /**
  * A map of records affected by an update operation.
  */
-export type UpdatedRecords = {[dataID: DataID]: boolean};
+export type UpdatedRecords = {[dataID: DataID]: boolean, ...};
 
 /**
  * A function that updates a store (via a proxy) given the results of a "handle"
@@ -618,6 +622,7 @@ export type UpdatedRecords = {[dataID: DataID]: boolean};
  */
 export type Handler = {
   update: (store: RecordSourceProxy, fieldPayload: HandleFieldPayload) => void,
+  ...
 };
 
 /**
@@ -782,6 +787,7 @@ export type MissingFieldHandler =
         args: Variables,
         store: ReadOnlyRecordSourceProxy,
       ) => mixed,
+      ...
     }
   | {
       kind: 'linked',
@@ -791,6 +797,7 @@ export type MissingFieldHandler =
         args: Variables,
         store: ReadOnlyRecordSourceProxy,
       ) => ?DataID,
+      ...
     }
   | {
       kind: 'pluralLinked',
@@ -800,6 +807,7 @@ export type MissingFieldHandler =
         args: Variables,
         store: ReadOnlyRecordSourceProxy,
       ) => ?Array<?DataID>,
+      ...
     };
 
 /**

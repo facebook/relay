@@ -8,6 +8,8 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const IRTransformer = require('../core/IRTransformer');
@@ -154,7 +156,11 @@ function transformNode<T: Node>(
   schema: Schema,
   node: T,
   selectionMap: SelectionMap,
-): {selectionMap: SelectionMap, node: ?T} {
+): {
+  selectionMap: SelectionMap,
+  node: ?T,
+  ...
+} {
   // This will optimize a traversal of the same subselections.
   // If it's the same node, and selectionMap is empty
   // result of transformNode has to be the same.

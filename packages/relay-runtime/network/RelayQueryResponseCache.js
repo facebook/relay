@@ -8,6 +8,8 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const invariant = require('invariant');
@@ -19,6 +21,7 @@ import type {GraphQLResponse} from './RelayNetworkTypes';
 type Response = {
   fetchTime: number,
   payload: GraphQLResponse,
+  ...
 };
 
 /**
@@ -31,7 +34,7 @@ class RelayQueryResponseCache {
   _size: number;
   _ttl: number;
 
-  constructor({size, ttl}: {size: number, ttl: number}) {
+  constructor({size, ttl}: {size: number, ttl: number, ...}) {
     invariant(
       size > 0,
       'RelayQueryResponseCache: Expected the max cache size to be > 0, got ' +

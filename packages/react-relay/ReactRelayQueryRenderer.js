@@ -8,6 +8,8 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const React = require('react');
@@ -38,8 +40,10 @@ type RetryCallbacks = {
     | (({
         error?: Error,
         snapshot?: Snapshot,
+        ...
       }) => void),
   handleRetryAfterError: null | ((error: Error) => void),
+  ...
 };
 
 export type RenderProps<T> = {|
@@ -183,6 +187,7 @@ class ReactRelayQueryRenderer extends React.Component<Props, State> {
     retryCallbacks.handleDataChange = (params: {
       error?: Error,
       snapshot?: Snapshot,
+      ...
     }): void => {
       const error = params.error == null ? null : params.error;
       const snapshot = params.snapshot == null ? null : params.snapshot;

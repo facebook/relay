@@ -8,6 +8,8 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const RelayModernRecord = require('../store/RelayModernRecord');
@@ -41,7 +43,7 @@ import type RelayRecordSourceMutator from './RelayRecordSourceMutator';
 class RelayRecordSourceProxy implements RecordSourceProxy {
   _handlerProvider: ?HandlerProvider;
   __mutator: RelayRecordSourceMutator;
-  _proxies: {[dataID: DataID]: ?RelayRecordProxy};
+  _proxies: {[dataID: DataID]: ?RelayRecordProxy, ...};
   _getDataID: GetDataID;
 
   constructor(

@@ -9,6 +9,8 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const React = require('react');
@@ -27,7 +29,7 @@ import type {GraphQLTaggedNode} from 'relay-runtime';
 
 const {useEffect, useState, useMemo} = React;
 
-function useIsParentQueryInFlight<TKey: ?{+$data?: mixed}>(
+function useIsParentQueryInFlight<TKey: ?{+$data?: mixed, ...}>(
   fragmentInput: GraphQLTaggedNode,
   fragmentRef: TKey,
 ): boolean {

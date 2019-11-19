@@ -9,6 +9,8 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const LRUCache = require('./LRUCache');
@@ -41,9 +43,7 @@ type FragmentResourceCache = Cache<
 >;
 
 type SingularOrPluralSnapshot = Snapshot | $ReadOnlyArray<Snapshot>;
-opaque type FragmentResult: {
-  data: mixed,
-} = {|
+opaque type FragmentResult: {data: mixed, ...} = {|
   cacheKey: string,
   data: mixed,
   snapshot: SingularOrPluralSnapshot | null,
@@ -227,10 +227,10 @@ class FragmentResourceImpl {
   }
 
   readSpec(
-    fragmentNodes: {[string]: ReaderFragment},
-    fragmentRefs: {[string]: mixed},
+    fragmentNodes: {[string]: ReaderFragment, ...},
+    fragmentRefs: {[string]: mixed, ...},
     componentDisplayName: string,
-  ): {[string]: FragmentResult} {
+  ): {[string]: FragmentResult, ...} {
     return mapObject(fragmentNodes, (fragmentNode, fragmentKey) => {
       const fragmentRef = fragmentRefs[fragmentKey];
       return this.read(
@@ -301,9 +301,7 @@ class FragmentResourceImpl {
   }
 
   subscribeSpec(
-    fragmentResults: {
-      [string]: FragmentResult,
-    },
+    fragmentResults: {[string]: FragmentResult, ...},
     callback: () => void,
   ): Disposable {
     const disposables = Object.keys(fragmentResults).map(key =>
@@ -360,7 +358,10 @@ class FragmentResourceImpl {
     return [didMissUpdates, currentSnapshot];
   }
 
-  checkMissedUpdatesSpec(fragmentResults: {[string]: FragmentResult}): boolean {
+  checkMissedUpdatesSpec(fragmentResults: {
+    [string]: FragmentResult,
+    ...,
+  }): boolean {
     return Object.keys(fragmentResults).some(
       key => this.checkMissedUpdates(fragmentResults[key])[0],
     );

@@ -8,6 +8,8 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 import type {
@@ -19,15 +21,13 @@ import type {
   Variables,
 } from 'relay-runtime';
 
-export type GeneratedNodeMap = {[key: string]: GraphQLTaggedNode};
+export type GeneratedNodeMap = {[key: string]: GraphQLTaggedNode, ...};
 
 export type ObserverOrCallback = Observer<void> | ((error: ?Error) => mixed);
 
 // NOTE: This is an inexact type in order to allow a RelayPaginationProp or
 // RelayRefetchProp to flow into a RelayProp.
-export type RelayProp = {
-  +environment: IEnvironment,
-};
+export type RelayProp = {+environment: IEnvironment, ...};
 
 export type RelayPaginationProp = {|
   +environment: IEnvironment,
@@ -58,7 +58,7 @@ export type RelayRefetchProp = {|
 export type RefetchOptions = {|
   +force?: boolean,
   +fetchPolicy?: 'store-or-network' | 'network-only',
-  +metadata?: {[key: string]: mixed},
+  +metadata?: {[key: string]: mixed, ...},
 |};
 
 export type FetchPolicy = 'store-and-network' | 'network-only';
@@ -97,6 +97,7 @@ export type FetchPolicy = 'store-and-network' | 'network-only';
  */
 export type $FragmentRef<T> = {
   +$fragmentRefs: $PropertyType<T, '$refType'>,
+  ...
 };
 
 /**
@@ -105,15 +106,15 @@ export type $FragmentRef<T> = {
  */
 // prettier-ignore
 export type $RelayProps<Props, RelayPropT = RelayProp> = $ObjMap<
-  $Diff<Props, {relay: RelayPropT | void}>,
-  & (<T: {+$refType: empty}>( T) =>  T)
-  & (<T: {+$refType: empty}>(?T) => ?T)
-  & (<TRef: FragmentReference, T: {+$refType: TRef}>(                 T ) =>                  $FragmentRef<T> )
-  & (<TRef: FragmentReference, T: {+$refType: TRef}>(?                T ) => ?                $FragmentRef<T> )
-  & (<TRef: FragmentReference, T: {+$refType: TRef}>( $ReadOnlyArray< T>) =>  $ReadOnlyArray< $FragmentRef<T>>)
-  & (<TRef: FragmentReference, T: {+$refType: TRef}>(?$ReadOnlyArray< T>) => ?$ReadOnlyArray< $FragmentRef<T>>)
-  & (<TRef: FragmentReference, T: {+$refType: TRef}>( $ReadOnlyArray<?T>) =>  $ReadOnlyArray<?$FragmentRef<T>>)
-  & (<TRef: FragmentReference, T: {+$refType: TRef}>(?$ReadOnlyArray<?T>) => ?$ReadOnlyArray<?$FragmentRef<T>>)
+  $Diff<Props, { relay: RelayPropT | void, ... }>,
+  & (<T: { +$refType: empty, ... }>( T) =>  T)
+  & (<T: { +$refType: empty, ... }>(?T) => ?T)
+  & (<TRef: FragmentReference, T: { +$refType: TRef, ... }>(                 T ) =>                  $FragmentRef<T> )
+  & (<TRef: FragmentReference, T: { +$refType: TRef, ... }>(?                T ) => ?                $FragmentRef<T> )
+  & (<TRef: FragmentReference, T: { +$refType: TRef, ... }>( $ReadOnlyArray< T>) =>  $ReadOnlyArray< $FragmentRef<T>>)
+  & (<TRef: FragmentReference, T: { +$refType: TRef, ... }>(?$ReadOnlyArray< T>) => ?$ReadOnlyArray< $FragmentRef<T>>)
+  & (<TRef: FragmentReference, T: { +$refType: TRef, ... }>( $ReadOnlyArray<?T>) =>  $ReadOnlyArray<?$FragmentRef<T>>)
+  & (<TRef: FragmentReference, T: { +$refType: TRef, ... }>(?$ReadOnlyArray<?T>) => ?$ReadOnlyArray<?$FragmentRef<T>>)
   & (<T>(T) => T),
 >;
 

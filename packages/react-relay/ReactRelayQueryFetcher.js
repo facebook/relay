@@ -8,6 +8,8 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const invariant = require('invariant');
@@ -27,7 +29,11 @@ import type {
   Snapshot,
 } from 'relay-runtime';
 
-type OnDataChange = ({error?: Error, snapshot?: Snapshot}) => void;
+type OnDataChange = ({
+  error?: Error,
+  snapshot?: Snapshot,
+  ...
+}) => void;
 
 /** The external API of 'fetch' **/
 export type FetchOptions = {|
@@ -67,6 +73,7 @@ class ReactRelayQueryFetcher {
   constructor(args?: {
     cacheSelectionReference: ?Disposable,
     selectionReferences: Array<Disposable>,
+    ...
   }) {
     if (args != null) {
       this._cacheSelectionReference = args.cacheSelectionReference;
@@ -314,7 +321,12 @@ class ReactRelayQueryFetcher {
     this._selectionReferences = [];
   }
 
-  _onQueryDataAvailable({notifyFirstResult}: {notifyFirstResult: boolean}) {
+  _onQueryDataAvailable({
+    notifyFirstResult,
+  }: {
+    notifyFirstResult: boolean,
+    ...
+  }) {
     invariant(
       this._fetchOptions,
       'ReactRelayQueryFetcher: `_onQueryDataAvailable` should have been called after having called `fetch`',

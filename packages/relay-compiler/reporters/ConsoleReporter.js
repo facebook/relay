@@ -8,6 +8,8 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const chalk = require('chalk');
@@ -24,7 +26,7 @@ class ConsoleReporter implements Reporter {
   _verbose: boolean;
   _quiet: boolean;
 
-  constructor(options: {verbose: boolean, quiet: boolean}) {
+  constructor(options: {verbose: boolean, quiet: boolean, ...}) {
     this._verbose = options.verbose;
     this._quiet = options.quiet;
   }

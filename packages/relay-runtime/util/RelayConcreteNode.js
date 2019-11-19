@@ -8,6 +8,8 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 import type {
@@ -39,7 +41,7 @@ export type RequestParameters =
 type BaseRequestParameters = {|
   +name: string,
   +operationKind: 'mutation' | 'query' | 'subscription',
-  +metadata: {[key: string]: mixed},
+  +metadata: {[key: string]: mixed, ...},
 |};
 
 export type GeneratedNode =

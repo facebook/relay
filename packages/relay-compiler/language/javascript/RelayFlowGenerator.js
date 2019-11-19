@@ -8,6 +8,8 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const ConnectionFieldTransform = require('../../transforms/ConnectionFieldTransform');
@@ -59,11 +61,9 @@ const nullthrows = require('nullthrows');
 export type State = {|
   ...TypeGeneratorOptions,
   +generatedFragments: Set<string>,
-  +generatedInputObjectTypes: {
-    [name: string]: TypeID | 'pending',
-  },
+  +generatedInputObjectTypes: {[name: string]: TypeID | 'pending', ...},
   hasConnectionResolver: boolean,
-  +usedEnums: {[name: string]: EnumTypeID},
+  +usedEnums: {[name: string]: EnumTypeID, ...},
   +usedFragments: Set<string>,
   +matchFields: Map<string, mixed>,
   +runtimeImports: Set<string>,

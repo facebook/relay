@@ -8,6 +8,8 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const areEqual = require('areEqual');
@@ -35,8 +37,11 @@ import type {
   Snapshot,
 } from './RelayStoreTypes';
 
-type Props = {[key: string]: mixed};
-type Resolvers = {[key: string]: ?(SelectorListResolver | SelectorResolver)};
+type Props = {[key: string]: mixed, ...};
+type Resolvers = {
+  [key: string]: ?(SelectorListResolver | SelectorResolver),
+  ...,
+};
 
 /**
  * A utility for resolving and subscribing to the results of a fragment spec

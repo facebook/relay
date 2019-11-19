@@ -8,6 +8,8 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const {createCompilerError, createUserError} = require('../core/CompilerError');
@@ -526,7 +528,10 @@ function generateArgs(
     : concreteArguments.sort(nameComparator);
 }
 
-function nameComparator(a: {+name: string}, b: {+name: string}): number {
+function nameComparator(
+  a: {+name: string, ...},
+  b: {+name: string, ...},
+): number {
   return a.name < b.name ? -1 : a.name > b.name ? 1 : 0;
 }
 

@@ -8,6 +8,8 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const IRValidator = require('../core/IRValidator');
@@ -23,9 +25,7 @@ import type {
   Stream,
 } from '../core/IR';
 
-type State = {
-  rootClientSelection: ?Selection,
-};
+type State = {rootClientSelection: ?Selection, ...};
 
 const NODEKIND_DIRECTIVE_MAP = {
   Defer: 'defer',

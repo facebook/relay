@@ -8,6 +8,8 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const IRTransformer = require('../core/IRTransformer');
@@ -20,9 +22,7 @@ import type {Schema} from '../core/Schema';
 
 const TYPENAME_KEY = '__typename';
 
-type State = {
-  typenameField: ScalarField,
-};
+type State = {typenameField: ScalarField, ...};
 
 let cache = new Map();
 

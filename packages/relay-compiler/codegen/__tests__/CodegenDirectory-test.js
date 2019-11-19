@@ -9,6 +9,8 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const CodegenDirectory = require('../CodegenDirectory');
@@ -34,7 +36,7 @@ class TestFilesystem implements Filesystem {
     this.__mockOperations.push(`readFileSync(${path})`);
     return `mock-content-${path}`;
   }
-  statSync(path: string): {isDirectory(): boolean} {
+  statSync(path: string): {isDirectory(): boolean, ...} {
     this.__mockOperations.push(`statSync(${path})`);
     return {
       isDirectory() {

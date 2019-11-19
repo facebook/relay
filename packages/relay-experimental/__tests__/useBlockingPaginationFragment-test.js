@@ -9,6 +9,8 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const React = require('react');
@@ -361,9 +363,10 @@ describe('useBlockingPaginationFragment', () => {
     Renderer = props => null;
 
     const Container = (props: {
-      userRef?: {},
+      userRef?: {...},
       owner: $FlowFixMe,
       fragment: $FlowFixMe,
+      ...
     }) => {
       // We need a render a component to run a Hook
       const [owner, _setOwner] = useState(props.owner);
@@ -405,6 +408,7 @@ describe('useBlockingPaginationFragment', () => {
       owner?: $FlowFixMe,
       userRef?: $FlowFixMe,
       fragment?: $FlowFixMe,
+      ...
     }): $FlowFixMe => {
       const {isConcurrent = false, ...props} = args ?? {};
       let renderer;

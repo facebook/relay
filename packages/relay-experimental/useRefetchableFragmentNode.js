@@ -9,6 +9,8 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const ProfilerContext = require('./ProfilerContext');
@@ -66,17 +68,17 @@ export type RefetchFn<
 // prettier-ignore
 export type RefetchFnDynamic<
   TQuery: OperationType,
-  TKey: ?{+$data?: mixed},
+  TKey: ?{ +$data?: mixed, ... },
   TOptions = Options,
 > = $Call<
-  & (( {+$data?: mixed}) => RefetchFnInexact<TQuery, TOptions>)
-  & ((?{+$data?: mixed}) => RefetchFnExact<TQuery, TOptions>),
+  & (( { +$data?: mixed, ... }) => RefetchFnInexact<TQuery, TOptions>)
+  & ((?{ +$data?: mixed, ... }) => RefetchFnExact<TQuery, TOptions>),
   TKey
 >;
 
 export type ReturnType<
   TQuery: OperationType,
-  TKey: ?{+$data?: mixed},
+  TKey: ?{+$data?: mixed, ...},
   TOptions = Options,
 > = {|
   fragmentData: mixed,
@@ -139,6 +141,7 @@ type RefetchState = {|
 type DebugIDandTypename = {
   id: string,
   typename: string,
+  ...
 };
 
 function reducer(state: RefetchState, action: Action): RefetchState {
@@ -173,7 +176,7 @@ function reducer(state: RefetchState, action: Action): RefetchState {
 
 function useRefetchableFragmentNode<
   TQuery: OperationType,
-  TKey: ?{+$data?: mixed},
+  TKey: ?{+$data?: mixed, ...},
 >(
   fragmentNode: ReaderFragment,
   parentFragmentRef: mixed,

@@ -9,6 +9,8 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const React = require('react');
@@ -84,16 +86,17 @@ export type MatchPointer = {
   +__fragmentPropName?: ?string,
   +__module_component?: mixed,
   +$fragmentRefs: mixed,
+  ...
 };
 
-export type MatchContainerProps<TProps: {}, TFallback: React.Node> = {|
+export type MatchContainerProps<TProps: {...}, TFallback: React.Node> = {|
   +fallback?: ?TFallback,
   +loader: (module: mixed) => React.AbstractComponent<TProps>,
   +match: ?MatchPointer,
   +props?: TProps,
 |};
 
-function MatchContainer<TProps: {}, TFallback: React.Node | null>({
+function MatchContainer<TProps: {...}, TFallback: React.Node | null>({
   fallback,
   loader,
   match,

@@ -8,6 +8,8 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const CodegenRunner = require('../codegen/CodegenRunner');
@@ -65,6 +67,7 @@ function buildWatchExpression(config: {
   extensions: Array<string>,
   include: Array<string>,
   exclude: Array<string>,
+  ...
 }) {
   return [
     'allof',
@@ -84,6 +87,7 @@ function getFilepathsFromGlob(
     extensions: Array<string>,
     include: Array<string>,
     exclude: Array<string>,
+    ...
   },
 ): Array<string> {
   const {extensions, include, exclude} = config;
@@ -95,7 +99,7 @@ function getFilepathsFromGlob(
   });
 }
 
-type LanguagePlugin = PluginInitializer | {default: PluginInitializer};
+type LanguagePlugin = PluginInitializer | {default: PluginInitializer, ...};
 
 /**
  * Unless the requested plugin is the builtin `javascript` one, import a

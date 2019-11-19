@@ -8,6 +8,8 @@
  * @flow
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const IRTransformer = require('../core/IRTransformer');
@@ -30,13 +32,12 @@ import type {
 } from '../core/IR';
 import type {Schema, TypeID} from '../core/Schema';
 
-export type FlattenOptions = {
-  flattenAbstractTypes?: boolean,
-};
+export type FlattenOptions = {flattenAbstractTypes?: boolean, ...};
 
 type State = {
   flattenAbstractTypes: boolean,
   parentType: ?TypeID,
+  ...
 };
 
 /**

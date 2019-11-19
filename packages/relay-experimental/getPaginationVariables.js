@@ -9,6 +9,8 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const invariant = require('invariant');
@@ -22,7 +24,7 @@ function getPaginationVariables(
   cursor: ?string,
   baseVariables: Variables,
   paginationMetadata: ReaderPaginationMetadata,
-): {[string]: mixed} {
+): {[string]: mixed, ...} {
   const {
     backward: backwardMetadata,
     forward: forwardMetadata,

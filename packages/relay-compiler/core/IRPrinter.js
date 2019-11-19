@@ -8,6 +8,8 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const invariant = require('invariant');
@@ -72,6 +74,7 @@ function printSelections(
   options?: {
     parentDirectives?: string,
     isClientExtension?: boolean,
+    ...
   },
 ): string {
   const selections = node.selections;
@@ -97,6 +100,7 @@ function printField(
   options?: {
     parentDirectives?: string,
     isClientExtension?: boolean,
+    ...
   },
 ): string {
   const parentDirectives = options?.parentDirectives ?? '';
@@ -120,6 +124,7 @@ function printSelection(
   options?: {
     parentDirectives?: string,
     isClientExtension?: boolean,
+    ...
   },
 ): string {
   let str;

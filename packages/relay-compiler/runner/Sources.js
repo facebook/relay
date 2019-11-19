@@ -9,6 +9,8 @@
  * @emails oncall+relay
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const invariant = require('invariant');
@@ -40,11 +42,11 @@ export type SourceChanges<T: ASTNode> = {|
 
 type SourcesState = {
   [filename: string]: {
-    nodes: {
-      [hash: string]: ASTNode,
-    },
+    nodes: {[hash: string]: ASTNode, ...},
     sources: [string],
+    ...
   },
+  ...,
 };
 
 function md5(x: string): string {

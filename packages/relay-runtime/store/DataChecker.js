@@ -9,6 +9,8 @@
  * @emails oncall+relay
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const RelayConcreteNode = require('../util/RelayConcreteNode');
@@ -155,7 +157,11 @@ class DataChecker {
   _getDataForHandlers(
     field: NormalizationField,
     dataID: DataID,
-  ): {args: Variables, record: ?Record} {
+  ): {
+    args: Variables,
+    record: ?Record,
+    ...
+  } {
     return {
       args: field.args ? getArgumentValues(field.args, this._variables) : {},
       // Getting a snapshot of the record state is potentially expensive since

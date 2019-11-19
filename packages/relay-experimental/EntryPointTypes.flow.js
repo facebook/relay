@@ -14,6 +14,7 @@
 import type {JSResourceReference} from 'JSResourceReference';
 import type {AbstractComponent, ElementConfig} from 'React';
 import type {
+  CacheConfig,
   ConcreteRequest,
   GraphQLResponse,
   IEnvironment,
@@ -30,6 +31,7 @@ export type PreloadFetchPolicy =
 export type PreloadOptions = {|
   +fetchKey?: string | number,
   +fetchPolicy?: ?PreloadFetchPolicy,
+  +networkCacheConfig?: ?CacheConfig,
   +extraOptions?: ?{},
 |};
 

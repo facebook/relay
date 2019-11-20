@@ -60,7 +60,11 @@ const recycleNodesInto = require('./util/recycleNodesInto');
 const requestSubscription = require('./subscription/requestSubscription');
 const stableCopy = require('./util/stableCopy');
 
-const {generateClientID, generateUniqueClientID} = require('./store/ClientID');
+const {
+  generateClientID,
+  generateUniqueClientID,
+  isClientID,
+} = require('./store/ClientID');
 
 export type {
   ConnectionMetadata,
@@ -306,6 +310,7 @@ module.exports = {
   generateClientID: generateClientID,
   generateUniqueClientID: generateUniqueClientID,
   getRelayHandleKey: getRelayHandleKey,
+  isClientID: isClientID,
   isPromise: isPromise,
   isScalarAndEqual: isScalarAndEqual,
   recycleNodesInto: recycleNodesInto,

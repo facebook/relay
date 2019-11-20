@@ -5,6 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  *
  * @format
+ * @flow strict-local
  * @emails oncall+relay
  */
 
@@ -43,7 +44,7 @@ const {
     let store;
     let sinkSource;
     const initialData = {
-      4: {
+      '4': {
         [ID_KEY]: '4',
         [TYPENAME_KEY]: 'User',
         'address(location:"WORK")': '1 Hacker Way',
@@ -53,7 +54,7 @@ const {
         name: 'Mark',
         pet: {[REF_KEY]: 'beast'},
       },
-      660361306: {
+      '660361306': {
         [ID_KEY]: '660361306',
         [TYPENAME_KEY]: 'User',
         administeredPages: {
@@ -103,6 +104,9 @@ const {
 
       it('returns a writer for defined records', () => {
         const record = store.get('4');
+        if (record == null) {
+          throw new Error('Exepcted to find record with id 4');
+        }
         expect(record.getDataID()).toBe('4');
         expect(record instanceof RelayRecordProxy).toBe(true);
       });
@@ -163,6 +167,12 @@ const {
       it('copies fields', () => {
         const sf = store.get('sf');
         const mpk = store.get('mpk');
+        if (sf == null) {
+          throw new Error('Exepcted to find record with id sf');
+        }
+        if (mpk == null) {
+          throw new Error('Exepcted to find record with id mpk');
+        }
         sf.copyFieldsFrom(mpk);
         expect(sinkSource.toJSON()).toEqual({
           sf: {
@@ -272,6 +282,9 @@ const {
 
       it('uses user-defined getDataID', () => {
         const getDataID = jest.fn((field, typename) => {
+          if (typeof field.id !== 'string') {
+            throw new Error('Expected id to be available');
+          }
           return `${typename}:${field.id}`;
         });
         store = new RelayRecordSourceProxy(mutator, getDataID);
@@ -374,26 +387,35 @@ const {
     describe('getOrCreateLinkedRecord', () => {
       it('retrieves a record if it already exists', () => {
         const zuck = store.get('4');
-        expect(zuck.getOrCreateLinkedRecord('hometown').getValue('name')).toBe(
-          'Menlo Park',
-        );
+        if (zuck == null) {
+          throw new Error('Exepcted to find record with id 4');
+        }
+        expect(
+          zuck.getOrCreateLinkedRecord('hometown', 'Page').getValue('name'),
+        ).toBe('Menlo Park');
       });
 
       it('creates a record if it does not already exist', () => {
         const greg = store.get('660361306');
+        if (greg == null) {
+          throw new Error('Exepcted to find record with id 6603613064');
+        }
         expect(greg.getLinkedRecord('hometown')).toBe(undefined);
 
         greg
           .getOrCreateLinkedRecord('hometown', 'Page')
           .setValue('Adelaide', 'name');
 
-        expect(greg.getLinkedRecord('hometown').getValue('name')).toBe(
-          'Adelaide',
-        );
+        expect(
+          greg.getOrCreateLinkedRecord('hometown', 'Page').getValue('name'),
+        ).toBe('Adelaide');
       });
 
       it('links to existing client records if the field was unset', () => {
         const greg = store.get('660361306');
+        if (greg == null) {
+          throw new Error('Exepcted to find record with id 6603613064');
+        }
         expect(greg.getLinkedRecord('hometown')).toBe(undefined);
 
         const hometown = greg.getOrCreateLinkedRecord('hometown', 'Page');
@@ -404,25 +426,37 @@ const {
 
         expect(hometown2).toBe(hometown);
         expect(hometown2.getValue('name')).toBe('Adelaide');
-        expect(greg.getLinkedRecord('hometown').getValue('name')).toBe(
-          'Adelaide',
-        );
+        expect(
+          greg.getOrCreateLinkedRecord('hometown', 'Page').getValue('name'),
+        ).toBe('Adelaide');
       });
     });
 
     it('combines operations', () => {
       const markBackup = baseSource.get('4');
       const mark = store.get('4');
+      if (mark == null) {
+        throw new Error('Exepcted to find record with id 4');
+      }
       mark.setValue('Marcus', 'name');
       mark.setValue('Marcus Jr.', 'name');
       mark.setValue('1601 Willow Road', 'address', {location: 'WORK'});
       const beast = store.get('beast');
+      if (beast == null) {
+        throw new Error('Exepcted to find record with id beast');
+      }
       beast.setValue('Dog', 'name');
       mark.setLinkedRecord(beast, 'hometown');
       const mpk = store.get('mpk');
+      if (mpk == null) {
+        throw new Error('Exepcted to find record with id mpk');
+      }
       mark.setLinkedRecord(mpk, 'pet');
       mark.setLinkedRecord(beast, 'pet');
       const greg = store.get('660361306');
+      if (greg == null) {
+        throw new Error('Exepcted to find record with id 6603613064');
+      }
       greg.setLinkedRecord(mpk, 'hometown');
       mark.setLinkedRecords([mpk], 'administeredPages');
       mark.setLinkedRecords([], 'blockedPages');
@@ -430,7 +464,7 @@ const {
 
       expect(baseSource.toJSON()).toEqual(initialData);
       expect(sinkSource.toJSON()).toEqual({
-        4: {
+        '4': {
           [ID_KEY]: '4',
           [TYPENAME_KEY]: 'User',
           'address(location:"WORK")': '1601 Willow Road',
@@ -440,7 +474,7 @@ const {
           name: 'Marcus Jr.',
           pet: {[REF_KEY]: 'beast'},
         },
-        660361306: {
+        '660361306': {
           [ID_KEY]: '660361306',
           [TYPENAME_KEY]: 'User',
           blockedPages: {[REFS_KEY]: ['mpk', 'beast']},

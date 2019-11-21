@@ -39,6 +39,7 @@ function createModernNode(
     isDevVariable: ?string,
     // Use haste style global requires, defaults to false.
     isHasteMode: boolean,
+    ...
   },
 ): Object {
   const definitionName = graphqlDefinition.name && graphqlDefinition.name.value;

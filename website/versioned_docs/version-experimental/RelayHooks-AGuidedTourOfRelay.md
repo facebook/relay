@@ -428,7 +428,7 @@ function App() {
         }
       }
     `,
-    variables: {id: '4'},
+    {id: '4'},
   );
 
   return (
@@ -505,7 +505,7 @@ function App() {
         }
       }
     `,
-    variables: {id: '4'},
+    {id: '4'},
   );
 
   return (
@@ -1219,7 +1219,7 @@ function App() {
         }
       }
     `,
-    variables: {id: '4'},
+    {id: '4'},
     {fetchPolicy: 'store-or-network'},
   );
 
@@ -1358,7 +1358,7 @@ function App() {
         }
       }
     `,
-    variables: {id: '4'},
+    {id: '4'},
     {fetchPolicy: 'store-or-network'},
   );
 
@@ -1406,7 +1406,7 @@ function App() {
         }
       }
     `,
-    variables: {id: '4'},
+    {id: '4'},
     {fetchPolicy: 'store-or-network'},
   );
 

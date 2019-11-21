@@ -134,7 +134,7 @@ function preloadQueryDeduped<TQuery: OperationType>(
   const network = environment.getNetwork();
   const fetchPolicy = options?.fetchPolicy ?? STORE_OR_NETWORK_DEFAULT;
   const fetchKey = options?.fetchKey;
-  const networkCacheConfig = options?.networkCacheConfig ?? {};
+  const networkCacheConfig = options?.networkCacheConfig ?? {force: true};
   const cacheKey = `${getRequestIdentifier(params, variables)}${
     fetchKey != null ? `-${fetchKey}` : ''
   }`;

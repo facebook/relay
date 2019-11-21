@@ -103,7 +103,7 @@ describe('store-or-network', () => {
     expect(fetch).toBeCalledTimes(1);
     expect(fetch.mock.calls[0][0]).toBe(query.params);
     expect(fetch.mock.calls[0][1]).toEqual(variables);
-    expect(fetch.mock.calls[0][2]).toEqual({});
+    expect(fetch.mock.calls[0][2]).toEqual({force: true});
 
     const [events, observer] = createObserver();
     if (preloaded.source) {
@@ -122,7 +122,7 @@ describe('store-or-network', () => {
     expect(fetch).toBeCalledTimes(1);
     expect(fetch.mock.calls[0][0]).toBe(query.params);
     expect(fetch.mock.calls[0][1]).toEqual(variables);
-    expect(fetch.mock.calls[0][2]).toEqual({});
+    expect(fetch.mock.calls[0][2]).toEqual({force: true});
   });
 
   it('fetches from network if data is not available with concrete query', () => {
@@ -131,7 +131,7 @@ describe('store-or-network', () => {
     expect(fetch).toBeCalledTimes(1);
     expect(fetch.mock.calls[0][0]).toBe(query.params);
     expect(fetch.mock.calls[0][1]).toEqual(variables);
-    expect(fetch.mock.calls[0][2]).toEqual({});
+    expect(fetch.mock.calls[0][2]).toEqual({force: true});
   });
 
   it('returns a cached entry wo refetching if a previous fetch is pending', () => {
@@ -140,7 +140,7 @@ describe('store-or-network', () => {
     expect(fetch).toBeCalledTimes(1);
     expect(fetch.mock.calls[0][0]).toBe(query.params);
     expect(fetch.mock.calls[0][1]).toEqual(variables);
-    expect(fetch.mock.calls[0][2]).toEqual({});
+    expect(fetch.mock.calls[0][2]).toEqual({force: true});
     const [events, observer] = createObserver();
     if (preloaded1.source) {
       preloaded1.source.subscribe({...observer});
@@ -175,7 +175,7 @@ describe('store-or-network', () => {
     expect(fetch).toBeCalledTimes(1);
     expect(fetch.mock.calls[0][0]).toBe(query.params);
     expect(fetch.mock.calls[0][1]).toEqual(variables);
-    expect(fetch.mock.calls[0][2]).toEqual({});
+    expect(fetch.mock.calls[0][2]).toEqual({force: true});
   });
 
   it('fetches from network if data/query are still missing and cache entry has expired', () => {
@@ -189,7 +189,7 @@ describe('store-or-network', () => {
     expect(fetch).toBeCalledTimes(1);
     expect(fetch.mock.calls[0][0]).toBe(query.params);
     expect(fetch.mock.calls[0][1]).toEqual(variables);
-    expect(fetch.mock.calls[0][2]).toEqual({});
+    expect(fetch.mock.calls[0][2]).toEqual({force: true});
   });
 
   it('resolves from cache if data and query are available', () => {
@@ -277,7 +277,7 @@ describe('store-and-network', () => {
     expect(fetch).toBeCalledTimes(1);
     expect(fetch.mock.calls[0][0]).toBe(query.params);
     expect(fetch.mock.calls[0][1]).toEqual(variables);
-    expect(fetch.mock.calls[0][2]).toEqual({});
+    expect(fetch.mock.calls[0][2]).toEqual({force: true});
 
     const [events, observer] = createObserver();
     if (preloaded.source) {
@@ -298,7 +298,7 @@ describe('store-and-network', () => {
     expect(fetch).toBeCalledTimes(1);
     expect(fetch.mock.calls[0][0]).toBe(query.params);
     expect(fetch.mock.calls[0][1]).toEqual(variables);
-    expect(fetch.mock.calls[0][2]).toEqual({});
+    expect(fetch.mock.calls[0][2]).toEqual({force: true});
     const [events, observer] = createObserver();
     if (preloaded1.source) {
       preloaded1.source.subscribe({...observer});
@@ -337,7 +337,7 @@ describe('store-and-network', () => {
     expect(fetch).toBeCalledTimes(1);
     expect(fetch.mock.calls[0][0]).toBe(query.params);
     expect(fetch.mock.calls[0][1]).toEqual(variables);
-    expect(fetch.mock.calls[0][2]).toEqual({});
+    expect(fetch.mock.calls[0][2]).toEqual({force: true});
   });
 
   it('fetches from network if data/query are still missing and cache entry has expired', () => {
@@ -355,7 +355,7 @@ describe('store-and-network', () => {
     expect(fetch).toBeCalledTimes(1);
     expect(fetch.mock.calls[0][0]).toBe(query.params);
     expect(fetch.mock.calls[0][1]).toEqual(variables);
-    expect(fetch.mock.calls[0][2]).toEqual({});
+    expect(fetch.mock.calls[0][2]).toEqual({force: true});
   });
 });
 
@@ -372,7 +372,7 @@ describe('network-only', () => {
     expect(fetch).toBeCalledTimes(1);
     expect(fetch.mock.calls[0][0]).toBe(query.params);
     expect(fetch.mock.calls[0][1]).toEqual(variables);
-    expect(fetch.mock.calls[0][2]).toEqual({});
+    expect(fetch.mock.calls[0][2]).toEqual({force: true});
 
     const [events, observer] = createObserver();
     if (preloaded.source) {
@@ -393,7 +393,7 @@ describe('network-only', () => {
     expect(fetch).toBeCalledTimes(1);
     expect(fetch.mock.calls[0][0]).toBe(query.params);
     expect(fetch.mock.calls[0][1]).toEqual(variables);
-    expect(fetch.mock.calls[0][2]).toEqual({});
+    expect(fetch.mock.calls[0][2]).toEqual({force: true});
     const [events, observer] = createObserver();
     if (preloaded1.source) {
       preloaded1.source.subscribe({...observer});
@@ -432,7 +432,7 @@ describe('network-only', () => {
     expect(fetch).toBeCalledTimes(1);
     expect(fetch.mock.calls[0][0]).toBe(query.params);
     expect(fetch.mock.calls[0][1]).toEqual(variables);
-    expect(fetch.mock.calls[0][2]).toEqual({});
+    expect(fetch.mock.calls[0][2]).toEqual({force: true});
   });
 
   it('fetches from network if data/query are still missing and cache entry has expired', () => {
@@ -450,6 +450,6 @@ describe('network-only', () => {
     expect(fetch).toBeCalledTimes(1);
     expect(fetch.mock.calls[0][0]).toBe(query.params);
     expect(fetch.mock.calls[0][1]).toEqual(variables);
-    expect(fetch.mock.calls[0][2]).toEqual({});
+    expect(fetch.mock.calls[0][2]).toEqual({force: true});
   });
 });

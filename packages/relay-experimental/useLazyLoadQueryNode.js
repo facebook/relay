@@ -59,7 +59,7 @@ function useLazyLoadQueryNode<TQuery: OperationType>(args: {|
   const fetchObservable =
     args.fetchObservable ??
     fetchQuery(environment, query, {
-      networkCacheConfig: args.networkCacheConfig,
+      networkCacheConfig: args.networkCacheConfig ?? {force: true},
     });
   const {startFetch, completeFetch} = useFetchTrackingRef();
 

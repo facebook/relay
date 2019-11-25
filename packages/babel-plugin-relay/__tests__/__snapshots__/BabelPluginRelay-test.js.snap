@@ -1,45 +1,55 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`\`development\` option does not test the hash when \`development\` is not set 1`] = `
-"(function () {
-  return require(\\"./__generated__/TestFrag.graphql\\");
-});"
+"(function() {
+  return require('./__generated__/TestFrag.graphql');
+});
+"
 `;
 
 exports[`\`development\` option tests the hash when \`development\` is set 1`] = `
-"(function () {
-  const node = require(\\"./__generated__/TestFrag.graphql\\");
+"(function() {
+  const node = require('./__generated__/TestFrag.graphql');
 
-  if (node.hash && node.hash !== \\"0bb6b7b29bc3e910921551c4ff5b6757\\") {
-    console.error(\\"The definition of 'TestFrag' appears to have changed. Run \`relay-compiler\` to update the generated files to receive the expected data.\\");
+  if (node.hash && node.hash !== '0bb6b7b29bc3e910921551c4ff5b6757') {
+    console.error(
+      \\"The definition of 'TestFrag' appears to have changed. Run \`relay-compiler\` to update the generated files to receive the expected data.\\",
+    );
   }
 
-  return require(\\"./__generated__/TestFrag.graphql\\");
-});"
+  return require('./__generated__/TestFrag.graphql');
+});
+"
 `;
 
 exports[`\`development\` option tests the hash when \`isDevVariable\` is set 1`] = `
-"(function () {
+"(function() {
   if (IS_DEV) {
-    const node = require(\\"./__generated__/TestFrag.graphql\\");
+    const node = require('./__generated__/TestFrag.graphql');
 
-    if (node.hash && node.hash !== \\"0bb6b7b29bc3e910921551c4ff5b6757\\") {
-      console.error(\\"The definition of 'TestFrag' appears to have changed. Run \`relay-compiler\` to update the generated files to receive the expected data.\\");
+    if (node.hash && node.hash !== '0bb6b7b29bc3e910921551c4ff5b6757') {
+      console.error(
+        \\"The definition of 'TestFrag' appears to have changed. Run \`relay-compiler\` to update the generated files to receive the expected data.\\",
+      );
     }
   }
 
-  return require(\\"./__generated__/TestFrag.graphql\\");
-});"
+  return require('./__generated__/TestFrag.graphql');
+});
+"
 `;
 
 exports[`\`development\` option uses a custom build command in message 1`] = `
-"(function () {
-  const node = require(\\"./__generated__/TestFrag.graphql\\");
+"(function() {
+  const node = require('./__generated__/TestFrag.graphql');
 
-  if (node.hash && node.hash !== \\"0bb6b7b29bc3e910921551c4ff5b6757\\") {
-    console.error(\\"The definition of 'TestFrag' appears to have changed. Run \`relay-build\` to update the generated files to receive the expected data.\\");
+  if (node.hash && node.hash !== '0bb6b7b29bc3e910921551c4ff5b6757') {
+    console.error(
+      \\"The definition of 'TestFrag' appears to have changed. Run \`relay-build\` to update the generated files to receive the expected data.\\",
+    );
   }
 
-  return require(\\"./__generated__/TestFrag.graphql\\");
-});"
+  return require('./__generated__/TestFrag.graphql');
+});
+"
 `;

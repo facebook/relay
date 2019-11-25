@@ -237,8 +237,12 @@ async function getWatchConfig(config: Config): Promise<Config> {
   if (config.watch) {
     if (!watchman) {
       console.error(
-        'Watchman is required to watch for changes. Running with watch mode disabled.',
+        `
+Watchman is required to watch for changes. Running with watch mode disabled.
+If you believe it is installed, try running \`watchman\` to check for errors.
+        `.trim(),
       );
+
       return {...config, watch: false, watchman: false};
     }
     if (!module.exports.hasWatchmanRootFile(config.src)) {

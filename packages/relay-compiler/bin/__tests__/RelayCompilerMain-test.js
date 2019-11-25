@@ -179,7 +179,10 @@ describe('RelayCompilerMain', () => {
       });
       expect(spy).toBeCalledTimes(1);
       expect(spy.mock.calls[0][0]).toBe(
-        'Watchman is required to watch for changes. Running with watch mode disabled.',
+        `
+Watchman is required to watch for changes. Running with watch mode disabled.
+If you believe it is installed, try running \`watchman\` to check for errors.
+        `.trim(),
       );
       expect(watchConfig.watch).toBe(false);
       expect(watchConfig.watchman).toBe(false);
@@ -205,7 +208,10 @@ describe('RelayCompilerMain', () => {
       });
       expect(spy).toBeCalledTimes(2);
       expect(spy.mock.calls[0][0]).toBe(
-        'Watchman is required to watch for changes. Running with watch mode disabled.',
+        `
+Watchman is required to watch for changes. Running with watch mode disabled.
+If you believe it is installed, try running \`watchman\` to check for errors.
+        `.trim(),
       );
       expect(watchConfig.watch).toBe(false);
       expect(watchConfig.watchman).toBe(false);

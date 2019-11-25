@@ -372,7 +372,7 @@ function createVisitor(schema: Schema, options: TypeGeneratorOptions) {
 
         if (rawResponseType) {
           for (const [key, ast] of state.matchFields) {
-            babelNodes.push(t.typeAlias(t.identifier(key), null, ast));
+            babelNodes.push(exportType(key, ast));
           }
           operationTypes.push(
             t.objectTypeProperty(

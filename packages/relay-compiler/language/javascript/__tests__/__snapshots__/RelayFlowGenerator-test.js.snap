@@ -1412,14 +1412,14 @@ export type TestResponse = {|
     +$fragmentRefs: NameRendererFragment$ref
   |}
 |};
-type PlainUserNameRenderer_name = {|
+export type PlainUserNameRenderer_name = {|
   +plaintext: ?string,
   +data: ?{|
     +text: ?string,
     +id: ?string,
   |},
 |};
-type MarkdownUserNameRenderer_name = {|
+export type MarkdownUserNameRenderer_name = {|
   +markdown: ?string,
   +data: ?{|
     +markup: ?string,
@@ -1549,7 +1549,7 @@ export type TestResponse = {|
     +$fragmentRefs: Test_user$ref
   |}
 |};
-type Test_userRenderer = {|
+export type Test_userRenderer = {|
   +user: ?{|
     +username: ?string,
     +id: ?string,
@@ -1683,14 +1683,14 @@ export type TestResponse = {|
     |}
   |},
 |};
-type PlainUserNameRenderer_name = {|
+export type PlainUserNameRenderer_name = {|
   +plaintext: ?string,
   +data: ?{|
     +text: ?string,
     +id: ?string,
   |},
 |};
-type MarkdownUserNameRenderer_name = {|
+export type MarkdownUserNameRenderer_name = {|
   +markdown: ?string,
   +data: ?{|
     +markup: ?string,

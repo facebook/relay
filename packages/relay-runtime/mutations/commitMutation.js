@@ -19,13 +19,13 @@ const isRelayModernEnvironment = require('../store/isRelayModernEnvironment');
 const validateMutation = require('./validateMutation');
 const warning = require('warning');
 
-const {getRequest} = require('../query/RelayModernGraphQLTag');
+const {getRequest} = require('../query/GraphQLTag');
 const {
   createOperationDescriptor,
 } = require('../store/RelayModernOperationDescriptor');
 
 import type {PayloadError, UploadableMap} from '../network/RelayNetworkTypes';
-import type {GraphQLTaggedNode} from '../query/RelayModernGraphQLTag';
+import type {GraphQLTaggedNode} from '../query/GraphQLTag';
 import type {
   IEnvironment,
   SelectorStoreUpdater,

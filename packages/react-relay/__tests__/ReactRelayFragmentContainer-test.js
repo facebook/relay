@@ -539,7 +539,7 @@ describe('ReactRelayFragmentContainer', () => {
         user: () => InlineUserFragment,
       });
     }).toThrow(
-      'RelayModernGraphQLTag: Expected a fragment, got ' +
+      'GraphQLTag: Expected a fragment, got ' +
         '`{"kind":"InlineDataFragment","name":"InlineUserFragment"}`.',
     );
   });

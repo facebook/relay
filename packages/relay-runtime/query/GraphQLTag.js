@@ -83,7 +83,7 @@ function getFragment(taggedNode: GraphQLTaggedNode): ReaderFragment {
   const fragment = getNode(taggedNode);
   invariant(
     isFragment(fragment),
-    'RelayModernGraphQLTag: Expected a fragment, got `%s`.',
+    'GraphQLTag: Expected a fragment, got `%s`.',
     JSON.stringify(fragment),
   );
   return (fragment: any);
@@ -121,7 +121,7 @@ function getRequest(taggedNode: GraphQLTaggedNode): ConcreteRequest {
   const request = getNode(taggedNode);
   invariant(
     isRequest(request),
-    'RelayModernGraphQLTag: Expected a request, got `%s`.',
+    'GraphQLTag: Expected a request, got `%s`.',
     JSON.stringify(request),
   );
   return (request: any);
@@ -133,7 +133,7 @@ function getInlineDataFragment(
   const fragment = getNode(taggedNode);
   invariant(
     isInlineDataFragment(fragment),
-    'RelayModernGraphQLTag: Expected an inline data fragment, got `%s`.',
+    'GraphQLTag: Expected an inline data fragment, got `%s`.',
     JSON.stringify(fragment),
   );
   return (fragment: any);

@@ -19,7 +19,7 @@ const {
   getRequest,
   isFragment,
   isRequest,
-} = require('../RelayModernGraphQLTag');
+} = require('../GraphQLTag');
 
 describe('RelayModernRefetchableFragment', () => {
   const {generateAndCompile} = RelayModernTestUtils;

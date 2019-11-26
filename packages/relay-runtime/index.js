@@ -12,6 +12,7 @@
 
 'use strict';
 
+const GraphQLTag = require('./query/GraphQLTag');
 const RelayConcreteNode = require('./util/RelayConcreteNode');
 const RelayConcreteVariables = require('./store/RelayConcreteVariables');
 const RelayConnectionHandler = require('./handlers/connection/RelayConnectionHandler');
@@ -24,7 +25,6 @@ const RelayDefaultMissingFieldHandlers = require('./handlers/RelayDefaultMissing
 const RelayError = require('./util/RelayError');
 const RelayFeatureFlags = require('./util/RelayFeatureFlags');
 const RelayModernEnvironment = require('./store/RelayModernEnvironment');
-const RelayModernGraphQLTag = require('./query/RelayModernGraphQLTag');
 const RelayModernOperationDescriptor = require('./store/RelayModernOperationDescriptor');
 const RelayModernRecord = require('./store/RelayModernRecord');
 const RelayModernSelector = require('./store/RelayModernSelector');
@@ -105,7 +105,7 @@ export type {
   Subscribable,
   Subscription,
 } from './network/RelayObservable';
-export type {GraphQLTaggedNode} from './query/RelayModernGraphQLTag';
+export type {GraphQLTaggedNode} from './query/GraphQLTag';
 export type {
   ConnectionEvent,
   ConnectionID,
@@ -243,14 +243,14 @@ module.exports = {
     RelayModernOperationDescriptor.createRequestDescriptor,
   getDataIDsFromFragment: RelayModernSelector.getDataIDsFromFragment,
   getDataIDsFromObject: RelayModernSelector.getDataIDsFromObject,
-  getFragment: RelayModernGraphQLTag.getFragment,
-  getInlineDataFragment: RelayModernGraphQLTag.getInlineDataFragment,
+  getFragment: GraphQLTag.getFragment,
+  getInlineDataFragment: GraphQLTag.getInlineDataFragment,
   getModuleComponentKey: RelayStoreUtils.getModuleComponentKey,
   getModuleOperationKey: RelayStoreUtils.getModuleOperationKey,
-  getPaginationFragment: RelayModernGraphQLTag.getPaginationFragment,
+  getPaginationFragment: GraphQLTag.getPaginationFragment,
   getPluralSelector: RelayModernSelector.getPluralSelector,
-  getRefetchableFragment: RelayModernGraphQLTag.getRefetchableFragment,
-  getRequest: RelayModernGraphQLTag.getRequest,
+  getRefetchableFragment: GraphQLTag.getRefetchableFragment,
+  getRequest: GraphQLTag.getRequest,
   getRequestIdentifier: getRequestIdentifier,
   getSelector: RelayModernSelector.getSelector,
   getSelectorsFromObject: RelayModernSelector.getSelectorsFromObject,
@@ -262,7 +262,7 @@ module.exports = {
     RelayModernSelector.getVariablesFromPluralFragment,
   getVariablesFromSingularFragment:
     RelayModernSelector.getVariablesFromSingularFragment,
-  graphql: RelayModernGraphQLTag.graphql,
+  graphql: GraphQLTag.graphql,
   readInlineData,
 
   // Declarative mutation API

@@ -14,10 +14,10 @@
 
 const invariant = require('invariant');
 
-const {getInlineDataFragment} = require('../query/RelayModernGraphQLTag');
+const {getInlineDataFragment} = require('../query/GraphQLTag');
 const {FRAGMENTS_KEY} = require('./RelayStoreUtils');
 
-import type {GraphQLTaggedNode} from '../query/RelayModernGraphQLTag';
+import type {GraphQLTaggedNode} from '../query/GraphQLTag';
 import type {FragmentReference} from './RelayStoreTypes';
 
 /**

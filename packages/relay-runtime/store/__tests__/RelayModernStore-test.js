@@ -19,7 +19,7 @@ const RelayOptimisticRecordSource = require('../RelayOptimisticRecordSource');
 const RelayRecordSourceMapImpl = require('../RelayRecordSourceMapImpl');
 const RelayRecordSourceObjectImpl = require('../RelayRecordSourceObjectImpl');
 
-const {getRequest} = require('../../query/RelayModernGraphQLTag');
+const {getRequest} = require('../../query/GraphQLTag');
 const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');

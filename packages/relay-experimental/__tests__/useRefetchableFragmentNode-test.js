@@ -1524,7 +1524,7 @@ describe('useRefetchableFragmentNode', () => {
             TestRenderer.act(() => {
               refetch(
                 {id: '1'},
-                {fetchPolicy, renderPolicy_UNSTABLE: renderPolicy},
+                {fetchPolicy, UNSTABLE_renderPolicy: renderPolicy},
               );
             });
 
@@ -1567,7 +1567,7 @@ describe('useRefetchableFragmentNode', () => {
             TestRenderer.act(() => {
               refetch(
                 {id: '4'},
-                {fetchPolicy, renderPolicy_UNSTABLE: renderPolicy},
+                {fetchPolicy, UNSTABLE_renderPolicy: renderPolicy},
               );
             });
 
@@ -1637,7 +1637,7 @@ describe('useRefetchableFragmentNode', () => {
             TestRenderer.act(() => {
               refetch(
                 {id: '4'},
-                {fetchPolicy, renderPolicy_UNSTABLE: renderPolicy},
+                {fetchPolicy, UNSTABLE_renderPolicy: renderPolicy},
               );
             });
 
@@ -1673,7 +1673,7 @@ describe('useRefetchableFragmentNode', () => {
             TestRenderer.act(() => {
               refetch(
                 {id: '1'},
-                {fetchPolicy, renderPolicy_UNSTABLE: renderPolicy},
+                {fetchPolicy, UNSTABLE_renderPolicy: renderPolicy},
               );
             });
 
@@ -1716,7 +1716,7 @@ describe('useRefetchableFragmentNode', () => {
             TestRenderer.act(() => {
               refetch(
                 {id: '4'},
-                {fetchPolicy, renderPolicy_UNSTABLE: renderPolicy},
+                {fetchPolicy, UNSTABLE_renderPolicy: renderPolicy},
               );
             });
 
@@ -1793,7 +1793,7 @@ describe('useRefetchableFragmentNode', () => {
             TestRenderer.act(() => {
               refetch(
                 {id: '4'},
-                {fetchPolicy, renderPolicy_UNSTABLE: renderPolicy},
+                {fetchPolicy, UNSTABLE_renderPolicy: renderPolicy},
               );
             });
 
@@ -1850,7 +1850,7 @@ describe('useRefetchableFragmentNode', () => {
             TestRenderer.act(() => {
               refetch(
                 {id: '1'},
-                {fetchPolicy, renderPolicy_UNSTABLE: renderPolicy},
+                {fetchPolicy, UNSTABLE_renderPolicy: renderPolicy},
               );
             });
 
@@ -1893,7 +1893,7 @@ describe('useRefetchableFragmentNode', () => {
             TestRenderer.act(() => {
               refetch(
                 {id: '4'},
-                {fetchPolicy, renderPolicy_UNSTABLE: renderPolicy},
+                {fetchPolicy, UNSTABLE_renderPolicy: renderPolicy},
               );
             });
 
@@ -1963,7 +1963,7 @@ describe('useRefetchableFragmentNode', () => {
             TestRenderer.act(() => {
               refetch(
                 {id: '4'},
-                {fetchPolicy, renderPolicy_UNSTABLE: renderPolicy},
+                {fetchPolicy, UNSTABLE_renderPolicy: renderPolicy},
               );
             });
 
@@ -2000,7 +2000,7 @@ describe('useRefetchableFragmentNode', () => {
             TestRenderer.act(() => {
               refetch(
                 {id: '1'},
-                {fetchPolicy, renderPolicy_UNSTABLE: renderPolicy},
+                {fetchPolicy, UNSTABLE_renderPolicy: renderPolicy},
               );
             });
 
@@ -2043,7 +2043,7 @@ describe('useRefetchableFragmentNode', () => {
             TestRenderer.act(() => {
               refetch(
                 {id: '4'},
-                {fetchPolicy, renderPolicy_UNSTABLE: renderPolicy},
+                {fetchPolicy, UNSTABLE_renderPolicy: renderPolicy},
               );
             });
 
@@ -2113,7 +2113,7 @@ describe('useRefetchableFragmentNode', () => {
             TestRenderer.act(() => {
               refetch(
                 {id: '4'},
-                {fetchPolicy, renderPolicy_UNSTABLE: renderPolicy},
+                {fetchPolicy, UNSTABLE_renderPolicy: renderPolicy},
               );
             });
 
@@ -2173,7 +2173,7 @@ describe('useRefetchableFragmentNode', () => {
           TestRenderer.act(() => {
             refetch(
               {id: '1'},
-              {fetchPolicy, renderPolicy_UNSTABLE: renderPolicy},
+              {fetchPolicy, UNSTABLE_renderPolicy: renderPolicy},
             );
           });
 
@@ -2225,7 +2225,7 @@ describe('useRefetchableFragmentNode', () => {
           TestRenderer.act(() => {
             refetch(
               {id: '4'},
-              {fetchPolicy, renderPolicy_UNSTABLE: renderPolicy},
+              {fetchPolicy, UNSTABLE_renderPolicy: renderPolicy},
             );
           });
 
@@ -2283,7 +2283,7 @@ describe('useRefetchableFragmentNode', () => {
           TestRenderer.act(() => {
             refetch(
               {id: '1'},
-              {fetchPolicy, renderPolicy_UNSTABLE: renderPolicy},
+              {fetchPolicy, UNSTABLE_renderPolicy: renderPolicy},
             );
           });
 
@@ -2319,7 +2319,7 @@ describe('useRefetchableFragmentNode', () => {
           TestRenderer.act(() => {
             refetch(
               {id: '4'},
-              {fetchPolicy, renderPolicy_UNSTABLE: renderPolicy},
+              {fetchPolicy, UNSTABLE_renderPolicy: renderPolicy},
             );
           });
 
@@ -2390,7 +2390,7 @@ describe('useRefetchableFragmentNode', () => {
         TestRenderer.act(() => {
           refetch(
             {id: '1'},
-            {fetchPolicy, renderPolicy_UNSTABLE: renderPolicy},
+            {fetchPolicy, UNSTABLE_renderPolicy: renderPolicy},
           );
         });
 
@@ -2461,7 +2461,7 @@ describe('useRefetchableFragmentNode', () => {
         TestRenderer.act(() => {
           refetch(
             {id: '1'},
-            {fetchPolicy, renderPolicy_UNSTABLE: renderPolicy},
+            {fetchPolicy, UNSTABLE_renderPolicy: renderPolicy},
           );
         });
 
@@ -2537,7 +2537,7 @@ describe('useRefetchableFragmentNode', () => {
         TestRenderer.act(() => {
           refetch(
             {id: '1'},
-            {fetchPolicy, renderPolicy_UNSTABLE: renderPolicy},
+            {fetchPolicy, UNSTABLE_renderPolicy: renderPolicy},
           );
         });
 
@@ -2570,7 +2570,7 @@ describe('useRefetchableFragmentNode', () => {
         TestRenderer.act(() => {
           refetch(
             {id: '4'},
-            {fetchPolicy, renderPolicy_UNSTABLE: renderPolicy},
+            {fetchPolicy, UNSTABLE_renderPolicy: renderPolicy},
           );
         });
 
@@ -2601,7 +2601,7 @@ describe('useRefetchableFragmentNode', () => {
         TestRenderer.act(() => {
           refetch(
             {id: '2'},
-            {fetchPolicy, renderPolicy_UNSTABLE: renderPolicy},
+            {fetchPolicy, UNSTABLE_renderPolicy: renderPolicy},
           );
         });
 
@@ -2635,7 +2635,7 @@ describe('useRefetchableFragmentNode', () => {
         TestRenderer.act(() => {
           refetch(
             {id: '1'},
-            {fetchPolicy, renderPolicy_UNSTABLE: renderPolicy},
+            {fetchPolicy, UNSTABLE_renderPolicy: renderPolicy},
           );
         });
 
@@ -2681,7 +2681,7 @@ describe('useRefetchableFragmentNode', () => {
         TestRenderer.act(() => {
           disposable = refetch(
             {id: '1'},
-            {fetchPolicy, renderPolicy_UNSTABLE: renderPolicy},
+            {fetchPolicy, UNSTABLE_renderPolicy: renderPolicy},
           );
         });
 

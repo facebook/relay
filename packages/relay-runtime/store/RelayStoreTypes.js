@@ -35,6 +35,7 @@ import type {
   CacheConfig,
   DataID,
   Disposable,
+  RenderPolicy,
   Variables,
 } from '../util/RelayRuntimeTypes';
 import type {RequestIdentifier} from '../util/getRequestIdentifier';
@@ -531,6 +532,13 @@ export interface IEnvironment {
    * Returns the environment specific OperationTracker.
    */
   getOperationTracker(): RelayOperationTracker;
+
+  /**
+   * EXPERIMENTAL
+   * Returns the default render policy to use when rendering a query
+   * that uses Relay Hooks
+   */
+  UNSTABLE_getDefaultRenderPolicy(): RenderPolicy;
 
   /**
    * Read the results of a selector from in-memory records in the store.

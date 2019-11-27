@@ -46,12 +46,13 @@ const {
   getSelector,
 } = require('relay-runtime');
 
-import type {FetchPolicy, RenderPolicy} from './QueryResource';
 import type {
   Disposable,
+  FetchPolicy,
   IEnvironment,
   OperationType,
   ReaderFragment,
+  RenderPolicy,
   Variables,
 } from 'relay-runtime';
 
@@ -91,7 +92,7 @@ export type ReturnType<
 export type Options = {|
   fetchPolicy?: FetchPolicy,
   onComplete?: (Error | null) => void,
-  renderPolicy_UNSTABLE?: RenderPolicy,
+  UNSTABLE_renderPolicy?: RenderPolicy,
 |};
 
 type InternalOptions = {|
@@ -413,7 +414,7 @@ function useRefetchFunction<TQuery: OperationType>(
 
       const environment = options?.__environment;
       const fetchPolicy = options?.fetchPolicy;
-      const renderPolicy = options?.renderPolicy_UNSTABLE;
+      const renderPolicy = options?.UNSTABLE_renderPolicy;
       const onComplete = options?.onComplete;
       const fragmentSelector = getSelector(fragmentNode, parentFragmentRef);
       let parentVariables;

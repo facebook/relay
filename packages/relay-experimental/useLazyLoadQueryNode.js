@@ -25,13 +25,14 @@ const {
   __internal: {fetchQuery},
 } = require('relay-runtime');
 
-import type {FetchPolicy, RenderPolicy} from './QueryResource';
 import type {
   CacheConfig,
+  FetchPolicy,
   GraphQLResponse,
   Observable,
   OperationDescriptor,
   OperationType,
+  RenderPolicy,
 } from 'relay-runtime';
 
 const {useContext, useEffect} = React;

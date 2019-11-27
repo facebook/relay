@@ -15,6 +15,7 @@
 
 const RelayDefaultHandlerProvider = require('../handlers/RelayDefaultHandlerProvider');
 const RelayDefaultMissingFieldHandlers = require('../handlers/RelayDefaultMissingFieldHandlers');
+const RelayFeatureFlags = require('../util/RelayFeatureFlags');
 const RelayModernQueryExecutor = require('./RelayModernQueryExecutor');
 const RelayObservable = require('../network/RelayObservable');
 const RelayOperationTracker = require('../store/RelayOperationTracker');
@@ -38,6 +39,7 @@ import type {RequestParameters} from '../util/RelayConcreteNode';
 import type {
   CacheConfig,
   Disposable,
+  RenderPolicy,
   Variables,
 } from '../util/RelayRuntimeTypes';
 import type {TaskScheduler} from './RelayModernQueryExecutor';
@@ -46,7 +48,6 @@ import type {
   IEnvironment,
   LogFunction,
   MissingFieldHandler,
-  NormalizationSelector,
   OperationAvailability,
   OperationDescriptor,
   OperationLoader,
@@ -77,11 +78,18 @@ export type EnvironmentConfig = {|
    * because the internal ID might not be the `id` field on the node anymore
    */
   +UNSTABLE_DO_NOT_USE_getDataID?: ?GetDataID,
+  +UNSTABLE_defaultRenderPolicy?: ?RenderPolicy,
   +options?: mixed,
 |};
 
+const DEFAULT_RENDER_POLICY =
+  RelayFeatureFlags.ENABLE_PARTIAL_RENDERING_DEFAULT === true
+    ? 'partial'
+    : 'full';
+
 class RelayModernEnvironment implements IEnvironment {
   __log: LogFunction;
+  +_defaultRenderPolicy: RenderPolicy;
   _operationLoader: ?OperationLoader;
   _network: INetwork;
   _publishQueue: PublishQueue;
@@ -112,6 +120,8 @@ class RelayModernEnvironment implements IEnvironment {
       }
     }
     this.__log = config.log ?? emptyFunction;
+    this._defaultRenderPolicy =
+      config.UNSTABLE_defaultRenderPolicy ?? DEFAULT_RENDER_POLICY;
     this._operationLoader = operationLoader;
     this._network = config.network;
     this._getDataID = config.UNSTABLE_DO_NOT_USE_getDataID ?? defaultGetDataID;
@@ -160,6 +170,10 @@ class RelayModernEnvironment implements IEnvironment {
 
   getOperationTracker(): RelayOperationTracker {
     return this._operationTracker;
+  }
+
+  UNSTABLE_getDefaultRenderPolicy(): RenderPolicy {
+    return this._defaultRenderPolicy;
   }
 
   applyUpdate(optimisticUpdate: OptimisticUpdateFunction): Disposable {

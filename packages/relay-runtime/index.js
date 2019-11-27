@@ -197,7 +197,9 @@ export type {
   CacheConfig,
   DataID,
   Disposable,
+  FetchPolicy,
   OperationType,
+  RenderPolicy,
   Variables,
 } from './util/RelayRuntimeTypes';
 export type {Local3DPayload} from './util/createPayloadFor3DField';

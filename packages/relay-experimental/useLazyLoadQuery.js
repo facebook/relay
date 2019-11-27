@@ -18,11 +18,12 @@ const useMemoOperationDescriptor = require('./useMemoOperationDescriptor');
 
 const {useTrackLoadQueryInRender} = require('./loadQuery');
 
-import type {FetchPolicy, RenderPolicy} from './QueryResource';
 import type {
   CacheConfig,
+  FetchPolicy,
   GraphQLTaggedNode,
   OperationType,
+  RenderPolicy,
 } from 'relay-runtime';
 
 function useLazyLoadQuery<TQuery: OperationType>(
@@ -32,7 +33,7 @@ function useLazyLoadQuery<TQuery: OperationType>(
     fetchKey?: string | number,
     fetchPolicy?: FetchPolicy,
     networkCacheConfig?: CacheConfig,
-    renderPolicy_UNSTABLE?: RenderPolicy,
+    UNSTABLE_renderPolicy?: RenderPolicy,
   |},
 ): $ElementType<TQuery, 'response'> {
   // We need to use this hook in order to be able to track if
@@ -46,7 +47,7 @@ function useLazyLoadQuery<TQuery: OperationType>(
     fetchPolicy: options?.fetchPolicy,
     networkCacheConfig: options?.networkCacheConfig,
     query,
-    renderPolicy: options?.renderPolicy_UNSTABLE,
+    renderPolicy: options?.UNSTABLE_renderPolicy,
   });
   return data;
 }

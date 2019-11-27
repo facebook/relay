@@ -58,3 +58,13 @@ export type CacheConfig = {|
   metadata?: {[key: string]: mixed, ...},
   transactionId?: ?string,
 |};
+
+/**
+ * Experimental
+ */
+export type FetchPolicy =
+  | 'store-only'
+  | 'store-or-network'
+  | 'store-and-network'
+  | 'network-only';
+export type RenderPolicy = 'full' | 'partial';

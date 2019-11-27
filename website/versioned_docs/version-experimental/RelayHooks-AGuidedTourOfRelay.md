@@ -1291,7 +1291,7 @@ const store = new Store(source, {gcReleaseBufferSize: 10});
 
 ### Rendering Partially Cached Data [HIGHLY EXPERIMENTAL]
 
-> **NOTE:** Partial rendering behavior is still highly experimental and likely to change, and only enabled under an experimental option. If you still wish to use it, you can enable it by passing `{renderPolicy_UNSTABLE: "partial"}` as an option to `useLazyLoadQuery`.
+> **NOTE:** Partial rendering behavior is still highly experimental and likely to change, and only enabled under an experimental option. If you still wish to use it, you can enable it by passing `{UNSTABLE_renderPolicy: "partial"}` as an option to `useLazyLoadQuery`.
 
 Often times when dealing with cached data, we'd like the ability to perform partial rendering. We define *"partial rendering"* as the ability to immediately render a query that is partially cached. That is, parts of the query might be missing, but parts of the query might already be cached. In these cases, we want to be able to immediately render the parts of the query that are cached, without waiting on the full query to be fetched.
 

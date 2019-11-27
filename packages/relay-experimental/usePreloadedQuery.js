@@ -24,8 +24,11 @@ const {
 } = require('relay-runtime');
 
 import type {PreloadedQuery} from './EntryPointTypes.flow';
-import type {RenderPolicy} from './QueryResource';
-import type {GraphQLTaggedNode, OperationType} from 'relay-runtime';
+import type {
+  GraphQLTaggedNode,
+  OperationType,
+  RenderPolicy,
+} from 'relay-runtime';
 
 function usePreloadedQuery<TQuery: OperationType>(
   gqlQuery: GraphQLTaggedNode,

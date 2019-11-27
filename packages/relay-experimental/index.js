@@ -34,7 +34,6 @@ const {loadQuery} = require('./loadQuery');
 export type * from './EntryPointTypes.flow';
 export type {MatchContainerProps, MatchPointer} from './MatchContainer';
 export type {ProfilerContextType} from './ProfilerContext';
-export type {FetchPolicy, RenderPolicy} from './QueryResource';
 export type {Direction, LoadMoreFn} from './useLoadMoreFunction';
 export type {
   RefetchFn,

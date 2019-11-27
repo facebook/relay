@@ -19,6 +19,8 @@ const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
 const RelayRecordSource = require('../RelayRecordSource');
 
+const nullthrows = require('nullthrows');
+
 const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
@@ -27,8 +29,6 @@ const {
   getSingularSelector,
 } = require('../RelayModernSelector');
 const {generateAndCompile} = require('relay-test-utils-internal');
-
-import nullthrows from 'nullthrows';
 
 describe('execute() a query with multiple @stream selections on the same record', () => {
   let callbacks;

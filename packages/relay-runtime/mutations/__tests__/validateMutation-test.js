@@ -13,9 +13,9 @@
 
 'use strict';
 
-const {generateAndCompile} = require('relay-test-utils-internal');
+const validateMutation = require('../validateMutation');
 
-import validateMutation from '../validateMutation';
+const {generateAndCompile} = require('relay-test-utils-internal');
 
 jest.mock('warning', () => {
   return (dontWarn, message, ...args) => {

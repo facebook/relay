@@ -24,11 +24,15 @@ const {
 } = require('relay-runtime');
 
 import type {PreloadedQuery} from './EntryPointTypes.flow';
+import type {RenderPolicy} from './QueryResource';
 import type {GraphQLTaggedNode, OperationType} from 'relay-runtime';
 
 function usePreloadedQuery<TQuery: OperationType>(
   gqlQuery: GraphQLTaggedNode,
   preloadedQuery: PreloadedQuery<TQuery>,
+  options?: {|
+    UNSTABLE_renderPolicy?: RenderPolicy,
+  |},
 ): $ElementType<TQuery, 'response'> {
   // We need to use this hook in order to be able to track if
   // loadQuery was called during render
@@ -57,6 +61,7 @@ function usePreloadedQuery<TQuery: OperationType>(
     }),
     fetchPolicy,
     query: operation,
+    renderPolicy: options?.UNSTABLE_renderPolicy,
   });
   return data;
 }

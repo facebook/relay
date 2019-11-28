@@ -79,7 +79,7 @@ class Index extends React.Component {
               contents={[
                 {
                   content:
-                    '<p>Relay provides a structured way to build data-driven React applications safely. </p> <p>Relay does this by letting each component declare the parts of a GraphQL API it needs, and then will handle merging them into query a query and passing that response.</p>',
+                    "<p>Relay provides a structured way to build data-driven React applications safely.</p> <p>Relay does this by letting each React component declare the parts of a GraphQL schema it needs, and then Relay handles merging these fragments into single query and passing the response data to those components.</p><p>This allows you to have a declarative API for your app's data</p>",
                 },
               ]}
             />
@@ -90,13 +90,13 @@ class Index extends React.Component {
               <div className="radiusRight">
                 <h2>Query Renderer</h2>
                 <p>
-                  When creating a new screen, you start with a QueryRenderer. 
+                  When creating a new screen, you start with a <a href="/docs/en/query-renderer"><code>QueryRenderer</code></a>. 
                 </p>
                 <p>
-                  A <code>QueryRenderer</code> is a React Component at the root of a Relay component tree. It handles fetching your query, and uses the `render` prop to render the resulting data.
+                  A <code>QueryRenderer</code> is a React Component which is the root of a Relay component tree. It handles fetching your query, and uses the <code>render</code> prop to render the resulting data.
                 </p>
                 <p>
-                  As React components, <code>QueryRenderers</code> can be rendered anywhere that a React component can be rendered, i.e. not just at the top level but *within* other components or containers; for example, to lazily fetch additional data for a popover.
+                  As React components, <code>QueryRenderers</code> can be rendered anywhere that a React component can be rendered, i.e. not just at the top level but *within* other components or containers. For example, you could use a <code>QueryRenderer</code> to lazily fetch additional data for a popover.
                 </p>
               </div>
 
@@ -105,38 +105,38 @@ class Index extends React.Component {
                 <pre>
                   <code>
                   {`
-            import React from "react"
-            import { createFragmentContainer, graphql, QueryRenderer } from "react-relay"
-            import environment from "./lib/createRelayEnvironment"
-            import ArtistHeader from “./ArtistHeader” // Below
-            
-            // You can usually have use one query renderer per page
-            // and it represents the root of a query
-            export const ArtistRenderer = ({ artistID }) => {
-              return (
-                <QueryRenderer
-                  environment={environment}
-                  query={graphql\`
-                    query QueryRenderersArtistQuery($artistID: String!) {
-                      # The root field for the query
-                      artist(id: $artistID) {
-                        # A reference to your fragment components
-                        ...Artist_Header_artist
-                      }
-                    }
-                  \`}
-                  variables={{ artistID }}
-                  render={({error, props}) => {
-                      if (error) {
-                        return <div>{error.message}</div>;
-                      } else if (props) {
-                        return <Artist artist={props.artist} />
-                      }
-                      return <div>Loading</div>;
-                    }}
-                />
-              )
-            }
+import React from "react"
+import { createFragmentContainer, graphql, QueryRenderer } from "react-relay"
+import environment from "./lib/createRelayEnvironment"
+import ArtistHeader from “./ArtistHeader” // Below
+
+// You can usually have use one query renderer per page
+// and it represents the root of a query
+export const ArtistRenderer = ({ artistID }) => {
+  return (
+    <QueryRenderer
+      environment={environment}
+      query={graphql\`
+        query QueryRenderersArtistQuery($artistID: String!) {
+          # The root field for the query
+          artist(id: $artistID) {
+            # A reference to your fragment components
+            ...Artist_Header_artist
+          }
+        }
+      \`}
+      variables={{ artistID }}
+      render={({error, props}) => {
+          if (error) {
+            return <div>{error.message}</div>;
+          } else if (props) {
+            return <Artist artist={props.artist} />
+          }
+          return <div>Loading</div>;
+        }}
+    />
+  )
+}
                   `}
                   </code>
                 </pre>
@@ -159,42 +159,42 @@ class Index extends React.Component {
                   <code>
                   
                   {`
-            import React from "react"
-            import { createFragmentContainer, graphql } from "react-relay"
-            import { Link, Image, Name, Bio, View,} from “./views”
-            
-            class ArtistHeader extends React.Component {
-              render() {
-                const { name, href, image, bio } = this.props.artist
-                const imageUrl = image && image.url
-            
-                return (
-                  <Link href={href}>
-                    <Image imageUrl={imageUrl} />
-                    <View>
-                      <Name>{name}</Name>
-                      <Bio>{bio}</Bio>
-                    </View>
-                  </Link>
-                )
-              }
-            }
-            
-            export default createFragmentContainer(
-              Artist,
-              graphql\`
-                # When an Artist is requested, explicitly
-                # expose these fields to only the above Component
-                fragment ArtistItem_artist on Artist {
-                  href
-                  bio
-                  name
-                  image {
-                    url
-                  }
-                }
-              \`
-            )
+import React from "react"
+import { createFragmentContainer, graphql } from "react-relay"
+import { Link, Image, Name, Bio, View,} from "./views"
+
+class ArtistHeader extends React.Component {
+  render() {
+    const { name, href, image, bio } = this.props.artist
+    const imageUrl = image && image.url
+
+    return (
+      <Link href={href}>
+        <Image imageUrl={imageUrl} />
+        <View>
+          <Name>{name}</Name>
+          <Bio>{bio}</Bio>
+        </View>
+      </Link>
+    )
+  }
+}
+
+export default createFragmentContainer(
+  Artist,
+  graphql\`
+    # When an Artist is requested, explicitly
+    # expose these fields to only the above Component
+    fragment ArtistItem_artist on Artist {
+      href
+      bio
+      name
+      image {
+        url
+      }
+    }
+  \`
+)
                   `}
                   </code>
                 </pre>

@@ -212,15 +212,15 @@ class Index extends React.Component {
               contents={[
                 {
                   title: 'Fragments',
-                  content: '<p>A GraphQL fragment is a way to name a sub-query inside a part of your GraphQL query.</p><p>Relay uses Fragments to  component to just the data it uses.</p><p>See the <a href="#">Fragment docs</a></p>'
+                  content: `<p>A GraphQL fragment is a way to name a sub-query inside a part of your GraphQL query.</p><p>Relay uses Fragments to  component to just the data it uses.</p><p>See the <a href=${siteConfig.baseUrl + 'docs/' + this.props.language + "/fragment-container"}>Fragment docs</a></p>`
                 },
                 {
                   title: 'Connections',
-                  content: '<p>A GraphQL Connection is an opinionated list that can easily be paginated in any direction, and contains structure for rich relationship data.</p><p>Relay provides tools to make pagination best practices declarative. </p><p>See the <a href="#">Connections</a> docs</p>'
+                  content: `<p>A GraphQL Connection is an opinionated list that can easily be paginated in any direction, and contains structure for rich relationship data.</p><p>Relay provides tools to make pagination best practices declarative. </p><p>See the <a href=${siteConfig.baseUrl + 'docs/' + this.props.language + "/graphql-server-specification.html#connections"}>Connections</a> docs</p>`
                 }, 
                 {
                   title: 'Node ID',
-                  content: '<p>A Node ID is a globally unique id across your entire schema for every type, built using a GraphQL interface.</p><p>Relay uses thiis pattern to provide reliable cachinig, and make incrrementally updating data simple.</p><p><a href="#">See the Node ID docs</a></p>'
+                  content: `<p>A Node ID is a globally unique id across your entire schema for every type, built using a GraphQL interface.</p><p>Relay uses thiis pattern to provide reliable cachinig, and make incrrementally updating data simple.</p><p><a href=${siteConfig.baseUrl + 'docs/' + this.props.language + "/graphql-server-specification.html#object-identification"}>See the Node ID docs</a></p>`
                 }
               ]}
             />

@@ -10,9 +10,6 @@
     font-weight: normal;
     color: #fff;
  }
- input#search_input_react {
-    background: #aaa;
- }
 
  /* INDEX PAGE */
 
@@ -53,7 +50,7 @@
 }
 
 /* Content */
-.mainContainer {
+.homePage.mainContainer {
    padding-top: 0;
 }
 

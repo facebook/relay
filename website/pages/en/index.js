@@ -73,7 +73,7 @@ class Index extends React.Component {
     return (
       <div>
         <HomeSplash language={language} />
-        <div className="mainContainer">
+        <div className="homePage mainContainer">
           <Container className="introSection" background="light">
             <GridBlock
               contents={[
@@ -205,14 +205,14 @@ export default createFragmentContainer(
           <Container className='textSection graphqlSection' background="light">
             <h2>GraphQL Best Practices Baked In</h2>
             <h3>
-              To get the most from Relay’s features, you’ll want your GraphQL server to conform to the Pagination and Global identiifier best practices.
+              To get the most from Relay’s features, you’ll want your GraphQL server to conform to the Pagination and Global identifier best practices.
             </h3>
             <GridBlock
               layout="threeColumn"
               contents={[
                 {
                   title: 'Fragments',
-                  content: `<p>A GraphQL fragment is a way to name a sub-query inside a part of your GraphQL query.</p><p>Relay uses Fragments to  component to just the data it uses.</p><p>See the <a href=${siteConfig.baseUrl + 'docs/' + this.props.language + "/fragment-container"}>Fragment docs</a></p>`
+                  content: `<p>A GraphQL fragment is a way to name a sub-query inside a part of your GraphQL query.</p><p>Relay uses Fragments to component to just fetch the data it uses.</p><p>See the <a href=${siteConfig.baseUrl + 'docs/' + this.props.language + "/fragment-container"}>Fragment docs</a></p>`
                 },
                 {
                   title: 'Connections',
@@ -220,7 +220,7 @@ export default createFragmentContainer(
                 }, 
                 {
                   title: 'Node ID',
-                  content: `<p>A Node ID is a globally unique id across your entire schema for every type, built using a GraphQL interface.</p><p>Relay uses thiis pattern to provide reliable cachinig, and make incrrementally updating data simple.</p><p><a href=${siteConfig.baseUrl + 'docs/' + this.props.language + "/graphql-server-specification.html#object-identification"}>See the Node ID docs</a></p>`
+                  content: `<p>A Node ID is a globally unique id across your entire schema for every type, built using a GraphQL interface.</p><p>Relay uses this pattern to provide reliable caching, and make incrementally updating data simple.</p><p><a href=${siteConfig.baseUrl + 'docs/' + this.props.language + "/graphql-server-specification.html#object-identification"}>See the Node ID docs</a></p>`
                 }
               ]}
             />
@@ -233,7 +233,7 @@ export default createFragmentContainer(
               contents={[
                 {
                   title: 'Describe data changing',
-                  content: '<p>The Relay mutation API lets you declaratively define the data which would mutate from a server change by user, and Relay will propate the changes.</p>'
+                  content: '<p>The Relay mutation API lets you declaratively define the data which would mutate from a server change by user, and Relay will propagate the changes.</p>'
                 },
                 {
                   title: 'Non-localised changes',
@@ -283,11 +283,11 @@ export default createFragmentContainer(
                 }, 
                 {
                   title: 'User Interface Platform',
-                  content: '<p>Relay strives to offer a set of opinionated primtive React components, on which you can build any type of data-driven application.</p><p>Learn these principals once, then your projects spend more time working on business logic instead of pipelining data.</p>'
+                  content: '<p>Relay strives to offer a set of opinionated primitive React components, on which you can build any type of data-driven application.</p><p>Learn these principles once, then spend more time working on business logic instead of pipelining data.</p>'
                 },
                 {
                   title: 'Not Just for Big Apps',
-                  content: '<p>If you’re the sort of team that believes in using Flow or TypeScript to move error detection to dev-time, then Relay is likely a good fit for you.</p><p>It’s probable you’d otherwise re-create a lot of Relay’s caching, and UI best practices  independently.</p>'
+                  content: '<p>If you’re the sort of team that believes in using Flow or TypeScript to move error detection to dev-time, then Relay is likely a good fit for you.</p><p>It’s probable you’d otherwise re-create a lot of Relay’s caching, and UI best practices independently.</p>'
                 }
               ]}
             />

@@ -44,6 +44,7 @@ import type {
   PluginInitializer,
   PluginInterface,
 } from '../language/RelayLanguagePluginInterface';
+import getModuleName from '../util/getModuleName';
 
 export type Config = {|
   schema: string,
@@ -60,6 +61,7 @@ export type Config = {|
   noFutureProofEnums: boolean,
   eagerESModules?: boolean,
   language: string | PluginInitializer,
+  generateModuleNameFunction?: ?string | ?((filePath: string) => string),
   persistFunction?: ?string | ?((text: string) => Promise<string>),
   repersist: boolean,
   artifactDirectory?: ?string,
@@ -163,6 +165,38 @@ function getLanguagePlugin(
     } else {
       throw new Error('Expected plugin to be a initializer function.');
     }
+  }
+}
+
+function getGenerateModuleNameFunction(
+  config: Config,
+): (filePath: string) => string {
+  const configValue = config.generateModuleNameFunction;
+  if (configValue == null) {
+    return getModuleName;
+  } else if (typeof configValue === 'string') {
+    try {
+      // eslint-disable-next-line no-eval
+      const generateModuleNameFunction = eval('require')(
+        path.resolve(process.cwd(), configValue),
+      );
+      if (generateModuleNameFunction.default) {
+        return generateModuleNameFunction.default;
+      }
+      return generateModuleNameFunction;
+    } catch (err) {
+      const e = new Error(
+        `Unable to load generateModuleNameFunction ${configValue}: ${err.message}`,
+      );
+      e.stack = err.stack;
+      throw e;
+    }
+  } else if (typeof configValue === 'function') {
+    return configValue;
+  } else {
+    throw new Error(
+      'Expected generateModuleNameFunction to be a path string or a function.',
+    );
   }
 }
 
@@ -285,6 +319,7 @@ function getCodegenRunner(config: Config): CodegenRunner {
   const languagePlugin = getLanguagePlugin(config.language, {
     eagerESModules: config.eagerESModules === true,
   });
+  const generateModuleNameFunction = getGenerateModuleNameFunction(config);
   const persistQueryFunction = getPersistQueryFunction(config);
   const inputExtensions = config.extensions || languagePlugin.inputExtensions;
   const outputExtension = languagePlugin.outputExtension;
@@ -292,6 +327,7 @@ function getCodegenRunner(config: Config): CodegenRunner {
   const sourceWriterName = outputExtension;
   const sourceModuleParser = RelaySourceModuleParser(
     languagePlugin.findGraphQLTags,
+    generateModuleNameFunction,
     languagePlugin.getFileFilter,
   );
   const providedArtifactDirectory = config.artifactDirectory;
@@ -508,6 +544,7 @@ function hasWatchmanRootFile(testPath: string): boolean {
 module.exports = {
   getCodegenRunner,
   getLanguagePlugin,
+  getGenerateModuleNameFunction,
   getWatchConfig,
   hasWatchmanRootFile,
   main,

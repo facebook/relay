@@ -14,11 +14,13 @@
 
 const FindGraphQLTags = require('../language/javascript/FindGraphQLTags');
 const RelaySourceModuleParser = require('./RelaySourceModuleParser');
+const getModuleName = require('../util/getModuleName');
 
 import type {SourceModuleParser} from './RelaySourceModuleParser';
 
 const JSModuleParser: SourceModuleParser = RelaySourceModuleParser(
   FindGraphQLTags.find,
+  getModuleName,
 );
 
 module.exports = JSModuleParser;

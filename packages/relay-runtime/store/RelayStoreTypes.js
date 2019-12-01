@@ -187,6 +187,19 @@ export interface FragmentSpecResolver {
 }
 
 /**
+ * A read-only interface for accessing cached store data.
+ */
+export interface StoreSource<I, T> {
+  clear(): void;
+  delete(id: I): void;
+  get(id: I): ?T;
+  getAllKeys(): Array<I>;
+  has(id: I): boolean;
+  remove(id: I): void;
+  set(id: I, record: T): void;
+}
+
+/**
  * A read-only interface for accessing cached graph data.
  */
 export interface RecordSource {

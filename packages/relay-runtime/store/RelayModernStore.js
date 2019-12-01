@@ -29,6 +29,8 @@ const resolveImmediate = require('../util/resolveImmediate');
 
 const {createReaderSelector} = require('./RelayModernSelector');
 
+const RelayMapStoreSource = require('./RelayMapStoreSource');
+
 import type {ReaderFragment} from '../util/ReaderNode';
 import type {Disposable} from '../util/RelayRuntimeTypes';
 import type {
@@ -51,6 +53,7 @@ import type {
   SingularReaderSelector,
   Snapshot,
   Store,
+  StoreSource,
   UpdatedRecords,
 } from './RelayStoreTypes';
 
@@ -76,6 +79,12 @@ type ConnectionSubscription<TEdge, TState> = {|
   stale: boolean,
 |};
 
+type RootSource = {|
+  operation: OperationDescriptor,
+  refCount: number,
+  epoch: ?number,
+|};
+
 const DEFAULT_RELEASE_BUFFER_SIZE = 0;
 
 /**
@@ -91,7 +100,7 @@ const DEFAULT_RELEASE_BUFFER_SIZE = 0;
  * is also enforced in development mode by freezing all records passed to a store.
  */
 class RelayModernStore implements Store {
-  _connectionEvents: Map<ConnectionID, ConnectionEvents>;
+  _connectionEvents: StoreSource<ConnectionID, ConnectionEvents>;
   _connectionSubscriptions: Map<string, ConnectionSubscription<mixed, mixed>>;
   _currentWriteEpoch: number;
   _gcHoldCounter: number;
@@ -106,10 +115,7 @@ class RelayModernStore implements Store {
   _optimisticSource: ?MutableRecordSource;
   _recordSource: MutableRecordSource;
   _releaseBuffer: Array<string>;
-  _roots: Map<
-    string,
-    {|operation: OperationDescriptor, refCount: number, epoch: ?number|},
-  >;
+  _roots: StoreSource<string, RootSource>;
   _shouldScheduleGC: boolean;
   _subscriptions: Set<Subscription>;
   _updatedConnectionIDs: UpdatedConnections;
@@ -121,7 +127,8 @@ class RelayModernStore implements Store {
       gcScheduler?: ?Scheduler,
       operationLoader?: ?OperationLoader,
       UNSTABLE_DO_NOT_USE_getDataID?: ?GetDataID,
-      gcReleaseBufferSize?: ?number,
+      roots?: ?StoreSource<string, RootSource>,
+      connectionEvents?: ?StoreSource<ConnectionID, ConnectionEvents>,
     |},
   ) {
     // Prevent mutation of a record from outside the store.
@@ -134,7 +141,9 @@ class RelayModernStore implements Store {
         }
       }
     }
-    this._connectionEvents = new Map();
+    this._connectionEvents =
+      options?.connectionEvents ??
+      new RelayMapStoreSource<ConnectionID, ConnectionEvents>();
     this._connectionSubscriptions = new Map();
     this._currentWriteEpoch = 0;
     this._gcHoldCounter = 0;
@@ -150,7 +159,8 @@ class RelayModernStore implements Store {
     this._optimisticSource = null;
     this._recordSource = source;
     this._releaseBuffer = [];
-    this._roots = new Map();
+    this._roots =
+      options?.roots ?? new RelayMapStoreSource<string, RootSource>();
     this._shouldScheduleGC = false;
     this._subscriptions = new Set();
     this._updatedConnectionIDs = {};
@@ -241,7 +251,7 @@ class RelayModernStore implements Store {
           entry.refCount -= 1;
         } else {
           // Otherwise fully release the query and run GC.
-          this._roots.delete(_id);
+          this._roots.remove(_id);
           this._scheduleGC();
         }
       }
@@ -733,8 +743,10 @@ class RelayModernStore implements Store {
         'to exist (make sure to call snapshot()).',
     );
     this._optimisticSource = null;
-    this._connectionEvents.forEach(events => {
-      events.optimistic = null;
+    this._connectionEvents.getAllKeys().forEach(id => {
+      const event = this._connectionEvents.get(id);
+      event.optimistic = null;
+      this._connectionEvents.set(id, event);
     });
     this._subscriptions.forEach(subscription => {
       const backup = subscription.backup;
@@ -804,7 +816,8 @@ class RelayModernStore implements Store {
     const references = new Set();
     const connectionReferences = new Set();
     // Mark all records that are traversable from a root
-    this._roots.forEach(({operation}) => {
+    this._roots.getAllKeys().forEach(id => {
+      const {operation} = this._roots.get(id);
       const selector = operation.root;
       RelayReferenceMarker.mark(
         this._recordSource,
@@ -832,9 +845,9 @@ class RelayModernStore implements Store {
       this._connectionEvents.clear();
     } else {
       // Evict any unreferenced connections
-      for (const connectionID of this._connectionEvents.keys()) {
+      for (const connectionID of this._connectionEvents.getAllKeys()) {
         if (!connectionReferences.has(connectionID)) {
-          this._connectionEvents.delete(connectionID);
+          this._connectionEvents.remove(connectionID);
         }
       }
     }

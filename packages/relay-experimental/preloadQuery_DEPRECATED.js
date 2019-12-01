@@ -13,7 +13,7 @@
 
 'use strict';
 
-const ExecutionEnvironment = require('fbjs/lib/ExecutionEnvironment');
+const ExecutionEnvironment = require('./ExecutionEnvironment');
 
 const invariant = require('invariant');
 
@@ -159,7 +159,7 @@ function preloadQueryDeduped<TQuery: OperationType>(
             kind: 'cache',
             name: params.name,
           };
-    if (ExecutionEnvironment.canUseDOM && prevQueryEntry == null) {
+    if (!ExecutionEnvironment.isServer && prevQueryEntry == null) {
       setTimeout(() => {
         // Clear the cache entry after the default timeout
         // null-check for Flow
@@ -191,7 +191,7 @@ function preloadQueryDeduped<TQuery: OperationType>(
       subject,
       subscription: source
         .finally(() => {
-          if (!ExecutionEnvironment.canUseDOM) {
+          if (ExecutionEnvironment.isServer) {
             return;
           }
           setTimeout(() => {

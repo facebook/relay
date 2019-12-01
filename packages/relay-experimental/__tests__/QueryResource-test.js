@@ -47,8 +47,8 @@ describe('QueryResource', () => {
   };
 
   beforeEach(() => {
-    jest.mock('fbjs/lib/ExecutionEnvironment', () => ({
-      canUseDOM: () => true,
+    jest.mock('../ExecutionEnvironment', () => ({
+      isServer: false,
     }));
     store = new Store(new RecordSource());
     environment = createMockEnvironment({store});

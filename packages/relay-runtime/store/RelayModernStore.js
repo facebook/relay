@@ -746,8 +746,10 @@ class RelayModernStore implements Store {
     this._optimisticSource = null;
     this._connectionEvents.getAllKeys().forEach(id => {
       const event = this._connectionEvents.get(id);
-      event.optimistic = null;
-      this._connectionEvents.set(id, event);
+      if (event != null) {
+        event.optimistic = null;
+        this._connectionEvents.set(id, event);
+      }
     });
     this._subscriptions.forEach(subscription => {
       const backup = subscription.backup;
@@ -818,16 +820,19 @@ class RelayModernStore implements Store {
     const connectionReferences = new Set();
     // Mark all records that are traversable from a root
     this._roots.getAllKeys().forEach(id => {
-      const {operation} = this._roots.get(id);
-      const selector = operation.root;
-      RelayReferenceMarker.mark(
-        this._recordSource,
-        selector,
-        references,
-        connectionReferences,
-        id => this.getConnectionEvents_UNSTABLE(id),
-        this._operationLoader,
-      );
+      const entry = this._roots.get(id);
+      if (entry != null) {
+        const {operation} = entry;
+        const selector = operation.root;
+        RelayReferenceMarker.mark(
+          this._recordSource,
+          selector,
+          references,
+          connectionReferences,
+          id => this.getConnectionEvents_UNSTABLE(id),
+          this._operationLoader,
+        );
+      }
     });
     if (references.size === 0) {
       // Short-circuit if *nothing* is referenced

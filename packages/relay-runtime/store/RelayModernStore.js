@@ -127,6 +127,7 @@ class RelayModernStore implements Store {
       gcScheduler?: ?Scheduler,
       operationLoader?: ?OperationLoader,
       UNSTABLE_DO_NOT_USE_getDataID?: ?GetDataID,
+      gcReleaseBufferSize?: ?number,
       roots?: ?StoreSource<string, RootSource>,
       connectionEvents?: ?StoreSource<ConnectionID, ConnectionEvents>,
     |},

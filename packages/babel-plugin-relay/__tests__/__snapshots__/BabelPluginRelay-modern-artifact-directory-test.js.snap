@@ -28,11 +28,14 @@ const testFragment = graphql\`
  */
 'use strict';
 
+var _TestFragment;
+
 const {graphql} = require('relay-runtime');
 
-const testFragment = function() {
-  return require('../test/artifacts/TestFragment.graphql');
-};
+const testFragment =
+  _TestFragment !== void 0
+    ? _TestFragment
+    : (_TestFragment = require('../test/artifacts/TestFragment.graphql'));
 
 `;
 
@@ -76,7 +79,7 @@ function SomeTopLevelView() {
  */
 'use strict';
 
-var _graphql2;
+var _ExampleQuery;
 
 function SomeTopLevelView() {
   const _graphql = 'unrelated';
@@ -85,10 +88,9 @@ function SomeTopLevelView() {
       <QueryRenderer
         environment={RelayEnvironment}
         query={
-          _graphql2 ||
-          (_graphql2 = function() {
-            return require('../test/artifacts/ExampleQuery.graphql');
-          })
+          _ExampleQuery !== void 0
+            ? _ExampleQuery
+            : (_ExampleQuery = require('../test/artifacts/ExampleQuery.graphql'))
         }
         variables={{
           id: '12345',
@@ -130,11 +132,14 @@ const testMutation = graphql\`
  */
 'use strict';
 
+var _TestMutation;
+
 const {graphql} = require('relay-runtime');
 
-const testMutation = function() {
-  return require('../test/artifacts/TestMutation.graphql');
-};
+const testMutation =
+  _TestMutation !== void 0
+    ? _TestMutation
+    : (_TestMutation = require('../test/artifacts/TestMutation.graphql'));
 
 `;
 
@@ -166,11 +171,14 @@ const testQuery = graphql\`
  */
 'use strict';
 
+var _TestQuery;
+
 const {graphql} = require('relay-runtime');
 
-const testQuery = function() {
-  return require('../test/artifacts/TestQuery.graphql');
-};
+const testQuery =
+  _TestQuery !== void 0
+    ? _TestQuery
+    : (_TestQuery = require('../test/artifacts/TestQuery.graphql'));
 
 `;
 

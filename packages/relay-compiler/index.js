@@ -55,6 +55,7 @@ const getDefinitionNodeHash = require('./util/getDefinitionNodeHash');
 const getIdentifierForArgumentValue = require('./core/getIdentifierForArgumentValue');
 const getLiteralArgumentValues = require('./core/getLiteralArgumentValues');
 const getNormalizationOperationName = require('./core/getNormalizationOperationName');
+const getSchemaInstance = require('./runner/getSchemaInstance');
 const md5 = require('./util/md5');
 const writeRelayGeneratedFile = require('./codegen/writeRelayGeneratedFile');
 
@@ -188,5 +189,6 @@ module.exports = {
     md5,
     parseExecutableNode: extractAST.parseExecutableNode,
     toASTRecord: extractAST.toASTRecord,
+    getSchemaInstance,
   },
 };

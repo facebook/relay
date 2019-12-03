@@ -45,6 +45,7 @@ class RelayRecordSourceProxy implements RecordSourceProxy {
   __mutator: RelayRecordSourceMutator;
   _proxies: {[dataID: DataID]: ?RelayRecordProxy, ...};
   _getDataID: GetDataID;
+  _invalidatedStore: boolean;
 
   constructor(
     mutator: RelayRecordSourceMutator,
@@ -55,6 +56,7 @@ class RelayRecordSourceProxy implements RecordSourceProxy {
     this._handlerProvider = handlerProvider || null;
     this._proxies = {};
     this._getDataID = getDataID;
+    this._invalidatedStore = false;
   }
 
   publishSource(
@@ -139,6 +141,14 @@ class RelayRecordSourceProxy implements RecordSourceProxy {
         'root record.',
     );
     return root;
+  }
+
+  invalidateStore(): void {
+    this._invalidatedStore = true;
+  }
+
+  __isStoreMarkedForInvalidation(): boolean {
+    return this._invalidatedStore;
   }
 }
 

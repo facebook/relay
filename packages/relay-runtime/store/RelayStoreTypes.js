@@ -251,6 +251,7 @@ export interface Store {
    */
   notify(
     sourceOperation?: OperationDescriptor,
+    invalidateStore?: boolean,
   ): $ReadOnlyArray<RequestDescriptor>;
 
   /**
@@ -385,6 +386,7 @@ export interface RecordSourceProxy {
   delete(dataID: DataID): void;
   get(dataID: DataID): ?RecordProxy;
   getRoot(): RecordProxy;
+  invalidateStore(): void;
 }
 
 export interface ReadOnlyRecordSourceProxy {
@@ -404,6 +406,7 @@ export interface RecordSourceSelectorProxy extends RecordSourceProxy {
     args: Variables,
     edge: RecordProxy,
   ): void;
+  invalidateStore(): void;
 }
 
 export type LogEvent =

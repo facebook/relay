@@ -228,17 +228,17 @@ class RelayModernStore implements Store {
       if (this._releaseBuffer.length > this._gcReleaseBufferSize) {
         const _id = this._releaseBuffer.shift();
 
-        const entry = this._roots.get(_id);
-        if (entry == null) {
+        const rootEntry = this._roots.get(_id);
+        if (rootEntry == null) {
           // If operation has already been fully released, we don't need
           // to do anything.
           return;
         }
 
-        if (entry.refCount > 0) {
+        if (rootEntry.refCount > 0) {
           // If the operation is still retained by other callers
           // decrement the refCount
-          entry.refCount -= 1;
+          rootEntry.refCount -= 1;
         } else {
           // Otherwise fully release the query and run GC.
           this._roots.delete(_id);
@@ -247,10 +247,10 @@ class RelayModernStore implements Store {
       }
     };
 
-    const entry = this._roots.get(id);
-    if (entry != null) {
+    const rootEntry = this._roots.get(id);
+    if (rootEntry != null) {
       // If we've previously retained this operation, inrement the refCount
-      entry.refCount += 1;
+      rootEntry.refCount += 1;
     } else {
       // Otherwise create a new entry for the operation
       this._roots.set(id, {operation, refCount: 0, epoch: null});
@@ -271,6 +271,7 @@ class RelayModernStore implements Store {
   // This method will return a list of updated owners form the subscriptions
   notify(
     sourceOperation?: OperationDescriptor,
+    invalidateStore?: boolean,
   ): $ReadOnlyArray<RequestDescriptor> {
     // Increment the current write when notifying after executing
     // a set of changes to the store.
@@ -305,11 +306,12 @@ class RelayModernStore implements Store {
       const id = sourceOperation.request.identifier;
       const rootEntry = this._roots.get(id);
       if (rootEntry != null) {
-        this._roots.set(id, {
-          ...rootEntry,
-          epoch: this._currentWriteEpoch,
-        });
+        rootEntry.epoch = this._currentWriteEpoch;
       }
+    }
+
+    if (invalidateStore === true) {
+      this.invalidate();
     }
 
     return updatedOwners;

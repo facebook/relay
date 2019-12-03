@@ -197,7 +197,7 @@ class RelayPublishQueue implements PublishQueue {
         this._hasStoreSnapshot = false;
       }
     }
-    this._commitData();
+    const invalidatedStore = this._commitData();
     if (
       this._pendingOptimisticUpdates.size ||
       (this._pendingBackupRebase && this._appliedOptimisticUpdates.size)
@@ -222,10 +222,14 @@ class RelayPublishQueue implements PublishQueue {
     if (__DEV__) {
       this._isRunning = false;
     }
-    return this._store.notify(sourceOperation);
+    return this._store.notify(sourceOperation, invalidatedStore);
   }
 
-  _publishSourceFromPayload(pendingPayload: PendingRelayPayload): void {
+  /**
+   * _publishSourceFromPayload will return a boolean indicating if any of
+   * the pending commits caused the store to be globally invalidated
+   */
+  _publishSourceFromPayload(pendingPayload: PendingRelayPayload): boolean {
     const {payload, operation, updater} = pendingPayload;
     const {connectionEvents, source, fieldPayloads} = payload;
     const combinedConnectionEvents = connectionEvents
@@ -236,7 +240,10 @@ class RelayPublishQueue implements PublishQueue {
       source,
       combinedConnectionEvents,
     );
-    const store = new RelayRecordSourceProxy(mutator, this._getDataID);
+    const recordSourceProxy = new RelayRecordSourceProxy(
+      mutator,
+      this._getDataID,
+    );
     if (fieldPayloads && fieldPayloads.length) {
       fieldPayloads.forEach(fieldPayload => {
         const handler =
@@ -247,7 +254,7 @@ class RelayPublishQueue implements PublishQueue {
             'handle `%s`.',
           fieldPayload.handle,
         );
-        handler.update(store, fieldPayload);
+        handler.update(recordSourceProxy, fieldPayload);
       });
     }
     if (updater) {
@@ -256,13 +263,13 @@ class RelayPublishQueue implements PublishQueue {
         selector != null,
         'RelayModernEnvironment: Expected a selector to be provided with updater function.',
       );
-      const selectorStore = new RelayRecordSourceSelectorProxy(
+      const recordSourceSelectorProxy = new RelayRecordSourceSelectorProxy(
         mutator,
-        store,
+        recordSourceProxy,
         selector,
       );
       const selectorData = lookupSelector(source, selector);
-      updater(selectorStore, selectorData);
+      updater(recordSourceSelectorProxy, selectorData);
     }
     this._store.publish(source);
     if (combinedConnectionEvents.length !== 0) {
@@ -271,15 +278,23 @@ class RelayPublishQueue implements PublishQueue {
         true,
       );
     }
+
+    return recordSourceProxy.__isStoreMarkedForInvalidation();
   }
 
-  _commitData(): void {
+  /**
+   * _commitData will return a boolean indicating if any of
+   * the pending commits caused the store to be globally invalidated
+   */
+  _commitData(): boolean {
     if (!this._pendingData.size) {
-      return;
+      return false;
     }
+    let invalidatedStore = false;
     this._pendingData.forEach(data => {
       if (data.kind === 'payload') {
-        this._publishSourceFromPayload(data);
+        const payloadInvalidatedStore = this._publishSourceFromPayload(data);
+        invalidatedStore = invalidatedStore || payloadInvalidatedStore;
       } else if (data.kind === 'source') {
         const source = data.source;
         this._store.publish(source);
@@ -292,11 +307,14 @@ class RelayPublishQueue implements PublishQueue {
           sink,
           connectionEvents,
         );
-        const store = new RelayRecordSourceProxy(mutator, this._getDataID);
+        const recordSourceProxy = new RelayRecordSourceProxy(
+          mutator,
+          this._getDataID,
+        );
         ErrorUtils.applyWithGuard(
           updater,
           null,
-          [store],
+          [recordSourceProxy],
           null,
           'RelayPublishQueue:commitData',
         );
@@ -304,11 +322,20 @@ class RelayPublishQueue implements PublishQueue {
         if (connectionEvents.length !== 0) {
           this._store.publishConnectionEvents_UNSTABLE(connectionEvents, true);
         }
+        invalidatedStore =
+          invalidatedStore ||
+          recordSourceProxy.__isStoreMarkedForInvalidation();
       }
     });
     this._pendingData.clear();
+    return invalidatedStore;
   }
 
+  /**
+   * Note that unlike _commitData, _applyUpdates will NOT return a boolean
+   * indicating if the store was globally invalidated, since invalidating the
+   * store during an optimistic update is a no-op.
+   */
   _applyUpdates(): void {
     const sink = RelayRecordSource.create();
     const combinedConnectionEvents = [];
@@ -317,7 +344,7 @@ class RelayPublishQueue implements PublishQueue {
       sink,
       combinedConnectionEvents,
     );
-    const store = new RelayRecordSourceProxy(
+    const recordSourceProxy = new RelayRecordSourceProxy(
       mutator,
       this._getDataID,
       this._handlerProvider,
@@ -329,21 +356,21 @@ class RelayPublishQueue implements PublishQueue {
         ErrorUtils.applyWithGuard(
           storeUpdater,
           null,
-          [store],
+          [recordSourceProxy],
           null,
           'RelayPublishQueue:applyUpdates',
         );
       } else {
         const {operation, payload, updater} = optimisticUpdate;
         const {connectionEvents, source, fieldPayloads} = payload;
-        const selectorStore = new RelayRecordSourceSelectorProxy(
+        const recordSourceSelectorProxy = new RelayRecordSourceSelectorProxy(
           mutator,
-          store,
+          recordSourceProxy,
           operation.fragment,
         );
         let selectorData;
         if (source) {
-          store.publishSource(source, fieldPayloads);
+          recordSourceProxy.publishSource(source, fieldPayloads);
           selectorData = lookupSelector(source, operation.fragment);
         }
         if (connectionEvents) {
@@ -353,7 +380,7 @@ class RelayPublishQueue implements PublishQueue {
           ErrorUtils.applyWithGuard(
             updater,
             null,
-            [selectorStore, selectorData],
+            [recordSourceSelectorProxy, selectorData],
             null,
             'RelayPublishQueue:applyUpdates',
           );

@@ -53,7 +53,7 @@ describe('check()', () => {
     operationDescriptor = createOperationDescriptor(ParentQuery, {size: 32});
   });
 
-  it('returns avialable if all data exists in the environment', () => {
+  it('returns available if all data exists in the environment', () => {
     environment.commitPayload(operationDescriptor, {
       me: {
         id: '4',

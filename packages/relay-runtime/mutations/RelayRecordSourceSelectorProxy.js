@@ -117,6 +117,10 @@ class RelayRecordSourceSelectorProxy implements RecordSourceSelectorProxy {
       request: this._readSelector.owner,
     });
   }
+
+  invalidateStore(): void {
+    this.__recordSource.invalidateStore();
+  }
 }
 
 module.exports = RelayRecordSourceSelectorProxy;

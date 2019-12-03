@@ -86,7 +86,11 @@ export type ReaderInlineDataFragment = {|
   +name: string,
 |};
 
-export type ReaderArgument = ReaderLiteral | ReaderVariable;
+export type ReaderArgument =
+  | ReaderListValueArgument
+  | ReaderLiteralArgument
+  | ReaderObjectValueArgument
+  | ReaderVariableArgument;
 
 export type ReaderArgumentDefinition = ReaderLocalArgument | ReaderRootArgument;
 
@@ -143,7 +147,13 @@ export type ReaderModuleImport = {|
   +fragmentName: string,
 |};
 
-export type ReaderLiteral = {|
+export type ReaderListValueArgument = {|
+  +kind: 'ListValue',
+  +name: string,
+  +items: $ReadOnlyArray<ReaderArgument | null>,
+|};
+
+export type ReaderLiteralArgument = {|
   +kind: 'Literal',
   +name: string,
   +type?: ?string,
@@ -155,6 +165,12 @@ export type ReaderLocalArgument = {|
   +name: string,
   +type: string,
   +defaultValue: mixed,
+|};
+
+export type ReaderObjectValueArgument = {|
+  +kind: 'ObjectValue',
+  +name: string,
+  +fields: $ReadOnlyArray<ReaderArgument>,
 |};
 
 export type ReaderNode =
@@ -193,7 +209,7 @@ export type ReaderSelection =
   | ReaderModuleImport
   | ReaderStream;
 
-export type ReaderVariable = {|
+export type ReaderVariableArgument = {|
   +kind: 'Variable',
   +name: string,
   +type?: ?string,

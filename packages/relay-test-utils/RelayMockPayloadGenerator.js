@@ -37,15 +37,16 @@ const {
 } = RelayConcreteNode;
 
 import type {
-  Variables,
-  NormalizationField,
-  NormalizationOperation,
-  NormalizationSelection,
-  NormalizationLinkedField,
-  NormalizationScalarField,
-  OperationDescriptor,
   GraphQLResponse,
+  NormalizationArgument,
+  NormalizationField,
+  NormalizationLinkedField,
+  NormalizationOperation,
+  NormalizationScalarField,
+  NormalizationSelection,
   NormalizationSplitOperation,
+  OperationDescriptor,
+  Variables,
 } from 'relay-runtime';
 
 type ValueResolver = (
@@ -753,13 +754,33 @@ class RelayMockPayloadGenerator {
     const args = {};
     if (field.args != null) {
       field.args.forEach(arg => {
-        args[arg.name] =
-          arg.kind === 'Literal'
-            ? arg.value
-            : this._getVariableValue(arg.variableName);
+        args[arg.name] = this._getArgValue(arg);
       });
     }
     return args;
+  }
+
+  _getArgValue(arg: NormalizationArgument): mixed {
+    switch (arg.kind) {
+      case 'Literal':
+        return arg.value;
+      case 'Variable':
+        return this._getVariableValue(arg.variableName);
+      case 'ObjectValue': {
+        const value = {};
+        arg.fields.forEach(field => {
+          value[field.name] = this._getArgValue(field);
+        });
+        return value;
+      }
+      case 'ListValue': {
+        const value = [];
+        arg.items.forEach(item => {
+          value.push(item != null ? this._getArgValue(item) : null);
+        });
+        return value;
+      }
+    }
   }
 
   /**

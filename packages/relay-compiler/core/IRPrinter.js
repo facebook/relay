@@ -381,6 +381,36 @@ function printValue(
   }
   if (value.kind === 'Variable') {
     return '$' + value.variableName;
+  } else if (value.kind === 'ObjectValue') {
+    invariant(
+      type && schema.isInputObject(type),
+      'GraphQLIRPrinter: Need an InputObject type to print objects.',
+    );
+    const inputType = schema.assertInputObjectType(type);
+    const pairs = value.fields
+      .map(field => {
+        const fieldConfig =
+          type != null
+            ? schema.hasField(inputType, field.name)
+              ? schema.getFieldConfig(schema.expectField(inputType, field.name))
+              : null
+            : null;
+        const innerValue =
+          fieldConfig && printValue(schema, field.value, fieldConfig.type);
+        return innerValue == null ? null : field.name + ': ' + innerValue;
+      })
+      .filter(Boolean);
+
+    return '{' + pairs.join(', ') + '}';
+  } else if (value.kind === 'ListValue') {
+    invariant(
+      type && schema.isList(type),
+      'GraphQLIRPrinter: Need a type in order to print arrays.',
+    );
+    const innerType = schema.getListItemType(type);
+    return `[${value.items
+      .map(i => printValue(schema, i, innerType))
+      .join(', ')}]`;
   } else if (value.value != null) {
     return printLiteral(schema, value.value, type);
   } else {

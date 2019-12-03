@@ -1382,7 +1382,6 @@ Fragment {
 
 exports[`compileRelayArtifacts matches expected output: complex-arguments.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
-# expected-to-throw
 query TestQuery($date: String) {
   items(filter: {date: $date}) {
     date
@@ -1390,15 +1389,476 @@ query TestQuery($date: String) {
 }
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
-THROWN EXCEPTION:
+Request {
+  fragment: Fragment {
+    name: "TestQuery",
+    type: "Query",
+    metadata: null,
+    argumentDefinitions: [
+      LocalArgument {
+        name: "date",
+        type: "String",
+        defaultValue: null,
+      },
+    ],
+    selections: [
+      LinkedField {
+        alias: null,
+        name: "items",
+        storageKey: null,
+        args: [
+          ObjectValue {
+            name: "filter",
+            fields: [
+              Variable {
+                name: "date",
+                variableName: "date",
+              },
+            ],
+          },
+        ],
+        concreteType: "ItemFilterResult",
+        plural: false,
+        selections: [
+          ScalarField {
+            alias: null,
+            name: "date",
+            args: null,
+            storageKey: null,
+          },
+        ],
+      },
+    ],
+  },
+  operation: Operation {
+    name: "TestQuery",
+    argumentDefinitions: [
+      LocalArgument {
+        name: "date",
+        type: "String",
+        defaultValue: null,
+      },
+    ],
+    selections: [
+      LinkedField {
+        alias: null,
+        name: "items",
+        storageKey: null,
+        args: [
+          ObjectValue {
+            name: "filter",
+            fields: [
+              Variable {
+                name: "date",
+                variableName: "date",
+              },
+            ],
+          },
+        ],
+        concreteType: "ItemFilterResult",
+        plural: false,
+        selections: [
+          ScalarField {
+            alias: null,
+            name: "date",
+            args: null,
+            storageKey: null,
+          },
+        ],
+      },
+    ],
+  },
+}
 
-Complex argument values (Lists or InputObjects with nested variables) are not supported.
+QUERY:
 
-GraphQL request (3:24)
-2: query TestQuery($date: String) {
-3:   items(filter: {date: $date}) {
-                          ^
-4:     date
+query TestQuery(
+  $date: String
+) {
+  items(filter: {date: $date}) {
+    date
+  }
+}
+
+`;
+
+exports[`compileRelayArtifacts matches expected output: complex-arguments-in-list.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query CheckinSearchQuery(
+  $queryText: String!
+  $searchInputText: String
+  $searchInput: CheckinSearchInput
+  $searchInputLast: CheckinSearchInput!
+) {
+  checkinSearchQuery(
+    query: {
+      query: $queryText
+      inputs: [{query: $searchInputText}, $searchInput, null, $searchInputLast]
+    }
+  ) {
+    query
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+Request {
+  fragment: Fragment {
+    name: "CheckinSearchQuery",
+    type: "Query",
+    metadata: null,
+    argumentDefinitions: [
+      LocalArgument {
+        name: "queryText",
+        type: "String!",
+        defaultValue: null,
+      },
+      LocalArgument {
+        name: "searchInputText",
+        type: "String",
+        defaultValue: null,
+      },
+      LocalArgument {
+        name: "searchInput",
+        type: "CheckinSearchInput",
+        defaultValue: null,
+      },
+      LocalArgument {
+        name: "searchInputLast",
+        type: "CheckinSearchInput!",
+        defaultValue: null,
+      },
+    ],
+    selections: [
+      LinkedField {
+        alias: null,
+        name: "checkinSearchQuery",
+        storageKey: null,
+        args: [
+          ObjectValue {
+            name: "query",
+            fields: [
+              ListValue {
+                name: "inputs",
+                items: [
+                  ObjectValue {
+                    name: "inputs.0",
+                    fields: [
+                      Variable {
+                        name: "query",
+                        variableName: "searchInputText",
+                      },
+                    ],
+                  },
+                  Variable {
+                    name: "inputs.1",
+                    variableName: "searchInput",
+                  },
+                  null,
+                  Variable {
+                    name: "inputs.3",
+                    variableName: "searchInputLast",
+                  },
+                ],
+              },
+              Variable {
+                name: "query",
+                variableName: "queryText",
+              },
+            ],
+          },
+        ],
+        concreteType: "CheckinSearchResult",
+        plural: false,
+        selections: [
+          ScalarField {
+            alias: null,
+            name: "query",
+            args: null,
+            storageKey: null,
+          },
+        ],
+      },
+    ],
+  },
+  operation: Operation {
+    name: "CheckinSearchQuery",
+    argumentDefinitions: [
+      LocalArgument {
+        name: "queryText",
+        type: "String!",
+        defaultValue: null,
+      },
+      LocalArgument {
+        name: "searchInputText",
+        type: "String",
+        defaultValue: null,
+      },
+      LocalArgument {
+        name: "searchInput",
+        type: "CheckinSearchInput",
+        defaultValue: null,
+      },
+      LocalArgument {
+        name: "searchInputLast",
+        type: "CheckinSearchInput!",
+        defaultValue: null,
+      },
+    ],
+    selections: [
+      LinkedField {
+        alias: null,
+        name: "checkinSearchQuery",
+        storageKey: null,
+        args: [
+          ObjectValue {
+            name: "query",
+            fields: [
+              ListValue {
+                name: "inputs",
+                items: [
+                  ObjectValue {
+                    name: "inputs.0",
+                    fields: [
+                      Variable {
+                        name: "query",
+                        variableName: "searchInputText",
+                      },
+                    ],
+                  },
+                  Variable {
+                    name: "inputs.1",
+                    variableName: "searchInput",
+                  },
+                  null,
+                  Variable {
+                    name: "inputs.3",
+                    variableName: "searchInputLast",
+                  },
+                ],
+              },
+              Variable {
+                name: "query",
+                variableName: "queryText",
+              },
+            ],
+          },
+        ],
+        concreteType: "CheckinSearchResult",
+        plural: false,
+        selections: [
+          ScalarField {
+            alias: null,
+            name: "query",
+            args: null,
+            storageKey: null,
+          },
+        ],
+      },
+    ],
+  },
+}
+
+QUERY:
+
+query CheckinSearchQuery(
+  $queryText: String!
+  $searchInputText: String
+  $searchInput: CheckinSearchInput
+  $searchInputLast: CheckinSearchInput!
+) {
+  checkinSearchQuery(query: {query: $queryText, inputs: [{query: $searchInputText}, $searchInput, , $searchInputLast]}) {
+    query
+  }
+}
+
+`;
+
+exports[`compileRelayArtifacts matches expected output: complex-arguments-with-mutliple-variables.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query TestQueryWithLiteral($latArg: String, $lonArg: String) {
+  route(
+    waypoints: [
+      {lat: $latArg, lon: $lonArg}
+      {lat: null, lon: $latArg}
+      {lat: $lonArg, lon: "1234"}
+    ]
+  ) {
+    __typename
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+Request {
+  fragment: Fragment {
+    name: "TestQueryWithLiteral",
+    type: "Query",
+    metadata: null,
+    argumentDefinitions: [
+      LocalArgument {
+        name: "latArg",
+        type: "String",
+        defaultValue: null,
+      },
+      LocalArgument {
+        name: "lonArg",
+        type: "String",
+        defaultValue: null,
+      },
+    ],
+    selections: [
+      LinkedField {
+        alias: null,
+        name: "route",
+        storageKey: null,
+        args: [
+          ListValue {
+            name: "waypoints",
+            items: [
+              ObjectValue {
+                name: "waypoints.0",
+                fields: [
+                  Variable {
+                    name: "lat",
+                    variableName: "latArg",
+                  },
+                  Variable {
+                    name: "lon",
+                    variableName: "lonArg",
+                  },
+                ],
+              },
+              ObjectValue {
+                name: "waypoints.1",
+                fields: [
+                  Literal {
+                    name: "lat",
+                    value: null,
+                  },
+                  Variable {
+                    name: "lon",
+                    variableName: "latArg",
+                  },
+                ],
+              },
+              ObjectValue {
+                name: "waypoints.2",
+                fields: [
+                  Variable {
+                    name: "lat",
+                    variableName: "lonArg",
+                  },
+                  Literal {
+                    name: "lon",
+                    value: "1234",
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+        concreteType: "Route",
+        plural: false,
+        selections: [
+          ScalarField {
+            alias: null,
+            name: "__typename",
+            args: null,
+            storageKey: null,
+          },
+        ],
+      },
+    ],
+  },
+  operation: Operation {
+    name: "TestQueryWithLiteral",
+    argumentDefinitions: [
+      LocalArgument {
+        name: "latArg",
+        type: "String",
+        defaultValue: null,
+      },
+      LocalArgument {
+        name: "lonArg",
+        type: "String",
+        defaultValue: null,
+      },
+    ],
+    selections: [
+      LinkedField {
+        alias: null,
+        name: "route",
+        storageKey: null,
+        args: [
+          ListValue {
+            name: "waypoints",
+            items: [
+              ObjectValue {
+                name: "waypoints.0",
+                fields: [
+                  Variable {
+                    name: "lat",
+                    variableName: "latArg",
+                  },
+                  Variable {
+                    name: "lon",
+                    variableName: "lonArg",
+                  },
+                ],
+              },
+              ObjectValue {
+                name: "waypoints.1",
+                fields: [
+                  Literal {
+                    name: "lat",
+                    value: null,
+                  },
+                  Variable {
+                    name: "lon",
+                    variableName: "latArg",
+                  },
+                ],
+              },
+              ObjectValue {
+                name: "waypoints.2",
+                fields: [
+                  Variable {
+                    name: "lat",
+                    variableName: "lonArg",
+                  },
+                  Literal {
+                    name: "lon",
+                    value: "1234",
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+        concreteType: "Route",
+        plural: false,
+        selections: [
+          ScalarField {
+            alias: null,
+            name: "__typename",
+            args: null,
+            storageKey: null,
+          },
+        ],
+      },
+    ],
+  },
+}
+
+QUERY:
+
+query TestQueryWithLiteral(
+  $latArg: String
+  $lonArg: String
+) {
+  route(waypoints: [{lat: $latArg, lon: $lonArg}, {lon: $latArg}, {lat: $lonArg, lon: "1234"}]) {
+    __typename
+  }
+}
 
 `;
 

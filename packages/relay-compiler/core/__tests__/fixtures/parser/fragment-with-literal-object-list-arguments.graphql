@@ -1,4 +1,3 @@
-# expected-to-throw
 fragment ParentFragment on Query {
   mobile_checkins: checkinSearchQuery(query: {query: "mobile"}) {
     query

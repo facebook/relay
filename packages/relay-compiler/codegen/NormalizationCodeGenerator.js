@@ -504,6 +504,40 @@ function generateArgumentValue(
             name: name,
             value: stableCopy(value.value),
           };
+    case 'ObjectValue': {
+      const objectKeys = value.fields.map(field => field.name).sort();
+      const objectValues = new Map(
+        value.fields.map(field => {
+          return [field.name, field.value];
+        }),
+      );
+      return {
+        kind: 'ObjectValue',
+        name: name,
+        fields: objectKeys.map(fieldName => {
+          const fieldValue = objectValues.get(fieldName);
+          if (fieldValue == null) {
+            throw createCompilerError('Expected to have object field value');
+          }
+          return (
+            generateArgumentValue(fieldName, fieldValue) ?? {
+              kind: 'Literal',
+              name: fieldName,
+              value: null,
+            }
+          );
+        }),
+      };
+    }
+    case 'ListValue': {
+      return {
+        kind: 'ListValue',
+        name: name,
+        items: value.items.map((item, index) => {
+          return generateArgumentValue(`${name}.${index}`, item);
+        }),
+      };
+    }
     default:
       throw createUserError(
         'NormalizationCodeGenerator: Complex argument values (Lists or ' +

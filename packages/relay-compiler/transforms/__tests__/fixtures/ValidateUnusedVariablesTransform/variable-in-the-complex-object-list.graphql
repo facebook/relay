@@ -1,4 +1,3 @@
-#expected-to-throw
 query Q1($arg: String) {
   items(filter: {date: $arg}) {
     date

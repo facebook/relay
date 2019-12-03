@@ -398,6 +398,19 @@ function transformValue(
       );
     }
     return scopeValue;
+  } else if (value.kind === 'ObjectValue') {
+    return {
+      ...value,
+      fields: value.fields.map(field => ({
+        ...field,
+        value: transformValue(scope, field.value, errorContext),
+      })),
+    };
+  } else if (value.kind === 'ListValue') {
+    return {
+      ...value,
+      items: value.items.map(item => transformValue(scope, item, errorContext)),
+    };
   }
   return value;
 }

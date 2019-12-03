@@ -1,5 +1,33 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`RelayParser matches expected output: argument-complex-object.invalid.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+# expected-to-throw
+query ObjectArgument($text: String!) {
+  checkinSearchQuery(query: {query: $text, query: "YES"}) {
+    query
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+THROWN EXCEPTION:
+
+Duplicated field name 'query' in the input object.
+
+GraphQL request (3:44)
+2: query ObjectArgument($text: String!) {
+3:   checkinSearchQuery(query: {query: $text, query: "YES"}) {
+                                              ^
+4:     query
+
+GraphQL request (3:30)
+2: query ObjectArgument($text: String!) {
+3:   checkinSearchQuery(query: {query: $text, query: "YES"}) {
+                                ^
+4:     query
+
+`;
+
 exports[`RelayParser matches expected output: argumentDefinitions-with-typo.invalid.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 # expected-to-throw
@@ -570,6 +598,28 @@ GraphQL request (5:7)
 5:       ...FooFragment
          ^
 6:     }
+
+`;
+
+exports[`RelayParser matches expected output: complex-object-with-missing-fields.invalid.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+# expected-to-throw
+mutation LikeMutation($feedbackId: ID!) {
+  feedbackLikeStrict(input: {feedbackId: $feedbackId}) {
+    __typename
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+THROWN EXCEPTION:
+
+Missing non-optional fields: 'userID', 'clientMutationId' for input type 'FeedbackLikeInputStrict'.
+
+GraphQL request (3:29)
+2: mutation LikeMutation($feedbackId: ID!) {
+3:   feedbackLikeStrict(input: {feedbackId: $feedbackId}) {
+                               ^
+4:     __typename
 
 `;
 
@@ -3392,9 +3442,8 @@ fragment ChildFragment on Query
 ]
 `;
 
-exports[`RelayParser matches expected output: fragment-with-literal-object-list-arguments.invalid.graphql 1`] = `
+exports[`RelayParser matches expected output: fragment-with-literal-object-list-arguments.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
-# expected-to-throw
 fragment ParentFragment on Query {
   mobile_checkins: checkinSearchQuery(query: {query: "mobile"}) {
     query
@@ -3410,16 +3459,340 @@ fragment ChildFragment on Query
 }
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
-THROWN EXCEPTION:
-
-Complex argument values (Lists or InputObjects with nested variables) are not supported.
-
-GraphQL request (11:52)
-10:   @argumentDefinitions(inputs: {type: "[CheckinSearchInput!]!"}) {
-11:   checkinSearchQuery(query: {query: "foo", inputs: $inputs}) {
-                                                       ^
-12:     query
-
+[
+  Fragment {
+    directives: [],
+    loc: Source {
+      start: 0,
+      end: 172,
+      source: {
+        "body": "fragment ParentFragment on Query {\\n  mobile_checkins: checkinSearchQuery(query: {query: \\"mobile\\"}) {\\n    query\\n  }\\n  ...ChildFragment @arguments(inputs: [{query: \\"web\\"}])\\n}\\n\\nfragment ChildFragment on Query\\n  @argumentDefinitions(inputs: {type: \\"[CheckinSearchInput!]!\\"}) {\\n  checkinSearchQuery(query: {query: \\"foo\\", inputs: $inputs}) {\\n    query\\n  }\\n}\\n",
+        "name": "GraphQL request",
+        "locationOffset": {
+          "line": 1,
+          "column": 1,
+        },
+      },
+    },
+    metadata: null,
+    name: "ParentFragment",
+    selections: [
+      LinkedField {
+        alias: "mobile_checkins",
+        args: [
+          Argument {
+            loc: Source {
+              start: 73,
+              end: 97,
+              source: {
+                "body": "fragment ParentFragment on Query {\\n  mobile_checkins: checkinSearchQuery(query: {query: \\"mobile\\"}) {\\n    query\\n  }\\n  ...ChildFragment @arguments(inputs: [{query: \\"web\\"}])\\n}\\n\\nfragment ChildFragment on Query\\n  @argumentDefinitions(inputs: {type: \\"[CheckinSearchInput!]!\\"}) {\\n  checkinSearchQuery(query: {query: \\"foo\\", inputs: $inputs}) {\\n    query\\n  }\\n}\\n",
+                "name": "GraphQL request",
+                "locationOffset": {
+                  "line": 1,
+                  "column": 1,
+                },
+              },
+            },
+            name: "query",
+            value: Literal {
+              loc: Source {
+                start: 80,
+                end: 97,
+                source: {
+                  "body": "fragment ParentFragment on Query {\\n  mobile_checkins: checkinSearchQuery(query: {query: \\"mobile\\"}) {\\n    query\\n  }\\n  ...ChildFragment @arguments(inputs: [{query: \\"web\\"}])\\n}\\n\\nfragment ChildFragment on Query\\n  @argumentDefinitions(inputs: {type: \\"[CheckinSearchInput!]!\\"}) {\\n  checkinSearchQuery(query: {query: \\"foo\\", inputs: $inputs}) {\\n    query\\n  }\\n}\\n",
+                  "name": "GraphQL request",
+                  "locationOffset": {
+                    "line": 1,
+                    "column": 1,
+                  },
+                },
+              },
+              value: {
+                "query": "mobile",
+              },
+            },
+            type: "CheckinSearchInput",
+          },
+        ],
+        connection: false,
+        directives: [],
+        handles: null,
+        loc: Source {
+          start: 37,
+          end: 114,
+          source: {
+            "body": "fragment ParentFragment on Query {\\n  mobile_checkins: checkinSearchQuery(query: {query: \\"mobile\\"}) {\\n    query\\n  }\\n  ...ChildFragment @arguments(inputs: [{query: \\"web\\"}])\\n}\\n\\nfragment ChildFragment on Query\\n  @argumentDefinitions(inputs: {type: \\"[CheckinSearchInput!]!\\"}) {\\n  checkinSearchQuery(query: {query: \\"foo\\", inputs: $inputs}) {\\n    query\\n  }\\n}\\n",
+            "name": "GraphQL request",
+            "locationOffset": {
+              "line": 1,
+              "column": 1,
+            },
+          },
+        },
+        metadata: null,
+        name: "checkinSearchQuery",
+        selections: [
+          ScalarField {
+            alias: "query",
+            args: [],
+            directives: [],
+            handles: null,
+            loc: Source {
+              start: 105,
+              end: 110,
+              source: {
+                "body": "fragment ParentFragment on Query {\\n  mobile_checkins: checkinSearchQuery(query: {query: \\"mobile\\"}) {\\n    query\\n  }\\n  ...ChildFragment @arguments(inputs: [{query: \\"web\\"}])\\n}\\n\\nfragment ChildFragment on Query\\n  @argumentDefinitions(inputs: {type: \\"[CheckinSearchInput!]!\\"}) {\\n  checkinSearchQuery(query: {query: \\"foo\\", inputs: $inputs}) {\\n    query\\n  }\\n}\\n",
+                "name": "GraphQL request",
+                "locationOffset": {
+                  "line": 1,
+                  "column": 1,
+                },
+              },
+            },
+            metadata: null,
+            name: "query",
+            type: "String",
+          },
+        ],
+        type: "CheckinSearchResult",
+      },
+      FragmentSpread {
+        args: [
+          Argument {
+            loc: Source {
+              start: 145,
+              end: 169,
+              source: {
+                "body": "fragment ParentFragment on Query {\\n  mobile_checkins: checkinSearchQuery(query: {query: \\"mobile\\"}) {\\n    query\\n  }\\n  ...ChildFragment @arguments(inputs: [{query: \\"web\\"}])\\n}\\n\\nfragment ChildFragment on Query\\n  @argumentDefinitions(inputs: {type: \\"[CheckinSearchInput!]!\\"}) {\\n  checkinSearchQuery(query: {query: \\"foo\\", inputs: $inputs}) {\\n    query\\n  }\\n}\\n",
+                "name": "GraphQL request",
+                "locationOffset": {
+                  "line": 1,
+                  "column": 1,
+                },
+              },
+            },
+            name: "inputs",
+            value: Literal {
+              loc: Source {
+                start: 153,
+                end: 169,
+                source: {
+                  "body": "fragment ParentFragment on Query {\\n  mobile_checkins: checkinSearchQuery(query: {query: \\"mobile\\"}) {\\n    query\\n  }\\n  ...ChildFragment @arguments(inputs: [{query: \\"web\\"}])\\n}\\n\\nfragment ChildFragment on Query\\n  @argumentDefinitions(inputs: {type: \\"[CheckinSearchInput!]!\\"}) {\\n  checkinSearchQuery(query: {query: \\"foo\\", inputs: $inputs}) {\\n    query\\n  }\\n}\\n",
+                  "name": "GraphQL request",
+                  "locationOffset": {
+                    "line": 1,
+                    "column": 1,
+                  },
+                },
+              },
+              value: [
+                {
+                  "query": "web",
+                },
+              ],
+            },
+            type: "[CheckinSearchInput!]!",
+          },
+        ],
+        metadata: null,
+        loc: Source {
+          start: 117,
+          end: 170,
+          source: {
+            "body": "fragment ParentFragment on Query {\\n  mobile_checkins: checkinSearchQuery(query: {query: \\"mobile\\"}) {\\n    query\\n  }\\n  ...ChildFragment @arguments(inputs: [{query: \\"web\\"}])\\n}\\n\\nfragment ChildFragment on Query\\n  @argumentDefinitions(inputs: {type: \\"[CheckinSearchInput!]!\\"}) {\\n  checkinSearchQuery(query: {query: \\"foo\\", inputs: $inputs}) {\\n    query\\n  }\\n}\\n",
+            "name": "GraphQL request",
+            "locationOffset": {
+              "line": 1,
+              "column": 1,
+            },
+          },
+        },
+        name: "ChildFragment",
+        directives: [],
+      },
+    ],
+    type: "Query",
+    argumentDefinitions: [],
+  },
+  Fragment {
+    directives: [],
+    loc: Source {
+      start: 174,
+      end: 351,
+      source: {
+        "body": "fragment ParentFragment on Query {\\n  mobile_checkins: checkinSearchQuery(query: {query: \\"mobile\\"}) {\\n    query\\n  }\\n  ...ChildFragment @arguments(inputs: [{query: \\"web\\"}])\\n}\\n\\nfragment ChildFragment on Query\\n  @argumentDefinitions(inputs: {type: \\"[CheckinSearchInput!]!\\"}) {\\n  checkinSearchQuery(query: {query: \\"foo\\", inputs: $inputs}) {\\n    query\\n  }\\n}\\n",
+        "name": "GraphQL request",
+        "locationOffset": {
+          "line": 1,
+          "column": 1,
+        },
+      },
+    },
+    metadata: null,
+    name: "ChildFragment",
+    selections: [
+      LinkedField {
+        alias: "checkinSearchQuery",
+        args: [
+          Argument {
+            loc: Source {
+              start: 294,
+              end: 332,
+              source: {
+                "body": "fragment ParentFragment on Query {\\n  mobile_checkins: checkinSearchQuery(query: {query: \\"mobile\\"}) {\\n    query\\n  }\\n  ...ChildFragment @arguments(inputs: [{query: \\"web\\"}])\\n}\\n\\nfragment ChildFragment on Query\\n  @argumentDefinitions(inputs: {type: \\"[CheckinSearchInput!]!\\"}) {\\n  checkinSearchQuery(query: {query: \\"foo\\", inputs: $inputs}) {\\n    query\\n  }\\n}\\n",
+                "name": "GraphQL request",
+                "locationOffset": {
+                  "line": 1,
+                  "column": 1,
+                },
+              },
+            },
+            name: "query",
+            value: ObjectValue {
+              loc: Source {
+                start: 301,
+                end: 332,
+                source: {
+                  "body": "fragment ParentFragment on Query {\\n  mobile_checkins: checkinSearchQuery(query: {query: \\"mobile\\"}) {\\n    query\\n  }\\n  ...ChildFragment @arguments(inputs: [{query: \\"web\\"}])\\n}\\n\\nfragment ChildFragment on Query\\n  @argumentDefinitions(inputs: {type: \\"[CheckinSearchInput!]!\\"}) {\\n  checkinSearchQuery(query: {query: \\"foo\\", inputs: $inputs}) {\\n    query\\n  }\\n}\\n",
+                  "name": "GraphQL request",
+                  "locationOffset": {
+                    "line": 1,
+                    "column": 1,
+                  },
+                },
+              },
+              fields: [
+                ObjectFieldValue {
+                  loc: Source {
+                    start: 302,
+                    end: 314,
+                    source: {
+                      "body": "fragment ParentFragment on Query {\\n  mobile_checkins: checkinSearchQuery(query: {query: \\"mobile\\"}) {\\n    query\\n  }\\n  ...ChildFragment @arguments(inputs: [{query: \\"web\\"}])\\n}\\n\\nfragment ChildFragment on Query\\n  @argumentDefinitions(inputs: {type: \\"[CheckinSearchInput!]!\\"}) {\\n  checkinSearchQuery(query: {query: \\"foo\\", inputs: $inputs}) {\\n    query\\n  }\\n}\\n",
+                      "name": "GraphQL request",
+                      "locationOffset": {
+                        "line": 1,
+                        "column": 1,
+                      },
+                    },
+                  },
+                  name: "query",
+                  value: Literal {
+                    loc: Source {
+                      start: 309,
+                      end: 314,
+                      source: {
+                        "body": "fragment ParentFragment on Query {\\n  mobile_checkins: checkinSearchQuery(query: {query: \\"mobile\\"}) {\\n    query\\n  }\\n  ...ChildFragment @arguments(inputs: [{query: \\"web\\"}])\\n}\\n\\nfragment ChildFragment on Query\\n  @argumentDefinitions(inputs: {type: \\"[CheckinSearchInput!]!\\"}) {\\n  checkinSearchQuery(query: {query: \\"foo\\", inputs: $inputs}) {\\n    query\\n  }\\n}\\n",
+                        "name": "GraphQL request",
+                        "locationOffset": {
+                          "line": 1,
+                          "column": 1,
+                        },
+                      },
+                    },
+                    value: "foo",
+                  },
+                },
+                ObjectFieldValue {
+                  loc: Source {
+                    start: 316,
+                    end: 331,
+                    source: {
+                      "body": "fragment ParentFragment on Query {\\n  mobile_checkins: checkinSearchQuery(query: {query: \\"mobile\\"}) {\\n    query\\n  }\\n  ...ChildFragment @arguments(inputs: [{query: \\"web\\"}])\\n}\\n\\nfragment ChildFragment on Query\\n  @argumentDefinitions(inputs: {type: \\"[CheckinSearchInput!]!\\"}) {\\n  checkinSearchQuery(query: {query: \\"foo\\", inputs: $inputs}) {\\n    query\\n  }\\n}\\n",
+                      "name": "GraphQL request",
+                      "locationOffset": {
+                        "line": 1,
+                        "column": 1,
+                      },
+                    },
+                  },
+                  name: "inputs",
+                  value: Variable {
+                    loc: Source {
+                      start: 324,
+                      end: 331,
+                      source: {
+                        "body": "fragment ParentFragment on Query {\\n  mobile_checkins: checkinSearchQuery(query: {query: \\"mobile\\"}) {\\n    query\\n  }\\n  ...ChildFragment @arguments(inputs: [{query: \\"web\\"}])\\n}\\n\\nfragment ChildFragment on Query\\n  @argumentDefinitions(inputs: {type: \\"[CheckinSearchInput!]!\\"}) {\\n  checkinSearchQuery(query: {query: \\"foo\\", inputs: $inputs}) {\\n    query\\n  }\\n}\\n",
+                        "name": "GraphQL request",
+                        "locationOffset": {
+                          "line": 1,
+                          "column": 1,
+                        },
+                      },
+                    },
+                    variableName: "inputs",
+                    type: "[CheckinSearchInput]",
+                  },
+                },
+              ],
+            },
+            type: "CheckinSearchInput",
+          },
+        ],
+        connection: false,
+        directives: [],
+        handles: null,
+        loc: Source {
+          start: 275,
+          end: 349,
+          source: {
+            "body": "fragment ParentFragment on Query {\\n  mobile_checkins: checkinSearchQuery(query: {query: \\"mobile\\"}) {\\n    query\\n  }\\n  ...ChildFragment @arguments(inputs: [{query: \\"web\\"}])\\n}\\n\\nfragment ChildFragment on Query\\n  @argumentDefinitions(inputs: {type: \\"[CheckinSearchInput!]!\\"}) {\\n  checkinSearchQuery(query: {query: \\"foo\\", inputs: $inputs}) {\\n    query\\n  }\\n}\\n",
+            "name": "GraphQL request",
+            "locationOffset": {
+              "line": 1,
+              "column": 1,
+            },
+          },
+        },
+        metadata: null,
+        name: "checkinSearchQuery",
+        selections: [
+          ScalarField {
+            alias: "query",
+            args: [],
+            directives: [],
+            handles: null,
+            loc: Source {
+              start: 340,
+              end: 345,
+              source: {
+                "body": "fragment ParentFragment on Query {\\n  mobile_checkins: checkinSearchQuery(query: {query: \\"mobile\\"}) {\\n    query\\n  }\\n  ...ChildFragment @arguments(inputs: [{query: \\"web\\"}])\\n}\\n\\nfragment ChildFragment on Query\\n  @argumentDefinitions(inputs: {type: \\"[CheckinSearchInput!]!\\"}) {\\n  checkinSearchQuery(query: {query: \\"foo\\", inputs: $inputs}) {\\n    query\\n  }\\n}\\n",
+                "name": "GraphQL request",
+                "locationOffset": {
+                  "line": 1,
+                  "column": 1,
+                },
+              },
+            },
+            metadata: null,
+            name: "query",
+            type: "String",
+          },
+        ],
+        type: "CheckinSearchResult",
+      },
+    ],
+    type: "Query",
+    argumentDefinitions: [
+      LocalArgumentDefinition {
+        loc: Source {
+          start: 229,
+          end: 269,
+          source: {
+            "body": "fragment ParentFragment on Query {\\n  mobile_checkins: checkinSearchQuery(query: {query: \\"mobile\\"}) {\\n    query\\n  }\\n  ...ChildFragment @arguments(inputs: [{query: \\"web\\"}])\\n}\\n\\nfragment ChildFragment on Query\\n  @argumentDefinitions(inputs: {type: \\"[CheckinSearchInput!]!\\"}) {\\n  checkinSearchQuery(query: {query: \\"foo\\", inputs: $inputs}) {\\n    query\\n  }\\n}\\n",
+            "name": "GraphQL request",
+            "locationOffset": {
+              "line": 1,
+              "column": 1,
+            },
+          },
+        },
+        name: "inputs",
+        type: "[CheckinSearchInput!]!",
+        defaultValue: null,
+      },
+    ],
+  },
+]
 `;
 
 exports[`RelayParser matches expected output: fragment-with-undefined-literal-arguments.invalid.graphql 1`] = `
@@ -4353,9 +4726,8 @@ query ListArgumentQuery {
 ]
 `;
 
-exports[`RelayParser matches expected output: list-argument-invalid.graphql 1`] = `
+exports[`RelayParser matches expected output: list-argument-complex-object.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
-# expected-to-throw
 query ListArgumentQuery($waypoint: WayPoint!) {
   route(waypoints: [$waypoint, {lat: "0.0", lon: "0.0"}]) {
     steps {
@@ -4365,16 +4737,184 @@ query ListArgumentQuery($waypoint: WayPoint!) {
 }
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
-THROWN EXCEPTION:
-
-Complex argument values (Lists or InputObjects with nested variables) are not supported.
-
-GraphQL request (3:21)
-2: query ListArgumentQuery($waypoint: WayPoint!) {
-3:   route(waypoints: [$waypoint, {lat: "0.0", lon: "0.0"}]) {
-                       ^
-4:     steps {
-
+[
+  Root {
+    operation: "query",
+    loc: Source {
+      start: 0,
+      end: 142,
+      source: {
+        "body": "query ListArgumentQuery($waypoint: WayPoint!) {\\n  route(waypoints: [$waypoint, {lat: \\"0.0\\", lon: \\"0.0\\"}]) {\\n    steps {\\n      note\\n    }\\n  }\\n}\\n",
+        "name": "GraphQL request",
+        "locationOffset": {
+          "line": 1,
+          "column": 1,
+        },
+      },
+    },
+    metadata: null,
+    name: "ListArgumentQuery",
+    argumentDefinitions: [
+      LocalArgumentDefinition {
+        loc: Source {
+          start: 24,
+          end: 44,
+          source: {
+            "body": "query ListArgumentQuery($waypoint: WayPoint!) {\\n  route(waypoints: [$waypoint, {lat: \\"0.0\\", lon: \\"0.0\\"}]) {\\n    steps {\\n      note\\n    }\\n  }\\n}\\n",
+            "name": "GraphQL request",
+            "locationOffset": {
+              "line": 1,
+              "column": 1,
+            },
+          },
+        },
+        name: "waypoint",
+        type: "WayPoint!",
+        defaultValue: null,
+      },
+    ],
+    directives: [],
+    selections: [
+      LinkedField {
+        alias: "route",
+        args: [
+          Argument {
+            loc: Source {
+              start: 56,
+              end: 104,
+              source: {
+                "body": "query ListArgumentQuery($waypoint: WayPoint!) {\\n  route(waypoints: [$waypoint, {lat: \\"0.0\\", lon: \\"0.0\\"}]) {\\n    steps {\\n      note\\n    }\\n  }\\n}\\n",
+                "name": "GraphQL request",
+                "locationOffset": {
+                  "line": 1,
+                  "column": 1,
+                },
+              },
+            },
+            name: "waypoints",
+            value: ListValue {
+              loc: Source {
+                start: 67,
+                end: 104,
+                source: {
+                  "body": "query ListArgumentQuery($waypoint: WayPoint!) {\\n  route(waypoints: [$waypoint, {lat: \\"0.0\\", lon: \\"0.0\\"}]) {\\n    steps {\\n      note\\n    }\\n  }\\n}\\n",
+                  "name": "GraphQL request",
+                  "locationOffset": {
+                    "line": 1,
+                    "column": 1,
+                  },
+                },
+              },
+              items: [
+                Variable {
+                  loc: Source {
+                    start: 68,
+                    end: 77,
+                    source: {
+                      "body": "query ListArgumentQuery($waypoint: WayPoint!) {\\n  route(waypoints: [$waypoint, {lat: \\"0.0\\", lon: \\"0.0\\"}]) {\\n    steps {\\n      note\\n    }\\n  }\\n}\\n",
+                      "name": "GraphQL request",
+                      "locationOffset": {
+                        "line": 1,
+                        "column": 1,
+                      },
+                    },
+                  },
+                  variableName: "waypoint",
+                  type: "WayPoint!",
+                },
+                Literal {
+                  loc: Source {
+                    start: 79,
+                    end: 103,
+                    source: {
+                      "body": "query ListArgumentQuery($waypoint: WayPoint!) {\\n  route(waypoints: [$waypoint, {lat: \\"0.0\\", lon: \\"0.0\\"}]) {\\n    steps {\\n      note\\n    }\\n  }\\n}\\n",
+                      "name": "GraphQL request",
+                      "locationOffset": {
+                        "line": 1,
+                        "column": 1,
+                      },
+                    },
+                  },
+                  value: {
+                    "lat": "0.0",
+                    "lon": "0.0",
+                  },
+                },
+              ],
+            },
+            type: "[WayPoint!]!",
+          },
+        ],
+        connection: false,
+        directives: [],
+        handles: null,
+        loc: Source {
+          start: 50,
+          end: 140,
+          source: {
+            "body": "query ListArgumentQuery($waypoint: WayPoint!) {\\n  route(waypoints: [$waypoint, {lat: \\"0.0\\", lon: \\"0.0\\"}]) {\\n    steps {\\n      note\\n    }\\n  }\\n}\\n",
+            "name": "GraphQL request",
+            "locationOffset": {
+              "line": 1,
+              "column": 1,
+            },
+          },
+        },
+        metadata: null,
+        name: "route",
+        selections: [
+          LinkedField {
+            alias: "steps",
+            args: [],
+            connection: false,
+            directives: [],
+            handles: null,
+            loc: Source {
+              start: 112,
+              end: 136,
+              source: {
+                "body": "query ListArgumentQuery($waypoint: WayPoint!) {\\n  route(waypoints: [$waypoint, {lat: \\"0.0\\", lon: \\"0.0\\"}]) {\\n    steps {\\n      note\\n    }\\n  }\\n}\\n",
+                "name": "GraphQL request",
+                "locationOffset": {
+                  "line": 1,
+                  "column": 1,
+                },
+              },
+            },
+            metadata: null,
+            name: "steps",
+            selections: [
+              ScalarField {
+                alias: "note",
+                args: [],
+                directives: [],
+                handles: null,
+                loc: Source {
+                  start: 126,
+                  end: 130,
+                  source: {
+                    "body": "query ListArgumentQuery($waypoint: WayPoint!) {\\n  route(waypoints: [$waypoint, {lat: \\"0.0\\", lon: \\"0.0\\"}]) {\\n    steps {\\n      note\\n    }\\n  }\\n}\\n",
+                    "name": "GraphQL request",
+                    "locationOffset": {
+                      "line": 1,
+                      "column": 1,
+                    },
+                  },
+                },
+                metadata: null,
+                name: "note",
+                type: "String",
+              },
+            ],
+            type: "[RouteStep]",
+          },
+        ],
+        type: "Route",
+      },
+    ],
+    type: "Query",
+  },
+]
 `;
 
 exports[`RelayParser matches expected output: list-of-enums.graphql 1`] = `
@@ -4949,9 +5489,8 @@ GraphQL request (3:24)
 
 `;
 
-exports[`RelayParser matches expected output: object-argument.invalid.graphql 1`] = `
+exports[`RelayParser matches expected output: object-argument.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
-# expected-to-throw
 query ObjectArgument($text: String!) {
   checkinSearchQuery(query: {query: $text}) {
     query
@@ -4959,16 +5498,157 @@ query ObjectArgument($text: String!) {
 }
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
-THROWN EXCEPTION:
-
-Complex argument values (Lists or InputObjects with nested variables) are not supported.
-
-GraphQL request (3:37)
-2: query ObjectArgument($text: String!) {
-3:   checkinSearchQuery(query: {query: $text}) {
-                                       ^
-4:     query
-
+[
+  Root {
+    operation: "query",
+    loc: Source {
+      start: 0,
+      end: 100,
+      source: {
+        "body": "query ObjectArgument($text: String!) {\\n  checkinSearchQuery(query: {query: $text}) {\\n    query\\n  }\\n}\\n",
+        "name": "GraphQL request",
+        "locationOffset": {
+          "line": 1,
+          "column": 1,
+        },
+      },
+    },
+    metadata: null,
+    name: "ObjectArgument",
+    argumentDefinitions: [
+      LocalArgumentDefinition {
+        loc: Source {
+          start: 21,
+          end: 35,
+          source: {
+            "body": "query ObjectArgument($text: String!) {\\n  checkinSearchQuery(query: {query: $text}) {\\n    query\\n  }\\n}\\n",
+            "name": "GraphQL request",
+            "locationOffset": {
+              "line": 1,
+              "column": 1,
+            },
+          },
+        },
+        name: "text",
+        type: "String!",
+        defaultValue: null,
+      },
+    ],
+    directives: [],
+    selections: [
+      LinkedField {
+        alias: "checkinSearchQuery",
+        args: [
+          Argument {
+            loc: Source {
+              start: 60,
+              end: 81,
+              source: {
+                "body": "query ObjectArgument($text: String!) {\\n  checkinSearchQuery(query: {query: $text}) {\\n    query\\n  }\\n}\\n",
+                "name": "GraphQL request",
+                "locationOffset": {
+                  "line": 1,
+                  "column": 1,
+                },
+              },
+            },
+            name: "query",
+            value: ObjectValue {
+              loc: Source {
+                start: 67,
+                end: 81,
+                source: {
+                  "body": "query ObjectArgument($text: String!) {\\n  checkinSearchQuery(query: {query: $text}) {\\n    query\\n  }\\n}\\n",
+                  "name": "GraphQL request",
+                  "locationOffset": {
+                    "line": 1,
+                    "column": 1,
+                  },
+                },
+              },
+              fields: [
+                ObjectFieldValue {
+                  loc: Source {
+                    start: 68,
+                    end: 80,
+                    source: {
+                      "body": "query ObjectArgument($text: String!) {\\n  checkinSearchQuery(query: {query: $text}) {\\n    query\\n  }\\n}\\n",
+                      "name": "GraphQL request",
+                      "locationOffset": {
+                        "line": 1,
+                        "column": 1,
+                      },
+                    },
+                  },
+                  name: "query",
+                  value: Variable {
+                    loc: Source {
+                      start: 75,
+                      end: 80,
+                      source: {
+                        "body": "query ObjectArgument($text: String!) {\\n  checkinSearchQuery(query: {query: $text}) {\\n    query\\n  }\\n}\\n",
+                        "name": "GraphQL request",
+                        "locationOffset": {
+                          "line": 1,
+                          "column": 1,
+                        },
+                      },
+                    },
+                    variableName: "text",
+                    type: "String",
+                  },
+                },
+              ],
+            },
+            type: "CheckinSearchInput",
+          },
+        ],
+        connection: false,
+        directives: [],
+        handles: null,
+        loc: Source {
+          start: 41,
+          end: 98,
+          source: {
+            "body": "query ObjectArgument($text: String!) {\\n  checkinSearchQuery(query: {query: $text}) {\\n    query\\n  }\\n}\\n",
+            "name": "GraphQL request",
+            "locationOffset": {
+              "line": 1,
+              "column": 1,
+            },
+          },
+        },
+        metadata: null,
+        name: "checkinSearchQuery",
+        selections: [
+          ScalarField {
+            alias: "query",
+            args: [],
+            directives: [],
+            handles: null,
+            loc: Source {
+              start: 89,
+              end: 94,
+              source: {
+                "body": "query ObjectArgument($text: String!) {\\n  checkinSearchQuery(query: {query: $text}) {\\n    query\\n  }\\n}\\n",
+                "name": "GraphQL request",
+                "locationOffset": {
+                  "line": 1,
+                  "column": 1,
+                },
+              },
+            },
+            metadata: null,
+            name: "query",
+            type: "String",
+          },
+        ],
+        type: "CheckinSearchResult",
+      },
+    ],
+    type: "Query",
+  },
+]
 `;
 
 exports[`RelayParser matches expected output: scalar-handle-field.graphql 1`] = `

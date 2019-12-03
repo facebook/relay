@@ -125,7 +125,7 @@ describe('check()', () => {
       defaultGetDataID,
       getEmptyConnectionEvents,
     );
-    expect(status).toBe(true);
+    expect(status).toBe('available');
     expect(target.size()).toBe(0);
   });
 
@@ -195,7 +195,7 @@ describe('check()', () => {
       defaultGetDataID,
       getEmptyConnectionEvents,
     );
-    expect(status).toBe(true);
+    expect(status).toBe('available');
     expect(target.size()).toBe(0);
   });
 
@@ -238,7 +238,7 @@ describe('check()', () => {
       defaultGetDataID,
       getEmptyConnectionEvents,
     );
-    expect(status).toBe(true);
+    expect(status).toBe('available');
     expect(target.size()).toBe(0);
   });
 
@@ -340,7 +340,7 @@ describe('check()', () => {
       expect(loader.get.mock.calls[0][0]).toBe(
         'PlainUserNameRenderer_name$normalization.graphql',
       );
-      expect(status).toBe(true);
+      expect(status).toBe('available');
       expect(target.size()).toBe(0);
     });
 
@@ -391,7 +391,7 @@ describe('check()', () => {
         defaultGetDataID,
         getEmptyConnectionEvents,
       );
-      expect(status).toBe(true);
+      expect(status).toBe('available');
       expect(target.size()).toBe(0);
     });
 
@@ -439,7 +439,7 @@ describe('check()', () => {
         getEmptyConnectionEvents,
       );
       // The data for the field isn't in the store yet, so we have to return false
-      expect(status).toBe(false);
+      expect(status).toBe('missing');
       expect(target.size()).toBe(0);
     });
 
@@ -488,7 +488,7 @@ describe('check()', () => {
         getEmptyConnectionEvents,
       );
       // The data for the field 'data' isn't in the store yet, so we have to return false
-      expect(status).toBe(false);
+      expect(status).toBe('missing');
       expect(target.size()).toBe(0);
     });
 
@@ -531,7 +531,7 @@ describe('check()', () => {
         getEmptyConnectionEvents,
       );
       // The data for the field 'data' isn't in the store yet, so we have to return false
-      expect(status).toBe(false);
+      expect(status).toBe('missing');
       expect(target.size()).toBe(0);
     });
 
@@ -571,7 +571,7 @@ describe('check()', () => {
         defaultGetDataID,
         getEmptyConnectionEvents,
       );
-      expect(status).toBe(true);
+      expect(status).toBe('available');
       expect(target.size()).toBe(0);
     });
 
@@ -602,7 +602,7 @@ describe('check()', () => {
         defaultGetDataID,
         getEmptyConnectionEvents,
       );
-      expect(status).toBe(true);
+      expect(status).toBe('available');
       expect(target.size()).toBe(0);
     });
 
@@ -632,7 +632,7 @@ describe('check()', () => {
         defaultGetDataID,
         getEmptyConnectionEvents,
       );
-      expect(status).toBe(false);
+      expect(status).toBe('missing');
       expect(target.size()).toBe(0);
     });
   });
@@ -733,7 +733,7 @@ describe('check()', () => {
       expect(loader.get.mock.calls[0][0]).toBe(
         'PlainUserNameRenderer_name$normalization.graphql',
       );
-      expect(status).toBe(true);
+      expect(status).toBe('available');
       expect(target.size()).toBe(0);
     });
 
@@ -782,7 +782,7 @@ describe('check()', () => {
         defaultGetDataID,
         getEmptyConnectionEvents,
       );
-      expect(status).toBe(true);
+      expect(status).toBe('available');
       expect(target.size()).toBe(0);
     });
 
@@ -828,7 +828,7 @@ describe('check()', () => {
         getEmptyConnectionEvents,
       );
       // The data for the field isn't in the store yet, so we have to return false
-      expect(status).toBe(false);
+      expect(status).toBe('missing');
       expect(target.size()).toBe(0);
     });
 
@@ -875,7 +875,7 @@ describe('check()', () => {
         getEmptyConnectionEvents,
       );
       // The data for the field 'data' isn't in the store yet, so we have to return false
-      expect(status).toBe(false);
+      expect(status).toBe('missing');
       expect(target.size()).toBe(0);
     });
 
@@ -916,7 +916,7 @@ describe('check()', () => {
         getEmptyConnectionEvents,
       );
       // The data for the field 'data' isn't in the store yet, so we have to return false
-      expect(status).toBe(false);
+      expect(status).toBe('missing');
       expect(target.size()).toBe(0);
     });
 
@@ -954,7 +954,7 @@ describe('check()', () => {
         defaultGetDataID,
         getEmptyConnectionEvents,
       );
-      expect(status).toBe(true);
+      expect(status).toBe('available');
       expect(target.size()).toBe(0);
     });
   });
@@ -1001,7 +1001,7 @@ describe('check()', () => {
         defaultGetDataID,
         getEmptyConnectionEvents,
       );
-      expect(status).toBe(true);
+      expect(status).toBe('available');
       expect(target.size()).toBe(0);
     });
 
@@ -1030,7 +1030,7 @@ describe('check()', () => {
         defaultGetDataID,
         getEmptyConnectionEvents,
       );
-      expect(status).toBe(false);
+      expect(status).toBe('missing');
       expect(target.size()).toBe(0);
     });
   });
@@ -1085,7 +1085,7 @@ describe('check()', () => {
         defaultGetDataID,
         getEmptyConnectionEvents,
       );
-      expect(status).toBe(true);
+      expect(status).toBe('available');
       expect(target.size()).toBe(0);
     });
 
@@ -1120,7 +1120,7 @@ describe('check()', () => {
         defaultGetDataID,
         getEmptyConnectionEvents,
       );
-      expect(status).toBe(false);
+      expect(status).toBe('missing');
       expect(target.size()).toBe(0);
     });
   });
@@ -1141,7 +1141,7 @@ describe('check()', () => {
         defaultGetDataID,
         getEmptyConnectionEvents,
       );
-      expect(status).toBe(true);
+      expect(status).toBe('available');
       expect(target.size()).toBe(0);
     });
   });
@@ -1180,7 +1180,7 @@ describe('check()', () => {
         defaultGetDataID,
         getEmptyConnectionEvents,
       );
-      expect(status).toBe(false);
+      expect(status).toBe('missing');
       expect(target.size()).toBe(0);
     });
 
@@ -1220,7 +1220,7 @@ describe('check()', () => {
         defaultGetDataID,
         getEmptyConnectionEvents,
       );
-      expect(status).toBe(false);
+      expect(status).toBe('missing');
       expect(target.size()).toBe(0);
     });
 
@@ -1268,7 +1268,7 @@ describe('check()', () => {
         defaultGetDataID,
         getEmptyConnectionEvents,
       );
-      expect(status).toBe(true);
+      expect(status).toBe('available');
       expect(target.toJSON()).toEqual({
         'client:3': {
           __id: 'client:3',
@@ -1283,7 +1283,7 @@ describe('check()', () => {
         'undefined',
         {
           handleReturnValue: undefined,
-          expectedStatus: false,
+          expectedStatus: 'missing',
           updatedHometown: undefined,
         },
       ],
@@ -1291,7 +1291,7 @@ describe('check()', () => {
         'null',
         {
           handleReturnValue: null,
-          expectedStatus: false,
+          expectedStatus: 'missing',
           updatedHometown: undefined,
         },
       ],
@@ -1299,7 +1299,7 @@ describe('check()', () => {
         "'hometown-exists'",
         {
           handleReturnValue: 'hometown-exists',
-          expectedStatus: true,
+          expectedStatus: 'available',
           updatedHometown: 'hometown-exists',
         },
       ],
@@ -1307,7 +1307,7 @@ describe('check()', () => {
         "'hometown-deleted'",
         {
           handleReturnValue: 'hometown-deleted',
-          expectedStatus: false,
+          expectedStatus: 'missing',
           updatedHometown: undefined,
         },
       ],
@@ -1315,7 +1315,7 @@ describe('check()', () => {
         "'hometown-unknown'",
         {
           handleReturnValue: 'hometown-unknown',
-          expectedStatus: false,
+          expectedStatus: 'missing',
           updatedHometown: undefined,
         },
       ],
@@ -1386,7 +1386,7 @@ describe('check()', () => {
         'undefined',
         {
           handleReturnValue: undefined,
-          expectedStatus: false,
+          expectedStatus: 'missing',
           updatedScreennames: undefined,
         },
       ],
@@ -1394,7 +1394,7 @@ describe('check()', () => {
         'null',
         {
           handleReturnValue: null,
-          expectedStatus: false,
+          expectedStatus: 'missing',
           updatedScreennames: undefined,
         },
       ],
@@ -1402,7 +1402,7 @@ describe('check()', () => {
         '[]',
         {
           handleReturnValue: [],
-          expectedStatus: true,
+          expectedStatus: 'available',
           updatedScreennames: [],
         },
       ],
@@ -1410,7 +1410,7 @@ describe('check()', () => {
         '[undefined]',
         {
           handleReturnValue: [undefined],
-          expectedStatus: false,
+          expectedStatus: 'missing',
           updatedScreennames: undefined,
         },
       ],
@@ -1418,7 +1418,7 @@ describe('check()', () => {
         '[null]',
         {
           handleReturnValue: [null],
-          expectedStatus: false,
+          expectedStatus: 'missing',
           updatedScreennames: undefined,
         },
       ],
@@ -1426,7 +1426,7 @@ describe('check()', () => {
         "['screenname-exists']",
         {
           handleReturnValue: ['screenname-exists'],
-          expectedStatus: true,
+          expectedStatus: 'available',
           updatedScreennames: ['screenname-exists'],
         },
       ],
@@ -1434,7 +1434,7 @@ describe('check()', () => {
         "['screenname-deleted']",
         {
           handleReturnValue: ['screenname-deleted'],
-          expectedStatus: false,
+          expectedStatus: 'missing',
           updatedScreennames: undefined,
         },
       ],
@@ -1442,7 +1442,7 @@ describe('check()', () => {
         "['screenname-unknown']",
         {
           handleReturnValue: ['screenname-unknown'],
-          expectedStatus: false,
+          expectedStatus: 'missing',
           updatedScreennames: undefined,
         },
       ],
@@ -1450,7 +1450,7 @@ describe('check()', () => {
         "['screenname-exists', 'screenname-unknown']",
         {
           handleReturnValue: ['screenname-exists', 'screenname-unknown'],
-          expectedStatus: false,
+          expectedStatus: 'missing',
           updatedScreennames: undefined,
         },
       ],
@@ -1578,7 +1578,7 @@ describe('check()', () => {
         defaultGetDataID,
         getEmptyConnectionEvents,
       );
-      expect(status).toBe(true);
+      expect(status).toBe('available');
       expect(target.toJSON()).toEqual({
         '1': {
           __id: '1',
@@ -1670,7 +1670,7 @@ describe('check()', () => {
         defaultGetDataID,
         getEmptyConnectionEvents,
       );
-      expect(status).toBe(true);
+      expect(status).toBe('available');
       expect(target.size()).toBe(0);
     });
   });
@@ -1711,7 +1711,7 @@ describe('check()', () => {
       defaultGetDataID,
       getEmptyConnectionEvents,
     );
-    expect(status).toBe(true);
+    expect(status).toBe('available');
     expect(target.size()).toBe(0);
   });
 
@@ -1752,7 +1752,7 @@ describe('check()', () => {
       defaultGetDataID,
       getEmptyConnectionEvents,
     );
-    expect(status).toBe(false);
+    expect(status).toBe('missing');
     expect(target.size()).toBe(0);
   });
 });

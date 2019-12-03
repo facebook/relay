@@ -208,9 +208,7 @@ class RelayModernStore implements Store {
       this._operationLoader,
       this._getDataID,
       id => this.getConnectionEvents_UNSTABLE(id),
-    )
-      ? 'available'
-      : 'missing';
+    );
   }
 
   retain(operation: OperationDescriptor): Disposable {

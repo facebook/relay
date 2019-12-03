@@ -41,6 +41,7 @@ import type {
   MissingFieldHandler,
   MutableRecordSource,
   NormalizationSelector,
+  OperationAvailability,
   OperationLoader,
   Record,
   RecordSource,
@@ -84,7 +85,7 @@ function check(
   operationLoader: ?OperationLoader,
   getDataID: GetDataID,
   getConnectionEvents: GetConnectionEvents,
-): boolean {
+): OperationAvailability {
   const {dataID, node, variables} = selector;
   const checker = new DataChecker(
     source,
@@ -136,9 +137,9 @@ class DataChecker {
     this._variables = variables;
   }
 
-  check(node: NormalizationNode, dataID: DataID): boolean {
+  check(node: NormalizationNode, dataID: DataID): OperationAvailability {
     this._traverse(node, dataID);
-    return !this._recordWasMissing;
+    return this._recordWasMissing === true ? 'missing' : 'available';
   }
 
   _getVariableValue(name: string): mixed {

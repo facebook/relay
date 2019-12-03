@@ -12,10 +12,14 @@
 
 'use strict';
 
+const RelayFeatureFlags = require('../util/RelayFeatureFlags');
+
 const areEqual = require('areEqual');
 const invariant = require('invariant');
 const isScalarAndEqual = require('../util/isScalarAndEqual');
+const warning = require('warning');
 
+const {getPromiseForRequestInFlight} = require('../query/fetchQueryInternal');
 const {createRequestDescriptor} = require('./RelayModernOperationDescriptor');
 const {
   areEqualSelectors,
@@ -209,6 +213,7 @@ class SelectorResolver {
   _callback: () => void;
   _data: ?SelectorData;
   _environment: IEnvironment;
+  _isMissingData: boolean;
   _selector: SingularReaderSelector;
   _subscription: ?Disposable;
 
@@ -220,6 +225,7 @@ class SelectorResolver {
     const snapshot = environment.lookup(selector);
     this._callback = callback;
     this._data = snapshot.data;
+    this._isMissingData = snapshot.isMissingData;
     this._environment = environment;
     this._selector = selector;
     this._subscription = environment.subscribe(snapshot, this._onChange);
@@ -233,6 +239,47 @@ class SelectorResolver {
   }
 
   resolve(): ?Object {
+    if (
+      RelayFeatureFlags.ENABLE_RELAY_CONTAINERS_SUSPENSE === true &&
+      this._isMissingData === true
+    ) {
+      // NOTE: This branch exists to handle the case in which:
+      // - A RelayModern container is rendered as a descendant of a Relay Hook
+      //   root using a "partial" renderPolicy (this means that eargerly
+      //   reading any cached data that is available instead of blocking
+      //   at the root until the whole query is fetched).
+      // - A parent Relay Hook didnt' suspend earlier on data being fetched,
+      //   either because the fragment data for the parent was available, or
+      //   the parent fragment didn't have any data dependencies.
+      // Even though our Flow types reflect the possiblity of null data, there
+      // might still be cases where it's not handled at runtime becuase the
+      // Flow types are being ignored, or simply not being used (for example,
+      // the case reported here: https://fburl.com/srnbucf8, was due to
+      // misuse of Flow types here: https://fburl.com/g3m0mqqh).
+      // Additionally, even though the null data might be handled without a
+      // runtime error, we might not suspend when we intended to if a parent
+      // Relay Hook (e.g. that is using @defer) decided not to suspend becuase
+      // it's immediate data was already available (even if it was deferred),
+      // or it didn't actually need any data (was just spreading other fragments).
+      // This should eventually go away with something like @optional, where we only
+      // suspend at specific boundaries depending on whether the boundary
+      // can be fulfilled or not.
+      const promise =
+        getPromiseForRequestInFlight(this._environment, this._selector.owner) ??
+        this._environment
+          .getOperationTracker()
+          .getPromiseForPendingOperationsAffectingOwner(this._selector.owner);
+      if (promise != null) {
+        warning(
+          false,
+          'Relay: Relay Container for fragment `%s` suspended. When using ' +
+            'features such as @defer or @module, use `useFragment` instead ' +
+            'of a Relay Container.',
+          this._selector.node.name,
+        );
+        throw promise;
+      }
+    }
     return this._data;
   }
 
@@ -246,6 +293,7 @@ class SelectorResolver {
     this.dispose();
     const snapshot = this._environment.lookup(selector);
     this._data = snapshot.data;
+    this._isMissingData = snapshot.isMissingData;
     this._selector = selector;
     this._subscription = this._environment.subscribe(snapshot, this._onChange);
   }
@@ -280,6 +328,7 @@ class SelectorResolver {
 
   _onChange = (snapshot: Snapshot): void => {
     this._data = snapshot.data;
+    this._isMissingData = snapshot.isMissingData;
     this._callback();
   };
 }

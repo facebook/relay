@@ -25,7 +25,7 @@ const {
 const {createReaderSelector} = require('../RelayModernSelector');
 const {generateAndCompile} = require('relay-test-utils-internal');
 
-describe('executeMutation() with global invalidation', () => {
+describe('executeMutation() with local invalidation', () => {
   let callbacks;
   let commentID;
   let CommentFragment;
@@ -111,7 +111,7 @@ describe('executeMutation() with global invalidation', () => {
     callbacks = {complete, error};
   });
 
-  it('global invalidation is a no-op if called during optimistic update', () => {
+  it('local invalidation is a no-op if called during optimistic update', () => {
     const selector = createReaderSelector(
       CommentFragment,
       commentID,
@@ -126,14 +126,14 @@ describe('executeMutation() with global invalidation', () => {
       .executeMutation({
         operation,
         optimisticUpdater: _store => {
-          // Invalidate store
-          _store.invalidateStore();
-
           const comment = _store.create(commentID, 'Comment');
           comment.setValue(commentID, 'id');
           const body = _store.create(commentID + '.text', 'Text');
           comment.setLinkedRecord(body, 'body');
           body.setValue('Give Relay', 'text');
+
+          // Invalidate record
+          comment.invalidateRecord();
         },
       })
       .subscribe(callbacks);
@@ -144,8 +144,8 @@ describe('executeMutation() with global invalidation', () => {
     expect(environment.check(queryOperation)).toBe('available');
   });
 
-  describe('when store invalidated inside updater after server payload', () => {
-    it('correctly invalidates the store when query has never been written before', () => {
+  describe('when record invalidated inside updater after server payload', () => {
+    it('correctly invalidates the record when query has never been written before', () => {
       const selector = createReaderSelector(
         CommentFragment,
         commentID,
@@ -160,8 +160,6 @@ describe('executeMutation() with global invalidation', () => {
         .executeMutation({
           operation,
           updater: _store => {
-            _store.invalidateStore();
-
             const comment = _store.get(commentID);
             if (!comment) {
               throw new Error('Expected comment to be in the store');
@@ -175,6 +173,9 @@ describe('executeMutation() with global invalidation', () => {
               throw new Error('Expected comment body to have text');
             }
             body.setValue(bodyValue.toUpperCase(), 'text');
+
+            // Invalidate record
+            comment.invalidateRecord();
           },
         })
         .subscribe(callbacks);
@@ -203,7 +204,7 @@ describe('executeMutation() with global invalidation', () => {
       expect(environment.check(operation)).toBe('stale');
     });
 
-    it('correctly invalidates the store when query was written before invalidation', () => {
+    it('correctly invalidates the record when query was written before invalidation', () => {
       // Write operation before running invalidation
       environment.retain(queryOperation);
       environment.commitPayload(queryOperation, {
@@ -232,8 +233,6 @@ describe('executeMutation() with global invalidation', () => {
         .executeMutation({
           operation,
           updater: _store => {
-            _store.invalidateStore();
-
             const comment = _store.get(commentID);
             if (!comment) {
               throw new Error('Expected comment to be in the store');
@@ -247,6 +246,9 @@ describe('executeMutation() with global invalidation', () => {
               throw new Error('Expected comment body to have text');
             }
             body.setValue(bodyValue.toUpperCase(), 'text');
+
+            // Invalidate record
+            comment.invalidateRecord();
           },
         })
         .subscribe(callbacks);
@@ -274,7 +276,7 @@ describe('executeMutation() with global invalidation', () => {
       expect(environment.check(operation)).toBe('stale');
     });
 
-    it('correctly invalidates the store when query is written after invalidation', () => {
+    it('correctly invalidates the record when query is written after invalidation', () => {
       // Execute mutation
       const selector = createReaderSelector(
         CommentFragment,
@@ -290,8 +292,6 @@ describe('executeMutation() with global invalidation', () => {
         .executeMutation({
           operation,
           updater: _store => {
-            _store.invalidateStore();
-
             const comment = _store.get(commentID);
             if (!comment) {
               throw new Error('Expected comment to be in the store');
@@ -305,6 +305,9 @@ describe('executeMutation() with global invalidation', () => {
               throw new Error('Expected comment body to have text');
             }
             body.setValue(bodyValue.toUpperCase(), 'text');
+
+            // Invalidate record
+            comment.invalidateRecord();
           },
         })
         .subscribe(callbacks);
@@ -323,6 +326,7 @@ describe('executeMutation() with global invalidation', () => {
         },
       });
       subject.complete();
+      jest.runAllTimers();
       // Results of execution are asserted in ExecuteMutation-test.js
 
       // Assert that query is currently stale
@@ -343,7 +347,7 @@ describe('executeMutation() with global invalidation', () => {
         },
       });
       jest.runAllTimers();
-      // Assert that query is currently stale
+      // Assert that query is currently available
       expect(environment.check(queryOperation)).toBe('available');
       // Assert that operation that was written during the same update as invalidation
       // is still stale

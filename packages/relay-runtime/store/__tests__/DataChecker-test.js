@@ -14,6 +14,7 @@
 'use strict';
 
 const RelayModernRecord = require('../RelayModernRecord');
+const RelayModernStore = require('../RelayModernStore');
 const RelayRecordSource = require('../RelayRecordSource');
 
 const defaultGetDataID = require('../defaultGetDataID');
@@ -22,7 +23,10 @@ const getRelayHandleKey = require('../../util/getRelayHandleKey');
 const {check} = require('../DataChecker');
 const {createNormalizationSelector} = require('../RelayModernSelector');
 const {ROOT_ID} = require('../RelayStoreUtils');
-const {generateAndCompile} = require('relay-test-utils-internal');
+const {
+  createMockEnvironment,
+  generateAndCompile,
+} = require('relay-test-utils-internal');
 
 function getEmptyConnectionEvents() {
   return null;
@@ -122,6 +126,7 @@ describe('check()', () => {
       createNormalizationSelector(Query.fragment, ROOT_ID, {id: '1', size: 32}),
       [],
       null,
+      null,
       defaultGetDataID,
       getEmptyConnectionEvents,
     );
@@ -192,6 +197,7 @@ describe('check()', () => {
       createNormalizationSelector(BarFragment, '1', {size: 32}),
       [],
       null,
+      null,
       defaultGetDataID,
       getEmptyConnectionEvents,
     );
@@ -234,6 +240,7 @@ describe('check()', () => {
       target,
       createNormalizationSelector(Fragment, '1', {}),
       [],
+      null,
       null,
       defaultGetDataID,
       getEmptyConnectionEvents,
@@ -333,6 +340,7 @@ describe('check()', () => {
         }),
         [],
         loader,
+        null,
         defaultGetDataID,
         getEmptyConnectionEvents,
       );
@@ -388,6 +396,7 @@ describe('check()', () => {
         }),
         [],
         loader,
+        null,
         defaultGetDataID,
         getEmptyConnectionEvents,
       );
@@ -435,6 +444,7 @@ describe('check()', () => {
           get: _ => null,
           load: _ => Promise.resolve(null),
         },
+        null,
         defaultGetDataID,
         getEmptyConnectionEvents,
       );
@@ -484,6 +494,7 @@ describe('check()', () => {
         }),
         [],
         loader,
+        null,
         defaultGetDataID,
         getEmptyConnectionEvents,
       );
@@ -527,6 +538,7 @@ describe('check()', () => {
         }),
         [],
         loader,
+        null,
         defaultGetDataID,
         getEmptyConnectionEvents,
       );
@@ -568,6 +580,7 @@ describe('check()', () => {
         }),
         [],
         loader,
+        null,
         defaultGetDataID,
         getEmptyConnectionEvents,
       );
@@ -599,6 +612,7 @@ describe('check()', () => {
         }),
         [],
         loader,
+        null,
         defaultGetDataID,
         getEmptyConnectionEvents,
       );
@@ -629,6 +643,7 @@ describe('check()', () => {
         }),
         [],
         loader,
+        null,
         defaultGetDataID,
         getEmptyConnectionEvents,
       );
@@ -726,6 +741,7 @@ describe('check()', () => {
         }),
         [],
         loader,
+        null,
         defaultGetDataID,
         getEmptyConnectionEvents,
       );
@@ -779,6 +795,7 @@ describe('check()', () => {
         }),
         [],
         loader,
+        null,
         defaultGetDataID,
         getEmptyConnectionEvents,
       );
@@ -824,6 +841,7 @@ describe('check()', () => {
           get: _ => null,
           load: _ => Promise.resolve(null),
         },
+        null,
         defaultGetDataID,
         getEmptyConnectionEvents,
       );
@@ -871,6 +889,7 @@ describe('check()', () => {
         }),
         [],
         loader,
+        null,
         defaultGetDataID,
         getEmptyConnectionEvents,
       );
@@ -912,6 +931,7 @@ describe('check()', () => {
         }),
         [],
         loader,
+        null,
         defaultGetDataID,
         getEmptyConnectionEvents,
       );
@@ -951,6 +971,7 @@ describe('check()', () => {
         }),
         [],
         loader,
+        null,
         defaultGetDataID,
         getEmptyConnectionEvents,
       );
@@ -998,6 +1019,7 @@ describe('check()', () => {
         createNormalizationSelector(Query.operation, 'client:root', {id: '1'}),
         [],
         null,
+        null,
         defaultGetDataID,
         getEmptyConnectionEvents,
       );
@@ -1026,6 +1048,7 @@ describe('check()', () => {
         target,
         createNormalizationSelector(Query.operation, 'client:root', {id: '1'}),
         [],
+        null,
         null,
         defaultGetDataID,
         getEmptyConnectionEvents,
@@ -1082,6 +1105,7 @@ describe('check()', () => {
         createNormalizationSelector(Query.operation, 'client:root', {id: '1'}),
         [],
         null,
+        null,
         defaultGetDataID,
         getEmptyConnectionEvents,
       );
@@ -1117,6 +1141,7 @@ describe('check()', () => {
         createNormalizationSelector(Query.operation, 'client:root', {id: '1'}),
         [],
         null,
+        null,
         defaultGetDataID,
         getEmptyConnectionEvents,
       );
@@ -1126,7 +1151,7 @@ describe('check()', () => {
   });
 
   describe('when the data is complete', () => {
-    it('returns `true`', () => {
+    it('returns available', () => {
       const source = RelayRecordSource.create(sampleData);
       const target = RelayRecordSource.create();
       const status = check(
@@ -1138,6 +1163,7 @@ describe('check()', () => {
         }),
         [],
         null,
+        null,
         defaultGetDataID,
         getEmptyConnectionEvents,
       );
@@ -1147,7 +1173,7 @@ describe('check()', () => {
   });
 
   describe('when some data is missing', () => {
-    it('returns false on missing records', () => {
+    it('returns missing on missing records', () => {
       const data = {
         '1': {
           __id: '1',
@@ -1177,6 +1203,7 @@ describe('check()', () => {
         createNormalizationSelector(BarFragment, '1', {size: 32}),
         [],
         null,
+        null,
         defaultGetDataID,
         getEmptyConnectionEvents,
       );
@@ -1184,7 +1211,7 @@ describe('check()', () => {
       expect(target.size()).toBe(0);
     });
 
-    it('returns false on missing fields', () => {
+    it('returns missing on missing fields', () => {
       const data = {
         '1': {
           __id: '1',
@@ -1216,6 +1243,7 @@ describe('check()', () => {
         target,
         createNormalizationSelector(BarFragment, '1', {size: 32}),
         [],
+        null,
         null,
         defaultGetDataID,
         getEmptyConnectionEvents,
@@ -1264,6 +1292,7 @@ describe('check()', () => {
             },
           },
         ],
+        null,
         null,
         defaultGetDataID,
         getEmptyConnectionEvents,
@@ -1359,6 +1388,7 @@ describe('check()', () => {
               handle,
             },
           ],
+          null,
           null,
           defaultGetDataID,
           getEmptyConnectionEvents,
@@ -1495,6 +1525,7 @@ describe('check()', () => {
             },
           ],
           null,
+          null,
           defaultGetDataID,
           getEmptyConnectionEvents,
         );
@@ -1575,6 +1606,7 @@ describe('check()', () => {
           },
         ],
         null,
+        null,
         defaultGetDataID,
         getEmptyConnectionEvents,
       );
@@ -1589,7 +1621,7 @@ describe('check()', () => {
       });
     });
 
-    it('returns true even when client field is missing', () => {
+    it('returns available even when client field is missing', () => {
       const data = {
         '1': {
           __id: '1',
@@ -1667,11 +1699,297 @@ describe('check()', () => {
         createNormalizationSelector(BarFragment, '1', {size: 32}),
         [],
         null,
+        null,
         defaultGetDataID,
         getEmptyConnectionEvents,
       );
       expect(status).toBe('available');
       expect(target.size()).toBe(0);
+    });
+  });
+
+  describe('when individual records have been invalidated', () => {
+    describe('when data is complete', () => {
+      it('returns stale if operation has not been written before', () => {
+        const source = RelayRecordSource.create(sampleData);
+        const target = RelayRecordSource.create();
+        const environment = createMockEnvironment({
+          store: new RelayModernStore(source),
+        });
+
+        // Invalidate record
+        environment.commitUpdate(storeProxy => {
+          const user = storeProxy.get('1');
+          if (!user) {
+            throw new Error('Expected to find record with id "1"');
+          }
+          user.invalidateRecord();
+        });
+
+        const status = check(
+          source,
+          target,
+          createNormalizationSelector(Query.fragment, ROOT_ID, {
+            id: '1',
+            size: 32,
+          }),
+          [],
+          null,
+          null, // pass null value for when operation was written
+          defaultGetDataID,
+          getEmptyConnectionEvents,
+        );
+
+        // Assert that result is stale
+        expect(status).toBe('stale');
+        expect(target.size()).toBe(0);
+      });
+
+      it('returns stale if operation was written before record was invalidated', () => {
+        const source = RelayRecordSource.create(sampleData);
+        const target = RelayRecordSource.create();
+        const environment = createMockEnvironment({
+          store: new RelayModernStore(source),
+        });
+
+        // Invalidate record
+        environment.commitUpdate(storeProxy => {
+          const user = storeProxy.get('1');
+          if (!user) {
+            throw new Error('Expected to find record with id "1"');
+          }
+          user.invalidateRecord();
+        });
+
+        const status = check(
+          source,
+          target,
+          createNormalizationSelector(Query.fragment, ROOT_ID, {
+            id: '1',
+            size: 32,
+          }),
+          [],
+          null,
+          0, // Operation written at epoch 0, before invalidation of record
+          defaultGetDataID,
+          getEmptyConnectionEvents,
+        );
+
+        // Assert that result is stale
+        expect(status).toBe('stale');
+        expect(target.size()).toBe(0);
+      });
+
+      it('returns available if operation was written after record was invalidated', () => {
+        const source = RelayRecordSource.create(sampleData);
+        const target = RelayRecordSource.create();
+        const environment = createMockEnvironment({
+          store: new RelayModernStore(source),
+        });
+
+        // Invalidate record
+        environment.commitUpdate(storeProxy => {
+          const user = storeProxy.get('1');
+          if (!user) {
+            throw new Error('Expected to find record with id "1"');
+          }
+          user.invalidateRecord();
+        });
+
+        const status = check(
+          source,
+          target,
+          createNormalizationSelector(Query.fragment, ROOT_ID, {
+            id: '1',
+            size: 32,
+          }),
+          [],
+          null,
+          2, // Operation written at epoch 1, after invalidation of record
+          defaultGetDataID,
+          getEmptyConnectionEvents,
+        );
+
+        // Assert that result is available
+        expect(status).toBe('available');
+        expect(target.size()).toBe(0);
+      });
+    });
+
+    describe('when data is missing', () => {
+      beforeEach(() => {
+        sampleData = {
+          ...sampleData,
+          'client:4': {
+            __id: 'client:4',
+            __typename: 'Photo',
+            // missing 'uri'
+          },
+        };
+      });
+
+      it('returns stale if operation has not been written before', () => {
+        const source = RelayRecordSource.create(sampleData);
+        const target = RelayRecordSource.create();
+        const environment = createMockEnvironment({
+          store: new RelayModernStore(source),
+        });
+
+        // Invalidate record
+        environment.commitUpdate(storeProxy => {
+          const user = storeProxy.get('1');
+          if (!user) {
+            throw new Error('Expected to find record with id "1"');
+          }
+          user.invalidateRecord();
+        });
+
+        const status = check(
+          source,
+          target,
+          createNormalizationSelector(Query.fragment, ROOT_ID, {
+            id: '1',
+            size: 32,
+          }),
+          [],
+          null,
+          null, // pass null value for when operation was written
+          defaultGetDataID,
+          getEmptyConnectionEvents,
+        );
+
+        // Assert that result is stale
+        expect(status).toBe('stale');
+        expect(target.size()).toBe(0);
+      });
+
+      it('returns stale if operation was written before record was invalidated', () => {
+        const source = RelayRecordSource.create(sampleData);
+        const target = RelayRecordSource.create();
+        const environment = createMockEnvironment({
+          store: new RelayModernStore(source),
+        });
+
+        // Invalidate record
+        environment.commitUpdate(storeProxy => {
+          const user = storeProxy.get('1');
+          if (!user) {
+            throw new Error('Expected to find record with id "1"');
+          }
+          user.invalidateRecord();
+        });
+
+        const status = check(
+          source,
+          target,
+          createNormalizationSelector(Query.fragment, ROOT_ID, {
+            id: '1',
+            size: 32,
+          }),
+          [],
+          null,
+          0, // Operation written at epoch 0, before invalidation of record
+          defaultGetDataID,
+          getEmptyConnectionEvents,
+        );
+
+        // Assert that result is stale
+        expect(status).toBe('stale');
+        expect(target.size()).toBe(0);
+      });
+
+      it('returns missing if stale record is unreachable', () => {
+        sampleData = {
+          // Root record is missing, so none of the descendants are reachable
+          '1': {
+            __id: '1',
+            id: '1',
+            __typename: 'User',
+            firstName: 'Alice',
+            'friends(first:3)': {__ref: 'client:1'},
+            'profilePicture(size:32)': {__ref: 'client:4'},
+          },
+          'client:1': {
+            __id: 'client:1',
+            __typename: 'FriendsConnection',
+            edges: {
+              __refs: [],
+            },
+          },
+          'client:4': {
+            __id: 'client:4',
+            __typename: 'Photo',
+            // uri is missing
+          },
+        };
+        const source = RelayRecordSource.create(sampleData);
+        const target = RelayRecordSource.create();
+        const environment = createMockEnvironment({
+          store: new RelayModernStore(source),
+        });
+
+        // Invalidate record
+        environment.commitUpdate(storeProxy => {
+          const user = storeProxy.get('1');
+          if (!user) {
+            throw new Error('Expected to find record with id "1"');
+          }
+          user.invalidateRecord();
+        });
+
+        const status = check(
+          source,
+          target,
+          createNormalizationSelector(Query.fragment, ROOT_ID, {
+            id: '1',
+            size: 32,
+          }),
+          [],
+          null,
+          0, // Operation written at epoch 0, before invalidation of record
+          defaultGetDataID,
+          getEmptyConnectionEvents,
+        );
+
+        // Assert that result is stale
+        expect(status).toBe('missing');
+        expect(target.size()).toBe(0);
+      });
+
+      it('returns missing if operation was written after record was invalidated', () => {
+        const source = RelayRecordSource.create(sampleData);
+        const target = RelayRecordSource.create();
+        const environment = createMockEnvironment({
+          store: new RelayModernStore(source),
+        });
+
+        // Invalidate record
+        environment.commitUpdate(storeProxy => {
+          const user = storeProxy.get('1');
+          if (!user) {
+            throw new Error('Expected to find record with id "1"');
+          }
+          user.invalidateRecord();
+        });
+
+        const status = check(
+          source,
+          target,
+          createNormalizationSelector(Query.fragment, ROOT_ID, {
+            id: '1',
+            size: 32,
+          }),
+          [],
+          null,
+          2, // Operation written at epoch 1, after invalidation of record
+          defaultGetDataID,
+          getEmptyConnectionEvents,
+        );
+
+        // Assert that result is available
+        expect(status).toBe('missing');
+        expect(target.size()).toBe(0);
+      });
     });
   });
 
@@ -1707,6 +2025,7 @@ describe('check()', () => {
       target,
       createNormalizationSelector(TestFragment, 'client:root', {}),
       [],
+      null,
       null,
       defaultGetDataID,
       getEmptyConnectionEvents,
@@ -1748,6 +2067,7 @@ describe('check()', () => {
       target,
       createNormalizationSelector(TestFragment, 'client:root', {}),
       [],
+      null,
       null,
       defaultGetDataID,
       getEmptyConnectionEvents,

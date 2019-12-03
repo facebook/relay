@@ -179,16 +179,16 @@ class RelayModernStore implements Store {
     const source = this._optimisticSource ?? this._recordSource;
     const globalInvalidationEpoch = this._globalInvalidationEpoch;
 
+    const rootEntry = this._roots.get(operation.request.identifier);
+    const operationLastWrittenAt = rootEntry != null ? rootEntry.epoch : null;
+
     // Check if store has been globally invalidated
     if (globalInvalidationEpoch != null) {
-      const rootEntry = this._roots.get(operation.request.identifier);
-      const operationWriteEpoch = rootEntry != null ? rootEntry.epoch : null;
-
       // If so, check if the operation we're checking was last written
       // before or after invalidation occured.
       if (
-        operationWriteEpoch == null ||
-        operationWriteEpoch <= globalInvalidationEpoch
+        operationLastWrittenAt == null ||
+        operationLastWrittenAt <= globalInvalidationEpoch
       ) {
         // If the operation was written /before/ global invalidation ocurred,
         // or if this operation has never been written to the store before,
@@ -206,6 +206,7 @@ class RelayModernStore implements Store {
       selector,
       handlers,
       this._operationLoader,
+      operationLastWrittenAt,
       this._getDataID,
       id => this.getConnectionEvents_UNSTABLE(id),
     );
@@ -872,10 +873,17 @@ function updateTargetFromSource(
   if (idsMarkedForInvalidation) {
     idsMarkedForInvalidation.forEach(dataID => {
       const targetRecord = target.get(dataID);
-      if (!targetRecord) {
+      let nextRecord;
+      if (targetRecord != null) {
+        nextRecord = RelayModernRecord.clone(targetRecord);
+      } else {
+        const sourceRecord = source.get(dataID);
+        nextRecord =
+          sourceRecord != null ? RelayModernRecord.clone(sourceRecord) : null;
+      }
+      if (!nextRecord) {
         return;
       }
-      const nextRecord = RelayModernRecord.clone(targetRecord);
       RelayModernRecord.setValue(
         nextRecord,
         RelayStoreUtils.INVALIDATED_AT_KEY,

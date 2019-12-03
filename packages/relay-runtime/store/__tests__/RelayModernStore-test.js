@@ -30,7 +30,11 @@ const {
   ROOT_ID,
   ROOT_TYPE,
 } = require('../RelayStoreUtils');
-const {generateAndCompile, simpleClone} = require('relay-test-utils-internal');
+const {
+  createMockEnvironment,
+  generateAndCompile,
+  simpleClone,
+} = require('relay-test-utils-internal');
 
 function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
   if (!value) {
@@ -361,6 +365,12 @@ function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
             __id: 'client:1',
             uri: 'https://photo1.jpg',
           },
+          'client:root': {
+            __id: 'client:root',
+            __typename: '__Root',
+            'node(id:"4")': {__ref: '4'},
+            me: {__ref: '4'},
+          },
         };
         source = getRecordSourceImplementation(data);
         store = new RelayModernStore(source);
@@ -414,7 +424,14 @@ function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
             emailAddresses: ['a@b.com'],
           },
           seenRecords: {
-            ...data,
+            '4': {
+              __id: '4',
+              id: '4',
+              __typename: 'User',
+              name: 'Zuck',
+              'profilePicture(size:32)': {[REF_KEY]: 'client:1'},
+              emailAddresses: ['a@b.com'],
+            },
             'client:1': {
               ...data['client:1'],
               uri: 'https://photo2.jpg',
@@ -474,7 +491,14 @@ function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
             emailAddresses: ['a@b.com'],
           },
           seenRecords: {
-            ...data,
+            '4': {
+              __id: '4',
+              id: '4',
+              __typename: 'User',
+              name: 'Zuck',
+              'profilePicture(size:32)': {[REF_KEY]: 'client:1'},
+              emailAddresses: ['a@b.com'],
+            },
             'client:1': {
               ...data['client:1'],
               uri: 'https://photo2.jpg',
@@ -801,7 +825,10 @@ function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
 
       describe('with data invalidation', () => {
         it('correctly invalidates store when store is globally invalidated', () => {
-          const owner = createOperationDescriptor(UserQuery, {});
+          const owner = createOperationDescriptor(UserQuery, {
+            id: '4',
+            size: 32,
+          });
           const selector = createReaderSelector(
             UserFragment,
             '4',
@@ -832,7 +859,10 @@ function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
         });
 
         it('correctly invalidates individual records', () => {
-          const owner = createOperationDescriptor(UserQuery, {});
+          const owner = createOperationDescriptor(UserQuery, {
+            id: '4',
+            size: 32,
+          });
           const selector = createReaderSelector(
             UserFragment,
             '4',
@@ -861,12 +891,14 @@ function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
             throw new Error('Expected to find record with id client:1');
           }
           expect(record[INVALIDATED_AT_KEY]).toEqual(1);
-          // TODO add assertion when check is updated.
-          // expect(store.check(owner)).toEqual('stale');
+          expect(store.check(owner)).toEqual('stale');
         });
 
         it("correctly invalidates records even when they weren't modified in the source being published", () => {
-          const owner = createOperationDescriptor(UserQuery, {});
+          const owner = createOperationDescriptor(UserQuery, {
+            id: '4',
+            size: 32,
+          });
           const selector = createReaderSelector(
             UserFragment,
             '4',
@@ -895,8 +927,7 @@ function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
             throw new Error('Expected to find record with id "4"');
           }
           expect(record[INVALIDATED_AT_KEY]).toEqual(1);
-          // TODO add assertion when check is updated.
-          // expect(store.check(owner)).toEqual('stale');
+          expect(store.check(owner)).toEqual('stale');
         });
       });
     });
@@ -906,6 +937,7 @@ function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
       let data;
       let source;
       let store;
+      let environment;
 
       beforeEach(() => {
         data = {
@@ -942,6 +974,7 @@ function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
             }
           }
         `));
+        environment = createMockEnvironment({store});
       });
 
       it('returns available if all data exists in the cache', () => {
@@ -1017,7 +1050,7 @@ function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
           });
         });
 
-        describe('when query has been written to the store before', () => {
+        describe('when query has been written to the store', () => {
           it('returns stale even if data is cached but store was invalidated after query was written', () => {
             const operation = createOperationDescriptor(UserQuery, {
               id: '4',
@@ -1068,6 +1101,161 @@ function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
             const operation = createOperationDescriptor(UserQuery, {
               id: '842472',
               size: 32,
+            });
+
+            // Write query data and record operation write
+            store.retain(operation);
+            store.publish(source);
+            store.notify(operation);
+
+            expect(store.check(operation)).toBe('missing');
+          });
+        });
+      });
+
+      describe('when individual records are invalidated', () => {
+        describe('when data is cached in the store', () => {
+          it('returns stale if operation has not been written before', () => {
+            const operation = createOperationDescriptor(UserQuery, {
+              id: '4',
+              size: 32,
+            });
+
+            environment.commitUpdate(storeProxy => {
+              const user = storeProxy.get('4');
+              if (!user) {
+                throw new Error('Expected to find record with id "4"');
+              }
+              user.invalidateRecord();
+            });
+            expect(store.check(operation)).toBe('stale');
+          });
+
+          it('returns stale if operation was written before record was invalidated', () => {
+            const operation = createOperationDescriptor(UserQuery, {
+              id: '4',
+              size: 32,
+            });
+
+            // Write query data and record operation write
+            store.retain(operation);
+            store.publish(source);
+            store.notify(operation);
+
+            environment.commitUpdate(storeProxy => {
+              const user = storeProxy.get('4');
+              if (!user) {
+                throw new Error('Expected to find record with id "4"');
+              }
+              user.invalidateRecord();
+            });
+            expect(store.check(operation)).toBe('stale');
+          });
+
+          it('returns available if operation was written after record was invalidated', () => {
+            const operation = createOperationDescriptor(UserQuery, {
+              id: '4',
+              size: 32,
+            });
+
+            environment.commitUpdate(storeProxy => {
+              const user = storeProxy.get('4');
+              if (!user) {
+                throw new Error('Expected to find record with id "4"');
+              }
+              user.invalidateRecord();
+            });
+
+            // Write query data and record operation write
+            store.retain(operation);
+            store.publish(source);
+            store.notify(operation);
+
+            expect(store.check(operation)).toBe('available');
+          });
+        });
+
+        describe('when data is missing', () => {
+          beforeEach(() => {
+            store.publish(
+              getRecordSourceImplementation({
+                'client:1': {
+                  __id: 'client:1',
+                  uri: undefined, // missing uri
+                },
+              }),
+            );
+          });
+
+          it('returns stale if operation has not been written before', () => {
+            const operation = createOperationDescriptor(UserQuery, {
+              id: '4',
+              size: 32,
+            });
+
+            environment.commitUpdate(storeProxy => {
+              const user = storeProxy.get('4');
+              if (!user) {
+                throw new Error('Expected to find record with id "4"');
+              }
+              user.invalidateRecord();
+            });
+            expect(store.check(operation)).toBe('stale');
+          });
+
+          it('returns stale if operation was written before record was invalidated', () => {
+            const operation = createOperationDescriptor(UserQuery, {
+              id: '4',
+              size: 32,
+            });
+
+            // Write query data and record operation write
+            store.retain(operation);
+            store.publish(source);
+            store.notify(operation);
+
+            environment.commitUpdate(storeProxy => {
+              const user = storeProxy.get('4');
+              if (!user) {
+                throw new Error('Expected to find record with id "4"');
+              }
+              user.invalidateRecord();
+            });
+            expect(store.check(operation)).toBe('stale');
+          });
+
+          it('returns missing if stale record is unreachable', () => {
+            const operation = createOperationDescriptor(UserQuery, {
+              id: '842472',
+              size: 32,
+            });
+            // Write query data and record operation write
+            store.retain(operation);
+            store.publish(source);
+            store.notify(operation);
+
+            environment.commitUpdate(storeProxy => {
+              const user = storeProxy.get('4');
+              if (!user) {
+                throw new Error('Expected to find record with id "4"');
+              }
+              user.invalidateRecord();
+            });
+            expect(store.check(operation)).toBe('missing');
+          });
+
+          it('returns missing if operation was written after record was invalidated', () => {
+            const operation = createOperationDescriptor(UserQuery, {
+              id: '4',
+              size: 32,
+            });
+
+            environment.commitUpdate(storeProxy => {
+              const user = storeProxy.get('4');
+              if (!user) {
+                throw new Error('Expected to find record with id "4"');
+              }
+              user.invalidateRecord();
             });
 
             // Write query data and record operation write

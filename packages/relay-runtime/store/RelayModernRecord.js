@@ -18,7 +18,13 @@ const invariant = require('invariant');
 const warning = require('warning');
 
 const {isClientID} = require('./ClientID');
-const {ID_KEY, REF_KEY, REFS_KEY, TYPENAME_KEY} = require('./RelayStoreUtils');
+const {
+  ID_KEY,
+  REF_KEY,
+  REFS_KEY,
+  TYPENAME_KEY,
+  INVALIDATED_AT_KEY,
+} = require('./RelayStoreUtils');
 
 import type {DataID} from '../util/RelayRuntimeTypes';
 import type {Record} from './RelayStoreTypes';
@@ -202,6 +208,36 @@ function getLinkedRecordIDs(
 /**
  * @public
  *
+ * Return whether a record is stale given when the operation it is a part of
+ * was last written to the store.
+ * The RelayStore keeps track of when operations were last written, which
+ * is the information we use here to determine if a record is stale.
+ */
+function isStale(record: ?Record, operationLastWrittenAt: ?number): boolean {
+  if (record == null) {
+    return false;
+  }
+
+  const invalidatedAt = record[INVALIDATED_AT_KEY];
+  if (typeof invalidatedAt !== 'number') {
+    // If the record has never been invalidated, it isn't stale.
+    return false;
+  }
+  if (operationLastWrittenAt == null) {
+    // If we've never written this operation before, we don't have enough
+    // information to know if this record isn't stale since it was invalidated,
+    // so we consider it stale.
+    return true;
+  }
+
+  // If the record was invalidated before the operation we're reading was
+  // last written, we can consider it not stale; otherwise consider it stale.
+  return invalidatedAt > operationLastWrittenAt;
+}
+
+/**
+ * @public
+ *
  * Compares the fields of a previous and new record, returning either the
  * previous record if all fields are equal or a new record (with merged fields)
  * if any fields have changed.
@@ -367,6 +403,7 @@ module.exports = {
   getLinkedRecordIDs,
   getType,
   getValue,
+  isStale,
   merge,
   setValue,
   setLinkedRecordID,

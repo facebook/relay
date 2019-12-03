@@ -15,6 +15,7 @@
 
 const RelayConcreteNode = require('../util/RelayConcreteNode');
 const RelayConnection = require('./RelayConnection');
+const RelayModernRecord = require('./RelayModernRecord');
 const RelayRecordSourceMutator = require('../mutations/RelayRecordSourceMutator');
 const RelayRecordSourceProxy = require('../mutations/RelayRecordSourceProxy');
 const RelayStoreUtils = require('./RelayStoreUtils');
@@ -83,6 +84,7 @@ function check(
   selector: NormalizationSelector,
   handlers: $ReadOnlyArray<MissingFieldHandler>,
   operationLoader: ?OperationLoader,
+  operationLastWrittenAt: ?number,
   getDataID: GetDataID,
   getConnectionEvents: GetConnectionEvents,
 ): OperationAvailability {
@@ -93,6 +95,7 @@ function check(
     variables,
     handlers,
     operationLoader,
+    operationLastWrittenAt,
     getDataID,
     getConnectionEvents,
   );
@@ -104,11 +107,13 @@ function check(
  */
 class DataChecker {
   _getConnectionEvents: GetConnectionEvents;
-  _operationLoader: OperationLoader | null;
   _handlers: $ReadOnlyArray<MissingFieldHandler>;
   _mutator: RelayRecordSourceMutator;
-  _recordWasMissing: boolean;
+  _operationLoader: OperationLoader | null;
+  _operationLastWrittenAt: ?number;
   _recordSourceProxy: RelayRecordSourceProxy;
+  _recordWasMissing: boolean;
+  _recordWasStale: boolean;
   _source: RecordSource;
   _variables: Variables;
 
@@ -118,6 +123,7 @@ class DataChecker {
     variables: Variables,
     handlers: $ReadOnlyArray<MissingFieldHandler>,
     operationLoader: ?OperationLoader,
+    operationLastWrittenAt: ?number,
     getDataID: GetDataID,
     getConnectionEvents: GetConnectionEvents,
   ) {
@@ -131,14 +137,20 @@ class DataChecker {
     this._handlers = handlers;
     this._mutator = mutator;
     this._operationLoader = operationLoader ?? null;
+    this._operationLastWrittenAt = operationLastWrittenAt;
     this._recordSourceProxy = new RelayRecordSourceProxy(mutator, getDataID);
     this._recordWasMissing = false;
+    this._recordWasStale = false;
     this._source = source;
     this._variables = variables;
   }
 
   check(node: NormalizationNode, dataID: DataID): OperationAvailability {
     this._traverse(node, dataID);
+
+    if (this._recordWasStale === true) {
+      return 'stale';
+    }
     return this._recordWasMissing === true ? 'missing' : 'available';
   }
 
@@ -252,11 +264,32 @@ class DataChecker {
   }
 
   _traverse(node: NormalizationNode, dataID: DataID): void {
+    if (this._recordWasStale === true) {
+      // If we've already detected a stale record for this operation,
+      // we don't need to traverse anymore; we can short-circuit the
+      // check and return stale early.
+      return;
+    }
+
     const status = this._mutator.getStatus(dataID);
     if (status === UNKNOWN) {
       this._handleMissing();
     }
+
     if (status === EXISTENT) {
+      const record = this._source.get(dataID);
+
+      const isStale = RelayModernRecord.isStale(
+        record,
+        this._operationLastWrittenAt,
+      );
+      if (isStale === true) {
+        // If record is stale, we don't need to continue traversing
+        // since we can already consider the data for this operation as stale.
+        this._recordWasStale = true;
+        return;
+      }
+
       this._traverseSelections(node.selections, dataID);
     }
   }

@@ -75,6 +75,7 @@ export type ExecuteConfig = {|
   +source: RelayObservable<GraphQLResponse>,
   +store: Store,
   +updater?: ?SelectorStoreUpdater,
+  +isClientPayload?: boolean,
 |};
 
 export type TaskScheduler = {|
@@ -131,6 +132,7 @@ class Executor {
   _store: Store;
   _subscriptions: Map<number, Subscription>;
   _updater: ?SelectorStoreUpdater;
+  +_isClientPayload: boolean;
 
   constructor({
     operation,
@@ -144,6 +146,7 @@ class Executor {
     updater,
     operationTracker,
     getDataID,
+    isClientPayload,
   }: ExecuteConfig): void {
     this._getDataID = getDataID;
     this._incrementalPayloadsPending = false;
@@ -163,6 +166,7 @@ class Executor {
     this._store = store;
     this._subscriptions = new Map();
     this._updater = updater;
+    this._isClientPayload = isClientPayload === true;
 
     const id = this._nextSubscriptionId++;
     source.subscribe({
@@ -529,11 +533,11 @@ class Executor {
       if (this._state === 'loading_final') {
         // The query has defer/stream selections that are enabled, but the
         // server indicated that this is a "final" payload: no incremental
-        // payloads will be delivered. Warn that the query was (likely) executed
-        // on the server in non-streaming mode, with incremental delivery
-        // disabled.
+        // payloads will be delivered. If it's not a client payload, warn that
+        // the query was (likely) executed on the server in non-streaming mode,
+        // with incremental delivery disabled.
         warning(
-          false,
+          this._isClientPayload,
           'RelayModernEnvironment: Operation `%s` contains @defer/@stream ' +
             'directives but was executed in non-streaming mode. See ' +
             'https://fburl.com/relay-incremental-delivery-non-streaming-warning.',

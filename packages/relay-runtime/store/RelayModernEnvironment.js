@@ -242,11 +242,15 @@ class RelayModernEnvironment implements IEnvironment {
         publishQueue: this._publishQueue,
         scheduler: null, // make sure the first payload is sync
         sink,
-        source: RelayObservable.from({data: payload}),
+        source: RelayObservable.from({
+          data: payload,
+          extensions: {is_final: true},
+        }),
         store: this._store,
         updater: null,
         operationTracker: this._operationTracker,
         getDataID: this._getDataID,
+        isClientPayload: true,
       });
       return () => executor.cancel();
     }).subscribe({});

@@ -15,8 +15,6 @@
 
 const invariant = require('invariant');
 
-export type {StrictMap};
-
 class StrictMap<K, V> {
   _map: Map<K, V>;
 

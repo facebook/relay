@@ -22,6 +22,7 @@ interface RecordSourceSelectorProxy {
   getRoot(): RecordProxy;
   getRootField(fieldName: string): ?RecordProxy;
   getPluralRootField(fieldName: string): ?Array<?RecordProxy>;
+  invalidateStore(): void;
 }
 ```
 
@@ -105,6 +106,16 @@ nodes(first: 10) {
 Usage:
 ```javascript
 const nodes = store.getPluralRootField('nodes');
+```
+
+### `invalidateStore(): void`
+
+Globally invalidates the Relay store. This will cause any data that was written to the store before invalidation occurred to be considered stale and require being refetched.
+
+#### Example
+
+```javascript
+store.invalidateStore();
 ```
 
 ## RecordProxy

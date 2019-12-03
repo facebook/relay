@@ -151,7 +151,7 @@ describe('ReactRelayPaginationContainer', () => {
     TestContainer = ReactRelayPaginationContainer.createContainer(
       TestComponent,
       {
-        user: () => UserFragment,
+        user: UserFragment,
       },
       {
         direction: 'forward',
@@ -775,7 +775,7 @@ describe('ReactRelayPaginationContainer', () => {
       ReactRelayPaginationContainer.createContainer(
         TestComponent,
         {
-          user: () => UserFragment,
+          user: UserFragment,
         },
         {
           direction: 'forward',
@@ -837,8 +837,8 @@ describe('ReactRelayPaginationContainer', () => {
     TestContainer = ReactRelayPaginationContainer.createContainer(
       TestComponent,
       {
-        user: () => UserFragment,
-        viewer: () => ViewerFragment,
+        user: UserFragment,
+        viewer: ViewerFragment,
       },
       {
         direction: 'forward',
@@ -1887,7 +1887,7 @@ describe('ReactRelayPaginationContainer', () => {
     const TestUnwrappingContainer = ReactRelayPaginationContainer.createContainer(
       TestUnwrapping,
       {
-        user: () => UserFragment,
+        user: UserFragment,
       },
       {
         direction: 'forward',

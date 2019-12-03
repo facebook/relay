@@ -15,6 +15,7 @@
 const RelayConcreteNode = require('../util/RelayConcreteNode');
 
 const invariant = require('invariant');
+const warning = require('warning');
 
 import type {
   ReaderFragment,
@@ -28,7 +29,11 @@ import type {ConcreteRequest} from '../util/RelayConcreteNode';
 export type GraphQLTaggedNode =
   | ReaderFragment
   | ConcreteRequest
-  | (() => ReaderFragment | ConcreteRequest);
+  | {
+      // This is this case when we `require()` a generated ES6 module
+      default: ReaderFragment | ConcreteRequest,
+      ...
+    };
 
 /**
  * Runtime function to correspond to the `graphql` tagged template function.
@@ -43,13 +48,22 @@ function graphql(strings: Array<string>): GraphQLTaggedNode {
   );
 }
 
-function getNode(taggedNode) {
-  if (typeof taggedNode !== 'function') {
-    return (taggedNode: any);
+function getNode(
+  taggedNode: GraphQLTaggedNode,
+): ReaderFragment | ConcreteRequest {
+  let node = taggedNode;
+  if (typeof node === 'function') {
+    node = (node(): ReaderFragment | ConcreteRequest);
+    warning(
+      false,
+      'RelayGraphQLTag: node `%s` unexpectedly wrapped in a function.',
+      node.kind === 'Fragment' ? node.name : node.operation.name,
+    );
+  } else if (node.default) {
+    // Support for languages that work (best) with ES6 modules, such as TypeScript.
+    node = node.default;
   }
-  const data: any = taggedNode();
-  // Support for languages that work (best) with ES6 modules, such as TypeScript.
-  return data.default ? data.default : data;
+  return node;
 }
 
 function isFragment(node: GraphQLTaggedNode): boolean {

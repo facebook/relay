@@ -154,12 +154,14 @@ if (__DEV__) {
         }
         if (field.plural) {
           if (Array.isArray(optimisticResponse[fieldName])) {
-            optimisticResponse[fieldName].forEach(r =>
-              validateSelections(r, selections, {
-                ...context,
-                path,
-              }),
-            );
+            optimisticResponse[fieldName].forEach(r => {
+              if (r !== null) {
+                validateSelections(r, selections, {
+                  ...context,
+                  path,
+                });
+              }
+            });
             return;
           } else {
             addFieldToDiff(path, context.missingDiff);
@@ -185,7 +187,11 @@ if (__DEV__) {
     context: ValidationContext,
   ) => {
     if (Array.isArray(optimisticResponse)) {
-      optimisticResponse.forEach(r => validateOptimisticResponse(r, context));
+      optimisticResponse.forEach(r => {
+        if (r instanceof Object) {
+          validateOptimisticResponse(r, context);
+        }
+      });
       return;
     }
     Object.keys(optimisticResponse).forEach((key: string) => {

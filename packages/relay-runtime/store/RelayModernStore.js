@@ -19,6 +19,7 @@ const RelayOptimisticRecordSource = require('./RelayOptimisticRecordSource');
 const RelayProfiler = require('../util/RelayProfiler');
 const RelayReader = require('./RelayReader');
 const RelayReferenceMarker = require('./RelayReferenceMarker');
+const RelayStoreUtils = require('./RelayStoreUtils');
 
 const deepFreeze = require('../util/deepFreeze');
 const defaultGetDataID = require('./defaultGetDataID');
@@ -30,7 +31,7 @@ const resolveImmediate = require('../util/resolveImmediate');
 const {createReaderSelector} = require('./RelayModernSelector');
 
 import type {ReaderFragment} from '../util/ReaderNode';
-import type {Disposable} from '../util/RelayRuntimeTypes';
+import type {DataID, Disposable} from '../util/RelayRuntimeTypes';
 import type {
   ConnectionID,
   ConnectionInternalEvent,
@@ -317,9 +318,19 @@ class RelayModernStore implements Store {
     return updatedOwners;
   }
 
-  publish(source: RecordSource): void {
+  publish(source: RecordSource, idsMarkedForInvalidation?: Set<DataID>): void {
     const target = this._optimisticSource ?? this._recordSource;
-    updateTargetFromSource(target, source, this._updatedRecordIDs);
+    updateTargetFromSource(
+      target,
+      source,
+      // We increment the current epoch at the end of the set of updates,
+      // in notify(). Here, we pass what will be the incremented value of
+      // the epoch to use to write to invalidated records.
+      this._currentWriteEpoch + 1,
+      this._updatedRecordIDs,
+      idsMarkedForInvalidation,
+    );
+
     this._connectionSubscriptions.forEach((subscription, id) => {
       const hasStoreUpdates = hasOverlappingIDs(
         subscription.snapshot.seenRecords,
@@ -846,17 +857,42 @@ class RelayModernStore implements Store {
 /**
  * Updates the target with information from source, also updating a mapping of
  * which records in the target were changed as a result.
+ * Additionally, will marc records as invalidated at the current write epoch
+ * given the set of record ids marked as stale in this update.
  */
 function updateTargetFromSource(
   target: MutableRecordSource,
   source: RecordSource,
+  currentWriteEpoch: number,
   updatedRecordIDs: UpdatedRecords,
+  idsMarkedForInvalidation: ?Set<DataID>,
 ): void {
+  // First, update any records that were marked for invalidation.
+  // For each provided dataID that was invalidated, we write the
+  // INVALIDATED_AT_KEY on the record, indicating
+  // the epoch at which the record was invalidated.
+  if (idsMarkedForInvalidation) {
+    idsMarkedForInvalidation.forEach(dataID => {
+      const targetRecord = target.get(dataID);
+      if (!targetRecord) {
+        return;
+      }
+      const nextRecord = RelayModernRecord.clone(targetRecord);
+      RelayModernRecord.setValue(
+        nextRecord,
+        RelayStoreUtils.INVALIDATED_AT_KEY,
+        currentWriteEpoch,
+      );
+      target.set(dataID, nextRecord);
+    });
+  }
+
   const dataIDs = source.getRecordIDs();
   for (let ii = 0; ii < dataIDs.length; ii++) {
     const dataID = dataIDs[ii];
     const sourceRecord = source.get(dataID);
     const targetRecord = target.get(dataID);
+
     // Prevent mutation of a record from outside the store.
     if (__DEV__) {
       if (sourceRecord) {

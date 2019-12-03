@@ -11,7 +11,7 @@
 
 // flowlint ambiguous-object-type:error
 
-('use strict');
+'use strict';
 
 const RelayModernRecord = require('../RelayModernRecord');
 const RelayModernStore = require('../RelayModernStore');
@@ -24,7 +24,12 @@ const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
 const {createReaderSelector} = require('../RelayModernSelector');
-const {REF_KEY, ROOT_ID, ROOT_TYPE} = require('../RelayStoreUtils');
+const {
+  INVALIDATED_AT_KEY,
+  REF_KEY,
+  ROOT_ID,
+  ROOT_TYPE,
+} = require('../RelayStoreUtils');
 const {generateAndCompile, simpleClone} = require('relay-test-utils-internal');
 
 function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
@@ -792,6 +797,107 @@ function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
         expect(() => {
           RelayModernRecord.setValue(zuck, 'pet', null);
         }).toThrow(TypeError);
+      });
+
+      describe('with data invalidation', () => {
+        it('correctly invalidates store when store is globally invalidated', () => {
+          const owner = createOperationDescriptor(UserQuery, {});
+          const selector = createReaderSelector(
+            UserFragment,
+            '4',
+            {size: 32},
+            owner.request,
+          );
+          const snapshot = store.lookup(selector);
+          const callback = jest.fn();
+          store.subscribe(snapshot, callback);
+          // Publish a change to profilePicture.uri
+          const nextSource = getRecordSourceImplementation({
+            'client:1': {
+              __id: 'client:1',
+              uri: 'https://photo2.jpg',
+            },
+          });
+          store.publish(
+            nextSource,
+            new Set(), // indicate that no individual ids were invalidated
+          );
+          store.notify(
+            owner,
+            true, // indicate that store should be globally invalidated
+          );
+          // Results are asserted in earlier tests
+
+          expect(store.check(owner)).toEqual('stale');
+        });
+
+        it('correctly invalidates individual records', () => {
+          const owner = createOperationDescriptor(UserQuery, {});
+          const selector = createReaderSelector(
+            UserFragment,
+            '4',
+            {size: 32},
+            owner.request,
+          );
+          const snapshot = store.lookup(selector);
+          const callback = jest.fn();
+          store.subscribe(snapshot, callback);
+          // Publish a change to profilePicture.uri
+          const nextSource = getRecordSourceImplementation({
+            'client:1': {
+              __id: 'client:1',
+              uri: 'https://photo2.jpg',
+            },
+          });
+          store.publish(
+            nextSource,
+            new Set(['client:1']), // indicate that this id was invalidated
+          );
+          store.notify(owner, false);
+          // Results are asserted in earlier tests
+
+          const record = store.getSource().get('client:1');
+          if (!record) {
+            throw new Error('Expected to find record with id client:1');
+          }
+          expect(record[INVALIDATED_AT_KEY]).toEqual(1);
+          // TODO add assertion when check is updated.
+          // expect(store.check(owner)).toEqual('stale');
+        });
+
+        it("correctly invalidates records even when they weren't modified in the source being published", () => {
+          const owner = createOperationDescriptor(UserQuery, {});
+          const selector = createReaderSelector(
+            UserFragment,
+            '4',
+            {size: 32},
+            owner.request,
+          );
+          const snapshot = store.lookup(selector);
+          const callback = jest.fn();
+          store.subscribe(snapshot, callback);
+          // Publish a change to profilePicture.uri
+          const nextSource = getRecordSourceImplementation({
+            'client:1': {
+              __id: 'client:1',
+              uri: 'https://photo2.jpg',
+            },
+          });
+          store.publish(
+            nextSource,
+            new Set(['4']), // indicate that this id was invalidated
+          );
+          store.notify(owner, false);
+          // Results are asserted in earlier tests
+
+          const record = store.getSource().get('4');
+          if (!record) {
+            throw new Error('Expected to find record with id "4"');
+          }
+          expect(record[INVALIDATED_AT_KEY]).toEqual(1);
+          // TODO add assertion when check is updated.
+          // expect(store.check(owner)).toEqual('stale');
+        });
       });
     });
 

@@ -148,6 +148,10 @@ class RelayRecordProxy implements RecordProxy {
     this._mutator.setLinkedRecordIDs(this._dataID, storageKey, linkedIDs);
     return this;
   }
+
+  invalidateRecord(): void {
+    this._source.markIDForInvalidation(this._dataID);
+  }
 }
 
 function isValidLeafValue(value: mixed): boolean {

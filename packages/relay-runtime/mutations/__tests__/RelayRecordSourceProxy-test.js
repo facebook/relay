@@ -300,6 +300,38 @@ const {
       });
     });
 
+    describe('record invalidation', () => {
+      it('correctly marks store as invalid', () => {
+        store.invalidateStore();
+        expect(store.isStoreMarkedForInvalidation()).toBe(true);
+      });
+
+      it('correctly marks individual records invalid', () => {
+        const user = store.create('c1', 'User');
+
+        user.invalidateRecord();
+        // Assert that id is correctly marked for invalidation
+        expect(Array.from(store.getIDsMarkedForInvalidation())).toEqual(['c1']);
+
+        user.invalidateRecord();
+        expect(Array.from(store.getIDsMarkedForInvalidation())).toEqual(['c1']);
+
+        const sameUser = store.get('c1');
+        if (!sameUser) {
+          throw new Error('Expected to find record with id c1');
+        }
+        sameUser.invalidateRecord();
+        expect(Array.from(store.getIDsMarkedForInvalidation())).toEqual(['c1']);
+
+        const otherUser = store.create('c2', 'User');
+        otherUser.invalidateRecord();
+        expect(Array.from(store.getIDsMarkedForInvalidation())).toEqual([
+          'c1',
+          'c2',
+        ]);
+      });
+    });
+
     it('combines operations', () => {
       const markBackup = baseSource.get('4');
       const mark = store.get('4');

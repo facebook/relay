@@ -185,6 +185,7 @@ const RelayStoreUtils = {
   ROOT_ID: 'client:root',
   ROOT_TYPE: '__Root',
   TYPENAME_KEY: '__typename',
+  INVALIDATED_AT_KEY: '__invalidated_at',
 
   formatStorageKey,
   getArgumentValues,

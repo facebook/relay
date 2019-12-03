@@ -259,7 +259,7 @@ export interface Store {
    * internal record source. Subscribers are not immediately notified - this
    * occurs when `notify()` is called.
    */
-  publish(source: RecordSource): void;
+  publish(source: RecordSource, idsMarkedForInvalidation?: Set<DataID>): void;
 
   /**
    * Ensure that all the records necessary to fulfill the given selector are
@@ -365,6 +365,7 @@ export interface RecordProxy {
     args?: ?Variables,
   ): RecordProxy;
   setValue(value: mixed, name: string, args?: ?Variables): RecordProxy;
+  invalidateRecord(): void;
 }
 
 export interface ReadOnlyRecordProxy {

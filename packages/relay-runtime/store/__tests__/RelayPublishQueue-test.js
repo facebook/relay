@@ -1422,6 +1422,80 @@ const {generateAndCompile, simpleClone} = require('relay-test-utils-internal');
         // Assert that we indicated to the store that it should be invalidated
         expect(notify.mock.calls[0][1]).toBe(true);
       });
+
+      it('invalidates any ids marked as invalid via the updater', () => {
+        const notify = jest.fn();
+        const publish = jest.fn();
+        const source = new RecordSourceImplementation();
+        const store = {
+          getSource: () => source,
+          notify,
+          publish,
+          holdGC: jest.fn(),
+          publishConnectionEvents_UNSTABLE: jest.fn(),
+          restore: jest.fn(),
+          snapshot: jest.fn(() => []),
+        };
+        const queue = new RelayPublishQueue(store, null, defaultGetDataID);
+        const {ActorQuery} = generateAndCompile(
+          `
+        fragment UserFragment on User {
+          username
+        }
+
+        query ActorQuery {
+          me {
+            name
+            ...UserFragment
+          }
+          nodes(ids: ["4"]) {
+            name
+          }
+        }
+      `,
+        );
+
+        const operation = createOperationDescriptor(ActorQuery, {});
+        const updater = jest.fn((storeProxy, data) => {
+          const zuck = storeProxy.getRootField('me');
+          if (!zuck) {
+            throw new Error('Expected to `me` root field');
+          }
+          zuck.invalidateRecord();
+        });
+        queue.commitPayload(
+          operation,
+          {
+            source: new RecordSourceImplementation({
+              '4': {
+                __id: '4',
+                __typename: 'User',
+                id: '4',
+                name: 'Zuck',
+                username: 'zuck',
+              },
+              'client:root': {
+                __id: 'client:root',
+                __typename: '__Root',
+                me: {__ref: '4'},
+                'nodes(ids:["4"])': {__refs: ['4']},
+              },
+            }),
+          },
+          updater,
+        );
+        expect(notify).not.toBeCalled();
+        expect(publish).not.toBeCalled();
+        expect(updater).not.toBeCalled();
+        queue.run();
+        expect(publish.mock.calls.length).toBe(1);
+        expect(updater.mock.calls.length).toBe(1);
+        expect(publish.mock.calls.length).toBe(1);
+        // Assert that we indicated to the store that that id should be invalidated
+        expect(Array.from(publish.mock.calls[0][1])).toEqual(['4']);
+        expect(notify.mock.calls.length).toBe(1);
+        expect(notify.mock.calls[0][1]).toBe(false);
+      });
     });
 
     describe('commitSource()', () => {
@@ -1676,6 +1750,35 @@ const {generateAndCompile, simpleClone} = require('relay-test-utils-internal');
         expect(notify.mock.calls.length).toBe(1);
         // Assert that we indicated to the store that it should be invalidated
         expect(notify.mock.calls[0][1]).toBe(true);
+      });
+
+      it('invalidates any ids marked as invalid via the updater', () => {
+        const notify = jest.fn();
+        const publish = jest.fn();
+        const source = new RecordSourceImplementation();
+        const store = {
+          getSource: () => source,
+          notify,
+          publish,
+          holdGC: jest.fn(),
+          publishConnectionEvents_UNSTABLE: jest.fn(),
+          restore: jest.fn(),
+          snapshot: jest.fn(() => []),
+        };
+        const queue = new RelayPublishQueue(store, null, defaultGetDataID);
+        queue.commitUpdate(storeProxy => {
+          const user = storeProxy.create('1364586419', 'User');
+          user.setValue('Jan', 'name');
+          user.invalidateRecord();
+        });
+        expect(notify).not.toBeCalled();
+        expect(publish).not.toBeCalled();
+        queue.run();
+        expect(publish.mock.calls.length).toBe(1);
+        // Assert that we indicated to the store that that id should be invalidated
+        expect(Array.from(publish.mock.calls[0][1])).toEqual(['1364586419']);
+        expect(notify.mock.calls.length).toBe(1);
+        expect(notify.mock.calls[0][1]).toBe(false);
       });
     });
 

@@ -226,8 +226,8 @@ class RelayPublishQueue implements PublishQueue {
   }
 
   /**
-   * _publishSourceFromPayload will return a boolean indicating if any of
-   * the pending commits caused the store to be globally invalidated
+   * _publishSourceFromPayload will return a boolean indicating if the
+   * publish caused the store to be globally invalidated.
    */
   _publishSourceFromPayload(pendingPayload: PendingRelayPayload): boolean {
     const {payload, operation, updater} = pendingPayload;
@@ -271,7 +271,8 @@ class RelayPublishQueue implements PublishQueue {
       const selectorData = lookupSelector(source, selector);
       updater(recordSourceSelectorProxy, selectorData);
     }
-    this._store.publish(source);
+    const idsMarkedForInvalidation = recordSourceProxy.getIDsMarkedForInvalidation();
+    this._store.publish(source, idsMarkedForInvalidation);
     if (combinedConnectionEvents.length !== 0) {
       this._store.publishConnectionEvents_UNSTABLE(
         combinedConnectionEvents,
@@ -279,12 +280,12 @@ class RelayPublishQueue implements PublishQueue {
       );
     }
 
-    return recordSourceProxy.__isStoreMarkedForInvalidation();
+    return recordSourceProxy.isStoreMarkedForInvalidation();
   }
 
   /**
    * _commitData will return a boolean indicating if any of
-   * the pending commits caused the store to be globally invalidated
+   * the pending commits caused the store to be globally invalidated.
    */
   _commitData(): boolean {
     if (!this._pendingData.size) {
@@ -318,13 +319,14 @@ class RelayPublishQueue implements PublishQueue {
           null,
           'RelayPublishQueue:commitData',
         );
-        this._store.publish(sink);
+        invalidatedStore =
+          invalidatedStore || recordSourceProxy.isStoreMarkedForInvalidation();
+        const idsMarkedForInvalidation = recordSourceProxy.getIDsMarkedForInvalidation();
+
+        this._store.publish(sink, idsMarkedForInvalidation);
         if (connectionEvents.length !== 0) {
           this._store.publishConnectionEvents_UNSTABLE(connectionEvents, true);
         }
-        invalidatedStore =
-          invalidatedStore ||
-          recordSourceProxy.__isStoreMarkedForInvalidation();
       }
     });
     this._pendingData.clear();

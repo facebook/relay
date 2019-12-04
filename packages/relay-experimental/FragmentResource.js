@@ -404,9 +404,10 @@ class FragmentResourceImpl {
     const currentSnapshots = this._cache.get(cacheKey);
     invariant(
       Array.isArray(currentSnapshots),
-      'Relay: Expected to find cached data for plural fragment when ' +
+      'Relay: Expected to find cached data for plural fragment `%s` when ' +
         'recieving a subscription. ' +
         "If you're seeing this, this is likely a bug in Relay.",
+      latestSnapshot.selector.node.name,
     );
     const nextSnapshots = [...currentSnapshots];
     nextSnapshots[idx] = latestSnapshot;

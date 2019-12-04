@@ -6,7 +6,7 @@ Relay is a JavaScript framework for building data-driven React applications.
 * **Colocation:** Queries live next to the views that rely on them, so you can easily reason about your app. Relay aggregates queries into efficient network requests to fetch only what you need.
 * **Mutations:** Relay lets you mutate data on the client and server using GraphQL mutations, and offers automatic data consistency, optimistic updates, and error handling.
 
-[See how to use Relay in your own project](https://relay.dev/docs/en/introduction-to-relay) or check out the community-driven tutorial at [Learn Relay](https://www.learnrelay.org).
+[See how to use Relay in your own project](https://relay.dev/docs/en/introduction-to-relay).
 
 ## Example
 

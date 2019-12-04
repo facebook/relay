@@ -2,9 +2,9 @@ GraphQL Cursor Connections Specification
 --------------------------------------
 
 This specification aims to provide an option for GraphQL clients to consistently 
-handle pagination with support for related metadata via a GraphQL server. This
-spec proposes calling them connections and exposing them in a standardized 
-way. 
+handle [pagination best practices](https://graphql.org/learn/pagination/) with 
+support for related metadata via a GraphQL server. This spec proposes calling 
+this pattern "Connections" and exposing them in a standardized way. 
 
 In the query, the connection model provides a standard mechanism for slicing 
 and paginating the result set.

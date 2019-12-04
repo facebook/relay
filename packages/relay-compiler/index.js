@@ -24,6 +24,7 @@ const CompilerContext = require('./core/CompilerContext');
 const CompilerError = require('./core/CompilerError');
 const ConsoleReporter = require('./reporters/ConsoleReporter');
 const DotGraphQLParser = require('./core/DotGraphQLParser');
+const FindGraphQLTags = require('./language/javascript/FindGraphQLTags');
 const GraphQLASTNodeGroup = require('./runner/GraphQLASTNodeGroup');
 const GraphQLASTUtils = require('./runner/GraphQLASTUtils');
 const GraphQLCompilerProfiler = require('./core/GraphQLCompilerProfiler');
@@ -36,6 +37,7 @@ const JSModuleParser = require('./core/JSModuleParser');
 const MultiReporter = require('./reporters/MultiReporter');
 const RelayCodeGenerator = require('./codegen/RelayCodeGenerator');
 const RelayFileWriter = require('./codegen/RelayFileWriter');
+const RelayFindGraphQLTags = require('./core/RelayFindGraphQLTags');
 const RelayFlowGenerator = require('./language/javascript/RelayFlowGenerator');
 const RelayIRTransforms = require('./core/RelayIRTransforms');
 const RelayParser = require('./core/RelayParser');
@@ -185,7 +187,9 @@ module.exports = {
     GraphQLASTNodeGroup,
     GraphQLASTUtils,
     GraphQLNodeMap,
+    FindGraphQLTags,
     StrictMap,
+    RelayFindGraphQLTags,
     compileArtifacts,
     extractFromJS: extractAST.extractFromJS,
     getChangedNodeNames,

@@ -44,6 +44,7 @@ const Rollout = require('./util/Rollout');
 const SchemaUtils = require('./core/SchemaUtils');
 const Sources = require('./runner/Sources');
 const StrictMap_ = require('./runner/StrictMap');
+const TimeReporter = require('./util/TimeReporter');
 
 const compileArtifacts = require('./runner/compileArtifacts');
 const compileRelayArtifacts = require('./codegen/compileRelayArtifacts');
@@ -165,6 +166,7 @@ module.exports = {
   JSModuleParser,
   MultiReporter,
   Runner: CodegenRunner,
+  TimeReporter,
   compileRelayArtifacts,
   formatGeneratedModule,
   convertASTDocuments: ASTConvert.convertASTDocuments,

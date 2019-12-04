@@ -9473,6 +9473,41 @@ Fragment {
 }
 `;
 
+exports[`compileRelayArtifacts matches expected output: id-as-alias.invalid.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+# expected-to-throw
+fragment User_fragment on User {
+  id: name
+}
+
+fragment ProfilePicture on User {
+  profilePicture(size: $size) {
+    id: uri
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+THROWN EXCEPTION:
+
+Encountered 2 errors:
+- Relay does not allow aliasing fields to \`id\`. This name is reserved for the globally unique \`id\` field on \`Node\`.
+  
+  Source: GraphQL request (3:3)
+  2: fragment User_fragment on User {
+  3:   id: name
+       ^
+  4: }
+  
+- Relay does not allow aliasing fields to \`id\`. This name is reserved for the globally unique \`id\` field on \`Node\`.
+  
+  Source: GraphQL request (8:5)
+  7:   profilePicture(size: $size) {
+  8:     id: uri
+         ^
+  9:   }
+  
+`;
+
 exports[`compileRelayArtifacts matches expected output: inline-and-mask-are-incompatible.invalid.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 # expected-to-throw
@@ -9893,26 +9928,6 @@ Source: GraphQL request (17:24)
 17:   @argumentDefinitions(sizeArg: {type: "[Int]", defaultValue: [50]}) {
                            ^
 18:   profilePicture(size: $sizeArg) {
-
-`;
-
-exports[`compileRelayArtifacts matches expected output: is-as-alias.invalid.graphql 1`] = `
-~~~~~~~~~~ INPUT ~~~~~~~~~~
-# expected-to-throw
-fragment User_fragment on User {
-  id: name
-}
-
-~~~~~~~~~~ OUTPUT ~~~~~~~~~~
-THROWN EXCEPTION:
-
-Relay does not allow aliasing fields to \`id\`. This name is reserved for the globally unique \`id\` field on \`Node\`.
-
-Source: GraphQL request (3:3)
-2: fragment User_fragment on User {
-3:   id: name
-     ^
-4: }
 
 `;
 

@@ -10,16 +10,15 @@
 
 'use strict';
 
-const RelayEnvironment = require('react-relay/classic/store/RelayEnvironment');
-const RelayInMemoryRecordSource = require('../RelayInMemoryRecordSource');
 const RelayModernEnvironment = require('../RelayModernEnvironment');
 const RelayModernStore = require('../RelayModernStore');
+const RelayRecordSource = require('../RelayRecordSource');
 
 const isRelayModernEnvironment = require('../isRelayModernEnvironment');
 
 describe('isRelayModernEnvironment()', () => {
   it('returns true for `RelayModernEnvironment` instances', () => {
-    const source = new RelayInMemoryRecordSource();
+    const source = RelayRecordSource.create();
     const store = new RelayModernStore(source);
     const fetch = jest.fn();
     const environment = new RelayModernEnvironment({fetch, store});
@@ -27,8 +26,8 @@ describe('isRelayModernEnvironment()', () => {
   });
 
   it('returns false for classic RelayEnvironment instances', () => {
-    const environment = new RelayEnvironment();
-    expect(isRelayModernEnvironment(environment)).toBe(false);
+    const notARelayModernEnvironment = {};
+    expect(isRelayModernEnvironment(notARelayModernEnvironment)).toBe(false);
   });
 
   it('returns false for plain objects that conform to the interface', () => {

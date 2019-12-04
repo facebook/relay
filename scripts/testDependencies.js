@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @noformat
+ * @format
  */
 
 'use strict';
@@ -34,7 +34,7 @@ function testDependencies(topLevelPackagePath, packagePaths) {
   return packagePaths.reduce(
     (errors, packagePath) =>
       errors.concat(testPackageDependencies(topLevelPackagePath, packagePath)),
-    []
+    [],
   );
 }
 
@@ -42,7 +42,7 @@ function testPackageDependencies(topLevelPackagePath, packagePath) {
   const errors = [];
   const topLevelPackageJson = require(path.join(
     topLevelPackagePath,
-    'package.json'
+    'package.json',
   ));
   const packageJson = require(path.join(packagePath, 'package.json'));
   const packageName = path.basename(packagePath);
@@ -51,28 +51,28 @@ function testPackageDependencies(topLevelPackagePath, packagePath) {
     errors,
     packageJson.name,
     packageName,
-    `${packageName} should have a matching package name.`
+    `${packageName} should have a matching package name.`,
   );
 
   expectEqual(
     errors,
     packageJson.optionalDependencies,
     undefined,
-    `${packageName} should have no optional dependencies.`
+    `${packageName} should have no optional dependencies.`,
   );
 
   expectEqual(
     errors,
     packageJson.bundledDependencies,
     undefined,
-    `${packageName} should have no bundled dependencies.`
+    `${packageName} should have no bundled dependencies.`,
   );
 
   expectEqual(
     errors,
     packageJson.devDependencies,
     undefined,
-    `${packageName} should have no dev dependencies.`
+    `${packageName} should have no dev dependencies.`,
   );
 
   const requiredRepoPackages = new Set([
@@ -90,7 +90,7 @@ function testPackageDependencies(topLevelPackagePath, packagePath) {
       getDependency(topLevelPackageJson, dependencyName),
       getDependency(packageJson, dependencyName),
       `${packageName} should have same ${dependencyName} version ` +
-        'as the top level package.json.'
+        'as the top level package.json.',
     );
   }
 

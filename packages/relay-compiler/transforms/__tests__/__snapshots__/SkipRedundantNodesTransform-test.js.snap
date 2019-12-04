@@ -148,6 +148,168 @@ query SkipNestedFields {
 
 `;
 
+exports[`SkipRedundantNodesTransform matches expected output: skips-with-fragment.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment ProfilePicture on User {
+  profile_picture(scale: 1) {
+    uri
+  }
+}
+
+query UserQuery {
+  viewer {
+    actor {
+      ...ProfilePicture
+      friends {
+        edges {
+          node {
+            ... on User {
+              id
+              # In this case - even that we have the profile picture in
+              # ...ProfilePicture we still will use \`profile_picture\` with
+              # scale = 2 in final query
+              profile_picture(scale: 2) {
+                uri
+              }
+              ...ProfilePicture
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+query UserQuery {
+  viewer {
+    actor {
+      friends {
+        edges {
+          node {
+            ... on User {
+              id
+              profile_picture(scale: 2) {
+                uri
+              }
+            }
+          }
+        }
+      }
+      ... on User {
+        profile_picture(scale: 1) {
+          uri
+        }
+      }
+    }
+  }
+}
+
+`;
+
+exports[`SkipRedundantNodesTransform matches expected output: skips-with-module.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment NameRendererFragment on User {
+  id
+  nameRenderable @match {
+    ...PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
+    ...MarkdownUserNameRenderer_name
+      @module(name: "MarkdownUserNameRenderer.react")
+  }
+}
+
+fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
+  plaintext
+  data {
+    text
+  }
+}
+
+fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+  markdown
+  data {
+    markup
+  }
+}
+
+query MatchQuery {
+  viewer {
+    actor {
+      ...NameRendererFragment
+    }
+  }
+  user: node(id: "<user-id>") {
+    # There is no actual test for skipping redundant nodes here.
+    # We need this test, just for make sure we're not
+    # regressing this case using \`cache\`
+    ... on User {
+      nameRenderable {
+        ...MarkdownUserNameRenderer_name
+          @module(name: "MarkdownUserNameRenderer.react")
+      }
+    }
+    ... on Actor {
+      ... on User {
+        nameRenderable {
+          ...MarkdownUserNameRenderer_name
+            @module(name: "MarkdownUserNameRenderer.react")
+        }
+      }
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+query MatchQuery {
+  viewer {
+    actor {
+      ... on User {
+        id
+        nameRenderable(supported: ["PlainUserNameRenderer", "MarkdownUserNameRenderer"]) {
+          ... on PlainUserNameRenderer {
+            __module_operation_NameRendererFragment: js(module: "PlainUserNameRenderer_name$normalization.graphql", id: "NameRendererFragment.nameRenderable")
+            __module_component_NameRendererFragment: js(module: "PlainUserNameRenderer.react", id: "NameRendererFragment.nameRenderable")
+            ... on PlainUserNameRenderer {
+              plaintext
+              data {
+                text
+              }
+            }
+          }
+          ... on MarkdownUserNameRenderer {
+            __module_operation_NameRendererFragment: js(module: "MarkdownUserNameRenderer_name$normalization.graphql", id: "NameRendererFragment.nameRenderable")
+            __module_component_NameRendererFragment: js(module: "MarkdownUserNameRenderer.react", id: "NameRendererFragment.nameRenderable")
+            ... on MarkdownUserNameRenderer {
+              markdown
+              data {
+                markup
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  user: node(id: "<user-id>") {
+    ... on User {
+      nameRenderable {
+        ... on MarkdownUserNameRenderer {
+          __module_operation_MatchQuery: js(module: "MarkdownUserNameRenderer_name$normalization.graphql", id: "MatchQuery.user.nameRenderable")
+          __module_component_MatchQuery: js(module: "MarkdownUserNameRenderer.react", id: "MatchQuery.user.nameRenderable")
+          ... on MarkdownUserNameRenderer {
+            markdown
+            data {
+              markup
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+`;
+
 exports[`SkipRedundantNodesTransform matches expected output: skips-with-outer-fields-first.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query SkipWithOuterFieldFirst($cond: Boolean!, $notCond: Boolean!) {

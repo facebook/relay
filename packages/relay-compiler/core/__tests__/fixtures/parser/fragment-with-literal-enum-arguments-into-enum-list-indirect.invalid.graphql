@@ -1,3 +1,4 @@
+# expected-to-throw
 fragment ParentFragment on User {
   mobile_checkins: checkins(environments: [MOBILE]) {
     query
@@ -5,10 +6,12 @@ fragment ParentFragment on User {
   ...ChildFragment @arguments(environment: WEB) # OK: matches defined type
 }
 
-fragment ChildFragment on User @argumentDefinitions(environment: {type: "Environment!"}){
+fragment ChildFragment on User
+  @argumentDefinitions(environment: {type: "Environment!"}) {
   # variables of a non-list type cannot flow into list types,
   # the singular -> list promotion only works for literal values
-  checkins(environments: $environment) { # expected error
+  checkins(environments: $environment) {
+    # expected error
     query
   }
 }

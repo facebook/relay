@@ -68,8 +68,6 @@ See the [Fragment Container docs](./fragment-container.html#passing-arguments-to
 
 When using the [Pagination Container](./pagination-container.html), Relay expects connection fields to be annotated with a `@connection` directive. For more detailed information and an example, check out the [docs on using `@connection` inside a Pagination Container](./pagination-container.html#connection).
 
-**Note:** `@connection` is also supported in [compatibility mode](./relay-compat.html)
-
 ### `@relay(plural: Boolean)`
 
 When defining a fragment for use with a Fragment container, you can use the `@relay(plural: true)` directive to indicate that container expects the prop for that fragment to be a list of items instead of a single item. A query or parent that spreads a `@relay(plural: true)` fragment should do so within a plural field (ie a field backed by a [GraphQL list](http://graphql.org/learn/schema/#lists-and-non-null). For example:
@@ -91,11 +89,64 @@ fragment TodoApp_app on App {
 }
 ```
 
+### `@inline`
+
+By default, Relay will only expose the data for fields explicitly requested by a [component's fragment](./fragment-container.html#createfragmentcontainer), which is known as [data masking](./thinking-in-relay#data-masking). Fragment data is unmasked for use in React components by `createFragmentContainer`. However, you may want to use fragment data in non-React functions that are called from React.
+
+Non-React functions can also take advantage of data masking. A fragment can be defined with the `@inline` directive and stored in a local variable. The non-React function can then "unmask" the data using the `readInlineData` function.
+
+In the example below, the function `processItemData` is called from a React component. It requires an item object with a specific set of fields. All React components that use this function should spread the `processItemData_item` fragment to ensure all of the correct item data is loaded for this function.
+
+```javascript
+import {graphql, readInlineData} from 'react-relay';
+
+// non-React function called from React
+function processItemData(itemRef) {
+  const item = readInlineData(graphql`
+    fragment processItemData_item on Item @inline {
+      title
+      price
+      creator {
+        name
+      }
+    }
+  `, itemRef);
+  sendToThirdPartyApi({
+    title: item.title,
+    price: item.price,
+    creatorName: item.creator.name
+  });
+}
+```
+
+```javascript
+// React Component
+function MyComponent({item}) {
+  function handleClick() {
+    processItemData(item);
+  }
+
+  return (
+    <button onClick={handleClick}>Process {item.title}</button>
+  );
+}
+
+export default createFragmentContainer(MyComponent, {
+  item: graphql`
+    fragment MyComponent_item on Item {
+      ...processItemData_item
+      title
+    }
+  `
+});
+```
+
+
 ### `@relay(mask: Boolean)`
 
-By default Relay will only expose the data for fields explicitly requested by a [component's fragment](./fragment-container.html#createfragmentcontainer), which is known as [data masking](./thinking-in-relay#data-masking).
+ It is not recommended to use `@relay(mask: false)`. Please instead consider using the `@inline` fragment.
 
-However, `@relay(mask: false)` can be used to prevent data masking; when including a fragment and annotating it with `@relay(mask: false)`, its data will be available directly to the parent instead of being masked for a different container.
+`@relay(mask: false)` can be used to prevent data masking; when including a fragment and annotating it with `@relay(mask: false)`, its data will be available directly to the parent instead of being masked for a different container.
 
 Applied to a fragment definition, `@relay(mask: false)` changes the generated Flow types to be better usable when the fragment is included with the same directive. The Flow types will no longer be exact objects and no longer contain internal marker fields.
 
@@ -257,8 +308,45 @@ However the Relay Compiler also automatically generates [Flow](https://flow.org)
 import type {DictionaryComponent_word} from './__generated__/DictionaryComponent_word.graphql';
 ```
 
+### Client schema extensions
+
+The Relay Compiler fully supports client-side schema extensions, which allows you to extend the server schema by defining additional GraphQL types and fields on the client. Relay expects the client schema to be located in your `--src` directory.
+
+For example, assuming the server schema `./schema.graphql`:
+
+```graphql
+schema {
+  query: Root
+}
+
+type Root {
+  title: String!
+}
+```
+
+We can create a `./src/clientSchema.graphql` and define a new type called `Setting`:
+
+```graphql
+type Setting {
+  name: String!
+  active: Boolean!
+}
+```
+
+We can then extend existing server types in the client schema `./src/clientSchema.graphql` with our new `Setting` type, like so:
+
+```graphql
+extend type Root {
+  settings: [Setting]
+}
+```
+
+Any fields specified in the client schema, can be fetched from the [Relay Store](./relay-store), by selecting it in a query or fragment.
+
+For more details, refer to the [Local state management section](./local-state-management.html).
+
 ### Advanced usage
 
-In addition to the bin script, the `relay-compiler` package also [exports library code](https://github.com/facebook/relay/blob/master/packages/relay-compiler/RelayCompilerPublic.js) which you may use to create more complex configurations for the compiler, or to extend the compiler with your own custom output.
+In addition to the bin script, the `relay-compiler` package also [exports library code](https://github.com/facebook/relay/blob/master/packages/relay-compiler/index.js) which you may use to create more complex configurations for the compiler, or to extend the compiler with your own custom output.
 
 If you find you need to do something unique (like generate types that conform to an older version of Flow, or to parse non-javascript source files), you can build your own version of the Compiler by swapping in your own `FileWriter` and `ASTCache`, or by adding on an additional `IRTransform`. Note, the internal APIs of the `RelayCompiler` are under constant iteration, so rolling your own version may lead to incompatibilities with future releases.

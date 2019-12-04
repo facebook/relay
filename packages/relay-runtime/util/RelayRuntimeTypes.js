@@ -8,6 +8,8 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 /**
@@ -19,14 +21,12 @@
  * use-case is as a return value for subscriptions, where calling `dispose()`
  * would cancel the subscription.
  */
-export type Disposable = {
-  dispose(): void,
-};
+export type Disposable = {dispose(): void, ...};
 
 export type DataID = string;
 
 // Variables
-export type Variables = {[name: string]: $FlowFixMe};
+export type Variables = {+[string]: $FlowFixMe, ...};
 
 /**
  * Generated operation flow types are subtypes of this.
@@ -35,6 +35,7 @@ export type OperationType = {|
   // TODO(T33395812) Make this an open object type
   +variables: Variables,
   +response: mixed,
+  +rawResponse?: {...},
 |};
 
 /**
@@ -50,10 +51,20 @@ export type OperationType = {|
  * - `transactionId`: a user-supplied value, intended for use as a unique id for
  *   a given instance of executing an operation.
  */
-export type CacheConfig = {
+export type CacheConfig = {|
   force?: ?boolean,
   poll?: ?number,
   liveConfigId?: ?string,
-  metadata?: {[key: string]: mixed},
+  metadata?: {[key: string]: mixed, ...},
   transactionId?: ?string,
-};
+|};
+
+/**
+ * Experimental
+ */
+export type FetchPolicy =
+  | 'store-only'
+  | 'store-or-network'
+  | 'store-and-network'
+  | 'network-only';
+export type RenderPolicy = 'full' | 'partial';

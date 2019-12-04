@@ -1,16 +1,15 @@
-query TestQuery(
-  $id: ID!
-) {
+query TestQuery($id: ID!) {
   node(id: $id) {
     id
     ...Profile @arguments(pictureSize: [128], includeFriends: true)
   }
 }
 
-fragment Profile on User @argumentDefinitions(
-  pictureSize: {type: "[Int]", nonNull: true}
-  includeFriends: {type: "Boolean!", defaultValue: false}
-) {
+fragment Profile on User
+  @argumentDefinitions(
+    pictureSize: {type: "[Int]"}
+    includeFriends: {type: "Boolean!", defaultValue: false}
+  ) {
   id
   name
   profilePicture(size: $pictureSize) {

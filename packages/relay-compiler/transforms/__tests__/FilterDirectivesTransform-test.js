@@ -4,36 +4,40 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
+ * @flow strict-local
  * @format
  * @emails oncall+relay
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
-const FilterDirectivesTransform = require('FilterDirectivesTransform');
-const GraphQLCompilerContext = require('GraphQLCompilerContext');
-const GraphQLIRPrinter = require('GraphQLIRPrinter');
-const RelayTestSchema = require('RelayTestSchema');
+const CompilerContext = require('../../core/CompilerContext');
+const FilterDirectivesTransform = require('../FilterDirectivesTransform');
+const IRPrinter = require('../../core/IRPrinter');
 
-const parseGraphQLText = require('parseGraphQLText');
-
-const {transformASTSchema} = require('ASTConvert');
-const {generateTestsFromFixtures} = require('RelayModernTestUtils');
+const {
+  TestSchema,
+  generateTestsFromFixtures,
+  parseGraphQLText,
+} = require('relay-test-utils-internal');
 
 describe('FilterDirectivesTransform', () => {
   generateTestsFromFixtures(
     `${__dirname}/fixtures/filter-directives-transform`,
     text => {
       // Extend the schema with a directive for testing purposes.
-      const extendedSchema = transformASTSchema(RelayTestSchema, [
+      const extendedSchema = TestSchema.extend([
         'directive @exampleFilteredDirective on FIELD',
       ]);
       const {definitions} = parseGraphQLText(extendedSchema, text);
-      return new GraphQLCompilerContext(RelayTestSchema, extendedSchema)
+
+      return new CompilerContext(extendedSchema)
         .addAll(definitions)
         .applyTransforms([FilterDirectivesTransform.transform])
         .documents()
-        .map(GraphQLIRPrinter.print)
+        .map(doc => IRPrinter.print(extendedSchema, doc))
         .join('\n');
     },
   );

@@ -3,6 +3,7 @@
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
+ *
  * @format
  */
 
@@ -40,7 +41,7 @@ class Versions extends React.Component {
                     <a
                       href={`${
                         siteConfig.baseUrl
-                      }docs/en/next/introduction-to-relay.html`}>
+                      }docs/en/next/introduction-to-relay`}>
                       Documentation
                     </a>
                   </td>
@@ -61,7 +62,7 @@ class Versions extends React.Component {
                     <a
                       href={`${
                         siteConfig.baseUrl
-                      }docs/en/introduction-to-relay.html`}>
+                      }docs/en/introduction-to-relay`}>
                       Documentation
                     </a>
                   </td>
@@ -75,6 +76,27 @@ class Versions extends React.Component {
               </tbody>
             </table>
             <a name="archive" />
+            <h3>Experimental</h3>
+            <table className="versions">
+              <tbody>
+                {versions.map(
+                  version =>
+                    version === 'experimental' && (
+                      <tr key={version}>
+                        <th>{version}</th>
+                        <td>
+                          <a
+                            href={`${
+                              siteConfig.baseUrl
+                            }docs/en/${version}/step-by-step`}>
+                            Documentation
+                          </a>
+                        </td>
+                      </tr>
+                    ),
+                )}
+              </tbody>
+            </table>
             <h3>Past Versions</h3>
             <p>
               This section contains documentation and release notes for previous
@@ -85,7 +107,8 @@ class Versions extends React.Component {
               <tbody>
                 {versions.map(
                   version =>
-                    version !== latestVersion && (
+                    version !== latestVersion &&
+                    version !== 'experimental' && (
                       <tr key={version}>
                         <th>{version}</th>
                         <td>
@@ -94,10 +117,10 @@ class Versions extends React.Component {
                               version === 'classic'
                                 ? `${
                                     siteConfig.baseUrl
-                                  }docs/en/${version}/classic-guides-containers.html`
+                                  }docs/en/${version}/classic-guides-containers`
                                 : `${
                                     siteConfig.baseUrl
-                                  }docs/en/${version}/introduction-to-relay.html`
+                                  }docs/en/${version}/introduction-to-relay`
                             }>
                             Documentation
                           </a>

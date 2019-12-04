@@ -8,70 +8,88 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
+const RelayConnection = require('./RelayConnection');
+const RelayConnectionInterface = require('../handlers/connection/RelayConnectionInterface');
 const RelayModernRecord = require('./RelayModernRecord');
 const RelayProfiler = require('../util/RelayProfiler');
 
-const generateRelayClientID = require('./generateRelayClientID');
 const invariant = require('invariant');
 const warning = require('warning');
 
 const {
   CONDITION,
-  FRAGMENT,
-  FRAGMENT_SPREAD,
+  CLIENT_EXTENSION,
+  DEFER,
+  CONNECTION,
   INLINE_FRAGMENT,
   LINKED_FIELD,
   LINKED_HANDLE,
-  MATCH_FIELD,
+  MODULE_IMPORT,
   SCALAR_FIELD,
   SCALAR_HANDLE,
+  STREAM,
 } = require('../util/RelayConcreteNode');
+const {generateClientID, isClientID} = require('./ClientID');
+const {createNormalizationSelector} = require('./RelayModernSelector');
 const {
+  formatStorageKey,
+  getArgumentValue,
   getArgumentValues,
   getHandleStorageKey,
+  getModuleComponentKey,
+  getModuleOperationKey,
   getStorageKey,
-  MATCH_FRAGMENT_KEY,
   TYPENAME_KEY,
 } = require('./RelayStoreUtils');
 
 import type {PayloadData} from '../network/RelayNetworkTypes';
 import type {
-  NormalizationField,
+  NormalizationConnection,
+  NormalizationDefer,
   NormalizationLinkedField,
-  NormalizationMatchField,
+  NormalizationModuleImport,
   NormalizationNode,
+  NormalizationScalarField,
+  NormalizationStream,
 } from '../util/NormalizationNode';
-import type {Record} from '../util/RelayCombinedEnvironmentTypes';
 import type {DataID, Variables} from '../util/RelayRuntimeTypes';
+import type {ConnectionInternalEvent} from './RelayConnection';
 import type {
   HandleFieldPayload,
-  MatchFieldPayload,
+  IncrementalDataPlaceholder,
+  ModuleImportPayload,
   MutableRecordSource,
   NormalizationSelector,
+  Record,
+  RelayResponsePayload,
+  RequestDescriptor,
 } from './RelayStoreTypes';
 
-export type NormalizationOptions = {handleStrippedNulls: boolean};
+export type GetDataID = (
+  fieldValue: {[string]: mixed, ...},
+  typeName: string,
+) => mixed;
 
-export type NormalizedResponse = {|
-  fieldPayloads: Array<HandleFieldPayload>,
-  matchPayloads: Array<MatchFieldPayload>,
+export type NormalizationOptions = {|
+  +getDataID: GetDataID,
+  +path?: $ReadOnlyArray<string>,
+  +request: RequestDescriptor,
 |};
 
 /**
  * Normalizes the results of a query and standard GraphQL response, writing the
  * normalized records/fields into the given MutableRecordSource.
- *
- * If handleStrippedNulls is true, will replace fields on the Selector that
- * are not present in the response with null. Otherwise will leave fields unset.
  */
 function normalize(
   recordSource: MutableRecordSource,
   selector: NormalizationSelector,
   response: PayloadData,
-  options: NormalizationOptions = {handleStrippedNulls: false},
-): NormalizedResponse {
+  options: NormalizationOptions,
+): RelayResponsePayload {
   const {dataID, node, variables} = selector;
   const normalizer = new RelayResponseNormalizer(
     recordSource,
@@ -87,10 +105,15 @@ function normalize(
  * Helper for handling payloads.
  */
 class RelayResponseNormalizer {
+  _connectionEvents: Array<ConnectionInternalEvent>;
+  _getDataId: GetDataID;
   _handleFieldPayloads: Array<HandleFieldPayload>;
-  _handleStrippedNulls: boolean;
-  _matchFieldPayloads: Array<MatchFieldPayload>;
+  _incrementalPlaceholders: Array<IncrementalDataPlaceholder>;
+  _isClientExtension: boolean;
+  _moduleImportPayloads: Array<ModuleImportPayload>;
+  _path: Array<string>;
   _recordSource: MutableRecordSource;
+  _request: RequestDescriptor;
   _variables: Variables;
 
   constructor(
@@ -98,10 +121,15 @@ class RelayResponseNormalizer {
     variables: Variables,
     options: NormalizationOptions,
   ) {
+    this._connectionEvents = [];
+    this._getDataId = options.getDataID;
     this._handleFieldPayloads = [];
-    this._handleStrippedNulls = options.handleStrippedNulls;
-    this._matchFieldPayloads = [];
+    this._incrementalPlaceholders = [];
+    this._isClientExtension = false;
+    this._moduleImportPayloads = [];
+    this._path = options.path ? [...options.path] : [];
     this._recordSource = recordSource;
+    this._request = options.request;
     this._variables = variables;
   }
 
@@ -109,7 +137,7 @@ class RelayResponseNormalizer {
     node: NormalizationNode,
     dataID: DataID,
     data: PayloadData,
-  ): NormalizedResponse {
+  ): RelayResponsePayload {
     const record = this._recordSource.get(dataID);
     invariant(
       record,
@@ -118,8 +146,12 @@ class RelayResponseNormalizer {
     );
     this._traverseSelections(node, record, data);
     return {
+      connectionEvents: this._connectionEvents,
+      errors: null,
       fieldPayloads: this._handleFieldPayloads,
-      matchPayloads: this._matchFieldPayloads,
+      incrementalPlaceholders: this._incrementalPlaceholders,
+      moduleImportPayloads: this._moduleImportPayloads,
+      source: this._recordSource,
     };
   }
 
@@ -147,135 +179,304 @@ class RelayResponseNormalizer {
     record: Record,
     data: PayloadData,
   ): void {
-    node.selections.forEach(selection => {
-      if (selection.kind === SCALAR_FIELD || selection.kind === LINKED_FIELD) {
-        this._normalizeField(node, selection, record, data);
-      } else if (selection.kind === CONDITION) {
-        const conditionValue = this._getVariableValue(selection.condition);
-        if (conditionValue === selection.passingValue) {
+    for (let i = 0; i < node.selections.length; i++) {
+      const selection = node.selections[i];
+      switch (selection.kind) {
+        case SCALAR_FIELD:
+        case LINKED_FIELD:
+          this._normalizeField(node, selection, record, data);
+          break;
+        case CONDITION:
+          const conditionValue = this._getVariableValue(selection.condition);
+          if (conditionValue === selection.passingValue) {
+            this._traverseSelections(selection, record, data);
+          }
+          break;
+        case INLINE_FRAGMENT:
+          const typeName = RelayModernRecord.getType(record);
+          if (typeName === selection.type) {
+            this._traverseSelections(selection, record, data);
+          }
+          break;
+        case LINKED_HANDLE:
+        case SCALAR_HANDLE:
+          const args = selection.args
+            ? getArgumentValues(selection.args, this._variables)
+            : {};
+          const fieldKey = getStorageKey(selection, this._variables);
+          const handleKey = getHandleStorageKey(selection, this._variables);
+          this._handleFieldPayloads.push({
+            args,
+            dataID: RelayModernRecord.getDataID(record),
+            fieldKey,
+            handle: selection.handle,
+            handleKey,
+          });
+          break;
+        case MODULE_IMPORT:
+          this._normalizeModuleImport(node, selection, record, data);
+          break;
+        case DEFER:
+          this._normalizeDefer(selection, record, data);
+          break;
+        case STREAM:
+          this._normalizeStream(selection, record, data);
+          break;
+        case CLIENT_EXTENSION:
+          const isClientExtension = this._isClientExtension;
+          this._isClientExtension = true;
           this._traverseSelections(selection, record, data);
-        }
-      } else if (selection.kind === INLINE_FRAGMENT) {
-        const typeName = RelayModernRecord.getType(record);
-        if (typeName === selection.type) {
-          this._traverseSelections(selection, record, data);
-        }
-      } else if (
-        selection.kind === LINKED_HANDLE ||
-        selection.kind === SCALAR_HANDLE
-      ) {
-        const args = selection.args
-          ? getArgumentValues(selection.args, this._variables)
-          : {};
-        const fieldKey = getStorageKey(selection, this._variables);
-        const handleKey = getHandleStorageKey(selection, this._variables);
-        this._handleFieldPayloads.push({
-          args,
-          dataID: RelayModernRecord.getDataID(record),
-          fieldKey,
-          handle: selection.handle,
-          handleKey,
-        });
-      } else if (selection.kind === MATCH_FIELD) {
-        this._normalizeMatchField(node, selection, record, data);
-      } else if (
-        selection.kind === FRAGMENT ||
-        selection.kind === FRAGMENT_SPREAD
-      ) {
-        invariant(
-          false,
-          'RelayResponseNormalizer(): Unexpected ast kind `%s`.',
-          selection.kind,
-        );
-      } else {
-        (selection: empty);
-        invariant(
-          false,
-          'RelayResponseNormalizer(): Unexpected ast kind `%s`.',
-          selection.kind,
-        );
+          this._isClientExtension = isClientExtension;
+          break;
+        case CONNECTION:
+          this._normalizeConnection(node, selection, record, data);
+          break;
+        default:
+          (selection: empty);
+          invariant(
+            false,
+            'RelayResponseNormalizer(): Unexpected ast kind `%s`.',
+            selection.kind,
+          );
       }
-    });
+    }
   }
 
-  _normalizeMatchField(
+  _normalizeDefer(
+    defer: NormalizationDefer,
+    record: Record,
+    data: PayloadData,
+  ) {
+    const isDeferred = defer.if === null || this._getVariableValue(defer.if);
+    if (__DEV__) {
+      warning(
+        typeof isDeferred === 'boolean',
+        'RelayResponseNormalizer: Expected value for @defer `if` argument to ' +
+          'be a boolean, got `%s`.',
+        isDeferred,
+      );
+    }
+    if (isDeferred === false) {
+      // If defer is disabled there will be no additional response chunk:
+      // normalize the data already present.
+      this._traverseSelections(defer, record, data);
+    } else {
+      // Otherwise data *for this selection* should not be present: enqueue
+      // metadata to process the subsequent response chunk.
+      this._incrementalPlaceholders.push({
+        kind: 'defer',
+        data,
+        label: defer.label,
+        path: [...this._path],
+        selector: createNormalizationSelector(
+          defer,
+          RelayModernRecord.getDataID(record),
+          this._variables,
+        ),
+        typeName: RelayModernRecord.getType(record),
+      });
+    }
+  }
+
+  _normalizeStream(
+    stream: NormalizationStream,
+    record: Record,
+    data: PayloadData,
+  ) {
+    // Always normalize regardless of whether streaming is enabled or not,
+    // this populates the initial array value (including any items when
+    // initial_count > 0).
+    this._traverseSelections(stream, record, data);
+    const isStreamed = stream.if === null || this._getVariableValue(stream.if);
+    if (__DEV__) {
+      warning(
+        typeof isStreamed === 'boolean',
+        'RelayResponseNormalizer: Expected value for @stream `if` argument ' +
+          'to be a boolean, got `%s`.',
+        isStreamed,
+      );
+    }
+    if (isStreamed === true) {
+      // If streaming is enabled, *also* emit metadata to process any
+      // response chunks that may be delivered.
+      this._incrementalPlaceholders.push({
+        kind: 'stream',
+        label: stream.label,
+        path: [...this._path],
+        parentID: RelayModernRecord.getDataID(record),
+        node: stream,
+        variables: this._variables,
+      });
+    }
+  }
+
+  _normalizeModuleImport(
     parent: NormalizationNode,
-    field: NormalizationMatchField,
+    moduleImport: NormalizationModuleImport,
     record: Record,
     data: PayloadData,
   ) {
     invariant(
       typeof data === 'object' && data,
-      'writeField(): Expected data for field `%s` to be an object.',
-      field.name,
+      'RelayResponseNormalizer: Expected data for @module to be an object.',
     );
-    const responseKey = field.alias || field.name;
-    const storageKey = getStorageKey(field, this._variables);
-    const fieldValue = data[responseKey];
-    if (fieldValue == null) {
-      if (fieldValue === undefined && !this._handleStrippedNulls) {
-        // If we're not stripping nulls, undefined fields are unset
-        return;
-      }
-      if (__DEV__) {
-        warning(
-          parent.kind === LINKED_FIELD && parent.concreteType == null
-            ? true
-            : Object.prototype.hasOwnProperty.call(data, responseKey),
-          'RelayResponseNormalizer(): Payload did not contain a value ' +
-            'for field `%s: %s`. Check that you are parsing with the same ' +
-            'query that was used to fetch the payload.',
-          responseKey,
-          storageKey,
-        );
-      }
-      RelayModernRecord.setValue(record, storageKey, null);
-      return;
-    }
-    invariant(
-      typeof fieldValue === 'object' && fieldValue,
-      'RelayResponseNormalizer: Expected data for field `%s` to be an object.',
-      storageKey,
+    const typeName: string = RelayModernRecord.getType(record);
+    const componentKey = getModuleComponentKey(moduleImport.documentName);
+    const componentReference = data[componentKey];
+    RelayModernRecord.setValue(
+      record,
+      componentKey,
+      componentReference ?? null,
     );
-    const typeName: string = this._getRecordType(fieldValue);
-    const match = field.matchesByType[typeName];
-    if (match == null) {
-      RelayModernRecord.setValue(record, storageKey, null);
-      return;
-    }
-    const nextID =
-      fieldValue.id ||
-      // Reuse previously generated client IDs
-      RelayModernRecord.getLinkedRecordID(record, storageKey) ||
-      generateRelayClientID(RelayModernRecord.getDataID(record), storageKey);
-    invariant(
-      typeof nextID === 'string',
-      'RelayResponseNormalizer: Expected id on field `%s` to be a string.',
-      storageKey,
+    const operationKey = getModuleOperationKey(moduleImport.documentName);
+    const operationReference = data[operationKey];
+    RelayModernRecord.setValue(
+      record,
+      operationKey,
+      operationReference ?? null,
     );
-    RelayModernRecord.setLinkedRecordID(record, storageKey, nextID);
-    let nextRecord = this._recordSource.get(nextID);
-    if (!nextRecord) {
-      nextRecord = RelayModernRecord.create(nextID, typeName);
-      this._recordSource.set(nextID, nextRecord);
-    } else if (__DEV__) {
-      this._validateRecordType(nextRecord, field, fieldValue);
-    }
-    const operationReference = fieldValue[MATCH_FRAGMENT_KEY];
     if (operationReference != null) {
-      this._matchFieldPayloads.push({
+      this._moduleImportPayloads.push({
+        data,
+        dataID: RelayModernRecord.getDataID(record),
         operationReference,
-        dataID: nextID,
-        data: fieldValue,
+        path: [...this._path],
         typeName,
         variables: this._variables,
       });
     }
   }
 
+  /**
+   * Connections are represented in the AST as a LinkedField (with connection-
+   * specific args like after/first stripped) that wraps any metadata fields
+   * such as count, plus a Connection node that represents the page of data
+   * being fetched (the edges + pageInfo). The outer LinkedField is normalized
+   * like any other, and the Connection field is normalized by synthesizing
+   * a record to represent the page that was fetched and normalizing the edges
+   * and pageInfo into that page record - as well as recording a "fetch" event.
+   */
+  _normalizeConnection(
+    parent: NormalizationNode,
+    selection: NormalizationConnection,
+    record: Record,
+    data: PayloadData,
+  ) {
+    // Normalize the data for the page
+    const parentID = RelayModernRecord.getDataID(record);
+    const args =
+      selection.args != null
+        ? getArgumentValues(selection.args, this._variables)
+        : {};
+    const pageStorageKey = formatStorageKey('__connection_page', args);
+    const pageID = generateClientID(parentID, pageStorageKey);
+    let pageRecord = this._recordSource.get(pageID);
+    if (pageRecord == null) {
+      pageRecord = RelayModernRecord.create(pageID, '__ConnectionPage');
+      this._recordSource.set(pageID, pageRecord);
+    }
+    RelayModernRecord.setLinkedRecordID(record, pageStorageKey, pageID);
+
+    this._normalizeField(parent, selection.edges, pageRecord, data);
+    this._normalizeField(parent, selection.pageInfo, pageRecord, data);
+
+    // Construct a "fetch" connection event
+    const connectionID = RelayConnection.createConnectionID(
+      parentID,
+      selection.label,
+    );
+    const {
+      EDGES,
+      END_CURSOR,
+      HAS_NEXT_PAGE,
+      HAS_PREV_PAGE,
+      PAGE_INFO,
+      START_CURSOR,
+    } = RelayConnectionInterface.get();
+
+    const edgeIDs = RelayModernRecord.getLinkedRecordIDs(pageRecord, EDGES);
+    if (edgeIDs == null) {
+      return;
+    }
+    const pageInfoID = RelayModernRecord.getLinkedRecordID(
+      pageRecord,
+      PAGE_INFO,
+    );
+    const pageInfoRecord =
+      pageInfoID != null ? this._recordSource.get(pageInfoID) : null;
+    let endCursor;
+    let hasNextPage;
+    let hasPrevPage;
+    let startCursor;
+    if (pageInfoRecord != null) {
+      endCursor = RelayModernRecord.getValue(pageInfoRecord, END_CURSOR);
+      hasNextPage = RelayModernRecord.getValue(pageInfoRecord, HAS_NEXT_PAGE);
+      hasPrevPage = RelayModernRecord.getValue(pageInfoRecord, HAS_PREV_PAGE);
+      startCursor = RelayModernRecord.getValue(pageInfoRecord, START_CURSOR);
+    }
+
+    // If streaming is enabled, also emit incremental placeholders for the
+    // edges and pageInfo
+    const stream = selection.stream;
+    const enableStream =
+      stream != null
+        ? getArgumentValue(stream.if, this._variables) === true
+        : false;
+
+    if (stream != null && enableStream === true) {
+      this._incrementalPlaceholders.push({
+        kind: 'connection_edge',
+        args,
+        connectionID,
+        label: stream.streamLabel,
+        path: [...this._path],
+        parentID: pageID,
+        node: selection.edges,
+        variables: this._variables,
+      });
+      this._incrementalPlaceholders.push({
+        kind: 'connection_page_info',
+        args,
+        connectionID,
+        data,
+        label: stream.deferLabel,
+        path: [...this._path],
+        selector: createNormalizationSelector(
+          {
+            alias: null,
+            args: null,
+            concreteType: RelayModernRecord.getType(pageRecord),
+            kind: 'LinkedField',
+            name: '',
+            plural: false,
+            selections: [selection.pageInfo],
+            storageKey: null,
+          },
+          pageID,
+          this._variables,
+        ),
+        typeName: RelayModernRecord.getType(pageRecord),
+      });
+    }
+    this._connectionEvents.push({
+      kind: 'fetch',
+      connectionID,
+      args,
+      edgeIDs,
+      pageInfo: {
+        endCursor: typeof endCursor === 'string' ? endCursor : null,
+        startCursor: typeof startCursor === 'string' ? startCursor : null,
+        hasNextPage: typeof hasNextPage === 'boolean' ? hasNextPage : null,
+        hasPrevPage: typeof hasPrevPage === 'boolean' ? hasPrevPage : null,
+      },
+      request: this._request,
+      stream: enableStream === true,
+    });
+  }
+
   _normalizeField(
     parent: NormalizationNode,
-    selection: NormalizationField,
+    selection: NormalizationLinkedField | NormalizationScalarField,
     record: Record,
     data: PayloadData,
   ) {
@@ -288,21 +489,30 @@ class RelayResponseNormalizer {
     const storageKey = getStorageKey(selection, this._variables);
     const fieldValue = data[responseKey];
     if (fieldValue == null) {
-      if (fieldValue === undefined && !this._handleStrippedNulls) {
-        // If we're not stripping nulls, undefined fields are unset
+      if (fieldValue === undefined) {
+        // Fields that are missing in the response are not set on the record.
+        // There are three main cases where this can occur:
+        // - Inside a client extension: the server will not generally return
+        //   values for these fields, but a local update may provide them.
+        // - Fields on abstract types: these may be missing if the concrete
+        //   response type does not match the abstract type.
+        //
+        // Otherwise, missing fields usually indicate a server or user error (
+        // the latter for manually constructed payloads).
+        if (__DEV__) {
+          warning(
+            this._isClientExtension ||
+              (parent.kind === LINKED_FIELD && parent.concreteType == null)
+              ? true
+              : Object.prototype.hasOwnProperty.call(data, responseKey),
+            'RelayResponseNormalizer: Payload did not contain a value ' +
+              'for field `%s: %s`. Check that you are parsing with the same ' +
+              'query that was used to fetch the payload.',
+            responseKey,
+            storageKey,
+          );
+        }
         return;
-      }
-      if (__DEV__) {
-        warning(
-          parent.kind === LINKED_FIELD && parent.concreteType == null
-            ? true
-            : Object.prototype.hasOwnProperty.call(data, responseKey),
-          'RelayResponseNormalizer(): Payload did not contain a value ' +
-            'for field `%s: %s`. Check that you are parsing with the same ' +
-            'query that was used to fetch the payload.',
-          responseKey,
-          storageKey,
-        );
       }
       RelayModernRecord.setValue(record, storageKey, null);
       return;
@@ -311,17 +521,13 @@ class RelayResponseNormalizer {
     if (selection.kind === SCALAR_FIELD) {
       RelayModernRecord.setValue(record, storageKey, fieldValue);
     } else if (selection.kind === LINKED_FIELD) {
+      this._path.push(responseKey);
       if (selection.plural) {
         this._normalizePluralLink(selection, record, storageKey, fieldValue);
       } else {
         this._normalizeLink(selection, record, storageKey, fieldValue);
       }
-    } else if (selection.kind === MATCH_FIELD) {
-      invariant(
-        false,
-        'RelayResponseNormalizer(): Unexpected ast kind `%s` during normalization.',
-        selection.kind,
-      );
+      this._path.pop();
     } else {
       (selection: empty);
       invariant(
@@ -344,10 +550,19 @@ class RelayResponseNormalizer {
       storageKey,
     );
     const nextID =
-      fieldValue.id ||
+      this._getDataId(
+        /* $FlowFixMe(>=0.98.0 site=www,mobile,react_native_fb,oss) This comment
+         * suppresses an error found when Flow v0.98 was deployed. To see the
+         * error delete this comment and run Flow. */
+        fieldValue,
+        /* $FlowFixMe(>=0.98.0 site=www,mobile,react_native_fb,oss) This comment
+         * suppresses an error found when Flow v0.98 was deployed. To see the
+         * error delete this comment and run Flow. */
+        field.concreteType ?? this._getRecordType(fieldValue),
+      ) ||
       // Reuse previously generated client IDs
       RelayModernRecord.getLinkedRecordID(record, storageKey) ||
-      generateRelayClientID(RelayModernRecord.getDataID(record), storageKey);
+      generateClientID(RelayModernRecord.getDataID(record), storageKey);
     invariant(
       typeof nextID === 'string',
       'RelayResponseNormalizer: Expected id on field `%s` to be a string.',
@@ -356,12 +571,18 @@ class RelayResponseNormalizer {
     RelayModernRecord.setLinkedRecordID(record, storageKey, nextID);
     let nextRecord = this._recordSource.get(nextID);
     if (!nextRecord) {
+      /* $FlowFixMe(>=0.98.0 site=www,mobile,react_native_fb,oss) This comment
+       * suppresses an error found when Flow v0.98 was deployed. To see the
+       * error delete this comment and run Flow. */
       const typeName = field.concreteType || this._getRecordType(fieldValue);
       nextRecord = RelayModernRecord.create(nextID, typeName);
       this._recordSource.set(nextID, nextRecord);
     } else if (__DEV__) {
       this._validateRecordType(nextRecord, field, fieldValue);
     }
+    /* $FlowFixMe(>=0.98.0 site=www,mobile,react_native_fb,oss) This comment
+     * suppresses an error found when Flow v0.98 was deployed. To see the error
+     * delete this comment and run Flow. */
     this._traverseSelections(field, nextRecord, fieldValue);
   }
 
@@ -385,17 +606,26 @@ class RelayResponseNormalizer {
         nextIDs.push(item);
         return;
       }
+      this._path.push(String(nextIndex));
       invariant(
         typeof item === 'object',
         'RelayResponseNormalizer: Expected elements for field `%s` to be ' +
           'objects.',
         storageKey,
       );
-
       const nextID =
-        item.id ||
-        (prevIDs && prevIDs[nextIndex]) || // Reuse previously generated client IDs
-        generateRelayClientID(
+        this._getDataId(
+          /* $FlowFixMe(>=0.98.0 site=www,mobile,react_native_fb,oss) This comment
+           * suppresses an error found when Flow v0.98 was deployed. To see the
+           * error delete this comment and run Flow. */
+          item,
+          /* $FlowFixMe(>=0.98.0 site=www,mobile,react_native_fb,oss) This comment
+           * suppresses an error found when Flow v0.98 was deployed. To see the
+           * error delete this comment and run Flow. */
+          field.concreteType ?? this._getRecordType(item),
+        ) ||
+        (prevIDs && prevIDs[nextIndex]) || // Reuse previously generated client IDs:
+        generateClientID(
           RelayModernRecord.getDataID(record),
           storageKey,
           nextIndex,
@@ -410,13 +640,20 @@ class RelayResponseNormalizer {
       nextIDs.push(nextID);
       let nextRecord = this._recordSource.get(nextID);
       if (!nextRecord) {
+        /* $FlowFixMe(>=0.98.0 site=www,mobile,react_native_fb,oss) This comment
+         * suppresses an error found when Flow v0.98 was deployed. To see the
+         * error delete this comment and run Flow. */
         const typeName = field.concreteType || this._getRecordType(item);
         nextRecord = RelayModernRecord.create(nextID, typeName);
         this._recordSource.set(nextID, nextRecord);
       } else if (__DEV__) {
         this._validateRecordType(nextRecord, field, item);
       }
+      /* $FlowFixMe(>=0.98.0 site=www,mobile,react_native_fb,oss) This comment
+       * suppresses an error found when Flow v0.98 was deployed. To see the
+       * error delete this comment and run Flow. */
       this._traverseSelections(field, nextRecord, item);
+      this._path.pop();
     });
     RelayModernRecord.setLinkedRecordIDs(record, storageKey, nextIDs);
   }
@@ -426,17 +663,15 @@ class RelayResponseNormalizer {
    */
   _validateRecordType(
     record: Record,
-    field: NormalizationLinkedField | NormalizationMatchField,
+    field: NormalizationLinkedField,
     payload: Object,
   ): void {
-    const typeName =
-      field.kind === 'LinkedField'
-        ? field.concreteType || this._getRecordType(payload)
-        : this._getRecordType(payload);
+    const typeName = field.concreteType ?? this._getRecordType(payload);
     warning(
-      RelayModernRecord.getType(record) === typeName,
+      isClientID(RelayModernRecord.getDataID(record)) ||
+        RelayModernRecord.getType(record) === typeName,
       'RelayResponseNormalizer: Invalid record `%s`. Expected %s to be ' +
-        'be consistent, but the record was assigned conflicting types `%s` ' +
+        'consistent, but the record was assigned conflicting types `%s` ' +
         'and `%s`. The GraphQL server likely violated the globally unique ' +
         'id requirement by returning the same id for different objects.',
       RelayModernRecord.getDataID(record),

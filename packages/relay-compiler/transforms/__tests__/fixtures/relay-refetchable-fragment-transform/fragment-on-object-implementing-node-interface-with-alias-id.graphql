@@ -1,0 +1,12 @@
+fragment RefetchableFragment on User
+  @refetchable(queryName: "RefetchableFragmentQuery") {
+  __id: id
+  name
+  ...ProfilePicture
+}
+
+fragment ProfilePicture on User {
+  profilePicture(size: $size) {
+    uri
+  }
+}

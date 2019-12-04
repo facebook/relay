@@ -5,41 +5,50 @@
  * LICENSE file in the root directory of this source tree.
  *
  * @format
- * @flow
+ * @flow strict-local
  * @emails oncall+relay
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
-require('configureForRelayOSS');
-
 const CodeMarker = require('../../util/CodeMarker');
+const CompilerContext = require('../../core/CompilerContext');
 const RelayIRTransforms = require('../../core/RelayIRTransforms');
-const RelayTestSchema = require('RelayTestSchema');
 
 const compileRelayArtifacts = require('../compileRelayArtifacts');
-const parseGraphQLText = require('parseGraphQLText');
 
-const {generateTestsFromFixtures} = require('RelayModernTestUtils');
-const ASTConvert = require('../../core/ASTConvert');
-const CompilerContext = require('../../core/GraphQLCompilerContext');
+const {RelayFeatureFlags} = require('relay-runtime');
+const {
+  TestSchema,
+  generateTestsFromFixtures,
+  parseGraphQLText,
+  printAST,
+} = require('relay-test-utils-internal');
 
 describe('compileRelayArtifacts', () => {
+  beforeEach(() => {
+    RelayFeatureFlags.ENABLE_VARIABLE_CONNECTION_KEY = true;
+  });
+
+  afterEach(() => {
+    RelayFeatureFlags.ENABLE_VARIABLE_CONNECTION_KEY = false;
+  });
+
   generateTestsFromFixtures(
     `${__dirname}/fixtures/compileRelayArtifacts`,
     text => {
-      const relaySchema = ASTConvert.transformASTSchema(
-        RelayTestSchema,
-        RelayIRTransforms.schemaExtensions,
-      );
-      const compilerContext = new CompilerContext(
-        RelayTestSchema,
-        relaySchema,
-      ).addAll(parseGraphQLText(relaySchema, text).definitions);
+      const relaySchema = TestSchema.extend(RelayIRTransforms.schemaExtensions);
+      const {definitions, schema} = parseGraphQLText(relaySchema, text);
+      const compilerContext = new CompilerContext(schema).addAll(definitions);
       return compileRelayArtifacts(compilerContext, RelayIRTransforms)
-        .map(node => {
+        .map(([_definition, node]) => {
           if (node.kind === 'Request') {
-            const {text: queryText, ...ast} = node;
+            const {
+              params: {text: queryText},
+              ...ast
+            } = node;
             return [stringifyAST(ast), 'QUERY:', queryText].join('\n\n');
           } else {
             return stringifyAST(node);
@@ -52,7 +61,7 @@ describe('compileRelayArtifacts', () => {
 
 function stringifyAST(ast: mixed): string {
   return CodeMarker.postProcess(
-    JSON.stringify(ast, null, 2),
+    printAST(ast),
     moduleName => `require('${moduleName}')`,
   );
 }

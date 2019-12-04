@@ -8,16 +8,21 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
-const GraphQLCompilerContext = require('../core/GraphQLCompilerContext');
-const GraphQLIRTransformer = require('../core/GraphQLIRTransformer');
-const IMap = require('immutable').Map;
+const IRTransformer = require('../core/IRTransformer');
 
+import type CompilerContext from '../core/CompilerContext';
+const IMap = require('immutable').Map;
+const partitionArray = require('../util/partitionArray');
 const getIdentifierForSelection = require('../core/getIdentifierForSelection');
 const invariant = require('invariant');
 
-import type {Fragment, Node, Root, Selection} from '../core/GraphQLIR';
+import type {Schema} from '../core/Schema';
+
+import type {Fragment, Node, Root, Selection} from '../core/IR';
 
 /**
  * A simplified representation of a document: keys in the map are unique
@@ -119,16 +124,19 @@ type SelectionMap = IMap<string, ?SelectionMap>;
  * 1 can be skipped because it is already fetched at the outer level.
  */
 function skipRedundantNodesTransform(
-  context: GraphQLCompilerContext,
-): GraphQLCompilerContext {
-  return GraphQLIRTransformer.transform(context, {
+  context: CompilerContext,
+): CompilerContext {
+  return IRTransformer.transform(context, {
     Root: visitNode,
     Fragment: visitNode,
   });
 }
 
+let cache = new Map();
 function visitNode<T: Fragment | Root>(node: T): ?T {
-  return transformNode(node, new IMap()).node;
+  cache = new Map();
+  const context: CompilerContext = this.getContext();
+  return transformNode(context.getSchema(), node, new IMap()).node;
 }
 
 /**
@@ -145,12 +153,28 @@ function visitNode<T: Fragment | Root>(node: T): ?T {
  * prior to the clone.
  */
 function transformNode<T: Node>(
+  schema: Schema,
   node: T,
   selectionMap: SelectionMap,
-): {selectionMap: SelectionMap, node: ?T} {
+): {
+  selectionMap: SelectionMap,
+  node: ?T,
+  ...
+} {
+  // This will optimize a traversal of the same subselections.
+  // If it's the same node, and selectionMap is empty
+  // result of transformNode has to be the same.
+  const isEmptySelectionMap = selectionMap.size === 0;
+  let result;
+  if (isEmptySelectionMap) {
+    result = cache.get(node);
+    if (result != null) {
+      return result;
+    }
+  }
   const selections = [];
   sortSelections(node.selections).forEach(selection => {
-    const identifier = getIdentifierForSelection(selection);
+    const identifier = getIdentifierForSelection(schema, selection);
     switch (selection.kind) {
       case 'ScalarField':
       case 'FragmentSpread': {
@@ -160,10 +184,16 @@ function transformNode<T: Node>(
         }
         break;
       }
-      case 'MatchBranch':
-      case 'MatchField':
+      case 'Defer':
+      case 'Stream':
+      case 'ModuleImport':
+      case 'ClientExtension':
+      case 'InlineDataFragmentSpread':
+      case 'Connection':
+      case 'ConnectionField':
       case 'LinkedField': {
         const transformed = transformNode(
+          schema,
           selection,
           selectionMap.get(identifier) || new IMap(),
         );
@@ -178,6 +208,7 @@ function transformNode<T: Node>(
         // Fork the selection map to prevent conditional selections from
         // affecting the outer "guaranteed" selections.
         const transformed = transformNode(
+          schema,
           selection,
           selectionMap.get(identifier) || selectionMap,
         );
@@ -197,7 +228,11 @@ function transformNode<T: Node>(
     }
   });
   const nextNode: any = selections.length ? {...node, selections} : null;
-  return {selectionMap, node: nextNode};
+  result = {selectionMap, node: nextNode};
+  if (isEmptySelectionMap) {
+    cache.set(node, result);
+  }
+  return result;
 }
 
 /**
@@ -206,13 +241,13 @@ function transformNode<T: Node>(
 function sortSelections(
   selections: $ReadOnlyArray<Selection>,
 ): $ReadOnlyArray<Selection> {
-  return [...selections].sort((a, b) => {
-    return a.kind === 'InlineFragment' || a.kind === 'Condition'
-      ? 1
-      : b.kind === 'InlineFragment' || b.kind === 'Condition'
-        ? -1
-        : 0;
-  });
+  const isScalarOrLinkedField = selection =>
+    selection.kind === 'ScalarField' || selection.kind === 'LinkedField';
+  const [scalarsAndLinkedFields, rest] = partitionArray(
+    selections,
+    isScalarOrLinkedField,
+  );
+  return [...scalarsAndLinkedFields, ...rest];
 }
 
 module.exports = {

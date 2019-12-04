@@ -8,13 +8,17 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const {RelayConcreteNode} = require('relay-runtime');
 
-import type {IRTransform} from '../core/GraphQLCompilerContext';
-import type {Root, Fragment} from '../core/GraphQLIR';
+import type {IRTransform} from '../core/CompilerContext';
+import type {GeneratedDefinition, Root, Fragment} from '../core/IR';
+import type {Schema} from '../core/Schema';
 import type {ScalarTypeMapping} from './javascript/RelayFlowTypeTransformers';
+import type {GeneratedNode} from 'relay-runtime';
 
 /**
  * A language plugin allows relay-compiler to both read and write files for any
@@ -34,6 +38,8 @@ export type PluginInterface = {
   findGraphQLTags: GraphQLTagFinder,
   formatModule: FormatModule,
   typeGenerator: TypeGenerator,
+  schemaExtensions?: $ReadOnlyArray<string>,
+  ...
 };
 
 /**
@@ -55,7 +61,6 @@ export type GraphQLTag = {
    *  grapqhl`fragment MyFragment on MyType { … }`
    */
   template: string,
-
   /**
    * In the case this tag was part of a fragment container and it used a node
    * map as fragment spec, rather than a single tagged node, this should hold
@@ -72,7 +77,6 @@ export type GraphQLTag = {
    *
    */
   keyName: ?string,
-
   /**
    * The location in the source file that the tag is placed at.
    */
@@ -91,6 +95,7 @@ export type GraphQLTag = {
      */
     column: number,
   |},
+  ...
 };
 
 /**
@@ -106,7 +111,7 @@ export type GraphQLTag = {
 export type GraphQLTagFinder = (
   text: string,
   filePath: string,
-) => Array<GraphQLTag>;
+) => $ReadOnlyArray<GraphQLTag>;
 
 /**
  * The function that is responsible for generating the contents of the artifact
@@ -158,6 +163,11 @@ export type FormatModule = ({|
   kind: string,
 
   /**
+   * The IR node from which the generated node is derived.
+   */
+  definition: GeneratedDefinition,
+
+  /**
    * A hash of the document, which is used by relay-compiler to know if it needs
    * to write a new version of the artifact.
    *
@@ -166,9 +176,14 @@ export type FormatModule = ({|
   sourceHash: string,
 
   /**
-   * @todo Document this.
+   * The generated node being written.
    */
-  devOnlyAssignments: ?string,
+  node: GeneratedNode,
+
+  /**
+   * GraphQL Schema Interface
+   */
+  schema: Schema,
 |}) => string;
 
 /**
@@ -228,9 +243,15 @@ export type TypeGeneratorOptions = {|
   +useHaste: boolean,
 
   /**
-   * @todo Document this.
+   * Import flow types from the Haste-style global module name or per-enum
+   * global module name given by the function variant.
    */
-  +enumsHasteModule: ?string,
+  +enumsHasteModule?: string | ((enumName: string) => string),
+
+  /**
+   * Optional normalization IR for generating raw response
+   */
+  +normalizationIR?: Root,
 |};
 
 /**
@@ -244,12 +265,16 @@ export type TypeGenerator = {
    * Transforms that should be applied to the intermediate representation of the
    * GraphQL document before passing to the `generate` function.
    */
-  transforms: Array<IRTransform>,
-
+  transforms: $ReadOnlyArray<IRTransform>,
   /**
    * Given GraphQL document IR, this function should generate type information
    * for e.g. the selections made. It can, however, also generate any other
    * content such as importing other files, including other artifacts.
    */
-  generate: (node: Root | Fragment, options: TypeGeneratorOptions) => string,
+  generate: (
+    schema: Schema,
+    node: Root | Fragment,
+    options: TypeGeneratorOptions,
+  ) => string,
+  ...
 };

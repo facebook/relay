@@ -1,0 +1,912 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`RefetchableFragmentTransform matches expected output: fragment-on-interface-which-implmentations-implement-node.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment RefetchableFragment on Actor
+  @refetchable(queryName: "RefetchableFragmentQuery") {
+  id
+  ... on User {
+    name
+    ...ProfilePicture
+  }
+}
+
+fragment ProfilePicture on User {
+  profilePicture(size: $size) {
+    uri
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+fragment RefetchableFragment on Actor @refetchable(queryName: "RefetchableFragmentQuery") {
+  id
+  ... on User {
+    name
+    ...ProfilePicture
+  }
+}
+
+fragment ProfilePicture on User {
+  profilePicture(size: $size) {
+    uri
+  }
+}
+
+query RefetchableFragmentQuery(
+  $size: [Int]
+  $id: ID!
+) {
+  node(id: $id) {
+    ...RefetchableFragment
+  }
+}
+
+`;
+
+exports[`RefetchableFragmentTransform matches expected output: fragment-on-interface-which-implmentations-not-implement-node.invalid.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+# expected-to-throw
+fragment UserName on UserNameRenderable
+  @refetchable(queryName: "RefetchableFragmentQuery") {
+  name
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+THROWN EXCEPTION:
+
+Invalid use of @refetchable on fragment 'UserName', only supported are fragments on:
+ - the Viewer type
+ - the query type
+ - the Node interface or types implementing the Node interface
+
+Source: GraphQL request (2:1)
+1: # expected-to-throw
+2: fragment UserName on UserNameRenderable
+   ^
+3:   @refetchable(queryName: "RefetchableFragmentQuery") {
+
+`;
+
+exports[`RefetchableFragmentTransform matches expected output: fragment-on-node-interface.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment RefetchableFragment on Node
+  @refetchable(queryName: "RefetchableFragmentQuery") {
+  id
+  ... on User {
+    name
+    ...ProfilePicture
+  }
+}
+
+fragment ProfilePicture on User {
+  profilePicture(size: $size) {
+    uri
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+fragment RefetchableFragment on Node @refetchable(queryName: "RefetchableFragmentQuery") {
+  id
+  ... on User {
+    name
+    ...ProfilePicture
+  }
+}
+
+fragment ProfilePicture on User {
+  profilePicture(size: $size) {
+    uri
+  }
+}
+
+query RefetchableFragmentQuery(
+  $size: [Int]
+  $id: ID!
+) {
+  node(id: $id) {
+    ...RefetchableFragment
+  }
+}
+
+`;
+
+exports[`RefetchableFragmentTransform matches expected output: fragment-on-node-interface-without-id.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment RefetchableFragment on Node
+  @refetchable(queryName: "RefetchableFragmentQuery") {
+  ... on User {
+    name
+    ...ProfilePicture
+  }
+}
+
+fragment ProfilePicture on User {
+  profilePicture(size: $size) {
+    uri
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+fragment RefetchableFragment on Node @refetchable(queryName: "RefetchableFragmentQuery") {
+  ... on User {
+    name
+    ...ProfilePicture
+  }
+  id
+}
+
+fragment ProfilePicture on User {
+  profilePicture(size: $size) {
+    uri
+  }
+}
+
+query RefetchableFragmentQuery(
+  $size: [Int]
+  $id: ID!
+) {
+  node(id: $id) {
+    ...RefetchableFragment
+  }
+}
+
+`;
+
+exports[`RefetchableFragmentTransform matches expected output: fragment-on-object-implementing-node-interface.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment RefetchableFragment on User
+  @refetchable(queryName: "RefetchableFragmentQuery") {
+  id
+  name
+  ...ProfilePicture
+}
+
+fragment ProfilePicture on User {
+  profilePicture(size: $size) {
+    uri
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+fragment RefetchableFragment on User @refetchable(queryName: "RefetchableFragmentQuery") {
+  id
+  name
+  ...ProfilePicture
+}
+
+fragment ProfilePicture on User {
+  profilePicture(size: $size) {
+    uri
+  }
+}
+
+query RefetchableFragmentQuery(
+  $size: [Int]
+  $id: ID!
+) {
+  node(id: $id) {
+    ...RefetchableFragment
+  }
+}
+
+`;
+
+exports[`RefetchableFragmentTransform matches expected output: fragment-on-object-implementing-node-interface-with-alias-id.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment RefetchableFragment on User
+  @refetchable(queryName: "RefetchableFragmentQuery") {
+  __id: id
+  name
+  ...ProfilePicture
+}
+
+fragment ProfilePicture on User {
+  profilePicture(size: $size) {
+    uri
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+fragment RefetchableFragment on User @refetchable(queryName: "RefetchableFragmentQuery") {
+  __id: id
+  name
+  ...ProfilePicture
+  id
+}
+
+fragment ProfilePicture on User {
+  profilePicture(size: $size) {
+    uri
+  }
+}
+
+query RefetchableFragmentQuery(
+  $size: [Int]
+  $id: ID!
+) {
+  node(id: $id) {
+    ...RefetchableFragment
+  }
+}
+
+`;
+
+exports[`RefetchableFragmentTransform matches expected output: fragment-on-query.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment RefetchableFragment on Query
+  @refetchable(queryName: "RefetchableFragmentQuery")
+  @argumentDefinitions(id: {type: "ID!"}) {
+  node(id: $id) {
+    ... on User {
+      id
+      name
+      ...ProfilePicture
+    }
+  }
+}
+
+fragment ProfilePicture on User {
+  profilePicture(size: $size) {
+    uri
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+fragment RefetchableFragment on Query @argumentDefinitions(
+  id: {type: "ID!"}
+) @refetchable(queryName: "RefetchableFragmentQuery") {
+  node(id: $id) {
+    ... on User {
+      id
+      name
+      ...ProfilePicture
+    }
+  }
+}
+
+fragment ProfilePicture on User {
+  profilePicture(size: $size) {
+    uri
+  }
+}
+
+query RefetchableFragmentQuery(
+  $id: ID!
+  $size: [Int]
+) {
+  ...RefetchableFragment @arguments(id: $id)
+}
+
+`;
+
+exports[`RefetchableFragmentTransform matches expected output: fragment-on-query-with-cycle.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment RefetchableFragment on Query
+  @refetchable(queryName: "RefetchableFragmentQuery")
+  @argumentDefinitions(id: {type: "ID!"}) {
+  node(id: $id) {
+    ... on User {
+      id
+      name
+      ...Profile @arguments(includeProfile: true)
+    }
+  }
+}
+
+fragment Profile on User
+  @argumentDefinitions(
+    includeProfile: {type: "Boolean!", defaultValue: false}
+  ) {
+  id
+  name
+  profilePicture(size: $pictureSize) {
+    uri
+  }
+  friends(first: $count) {
+    edges {
+      node {
+        ...Profile
+      }
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+fragment RefetchableFragment on Query @argumentDefinitions(
+  id: {type: "ID!"}
+) @refetchable(queryName: "RefetchableFragmentQuery") {
+  node(id: $id) {
+    ... on User {
+      id
+      name
+      ...Profile @arguments(includeProfile: true)
+    }
+  }
+}
+
+fragment Profile on User @argumentDefinitions(
+  includeProfile: {type: "Boolean!", defaultValue: false}
+) {
+  id
+  name
+  profilePicture(size: $pictureSize) {
+    uri
+  }
+  friends(first: $count) {
+    edges {
+      node {
+        ...Profile
+      }
+    }
+  }
+}
+
+query RefetchableFragmentQuery(
+  $id: ID!
+  $pictureSize: [Int]
+  $count: Int
+) {
+  ...RefetchableFragment @arguments(id: $id)
+}
+
+`;
+
+exports[`RefetchableFragmentTransform matches expected output: fragment-on-query-without-queryName.invalid.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+# expected-to-throw
+fragment RefetchableFragment on Query
+  @refetchable
+  @argumentDefinitions(id: {type: "ID!"}) {
+  node(id: $id) {
+    ... on User {
+      id
+      name
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+THROWN EXCEPTION:
+
+Expected the 'queryName' argument of @refetchable to be provided
+
+Source: GraphQL request (3:3)
+2: fragment RefetchableFragment on Query
+3:   @refetchable
+     ^
+4:   @argumentDefinitions(id: {type: "ID!"}) {
+
+`;
+
+exports[`RefetchableFragmentTransform matches expected output: fragment-on-viewer.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment RefetchableFragment on Viewer
+  @refetchable(queryName: "RefetchableFragmentQuery") {
+  actor {
+    id
+    name
+    ...ProfilePicture
+  }
+}
+
+fragment ProfilePicture on User {
+  profilePicture(size: $size) {
+    uri
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+fragment RefetchableFragment on Viewer @refetchable(queryName: "RefetchableFragmentQuery") {
+  actor {
+    id
+    name
+    ...ProfilePicture
+  }
+}
+
+fragment ProfilePicture on User {
+  profilePicture(size: $size) {
+    uri
+  }
+}
+
+query RefetchableFragmentQuery(
+  $size: [Int]
+) {
+  viewer {
+    ...RefetchableFragment
+  }
+}
+
+`;
+
+exports[`RefetchableFragmentTransform matches expected output: fragment-with-args-on-object-implementing-node-interface.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment RefetchableFragment on User
+  @refetchable(queryName: "RefetchableFragmentQuery")
+  @argumentDefinitions(size: {type: "[Int]"}) {
+  id
+  name
+  ...ProfilePicture @arguments(size: $size)
+}
+
+fragment ProfilePicture on User @argumentDefinitions(size: {type: "[Int]"}) {
+  pic: profilePicture(size: $size) {
+    uri
+  }
+  profilePicture(size: $rootSize) {
+    uri
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+fragment RefetchableFragment on User @argumentDefinitions(
+  size: {type: "[Int]"}
+) @refetchable(queryName: "RefetchableFragmentQuery") {
+  id
+  name
+  ...ProfilePicture @arguments(size: $size)
+}
+
+fragment ProfilePicture on User @argumentDefinitions(
+  size: {type: "[Int]"}
+) {
+  pic: profilePicture(size: $size) {
+    uri
+  }
+  profilePicture(size: $rootSize) {
+    uri
+  }
+}
+
+query RefetchableFragmentQuery(
+  $size: [Int]
+  $rootSize: [Int]
+  $id: ID!
+) {
+  node(id: $id) {
+    ...RefetchableFragment @arguments(size: $size)
+  }
+}
+
+`;
+
+exports[`RefetchableFragmentTransform matches expected output: fragment-with-args-on-query.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment RefetchableFragment on Query
+  @refetchable(queryName: "RefetchableFragmentQuery")
+  @argumentDefinitions(id: {type: "ID!"}, size: {type: "[Int]"}) {
+  node(id: $id) {
+    ... on User {
+      id
+      name
+      ...ProfilePicture @arguments(size: $size)
+    }
+  }
+}
+
+fragment ProfilePicture on User @argumentDefinitions(size: {type: "[Int]"}) {
+  pic: profilePicture(size: $size) {
+    uri
+  }
+  profilePicture(size: $rootSize) {
+    uri
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+fragment RefetchableFragment on Query @argumentDefinitions(
+  id: {type: "ID!"}
+  size: {type: "[Int]"}
+) @refetchable(queryName: "RefetchableFragmentQuery") {
+  node(id: $id) {
+    ... on User {
+      id
+      name
+      ...ProfilePicture @arguments(size: $size)
+    }
+  }
+}
+
+fragment ProfilePicture on User @argumentDefinitions(
+  size: {type: "[Int]"}
+) {
+  pic: profilePicture(size: $size) {
+    uri
+  }
+  profilePicture(size: $rootSize) {
+    uri
+  }
+}
+
+query RefetchableFragmentQuery(
+  $id: ID!
+  $size: [Int]
+  $rootSize: [Int]
+) {
+  ...RefetchableFragment @arguments(id: $id, size: $size)
+}
+
+`;
+
+exports[`RefetchableFragmentTransform matches expected output: fragment-with-args-on-viewer.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment RefetchableFragment on Viewer
+  @refetchable(queryName: "RefetchableFragmentQuery")
+  @argumentDefinitions(size: {type: "[Int]"}) {
+  actor {
+    id
+    name
+    ...ProfilePicture @arguments(size: $size)
+  }
+}
+
+fragment ProfilePicture on User @argumentDefinitions(size: {type: "[Int]"}) {
+  pic: profilePicture(size: $size) {
+    uri
+  }
+  profilePicture(size: $rootSize) {
+    uri
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+fragment RefetchableFragment on Viewer @argumentDefinitions(
+  size: {type: "[Int]"}
+) @refetchable(queryName: "RefetchableFragmentQuery") {
+  actor {
+    id
+    name
+    ...ProfilePicture @arguments(size: $size)
+  }
+}
+
+fragment ProfilePicture on User @argumentDefinitions(
+  size: {type: "[Int]"}
+) {
+  pic: profilePicture(size: $size) {
+    uri
+  }
+  profilePicture(size: $rootSize) {
+    uri
+  }
+}
+
+query RefetchableFragmentQuery(
+  $size: [Int]
+  $rootSize: [Int]
+) {
+  viewer {
+    ...RefetchableFragment @arguments(size: $size)
+  }
+}
+
+`;
+
+exports[`RefetchableFragmentTransform matches expected output: refetchable-fragment-with-connection.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment PaginationFragment on Node
+  @refetchable(queryName: "RefetchableFragmentQuery")
+  @argumentDefinitions(
+    count: {type: "Int", defaultValue: 10}
+    cursor: {type: "ID"}
+  ) {
+  id
+  ... on User {
+    name
+    friends(after: $cursor, first: $count)
+      @connection(key: "PaginationFragment_friends") {
+      edges {
+        node {
+          id
+        }
+      }
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+fragment PaginationFragment on Node @argumentDefinitions(
+  count: {type: "Int", defaultValue: 10}
+  cursor: {type: "ID"}
+) @refetchable(queryName: "RefetchableFragmentQuery") {
+  id
+  ... on User {
+    name
+    friends(after: $cursor, first: $count) @__clientField(handle: "connection", key: "PaginationFragment_friends") {
+      edges {
+        node {
+          id
+        }
+        ... on FriendsEdge {
+          cursor
+          node {
+            __typename
+          }
+        }
+      }
+      pageInfo {
+        ... on PageInfo {
+          endCursor
+          hasNextPage
+        }
+      }
+    }
+  }
+}
+
+query RefetchableFragmentQuery(
+  $count: Int = 10
+  $cursor: ID
+  $id: ID!
+) {
+  node(id: $id) {
+    ...PaginationFragment @arguments(count: $count, cursor: $cursor)
+  }
+}
+
+`;
+
+exports[`RefetchableFragmentTransform matches expected output: refetchable-fragment-with-connection-bidirectional.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment PaginationFragment on Node
+  @refetchable(queryName: "RefetchableFragmentQuery")
+  @argumentDefinitions(
+    count: {type: "Int", defaultValue: 10}
+    cursor: {type: "ID"}
+  ) {
+  id
+  ... on User {
+    name
+    friends(
+      after: $cursor
+      first: $count
+      before: $beforeCursor
+      last: $lastCount
+    ) @connection(key: "PaginationFragment_friends") {
+      edges {
+        node {
+          id
+        }
+      }
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+fragment PaginationFragment on Node @argumentDefinitions(
+  count: {type: "Int", defaultValue: 10}
+  cursor: {type: "ID"}
+) @refetchable(queryName: "RefetchableFragmentQuery") {
+  id
+  ... on User {
+    name
+    friends(after: $cursor, first: $count, before: $beforeCursor, last: $lastCount) @__clientField(handle: "connection", key: "PaginationFragment_friends") {
+      edges {
+        node {
+          id
+        }
+        ... on FriendsEdge {
+          cursor
+          node {
+            __typename
+          }
+        }
+      }
+      pageInfo {
+        ... on PageInfo {
+          endCursor
+          hasNextPage
+          hasPreviousPage
+          startCursor
+        }
+      }
+    }
+  }
+}
+
+query RefetchableFragmentQuery(
+  $count: Int = 10
+  $cursor: ID
+  $beforeCursor: ID
+  $lastCount: Int
+  $id: ID!
+) {
+  node(id: $id) {
+    ...PaginationFragment @arguments(count: $count, cursor: $cursor)
+  }
+}
+
+`;
+
+exports[`RefetchableFragmentTransform matches expected output: refetchable-fragment-with-connection-literal-count.invalid.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+# expected-to-throw
+fragment PaginationFragment on Node
+  @refetchable(queryName: "RefetchableFragmentQuery")
+  @argumentDefinitions(cursor: {type: "ID"}) {
+  id
+  ... on User {
+    name
+    friends(after: $cursor, first: 10)
+      @connection(key: "PaginationFragment_friends") {
+      edges {
+        node {
+          id
+        }
+      }
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+THROWN EXCEPTION:
+
+Invalid use of @refetchable with @connection in fragment 'PaginationFragment', refetchable connections must use variables for the after and first arguments.
+
+Source: GraphQL request (8:5)
+7:     name
+8:     friends(after: $cursor, first: 10)
+       ^
+9:       @connection(key: "PaginationFragment_friends") {
+
+Source: GraphQL request (8:36)
+7:     name
+8:     friends(after: $cursor, first: 10)
+                                      ^
+9:       @connection(key: "PaginationFragment_friends") {
+
+`;
+
+exports[`RefetchableFragmentTransform matches expected output: refetchable-fragment-with-connection-no-cursor.invalid.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+# expected-to-throw
+fragment PaginationFragment on Node
+  @refetchable(queryName: "RefetchableFragmentQuery")
+  @argumentDefinitions(count: {type: "Int", defaultValue: 10}) {
+  id
+  ... on User {
+    name
+    friends(after: "<cursor>", first: $count)
+      @connection(key: "PaginationFragment_friends") {
+      edges {
+        node {
+          id
+        }
+      }
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+THROWN EXCEPTION:
+
+Invalid use of @refetchable with @connection in fragment 'PaginationFragment', refetchable connections must use variables for the after and first arguments.
+
+Source: GraphQL request (8:5)
+7:     name
+8:     friends(after: "<cursor>", first: $count)
+       ^
+9:       @connection(key: "PaginationFragment_friends") {
+
+Source: GraphQL request (8:20)
+7:     name
+8:     friends(after: "<cursor>", first: $count)
+                      ^
+9:       @connection(key: "PaginationFragment_friends") {
+
+`;
+
+exports[`RefetchableFragmentTransform matches expected output: refetchable-fragment-with-connection-unstable-path.invalid.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+# expected-to-throw
+fragment PaginationFragment on Node
+  @refetchable(queryName: "RefetchableFragmentQuery")
+  @argumentDefinitions(
+    count: {type: "Int", defaultValue: 10}
+    cursor: {type: "ID"}
+  ) {
+  id
+  ... on User {
+    name
+    friends(first: 1) {
+      edges {
+        node {
+          friends(after: $cursor, first: $count)
+            @connection(key: "PaginationFragment_friends") {
+            edges {
+              node {
+                id
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+THROWN EXCEPTION:
+
+Invalid use of @refetchable with @connection in fragment 'PaginationFragment', refetchable connections cannot appear inside plural fields.
+
+Source: GraphQL request (14:11)
+13:         node {
+14:           friends(after: $cursor, first: $count)
+              ^
+15:             @connection(key: "PaginationFragment_friends") {
+
+Source: GraphQL request (12:7)
+11:     friends(first: 1) {
+12:       edges {
+          ^
+13:         node {
+
+`;
+
+exports[`RefetchableFragmentTransform matches expected output: refetchable-fragment-with-connection-with-stream.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment PaginationFragment on Node
+  @refetchable(queryName: "RefetchableFragmentQuery")
+  @argumentDefinitions(
+    count: {type: "Int", defaultValue: 10}
+    cursor: {type: "ID"}
+  ) {
+  id
+  ... on User {
+    name
+    friends(after: $cursor, first: $count)
+      @stream_connection(key: "PaginationFragment_friends", initial_count: 1) {
+      edges {
+        node {
+          id
+        }
+      }
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+fragment PaginationFragment on Node @argumentDefinitions(
+  count: {type: "Int", defaultValue: 10}
+  cursor: {type: "ID"}
+) @refetchable(queryName: "RefetchableFragmentQuery") {
+  id
+  ... on User {
+    name
+    friends(after: $cursor, first: $count) @__clientField(handle: "connection", key: "PaginationFragment_friends") {
+      edges @stream(initial_count: 1, label: "PaginationFragment_friends") {
+        node {
+          id
+        }
+        ... on FriendsEdge {
+          cursor
+          node {
+            __typename
+          }
+        }
+      }
+      ... on FriendsConnection @defer(label: "PaginationFragment$defer$PaginationFragment_friends$pageInfo") {
+        pageInfo {
+          ... on PageInfo {
+            endCursor
+            hasNextPage
+          }
+        }
+      }
+    }
+  }
+}
+
+query RefetchableFragmentQuery(
+  $count: Int = 10
+  $cursor: ID
+  $id: ID!
+) {
+  node(id: $id) {
+    ...PaginationFragment @arguments(count: $count, cursor: $cursor)
+  }
+}
+
+`;

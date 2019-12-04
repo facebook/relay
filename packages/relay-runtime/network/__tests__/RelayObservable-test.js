@@ -10,8 +10,6 @@
 
 'use strict';
 
-require('configureForRelayOSS');
-
 const RelayObservable = require('../RelayObservable');
 
 jest.useFakeTimers();
@@ -1606,189 +1604,6 @@ describe('RelayObservable', () => {
     });
   });
 
-  describe('fromLegacy', () => {
-    it('Converts a legacy Relay observe API into an Observable', () => {
-      const list = [];
-
-      function exampleLegacyAPI(one, two, observer) {
-        observer.onNext(one);
-        observer.onNext(two);
-        observer.onCompleted();
-        return {
-          dispose() {
-            list.push('dispose');
-          },
-        };
-      }
-
-      const obs = RelayObservable.fromLegacy(observer =>
-        exampleLegacyAPI('one', 'two', observer),
-      );
-
-      obs.subscribe({
-        next: val => list.push(val),
-        error: err => {
-          list.push('error');
-          list.push(err);
-        },
-        complete: () => list.push('complete'),
-      });
-
-      expect(list).toEqual(['one', 'two', 'complete', 'dispose']);
-    });
-
-    it('Allows unsubscribing from a legacy Relay API', () => {
-      const list = [];
-
-      function exampleLegacyAPI(one, two, observer) {
-        observer.onNext(one);
-        observer.onNext(two);
-        return {
-          prop: 'property',
-          dispose() {
-            list.push('dispose:' + this.prop);
-          },
-        };
-      }
-
-      const obs = RelayObservable.fromLegacy(observer =>
-        exampleLegacyAPI('one', 'two', observer),
-      );
-
-      const sub = obs.subscribe({
-        next: val => list.push(val),
-        error: err => {
-          list.push('error');
-          list.push(err);
-        },
-        complete: () => list.push('complete'),
-      });
-
-      sub.unsubscribe();
-
-      expect(list).toEqual(['one', 'two', 'dispose:property']);
-    });
-
-    it('Errors thrown in legacy API are handled', () => {
-      const list = [];
-      const error = new Error();
-
-      function exampleLegacyAPI(one, two, observer) {
-        observer.onNext(one);
-        throw error;
-      }
-
-      const obs = RelayObservable.fromLegacy(observer =>
-        exampleLegacyAPI('one', 'two', observer),
-      );
-
-      obs.subscribe({
-        next: val => list.push(val),
-        error: err => {
-          list.push('error');
-          list.push(err);
-        },
-        complete: () => list.push('complete'),
-      });
-
-      expect(list).toEqual(['one', 'error', error]);
-    });
-
-    it('Supports legacy API which now return Observable', () => {
-      const list = [];
-
-      function exampleLegacyAPI(one, two, observer) {
-        const fauxObservable = {
-          subscribe(callbacks) {
-            callbacks.next(one);
-            callbacks.next(two);
-            callbacks.complete();
-            return {
-              unsubscribe() {
-                list.push('unsubscribed');
-              },
-            };
-          },
-        };
-        return fauxObservable;
-      }
-
-      const obs = RelayObservable.fromLegacy(observer =>
-        exampleLegacyAPI('one', 'two', observer),
-      );
-
-      obs.subscribe({
-        next: val => list.push(val),
-        error: err => {
-          list.push('error');
-          list.push(err);
-        },
-        complete: () => list.push('complete'),
-      });
-
-      expect(list).toEqual(['one', 'two', 'complete', 'unsubscribed']);
-    });
-  });
-
-  describe('subscribeLegacy', () => {
-    it('Handle values and complete', () => {
-      const list = [];
-
-      RelayObservable.create(sink => {
-        sink.next(1);
-        sink.next(2);
-        sink.next(3);
-        sink.complete();
-      }).subscribeLegacy({
-        onNext: val => list.push('next:' + val),
-        onError: err => list.push(err),
-        onCompleted: () => list.push('complete'),
-      });
-
-      expect(list).toEqual(['next:1', 'next:2', 'next:3', 'complete']);
-    });
-
-    it('Does not handle values after handling error', () => {
-      const list = [];
-      const error = new Error();
-
-      RelayObservable.create(sink => {
-        sink.next(1);
-        sink.next(2);
-        sink.error(error);
-        sink.next(3);
-      }).subscribeLegacy({
-        onNext: val => list.push('next:' + val),
-        onError: err => list.push(err),
-        onCompleted: () => list.push('complete'),
-      });
-
-      expect(list).toEqual(['next:1', 'next:2', error]);
-    });
-
-    it('Cleans up and does not handle values after dispose', () => {
-      let sink;
-      const list = [];
-
-      const obs = RelayObservable.create(_sink => {
-        sink = _sink;
-        return () => list.push('cleanup');
-      });
-
-      const disposable = obs.subscribeLegacy({
-        onNext: val => list.push('next:' + val),
-        onError: err => list.push(err),
-        onCompleted: () => list.push('complete'),
-      });
-
-      sink.next(1);
-      disposable.dispose();
-      sink.next(2);
-
-      expect(list).toEqual(['next:1', 'cleanup']);
-    });
-  });
-
   describe('poll', () => {
     it('Throws error if polling interval is too small', () => {
       expect(() => RelayObservable.create(() => {}).poll(0)).toThrow(
@@ -1892,6 +1707,160 @@ describe('RelayObservable', () => {
 
       jest.runAllTimers(); // does nothing since unsubscribed.
       expect(list).toEqual(['start', 'one', 'cleanup']);
+    });
+  });
+
+  describe('concat', () => {
+    it('Yields values from both observables', () => {
+      const list = [];
+
+      const fruits = RelayObservable.create(sink => {
+        list.push('begin fruits');
+        sink.next('Apple');
+        sink.next('Banana');
+        sink.complete();
+        return () => list.push('cleanup fruits');
+      });
+
+      const cities = RelayObservable.create(sink => {
+        list.push('begin cities');
+        sink.next('Athens');
+        sink.next('Berlin');
+        sink.complete();
+        return () => list.push('cleanup cities');
+      });
+
+      const fruitsThenCities = fruits.concat(cities);
+      fruitsThenCities.subscribe({
+        next: val => list.push(val),
+        error: err => {
+          list.push('error');
+          list.push(err);
+        },
+        complete: () => list.push('complete'),
+      });
+
+      expect(list).toEqual([
+        'begin fruits',
+        'Apple',
+        'Banana',
+        'begin cities',
+        'Athens',
+        'Berlin',
+        'complete',
+        'cleanup cities',
+        'cleanup fruits',
+      ]);
+    });
+
+    it('Error passes through without starting the second', () => {
+      const list = [];
+      const error = new Error();
+
+      const problem = RelayObservable.create(sink => {
+        list.push('begin problem');
+        sink.error(error);
+        return () => list.push('cleanup problem');
+      });
+
+      const cities = RelayObservable.create(sink => {
+        list.push('begin cities');
+        sink.next('Athens');
+        sink.next('Berlin');
+        sink.complete();
+        return () => list.push('cleanup cities');
+      });
+
+      const problemThenCities = problem.concat(cities);
+
+      problemThenCities.subscribe({
+        next: val => list.push(val),
+        error: err => {
+          list.push('error');
+          list.push(err);
+        },
+        complete: () => list.push('complete'),
+      });
+
+      expect(list).toEqual([
+        'begin problem',
+        'error',
+        error,
+        'cleanup problem',
+      ]);
+    });
+
+    it('Does not start second Observable if first is unsubscribed', () => {
+      let sink1;
+      const list = [];
+
+      const obs1 = RelayObservable.create(sink => {
+        list.push('create first');
+        sink1 = sink;
+        return () => list.push('cleanup first');
+      });
+
+      const obs2 = RelayObservable.create(sink => {
+        list.push('create second');
+        return () => list.push('cleanup second');
+      });
+
+      const sub = obs1.concat(obs2).subscribe({
+        next: val => list.push('next:' + val),
+        error: err => list.push(err),
+        complete: () => list.push('complete'),
+        unsubscribe: () => list.push('unsubscribe'),
+      });
+
+      sink1.next(1);
+      sub.unsubscribe();
+
+      expect(list).toEqual([
+        'create first',
+        'next:1',
+        'unsubscribe',
+        'cleanup first',
+      ]);
+    });
+
+    it('Cleans up both Observables if second is unsubscribed', () => {
+      let sink1;
+      let sink2;
+      const list = [];
+
+      const obs1 = RelayObservable.create(sink => {
+        list.push('create first');
+        sink1 = sink;
+        return () => list.push('cleanup first');
+      });
+
+      const obs2 = RelayObservable.create(sink => {
+        list.push('create second');
+        sink2 = sink;
+        return () => list.push('cleanup second');
+      });
+
+      const sub = obs1.concat(obs2).subscribe({
+        next: val => list.push('next:' + val),
+        error: err => list.push(err),
+        complete: () => list.push('complete'),
+        unsubscribe: () => list.push('unsubscribe'),
+      });
+
+      sink1.next(1);
+      sink1.complete();
+      sink2.next(2);
+      sub.unsubscribe();
+
+      expect(list).toEqual([
+        'create first',
+        'next:1',
+        'create second',
+        'cleanup first',
+        'next:2',
+        'unsubscribe',
+        'cleanup second',
+      ]);
     });
   });
 
@@ -2557,11 +2526,13 @@ describe('RelayObservable', () => {
         return () => list.push('cleanup second');
       });
 
-      const sub = obs1.catch(() => obs2).subscribe({
-        next: val => list.push('next:' + val),
-        error: err => list.push(err),
-        complete: () => list.push('complete'),
-      });
+      const sub = obs1
+        .catch(() => obs2)
+        .subscribe({
+          next: val => list.push('next:' + val),
+          error: err => list.push(err),
+          complete: () => list.push('complete'),
+        });
 
       sink1.next(1);
       sub.unsubscribe();
@@ -2586,11 +2557,13 @@ describe('RelayObservable', () => {
         return () => list.push('cleanup second');
       });
 
-      const sub = obs1.catch(() => obs2).subscribe({
-        next: val => list.push('next:' + val),
-        error: err => list.push(err),
-        complete: () => list.push('complete'),
-      });
+      const sub = obs1
+        .catch(() => obs2)
+        .subscribe({
+          next: val => list.push('next:' + val),
+          error: err => list.push(err),
+          complete: () => list.push('complete'),
+        });
 
       sink1.next(1);
       sink1.error(new Error());
@@ -2618,12 +2591,14 @@ describe('RelayObservable', () => {
         return () => list.push('cleanup');
       });
 
-      obs.finally(() => list.push('finally')).subscribe({
-        next: val => list.push('next:' + val),
-        error: () => list.push('error'),
-        complete: () => list.push('complete'),
-        unsubscribe: () => list.push('unsubscribe'),
-      });
+      obs
+        .finally(() => list.push('finally'))
+        .subscribe({
+          next: val => list.push('next:' + val),
+          error: () => list.push('error'),
+          complete: () => list.push('complete'),
+          unsubscribe: () => list.push('unsubscribe'),
+        });
 
       expect(list).toEqual(['next:1', 'complete', 'cleanup', 'finally']);
     });
@@ -2636,12 +2611,14 @@ describe('RelayObservable', () => {
         return () => list.push('cleanup');
       });
 
-      obs.finally(() => list.push('finally')).subscribe({
-        next: val => list.push('next:' + val),
-        error: () => list.push('error'),
-        complete: () => list.push('complete'),
-        unsubscribe: () => list.push('unsubscribe'),
-      });
+      obs
+        .finally(() => list.push('finally'))
+        .subscribe({
+          next: val => list.push('next:' + val),
+          error: () => list.push('error'),
+          complete: () => list.push('complete'),
+          unsubscribe: () => list.push('unsubscribe'),
+        });
 
       expect(list).toEqual(['error', 'cleanup', 'finally']);
     });
@@ -2654,12 +2631,14 @@ describe('RelayObservable', () => {
         return () => list.push('cleanup');
       });
 
-      const sub = obs.finally(() => list.push('finally')).subscribe({
-        next: val => list.push('next:' + val),
-        error: () => list.push('error'),
-        complete: () => list.push('complete'),
-        unsubscribe: () => list.push('unsubscribe'),
-      });
+      const sub = obs
+        .finally(() => list.push('finally'))
+        .subscribe({
+          next: val => list.push('next:' + val),
+          error: () => list.push('error'),
+          complete: () => list.push('complete'),
+          unsubscribe: () => list.push('unsubscribe'),
+        });
 
       sub.unsubscribe();
 

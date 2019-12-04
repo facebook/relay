@@ -8,6 +8,8 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 /**
@@ -16,7 +18,7 @@
  * For convenience, and for consistency with the behavior of `Object.freeze`,
  * returns the now-frozen original object.
  */
-function deepFreeze<T: {}>(object: T): T {
+function deepFreeze<T: {...}>(object: T): T {
   Object.freeze(object);
   Object.getOwnPropertyNames(object).forEach(name => {
     const property = object[name];

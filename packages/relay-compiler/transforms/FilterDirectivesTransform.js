@@ -8,39 +8,36 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
-const GraphQLCompilerContext = require('../core/GraphQLCompilerContext');
-const GraphQLIRTransformer = require('../core/GraphQLIRTransformer');
+const IRTransformer = require('../core/IRTransformer');
 
-import type {Directive} from '../core/GraphQLIR';
+import type CompilerContext from '../core/CompilerContext';
+import type {Directive} from '../core/IR';
 
 /**
  * A transform that removes any directives that were not present in the
  * server schema.
  */
-function filterDirectivesTransform(
-  context: GraphQLCompilerContext,
-): GraphQLCompilerContext {
-  return GraphQLIRTransformer.transform(context, {
+function filterDirectivesTransform(context: CompilerContext): CompilerContext {
+  const schemaDirectives = new Set(
+    context
+      .getSchema()
+      .getDirectives()
+      .filter(directive => !directive.isClient)
+      .map(schemaDirective => schemaDirective.name),
+  );
+  const visitDirective = (directive: Directive): ?Directive => {
+    if (schemaDirectives.has(directive.name)) {
+      return directive;
+    }
+    return null;
+  };
+  return IRTransformer.transform(context, {
     Directive: visitDirective,
   });
-}
-
-/**
- * @internal
- *
- * Skip directives not defined in the original schema.
- */
-function visitDirective(directive: Directive): ?Directive {
-  if (
-    this.getContext()
-      .serverSchema.getDirectives()
-      .some(schemaDirective => schemaDirective.name === directive.name)
-  ) {
-    return directive;
-  }
-  return null;
 }
 
 module.exports = {

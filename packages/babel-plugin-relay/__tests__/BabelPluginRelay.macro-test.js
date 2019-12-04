@@ -10,10 +10,8 @@
 
 'use strict';
 
-require('configureForRelayOSS');
-
-const pluginTester = require('babel-plugin-tester');
 const plugin = require('babel-plugin-macros');
+const pluginTester = require('babel-plugin-tester');
 
 pluginTester({
   plugin,

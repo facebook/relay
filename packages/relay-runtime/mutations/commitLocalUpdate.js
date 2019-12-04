@@ -8,12 +8,14 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
-import type {StoreUpdater, Environment} from '../store/RelayStoreTypes';
+import type {StoreUpdater, IEnvironment} from '../store/RelayStoreTypes';
 
 function commitLocalUpdate(
-  environment: Environment,
+  environment: IEnvironment,
   updater: StoreUpdater,
 ): void {
   environment.commitUpdate(updater);

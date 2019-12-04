@@ -8,55 +8,37 @@
  * @flow
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
-const GraphQLCompilerContext = require('../core/GraphQLCompilerContext');
-const GraphQLIRTransformer = require('../core/GraphQLIRTransformer');
-const GraphQLSchemaUtils = require('../core/GraphQLSchemaUtils');
+const IRTransformer = require('../core/IRTransformer');
 
 const areEqual = require('../util/areEqualOSS');
 const getIdentifierForSelection = require('../core/getIdentifierForSelection');
 
-const {
-  createUserError,
-  createCompilerError,
-} = require('../core/RelayCompilerError');
+const {createCompilerError, createUserError} = require('../core/CompilerError');
 
+import type CompilerContext from '../core/CompilerContext';
 import type {
   Argument,
-  Condition,
   Field,
-  Fragment,
   Handle,
   InlineFragment,
-  Root,
-  ScalarField,
   LinkedField,
-  MatchField,
+  Node,
+  ScalarField,
   Selection,
-} from '../core/GraphQLIR';
-import type {GraphQLType} from 'graphql';
+} from '../core/IR';
+import type {Schema, TypeID} from '../core/Schema';
 
-const {getRawType, isAbstractType} = GraphQLSchemaUtils;
-
-export type FlattenOptions = {
-  flattenAbstractTypes?: boolean,
-  flattenInlineFragments?: boolean,
-};
+export type FlattenOptions = {flattenAbstractTypes?: boolean, ...};
 
 type State = {
   flattenAbstractTypes: boolean,
-  flattenInlineFragments: boolean,
-  parentType: ?GraphQLType,
+  parentType: ?TypeID,
+  ...
 };
-
-type HasSelections =
-  | Root
-  | Fragment
-  | Condition
-  | InlineFragment
-  | LinkedField
-  | MatchField;
 
 /**
  * Transform that flattens inline fragments, fragment spreads, and conditionals.
@@ -65,84 +47,113 @@ type HasSelections =
  * - The fragment type matches the type of its parent.
  * - The fragment has an abstract type and the `flattenAbstractTypes` option has
  *   been set.
- * - The 'flattenInlineFragments' option has been set.
  */
 function flattenTransformImpl(
-  context: GraphQLCompilerContext,
+  context: CompilerContext,
   options?: FlattenOptions,
-): GraphQLCompilerContext {
+): CompilerContext {
   const state = {
     flattenAbstractTypes: !!(options && options.flattenAbstractTypes),
-    flattenInlineFragments: !!(options && options.flattenInlineFragments),
     parentType: null,
   };
-
-  return GraphQLIRTransformer.transform(
+  const visitorFn = memoizedFlattenSelection(new Map());
+  return IRTransformer.transform(
     context,
     {
-      Root: flattenSelections,
-      Fragment: flattenSelections,
-      Condition: flattenSelections,
-      InlineFragment: flattenSelections,
-      LinkedField: flattenSelections,
-      MatchField: flattenSelections,
+      Condition: visitorFn,
+      Connection: visitorFn,
+      ConnectionField: visitorFn,
+      Defer: visitorFn,
+      Fragment: visitorFn,
+      InlineFragment: visitorFn,
+      InlineDataFragmentSpread: visitorFn,
+      LinkedField: visitorFn,
+      Root: visitorFn,
+      SplitOperation: visitorFn,
     },
     () => state,
   );
 }
 
-/**
- * @private
- */
-function flattenSelections<T: HasSelections>(node: T, state: State): T {
-  // Determine the current type.
-  const parentType = state.parentType;
-  const type =
-    node.kind === 'Condition'
-      ? parentType
-      : node.kind === 'InlineFragment'
-        ? node.typeCondition
-        : node.type;
-  if (type == null) {
-    throw createCompilerError('FlattenTransform: Expected a parent type.', [
-      node.loc,
-    ]);
-  }
+function memoizedFlattenSelection(cache) {
+  return function flattenSelectionsFn<T: Node>(node: T, state: State): T {
+    const context: CompilerContext = this.getContext();
+    let nodeCache = cache.get(node);
+    if (nodeCache == null) {
+      nodeCache = new Map();
+      cache.set(node, nodeCache);
+    }
+    // Determine the current type.
+    const parentType = state.parentType;
+    const result = nodeCache.get(parentType);
+    if (result != null) {
+      return result;
+    }
 
-  // Flatten the selections in this node, creating a new node with flattened
-  // selections if possible, then deeply traverse the flattened node, while
-  // keeping track of the parent type.
-  const nextSelections = new Map();
-  const hasFlattened = flattenSelectionsInto(nextSelections, node, state, type);
-  const flattenedNode = hasFlattened
-    ? {...node, selections: Array.from(nextSelections.values())}
-    : node;
-  state.parentType = type;
-  const deeplyFlattenedNode = this.traverse(flattenedNode, state);
-  state.parentType = parentType;
-  return deeplyFlattenedNode;
+    const type =
+      node.kind === 'LinkedField' ||
+      node.kind === 'Fragment' ||
+      node.kind === 'Root' ||
+      node.kind === 'SplitOperation'
+        ? node.type
+        : node.kind === 'InlineFragment'
+        ? node.typeCondition
+        : parentType;
+    if (type == null) {
+      throw createCompilerError('FlattenTransform: Expected a parent type.', [
+        node.loc,
+      ]);
+    }
+
+    // Flatten the selections in this node, creating a new node with flattened
+    // selections if possible, then deeply traverse the flattened node, while
+    // keeping track of the parent type.
+    const nextSelections = new Map();
+    const hasFlattened = flattenSelectionsInto(
+      context.getSchema(),
+      nextSelections,
+      node,
+      state,
+      type,
+    );
+    const flattenedNode = hasFlattened
+      ? {...node, selections: Array.from(nextSelections.values())}
+      : node;
+    state.parentType = type;
+    const deeplyFlattenedNode = this.traverse(flattenedNode, state);
+    state.parentType = parentType;
+    nodeCache.set(parentType, deeplyFlattenedNode);
+    return deeplyFlattenedNode;
+  };
 }
 
 /**
  * @private
  */
 function flattenSelectionsInto(
+  schema: Schema,
   flattenedSelections: Map<string, Selection>,
-  node: HasSelections,
+  node: Node,
   state: State,
-  type: GraphQLType,
+  type: TypeID,
 ): boolean {
   let hasFlattened = false;
   node.selections.forEach(selection => {
     if (
       selection.kind === 'InlineFragment' &&
-      shouldFlattenInlineFragment(selection, state, type)
+      shouldFlattenInlineFragment(schema, selection, state, type)
     ) {
       hasFlattened = true;
-      flattenSelectionsInto(flattenedSelections, selection, state, type);
+      flattenSelectionsInto(
+        schema,
+        flattenedSelections,
+        selection,
+        state,
+        type,
+      );
       return;
     }
-    const nodeIdentifier = getIdentifierForSelection(selection);
+    const nodeIdentifier = getIdentifierForSelection(schema, selection);
     const flattenedSelection = flattenedSelections.get(nodeIdentifier);
     // If this selection hasn't been seen before, keep track of it.
     if (!flattenedSelection) {
@@ -163,6 +174,7 @@ function flattenSelectionsInto(
       flattenedSelections.set(nodeIdentifier, {
         ...flattenedSelection,
         selections: mergeSelections(
+          schema,
           flattenedSelection,
           selection,
           state,
@@ -178,15 +190,101 @@ function flattenSelectionsInto(
       }
       flattenedSelections.set(nodeIdentifier, {
         ...flattenedSelection,
-        selections: mergeSelections(flattenedSelection, selection, state, type),
+        selections: mergeSelections(
+          schema,
+          flattenedSelection,
+          selection,
+          state,
+          type,
+        ),
+      });
+    } else if (flattenedSelection.kind === 'ClientExtension') {
+      if (selection.kind !== 'ClientExtension') {
+        throw createCompilerError(
+          `FlattenTransform: Expected a ClientExtension, got a '${
+            selection.kind
+          }'`,
+          [selection.loc],
+        );
+      }
+      flattenedSelections.set(nodeIdentifier, {
+        ...flattenedSelection,
+        selections: mergeSelections(
+          schema,
+          flattenedSelection,
+          selection,
+          state,
+          type,
+        ),
       });
     } else if (flattenedSelection.kind === 'FragmentSpread') {
       // Ignore duplicate fragment spreads.
-    } else if (
-      flattenedSelection.kind === 'MatchField' ||
-      flattenedSelection.kind === 'MatchBranch'
-    ) {
-      // Ignore duplicate matches that select the same fragments and modules (encoded in the identifier)
+    } else if (flattenedSelection.kind === 'ModuleImport') {
+      if (selection.kind !== 'ModuleImport') {
+        throw createCompilerError(
+          `FlattenTransform: Expected a ModuleImport, got a '${
+            selection.kind
+          }'`,
+          [selection.loc],
+        );
+      }
+      if (
+        selection.name !== flattenedSelection.name ||
+        selection.module !== flattenedSelection.module ||
+        selection.documentName !== flattenedSelection.documentName
+      ) {
+        throw createUserError(
+          'Found conflicting @module selections: use a unique alias on the ' +
+            'parent fields.',
+          [selection.loc, flattenedSelection.loc],
+        );
+      }
+      flattenedSelections.set(nodeIdentifier, {
+        ...flattenedSelection,
+        selections: mergeSelections(
+          schema,
+          flattenedSelection,
+          selection,
+          state,
+          type,
+        ),
+      });
+    } else if (flattenedSelection.kind === 'Defer') {
+      if (selection.kind !== 'Defer') {
+        throw createCompilerError(
+          `FlattenTransform: Expected a Defer, got a '${selection.kind}'`,
+          [selection.loc],
+        );
+      }
+      flattenedSelections.set(nodeIdentifier, {
+        kind: 'Defer',
+        ...flattenedSelection,
+        selections: mergeSelections(
+          schema,
+          flattenedSelection,
+          selection,
+          state,
+          type,
+        ),
+      });
+    } else if (flattenedSelection.kind === 'Stream') {
+      if (selection.kind !== 'Stream') {
+        throw createCompilerError(
+          `FlattenTransform: Expected a Stream, got a '${selection.kind}'`,
+          [selection.loc],
+        );
+      }
+      flattenedSelections.set(nodeIdentifier, {
+        kind: 'Stream',
+        ...flattenedSelection,
+        selections: mergeSelections(
+          schema,
+          flattenedSelection,
+          selection,
+          state,
+          type,
+        ),
+      });
     } else if (flattenedSelection.kind === 'LinkedField') {
       if (selection.kind !== 'LinkedField') {
         throw createCompilerError(
@@ -194,18 +292,26 @@ function flattenSelectionsInto(
           [selection.loc],
         );
       }
-      // Note: arguments are intentionally reversed to avoid rebuilds
       assertUniqueArgsForAlias(selection, flattenedSelection);
+      // NOTE: not using object spread here as this code is pretty hot
       flattenedSelections.set(nodeIdentifier, {
         kind: 'LinkedField',
-        ...flattenedSelection,
+        alias: flattenedSelection.alias,
+        args: flattenedSelection.args,
+        connection: flattenedSelection.connection || selection.connection,
+        directives: flattenedSelection.directives,
         handles: mergeHandles(flattenedSelection, selection),
+        loc: flattenedSelection.loc,
+        metadata: flattenedSelection.metadata,
+        name: flattenedSelection.name,
         selections: mergeSelections(
+          schema,
           flattenedSelection,
           selection,
           state,
           selection.type,
         ),
+        type: flattenedSelection.type,
       });
     } else if (flattenedSelection.kind === 'ScalarField') {
       if (selection.kind !== 'ScalarField') {
@@ -214,13 +320,66 @@ function flattenSelectionsInto(
           [selection.loc],
         );
       }
-      // Note: arguments are intentionally reversed to avoid rebuilds
       assertUniqueArgsForAlias(selection, flattenedSelection);
+      if (selection.handles && selection.handles.length > 0) {
+        flattenedSelections.set(nodeIdentifier, {
+          kind: 'ScalarField',
+          ...flattenedSelection,
+          handles: mergeHandles(selection, flattenedSelection),
+        });
+      }
+    } else if (flattenedSelection.kind === 'ConnectionField') {
+      if (selection.kind !== 'ConnectionField') {
+        throw createCompilerError(
+          `FlattenTransform: Expected a ConnectionField, got a '${
+            selection.kind
+          }'`,
+          [selection.loc],
+        );
+      }
+      assertUniqueArgsForAlias(selection, flattenedSelection);
+      // NOTE: not using object spread here as this code is pretty hot
       flattenedSelections.set(nodeIdentifier, {
-        kind: 'ScalarField',
+        kind: 'ConnectionField',
+        alias: flattenedSelection.alias,
+        args: flattenedSelection.args,
+        directives: flattenedSelection.directives,
+        loc: flattenedSelection.loc,
+        metadata: flattenedSelection.metadata,
+        name: flattenedSelection.name,
+        selections: mergeSelections(
+          schema,
+          flattenedSelection,
+          selection,
+          state,
+          selection.type,
+        ),
+        type: flattenedSelection.type,
+      });
+    } else if (flattenedSelection.kind === 'InlineDataFragmentSpread') {
+      throw createCompilerError(
+        'FlattenTransform: did not expect an InlineDataFragmentSpread node. ' +
+          'Only expecting InlineDataFragmentSpread in reader ASTs and this ' +
+          'transform to run only on normalization ASTs.',
+        [selection.loc],
+      );
+    } else if (flattenedSelection.kind === 'Connection') {
+      if (selection.kind !== 'Connection') {
+        throw createCompilerError(
+          `FlattenTransform: Expected a Connection, got a '${selection.kind}'`,
+          [selection.loc],
+        );
+      }
+      flattenedSelections.set(nodeIdentifier, {
+        kind: 'Connection',
         ...flattenedSelection,
-        // Note: arguments are intentionally reversed to avoid rebuilds
-        handles: mergeHandles(selection, flattenedSelection),
+        selections: mergeSelections(
+          schema,
+          flattenedSelection,
+          selection,
+          state,
+          selection.type,
+        ),
       });
     } else {
       (flattenedSelection.kind: empty);
@@ -236,14 +395,15 @@ function flattenSelectionsInto(
  * @private
  */
 function mergeSelections(
-  nodeA: HasSelections,
-  nodeB: HasSelections,
+  schema: Schema,
+  nodeA: Node,
+  nodeB: Node,
   state: State,
-  type: GraphQLType,
-): Array<Selection> {
+  type: TypeID,
+): $ReadOnlyArray<Selection> {
   const flattenedSelections = new Map();
-  flattenSelectionsInto(flattenedSelections, nodeA, state, type);
-  flattenSelectionsInto(flattenedSelections, nodeB, state, type);
+  flattenSelectionsInto(schema, flattenedSelections, nodeA, state, type);
+  flattenSelectionsInto(schema, flattenedSelections, nodeB, state, type);
   return Array.from(flattenedSelections.values());
 }
 
@@ -255,9 +415,8 @@ function mergeSelections(
 function assertUniqueArgsForAlias(field: Field, otherField: Field): void {
   if (!areEqualFields(field, otherField)) {
     throw createUserError(
-      'Expected all fields on the same parent with ' +
-        `the name or alias '${field.alias ??
-          field.name}' to have the same name and arguments.`,
+      'Expected all fields on the same parent with the name or alias ' +
+        `'${field.alias}' to have the same name and arguments.`,
       [field.loc, otherField.loc],
     );
   }
@@ -267,14 +426,15 @@ function assertUniqueArgsForAlias(field: Field, otherField: Field): void {
  * @private
  */
 function shouldFlattenInlineFragment(
+  schema: Schema,
   fragment: InlineFragment,
   state: State,
-  type: GraphQLType,
+  type: TypeID,
 ): boolean {
   return (
-    state.flattenInlineFragments ||
-    fragment.typeCondition.name === getRawType(type).name ||
-    (state.flattenAbstractTypes && isAbstractType(fragment.typeCondition))
+    schema.areEqualTypes(fragment.typeCondition, schema.getRawType(type)) ||
+    (state.flattenAbstractTypes &&
+      schema.isAbstractType(fragment.typeCondition))
   );
 }
 
@@ -337,10 +497,10 @@ function mergeHandles<T: LinkedField | ScalarField>(
   return Array.from(uniqueItems.values());
 }
 
-function transformWithOptions(options: FlattenOptions) {
-  return function flattenTransform(
-    context: GraphQLCompilerContext,
-  ): GraphQLCompilerContext {
+function transformWithOptions(
+  options: FlattenOptions,
+): (context: CompilerContext) => CompilerContext {
+  return function flattenTransform(context: CompilerContext): CompilerContext {
     return flattenTransformImpl(context, options);
   };
 }

@@ -8,49 +8,62 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
-const GraphQLCompilerContext = require('../core/GraphQLCompilerContext');
-const GraphQLIRTransformer = require('../core/GraphQLIRTransformer');
+const IRTransformer = require('../core/IRTransformer');
 
 const invariant = require('invariant');
 
-import type {InlineFragment, Fragment, FragmentSpread} from '../core/GraphQLIR';
+import type CompilerContext from '../core/CompilerContext';
+import type {InlineFragment, Fragment, FragmentSpread} from '../core/IR';
 
+type FragmentVisitorCache = Map<FragmentSpread, FragmentSpread>;
+type FragmentVisitor = (fragmentSpread: FragmentSpread) => ?FragmentSpread;
 /**
  * A transform that inlines all fragments and removes them.
  */
-function inlineFragmentsTransform(
-  context: GraphQLCompilerContext,
-): GraphQLCompilerContext {
-  return GraphQLIRTransformer.transform(context, {
+function inlineFragmentsTransform(context: CompilerContext): CompilerContext {
+  const visitFragmentSpread = fragmentSpreadVisitor(new Map());
+  return IRTransformer.transform(context, {
     Fragment: visitFragment,
     FragmentSpread: visitFragmentSpread,
   });
 }
 
-function visitFragment(fragment: Fragment): ?Fragment {
+function visitFragment(fragment: Fragment): null {
   return null;
 }
 
-function visitFragmentSpread(fragmentSpread: FragmentSpread): ?FragmentSpread {
-  invariant(
-    fragmentSpread.args.length === 0,
-    'InlineFragmentsTransform: Cannot flatten fragment spread `%s` with ' +
-      'arguments. Use the `ApplyFragmentArgumentTransform` before flattening',
-    fragmentSpread.name,
-  );
-  const fragment = this.getContext().getFragment(fragmentSpread.name);
-  const result: InlineFragment = {
-    kind: 'InlineFragment',
-    directives: fragmentSpread.directives,
-    loc: {kind: 'Derived', source: fragmentSpread.loc},
-    metadata: fragmentSpread.metadata,
-    selections: fragment.selections,
-    typeCondition: fragment.type,
+function fragmentSpreadVisitor(cache: FragmentVisitorCache): FragmentVisitor {
+  return function visitFragmentSpread(fragmentSpread: FragmentSpread) {
+    let traverseResult = cache.get(fragmentSpread);
+    if (traverseResult != null) {
+      return traverseResult;
+    }
+    invariant(
+      fragmentSpread.args.length === 0,
+      'InlineFragmentsTransform: Cannot flatten fragment spread `%s` with ' +
+        'arguments. Use the `ApplyFragmentArgumentTransform` before flattening',
+      fragmentSpread.name,
+    );
+    const fragment: Fragment = this.getContext().getFragment(
+      fragmentSpread.name,
+      fragmentSpread.loc,
+    );
+    const result: InlineFragment = {
+      kind: 'InlineFragment',
+      directives: fragmentSpread.directives,
+      loc: {kind: 'Derived', source: fragmentSpread.loc},
+      metadata: fragmentSpread.metadata,
+      selections: fragment.selections,
+      typeCondition: fragment.type,
+    };
+    traverseResult = this.traverse(result);
+    cache.set(fragmentSpread, traverseResult);
+    return traverseResult;
   };
-
-  return this.traverse(result);
 }
 
 module.exports = {

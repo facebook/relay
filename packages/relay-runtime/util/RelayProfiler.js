@@ -8,18 +8,19 @@
  * @format
  */
 
-'use strict';
+// flowlint ambiguous-object-type:error
 
-const emptyFunction = require('emptyFunction');
-const removeFromArray = require('removeFromArray');
+'use strict';
 
 type Handler = (name: string, callback: () => void) => void;
 type ProfileHandler = (name: string, state?: any) => (error?: Error) => void;
 
-const aggregateHandlersByName: {[name: string]: Array<Handler>} = {
+function emptyFunction() {}
+
+const aggregateHandlersByName: {[name: string]: Array<Handler>, ...} = {
   '*': [],
 };
-const profileHandlersByName: {[name: string]: Array<ProfileHandler>} = {
+const profileHandlersByName: {[name: string]: Array<ProfileHandler>, ...} = {
   '*': [],
 };
 
@@ -82,7 +83,7 @@ const RelayProfiler = {
    */
   instrumentMethods(
     object: Function | Object,
-    names: {[key: string]: string},
+    names: {[key: string]: string, ...},
   ): void {
     for (const key in names) {
       if (names.hasOwnProperty(key)) {
@@ -220,7 +221,7 @@ const RelayProfiler = {
    * Arbitrary state can also be passed into `profile` as a second argument. The
    * attached profile handlers will receive this as the second argument.
    */
-  profile(name: string, state?: any): {stop: (error?: Error) => void} {
+  profile(name: string, state?: any): {stop: (error?: Error) => void, ...} {
     const hasCatchAllHandlers = profileHandlersByName['*'].length > 0;
     const hasNamedHandlers = profileHandlersByName.hasOwnProperty(name);
     if (hasNamedHandlers || hasCatchAllHandlers) {
@@ -228,8 +229,8 @@ const RelayProfiler = {
         hasNamedHandlers && hasCatchAllHandlers
           ? profileHandlersByName[name].concat(profileHandlersByName['*'])
           : hasNamedHandlers
-            ? profileHandlersByName[name]
-            : profileHandlersByName['*'];
+          ? profileHandlersByName[name]
+          : profileHandlersByName['*'];
       let stopHandlers;
       for (let ii = profileHandlers.length - 1; ii >= 0; ii--) {
         const profileHandler = profileHandlers[ii];
@@ -272,5 +273,12 @@ const RelayProfiler = {
     }
   },
 };
+
+function removeFromArray<T>(array: Array<T>, element: T): void {
+  var index = array.indexOf(element);
+  if (index !== -1) {
+    array.splice(index, 1);
+  }
+}
 
 module.exports = RelayProfiler;

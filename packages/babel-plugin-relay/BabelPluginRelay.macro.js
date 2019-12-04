@@ -14,18 +14,24 @@ const compileGraphQLTag = require('./compileGraphQLTag');
 const getValidGraphQLTag = require('./getValidGraphQLTag');
 
 const {createMacro} = require('babel-plugin-macros');
+const configName = 'relay';
 
-function BabelPluginRelayMacro({references, state, babel}) {
+function BabelPluginRelayMacro({references, state, babel, config}) {
   const {types: t} = babel;
   Object.keys(references).forEach(referenceKey => {
     references[referenceKey].forEach(reference => {
       const path = reference.parentPath;
       const ast = getValidGraphQLTag(path);
       if (ast) {
-        compileGraphQLTag(t, path, state, ast);
+        compileGraphQLTag(
+          t,
+          path,
+          Object.assign(state, config ? {opts: config} : {}),
+          ast,
+        );
       }
     });
   });
 }
 
-module.exports = createMacro(BabelPluginRelayMacro);
+module.exports = (createMacro(BabelPluginRelayMacro, {configName}): any);

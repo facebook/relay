@@ -8,9 +8,11 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
-import type {Fragment, Request, Root, SplitOperation} from './GraphQLIR';
+import type {Fragment, Request, Root, SplitOperation} from './IR';
 import type {GeneratedNode} from 'relay-runtime';
 
 /**
@@ -21,11 +23,13 @@ import type {GeneratedNode} from 'relay-runtime';
 
 // Version for generated nodes
 function getReaderSourceDefinitionName(node: GeneratedNode): string {
-  const derivedFrom =
-    node.kind === 'Request' || node.kind === 'SplitOperation'
-      ? node.metadata?.derivedFrom
-      : null;
-  return typeof derivedFrom === 'string' ? derivedFrom : node.name;
+  const [name, derivedFrom] =
+    node.kind === 'Request'
+      ? [node.params.name, node.params.metadata?.derivedFrom]
+      : node.kind === 'SplitOperation'
+      ? [node.name, node.metadata?.derivedFrom]
+      : [node.name, null];
+  return typeof derivedFrom === 'string' ? derivedFrom : name;
 }
 
 // Version for IR

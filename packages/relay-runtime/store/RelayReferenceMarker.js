@@ -8,9 +8,12 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const RelayConcreteNode = require('../util/RelayConcreteNode');
+const RelayConnection = require('./RelayConnection');
 const RelayModernRecord = require('./RelayModernRecord');
 const RelayStoreUtils = require('./RelayStoreUtils');
 
@@ -18,35 +21,43 @@ const cloneRelayHandleSourceField = require('./cloneRelayHandleSourceField');
 const invariant = require('invariant');
 
 import type {
+  NormalizationConnection,
   NormalizationLinkedField,
-  NormalizationMatchField,
+  NormalizationModuleImport,
   NormalizationNode,
   NormalizationSelection,
 } from '../util/NormalizationNode';
-import type {Record} from '../util/RelayCombinedEnvironmentTypes';
 import type {DataID, Variables} from '../util/RelayRuntimeTypes';
+import type {GetConnectionEvents} from './RelayConnection';
 import type {
-  OperationLoader,
-  RecordSource,
   NormalizationSelector,
+  OperationLoader,
+  Record,
+  RecordSource,
 } from './RelayStoreTypes';
 
 const {
   CONDITION,
+  CLIENT_EXTENSION,
+  DEFER,
+  CONNECTION,
   FRAGMENT_SPREAD,
   INLINE_FRAGMENT,
   LINKED_FIELD,
-  MATCH_FIELD,
+  MODULE_IMPORT,
   LINKED_HANDLE,
   SCALAR_FIELD,
   SCALAR_HANDLE,
+  STREAM,
 } = RelayConcreteNode;
-const {getStorageKey, MATCH_FRAGMENT_KEY} = RelayStoreUtils;
+const {getStorageKey, getModuleOperationKey} = RelayStoreUtils;
 
 function mark(
   recordSource: RecordSource,
   selector: NormalizationSelector,
   references: Set<DataID>,
+  connectionReferences: Set<string>,
+  getConnectionEvents: GetConnectionEvents,
   operationLoader: ?OperationLoader,
 ): void {
   const {dataID, node, variables} = selector;
@@ -54,6 +65,8 @@ function mark(
     recordSource,
     variables,
     references,
+    connectionReferences,
+    getConnectionEvents,
     operationLoader,
   );
   marker.mark(node, dataID);
@@ -63,6 +76,8 @@ function mark(
  * @private
  */
 class RelayReferenceMarker {
+  _connectionReferences: Set<string>;
+  _getConnectionEvents: GetConnectionEvents;
   _operationLoader: OperationLoader | null;
   _recordSource: RecordSource;
   _references: Set<DataID>;
@@ -72,11 +87,15 @@ class RelayReferenceMarker {
     recordSource: RecordSource,
     variables: Variables,
     references: Set<DataID>,
+    connectionReferences: Set<string>,
+    getConnectionEvents: GetConnectionEvents,
     operationLoader: ?OperationLoader,
   ) {
+    this._connectionReferences = connectionReferences;
+    this._getConnectionEvents = getConnectionEvents;
     this._operationLoader = operationLoader ?? null;
-    this._references = references;
     this._recordSource = recordSource;
+    this._references = references;
     this._variables = variables;
   }
 
@@ -156,11 +175,21 @@ class RelayReferenceMarker {
             this._traverseLink(handleField, record);
           }
           break;
+        case DEFER:
+        case STREAM:
+          this._traverseSelections(selection.selections, record);
+          break;
         case SCALAR_FIELD:
         case SCALAR_HANDLE:
           break;
-        case MATCH_FIELD:
-          this._traverseMatch(selection, record);
+        case MODULE_IMPORT:
+          this._traverseModuleImport(selection, record);
+          break;
+        case CLIENT_EXTENSION:
+          this._traverseSelections(selection.selections, record);
+          break;
+        case CONNECTION:
+          this._traverseConnection(selection, record);
           break;
         default:
           (selection: empty);
@@ -173,42 +202,68 @@ class RelayReferenceMarker {
     });
   }
 
-  _traverseMatch(field: NormalizationMatchField, record: Record): void {
-    const storageKey = getStorageKey(field, this._variables);
-    const linkedID = RelayModernRecord.getLinkedRecordID(record, storageKey);
+  _traverseConnection(
+    connection: NormalizationConnection,
+    record: Record,
+  ): void {
+    const parentID = RelayModernRecord.getDataID(record);
+    const connectionID = RelayConnection.createConnectionID(
+      parentID,
+      connection.label,
+    );
+    if (this._connectionReferences.has(connectionID)) {
+      return;
+    }
+    this._connectionReferences.add(connectionID);
+    const connectionEvents = this._getConnectionEvents(connectionID);
+    if (connectionEvents == null || connectionEvents.length === 0) {
+      return;
+    }
+    connectionEvents.forEach(event => {
+      if (event.kind === 'fetch') {
+        event.edgeIDs.forEach(edgeID => {
+          if (edgeID != null) {
+            this._traverse(connection.edges, edgeID);
+          }
+        });
+      } else if (event.kind === 'insert') {
+        this._traverse(connection.edges, event.edgeID);
+      } else if (event.kind === 'stream.edge') {
+        this._traverse(connection.edges, event.edgeID);
+      } else if (event.kind === 'stream.pageInfo') {
+        // no-op
+      } else {
+        (event: empty);
+        invariant(
+          false,
+          'RelayReferenceMarker: Unexpected connection event kind `%s`.',
+          event.kind,
+        );
+      }
+    });
+  }
 
-    if (linkedID == null) {
+  _traverseModuleImport(
+    moduleImport: NormalizationModuleImport,
+    record: Record,
+  ): void {
+    const operationLoader = this._operationLoader;
+    invariant(
+      operationLoader !== null,
+      'RelayReferenceMarker: Expected an operationLoader to be configured when using `@module`.',
+    );
+    const operationKey = getModuleOperationKey(moduleImport.documentName);
+    const operationReference = RelayModernRecord.getValue(record, operationKey);
+    if (operationReference == null) {
       return;
     }
-    this._references.add(linkedID);
-    const linkedRecord = this._recordSource.get(linkedID);
-    if (linkedRecord == null) {
-      return;
+    const operation = operationLoader.get(operationReference);
+    if (operation != null) {
+      this._traverseSelections(operation.selections, record);
     }
-    const typeName = RelayModernRecord.getType(linkedRecord);
-    const match = field.matchesByType[typeName];
-    if (match != null) {
-      const operationLoader = this._operationLoader;
-      invariant(
-        operationLoader !== null,
-        'RelayReferenceMarker: Expected an operationLoader to be configured when using `@match`.',
-      );
-      const operationReference = RelayModernRecord.getValue(
-        linkedRecord,
-        MATCH_FRAGMENT_KEY,
-      );
-      if (operationReference == null) {
-        return;
-      }
-      const operation = operationLoader.get(operationReference);
-      if (operation != null) {
-        this._traverseSelections(operation.selections, linkedRecord);
-      }
-      // If the operation is not available, we assume that the data cannot have been
-      // processed yet and therefore isn't in the store to begin with.
-    } else {
-      // TODO: warn: store is corrupt: the field should be null if the typename did not match
-    }
+    // Otherwise, if the operation is not available, we assume that the data
+    // cannot have been processed yet and therefore isn't in the store to
+    // begin with.
   }
 
   _traverseLink(field: NormalizationLinkedField, record: Record): void {

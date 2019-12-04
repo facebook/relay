@@ -2,7 +2,7 @@ query NodeQuery(
   $cond: Boolean! = false
   $id: ID!
   $size: [Int] = [32]
-  $query: String!
+  $query: CheckinSearchInput!
 ) {
   node(id: $id) {
     id
@@ -11,16 +11,20 @@ query NodeQuery(
     }
     ...UserFragment @include(if: $cond) @arguments(size: $size)
   }
-  checkinSearchQuery(query: {query: $query, inputs: [{query: $query}, {query: "test"}]}) {
+  checkinSearchQuery(query: $query) {
     query
   }
 }
 
-fragment UserFragment on User @argumentDefinitions(
-  after: {type: "ID"}
-  first: {type: "Int", defaultValue: 5}
-  size: {type: "[Int]"}
-) {
+fragment UserFragment on User
+  @argumentDefinitions(
+    after: {type: "ID"}
+    first: {type: "Int", defaultValue: 5}
+    size: {type: "[Int]"}
+    storyType: {type: "StoryType", defaultValue: DIRECTED}
+    storyType_invalid_string: {type: "StoryType", defaultValue: "DIRECTED"}
+    storyType_invalid_lowercase: {type: "StoryType", defaultValue: directed}
+  ) {
   id
   __typename
   checkins(environments: [WEB]) {
@@ -32,9 +36,18 @@ fragment UserFragment on User @argumentDefinitions(
   friends(after: $after, first: $first, traits: [HELPFUL]) {
     count
   }
+  secondFriends: friends(first: 10) {
+    count
+  }
   name @include(if: $cond)
   otherName: name @customDirective(level: 3)
-  thumbnail: profilePicture(size: 32) {
+  thumbnail: profilePicture2(
+    size: 32
+    cropPosition: CENTER
+    fileExtension: PNG
+    additionalParameters: {filter: "Boston"}
+    options: {newName: null}
+  ) {
     height
     width
     src: uri

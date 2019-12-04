@@ -3,3 +3,7 @@ fragment UserProfile on User {
     ...PhotoFragment @relay(mask: false)
   }
 }
+
+fragment PhotoFragment on Image {
+  uri
+}

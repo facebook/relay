@@ -8,20 +8,24 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const invariant = require('invariant');
 
 const {getStorageKey} = require('../store/RelayStoreUtils');
 
+import type {ConnectionID} from '../store/RelayConnection';
 import type {
   RecordProxy,
-  ReaderSelector,
   RecordSourceProxy,
   RecordSourceSelectorProxy,
+  SingularReaderSelector,
 } from '../store/RelayStoreTypes';
 import type {ReaderLinkedField} from '../util/ReaderNode';
-import type {DataID} from '../util/RelayRuntimeTypes';
+import type {DataID, Variables} from '../util/RelayRuntimeTypes';
+import type RelayRecordSourceMutator from './RelayRecordSourceMutator';
 
 /**
  * @internal
@@ -32,10 +36,16 @@ import type {DataID} from '../util/RelayRuntimeTypes';
  * arguments to pass to e.g. `getRoot().getLinkedRecord()`.
  */
 class RelayRecordSourceSelectorProxy implements RecordSourceSelectorProxy {
+  __mutator: RelayRecordSourceMutator;
   __recordSource: RecordSourceProxy;
-  _readSelector: ReaderSelector;
+  _readSelector: SingularReaderSelector;
 
-  constructor(recordSource: RecordSourceProxy, readSelector: ReaderSelector) {
+  constructor(
+    mutator: RelayRecordSourceMutator,
+    recordSource: RecordSourceProxy,
+    readSelector: SingularReaderSelector,
+  ) {
+    this.__mutator = mutator;
     this.__recordSource = recordSource;
     this._readSelector = readSelector;
   }
@@ -57,7 +67,7 @@ class RelayRecordSourceSelectorProxy implements RecordSourceSelectorProxy {
   }
 
   _getRootField(
-    selector: ReaderSelector,
+    selector: SingularReaderSelector,
     fieldName: string,
     plural: boolean,
   ): ReaderLinkedField {
@@ -92,6 +102,24 @@ class RelayRecordSourceSelectorProxy implements RecordSourceSelectorProxy {
     const field = this._getRootField(this._readSelector, fieldName, true);
     const storageKey = getStorageKey(field, this._readSelector.variables);
     return this.getRoot().getLinkedRecords(storageKey);
+  }
+
+  insertConnectionEdge_UNSTABLE(
+    connectionID: ConnectionID,
+    args: Variables,
+    edge: RecordProxy,
+  ): void {
+    this.__mutator.appendConnectionEvent_UNSTABLE({
+      kind: 'insert',
+      args,
+      connectionID,
+      edgeID: edge.getDataID(),
+      request: this._readSelector.owner,
+    });
+  }
+
+  invalidateStore(): void {
+    this.__recordSource.invalidateStore();
   }
 }
 

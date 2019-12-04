@@ -11,11 +11,14 @@
 'use strict';
 
 const RelayModernFragmentSpecResolver = require('../RelayModernFragmentSpecResolver');
-const RelayModernTestUtils = require('RelayModernTestUtils');
 
-const {createOperationSelector} = require('../RelayModernOperationSelector');
-const {ROOT_ID} = require('../RelayStoreUtils');
-const {createMockEnvironment} = require('RelayModernMockEnvironment');
+const {
+  createOperationDescriptor,
+} = require('../RelayModernOperationDescriptor');
+const {
+  createMockEnvironment,
+  generateAndCompile,
+} = require('relay-test-utils-internal');
 
 describe('RelayModernFragmentSpecResolver', () => {
   let UserFragment;
@@ -24,7 +27,9 @@ describe('RelayModernFragmentSpecResolver', () => {
   let context;
   let environment;
   let zuck;
+  let zuckOperation;
   let beast;
+  let beastOperation;
   let variables;
 
   function setName(id, name) {
@@ -51,11 +56,8 @@ describe('RelayModernFragmentSpecResolver', () => {
   }
 
   beforeEach(() => {
-    expect.extend(RelayModernTestUtils.matchers);
-
     environment = createMockEnvironment();
-    ({UserFragment, UserQuery, UsersFragment} = environment.mock.compile(
-      `
+    ({UserFragment, UserQuery, UsersFragment} = generateAndCompile(`
       query UserQuery($id: ID! $size: Int $fetchSize: Boolean!) {
         node(id: $id) {
           ...UserFragment
@@ -76,46 +78,34 @@ describe('RelayModernFragmentSpecResolver', () => {
           uri
         }
       }
-    `,
-    ));
-    environment.commitPayload(
-      createOperationSelector(UserQuery, {
-        fetchSize: false,
+    `));
+    zuckOperation = createOperationDescriptor(UserQuery, {
+      fetchSize: false,
+      id: '4',
+      size: null,
+    });
+    beastOperation = createOperationDescriptor(UserQuery, {
+      fetchSize: false,
+      id: 'beast',
+      size: null,
+    });
+    environment.commitPayload(zuckOperation, {
+      node: {
         id: '4',
-        size: null,
-      }),
-      {
-        node: {
-          id: '4',
-          __typename: 'User',
-          name: 'Zuck',
-        },
+        __typename: 'User',
+        name: 'Zuck',
       },
-    );
-    environment.commitPayload(
-      createOperationSelector(UserQuery, {
-        fetchSize: false,
+    });
+    environment.commitPayload(beastOperation, {
+      node: {
         id: 'beast',
-        size: null,
-      }),
-      {
-        node: {
-          id: 'beast',
-          __typename: 'User',
-          name: 'Beast',
-        },
+        __typename: 'User',
+        name: 'Beast',
       },
-    );
-    zuck = environment.lookup({
-      dataID: ROOT_ID,
-      node: UserQuery.fragment,
-      variables: {id: '4'},
-    }).data.node;
-    beast = environment.lookup({
-      dataID: ROOT_ID,
-      node: UserQuery.fragment,
-      variables: {id: 'beast'},
-    }).data.node;
+    });
+    zuck = environment.lookup(zuckOperation.fragment, zuckOperation).data.node;
+    beast = environment.lookup(beastOperation.fragment, beastOperation).data
+      .node;
 
     variables = {
       fetchSize: false,
@@ -349,10 +339,13 @@ describe('RelayModernFragmentSpecResolver', () => {
         environment.lookup.mockClear();
         environment.subscribe.mockClear();
 
-        resolver.setVariables({
-          fetchSize: false,
-          size: null,
-        });
+        resolver.setVariables(
+          {
+            fetchSize: false,
+            size: null,
+          },
+          UserQuery,
+        );
         expect(dispose).not.toBeCalled();
         expect(environment.lookup).not.toBeCalled();
         expect(environment.subscribe).not.toBeCalled();
@@ -363,10 +356,13 @@ describe('RelayModernFragmentSpecResolver', () => {
         const dispose = environment.subscribe.mock.dispose;
         setPhotoUri('4', 1, 'https://4.jpg');
         expect(dispose).not.toBeCalled();
-        resolver.setVariables({
-          fetchSize: true,
-          size: 1,
-        });
+        resolver.setVariables(
+          {
+            fetchSize: true,
+            size: 1,
+          },
+          UserQuery,
+        );
         expect(callback).not.toBeCalled();
         expect(dispose).toBeCalled();
         expect(resolver.resolve()).toEqual({
@@ -382,10 +378,13 @@ describe('RelayModernFragmentSpecResolver', () => {
 
       it('calls callback when fragment data changes', () => {
         setPhotoUri('4', 1, 'https://4.jpg');
-        resolver.setVariables({
-          fetchSize: true,
-          size: 1,
-        });
+        resolver.setVariables(
+          {
+            fetchSize: true,
+            size: 1,
+          },
+          UserQuery,
+        );
         expect(callback).not.toBeCalled();
         setPhotoUri('4', 1, 'https://zuck.jpg');
         expect(callback).toBeCalled();
@@ -715,10 +714,13 @@ describe('RelayModernFragmentSpecResolver', () => {
         environment.lookup.mockClear();
         environment.subscribe.mockClear();
 
-        resolver.setVariables({
-          fetchSize: false,
-          size: null,
-        });
+        resolver.setVariables(
+          {
+            fetchSize: false,
+            size: null,
+          },
+          UserQuery,
+        );
         expect(dispose).not.toBeCalled();
         expect(environment.lookup).not.toBeCalled();
         expect(environment.subscribe).not.toBeCalled();
@@ -729,10 +731,13 @@ describe('RelayModernFragmentSpecResolver', () => {
         const dispose = environment.subscribe.mock.dispose;
         setPhotoUri('4', 1, 'https://4.jpg');
         expect(dispose).not.toBeCalled();
-        resolver.setVariables({
-          fetchSize: true,
-          size: 1,
-        });
+        resolver.setVariables(
+          {
+            fetchSize: true,
+            size: 1,
+          },
+          UserQuery,
+        );
         expect(callback).not.toBeCalled();
         expect(dispose).toBeCalled();
         expect(resolver.resolve()).toEqual({
@@ -750,10 +755,13 @@ describe('RelayModernFragmentSpecResolver', () => {
 
       it('calls callback when fragment data changes', () => {
         setPhotoUri('4', 1, 'https://4.jpg');
-        resolver.setVariables({
-          fetchSize: true,
-          size: 1,
-        });
+        resolver.setVariables(
+          {
+            fetchSize: true,
+            size: 1,
+          },
+          UserQuery,
+        );
         expect(callback).not.toBeCalled();
         setPhotoUri('4', 1, 'https://zuck.jpg');
         expect(callback).toBeCalled();

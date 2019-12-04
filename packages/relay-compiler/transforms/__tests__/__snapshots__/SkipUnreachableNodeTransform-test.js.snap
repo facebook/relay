@@ -46,15 +46,16 @@ exports[`SkipUnreachableNodeTransform matches expected output: removes-include-f
 query EmptyQuery($id: ID!) {
   node(id: $id) {
     id @include(if: false)
-    ... on User @include(if: false) { id }
+    ... on User @include(if: false) {
+      id
+    }
     ...SkippedFragment
     ...EmptyFragment
   }
 }
 
-fragment SkippedFragment on User @argumentDefinitions(
-  cond: {type: "Boolean!", defaultValue: false}
-) {
+fragment SkippedFragment on User
+  @argumentDefinitions(cond: {type: "Boolean!", defaultValue: false}) {
   id @include(if: $cond)
 }
 
@@ -67,7 +68,9 @@ query TestQuery {
     actor {
       name
       id @include(if: false)
-      ... on User @include(if: false) { id }
+      ... on User @include(if: false) {
+        id
+      }
       ...SkippedFragment
       ...EmptyFragment
     }
@@ -105,15 +108,16 @@ exports[`SkipUnreachableNodeTransform matches expected output: removes-skip-true
 query EmptyQuery($id: ID!) {
   node(id: $id) {
     id @skip(if: true)
-    ... on User @skip(if: true) { id }
+    ... on User @skip(if: true) {
+      id
+    }
     ...SkippedFragment
     ...EmptyFragment
   }
 }
 
-fragment SkippedFragment on User @argumentDefinitions(
-  cond: {type: "Boolean!", defaultValue: true}
-) {
+fragment SkippedFragment on User
+  @argumentDefinitions(cond: {type: "Boolean!", defaultValue: true}) {
   id @skip(if: $cond)
 }
 
@@ -126,7 +130,9 @@ query TestQuery {
     actor {
       name
       id @skip(if: true)
-      ... on User @skip(if: true) { id }
+      ... on User @skip(if: true) {
+        id
+      }
       ...SkippedFragment
       ...EmptyFragment
     }

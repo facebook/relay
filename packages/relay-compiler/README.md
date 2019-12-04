@@ -6,7 +6,7 @@ The GraphQL-Compiler package [exports library code](./GraphQLCompilerPublic.js) 
 
 The following graph illustrates the high-level architecture of a complete GraphQL code-generation pipeline:
 
-![CodegenPipeline](https://github.com/facebook/relay/raw/master/packages/graphql-compiler/docs/Architecture.png)
+![CodegenPipeline](https://github.com/facebook/relay/raw/master/packages/relay-compiler/docs/Architecture.png)
 
 To understand the underlying workflow of the core compilation step, which is what happens in the "GraphQL Compiler" block in the above graph, please refer [HERE](./ARCHITECTURE.md).
 
@@ -14,11 +14,10 @@ You can build your own version of the Compiler by adding your own `FileWriter`, 
 
 * The GraphQL-Compiler package provides a [`GraphQLFileParser`](./core/GraphQLFileParser.js), which can be used to parse general `.graphql` files, and a [`GraphQLTextParser`](./core/GraphQLTextParser.js), which can be used to parse GraphQL text in any source files with customized tags. You can also write your own `FileParser` at your discretion.
 
-* You can add additional `IRTransforms` by extending the basic [`GraphQLIRTransforms`](./core/GraphQLIRTransforms.js). A sample can be found [HERE](../core/RelayIRTransforms.js).
+* You can add additional `IRTransforms` by extending the basic [`RelayIRTransforms`](./core/RelayIRTransforms.js).
 
-* Similarly, you can add additional validation rules by extending the basic [`GraphQLValidator`](./core/GraphQLValidator.js).
-Sample [HERE](../core/RelayValidator.js).
+* Similarly, you can add additional validation rules by extending [`RelayValidator`](./core/RelayValidator.js).
 
-* A sample `FileWriter` can be found [HERE](../codegen/RelayFileWriter.js).
+* A sample `FileWriter` can be found [HERE](./codegen/RelayFileWriter.js).
 
-To actually run your compiler, you will also need a script to assemble all the above components. A sample file can be found [HERE](../bin/RelayCompilerBin.js).
+To actually run your compiler, you will also need a script to assemble all the above components. A sample file can be found [HERE](./bin/RelayCompilerBin.js).

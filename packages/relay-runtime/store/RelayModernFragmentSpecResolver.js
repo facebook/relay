@@ -8,32 +8,44 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
+const RelayFeatureFlags = require('../util/RelayFeatureFlags');
+
+const areEqual = require('areEqual');
 const invariant = require('invariant');
 const isScalarAndEqual = require('../util/isScalarAndEqual');
+const warning = require('warning');
 
+const {getPromiseForRequestInFlight} = require('../query/fetchQueryInternal');
+const {createRequestDescriptor} = require('./RelayModernOperationDescriptor');
 const {
   areEqualSelectors,
+  createReaderSelector,
   getSelectorsFromObject,
 } = require('./RelayModernSelector');
 
-import type {
-  FragmentSpecResolver,
-  FragmentSpecResults,
-  SelectorData,
-} from '../util/RelayCombinedEnvironmentTypes';
+import type {ConcreteRequest} from '../util/RelayConcreteNode';
 import type {Disposable, Variables} from '../util/RelayRuntimeTypes';
 import type {
-  Environment,
+  IEnvironment,
   FragmentMap,
+  FragmentSpecResolver,
+  FragmentSpecResults,
+  PluralReaderSelector,
   RelayContext,
-  ReaderSelector,
+  SelectorData,
+  SingularReaderSelector,
   Snapshot,
 } from './RelayStoreTypes';
 
-type Props = {[key: string]: mixed};
-type Resolvers = {[key: string]: ?(SelectorListResolver | SelectorResolver)};
+type Props = {[key: string]: mixed, ...};
+type Resolvers = {
+  [key: string]: ?(SelectorListResolver | SelectorResolver),
+  ...,
+};
 
 /**
  * A utility for resolving and subscribing to the results of a fragment spec
@@ -125,25 +137,21 @@ class RelayModernFragmentSpecResolver implements FragmentSpecResolver {
   }
 
   setProps(props: Props): void {
-    const selectors = getSelectorsFromObject(
-      this._context.variables,
-      this._fragments,
-      props,
-    );
-    for (const key in selectors) {
-      if (selectors.hasOwnProperty(key)) {
-        const selector = selectors[key];
+    const ownedSelectors = getSelectorsFromObject(this._fragments, props);
+    for (const key in ownedSelectors) {
+      if (ownedSelectors.hasOwnProperty(key)) {
+        const ownedSelector = ownedSelectors[key];
         let resolver = this._resolvers[key];
-        if (selector == null) {
+        if (ownedSelector == null) {
           if (resolver != null) {
             resolver.dispose();
           }
           resolver = null;
-        } else if (Array.isArray(selector)) {
+        } else if (ownedSelector.kind === 'PluralReaderSelector') {
           if (resolver == null) {
             resolver = new SelectorListResolver(
               this._context.environment,
-              selector,
+              ownedSelector,
               this._onChange,
             );
           } else {
@@ -152,13 +160,13 @@ class RelayModernFragmentSpecResolver implements FragmentSpecResolver {
               'RelayModernFragmentSpecResolver: Expected prop `%s` to always be an array.',
               key,
             );
-            resolver.setSelectors(selector);
+            resolver.setSelector(ownedSelector);
           }
         } else {
           if (resolver == null) {
             resolver = new SelectorResolver(
               this._context.environment,
-              selector,
+              ownedSelector,
               this._onChange,
             );
           } else {
@@ -167,7 +175,7 @@ class RelayModernFragmentSpecResolver implements FragmentSpecResolver {
               'RelayModernFragmentSpecResolver: Expected prop `%s` to always be an object.',
               key,
             );
-            resolver.setSelector(selector);
+            resolver.setSelector(ownedSelector);
           }
         }
         this._resolvers[key] = resolver;
@@ -177,12 +185,12 @@ class RelayModernFragmentSpecResolver implements FragmentSpecResolver {
     this._stale = true;
   }
 
-  setVariables(variables: Variables): void {
+  setVariables(variables: Variables, request: ConcreteRequest): void {
     for (const key in this._resolvers) {
       if (this._resolvers.hasOwnProperty(key)) {
         const resolver = this._resolvers[key];
         if (resolver) {
-          resolver.setVariables(variables);
+          resolver.setVariables(variables, request);
         }
       }
     }
@@ -204,18 +212,20 @@ class RelayModernFragmentSpecResolver implements FragmentSpecResolver {
 class SelectorResolver {
   _callback: () => void;
   _data: ?SelectorData;
-  _environment: Environment;
-  _selector: ReaderSelector;
+  _environment: IEnvironment;
+  _isMissingData: boolean;
+  _selector: SingularReaderSelector;
   _subscription: ?Disposable;
 
   constructor(
-    environment: Environment,
-    selector: ReaderSelector,
+    environment: IEnvironment,
+    selector: SingularReaderSelector,
     callback: () => void,
   ) {
     const snapshot = environment.lookup(selector);
     this._callback = callback;
     this._data = snapshot.data;
+    this._isMissingData = snapshot.isMissingData;
     this._environment = environment;
     this._selector = selector;
     this._subscription = environment.subscribe(snapshot, this._onChange);
@@ -229,10 +239,51 @@ class SelectorResolver {
   }
 
   resolve(): ?Object {
+    if (
+      RelayFeatureFlags.ENABLE_RELAY_CONTAINERS_SUSPENSE === true &&
+      this._isMissingData === true
+    ) {
+      // NOTE: This branch exists to handle the case in which:
+      // - A RelayModern container is rendered as a descendant of a Relay Hook
+      //   root using a "partial" renderPolicy (this means that eargerly
+      //   reading any cached data that is available instead of blocking
+      //   at the root until the whole query is fetched).
+      // - A parent Relay Hook didnt' suspend earlier on data being fetched,
+      //   either because the fragment data for the parent was available, or
+      //   the parent fragment didn't have any data dependencies.
+      // Even though our Flow types reflect the possiblity of null data, there
+      // might still be cases where it's not handled at runtime becuase the
+      // Flow types are being ignored, or simply not being used (for example,
+      // the case reported here: https://fburl.com/srnbucf8, was due to
+      // misuse of Flow types here: https://fburl.com/g3m0mqqh).
+      // Additionally, even though the null data might be handled without a
+      // runtime error, we might not suspend when we intended to if a parent
+      // Relay Hook (e.g. that is using @defer) decided not to suspend becuase
+      // it's immediate data was already available (even if it was deferred),
+      // or it didn't actually need any data (was just spreading other fragments).
+      // This should eventually go away with something like @optional, where we only
+      // suspend at specific boundaries depending on whether the boundary
+      // can be fulfilled or not.
+      const promise =
+        getPromiseForRequestInFlight(this._environment, this._selector.owner) ??
+        this._environment
+          .getOperationTracker()
+          .getPromiseForPendingOperationsAffectingOwner(this._selector.owner);
+      if (promise != null) {
+        warning(
+          false,
+          'Relay: Relay Container for fragment `%s` suspended. When using ' +
+            'features such as @defer or @module, use `useFragment` instead ' +
+            'of a Relay Container.',
+          this._selector.node.name,
+        );
+        throw promise;
+      }
+    }
     return this._data;
   }
 
-  setSelector(selector: ReaderSelector): void {
+  setSelector(selector: SingularReaderSelector): void {
     if (
       this._subscription != null &&
       areEqualSelectors(selector, this._selector)
@@ -242,20 +293,42 @@ class SelectorResolver {
     this.dispose();
     const snapshot = this._environment.lookup(selector);
     this._data = snapshot.data;
+    this._isMissingData = snapshot.isMissingData;
     this._selector = selector;
     this._subscription = this._environment.subscribe(snapshot, this._onChange);
   }
 
-  setVariables(variables: Variables): void {
-    const selector = {
-      ...this._selector,
+  setVariables(variables: Variables, request: ConcreteRequest): void {
+    if (areEqual(variables, this._selector.variables)) {
+      // If we're not actually setting new variables, we don't actually want
+      // to create a new fragment owner, since areEqualSelectors relies on
+      // owner identity.
+      // In fact, we don't even need to try to attempt to set a new selector.
+      // When fragment ownership is not enabled, setSelector will also bail
+      // out since the selector doesn't really change, so we're doing it here
+      // earlier.
+      return;
+    }
+    // NOTE: We manually create the request descriptor here instead of
+    // calling createOperationDescriptor() because we want to set a
+    // descriptor with *unaltered* variables as the fragment owner.
+    // This is a hack that allows us to preserve exisiting (broken)
+    // behavior of RelayModern containers while using fragment ownership
+    // to propagate variables instead of Context.
+    // For more details, see the summary of D13999308
+    const requestDescriptor = createRequestDescriptor(request, variables);
+    const selector = createReaderSelector(
+      this._selector.node,
+      this._selector.dataID,
       variables,
-    };
+      requestDescriptor,
+    );
     this.setSelector(selector);
   }
 
   _onChange = (snapshot: Snapshot): void => {
     this._data = snapshot.data;
+    this._isMissingData = snapshot.isMissingData;
     this._callback();
   };
 }
@@ -266,13 +339,13 @@ class SelectorResolver {
 class SelectorListResolver {
   _callback: () => void;
   _data: Array<?SelectorData>;
-  _environment: Environment;
+  _environment: IEnvironment;
   _resolvers: Array<SelectorResolver>;
   _stale: boolean;
 
   constructor(
-    environment: Environment,
-    selectors: Array<ReaderSelector>,
+    environment: IEnvironment,
+    selector: PluralReaderSelector,
     callback: () => void,
   ) {
     this._callback = callback;
@@ -281,7 +354,7 @@ class SelectorListResolver {
     this._resolvers = [];
     this._stale = true;
 
-    this.setSelectors(selectors);
+    this.setSelector(selector);
   }
 
   dispose(): void {
@@ -311,7 +384,8 @@ class SelectorListResolver {
     return this._data;
   }
 
-  setSelectors(selectors: Array<ReaderSelector>): void {
+  setSelector(selector: PluralReaderSelector): void {
+    const {selectors} = selector;
     while (this._resolvers.length > selectors.length) {
       const resolver = this._resolvers.pop();
       resolver.dispose();
@@ -330,8 +404,10 @@ class SelectorListResolver {
     this._stale = true;
   }
 
-  setVariables(variables: Variables): void {
-    this._resolvers.forEach(resolver => resolver.setVariables(variables));
+  setVariables(variables: Variables, request: ConcreteRequest): void {
+    this._resolvers.forEach(resolver =>
+      resolver.setVariables(variables, request),
+    );
     this._stale = true;
   }
 

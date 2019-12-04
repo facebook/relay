@@ -1,0 +1,12 @@
+# expected-to-throw
+query ViewerQuery {
+  node {
+    commentBody {
+      ... on PlainCommentBody {
+        text {
+          text
+        }
+      }
+    }
+  }
+}

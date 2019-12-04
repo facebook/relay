@@ -8,6 +8,8 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const ASTCache = require('./ASTCache');
@@ -25,13 +27,22 @@ import type {FileFilter} from '../codegen/CodegenWatcher';
 import type {GraphQLTagFinder} from '../language/RelayLanguagePluginInterface';
 import type {DocumentNode} from 'graphql';
 
+export type SourceModuleParser = {|
+  getFileFilter: (baseDir: string) => FileFilter,
+  getParser: (baseDir: string) => ASTCache,
+  parseFile: (baseDir: string, file: File) => ?DocumentNode,
+  parseFileWithSources: (
+    baseDir: string,
+    file: File,
+  ) => ?{|
+    +document: DocumentNode,
+    +sources: $ReadOnlyArray<string>,
+  |},
+|};
+
 const parseGraphQL = Profiler.instrument(GraphQL.parse, 'GraphQL.parse');
 
-const FIND_OPTIONS = {
-  validateNames: true,
-};
-
-module.exports = (tagFinder: GraphQLTagFinder) => {
+module.exports = (tagFinder: GraphQLTagFinder): SourceModuleParser => {
   const memoizedTagFinder = memoizedFind.bind(null, tagFinder);
 
   function parseFile(baseDir: string, file: File): ?DocumentNode {
@@ -49,17 +60,22 @@ module.exports = (tagFinder: GraphQLTagFinder) => {
     +document: DocumentNode,
     +sources: $ReadOnlyArray<string>,
   |} {
-    const text = fs.readFileSync(path.join(baseDir, file.relPath), 'utf8');
-    invariant(
-      text.indexOf('graphql') >= 0,
-      'RelaySourceModuleParser: Files should be filtered before passed to the ' +
-        'parser, got unfiltered file `%s`.',
-      file.relPath,
-    );
+    const filePath = path.join(baseDir, file.relPath);
+    let text = '';
+    try {
+      text = fs.readFileSync(filePath, 'utf8');
+    } catch {
+      invariant(
+        false,
+        'RelaySourceModuleParser: Files should be filtered before passed to the ' +
+          'parser, got unfiltered file `%s`.',
+        file.relPath,
+      );
+    }
 
     const astDefinitions = [];
     const sources = [];
-    memoizedTagFinder(text, baseDir, file, FIND_OPTIONS).forEach(template => {
+    memoizedTagFinder(text, baseDir, file).forEach(template => {
       const source = new GraphQL.Source(template, file.relPath);
       const ast = parseGraphQL(source);
       invariant(
@@ -90,7 +106,17 @@ module.exports = (tagFinder: GraphQLTagFinder) => {
 
   function getFileFilter(baseDir: string): FileFilter {
     return (file: File) => {
-      const text = fs.readFileSync(path.join(baseDir, file.relPath), 'utf8');
+      const filePath = path.join(baseDir, file.relPath);
+      let text = '';
+      try {
+        text = fs.readFileSync(filePath, 'utf8');
+      } catch {
+        // eslint-disable no-console
+        console.warn(
+          `RelaySourceModuleParser: Unable to read the file "${filePath}". Looks like it was removed.`,
+        );
+        return false;
+      }
       return text.indexOf('graphql') >= 0;
     };
   }

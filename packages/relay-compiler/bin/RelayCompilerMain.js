@@ -8,29 +8,25 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
-require('@babel/polyfill');
-
 const CodegenRunner = require('../codegen/CodegenRunner');
-const ConsoleReporter = require('../reporters/GraphQLConsoleReporter');
+const ConsoleReporter = require('../reporters/ConsoleReporter');
 const DotGraphQLParser = require('../core/DotGraphQLParser');
-const WatchmanClient = require('../core/GraphQLWatchmanClient');
-
-const RelaySourceModuleParser = require('../core/RelaySourceModuleParser');
 const RelayFileWriter = require('../codegen/RelayFileWriter');
 const RelayIRTransforms = require('../core/RelayIRTransforms');
 const RelayLanguagePluginJavaScript = require('../language/javascript/RelayLanguagePluginJavaScript');
+const RelaySourceModuleParser = require('../core/RelaySourceModuleParser');
+const WatchmanClient = require('../core/GraphQLWatchmanClient');
 
+const crypto = require('crypto');
 const fs = require('fs');
+const invariant = require('invariant');
 const path = require('path');
 
-const {
-  buildASTSchema,
-  buildClientSchema,
-  parse,
-  printSchema,
-} = require('graphql');
+const {buildClientSchema, Source, printSchema} = require('graphql');
 
 const {
   commonTransforms,
@@ -38,44 +34,64 @@ const {
   fragmentTransforms,
   printTransforms,
   queryTransforms,
-  schemaExtensions,
+  schemaExtensions: relaySchemaExtensions,
 } = RelayIRTransforms;
 
+import type {ScalarTypeMapping} from '../language/javascript/RelayFlowTypeTransformers';
 import type {WriteFilesOptions} from '../codegen/CodegenRunner';
-import type {GraphQLSchema} from 'graphql';
 import type {
   PluginInitializer,
   PluginInterface,
 } from '../language/RelayLanguagePluginInterface';
 
-function buildWatchExpression(options: {
+export type Config = {|
+  schema: string,
+  src: string,
   extensions: Array<string>,
   include: Array<string>,
   exclude: Array<string>,
+  verbose: boolean,
+  watchman: boolean,
+  watch?: ?boolean,
+  validate: boolean,
+  quiet: boolean,
+  persistOutput?: ?string,
+  noFutureProofEnums: boolean,
+  language: string | PluginInitializer,
+  persistFunction?: ?string | ?((text: string) => Promise<string>),
+  artifactDirectory?: ?string,
+  customScalars?: ScalarTypeMapping,
+|};
+
+function buildWatchExpression(config: {
+  extensions: Array<string>,
+  include: Array<string>,
+  exclude: Array<string>,
+  ...
 }) {
   return [
     'allof',
     ['type', 'f'],
-    ['anyof', ...options.extensions.map(ext => ['suffix', ext])],
+    ['anyof', ...config.extensions.map(ext => ['suffix', ext])],
     [
       'anyof',
-      ...options.include.map(include => ['match', include, 'wholename']),
+      ...config.include.map(include => ['match', include, 'wholename']),
     ],
-    ...options.exclude.map(exclude => ['not', ['match', exclude, 'wholename']]),
+    ...config.exclude.map(exclude => ['not', ['match', exclude, 'wholename']]),
   ];
 }
 
 function getFilepathsFromGlob(
   baseDir,
-  options: {
+  config: {
     extensions: Array<string>,
     include: Array<string>,
     exclude: Array<string>,
+    ...
   },
 ): Array<string> {
-  const {extensions, include, exclude} = options;
+  const {extensions, include, exclude} = config;
   const patterns = include.map(inc => `${inc}/*.+(${extensions.join('|')})`);
-
   const glob = require('fast-glob');
   return glob.sync(patterns, {
     cwd: baseDir,
@@ -83,7 +99,7 @@ function getFilepathsFromGlob(
   });
 }
 
-type LanguagePlugin = PluginInitializer | {default: PluginInitializer};
+type LanguagePlugin = PluginInitializer | {default: PluginInitializer, ...};
 
 /**
  * Unless the requested plugin is the builtin `javascript` one, import a
@@ -96,76 +112,138 @@ type LanguagePlugin = PluginInitializer | {default: PluginInitializer};
  * replaced with `__webpack_require__` when bundled using webpack, by using
  * `eval` to get it at runtime.
  */
-function getLanguagePlugin(language: string): PluginInterface {
+function getLanguagePlugin(
+  language: string | PluginInitializer,
+): PluginInterface {
   if (language === 'javascript') {
     return RelayLanguagePluginJavaScript();
   } else {
-    const pluginPath = path.resolve(process.cwd(), language);
-    const requirePath = fs.existsSync(pluginPath)
-      ? pluginPath
-      : `relay-compiler-language-${language}`;
-    try {
-      // eslint-disable-next-line no-eval
-      let languagePlugin: LanguagePlugin = eval('require')(requirePath);
-      if (languagePlugin.default) {
-        languagePlugin = languagePlugin.default;
+    let languagePlugin: LanguagePlugin;
+    if (typeof language === 'string') {
+      const pluginPath = path.resolve(process.cwd(), language);
+      const requirePath = fs.existsSync(pluginPath)
+        ? pluginPath
+        : `relay-compiler-language-${language}`;
+      try {
+        // eslint-disable-next-line no-eval
+        languagePlugin = eval('require')(requirePath);
+        if (languagePlugin.default) {
+          languagePlugin = languagePlugin.default;
+        }
+      } catch (err) {
+        const e = new Error(
+          `Unable to load language plugin ${requirePath}: ${err.message}`,
+        );
+        e.stack = err.stack;
+        throw e;
       }
-      if (typeof languagePlugin === 'function') {
-        return languagePlugin();
-      } else {
-        throw new Error('Expected plugin to export a function.');
-      }
-    } catch (err) {
-      const e = new Error(
-        `Unable to load language plugin ${requirePath}: ${err.message}`,
-      );
-      e.stack = err.stack;
-      throw e;
+    } else {
+      languagePlugin = language;
+    }
+    if (languagePlugin.default != null) {
+      // $FlowFixMe - Flow no longer considers statics of functions as any
+      languagePlugin = languagePlugin.default;
+    }
+    if (typeof languagePlugin === 'function') {
+      // $FlowFixMe
+      return languagePlugin();
+    } else {
+      throw new Error('Expected plugin to be a initializer function.');
     }
   }
 }
 
-async function main(options: {
-  schema: string,
-  src: string,
-  extensions: Array<string>,
-  include: Array<string>,
-  exclude: Array<string>,
-  verbose: boolean,
-  watchman: boolean,
-  watch?: ?boolean,
-  validate: boolean,
-  quiet: boolean,
-  persistOutput: ?string,
-  noFutureProofEnums: boolean,
-  language: string,
-  artifactDirectory: ?string,
-}) {
-  const schemaPath = path.resolve(process.cwd(), options.schema);
-  if (!fs.existsSync(schemaPath)) {
-    throw new Error(`--schema path does not exist: ${schemaPath}.`);
+function getPersistQueryFunction(
+  config: Config,
+): ?(text: string) => Promise<string> {
+  const configValue = config.persistFunction;
+  if (configValue == null) {
+    return null;
+  } else if (typeof configValue === 'string') {
+    try {
+      // eslint-disable-next-line no-eval
+      const persistFunction = eval('require')(
+        path.resolve(process.cwd(), configValue),
+      );
+      if (persistFunction.default) {
+        return persistFunction.default;
+      }
+      return persistFunction;
+    } catch (err) {
+      const e = new Error(
+        `Unable to load persistFunction ${configValue}: ${err.message}`,
+      );
+      e.stack = err.stack;
+      throw e;
+    }
+  } else if (typeof configValue === 'function') {
+    return configValue;
+  } else {
+    throw new Error(
+      'Expected persistFunction to be a path string or a function.',
+    );
   }
-  const srcDir = path.resolve(process.cwd(), options.src);
-  if (!fs.existsSync(srcDir)) {
-    throw new Error(`--src path does not exist: ${srcDir}.`);
+}
+
+async function main(defaultConfig: Config) {
+  if (defaultConfig.verbose && defaultConfig.quiet) {
+    throw new Error("I can't be quiet and verbose at the same time");
   }
 
-  let persistedQueryPath = options.persistOutput;
-  if (typeof persistedQueryPath === 'string') {
-    persistedQueryPath = path.resolve(process.cwd(), persistedQueryPath);
-    const persistOutputDir = path.dirname(persistedQueryPath);
+  let config = getPathBasedConfig(defaultConfig);
+  config = await getWatchConfig(config);
+
+  // Use function from module.exports to be able to mock it for tests
+  const codegenRunner = module.exports.getCodegenRunner(config);
+
+  const result = config.watch
+    ? await codegenRunner.watchAll()
+    : await codegenRunner.compileAll();
+
+  if (result === 'ERROR') {
+    process.exit(100);
+  }
+  if (config.validate && result !== 'NO_CHANGES') {
+    process.exit(101);
+  }
+}
+
+function getPathBasedConfig(config: Config) {
+  const schema = path.resolve(process.cwd(), config.schema);
+  if (!fs.existsSync(schema)) {
+    throw new Error(`--schema path does not exist: ${schema}`);
+  }
+
+  const src = path.resolve(process.cwd(), config.src);
+  if (!fs.existsSync(src)) {
+    throw new Error(`--src path does not exist: ${src}`);
+  }
+
+  let persistOutput = config.persistOutput;
+  if (typeof persistOutput === 'string') {
+    persistOutput = path.resolve(process.cwd(), persistOutput);
+    const persistOutputDir = path.dirname(persistOutput);
     if (!fs.existsSync(persistOutputDir)) {
-      throw new Error(
-        `--persist-output path does not exist: ${persistedQueryPath}.`,
-      );
+      throw new Error(`--persistOutput path does not exist: ${persistOutput}`);
     }
   }
-  if (options.watch && !options.watchman) {
-    throw new Error('Watchman is required to watch for changes.');
-  }
-  if (options.watch && !hasWatchmanRootFile(srcDir)) {
-    throw new Error(
-      `
+
+  return {...config, schema, src, persistOutput};
+}
+
+async function getWatchConfig(config: Config): Promise<Config> {
+  const watchman = config.watchman && (await WatchmanClient.isAvailable());
+
+  if (config.watch) {
+    if (!watchman) {
+      console.error(
+        'Watchman is required to watch for changes. Running with watch mode disabled.',
+      );
+      return {...config, watch: false, watchman: false};
+    }
+    if (!module.exports.hasWatchmanRootFile(config.src)) {
+      throw new Error(
+        `
 --watch requires that the src directory have a valid watchman "root" file.
 
 Root files can include:
@@ -173,87 +251,89 @@ Root files can include:
 - A .hg/ Mercurial folder
 - A .watchmanconfig file
 
-Ensure that one such file exists in ${srcDir} or its parents.
-    `.trim(),
-    );
-  }
-  if (options.verbose && options.quiet) {
-    throw new Error("I can't be quiet and verbose at the same time");
+Ensure that one such file exists in ${config.src} or its parents.
+      `.trim(),
+      );
+    }
+  } else if (watchman && !config.validate) {
+    // eslint-disable-next-line no-console
+    console.log('HINT: pass --watch to keep watching for changes.');
   }
 
+  return {...config, watchman};
+}
+
+function getCodegenRunner(config: Config): CodegenRunner {
   const reporter = new ConsoleReporter({
-    verbose: options.verbose,
-    quiet: options.quiet,
+    verbose: config.verbose,
+    quiet: config.quiet,
   });
-
-  const useWatchman = options.watchman && (await WatchmanClient.isAvailable());
-
-  const schema = getSchema(schemaPath);
-
-  const languagePlugin = getLanguagePlugin(options.language);
-
-  const inputExtensions = options.extensions || languagePlugin.inputExtensions;
+  const schema = getSchemaSource(config.schema);
+  const languagePlugin = getLanguagePlugin(config.language);
+  const persistQueryFunction = getPersistQueryFunction(config);
+  const inputExtensions = config.extensions || languagePlugin.inputExtensions;
   const outputExtension = languagePlugin.outputExtension;
-
   const sourceParserName = inputExtensions.join('/');
   const sourceWriterName = outputExtension;
-
   const sourceModuleParser = RelaySourceModuleParser(
     languagePlugin.findGraphQLTags,
   );
-
-  const providedArtifactDirectory = options.artifactDirectory;
+  const providedArtifactDirectory = config.artifactDirectory;
   const artifactDirectory =
     providedArtifactDirectory != null
       ? path.resolve(process.cwd(), providedArtifactDirectory)
       : null;
-
-  const generatedDirectoryName = artifactDirectory || '__generated__';
-
+  const generatedDirectoryName = artifactDirectory ?? '__generated__';
   const sourceSearchOptions = {
     extensions: inputExtensions,
-    include: options.include,
-    exclude: ['**/*.graphql.*', ...options.exclude], // Do not include artifacts
+    include: config.include,
+    exclude: ['**/*.graphql.*', ...config.exclude],
   };
   const graphqlSearchOptions = {
     extensions: ['graphql'],
-    include: options.include,
-    exclude: [path.relative(srcDir, schemaPath)].concat(options.exclude),
+    include: config.include,
+    exclude: [path.relative(config.src, config.schema)].concat(config.exclude),
   };
-
+  const schemaExtensions = languagePlugin.schemaExtensions
+    ? [...languagePlugin.schemaExtensions, ...relaySchemaExtensions]
+    : relaySchemaExtensions;
   const parserConfigs = {
     [sourceParserName]: {
-      baseDir: srcDir,
+      baseDir: config.src,
       getFileFilter: sourceModuleParser.getFileFilter,
       getParser: sourceModuleParser.getParser,
-      getSchema: () => schema,
-      watchmanExpression: useWatchman
+      getSchemaSource: () => schema,
+      schemaExtensions,
+      watchmanExpression: config.watchman
         ? buildWatchExpression(sourceSearchOptions)
         : null,
-      filepaths: useWatchman
+      filepaths: config.watchman
         ? null
-        : getFilepathsFromGlob(srcDir, sourceSearchOptions),
+        : getFilepathsFromGlob(config.src, sourceSearchOptions),
     },
     graphql: {
-      baseDir: srcDir,
+      baseDir: config.src,
       getParser: DotGraphQLParser.getParser,
-      getSchema: () => schema,
-      watchmanExpression: useWatchman
+      getSchemaSource: () => schema,
+      schemaExtensions,
+      watchmanExpression: config.watchman
         ? buildWatchExpression(graphqlSearchOptions)
         : null,
-      filepaths: useWatchman
+      filepaths: config.watchman
         ? null
-        : getFilepathsFromGlob(srcDir, graphqlSearchOptions),
+        : getFilepathsFromGlob(config.src, graphqlSearchOptions),
     },
   };
   const writerConfigs = {
     [sourceWriterName]: {
       writeFiles: getRelayFileWriter(
-        srcDir,
+        config.src,
         languagePlugin,
-        options.noFutureProofEnums,
+        config.noFutureProofEnums,
         artifactDirectory,
-        persistedQueryPath,
+        config.persistOutput,
+        config.customScalars,
+        persistQueryFunction,
       ),
       isGeneratedFile: (filePath: string) =>
         filePath.endsWith('.graphql.' + outputExtension) &&
@@ -266,24 +346,18 @@ Ensure that one such file exists in ${srcDir} or its parents.
     reporter,
     parserConfigs,
     writerConfigs,
-    onlyValidate: options.validate,
+    onlyValidate: config.validate,
     // TODO: allow passing in a flag or detect?
     sourceControl: null,
   });
-  if (!options.validate && !options.watch && options.watchman) {
-    // eslint-disable-next-line no-console
-    console.log('HINT: pass --watch to keep watching for changes.');
-  }
-  const result = options.watch
-    ? await codegenRunner.watchAll()
-    : await codegenRunner.compileAll();
+  return codegenRunner;
+}
 
-  if (result === 'ERROR') {
-    process.exit(100);
-  }
-  if (options.validate && result !== 'NO_CHANGES') {
-    process.exit(101);
-  }
+function defaultPersistFunction(text: string): Promise<string> {
+  const hasher = crypto.createHash('md5');
+  hasher.update(text);
+  const id = hasher.digest('hex');
+  return Promise.resolve(id);
 }
 
 function getRelayFileWriter(
@@ -292,8 +366,10 @@ function getRelayFileWriter(
   noFutureProofEnums: boolean,
   outputDir?: ?string,
   persistedQueryPath?: ?string,
+  customScalars?: ScalarTypeMapping,
+  persistFunction?: ?(text: string) => Promise<string>,
 ) {
-  return ({
+  return async ({
     onlyValidate,
     schema,
     documents,
@@ -303,14 +379,24 @@ function getRelayFileWriter(
   }: WriteFilesOptions) => {
     let persistQuery;
     let queryMap;
-    if (persistedQueryPath != null) {
+    if (persistFunction != null || persistedQueryPath != null) {
       queryMap = new Map();
-      persistQuery = (text: string, id: string) => {
+      const persistImplmentation = persistFunction || defaultPersistFunction;
+      persistQuery = async (text: string) => {
+        const id = await persistImplmentation(text);
+        invariant(
+          typeof id === 'string',
+          'Expected persist function to return a string, got `%s`.',
+          id,
+        );
         queryMap.set(id, text);
-        return Promise.resolve(id);
+        return id;
       };
     }
-    const results = RelayFileWriter.writeAll({
+    const schemaExtensions = languagePlugin.schemaExtensions
+      ? [...languagePlugin.schemaExtensions, ...relaySchemaExtensions]
+      : relaySchemaExtensions;
+    const results = await RelayFileWriter.writeAll({
       config: {
         baseDir,
         compilerTransforms: {
@@ -320,7 +406,7 @@ function getRelayFileWriter(
           printTransforms,
           queryTransforms,
         },
-        customScalars: {},
+        customScalars: customScalars || {},
         formatModule: languagePlugin.formatModule,
         optionalInputFieldsForFlow: [],
         schemaExtensions,
@@ -339,9 +425,24 @@ function getRelayFileWriter(
       sourceControl,
     });
     if (queryMap != null && persistedQueryPath != null) {
-      const object = {};
-      for (const [key, value] of queryMap.entries()) {
-        object[key] = value;
+      let object = {};
+      if (fs.existsSync(persistedQueryPath)) {
+        try {
+          const prevText = fs.readFileSync(persistedQueryPath, 'utf8');
+          const prevData = JSON.parse(prevText);
+          if (prevData != null && typeof prevData === 'object') {
+            object = prevData;
+          } else {
+            console.error(
+              `Invalid data in persisted query file '${persistedQueryPath}', expected an object.`,
+            );
+          }
+        } catch (error) {
+          console.error(error);
+        }
+      }
+      for (const [id, text] of queryMap.entries()) {
+        object[id] = text;
       }
       const data = JSON.stringify(object, null, 2);
       fs.writeFileSync(persistedQueryPath, data, 'utf8');
@@ -350,35 +451,24 @@ function getRelayFileWriter(
   };
 }
 
-function getSchema(schemaPath: string): GraphQLSchema {
-  try {
-    let source = fs.readFileSync(schemaPath, 'utf8');
-    if (path.extname(schemaPath) === '.json') {
-      source = printSchema(buildClientSchema(JSON.parse(source).data));
-    }
-    source = `
-  directive @include(if: Boolean) on FRAGMENT_SPREAD | FIELD
-  directive @skip(if: Boolean) on FRAGMENT_SPREAD | FIELD
+function getSchemaSource(schemaPath: string): Source {
+  let source = fs.readFileSync(schemaPath, 'utf8');
+  if (path.extname(schemaPath) === '.json') {
+    source = printSchema(buildClientSchema(JSON.parse(source).data));
+  }
+  source = `
+  directive @include(if: Boolean) on FRAGMENT_SPREAD | FIELD | INLINE_FRAGMENT
+  directive @skip(if: Boolean) on FRAGMENT_SPREAD | FIELD | INLINE_FRAGMENT
 
   ${source}
   `;
-    return buildASTSchema(parse(source), {assumeValid: true});
-  } catch (error) {
-    throw new Error(
-      `
-Error loading schema. Expected the schema to be a .graphql or a .json
-file, describing your GraphQL server's API. Error detail:
-
-${error.stack}
-    `.trim(),
-    );
-  }
+  return new Source(source, schemaPath);
 }
 
 // Ensure that a watchman "root" file exists in the given directory
 // or a parent so that it can be watched
 const WATCHMAN_ROOT_FILES = ['.git', '.hg', '.watchmanconfig'];
-function hasWatchmanRootFile(testPath) {
+function hasWatchmanRootFile(testPath: string): boolean {
   while (path.dirname(testPath) !== testPath) {
     if (
       WATCHMAN_ROOT_FILES.some(file => {
@@ -392,4 +482,10 @@ function hasWatchmanRootFile(testPath) {
   return false;
 }
 
-module.exports = {main};
+module.exports = {
+  getCodegenRunner,
+  getLanguagePlugin,
+  getWatchConfig,
+  hasWatchmanRootFile,
+  main,
+};

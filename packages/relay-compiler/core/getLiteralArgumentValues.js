@@ -8,25 +8,23 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
-const invariant = require('invariant');
-
-import type {Argument} from './GraphQLIR';
+import type {Argument} from './IR';
 
 // Copy of Variables type from '../../../react-relay/classic/tools/RelayTypes'
 // Duplicating here rather than importing it since we can't take on a dependency
-// outside of graphql-compiler.
-type Variables = {[name: string]: $FlowFixMe};
+// outside of relay-compiler.
+type Variables = {[name: string]: mixed, ...};
 
 function getLiteralArgumentValues(args: $ReadOnlyArray<Argument>): Variables {
   const values = {};
   args.forEach(arg => {
-    invariant(
-      arg.value.kind === 'Literal',
-      'getLiteralArgumentValues(): Expected all args to be literals.',
-    );
-    values[arg.name] = arg.value.value;
+    if (arg.value.kind === 'Literal') {
+      values[arg.name] = arg.value.value;
+    }
   });
   return values;
 }

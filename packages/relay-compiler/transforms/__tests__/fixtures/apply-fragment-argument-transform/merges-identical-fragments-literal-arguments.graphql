@@ -6,7 +6,8 @@ query TestQuery($id: ID!) {
   }
 }
 
-fragment ProfileFriends on User @argumentDefinitions(pictureSize: {type: "[Int]", defaultValue: [128]}){
+fragment ProfileFriends on User
+  @argumentDefinitions(pictureSize: {type: "[Int]", defaultValue: [128]}) {
   friends(first: 10) {
     edges {
       node {
@@ -16,9 +17,7 @@ fragment ProfileFriends on User @argumentDefinitions(pictureSize: {type: "[Int]"
   }
 }
 
-fragment Profile on User @argumentDefinitions(
-  pictureSize: {type: "[Int]", nonNull: true}
-) {
+fragment Profile on User @argumentDefinitions(pictureSize: {type: "[Int]"}) {
   profilePicture(size: $pictureSize) {
     uri
   }

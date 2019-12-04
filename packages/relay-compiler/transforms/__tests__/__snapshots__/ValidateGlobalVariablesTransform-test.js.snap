@@ -1,0 +1,73 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`matches expected output: fragment-with-undefined-variable.invalid.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+#expected-to-throw
+query QueryWithUnusedVariable {
+  node {
+    ...UserFragment
+  }
+}
+
+fragment UserFragment on User {
+  name @include(if: $shouldIncludeName)
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+THROWN EXCEPTION:
+
+Operation 'QueryWithUnusedVariable' references undefined variable(s):
+- $shouldIncludeName: Boolean!.
+
+Source (derived): GraphQL request (9:21)
+ 8: fragment UserFragment on User {
+ 9:   name @include(if: $shouldIncludeName)
+                        ^
+10: }
+
+`;
+
+exports[`matches expected output: query-with-undefined-variable.invalid.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+#expected-to-throw
+query QueryWithUnusedVariable {
+  node(id: $id) {
+    id
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+THROWN EXCEPTION:
+
+Query 'QueryWithUnusedVariable' references undefined variables.
+
+GraphQL request (3:12)
+2: query QueryWithUnusedVariable {
+3:   node(id: $id) {
+              ^
+4:     id
+
+`;
+
+exports[`matches expected output: query-with-variables.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query QueryWithId($id: ID) {
+  node(id: $id) {
+    ... on User {
+      name
+    }
+  }
+}
+
+query QueryWithCondition($shouldIncludeName: Boolean!) {
+  node {
+    ... on User {
+      name @include(if: $shouldIncludeName)
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+QueryWithId: NO ERRORS
+QueryWithCondition: NO ERRORS
+`;

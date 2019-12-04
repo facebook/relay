@@ -4,9 +4,11 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @flow
+ * @flow strict-local
  * @format
  */
+
+// flowlint ambiguous-object-type:error
 
 'use strict';
 
@@ -23,10 +25,6 @@ import type {
   GraphQLTagFinder,
 } from '../language/RelayLanguagePluginInterface';
 
-export type GraphQLTagFinderOptions = {|
-  validateNames: boolean,
-|};
-
 const cache = new RelayCompilerCache('RelayFindGraphQLTags', 'v1');
 
 function memoizedFind(
@@ -34,16 +32,15 @@ function memoizedFind(
   text: string,
   baseDir: string,
   file: File,
-  options: GraphQLTagFinderOptions,
-): Array<string> {
+): $ReadOnlyArray<string> {
   invariant(
     file.exists,
     'RelayFindGraphQLTags: Called with non-existent file `%s`',
     file.relPath,
   );
   return cache.getOrCompute(
-    file.hash + (options.validateNames ? '1' : '0'),
-    find.bind(null, tagFinder, text, path.join(baseDir, file.relPath), options),
+    file.hash,
+    find.bind(null, tagFinder, text, path.join(baseDir, file.relPath)),
   );
 }
 
@@ -51,13 +48,10 @@ function find(
   tagFinder: GraphQLTagFinder,
   text: string,
   absPath: string,
-  {validateNames}: GraphQLTagFinderOptions,
-): Array<string> {
+): $ReadOnlyArray<string> {
   const tags = tagFinder(text, absPath);
-  if (validateNames) {
-    const moduleName = getModuleName(absPath);
-    tags.forEach(tag => validateTemplate(tag, moduleName, absPath));
-  }
+  const moduleName = getModuleName(absPath);
+  tags.forEach(tag => validateTemplate(tag, moduleName, absPath));
   return tags.map(tag => tag.template);
 }
 
@@ -69,15 +63,15 @@ function validateTemplate(
   const ast = graphql.parse(
     new graphql.Source(template, filePath, sourceLocationOffset),
   );
-  ast.definitions.forEach((def: any) => {
-    invariant(
-      def.name,
-      'RelayFindGraphQLTags: In module `%s`, a definition of kind `%s` requires a name.',
-      moduleName,
-      def.kind,
-    );
-    const definitionName = def.name.value;
+  ast.definitions.forEach(def => {
     if (def.kind === 'OperationDefinition') {
+      invariant(
+        def.name != null,
+        'RelayFindGraphQLTags: In module `%s`, an operation requires a name.',
+        moduleName,
+        def.kind,
+      );
+      const definitionName = def.name.value;
       const operationNameParts = definitionName.match(
         /^(.*)(Mutation|Query|Subscription)$/,
       );
@@ -90,7 +84,8 @@ function validateTemplate(
         moduleName,
       );
     } else if (def.kind === 'FragmentDefinition') {
-      if (keyName) {
+      const definitionName = def.name.value;
+      if (keyName != null) {
         invariant(
           definitionName === moduleName + '_' + keyName,
           'RelayFindGraphQLTags: Container fragment names must be ' +

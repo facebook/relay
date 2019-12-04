@@ -8,74 +8,96 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
+const RelayConnection = require('./RelayConnection');
 const RelayModernRecord = require('./RelayModernRecord');
 
 const invariant = require('invariant');
 
 const {
+  CLIENT_EXTENSION,
+  CONNECTION,
   CONDITION,
+  DEFER,
   FRAGMENT_SPREAD,
+  INLINE_DATA_FRAGMENT_SPREAD,
   INLINE_FRAGMENT,
   LINKED_FIELD,
-  MATCH_FIELD,
+  MODULE_IMPORT,
   SCALAR_FIELD,
+  STREAM,
 } = require('../util/RelayConcreteNode');
 const {
   FRAGMENTS_KEY,
+  FRAGMENT_OWNER_KEY,
   FRAGMENT_PROP_NAME_KEY,
   ID_KEY,
-  MATCH_COMPONENT_KEY,
-  MODULE_KEY,
+  MODULE_COMPONENT_KEY,
   getArgumentValues,
   getStorageKey,
+  getModuleComponentKey,
 } = require('./RelayStoreUtils');
 
 import type {
+  ReaderConnection,
   ReaderFragmentSpread,
+  ReaderInlineDataFragmentSpread,
   ReaderLinkedField,
-  ReaderMatchField,
+  ReaderModuleImport,
   ReaderNode,
   ReaderScalarField,
   ReaderSelection,
-  ReaderSelectableNode,
 } from '../util/ReaderNode';
-import type {Record, SelectorData} from '../util/RelayCombinedEnvironmentTypes';
 import type {DataID, Variables} from '../util/RelayRuntimeTypes';
-import type {RecordSource, ReaderSelector, Snapshot} from './RelayStoreTypes';
+import type {ConnectionReference} from './RelayConnection';
+import type {
+  Record,
+  RecordSource,
+  RequestDescriptor,
+  SelectorData,
+  SingularReaderSelector,
+  Snapshot,
+} from './RelayStoreTypes';
 
-function read(recordSource: RecordSource, selector: ReaderSelector): Snapshot {
-  const {dataID, node, variables} = selector;
-  const reader = new RelayReader(recordSource, variables);
-  return reader.read(node, dataID);
+function read(
+  recordSource: RecordSource,
+  selector: SingularReaderSelector,
+): Snapshot {
+  const reader = new RelayReader(recordSource, selector);
+  return reader.read();
 }
 
 /**
  * @private
  */
 class RelayReader {
-  _recordSource: RecordSource;
-  _seenRecords: {[dataID: DataID]: ?Record};
-  _variables: Variables;
   _isMissingData: boolean;
+  _owner: RequestDescriptor;
+  _recordSource: RecordSource;
+  _seenRecords: {[dataID: DataID]: ?Record, ...};
+  _selector: SingularReaderSelector;
+  _variables: Variables;
 
-  constructor(recordSource: RecordSource, variables: Variables) {
+  constructor(recordSource: RecordSource, selector: SingularReaderSelector) {
+    this._isMissingData = false;
+    this._owner = selector.owner;
     this._recordSource = recordSource;
     this._seenRecords = {};
-    this._isMissingData = false;
-    this._variables = variables;
+    this._selector = selector;
+    this._variables = selector.variables;
   }
 
-  read(node: ReaderSelectableNode, dataID: DataID): Snapshot {
+  read(): Snapshot {
+    const {node, dataID} = this._selector;
     const data = this._traverse(node, dataID, null);
     return {
       data,
-      dataID,
-      node,
-      seenRecords: this._seenRecords,
-      variables: this._variables,
       isMissingData: this._isMissingData,
+      seenRecords: this._seenRecords,
+      selector: this._selector,
     };
   }
 
@@ -111,37 +133,81 @@ class RelayReader {
     record: Record,
     data: SelectorData,
   ): void {
-    selections.forEach(selection => {
-      if (selection.kind === SCALAR_FIELD) {
-        this._readScalar(selection, record, data);
-      } else if (selection.kind === LINKED_FIELD) {
-        if (selection.plural) {
-          this._readPluralLink(selection, record, data);
-        } else {
-          this._readLink(selection, record, data);
-        }
-      } else if (selection.kind === CONDITION) {
-        const conditionValue = this._getVariableValue(selection.condition);
-        if (conditionValue === selection.passingValue) {
+    for (let i = 0; i < selections.length; i++) {
+      const selection = selections[i];
+      switch (selection.kind) {
+        case SCALAR_FIELD:
+          this._readScalar(selection, record, data);
+          break;
+        case LINKED_FIELD:
+          if (selection.plural) {
+            this._readPluralLink(selection, record, data);
+          } else {
+            this._readLink(selection, record, data);
+          }
+          break;
+        case CONDITION:
+          const conditionValue = this._getVariableValue(selection.condition);
+          if (conditionValue === selection.passingValue) {
+            this._traverseSelections(selection.selections, record, data);
+          }
+          break;
+        case INLINE_FRAGMENT:
+          const typeName = RelayModernRecord.getType(record);
+          if (typeName != null && typeName === selection.type) {
+            this._traverseSelections(selection.selections, record, data);
+          }
+          break;
+        case FRAGMENT_SPREAD:
+          this._createFragmentPointer(selection, record, data);
+          break;
+        case MODULE_IMPORT:
+          this._readModuleImport(selection, record, data);
+          break;
+        case INLINE_DATA_FRAGMENT_SPREAD:
+          this._createInlineDataFragmentPointer(selection, record, data);
+          break;
+        case DEFER:
+        case CLIENT_EXTENSION:
+          const isMissingData = this._isMissingData;
           this._traverseSelections(selection.selections, record, data);
-        }
-      } else if (selection.kind === INLINE_FRAGMENT) {
-        const typeName = RelayModernRecord.getType(record);
-        if (typeName != null && typeName === selection.type) {
+          this._isMissingData = isMissingData;
+          break;
+        case CONNECTION:
+          this._readConnection(selection, record, data);
+          break;
+        case STREAM:
           this._traverseSelections(selection.selections, record, data);
-        }
-      } else if (selection.kind === FRAGMENT_SPREAD) {
-        this._createFragmentPointer(selection, record, data, this._variables);
-      } else if (selection.kind === MATCH_FIELD) {
-        this._readMatchField(selection, record, data);
-      } else {
-        invariant(
-          false,
-          'RelayReader(): Unexpected ast kind `%s`.',
-          selection.kind,
-        );
+          break;
+        default:
+          (selection: empty);
+          invariant(
+            false,
+            'RelayReader(): Unexpected ast kind `%s`.',
+            selection.kind,
+          );
       }
-    });
+    }
+  }
+
+  _readConnection(
+    field: ReaderConnection,
+    record: Record,
+    data: SelectorData,
+  ): void {
+    const parentID = RelayModernRecord.getDataID(record);
+    const connectionID = RelayConnection.createConnectionID(
+      parentID,
+      field.label,
+    );
+    const edgesField: ReaderLinkedField = field.edges;
+    const reference: ConnectionReference<mixed> = {
+      variables: this._variables,
+      edgesField,
+      id: connectionID,
+      label: field.label,
+    };
+    data[RelayConnection.CONNECTION_KEY] = reference;
   }
 
   _readScalar(
@@ -183,6 +249,9 @@ class RelayReader {
       RelayModernRecord.getDataID(record),
       prevData,
     );
+    /* $FlowFixMe(>=0.98.0 site=www,mobile,react_native_fb,oss) This comment
+     * suppresses an error found when Flow v0.98 was deployed. To see the error
+     * delete this comment and run Flow. */
     data[applicationName] = this._traverse(field, linkedID, prevData);
   }
 
@@ -218,6 +287,9 @@ class RelayReader {
         if (linkedID === undefined) {
           this._isMissingData = true;
         }
+        /* $FlowFixMe(>=0.98.0 site=www,mobile,react_native_fb,oss) This comment
+         * suppresses an error found when Flow v0.98 was deployed. To see the
+         * error delete this comment and run Flow. */
         linkedArray[nextIndex] = linkedID;
         return;
       }
@@ -230,85 +302,31 @@ class RelayReader {
         RelayModernRecord.getDataID(record),
         prevItem,
       );
+      /* $FlowFixMe(>=0.98.0 site=www,mobile,react_native_fb,oss) This comment
+       * suppresses an error found when Flow v0.98 was deployed. To see the
+       * error delete this comment and run Flow. */
       linkedArray[nextIndex] = this._traverse(field, linkedID, prevItem);
     });
     data[applicationName] = linkedArray;
   }
 
   /**
-   * Reads a ReaderMatchField, which was generated from using the @match
-   * directive
+   * Reads a ReaderModuleImport, which was generated from using the @module
+   * directive.
    */
-  _readMatchField(
-    field: ReaderMatchField,
+  _readModuleImport(
+    moduleImport: ReaderModuleImport,
     record: Record,
     data: SelectorData,
   ): void {
-    const applicationName = field.alias ?? field.name;
-    const storageKey = getStorageKey(field, this._variables);
-    const linkedID = RelayModernRecord.getLinkedRecordID(record, storageKey);
-    if (linkedID == null) {
-      data[applicationName] = linkedID;
-      if (linkedID === undefined) {
-        this._isMissingData = true;
-      }
-      return;
-    }
-
-    const prevData = data[applicationName];
-    invariant(
-      prevData == null || typeof prevData === 'object',
-      'RelayReader(): Expected data for field `%s` on record `%s` ' +
-        'to be an object, got `%s`.',
-      applicationName,
-      RelayModernRecord.getDataID(record),
-      prevData,
-    );
-
-    // Instead of recursing into the traversal again, let's manually traverse
-    // one level to get the record associated with the match field
-    const linkedRecord = this._recordSource.get(linkedID);
-    this._seenRecords[linkedID] = linkedRecord;
-    if (linkedRecord == null) {
-      if (linkedRecord === undefined) {
-        this._isMissingData = true;
-      }
-      data[applicationName] = linkedRecord;
-      return;
-    }
-
-    // Determine the concrete type for the match field record. The type of a
-    // match field must be a union type (i.e. abstract type), so here we
-    // read the concrete type on the record, which should be the type resolved
-    // by the server in the response.
-    const concreteType = RelayModernRecord.getType(linkedRecord);
-    invariant(
-      typeof concreteType === 'string',
-      'RelayReader(): Expected to be able to resolve concrete type for ' +
-        'field `%s` on record `%s`',
-      applicationName,
-      RelayModernRecord.getDataID(linkedRecord),
-    );
-
-    // If we can't find a match provided in the directive for the concrete
-    // type, return null as the result
-    const match = field.matchesByType[concreteType];
-    if (match == null) {
-      data[applicationName] = null;
-      return;
-    }
-
     // Determine the component module from the store: if the field is missing
     // it means we don't know what component to render the match with.
-    const matchComponent = RelayModernRecord.getValue(
-      linkedRecord,
-      MATCH_COMPONENT_KEY,
-    );
-    if (matchComponent == null) {
-      if (matchComponent === undefined) {
+    const componentKey = getModuleComponentKey(moduleImport.documentName);
+    const component = RelayModernRecord.getValue(record, componentKey);
+    if (component == null) {
+      if (component === undefined) {
         this._isMissingData = true;
       }
-      data[applicationName] = null;
       return;
     }
 
@@ -317,43 +335,68 @@ class RelayReader {
     // - For the matched fragment, create the relevant fragment pointer and add
     //   the expected fragmentPropName
     // - For the matched module, create a reference to the module
-    const matchResult = {};
     this._createFragmentPointer(
       {
         kind: 'FragmentSpread',
-        name: match.fragmentName,
+        name: moduleImport.fragmentName,
         args: null,
       },
-      linkedRecord,
-      matchResult,
-      this._variables,
+      record,
+      data,
     );
-    matchResult[FRAGMENT_PROP_NAME_KEY] = match.fragmentPropName;
-    matchResult[MODULE_KEY] = matchComponent;
-
-    // Attach the match result to the data being read
-    data[applicationName] = matchResult;
+    data[FRAGMENT_PROP_NAME_KEY] = moduleImport.fragmentPropName;
+    data[MODULE_COMPONENT_KEY] = component;
   }
 
   _createFragmentPointer(
     fragmentSpread: ReaderFragmentSpread,
     record: Record,
     data: SelectorData,
-    variables: Variables,
   ): void {
     let fragmentPointers = data[FRAGMENTS_KEY];
     if (fragmentPointers == null) {
       fragmentPointers = data[FRAGMENTS_KEY] = {};
     }
     invariant(
-      typeof fragmentPointers === 'object' && fragmentPointers,
+      typeof fragmentPointers === 'object' && fragmentPointers != null,
       'RelayReader: Expected fragment spread data to be an object, got `%s`.',
       fragmentPointers,
     );
-    data[ID_KEY] = data[ID_KEY] ?? RelayModernRecord.getDataID(record);
+    if (data[ID_KEY] == null) {
+      data[ID_KEY] = RelayModernRecord.getDataID(record);
+    }
+    // $FlowFixMe - writing into read-only field
     fragmentPointers[fragmentSpread.name] = fragmentSpread.args
-      ? getArgumentValues(fragmentSpread.args, variables)
+      ? getArgumentValues(fragmentSpread.args, this._variables)
       : {};
+    data[FRAGMENT_OWNER_KEY] = this._owner;
+  }
+
+  _createInlineDataFragmentPointer(
+    inlineDataFragmentSpread: ReaderInlineDataFragmentSpread,
+    record: Record,
+    data: SelectorData,
+  ): void {
+    let fragmentPointers = data[FRAGMENTS_KEY];
+    if (fragmentPointers == null) {
+      fragmentPointers = data[FRAGMENTS_KEY] = {};
+    }
+    invariant(
+      typeof fragmentPointers === 'object' && fragmentPointers != null,
+      'RelayReader: Expected fragment spread data to be an object, got `%s`.',
+      fragmentPointers,
+    );
+    if (data[ID_KEY] == null) {
+      data[ID_KEY] = RelayModernRecord.getDataID(record);
+    }
+    const inlineData = {};
+    this._traverseSelections(
+      inlineDataFragmentSpread.selections,
+      record,
+      inlineData,
+    );
+    // $FlowFixMe - writing into read-only field
+    fragmentPointers[inlineDataFragmentSpread.name] = inlineData;
   }
 }
 

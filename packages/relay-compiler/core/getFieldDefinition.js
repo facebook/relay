@@ -4,69 +4,66 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @flow strict-local
+ * @flow strict
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
-const {getRawType} = require('./GraphQLSchemaUtils');
-const {createCompilerError} = require('./RelayCompilerError');
-const {
-  assertAbstractType,
-  GraphQLInterfaceType,
-  GraphQLObjectType,
-  GraphQLUnionType,
-  isAbstractType,
-  SchemaMetaFieldDef,
-  TypeMetaFieldDef,
-  TypeNameMetaFieldDef,
-} = require('graphql');
+const {createCompilerError} = require('./CompilerError');
+const {SchemaMetaFieldDef, TypeMetaFieldDef} = require('graphql');
 
-import type {
-  GraphQLSchema,
-  GraphQLOutputType,
-  FieldNode,
-  GraphQLField,
-  GraphQLType,
-} from 'graphql';
+import type {Schema, TypeID, FieldID} from './Schema';
+import type {FieldNode} from 'graphql';
 
 export type GetFieldDefinitionFn = (
-  schema: GraphQLSchema,
-  parentType: GraphQLOutputType,
+  schema: Schema,
+  parentType: TypeID,
   fieldName: string,
   fieldAST: FieldNode,
-) => ?GraphQLField<mixed, mixed>;
+) => ?FieldID;
 
 /**
  * Find the definition of a field of the specified type using strict
  * resolution rules per the GraphQL spec.
  */
 function getFieldDefinitionStrict(
-  schema: GraphQLSchema,
-  parentType: GraphQLOutputType,
+  schema: Schema,
+  parentType: TypeID,
   fieldName: string,
-  fieldAST: FieldNode,
-): ?GraphQLField<mixed, mixed> {
-  const type = getRawType(parentType);
-  const isQueryType = type === schema.getQueryType();
-  const hasTypeName =
-    type instanceof GraphQLObjectType ||
-    type instanceof GraphQLInterfaceType ||
-    type instanceof GraphQLUnionType;
+): ?FieldID {
+  const type = schema.getRawType(parentType);
+  const queryType = schema.getQueryType();
+  const isQueryType =
+    queryType != null && schema.areEqualTypes(type, queryType);
+  const hasTypeName = schema.isAbstractType(type) || schema.isObject(type);
 
   let schemaFieldDef;
   if (isQueryType && fieldName === SchemaMetaFieldDef.name) {
-    schemaFieldDef = SchemaMetaFieldDef;
+    schemaFieldDef =
+      queryType != null ? schema.getFieldByName(queryType, '__schema') : null;
   } else if (isQueryType && fieldName === TypeMetaFieldDef.name) {
-    schemaFieldDef = TypeMetaFieldDef;
-  } else if (hasTypeName && fieldName === TypeNameMetaFieldDef.name) {
-    schemaFieldDef = TypeNameMetaFieldDef;
-  } else if (
-    type instanceof GraphQLInterfaceType ||
-    type instanceof GraphQLObjectType
-  ) {
-    schemaFieldDef = type.getFields()[fieldName];
+    schemaFieldDef =
+      queryType != null ? schema.getFieldByName(queryType, '__type') : null;
+  } else if (hasTypeName && fieldName === '__typename') {
+    schemaFieldDef = schema.getFieldByName(
+      schema.assertCompositeType(type),
+      '__typename',
+    );
+  } else if (hasTypeName && fieldName === '__id') {
+    schemaFieldDef = schema.getFieldByName(
+      schema.assertCompositeType(type),
+      '__id',
+    );
+  } else if (schema.isInterface(type) || schema.isObject(type)) {
+    const compositeType = schema.assertCompositeType(type);
+    if (schema.hasField(compositeType, fieldName)) {
+      schemaFieldDef = schema.getFieldByName(compositeType, fieldName);
+    } else {
+      return null;
+    }
   }
   return schemaFieldDef;
 }
@@ -77,60 +74,58 @@ function getFieldDefinitionStrict(
  * to legacy mode that supports fat interfaces.
  */
 function getFieldDefinitionLegacy(
-  schema: GraphQLSchema,
-  parentType: GraphQLOutputType,
+  schema: Schema,
+  parentType: TypeID,
   fieldName: string,
   fieldAST: FieldNode,
-): ?GraphQLField<mixed, mixed> {
-  let schemaFieldDef = getFieldDefinitionStrict(
-    schema,
-    parentType,
-    fieldName,
-    fieldAST,
-  );
+): ?FieldID {
+  let schemaFieldDef = getFieldDefinitionStrict(schema, parentType, fieldName);
+
   if (!schemaFieldDef) {
-    const type = getRawType(parentType);
     schemaFieldDef = getFieldDefinitionLegacyImpl(
       schema,
-      type,
+      parentType,
       fieldName,
       fieldAST,
     );
   }
-  return schemaFieldDef || null;
+  return schemaFieldDef ?? null;
 }
 
 /**
  * @private
  */
 function getFieldDefinitionLegacyImpl(
-  schema: GraphQLSchema,
-  type: GraphQLType,
+  schema: Schema,
+  type: TypeID,
   fieldName: string,
   fieldAST: FieldNode,
-): ?GraphQLField<mixed, mixed> {
+): ?FieldID {
+  const rawType = schema.getRawType(type);
   if (
-    isAbstractType(type) &&
+    schema.isAbstractType(rawType) &&
     fieldAST &&
     fieldAST.directives &&
     fieldAST.directives.some(
       directive => getName(directive) === 'fixme_fat_interface',
     )
   ) {
-    const possibleTypes = schema.getPossibleTypes(assertAbstractType(type));
+    const possibleTypes = schema.getPossibleTypes(
+      schema.assertAbstractType(rawType),
+    );
     let schemaFieldDef;
-    for (let ii = 0; ii < possibleTypes.length; ii++) {
-      const possibleField = possibleTypes[ii].getFields()[fieldName];
+    for (const possibleType of possibleTypes) {
+      const possibleField = schema.getFieldByName(possibleType, fieldName);
       if (possibleField) {
         // Fat interface fields can have differing arguments. Try to return
         // a field with matching arguments, but still return a field if the
         // arguments do not match.
         schemaFieldDef = possibleField;
         if (fieldAST && fieldAST.arguments) {
-          const argumentsAllExist = fieldAST.arguments.every(argument =>
-            possibleField.args.find(
-              argDef => argDef.name === getName(argument),
-            ),
+          const argumentsAllExist = fieldAST.arguments.every(
+            argument =>
+              schema.getFieldArgByName(possibleField, getName(argument)) !=
+              null,
           );
           if (argumentsAllExist) {
             break;

@@ -8,38 +8,26 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
-
-const sprintf = require('sprintf');
-
-/**
- * @internal
- *
- * Factory methods for constructing errors in Relay.
- */
-const RelayError = {
-  create(name: string, format: string, ...args: Array<mixed>): Error {
-    return createError('mustfix', name, format, args);
-  },
-  createWarning(name: string, format: string, ...args: Array<mixed>): Error {
-    return createError('warn', name, format, args);
-  },
-};
 
 /**
  * @private
  */
-function createError(
-  type: string,
-  name: string,
-  format: string,
-  args: Array<mixed>,
-): Error {
-  const error = new Error(sprintf(format, ...args));
+function createError(type: string, name: string, message: string): Error {
+  const error = new Error(message);
   error.name = name;
   (error: any).type = type;
   (error: any).framesToPop = 2;
   return error;
 }
 
-module.exports = RelayError;
+module.exports = {
+  create(name: string, message: string): Error {
+    return createError('mustfix', name, message);
+  },
+  createWarning(name: string, message: string): Error {
+    return createError('warn', name, message);
+  },
+};

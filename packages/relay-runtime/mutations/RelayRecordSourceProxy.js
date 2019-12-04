@@ -8,26 +8,25 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const RelayModernRecord = require('../store/RelayModernRecord');
 const RelayRecordProxy = require('./RelayRecordProxy');
-const RelayRecordSourceSelectorProxy = require('./RelayRecordSourceSelectorProxy');
 
 const invariant = require('invariant');
-const normalizeRelayPayload = require('../store/normalizeRelayPayload');
 
 const {EXISTENT, NONEXISTENT} = require('../store/RelayRecordState');
 const {ROOT_ID, ROOT_TYPE} = require('../store/RelayStoreUtils');
 
 import type {HandlerProvider} from '../handlers/RelayDefaultHandlerProvider';
+import type {GetDataID} from '../store/RelayResponseNormalizer';
 import type {
   HandleFieldPayload,
   RecordSource,
   RecordProxy,
   RecordSourceProxy,
-  RecordSourceSelectorProxy,
-  OperationSelector,
 } from '../store/RelayStoreTypes';
 import type {DataID} from '../util/RelayRuntimeTypes';
 import type RelayRecordSourceMutator from './RelayRecordSourceMutator';
@@ -40,15 +39,22 @@ import type RelayRecordSourceMutator from './RelayRecordSourceMutator';
 class RelayRecordSourceProxy implements RecordSourceProxy {
   _handlerProvider: ?HandlerProvider;
   __mutator: RelayRecordSourceMutator;
-  _proxies: {[dataID: DataID]: ?RelayRecordProxy};
+  _proxies: {[dataID: DataID]: ?RelayRecordProxy, ...};
+  _getDataID: GetDataID;
+  _invalidatedStore: boolean;
+  _idsMarkedForInvalidation: Set<DataID>;
 
   constructor(
     mutator: RelayRecordSourceMutator,
+    getDataID: GetDataID,
     handlerProvider?: ?HandlerProvider,
   ) {
     this.__mutator = mutator;
     this._handlerProvider = handlerProvider || null;
     this._proxies = {};
+    this._getDataID = getDataID;
+    this._invalidatedStore = false;
+    this._idsMarkedForInvalidation = new Set();
   }
 
   publishSource(
@@ -65,7 +71,6 @@ class RelayRecordSourceProxy implements RecordSourceProxy {
             this.create(dataID, RelayModernRecord.getType(sourceRecord));
           }
           this.__mutator.copyFieldsFromRecord(sourceRecord, dataID);
-          delete this._proxies[dataID];
         }
       } else if (status === NONEXISTENT) {
         this.delete(dataID);
@@ -84,21 +89,6 @@ class RelayRecordSourceProxy implements RecordSourceProxy {
         handler.update(this, fieldPayload);
       });
     }
-  }
-
-  commitPayload(
-    operation: OperationSelector,
-    response: ?Object,
-  ): RecordSourceSelectorProxy {
-    if (!response) {
-      return new RelayRecordSourceSelectorProxy(this, operation.fragment);
-    }
-    const {source, fieldPayloads} = normalizeRelayPayload(
-      operation.root,
-      response,
-    );
-    this.publishSource(source, fieldPayloads);
-    return new RelayRecordSourceSelectorProxy(this, operation.fragment);
   }
 
   create(dataID: DataID, typeName: string): RecordProxy {
@@ -149,6 +139,22 @@ class RelayRecordSourceProxy implements RecordSourceProxy {
         'root record.',
     );
     return root;
+  }
+
+  invalidateStore(): void {
+    this._invalidatedStore = true;
+  }
+
+  isStoreMarkedForInvalidation(): boolean {
+    return this._invalidatedStore;
+  }
+
+  markIDForInvalidation(dataID: DataID): void {
+    this._idsMarkedForInvalidation.add(dataID);
+  }
+
+  getIDsMarkedForInvalidation(): Set<DataID> {
+    return this._idsMarkedForInvalidation;
   }
 }
 

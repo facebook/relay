@@ -10,30 +10,14 @@
 
 'use strict';
 
+const {getRootScope, getFragmentScope} = require('../RelayCompilerScope');
+const {TestSchema} = require('relay-test-utils-internal');
+
 describe('scope', () => {
-  let GraphQL;
-  let RelayCompilerScope;
-  let RelayTestSchema;
+  const schema = TestSchema;
 
-  let GraphQLNonNull;
-  let getFragmentScope;
-  let getRootScope;
-  let optionalIntType;
-  let requiredIntType;
-
-  beforeEach(() => {
-    jest.resetModules();
-
-    GraphQL = require('graphql');
-    RelayCompilerScope = require('RelayCompilerScope');
-    RelayTestSchema = require('RelayTestSchema');
-
-    ({GraphQLNonNull} = GraphQL);
-    ({getFragmentScope, getRootScope} = RelayCompilerScope);
-
-    optionalIntType = RelayTestSchema.getType('Int');
-    requiredIntType = new GraphQLNonNull(optionalIntType);
-  });
+  const optionalIntType = schema.expectIntType();
+  const requiredIntType = schema.getNonNullType(schema.expectIntType());
 
   describe('getRootScope()', () => {
     it('creates variables for optional definitions with defaults', () => {
@@ -118,6 +102,7 @@ describe('scope', () => {
         name: '<name>',
       };
       const innerScope = getFragmentScope(
+        schema,
         definitions,
         calls,
         outerScope,
@@ -163,6 +148,7 @@ describe('scope', () => {
         name: '<name>',
       };
       const innerScope = getFragmentScope(
+        schema,
         definitions,
         calls,
         outerScope,
@@ -207,6 +193,7 @@ describe('scope', () => {
         name: '<name>',
       };
       const innerScope = getFragmentScope(
+        schema,
         definitions,
         calls,
         outerScope,
@@ -244,6 +231,7 @@ describe('scope', () => {
         name: '<name>',
       };
       const innerScope = getFragmentScope(
+        schema,
         definitions,
         calls,
         outerScope,
@@ -280,7 +268,13 @@ describe('scope', () => {
         name: '<name>',
       };
       expect(() => {
-        getFragmentScope(definitions, calls, outerScope, fragmentSpread);
+        getFragmentScope(
+          schema,
+          definitions,
+          calls,
+          outerScope,
+          fragmentSpread,
+        );
       }).toThrowErrorMatchingSnapshot();
     });
 
@@ -309,6 +303,7 @@ describe('scope', () => {
         name: '<name>',
       };
       const innerScope = getFragmentScope(
+        schema,
         definitions,
         calls,
         outerScope,
@@ -317,7 +312,6 @@ describe('scope', () => {
       expect(innerScope).toEqual({
         size: {
           kind: 'Variable',
-          metadata: null,
           type: requiredIntType,
           variableName: 'size',
         },
@@ -359,7 +353,13 @@ describe('scope', () => {
         name: '<name>',
       };
       expect(() => {
-        getFragmentScope(definitions, calls, outerScope, fragmentSpread);
+        getFragmentScope(
+          schema,
+          definitions,
+          calls,
+          outerScope,
+          fragmentSpread,
+        );
       }).toThrowErrorMatchingSnapshot();
     });
 
@@ -399,6 +399,7 @@ describe('scope', () => {
         name: '<name>',
       };
       const innerScope = getFragmentScope(
+        schema,
         definitions,
         calls,
         outerScope,

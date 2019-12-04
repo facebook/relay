@@ -1,12 +1,12 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`GraphQLIRPrinter matches expected output: kitchen-sink.graphql 1`] = `
+exports[`IRPrinter matches expected output: kitchen-sink.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query NodeQuery(
   $cond: Boolean! = false
   $id: ID!
   $size: [Int] = [32]
-  $query: String!
+  $query: CheckinSearchInput!
 ) {
   node(id: $id) {
     id
@@ -15,16 +15,20 @@ query NodeQuery(
     }
     ...UserFragment @include(if: $cond) @arguments(size: $size)
   }
-  checkinSearchQuery(query: {query: $query, inputs: [{query: $query}, {query: "test"}]}) {
+  checkinSearchQuery(query: $query) {
     query
   }
 }
 
-fragment UserFragment on User @argumentDefinitions(
-  after: {type: "ID"}
-  first: {type: "Int", defaultValue: 5}
-  size: {type: "[Int]"}
-) {
+fragment UserFragment on User
+  @argumentDefinitions(
+    after: {type: "ID"}
+    first: {type: "Int", defaultValue: 5}
+    size: {type: "[Int]"}
+    storyType: {type: "StoryType", defaultValue: DIRECTED}
+    storyType_invalid_string: {type: "StoryType", defaultValue: "DIRECTED"}
+    storyType_invalid_lowercase: {type: "StoryType", defaultValue: directed}
+  ) {
   id
   __typename
   checkins(environments: [WEB]) {
@@ -36,9 +40,18 @@ fragment UserFragment on User @argumentDefinitions(
   friends(after: $after, first: $first, traits: [HELPFUL]) {
     count
   }
+  secondFriends: friends(first: 10) {
+    count
+  }
   name @include(if: $cond)
   otherName: name @customDirective(level: 3)
-  thumbnail: profilePicture(size: 32) {
+  thumbnail: profilePicture2(
+    size: 32
+    cropPosition: CENTER
+    fileExtension: PNG
+    additionalParameters: {filter: "Boston"}
+    options: {newName: null}
+  ) {
     height
     width
     src: uri
@@ -58,7 +71,7 @@ query NodeQuery(
   $cond: Boolean! = false
   $id: ID!
   $size: [Int] = [32]
-  $query: String!
+  $query: CheckinSearchInput!
 ) {
   node(id: $id) {
     id
@@ -67,7 +80,7 @@ query NodeQuery(
     }
     ...UserFragment @include(if: $cond) @arguments(size: $size)
   }
-  checkinSearchQuery(query: {query: $query, inputs: [{query: $query}, {query: "test"}]}) {
+  checkinSearchQuery(query: $query) {
     query
   }
 }
@@ -76,6 +89,9 @@ fragment UserFragment on User @argumentDefinitions(
   after: {type: "ID"}
   first: {type: "Int", defaultValue: 5}
   size: {type: "[Int]"}
+  storyType: {type: "StoryType", defaultValue: DIRECTED}
+  storyType_invalid_string: {type: "StoryType", defaultValue: DIRECTED}
+  storyType_invalid_lowercase: {type: "StoryType", defaultValue: directed}
 ) {
   id
   __typename
@@ -88,9 +104,12 @@ fragment UserFragment on User @argumentDefinitions(
   friends(after: $after, first: $first, traits: [HELPFUL]) {
     count
   }
+  secondFriends: friends(first: 10) {
+    count
+  }
   name @include(if: $cond)
   otherName: name @customDirective(level: 3)
-  thumbnail: profilePicture(size: 32) {
+  thumbnail: profilePicture2(size: 32, cropPosition: CENTER, fileExtension: PNG, additionalParameters: {"filter":"Boston"}, options: {newName: null}) {
     height
     width
     src: uri
@@ -104,5 +123,138 @@ fragment UserFragment on User @argumentDefinitions(
     id
   }
 }
+
+`;
+
+exports[`IRPrinter matches expected output: lowercase-enum-fragment-arg.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment UserFragment on User
+  @argumentDefinitions(
+    environments: {type: "[Environment!]!", defaultValue: [web]}
+  ) {
+  checkins(environments: $environments) {
+    __typename
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+fragment UserFragment on User @argumentDefinitions(
+  environments: {type: "[Environment!]!", defaultValue: [web]}
+) {
+  checkins(environments: $environments) {
+    __typename
+  }
+}
+
+`;
+
+exports[`IRPrinter matches expected output: single-value-array-of-objects.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query SingleValueArrayQuery {
+  route(waypoints: {lat: "123", lon: "456"}) {
+    steps {
+      lat
+      lon
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+query SingleValueArrayQuery {
+  route(waypoints: {lat: "123", lon: "456"}) {
+    steps {
+      lat
+      lon
+    }
+  }
+}
+
+`;
+
+exports[`IRPrinter matches expected output: string-enum-arg.invalid.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+# expected-to-throw
+fragment UserFragment on User {
+  checkins(environments: "WEB") {
+    __typename
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+THROWN EXCEPTION:
+
+Expected a value matching type 'Environment!'. Possible values: WEB or MOBILE?'
+
+GraphQL request (3:26)
+2: fragment UserFragment on User {
+3:   checkins(environments: "WEB") {
+                            ^
+4:     __typename
+
+`;
+
+exports[`IRPrinter matches expected output: string-enum-fragment-arg.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment UserFragment on User
+  @argumentDefinitions(
+    environments: {type: "[Environment!]!", defaultValue: [WEB]}
+  ) {
+  checkins(environments: $environments) {
+    __typename
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+fragment UserFragment on User @argumentDefinitions(
+  environments: {type: "[Environment!]!", defaultValue: [WEB]}
+) {
+  checkins(environments: $environments) {
+    __typename
+  }
+}
+
+`;
+
+exports[`IRPrinter matches expected output: string-enum-fragment-arg-with-complex-input.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment UserFragment on User
+  @argumentDefinitions(
+    environments: {type: "Environment", defaultValue: "WEB"}
+  ) {
+  checkins(environments: [$environments]) {
+    __typename
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+fragment UserFragment on User @argumentDefinitions(
+  environments: {type: "Environment", defaultValue: WEB}
+) {
+  checkins(environments: [$environments]) {
+    __typename
+  }
+}
+
+`;
+
+exports[`IRPrinter matches expected output: unknown-enum-arg.invalid.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+# expected-to-throw
+fragment UserFragment on User {
+  checkins(environments: UNKNOWN_ENUM_VALUE) {
+    __typename
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+THROWN EXCEPTION:
+
+Expected a value matching type 'Environment!'. Possible values: WEB or MOBILE?'
+
+GraphQL request (3:26)
+2: fragment UserFragment on User {
+3:   checkins(environments: UNKNOWN_ENUM_VALUE) {
+                            ^
+4:     __typename
 
 `;

@@ -94,7 +94,7 @@ type Mutation {
 
 Both `Faction` and `Ship` have identifiers that we can use to refetch them. We expose this capability to Relay through the `Node` interface and the `node` field on the root query type.
 
-The `Node` interface contains a single field, `id`, which is a `ID!`. The `node` root field takes a single argument, a `ID!`, and returns a `Node`. These two work in concert to allow refetching; if we pass the `id` returned in that field to the `node` field, we get the object back.
+The `Node` interface contains a single field, `id`, which is an `ID!`. The `node` root field takes a single argument, an `ID!`, and returns a `Node`. These two work in concert to allow refetching; if we pass the `id` returned in that field to the `node` field, we get the object back.
 
 Let's see this in action, and query for the ID of the rebels:
 
@@ -192,7 +192,7 @@ The `Node` interface and `node` field assume globally unique IDs for this refetc
 
 The IDs we got back were base64 strings. IDs are designed to be opaque (the only thing that should be passed to the `id` argument on `node` is the unaltered result of querying `id` on some object in the system), and base64ing a string is a useful convention in GraphQL to remind viewers that the string is an opaque identifier.
 
-Complete details on how the server should behave are available in the [GraphQL Object Identification](/relay/graphql/objectidentification.htm) spec.
+Complete details on how the server should behave are available in the [GraphQL Object Identification](/graphql/objectidentification.htm) spec.
 
 ## Connections
 
@@ -443,7 +443,7 @@ So on the first query for ships, GraphQL told us there was a next page, but on t
 
 Relay uses all of this functionality to build out abstractions around connections, to make these easy to work with efficiently without having to manually manage cursors on the client.
 
-Complete details on how the server should behave are available in the [GraphQL Cursor Connections](/relay/graphql/connections.htm) spec.
+Complete details on how the server should behave are available in the [GraphQL Cursor Connections](/graphql/connections.htm) spec.
 
 ## Mutations
 
@@ -513,10 +513,10 @@ and we'll get this result:
 }
 ```
 
-Complete details on how the server should behave are available in the [GraphQL Input Object Mutations](/relay/graphql/mutations.htm) spec.
+Complete details on how the server should behave are available in the [GraphQL Input Object Mutations](/graphql/mutations.htm) spec.
 
 ## Further Reading
 
-This concludes the overview of the GraphQL Server Specifications. For the detailed requirements of a Relay-compliant GraphQL server, a more formal description of the [Relay cursor connection](/relay/graphql/connections.htm) model, the [Relay global object identification](/relay/graphql/objectidentification.htm) model, and the [Relay input object mutation](/relay/graphql/mutations.htm) are all available.
+This concludes the overview of the GraphQL Server Specifications. For the detailed requirements of a Relay-compliant GraphQL server, a more formal description of the [Relay cursor connection](/graphql/connections.htm) model, the [Relay global object identification](/graphql/objectidentification.htm) model, and the [Relay input object mutation](/graphql/mutations.htm) are all available.
 
 To see code implementing the specification, the [GraphQL.js Relay library](https://github.com/graphql/graphql-relay-js) provides helper functions for creating nodes, connections, and mutations; that repository's [`__tests__`](https://github.com/graphql/graphql-relay-js/tree/master/src/__tests__) folder contains an implementation of the above example as integration tests for the repository.

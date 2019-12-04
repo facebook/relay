@@ -1,25 +1,26 @@
 {
   "name": "relay-test-utils",
   "description": "Utilities for testing Relay applications.",
-  "version": "2.0.0-rc.1",
+  "version": "7.1.0",
   "keywords": [
     "graphql",
     "relay"
   ],
   "license": "MIT",
-  "homepage": "https://facebook.github.io/relay/",
+  "homepage": "https://relay.dev",
   "bugs": "https://github.com/facebook/relay/issues",
   "repository": "facebook/relay",
   "dependencies": {
     "@babel/runtime": "^7.0.0",
     "fbjs": "^1.0.0",
-    "iterall": "^1.2.1",
-    "prop-types": "^15.5.8",
-    "relay-compiler": "2.0.0-rc.1",
-    "relay-runtime": "2.0.0-rc.1"
+    "relay-runtime": "7.1.0"
   },
   "peerDependencies": {
-    "graphql": "^14.0.0"
+    "graphql": "^14.2.0"
   },
+  "directories": {
+    "": "./"
+  },
+  "main": "index.js",
   "haste_commonjs": true
 }

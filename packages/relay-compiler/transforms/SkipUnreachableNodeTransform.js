@@ -8,14 +8,16 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
-const GraphQLCompilerContext = require('../core/GraphQLCompilerContext');
-const GraphQLIRTransformer = require('../core/GraphQLIRTransformer');
+const IRTransformer = require('../core/IRTransformer');
 
 const invariant = require('invariant');
 
-import type {Condition, Fragment, Node, Selection} from '../core/GraphQLIR';
+import type CompilerContext from '../core/CompilerContext';
+import type {Condition, Fragment, Node, Selection} from '../core/IR';
 
 type ConditionResult = 'fail' | 'pass' | 'variable';
 
@@ -31,24 +33,23 @@ const VARIABLE = 'variable';
  * - Any node with empty `selections`
  */
 function skipUnreachableNodeTransform(
-  context: GraphQLCompilerContext,
-): GraphQLCompilerContext {
+  context: CompilerContext,
+): CompilerContext {
   const fragments: Map<string, ?Fragment> = new Map();
-  const nextContext = GraphQLIRTransformer.transform(context, {
+  const nextContext = IRTransformer.transform(context, {
     Root: node => transformNode(context, fragments, node),
     // Fragments are included below where referenced.
     // Unreferenced fragments are not included.
     Fragment: id => null,
   });
   return (Array.from(fragments.values()): Array<?Fragment>).reduce(
-    (ctx: GraphQLCompilerContext, fragment) =>
-      fragment ? ctx.add(fragment) : ctx,
+    (ctx: CompilerContext, fragment) => (fragment ? ctx.add(fragment) : ctx),
     nextContext,
   );
 }
 
 function transformNode<T: Node>(
-  context: GraphQLCompilerContext,
+  context: CompilerContext,
   fragments: Map<string, ?Fragment>,
   node: T,
 ): ?T {
@@ -78,22 +79,43 @@ function transformNode<T: Node>(
         }
         break;
       }
-      case 'MatchBranch':
+      case 'ClientExtension':
+        nextSelection = transformNode(context, fragments, selection);
+        break;
+      case 'ModuleImport':
         nextSelection = transformNode(context, fragments, selection);
         break;
       case 'LinkedField':
+        nextSelection = transformNode(context, fragments, selection);
+        break;
+      case 'ConnectionField':
+        nextSelection = transformNode(context, fragments, selection);
+        break;
+      case 'Connection':
         nextSelection = transformNode(context, fragments, selection);
         break;
       case 'InlineFragment':
         // TODO combine with the LinkedField case when flow supports this
         nextSelection = transformNode(context, fragments, selection);
         break;
+      case 'Defer':
+        nextSelection = transformNode(context, fragments, selection);
+        break;
+      case 'Stream':
+        nextSelection = transformNode(context, fragments, selection);
+        break;
       case 'ScalarField':
         nextSelection = selection;
         break;
-      case 'MatchField':
-        nextSelection = transformNode(context, fragments, selection);
-        break;
+      case 'InlineDataFragmentSpread':
+        invariant(
+          false,
+          'SkipUnreachableNodeTransform: Did not expect an ' +
+            'InlineDataFragmentSpread here. Only expecting ' +
+            'InlineDataFragmentSpread in reader ASTs and this transform to ' +
+            'run only on normalization ASTs.',
+        );
+      // fallthrough
       default:
         (selection.kind: empty);
         invariant(

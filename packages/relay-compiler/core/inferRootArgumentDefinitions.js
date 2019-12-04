@@ -8,20 +8,29 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
-const GraphQLCompilerContext = require('./GraphQLCompilerContext');
-const GraphQLIRVisitor = require('./GraphQLIRVisitor');
+const CompilerContext = require('./CompilerContext');
+const IRVisitor = require('./IRVisitor');
+const SchemaUtils = require('./SchemaUtils');
 
-const {createCompilerError} = require('./RelayCompilerError');
-const {GraphQLNonNull, GraphQLBoolean} = require('graphql');
+const {createCompilerError} = require('./CompilerError');
 
 import type {
+  Argument,
   ArgumentDefinition,
+  Condition,
+  Connection,
+  Defer,
   Fragment,
+  FragmentSpread,
+  LinkedField,
   Root,
   SplitOperation,
-} from 'relay-compiler';
+  Stream,
+} from './IR';
 
 type ArgumentMap = Map<string, ArgumentDefinition>;
 
@@ -37,8 +46,8 @@ type ArgumentMap = Map<string, ArgumentDefinition>;
  *   fragments it (transitively) spreads.
  */
 function inferRootArgumentDefinitions(
-  context: GraphQLCompilerContext,
-): GraphQLCompilerContext {
+  context: CompilerContext,
+): CompilerContext {
   // This transform does two main tasks:
   // - Determine the set of root variables referenced locally in each
   //   fragment. Note that RootArgumentDefinitions in the fragment's
@@ -53,10 +62,7 @@ function inferRootArgumentDefinitions(
   // Because @argument values don't matter (only variable names/types),
   // each reachable fragment only has to be checked once.
   const transformed = new Map<string, ArgumentMap>();
-  const nextContext = new GraphQLCompilerContext(
-    context.serverSchema,
-    context.clientSchema,
-  );
+  const nextContext = new CompilerContext(context.getSchema());
   return nextContext.addAll(
     Array.from(context.documents(), node => {
       switch (node.kind) {
@@ -89,7 +95,7 @@ function inferRootArgumentDefinitions(
 }
 
 function transformRoot(
-  context: GraphQLCompilerContext,
+  context: CompilerContext,
   transformed: Map<string, ArgumentMap>,
   root: Root,
 ): Root {
@@ -115,20 +121,20 @@ function transformRoot(
         );
       }
       const localDefinition = localArgumentDefinitions.get(argDef.name);
+      const type = localDefinition?.type ?? argDef.type;
       return {
         defaultValue: localDefinition?.defaultValue ?? null,
         kind: 'LocalArgumentDefinition',
         loc: argDef.loc,
-        metadata: null,
         name: argDef.name,
-        type: localDefinition?.type ?? argDef.type,
+        type: type,
       };
     }),
   };
 }
 
 function transformFragmentArguments(
-  context: GraphQLCompilerContext,
+  context: CompilerContext,
   transformed: Map<string, ArgumentMap>,
   fragment: Fragment,
 ): ArgumentMap {
@@ -157,28 +163,17 @@ function transformFragmentArguments(
 }
 
 function visit(
-  context: GraphQLCompilerContext,
+  context: CompilerContext,
   transformed: Map<string, ArgumentMap>,
   argumentDefinitions: ArgumentMap,
   node: Fragment | Root,
 ): void {
-  GraphQLIRVisitor.visit(node, {
-    FragmentSpread(fragmentSpread) {
-      let fragment;
-      try {
-        fragment = context.getFragment(fragmentSpread.name);
-      } catch {
-        // Handle cases where a compat fragment references a classic fragment
-        // that is not accessible to Relay compiler
-        // TODO: disallow unknown fragment references
-        // throw createCompilerError(
-        //   `Document '${node.name}' referenced unknown fragment '${
-        //     fragmentSpread.name
-        //   }'.`,
-        //   [fragmentSpread.loc],
-        // );
-        return false;
-      }
+  IRVisitor.visit(node, {
+    FragmentSpread(fragmentSpread: FragmentSpread) {
+      const fragment = context.getFragment(
+        fragmentSpread.name,
+        fragmentSpread.loc,
+      );
       const referencedFragmentArguments = transformFragmentArguments(
         context,
         transformed,
@@ -196,7 +191,6 @@ function visit(
           argumentDefinitions.set(arg.value.variableName, {
             kind: 'RootArgumentDefinition',
             loc: {kind: 'Derived', source: arg.loc},
-            metadata: null,
             name: arg.value.variableName,
             type: argDef.type,
           });
@@ -205,51 +199,151 @@ function visit(
       // Merge any root variables referenced by the spread fragment
       // into this (parent) fragment's arguments.
       for (const argDef of referencedFragmentArguments.values()) {
-        if (
-          argDef.kind === 'RootArgumentDefinition' &&
-          !argumentDefinitions.has(argDef.name)
-        ) {
+        if (argDef.kind === 'RootArgumentDefinition') {
           argumentDefinitions.set(argDef.name, argDef);
+        }
+      }
+    },
+    Argument(argument: Argument) {
+      if (argument.value.kind === 'Literal') {
+        return false;
+      }
+      const values = [argument.value];
+      while (values.length > 0) {
+        const currentValue = values.pop();
+        if (currentValue.kind === 'Variable') {
+          const type = currentValue.type ?? argument.type;
+          if (type == null) {
+            continue;
+          }
+          if (!argumentDefinitions.has(currentValue.variableName)) {
+            // root variable
+            argumentDefinitions.set(currentValue.variableName, {
+              kind: 'RootArgumentDefinition',
+              loc: {kind: 'Derived', source: argument.loc},
+              name: currentValue.variableName,
+              type: type,
+            });
+          }
+        } else if (currentValue.kind === 'ObjectValue') {
+          currentValue.fields.forEach(fieldValue => {
+            if (fieldValue.value.kind !== 'Literal') {
+              values.push(fieldValue.value);
+            }
+          });
+        } else if (currentValue.kind === 'ListValue') {
+          currentValue.items.forEach(listValue => {
+            if (listValue.kind !== 'Literal') {
+              values.push(listValue);
+            }
+          });
         }
       }
       return false;
     },
-    Argument(argument) {
-      if (argument.value.kind !== 'Variable') {
-        return false;
-      }
-      const variable = argument.value;
-      if (argument.type == null && variable.type == null) {
-        return;
-      }
-      if (!argumentDefinitions.has(variable.variableName)) {
-        // root variable
-        argumentDefinitions.set(variable.variableName, {
-          kind: 'RootArgumentDefinition',
-          loc: {kind: 'Derived', source: argument.loc},
-          metadata: null,
-          name: variable.variableName,
-          type: variable.type || argument.type,
-        });
-      }
-      return false;
-    },
-    Condition(condition) {
-      if (condition.condition.kind !== 'Variable') {
-        return;
-      }
+    Condition(condition: Condition) {
       const variable = condition.condition;
-      const type = variable.type ?? new GraphQLNonNull(GraphQLBoolean);
+      if (variable.kind !== 'Variable') {
+        return;
+      }
+      const type =
+        variable.type ??
+        SchemaUtils.getNonNullBooleanInput(context.getSchema());
       if (!argumentDefinitions.has(variable.variableName)) {
         // root variable
         argumentDefinitions.set(variable.variableName, {
           kind: 'RootArgumentDefinition',
-          loc: {kind: 'Derived', source: condition.loc},
-          metadata: null,
+          loc: {kind: 'Derived', source: variable.loc},
           name: variable.variableName,
-          type,
+          type: type,
         });
       }
+    },
+    Connection(connection: Connection) {
+      const stream = connection.stream;
+      if (stream == null) {
+        return;
+      }
+      const defaultType = SchemaUtils.getNonNullBooleanInput(
+        context.getSchema(),
+      );
+      [stream.if, stream.initialCount].forEach(variable => {
+        if (variable == null || variable.kind !== 'Variable') {
+          return;
+        }
+        const type = variable.type ?? defaultType;
+
+        if (!argumentDefinitions.has(variable.variableName)) {
+          // root variable
+          argumentDefinitions.set(variable.variableName, {
+            kind: 'RootArgumentDefinition',
+            loc: {kind: 'Derived', source: variable.loc},
+            name: variable.variableName,
+            type,
+          });
+        }
+      });
+    },
+    Defer(defer: Defer) {
+      const variable = defer.if;
+      if (variable == null || variable.kind !== 'Variable') {
+        return;
+      }
+      const type =
+        variable.type ??
+        SchemaUtils.getNonNullBooleanInput(context.getSchema());
+      if (!argumentDefinitions.has(variable.variableName)) {
+        // root variable
+        argumentDefinitions.set(variable.variableName, {
+          kind: 'RootArgumentDefinition',
+          loc: {kind: 'Derived', source: variable.loc},
+          name: variable.variableName,
+          type: type,
+        });
+      }
+    },
+    Stream(stream: Stream) {
+      [stream.if, stream.initialCount].forEach(variable => {
+        if (variable == null || variable.kind !== 'Variable') {
+          return;
+        }
+
+        const type =
+          variable.type ??
+          SchemaUtils.getNonNullBooleanInput(context.getSchema());
+        if (!argumentDefinitions.has(variable.variableName)) {
+          // root variable
+          argumentDefinitions.set(variable.variableName, {
+            kind: 'RootArgumentDefinition',
+            loc: {kind: 'Derived', source: variable.loc},
+            name: variable.variableName,
+            type,
+          });
+        }
+      });
+    },
+    LinkedField(field: LinkedField) {
+      if (!field.handles) {
+        return;
+      }
+      field.handles.forEach(handle => {
+        const variable = handle.dynamicKey;
+        if (variable == null) {
+          return;
+        }
+        const type =
+          variable.type ??
+          SchemaUtils.getNullableStringInput(context.getSchema());
+        if (!argumentDefinitions.has(variable.variableName)) {
+          // root variable
+          argumentDefinitions.set(variable.variableName, {
+            kind: 'RootArgumentDefinition',
+            loc: {kind: 'Derived', source: variable.loc},
+            name: variable.variableName,
+            type: type,
+          });
+        }
+      });
     },
   });
 }

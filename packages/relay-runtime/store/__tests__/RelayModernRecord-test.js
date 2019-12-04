@@ -11,18 +11,12 @@
 'use strict';
 
 const RelayModernRecord = require('../RelayModernRecord');
-const RelayModernTestUtils = require('RelayModernTestUtils');
+const RelayModernTestUtils = require('relay-test-utils-internal');
 const RelayStoreUtils = require('../RelayStoreUtils');
 
 const deepFreeze = require('../../util/deepFreeze');
 
-const {
-  ID_KEY,
-  REF_KEY,
-  REFS_KEY,
-  TYPENAME_KEY,
-  UNPUBLISH_FIELD_SENTINEL,
-} = RelayStoreUtils;
+const {ID_KEY, REF_KEY, REFS_KEY, TYPENAME_KEY} = RelayStoreUtils;
 
 describe('RelayModernRecord', () => {
   beforeEach(() => {
@@ -109,7 +103,7 @@ describe('RelayModernRecord', () => {
     it('throws if the field is actually a scalar', () => {
       expect(() =>
         RelayModernRecord.getLinkedRecordIDs(record, 'name'),
-      ).toFailInvariant(
+      ).toThrowError(
         'RelayModernRecord.getLinkedRecordIDs(): Expected `4.name` to contain ' +
           'an array of linked IDs, got `"Mark"`.',
       );
@@ -118,7 +112,7 @@ describe('RelayModernRecord', () => {
     it('throws if the field is a singular link', () => {
       expect(() =>
         RelayModernRecord.getLinkedRecordIDs(record, 'hometown'),
-      ).toFailInvariant(
+      ).toThrowError(
         'RelayModernRecord.getLinkedRecordIDs(): Expected `4.hometown` to contain ' +
           'an array of linked IDs, got `{"__ref":"mpk"}`.',
       );
@@ -210,9 +204,7 @@ describe('RelayModernRecord', () => {
     });
 
     it('throws on encountering a linked record', () => {
-      expect(() =>
-        RelayModernRecord.getValue(record, 'hometown'),
-      ).toFailInvariant(
+      expect(() => RelayModernRecord.getValue(record, 'hometown')).toThrowError(
         'RelayModernRecord.getValue(): Expected a scalar (non-link) value for ' +
           '`4.hometown` but found a linked record.',
       );
@@ -221,7 +213,7 @@ describe('RelayModernRecord', () => {
     it('throws on encountering a plural linked record', () => {
       expect(() =>
         RelayModernRecord.getValue(record, 'friends{"first":10}'),
-      ).toFailInvariant(
+      ).toThrowError(
         'RelayModernRecord.getValue(): Expected a scalar (non-link) value for ' +
           '`4.friends{"first":10}` but found plural linked records.',
       );
@@ -234,7 +226,7 @@ describe('RelayModernRecord', () => {
       RelayModernRecord.freeze(record);
       expect(() => {
         RelayModernRecord.setValue(record, 'pet', 'Beast');
-      }).toThrowTypeError();
+      }).toThrow(TypeError);
     });
   });
 
@@ -267,20 +259,6 @@ describe('RelayModernRecord', () => {
       });
     });
 
-    it('returns a new record with unpublished fields removed', () => {
-      const prev = RelayModernRecord.create('4', 'User');
-      RelayModernRecord.setValue(prev, 'name', 'Zuck');
-      const next = RelayModernRecord.clone(prev);
-      RelayModernRecord.setValue(next, 'name', UNPUBLISH_FIELD_SENTINEL);
-      const updated = RelayModernRecord.update(prev, next);
-      expect(updated).not.toBe(prev);
-      expect(updated).not.toBe(next);
-      expect(updated).toEqual({
-        [ID_KEY]: '4',
-        [TYPENAME_KEY]: 'User',
-      });
-    });
-
     it('warns if __id does not match', () => {
       jest.mock('warning');
       const prev = RelayModernRecord.create('4', 'User');
@@ -307,6 +285,13 @@ describe('RelayModernRecord', () => {
         'Number',
         'MeaningOfLife',
       ]);
+    });
+
+    it('does not warn if __typename does not match on client record', () => {
+      jest.mock('warning');
+      const prev = RelayModernRecord.create('client:42', 'Number');
+      const next = RelayModernRecord.create('client:42', 'MeaningOfLife');
+      expect(() => RelayModernRecord.update(prev, next)).not.toWarn();
     });
   });
 
@@ -339,21 +324,6 @@ describe('RelayModernRecord', () => {
       });
     });
 
-    it('includes unpublished field sentinels', () => {
-      const prev = RelayModernRecord.create('4', 'User');
-      RelayModernRecord.setValue(prev, 'name', 'Zuck');
-      const next = RelayModernRecord.clone(prev);
-      RelayModernRecord.setValue(next, 'name', UNPUBLISH_FIELD_SENTINEL);
-      const updated = RelayModernRecord.merge(prev, next);
-      expect(updated).not.toBe(prev);
-      expect(updated).not.toBe(next);
-      expect(updated).toEqual({
-        [ID_KEY]: '4',
-        [TYPENAME_KEY]: 'User',
-        name: UNPUBLISH_FIELD_SENTINEL,
-      });
-    });
-
     it('warns if __id does not match', () => {
       jest.mock('warning');
       const prev = RelayModernRecord.create('4', 'User');
@@ -380,6 +350,13 @@ describe('RelayModernRecord', () => {
         'Number',
         'MeaningOfLife',
       ]);
+    });
+
+    it('does not warn if __typename does not match on client record', () => {
+      jest.mock('warning');
+      const prev = RelayModernRecord.create('client:42', 'Number');
+      const next = RelayModernRecord.create('client:42', 'MeaningOfLife');
+      expect(() => RelayModernRecord.merge(prev, next)).not.toWarn();
     });
   });
 
@@ -410,6 +387,14 @@ describe('RelayModernRecord', () => {
         'User',
         'not-User',
       ]);
+    });
+
+    it('does not warn if updating the __typename of a client record', () => {
+      jest.mock('warning');
+      const record = RelayModernRecord.create('client:4', 'User');
+      expect(() =>
+        RelayModernRecord.setValue(record, TYPENAME_KEY, 'not-User'),
+      ).not.toWarn();
     });
   });
 });

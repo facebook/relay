@@ -4,47 +4,67 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @flow
+ * @flow strict-local
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
+const GraphQLTag = require('./query/GraphQLTag');
 const RelayConcreteNode = require('./util/RelayConcreteNode');
 const RelayConcreteVariables = require('./store/RelayConcreteVariables');
 const RelayConnectionHandler = require('./handlers/connection/RelayConnectionHandler');
 const RelayConnectionInterface = require('./handlers/connection/RelayConnectionInterface');
-const RelayCore = require('./store/RelayCore');
+const RelayConnectionResolver = require('./store/RelayConnectionResolver');
 const RelayDeclarativeMutationConfig = require('./mutations/RelayDeclarativeMutationConfig');
 const RelayDefaultHandleKey = require('./util/RelayDefaultHandleKey');
 const RelayDefaultHandlerProvider = require('./handlers/RelayDefaultHandlerProvider');
+const RelayDefaultMissingFieldHandlers = require('./handlers/RelayDefaultMissingFieldHandlers');
 const RelayError = require('./util/RelayError');
-const RelayInMemoryRecordSource = require('./store/RelayInMemoryRecordSource');
+const RelayFeatureFlags = require('./util/RelayFeatureFlags');
 const RelayModernEnvironment = require('./store/RelayModernEnvironment');
-const RelayModernGraphQLTag = require('./query/RelayModernGraphQLTag');
+const RelayModernOperationDescriptor = require('./store/RelayModernOperationDescriptor');
+const RelayModernRecord = require('./store/RelayModernRecord');
+const RelayModernSelector = require('./store/RelayModernSelector');
 const RelayModernStore = require('./store/RelayModernStore');
 const RelayNetwork = require('./network/RelayNetwork');
-const RelayNetworkLoggerTransaction = require('./network/RelayNetworkLoggerTransaction');
 const RelayObservable = require('./network/RelayObservable');
+const RelayOperationTracker = require('./store/RelayOperationTracker');
 const RelayProfiler = require('./util/RelayProfiler');
 const RelayQueryResponseCache = require('./network/RelayQueryResponseCache');
+const RelayRecordSource = require('./store/RelayRecordSource');
+const RelayReplaySubject = require('./util/RelayReplaySubject');
 const RelayStoreUtils = require('./store/RelayStoreUtils');
-const RelayViewerHandler = require('./handlers/viewer/RelayViewerHandler');
+const ViewerPattern = require('./store/ViewerPattern');
 
-const applyRelayModernOptimisticMutation = require('./mutations/applyRelayModernOptimisticMutation');
+const applyOptimisticMutation = require('./mutations/applyOptimisticMutation');
 const commitLocalUpdate = require('./mutations/commitLocalUpdate');
-const commitRelayModernMutation = require('./mutations/commitRelayModernMutation');
-const createRelayNetworkLogger = require('./network/createRelayNetworkLogger');
+const commitMutation = require('./mutations/commitMutation');
+const createFragmentSpecResolver = require('./store/createFragmentSpecResolver');
+const createPayloadFor3DField = require('./util/createPayloadFor3DField');
+const createRelayContext = require('./store/createRelayContext');
 const deepFreeze = require('./util/deepFreeze');
-const fetchRelayModernQuery = require('./query/fetchRelayModernQuery');
-const generateRelayClientID = require('./store/generateRelayClientID');
+const fetchQuery = require('./query/fetchQuery');
+const fetchQueryInternal = require('./query/fetchQueryInternal');
+const getFragmentIdentifier = require('./util/getFragmentIdentifier');
+const getFragmentSpecIdentifier = require('./util/getFragmentSpecIdentifier');
 const getRelayHandleKey = require('./util/getRelayHandleKey');
+const getRequestIdentifier = require('./util/getRequestIdentifier');
+const isPromise = require('./util/isPromise');
 const isRelayModernEnvironment = require('./store/isRelayModernEnvironment');
 const isScalarAndEqual = require('./util/isScalarAndEqual');
+const readInlineData = require('./store/readInlineData');
 const recycleNodesInto = require('./util/recycleNodesInto');
-const requestRelaySubscription = require('./subscription/requestRelaySubscription');
-const simpleClone = require('./util/simpleClone');
+const requestSubscription = require('./subscription/requestSubscription');
 const stableCopy = require('./util/stableCopy');
+
+const {
+  generateClientID,
+  generateUniqueClientID,
+  isClientID,
+} = require('./store/ClientID');
 
 export type {
   ConnectionMetadata,
@@ -56,20 +76,23 @@ export type {
 export type {
   DeclarativeMutationConfig,
   MutationType,
-  RangeOperation,
   RangeBehaviors,
+  RangeOperation,
 } from './mutations/RelayDeclarativeMutationConfig';
 export type {
   OptimisticMutationConfig,
-} from './mutations/applyRelayModernOptimisticMutation';
-export type {MutationConfig} from './mutations/commitRelayModernMutation';
-export type {RelayNetworkLog} from './network/RelayNetworkLoggerTransaction';
+} from './mutations/applyOptimisticMutation';
+export type {
+  DEPRECATED_MutationConfig,
+  MutationConfig,
+  MutationParameters,
+} from './mutations/commitMutation';
 export type {
   ExecuteFunction,
   FetchFunction,
   GraphQLResponse,
-  LegacyObserver,
-  Network as INetwork,
+  LogRequestInfoFunction,
+  INetwork,
   PayloadData,
   PayloadError,
   SubscribeFunction,
@@ -82,89 +105,117 @@ export type {
   Subscribable,
   Subscription,
 } from './network/RelayObservable';
-export type {GraphiQLPrinter} from './network/createRelayNetworkLogger';
-export type {GraphQLTaggedNode} from './query/RelayModernGraphQLTag';
+export type {GraphQLTaggedNode} from './query/GraphQLTag';
+export type {
+  ConnectionEvent,
+  ConnectionID,
+  ConnectionReference,
+  ConnectionReferenceObject,
+  ConnectionResolver,
+  ConnectionSnapshot,
+} from './store/RelayConnection';
+export type {ConnectionState} from './store/RelayConnectionResolver';
+export type {EnvironmentConfig} from './store/RelayModernEnvironment';
+export type {TaskScheduler} from './store/RelayModernQueryExecutor';
 export type {RecordState} from './store/RelayRecordState';
 export type {
-  Environment as IEnvironment,
   FragmentMap,
+  FragmentPointer,
   FragmentReference,
+  FragmentSpecResolver,
   HandleFieldPayload,
-  MatchPointer,
+  IEnvironment,
+  LogEvent,
+  LogFunction,
   MissingFieldHandler,
+  ModuleImportPointer,
+  NormalizationSelector,
+  OperationAvailability,
+  OperationDescriptor,
   OperationLoader,
-  OperationSelector,
+  OperationTracker,
+  OptimisticResponseConfig,
   OptimisticUpdate,
+  OptimisticUpdateFunction,
+  PluralReaderSelector,
+  Props,
+  PublishQueue,
+  ReaderSelector,
+  ReadOnlyRecordProxy,
   RecordProxy,
   RecordSourceProxy,
   RecordSourceSelectorProxy,
   RelayContext,
-  ReaderSelector,
-  NormalizationSelector,
+  RequestDescriptor,
   SelectorData,
   SelectorStoreUpdater,
+  SingularReaderSelector,
   Snapshot,
   StoreUpdater,
 } from './store/RelayStoreTypes';
 export type {
   GraphQLSubscriptionConfig,
-} from './subscription/requestRelaySubscription';
+} from './subscription/requestSubscription';
+export type {JSResourceReference} from './util/JSResourceTypes.flow';
 export type {
   NormalizationArgument,
-  NormalizationArgumentDefinition,
+  NormalizationDefer,
+  NormalizationConnection,
   NormalizationField,
   NormalizationLinkedField,
-  NormalizationMatchField,
+  NormalizationLinkedHandle,
+  NormalizationLocalArgumentDefinition,
+  NormalizationModuleImport,
   NormalizationScalarField,
   NormalizationSelection,
   NormalizationSplitOperation,
+  NormalizationStream,
 } from './util/NormalizationNode';
 export type {NormalizationOperation} from './util/NormalizationNode';
 export type {
   ReaderArgument,
   ReaderArgumentDefinition,
+  ReaderConnection,
   ReaderField,
   ReaderFragment,
-  ReaderRefetchableFragment,
+  ReaderInlineDataFragment,
+  ReaderInlineDataFragmentSpread,
   ReaderLinkedField,
-  ReaderMatchField,
+  ReaderModuleImport,
+  ReaderPaginationMetadata,
+  ReaderRefetchableFragment,
+  ReaderRefetchMetadata,
   ReaderScalarField,
   ReaderSelection,
-  ReaderSplitOperation,
 } from './util/ReaderNode';
 export type {
-  CEnvironment,
-  CFragmentMap,
-  CNormalizationSelector,
-  COperationSelector,
-  CReaderSelector,
-  CRelayContext,
-  CSnapshot,
-  CUnstableEnvironmentCore,
-  FragmentSpecResolver,
-  FragmentSpecResults,
-  Props,
-} from './util/RelayCombinedEnvironmentTypes';
-export type {ConcreteRequest, GeneratedNode} from './util/RelayConcreteNode';
+  ConcreteRequest,
+  GeneratedNode,
+  RequestParameters,
+} from './util/RelayConcreteNode';
 export type {
   CacheConfig,
   DataID,
   Disposable,
+  FetchPolicy,
   OperationType,
+  RenderPolicy,
   Variables,
 } from './util/RelayRuntimeTypes';
+export type {Local3DPayload} from './util/createPayloadFor3DField';
 
 // As early as possible, check for the existence of the JavaScript globals which
 // Relay Runtime relies upon, and produce a clear message if they do not exist.
 if (__DEV__) {
-  if (
-    typeof Map !== 'function' ||
-    typeof Set !== 'function' ||
-    typeof Promise !== 'function' ||
-    typeof Object.assign !== 'function'
-  ) {
+  const mapStr = typeof Map !== 'function' ? 'Map' : null;
+  const setStr = typeof Set !== 'function' ? 'Set' : null;
+  const promiseStr = typeof Promise !== 'function' ? 'Promise' : null;
+  const objStr = typeof Object.assign !== 'function' ? 'Object.assign' : null;
+  if (mapStr || setStr || promiseStr || objStr) {
     throw new Error(
-      'relay-runtime requires Map, Set, Promise, and Object.assign to exist. ' +
+      `relay-runtime requires ${[mapStr, setStr, promiseStr, objStr]
+        .filter(Boolean)
+        .join(', and ')} to exist. ` +
         'Use a polyfill to provide these for older browsers.',
     );
   }
@@ -179,21 +230,42 @@ module.exports = {
   Network: RelayNetwork,
   Observable: RelayObservable,
   QueryResponseCache: RelayQueryResponseCache,
-  RecordSource: RelayInMemoryRecordSource,
+  RecordSource: RelayRecordSource,
+  Record: RelayModernRecord,
+  ReplaySubject: RelayReplaySubject,
   Store: RelayModernStore,
 
-  areEqualSelectors: RelayCore.areEqualSelectors,
-  createFragmentSpecResolver: RelayCore.createFragmentSpecResolver,
-  createOperationSelector: RelayCore.createOperationSelector,
-  getDataIDsFromObject: RelayCore.getDataIDsFromObject,
-  getFragment: RelayModernGraphQLTag.getFragment,
-  getRequest: RelayModernGraphQLTag.getRequest,
-  getSelector: RelayCore.getSelector,
-  getSelectorList: RelayCore.getSelectorList,
-  getSelectorsFromObject: RelayCore.getSelectorsFromObject,
+  areEqualSelectors: RelayModernSelector.areEqualSelectors,
+  createFragmentSpecResolver: createFragmentSpecResolver,
+  createNormalizationSelector: RelayModernSelector.createNormalizationSelector,
+  createOperationDescriptor:
+    RelayModernOperationDescriptor.createOperationDescriptor,
+  createReaderSelector: RelayModernSelector.createReaderSelector,
+  createRequestDescriptor:
+    RelayModernOperationDescriptor.createRequestDescriptor,
+  getDataIDsFromFragment: RelayModernSelector.getDataIDsFromFragment,
+  getDataIDsFromObject: RelayModernSelector.getDataIDsFromObject,
+  getFragment: GraphQLTag.getFragment,
+  getInlineDataFragment: GraphQLTag.getInlineDataFragment,
+  getModuleComponentKey: RelayStoreUtils.getModuleComponentKey,
+  getModuleOperationKey: RelayStoreUtils.getModuleOperationKey,
+  getPaginationFragment: GraphQLTag.getPaginationFragment,
+  getPluralSelector: RelayModernSelector.getPluralSelector,
+  getRefetchableFragment: GraphQLTag.getRefetchableFragment,
+  getRequest: GraphQLTag.getRequest,
+  getRequestIdentifier: getRequestIdentifier,
+  getSelector: RelayModernSelector.getSelector,
+  getSelectorsFromObject: RelayModernSelector.getSelectorsFromObject,
+  getSingularSelector: RelayModernSelector.getSingularSelector,
   getStorageKey: RelayStoreUtils.getStorageKey,
-  getVariablesFromObject: RelayCore.getVariablesFromObject,
-  graphql: RelayModernGraphQLTag.graphql,
+  getVariablesFromFragment: RelayModernSelector.getVariablesFromFragment,
+  getVariablesFromObject: RelayModernSelector.getVariablesFromObject,
+  getVariablesFromPluralFragment:
+    RelayModernSelector.getVariablesFromPluralFragment,
+  getVariablesFromSingularFragment:
+    RelayModernSelector.getVariablesFromSingularFragment,
+  graphql: GraphQLTag.graphql,
+  readInlineData,
 
   // Declarative mutation API
   MutationTypes: RelayDeclarativeMutationConfig.MutationTypes,
@@ -201,44 +273,62 @@ module.exports = {
 
   // Extensions
   DefaultHandlerProvider: RelayDefaultHandlerProvider,
+  DefaultMissingFieldHandlers: RelayDefaultMissingFieldHandlers,
   ConnectionHandler: RelayConnectionHandler,
-  ViewerHandler: RelayViewerHandler,
+  ConnectionResolver_UNSTABLE: RelayConnectionResolver,
+  VIEWER_ID: ViewerPattern.VIEWER_ID,
+  VIEWER_TYPE: ViewerPattern.VIEWER_TYPE,
 
   // Helpers (can be implemented via the above API)
-  applyOptimisticMutation: applyRelayModernOptimisticMutation,
-  commitLocalUpdate: commitLocalUpdate,
-  commitMutation: commitRelayModernMutation,
-  fetchQuery: fetchRelayModernQuery,
-  isRelayModernEnvironment: isRelayModernEnvironment,
-  requestSubscription: requestRelaySubscription,
+  applyOptimisticMutation,
+  commitLocalUpdate,
+  commitMutation,
+  fetchQuery,
+  isRelayModernEnvironment,
+  requestSubscription,
 
   // Configuration interface for legacy or special uses
   ConnectionInterface: RelayConnectionInterface,
 
   // Utilities
   RelayProfiler: RelayProfiler,
+  createPayloadFor3DField: createPayloadFor3DField,
 
   // INTERNAL-ONLY: These exports might be removed at any point.
   RelayConcreteNode: RelayConcreteNode,
   RelayError: RelayError,
-  RelayNetworkLoggerTransaction: RelayNetworkLoggerTransaction,
+  RelayFeatureFlags: RelayFeatureFlags,
   DEFAULT_HANDLE_KEY: RelayDefaultHandleKey.DEFAULT_HANDLE_KEY,
   FRAGMENTS_KEY: RelayStoreUtils.FRAGMENTS_KEY,
+  FRAGMENT_OWNER_KEY: RelayStoreUtils.FRAGMENT_OWNER_KEY,
   ID_KEY: RelayStoreUtils.ID_KEY,
   REF_KEY: RelayStoreUtils.REF_KEY,
   REFS_KEY: RelayStoreUtils.REFS_KEY,
   ROOT_ID: RelayStoreUtils.ROOT_ID,
   ROOT_TYPE: RelayStoreUtils.ROOT_TYPE,
+  TYPENAME_KEY: RelayStoreUtils.TYPENAME_KEY,
 
-  createRelayNetworkLogger: createRelayNetworkLogger,
   deepFreeze: deepFreeze,
-  generateClientID: generateRelayClientID,
+  generateClientID: generateClientID,
+  generateUniqueClientID: generateUniqueClientID,
   getRelayHandleKey: getRelayHandleKey,
+  isClientID: isClientID,
+  isPromise: isPromise,
   isScalarAndEqual: isScalarAndEqual,
   recycleNodesInto: recycleNodesInto,
-  simpleClone: simpleClone,
   stableCopy: stableCopy,
+  getFragmentIdentifier: getFragmentIdentifier,
+  getFragmentSpecIdentifier: getFragmentSpecIdentifier,
   __internal: {
+    OperationTracker: RelayOperationTracker,
+    createRelayContext: createRelayContext,
     getModernOperationVariables: RelayConcreteVariables.getOperationVariables,
+    fetchQuery: fetchQueryInternal.fetchQuery,
+    fetchQueryDeduped: fetchQueryInternal.fetchQueryDeduped,
+    getPromiseForRequestInFlight:
+      fetchQueryInternal.getPromiseForRequestInFlight,
+    getObservableForRequestInFlight:
+      fetchQueryInternal.getObservableForRequestInFlight,
+    hasRequestInFlight: fetchQueryInternal.hasRequestInFlight,
   },
 };

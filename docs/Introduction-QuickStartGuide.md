@@ -163,7 +163,6 @@ Now, let's see how we would fetch the above query using a `QueryRenderer`:
 // UserTodoList.js
 // @flow
 import React from 'react';
-import PropTypes from 'prop-types';
 import {graphql, QueryRenderer} from 'react-relay';
 
 const environment = /* defined or imported above... */;
@@ -247,7 +246,7 @@ export default class Todo extends React.Component<Props> {
 }
 ```
 
-From our [schema](https://github.com/relayjs/relay-examples/blob/master/todo/data/schema.graphql#L107), we know that we can query this data on the `Todo` type. However, we don't want to have to send a separate query for each todo item; that would defeat the purpose of using GraphQL over a traditional REST API. We could manually query for these fields directly in our `QueryRenderer` query, but that would hurt re-usability: what if we want to query the same set of fields as part of a different query? Additionally, we wouldn't know which component needs the data we're querying, which is a problem Relay directly tries to address.
+From our [schema](https://github.com/relayjs/relay-examples/blob/master/todo/data/schema.graphql#L112), we know that we can query this data on the `Todo` type. However, we don't want to have to send a separate query for each todo item; that would defeat the purpose of using GraphQL over a traditional REST API. We could manually query for these fields directly in our `QueryRenderer` query, but that would hurt re-usability: what if we want to query the same set of fields as part of a different query? Additionally, we wouldn't know which component needs the data we're querying, which is a problem Relay directly tries to address.
 
 Instead, we can define a reusable [Fragment](http://graphql.org/learn/queries/#fragments), which allows us to define a set of fields on a type and reuse them within our queries wherever we need to:
 
@@ -295,13 +294,16 @@ class Todo extends React.Component<Props> {
 
 export default createFragmentContainer(
   Todo,
-  graphql`
-    # As a convention, we name the fragment as '<ComponentFileName>_<propName>'
-    fragment Todo_todo on Todo {
-      complete
-      text
-    }
-  `
+  // Each key specified in this object will correspond to a prop available to the component
+  {
+    todo: graphql`
+      # As a convention, we name the fragment as '<ComponentFileName>_<propName>'
+      fragment Todo_todo on Todo {
+        complete
+        text
+      }
+    `
+  },
 )
 ```
 
@@ -357,25 +359,27 @@ class TodoList extends React.Component<Props> {
 
 export default createFragmentContainer(
   TodoList,
-  graphql`
-    # As a convention, we name the fragment as '<ComponentFileName>_<PropName>'
-    fragment TodoList_userTodoData on User {
-      todos(
-        first: 2147483647  # max GraphQLInt, to fetch all todos
-      ) {
-        edges {
-          node {
-            id,
-            # We use the fragment defined by the child Todo component here
-            ...Todo_todo,
+  {
+    userTodoData: graphql`
+      # As a convention, we name the fragment as '<ComponentFileName>_<PropName>'
+      fragment TodoList_userTodoData on User {
+        todos(
+          first: 2147483647  # max GraphQLInt, to fetch all todos
+        ) {
+          edges {
+            node {
+              id,
+              # We use the fragment defined by the child Todo component here
+              ...Todo_todo,
+            },
           },
         },
-      },
-      id,
-      totalCount,
-      completedCount,
-    }
-  `,
+        id,
+        totalCount,
+        completedCount,
+      }
+    `,
+  },
 );
 ```
 
@@ -393,7 +397,6 @@ A `QueryRenderer` rendering these fragment containers could look like the follow
 ```javascript
 // ViewerTodoList.js
 import React from 'react';
-import PropTypes from 'prop-types';
 import {graphql, QueryRenderer} from 'react-relay';
 import TodoList from './TodoList'
 
@@ -580,9 +583,9 @@ You can inspect the network request or response to see the exact shape.
 
 By default, Relay will know to update the fields on the records referenced by the mutation payload, (i.e. the `todo` in our example). However, this is only the simplest case. In some cases updating the local data isn't as simple as just updating the fields in a record.
 
-For instance, we might be updating a collection of items, or we might be deleting a record entirely. For these more advanced scenarios Relay allows us to pass a set of options for us to control how we update the local data from a server response, including a set of [`configs`](./mutations.html#configs) and an [`updater`](https://facebook.github.io/relay/docs/en/mutations.html#updating-the-store-programatically-advanced) function for full control over the update.
+For instance, we might be updating a collection of items, or we might be deleting a record entirely. For these more advanced scenarios Relay allows us to pass a set of options for us to control how we update the local data from a server response, including a set of [`configs`](./mutations.html#configs) and an [`updater`](./mutations#using-updater-and-optimisticupdater) function for full control over the update.
 
-For more details and advanced use cases on mutations and updates, check out our [Mutations](./mutations.html) docs.
+For more details and advanced use cases on mutations and updates, check out our [Mutations](./mutations) docs.
 
 ## Next Steps
 

@@ -16,9 +16,7 @@ fragment ProfileFriends on User {
   }
 }
 
-fragment Profile on User @argumentDefinitions(
-  pictureSize: {type: "[Int]", nonNull: true}
-) {
+fragment Profile on User @argumentDefinitions(pictureSize: {type: "[Int]"}) {
   profilePicture(size: $pictureSize) {
     uri
   }

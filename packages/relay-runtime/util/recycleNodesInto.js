@@ -8,6 +8,8 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 /**
@@ -34,9 +36,15 @@ function recycleNodesInto<T>(prevData: T, nextData: T): T {
         const prevValue = prevArray[ii];
         const nextValue = recycleNodesInto(prevValue, nextItem);
         if (nextValue !== nextArray[ii]) {
-          nextArray[ii] = nextValue;
+          if (__DEV__) {
+            if (!Object.isFrozen(nextArray)) {
+              nextArray[ii] = nextValue;
+            }
+          } else {
+            nextArray[ii] = nextValue;
+          }
         }
-        return wasEqual && nextArray[ii] === prevArray[ii];
+        return wasEqual && nextValue === prevArray[ii];
       }, true) && prevArray.length === nextArray.length;
   } else if (!prevArray && !nextArray) {
     // Assign local variables to preserve Flow type refinement.
@@ -49,9 +57,21 @@ function recycleNodesInto<T>(prevData: T, nextData: T): T {
         const prevValue = prevObject[key];
         const nextValue = recycleNodesInto(prevValue, nextObject[key]);
         if (nextValue !== nextObject[key]) {
-          nextObject[key] = nextValue;
+          if (__DEV__) {
+            if (!Object.isFrozen(nextObject)) {
+              /* $FlowFixMe(>=0.98.0 site=www,mobile,react_native_fb,oss) This
+               * comment suppresses an error found when Flow v0.98 was deployed.
+               * To see the error delete this comment and run Flow. */
+              nextObject[key] = nextValue;
+            }
+          } else {
+            /* $FlowFixMe(>=0.98.0 site=www,mobile,react_native_fb,oss) This comment
+             * suppresses an error found when Flow v0.98 was deployed. To see
+             * the error delete this comment and run Flow. */
+            nextObject[key] = nextValue;
+          }
         }
-        return wasEqual && nextObject[key] === prevObject[key];
+        return wasEqual && nextValue === prevObject[key];
       }, true) && prevKeys.length === nextKeys.length;
   }
   return canRecycle ? prevData : nextData;

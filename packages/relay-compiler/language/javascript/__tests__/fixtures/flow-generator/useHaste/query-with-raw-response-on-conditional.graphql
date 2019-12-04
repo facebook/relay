@@ -1,0 +1,16 @@
+query ExampleQuery($id: ID!, $condition: Boolean!) @raw_response_type {
+  node(id: $id) {
+    ...FriendFragment
+  }
+}
+
+fragment FriendFragment on User {
+  ... @include(if: $condition) {
+    name
+    lastName
+    feedback {
+      id
+      name
+    }
+  }
+}

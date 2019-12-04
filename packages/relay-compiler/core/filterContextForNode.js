@@ -4,31 +4,30 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @flow strict-local
+ * @flow strict
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
-const GraphQLCompilerContext = require('./GraphQLCompilerContext');
+const CompilerContext = require('./CompilerContext');
 
-const {visit} = require('./GraphQLIRVisitor');
+const {visit} = require('./IRVisitor');
 
-import type {Fragment, FragmentSpread, Root} from './GraphQLIR';
+import type {Fragment, FragmentSpread, Root} from './IR';
 
 /**
- * Returns a GraphQLCompilerContext containing only the documents referenced
+ * Returns a CompilerContext containing only the documents referenced
  * by and including the provided node.
  */
 function filterContextForNode(
   node: Fragment | Root,
-  context: GraphQLCompilerContext,
-): GraphQLCompilerContext {
+  context: CompilerContext,
+): CompilerContext {
   const queue = [node];
-  let filteredContext = new GraphQLCompilerContext(
-    context.serverSchema,
-    context.clientSchema,
-  ).add(node);
+  let filteredContext = new CompilerContext(context.getSchema()).add(node);
   const visitFragmentSpread = (fragmentSpread: FragmentSpread) => {
     const {name} = fragmentSpread;
     if (!filteredContext.get(name)) {

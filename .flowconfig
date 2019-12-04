@@ -1,19 +1,5 @@
 [ignore]
-.*/__tests__/.*
-.*/**/*.native.js
 <PROJECT_ROOT>/dist/.*
-<PROJECT_ROOT>/examples/.*
-<PROJECT_ROOT>/node_modules/react/node_modules/.*
-<PROJECT_ROOT>/node_modules/react-dom/node_modules/.*
-<PROJECT_ROOT>/node_modules/react-static-container/node_modules/.*
-<PROJECT_ROOT>/website-prototyping-tools/node_modules/.*
-<PROJECT_ROOT>/website/node_modules/.*
-; TODO: Update `iterall` to Flow 0.66
-<PROJECT_ROOT>/node_modules/graphql/node_modules/iterall/.*
-
-[libs]
-flow
-node_modules/fbjs/flow/lib
 
 [options]
 module.system=haste
@@ -22,14 +8,10 @@ module.system.haste.use_name_reducers=true
 module.system.haste.name_reducers='^.*/\([a-zA-Z0-9$_.-]+\.js\(\.flow\)?\)$' -> '\1'
 # strip .js or .js.flow suffix
 module.system.haste.name_reducers='^\(.*\)\.js\(\.flow\)?$' -> '\1'
-# strip .native suffix
-module.system.haste.name_reducers='^\(.*\)\.native$' -> '\1'
 
 module.system.haste.paths.blacklist=.*/__tests__/.*
 module.system.haste.paths.blacklist=.*/__mocks__/.*
 module.system.haste.paths.whitelist=<PROJECT_ROOT>/node_modules/fbjs/lib/.*
-
-module.name_mapper='^ReactDOM$' -> 'react-dom'
 
 esproposal.class_static_fields=enable
 esproposal.class_instance_fields=enable
@@ -44,8 +26,24 @@ suppress_type=$FlowFixMeState
 
 suppress_comment=\\(.\\|\n\\)*\\$FlowFixMe\\($\\|[^(]\\|(\\(<VERSION>\\)? *\\(site=[a-z,_]*oss[a-z,_]*\\)?)\\)
 suppress_comment=\\(.\\|\n\\)*\\$FlowIssue\\((\\(<VERSION>\\)? *\\(site=[a-z,_]*oss[a-z,_]*\\)?)\\)?:? #[0-9]+
-suppress_comment=\\(.\\|\n\\)*\\$FlowFixedInNextDeploy
 suppress_comment=\\(.\\|\n\\)*\\$FlowExpectedError
 
+experimental.well_formed_exports=true
+experimental.types_first=true
+experimental.abstract_locations=true
+
+[lints]
+untyped-type-import=error
+deprecated-utility=error
+
+[strict]
+deprecated-type
+nonstrict-import
+sketchy-null
+unclear-type
+unsafe-getters-setters
+untyped-import
+untyped-type-import
+
 [version]
-^0.89.0
+^0.112.0

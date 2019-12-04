@@ -5,3 +5,7 @@ fragment TestFragment on User {
   }
   ...Foo @include(if: $Cond)
 }
+
+fragment Foo on User {
+  id
+}

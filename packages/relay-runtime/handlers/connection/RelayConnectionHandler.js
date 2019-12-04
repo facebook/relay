@@ -8,14 +8,17 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const RelayConnectionInterface = require('./RelayConnectionInterface');
 
-const generateRelayClientID = require('../../store/generateRelayClientID');
 const getRelayHandleKey = require('../../util/getRelayHandleKey');
 const invariant = require('invariant');
 const warning = require('warning');
+
+const {generateClientID} = require('../../store/ClientID');
 
 import type {
   HandleFieldPayload,
@@ -30,6 +33,8 @@ export type ConnectionMetadata = {
   direction: ?('forward' | 'backward' | 'bidirectional'),
   cursor: ?string,
   count: ?string,
+  stream?: boolean,
+  ...
 };
 
 const CONNECTION = 'connection';
@@ -67,13 +72,23 @@ function update(store: RecordSourceProxy, payload: HandleFieldPayload): void {
     record.setValue(null, payload.handleKey);
     return;
   }
-  const clientConnection = record.getLinkedRecord(payload.handleKey);
+  // In rare cases the handleKey field may be unset even though the client
+  // connection record exists, in this case new edges should still be merged
+  // into the existing client connection record (and the field reset to point
+  // to that record).
+  const clientConnectionID = generateClientID(
+    record.getDataID(),
+    payload.handleKey,
+  );
+  const clientConnectionField = record.getLinkedRecord(payload.handleKey);
+  const clientConnection =
+    clientConnectionField ?? store.get(clientConnectionID);
   let clientPageInfo =
     clientConnection && clientConnection.getLinkedRecord(PAGE_INFO);
   if (!clientConnection) {
     // Initial fetch with data: copy fields from the server record
     const connection = store.create(
-      generateRelayClientID(record.getDataID(), payload.handleKey),
+      clientConnectionID,
       serverConnection.getType(),
     );
     connection.setValue(0, NEXT_EDGE_INDEX);
@@ -88,7 +103,7 @@ function update(store: RecordSourceProxy, payload: HandleFieldPayload): void {
     record.setLinkedRecord(connection, payload.handleKey);
 
     clientPageInfo = store.create(
-      generateRelayClientID(connection.getDataID(), PAGE_INFO),
+      generateClientID(connection.getDataID(), PAGE_INFO),
       PAGE_INFO_TYPE,
     );
     clientPageInfo.setValue(false, HAS_NEXT_PAGE);
@@ -100,6 +115,11 @@ function update(store: RecordSourceProxy, payload: HandleFieldPayload): void {
     }
     connection.setLinkedRecord(clientPageInfo, PAGE_INFO);
   } else {
+    if (clientConnectionField == null) {
+      // If the handleKey field was unset but the client connection record
+      // existed, update the field to point to the record
+      record.setLinkedRecord(clientConnection, payload.handleKey);
+    }
     const connection = clientConnection;
     // Subsequent fetches:
     // - updated fields on the connection
@@ -343,7 +363,7 @@ function createEdge(
   // which will only conflict if the same node is added to the same connection
   // twice. This is acceptable since the `insertEdge*` functions ignore
   // duplicates.
-  const edgeID = generateRelayClientID(record.getDataID(), node.getDataID());
+  const edgeID = generateClientID(record.getDataID(), node.getDataID());
   let edge = store.get(edgeID);
   if (!edge) {
     edge = store.create(edgeID, edgeType);
@@ -481,11 +501,7 @@ function buildConnectionEdge(
     NEXT_EDGE_INDEX,
     edgeIndex,
   );
-  const edgeID = generateRelayClientID(
-    connection.getDataID(),
-    EDGES,
-    edgeIndex,
-  );
+  const edgeID = generateClientID(connection.getDataID(), EDGES, edgeIndex);
   const connectionEdge = store.create(edgeID, edge.getType());
   connectionEdge.copyFieldsFrom(edge);
   connection.setValue(edgeIndex + 1, NEXT_EDGE_INDEX);
@@ -511,7 +527,7 @@ function mergeEdges(
       continue;
     }
     const node = edge.getLinkedRecord(NODE);
-    const nodeID = node && node.getValue('id');
+    const nodeID = node && node.getDataID();
     if (nodeID) {
       if (nodeIDs.has(nodeID)) {
         continue;

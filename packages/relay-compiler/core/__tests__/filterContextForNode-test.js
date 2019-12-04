@@ -4,36 +4,41 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
+ * @flow strict-local
  * @format
  * @emails oncall+relay
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
-require('configureForRelayOSS');
+const CompilerContext = require('../CompilerContext');
+const IRPrinter = require('../IRPrinter');
 
-const GraphQLCompilerContext = require('GraphQLCompilerContext');
-const GraphQLIRPrinter = require('GraphQLIRPrinter');
-const RelayTestSchema = require('RelayTestSchema');
-const filterContextForNode = require('filterContextForNode');
-const {generateTestsFromFixtures} = require('RelayModernTestUtils');
-const parseGraphQLText = require('parseGraphQLText');
+const filterContextForNode = require('../filterContextForNode');
+
+const {
+  TestSchema,
+  generateTestsFromFixtures,
+  parseGraphQLText,
+} = require('relay-test-utils-internal');
 
 const MAIN_QUERY_NAME = 'MainQuery';
 
 describe('filterContextForNode', () => {
   generateTestsFromFixtures(`${__dirname}/fixtures/filter-context`, text => {
-    const {definitions} = parseGraphQLText(RelayTestSchema, text);
-    const context = new GraphQLCompilerContext(RelayTestSchema).addAll(
-      definitions,
-    );
+    const {definitions} = parseGraphQLText(TestSchema, text);
+
+    const context = new CompilerContext(TestSchema).addAll(definitions);
     const printerContext = filterContextForNode(
+      // $FlowFixMe - null or undefined is incompatible with union type
       context.get(MAIN_QUERY_NAME),
       context,
     );
     return printerContext
       .documents()
-      .map(GraphQLIRPrinter.print)
+      .map(doc => IRPrinter.print(TestSchema, doc))
       .join('\n');
   });
 });

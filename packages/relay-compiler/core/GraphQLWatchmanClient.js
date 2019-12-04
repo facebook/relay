@@ -8,8 +8,12 @@
  * @format
  * @emails oncall+relay
  */
+
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
+const childProcess = require('child_process');
 const watchman = require('fb-watchman');
 
 const MAX_ATTEMPT_LIMIT = 5;
@@ -24,21 +28,18 @@ class GraphQLWatchmanClient {
 
   static isAvailable(): Promise<boolean> {
     return new Promise(resolve => {
-      const client = new GraphQLWatchmanClient(MAX_ATTEMPT_LIMIT);
-      client.on('error', () => {
+      // This command not only will verify that watchman CLI is available
+      // More than that `watchman version` is a command that runs on the server.
+      // And it can tell us that watchman is up and running
+      // Also `watchman version` check ``relative_root`` capability
+      // under the covers
+      const proc = childProcess.spawn('watchman', ['version']);
+      proc.on('error', () => {
         resolve(false);
-        client.end();
       });
-      client.hasCapability('relative_root').then(
-        hasRelativeRoot => {
-          resolve(hasRelativeRoot);
-          client.end();
-        },
-        () => {
-          resolve(false);
-          client.end();
-        },
-      );
+      proc.on('close', code => {
+        resolve(code === 0);
+      });
     });
   }
 
@@ -86,6 +87,7 @@ class GraphQLWatchmanClient {
   ): Promise<{
     root: string,
     relativePath: string,
+    ...
   }> {
     const resp = await this.command('watch-project', baseDir);
     if ('warning' in resp) {

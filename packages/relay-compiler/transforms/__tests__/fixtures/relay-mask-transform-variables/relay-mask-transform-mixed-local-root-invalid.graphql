@@ -1,6 +1,5 @@
-fragment ParentQuery on Query @argumentDefinitions(
-  id: {type: "ID!"}
-) {
+# expected-to-throw
+fragment ParentQuery on Query @argumentDefinitions(id: {type: "ID!"}) {
   ...NonNullIDFragment @relay(mask: false)
 }
 

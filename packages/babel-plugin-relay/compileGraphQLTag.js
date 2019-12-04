@@ -10,13 +10,24 @@
 
 'use strict';
 
-const createClassicNode = require('./createClassicNode');
-const createCompatNode = require('./createCompatNode');
-const createModernNode = require('./createModernNode');
-const getFragmentNameParts = require('./getFragmentNameParts');
+const crypto = require('crypto');
+
+const {print} = require('graphql');
+const {
+  dirname,
+  join: joinPath,
+  relative: relativePath,
+  resolve: resolvePath,
+} = require('path');
 
 import type {BabelState} from './BabelPluginRelay';
-import type {DocumentNode} from 'graphql';
+import type {
+  DocumentNode,
+  FragmentDefinitionNode,
+  OperationDefinitionNode,
+} from 'graphql';
+
+const GENERATED = './__generated__/';
 
 /**
  * Given a graphql`` tagged template literal, replace it with the appropriate
@@ -28,116 +39,170 @@ function compileGraphQLTag(
   state: BabelState,
   ast: DocumentNode,
 ): void {
-  const mainDefinition = ast.definitions[0];
-
-  if (mainDefinition.kind === 'FragmentDefinition') {
-    const objPropName = getAssignedObjectPropertyName(t, path);
-    if (objPropName) {
-      if (ast.definitions.length !== 1) {
-        throw new Error(
-          'BabelPluginRelay: Expected exactly one fragment in the ' +
-            `graphql tag referenced by the property ${objPropName}.`,
-        );
-      }
-      return replaceMemoized(
-        t,
-        path,
-        createAST(t, state, path, mainDefinition),
-      );
-    }
-
-    const nodeMap = {};
-    for (const definition of ast.definitions) {
-      if (definition.kind !== 'FragmentDefinition') {
-        throw new Error(
-          'BabelPluginRelay: Expected only fragments within this ' +
-            'graphql tag.',
-        );
-      }
-
-      const [, propName] = getFragmentNameParts(definition.name.value);
-      nodeMap[propName] = createAST(t, state, path, definition);
-    }
-    return replaceMemoized(t, path, createObject(t, nodeMap));
+  if (ast.definitions.length !== 1) {
+    throw new Error(
+      'BabelPluginRelay: Expected exactly one definition per graphql tag.',
+    );
+  }
+  const definition = ast.definitions[0];
+  if (
+    definition.kind !== 'FragmentDefinition' &&
+    definition.kind !== 'OperationDefinition'
+  ) {
+    throw new Error(
+      'BabelPluginRelay: Expected a fragment, mutation, query, or ' +
+        'subscription, got `' +
+        definition.kind +
+        '`.',
+    );
   }
 
-  if (mainDefinition.kind === 'OperationDefinition') {
-    if (ast.definitions.length !== 1) {
-      throw new Error(
-        'BabelPluginRelay: Expected exactly one operation ' +
-          '(query, mutation, or subscription) per graphql tag.',
-      );
-    }
-    return replaceMemoized(t, path, createAST(t, state, path, mainDefinition));
-  }
-
-  throw new Error(
-    'BabelPluginRelay: Expected a fragment, mutation, query, or ' +
-      'subscription, got `' +
-      mainDefinition.kind +
-      '`.',
-  );
-}
-
-function createAST(t, state, path, graphqlDefinition) {
-  const isCompatMode = Boolean(state.opts && state.opts.compat);
   const isHasteMode = Boolean(state.opts && state.opts.haste);
   const isDevVariable = state.opts && state.opts.isDevVariable;
   const artifactDirectory = state.opts && state.opts.artifactDirectory;
   const buildCommand =
     (state.opts && state.opts.buildCommand) || 'relay-compiler';
-
   // Fallback is 'true'
   const isDevelopment =
     (process.env.BABEL_ENV || process.env.NODE_ENV) !== 'production';
 
-  const modernNode = createModernNode(t, graphqlDefinition, state, {
+  return createNode(t, state, path, definition, {
     artifactDirectory,
     buildCommand,
     isDevelopment,
     isHasteMode,
     isDevVariable,
   });
-  if (isCompatMode) {
-    return createCompatNode(
-      t,
-      modernNode,
-      createClassicNode(t, path, graphqlDefinition, state),
-    );
-  }
-  return modernNode;
 }
 
-function replaceMemoized(t, path, ast) {
+/**
+ * The Relay compiler generates separate modules that contain the compiled code.
+ * Here we generate:
+ *  - a memoized `require` call for that generated code
+ *  - for development mode, runtime validation that the artifacts are up to date
+ */
+function createNode(
+  t: $FlowFixMe,
+  state: BabelState,
+  path: $FlowFixMe,
+  graphqlDefinition: OperationDefinitionNode | FragmentDefinitionNode,
+  options: {|
+    // If an output directory is specified when running relay-compiler this should point to that directory
+    artifactDirectory: ?string,
+    // The command to run to compile Relay files, used for error messages.
+    buildCommand: string,
+    // Generate extra validation, defaults to true.
+    isDevelopment: boolean,
+    // Wrap the validation code in a conditional checking this variable.
+    isDevVariable: ?string,
+    // Use haste style global requires, defaults to false.
+    isHasteMode: boolean,
+  |},
+): Object {
+  const definitionName = graphqlDefinition.name && graphqlDefinition.name.value;
+  if (!definitionName) {
+    throw new Error('GraphQL operations and fragments must contain names');
+  }
+  const requiredFile = definitionName + '.graphql';
+  const requiredPath = options.isHasteMode
+    ? requiredFile
+    : options.artifactDirectory
+    ? getRelativeImportPath(state, options.artifactDirectory, requiredFile)
+    : GENERATED + requiredFile;
+
+  const hash = crypto
+    .createHash('md5')
+    .update(print(graphqlDefinition), 'utf8')
+    .digest('hex');
+
   let topScope = path.scope;
   while (topScope.parent) {
     topScope = topScope.parent;
   }
 
-  if (path.scope === topScope) {
-    path.replaceWith(ast);
-  } else {
-    const id = topScope.generateDeclaredUidIdentifier('graphql');
-    path.replaceWith(
-      t.logicalExpression('||', id, t.assignmentExpression('=', id, ast)),
-    );
-  }
-}
+  const requireGraphQLModule = t.CallExpression(t.Identifier('require'), [
+    t.StringLiteral(requiredPath),
+  ]);
+  const id = topScope.generateDeclaredUidIdentifier(definitionName);
+  const expHash = t.MemberExpression(id, t.Identifier('hash'));
+  const expWarn = warnNeedsRebuild(t, definitionName, options.buildCommand);
+  const expWarnIfOutdated = t.LogicalExpression(
+    '&&',
+    expHash,
+    t.LogicalExpression(
+      '&&',
+      t.BinaryExpression('!==', expHash, t.StringLiteral(hash)),
+      expWarn,
+    ),
+  );
 
-function createObject(t, obj: any) {
-  return t.objectExpression(
-    Object.keys(obj).map(key => t.objectProperty(t.identifier(key), obj[key])),
+  const expAssignProd = t.AssignmentExpression('=', id, requireGraphQLModule);
+  const expAssignAndCheck = t.SequenceExpression([
+    expAssignProd,
+    expWarnIfOutdated,
+    id,
+  ]);
+
+  let expAssign;
+  if (options.isDevVariable != null) {
+    expAssign = t.ConditionalExpression(
+      t.Identifier(options.isDevVariable),
+      expAssignAndCheck,
+      expAssignProd,
+    );
+  } else if (options.isDevelopment) {
+    expAssign = expAssignAndCheck;
+  } else {
+    expAssign = expAssignProd;
+  }
+
+  const expVoid0 = t.UnaryExpression('void', t.NumericLiteral(0));
+  path.replaceWith(
+    t.ConditionalExpression(
+      t.BinaryExpression('!==', id, expVoid0),
+      id,
+      expAssign,
+    ),
   );
 }
 
-function getAssignedObjectPropertyName(t, path) {
-  var property = path;
-  while (property) {
-    if (t.isObjectProperty(property) && property.node.key.name) {
-      return property.node.key.name;
-    }
-    property = property.parentPath;
+function warnNeedsRebuild(
+  t: $FlowFixMe,
+  definitionName: string,
+  buildCommand: string,
+) {
+  return t.callExpression(
+    t.memberExpression(t.identifier('console'), t.identifier('error')),
+    [
+      t.stringLiteral(
+        `The definition of '${definitionName}' appears to have changed. Run ` +
+          '`' +
+          buildCommand +
+          '` to update the generated files to receive the expected data.',
+      ),
+    ],
+  );
+}
+
+function getRelativeImportPath(
+  state: BabelState,
+  artifactDirectory: string,
+  fileToRequire: string,
+): string {
+  if (state.file == null) {
+    throw new Error('Babel state is missing expected file name');
   }
+  const filename = state.file.opts.filename;
+
+  const relative = relativePath(
+    dirname(filename),
+    resolvePath(artifactDirectory),
+  );
+
+  const relativeReference =
+    relative.length === 0 || !relative.startsWith('.') ? './' : '';
+
+  return relativeReference + joinPath(relative, fileToRequire);
 }
 
 module.exports = compileGraphQLTag;

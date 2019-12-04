@@ -8,3 +8,6 @@ npm-debug.log
 /website/src/relay/graphql
 /website/src/relay/prototyping
 .idea
+.vscode
+.checksums
+.DS_Store

@@ -1,7 +1,5 @@
-query TestQuery(
-  $id: ID!
-  $pictureSize: [Int] = [128]
-) {
+# expected-to-throw
+query TestQuery($id: ID!, $pictureSize: [Int] = [128]) {
   node(id: $id) {
     id
     ...Profile

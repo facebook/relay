@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @noformat
+ * @format
  */
 
 'use strict';
@@ -12,71 +12,6 @@
 const babel = require('gulp-babel');
 const babelOptions = require('./scripts/getBabelOptions')({
   ast: false,
-  moduleMap: {
-    '@babel/core': '@babel/core',
-    '@babel/parser': '@babel/parser',
-    '@babel/polyfill': '@babel/polyfill',
-    '@babel/traverse': '@babel/traverse',
-    '@babel/types': '@babel/types',
-    '@babel/plugin-proposal-nullish-coalescing-operator':
-      '@babel/plugin-proposal-nullish-coalescing-operator',
-    '@babel/plugin-proposal-optional-chaining':
-      '@babel/plugin-proposal-optional-chaining',
-    '@babel/plugin-transform-runtime': '@babel/plugin-transform-runtime',
-    '@babel/plugin-transform-flow-strip-types':
-      '@babel/plugin-transform-flow-strip-types',
-    '@babel/generator': '@babel/generator',
-    '@babel/generator/lib/printer': '@babel/generator/lib/printer',
-    '@babel/runtime/helpers/assertThisInitialized':
-      '@babel/runtime/helpers/assertThisInitialized',
-    '@babel/runtime/helpers/asyncToGenerator':
-      '@babel/runtime/helpers/asyncToGenerator',
-    '@babel/runtime/helpers/classCallCheck':
-      '@babel/runtime/helpers/classCallCheck',
-    '@babel/runtime/helpers/defineProperty':
-      '@babel/runtime/helpers/defineProperty',
-    '@babel/runtime/helpers/extends': '@babel/runtime/helpers/extends',
-    '@babel/runtime/helpers/inherits': '@babel/runtime/helpers/inherits',
-    '@babel/runtime/helpers/inheritsLoose':
-      '@babel/runtime/helpers/inheritsLoose',
-    '@babel/runtime/helpers/interopRequireDefault':
-      '@babel/runtime/helpers/interopRequireDefault',
-    '@babel/runtime/helpers/objectSpread':
-      '@babel/runtime/helpers/objectSpread',
-    '@babel/runtime/helpers/objectWithoutProperties':
-      '@babel/runtime/helpers/objectWithoutProperties',
-    '@babel/runtime/helpers/objectWithoutPropertiesLoose':
-      '@babel/runtime/helpers/objectWithoutPropertiesLoose',
-    '@babel/runtime/helpers/possibleConstructorReturn':
-      '@babel/runtime/helpers/possibleConstructorReturn',
-    '@babel/runtime/helpers/toConsumableArray':
-      '@babel/runtime/helpers/toConsumableArray',
-    'babel-plugin-macros': 'babel-plugin-macros',
-    chalk: 'chalk',
-    child_process: 'child_process',
-    crypto: 'crypto',
-    'fast-glob': 'fast-glob',
-    'fb-watchman': 'fb-watchman',
-    fs: 'fs',
-    graphql: 'graphql',
-    immutable: 'immutable',
-    iterall: 'iterall',
-    net: 'net',
-    os: 'os',
-    path: 'path',
-    process: 'process',
-    'prop-types': 'prop-types',
-    React: 'react',
-    'react-lifecycles-compat': 'react-lifecycles-compat',
-    'relay-compiler': 'relay-compiler',
-    ReactDOM: 'react-dom',
-    ReactNative: 'react-native',
-    RelayRuntime: 'relay-runtime',
-    'relay-runtime': 'relay-runtime',
-    signedsource: 'signedsource',
-    util: 'util',
-    yargs: 'yargs',
-  },
   plugins: [
     '@babel/plugin-transform-flow-strip-types',
     '@babel/plugin-transform-runtime',
@@ -91,37 +26,46 @@ const babelOptions = require('./scripts/getBabelOptions')({
   sourceType: 'script',
 });
 const del = require('del');
-const derequire = require('gulp-derequire');
-const flatten = require('gulp-flatten');
 const fs = require('fs');
 const gulp = require('gulp');
 const chmod = require('gulp-chmod');
 const gulpUtil = require('gulp-util');
 const header = require('gulp-header');
+const once = require('gulp-once');
 const path = require('path');
-const runSequence = require('run-sequence');
 const webpack = require('webpack');
 const webpackStream = require('webpack-stream');
 
+const RELEASE_COMMIT_SHA = process.env.RELEASE_COMMIT_SHA;
+if (RELEASE_COMMIT_SHA && RELEASE_COMMIT_SHA.length !== 40) {
+  throw new Error(
+    'If the RELEASE_COMMIT_SHA env variable is set, it should be set to the ' +
+      '40 character git commit hash.',
+  );
+}
+
+const VERSION = RELEASE_COMMIT_SHA
+  ? `0.0.0-master-${RELEASE_COMMIT_SHA.substr(0, 8)}`
+  : process.env.npm_package_version;
+
 const SCRIPT_HASHBANG = '#!/usr/bin/env node\n';
-const DEVELOPMENT_HEADER =
-  ['/**', ' * Relay v' + process.env.npm_package_version, ' */'].join('\n') +
-  '\n';
-const PRODUCTION_HEADER =
-  [
-    '/**',
-    ' * Relay v' + process.env.npm_package_version,
-    ' *',
-    ' * Copyright (c) 2013-present, Facebook, Inc.',
-    ' *',
-    ' * This source code is licensed under the MIT license found in the',
-    ' * LICENSE file in the root directory of this source tree.',
-    ' */',
-  ].join('\n') + '\n';
+const DEVELOPMENT_HEADER = `/**
+ * Relay v${VERSION}
+ */
+`;
+const PRODUCTION_HEADER = `/**
+ * Relay v${VERSION}
+ *
+ * Copyright (c) Facebook, Inc. and its affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+`;
 
 const buildDist = function(filename, opts, isProduction) {
   const webpackOpts = {
-    externals: [/^[-/a-zA-Z0-9]+$/],
+    externals: [/^[-/a-zA-Z0-9]+$/, /^@babel\/.+$/],
     target: opts.target,
     node: {
       fs: 'empty',
@@ -138,7 +82,7 @@ const buildDist = function(filename, opts, isProduction) {
     plugins: [
       new webpackStream.webpack.DefinePlugin({
         'process.env.NODE_ENV': JSON.stringify(
-          isProduction ? 'production' : 'development'
+          isProduction ? 'production' : 'development',
         ),
       }),
       new webpackStream.webpack.optimize.OccurrenceOrderPlugin(),
@@ -163,6 +107,16 @@ const buildDist = function(filename, opts, isProduction) {
 // Paths from package-root
 const PACKAGES = 'packages';
 const DIST = 'dist';
+const ONCE_FILE = '.checksums';
+
+// Globs for paths in PACKAGES
+const INCLUDE_GLOBS = [
+  '**/*.js',
+  '!**/__tests__/**',
+  '!**/__flowtests__/**',
+  '!**/__mocks__/**',
+  '!**/node_modules/**',
+];
 
 const builds = [
   {
@@ -184,25 +138,12 @@ const builds = [
   {
     package: 'react-relay',
     exports: {
-      classic: 'ReactRelayClassicExports.js',
-      compat: 'ReactRelayCompatPublic.js',
-      index: 'ReactRelayPublic.js',
+      index: 'index.js',
+      ReactRelayContext: 'ReactRelayContext.js',
     },
     bundles: [
       {
-        entry: 'ReactRelayClassicExports.js',
-        output: 'react-relay-classic',
-        libraryName: 'ReactRelayClassic',
-        libraryTarget: 'umd',
-      },
-      {
-        entry: 'ReactRelayCompatPublic.js',
-        output: 'react-relay-compat',
-        libraryName: 'ReactRelayCompat',
-        libraryTarget: 'umd',
-      },
-      {
-        entry: 'ReactRelayPublic.js',
+        entry: 'index.js',
         output: 'react-relay',
         libraryName: 'ReactRelay',
         libraryTarget: 'umd',
@@ -212,11 +153,11 @@ const builds = [
   {
     package: 'relay-compiler',
     exports: {
-      index: 'RelayCompilerPublic.js',
+      index: 'index.js',
     },
     bundles: [
       {
-        entry: 'RelayCompilerPublic.js',
+        entry: 'index.js',
         output: 'relay-compiler',
         libraryName: 'RelayCompiler',
         libraryTarget: 'commonjs2',
@@ -250,13 +191,45 @@ const builds = [
   {
     package: 'relay-test-utils',
     exports: {
-      index: 'RelayTestUtilsPublic.js',
+      index: 'index.js',
     },
     bundles: [
       {
-        entry: 'RelayTestUtilsPublic.js',
+        entry: 'index.js',
         output: 'relay-test-utils',
         libraryName: 'RelayTestUtils',
+        libraryTarget: 'commonjs2',
+        target: 'node',
+        noMinify: true, // Note: uglify can't yet handle modern JS
+      },
+    ],
+  },
+  {
+    package: 'relay-config',
+    exports: {
+      index: 'index.js',
+    },
+    bundles: [
+      {
+        entry: 'index.js',
+        output: 'relay-config',
+        libraryName: 'RelayConfig',
+        target: 'node',
+        noMinify: true, // Note: uglify can't yet handle modern JS
+      },
+    ],
+  },
+  {
+    package: 'relay-test-utils-internal',
+    exports: {
+      index: 'index.js',
+    },
+    bundles: [
+      {
+        entry: 'index.js',
+        output: 'relay-test-utils-internal',
+        libraryName: 'RelayTestUtilsInternal',
+        libraryTarget: 'commonjs2',
         target: 'node',
         noMinify: true, // Note: uglify can't yet handle modern JS
       },
@@ -264,46 +237,46 @@ const builds = [
   },
 ];
 
-function clean() {
-  return del(DIST);
-}
-
 const modules = gulp.parallel(
   ...builds.map(
     build =>
       function modulesTask() {
         return gulp
-          .src([
-            '*' + PACKAGES + '/' + build.package + '/**/*.js',
-            '!' + PACKAGES + '/**/__tests__/**/*.js',
-            '!' + PACKAGES + '/**/__mocks__/**/*.js',
-          ])
+          .src(INCLUDE_GLOBS, {
+            cwd: path.join(PACKAGES, build.package),
+          })
+          .pipe(once())
           .pipe(babel(babelOptions))
-          .pipe(flatten())
           .pipe(gulp.dest(path.join(DIST, build.package, 'lib')));
-      }
-  )
+      },
+  ),
 );
 
 const copyFilesTasks = [];
 builds.forEach(build => {
-  copyFilesTasks.push(function copyFileTask() {
-    return gulp
-      .src([
-        'LICENSE',
-        '*' + PACKAGES + '/' + build.package + '/*',
-        '!' + PACKAGES + '/' + build.package + '/*.graphql',
-        '!' + PACKAGES + '/' + build.package + '/**/*.js',
-      ])
-      .pipe(flatten())
-      .pipe(gulp.dest(path.join(DIST, build.package)));
-  });
-  copyFilesTasks.push(function copyLibFileTask() {
-    return gulp // Move *.graphql files directly to lib without going through babel
-      .src(['*' + PACKAGES + '/' + build.package + '/*.graphql'])
-      .pipe(flatten())
-      .pipe(gulp.dest(path.join(DIST, build.package, 'lib')));
-  });
+  copyFilesTasks.push(
+    function copyLicense() {
+      return gulp
+        .src(['LICENSE'])
+        .pipe(gulp.dest(path.join(DIST, build.package)));
+    },
+    function copyTestschema() {
+      return gulp
+        .src(['*.graphql'], {
+          cwd: path.join(PACKAGES, build.package),
+        })
+        .pipe(once())
+        .pipe(gulp.dest(path.join(DIST, build.package, 'lib')));
+    },
+    function copyPackageJSON() {
+      return gulp
+        .src(['package.json'], {
+          cwd: path.join(PACKAGES, build.package),
+        })
+        .pipe(once())
+        .pipe(gulp.dest(path.join(DIST, build.package)));
+    },
+  );
 });
 const copyFiles = gulp.parallel(copyFilesTasks);
 
@@ -320,13 +293,13 @@ const exportsFiles = gulp.series(
               PRODUCTION_HEADER +
                 `\nmodule.exports = require('./lib/${
                   build.exports[exportName]
-                }');\n`
-            )
+                }');\n`,
+            ),
           );
           done();
-        }
-    )
-  )
+        },
+    ),
+  ),
 );
 
 const binsTasks = [];
@@ -335,7 +308,7 @@ builds.forEach(build => {
     build.bins.forEach(bin => {
       binsTasks.push(function binsTask() {
         return gulp
-          .src(path.join(DIST, build.package, 'lib', bin.entry))
+          .src(path.join(DIST, build.package, 'lib', 'bin', bin.entry))
           .pipe(buildDist(bin.output, bin, /* isProduction */ false))
           .pipe(header(SCRIPT_HASHBANG + PRODUCTION_HEADER))
           .pipe(chmod(0o755))
@@ -353,9 +326,8 @@ builds.forEach(build => {
       return gulp
         .src(path.join(DIST, build.package, 'lib', bundle.entry))
         .pipe(
-          buildDist(bundle.output + '.js', bundle, /* isProduction */ false)
+          buildDist(bundle.output + '.js', bundle, /* isProduction */ false),
         )
-        .pipe(derequire())
         .pipe(header(DEVELOPMENT_HEADER))
         .pipe(gulp.dest(path.join(DIST, build.package)));
     });
@@ -370,7 +342,7 @@ builds.forEach(build => {
       return gulp
         .src(path.join(DIST, build.package, 'lib', bundle.entry))
         .pipe(
-          buildDist(bundle.output + '.min.js', bundle, /* isProduction */ true)
+          buildDist(bundle.output + '.min.js', bundle, /* isProduction */ true),
         )
         .pipe(header(PRODUCTION_HEADER))
         .pipe(gulp.dest(path.join(DIST, build.package)));
@@ -379,12 +351,50 @@ builds.forEach(build => {
 });
 const bundlesMin = gulp.series(bundlesMinTasks);
 
+const clean = () => del(ONCE_FILE).then(() => del(DIST));
 const dist = gulp.series(exportsFiles, bins, bundles, bundlesMin);
+const watch = gulp.series(dist, () =>
+  gulp.watch(INCLUDE_GLOBS, {cwd: PACKAGES}, dist),
+);
 
-function watch() {
-  gulp.watch(PACKAGES + '/**/*.js', [exportsFiles, bundles]);
-}
+/**
+ * Updates the package.json files `/dist/` with a version to release to npm under
+ * the master tag.
+ */
+const setMasterVersion = async () => {
+  if (!RELEASE_COMMIT_SHA) {
+    throw new Error('Expected the RELEASE_COMMIT_SHA env variable to be set.');
+  }
+  const packages = builds.map(build => build.package);
+  packages.forEach(pkg => {
+    const pkgJsonPath = path.join('.', 'dist', pkg, 'package.json');
+    const packageJson = JSON.parse(fs.readFileSync(pkgJsonPath, 'utf8'));
+    packageJson.version = VERSION;
+    for (const depKind of [
+      'dependencies',
+      'devDependencies',
+      'peerDependencies',
+    ]) {
+      const deps = packageJson[depKind];
+      for (const dep in deps) {
+        if (packages.includes(dep)) {
+          deps[dep] = VERSION;
+        }
+      }
+    }
+    fs.writeFileSync(
+      pkgJsonPath,
+      JSON.stringify(packageJson, null, 2) + '\n',
+      'utf8',
+    );
+  });
+};
+
+const cleanbuild = gulp.series(clean, dist);
 
 exports.clean = clean;
+exports.dist = dist;
 exports.watch = watch;
-exports.default = gulp.series(clean, dist);
+exports.masterrelease = gulp.series(cleanbuild, setMasterVersion);
+exports.cleanbuild = cleanbuild;
+exports.default = cleanbuild;

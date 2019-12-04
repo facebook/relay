@@ -9,9 +9,13 @@
  * @emails oncall+relay
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const RelayConcreteNode = require('../util/RelayConcreteNode');
+const RelayConnection = require('./RelayConnection');
+const RelayModernRecord = require('./RelayModernRecord');
 const RelayRecordSourceMutator = require('../mutations/RelayRecordSourceMutator');
 const RelayRecordSourceProxy = require('../mutations/RelayRecordSourceProxy');
 const RelayStoreUtils = require('./RelayStoreUtils');
@@ -19,37 +23,50 @@ const RelayStoreUtils = require('./RelayStoreUtils');
 const cloneRelayHandleSourceField = require('./cloneRelayHandleSourceField');
 const invariant = require('invariant');
 
+const {isClientID} = require('./ClientID');
 const {EXISTENT, UNKNOWN} = require('./RelayRecordState');
 
 import type {
+  NormalizationConnection,
+  NormalizationField,
   NormalizationLinkedField,
-  NormalizationMatchField,
+  NormalizationModuleImport,
   NormalizationNode,
   NormalizationScalarField,
   NormalizationSelection,
-  NormalizationField,
 } from '../util/NormalizationNode';
-import type {Record} from '../util/RelayCombinedEnvironmentTypes';
 import type {DataID, Variables} from '../util/RelayRuntimeTypes';
+import type {GetConnectionEvents} from './RelayConnection';
+import type {GetDataID} from './RelayResponseNormalizer';
 import type {
-  OperationLoader,
   MissingFieldHandler,
   MutableRecordSource,
-  RecordSource,
   NormalizationSelector,
+  OperationAvailability,
+  OperationLoader,
+  Record,
+  RecordSource,
 } from './RelayStoreTypes';
 
 const {
   CONDITION,
+  CLIENT_EXTENSION,
+  DEFER,
+  CONNECTION,
   FRAGMENT_SPREAD,
   INLINE_FRAGMENT,
   LINKED_FIELD,
   LINKED_HANDLE,
-  MATCH_FIELD,
+  MODULE_IMPORT,
   SCALAR_FIELD,
   SCALAR_HANDLE,
+  STREAM,
 } = RelayConcreteNode;
-const {getStorageKey, getArgumentValues, MATCH_FRAGMENT_KEY} = RelayStoreUtils;
+const {
+  getModuleOperationKey,
+  getStorageKey,
+  getArgumentValues,
+} = RelayStoreUtils;
 
 /**
  * Synchronously check whether the records required to fulfill the given
@@ -67,7 +84,10 @@ function check(
   selector: NormalizationSelector,
   handlers: $ReadOnlyArray<MissingFieldHandler>,
   operationLoader: ?OperationLoader,
-): boolean {
+  operationLastWrittenAt: ?number,
+  getDataID: GetDataID,
+  getConnectionEvents: GetConnectionEvents,
+): OperationAvailability {
   const {dataID, node, variables} = selector;
   const checker = new DataChecker(
     source,
@@ -75,6 +95,9 @@ function check(
     variables,
     handlers,
     operationLoader,
+    operationLastWrittenAt,
+    getDataID,
+    getConnectionEvents,
   );
   return checker.check(node, dataID);
 }
@@ -83,11 +106,14 @@ function check(
  * @private
  */
 class DataChecker {
-  _operationLoader: OperationLoader | null;
+  _getConnectionEvents: GetConnectionEvents;
   _handlers: $ReadOnlyArray<MissingFieldHandler>;
   _mutator: RelayRecordSourceMutator;
-  _recordWasMissing: boolean;
+  _operationLoader: OperationLoader | null;
+  _operationLastWrittenAt: ?number;
   _recordSourceProxy: RelayRecordSourceProxy;
+  _recordWasMissing: boolean;
+  _recordWasStale: boolean;
   _source: RecordSource;
   _variables: Variables;
 
@@ -97,19 +123,35 @@ class DataChecker {
     variables: Variables,
     handlers: $ReadOnlyArray<MissingFieldHandler>,
     operationLoader: ?OperationLoader,
+    operationLastWrittenAt: ?number,
+    getDataID: GetDataID,
+    getConnectionEvents: GetConnectionEvents,
   ) {
-    this._operationLoader = operationLoader ?? null;
+    const newConnectionEvents = [];
+    const mutator = new RelayRecordSourceMutator(
+      source,
+      target,
+      newConnectionEvents,
+    );
+    this._getConnectionEvents = getConnectionEvents;
     this._handlers = handlers;
-    this._mutator = new RelayRecordSourceMutator(source, target);
+    this._mutator = mutator;
+    this._operationLoader = operationLoader ?? null;
+    this._operationLastWrittenAt = operationLastWrittenAt;
+    this._recordSourceProxy = new RelayRecordSourceProxy(mutator, getDataID);
     this._recordWasMissing = false;
+    this._recordWasStale = false;
     this._source = source;
     this._variables = variables;
-    this._recordSourceProxy = new RelayRecordSourceProxy(this._mutator);
   }
 
-  check(node: NormalizationNode, dataID: DataID): boolean {
+  check(node: NormalizationNode, dataID: DataID): OperationAvailability {
     this._traverse(node, dataID);
-    return !this._recordWasMissing;
+
+    if (this._recordWasStale === true) {
+      return 'stale';
+    }
+    return this._recordWasMissing === true ? 'missing' : 'available';
   }
 
   _getVariableValue(name: string): mixed {
@@ -128,7 +170,11 @@ class DataChecker {
   _getDataForHandlers(
     field: NormalizationField,
     dataID: DataID,
-  ): {args: Variables, record: ?Record} {
+  ): {
+    args: Variables,
+    record: ?Record,
+    ...
+  } {
     return {
       args: field.args ? getArgumentValues(field.args, this._variables) : {},
       // Getting a snapshot of the record state is potentially expensive since
@@ -145,6 +191,9 @@ class DataChecker {
     field: NormalizationScalarField,
     dataID: DataID,
   ): mixed {
+    if (field.name === 'id' && field.alias == null && isClientID(dataID)) {
+      return undefined;
+    }
     const {args, record} = this._getDataForHandlers(field, dataID);
     for (const handler of this._handlers) {
       if (handler.kind === 'scalar') {
@@ -200,11 +249,14 @@ class DataChecker {
           this._recordSourceProxy,
         );
         if (newValue != null) {
-          return newValue.filter(
+          const allItemsKnown = newValue.every(
             linkedID =>
               linkedID != null &&
               this._mutator.getStatus(linkedID) === EXISTENT,
           );
+          if (allItemsKnown) {
+            return newValue;
+          }
         }
       }
     }
@@ -212,11 +264,32 @@ class DataChecker {
   }
 
   _traverse(node: NormalizationNode, dataID: DataID): void {
+    if (this._recordWasStale === true) {
+      // If we've already detected a stale record for this operation,
+      // we don't need to traverse anymore; we can short-circuit the
+      // check and return stale early.
+      return;
+    }
+
     const status = this._mutator.getStatus(dataID);
     if (status === UNKNOWN) {
       this._handleMissing();
     }
+
     if (status === EXISTENT) {
+      const record = this._source.get(dataID);
+
+      const isStale = RelayModernRecord.isStale(
+        record,
+        this._operationLastWrittenAt,
+      );
+      if (isStale === true) {
+        // If record is stale, we don't need to continue traversing
+        // since we can already consider the data for this operation as stale.
+        this._recordWasStale = true;
+        return;
+      }
+
       this._traverseSelections(node.selections, dataID);
     }
   }
@@ -263,8 +336,12 @@ class DataChecker {
             this._checkLink(handleField, dataID);
           }
           break;
-        case MATCH_FIELD:
-          this._checkMatch(selection, dataID);
+        case MODULE_IMPORT:
+          this._checkModuleImport(selection, dataID);
+          break;
+        case DEFER:
+        case STREAM:
+          this._traverseSelections(selection.selections, dataID);
           break;
         case SCALAR_HANDLE:
         case FRAGMENT_SPREAD:
@@ -274,6 +351,14 @@ class DataChecker {
             selection.kind,
           );
           // $FlowExpectedError - we need the break; for OSS linter
+          break;
+        case CLIENT_EXTENSION:
+          const recordWasMissing = this._recordWasMissing;
+          this._traverseSelections(selection.selections, dataID);
+          this._recordWasMissing = recordWasMissing;
+          break;
+        case CONNECTION:
+          this._checkConnection(selection, dataID);
           break;
         default:
           (selection: empty);
@@ -286,51 +371,64 @@ class DataChecker {
     });
   }
 
-  _checkMatch(field: NormalizationMatchField, dataID: DataID): void {
-    const storageKey = getStorageKey(field, this._variables);
-    const linkedID = this._mutator.getLinkedRecordID(dataID, storageKey);
-
-    if (linkedID === undefined) {
-      this._handleMissing();
-    } else if (linkedID !== null) {
-      const status = this._mutator.getStatus(linkedID);
-      if (status === UNKNOWN) {
+  _checkModuleImport(
+    moduleImport: NormalizationModuleImport,
+    dataID: DataID,
+  ): void {
+    const operationLoader = this._operationLoader;
+    invariant(
+      operationLoader !== null,
+      'DataChecker: Expected an operationLoader to be configured when using `@module`.',
+    );
+    const operationKey = getModuleOperationKey(moduleImport.documentName);
+    const operationReference = this._mutator.getValue(dataID, operationKey);
+    if (operationReference == null) {
+      if (operationReference === undefined) {
         this._handleMissing();
-        return;
       }
-      if (status !== EXISTENT) {
-        return;
-      }
-      const typeName = this._mutator.getType(linkedID);
-      const match = typeName != null ? field.matchesByType[typeName] : null;
-      if (match != null) {
-        const operationLoader = this._operationLoader;
-        invariant(
-          operationLoader !== null,
-          'DataChecker: Expected an operationLoader to be configured when using `@match`.',
-        );
-        const operationReference = this._mutator.getValue(
-          linkedID,
-          MATCH_FRAGMENT_KEY,
-        );
-        if (operationReference === undefined) {
-          this._handleMissing();
-          return;
-        } else if (operationReference === null) {
-          return;
-        }
-        const operation = operationLoader.get(operationReference);
-        if (operation != null) {
-          this._traverse(operation, linkedID);
-        } else {
-          // If the fragment is not available, we assume that the data cannot have been
-          // processed yet and must therefore be missing.
-          this._handleMissing();
-        }
-      } else {
-        // TODO: warn: store is corrupt: the field should be null if the typename did not match
-      }
+      return;
     }
+    const operation = operationLoader.get(operationReference);
+    if (operation != null) {
+      this._traverse(operation, dataID);
+    } else {
+      // If the fragment is not available, we assume that the data cannot have been
+      // processed yet and must therefore be missing.
+      this._handleMissing();
+    }
+  }
+
+  _checkConnection(connection: NormalizationConnection, dataID: DataID): void {
+    const connectionID = RelayConnection.createConnectionID(
+      dataID,
+      connection.label,
+    );
+    const connectionEvents = this._getConnectionEvents(connectionID);
+    if (connectionEvents == null || connectionEvents.length === 0) {
+      return;
+    }
+    connectionEvents.forEach(event => {
+      if (event.kind === 'fetch') {
+        event.edgeIDs.forEach(edgeID => {
+          if (edgeID != null) {
+            this._traverse(connection.edges, edgeID);
+          }
+        });
+      } else if (event.kind === 'insert') {
+        this._traverse(connection.edges, event.edgeID);
+      } else if (event.kind === 'stream.edge') {
+        this._traverse(connection.edges, event.edgeID);
+      } else if (event.kind === 'stream.pageInfo') {
+        // no-op
+      } else {
+        (event: empty);
+        invariant(
+          false,
+          'DataChecker: Unexpected connection event kind `%s`.',
+          event.kind,
+        );
+      }
+    });
   }
 
   _checkScalar(field: NormalizationScalarField, dataID: DataID): void {

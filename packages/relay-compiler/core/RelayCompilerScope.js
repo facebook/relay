@@ -8,14 +8,11 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
-const {
-  createCombinedError,
-  createUserError,
-  eachWithErrors,
-} = require('./RelayCompilerError');
-const {GraphQLNonNull} = require('graphql');
+const {createUserError, eachWithCombinedError} = require('./CompilerError');
 
 import type {
   Argument,
@@ -23,8 +20,9 @@ import type {
   ArgumentValue,
   FragmentSpread,
   LocalArgumentDefinition,
-} from './GraphQLIR';
-
+  Variable,
+} from './IR';
+import type {Schema} from './Schema';
 /**
  * A scope is a mapping of the values for each argument defined by the nearest
  * ancestor root or fragment of a given IR selection. A scope maps argument
@@ -58,7 +56,7 @@ import type {
  *     bar: 42
  *   }
  */
-export type Scope = {[key: string]: ArgumentValue};
+export type Scope = {[key: string]: ArgumentValue, ...};
 
 /**
  * Creates a scope for a `Root`, with each argument mapped to a variable of the
@@ -82,12 +80,12 @@ function getRootScope(
 ): Scope {
   const scope = {};
   definitions.forEach(definition => {
-    scope[definition.name] = {
+    scope[definition.name] = ({
       kind: 'Variable',
-      metadata: null,
+      loc: definition.loc,
       variableName: definition.name,
       type: definition.type,
-    };
+    }: Variable);
   });
   return scope;
 }
@@ -135,6 +133,7 @@ function getRootScope(
  * }
  */
 function getFragmentScope(
+  schema: Schema,
   definitions: $ReadOnlyArray<ArgumentDefinition>,
   args: $ReadOnlyArray<Argument>,
   parentScope: Scope,
@@ -150,7 +149,7 @@ function getFragmentScope(
   });
 
   const fragmentScope = {};
-  const errors = eachWithErrors(definitions, definition => {
+  eachWithCombinedError(definitions, definition => {
     if (definition.kind === 'RootArgumentDefinition') {
       if (argMap.has(definition.name)) {
         const argNode = args.find(a => a.name === definition.name);
@@ -161,12 +160,12 @@ function getFragmentScope(
           [argNode?.loc ?? spread.loc],
         );
       }
-      fragmentScope[definition.name] = {
+      fragmentScope[definition.name] = ({
         kind: 'Variable',
-        metadata: null,
+        loc: definition.loc,
         variableName: definition.name,
         type: definition.type,
-      };
+      }: Variable);
     } else {
       const arg = argMap.get(definition.name);
       if (arg == null || (arg.kind === 'Literal' && arg.value == null)) {
@@ -174,13 +173,15 @@ function getFragmentScope(
         // value.
         if (
           definition.defaultValue == null &&
-          definition.type instanceof GraphQLNonNull
+          schema.isNonNull(definition.type)
         ) {
           const argNode = args.find(a => a.name === definition.name);
           throw createUserError(
-            `No value found for required argument '${definition.name}: ${String(
-              definition.type,
-            )}' on fragment '${spread.name}'.`,
+            `No value found for required argument '${
+              definition.name
+            }: ${schema.getTypeString(definition.type)}' on fragment '${
+              spread.name
+            }'.`,
             [argNode?.loc ?? spread.loc],
           );
         }
@@ -194,9 +195,6 @@ function getFragmentScope(
       }
     }
   });
-  if (errors != null && errors.length) {
-    throw createCombinedError(errors);
-  }
   return fragmentScope;
 }
 

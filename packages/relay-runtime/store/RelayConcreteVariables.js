@@ -4,14 +4,15 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @flow
+ * @flow strict-local
  * @format
  */
+
+// flowlint ambiguous-object-type:error
 
 'use strict';
 
 const invariant = require('invariant');
-const warning = require('warning');
 
 import type {NormalizationOperation} from '../util/NormalizationNode';
 import type {ReaderFragment} from '../util/ReaderNode';
@@ -42,15 +43,21 @@ function getFragmentVariables(
       case 'RootArgument':
         if (!rootVariables.hasOwnProperty(definition.name)) {
           /*
-           * A temporary fix to mute false alarm in cases where the root argument is stripped
-           * off by the compiler due to a conditional directive, we do not need this argument
-           * when tryiny to read the data from the store.
+           * Global variables passed as values of @arguments are not required to
+           * be declared unless they are used by the callee fragment or a
+           * descendant. In this case, the root variable may not be defined when
+           * resolving the callee's variables. The value is explicitly set to
+           * undefined to conform to the check in
+           * RelayStoreUtils.getStableVariableValue() that variable keys are all
+           * present.
            */
+          variables[definition.name] = undefined;
           break;
         }
         variables[definition.name] = rootVariables[definition.name];
         break;
       default:
+        (definition: empty);
         invariant(
           false,
           'RelayConcreteVariables: Unexpected node kind `%s` in fragment `%s`.',
@@ -79,18 +86,6 @@ function getOperationVariables(
       value = variables[def.name];
     }
     operationVariables[def.name] = value;
-    if (__DEV__) {
-      warning(
-        value != null || def.type[def.type.length - 1] !== '!',
-        'RelayConcreteVariables: Expected a value for non-nullable variable ' +
-          '`$%s: %s` on operation `%s`, got `%s`. Make sure you supply a ' +
-          'value for all non-nullable arguments.',
-        def.name,
-        def.type,
-        operation.name,
-        JSON.stringify(value),
-      );
-    }
   });
   return operationVariables;
 }

@@ -11,6 +11,31 @@ Install React and Relay using `yarn` or `npm`:
 yarn add react react-dom react-relay
 ```
 
+## Set up Relay with a single config file
+
+The below configuration of `babel-plugin-relay` and `relay-compiler` can be applied using a single configuration file by
+using the `relay-config` package. Besides unifying all Relay configuration in a single place, other tooling can leverage
+this to provide zero-config setup (e.g. [vscode-apollo-relay](https://github.com/relay-tools/vscode-apollo-relay)).
+
+Install the package:
+
+```sh
+yarn add --dev relay-config
+```
+
+And create the configuration file:
+
+```javascript
+// relay.config.js
+module.exports = {
+  // ...
+  // Configuration options accepted by the `relay-compiler` command-line tool and `babel-plugin-relay`.
+  src: "./src",
+  schema: "./data/schema.graphql",
+  exclude: ["**/node_modules/**", "**/__mocks__/**", "**/__generated__/**"],
+}
+```
+
 ## Set up babel-plugin-relay
 
 Relay Modern requires a Babel plugin to convert GraphQL to runtime artifacts:
@@ -33,17 +58,30 @@ Please note that the `"relay"` plugin should run before other plugins or
 presets to ensure the `graphql` template literals are correctly transformed. See
 Babel's [documentation on this topic](https://babeljs.io/docs/plugins/#pluginpreset-ordering).
 
-See the [Migration Setup](./migration-setup.html) guide if upgrading an existing Relay app.
-
 Alternatively, instead of using `babel-plugin-relay`, you can use Relay with [babel-plugin-macros](https://github.com/kentcdodds/babel-plugin-macros). After installing `babel-plugin-macros` and adding it to your Babel config:
 
 ```javascript
 const graphql = require('babel-plugin-relay/macro');
 ```
 
+If you need to configure `babel-plugin-relay` further (e.g. to enable `compat` mode), you can do so by [specifying the options in a number of ways](https://github.com/kentcdodds/babel-plugin-macros/blob/master/other/docs/user.md#config-experimental).
+
+For example:
+
+```javascript
+// babel-plugin-macros.config.js
+module.exports = {
+  // ...
+  // Other macros config
+  relay: {
+    compat: true,
+  },
+}
+```
+
 ## Set up relay-compiler
 
-Relay's ahead-of-time compilation requires the [Relay Compiler](./graphql-in-relay.html#relay-compiler.html), which you can install via `yarn` or `npm`:
+Relay's ahead-of-time compilation requires the [Relay Compiler](./graphql-in-relay.html#relay-compiler), which you can install via `yarn` or `npm`:
 
 ```sh
 yarn add --dev relay-compiler

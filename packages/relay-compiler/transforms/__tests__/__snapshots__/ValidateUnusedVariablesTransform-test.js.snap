@@ -1,0 +1,223 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`matches expected output: fragment-with-root-arguments.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query QueryWithId($id: ID) {
+  node(id: $id) {
+    ... on User {
+      name
+    }
+  }
+}
+
+query QueryWithCondition($shouldIncludeName: Boolean!) {
+  node {
+    ... on User {
+      name @include(if: $shouldIncludeName)
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+QueryWithId: NO ERRORS.
+QueryWithCondition: NO ERRORS.
+`;
+
+exports[`matches expected output: practically-unused-but-actually-used-variables.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query QueryWithUnusedVariables($id: ID!, $unusedFirst: Int, $unusedAfter: ID) {
+  node(id: $id) {
+    id
+    ...ConnectionFragment @arguments(fetchConnection: false)
+  }
+}
+
+fragment ConnectionFragment on User
+  @argumentDefinitions(
+    fetchConnection: {type: "Boolean", defaultValue: false}
+  ) {
+  # this branch will be excluded after all transforms
+  # and variables $unusedFirst and $unusedAfter will be skipped, eventually
+  # But this transform should not report them as unused
+  ... @include(if: $fetchConnection) {
+    friends(after: $unusedAfter, first: $unusedFirst) {
+      edges {
+        node {
+          id
+        }
+      }
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+QueryWithUnusedVariables: NO ERRORS.
+ConnectionFragment: NO ERRORS.
+`;
+
+exports[`matches expected output: query-with-invalid-error-suppression.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+# expected-to-throw
+query QueryWithId($id: ID) @DEPRECATED__relay_ignore_unused_variables_error {
+  node(id: $id) {
+    __typename
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+THROWN EXCEPTION:
+
+Invalid usage of '@DEPRECATED__relay_ignore_unused_variables_error.'No unused variables found in the query 'QueryWithId'
+
+Source: GraphQL request (2:28)
+1: # expected-to-throw
+2: query QueryWithId($id: ID) @DEPRECATED__relay_ignore_unused_variables_error {
+                              ^
+3:   node(id: $id) {
+
+`;
+
+exports[`matches expected output: query-with-unused-root-variable-shadowed-by-local.invalid.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+# expected-to-throw
+query QueryWithId($id: ID, $foo: Boolean!) {
+  node(id: $id) {
+    ...User_data
+  }
+}
+
+fragment User_data on User {
+  ...User_data_with_args
+}
+
+fragment User_data_with_args on User
+  @argumentDefinitions(foo: {type: "Boolean!"}) {
+  name
+  username @include(if: $foo)
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+THROWN EXCEPTION:
+
+Variable '$foo' is never used in operation 'QueryWithId'.
+
+Source: GraphQL request (2:28)
+1: # expected-to-throw
+2: query QueryWithId($id: ID, $foo: Boolean!) {
+                              ^
+3:   node(id: $id) {
+
+`;
+
+exports[`matches expected output: query-with-unused-variable.invalid.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+#expected-to-throw
+query QueryWithUnusedVariable($unused: ID) {
+  node {
+    __typename
+  }
+}
+
+query QueryWithUnusedVariables($unused: ID, $antother_unused: String) {
+  node {
+    __typename
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+THROWN EXCEPTION:
+
+Encountered 2 errors:
+- Variable '$unused' is never used in operation 'QueryWithUnusedVariable'.
+  
+  Source: GraphQL request (2:31)
+  1: #expected-to-throw
+  2: query QueryWithUnusedVariable($unused: ID) {
+                                   ^
+  3:   node {
+  
+- Variables '$unused', '$antother_unused' are never used in operation 'QueryWithUnusedVariables'.
+  
+  Source: GraphQL request (8:32)
+  7: 
+  8: query QueryWithUnusedVariables($unused: ID, $antother_unused: String) {
+                                    ^
+  9:   node {
+  
+  Source: GraphQL request (8:45)
+  7: 
+  8: query QueryWithUnusedVariables($unused: ID, $antother_unused: String) {
+                                                 ^
+  9:   node {
+  
+`;
+
+exports[`matches expected output: query-with-unused-variable-error-suppressed.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query QueryWithUnusedVariable($unused: ID)
+  @DEPRECATED__relay_ignore_unused_variables_error {
+  node {
+    __typename
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+QueryWithUnusedVariable: NO ERRORS.
+`;
+
+exports[`matches expected output: query-with-variables-shadowed-by-local-variable-and-used-as-root-variable.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query QueryWithIdAndFoo($id: ID, $foo: Boolean!) {
+  node(id: $id) {
+    ...User_data
+  }
+}
+
+fragment User_data on User {
+  ...User_data_with_args
+}
+
+# Here $foo is local argument, it's defined in the @argDefs
+fragment User_data_with_args on User
+  @argumentDefinitions(foo: {type: "Boolean!"}) {
+  name
+  username @include(if: $foo)
+  ...AnotherUser_data
+}
+
+# Here $foo is root argument, because \`AnotherUser_data\` doesn't have @argDefs
+fragment AnotherUser_data on User {
+  profile_picture @skip(if: $foo) {
+    uri
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+QueryWithIdAndFoo: NO ERRORS.
+User_data: NO ERRORS.
+User_data_with_args: NO ERRORS.
+AnotherUser_data: NO ERRORS.
+`;
+
+exports[`matches expected output: variable-in-the-complex-object-list.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query Q1($arg: String) {
+  items(filter: {date: $arg}) {
+    date
+  }
+}
+
+query Q2($size: Int) {
+  node {
+    ... on User {
+      profilePicture(size: [$size]) {
+        uri
+      }
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+Q1: NO ERRORS.
+Q2: NO ERRORS.
+`;

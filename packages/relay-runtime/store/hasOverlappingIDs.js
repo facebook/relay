@@ -8,17 +8,23 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
-import type {UpdatedRecords, Snapshot} from './RelayStoreTypes';
+import type {RecordMap, UpdatedRecords} from './RelayStoreTypes';
+
+const hasOwnProperty = Object.prototype.hasOwnProperty;
 
 function hasOverlappingIDs(
-  snapshot: Snapshot,
+  seenRecords: RecordMap,
   updatedRecordIDs: UpdatedRecords,
 ): boolean {
-  const keys = Object.keys(snapshot.seenRecords);
-  for (let ii = 0; ii < keys.length; ii++) {
-    if (updatedRecordIDs.hasOwnProperty(keys[ii])) {
+  for (const key in seenRecords) {
+    if (
+      hasOwnProperty.call(seenRecords, key) &&
+      hasOwnProperty.call(updatedRecordIDs, key)
+    ) {
       return true;
     }
   }

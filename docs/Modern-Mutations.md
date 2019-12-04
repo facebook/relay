@@ -9,7 +9,7 @@ Table of Contents:
 - [Optimistic Updates](#optimistic-updates)
 - [Updater Configs](#updater-configs)
 - [Using updater and optimisticUpdater](#using-updater-and-optimisticupdater)
-- [Commiting Local Updates](#commiting-local-updates)
+- [Committing Local Updates](#committing-local-updates)
 
 ## `commitMutation`
 
@@ -295,7 +295,7 @@ function sharedUpdater(store, user, newEdge) {
   const conn = ConnectionHandler.getConnection(
     userProxy,
     'TodoList_todos', // This is the connection identifier, defined here
-    // https://github.com/relayjs/relay-examples/blob/master/todo/js/components/TodoList.js#L68
+    // https://github.com/relayjs/relay-examples/blob/master/todo/js/components/TodoList.js#L76
   );
 
   // Insert the new todo into the Todo List connection
@@ -354,6 +354,6 @@ function commit(environment, text, user) {
 
 For details on how to interact with the Relay Store, please refer to our Relay Store [docs](./relay-store).
 
-## Commiting Local Updates
+## Committing Local Updates
 
 Use `commitLocalUpdate` when you need to update the local store without necessarily executing a mutation (such as in the case of debounced operations). The function takes in a Relay `environment` and an `updater` function.

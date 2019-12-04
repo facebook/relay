@@ -8,15 +8,23 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
+import type {ConnectionMetadata} from '../handlers/connection/RelayConnectionHandler';
 import type {ConcreteRequest} from './RelayConcreteNode';
-import type {ConnectionMetadata} from 'relay-runtime';
 
 export type ReaderFragmentSpread = {|
   +kind: 'FragmentSpread',
   +name: string,
   +args: ?$ReadOnlyArray<ReaderArgument>,
+|};
+
+export type ReaderInlineDataFragmentSpread = {|
+  +kind: 'InlineDataFragmentSpread',
+  +name: string,
+  +selections: $ReadOnlyArray<ReaderSelection>,
 |};
 
 export type ReaderFragment = {|
@@ -27,20 +35,62 @@ export type ReaderFragment = {|
     +connection?: $ReadOnlyArray<ConnectionMetadata>,
     +mask?: boolean,
     +plural?: boolean,
-    +refetchOperation?: string | ConcreteRequest,
+    +refetch?: ReaderRefetchMetadata,
   |},
   +argumentDefinitions: $ReadOnlyArray<ReaderArgumentDefinition>,
   +selections: $ReadOnlyArray<ReaderSelection>,
 |};
 
+// Marker type for a @refetchable fragment
 export type ReaderRefetchableFragment = {|
   ...ReaderFragment,
   +metadata: {|
-    +refetchOperation: ConcreteRequest,
+    +connection?: [ConnectionMetadata],
+    +refetch: ReaderRefetchMetadata,
   |},
 |};
 
-export type ReaderArgument = ReaderLiteral | ReaderVariable;
+// Marker Type for a @refetchable fragment with a single use of @connection
+export type ReaderPaginationFragment = {|
+  ...ReaderFragment,
+  +metadata: {|
+    +connection: [ConnectionMetadata],
+    +refetch: {|
+      ...ReaderRefetchMetadata,
+      connection: ReaderPaginationMetadata,
+    |},
+  |},
+|};
+
+export type ReaderRefetchMetadata = {|
+  +connection: ?ReaderPaginationMetadata,
+  +operation: string | ConcreteRequest,
+  +fragmentPathInResult: Array<string>,
+|};
+
+// Stricter form of ConnectionMetadata
+export type ReaderPaginationMetadata = {|
+  +backward: {|
+    +count: string,
+    +cursor: string,
+  |} | null,
+  +forward: {|
+    +count: string,
+    +cursor: string,
+  |} | null,
+  +path: $ReadOnlyArray<string>,
+|};
+
+export type ReaderInlineDataFragment = {|
+  +kind: 'InlineDataFragment',
+  +name: string,
+|};
+
+export type ReaderArgument =
+  | ReaderListValueArgument
+  | ReaderLiteralArgument
+  | ReaderObjectValueArgument
+  | ReaderVariableArgument;
 
 export type ReaderArgumentDefinition = ReaderLocalArgument | ReaderRootArgument;
 
@@ -51,10 +101,12 @@ export type ReaderCondition = {|
   +selections: $ReadOnlyArray<ReaderSelection>,
 |};
 
-export type ReaderField =
-  | ReaderScalarField
-  | ReaderLinkedField
-  | ReaderMatchField;
+export type ReaderClientExtension = {|
+  +kind: 'ClientExtension',
+  +selections: $ReadOnlyArray<ReaderSelection>,
+|};
+
+export type ReaderField = ReaderScalarField | ReaderLinkedField;
 
 export type ReaderRootArgument = {|
   +kind: 'RootArgument',
@@ -79,24 +131,32 @@ export type ReaderLinkedField = {|
   +selections: $ReadOnlyArray<ReaderSelection>,
 |};
 
-export type ReaderMatchField = {|
-  +kind: 'MatchField',
-  +alias: ?string,
+export type ReaderConnection = {|
+  +kind: 'Connection',
+  +label: string,
   +name: string,
-  +storageKey: ?string,
   +args: ?$ReadOnlyArray<ReaderArgument>,
-  +matchesByType: {
-    +[key: string]: {|
-      +fragmentPropName: string,
-      +fragmentName: string,
-    |},
-  },
+  +edges: ReaderLinkedField,
+  +pageInfo: ReaderLinkedField,
 |};
 
-export type ReaderLiteral = {|
+export type ReaderModuleImport = {|
+  +kind: 'ModuleImport',
+  +documentName: string,
+  +fragmentPropName: string,
+  +fragmentName: string,
+|};
+
+export type ReaderListValueArgument = {|
+  +kind: 'ListValue',
+  +name: string,
+  +items: $ReadOnlyArray<ReaderArgument | null>,
+|};
+
+export type ReaderLiteralArgument = {|
   +kind: 'Literal',
   +name: string,
-  +type: ?string,
+  +type?: ?string,
   +value: mixed,
 |};
 
@@ -107,12 +167,17 @@ export type ReaderLocalArgument = {|
   +defaultValue: mixed,
 |};
 
+export type ReaderObjectValueArgument = {|
+  +kind: 'ObjectValue',
+  +name: string,
+  +fields: $ReadOnlyArray<ReaderArgument>,
+|};
+
 export type ReaderNode =
   | ReaderCondition
   | ReaderLinkedField
   | ReaderFragment
-  | ReaderInlineFragment
-  | ReaderSplitOperation;
+  | ReaderInlineFragment;
 
 export type ReaderScalarField = {|
   +kind: 'ScalarField',
@@ -122,25 +187,31 @@ export type ReaderScalarField = {|
   +storageKey: ?string,
 |};
 
-export type ReaderSelection =
-  | ReaderCondition
-  | ReaderField
-  | ReaderFragmentSpread
-  | ReaderInlineFragment
-  | ReaderMatchField;
-
-export type ReaderSplitOperation = {
-  +kind: 'SplitOperation',
-  +name: string,
-  +metadata: ?{+[key: string]: mixed},
+export type ReaderDefer = {|
+  +kind: 'Defer',
   +selections: $ReadOnlyArray<ReaderSelection>,
-};
-
-export type ReaderVariable = {|
-  +kind: 'Variable',
-  +name: string,
-  +type: ?string,
-  +variableName: string,
 |};
 
-export type ReaderSelectableNode = ReaderFragment | ReaderSplitOperation;
+export type ReaderStream = {|
+  +kind: 'Stream',
+  +selections: $ReadOnlyArray<ReaderSelection>,
+|};
+
+export type ReaderSelection =
+  | ReaderCondition
+  | ReaderConnection
+  | ReaderClientExtension
+  | ReaderDefer
+  | ReaderField
+  | ReaderFragmentSpread
+  | ReaderInlineDataFragmentSpread
+  | ReaderInlineFragment
+  | ReaderModuleImport
+  | ReaderStream;
+
+export type ReaderVariableArgument = {|
+  +kind: 'Variable',
+  +name: string,
+  +type?: ?string,
+  +variableName: string,
+|};

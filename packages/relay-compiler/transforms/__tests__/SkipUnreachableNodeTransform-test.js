@@ -4,30 +4,35 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
+ * @flow strict-local
  * @format
  * @emails oncall+relay
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
-const GraphQLCompilerContext = require('GraphQLCompilerContext');
-const GraphQLIRPrinter = require('GraphQLIRPrinter');
-const RelayParser = require('RelayParser');
-const RelayTestSchema = require('RelayTestSchema');
-const SkipUnreachableNodeTransform = require('SkipUnreachableNodeTransform');
+const CompilerContext = require('../../core/CompilerContext');
+const IRPrinter = require('../../core/IRPrinter');
+const RelayParser = require('../../core/RelayParser');
+const SkipUnreachableNodeTransform = require('../SkipUnreachableNodeTransform');
 
-const {generateTestsFromFixtures} = require('RelayModernTestUtils');
+const {
+  TestSchema,
+  generateTestsFromFixtures,
+} = require('relay-test-utils-internal');
 
 describe('SkipUnreachableNodeTransform', () => {
   generateTestsFromFixtures(
     `${__dirname}/fixtures/skip-unreachable-node-transform`,
     text => {
-      const ast = RelayParser.parse(RelayTestSchema, text);
-      return new GraphQLCompilerContext(RelayTestSchema)
+      const ast = RelayParser.parse(TestSchema, text);
+      return new CompilerContext(TestSchema)
         .addAll(ast)
         .applyTransforms([SkipUnreachableNodeTransform.transform])
         .documents()
-        .map(GraphQLIRPrinter.print)
+        .map(doc => IRPrinter.print(TestSchema, doc))
         .join('\n');
     },
   );

@@ -8,6 +8,8 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const invariant = require('invariant');
@@ -27,16 +29,32 @@ function anyTypeAlias(name: string): BabelAST {
  *   PROPS
  * |}
  */
-function exactObjectTypeAnnotation(props: Array<BabelAST>) {
+function exactObjectTypeAnnotation(
+  props: $ReadOnlyArray<BabelAST>,
+): $FlowFixMe {
   const typeAnnotation = t.objectTypeAnnotation(props);
   typeAnnotation.exact = true;
   return typeAnnotation;
 }
 
 /**
+ * {
+ *   PROPS
+ *   ...
+ * }
+ */
+function inexactObjectTypeAnnotation(
+  props: $ReadOnlyArray<BabelAST>,
+): $FlowFixMe {
+  const typeAnnotation = t.objectTypeAnnotation(props);
+  typeAnnotation.inexact = true;
+  return typeAnnotation;
+}
+
+/**
  * export type NAME = TYPE
  */
-function exportType(name: string, type: BabelAST) {
+function exportType(name: string, type: BabelAST): $FlowFixMe {
   return t.exportNamedDeclaration(
     t.typeAlias(t.identifier(name), null, type),
     [],
@@ -45,9 +63,41 @@ function exportType(name: string, type: BabelAST) {
 }
 
 /**
+ * export type {A, B, C}
+ */
+function exportTypes(names: $ReadOnlyArray<string>): $FlowFixMe {
+  const res = t.exportNamedDeclaration(
+    null,
+    names.map(name =>
+      t.exportSpecifier(t.identifier(name), t.identifier(name)),
+    ),
+
+    null,
+  );
+  res.exportKind = 'type';
+  return res;
+}
+
+/**
+ * declare export type NAME = VALUE
+ */
+function declareExportOpaqueType(name: string, value: string): $FlowFixMe {
+  return t.declareExportDeclaration(
+    t.declareOpaqueType(
+      t.identifier(name),
+      null,
+      t.genericTypeAnnotation(t.identifier(value)),
+    ),
+  );
+}
+
+/**
  * import type {NAMES[0], NAMES[1], ...} from 'MODULE';
  */
-function importTypes(names: Array<string>, module: string) {
+function importTypes(
+  names: $ReadOnlyArray<string>,
+  module: string,
+): $FlowFixMe {
   const importDeclaration = t.importDeclaration(
     names.map(name =>
       t.importSpecifier(t.identifier(name), t.identifier(name)),
@@ -63,7 +113,7 @@ function importTypes(names: Array<string>, module: string) {
  *
  * TYPES[0] & TYPES[1] & ...
  */
-function intersectionTypeAnnotation(types: Array<BabelAST>): BabelAST {
+function intersectionTypeAnnotation(types: $ReadOnlyArray<BabelAST>): BabelAST {
   invariant(
     types.length > 0,
     'RelayFlowBabelFactories: cannot create an intersection of 0 types',
@@ -71,17 +121,16 @@ function intersectionTypeAnnotation(types: Array<BabelAST>): BabelAST {
   return types.length === 1 ? types[0] : t.intersectionTypeAnnotation(types);
 }
 
-function lineComments(...lines: Array<string>) {
-  /* $FlowFixMe(>=0.70.0) This comment suppresses an error found when
-   * Flow v0.70 was deployed. To see the error delete this comment and
-   * run Flow. */
+function lineComments(
+  ...lines: $ReadOnlyArray<string>
+): $ReadOnlyArray<$FlowFixMe> {
   return lines.map(line => ({type: 'CommentLine', value: ' ' + line}));
 }
 
 /**
  * $ReadOnlyArray<TYPE>
  */
-function readOnlyArrayOfType(thing: BabelAST) {
+function readOnlyArrayOfType(thing: BabelAST): $FlowFixMe {
   return t.genericTypeAnnotation(
     t.identifier('$ReadOnlyArray'),
     t.typeParameterInstantiation([thing]),
@@ -91,13 +140,13 @@ function readOnlyArrayOfType(thing: BabelAST) {
 /**
  * +KEY: VALUE
  */
-function readOnlyObjectTypeProperty(key: string, value: BabelAST) {
+function readOnlyObjectTypeProperty(key: string, value: BabelAST): $FlowFixMe {
   const prop = t.objectTypeProperty(t.identifier(key), value);
   prop.variance = t.variance('plus');
   return prop;
 }
 
-function stringLiteralTypeAnnotation(value: string) {
+function stringLiteralTypeAnnotation(value: string): $FlowFixMe {
   return t.stringLiteralTypeAnnotation(value);
 }
 
@@ -106,7 +155,7 @@ function stringLiteralTypeAnnotation(value: string) {
  *
  * TYPES[0] | TYPES[1] | ...
  */
-function unionTypeAnnotation(types: Array<BabelAST>): BabelAST {
+function unionTypeAnnotation(types: $ReadOnlyArray<BabelAST>): BabelAST {
   invariant(
     types.length > 0,
     'RelayFlowBabelFactories: cannot create a union of 0 types',
@@ -116,8 +165,11 @@ function unionTypeAnnotation(types: Array<BabelAST>): BabelAST {
 
 module.exports = {
   anyTypeAlias,
+  declareExportOpaqueType,
   exactObjectTypeAnnotation,
+  inexactObjectTypeAnnotation,
   exportType,
+  exportTypes,
   importTypes,
   intersectionTypeAnnotation,
   lineComments,

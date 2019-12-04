@@ -14,13 +14,12 @@ const cloneRelayHandleSourceField = require('../cloneRelayHandleSourceField');
 const getRelayHandleKey = require('../../util/getRelayHandleKey');
 
 const {LINKED_FIELD, LINKED_HANDLE} = require('../../util/RelayConcreteNode');
-const {generateWithTransforms, matchers} = require('RelayModernTestUtils');
+const {generateWithTransforms} = require('relay-test-utils-internal');
 
 describe('cloneRelayHandleSourceField()', () => {
   let selections;
 
   beforeEach(() => {
-    expect.extend(matchers);
     const {TestQuery} = generateWithTransforms(`
       query TestQuery {
         me {
@@ -50,7 +49,7 @@ describe('cloneRelayHandleSourceField()', () => {
 
     expect(() =>
       cloneRelayHandleSourceField(handleField, selections),
-    ).toFailInvariant(
+    ).toThrowError(
       'cloneRelayHandleSourceField: Expected a corresponding source field ' +
         'for handle `test`.',
     );

@@ -1,6 +1,6 @@
 ---
 id: version-classic-query-renderer
-title: <QueryRenderer />
+title: QueryRenderer
 original_id: query-renderer
 ---
 

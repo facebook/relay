@@ -43,7 +43,7 @@ const RelaySchema = require('./core/Schema');
 const Rollout = require('./util/Rollout');
 const SchemaUtils = require('./core/SchemaUtils');
 const Sources = require('./runner/Sources');
-const StrictMap_ = require('./runner/StrictMap');
+const StrictMap = require('./runner/StrictMap');
 const TimeReporter = require('./util/TimeReporter');
 
 const compileArtifacts = require('./runner/compileArtifacts');
@@ -51,6 +51,7 @@ const compileRelayArtifacts = require('./codegen/compileRelayArtifacts');
 const extractAST = require('./runner/extractAST');
 const filterContextForNode = require('./core/filterContextForNode');
 const formatGeneratedModule = require('./language/javascript/formatGeneratedModule');
+const getChangedNodeNames = require('./runner/getChangedNodeNames');
 const getDefinitionNodeHash = require('./util/getDefinitionNodeHash');
 const getIdentifierForArgumentValue = require('./core/getIdentifierForArgumentValue');
 const getLiteralArgumentValues = require('./core/getLiteralArgumentValues');
@@ -124,11 +125,10 @@ export type {
 } from './runner/Artifacts';
 export type {NodeGroup} from './runner/GraphQLASTNodeGroup';
 export type {SourceChanges} from './runner/Sources';
+export type {StrictMap} from './runner/StrictMap';
 export type {ExtractFn} from './runner/extractAST';
 export type {SavedStateCollection, WatchmanFile} from './runner/types';
 export type {FlattenOptions} from './transforms/FlattenTransform';
-
-export type StrictMap<K, V> = StrictMap_<K, V>;
 
 module.exports = {
   relayCompiler: main,
@@ -185,13 +185,14 @@ module.exports = {
     GraphQLASTNodeGroup,
     GraphQLASTUtils,
     GraphQLNodeMap,
-    StrictMap: StrictMap_,
+    StrictMap,
     compileArtifacts,
     extractFromJS: extractAST.extractFromJS,
+    getChangedNodeNames,
     getDefinitionNodeHash,
+    getSchemaInstance,
     md5,
     parseExecutableNode: extractAST.parseExecutableNode,
     toASTRecord: extractAST.toASTRecord,
-    getSchemaInstance,
   },
 };

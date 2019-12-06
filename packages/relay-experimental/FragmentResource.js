@@ -405,7 +405,7 @@ class FragmentResourceImpl {
     invariant(
       Array.isArray(currentSnapshots),
       'Relay: Expected to find cached data for plural fragment `%s` when ' +
-        'recieving a subscription. ' +
+        'receiving a subscription. ' +
         "If you're seeing this, this is likely a bug in Relay.",
       latestSnapshot.selector.node.name,
     );

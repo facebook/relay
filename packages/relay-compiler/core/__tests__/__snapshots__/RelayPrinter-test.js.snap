@@ -185,12 +185,11 @@ THROWN EXCEPTION:
 
 Expected a value matching type 'Environment!'. Possible values: WEB or MOBILE?'
 
-GraphQL request (3:26)
-2: fragment UserFragment on User {
-3:   checkins(environments: "WEB") {
-                            ^
-4:     __typename
-
+GraphQL request:3:26
+2 | fragment UserFragment on User {
+3 |   checkins(environments: "WEB") {
+  |                          ^
+4 |     __typename
 `;
 
 exports[`IRPrinter matches expected output: string-enum-fragment-arg.graphql 1`] = `
@@ -251,10 +250,9 @@ THROWN EXCEPTION:
 
 Expected a value matching type 'Environment!'. Possible values: WEB or MOBILE?'
 
-GraphQL request (3:26)
-2: fragment UserFragment on User {
-3:   checkins(environments: UNKNOWN_ENUM_VALUE) {
-                            ^
-4:     __typename
-
+GraphQL request:3:26
+2 | fragment UserFragment on User {
+3 |   checkins(environments: UNKNOWN_ENUM_VALUE) {
+  |                          ^
+4 |     __typename
 `;

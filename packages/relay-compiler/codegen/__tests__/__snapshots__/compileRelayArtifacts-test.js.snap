@@ -19007,18 +19007,17 @@ THROWN EXCEPTION:
 
 Variable @arguments values are only supported when the argument is defined with @argumentDefinitions. Check the definition of fragment 'ProfilePhoto'.
 
-GraphQL request (16:36)
-15:   __typename
-16:   ...ProfilePhoto @arguments(size: $size)
-                                       ^
-17: }
+GraphQL request:16:36
+15 |   __typename
+16 |   ...ProfilePhoto @arguments(size: $size)
+   |                                    ^
+17 | }
 
-GraphQL request (19:1)
-18: 
-19: fragment ProfilePhoto on User {
-    ^
-20:   profilePicture(size: [100]) {
-
+GraphQL request:19:1
+18 | 
+19 | fragment ProfilePhoto on User {
+   | ^
+20 |   profilePicture(size: [100]) {
 `;
 
 exports[`compileRelayArtifacts matches expected output: unused-fragment-argdef-unchecked.graphql 1`] = `

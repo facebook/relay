@@ -52,12 +52,11 @@ THROWN EXCEPTION:
 
 Fragment 'User_user' cannot be spread here as objects of type 'UserNameRenderer' can never be of type 'User'. Possible concrete types include 'CustomNameRenderer', 'MarkdownUserNameRenderer', 'PlainUserNameRenderer', etc.
 
-GraphQL request (6:5)
-5:     ...PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
-6:     ...User_user @module(name: "User.react")
-       ^
-7:   }
-
+GraphQL request:6:5
+5 |     ...PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
+6 |     ...User_user @module(name: "User.react")
+  |     ^
+7 |   }
 `;
 
 exports[`MatchTransform matches expected output: invalid-no-matches.graphql 1`] = `
@@ -73,12 +72,11 @@ THROWN EXCEPTION:
 
 Expected at least one selection for non-scalar field 'nameRenderer' on type 'UserNameRenderer'.
 
-GraphQL request (4:3)
-3:   id
-4:   nameRenderer @match
-     ^
-5: }
-
+GraphQL request:4:3
+3 |   id
+4 |   nameRenderer @match
+  |   ^
+5 | }
 `;
 
 exports[`MatchTransform matches expected output: invalid-non-empty-selections.graphql 1`] = `

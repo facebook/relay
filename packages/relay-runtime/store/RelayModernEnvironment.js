@@ -224,7 +224,10 @@ class RelayModernEnvironment implements IEnvironment {
   }
 
   check(operation: OperationDescriptor): OperationAvailability {
-    if (this._missingFieldHandlers == null) {
+    if (
+      this._missingFieldHandlers == null ||
+      this._missingFieldHandlers.length === 0
+    ) {
       return this._store.check(operation);
     }
     return this._checkSelectorAndHandleMissingFields(

@@ -12,22 +12,28 @@
 
 'use strict';
 
+const RelayFeatureFlags = require('../util/RelayFeatureFlags');
+
 const {ROOT_TYPE} = require('../store/RelayStoreUtils');
 const {VIEWER_ID} = require('../store/ViewerPattern');
 
 import type {MissingFieldHandler} from '../store/RelayStoreTypes';
 
-const missingViewerFieldHandler: MissingFieldHandler = {
-  kind: 'linked',
-  handle(field, record, argValues) {
-    if (
-      record != null &&
-      record.__typename === ROOT_TYPE &&
-      field.name === 'viewer'
-    ) {
-      return VIEWER_ID;
-    }
-  },
-};
+const handlers: $ReadOnlyArray<MissingFieldHandler> = RelayFeatureFlags.ENABLE_MISSING_VIEWER_FIELD_HANDLER
+  ? [
+      {
+        kind: 'linked',
+        handle(field, record, argValues) {
+          if (
+            record != null &&
+            record.__typename === ROOT_TYPE &&
+            field.name === 'viewer'
+          ) {
+            return VIEWER_ID;
+          }
+        },
+      },
+    ]
+  : [];
 
-module.exports = [missingViewerFieldHandler];
+module.exports = handlers;

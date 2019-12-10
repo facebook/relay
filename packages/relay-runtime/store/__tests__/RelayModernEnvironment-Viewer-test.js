@@ -28,6 +28,10 @@ const {createReaderSelector} = require('../RelayModernSelector');
 const {ROOT_ID} = require('../RelayStoreUtils');
 const {generateAndCompile} = require('relay-test-utils-internal');
 
+jest.mock('relay-runtime/util/RelayFeatureFlags', () => ({
+  ENABLE_UNIQUE_MUTATION_ROOT: true,
+}));
+
 describe('Mutations on viewer', () => {
   let dataSource;
   let environment;

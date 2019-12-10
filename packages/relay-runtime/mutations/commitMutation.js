@@ -13,6 +13,7 @@
 'use strict';
 
 const RelayDeclarativeMutationConfig = require('./RelayDeclarativeMutationConfig');
+const RelayFeatureFlags = require('../util/RelayFeatureFlags');
 
 const invariant = require('invariant');
 const isRelayModernEnvironment = require('../store/isRelayModernEnvironment');
@@ -20,6 +21,7 @@ const validateMutation = require('./validateMutation');
 const warning = require('warning');
 
 const {getRequest} = require('../query/GraphQLTag');
+const {generateUniqueClientID} = require('../store/ClientID');
 const {
   createOperationDescriptor,
 } = require('../store/RelayModernOperationDescriptor');
@@ -95,7 +97,13 @@ function commitMutation<T: MutationParameters>(
   }
   let {optimisticResponse, optimisticUpdater, updater} = config;
   const {configs, onError, variables, uploadables} = config;
-  const operation = createOperationDescriptor(mutation, variables);
+  const operation = createOperationDescriptor(
+    mutation,
+    variables,
+    RelayFeatureFlags.ENABLE_UNIQUE_MUTATION_ROOT
+      ? generateUniqueClientID()
+      : undefined,
+  );
   // TODO: remove this check after we fix flow.
   if (typeof optimisticResponse === 'function') {
     optimisticResponse = optimisticResponse();

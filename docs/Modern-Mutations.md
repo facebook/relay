@@ -20,7 +20,7 @@ commitMutation(
   environment: Environment,
   config: {
     mutation: GraphQLTaggedNode,
-    variables: {[name: string]: any},
+    variables: {[name: string]: mixed},
     onCompleted?: ?(response: ?Object, errors: ?Array<Error>) => void,
     onError?: ?(error: Error) => void,
     optimisticResponse?: Object,
@@ -173,7 +173,7 @@ containing optional filters, and a range behavior depending on what behavior we 
 #### Example
 ```javascript
 const mutation = graphql`
-  mutation AddShipMutation($factionID: ID!, name: String!) {
+  mutation AddShipMutation($factionID: ID!, $name: String!) {
     addShip(factionID: $factionID, name: $name) {
       shipEdge {
         node {

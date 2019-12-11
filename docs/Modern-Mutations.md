@@ -310,7 +310,6 @@ function commit(environment, text, user) {
     variables: {
       input: {
         text,
-        clientMutationId: tempID++,
       },
     },
     updater: (store) => {

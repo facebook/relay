@@ -3,7 +3,7 @@
   "license": "MIT",
   "private": true,
   "scripts": {
-    "update-spec": "spec-md spec/Mutations.md > static/graphql/mutations.htm && spec-md spec/Connections.md > static/graphql/connections.htm && spec-md spec/ObjectIdentification.md > static/graphql/objectidentification.htm",
+    "update-spec": "spec-md spec/Connections.md > static/graphql/connections.htm && spec-md spec/ObjectIdentification.md > static/graphql/objectidentification.htm",
     "start": "docusaurus-start",
     "build": "docusaurus-build",
     "examples": "docusaurus-examples",

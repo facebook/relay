@@ -42,6 +42,7 @@ const {
   schemaExtensions: relaySchemaExtensions,
 } = RelayIRTransforms;
 
+import type {SourceControl} from '../codegen/SourceControl';
 import type {ScalarTypeMapping} from '../language/javascript/RelayFlowTypeTransformers';
 import type {WriteFilesOptions} from '../codegen/CodegenRunner';
 import type {

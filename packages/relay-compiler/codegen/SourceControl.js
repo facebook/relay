@@ -53,6 +53,21 @@ const SourceControlMercurial: SourceControl = {
   },
 };
 
+const SourceControlGit: SourceControl = {
+  async addRemove(
+    added: $ReadOnlyArray<string>,
+    removed: $ReadOnlyArray<string>,
+  ): Promise<void> {
+    if (added.length > 0) {
+      await execFile('git', ['add', ...added]);
+    }
+    if (removed.length > 0) {
+      await execFile('git', ['rm', ...removed]);
+    }
+  },
+};
+
 module.exports = {
   SourceControlMercurial,
+  SourceControlGit,
 };

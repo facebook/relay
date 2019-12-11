@@ -20,7 +20,7 @@ commitMutation(
   environment: Environment,
   config: {
     mutation: GraphQLTaggedNode,
-    variables: {[name: string]: any},
+    variables: {[name: string]: mixed},
     onCompleted?: ?(response: ?Object, errors: ?Array<Error>) => void,
     onError?: ?(error: Error) => void,
     optimisticResponse?: Object,
@@ -59,9 +59,9 @@ import {commitMutation, graphql} from 'react-relay';
 
 const mutation = graphql`
   mutation MarkReadNotificationMutation(
-    $input: MarkReadNotificationInput!
+    $storyID: ID!
   ) {
-    markReadNotification(data: $input) {
+    markReadNotification(id: $storyID) {
       notification {
         seenState
       }
@@ -69,12 +69,9 @@ const mutation = graphql`
   }
 `;
 
-function markNotificationAsRead(environment, source, storyID) {
+function markNotificationAsRead(environment, storyID) {
   const variables = {
-    input: {
-      source,
-      storyID,
-    },
+    storyID,
   };
 
   commitMutation(
@@ -98,9 +95,9 @@ To improve perceived responsiveness, you may wish to perform an "optimistic upda
 ```javascript
 const mutation = graphql`
   mutation MarkReadNotificationMutation(
-    $input: MarkReadNotificationInput!
+    $storyID: ID!
   ) {
-    markReadNotification(data: $input) {
+    markReadNotification(id: $storyID) {
       notification {
         seenState
       }
@@ -143,8 +140,8 @@ Given a deletedIDFieldName, Relay will remove the node(s) from the store.
 #### Example
 ```javascript
 const mutation = graphql`
-  mutation DestroyShipMutation($input: DestroyShipInput!) {
-    destroyShip(input: $input) {
+  mutation DestroyShipMutation($target: ID!) {
+    destroyShip(target: $target) {
       destroyedShipId
       faction {
         ships {
@@ -176,8 +173,8 @@ containing optional filters, and a range behavior depending on what behavior we 
 #### Example
 ```javascript
 const mutation = graphql`
-  mutation AddShipMutation($input: AddShipInput!) {
-    addShip(input: $input) {
+  mutation AddShipMutation($factionID: ID!, $name: String!) {
+    addShip(factionID: $factionID, name: $name) {
       shipEdge {
         node {
           name
@@ -187,15 +184,16 @@ const mutation = graphql`
   }
 `;
 
-function commit(environment, factionId, name) {
+function commit(environment, factionID, name) {
   return commitMutation(environment, {
     mutation,
     variables: {
-      input: { factionId, name },
+      factionID,
+      name,
     },
     configs: [{
       type: 'RANGE_ADD',
-      parentID: factionId,
+      parentID: factionID,
       connectionInfo: [{
         key: 'AddShip_ships',
         rangeBehavior: 'append',
@@ -223,27 +221,28 @@ objects containing a connection key and optionally filters.
 #### Example
 ```javascript
 const mutation = graphql`
-  mutation RemoveTagMutation($input: RemoveTagInput!) {
-    removeTag(input: $input) {
-      removedTagId
+  mutation RemoveTagMutation($todoID: ID!, $tagID: ID!) {
+    removeTag(todo: $todoID, tag: $tagID) {
+      removedTagID
     }
   }
 `;
 
-function commit(environment, todoId, tagId) {
+function commit(environment, todoID, tagID) {
   return commitMutation(environment, {
     mutation,
     variables: {
-      input: { todoId, tagId },
+      todoID,
+      tagID,
     },
     configs: [{
       type: 'RANGE_DELETE',
-      parentID: todoId,
+      parentID: todoID,
       connectionKeys: [{
         key: 'RemoveTags_tags',
       }],
       pathToConnection: ['todo', 'tags'],
-      deletedIDFieldName: 'removedTagId',
+      deletedIDFieldName: 'removedTagID',
     }],
   });
 }
@@ -269,8 +268,8 @@ import {commitMutation, graphql} from 'react-relay';
 import {ConnectionHandler} from 'relay-runtime';
 
 const mutation = graphql`
-  mutation AddTodoMutation($input: AddTodoInput!) {
-    addTodo(input: $input) {
+  mutation AddTodoMutation($text: String!) {
+    addTodo(text: $text) {
       todoEdge {
         cursor
         node {
@@ -308,9 +307,7 @@ function commit(environment, text, user) {
   return commitMutation(environment, {
     mutation,
     variables: {
-      input: {
-        text,
-      },
+      text,
     },
     updater: (store) => {
       // Get the payload returned from the server

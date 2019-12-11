@@ -27,6 +27,11 @@ const invariant = require('invariant');
 const path = require('path');
 
 const {buildClientSchema, Source, printSchema} = require('graphql');
+const {spawnSync} = require('child_process');
+const {
+  SourceControlGit,
+  SourceControlMercurial,
+} = require('../codegen/SourceControl');
 
 const {
   commonTransforms,
@@ -342,13 +347,21 @@ function getCodegenRunner(config: Config): CodegenRunner {
       baseParsers: ['graphql'],
     },
   };
+
+  let sourceControl: SourceControl | null = null;
+
+  if (isGitSourceControl()) {
+    sourceControl = SourceControlGit;
+  } else if (isMercurialSourceControl()) {
+    sourceControl = SourceControlMercurial;
+  }
+
   const codegenRunner = new CodegenRunner({
     reporter,
     parserConfigs,
     writerConfigs,
     onlyValidate: config.validate,
-    // TODO: allow passing in a flag or detect?
-    sourceControl: null,
+    sourceControl,
   });
   return codegenRunner;
 }
@@ -463,6 +476,16 @@ function getSchemaSource(schemaPath: string): Source {
   ${source}
   `;
   return new Source(source, schemaPath);
+}
+
+function isGitSourceControl(): boolean {
+  const result = spawnSync('git', ['rev-parse', '--is-inside-work-tree']);
+  return result.status === 0;
+}
+
+function isMercurialSourceControl(): boolean {
+  const result = spawnSync('hg', ['id']);
+  return result.status === 0;
 }
 
 // Ensure that a watchman "root" file exists in the given directory

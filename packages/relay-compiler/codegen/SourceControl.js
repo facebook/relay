@@ -13,17 +13,33 @@
 'use strict';
 
 const childProcess = require('child_process');
+const os = require('os');
 
-function execFile(cmd: string, args: Array<string>): Promise<void> {
+function execFile(cmd: string, args: Array<string>): Promise<string> {
   return new Promise((resolve, reject) => {
-    childProcess.execFile(cmd, args, err => {
+    childProcess.execFile(cmd, args, (err, stdout) => {
       if (err) {
         reject(err);
       } else {
-        resolve();
+        resolve(stdout);
       }
     });
   });
+}
+
+/**
+ * Returns the git ignored paths of the paths provided to this function.
+ */
+async function getGitIgnoredPaths(
+  paths: Array<string>,
+): Promise<Array<string>> {
+  try {
+    // check-ignore commands return a list of paths that are ignored by git.
+    const stdout = await execFile('git', ['check-ignore', ...paths]);
+    return stdout.split(os.EOL).filter(Boolean);
+  } catch (error) {
+    return [];
+  }
 }
 
 /**
@@ -54,15 +70,13 @@ const SourceControlMercurial: SourceControl = {
 };
 
 const SourceControlGit: SourceControl = {
-  async addRemove(
-    added: $ReadOnlyArray<string>,
-    removed: $ReadOnlyArray<string>,
-  ): Promise<void> {
+  async addRemove(added: $ReadOnlyArray<string>): Promise<void> {
+    const ignoredPaths = await getGitIgnoredPaths(added);
+    // remove ignored paths from the added array.
+    added = added.filter(path => !ignoredPaths.includes(path));
+
     if (added.length > 0) {
-      await execFile('git', ['add', ...added]);
-    }
-    if (removed.length > 0) {
-      await execFile('git', ['rm', ...removed]);
+      await execFile('git', ['add', '--intent-to-add', ...added]);
     }
   },
 };

@@ -418,6 +418,7 @@ function generateModuleImport(node, key): NormalizationModuleImport {
 }
 
 function generateScalarField(node): Array<NormalizationSelection> {
+  // flowlint-next-line sketchy-null-mixed:off
   if (node.metadata?.skipNormalizationNode) {
     return [];
   }

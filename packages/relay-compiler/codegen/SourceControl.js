@@ -31,8 +31,8 @@ function execFile(cmd: string, args: Array<string>): Promise<string> {
  * Returns the git ignored paths of the paths provided to this function.
  */
 async function getGitIgnoredPaths(
-  paths: Array<string>,
-): Promise<Array<string>> {
+  paths: $ReadOnlyArray<string>,
+): Promise<$ReadOnlyArray<string>> {
   try {
     // check-ignore commands return a list of paths that are ignored by git.
     const stdout = await execFile('git', ['check-ignore', ...paths]);
@@ -73,10 +73,10 @@ const SourceControlGit: SourceControl = {
   async addRemove(added: $ReadOnlyArray<string>): Promise<void> {
     const ignoredPaths = await getGitIgnoredPaths(added);
     // remove ignored paths from the added array.
-    added = added.filter(path => !ignoredPaths.includes(path));
+    const filteredAdded = added.filter(path => !ignoredPaths.includes(path));
 
-    if (added.length > 0) {
-      await execFile('git', ['add', '--intent-to-add', ...added]);
+    if (filteredAdded.length > 0) {
+      await execFile('git', ['add', '--intent-to-add', ...filteredAdded]);
     }
   },
 };

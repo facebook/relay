@@ -42,6 +42,7 @@ export type DEPRECATED_MutationConfig<T> = {|
   uploadables?: UploadableMap,
   onCompleted?: ?(response: T, errors: ?Array<PayloadError>) => void,
   onError?: ?(error: Error) => void,
+  onUnsubscribe?: ?() => void,
   optimisticUpdater?: ?SelectorStoreUpdater,
   optimisticResponse?: Object,
   updater?: ?SelectorStoreUpdater,
@@ -61,6 +62,7 @@ export type MutationConfig<T: MutationParameters> = {|
     response: $ElementType<T, 'response'>,
     errors: ?Array<PayloadError>,
   ) => void,
+  onUnsubscribe?: ?() => void,
   optimisticResponse?: $ElementType<
     {
       +rawResponse?: {...},
@@ -96,7 +98,7 @@ function commitMutation<T: MutationParameters>(
     throw new Error('commitMutation: Expected mutation to be of type request');
   }
   let {optimisticResponse, optimisticUpdater, updater} = config;
-  const {configs, onError, variables, uploadables} = config;
+  const {configs, onError, onUnsubscribe, variables, uploadables} = config;
   const operation = createOperationDescriptor(
     mutation,
     variables,
@@ -115,7 +117,7 @@ function commitMutation<T: MutationParameters>(
   }
   if (__DEV__) {
     if (optimisticResponse instanceof Object) {
-      validateMutation(optimisticResponse, mutation, config.variables);
+      validateMutation(optimisticResponse, mutation, variables);
     }
   }
   if (configs) {
@@ -152,6 +154,7 @@ function commitMutation<T: MutationParameters>(
         }
       },
       error: onError,
+      unsubscribe: onUnsubscribe,
     });
   return {dispose: subscription.unsubscribe};
 }

@@ -63,6 +63,35 @@ class BufferedFilesystem implements Filesystem {
     return this.buffer.size > 0;
   }
 
+  getChangesSummary(): string {
+    this._assertNotComitted();
+    const added = [];
+    const updated = [];
+    const removed = [];
+    for (const [path, data] of this.buffer) {
+      if (data == null) {
+        removed.push(path);
+      } else {
+        if (!fs.existsSync(path)) {
+          added.push(path);
+        } else {
+          updated.push(path);
+        }
+      }
+    }
+    return [
+      added.length > 0 ? `Added:\n${added.map(formatFilepath).join('')}` : '',
+      updated.length > 0
+        ? `Updated:\n${updated.map(formatFilepath).join('')}`
+        : '',
+      removed.length > 0
+        ? `Removed:\n${removed.map(formatFilepath).join('')}`
+        : '',
+    ]
+      .filter(Boolean)
+      .join('\n');
+  }
+
   getAddedRemovedFiles(): {|
     +added: $ReadOnlyArray<string>,
     +removed: $ReadOnlyArray<string>,
@@ -154,6 +183,12 @@ class BufferedFilesystem implements Filesystem {
       changed,
     };
   }
+}
+
+function formatFilepath(filepath: string): string {
+  const startIndex = filepath.length - 80;
+  const prefix = startIndex > 0 ? `\t - ${filepath.substr(0, 8)}...` : '\t - ';
+  return prefix + filepath.substr(startIndex, filepath.length) + '\n';
 }
 
 module.exports = BufferedFilesystem;

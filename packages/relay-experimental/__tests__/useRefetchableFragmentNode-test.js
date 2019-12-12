@@ -318,7 +318,7 @@ describe('useRefetchableFragmentNode', () => {
   });
 
   describe('initial render', () => {
-    // The bulk of initial render behavior is covered in useFragmentNodes-test,
+    // The bulk of initial render behavior is covered in useFragmentNode-test,
     // so this suite covers the basic cases as a sanity check.
     it('should throw error if fragment is plural', () => {
       jest.spyOn(console, 'error').mockImplementationOnce(() => {});

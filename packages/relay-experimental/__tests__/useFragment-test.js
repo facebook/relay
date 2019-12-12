@@ -238,9 +238,6 @@ describe('useFragment', () => {
     renderSpy.mockClear();
   });
 
-  // These tests are only a sanity check for useFragment as a wrapper
-  // around useFragmentNodes
-  // See full test behavior in useFragmentNodes-test.
   it('should render singular fragment without error when data is available', () => {
     renderSingularFragment();
     assertFragmentResults({

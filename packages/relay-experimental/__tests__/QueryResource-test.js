@@ -175,7 +175,9 @@ describe('QueryResource', () => {
         });
 
         it('should suspend and send a network request if data for query is cached but stale', () => {
-          store.invalidate();
+          environment.commitUpdate(storeProxy => {
+            storeProxy.invalidateStore();
+          });
           expect(environment.check(query)).toEqual('stale');
 
           let thrown = false;
@@ -502,7 +504,9 @@ describe('QueryResource', () => {
               },
             );
 
-            store.invalidate();
+            environment.commitUpdate(storeProxy => {
+              storeProxy.invalidateStore();
+            });
             expect(environment.check(queryWithFragments)).toEqual('stale');
 
             let thrown = false;
@@ -1098,7 +1102,9 @@ describe('QueryResource', () => {
         });
 
         it('should suspend and send a network request if data for query is cached but stale', () => {
-          store.invalidate();
+          environment.commitUpdate(storeProxy => {
+            storeProxy.invalidateStore();
+          });
           expect(environment.check(query)).toEqual('stale');
 
           let thrown = false;
@@ -1561,7 +1567,9 @@ describe('QueryResource', () => {
         });
 
         it('should suspend and send a network request if data for query is cached but stale', () => {
-          store.invalidate();
+          environment.commitUpdate(storeProxy => {
+            storeProxy.invalidateStore();
+          });
           expect(environment.check(query)).toEqual('stale');
 
           let thrown = false;
@@ -1944,7 +1952,9 @@ describe('QueryResource', () => {
         });
 
         it('should not send a network request if data for query is cached but stale', () => {
-          store.invalidate();
+          environment.commitUpdate(storeProxy => {
+            storeProxy.invalidateStore();
+          });
           expect(environment.check(query)).toEqual('stale');
 
           const result = QueryResource.prepare(

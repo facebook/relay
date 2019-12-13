@@ -71,7 +71,9 @@ describe('check() with global invalidation', () => {
 
   describe('when store is invalidated before query has ever been written to the store', () => {
     it('returns available after receiving query from the server', () => {
-      store.invalidate();
+      environment.commitUpdate(storeProxy => {
+        storeProxy.invalidateStore();
+      });
 
       environment.retain(operation);
       environment.execute({operation}).subscribe(callbacks);
@@ -95,7 +97,9 @@ describe('check() with global invalidation', () => {
     });
 
     it('returns missing if some data is missing after receiving query from the server', () => {
-      store.invalidate();
+      environment.commitUpdate(storeProxy => {
+        storeProxy.invalidateStore();
+      });
 
       environment.retain(operation);
       environment.execute({operation}).subscribe(callbacks);
@@ -139,7 +143,9 @@ describe('check() with global invalidation', () => {
       dataSource.complete();
       jest.runAllTimers();
 
-      store.invalidate();
+      environment.commitUpdate(storeProxy => {
+        storeProxy.invalidateStore();
+      });
 
       // Should return stale even if all data is cached since
       // store was invalidated after query completed
@@ -165,7 +171,9 @@ describe('check() with global invalidation', () => {
       dataSource.complete();
       jest.runAllTimers();
 
-      store.invalidate();
+      environment.commitUpdate(storeProxy => {
+        storeProxy.invalidateStore();
+      });
 
       expect(environment.check(operation)).toBe('stale');
     });
@@ -191,7 +199,9 @@ describe('check() with global invalidation', () => {
       dataSource.complete();
       jest.runAllTimers();
 
-      store.invalidate();
+      environment.commitUpdate(storeProxy => {
+        storeProxy.invalidateStore();
+      });
 
       // Expect data to not be available after invalidation
       expect(environment.check(operation)).toBe('stale');
@@ -236,7 +246,9 @@ describe('check() with global invalidation', () => {
       dataSource.complete();
       jest.runAllTimers();
 
-      store.invalidate();
+      environment.commitUpdate(storeProxy => {
+        storeProxy.invalidateStore();
+      });
 
       // Expect data to not be available after invalidation
       expect(environment.check(operation)).toBe('stale');
@@ -284,7 +296,9 @@ describe('check() with global invalidation', () => {
 
     describe('when store is invalidated before query has been written to the store', () => {
       it('returns available after receiving payloads from the server', () => {
-        store.invalidate();
+        environment.commitUpdate(storeProxy => {
+          storeProxy.invalidateStore();
+        });
 
         environment.retain(operation);
         environment.execute({operation}).subscribe(callbacks);
@@ -323,7 +337,9 @@ describe('check() with global invalidation', () => {
       });
 
       it('returns missing after receiving payloads from the server if data is still missing', () => {
-        store.invalidate();
+        environment.commitUpdate(storeProxy => {
+          storeProxy.invalidateStore();
+        });
 
         environment.retain(operation);
         environment.execute({operation}).subscribe(callbacks);
@@ -383,7 +399,9 @@ describe('check() with global invalidation', () => {
         expect(environment.check(operation)).toBe('missing');
 
         // Invalidate the store in between incremental payloads
-        store.invalidate();
+        environment.commitUpdate(storeProxy => {
+          storeProxy.invalidateStore();
+        });
 
         dataSource.next({
           data: {
@@ -424,7 +442,9 @@ describe('check() with global invalidation', () => {
         expect(environment.check(operation)).toBe('missing');
 
         // Invalidate the store in between incremental payloads
-        store.invalidate();
+        environment.commitUpdate(storeProxy => {
+          storeProxy.invalidateStore();
+        });
 
         dataSource.next({
           data: {
@@ -479,7 +499,9 @@ describe('check() with global invalidation', () => {
         jest.runAllTimers();
 
         // Invalidate the store after query has completed
-        store.invalidate();
+        environment.commitUpdate(storeProxy => {
+          storeProxy.invalidateStore();
+        });
 
         // Should return stale even if all data is cached since
         // store was invalidated after query completed
@@ -520,7 +542,9 @@ describe('check() with global invalidation', () => {
         jest.runAllTimers();
 
         // Invalidate the store after query has completed
-        store.invalidate();
+        environment.commitUpdate(storeProxy => {
+          storeProxy.invalidateStore();
+        });
 
         expect(environment.check(operation)).toBe('stale');
       });

@@ -46,6 +46,7 @@ import type {
   ConnectionResolver,
   ConnectionSnapshot,
 } from './RelayConnection';
+import type {InvalidationState} from './RelayModernStore';
 import type RelayOperationTracker from './RelayOperationTracker';
 import type {RecordState} from './RelayRecordState';
 
@@ -215,6 +216,8 @@ export type CheckOptions = {|
 
 export type OperationAvailability = 'available' | 'stale' | 'missing';
 
+export type {InvalidationState} from './RelayModernStore';
+
 /**
  * An interface for keeping multiple views of data consistent across an
  * application.
@@ -269,11 +272,6 @@ export interface Store {
   retain(operation: OperationDescriptor): Disposable;
 
   /**
-   * Globally invalidates the store.
-   */
-  invalidate(): void;
-
-  /**
    * Subscribe to changes to the results of a selector. The callback is called
    * when `notify()` is called *and* records have been published that affect the
    * selector results relative to the last `notify()`.
@@ -317,6 +315,33 @@ export interface Store {
    * Reset the state of the store to the point that snapshot() was last called.
    */
   restore(): void;
+
+  /**
+   * Will return an opaque snapshot of the current invalidation state of
+   * the data ids that were provided.
+   */
+  lookupInvalidationState(dataIDs: $ReadOnlyArray<DataID>): InvalidationState;
+
+  /**
+   * Given the previous invalidation state for those
+   * ids, this function will return:
+   *   - false, if the invalidation state for those ids is the same, meaning
+   *     **it has not changed**
+   *   - true, if the invalidation state for the given ids has changed
+   */
+  checkInvalidationState(previousInvalidationState: InvalidationState): boolean;
+
+  /**
+   * Will subscribe the provided callback to the invalidation state of the
+   * given data ids. Whenever the invalidation state for any of the provided
+   * ids changes, the callback will be called, and provide the latest
+   * invalidation state.
+   * Disposing of the returned disposable will remove the subscription.
+   */
+  subscribeToInvalidationState(
+    invalidationState: InvalidationState,
+    callback: () => void,
+  ): Disposable;
 
   lookupConnection_UNSTABLE<TEdge, TState>(
     connectionReference: ConnectionReference<TEdge>,

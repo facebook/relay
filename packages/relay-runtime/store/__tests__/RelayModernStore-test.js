@@ -1032,7 +1032,9 @@ function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
       describe('with global store invalidation', () => {
         describe("when query hasn't been written to the store before", () => {
           it('returns stale if data is cached and store has been invalidated', () => {
-            store.invalidate();
+            environment.commitUpdate(storeProxy => {
+              storeProxy.invalidateStore();
+            });
             const operation = createOperationDescriptor(UserQuery, {
               id: '4',
               size: 32,
@@ -1041,7 +1043,9 @@ function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
           });
 
           it('returns stale if data is not cached and store has been invalidated', () => {
-            store.invalidate();
+            environment.commitUpdate(storeProxy => {
+              storeProxy.invalidateStore();
+            });
             const operation = createOperationDescriptor(UserQuery, {
               id: '842472',
               size: 32,
@@ -1062,12 +1066,16 @@ function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
             store.publish(source);
             store.notify(operation);
 
-            store.invalidate();
+            environment.commitUpdate(storeProxy => {
+              storeProxy.invalidateStore();
+            });
             expect(store.check(operation)).toBe('stale');
           });
 
           it('returns available if data is cached and store was invalidated before query was written', () => {
-            store.invalidate();
+            environment.commitUpdate(storeProxy => {
+              storeProxy.invalidateStore();
+            });
             const operation = createOperationDescriptor(UserQuery, {
               id: '4',
               size: 32,
@@ -1092,12 +1100,16 @@ function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
             store.publish(source);
             store.notify(operation);
 
-            store.invalidate();
+            environment.commitUpdate(storeProxy => {
+              storeProxy.invalidateStore();
+            });
             expect(store.check(operation)).toBe('stale');
           });
 
           it('returns missing if data is not cached and store was invalidated before query was written', () => {
-            store.invalidate();
+            environment.commitUpdate(storeProxy => {
+              storeProxy.invalidateStore();
+            });
             const operation = createOperationDescriptor(UserQuery, {
               id: '842472',
               size: 32,
@@ -1265,6 +1277,446 @@ function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
 
             expect(store.check(operation)).toBe('missing');
           });
+        });
+      });
+    });
+
+    describe('invalidation state', () => {
+      let UserQuery;
+      let data;
+      let source;
+      let store;
+      let environment;
+
+      beforeEach(() => {
+        data = {
+          '4': {
+            __id: '4',
+            id: '4',
+            __typename: 'User',
+            name: 'Zuck',
+            'profilePicture(size:32)': {[REF_KEY]: 'client:1'},
+          },
+          '5': {
+            __id: '5',
+            id: '5',
+            __typename: 'User',
+            name: 'Someone',
+            'profilePicture(size:32)': {[REF_KEY]: 'client:2'},
+          },
+          'client:1': {
+            __id: 'client:1',
+            uri: 'https://photo1.jpg',
+          },
+          'client:2': {
+            __id: 'client:2',
+            uri: 'https://photo2.jpg',
+          },
+          'client:root': {
+            __id: 'client:root',
+            __typename: '__Root',
+            'node(id:"4")': {__ref: '4'},
+          },
+        };
+        source = getRecordSourceImplementation(data);
+        store = new RelayModernStore(source);
+        ({UserQuery} = generateAndCompile(`
+          fragment UserFragment on User {
+            name
+            profilePicture(size: $size) {
+              uri
+            }
+          }
+
+          query UserQuery($id: ID!, $size: [Int]) {
+            node(id: $id) {
+              ...UserFragment
+            }
+          }
+        `));
+        environment = createMockEnvironment({store});
+      });
+
+      describe('lookupInvalidationState() / checkInvalidationState()', () => {
+        const dataIDs = ['4', 'client:1'];
+
+        it('returns false if the provided ids have not been invalidated', () => {
+          const invalidationState = store.lookupInvalidationState(dataIDs);
+          expect(store.checkInvalidationState(invalidationState)).toBe(false);
+        });
+
+        it('returns false if the provided ids have not been invalidated regardless of order of ids', () => {
+          const invalidationState1 = store.lookupInvalidationState(dataIDs);
+          const invalidationState2 = store.lookupInvalidationState(
+            dataIDs.reverse(),
+          );
+          expect(store.checkInvalidationState(invalidationState1)).toBe(false);
+          expect(store.checkInvalidationState(invalidationState2)).toBe(false);
+        });
+
+        it('returns true if the store was globally invalidated', () => {
+          const invalidationState = store.lookupInvalidationState(dataIDs);
+          environment.commitUpdate(storeProxy => {
+            storeProxy.invalidateStore();
+          });
+          expect(store.checkInvalidationState(invalidationState)).toBe(true);
+        });
+
+        it('returns true if some of the provided ids were invalidated', () => {
+          const invalidationState = store.lookupInvalidationState(dataIDs);
+          environment.commitUpdate(storeProxy => {
+            const user = storeProxy.get('4');
+            if (!user) {
+              throw new Error('Expected to find record with id "4"');
+            }
+            user.invalidateRecord();
+          });
+          expect(store.checkInvalidationState(invalidationState)).toBe(true);
+        });
+
+        it('returns true if some of the provided ids were invalidated regardless of order of ids', () => {
+          const invalidationState1 = store.lookupInvalidationState(dataIDs);
+          const invalidationState2 = store.lookupInvalidationState(
+            dataIDs.reverse(),
+          );
+          environment.commitUpdate(storeProxy => {
+            const user = storeProxy.get('4');
+            if (!user) {
+              throw new Error('Expected to find record with id "4"');
+            }
+            user.invalidateRecord();
+          });
+          expect(store.checkInvalidationState(invalidationState1)).toBe(true);
+          expect(store.checkInvalidationState(invalidationState2)).toBe(true);
+        });
+
+        it('returns true if multiple ids were invalidated in separate updates', () => {
+          const invalidationState = store.lookupInvalidationState(dataIDs);
+          environment.commitUpdate(storeProxy => {
+            const user = storeProxy.get('4');
+            if (!user) {
+              throw new Error('Expected to find record with id "4"');
+            }
+            user.invalidateRecord();
+          });
+          expect(store.checkInvalidationState(invalidationState)).toBe(true);
+
+          const nextInvalidationState = store.lookupInvalidationState(dataIDs);
+          environment.commitUpdate(storeProxy => {
+            const record = storeProxy.get('client:1');
+            if (!record) {
+              throw new Error('Expected to find record with id "client:1"');
+            }
+            record.invalidateRecord();
+          });
+          expect(store.checkInvalidationState(nextInvalidationState)).toBe(
+            true,
+          );
+        });
+
+        it('returns true if multiple ids were invalidated in the same update', () => {
+          const invalidationState = store.lookupInvalidationState(dataIDs);
+          environment.commitUpdate(storeProxy => {
+            const user = storeProxy.get('4');
+            if (!user) {
+              throw new Error('Expected to find record with id "4"');
+            }
+            user.invalidateRecord();
+
+            const record = storeProxy.get('client:1');
+            if (!record) {
+              throw new Error('Expected to find record with id "client:1"');
+            }
+            record.invalidateRecord();
+          });
+
+          expect(store.checkInvalidationState(invalidationState)).toBe(true);
+        });
+
+        it('returns true if both store and individual records were invalidated in separate updates', () => {
+          const invalidationState = store.lookupInvalidationState(dataIDs);
+          environment.commitUpdate(storeProxy => {
+            storeProxy.invalidateStore();
+          });
+          expect(store.checkInvalidationState(invalidationState)).toBe(true);
+
+          let nextInvalidationState = store.lookupInvalidationState(dataIDs);
+          environment.commitUpdate(storeProxy => {
+            const user = storeProxy.get('4');
+            if (!user) {
+              throw new Error('Expected to find record with id "4"');
+            }
+            user.invalidateRecord();
+          });
+          expect(store.checkInvalidationState(nextInvalidationState)).toBe(
+            true,
+          );
+
+          nextInvalidationState = store.lookupInvalidationState(dataIDs);
+          environment.commitUpdate(storeProxy => {
+            const record = storeProxy.get('client:1');
+            if (!record) {
+              throw new Error('Expected to find record with id "client:1"');
+            }
+            record.invalidateRecord();
+          });
+          expect(store.checkInvalidationState(nextInvalidationState)).toBe(
+            true,
+          );
+        });
+
+        it('returns true if both store and individual records were invalidated in the same update', () => {
+          const invalidationState = store.lookupInvalidationState(dataIDs);
+          environment.commitUpdate(storeProxy => {
+            storeProxy.invalidateStore();
+
+            const user = storeProxy.get('4');
+            if (!user) {
+              throw new Error('Expected to find record with id "4"');
+            }
+            user.invalidateRecord();
+
+            const record = storeProxy.get('client:1');
+            if (!record) {
+              throw new Error('Expected to find record with id "client:1"');
+            }
+            record.invalidateRecord();
+          });
+          expect(store.checkInvalidationState(invalidationState)).toBe(true);
+        });
+      });
+
+      describe('lookupInvalidationState() / subscribeToInvalidationState()', () => {
+        let callback;
+        const dataIDs = ['4', 'client:1'];
+
+        beforeEach(() => {
+          callback = jest.fn();
+        });
+
+        it('notifies when invalidation state changes due to global invalidation', () => {
+          const invalidationState = store.lookupInvalidationState(dataIDs);
+          store.subscribeToInvalidationState(invalidationState, callback);
+
+          environment.commitUpdate(storeProxy => {
+            storeProxy.invalidateStore();
+          });
+
+          expect(callback).toHaveBeenCalledTimes(1);
+          expect(store.checkInvalidationState(invalidationState)).toEqual(true);
+        });
+
+        it('notifies when invalidation state changes due to invalidating one of the provided ids', () => {
+          const invalidationState = store.lookupInvalidationState(dataIDs);
+          store.subscribeToInvalidationState(invalidationState, callback);
+
+          environment.commitUpdate(storeProxy => {
+            const user = storeProxy.get('4');
+            if (!user) {
+              throw new Error('Expected to find record with id "4"');
+            }
+            user.invalidateRecord();
+          });
+
+          expect(callback).toHaveBeenCalledTimes(1);
+          expect(store.checkInvalidationState(invalidationState)).toEqual(true);
+        });
+
+        it('notifies once when invalidating multiple affected records in the same update', () => {
+          const invalidationState = store.lookupInvalidationState(dataIDs);
+          store.subscribeToInvalidationState(invalidationState, callback);
+          environment.commitUpdate(storeProxy => {
+            const user = storeProxy.get('4');
+            if (!user) {
+              throw new Error('Expected to find record with id "4"');
+            }
+            user.invalidateRecord();
+
+            const record = storeProxy.get('client:1');
+            if (!record) {
+              throw new Error('Expected to find record with id "client:1"');
+            }
+            record.invalidateRecord();
+          });
+
+          expect(callback).toHaveBeenCalledTimes(1);
+          expect(store.checkInvalidationState(invalidationState)).toEqual(true);
+        });
+
+        it('notifies once per update when multiple affected records invalidated', () => {
+          let invalidationState = store.lookupInvalidationState(dataIDs);
+          store.subscribeToInvalidationState(invalidationState, callback);
+          environment.commitUpdate(storeProxy => {
+            const user = storeProxy.get('4');
+            if (!user) {
+              throw new Error('Expected to find record with id "4"');
+            }
+            user.invalidateRecord();
+          });
+          expect(callback).toHaveBeenCalledTimes(1);
+          expect(store.checkInvalidationState(invalidationState)).toEqual(true);
+
+          invalidationState = store.lookupInvalidationState(dataIDs);
+          environment.commitUpdate(storeProxy => {
+            const record = storeProxy.get('client:1');
+            if (!record) {
+              throw new Error('Expected to find record with id "client:1"');
+            }
+            record.invalidateRecord();
+          });
+
+          expect(callback).toHaveBeenCalledTimes(2);
+          expect(store.checkInvalidationState(invalidationState)).toEqual(true);
+        });
+
+        it('notifies once when invalidation state changes due to both global and local invalidation in a single update', () => {
+          const invalidationState = store.lookupInvalidationState(dataIDs);
+          store.subscribeToInvalidationState(invalidationState, callback);
+          environment.commitUpdate(storeProxy => {
+            storeProxy.invalidateStore();
+
+            const user = storeProxy.get('4');
+            if (!user) {
+              throw new Error('Expected to find record with id "4"');
+            }
+            user.invalidateRecord();
+
+            const record = storeProxy.get('client:1');
+            if (!record) {
+              throw new Error('Expected to find record with id "client:1"');
+            }
+            record.invalidateRecord();
+          });
+
+          expect(callback).toHaveBeenCalledTimes(1);
+          expect(store.checkInvalidationState(invalidationState)).toEqual(true);
+        });
+
+        it('notifies once per update when invalidation state changes due to both global and local invalidation in multiple', () => {
+          let invalidationState = store.lookupInvalidationState(dataIDs);
+          store.subscribeToInvalidationState(invalidationState, callback);
+          environment.commitUpdate(storeProxy => {
+            storeProxy.invalidateStore();
+          });
+          expect(callback).toHaveBeenCalledTimes(1);
+          expect(store.checkInvalidationState(invalidationState)).toEqual(true);
+
+          invalidationState = store.lookupInvalidationState(dataIDs);
+          environment.commitUpdate(storeProxy => {
+            const user = storeProxy.get('4');
+            if (!user) {
+              throw new Error('Expected to find record with id "4"');
+            }
+            user.invalidateRecord();
+          });
+          expect(callback).toHaveBeenCalledTimes(2);
+          expect(store.checkInvalidationState(invalidationState)).toEqual(true);
+
+          invalidationState = store.lookupInvalidationState(dataIDs);
+          environment.commitUpdate(storeProxy => {
+            const record = storeProxy.get('client:1');
+            if (!record) {
+              throw new Error('Expected to find record with id "client:1"');
+            }
+            record.invalidateRecord();
+          });
+
+          expect(callback).toHaveBeenCalledTimes(3);
+          expect(store.checkInvalidationState(invalidationState)).toEqual(true);
+        });
+
+        it('does not notify if invalidated ids do not affect subscription', () => {
+          const invalidationState = store.lookupInvalidationState(dataIDs);
+          store.subscribeToInvalidationState(invalidationState, callback);
+          environment.commitUpdate(storeProxy => {
+            const user = storeProxy.get('5');
+            if (!user) {
+              throw new Error('Expected to find record with id "5"');
+            }
+            user.invalidateRecord();
+          });
+          expect(callback).toHaveBeenCalledTimes(0);
+          expect(store.checkInvalidationState(invalidationState)).toEqual(
+            false,
+          );
+        });
+
+        it('does not notify if subscription has been disposed of', () => {
+          const invalidationState = store.lookupInvalidationState(dataIDs);
+          const disposable = store.subscribeToInvalidationState(
+            invalidationState,
+            callback,
+          );
+
+          disposable.dispose();
+          environment.commitUpdate(storeProxy => {
+            storeProxy.invalidateStore();
+          });
+          expect(callback).toHaveBeenCalledTimes(0);
+
+          // Even though subscription wasn't notified, the record is
+          // now invalid
+          expect(store.checkInvalidationState(invalidationState)).toEqual(true);
+        });
+
+        it('does not notify if record was deleted', () => {
+          const invalidationState = store.lookupInvalidationState(dataIDs);
+          store.subscribeToInvalidationState(invalidationState, callback);
+
+          environment.commitUpdate(storeProxy => {
+            storeProxy.delete('4');
+          });
+          expect(callback).toHaveBeenCalledTimes(0);
+          expect(store.checkInvalidationState(invalidationState)).toEqual(
+            false,
+          );
+        });
+
+        it('notifes correctly if record was deleted and then re-added', () => {
+          const invalidationState = store.lookupInvalidationState(dataIDs);
+          store.subscribeToInvalidationState(invalidationState, callback);
+
+          environment.commitUpdate(storeProxy => {
+            const user = storeProxy.get('4');
+            if (!user) {
+              throw new Error('Expected to find record with id "4"');
+            }
+            user.invalidateRecord();
+          });
+          expect(callback).toHaveBeenCalledTimes(1);
+
+          callback.mockClear();
+          environment.commitUpdate(storeProxy => {
+            storeProxy.delete('4');
+          });
+          expect(callback).toHaveBeenCalledTimes(0);
+          expect(store.checkInvalidationState(invalidationState)).toEqual(
+            false,
+          );
+
+          environment.commitUpdate(storeProxy => {
+            const user = storeProxy.create('4', 'User');
+            user.invalidateRecord();
+          });
+          expect(callback).toHaveBeenCalledTimes(1);
+        });
+
+        it('does not notify if record was invalidated and deleted in same update', () => {
+          const invalidationState = store.lookupInvalidationState(dataIDs);
+          store.subscribeToInvalidationState(invalidationState, callback);
+
+          environment.commitUpdate(storeProxy => {
+            const user = storeProxy.get('4');
+            if (!user) {
+              throw new Error('Expected to find record with id "4"');
+            }
+            user.invalidateRecord();
+            storeProxy.delete('4');
+          });
+          expect(callback).toHaveBeenCalledTimes(0);
+          expect(store.checkInvalidationState(invalidationState)).toEqual(
+            false,
+          );
         });
       });
     });

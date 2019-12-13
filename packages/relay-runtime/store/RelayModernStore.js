@@ -56,6 +56,11 @@ import type {
   UpdatedRecords,
 } from './RelayStoreTypes';
 
+export opaque type InvalidationState = {|
+  dataIDs: $ReadOnlyArray<DataID>,
+  invalidations: Map<DataID, ?number>,
+|};
+
 type Subscription = {
   callback: (snapshot: Snapshot) => void,
   snapshot: Snapshot,
@@ -63,6 +68,11 @@ type Subscription = {
   backup: ?Snapshot,
   ...
 };
+
+type InvalidationSubscription = {|
+  callback: () => void,
+  invalidationState: InvalidationState,
+|};
 
 type UpdatedConnections = {[ConnectionID]: boolean, ...};
 type ConnectionEvents = {|
@@ -103,6 +113,8 @@ class RelayModernStore implements Store {
   _globalInvalidationEpoch: ?number;
   _hasScheduledGC: boolean;
   _index: number;
+  _invalidationSubscriptions: Set<InvalidationSubscription>;
+  _invalidatedRecordIDs: Set<DataID>;
   _operationLoader: ?OperationLoader;
   _operationWriteEpochs: Map<string, number>;
   _optimisticSource: ?MutableRecordSource;
@@ -148,6 +160,8 @@ class RelayModernStore implements Store {
     this._globalInvalidationEpoch = null;
     this._hasScheduledGC = false;
     this._index = 0;
+    this._invalidationSubscriptions = new Set();
+    this._invalidatedRecordIDs = new Set();
     this._operationLoader = options?.operationLoader ?? null;
     this._optimisticSource = null;
     this._recordSource = source;
@@ -279,6 +293,10 @@ class RelayModernStore implements Store {
     // a set of changes to the store.
     this._currentWriteEpoch++;
 
+    if (invalidateStore === true) {
+      this._globalInvalidationEpoch = this._currentWriteEpoch;
+    }
+
     const source = this.getSource();
     const updatedOwners = [];
     this._subscriptions.forEach(subscription => {
@@ -286,6 +304,12 @@ class RelayModernStore implements Store {
       if (owner != null) {
         updatedOwners.push(owner);
       }
+    });
+    this._invalidationSubscriptions.forEach(subscription => {
+      this._updateInvalidationSubscription(
+        subscription,
+        invalidateStore === true,
+      );
     });
     this._connectionSubscriptions.forEach((subscription, id) => {
       if (subscription.stale) {
@@ -295,6 +319,7 @@ class RelayModernStore implements Store {
     });
     this._updatedConnectionIDs = {};
     this._updatedRecordIDs = {};
+    this._invalidatedRecordIDs.clear();
 
     // If a source operation was provided (indicating the operation
     // that produced this update to the store), record the current epoch
@@ -312,10 +337,6 @@ class RelayModernStore implements Store {
       }
     }
 
-    if (invalidateStore === true) {
-      this.invalidate();
-    }
-
     return updatedOwners;
   }
 
@@ -328,8 +349,9 @@ class RelayModernStore implements Store {
       // in notify(). Here, we pass what will be the incremented value of
       // the epoch to use to write to invalidated records.
       this._currentWriteEpoch + 1,
-      this._updatedRecordIDs,
       idsMarkedForInvalidation,
+      this._updatedRecordIDs,
+      this._invalidatedRecordIDs,
     );
 
     this._connectionSubscriptions.forEach((subscription, id) => {
@@ -351,10 +373,6 @@ class RelayModernStore implements Store {
         subscription.stale = true;
       }
     });
-  }
-
-  invalidate() {
-    this._globalInvalidationEpoch = this._currentWriteEpoch;
   }
 
   subscribe(
@@ -426,6 +444,73 @@ class RelayModernStore implements Store {
       callback(nextSnapshot);
       return snapshot.selector.owner;
     }
+  }
+
+  lookupInvalidationState(dataIDs: $ReadOnlyArray<DataID>): InvalidationState {
+    const invalidations = new Map();
+    dataIDs.forEach(dataID => {
+      const record = this.getSource().get(dataID);
+      invalidations.set(
+        dataID,
+        RelayModernRecord.getInvalidationEpoch(record) ?? null,
+      );
+    });
+    invalidations.set('global', this._globalInvalidationEpoch);
+    return {
+      dataIDs,
+      invalidations,
+    };
+  }
+
+  checkInvalidationState(prevInvalidationState: InvalidationState): boolean {
+    const latestInvalidationState = this.lookupInvalidationState(
+      prevInvalidationState.dataIDs,
+    );
+    const currentInvalidations = latestInvalidationState.invalidations;
+    const prevInvalidations = prevInvalidationState.invalidations;
+
+    // Check if global invalidation has changed
+    if (
+      currentInvalidations.get('global') !== prevInvalidations.get('global')
+    ) {
+      return true;
+    }
+
+    // Check if the invalidation state for any of the ids has changed.
+    for (const dataID of prevInvalidationState.dataIDs) {
+      if (currentInvalidations.get(dataID) !== prevInvalidations.get(dataID)) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  subscribeToInvalidationState(
+    invalidationState: InvalidationState,
+    callback: () => void,
+  ): Disposable {
+    const subscription = {callback, invalidationState};
+    const dispose = () => {
+      this._invalidationSubscriptions.delete(subscription);
+    };
+    this._invalidationSubscriptions.add(subscription);
+    return {dispose};
+  }
+
+  _updateInvalidationSubscription(
+    subscription: InvalidationSubscription,
+    invalidatedStore: boolean,
+  ) {
+    const {callback, invalidationState} = subscription;
+    const {dataIDs} = invalidationState;
+    const isSubscribedToInvalidatedIDs =
+      invalidatedStore ||
+      dataIDs.some(dataID => this._invalidatedRecordIDs.has(dataID));
+    if (!isSubscribedToInvalidatedIDs) {
+      return;
+    }
+    callback();
   }
 
   lookupConnection_UNSTABLE<TEdge, TState>(
@@ -865,8 +950,9 @@ function updateTargetFromSource(
   target: MutableRecordSource,
   source: RecordSource,
   currentWriteEpoch: number,
-  updatedRecordIDs: UpdatedRecords,
   idsMarkedForInvalidation: ?Set<DataID>,
+  updatedRecordIDs: UpdatedRecords,
+  invalidatedRecordIDs: Set<DataID>,
 ): void {
   // First, update any records that were marked for invalidation.
   // For each provided dataID that was invalidated, we write the
@@ -875,11 +961,27 @@ function updateTargetFromSource(
   if (idsMarkedForInvalidation) {
     idsMarkedForInvalidation.forEach(dataID => {
       const targetRecord = target.get(dataID);
+      const sourceRecord = source.get(dataID);
+
+      // If record was deleted during the update (and also invalidated),
+      // we don't need to count it as an invalidated id
+      if (sourceRecord === null) {
+        return;
+      }
+
       let nextRecord;
       if (targetRecord != null) {
+        // If the target record exists, use it to set the epoch
+        // at which it was invalidated. This record will be updated with
+        // any changes from source in the section below
+        // where we update the target records based on the source.
         nextRecord = RelayModernRecord.clone(targetRecord);
       } else {
-        const sourceRecord = source.get(dataID);
+        // If the target record doesn't exist, it means that a new record
+        // in the source was created (and also invalidated), so we use that
+        // record to set the epoch at which it was invalidated. This record
+        // will be updated with any changes from source in the section below
+        // where we update the target records based on the source.
         nextRecord =
           sourceRecord != null ? RelayModernRecord.clone(sourceRecord) : null;
       }
@@ -891,10 +993,12 @@ function updateTargetFromSource(
         RelayStoreUtils.INVALIDATED_AT_KEY,
         currentWriteEpoch,
       );
+      invalidatedRecordIDs.add(dataID);
       target.set(dataID, nextRecord);
     });
   }
 
+  // Update the target based on the changes present in source
   const dataIDs = source.getRecordIDs();
   for (let ii = 0; ii < dataIDs.length; ii++) {
     const dataID = dataIDs[ii];

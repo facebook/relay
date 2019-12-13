@@ -42,11 +42,15 @@ import type {
   MissingFieldHandler,
   MutableRecordSource,
   NormalizationSelector,
-  OperationAvailability,
   OperationLoader,
   Record,
   RecordSource,
 } from './RelayStoreTypes';
+
+export type Availability = {|
+  +status: 'available' | 'missing',
+  +mostRecentlyInvalidatedAt: ?number,
+|};
 
 const {
   CONDITION,
@@ -84,10 +88,9 @@ function check(
   selector: NormalizationSelector,
   handlers: $ReadOnlyArray<MissingFieldHandler>,
   operationLoader: ?OperationLoader,
-  operationLastWrittenAt: ?number,
   getDataID: GetDataID,
   getConnectionEvents: GetConnectionEvents,
-): OperationAvailability {
+): Availability {
   const {dataID, node, variables} = selector;
   const checker = new DataChecker(
     source,
@@ -95,7 +98,6 @@ function check(
     variables,
     handlers,
     operationLoader,
-    operationLastWrittenAt,
     getDataID,
     getConnectionEvents,
   );
@@ -108,12 +110,12 @@ function check(
 class DataChecker {
   _getConnectionEvents: GetConnectionEvents;
   _handlers: $ReadOnlyArray<MissingFieldHandler>;
+  _mostRecentlyInvalidatedAt: number | null;
   _mutator: RelayRecordSourceMutator;
   _operationLoader: OperationLoader | null;
   _operationLastWrittenAt: ?number;
   _recordSourceProxy: RelayRecordSourceProxy;
   _recordWasMissing: boolean;
-  _recordWasStale: boolean;
   _source: RecordSource;
   _variables: Variables;
 
@@ -123,7 +125,6 @@ class DataChecker {
     variables: Variables,
     handlers: $ReadOnlyArray<MissingFieldHandler>,
     operationLoader: ?OperationLoader,
-    operationLastWrittenAt: ?number,
     getDataID: GetDataID,
     getConnectionEvents: GetConnectionEvents,
   ) {
@@ -133,25 +134,29 @@ class DataChecker {
       target,
       newConnectionEvents,
     );
+    this._mostRecentlyInvalidatedAt = null;
     this._getConnectionEvents = getConnectionEvents;
     this._handlers = handlers;
     this._mutator = mutator;
     this._operationLoader = operationLoader ?? null;
-    this._operationLastWrittenAt = operationLastWrittenAt;
     this._recordSourceProxy = new RelayRecordSourceProxy(mutator, getDataID);
     this._recordWasMissing = false;
-    this._recordWasStale = false;
     this._source = source;
     this._variables = variables;
   }
 
-  check(node: NormalizationNode, dataID: DataID): OperationAvailability {
+  check(node: NormalizationNode, dataID: DataID): Availability {
     this._traverse(node, dataID);
 
-    if (this._recordWasStale === true) {
-      return 'stale';
-    }
-    return this._recordWasMissing === true ? 'missing' : 'available';
+    return this._recordWasMissing === true
+      ? {
+          status: 'missing',
+          mostRecentlyInvalidatedAt: this._mostRecentlyInvalidatedAt,
+        }
+      : {
+          status: 'available',
+          mostRecentlyInvalidatedAt: this._mostRecentlyInvalidatedAt,
+        };
   }
 
   _getVariableValue(name: string): mixed {
@@ -264,13 +269,6 @@ class DataChecker {
   }
 
   _traverse(node: NormalizationNode, dataID: DataID): void {
-    if (this._recordWasStale === true) {
-      // If we've already detected a stale record for this operation,
-      // we don't need to traverse anymore; we can short-circuit the
-      // check and return stale early.
-      return;
-    }
-
     const status = this._mutator.getStatus(dataID);
     if (status === UNKNOWN) {
       this._handleMissing();
@@ -278,16 +276,12 @@ class DataChecker {
 
     if (status === EXISTENT) {
       const record = this._source.get(dataID);
-
-      const isStale = RelayModernRecord.isStale(
-        record,
-        this._operationLastWrittenAt,
-      );
-      if (isStale === true) {
-        // If record is stale, we don't need to continue traversing
-        // since we can already consider the data for this operation as stale.
-        this._recordWasStale = true;
-        return;
+      const invalidatedAt = RelayModernRecord.getInvalidationEpoch(record);
+      if (invalidatedAt != null) {
+        this._mostRecentlyInvalidatedAt =
+          this._mostRecentlyInvalidatedAt != null
+            ? Math.max(this._mostRecentlyInvalidatedAt, invalidatedAt)
+            : invalidatedAt;
       }
 
       this._traverseSelections(node.selections, dataID);

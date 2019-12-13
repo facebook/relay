@@ -208,31 +208,20 @@ function getLinkedRecordIDs(
 /**
  * @public
  *
- * Return whether a record is stale given when the operation it is a part of
- * was last written to the store.
- * The RelayStore keeps track of when operations were last written, which
- * is the information we use here to determine if a record is stale.
+ * Returns the epoch at which the record was invalidated, if it
+ * ever was; otherwise returns null;
  */
-function isStale(record: ?Record, operationLastWrittenAt: ?number): boolean {
+function getInvalidationEpoch(record: ?Record): ?number {
   if (record == null) {
-    return false;
+    return null;
   }
 
   const invalidatedAt = record[INVALIDATED_AT_KEY];
   if (typeof invalidatedAt !== 'number') {
     // If the record has never been invalidated, it isn't stale.
-    return false;
+    return null;
   }
-  if (operationLastWrittenAt == null) {
-    // If we've never written this operation before, we don't have enough
-    // information to know if this record isn't stale since it was invalidated,
-    // so we consider it stale.
-    return true;
-  }
-
-  // If the record was invalidated before the operation we're reading was
-  // last written, we can consider it not stale; otherwise consider it stale.
-  return invalidatedAt > operationLastWrittenAt;
+  return invalidatedAt;
 }
 
 /**
@@ -399,11 +388,11 @@ module.exports = {
   create,
   freeze,
   getDataID,
+  getInvalidationEpoch,
   getLinkedRecordID,
   getLinkedRecordIDs,
   getType,
   getValue,
-  isStale,
   merge,
   setValue,
   setLinkedRecordID,

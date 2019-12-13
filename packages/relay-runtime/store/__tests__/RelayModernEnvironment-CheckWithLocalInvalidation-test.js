@@ -158,7 +158,7 @@ describe('check() with local invalidation', () => {
       expect(environment.check(operation)).toBe('stale');
     });
 
-    it('returns stale if some data is missing', () => {
+    it('returns stale even if some data is missing', () => {
       environment.retain(operation);
       environment.execute({operation}).subscribe(callbacks);
       const payload = {

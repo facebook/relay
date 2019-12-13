@@ -126,11 +126,13 @@ describe('check()', () => {
       createNormalizationSelector(Query.fragment, ROOT_ID, {id: '1', size: 32}),
       [],
       null,
-      null,
       defaultGetDataID,
       getEmptyConnectionEvents,
     );
-    expect(status).toBe('available');
+    expect(status).toEqual({
+      status: 'available',
+      mostRecentlyInvalidatedAt: null,
+    });
     expect(target.size()).toBe(0);
   });
 
@@ -197,11 +199,13 @@ describe('check()', () => {
       createNormalizationSelector(BarFragment, '1', {size: 32}),
       [],
       null,
-      null,
       defaultGetDataID,
       getEmptyConnectionEvents,
     );
-    expect(status).toBe('available');
+    expect(status).toEqual({
+      status: 'available',
+      mostRecentlyInvalidatedAt: null,
+    });
     expect(target.size()).toBe(0);
   });
 
@@ -241,11 +245,13 @@ describe('check()', () => {
       createNormalizationSelector(Fragment, '1', {}),
       [],
       null,
-      null,
       defaultGetDataID,
       getEmptyConnectionEvents,
     );
-    expect(status).toBe('available');
+    expect(status).toEqual({
+      status: 'available',
+      mostRecentlyInvalidatedAt: null,
+    });
     expect(target.size()).toBe(0);
   });
 
@@ -340,7 +346,6 @@ describe('check()', () => {
         }),
         [],
         loader,
-        null,
         defaultGetDataID,
         getEmptyConnectionEvents,
       );
@@ -348,7 +353,10 @@ describe('check()', () => {
       expect(loader.get.mock.calls[0][0]).toBe(
         'PlainUserNameRenderer_name$normalization.graphql',
       );
-      expect(status).toBe('available');
+      expect(status).toEqual({
+        status: 'available',
+        mostRecentlyInvalidatedAt: null,
+      });
       expect(target.size()).toBe(0);
     });
 
@@ -396,11 +404,13 @@ describe('check()', () => {
         }),
         [],
         loader,
-        null,
         defaultGetDataID,
         getEmptyConnectionEvents,
       );
-      expect(status).toBe('available');
+      expect(status).toEqual({
+        status: 'available',
+        mostRecentlyInvalidatedAt: null,
+      });
       expect(target.size()).toBe(0);
     });
 
@@ -444,12 +454,14 @@ describe('check()', () => {
           get: _ => null,
           load: _ => Promise.resolve(null),
         },
-        null,
         defaultGetDataID,
         getEmptyConnectionEvents,
       );
       // The data for the field isn't in the store yet, so we have to return false
-      expect(status).toBe('missing');
+      expect(status).toEqual({
+        status: 'missing',
+        mostRecentlyInvalidatedAt: null,
+      });
       expect(target.size()).toBe(0);
     });
 
@@ -494,12 +506,14 @@ describe('check()', () => {
         }),
         [],
         loader,
-        null,
         defaultGetDataID,
         getEmptyConnectionEvents,
       );
       // The data for the field 'data' isn't in the store yet, so we have to return false
-      expect(status).toBe('missing');
+      expect(status).toEqual({
+        status: 'missing',
+        mostRecentlyInvalidatedAt: null,
+      });
       expect(target.size()).toBe(0);
     });
 
@@ -538,12 +552,14 @@ describe('check()', () => {
         }),
         [],
         loader,
-        null,
         defaultGetDataID,
         getEmptyConnectionEvents,
       );
       // The data for the field 'data' isn't in the store yet, so we have to return false
-      expect(status).toBe('missing');
+      expect(status).toEqual({
+        status: 'missing',
+        mostRecentlyInvalidatedAt: null,
+      });
       expect(target.size()).toBe(0);
     });
 
@@ -580,11 +596,13 @@ describe('check()', () => {
         }),
         [],
         loader,
-        null,
         defaultGetDataID,
         getEmptyConnectionEvents,
       );
-      expect(status).toBe('available');
+      expect(status).toEqual({
+        status: 'available',
+        mostRecentlyInvalidatedAt: null,
+      });
       expect(target.size()).toBe(0);
     });
 
@@ -612,11 +630,13 @@ describe('check()', () => {
         }),
         [],
         loader,
-        null,
         defaultGetDataID,
         getEmptyConnectionEvents,
       );
-      expect(status).toBe('available');
+      expect(status).toEqual({
+        status: 'available',
+        mostRecentlyInvalidatedAt: null,
+      });
       expect(target.size()).toBe(0);
     });
 
@@ -643,11 +663,13 @@ describe('check()', () => {
         }),
         [],
         loader,
-        null,
         defaultGetDataID,
         getEmptyConnectionEvents,
       );
-      expect(status).toBe('missing');
+      expect(status).toEqual({
+        status: 'missing',
+        mostRecentlyInvalidatedAt: null,
+      });
       expect(target.size()).toBe(0);
     });
   });
@@ -741,7 +763,6 @@ describe('check()', () => {
         }),
         [],
         loader,
-        null,
         defaultGetDataID,
         getEmptyConnectionEvents,
       );
@@ -749,7 +770,10 @@ describe('check()', () => {
       expect(loader.get.mock.calls[0][0]).toBe(
         'PlainUserNameRenderer_name$normalization.graphql',
       );
-      expect(status).toBe('available');
+      expect(status).toEqual({
+        status: 'available',
+        mostRecentlyInvalidatedAt: null,
+      });
       expect(target.size()).toBe(0);
     });
 
@@ -795,11 +819,13 @@ describe('check()', () => {
         }),
         [],
         loader,
-        null,
         defaultGetDataID,
         getEmptyConnectionEvents,
       );
-      expect(status).toBe('available');
+      expect(status).toEqual({
+        status: 'available',
+        mostRecentlyInvalidatedAt: null,
+      });
       expect(target.size()).toBe(0);
     });
 
@@ -841,12 +867,14 @@ describe('check()', () => {
           get: _ => null,
           load: _ => Promise.resolve(null),
         },
-        null,
         defaultGetDataID,
         getEmptyConnectionEvents,
       );
       // The data for the field isn't in the store yet, so we have to return false
-      expect(status).toBe('missing');
+      expect(status).toEqual({
+        status: 'missing',
+        mostRecentlyInvalidatedAt: null,
+      });
       expect(target.size()).toBe(0);
     });
 
@@ -889,12 +917,14 @@ describe('check()', () => {
         }),
         [],
         loader,
-        null,
         defaultGetDataID,
         getEmptyConnectionEvents,
       );
       // The data for the field 'data' isn't in the store yet, so we have to return false
-      expect(status).toBe('missing');
+      expect(status).toEqual({
+        status: 'missing',
+        mostRecentlyInvalidatedAt: null,
+      });
       expect(target.size()).toBe(0);
     });
 
@@ -931,12 +961,14 @@ describe('check()', () => {
         }),
         [],
         loader,
-        null,
         defaultGetDataID,
         getEmptyConnectionEvents,
       );
       // The data for the field 'data' isn't in the store yet, so we have to return false
-      expect(status).toBe('missing');
+      expect(status).toEqual({
+        status: 'missing',
+        mostRecentlyInvalidatedAt: null,
+      });
       expect(target.size()).toBe(0);
     });
 
@@ -971,11 +1003,13 @@ describe('check()', () => {
         }),
         [],
         loader,
-        null,
         defaultGetDataID,
         getEmptyConnectionEvents,
       );
-      expect(status).toBe('available');
+      expect(status).toEqual({
+        status: 'available',
+        mostRecentlyInvalidatedAt: null,
+      });
       expect(target.size()).toBe(0);
     });
   });
@@ -1019,11 +1053,13 @@ describe('check()', () => {
         createNormalizationSelector(Query.operation, 'client:root', {id: '1'}),
         [],
         null,
-        null,
         defaultGetDataID,
         getEmptyConnectionEvents,
       );
-      expect(status).toBe('available');
+      expect(status).toEqual({
+        status: 'available',
+        mostRecentlyInvalidatedAt: null,
+      });
       expect(target.size()).toBe(0);
     });
 
@@ -1049,11 +1085,13 @@ describe('check()', () => {
         createNormalizationSelector(Query.operation, 'client:root', {id: '1'}),
         [],
         null,
-        null,
         defaultGetDataID,
         getEmptyConnectionEvents,
       );
-      expect(status).toBe('missing');
+      expect(status).toEqual({
+        status: 'missing',
+        mostRecentlyInvalidatedAt: null,
+      });
       expect(target.size()).toBe(0);
     });
   });
@@ -1105,11 +1143,13 @@ describe('check()', () => {
         createNormalizationSelector(Query.operation, 'client:root', {id: '1'}),
         [],
         null,
-        null,
         defaultGetDataID,
         getEmptyConnectionEvents,
       );
-      expect(status).toBe('available');
+      expect(status).toEqual({
+        status: 'available',
+        mostRecentlyInvalidatedAt: null,
+      });
       expect(target.size()).toBe(0);
     });
 
@@ -1141,11 +1181,13 @@ describe('check()', () => {
         createNormalizationSelector(Query.operation, 'client:root', {id: '1'}),
         [],
         null,
-        null,
         defaultGetDataID,
         getEmptyConnectionEvents,
       );
-      expect(status).toBe('missing');
+      expect(status).toEqual({
+        status: 'missing',
+        mostRecentlyInvalidatedAt: null,
+      });
       expect(target.size()).toBe(0);
     });
   });
@@ -1163,11 +1205,13 @@ describe('check()', () => {
         }),
         [],
         null,
-        null,
         defaultGetDataID,
         getEmptyConnectionEvents,
       );
-      expect(status).toBe('available');
+      expect(status).toEqual({
+        status: 'available',
+        mostRecentlyInvalidatedAt: null,
+      });
       expect(target.size()).toBe(0);
     });
   });
@@ -1203,11 +1247,13 @@ describe('check()', () => {
         createNormalizationSelector(BarFragment, '1', {size: 32}),
         [],
         null,
-        null,
         defaultGetDataID,
         getEmptyConnectionEvents,
       );
-      expect(status).toBe('missing');
+      expect(status).toEqual({
+        status: 'missing',
+        mostRecentlyInvalidatedAt: null,
+      });
       expect(target.size()).toBe(0);
     });
 
@@ -1244,11 +1290,13 @@ describe('check()', () => {
         createNormalizationSelector(BarFragment, '1', {size: 32}),
         [],
         null,
-        null,
         defaultGetDataID,
         getEmptyConnectionEvents,
       );
-      expect(status).toBe('missing');
+      expect(status).toEqual({
+        status: 'missing',
+        mostRecentlyInvalidatedAt: null,
+      });
       expect(target.size()).toBe(0);
     });
 
@@ -1293,11 +1341,13 @@ describe('check()', () => {
           },
         ],
         null,
-        null,
         defaultGetDataID,
         getEmptyConnectionEvents,
       );
-      expect(status).toBe('available');
+      expect(status).toEqual({
+        status: 'available',
+        mostRecentlyInvalidatedAt: null,
+      });
       expect(target.toJSON()).toEqual({
         'client:3': {
           __id: 'client:3',
@@ -1312,7 +1362,7 @@ describe('check()', () => {
         'undefined',
         {
           handleReturnValue: undefined,
-          expectedStatus: 'missing',
+          expectedStatus: {status: 'missing', mostRecentlyInvalidatedAt: null},
           updatedHometown: undefined,
         },
       ],
@@ -1320,7 +1370,7 @@ describe('check()', () => {
         'null',
         {
           handleReturnValue: null,
-          expectedStatus: 'missing',
+          expectedStatus: {status: 'missing', mostRecentlyInvalidatedAt: null},
           updatedHometown: undefined,
         },
       ],
@@ -1328,7 +1378,10 @@ describe('check()', () => {
         "'hometown-exists'",
         {
           handleReturnValue: 'hometown-exists',
-          expectedStatus: 'available',
+          expectedStatus: {
+            status: 'available',
+            mostRecentlyInvalidatedAt: null,
+          },
           updatedHometown: 'hometown-exists',
         },
       ],
@@ -1336,7 +1389,7 @@ describe('check()', () => {
         "'hometown-deleted'",
         {
           handleReturnValue: 'hometown-deleted',
-          expectedStatus: 'missing',
+          expectedStatus: {status: 'missing', mostRecentlyInvalidatedAt: null},
           updatedHometown: undefined,
         },
       ],
@@ -1344,7 +1397,7 @@ describe('check()', () => {
         "'hometown-unknown'",
         {
           handleReturnValue: 'hometown-unknown',
-          expectedStatus: 'missing',
+          expectedStatus: {status: 'missing', mostRecentlyInvalidatedAt: null},
           updatedHometown: undefined,
         },
       ],
@@ -1389,12 +1442,11 @@ describe('check()', () => {
             },
           ],
           null,
-          null,
           defaultGetDataID,
           getEmptyConnectionEvents,
         );
         expect(handle).toBeCalledTimes(1);
-        expect(status).toBe(expectedStatus);
+        expect(status).toEqual(expectedStatus);
         expect(target.toJSON()).toEqual(
           updatedHometown === undefined
             ? {}
@@ -1416,7 +1468,7 @@ describe('check()', () => {
         'undefined',
         {
           handleReturnValue: undefined,
-          expectedStatus: 'missing',
+          expectedStatus: {status: 'missing', mostRecentlyInvalidatedAt: null},
           updatedScreennames: undefined,
         },
       ],
@@ -1424,7 +1476,7 @@ describe('check()', () => {
         'null',
         {
           handleReturnValue: null,
-          expectedStatus: 'missing',
+          expectedStatus: {status: 'missing', mostRecentlyInvalidatedAt: null},
           updatedScreennames: undefined,
         },
       ],
@@ -1432,7 +1484,10 @@ describe('check()', () => {
         '[]',
         {
           handleReturnValue: [],
-          expectedStatus: 'available',
+          expectedStatus: {
+            status: 'available',
+            mostRecentlyInvalidatedAt: null,
+          },
           updatedScreennames: [],
         },
       ],
@@ -1440,7 +1495,7 @@ describe('check()', () => {
         '[undefined]',
         {
           handleReturnValue: [undefined],
-          expectedStatus: 'missing',
+          expectedStatus: {status: 'missing', mostRecentlyInvalidatedAt: null},
           updatedScreennames: undefined,
         },
       ],
@@ -1448,7 +1503,7 @@ describe('check()', () => {
         '[null]',
         {
           handleReturnValue: [null],
-          expectedStatus: 'missing',
+          expectedStatus: {status: 'missing', mostRecentlyInvalidatedAt: null},
           updatedScreennames: undefined,
         },
       ],
@@ -1456,7 +1511,10 @@ describe('check()', () => {
         "['screenname-exists']",
         {
           handleReturnValue: ['screenname-exists'],
-          expectedStatus: 'available',
+          expectedStatus: {
+            status: 'available',
+            mostRecentlyInvalidatedAt: null,
+          },
           updatedScreennames: ['screenname-exists'],
         },
       ],
@@ -1464,7 +1522,7 @@ describe('check()', () => {
         "['screenname-deleted']",
         {
           handleReturnValue: ['screenname-deleted'],
-          expectedStatus: 'missing',
+          expectedStatus: {status: 'missing', mostRecentlyInvalidatedAt: null},
           updatedScreennames: undefined,
         },
       ],
@@ -1472,7 +1530,7 @@ describe('check()', () => {
         "['screenname-unknown']",
         {
           handleReturnValue: ['screenname-unknown'],
-          expectedStatus: 'missing',
+          expectedStatus: {status: 'missing', mostRecentlyInvalidatedAt: null},
           updatedScreennames: undefined,
         },
       ],
@@ -1480,7 +1538,7 @@ describe('check()', () => {
         "['screenname-exists', 'screenname-unknown']",
         {
           handleReturnValue: ['screenname-exists', 'screenname-unknown'],
-          expectedStatus: 'missing',
+          expectedStatus: {status: 'missing', mostRecentlyInvalidatedAt: null},
           updatedScreennames: undefined,
         },
       ],
@@ -1525,12 +1583,11 @@ describe('check()', () => {
             },
           ],
           null,
-          null,
           defaultGetDataID,
           getEmptyConnectionEvents,
         );
         expect(handle).toBeCalledTimes(1);
-        expect(status).toBe(expectedStatus);
+        expect(status).toEqual(expectedStatus);
         expect(target.toJSON()).toEqual(
           updatedScreennames == null
             ? {}
@@ -1606,11 +1663,13 @@ describe('check()', () => {
           },
         ],
         null,
-        null,
         defaultGetDataID,
         getEmptyConnectionEvents,
       );
-      expect(status).toBe('available');
+      expect(status).toEqual({
+        status: 'available',
+        mostRecentlyInvalidatedAt: null,
+      });
       expect(target.toJSON()).toEqual({
         '1': {
           __id: '1',
@@ -1699,18 +1758,20 @@ describe('check()', () => {
         createNormalizationSelector(BarFragment, '1', {size: 32}),
         [],
         null,
-        null,
         defaultGetDataID,
         getEmptyConnectionEvents,
       );
-      expect(status).toBe('available');
+      expect(status).toEqual({
+        status: 'available',
+        mostRecentlyInvalidatedAt: null,
+      });
       expect(target.size()).toBe(0);
     });
   });
 
   describe('when individual records have been invalidated', () => {
     describe('when data is complete', () => {
-      it('returns stale if operation has not been written before', () => {
+      it('returns correct invalidation epoch in result when record was invalidated', () => {
         const source = RelayRecordSource.create(sampleData);
         const target = RelayRecordSource.create();
         const environment = createMockEnvironment({
@@ -1735,17 +1796,19 @@ describe('check()', () => {
           }),
           [],
           null,
-          null, // pass null value for when operation was written
           defaultGetDataID,
           getEmptyConnectionEvents,
         );
 
-        // Assert that result is stale
-        expect(status).toBe('stale');
+        // Assert mostRecentlyInvalidatedAt matches most recent invalidation epoch
+        expect(status).toEqual({
+          status: 'available',
+          mostRecentlyInvalidatedAt: 1,
+        });
         expect(target.size()).toBe(0);
       });
 
-      it('returns stale if operation was written before record was invalidated', () => {
+      it('returns correct invalidation epoch in result when multiple records invalidated at different times', () => {
         const source = RelayRecordSource.create(sampleData);
         const target = RelayRecordSource.create();
         const environment = createMockEnvironment({
@@ -1770,33 +1833,27 @@ describe('check()', () => {
           }),
           [],
           null,
-          0, // Operation written at epoch 0, before invalidation of record
           defaultGetDataID,
           getEmptyConnectionEvents,
         );
 
-        // Assert that result is stale
-        expect(status).toBe('stale');
+        // Assert mostRecentlyInvalidatedAt matches most recent invalidation epoch
+        expect(status).toEqual({
+          status: 'available',
+          mostRecentlyInvalidatedAt: 1,
+        });
         expect(target.size()).toBe(0);
-      });
 
-      it('returns available if operation was written after record was invalidated', () => {
-        const source = RelayRecordSource.create(sampleData);
-        const target = RelayRecordSource.create();
-        const environment = createMockEnvironment({
-          store: new RelayModernStore(source),
-        });
-
-        // Invalidate record
+        // Invalidate other record in operation
         environment.commitUpdate(storeProxy => {
-          const user = storeProxy.get('1');
-          if (!user) {
-            throw new Error('Expected to find record with id "1"');
+          const photo = storeProxy.get('client:4');
+          if (!photo) {
+            throw new Error('Expected to find record with id "client:4"');
           }
-          user.invalidateRecord();
+          photo.invalidateRecord();
         });
 
-        const status = check(
+        const nextStatus = check(
           source,
           target,
           createNormalizationSelector(Query.fragment, ROOT_ID, {
@@ -1805,13 +1862,15 @@ describe('check()', () => {
           }),
           [],
           null,
-          2, // Operation written at epoch 1, after invalidation of record
           defaultGetDataID,
           getEmptyConnectionEvents,
         );
 
-        // Assert that result is available
-        expect(status).toBe('available');
+        // Assert mostRecentlyInvalidatedAt matches most recent invalidation epoch
+        expect(nextStatus).toEqual({
+          status: 'available',
+          mostRecentlyInvalidatedAt: 2,
+        });
         expect(target.size()).toBe(0);
       });
     });
@@ -1828,7 +1887,7 @@ describe('check()', () => {
         };
       });
 
-      it('returns stale if operation has not been written before', () => {
+      it('returns correct invalidation epoch in result when record was invalidated', () => {
         const source = RelayRecordSource.create(sampleData);
         const target = RelayRecordSource.create();
         const environment = createMockEnvironment({
@@ -1853,17 +1912,19 @@ describe('check()', () => {
           }),
           [],
           null,
-          null, // pass null value for when operation was written
           defaultGetDataID,
           getEmptyConnectionEvents,
         );
 
-        // Assert that result is stale
-        expect(status).toBe('stale');
+        // Assert result is missing
+        expect(status).toEqual({
+          status: 'missing',
+          mostRecentlyInvalidatedAt: 1,
+        });
         expect(target.size()).toBe(0);
       });
 
-      it('returns stale if operation was written before record was invalidated', () => {
+      it('returns correct invalidation epoch in result when multiple records invalidated at different times', () => {
         const source = RelayRecordSource.create(sampleData);
         const target = RelayRecordSource.create();
         const environment = createMockEnvironment({
@@ -1888,17 +1949,48 @@ describe('check()', () => {
           }),
           [],
           null,
-          0, // Operation written at epoch 0, before invalidation of record
           defaultGetDataID,
           getEmptyConnectionEvents,
         );
 
-        // Assert that result is stale
-        expect(status).toBe('stale');
+        // Assert that result is missing
+        expect(status).toEqual({
+          status: 'missing',
+          mostRecentlyInvalidatedAt: 1,
+        });
+        expect(target.size()).toBe(0);
+
+        // Invalidate other record in operation
+        environment.commitUpdate(storeProxy => {
+          const photo = storeProxy.get('client:4');
+          if (!photo) {
+            throw new Error('Expected to find record with id "client:4"');
+          }
+          photo.invalidateRecord();
+        });
+
+        const nextStatus = check(
+          source,
+          target,
+          createNormalizationSelector(Query.fragment, ROOT_ID, {
+            id: '1',
+            size: 32,
+          }),
+          [],
+          null,
+          defaultGetDataID,
+          getEmptyConnectionEvents,
+        );
+
+        // Assert that result is still missing
+        expect(nextStatus).toEqual({
+          status: 'missing',
+          mostRecentlyInvalidatedAt: 2,
+        });
         expect(target.size()).toBe(0);
       });
 
-      it('returns missing if stale record is unreachable', () => {
+      it('returns null invalidation epoch when stale record is unreachable', () => {
         sampleData = {
           // Root record is missing, so none of the descendants are reachable
           '1': {
@@ -1946,48 +2038,15 @@ describe('check()', () => {
           }),
           [],
           null,
-          0, // Operation written at epoch 0, before invalidation of record
           defaultGetDataID,
           getEmptyConnectionEvents,
         );
 
-        // Assert that result is stale
-        expect(status).toBe('missing');
-        expect(target.size()).toBe(0);
-      });
-
-      it('returns missing if operation was written after record was invalidated', () => {
-        const source = RelayRecordSource.create(sampleData);
-        const target = RelayRecordSource.create();
-        const environment = createMockEnvironment({
-          store: new RelayModernStore(source),
+        // Assert that result is missing
+        expect(status).toEqual({
+          status: 'missing',
+          mostRecentlyInvalidatedAt: null,
         });
-
-        // Invalidate record
-        environment.commitUpdate(storeProxy => {
-          const user = storeProxy.get('1');
-          if (!user) {
-            throw new Error('Expected to find record with id "1"');
-          }
-          user.invalidateRecord();
-        });
-
-        const status = check(
-          source,
-          target,
-          createNormalizationSelector(Query.fragment, ROOT_ID, {
-            id: '1',
-            size: 32,
-          }),
-          [],
-          null,
-          2, // Operation written at epoch 1, after invalidation of record
-          defaultGetDataID,
-          getEmptyConnectionEvents,
-        );
-
-        // Assert that result is available
-        expect(status).toBe('missing');
         expect(target.size()).toBe(0);
       });
     });
@@ -2026,11 +2085,13 @@ describe('check()', () => {
       createNormalizationSelector(TestFragment, 'client:root', {}),
       [],
       null,
-      null,
       defaultGetDataID,
       getEmptyConnectionEvents,
     );
-    expect(status).toBe('available');
+    expect(status).toEqual({
+      status: 'available',
+      mostRecentlyInvalidatedAt: null,
+    });
     expect(target.size()).toBe(0);
   });
 
@@ -2068,11 +2129,13 @@ describe('check()', () => {
       createNormalizationSelector(TestFragment, 'client:root', {}),
       [],
       null,
-      null,
       defaultGetDataID,
       getEmptyConnectionEvents,
     );
-    expect(status).toBe('missing');
+    expect(status).toEqual({
+      status: 'missing',
+      mostRecentlyInvalidatedAt: null,
+    });
     expect(target.size()).toBe(0);
   });
 });

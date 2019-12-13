@@ -32,6 +32,7 @@ const {createReaderSelector} = require('./RelayModernSelector');
 
 import type {ReaderFragment} from '../util/ReaderNode';
 import type {DataID, Disposable} from '../util/RelayRuntimeTypes';
+import type {Availability} from './DataChecker';
 import type {
   ConnectionID,
   ConnectionInternalEvent,
@@ -200,16 +201,17 @@ class RelayModernStore implements Store {
 
     const target = options?.target ?? source;
     const handlers = options?.handlers ?? [];
-    return DataChecker.check(
+    const operationAvailability = DataChecker.check(
       source,
       target,
       selector,
       handlers,
       this._operationLoader,
-      operationLastWrittenAt,
       this._getDataID,
       id => this.getConnectionEvents_UNSTABLE(id),
     );
+
+    return getAvailablityStatus(operationAvailability, operationLastWrittenAt);
   }
 
   retain(operation: OperationDescriptor): Disposable {
@@ -925,6 +927,38 @@ function updateTargetFromSource(
       updatedRecordIDs[dataID] = true;
     } // don't add explicit undefined
   }
+}
+
+/**
+ * Returns an OperationAvailability given the Availability returned
+ * by checking an operation, and when that operation was last written to the store.
+ * Specifically, the provided Availablity of a an operation will contain the
+ * value of when a record referenced by the operation was most recently
+ * invalidated; given that value, and given when this operation was last
+ * written to the store, this function will return the overall
+ * OperationAvailability for the operation.
+ */
+function getAvailablityStatus(
+  opearionAvailability: Availability,
+  operationLastWrittenAt: ?number,
+): OperationAvailability {
+  const {mostRecentlyInvalidatedAt, status} = opearionAvailability;
+  if (typeof mostRecentlyInvalidatedAt !== 'number') {
+    // If the record has never been invalidated, it isn't stale,
+    // so return the availability status of the operation.
+    return status;
+  }
+
+  if (operationLastWrittenAt == null) {
+    // If we've never written this operation before and there was an invalidation,
+    // then we don't have enough information to determine staleness,
+    // so by default we will consider it stale.
+    return 'stale';
+  }
+
+  // If the record was invalidated before the operation we're reading was
+  // last written, we can consider it not stale; otherwise consider it stale.
+  return mostRecentlyInvalidatedAt > operationLastWrittenAt ? 'stale' : status;
 }
 
 RelayProfiler.instrumentMethods(RelayModernStore.prototype, {

@@ -125,6 +125,7 @@ export type {
   FragmentSpecResolver,
   HandleFieldPayload,
   IEnvironment,
+  InvalidationState,
   LogEvent,
   LogFunction,
   MissingFieldHandler,

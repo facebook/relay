@@ -29,6 +29,7 @@ const useMutation = require('./useMutation');
 const usePreloadedQuery = require('./usePreloadedQuery');
 const useRefetchableFragment = require('./useRefetchableFragment');
 const useRelayEnvironment = require('./useRelayEnvironment');
+const useSubscribeToInvalidationState = require('./useSubscribeToInvalidationState');
 
 const {loadQuery} = require('./loadQuery');
 
@@ -58,9 +59,10 @@ module.exports = {
   useFragment: useFragment,
   useLazyLoadQuery: useLazyLoadQuery,
   useLegacyPaginationFragment: useLegacyPaginationFragment,
+  useMutation: useMutation,
   usePaginationFragment: useLegacyPaginationFragment,
   usePreloadedQuery: usePreloadedQuery,
   useRefetchableFragment: useRefetchableFragment,
   useRelayEnvironment: useRelayEnvironment,
-  useMutation: useMutation,
+  useSubscribeToInvalidationState: useSubscribeToInvalidationState,
 };

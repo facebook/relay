@@ -232,18 +232,21 @@ describe('store-or-network', () => {
     expect(preloaded.source).toBe(null);
   });
 
-  it('resolves from cache wo re-check()-ing if the entry is still cached', () => {
+  it('fetches from network (without resolving from cache) if the query has become stale', () => {
     environment.commitPayload(operation, response.data);
-    expect(environment.check(operation)).toBe('available');
+    environment.commitUpdate(store => {
+      store.invalidateStore();
+    });
+    expect(environment.check(operation)).toBe('stale');
     check.mockClear();
     params.queryResource.getModuleIfRequired = () => query;
 
-    preloadQuery_DEPRECATED(environment, params, variables);
     const preloaded = preloadQuery_DEPRECATED(environment, params, variables);
-    expect(preloaded.source).toBe(null);
-    expect(check).toBeCalledTimes(1);
-    expect(fetch).toBeCalledTimes(0);
-    expect(preloaded.source).toBe(null);
+    expect(preloaded.source).toEqual(expect.any(Observable));
+    expect(fetch).toBeCalledTimes(1);
+    expect(fetch.mock.calls[0][0]).toBe(query.params);
+    expect(fetch.mock.calls[0][1]).toEqual(variables);
+    expect(fetch.mock.calls[0][2]).toEqual({force: true});
   });
 
   it('resolves from cache and rechecks if data/query are available but cache entry has expired', () => {

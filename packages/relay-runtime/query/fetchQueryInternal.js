@@ -32,7 +32,7 @@ type RequestCacheEntry = {|
   +subscription: Subscription,
 |};
 
-const requestCachesByEnvironment = new Map();
+const requestCachesByEnvironment = new WeakMap();
 
 /**
  * Fetches the given query and variables on the provided environment,

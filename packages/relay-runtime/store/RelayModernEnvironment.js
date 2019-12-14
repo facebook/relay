@@ -82,11 +82,6 @@ export type EnvironmentConfig = {|
   +options?: mixed,
 |};
 
-const DEFAULT_RENDER_POLICY =
-  RelayFeatureFlags.ENABLE_PARTIAL_RENDERING_DEFAULT === true
-    ? 'partial'
-    : 'full';
-
 class RelayModernEnvironment implements IEnvironment {
   __log: LogFunction;
   +_defaultRenderPolicy: RenderPolicy;
@@ -121,7 +116,10 @@ class RelayModernEnvironment implements IEnvironment {
     }
     this.__log = config.log ?? emptyFunction;
     this._defaultRenderPolicy =
-      config.UNSTABLE_defaultRenderPolicy ?? DEFAULT_RENDER_POLICY;
+      config.UNSTABLE_defaultRenderPolicy ??
+      RelayFeatureFlags.ENABLE_PARTIAL_RENDERING_DEFAULT === true
+        ? 'partial'
+        : 'full';
     this._operationLoader = operationLoader;
     this._network = config.network;
     this._getDataID = config.UNSTABLE_DO_NOT_USE_getDataID ?? defaultGetDataID;

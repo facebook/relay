@@ -349,9 +349,9 @@ describe('change useMutation input', () => {
       variables,
     );
     expect(environment.executeMutation).toBeCalledTimes(2);
-    expect(environment.executeMutation).toHaveBeenNthCalledWith(2, {
-      operation: secondOperation,
-    });
+    expect(
+      environment.executeMutation.mock.calls[1][0].operation.request,
+    ).toEqual(secondOperation.request);
 
     isInFlightFn.mockClear();
     ReactTestRenderer.act(() => {

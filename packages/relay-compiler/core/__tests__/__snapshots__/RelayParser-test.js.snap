@@ -3804,7 +3804,7 @@ GraphQL request:3:44
 4 | }
 
 GraphQL request:6:1
-5 | 
+5 |
 6 | fragment ChildFragment on User {
   | ^
 7 |   profilePicture(size: $pictureSize) {
@@ -3835,7 +3835,7 @@ GraphQL request:3:44
 4 | }
 
 GraphQL request:6:1
-5 | 
+5 |
 6 | fragment ChildFragment on User {
   | ^
 7 |   profilePicture(size: $pictureSize) {

@@ -19014,7 +19014,7 @@ GraphQL request:16:36
 17 | }
 
 GraphQL request:19:1
-18 | 
+18 |
 19 | fragment ProfilePhoto on User {
    | ^
 20 |   profilePicture(size: [100]) {

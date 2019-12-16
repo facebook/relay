@@ -355,7 +355,7 @@ class RelayModernEnvironment implements IEnvironment {
     updater,
     uploadables,
   }: {|
-    metadata?: {[key: string]: mixed},
+    metadata?: {[key: string]: mixed, ...},
     operation: OperationDescriptor,
     optimisticUpdater?: ?SelectorStoreUpdater,
     optimisticResponse?: ?Object,

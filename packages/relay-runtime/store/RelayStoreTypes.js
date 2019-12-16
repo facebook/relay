@@ -604,7 +604,7 @@ export interface IEnvironment {
    * environment.executeMutation({...}).subscribe({...}).
    */
   executeMutation({|
-    metadata?: {[key: string]: mixed},
+    metadata?: {[key: string]: mixed, ...},
     operation: OperationDescriptor,
     optimisticUpdater?: ?SelectorStoreUpdater,
     optimisticResponse?: ?Object,

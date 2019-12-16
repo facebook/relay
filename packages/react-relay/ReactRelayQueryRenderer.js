@@ -24,7 +24,6 @@ const {
   getRequest,
 } = require('relay-runtime');
 
-import type {FetchPolicy} from './ReactRelayTypes';
 import type {
   CacheConfig,
   GraphQLTaggedNode,
@@ -60,7 +59,7 @@ const requestCache = {};
 
 export type Props = {|
   cacheConfig?: ?CacheConfig,
-  fetchPolicy?: FetchPolicy,
+  fetchPolicy?: 'store-and-network' | 'network-only',
   environment: IEnvironment,
   query: ?GraphQLTaggedNode,
   render: (renderProps: RenderProps<Object>) => React.Node,

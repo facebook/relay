@@ -8,6 +8,8 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const CodegenDirectory = require('./CodegenDirectory');
@@ -41,12 +43,8 @@ export type ParserConfig = {|
   filepaths?: ?Array<string>,
 |};
 
-type ParserConfigs = {
-  [parser: string]: ParserConfig,
-};
-type Parsers = {
-  [parser: string]: ASTCache,
-};
+type ParserConfigs = {[parser: string]: ParserConfig, ...};
+type Parsers = {[parser: string]: ASTCache, ...};
 
 export type WriterConfig = {|
   parser: string,
@@ -55,9 +53,7 @@ export type WriterConfig = {|
   writeFiles: WriteFiles,
 |};
 
-type WriterConfigs = {
-  [writer: string]: WriterConfig,
-};
+type WriterConfigs = {[writer: string]: WriterConfig, ...};
 
 export type WriteFilesOptions = {|
   onlyValidate: boolean,
@@ -85,7 +81,7 @@ class CodegenRunner {
   onComplete: ?OnCompleteCallback;
 
   // parser => writers that are affected by it
-  parserWriters: {[parser: string]: Set<string>};
+  parserWriters: {[parser: string]: Set<string>, ...};
   _reporter: Reporter;
   _sourceControl: ?SourceControl;
 
@@ -96,6 +92,7 @@ class CodegenRunner {
     reporter: Reporter,
     sourceControl: ?SourceControl,
     onComplete?: OnCompleteCallback,
+    ...
   }) {
     this.parsers = {};
     this.parserConfigs = options.parserConfigs;

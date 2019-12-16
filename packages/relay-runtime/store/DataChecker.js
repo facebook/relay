@@ -9,10 +9,13 @@
  * @emails oncall+relay
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const RelayConcreteNode = require('../util/RelayConcreteNode');
 const RelayConnection = require('./RelayConnection');
+const RelayModernRecord = require('./RelayModernRecord');
 const RelayRecordSourceMutator = require('../mutations/RelayRecordSourceMutator');
 const RelayRecordSourceProxy = require('../mutations/RelayRecordSourceProxy');
 const RelayStoreUtils = require('./RelayStoreUtils');
@@ -43,6 +46,11 @@ import type {
   Record,
   RecordSource,
 } from './RelayStoreTypes';
+
+export type Availability = {|
+  +status: 'available' | 'missing',
+  +mostRecentlyInvalidatedAt: ?number,
+|};
 
 const {
   CONDITION,
@@ -82,7 +90,7 @@ function check(
   operationLoader: ?OperationLoader,
   getDataID: GetDataID,
   getConnectionEvents: GetConnectionEvents,
-): boolean {
+): Availability {
   const {dataID, node, variables} = selector;
   const checker = new DataChecker(
     source,
@@ -101,11 +109,13 @@ function check(
  */
 class DataChecker {
   _getConnectionEvents: GetConnectionEvents;
-  _operationLoader: OperationLoader | null;
   _handlers: $ReadOnlyArray<MissingFieldHandler>;
+  _mostRecentlyInvalidatedAt: number | null;
   _mutator: RelayRecordSourceMutator;
-  _recordWasMissing: boolean;
+  _operationLoader: OperationLoader | null;
+  _operationLastWrittenAt: ?number;
   _recordSourceProxy: RelayRecordSourceProxy;
+  _recordWasMissing: boolean;
   _source: RecordSource;
   _variables: Variables;
 
@@ -124,6 +134,7 @@ class DataChecker {
       target,
       newConnectionEvents,
     );
+    this._mostRecentlyInvalidatedAt = null;
     this._getConnectionEvents = getConnectionEvents;
     this._handlers = handlers;
     this._mutator = mutator;
@@ -134,9 +145,18 @@ class DataChecker {
     this._variables = variables;
   }
 
-  check(node: NormalizationNode, dataID: DataID): boolean {
+  check(node: NormalizationNode, dataID: DataID): Availability {
     this._traverse(node, dataID);
-    return !this._recordWasMissing;
+
+    return this._recordWasMissing === true
+      ? {
+          status: 'missing',
+          mostRecentlyInvalidatedAt: this._mostRecentlyInvalidatedAt,
+        }
+      : {
+          status: 'available',
+          mostRecentlyInvalidatedAt: this._mostRecentlyInvalidatedAt,
+        };
   }
 
   _getVariableValue(name: string): mixed {
@@ -155,7 +175,11 @@ class DataChecker {
   _getDataForHandlers(
     field: NormalizationField,
     dataID: DataID,
-  ): {args: Variables, record: ?Record} {
+  ): {
+    args: Variables,
+    record: ?Record,
+    ...
+  } {
     return {
       args: field.args ? getArgumentValues(field.args, this._variables) : {},
       // Getting a snapshot of the record state is potentially expensive since
@@ -249,7 +273,17 @@ class DataChecker {
     if (status === UNKNOWN) {
       this._handleMissing();
     }
+
     if (status === EXISTENT) {
+      const record = this._source.get(dataID);
+      const invalidatedAt = RelayModernRecord.getInvalidationEpoch(record);
+      if (invalidatedAt != null) {
+        this._mostRecentlyInvalidatedAt =
+          this._mostRecentlyInvalidatedAt != null
+            ? Math.max(this._mostRecentlyInvalidatedAt, invalidatedAt)
+            : invalidatedAt;
+      }
+
       this._traverseSelections(node.selections, dataID);
     }
   }

@@ -9,19 +9,21 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 jest.mock('fbjs/lib/ExecutionEnvironment', () => ({
   canUseDOM: true,
 }));
 
-const LazyLoadEntryPointContainer = require('../LazyLoadEntryPointContainer.react');
+const LazyLoadEntryPointContainer_DEPRECATED = require('../LazyLoadEntryPointContainer_DEPRECATED.react');
 const React = require('react');
 const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
 const TestRenderer = require('react-test-renderer');
 
 const invariant = require('invariant');
-const preloadQuery = require('../preloadQuery');
+const preloadQuery_DEPRECATED = require('../preloadQuery_DEPRECATED');
 const usePreloadedQuery = require('../usePreloadedQuery');
 
 const {
@@ -130,7 +132,7 @@ it('suspends while the query and component are pending', () => {
   const renderer = TestRenderer.create(
     <RelayEnvironmentProvider environment={environment}>
       <React.Suspense fallback="Fallback">
-        <LazyLoadEntryPointContainer
+        <LazyLoadEntryPointContainer_DEPRECATED
           entryPoint={entryPoint}
           props={{version: 0}}
           entryPointParams={{id: '4'}}
@@ -145,14 +147,14 @@ it('suspends while the query and component are pending', () => {
 });
 
 it('suspends while the component is loading', () => {
-  preloadQuery(environment, params, {id: '4'});
+  preloadQuery_DEPRECATED(environment, params, {id: '4'});
   expect(fetch).toBeCalledTimes(1);
   dataSource.next(response);
   dataSource.complete();
   const renderer = TestRenderer.create(
     <RelayEnvironmentProvider environment={environment}>
       <React.Suspense fallback="Fallback">
-        <LazyLoadEntryPointContainer
+        <LazyLoadEntryPointContainer_DEPRECATED
           entryPoint={entryPoint}
           props={{version: 0}}
           entryPointParams={{id: '4'}}
@@ -174,7 +176,7 @@ it('suspends while the query is loading', () => {
   const renderer = TestRenderer.create(
     <RelayEnvironmentProvider environment={environment}>
       <React.Suspense fallback="Fallback">
-        <LazyLoadEntryPointContainer
+        <LazyLoadEntryPointContainer_DEPRECATED
           entryPoint={entryPoint}
           props={{version: 0}}
           entryPointParams={{id: '4'}}
@@ -193,7 +195,7 @@ it('suspends then updates when the query and component load', () => {
   const renderer = TestRenderer.create(
     <RelayEnvironmentProvider environment={environment}>
       <React.Suspense fallback="Fallback">
-        <LazyLoadEntryPointContainer
+        <LazyLoadEntryPointContainer_DEPRECATED
           entryPoint={entryPoint}
           props={otherProps}
           entryPointParams={{id: '4'}}
@@ -234,7 +236,7 @@ it('renders synchronously when the query and component are already loaded', () =
     return data.node.name;
   }
   entryPoint.root.resolve(Component);
-  preloadQuery(environment, params, {id: '4'});
+  preloadQuery_DEPRECATED(environment, params, {id: '4'});
   expect(fetch).toBeCalledTimes(1);
   dataSource.next(response);
   dataSource.complete();
@@ -242,7 +244,7 @@ it('renders synchronously when the query and component are already loaded', () =
   const renderer = TestRenderer.create(
     <RelayEnvironmentProvider environment={environment}>
       <React.Suspense fallback="Fallback">
-        <LazyLoadEntryPointContainer
+        <LazyLoadEntryPointContainer_DEPRECATED
           entryPoint={entryPoint}
           props={otherProps}
           entryPointParams={{id: '4'}}
@@ -263,7 +265,7 @@ it('re-renders without reloading when non-prefetch props change', () => {
     return data.node.name;
   });
   entryPoint.root.resolve(Component);
-  preloadQuery(environment, params, {id: '4'});
+  preloadQuery_DEPRECATED(environment, params, {id: '4'});
   expect(fetch).toBeCalledTimes(1);
   dataSource.next(response);
   dataSource.complete();
@@ -271,7 +273,7 @@ it('re-renders without reloading when non-prefetch props change', () => {
   const renderer = TestRenderer.create(
     <RelayEnvironmentProvider environment={environment}>
       <React.Suspense fallback="Fallback">
-        <LazyLoadEntryPointContainer
+        <LazyLoadEntryPointContainer_DEPRECATED
           entryPoint={entryPoint}
           props={{version: 0}}
           entryPointParams={{id: '4'}}
@@ -284,7 +286,7 @@ it('re-renders without reloading when non-prefetch props change', () => {
   renderer.update(
     <RelayEnvironmentProvider environment={environment}>
       <React.Suspense fallback="Fallback">
-        <LazyLoadEntryPointContainer
+        <LazyLoadEntryPointContainer_DEPRECATED
           entryPoint={entryPoint}
           props={{version: 1 /* different value */}}
           entryPointParams={{id: '4'}}
@@ -303,7 +305,7 @@ it('re-renders and reloads when prefetch params change', () => {
     return data.node.name;
   });
   entryPoint.root.resolve(Component);
-  preloadQuery(environment, params, {id: '4'});
+  preloadQuery_DEPRECATED(environment, params, {id: '4'});
   expect(fetch).toBeCalledTimes(1);
   dataSource.next(response);
   dataSource.complete();
@@ -312,7 +314,7 @@ it('re-renders and reloads when prefetch params change', () => {
   const renderer = TestRenderer.create(
     <RelayEnvironmentProvider environment={environment}>
       <React.Suspense fallback="Fallback">
-        <LazyLoadEntryPointContainer
+        <LazyLoadEntryPointContainer_DEPRECATED
           entryPoint={entryPoint}
           props={otherProps}
           entryPointParams={{id: '4'}}
@@ -325,7 +327,7 @@ it('re-renders and reloads when prefetch params change', () => {
   renderer.update(
     <RelayEnvironmentProvider environment={environment}>
       <React.Suspense fallback="Fallback">
-        <LazyLoadEntryPointContainer
+        <LazyLoadEntryPointContainer_DEPRECATED
           entryPoint={entryPoint}
           props={otherProps}
           entryPointParams={{id: '_4'} /* different id */}
@@ -379,7 +381,7 @@ it('fetches and renders synchronously when the query data is cached, then update
     renderer = TestRenderer.create(
       <RelayEnvironmentProvider environment={environment}>
         <React.Suspense fallback="Fallback">
-          <LazyLoadEntryPointContainer
+          <LazyLoadEntryPointContainer_DEPRECATED
             entryPoint={entryPoint}
             props={otherProps}
             entryPointParams={variables}
@@ -394,7 +396,7 @@ it('fetches and renders synchronously when the query data is cached, then update
   expect(entryPoint.root.load).toBeCalledTimes(0);
   expect(receivedProps).not.toBe(null);
   expect(receivedProps?.props).toBe(otherProps);
-  // fetch() is still called, preloadQuery() doesn't have the AST to check
+  // fetch() is still called, preloadQuery_DEPRECATED() doesn't have the AST to check
   // if the query can be fulfilled locally
   expect(fetch).toBeCalledTimes(1);
   expect(fetch.mock.calls[0][0]).toBe(query.params);
@@ -443,7 +445,7 @@ it('renders synchronously when the query data and ast are cached, without fetchi
     renderer = TestRenderer.create(
       <RelayEnvironmentProvider environment={environment}>
         <React.Suspense fallback="Fallback">
-          <LazyLoadEntryPointContainer
+          <LazyLoadEntryPointContainer_DEPRECATED
             entryPoint={entryPoint}
             props={otherProps}
             entryPointParams={variables}
@@ -497,7 +499,7 @@ it('should use environment from `getEnvironment` prop to fetch a query', () => {
   TestRenderer.create(
     <RelayEnvironmentProvider environment={defaultEnvironment}>
       <React.Suspense fallback="Fallback">
-        <LazyLoadEntryPointContainer
+        <LazyLoadEntryPointContainer_DEPRECATED
           entryPoint={entryPoint}
           props={{version: 0}}
           entryPointParams={{id: '4'}}

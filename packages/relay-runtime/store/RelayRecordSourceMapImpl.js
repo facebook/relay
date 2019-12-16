@@ -8,6 +8,8 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const RelayRecordState = require('./RelayRecordState');
@@ -73,7 +75,7 @@ class RelayMapRecordSourceMapImpl implements MutableRecordSource {
     return this._records.size;
   }
 
-  toJSON(): {[DataID]: ?Record} {
+  toJSON(): {[DataID]: ?Record, ...} {
     const obj = {};
     for (const [key, value] of this._records) {
       obj[key] = value;

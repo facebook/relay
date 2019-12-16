@@ -8,6 +8,8 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const areEqual = require('areEqual');
@@ -185,9 +187,9 @@ function getSelector(
  * can read the results to pass to the inner component.
  */
 function getSelectorsFromObject(
-  fragments: {[key: string]: ReaderFragment},
-  object: {[key: string]: mixed},
-): {[key: string]: ?ReaderSelector} {
+  fragments: {[key: string]: ReaderFragment, ...},
+  object: {[key: string]: mixed, ...},
+): {[key: string]: ?ReaderSelector, ...} {
   const selectors = {};
   for (const key in fragments) {
     if (fragments.hasOwnProperty(key)) {
@@ -209,9 +211,9 @@ function getSelectorsFromObject(
  * determining the "identity" of the props passed to a component.
  */
 function getDataIDsFromObject(
-  fragments: {[key: string]: ReaderFragment},
-  object: {[key: string]: mixed},
-): {[key: string]: ?(DataID | Array<DataID>)} {
+  fragments: {[key: string]: ReaderFragment, ...},
+  object: {[key: string]: mixed, ...},
+): {[key: string]: ?(DataID | Array<DataID>), ...} {
   const ids = {};
   for (const key in fragments) {
     if (fragments.hasOwnProperty(key)) {
@@ -308,8 +310,8 @@ function getDataID(fragment: ReaderFragment, item: mixed): ?DataID {
  * for a Relay container, for example.
  */
 function getVariablesFromObject(
-  fragments: {[key: string]: ReaderFragment},
-  object: {[key: string]: mixed},
+  fragments: {[key: string]: ReaderFragment, ...},
+  object: {[key: string]: mixed, ...},
 ): Variables {
   const variables = {};
   for (const key in fragments) {

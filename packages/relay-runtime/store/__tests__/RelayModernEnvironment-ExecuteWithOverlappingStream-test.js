@@ -9,6 +9,8 @@
  * @emails oncall+relay
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const RelayModernEnvironment = require('../RelayModernEnvironment');
@@ -16,6 +18,8 @@ const RelayModernStore = require('../RelayModernStore');
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
 const RelayRecordSource = require('../RelayRecordSource');
+
+const nullthrows = require('nullthrows');
 
 const {
   createOperationDescriptor,
@@ -25,8 +29,6 @@ const {
   getSingularSelector,
 } = require('../RelayModernSelector');
 const {generateAndCompile} = require('relay-test-utils-internal');
-
-import nullthrows from 'nullthrows';
 
 describe('execute() a query with multiple @stream selections on the same record', () => {
   let callbacks;

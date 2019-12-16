@@ -8,8 +8,11 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
+const GraphQLTag = require('./query/GraphQLTag');
 const RelayConcreteNode = require('./util/RelayConcreteNode');
 const RelayConcreteVariables = require('./store/RelayConcreteVariables');
 const RelayConnectionHandler = require('./handlers/connection/RelayConnectionHandler');
@@ -22,7 +25,6 @@ const RelayDefaultMissingFieldHandlers = require('./handlers/RelayDefaultMissing
 const RelayError = require('./util/RelayError');
 const RelayFeatureFlags = require('./util/RelayFeatureFlags');
 const RelayModernEnvironment = require('./store/RelayModernEnvironment');
-const RelayModernGraphQLTag = require('./query/RelayModernGraphQLTag');
 const RelayModernOperationDescriptor = require('./store/RelayModernOperationDescriptor');
 const RelayModernRecord = require('./store/RelayModernRecord');
 const RelayModernSelector = require('./store/RelayModernSelector');
@@ -58,7 +60,11 @@ const recycleNodesInto = require('./util/recycleNodesInto');
 const requestSubscription = require('./subscription/requestSubscription');
 const stableCopy = require('./util/stableCopy');
 
-const {generateClientID, generateUniqueClientID} = require('./store/ClientID');
+const {
+  generateClientID,
+  generateUniqueClientID,
+  isClientID,
+} = require('./store/ClientID');
 
 export type {
   ConnectionMetadata,
@@ -99,7 +105,7 @@ export type {
   Subscribable,
   Subscription,
 } from './network/RelayObservable';
-export type {GraphQLTaggedNode} from './query/RelayModernGraphQLTag';
+export type {GraphQLTaggedNode} from './query/GraphQLTag';
 export type {
   ConnectionEvent,
   ConnectionID,
@@ -109,6 +115,7 @@ export type {
   ConnectionSnapshot,
 } from './store/RelayConnection';
 export type {ConnectionState} from './store/RelayConnectionResolver';
+export type {EnvironmentConfig} from './store/RelayModernEnvironment';
 export type {TaskScheduler} from './store/RelayModernQueryExecutor';
 export type {RecordState} from './store/RelayRecordState';
 export type {
@@ -118,11 +125,13 @@ export type {
   FragmentSpecResolver,
   HandleFieldPayload,
   IEnvironment,
+  InvalidationState,
   LogEvent,
   LogFunction,
   MissingFieldHandler,
   ModuleImportPointer,
   NormalizationSelector,
+  OperationAvailability,
   OperationDescriptor,
   OperationLoader,
   OperationTracker,
@@ -148,6 +157,7 @@ export type {
 export type {
   GraphQLSubscriptionConfig,
 } from './subscription/requestSubscription';
+export type {JSResourceReference} from './util/JSResourceTypes.flow';
 export type {
   NormalizationArgument,
   NormalizationDefer,
@@ -188,7 +198,9 @@ export type {
   CacheConfig,
   DataID,
   Disposable,
+  FetchPolicy,
   OperationType,
+  RenderPolicy,
   Variables,
 } from './util/RelayRuntimeTypes';
 export type {Local3DPayload} from './util/createPayloadFor3DField';
@@ -234,14 +246,14 @@ module.exports = {
     RelayModernOperationDescriptor.createRequestDescriptor,
   getDataIDsFromFragment: RelayModernSelector.getDataIDsFromFragment,
   getDataIDsFromObject: RelayModernSelector.getDataIDsFromObject,
-  getFragment: RelayModernGraphQLTag.getFragment,
-  getInlineDataFragment: RelayModernGraphQLTag.getInlineDataFragment,
+  getFragment: GraphQLTag.getFragment,
+  getInlineDataFragment: GraphQLTag.getInlineDataFragment,
   getModuleComponentKey: RelayStoreUtils.getModuleComponentKey,
   getModuleOperationKey: RelayStoreUtils.getModuleOperationKey,
-  getPaginationFragment: RelayModernGraphQLTag.getPaginationFragment,
+  getPaginationFragment: GraphQLTag.getPaginationFragment,
   getPluralSelector: RelayModernSelector.getPluralSelector,
-  getRefetchableFragment: RelayModernGraphQLTag.getRefetchableFragment,
-  getRequest: RelayModernGraphQLTag.getRequest,
+  getRefetchableFragment: GraphQLTag.getRefetchableFragment,
+  getRequest: GraphQLTag.getRequest,
   getRequestIdentifier: getRequestIdentifier,
   getSelector: RelayModernSelector.getSelector,
   getSelectorsFromObject: RelayModernSelector.getSelectorsFromObject,
@@ -253,7 +265,7 @@ module.exports = {
     RelayModernSelector.getVariablesFromPluralFragment,
   getVariablesFromSingularFragment:
     RelayModernSelector.getVariablesFromSingularFragment,
-  graphql: RelayModernGraphQLTag.graphql,
+  graphql: GraphQLTag.graphql,
   readInlineData,
 
   // Declarative mutation API
@@ -301,6 +313,7 @@ module.exports = {
   generateClientID: generateClientID,
   generateUniqueClientID: generateUniqueClientID,
   getRelayHandleKey: getRelayHandleKey,
+  isClientID: isClientID,
   isPromise: isPromise,
   isScalarAndEqual: isScalarAndEqual,
   recycleNodesInto: recycleNodesInto,

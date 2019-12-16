@@ -8,6 +8,8 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const {createUserError, eachWithCombinedError} = require('./CompilerError');
@@ -54,7 +56,7 @@ import type {Schema} from './Schema';
  *     bar: 42
  *   }
  */
-export type Scope = {[key: string]: ArgumentValue};
+export type Scope = {[key: string]: ArgumentValue, ...};
 
 /**
  * Creates a scope for a `Root`, with each argument mapped to a variable of the

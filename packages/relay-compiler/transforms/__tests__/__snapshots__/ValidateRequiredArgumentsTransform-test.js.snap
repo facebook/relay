@@ -296,10 +296,9 @@ THROWN EXCEPTION:
 
 Unknown field 'commentBody' on type 'Node'.
 
-GraphQL request (4:5)
-3:   node {
-4:     commentBody {
-       ^
-5:       ... on PlainCommentBody {
-
+GraphQL request:4:5
+3 |   node {
+4 |     commentBody {
+  |     ^
+5 |       ... on PlainCommentBody {
 `;

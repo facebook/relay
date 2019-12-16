@@ -8,12 +8,14 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const {VIEWER_ID, VIEWER_TYPE} = require('./ViewerPattern');
 
 function defaultGetDataID(
-  fieldValue: {[string]: mixed},
+  fieldValue: {[string]: mixed, ...},
   typeName: string,
 ): mixed {
   if (typeName === VIEWER_TYPE) {

@@ -8,6 +8,8 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const IRValidator = require('../core/IRValidator');
@@ -24,7 +26,7 @@ import type {
   Root,
   SplitOperation,
 } from '../core/IR';
-import type {Schema, TypeID, FieldArgument} from '../core/Schema';
+import type {Schema, TypeID, Argument} from '../core/Schema';
 
 type State = {|
   +rootNode: Fragment | Root | SplitOperation,
@@ -103,7 +105,7 @@ function visitField(node: Field, {parentType, rootNode}: State): void {
 function validateRequiredArgumentsOnNode(
   schema: Schema,
   node: Connection | Directive | Field,
-  definitionArgs: $ReadOnlyArray<FieldArgument>,
+  definitionArgs: $ReadOnlyArray<Argument>,
   rootNode: Fragment | Root | SplitOperation,
 ): void {
   const nodeArgsSet = new Set(node.args.map(arg => arg.name));

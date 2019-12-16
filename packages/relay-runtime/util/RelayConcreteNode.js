@@ -8,6 +8,8 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 import type {
@@ -39,7 +41,7 @@ export type RequestParameters =
 type BaseRequestParameters = {|
   +name: string,
   +operationKind: 'mutation' | 'query' | 'subscription',
-  +metadata: {[key: string]: mixed},
+  +metadata: {[key: string]: mixed, ...},
 |};
 
 export type GeneratedNode =
@@ -61,8 +63,10 @@ const RelayConcreteNode = {
   LINKED_FIELD: 'LinkedField',
   LINKED_HANDLE: 'LinkedHandle',
   LITERAL: 'Literal',
+  LIST_VALUE: 'ListValue',
   LOCAL_ARGUMENT: 'LocalArgument',
   MODULE_IMPORT: 'ModuleImport',
+  OBJECT_VALUE: 'ObjectValue',
   OPERATION: 'Operation',
   REQUEST: 'Request',
   ROOT_ARGUMENT: 'RootArgument',

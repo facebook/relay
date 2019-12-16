@@ -107,7 +107,7 @@ describe('ReactRelayFragmentContainer', () => {
 
     render = jest.fn(() => <div />);
     spec = {
-      user: () => UserFragment,
+      user: UserFragment,
     };
     variables = {rootVariable: 'root'};
     TestComponent = render;
@@ -175,7 +175,7 @@ describe('ReactRelayFragmentContainer', () => {
   it('does not throw when fragments are in modern mode', () => {
     expect(() => {
       ReactRelayFragmentContainer.createContainer(TestComponent, {
-        foo: () => ({kind: 'Fragment'}),
+        foo: {kind: 'Fragment'},
       });
     }).not.toThrow();
   });
@@ -536,10 +536,10 @@ describe('ReactRelayFragmentContainer', () => {
     `);
     expect(() => {
       ReactRelayFragmentContainer.createContainer(() => <div />, {
-        user: () => InlineUserFragment,
+        user: InlineUserFragment,
       });
     }).toThrow(
-      'RelayModernGraphQLTag: Expected a fragment, got ' +
+      'GraphQLTag: Expected a fragment, got ' +
         '`{"kind":"InlineDataFragment","name":"InlineUserFragment"}`.',
     );
   });
@@ -558,7 +558,7 @@ describe('ReactRelayFragmentContainer', () => {
     const TestNoProxyContainer = ReactRelayFragmentContainer.createContainer(
       TestNoProxy,
       {
-        user: () => UserFragment,
+        user: UserFragment,
       },
     );
 
@@ -594,7 +594,7 @@ describe('ReactRelayFragmentContainer', () => {
     const TestUnwrappingContainer = ReactRelayFragmentContainer.createContainer(
       TestUnwrapping,
       {
-        user: () => UserFragment,
+        user: UserFragment,
       },
     );
 

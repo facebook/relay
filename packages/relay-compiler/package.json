@@ -16,7 +16,7 @@
   },
   "dependencies": {
     "@babel/core": "^7.0.0",
-    "@babel/generator": "^7.0.0",
+    "@babel/generator": "^7.5.0",
     "@babel/parser": "^7.0.0",
     "@babel/runtime": "^7.0.0",
     "@babel/traverse": "^7.0.0",

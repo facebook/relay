@@ -8,6 +8,8 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const RelayObservable = require('../network/RelayObservable');
@@ -17,9 +19,17 @@ const invariant = require('invariant');
 import type {Observer, Sink, Subscription} from '../network/RelayObservable';
 
 type Event<T> =
-  | {kind: 'next', data: T}
-  | {kind: 'error', error: Error}
-  | {kind: 'complete'};
+  | {
+      kind: 'next',
+      data: T,
+      ...
+    }
+  | {
+      kind: 'error',
+      error: Error,
+      ...
+    }
+  | {kind: 'complete', ...};
 
 /**
  * An implementation of a `ReplaySubject` for Relay Observables.

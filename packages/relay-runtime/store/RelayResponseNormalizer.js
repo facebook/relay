@@ -8,6 +8,8 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const RelayConnection = require('./RelayConnection');
@@ -35,6 +37,7 @@ const {generateClientID, isClientID} = require('./ClientID');
 const {createNormalizationSelector} = require('./RelayModernSelector');
 const {
   formatStorageKey,
+  getArgumentValue,
   getArgumentValues,
   getHandleStorageKey,
   getModuleComponentKey,
@@ -67,7 +70,7 @@ import type {
 } from './RelayStoreTypes';
 
 export type GetDataID = (
-  fieldValue: {[string]: mixed},
+  fieldValue: {[string]: mixed, ...},
   typeName: string,
 ) => mixed;
 
@@ -417,10 +420,9 @@ class RelayResponseNormalizer {
     const stream = selection.stream;
     const enableStream =
       stream != null
-        ? stream.if.kind === 'Variable'
-          ? this._variables[stream.if.variableName]
-          : stream.if.value
+        ? getArgumentValue(stream.if, this._variables) === true
         : false;
+
     if (stream != null && enableStream === true) {
       this._incrementalPlaceholders.push({
         kind: 'connection_edge',

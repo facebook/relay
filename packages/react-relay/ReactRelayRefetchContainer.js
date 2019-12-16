@@ -8,6 +8,8 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const React = require('react');
@@ -53,13 +55,14 @@ import type {FragmentSpecResolver} from 'relay-runtime';
 type ContainerProps = $FlowFixMeProps;
 
 type ContainerState = {
-  data: {[key: string]: mixed},
+  data: {[key: string]: mixed, ...},
   prevProps: ContainerProps,
   localVariables: ?Variables,
   prevPropsContext: RelayContext,
   relayProp: RelayRefetchProp,
   resolver: FragmentSpecResolver,
   contextForChildren: RelayContext,
+  ...
 };
 
 /**
@@ -68,7 +71,7 @@ type ContainerState = {
  * updates.
  */
 function createContainerWithFragments<
-  Props: {},
+  Props: {...},
   TComponent: React.ComponentType<Props>,
 >(
   Component: TComponent,
@@ -461,7 +464,7 @@ function getRelayProp(environment, refetch): RelayRefetchProp {
  * `fragmentSpec` is memoized once per environment, rather than once per
  * instance of the container constructed/rendered.
  */
-function createContainer<Props: {}, TComponent: React.ComponentType<Props>>(
+function createContainer<Props: {...}, TComponent: React.ComponentType<Props>>(
   Component: TComponent,
   fragmentSpec: GeneratedNodeMap,
   taggedNode: GraphQLTaggedNode,

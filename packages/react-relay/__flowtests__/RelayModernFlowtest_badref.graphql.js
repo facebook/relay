@@ -8,6 +8,8 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 import type {RelayModernFlowtest_user$ref} from './RelayModernFlowtest_user.graphql';

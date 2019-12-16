@@ -8,12 +8,17 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 type FeatureFlags = {|
   ENABLE_VARIABLE_CONNECTION_KEY: boolean,
   ENABLE_CONNECTION_RESOLVERS: boolean,
   ENABLE_PARTIAL_RENDERING_DEFAULT: boolean,
+  ENABLE_RELAY_CONTAINERS_SUSPENSE: boolean,
+  ENABLE_MISSING_VIEWER_FIELD_HANDLER: boolean,
+  ENABLE_UNIQUE_MUTATION_ROOT: boolean,
   USE_RECORD_SOURCE_MAP_IMPL: boolean,
 |};
 
@@ -22,6 +27,9 @@ const RelayFeatureFlags: FeatureFlags = {
   ENABLE_VARIABLE_CONNECTION_KEY: false,
   ENABLE_CONNECTION_RESOLVERS: false,
   ENABLE_PARTIAL_RENDERING_DEFAULT: false,
+  ENABLE_RELAY_CONTAINERS_SUSPENSE: true,
+  ENABLE_MISSING_VIEWER_FIELD_HANDLER: true,
+  ENABLE_UNIQUE_MUTATION_ROOT: true,
   USE_RECORD_SOURCE_MAP_IMPL: false,
 };
 

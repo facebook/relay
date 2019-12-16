@@ -8,6 +8,8 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const IRTransformer = require('../core/IRTransformer');
@@ -25,9 +27,7 @@ import type {
   ArgumentDefinition,
 } from '../core/IR';
 
-type State = {
-  reachableArguments: Array<ArgumentDefinition>,
-};
+type State = {reachableArguments: Array<ArgumentDefinition>, ...};
 
 /**
  * A transform that inlines fragment spreads with the @relay(mask: false)

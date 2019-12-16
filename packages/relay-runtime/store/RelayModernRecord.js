@@ -8,6 +8,8 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const areEqual = require('areEqual');
@@ -16,7 +18,13 @@ const invariant = require('invariant');
 const warning = require('warning');
 
 const {isClientID} = require('./ClientID');
-const {ID_KEY, REF_KEY, REFS_KEY, TYPENAME_KEY} = require('./RelayStoreUtils');
+const {
+  ID_KEY,
+  REF_KEY,
+  REFS_KEY,
+  TYPENAME_KEY,
+  INVALIDATED_AT_KEY,
+} = require('./RelayStoreUtils');
 
 import type {DataID} from '../util/RelayRuntimeTypes';
 import type {Record} from './RelayStoreTypes';
@@ -200,6 +208,25 @@ function getLinkedRecordIDs(
 /**
  * @public
  *
+ * Returns the epoch at which the record was invalidated, if it
+ * ever was; otherwise returns null;
+ */
+function getInvalidationEpoch(record: ?Record): ?number {
+  if (record == null) {
+    return null;
+  }
+
+  const invalidatedAt = record[INVALIDATED_AT_KEY];
+  if (typeof invalidatedAt !== 'number') {
+    // If the record has never been invalidated, it isn't stale.
+    return null;
+  }
+  return invalidatedAt;
+}
+
+/**
+ * @public
+ *
  * Compares the fields of a previous and new record, returning either the
  * previous record if all fields are equal or a new record (with merged fields)
  * if any fields have changed.
@@ -361,6 +388,7 @@ module.exports = {
   create,
   freeze,
   getDataID,
+  getInvalidationEpoch,
   getLinkedRecordID,
   getLinkedRecordIDs,
   getType,

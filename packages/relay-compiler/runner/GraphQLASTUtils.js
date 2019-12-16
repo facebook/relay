@@ -5,8 +5,10 @@
  * LICENSE file in the root directory of this source tree.
  *
  * @format
- * @flow strict-local
+ * @flow strict
  */
+
+// flowlint ambiguous-object-type:error
 
 'use strict';
 

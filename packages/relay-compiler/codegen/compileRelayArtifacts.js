@@ -8,6 +8,8 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const Printer = require('../core/IRPrinter');
@@ -28,6 +30,7 @@ export type RelayCompilerTransforms = {
   fragmentTransforms: $ReadOnlyArray<IRTransform>,
   printTransforms: $ReadOnlyArray<IRTransform>,
   queryTransforms: $ReadOnlyArray<IRTransform>,
+  ...
 };
 
 function createFragmentContext(

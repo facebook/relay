@@ -199,9 +199,8 @@ User_data_with_args: NO ERRORS.
 AnotherUser_data: NO ERRORS.
 `;
 
-exports[`matches expected output: variable-in-the-complex-object-list.invalid.graphql 1`] = `
+exports[`matches expected output: variable-in-the-complex-object-list.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
-#expected-to-throw
 query Q1($arg: String) {
   items(filter: {date: $arg}) {
     date
@@ -219,23 +218,6 @@ query Q2($size: Int) {
 }
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
-THROWN EXCEPTION:
-
-Encountered 2 errors:
-- Complex argument values (Lists or InputObjects with nested variables) are not supported.
-  
-  GraphQL request (3:24)
-  2: query Q1($arg: String) {
-  3:   items(filter: {date: $arg}) {
-                            ^
-  4:     date
-  
-- Complex argument values (Lists or InputObjects with nested variables) are not supported.
-  
-  GraphQL request (11:29)
-  10:     ... on User {
-  11:       profilePicture(size: [$size]) {
-                                  ^
-  12:         uri
-  
+Q1: NO ERRORS.
+Q2: NO ERRORS.
 `;

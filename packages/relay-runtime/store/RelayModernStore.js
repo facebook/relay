@@ -8,6 +8,8 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const DataChecker = require('./DataChecker');
@@ -17,6 +19,7 @@ const RelayOptimisticRecordSource = require('./RelayOptimisticRecordSource');
 const RelayProfiler = require('../util/RelayProfiler');
 const RelayReader = require('./RelayReader');
 const RelayReferenceMarker = require('./RelayReferenceMarker');
+const RelayStoreUtils = require('./RelayStoreUtils');
 
 const deepFreeze = require('../util/deepFreeze');
 const defaultGetDataID = require('./defaultGetDataID');
@@ -28,7 +31,8 @@ const resolveImmediate = require('../util/resolveImmediate');
 const {createReaderSelector} = require('./RelayModernSelector');
 
 import type {ReaderFragment} from '../util/ReaderNode';
-import type {Disposable} from '../util/RelayRuntimeTypes';
+import type {DataID, Disposable} from '../util/RelayRuntimeTypes';
+import type {Availability} from './DataChecker';
 import type {
   ConnectionID,
   ConnectionInternalEvent,
@@ -38,8 +42,10 @@ import type {
 } from './RelayConnection';
 import type {GetDataID} from './RelayResponseNormalizer';
 import type {
+  CheckOptions,
   MutableRecordSource,
-  NormalizationSelector,
+  OperationAvailability,
+  OperationDescriptor,
   OperationLoader,
   RecordSource,
   RequestDescriptor,
@@ -50,14 +56,25 @@ import type {
   UpdatedRecords,
 } from './RelayStoreTypes';
 
+export opaque type InvalidationState = {|
+  dataIDs: $ReadOnlyArray<DataID>,
+  invalidations: Map<DataID, ?number>,
+|};
+
 type Subscription = {
   callback: (snapshot: Snapshot) => void,
   snapshot: Snapshot,
   stale: boolean,
   backup: ?Snapshot,
+  ...
 };
 
-type UpdatedConnections = {[ConnectionID]: boolean};
+type InvalidationSubscription = {|
+  callback: () => void,
+  invalidationState: InvalidationState,
+|};
+
+type UpdatedConnections = {[ConnectionID]: boolean, ...};
 type ConnectionEvents = {|
   final: Array<ConnectionInternalEvent>,
   optimistic: ?Array<ConnectionInternalEvent>,
@@ -88,17 +105,25 @@ const DEFAULT_RELEASE_BUFFER_SIZE = 0;
 class RelayModernStore implements Store {
   _connectionEvents: Map<ConnectionID, ConnectionEvents>;
   _connectionSubscriptions: Map<string, ConnectionSubscription<mixed, mixed>>;
+  _currentWriteEpoch: number;
   _gcHoldCounter: number;
   _gcReleaseBufferSize: number;
   _gcScheduler: Scheduler;
   _getDataID: GetDataID;
+  _globalInvalidationEpoch: ?number;
   _hasScheduledGC: boolean;
   _index: number;
+  _invalidationSubscriptions: Set<InvalidationSubscription>;
+  _invalidatedRecordIDs: Set<DataID>;
   _operationLoader: ?OperationLoader;
+  _operationWriteEpochs: Map<string, number>;
   _optimisticSource: ?MutableRecordSource;
   _recordSource: MutableRecordSource;
-  _releaseBuffer: Array<number>;
-  _roots: Map<number, NormalizationSelector>;
+  _releaseBuffer: Array<string>;
+  _roots: Map<
+    string,
+    {|operation: OperationDescriptor, refCount: number, epoch: ?number|},
+  >;
   _shouldScheduleGC: boolean;
   _subscriptions: Set<Subscription>;
   _updatedConnectionIDs: UpdatedConnections;
@@ -125,14 +150,18 @@ class RelayModernStore implements Store {
     }
     this._connectionEvents = new Map();
     this._connectionSubscriptions = new Map();
+    this._currentWriteEpoch = 0;
     this._gcHoldCounter = 0;
     this._gcReleaseBufferSize =
       options?.gcReleaseBufferSize ?? DEFAULT_RELEASE_BUFFER_SIZE;
     this._gcScheduler = options?.gcScheduler ?? resolveImmediate;
     this._getDataID =
       options?.UNSTABLE_DO_NOT_USE_getDataID ?? defaultGetDataID;
+    this._globalInvalidationEpoch = null;
     this._hasScheduledGC = false;
     this._index = 0;
+    this._invalidationSubscriptions = new Set();
+    this._invalidatedRecordIDs = new Set();
     this._operationLoader = options?.operationLoader ?? null;
     this._optimisticSource = null;
     this._recordSource = source;
@@ -157,34 +186,92 @@ class RelayModernStore implements Store {
     }
   }
 
-  check(selector: NormalizationSelector): boolean {
+  check(
+    operation: OperationDescriptor,
+    options?: CheckOptions,
+  ): OperationAvailability {
+    const selector = operation.root;
     const source = this._optimisticSource ?? this._recordSource;
-    return DataChecker.check(
+    const globalInvalidationEpoch = this._globalInvalidationEpoch;
+
+    const rootEntry = this._roots.get(operation.request.identifier);
+    const operationLastWrittenAt = rootEntry != null ? rootEntry.epoch : null;
+
+    // Check if store has been globally invalidated
+    if (globalInvalidationEpoch != null) {
+      // If so, check if the operation we're checking was last written
+      // before or after invalidation occured.
+      if (
+        operationLastWrittenAt == null ||
+        operationLastWrittenAt <= globalInvalidationEpoch
+      ) {
+        // If the operation was written /before/ global invalidation ocurred,
+        // or if this operation has never been written to the store before,
+        // we will consider the data for this operation to be stale
+        //  (i.e. not resolvable from the store).
+        return 'stale';
+      }
+    }
+
+    const target = options?.target ?? source;
+    const handlers = options?.handlers ?? [];
+    const operationAvailability = DataChecker.check(
       source,
-      source,
+      target,
       selector,
-      [],
+      handlers,
       this._operationLoader,
       this._getDataID,
       id => this.getConnectionEvents_UNSTABLE(id),
     );
+
+    return getAvailablityStatus(operationAvailability, operationLastWrittenAt);
   }
 
-  retain(selector: NormalizationSelector): Disposable {
-    const index = this._index++;
+  retain(operation: OperationDescriptor): Disposable {
+    const id = operation.request.identifier;
     const dispose = () => {
-      // When disposing, move the selector onto the release buffer
-      this._releaseBuffer.push(index);
+      // When disposing, instead of immediately decrementing the refCount and
+      // potentially deleting/collecting the root, move the operation onto
+      // the release buffer. When the operation is extracted from the release
+      // buffer, we will determine if it needs to be collected.
+      this._releaseBuffer.push(id);
 
-      // Only when the release buffer is full do we actually
-      // release the selector and run GC
+      // Only when the release buffer is full do we actually:
+      // - extract the least recent operation in the release buffer
+      // - attempt to release it and run GC if it's no longer referenced
+      //   (refCount reached 0).
       if (this._releaseBuffer.length > this._gcReleaseBufferSize) {
-        const idx = this._releaseBuffer.shift();
-        this._roots.delete(idx);
-        this._scheduleGC();
+        const _id = this._releaseBuffer.shift();
+
+        const rootEntry = this._roots.get(_id);
+        if (rootEntry == null) {
+          // If operation has already been fully released, we don't need
+          // to do anything.
+          return;
+        }
+
+        if (rootEntry.refCount > 0) {
+          // If the operation is still retained by other callers
+          // decrement the refCount
+          rootEntry.refCount -= 1;
+        } else {
+          // Otherwise fully release the query and run GC.
+          this._roots.delete(_id);
+          this._scheduleGC();
+        }
       }
     };
-    this._roots.set(index, selector);
+
+    const rootEntry = this._roots.get(id);
+    if (rootEntry != null) {
+      // If we've previously retained this operation, inrement the refCount
+      rootEntry.refCount += 1;
+    } else {
+      // Otherwise create a new entry for the operation
+      this._roots.set(id, {operation, refCount: 0, epoch: null});
+    }
+
     return {dispose};
   }
 
@@ -198,7 +285,18 @@ class RelayModernStore implements Store {
   }
 
   // This method will return a list of updated owners form the subscriptions
-  notify(): $ReadOnlyArray<RequestDescriptor> {
+  notify(
+    sourceOperation?: OperationDescriptor,
+    invalidateStore?: boolean,
+  ): $ReadOnlyArray<RequestDescriptor> {
+    // Increment the current write when notifying after executing
+    // a set of changes to the store.
+    this._currentWriteEpoch++;
+
+    if (invalidateStore === true) {
+      this._globalInvalidationEpoch = this._currentWriteEpoch;
+    }
+
     const source = this.getSource();
     const updatedOwners = [];
     this._subscriptions.forEach(subscription => {
@@ -206,6 +304,12 @@ class RelayModernStore implements Store {
       if (owner != null) {
         updatedOwners.push(owner);
       }
+    });
+    this._invalidationSubscriptions.forEach(subscription => {
+      this._updateInvalidationSubscription(
+        subscription,
+        invalidateStore === true,
+      );
     });
     this._connectionSubscriptions.forEach((subscription, id) => {
       if (subscription.stale) {
@@ -215,12 +319,41 @@ class RelayModernStore implements Store {
     });
     this._updatedConnectionIDs = {};
     this._updatedRecordIDs = {};
+    this._invalidatedRecordIDs.clear();
+
+    // If a source operation was provided (indicating the operation
+    // that produced this update to the store), record the current epoch
+    // at which this operation was written.
+    if (sourceOperation != null) {
+      // We only track the epoch at which the operation was written if
+      // it was previously retained, to keep the size of our operation
+      // epoch map bounded. If a query wasn't retained, we assume it can
+      // may be deleted at any moment and thus is not relevant for us to track
+      // for the purposes of invalidation.
+      const id = sourceOperation.request.identifier;
+      const rootEntry = this._roots.get(id);
+      if (rootEntry != null) {
+        rootEntry.epoch = this._currentWriteEpoch;
+      }
+    }
+
     return updatedOwners;
   }
 
-  publish(source: RecordSource): void {
+  publish(source: RecordSource, idsMarkedForInvalidation?: Set<DataID>): void {
     const target = this._optimisticSource ?? this._recordSource;
-    updateTargetFromSource(target, source, this._updatedRecordIDs);
+    updateTargetFromSource(
+      target,
+      source,
+      // We increment the current epoch at the end of the set of updates,
+      // in notify(). Here, we pass what will be the incremented value of
+      // the epoch to use to write to invalidated records.
+      this._currentWriteEpoch + 1,
+      idsMarkedForInvalidation,
+      this._updatedRecordIDs,
+      this._invalidatedRecordIDs,
+    );
+
     this._connectionSubscriptions.forEach((subscription, id) => {
       const hasStoreUpdates = hasOverlappingIDs(
         subscription.snapshot.seenRecords,
@@ -311,6 +444,73 @@ class RelayModernStore implements Store {
       callback(nextSnapshot);
       return snapshot.selector.owner;
     }
+  }
+
+  lookupInvalidationState(dataIDs: $ReadOnlyArray<DataID>): InvalidationState {
+    const invalidations = new Map();
+    dataIDs.forEach(dataID => {
+      const record = this.getSource().get(dataID);
+      invalidations.set(
+        dataID,
+        RelayModernRecord.getInvalidationEpoch(record) ?? null,
+      );
+    });
+    invalidations.set('global', this._globalInvalidationEpoch);
+    return {
+      dataIDs,
+      invalidations,
+    };
+  }
+
+  checkInvalidationState(prevInvalidationState: InvalidationState): boolean {
+    const latestInvalidationState = this.lookupInvalidationState(
+      prevInvalidationState.dataIDs,
+    );
+    const currentInvalidations = latestInvalidationState.invalidations;
+    const prevInvalidations = prevInvalidationState.invalidations;
+
+    // Check if global invalidation has changed
+    if (
+      currentInvalidations.get('global') !== prevInvalidations.get('global')
+    ) {
+      return true;
+    }
+
+    // Check if the invalidation state for any of the ids has changed.
+    for (const dataID of prevInvalidationState.dataIDs) {
+      if (currentInvalidations.get(dataID) !== prevInvalidations.get(dataID)) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  subscribeToInvalidationState(
+    invalidationState: InvalidationState,
+    callback: () => void,
+  ): Disposable {
+    const subscription = {callback, invalidationState};
+    const dispose = () => {
+      this._invalidationSubscriptions.delete(subscription);
+    };
+    this._invalidationSubscriptions.add(subscription);
+    return {dispose};
+  }
+
+  _updateInvalidationSubscription(
+    subscription: InvalidationSubscription,
+    invalidatedStore: boolean,
+  ) {
+    const {callback, invalidationState} = subscription;
+    const {dataIDs} = invalidationState;
+    const isSubscribedToInvalidatedIDs =
+      invalidatedStore ||
+      dataIDs.some(dataID => this._invalidatedRecordIDs.has(dataID));
+    if (!isSubscribedToInvalidatedIDs) {
+      return;
+    }
+    callback();
   }
 
   lookupConnection_UNSTABLE<TEdge, TState>(
@@ -703,7 +903,8 @@ class RelayModernStore implements Store {
     const references = new Set();
     const connectionReferences = new Set();
     // Mark all records that are traversable from a root
-    this._roots.forEach(selector => {
+    this._roots.forEach(({operation}) => {
+      const selector = operation.root;
       RelayReferenceMarker.mark(
         this._recordSource,
         selector,
@@ -742,17 +943,68 @@ class RelayModernStore implements Store {
 /**
  * Updates the target with information from source, also updating a mapping of
  * which records in the target were changed as a result.
+ * Additionally, will marc records as invalidated at the current write epoch
+ * given the set of record ids marked as stale in this update.
  */
 function updateTargetFromSource(
   target: MutableRecordSource,
   source: RecordSource,
+  currentWriteEpoch: number,
+  idsMarkedForInvalidation: ?Set<DataID>,
   updatedRecordIDs: UpdatedRecords,
+  invalidatedRecordIDs: Set<DataID>,
 ): void {
+  // First, update any records that were marked for invalidation.
+  // For each provided dataID that was invalidated, we write the
+  // INVALIDATED_AT_KEY on the record, indicating
+  // the epoch at which the record was invalidated.
+  if (idsMarkedForInvalidation) {
+    idsMarkedForInvalidation.forEach(dataID => {
+      const targetRecord = target.get(dataID);
+      const sourceRecord = source.get(dataID);
+
+      // If record was deleted during the update (and also invalidated),
+      // we don't need to count it as an invalidated id
+      if (sourceRecord === null) {
+        return;
+      }
+
+      let nextRecord;
+      if (targetRecord != null) {
+        // If the target record exists, use it to set the epoch
+        // at which it was invalidated. This record will be updated with
+        // any changes from source in the section below
+        // where we update the target records based on the source.
+        nextRecord = RelayModernRecord.clone(targetRecord);
+      } else {
+        // If the target record doesn't exist, it means that a new record
+        // in the source was created (and also invalidated), so we use that
+        // record to set the epoch at which it was invalidated. This record
+        // will be updated with any changes from source in the section below
+        // where we update the target records based on the source.
+        nextRecord =
+          sourceRecord != null ? RelayModernRecord.clone(sourceRecord) : null;
+      }
+      if (!nextRecord) {
+        return;
+      }
+      RelayModernRecord.setValue(
+        nextRecord,
+        RelayStoreUtils.INVALIDATED_AT_KEY,
+        currentWriteEpoch,
+      );
+      invalidatedRecordIDs.add(dataID);
+      target.set(dataID, nextRecord);
+    });
+  }
+
+  // Update the target based on the changes present in source
   const dataIDs = source.getRecordIDs();
   for (let ii = 0; ii < dataIDs.length; ii++) {
     const dataID = dataIDs[ii];
     const sourceRecord = source.get(dataID);
     const targetRecord = target.get(dataID);
+
     // Prevent mutation of a record from outside the store.
     if (__DEV__) {
       if (sourceRecord) {
@@ -779,6 +1031,38 @@ function updateTargetFromSource(
       updatedRecordIDs[dataID] = true;
     } // don't add explicit undefined
   }
+}
+
+/**
+ * Returns an OperationAvailability given the Availability returned
+ * by checking an operation, and when that operation was last written to the store.
+ * Specifically, the provided Availablity of a an operation will contain the
+ * value of when a record referenced by the operation was most recently
+ * invalidated; given that value, and given when this operation was last
+ * written to the store, this function will return the overall
+ * OperationAvailability for the operation.
+ */
+function getAvailablityStatus(
+  opearionAvailability: Availability,
+  operationLastWrittenAt: ?number,
+): OperationAvailability {
+  const {mostRecentlyInvalidatedAt, status} = opearionAvailability;
+  if (typeof mostRecentlyInvalidatedAt !== 'number') {
+    // If the record has never been invalidated, it isn't stale,
+    // so return the availability status of the operation.
+    return status;
+  }
+
+  if (operationLastWrittenAt == null) {
+    // If we've never written this operation before and there was an invalidation,
+    // then we don't have enough information to determine staleness,
+    // so by default we will consider it stale.
+    return 'stale';
+  }
+
+  // If the record was invalidated before the operation we're reading was
+  // last written, we can consider it not stale; otherwise consider it stale.
+  return mostRecentlyInvalidatedAt > operationLastWrittenAt ? 'stale' : status;
 }
 
 RelayProfiler.instrumentMethods(RelayModernStore.prototype, {

@@ -9,6 +9,8 @@
  * @emails oncall+relay
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const RelayModernEnvironment = require('../RelayModernEnvironment');
@@ -51,7 +53,7 @@ describe('check()', () => {
     operationDescriptor = createOperationDescriptor(ParentQuery, {size: 32});
   });
 
-  it('returns true if all data exists in the environment', () => {
+  it('returns available if all data exists in the environment', () => {
     environment.commitPayload(operationDescriptor, {
       me: {
         id: '4',
@@ -61,10 +63,10 @@ describe('check()', () => {
         },
       },
     });
-    expect(environment.check(operationDescriptor.root)).toBe(true);
+    expect(environment.check(operationDescriptor)).toBe('available');
   });
 
-  it('returns false if data is missing from the environment', () => {
+  it('returns missing if data is missing from the environment', () => {
     environment.commitPayload(operationDescriptor, {
       me: {
         id: '4',
@@ -74,6 +76,6 @@ describe('check()', () => {
         },
       },
     });
-    expect(environment.check(operationDescriptor.root)).toBe(false);
+    expect(environment.check(operationDescriptor)).toBe('missing');
   });
 });

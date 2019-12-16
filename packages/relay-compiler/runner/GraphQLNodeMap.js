@@ -8,6 +8,8 @@
  * @flow strict-local
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const {createUserError, createCompilerError} = require('../core/CompilerError');

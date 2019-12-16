@@ -8,6 +8,8 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 import type {RecordMap, UpdatedRecords} from './RelayStoreTypes';

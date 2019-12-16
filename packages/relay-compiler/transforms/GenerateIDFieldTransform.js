@@ -8,6 +8,8 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const IRTransformer = require('../core/IRTransformer');
@@ -23,9 +25,7 @@ const {generateIDField} = SchemaUtils;
 const ID = 'id';
 const NODE_TYPE = 'Node';
 
-type State = {
-  idField: ScalarField,
-};
+type State = {idField: ScalarField, ...};
 
 /**
  * A transform that adds an `id` field on any type that has an id field but

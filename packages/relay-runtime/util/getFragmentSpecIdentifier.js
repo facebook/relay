@@ -9,6 +9,8 @@
  * @emails oncall+relay
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const getFragmentIdentifier = require('./getFragmentIdentifier');
@@ -18,8 +20,8 @@ const stableCopy = require('./stableCopy');
 import type {ReaderFragment} from '../util/ReaderNode';
 
 function getFragmentSpecIdentifier(
-  fragmentNodes: {[string]: ReaderFragment},
-  fragmentRefs: {[string]: mixed},
+  fragmentNodes: {[string]: ReaderFragment, ...},
+  fragmentRefs: {[string]: mixed, ...},
 ): string {
   return JSON.stringify(
     stableCopy(

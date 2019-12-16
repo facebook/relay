@@ -28,13 +28,15 @@ const testFragment = graphql\`
  */
 'use strict';
 
-const {
-  graphql
-} = require('relay-runtime');
+var _TestFragment;
 
-const testFragment = function () {
-  return require("../test/artifacts/TestFragment.graphql");
-};
+const {graphql} = require('relay-runtime');
+
+const testFragment =
+  _TestFragment !== void 0
+    ? _TestFragment
+    : (_TestFragment = require('../test/artifacts/TestFragment.graphql'));
+
 `;
 
 exports[`matches expected output: memoize-inner-scope.txt 1`] = `
@@ -77,18 +79,27 @@ function SomeTopLevelView() {
  */
 'use strict';
 
-var _graphql2;
+var _ExampleQuery;
 
 function SomeTopLevelView() {
   const _graphql = 'unrelated';
-  return <View>
-      <QueryRenderer environment={RelayEnvironment} query={_graphql2 || (_graphql2 = function () {
-      return require("../test/artifacts/ExampleQuery.graphql");
-    })} variables={{
-      id: '12345'
-    }} />
-    </View>;
+  return (
+    <View>
+      <QueryRenderer
+        environment={RelayEnvironment}
+        query={
+          _ExampleQuery !== void 0
+            ? _ExampleQuery
+            : (_ExampleQuery = require('../test/artifacts/ExampleQuery.graphql'))
+        }
+        variables={{
+          id: '12345',
+        }}
+      />
+    </View>
+  );
 }
+
 `;
 
 exports[`matches expected output: mutation.txt 1`] = `
@@ -121,13 +132,15 @@ const testMutation = graphql\`
  */
 'use strict';
 
-const {
-  graphql
-} = require('relay-runtime');
+var _TestMutation;
 
-const testMutation = function () {
-  return require("../test/artifacts/TestMutation.graphql");
-};
+const {graphql} = require('relay-runtime');
+
+const testMutation =
+  _TestMutation !== void 0
+    ? _TestMutation
+    : (_TestMutation = require('../test/artifacts/TestMutation.graphql'));
+
 `;
 
 exports[`matches expected output: query.txt 1`] = `
@@ -158,13 +171,15 @@ const testQuery = graphql\`
  */
 'use strict';
 
-const {
-  graphql
-} = require('relay-runtime');
+var _TestQuery;
 
-const testQuery = function () {
-  return require("../test/artifacts/TestQuery.graphql");
-};
+const {graphql} = require('relay-runtime');
+
+const testQuery =
+  _TestQuery !== void 0
+    ? _TestQuery
+    : (_TestQuery = require('../test/artifacts/TestQuery.graphql'));
+
 `;
 
 exports[`matches expected output: too-many-fragments.error.txt 1`] = `

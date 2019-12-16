@@ -9,6 +9,8 @@
  * @emails oncall+relay
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
@@ -33,7 +35,7 @@ import type {ConnectionResolver} from '../RelayConnection';
 type ConnectionEdge = {|
   +__id: DataID,
   +cursor: ?string,
-  +node: ?{[string]: mixed},
+  +node: ?{[string]: mixed, ...},
 |};
 
 type ConnectionState = {|
@@ -43,6 +45,7 @@ type ConnectionState = {|
     hasNextPage: ?boolean,
     hasPrevPage: ?boolean,
     startCursor: ?string,
+    ...
   },
 |};
 
@@ -83,7 +86,7 @@ describe('@connection_resolver connection field', () => {
     // We don't currently offer a way to run the GC immediately; the only way to
     // force a GC is to retain+dispose. The actual query here doesn't matter,
     // we just need *something* to retain/dispose.
-    environment.retain(operation.root).dispose();
+    environment.retain(operation).dispose();
     jest.runAllTimers();
   }
 
@@ -305,7 +308,7 @@ describe('@connection_resolver connection field', () => {
     dataSource.next(payload);
     jest.runAllTimers();
 
-    expect(environment.check(operation.root)).toBe(false);
+    expect(environment.check(operation)).toBe('missing');
   });
 
   it('cannot fulfill queries from the store if a connection edge is missing data', () => {
@@ -348,7 +351,7 @@ describe('@connection_resolver connection field', () => {
     dataSource.next(payload);
     jest.runAllTimers();
 
-    expect(environment.check(operation.root)).toBe(false);
+    expect(environment.check(operation)).toBe('missing');
   });
 
   it('cannot fulfill queries from the store if a connection node is missing data', () => {
@@ -391,7 +394,7 @@ describe('@connection_resolver connection field', () => {
     dataSource.next(payload);
     jest.runAllTimers();
 
-    expect(environment.check(operation.root)).toBe(false);
+    expect(environment.check(operation)).toBe('missing');
   });
 
   it('can fulfill queries from the store if all connection fields are present', () => {
@@ -434,7 +437,7 @@ describe('@connection_resolver connection field', () => {
     dataSource.next(payload);
     jest.runAllTimers();
 
-    expect(environment.check(operation.root)).toBe(true);
+    expect(environment.check(operation)).toBe('available');
   });
 
   it('publishes initial results to the store', () => {
@@ -628,7 +631,7 @@ describe('@connection_resolver connection field', () => {
     });
 
     it('retains edge data when the connection field is retained', () => {
-      environment.retain(operation.root);
+      environment.retain(operation);
       runGC();
       connectionSnapshot = environment
         .getStore()
@@ -846,7 +849,7 @@ describe('@connection_resolver connection field', () => {
       jest.runAllTimers();
       connectionResolver.reduce.mockClear();
 
-      environment.retain(operation.root);
+      environment.retain(operation);
       runGC();
 
       const nextSnapshot = environment
@@ -1353,7 +1356,7 @@ describe('@connection_resolver connection field', () => {
         .subscribe(callbacks);
       dataSource.next(payload);
 
-      environment.retain(operation.root);
+      environment.retain(operation);
       runGC();
       connectionResolver.reduce.mockClear();
 
@@ -1944,7 +1947,7 @@ describe('@connection_resolver connection field', () => {
       });
 
       it('retains optimistic edge data', () => {
-        environment.retain(operation.root);
+        environment.retain(operation);
         runGC();
         connectionResolver.reduce.mockClear();
 

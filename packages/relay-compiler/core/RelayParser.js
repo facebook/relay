@@ -4,9 +4,11 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @flow strict-local
+ * @flow strict
  * @format
  */
+
+// flowlint ambiguous-object-type:error
 
 'use strict';
 
@@ -43,7 +45,7 @@ import type {
 } from './IR';
 import type {
   CompositeTypeID,
-  FieldArgument,
+  Argument as FieldArgument,
   FieldID,
   InputTypeID,
   Schema,
@@ -1376,6 +1378,8 @@ function transformNonNullLiteral(
       schema.getListItemType(nullableType),
     );
     const literalList = [];
+    const items = [];
+    let areAllItemsScalar = true;
     ast.values.forEach(item => {
       const itemValue = transformValue(
         schema,
@@ -1386,19 +1390,23 @@ function transformNonNullLiteral(
       );
       if (itemValue.kind === 'Literal') {
         literalList.push(itemValue.value);
-      } else if (itemValue.kind === 'Variable') {
-        throw createUserError(
-          'Complex argument values (Lists or InputObjects with nested variables) are not supported.',
-          null,
-          [item],
-        );
       }
+      items.push(itemValue);
+      areAllItemsScalar = areAllItemsScalar && itemValue.kind === 'Literal';
     });
-    return {
-      kind: 'Literal',
-      loc: buildLocation(ast.loc),
-      value: literalList,
-    };
+    if (areAllItemsScalar) {
+      return {
+        kind: 'Literal',
+        loc: buildLocation(ast.loc),
+        value: literalList,
+      };
+    } else {
+      return {
+        kind: 'ListValue',
+        loc: buildLocation(ast.loc),
+        items,
+      };
+    }
   } else if (schema.isInputObject(nullableType)) {
     if (ast.kind !== 'ObjectValue') {
       throw createUserError(
@@ -1408,9 +1416,29 @@ function transformNonNullLiteral(
       );
     }
     const literalObject = {};
+    const fields = [];
+    let areAllFieldsScalar = true;
     const inputType = schema.assertInputObjectType(nullableType);
+    const requiredFieldNames = new Set(
+      schema
+        .getFields(inputType)
+        .filter(field => {
+          return schema.isNonNull(schema.getFieldType(field));
+        })
+        .map(field => schema.getFieldName(field)),
+    );
+
+    const seenFields = new Map();
     ast.fields.forEach(field => {
       const fieldName = getName(field);
+      const seenField = seenFields.get(fieldName);
+      if (seenField) {
+        throw createUserError(
+          `Duplicated field name '${fieldName}' in the input object.`,
+          null,
+          [field, seenField],
+        );
+      }
       const fieldID = schema.getFieldByName(inputType, fieldName);
       if (!fieldID) {
         throw createUserError(
@@ -1432,19 +1460,44 @@ function transformNonNullLiteral(
       );
       if (fieldValue.kind === 'Literal') {
         literalObject[field.name.value] = fieldValue.value;
-      } else if (fieldValue.kind === 'Variable') {
-        throw createUserError(
-          'Complex argument values (Lists or InputObjects with nested variables) are not supported.',
-          null,
-          [field.value],
-        );
       }
+      fields.push({
+        kind: 'ObjectFieldValue',
+        loc: buildLocation(field.loc),
+        name: fieldName,
+        value: fieldValue,
+      });
+      seenFields.set(fieldName, field);
+      requiredFieldNames.delete(fieldName);
+      areAllFieldsScalar = areAllFieldsScalar && fieldValue.kind === 'Literal';
     });
-    return {
-      kind: 'Literal',
-      loc: buildLocation(ast.loc),
-      value: literalObject,
-    };
+    if (requiredFieldNames.size > 0) {
+      const requiredFieldStr = Array.from(requiredFieldNames)
+        .map(item => `'${item}'`)
+        .join(', ');
+      throw createUserError(
+        `Missing non-optional field${
+          requiredFieldNames.size > 1 ? 's:' : ''
+        } ${requiredFieldStr} for input type '${schema.getTypeString(
+          inputType,
+        )}'.`,
+        null,
+        [ast],
+      );
+    }
+    if (areAllFieldsScalar) {
+      return {
+        kind: 'Literal',
+        loc: buildLocation(ast.loc),
+        value: literalObject,
+      };
+    } else {
+      return {
+        kind: 'ObjectValue',
+        loc: buildLocation(ast.loc),
+        fields,
+      };
+    }
   } else if (schema.isId(nullableType)) {
     // GraphQLID's parseLiteral() always returns the string value. However
     // the int/string distinction may be important at runtime, so this

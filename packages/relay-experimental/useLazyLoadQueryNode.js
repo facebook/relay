@@ -9,6 +9,8 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const ProfilerContext = require('./ProfilerContext');
@@ -23,13 +25,14 @@ const {
   __internal: {fetchQuery},
 } = require('relay-runtime');
 
-import type {FetchPolicy, RenderPolicy} from './QueryResource';
 import type {
   CacheConfig,
+  FetchPolicy,
   GraphQLResponse,
   Observable,
   OperationDescriptor,
   OperationType,
+  RenderPolicy,
 } from 'relay-runtime';
 
 const {useContext, useEffect} = React;
@@ -57,7 +60,7 @@ function useLazyLoadQueryNode<TQuery: OperationType>(args: {|
   const fetchObservable =
     args.fetchObservable ??
     fetchQuery(environment, query, {
-      networkCacheConfig: args.networkCacheConfig,
+      networkCacheConfig: args.networkCacheConfig ?? {force: true},
     });
   const {startFetch, completeFetch} = useFetchTrackingRef();
 

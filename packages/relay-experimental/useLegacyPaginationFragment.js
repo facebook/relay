@@ -9,6 +9,8 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const getPaginationMetadata = require('./getPaginationMetadata');
@@ -41,7 +43,7 @@ export type ReturnType<TQuery: OperationType, TKey, TFragmentData> = {|
 
 function useLegacyPaginationFragment<
   TQuery: OperationType,
-  TKey: ?{+$data?: mixed},
+  TKey: ?{+$data?: mixed, ...},
 >(
   fragmentInput: GraphQLTaggedNode,
   parentFragmentRef: TKey,
@@ -53,8 +55,8 @@ function useLegacyPaginationFragment<
   //   - non-nullable if the provided ref type is non-nullable
   // prettier-ignore
   $Call<
-    & (<TFragmentData>( {+$data?: TFragmentData}) =>  TFragmentData)
-    & (<TFragmentData>(?{+$data?: TFragmentData}) => ?TFragmentData),
+    & (<TFragmentData>( { +$data?: TFragmentData, ... }) =>  TFragmentData)
+    & (<TFragmentData>(?{ +$data?: TFragmentData, ... }) => ?TFragmentData),
     TKey,
   >,
 > {
@@ -135,7 +137,11 @@ function useLegacyPaginationFragment<
 function useLoadMore(
   args: $Diff<
     UseLoadMoreFunctionArgs,
-    {observer: Observer<GraphQLResponse>, onReset: () => void},
+    {
+      observer: Observer<GraphQLResponse>,
+      onReset: () => void,
+      ...
+    },
   >,
 ): [LoadMoreFn, boolean, boolean, () => void] {
   const [isLoadingMore, setIsLoadingMore] = useState(false);

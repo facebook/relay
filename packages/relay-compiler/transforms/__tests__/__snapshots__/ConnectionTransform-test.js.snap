@@ -883,12 +883,11 @@ THROWN EXCEPTION:
 
 Expected a value matching type 'String!'.
 
-GraphQL request (6:44)
-5:     ... on Story {
-6:       comments(first: 10) @connection(key: 10) {
-                                              ^
-7:         edges {
-
+GraphQL request:6:44
+5 |     ... on Story {
+6 |       comments(first: 10) @connection(key: 10) {
+  |                                            ^
+7 |         edges {
 `;
 
 exports[`matches expected output: invalid-connection-with-custom-handler.graphql 1`] = `
@@ -924,12 +923,11 @@ THROWN EXCEPTION:
 
 Expected a value matching type 'String'.
 
-GraphQL request (6:75)
-5:     ... on Story {
-6:       comments(first: 10) @connection(key: "NodeQuery_comments", handler: 10) {
-                                                                             ^
-7:         edges {
-
+GraphQL request:6:75
+5 |     ... on Story {
+6 |       comments(first: 10) @connection(key: "NodeQuery_comments", handler: 10) {
+  |                                                                           ^
+7 |         edges {
 `;
 
 exports[`matches expected output: invalid-type.graphql 1`] = `

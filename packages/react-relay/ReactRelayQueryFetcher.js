@@ -8,6 +8,8 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const invariant = require('invariant');
@@ -27,7 +29,11 @@ import type {
   Snapshot,
 } from 'relay-runtime';
 
-type OnDataChange = ({error?: Error, snapshot?: Snapshot}) => void;
+type OnDataChange = ({
+  error?: Error,
+  snapshot?: Snapshot,
+  ...
+}) => void;
 
 /** The external API of 'fetch' **/
 export type FetchOptions = {|
@@ -67,6 +73,7 @@ class ReactRelayQueryFetcher {
   constructor(args?: {
     cacheSelectionReference: ?Disposable,
     selectionReferences: Array<Disposable>,
+    ...
   }) {
     if (args != null) {
       this._cacheSelectionReference = args.cacheSelectionReference;
@@ -93,7 +100,7 @@ class ReactRelayQueryFetcher {
       fetchPolicy === 'store-and-network' ||
       fetchPolicy === 'store-or-network'
     ) {
-      if (environment.check(operation.root)) {
+      if (environment.check(operation) === 'available') {
         this._retainCachedOperation(environment, operation);
         return environment.lookup(operation.fragment);
       }
@@ -107,7 +114,7 @@ class ReactRelayQueryFetcher {
     cacheConfig,
     preservePreviousReferences = false,
   }: ExecuteConfig): Observable<mixed> {
-    const reference = environment.retain(operation.root);
+    const reference = environment.retain(operation);
     const fetchQueryOptions =
       cacheConfig != null
         ? {
@@ -300,7 +307,7 @@ class ReactRelayQueryFetcher {
     operation: OperationDescriptor,
   ) {
     this._disposeCacheSelectionReference();
-    this._cacheSelectionReference = environment.retain(operation.root);
+    this._cacheSelectionReference = environment.retain(operation);
   }
 
   _disposeCacheSelectionReference() {
@@ -314,7 +321,12 @@ class ReactRelayQueryFetcher {
     this._selectionReferences = [];
   }
 
-  _onQueryDataAvailable({notifyFirstResult}: {notifyFirstResult: boolean}) {
+  _onQueryDataAvailable({
+    notifyFirstResult,
+  }: {
+    notifyFirstResult: boolean,
+    ...
+  }) {
     invariant(
       this._fetchOptions,
       'ReactRelayQueryFetcher: `_onQueryDataAvailable` should have been called after having called `fetch`',

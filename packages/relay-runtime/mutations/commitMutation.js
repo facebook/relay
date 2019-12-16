@@ -8,61 +8,74 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const RelayDeclarativeMutationConfig = require('./RelayDeclarativeMutationConfig');
+const RelayFeatureFlags = require('../util/RelayFeatureFlags');
 
 const invariant = require('invariant');
 const isRelayModernEnvironment = require('../store/isRelayModernEnvironment');
 const validateMutation = require('./validateMutation');
 const warning = require('warning');
 
-const {getRequest} = require('../query/RelayModernGraphQLTag');
+const { getRequest } = require('../query/GraphQLTag');
+const { generateUniqueClientID } = require('../store/ClientID');
 const {
   createOperationDescriptor,
 } = require('../store/RelayModernOperationDescriptor');
 
-import type {PayloadError, UploadableMap} from '../network/RelayNetworkTypes';
-import type {GraphQLTaggedNode} from '../query/RelayModernGraphQLTag';
+import type { PayloadError, UploadableMap } from '../network/RelayNetworkTypes';
+import type { GraphQLTaggedNode } from '../query/GraphQLTag';
 import type {
   IEnvironment,
-  SelectorStoreUpdater,
+    SelectorStoreUpdater,
 } from '../store/RelayStoreTypes';
-import type {Disposable, Variables} from '../util/RelayRuntimeTypes';
-import type {DeclarativeMutationConfig} from './RelayDeclarativeMutationConfig';
+import type { Disposable, Variables } from '../util/RelayRuntimeTypes';
+import type { DeclarativeMutationConfig } from './RelayDeclarativeMutationConfig';
 
 export type DEPRECATED_MutationConfig<T> = {|
-  configs?: Array<DeclarativeMutationConfig>,
-  mutation: GraphQLTaggedNode,
-  variables: Variables,
-  uploadables?: UploadableMap,
-  onCompleted?: ?(response: T, errors: ?Array<PayloadError>) => void,
-  onError?: ?(error: Error) => void,
-  optimisticUpdater?: ?SelectorStoreUpdater,
-  optimisticResponse?: Object,
-  updater?: ?SelectorStoreUpdater,
+  configs?: Array < DeclarativeMutationConfig >,
+    mutation: GraphQLTaggedNode,
+      variables: Variables,
+        uploadables ?: UploadableMap,
+        onCompleted ?: ? (response: T, errors: ?Array<PayloadError>) => void,
+        onError ?: ? (error: Error) => void,
+        onUnsubscribe ?: ? () => void,
+        optimisticUpdater ?: ? SelectorStoreUpdater,
+        optimisticResponse ?: Object,
+        updater ?: ? SelectorStoreUpdater,
 |};
 
 export type MutationParameters = {|
-  +response: {},
-  +variables: {},
-  +rawResponse?: {},
+  +response: {... },
++variables: {... },
++rawResponse ?: { ...},
 |};
 
 export type MutationConfig<T: MutationParameters> = {|
-  configs?: Array<DeclarativeMutationConfig>,
-  metadata?: {[key: string]: mixed},
-  mutation: GraphQLTaggedNode,
-  onError?: ?(error: Error) => void,
-  onCompleted?: ?(
-    response: $ElementType<T, 'response'>,
-    errors: ?Array<PayloadError>,
-  ) => void,
-  optimisticResponse?: $ElementType<{+rawResponse?: {}, ...T}, 'rawResponse'>,
-  optimisticUpdater?: ?SelectorStoreUpdater,
-  updater?: ?SelectorStoreUpdater,
-  uploadables?: UploadableMap,
-  variables: $ElementType<T, 'variables'>,
+  configs?: Array < DeclarativeMutationConfig >,
+    metadata ?: { [key: string]: mixed },
+    mutation: GraphQLTaggedNode,
+      onError ?: ? (error: Error) => void,
+      onCompleted ?: ? (
+        response: $ElementType<T, 'response'>,
+        errors: ?Array<PayloadError>,
+      ) => void,
+      onUnsubscribe ?: ? () => void,
+      optimisticResponse ?: $ElementType <
+        {
+      + rawResponse ?: { ...},
+      ...T,
+      ...
+    },
+'rawResponse',
+  >,
+  optimisticUpdater ?: ? SelectorStoreUpdater,
+  updater ?: ? SelectorStoreUpdater,
+  uploadables ?: UploadableMap,
+  variables: $ElementType < T, 'variables' >,
 |};
 
 /**
@@ -76,7 +89,7 @@ function commitMutation<T: MutationParameters>(
   invariant(
     isRelayModernEnvironment(environment),
     'commitMutation: expected `environment` to be an instance of ' +
-      '`RelayModernEnvironment`.',
+    '`RelayModernEnvironment`.',
   );
   const mutation = getRequest(config.mutation);
   if (mutation.params.operationKind !== 'mutation') {
@@ -85,25 +98,31 @@ function commitMutation<T: MutationParameters>(
   if (mutation.kind !== 'Request') {
     throw new Error('commitMutation: Expected mutation to be of type request');
   }
-  let {optimisticResponse, optimisticUpdater, updater} = config;
-  const {configs, metadata, onError, variables, uploadables} = config;
-  const operation = createOperationDescriptor(mutation, variables);
+  let { optimisticResponse, optimisticUpdater, updater } = config;
+  const { configs, metadata, onError, onUnsubscribe, variables, uploadables } = config;
+  const operation = createOperationDescriptor(
+    mutation,
+    variables,
+    RelayFeatureFlags.ENABLE_UNIQUE_MUTATION_ROOT
+      ? generateUniqueClientID()
+      : undefined,
+  );
   // TODO: remove this check after we fix flow.
   if (typeof optimisticResponse === 'function') {
     optimisticResponse = optimisticResponse();
     warning(
       false,
       'commitMutation: Expected `optimisticResponse` to be an object, ' +
-        'received a function.',
+      'received a function.',
     );
   }
   if (__DEV__) {
     if (optimisticResponse instanceof Object) {
-      validateMutation(optimisticResponse, mutation, config.variables);
+      validateMutation(optimisticResponse, mutation, variables);
     }
   }
   if (configs) {
-    ({optimisticUpdater, updater} = RelayDeclarativeMutationConfig.convert(
+    ({ optimisticUpdater, updater } = RelayDeclarativeMutationConfig.convert(
       configs,
       mutation,
       optimisticUpdater,
@@ -127,18 +146,19 @@ function commitMutation<T: MutationParameters>(
         }
       },
       complete: () => {
-        const {onCompleted} = config;
+        const { onCompleted } = config;
         if (onCompleted) {
           const snapshot = environment.lookup(operation.fragment);
           onCompleted(
             (snapshot.data: $FlowFixMe),
             errors.length !== 0 ? errors : null,
           );
-        }
+}
       },
-      error: onError,
+error: onError,
+  unsubscribe: onUnsubscribe,
     });
-  return {dispose: subscription.unsubscribe};
+return { dispose: subscription.unsubscribe };
 }
 
 module.exports = commitMutation;

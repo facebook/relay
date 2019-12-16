@@ -4,9 +4,11 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @flow stict-local
+ * @flow strict-local
  * @format
  */
+
+// flowlint ambiguous-object-type:error
 
 'use strict';
 
@@ -26,7 +28,7 @@ import type {
 } from 'relay-compiler';
 import type {GeneratedNode} from 'relay-runtime';
 
-export type ValidationRule = (context: ValidationContext) => any;
+export type ValidationRule = (context: ValidationContext) => $FlowFixMe;
 
 function compileArtifacts({
   schema,

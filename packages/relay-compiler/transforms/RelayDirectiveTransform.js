@@ -8,6 +8,8 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const IRTransformer = require('../core/IRTransformer');
@@ -40,7 +42,7 @@ function relayDirectiveTransform(context: CompilerContext): CompilerContext {
   });
 }
 
-type MixedObj = {[key: string]: mixed};
+type MixedObj = {[key: string]: mixed, ...};
 function visitRelayMetadata<T: Fragment | FragmentSpread>(
   metadataFn: MixedObj => MixedObj,
 ): T => T {

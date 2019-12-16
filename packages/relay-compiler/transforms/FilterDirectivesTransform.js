@@ -8,6 +8,8 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const IRTransformer = require('../core/IRTransformer');
@@ -24,7 +26,7 @@ function filterDirectivesTransform(context: CompilerContext): CompilerContext {
     context
       .getSchema()
       .getDirectives()
-      .filter(directive => !directive.clientOnlyDirective)
+      .filter(directive => !directive.isClient)
       .map(schemaDirective => schemaDirective.name),
   );
   const visitDirective = (directive: Directive): ?Directive => {

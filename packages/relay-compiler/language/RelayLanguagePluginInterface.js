@@ -8,6 +8,8 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const {RelayConcreteNode} = require('relay-runtime');
@@ -36,6 +38,8 @@ export type PluginInterface = {
   findGraphQLTags: GraphQLTagFinder,
   formatModule: FormatModule,
   typeGenerator: TypeGenerator,
+  schemaExtensions?: $ReadOnlyArray<string>,
+  ...
 };
 
 /**
@@ -57,7 +61,6 @@ export type GraphQLTag = {
    *  grapqhl`fragment MyFragment on MyType { … }`
    */
   template: string,
-
   /**
    * In the case this tag was part of a fragment container and it used a node
    * map as fragment spec, rather than a single tagged node, this should hold
@@ -74,7 +77,6 @@ export type GraphQLTag = {
    *
    */
   keyName: ?string,
-
   /**
    * The location in the source file that the tag is placed at.
    */
@@ -93,6 +95,7 @@ export type GraphQLTag = {
      */
     column: number,
   |},
+  ...
 };
 
 /**
@@ -263,7 +266,6 @@ export type TypeGenerator = {
    * GraphQL document before passing to the `generate` function.
    */
   transforms: $ReadOnlyArray<IRTransform>,
-
   /**
    * Given GraphQL document IR, this function should generate type information
    * for e.g. the selections made. It can, however, also generate any other
@@ -274,4 +276,5 @@ export type TypeGenerator = {
     node: Root | Fragment,
     options: TypeGeneratorOptions,
   ) => string,
+  ...
 };

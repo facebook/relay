@@ -8,6 +8,8 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const CodegenRunner = require('../codegen/CodegenRunner');
@@ -32,7 +34,7 @@ const {
   fragmentTransforms,
   printTransforms,
   queryTransforms,
-  schemaExtensions,
+  schemaExtensions: relaySchemaExtensions,
 } = RelayIRTransforms;
 
 import type {ScalarTypeMapping} from '../language/javascript/RelayFlowTypeTransformers';
@@ -65,6 +67,7 @@ function buildWatchExpression(config: {
   extensions: Array<string>,
   include: Array<string>,
   exclude: Array<string>,
+  ...
 }) {
   return [
     'allof',
@@ -84,6 +87,7 @@ function getFilepathsFromGlob(
     extensions: Array<string>,
     include: Array<string>,
     exclude: Array<string>,
+    ...
   },
 ): Array<string> {
   const {extensions, include, exclude} = config;
@@ -95,7 +99,7 @@ function getFilepathsFromGlob(
   });
 }
 
-type LanguagePlugin = PluginInitializer | {default: PluginInitializer};
+type LanguagePlugin = PluginInitializer | {default: PluginInitializer, ...};
 
 /**
  * Unless the requested plugin is the builtin `javascript` one, import a
@@ -290,6 +294,9 @@ function getCodegenRunner(config: Config): CodegenRunner {
     include: config.include,
     exclude: [path.relative(config.src, config.schema)].concat(config.exclude),
   };
+  const schemaExtensions = languagePlugin.schemaExtensions
+    ? [...languagePlugin.schemaExtensions, ...relaySchemaExtensions]
+    : relaySchemaExtensions;
   const parserConfigs = {
     [sourceParserName]: {
       baseDir: config.src,
@@ -386,6 +393,9 @@ function getRelayFileWriter(
         return id;
       };
     }
+    const schemaExtensions = languagePlugin.schemaExtensions
+      ? [...languagePlugin.schemaExtensions, ...relaySchemaExtensions]
+      : relaySchemaExtensions;
     const results = await RelayFileWriter.writeAll({
       config: {
         baseDir,

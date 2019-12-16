@@ -4,9 +4,11 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @flow strict-local
+ * @flow strict
  * @format
  */
+
+// flowlint ambiguous-object-type:error
 
 'use strict';
 
@@ -24,6 +26,17 @@ function getIdentifierForArgumentValue(value: ArgumentValue): mixed {
       return {variable: value.variableName};
     case 'Literal':
       return {value: value.value};
+    case 'ListValue':
+      return {
+        list: value.items.map(item => getIdentifierForArgumentValue(item)),
+      };
+    case 'ObjectValue':
+      return {
+        object: value.fields.map(field => ({
+          name: field.name,
+          value: getIdentifierForArgumentValue(field.value),
+        })),
+      };
     default:
       invariant(
         false,

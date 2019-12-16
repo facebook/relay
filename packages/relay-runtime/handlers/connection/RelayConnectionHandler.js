@@ -8,6 +8,8 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const RelayConnectionInterface = require('./RelayConnectionInterface');
@@ -32,6 +34,7 @@ export type ConnectionMetadata = {
   cursor: ?string,
   count: ?string,
   stream?: boolean,
+  ...
 };
 
 const CONNECTION = 'connection';

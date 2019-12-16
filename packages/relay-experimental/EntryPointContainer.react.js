@@ -9,6 +9,8 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const React = require('react');
@@ -19,9 +21,9 @@ import type {
 } from './EntryPointTypes.flow';
 
 function EntryPointContainer<
-  +TPreloadedQueries: {},
-  +TPreloadedNestedEntryPoints: {},
-  +TRuntimeProps: {},
+  +TPreloadedQueries: {...},
+  +TPreloadedNestedEntryPoints: {...},
+  +TRuntimeProps: {...},
   +TExtraProps,
   +TEntryPointComponent: EntryPointComponent<
     TPreloadedQueries,

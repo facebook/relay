@@ -9,6 +9,8 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const ExecutionEnvironment = require('fbjs/lib/ExecutionEnvironment');
@@ -132,6 +134,7 @@ function preloadQueryDeduped<TQuery: OperationType>(
   const network = environment.getNetwork();
   const fetchPolicy = options?.fetchPolicy ?? STORE_OR_NETWORK_DEFAULT;
   const fetchKey = options?.fetchKey;
+  const networkCacheConfig = options?.networkCacheConfig ?? {force: true};
   const cacheKey = `${getRequestIdentifier(params, variables)}${
     fetchKey != null ? `-${fetchKey}` : ''
   }`;
@@ -140,8 +143,8 @@ function preloadQueryDeduped<TQuery: OperationType>(
   const shouldFulfillFromCache =
     fetchPolicy === STORE_OR_NETWORK_DEFAULT &&
     query != null &&
-    (prevQueryEntry?.kind === 'cache' ||
-      environment.check(createOperationDescriptor(query, variables).root));
+    environment.check(createOperationDescriptor(query, variables)) ===
+      'available';
 
   let nextQueryEntry;
   if (shouldFulfillFromCache) {
@@ -170,7 +173,13 @@ function preloadQueryDeduped<TQuery: OperationType>(
       params,
       variables,
     );
-    const source = network.execute(params, variables, {}, null, logRequestInfo);
+    const source = network.execute(
+      params,
+      variables,
+      networkCacheConfig,
+      null,
+      logRequestInfo,
+    );
     const subject = new ReplaySubject();
     nextQueryEntry = {
       cacheKey,

@@ -9,6 +9,8 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const React = require('react');
@@ -361,9 +363,10 @@ describe('useBlockingPaginationFragment', () => {
     Renderer = props => null;
 
     const Container = (props: {
-      userRef?: {},
+      userRef?: {...},
       owner: $FlowFixMe,
       fragment: $FlowFixMe,
+      ...
     }) => {
       // We need a render a component to run a Hook
       const [owner, _setOwner] = useState(props.owner);
@@ -405,6 +408,7 @@ describe('useBlockingPaginationFragment', () => {
       owner?: $FlowFixMe,
       userRef?: $FlowFixMe,
       fragment?: $FlowFixMe,
+      ...
     }): $FlowFixMe => {
       const {isConcurrent = false, ...props} = args ?? {};
       let renderer;
@@ -454,7 +458,7 @@ describe('useBlockingPaginationFragment', () => {
   });
 
   describe('initial render', () => {
-    // The bulk of initial render behavior is covered in useFragmentNodes-test,
+    // The bulk of initial render behavior is covered in useFragmentNode-test,
     // so this suite covers the basic cases as a sanity check.
     it('should throw error if fragment is plural', () => {
       jest.spyOn(console, 'error').mockImplementationOnce(() => {});
@@ -3402,7 +3406,7 @@ describe('useBlockingPaginationFragment', () => {
         // Assert query is tentatively retained while component is suspended
         expect(environment.retain).toBeCalledTimes(1);
         expect(environment.retain.mock.calls[0][0]).toEqual(
-          expected.refetchQuery?.root ?? paginationQuery.root,
+          expected.refetchQuery ?? paginationQuery,
         );
       }
 
@@ -3513,9 +3517,7 @@ describe('useBlockingPaginationFragment', () => {
         // Assert refetch query was retained
         expect(release).not.toBeCalled();
         expect(environment.retain).toBeCalledTimes(1);
-        expect(environment.retain.mock.calls[0][0]).toEqual(
-          paginationQuery.root,
-        );
+        expect(environment.retain.mock.calls[0][0]).toEqual(paginationQuery);
       });
 
       it('refetches new variables correctly when refetching same id', () => {
@@ -3625,9 +3627,7 @@ describe('useBlockingPaginationFragment', () => {
         // Assert refetch query was retained
         expect(release).not.toBeCalled();
         expect(environment.retain).toBeCalledTimes(1);
-        expect(environment.retain.mock.calls[0][0]).toEqual(
-          paginationQuery.root,
-        );
+        expect(environment.retain.mock.calls[0][0]).toEqual(paginationQuery);
       });
 
       it('refetches with correct id from refetchable fragment when using nested fragment', () => {
@@ -3799,9 +3799,7 @@ describe('useBlockingPaginationFragment', () => {
         // Assert refetch query was retained
         expect(release).not.toBeCalled();
         expect(environment.retain).toBeCalledTimes(1);
-        expect(environment.retain.mock.calls[0][0]).toEqual(
-          paginationQuery.root,
-        );
+        expect(environment.retain.mock.calls[0][0]).toEqual(paginationQuery);
       });
 
       it('loads more items correctly after refetching', () => {
@@ -3911,9 +3909,7 @@ describe('useBlockingPaginationFragment', () => {
         // Assert refetch query was retained
         expect(release).not.toBeCalled();
         expect(environment.retain).toBeCalledTimes(1);
-        expect(environment.retain.mock.calls[0][0]).toEqual(
-          paginationQuery.root,
-        );
+        expect(environment.retain.mock.calls[0][0]).toEqual(paginationQuery);
 
         // Paginate after refetching
         environment.execute.mockClear();

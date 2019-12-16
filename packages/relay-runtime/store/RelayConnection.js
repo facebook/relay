@@ -8,6 +8,8 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 import type {ReaderLinkedField} from '../util/ReaderNode';
@@ -26,7 +28,7 @@ export type ConnectionRecord = {|
   +events: Array<ConnectionInternalEvent>,
 |};
 
-export type ConnectionMap = {[ConnectionID]: ?ConnectionRecord};
+export type ConnectionMap = {[ConnectionID]: ?ConnectionRecord, ...};
 
 export type GetConnectionEvents = (
   connectionID: ConnectionID,
@@ -73,7 +75,7 @@ export type ConnectionEvent<TEdge> =
       +pageInfo: PageInfo,
       +stream: boolean,
     |}
-  | {|+kind: 'update', +edgeData: {[DataID]: ?TEdge}|}
+  | {|+kind: 'update', +edgeData: {[DataID]: ?TEdge, ...}|}
   | {|+kind: 'insert', +args: Variables, +edge: ?TEdge|}
   | {|
       +kind: 'stream.edge',
@@ -95,6 +97,7 @@ export interface ConnectionResolver<TEdge, TState> {
 // Intentionally inexact
 export type ConnectionReferenceObject<TEdge> = {
   +__connection: ConnectionReference<TEdge>,
+  ...
 };
 
 // Note: The phantom TEdge type allows propagation of the `edges` field
@@ -108,7 +111,7 @@ export type ConnectionReference<TEdge> = {|
 |};
 
 export type ConnectionSnapshot<TEdge, TState> = {|
-  +edgeSnapshots: {[DataID]: TypedSnapshot<TEdge>},
+  +edgeSnapshots: {[DataID]: TypedSnapshot<TEdge>, ...},
   +id: ConnectionID,
   +reference: ConnectionReference<TEdge>,
   +seenRecords: RecordMap,

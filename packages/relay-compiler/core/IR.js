@@ -8,6 +8,8 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 import type {
@@ -18,7 +20,7 @@ import type {
 } from './Schema';
 import type {Source} from 'graphql';
 
-export type Metadata = ?{[key: string]: mixed};
+export type Metadata = ?{[key: string]: mixed, ...};
 
 export type SourceLocation = {|
   +kind: 'Source',
@@ -53,7 +55,7 @@ export type ArgumentDefinition =
   | LocalArgumentDefinition
   | RootArgumentDefinition;
 
-export type ArgumentValue = Literal | Variable;
+export type ArgumentValue = ListValue | Literal | ObjectValue | Variable;
 
 export type Condition = {|
   +kind: 'Condition',
@@ -134,9 +136,12 @@ export type IR =
   | InlineDataFragmentSpread
   | InlineFragment
   | LinkedField
+  | ListValue
   | Literal
   | LocalArgumentDefinition
   | ModuleImport
+  | ObjectFieldValue
+  | ObjectValue
   | Request
   | Root
   | RootArgumentDefinition
@@ -144,6 +149,19 @@ export type IR =
   | SplitOperation
   | Stream
   | Variable;
+
+export type ObjectFieldValue = {|
+  +kind: 'ObjectFieldValue',
+  +loc: Location,
+  +name: string,
+  +value: ArgumentValue,
+|};
+
+export type ObjectValue = {|
+  +kind: 'ObjectValue',
+  +fields: $ReadOnlyArray<ObjectFieldValue>,
+  +loc: Location,
+|};
 
 export type RootArgumentDefinition = {|
   +kind: 'RootArgumentDefinition',
@@ -216,6 +234,12 @@ export type ConnectionField = {|
   +name: string,
   +selections: $ReadOnlyArray<Selection>,
   +type: LinkedFieldTypeID,
+|};
+
+export type ListValue = {|
+  +kind: 'ListValue',
+  +items: $ReadOnlyArray<ArgumentValue>,
+  +loc: Location,
 |};
 
 export type Literal = {|

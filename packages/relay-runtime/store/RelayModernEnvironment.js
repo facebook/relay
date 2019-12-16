@@ -9,11 +9,13 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
-const DataChecker = require('./DataChecker');
 const RelayDefaultHandlerProvider = require('../handlers/RelayDefaultHandlerProvider');
 const RelayDefaultMissingFieldHandlers = require('../handlers/RelayDefaultMissingFieldHandlers');
+const RelayFeatureFlags = require('../util/RelayFeatureFlags');
 const RelayModernQueryExecutor = require('./RelayModernQueryExecutor');
 const RelayObservable = require('../network/RelayObservable');
 const RelayOperationTracker = require('../store/RelayOperationTracker');
@@ -37,6 +39,7 @@ import type {RequestParameters} from '../util/RelayConcreteNode';
 import type {
   CacheConfig,
   Disposable,
+  RenderPolicy,
   Variables,
 } from '../util/RelayRuntimeTypes';
 import type {TaskScheduler} from './RelayModernQueryExecutor';
@@ -45,7 +48,7 @@ import type {
   IEnvironment,
   LogFunction,
   MissingFieldHandler,
-  NormalizationSelector,
+  OperationAvailability,
   OperationDescriptor,
   OperationLoader,
   OperationTracker,
@@ -75,10 +78,13 @@ export type EnvironmentConfig = {|
    * because the internal ID might not be the `id` field on the node anymore
    */
   +UNSTABLE_DO_NOT_USE_getDataID?: ?GetDataID,
+  +UNSTABLE_defaultRenderPolicy?: ?RenderPolicy,
+  +options?: mixed,
 |};
 
 class RelayModernEnvironment implements IEnvironment {
   __log: LogFunction;
+  +_defaultRenderPolicy: RenderPolicy;
   _operationLoader: ?OperationLoader;
   _network: INetwork;
   _publishQueue: PublishQueue;
@@ -88,6 +94,7 @@ class RelayModernEnvironment implements IEnvironment {
   _missingFieldHandlers: ?$ReadOnlyArray<MissingFieldHandler>;
   _operationTracker: OperationTracker;
   _getDataID: GetDataID;
+  +options: mixed;
 
   constructor(config: EnvironmentConfig) {
     this.configName = config.configName;
@@ -108,6 +115,11 @@ class RelayModernEnvironment implements IEnvironment {
       }
     }
     this.__log = config.log ?? emptyFunction;
+    this._defaultRenderPolicy =
+      config.UNSTABLE_defaultRenderPolicy ??
+      RelayFeatureFlags.ENABLE_PARTIAL_RENDERING_DEFAULT === true
+        ? 'partial'
+        : 'full';
     this._operationLoader = operationLoader;
     this._network = config.network;
     this._getDataID = config.UNSTABLE_DO_NOT_USE_getDataID ?? defaultGetDataID;
@@ -118,6 +130,7 @@ class RelayModernEnvironment implements IEnvironment {
     );
     this._scheduler = config.scheduler ?? null;
     this._store = config.store;
+    this.options = config.options;
 
     (this: any).__setNet = newNet => (this._network = newNet);
 
@@ -157,6 +170,10 @@ class RelayModernEnvironment implements IEnvironment {
     return this._operationTracker;
   }
 
+  UNSTABLE_getDefaultRenderPolicy(): RenderPolicy {
+    return this._defaultRenderPolicy;
+  }
+
   applyUpdate(optimisticUpdate: OptimisticUpdateFunction): Disposable {
     const dispose = () => {
       this._publishQueue.revertUpdate(optimisticUpdate);
@@ -192,6 +209,7 @@ class RelayModernEnvironment implements IEnvironment {
         scheduler: this._scheduler,
         sink,
         source,
+        store: this._store,
         updater: null,
         operationTracker: this._operationTracker,
         getDataID: this._getDataID,
@@ -203,12 +221,15 @@ class RelayModernEnvironment implements IEnvironment {
     };
   }
 
-  check(readSelector: NormalizationSelector): boolean {
-    if (this._missingFieldHandlers == null) {
-      return this._store.check(readSelector);
+  check(operation: OperationDescriptor): OperationAvailability {
+    if (
+      this._missingFieldHandlers == null ||
+      this._missingFieldHandlers.length === 0
+    ) {
+      return this._store.check(operation);
     }
     return this._checkSelectorAndHandleMissingFields(
-      readSelector,
+      operation,
       this._missingFieldHandlers,
     );
   }
@@ -222,10 +243,15 @@ class RelayModernEnvironment implements IEnvironment {
         publishQueue: this._publishQueue,
         scheduler: null, // make sure the first payload is sync
         sink,
-        source: RelayObservable.from({data: payload}),
+        source: RelayObservable.from({
+          data: payload,
+          extensions: {is_final: true},
+        }),
+        store: this._store,
         updater: null,
         operationTracker: this._operationTracker,
         getDataID: this._getDataID,
+        isClientPayload: true,
       });
       return () => executor.cancel();
     }).subscribe({});
@@ -247,24 +273,16 @@ class RelayModernEnvironment implements IEnvironment {
     return this._store.subscribe(snapshot, callback);
   }
 
-  retain(selector: NormalizationSelector): Disposable {
-    return this._store.retain(selector);
+  retain(operation: OperationDescriptor): Disposable {
+    return this._store.retain(operation);
   }
 
   _checkSelectorAndHandleMissingFields(
-    selector: NormalizationSelector,
+    operation: OperationDescriptor,
     handlers: $ReadOnlyArray<MissingFieldHandler>,
-  ): boolean {
+  ): OperationAvailability {
     const target = RelayRecordSource.create();
-    const result = DataChecker.check(
-      this._store.getSource(),
-      target,
-      selector,
-      handlers,
-      this._operationLoader,
-      this._getDataID,
-      id => this._store.getConnectionEvents_UNSTABLE(id),
-    );
+    const result = this._store.check(operation, {target, handlers});
     if (target.size() > 0) {
       this._publishQueue.commitSource(target);
       this._publishQueue.run();
@@ -288,6 +306,7 @@ class RelayModernEnvironment implements IEnvironment {
     operation: OperationDescriptor,
     cacheConfig?: ?CacheConfig,
     updater?: ?SelectorStoreUpdater,
+    ...
   }): RelayObservable<GraphQLResponse> {
     const [logObserver, logRequestInfo] = this.__createLogObserver(
       operation.request.node.params,
@@ -309,6 +328,7 @@ class RelayModernEnvironment implements IEnvironment {
         scheduler: this._scheduler,
         sink,
         source,
+        store: this._store,
         updater,
         operationTracker: this._operationTracker,
         getDataID: this._getDataID,
@@ -370,6 +390,7 @@ class RelayModernEnvironment implements IEnvironment {
         scheduler: this._scheduler,
         sink,
         source,
+        store: this._store,
         updater,
         operationTracker: this._operationTracker,
         getDataID: this._getDataID,
@@ -404,6 +425,7 @@ class RelayModernEnvironment implements IEnvironment {
         scheduler: this._scheduler,
         sink,
         source,
+        store: this._store,
         getDataID: this._getDataID,
       });
       return () => executor.cancel();

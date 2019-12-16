@@ -8,6 +8,8 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const React = require('react');
@@ -59,10 +61,11 @@ import type {
 } from 'relay-runtime';
 
 type ContainerState = {
-  data: {[key: string]: mixed},
+  data: {[key: string]: mixed, ...},
   relayProp: RelayPaginationProp,
   prevContext: RelayContext,
   contextForChildren: RelayContext,
+  ...
 };
 
 const FORWARD = 'forward';
@@ -78,14 +81,20 @@ export type ConnectionConfig = {
   getFragmentVariables?: FragmentVariablesGetter,
   getVariables: (
     props: Object,
-    paginationInfo: {count: number, cursor: ?string},
+    paginationInfo: {
+      count: number,
+      cursor: ?string,
+      ...
+    },
     fragmentVariables: Variables,
   ) => Variables,
   query: GraphQLTaggedNode,
+  ...
 };
 export type ConnectionData = {
   +edges?: ?$ReadOnlyArray<any>,
   +pageInfo?: ?PageInfo,
+  ...
 };
 
 /**
@@ -254,9 +263,7 @@ function createGetFragmentVariables(
   });
 }
 
-type ReactConnectionMetadata = ConnectionMetadata & {
-  fragmentName: string,
-};
+type ReactConnectionMetadata = ConnectionMetadata & {fragmentName: string, ...};
 
 function findConnectionMetadata(fragments): ReactConnectionMetadata {
   let foundConnectionMetadata = null;
@@ -310,7 +317,7 @@ function toObserver(observerOrCallback: ?ObserverOrCallback): Observer<void> {
 }
 
 function createContainerWithFragments<
-  Props: {},
+  Props: {...},
   TComponent: React.ComponentType<Props>,
 >(
   Component: TComponent,
@@ -482,6 +489,7 @@ function createContainerWithFragments<
       cursor: ?string,
       edgeCount: number,
       hasMore: boolean,
+      ...
     } {
       // Extract connection data and verify there are more edges to fetch
       const {componentRef: _, ...restProps} = this.props;
@@ -668,6 +676,7 @@ function createContainerWithFragments<
         count: number,
         cursor: ?string,
         totalCount: number,
+        ...
       },
       observer: Observer<void>,
       options: ?RefetchOptions,
@@ -842,7 +851,7 @@ function createContainerWithFragments<
  * `fragmentSpec` is memoized once per environment, rather than once per
  * instance of the container constructed/rendered.
  */
-function createContainer<Props: {}, TComponent: React.ComponentType<Props>>(
+function createContainer<Props: {...}, TComponent: React.ComponentType<Props>>(
   Component: TComponent,
   fragmentSpec: GeneratedNodeMap,
   connectionConfig: ConnectionConfig,

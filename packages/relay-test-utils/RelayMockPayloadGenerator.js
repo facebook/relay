@@ -9,6 +9,8 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const invariant = require('invariant');
@@ -35,15 +37,16 @@ const {
 } = RelayConcreteNode;
 
 import type {
-  Variables,
-  NormalizationField,
-  NormalizationOperation,
-  NormalizationSelection,
-  NormalizationLinkedField,
-  NormalizationScalarField,
-  OperationDescriptor,
   GraphQLResponse,
+  NormalizationArgument,
+  NormalizationField,
+  NormalizationLinkedField,
+  NormalizationOperation,
+  NormalizationScalarField,
+  NormalizationSelection,
   NormalizationSplitOperation,
+  OperationDescriptor,
+  Variables,
 } from 'relay-runtime';
 
 type ValueResolver = (
@@ -58,21 +61,21 @@ type Traversable = {|
   +isAbstractType: ?boolean,
   +name: ?string,
   +alias: ?string,
-  +args: ?{[string]: mixed},
+  +args: ?{[string]: mixed, ...},
 |};
-type MockData = {[string]: mixed};
+type MockData = {[string]: mixed, ...};
 type MockResolverContext = {|
   +parentType: ?string,
   +name: ?string,
   +alias: ?string,
   +path: ?$ReadOnlyArray<string>,
-  +args: ?{[string]: mixed},
+  +args: ?{[string]: mixed, ...},
 |};
 type MockResolver = (
   context: MockResolverContext,
   generateId: () => number,
 ) => mixed;
-export type MockResolvers = {[typeName: string]: MockResolver};
+export type MockResolvers = {[typeName: string]: MockResolver, ...};
 
 type SelectionMetadata = {
   [selectionPath: string]: {|
@@ -81,6 +84,7 @@ type SelectionMetadata = {
     +nullable: boolean,
     +enumValues: $ReadOnlyArray<string> | null,
   |},
+  ...,
 };
 
 function createIdGenerator() {
@@ -719,9 +723,7 @@ class RelayMockPayloadGenerator {
     fieldName: ?string,
     fieldAlias: ?string,
     path: $ReadOnlyArray<string>,
-    args: ?{
-      [string]: mixed,
-    },
+    args: ?{[string]: mixed, ...},
   ): ?MockData {
     let data;
     if (typeName != null && this._mockResolvers[typeName] != null) {
@@ -748,21 +750,37 @@ class RelayMockPayloadGenerator {
   /**
    * Get object with variables for field
    */
-  _getFieldArgs(
-    field: NormalizationField,
-  ): {
-    [string]: mixed,
-  } {
+  _getFieldArgs(field: NormalizationField): {[string]: mixed, ...} {
     const args = {};
     if (field.args != null) {
       field.args.forEach(arg => {
-        args[arg.name] =
-          arg.kind === 'Literal'
-            ? arg.value
-            : this._getVariableValue(arg.variableName);
+        args[arg.name] = this._getArgValue(arg);
       });
     }
     return args;
+  }
+
+  _getArgValue(arg: NormalizationArgument): mixed {
+    switch (arg.kind) {
+      case 'Literal':
+        return arg.value;
+      case 'Variable':
+        return this._getVariableValue(arg.variableName);
+      case 'ObjectValue': {
+        const value = {};
+        arg.fields.forEach(field => {
+          value[field.name] = this._getArgValue(field);
+        });
+        return value;
+      }
+      case 'ListValue': {
+        const value = [];
+        arg.items.forEach(item => {
+          value.push(item != null ? this._getArgValue(item) : null);
+        });
+        return value;
+      }
+    }
   }
 
   /**

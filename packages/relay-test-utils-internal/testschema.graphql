@@ -95,6 +95,9 @@ type Mutation {
   commentCreate(input: CommentCreateInput): CommentCreateResponsePayload
   commentDelete(input: CommentDeleteInput): CommentDeleteResponsePayload
   feedbackLike(input: FeedbackLikeInput): FeedbackLikeResponsePayload
+  feedbackLikeStrict(
+    input: FeedbackLikeInputStrict!
+  ): FeedbackLikeResponsePayload
   feedbackLikeSubscribe(input: FeedbackLikeInput): FeedbackLikeResponsePayload
   nodeSavedState(input: NodeSaveStateInput): NodeSavedStateResponsePayload
   unfriend(input: UnfriendInput): UnfriendResponsePayload
@@ -154,6 +157,13 @@ input CommentDeleteInput {
 input FeedbackLikeInput {
   clientMutationId: String
   feedbackId: ID
+}
+
+input FeedbackLikeInputStrict {
+  userID: ID!
+  clientMutationId: ID!
+  feedbackId: ID!
+  description: String
 }
 
 input NodeSaveStateInput {

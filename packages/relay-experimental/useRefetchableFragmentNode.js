@@ -9,6 +9,8 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const ProfilerContext = require('./ProfilerContext');
@@ -44,12 +46,13 @@ const {
   getSelector,
 } = require('relay-runtime');
 
-import type {FetchPolicy, RenderPolicy} from './QueryResource';
 import type {
   Disposable,
+  FetchPolicy,
   IEnvironment,
   OperationType,
   ReaderFragment,
+  RenderPolicy,
   Variables,
 } from 'relay-runtime';
 
@@ -66,17 +69,17 @@ export type RefetchFn<
 // prettier-ignore
 export type RefetchFnDynamic<
   TQuery: OperationType,
-  TKey: ?{+$data?: mixed},
+  TKey: ?{ +$data?: mixed, ... },
   TOptions = Options,
 > = $Call<
-  & (( {+$data?: mixed}) => RefetchFnInexact<TQuery, TOptions>)
-  & ((?{+$data?: mixed}) => RefetchFnExact<TQuery, TOptions>),
+  & (( { +$data?: mixed, ... }) => RefetchFnInexact<TQuery, TOptions>)
+  & ((?{ +$data?: mixed, ... }) => RefetchFnExact<TQuery, TOptions>),
   TKey
 >;
 
 export type ReturnType<
   TQuery: OperationType,
-  TKey: ?{+$data?: mixed},
+  TKey: ?{+$data?: mixed, ...},
   TOptions = Options,
 > = {|
   fragmentData: mixed,
@@ -89,7 +92,7 @@ export type ReturnType<
 export type Options = {|
   fetchPolicy?: FetchPolicy,
   onComplete?: (Error | null) => void,
-  renderPolicy_UNSTABLE?: RenderPolicy,
+  UNSTABLE_renderPolicy?: RenderPolicy,
 |};
 
 type InternalOptions = {|
@@ -139,6 +142,7 @@ type RefetchState = {|
 type DebugIDandTypename = {
   id: string,
   typename: string,
+  ...
 };
 
 function reducer(state: RefetchState, action: Action): RefetchState {
@@ -173,7 +177,7 @@ function reducer(state: RefetchState, action: Action): RefetchState {
 
 function useRefetchableFragmentNode<
   TQuery: OperationType,
-  TKey: ?{+$data?: mixed},
+  TKey: ?{+$data?: mixed, ...},
 >(
   fragmentNode: ReaderFragment,
   parentFragmentRef: mixed,
@@ -410,7 +414,7 @@ function useRefetchFunction<TQuery: OperationType>(
 
       const environment = options?.__environment;
       const fetchPolicy = options?.fetchPolicy;
-      const renderPolicy = options?.renderPolicy_UNSTABLE;
+      const renderPolicy = options?.UNSTABLE_renderPolicy;
       const onComplete = options?.onComplete;
       const fragmentSelector = getSelector(fragmentNode, parentFragmentRef);
       let parentVariables;

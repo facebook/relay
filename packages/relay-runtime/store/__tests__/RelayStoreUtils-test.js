@@ -126,6 +126,25 @@ describe('RelayStoreUtils', () => {
         'storySearch(query:{"limit":10,"offset":100,"text":"foo"})',
       );
     });
+
+    it('supports complex objects', () => {
+      const {UserFragment} = generateAndCompile(`
+        fragment UserFragment on User {
+          # Pass in arguments reverse-lexicographical order.
+          storySearch(query: {text: $foo, offset: 100, limit: 10}) {
+            id
+          }
+        }
+      `);
+      const field = UserFragment.selections[0];
+
+      // Note that storage key employs stable lexicographical ordering anyway.
+      expect(
+        RelayStoreUtils.getStorageKey(field, {
+          foo: 'Foo Text',
+        }),
+      ).toBe('storySearch(query:{"limit":10,"offset":100,"text":"Foo Text"})');
+    });
   });
 
   describe('getStableStorageKey()', () => {

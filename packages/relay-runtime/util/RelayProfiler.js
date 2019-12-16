@@ -8,6 +8,8 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 type Handler = (name: string, callback: () => void) => void;
@@ -15,10 +17,10 @@ type ProfileHandler = (name: string, state?: any) => (error?: Error) => void;
 
 function emptyFunction() {}
 
-const aggregateHandlersByName: {[name: string]: Array<Handler>} = {
+const aggregateHandlersByName: {[name: string]: Array<Handler>, ...} = {
   '*': [],
 };
-const profileHandlersByName: {[name: string]: Array<ProfileHandler>} = {
+const profileHandlersByName: {[name: string]: Array<ProfileHandler>, ...} = {
   '*': [],
 };
 
@@ -81,7 +83,7 @@ const RelayProfiler = {
    */
   instrumentMethods(
     object: Function | Object,
-    names: {[key: string]: string},
+    names: {[key: string]: string, ...},
   ): void {
     for (const key in names) {
       if (names.hasOwnProperty(key)) {
@@ -219,7 +221,7 @@ const RelayProfiler = {
    * Arbitrary state can also be passed into `profile` as a second argument. The
    * attached profile handlers will receive this as the second argument.
    */
-  profile(name: string, state?: any): {stop: (error?: Error) => void} {
+  profile(name: string, state?: any): {stop: (error?: Error) => void, ...} {
     const hasCatchAllHandlers = profileHandlersByName['*'].length > 0;
     const hasNamedHandlers = profileHandlersByName.hasOwnProperty(name);
     if (hasNamedHandlers || hasCatchAllHandlers) {

@@ -8,6 +8,8 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const ConnectionFieldTransform = require('../../transforms/ConnectionFieldTransform');
@@ -27,6 +29,7 @@ const {
   exportType,
   exportTypes,
   importTypes,
+  inexactObjectTypeAnnotation,
   intersectionTypeAnnotation,
   lineComments,
   readOnlyArrayOfType,
@@ -58,11 +61,9 @@ const nullthrows = require('nullthrows');
 export type State = {|
   ...TypeGeneratorOptions,
   +generatedFragments: Set<string>,
-  +generatedInputObjectTypes: {
-    [name: string]: TypeID | 'pending',
-  },
+  +generatedInputObjectTypes: {[name: string]: TypeID | 'pending', ...},
   hasConnectionResolver: boolean,
-  +usedEnums: {[name: string]: EnumTypeID},
+  +usedEnums: {[name: string]: EnumTypeID, ...},
   +usedFragments: Set<string>,
   +matchFields: Map<string, mixed>,
   +runtimeImports: Set<string>,
@@ -228,7 +229,7 @@ function selectionsToBabel(
         );
       }
       return unmasked
-        ? t.objectTypeAnnotation(props)
+        ? inexactObjectTypeAnnotation(props)
         : exactObjectTypeAnnotation(props);
     }),
   );
@@ -371,7 +372,7 @@ function createVisitor(schema: Schema, options: TypeGeneratorOptions) {
 
         if (rawResponseType) {
           for (const [key, ast] of state.matchFields) {
-            babelNodes.push(t.typeAlias(t.identifier(key), null, ast));
+            babelNodes.push(exportType(key, ast));
           }
           operationTypes.push(
             t.objectTypeProperty(
@@ -429,7 +430,7 @@ function createVisitor(schema: Schema, options: TypeGeneratorOptions) {
           ),
         );
         const isPluralFragment = isPlural(node);
-        const refType = t.objectTypeAnnotation([
+        const refType = inexactObjectTypeAnnotation([
           refTypeDataProperty,
           refTypeFragmentRefProperty,
         ]);

@@ -9,6 +9,8 @@
  * @emails oncall+relay
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const Schema = require('../Schema');
@@ -677,11 +679,11 @@ describe('Schema: RelayCompiler Internal GraphQL Schema Interface', () => {
         new Source('directive @my_directive on QUERY'),
       );
       const directives = schema.getDirectives();
-      expect(directives.map(directive => directive.name)).toEqual([
+      expect(directives.map(directive => directive.name).sort()).toEqual([
+        'deprecated',
+        'include',
         'my_directive',
         'skip',
-        'include',
-        'deprecated',
       ]);
     });
 
@@ -694,7 +696,33 @@ describe('Schema: RelayCompiler Internal GraphQL Schema Interface', () => {
         name: 'my_directive',
         locations: ['QUERY'],
         args: [],
-        clientOnlyDirective: false,
+        isClient: false,
+      });
+    });
+
+    it('should return directive with args by name', () => {
+      const schema = Schema.create(
+        new Source(
+          'directive @my_directive(if: Boolean, intValue: Int = 42) on QUERY',
+        ),
+      );
+      const myDirective = schema.getDirective('my_directive');
+      expect(myDirective).toEqual({
+        name: 'my_directive',
+        locations: ['QUERY'],
+        args: [
+          {
+            defaultValue: undefined,
+            name: 'if',
+            type: schema.expectTypeFromString('Boolean'),
+          },
+          {
+            defaultValue: 42,
+            name: 'intValue',
+            type: schema.expectTypeFromString('Int'),
+          },
+        ],
+        isClient: false,
       });
     });
   });
@@ -735,11 +763,11 @@ describe('Schema: RelayCompiler Internal GraphQL Schema Interface', () => {
 
     it('should check if directive is client only', () => {
       const schema = Schema.create(
-        new Source('type User { name: String}'),
+        new Source('type User { name: String } directive @strong on FIELD'),
         [],
         ['directive @my_directive on QUERY'],
       );
-      expect(schema.isServerDirective('include')).toBe(true);
+      expect(schema.isServerDirective('strong')).toBe(true);
       expect(schema.isServerDirective('my_directive')).toBe(false);
     });
   });

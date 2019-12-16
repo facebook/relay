@@ -9,6 +9,8 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const React = require('react');
@@ -42,13 +44,13 @@ function expectToHaveFetched(environment, query) {
     },
   });
   expect(
-    environment.mock.isLoading(query.request.node, query.request.variables),
+    environment.mock.isLoading(query.request.node, query.request.variables, {
+      force: true,
+    }),
   ).toEqual(true);
 }
 
-type Props = {
-  variables: Object,
-};
+type Props = {variables: Object, ...};
 
 describe('useLazyLoadQueryNode', () => {
   let environment;
@@ -94,6 +96,9 @@ describe('useLazyLoadQueryNode', () => {
       const _query = createOperationDescriptor(gqlQuery, props.variables);
       const data = useLazyLoadQueryNode<_>({
         query: _query,
+        /* $FlowFixMe(>=0.111.0) This comment suppresses an error found when
+         * Flow v0.111.0 was deployed. To see the error, delete this comment
+         * and run Flow. */
         fetchPolicy: props.fetchPolicy || defaultFetchPolicy,
         componentDisplayName: 'TestDisplayName',
       });

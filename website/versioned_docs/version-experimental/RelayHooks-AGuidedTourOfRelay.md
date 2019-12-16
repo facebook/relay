@@ -1240,7 +1240,7 @@ Specifically, `fetchPolicy` can be any of the following options:
 * **"network-only"**: ***will not*** reuse locally cached data, and will ***always*** send a network request to fetch the query, ignoring any data that might be locally cached in Relay.
 * **"store-only"**: ***will only*** reuse locally cached data, and will ***never*** send a network request to fetch the query. In this case, the responsibility of fetching the query falls to the caller, but this policy could also be used to read and operate on data that is entirely [local](#local-data-updates).
 
-Note that the `refetch` function discussed in the [Fetching More Data and Rendering Different Data](#fetching-more-data-and-rendering-different-data) section  also takes a `fetchPolicy`.
+Note that the `refetch` function discussed in the [Fetching More Data and Rendering Different Data](#fetching-and-rendering-different-data) section  also takes a `fetchPolicy`.
 
 ### Garbage Collection in Relay
 
@@ -1291,7 +1291,7 @@ const store = new Store(source, {gcReleaseBufferSize: 10});
 
 ### Rendering Partially Cached Data [HIGHLY EXPERIMENTAL]
 
-> **NOTE:** Partial rendering behavior is still highly experimental and likely to change, and only enabled under an experimental option. If you still wish to use it, you can enable it by passing `{renderPolicy_UNSTABLE: "partial"}` as an option to `useLazyLoadQuery`.
+> **NOTE:** Partial rendering behavior is still highly experimental and likely to change, and only enabled under an experimental option. If you still wish to use it, you can enable it by passing `{UNSTABLE_renderPolicy: "partial"}` as an option to `useLazyLoadQuery`.
 
 Often times when dealing with cached data, we'd like the ability to perform partial rendering. We define *"partial rendering"* as the ability to immediately render a query that is partially cached. That is, parts of the query might be missing, but parts of the query might already be cached. In these cases, we want to be able to immediately render the parts of the query that are cached, without waiting on the full query to be fetched.
 
@@ -1502,7 +1502,7 @@ const environment = new Environment({/*...*/, missingFieldHandlers});
   * When handling a ***'linked'*** field, the handle function should return an ***ID***, referencing another object in the store that should be use in place of the missing field.
 * As Relay attempts to fulfill a query from the local cache, whenever it detects any missing data, it will run any of the provided missing field handlers that match the field type before definitively declaring that the data is missing.
 
-## Fetching More Data and Rendering *Different* Data
+## Fetching Rendering *Different* Data
 
 After an app has been initially rendered, there are various scenarios in which you might want to fetch and render more data, re-render your UI with *different* data, or maybe refresh existing data, usually as a result of an event or user interaction.
 

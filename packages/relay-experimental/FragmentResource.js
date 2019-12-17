@@ -273,7 +273,12 @@ class FragmentResourceImpl {
       currentSnapshot.forEach((snapshot, idx) => {
         dataSubscriptions.push(
           environment.subscribe(snapshot, latestSnapshot => {
-            this._updatePluralSnapshot(cacheKey, latestSnapshot, idx);
+            this._updatePluralSnapshot(
+              cacheKey,
+              currentSnapshot,
+              latestSnapshot,
+              idx,
+            );
             callback();
           }),
         );
@@ -398,18 +403,21 @@ class FragmentResourceImpl {
 
   _updatePluralSnapshot(
     cacheKey: string,
+    baseSnapshots: $ReadOnlyArray<Snapshot>,
     latestSnapshot: Snapshot,
     idx: number,
   ): void {
     const currentSnapshots = this._cache.get(cacheKey);
     invariant(
-      Array.isArray(currentSnapshots),
+      currentSnapshots == null || Array.isArray(currentSnapshots),
       'Relay: Expected to find cached data for plural fragment `%s` when ' +
         'receiving a subscription. ' +
         "If you're seeing this, this is likely a bug in Relay.",
       latestSnapshot.selector.node.name,
     );
-    const nextSnapshots = [...currentSnapshots];
+    const nextSnapshots = currentSnapshots
+      ? [...currentSnapshots]
+      : [...baseSnapshots];
     nextSnapshots[idx] = latestSnapshot;
     this._cache.set(cacheKey, nextSnapshots);
   }

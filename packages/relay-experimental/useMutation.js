@@ -66,27 +66,30 @@ function useMutation<TMutation: MutationParameters>(
   const isMountedRef = useIsMountedRef();
   const environmentRef = useRef(environment);
   const mutationRef = useRef(mutation);
-  const inFlightMutationRef = useRef(null);
+  const inFlightMutationsRef = useRef(new Set());
   const [isMutationInFlight, setMutationInFlight] = useState(false);
 
-  const cleanup = useCallback(() => {
-    if (
-      environmentRef.current === environment &&
-      mutationRef.current === mutation
-    ) {
-      inFlightMutationRef.current = null;
-      if (isMountedRef.current) {
-        setMutationInFlight(false);
+  const cleanup = useCallback(
+    disposable => {
+      if (
+        environmentRef.current === environment &&
+        mutationRef.current === mutation
+      ) {
+        inFlightMutationsRef.current.delete(disposable);
+        if (isMountedRef.current) {
+          setMutationInFlight(inFlightMutationsRef.current.size > 0);
+        }
       }
-    }
-  }, [environment, mutation]); // eslint-disable-line react-hooks/exhaustive-deps
+    },
+    [environment, mutation], // eslint-disable-line react-hooks/exhaustive-deps
+  );
 
   useEffect(() => {
     if (
       environmentRef.current !== environment ||
       mutationRef.current !== mutation
     ) {
-      inFlightMutationRef.current = null;
+      inFlightMutationsRef.current = new Set();
       if (isMountedRef.current) {
         setMutationInFlight(false);
       }
@@ -98,29 +101,26 @@ function useMutation<TMutation: MutationParameters>(
 
   const commit = useCallback(
     (config: UseMutationConfig<TMutation>) => {
-      if (inFlightMutationRef.current) {
-        return {dispose: () => {}};
-      }
-      if (isMountedRef.current) {
-        setMutationInFlight(true);
-      }
       const disposable = commitMutationFn(environment, {
         ...config,
         mutation,
         onCompleted: (response, errors) => {
-          cleanup();
+          cleanup(disposable);
           config.onCompleted && config.onCompleted(response, errors);
         },
         onError: error => {
-          cleanup();
+          cleanup(disposable);
           config.onError && config.onError(error);
         },
         onUnsubscribe: () => {
-          cleanup();
+          cleanup(disposable);
           config.onUnsubscribe && config.onUnsubscribe();
         },
       });
-      inFlightMutationRef.current = disposable;
+      inFlightMutationsRef.current.add(disposable);
+      if (isMountedRef.current) {
+        setMutationInFlight(true);
+      }
       return disposable;
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps

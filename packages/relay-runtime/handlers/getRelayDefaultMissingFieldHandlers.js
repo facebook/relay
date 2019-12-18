@@ -19,8 +19,9 @@ const {VIEWER_ID} = require('../store/ViewerPattern');
 
 import type {MissingFieldHandler} from '../store/RelayStoreTypes';
 
-const handlers: $ReadOnlyArray<MissingFieldHandler> = RelayFeatureFlags.ENABLE_MISSING_VIEWER_FIELD_HANDLER
-  ? [
+function getHandler(): $ReadOnlyArray<MissingFieldHandler> {
+  if (RelayFeatureFlags.ENABLE_MISSING_VIEWER_FIELD_HANDLER) {
+    return [
       {
         kind: 'linked',
         handle(field, record, argValues) {
@@ -33,7 +34,9 @@ const handlers: $ReadOnlyArray<MissingFieldHandler> = RelayFeatureFlags.ENABLE_M
           }
         },
       },
-    ]
-  : [];
+    ];
+  }
+  return [];
+}
 
-module.exports = handlers;
+module.exports = getHandler;

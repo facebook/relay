@@ -85,7 +85,7 @@ class RelayModernFragmentSpecResolver implements FragmentSpecResolver {
     this._context = context;
     this._data = {};
     this._fragments = fragments;
-    this._props = props;
+    this._props = {};
     this._resolvers = {};
     this._stale = false;
 
@@ -138,6 +138,8 @@ class RelayModernFragmentSpecResolver implements FragmentSpecResolver {
 
   setProps(props: Props): void {
     const ownedSelectors = getSelectorsFromObject(this._fragments, props);
+    this._props = {};
+
     for (const key in ownedSelectors) {
       if (ownedSelectors.hasOwnProperty(key)) {
         const ownedSelector = ownedSelectors[key];
@@ -178,10 +180,10 @@ class RelayModernFragmentSpecResolver implements FragmentSpecResolver {
             resolver.setSelector(ownedSelector);
           }
         }
+        this._props[key] = props[key];
         this._resolvers[key] = resolver;
       }
     }
-    this._props = props;
     this._stale = true;
   }
 

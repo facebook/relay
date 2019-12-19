@@ -12,7 +12,7 @@
 
 'use strict';
 
-import type {ConnectionMetadata} from '../handlers/connection/RelayConnectionHandler';
+import type {ConnectionMetadata} from '../handlers/connection/ConnectionHandler';
 import type {ConcreteRequest} from './RelayConcreteNode';
 
 export type ReaderFragmentSpread = {|

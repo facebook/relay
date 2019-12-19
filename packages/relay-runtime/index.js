@@ -12,11 +12,11 @@
 
 'use strict';
 
+const ConnectionHandler = require('./handlers/connection/ConnectionHandler');
+const ConnectionInterface = require('./handlers/connection/ConnectionInterface');
 const GraphQLTag = require('./query/GraphQLTag');
 const RelayConcreteNode = require('./util/RelayConcreteNode');
 const RelayConcreteVariables = require('./store/RelayConcreteVariables');
-const RelayConnectionHandler = require('./handlers/connection/RelayConnectionHandler');
-const RelayConnectionInterface = require('./handlers/connection/RelayConnectionInterface');
 const RelayConnectionResolver = require('./store/RelayConnectionResolver');
 const RelayDeclarativeMutationConfig = require('./mutations/RelayDeclarativeMutationConfig');
 const RelayDefaultHandleKey = require('./util/RelayDefaultHandleKey');
@@ -66,13 +66,11 @@ const {
   isClientID,
 } = require('./store/ClientID');
 
-export type {
-  ConnectionMetadata,
-} from './handlers/connection/RelayConnectionHandler';
+export type {ConnectionMetadata} from './handlers/connection/ConnectionHandler';
 export type {
   EdgeRecord,
   PageInfo,
-} from './handlers/connection/RelayConnectionInterface';
+} from './handlers/connection/ConnectionInterface';
 export type {
   DeclarativeMutationConfig,
   MutationType,
@@ -275,7 +273,7 @@ module.exports = {
   // Extensions
   getDefaultMissingFieldHandlers: getRelayDefaultMissingFieldHandlers,
   DefaultHandlerProvider: RelayDefaultHandlerProvider,
-  ConnectionHandler: RelayConnectionHandler,
+  ConnectionHandler,
   ConnectionResolver_UNSTABLE: RelayConnectionResolver,
   VIEWER_ID: ViewerPattern.VIEWER_ID,
   VIEWER_TYPE: ViewerPattern.VIEWER_TYPE,
@@ -289,7 +287,7 @@ module.exports = {
   requestSubscription,
 
   // Configuration interface for legacy or special uses
-  ConnectionInterface: RelayConnectionInterface,
+  ConnectionInterface,
 
   // Utilities
   RelayProfiler: RelayProfiler,

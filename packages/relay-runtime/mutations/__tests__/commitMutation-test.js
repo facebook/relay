@@ -13,7 +13,7 @@
 
 'use strict';
 
-const RelayConnectionHandler = require('../../handlers/connection/RelayConnectionHandler');
+const ConnectionHandler = require('../../handlers/connection/ConnectionHandler');
 const RelayModernEnvironment = require('../../store/RelayModernEnvironment');
 const RelayModernStore = require('../../store/RelayModernStore');
 const RelayNetwork = require('../../network/RelayNetwork');
@@ -896,14 +896,11 @@ describe('Configs: RANGE_ADD', () => {
         'feedbackCommentEdge',
       );
       const feedbackProxy = nullthrows(updaterStore).get(feedbackID);
-      const conn = RelayConnectionHandler.getConnection(
+      const conn = ConnectionHandler.getConnection(
         nullthrows(feedbackProxy),
         'Feedback_topLevelComments',
       );
-      RelayConnectionHandler.insertEdgeAfter(
-        nullthrows(conn),
-        nullthrows(newEdge),
-      );
+      ConnectionHandler.insertEdgeAfter(nullthrows(conn), nullthrows(newEdge));
     };
     // prepare existing data
     const operationDescriptor = createOperationDescriptor(CommentQuery, {});

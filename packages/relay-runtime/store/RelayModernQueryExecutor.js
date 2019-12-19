@@ -13,7 +13,7 @@
 
 'use strict';
 
-const RelayConnectionInterface = require('../handlers/connection/RelayConnectionInterface');
+const ConnectionInterface = require('../handlers/connection/ConnectionInterface');
 const RelayError = require('../util/RelayError');
 const RelayModernRecord = require('./RelayModernRecord');
 const RelayObservable = require('../network/RelayObservable');
@@ -862,7 +862,7 @@ class Executor {
       HAS_PREV_PAGE,
       PAGE_INFO,
       START_CURSOR,
-    } = RelayConnectionInterface.get();
+    } = ConnectionInterface.get();
     const pageRecord = relayPayload.source.get(placeholder.selector.dataID);
     const pageInfoID =
       pageRecord != null

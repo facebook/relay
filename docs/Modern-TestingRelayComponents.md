@@ -471,7 +471,7 @@ test('Data Render', () => {
 
 test('Error State', () => {
   const environment = createMockEnvironment();
-  environment.mock.queueOpeararionResolver(() =>
+  environment.mock.queueOperationResolver(() =>
     new Error('Uh-oh'),
   );
   const renderer = ReactTestRenderer.create(

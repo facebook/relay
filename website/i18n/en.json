@@ -3,7 +3,7 @@
   "localized-strings": {
     "next": "Next",
     "previous": "Previous",
-    "tagline": "A JavaScript framework for building data-driven React applications",
+    "tagline": "The production-ready GraphQL client for React.",
     "docs": {
       "community-learning-resources": {
         "title": "Community Learning Resources"
@@ -518,7 +518,7 @@
     },
     "links": {
       "Docs": "Docs",
-      "Support": "Support",
+      "Help": "Help",
       "GitHub": "GitHub"
     },
     "categories": {

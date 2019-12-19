@@ -323,7 +323,7 @@ module.exports = {
   __internal: {
     OperationTracker: RelayOperationTracker,
     createRelayContext: createRelayContext,
-    getModernOperationVariables: RelayConcreteVariables.getOperationVariables,
+    getOperationVariables: RelayConcreteVariables.getOperationVariables,
     fetchQuery: fetchQueryInternal.fetchQuery,
     fetchQueryDeduped: fetchQueryInternal.fetchQueryDeduped,
     getPromiseForRequestInFlight:

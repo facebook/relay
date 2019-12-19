@@ -190,7 +190,7 @@ The `Node` interface and `node` field assume globally unique IDs for this refetc
 
 The IDs we got back were base64 strings. IDs are designed to be opaque (the only thing that should be passed to the `id` argument on `node` is the unaltered result of querying `id` on some object in the system), and base64ing a string is a useful convention in GraphQL to remind viewers that the string is an opaque identifier.
 
-Complete details on how the server should behave are available in the [GraphQL Object Identification](/graphql/objectidentification.htm) spec.
+Complete details on how the server should behave are available in the [GraphQL Object Identification](https://graphql.org/learn/global-object-identification/) best practices guide in the GraphQL site.
 
 ## Connections
 
@@ -508,6 +508,6 @@ and we'll get this result:
 
 ## Further Reading
 
-This concludes the overview of the GraphQL Server Specifications. For the detailed requirements of a Relay-compliant GraphQL server, a more formal description of the [Relay cursor connection](/graphql/connections.htm) model and the [Relay global object identification](/graphql/objectidentification.htm) model are all available.
+This concludes the overview of the GraphQL Server Specifications. For the detailed requirements of a Relay-compliant GraphQL server, a more formal description of the [Relay cursor connection](/graphql/connections.htm) model, the [GraphQL global object identification](https://graphql.org/learn/global-object-identification/) model are all available.
 
 To see code implementing the specification, the [GraphQL.js Relay library](https://github.com/graphql/graphql-relay-js) provides helper functions for creating nodes, connections, and mutations; that repository's [`__tests__`](https://github.com/graphql/graphql-relay-js/tree/master/src/__tests__) folder contains an implementation of the above example as integration tests for the repository.

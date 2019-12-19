@@ -508,6 +508,12 @@
       },
       "version-v7.0.0/version-v7.0.0-network-layer": {
         "title": "Network Layer"
+      },
+      "version-v7.1.0/version-v7.1.0-quick-start-guide": {
+        "title": "Quick Start Guide"
+      },
+      "version-v7.1.0/version-v7.1.0-local-state-management": {
+        "title": "Local State Management"
       }
     },
     "links": {

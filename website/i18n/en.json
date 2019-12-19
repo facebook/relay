@@ -514,6 +514,15 @@
       },
       "version-v7.1.0/version-v7.1.0-local-state-management": {
         "title": "Local State Management"
+      },
+      "version-v8.0.0/version-v8.0.0-graphql-server-specification": {
+        "title": "GraphQL Server Specification"
+      },
+      "version-v8.0.0/version-v8.0.0-mutations": {
+        "title": "Mutations"
+      },
+      "version-v8.0.0/version-v8.0.0-relay-store": {
+        "title": "Relay Store"
       }
     },
     "links": {

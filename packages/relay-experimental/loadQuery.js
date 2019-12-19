@@ -15,8 +15,8 @@
 
 const React = require('react');
 
+const invariant = require('invariant');
 const preloadQuery_DEPRECATED = require('./preloadQuery_DEPRECATED');
-const warning = require('warning');
 
 import type {
   PreloadableConcreteRequest,
@@ -55,7 +55,7 @@ function loadQuery<TQuery: OperationType, TEnvironmentProviderOptions>(
     // $FlowFixMe
     React.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED
       ?.ReactCurrentDispatcher?.current;
-  warning(
+  invariant(
     RenderDispatcher == null || CurrentDispatcher !== RenderDispatcher,
     'Relay: `preloadQuery` (or `prepareEntryPoint`) should not be called inside a React render function.',
   );

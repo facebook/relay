@@ -36,8 +36,8 @@ describe('fetchQuery', () => {
   let retained = [];
   beforeEach(() => {
     retained = [];
-    jest.mock('fbjs/lib/ExecutionEnvironment', () => ({
-      canUseDOM: () => true,
+    jest.mock('../ExecutionEnvironment', () => ({
+      isServer: false,
     }));
     environment = createMockEnvironment();
     environment.retain.mockImplementation(obj => {

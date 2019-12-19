@@ -137,8 +137,8 @@ beforeEach(() => {
   jest.mock('scheduler', () => {
     return jest.requireActual('scheduler/unstable_mock');
   });
-  jest.mock('fbjs/lib/ExecutionEnvironment', () => ({
-    canUseDOM: () => true,
+  jest.mock('../ExecutionEnvironment', () => ({
+    isServer: false,
   }));
   renderSpy = jest.fn();
 

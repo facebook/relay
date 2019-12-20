@@ -14,7 +14,8 @@
     "@babel/runtime": "^7.0.0",
     "fbjs": "^1.0.0",
     "react-relay": "8.0.0",
-    "relay-runtime": "8.0.0"
+    "relay-runtime": "8.0.0",
+    "react-refresh": "^0.4.0"
   },
   "directories": {
     "": "./"

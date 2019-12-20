@@ -35,7 +35,7 @@ import type {
   RenderPolicy,
 } from 'relay-runtime';
 
-const {useContext, useEffect} = React;
+const {useContext, useEffect, useState, useRef} = React;
 
 function useLazyLoadQueryNode<TQuery: OperationType>(args: {|
   query: OperationDescriptor,
@@ -75,7 +75,34 @@ function useLazyLoadQueryNode<TQuery: OperationType>(args: {|
     );
   });
 
+  let _forceUpdate;
+  let _maybeFastRefresh;
+  if (__DEV__) {
+    /* eslint-disable react-hooks/rules-of-hooks */
+    [, _forceUpdate] = useState(0);
+    _maybeFastRefresh = useRef(false);
+    useEffect(() => {
+      return () => {
+        // Detect fast refresh, only runs multiple times in fast refresh
+        _maybeFastRefresh.current = true;
+      };
+    }, []); // eslint-disable-line react-hooks/exhaustive-deps
+    /* eslint-enable react-hooks/rules-of-hooks */
+  }
+
   useEffect(() => {
+    if (__DEV__) {
+      if (_maybeFastRefresh && _maybeFastRefresh.current) {
+        /**
+         * This block only runs during fast refresh, the current resource and
+         * it's cache is disposed in the previous cleanup. Stop retaining and
+         * force a re-render to restart fetchObservable and retain correctly.
+         */
+        _maybeFastRefresh.current = false;
+        _forceUpdate && _forceUpdate(n => n + 1);
+        return;
+      }
+    }
     const disposable = QueryResource.retain(preparedQueryResult);
     return () => {
       disposable.dispose();

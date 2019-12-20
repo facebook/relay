@@ -9,12 +9,18 @@
  * @format
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
 
-const ExecutionEnvironment = {
-  isServer: typeof window === 'undefined',
+const canUseDOM = !!(
+  typeof window !== 'undefined' &&
+  window.document &&
+  window.document.createElement
+);
+
+const isNodeGlobalDefined = typeof global !== 'undefined';
+
+const ExecutionEnvironment: {|+isServer: boolean|} = {
+  isServer: !canUseDOM && isNodeGlobalDefined,
 };
 
 module.exports = ExecutionEnvironment;

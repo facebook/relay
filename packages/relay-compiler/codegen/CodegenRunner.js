@@ -47,6 +47,7 @@ type ParserConfigs = {[parser: string]: ParserConfig, ...};
 type Parsers = {[parser: string]: ASTCache, ...};
 
 export type IsGeneratedFileFn = (filePath: string) => boolean;
+export type KeepExtraFileFn = (filePath: string) => boolean;
 
 export type WriterConfig = {|
   parser: string,

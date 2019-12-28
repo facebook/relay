@@ -18,7 +18,8 @@ const crypto = require('crypto');
 const invariant = require('invariant');
 const path = require('path');
 
-import type {IsGeneratedFileFn} from './CodegenRunner';
+// flowlint nonstrict-import:warn
+import type {KeepExtraFileFn} from './CodegenRunner';
 import type {SourceControl} from './SourceControl';
 
 type Changes = {|
@@ -278,7 +279,7 @@ class CodegenDirectory {
    * Deletes all non-generated files, except for invisible "dot" files (ie.
    * files with names starting with ".").
    */
-  deleteExtraFiles(isGeneratedFile?: IsGeneratedFileFn): void {
+  deleteExtraFiles(keepExtraFile?: KeepExtraFileFn): void {
     Profiler.run('CodegenDirectory.deleteExtraFiles', () => {
       if (this._shards > 1) {
         this._filesystem.readdirSync(this._dir).forEach(firstLevel => {
@@ -294,7 +295,7 @@ class CodegenDirectory {
             return;
           }
           this._filesystem.readdirSync(firstLevelPath).forEach(actualFile => {
-            if (isGeneratedFile && isGeneratedFile(actualFile)) {
+            if (keepExtraFile && keepExtraFile(actualFile)) {
               return;
             }
             if (this._files.has(actualFile)) {
@@ -320,7 +321,7 @@ class CodegenDirectory {
         });
       } else {
         this._filesystem.readdirSync(this._dir).forEach(actualFile => {
-          if (isGeneratedFile && isGeneratedFile(actualFile)) {
+          if (keepExtraFile && keepExtraFile(actualFile)) {
             return;
           }
           if (actualFile.startsWith('.') || this._files.has(actualFile)) {

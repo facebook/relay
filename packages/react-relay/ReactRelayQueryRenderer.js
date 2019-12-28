@@ -8,6 +8,8 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const React = require('react');
@@ -22,7 +24,6 @@ const {
   getRequest,
 } = require('relay-runtime');
 
-import type {FetchPolicy} from './ReactRelayTypes';
 import type {
   CacheConfig,
   GraphQLTaggedNode,
@@ -38,8 +39,10 @@ type RetryCallbacks = {
     | (({
         error?: Error,
         snapshot?: Snapshot,
+        ...
       }) => void),
   handleRetryAfterError: null | ((error: Error) => void),
+  ...
 };
 
 export type RenderProps<T> = {|
@@ -56,7 +59,7 @@ const requestCache = {};
 
 export type Props = {|
   cacheConfig?: ?CacheConfig,
-  fetchPolicy?: FetchPolicy,
+  fetchPolicy?: 'store-and-network' | 'network-only',
   environment: IEnvironment,
   query: ?GraphQLTaggedNode,
   render: (renderProps: RenderProps<Object>) => React.Node,
@@ -183,6 +186,7 @@ class ReactRelayQueryRenderer extends React.Component<Props, State> {
     retryCallbacks.handleDataChange = (params: {
       error?: Error,
       snapshot?: Snapshot,
+      ...
     }): void => {
       const error = params.error == null ? null : params.error;
       const snapshot = params.snapshot == null ? null : params.snapshot;

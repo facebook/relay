@@ -9,6 +9,8 @@
  * @emails oncall+relay
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const RelayConnectionInterface = require('../handlers/connection/RelayConnectionInterface');
@@ -49,11 +51,13 @@ import type {
   Record,
   RelayResponsePayload,
   SelectorStoreUpdater,
+  Store,
   StreamPlaceholder,
 } from '../store/RelayStoreTypes';
 import type {
   NormalizationLinkedField,
   NormalizationSplitOperation,
+  NormalizationSelectableNode,
 } from '../util/NormalizationNode';
 import type {DataID, Variables} from '../util/RelayRuntimeTypes';
 import type {GetDataID} from './RelayResponseNormalizer';
@@ -69,7 +73,9 @@ export type ExecuteConfig = {|
   +scheduler?: ?TaskScheduler,
   +sink: Sink<GraphQLResponse>,
   +source: RelayObservable<GraphQLResponse>,
+  +store: Store,
   +updater?: ?SelectorStoreUpdater,
+  +isClientPayload?: boolean,
 |};
 
 export type TaskScheduler = {|
@@ -105,11 +111,16 @@ function execute(config: ExecuteConfig): Executor {
  * dependencies, etc.
  */
 class Executor {
+  _getDataID: GetDataID;
+  _incrementalPayloadsPending: boolean;
   _incrementalResults: Map<Label, Map<PathKey, IncrementalResults>>;
   _nextSubscriptionId: number;
   _operation: OperationDescriptor;
   _operationLoader: ?OperationLoader;
+  _operationTracker: ?OperationTracker;
+  _operationUpdateEpochs: Map<string, number>;
   _optimisticUpdates: null | Array<OptimisticUpdate>;
+  _pendingModulePayloadsCount: number;
   _publishQueue: PublishQueue;
   _scheduler: ?TaskScheduler;
   _sink: Sink<GraphQLResponse>;
@@ -118,12 +129,10 @@ class Executor {
     {|+record: Record, +fieldPayloads: Array<HandleFieldPayload>|},
   >;
   _state: 'started' | 'loading_incremental' | 'loading_final' | 'completed';
-  _updater: ?SelectorStoreUpdater;
+  _store: Store;
   _subscriptions: Map<number, Subscription>;
-  _operationTracker: ?OperationTracker;
-  _getDataID: GetDataID;
-  _incrementalPayloadsPending: boolean;
-  _pendingModulePayloadsCount: number;
+  _updater: ?SelectorStoreUpdater;
+  +_isClientPayload: boolean;
 
   constructor({
     operation,
@@ -133,26 +142,31 @@ class Executor {
     scheduler,
     sink,
     source,
+    store,
     updater,
     operationTracker,
     getDataID,
+    isClientPayload,
   }: ExecuteConfig): void {
+    this._getDataID = getDataID;
+    this._incrementalPayloadsPending = false;
     this._incrementalResults = new Map();
     this._nextSubscriptionId = 0;
     this._operation = operation;
     this._operationLoader = operationLoader;
+    this._operationTracker = operationTracker;
+    this._operationUpdateEpochs = new Map();
     this._optimisticUpdates = null;
+    this._pendingModulePayloadsCount = 0;
     this._publishQueue = publishQueue;
     this._scheduler = scheduler;
     this._sink = sink;
     this._source = new Map();
     this._state = 'started';
-    this._updater = updater;
+    this._store = store;
     this._subscriptions = new Map();
-    this._operationTracker = operationTracker;
-    this._getDataID = getDataID;
-    this._incrementalPayloadsPending = false;
-    this._pendingModulePayloadsCount = 0;
+    this._updater = updater;
+    this._isClientPayload = isClientPayload === true;
 
     const id = this._nextSubscriptionId++;
     source.subscribe({
@@ -345,48 +359,7 @@ class Executor {
         payload,
         updater,
       });
-      if (payload.moduleImportPayloads && payload.moduleImportPayloads.length) {
-        const moduleImportPayloads = payload.moduleImportPayloads;
-        const operationLoader = this._operationLoader;
-        invariant(
-          operationLoader,
-          'RelayModernEnvironment: Expected an operationLoader to be ' +
-            'configured when using `@match`.',
-        );
-        while (moduleImportPayloads.length) {
-          const moduleImportPayload = moduleImportPayloads.shift();
-          const operation = operationLoader.get(
-            moduleImportPayload.operationReference,
-          );
-          if (operation == null) {
-            continue;
-          }
-          const selector = createNormalizationSelector(
-            operation,
-            moduleImportPayload.dataID,
-            moduleImportPayload.variables,
-          );
-          const modulePayload = normalizeResponse(
-            {data: moduleImportPayload.data},
-            selector,
-            moduleImportPayload.typeName,
-            {
-              getDataID: this._getDataID,
-              path: moduleImportPayload.path,
-              request: this._operation.request,
-            },
-          );
-          validateOptimisticResponsePayload(modulePayload);
-          optimisticUpdates.push({
-            operation: this._operation,
-            payload: modulePayload,
-            updater: null,
-          });
-          if (modulePayload.moduleImportPayloads) {
-            moduleImportPayloads.push(...modulePayload.moduleImportPayloads);
-          }
-        }
-      }
+      this._processOptimisticFollowups(payload, optimisticUpdates);
     } else if (updater) {
       optimisticUpdates.push({
         operation: this._operation,
@@ -406,6 +379,109 @@ class Executor {
     this._publishQueue.run();
   }
 
+  _processOptimisticFollowups(
+    payload: RelayResponsePayload,
+    optimisticUpdates: Array<OptimisticUpdate>,
+  ): void {
+    if (payload.moduleImportPayloads && payload.moduleImportPayloads.length) {
+      const moduleImportPayloads = payload.moduleImportPayloads;
+      const operationLoader = this._operationLoader;
+      invariant(
+        operationLoader,
+        'RelayModernEnvironment: Expected an operationLoader to be ' +
+          'configured when using `@match`.',
+      );
+      for (const moduleImportPayload of moduleImportPayloads) {
+        const operation = operationLoader.get(
+          moduleImportPayload.operationReference,
+        );
+        if (operation == null) {
+          this._processAsyncOptimisticModuleImport(
+            operationLoader,
+            moduleImportPayload,
+          );
+        } else {
+          const moduleImportOptimisitcUpdates = this._processOptimisticModuleImport(
+            operation,
+            moduleImportPayload,
+          );
+          optimisticUpdates.push(...moduleImportOptimisitcUpdates);
+        }
+      }
+    }
+  }
+
+  _normalizeModuleImport(
+    moduleImportPayload: ModuleImportPayload,
+    operation: NormalizationSelectableNode,
+  ) {
+    const selector = createNormalizationSelector(
+      operation,
+      moduleImportPayload.dataID,
+      moduleImportPayload.variables,
+    );
+    return normalizeResponse(
+      {data: moduleImportPayload.data},
+      selector,
+      moduleImportPayload.typeName,
+      {
+        getDataID: this._getDataID,
+        path: moduleImportPayload.path,
+        request: this._operation.request,
+      },
+    );
+  }
+
+  _processOptimisticModuleImport(
+    operation: NormalizationSplitOperation,
+    moduleImportPayload: ModuleImportPayload,
+  ): $ReadOnlyArray<OptimisticUpdate> {
+    const optimisticUpdates = [];
+    const modulePayload = this._normalizeModuleImport(
+      moduleImportPayload,
+      operation,
+    );
+    validateOptimisticResponsePayload(modulePayload);
+    optimisticUpdates.push({
+      operation: this._operation,
+      payload: modulePayload,
+      updater: null,
+    });
+    this._processOptimisticFollowups(modulePayload, optimisticUpdates);
+    return optimisticUpdates;
+  }
+
+  _processAsyncOptimisticModuleImport(
+    operationLoader: OperationLoader,
+    moduleImportPayload: ModuleImportPayload,
+  ): void {
+    operationLoader
+      .load(moduleImportPayload.operationReference)
+      .then(operation => {
+        if (operation == null || this._state !== 'started') {
+          return;
+        }
+        const moduleImportOptimisitcUpdates = this._processOptimisticModuleImport(
+          operation,
+          moduleImportPayload,
+        );
+        moduleImportOptimisitcUpdates.forEach(update =>
+          this._publishQueue.applyUpdate(update),
+        );
+        if (this._optimisticUpdates == null) {
+          warning(
+            false,
+            'RelayModernQueryExecutor: Unexpected ModuleImport optimisitc ' +
+              'update in operation %s.' +
+              this._operation.request.node.params.name,
+          );
+        } else {
+          this._optimisticUpdates.push(...moduleImportOptimisitcUpdates);
+          this._publishQueue.run();
+        }
+      });
+  }
+
   _processResponse(response: GraphQLResponseWithData): void {
     if (this._optimisticUpdates !== null) {
       this._optimisticUpdates.forEach(update =>
@@ -423,7 +499,7 @@ class Executor {
     this._incrementalResults.clear();
     this._source.clear();
     this._publishQueue.commitPayload(this._operation, payload, this._updater);
-    const updatedOwners = this._publishQueue.run();
+    const updatedOwners = this._publishQueue.run(this._operation);
     this._updateOperationTracker(updatedOwners);
     this._processPayloadFollowups(payload);
   }
@@ -457,11 +533,11 @@ class Executor {
       if (this._state === 'loading_final') {
         // The query has defer/stream selections that are enabled, but the
         // server indicated that this is a "final" payload: no incremental
-        // payloads will be delivered. Warn that the query was (likely) executed
-        // on the server in non-streaming mode, with incremental delivery
-        // disabled.
+        // payloads will be delivered. If it's not a client payload, warn that
+        // the query was (likely) executed on the server in non-streaming mode,
+        // with incremental delivery disabled.
         warning(
-          false,
+          this._isClientPayload,
           'RelayModernEnvironment: Operation `%s` contains @defer/@stream ' +
             'directives but was executed in non-streaming mode. See ' +
             'https://fburl.com/relay-incremental-delivery-non-streaming-warning.',
@@ -563,20 +639,9 @@ class Executor {
     moduleImportPayload: ModuleImportPayload,
     operation: NormalizationSplitOperation,
   ): void {
-    const selector = createNormalizationSelector(
+    const relayPayload = this._normalizeModuleImport(
+      moduleImportPayload,
       operation,
-      moduleImportPayload.dataID,
-      moduleImportPayload.variables,
-    );
-    const relayPayload = normalizeResponse(
-      {data: moduleImportPayload.data},
-      selector,
-      moduleImportPayload.typeName,
-      {
-        getDataID: this._getDataID,
-        path: moduleImportPayload.path,
-        request: this._operation.request,
-      },
     );
     this._publishQueue.commitPayload(this._operation, relayPayload);
     const updatedOwners = this._publishQueue.run();

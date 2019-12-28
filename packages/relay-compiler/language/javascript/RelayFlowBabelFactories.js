@@ -8,6 +8,8 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const invariant = require('invariant');
@@ -32,6 +34,20 @@ function exactObjectTypeAnnotation(
 ): $FlowFixMe {
   const typeAnnotation = t.objectTypeAnnotation(props);
   typeAnnotation.exact = true;
+  return typeAnnotation;
+}
+
+/**
+ * {
+ *   PROPS
+ *   ...
+ * }
+ */
+function inexactObjectTypeAnnotation(
+  props: $ReadOnlyArray<BabelAST>,
+): $FlowFixMe {
+  const typeAnnotation = t.objectTypeAnnotation(props);
+  typeAnnotation.inexact = true;
   return typeAnnotation;
 }
 
@@ -151,6 +167,7 @@ module.exports = {
   anyTypeAlias,
   declareExportOpaqueType,
   exactObjectTypeAnnotation,
+  inexactObjectTypeAnnotation,
   exportType,
   exportTypes,
   importTypes,

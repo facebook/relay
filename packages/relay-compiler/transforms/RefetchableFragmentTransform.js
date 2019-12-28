@@ -8,9 +8,11 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
-const GraphQLIRVisitor = require('../core/GraphQLIRVisitor');
+const IRVisitor = require('../core/IRVisitor');
 
 const getLiteralArgumentValues = require('../core/getLiteralArgumentValues');
 const inferRootArgumentDefinitions = require('../core/inferRootArgumentDefinitions');
@@ -18,11 +20,11 @@ const inferRootArgumentDefinitions = require('../core/inferRootArgumentDefinitio
 const {
   createUserError,
   eachWithCombinedError,
-} = require('../core/RelayCompilerError');
+} = require('../core/CompilerError');
 const {buildRefetchOperation} = require('./query-generators');
 
-import type GraphQLCompilerContext from '../core/GraphQLCompilerContext';
-import type {Argument, Field, Fragment} from '../core/GraphQLIR';
+import type CompilerContext from '../core/CompilerContext';
+import type {Argument, Field, Fragment} from '../core/IR';
 import type {Schema} from '../core/Schema';
 import type {ReaderPaginationMetadata} from 'relay-runtime';
 
@@ -49,8 +51,8 @@ const SCHEMA_EXTENSION = `
  *    Fragment to Root IR nodes.
  */
 function refetchableFragmentTransform(
-  context: GraphQLCompilerContext,
-): GraphQLCompilerContext {
+  context: CompilerContext,
+): CompilerContext {
   const schema = context.getSchema();
 
   const refetchOperations = buildRefetchMap(context);
@@ -93,9 +95,7 @@ function refetchableFragmentTransform(
  * refetch operation names to the source fragment from which the refetch
  * operation should be derived.
  */
-function buildRefetchMap(
-  context: GraphQLCompilerContext,
-): Map<string, Fragment> {
+function buildRefetchMap(context: CompilerContext): Map<string, Fragment> {
   const refetchOperations = new Map();
   eachWithCombinedError(context.documents(), node => {
     if (node.kind !== 'Fragment') {
@@ -141,7 +141,7 @@ function extractConnectionMetadata(
   const fields = [];
   let connectionField = null;
   let path = null;
-  GraphQLIRVisitor.visit(fragment, {
+  IRVisitor.visit(fragment, {
     ConnectionField: {
       enter(field) {
         fields.push(field);

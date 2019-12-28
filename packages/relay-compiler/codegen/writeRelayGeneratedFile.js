@@ -8,6 +8,8 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const CodeMarker = require('../util/CodeMarker');
@@ -20,7 +22,7 @@ const invariant = require('invariant');
 
 const {RelayConcreteNode} = require('relay-runtime');
 
-import type {GeneratedDefinition} from '../core/GraphQLIR';
+import type {GeneratedDefinition} from '../core/IR';
 import type {Schema} from '../core/Schema';
 import type {FormatModule} from '../language/RelayLanguagePluginInterface';
 import type CodegenDirectory from './CodegenDirectory';
@@ -57,6 +59,12 @@ async function writeRelayGeneratedFile(
     moduleName: string,
   ) => string = createPrintRequireModuleDependency(extension),
   shouldRepersist: boolean,
+  writeQueryParameters: (
+    dir: CodegenDirectory,
+    filename: string,
+    moduleName: string,
+    params: RequestParameters,
+  ) => void,
 ): Promise<?GeneratedNode> {
   let generatedNode = _generatedNode;
   // Copy to const so Flow can refine.
@@ -71,6 +79,14 @@ async function writeRelayGeneratedFile(
       : moduleName;
 
   const filename = platformName + '.' + extension;
+  const queryParametersFilename =
+    generatedNode.kind === 'Request'
+      ? generatedNode.params.name +
+        '$Parameters' +
+        (platform != null ? '.' + platform : '') +
+        `.${extension}`
+      : null;
+
   const typeName = getConcreteType(generatedNode);
 
   let docText;
@@ -101,6 +117,20 @@ async function writeRelayGeneratedFile(
 
     if (!shouldRepersist && hash === oldHash) {
       codegenDir.markUnchanged(filename);
+      if (
+        writeQueryParameters &&
+        oldRequestParameters &&
+        queryParametersFilename != null &&
+        generatedNode.kind === RelayConcreteNode.REQUEST &&
+        generatedNode.params.operationKind === 'query'
+      ) {
+        writeQueryParameters(
+          codegenDir,
+          queryParametersFilename,
+          moduleName,
+          oldRequestParameters,
+        );
+      }
       return oldRequestParameters
         ? {
             ...generatedNode,
@@ -157,6 +187,19 @@ async function writeRelayGeneratedFile(
     schema,
   });
   codegenDir.writeFile(filename, moduleText, shouldRepersist);
+  if (
+    writeQueryParameters &&
+    queryParametersFilename != null &&
+    generatedNode.kind === RelayConcreteNode.REQUEST &&
+    generatedNode.params.operationKind === 'query'
+  ) {
+    writeQueryParameters(
+      codegenDir,
+      queryParametersFilename,
+      moduleName,
+      generatedNode.params,
+    );
+  }
   return generatedNode;
 }
 

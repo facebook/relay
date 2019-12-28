@@ -41,12 +41,14 @@ type Query {
   usernames(names: [String!]!): [Actor]
   viewer: Viewer
   _mutation: Mutation
-  relay_early_flush: [JSDependency!]!
+  relay_early_flush(query_name: String): [JSDependency!]!
 }
 
 interface MaybeNodeInterface {
   name: String
 }
+
+scalar JSON
 
 union MaybeNode = Story | FakeNode | NonNode
 
@@ -93,6 +95,9 @@ type Mutation {
   commentCreate(input: CommentCreateInput): CommentCreateResponsePayload
   commentDelete(input: CommentDeleteInput): CommentDeleteResponsePayload
   feedbackLike(input: FeedbackLikeInput): FeedbackLikeResponsePayload
+  feedbackLikeStrict(
+    input: FeedbackLikeInputStrict!
+  ): FeedbackLikeResponsePayload
   feedbackLikeSubscribe(input: FeedbackLikeInput): FeedbackLikeResponsePayload
   nodeSavedState(input: NodeSaveStateInput): NodeSavedStateResponsePayload
   unfriend(input: UnfriendInput): UnfriendResponsePayload
@@ -152,6 +157,13 @@ input CommentDeleteInput {
 input FeedbackLikeInput {
   clientMutationId: String
   feedbackId: ID
+}
+
+input FeedbackLikeInputStrict {
+  userID: ID!
+  clientMutationId: ID!
+  feedbackId: ID!
+  description: String
 }
 
 input NodeSaveStateInput {
@@ -252,7 +264,8 @@ type Comment implements Node {
   message: Text
   name: String
   profilePicture(size: [Int], preset: PhotoSize): Image
-  # This is added in RelayTestSchema
+  # This is added in TestSchema.js
+  #
   # profilePicture2(
   #   size: [Int],
   #   preset: PhotoSize,
@@ -427,6 +440,7 @@ type Image {
   uri: String
   width: Int
   height: Int
+  test_enums: TestEnums
 }
 
 type LikersOfContentConnection {
@@ -608,6 +622,7 @@ type Page implements Node & Actor {
   username: String
   viewerSavedState: String
   nameWithArgs(capitalize: Boolean!): String
+  nameWithDefaultArgs(capitalize: Boolean! = false): String
 }
 
 type PageInfo {
@@ -875,6 +890,12 @@ type MarkdownUserNameData {
 
 type CustomNameRenderer {
   customField: String
+  user: User
+}
+
+type PlainUserRenderer {
+  user: User
+  js(module: String!, id: String): JSDependency
 }
 
 union UserNameRenderer =
@@ -884,6 +905,10 @@ union UserNameRenderer =
 
 interface UserNameRenderable {
   name: String
+}
+
+input ProfilePictureOptions {
+  newName: String
 }
 
 type User implements Named & Node & Actor & HasJsField {
@@ -955,6 +980,15 @@ type User implements Named & Node & Actor & HasJsField {
   websites: [String]
   username: String
   viewerSavedState: String
+  plainUserRenderer: PlainUserRenderer
+  profilePicture2(
+    size: [Int]
+    preset: PhotoSize
+    cropPosition: CropPosition
+    fileExtension: FileExtension
+    additionalParameters: JSON
+    options: ProfilePictureOptions
+  ): Image
 }
 
 enum NameRendererContext {
@@ -1052,19 +1086,23 @@ enum TopLevelCommentsOrdering {
   toplevel
 }
 
-# This is added in RelayTestSchema
-# enum CropPosition {
-#   TOP
-#   CENTER
-#   BOTTOM
-#   LEFT
-#   RIGHT
-# }
-#
-# enum FileExtension {
-#   JPG
-#   PNG
-# }
+enum CropPosition {
+  TOP
+  CENTER
+  BOTTOM
+  LEFT
+  RIGHT
+}
+
+enum FileExtension {
+  JPG
+  PNG
+}
+
+enum TestEnums {
+  mark
+  zuck
+}
 
 type Settings {
   cache_id: ID

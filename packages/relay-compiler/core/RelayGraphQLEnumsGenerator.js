@@ -8,17 +8,17 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const SignedSource = require('signedsource');
 
-const {GraphQLEnumType} = require('graphql');
-
 import type CodegenDirectory from '../codegen/CodegenDirectory';
-import type {GraphQLSchema} from 'graphql';
+import type {Schema} from '../core/Schema';
 
 function writeForSchema(
-  schema: GraphQLSchema,
+  schema: Schema,
   licenseHeader: $ReadOnlyArray<string>,
   codegenDir: CodegenDirectory,
   getModuleName: (enumName: string) => string,
@@ -32,24 +32,21 @@ function writeForSchema(
     ' */\n' +
     '\n';
 
-  const typeMap = schema.getTypeMap();
-  for (const name of Object.keys(typeMap)) {
-    const type = typeMap[name];
-    if (type instanceof GraphQLEnumType) {
-      const values = type
-        .getValues()
-        .map(({value}) => value)
-        .sort();
-      const enumFileContent =
-        header +
-        `export type ${name} =\n  | '` +
-        values.join("'\n  | '") +
-        "'\n  | '%future added value';\n";
-      codegenDir.writeFile(
-        `${getModuleName(name)}.js`,
-        SignedSource.signFile(enumFileContent),
-      );
-    }
+  const enumTypes = schema.getTypes().filter(type => schema.isEnum(type));
+
+  for (const type of enumTypes) {
+    const enumType = schema.assertEnumType(type);
+    const name = schema.getTypeString(type);
+    const values = [...schema.getEnumValues(enumType)].sort();
+    const enumFileContent =
+      header +
+      `export type ${name} =\n  | '` +
+      values.join("'\n  | '") +
+      "'\n  | '%future added value';\n";
+    codegenDir.writeFile(
+      `${getModuleName(name)}.js`,
+      SignedSource.signFile(enumFileContent),
+    );
   }
 }
 

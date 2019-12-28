@@ -9,12 +9,14 @@
  * @emails oncall+relay
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
-const IRTransformer = require('../core/GraphQLIRTransformer');
+const IRTransformer = require('../core/IRTransformer');
 
-import type CompilerContext from '../core/GraphQLCompilerContext';
-import type {Fragment, Root} from '../core/GraphQLIR';
+import type CompilerContext from '../core/CompilerContext';
+import type {Fragment, Root} from '../core/IR';
 import type {Schema, TypeID} from '../core/Schema';
 
 // The purpose of this directive is to add GraphQL type inform for fields in

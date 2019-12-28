@@ -3,7 +3,7 @@
   "localized-strings": {
     "next": "Next",
     "previous": "Previous",
-    "tagline": "A JavaScript framework for building data-driven React applications",
+    "tagline": "The production-ready GraphQL client for React.",
     "docs": {
       "community-learning-resources": {
         "title": "Community Learning Resources"
@@ -323,6 +323,15 @@
       "version-classic/version-classic-videos": {
         "title": "Videos"
       },
+      "version-experimental/version-experimental-a-guided-tour-of-relay": {
+        "title": "A Guided Tour"
+      },
+      "version-experimental/version-experimental-api-reference": {
+        "title": "API Reference"
+      },
+      "version-experimental/version-experimental-step-by-step": {
+        "title": "A Step By Step Guide"
+      },
       "version-v1.7.0/version-v1.7.0-installation-and-setup": {
         "title": "Installation and Setup"
       },
@@ -499,11 +508,17 @@
       },
       "version-v7.0.0/version-v7.0.0-network-layer": {
         "title": "Network Layer"
+      },
+      "version-v7.1.0/version-v7.1.0-quick-start-guide": {
+        "title": "Quick Start Guide"
+      },
+      "version-v7.1.0/version-v7.1.0-local-state-management": {
+        "title": "Local State Management"
       }
     },
     "links": {
       "Docs": "Docs",
-      "Support": "Support",
+      "Help": "Help",
       "GitHub": "GitHub"
     },
     "categories": {
@@ -513,6 +528,7 @@
       "Principles & Architecture": "Principles & Architecture",
       "Community": "Community",
       "Migration Guides": "Migration Guides",
+      "Relay Hooks": "Relay Hooks",
       "Relay Classic Guides": "Relay Classic Guides",
       "Relay Classic API": "Relay Classic API",
       "Relay Classic Interfaces": "Relay Classic Interfaces"

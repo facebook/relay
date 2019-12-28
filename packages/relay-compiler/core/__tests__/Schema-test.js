@@ -9,9 +9,13 @@
  * @emails oncall+relay
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const Schema = require('../Schema');
+
+const nullthrows = require('../../util/nullthrowsOSS');
 
 const {Source, parse, parseType} = require('graphql');
 
@@ -675,11 +679,11 @@ describe('Schema: RelayCompiler Internal GraphQL Schema Interface', () => {
         new Source('directive @my_directive on QUERY'),
       );
       const directives = schema.getDirectives();
-      expect(directives.map(directive => directive.name)).toEqual([
+      expect(directives.map(directive => directive.name).sort()).toEqual([
+        'deprecated',
+        'include',
         'my_directive',
         'skip',
-        'include',
-        'deprecated',
       ]);
     });
 
@@ -692,7 +696,33 @@ describe('Schema: RelayCompiler Internal GraphQL Schema Interface', () => {
         name: 'my_directive',
         locations: ['QUERY'],
         args: [],
-        clientOnlyDirective: false,
+        isClient: false,
+      });
+    });
+
+    it('should return directive with args by name', () => {
+      const schema = Schema.create(
+        new Source(
+          'directive @my_directive(if: Boolean, intValue: Int = 42) on QUERY',
+        ),
+      );
+      const myDirective = schema.getDirective('my_directive');
+      expect(myDirective).toEqual({
+        name: 'my_directive',
+        locations: ['QUERY'],
+        args: [
+          {
+            defaultValue: undefined,
+            name: 'if',
+            type: schema.expectTypeFromString('Boolean'),
+          },
+          {
+            defaultValue: 42,
+            name: 'intValue',
+            type: schema.expectTypeFromString('Int'),
+          },
+        ],
+        isClient: false,
       });
     });
   });
@@ -733,11 +763,11 @@ describe('Schema: RelayCompiler Internal GraphQL Schema Interface', () => {
 
     it('should check if directive is client only', () => {
       const schema = Schema.create(
-        new Source('type User { name: String}'),
+        new Source('type User { name: String } directive @strong on FIELD'),
         [],
         ['directive @my_directive on QUERY'],
       );
-      expect(schema.isServerDirective('include')).toBe(true);
+      expect(schema.isServerDirective('strong')).toBe(true);
       expect(schema.isServerDirective('my_directive')).toBe(false);
     });
   });
@@ -1307,5 +1337,90 @@ describe('Schema: RelayCompiler Internal GraphQL Schema Interface', () => {
     expect(schema.isPossibleType(Node, A)).toBe(true);
     expect(schema.isPossibleType(Node, B)).toBe(false);
     expect(schema.isPossibleType(Node, C)).toBe(false);
+  });
+
+  test('doTypesOverlap', () => {
+    const schema = Schema.create(
+      new Source(`
+        schema {
+          query: MyQueries
+        }
+        type MyQueries {
+          node: Node
+        }
+        interface Node {
+          id: ID
+        }
+        type User implements Node {
+          id: ID
+        }
+        type Actor {
+          name: String
+        }
+
+        union ActorUser = Actor | User
+      `),
+    );
+    const myQuery = schema.assertCompositeType(
+      schema.expectTypeFromString('MyQueries'),
+    );
+    const query = schema.expectQueryType();
+    const node = schema.assertCompositeType(
+      schema.expectTypeFromString('Node'),
+    );
+    const user = schema.assertCompositeType(
+      schema.expectTypeFromString('User'),
+    );
+    const actor = schema.assertCompositeType(
+      schema.expectTypeFromString('Actor'),
+    );
+    const actorUser = schema.assertCompositeType(
+      schema.expectTypeFromString('ActorUser'),
+    );
+
+    expect(schema.doTypesOverlap(myQuery, query)).toBe(true);
+    expect(schema.doTypesOverlap(node, user)).toBe(true);
+    expect(schema.doTypesOverlap(user, node)).toBe(true);
+    expect(schema.doTypesOverlap(actor, node)).toBe(false);
+    expect(schema.doTypesOverlap(actor, user)).toBe(false);
+    expect(schema.doTypesOverlap(query, user)).toBe(false);
+    expect(schema.doTypesOverlap(actorUser, user)).toBe(true);
+    expect(schema.doTypesOverlap(actorUser, actor)).toBe(true);
+    expect(schema.doTypesOverlap(actorUser, node)).toBe(true);
+  });
+
+  test('extend', () => {
+    let schema = Schema.create(
+      new Source(`
+        directive @my_server_directive on QUERY
+        type User {
+          name: String
+        }
+    `),
+    );
+    expect(schema.getDirective('my_server_directive')).toBeDefined();
+    expect(schema.getDirective('my_client_directive')).not.toBeDefined();
+    schema = schema.extend(
+      parse(`
+      directive @my_client_directive on QUERY
+      type ClientType {
+        value: String
+      }
+      extend type User {
+        lastName: String
+      }
+    `),
+    );
+    expect(schema.getDirective('my_client_directive')).toBeDefined();
+    const user = schema.assertCompositeType(
+      schema.expectTypeFromString('User'),
+    );
+    expect(
+      schema.isServerField(nullthrows(schema.getFieldByName(user, 'name'))),
+    ).toBe(true);
+    expect(
+      schema.isServerField(nullthrows(schema.getFieldByName(user, 'lastName'))),
+    ).toBe(false);
+    expect(schema.getTypeFromString('ClientType')).toBeDefined();
   });
 });

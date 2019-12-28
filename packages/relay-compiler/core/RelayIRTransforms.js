@@ -8,6 +8,8 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const ApplyFragmentArgumentTransform = require('../transforms/ApplyFragmentArgumentTransform');
@@ -40,7 +42,7 @@ const ValidateRequiredArgumentsTransform = require('../transforms/ValidateRequir
 const ValidateServerOnlyDirectivesTransform = require('../transforms/ValidateServerOnlyDirectivesTransform');
 const ValidateUnusedVariablesTransform = require('../transforms/ValidateUnusedVariablesTransform');
 
-import type {IRTransform} from './GraphQLCompilerContext';
+import type {IRTransform} from './CompilerContext';
 
 // Transforms applied to the code used to process a query response.
 const relaySchemaExtensions: $ReadOnlyArray<string> = [

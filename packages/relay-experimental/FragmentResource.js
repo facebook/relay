@@ -9,6 +9,8 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const LRUCache = require('./LRUCache');
@@ -41,9 +43,7 @@ type FragmentResourceCache = Cache<
 >;
 
 type SingularOrPluralSnapshot = Snapshot | $ReadOnlyArray<Snapshot>;
-opaque type FragmentResult: {
-  data: mixed,
-} = {|
+opaque type FragmentResult: {data: mixed, ...} = {|
   cacheKey: string,
   data: mixed,
   snapshot: SingularOrPluralSnapshot | null,
@@ -227,10 +227,10 @@ class FragmentResourceImpl {
   }
 
   readSpec(
-    fragmentNodes: {[string]: ReaderFragment},
-    fragmentRefs: {[string]: mixed},
+    fragmentNodes: {[string]: ReaderFragment, ...},
+    fragmentRefs: {[string]: mixed, ...},
     componentDisplayName: string,
-  ): {[string]: FragmentResult} {
+  ): {[string]: FragmentResult, ...} {
     return mapObject(fragmentNodes, (fragmentNode, fragmentKey) => {
       const fragmentRef = fragmentRefs[fragmentKey];
       return this.read(
@@ -273,7 +273,12 @@ class FragmentResourceImpl {
       currentSnapshot.forEach((snapshot, idx) => {
         dataSubscriptions.push(
           environment.subscribe(snapshot, latestSnapshot => {
-            this._updatePluralSnapshot(cacheKey, latestSnapshot, idx);
+            this._updatePluralSnapshot(
+              cacheKey,
+              currentSnapshot,
+              latestSnapshot,
+              idx,
+            );
             callback();
           }),
         );
@@ -301,9 +306,7 @@ class FragmentResourceImpl {
   }
 
   subscribeSpec(
-    fragmentResults: {
-      [string]: FragmentResult,
-    },
+    fragmentResults: {[string]: FragmentResult, ...},
     callback: () => void,
   ): Disposable {
     const disposables = Object.keys(fragmentResults).map(key =>
@@ -360,7 +363,10 @@ class FragmentResourceImpl {
     return [didMissUpdates, currentSnapshot];
   }
 
-  checkMissedUpdatesSpec(fragmentResults: {[string]: FragmentResult}): boolean {
+  checkMissedUpdatesSpec(fragmentResults: {
+    [string]: FragmentResult,
+    ...,
+  }): boolean {
     return Object.keys(fragmentResults).some(
       key => this.checkMissedUpdates(fragmentResults[key])[0],
     );
@@ -397,17 +403,21 @@ class FragmentResourceImpl {
 
   _updatePluralSnapshot(
     cacheKey: string,
+    baseSnapshots: $ReadOnlyArray<Snapshot>,
     latestSnapshot: Snapshot,
     idx: number,
   ): void {
     const currentSnapshots = this._cache.get(cacheKey);
     invariant(
-      Array.isArray(currentSnapshots),
-      'Relay: Expected to find cached data for plural fragment when ' +
-        'recieving a subscription. ' +
+      currentSnapshots == null || Array.isArray(currentSnapshots),
+      'Relay: Expected to find cached data for plural fragment `%s` when ' +
+        'receiving a subscription. ' +
         "If you're seeing this, this is likely a bug in Relay.",
+      latestSnapshot.selector.node.name,
     );
-    const nextSnapshots = [...currentSnapshots];
+    const nextSnapshots = currentSnapshots
+      ? [...currentSnapshots]
+      : [...baseSnapshots];
     nextSnapshots[idx] = latestSnapshot;
     this._cache.set(cacheKey, nextSnapshots);
   }

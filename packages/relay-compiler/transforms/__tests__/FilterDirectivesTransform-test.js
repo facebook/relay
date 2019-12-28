@@ -9,14 +9,14 @@
  * @emails oncall+relay
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
+const CompilerContext = require('../../core/CompilerContext');
 const FilterDirectivesTransform = require('../FilterDirectivesTransform');
-const GraphQLCompilerContext = require('../../core/GraphQLCompilerContext');
-const GraphQLIRPrinter = require('../../core/GraphQLIRPrinter');
-const Schema = require('../../core/Schema');
+const IRPrinter = require('../../core/IRPrinter');
 
-const {transformASTSchema} = require('../../core/ASTConvert');
 const {
   TestSchema,
   generateTestsFromFixtures,
@@ -28,20 +28,16 @@ describe('FilterDirectivesTransform', () => {
     `${__dirname}/fixtures/filter-directives-transform`,
     text => {
       // Extend the schema with a directive for testing purposes.
-      const extendedSchema = transformASTSchema(TestSchema, [
+      const extendedSchema = TestSchema.extend([
         'directive @exampleFilteredDirective on FIELD',
       ]);
       const {definitions} = parseGraphQLText(extendedSchema, text);
-      const compilerSchema = Schema.DEPRECATED__create(
-        TestSchema,
-        extendedSchema,
-      );
 
-      return new GraphQLCompilerContext(compilerSchema)
+      return new CompilerContext(extendedSchema)
         .addAll(definitions)
         .applyTransforms([FilterDirectivesTransform.transform])
         .documents()
-        .map(doc => GraphQLIRPrinter.print(compilerSchema, doc))
+        .map(doc => IRPrinter.print(extendedSchema, doc))
         .join('\n');
     },
   );

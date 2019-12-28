@@ -9,27 +9,26 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
-const ExecutionEnvironment = require('fbjs/lib/ExecutionEnvironment');
+const ExecutionEnvironment = require('./ExecutionEnvironment');
 const LRUCache = require('./LRUCache');
 
 const invariant = require('invariant');
 
-const {isPromise, RelayFeatureFlags} = require('relay-runtime');
+const {isPromise} = require('relay-runtime');
 
 const CACHE_CAPACITY = 1000;
 
 const DEFAULT_FETCH_POLICY = 'store-or-network';
-const DEFAULT_RENDER_POLICY =
-  RelayFeatureFlags.ENABLE_PARTIAL_RENDERING_DEFAULT === true
-    ? 'partial'
-    : 'full';
 
 const DATA_RETENTION_TIMEOUT = 30 * 1000;
 
 import type {
   Disposable,
+  FetchPolicy,
   FragmentPointer,
   GraphQLResponse,
   IEnvironment,
@@ -37,18 +36,13 @@ import type {
   Observer,
   OperationDescriptor,
   ReaderFragment,
+  RenderPolicy,
   Snapshot,
   Subscription,
 } from 'relay-runtime';
 import type {Cache} from './LRUCache';
 
 export type QueryResource = QueryResourceImpl;
-export type FetchPolicy =
-  | 'store-only'
-  | 'store-or-network'
-  | 'store-and-network'
-  | 'network-only';
-export type RenderPolicy = 'full' | 'partial';
 
 type QueryResourceCache = Cache<QueryResourceCacheEntry>;
 type QueryResourceCacheEntry = {|
@@ -64,6 +58,7 @@ type QueryResourceCacheEntry = {|
 opaque type QueryResult: {
   fragmentNode: ReaderFragment,
   fragmentRef: FragmentPointer,
+  ...
 } = {|
   cacheKey: string,
   fragmentNode: ReaderFragment,
@@ -115,7 +110,7 @@ function createCacheEntry(
   const retain = (environment: IEnvironment) => {
     retainCount++;
     if (retainCount === 1) {
-      retainDisposable = environment.retain(operation.root);
+      retainDisposable = environment.retain(operation);
     }
     return {
       dispose: () => {
@@ -157,7 +152,7 @@ function createCacheEntry(
     temporaryRetain(environment: IEnvironment): Disposable {
       // NOTE: If we're executing in a server environment, there's no need
       // to create temporary retains, since the component will never commit.
-      if (!ExecutionEnvironment.canUseDOM) {
+      if (ExecutionEnvironment.isServer) {
         return {dispose: () => {}};
       }
 
@@ -252,7 +247,8 @@ class QueryResourceImpl {
   ): QueryResult {
     const environment = this._environment;
     const fetchPolicy = maybeFetchPolicy ?? DEFAULT_FETCH_POLICY;
-    const renderPolicy = maybeRenderPolicy ?? DEFAULT_RENDER_POLICY;
+    const renderPolicy =
+      maybeRenderPolicy ?? environment.UNSTABLE_getDefaultRenderPolicy();
     let cacheKey = getQueryCacheKey(operation, fetchPolicy, renderPolicy);
     if (cacheKeyBuster != null) {
       cacheKey += `-${cacheKeyBuster}`;
@@ -332,7 +328,9 @@ class QueryResourceImpl {
     fetchPolicy: FetchPolicy,
     maybeRenderPolicy?: RenderPolicy,
   ): ?QueryResourceCacheEntry {
-    const renderPolicy = maybeRenderPolicy ?? DEFAULT_RENDER_POLICY;
+    const environment = this._environment;
+    const renderPolicy =
+      maybeRenderPolicy ?? environment.UNSTABLE_getDefaultRenderPolicy();
     const cacheKey = getQueryCacheKey(operation, fetchPolicy, renderPolicy);
     return this._cache.get(cacheKey);
   }
@@ -377,8 +375,11 @@ class QueryResourceImpl {
     // missing data handlers specified on the environment;
     // We run it here first to make the handlers get a chance to populate
     // missing data.
-    const hasFullQuery = environment.check(operation.root);
-    const canPartialRender = hasFullQuery || renderPolicy === 'partial';
+    const queryAvailability = environment.check(operation);
+    const hasFullQuery = queryAvailability === 'available';
+    const canPartialRender =
+      hasFullQuery ||
+      (renderPolicy === 'partial' && queryAvailability !== 'stale');
 
     let shouldFetch;
     let shouldAllowRender;
@@ -428,7 +429,7 @@ class QueryResourceImpl {
       operation,
       fetchPolicy,
       renderPolicy,
-      hasFullQuery,
+      queryAvailability,
       shouldFetch,
     });
 

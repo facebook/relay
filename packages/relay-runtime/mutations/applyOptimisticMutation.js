@@ -8,6 +8,8 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const RelayDeclarativeMutationConfig = require('./RelayDeclarativeMutationConfig');
@@ -15,12 +17,12 @@ const RelayDeclarativeMutationConfig = require('./RelayDeclarativeMutationConfig
 const invariant = require('invariant');
 const isRelayModernEnvironment = require('../store/isRelayModernEnvironment');
 
-const {getRequest} = require('../query/RelayModernGraphQLTag');
+const {getRequest} = require('../query/GraphQLTag');
 const {
   createOperationDescriptor,
 } = require('../store/RelayModernOperationDescriptor');
 
-import type {GraphQLTaggedNode} from '../query/RelayModernGraphQLTag';
+import type {GraphQLTaggedNode} from '../query/GraphQLTag';
 import type {
   IEnvironment,
   SelectorStoreUpdater,

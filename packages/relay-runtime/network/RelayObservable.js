@@ -8,6 +8,8 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const isPromise = require('../util/isPromise');
@@ -25,6 +27,7 @@ type SubscriptionFn = {
   (): mixed,
   +unsubscribe?: void,
   +closed?: void,
+  ...
 };
 
 /**

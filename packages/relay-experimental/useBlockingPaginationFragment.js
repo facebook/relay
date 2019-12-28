@@ -9,6 +9,8 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 // flowlint untyped-import:off
@@ -46,7 +48,7 @@ export type ReturnType<TQuery: OperationType, TKey, TFragmentData> = {|
 
 function useBlockingPaginationFragment<
   TQuery: OperationType,
-  TKey: ?{+$data?: mixed},
+  TKey: ?{+$data?: mixed, ...},
 >(
   fragmentInput: GraphQLTaggedNode,
   parentFragmentRef: TKey,
@@ -59,8 +61,8 @@ function useBlockingPaginationFragment<
   //   - non-nullable if the provided ref type is non-nullable
   // prettier-ignore
   $Call<
-    & (<TFragmentData>( {+$data?: TFragmentData}) =>  TFragmentData)
-    & (<TFragmentData>(?{+$data?: TFragmentData}) => ?TFragmentData),
+    & (<TFragmentData>( { +$data?: TFragmentData, ... }) =>  TFragmentData)
+    & (<TFragmentData>(?{ +$data?: TFragmentData, ... }) => ?TFragmentData),
     TKey,
   >,
 > {
@@ -153,7 +155,11 @@ function useLoadMore(args: {|
   ...$Exact<
     $Diff<
       UseLoadMoreFunctionArgs,
-      {observer: Observer<GraphQLResponse>, onReset: () => void},
+      {
+        observer: Observer<GraphQLResponse>,
+        onReset: () => void,
+        ...
+      },
     >,
   >,
 |}): [LoadMoreFn, boolean, () => void] {

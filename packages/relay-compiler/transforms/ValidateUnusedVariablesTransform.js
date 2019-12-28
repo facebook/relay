@@ -8,6 +8,8 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const inferRootArgumentDefinitions = require('../core/inferRootArgumentDefinitions');
@@ -15,10 +17,10 @@ const inferRootArgumentDefinitions = require('../core/inferRootArgumentDefinitio
 const {
   createUserError,
   eachWithCombinedError,
-} = require('../core/RelayCompilerError');
+} = require('../core/CompilerError');
 
-import type GraphQLCompilerContext from '../core/GraphQLCompilerContext';
-import type {ArgumentDefinition} from '../core/GraphQLIR';
+import type CompilerContext from '../core/CompilerContext';
+import type {ArgumentDefinition} from '../core/IR';
 
 const SCHEMA_EXTENSION =
   'directive @DEPRECATED__relay_ignore_unused_variables_error on QUERY | MUTATION | SUBSCRIPTION';
@@ -28,8 +30,8 @@ const SCHEMA_EXTENSION =
  * former `graphql-js`` NoUnusedVariablesRule
  */
 function validateUnusedVariablesTransform(
-  context: GraphQLCompilerContext,
-): GraphQLCompilerContext {
+  context: CompilerContext,
+): CompilerContext {
   const contextWithUsedArguments = inferRootArgumentDefinitions(context);
   eachWithCombinedError(context.documents(), node => {
     if (node.kind !== 'Root') {

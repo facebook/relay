@@ -8,9 +8,11 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
-const IRTransformer = require('../core/GraphQLIRTransformer');
+const IRTransformer = require('../core/IRTransformer');
 const RelayCompilerScope = require('../core/RelayCompilerScope');
 
 const getIdentifierForArgumentValue = require('../core/getIdentifierForArgumentValue');
@@ -19,9 +21,9 @@ const murmurHash = require('../util/murmurHash');
 const {
   createCompilerError,
   createNonRecoverableUserError,
-} = require('../core/RelayCompilerError');
+} = require('../core/CompilerError');
 
-import type CompilerContext from '../core/GraphQLCompilerContext';
+import type CompilerContext from '../core/CompilerContext';
 import type {
   Argument,
   ArgumentValue,
@@ -34,7 +36,7 @@ import type {
   IR,
   Node,
   Selection,
-} from '../core/GraphQLIR';
+} from '../core/IR';
 import type {Scope} from '../core/RelayCompilerScope';
 
 const {getFragmentScope, getRootScope} = RelayCompilerScope;
@@ -396,6 +398,19 @@ function transformValue(
       );
     }
     return scopeValue;
+  } else if (value.kind === 'ObjectValue') {
+    return {
+      ...value,
+      fields: value.fields.map(field => ({
+        ...field,
+        value: transformValue(scope, field.value, errorContext),
+      })),
+    };
+  } else if (value.kind === 'ListValue') {
+    return {
+      ...value,
+      items: value.items.map(item => transformValue(scope, item, errorContext)),
+    };
   }
   return value;
 }

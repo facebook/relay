@@ -8,24 +8,26 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
-const GraphQLIRTransformer = require('../core/GraphQLIRTransformer');
+const IRTransformer = require('../core/IRTransformer');
 
-import type GraphQLCompilerContext from '../core/GraphQLCompilerContext';
-import type {ClientExtension, Fragment} from '../core/GraphQLIR';
+import type CompilerContext from '../core/CompilerContext';
+import type {ClientExtension, Fragment} from '../core/IR';
 
 function skipClientExtensionTransform(
-  context: GraphQLCompilerContext,
-): GraphQLCompilerContext {
-  return GraphQLIRTransformer.transform(context, {
+  context: CompilerContext,
+): CompilerContext {
+  return IRTransformer.transform(context, {
     Fragment: visitFragment,
     ClientExtension: visitClientExtension,
   });
 }
 
 function visitFragment(node: Fragment): ?Fragment {
-  const context: GraphQLCompilerContext = this.getContext();
+  const context: CompilerContext = this.getContext();
   if (context.getSchema().isServerType(node.type)) {
     return this.traverse(node);
   }

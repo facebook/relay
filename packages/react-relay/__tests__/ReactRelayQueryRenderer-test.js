@@ -1278,11 +1278,15 @@ describe('ReactRelayQueryRenderer', () => {
       environment.mockClear();
       renderer.getInstance().setProps(nextProps);
       environment.mock.resolve(NextQuery, response); // trigger retain
-      expect(environment.retain.mock.calls[0][0].dataID).toBe('client:root');
-      expect(environment.retain.mock.calls[0][0].node).toBe(
+      expect(environment.retain.mock.calls[0][0].root.dataID).toBe(
+        'client:root',
+      );
+      expect(environment.retain.mock.calls[0][0].root.node).toBe(
         NextQuery.operation,
       );
-      expect(environment.retain.mock.calls[0][0].variables).toEqual(variables);
+      expect(environment.retain.mock.calls[0][0].root.variables).toEqual(
+        variables,
+      );
     });
 
     it('renders a pending state', () => {
@@ -1381,11 +1385,15 @@ describe('ReactRelayQueryRenderer', () => {
         },
       });
       expect(environment.retain.mock.calls.length).toBe(1);
-      expect(environment.retain.mock.calls[0][0].dataID).toBe('client:root');
-      expect(environment.retain.mock.calls[0][0].node).toBe(
+      expect(environment.retain.mock.calls[0][0].root.dataID).toBe(
+        'client:root',
+      );
+      expect(environment.retain.mock.calls[0][0].root.node).toBe(
         NextQuery.operation,
       );
-      expect(environment.retain.mock.calls[0][0].variables).toEqual(variables);
+      expect(environment.retain.mock.calls[0][0].root.variables).toEqual(
+        variables,
+      );
       expect(environment.retain.mock.dispose).not.toBeCalled();
     });
 
@@ -1478,11 +1486,15 @@ describe('ReactRelayQueryRenderer', () => {
         },
       });
       expect(environment.retain).toBeCalled();
-      expect(environment.retain.mock.calls[0][0].dataID).toBe('client:root');
-      expect(environment.retain.mock.calls[0][0].node).toBe(
+      expect(environment.retain.mock.calls[0][0].root.dataID).toBe(
+        'client:root',
+      );
+      expect(environment.retain.mock.calls[0][0].root.node).toBe(
         NextQuery.operation,
       );
-      expect(environment.retain.mock.calls[0][0].variables).toEqual(variables);
+      expect(environment.retain.mock.calls[0][0].root.variables).toEqual(
+        variables,
+      );
       expect(prevDispose).toBeCalled();
       expect(environment.retain.mock.dispose).not.toBeCalled();
     });

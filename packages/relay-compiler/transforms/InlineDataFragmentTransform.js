@@ -8,18 +8,20 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
-const GraphQLIRTransformer = require('../core/GraphQLIRTransformer');
+const IRTransformer = require('../core/IRTransformer');
 
-const {createUserError} = require('../core/RelayCompilerError');
+const {createUserError} = require('../core/CompilerError');
 
-import type GraphQLCompilerContext from '../core/GraphQLCompilerContext';
+import type CompilerContext from '../core/CompilerContext';
 import type {
   Fragment,
   FragmentSpread,
   InlineDataFragmentSpread,
-} from '../core/GraphQLIR';
+} from '../core/IR';
 
 const SCHEMA_EXTENSION = `
 directive @inline on FRAGMENT_DEFINITION
@@ -31,9 +33,9 @@ directive @inline on FRAGMENT_DEFINITION
  * InlineDataFragmentSpreads have the selections of the referenced fragment inlined.
  */
 function inlineDataFragmentTransform(
-  context: GraphQLCompilerContext,
-): GraphQLCompilerContext {
-  return GraphQLIRTransformer.transform(context, {
+  context: CompilerContext,
+): CompilerContext {
+  return IRTransformer.transform(context, {
     // $FlowFixMe - this visitor intentionally changes node types
     FragmentSpread: visitFragmentSpread,
     Fragment: visitFragment,
@@ -68,7 +70,7 @@ function visitFragmentSpread(
     fragmentSpread,
   );
 
-  const context: GraphQLCompilerContext = this.getContext();
+  const context: CompilerContext = this.getContext();
   const fragment = context.get(transformedFragmentSpread.name);
   if (
     !fragment ||

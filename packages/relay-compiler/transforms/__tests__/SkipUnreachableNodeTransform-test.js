@@ -9,12 +9,13 @@
  * @emails oncall+relay
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
-const GraphQLCompilerContext = require('../../core/GraphQLCompilerContext');
-const GraphQLIRPrinter = require('../../core/GraphQLIRPrinter');
+const CompilerContext = require('../../core/CompilerContext');
+const IRPrinter = require('../../core/IRPrinter');
 const RelayParser = require('../../core/RelayParser');
-const Schema = require('../../core/Schema');
 const SkipUnreachableNodeTransform = require('../SkipUnreachableNodeTransform');
 
 const {
@@ -26,13 +27,12 @@ describe('SkipUnreachableNodeTransform', () => {
   generateTestsFromFixtures(
     `${__dirname}/fixtures/skip-unreachable-node-transform`,
     text => {
-      const schema = Schema.DEPRECATED__create(TestSchema);
-      const ast = RelayParser.parse(schema, text);
-      return new GraphQLCompilerContext(schema)
+      const ast = RelayParser.parse(TestSchema, text);
+      return new CompilerContext(TestSchema)
         .addAll(ast)
         .applyTransforms([SkipUnreachableNodeTransform.transform])
         .documents()
-        .map(doc => GraphQLIRPrinter.print(schema, doc))
+        .map(doc => IRPrinter.print(TestSchema, doc))
         .join('\n');
     },
   );

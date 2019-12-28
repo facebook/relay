@@ -8,15 +8,17 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
-const IRTransformer = require('../core/GraphQLIRTransformer');
+const IRTransformer = require('../core/IRTransformer');
 
-const {createUserError} = require('../core/RelayCompilerError');
+const {createUserError} = require('../core/CompilerError');
 const {buildConnectionMetadata} = require('./ConnectionTransform');
 const {ConnectionInterface} = require('relay-runtime');
 
-import type CompilerContext from '../core/GraphQLCompilerContext';
+import type CompilerContext from '../core/CompilerContext';
 import type {
   Connection,
   ConnectionField,
@@ -25,7 +27,7 @@ import type {
   LinkedField,
   Root,
   ScalarField,
-} from '../core/GraphQLIR';
+} from '../core/IR';
 import type {ConnectionMetadata} from 'relay-runtime';
 
 const SCHEMA_EXTENSION = `

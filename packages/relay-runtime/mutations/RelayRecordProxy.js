@@ -8,6 +8,8 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const invariant = require('invariant');
@@ -145,6 +147,10 @@ class RelayRecordProxy implements RecordProxy {
     const linkedIDs = records.map(record => record && record.getDataID());
     this._mutator.setLinkedRecordIDs(this._dataID, storageKey, linkedIDs);
     return this;
+  }
+
+  invalidateRecord(): void {
+    this._source.markIDForInvalidation(this._dataID);
   }
 }
 

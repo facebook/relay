@@ -9,6 +9,8 @@
  * @emails oncall+relay
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const RelayModernEnvironment = require('../RelayModernEnvironment');
@@ -25,6 +27,10 @@ const {
 const {createReaderSelector} = require('../RelayModernSelector');
 const {ROOT_ID} = require('../RelayStoreUtils');
 const {generateAndCompile} = require('relay-test-utils-internal');
+
+jest.mock('relay-runtime/util/RelayFeatureFlags', () => ({
+  ENABLE_UNIQUE_MUTATION_ROOT: true,
+}));
 
 describe('Mutations on viewer', () => {
   let dataSource;
@@ -130,66 +136,5 @@ describe('Mutations on viewer', () => {
       },
     });
     expect(callback).toBeCalledTimes(0); // no changes to selector result
-  });
-
-  it('stores data onto viewer field when no viewer field exists in the store, and it can be queried, ', () => {
-    const {LocationQuery} = generateAndCompile(`
-      query LocationQuery {
-        viewer {
-          marketplace_settings {
-            location {
-              latitude
-              longitude
-            }
-          }
-        }
-      }`);
-
-    const operationDescriptor = createOperationDescriptor(LocationQuery, {});
-    const selector = createReaderSelector(
-      LocationQuery.fragment,
-      ROOT_ID,
-      {},
-      operationDescriptor.request,
-    );
-    const snapshot = environment.lookup(selector);
-    const callback = jest.fn();
-    environment.subscribe(snapshot, callback);
-
-    commitMutation(environment, {
-      mutation,
-      variables,
-      onCompleted,
-      onError,
-    });
-    dataSource.next({
-      data: {
-        setLocation: {
-          viewer: {
-            marketplace_settings: {
-              location: {
-                latitude: 30.0,
-                longitude: 30.0,
-              },
-            },
-          },
-        },
-      },
-    });
-    environment.check(operationDescriptor.root); // fill in missing viewer
-    expect(callback).toBeCalledTimes(2);
-    expect(callback.mock.calls[0][0].data).toEqual({
-      viewer: undefined,
-    });
-    expect(callback.mock.calls[1][0].data).toEqual({
-      viewer: {
-        marketplace_settings: {
-          location: {
-            latitude: 30,
-            longitude: 30,
-          },
-        },
-      },
-    });
   });
 });

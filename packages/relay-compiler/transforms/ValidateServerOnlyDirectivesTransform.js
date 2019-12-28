@@ -8,24 +8,24 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
-const GraphQLIRValidator = require('../core/GraphQLIRValidator');
+const IRValidator = require('../core/IRValidator');
 
-const {createUserError} = require('../core/RelayCompilerError');
+const {createUserError} = require('../core/CompilerError');
 
-import type GraphQLCompilerContext from '../core/GraphQLCompilerContext';
+import type CompilerContext from '../core/CompilerContext';
 import type {
   ClientExtension,
   Defer,
   LinkedField,
   Selection,
   Stream,
-} from '../core/GraphQLIR';
+} from '../core/IR';
 
-type State = {
-  rootClientSelection: ?Selection,
-};
+type State = {rootClientSelection: ?Selection, ...};
 
 const NODEKIND_DIRECTIVE_MAP = {
   Defer: 'defer',
@@ -36,9 +36,9 @@ const NODEKIND_DIRECTIVE_MAP = {
  * Validate that server-only directives are not used inside client fields
  */
 function validateServerOnlyDirectives(
-  context: GraphQLCompilerContext,
-): GraphQLCompilerContext {
-  GraphQLIRValidator.validate(
+  context: CompilerContext,
+): CompilerContext {
+  IRValidator.validate(
     context,
     {
       ClientExtension: visitClientExtension,

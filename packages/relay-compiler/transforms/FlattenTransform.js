@@ -8,19 +8,18 @@
  * @flow
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
-const GraphQLIRTransformer = require('../core/GraphQLIRTransformer');
+const IRTransformer = require('../core/IRTransformer');
 
 const areEqual = require('../util/areEqualOSS');
 const getIdentifierForSelection = require('../core/getIdentifierForSelection');
 
-const {
-  createCompilerError,
-  createUserError,
-} = require('../core/RelayCompilerError');
+const {createCompilerError, createUserError} = require('../core/CompilerError');
 
-import type GraphQLCompilerContext from '../core/GraphQLCompilerContext';
+import type CompilerContext from '../core/CompilerContext';
 import type {
   Argument,
   Field,
@@ -30,16 +29,15 @@ import type {
   Node,
   ScalarField,
   Selection,
-} from '../core/GraphQLIR';
+} from '../core/IR';
 import type {Schema, TypeID} from '../core/Schema';
 
-export type FlattenOptions = {
-  flattenAbstractTypes?: boolean,
-};
+export type FlattenOptions = {flattenAbstractTypes?: boolean, ...};
 
 type State = {
   flattenAbstractTypes: boolean,
   parentType: ?TypeID,
+  ...
 };
 
 /**
@@ -51,15 +49,15 @@ type State = {
  *   been set.
  */
 function flattenTransformImpl(
-  context: GraphQLCompilerContext,
+  context: CompilerContext,
   options?: FlattenOptions,
-): GraphQLCompilerContext {
+): CompilerContext {
   const state = {
     flattenAbstractTypes: !!(options && options.flattenAbstractTypes),
     parentType: null,
   };
   const visitorFn = memoizedFlattenSelection(new Map());
-  return GraphQLIRTransformer.transform(
+  return IRTransformer.transform(
     context,
     {
       Condition: visitorFn,
@@ -79,7 +77,7 @@ function flattenTransformImpl(
 
 function memoizedFlattenSelection(cache) {
   return function flattenSelectionsFn<T: Node>(node: T, state: State): T {
-    const context: GraphQLCompilerContext = this.getContext();
+    const context: CompilerContext = this.getContext();
     let nodeCache = cache.get(node);
     if (nodeCache == null) {
       nodeCache = new Map();
@@ -501,10 +499,8 @@ function mergeHandles<T: LinkedField | ScalarField>(
 
 function transformWithOptions(
   options: FlattenOptions,
-): (context: GraphQLCompilerContext) => GraphQLCompilerContext {
-  return function flattenTransform(
-    context: GraphQLCompilerContext,
-  ): GraphQLCompilerContext {
+): (context: CompilerContext) => CompilerContext {
+  return function flattenTransform(context: CompilerContext): CompilerContext {
     return flattenTransformImpl(context, options);
   };
 }

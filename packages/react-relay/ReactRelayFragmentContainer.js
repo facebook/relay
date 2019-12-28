@@ -8,6 +8,8 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const React = require('react');
@@ -33,11 +35,12 @@ import type {
 
 type ContainerProps = $FlowFixMeProps;
 type ContainerState = {
-  data: {[key: string]: mixed},
+  data: {[key: string]: mixed, ...},
   prevProps: ContainerProps,
   prevPropsContext: RelayContext,
   relayProp: RelayProp,
   resolver: FragmentSpecResolver,
+  ...
 };
 
 /**
@@ -46,7 +49,7 @@ type ContainerState = {
  * updates.
  */
 function createContainerWithFragments<
-  Props: {},
+  Props: {...},
   TComponent: React.ComponentType<Props>,
 >(
   Component: TComponent,
@@ -249,7 +252,7 @@ function getRelayProp(environment) {
  * instance of the container constructed/rendered.
  */
 function createContainer<
-  Props: {},
+  Props: {...},
   Instance,
   TComponent: React.AbstractComponent<Props, Instance>,
 >(

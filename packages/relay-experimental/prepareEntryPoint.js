@@ -9,9 +9,11 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
-const preloadQuery = require('./preloadQuery');
+const {loadQuery} = require('./loadQuery');
 
 import type {
   EntryPoint,
@@ -22,10 +24,10 @@ import type {
 } from './EntryPointTypes.flow';
 
 function prepareEntryPoint<
-  TEntryPointParams: {},
-  TPreloadedQueries: {},
-  TPreloadedEntryPoints: {},
-  TRuntimeProps: {},
+  TEntryPointParams: {...},
+  TPreloadedQueries: {...},
+  TPreloadedEntryPoints: {...},
+  TRuntimeProps: {...},
   TExtraProps,
   TEntryPointComponent: EntryPointComponent<
     TPreloadedQueries,
@@ -62,7 +64,7 @@ function prepareEntryPoint<
         environmentProviderOptions,
       );
 
-      preloadedQueries[queryPropName] = preloadQuery(
+      preloadedQueries[queryPropName] = loadQuery(
         environment,
         parameters,
         variables,

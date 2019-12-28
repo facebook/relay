@@ -9,16 +9,16 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
+const CompilerContext = require('../../core/CompilerContext');
 const ConnectionTransform = require('../ConnectionTransform');
-const GraphQLCompilerContext = require('../../core/GraphQLCompilerContext');
-const GraphQLIRPrinter = require('../../core/GraphQLIRPrinter');
+const IRPrinter = require('../../core/IRPrinter');
 const RefetchableFragmentTransform = require('../RefetchableFragmentTransform');
 const RelayDirectiveTransform = require('../RelayDirectiveTransform');
-const Schema = require('../../core/Schema');
 
-const {transformASTSchema} = require('../../core/ASTConvert');
 const {
   TestSchema,
   generateTestsFromFixtures,
@@ -26,7 +26,7 @@ const {
 } = require('relay-test-utils-internal');
 
 describe('RefetchableFragmentTransform', () => {
-  const extendedSchema = transformASTSchema(TestSchema, [
+  const extendedSchema = TestSchema.extend([
     ConnectionTransform.SCHEMA_EXTENSION,
     RefetchableFragmentTransform.SCHEMA_EXTENSION,
   ]);
@@ -35,11 +35,7 @@ describe('RefetchableFragmentTransform', () => {
     `${__dirname}/fixtures/relay-refetchable-fragment-transform`,
     text => {
       const {definitions} = parseGraphQLText(extendedSchema, text);
-      const compilerSchema = Schema.DEPRECATED__create(
-        TestSchema,
-        extendedSchema,
-      );
-      return new GraphQLCompilerContext(compilerSchema)
+      return new CompilerContext(extendedSchema)
         .addAll(definitions)
         .applyTransforms([
           // Requires Relay directive transform first.
@@ -48,7 +44,7 @@ describe('RefetchableFragmentTransform', () => {
           RefetchableFragmentTransform.transform,
         ])
         .documents()
-        .map(doc => GraphQLIRPrinter.print(compilerSchema, doc))
+        .map(doc => IRPrinter.print(extendedSchema, doc))
         .join('\n');
     },
   );

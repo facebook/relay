@@ -8,24 +8,40 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 import type {Record} from '../../store/RelayStoreTypes';
 
-type Call = {
-  name: string,
-};
+type Call = {name: string, ...};
 
 export type EdgeRecord = Record & {
   cursor: mixed,
   node: Record,
+  ...
 };
+
 export type PageInfo = {
   endCursor: ?string,
   hasNextPage: boolean,
   hasPreviousPage: boolean,
   startCursor: ?string,
+  ...
 };
+
+type ConnectionConfig = {|
+  CLIENT_MUTATION_ID: string,
+  CURSOR: string,
+  EDGES: string,
+  END_CURSOR: string,
+  HAS_NEXT_PAGE: string,
+  HAS_PREV_PAGE: string,
+  NODE: string,
+  PAGE_INFO: string,
+  PAGE_INFO_TYPE: string,
+  START_CURSOR: string,
+|};
 
 const CONNECTION_CALLS = {
   after: true,
@@ -36,24 +52,7 @@ const CONNECTION_CALLS = {
   surrounds: true,
 };
 
-const REQUIRED_RANGE_CALLS = {
-  find: true,
-  first: true,
-  last: true,
-};
-
-let config: {|
-  CLIENT_MUTATION_ID: $TEMPORARY$string<'clientMutationId'>,
-  CURSOR: $TEMPORARY$string<'cursor'>,
-  EDGES: $TEMPORARY$string<'edges'>,
-  END_CURSOR: $TEMPORARY$string<'endCursor'>,
-  HAS_NEXT_PAGE: $TEMPORARY$string<'hasNextPage'>,
-  HAS_PREV_PAGE: $TEMPORARY$string<'hasPreviousPage'>,
-  NODE: $TEMPORARY$string<'node'>,
-  PAGE_INFO: $TEMPORARY$string<'pageInfo'>,
-  PAGE_INFO_TYPE: $TEMPORARY$string<'PageInfo'>,
-  START_CURSOR: $TEMPORARY$string<'startCursor'>,
-|} = {
+let config: ConnectionConfig = {
   CLIENT_MUTATION_ID: 'clientMutationId',
   CURSOR: 'cursor',
   EDGES: 'edges',
@@ -72,11 +71,11 @@ let config: {|
  * Defines logic relevant to the informal "Connection" GraphQL interface.
  */
 const RelayConnectionInterface = {
-  inject(newConfig: typeof config) {
+  inject(newConfig: ConnectionConfig) {
     config = newConfig;
   },
 
-  get(): typeof config {
+  get(): ConnectionConfig {
     return config;
   },
 
@@ -87,26 +86,6 @@ const RelayConnectionInterface = {
    */
   isConnectionCall(call: Call): boolean {
     return CONNECTION_CALLS.hasOwnProperty(call.name);
-  },
-
-  /**
-   * Checks whether a set of calls on a connection supply enough information to
-   * fetch the range fields (i.e. `edges` and `page_info`).
-   */
-  hasRangeCalls(calls: $ReadOnlyArray<Call>): boolean {
-    return calls.some(call => REQUIRED_RANGE_CALLS.hasOwnProperty(call.name));
-  },
-
-  /**
-   * Gets a default record representing a connection's `PAGE_INFO`.
-   */
-  getDefaultPageInfo(): PageInfo {
-    return {
-      [config.END_CURSOR]: null,
-      [config.HAS_NEXT_PAGE]: false,
-      [config.HAS_PREV_PAGE]: false,
-      [config.START_CURSOR]: null,
-    };
   },
 };
 

@@ -8,13 +8,15 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
-const GraphQLCompilerContext = require('./GraphQLCompilerContext');
-const GraphQLIRVisitor = require('./GraphQLIRVisitor');
+const CompilerContext = require('./CompilerContext');
+const IRVisitor = require('./IRVisitor');
 const SchemaUtils = require('./SchemaUtils');
 
-const {createCompilerError} = require('./RelayCompilerError');
+const {createCompilerError} = require('./CompilerError');
 
 import type {
   Argument,
@@ -28,7 +30,7 @@ import type {
   Root,
   SplitOperation,
   Stream,
-} from './GraphQLIR';
+} from './IR';
 
 type ArgumentMap = Map<string, ArgumentDefinition>;
 
@@ -44,8 +46,8 @@ type ArgumentMap = Map<string, ArgumentDefinition>;
  *   fragments it (transitively) spreads.
  */
 function inferRootArgumentDefinitions(
-  context: GraphQLCompilerContext,
-): GraphQLCompilerContext {
+  context: CompilerContext,
+): CompilerContext {
   // This transform does two main tasks:
   // - Determine the set of root variables referenced locally in each
   //   fragment. Note that RootArgumentDefinitions in the fragment's
@@ -60,7 +62,7 @@ function inferRootArgumentDefinitions(
   // Because @argument values don't matter (only variable names/types),
   // each reachable fragment only has to be checked once.
   const transformed = new Map<string, ArgumentMap>();
-  const nextContext = new GraphQLCompilerContext(context.getSchema());
+  const nextContext = new CompilerContext(context.getSchema());
   return nextContext.addAll(
     Array.from(context.documents(), node => {
       switch (node.kind) {
@@ -93,7 +95,7 @@ function inferRootArgumentDefinitions(
 }
 
 function transformRoot(
-  context: GraphQLCompilerContext,
+  context: CompilerContext,
   transformed: Map<string, ArgumentMap>,
   root: Root,
 ): Root {
@@ -132,7 +134,7 @@ function transformRoot(
 }
 
 function transformFragmentArguments(
-  context: GraphQLCompilerContext,
+  context: CompilerContext,
   transformed: Map<string, ArgumentMap>,
   fragment: Fragment,
 ): ArgumentMap {
@@ -161,12 +163,12 @@ function transformFragmentArguments(
 }
 
 function visit(
-  context: GraphQLCompilerContext,
+  context: CompilerContext,
   transformed: Map<string, ArgumentMap>,
   argumentDefinitions: ArgumentMap,
   node: Fragment | Root,
 ): void {
-  GraphQLIRVisitor.visit(node, {
+  IRVisitor.visit(node, {
     FragmentSpread(fragmentSpread: FragmentSpread) {
       const fragment = context.getFragment(
         fragmentSpread.name,
@@ -203,22 +205,39 @@ function visit(
       }
     },
     Argument(argument: Argument) {
-      if (argument.value.kind !== 'Variable') {
+      if (argument.value.kind === 'Literal') {
         return false;
       }
-      const variable = argument.value;
-      const type = variable.type ?? argument.type;
-      if (type == null) {
-        return;
-      }
-      if (!argumentDefinitions.has(variable.variableName)) {
-        // root variable
-        argumentDefinitions.set(variable.variableName, {
-          kind: 'RootArgumentDefinition',
-          loc: {kind: 'Derived', source: argument.loc},
-          name: variable.variableName,
-          type: type,
-        });
+      const values = [argument.value];
+      while (values.length > 0) {
+        const currentValue = values.pop();
+        if (currentValue.kind === 'Variable') {
+          const type = currentValue.type ?? argument.type;
+          if (type == null) {
+            continue;
+          }
+          if (!argumentDefinitions.has(currentValue.variableName)) {
+            // root variable
+            argumentDefinitions.set(currentValue.variableName, {
+              kind: 'RootArgumentDefinition',
+              loc: {kind: 'Derived', source: argument.loc},
+              name: currentValue.variableName,
+              type: type,
+            });
+          }
+        } else if (currentValue.kind === 'ObjectValue') {
+          currentValue.fields.forEach(fieldValue => {
+            if (fieldValue.value.kind !== 'Literal') {
+              values.push(fieldValue.value);
+            }
+          });
+        } else if (currentValue.kind === 'ListValue') {
+          currentValue.items.forEach(listValue => {
+            if (listValue.kind !== 'Literal') {
+              values.push(listValue);
+            }
+          });
+        }
       }
       return false;
     },

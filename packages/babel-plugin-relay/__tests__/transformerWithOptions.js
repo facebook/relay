@@ -13,6 +13,7 @@
 const BabelPluginRelay = require('../BabelPluginRelay');
 
 const babel = require('@babel/core');
+const prettier = require('prettier');
 
 function transformerWithOptions(
   options: RelayPluginOptions,
@@ -23,13 +24,21 @@ function transformerWithOptions(
     const previousEnv = process.env.BABEL_ENV;
     try {
       process.env.BABEL_ENV = environment;
-      return babel.transform(text, {
+      const code = babel.transform(text, {
         compact: false,
         filename: filename || providedFileName,
         highlightCode: false,
         parserOpts: {plugins: ['jsx']},
         plugins: [[BabelPluginRelay, options]],
       }).code;
+      return prettier.format(code, {
+        singleQuote: true,
+        trailingComma: 'all',
+        bracketSpacing: false,
+        jsxBracketSameLine: true,
+        parser: 'flow',
+        requirePragma: false,
+      });
     } finally {
       process.env.BABEL_ENV = previousEnv;
     }

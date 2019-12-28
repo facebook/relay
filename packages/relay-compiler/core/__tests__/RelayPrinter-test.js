@@ -9,26 +9,26 @@
  * @emails oncall+relay
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
-const GraphQLCompilerContext = require('../GraphQLCompilerContext');
-const GraphQLIRPrinter = require('../GraphQLIRPrinter');
+const CompilerContext = require('../CompilerContext');
+const IRPrinter = require('../IRPrinter');
 const RelayParser = require('../RelayParser');
-const Schema = require('../Schema');
 
 const {
   TestSchema,
   generateTestsFromFixtures,
 } = require('relay-test-utils-internal');
 
-describe('GraphQLIRPrinter', () => {
+describe('IRPrinter', () => {
   generateTestsFromFixtures(`${__dirname}/fixtures/printer`, text => {
-    const compilerSchema = Schema.DEPRECATED__create(TestSchema);
-    const ast = RelayParser.parse(compilerSchema, text);
-    const context = new GraphQLCompilerContext(compilerSchema).addAll(ast);
+    const ast = RelayParser.parse(TestSchema, text);
+    const context = new CompilerContext(TestSchema).addAll(ast);
     const documents = [];
     context.forEachDocument(doc => {
-      documents.push(GraphQLIRPrinter.print(compilerSchema, doc));
+      documents.push(IRPrinter.print(TestSchema, doc));
     });
     return documents.join('\n');
   });

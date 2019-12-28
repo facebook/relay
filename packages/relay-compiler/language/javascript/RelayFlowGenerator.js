@@ -8,18 +8,20 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const ConnectionFieldTransform = require('../../transforms/ConnectionFieldTransform');
 const FlattenTransform = require('../../transforms/FlattenTransform');
-const IRVisitor = require('../../core/GraphQLIRVisitor');
+const IRVisitor = require('../../core/IRVisitor');
 const MaskTransform = require('../../transforms/MaskTransform');
 const MatchTransform = require('../../transforms/MatchTransform');
 const Profiler = require('../../core/GraphQLCompilerProfiler');
 const RefetchableFragmentTransform = require('../../transforms/RefetchableFragmentTransform');
 const RelayDirectiveTransform = require('../../transforms/RelayDirectiveTransform');
 
-const {createUserError} = require('../../core/RelayCompilerError');
+const {createUserError} = require('../../core/CompilerError');
 const {
   anyTypeAlias,
   declareExportOpaqueType,
@@ -27,6 +29,7 @@ const {
   exportType,
   exportTypes,
   importTypes,
+  inexactObjectTypeAnnotation,
   intersectionTypeAnnotation,
   lineComments,
   readOnlyArrayOfType,
@@ -39,14 +42,14 @@ const {
 } = require('./RelayFlowTypeTransformers');
 const {ConnectionInterface} = require('relay-runtime');
 
-import type {IRTransform} from '../../core/GraphQLCompilerContext';
+import type {IRTransform} from '../../core/CompilerContext';
 import type {
   Fragment,
   Root,
   Directive,
   Metadata,
   ModuleImport,
-} from '../../core/GraphQLIR';
+} from '../../core/IR';
 import type {Schema, TypeID, EnumTypeID} from '../../core/Schema';
 import type {TypeGeneratorOptions} from '../RelayLanguagePluginInterface';
 
@@ -58,11 +61,9 @@ const nullthrows = require('nullthrows');
 export type State = {|
   ...TypeGeneratorOptions,
   +generatedFragments: Set<string>,
-  +generatedInputObjectTypes: {
-    [name: string]: TypeID | 'pending',
-  },
+  +generatedInputObjectTypes: {[name: string]: TypeID | 'pending', ...},
   hasConnectionResolver: boolean,
-  +usedEnums: {[name: string]: EnumTypeID},
+  +usedEnums: {[name: string]: EnumTypeID, ...},
   +usedFragments: Set<string>,
   +matchFields: Map<string, mixed>,
   +runtimeImports: Set<string>,
@@ -228,7 +229,7 @@ function selectionsToBabel(
         );
       }
       return unmasked
-        ? t.objectTypeAnnotation(props)
+        ? inexactObjectTypeAnnotation(props)
         : exactObjectTypeAnnotation(props);
     }),
   );
@@ -371,7 +372,7 @@ function createVisitor(schema: Schema, options: TypeGeneratorOptions) {
 
         if (rawResponseType) {
           for (const [key, ast] of state.matchFields) {
-            babelNodes.push(t.typeAlias(t.identifier(key), null, ast));
+            babelNodes.push(exportType(key, ast));
           }
           operationTypes.push(
             t.objectTypeProperty(
@@ -429,7 +430,7 @@ function createVisitor(schema: Schema, options: TypeGeneratorOptions) {
           ),
         );
         const isPluralFragment = isPlural(node);
-        const refType = t.objectTypeAnnotation([
+        const refType = inexactObjectTypeAnnotation([
           refTypeDataProperty,
           refTypeFragmentRefProperty,
         ]);
@@ -697,60 +698,56 @@ function selectionsToRawResponseBabel(
           false,
         ).values(),
       );
-      const moduleImport = mergedSeletions.find(
-        sel => sel.kind === 'ModuleImport',
+      types.push(
+        exactObjectTypeAnnotation(
+          mergedSeletions.map(selection =>
+            makeRawResponseProp(schema, selection, state, concreteType),
+          ),
+        ),
       );
-      if (moduleImport) {
-        types.push(
-          exactObjectTypeAnnotation(
-            mergedSeletions.map(selection =>
-              makeRawResponseProp(schema, selection, state, concreteType),
-            ),
-          ),
-        );
-        // Generate an extra opaque type for client 3D fields
-        state.runtimeImports.add('Local3DPayload');
-        types.push(
-          t.genericTypeAnnotation(
-            t.identifier('Local3DPayload'),
-            t.typeParameterInstantiation([
-              t.stringLiteralTypeAnnotation(moduleImport.documentName),
-              exactObjectTypeAnnotation(
-                mergedSeletions
-                  .filter(sel => sel.schemaName !== 'js')
-                  .map(selection =>
-                    makeRawResponseProp(schema, selection, state, concreteType),
-                  ),
-              ),
-            ]),
-          ),
-        );
-      } else {
-        types.push(
-          exactObjectTypeAnnotation(
-            mergedSeletions.map(selection =>
-              makeRawResponseProp(schema, selection, state, concreteType),
-            ),
-          ),
-        );
-      }
+      appendLocal3DPayload(types, mergedSeletions, schema, state, concreteType);
     }
   }
-  if (baseFields.length) {
+  if (baseFields.length > 0) {
     types.push(
       exactObjectTypeAnnotation(
         baseFields.map(selection =>
-          makeRawResponseProp(
-            schema,
-            selection,
-            state,
-            isTypenameSelection(selection) ? nodeTypeName : null,
-          ),
+          makeRawResponseProp(schema, selection, state, nodeTypeName),
         ),
       ),
     );
+    appendLocal3DPayload(types, baseFields, schema, state, nodeTypeName);
   }
   return unionTypeAnnotation(types);
+}
+
+function appendLocal3DPayload(
+  types: Array<mixed>,
+  selections: $ReadOnlyArray<Selection>,
+  schema: Schema,
+  state: State,
+  currentType: ?string,
+): void {
+  const moduleImport = selections.find(sel => sel.kind === 'ModuleImport');
+  if (moduleImport) {
+    // Generate an extra opaque type for client 3D fields
+    state.runtimeImports.add('Local3DPayload');
+    types.push(
+      t.genericTypeAnnotation(
+        t.identifier('Local3DPayload'),
+        t.typeParameterInstantiation([
+          t.stringLiteralTypeAnnotation(moduleImport.documentName),
+          exactObjectTypeAnnotation(
+            selections
+              .filter(sel => sel.schemaName !== 'js')
+              .map(selection =>
+                makeRawResponseProp(schema, selection, state, currentType),
+              ),
+          ),
+        ]),
+      ),
+    );
+  }
 }
 
 // Visitor for generating raw response type

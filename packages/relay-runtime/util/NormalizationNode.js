@@ -8,6 +8,8 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 /**
@@ -52,8 +54,10 @@ export type NormalizationScalarHandle = {|
 |};
 
 export type NormalizationArgument =
-  | NormalizationLiteral
-  | NormalizationVariable;
+  | NormalizationListValueArgument
+  | NormalizationLiteralArgument
+  | NormalizationObjectValueArgument
+  | NormalizationVariableArgument;
 
 export type NormalizationCondition = {|
   +kind: 'Condition',
@@ -109,7 +113,13 @@ export type NormalizationModuleImport = {|
   +fragmentName: string,
 |};
 
-export type NormalizationLiteral = {|
+export type NormalizationListValueArgument = {|
+  +kind: 'ListValue',
+  +name: string,
+  +items: $ReadOnlyArray<NormalizationArgument | null>,
+|};
+
+export type NormalizationLiteralArgument = {|
   +kind: 'Literal',
   +name: string,
   +type?: ?string,
@@ -155,7 +165,7 @@ export type NormalizationSelection =
 export type NormalizationSplitOperation = {|
   +kind: 'SplitOperation',
   +name: string,
-  +metadata: ?{+[key: string]: mixed},
+  +metadata: ?{+[key: string]: mixed, ...},
   +selections: $ReadOnlyArray<NormalizationSelection>,
 |};
 
@@ -163,7 +173,7 @@ export type NormalizationStream = {|
   +if: string | null,
   +kind: 'Stream',
   +label: string,
-  +metadata: ?{+[key: string]: mixed},
+  +metadata: ?{+[key: string]: mixed, ...},
   +selections: $ReadOnlyArray<NormalizationSelection>,
 |};
 
@@ -171,15 +181,21 @@ export type NormalizationDefer = {|
   +if: string | null,
   +kind: 'Defer',
   +label: string,
-  +metadata: ?{+[key: string]: mixed},
+  +metadata: ?{+[key: string]: mixed, ...},
   +selections: $ReadOnlyArray<NormalizationSelection>,
 |};
 
-export type NormalizationVariable = {|
+export type NormalizationVariableArgument = {|
   +kind: 'Variable',
   +name: string,
   +type?: ?string,
   +variableName: string,
+|};
+
+export type NormalizationObjectValueArgument = {|
+  +kind: 'ObjectValue',
+  +name: string,
+  +fields: $ReadOnlyArray<NormalizationArgument>,
 |};
 
 export type NormalizationSelectableNode =

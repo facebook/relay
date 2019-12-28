@@ -8,14 +8,13 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const CodeMarker = require('../util/CodeMarker');
 
-const {
-  createCompilerError,
-  createUserError,
-} = require('../core/RelayCompilerError');
+const {createCompilerError, createUserError} = require('../core/CompilerError');
 const {
   ConnectionInterface,
   getStorageKey,
@@ -24,6 +23,7 @@ const {
 
 import type {
   Argument,
+  ArgumentValue,
   ArgumentDefinition,
   ClientExtension,
   Defer,
@@ -40,7 +40,7 @@ import type {
   Connection,
   ConnectionField,
   InlineDataFragmentSpread,
-} from '../core/GraphQLIR';
+} from '../core/IR';
 import type {Schema, TypeID} from '../core/Schema';
 import type {
   ReaderArgument,
@@ -58,7 +58,7 @@ import type {
 /**
  * @public
  *
- * Converts a GraphQLIR node into a plain JS object representation that can be
+ * Converts an IR node into a plain JS object representation that can be
  * used at runtime.
  */
 function generate(schema: Schema, node: Fragment): ReaderFragment {
@@ -418,13 +418,15 @@ function generateScalarField(
   return field;
 }
 
-function generateArgument(node: Argument): ReaderArgument | null {
-  const value = node.value;
+function generateArgument(
+  name: string,
+  value: ArgumentValue,
+): ReaderArgument | null {
   switch (value.kind) {
     case 'Variable':
       return {
         kind: 'Variable',
-        name: node.name,
+        name: name,
         variableName: value.variableName,
       };
     case 'Literal':
@@ -432,14 +434,48 @@ function generateArgument(node: Argument): ReaderArgument | null {
         ? null
         : {
             kind: 'Literal',
-            name: node.name,
+            name: name,
             value: stableCopy(value.value),
           };
+    case 'ObjectValue': {
+      const objectKeys = value.fields.map(field => field.name).sort();
+      const objectValues = new Map(
+        value.fields.map(field => {
+          return [field.name, field.value];
+        }),
+      );
+      return {
+        kind: 'ObjectValue',
+        name: name,
+        fields: objectKeys.map(fieldName => {
+          const fieldValue = objectValues.get(fieldName);
+          if (fieldValue == null) {
+            throw createCompilerError('Expected to have object field value');
+          }
+          return (
+            generateArgument(fieldName, fieldValue) ?? {
+              kind: 'Literal',
+              name: fieldName,
+              value: null,
+            }
+          );
+        }),
+      };
+    }
+    case 'ListValue': {
+      return {
+        kind: 'ListValue',
+        name: name,
+        items: value.items.map((item, index) => {
+          return generateArgument(`${name}.${index}`, item);
+        }),
+      };
+    }
     default:
       throw createUserError(
         'ReaderCodeGenerator: Complex argument values (Lists or ' +
           'InputObjects with nested variables) are not supported.',
-        [node.value.loc],
+        [value.loc],
       );
   }
 }
@@ -449,7 +485,7 @@ function generateArgs(
 ): ?$ReadOnlyArray<ReaderArgument> {
   const concreteArguments = [];
   args.forEach(arg => {
-    const concreteArgument = generateArgument(arg);
+    const concreteArgument = generateArgument(arg.name, arg.value);
     if (concreteArgument !== null) {
       concreteArguments.push(concreteArgument);
     }
@@ -459,7 +495,10 @@ function generateArgs(
     : concreteArguments.sort(nameComparator);
 }
 
-function nameComparator(a: {+name: string}, b: {+name: string}): number {
+function nameComparator(
+  a: {+name: string, ...},
+  b: {+name: string, ...},
+): number {
   return a.name < b.name ? -1 : a.name > b.name ? 1 : 0;
 }
 

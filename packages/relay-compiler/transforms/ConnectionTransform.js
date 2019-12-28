@@ -8,22 +8,21 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
-const IRTransformer = require('../core/GraphQLIRTransformer');
+const IRTransformer = require('../core/IRTransformer');
 const RelayParser = require('../core/RelayParser');
 const SchemaUtils = require('../core/SchemaUtils');
 
 const getLiteralArgumentValues = require('../core/getLiteralArgumentValues');
 
-const {
-  createCompilerError,
-  createUserError,
-} = require('../core/RelayCompilerError');
+const {createCompilerError, createUserError} = require('../core/CompilerError');
 const {parse} = require('graphql');
 const {ConnectionInterface, RelayFeatureFlags} = require('relay-runtime');
 
-import type CompilerContext from '../core/GraphQLCompilerContext';
+import type CompilerContext from '../core/CompilerContext';
 import type {
   Argument,
   ConnectionField,
@@ -37,7 +36,7 @@ import type {
   Variable,
   Location,
   Defer,
-} from '../core/GraphQLIR';
+} from '../core/IR';
 import type {Schema, CompositeTypeID} from '../core/Schema';
 import type {ConnectionMetadata} from 'relay-runtime';
 
@@ -47,6 +46,7 @@ type Options = {
   path: Array<?string>,
   // Metadata recorded for @connection fields
   connectionMetadata: Array<ConnectionMetadata>,
+  ...
 };
 
 type ConnectionArguments = {|

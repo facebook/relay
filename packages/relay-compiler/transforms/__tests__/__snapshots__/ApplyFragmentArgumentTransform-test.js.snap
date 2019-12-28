@@ -357,12 +357,11 @@ THROWN EXCEPTION:
 
 Query 'TestQuery' references undefined variables.
 
-GraphQL request (10:61)
- 9:     ...Profile
-10:       @arguments(pictureSize: $pictureSize, includeFriends: $includeFriends2)
-                                                                ^
-11:   }
-
+GraphQL request:10:61
+ 9 |     ...Profile
+10 |       @arguments(pictureSize: $pictureSize, includeFriends: $includeFriends2)
+   |                                                             ^
+11 |   }
 `;
 
 exports[`ApplyFragmentArgumentTransform matches expected output: uses-defaults-for-literal-null-arguments.graphql 1`] = `

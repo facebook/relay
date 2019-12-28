@@ -8,6 +8,8 @@
  * @flow strict-local
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const React = require('react');
@@ -24,6 +26,7 @@ type Props = {
   query: $FlowFixMe,
   variables: Variables,
   children: React.Element<$FlowFixMe>,
+  ...
 };
 
 class RelayTestRenderer extends React.Component<Props, $FlowFixMe> {

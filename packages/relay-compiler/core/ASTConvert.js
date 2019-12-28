@@ -8,6 +8,8 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const Profiler = require('./GraphQLCompilerProfiler');
@@ -18,7 +20,7 @@ const {
 } = require('./SchemaUtils');
 const {extendSchema, parse, print, visit} = require('graphql');
 
-import type {Fragment, Root} from './GraphQLIR';
+import type {Fragment, Root} from './IR';
 import type {Schema} from './Schema';
 import type {
   DefinitionNode,
@@ -202,7 +204,7 @@ function extendASTSchema(
 
 const extendedSchemas: Map<
   GraphQLSchema,
-  {[key: string]: GraphQLSchema},
+  {[key: string]: GraphQLSchema, ...},
 > = new Map();
 
 function cachedExtend(

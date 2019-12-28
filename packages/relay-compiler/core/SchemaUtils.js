@@ -8,9 +8,11 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
-import type {ScalarField} from '../core/GraphQLIR';
+import type {ScalarField} from '../core/IR';
 import type {ScalarFieldTypeID} from './Schema';
 import type {Schema, InputTypeID} from './Schema';
 import type {ASTNode} from 'graphql';

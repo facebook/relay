@@ -8,17 +8,19 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const SchemaUtils = require('../../core/SchemaUtils');
 
-const {createUserError} = require('../../core/RelayCompilerError');
+const {createUserError} = require('../../core/CompilerError');
 const {
   buildFragmentSpread,
   buildOperationArgumentDefinitions,
 } = require('./utils');
 
-import type {Fragment} from '../../core/GraphQLIR';
+import type {Fragment} from '../../core/IR';
 import type {Schema} from '../../core/Schema';
 import type {QueryGenerator, RefetchRoot} from '.';
 

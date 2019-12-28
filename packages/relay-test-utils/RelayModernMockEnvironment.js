@@ -8,6 +8,8 @@
  * @flow strict-local
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 /* global jest */
@@ -179,6 +181,7 @@ function createMockEnvironment(config?: {|
   +operationTracker?: OperationTracker,
   +operationLoader?: OperationLoader,
   +store?: Store,
+  +options?: mixed,
 |}): RelayMockEnvironment {
   const store = config?.store ?? new Store(new RecordSource());
   const cache = new QueryResponseCache({

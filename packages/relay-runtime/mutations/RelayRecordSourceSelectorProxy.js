@@ -8,11 +8,13 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const invariant = require('invariant');
 
-const {getStorageKey} = require('../store/RelayStoreUtils');
+const {getStorageKey, ROOT_TYPE} = require('../store/RelayStoreUtils');
 
 import type {ConnectionID} from '../store/RelayConnection';
 import type {
@@ -64,6 +66,14 @@ class RelayRecordSourceSelectorProxy implements RecordSourceSelectorProxy {
     return this.__recordSource.getRoot();
   }
 
+  getOperationRoot(): RecordProxy {
+    let root = this.__recordSource.get(this._readSelector.dataID);
+    if (!root) {
+      root = this.__recordSource.create(this._readSelector.dataID, ROOT_TYPE);
+    }
+    return root;
+  }
+
   _getRootField(
     selector: SingularReaderSelector,
     fieldName: string,
@@ -93,13 +103,13 @@ class RelayRecordSourceSelectorProxy implements RecordSourceSelectorProxy {
   getRootField(fieldName: string): ?RecordProxy {
     const field = this._getRootField(this._readSelector, fieldName, false);
     const storageKey = getStorageKey(field, this._readSelector.variables);
-    return this.getRoot().getLinkedRecord(storageKey);
+    return this.getOperationRoot().getLinkedRecord(storageKey);
   }
 
   getPluralRootField(fieldName: string): ?Array<?RecordProxy> {
     const field = this._getRootField(this._readSelector, fieldName, true);
     const storageKey = getStorageKey(field, this._readSelector.variables);
-    return this.getRoot().getLinkedRecords(storageKey);
+    return this.getOperationRoot().getLinkedRecords(storageKey);
   }
 
   insertConnectionEdge_UNSTABLE(
@@ -114,6 +124,10 @@ class RelayRecordSourceSelectorProxy implements RecordSourceSelectorProxy {
       edgeID: edge.getDataID(),
       request: this._readSelector.owner,
     });
+  }
+
+  invalidateStore(): void {
+    this.__recordSource.invalidateStore();
   }
 }
 

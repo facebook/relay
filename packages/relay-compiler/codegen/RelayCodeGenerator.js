@@ -4,18 +4,20 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @flow
+ * @flow strict-local
  * @format
  */
+
+// flowlint ambiguous-object-type:error
 
 'use strict';
 
 const NormalizationCodeGenerator = require('./NormalizationCodeGenerator');
 const ReaderCodeGenerator = require('./ReaderCodeGenerator');
 
-const {createCompilerError} = require('../core/RelayCompilerError');
+const {createCompilerError} = require('../core/CompilerError');
 
-import type {Fragment, Request, SplitOperation} from '../core/GraphQLIR';
+import type {Fragment, Request, SplitOperation} from '../core/IR';
 import type {Schema} from '../core/Schema';
 import type {
   ConcreteRequest,
@@ -26,7 +28,7 @@ import type {
 /**
  * @public
  *
- * Converts a GraphQLIR node into a plain JS object representation that can be
+ * Converts an IR node into a plain JS object representation that can be
  * used at runtime.
  */
 declare function generate(schema: Schema, node: Fragment): ReaderFragment;
@@ -38,7 +40,7 @@ declare function generate(
 function generate(
   schema: Schema,
   node: Fragment | Request | SplitOperation,
-): any {
+): $FlowFixMe {
   switch (node.kind) {
     case 'Fragment':
       if (node.metadata?.inlineData === true) {

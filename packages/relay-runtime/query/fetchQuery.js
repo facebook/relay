@@ -8,16 +8,18 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const {
   createOperationDescriptor,
 } = require('../store/RelayModernOperationDescriptor');
-const {getRequest} = require('./RelayModernGraphQLTag');
+const {getRequest} = require('./GraphQLTag');
 
 import type {IEnvironment} from '../store/RelayStoreTypes';
 import type {CacheConfig, OperationType} from '../util/RelayRuntimeTypes';
-import type {GraphQLTaggedNode} from './RelayModernGraphQLTag';
+import type {GraphQLTaggedNode} from './GraphQLTag';
 
 /**
  * A helper function to fetch the results of a query. Note that results for

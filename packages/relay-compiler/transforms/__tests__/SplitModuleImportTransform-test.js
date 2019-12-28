@@ -9,16 +9,16 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
-const GraphQLCompilerContext = require('../../core/GraphQLCompilerContext');
-const GraphQLIRPrinter = require('../../core/GraphQLIRPrinter');
+const CompilerContext = require('../../core/CompilerContext');
+const IRPrinter = require('../../core/IRPrinter');
 const MatchTransform = require('../MatchTransform');
 const RelayDirectiveTransform = require('../RelayDirectiveTransform');
-const Schema = require('../../core/Schema');
 const SplitModuleImportTransform = require('../SplitModuleImportTransform');
 
-const {transformASTSchema} = require('../../core/ASTConvert');
 const {
   TestSchema,
   generateTestsFromFixtures,
@@ -26,16 +26,13 @@ const {
 } = require('relay-test-utils-internal');
 
 describe('MatchTransform', () => {
-  const extendedSchema = transformASTSchema(TestSchema, [
-    MatchTransform.SCHEMA_EXTENSION,
-  ]);
+  const extendedSchema = TestSchema.extend([MatchTransform.SCHEMA_EXTENSION]);
 
   generateTestsFromFixtures(
     `${__dirname}/fixtures/relay-split-module-import-transform`,
     text => {
       const {definitions} = parseGraphQLText(extendedSchema, text);
-      const compilerSchema = Schema.DEPRECATED__create(TestSchema);
-      return new GraphQLCompilerContext(compilerSchema)
+      return new CompilerContext(extendedSchema)
         .addAll(definitions)
         .applyTransforms([
           // Requires Relay directive transform first.
@@ -44,7 +41,7 @@ describe('MatchTransform', () => {
           SplitModuleImportTransform.transform,
         ])
         .documents()
-        .map(doc => GraphQLIRPrinter.print(compilerSchema, doc))
+        .map(doc => IRPrinter.print(extendedSchema, doc))
         .join('\n');
     },
   );

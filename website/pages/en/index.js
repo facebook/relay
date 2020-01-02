@@ -140,7 +140,7 @@ class Index extends React.Component {
 import React from "react"
 import { createFragmentContainer, graphql, QueryRenderer } from "react-relay"
 import environment from "./lib/createRelayEnvironment"
-import ArtistHeader from “./ArtistHeader” // Below
+import ArtistHeader from "./ArtistHeader" // Below
 
 // You can usually have use one query renderer per page
 // and it represents the root of a query

@@ -48,7 +48,6 @@ const deepFreeze = require('./util/deepFreeze');
 const fetchQuery = require('./query/fetchQuery');
 const fetchQueryInternal = require('./query/fetchQueryInternal');
 const getFragmentIdentifier = require('./util/getFragmentIdentifier');
-const getFragmentSpecIdentifier = require('./util/getFragmentSpecIdentifier');
 const getRelayDefaultMissingFieldHandlers = require('./handlers/getRelayDefaultMissingFieldHandlers');
 const getRelayHandleKey = require('./util/getRelayHandleKey');
 const getRequestIdentifier = require('./util/getRequestIdentifier');
@@ -317,7 +316,6 @@ module.exports = {
   recycleNodesInto: recycleNodesInto,
   stableCopy: stableCopy,
   getFragmentIdentifier: getFragmentIdentifier,
-  getFragmentSpecIdentifier: getFragmentSpecIdentifier,
   __internal: {
     OperationTracker: RelayOperationTracker,
     createRelayContext: createRelayContext,

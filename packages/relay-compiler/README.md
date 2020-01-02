@@ -16,8 +16,6 @@ You can build your own version of the Compiler by adding your own `FileWriter`, 
 
 * You can add additional `IRTransforms` by extending the basic [`RelayIRTransforms`](./core/RelayIRTransforms.js).
 
-* Similarly, you can add additional validation rules by extending [`RelayValidator`](./core/RelayValidator.js).
-
 * A sample `FileWriter` can be found [HERE](./codegen/RelayFileWriter.js).
 
 To actually run your compiler, you will also need a script to assemble all the above components. A sample file can be found [HERE](./bin/RelayCompilerBin.js).

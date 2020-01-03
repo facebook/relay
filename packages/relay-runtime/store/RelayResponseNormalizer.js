@@ -682,10 +682,9 @@ class RelayResponseNormalizer {
   }
 }
 
-// eslint-disable-next-line no-func-assign
-normalize = RelayProfiler.instrument(
+const instrumentedNormalize: typeof normalize = RelayProfiler.instrument(
   'RelayResponseNormalizer.normalize',
   normalize,
 );
 
-module.exports = {normalize};
+module.exports = {normalize: instrumentedNormalize};

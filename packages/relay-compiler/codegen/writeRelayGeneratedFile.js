@@ -90,12 +90,9 @@ async function writeRelayGeneratedFile(
   const typeName = getConcreteType(generatedNode);
 
   let docText;
-  if (generatedNode.kind === RelayConcreteNode.REQUEST) {
-    docText = generatedNode.params.text;
-  }
-
   let hash = null;
   if (generatedNode.kind === RelayConcreteNode.REQUEST) {
+    docText = generatedNode.params.text;
     let oldContent;
     const oldHash = Profiler.run('RelayFileWriter:compareHash', () => {
       oldContent = codegenDir.read(filename);
@@ -143,30 +140,21 @@ async function writeRelayGeneratedFile(
       return null;
     }
     if (persistQuery) {
-      switch (generatedNode.kind) {
-        case RelayConcreteNode.REQUEST:
-          const {text} = generatedNode.params;
-          invariant(
-            text != null,
-            'writeRelayGeneratedFile: Expected `text` in order to persist query',
-          );
-          generatedNode = {
-            ...generatedNode,
-            params: {
-              operationKind: generatedNode.params.operationKind,
-              name: generatedNode.params.name,
-              id: await persistQuery(text),
-              text: null,
-              metadata: generatedNode.params.metadata,
-            },
-          };
-          break;
-        case RelayConcreteNode.FRAGMENT:
-          // Do not persist fragments.
-          break;
-        default:
-          (generatedNode.kind: empty);
-      }
+      invariant(
+        docText != null,
+        'writeRelayGeneratedFile: Expected `text` in order to persist query',
+      );
+      generatedNode = {
+        ...generatedNode,
+        params: {
+          operationKind: generatedNode.params.operationKind,
+          name: generatedNode.params.name,
+          id: await persistQuery(docText),
+          text: null,
+          metadata: generatedNode.params.metadata,
+          requestID: generatedNode.params.requestID,
+        },
+      };
     }
   }
 

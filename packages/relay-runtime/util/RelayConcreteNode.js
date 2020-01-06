@@ -33,7 +33,7 @@ export type ConcreteRequest = {|
 
 /**
  * Contains the `text` (or persisted `id`) required for executing a common
- * GraphQL request.
+ * GraphQL request and `requestID` as a unique identifier .
  */
 export type RequestParameters =
   | {|...BaseRequestParameters, +text: null, +id: string|}
@@ -42,6 +42,7 @@ type BaseRequestParameters = {|
   +name: string,
   +operationKind: 'mutation' | 'query' | 'subscription',
   +metadata: {[key: string]: mixed, ...},
+  +requestID: string,
 |};
 
 export type GeneratedNode =

@@ -298,6 +298,7 @@ export type Request = {|
   +name: string,
   +root: Root,
   +text: ?string,
+  +requestID: string,
 |};
 
 export type Root = {|

@@ -61,6 +61,7 @@ function generate(
           id: node.id,
           text: node.text,
           metadata: node.metadata,
+          requestID: node.requestID,
         },
       };
     case 'SplitOperation':

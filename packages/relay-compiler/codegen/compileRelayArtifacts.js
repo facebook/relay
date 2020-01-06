@@ -15,6 +15,7 @@
 const Printer = require('../core/IRPrinter');
 const Profiler = require('../core/GraphQLCompilerProfiler');
 const RelayCodeGenerator = require('./RelayCodeGenerator');
+const md5 = require('../util/md5');
 
 const filterContextForNode = require('../core/filterContextForNode');
 
@@ -93,6 +94,7 @@ function compile(
   for (const node of codeGenContext.documents()) {
     if (node.kind === 'Root') {
       const fragment = fragmentContext.getRoot(node.name);
+      const text = printOperation(printContext, fragment.name);
       const request = {
         kind: 'Request',
         fragment: {
@@ -110,7 +112,8 @@ function compile(
         metadata: node.metadata || {},
         name: fragment.name,
         root: node,
-        text: printOperation(printContext, fragment.name),
+        text,
+        requestID: md5(text),
       };
       results.push([request, RelayCodeGenerator.generate(schema, request)]);
     } else {

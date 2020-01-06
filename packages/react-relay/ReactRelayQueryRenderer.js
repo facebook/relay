@@ -321,7 +321,7 @@ function getRequestCacheKey(
   request: RequestParameters,
   variables: Variables,
 ): string {
-  const requestID = request.id || request.text;
+  const {requestID} = request;
   return JSON.stringify({
     id: String(requestID),
     variables,

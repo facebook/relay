@@ -28,11 +28,11 @@ function getRequestIdentifier(
   parameters: RequestParameters,
   variables: Variables,
 ): RequestIdentifier {
-  const requestID = parameters.id != null ? parameters.id : parameters.text;
+  const {requestID} = parameters;
   invariant(
     requestID != null,
-    'getRequestIdentifier: Expected request `%s` to have either a ' +
-      'valid `id` or `text` property',
+    'getRequestIdentifier: Expected request `%s` to have a ' +
+      'valid `requestID` property',
     parameters.name,
   );
   return requestID + JSON.stringify(stableCopy(variables));

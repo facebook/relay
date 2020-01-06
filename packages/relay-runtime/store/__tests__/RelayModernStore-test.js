@@ -17,7 +17,6 @@ const RelayModernRecord = require('../RelayModernRecord');
 const RelayModernStore = require('../RelayModernStore');
 const RelayOptimisticRecordSource = require('../RelayOptimisticRecordSource');
 const RelayRecordSourceMapImpl = require('../RelayRecordSourceMapImpl');
-const RelayRecordSourceObjectImpl = require('../RelayRecordSourceObjectImpl');
 
 const {getRequest} = require('../../query/GraphQLTag');
 const {
@@ -53,7 +52,6 @@ function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
 }
 
 [
-  [data => new RelayRecordSourceObjectImpl(data), 'Object'],
   [data => new RelayRecordSourceMapImpl(data), 'Map'],
   [
     data =>

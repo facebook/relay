@@ -110,7 +110,7 @@ class ReactRelayTestMocker {
    * in the list of pending queries
    */
   static getIdentifier(request: RequestParameters): string {
-    return request.name;
+    return request.requestID;
   }
 
   /**

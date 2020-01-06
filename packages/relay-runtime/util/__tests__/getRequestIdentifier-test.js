@@ -16,29 +16,18 @@
 const getRequestIdentifier = require('../getRequestIdentifier');
 
 describe('getRequestIdentifier', () => {
-  it('passes with `id`', () => {
+  it('passes with `requestID`', () => {
     const queryIdentifier = getRequestIdentifier(
       ({
         name: 'FooQuery',
-        id: '123',
+        requestID: '123',
       }: any),
       {foo: 1},
     );
     expect(queryIdentifier).toEqual('123{"foo":1}');
   });
 
-  it('passes with `text`', () => {
-    const queryIdentifier = getRequestIdentifier(
-      ({
-        name: 'FooQuery',
-        text: 'query FooQuery {}',
-      }: any),
-      {bar: 1},
-    );
-    expect(queryIdentifier).toEqual('query FooQuery {}{"bar":1}');
-  });
-
-  it('fails without `id` or `text`', () => {
+  it('fails without `requestID`', () => {
     expect(() => {
       getRequestIdentifier(
         ({
@@ -47,8 +36,7 @@ describe('getRequestIdentifier', () => {
         {foo: 1},
       );
     }).toThrowError(
-      'getRequestIdentifier: Expected request `FooQuery` to have ' +
-        'either a valid `id` or `text` property',
+      'getRequestIdentifier: Expected request `FooQuery` to have a valid `requestID` property',
     );
   });
 });

@@ -9,8 +9,6 @@ matrix:
     env: TEST=1
   - node_js: '10'
     env: TEST=1
-  - node_js: '8'
-    env: TEST=1
   - node_js: '12'
     env: TYPECHECK=1
   - node_js: '12'

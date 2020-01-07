@@ -96,7 +96,6 @@ describe('useLazyLoadQueryNode', () => {
   });
 
   it('force a refetch in fast refresh', () => {
-    // $FlowFixMe: We don't have the module on WWW, but also don't run the test there
     const ReactRefreshRuntime = require('react-refresh/runtime');
     ReactRefreshRuntime.injectIntoGlobalHook(global);
     const V1 = function(props) {

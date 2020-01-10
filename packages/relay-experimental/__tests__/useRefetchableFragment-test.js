@@ -180,6 +180,8 @@ describe('useRefetchableFragment', () => {
       const {isConcurrent = false, ...props} = args ?? {};
       return TestRenderer.create(
         <React.Suspense fallback="Fallback">
+          {/* $FlowFixMe(site=www,mobile) this comment suppresses an error found improving the
+           * type of React$Node */}
           <ContextProvider>
             <Container owner={query} {...props} />
           </ContextProvider>

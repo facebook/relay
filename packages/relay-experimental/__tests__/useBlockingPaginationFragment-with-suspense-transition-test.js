@@ -408,6 +408,8 @@ describe('useBlockingPaginationFragment with useSuspenseTransition', () => {
           renderer = TestRenderer.create(
             <ErrorBoundary fallback={({error}) => `Error: ${error.message}`}>
               <React.Suspense fallback="Fallback">
+                {/* $FlowFixMe(site=www,mobile) this comment suppresses an error found improving the
+                 * type of React$Node */}
                 <ContextProvider>
                   <Container owner={query} {...props} />
                 </ContextProvider>

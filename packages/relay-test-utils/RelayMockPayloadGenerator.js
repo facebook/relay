@@ -37,15 +37,15 @@ const {
 } = RelayConcreteNode;
 
 import type {
-  GraphQLResponse,
   NormalizationArgument,
   NormalizationField,
   NormalizationLinkedField,
   NormalizationOperation,
   NormalizationScalarField,
   NormalizationSelection,
-  NormalizationSplitOperation,
   OperationDescriptor,
+  GraphQLSingularResponse,
+  NormalizationSplitOperation,
   Variables,
 } from 'relay-runtime';
 
@@ -874,7 +874,7 @@ function getSelectionMetadataFromOperation(
 function generateDataForOperation(
   operation: OperationDescriptor,
   mockResolvers: ?MockResolvers,
-): GraphQLResponse {
+): GraphQLSingularResponse {
   const data = generateData(
     operation.request.node.operation,
     operation.request.variables,

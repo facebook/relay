@@ -139,8 +139,16 @@ function commitMutation<T: MutationParameters>(
     })
     .subscribe({
       next: payload => {
-        if (payload.errors) {
-          errors.push(...payload.errors);
+        if (Array.isArray(payload)) {
+          payload.forEach(item => {
+            if (item.errors) {
+              errors.push(...item.errors);
+            }
+          });
+        } else {
+          if (payload.errors) {
+            errors.push(...payload.errors);
+          }
         }
       },
       complete: () => {

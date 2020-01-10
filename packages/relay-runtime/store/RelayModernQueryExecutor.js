@@ -267,6 +267,13 @@ class Executor {
     if (this._state === 'completed') {
       return;
     }
+    if (Array.isArray(response)) {
+      response.forEach(item => {
+        this._handleNext(item);
+      });
+      return;
+    }
+
     if (response.data == null) {
       const {errors} = response;
       const messages = errors

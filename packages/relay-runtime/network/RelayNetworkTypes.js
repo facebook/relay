@@ -45,25 +45,29 @@ export type PayloadExtensions = {[key: string]: mixed, ...};
  * The shape of a GraphQL response as dictated by the
  * [spec](https://graphql.github.io/graphql-spec/June2018/#sec-Response-Format)
  */
-export type GraphQLResponseWithData = {
+export type GraphQLResponseWithData = {|
   +data: PayloadData,
   +errors?: Array<PayloadError>,
   +extensions?: PayloadExtensions,
   +label?: string,
   +path?: Array<string | number>,
-  ...
-};
-export type GraphQLResponseWithoutData = {
+|};
+
+export type GraphQLResponseWithoutData = {|
   +data?: ?PayloadData,
   +errors: Array<PayloadError>,
   +extensions?: PayloadExtensions,
   +label?: string,
   +path?: Array<string | number>,
-  ...
-};
-export type GraphQLResponse =
+|};
+
+export type GraphQLSingularResponse =
   | GraphQLResponseWithData
   | GraphQLResponseWithoutData;
+
+export type GraphQLResponse =
+  | GraphQLSingularResponse
+  | $ReadOnlyArray<GraphQLSingularResponse>;
 
 /**
  * A function that returns an Observable representing the response of executing

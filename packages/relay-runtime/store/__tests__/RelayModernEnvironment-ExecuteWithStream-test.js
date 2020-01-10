@@ -248,15 +248,9 @@ describe('execute() a query with @stream', () => {
         path: ['node', 'actors', 1],
       },
     ]);
-    expect(next).toBeCalledTimes(2);
-    expect(callback).toBeCalledTimes(2);
-    let snapshot = callback.mock.calls[0][0];
-    expect(snapshot.isMissingData).toBe(false);
-    expect(snapshot.data).toEqual({
-      id: '1',
-      actors: [{name: 'ALICE'}],
-    });
-    snapshot = callback.mock.calls[1][0];
+    expect(next).toBeCalledTimes(1);
+    expect(callback).toBeCalledTimes(1);
+    const snapshot = callback.mock.calls[0][0];
     expect(snapshot.isMissingData).toBe(false);
     expect(snapshot.data).toEqual({
       id: '1',
@@ -306,14 +300,9 @@ describe('execute() a query with @stream', () => {
         path: ['node', 'actors', 1],
       },
     ]);
-    expect(next).toBeCalledTimes(1);
-    expect(callback).toBeCalledTimes(1);
-    const snapshot = callback.mock.calls[0][0];
-    expect(snapshot.isMissingData).toBe(false);
-    expect(snapshot.data).toEqual({
-      id: '1',
-      actors: [{name: 'ALICE'}],
-    });
+    // All batch will be discareded if there an error in the batch
+    expect(next).toBeCalledTimes(0);
+    expect(callback).toBeCalledTimes(0);
 
     expect(complete).toBeCalledTimes(0);
     expect(error).toBeCalledTimes(1);
@@ -344,7 +333,7 @@ describe('execute() a query with @stream', () => {
         path: ['node', 'actors', 0],
       },
     ]);
-    expect(next).toBeCalledTimes(2);
+    expect(next).toBeCalledTimes(1);
     // Here is the nuance: For the mix of initial and incremental payloads
     // the subscribe callback will be called twice
     // (one for the initial payload) and for an incremental
@@ -387,17 +376,11 @@ describe('execute() a query with @stream', () => {
         path: ['node', 'actors', 2],
       },
     ]);
-    expect(next).toBeCalledTimes(2);
-    expect(callback).toBeCalledTimes(2);
+    expect(next).toBeCalledTimes(1);
+    expect(callback).toBeCalledTimes(1);
     const snapshot3 = callback.mock.calls[0][0];
     expect(snapshot3.isMissingData).toBe(false);
     expect(snapshot3.data).toEqual({
-      id: '1',
-      actors: [{name: 'ALICE'}, {name: 'BOB'}],
-    });
-    const snapshot4 = callback.mock.calls[1][0];
-    expect(snapshot4.isMissingData).toBe(false);
-    expect(snapshot4.data).toEqual({
       id: '1',
       actors: [{name: 'ALICE'}, {name: 'BOB'}, {name: 'CLAIR'}],
     });
@@ -440,7 +423,7 @@ describe('execute() a query with @stream', () => {
         'https://fburl.com/relay-incremental-delivery-non-streaming-warning.',
       'FeedbackQuery',
     );
-    expect(next).toBeCalledTimes(2);
+    expect(next).toBeCalledTimes(1);
     // Here is the nuance: For the mix of initial and incremental payloads
     // the subscribe callback will be called twice
     // (one for the initial payload) and for an incremental
@@ -1257,20 +1240,13 @@ describe('execute() a query with @stream', () => {
     expect(error.mock.calls[0][0].message).toContain(
       'No data returned for operation `FeedbackQuery`',
     );
-    expect(next).toBeCalledTimes(2);
-    expect(callback).toBeCalledTimes(2);
+    expect(next).toBeCalledTimes(1);
+    expect(callback).toBeCalledTimes(1);
     const snapshot = callback.mock.calls[0][0];
     expect(snapshot.isMissingData).toBe(false);
     expect(snapshot.data).toEqual({
       id: '1',
       actors: [],
-    });
-
-    const snapshot2 = callback.mock.calls[1][0];
-    expect(snapshot2.isMissingData).toBe(false);
-    expect(snapshot2.data).toEqual({
-      id: '1',
-      actors: [undefined, {name: 'BOB'}],
     });
   });
 

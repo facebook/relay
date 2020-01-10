@@ -854,6 +854,7 @@ export type RelayResponsePayload = {|
   +incrementalPlaceholders: ?Array<IncrementalDataPlaceholder>,
   +moduleImportPayloads: ?Array<ModuleImportPayload>,
   +source: MutableRecordSource,
+  +isFinal: boolean,
 |};
 
 /**

@@ -152,6 +152,7 @@ class RelayResponseNormalizer {
       incrementalPlaceholders: this._incrementalPlaceholders,
       moduleImportPayloads: this._moduleImportPayloads,
       source: this._recordSource,
+      isFinal: false,
     };
   }
 

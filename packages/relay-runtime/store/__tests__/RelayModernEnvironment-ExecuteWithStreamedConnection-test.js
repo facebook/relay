@@ -529,45 +529,11 @@ describe('execute() fetches a @stream-ed @connection', () => {
       },
     ]);
     expect(error.mock.calls.map(call => call[0].stack)).toEqual([]);
-    expect(next).toBeCalledTimes(2);
-    expect(callback).toBeCalledTimes(2);
+    expect(next).toBeCalledTimes(1);
+    expect(callback).toBeCalledTimes(1);
     const snapshot = callback.mock.calls[0][0];
     expect(snapshot.isMissingData).toBe(false);
     expect(snapshot.data).toEqual({
-      newsFeed: {
-        edges: [
-          {
-            cursor: 'cursor-1',
-            node: {
-              __typename: 'Story',
-              id: '1',
-              feedback: {
-                id: 'feedback-1',
-                actors: [{id: 'actor-1', name: 'ALICE'}],
-              },
-            },
-          },
-          {
-            cursor: 'cursor-2',
-            node: {
-              __typename: 'Story',
-              id: '2',
-              feedback: {
-                id: 'feedback-2',
-                actors: [{id: 'actor-2', name: 'BOB'}],
-              },
-            },
-          },
-        ],
-        pageInfo: {
-          endCursor: null,
-          hasNextPage: false,
-        },
-      },
-    });
-    const snapshot2 = callback.mock.calls[1][0];
-    expect(snapshot2.isMissingData).toBe(false);
-    expect(snapshot2.data).toEqual({
       newsFeed: {
         edges: [
           {
@@ -699,10 +665,10 @@ describe('execute() fetches a @stream-ed @connection', () => {
       },
     ]);
     expect(error.mock.calls.map(call => call[0].stack)).toEqual([]);
-    expect(next).toBeCalledTimes(3);
-    expect(callback).toBeCalledTimes(3);
-    const snapshot1 = callback.mock.calls[1][0];
-    expect(snapshot1.isMissingData).toBe(true);
+    expect(next).toBeCalledTimes(2);
+    expect(callback).toBeCalledTimes(2);
+    const snapshot1 = callback.mock.calls[0][0];
+    expect(snapshot1.isMissingData).toBe(false);
     expect(snapshot1.data).toEqual({
       newsFeed: {
         edges: [
@@ -718,17 +684,6 @@ describe('execute() fetches a @stream-ed @connection', () => {
               },
             },
           },
-          {
-            cursor: 'cursor-3',
-            node: {
-              __typename: 'Story',
-              id: '3',
-              feedback: {
-                id: 'feedback-3',
-                actors: [{id: 'actor-3', name: 'CLAIR'}],
-              },
-            },
-          },
         ],
         pageInfo: {
           endCursor: null,
@@ -736,7 +691,7 @@ describe('execute() fetches a @stream-ed @connection', () => {
         },
       },
     });
-    const snapshot2 = callback.mock.calls[2][0];
+    const snapshot2 = callback.mock.calls[1][0];
     expect(snapshot2.isMissingData).toBe(false);
     expect(snapshot2.data).toEqual({
       newsFeed: {

@@ -208,6 +208,13 @@ function printSelection(
         null,
       ) ?? ''}`;
     }
+    if (selection.useCustomizedBatch !== null) {
+      streamStr += `, use_customized_batch: ${printValue(
+        schema,
+        selection.useCustomizedBatch,
+        null,
+      ) ?? 'false'}`;
+    }
     streamStr += ')';
     streamStr += parentDirectives;
     const subSelections = selection.selections.map(sel =>

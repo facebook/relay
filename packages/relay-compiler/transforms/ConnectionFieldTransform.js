@@ -156,6 +156,9 @@ function visitLinkedField(
       arg => arg.name === 'initial_count',
     );
     const ifArg = connectionDirective.args.find(arg => arg.name === 'if');
+    const useCustomizedBatchArg = connectionDirective.args.find(
+      arg => arg.name === 'use_customized_batch',
+    );
     if (
       initialCountArg == null ||
       (initialCountArg.value.kind === 'Literal' &&
@@ -170,6 +173,7 @@ function visitLinkedField(
     stream = {
       deferLabel: label,
       initialCount: initialCountArg.value,
+      useCustomizedBatch: useCustomizedBatchArg?.value ?? null,
       if: ifArg != null ? ifArg.value : null,
       streamLabel: label,
     };

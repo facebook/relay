@@ -57,6 +57,7 @@ type ConnectionArguments = {|
   stream: ?{|
     if: ?Argument,
     initialCount: ?Argument,
+    useCustomizedBatch: ?Argument,
     label: string,
   |},
 |};
@@ -112,6 +113,7 @@ const SCHEMA_EXTENSION = `
     label: String!
     initial_count: Int!
     if: Boolean = true
+    use_customized_batch: Boolean = false
     dynamicKey_UNSTABLE: String
   ) on FIELD
 `;
@@ -294,6 +296,9 @@ function buildConnectionArguments(
     const initialCountArg = connectionDirective.args.find(
       arg => arg.name === 'initial_count',
     );
+    const useCustomizedBatchArg = connectionDirective.args.find(
+      arg => arg.name === 'use_customized_batch',
+    );
     const ifArg = connectionDirective.args.find(arg => arg.name === 'if');
     if (label != null && typeof label !== 'string') {
       const labelArg = connectionDirective.args.find(
@@ -306,7 +311,12 @@ function buildConnectionArguments(
         [labelArg?.value?.loc ?? connectionDirective.loc],
       );
     }
-    stream = {if: ifArg, initialCount: initialCountArg, label: label ?? key};
+    stream = {
+      if: ifArg,
+      initialCount: initialCountArg,
+      useCustomizedBatch: useCustomizedBatchArg,
+      label: label ?? key,
+    };
   }
 
   // T45504512: new connection model
@@ -456,6 +466,7 @@ function transformConnectionSelections(
       args: [
         stream.if,
         stream.initialCount,
+        stream.useCustomizedBatch,
         {
           kind: 'Argument',
           loc: derivedDirectiveLocation,

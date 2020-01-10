@@ -9374,6 +9374,7 @@ Request {
             selections: [
               Stream {
                 if: null,
+                useCustomizedBatch: null,
                 label: "FeedbackFragment$stream$StreamedActorsLabel",
                 metadata: null,
                 selections: [
@@ -16553,6 +16554,7 @@ Request {
                 selections: [
                   Stream {
                     if: null,
+                    useCustomizedBatch: null,
                     label: "PaginationFragment$stream$PaginationFragment_friends",
                     metadata: null,
                     selections: [
@@ -17890,6 +17892,7 @@ Request {
                 selections: [
                   Stream {
                     if: null,
+                    useCustomizedBatch: null,
                     label: "NodeQuery$stream$comments",
                     metadata: null,
                     selections: [

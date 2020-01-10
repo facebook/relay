@@ -19,6 +19,7 @@ directive @stream(
   label: String!
   initial_count: Int!
   if: Boolean = true
+  use_customized_batch: Boolean = false
 ) on FIELD
 
 type Query {

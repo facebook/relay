@@ -480,6 +480,11 @@ function generateStream(schema: Schema, node: Stream): NormalizationStream {
         ? node.if.variableName
         : null,
     kind: 'Stream',
+    useCustomizedBatch:
+      node.useCustomizedBatch != null &&
+      node.useCustomizedBatch.kind === 'Variable'
+        ? node.useCustomizedBatch.variableName
+        : null,
     label: node.label,
     metadata: node.metadata,
     selections: generateSelections(schema, node.selections),

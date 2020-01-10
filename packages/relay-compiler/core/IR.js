@@ -113,6 +113,7 @@ export type Stream = {|
   +label: string,
   +if: ArgumentValue | null,
   +initialCount: ArgumentValue,
+  +useCustomizedBatch: ArgumentValue | null,
 |};
 
 export type InlineDataFragmentSpread = {|
@@ -205,6 +206,7 @@ export type Connection = {|
     +deferLabel: string,
     +if: ArgumentValue | null,
     +initialCount: ArgumentValue,
+    +useCustomizedBatch: ArgumentValue | null,
     +streamLabel: string,
   |} | null,
   +type: LinkedFieldTypeID,

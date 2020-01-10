@@ -131,6 +131,7 @@ function visitConnection(connection: Connection, state: State): Connection {
         label: streamLabel,
         if: stream.if,
         initialCount: stream.initialCount,
+        useCustomizedBatch: stream.useCustomizedBatch,
       },
       {
         kind: 'Defer',
@@ -189,6 +190,10 @@ function visitLinkedField(
       [streamDirective.loc],
     );
   }
+  const useCustomizedBatch = streamDirective.args.find(
+    arg => arg.name === 'use_customized_batch',
+  );
+
   const label =
     getLiteralStringArgument(streamDirective, 'label') ?? field.alias;
   const transformedLabel = transformLabel(state.documentName, 'stream', label);
@@ -196,6 +201,7 @@ function visitLinkedField(
   return {
     if: ifArg?.value ?? null,
     initialCount: initialCount.value,
+    useCustomizedBatch: useCustomizedBatch?.value ?? null,
     kind: 'Stream',
     label: transformedLabel,
     loc: {kind: 'Derived', source: streamDirective.loc},

@@ -15,7 +15,7 @@ const transformerWithOptions = require('./transformerWithOptions');
 const {generateTestsFromFixtures} = require('relay-test-utils-internal');
 
 generateTestsFromFixtures(
-  `${__dirname}/fixtures-modern`,
+  `${__dirname}/fixtures`,
   transformerWithOptions({
     eagerESModules: true,
   }),

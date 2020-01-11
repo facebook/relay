@@ -124,26 +124,8 @@ function createNode(
     topScope = topScope.parent;
   }
 
-  const moduleScopedIdentifier = t.Identifier(
-    `__relay_generated_${definitionName}__`,
-  );
+  const id = topScope.generateUidIdentifier(definitionName);
 
-  if (options.eagerESModules) {
-    const importDeclaration = t.ImportDeclaration(
-      [t.ImportDefaultSpecifier(moduleScopedIdentifier)],
-      t.StringLiteral(requiredPath),
-    );
-    const program = path.findParent(path => path.isProgram());
-    program.unshiftContainer('body', importDeclaration);
-  }
-
-  const requireGraphQLModule = options.eagerESModules
-    ? moduleScopedIdentifier
-    : t.CallExpression(t.Identifier('require'), [
-        t.StringLiteral(requiredPath),
-      ]);
-
-  const id = topScope.generateDeclaredUidIdentifier(definitionName);
   const expHash = t.MemberExpression(id, t.Identifier('hash'));
   const expWarn = warnNeedsRebuild(t, definitionName, options.buildCommand);
   const expWarnIfOutdated = t.LogicalExpression(
@@ -156,34 +138,66 @@ function createNode(
     ),
   );
 
-  const expAssignProd = t.AssignmentExpression('=', id, requireGraphQLModule);
-  const expAssignAndCheck = t.SequenceExpression([
-    expAssignProd,
-    expWarnIfOutdated,
-    id,
-  ]);
-
-  let expAssign;
-  if (options.isDevVariable != null) {
-    expAssign = t.ConditionalExpression(
-      t.Identifier(options.isDevVariable),
-      expAssignAndCheck,
-      expAssignProd,
+  if (options.eagerESModules) {
+    const importDeclaration = t.ImportDeclaration(
+      [t.ImportDefaultSpecifier(id)],
+      t.StringLiteral(requiredPath),
     );
-  } else if (options.isDevelopment) {
-    expAssign = expAssignAndCheck;
-  } else {
-    expAssign = expAssignProd;
-  }
+    const program = path.findParent(path => path.isProgram());
+    program.unshiftContainer('body', importDeclaration);
 
-  const expVoid0 = t.UnaryExpression('void', t.NumericLiteral(0));
-  path.replaceWith(
-    t.ConditionalExpression(
-      t.BinaryExpression('!==', id, expVoid0),
+    const expAssignAndCheck = t.SequenceExpression([expWarnIfOutdated, id]);
+
+    let expAssign;
+    if (options.isDevVariable != null) {
+      expAssign = t.ConditionalExpression(
+        t.Identifier(options.isDevVariable),
+        expAssignAndCheck,
+        id,
+      );
+    } else if (options.isDevelopment) {
+      expAssign = expAssignAndCheck;
+    } else {
+      expAssign = id;
+    }
+
+    path.replaceWith(expAssign);
+  } else {
+    topScope.push({id});
+
+    const requireGraphQLModule = t.CallExpression(t.Identifier('require'), [
+      t.StringLiteral(requiredPath),
+    ]);
+
+    const expAssignProd = t.AssignmentExpression('=', id, requireGraphQLModule);
+    const expAssignAndCheck = t.SequenceExpression([
+      expAssignProd,
+      expWarnIfOutdated,
       id,
-      expAssign,
-    ),
-  );
+    ]);
+
+    let expAssign;
+    if (options.isDevVariable != null) {
+      expAssign = t.ConditionalExpression(
+        t.Identifier(options.isDevVariable),
+        expAssignAndCheck,
+        expAssignProd,
+      );
+    } else if (options.isDevelopment) {
+      expAssign = expAssignAndCheck;
+    } else {
+      expAssign = expAssignProd;
+    }
+
+    const expVoid0 = t.UnaryExpression('void', t.NumericLiteral(0));
+    path.replaceWith(
+      t.ConditionalExpression(
+        t.BinaryExpression('!==', id, expVoid0),
+        id,
+        expAssign,
+      ),
+    );
+  }
 }
 
 function warnNeedsRebuild(

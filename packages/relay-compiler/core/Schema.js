@@ -145,7 +145,7 @@ type InternalDirectiveStruct = $ReadOnly<{|
 export type {Schema};
 
 type FieldsMap = Map<string, Field>;
-type TypeMapKey = string | Symbol;
+type TypeMapKey = string | symbol;
 
 /**
  * @private

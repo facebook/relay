@@ -144,6 +144,7 @@ const argv = yargs
   // Apply externally loaded config through the yargs API so that we can leverage yargs' defaults and have them show up
   // in the help banner.
   .config(config)
+  .strict()
   .help().argv;
 
 // Start the application

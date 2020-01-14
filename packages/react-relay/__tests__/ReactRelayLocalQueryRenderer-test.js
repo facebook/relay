@@ -132,7 +132,7 @@ describe('ReactRelayLocalQueryRenderer', () => {
         renderer(environment, TestQuery, render, variables);
       });
       expect(render).toBeCalledTimes(1);
-      expect(render.mock.calls[0][0].props).toBeUndefined();
+      expect(render.mock.calls[0][0].props).toEqual({node: undefined});
       expect(environment.execute).not.toBeCalled();
     });
 

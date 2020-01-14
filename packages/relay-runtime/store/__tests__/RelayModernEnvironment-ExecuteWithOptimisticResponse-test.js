@@ -214,7 +214,7 @@ describe('execute() with network that returns optimistic response', () => {
         name: 'Joe',
       },
     });
-    expect(callback.mock.calls[1][0].data).toEqual(undefined);
+    expect(callback.mock.calls[1][0].data).toEqual({me: undefined});
   });
 
   it('reverts optimistic response on error.', () => {
@@ -258,7 +258,7 @@ describe('execute() with network that returns optimistic response', () => {
         name: 'Joe',
       },
     });
-    expect(callback.mock.calls[1][0].data).toEqual(undefined);
+    expect(callback.mock.calls[1][0].data).toEqual({me: undefined});
   });
 
   it('reverts optimistic response if unsubscribed.', () => {
@@ -300,7 +300,7 @@ describe('execute() with network that returns optimistic response', () => {
         name: 'Joe',
       },
     });
-    expect(callback.mock.calls[1][0].data).toEqual(undefined);
+    expect(callback.mock.calls[1][0].data).toEqual({me: undefined});
   });
 
   it('calls error() if optimistic response is missing data', () => {

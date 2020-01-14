@@ -1640,6 +1640,10 @@ describe('RelayPublishQueue', () => {
           id: '4', // added by server payload
           name: 'ZUCK', // optimistic update is re-applied on the new data
         },
+        [ROOT_ID]: {
+          __id: ROOT_ID,
+          __typename: ROOT_TYPE,
+        },
       });
     });
 
@@ -1681,6 +1685,10 @@ describe('RelayPublishQueue', () => {
           ...initialData['4'],
           id: '4', // added by server payload
           name: 'zuck', // reverts to the server data, not initial data
+        },
+        [ROOT_ID]: {
+          __id: ROOT_ID,
+          __typename: ROOT_TYPE,
         },
       });
     });

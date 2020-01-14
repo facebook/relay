@@ -29,6 +29,7 @@ const recycleNodesInto = require('../util/recycleNodesInto');
 const resolveImmediate = require('../util/resolveImmediate');
 
 const {createReaderSelector} = require('./RelayModernSelector');
+const {ROOT_ID, ROOT_TYPE} = require('./RelayStoreUtils');
 
 import type {ReaderFragment} from '../util/ReaderNode';
 import type {DataID, Disposable} from '../util/RelayRuntimeTypes';
@@ -171,6 +172,8 @@ class RelayModernStore implements Store {
     this._subscriptions = new Set();
     this._updatedConnectionIDs = {};
     this._updatedRecordIDs = {};
+
+    initializeRecordSource(this._recordSource);
   }
 
   getSource(): RecordSource {
@@ -937,6 +940,13 @@ class RelayModernStore implements Store {
         }
       }
     }
+  }
+}
+
+function initializeRecordSource(target: MutableRecordSource) {
+  if (!target.has(ROOT_ID)) {
+    const rootRecord = RelayModernRecord.create(ROOT_ID, ROOT_TYPE);
+    target.set(ROOT_ID, rootRecord);
   }
 }
 

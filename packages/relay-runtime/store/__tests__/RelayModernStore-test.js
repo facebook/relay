@@ -60,6 +60,23 @@ function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
   ],
 ].forEach(([getRecordSourceImplementation, ImplementationName]) => {
   describe(`Relay Store with ${ImplementationName} Record Source`, () => {
+    describe('constructor', () => {
+      it('creates the root record upon store initialization', () => {
+        const source = getRecordSourceImplementation({});
+        const store = new RelayModernStore(source);
+        expect(store.getSource().get(ROOT_ID)).toEqual({
+          __id: ROOT_ID,
+          __typename: ROOT_TYPE,
+        });
+        expect(store.getSource().toJSON()).toEqual({
+          [ROOT_ID]: {
+            __id: ROOT_ID,
+            __typename: ROOT_TYPE,
+          },
+        });
+      });
+    });
+
     describe('retain()', () => {
       let UserQuery;
       let data;

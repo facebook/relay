@@ -17,9 +17,12 @@ const React = require('react');
 const ReactTestRenderer = require('react-test-renderer');
 const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
 
+const useFragmentNode = require('../useFragmentNode');
 const useLazyLoadQueryNode = require('../useLazyLoadQueryNode');
 
-const {createOperationDescriptor} = require('relay-runtime');
+const {createOperationDescriptor, getFragment} = require('relay-runtime');
+
+import type {FetchPolicy} from 'relay-runtime';
 
 const defaultFetchPolicy = 'network-only';
 
@@ -50,7 +53,7 @@ function expectToHaveFetched(environment, query) {
   ).toEqual(true);
 }
 
-type Props = {variables: Object, ...};
+type Props = {|variables: {...}, fetchPolicy?: FetchPolicy|};
 
 describe('useLazyLoadQueryNode', () => {
   let environment;
@@ -92,13 +95,10 @@ describe('useLazyLoadQueryNode', () => {
       }
     }
 
-    const Renderer = props => {
+    const Renderer = (props: Props) => {
       const _query = createOperationDescriptor(gqlQuery, props.variables);
       const data = useLazyLoadQueryNode<_>({
         query: _query,
-        /* $FlowFixMe(>=0.111.0) This comment suppresses an error found when
-         * Flow v0.111.0 was deployed. To see the error, delete this comment
-         * and run Flow. */
         fetchPolicy: props.fetchPolicy || defaultFetchPolicy,
         componentDisplayName: 'TestDisplayName',
       });
@@ -149,6 +149,18 @@ describe('useLazyLoadQueryNode', () => {
           name
           ...UserFragment
         }
+      }
+
+      fragment RootFragment on Query {
+        node(id: $id) {
+          id
+          name
+          ...UserFragment
+        }
+      }
+
+      query OnlyFragmentsQuery($id: ID) {
+        ...RootFragment
       }
     `);
     gqlQuery = generated.UserQuery;
@@ -422,5 +434,82 @@ describe('useLazyLoadQueryNode', () => {
     expect(environment.mock.isLoading(query.request.node, variables)).toEqual(
       false,
     );
+  });
+
+  describe('partial rendering', () => {
+    it('does not suspend at the root if query does not have direct data dependencies', () => {
+      const generated = generateAndCompile(`
+      fragment RootFragment on Query {
+        node(id: $id) {
+          id
+          name
+        }
+      }
+
+      query OnlyFragmentsQuery($id: ID) {
+        ...RootFragment
+      }
+    `);
+      const gqlOnlyFragmentsQuery = generated.OnlyFragmentsQuery;
+      const gqlFragment = generated.RootFragment;
+      const onlyFragsQuery = createOperationDescriptor(
+        gqlOnlyFragmentsQuery,
+        variables,
+      );
+
+      function FragmentComponent(props) {
+        const fragment = getFragment(gqlFragment);
+        const result: $FlowFixMe = useFragmentNode(
+          fragment,
+          props.query,
+          'TestUseFragment',
+        );
+        renderFn(result.data);
+        return null;
+      }
+
+      const Renderer = props => {
+        const _query = createOperationDescriptor(
+          gqlOnlyFragmentsQuery,
+          props.variables,
+        );
+        const data = useLazyLoadQueryNode<_>({
+          componentDisplayName: 'TestDisplayName',
+          fetchPolicy: 'store-or-network',
+          query: _query,
+          renderPolicy: 'partial',
+        });
+        return (
+          <React.Suspense fallback="Fallback around fragment">
+            <FragmentComponent query={data} />
+          </React.Suspense>
+        );
+      };
+
+      const instance = render(environment, <Renderer variables={variables} />);
+
+      // Assert that we suspended at the fragment level and not at the root
+      expect(instance.toJSON()).toEqual('Fallback around fragment');
+      expectToHaveFetched(environment, onlyFragsQuery);
+      expect(renderFn).not.toBeCalled();
+      expect(environment.retain).toHaveBeenCalledTimes(1);
+
+      environment.mock.resolve(gqlOnlyFragmentsQuery, {
+        data: {
+          node: {
+            __typename: 'User',
+            id: variables.id,
+            name: 'Alice',
+          },
+        },
+      });
+
+      expectToBeRendered(renderFn, {
+        node: {
+          id: variables.id,
+          name: 'Alice',
+        },
+      });
+    });
   });
 });

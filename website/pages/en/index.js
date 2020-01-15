@@ -295,12 +295,12 @@ export default createFragmentContainer(ArtistHeader, {
                 {
                   title: 'Automatic updates',
                   content:
-                    '<p>Using Global Object Identification, Relay is capable of automatically merge mutation updates for any affected objects, and update only the affected components.</p><p>For more complex cases where updates cannot automatically be merged, Relay provides apis to manually update the local Relay data in response to a mutation.</p>',
+                    '<p>Using Global Object Identification, Relay is capable of automatically merging mutation updates for any affected objects, and updating only the affected components.</p><p>For more complex cases where updates cannot automatically be merged, Relay provides apis to manually update the local Relay data in response to a mutation.</p>',
                 },
                 {
                   title: 'Designed for great UX',
                   content:
-                    "<p>Relay's mutation API supports making optimistic updates to show immediate feedback to users, as well error handling and automatically reverting changes when mutations fail.</p>",
+                    "<p>Relay's mutation API supports making optimistic updates to show immediate feedback to users, as well as error handling and automatically reverting changes when mutations fail.</p>",
                 },
               ]}
             />

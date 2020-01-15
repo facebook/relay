@@ -142,7 +142,7 @@ import { createFragmentContainer, graphql, QueryRenderer } from "react-relay"
 import environment from "./lib/createRelayEnvironment"
 import ArtistHeader from "./ArtistHeader" // Below
 
-// You can usually have use one query renderer per page
+// You can usually use one query renderer per page
 // and it represents the root of a query
 export default function ArtistRenderer({artistID}) {
   return (

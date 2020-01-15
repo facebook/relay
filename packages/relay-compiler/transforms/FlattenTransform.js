@@ -61,8 +61,6 @@ function flattenTransformImpl(
     context,
     {
       Condition: visitorFn,
-      Connection: visitorFn,
-      ConnectionField: visitorFn,
       Defer: visitorFn,
       Fragment: visitorFn,
       InlineFragment: visitorFn,
@@ -328,34 +326,6 @@ function flattenSelectionsInto(
           handles: mergeHandles(selection, flattenedSelection),
         });
       }
-    } else if (flattenedSelection.kind === 'ConnectionField') {
-      if (selection.kind !== 'ConnectionField') {
-        throw createCompilerError(
-          `FlattenTransform: Expected a ConnectionField, got a '${
-            selection.kind
-          }'`,
-          [selection.loc],
-        );
-      }
-      assertUniqueArgsForAlias(selection, flattenedSelection);
-      // NOTE: not using object spread here as this code is pretty hot
-      flattenedSelections.set(nodeIdentifier, {
-        kind: 'ConnectionField',
-        alias: flattenedSelection.alias,
-        args: flattenedSelection.args,
-        directives: flattenedSelection.directives,
-        loc: flattenedSelection.loc,
-        metadata: flattenedSelection.metadata,
-        name: flattenedSelection.name,
-        selections: mergeSelections(
-          schema,
-          flattenedSelection,
-          selection,
-          state,
-          selection.type,
-        ),
-        type: flattenedSelection.type,
-      });
     } else if (flattenedSelection.kind === 'InlineDataFragmentSpread') {
       throw createCompilerError(
         'FlattenTransform: did not expect an InlineDataFragmentSpread node. ' +
@@ -363,24 +333,6 @@ function flattenSelectionsInto(
           'transform to run only on normalization ASTs.',
         [selection.loc],
       );
-    } else if (flattenedSelection.kind === 'Connection') {
-      if (selection.kind !== 'Connection') {
-        throw createCompilerError(
-          `FlattenTransform: Expected a Connection, got a '${selection.kind}'`,
-          [selection.loc],
-        );
-      }
-      flattenedSelections.set(nodeIdentifier, {
-        kind: 'Connection',
-        ...flattenedSelection,
-        selections: mergeSelections(
-          schema,
-          flattenedSelection,
-          selection,
-          state,
-          selection.type,
-        ),
-      });
     } else {
       (flattenedSelection.kind: empty);
       throw createCompilerError(

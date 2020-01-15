@@ -81,7 +81,7 @@ describe('RelayRecordSourceProxy', () => {
     jest.resetModules();
     baseSource = new RelayRecordSourceMapImpl(simpleClone(initialData));
     sinkSource = new RelayRecordSourceMapImpl({});
-    mutator = new RelayRecordSourceMutator(baseSource, sinkSource, []);
+    mutator = new RelayRecordSourceMutator(baseSource, sinkSource);
     store = new RelayRecordSourceProxy(mutator, defaultGetDataID);
   });
 

@@ -17,12 +17,10 @@ const IRTransformer = require('../core/IRTransformer');
 const murmurHash = require('../util/murmurHash');
 
 const {createUserError} = require('../core/CompilerError');
-const {ConnectionInterface} = require('relay-runtime');
 
 import type CompilerContext from '../core/CompilerContext';
 import type {
   Argument,
-  Connection,
   Defer,
   Directive,
   FragmentSpread,
@@ -45,7 +43,6 @@ function deferStreamTransform(context: CompilerContext): CompilerContext {
   return IRTransformer.transform(
     context,
     {
-      Connection: visitConnection,
       // TODO: type IRTransformer to allow changing result type
       FragmentSpread: (visitFragmentSpread: $FlowFixMe),
       // TODO: type IRTransformer to allow changing result type
@@ -86,68 +83,6 @@ function deferStreamTransform(context: CompilerContext): CompilerContext {
       };
     },
   );
-}
-
-function visitConnection(connection: Connection, state: State): Connection {
-  const transformed: Connection = this.traverse(connection, state);
-  const stream = transformed.stream;
-  if (stream == null) {
-    return transformed;
-  }
-  const {EDGES, PAGE_INFO} = ConnectionInterface.get();
-  const edges = transformed.selections.find(
-    selection => selection.kind === 'LinkedField' && selection.name === EDGES,
-  );
-  const pageInfo = transformed.selections.find(
-    selection =>
-      selection.kind === 'LinkedField' && selection.name === PAGE_INFO,
-  );
-  if (edges == null || pageInfo == null) {
-    throw createUserError(
-      `Invalid connection, expected the '${EDGES}' and '${PAGE_INFO}' fields ` +
-        'to exist.',
-      [transformed.loc],
-    );
-  }
-  const derivedLocation = {kind: 'Derived', source: transformed.loc};
-  const streamLabel = transformLabel(
-    state.documentName,
-    'stream',
-    transformed.label,
-  );
-  const deferLabel = transformLabel(
-    state.documentName,
-    'defer',
-    transformed.label,
-  );
-  return {
-    ...connection,
-    selections: [
-      {
-        kind: 'Stream',
-        loc: derivedLocation,
-        metadata: null,
-        selections: [edges],
-        label: streamLabel,
-        if: stream.if,
-        initialCount: stream.initialCount,
-        useCustomizedBatch: stream.useCustomizedBatch,
-      },
-      {
-        kind: 'Defer',
-        loc: derivedLocation,
-        metadata: null,
-        selections: [pageInfo],
-        label: deferLabel,
-        if: stream.if,
-      },
-    ],
-    stream: {
-      ...stream,
-      streamLabel,
-      deferLabel,
-    },
-  };
 }
 
 function visitLinkedField(

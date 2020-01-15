@@ -39,13 +39,6 @@ import type {
   Variables,
 } from '../util/RelayRuntimeTypes';
 import type {RequestIdentifier} from '../util/getRequestIdentifier';
-import type {
-  ConnectionID,
-  ConnectionInternalEvent,
-  ConnectionReference,
-  ConnectionResolver,
-  ConnectionSnapshot,
-} from './RelayConnection';
 import type {InvalidationState} from './RelayModernStore';
 import type RelayOperationTracker from './RelayOperationTracker';
 import type {RecordState} from './RelayRecordState';
@@ -288,25 +281,8 @@ export interface Store {
   holdGC(): Disposable;
 
   /**
-   * Publish connection events, updating the store's list of events. As with
-   * publish(), subscribers are only notified after notify() is called.
-   */
-  publishConnectionEvents_UNSTABLE(
-    events: Array<ConnectionInternalEvent>,
-    final: boolean,
-  ): void;
-
-  /**
-   * Get a read-only view of the store's internal connection events for a given
-   * connection.
-   */
-  getConnectionEvents_UNSTABLE(
-    connectionID: ConnectionID,
-  ): ?$ReadOnlyArray<ConnectionInternalEvent>;
-
-  /**
    * Record a backup/snapshot of the current state of the store, including
-   * records and derived data such as fragment and connection subscriptions.
+   * records and derived data such as fragment subscriptions.
    * This state can be restored with restore().
    */
   snapshot(): void;
@@ -341,17 +317,6 @@ export interface Store {
   subscribeToInvalidationState(
     invalidationState: InvalidationState,
     callback: () => void,
-  ): Disposable;
-
-  lookupConnection_UNSTABLE<TEdge, TState>(
-    connectionReference: ConnectionReference<TEdge>,
-    resolver: ConnectionResolver<TEdge, TState>,
-  ): ConnectionSnapshot<TEdge, TState>;
-
-  subscribeConnection_UNSTABLE<TEdge, TState>(
-    snapshot: ConnectionSnapshot<TEdge, TState>,
-    resolver: ConnectionResolver<TEdge, TState>,
-    callback: (snapshot: ConnectionSnapshot<TEdge, TState>) => void,
   ): Disposable;
 }
 
@@ -427,11 +392,6 @@ export interface ReadOnlyRecordSourceProxy {
 export interface RecordSourceSelectorProxy extends RecordSourceProxy {
   getRootField(fieldName: string): ?RecordProxy;
   getPluralRootField(fieldName: string): ?Array<?RecordProxy>;
-  insertConnectionEdge_UNSTABLE(
-    connectionID: ConnectionID,
-    args: Variables,
-    edge: RecordProxy,
-  ): void;
   invalidateStore(): void;
 }
 
@@ -724,31 +684,7 @@ export type StreamPlaceholder = {|
   +node: NormalizationSelectableNode,
   +variables: Variables,
 |};
-export type ConnectionEdgePlaceholder = {|
-  +kind: 'connection_edge',
-  +args: Variables,
-  +label: string,
-  +path: $ReadOnlyArray<string>,
-  +parentID: DataID,
-  +node: NormalizationLinkedField,
-  +variables: Variables,
-  +connectionID: ConnectionID,
-|};
-export type ConnectionPageInfoPlaceholder = {|
-  +kind: 'connection_page_info',
-  +args: Variables,
-  +data: PayloadData,
-  +label: string,
-  +path: $ReadOnlyArray<string>,
-  +selector: NormalizationSelector,
-  +typeName: string,
-  +connectionID: ConnectionID,
-|};
-export type IncrementalDataPlaceholder =
-  | DeferPlaceholder
-  | StreamPlaceholder
-  | ConnectionEdgePlaceholder
-  | ConnectionPageInfoPlaceholder;
+export type IncrementalDataPlaceholder = DeferPlaceholder | StreamPlaceholder;
 
 /**
  * A user-supplied object to load a generated operation (SplitOperation) AST
@@ -848,7 +784,6 @@ export type MissingFieldHandler =
  * The results of normalizing a query.
  */
 export type RelayResponsePayload = {|
-  +connectionEvents: ?Array<ConnectionInternalEvent>,
   +errors: ?Array<PayloadError>,
   +fieldPayloads: ?Array<HandleFieldPayload>,
   +incrementalPlaceholders: ?Array<IncrementalDataPlaceholder>,

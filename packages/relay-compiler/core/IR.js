@@ -72,7 +72,7 @@ export type Directive = {|
   +name: string,
 |};
 
-export type Field = LinkedField | ScalarField | ConnectionField;
+export type Field = LinkedField | ScalarField;
 
 export type Fragment = {|
   +argumentDefinitions: $ReadOnlyArray<ArgumentDefinition>,
@@ -128,8 +128,6 @@ export type IR =
   | Argument
   | ClientExtension
   | Condition
-  | Connection
-  | ConnectionField
   | Defer
   | Directive
   | Fragment
@@ -195,23 +193,6 @@ export type ClientExtension = {|
   +selections: $ReadOnlyArray<Selection>,
 |};
 
-export type Connection = {|
-  +args: $ReadOnlyArray<Argument>,
-  +kind: 'Connection',
-  +label: string,
-  +loc: Location,
-  +name: string,
-  +selections: $ReadOnlyArray<Selection>,
-  +stream: {|
-    +deferLabel: string,
-    +if: ArgumentValue | null,
-    +initialCount: ArgumentValue,
-    +useCustomizedBatch: ArgumentValue | null,
-    +streamLabel: string,
-  |} | null,
-  +type: LinkedFieldTypeID,
-|};
-
 export type LinkedField = {|
   +alias: string,
   +args: $ReadOnlyArray<Argument>,
@@ -219,18 +200,6 @@ export type LinkedField = {|
   +directives: $ReadOnlyArray<Directive>,
   +handles: ?$ReadOnlyArray<Handle>,
   +kind: 'LinkedField',
-  +loc: Location,
-  +metadata: Metadata,
-  +name: string,
-  +selections: $ReadOnlyArray<Selection>,
-  +type: LinkedFieldTypeID,
-|};
-
-export type ConnectionField = {|
-  +alias: string,
-  +args: $ReadOnlyArray<Argument>,
-  +directives: $ReadOnlyArray<Directive>,
-  +kind: 'ConnectionField',
   +loc: Location,
   +metadata: Metadata,
   +name: string,
@@ -279,8 +248,6 @@ export type ModuleImport = {|
 export type Node =
   | ClientExtension
   | Condition
-  | Connection
-  | ConnectionField
   | Defer
   | Fragment
   | InlineDataFragmentSpread
@@ -329,8 +296,6 @@ export type ScalarField = {|
 export type Selection =
   | ClientExtension
   | Condition
-  | Connection
-  | ConnectionField
   | Defer
   | FragmentSpread
   | InlineDataFragmentSpread

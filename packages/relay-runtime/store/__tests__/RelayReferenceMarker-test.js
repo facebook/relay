@@ -20,10 +20,6 @@ const {createNormalizationSelector} = require('../RelayModernSelector');
 const {mark} = require('../RelayReferenceMarker');
 const {ROOT_ID} = require('../RelayStoreUtils');
 
-function getEmptyConnectionEvents() {
-  return null;
-}
-
 describe('RelayReferenceMarker', () => {
   const {generateAndCompile} = RelayModernTestUtils;
   let source;
@@ -131,8 +127,6 @@ describe('RelayReferenceMarker', () => {
         size: 32,
       }),
       references,
-      new Set(),
-      getEmptyConnectionEvents,
     );
     expect(Array.from(references).sort()).toEqual([
       '1',
@@ -221,8 +215,6 @@ describe('RelayReferenceMarker', () => {
       source,
       createNormalizationSelector(UserProfile.operation, ROOT_ID, {id: '1'}),
       references,
-      new Set(),
-      getEmptyConnectionEvents,
     );
     expect(Array.from(references).sort()).toEqual([
       '1',
@@ -330,8 +322,6 @@ describe('RelayReferenceMarker', () => {
         orderby: ['first name'],
       }),
       references,
-      new Set(),
-      getEmptyConnectionEvents,
     );
     expect(Array.from(references).sort()).toEqual([
       '1',
@@ -352,8 +342,6 @@ describe('RelayReferenceMarker', () => {
         orderby: ['last name'],
       }),
       references,
-      new Set(),
-      getEmptyConnectionEvents,
     );
     expect(Array.from(references).sort()).toEqual([
       '1',
@@ -472,8 +460,6 @@ describe('RelayReferenceMarker', () => {
         size: 32,
       }),
       references,
-      new Set(),
-      getEmptyConnectionEvents,
     );
     expect(Array.from(references).sort()).toEqual([
       '1',
@@ -575,8 +561,6 @@ describe('RelayReferenceMarker', () => {
           id: '1',
         }),
         references,
-        new Set(),
-        getEmptyConnectionEvents,
         loader,
       );
       expect(Array.from(references).sort()).toEqual([
@@ -628,8 +612,6 @@ describe('RelayReferenceMarker', () => {
           id: '1',
         }),
         references,
-        new Set(),
-        getEmptyConnectionEvents,
         loader,
       );
       expect(Array.from(references).sort()).toEqual([
@@ -674,8 +656,6 @@ describe('RelayReferenceMarker', () => {
           id: '1',
         }),
         references,
-        new Set(),
-        getEmptyConnectionEvents,
         // Return null to indicate the fragment is not loaded yet
         {
           get: _ => null,
@@ -730,8 +710,6 @@ describe('RelayReferenceMarker', () => {
           id: '1',
         }),
         references,
-        new Set(),
-        getEmptyConnectionEvents,
         loader,
       );
       expect(Array.from(references).sort()).toEqual([
@@ -775,8 +753,6 @@ describe('RelayReferenceMarker', () => {
           id: '1',
         }),
         references,
-        new Set(),
-        getEmptyConnectionEvents,
         loader,
       );
       expect(Array.from(references).sort()).toEqual([
@@ -817,8 +793,6 @@ describe('RelayReferenceMarker', () => {
           id: '1',
         }),
         references,
-        new Set(),
-        getEmptyConnectionEvents,
         loader,
       );
       expect(Array.from(references).sort()).toEqual([
@@ -850,8 +824,6 @@ describe('RelayReferenceMarker', () => {
           id: '1',
         }),
         references,
-        new Set(),
-        getEmptyConnectionEvents,
         loader,
       );
       expect(Array.from(references).sort()).toEqual(['1', 'client:root']);
@@ -878,8 +850,6 @@ describe('RelayReferenceMarker', () => {
           id: '1',
         }),
         references,
-        new Set(),
-        getEmptyConnectionEvents,
         loader,
       );
       expect(Array.from(references).sort()).toEqual(['1', 'client:root']);
@@ -972,8 +942,6 @@ describe('RelayReferenceMarker', () => {
           id: '1',
         }),
         references,
-        new Set(),
-        getEmptyConnectionEvents,
         loader,
       );
       expect(Array.from(references).sort()).toEqual([
@@ -1023,8 +991,6 @@ describe('RelayReferenceMarker', () => {
           id: '1',
         }),
         references,
-        new Set(),
-        getEmptyConnectionEvents,
         loader,
       );
       expect(Array.from(references).sort()).toEqual([
@@ -1067,8 +1033,6 @@ describe('RelayReferenceMarker', () => {
           id: '1',
         }),
         references,
-        new Set(),
-        getEmptyConnectionEvents,
         // Return null to indicate the fragment is not loaded yet
         {
           get: _ => null,
@@ -1121,8 +1085,6 @@ describe('RelayReferenceMarker', () => {
           id: '1',
         }),
         references,
-        new Set(),
-        getEmptyConnectionEvents,
         loader,
       );
       expect(Array.from(references).sort()).toEqual([
@@ -1164,8 +1126,6 @@ describe('RelayReferenceMarker', () => {
           id: '1',
         }),
         references,
-        new Set(),
-        getEmptyConnectionEvents,
         loader,
       );
       expect(Array.from(references).sort()).toEqual([
@@ -1204,8 +1164,6 @@ describe('RelayReferenceMarker', () => {
           id: '1',
         }),
         references,
-        new Set(),
-        getEmptyConnectionEvents,
         loader,
       );
       expect(Array.from(references).sort()).toEqual([
@@ -1264,8 +1222,6 @@ describe('RelayReferenceMarker', () => {
         recordSource,
         createNormalizationSelector(Query.operation, 'client:root', {id: '1'}),
         references,
-        new Set(),
-        getEmptyConnectionEvents,
       );
       expect(Array.from(references).sort()).toEqual(['1', '2', 'client:root']);
     });
@@ -1290,8 +1246,6 @@ describe('RelayReferenceMarker', () => {
         recordSource,
         createNormalizationSelector(Query.operation, 'client:root', {id: '1'}),
         references,
-        new Set(),
-        getEmptyConnectionEvents,
       );
       expect(Array.from(references).sort()).toEqual(['1', 'client:root']);
     });
@@ -1345,8 +1299,6 @@ describe('RelayReferenceMarker', () => {
         recordSource,
         createNormalizationSelector(Query.operation, 'client:root', {id: '1'}),
         references,
-        new Set(),
-        getEmptyConnectionEvents,
       );
       expect(Array.from(references).sort()).toEqual(['1', '2', 'client:root']);
     });
@@ -1371,8 +1323,6 @@ describe('RelayReferenceMarker', () => {
         recordSource,
         createNormalizationSelector(Query.operation, 'client:root', {id: '1'}),
         references,
-        new Set(),
-        getEmptyConnectionEvents,
       );
       expect(Array.from(references).sort()).toEqual(['1', 'client:root']);
     });

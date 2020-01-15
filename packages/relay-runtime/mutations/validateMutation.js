@@ -107,13 +107,6 @@ if (__DEV__) {
           validateSelection(optimisticResponse, subselection, context);
         });
         return;
-      case 'Connection':
-        validateSelections(
-          optimisticResponse,
-          [selection.edges, selection.pageInfo],
-          context,
-        );
-        break;
       case 'ClientExtension':
       case 'ModuleImport':
       case 'LinkedHandle':

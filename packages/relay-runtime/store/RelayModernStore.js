@@ -13,7 +13,6 @@
 'use strict';
 
 const DataChecker = require('./DataChecker');
-const RelayFeatureFlags = require('../util/RelayFeatureFlags');
 const RelayModernRecord = require('./RelayModernRecord');
 const RelayOptimisticRecordSource = require('./RelayOptimisticRecordSource');
 const RelayProfiler = require('../util/RelayProfiler');
@@ -28,19 +27,10 @@ const invariant = require('invariant');
 const recycleNodesInto = require('../util/recycleNodesInto');
 const resolveImmediate = require('../util/resolveImmediate');
 
-const {createReaderSelector} = require('./RelayModernSelector');
 const {ROOT_ID, ROOT_TYPE} = require('./RelayStoreUtils');
 
-import type {ReaderFragment} from '../util/ReaderNode';
 import type {DataID, Disposable} from '../util/RelayRuntimeTypes';
 import type {Availability} from './DataChecker';
-import type {
-  ConnectionID,
-  ConnectionInternalEvent,
-  ConnectionReference,
-  ConnectionResolver,
-  ConnectionSnapshot,
-} from './RelayConnection';
 import type {GetDataID} from './RelayResponseNormalizer';
 import type {
   CheckOptions,
@@ -75,20 +65,6 @@ type InvalidationSubscription = {|
   invalidationState: InvalidationState,
 |};
 
-type UpdatedConnections = {[ConnectionID]: boolean, ...};
-type ConnectionEvents = {|
-  final: Array<ConnectionInternalEvent>,
-  optimistic: ?Array<ConnectionInternalEvent>,
-|};
-type ConnectionSubscription<TEdge, TState> = {|
-  +callback: (snapshot: ConnectionSnapshot<TEdge, TState>) => void,
-  +id: string,
-  +resolver: ConnectionResolver<TEdge, TState>,
-  snapshot: ConnectionSnapshot<TEdge, TState>,
-  backup: ?ConnectionSnapshot<TEdge, TState>,
-  stale: boolean,
-|};
-
 const DEFAULT_RELEASE_BUFFER_SIZE = 0;
 
 /**
@@ -104,8 +80,6 @@ const DEFAULT_RELEASE_BUFFER_SIZE = 0;
  * is also enforced in development mode by freezing all records passed to a store.
  */
 class RelayModernStore implements Store {
-  _connectionEvents: Map<ConnectionID, ConnectionEvents>;
-  _connectionSubscriptions: Map<string, ConnectionSubscription<mixed, mixed>>;
   _currentWriteEpoch: number;
   _gcHoldCounter: number;
   _gcReleaseBufferSize: number;
@@ -127,7 +101,6 @@ class RelayModernStore implements Store {
   >;
   _shouldScheduleGC: boolean;
   _subscriptions: Set<Subscription>;
-  _updatedConnectionIDs: UpdatedConnections;
   _updatedRecordIDs: UpdatedRecords;
 
   constructor(
@@ -149,8 +122,6 @@ class RelayModernStore implements Store {
         }
       }
     }
-    this._connectionEvents = new Map();
-    this._connectionSubscriptions = new Map();
     this._currentWriteEpoch = 0;
     this._gcHoldCounter = 0;
     this._gcReleaseBufferSize =
@@ -170,7 +141,6 @@ class RelayModernStore implements Store {
     this._roots = new Map();
     this._shouldScheduleGC = false;
     this._subscriptions = new Set();
-    this._updatedConnectionIDs = {};
     this._updatedRecordIDs = {};
 
     initializeRecordSource(this._recordSource);
@@ -178,15 +148,6 @@ class RelayModernStore implements Store {
 
   getSource(): RecordSource {
     return this._optimisticSource ?? this._recordSource;
-  }
-
-  getConnectionEvents_UNSTABLE(
-    connectionID: ConnectionID,
-  ): ?$ReadOnlyArray<ConnectionInternalEvent> {
-    const events = this._connectionEvents.get(connectionID);
-    if (events != null) {
-      return events.optimistic ?? events.final;
-    }
   }
 
   check(
@@ -225,7 +186,6 @@ class RelayModernStore implements Store {
       handlers,
       this._operationLoader,
       this._getDataID,
-      id => this.getConnectionEvents_UNSTABLE(id),
     );
 
     return getAvailablityStatus(operationAvailability, operationLastWrittenAt);
@@ -314,13 +274,6 @@ class RelayModernStore implements Store {
         invalidateStore === true,
       );
     });
-    this._connectionSubscriptions.forEach((subscription, id) => {
-      if (subscription.stale) {
-        subscription.stale = false;
-        subscription.callback(subscription.snapshot);
-      }
-    });
-    this._updatedConnectionIDs = {};
     this._updatedRecordIDs = {};
     this._invalidatedRecordIDs.clear();
 
@@ -356,26 +309,6 @@ class RelayModernStore implements Store {
       this._updatedRecordIDs,
       this._invalidatedRecordIDs,
     );
-
-    this._connectionSubscriptions.forEach((subscription, id) => {
-      const hasStoreUpdates = hasOverlappingIDs(
-        subscription.snapshot.seenRecords,
-        this._updatedRecordIDs,
-      );
-      if (!hasStoreUpdates) {
-        return;
-      }
-      const nextSnapshot = this._updateConnection_UNSTABLE(
-        subscription.resolver,
-        subscription.snapshot,
-        source,
-        null,
-      );
-      if (nextSnapshot) {
-        subscription.snapshot = nextSnapshot;
-        subscription.stale = true;
-      }
-    });
   }
 
   subscribe(
@@ -516,310 +449,12 @@ class RelayModernStore implements Store {
     callback();
   }
 
-  lookupConnection_UNSTABLE<TEdge, TState>(
-    connectionReference: ConnectionReference<TEdge>,
-    resolver: ConnectionResolver<TEdge, TState>,
-  ): ConnectionSnapshot<TEdge, TState> {
-    invariant(
-      RelayFeatureFlags.ENABLE_CONNECTION_RESOLVERS,
-      'RelayModernStore: Connection resolvers are not yet supported.',
-    );
-    const {id} = connectionReference;
-    const initialState: TState = resolver.initialize();
-    const connectionEvents = this._connectionEvents.get(id);
-    const events: ?$ReadOnlyArray<ConnectionInternalEvent> =
-      connectionEvents != null
-        ? connectionEvents.optimistic ?? connectionEvents.final
-        : null;
-    const initialSnapshot = {
-      edgeSnapshots: {},
-      id,
-      reference: connectionReference,
-      seenRecords: {},
-      state: initialState,
-    };
-    if (events == null || events.length === 0) {
-      return initialSnapshot;
-    }
-    return this._reduceConnection_UNSTABLE(
-      resolver,
-      connectionReference,
-      initialSnapshot,
-      events,
-    );
-  }
-
-  subscribeConnection_UNSTABLE<TEdge, TState>(
-    snapshot: ConnectionSnapshot<TEdge, TState>,
-    resolver: ConnectionResolver<TEdge, TState>,
-    callback: (ConnectionSnapshot<TEdge, TState>) => void,
-  ): Disposable {
-    invariant(
-      RelayFeatureFlags.ENABLE_CONNECTION_RESOLVERS,
-      'RelayModernStore: Connection resolvers are not yet supported.',
-    );
-    const id = String(this._index++);
-    const subscription: ConnectionSubscription<TEdge, TState> = {
-      backup: null,
-      callback,
-      id,
-      resolver,
-      snapshot,
-      stale: false,
-    };
-    const dispose = () => {
-      this._connectionSubscriptions.delete(id);
-    };
-    this._connectionSubscriptions.set(id, (subscription: $FlowFixMe));
-    return {dispose};
-  }
-
-  publishConnectionEvents_UNSTABLE(
-    events: Array<ConnectionInternalEvent>,
-    final: boolean,
-  ): void {
-    if (events.length === 0) {
-      return;
-    }
-    invariant(
-      RelayFeatureFlags.ENABLE_CONNECTION_RESOLVERS,
-      'RelayModernStore: Connection resolvers are not yet supported.',
-    );
-    const pendingConnectionEvents = new Map<
-      ConnectionID,
-      Array<ConnectionInternalEvent>,
-    >();
-    events.forEach(event => {
-      const {connectionID} = event;
-      let pendingEvents = pendingConnectionEvents.get(connectionID);
-      if (pendingEvents == null) {
-        pendingEvents = [];
-        pendingConnectionEvents.set(connectionID, pendingEvents);
-      }
-      pendingEvents.push(event);
-      let connectionEvents: ?ConnectionEvents = this._connectionEvents.get(
-        connectionID,
-      );
-      if (connectionEvents == null) {
-        connectionEvents = {
-          final: [],
-          optimistic: null,
-        };
-        this._connectionEvents.set(connectionID, connectionEvents);
-      }
-      if (final) {
-        connectionEvents.final.push(event);
-      } else {
-        let optimisticEvents = connectionEvents.optimistic;
-        if (optimisticEvents == null) {
-          optimisticEvents = connectionEvents.final.slice();
-          connectionEvents.optimistic = optimisticEvents;
-        }
-        optimisticEvents.push(event);
-      }
-    });
-    this._connectionSubscriptions.forEach((subscription, id) => {
-      const pendingEvents = pendingConnectionEvents.get(
-        subscription.snapshot.reference.id,
-      );
-      if (pendingEvents == null) {
-        return;
-      }
-      const nextSnapshot = this._updateConnection_UNSTABLE(
-        subscription.resolver,
-        subscription.snapshot,
-        null,
-        pendingEvents,
-      );
-      if (nextSnapshot) {
-        subscription.snapshot = nextSnapshot;
-        subscription.stale = true;
-      }
-    });
-  }
-
-  _updateConnection_UNSTABLE<TEdge, TState>(
-    resolver: ConnectionResolver<TEdge, TState>,
-    snapshot: ConnectionSnapshot<TEdge, TState>,
-    source: ?RecordSource,
-    pendingEvents: ?Array<ConnectionInternalEvent>,
-  ): ?ConnectionSnapshot<TEdge, TState> {
-    const nextSnapshot = this._reduceConnection_UNSTABLE(
-      resolver,
-      snapshot.reference,
-      snapshot,
-      pendingEvents ?? [],
-      source,
-    );
-    const state = recycleNodesInto(snapshot.state, nextSnapshot.state);
-    if (__DEV__) {
-      deepFreeze(nextSnapshot);
-    }
-    if (state !== snapshot.state) {
-      return {...nextSnapshot, state};
-    }
-  }
-
-  _reduceConnection_UNSTABLE<TEdge, TState>(
-    resolver: ConnectionResolver<TEdge, TState>,
-    connectionReference: ConnectionReference<TEdge>,
-    snapshot: ConnectionSnapshot<TEdge, TState>,
-    events: $ReadOnlyArray<ConnectionInternalEvent>,
-    source: ?RecordSource = null,
-  ): ConnectionSnapshot<TEdge, TState> {
-    const {edgesField, id, variables} = connectionReference;
-    const fragment: ReaderFragment = {
-      kind: 'Fragment',
-      name: edgesField.name,
-      type: edgesField.concreteType ?? '__Any',
-      metadata: null,
-      argumentDefinitions: [],
-      selections: edgesField.selections,
-    };
-    const seenRecords = {};
-    const edgeSnapshots = {...snapshot.edgeSnapshots};
-    let initialState = snapshot.state;
-    if (source) {
-      const edgeData = {};
-      Object.keys(edgeSnapshots).forEach(edgeID => {
-        const prevSnapshot = edgeSnapshots[edgeID];
-        let nextSnapshot = RelayReader.read(
-          this.getSource(),
-          createReaderSelector(
-            fragment,
-            edgeID,
-            variables,
-            prevSnapshot.selector.owner,
-          ),
-        );
-        const data = recycleNodesInto(prevSnapshot.data, nextSnapshot.data);
-        nextSnapshot = {
-          data,
-          isMissingData: nextSnapshot.isMissingData,
-          seenRecords: nextSnapshot.seenRecords,
-          selector: nextSnapshot.selector,
-        };
-        if (data !== prevSnapshot.data) {
-          edgeData[edgeID] = data;
-          /* $FlowFixMe(>=0.111.0) This comment suppresses an error found when
-           * Flow v0.111.0 was deployed. To see the error, delete this comment
-           * and run Flow. */
-          edgeSnapshots[edgeID] = nextSnapshot;
-        }
-      });
-      if (Object.keys(edgeData).length !== 0) {
-        initialState = resolver.reduce(initialState, {
-          kind: 'update',
-          edgeData,
-        });
-      }
-    }
-    const state: TState = events.reduce(
-      (prevState: TState, event: ConnectionInternalEvent) => {
-        if (event.kind === 'fetch') {
-          const edges = [];
-          event.edgeIDs.forEach(edgeID => {
-            if (edgeID == null) {
-              edges.push(edgeID);
-              return;
-            }
-            const edgeSnapshot = RelayReader.read(
-              this.getSource(),
-              createReaderSelector(fragment, edgeID, variables, event.request),
-            );
-            Object.assign(seenRecords, edgeSnapshot.seenRecords);
-            const itemData = ((edgeSnapshot.data: $FlowFixMe): ?TEdge);
-            /* $FlowFixMe(>=0.111.0) This comment suppresses an error found
-             * when Flow v0.111.0 was deployed. To see the error, delete this
-             * comment and run Flow. */
-            edgeSnapshots[edgeID] = edgeSnapshot;
-            edges.push(itemData);
-          });
-          return resolver.reduce(prevState, {
-            kind: 'fetch',
-            args: event.args,
-            edges,
-            pageInfo: event.pageInfo,
-            stream: event.stream,
-          });
-        } else if (event.kind === 'insert') {
-          const edgeSnapshot = RelayReader.read(
-            this.getSource(),
-            createReaderSelector(
-              fragment,
-              event.edgeID,
-              variables,
-              event.request,
-            ),
-          );
-          Object.assign(seenRecords, edgeSnapshot.seenRecords);
-          const itemData = ((edgeSnapshot.data: $FlowFixMe): ?TEdge);
-          /* $FlowFixMe(>=0.111.0) This comment suppresses an error found when
-           * Flow v0.111.0 was deployed. To see the error, delete this comment
-           * and run Flow. */
-          edgeSnapshots[event.edgeID] = edgeSnapshot;
-          return resolver.reduce(prevState, {
-            args: event.args,
-            edge: itemData,
-            kind: 'insert',
-          });
-        } else if (event.kind === 'stream.edge') {
-          const edgeSnapshot = RelayReader.read(
-            this.getSource(),
-            createReaderSelector(
-              fragment,
-              event.edgeID,
-              variables,
-              event.request,
-            ),
-          );
-          Object.assign(seenRecords, edgeSnapshot.seenRecords);
-          const itemData = ((edgeSnapshot.data: $FlowFixMe): ?TEdge);
-          /* $FlowFixMe(>=0.111.0) This comment suppresses an error found when
-           * Flow v0.111.0 was deployed. To see the error, delete this comment
-           * and run Flow. */
-          edgeSnapshots[event.edgeID] = edgeSnapshot;
-          return resolver.reduce(prevState, {
-            args: event.args,
-            edge: itemData,
-            index: event.index,
-            kind: 'stream.edge',
-          });
-        } else if (event.kind === 'stream.pageInfo') {
-          return resolver.reduce(prevState, {
-            args: event.args,
-            kind: 'stream.pageInfo',
-            pageInfo: event.pageInfo,
-          });
-        } else {
-          (event.kind: empty);
-          invariant(
-            false,
-            'RelayModernStore: Unexpected connection event kind `%s`.',
-            event.kind,
-          );
-        }
-      },
-      initialState,
-    );
-    return {
-      edgeSnapshots,
-      id,
-      reference: connectionReference,
-      seenRecords,
-      state,
-    };
-  }
-
   snapshot(): void {
     invariant(
       this._optimisticSource == null,
       'RelayModernStore: Unexpected call to snapshot() while a previous ' +
         'snapshot exists.',
     );
-    this._connectionSubscriptions.forEach(subscription => {
-      subscription.backup = subscription.snapshot;
-    });
     this._subscriptions.forEach(subscription => {
       subscription.backup = subscription.snapshot;
     });
@@ -835,9 +470,6 @@ class RelayModernStore implements Store {
         'to exist (make sure to call snapshot()).',
     );
     this._optimisticSource = null;
-    this._connectionEvents.forEach(events => {
-      events.optimistic = null;
-    });
     this._subscriptions.forEach(subscription => {
       const backup = subscription.backup;
       subscription.backup = null;
@@ -853,32 +485,6 @@ class RelayModernStore implements Store {
         };
       } else {
         subscription.stale = true;
-      }
-    });
-    this._connectionSubscriptions.forEach(subscription => {
-      const backup = subscription.backup;
-      subscription.backup = null;
-      if (backup) {
-        if (backup.state !== subscription.snapshot.state) {
-          subscription.stale = true;
-        }
-        subscription.snapshot = backup;
-      } else {
-        // This subscription was established after the creation of the
-        // connection snapshot so there's nothing to restore to. Recreate the
-        // connection from scratch and check ifs value changes.
-        const baseSnapshot = this.lookupConnection_UNSTABLE(
-          subscription.snapshot.reference,
-          subscription.resolver,
-        );
-        const nextState = recycleNodesInto(
-          subscription.snapshot.state,
-          baseSnapshot.state,
-        );
-        if (nextState !== subscription.snapshot.state) {
-          subscription.stale = true;
-        }
-        subscription.snapshot = {...baseSnapshot, state: nextState};
       }
     });
   }
@@ -904,7 +510,6 @@ class RelayModernStore implements Store {
       return;
     }
     const references = new Set();
-    const connectionReferences = new Set();
     // Mark all records that are traversable from a root
     this._roots.forEach(({operation}) => {
       const selector = operation.root;
@@ -912,8 +517,6 @@ class RelayModernStore implements Store {
         this._recordSource,
         selector,
         references,
-        connectionReferences,
-        id => this.getConnectionEvents_UNSTABLE(id),
         this._operationLoader,
       );
     });
@@ -927,16 +530,6 @@ class RelayModernStore implements Store {
         const dataID = storeIDs[ii];
         if (!references.has(dataID)) {
           this._recordSource.remove(dataID);
-        }
-      }
-    }
-    if (connectionReferences.size === 0) {
-      this._connectionEvents.clear();
-    } else {
-      // Evict any unreferenced connections
-      for (const connectionID of this._connectionEvents.keys()) {
-        if (!connectionReferences.has(connectionID)) {
-          this._connectionEvents.delete(connectionID);
         }
       }
     }

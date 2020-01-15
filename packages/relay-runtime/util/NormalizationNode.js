@@ -92,20 +92,6 @@ export type NormalizationLinkedField = {|
   +selections: $ReadOnlyArray<NormalizationSelection>,
 |};
 
-export type NormalizationConnection = {|
-  +kind: 'Connection',
-  +label: string,
-  +name: string,
-  +args: ?$ReadOnlyArray<NormalizationArgument>,
-  +edges: NormalizationLinkedField,
-  +pageInfo: NormalizationLinkedField,
-  +stream: ?{|
-    if: NormalizationArgument,
-    deferLabel: string,
-    streamLabel: string,
-  |},
-|};
-
 export type NormalizationModuleImport = {|
   +kind: 'ModuleImport',
   +documentName: string,
@@ -153,7 +139,6 @@ export type NormalizationScalarField = {|
 
 export type NormalizationSelection =
   | NormalizationCondition
-  | NormalizationConnection
   | NormalizationClientExtension
   | NormalizationDefer
   | NormalizationField

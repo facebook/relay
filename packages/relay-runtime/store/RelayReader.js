@@ -12,14 +12,12 @@
 
 'use strict';
 
-const RelayConnection = require('./RelayConnection');
 const RelayModernRecord = require('./RelayModernRecord');
 
 const invariant = require('invariant');
 
 const {
   CLIENT_EXTENSION,
-  CONNECTION,
   CONDITION,
   DEFER,
   FRAGMENT_SPREAD,
@@ -42,7 +40,6 @@ const {
 } = require('./RelayStoreUtils');
 
 import type {
-  ReaderConnection,
   ReaderFragmentSpread,
   ReaderInlineDataFragmentSpread,
   ReaderLinkedField,
@@ -52,7 +49,6 @@ import type {
   ReaderSelection,
 } from '../util/ReaderNode';
 import type {DataID, Variables} from '../util/RelayRuntimeTypes';
-import type {ConnectionReference} from './RelayConnection';
 import type {
   Record,
   RecordSource,
@@ -173,9 +169,6 @@ class RelayReader {
           this._traverseSelections(selection.selections, record, data);
           this._isMissingData = isMissingData;
           break;
-        case CONNECTION:
-          this._readConnection(selection, record, data);
-          break;
         case STREAM:
           this._traverseSelections(selection.selections, record, data);
           break;
@@ -188,26 +181,6 @@ class RelayReader {
           );
       }
     }
-  }
-
-  _readConnection(
-    field: ReaderConnection,
-    record: Record,
-    data: SelectorData,
-  ): void {
-    const parentID = RelayModernRecord.getDataID(record);
-    const connectionID = RelayConnection.createConnectionID(
-      parentID,
-      field.label,
-    );
-    const edgesField: ReaderLinkedField = field.edges;
-    const reference: ConnectionReference<mixed> = {
-      variables: this._variables,
-      edgesField,
-      id: connectionID,
-      label: field.label,
-    };
-    data[RelayConnection.CONNECTION_KEY] = reference;
   }
 
   _readScalar(

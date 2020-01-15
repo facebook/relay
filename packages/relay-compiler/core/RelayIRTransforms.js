@@ -14,7 +14,6 @@
 
 const ApplyFragmentArgumentTransform = require('../transforms/ApplyFragmentArgumentTransform');
 const ClientExtensionsTransform = require('../transforms/ClientExtensionsTransform');
-const ConnectionFieldTransform = require('../transforms/ConnectionFieldTransform');
 const ConnectionTransform = require('../transforms/ConnectionTransform');
 const DeferStreamTransform = require('../transforms/DeferStreamTransform');
 const DisallowIdAsAlias = require('../transforms/DisallowIdAsAlias');
@@ -48,7 +47,6 @@ import type {IRTransform} from './CompilerContext';
 const relaySchemaExtensions: $ReadOnlyArray<string> = [
   ConnectionTransform.SCHEMA_EXTENSION,
   MatchTransform.SCHEMA_EXTENSION,
-  ConnectionFieldTransform.SCHEMA_EXTENSION,
   RelayDirectiveTransform.SCHEMA_EXTENSION,
   RefetchableFragmentTransform.SCHEMA_EXTENSION,
   TestOperationTransform.SCHEMA_EXTENSION,
@@ -65,7 +63,6 @@ const relayCommonTransforms: $ReadOnlyArray<IRTransform> = [
   RelayDirectiveTransform.transform,
   MaskTransform.transform,
   MatchTransform.transform,
-  ConnectionFieldTransform.transform,
   RefetchableFragmentTransform.transform,
   DeferStreamTransform.transform,
 ];

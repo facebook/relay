@@ -28,7 +28,6 @@ import type {
   Argument,
   ArgumentValue,
   Condition,
-  Connection,
   Directive,
   Field,
   Fragment,
@@ -167,7 +166,7 @@ function transformField<T: Field>(
 ): ?T {
   const args = transformArguments(scope, field.args, errorContext);
   const directives = transformDirectives(scope, field.directives, errorContext);
-  if (field.kind === 'LinkedField' || field.kind === 'ConnectionField') {
+  if (field.kind === 'LinkedField') {
     const selections = transformSelections(
       context,
       fragments,
@@ -191,43 +190,6 @@ function transformField<T: Field>(
       directives,
     };
   }
-}
-
-function transformConnection(
-  context: CompilerContext,
-  fragments: Map<string, PendingFragment>,
-  scope: Scope,
-  connection: Connection,
-  errorContext: $ReadOnlyArray<IR>,
-): ?Connection {
-  const args = transformArguments(scope, connection.args, errorContext);
-  let stream = connection.stream;
-  if (stream != null) {
-    stream = {
-      ...stream,
-      if:
-        stream.if != null
-          ? transformValue(scope, stream.if, errorContext)
-          : null,
-      initialCount: transformValue(scope, stream.initialCount, errorContext),
-    };
-  }
-  const selections = transformSelections(
-    context,
-    fragments,
-    scope,
-    connection.selections,
-    errorContext,
-  );
-  if (!selections) {
-    return null;
-  }
-  return ({
-    ...connection,
-    args,
-    selections,
-    stream,
-  }: Connection);
 }
 
 function transformCondition(
@@ -321,18 +283,9 @@ function transformSelections(
         nextSelections = nextSelections || [];
         nextSelections.push(...conditionSelections);
       }
-    } else if (selection.kind === 'Connection') {
-      nextSelection = transformConnection(
-        context,
-        fragments,
-        scope,
-        selection,
-        errorContext,
-      );
     } else if (
       selection.kind === 'LinkedField' ||
-      selection.kind === 'ScalarField' ||
-      selection.kind === 'ConnectionField'
+      selection.kind === 'ScalarField'
     ) {
       nextSelection = transformField(
         context,

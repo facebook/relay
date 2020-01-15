@@ -793,7 +793,6 @@ describe('RelayPublishQueue', () => {
         notify,
         publish,
         holdGC: jest.fn(),
-        publishConnectionEvents_UNSTABLE: jest.fn(),
         restore: jest.fn(),
         snapshot: jest.fn(() => []),
       };
@@ -829,7 +828,6 @@ describe('RelayPublishQueue', () => {
         notify,
         publish,
         holdGC: jest.fn(),
-        publishConnectionEvents_UNSTABLE: jest.fn(),
         restore: jest.fn(),
         snapshot: jest.fn(() => []),
       };
@@ -926,7 +924,6 @@ describe('RelayPublishQueue', () => {
         notify,
         publish,
         holdGC: jest.fn(),
-        publishConnectionEvents_UNSTABLE: jest.fn(),
         restore: jest.fn(),
         snapshot: jest.fn(() => []),
       };
@@ -1355,7 +1352,6 @@ describe('RelayPublishQueue', () => {
         notify,
         publish,
         holdGC: jest.fn(),
-        publishConnectionEvents_UNSTABLE: jest.fn(),
         restore: jest.fn(),
         snapshot: jest.fn(() => []),
       };
@@ -1424,7 +1420,6 @@ describe('RelayPublishQueue', () => {
         notify,
         publish,
         holdGC: jest.fn(),
-        publishConnectionEvents_UNSTABLE: jest.fn(),
         restore: jest.fn(),
         snapshot: jest.fn(() => []),
       };
@@ -1500,7 +1495,6 @@ describe('RelayPublishQueue', () => {
         notify,
         publish,
         holdGC: jest.fn(),
-        publishConnectionEvents_UNSTABLE: jest.fn(),
         restore: jest.fn(),
         snapshot: jest.fn(() => []),
       };
@@ -1704,7 +1698,6 @@ describe('RelayPublishQueue', () => {
         notify,
         publish,
         holdGC: jest.fn(),
-        publishConnectionEvents_UNSTABLE: jest.fn(),
         restore: jest.fn(),
         snapshot: jest.fn(() => []),
       };
@@ -1735,7 +1728,6 @@ describe('RelayPublishQueue', () => {
         notify,
         publish,
         holdGC: jest.fn(),
-        publishConnectionEvents_UNSTABLE: jest.fn(),
         restore: jest.fn(),
         snapshot: jest.fn(() => []),
       };
@@ -1761,7 +1753,6 @@ describe('RelayPublishQueue', () => {
         notify,
         publish,
         holdGC: jest.fn(),
-        publishConnectionEvents_UNSTABLE: jest.fn(),
         restore: jest.fn(),
         snapshot: jest.fn(() => []),
       };
@@ -1792,7 +1783,6 @@ describe('RelayPublishQueue', () => {
         notify,
         publish,
         holdGC: jest.fn(),
-        publishConnectionEvents_UNSTABLE: jest.fn(),
         restore: jest.fn(),
         snapshot: jest.fn(() => []),
       };
@@ -1811,7 +1801,6 @@ describe('RelayPublishQueue', () => {
         notify,
         publish,
         holdGC: jest.fn(),
-        publishConnectionEvents_UNSTABLE: jest.fn(),
         restore: jest.fn(),
         snapshot: jest.fn(() => []),
       };
@@ -1836,7 +1825,6 @@ describe('RelayPublishQueue', () => {
         notify,
         publish,
         holdGC: jest.fn(),
-        publishConnectionEvents_UNSTABLE: jest.fn(),
         restore,
         snapshot: jest.fn(() => []),
       };
@@ -1867,7 +1855,6 @@ describe('RelayPublishQueue', () => {
         notify,
         publish,
         holdGC: jest.fn(),
-        publishConnectionEvents_UNSTABLE: jest.fn(),
         restore: jest.fn(),
         snapshot: jest.fn(() => []),
       };
@@ -1905,7 +1892,6 @@ describe('RelayPublishQueue', () => {
         notify: jest.fn(),
         publish: jest.fn(),
         holdGC,
-        publishConnectionEvents_UNSTABLE: jest.fn(),
         restore: jest.fn(),
         snapshot: jest.fn(() => []),
       };
@@ -1928,7 +1914,6 @@ describe('RelayPublishQueue', () => {
         notify: jest.fn(),
         publish: jest.fn(),
         holdGC,
-        publishConnectionEvents_UNSTABLE: jest.fn(),
         restore: jest.fn(),
         snapshot: jest.fn(() => []),
       };
@@ -1948,7 +1933,6 @@ describe('RelayPublishQueue', () => {
         notify: jest.fn(),
         publish: jest.fn(),
         holdGC,
-        publishConnectionEvents_UNSTABLE: jest.fn(),
         restore: jest.fn(),
         snapshot: jest.fn(() => []),
       };

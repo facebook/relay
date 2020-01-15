@@ -189,8 +189,6 @@ function transformNode<T: Node>(
       case 'ModuleImport':
       case 'ClientExtension':
       case 'InlineDataFragmentSpread':
-      case 'Connection':
-      case 'ConnectionField':
       case 'LinkedField': {
         const transformed = transformNode(
           schema,

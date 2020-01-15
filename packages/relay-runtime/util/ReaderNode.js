@@ -131,15 +131,6 @@ export type ReaderLinkedField = {|
   +selections: $ReadOnlyArray<ReaderSelection>,
 |};
 
-export type ReaderConnection = {|
-  +kind: 'Connection',
-  +label: string,
-  +name: string,
-  +args: ?$ReadOnlyArray<ReaderArgument>,
-  +edges: ReaderLinkedField,
-  +pageInfo: ReaderLinkedField,
-|};
-
 export type ReaderModuleImport = {|
   +kind: 'ModuleImport',
   +documentName: string,
@@ -199,7 +190,6 @@ export type ReaderStream = {|
 
 export type ReaderSelection =
   | ReaderCondition
-  | ReaderConnection
   | ReaderClientExtension
   | ReaderDefer
   | ReaderField

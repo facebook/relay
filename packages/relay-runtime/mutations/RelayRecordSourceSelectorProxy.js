@@ -16,7 +16,6 @@ const invariant = require('invariant');
 
 const {getStorageKey, ROOT_TYPE} = require('../store/RelayStoreUtils');
 
-import type {ConnectionID} from '../store/RelayConnection';
 import type {
   RecordProxy,
   RecordSourceProxy,
@@ -24,7 +23,7 @@ import type {
   SingularReaderSelector,
 } from '../store/RelayStoreTypes';
 import type {ReaderLinkedField} from '../util/ReaderNode';
-import type {DataID, Variables} from '../util/RelayRuntimeTypes';
+import type {DataID} from '../util/RelayRuntimeTypes';
 import type RelayRecordSourceMutator from './RelayRecordSourceMutator';
 
 /**
@@ -110,20 +109,6 @@ class RelayRecordSourceSelectorProxy implements RecordSourceSelectorProxy {
     const field = this._getRootField(this._readSelector, fieldName, true);
     const storageKey = getStorageKey(field, this._readSelector.variables);
     return this.getOperationRoot().getLinkedRecords(storageKey);
-  }
-
-  insertConnectionEdge_UNSTABLE(
-    connectionID: ConnectionID,
-    args: Variables,
-    edge: RecordProxy,
-  ): void {
-    this.__mutator.appendConnectionEvent_UNSTABLE({
-      kind: 'insert',
-      args,
-      connectionID,
-      edgeID: edge.getDataID(),
-      request: this._readSelector.owner,
-    });
   }
 
   invalidateStore(): void {

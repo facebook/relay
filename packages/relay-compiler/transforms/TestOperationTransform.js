@@ -92,7 +92,6 @@ function visitRoot(node: Root) {
           selectionsTypeInfo[nextPath] = getTypeDetails(schema, selection.type);
           break;
         }
-        case 'ConnectionField':
         case 'LinkedField': {
           const nextPath =
             path === null ? selection.alias : `${path}.${selection.alias}`;
@@ -104,7 +103,6 @@ function visitRoot(node: Root) {
           break;
         }
         case 'Condition':
-        case 'Connection':
         case 'ClientExtension':
         case 'Defer':
         case 'InlineDataFragmentSpread':

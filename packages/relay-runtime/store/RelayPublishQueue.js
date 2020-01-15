@@ -231,14 +231,10 @@ class RelayPublishQueue implements PublishQueue {
    */
   _publishSourceFromPayload(pendingPayload: PendingRelayPayload): boolean {
     const {payload, operation, updater} = pendingPayload;
-    const {connectionEvents, source, fieldPayloads} = payload;
-    const combinedConnectionEvents = connectionEvents
-      ? connectionEvents.slice()
-      : [];
+    const {source, fieldPayloads} = payload;
     const mutator = new RelayRecordSourceMutator(
       this._store.getSource(),
       source,
-      combinedConnectionEvents,
     );
     const recordSourceProxy = new RelayRecordSourceProxy(
       mutator,
@@ -273,13 +269,6 @@ class RelayPublishQueue implements PublishQueue {
     }
     const idsMarkedForInvalidation = recordSourceProxy.getIDsMarkedForInvalidation();
     this._store.publish(source, idsMarkedForInvalidation);
-    if (combinedConnectionEvents.length !== 0) {
-      this._store.publishConnectionEvents_UNSTABLE(
-        combinedConnectionEvents,
-        true,
-      );
-    }
-
     return recordSourceProxy.isStoreMarkedForInvalidation();
   }
 
@@ -302,11 +291,9 @@ class RelayPublishQueue implements PublishQueue {
       } else {
         const updater = data.updater;
         const sink = RelayRecordSource.create();
-        const connectionEvents = [];
         const mutator = new RelayRecordSourceMutator(
           this._store.getSource(),
           sink,
-          connectionEvents,
         );
         const recordSourceProxy = new RelayRecordSourceProxy(
           mutator,
@@ -324,9 +311,6 @@ class RelayPublishQueue implements PublishQueue {
         const idsMarkedForInvalidation = recordSourceProxy.getIDsMarkedForInvalidation();
 
         this._store.publish(sink, idsMarkedForInvalidation);
-        if (connectionEvents.length !== 0) {
-          this._store.publishConnectionEvents_UNSTABLE(connectionEvents, true);
-        }
       }
     });
     this._pendingData.clear();
@@ -340,12 +324,7 @@ class RelayPublishQueue implements PublishQueue {
    */
   _applyUpdates(): void {
     const sink = RelayRecordSource.create();
-    const combinedConnectionEvents = [];
-    const mutator = new RelayRecordSourceMutator(
-      this._store.getSource(),
-      sink,
-      combinedConnectionEvents,
-    );
+    const mutator = new RelayRecordSourceMutator(this._store.getSource(), sink);
     const recordSourceProxy = new RelayRecordSourceProxy(
       mutator,
       this._getDataID,
@@ -364,7 +343,7 @@ class RelayPublishQueue implements PublishQueue {
         );
       } else {
         const {operation, payload, updater} = optimisticUpdate;
-        const {connectionEvents, source, fieldPayloads} = payload;
+        const {source, fieldPayloads} = payload;
         const recordSourceSelectorProxy = new RelayRecordSourceSelectorProxy(
           mutator,
           recordSourceProxy,
@@ -374,9 +353,6 @@ class RelayPublishQueue implements PublishQueue {
         if (source) {
           recordSourceProxy.publishSource(source, fieldPayloads);
           selectorData = lookupSelector(source, operation.fragment);
-        }
-        if (connectionEvents) {
-          combinedConnectionEvents.push(...connectionEvents);
         }
         if (updater) {
           ErrorUtils.applyWithGuard(
@@ -405,12 +381,6 @@ class RelayPublishQueue implements PublishQueue {
     }
 
     this._store.publish(sink);
-    if (combinedConnectionEvents.length !== 0) {
-      this._store.publishConnectionEvents_UNSTABLE(
-        combinedConnectionEvents,
-        false,
-      );
-    }
   }
 }
 

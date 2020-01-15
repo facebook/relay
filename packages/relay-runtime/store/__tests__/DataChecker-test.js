@@ -28,10 +28,6 @@ const {
   generateAndCompile,
 } = require('relay-test-utils-internal');
 
-function getEmptyConnectionEvents() {
-  return null;
-}
-
 describe('check()', () => {
   let Query;
   let sampleData;
@@ -127,7 +123,6 @@ describe('check()', () => {
       [],
       null,
       defaultGetDataID,
-      getEmptyConnectionEvents,
     );
     expect(status).toEqual({
       status: 'available',
@@ -200,7 +195,6 @@ describe('check()', () => {
       [],
       null,
       defaultGetDataID,
-      getEmptyConnectionEvents,
     );
     expect(status).toEqual({
       status: 'available',
@@ -246,7 +240,6 @@ describe('check()', () => {
       [],
       null,
       defaultGetDataID,
-      getEmptyConnectionEvents,
     );
     expect(status).toEqual({
       status: 'available',
@@ -347,7 +340,6 @@ describe('check()', () => {
         [],
         loader,
         defaultGetDataID,
-        getEmptyConnectionEvents,
       );
       expect(loader.get).toBeCalledTimes(1);
       expect(loader.get.mock.calls[0][0]).toBe(
@@ -405,7 +397,6 @@ describe('check()', () => {
         [],
         loader,
         defaultGetDataID,
-        getEmptyConnectionEvents,
       );
       expect(status).toEqual({
         status: 'available',
@@ -455,7 +446,6 @@ describe('check()', () => {
           load: _ => Promise.resolve(null),
         },
         defaultGetDataID,
-        getEmptyConnectionEvents,
       );
       // The data for the field isn't in the store yet, so we have to return false
       expect(status).toEqual({
@@ -507,7 +497,6 @@ describe('check()', () => {
         [],
         loader,
         defaultGetDataID,
-        getEmptyConnectionEvents,
       );
       // The data for the field 'data' isn't in the store yet, so we have to return false
       expect(status).toEqual({
@@ -553,7 +542,6 @@ describe('check()', () => {
         [],
         loader,
         defaultGetDataID,
-        getEmptyConnectionEvents,
       );
       // The data for the field 'data' isn't in the store yet, so we have to return false
       expect(status).toEqual({
@@ -597,7 +585,6 @@ describe('check()', () => {
         [],
         loader,
         defaultGetDataID,
-        getEmptyConnectionEvents,
       );
       expect(status).toEqual({
         status: 'available',
@@ -631,7 +618,6 @@ describe('check()', () => {
         [],
         loader,
         defaultGetDataID,
-        getEmptyConnectionEvents,
       );
       expect(status).toEqual({
         status: 'available',
@@ -664,7 +650,6 @@ describe('check()', () => {
         [],
         loader,
         defaultGetDataID,
-        getEmptyConnectionEvents,
       );
       expect(status).toEqual({
         status: 'missing',
@@ -764,7 +749,6 @@ describe('check()', () => {
         [],
         loader,
         defaultGetDataID,
-        getEmptyConnectionEvents,
       );
       expect(loader.get).toBeCalledTimes(1);
       expect(loader.get.mock.calls[0][0]).toBe(
@@ -820,7 +804,6 @@ describe('check()', () => {
         [],
         loader,
         defaultGetDataID,
-        getEmptyConnectionEvents,
       );
       expect(status).toEqual({
         status: 'available',
@@ -868,7 +851,6 @@ describe('check()', () => {
           load: _ => Promise.resolve(null),
         },
         defaultGetDataID,
-        getEmptyConnectionEvents,
       );
       // The data for the field isn't in the store yet, so we have to return false
       expect(status).toEqual({
@@ -918,7 +900,6 @@ describe('check()', () => {
         [],
         loader,
         defaultGetDataID,
-        getEmptyConnectionEvents,
       );
       // The data for the field 'data' isn't in the store yet, so we have to return false
       expect(status).toEqual({
@@ -962,7 +943,6 @@ describe('check()', () => {
         [],
         loader,
         defaultGetDataID,
-        getEmptyConnectionEvents,
       );
       // The data for the field 'data' isn't in the store yet, so we have to return false
       expect(status).toEqual({
@@ -1004,7 +984,6 @@ describe('check()', () => {
         [],
         loader,
         defaultGetDataID,
-        getEmptyConnectionEvents,
       );
       expect(status).toEqual({
         status: 'available',
@@ -1054,7 +1033,6 @@ describe('check()', () => {
         [],
         null,
         defaultGetDataID,
-        getEmptyConnectionEvents,
       );
       expect(status).toEqual({
         status: 'available',
@@ -1086,7 +1064,6 @@ describe('check()', () => {
         [],
         null,
         defaultGetDataID,
-        getEmptyConnectionEvents,
       );
       expect(status).toEqual({
         status: 'missing',
@@ -1144,7 +1121,6 @@ describe('check()', () => {
         [],
         null,
         defaultGetDataID,
-        getEmptyConnectionEvents,
       );
       expect(status).toEqual({
         status: 'available',
@@ -1182,7 +1158,6 @@ describe('check()', () => {
         [],
         null,
         defaultGetDataID,
-        getEmptyConnectionEvents,
       );
       expect(status).toEqual({
         status: 'missing',
@@ -1206,7 +1181,6 @@ describe('check()', () => {
         [],
         null,
         defaultGetDataID,
-        getEmptyConnectionEvents,
       );
       expect(status).toEqual({
         status: 'available',
@@ -1248,7 +1222,6 @@ describe('check()', () => {
         [],
         null,
         defaultGetDataID,
-        getEmptyConnectionEvents,
       );
       expect(status).toEqual({
         status: 'missing',
@@ -1291,7 +1264,6 @@ describe('check()', () => {
         [],
         null,
         defaultGetDataID,
-        getEmptyConnectionEvents,
       );
       expect(status).toEqual({
         status: 'missing',
@@ -1342,7 +1314,6 @@ describe('check()', () => {
         ],
         null,
         defaultGetDataID,
-        getEmptyConnectionEvents,
       );
       expect(status).toEqual({
         status: 'available',
@@ -1443,7 +1414,6 @@ describe('check()', () => {
           ],
           null,
           defaultGetDataID,
-          getEmptyConnectionEvents,
         );
         expect(handle).toBeCalledTimes(1);
         expect(status).toEqual(expectedStatus);
@@ -1584,7 +1554,6 @@ describe('check()', () => {
           ],
           null,
           defaultGetDataID,
-          getEmptyConnectionEvents,
         );
         expect(handle).toBeCalledTimes(1);
         expect(status).toEqual(expectedStatus);
@@ -1664,7 +1633,6 @@ describe('check()', () => {
         ],
         null,
         defaultGetDataID,
-        getEmptyConnectionEvents,
       );
       expect(status).toEqual({
         status: 'available',
@@ -1759,7 +1727,6 @@ describe('check()', () => {
         [],
         null,
         defaultGetDataID,
-        getEmptyConnectionEvents,
       );
       expect(status).toEqual({
         status: 'available',
@@ -1797,7 +1764,6 @@ describe('check()', () => {
           [],
           null,
           defaultGetDataID,
-          getEmptyConnectionEvents,
         );
 
         // Assert mostRecentlyInvalidatedAt matches most recent invalidation epoch
@@ -1834,7 +1800,6 @@ describe('check()', () => {
           [],
           null,
           defaultGetDataID,
-          getEmptyConnectionEvents,
         );
 
         // Assert mostRecentlyInvalidatedAt matches most recent invalidation epoch
@@ -1863,7 +1828,6 @@ describe('check()', () => {
           [],
           null,
           defaultGetDataID,
-          getEmptyConnectionEvents,
         );
 
         // Assert mostRecentlyInvalidatedAt matches most recent invalidation epoch
@@ -1913,7 +1877,6 @@ describe('check()', () => {
           [],
           null,
           defaultGetDataID,
-          getEmptyConnectionEvents,
         );
 
         // Assert result is missing
@@ -1950,7 +1913,6 @@ describe('check()', () => {
           [],
           null,
           defaultGetDataID,
-          getEmptyConnectionEvents,
         );
 
         // Assert that result is missing
@@ -1979,7 +1941,6 @@ describe('check()', () => {
           [],
           null,
           defaultGetDataID,
-          getEmptyConnectionEvents,
         );
 
         // Assert that result is still missing
@@ -2039,7 +2000,6 @@ describe('check()', () => {
           [],
           null,
           defaultGetDataID,
-          getEmptyConnectionEvents,
         );
 
         // Assert that result is missing
@@ -2086,7 +2046,6 @@ describe('check()', () => {
       [],
       null,
       defaultGetDataID,
-      getEmptyConnectionEvents,
     );
     expect(status).toEqual({
       status: 'available',
@@ -2130,7 +2089,6 @@ describe('check()', () => {
       [],
       null,
       defaultGetDataID,
-      getEmptyConnectionEvents,
     );
     expect(status).toEqual({
       status: 'missing',

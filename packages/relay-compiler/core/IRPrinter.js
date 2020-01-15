@@ -130,18 +130,12 @@ function printSelection(
   let str;
   const parentDirectives = options?.parentDirectives ?? '';
   const isClientExtension = options?.isClientExtension === true;
-  if (
-    selection.kind === 'LinkedField' ||
-    selection.kind === 'ConnectionField'
-  ) {
+  if (selection.kind === 'LinkedField') {
     str = printField(schema, selection, {parentDirectives, isClientExtension});
     str += printSelections(schema, selection, indent + INDENT, {
       isClientExtension,
     });
-  } else if (
-    selection.kind === 'ModuleImport' ||
-    selection.kind === 'Connection'
-  ) {
+  } else if (selection.kind === 'ModuleImport') {
     str = selection.selections
       .map(matchSelection =>
         printSelection(schema, matchSelection, indent, {

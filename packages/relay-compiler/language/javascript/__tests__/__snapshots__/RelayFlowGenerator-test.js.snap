@@ -89,69 +89,6 @@ export type NestedCondition$key = {
 };
 `;
 
-exports[`Snapshot tests for useHaste matches expected output: derived-field.graphql 1`] = `
-~~~~~~~~~~ INPUT ~~~~~~~~~~
-query QueryWithConnectionField($id: ID!) {
-  feedback: node(id: $id) {
-    ...FeedbackComments_feedback
-  }
-}
-
-fragment FeedbackComments_feedback on Feedback {
-  comments(first: 10) @connection_resolver(label: "FeedbackComments_feedback") {
-    count
-    edges {
-      node {
-        id
-      }
-    }
-    pageInfo {
-      hasNextPage
-    }
-  }
-}
-
-~~~~~~~~~~ OUTPUT ~~~~~~~~~~
-// QueryWithConnectionField.graphql
-type FeedbackComments_feedback$ref = any;
-export type QueryWithConnectionFieldVariables = {|
-  id: string
-|};
-export type QueryWithConnectionFieldResponse = {|
-  +feedback: ?{|
-    +$fragmentRefs: FeedbackComments_feedback$ref
-  |}
-|};
-export type QueryWithConnectionField = {|
-  variables: QueryWithConnectionFieldVariables,
-  response: QueryWithConnectionFieldResponse,
-|};
-
-// FeedbackComments_feedback.graphql
-import type { ConnectionReference, FragmentReference } from "relay-runtime";
-declare export opaque type FeedbackComments_feedback$ref: FragmentReference;
-declare export opaque type FeedbackComments_feedback$fragmentType: FeedbackComments_feedback$ref;
-export type FeedbackComments_feedback = {|
-  +comments: ?{|
-    +count: ?number,
-    +__connection?: ConnectionReference<{|
-      +node: ?{|
-        +id: string,
-        +__id: string,
-      |},
-      +__id: string,
-    |}>,
-  |},
-  +$refType: FeedbackComments_feedback$ref,
-|};
-export type FeedbackComments_feedback$data = FeedbackComments_feedback;
-export type FeedbackComments_feedback$key = {
-  +$data?: FeedbackComments_feedback$data,
-  +$fragmentRefs: FeedbackComments_feedback$ref,
-  ...
-};
-`;
-
 exports[`Snapshot tests for useHaste matches expected output: fragment-spread.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 fragment FragmentSpread on Node {

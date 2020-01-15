@@ -15,11 +15,7 @@
 const CodeMarker = require('../util/CodeMarker');
 
 const {createCompilerError, createUserError} = require('../core/CompilerError');
-const {
-  ConnectionInterface,
-  getStorageKey,
-  stableCopy,
-} = require('relay-runtime');
+const {getStorageKey, stableCopy} = require('relay-runtime');
 
 import type {
   Argument,
@@ -37,15 +33,12 @@ import type {
   FragmentSpread,
   InlineFragment,
   ModuleImport,
-  Connection,
-  ConnectionField,
   InlineDataFragmentSpread,
 } from '../core/IR';
 import type {Schema, TypeID} from '../core/Schema';
 import type {
   ReaderArgument,
   ReaderArgumentDefinition,
-  ReaderConnection,
   ReaderField,
   ReaderFragment,
   ReaderInlineDataFragmentSpread,
@@ -130,10 +123,6 @@ function generateSelections(
           return generateInlineFragment(schema, selection);
         case 'LinkedField':
           return generateLinkedField(schema, selection);
-        case 'ConnectionField':
-          return generateConnectionField(schema, selection);
-        case 'Connection':
-          return generateConnection(schema, selection);
         case 'Defer':
           return generateDefer(schema, selection);
         case 'Stream':
@@ -279,80 +268,6 @@ function generateLinkedField(
     field = {...field, storageKey};
   }
   return field;
-}
-
-function generateConnectionField(
-  schema: Schema,
-  node: ConnectionField,
-): ReaderLinkedField {
-  return generateLinkedField(schema, {
-    name: node.name,
-    alias: node.alias,
-    loc: node.loc,
-    directives: node.directives,
-    metadata: node.metadata,
-    selections: node.selections,
-    type: node.type,
-    connection: false, // this is only on the linked fields with @conneciton
-    handles: null,
-    args: node.args.filter(
-      arg =>
-        !ConnectionInterface.isConnectionCall({name: arg.name, value: null}),
-    ),
-    kind: 'LinkedField',
-  });
-}
-
-function generateConnection(
-  schema: Schema,
-  node: Connection,
-): ReaderConnection {
-  const {EDGES, PAGE_INFO} = ConnectionInterface.get();
-  const selections = generateSelections(schema, node.selections);
-  let edges: ?ReaderLinkedField;
-  let pageInfo: ?ReaderLinkedField;
-  selections.forEach(selection => {
-    if (selection.kind === 'LinkedField') {
-      if (selection.name === EDGES) {
-        edges = selection;
-      } else if (selection.name === PAGE_INFO) {
-        pageInfo = selection;
-      }
-    } else if (selection.kind === 'Stream') {
-      selection.selections.forEach(subselection => {
-        if (
-          subselection.kind === 'LinkedField' &&
-          subselection.name === EDGES
-        ) {
-          edges = subselection;
-        }
-      });
-    } else if (selection.kind === 'Defer') {
-      selection.selections.forEach(subselection => {
-        if (
-          subselection.kind === 'LinkedField' &&
-          subselection.name === PAGE_INFO
-        ) {
-          pageInfo = subselection;
-        }
-      });
-    }
-  });
-  if (edges == null || pageInfo == null) {
-    throw createUserError(
-      `Invalid connection, expected the '${EDGES}' and '${PAGE_INFO}' fields ` +
-        'to exist.',
-      [node.loc],
-    );
-  }
-  return {
-    kind: 'Connection',
-    label: node.label,
-    name: node.name,
-    args: generateArgs(node.args),
-    edges,
-    pageInfo,
-  };
 }
 
 function generateModuleImport(

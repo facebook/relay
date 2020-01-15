@@ -95,8 +95,6 @@ export type {
   Handle,
   InlineFragment,
   IR,
-  Connection,
-  ConnectionField,
   LinkedField,
   ListValue,
   Literal,

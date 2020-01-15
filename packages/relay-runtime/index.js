@@ -17,7 +17,6 @@ const ConnectionInterface = require('./handlers/connection/ConnectionInterface')
 const GraphQLTag = require('./query/GraphQLTag');
 const RelayConcreteNode = require('./util/RelayConcreteNode');
 const RelayConcreteVariables = require('./store/RelayConcreteVariables');
-const RelayConnectionResolver = require('./store/RelayConnectionResolver');
 const RelayDeclarativeMutationConfig = require('./mutations/RelayDeclarativeMutationConfig');
 const RelayDefaultHandleKey = require('./util/RelayDefaultHandleKey');
 const RelayDefaultHandlerProvider = require('./handlers/RelayDefaultHandlerProvider');
@@ -106,15 +105,6 @@ export type {
   Subscription,
 } from './network/RelayObservable';
 export type {GraphQLTaggedNode} from './query/GraphQLTag';
-export type {
-  ConnectionEvent,
-  ConnectionID,
-  ConnectionReference,
-  ConnectionReferenceObject,
-  ConnectionResolver,
-  ConnectionSnapshot,
-} from './store/RelayConnection';
-export type {ConnectionState} from './store/RelayConnectionResolver';
 export type {EnvironmentConfig} from './store/RelayModernEnvironment';
 export type {TaskScheduler} from './store/RelayModernQueryExecutor';
 export type {RecordState} from './store/RelayRecordState';
@@ -161,7 +151,6 @@ export type {JSResourceReference} from './util/JSResourceTypes.flow';
 export type {
   NormalizationArgument,
   NormalizationDefer,
-  NormalizationConnection,
   NormalizationField,
   NormalizationLinkedField,
   NormalizationLinkedHandle,
@@ -176,7 +165,6 @@ export type {NormalizationOperation} from './util/NormalizationNode';
 export type {
   ReaderArgument,
   ReaderArgumentDefinition,
-  ReaderConnection,
   ReaderField,
   ReaderFragment,
   ReaderInlineDataFragment,
@@ -276,7 +264,6 @@ module.exports = {
   getDefaultMissingFieldHandlers: getRelayDefaultMissingFieldHandlers,
   DefaultHandlerProvider: RelayDefaultHandlerProvider,
   ConnectionHandler,
-  ConnectionResolver_UNSTABLE: RelayConnectionResolver,
   VIEWER_ID: ViewerPattern.VIEWER_ID,
   VIEWER_TYPE: ViewerPattern.VIEWER_TYPE,
 

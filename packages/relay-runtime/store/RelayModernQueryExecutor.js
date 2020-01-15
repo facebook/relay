@@ -13,7 +13,6 @@
 
 'use strict';
 
-const ConnectionInterface = require('../handlers/connection/ConnectionInterface');
 const RelayError = require('../util/RelayError');
 const RelayModernRecord = require('./RelayModernRecord');
 const RelayObservable = require('../network/RelayObservable');
@@ -35,8 +34,6 @@ import type {
 } from '../network/RelayNetworkTypes';
 import type {Sink, Subscription} from '../network/RelayObservable';
 import type {
-  ConnectionEdgePlaceholder,
-  ConnectionPageInfoPlaceholder,
   DeferPlaceholder,
   RequestDescriptor,
   HandleFieldPayload,
@@ -416,7 +413,6 @@ class Executor {
       optimisticUpdates.push({
         operation: this._operation,
         payload: {
-          connectionEvents: null,
           errors: null,
           fieldPayloads: null,
           incrementalPlaceholders: null,
@@ -763,15 +759,9 @@ class Executor {
     // modifications to the parent before items arrive and to replay
     // handle field payloads to account for new information on source records.
     let parentID;
-    if (
-      placeholder.kind === 'stream' ||
-      placeholder.kind === 'connection_edge'
-    ) {
+    if (placeholder.kind === 'stream') {
       parentID = placeholder.parentID;
-    } else if (
-      placeholder.kind === 'defer' ||
-      placeholder.kind === 'connection_page_info'
-    ) {
+    } else if (placeholder.kind === 'defer') {
       parentID = placeholder.selector.dataID;
     } else {
       (placeholder: empty);
@@ -873,28 +863,17 @@ class Executor {
           return;
         }
         const placeholder = resultForPath.placeholder;
-        if (placeholder.kind === 'connection_page_info') {
-          relayPayloads.push(
-            this._processConnectionPageInfoResponse(
-              label,
-              path,
-              placeholder,
-              response,
-            ),
-          );
-        } else {
-          invariant(
-            placeholder.kind === 'defer',
-            'RelayModernEnvironment: Expected data for path `%s` for label `%s` ' +
-              'to be data for @defer, was `@%s`.',
-            pathKey,
-            label,
-            placeholder.kind,
-          );
-          relayPayloads.push(
-            this._processDeferResponse(label, path, placeholder, response),
-          );
-        }
+        invariant(
+          placeholder.kind === 'defer',
+          'RelayModernEnvironment: Expected data for path `%s` for label `%s` ' +
+            'to be data for @defer, was `@%s`.',
+          pathKey,
+          label,
+          placeholder.kind,
+        );
+        relayPayloads.push(
+          this._processDeferResponse(label, path, placeholder, response),
+        );
       } else {
         // @stream payload path values end in the field name and item index,
         // but Relay records paths relative to the parent of the stream node:
@@ -914,91 +893,20 @@ class Executor {
           return;
         }
         const placeholder = resultForPath.placeholder;
-        if (placeholder.kind === 'connection_edge') {
-          relayPayloads.push(
-            this._processConnectionEdgeResponse(
-              label,
-              path,
-              placeholder,
-              response,
-            ),
-          );
-        } else {
-          invariant(
-            placeholder.kind === 'stream',
-            'RelayModernEnvironment: Expected data for path `%s` for label `%s` ' +
-              'to be data for @stream, was `@%s`.',
-            pathKey,
-            label,
-            placeholder.kind,
-          );
-          relayPayloads.push(
-            this._processStreamResponse(label, path, placeholder, response),
-          );
-        }
+        invariant(
+          placeholder.kind === 'stream',
+          'RelayModernEnvironment: Expected data for path `%s` for label `%s` ' +
+            'to be data for @stream, was `@%s`.',
+          pathKey,
+          label,
+          placeholder.kind,
+        );
+        relayPayloads.push(
+          this._processStreamResponse(label, path, placeholder, response),
+        );
       }
     });
     return relayPayloads;
-  }
-
-  _processConnectionPageInfoResponse(
-    label: string,
-    path: $ReadOnlyArray<mixed>,
-    placeholder: ConnectionPageInfoPlaceholder,
-    response: GraphQLResponseWithData,
-  ): RelayResponsePayload {
-    let relayPayload: RelayResponsePayload = normalizeResponse(
-      response,
-      placeholder.selector,
-      placeholder.typeName,
-      {
-        getDataID: this._getDataID,
-        path: placeholder.path,
-        request: this._operation.request,
-      },
-    );
-    const {
-      END_CURSOR,
-      HAS_NEXT_PAGE,
-      HAS_PREV_PAGE,
-      PAGE_INFO,
-      START_CURSOR,
-    } = ConnectionInterface.get();
-    const pageRecord = relayPayload.source.get(placeholder.selector.dataID);
-    const pageInfoID =
-      pageRecord != null
-        ? RelayModernRecord.getLinkedRecordID(pageRecord, PAGE_INFO)
-        : null;
-    const pageInfoRecord =
-      pageInfoID != null ? relayPayload.source.get(pageInfoID) : null;
-    let endCursor;
-    let hasNextPage;
-    let hasPrevPage;
-    let startCursor;
-    if (pageInfoRecord != null) {
-      endCursor = RelayModernRecord.getValue(pageInfoRecord, END_CURSOR);
-      hasNextPage = RelayModernRecord.getValue(pageInfoRecord, HAS_NEXT_PAGE);
-      hasPrevPage = RelayModernRecord.getValue(pageInfoRecord, HAS_PREV_PAGE);
-      startCursor = RelayModernRecord.getValue(pageInfoRecord, START_CURSOR);
-    }
-
-    relayPayload = {
-      ...relayPayload,
-      connectionEvents: (relayPayload.connectionEvents ?? []).concat({
-        kind: 'stream.pageInfo',
-        args: placeholder.args,
-        connectionID: placeholder.connectionID,
-        pageInfo: {
-          endCursor: typeof endCursor === 'string' ? endCursor : null,
-          startCursor: typeof startCursor === 'string' ? startCursor : null,
-          hasNextPage: typeof hasNextPage === 'boolean' ? hasNextPage : null,
-          hasPrevPage: typeof hasPrevPage === 'boolean' ? hasPrevPage : null,
-        },
-        request: this._operation.request,
-      }),
-    };
-    this._publishQueue.commitPayload(this._operation, relayPayload);
-    return relayPayload;
   }
 
   _processDeferResponse(
@@ -1032,7 +940,6 @@ class Executor {
     const {fieldPayloads} = parentEntry;
     if (fieldPayloads.length !== 0) {
       const handleFieldsRelayPayload = {
-        connectionEvents: null,
         errors: null,
         fieldPayloads,
         incrementalPlaceholders: null,
@@ -1045,37 +952,6 @@ class Executor {
         handleFieldsRelayPayload,
       );
     }
-    return relayPayload;
-  }
-
-  _processConnectionEdgeResponse(
-    label: string,
-    path: $ReadOnlyArray<mixed>,
-    placeholder: ConnectionEdgePlaceholder,
-    response: GraphQLResponseWithData,
-  ): RelayResponsePayload {
-    const {parentID, node, variables} = placeholder;
-    let {relayPayload, itemID, itemIndex} = this._normalizeStreamItem(
-      response,
-      parentID,
-      node,
-      variables,
-      path,
-      placeholder.path,
-    );
-    relayPayload = {
-      ...relayPayload,
-      connectionEvents: (relayPayload.connectionEvents ?? []).concat({
-        kind: 'stream.edge',
-        args: placeholder.args,
-        connectionID: placeholder.connectionID,
-        edgeID: itemID,
-        index: itemIndex,
-        request: this._operation.request,
-      }),
-    };
-
-    this._publishQueue.commitPayload(this._operation, relayPayload);
     return relayPayload;
   }
 
@@ -1146,7 +1022,6 @@ class Executor {
     // also update any handle fields that are derived from the parent record.
     if (fieldPayloads.length !== 0) {
       const handleFieldsRelayPayload = {
-        connectionEvents: null,
         errors: null,
         fieldPayloads,
         incrementalPlaceholders: null,

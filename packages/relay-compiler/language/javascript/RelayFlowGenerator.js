@@ -12,7 +12,6 @@
 
 'use strict';
 
-const ConnectionFieldTransform = require('../../transforms/ConnectionFieldTransform');
 const FlattenTransform = require('../../transforms/FlattenTransform');
 const IRVisitor = require('../../core/IRVisitor');
 const MaskTransform = require('../../transforms/MaskTransform');
@@ -21,7 +20,6 @@ const Profiler = require('../../core/GraphQLCompilerProfiler');
 const RefetchableFragmentTransform = require('../../transforms/RefetchableFragmentTransform');
 const RelayDirectiveTransform = require('../../transforms/RelayDirectiveTransform');
 
-const {createUserError} = require('../../core/CompilerError');
 const {
   anyTypeAlias,
   declareExportOpaqueType,
@@ -40,7 +38,6 @@ const {
   transformInputType,
   transformScalarType,
 } = require('./RelayFlowTypeTransformers');
-const {ConnectionInterface} = require('relay-runtime');
 
 import type {IRTransform} from '../../core/CompilerContext';
 import type {
@@ -62,7 +59,6 @@ export type State = {|
   ...TypeGeneratorOptions,
   +generatedFragments: Set<string>,
   +generatedInputObjectTypes: {[name: string]: TypeID | 'pending', ...},
-  hasConnectionResolver: boolean,
   +usedEnums: {[name: string]: EnumTypeID, ...},
   +usedFragments: Set<string>,
   +matchFields: Map<string, mixed>,
@@ -288,7 +284,6 @@ function createVisitor(schema: Schema, options: TypeGeneratorOptions) {
     existingFragmentNames: options.existingFragmentNames,
     generatedFragments: new Set(),
     generatedInputObjectTypes: {},
-    hasConnectionResolver: false,
     optionalInputFields: options.optionalInputFields,
     usedEnums: {},
     usedFragments: new Set(),
@@ -345,9 +340,6 @@ function createVisitor(schema: Schema, options: TypeGeneratorOptions) {
           state,
           node.metadata,
         );
-        if (state.hasConnectionResolver) {
-          state.runtimeImports.add('ConnectionReference');
-        }
         if (refetchableFragmentName != null) {
           state.runtimeImports.add('FragmentReference');
         }
@@ -450,9 +442,6 @@ function createVisitor(schema: Schema, options: TypeGeneratorOptions) {
           ? readOnlyArrayOfType(baseType)
           : baseType;
         state.runtimeImports.add('FragmentReference');
-        if (state.hasConnectionResolver) {
-          state.runtimeImports.add('ConnectionReference');
-        }
 
         return t.program([
           ...getFragmentImports(state),
@@ -497,10 +486,6 @@ function createVisitor(schema: Schema, options: TypeGeneratorOptions) {
       ScalarField(node) {
         return visitScalarField(schema, node, state);
       },
-      Connection(node) {
-        return visitConnection(schema, node, state);
-      },
-      ConnectionField: visitLinkedField,
       LinkedField: visitLinkedField,
       ModuleImport(node) {
         return [
@@ -554,51 +539,6 @@ function visitScalarField(schema, node, state) {
       key: node.alias,
       schemaName: node.name,
       value: transformScalarType(schema, node.type, state),
-    },
-  ];
-}
-
-function visitConnection(schema, node, state) {
-  const {EDGES} = ConnectionInterface.get();
-  state.hasConnectionResolver = true;
-  const edgesSelection = node.selections.find(selections => {
-    const mixedSelections = ((selections: $FlowFixMe): mixed);
-    return (
-      Array.isArray(mixedSelections) &&
-      mixedSelections.some(
-        selection =>
-          selection != null &&
-          typeof selection === 'object' &&
-          selection.key === EDGES &&
-          selection.schemaName === EDGES,
-      )
-    );
-  });
-  const edgesItem = Array.isArray(edgesSelection) ? edgesSelection[0] : null;
-  const nodeSelections =
-    edgesItem != null &&
-    typeof edgesItem === 'object' &&
-    edgesItem.nodeSelections instanceof Map
-      ? edgesItem.nodeSelections
-      : null;
-  if (nodeSelections == null) {
-    throw createUserError(
-      'Cannot generate flow types for connection field, expected an edges ' +
-        'selection.',
-      [node.loc],
-    );
-  }
-  const edgesFields = Array.from(nodeSelections.values());
-  const edgesType = selectionsToBabel(schema, [edgesFields], state, false);
-
-  return [
-    {
-      key: '__connection',
-      conditional: true,
-      value: t.genericTypeAnnotation(
-        t.identifier('ConnectionReference'),
-        t.typeParameterInstantiation([edgesType]),
-      ),
     },
   ];
 }
@@ -783,9 +723,6 @@ function createRawResponseTypeVisitor(schema: Schema, state: State) {
       ScalarField(node) {
         return visitScalarField(schema, node, state);
       },
-      Connection(node) {
-        return visitConnection(schema, node, state);
-      },
       ClientExtension(node) {
         return flattenArray(
           /* $FlowFixMe: selections have already been transformed */
@@ -795,7 +732,6 @@ function createRawResponseTypeVisitor(schema: Schema, state: State) {
           conditional: true,
         }));
       },
-      ConnectionField: visitLinkedField,
       LinkedField: visitLinkedField,
       Condition: visitNodeWithSelectionsOnly,
       Defer: visitNodeWithSelectionsOnly,
@@ -1089,7 +1025,6 @@ function getDataTypeName(name: string): string {
 const FLOW_TRANSFORMS: $ReadOnlyArray<IRTransform> = [
   RelayDirectiveTransform.transform,
   MaskTransform.transform,
-  ConnectionFieldTransform.transform,
   MatchTransform.transform,
   FlattenTransform.transformWithOptions({}),
   RefetchableFragmentTransform.transform,

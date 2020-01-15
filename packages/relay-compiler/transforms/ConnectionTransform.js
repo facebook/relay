@@ -25,7 +25,6 @@ const {ConnectionInterface, RelayFeatureFlags} = require('relay-runtime');
 import type CompilerContext from '../core/CompilerContext';
 import type {
   Argument,
-  ConnectionField,
   Directive,
   Fragment,
   Handle,
@@ -351,7 +350,7 @@ function buildConnectionArguments(
 }
 
 function buildConnectionMetadata(
-  field: LinkedField | ConnectionField,
+  field: LinkedField,
   path: Array<?string>,
   stream: boolean,
 ): ConnectionMetadata {
@@ -688,10 +687,7 @@ function transformConnectionSelections(
   return selections;
 }
 
-function findArg(
-  field: LinkedField | ConnectionField,
-  argName: string,
-): ?Argument {
+function findArg(field: LinkedField, argName: string): ?Argument {
   return field.args && field.args.find(arg => arg.name === argName);
 }
 

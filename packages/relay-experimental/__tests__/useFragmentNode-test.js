@@ -676,11 +676,7 @@ it('should ignore updates to initially rendered data when fragment pointers chan
   const YieldyUserComponent = ({user}) => (
     <>
       <YieldChild>Hey user,</YieldChild>
-      {/* $FlowFixMe this comment suppresses an error found improving the
-       * type of React$Node */}
       <YieldChild>{user.name}</YieldChild>
-      {/* $FlowFixMe this comment suppresses an error found improving the
-       * type of React$Node */}
       <YieldChild>with id {user.id}!</YieldChild>
     </>
   );
@@ -871,11 +867,7 @@ it('should ignore updates to initially rendered data when variables change', () 
   const YieldyUserComponent = ({user}) => (
     <>
       <YieldChild>Hey user,</YieldChild>
-      {/* $FlowFixMe this comment suppresses an error found improving the
-       * type of React$Node */}
       <YieldChild>{user.profile_picture?.uri ?? 'no uri'}</YieldChild>
-      {/* $FlowFixMe this comment suppresses an error found improving the
-       * type of React$Node */}
       <YieldChild>with id {user.id}!</YieldChild>
     </>
   );

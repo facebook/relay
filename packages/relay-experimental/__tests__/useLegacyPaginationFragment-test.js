@@ -74,9 +74,6 @@ describe('useLegacyPaginationFragment', () => {
   }
 
   function useLegacyPaginationFragment(fragmentNode, fragmentRef) {
-    /* $FlowFixMe(>=0.108.0 site=www,mobile,react_native_fb,oss) This comment suppresses an error found
-     * when Flow v0.108.0 was deployed. To see the error delete this comment
-     * and run Flow. */
     const {data, ...result} = useLegacyPaginationFragmentOriginal(
       fragmentNode,
       // $FlowFixMe
@@ -156,6 +153,7 @@ describe('useLegacyPaginationFragment', () => {
         @argumentDefinitions(
           isViewerFriendLocal: {type: "Boolean", defaultValue: false}
           orderby: {type: "[String]"}
+          scale: {type: "Float"}
         ) {
           id
           name
@@ -166,7 +164,8 @@ describe('useLegacyPaginationFragment', () => {
             last: $last,
             orderby: $orderby,
             isViewerFriend: $isViewerFriendLocal
-          ) @connection(key: "UserFragment_friends") {
+            scale: $scale
+          ) @connection(key: "UserFragment_friends", filters: ["orderby", "isViewerFriend"]) {
             edges {
               node {
                 id
@@ -820,6 +819,7 @@ describe('useLegacyPaginationFragment', () => {
           last: null,
           isViewerFriendLocal: false,
           orderby: ['name'],
+          scale: null,
         };
         expectFragmentIsLoadingMore(renderer, direction, {
           data: initialUser,
@@ -920,6 +920,7 @@ describe('useLegacyPaginationFragment', () => {
           last: null,
           isViewerFriendLocal: false,
           orderby: ['name'],
+          scale: null,
         };
         expectFragmentIsLoadingMore(renderer, direction, {
           data: initialUser,
@@ -996,6 +997,7 @@ describe('useLegacyPaginationFragment', () => {
           last: null,
           isViewerFriendLocal: false,
           orderby: ['name'],
+          scale: null,
         };
         expectFragmentIsLoadingMore(renderer, direction, {
           data: initialUser,
@@ -1075,6 +1077,7 @@ describe('useLegacyPaginationFragment', () => {
           last: null,
           isViewerFriendLocal: false,
           orderby: ['name'],
+          scale: null,
         };
         expectFragmentIsLoadingMore(renderer, direction, {
           data: expectedUser,
@@ -1139,6 +1142,7 @@ describe('useLegacyPaginationFragment', () => {
           last: null,
           isViewerFriendLocal: false,
           orderby: ['name'],
+          scale: null,
         };
         expectFragmentIsLoadingMore(renderer, direction, {
           data: initialUser,
@@ -1273,6 +1277,7 @@ describe('useLegacyPaginationFragment', () => {
           last: null,
           isViewerFriendLocal: true,
           orderby: ['name'],
+          scale: null,
         };
         expect(paginationVariables.isViewerFriendLocal).not.toBe(
           variables.isViewerFriend,
@@ -1415,6 +1420,7 @@ describe('useLegacyPaginationFragment', () => {
           last: null,
           isViewerFriendLocal: false,
           orderby: ['name'],
+          scale: null,
         };
         expectFragmentIsLoadingMore(renderer, direction, {
           data: expectedUser,
@@ -1594,6 +1600,7 @@ describe('useLegacyPaginationFragment', () => {
           last: null,
           isViewerFriendLocal: false,
           orderby: ['name'],
+          scale: null,
         };
         expectFragmentIsLoadingMore(renderer, direction, {
           data: initialUser,
@@ -1710,6 +1717,7 @@ describe('useLegacyPaginationFragment', () => {
           last: null,
           isViewerFriendLocal: false,
           orderby: ['name'],
+          scale: null,
         };
         expectFragmentIsLoadingMore(renderer, direction, {
           data: initialUser,
@@ -1754,6 +1762,7 @@ describe('useLegacyPaginationFragment', () => {
           last: null,
           isViewerFriendLocal: false,
           orderby: ['name'],
+          scale: null,
         };
         expectFragmentIsLoadingMore(renderer, direction, {
           data: initialUser,
@@ -1861,6 +1870,252 @@ describe('useLegacyPaginationFragment', () => {
         expect(callback).toBeCalledTimes(1);
       });
 
+      describe('extra variables', () => {
+        it('loads and renders the next items in the connection when passing extra variables', () => {
+          const callback = jest.fn();
+          const renderer = renderFragment();
+          expectFragmentResults([
+            {
+              data: initialUser,
+              isLoadingNext: false,
+              isLoadingPrevious: false,
+              hasNext: true,
+              hasPrevious: false,
+            },
+          ]);
+
+          TestRenderer.act(() => {
+            loadNext(1, {
+              onComplete: callback,
+              // Pass extra variables that are different from original request
+              UNSTABLE_extraVariables: {scale: 2.0},
+            });
+          });
+          const paginationVariables = {
+            id: '1',
+            after: 'cursor:1',
+            first: 1,
+            before: null,
+            last: null,
+            isViewerFriendLocal: false,
+            orderby: ['name'],
+            // Assert that value from extra variables is used
+            scale: 2.0,
+          };
+          expectFragmentIsLoadingMore(renderer, direction, {
+            data: initialUser,
+            hasNext: true,
+            hasPrevious: false,
+            paginationVariables,
+            gqlPaginationQuery,
+          });
+          expect(callback).toBeCalledTimes(0);
+
+          environment.mock.resolve(gqlPaginationQuery, {
+            data: {
+              node: {
+                __typename: 'User',
+                id: '1',
+                name: 'Alice',
+                friends: {
+                  edges: [
+                    {
+                      cursor: 'cursor:2',
+                      node: {
+                        __typename: 'User',
+                        id: 'node:2',
+                        name: 'name:node:2',
+                        username: 'username:node:2',
+                      },
+                    },
+                  ],
+                  pageInfo: {
+                    startCursor: 'cursor:2',
+                    endCursor: 'cursor:2',
+                    hasNextPage: true,
+                    hasPreviousPage: true,
+                  },
+                },
+              },
+            },
+          });
+
+          const expectedUser = {
+            ...initialUser,
+            friends: {
+              ...initialUser.friends,
+              edges: [
+                {
+                  cursor: 'cursor:1',
+                  node: {
+                    __typename: 'User',
+                    id: 'node:1',
+                    name: 'name:node:1',
+                    ...createFragmentRef('node:1', query),
+                  },
+                },
+                {
+                  cursor: 'cursor:2',
+                  node: {
+                    __typename: 'User',
+                    id: 'node:2',
+                    name: 'name:node:2',
+                    ...createFragmentRef('node:2', query),
+                  },
+                },
+              ],
+              pageInfo: {
+                endCursor: 'cursor:2',
+                hasNextPage: true,
+                hasPreviousPage: false,
+                startCursor: 'cursor:1',
+              },
+            },
+          };
+          expectFragmentResults([
+            {
+              // First update has updated connection
+              data: expectedUser,
+              isLoadingNext: true,
+              isLoadingPrevious: false,
+              hasNext: true,
+              hasPrevious: false,
+            },
+            {
+              // Second update sets isLoading flag back to false
+              data: expectedUser,
+              isLoadingNext: false,
+              isLoadingPrevious: false,
+              hasNext: true,
+              hasPrevious: false,
+            },
+          ]);
+          expect(callback).toBeCalledTimes(1);
+        });
+
+        it('loads the next items in the connection and ignores any pagination vars passed as extra vars', () => {
+          const callback = jest.fn();
+          const renderer = renderFragment();
+          expectFragmentResults([
+            {
+              data: initialUser,
+              isLoadingNext: false,
+              isLoadingPrevious: false,
+              hasNext: true,
+              hasPrevious: false,
+            },
+          ]);
+
+          TestRenderer.act(() => {
+            loadNext(1, {
+              onComplete: callback,
+              // Pass pagination vars as extra variables
+              UNSTABLE_extraVariables: {first: 100, after: 'foo'},
+            });
+          });
+          const paginationVariables = {
+            id: '1',
+            // Assert that pagination vars from extra variables are ignored
+            after: 'cursor:1',
+            first: 1,
+            before: null,
+            last: null,
+            isViewerFriendLocal: false,
+            orderby: ['name'],
+            scale: null,
+          };
+          expectFragmentIsLoadingMore(renderer, direction, {
+            data: initialUser,
+            hasNext: true,
+            hasPrevious: false,
+            paginationVariables,
+            gqlPaginationQuery,
+          });
+          expect(callback).toBeCalledTimes(0);
+
+          environment.mock.resolve(gqlPaginationQuery, {
+            data: {
+              node: {
+                __typename: 'User',
+                id: '1',
+                name: 'Alice',
+                friends: {
+                  edges: [
+                    {
+                      cursor: 'cursor:2',
+                      node: {
+                        __typename: 'User',
+                        id: 'node:2',
+                        name: 'name:node:2',
+                        username: 'username:node:2',
+                      },
+                    },
+                  ],
+                  pageInfo: {
+                    startCursor: 'cursor:2',
+                    endCursor: 'cursor:2',
+                    hasNextPage: true,
+                    hasPreviousPage: true,
+                  },
+                },
+              },
+            },
+          });
+
+          const expectedUser = {
+            ...initialUser,
+            friends: {
+              ...initialUser.friends,
+              edges: [
+                {
+                  cursor: 'cursor:1',
+                  node: {
+                    __typename: 'User',
+                    id: 'node:1',
+                    name: 'name:node:1',
+                    ...createFragmentRef('node:1', query),
+                  },
+                },
+                {
+                  cursor: 'cursor:2',
+                  node: {
+                    __typename: 'User',
+                    id: 'node:2',
+                    name: 'name:node:2',
+                    ...createFragmentRef('node:2', query),
+                  },
+                },
+              ],
+              pageInfo: {
+                endCursor: 'cursor:2',
+                hasNextPage: true,
+                hasPreviousPage: false,
+                startCursor: 'cursor:1',
+              },
+            },
+          };
+          expectFragmentResults([
+            {
+              // First update has updated connection
+              data: expectedUser,
+              isLoadingNext: true,
+              isLoadingPrevious: false,
+              hasNext: true,
+              hasPrevious: false,
+            },
+            {
+              // Second update sets isLoading flag back to false
+              data: expectedUser,
+              isLoadingNext: false,
+              isLoadingPrevious: false,
+              hasNext: true,
+              hasPrevious: false,
+            },
+          ]);
+          expect(callback).toBeCalledTimes(1);
+        });
+      });
+
       describe('disposing', () => {
         let unsubscribe;
         beforeEach(() => {
@@ -1928,6 +2183,7 @@ describe('useLegacyPaginationFragment', () => {
             last: null,
             isViewerFriendLocal: false,
             orderby: ['name'],
+            scale: null,
           };
           expectFragmentIsLoadingMore(renderer, direction, {
             data: initialUser,
@@ -2032,6 +2288,7 @@ describe('useLegacyPaginationFragment', () => {
             last: null,
             isViewerFriendLocal: false,
             orderby: ['name'],
+            scale: null,
           };
           expectFragmentIsLoadingMore(renderer, direction, {
             data: initialUser,
@@ -2147,6 +2404,7 @@ describe('useLegacyPaginationFragment', () => {
             last: null,
             isViewerFriendLocal: false,
             orderby: ['name'],
+            scale: null,
           };
           expectFragmentIsLoadingMore(renderer, direction, {
             data: initialUser,
@@ -2196,6 +2454,7 @@ describe('useLegacyPaginationFragment', () => {
             last: null,
             isViewerFriendLocal: false,
             orderby: ['name'],
+            scale: null,
           };
           expectFragmentIsLoadingMore(renderer, direction, {
             data: initialUser,
@@ -2582,6 +2841,7 @@ describe('useLegacyPaginationFragment', () => {
           last: null,
           isViewerFriendLocal: false,
           orderby: ['name'],
+          scale: null,
         };
         expectFragmentIsLoadingMore(renderer, direction, {
           data: initialUser,
@@ -2700,6 +2960,7 @@ describe('useLegacyPaginationFragment', () => {
           last: null,
           isViewerFriendLocal: false,
           orderby: ['name'],
+          scale: null,
         };
         expectFragmentIsLoadingMore(renderer, direction, {
           data: initialUser,
@@ -2867,6 +3128,7 @@ describe('useLegacyPaginationFragment', () => {
           id: '4',
           isViewerFriendLocal: false,
           orderby: ['name'],
+          scale: null,
         };
         paginationQuery = createOperationDescriptor(
           gqlPaginationQuery,
@@ -2983,6 +3245,7 @@ describe('useLegacyPaginationFragment', () => {
           id: '1',
           isViewerFriendLocal: true,
           orderby: ['lastname'],
+          scale: null,
         };
         paginationQuery = createOperationDescriptor(
           gqlPaginationQuery,
@@ -3161,6 +3424,7 @@ describe('useLegacyPaginationFragment', () => {
           id: '1',
           isViewerFriendLocal: true,
           orderby: ['lastname'],
+          scale: null,
         };
         paginationQuery = createOperationDescriptor(
           gqlPaginationQuery,
@@ -3277,6 +3541,7 @@ describe('useLegacyPaginationFragment', () => {
           id: '1',
           isViewerFriendLocal: true,
           orderby: ['lastname'],
+          scale: null,
         };
         paginationQuery = createOperationDescriptor(
           gqlPaginationQuery,
@@ -3379,6 +3644,7 @@ describe('useLegacyPaginationFragment', () => {
           last: null,
           isViewerFriendLocal: true,
           orderby: ['lastname'],
+          scale: null,
         };
         expectFragmentIsLoadingMore(renderer, 'forward', {
           data: expectedUser,

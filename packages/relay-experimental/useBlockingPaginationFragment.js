@@ -39,8 +39,8 @@ import type {
 
 export type ReturnType<TQuery: OperationType, TKey, TFragmentData> = {|
   data: TFragmentData,
-  loadNext: LoadMoreFn,
-  loadPrevious: LoadMoreFn,
+  loadNext: LoadMoreFn<TQuery>,
+  loadPrevious: LoadMoreFn<TQuery>,
   hasNext: boolean,
   hasPrevious: boolean,
   refetch: RefetchFnDynamic<TQuery, TKey>,
@@ -99,23 +99,25 @@ function useBlockingPaginationFragment<
   const fragmentIdentifier = getFragmentIdentifier(fragmentNode, fragmentRef);
 
   // Backward pagination
-  const [loadPrevious, hasPrevious, disposeFetchPrevious] = useLoadMore({
-    direction: 'backward',
-    fragmentNode,
-    fragmentRef,
-    fragmentIdentifier,
-    fragmentData,
-    connectionPathInFragmentData,
-    fragmentRefPathInResponse,
-    paginationRequest,
-    paginationMetadata,
-    disableStoreUpdates,
-    enableStoreUpdates,
-    componentDisplayName,
-  });
+  const [loadPrevious, hasPrevious, disposeFetchPrevious] = useLoadMore<TQuery>(
+    {
+      direction: 'backward',
+      fragmentNode,
+      fragmentRef,
+      fragmentIdentifier,
+      fragmentData,
+      connectionPathInFragmentData,
+      fragmentRefPathInResponse,
+      paginationRequest,
+      paginationMetadata,
+      disableStoreUpdates,
+      enableStoreUpdates,
+      componentDisplayName,
+    },
+  );
 
   // Forward pagination
-  const [loadNext, hasNext, disposeFetchNext] = useLoadMore({
+  const [loadNext, hasNext, disposeFetchNext] = useLoadMore<TQuery>({
     direction: 'forward',
     fragmentNode,
     fragmentRef,
@@ -149,7 +151,7 @@ function useBlockingPaginationFragment<
   };
 }
 
-function useLoadMore(args: {|
+function useLoadMore<TQuery: OperationType>(args: {|
   disableStoreUpdates: () => void,
   enableStoreUpdates: () => void,
   ...$Exact<
@@ -162,7 +164,7 @@ function useLoadMore(args: {|
       },
     >,
   >,
-|}): [LoadMoreFn, boolean, () => void] {
+|}): [LoadMoreFn<TQuery>, boolean, () => void] {
   const {disableStoreUpdates, enableStoreUpdates, ...loadMoreArgs} = args;
   const [requestPromise, setRequestPromise] = useState(null);
   const requestPromiseRef = useRef(null);
@@ -211,7 +213,7 @@ function useLoadMore(args: {|
     // and blow away the whole list of items.
     error: promiseResolve,
   };
-  const [_loadMore, hasMore, disposeFetch] = useLoadMoreFunction({
+  const [_loadMore, hasMore, disposeFetch] = useLoadMoreFunction<TQuery>({
     ...loadMoreArgs,
     observer,
     onReset: handleReset,

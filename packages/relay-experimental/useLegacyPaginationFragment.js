@@ -32,8 +32,8 @@ import type {
 
 export type ReturnType<TQuery: OperationType, TKey, TFragmentData> = {|
   data: TFragmentData,
-  loadNext: LoadMoreFn,
-  loadPrevious: LoadMoreFn,
+  loadNext: LoadMoreFn<TQuery>,
+  loadPrevious: LoadMoreFn<TQuery>,
   hasNext: boolean,
   hasPrevious: boolean,
   isLoadingNext: boolean,
@@ -86,7 +86,7 @@ function useLegacyPaginationFragment<
     hasPrevious,
     isLoadingPrevious,
     disposeFetchPrevious,
-  ] = useLoadMore({
+  ] = useLoadMore<TQuery>({
     direction: 'backward',
     fragmentNode,
     fragmentRef,
@@ -100,7 +100,12 @@ function useLegacyPaginationFragment<
   });
 
   // Forward pagination
-  const [loadNext, hasNext, isLoadingNext, disposeFetchNext] = useLoadMore({
+  const [
+    loadNext,
+    hasNext,
+    isLoadingNext,
+    disposeFetchNext,
+  ] = useLoadMore<TQuery>({
     direction: 'forward',
     fragmentNode,
     fragmentRef,
@@ -134,7 +139,7 @@ function useLegacyPaginationFragment<
   };
 }
 
-function useLoadMore(
+function useLoadMore<TQuery: OperationType>(
   args: $Diff<
     UseLoadMoreFunctionArgs,
     {
@@ -143,7 +148,7 @@ function useLoadMore(
       ...
     },
   >,
-): [LoadMoreFn, boolean, boolean, () => void] {
+): [LoadMoreFn<TQuery>, boolean, boolean, () => void] {
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const observer = {
     start: () => setIsLoadingMore(true),

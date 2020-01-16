@@ -39,17 +39,18 @@ import type {
   Disposable,
   GraphQLResponse,
   Observer,
+  OperationType,
   ReaderFragment,
   ReaderPaginationMetadata,
-  RequestDescriptor,
 } from 'relay-runtime';
 
 export type Direction = 'forward' | 'backward';
 
-export type LoadMoreFn = (
+export type LoadMoreFn<TQuery: OperationType> = (
   count: number,
   options?: {|
     onComplete?: (Error | null) => void,
+    UNSTABLE_extraVariables?: $Shape<$ElementType<TQuery, 'variables'>>,
   |},
 ) => Disposable;
 
@@ -68,9 +69,9 @@ export type UseLoadMoreFunctionArgs = {|
   onReset: () => void,
 |};
 
-function useLoadMoreFunction(
+function useLoadMoreFunction<TQuery: OperationType>(
   args: UseLoadMoreFunctionArgs,
-): [LoadMoreFn, boolean, () => void] {
+): [LoadMoreFn<TQuery>, boolean, () => void] {
   const {
     direction,
     fragmentNode,
@@ -127,7 +128,6 @@ function useLoadMoreFunction(
   const loadMore = useCallback(
     (count, options) => {
       // TODO(T41131846): Fetch/Caching policies for loadMore
-      // TODO(T41140071): Handle loadMore while refetch is in flight and vice-versa
 
       const onComplete = options?.onComplete;
       if (isMountedRef.current !== true) {
@@ -189,9 +189,11 @@ function useLoadMoreFunction(
 
       const parentVariables = fragmentSelector.owner.variables;
       const fragmentVariables = fragmentSelector.variables;
+      const extraVariables = options?.UNSTABLE_extraVariables;
       const baseVariables = {
         ...parentVariables,
         ...fragmentVariables,
+        ...extraVariables,
       };
       const paginationVariables = getPaginationVariables(
         direction,

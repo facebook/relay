@@ -14,6 +14,11 @@
 'use strict';
 
 const requestSubscription = require('../requestSubscription');
+const RelayModernEnvironment = require('../../store/RelayModernEnvironment');
+const RelayModernStore = require('../../store/RelayModernStore');
+const RelayNetwork = require('../../network/RelayNetwork');
+const RelayObservable = require('../../network/RelayObservable');
+const RelayRecordSource = require('../../store/RelayRecordSource');
 
 const {
   createOperationDescriptor,
@@ -29,6 +34,11 @@ describe('requestSubscription-test', () => {
   it('Config: `RANGE_ADD`', () => {
     const environment = createMockEnvironment();
     const store = environment.getStore();
+
+    /*let cacheMetadata;
+    jest.spyOn(environment, 'execute').mockImplementation(request => {
+      console.log('request', request);
+    });*/
 
     // write some data to the store
     const feedbackId = 'foo';
@@ -187,6 +197,74 @@ describe('requestSubscription-test', () => {
           },
         },
       },
+    });
+  });
+
+  describe('requestSubscription() metadata', () => {
+    let cacheMetadata;
+    let dataSource;
+    let environment;
+    let CommentCreateSubscription;
+    const feedbackId = 'foo';
+    const secondCommentBody = 'second comment';
+    const metadata = {
+      text: 'Gave Relay',
+    };
+    const variables = {
+      feedbackId,
+      text: secondCommentBody,
+      clientSubscriptionId: '0',
+    };
+
+    beforeEach(() => {
+      ({CommentCreateSubscription} = generateAndCompile(`
+      subscription CommentCreateSubscription(
+        $input: CommentCreateSubscriptionInput
+      ) {
+        commentCreateSubscribe(input: $input) {
+          feedbackCommentEdge {
+            node {
+              id
+              body {
+                text
+              }
+            }
+          }
+        }
+      }
+    `));
+
+      cacheMetadata = undefined;
+      const fetch = jest.fn((_query, _variables, _cacheConfig) => {
+        cacheMetadata = _cacheConfig.metadata;
+        return RelayObservable.create(sink => {
+          dataSource = sink;
+        });
+      });
+      const source = RelayRecordSource.create({});
+      const store = new RelayModernStore(source);
+      environment = new RelayModernEnvironment({
+        network: RelayNetwork.create(fetch, fetch),
+        store,
+      });
+    });
+    it('with metadata', () => {
+      requestSubscription(environment, {
+        subscription: CommentCreateSubscription,
+        variables,
+        metadata,
+      });
+
+      expect(cacheMetadata).toEqual(metadata);
+    });
+
+    it('without metadata', () => {
+      requestSubscription(environment, {
+        subscription: CommentCreateSubscription,
+        variables,
+      });
+
+      expect(cacheMetadata).toEqual(undefined);
     });
   });
 });

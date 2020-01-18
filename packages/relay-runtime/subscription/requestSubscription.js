@@ -31,6 +31,7 @@ import type {Disposable, Variables} from '../util/RelayRuntimeTypes';
 
 export type GraphQLSubscriptionConfig<TSubscriptionPayload> = {|
   configs?: Array<DeclarativeMutationConfig>,
+  metadata?: {[key: string]: mixed, ...},
   subscription: GraphQLTaggedNode,
   variables: Variables,
   onCompleted?: ?() => void,
@@ -47,7 +48,7 @@ function requestSubscription<TSubscriptionPayload>(
   if (subscription.params.operationKind !== 'subscription') {
     throw new Error('requestSubscription: Must use Subscription operation');
   }
-  const {configs, onCompleted, onError, onNext, variables} = config;
+  const {configs, onCompleted, onError, onNext, variables, metadata} = config;
   const operation = createOperationDescriptor(subscription, variables);
 
   warning(
@@ -64,10 +65,15 @@ function requestSubscription<TSubscriptionPayload>(
       )
     : config;
 
+  const cacheConfig = {
+    metadata,
+  };
+
   const sub = environment
     .execute({
       operation,
       updater,
+      cacheConfig,
     })
     .map(() => {
       const data = environment.lookup(operation.fragment).data;

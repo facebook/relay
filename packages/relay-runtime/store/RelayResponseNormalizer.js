@@ -12,8 +12,8 @@
 
 'use strict';
 
+const ConnectionInterface = require('../handlers/connection/ConnectionInterface');
 const RelayConnection = require('./RelayConnection');
-const RelayConnectionInterface = require('../handlers/connection/RelayConnectionInterface');
 const RelayModernRecord = require('./RelayModernRecord');
 const RelayProfiler = require('../util/RelayProfiler');
 
@@ -392,7 +392,7 @@ class RelayResponseNormalizer {
       HAS_PREV_PAGE,
       PAGE_INFO,
       START_CURSOR,
-    } = RelayConnectionInterface.get();
+    } = ConnectionInterface.get();
 
     const edgeIDs = RelayModernRecord.getLinkedRecordIDs(pageRecord, EDGES);
     if (edgeIDs == null) {

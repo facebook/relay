@@ -12,7 +12,8 @@
     "publish-gh-pages": "docusaurus-publish",
     "write-translations": "docusaurus-write-translations",
     "crowdin-upload": "crowdin-cli --config ../crowdin.yaml upload sources --auto-update -b master",
-    "crowdin-download": "crowdin-cli --config ../crowdin.yaml download -b master"
+    "crowdin-download": "crowdin-cli --config ../crowdin.yaml download -b master",
+    "update-specs":"spec-md spec/Connections.md > static/graphql/connections.htm; spec-md spec/Mutations.md > static/graphql/mutations.htm; spec-md spec/ObjectIdentification.md > static/graphql/objectidentification.htm"
   },
   "dependencies": {
     "docusaurus": "1.14.0",

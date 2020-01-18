@@ -3,7 +3,7 @@
   "localized-strings": {
     "next": "Next",
     "previous": "Previous",
-    "tagline": "A JavaScript framework for building data-driven React applications",
+    "tagline": "The production-ready GraphQL client for React.",
     "docs": {
       "community-learning-resources": {
         "title": "Community Learning Resources"
@@ -508,11 +508,26 @@
       },
       "version-v7.0.0/version-v7.0.0-network-layer": {
         "title": "Network Layer"
+      },
+      "version-v7.1.0/version-v7.1.0-quick-start-guide": {
+        "title": "Quick Start Guide"
+      },
+      "version-v7.1.0/version-v7.1.0-local-state-management": {
+        "title": "Local State Management"
+      },
+      "version-v8.0.0/version-v8.0.0-graphql-server-specification": {
+        "title": "GraphQL Server Specification"
+      },
+      "version-v8.0.0/version-v8.0.0-mutations": {
+        "title": "Mutations"
+      },
+      "version-v8.0.0/version-v8.0.0-relay-store": {
+        "title": "Relay Store"
       }
     },
     "links": {
       "Docs": "Docs",
-      "Support": "Support",
+      "Help": "Help",
       "GitHub": "GitHub"
     },
     "categories": {

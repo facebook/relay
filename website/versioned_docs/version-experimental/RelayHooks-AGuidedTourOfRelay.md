@@ -1229,38 +1229,70 @@ function App() {
 }
 ```
 
-The provided `fetchPolicy` will determine *when* the query should be fulfilled from the local cache, and when a network request should be made to fetch the query from the server.
+The provided `fetchPolicy` will determine:
+* *if* the query should be fulfilled from the local cache, and
+* *if* a network request should be made to fetch the query from the server, depending on the [availablity of the data for that query in the store](#availability-of-cached-data).
 
-By default, Relay will try to read the query from the local cache; if any piece of data is missing for the query, it will fetch the entire query from the network. This default `fetchPolicy` is called "***store-or-network".***
+By default, Relay will try to read the query from the local cache; if any piece of data for that query is [missing](#presence-of-data) or [stale](#staleness-of-data), it will fetch the entire query from the network. This default `fetchPolicy` is called "***store-or-network".***
 
 Specifically, `fetchPolicy` can be any of the following options:
 
-* **"store-or-network"**: *(default)* ***will*** reuse locally cached data and will ***only*** send a network request if any data for the query is missing. If the query is fully cached, a network request will ***not*** be made.
-* **"store-and-network"**: ***will*** reuse locally cached data and will ***always*** send a network request, regardless of whether any data was missing from the local cache or not.
-* **"network-only"**: ***will not*** reuse locally cached data, and will ***always*** send a network request to fetch the query, ignoring any data that might be locally cached in Relay.
+* **"store-or-network"**: *(default)* ***will*** reuse locally cached data and will ***only*** send a network request if any data for the query is [missing](#presence-of-data) or [stale](#staleness-of-data). If the query is fully cached, a network request will ***not*** be made.
+* **"store-and-network"**: ***will*** reuse locally cached data and will ***always*** send a network request, regardless of whether any data was [missing](#presence-of-data) or [stale](#staleness-of-data) in the store.
+* **"network-only"**: ***will not*** reuse locally cached data, and will ***always*** send a network request to fetch the query, ignoring any data that might be locally cached and whether it's [missing](#presence-of-data) or [stale](#staleness-of-data).
 * **"store-only"**: ***will only*** reuse locally cached data, and will ***never*** send a network request to fetch the query. In this case, the responsibility of fetching the query falls to the caller, but this policy could also be used to read and operate on data that is entirely [local](#local-data-updates).
 
 Note that the `refetch` function discussed in the [Fetching More Data and Rendering Different Data](#fetching-and-rendering-different-data) section  also takes a `fetchPolicy`.
 
-### Garbage Collection in Relay
+### Availability of Cached Data
 
-An important thing to keep in mind when attempting to reuse data cached in the Relay store is garbage collection. Relay runs garbage collection on the local in-memory store to prevent memory from growing unboundedly, by deleting any data that is no longer being referenced by any component in the app. However, this may prevent us from reusing cached data if the cached data is deleted too soon, before we try to reuse it for in different components.
+The behavior of the fetch policies described in the [previous section](#fetch-policies) will depend on the availability of the data in the Relay store at the moment we attempt to evaluate a query.
 
-Usually, you shouldn't need to worry about garbage collection and data retention, as this should be configured by  the app infrastructure at the RelayEnvironment level. However, for reference and completeness, this section will cover what you need to do in order to ensure that the data you want to reuse is kept cached for as long as you need it.
+There are 2 main aspects that determine the availability of data, which we will go over in this section:
 
-#### Query Retention
+* [Presence of data](#presence-of-data)
+* [Staleness of data](#staleness-of-data)
 
-Retaining a query is an operation that indicates to Relay that the data for that query shouldn't be deleted (i.e. garbage collected). Multiple callers might retain a single query, and as long as there is at least one caller retaining a query, it won't be deleted from the store.
+### Presence of Data
 
-By default, any query components using `useLazyLoadQuery` will retain the query for as long as they are mounted. After they unmount, they will release the query, which means that the query might be deleted at any point in the future after that occurs.
+An important thing to keep in mind when attempting to reuse data that is cached in the Relay store is to understand the lifetime of that data; that is, if it is present in the store, and for how long it will be.
 
-If you need to retain a specific query outside of the component's lifecycle, you can use the **`retain`** operation described in our [Retaining Queries](#retaining-queries) section. As mentioned, this will allow you to retain the query even after a query component has unmounted, allowing other components, or future instances of the same component, to reuse the retained data.
+Data in the Relay store for a given query will generally be present after the query has been fetched for the first time, as long as that query is being rendered on the screen. If we’ve never fetched data for a specific query, then it will be missing from the store.
 
-#### Controlling Relay's Garbage Collection Policy
+However, even after we've fetched data for different queries, we can't keep all of the data that we've fetched indefinitely in memory, since over time it would grow to be too large and too stale. In order to mitigate this, Relay runs a process called *Garbage Collection*, in order to delete data that we're no longer using:
+
+#### Garbage Collection in Relay
+
+Specifically, Relay runs garbage collection on the local in-memory store by deleting any data that is no longer being referenced by any component in the app.
+
+However, this can be at odds with reusing cached data; if the data is deleted too soon, before we try to reuse it again later, that will prevent us from reusing that data to render a screen without having to wait on a network request. To address this, this section will cover what you need to do in order to ensure that the data you want to reuse is kept cached for as long as you need it.
+
+
+##### Query Retention
+
+Retaining a query indicates to Relay that the data for that query and variables shouldn't be deleted (i.e. garbage collected). Multiple callers might retain a single query, and as long as there is at least one caller retaining a query, it won't be deleted from the store.
+
+By default, any query components using useLazyLoadQuery or our other APIs will retain the query for as long as they are mounted. After they unmount, they will release the query, which means that the query might be deleted at any point in the future after that occurs.
+
+If you need to retain a specific query outside of the components lifecycle, you can use the [**`retain`**](#retaining-queries) operation:
+
+```javascript
+// Retain query; this will prevent the data for this query and
+// variables from being gabrage collected by Relay
+const disposable = environment.retain(queryDescriptor);
+
+// Disposing of the disposable will release the data for this query
+// and variables, meaning that it can be deleted at any moment
+// by Relay's garbage collection if it hasn't been retained elsewhere
+disposable.dispose();
+```
+* As mentioned, this will allow you to retain the query even after a query component has unmounted, allowing other components, or future instances of the same component, to reuse the retained data.
+
+##### Controlling Relay's Garbage Collection Policy
 
 There are currently 2 options you can provide to your Relay Store in to control the behavior of garbage collection:
 
-##### GC Scheduler
+###### GC Scheduler
 
 The **`gcScheduler`** is a function you can provide to the Relay Store which will determine when a GC execution should be scheduled to run:
 
@@ -1277,7 +1309,7 @@ const store = new Store(source, {gcScheduler});
 * By default, if a `gcScheduler` option is not provided, Relay will schedule garbage collection using the `resolveImmediate` function.
 * You can provide a scheduler function to make GC scheduling less aggressive than the default, for example based on time or [scheduler](https://github.com/facebook/react/tree/master/packages/scheduler) priorities, or any other heuristic. By convention, implementations should not execute the callback immediately.
 
-##### GC Release Buffer Size
+###### GC Release Buffer Size
 
 The Relay Store internally holds a release buffer to keep a specific (configurable) number of queries temporarily retained even after they have been released by their original owner  (i.e., usually when a component rendering that query unmounts). This makes it possible (and more likely) to reuse data when navigating back to a page, tab or piece of content that has been visited before.
 
@@ -1288,6 +1320,85 @@ const store = new Store(source, {gcReleaseBufferSize: 10});
 ```
 
 * Note that having a buffer size of 0 is equivalent to not having the release buffer, which means that queries will be immediately released and collected.
+
+
+### Staleness of Data
+
+Assuming our data is [present in the store](#presence-of-data), we still need to consider the staleness of such data.
+
+By default, Relay will never consider data in the store to be stale (regardless of how long it has been cached for), unless it’s explicitly marked as stale using our data invalidation apis.
+
+Marking data as stale is useful for cases when we explicitly know that some data is no longer fresh (for example after executing a [Mutation](#graphql-mutations)), and we want to make sure it get’s refetched with the latest value from the server. Specifically, when data has been marked as stale, if any query references the stale data, that means the query will also be considered stale, and it will need to be fetched again the next time it is evaluated, given the provided [Fetch Policy](#fetch-policies).
+
+Relay exposes the following APIs to mark data as stale within an update to the store:
+
+#### Globally Invalidating the Relay Store
+
+The coarsest type of data invalidation we can perform is invalidating the whole store, meaning that all currently cached data will be considered stale after invalidation.
+
+To invalidate the store, we can call **`invalidateStore()`** within an [updater](#updater-functions) function:
+
+```javascript
+function updater(store) {
+  store.invalidateStore();
+}
+```
+* Calling `invalidateStore()` will cause ***all*** data that was written to the store before invalidation occurred to be considered stale, and will require any query to be refetched again the next time it’s evaluated.
+* Note that an updater function can be specified as part of a [mutation](#graphql-mutations), [subscription](#graphql-subscriptions) or just a [local store update](#local-data-updates).
+
+#### Invalidating Specific Data in the Store
+
+We can also be more granular about which data we invalidate and only invalidate *specific records* in the store; compared to global invalidation, only queries that reference the invalidated records will be considered stale after invalidation.
+
+To invalidate a record, we can call **`invalidateRecord()`** within an [updater](#updater-functions) function:
+
+```javascript
+function updater(store) {
+  const user = store.get('<id>');
+  if (user != null) {
+    user.invalidateRecord();
+  }
+}
+```
+* Calling `invalidateRecord()` on the user record will mark *that* specific user in the store as stale. That means that any query that is cached and references that invalidated user will now be considered stale, and will require to be refetched again the next time it’s evaluated.
+* Note that an updater function can be specified as part of a [mutation](#graphql-mutations), [subscription](#graphql-subscriptions) or just a [local store update](#local-data-updates).
+
+#### Subscribing to Data Invalidation
+
+Just marking the store or records as stale will cause queries to be refetched they next time they are evaluated; so for example, the next time you navigate back to a page that renders a stale query, the query will be refetched even if the data is cached, since the query references stale data.
+
+This is useful for a lot of use cases, but there are some times when we’d like to immediately refetch some data upon invalidation, for example:
+
+* When invalidating data that is already visible in the current page. Since no navigation is occurring, we won’t re-revaluate the queries for the current page, so even if some data is stale, it won't be immediately refetched and we will be showing stale data.
+* When invalidating data that is rendered on a previous view that was never unmounted; since the view wasn't unmounted, if we navigate back, the queries for that view wont be re-evaluated, meaning that even if some is stale, it won't be refetched and we will be showing stale data.
+
+
+To support these use cases, Relay exposes the **`useSubscribeToInvalidationState`** hook:
+
+```javascript
+function ProfilePage(props) {
+  // Example of querying data for the current page for a given user
+  const data = usePreloadedQuery(
+    graphql`...`,
+    props.preloadedQuery,
+  )
+
+  // Here we subscribe to changes in invalidation state for the given user ID.
+  // Whenever the user whith that ID is marked as stale, the provided callback will
+  // be executed*
+  useSubscribeToInvalidationState([props.userID], () => {
+    // Here we can do things like:
+    // - re-evaluate the query by passing a new preloadedQuery to usePreloadedQuery.
+    // - imperitavely refetch any data
+    // - render a loading spinner or gray out the page to indicate that refetch
+    //   is happening.
+  })
+
+  return (...);  
+}
+```
+* `useSubscribeToInvalidationState` takes an array of ids, and a callback. Whenever any of the records for those ids are marked as stale, the provided callback will fire.
+* Inside the callback, we can react accordingly and refetch and/or update any current views that are rendering stale data. As an example, we could re-execute the top-level `usePreloadedQuery` by keeping the `preloadedQuery` in state and setting a new one here; since that query is stale at that point, the query will be refetched even if the data is cached in the store.
 
 ### Rendering Partially Cached Data [HIGHLY EXPERIMENTAL]
 
@@ -1430,7 +1541,7 @@ function App() {
 
 The process that we described above works the same way for nested fragments (i.e. fragments that include other fragments). This means that if the data required to render a fragment is locally cached, the fragment component will be able to render, regardless of whether data for any of its child or descendant fragments is missing. If data for a child fragment is missing, we can wrap it in a `Suspense` component to allow other fragments and parts of the app to continue rendering.
 
-### Missing Data Handlers
+### Filling in Missing Data (Missing Data Handlers)
 
 In the previous section we covered how to reuse data that is fully or partially cached, however there are cases in which Relay can't automatically tell that it can reuse some of its local data to fulfill a query. Specifically, Relay knows how to reuse data that is cached for the *same* query; that is, if you fetch the exact same query twice, Relay will know that it has the data cached for that query the second time.
 
@@ -3027,6 +3138,8 @@ Let's distill what's happening here:
 * When the mutation response is received, ***if the objects in the mutation response have IDs, the records in the local store will *automatically* be updated with the new field values from the response.*** In this case, it would automatically find the existing `Post` object matching the given ID in the store, and update the values for its `viewer_does_like` and `like_count` fields.
 * Note that any local data updates caused by the mutation will automatically cause components subscribed to the data to be notified of the change and re-render.
 
+#### Updater Functions
+
 However, if the updates you wish to perform on the local data in response to the mutation are more complex than just updating the values of fields, like deleting or creating new records, or [Adding and Removing Items From a Connection](#adding-and-removing-items-from-a-connection), you can provide an **`updater`** function to `commitMutation` for full control over how to update the store:
 
 ```javascript
@@ -3225,7 +3338,7 @@ Let's see what's happening here:
 > **NOTE:** Remember that any updates to local data caused by a mutation will automatically notify and re-render components subscribed to that data.
 
 
-* * *
+#### Order of Execution of Updater Functions
 
 In general, execution of the `updater` and optimistic updates will occur in the following order:
 
@@ -3342,6 +3455,15 @@ Let's distill this example, according to the execution order of the updaters:
 * When the mutation succeeds, all of our optimistic updates will be rolled back.
 * The server response will be processed by Relay, and this will cause the new value of `viewer_has_commented` to be merged into the existing `Post` object, setting it to `true`.
 * Finally, the `updater` function we provided will be executed. The `updater` function is very similar to the `optimisticUpdater` function, however, instead of creating the new data from scratch, it reads it from the mutation payload and adds the new edge to the connection.
+
+
+#### Invalidating Data during a Mutation
+
+The recommended approach when executing a mutation is to request ***all*** the relevant data that was affected by the mutation back from the server (as part of the mutation body), so that our local Relay store is consistent with the state of the server.
+
+However, often times it can be unfeasible to know and specify all the possible data the possible data that would be affected for mutations that have large rippling effects (e.g. imagine “blocking a user” or “leaving a group”).
+
+For these types of mutations, it’s often more straightforward to explicitly mark some data as stale (or the whole store), so that Relay knows to refetch it the next time it is rendered. In order to do so, you can use the data invalidation apis documented in our [Staleness of Data section](#staleness-of-data).
 
 
 #### Mutation Queueing

@@ -13,8 +13,8 @@
 
 'use strict';
 
-jest.mock('fbjs/lib/ExecutionEnvironment', () => ({
-  canUseDOM: true,
+jest.mock('../ExecutionEnvironment', () => ({
+  isServer: false,
 }));
 
 const React = require('react');

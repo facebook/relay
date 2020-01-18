@@ -19,7 +19,6 @@ const {
   __internal: {fetchQuery},
 } = require('relay-runtime');
 
-import type {FetchPolicy} from './ReactRelayTypes';
 import type {
   CacheConfig,
   Disposable,
@@ -94,7 +93,7 @@ class ReactRelayQueryFetcher {
   lookupInStore(
     environment: IEnvironment,
     operation: OperationDescriptor,
-    fetchPolicy: ?(FetchPolicy | 'store-or-network'),
+    fetchPolicy: ?('store-and-network' | 'network-only' | 'store-or-network'),
   ): ?Snapshot {
     if (
       fetchPolicy === 'store-and-network' ||

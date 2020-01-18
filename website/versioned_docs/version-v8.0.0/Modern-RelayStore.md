@@ -1,10 +1,10 @@
 ---
-id: version-1.6.1-relay-store
+id: version-v8.0.0-relay-store
 title: Relay Store
 original_id: relay-store
 ---
 
-The Relay Store can be used to programatically update client-side data inside [`updater` functions](./mutations.html#using-updater-and-optimisticupdater). The following is a reference of the Relay Store interface.
+The Relay Store can be used to programmatically update client-side data inside [`updater` functions](./mutations.html#using-updater-and-optimisticupdater). The following is a reference of the Relay Store interface.
 
 Table of Contents:
 - [RecordSourceSelectorProxy](#recordsourceselectorproxy)
@@ -23,6 +23,7 @@ interface RecordSourceSelectorProxy {
   getRoot(): RecordProxy;
   getRootField(fieldName: string): ?RecordProxy;
   getPluralRootField(fieldName: string): ?Array<?RecordProxy>;
+  invalidateStore(): void;
 }
 ```
 
@@ -108,6 +109,21 @@ Usage:
 const nodes = store.getPluralRootField('nodes');
 ```
 
+### `invalidateStore(): void`
+
+Globally invalidates the Relay store. This will cause any data that was written to the store before invalidation occurred to be considered stale, and will be considered to require refetch the next time a query is checked with `environment.check()`.
+
+#### Example
+
+```javascript
+store.invalidateStore();
+```
+
+After global invalidation, any query that is checked before refetching it will be considered stale:
+```javascript
+environment.check(query) === 'stale'
+```
+
 ## RecordProxy
 
 The `RecordProxy` serves as an interface to mutate records:
@@ -136,6 +152,7 @@ interface RecordProxy {
     arguments?: ?Object,
   ): RecordProxy;
   setValue(value: mixed, name: string, arguments?: ?Object): RecordProxy;
+  invalidateRecord(): void;
 }
 ```
 
@@ -252,7 +269,7 @@ rootField {
 Usage:
 ```javascript
 const rootField = store.getRootField('rootField');
-const nodes = rootField.getLinkedRecord('nodes');
+const nodes = rootField.getLinkedRecords('nodes');
 ```
 
 Optionally, if the linked record takes arguments, you can pass a bag of `variables` as well.
@@ -379,6 +396,23 @@ rootField.setLinkedRecords(newNodes, 'nodes'); //
 ```
 
 Optionally, if the linked record takes arguments, you can pass a bag of `variables` as well.
+
+
+### `invalidateRecord(): void`
+
+Invalidates the record. This will cause any query that references this record to be considered stale until the next time it is refetched, and will be considered to require a refetch the next time such a query is checked with `environment.check()`.
+
+#### Example
+
+```javascript
+const record = store.get('4');
+record.invalidateRecord();
+```
+
+After invalidating a record, any query that references the invalidated record and that is checked before refetching it will be considered stale:
+```javascript
+environment.check(query) === 'stale'
+```
 
 ## ConnectionHandler
 

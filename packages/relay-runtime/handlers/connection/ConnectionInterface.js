@@ -70,7 +70,7 @@ let config: ConnectionConfig = {
  *
  * Defines logic relevant to the informal "Connection" GraphQL interface.
  */
-const RelayConnectionInterface = {
+const ConnectionInterface = {
   inject(newConfig: ConnectionConfig) {
     config = newConfig;
   },
@@ -89,4 +89,4 @@ const RelayConnectionInterface = {
   },
 };
 
-module.exports = RelayConnectionInterface;
+module.exports = ConnectionInterface;

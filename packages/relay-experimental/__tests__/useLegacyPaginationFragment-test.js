@@ -663,8 +663,8 @@ describe('useLegacyPaginationFragment', () => {
 
     beforeEach(() => {
       jest.resetModules();
-      jest.mock('fbjs/lib/ExecutionEnvironment', () => ({
-        canUseDOM: () => true,
+      jest.mock('../ExecutionEnvironment', () => ({
+        isServer: false,
       }));
       jest.doMock('scheduler', () => {
         const original = jest.requireActual('scheduler/unstable_mock');

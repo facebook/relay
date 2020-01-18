@@ -1,7 +1,7 @@
 {
   "name": "relay",
   "description": "A framework for building data-driven React applications.",
-  "version": "7.1.0",
+  "version": "8.0.0",
   "license": "MIT",
   "homepage": "https://relay.dev",
   "bugs": "https://github.com/facebook/relay/issues",
@@ -68,6 +68,7 @@
     "promise-polyfill": "6.1.0",
     "react": "16.11.0",
     "react-test-renderer": "16.11.0",
+    "react-refresh": "^0.4.0",
     "signedsource": "^1.0.0",
     "webpack": "^4.30.0",
     "webpack-stream": "^5.1.1",

@@ -1,6 +1,7 @@
 ---
-id: graphql-server-specification
+id: version-v8.0.0-graphql-server-specification
 title: GraphQL Server Specification
+original_id: graphql-server-specification
 ---
 
 The goal of this document is to specify the assumptions that Relay makes about a GraphQL server and demonstrate them through an example GraphQL schema.

@@ -12,7 +12,7 @@
 
 'use strict';
 
-const RelayConnectionInterface = require('./RelayConnectionInterface');
+const ConnectionInterface = require('./ConnectionInterface');
 
 const getRelayHandleKey = require('../../util/getRelayHandleKey');
 const invariant = require('invariant');
@@ -63,7 +63,7 @@ function update(store: RecordSourceProxy, payload: HandleFieldPayload): void {
     PAGE_INFO,
     PAGE_INFO_TYPE,
     START_CURSOR,
-  } = RelayConnectionInterface.get();
+  } = ConnectionInterface.get();
 
   const serverConnection = record.getLinkedRecord(payload.fieldKey);
   const serverPageInfo =
@@ -157,7 +157,7 @@ function update(store: RecordSourceProxy, payload: HandleFieldPayload): void {
         } else {
           warning(
             false,
-            'RelayConnectionHandler: Unexpected after cursor `%s`, edges must ' +
+            'Relay: Unexpected after cursor `%s`, edges must ' +
               'be fetched from the end of the list (`%s`).',
             args.after,
             clientPageInfo && clientPageInfo.getValue(END_CURSOR),
@@ -176,7 +176,7 @@ function update(store: RecordSourceProxy, payload: HandleFieldPayload): void {
         } else {
           warning(
             false,
-            'RelayConnectionHandler: Unexpected before cursor `%s`, edges must ' +
+            'Relay: Unexpected before cursor `%s`, edges must ' +
               'be fetched from the beginning of the list (`%s`).',
             args.before,
             clientPageInfo && clientPageInfo.getValue(START_CURSOR),
@@ -254,7 +254,7 @@ function update(store: RecordSourceProxy, payload: HandleFieldPayload): void {
  * ```
  * store => {
  *   const user = store.get('<id>');
- *   const friends = RelayConnectionHandler.getConnection(user, 'FriendsFragment_friends');
+ *   const friends = ConnectionHandler.getConnection(user, 'FriendsFragment_friends');
  *   // Access fields on the connection:
  *   const edges = friends.getLinkedRecords('edges');
  * }
@@ -301,9 +301,9 @@ function getConnection(
  * ```
  * store => {
  *   const user = store.get('<id>');
- *   const friends = RelayConnectionHandler.getConnection(user, 'FriendsFragment_friends');
+ *   const friends = ConnectionHandler.getConnection(user, 'FriendsFragment_friends');
  *   const edge = store.create('<edge-id>', 'FriendsEdge');
- *   RelayConnectionHandler.insertEdgeAfter(friends, edge);
+ *   ConnectionHandler.insertEdgeAfter(friends, edge);
  * }
  * ```
  */
@@ -312,7 +312,7 @@ function insertEdgeAfter(
   newEdge: RecordProxy,
   cursor?: ?string,
 ): void {
-  const {CURSOR, EDGES} = RelayConnectionInterface.get();
+  const {CURSOR, EDGES} = ConnectionInterface.get();
 
   const edges = record.getLinkedRecords(EDGES);
   if (!edges) {
@@ -355,7 +355,7 @@ function createEdge(
   node: RecordProxy,
   edgeType: string,
 ): RecordProxy {
-  const {NODE} = RelayConnectionInterface.get();
+  const {NODE} = ConnectionInterface.get();
 
   // An index-based client ID could easily conflict (unless it was
   // auto-incrementing, but there is nowhere to the store the id)
@@ -400,9 +400,9 @@ function createEdge(
  * ```
  * store => {
  *   const user = store.get('<id>');
- *   const friends = RelayConnectionHandler.getConnection(user, 'FriendsFragment_friends');
+ *   const friends = ConnectionHandler.getConnection(user, 'FriendsFragment_friends');
  *   const edge = store.create('<edge-id>', 'FriendsEdge');
- *   RelayConnectionHandler.insertEdgeBefore(friends, edge);
+ *   ConnectionHandler.insertEdgeBefore(friends, edge);
  * }
  * ```
  */
@@ -411,7 +411,7 @@ function insertEdgeBefore(
   newEdge: RecordProxy,
   cursor?: ?string,
 ): void {
-  const {CURSOR, EDGES} = RelayConnectionInterface.get();
+  const {CURSOR, EDGES} = ConnectionInterface.get();
 
   const edges = record.getLinkedRecords(EDGES);
   if (!edges) {
@@ -448,7 +448,7 @@ function insertEdgeBefore(
  * Remove any edges whose `node.id` matches the given id.
  */
 function deleteNode(record: RecordProxy, nodeID: DataID): void {
-  const {EDGES, NODE} = RelayConnectionInterface.get();
+  const {EDGES, NODE} = ConnectionInterface.get();
 
   const edges = record.getLinkedRecords(EDGES);
   if (!edges) {
@@ -492,12 +492,12 @@ function buildConnectionEdge(
   if (edge == null) {
     return edge;
   }
-  const {EDGES} = RelayConnectionInterface.get();
+  const {EDGES} = ConnectionInterface.get();
 
   const edgeIndex = connection.getValue(NEXT_EDGE_INDEX);
   invariant(
     typeof edgeIndex === 'number',
-    'RelayConnectionHandler: Expected %s to be a number, got `%s`.',
+    'ConnectionHandler: Expected %s to be a number, got `%s`.',
     NEXT_EDGE_INDEX,
     edgeIndex,
   );
@@ -519,7 +519,7 @@ function mergeEdges(
   targetEdges: Array<?RecordProxy>,
   nodeIDs: Set<mixed>,
 ): void {
-  const {NODE} = RelayConnectionInterface.get();
+  const {NODE} = ConnectionInterface.get();
 
   for (let ii = 0; ii < sourceEdges.length; ii++) {
     const edge = sourceEdges[ii];

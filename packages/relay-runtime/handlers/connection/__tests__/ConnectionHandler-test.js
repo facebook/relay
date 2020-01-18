@@ -10,8 +10,8 @@
 
 'use strict';
 
-const RelayConnectionHandler = require('../RelayConnectionHandler');
-const RelayConnectionInterface = require('../RelayConnectionInterface');
+const ConnectionHandler = require('../ConnectionHandler');
+const ConnectionInterface = require('../ConnectionInterface');
 const RelayModernStore = require('../../../store/RelayModernStore');
 const RelayRecordSourceMapImpl = require('../../../store/RelayRecordSourceMapImpl');
 const RelayRecordSourceMutator = require('../../../mutations/RelayRecordSourceMutator');
@@ -46,13 +46,13 @@ const {
   HAS_PREV_PAGE,
   PAGE_INFO,
   START_CURSOR,
-} = RelayConnectionInterface.get();
+} = ConnectionInterface.get();
 
 [
   [RelayRecordSourceObjectImpl, 'Object'],
   [RelayRecordSourceMapImpl, 'Map'],
 ].forEach(([RecordSourceImplementation, ImplementationName]) => {
-  describe(`RelayConnectionHandler with ${ImplementationName} RecordSource`, () => {
+  describe(`ConnectionHandler with ${ImplementationName} RecordSource`, () => {
     let ConnectionQuery;
     let baseSource;
     let mutator;
@@ -171,7 +171,7 @@ const {
           fieldKey: getStableStorageKey('friends', args),
           handleKey,
         };
-        RelayConnectionHandler.update(proxy, payload);
+        ConnectionHandler.update(proxy, payload);
         const store = new RelayModernStore(baseSource);
         store.publish(sinkSource);
         baseSource = new RecordSourceImplementation(baseSource.toJSON());
@@ -179,7 +179,7 @@ const {
         mutator = new RelayRecordSourceMutator(baseSource, sinkSource);
         proxy = new RelayRecordSourceProxy(mutator, defaultGetDataID);
 
-        connection = RelayConnectionHandler.getConnection(
+        connection = ConnectionHandler.getConnection(
           proxy.get('4'),
           'ConnectionQuery_friends',
           {orderby: ['first name']},
@@ -191,7 +191,7 @@ const {
 
       it('creates the edges array if it does not exist', () => {
         connection = proxy.create('connection', 'FriendsConnection');
-        RelayConnectionHandler.insertEdgeAfter(connection, newEdge);
+        ConnectionHandler.insertEdgeAfter(connection, newEdge);
         expect(sinkSource.toJSON().connection).toEqual({
           [ID_KEY]: 'connection',
           [TYPENAME_KEY]: 'FriendsConnection',
@@ -202,7 +202,7 @@ const {
       });
 
       it('appends the edge if no cursor is supplied', () => {
-        RelayConnectionHandler.insertEdgeAfter(connection, newEdge);
+        ConnectionHandler.insertEdgeAfter(connection, newEdge);
         expect(sinkSource.toJSON()[connectionID]).toEqual({
           [ID_KEY]: connectionID,
           [TYPENAME_KEY]: 'FriendsConnection',
@@ -217,11 +217,7 @@ const {
       });
 
       it('appends the edge if the cursor is not found', () => {
-        RelayConnectionHandler.insertEdgeAfter(
-          connection,
-          newEdge,
-          'bad-cursor',
-        );
+        ConnectionHandler.insertEdgeAfter(connection, newEdge, 'bad-cursor');
         expect(sinkSource.toJSON()[connectionID]).toEqual({
           [ID_KEY]: connectionID,
           [TYPENAME_KEY]: 'FriendsConnection',
@@ -236,7 +232,7 @@ const {
       });
 
       it('inserts the edge after the edge with the given cursor', () => {
-        RelayConnectionHandler.insertEdgeAfter(connection, newEdge, 'cursor:1');
+        ConnectionHandler.insertEdgeAfter(connection, newEdge, 'cursor:1');
         expect(sinkSource.toJSON()[connectionID]).toEqual({
           [ID_KEY]: connectionID,
           [TYPENAME_KEY]: 'FriendsConnection',
@@ -307,7 +303,7 @@ const {
           fieldKey: getStableStorageKey('friends', args),
           handleKey,
         };
-        RelayConnectionHandler.update(proxy, payload);
+        ConnectionHandler.update(proxy, payload);
         const store = new RelayModernStore(baseSource);
         store.publish(sinkSource);
         baseSource = new RecordSourceImplementation(
@@ -317,7 +313,7 @@ const {
         mutator = new RelayRecordSourceMutator(baseSource, sinkSource);
         proxy = new RelayRecordSourceProxy(mutator, defaultGetDataID);
 
-        connection = RelayConnectionHandler.getConnection(
+        connection = ConnectionHandler.getConnection(
           proxy.get('4'),
           'ConnectionQuery_friends',
           {orderby: ['first name']},
@@ -329,7 +325,7 @@ const {
 
       it('creates the edges array if it does not exist', () => {
         connection = proxy.create('connection', 'FriendsConnection');
-        RelayConnectionHandler.insertEdgeBefore(connection, newEdge);
+        ConnectionHandler.insertEdgeBefore(connection, newEdge);
         expect(sinkSource.toJSON().connection).toEqual({
           [ID_KEY]: 'connection',
           [TYPENAME_KEY]: 'FriendsConnection',
@@ -340,7 +336,7 @@ const {
       });
 
       it('prepends the edge if no cursor is supplied', () => {
-        RelayConnectionHandler.insertEdgeBefore(connection, newEdge);
+        ConnectionHandler.insertEdgeBefore(connection, newEdge);
         expect(sinkSource.toJSON()[connectionID]).toEqual({
           [ID_KEY]: connectionID,
           [TYPENAME_KEY]: 'FriendsConnection',
@@ -355,11 +351,7 @@ const {
       });
 
       it('prepends the edge if the cursor is not found', () => {
-        RelayConnectionHandler.insertEdgeBefore(
-          connection,
-          newEdge,
-          'bad-cursor',
-        );
+        ConnectionHandler.insertEdgeBefore(connection, newEdge, 'bad-cursor');
         expect(sinkSource.toJSON()[connectionID]).toEqual({
           [ID_KEY]: connectionID,
           [TYPENAME_KEY]: 'FriendsConnection',
@@ -374,11 +366,7 @@ const {
       });
 
       it('inserts the edge before the edge with the given cursor', () => {
-        RelayConnectionHandler.insertEdgeBefore(
-          connection,
-          newEdge,
-          'cursor:2',
-        );
+        ConnectionHandler.insertEdgeBefore(connection, newEdge, 'cursor:2');
         expect(sinkSource.toJSON()[connectionID]).toEqual({
           [ID_KEY]: connectionID,
           [TYPENAME_KEY]: 'FriendsConnection',
@@ -448,7 +436,7 @@ const {
           fieldKey: getStableStorageKey('friends', args),
           handleKey,
         };
-        RelayConnectionHandler.update(proxy, payload);
+        ConnectionHandler.update(proxy, payload);
         const store = new RelayModernStore(baseSource);
         store.publish(sinkSource);
         baseSource = new RecordSourceImplementation(
@@ -458,7 +446,7 @@ const {
         mutator = new RelayRecordSourceMutator(baseSource, sinkSource);
         proxy = new RelayRecordSourceProxy(mutator, defaultGetDataID);
 
-        connection = RelayConnectionHandler.getConnection(
+        connection = ConnectionHandler.getConnection(
           proxy.get('4'),
           'ConnectionQuery_friends',
           {orderby: ['first name']},
@@ -467,12 +455,12 @@ const {
       });
 
       it('does nothing if the node is not found', () => {
-        RelayConnectionHandler.deleteNode(connection, '<not-in-connection>');
+        ConnectionHandler.deleteNode(connection, '<not-in-connection>');
         expect(sinkSource.toJSON()).toEqual({});
       });
 
       it('deletes the matching edge from the connection', () => {
-        RelayConnectionHandler.deleteNode(connection, '1');
+        ConnectionHandler.deleteNode(connection, '1');
         expect(baseSource.toJSON()[connectionID].edges[REFS_KEY]).toEqual([
           'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):edges:0',
           'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):edges:1',
@@ -498,7 +486,7 @@ const {
           fieldKey: 'friends',
           handleKey: getRelayHandleKey('connection', null, 'friends'),
         };
-        RelayConnectionHandler.update(proxy, payload);
+        ConnectionHandler.update(proxy, payload);
         expect(sinkSource.toJSON()).toEqual({});
       });
 
@@ -513,7 +501,7 @@ const {
           fieldKey: 'friends',
           handleKey: getRelayHandleKey('connection', null, 'friend'),
         };
-        RelayConnectionHandler.update(proxy, payload);
+        ConnectionHandler.update(proxy, payload);
         expect(sinkSource.toJSON()).toEqual({
           [ROOT_ID]: {
             [ID_KEY]: ROOT_ID,
@@ -534,7 +522,7 @@ const {
           fieldKey: 'friends',
           handleKey: getRelayHandleKey('connection', null, 'friend'),
         };
-        RelayConnectionHandler.update(proxy, payload);
+        ConnectionHandler.update(proxy, payload);
         expect(sinkSource.toJSON()).toEqual({
           [ROOT_ID]: {
             [ID_KEY]: ROOT_ID,
@@ -589,7 +577,7 @@ const {
           fieldKey: getStableStorageKey('friends', args),
           handleKey,
         };
-        RelayConnectionHandler.update(proxy, payload);
+        ConnectionHandler.update(proxy, payload);
         expect(sinkSource.toJSON()).toEqual({
           4: {
             __id: '4',
@@ -674,7 +662,7 @@ const {
           fieldKey: getStableStorageKey('friends', args),
           handleKey,
         };
-        RelayConnectionHandler.update(proxy, payload);
+        ConnectionHandler.update(proxy, payload);
         expect(sinkSource.toJSON()).toEqual({
           4: {
             __id: '4',
@@ -764,7 +752,7 @@ const {
             fieldKey: getStableStorageKey('friends', args),
             handleKey,
           };
-          RelayConnectionHandler.update(proxy, payload);
+          ConnectionHandler.update(proxy, payload);
           const store = new RelayModernStore(baseSource);
           store.publish(sinkSource);
           baseSource = new RecordSourceImplementation(
@@ -820,7 +808,7 @@ const {
             fieldKey: getStableStorageKey('friends', args),
             handleKey,
           };
-          RelayConnectionHandler.update(proxy, payload);
+          ConnectionHandler.update(proxy, payload);
           expect(sinkSource.toJSON()).toEqual({
             'client:4:__ConnectionQuery_friends_connection(orderby:["first name"])': {
               [ID_KEY]:
@@ -900,7 +888,7 @@ const {
             fieldKey: getStableStorageKey('friends', args),
             handleKey,
           };
-          RelayConnectionHandler.update(proxy, payload);
+          ConnectionHandler.update(proxy, payload);
           expect(sinkSource.toJSON()).toEqual({
             'client:4:__ConnectionQuery_friends_connection(orderby:["first name"])': {
               [ID_KEY]:
@@ -980,7 +968,7 @@ const {
             fieldKey: getStableStorageKey('friends', args),
             handleKey,
           };
-          RelayConnectionHandler.update(proxy, payload);
+          ConnectionHandler.update(proxy, payload);
           expect(sinkSource.toJSON()).toEqual({
             'client:4:__ConnectionQuery_friends_connection(orderby:["first name"])': {
               [ID_KEY]:
@@ -1061,7 +1049,7 @@ const {
             fieldKey: getStableStorageKey('friends', args),
             handleKey,
           };
-          RelayConnectionHandler.update(proxy, payload);
+          ConnectionHandler.update(proxy, payload);
           expect(sinkSource.toJSON()).toEqual({
             'client:4:__ConnectionQuery_friends_connection(orderby:["first name"])': {
               [ID_KEY]:
@@ -1141,7 +1129,7 @@ const {
             fieldKey: getStableStorageKey('friends', args),
             handleKey,
           };
-          RelayConnectionHandler.update(proxy, payload);
+          ConnectionHandler.update(proxy, payload);
           expect(sinkSource.toJSON()).toEqual({
             'client:4:__ConnectionQuery_friends_connection(orderby:["first name"])': {
               [ID_KEY]:
@@ -1214,7 +1202,7 @@ const {
             fieldKey: getStableStorageKey('friends', args),
             handleKey,
           };
-          RelayConnectionHandler.update(proxy, payload);
+          ConnectionHandler.update(proxy, payload);
           expect(sinkSource.toJSON()).toEqual({
             'client:4:__ConnectionQuery_friends_connection(orderby:["first name"])': {
               [ID_KEY]:
@@ -1291,7 +1279,7 @@ const {
             fieldKey: getStableStorageKey('friends', args),
             handleKey,
           };
-          RelayConnectionHandler.update(proxy, payload);
+          ConnectionHandler.update(proxy, payload);
           expect(sinkSource.toJSON()).toEqual({
             'client:4:__ConnectionQuery_friends_connection(orderby:["first name"])': {
               [ID_KEY]:
@@ -1395,7 +1383,7 @@ const {
             fieldKey: getStableStorageKey('friends', args),
             handleKey,
           };
-          RelayConnectionHandler.update(proxy, payload);
+          ConnectionHandler.update(proxy, payload);
           expect(sinkSource.toJSON()).toEqual({
             'client:4:__ConnectionQuery_friends_connection(orderby:["first name"])': {
               [ID_KEY]:
@@ -1489,7 +1477,7 @@ const {
             fieldKey: getStableStorageKey('friends', args),
             handleKey,
           };
-          RelayConnectionHandler.update(proxy, payload);
+          ConnectionHandler.update(proxy, payload);
           expect(sinkSource.toJSON()).toEqual({
             'client:4:__ConnectionQuery_friends_connection(orderby:["first name"])': {
               [ID_KEY]:
@@ -1582,7 +1570,7 @@ const {
             fieldKey: getStableStorageKey('friends', args),
             handleKey,
           };
-          RelayConnectionHandler.update(proxy, payload);
+          ConnectionHandler.update(proxy, payload);
           expect(sinkSource.toJSON()).toEqual({
             'client:4:__ConnectionQuery_friends_connection(orderby:["first name"])': {
               [ID_KEY]:
@@ -1659,7 +1647,7 @@ const {
             fieldKey: getStableStorageKey('friends', args),
             handleKey,
           };
-          RelayConnectionHandler.update(proxy, payload);
+          ConnectionHandler.update(proxy, payload);
           expect(sinkSource.toJSON()).toEqual({
             'client:4:__ConnectionQuery_friends_connection(orderby:["first name"])': {
               [ID_KEY]:
@@ -1732,7 +1720,7 @@ const {
             fieldKey: getStableStorageKey('friends', args),
             handleKey,
           };
-          RelayConnectionHandler.update(proxy, payload);
+          ConnectionHandler.update(proxy, payload);
           expect(sinkSource.toJSON()).toEqual({
             'client:4:__ConnectionQuery_friends_connection(orderby:["first name"])': {
               [ID_KEY]:

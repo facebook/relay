@@ -1,9 +1,14 @@
-Relay Cursor Connections Specification
+GraphQL Cursor Connections Specification
 --------------------------------------
 
-Relay's support for pagination relies on the GraphQL server exposing
-connections in a standardized way. In the query, the connection model
-provides a standard mechanism for slicing and paginating the result set.
+This specification aims to provide an option for GraphQL clients to consistently 
+handle [pagination best practices](https://graphql.org/learn/pagination/) with 
+support for related metadata via a GraphQL server. This spec proposes calling 
+this pattern "Connections" and exposing them in a standardized way. 
+
+In the query, the connection model provides a standard mechanism for slicing 
+and paginating the result set.
+
 In the response, the connection model provides a standard way of providing
 cursors, and a way of telling the client when more results are available.
 
@@ -47,8 +52,8 @@ This section of the spec describes the formal requirements around connections.
 
 # Reserved Types
 
-A GraphQL Relay server must reserve certain types and type names
-to support the pagination model used by Relay. In particular, this spec creates
+A GraphQL server which conforms to this spec must reserve certain types and type names
+to support the pagination model of connections. In particular, this spec creates
 guidelines for the following types:
 
  - Any object whose name ends in "Connection".
@@ -56,7 +61,7 @@ guidelines for the following types:
 
 # Connection Types
 
-Any type whose name ends in "Connection" is considered by Relay
+Any type whose name ends in "Connection" is considered by this spec
 to be a *Connection Type*. Connection types must be an "Object"
 as defined in the "Type System" section of the GraphQL Specification.
 
@@ -143,7 +148,7 @@ returns
 # Edge Types
 
 A type that is returned in list form by a connection type's `edges` field
-is considered by Relay to be an *Edge Type*. Edge types must be an "Object"
+is considered by this spec to be an *Edge Type*. Edge types must be an "Object"
 as defined in the "Type System" section of the GraphQL Specification.
 
 ## Fields
@@ -159,9 +164,9 @@ a Scalar, Enum, Object, Interface, Union, or a Non-Null wrapper around one of
 those types. Notably, this field *cannot* return a list.
 
 NOTE The naming echoes that of the "Node" interface and "node" root
-field as described in a later section of this spec. Relay can perform
-certain optimizations if this field returns an object that implements
-`Node`, however, this is not a strict requirement for use of Relay.
+field as described in a later section of this spec. Spec-compliant clients 
+can perform certain optimizations if this field returns an object that implements
+`Node`, however, this is not a strict requirement for conforming.
 
 ### Cursor
 
@@ -173,7 +178,7 @@ Non-Null wrapper around a custom scalar that serializes as a String.
 Whatever type this field returns will be referred to as the *cursor type*
 in the rest of this spec.
 
-The result of this field is considered opaque by Relay, but will be passed
+The result of this field should be considered opaque by the client, but will be passed
 back to the server as described in the "Arguments" section below.
 
 ## Introspection
@@ -368,7 +373,8 @@ becomes unclear. This is among the reasons that pagination with both `first` and
 `startCursor` and `endCursor` must be the cursors corresponding to the first and
 last nodes in `edges`, respectively.
 
-NOTE Relay Legacy did not define `startCursor` and `endCursor`, and relied on
+NOTE As this spec was created with Relay Classic in mind, it's worth noting that 
+Relay Legacy did not define `startCursor` and `endCursor`, and relied on
 selecting the `cursor` of each edge; Relay Modern began selecting
 `startCursor` and `endCursor` instead to save bandwidth (since it doesn't use any
 cursors in between).

@@ -817,7 +817,7 @@ export type OptimisticResponseConfig = {|
  * fields when reading a selector from a source.
  */
 export type MissingFieldHandler =
-  | {
+  | {|
       kind: 'scalar',
       handle: (
         field: NormalizationScalarField,
@@ -825,9 +825,8 @@ export type MissingFieldHandler =
         args: Variables,
         store: ReadOnlyRecordSourceProxy,
       ) => mixed,
-      ...
-    }
-  | {
+    |}
+  | {|
       kind: 'linked',
       handle: (
         field: NormalizationLinkedField,
@@ -835,9 +834,8 @@ export type MissingFieldHandler =
         args: Variables,
         store: ReadOnlyRecordSourceProxy,
       ) => ?DataID,
-      ...
-    }
-  | {
+    |}
+  | {|
       kind: 'pluralLinked',
       handle: (
         field: NormalizationLinkedField,
@@ -845,8 +843,7 @@ export type MissingFieldHandler =
         args: Variables,
         store: ReadOnlyRecordSourceProxy,
       ) => ?Array<?DataID>,
-      ...
-    };
+    |};
 
 /**
  * The results of normalizing a query.

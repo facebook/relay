@@ -27,7 +27,7 @@ const {
 
 import type {PayloadData, PayloadError} from 'relay-runtime';
 
-const {useState} = React;
+const {useState, useMemo} = React;
 let environment;
 let render;
 let setEnvironment;
@@ -57,7 +57,6 @@ const data = {
 
 const variables = {
   input: {
-    clientMutationId: '0',
     commentId: '<id>',
   },
 };
@@ -92,7 +91,11 @@ beforeEach(() => {
         disposable = commitFn(config);
       });
     if (commitInRender) {
-      commit({variables});
+      // `commitInRender` never changes in the test
+      // eslint-disable-next-line react-hooks/rules-of-hooks
+      useMemo(() => {
+        commit({variables});
+      }, []);
     }
     isInFlightFn(isMutationInFlight);
     return null;
@@ -145,13 +148,11 @@ it('returns correct in-flight state when commit called inside render', () => {
   render(environment, CommentCreateMutation, true);
   expect(isInFlightFn).toBeCalledTimes(2);
   expect(isInFlightFn).toHaveBeenNthCalledWith(2, true);
-
   isInFlightFn.mockClear();
   const operation = environment.executeMutation.mock.calls[0][0].operation;
   ReactTestRenderer.act(() => environment.mock.resolve(operation, data));
-  expect(isInFlightFn).toBeCalledTimes(2);
-  expect(isInFlightFn).toHaveBeenNthCalledWith(1, false);
-  expect(isInFlightFn).toHaveBeenNthCalledWith(2, true);
+  expect(isInFlightFn).toBeCalledTimes(1);
+  expect(isInFlightFn).toHaveBeenCalledWith(false);
 });
 
 it('returns correct in-flight state when the mutation is disposed', () => {
@@ -167,16 +168,113 @@ it('returns correct in-flight state when the mutation is disposed', () => {
   expect(isInFlightFn).toBeCalledWith(false);
 });
 
-it('only allows one commitMutation to be running for each useMutation', () => {
+it('returns in-flight state that tracks all in-flight mutations', () => {
   render(environment, CommentCreateMutation);
   commit({variables});
   expect(environment.executeMutation).toBeCalledTimes(1);
-  commit({variables});
-  expect(environment.executeMutation).toBeCalledTimes(1);
+  expect(isInFlightFn).toBeCalledWith(true);
+
+  commit({
+    variables: {
+      input: {
+        commentId: '<new-id-1>',
+      },
+    },
+  });
+  expect(environment.executeMutation).toBeCalledTimes(2);
+
+  commit({
+    variables: {
+      input: {
+        commentId: '<new-id-2>',
+      },
+    },
+  });
+  expect(environment.executeMutation).toBeCalledTimes(3);
+
+  isInFlightFn.mockClear();
   const operation = environment.executeMutation.mock.calls[0][0].operation;
   ReactTestRenderer.act(() => environment.mock.resolve(operation, data));
+  expect(isInFlightFn).toBeCalledTimes(0);
+
+  isInFlightFn.mockClear();
+
+  const operation2 = environment.executeMutation.mock.calls[1][0].operation;
+  ReactTestRenderer.act(() =>
+    environment.mock.resolve(operation2, {
+      data: {
+        commentCreate: {
+          feedbackCommentEdge: {
+            __typename: 'CommentsEdge',
+            cursor: '<cursor>',
+            node: {
+              id: '<new-id-1>',
+              body: {
+                text: '<text>',
+              },
+            },
+          },
+        },
+      },
+    }),
+  );
+  expect(isInFlightFn).toBeCalledTimes(0);
+
+  isInFlightFn.mockClear();
+  const operation3 = environment.executeMutation.mock.calls[2][0].operation;
+  ReactTestRenderer.act(() =>
+    environment.mock.resolve(operation3, {
+      data: {
+        commentCreate: {
+          feedbackCommentEdge: {
+            __typename: 'CommentsEdge',
+            cursor: '<cursor>',
+            node: {
+              id: '<new-id-2>',
+              body: {
+                text: '<text>',
+              },
+            },
+          },
+        },
+      },
+    }),
+  );
+  expect(isInFlightFn).toBeCalledTimes(1);
+  expect(isInFlightFn).toBeCalledWith(false);
+});
+
+it('returns in-flight state that tracks all current mutations when disposed or errored', () => {
+  render(environment, CommentCreateMutation);
   commit({variables});
-  expect(environment.executeMutation).toBeCalledTimes(2);
+  const disposable1 = disposable;
+  commit({
+    variables: {
+      input: {
+        commentId: '<new-id-1>',
+      },
+    },
+  });
+  const disposable2 = disposable;
+  commit({
+    variables: {
+      input: {
+        commentId: '<new-id-2>',
+      },
+    },
+  });
+
+  isInFlightFn.mockClear();
+  ReactTestRenderer.act(() => disposable1.dispose());
+  expect(isInFlightFn).toBeCalledTimes(0);
+  const operation3 = environment.executeMutation.mock.calls[2][0].operation;
+  ReactTestRenderer.act(() =>
+    environment.mock.reject(operation3, new Error('test')),
+  );
+  expect(isInFlightFn).toBeCalledTimes(0);
+  ReactTestRenderer.act(() => disposable2.dispose());
+  expect(isInFlightFn).toBeCalledTimes(1);
+  expect(isInFlightFn).toBeCalledWith(false);
 });
 
 it('calls onCompleted when mutation responses contains server errors', () => {

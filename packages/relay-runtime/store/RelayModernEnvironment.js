@@ -14,7 +14,6 @@
 'use strict';
 
 const RelayDefaultHandlerProvider = require('../handlers/RelayDefaultHandlerProvider');
-const RelayDefaultMissingFieldHandlers = require('../handlers/RelayDefaultMissingFieldHandlers');
 const RelayFeatureFlags = require('../util/RelayFeatureFlags');
 const RelayModernQueryExecutor = require('./RelayModernQueryExecutor');
 const RelayObservable = require('../network/RelayObservable');
@@ -24,6 +23,7 @@ const RelayRecordSource = require('./RelayRecordSource');
 
 const defaultGetDataID = require('./defaultGetDataID');
 const generateID = require('../util/generateID');
+const getRelayDefaultMissingFieldHandlers = require('../handlers/getRelayDefaultMissingFieldHandlers');
 const invariant = require('invariant');
 
 import type {HandlerProvider} from '../handlers/RelayDefaultHandlerProvider';
@@ -152,7 +152,7 @@ class RelayModernEnvironment implements IEnvironment {
       devToolsHook.registerEnvironment(this);
     }
     this._missingFieldHandlers =
-      config.missingFieldHandlers ?? RelayDefaultMissingFieldHandlers;
+      config.missingFieldHandlers ?? getRelayDefaultMissingFieldHandlers();
 
     this._operationTracker =
       config.operationTracker ?? new RelayOperationTracker();

@@ -137,8 +137,8 @@ beforeEach(() => {
   jest.mock('scheduler', () => {
     return jest.requireActual('scheduler/unstable_mock');
   });
-  jest.mock('fbjs/lib/ExecutionEnvironment', () => ({
-    canUseDOM: () => true,
+  jest.mock('../ExecutionEnvironment', () => ({
+    isServer: false,
   }));
   renderSpy = jest.fn();
 
@@ -1211,6 +1211,73 @@ it('should subscribe for updates even if there is missing data', () => {
         profile_picture: undefined,
         ...createFragmentRef('4', missingDataQuery),
       },
+      shouldUpdate: true,
+    },
+  ]);
+});
+
+it('should subscribe for updates to plural fragments even if there is missing data', () => {
+  // This prevents console.error output in the test, which is expected
+  jest.spyOn(console, 'error').mockImplementationOnce(() => {});
+  const warning = require('warning');
+
+  const missingDataVariables = {...pluralVariables, ids: ['4']};
+  const missingDataQuery = createOperationDescriptor(
+    gqlPluralQuery,
+    missingDataVariables,
+  );
+
+  // Commit a payload where name is missing.
+  environment.commitPayload(missingDataQuery, {
+    nodes: [
+      {
+        __typename: 'User',
+        id: '4',
+      },
+    ],
+  });
+
+  // $FlowFixMe
+  warning.mockClear();
+  renderPluralFragment({owner: missingDataQuery});
+
+  // Assert render output with missing data
+  assertFragmentResults([
+    {
+      data: [
+        {
+          id: '4',
+          name: undefined,
+          profile_picture: undefined,
+          ...createFragmentRef('4', missingDataQuery),
+        },
+      ],
+      shouldUpdate: true,
+    },
+  ]);
+
+  // Commit a payload with updated name.
+  environment.commitPayload(missingDataQuery, {
+    nodes: [
+      {
+        __typename: 'User',
+        id: '4',
+        name: 'Mark',
+      },
+    ],
+  });
+
+  // Assert render output with updated data
+  assertFragmentResults([
+    {
+      data: [
+        {
+          id: '4',
+          name: 'Mark',
+          profile_picture: undefined,
+          ...createFragmentRef('4', missingDataQuery),
+        },
+      ],
       shouldUpdate: true,
     },
   ]);

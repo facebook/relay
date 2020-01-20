@@ -180,11 +180,13 @@ type ThinNestedEntryPointParams<TEntryPointParams, TEntryPoint> = $ReadOnly<{|
   entryPointParams: TEntryPointParams,
 |}>;
 
-type ExtractQueryTypeHelper<TEnvironmentProviderOptions> = <TQuery>(
+export type ExtractQueryTypeHelper<TEnvironmentProviderOptions> = <TQuery>(
   PreloadedQuery<TQuery>,
 ) => ThinQueryParams<TQuery, TEnvironmentProviderOptions>;
 
-type ExtractEntryPointTypeHelper<TEntryPointParams> = <TEntryPointComponent>(
+export type ExtractEntryPointTypeHelper<TEntryPointParams> = <
+  TEntryPointComponent,
+>(
   ?PreloadedEntryPoint<TEntryPointComponent>,
 ) => ?ThinNestedEntryPointParams<
   TEntryPointParams,

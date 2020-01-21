@@ -1042,13 +1042,14 @@ describe('useBlockingPaginationFragment', () => {
         });
 
         // $FlowFixMe
-        const calls = warning.mock.calls.filter(call => call[0] === false);
+        const calls = warning.mock.calls.filter(
+          call =>
+            call[0] === false &&
+            call[1].includes(
+              'Relay: Unexpected call to `%s` at a priority higher than expected',
+            ),
+        );
         expect(calls.length).toEqual(1);
-        expect(
-          calls[0][1].includes(
-            'Relay: Unexpected call to `%s` at a priority higher than expected',
-          ),
-        ).toEqual(true);
         expect(calls[0][2]).toEqual('loadNext');
         expect(environment.execute).toHaveBeenCalledTimes(1);
       });

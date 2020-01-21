@@ -47,7 +47,6 @@ const deepFreeze = require('./util/deepFreeze');
 const fetchQuery = require('./query/fetchQuery');
 const fetchQueryInternal = require('./query/fetchQueryInternal');
 const getFragmentIdentifier = require('./util/getFragmentIdentifier');
-const getRelayDefaultMissingFieldHandlers = require('./handlers/getRelayDefaultMissingFieldHandlers');
 const getRelayHandleKey = require('./util/getRelayHandleKey');
 const getRequestIdentifier = require('./util/getRequestIdentifier');
 const isPromise = require('./util/isPromise');
@@ -261,7 +260,6 @@ module.exports = {
   RangeOperations: RelayDeclarativeMutationConfig.RangeOperations,
 
   // Extensions
-  getDefaultMissingFieldHandlers: getRelayDefaultMissingFieldHandlers,
   DefaultHandlerProvider: RelayDefaultHandlerProvider,
   ConnectionHandler,
   VIEWER_ID: ViewerPattern.VIEWER_ID,

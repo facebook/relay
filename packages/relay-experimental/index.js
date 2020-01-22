@@ -24,8 +24,8 @@ const prepareEntryPoint = require('./prepareEntryPoint');
 const useBlockingPaginationFragment = require('./useBlockingPaginationFragment');
 const useFragment = require('./useFragment');
 const useLazyLoadQuery = require('./useLazyLoadQuery');
-const useLegacyPaginationFragment = require('./useLegacyPaginationFragment');
 const useMutation = require('./useMutation');
+const usePaginationFragment = require('./usePaginationFragment');
 const usePreloadedQuery = require('./usePreloadedQuery');
 const useRefetchableFragment = require('./useRefetchableFragment');
 const useRelayEnvironment = require('./useRelayEnvironment');
@@ -58,9 +58,8 @@ module.exports = {
   useBlockingPaginationFragment: useBlockingPaginationFragment,
   useFragment: useFragment,
   useLazyLoadQuery: useLazyLoadQuery,
-  useLegacyPaginationFragment: useLegacyPaginationFragment,
   useMutation: useMutation,
-  usePaginationFragment: useLegacyPaginationFragment,
+  usePaginationFragment: usePaginationFragment,
   usePreloadedQuery: usePreloadedQuery,
   useRefetchableFragment: useRefetchableFragment,
   useRelayEnvironment: useRelayEnvironment,

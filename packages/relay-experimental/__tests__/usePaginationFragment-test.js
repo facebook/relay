@@ -21,7 +21,7 @@ const {useMemo, useState} = React;
 const TestRenderer = require('react-test-renderer');
 
 const invariant = require('invariant');
-const useLegacyPaginationFragmentOriginal = require('../useLegacyPaginationFragment');
+const usePaginationFragmentOriginal = require('../usePaginationFragment');
 const ReactRelayContext = require('react-relay/ReactRelayContext');
 const {
   ConnectionHandler,
@@ -31,7 +31,7 @@ const {
   createOperationDescriptor,
 } = require('relay-runtime');
 
-describe('useLegacyPaginationFragment', () => {
+describe('usePaginationFragment', () => {
   let environment;
   let initialUser;
   let gqlQuery;
@@ -73,8 +73,8 @@ describe('useLegacyPaginationFragment', () => {
     }
   }
 
-  function useLegacyPaginationFragment(fragmentNode, fragmentRef) {
-    const {data, ...result} = useLegacyPaginationFragmentOriginal(
+  function usePaginationFragment(fragmentNode, fragmentRef) {
+    const {data, ...result} = usePaginationFragmentOriginal(
       fragmentNode,
       // $FlowFixMe
       fragmentRef,
@@ -385,7 +385,7 @@ describe('useLegacyPaginationFragment', () => {
       /* $FlowFixMe(>=0.108.0 site=www,mobile,react_native_fb,oss) This comment suppresses an error found
        * when Flow v0.108.0 was deployed. To see the error delete this comment
        * and run Flow. */
-      const {data: userData} = useLegacyPaginationFragment(fragment, userRef);
+      const {data: userData} = usePaginationFragment(fragment, userRef);
       return <Renderer user={userData} />;
     };
 
@@ -769,7 +769,7 @@ describe('useLegacyPaginationFragment', () => {
         expect(environment.execute).toHaveBeenCalledTimes(0);
       });
 
-      it('does not load more if fragment ref passed to useLegacyPaginationFragment() was null', () => {
+      it('does not load more if fragment ref passed to usePaginationFragment() was null', () => {
         const warning = require('warning');
         renderFragment({userRef: null});
         expectFragmentResults([

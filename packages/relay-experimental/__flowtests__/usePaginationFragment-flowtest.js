@@ -13,7 +13,7 @@
 
 'use strict';
 
-const useLegacyPaginationFragment = require('../useLegacyPaginationFragment');
+const usePaginationFragment = require('../usePaginationFragment');
 
 import type {LoadMoreFn} from '../useLoadMoreFunction';
 import {
@@ -51,29 +51,29 @@ type ExpectedReturnType<
 /* eslint-disable react-hooks/rules-of-hooks */
 
 // Nullability of returned data type is correct
-(useLegacyPaginationFragment<QueryOperation, _>(
+(usePaginationFragment<QueryOperation, _>(
   fragmentInput,
   keyNonNullable,
 ): ExpectedReturnType<QueryOperation, QueryVariablesSubset, NonNullableData>);
 
-(useLegacyPaginationFragment<QueryOperation, _>(
+(usePaginationFragment<QueryOperation, _>(
   fragmentInput,
   keyNullable,
 ): ExpectedReturnType<QueryOperation, QueryVariables, NullableData>);
 
 // $FlowExpectedError: can't cast nullable to non-nullable
-(useLegacyPaginationFragment<QueryOperation, _>(
+(usePaginationFragment<QueryOperation, _>(
   fragmentInput,
   keyNullable,
 ): ExpectedReturnType<QueryOperation, QueryVariables, NonNullableData>);
 
 // $FlowExpectedError: actual type of returned data is correct
-(useLegacyPaginationFragment<QueryOperation, _>(
+(usePaginationFragment<QueryOperation, _>(
   fragmentInput,
   keyAnotherNonNullable,
 ): ExpectedReturnType<QueryOperation, QueryVariablesSubset, NonNullableData>);
 // $FlowExpectedError
-(useLegacyPaginationFragment<QueryOperation, _>(
+(usePaginationFragment<QueryOperation, _>(
   fragmentInput,
   keyAnotherNullable,
 ): ExpectedReturnType<QueryOperation, QueryVariables, NullableData>);
@@ -82,7 +82,7 @@ type ExpectedReturnType<
 declare var variables: QueryVariables;
 declare var environment: IEnvironment;
 
-const {refetch} = useLegacyPaginationFragment<QueryOperation, _>(
+const {refetch} = usePaginationFragment<QueryOperation, _>(
   fragmentInput,
   keyNonNullable,
 );
@@ -100,7 +100,7 @@ refetch(variables, {
 declare var extraVariables: {|nickname: string|};
 declare var invalidVariables: {|foo: string|};
 
-const {loadNext} = useLegacyPaginationFragment<QueryOperation, _>(
+const {loadNext} = usePaginationFragment<QueryOperation, _>(
   fragmentInput,
   keyNonNullable,
 );

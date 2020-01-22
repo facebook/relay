@@ -41,7 +41,7 @@ export type ReturnType<TQuery: OperationType, TKey, TFragmentData> = {|
   refetch: RefetchFnDynamic<TQuery, TKey>,
 |};
 
-function useLegacyPaginationFragment<
+function usePaginationFragment<
   TQuery: OperationType,
   TKey: ?{+$data?: mixed, ...},
 >(
@@ -63,9 +63,9 @@ function useLegacyPaginationFragment<
   const fragmentNode = getFragment(fragmentInput);
   useStaticFragmentNodeWarning(
     fragmentNode,
-    'first argument of useLegacyPaginationFragment()',
+    'first argument of usePaginationFragment()',
   );
-  const componentDisplayName = 'useLegacyPaginationFragment()';
+  const componentDisplayName = 'usePaginationFragment()';
 
   const {
     connectionPathInFragmentData,
@@ -164,4 +164,4 @@ function useLoadMore<TQuery: OperationType>(
   return [loadMore, hasMore, isLoadingMore, disposeFetch];
 }
 
-module.exports = useLegacyPaginationFragment;
+module.exports = usePaginationFragment;

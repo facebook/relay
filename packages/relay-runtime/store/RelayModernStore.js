@@ -456,7 +456,27 @@ class RelayModernStore implements Store {
         'snapshot exists.',
     );
     this._subscriptions.forEach(subscription => {
-      subscription.backup = subscription.snapshot;
+      // Backup occurs after writing a new "final" payload(s) and before (re)applying
+      // optimistic changes. Each subscription's `snapshot` represents what was *last
+      // published to the subscriber*, which notably may include previous optimistic
+      // updates. Therefore a subscription can be in any of the following states:
+      // - stale=true: This subscription was restored to a different value than
+      //   `snapshot`. That means this subscription has changes relative to its base,
+      //   but its base has changed (we just applied a final payload): recompute
+      //   a backup so that we can later restore to the state the subscription
+      //   should be in.
+      // - stale=false: This subscription was restored to the same value than
+      //   `snapshot`. That means this subscription does *not* have changes relative
+      //   to its base, so the current `snapshot` is valid to use as a backup.
+      if (!subscription.stale) {
+        subscription.backup = subscription.snapshot;
+        return;
+      }
+      const snapshot = subscription.snapshot;
+      const backup = RelayReader.read(this.getSource(), snapshot.selector);
+      const nextData = recycleNodesInto(snapshot.data, backup.data);
+      (backup: $FlowFixMe).data = nextData; // backup owns the snapshot and can safely mutate
+      subscription.backup = backup;
     });
     this._optimisticSource = RelayOptimisticRecordSource.create(
       this.getSource(),

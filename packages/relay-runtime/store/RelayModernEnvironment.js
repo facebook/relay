@@ -242,7 +242,6 @@ class RelayModernEnvironment implements IEnvironment {
         sink,
         source: RelayObservable.from({
           data: payload,
-          extensions: {is_final: true},
         }),
         store: this._store,
         updater: null,

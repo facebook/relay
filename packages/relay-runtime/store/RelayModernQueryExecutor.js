@@ -597,12 +597,13 @@ class Executor {
           this._processIncrementalPlaceholder(payload, incrementalPlaceholder);
         });
 
-        if (this._state === 'loading_final') {
-          // The query has defer/stream selections that are enabled, but the
-          // server indicated that this is a "final" payload: no incremental
-          // payloads will be delivered. If it's not a client payload, warn that
-          // the query was (likely) executed on the server in non-streaming mode,
-          // with incremental delivery disabled.
+        if (this._isClientPayload || this._state === 'loading_final') {
+          // The query has defer/stream selections that are enabled, but either
+          // the server indicated that this is a "final" payload: no incremental
+          // payloads will be delivered, then warn that the query was (likely)
+          // executed on the server in non-streaming mode, with incremental
+          // delivery disabled; or this is a client payload, and there will be
+          // no incremental payload.
           warning(
             this._isClientPayload,
             'RelayModernEnvironment: Operation `%s` contains @defer/@stream ' +

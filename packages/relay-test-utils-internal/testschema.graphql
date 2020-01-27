@@ -43,6 +43,7 @@ type Query {
   viewer: Viewer
   _mutation: Mutation
   relay_early_flush(query_name: String): [JSDependency!]!
+  fetch__User(id: ID!): User
 }
 
 interface MaybeNodeInterface {

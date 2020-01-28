@@ -37,6 +37,7 @@ export type * from './EntryPointTypes.flow';
 export type {MatchContainerProps, MatchPointer} from './MatchContainer';
 export type {ProfilerContextType} from './ProfilerContext';
 export type {Direction, LoadMoreFn} from './useLoadMoreFunction';
+export type {UseMutationConfig} from './useMutation';
 export type {
   RefetchFn,
   RefetchFnDynamic,

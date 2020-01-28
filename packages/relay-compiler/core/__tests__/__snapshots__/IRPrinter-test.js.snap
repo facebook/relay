@@ -1,5 +1,285 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`IRPrinter matches expected output: basic_arg_defs.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment UserFragment on User
+  @argumentDefinitions(
+    after: {type: "ID"}
+    first: {type: "Int", defaultValue: 5}
+    size: {type: "[Int]"}
+  ) {
+  id
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+fragment UserFragment on User @argumentDefinitions(
+  after: {type: "ID"}
+  first: {type: "Int", defaultValue: 5}
+  size: {type: "[Int]"}
+) {
+  id
+}
+
+`;
+
+exports[`IRPrinter matches expected output: basic_directives.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query MyQuery($id: ID, $cond: Boolean!) {
+  my_alias: node(id: $id) {
+    id
+    ... on User @include(if: $cond) {
+      name
+    }
+    ...UserFragment @include(if: $cond)
+  }
+}
+
+fragment UserFragment on User {
+  id
+  name @include(if: $cond)
+  otherName: name @customDirective(level: 3) @skip(if: $cond)
+  address @skip(if: true) {
+    city
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+query MyQuery(
+  $id: ID
+  $cond: Boolean!
+) {
+  my_alias: node(id: $id) {
+    id
+    ... on User @include(if: $cond) {
+      name
+    }
+    ...UserFragment @include(if: $cond)
+  }
+}
+
+fragment UserFragment on User {
+  id
+  name @include(if: $cond)
+  otherName: name @skip(if: $cond) @customDirective(level: 3)
+  address @skip(if: true) {
+    city
+  }
+}
+
+`;
+
+exports[`IRPrinter matches expected output: basic_fragment.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment MyFragment on Query {
+  my_alias: node(id: $id) {
+    id
+    ... on User {
+      name
+      likers(first: $count) {
+        count
+      }
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+fragment MyFragment on Query {
+  my_alias: node(id: $id) {
+    id
+    ... on User {
+      name
+      likers(first: $count) {
+        count
+      }
+    }
+  }
+}
+
+`;
+
+exports[`IRPrinter matches expected output: basic_inline_fragments.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment MyFragment on Query {
+  my_alias: node(id: $id) {
+    id
+    ... {
+      id
+    }
+    ... on User {
+      name
+      likers(first: $count) {
+        count
+      }
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+fragment MyFragment on Query {
+  my_alias: node(id: $id) {
+    id
+    ... on Node {
+      id
+    }
+    ... on User {
+      name
+      likers(first: $count) {
+        count
+      }
+    }
+  }
+}
+
+`;
+
+exports[`IRPrinter matches expected output: basic_list_object_values.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment UserFragment on User {
+  id
+  checkins(environments: [WEB]) {
+    query
+  }
+  nakedEnum: checkins(environments: WEB) {
+    query
+  }
+  multipleEnum: checkins(environments: [WEB, MOBILE]) {
+    query
+  }
+  friends(after: $after, first: $first, traits: [HELPFUL]) {
+    count
+  }
+  secondFriends: friends(first: 10) {
+    count
+  }
+  name @include(if: $cond)
+  otherName: name @customDirective(level: 3)
+  thumbnail: profilePicture2(
+    size: 32
+    cropPosition: CENTER
+    fileExtension: PNG
+    options: {newName: null}
+  ) {
+    height
+    width
+    src: uri
+  }
+  profilePicture(size: $size) @include(if: $cond) @skip(if: $foo) {
+    height
+    width
+    src: uri
+  }
+  storySearch(query: {type: DIRECTED}) {
+    id
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+fragment UserFragment on User {
+  id
+  checkins(environments: [WEB]) {
+    query
+  }
+  nakedEnum: checkins(environments: WEB) {
+    query
+  }
+  multipleEnum: checkins(environments: [WEB, MOBILE]) {
+    query
+  }
+  friends(after: $after, first: $first, traits: [HELPFUL]) {
+    count
+  }
+  secondFriends: friends(first: 10) {
+    count
+  }
+  name @include(if: $cond)
+  otherName: name @customDirective(level: 3)
+  thumbnail: profilePicture2(size: 32, cropPosition: CENTER, fileExtension: PNG, options: {newName: null}) {
+    height
+    width
+    src: uri
+  }
+  profilePicture(size: $size) @include(if: $cond) @skip(if: $foo) {
+    height
+    width
+    src: uri
+  }
+  storySearch(query: {type: DIRECTED}) {
+    id
+  }
+}
+
+`;
+
+exports[`IRPrinter matches expected output: basic_query.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query MyQuery($id: ID) {
+  my_alias: node(id: $id) {
+    id
+    ... on User {
+      name
+      likers(first: 5) {
+        count
+      }
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+query MyQuery(
+  $id: ID
+) {
+  my_alias: node(id: $id) {
+    id
+    ... on User {
+      name
+      likers(first: 5) {
+        count
+      }
+    }
+  }
+}
+
+`;
+
+exports[`IRPrinter matches expected output: basic_var_defs.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query MyQuery($id: ID, $count: Int! = 5, $envs: [Environment!]! = [WEB]) {
+  my_alias: node(id: $id) {
+    id
+    ... on User {
+      name
+      likers(first: $count) {
+        count
+      }
+      checkins(environments: $envs) {
+        query
+      }
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+query MyQuery(
+  $id: ID
+  $count: Int! = 5
+  $envs: [Environment!]! = [WEB]
+) {
+  my_alias: node(id: $id) {
+    id
+    ... on User {
+      name
+      likers(first: $count) {
+        count
+      }
+      checkins(environments: $envs) {
+        query
+      }
+    }
+  }
+}
+
+`;
+
 exports[`IRPrinter matches expected output: kitchen-sink.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query NodeQuery(

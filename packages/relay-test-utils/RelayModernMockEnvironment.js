@@ -24,6 +24,8 @@ const {
   Observable,
   Environment,
   Network,
+  createOperationDescriptor,
+  getRequest,
 } = require('relay-runtime');
 
 import type {HandlerProvider} from 'relay-runtime/handlers/RelayDefaultHandlerProvider';
@@ -39,6 +41,7 @@ import type {
   OperationTracker,
   RequestParameters,
   Variables,
+  GraphQLTaggedNode,
 } from 'relay-runtime';
 
 type PendingRequest = {|
@@ -120,6 +123,7 @@ type MockFunctions = {|
   +findOperation: (
     findFn: (operation: OperationDescriptor) => boolean,
   ) => OperationDescriptor,
+  +registerOperation: (query: GraphQLTaggedNode, variables: Variables) => void,
   +getMostRecentOperation: () => OperationDescriptor,
   +resolveMostRecentOperation: (
     payload:
@@ -191,6 +195,16 @@ function createMockEnvironment(config?: {|
 
   let pendingRequests: $ReadOnlyArray<PendingRequest> = [];
   let pendingOperations: $ReadOnlyArray<OperationDescriptor> = [];
+  const registerOperation = (
+    query: GraphQLTaggedNode,
+    variables: Variables,
+  ): void => {
+    const operationDescriptor = createOperationDescriptor(
+      getRequest(query),
+      variables,
+    );
+    pendingOperations = pendingOperations.concat([operationDescriptor]);
+  };
   let resolversQueue: $ReadOnlyArray<OperationMockResolver> = [];
 
   const queueOperationResolver = (resolver: OperationMockResolver): void => {
@@ -220,7 +234,7 @@ function createMockEnvironment(config?: {|
     const currentOperation = pendingOperations.find(
       op =>
         op.request.node.params === request &&
-        op.request.variables === variables,
+        areEqual(op.request.variables, variables),
     );
 
     // Handle network responses added by
@@ -495,6 +509,7 @@ function createMockEnvironment(config?: {|
       return reject(operation, rejector);
     },
     findOperation,
+    registerOperation,
     getAllOperations() {
       return pendingOperations;
     },

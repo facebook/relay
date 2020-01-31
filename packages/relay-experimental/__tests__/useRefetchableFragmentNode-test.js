@@ -420,7 +420,7 @@ describe('useRefetchableFragmentNode', () => {
       jest
         .spyOn(
           require('relay-runtime').__internal,
-          'getPromiseForRequestInFlight',
+          'getPromiseForActiveRequest',
         )
         .mockImplementationOnce(() => Promise.resolve());
 

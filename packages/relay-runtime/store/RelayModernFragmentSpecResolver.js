@@ -19,7 +19,7 @@ const invariant = require('invariant');
 const isScalarAndEqual = require('../util/isScalarAndEqual');
 const warning = require('warning');
 
-const {getPromiseForRequestInFlight} = require('../query/fetchQueryInternal');
+const {getPromiseForActiveRequest} = require('../query/fetchQueryInternal');
 const {createRequestDescriptor} = require('./RelayModernOperationDescriptor');
 const {
   areEqualSelectors,
@@ -267,7 +267,7 @@ class SelectorResolver {
       // suspend at specific boundaries depending on whether the boundary
       // can be fulfilled or not.
       const promise =
-        getPromiseForRequestInFlight(this._environment, this._selector.owner) ??
+        getPromiseForActiveRequest(this._environment, this._selector.owner) ??
         this._environment
           .getOperationTracker()
           .getPromiseForPendingOperationsAffectingOwner(this._selector.owner);

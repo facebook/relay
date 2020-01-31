@@ -1062,7 +1062,7 @@ it('should throw a promise if if data is missing for fragment and request is in 
   // This prevents console.error output in the test, which is expected
   jest.spyOn(console, 'error').mockImplementationOnce(() => {});
   jest
-    .spyOn(require('relay-runtime').__internal, 'getPromiseForRequestInFlight')
+    .spyOn(require('relay-runtime').__internal, 'getPromiseForActiveRequest')
     .mockImplementationOnce(() => Promise.resolve());
 
   const missingDataVariables = {...singularVariables, id: '4'};

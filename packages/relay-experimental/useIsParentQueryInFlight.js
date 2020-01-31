@@ -20,7 +20,7 @@ const useRelayEnvironment = require('./useRelayEnvironment');
 const useStaticFragmentNodeWarning = require('./useStaticFragmentNodeWarning');
 
 const {
-  __internal: {getObservableForRequestInFlight},
+  __internal: {getObservableForActiveRequest},
   getFragment,
   getSelector,
 } = require('relay-runtime');
@@ -48,7 +48,7 @@ function useIsParentQueryInFlight<TKey: ?{+$data?: mixed, ...}>(
       selector.kind === 'SingularReaderSelector',
       'useIsParentQueryInFlight: Plural fragments are not supported.',
     );
-    return getObservableForRequestInFlight(environment, selector.owner);
+    return getObservableForActiveRequest(environment, selector.owner);
   }, [environment, fragmentNode, fragmentRef]);
   const [isInFlight, setIsInFlight] = useState(observable != null);
 

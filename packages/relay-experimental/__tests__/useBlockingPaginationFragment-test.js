@@ -662,7 +662,7 @@ describe('useBlockingPaginationFragment', () => {
       jest
         .spyOn(
           require('relay-runtime').__internal,
-          'getPromiseForRequestInFlight',
+          'getPromiseForActiveRequest',
         )
         .mockImplementationOnce(() => Promise.resolve());
 
@@ -849,7 +849,7 @@ describe('useBlockingPaginationFragment', () => {
         // This prevents console.error output in the test, which is expected
         jest.spyOn(console, 'error').mockImplementationOnce(() => {});
         jest
-          .spyOn(require('relay-runtime').__internal, 'hasRequestInFlight')
+          .spyOn(require('relay-runtime').__internal, 'isRequestActive')
           .mockImplementationOnce(() => true);
         const callback = jest.fn();
         renderFragment();

@@ -20,7 +20,7 @@ const mapObject = require('mapObject');
 const warning = require('warning');
 
 const {
-  __internal: {getPromiseForRequestInFlight},
+  __internal: {getPromiseForActiveRequest},
   getFragmentIdentifier,
   getSelector,
   isPromise,
@@ -378,7 +378,7 @@ class FragmentResourceImpl {
   ): Promise<void> | null {
     const environment = this._environment;
     const networkPromise =
-      getPromiseForRequestInFlight(environment, fragmentOwner) ??
+      getPromiseForActiveRequest(environment, fragmentOwner) ??
       getPromiseForPendingOperationAffectingOwner(environment, fragmentOwner);
 
     if (!networkPromise) {

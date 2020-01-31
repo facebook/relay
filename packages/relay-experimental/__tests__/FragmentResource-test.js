@@ -20,14 +20,14 @@ jest.mock('relay-runtime', () => {
     ...originalRuntime,
     __internal: {
       ...originalInternal,
-      getPromiseForRequestInFlight: jest.fn(),
+      getPromiseForActiveRequest: jest.fn(),
     },
   };
 });
 
 const {getFragmentResourceForEnvironment} = require('../FragmentResource');
 const {
-  __internal: {getPromiseForRequestInFlight},
+  __internal: {getPromiseForActiveRequest},
   createOperationDescriptor,
   getFragment,
 } = require('relay-runtime');
@@ -125,7 +125,7 @@ describe('FragmentResource', () => {
   });
 
   afterEach(() => {
-    (getPromiseForRequestInFlight: any).mockReset();
+    (getPromiseForActiveRequest: any).mockReset();
   });
 
   describe('read', () => {
@@ -417,7 +417,7 @@ describe('FragmentResource', () => {
     });
 
     it('should throw and cache promise if reading missing data and network request for parent query is in flight', () => {
-      (getPromiseForRequestInFlight: any).mockReturnValue(Promise.resolve());
+      (getPromiseForActiveRequest: any).mockReturnValue(Promise.resolve());
       const fragmentNode = getFragment(UserFragmentMissing);
       const fragmentRef = {
         __id: '4',
@@ -503,9 +503,7 @@ describe('FragmentResource', () => {
     });
 
     it('should throw and cache promise if reading missing data and network request for parent query is in flight', () => {
-      (getPromiseForRequestInFlight: any).mockReturnValueOnce(
-        Promise.resolve(),
-      );
+      (getPromiseForActiveRequest: any).mockReturnValueOnce(Promise.resolve());
       const fragmentNodes = {
         user: getFragment(UserFragmentMissing),
       };

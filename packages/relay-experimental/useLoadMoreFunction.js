@@ -29,7 +29,7 @@ const warning = require('warning');
 const {useCallback, useEffect, useState} = require('react');
 const {
   ConnectionInterface,
-  __internal: {fetchQuery, hasRequestInFlight},
+  __internal: {fetchQuery, isRequestActive},
   createOperationDescriptor,
   getSelector,
 } = require('relay-runtime');
@@ -150,7 +150,7 @@ function useLoadMoreFunction<TQuery: OperationType>(
       const isParentQueryInFlight =
         fragmentSelector != null &&
         fragmentSelector.kind !== 'PluralReaderSelector' &&
-        hasRequestInFlight(environment, fragmentSelector.owner);
+        isRequestActive(environment, fragmentSelector.owner);
       if (
         isFetchingRef.current === true ||
         fragmentData == null ||

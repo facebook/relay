@@ -284,45 +284,6 @@ function getActiveStatusObservableForCachedRequest(
 }
 
 /**
- * If a request is in flight for the given query, variables and environment,
- * this function will return a Promise that will resolve when that request has
- * completed and the data has been saved to the store.
- * If no request is in flight, null will be returned
- */
-function getPromiseForRequestInFlight(
-  environment: IEnvironment,
-  request: RequestDescriptor,
-): Promise<?GraphQLResponse> | null {
-  const requestCache = getRequestCache(environment);
-  const cachedRequest = requestCache.get(request.identifier);
-  if (!cachedRequest) {
-    return null;
-  }
-
-  return new Promise((resolve, reject) => {
-    let resolveOnNext = false;
-    getInFlightStatusObservableForCachedRequest(
-      requestCache,
-      cachedRequest,
-    ).subscribe({
-      complete: resolve,
-      error: reject,
-      next: response => {
-        /*
-         * The underlying `RelayReplaySubject` will synchronously replay events
-         * as soon as we subscribe, but since we want the *next* asynchronous
-         * one, we'll ignore them until the replay finishes.
-         */
-        if (resolveOnNext) {
-          resolve(response);
-        }
-      },
-    });
-    resolveOnNext = true;
-  });
-}
-
-/**
  * If a request is active for the given query, variables and environment,
  * this function will return a Promise that will resolve when that request has
  * stops being active (receives a final payload), and the data has been saved
@@ -372,29 +333,6 @@ function getPromiseForActiveRequest(
  * no pending request. This is similar to fetchQuery() except that it will not
  * issue a fetch if there isn't already one pending.
  */
-function getObservableForRequestInFlight(
-  environment: IEnvironment,
-  request: RequestDescriptor,
-): Observable<GraphQLResponse> | null {
-  const requestCache = getRequestCache(environment);
-  const cachedRequest = requestCache.get(request.identifier);
-  if (!cachedRequest) {
-    return null;
-  }
-
-  return getInFlightStatusObservableForCachedRequest(
-    requestCache,
-    cachedRequest,
-  );
-}
-
-/**
- * If there is a pending request for the given query, returns an Observable of
- * *all* its responses. Existing responses are published synchronously and
- * subsequent responses are published asynchronously. Returns null if there is
- * no pending request. This is similar to fetchQuery() except that it will not
- * issue a fetch if there isn't already one pending.
- */
 function getObservableForActiveRequest(
   environment: IEnvironment,
   request: RequestDescriptor,
@@ -409,14 +347,6 @@ function getObservableForActiveRequest(
   }
 
   return getActiveStatusObservableForCachedRequest(requestCache, cachedRequest);
-}
-
-function hasRequestInFlight(
-  environment: IEnvironment,
-  request: RequestDescriptor,
-): boolean {
-  const requestCache = getRequestCache(environment);
-  return requestCache.has(request.identifier);
 }
 
 function isRequestActive(
@@ -465,9 +395,6 @@ module.exports = {
   fetchQuery,
   fetchQueryDeduped,
   getPromiseForActiveRequest,
-  getPromiseForRequestInFlight,
   getObservableForActiveRequest,
-  getObservableForRequestInFlight,
-  hasRequestInFlight,
   isRequestActive,
 };

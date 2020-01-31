@@ -28,6 +28,7 @@ import type {CacheConfig} from '../util/RelayRuntimeTypes';
 import type {RequestIdentifier} from '../util/getRequestIdentifier';
 
 type RequestCacheEntry = {|
+  active: boolean,
   +identifier: RequestIdentifier,
   +subject: RelayReplaySubject<GraphQLResponse>,
   +subjectForInFlightStatus: RelayReplaySubject<GraphQLResponse>,
@@ -137,6 +138,7 @@ function fetchQueryDeduped(
         .subscribe({
           start: subscription => {
             cachedRequest = {
+              active: true,
               identifier,
               subject: new RelayReplaySubject(),
               subjectForInFlightStatus: new RelayReplaySubject(),
@@ -146,21 +148,30 @@ function fetchQueryDeduped(
           },
           next: response => {
             const cachedReq = getCachedRequest(requestCache, identifier);
+            const isFinal = isFinalPayload(response);
+            if (isFinal) {
+              cachedReq.active = false;
+            } else {
+              cachedReq.active = true;
+            }
             cachedReq.subject.next(response);
             cachedReq.subjectForInFlightStatus.next(response);
           },
           error: error => {
             const cachedReq = getCachedRequest(requestCache, identifier);
+            cachedReq.active = false;
             cachedReq.subject.error(error);
             cachedReq.subjectForInFlightStatus.error(error);
           },
           complete: () => {
             const cachedReq = getCachedRequest(requestCache, identifier);
+            cachedReq.active = false;
             cachedReq.subject.complete();
             cachedReq.subjectForInFlightStatus.complete();
           },
           unsubscribe: subscription => {
             const cachedReq = getCachedRequest(requestCache, identifier);
+            cachedReq.active = false;
             cachedReq.subject.unsubscribe();
             cachedReq.subjectForInFlightStatus.unsubscribe();
           },
@@ -208,6 +219,24 @@ function getObservableForCachedRequest(
 /**
  * @private
  */
+function isFinalPayload(response: GraphQLResponse): boolean {
+  if (Array.isArray(response)) {
+    for (const r of response) {
+      if (r.extensions?.is_final === true) {
+        return true;
+      }
+    }
+  } else {
+    if (response.extensions?.is_final === true) {
+      return true;
+    }
+  }
+  return false;
+}
+
+/**
+ * @private
+ */
 function getInFlightStatusObservableForCachedRequest(
   requestCache: Map<RequestIdentifier, RequestCacheEntry>,
   cachedRequest: RequestCacheEntry,
@@ -217,9 +246,35 @@ function getInFlightStatusObservableForCachedRequest(
       error: sink.error,
       next: sink.next,
       complete: sink.complete,
-      unsubscribe() {
-        sink.complete();
+      unsubscribe: sink.complete,
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  });
+}
+
+/**
+ * @private
+ */
+function getActiveStatusObservableForCachedRequest(
+  requestCache: Map<RequestIdentifier, RequestCacheEntry>,
+  cachedRequest: RequestCacheEntry,
+): Observable<void> {
+  return Observable.create(sink => {
+    const subscription = cachedRequest.subjectForInFlightStatus.subscribe({
+      error: sink.error,
+      next: response => {
+        const isFinal = isFinalPayload(response);
+        if (isFinal) {
+          sink.complete();
+          return;
+        }
+        sink.next();
       },
+      complete: sink.complete,
+      unsubscribe: sink.complete,
     });
 
     return () => {
@@ -268,6 +323,49 @@ function getPromiseForRequestInFlight(
 }
 
 /**
+ * If a request is active for the given query, variables and environment,
+ * this function will return a Promise that will resolve when that request has
+ * stops being active (receives a final payload), and the data has been saved
+ * to the store.
+ * If no request is active, null will be returned
+ */
+function getPromiseForActiveRequest(
+  environment: IEnvironment,
+  request: RequestDescriptor,
+): Promise<void> | null {
+  const requestCache = getRequestCache(environment);
+  const cachedRequest = requestCache.get(request.identifier);
+  if (!cachedRequest) {
+    return null;
+  }
+  if (!cachedRequest.active) {
+    return null;
+  }
+
+  return new Promise((resolve, reject) => {
+    let resolveOnNext = false;
+    getActiveStatusObservableForCachedRequest(
+      requestCache,
+      cachedRequest,
+    ).subscribe({
+      complete: resolve,
+      error: reject,
+      next: response => {
+        /*
+         * The underlying `RelayReplaySubject` will synchronously replay events
+         * as soon as we subscribe, but since we want the *next* asynchronous
+         * one, we'll ignore them until the replay finishes.
+         */
+        if (resolveOnNext) {
+          resolve(response);
+        }
+      },
+    });
+    resolveOnNext = true;
+  });
+}
+
+/**
  * If there is a pending request for the given query, returns an Observable of
  * *all* its responses. Existing responses are published synchronously and
  * subsequent responses are published asynchronously. Returns null if there is
@@ -290,12 +388,44 @@ function getObservableForRequestInFlight(
   );
 }
 
+/**
+ * If there is a pending request for the given query, returns an Observable of
+ * *all* its responses. Existing responses are published synchronously and
+ * subsequent responses are published asynchronously. Returns null if there is
+ * no pending request. This is similar to fetchQuery() except that it will not
+ * issue a fetch if there isn't already one pending.
+ */
+function getObservableForActiveRequest(
+  environment: IEnvironment,
+  request: RequestDescriptor,
+): Observable<void> | null {
+  const requestCache = getRequestCache(environment);
+  const cachedRequest = requestCache.get(request.identifier);
+  if (!cachedRequest) {
+    return null;
+  }
+  if (!cachedRequest.active) {
+    return null;
+  }
+
+  return getActiveStatusObservableForCachedRequest(requestCache, cachedRequest);
+}
+
 function hasRequestInFlight(
   environment: IEnvironment,
   request: RequestDescriptor,
 ): boolean {
   const requestCache = getRequestCache(environment);
   return requestCache.has(request.identifier);
+}
+
+function isRequestActive(
+  environment: IEnvironment,
+  request: RequestDescriptor,
+): boolean {
+  const requestCache = getRequestCache(environment);
+  const cachedRequest = requestCache.get(request.identifier);
+  return cachedRequest != null && cachedRequest.active;
 }
 
 /**
@@ -334,7 +464,10 @@ function getCachedRequest(
 module.exports = {
   fetchQuery,
   fetchQueryDeduped,
+  getPromiseForActiveRequest,
   getPromiseForRequestInFlight,
+  getObservableForActiveRequest,
   getObservableForRequestInFlight,
   hasRequestInFlight,
+  isRequestActive,
 };

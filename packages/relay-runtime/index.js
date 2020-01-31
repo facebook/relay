@@ -310,10 +310,14 @@ module.exports = {
     getOperationVariables: RelayConcreteVariables.getOperationVariables,
     fetchQuery: fetchQueryInternal.fetchQuery,
     fetchQueryDeduped: fetchQueryInternal.fetchQueryDeduped,
+    getPromiseForActiveRequest: fetchQueryInternal.getPromiseForActiveRequest,
     getPromiseForRequestInFlight:
       fetchQueryInternal.getPromiseForRequestInFlight,
+    getObservableForActiveRequest:
+      fetchQueryInternal.getObservableForActiveRequest,
     getObservableForRequestInFlight:
       fetchQueryInternal.getObservableForRequestInFlight,
     hasRequestInFlight: fetchQueryInternal.hasRequestInFlight,
+    isRequestActive: fetchQueryInternal.isRequestActive,
   },
 };

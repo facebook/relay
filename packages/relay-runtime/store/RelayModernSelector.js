@@ -291,9 +291,11 @@ function getDataID(fragment: ReaderFragment, item: mixed): ?DataID {
     false,
     'RelayModernSelector: Expected object to contain data for fragment `%s`, got ' +
       '`%s`. Make sure that the parent operation/fragment included fragment ' +
-      '`...%s` without `@relay(mask: false)`.',
+      '`...%s` without `@relay(mask: false)`, or `null` is passed as the fragment ' +
+      "reference for `%s` if it's conditonally included and the condition isn't met.",
     fragment.name,
     JSON.stringify(item),
+    fragment.name,
     fragment.name,
   );
   return null;

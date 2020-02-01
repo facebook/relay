@@ -164,11 +164,21 @@ class FragmentResourceImpl {
     const fragmentSelector = getSelector(fragmentNode, fragmentRef);
     invariant(
       fragmentSelector != null,
-      'Relay: Expected to have received a valid ' +
-        'fragment reference for fragment `%s` declared in `%s`. Make sure ' +
-        "that `%s`'s parent is passing the right fragment reference prop.",
+      'Relay: Expected to receive an object where `...%s` was spread, ' +
+        'but the fragment reference was not found`. This is most ' +
+        'likely the result of:\n' +
+        "- Forgetting to spread `%s` in `%s`'s parent's fragment.\n" +
+        '- Conditionally fetching `%s` but unconditionally passing %s prop ' +
+        'to `%s`. If the parent fragment only fetches the fragment conditionally ' +
+        '- with e.g. `@include`, `@skip`, or inside a `... on SomeType { }` ' +
+        'spread  - then the fragment reference will not exist. ' +
+        'In this case, pass `null` if the conditions for evaluating the ' +
+        'fragment are not met (e.g. if the `@include(if)` value is false.)',
+      fragmentNode.name,
       fragmentNode.name,
       componentDisplayName,
+      fragmentNode.name,
+      fragmentKey == null ? 'a fragment reference' : `the \`${fragmentKey}\``,
       componentDisplayName,
     );
     const snapshot =

@@ -37,7 +37,7 @@ const query = generateAndCompile(`
   }
 `).TestQuery;
 
-describe('when using registerOperation, queueOperationResolver and preloadQuery in tests', () => {
+describe('when using queuePendingOperation, queueOperationResolver and preloadQuery in tests', () => {
   let prefetched;
   let mockEnvironment;
 
@@ -60,7 +60,7 @@ describe('when using registerOperation, queueOperationResolver and preloadQuery 
       });
     });
   const callRegisterOperation = () =>
-    mockEnvironment.mock.registerOperation(query, variables);
+    mockEnvironment.mock.queuePendingOperation(query, variables);
 
   const SUSPENDED = false;
   const RENDERED = true;
@@ -88,16 +88,16 @@ describe('when using registerOperation, queueOperationResolver and preloadQuery 
     }
   };
 
-  // Test various combinations of calling queueOperationResolvers, registerOperation
+  // Test various combinations of calling queueOperationResolvers, queuePendingOperation
   // and preloadQuery, in various orders.
-  it('renders synchronously if queueOperationResolver, registerOperation and preloadQuery have been called', () => {
+  it('renders synchronously if queueOperationResolver, queuePendingOperation and preloadQuery have been called', () => {
     callQueueOperationResolver();
     callRegisterOperation();
     callPreloadQuery();
     renderAndAssert(RENDERED);
   });
 
-  it('suspends if only registerOperation and preloadQuery have been called', () => {
+  it('suspends if only queuePendingOperation and preloadQuery have been called', () => {
     callRegisterOperation();
     callPreloadQuery();
     renderAndAssert(SUSPENDED);
@@ -115,7 +115,7 @@ describe('when using registerOperation, queueOperationResolver and preloadQuery 
   });
 
   describe('if preloadQuery has been called first', () => {
-    it('suspends if queueOperationResolver and registerOperation are called', () => {
+    it('suspends if queueOperationResolver and queuePendingOperation are called', () => {
       callPreloadQuery();
       callQueueOperationResolver();
       callRegisterOperation();
@@ -126,7 +126,7 @@ describe('when using registerOperation, queueOperationResolver and preloadQuery 
       callQueueOperationResolver();
       renderAndAssert(SUSPENDED);
     });
-    it('suspends if registerOperation is called', () => {
+    it('suspends if queuePendingOperation is called', () => {
       callPreloadQuery();
       callRegisterOperation();
       renderAndAssert(SUSPENDED);

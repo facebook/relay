@@ -123,7 +123,10 @@ type MockFunctions = {|
   +findOperation: (
     findFn: (operation: OperationDescriptor) => boolean,
   ) => OperationDescriptor,
-  +registerOperation: (query: GraphQLTaggedNode, variables: Variables) => void,
+  +queuePendingOperation: (
+    query: GraphQLTaggedNode,
+    variables: Variables,
+  ) => void,
   +getMostRecentOperation: () => OperationDescriptor,
   +resolveMostRecentOperation: (
     payload:
@@ -195,7 +198,7 @@ function createMockEnvironment(config?: {|
 
   let pendingRequests: $ReadOnlyArray<PendingRequest> = [];
   let pendingOperations: $ReadOnlyArray<OperationDescriptor> = [];
-  const registerOperation = (
+  const queuePendingOperation = (
     query: GraphQLTaggedNode,
     variables: Variables,
   ): void => {
@@ -509,7 +512,7 @@ function createMockEnvironment(config?: {|
       return reject(operation, rejector);
     },
     findOperation,
-    registerOperation,
+    queuePendingOperation,
     getAllOperations() {
       return pendingOperations;
     },

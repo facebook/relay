@@ -41,6 +41,7 @@ import type {
   RenderPolicy,
   Variables,
 } from '../util/RelayRuntimeTypes';
+import type {ActiveState} from './RelayModernQueryExecutor';
 import type {TaskScheduler} from './RelayModernQueryExecutor';
 import type {GetDataID} from './RelayResponseNormalizer';
 import type {
@@ -93,6 +94,7 @@ class RelayModernEnvironment implements IEnvironment {
   _missingFieldHandlers: ?$ReadOnlyArray<MissingFieldHandler>;
   _operationTracker: OperationTracker;
   _getDataID: GetDataID;
+  _operationExecutions: Map<string, ActiveState>;
   +options: mixed;
 
   constructor(config: EnvironmentConfig) {
@@ -120,6 +122,7 @@ class RelayModernEnvironment implements IEnvironment {
         ? 'partial'
         : 'full';
     this._operationLoader = operationLoader;
+    this._operationExecutions = new Map();
     this._network = config.network;
     this._getDataID = config.UNSTABLE_DO_NOT_USE_getDataID ?? defaultGetDataID;
     this._publishQueue = new RelayPublishQueue(
@@ -167,6 +170,11 @@ class RelayModernEnvironment implements IEnvironment {
     return this._operationTracker;
   }
 
+  isRequestActive(requestIdentifier: string): boolean {
+    const activeState = this._operationExecutions.get(requestIdentifier);
+    return activeState === 'active';
+  }
+
   UNSTABLE_getDefaultRenderPolicy(): RenderPolicy {
     return this._defaultRenderPolicy;
   }
@@ -200,6 +208,7 @@ class RelayModernEnvironment implements IEnvironment {
       const source = RelayObservable.create(_sink => {});
       const executor = RelayModernQueryExecutor.execute({
         operation: optimisticConfig.operation,
+        operationExecutions: this._operationExecutions,
         operationLoader: this._operationLoader,
         optimisticConfig,
         publishQueue: this._publishQueue,
@@ -235,6 +244,7 @@ class RelayModernEnvironment implements IEnvironment {
     RelayObservable.create(sink => {
       const executor = RelayModernQueryExecutor.execute({
         operation: operation,
+        operationExecutions: this._operationExecutions,
         operationLoader: this._operationLoader,
         optimisticConfig: null,
         publishQueue: this._publishQueue,
@@ -318,6 +328,7 @@ class RelayModernEnvironment implements IEnvironment {
       );
       const executor = RelayModernQueryExecutor.execute({
         operation,
+        operationExecutions: this._operationExecutions,
         operationLoader: this._operationLoader,
         optimisticConfig: null,
         publishQueue: this._publishQueue,
@@ -378,6 +389,7 @@ class RelayModernEnvironment implements IEnvironment {
       );
       const executor = RelayModernQueryExecutor.execute({
         operation,
+        operationExecutions: this._operationExecutions,
         operationLoader: this._operationLoader,
         optimisticConfig,
         publishQueue: this._publishQueue,
@@ -412,6 +424,7 @@ class RelayModernEnvironment implements IEnvironment {
     return RelayObservable.create(sink => {
       const executor = RelayModernQueryExecutor.execute({
         operation,
+        operationExecutions: this._operationExecutions,
         operationLoader: this._operationLoader,
         operationTracker: this._operationTracker,
         optimisticConfig: null,

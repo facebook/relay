@@ -664,6 +664,189 @@ describe('getPromiseForActiveRequest', () => {
       });
     });
   });
+
+  describe('when loading @module', () => {
+    let observer;
+    let operationLoader;
+    let resolveModule;
+    let markdownRendererNormalizationFragment;
+
+    beforeEach(() => {
+      observer = {
+        complete: jest.fn(),
+        error: jest.fn(),
+        next: jest.fn(),
+        unsubscribe: jest.fn(),
+      };
+      operationLoader = {
+        load: jest.fn(moduleName => {
+          return new Promise(resolve => {
+            resolveModule = resolve;
+          });
+        }),
+        get: jest.fn(),
+      };
+      environment = createMockEnvironment({operationLoader});
+      const compiled = generateAndCompile(`
+        query TestQuery($id: ID!) {
+          node(id: $id) {
+            ... on User {
+              nameRenderer { # intentionally does not use @match
+                ...PlainUserNameRenderer_name
+                  @module(name: "PlainUserNameRenderer.react")
+                ...MarkdownUserNameRenderer_name
+                  @module(name: "MarkdownUserNameRenderer.react")
+              }
+            }
+          }
+        }
+
+        fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
+          plaintext
+          data {
+            text
+          }
+        }
+
+        fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+          __typename
+          markdown
+          data {
+            markup
+          }
+        }
+      `);
+      gqlQuery = compiled.TestQuery;
+      markdownRendererNormalizationFragment =
+        compiled.MarkdownUserNameRenderer_name$normalization;
+      query = createOperationDescriptor(gqlQuery, {id: '4'});
+
+      fetchQuery(environment, query).subscribe(observer);
+    });
+
+    it('returns null if module loads before final payload', () => {
+      expect.assertions(5);
+      const promise = getPromiseForActiveRequest(environment, query.request);
+      expect(promise).not.toEqual(null);
+      if (!promise) {
+        return;
+      }
+
+      operationLoader.get.mockImplementationOnce(
+        () => markdownRendererNormalizationFragment,
+      );
+
+      expect(
+        getPromiseForActiveRequest(environment, query.request),
+      ).not.toEqual(null);
+
+      environment.mock.resolve(gqlQuery, {
+        data: {
+          node: {
+            id: '1',
+            __typename: 'User',
+            nameRenderer: {
+              __typename: 'MarkdownUserNameRenderer',
+              __module_component_TestQuery: 'MarkdownUserNameRenderer.react',
+              __module_operation_TestQuery:
+                'MarkdownUserNameRenderer_name$normalization.graphql',
+              markdown: 'markdown payload',
+              data: {
+                markup: '<markup/>',
+              },
+            },
+          },
+        },
+        extensions: {is_final: true},
+      });
+
+      expect(getPromiseForActiveRequest(environment, query.request)).toEqual(
+        null,
+      );
+
+      return promise.then(() => {
+        expect(observer.next).toHaveBeenCalledTimes(1);
+        expect(observer.complete).toHaveBeenCalledTimes(1);
+      });
+    });
+
+    it('returns promise if module still loading after final payload', async () => {
+      expect.assertions(8);
+      const initialPromise = getPromiseForActiveRequest(
+        environment,
+        query.request,
+      );
+      expect(initialPromise).not.toEqual(null);
+      if (!initialPromise) {
+        return;
+      }
+
+      environment.mock.nextValue(gqlQuery, {
+        data: {
+          node: {
+            id: '1',
+            __typename: 'User',
+            nameRenderer: {
+              __typename: 'MarkdownUserNameRenderer',
+              __module_component_TestQuery: 'MarkdownUserNameRenderer.react',
+              __module_operation_TestQuery:
+                'MarkdownUserNameRenderer_name$normalization.graphql',
+              markdown: 'markdown payload',
+              data: {
+                markup: '<markup/>',
+              },
+            },
+          },
+        },
+        extensions: {is_final: true},
+      });
+
+      const intermediatePromise = getPromiseForActiveRequest(
+        environment,
+        query.request,
+      );
+      expect(intermediatePromise).not.toEqual(null);
+      if (!intermediatePromise) {
+        return;
+      }
+
+      // Complete network request, still waiting on module
+      environment.mock.complete(gqlQuery);
+
+      const promiseForModule = getPromiseForActiveRequest(
+        environment,
+        query.request,
+      );
+      expect(promiseForModule).not.toEqual(null);
+      if (!promiseForModule) {
+        return;
+      }
+
+      resolveModule(markdownRendererNormalizationFragment);
+      jest.runAllTimers();
+
+      expect(getPromiseForActiveRequest(environment, query.request)).toEqual(
+        null,
+      );
+
+      await initialPromise.then(() => {
+        expect(observer.next).toHaveBeenCalledTimes(1);
+        expect(observer.complete).toHaveBeenCalledTimes(1);
+      });
+
+      let intermediateResolved = false;
+      await intermediatePromise.then(() => {
+        intermediateResolved = true;
+      });
+      expect(intermediateResolved).toEqual(true);
+
+      let moduleResolved = false;
+      await promiseForModule.then(() => {
+        moduleResolved = true;
+      });
+      expect(moduleResolved).toEqual(true);
+    });
+  });
 });
 
 describe('getObservableForActiveRequest', () => {
@@ -794,5 +977,154 @@ describe('getObservableForActiveRequest', () => {
 
     environment.mock.nextValue(gqlQuery, response);
     expect(events).toEqual(['complete']);
+  });
+
+  describe('when loading @module', () => {
+    let operationLoader;
+    let resolveModule;
+    let markdownRendererNormalizationFragment;
+
+    beforeEach(() => {
+      operationLoader = {
+        load: jest.fn(moduleName => {
+          return new Promise(resolve => {
+            resolveModule = resolve;
+          });
+        }),
+        get: jest.fn(),
+      };
+      environment = createMockEnvironment({operationLoader});
+      const compiled = generateAndCompile(`
+        query TestQuery($id: ID!) {
+          node(id: $id) {
+            ... on User {
+              nameRenderer { # intentionally does not use @match
+                ...PlainUserNameRenderer_name
+                  @module(name: "PlainUserNameRenderer.react")
+                ...MarkdownUserNameRenderer_name
+                  @module(name: "MarkdownUserNameRenderer.react")
+              }
+            }
+          }
+        }
+
+        fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
+          plaintext
+          data {
+            text
+          }
+        }
+
+        fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+          __typename
+          markdown
+          data {
+            markup
+          }
+        }
+      `);
+      gqlQuery = compiled.TestQuery;
+      markdownRendererNormalizationFragment =
+        compiled.MarkdownUserNameRenderer_name$normalization;
+      query = createOperationDescriptor(gqlQuery, {id: '4'});
+
+      fetchQuery(environment, query).subscribe({});
+    });
+
+    it('returns null if module loads before final payload', () => {
+      const observable = getObservableForActiveRequest(
+        environment,
+        query.request,
+      );
+      expect(observable).not.toEqual(null);
+      if (!observable) {
+        return;
+      }
+      observable.subscribe(observer);
+      expect(events).toEqual([]);
+
+      operationLoader.get.mockImplementationOnce(
+        () => markdownRendererNormalizationFragment,
+      );
+
+      expect(
+        getObservableForActiveRequest(environment, query.request),
+      ).not.toEqual(null);
+
+      environment.mock.resolve(gqlQuery, {
+        data: {
+          node: {
+            id: '1',
+            __typename: 'User',
+            nameRenderer: {
+              __typename: 'MarkdownUserNameRenderer',
+              __module_component_TestQuery: 'MarkdownUserNameRenderer.react',
+              __module_operation_TestQuery:
+                'MarkdownUserNameRenderer_name$normalization.graphql',
+              markdown: 'markdown payload',
+              data: {
+                markup: '<markup/>',
+              },
+            },
+          },
+        },
+        extensions: {is_final: true},
+      });
+
+      expect(getObservableForActiveRequest(environment, query.request)).toEqual(
+        null,
+      );
+
+      expect(events).toEqual(['next', 'complete']);
+    });
+
+    it('returns observable if module still loading after final payload', () => {
+      const observable = getObservableForActiveRequest(
+        environment,
+        query.request,
+      );
+      expect(observable).not.toEqual(null);
+      if (!observable) {
+        return;
+      }
+      observable.subscribe(observer);
+      expect(events).toEqual([]);
+
+      environment.mock.nextValue(gqlQuery, {
+        data: {
+          node: {
+            id: '1',
+            __typename: 'User',
+            nameRenderer: {
+              __typename: 'MarkdownUserNameRenderer',
+              __module_component_TestQuery: 'MarkdownUserNameRenderer.react',
+              __module_operation_TestQuery:
+                'MarkdownUserNameRenderer_name$normalization.graphql',
+              markdown: 'markdown payload',
+              data: {
+                markup: '<markup/>',
+              },
+            },
+          },
+        },
+        extensions: {is_final: true},
+      });
+
+      expect(events).toEqual(['next']);
+      expect(
+        getObservableForActiveRequest(environment, query.request),
+      ).not.toEqual(null);
+
+      environment.mock.complete(gqlQuery);
+      expect(events).toEqual(['next']);
+
+      resolveModule(markdownRendererNormalizationFragment);
+      jest.runAllTimers();
+
+      expect(events).toEqual(['next', 'complete']);
+      expect(getObservableForActiveRequest(environment, query.request)).toEqual(
+        null,
+      );
+    });
   });
 });

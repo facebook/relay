@@ -28,7 +28,6 @@ import type {CacheConfig} from '../util/RelayRuntimeTypes';
 import type {RequestIdentifier} from '../util/getRequestIdentifier';
 
 type RequestCacheEntry = {|
-  active: boolean,
   +identifier: RequestIdentifier,
   +subject: RelayReplaySubject<GraphQLResponse>,
   +subjectForInFlightStatus: RelayReplaySubject<GraphQLResponse>,
@@ -138,7 +137,6 @@ function fetchQueryDeduped(
         .subscribe({
           start: subscription => {
             cachedRequest = {
-              active: true,
               identifier,
               subject: new RelayReplaySubject(),
               subjectForInFlightStatus: new RelayReplaySubject(),
@@ -148,30 +146,21 @@ function fetchQueryDeduped(
           },
           next: response => {
             const cachedReq = getCachedRequest(requestCache, identifier);
-            const isFinal = isFinalPayload(response);
-            if (isFinal) {
-              cachedReq.active = false;
-            } else {
-              cachedReq.active = true;
-            }
             cachedReq.subject.next(response);
             cachedReq.subjectForInFlightStatus.next(response);
           },
           error: error => {
             const cachedReq = getCachedRequest(requestCache, identifier);
-            cachedReq.active = false;
             cachedReq.subject.error(error);
             cachedReq.subjectForInFlightStatus.error(error);
           },
           complete: () => {
             const cachedReq = getCachedRequest(requestCache, identifier);
-            cachedReq.active = false;
             cachedReq.subject.complete();
             cachedReq.subjectForInFlightStatus.complete();
           },
           unsubscribe: subscription => {
             const cachedReq = getCachedRequest(requestCache, identifier);
-            cachedReq.active = false;
             cachedReq.subject.unsubscribe();
             cachedReq.subjectForInFlightStatus.unsubscribe();
           },
@@ -219,46 +208,8 @@ function getObservableForCachedRequest(
 /**
  * @private
  */
-function isFinalPayload(response: GraphQLResponse): boolean {
-  if (Array.isArray(response)) {
-    for (const r of response) {
-      if (r.extensions?.is_final === true) {
-        return true;
-      }
-    }
-  } else {
-    if (response.extensions?.is_final === true) {
-      return true;
-    }
-  }
-  return false;
-}
-
-/**
- * @private
- */
-function getInFlightStatusObservableForCachedRequest(
-  requestCache: Map<RequestIdentifier, RequestCacheEntry>,
-  cachedRequest: RequestCacheEntry,
-): Observable<GraphQLResponse> {
-  return Observable.create(sink => {
-    const subscription = cachedRequest.subjectForInFlightStatus.subscribe({
-      error: sink.error,
-      next: sink.next,
-      complete: sink.complete,
-      unsubscribe: sink.complete,
-    });
-
-    return () => {
-      subscription.unsubscribe();
-    };
-  });
-}
-
-/**
- * @private
- */
 function getActiveStatusObservableForCachedRequest(
+  environment: IEnvironment,
   requestCache: Map<RequestIdentifier, RequestCacheEntry>,
   cachedRequest: RequestCacheEntry,
 ): Observable<void> {
@@ -266,8 +217,7 @@ function getActiveStatusObservableForCachedRequest(
     const subscription = cachedRequest.subjectForInFlightStatus.subscribe({
       error: sink.error,
       next: response => {
-        const isFinal = isFinalPayload(response);
-        if (isFinal) {
+        if (!environment.isRequestActive(cachedRequest.identifier)) {
           sink.complete();
           return;
         }
@@ -299,13 +249,14 @@ function getPromiseForActiveRequest(
   if (!cachedRequest) {
     return null;
   }
-  if (!cachedRequest.active) {
+  if (!environment.isRequestActive(cachedRequest.identifier)) {
     return null;
   }
 
   return new Promise((resolve, reject) => {
     let resolveOnNext = false;
     getActiveStatusObservableForCachedRequest(
+      environment,
       requestCache,
       cachedRequest,
     ).subscribe({
@@ -342,11 +293,15 @@ function getObservableForActiveRequest(
   if (!cachedRequest) {
     return null;
   }
-  if (!cachedRequest.active) {
+  if (!environment.isRequestActive(cachedRequest.identifier)) {
     return null;
   }
 
-  return getActiveStatusObservableForCachedRequest(requestCache, cachedRequest);
+  return getActiveStatusObservableForCachedRequest(
+    environment,
+    requestCache,
+    cachedRequest,
+  );
 }
 
 function isRequestActive(
@@ -355,7 +310,10 @@ function isRequestActive(
 ): boolean {
   const requestCache = getRequestCache(environment);
   const cachedRequest = requestCache.get(request.identifier);
-  return cachedRequest != null && cachedRequest.active;
+  return (
+    cachedRequest != null &&
+    environment.isRequestActive(cachedRequest.identifier)
+  );
 }
 
 /**

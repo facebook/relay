@@ -64,6 +64,7 @@ import type {NormalizationOptions} from './RelayResponseNormalizer';
 export type ExecuteConfig = {|
   +getDataID: GetDataID,
   +operation: OperationDescriptor,
+  +operationExecutions: Map<string, ActiveState>,
   +operationLoader: ?OperationLoader,
   +operationTracker?: ?OperationTracker,
   +optimisticConfig: ?OptimisticResponseConfig,
@@ -75,6 +76,8 @@ export type ExecuteConfig = {|
   +updater?: ?SelectorStoreUpdater,
   +isClientPayload?: boolean,
 |};
+
+export type ActiveState = 'active' | 'inactive';
 
 export type TaskScheduler = {|
   +cancel: (id: string) => void,
@@ -114,6 +117,7 @@ class Executor {
   _incrementalResults: Map<Label, Map<PathKey, IncrementalResults>>;
   _nextSubscriptionId: number;
   _operation: OperationDescriptor;
+  _operationExecutions: Map<string, ActiveState>;
   _operationLoader: ?OperationLoader;
   _operationTracker: ?OperationTracker;
   _operationUpdateEpochs: Map<string, number>;
@@ -134,6 +138,7 @@ class Executor {
 
   constructor({
     operation,
+    operationExecutions,
     operationLoader,
     optimisticConfig,
     publishQueue,
@@ -151,6 +156,7 @@ class Executor {
     this._incrementalResults = new Map();
     this._nextSubscriptionId = 0;
     this._operation = operation;
+    this._operationExecutions = operationExecutions;
     this._operationLoader = operationLoader;
     this._operationTracker = operationTracker;
     this._operationUpdateEpochs = new Map();
@@ -196,6 +202,8 @@ class Executor {
       return;
     }
     this._state = 'completed';
+    this._operationExecutions.delete(this._operation.request.identifier);
+
     if (this._subscriptions.size !== 0) {
       this._subscriptions.forEach(sub => sub.unsubscribe());
       this._subscriptions.clear();
@@ -210,6 +218,36 @@ class Executor {
     }
     this._incrementalResults.clear();
     this._completeOperationTracker();
+  }
+
+  _updateActiveState(): void {
+    let activeState;
+    switch (this._state) {
+      case 'started': {
+        activeState = 'active';
+        break;
+      }
+      case 'loading_incremental': {
+        activeState = 'active';
+        break;
+      }
+      case 'completed': {
+        activeState = 'inactive';
+        break;
+      }
+      case 'loading_final': {
+        activeState =
+          this._pendingModulePayloadsCount > 0 ? 'active' : 'inactive';
+        break;
+      }
+      default:
+        (this._state: empty);
+        invariant(false, 'RelayModernQueryExecutor: invalid executor state.');
+    }
+    this._operationExecutions.set(
+      this._operation.request.identifier,
+      activeState,
+    );
   }
 
   _schedule(task: () => void): void {
@@ -251,6 +289,7 @@ class Executor {
 
   _start(id: number, subscription: Subscription): void {
     this._subscriptions.set(id, subscription);
+    this._updateActiveState();
   }
 
   // Handle a raw GraphQL response.
@@ -374,7 +413,6 @@ class Executor {
       this._updateOperationTracker(updatedOwners);
       this._processPayloadFollowups(payloadFollowups);
     }
-
     this._sink.next(response);
   }
 
@@ -574,6 +612,7 @@ class Executor {
     payloads.forEach(payload => {
       const {incrementalPlaceholders, moduleImportPayloads, isFinal} = payload;
       this._state = isFinal ? 'loading_final' : 'loading_incremental';
+      this._updateActiveState();
       if (isFinal) {
         this._incrementalPayloadsPending = false;
       }

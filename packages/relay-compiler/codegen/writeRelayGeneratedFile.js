@@ -52,7 +52,6 @@ async function writeRelayGeneratedFile(
   formatModule: FormatModule,
   typeText: string,
   _persistQuery: ?(text: string) => Promise<string>,
-  platform: ?string,
   sourceHash: string,
   extension: string,
   printModuleDependency: (
@@ -73,18 +72,11 @@ async function writeRelayGeneratedFile(
     (generatedNode.kind === 'Request'
       ? generatedNode.params.name
       : generatedNode.name) + '.graphql';
-  const platformName =
-    platform != null && platform.length > 0
-      ? moduleName + '.' + platform
-      : moduleName;
 
-  const filename = platformName + '.' + extension;
+  const filename = moduleName + '.' + extension;
   const queryParametersFilename =
     generatedNode.kind === 'Request'
-      ? generatedNode.params.name +
-        '$Parameters' +
-        (platform != null ? '.' + platform : '') +
-        `.${extension}`
+      ? `${generatedNode.params.name}$Parameters.${extension}`
       : null;
 
   const typeName = getConcreteType(generatedNode);

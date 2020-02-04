@@ -18,8 +18,12 @@ const getModuleName = require('../getModuleName');
 test('getModuleName', () => {
   expect(getModuleName('/path/Button.js')).toBe('Button');
   expect(getModuleName('/path/Button.react.js')).toBe('Button');
+  expect(getModuleName('/path/Button.react-test.js')).toBe('Button');
+  expect(getModuleName('/path/Button.react-test.jsx')).toBe('Button');
+  expect(getModuleName('/path/Button.react.example.jsx')).toBe('Button');
   expect(getModuleName('/path/Slider.ios.js')).toBe('SliderIos');
   expect(getModuleName('/path/Typescript.ts')).toBe('Typescript');
+  expect(getModuleName('/path/Typescript.tsx')).toBe('Typescript');
   expect(getModuleName('/path/button/index.js')).toBe('button');
   expect(getModuleName('/path/foo-bar/index.js')).toBe('fooBar');
   expect(getModuleName('/path/foo-bar-baz.js')).toBe('fooBarBaz');

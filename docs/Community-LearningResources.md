@@ -9,6 +9,8 @@ These projects serve as an example of how to use Relay in real world application
 
 - https://github.com/adeira/relay-example
 - https://github.com/juffalow/react-relay-example
+- https://github.com/enisdenjo/relay-modern-boilerplate
+- https://github.com/bhidapa/heltin
 
 ## Learn basics
 
@@ -29,7 +31,8 @@ Here, you will find articles written by Relay community. They are touching basic
 - [Local State Management, part 2 - how to manage global state and localStorage persistence on the client, using Relay](https://babangsund.com/relay_local_state_management_2/) (by @babangsund)
 - [Local State Management, part 3 - using LocalQueryRenderer and local state to manage nested fragments](https://babangsund.com/relay_local_state_management_3/) (by @babangsund)
 
-
+## Talks
+- [Reintroducing Relay Modern. The missing introduction to Relay Modern](https://www.youtube.com/watch?v=5WjXX9-Vu-o) (by @enisdenjo)
 
 ## Network Layer
 

@@ -437,7 +437,7 @@ function createFragmentResource(environment: IEnvironment): FragmentResource {
   return new FragmentResourceImpl(environment);
 }
 
-const dataResources: Map<IEnvironment, FragmentResource> = new Map();
+const dataResources: WeakMap<IEnvironment, FragmentResource> = new WeakMap();
 function getFragmentResourceForEnvironment(
   environment: IEnvironment,
 ): FragmentResourceImpl {

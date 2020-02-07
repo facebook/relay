@@ -14,6 +14,7 @@
 'use strict';
 
 const ExecutionEnvironment = require('./ExecutionEnvironment');
+const PreloadableQueryRegistry = require('./PreloadableQueryRegistry');
 
 const invariant = require('invariant');
 
@@ -123,10 +124,10 @@ function preloadQueryDeduped<TQuery: OperationType>(
 ): PendingQueryEntry {
   let params;
   let query: ?ConcreteRequest;
-  if (preloadableRequest.queryResource != null) {
+  if (preloadableRequest.kind === 'PreloadableConcreteRequest') {
     const preloadableConcreteRequest: PreloadableConcreteRequest<TQuery> = (preloadableRequest: $FlowFixMe);
     params = preloadableConcreteRequest.params;
-    query = preloadableConcreteRequest.queryResource.getModuleIfRequired();
+    query = params.id != null ? PreloadableQueryRegistry.get(params.id) : null;
   } else {
     query = getRequest((preloadableRequest: $FlowFixMe));
     params = query.params;

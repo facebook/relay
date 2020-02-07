@@ -16,6 +16,7 @@
 const EntryPointContainer = require('./EntryPointContainer.react');
 const LazyLoadEntryPointContainer_DEPRECATED = require('./LazyLoadEntryPointContainer_DEPRECATED.react');
 const MatchContainer = require('./MatchContainer');
+const PreloadableQueryRegistry = require('./PreloadableQueryRegistry');
 const ProfilerContext = require('./ProfilerContext');
 const RelayEnvironmentProvider = require('./RelayEnvironmentProvider');
 
@@ -50,6 +51,7 @@ module.exports = {
   MatchContainer: MatchContainer,
   ProfilerContext: ProfilerContext,
   RelayEnvironmentProvider: RelayEnvironmentProvider,
+  PreloadableQueryRegistry: PreloadableQueryRegistry,
 
   fetchQuery: fetchQuery,
 

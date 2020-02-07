@@ -25,6 +25,7 @@ const TestRenderer = require('react-test-renderer');
 const invariant = require('invariant');
 const preloadQuery_DEPRECATED = require('../preloadQuery_DEPRECATED');
 const usePreloadedQuery = require('../usePreloadedQuery');
+const PreloadableQueryRegistry = require('../PreloadableQueryRegistry');
 
 const {
   Environment,
@@ -47,6 +48,9 @@ const query = generateAndCompile(`
   }
 `).TestQuery;
 
+// Only queries with an ID are preloadable
+query.params.id = '12345';
+
 const response = {
   data: {
     node: {
@@ -65,7 +69,6 @@ let environment;
 let fetch;
 let entryPoint;
 let params;
-let queryResource;
 
 class FakeJSResource<T> {
   _resolve: (T => mixed) | null;
@@ -96,6 +99,8 @@ class FakeJSResource<T> {
 }
 
 beforeEach(() => {
+  PreloadableQueryRegistry.clear();
+
   jest.spyOn(console, 'warn').mockImplementation(() => {});
   jest.spyOn(console, 'error').mockImplementation(() => {});
   fetch = jest.fn((_query, _variables, _cacheConfig) =>
@@ -108,10 +113,9 @@ beforeEach(() => {
     store: new Store(new RecordSource()),
   });
 
-  queryResource = new FakeJSResource();
   params = {
+    kind: 'PreloadableConcreteRequest',
     params: query.params,
-    queryResource: (queryResource: $FlowFixMe),
   };
   entryPoint = {
     getPreloadProps: jest.fn(entryPointParams => {
@@ -430,7 +434,7 @@ it('renders synchronously when the query data and ast are cached, without fetchi
     },
   });
   // "load" the query ast
-  queryResource.resolve(query);
+  PreloadableQueryRegistry.set(query.params.id, query);
   const otherProps = {version: 0};
   let receivedProps = null;
   function Component(props) {

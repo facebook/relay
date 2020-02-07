@@ -18,6 +18,7 @@ jest.mock('../ExecutionEnvironment', () => ({
 }));
 
 const preloadQuery_DEPRECATED = require('../preloadQuery_DEPRECATED');
+const PreloadableQueryRegistry = require('../PreloadableQueryRegistry');
 
 const {
   Environment,
@@ -36,13 +37,13 @@ const query = generateAndCompile(`
     }
   }
 `).TestQuery;
+
+// Only queries with an ID are preloadable
+query.params.id = '12345';
+
 const params = {
+  kind: 'PreloadableConcreteRequest',
   params: query.params,
-  queryResource: ({
-    getModuleIfRequired: () => {
-      return null;
-    },
-  }: $FlowFixMe),
 };
 
 const response = {
@@ -79,6 +80,7 @@ beforeEach(() => {
   (environment: $FlowFixMe).check = check;
   variables = {id: '4'};
   operation = createOperationDescriptor(query, variables);
+  PreloadableQueryRegistry.clear();
 });
 
 function createObserver() {
@@ -115,7 +117,7 @@ describe('store-or-network', () => {
   });
 
   it('fetches from network if data is not available but query is', () => {
-    params.queryResource.getModuleIfRequired = () => query;
+    PreloadableQueryRegistry.set(query.params.id, query);
 
     const preloaded = preloadQuery_DEPRECATED(environment, params, variables);
     expect(preloaded.source).toEqual(expect.any(Observable));
@@ -196,7 +198,7 @@ describe('store-or-network', () => {
     environment.commitPayload(operation, response.data);
     expect(environment.check(operation)).toBe('available');
     check.mockClear();
-    params.queryResource.getModuleIfRequired = () => query;
+    PreloadableQueryRegistry.set(query.params.id, query);
 
     const preloaded = preloadQuery_DEPRECATED(environment, params, variables);
     expect(preloaded.source).toBe(null);
@@ -224,7 +226,7 @@ describe('store-or-network', () => {
     environment.commitPayload(operation, response.data);
     expect(environment.check(operation)).toBe('available');
     check.mockClear();
-    params.queryResource.getModuleIfRequired = () => query;
+    PreloadableQueryRegistry.set(query.params.id, query);
 
     const preloaded = preloadQuery_DEPRECATED(environment, params, variables);
     expect(check).toBeCalledTimes(1);
@@ -239,7 +241,7 @@ describe('store-or-network', () => {
     });
     expect(environment.check(operation)).toBe('stale');
     check.mockClear();
-    params.queryResource.getModuleIfRequired = () => query;
+    PreloadableQueryRegistry.set(query.params.id, query);
 
     const preloaded = preloadQuery_DEPRECATED(environment, params, variables);
     expect(preloaded.source).toEqual(expect.any(Observable));
@@ -253,7 +255,7 @@ describe('store-or-network', () => {
     environment.commitPayload(operation, response.data);
     expect(environment.check(operation)).toBe('available');
     check.mockClear();
-    params.queryResource.getModuleIfRequired = () => query;
+    PreloadableQueryRegistry.set(query.params.id, query);
 
     preloadQuery_DEPRECATED(environment, params, variables);
     check.mockClear();
@@ -271,7 +273,7 @@ describe('store-and-network', () => {
   it('fetches from network even if query/data are available', () => {
     environment.commitPayload(operation, response.data);
     expect(environment.check(operation)).toBe('available');
-    params.queryResource.getModuleIfRequired = () => query;
+    PreloadableQueryRegistry.set(query.params.id, query);
 
     const preloaded = preloadQuery_DEPRECATED(environment, params, variables, {
       fetchPolicy: 'store-and-network',
@@ -366,7 +368,7 @@ describe('network-only', () => {
   it('fetches from network even if query/data are available', () => {
     environment.commitPayload(operation, response.data);
     expect(environment.check(operation)).toBe('available');
-    params.queryResource.getModuleIfRequired = () => query;
+    PreloadableQueryRegistry.set(query.params.id, query);
 
     const preloaded = preloadQuery_DEPRECATED(environment, params, variables, {
       fetchPolicy: 'network-only',

@@ -46,11 +46,7 @@ const query = generateAndCompile(`
   }
 `).TestQuery;
 const params = {
-  queryResource: ({
-    getModuleIfRequired: () => {
-      return null;
-    },
-  }: $FlowFixMe),
+  kind: 'PreloadableConcreteRequest',
   params: query.params,
 };
 

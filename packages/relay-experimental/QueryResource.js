@@ -527,7 +527,7 @@ function createQueryResource(environment: IEnvironment): QueryResource {
   return new QueryResourceImpl(environment);
 }
 
-const dataResources: WeakMap<IEnvironment, FragmentResource> = new WeakMap();
+const dataResources: WeakMap<IEnvironment, QueryResource> = new WeakMap();
 function getQueryResourceForEnvironment(
   environment: IEnvironment,
 ): QueryResourceImpl {

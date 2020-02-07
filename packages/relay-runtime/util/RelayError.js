@@ -25,7 +25,7 @@ function createError(type: string, name: string, message: string): Error {
 
 module.exports = {
   create(name: string, message: string): Error {
-    return createError('mustfix', name, message);
+    return createError('error', name, message);
   },
   createWarning(name: string, message: string): Error {
     return createError('warn', name, message);

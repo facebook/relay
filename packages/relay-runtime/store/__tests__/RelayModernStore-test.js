@@ -870,7 +870,7 @@ function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
           );
           // Results are asserted in earlier tests
 
-          expect(store.check(owner)).toEqual('stale');
+          expect(store.check(owner)).toEqual({status: 'stale'});
         });
 
         it('correctly invalidates individual records', () => {
@@ -906,7 +906,7 @@ function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
             throw new Error('Expected to find record with id client:1');
           }
           expect(record[INVALIDATED_AT_KEY]).toEqual(1);
-          expect(store.check(owner)).toEqual('stale');
+          expect(store.check(owner)).toEqual({status: 'stale'});
         });
 
         it("correctly invalidates records even when they weren't modified in the source being published", () => {
@@ -942,7 +942,7 @@ function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
             throw new Error('Expected to find record with id "4"');
           }
           expect(record[INVALIDATED_AT_KEY]).toEqual(1);
-          expect(store.check(owner)).toEqual('stale');
+          expect(store.check(owner)).toEqual({status: 'stale'});
         });
       });
     });
@@ -997,7 +997,10 @@ function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
           id: '4',
           size: 32,
         });
-        expect(store.check(operation)).toBe('available');
+        expect(store.check(operation)).toEqual({
+          status: 'available',
+          fetchTime: null,
+        });
       });
 
       it('returns missing if a scalar field is missing', () => {
@@ -1013,7 +1016,7 @@ function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
             },
           }),
         );
-        expect(store.check(operation)).toBe('missing');
+        expect(store.check(operation)).toEqual({status: 'missing'});
       });
 
       it('returns missing if a linked field is missing', () => {
@@ -1021,7 +1024,7 @@ function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
           id: '4',
           size: 64,
         });
-        expect(store.check(operation)).toBe('missing');
+        expect(store.check(operation)).toEqual({status: 'missing'});
       });
 
       it('returns missing if a linked record is missing', () => {
@@ -1033,7 +1036,7 @@ function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
           id: '4',
           size: 32,
         });
-        expect(store.check(operation)).toBe('missing');
+        expect(store.check(operation)).toEqual({status: 'missing'});
       });
 
       it('returns missing if the root record is missing', () => {
@@ -1041,7 +1044,7 @@ function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
           id: '842472',
           size: 32,
         });
-        expect(store.check(operation)).toBe('missing');
+        expect(store.check(operation)).toEqual({status: 'missing'});
       });
 
       describe('with global store invalidation', () => {
@@ -1054,7 +1057,7 @@ function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
               id: '4',
               size: 32,
             });
-            expect(store.check(operation)).toBe('stale');
+            expect(store.check(operation)).toEqual({status: 'stale'});
           });
 
           it('returns stale if data is not cached and store has been invalidated', () => {
@@ -1065,7 +1068,7 @@ function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
               id: '842472',
               size: 32,
             });
-            expect(store.check(operation)).toBe('stale');
+            expect(store.check(operation)).toEqual({status: 'stale'});
           });
         });
 
@@ -1084,7 +1087,7 @@ function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
             environment.commitUpdate(storeProxy => {
               storeProxy.invalidateStore();
             });
-            expect(store.check(operation)).toBe('stale');
+            expect(store.check(operation)).toEqual({status: 'stale'});
           });
 
           it('returns available if data is cached and store was invalidated before query was written', () => {
@@ -1097,11 +1100,16 @@ function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
             });
 
             // Write query data and record operation write
+            const fetchTime = Date.now();
+            jest.spyOn(global.Date, 'now').mockImplementation(() => fetchTime);
             store.retain(operation);
             store.publish(source);
             store.notify(operation);
 
-            expect(store.check(operation)).toBe('available');
+            expect(store.check(operation)).toEqual({
+              status: 'available',
+              fetchTime,
+            });
           });
 
           it('returns stale if data is not cached and store was invalidated after query was written', () => {
@@ -1118,7 +1126,7 @@ function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
             environment.commitUpdate(storeProxy => {
               storeProxy.invalidateStore();
             });
-            expect(store.check(operation)).toBe('stale');
+            expect(store.check(operation)).toEqual({status: 'stale'});
           });
 
           it('returns missing if data is not cached and store was invalidated before query was written', () => {
@@ -1135,7 +1143,7 @@ function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
             store.publish(source);
             store.notify(operation);
 
-            expect(store.check(operation)).toBe('missing');
+            expect(store.check(operation)).toEqual({status: 'missing'});
           });
         });
       });
@@ -1155,7 +1163,7 @@ function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
               }
               user.invalidateRecord();
             });
-            expect(store.check(operation)).toBe('stale');
+            expect(store.check(operation)).toEqual({status: 'stale'});
           });
 
           it('returns stale if operation was written before record was invalidated', () => {
@@ -1176,7 +1184,7 @@ function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
               }
               user.invalidateRecord();
             });
-            expect(store.check(operation)).toBe('stale');
+            expect(store.check(operation)).toEqual({status: 'stale'});
           });
 
           it('returns available if operation was written after record was invalidated', () => {
@@ -1194,11 +1202,16 @@ function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
             });
 
             // Write query data and record operation write
+            const fetchTime = Date.now();
+            jest.spyOn(global.Date, 'now').mockImplementation(() => fetchTime);
             store.retain(operation);
             store.publish(source);
             store.notify(operation);
 
-            expect(store.check(operation)).toBe('available');
+            expect(store.check(operation)).toEqual({
+              status: 'available',
+              fetchTime,
+            });
           });
         });
 
@@ -1227,7 +1240,7 @@ function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
               }
               user.invalidateRecord();
             });
-            expect(store.check(operation)).toBe('stale');
+            expect(store.check(operation)).toEqual({status: 'stale'});
           });
 
           it('returns stale if operation was written before record was invalidated', () => {
@@ -1248,7 +1261,7 @@ function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
               }
               user.invalidateRecord();
             });
-            expect(store.check(operation)).toBe('stale');
+            expect(store.check(operation)).toEqual({status: 'stale'});
           });
 
           it('returns missing if stale record is unreachable', () => {
@@ -1268,7 +1281,7 @@ function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
               }
               user.invalidateRecord();
             });
-            expect(store.check(operation)).toBe('missing');
+            expect(store.check(operation)).toEqual({status: 'missing'});
           });
 
           it('returns missing if operation was written after record was invalidated', () => {
@@ -1290,7 +1303,7 @@ function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
             store.publish(source);
             store.notify(operation);
 
-            expect(store.check(operation)).toBe('missing');
+            expect(store.check(operation)).toEqual({status: 'missing'});
           });
         });
       });

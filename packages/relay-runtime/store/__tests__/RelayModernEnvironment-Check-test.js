@@ -63,9 +63,30 @@ describe('check()', () => {
         },
       },
     });
-    expect(environment.check(operationDescriptor)).toBe('available');
+    expect(environment.check(operationDescriptor)).toEqual({
+      status: 'available',
+      fetchTime: null,
+    });
   });
 
+  it('returns available with fetchTime if all data exists in the environment and the query is retained', () => {
+    const fetchTime = Date.now();
+    jest.spyOn(global.Date, 'now').mockImplementation(() => fetchTime);
+    environment.retain(operationDescriptor);
+    environment.commitPayload(operationDescriptor, {
+      me: {
+        id: '4',
+        name: 'Zuck',
+        profilePicture: {
+          uri: 'https://...',
+        },
+      },
+    });
+    expect(environment.check(operationDescriptor)).toEqual({
+      status: 'available',
+      fetchTime,
+    });
+  });
   it('returns missing if data is missing from the environment', () => {
     environment.commitPayload(operationDescriptor, {
       me: {
@@ -76,6 +97,6 @@ describe('check()', () => {
         },
       },
     });
-    expect(environment.check(operationDescriptor)).toBe('missing');
+    expect(environment.check(operationDescriptor)).toEqual({status: 'missing'});
   });
 });

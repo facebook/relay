@@ -207,7 +207,10 @@ export type CheckOptions = {|
   handlers: $ReadOnlyArray<MissingFieldHandler>,
 |};
 
-export type OperationAvailability = 'available' | 'stale' | 'missing';
+export type OperationAvailability =
+  | {|status: 'available', fetchTime: ?number|}
+  | {|status: 'stale'|}
+  | {|status: 'missing'|};
 
 export type {InvalidationState} from './RelayModernStore';
 

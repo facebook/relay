@@ -376,10 +376,10 @@ class QueryResourceImpl {
     // We run it here first to make the handlers get a chance to populate
     // missing data.
     const queryAvailability = environment.check(operation);
-    const hasFullQuery = queryAvailability === 'available';
+    const queryStatus = queryAvailability.status;
+    const hasFullQuery = queryStatus === 'available';
     const canPartialRender =
-      hasFullQuery ||
-      (renderPolicy === 'partial' && queryAvailability !== 'stale');
+      hasFullQuery || (renderPolicy === 'partial' && queryStatus !== 'stale');
 
     let shouldFetch;
     let shouldAllowRender;

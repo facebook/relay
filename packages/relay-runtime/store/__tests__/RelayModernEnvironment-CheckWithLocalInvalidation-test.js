@@ -90,11 +90,16 @@ describe('check() with local invalidation', () => {
           },
         },
       };
+      const fetchTime = Date.now();
+      jest.spyOn(global.Date, 'now').mockImplementation(() => fetchTime);
       dataSource.next(payload);
       dataSource.complete();
       jest.runAllTimers();
 
-      expect(environment.check(operation)).toBe('available');
+      expect(environment.check(operation)).toEqual({
+        status: 'available',
+        fetchTime,
+      });
     });
 
     it('returns missing if some data is missing after receiving query from the server', () => {
@@ -121,7 +126,7 @@ describe('check() with local invalidation', () => {
       dataSource.complete();
       jest.runAllTimers();
 
-      expect(environment.check(operation)).toBe('missing');
+      expect(environment.check(operation)).toEqual({status: 'missing'});
     });
   });
 
@@ -155,7 +160,7 @@ describe('check() with local invalidation', () => {
 
       // Should return stale even if all data is cached since
       // store was invalidated after query completed
-      expect(environment.check(operation)).toBe('stale');
+      expect(environment.check(operation)).toEqual({status: 'stale'});
     });
 
     it('returns stale even if some data is missing', () => {
@@ -185,7 +190,7 @@ describe('check() with local invalidation', () => {
         user.invalidateRecord();
       });
 
-      expect(environment.check(operation)).toBe('stale');
+      expect(environment.check(operation)).toEqual({status: 'stale'});
     });
   });
 
@@ -218,7 +223,7 @@ describe('check() with local invalidation', () => {
       });
 
       // Expect data to not be available after invalidation
-      expect(environment.check(operation)).toBe('stale');
+      expect(environment.check(operation)).toEqual({status: 'stale'});
 
       environment.execute({operation}).subscribe(callbacks);
       payload = {
@@ -233,12 +238,17 @@ describe('check() with local invalidation', () => {
           },
         },
       };
+      const fetchTime = Date.now();
+      jest.spyOn(global.Date, 'now').mockImplementation(() => fetchTime);
       dataSource.next(payload);
       dataSource.complete();
       jest.runAllTimers();
 
       // Expect data be available after refetch
-      expect(environment.check(operation)).toBe('available');
+      expect(environment.check(operation)).toEqual({
+        status: 'available',
+        fetchTime,
+      });
     });
 
     it('returns missing if data is not available after refetch', () => {
@@ -269,7 +279,7 @@ describe('check() with local invalidation', () => {
       });
 
       // Expect data to not be available after invalidation
-      expect(environment.check(operation)).toBe('stale');
+      expect(environment.check(operation)).toEqual({status: 'stale'});
 
       environment.execute({operation}).subscribe(callbacks);
       payload = {
@@ -288,7 +298,7 @@ describe('check() with local invalidation', () => {
       dataSource.complete();
       jest.runAllTimers();
 
-      expect(environment.check(operation)).toBe('missing');
+      expect(environment.check(operation)).toEqual({status: 'missing'});
     });
   });
 
@@ -335,8 +345,10 @@ describe('check() with local invalidation', () => {
         next.mockClear();
 
         // Still missing incremental payload
-        expect(environment.check(operation)).toBe('missing');
+        expect(environment.check(operation)).toEqual({status: 'missing'});
 
+        const fetchTime = Date.now();
+        jest.spyOn(global.Date, 'now').mockImplementation(() => fetchTime);
         dataSource.next({
           data: {
             id: '1',
@@ -352,7 +364,10 @@ describe('check() with local invalidation', () => {
         jest.runAllTimers();
 
         // Data for whole query should be available now
-        expect(environment.check(operation)).toBe('available');
+        expect(environment.check(operation)).toEqual({
+          status: 'available',
+          fetchTime,
+        });
       });
 
       it('returns missing after receiving payloads from the server if data is still missing', () => {
@@ -377,7 +392,7 @@ describe('check() with local invalidation', () => {
         next.mockClear();
 
         // Still missing incremental payload
-        expect(environment.check(operation)).toBe('missing');
+        expect(environment.check(operation)).toEqual({status: 'missing'});
 
         dataSource.next({
           data: {
@@ -394,7 +409,7 @@ describe('check() with local invalidation', () => {
         jest.runAllTimers();
 
         // Data is still missing
-        expect(environment.check(operation)).toBe('missing');
+        expect(environment.check(operation)).toEqual({status: 'missing'});
       });
     });
 
@@ -416,7 +431,7 @@ describe('check() with local invalidation', () => {
         next.mockClear();
 
         // Still missing incremental payload
-        expect(environment.check(operation)).toBe('missing');
+        expect(environment.check(operation)).toEqual({status: 'missing'});
 
         // Invalidate the record in between incremental payloads
         environment.commitUpdate(storeProxy => {
@@ -443,7 +458,7 @@ describe('check() with local invalidation', () => {
 
         // Should return false even if all data is cached since
         // store was invalidated after first payload was written
-        expect(environment.check(operation)).toBe('stale');
+        expect(environment.check(operation)).toEqual({status: 'stale'});
       });
 
       it('returns stale after receiving payloads from the server and data is still missing', () => {
@@ -463,7 +478,7 @@ describe('check() with local invalidation', () => {
         next.mockClear();
 
         // Still missing incremental payload
-        expect(environment.check(operation)).toBe('missing');
+        expect(environment.check(operation)).toEqual({status: 'missing'});
 
         // Invalidate the record in between incremental payloads
         environment.commitUpdate(storeProxy => {
@@ -488,7 +503,7 @@ describe('check() with local invalidation', () => {
         dataSource.complete();
         jest.runAllTimers();
 
-        expect(environment.check(operation)).toBe('stale');
+        expect(environment.check(operation)).toEqual({status: 'stale'});
       });
     });
 
@@ -510,7 +525,7 @@ describe('check() with local invalidation', () => {
         next.mockClear();
 
         // Still missing incremental payload
-        expect(environment.check(operation)).toBe('missing');
+        expect(environment.check(operation)).toEqual({status: 'missing'});
 
         dataSource.next({
           data: {
@@ -537,7 +552,7 @@ describe('check() with local invalidation', () => {
 
         // Should return stale even if all data is cached since
         // store was invalidated after query completed
-        expect(environment.check(operation)).toBe('stale');
+        expect(environment.check(operation)).toEqual({status: 'stale'});
       });
 
       it('returns stale after receiving payloads from the server and data is still missing', () => {
@@ -557,7 +572,7 @@ describe('check() with local invalidation', () => {
         next.mockClear();
 
         // Still missing incremental payload
-        expect(environment.check(operation)).toBe('missing');
+        expect(environment.check(operation)).toEqual({status: 'missing'});
 
         dataSource.next({
           data: {
@@ -582,7 +597,7 @@ describe('check() with local invalidation', () => {
           user.invalidateRecord();
         });
 
-        expect(environment.check(operation)).toBe('stale');
+        expect(environment.check(operation)).toEqual({status: 'stale'});
       });
     });
   });

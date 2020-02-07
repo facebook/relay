@@ -58,6 +58,13 @@ export type PreloadedQuery<
   +name: string,
   +source: ?Observable<GraphQLResponse>,
   +variables: $ElementType<TQuery, 'variables'>,
+  +status: PreloadQueryStatus,
+|};
+
+export type PreloadQueryStatus = {|
+  +cacheConfig: ?CacheConfig,
+  +source: 'cache' | 'network',
+  +cacheTime: ?number,
 |};
 
 /**

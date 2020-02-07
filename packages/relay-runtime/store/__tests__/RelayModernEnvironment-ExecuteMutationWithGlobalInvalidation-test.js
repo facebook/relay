@@ -141,7 +141,10 @@ describe('executeMutation() with global invalidation', () => {
 
     // Assert that store invalidation during optimistic update
     // was a no-op
-    expect(environment.check(queryOperation)).toBe('available');
+    expect(environment.check(queryOperation)).toEqual({
+      status: 'available',
+      fetchTime: null,
+    });
   });
 
   describe('when store invalidated inside updater after server payload', () => {
@@ -197,10 +200,10 @@ describe('executeMutation() with global invalidation', () => {
       // Results of execution are asserted in ExecuteMutation-test.js
 
       // Assert that store was correctly invalidated
-      expect(environment.check(queryOperation)).toBe('stale');
+      expect(environment.check(queryOperation)).toEqual({status: 'stale'});
       // Assert that operation that was written during the same update as invalidation
       // is also stale
-      expect(environment.check(operation)).toBe('stale');
+      expect(environment.check(operation)).toEqual({status: 'stale'});
     });
 
     it('correctly invalidates the store when query was written before invalidation', () => {
@@ -268,10 +271,10 @@ describe('executeMutation() with global invalidation', () => {
       // Results of execution are asserted in ExecuteMutation-test.js
 
       // Assert that store was correctly invalidated
-      expect(environment.check(queryOperation)).toBe('stale');
+      expect(environment.check(queryOperation)).toEqual({status: 'stale'});
       // Assert that operation that was written during the same update as invalidation
       // is also stale
-      expect(environment.check(operation)).toBe('stale');
+      expect(environment.check(operation)).toEqual({status: 'stale'});
     });
 
     it('correctly invalidates the store when query is written after invalidation', () => {
@@ -326,13 +329,15 @@ describe('executeMutation() with global invalidation', () => {
       // Results of execution are asserted in ExecuteMutation-test.js
 
       // Assert that query is currently stale
-      expect(environment.check(queryOperation)).toBe('stale');
+      expect(environment.check(queryOperation)).toEqual({status: 'stale'});
       // Assert that operation that was written during the same update as invalidation
       // is also stale
-      expect(environment.check(operation)).toBe('stale');
+      expect(environment.check(operation)).toEqual({status: 'stale'});
 
       // Write operation after running invalidation
       environment.retain(queryOperation);
+      const fetchTime = Date.now();
+      jest.spyOn(global.Date, 'now').mockImplementation(() => fetchTime);
       environment.commitPayload(queryOperation, {
         node: {
           __typename: 'Comment',
@@ -344,10 +349,13 @@ describe('executeMutation() with global invalidation', () => {
       });
       jest.runAllTimers();
       // Assert that query is currently stale
-      expect(environment.check(queryOperation)).toBe('available');
+      expect(environment.check(queryOperation)).toEqual({
+        status: 'available',
+        fetchTime,
+      });
       // Assert that operation that was written during the same update as invalidation
       // is still stale
-      expect(environment.check(operation)).toBe('stale');
+      expect(environment.check(operation)).toEqual({status: 'stale'});
     });
   });
 });

@@ -99,7 +99,7 @@ class ReactRelayQueryFetcher {
       fetchPolicy === 'store-and-network' ||
       fetchPolicy === 'store-or-network'
     ) {
-      if (environment.check(operation) === 'available') {
+      if (environment.check(operation).status === 'available') {
         this._retainCachedOperation(environment, operation);
         return environment.lookup(operation.fragment);
       }

@@ -97,11 +97,19 @@ describe('store-or-network', () => {
   it('fetches from network if data is available but query is not', () => {
     // load data in store
     environment.commitPayload(operation, response.data);
-    expect(environment.check(operation)).toBe('available');
+    expect(environment.check(operation)).toEqual({
+      status: 'available',
+      fetchTime: null,
+    });
     check.mockClear();
 
     const preloaded = preloadQuery_DEPRECATED(environment, params, variables);
     expect(preloaded.source).toEqual(expect.any(Observable));
+    expect(preloaded.status).toEqual({
+      cacheConfig: {force: true},
+      source: 'network',
+      cacheTime: null,
+    });
     expect(fetch).toBeCalledTimes(1);
     expect(fetch.mock.calls[0][0]).toBe(query.params);
     expect(fetch.mock.calls[0][1]).toEqual(variables);
@@ -121,6 +129,11 @@ describe('store-or-network', () => {
 
     const preloaded = preloadQuery_DEPRECATED(environment, params, variables);
     expect(preloaded.source).toEqual(expect.any(Observable));
+    expect(preloaded.status).toEqual({
+      cacheConfig: {force: true},
+      source: 'network',
+      cacheTime: null,
+    });
     expect(fetch).toBeCalledTimes(1);
     expect(fetch.mock.calls[0][0]).toBe(query.params);
     expect(fetch.mock.calls[0][1]).toEqual(variables);
@@ -130,6 +143,11 @@ describe('store-or-network', () => {
   it('fetches from network if data is not available with concrete query', () => {
     const preloaded = preloadQuery_DEPRECATED(environment, query, variables);
     expect(preloaded.source).toEqual(expect.any(Observable));
+    expect(preloaded.status).toEqual({
+      cacheConfig: {force: true},
+      source: 'network',
+      cacheTime: null,
+    });
     expect(fetch).toBeCalledTimes(1);
     expect(fetch.mock.calls[0][0]).toBe(query.params);
     expect(fetch.mock.calls[0][1]).toEqual(variables);
@@ -196,12 +214,44 @@ describe('store-or-network', () => {
 
   it('resolves from cache if data and query are available', () => {
     environment.commitPayload(operation, response.data);
-    expect(environment.check(operation)).toBe('available');
+    expect(environment.check(operation)).toEqual({
+      status: 'available',
+      fetchTime: null,
+    });
     check.mockClear();
     PreloadableQueryRegistry.set(query.params.id, query);
 
     const preloaded = preloadQuery_DEPRECATED(environment, params, variables);
     expect(preloaded.source).toBe(null);
+    expect(preloaded.status).toEqual({
+      cacheConfig: {force: true},
+      source: 'cache',
+      cacheTime: null,
+    });
+    expect(check).toBeCalledTimes(1);
+    expect(fetch).toBeCalledTimes(0);
+    expect(preloaded.source).toBe(null);
+  });
+
+  it('resolves from cache with cacheTime if data and query are available and operation is retained', () => {
+    environment.retain(operation);
+    const fetchTime = Date.now();
+    jest.spyOn(global.Date, 'now').mockImplementation(() => fetchTime);
+    environment.commitPayload(operation, response.data);
+    expect(environment.check(operation)).toEqual({
+      status: 'available',
+      fetchTime,
+    });
+    check.mockClear();
+    PreloadableQueryRegistry.set(query.params.id, query);
+
+    const preloaded = preloadQuery_DEPRECATED(environment, params, variables);
+    expect(preloaded.source).toBe(null);
+    expect(preloaded.status).toEqual({
+      cacheConfig: {force: true},
+      source: 'cache',
+      cacheTime: fetchTime,
+    });
     expect(check).toBeCalledTimes(1);
     expect(fetch).toBeCalledTimes(0);
     expect(preloaded.source).toBe(null);
@@ -209,11 +259,19 @@ describe('store-or-network', () => {
 
   it('resolves from cache if data is available with a concrete query', () => {
     environment.commitPayload(operation, response.data);
-    expect(environment.check(operation)).toBe('available');
+    expect(environment.check(operation)).toEqual({
+      status: 'available',
+      fetchTime: null,
+    });
     check.mockClear();
 
     const preloaded = preloadQuery_DEPRECATED(environment, query, variables);
     expect(preloaded.source).toBe(null);
+    expect(preloaded.status).toEqual({
+      cacheConfig: {force: true},
+      source: 'cache',
+      cacheTime: null,
+    });
     expect(check).toBeCalledTimes(1);
     expect(fetch).toBeCalledTimes(0);
     expect(preloaded.source).toBe(null);
@@ -224,7 +282,10 @@ describe('store-or-network', () => {
     fetch.mockClear();
 
     environment.commitPayload(operation, response.data);
-    expect(environment.check(operation)).toBe('available');
+    expect(environment.check(operation)).toEqual({
+      status: 'available',
+      fetchTime: null,
+    });
     check.mockClear();
     PreloadableQueryRegistry.set(query.params.id, query);
 
@@ -232,6 +293,11 @@ describe('store-or-network', () => {
     expect(check).toBeCalledTimes(1);
     expect(fetch).toBeCalledTimes(0);
     expect(preloaded.source).toBe(null);
+    expect(preloaded.status).toEqual({
+      cacheConfig: {force: true},
+      source: 'cache',
+      cacheTime: null,
+    });
   });
 
   it('fetches from network (without resolving from cache) if the query has become stale', () => {
@@ -239,7 +305,7 @@ describe('store-or-network', () => {
     environment.commitUpdate(store => {
       store.invalidateStore();
     });
-    expect(environment.check(operation)).toBe('stale');
+    expect(environment.check(operation)).toEqual({status: 'stale'});
     check.mockClear();
     PreloadableQueryRegistry.set(query.params.id, query);
 
@@ -253,7 +319,10 @@ describe('store-or-network', () => {
 
   it('resolves from cache and rechecks if data/query are available but cache entry has expired', () => {
     environment.commitPayload(operation, response.data);
-    expect(environment.check(operation)).toBe('available');
+    expect(environment.check(operation)).toEqual({
+      status: 'available',
+      fetchTime: null,
+    });
     check.mockClear();
     PreloadableQueryRegistry.set(query.params.id, query);
 
@@ -272,8 +341,11 @@ describe('store-or-network', () => {
 describe('store-and-network', () => {
   it('fetches from network even if query/data are available', () => {
     environment.commitPayload(operation, response.data);
-    expect(environment.check(operation)).toBe('available');
     PreloadableQueryRegistry.set(query.params.id, query);
+    expect(environment.check(operation)).toEqual({
+      status: 'available',
+      fetchTime: null,
+    });
 
     const preloaded = preloadQuery_DEPRECATED(environment, params, variables, {
       fetchPolicy: 'store-and-network',
@@ -367,8 +439,11 @@ describe('store-and-network', () => {
 describe('network-only', () => {
   it('fetches from network even if query/data are available', () => {
     environment.commitPayload(operation, response.data);
-    expect(environment.check(operation)).toBe('available');
     PreloadableQueryRegistry.set(query.params.id, query);
+    expect(environment.check(operation)).toEqual({
+      status: 'available',
+      fetchTime: null,
+    });
 
     const preloaded = preloadQuery_DEPRECATED(environment, params, variables, {
       fetchPolicy: 'network-only',

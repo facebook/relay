@@ -91,13 +91,17 @@ class RelayModernStore implements Store {
   _invalidationSubscriptions: Set<InvalidationSubscription>;
   _invalidatedRecordIDs: Set<DataID>;
   _operationLoader: ?OperationLoader;
-  _operationWriteEpochs: Map<string, number>;
   _optimisticSource: ?MutableRecordSource;
   _recordSource: MutableRecordSource;
   _releaseBuffer: Array<string>;
   _roots: Map<
     string,
-    {|operation: OperationDescriptor, refCount: number, epoch: ?number|},
+    {|
+      operation: OperationDescriptor,
+      refCount: number,
+      epoch: ?number,
+      fetchTime: ?number,
+    |},
   >;
   _shouldScheduleGC: boolean;
   _subscriptions: Set<Subscription>;
@@ -173,7 +177,7 @@ class RelayModernStore implements Store {
         // or if this operation has never been written to the store before,
         // we will consider the data for this operation to be stale
         //  (i.e. not resolvable from the store).
-        return 'stale';
+        return {status: 'stale'};
       }
     }
 
@@ -188,7 +192,11 @@ class RelayModernStore implements Store {
       this._getDataID,
     );
 
-    return getAvailablityStatus(operationAvailability, operationLastWrittenAt);
+    return getAvailablityStatus(
+      operationAvailability,
+      operationLastWrittenAt,
+      rootEntry?.fetchTime,
+    );
   }
 
   retain(operation: OperationDescriptor): Disposable {
@@ -232,7 +240,12 @@ class RelayModernStore implements Store {
       rootEntry.refCount += 1;
     } else {
       // Otherwise create a new entry for the operation
-      this._roots.set(id, {operation, refCount: 0, epoch: null});
+      this._roots.set(id, {
+        operation,
+        refCount: 0,
+        epoch: null,
+        fetchTime: null,
+      });
     }
 
     return {dispose};
@@ -290,6 +303,7 @@ class RelayModernStore implements Store {
       const rootEntry = this._roots.get(id);
       if (rootEntry != null) {
         rootEntry.epoch = this._currentWriteEpoch;
+        rootEntry.fetchTime = rootEntry.fetchTime ?? Date.now();
       }
     }
 
@@ -668,24 +682,29 @@ function updateTargetFromSource(
 function getAvailablityStatus(
   opearionAvailability: Availability,
   operationLastWrittenAt: ?number,
+  operationFetchTime: ?number,
 ): OperationAvailability {
   const {mostRecentlyInvalidatedAt, status} = opearionAvailability;
-  if (typeof mostRecentlyInvalidatedAt !== 'number') {
-    // If the record has never been invalidated, it isn't stale,
-    // so return the availability status of the operation.
-    return status;
+  if (typeof mostRecentlyInvalidatedAt === 'number') {
+    // If some record referenced by this operation is stale, then the operation itself is stale
+    // if either the operation itself was never written *or* the operation was last written
+    // before the most recent invalidation of its reachable records.
+    if (
+      operationLastWrittenAt == null ||
+      mostRecentlyInvalidatedAt > operationLastWrittenAt
+    ) {
+      return {status: 'stale'};
+    }
   }
 
-  if (operationLastWrittenAt == null) {
-    // If we've never written this operation before and there was an invalidation,
-    // then we don't have enough information to determine staleness,
-    // so by default we will consider it stale.
-    return 'stale';
-  }
-
-  // If the record was invalidated before the operation we're reading was
-  // last written, we can consider it not stale; otherwise consider it stale.
-  return mostRecentlyInvalidatedAt > operationLastWrittenAt ? 'stale' : status;
+  // There were no invalidations of any reachable records *or* the operation is known to have
+  // been fetched after the most recent record invalidation.
+  return status === 'missing'
+    ? {status: 'missing'}
+    : {
+        status: 'available',
+        fetchTime: operationFetchTime ?? null,
+      };
 }
 
 RelayProfiler.instrumentMethods(RelayModernStore.prototype, {

@@ -251,6 +251,16 @@ describe('useFragment', () => {
     });
   });
 
+  it('should return the same data object if rendered multiple times: singular fragment', () => {
+    renderSingularFragment();
+    expect(renderSpy).toBeCalledTimes(1);
+    const actualData = renderSpy.mock.calls[0][0];
+    renderSingularFragment();
+    expect(renderSpy).toBeCalledTimes(2);
+    const actualData2 = renderSpy.mock.calls[1][0];
+    expect(actualData).toBe(actualData2);
+  });
+
   it('should render plural fragment without error when data is available', () => {
     renderPluralFragment();
     assertFragmentResults([
@@ -265,5 +275,15 @@ describe('useFragment', () => {
         ...createFragmentRef('2', pluralQuery),
       },
     ]);
+  });
+
+  it('should return the same data object if rendered multiple times: plural fragment', () => {
+    renderPluralFragment();
+    expect(renderSpy).toBeCalledTimes(1);
+    const actualData = renderSpy.mock.calls[0][0];
+    renderPluralFragment();
+    expect(renderSpy).toBeCalledTimes(2);
+    const actualData2 = renderSpy.mock.calls[1][0];
+    expect(actualData).toBe(actualData2);
   });
 });

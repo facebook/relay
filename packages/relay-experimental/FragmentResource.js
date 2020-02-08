@@ -42,6 +42,12 @@ type FragmentResourceCache = Cache<
   Error | Promise<mixed> | SingularOrPluralSnapshot,
 >;
 
+const WEAKMAP_SUPPORTED = typeof WeakMap === 'function';
+interface IMap<K, V> {
+  get(key: K): V | void;
+  set(key: K, value: V): IMap<K, V>;
+}
+
 type SingularOrPluralSnapshot = Snapshot | $ReadOnlyArray<Snapshot>;
 opaque type FragmentResult: {data: mixed, ...} = {|
   cacheKey: string,
@@ -437,7 +443,10 @@ function createFragmentResource(environment: IEnvironment): FragmentResource {
   return new FragmentResourceImpl(environment);
 }
 
-const dataResources: WeakMap<IEnvironment, FragmentResource> = new WeakMap();
+const dataResources: IMap<IEnvironment, FragmentResource> = WEAKMAP_SUPPORTED
+  ? new WeakMap()
+  : new Map();
+
 function getFragmentResourceForEnvironment(
   environment: IEnvironment,
 ): FragmentResourceImpl {

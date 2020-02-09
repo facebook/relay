@@ -22,7 +22,7 @@ import type {PluginInterface} from '../RelayLanguagePluginInterface';
 
 module.exports = (): PluginInterface => ({
   inputExtensions: ['js', 'jsx'],
-  outputExtension: 'js',
+  outputExtension: 'graphql.js',
   typeGenerator: RelayFlowGenerator,
   formatModule: formatGeneratedModule,
   findGraphQLTags: find,

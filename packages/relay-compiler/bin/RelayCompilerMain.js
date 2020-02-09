@@ -336,7 +336,7 @@ function getCodegenRunner(config: Config): CodegenRunner {
         persistQueryFunction,
       ),
       isGeneratedFile: (filePath: string) =>
-        filePath.endsWith('.graphql.' + outputExtension) &&
+        filePath.endsWith('.' + outputExtension) &&
         filePath.includes(generatedDirectoryName),
       parser: sourceParserName,
       baseParsers: ['graphql'],

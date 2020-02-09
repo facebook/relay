@@ -252,7 +252,7 @@ describe('RelayCompilerMain', () => {
         ...options,
         language: 'javascript',
       });
-      const config = codegenRunner.writerConfigs.js;
+      const config = codegenRunner.writerConfigs['graphql.js'];
       expect(codegenRunner.parserConfigs[config.parser]).not.toBeUndefined();
     });
 
@@ -261,7 +261,7 @@ describe('RelayCompilerMain', () => {
         ...options,
         customScalars: {URL: 'String'},
       });
-      const config = codegenRunner.writerConfigs.js;
+      const config = codegenRunner.writerConfigs['graphql.js'];
       const writeFiles = config.writeFiles;
       writeFiles({onlyValidate: true});
       expect(RelayFileWriter.writeAll).toHaveBeenCalledWith(
@@ -334,7 +334,7 @@ describe('RelayCompilerMain', () => {
           ...options,
           language: 'javascript',
         });
-        const config = codegenRunner.writerConfigs.js;
+        const config = codegenRunner.writerConfigs['graphql.js'];
         expect(codegenRunner.parserConfigs[config.parser]).not.toBeUndefined();
       });
 
@@ -343,7 +343,7 @@ describe('RelayCompilerMain', () => {
           ...options,
           customScalars: {URL: 'String'},
         });
-        const config = codegenRunner.writerConfigs.js;
+        const config = codegenRunner.writerConfigs['graphql.js'];
         const writeFiles = config.writeFiles;
         writeFiles({onlyValidate: true});
         expect(RelayFileWriter.writeAll).toHaveBeenCalledWith(

@@ -135,8 +135,12 @@ class RelayRecordSourceProxy implements RecordSourceProxy {
     }
     invariant(
       root && root.getType() === ROOT_TYPE,
-      'RelayRecordSourceProxy#getRoot(): Expected the source to contain a ' +
-        'root record.',
+      `RelayRecordSourceProxy#getRoot(): Expected the source to contain a ' +
+        'root record, ${
+          root == null
+            ? 'no root record found'
+            : `found a root record of type: ${root.getType()}`
+        }.`,
     );
     return root;
   }

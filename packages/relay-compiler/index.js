@@ -52,7 +52,6 @@ const compileArtifacts = require('./runner/compileArtifacts');
 const compileRelayArtifacts = require('./codegen/compileRelayArtifacts');
 const extractAST = require('./runner/extractAST');
 const filterContextForNode = require('./core/filterContextForNode');
-const formatGeneratedModule = require('./language/javascript/formatGeneratedModule');
 const getChangedNodeNames = require('./runner/getChangedNodeNames');
 const getDefinitionNodeHash = require('./util/getDefinitionNodeHash');
 const getIdentifierForArgumentValue = require('./core/getIdentifierForArgumentValue');
@@ -68,6 +67,9 @@ const {
   getReaderSourceDefinitionName,
   getSourceDefinitionName,
 } = require('./core/GraphQLDerivedFromMetadata');
+const {
+  formatGeneratedCommonjsModule: formatGeneratedModule,
+} = require('./language/javascript/formatGeneratedModule');
 
 export type {Filesystem} from './codegen/CodegenDirectory';
 export type {

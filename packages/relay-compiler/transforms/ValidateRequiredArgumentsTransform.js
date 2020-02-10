@@ -8,23 +8,24 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
-const GraphQLIRValidator = require('../core/GraphQLIRValidator');
+const IRValidator = require('../core/IRValidator');
 
-const {createUserError} = require('../core/RelayCompilerError');
+const {createUserError} = require('../core/CompilerError');
 const {getFieldDefinitionStrict} = require('../core/getFieldDefinition');
 
-import type GraphQLCompilerContext from '../core/GraphQLCompilerContext';
+import type CompilerContext from '../core/CompilerContext';
 import type {
-  Connection,
   Directive,
   Field,
   Fragment,
   Root,
   SplitOperation,
-} from '../core/GraphQLIR';
-import type {Schema, TypeID, FieldArgument} from '../core/Schema';
+} from '../core/IR';
+import type {Schema, TypeID, Argument} from '../core/Schema';
 
 type State = {|
   +rootNode: Fragment | Root | SplitOperation,
@@ -34,14 +35,11 @@ type State = {|
 /*
  * Validate required arguments are provided after transforms filling in arguments
  */
-function validateRequiredArguments(
-  context: GraphQLCompilerContext,
-): GraphQLCompilerContext {
-  GraphQLIRValidator.validate(
+function validateRequiredArguments(context: CompilerContext): CompilerContext {
+  IRValidator.validate(
     context,
     {
       Directive: visitDirective,
-      ConnectionField: visitField,
       InlineFragment: visitInlineFragment,
       LinkedField: visitField,
       ScalarField: visitField,
@@ -53,7 +51,7 @@ function validateRequiredArguments(
 }
 
 function visitDirective(node: Directive, {rootNode}: State): void {
-  const context: GraphQLCompilerContext = this.getContext();
+  const context: CompilerContext = this.getContext();
   const directiveDef = context.getSchema().getDirective(node.name);
   if (directiveDef == null) {
     return;
@@ -74,7 +72,7 @@ function visitInlineFragment(fragment, {rootNode}: State): void {
 }
 
 function visitField(node: Field, {parentType, rootNode}: State): void {
-  const context: GraphQLCompilerContext = this.getContext();
+  const context: CompilerContext = this.getContext();
   const schema = context.getSchema();
   const definition = getFieldDefinitionStrict(schema, parentType, node.name);
   if (definition == null) {
@@ -104,13 +102,17 @@ function visitField(node: Field, {parentType, rootNode}: State): void {
 
 function validateRequiredArgumentsOnNode(
   schema: Schema,
-  node: Connection | Directive | Field,
-  definitionArgs: $ReadOnlyArray<FieldArgument>,
+  node: Directive | Field,
+  definitionArgs: $ReadOnlyArray<Argument>,
   rootNode: Fragment | Root | SplitOperation,
 ): void {
   const nodeArgsSet = new Set(node.args.map(arg => arg.name));
   for (const arg of definitionArgs) {
-    if (schema.isNonNull(arg.type) && !nodeArgsSet.has(arg.name)) {
+    if (
+      arg.defaultValue == null &&
+      schema.isNonNull(arg.type) &&
+      !nodeArgsSet.has(arg.name)
+    ) {
       throw createUserError(
         `Required argument '${arg.name}: ${schema.getTypeString(arg.type)}' ` +
           `is missing on '${node.name}' in '${rootNode.name}'.`,

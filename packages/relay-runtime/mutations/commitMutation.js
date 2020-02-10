@@ -8,22 +8,26 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const RelayDeclarativeMutationConfig = require('./RelayDeclarativeMutationConfig');
+const RelayFeatureFlags = require('../util/RelayFeatureFlags');
 
 const invariant = require('invariant');
 const isRelayModernEnvironment = require('../store/isRelayModernEnvironment');
 const validateMutation = require('./validateMutation');
 const warning = require('warning');
 
-const {getRequest} = require('../query/RelayModernGraphQLTag');
+const {getRequest} = require('../query/GraphQLTag');
+const {generateUniqueClientID} = require('../store/ClientID');
 const {
   createOperationDescriptor,
 } = require('../store/RelayModernOperationDescriptor');
 
 import type {PayloadError, UploadableMap} from '../network/RelayNetworkTypes';
-import type {GraphQLTaggedNode} from '../query/RelayModernGraphQLTag';
+import type {GraphQLTaggedNode} from '../query/GraphQLTag';
 import type {
   IEnvironment,
   SelectorStoreUpdater,
@@ -38,15 +42,16 @@ export type DEPRECATED_MutationConfig<T> = {|
   uploadables?: UploadableMap,
   onCompleted?: ?(response: T, errors: ?Array<PayloadError>) => void,
   onError?: ?(error: Error) => void,
+  onUnsubscribe?: ?() => void,
   optimisticUpdater?: ?SelectorStoreUpdater,
   optimisticResponse?: Object,
   updater?: ?SelectorStoreUpdater,
 |};
 
 export type MutationParameters = {|
-  +response: {},
-  +variables: {},
-  +rawResponse?: {},
+  +response: {...},
+  +variables: {...},
+  +rawResponse?: {...},
 |};
 
 export type MutationConfig<T: MutationParameters> = {|
@@ -57,7 +62,15 @@ export type MutationConfig<T: MutationParameters> = {|
     response: $ElementType<T, 'response'>,
     errors: ?Array<PayloadError>,
   ) => void,
-  optimisticResponse?: $ElementType<{+rawResponse?: {}, ...T}, 'rawResponse'>,
+  onUnsubscribe?: ?() => void,
+  optimisticResponse?: $ElementType<
+    {
+      +rawResponse?: {...},
+      ...T,
+      ...
+    },
+    'rawResponse',
+  >,
   optimisticUpdater?: ?SelectorStoreUpdater,
   updater?: ?SelectorStoreUpdater,
   uploadables?: UploadableMap,
@@ -85,8 +98,14 @@ function commitMutation<T: MutationParameters>(
     throw new Error('commitMutation: Expected mutation to be of type request');
   }
   let {optimisticResponse, optimisticUpdater, updater} = config;
-  const {configs, onError, variables, uploadables} = config;
-  const operation = createOperationDescriptor(mutation, variables);
+  const {configs, onError, onUnsubscribe, variables, uploadables} = config;
+  const operation = createOperationDescriptor(
+    mutation,
+    variables,
+    RelayFeatureFlags.ENABLE_UNIQUE_MUTATION_ROOT
+      ? generateUniqueClientID()
+      : undefined,
+  );
   // TODO: remove this check after we fix flow.
   if (typeof optimisticResponse === 'function') {
     optimisticResponse = optimisticResponse();
@@ -98,7 +117,7 @@ function commitMutation<T: MutationParameters>(
   }
   if (__DEV__) {
     if (optimisticResponse instanceof Object) {
-      validateMutation(optimisticResponse, mutation, config.variables);
+      validateMutation(optimisticResponse, mutation, variables);
     }
   }
   if (configs) {
@@ -120,8 +139,16 @@ function commitMutation<T: MutationParameters>(
     })
     .subscribe({
       next: payload => {
-        if (payload.errors) {
-          errors.push(...payload.errors);
+        if (Array.isArray(payload)) {
+          payload.forEach(item => {
+            if (item.errors) {
+              errors.push(...item.errors);
+            }
+          });
+        } else {
+          if (payload.errors) {
+            errors.push(...payload.errors);
+          }
         }
       },
       complete: () => {
@@ -135,6 +162,7 @@ function commitMutation<T: MutationParameters>(
         }
       },
       error: onError,
+      unsubscribe: onUnsubscribe,
     });
   return {dispose: subscription.unsubscribe};
 }

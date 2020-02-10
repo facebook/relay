@@ -9,6 +9,8 @@
  * @emails oncall+relay
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const RelayModernEnvironment = require('../RelayModernEnvironment');
@@ -204,6 +206,240 @@ describe('execute() a query with @stream', () => {
       actors: [{name: 'ALICE'}, {name: 'BOB'}],
     });
 
+    expect(complete).toBeCalledTimes(0);
+    expect(error).toBeCalledTimes(0);
+  });
+
+  it('processes batched streamed payloads (with use_customized_batch)', () => {
+    const initialSnapshot = environment.lookup(selector);
+    const callback = jest.fn();
+    environment.subscribe(initialSnapshot, callback);
+
+    environment.execute({operation}).subscribe(callbacks);
+    dataSource.next({
+      data: {
+        node: {
+          __typename: 'Feedback',
+          id: '1',
+          actors: [],
+        },
+      },
+    });
+    jest.runAllTimers();
+    next.mockClear();
+    callback.mockClear();
+    dataSource.next([
+      {
+        data: {
+          __typename: 'User',
+          id: '2',
+          name: 'Alice',
+        },
+        label: 'FeedbackFragment$stream$actors',
+        path: ['node', 'actors', 0],
+      },
+      {
+        data: {
+          __typename: 'User',
+          id: '3',
+          name: 'Bob',
+        },
+        label: 'FeedbackFragment$stream$actors',
+        path: ['node', 'actors', 1],
+      },
+    ]);
+    expect(next).toBeCalledTimes(1);
+    expect(callback).toBeCalledTimes(1);
+    const snapshot = callback.mock.calls[0][0];
+    expect(snapshot.isMissingData).toBe(false);
+    expect(snapshot.data).toEqual({
+      id: '1',
+      actors: [{name: 'ALICE'}, {name: 'BOB'}],
+    });
+    expect(complete).toBeCalledTimes(0);
+    expect(error).toBeCalledTimes(0);
+  });
+
+  it('process error payloads in batched steaming responses', () => {
+    const initialSnapshot = environment.lookup(selector);
+    const callback = jest.fn();
+    environment.subscribe(initialSnapshot, callback);
+
+    environment.execute({operation}).subscribe(callbacks);
+    dataSource.next({
+      data: {
+        node: {
+          __typename: 'Feedback',
+          id: '1',
+          actors: [],
+        },
+      },
+    });
+    jest.runAllTimers();
+    next.mockClear();
+    callback.mockClear();
+    dataSource.next([
+      {
+        data: {
+          __typename: 'User',
+          id: '2',
+          name: 'Alice',
+        },
+        label: 'FeedbackFragment$stream$actors',
+        path: ['node', 'actors', 0],
+      },
+      {
+        errors: [
+          {
+            message: 'wtf',
+            locations: [],
+            severity: 'ERROR',
+          },
+        ],
+        label: 'FeedbackFragment$stream$actors',
+        path: ['node', 'actors', 1],
+      },
+    ]);
+    // All batch will be discareded if there an error in the batch
+    expect(next).toBeCalledTimes(0);
+    expect(callback).toBeCalledTimes(0);
+
+    expect(complete).toBeCalledTimes(0);
+    expect(error).toBeCalledTimes(1);
+  });
+
+  it('process batched steaming responses with the mix of initial and incremental payloads', () => {
+    const initialSnapshot = environment.lookup(selector);
+    const callback = jest.fn();
+    environment.subscribe(initialSnapshot, callback);
+    environment.execute({operation}).subscribe(callbacks);
+    dataSource.next([
+      {
+        data: {
+          node: {
+            __typename: 'Feedback',
+            id: '1',
+            actors: [],
+          },
+        },
+      },
+      {
+        data: {
+          __typename: 'User',
+          id: '2',
+          name: 'Alice',
+        },
+        label: 'FeedbackFragment$stream$actors',
+        path: ['node', 'actors', 0],
+      },
+    ]);
+    expect(next).toBeCalledTimes(1);
+    // Here is the nuance: For the mix of initial and incremental payloads
+    // the subscribe callback will be called twice
+    // (one for the initial payload) and for an incremental
+    expect(callback).toBeCalledTimes(2);
+    const snapshot = callback.mock.calls[0][0];
+    expect(snapshot.isMissingData).toBe(false);
+    expect(snapshot.data).toEqual({
+      id: '1',
+      actors: [],
+    });
+    const snapshot2 = callback.mock.calls[1][0];
+    expect(snapshot2.isMissingData).toBe(false);
+    expect(snapshot2.data).toEqual({
+      id: '1',
+      actors: [{name: 'ALICE'}],
+    });
+    expect(complete).toBeCalledTimes(0);
+    expect(error).toBeCalledTimes(0);
+
+    jest.runAllTimers();
+    next.mockClear();
+    callback.mockClear();
+    dataSource.next([
+      {
+        data: {
+          __typename: 'User',
+          id: '3',
+          name: 'Bob',
+        },
+        label: 'FeedbackFragment$stream$actors',
+        path: ['node', 'actors', 1],
+      },
+      {
+        data: {
+          __typename: 'User',
+          id: '4',
+          name: 'Clair',
+        },
+        label: 'FeedbackFragment$stream$actors',
+        path: ['node', 'actors', 2],
+      },
+    ]);
+    expect(next).toBeCalledTimes(1);
+    expect(callback).toBeCalledTimes(1);
+    const snapshot3 = callback.mock.calls[0][0];
+    expect(snapshot3.isMissingData).toBe(false);
+    expect(snapshot3.data).toEqual({
+      id: '1',
+      actors: [{name: 'ALICE'}, {name: 'BOB'}, {name: 'CLAIR'}],
+    });
+    expect(complete).toBeCalledTimes(0);
+    expect(error).toBeCalledTimes(0);
+  });
+
+  it('process batched steaming responses with the batch that has final payload', () => {
+    const initialSnapshot = environment.lookup(selector);
+    const callback = jest.fn();
+    environment.subscribe(initialSnapshot, callback);
+    environment.execute({operation}).subscribe(callbacks);
+    dataSource.next([
+      {
+        data: {
+          node: {
+            __typename: 'Feedback',
+            id: '1',
+            actors: [],
+          },
+        },
+        extensions: {
+          is_final: true,
+        },
+      },
+      {
+        data: {
+          __typename: 'User',
+          id: '2',
+          name: 'Alice',
+        },
+        label: 'FeedbackFragment$stream$actors',
+        path: ['node', 'actors', 0],
+      },
+    ]);
+    expect(warning).toHaveBeenCalledWith(
+      false,
+      'RelayModernEnvironment: Operation `%s` contains @defer/@stream ' +
+        'directives but was executed in non-streaming mode. See ' +
+        'https://fburl.com/relay-incremental-delivery-non-streaming-warning.',
+      'FeedbackQuery',
+    );
+    expect(next).toBeCalledTimes(1);
+    // Here is the nuance: For the mix of initial and incremental payloads
+    // the subscribe callback will be called twice
+    // (one for the initial payload) and for an incremental
+    expect(callback).toBeCalledTimes(2);
+    const snapshot = callback.mock.calls[0][0];
+    expect(snapshot.isMissingData).toBe(false);
+    expect(snapshot.data).toEqual({
+      id: '1',
+      actors: [],
+    });
+    const snapshot2 = callback.mock.calls[1][0];
+    expect(snapshot2.isMissingData).toBe(false);
+    expect(snapshot2.data).toEqual({
+      id: '1',
+      actors: [{name: 'ALICE'}],
+    });
     expect(complete).toBeCalledTimes(0);
     expect(error).toBeCalledTimes(0);
   });
@@ -952,6 +1188,66 @@ describe('execute() a query with @stream', () => {
     );
     expect(next).toBeCalledTimes(1);
     expect(callback).toBeCalledTimes(1);
+  });
+
+  it('calls error() when streamed payload has error', () => {
+    const initialSnapshot = environment.lookup(selector);
+    const callback = jest.fn();
+    environment.subscribe(initialSnapshot, callback);
+
+    environment.execute({operation}).subscribe(callbacks);
+    dataSource.next({
+      data: {
+        node: {
+          __typename: 'Feedback',
+          id: '1',
+          actors: [],
+        },
+      },
+    });
+    jest.runAllTimers();
+
+    expect(complete).toBeCalledTimes(0);
+    expect(error).toBeCalledTimes(0);
+    expect(next).toBeCalledTimes(1);
+    expect(callback).toBeCalledTimes(1);
+
+    dataSource.next([
+      {
+        data: {
+          __typename: 'User',
+          id: '2',
+          name: 'Bob',
+        },
+        label: 'FeedbackFragment$stream$actors',
+        path: ['node', 'actors', 1],
+      },
+      {
+        errors: [
+          {
+            message: 'wtf',
+            locations: [],
+            severity: 'ERROR',
+          },
+        ],
+        label: 'FeedbackFragment$stream$actors',
+        path: ['node', 'actors', 0],
+      },
+    ]);
+
+    expect(complete).toBeCalledTimes(0);
+    expect(error).toBeCalledTimes(1);
+    expect(error.mock.calls[0][0].message).toContain(
+      'No data returned for operation `FeedbackQuery`',
+    );
+    expect(next).toBeCalledTimes(1);
+    expect(callback).toBeCalledTimes(1);
+    const snapshot = callback.mock.calls[0][0];
+    expect(snapshot.isMissingData).toBe(false);
+    expect(snapshot.data).toEqual({
+      id: '1',
+      actors: [],
+    });
   });
 
   it('uses user-defined getDataID to generate ID from streamed payload.', () => {

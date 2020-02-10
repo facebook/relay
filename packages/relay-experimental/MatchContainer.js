@@ -9,6 +9,8 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const React = require('react');
@@ -84,16 +86,17 @@ export type MatchPointer = {
   +__fragmentPropName?: ?string,
   +__module_component?: mixed,
   +$fragmentRefs: mixed,
+  ...
 };
 
-export type MatchContainerProps<TProps: {}, TFallback: React.Node> = {|
+export type MatchContainerProps<TProps: {...}, TFallback: React.Node> = {|
   +fallback?: ?TFallback,
   +loader: (module: mixed) => React.AbstractComponent<TProps>,
   +match: ?MatchPointer,
   +props?: TProps,
 |};
 
-function MatchContainer<TProps: {}, TFallback: React.Node | null>({
+function MatchContainer<TProps: {...}, TFallback: React.Node | null>({
   fallback,
   loader,
   match,
@@ -148,6 +151,9 @@ function MatchContainer<TProps: {}, TFallback: React.Node | null>({
   }, [__id, __fragments, __fragmentOwner, __fragmentPropName]);
 
   if (LoadedContainer != null && fragmentProps != null) {
+    /* $FlowFixMe(>=0.111.0) This comment suppresses an error found when Flow
+     * v0.111.0 was deployed. To see the error, delete this comment and run
+     * Flow. */
     return <LoadedContainer {...props} {...fragmentProps} />;
   } else {
     return fallback ?? null;

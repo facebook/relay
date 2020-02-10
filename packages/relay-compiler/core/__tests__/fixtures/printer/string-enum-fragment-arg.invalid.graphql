@@ -1,9 +1,0 @@
-# expected-to-throw
-fragment UserFragment on User
-  @argumentDefinitions(
-    environments: {type: "Environment", defaultValue: "WEB"}
-  ) {
-  checkins(environments: [$environments]) {
-    __typename
-  }
-}

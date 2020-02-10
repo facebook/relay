@@ -80,7 +80,7 @@ fragment TodoItems_items on TodoItem @relay(plural: true) {
   text
 }`;
 
-// Plural fragment usage: note the parent type is a list of items (`[TodoItem}]`)
+// Plural fragment usage: note the parent type is a list of items (`TodoItem[]`)
 fragment TodoApp_app on App {
   items {
     // parent type is a list here

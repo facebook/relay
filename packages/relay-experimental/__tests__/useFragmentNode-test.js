@@ -9,6 +9,8 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const React = require('react');
@@ -135,8 +137,8 @@ beforeEach(() => {
   jest.mock('scheduler', () => {
     return jest.requireActual('scheduler/unstable_mock');
   });
-  jest.mock('fbjs/lib/ExecutionEnvironment', () => ({
-    canUseDOM: () => true,
+  jest.mock('../ExecutionEnvironment', () => ({
+    isServer: false,
   }));
   renderSpy = jest.fn();
 
@@ -226,8 +228,9 @@ beforeEach(() => {
   PluralRenderer = props => null;
 
   const SingularContainer = (props: {
-    userRef?: {},
+    userRef?: {...},
     owner: OperationDescriptor,
+    ...
   }) => {
     // We need a render a component to run a Hook
     const [owner, _setOwner] = useState<OperationDescriptor>(props.owner);
@@ -249,7 +252,11 @@ beforeEach(() => {
     return <SingularRenderer user={userData} />;
   };
 
-  const PluralContainer = (props: {usersRef?: {}, owner: $FlowFixMe}) => {
+  const PluralContainer = (props: {
+    usersRef?: {...},
+    owner: $FlowFixMe,
+    ...
+  }) => {
     // We need a render a component to run a Hook
     const owner = props.owner;
     const usersRef = props.hasOwnProperty('usersRef')
@@ -283,10 +290,13 @@ beforeEach(() => {
     isConcurrent?: boolean,
     owner?: $FlowFixMe,
     userRef?: $FlowFixMe,
+    ...
   }) => {
     const {isConcurrent = false, ...props} = args ?? {};
     return TestRenderer.create(
       <React.Suspense fallback="Singular Fallback">
+        {/* $FlowFixMe(site=www,mobile) this comment suppresses an error found improving the
+         * type of React$Node */}
         <ContextProvider>
           <SingularContainer owner={singularQuery} {...props} />
         </ContextProvider>
@@ -299,10 +309,13 @@ beforeEach(() => {
     isConcurrent?: boolean,
     owner?: $FlowFixMe,
     usersRef?: $FlowFixMe,
+    ...
   }) => {
     const {isConcurrent = false, ...props} = args ?? {};
     return TestRenderer.create(
       <React.Suspense fallback="Plural Fallback">
+        {/* $FlowFixMe(site=www,mobile) this comment suppresses an error found improving the
+         * type of React$Node */}
         <ContextProvider>
           <PluralContainer owner={pluralQuery} {...props} />
         </ContextProvider>
@@ -1049,7 +1062,7 @@ it('should throw a promise if if data is missing for fragment and request is in 
   // This prevents console.error output in the test, which is expected
   jest.spyOn(console, 'error').mockImplementationOnce(() => {});
   jest
-    .spyOn(require('relay-runtime').__internal, 'getPromiseForRequestInFlight')
+    .spyOn(require('relay-runtime').__internal, 'getPromiseForActiveRequest')
     .mockImplementationOnce(() => Promise.resolve());
 
   const missingDataVariables = {...singularVariables, id: '4'};
@@ -1202,6 +1215,73 @@ it('should subscribe for updates even if there is missing data', () => {
         profile_picture: undefined,
         ...createFragmentRef('4', missingDataQuery),
       },
+      shouldUpdate: true,
+    },
+  ]);
+});
+
+it('should subscribe for updates to plural fragments even if there is missing data', () => {
+  // This prevents console.error output in the test, which is expected
+  jest.spyOn(console, 'error').mockImplementationOnce(() => {});
+  const warning = require('warning');
+
+  const missingDataVariables = {...pluralVariables, ids: ['4']};
+  const missingDataQuery = createOperationDescriptor(
+    gqlPluralQuery,
+    missingDataVariables,
+  );
+
+  // Commit a payload where name is missing.
+  environment.commitPayload(missingDataQuery, {
+    nodes: [
+      {
+        __typename: 'User',
+        id: '4',
+      },
+    ],
+  });
+
+  // $FlowFixMe
+  warning.mockClear();
+  renderPluralFragment({owner: missingDataQuery});
+
+  // Assert render output with missing data
+  assertFragmentResults([
+    {
+      data: [
+        {
+          id: '4',
+          name: undefined,
+          profile_picture: undefined,
+          ...createFragmentRef('4', missingDataQuery),
+        },
+      ],
+      shouldUpdate: true,
+    },
+  ]);
+
+  // Commit a payload with updated name.
+  environment.commitPayload(missingDataQuery, {
+    nodes: [
+      {
+        __typename: 'User',
+        id: '4',
+        name: 'Mark',
+      },
+    ],
+  });
+
+  // Assert render output with updated data
+  assertFragmentResults([
+    {
+      data: [
+        {
+          id: '4',
+          name: 'Mark',
+          profile_picture: undefined,
+          ...createFragmentRef('4', missingDataQuery),
+        },
+      ],
       shouldUpdate: true,
     },
   ]);

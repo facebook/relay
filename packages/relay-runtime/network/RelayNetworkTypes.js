@@ -8,6 +8,8 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 import type {RequestParameters} from '../util/RelayConcreteNode';
@@ -23,40 +25,49 @@ export type INetwork = {|
 |};
 export type LogRequestInfoFunction = mixed => void;
 
-export type PayloadData = {[key: string]: mixed};
+export type PayloadData = {[key: string]: mixed, ...};
 
 export type PayloadError = {
   message: string,
   locations?: Array<{
     line: number,
     column: number,
+    ...
   }>,
-  severity?: 'CRITICAL' | 'ERROR' | 'WARNING', // Not officially part of the spec, but used at Facebook
+  // Not officially part of the spec, but used at Facebook
+  severity?: 'CRITICAL' | 'ERROR' | 'WARNING',
+  ...
 };
 
-export type PayloadExtensions = {[key: string]: mixed};
+export type PayloadExtensions = {[key: string]: mixed, ...};
 
 /**
  * The shape of a GraphQL response as dictated by the
  * [spec](https://graphql.github.io/graphql-spec/June2018/#sec-Response-Format)
  */
-export type GraphQLResponseWithData = {
+export type GraphQLResponseWithData = {|
   +data: PayloadData,
   +errors?: Array<PayloadError>,
   +extensions?: PayloadExtensions,
   +label?: string,
   +path?: Array<string | number>,
-};
-export type GraphQLResponseWithoutData = {
+|};
+
+export type GraphQLResponseWithoutData = {|
   +data?: ?PayloadData,
   +errors: Array<PayloadError>,
   +extensions?: PayloadExtensions,
   +label?: string,
   +path?: Array<string | number>,
-};
-export type GraphQLResponse =
+|};
+
+export type GraphQLSingularResponse =
   | GraphQLResponseWithData
   | GraphQLResponseWithoutData;
+
+export type GraphQLResponse =
+  | GraphQLSingularResponse
+  | $ReadOnlyArray<GraphQLSingularResponse>;
 
 /**
  * A function that returns an Observable representing the response of executing
@@ -97,4 +108,4 @@ export type SubscribeFunction = (
 // $FlowFixMe(site=react_native_fb) this is compatible with classic api see D4658012
 export type Uploadable = File | Blob;
 // $FlowFixMe(site=mobile,www)
-export type UploadableMap = {[key: string]: Uploadable};
+export type UploadableMap = {[key: string]: Uploadable, ...};

@@ -1382,7 +1382,6 @@ Fragment {
 
 exports[`compileRelayArtifacts matches expected output: complex-arguments.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
-# expected-to-throw
 query TestQuery($date: String) {
   items(filter: {date: $date}) {
     date
@@ -1390,15 +1389,476 @@ query TestQuery($date: String) {
 }
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
-THROWN EXCEPTION:
+Request {
+  fragment: Fragment {
+    name: "TestQuery",
+    type: "Query",
+    metadata: null,
+    argumentDefinitions: [
+      LocalArgument {
+        name: "date",
+        type: "String",
+        defaultValue: null,
+      },
+    ],
+    selections: [
+      LinkedField {
+        alias: null,
+        name: "items",
+        storageKey: null,
+        args: [
+          ObjectValue {
+            name: "filter",
+            fields: [
+              Variable {
+                name: "date",
+                variableName: "date",
+              },
+            ],
+          },
+        ],
+        concreteType: "ItemFilterResult",
+        plural: false,
+        selections: [
+          ScalarField {
+            alias: null,
+            name: "date",
+            args: null,
+            storageKey: null,
+          },
+        ],
+      },
+    ],
+  },
+  operation: Operation {
+    name: "TestQuery",
+    argumentDefinitions: [
+      LocalArgument {
+        name: "date",
+        type: "String",
+        defaultValue: null,
+      },
+    ],
+    selections: [
+      LinkedField {
+        alias: null,
+        name: "items",
+        storageKey: null,
+        args: [
+          ObjectValue {
+            name: "filter",
+            fields: [
+              Variable {
+                name: "date",
+                variableName: "date",
+              },
+            ],
+          },
+        ],
+        concreteType: "ItemFilterResult",
+        plural: false,
+        selections: [
+          ScalarField {
+            alias: null,
+            name: "date",
+            args: null,
+            storageKey: null,
+          },
+        ],
+      },
+    ],
+  },
+}
 
-Complex argument values (Lists or InputObjects with nested variables) are not supported.
+QUERY:
 
-GraphQL request (3:24)
-2: query TestQuery($date: String) {
-3:   items(filter: {date: $date}) {
-                          ^
-4:     date
+query TestQuery(
+  $date: String
+) {
+  items(filter: {date: $date}) {
+    date
+  }
+}
+
+`;
+
+exports[`compileRelayArtifacts matches expected output: complex-arguments-in-list.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query CheckinSearchQuery(
+  $queryText: String!
+  $searchInputText: String
+  $searchInput: CheckinSearchInput
+  $searchInputLast: CheckinSearchInput!
+) {
+  checkinSearchQuery(
+    query: {
+      query: $queryText
+      inputs: [{query: $searchInputText}, $searchInput, null, $searchInputLast]
+    }
+  ) {
+    query
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+Request {
+  fragment: Fragment {
+    name: "CheckinSearchQuery",
+    type: "Query",
+    metadata: null,
+    argumentDefinitions: [
+      LocalArgument {
+        name: "queryText",
+        type: "String!",
+        defaultValue: null,
+      },
+      LocalArgument {
+        name: "searchInputText",
+        type: "String",
+        defaultValue: null,
+      },
+      LocalArgument {
+        name: "searchInput",
+        type: "CheckinSearchInput",
+        defaultValue: null,
+      },
+      LocalArgument {
+        name: "searchInputLast",
+        type: "CheckinSearchInput!",
+        defaultValue: null,
+      },
+    ],
+    selections: [
+      LinkedField {
+        alias: null,
+        name: "checkinSearchQuery",
+        storageKey: null,
+        args: [
+          ObjectValue {
+            name: "query",
+            fields: [
+              ListValue {
+                name: "inputs",
+                items: [
+                  ObjectValue {
+                    name: "inputs.0",
+                    fields: [
+                      Variable {
+                        name: "query",
+                        variableName: "searchInputText",
+                      },
+                    ],
+                  },
+                  Variable {
+                    name: "inputs.1",
+                    variableName: "searchInput",
+                  },
+                  null,
+                  Variable {
+                    name: "inputs.3",
+                    variableName: "searchInputLast",
+                  },
+                ],
+              },
+              Variable {
+                name: "query",
+                variableName: "queryText",
+              },
+            ],
+          },
+        ],
+        concreteType: "CheckinSearchResult",
+        plural: false,
+        selections: [
+          ScalarField {
+            alias: null,
+            name: "query",
+            args: null,
+            storageKey: null,
+          },
+        ],
+      },
+    ],
+  },
+  operation: Operation {
+    name: "CheckinSearchQuery",
+    argumentDefinitions: [
+      LocalArgument {
+        name: "queryText",
+        type: "String!",
+        defaultValue: null,
+      },
+      LocalArgument {
+        name: "searchInputText",
+        type: "String",
+        defaultValue: null,
+      },
+      LocalArgument {
+        name: "searchInput",
+        type: "CheckinSearchInput",
+        defaultValue: null,
+      },
+      LocalArgument {
+        name: "searchInputLast",
+        type: "CheckinSearchInput!",
+        defaultValue: null,
+      },
+    ],
+    selections: [
+      LinkedField {
+        alias: null,
+        name: "checkinSearchQuery",
+        storageKey: null,
+        args: [
+          ObjectValue {
+            name: "query",
+            fields: [
+              ListValue {
+                name: "inputs",
+                items: [
+                  ObjectValue {
+                    name: "inputs.0",
+                    fields: [
+                      Variable {
+                        name: "query",
+                        variableName: "searchInputText",
+                      },
+                    ],
+                  },
+                  Variable {
+                    name: "inputs.1",
+                    variableName: "searchInput",
+                  },
+                  null,
+                  Variable {
+                    name: "inputs.3",
+                    variableName: "searchInputLast",
+                  },
+                ],
+              },
+              Variable {
+                name: "query",
+                variableName: "queryText",
+              },
+            ],
+          },
+        ],
+        concreteType: "CheckinSearchResult",
+        plural: false,
+        selections: [
+          ScalarField {
+            alias: null,
+            name: "query",
+            args: null,
+            storageKey: null,
+          },
+        ],
+      },
+    ],
+  },
+}
+
+QUERY:
+
+query CheckinSearchQuery(
+  $queryText: String!
+  $searchInputText: String
+  $searchInput: CheckinSearchInput
+  $searchInputLast: CheckinSearchInput!
+) {
+  checkinSearchQuery(query: {query: $queryText, inputs: [{query: $searchInputText}, $searchInput, , $searchInputLast]}) {
+    query
+  }
+}
+
+`;
+
+exports[`compileRelayArtifacts matches expected output: complex-arguments-with-mutliple-variables.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query TestQueryWithLiteral($latArg: String, $lonArg: String) {
+  route(
+    waypoints: [
+      {lat: $latArg, lon: $lonArg}
+      {lat: null, lon: $latArg}
+      {lat: $lonArg, lon: "1234"}
+    ]
+  ) {
+    __typename
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+Request {
+  fragment: Fragment {
+    name: "TestQueryWithLiteral",
+    type: "Query",
+    metadata: null,
+    argumentDefinitions: [
+      LocalArgument {
+        name: "latArg",
+        type: "String",
+        defaultValue: null,
+      },
+      LocalArgument {
+        name: "lonArg",
+        type: "String",
+        defaultValue: null,
+      },
+    ],
+    selections: [
+      LinkedField {
+        alias: null,
+        name: "route",
+        storageKey: null,
+        args: [
+          ListValue {
+            name: "waypoints",
+            items: [
+              ObjectValue {
+                name: "waypoints.0",
+                fields: [
+                  Variable {
+                    name: "lat",
+                    variableName: "latArg",
+                  },
+                  Variable {
+                    name: "lon",
+                    variableName: "lonArg",
+                  },
+                ],
+              },
+              ObjectValue {
+                name: "waypoints.1",
+                fields: [
+                  Literal {
+                    name: "lat",
+                    value: null,
+                  },
+                  Variable {
+                    name: "lon",
+                    variableName: "latArg",
+                  },
+                ],
+              },
+              ObjectValue {
+                name: "waypoints.2",
+                fields: [
+                  Variable {
+                    name: "lat",
+                    variableName: "lonArg",
+                  },
+                  Literal {
+                    name: "lon",
+                    value: "1234",
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+        concreteType: "Route",
+        plural: false,
+        selections: [
+          ScalarField {
+            alias: null,
+            name: "__typename",
+            args: null,
+            storageKey: null,
+          },
+        ],
+      },
+    ],
+  },
+  operation: Operation {
+    name: "TestQueryWithLiteral",
+    argumentDefinitions: [
+      LocalArgument {
+        name: "latArg",
+        type: "String",
+        defaultValue: null,
+      },
+      LocalArgument {
+        name: "lonArg",
+        type: "String",
+        defaultValue: null,
+      },
+    ],
+    selections: [
+      LinkedField {
+        alias: null,
+        name: "route",
+        storageKey: null,
+        args: [
+          ListValue {
+            name: "waypoints",
+            items: [
+              ObjectValue {
+                name: "waypoints.0",
+                fields: [
+                  Variable {
+                    name: "lat",
+                    variableName: "latArg",
+                  },
+                  Variable {
+                    name: "lon",
+                    variableName: "lonArg",
+                  },
+                ],
+              },
+              ObjectValue {
+                name: "waypoints.1",
+                fields: [
+                  Literal {
+                    name: "lat",
+                    value: null,
+                  },
+                  Variable {
+                    name: "lon",
+                    variableName: "latArg",
+                  },
+                ],
+              },
+              ObjectValue {
+                name: "waypoints.2",
+                fields: [
+                  Variable {
+                    name: "lat",
+                    variableName: "lonArg",
+                  },
+                  Literal {
+                    name: "lon",
+                    value: "1234",
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+        concreteType: "Route",
+        plural: false,
+        selections: [
+          ScalarField {
+            alias: null,
+            name: "__typename",
+            args: null,
+            storageKey: null,
+          },
+        ],
+      },
+    ],
+  },
+}
+
+QUERY:
+
+query TestQueryWithLiteral(
+  $latArg: String
+  $lonArg: String
+) {
+  route(waypoints: [{lat: $latArg, lon: $lonArg}, {lon: $latArg}, {lat: $lonArg, lon: "1234"}]) {
+    __typename
+  }
+}
 
 `;
 
@@ -1921,3253 +2381,6 @@ query NodeQuery(
   }
 }
 
-`;
-
-exports[`compileRelayArtifacts matches expected output: connection-resolver-field.graphql 1`] = `
-~~~~~~~~~~ INPUT ~~~~~~~~~~
-query QueryWithConnectionField($id: ID!, $count: Int!, $cursor: ID) {
-  feedback: node(id: $id) {
-    ...FeedbackComments_feedback
-  }
-}
-
-fragment FeedbackComments_feedback on Feedback
-  @refetchable(queryName: "FeedbackCommentsRefetchQuery") {
-  comments(after: $cursor, first: $count)
-    @connection_resolver(label: "FeedbackComments_feedback") {
-    edges {
-      node {
-        id
-      }
-    }
-    pageInfo {
-      hasNextPage
-    }
-  }
-}
-
-~~~~~~~~~~ OUTPUT ~~~~~~~~~~
-Request {
-  fragment: Fragment {
-    name: "QueryWithConnectionField",
-    type: "Query",
-    metadata: null,
-    argumentDefinitions: [
-      LocalArgument {
-        name: "id",
-        type: "ID!",
-        defaultValue: null,
-      },
-      LocalArgument {
-        name: "count",
-        type: "Int!",
-        defaultValue: null,
-      },
-      LocalArgument {
-        name: "cursor",
-        type: "ID",
-        defaultValue: null,
-      },
-    ],
-    selections: [
-      LinkedField {
-        alias: "feedback",
-        name: "node",
-        storageKey: null,
-        args: [
-          Variable {
-            name: "id",
-            variableName: "id",
-          },
-        ],
-        concreteType: null,
-        plural: false,
-        selections: [
-          FragmentSpread {
-            name: "FeedbackComments_feedback",
-            args: null,
-          },
-        ],
-      },
-    ],
-  },
-  operation: Operation {
-    name: "QueryWithConnectionField",
-    argumentDefinitions: [
-      LocalArgument {
-        name: "id",
-        type: "ID!",
-        defaultValue: null,
-      },
-      LocalArgument {
-        name: "count",
-        type: "Int!",
-        defaultValue: null,
-      },
-      LocalArgument {
-        name: "cursor",
-        type: "ID",
-        defaultValue: null,
-      },
-    ],
-    selections: [
-      LinkedField {
-        alias: "feedback",
-        name: "node",
-        storageKey: null,
-        args: [
-          Variable {
-            name: "id",
-            variableName: "id",
-          },
-        ],
-        concreteType: null,
-        plural: false,
-        selections: [
-          ScalarField {
-            alias: null,
-            name: "__typename",
-            args: null,
-            storageKey: null,
-          },
-          ScalarField {
-            alias: null,
-            name: "id",
-            args: null,
-            storageKey: null,
-          },
-          InlineFragment {
-            type: "Feedback",
-            selections: [
-              LinkedField {
-                alias: null,
-                name: "comments",
-                storageKey: null,
-                args: null,
-                concreteType: "CommentsConnection",
-                plural: false,
-                selections: [
-                  Connection {
-                    label: "FeedbackComments_feedback",
-                    name: "comments",
-                    args: [
-                      Variable {
-                        name: "after",
-                        variableName: "cursor",
-                      },
-                      Variable {
-                        name: "first",
-                        variableName: "count",
-                      },
-                    ],
-                    edges: LinkedField {
-                      alias: null,
-                      name: "edges",
-                      storageKey: null,
-                      args: null,
-                      concreteType: "CommentsEdge",
-                      plural: true,
-                      selections: [
-                        LinkedField {
-                          alias: null,
-                          name: "node",
-                          storageKey: null,
-                          args: null,
-                          concreteType: "Comment",
-                          plural: false,
-                          selections: [
-                            ScalarField {
-                              alias: null,
-                              name: "id",
-                              args: null,
-                              storageKey: null,
-                            },
-                            ClientExtension {
-                              selections: [
-                                ScalarField {
-                                  alias: null,
-                                  name: "__id",
-                                  args: null,
-                                  storageKey: null,
-                                },
-                              ],
-                            },
-                          ],
-                        },
-                        ClientExtension {
-                          selections: [
-                            ScalarField {
-                              alias: null,
-                              name: "__id",
-                              args: null,
-                              storageKey: null,
-                            },
-                          ],
-                        },
-                      ],
-                    },
-                    pageInfo: LinkedField {
-                      alias: null,
-                      name: "pageInfo",
-                      storageKey: null,
-                      args: null,
-                      concreteType: "PageInfo",
-                      plural: false,
-                      selections: [
-                        ScalarField {
-                          alias: null,
-                          name: "hasNextPage",
-                          args: null,
-                          storageKey: null,
-                        },
-                      ],
-                    },
-                    stream: null,
-                  },
-                ],
-              },
-            ],
-          },
-        ],
-      },
-    ],
-  },
-}
-
-QUERY:
-
-query QueryWithConnectionField(
-  $id: ID!
-  $count: Int!
-  $cursor: ID
-) {
-  feedback: node(id: $id) {
-    __typename
-    ...FeedbackComments_feedback
-    id
-  }
-}
-
-fragment FeedbackComments_feedback on Feedback {
-  comments(after: $cursor, first: $count) {
-    edges {
-      node {
-        id
-      }
-    }
-    pageInfo {
-      hasNextPage
-    }
-  }
-  id
-}
-
-
-Request {
-  fragment: Fragment {
-    name: "FeedbackCommentsRefetchQuery",
-    type: "Query",
-    metadata: null,
-    argumentDefinitions: [
-      LocalArgument {
-        name: "cursor",
-        type: "ID",
-        defaultValue: null,
-      },
-      LocalArgument {
-        name: "count",
-        type: "Int",
-        defaultValue: null,
-      },
-      LocalArgument {
-        name: "id",
-        type: "ID!",
-        defaultValue: null,
-      },
-    ],
-    selections: [
-      LinkedField {
-        alias: null,
-        name: "node",
-        storageKey: null,
-        args: [
-          Variable {
-            name: "id",
-            variableName: "id",
-          },
-        ],
-        concreteType: null,
-        plural: false,
-        selections: [
-          FragmentSpread {
-            name: "FeedbackComments_feedback",
-            args: null,
-          },
-        ],
-      },
-    ],
-  },
-  operation: Operation {
-    name: "FeedbackCommentsRefetchQuery",
-    argumentDefinitions: [
-      LocalArgument {
-        name: "cursor",
-        type: "ID",
-        defaultValue: null,
-      },
-      LocalArgument {
-        name: "count",
-        type: "Int",
-        defaultValue: null,
-      },
-      LocalArgument {
-        name: "id",
-        type: "ID!",
-        defaultValue: null,
-      },
-    ],
-    selections: [
-      LinkedField {
-        alias: null,
-        name: "node",
-        storageKey: null,
-        args: [
-          Variable {
-            name: "id",
-            variableName: "id",
-          },
-        ],
-        concreteType: null,
-        plural: false,
-        selections: [
-          ScalarField {
-            alias: null,
-            name: "__typename",
-            args: null,
-            storageKey: null,
-          },
-          ScalarField {
-            alias: null,
-            name: "id",
-            args: null,
-            storageKey: null,
-          },
-          InlineFragment {
-            type: "Feedback",
-            selections: [
-              LinkedField {
-                alias: null,
-                name: "comments",
-                storageKey: null,
-                args: null,
-                concreteType: "CommentsConnection",
-                plural: false,
-                selections: [
-                  Connection {
-                    label: "FeedbackComments_feedback",
-                    name: "comments",
-                    args: [
-                      Variable {
-                        name: "after",
-                        variableName: "cursor",
-                      },
-                      Variable {
-                        name: "first",
-                        variableName: "count",
-                      },
-                    ],
-                    edges: LinkedField {
-                      alias: null,
-                      name: "edges",
-                      storageKey: null,
-                      args: null,
-                      concreteType: "CommentsEdge",
-                      plural: true,
-                      selections: [
-                        LinkedField {
-                          alias: null,
-                          name: "node",
-                          storageKey: null,
-                          args: null,
-                          concreteType: "Comment",
-                          plural: false,
-                          selections: [
-                            ScalarField {
-                              alias: null,
-                              name: "id",
-                              args: null,
-                              storageKey: null,
-                            },
-                            ClientExtension {
-                              selections: [
-                                ScalarField {
-                                  alias: null,
-                                  name: "__id",
-                                  args: null,
-                                  storageKey: null,
-                                },
-                              ],
-                            },
-                          ],
-                        },
-                        ClientExtension {
-                          selections: [
-                            ScalarField {
-                              alias: null,
-                              name: "__id",
-                              args: null,
-                              storageKey: null,
-                            },
-                          ],
-                        },
-                      ],
-                    },
-                    pageInfo: LinkedField {
-                      alias: null,
-                      name: "pageInfo",
-                      storageKey: null,
-                      args: null,
-                      concreteType: "PageInfo",
-                      plural: false,
-                      selections: [
-                        ScalarField {
-                          alias: null,
-                          name: "hasNextPage",
-                          args: null,
-                          storageKey: null,
-                        },
-                      ],
-                    },
-                    stream: null,
-                  },
-                ],
-              },
-            ],
-          },
-        ],
-      },
-    ],
-  },
-}
-
-QUERY:
-
-query FeedbackCommentsRefetchQuery(
-  $cursor: ID
-  $count: Int
-  $id: ID!
-) {
-  node(id: $id) {
-    __typename
-    ...FeedbackComments_feedback
-    id
-  }
-}
-
-fragment FeedbackComments_feedback on Feedback {
-  comments(after: $cursor, first: $count) {
-    edges {
-      node {
-        id
-      }
-    }
-    pageInfo {
-      hasNextPage
-    }
-  }
-  id
-}
-
-
-Fragment {
-  name: "FeedbackComments_feedback",
-  type: "Feedback",
-  metadata: {
-    "connection": [
-      {
-        "count": "count",
-        "cursor": "cursor",
-        "direction": "forward",
-        "path": [
-          "comments",
-        ],
-      },
-    ],
-    "refetch": {
-      "connection": {
-        "forward": {
-          "count": "count",
-          "cursor": "cursor",
-        },
-        "backward": null,
-        "path": [
-          "comments",
-        ],
-      },
-      "operation": require('FeedbackCommentsRefetchQuery.graphql'),
-      "fragmentPathInResult": [
-        "node",
-      ],
-    },
-  },
-  argumentDefinitions: [
-    RootArgument {
-      name: "cursor",
-      type: "ID",
-    },
-    RootArgument {
-      name: "count",
-      type: "Int",
-    },
-  ],
-  selections: [
-    ScalarField {
-      alias: null,
-      name: "id",
-      args: null,
-      storageKey: null,
-    },
-    LinkedField {
-      alias: null,
-      name: "comments",
-      storageKey: null,
-      args: null,
-      concreteType: "CommentsConnection",
-      plural: false,
-      selections: [
-        Connection {
-          label: "FeedbackComments_feedback",
-          name: "comments",
-          args: [
-            Variable {
-              name: "after",
-              variableName: "cursor",
-            },
-            Variable {
-              name: "first",
-              variableName: "count",
-            },
-          ],
-          edges: LinkedField {
-            alias: null,
-            name: "edges",
-            storageKey: null,
-            args: null,
-            concreteType: "CommentsEdge",
-            plural: true,
-            selections: [
-              LinkedField {
-                alias: null,
-                name: "node",
-                storageKey: null,
-                args: null,
-                concreteType: "Comment",
-                plural: false,
-                selections: [
-                  ScalarField {
-                    alias: null,
-                    name: "id",
-                    args: null,
-                    storageKey: null,
-                  },
-                  ClientExtension {
-                    selections: [
-                      ScalarField {
-                        alias: null,
-                        name: "__id",
-                        args: null,
-                        storageKey: null,
-                      },
-                    ],
-                  },
-                ],
-              },
-              ClientExtension {
-                selections: [
-                  ScalarField {
-                    alias: null,
-                    name: "__id",
-                    args: null,
-                    storageKey: null,
-                  },
-                ],
-              },
-            ],
-          },
-          pageInfo: LinkedField {
-            alias: null,
-            name: "pageInfo",
-            storageKey: null,
-            args: null,
-            concreteType: "PageInfo",
-            plural: false,
-            selections: [
-              ScalarField {
-                alias: null,
-                name: "hasNextPage",
-                args: null,
-                storageKey: null,
-              },
-            ],
-          },
-        },
-      ],
-    },
-  ],
-}
-`;
-
-exports[`compileRelayArtifacts matches expected output: connection-resolver-field-different-label.graphql 1`] = `
-~~~~~~~~~~ INPUT ~~~~~~~~~~
-query QueryWithConnectionField($id: ID!) {
-  feedback: node(id: $id) {
-    ...FeedbackComments_feedback
-    ...FeedbackTopComments_feedback
-  }
-}
-
-fragment FeedbackComments_feedback on Feedback {
-  comments(first: 10)
-    @connection_resolver(label: "FeedbackComments_feedback$one") {
-    edges {
-      node {
-        id
-      }
-    }
-    pageInfo {
-      hasNextPage
-    }
-  }
-}
-
-fragment FeedbackTopComments_feedback on Feedback {
-  comments(first: 10)
-    @connection_resolver(label: "FeedbackTopComments_feedback$two") {
-    edges {
-      node {
-        id
-      }
-    }
-    pageInfo {
-      hasNextPage
-    }
-  }
-}
-
-~~~~~~~~~~ OUTPUT ~~~~~~~~~~
-Request {
-  fragment: Fragment {
-    name: "QueryWithConnectionField",
-    type: "Query",
-    metadata: null,
-    argumentDefinitions: [
-      LocalArgument {
-        name: "id",
-        type: "ID!",
-        defaultValue: null,
-      },
-    ],
-    selections: [
-      LinkedField {
-        alias: "feedback",
-        name: "node",
-        storageKey: null,
-        args: [
-          Variable {
-            name: "id",
-            variableName: "id",
-          },
-        ],
-        concreteType: null,
-        plural: false,
-        selections: [
-          FragmentSpread {
-            name: "FeedbackComments_feedback",
-            args: null,
-          },
-          FragmentSpread {
-            name: "FeedbackTopComments_feedback",
-            args: null,
-          },
-        ],
-      },
-    ],
-  },
-  operation: Operation {
-    name: "QueryWithConnectionField",
-    argumentDefinitions: [
-      LocalArgument {
-        name: "id",
-        type: "ID!",
-        defaultValue: null,
-      },
-    ],
-    selections: [
-      LinkedField {
-        alias: "feedback",
-        name: "node",
-        storageKey: null,
-        args: [
-          Variable {
-            name: "id",
-            variableName: "id",
-          },
-        ],
-        concreteType: null,
-        plural: false,
-        selections: [
-          ScalarField {
-            alias: null,
-            name: "__typename",
-            args: null,
-            storageKey: null,
-          },
-          ScalarField {
-            alias: null,
-            name: "id",
-            args: null,
-            storageKey: null,
-          },
-          InlineFragment {
-            type: "Feedback",
-            selections: [
-              LinkedField {
-                alias: null,
-                name: "comments",
-                storageKey: null,
-                args: null,
-                concreteType: "CommentsConnection",
-                plural: false,
-                selections: [
-                  Connection {
-                    label: "FeedbackComments_feedback$one",
-                    name: "comments",
-                    args: [
-                      Literal {
-                        name: "first",
-                        value: 10,
-                      },
-                    ],
-                    edges: LinkedField {
-                      alias: null,
-                      name: "edges",
-                      storageKey: null,
-                      args: null,
-                      concreteType: "CommentsEdge",
-                      plural: true,
-                      selections: [
-                        LinkedField {
-                          alias: null,
-                          name: "node",
-                          storageKey: null,
-                          args: null,
-                          concreteType: "Comment",
-                          plural: false,
-                          selections: [
-                            ScalarField {
-                              alias: null,
-                              name: "id",
-                              args: null,
-                              storageKey: null,
-                            },
-                            ClientExtension {
-                              selections: [
-                                ScalarField {
-                                  alias: null,
-                                  name: "__id",
-                                  args: null,
-                                  storageKey: null,
-                                },
-                              ],
-                            },
-                          ],
-                        },
-                        ClientExtension {
-                          selections: [
-                            ScalarField {
-                              alias: null,
-                              name: "__id",
-                              args: null,
-                              storageKey: null,
-                            },
-                          ],
-                        },
-                      ],
-                    },
-                    pageInfo: LinkedField {
-                      alias: null,
-                      name: "pageInfo",
-                      storageKey: null,
-                      args: null,
-                      concreteType: "PageInfo",
-                      plural: false,
-                      selections: [
-                        ScalarField {
-                          alias: null,
-                          name: "hasNextPage",
-                          args: null,
-                          storageKey: null,
-                        },
-                      ],
-                    },
-                    stream: null,
-                  },
-                  Connection {
-                    label: "FeedbackTopComments_feedback$two",
-                    name: "comments",
-                    args: [
-                      Literal {
-                        name: "first",
-                        value: 10,
-                      },
-                    ],
-                    edges: LinkedField {
-                      alias: null,
-                      name: "edges",
-                      storageKey: null,
-                      args: null,
-                      concreteType: "CommentsEdge",
-                      plural: true,
-                      selections: [
-                        LinkedField {
-                          alias: null,
-                          name: "node",
-                          storageKey: null,
-                          args: null,
-                          concreteType: "Comment",
-                          plural: false,
-                          selections: [
-                            ScalarField {
-                              alias: null,
-                              name: "id",
-                              args: null,
-                              storageKey: null,
-                            },
-                            ClientExtension {
-                              selections: [
-                                ScalarField {
-                                  alias: null,
-                                  name: "__id",
-                                  args: null,
-                                  storageKey: null,
-                                },
-                              ],
-                            },
-                          ],
-                        },
-                        ClientExtension {
-                          selections: [
-                            ScalarField {
-                              alias: null,
-                              name: "__id",
-                              args: null,
-                              storageKey: null,
-                            },
-                          ],
-                        },
-                      ],
-                    },
-                    pageInfo: LinkedField {
-                      alias: null,
-                      name: "pageInfo",
-                      storageKey: null,
-                      args: null,
-                      concreteType: "PageInfo",
-                      plural: false,
-                      selections: [
-                        ScalarField {
-                          alias: null,
-                          name: "hasNextPage",
-                          args: null,
-                          storageKey: null,
-                        },
-                      ],
-                    },
-                    stream: null,
-                  },
-                ],
-              },
-            ],
-          },
-        ],
-      },
-    ],
-  },
-}
-
-QUERY:
-
-query QueryWithConnectionField(
-  $id: ID!
-) {
-  feedback: node(id: $id) {
-    __typename
-    ...FeedbackComments_feedback
-    ...FeedbackTopComments_feedback
-    id
-  }
-}
-
-fragment FeedbackComments_feedback on Feedback {
-  comments(first: 10) {
-    edges {
-      node {
-        id
-      }
-    }
-    pageInfo {
-      hasNextPage
-    }
-  }
-}
-
-fragment FeedbackTopComments_feedback on Feedback {
-  comments(first: 10) {
-    edges {
-      node {
-        id
-      }
-    }
-    pageInfo {
-      hasNextPage
-    }
-  }
-}
-
-
-Fragment {
-  name: "FeedbackComments_feedback",
-  type: "Feedback",
-  metadata: {
-    "connection": [
-      {
-        "count": null,
-        "cursor": null,
-        "direction": "forward",
-        "path": [
-          "comments",
-        ],
-      },
-    ],
-  },
-  argumentDefinitions: [],
-  selections: [
-    LinkedField {
-      alias: null,
-      name: "comments",
-      storageKey: null,
-      args: null,
-      concreteType: "CommentsConnection",
-      plural: false,
-      selections: [
-        Connection {
-          label: "FeedbackComments_feedback$one",
-          name: "comments",
-          args: [
-            Literal {
-              name: "first",
-              value: 10,
-            },
-          ],
-          edges: LinkedField {
-            alias: null,
-            name: "edges",
-            storageKey: null,
-            args: null,
-            concreteType: "CommentsEdge",
-            plural: true,
-            selections: [
-              LinkedField {
-                alias: null,
-                name: "node",
-                storageKey: null,
-                args: null,
-                concreteType: "Comment",
-                plural: false,
-                selections: [
-                  ScalarField {
-                    alias: null,
-                    name: "id",
-                    args: null,
-                    storageKey: null,
-                  },
-                  ClientExtension {
-                    selections: [
-                      ScalarField {
-                        alias: null,
-                        name: "__id",
-                        args: null,
-                        storageKey: null,
-                      },
-                    ],
-                  },
-                ],
-              },
-              ClientExtension {
-                selections: [
-                  ScalarField {
-                    alias: null,
-                    name: "__id",
-                    args: null,
-                    storageKey: null,
-                  },
-                ],
-              },
-            ],
-          },
-          pageInfo: LinkedField {
-            alias: null,
-            name: "pageInfo",
-            storageKey: null,
-            args: null,
-            concreteType: "PageInfo",
-            plural: false,
-            selections: [
-              ScalarField {
-                alias: null,
-                name: "hasNextPage",
-                args: null,
-                storageKey: null,
-              },
-            ],
-          },
-        },
-      ],
-    },
-  ],
-}
-
-Fragment {
-  name: "FeedbackTopComments_feedback",
-  type: "Feedback",
-  metadata: {
-    "connection": [
-      {
-        "count": null,
-        "cursor": null,
-        "direction": "forward",
-        "path": [
-          "comments",
-        ],
-      },
-    ],
-  },
-  argumentDefinitions: [],
-  selections: [
-    LinkedField {
-      alias: null,
-      name: "comments",
-      storageKey: null,
-      args: null,
-      concreteType: "CommentsConnection",
-      plural: false,
-      selections: [
-        Connection {
-          label: "FeedbackTopComments_feedback$two",
-          name: "comments",
-          args: [
-            Literal {
-              name: "first",
-              value: 10,
-            },
-          ],
-          edges: LinkedField {
-            alias: null,
-            name: "edges",
-            storageKey: null,
-            args: null,
-            concreteType: "CommentsEdge",
-            plural: true,
-            selections: [
-              LinkedField {
-                alias: null,
-                name: "node",
-                storageKey: null,
-                args: null,
-                concreteType: "Comment",
-                plural: false,
-                selections: [
-                  ScalarField {
-                    alias: null,
-                    name: "id",
-                    args: null,
-                    storageKey: null,
-                  },
-                  ClientExtension {
-                    selections: [
-                      ScalarField {
-                        alias: null,
-                        name: "__id",
-                        args: null,
-                        storageKey: null,
-                      },
-                    ],
-                  },
-                ],
-              },
-              ClientExtension {
-                selections: [
-                  ScalarField {
-                    alias: null,
-                    name: "__id",
-                    args: null,
-                    storageKey: null,
-                  },
-                ],
-              },
-            ],
-          },
-          pageInfo: LinkedField {
-            alias: null,
-            name: "pageInfo",
-            storageKey: null,
-            args: null,
-            concreteType: "PageInfo",
-            plural: false,
-            selections: [
-              ScalarField {
-                alias: null,
-                name: "hasNextPage",
-                args: null,
-                storageKey: null,
-              },
-            ],
-          },
-        },
-      ],
-    },
-  ],
-}
-`;
-
-exports[`compileRelayArtifacts matches expected output: connection-resolver-field-duplicate-explicit-label.invalid.graphql 1`] = `
-~~~~~~~~~~ INPUT ~~~~~~~~~~
-# expected-to-throw
-query QueryWithConnectionField($id: ID!) {
-  feedback: node(id: $id) {
-    ...FeedbackComments_feedback
-  }
-}
-
-fragment FeedbackComments_feedback on Feedback {
-  comments(first: 10) @connection_resolver(label: "FeedbackComments_feedback") {
-    edges {
-      # error: plural
-      node {
-        id
-      }
-    }
-    pageInfo {
-      hasNextPage
-    }
-  }
-  ... {
-    comments(first: 10)
-      @connection_resolver(label: "FeedbackComments_feedback") {
-      #error: same label
-      count
-    }
-  }
-}
-
-~~~~~~~~~~ OUTPUT ~~~~~~~~~~
-THROWN EXCEPTION:
-
-Invalid use of @connection_resolver, the provided label is not unique. Specify a unique 'label' as a literal string.
-
-Source: GraphQL request (22:28)
-21:     comments(first: 10)
-22:       @connection_resolver(label: "FeedbackComments_feedback") {
-                               ^
-23:       #error: same label
-
-Source: GraphQL request (9:44)
- 8: fragment FeedbackComments_feedback on Feedback {
- 9:   comments(first: 10) @connection_resolver(label: "FeedbackComments_feedback") {
-                                               ^
-10:     edges {
-
-`;
-
-exports[`compileRelayArtifacts matches expected output: connection-resolver-field-missing-label.invalid.graphql 1`] = `
-~~~~~~~~~~ INPUT ~~~~~~~~~~
-# expected-to-throw
-query QueryWithConnectionField($id: ID!) {
-  feedback: node(id: $id) {
-    ...FeedbackComments_feedback
-  }
-}
-
-fragment FeedbackComments_feedback on Feedback {
-  comments(first: 10) @connection_resolver {
-    edges {
-      node {
-        id
-      }
-    }
-    pageInfo {
-      hasNextPage
-    }
-  }
-}
-
-~~~~~~~~~~ OUTPUT ~~~~~~~~~~
-THROWN EXCEPTION:
-
-Invalid usage of @connection_resolver, expected a static string 'label'. Labels may be the document name ('FeedbackComments_feedback') or be prefixed with the document name ('FeedbackComments_feedback$<name>')
-
-Source: GraphQL request (9:23)
- 8: fragment FeedbackComments_feedback on Feedback {
- 9:   comments(first: 10) @connection_resolver {
-                          ^
-10:     edges {
-
-`;
-
-exports[`compileRelayArtifacts matches expected output: connection-resolver-field-on-plural.invalid.graphql 1`] = `
-~~~~~~~~~~ INPUT ~~~~~~~~~~
-# expected-to-throw
-query QueryWithConnectionField($id: ID!) {
-  feedback: node(id: $id) {
-    ...FeedbackComments_feedback
-  }
-}
-
-fragment FeedbackComments_feedback on Feedback {
-  comments(first: 10) {
-    edges @connection_resolver(label: "FeedbackComments_feedback") {
-      # error: plural
-      node {
-        id
-      }
-    }
-    pageInfo {
-      hasNextPage
-    }
-  }
-}
-
-~~~~~~~~~~ OUTPUT ~~~~~~~~~~
-THROWN EXCEPTION:
-
-@connection_resolver fields must return a single value, not a list, found '[CommentsEdge]'
-
-Source: GraphQL request (10:5)
- 9:   comments(first: 10) {
-10:     edges @connection_resolver(label: "FeedbackComments_feedback") {
-        ^
-11:       # error: plural
-
-`;
-
-exports[`compileRelayArtifacts matches expected output: connection-resolver-field-on-scalar.invalid.graphql 1`] = `
-~~~~~~~~~~ INPUT ~~~~~~~~~~
-# expected-to-throw
-query QueryWithConnectionField($id: ID!) {
-  feedback: node(id: $id) {
-    ...FeedbackComments_feedback
-  }
-}
-
-fragment FeedbackComments_feedback on Feedback {
-  id @connection_resolver(label: "FeedbackComments_feedback") # error: scalar
-}
-
-~~~~~~~~~~ OUTPUT ~~~~~~~~~~
-THROWN EXCEPTION:
-
-The @connection_resolver direction is not supported on scalar fields, only fields returning an object/interface/union
-
-Source: GraphQL request (9:6)
- 8: fragment FeedbackComments_feedback on Feedback {
- 9:   id @connection_resolver(label: "FeedbackComments_feedback") # error: scalar
-         ^
-10: }
-
-`;
-
-exports[`compileRelayArtifacts matches expected output: connection-resolver-field-stream.graphql 1`] = `
-~~~~~~~~~~ INPUT ~~~~~~~~~~
-query QueryWithConnectionField(
-  $id: ID!
-  $count: Int!
-  $cursor: ID
-  $enableStream: Boolean!
-) {
-  feedback: node(id: $id) {
-    ...FeedbackComments_feedback
-  }
-}
-
-fragment FeedbackComments_feedback on Feedback
-  @refetchable(queryName: "FeedbackCommentsRefetchQuery") {
-  comments(after: $cursor, first: $count)
-    @stream_connection_resolver(
-      if: $enableStream
-      initial_count: 1
-      label: "FeedbackComments_feedback"
-    ) {
-    edges {
-      node {
-        id
-      }
-    }
-    pageInfo {
-      hasNextPage
-    }
-  }
-}
-
-~~~~~~~~~~ OUTPUT ~~~~~~~~~~
-Request {
-  fragment: Fragment {
-    name: "QueryWithConnectionField",
-    type: "Query",
-    metadata: null,
-    argumentDefinitions: [
-      LocalArgument {
-        name: "id",
-        type: "ID!",
-        defaultValue: null,
-      },
-      LocalArgument {
-        name: "count",
-        type: "Int!",
-        defaultValue: null,
-      },
-      LocalArgument {
-        name: "cursor",
-        type: "ID",
-        defaultValue: null,
-      },
-      LocalArgument {
-        name: "enableStream",
-        type: "Boolean!",
-        defaultValue: null,
-      },
-    ],
-    selections: [
-      LinkedField {
-        alias: "feedback",
-        name: "node",
-        storageKey: null,
-        args: [
-          Variable {
-            name: "id",
-            variableName: "id",
-          },
-        ],
-        concreteType: null,
-        plural: false,
-        selections: [
-          FragmentSpread {
-            name: "FeedbackComments_feedback",
-            args: null,
-          },
-        ],
-      },
-    ],
-  },
-  operation: Operation {
-    name: "QueryWithConnectionField",
-    argumentDefinitions: [
-      LocalArgument {
-        name: "id",
-        type: "ID!",
-        defaultValue: null,
-      },
-      LocalArgument {
-        name: "count",
-        type: "Int!",
-        defaultValue: null,
-      },
-      LocalArgument {
-        name: "cursor",
-        type: "ID",
-        defaultValue: null,
-      },
-      LocalArgument {
-        name: "enableStream",
-        type: "Boolean!",
-        defaultValue: null,
-      },
-    ],
-    selections: [
-      LinkedField {
-        alias: "feedback",
-        name: "node",
-        storageKey: null,
-        args: [
-          Variable {
-            name: "id",
-            variableName: "id",
-          },
-        ],
-        concreteType: null,
-        plural: false,
-        selections: [
-          ScalarField {
-            alias: null,
-            name: "__typename",
-            args: null,
-            storageKey: null,
-          },
-          ScalarField {
-            alias: null,
-            name: "id",
-            args: null,
-            storageKey: null,
-          },
-          InlineFragment {
-            type: "Feedback",
-            selections: [
-              LinkedField {
-                alias: null,
-                name: "comments",
-                storageKey: null,
-                args: null,
-                concreteType: "CommentsConnection",
-                plural: false,
-                selections: [
-                  Connection {
-                    label: "FeedbackComments_feedback",
-                    name: "comments",
-                    args: [
-                      Variable {
-                        name: "after",
-                        variableName: "cursor",
-                      },
-                      Variable {
-                        name: "first",
-                        variableName: "count",
-                      },
-                    ],
-                    edges: LinkedField {
-                      alias: null,
-                      name: "edges",
-                      storageKey: null,
-                      args: null,
-                      concreteType: "CommentsEdge",
-                      plural: true,
-                      selections: [
-                        LinkedField {
-                          alias: null,
-                          name: "node",
-                          storageKey: null,
-                          args: null,
-                          concreteType: "Comment",
-                          plural: false,
-                          selections: [
-                            ScalarField {
-                              alias: null,
-                              name: "id",
-                              args: null,
-                              storageKey: null,
-                            },
-                            ClientExtension {
-                              selections: [
-                                ScalarField {
-                                  alias: null,
-                                  name: "__id",
-                                  args: null,
-                                  storageKey: null,
-                                },
-                              ],
-                            },
-                          ],
-                        },
-                        ClientExtension {
-                          selections: [
-                            ScalarField {
-                              alias: null,
-                              name: "__id",
-                              args: null,
-                              storageKey: null,
-                            },
-                          ],
-                        },
-                      ],
-                    },
-                    pageInfo: LinkedField {
-                      alias: null,
-                      name: "pageInfo",
-                      storageKey: null,
-                      args: null,
-                      concreteType: "PageInfo",
-                      plural: false,
-                      selections: [
-                        ScalarField {
-                          alias: null,
-                          name: "hasNextPage",
-                          args: null,
-                          storageKey: null,
-                        },
-                      ],
-                    },
-                    stream: {
-                      "if": Variable {
-                        name: "if",
-                        variableName: "enableStream",
-                      },
-                      "deferLabel": "FeedbackComments_feedback$defer$FeedbackComments_feedback",
-                      "streamLabel": "FeedbackComments_feedback$stream$FeedbackComments_feedback",
-                    },
-                  },
-                ],
-              },
-            ],
-          },
-        ],
-      },
-    ],
-  },
-}
-
-QUERY:
-
-query QueryWithConnectionField(
-  $id: ID!
-  $count: Int!
-  $cursor: ID
-  $enableStream: Boolean!
-) {
-  feedback: node(id: $id) {
-    __typename
-    ...FeedbackComments_feedback
-    id
-  }
-}
-
-fragment FeedbackComments_feedback on Feedback {
-  comments(after: $cursor, first: $count) {
-    edges @stream(label: "FeedbackComments_feedback$stream$FeedbackComments_feedback", if: $enableStream, initial_count: 1) {
-      node {
-        id
-      }
-    }
-    ... @defer(label: "FeedbackComments_feedback$defer$FeedbackComments_feedback", if: $enableStream) {
-      pageInfo {
-        hasNextPage
-      }
-    }
-  }
-  id
-}
-
-
-Request {
-  fragment: Fragment {
-    name: "FeedbackCommentsRefetchQuery",
-    type: "Query",
-    metadata: null,
-    argumentDefinitions: [
-      LocalArgument {
-        name: "cursor",
-        type: "ID",
-        defaultValue: null,
-      },
-      LocalArgument {
-        name: "count",
-        type: "Int",
-        defaultValue: null,
-      },
-      LocalArgument {
-        name: "enableStream",
-        type: "Boolean",
-        defaultValue: null,
-      },
-      LocalArgument {
-        name: "id",
-        type: "ID!",
-        defaultValue: null,
-      },
-    ],
-    selections: [
-      LinkedField {
-        alias: null,
-        name: "node",
-        storageKey: null,
-        args: [
-          Variable {
-            name: "id",
-            variableName: "id",
-          },
-        ],
-        concreteType: null,
-        plural: false,
-        selections: [
-          FragmentSpread {
-            name: "FeedbackComments_feedback",
-            args: null,
-          },
-        ],
-      },
-    ],
-  },
-  operation: Operation {
-    name: "FeedbackCommentsRefetchQuery",
-    argumentDefinitions: [
-      LocalArgument {
-        name: "cursor",
-        type: "ID",
-        defaultValue: null,
-      },
-      LocalArgument {
-        name: "count",
-        type: "Int",
-        defaultValue: null,
-      },
-      LocalArgument {
-        name: "enableStream",
-        type: "Boolean",
-        defaultValue: null,
-      },
-      LocalArgument {
-        name: "id",
-        type: "ID!",
-        defaultValue: null,
-      },
-    ],
-    selections: [
-      LinkedField {
-        alias: null,
-        name: "node",
-        storageKey: null,
-        args: [
-          Variable {
-            name: "id",
-            variableName: "id",
-          },
-        ],
-        concreteType: null,
-        plural: false,
-        selections: [
-          ScalarField {
-            alias: null,
-            name: "__typename",
-            args: null,
-            storageKey: null,
-          },
-          ScalarField {
-            alias: null,
-            name: "id",
-            args: null,
-            storageKey: null,
-          },
-          InlineFragment {
-            type: "Feedback",
-            selections: [
-              LinkedField {
-                alias: null,
-                name: "comments",
-                storageKey: null,
-                args: null,
-                concreteType: "CommentsConnection",
-                plural: false,
-                selections: [
-                  Connection {
-                    label: "FeedbackComments_feedback",
-                    name: "comments",
-                    args: [
-                      Variable {
-                        name: "after",
-                        variableName: "cursor",
-                      },
-                      Variable {
-                        name: "first",
-                        variableName: "count",
-                      },
-                    ],
-                    edges: LinkedField {
-                      alias: null,
-                      name: "edges",
-                      storageKey: null,
-                      args: null,
-                      concreteType: "CommentsEdge",
-                      plural: true,
-                      selections: [
-                        LinkedField {
-                          alias: null,
-                          name: "node",
-                          storageKey: null,
-                          args: null,
-                          concreteType: "Comment",
-                          plural: false,
-                          selections: [
-                            ScalarField {
-                              alias: null,
-                              name: "id",
-                              args: null,
-                              storageKey: null,
-                            },
-                            ClientExtension {
-                              selections: [
-                                ScalarField {
-                                  alias: null,
-                                  name: "__id",
-                                  args: null,
-                                  storageKey: null,
-                                },
-                              ],
-                            },
-                          ],
-                        },
-                        ClientExtension {
-                          selections: [
-                            ScalarField {
-                              alias: null,
-                              name: "__id",
-                              args: null,
-                              storageKey: null,
-                            },
-                          ],
-                        },
-                      ],
-                    },
-                    pageInfo: LinkedField {
-                      alias: null,
-                      name: "pageInfo",
-                      storageKey: null,
-                      args: null,
-                      concreteType: "PageInfo",
-                      plural: false,
-                      selections: [
-                        ScalarField {
-                          alias: null,
-                          name: "hasNextPage",
-                          args: null,
-                          storageKey: null,
-                        },
-                      ],
-                    },
-                    stream: {
-                      "if": Variable {
-                        name: "if",
-                        variableName: "enableStream",
-                      },
-                      "deferLabel": "FeedbackComments_feedback$defer$FeedbackComments_feedback",
-                      "streamLabel": "FeedbackComments_feedback$stream$FeedbackComments_feedback",
-                    },
-                  },
-                ],
-              },
-            ],
-          },
-        ],
-      },
-    ],
-  },
-}
-
-QUERY:
-
-query FeedbackCommentsRefetchQuery(
-  $cursor: ID
-  $count: Int
-  $enableStream: Boolean
-  $id: ID!
-) {
-  node(id: $id) {
-    __typename
-    ...FeedbackComments_feedback
-    id
-  }
-}
-
-fragment FeedbackComments_feedback on Feedback {
-  comments(after: $cursor, first: $count) {
-    edges @stream(label: "FeedbackComments_feedback$stream$FeedbackComments_feedback", if: $enableStream, initial_count: 1) {
-      node {
-        id
-      }
-    }
-    ... @defer(label: "FeedbackComments_feedback$defer$FeedbackComments_feedback", if: $enableStream) {
-      pageInfo {
-        hasNextPage
-      }
-    }
-  }
-  id
-}
-
-
-Fragment {
-  name: "FeedbackComments_feedback",
-  type: "Feedback",
-  metadata: {
-    "connection": [
-      {
-        "count": "count",
-        "cursor": "cursor",
-        "direction": "forward",
-        "path": [
-          "comments",
-        ],
-        "stream": true,
-      },
-    ],
-    "refetch": {
-      "connection": {
-        "forward": {
-          "count": "count",
-          "cursor": "cursor",
-        },
-        "backward": null,
-        "path": [
-          "comments",
-        ],
-      },
-      "operation": require('FeedbackCommentsRefetchQuery.graphql'),
-      "fragmentPathInResult": [
-        "node",
-      ],
-    },
-  },
-  argumentDefinitions: [
-    RootArgument {
-      name: "cursor",
-      type: "ID",
-    },
-    RootArgument {
-      name: "count",
-      type: "Int",
-    },
-    RootArgument {
-      name: "enableStream",
-      type: "Boolean",
-    },
-  ],
-  selections: [
-    ScalarField {
-      alias: null,
-      name: "id",
-      args: null,
-      storageKey: null,
-    },
-    LinkedField {
-      alias: null,
-      name: "comments",
-      storageKey: null,
-      args: null,
-      concreteType: "CommentsConnection",
-      plural: false,
-      selections: [
-        Connection {
-          label: "FeedbackComments_feedback",
-          name: "comments",
-          args: [
-            Variable {
-              name: "after",
-              variableName: "cursor",
-            },
-            Variable {
-              name: "first",
-              variableName: "count",
-            },
-          ],
-          edges: LinkedField {
-            alias: null,
-            name: "edges",
-            storageKey: null,
-            args: null,
-            concreteType: "CommentsEdge",
-            plural: true,
-            selections: [
-              LinkedField {
-                alias: null,
-                name: "node",
-                storageKey: null,
-                args: null,
-                concreteType: "Comment",
-                plural: false,
-                selections: [
-                  ScalarField {
-                    alias: null,
-                    name: "id",
-                    args: null,
-                    storageKey: null,
-                  },
-                  ClientExtension {
-                    selections: [
-                      ScalarField {
-                        alias: null,
-                        name: "__id",
-                        args: null,
-                        storageKey: null,
-                      },
-                    ],
-                  },
-                ],
-              },
-              ClientExtension {
-                selections: [
-                  ScalarField {
-                    alias: null,
-                    name: "__id",
-                    args: null,
-                    storageKey: null,
-                  },
-                ],
-              },
-            ],
-          },
-          pageInfo: LinkedField {
-            alias: null,
-            name: "pageInfo",
-            storageKey: null,
-            args: null,
-            concreteType: "PageInfo",
-            plural: false,
-            selections: [
-              ScalarField {
-                alias: null,
-                name: "hasNextPage",
-                args: null,
-                storageKey: null,
-              },
-            ],
-          },
-        },
-      ],
-    },
-  ],
-}
-`;
-
-exports[`compileRelayArtifacts matches expected output: connection-resolver-field-stream-if-default-true.graphql 1`] = `
-~~~~~~~~~~ INPUT ~~~~~~~~~~
-query QueryWithConnectionField($id: ID!) {
-  feedback: node(id: $id) {
-    ...FeedbackComments_feedback
-  }
-}
-
-fragment FeedbackComments_feedback on Feedback {
-  comments(first: 10)
-    @stream_connection_resolver(
-      initial_count: 1
-      label: "FeedbackComments_feedback"
-    ) {
-    edges {
-      node {
-        id
-      }
-    }
-    pageInfo {
-      hasNextPage
-    }
-  }
-}
-
-~~~~~~~~~~ OUTPUT ~~~~~~~~~~
-Request {
-  fragment: Fragment {
-    name: "QueryWithConnectionField",
-    type: "Query",
-    metadata: null,
-    argumentDefinitions: [
-      LocalArgument {
-        name: "id",
-        type: "ID!",
-        defaultValue: null,
-      },
-    ],
-    selections: [
-      LinkedField {
-        alias: "feedback",
-        name: "node",
-        storageKey: null,
-        args: [
-          Variable {
-            name: "id",
-            variableName: "id",
-          },
-        ],
-        concreteType: null,
-        plural: false,
-        selections: [
-          FragmentSpread {
-            name: "FeedbackComments_feedback",
-            args: null,
-          },
-        ],
-      },
-    ],
-  },
-  operation: Operation {
-    name: "QueryWithConnectionField",
-    argumentDefinitions: [
-      LocalArgument {
-        name: "id",
-        type: "ID!",
-        defaultValue: null,
-      },
-    ],
-    selections: [
-      LinkedField {
-        alias: "feedback",
-        name: "node",
-        storageKey: null,
-        args: [
-          Variable {
-            name: "id",
-            variableName: "id",
-          },
-        ],
-        concreteType: null,
-        plural: false,
-        selections: [
-          ScalarField {
-            alias: null,
-            name: "__typename",
-            args: null,
-            storageKey: null,
-          },
-          ScalarField {
-            alias: null,
-            name: "id",
-            args: null,
-            storageKey: null,
-          },
-          InlineFragment {
-            type: "Feedback",
-            selections: [
-              LinkedField {
-                alias: null,
-                name: "comments",
-                storageKey: null,
-                args: null,
-                concreteType: "CommentsConnection",
-                plural: false,
-                selections: [
-                  Connection {
-                    label: "FeedbackComments_feedback",
-                    name: "comments",
-                    args: [
-                      Literal {
-                        name: "first",
-                        value: 10,
-                      },
-                    ],
-                    edges: LinkedField {
-                      alias: null,
-                      name: "edges",
-                      storageKey: null,
-                      args: null,
-                      concreteType: "CommentsEdge",
-                      plural: true,
-                      selections: [
-                        LinkedField {
-                          alias: null,
-                          name: "node",
-                          storageKey: null,
-                          args: null,
-                          concreteType: "Comment",
-                          plural: false,
-                          selections: [
-                            ScalarField {
-                              alias: null,
-                              name: "id",
-                              args: null,
-                              storageKey: null,
-                            },
-                            ClientExtension {
-                              selections: [
-                                ScalarField {
-                                  alias: null,
-                                  name: "__id",
-                                  args: null,
-                                  storageKey: null,
-                                },
-                              ],
-                            },
-                          ],
-                        },
-                        ClientExtension {
-                          selections: [
-                            ScalarField {
-                              alias: null,
-                              name: "__id",
-                              args: null,
-                              storageKey: null,
-                            },
-                          ],
-                        },
-                      ],
-                    },
-                    pageInfo: LinkedField {
-                      alias: null,
-                      name: "pageInfo",
-                      storageKey: null,
-                      args: null,
-                      concreteType: "PageInfo",
-                      plural: false,
-                      selections: [
-                        ScalarField {
-                          alias: null,
-                          name: "hasNextPage",
-                          args: null,
-                          storageKey: null,
-                        },
-                      ],
-                    },
-                    stream: {
-                      "if": Literal {
-                        name: "if",
-                        value: true,
-                      },
-                      "deferLabel": "FeedbackComments_feedback$defer$FeedbackComments_feedback",
-                      "streamLabel": "FeedbackComments_feedback$stream$FeedbackComments_feedback",
-                    },
-                  },
-                ],
-              },
-            ],
-          },
-        ],
-      },
-    ],
-  },
-}
-
-QUERY:
-
-query QueryWithConnectionField(
-  $id: ID!
-) {
-  feedback: node(id: $id) {
-    __typename
-    ...FeedbackComments_feedback
-    id
-  }
-}
-
-fragment FeedbackComments_feedback on Feedback {
-  comments(first: 10) {
-    edges @stream(label: "FeedbackComments_feedback$stream$FeedbackComments_feedback", initial_count: 1) {
-      node {
-        id
-      }
-    }
-    ... @defer(label: "FeedbackComments_feedback$defer$FeedbackComments_feedback") {
-      pageInfo {
-        hasNextPage
-      }
-    }
-  }
-}
-
-
-Fragment {
-  name: "FeedbackComments_feedback",
-  type: "Feedback",
-  metadata: {
-    "connection": [
-      {
-        "count": null,
-        "cursor": null,
-        "direction": "forward",
-        "path": [
-          "comments",
-        ],
-        "stream": true,
-      },
-    ],
-  },
-  argumentDefinitions: [],
-  selections: [
-    LinkedField {
-      alias: null,
-      name: "comments",
-      storageKey: null,
-      args: null,
-      concreteType: "CommentsConnection",
-      plural: false,
-      selections: [
-        Connection {
-          label: "FeedbackComments_feedback",
-          name: "comments",
-          args: [
-            Literal {
-              name: "first",
-              value: 10,
-            },
-          ],
-          edges: LinkedField {
-            alias: null,
-            name: "edges",
-            storageKey: null,
-            args: null,
-            concreteType: "CommentsEdge",
-            plural: true,
-            selections: [
-              LinkedField {
-                alias: null,
-                name: "node",
-                storageKey: null,
-                args: null,
-                concreteType: "Comment",
-                plural: false,
-                selections: [
-                  ScalarField {
-                    alias: null,
-                    name: "id",
-                    args: null,
-                    storageKey: null,
-                  },
-                  ClientExtension {
-                    selections: [
-                      ScalarField {
-                        alias: null,
-                        name: "__id",
-                        args: null,
-                        storageKey: null,
-                      },
-                    ],
-                  },
-                ],
-              },
-              ClientExtension {
-                selections: [
-                  ScalarField {
-                    alias: null,
-                    name: "__id",
-                    args: null,
-                    storageKey: null,
-                  },
-                ],
-              },
-            ],
-          },
-          pageInfo: LinkedField {
-            alias: null,
-            name: "pageInfo",
-            storageKey: null,
-            args: null,
-            concreteType: "PageInfo",
-            plural: false,
-            selections: [
-              ScalarField {
-                alias: null,
-                name: "hasNextPage",
-                args: null,
-                storageKey: null,
-              },
-            ],
-          },
-        },
-      ],
-    },
-  ],
-}
-`;
-
-exports[`compileRelayArtifacts matches expected output: connection-resolver-field-stream-if-explicit-true.graphql 1`] = `
-~~~~~~~~~~ INPUT ~~~~~~~~~~
-query QueryWithConnectionField($id: ID!) {
-  feedback: node(id: $id) {
-    ...FeedbackComments_feedback
-  }
-}
-
-fragment FeedbackComments_feedback on Feedback {
-  comments(first: 10)
-    @stream_connection_resolver(
-      if: true
-      initial_count: 1
-      label: "FeedbackComments_feedback"
-    ) {
-    edges {
-      node {
-        id
-      }
-    }
-    pageInfo {
-      hasNextPage
-    }
-  }
-}
-
-~~~~~~~~~~ OUTPUT ~~~~~~~~~~
-Request {
-  fragment: Fragment {
-    name: "QueryWithConnectionField",
-    type: "Query",
-    metadata: null,
-    argumentDefinitions: [
-      LocalArgument {
-        name: "id",
-        type: "ID!",
-        defaultValue: null,
-      },
-    ],
-    selections: [
-      LinkedField {
-        alias: "feedback",
-        name: "node",
-        storageKey: null,
-        args: [
-          Variable {
-            name: "id",
-            variableName: "id",
-          },
-        ],
-        concreteType: null,
-        plural: false,
-        selections: [
-          FragmentSpread {
-            name: "FeedbackComments_feedback",
-            args: null,
-          },
-        ],
-      },
-    ],
-  },
-  operation: Operation {
-    name: "QueryWithConnectionField",
-    argumentDefinitions: [
-      LocalArgument {
-        name: "id",
-        type: "ID!",
-        defaultValue: null,
-      },
-    ],
-    selections: [
-      LinkedField {
-        alias: "feedback",
-        name: "node",
-        storageKey: null,
-        args: [
-          Variable {
-            name: "id",
-            variableName: "id",
-          },
-        ],
-        concreteType: null,
-        plural: false,
-        selections: [
-          ScalarField {
-            alias: null,
-            name: "__typename",
-            args: null,
-            storageKey: null,
-          },
-          ScalarField {
-            alias: null,
-            name: "id",
-            args: null,
-            storageKey: null,
-          },
-          InlineFragment {
-            type: "Feedback",
-            selections: [
-              LinkedField {
-                alias: null,
-                name: "comments",
-                storageKey: null,
-                args: null,
-                concreteType: "CommentsConnection",
-                plural: false,
-                selections: [
-                  Connection {
-                    label: "FeedbackComments_feedback",
-                    name: "comments",
-                    args: [
-                      Literal {
-                        name: "first",
-                        value: 10,
-                      },
-                    ],
-                    edges: LinkedField {
-                      alias: null,
-                      name: "edges",
-                      storageKey: null,
-                      args: null,
-                      concreteType: "CommentsEdge",
-                      plural: true,
-                      selections: [
-                        LinkedField {
-                          alias: null,
-                          name: "node",
-                          storageKey: null,
-                          args: null,
-                          concreteType: "Comment",
-                          plural: false,
-                          selections: [
-                            ScalarField {
-                              alias: null,
-                              name: "id",
-                              args: null,
-                              storageKey: null,
-                            },
-                            ClientExtension {
-                              selections: [
-                                ScalarField {
-                                  alias: null,
-                                  name: "__id",
-                                  args: null,
-                                  storageKey: null,
-                                },
-                              ],
-                            },
-                          ],
-                        },
-                        ClientExtension {
-                          selections: [
-                            ScalarField {
-                              alias: null,
-                              name: "__id",
-                              args: null,
-                              storageKey: null,
-                            },
-                          ],
-                        },
-                      ],
-                    },
-                    pageInfo: LinkedField {
-                      alias: null,
-                      name: "pageInfo",
-                      storageKey: null,
-                      args: null,
-                      concreteType: "PageInfo",
-                      plural: false,
-                      selections: [
-                        ScalarField {
-                          alias: null,
-                          name: "hasNextPage",
-                          args: null,
-                          storageKey: null,
-                        },
-                      ],
-                    },
-                    stream: {
-                      "if": Literal {
-                        name: "if",
-                        value: true,
-                      },
-                      "deferLabel": "FeedbackComments_feedback$defer$FeedbackComments_feedback",
-                      "streamLabel": "FeedbackComments_feedback$stream$FeedbackComments_feedback",
-                    },
-                  },
-                ],
-              },
-            ],
-          },
-        ],
-      },
-    ],
-  },
-}
-
-QUERY:
-
-query QueryWithConnectionField(
-  $id: ID!
-) {
-  feedback: node(id: $id) {
-    __typename
-    ...FeedbackComments_feedback
-    id
-  }
-}
-
-fragment FeedbackComments_feedback on Feedback {
-  comments(first: 10) {
-    edges @stream(label: "FeedbackComments_feedback$stream$FeedbackComments_feedback", if: true, initial_count: 1) {
-      node {
-        id
-      }
-    }
-    ... @defer(label: "FeedbackComments_feedback$defer$FeedbackComments_feedback", if: true) {
-      pageInfo {
-        hasNextPage
-      }
-    }
-  }
-}
-
-
-Fragment {
-  name: "FeedbackComments_feedback",
-  type: "Feedback",
-  metadata: {
-    "connection": [
-      {
-        "count": null,
-        "cursor": null,
-        "direction": "forward",
-        "path": [
-          "comments",
-        ],
-        "stream": true,
-      },
-    ],
-  },
-  argumentDefinitions: [],
-  selections: [
-    LinkedField {
-      alias: null,
-      name: "comments",
-      storageKey: null,
-      args: null,
-      concreteType: "CommentsConnection",
-      plural: false,
-      selections: [
-        Connection {
-          label: "FeedbackComments_feedback",
-          name: "comments",
-          args: [
-            Literal {
-              name: "first",
-              value: 10,
-            },
-          ],
-          edges: LinkedField {
-            alias: null,
-            name: "edges",
-            storageKey: null,
-            args: null,
-            concreteType: "CommentsEdge",
-            plural: true,
-            selections: [
-              LinkedField {
-                alias: null,
-                name: "node",
-                storageKey: null,
-                args: null,
-                concreteType: "Comment",
-                plural: false,
-                selections: [
-                  ScalarField {
-                    alias: null,
-                    name: "id",
-                    args: null,
-                    storageKey: null,
-                  },
-                  ClientExtension {
-                    selections: [
-                      ScalarField {
-                        alias: null,
-                        name: "__id",
-                        args: null,
-                        storageKey: null,
-                      },
-                    ],
-                  },
-                ],
-              },
-              ClientExtension {
-                selections: [
-                  ScalarField {
-                    alias: null,
-                    name: "__id",
-                    args: null,
-                    storageKey: null,
-                  },
-                ],
-              },
-            ],
-          },
-          pageInfo: LinkedField {
-            alias: null,
-            name: "pageInfo",
-            storageKey: null,
-            args: null,
-            concreteType: "PageInfo",
-            plural: false,
-            selections: [
-              ScalarField {
-                alias: null,
-                name: "hasNextPage",
-                args: null,
-                storageKey: null,
-              },
-            ],
-          },
-        },
-      ],
-    },
-  ],
-}
-`;
-
-exports[`compileRelayArtifacts matches expected output: connection-resolver-field-stream-variable-count.graphql 1`] = `
-~~~~~~~~~~ INPUT ~~~~~~~~~~
-query QueryWithConnectionField(
-  $id: ID!
-  $enableStream: Boolean
-  $streamCount: Int!
-) {
-  feedback: node(id: $id) {
-    ...FeedbackComments_feedback
-  }
-}
-
-fragment FeedbackComments_feedback on Feedback {
-  comments(first: 10)
-    @stream_connection_resolver(
-      if: $enableStream
-      initial_count: $streamCount
-      label: "FeedbackComments_feedback"
-    ) {
-    edges {
-      node {
-        id
-      }
-    }
-    pageInfo {
-      hasNextPage
-    }
-  }
-}
-
-~~~~~~~~~~ OUTPUT ~~~~~~~~~~
-Request {
-  fragment: Fragment {
-    name: "QueryWithConnectionField",
-    type: "Query",
-    metadata: null,
-    argumentDefinitions: [
-      LocalArgument {
-        name: "id",
-        type: "ID!",
-        defaultValue: null,
-      },
-      LocalArgument {
-        name: "enableStream",
-        type: "Boolean",
-        defaultValue: null,
-      },
-      LocalArgument {
-        name: "streamCount",
-        type: "Int!",
-        defaultValue: null,
-      },
-    ],
-    selections: [
-      LinkedField {
-        alias: "feedback",
-        name: "node",
-        storageKey: null,
-        args: [
-          Variable {
-            name: "id",
-            variableName: "id",
-          },
-        ],
-        concreteType: null,
-        plural: false,
-        selections: [
-          FragmentSpread {
-            name: "FeedbackComments_feedback",
-            args: null,
-          },
-        ],
-      },
-    ],
-  },
-  operation: Operation {
-    name: "QueryWithConnectionField",
-    argumentDefinitions: [
-      LocalArgument {
-        name: "id",
-        type: "ID!",
-        defaultValue: null,
-      },
-      LocalArgument {
-        name: "enableStream",
-        type: "Boolean",
-        defaultValue: null,
-      },
-      LocalArgument {
-        name: "streamCount",
-        type: "Int!",
-        defaultValue: null,
-      },
-    ],
-    selections: [
-      LinkedField {
-        alias: "feedback",
-        name: "node",
-        storageKey: null,
-        args: [
-          Variable {
-            name: "id",
-            variableName: "id",
-          },
-        ],
-        concreteType: null,
-        plural: false,
-        selections: [
-          ScalarField {
-            alias: null,
-            name: "__typename",
-            args: null,
-            storageKey: null,
-          },
-          ScalarField {
-            alias: null,
-            name: "id",
-            args: null,
-            storageKey: null,
-          },
-          InlineFragment {
-            type: "Feedback",
-            selections: [
-              LinkedField {
-                alias: null,
-                name: "comments",
-                storageKey: null,
-                args: null,
-                concreteType: "CommentsConnection",
-                plural: false,
-                selections: [
-                  Connection {
-                    label: "FeedbackComments_feedback",
-                    name: "comments",
-                    args: [
-                      Literal {
-                        name: "first",
-                        value: 10,
-                      },
-                    ],
-                    edges: LinkedField {
-                      alias: null,
-                      name: "edges",
-                      storageKey: null,
-                      args: null,
-                      concreteType: "CommentsEdge",
-                      plural: true,
-                      selections: [
-                        LinkedField {
-                          alias: null,
-                          name: "node",
-                          storageKey: null,
-                          args: null,
-                          concreteType: "Comment",
-                          plural: false,
-                          selections: [
-                            ScalarField {
-                              alias: null,
-                              name: "id",
-                              args: null,
-                              storageKey: null,
-                            },
-                            ClientExtension {
-                              selections: [
-                                ScalarField {
-                                  alias: null,
-                                  name: "__id",
-                                  args: null,
-                                  storageKey: null,
-                                },
-                              ],
-                            },
-                          ],
-                        },
-                        ClientExtension {
-                          selections: [
-                            ScalarField {
-                              alias: null,
-                              name: "__id",
-                              args: null,
-                              storageKey: null,
-                            },
-                          ],
-                        },
-                      ],
-                    },
-                    pageInfo: LinkedField {
-                      alias: null,
-                      name: "pageInfo",
-                      storageKey: null,
-                      args: null,
-                      concreteType: "PageInfo",
-                      plural: false,
-                      selections: [
-                        ScalarField {
-                          alias: null,
-                          name: "hasNextPage",
-                          args: null,
-                          storageKey: null,
-                        },
-                      ],
-                    },
-                    stream: {
-                      "if": Variable {
-                        name: "if",
-                        variableName: "enableStream",
-                      },
-                      "deferLabel": "FeedbackComments_feedback$defer$FeedbackComments_feedback",
-                      "streamLabel": "FeedbackComments_feedback$stream$FeedbackComments_feedback",
-                    },
-                  },
-                ],
-              },
-            ],
-          },
-        ],
-      },
-    ],
-  },
-}
-
-QUERY:
-
-query QueryWithConnectionField(
-  $id: ID!
-  $enableStream: Boolean
-  $streamCount: Int!
-) {
-  feedback: node(id: $id) {
-    __typename
-    ...FeedbackComments_feedback
-    id
-  }
-}
-
-fragment FeedbackComments_feedback on Feedback {
-  comments(first: 10) {
-    edges @stream(label: "FeedbackComments_feedback$stream$FeedbackComments_feedback", if: $enableStream, initial_count: $streamCount) {
-      node {
-        id
-      }
-    }
-    ... @defer(label: "FeedbackComments_feedback$defer$FeedbackComments_feedback", if: $enableStream) {
-      pageInfo {
-        hasNextPage
-      }
-    }
-  }
-}
-
-
-Fragment {
-  name: "FeedbackComments_feedback",
-  type: "Feedback",
-  metadata: {
-    "connection": [
-      {
-        "count": null,
-        "cursor": null,
-        "direction": "forward",
-        "path": [
-          "comments",
-        ],
-        "stream": true,
-      },
-    ],
-  },
-  argumentDefinitions: [
-    RootArgument {
-      name: "enableStream",
-      type: "Boolean",
-    },
-    RootArgument {
-      name: "streamCount",
-      type: "Int!",
-    },
-  ],
-  selections: [
-    LinkedField {
-      alias: null,
-      name: "comments",
-      storageKey: null,
-      args: null,
-      concreteType: "CommentsConnection",
-      plural: false,
-      selections: [
-        Connection {
-          label: "FeedbackComments_feedback",
-          name: "comments",
-          args: [
-            Literal {
-              name: "first",
-              value: 10,
-            },
-          ],
-          edges: LinkedField {
-            alias: null,
-            name: "edges",
-            storageKey: null,
-            args: null,
-            concreteType: "CommentsEdge",
-            plural: true,
-            selections: [
-              LinkedField {
-                alias: null,
-                name: "node",
-                storageKey: null,
-                args: null,
-                concreteType: "Comment",
-                plural: false,
-                selections: [
-                  ScalarField {
-                    alias: null,
-                    name: "id",
-                    args: null,
-                    storageKey: null,
-                  },
-                  ClientExtension {
-                    selections: [
-                      ScalarField {
-                        alias: null,
-                        name: "__id",
-                        args: null,
-                        storageKey: null,
-                      },
-                    ],
-                  },
-                ],
-              },
-              ClientExtension {
-                selections: [
-                  ScalarField {
-                    alias: null,
-                    name: "__id",
-                    args: null,
-                    storageKey: null,
-                  },
-                ],
-              },
-            ],
-          },
-          pageInfo: LinkedField {
-            alias: null,
-            name: "pageInfo",
-            storageKey: null,
-            args: null,
-            concreteType: "PageInfo",
-            plural: false,
-            selections: [
-              ScalarField {
-                alias: null,
-                name: "hasNextPage",
-                args: null,
-                storageKey: null,
-              },
-            ],
-          },
-        },
-      ],
-    },
-  ],
-}
-`;
-
-exports[`compileRelayArtifacts matches expected output: connection-resolver-field-with-node-union.graphql 1`] = `
-~~~~~~~~~~ INPUT ~~~~~~~~~~
-query QueryWithConnectionField($id: ID!) {
-  feedback: node(id: $id) {
-    ...FeedbackComments_feedback
-  }
-}
-
-fragment FeedbackComments_feedback on Feedback {
-  commentBodies(first: 10)
-    @connection_resolver(label: "FeedbackComments_feedback") {
-    edges {
-      node {
-        __typename
-      }
-    }
-    pageInfo {
-      hasNextPage
-    }
-  }
-}
-
-~~~~~~~~~~ OUTPUT ~~~~~~~~~~
-Request {
-  fragment: Fragment {
-    name: "QueryWithConnectionField",
-    type: "Query",
-    metadata: null,
-    argumentDefinitions: [
-      LocalArgument {
-        name: "id",
-        type: "ID!",
-        defaultValue: null,
-      },
-    ],
-    selections: [
-      LinkedField {
-        alias: "feedback",
-        name: "node",
-        storageKey: null,
-        args: [
-          Variable {
-            name: "id",
-            variableName: "id",
-          },
-        ],
-        concreteType: null,
-        plural: false,
-        selections: [
-          FragmentSpread {
-            name: "FeedbackComments_feedback",
-            args: null,
-          },
-        ],
-      },
-    ],
-  },
-  operation: Operation {
-    name: "QueryWithConnectionField",
-    argumentDefinitions: [
-      LocalArgument {
-        name: "id",
-        type: "ID!",
-        defaultValue: null,
-      },
-    ],
-    selections: [
-      LinkedField {
-        alias: "feedback",
-        name: "node",
-        storageKey: null,
-        args: [
-          Variable {
-            name: "id",
-            variableName: "id",
-          },
-        ],
-        concreteType: null,
-        plural: false,
-        selections: [
-          ScalarField {
-            alias: null,
-            name: "__typename",
-            args: null,
-            storageKey: null,
-          },
-          ScalarField {
-            alias: null,
-            name: "id",
-            args: null,
-            storageKey: null,
-          },
-          InlineFragment {
-            type: "Feedback",
-            selections: [
-              LinkedField {
-                alias: null,
-                name: "commentBodies",
-                storageKey: null,
-                args: null,
-                concreteType: "CommentBodiesConnection",
-                plural: false,
-                selections: [
-                  Connection {
-                    label: "FeedbackComments_feedback",
-                    name: "commentBodies",
-                    args: [
-                      Literal {
-                        name: "first",
-                        value: 10,
-                      },
-                    ],
-                    edges: LinkedField {
-                      alias: null,
-                      name: "edges",
-                      storageKey: null,
-                      args: null,
-                      concreteType: "CommentBodiesEdge",
-                      plural: true,
-                      selections: [
-                        LinkedField {
-                          alias: null,
-                          name: "node",
-                          storageKey: null,
-                          args: null,
-                          concreteType: null,
-                          plural: false,
-                          selections: [
-                            ScalarField {
-                              alias: null,
-                              name: "__typename",
-                              args: null,
-                              storageKey: null,
-                            },
-                            ClientExtension {
-                              selections: [
-                                ScalarField {
-                                  alias: null,
-                                  name: "__id",
-                                  args: null,
-                                  storageKey: null,
-                                },
-                              ],
-                            },
-                          ],
-                        },
-                        ClientExtension {
-                          selections: [
-                            ScalarField {
-                              alias: null,
-                              name: "__id",
-                              args: null,
-                              storageKey: null,
-                            },
-                          ],
-                        },
-                      ],
-                    },
-                    pageInfo: LinkedField {
-                      alias: null,
-                      name: "pageInfo",
-                      storageKey: null,
-                      args: null,
-                      concreteType: "PageInfo",
-                      plural: false,
-                      selections: [
-                        ScalarField {
-                          alias: null,
-                          name: "hasNextPage",
-                          args: null,
-                          storageKey: null,
-                        },
-                      ],
-                    },
-                    stream: null,
-                  },
-                ],
-              },
-            ],
-          },
-        ],
-      },
-    ],
-  },
-}
-
-QUERY:
-
-query QueryWithConnectionField(
-  $id: ID!
-) {
-  feedback: node(id: $id) {
-    __typename
-    ...FeedbackComments_feedback
-    id
-  }
-}
-
-fragment FeedbackComments_feedback on Feedback {
-  commentBodies(first: 10) {
-    edges {
-      node {
-        __typename
-      }
-    }
-    pageInfo {
-      hasNextPage
-    }
-  }
-}
-
-
-Fragment {
-  name: "FeedbackComments_feedback",
-  type: "Feedback",
-  metadata: {
-    "connection": [
-      {
-        "count": null,
-        "cursor": null,
-        "direction": "forward",
-        "path": [
-          "commentBodies",
-        ],
-      },
-    ],
-  },
-  argumentDefinitions: [],
-  selections: [
-    LinkedField {
-      alias: null,
-      name: "commentBodies",
-      storageKey: null,
-      args: null,
-      concreteType: "CommentBodiesConnection",
-      plural: false,
-      selections: [
-        Connection {
-          label: "FeedbackComments_feedback",
-          name: "commentBodies",
-          args: [
-            Literal {
-              name: "first",
-              value: 10,
-            },
-          ],
-          edges: LinkedField {
-            alias: null,
-            name: "edges",
-            storageKey: null,
-            args: null,
-            concreteType: "CommentBodiesEdge",
-            plural: true,
-            selections: [
-              LinkedField {
-                alias: null,
-                name: "node",
-                storageKey: null,
-                args: null,
-                concreteType: null,
-                plural: false,
-                selections: [
-                  ScalarField {
-                    alias: null,
-                    name: "__typename",
-                    args: null,
-                    storageKey: null,
-                  },
-                  ClientExtension {
-                    selections: [
-                      ScalarField {
-                        alias: null,
-                        name: "__id",
-                        args: null,
-                        storageKey: null,
-                      },
-                    ],
-                  },
-                ],
-              },
-              ClientExtension {
-                selections: [
-                  ScalarField {
-                    alias: null,
-                    name: "__id",
-                    args: null,
-                    storageKey: null,
-                  },
-                ],
-              },
-            ],
-          },
-          pageInfo: LinkedField {
-            alias: null,
-            name: "pageInfo",
-            storageKey: null,
-            args: null,
-            concreteType: "PageInfo",
-            plural: false,
-            selections: [
-              ScalarField {
-                alias: null,
-                name: "hasNextPage",
-                args: null,
-                storageKey: null,
-              },
-            ],
-          },
-        },
-      ],
-    },
-  ],
-}
 `;
 
 exports[`compileRelayArtifacts matches expected output: connection-with-aliased-edges-pageInfo.graphql 1`] = `
@@ -6309,7 +3522,7 @@ query QueryWithMultipeDeferredFragmentsOnSameParent($id: ID!) {
 }
 
 fragment FeedbackComments_feedback on Feedback {
-  comments(first: 10) @connection_resolver(label: "FeedbackComments_feedback") {
+  comments(first: 10) {
     edges {
       node {
         id
@@ -6426,83 +3639,57 @@ Request {
                   LinkedField {
                     alias: null,
                     name: "comments",
-                    storageKey: null,
-                    args: null,
+                    storageKey: "comments(first:10)",
+                    args: [
+                      Literal {
+                        name: "first",
+                        value: 10,
+                      },
+                    ],
                     concreteType: "CommentsConnection",
                     plural: false,
                     selections: [
-                      Connection {
-                        label: "FeedbackComments_feedback",
-                        name: "comments",
-                        args: [
-                          Literal {
-                            name: "first",
-                            value: 10,
+                      LinkedField {
+                        alias: null,
+                        name: "edges",
+                        storageKey: null,
+                        args: null,
+                        concreteType: "CommentsEdge",
+                        plural: true,
+                        selections: [
+                          LinkedField {
+                            alias: null,
+                            name: "node",
+                            storageKey: null,
+                            args: null,
+                            concreteType: "Comment",
+                            plural: false,
+                            selections: [
+                              ScalarField {
+                                alias: null,
+                                name: "id",
+                                args: null,
+                                storageKey: null,
+                              },
+                            ],
                           },
                         ],
-                        edges: LinkedField {
-                          alias: null,
-                          name: "edges",
-                          storageKey: null,
-                          args: null,
-                          concreteType: "CommentsEdge",
-                          plural: true,
-                          selections: [
-                            LinkedField {
-                              alias: null,
-                              name: "node",
-                              storageKey: null,
-                              args: null,
-                              concreteType: "Comment",
-                              plural: false,
-                              selections: [
-                                ScalarField {
-                                  alias: null,
-                                  name: "id",
-                                  args: null,
-                                  storageKey: null,
-                                },
-                                ClientExtension {
-                                  selections: [
-                                    ScalarField {
-                                      alias: null,
-                                      name: "__id",
-                                      args: null,
-                                      storageKey: null,
-                                    },
-                                  ],
-                                },
-                              ],
-                            },
-                            ClientExtension {
-                              selections: [
-                                ScalarField {
-                                  alias: null,
-                                  name: "__id",
-                                  args: null,
-                                  storageKey: null,
-                                },
-                              ],
-                            },
-                          ],
-                        },
-                        pageInfo: LinkedField {
-                          alias: null,
-                          name: "pageInfo",
-                          storageKey: null,
-                          args: null,
-                          concreteType: "PageInfo",
-                          plural: false,
-                          selections: [
-                            ScalarField {
-                              alias: null,
-                              name: "hasNextPage",
-                              args: null,
-                              storageKey: null,
-                            },
-                          ],
-                        },
-                        stream: null,
+                      },
+                      LinkedField {
+                        alias: null,
+                        name: "pageInfo",
+                        storageKey: null,
+                        args: null,
+                        concreteType: "PageInfo",
+                        plural: false,
+                        selections: [
+                          ScalarField {
+                            alias: null,
+                            name: "hasNextPage",
+                            args: null,
+                            storageKey: null,
+                          },
+                        ],
                       },
                     ],
                   },
@@ -6580,99 +3767,63 @@ fragment FeedbackText_feedback on Feedback {
 Fragment {
   name: "FeedbackComments_feedback",
   type: "Feedback",
-  metadata: {
-    "connection": [
-      {
-        "count": null,
-        "cursor": null,
-        "direction": "forward",
-        "path": [
-          "comments",
-        ],
-      },
-    ],
-  },
+  metadata: null,
   argumentDefinitions: [],
   selections: [
     LinkedField {
       alias: null,
       name: "comments",
-      storageKey: null,
-      args: null,
+      storageKey: "comments(first:10)",
+      args: [
+        Literal {
+          name: "first",
+          value: 10,
+        },
+      ],
       concreteType: "CommentsConnection",
       plural: false,
       selections: [
-        Connection {
-          label: "FeedbackComments_feedback",
-          name: "comments",
-          args: [
-            Literal {
-              name: "first",
-              value: 10,
+        LinkedField {
+          alias: null,
+          name: "edges",
+          storageKey: null,
+          args: null,
+          concreteType: "CommentsEdge",
+          plural: true,
+          selections: [
+            LinkedField {
+              alias: null,
+              name: "node",
+              storageKey: null,
+              args: null,
+              concreteType: "Comment",
+              plural: false,
+              selections: [
+                ScalarField {
+                  alias: null,
+                  name: "id",
+                  args: null,
+                  storageKey: null,
+                },
+              ],
             },
           ],
-          edges: LinkedField {
-            alias: null,
-            name: "edges",
-            storageKey: null,
-            args: null,
-            concreteType: "CommentsEdge",
-            plural: true,
-            selections: [
-              LinkedField {
-                alias: null,
-                name: "node",
-                storageKey: null,
-                args: null,
-                concreteType: "Comment",
-                plural: false,
-                selections: [
-                  ScalarField {
-                    alias: null,
-                    name: "id",
-                    args: null,
-                    storageKey: null,
-                  },
-                  ClientExtension {
-                    selections: [
-                      ScalarField {
-                        alias: null,
-                        name: "__id",
-                        args: null,
-                        storageKey: null,
-                      },
-                    ],
-                  },
-                ],
-              },
-              ClientExtension {
-                selections: [
-                  ScalarField {
-                    alias: null,
-                    name: "__id",
-                    args: null,
-                    storageKey: null,
-                  },
-                ],
-              },
-            ],
-          },
-          pageInfo: LinkedField {
-            alias: null,
-            name: "pageInfo",
-            storageKey: null,
-            args: null,
-            concreteType: "PageInfo",
-            plural: false,
-            selections: [
-              ScalarField {
-                alias: null,
-                name: "hasNextPage",
-                args: null,
-                storageKey: null,
-              },
-            ],
-          },
+        },
+        LinkedField {
+          alias: null,
+          name: "pageInfo",
+          storageKey: null,
+          args: null,
+          concreteType: "PageInfo",
+          plural: false,
+          selections: [
+            ScalarField {
+              alias: null,
+              name: "hasNextPage",
+              args: null,
+              storageKey: null,
+            },
+          ],
         },
       ],
     },
@@ -8914,6 +6065,7 @@ Request {
             selections: [
               Stream {
                 if: null,
+                useCustomizedBatch: null,
                 label: "FeedbackFragment$stream$StreamedActorsLabel",
                 metadata: null,
                 selections: [
@@ -9011,6 +6163,41 @@ Fragment {
     },
   ],
 }
+`;
+
+exports[`compileRelayArtifacts matches expected output: id-as-alias.invalid.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+# expected-to-throw
+fragment User_fragment on User {
+  id: name
+}
+
+fragment ProfilePicture on User {
+  profilePicture(size: $size) {
+    id: uri
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+THROWN EXCEPTION:
+
+Encountered 2 errors:
+- Relay does not allow aliasing fields to \`id\`. This name is reserved for the globally unique \`id\` field on \`Node\`.
+  
+  Source: GraphQL request (3:3)
+  2: fragment User_fragment on User {
+  3:   id: name
+       ^
+  4: }
+  
+- Relay does not allow aliasing fields to \`id\`. This name is reserved for the globally unique \`id\` field on \`Node\`.
+  
+  Source: GraphQL request (8:5)
+  7:   profilePicture(size: $size) {
+  8:     id: uri
+         ^
+  9:   }
+  
 `;
 
 exports[`compileRelayArtifacts matches expected output: inline-and-mask-are-incompatible.invalid.graphql 1`] = `
@@ -9433,26 +6620,6 @@ Source: GraphQL request (17:24)
 17:   @argumentDefinitions(sizeArg: {type: "[Int]", defaultValue: [50]}) {
                            ^
 18:   profilePicture(size: $sizeArg) {
-
-`;
-
-exports[`compileRelayArtifacts matches expected output: is-as-alias.invalid.graphql 1`] = `
-~~~~~~~~~~ INPUT ~~~~~~~~~~
-# expected-to-throw
-fragment User_fragment on User {
-  id: name
-}
-
-~~~~~~~~~~ OUTPUT ~~~~~~~~~~
-THROWN EXCEPTION:
-
-Relay does not allow aliasing fields to \`id\`. This name is reserved for the globally unique \`id\` field on \`Node\`.
-
-Source: GraphQL request (3:3)
-2: fragment User_fragment on User {
-3:   id: name
-     ^
-4: }
 
 `;
 
@@ -16078,6 +13245,7 @@ Request {
                 selections: [
                   Stream {
                     if: null,
+                    useCustomizedBatch: null,
                     label: "PaginationFragment$stream$PaginationFragment_friends",
                     metadata: null,
                     selections: [
@@ -17415,6 +14583,7 @@ Request {
                 selections: [
                   Stream {
                     if: null,
+                    useCustomizedBatch: null,
                     label: "NodeQuery$stream$comments",
                     metadata: null,
                     selections: [
@@ -18532,18 +15701,17 @@ THROWN EXCEPTION:
 
 Variable @arguments values are only supported when the argument is defined with @argumentDefinitions. Check the definition of fragment 'ProfilePhoto'.
 
-GraphQL request (16:36)
-15:   __typename
-16:   ...ProfilePhoto @arguments(size: $size)
-                                       ^
-17: }
+GraphQL request:16:36
+15 |   __typename
+16 |   ...ProfilePhoto @arguments(size: $size)
+   |                                    ^
+17 | }
 
-GraphQL request (19:1)
-18: 
-19: fragment ProfilePhoto on User {
-    ^
-20:   profilePicture(size: [100]) {
-
+GraphQL request:19:1
+18 |
+19 | fragment ProfilePhoto on User {
+   | ^
+20 |   profilePicture(size: [100]) {
 `;
 
 exports[`compileRelayArtifacts matches expected output: unused-fragment-argdef-unchecked.graphql 1`] = `

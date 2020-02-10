@@ -8,26 +8,26 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
-const IRTransformer = require('../core/GraphQLIRTransformer');
+const IRTransformer = require('../core/IRTransformer');
 
 const invariant = require('invariant');
 const joinArgumentDefinitions = require('../util/joinArgumentDefinitions');
 
-const {createUserError} = require('../core/RelayCompilerError');
+const {createUserError} = require('../core/CompilerError');
 
-import type CompilerContext from '../core/GraphQLCompilerContext';
+import type CompilerContext from '../core/CompilerContext';
 import type {
   Fragment,
   FragmentSpread,
   InlineFragment,
   ArgumentDefinition,
-} from '../core/GraphQLIR';
+} from '../core/IR';
 
-type State = {
-  reachableArguments: Array<ArgumentDefinition>,
-};
+type State = {reachableArguments: Array<ArgumentDefinition>, ...};
 
 /**
  * A transform that inlines fragment spreads with the @relay(mask: false)

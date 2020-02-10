@@ -9,10 +9,12 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
-jest.mock('fbjs/lib/ExecutionEnvironment', () => ({
-  canUseDOM: true,
+jest.mock('../ExecutionEnvironment', () => ({
+  isServer: false,
 }));
 
 const prepareEntryPoint = require('../prepareEntryPoint');
@@ -55,15 +57,13 @@ test('it should preload entry point with queries', () => {
         queries: {
           myTestQuery: {
             parameters: {
+              kind: 'PreloadableConcreteRequest',
               params: {
                 operationKind: 'query',
                 name: 'MyPreloadedQuery',
                 id: 'my-persisted-query-id',
                 text: null,
                 metadata: {},
-              },
-              getModuleIfRequired() {
-                return null;
               },
             },
             variables: {
@@ -101,15 +101,13 @@ test('it should preload entry point with nested entry points', () => {
         queries: {
           myNestedQuery: {
             parameters: {
+              kind: 'PreloadableConcreteRequest',
               params: {
                 operationKind: 'query',
                 name: 'MyNestedQuery',
                 id: 'my-persisted-query-id',
                 text: null,
                 metadata: {},
-              },
-              getModuleIfRequired() {
-                return null;
               },
             },
             variables: {
@@ -170,15 +168,13 @@ test('it should preload entry point with both queries and nested entry points', 
         queries: {
           myNestedQuery: {
             parameters: {
+              kind: 'PreloadableConcreteRequest',
               params: {
                 operationKind: 'query',
                 name: 'MyNestedQuery',
                 id: 'nested-query-id',
                 text: null,
                 metadata: {},
-              },
-              getModuleIfRequired() {
-                return null;
               },
             },
             variables: {
@@ -196,15 +192,13 @@ test('it should preload entry point with both queries and nested entry points', 
         queries: {
           myTestQuery: {
             parameters: {
+              kind: 'PreloadableConcreteRequest',
               params: {
                 operationKind: 'query',
                 name: 'MyPreloadedQuery',
                 id: 'root-query-id',
                 text: null,
                 metadata: {},
-              },
-              getModuleIfRequired() {
-                return null;
               },
             },
             variables: {
@@ -264,15 +258,13 @@ test('with `getEnvironment` function', () => {
               actorID: '4',
             },
             parameters: {
+              kind: 'PreloadableConcreteRequest',
               params: {
                 operationKind: 'query',
                 name: 'MyPreloadedQuery',
                 id: 'root-query-id',
                 text: null,
                 metadata: {},
-              },
-              getModuleIfRequired() {
-                return null;
               },
             },
             variables: {

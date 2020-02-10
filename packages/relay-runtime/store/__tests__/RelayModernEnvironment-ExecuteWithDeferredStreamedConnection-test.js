@@ -9,9 +9,11 @@
  * @emails oncall+relay
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
-const RelayConnectionHandler = require('../../handlers/connection/RelayConnectionHandler');
+const ConnectionHandler = require('../../handlers/connection/ConnectionHandler');
 const RelayModernEnvironment = require('../RelayModernEnvironment');
 const RelayModernStore = require('../RelayModernStore');
 const RelayNetwork = require('../../network/RelayNetwork');
@@ -131,7 +133,7 @@ describe('execute() fetches a @defer-ed @stream-ed @connection', () => {
           case 'name_handler':
             return NameHandler;
           case 'connection':
-            return RelayConnectionHandler;
+            return ConnectionHandler;
         }
       },
     });

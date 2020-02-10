@@ -9,12 +9,13 @@
  * @emails oncall+relay
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const ClientExtensionsTransform = require('../ClientExtensionsTransform');
-const GraphQLCompilerContext = require('../../core/GraphQLCompilerContext');
-const GraphQLIRPrinter = require('../../core/GraphQLIRPrinter');
-const Schema = require('../../core/Schema');
+const CompilerContext = require('../../core/CompilerContext');
+const IRPrinter = require('../../core/IRPrinter');
 const SkipClientExtensionsTransform = require('../SkipClientExtensionsTransform');
 
 const {
@@ -31,18 +32,14 @@ describe('SkipClientExtensionsTransform', () => {
         TestSchema,
         text,
       );
-      const compilerSchema = Schema.DEPRECATED__create(
-        TestSchema,
-        extendedSchema,
-      );
-      return new GraphQLCompilerContext(compilerSchema)
+      return new CompilerContext(extendedSchema)
         .addAll(definitions)
         .applyTransforms([
           ClientExtensionsTransform.transform,
           SkipClientExtensionsTransform.transform,
         ])
         .documents()
-        .map(doc => GraphQLIRPrinter.print(compilerSchema, doc))
+        .map(doc => IRPrinter.print(extendedSchema, doc))
         .join('\n');
     },
   );

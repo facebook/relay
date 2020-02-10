@@ -8,10 +8,11 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const RelayConcreteNode = require('../util/RelayConcreteNode');
-const RelayConnection = require('./RelayConnection');
 const RelayModernRecord = require('./RelayModernRecord');
 const RelayStoreUtils = require('./RelayStoreUtils');
 
@@ -19,14 +20,12 @@ const cloneRelayHandleSourceField = require('./cloneRelayHandleSourceField');
 const invariant = require('invariant');
 
 import type {
-  NormalizationConnection,
   NormalizationLinkedField,
   NormalizationModuleImport,
   NormalizationNode,
   NormalizationSelection,
 } from '../util/NormalizationNode';
 import type {DataID, Variables} from '../util/RelayRuntimeTypes';
-import type {GetConnectionEvents} from './RelayConnection';
 import type {
   NormalizationSelector,
   OperationLoader,
@@ -38,7 +37,6 @@ const {
   CONDITION,
   CLIENT_EXTENSION,
   DEFER,
-  CONNECTION,
   FRAGMENT_SPREAD,
   INLINE_FRAGMENT,
   LINKED_FIELD,
@@ -54,8 +52,6 @@ function mark(
   recordSource: RecordSource,
   selector: NormalizationSelector,
   references: Set<DataID>,
-  connectionReferences: Set<string>,
-  getConnectionEvents: GetConnectionEvents,
   operationLoader: ?OperationLoader,
 ): void {
   const {dataID, node, variables} = selector;
@@ -63,8 +59,6 @@ function mark(
     recordSource,
     variables,
     references,
-    connectionReferences,
-    getConnectionEvents,
     operationLoader,
   );
   marker.mark(node, dataID);
@@ -74,8 +68,6 @@ function mark(
  * @private
  */
 class RelayReferenceMarker {
-  _connectionReferences: Set<string>;
-  _getConnectionEvents: GetConnectionEvents;
   _operationLoader: OperationLoader | null;
   _recordSource: RecordSource;
   _references: Set<DataID>;
@@ -85,12 +77,8 @@ class RelayReferenceMarker {
     recordSource: RecordSource,
     variables: Variables,
     references: Set<DataID>,
-    connectionReferences: Set<string>,
-    getConnectionEvents: GetConnectionEvents,
     operationLoader: ?OperationLoader,
   ) {
-    this._connectionReferences = connectionReferences;
-    this._getConnectionEvents = getConnectionEvents;
     this._operationLoader = operationLoader ?? null;
     this._recordSource = recordSource;
     this._references = references;
@@ -186,9 +174,6 @@ class RelayReferenceMarker {
         case CLIENT_EXTENSION:
           this._traverseSelections(selection.selections, record);
           break;
-        case CONNECTION:
-          this._traverseConnection(selection, record);
-          break;
         default:
           (selection: empty);
           invariant(
@@ -196,47 +181,6 @@ class RelayReferenceMarker {
             'RelayReferenceMarker: Unknown AST node `%s`.',
             selection,
           );
-      }
-    });
-  }
-
-  _traverseConnection(
-    connection: NormalizationConnection,
-    record: Record,
-  ): void {
-    const parentID = RelayModernRecord.getDataID(record);
-    const connectionID = RelayConnection.createConnectionID(
-      parentID,
-      connection.label,
-    );
-    if (this._connectionReferences.has(connectionID)) {
-      return;
-    }
-    this._connectionReferences.add(connectionID);
-    const connectionEvents = this._getConnectionEvents(connectionID);
-    if (connectionEvents == null || connectionEvents.length === 0) {
-      return;
-    }
-    connectionEvents.forEach(event => {
-      if (event.kind === 'fetch') {
-        event.edgeIDs.forEach(edgeID => {
-          if (edgeID != null) {
-            this._traverse(connection.edges, edgeID);
-          }
-        });
-      } else if (event.kind === 'insert') {
-        this._traverse(connection.edges, event.edgeID);
-      } else if (event.kind === 'stream.edge') {
-        this._traverse(connection.edges, event.edgeID);
-      } else if (event.kind === 'stream.pageInfo') {
-        // no-op
-      } else {
-        (event: empty);
-        invariant(
-          false,
-          'RelayReferenceMarker: Unexpected connection event kind `%s`.',
-          event.kind,
-        );
       }
     });
   }

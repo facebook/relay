@@ -8,9 +8,11 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
-import type {Fragment, Request, Root, SplitOperation} from './GraphQLIR';
+import type {Fragment, Request, Root, SplitOperation} from './IR';
 import type {GeneratedNode} from 'relay-runtime';
 
 /**

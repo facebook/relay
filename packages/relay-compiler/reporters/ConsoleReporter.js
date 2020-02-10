@@ -4,9 +4,11 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @flow strict-local
+ * @flow strict
  * @format
  */
+
+// flowlint ambiguous-object-type:error
 
 'use strict';
 
@@ -24,7 +26,7 @@ class ConsoleReporter implements Reporter {
   _verbose: boolean;
   _quiet: boolean;
 
-  constructor(options: {verbose: boolean, quiet: boolean}) {
+  constructor(options: {verbose: boolean, quiet: boolean, ...}) {
     this._verbose = options.verbose;
     this._quiet = options.quiet;
   }

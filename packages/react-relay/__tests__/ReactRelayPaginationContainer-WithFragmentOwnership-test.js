@@ -182,7 +182,7 @@ describe('ReactRelayPaginationContainer with fragment ownership', () => {
     TestContainer = ReactRelayPaginationContainer.createContainer(
       TestComponent,
       {
-        user: () => UserFragment,
+        user: UserFragment,
       },
       {
         direction: 'forward',

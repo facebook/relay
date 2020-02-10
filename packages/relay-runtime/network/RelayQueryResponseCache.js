@@ -8,17 +8,20 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const invariant = require('invariant');
 const stableCopy = require('../util/stableCopy');
 
 import type {Variables} from '../util/RelayRuntimeTypes';
-import type {GraphQLResponse} from './RelayNetworkTypes';
+import type {GraphQLSingularResponse} from './RelayNetworkTypes';
 
 type Response = {
   fetchTime: number,
-  payload: GraphQLResponse,
+  payload: GraphQLSingularResponse,
+  ...
 };
 
 /**
@@ -31,7 +34,7 @@ class RelayQueryResponseCache {
   _size: number;
   _ttl: number;
 
-  constructor({size, ttl}: {size: number, ttl: number}) {
+  constructor({size, ttl}: {size: number, ttl: number, ...}) {
     invariant(
       size > 0,
       'RelayQueryResponseCache: Expected the max cache size to be > 0, got ' +
@@ -52,7 +55,7 @@ class RelayQueryResponseCache {
     this._responses.clear();
   }
 
-  get(queryID: string, variables: Variables): ?GraphQLResponse {
+  get(queryID: string, variables: Variables): ?GraphQLSingularResponse {
     const cacheKey = getCacheKey(queryID, variables);
     this._responses.forEach((response, key) => {
       if (!isCurrent(response.fetchTime, this._ttl)) {
@@ -61,18 +64,21 @@ class RelayQueryResponseCache {
     });
     const response = this._responses.get(cacheKey);
     return response != null
-      ? // $FlowFixMe
-        ({
+      ? ({
           ...response.payload,
           extensions: {
             ...response.payload.extensions,
             cacheTimestamp: response.fetchTime,
           },
-        }: GraphQLResponse)
+        }: GraphQLSingularResponse)
       : null;
   }
 
-  set(queryID: string, variables: Variables, payload: GraphQLResponse): void {
+  set(
+    queryID: string,
+    variables: Variables,
+    payload: GraphQLSingularResponse,
+  ): void {
     const fetchTime = Date.now();
     const cacheKey = getCacheKey(queryID, variables);
     this._responses.delete(cacheKey); // deletion resets key ordering

@@ -8,9 +8,11 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
-const IRTransformer = require('../core/GraphQLIRTransformer');
+const IRTransformer = require('../core/IRTransformer');
 const RelayCompilerScope = require('../core/RelayCompilerScope');
 
 const getIdentifierForArgumentValue = require('../core/getIdentifierForArgumentValue');
@@ -19,14 +21,13 @@ const murmurHash = require('../util/murmurHash');
 const {
   createCompilerError,
   createNonRecoverableUserError,
-} = require('../core/RelayCompilerError');
+} = require('../core/CompilerError');
 
-import type CompilerContext from '../core/GraphQLCompilerContext';
+import type CompilerContext from '../core/CompilerContext';
 import type {
   Argument,
   ArgumentValue,
   Condition,
-  Connection,
   Directive,
   Field,
   Fragment,
@@ -34,7 +35,7 @@ import type {
   IR,
   Node,
   Selection,
-} from '../core/GraphQLIR';
+} from '../core/IR';
 import type {Scope} from '../core/RelayCompilerScope';
 
 const {getFragmentScope, getRootScope} = RelayCompilerScope;
@@ -165,7 +166,7 @@ function transformField<T: Field>(
 ): ?T {
   const args = transformArguments(scope, field.args, errorContext);
   const directives = transformDirectives(scope, field.directives, errorContext);
-  if (field.kind === 'LinkedField' || field.kind === 'ConnectionField') {
+  if (field.kind === 'LinkedField') {
     const selections = transformSelections(
       context,
       fragments,
@@ -189,43 +190,6 @@ function transformField<T: Field>(
       directives,
     };
   }
-}
-
-function transformConnection(
-  context: CompilerContext,
-  fragments: Map<string, PendingFragment>,
-  scope: Scope,
-  connection: Connection,
-  errorContext: $ReadOnlyArray<IR>,
-): ?Connection {
-  const args = transformArguments(scope, connection.args, errorContext);
-  let stream = connection.stream;
-  if (stream != null) {
-    stream = {
-      ...stream,
-      if:
-        stream.if != null
-          ? transformValue(scope, stream.if, errorContext)
-          : null,
-      initialCount: transformValue(scope, stream.initialCount, errorContext),
-    };
-  }
-  const selections = transformSelections(
-    context,
-    fragments,
-    scope,
-    connection.selections,
-    errorContext,
-  );
-  if (!selections) {
-    return null;
-  }
-  return ({
-    ...connection,
-    args,
-    selections,
-    stream,
-  }: Connection);
 }
 
 function transformCondition(
@@ -319,18 +283,9 @@ function transformSelections(
         nextSelections = nextSelections || [];
         nextSelections.push(...conditionSelections);
       }
-    } else if (selection.kind === 'Connection') {
-      nextSelection = transformConnection(
-        context,
-        fragments,
-        scope,
-        selection,
-        errorContext,
-      );
     } else if (
       selection.kind === 'LinkedField' ||
-      selection.kind === 'ScalarField' ||
-      selection.kind === 'ConnectionField'
+      selection.kind === 'ScalarField'
     ) {
       nextSelection = transformField(
         context,
@@ -396,6 +351,19 @@ function transformValue(
       );
     }
     return scopeValue;
+  } else if (value.kind === 'ObjectValue') {
+    return {
+      ...value,
+      fields: value.fields.map(field => ({
+        ...field,
+        value: transformValue(scope, field.value, errorContext),
+      })),
+    };
+  } else if (value.kind === 'ListValue') {
+    return {
+      ...value,
+      items: value.items.map(item => transformValue(scope, item, errorContext)),
+    };
   }
   return value;
 }

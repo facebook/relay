@@ -9,10 +9,11 @@
  * @emails oncall+relay
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
-const GraphQLCompilerContext = require('../../core/GraphQLCompilerContext');
-const Schema = require('../../core/Schema');
+const CompilerContext = require('../../core/CompilerContext');
 const ValidateGlobalVariablesTransform = require('../ValidateGlobalVariablesTransform');
 
 const {
@@ -24,9 +25,8 @@ const {
 generateTestsFromFixtures(
   `${__dirname}/fixtures/ValidateGlobalVariablesTransform`,
   text => {
-    const {definitions} = parseGraphQLText(TestSchema, text);
-    const compilerSchema = Schema.DEPRECATED__create(TestSchema);
-    return new GraphQLCompilerContext(compilerSchema)
+    const {definitions, schema} = parseGraphQLText(TestSchema, text);
+    return new CompilerContext(schema)
       .addAll(definitions)
       .applyTransforms([ValidateGlobalVariablesTransform.transform])
       .documents()

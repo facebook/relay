@@ -151,7 +151,7 @@ describe('ReactRelayRefetchContainer with fragment ownerhsip', () => {
     TestContainer = ReactRelayRefetchContainer.createContainer(
       TestComponent,
       {
-        user: () => UserFragment,
+        user: UserFragment,
       },
       UserQuery,
     );

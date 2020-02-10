@@ -8,6 +8,8 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const t = require('@babel/types');
@@ -22,6 +24,7 @@ import type {Schema, TypeID, EnumTypeID} from '../../core/Schema';
 export type BabelTypes = typeof t;
 export type ScalarTypeMapping = {
   [type: string]: string | (BabelTypes => mixed),
+  ...,
 };
 
 import type {State} from './RelayFlowGenerator';

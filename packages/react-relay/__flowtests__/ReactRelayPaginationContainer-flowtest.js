@@ -8,6 +8,8 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const React = require('react');
@@ -27,9 +29,10 @@ const {graphql} = require('relay-runtime');
  * Flow's React support are documented at https://fburl.com/eq7bs81w */
 class FooComponent extends React.Component {
   props: {
-    optionalProp?: {foo: number},
+    optionalProp?: {foo: number, ...},
     defaultProp: string,
     requiredProp: string,
+    ...
   };
   static defaultProps = {
     defaultProp: 'default',

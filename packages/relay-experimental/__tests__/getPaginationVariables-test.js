@@ -9,6 +9,8 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const getPaginationVariables = require('../getPaginationVariables');
@@ -31,7 +33,7 @@ describe('getPaginationVariables', () => {
           {forward: null, backward: null, path: []},
         ),
       ).toThrowError(
-        /^Relay: Expected forward pagination metadata to be avialable/,
+        /^Relay: Expected forward pagination metadata to be available/,
       );
 
       // Assert output when forward metadata is malformed
@@ -45,7 +47,7 @@ describe('getPaginationVariables', () => {
           {forward: {count: null, cursor: 'after'}, backward: null, path: []},
         ),
       ).toThrowError(
-        /^Relay: Expected forward pagination metadata to be avialable/,
+        /^Relay: Expected forward pagination metadata to be available/,
       );
     });
 
@@ -156,7 +158,7 @@ describe('getPaginationVariables', () => {
           {forward: null, backward: null, path: []},
         ),
       ).toThrowError(
-        /^Relay: Expected backward pagination metadata to be avialable/,
+        /^Relay: Expected backward pagination metadata to be available/,
       );
 
       // Assert output when forward metadata is malformed
@@ -170,7 +172,7 @@ describe('getPaginationVariables', () => {
           {forward: null, backward: {count: null, cursor: 'before'}, path: []},
         ),
       ).toThrowError(
-        /^Relay: Expected backward pagination metadata to be avialable/,
+        /^Relay: Expected backward pagination metadata to be available/,
       );
     });
 

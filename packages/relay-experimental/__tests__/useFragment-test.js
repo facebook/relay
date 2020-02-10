@@ -9,6 +9,8 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const React = require('react');
@@ -153,8 +155,9 @@ describe('useFragment', () => {
     SingularRenderer = props => null;
     PluralRenderer = props => null;
     const SingularContainer = (props: {
-      userRef?: {$data?: {}},
+      userRef?: {$data?: {...}, ...},
       owner: $FlowFixMe,
+      ...
     }) => {
       // We need a render a component to run a Hook
       const owner = props.owner;
@@ -172,8 +175,9 @@ describe('useFragment', () => {
     };
 
     const PluralContainer = (props: {
-      usersRef?: $ReadOnlyArray<{$data?: {}}>,
+      usersRef?: $ReadOnlyArray<{$data?: {...}, ...}>,
       owner: $FlowFixMe,
+      ...
     }) => {
       // We need a render a component to run a Hook
       const owner = props.owner;
@@ -203,9 +207,12 @@ describe('useFragment', () => {
     renderSingularFragment = (props?: {
       owner?: $FlowFixMe,
       userRef?: $FlowFixMe,
+      ...
     }) => {
       return TestRenderer.create(
         <React.Suspense fallback="Singular Fallback">
+          {/* $FlowFixMe(site=www,mobile) this comment suppresses an error found improving the
+           * type of React$Node */}
           <ContextProvider>
             <SingularContainer owner={singularQuery} {...props} />
           </ContextProvider>
@@ -216,9 +223,12 @@ describe('useFragment', () => {
     renderPluralFragment = (props?: {
       owner?: $FlowFixMe,
       userRef?: $FlowFixMe,
+      ...
     }) => {
       return TestRenderer.create(
         <React.Suspense fallback="Plural Fallback">
+          {/* $FlowFixMe(site=www,mobile) this comment suppresses an error found improving the
+           * type of React$Node */}
           <ContextProvider>
             <PluralContainer owner={pluralQuery} {...props} />
           </ContextProvider>
@@ -232,9 +242,6 @@ describe('useFragment', () => {
     renderSpy.mockClear();
   });
 
-  // These tests are only a sanity check for useFragment as a wrapper
-  // around useFragmentNodes
-  // See full test behavior in useFragmentNodes-test.
   it('should render singular fragment without error when data is available', () => {
     renderSingularFragment();
     assertFragmentResults({
@@ -242,6 +249,16 @@ describe('useFragment', () => {
       name: 'Alice',
       ...createFragmentRef('1', singularQuery),
     });
+  });
+
+  it('should return the same data object if rendered multiple times: singular fragment', () => {
+    renderSingularFragment();
+    expect(renderSpy).toBeCalledTimes(1);
+    const actualData = renderSpy.mock.calls[0][0];
+    renderSingularFragment();
+    expect(renderSpy).toBeCalledTimes(2);
+    const actualData2 = renderSpy.mock.calls[1][0];
+    expect(actualData).toBe(actualData2);
   });
 
   it('should render plural fragment without error when data is available', () => {
@@ -258,5 +275,15 @@ describe('useFragment', () => {
         ...createFragmentRef('2', pluralQuery),
       },
     ]);
+  });
+
+  it('should return the same data object if rendered multiple times: plural fragment', () => {
+    renderPluralFragment();
+    expect(renderSpy).toBeCalledTimes(1);
+    const actualData = renderSpy.mock.calls[0][0];
+    renderPluralFragment();
+    expect(renderSpy).toBeCalledTimes(2);
+    const actualData2 = renderSpy.mock.calls[1][0];
+    expect(actualData).toBe(actualData2);
   });
 });

@@ -8,11 +8,11 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
-const RelayFeatureFlags = require('../util/RelayFeatureFlags');
 const RelayRecordSourceMapImpl = require('./RelayRecordSourceMapImpl');
-const RelayRecordSourceObjectImpl = require('./RelayRecordSourceObjectImpl');
 
 import type {MutableRecordSource, RecordMap} from './RelayStoreTypes';
 
@@ -22,10 +22,7 @@ class RelayRecordSource {
   }
 
   static create(records?: RecordMap): MutableRecordSource {
-    const RecordSourceImpl = RelayFeatureFlags.USE_RECORD_SOURCE_MAP_IMPL
-      ? RelayRecordSourceMapImpl
-      : RelayRecordSourceObjectImpl;
-    return new RecordSourceImpl(records);
+    return new RelayRecordSourceMapImpl(records);
   }
 }
 

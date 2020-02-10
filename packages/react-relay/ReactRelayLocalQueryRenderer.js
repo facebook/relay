@@ -8,6 +8,8 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const React = require('react');
@@ -28,11 +30,12 @@ type Props = {
   environment: IEnvironment,
   query: GraphQLTaggedNode,
   // $FlowFixMe
-  render: ({props: ?Object}) => React.Node,
+  render: ({props: ?Object, ...}) => React.Node,
   variables: Variables,
+  ...
 };
 
-function useDeepCompare<T: {}>(value: T): T {
+function useDeepCompare<T: {...}>(value: T): T {
   const latestValue = React.useRef(value);
   if (!areEqual(latestValue.current, value)) {
     if (__DEV__) {
@@ -60,13 +63,13 @@ function ReactRelayLocalQueryRenderer(props: Props): React.Node {
   const cleanupFnRef = useRef(null);
 
   const snapshot = useMemo(() => {
-    environment.check(operation.root);
+    environment.check(operation);
     const res = environment.lookup(operation.fragment);
     dataRef.current = res.data;
 
     // Run effects here so that the data can be retained
     // and subscribed before the component commits
-    const retainDisposable = environment.retain(operation.root);
+    const retainDisposable = environment.retain(operation);
     const subscribeDisposable = environment.subscribe(res, newSnapshot => {
       dataRef.current = newSnapshot.data;
       forceUpdate(dataRef.current);

@@ -9,6 +9,8 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const React = require('react');
@@ -18,7 +20,7 @@ const useRelayEnvironment = require('./useRelayEnvironment');
 const useStaticFragmentNodeWarning = require('./useStaticFragmentNodeWarning');
 
 const {
-  __internal: {getObservableForRequestInFlight},
+  __internal: {getObservableForActiveRequest},
   getFragment,
   getSelector,
 } = require('relay-runtime');
@@ -27,7 +29,7 @@ import type {GraphQLTaggedNode} from 'relay-runtime';
 
 const {useEffect, useState, useMemo} = React;
 
-function useIsParentQueryInFlight<TKey: ?{+$data?: mixed}>(
+function useIsParentQueryInFlight<TKey: ?{+$data?: mixed, ...}>(
   fragmentInput: GraphQLTaggedNode,
   fragmentRef: TKey,
 ): boolean {
@@ -46,7 +48,7 @@ function useIsParentQueryInFlight<TKey: ?{+$data?: mixed}>(
       selector.kind === 'SingularReaderSelector',
       'useIsParentQueryInFlight: Plural fragments are not supported.',
     );
-    return getObservableForRequestInFlight(environment, selector.owner);
+    return getObservableForActiveRequest(environment, selector.owner);
   }, [environment, fragmentNode, fragmentRef]);
   const [isInFlight, setIsInFlight] = useState(observable != null);
 

@@ -9,11 +9,14 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 import type {JSResourceReference} from 'JSResourceReference';
 import type {AbstractComponent, ElementConfig} from 'React';
 import type {
+  CacheConfig,
   ConcreteRequest,
   GraphQLResponse,
   IEnvironment,
@@ -30,19 +33,19 @@ export type PreloadFetchPolicy =
 export type PreloadOptions = {|
   +fetchKey?: string | number,
   +fetchPolicy?: ?PreloadFetchPolicy,
+  +networkCacheConfig?: ?CacheConfig,
+  +extraOptions?: ?{...},
 |};
 
 // Note: the phantom type parameter here helps ensures that the
 // $Parameters.js value matches the type param provided to preloadQuery.
 // eslint-disable-next-line no-unused-vars
 export type PreloadableConcreteRequest<TQuery: OperationType> = {|
-  getModuleIfRequired: () => ConcreteRequest | null,
+  kind: 'PreloadableConcreteRequest',
   params: RequestParameters,
 |};
 
-export type EnvironmentProviderOptions = {
-  [string]: mixed,
-};
+export type EnvironmentProviderOptions = {[string]: mixed, ...};
 
 export type PreloadedQuery<
   TQuery: OperationType,
@@ -55,6 +58,13 @@ export type PreloadedQuery<
   +name: string,
   +source: ?Observable<GraphQLResponse>,
   +variables: $ElementType<TQuery, 'variables'>,
+  +status: PreloadQueryStatus,
+|};
+
+export type PreloadQueryStatus = {|
+  +cacheConfig: ?CacheConfig,
+  +source: 'cache' | 'network',
+  +cacheTime: ?number,
 |};
 
 /**
@@ -63,7 +73,7 @@ The Interface of the EntryPoints .entrypoint files
 Every .entrypoint file it's an object that must have two required fields:
 - getPreloadProps(...)  function that will return the description of preloaded
   queries and preloaded (nested) entry points for the current entry point
-- root - JSResource of the module that will render those preloaded queries
+- root - JSResourceReference of the module that will render those preloaded queries
 
 TEntryPointParams - object that contains all necessary information to execute
 the preloaders (routeParams, query variables)
@@ -135,8 +145,8 @@ export type EntryPointComponent<
 // Return type of the `getPreloadProps(...)` of the entry point
 export type PreloadProps<
   TPreloadParams,
-  TPreloadedQueries: {},
-  TPreloadedEntryPoints: {},
+  TPreloadedQueries: {...},
+  TPreloadedEntryPoints: {...},
   TExtraProps = null,
   TEnvironmentProviderOptions = EnvironmentProviderOptions,
 > = $ReadOnly<{|
@@ -177,11 +187,13 @@ type ThinNestedEntryPointParams<TEntryPointParams, TEntryPoint> = $ReadOnly<{|
   entryPointParams: TEntryPointParams,
 |}>;
 
-type ExtractQueryTypeHelper<TEnvironmentProviderOptions> = <TQuery>(
+export type ExtractQueryTypeHelper<TEnvironmentProviderOptions> = <TQuery>(
   PreloadedQuery<TQuery>,
 ) => ThinQueryParams<TQuery, TEnvironmentProviderOptions>;
 
-type ExtractEntryPointTypeHelper<TEntryPointParams> = <TEntryPointComponent>(
+export type ExtractEntryPointTypeHelper<TEntryPointParams> = <
+  TEntryPointComponent,
+>(
   ?PreloadedEntryPoint<TEntryPointComponent>,
 ) => ?ThinNestedEntryPointParams<
   TEntryPointParams,

@@ -41,12 +41,11 @@ THROWN EXCEPTION:
 
 Query 'QueryWithUnusedVariable' references undefined variables.
 
-GraphQL request (3:12)
-2: query QueryWithUnusedVariable {
-3:   node(id: $id) {
-              ^
-4:     id
-
+GraphQL request:3:12
+2 | query QueryWithUnusedVariable {
+3 |   node(id: $id) {
+  |            ^
+4 |     id
 `;
 
 exports[`matches expected output: query-with-variables.graphql 1`] = `

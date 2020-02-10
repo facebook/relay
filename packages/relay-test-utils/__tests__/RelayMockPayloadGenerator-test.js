@@ -373,18 +373,18 @@ test('check context in the mock resolver', () => {
     },
   );
   expect(checkContext).toMatchInlineSnapshot(`
-Object {
-  "alias": null,
-  "args": Object {},
-  "name": "profile_picture",
-  "parentType": null,
-  "path": Array [
-    "viewer",
-    "actor",
-    "profile_picture",
-  ],
-}
-`);
+    Object {
+      "alias": null,
+      "args": Object {},
+      "name": "profile_picture",
+      "parentType": null,
+      "path": Array [
+        "viewer",
+        "actor",
+        "profile_picture",
+      ],
+    }
+  `);
 });
 
 test('generate mock with manual mock for objects', () => {

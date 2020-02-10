@@ -8,6 +8,8 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 /**
@@ -37,7 +39,7 @@ function postProcess(json: string, printModule: string => string): string {
  * Transforms a value such that any transitive CodeMarker strings are replaced
  * with the value of the named module in the given module map.
  */
-function transform(node: mixed, moduleMap: {[string]: mixed}): mixed {
+function transform(node: mixed, moduleMap: {[string]: mixed, ...}): mixed {
   if (node == null) {
     return node;
   } else if (Array.isArray(node)) {

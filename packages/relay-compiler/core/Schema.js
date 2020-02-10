@@ -9,37 +9,50 @@
  * @emails oncall+relay
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
-const ASTConvert = require('./ASTConvert');
-
-const nullthrows = require('../util/nullthrowsOSS');
-
-const {createCompilerError} = require('./RelayCompilerError');
+const {createCompilerError} = require('./CompilerError');
+const {isSchemaDefinitionAST} = require('./SchemaUtils');
 const {
-  GraphQLEnumType,
-  GraphQLInputObjectType,
-  GraphQLInterfaceType,
-  GraphQLObjectType,
-  GraphQLScalarType,
-  GraphQLSchema,
-  GraphQLUnionType,
-  buildASTSchema,
-  extendSchema,
+  GraphQLFloat,
+  GraphQLInt,
+  GraphQLBoolean,
+  GraphQLString,
+  GraphQLID,
   parse,
   parseType,
   print,
+  valueFromASTUntyped,
 } = require('graphql');
 
-import type {Field as GraphQLIRField} from './GraphQLIR';
+import type {Field as IRField} from './IR';
 import type {
   DirectiveLocationEnum,
   DocumentNode,
-  GraphQLArgument,
   Source,
   TypeNode,
   ValueNode,
+  ObjectTypeDefinitionNode,
+  InterfaceTypeDefinitionNode,
+  InputObjectTypeDefinitionNode,
+  SchemaDefinitionNode,
+  ScalarTypeDefinitionNode,
+  EnumTypeDefinitionNode,
+  UnionTypeDefinitionNode,
+  DirectiveDefinitionNode,
+  TypeSystemDefinitionNode,
+  TypeSystemExtensionNode,
+  ObjectTypeExtensionNode,
+  InterfaceTypeExtensionNode,
+  FieldDefinitionNode,
 } from 'graphql';
+
+type ExtensionNode =
+  | TypeSystemDefinitionNode
+  | TypeSystemExtensionNode
+  | DirectiveDefinitionNode;
 
 export opaque type TypeID = BaseType | BaseList | BaseNonNull;
 
@@ -93,33 +106,56 @@ type InputTypeNonNull = NonNull<InputBaseType | InputTypeList>;
 
 export opaque type FieldID = Field;
 
-export type FieldArgument = $ReadOnly<{|
+export type Argument = $ReadOnly<{|
   name: string,
   type: InputTypeID,
   defaultValue: mixed,
 |}>;
 
 export type Directive = $ReadOnly<{|
-  args: $ReadOnlyArray<FieldArgument>,
-  clientOnlyDirective: boolean,
+  args: $ReadOnlyArray<Argument>,
+  isClient: boolean,
   locations: $ReadOnlyArray<DirectiveLocationEnum>,
   name: string,
+|}>;
+
+type DirectiveMap = Map<string, Directive>;
+
+type InternalArgumentStruct = $ReadOnly<{|
+  name: string,
+  typeNode: TypeNode,
+  defaultValue: ?ValueNode,
+|}>;
+
+type FieldDefinition = {|
+  +arguments: $ReadOnlyArray<InternalArgumentStruct>,
+  +type: TypeNode,
+  +isClient: boolean,
+|};
+
+type InternalDirectiveMap = Map<string, InternalDirectiveStruct>;
+
+type InternalDirectiveStruct = $ReadOnly<{|
+  name: string,
+  isClient: boolean,
+  locations: $ReadOnlyArray<DirectiveLocationEnum>,
+  args: $ReadOnlyArray<InternalArgumentStruct>,
 |}>;
 
 export type {Schema};
 
 type FieldsMap = Map<string, Field>;
-
-type TypeMapKey = string | Symbol;
-type TypeMap = Map<TypeMapKey, TypeID>;
+type TypeMapKey = string | symbol;
 
 /**
  * @private
  */
 class Type {
   +name: string;
-  constructor(name: string) {
+  +isClient: boolean;
+  constructor(name: string, isClient: boolean) {
     this.name = name;
+    this.isClient = isClient;
   }
   toString(): string {
     return this.name;
@@ -137,7 +173,13 @@ class ScalarType extends Type {}
 /**
  * @private
  */
-class EnumType extends Type {}
+class EnumType extends Type {
+  +values: $ReadOnlyArray<string>;
+  constructor(name: string, values: $ReadOnlyArray<string>, isClient: boolean) {
+    super(name, isClient);
+    this.values = values;
+  }
+}
 
 /**
  * @private
@@ -148,7 +190,6 @@ class UnionType extends Type {}
  * @private
  */
 class ObjectType extends Type {}
-
 /**
  * @private
  */
@@ -205,35 +246,25 @@ class NonNull<+T> {
  * @private
  */
 class Field {
-  +args: Map<string, FieldArgument>;
+  +args: $ReadOnlyMap<string, Argument>;
   +belongsTo: CompositeType | InputObjectType;
   +name: string;
   +type: TypeID;
+  +isClient: boolean;
 
   constructor(
     schema: Schema,
     name: string,
     type: TypeID,
     belongsTo: CompositeType | InputObjectType,
-    argDefs: $ReadOnlyArray<GraphQLArgument>,
+    args: $ReadOnlyArray<InternalArgumentStruct>,
+    isClient: boolean,
   ) {
     this.name = name;
     this.type = type;
     this.belongsTo = belongsTo;
-    this.args = new Map(
-      argDefs.map(arg => {
-        return [
-          arg.name,
-          {
-            name: arg.name,
-            type: schema.assertInputType(
-              schema.expectTypeFromAST(nullthrows(arg.astNode?.type)),
-            ),
-            defaultValue: arg.defaultValue,
-          },
-        ];
-      }),
-    );
+    this.isClient = isClient;
+    this.args = parseInputArgumentDefinitionsMap(schema, args);
   }
 }
 
@@ -284,6 +315,9 @@ function getConcreteTypes(
 
 const TYPENAME_FIELD = '__typename';
 const CLIENT_ID_FIELD = '__id';
+const QUERY_TYPE_KEY = Symbol('Query');
+const MUTATION_TYPE_KEY = Symbol('Mutation');
+const SUBSCRIPTION_TYPE_KEY = Symbol('Subscription');
 
 function isScalar(type: mixed): boolean %checks {
   return type instanceof ScalarType;
@@ -345,72 +379,39 @@ function isInputType(type: mixed): boolean %checks {
 }
 
 class Schema {
-  +_baseSchema: GraphQLSchema;
-  +_directivesMap: Map<string, Directive>;
-  +_extendedSchema: GraphQLSchema;
-  +_fieldsMap: Map<Type, FieldsMap>;
   +_typeMap: TypeMap;
+  +_directiveMap: DirectiveMap;
+  +_fieldsMap: Map<Type, FieldsMap>;
+  +_typeWrappersMap: Map<TypeMapKey, TypeID>;
   +_typeNameMap: Map<Type, Field>;
   +_clientIdMap: Map<Type, Field>;
-  +_possibleTypesMap: Map<AbstractTypeID, Set<CompositeTypeID>>;
-
-  +QUERY_TYPE_KEY: Symbol;
-  +MUTATION_TYPE_KEY: Symbol;
-  +SUBSCRIPTION_TYPE_KEY: Symbol;
 
   /**
    * @private
    */
-  constructor(
-    baseSchema: GraphQLSchema,
-    extendedSchema: GraphQLSchema,
-    typeMap: TypeMap,
-    fieldsMap: Map<Type, FieldsMap>,
-    typeNameMap: Map<Type, Field>,
-    clientIdMap: Map<Type, Field>,
-    possibleTypesMap: Map<AbstractTypeID, Set<CompositeTypeID>>,
-    directivesMap: Map<string, Directive> | null,
-    QUERY_TYPE_KEY: Symbol,
-    MUTATION_TYPE_KEY: Symbol,
-    SUBSCRIPTION_TYPE_KEY: Symbol,
-  ) {
-    this.QUERY_TYPE_KEY = QUERY_TYPE_KEY;
-    this.MUTATION_TYPE_KEY = MUTATION_TYPE_KEY;
-    this.SUBSCRIPTION_TYPE_KEY = SUBSCRIPTION_TYPE_KEY;
-
-    this._baseSchema = baseSchema;
-    this._extendedSchema = extendedSchema;
+  constructor(typeMap: TypeMap) {
     this._typeMap = typeMap;
-    this._fieldsMap = fieldsMap;
-    this._typeNameMap = typeNameMap;
-    this._clientIdMap = clientIdMap;
-    this._possibleTypesMap = possibleTypesMap;
-    this._directivesMap =
-      directivesMap ??
-      new Map(
-        this._extendedSchema.getDirectives().map(directive => {
-          return [
-            directive.name,
-            {
-              clientOnlyDirective:
-                this._baseSchema.getDirective(directive.name) == null,
-              name: directive.name,
-              locations: directive.locations,
-              args: directive.args.map(arg => {
-                return {
-                  name: arg.name,
-                  type: this.assertInputType(
-                    arg.astNode
-                      ? this.expectTypeFromAST(arg.astNode.type)
-                      : this.expectTypeFromString(String(arg.type)),
-                  ),
-                  defaultValue: arg.defaultValue,
-                };
-              }),
-            },
-          ];
-        }),
-      );
+    this._typeWrappersMap = new Map();
+    this._fieldsMap = new Map();
+    this._typeNameMap = new Map();
+    this._clientIdMap = new Map();
+    this._directiveMap = new Map(
+      typeMap.getDirectives().map(directive => {
+        return [
+          directive.name,
+          {
+            locations: directive.locations,
+            args: parseInputArgumentDefinitions(this, directive.args),
+            name: directive.name,
+            isClient: directive.isClient,
+          },
+        ];
+      }),
+    );
+  }
+
+  getTypes(): $ReadOnlyArray<TypeID> {
+    return this._typeMap.getTypes();
   }
 
   getTypeFromAST(typeNode: TypeNode): ?TypeID {
@@ -425,12 +426,12 @@ class Schema {
         );
       }
       const cacheKey = `${this.getTypeString(innerType)}!`;
-      let type = this._typeMap.get(cacheKey);
+      let type = this._typeWrappersMap.get(cacheKey);
       if (type) {
         return type;
       }
       type = new NonNull(innerType);
-      this._typeMap.set(cacheKey, type);
+      this._typeWrappersMap.set(cacheKey, type);
       return type;
     } else if (typeNode.kind === 'ListType') {
       const innerType = this.getTypeFromAST(typeNode.type);
@@ -438,65 +439,34 @@ class Schema {
         return;
       }
       const cacheKey = `[${this.getTypeString(innerType)}]`;
-      let type = this._typeMap.get(cacheKey);
+      let type = this._typeWrappersMap.get(cacheKey);
       if (type) {
         return type;
       }
       type = new List(innerType);
-      this._typeMap.set(cacheKey, type);
-      return type;
-    } else {
-      const name = typeNode.name.value;
-      let type = this._typeMap.get(name);
-      if (type) {
-        return type;
-      }
-      const graphQLType = this._extendedSchema.getType(name);
-      if (!graphQLType) {
-        return;
-      }
-      let TypeClass = Type;
-      if (graphQLType instanceof GraphQLScalarType) {
-        TypeClass = ScalarType;
-      } else if (graphQLType instanceof GraphQLInputObjectType) {
-        TypeClass = InputObjectType;
-      } else if (graphQLType instanceof GraphQLEnumType) {
-        TypeClass = EnumType;
-      } else if (graphQLType instanceof GraphQLUnionType) {
-        TypeClass = UnionType;
-      } else if (graphQLType instanceof GraphQLInterfaceType) {
-        TypeClass = InterfaceType;
-      } else if (graphQLType instanceof GraphQLObjectType) {
-        TypeClass = ObjectType;
-      } else {
-        throw createCompilerError(`Unknown GraphQL type: ${graphQLType}`);
-      }
-      type = new TypeClass(name);
-      this._typeMap.set(name, type);
+      this._typeWrappersMap.set(cacheKey, type);
       return type;
     }
+    return this._typeMap.getTypeByName(typeNode.name.value);
   }
 
   _getRawType(typeName: TypeMapKey): ?TypeID {
-    const type = this._typeMap.get(typeName);
+    const type = this._typeWrappersMap.get(typeName);
     if (type) {
       return type;
     }
     if (typeof typeName === 'string') {
       return this.getTypeFromAST(parseType(typeName));
     } else {
-      let graphQLType;
-      if (typeName === this.QUERY_TYPE_KEY) {
-        graphQLType = this._baseSchema.getQueryType();
-      } else if (typeName === this.MUTATION_TYPE_KEY) {
-        graphQLType = this._baseSchema.getMutationType();
-      } else if (typeName === this.SUBSCRIPTION_TYPE_KEY) {
-        graphQLType = this._baseSchema.getSubscriptionType();
+      let operationType;
+      if (typeName === QUERY_TYPE_KEY) {
+        operationType = this._typeMap.getQueryType();
+      } else if (typeName === MUTATION_TYPE_KEY) {
+        operationType = this._typeMap.getMutationType();
+      } else if (typeName === SUBSCRIPTION_TYPE_KEY) {
+        operationType = this._typeMap.getSubscriptionType();
       }
-      if (graphQLType) {
-        const operationType = new ObjectType(graphQLType.name);
-        this._typeMap.set(typeName, operationType);
-        this._typeMap.set(graphQLType.name, operationType);
+      if (operationType instanceof ObjectType) {
         return operationType;
       }
     }
@@ -527,12 +497,12 @@ class Schema {
       return type;
     }
     const cacheKey = `${String(type)}!`;
-    let nonNullType = this._typeMap.get(cacheKey);
+    let nonNullType = this._typeWrappersMap.get(cacheKey);
     if (nonNullType) {
       return nonNullType;
     }
     nonNullType = new NonNull(type);
-    this._typeMap.set(cacheKey, nonNullType);
+    this._typeWrappersMap.set(cacheKey, nonNullType);
     return nonNullType;
   }
 
@@ -692,7 +662,7 @@ class Schema {
     superType: AbstractTypeID,
     maybeSubType: ObjectTypeID,
   ): boolean {
-    return this._getPossibleTypeSet(superType).has(maybeSubType);
+    return this._typeMap.getPossibleTypeSet(superType).has(maybeSubType);
   }
 
   assertScalarFieldType(type: mixed): ScalarFieldTypeID {
@@ -900,21 +870,21 @@ class Schema {
   }
 
   getQueryType(): ?ObjectTypeID {
-    const queryType = this._getRawType(this.QUERY_TYPE_KEY);
+    const queryType = this._getRawType(QUERY_TYPE_KEY);
     if (queryType && isObject(queryType)) {
       return queryType;
     }
   }
 
   getMutationType(): ?ObjectTypeID {
-    const mutationType = this._getRawType(this.MUTATION_TYPE_KEY);
+    const mutationType = this._getRawType(MUTATION_TYPE_KEY);
     if (mutationType && isObject(mutationType)) {
       return mutationType;
     }
   }
 
   getSubscriptionType(): ?ObjectTypeID {
-    const subscriptionType = this._getRawType(this.SUBSCRIPTION_TYPE_KEY);
+    const subscriptionType = this._getRawType(SUBSCRIPTION_TYPE_KEY);
     if (subscriptionType && isObject(subscriptionType)) {
       return subscriptionType;
     }
@@ -1044,20 +1014,12 @@ class Schema {
     ) {
       return true;
     }
-
-    const name = type.name;
-    const gqlType = this._extendedSchema.getType(name);
-    if (
-      gqlType instanceof GraphQLObjectType ||
-      gqlType instanceof GraphQLInterfaceType ||
-      gqlType instanceof GraphQLInputObjectType
-    ) {
-      return gqlType.getFields()[fieldName] != null;
+    if (type instanceof ObjectType || type instanceof InterfaceType) {
+      return this._typeMap.getField(type, fieldName) != null;
+    } else if (type instanceof InputObjectType) {
+      return this._typeMap.getInputField(type, fieldName) != null;
     }
-    throw createCompilerError(
-      'hasField(): Expected a concrete type or interface, ' +
-        `got type ${type.name}`,
-    );
+    return false;
   }
 
   hasId(type: CompositeTypeID): boolean {
@@ -1085,51 +1047,40 @@ class Schema {
     }
 
     const fieldsMap = new Map();
-    const name = type.name;
-    const gqlType = this._extendedSchema.getType(name);
-    if (
-      gqlType instanceof GraphQLObjectType ||
-      gqlType instanceof GraphQLInterfaceType
-    ) {
-      const typeFields = gqlType.getFields();
-      const fieldNames = Object.keys(typeFields);
-      fieldNames.forEach(fieldName => {
-        const field = typeFields[fieldName];
-        if (field == null) {
-          return;
-        }
-        const fieldType = field.astNode
-          ? this.expectTypeFromAST(field.astNode.type)
-          : this.expectTypeFromString(String(field.type));
-
-        fieldsMap.set(
-          fieldName,
-          new Field(
-            this,
+    if (type instanceof ObjectType || type instanceof InterfaceType) {
+      const fields = this._typeMap.getFieldMap(type);
+      if (fields) {
+        for (const [fieldName, fieldDefinition] of fields) {
+          const fieldType = this.expectTypeFromAST(fieldDefinition.type);
+          fieldsMap.set(
             fieldName,
-            fieldType,
-            this.assertCompositeType(type),
-            field.args,
-          ),
-        );
-      });
-    } else if (gqlType instanceof GraphQLInputObjectType) {
-      const typeFields = gqlType.getFields();
-      const fieldNames = Object.keys(typeFields);
-      fieldNames.forEach(fieldName => {
-        const field = typeFields[fieldName];
-        if (field == null) {
-          return;
+            new Field(
+              this,
+              fieldName,
+              fieldType,
+              this.assertCompositeType(type),
+              fieldDefinition.arguments,
+              fieldDefinition.isClient,
+            ),
+          );
         }
-        const fieldType = field.astNode
-          ? this.expectTypeFromAST(field.astNode.type)
-          : this.expectTypeFromString(String(field.type));
-
-        fieldsMap.set(
-          fieldName,
-          new Field(this, fieldName, fieldType, type, []),
-        );
-      });
+      }
+    } else if (type instanceof InputObjectType) {
+      const fields = this._typeMap.getInputFieldMap(type);
+      if (fields) {
+        for (const [fieldName, typeNode] of fields) {
+          const fieldType = this.expectTypeFromAST(typeNode);
+          fieldsMap.set(
+            fieldName,
+            new Field(this, fieldName, fieldType, type, [], false),
+          );
+        }
+      }
+    }
+    if (fieldsMap.size === 0) {
+      throw createCompilerError(
+        `_getFieldsMap: Type '${type.name}' should have fields.`,
+      );
     }
     this._fieldsMap.set(type, fieldsMap);
     return fieldsMap;
@@ -1154,6 +1105,7 @@ class Schema {
           this.getNonNullType(this.expectStringType()),
           type,
           [],
+          false, // isClient === false
         );
         this._typeNameMap.set(type, typename);
       }
@@ -1169,6 +1121,7 @@ class Schema {
           this.getNonNullType(this.expectIdType()),
           type,
           [],
+          true, // isClient === true
         );
         this._clientIdMap.set(type, clientId);
       }
@@ -1204,7 +1157,7 @@ class Schema {
     field: FieldID,
   ): {|
     type: TypeID,
-    args: $ReadOnlyArray<FieldArgument>,
+    args: $ReadOnlyArray<Argument>,
   |} {
     return {
       type: field.type,
@@ -1224,167 +1177,126 @@ class Schema {
     return field.belongsTo;
   }
 
-  getFieldArgs(field: FieldID): $ReadOnlyArray<FieldArgument> {
+  getFieldArgs(field: FieldID): $ReadOnlyArray<Argument> {
     return Array.from(field.args.values());
   }
 
-  getFieldArgByName(field: FieldID, argName: string): ?FieldArgument {
+  getFieldArgByName(field: FieldID, argName: string): ?Argument {
     return field.args.get(argName);
   }
 
   getEnumValues(type: EnumTypeID): $ReadOnlyArray<string> {
-    const gqlType = this._extendedSchema.getType(type.name);
-    if (gqlType instanceof GraphQLEnumType) {
-      return gqlType.getValues().map(({value}) => String(value));
-    }
-    throw createCompilerError(`Expected '${type.name}' to be an enum.`);
+    return type.values;
   }
 
   getUnionTypes(type: UnionTypeID): $ReadOnlyArray<TypeID> {
-    const gqlType = this._extendedSchema.getType(type.name);
-    if (gqlType instanceof GraphQLUnionType) {
-      return gqlType.getTypes().map(typeFromUnion => {
-        return this.expectTypeFromString(typeFromUnion.name);
-      });
-    }
-    throw createCompilerError(
-      `Unable to get union types for type '${this.getTypeString(type)}'.`,
-    );
+    return Array.from(this._typeMap.getPossibleTypeSet(type));
   }
 
   getInterfaces(type: CompositeTypeID): $ReadOnlyArray<TypeID> {
-    const gqlType = this._extendedSchema.getType(type.name);
-    if (gqlType instanceof GraphQLObjectType) {
-      return gqlType.getInterfaces().map(typeInterface => {
-        return this.expectTypeFromString(typeInterface.name);
-      });
+    if (type instanceof ObjectType) {
+      return this._typeMap.getInterfaces(type);
     }
     return [];
   }
 
-  _getPossibleTypeSet(type: AbstractTypeID): Set<CompositeTypeID> {
-    let possibleTypes = this._possibleTypesMap.get(type);
-    if (!possibleTypes) {
-      const gqlType = this._extendedSchema.getType(type.name);
-      if (
-        gqlType instanceof GraphQLUnionType ||
-        gqlType instanceof GraphQLInterfaceType
-      ) {
-        possibleTypes = new Set(
-          this._extendedSchema.getPossibleTypes(gqlType).map(possibleType => {
-            return this.assertObjectType(
-              this.expectTypeFromString(possibleType.name),
-            );
-          }),
-        );
-        this._possibleTypesMap.set(type, possibleTypes);
-      } else {
-        throw createCompilerError(
-          `Expected "${this.getTypeString(type)}" to be an Abstract type.`,
-        );
-      }
-    }
-    return possibleTypes;
-  }
-
-  getPossibleTypes(type: AbstractTypeID): $ReadOnlySet<CompositeTypeID> {
-    return this._getPossibleTypeSet(type);
+  getPossibleTypes(type: AbstractTypeID): $ReadOnlySet<ObjectTypeID> {
+    return this._typeMap.getPossibleTypeSet(type);
   }
 
   parseLiteral(type: ScalarTypeID | EnumTypeID, valueNode: ValueNode): mixed {
-    const gqlType = this._extendedSchema.getType(type.name);
-    if (
-      gqlType instanceof GraphQLEnumType ||
-      gqlType instanceof GraphQLScalarType
-    ) {
-      return gqlType.parseLiteral(valueNode);
+    if (type instanceof EnumType && valueNode.kind === 'EnumValue') {
+      return this.parseValue(type, valueNode.value);
+    } else if (type instanceof ScalarType) {
+      if (valueNode.kind === 'BooleanValue' && type.name === 'Boolean') {
+        return GraphQLBoolean.parseLiteral(valueNode);
+      } else if (valueNode.kind === 'FloatValue' && type.name === 'Float') {
+        return GraphQLFloat.parseLiteral(valueNode);
+      } else if (
+        valueNode.kind === 'IntValue' &&
+        (type.name === 'Int' || type.name === 'ID' || type.name === 'Float')
+      ) {
+        return GraphQLInt.parseLiteral(valueNode);
+      } else if (
+        valueNode.kind === 'StringValue' &&
+        (type.name === 'String' || type.name === 'ID')
+      ) {
+        return GraphQLString.parseLiteral(valueNode);
+      } else if (!isDefaultScalar(type.name)) {
+        return valueFromASTUntyped(valueNode);
+      }
     }
-    throw createCompilerError(
-      `parseLiteral(...) is used with invalid type: ${this.getTypeString(
-        type,
-      )}.`,
-    );
   }
 
   parseValue(type: ScalarTypeID | EnumTypeID, value: mixed): mixed {
-    const gqlType = this._extendedSchema.getType(type.name);
-    if (
-      gqlType instanceof GraphQLEnumType ||
-      gqlType instanceof GraphQLScalarType
-    ) {
-      return gqlType.parseValue(value);
+    if (type instanceof EnumType) {
+      return type.values.includes(value) ? value : undefined;
+    } else if (type instanceof ScalarType) {
+      switch (type.name) {
+        case 'Boolean':
+          return GraphQLBoolean.parseValue(value);
+        case 'Float':
+          return GraphQLFloat.parseValue(value);
+        case 'Int':
+          return GraphQLInt.parseValue(value);
+        case 'String':
+          return GraphQLString.parseValue(value);
+        case 'ID':
+          return GraphQLID.parseValue(value);
+        default:
+          return value;
+      }
     }
-    throw createCompilerError(
-      `parseValue(...) is used with invalid type: ${this.getTypeString(type)}.`,
-    );
   }
 
   serialize(type: ScalarTypeID | EnumTypeID, value: mixed): mixed {
-    const gqlType = this._extendedSchema.getType(type.name);
-    if (
-      gqlType instanceof GraphQLEnumType ||
-      gqlType instanceof GraphQLScalarType
-    ) {
-      return gqlType.serialize(value);
+    if (type instanceof EnumType) {
+      return type.values.includes(value) ? value : undefined;
+    } else if (type instanceof ScalarType) {
+      switch (type.name) {
+        case 'Boolean':
+          return GraphQLBoolean.serialize(value);
+        case 'Float':
+          return GraphQLFloat.serialize(value);
+        case 'Int':
+          return GraphQLInt.serialize(value);
+        case 'String':
+          return GraphQLString.serialize(value);
+        case 'ID':
+          return GraphQLID.serialize(value);
+        default:
+          return value;
+      }
     }
-    throw createCompilerError(
-      `parseValue(...) is used with invalid type: ${this.getTypeString(type)}.`,
-    );
   }
 
   getDirectives(): $ReadOnlyArray<Directive> {
-    return Array.from(this._directivesMap.values());
+    return Array.from(this._directiveMap.values());
   }
 
   getDirective(directiveName: string): ?Directive {
-    return this._directivesMap.get(directiveName);
+    return this._directiveMap.get(directiveName);
   }
 
   isServerType(type: TypeID): boolean {
-    const name = this.getTypeString(type);
-    return this._baseSchema.getType(name) != null;
-  }
-
-  isServerField(field: FieldID): boolean {
-    const fieldName = field.name;
-    // Allow metadata fields and fields defined on classic "fat" interfaces
-    if (['__typename'].includes(fieldName)) {
-      return true;
-    }
-    const fieldRawTypeName = this.getTypeString(unwrap(field.type));
-    const fieldParentTypeName = this.getTypeString(unwrap(field.belongsTo));
-    // Field type is client-only
-    if (!this._baseSchema.getType(fieldRawTypeName)) {
-      return false;
-    }
-
-    const serverType = this._baseSchema.getType(fieldParentTypeName);
-    // Parent type is client-only
-    if (serverType == null) {
-      return false;
-    } else {
-      if (
-        serverType instanceof GraphQLObjectType ||
-        serverType instanceof GraphQLInterfaceType ||
-        serverType instanceof GraphQLInputObjectType
-      ) {
-        // Field is not available in the server schema
-        if (!serverType.getFields()[fieldName]) {
-          return false;
-        }
-      } else {
-        return false;
-      }
+    if (isObject(type)) {
+      return type.isClient === false;
+    } else if (isEnum(type)) {
+      return type.isClient === false;
     }
     return true;
   }
 
-  isServerDirective(directiveName: string): boolean {
-    const directive = this._directivesMap.get(directiveName);
-    return directive?.clientOnlyDirective === false;
+  isServerField(field: FieldID): boolean {
+    return field.isClient === false;
   }
 
-  isServerDefinedField(type: CompositeTypeID, field: GraphQLIRField): boolean {
+  isServerDirective(directiveName: string): boolean {
+    const directive = this._directiveMap.get(directiveName);
+    return directive?.isClient === false;
+  }
+
+  isServerDefinedField(type: CompositeTypeID, field: IRField): boolean {
     return (
       (this.isAbstractType(type) &&
         field.directives.some(({name}) => name === 'fixme_fat_interface')) ||
@@ -1393,80 +1305,557 @@ class Schema {
     );
   }
 
-  isClientDefinedField(type: CompositeTypeID, field: GraphQLIRField): boolean {
+  isClientDefinedField(type: CompositeTypeID, field: IRField): boolean {
     return !this.isServerDefinedField(type, field);
   }
 
-  /**
-   * The only consumer of this is RelayParser.parse(...)
-   * We should either refactor RelayParser.parse(...) to not-rely on the `
-   * extendSchema` method. Or actually implement it here.
-   */
-  DEPRECATED__extend(document: DocumentNode): Schema {
-    const extendedSchema = extendSchema(this._extendedSchema, document, {
-      assumeValid: true,
+  extend(extensions: DocumentNode | $ReadOnlyArray<string>): Schema {
+    const doc = Array.isArray(extensions)
+      ? parse(extensions.join('\n'))
+      : extensions;
+
+    const schemaExtensions = [];
+    doc.definitions.forEach(definition => {
+      if (isSchemaDefinitionAST(definition)) {
+        schemaExtensions.push(definition);
+      }
     });
-    return new Schema(
-      this._baseSchema,
-      extendedSchema,
-      this._typeMap,
-      this._fieldsMap,
-      this._typeNameMap,
-      this._clientIdMap,
-      this._possibleTypesMap,
-      this._directivesMap,
-      this.QUERY_TYPE_KEY,
-      this.MUTATION_TYPE_KEY,
-      this.SUBSCRIPTION_TYPE_KEY,
+    if (schemaExtensions.length > 0) {
+      return new Schema(this._typeMap.extend(schemaExtensions));
+    }
+    return this;
+  }
+}
+
+class TypeMap {
+  +_source: Source;
+  +_extensions: $ReadOnlyArray<ExtensionNode>;
+  +_types: Map<string, BaseType>;
+  +_typeInterfaces: Map<TypeID, $ReadOnlyArray<InterfaceType>>;
+  +_unionTypes: Map<TypeID, Set<ObjectType>>;
+  +_interfaceImplementations: Map<InterfaceType, Set<ObjectType>>;
+  +_fields: Map<InterfaceType | ObjectType, Map<string, FieldDefinition>>;
+  +_inputFields: Map<InputObjectType, Map<string, TypeNode>>;
+  +_directives: InternalDirectiveMap;
+  _queryTypeName: string;
+  _mutationTypeName: string;
+  _subscriptionTypeName: string;
+
+  constructor(source: Source, extensions: $ReadOnlyArray<ExtensionNode>) {
+    this._types = new Map([
+      ['ID', new ScalarType('ID', false)],
+      ['String', new ScalarType('String', false)],
+      ['Boolean', new ScalarType('Boolean', false)],
+      ['Float', new ScalarType('Float', false)],
+      ['Int', new ScalarType('Int', false)],
+    ]);
+    this._typeInterfaces = new Map();
+    this._unionTypes = new Map();
+    this._interfaceImplementations = new Map();
+    this._fields = new Map();
+    this._inputFields = new Map();
+    this._directives = new Map([
+      [
+        'include',
+        {
+          name: 'include',
+          isClient: false,
+          locations: ['FIELD', 'FRAGMENT_SPREAD', 'INLINE_FRAGMENT'],
+          args: [
+            {
+              name: 'if',
+              typeNode: parseType('Boolean!'),
+              defaultValue: undefined,
+            },
+          ],
+        },
+      ],
+      [
+        'skip',
+        {
+          name: 'skip',
+          isClient: false,
+          locations: ['FIELD', 'FRAGMENT_SPREAD', 'INLINE_FRAGMENT'],
+          args: [
+            {
+              name: 'if',
+              typeNode: parseType('Boolean!'),
+              defaultValue: undefined,
+            },
+          ],
+        },
+      ],
+      [
+        'deprecated',
+        {
+          name: 'deprecated',
+          isClient: false,
+          locations: ['FIELD_DEFINITION', 'ENUM_VALUE'],
+          args: [
+            {
+              name: 'reason',
+              typeNode: parseType('String'),
+              defaultValue: {
+                kind: 'StringValue',
+                value: 'No longer supported',
+              },
+            },
+          ],
+        },
+      ],
+    ]);
+    this._queryTypeName = 'Query';
+    this._mutationTypeName = 'Mutation';
+    this._subscriptionTypeName = 'Subscription';
+    this._source = source;
+    this._extensions = extensions;
+    this._parse(source);
+    this._extend(extensions);
+  }
+
+  _parse(source: Source) {
+    const document = parse(source, {
+      noLocation: true,
+    });
+    document.definitions.forEach(definition => {
+      switch (definition.kind) {
+        case 'SchemaDefinition': {
+          this._parseSchemaDefinition(definition);
+          break;
+        }
+        case 'ScalarTypeDefinition': {
+          this._parseScalarNode(definition, false);
+          break;
+        }
+        case 'EnumTypeDefinition': {
+          this._parseEnumNode(definition, false);
+          break;
+        }
+        case 'ObjectTypeDefinition': {
+          this._parseObjectTypeNode(definition, false);
+          break;
+        }
+        case 'InputObjectTypeDefinition': {
+          this._parseInputObjectTypeNode(definition, false);
+          break;
+        }
+        case 'UnionTypeDefinition': {
+          this._parseUnionNode(definition, false);
+          break;
+        }
+        case 'InterfaceTypeDefinition': {
+          this._parseInterfaceNode(definition, false);
+          break;
+        }
+        case 'DirectiveDefinition': {
+          this._parseDirective(definition, false);
+          break;
+        }
+      }
+    });
+  }
+
+  _parseSchemaDefinition(node: SchemaDefinitionNode) {
+    node.operationTypes.forEach(operationType => {
+      switch (operationType.operation) {
+        case 'query':
+          this._queryTypeName = operationType.type.name.value;
+          break;
+        case 'mutation':
+          this._mutationTypeName = operationType.type.name.value;
+          break;
+        case 'subscription':
+          this._subscriptionTypeName = operationType.type.name.value;
+          break;
+      }
+    });
+  }
+
+  _parseScalarNode(node: ScalarTypeDefinitionNode, isClient: boolean) {
+    const name = node.name.value;
+    if (!isDefaultScalar(name) && this._types.has(name)) {
+      throw createCompilerError(
+        `_parseScalarNode: Duplicate definition for type ${name}.`,
+        null,
+        [node],
+      );
+    }
+    this._types.set(name, new ScalarType(name, isClient));
+  }
+
+  _parseEnumNode(node: EnumTypeDefinitionNode, isClient: boolean) {
+    const name = node.name.value;
+    if (this._types.has(name)) {
+      throw createCompilerError(
+        `_parseEnumNode: Duplicate definition for type ${name}.`,
+        null,
+        [node],
+      );
+    }
+    // SDL doesn't have information about the actual ENUM values
+    const values = node.values
+      ? node.values.map(value => value.name.value)
+      : [];
+    this._types.set(name, new EnumType(name, values, isClient));
+  }
+
+  _parseObjectTypeNode(node: ObjectTypeDefinitionNode, isClient: boolean) {
+    const name = node.name.value;
+    // Objects may be created by _parseUnionNode
+    const type = this._types.get(name) ?? new ObjectType(name, isClient);
+    if (!(type instanceof ObjectType)) {
+      throw createCompilerError(
+        `_parseObjectTypeNode: Expected object type, got ${String(type)}`,
+        null,
+        [node],
+      );
+    }
+    if (type.isClient !== isClient) {
+      throw createCompilerError(
+        `_parseObjectTypeNode: Cannot create object type '${name}' defined as a client type.`,
+        null,
+        [node],
+      );
+    }
+    const typeInterfaces: Array<InterfaceType> = [];
+    node.interfaces &&
+      node.interfaces.forEach(interfaceTypeNode => {
+        const interfaceName = interfaceTypeNode.name.value;
+        let interfaceType = this._types.get(interfaceName);
+        if (!interfaceType) {
+          interfaceType = new InterfaceType(interfaceName, isClient);
+          this._types.set(interfaceName, interfaceType);
+        }
+        if (!(interfaceType instanceof InterfaceType)) {
+          throw createCompilerError(
+            '_parseObjectTypeNode: Expected interface type',
+            null,
+            [interfaceTypeNode],
+          );
+        }
+        const implementations =
+          this._interfaceImplementations.get(interfaceType) ?? new Set();
+
+        implementations.add(type);
+        this._interfaceImplementations.set(interfaceType, implementations);
+        typeInterfaces.push(interfaceType);
+      });
+    this._typeInterfaces.set(type, typeInterfaces);
+    this._types.set(name, type);
+    node.fields && this._handleTypeFieldsStrict(type, node.fields, isClient);
+  }
+
+  _parseInputObjectTypeNode(
+    node: InputObjectTypeDefinitionNode,
+    isClient: boolean,
+  ) {
+    const name = node.name.value;
+    if (this._types.has(name)) {
+      throw createCompilerError(
+        '_parseInputObjectTypeNode: Unable to parse schema file. Duplicate definition for object type',
+        null,
+        [node],
+      );
+    }
+    const type = new InputObjectType(name, isClient);
+    this._types.set(name, type);
+    this._parseInputObjectFields(type, node);
+  }
+
+  _parseUnionNode(node: UnionTypeDefinitionNode, isClient: boolean) {
+    const name = node.name.value;
+    if (this._types.has(name)) {
+      throw createCompilerError(
+        '_parseUnionNode: Unable to parse schema file. Duplicate definition for object type',
+        null,
+        [node],
+      );
+    }
+    const union = new UnionType(name, isClient);
+    this._types.set(name, union);
+    this._unionTypes.set(
+      union,
+      new Set(
+        node.types
+          ? node.types.map(typeInUnion => {
+              const typeInUnionName = typeInUnion.name.value;
+              const object =
+                this._types.get(typeInUnionName) ??
+                new ObjectType(typeInUnionName, false);
+              if (!(object instanceof ObjectType)) {
+                throw createCompilerError(
+                  '_parseUnionNode: Expected object type',
+                  null,
+                  [typeInUnion],
+                );
+              }
+              this._types.set(typeInUnionName, object);
+              return object;
+            })
+          : [],
+      ),
     );
   }
-}
 
-const localGraphQLSchemaCache = new Map<Source, GraphQLSchema>();
+  _parseInterfaceNode(node: InterfaceTypeDefinitionNode, isClient: boolean) {
+    const name = node.name.value;
+    let type = this._types.get(name);
+    if (!type) {
+      type = new InterfaceType(name, isClient);
+      this._types.set(name, type);
+    }
+    if (!(type instanceof InterfaceType)) {
+      throw createCompilerError(
+        `_parseInterfaceNode: Expected interface type. Got ${String(type)}`,
+        null,
+        [node],
+      );
+    }
+    if (type.isClient !== isClient) {
+      throw createCompilerError(
+        `_parseInterfaceNode: Cannot create interface '${name}' defined as a client interface`,
+        null,
+        [node],
+      );
+    }
+    node.fields && this._handleTypeFieldsStrict(type, node.fields, isClient);
+  }
 
-function DEPRECATED__buildGraphQLSchema(source: Source): GraphQLSchema {
-  let schema = localGraphQLSchemaCache.get(source);
-  if (schema != null) {
-    return schema;
+  _handleTypeFieldsStrict(
+    type: ObjectType | InterfaceType,
+    fields: $ReadOnlyArray<FieldDefinitionNode>,
+    isClient: boolean,
+  ) {
+    if (this._fields.has(type)) {
+      throw createCompilerError(
+        '_handleTypeFieldsStrict: Unable to parse schema file. Duplicate definition for object type',
+      );
+    }
+    this._handleTypeFields(type, fields, isClient);
   }
-  try {
-    schema = buildASTSchema(parse(source), {
-      assumeValid: true,
+
+  _handleTypeFields(
+    type: ObjectType | InterfaceType,
+    fields: $ReadOnlyArray<FieldDefinitionNode>,
+    isClient: boolean,
+  ) {
+    const fieldsMap = this._fields.get(type) ?? new Map();
+    fields.forEach(fieldNode => {
+      const fieldName = fieldNode.name.value;
+      if (fieldsMap.has(fieldName)) {
+        throw createCompilerError(
+          `_handleTypeFields: Duplicate definition for field '${fieldName}'.`,
+        );
+      }
+      fieldsMap.set(fieldName, {
+        arguments: fieldNode.arguments
+          ? fieldNode.arguments.map(arg => {
+              return {
+                name: arg.name.value,
+                typeNode: arg.type,
+                defaultValue: arg.defaultValue,
+              };
+            })
+          : [],
+        type: fieldNode.type,
+        isClient: isClient,
+      });
     });
-    localGraphQLSchemaCache.set(source, schema);
-    return schema;
-  } catch (error) {
-    throw Object.assign(error, {
-      message: `Caught an error "${
-        error.message
-      }" while loading and parsing schema file: ${
-        source.name
-      }. Please make sure that schema is valid.`,
+    this._fields.set(type, fieldsMap);
+  }
+
+  _parseInputObjectFields(
+    type: InputObjectType,
+    node: InputObjectTypeDefinitionNode,
+  ) {
+    if (this._inputFields.has(type)) {
+      throw createCompilerError(
+        '_parseInputObjectFields: Unable to parse schema file. Duplicate definition for type',
+        null,
+        [node],
+      );
+    }
+    const fields = new Map();
+    if (node.fields) {
+      node.fields.forEach(fieldNode => {
+        fields.set(fieldNode.name.value, fieldNode.type);
+      });
+    }
+    this._inputFields.set(type, fields);
+  }
+
+  _parseDirective(node: DirectiveDefinitionNode, isClient: boolean) {
+    const name = node.name.value;
+    this._directives.set(name, {
+      name,
+      args: node.arguments
+        ? node.arguments.map(arg => {
+            return {
+              name: arg.name.value,
+              typeNode: arg.type,
+              defaultValue: arg.defaultValue,
+            };
+          })
+        : [],
+
+      locations: node.locations.map(location => {
+        switch (location.value) {
+          case 'QUERY':
+          case 'MUTATION':
+          case 'SUBSCRIPTION':
+          case 'FIELD':
+          case 'FRAGMENT_DEFINITION':
+          case 'FRAGMENT_SPREAD':
+          case 'INLINE_FRAGMENT':
+          case 'VARIABLE_DEFINITION':
+          case 'SCHEMA':
+          case 'SCALAR':
+          case 'OBJECT':
+          case 'FIELD_DEFINITION':
+          case 'ARGUMENT_DEFINITION':
+          case 'INTERFACE':
+          case 'UNION':
+          case 'ENUM':
+          case 'ENUM_VALUE':
+          case 'INPUT_OBJECT':
+          case 'INPUT_FIELD_DEFINITION':
+            return location.value;
+          default:
+            throw createCompilerError('Invalid directive location');
+        }
+      }),
+      isClient,
     });
   }
-}
-/**
- * We need this in order to make unit-test works
- * In most of the unit-tests the schema is created from the instance of the
- * GraphQLSchema.
- */
-function DEPRECATED__create(
-  baseSchema: GraphQLSchema,
-  extendedSchema: ?GraphQLSchema,
-): Schema {
-  return new Schema(
-    baseSchema,
-    extendedSchema ?? baseSchema,
-    new Map(),
-    new Map(),
-    new Map(),
-    new Map(),
-    new Map(),
-    null,
-    Symbol('Query'),
-    Symbol('Mutation'),
-    Symbol('Subsription'),
-  );
+
+  _parseObjectTypeExtension(node: ObjectTypeExtensionNode) {
+    const type = this._types.get(node.name.value);
+    if (!(type instanceof ObjectType)) {
+      throw createCompilerError(
+        `_parseObjectTypeExtension: Expected to find type with the name '${
+          node.name.value
+        }'`,
+        null,
+        [node],
+      );
+    }
+    node.fields &&
+      this._handleTypeFields(type, node.fields, true /** client fields */);
+  }
+
+  _parseInterfaceTypeExtension(node: InterfaceTypeExtensionNode) {
+    const type = this._types.get(node.name.value);
+    if (!(type instanceof InterfaceType)) {
+      throw createCompilerError(
+        '_parseInterfaceTypeExtension: Expected to have an interface type',
+      );
+    }
+    node.fields && this._handleTypeFields(type, node.fields, true);
+  }
+
+  _extend(extensions: $ReadOnlyArray<ExtensionNode>) {
+    extensions.forEach(definition => {
+      if (definition.kind === 'ObjectTypeDefinition') {
+        this._parseObjectTypeNode(definition, true);
+      } else if (definition.kind === 'InterfaceTypeDefinition') {
+        this._parseInterfaceNode(definition, true);
+      } else if (definition.kind === 'ScalarTypeDefinition') {
+        this._parseScalarNode(definition, true);
+      } else if (definition.kind === 'EnumTypeDefinition') {
+        this._parseEnumNode(definition, true);
+      } else if (definition.kind === 'InterfaceTypeExtension') {
+        this._parseInterfaceTypeExtension(definition);
+      } else if (definition.kind === 'ObjectTypeExtension') {
+        this._parseObjectTypeExtension(definition);
+      } else if (definition.kind === 'DirectiveDefinition') {
+        this._parseDirective(definition, true /* client directive */);
+      } else {
+        throw createCompilerError(
+          `Unexpected extension kind: '${definition.kind}'`,
+          null,
+          [definition],
+        );
+      }
+    });
+  }
+
+  getTypes(): $ReadOnlyArray<BaseType> {
+    return Array.from(this._types.values());
+  }
+
+  getTypeByName(typename: string): ?BaseType {
+    return this._types.get(typename);
+  }
+
+  getInterfaces(type: ObjectType): $ReadOnlyArray<InterfaceType> {
+    return this._typeInterfaces.get(type) ?? [];
+  }
+
+  getPossibleTypeSet(
+    type: UnionType | InterfaceType,
+  ): $ReadOnlySet<ObjectType> {
+    let set;
+    if (type instanceof InterfaceType) {
+      set = this._interfaceImplementations.get(type) ?? new Set();
+    } else if (type instanceof UnionType) {
+      set = this._unionTypes.get(type) ?? new Set();
+    } else {
+      throw createCompilerError(
+        'Invalid type supplied to "getPossibleTypeSet"',
+      );
+    }
+    if (!set) {
+      throw createCompilerError(
+        `Unable to find possible types for ${type.name}`,
+      );
+    }
+    return set;
+  }
+
+  getQueryType(): ?BaseType {
+    return this._types.get(this._queryTypeName);
+  }
+
+  getMutationType(): ?BaseType {
+    return this._types.get(this._mutationTypeName);
+  }
+
+  getSubscriptionType(): ?BaseType {
+    return this._types.get(this._subscriptionTypeName);
+  }
+
+  getField(
+    type: InterfaceType | ObjectType,
+    fieldName: string,
+  ): ?FieldDefinition {
+    const fields = this._fields.get(type);
+    if (fields) {
+      return fields.get(fieldName);
+    }
+  }
+
+  getFieldMap(type: InterfaceType | ObjectType): ?Map<string, FieldDefinition> {
+    return this._fields.get(type);
+  }
+
+  getInputField(type: InputObjectType, fieldName: string): ?TypeNode {
+    const inputFields = this._inputFields.get(type);
+    if (inputFields) {
+      return inputFields.get(fieldName);
+    }
+  }
+
+  getInputFieldMap(type: InputObjectType): ?Map<string, TypeNode> {
+    return this._inputFields.get(type);
+  }
+
+  getDirectives(): $ReadOnlyArray<InternalDirectiveStruct> {
+    return Array.from(this._directives.values());
+  }
+
+  extend(extensions: $ReadOnlyArray<ExtensionNode>): TypeMap {
+    return new TypeMap(this._source, this._extensions.concat(extensions));
+  }
 }
 
 function create(
@@ -1474,32 +1863,91 @@ function create(
   schemaExtensionDocuments?: $ReadOnlyArray<DocumentNode>,
   schemaExtensions?: $ReadOnlyArray<string>,
 ): Schema {
-  const schema = DEPRECATED__buildGraphQLSchema(baseSchema);
-  const transformedSchema = ASTConvert.transformASTSchema(
-    schema,
-    schemaExtensions ?? [],
-  );
-  const extendedSchema = ASTConvert.extendASTSchema(
-    transformedSchema,
-    schemaExtensionDocuments ?? [],
-  );
-  return new Schema(
-    schema,
-    extendedSchema,
-    new Map(),
-    new Map(),
-    new Map(),
-    new Map(),
-    new Map(),
-    null,
-    Symbol('Query'),
-    Symbol('Mutation'),
-    Symbol('Subsription'),
+  const extensions: Array<ExtensionNode> = [];
+  schemaExtensions &&
+    schemaExtensions.forEach(source => {
+      const doc = parse(source, {
+        noLocation: true,
+      });
+      doc.definitions.forEach(definition => {
+        if (isSchemaDefinitionAST(definition)) {
+          extensions.push(definition);
+        }
+      });
+    });
+  schemaExtensionDocuments &&
+    schemaExtensionDocuments.forEach(doc => {
+      doc.definitions.forEach(definition => {
+        if (isSchemaDefinitionAST(definition)) {
+          extensions.push(definition);
+        }
+      });
+    });
+
+  return new Schema(new TypeMap(baseSchema, extensions));
+}
+
+function parseInputArgumentDefinitions(
+  schema: Schema,
+  args: $ReadOnlyArray<InternalArgumentStruct>,
+): $ReadOnlyArray<Argument> {
+  return args.map(arg => {
+    const argType = schema.assertInputType(
+      schema.expectTypeFromAST(arg.typeNode),
+    );
+    let defaultValue;
+    const defaultValueNode = arg.defaultValue;
+    if (defaultValueNode != null) {
+      const nullableType = schema.getNullableType(argType);
+      const isNullable = schema.isNonNull(argType) === false;
+      if (isNullable && defaultValueNode.kind === 'NullValue') {
+        defaultValue = null;
+      } else {
+        if (
+          nullableType instanceof ScalarType ||
+          nullableType instanceof EnumType
+        ) {
+          defaultValue = schema.parseLiteral(nullableType, defaultValueNode);
+        } else if (
+          (nullableType instanceof List &&
+            defaultValueNode.kind === 'ListValue') ||
+          (nullableType instanceof InputObjectType &&
+            defaultValueNode.kind === 'ObjectValue')
+        ) {
+          defaultValue = valueFromASTUntyped(defaultValueNode);
+        }
+      }
+      if (defaultValue === undefined) {
+        throw createCompilerError(
+          `parseInputArgumentDefinitions: Unexpected default value: ${String(
+            defaultValueNode,
+          )}. Expected to have a value of type ${String(nullableType)}.`,
+        );
+      }
+    }
+    return {
+      name: arg.name,
+      type: argType,
+      defaultValue,
+    };
+  });
+}
+
+function parseInputArgumentDefinitionsMap(
+  schema: Schema,
+  args: $ReadOnlyArray<InternalArgumentStruct>,
+): $ReadOnlyMap<string, Argument> {
+  return new Map(
+    parseInputArgumentDefinitions(schema, args).map(arg => {
+      return [arg.name, arg];
+    }),
   );
 }
 
+function isDefaultScalar(name: string): boolean {
+  return new Set(['ID', 'String', 'Boolean', 'Int', 'Float']).has(name);
+}
+
 module.exports = {
-  DEPRECATED__buildGraphQLSchema,
-  DEPRECATED__create,
   create,
 };

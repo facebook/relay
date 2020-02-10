@@ -8,11 +8,12 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const ApplyFragmentArgumentTransform = require('../transforms/ApplyFragmentArgumentTransform');
 const ClientExtensionsTransform = require('../transforms/ClientExtensionsTransform');
-const ConnectionFieldTransform = require('../transforms/ConnectionFieldTransform');
 const ConnectionTransform = require('../transforms/ConnectionTransform');
 const DeferStreamTransform = require('../transforms/DeferStreamTransform');
 const DisallowIdAsAlias = require('../transforms/DisallowIdAsAlias');
@@ -40,13 +41,12 @@ const ValidateRequiredArgumentsTransform = require('../transforms/ValidateRequir
 const ValidateServerOnlyDirectivesTransform = require('../transforms/ValidateServerOnlyDirectivesTransform');
 const ValidateUnusedVariablesTransform = require('../transforms/ValidateUnusedVariablesTransform');
 
-import type {IRTransform} from './GraphQLCompilerContext';
+import type {IRTransform} from './CompilerContext';
 
 // Transforms applied to the code used to process a query response.
 const relaySchemaExtensions: $ReadOnlyArray<string> = [
   ConnectionTransform.SCHEMA_EXTENSION,
   MatchTransform.SCHEMA_EXTENSION,
-  ConnectionFieldTransform.SCHEMA_EXTENSION,
   RelayDirectiveTransform.SCHEMA_EXTENSION,
   RefetchableFragmentTransform.SCHEMA_EXTENSION,
   TestOperationTransform.SCHEMA_EXTENSION,
@@ -63,7 +63,6 @@ const relayCommonTransforms: $ReadOnlyArray<IRTransform> = [
   RelayDirectiveTransform.transform,
   MaskTransform.transform,
   MatchTransform.transform,
-  ConnectionFieldTransform.transform,
   RefetchableFragmentTransform.transform,
   DeferStreamTransform.transform,
 ];

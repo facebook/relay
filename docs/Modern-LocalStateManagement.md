@@ -13,7 +13,7 @@ Table of Contents:
 - [Mutating local state](#mutating-local-state)
 - [Initial local state](#initial-local-state)
 
-## Extending the client schema
+## Extending the server schema
 
 To extend the server schema, create a new `.graphql` file inside your `--src` directory.  
 Let's call it `./src/clientSchema.graphql`.

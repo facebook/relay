@@ -9,11 +9,12 @@
  * @emails oncall+relay
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
-const GraphQLCompilerContext = require('../../core/GraphQLCompilerContext');
-const GraphQLIRPrinter = require('../../core/GraphQLIRPrinter');
-const Schema = require('../../core/Schema');
+const CompilerContext = require('../../core/CompilerContext');
+const IRPrinter = require('../../core/IRPrinter');
 const SkipUnusedVariablesTransform = require('../SkipUnusedVariablesTransform');
 
 const {
@@ -26,12 +27,11 @@ generateTestsFromFixtures(
   `${__dirname}/fixtures/skip-unused-variables-transform`,
   text => {
     const {definitions} = parseGraphQLText(TestSchema, text);
-    const compilerSchema = Schema.DEPRECATED__create(TestSchema);
-    return new GraphQLCompilerContext(compilerSchema)
+    return new CompilerContext(TestSchema)
       .addAll(definitions)
       .applyTransforms([SkipUnusedVariablesTransform.transform])
       .documents()
-      .map(doc => GraphQLIRPrinter.print(compilerSchema, doc))
+      .map(doc => IRPrinter.print(TestSchema, doc))
       .join('\n');
   },
 );

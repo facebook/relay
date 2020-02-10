@@ -9,12 +9,13 @@
  * @emails oncall+relay
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
+const CompilerContext = require('../../core/CompilerContext');
 const DisallowIdAsAlias = require('../DisallowIdAsAlias');
-const GraphQLCompilerContext = require('../../core/GraphQLCompilerContext');
-const GraphQLIRPrinter = require('../../core/GraphQLIRPrinter');
-const Schema = require('../../core/Schema');
+const IRPrinter = require('../../core/IRPrinter');
 
 const {
   TestSchema,
@@ -24,12 +25,11 @@ const {
 
 generateTestsFromFixtures(`${__dirname}/fixtures/DisallowIdAsAlias`, text => {
   const {definitions} = parseGraphQLText(TestSchema, text);
-  const schema = Schema.DEPRECATED__create(TestSchema);
-  return new GraphQLCompilerContext(schema)
+  return new CompilerContext(TestSchema)
     .addAll(definitions)
     .applyTransforms([DisallowIdAsAlias.transform])
     .documents()
-    .map(doc => GraphQLIRPrinter.print(schema, doc))
+    .map(doc => IRPrinter.print(TestSchema, doc))
     .join('\n');
 });
 //

@@ -8,12 +8,14 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const inferRootArgumentDefinitions = require('../core/inferRootArgumentDefinitions');
 
-import type GraphQLCompilerContext from '../core/GraphQLCompilerContext';
-import type {Root} from '../core/GraphQLIR';
+import type CompilerContext from '../core/CompilerContext';
+import type {Root} from '../core/IR';
 
 /**
  * Refines the argument definitions for operations to remove unused arguments
@@ -21,8 +23,8 @@ import type {Root} from '../core/GraphQLIR';
  * a variable used in `@include()` to be false).
  */
 function skipUnusedVariablesTransform(
-  context: GraphQLCompilerContext,
-): GraphQLCompilerContext {
+  context: CompilerContext,
+): CompilerContext {
   const contextWithUsedArguments = inferRootArgumentDefinitions(context);
   return context.withMutations(ctx => {
     let nextContext = ctx;

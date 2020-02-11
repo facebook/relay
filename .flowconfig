@@ -35,6 +35,7 @@ experimental.abstract_locations=true
 [lints]
 untyped-type-import=error
 deprecated-utility=error
+unsafe-addition=error
 
 [strict]
 deprecated-type

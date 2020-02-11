@@ -55,7 +55,16 @@ export type RenderProps<T> = {|
  * constructor. If a request is already in flight from a previous call to the
  * constructor, just reuse the query fetcher and wait for the response.
  */
-const requestCache = {};
+let requestCache = {};
+
+/**
+ * isBrowser will be true in *real* browser environments. Unfortunately,
+ * the best way to detect this in all environments is to use `new Function`.
+ * As a result, eslint needs to be disabled on this to allow for eval.
+ */
+const isBrowser = new Function( // eslint-disable-line
+  'try { return this===window; }catch(e){ return false; }',
+);
 
 export type Props = {|
   cacheConfig?: ?CacheConfig,
@@ -106,6 +115,17 @@ class ReactRelayQueryRenderer extends React.Component<Props, State> {
 
     let queryFetcher;
     let requestCacheKey;
+
+    // When server-side rendering the global request cache should not persist.
+    // However, when running unit tests it should persist just as it would in
+    // the browser.
+    if (
+      !isBrowser() &&
+      (typeof process === 'object' && process.env.NODE_ENV !== 'test')
+    ) {
+      requestCache = {};
+    }
+
     if (props.query) {
       const {query} = props;
 

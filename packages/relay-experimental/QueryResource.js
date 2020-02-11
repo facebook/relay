@@ -66,6 +66,12 @@ opaque type QueryResult: {
   operation: OperationDescriptor,
 |};
 
+const WEAKMAP_SUPPORTED = typeof WeakMap === 'function';
+interface IMap<K, V> {
+  get(key: K): V | void;
+  set(key: K, value: V): IMap<K, V>;
+}
+
 function getQueryCacheKey(
   operation: OperationDescriptor,
   fetchPolicy: FetchPolicy,
@@ -527,7 +533,10 @@ function createQueryResource(environment: IEnvironment): QueryResource {
   return new QueryResourceImpl(environment);
 }
 
-const dataResources: Map<IEnvironment, QueryResource> = new Map();
+const dataResources: IMap<IEnvironment, QueryResource> = WEAKMAP_SUPPORTED
+  ? new WeakMap()
+  : new Map();
+
 function getQueryResourceForEnvironment(
   environment: IEnvironment,
 ): QueryResourceImpl {

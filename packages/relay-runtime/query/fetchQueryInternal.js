@@ -34,7 +34,11 @@ type RequestCacheEntry = {|
   +subscription: Subscription,
 |};
 
-const requestCachesByEnvironment = new Map();
+const WEAKMAP_SUPPORTED = typeof WeakMap === 'function';
+
+const requestCachesByEnvironment = WEAKMAP_SUPPORTED
+  ? new WeakMap()
+  : new Map();
 
 /**
  * Fetches the given query and variables on the provided environment,

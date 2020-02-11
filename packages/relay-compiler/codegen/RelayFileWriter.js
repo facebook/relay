@@ -347,7 +347,7 @@ function writeAll({
       }
 
       allOutputDirectories.forEach(dir => {
-        dir.deleteExtraFiles();
+        dir.deleteExtraFiles(languagePlugin?.keepExtraFile);
       });
       if (sourceControl && !onlyValidate) {
         await CodegenDirectory.sourceControlAddRemove(

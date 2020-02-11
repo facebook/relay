@@ -14,6 +14,10 @@
 
 const {RelayConcreteNode} = require('relay-runtime');
 
+import type {
+  IsGeneratedFileFn,
+  KeepExtraFileFn,
+} from '../codegen/CodegenRunner';
 import type {IRTransform} from '../core/CompilerContext';
 import type {GeneratedDefinition, Root, Fragment} from '../core/IR';
 import type {Schema} from '../core/Schema';
@@ -38,6 +42,8 @@ export type PluginInterface = {
   findGraphQLTags: GraphQLTagFinder,
   formatModule: FormatModule,
   typeGenerator: TypeGenerator,
+  isGeneratedFile?: IsGeneratedFileFn,
+  keepExtraFile?: KeepExtraFileFn,
   schemaExtensions?: $ReadOnlyArray<string>,
   getModuleName?: (operationName: string) => string,
   ...

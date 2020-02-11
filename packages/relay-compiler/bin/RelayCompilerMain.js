@@ -302,6 +302,9 @@ function getCodegenRunner(config: Config): CodegenRunner {
     include: config.include,
     exclude: [path.relative(config.src, config.schema)].concat(config.exclude),
   };
+  const defaultIsGeneratedFile = (filePath: string) =>
+    filePath.endsWith('.graphql.' + outputExtension) &&
+    filePath.includes(generatedDirectoryName);
   const schemaExtensions = languagePlugin.schemaExtensions
     ? [...languagePlugin.schemaExtensions, ...relaySchemaExtensions]
     : relaySchemaExtensions;
@@ -343,9 +346,9 @@ function getCodegenRunner(config: Config): CodegenRunner {
         config.customScalars,
         persistQueryFunction,
       ),
-      isGeneratedFile: (filePath: string) =>
-        filePath.endsWith('.graphql.' + outputExtension) &&
-        filePath.includes(generatedDirectoryName),
+      isGeneratedFile: languagePlugin.isGeneratedFile
+        ? languagePlugin.isGeneratedFile
+        : defaultIsGeneratedFile,
       parser: sourceParserName,
       baseParsers: ['graphql'],
     },

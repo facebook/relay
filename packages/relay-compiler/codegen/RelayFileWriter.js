@@ -35,6 +35,7 @@ const {Map: ImmutableMap} = require('immutable');
 import type {Schema} from '../core/Schema';
 import type {
   FormatModule,
+  PluginInterface,
   TypeGenerator,
 } from '../language/RelayLanguagePluginInterface';
 import type {ScalarTypeMapping} from '../language/javascript/RelayFlowTypeTransformers';
@@ -141,6 +142,7 @@ function writeAll({
   schema,
   reporter,
   sourceControl,
+  languagePlugin,
 }: {|
   config: WriterConfig,
   onlyValidate: boolean,
@@ -149,6 +151,7 @@ function writeAll({
   schema: Schema,
   reporter: Reporter,
   sourceControl: ?SourceControl,
+  languagePlugin?: ?PluginInterface,
 |}): Promise<Map<string, CodegenDirectory>> {
   return Profiler.asyncContext('RelayFileWriter.writeAll', async () => {
     const {
@@ -314,6 +317,7 @@ function writeAll({
             writerConfig.printModuleDependency,
             writerConfig.repersist ?? false,
             writerConfig.writeQueryParameters ?? function noop() {},
+            languagePlugin,
           );
         }),
       );

@@ -24,7 +24,10 @@ const {RelayConcreteNode} = require('relay-runtime');
 
 import type {GeneratedDefinition} from '../core/IR';
 import type {Schema} from '../core/Schema';
-import type {FormatModule} from '../language/RelayLanguagePluginInterface';
+import type {
+  FormatModule,
+  PluginInterface,
+} from '../language/RelayLanguagePluginInterface';
 import type CodegenDirectory from './CodegenDirectory';
 import type {GeneratedNode, RequestParameters} from 'relay-runtime';
 
@@ -64,14 +67,18 @@ async function writeRelayGeneratedFile(
     moduleName: string,
     params: RequestParameters,
   ) => void,
+  languagePlugin: ?PluginInterface,
 ): Promise<?GeneratedNode> {
   let generatedNode = _generatedNode;
   // Copy to const so Flow can refine.
   const persistQuery = _persistQuery;
-  const moduleName =
-    (generatedNode.kind === 'Request'
+  const operationName =
+    generatedNode.kind === 'Request'
       ? generatedNode.params.name
-      : generatedNode.name) + '.graphql';
+      : generatedNode.name;
+  const moduleName = languagePlugin?.getModuleName
+    ? languagePlugin.getModuleName(operationName)
+    : operationName + '.graphql';
 
   const filename = moduleName + '.' + extension;
   const queryParametersFilename =

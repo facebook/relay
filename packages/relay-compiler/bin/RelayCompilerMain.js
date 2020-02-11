@@ -431,6 +431,7 @@ function getRelayFileWriter(
       documents,
       reporter,
       sourceControl,
+      languagePlugin,
     });
     if (queryMap != null && persistedQueryPath != null) {
       let object = {};

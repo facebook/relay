@@ -39,6 +39,7 @@ export type PluginInterface = {
   formatModule: FormatModule,
   typeGenerator: TypeGenerator,
   schemaExtensions?: $ReadOnlyArray<string>,
+  getModuleName?: (operationName: string) => string,
   ...
 };
 

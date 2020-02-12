@@ -1,0 +1,42 @@
+==================================== INPUT ====================================
+# expected-to-throw
+query EnumValueQuery1 {
+  me {
+    profilePicture(preset: "LARGE") {
+      # error: string not enum
+      uri
+    }
+  }
+}
+
+query EnumValueQuery2 {
+  me {
+    profilePicture(preset: 128) {
+      # error: int not enum
+      uri
+    }
+  }
+}
+
+query EnumValueQuery3 {
+  me {
+    profilePicture(preset: [LARGE]) {
+      # error: list of enum, not enum
+      uri
+    }
+  }
+}
+==================================== ERROR ====================================
+Expected a value of type 'PhotoSize':
+enum-values.invalid.graphql:3:27:
+    profilePicture(preset: "LARGE") {
+
+
+Expected a value of type 'PhotoSize':
+enum-values.invalid.graphql:12:27:
+    profilePicture(preset: 128) {
+
+
+Expected a value of type 'PhotoSize':
+enum-values.invalid.graphql:21:27:
+    profilePicture(preset: [LARGE]) {

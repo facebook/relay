@@ -1,0 +1,11 @@
+==================================== INPUT ====================================
+# expected-to-throw
+query TestQuery($id: UnknownType) {
+  node(id: "someid") {
+    id
+  }
+}
+==================================== ERROR ====================================
+Unknown type 'UnknownType':
+undefined-type.invalid.graphql:1:21:
+query TestQuery($id: UnknownType) {

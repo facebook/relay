@@ -1,0 +1,171 @@
+==================================== INPUT ====================================
+fragment ParentFragment on Query {
+  mobile_settings: settings(environment: MOBILE) {
+    cache_id
+  }
+  ...ChildFragment @arguments(environment: WEB)
+}
+
+fragment ChildFragment on Query
+  @argumentDefinitions(environment: {type: "Environment!"}) {
+  settings(environment: $environment) {
+    cache_id
+  }
+}
+==================================== OUTPUT ===================================
+[
+    Fragment(
+        FragmentDefinition {
+            name: Spanned {
+                span: 9:24,
+                item: "ParentFragment",
+            },
+            variable_definitions: [],
+            used_global_variables: [],
+            type_condition: Object(0),
+            directives: [],
+            selections: [
+                LinkedField {
+                    alias: Some(
+                        Spanned {
+                            span: 34:52,
+                            item: "mobile_settings",
+                        },
+                    ),
+                    definition: Spanned {
+                        span: 54:62,
+                        item: FieldID(
+                            12,
+                        ),
+                    },
+                    arguments: [
+                        Argument {
+                            name: Spanned {
+                                span: 63:74,
+                                item: "environment",
+                            },
+                            value: Spanned {
+                                span: 76:82,
+                                item: Constant(
+                                    Enum(
+                                        "MOBILE",
+                                    ),
+                                ),
+                            },
+                        },
+                    ],
+                    directives: [],
+                    selections: [
+                        ScalarField {
+                            alias: None,
+                            definition: Spanned {
+                                span: 85:98,
+                                item: FieldID(
+                                    492,
+                                ),
+                            },
+                            arguments: [],
+                            directives: [],
+                        },
+                    ],
+                },
+                FragmentSpread {
+                    fragment: Spanned {
+                        span: 108:122,
+                        item: "ChildFragment",
+                    },
+                    arguments: [
+                        Argument {
+                            name: Spanned {
+                                span: 133:144,
+                                item: "environment",
+                            },
+                            value: Spanned {
+                                span: 146:149,
+                                item: Constant(
+                                    Enum(
+                                        "WEB",
+                                    ),
+                                ),
+                            },
+                        },
+                    ],
+                    directives: [],
+                },
+            ],
+        },
+    ),
+    Fragment(
+        FragmentDefinition {
+            name: Spanned {
+                span: 163:177,
+                item: "ChildFragment",
+            },
+            variable_definitions: [
+                VariableDefinition {
+                    name: Spanned {
+                        span: 209:220,
+                        item: "environment",
+                    },
+                    type_: NonNull(
+                        Named(
+                            Enum(1),
+                        ),
+                    ),
+                    default_value: None,
+                    directives: [],
+                },
+            ],
+            used_global_variables: [],
+            type_condition: Object(0),
+            directives: [],
+            selections: [
+                LinkedField {
+                    alias: None,
+                    definition: Spanned {
+                        span: 247:258,
+                        item: FieldID(
+                            12,
+                        ),
+                    },
+                    arguments: [
+                        Argument {
+                            name: Spanned {
+                                span: 259:270,
+                                item: "environment",
+                            },
+                            value: Spanned {
+                                span: 272:284,
+                                item: Variable(
+                                    Variable {
+                                        name: Spanned {
+                                            span: 272:284,
+                                            item: "environment",
+                                        },
+                                        type_: Named(
+                                            Enum(1),
+                                        ),
+                                    },
+                                ),
+                            },
+                        },
+                    ],
+                    directives: [],
+                    selections: [
+                        ScalarField {
+                            alias: None,
+                            definition: Spanned {
+                                span: 287:300,
+                                item: FieldID(
+                                    492,
+                                ),
+                            },
+                            arguments: [],
+                            directives: [],
+                        },
+                    ],
+                },
+            ],
+        },
+    ),
+]

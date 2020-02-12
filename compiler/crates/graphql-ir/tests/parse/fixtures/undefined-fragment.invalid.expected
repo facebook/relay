@@ -1,0 +1,11 @@
+==================================== INPUT ====================================
+# expected-to-throw
+fragment Foo on User {
+  ...SomeUndefinedFragment
+}
+==================================== ERROR ====================================
+Undefined fragment 'SomeUndefinedFragment':
+undefined-fragment.invalid.graphql:1:22:
+
+  ...SomeUndefinedFragment
+}

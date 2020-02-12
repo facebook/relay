@@ -1,0 +1,106 @@
+==================================== INPUT ====================================
+query LiteralListArgumentQuery {
+  route(waypoints: [{lat: "0.0", lon: "0.0"}]) {
+    steps {
+      note
+    }
+  }
+}
+==================================== OUTPUT ===================================
+[
+    Operation(
+        OperationDefinition {
+            kind: Query,
+            name: Spanned {
+                span: 6:31,
+                item: "LiteralListArgumentQuery",
+            },
+            type_: Object(0),
+            variable_definitions: [],
+            directives: [],
+            selections: [
+                LinkedField {
+                    alias: None,
+                    definition: Spanned {
+                        span: 32:40,
+                        item: FieldID(
+                            2,
+                        ),
+                    },
+                    arguments: [
+                        Argument {
+                            name: Spanned {
+                                span: 41:50,
+                                item: "waypoints",
+                            },
+                            value: Spanned {
+                                span: 52:78,
+                                item: Constant(
+                                    List(
+                                        [
+                                            Object(
+                                                [
+                                                    ConstantArgument {
+                                                        name: Spanned {
+                                                            span: 54:57,
+                                                            item: "lat",
+                                                        },
+                                                        value: Spanned {
+                                                            span: 59:66,
+                                                            item: String(
+                                                                "0.0",
+                                                            ),
+                                                        },
+                                                    },
+                                                    ConstantArgument {
+                                                        name: Spanned {
+                                                            span: 66:69,
+                                                            item: "lon",
+                                                        },
+                                                        value: Spanned {
+                                                            span: 71:76,
+                                                            item: String(
+                                                                "0.0",
+                                                            ),
+                                                        },
+                                                    },
+                                                ],
+                                            ),
+                                        ],
+                                    ),
+                                ),
+                            },
+                        },
+                    ],
+                    directives: [],
+                    selections: [
+                        LinkedField {
+                            alias: None,
+                            definition: Spanned {
+                                span: 81:92,
+                                item: FieldID(
+                                    27,
+                                ),
+                            },
+                            arguments: [],
+                            directives: [],
+                            selections: [
+                                ScalarField {
+                                    alias: None,
+                                    definition: Spanned {
+                                        span: 93:104,
+                                        item: FieldID(
+                                            30,
+                                        ),
+                                    },
+                                    arguments: [],
+                                    directives: [],
+                                },
+                            ],
+                        },
+                    ],
+                },
+            ],
+        },
+    ),
+]

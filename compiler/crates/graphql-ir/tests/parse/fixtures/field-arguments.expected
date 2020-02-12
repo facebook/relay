@@ -1,0 +1,159 @@
+==================================== INPUT ====================================
+query TestQuery {
+  task(number: 123) {
+    title
+  }
+  settings(environment: WEB) {
+    notificationSounds
+  }
+  checkinSearchQuery(query: {query: "Relay"}) {
+    query
+  }
+}
+==================================== OUTPUT ===================================
+[
+    Operation(
+        OperationDefinition {
+            kind: Query,
+            name: Spanned {
+                span: 6:16,
+                item: "TestQuery",
+            },
+            type_: Object(0),
+            variable_definitions: [],
+            directives: [],
+            selections: [
+                LinkedField {
+                    alias: None,
+                    definition: Spanned {
+                        span: 17:24,
+                        item: FieldID(
+                            14,
+                        ),
+                    },
+                    arguments: [
+                        Argument {
+                            name: Spanned {
+                                span: 25:31,
+                                item: "number",
+                            },
+                            value: Spanned {
+                                span: 33:36,
+                                item: Constant(
+                                    Int(
+                                        123,
+                                    ),
+                                ),
+                            },
+                        },
+                    ],
+                    directives: [],
+                    selections: [
+                        ScalarField {
+                            alias: None,
+                            definition: Spanned {
+                                span: 39:49,
+                                item: FieldID(
+                                    26,
+                                ),
+                            },
+                            arguments: [],
+                            directives: [],
+                        },
+                    ],
+                },
+                LinkedField {
+                    alias: None,
+                    definition: Spanned {
+                        span: 53:64,
+                        item: FieldID(
+                            12,
+                        ),
+                    },
+                    arguments: [
+                        Argument {
+                            name: Spanned {
+                                span: 65:76,
+                                item: "environment",
+                            },
+                            value: Spanned {
+                                span: 78:81,
+                                item: Constant(
+                                    Enum(
+                                        "WEB",
+                                    ),
+                                ),
+                            },
+                        },
+                    ],
+                    directives: [],
+                    selections: [
+                        ScalarField {
+                            alias: None,
+                            definition: Spanned {
+                                span: 84:107,
+                                item: FieldID(
+                                    493,
+                                ),
+                            },
+                            arguments: [],
+                            directives: [],
+                        },
+                    ],
+                },
+                LinkedField {
+                    alias: None,
+                    definition: Spanned {
+                        span: 111:132,
+                        item: FieldID(
+                            0,
+                        ),
+                    },
+                    arguments: [
+                        Argument {
+                            name: Spanned {
+                                span: 133:138,
+                                item: "query",
+                            },
+                            value: Spanned {
+                                span: 140:156,
+                                item: Constant(
+                                    Object(
+                                        [
+                                            ConstantArgument {
+                                                name: Spanned {
+                                                    span: 141:146,
+                                                    item: "query",
+                                                },
+                                                value: Spanned {
+                                                    span: 148:155,
+                                                    item: String(
+                                                        "Relay",
+                                                    ),
+                                                },
+                                            },
+                                        ],
+                                    ),
+                                ),
+                            },
+                        },
+                    ],
+                    directives: [],
+                    selections: [
+                        ScalarField {
+                            alias: None,
+                            definition: Spanned {
+                                span: 159:169,
+                                item: FieldID(
+                                    53,
+                                ),
+                            },
+                            arguments: [],
+                            directives: [],
+                        },
+                    ],
+                },
+            ],
+        },
+    ),
+]

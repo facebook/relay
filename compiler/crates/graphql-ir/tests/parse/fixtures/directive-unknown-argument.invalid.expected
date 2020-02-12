@@ -1,0 +1,11 @@
+==================================== INPUT ====================================
+# expected-to-throw
+query TestQuery {
+  task(number: 123) {
+    title @include(shouldInclude: true)
+  }
+}
+==================================== ERROR ====================================
+Unknown argument 'shouldInclude':
+directive-unknown-argument.invalid.graphql:3:19:
+    title @include(shouldInclude: true)

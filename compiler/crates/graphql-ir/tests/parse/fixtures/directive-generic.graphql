@@ -1,0 +1,3 @@
+fragment TestFragment on User {
+  id @customDirective(level: 11)
+}

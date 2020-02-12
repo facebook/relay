@@ -1,0 +1,13 @@
+fragment ParentFragment on Query {
+  mobile_settings: settings(environment: MOBILE) {
+    cache_id
+  }
+  ...ChildFragment @arguments(environment: WEB)
+}
+
+fragment ChildFragment on Query
+  @argumentDefinitions(environment: {type: "Environment!"}) {
+  settings(environment: $environment) {
+    cache_id
+  }
+}

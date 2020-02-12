@@ -1,0 +1,3 @@
+fragment TestFrag on MyType {
+  issues(orderby: [LAST_UPDATED])
+}

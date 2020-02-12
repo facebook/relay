@@ -285,6 +285,7 @@ function getCodegenRunner(config: Config): CodegenRunner {
   const sourceWriterName = outputExtension;
   const sourceModuleParser = RelaySourceModuleParser(
     languagePlugin.findGraphQLTags,
+    languagePlugin.getFileFilter,
   );
   const providedArtifactDirectory = config.artifactDirectory;
   const artifactDirectory =

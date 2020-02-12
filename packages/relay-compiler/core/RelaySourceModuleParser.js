@@ -27,8 +27,10 @@ import type {FileFilter} from '../codegen/CodegenWatcher';
 import type {GraphQLTagFinder} from '../language/RelayLanguagePluginInterface';
 import type {DocumentNode} from 'graphql';
 
+export type GetFileFilter = (baseDir: string) => FileFilter;
+
 export type SourceModuleParser = {|
-  getFileFilter: (baseDir: string) => FileFilter,
+  getFileFilter: GetFileFilter,
   getParser: (baseDir: string) => ASTCache,
   parseFile: (baseDir: string, file: File) => ?DocumentNode,
   parseFileWithSources: (
@@ -42,7 +44,10 @@ export type SourceModuleParser = {|
 
 const parseGraphQL = Profiler.instrument(GraphQL.parse, 'GraphQL.parse');
 
-module.exports = (tagFinder: GraphQLTagFinder): SourceModuleParser => {
+module.exports = (
+  tagFinder: GraphQLTagFinder,
+  getFileFilter?: GetFileFilter,
+): SourceModuleParser => {
   const memoizedTagFinder = memoizedFind.bind(null, tagFinder);
 
   function parseFile(baseDir: string, file: File): ?DocumentNode {
@@ -104,7 +109,7 @@ module.exports = (tagFinder: GraphQLTagFinder): SourceModuleParser => {
     });
   }
 
-  function getFileFilter(baseDir: string): FileFilter {
+  function defaultGetFileFilter(baseDir: string): FileFilter {
     return (file: File) => {
       const filePath = path.join(baseDir, file.relPath);
       let text = '';
@@ -123,7 +128,7 @@ module.exports = (tagFinder: GraphQLTagFinder): SourceModuleParser => {
 
   return {
     getParser,
-    getFileFilter,
+    getFileFilter: getFileFilter ?? defaultGetFileFilter,
     parseFile,
     parseFileWithSources,
   };

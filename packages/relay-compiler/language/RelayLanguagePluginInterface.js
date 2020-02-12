@@ -20,6 +20,7 @@ import type {
 } from '../codegen/CodegenRunner';
 import type {IRTransform} from '../core/CompilerContext';
 import type {GeneratedDefinition, Root, Fragment} from '../core/IR';
+import type {GetFileFilter} from '../core/RelaySourceModuleParser';
 import type {Schema} from '../core/Schema';
 import type {ScalarTypeMapping} from './javascript/RelayFlowTypeTransformers';
 import type {GeneratedNode} from 'relay-runtime';
@@ -46,6 +47,7 @@ export type PluginInterface = {
   keepExtraFile?: KeepExtraFileFn,
   schemaExtensions?: $ReadOnlyArray<string>,
   getModuleName?: (operationName: string) => string,
+  getFileFilter?: GetFileFilter,
   ...
 };
 

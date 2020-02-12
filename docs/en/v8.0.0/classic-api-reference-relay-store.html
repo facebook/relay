@@ -1,0 +1,108 @@
+<!DOCTYPE html><html lang="en"><head><meta charSet="utf-8"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><title>Relay.Store · Relay</title><meta name="viewport" content="width=device-width"/><meta name="generator" content="Docusaurus"/><meta name="description" content="The Relay `Store` provides an API for dispatching mutations to the server."/><meta name="docsearch:version" content="v8.0.0"/><meta name="docsearch:language" content="en"/><meta property="og:title" content="Relay.Store · Relay"/><meta property="og:type" content="website"/><meta property="og:url" content="https://relay.dev/"/><meta property="og:description" content="The Relay `Store` provides an API for dispatching mutations to the server."/><meta property="og:image" content="https://relay.dev/img/relay.png"/><meta name="twitter:card" content="summary"/><meta name="twitter:image" content="https://relay.dev/img/relay.png"/><link rel="shortcut icon" href="/img/favicon.png"/><link rel="stylesheet" href="https://cdn.jsdelivr.net/docsearch.js/1/docsearch.min.css"/><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css"/><script type="text/javascript" src="/js/redirect.js"></script><script src="https://unpkg.com/vanilla-back-to-top@7.1.14/dist/vanilla-back-to-top.min.js"></script><script>
+        document.addEventListener('DOMContentLoaded', function() {
+          addBackToTop(
+            {"zIndex":100}
+          )
+        });
+        </script><script src="/js/scrollSpy.js"></script><link rel="stylesheet" href="/css/main.css"/><script src="/js/codetabs.js"></script></head><body class="sideNavVisible separateOnPageNav"><div class="fixedHeaderContainer"><div class="headerWrapper wrapper"><header><a href="/en"><h2 class="headerTitle">Relay</h2></a><a href="/en/versions"><h3>v8.0.0</h3></a><div class="navigationWrapper navigationSlider"><nav class="slidingNav"><ul class="nav-site nav-site-internal"><li class=""><a href="/docs/en/v8.0.0/introduction-to-relay" target="_self">Docs</a></li><li class=""><a href="/en/help" target="_self">Help</a></li><li class="navSearchWrapper reactNavSearchWrapper"><input type="text" id="search_input_react" placeholder="Search" title="Search"/></li><li class=""><a href="https://github.com/facebook/relay" target="_self">GitHub</a></li><li class=""><a target="_self"></a></li></ul></nav></div></header></div></div><div class="navPusher"><div class="docMainWrapper wrapper"><div class="container mainContainer"><div class="wrapper"><div class="post"><header class="postHeader"><a class="edit-page-link button" href="https://github.com/facebook/relay/edit/master/docs/Classic-APIReference-Store.md" target="_blank" rel="noreferrer noopener">Edit</a><h1 class="postHeaderTitle">Relay.Store</h1></header><article><div><span><p>The Relay <code>Store</code> provides an API for dispatching mutations to the server.</p>
+<h2><a class="anchor" aria-hidden="true" id="overview"></a><a href="#overview" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Overview</h2>
+<p><em>Methods</em></p>
+<ul class="apiIndex">
+  <li>
+    <a href="#commitupdate-static-method">
+      <pre>static commitUpdate(mutation, callbacks)</pre>
+      Initiate processing of a mutation.
+    </a>
+  </li>
+  <li>
+    <a href="#applyupdate-static-method">
+      <pre>static applyUpdate(mutation, callbacks)</pre>
+      Adds a MutationTransaction to the queue without committing it.
+    </a>
+  </li>
+</ul>
+<p><strong>Note:</strong> Equivalent <code>applyUpdate</code> and <code>commitUpdate</code> methods are also
+provided on the <code>this.props.relay</code> prop that is passed to components by
+<code>Relay.Container</code>. These dispatch mutations in the context of the currently
+active <code>Relay.Environment</code>.</p>
+<h2><a class="anchor" aria-hidden="true" id="methods"></a><a href="#methods" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Methods</h2>
+<h3><a class="anchor" aria-hidden="true" id="commitupdate-static-method"></a><a href="#commitupdate-static-method" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>commitUpdate (static method)</h3>
+<pre><code class="hljs"><span class="hljs-keyword">static</span> commitUpdate(mutation: RelayMutation, callbacks: {
+  onFailure?: <span class="hljs-function">(<span class="hljs-params">transaction: RelayMutationTransaction</span>) =&gt;</span> <span class="hljs-built_in">void</span>;
+  onSuccess?: <span class="hljs-function">(<span class="hljs-params">response: <span class="hljs-built_in">Object</span></span>) =&gt;</span> <span class="hljs-built_in">void</span>;
+}): RelayMutationTransaction
+
+<span class="hljs-comment">// Argument to `onFailure` callback</span>
+<span class="hljs-keyword">type</span> Transaction = {
+  getError(): ?<span class="hljs-built_in">Error</span>;
+}
+</code></pre>
+<p>The <code>commitUpdate</code> method is analogous to dispatching an action in Flux. Relay processes
+the mutation as follows:</p>
+<ul>
+<li>If the mutation defines an optimistic payload - a set of data to apply locally while waiting for the server response - Relay applies this change and updates any affected React components (note that optimistic updates do not overwrite known server data in the cache).</li>
+<li>If the mutation would not 'collide' (overlap) with other pending mutations - as specified by its <code>getCollisionKey</code> implementation - it is sent to the server. If it would conflict, it is enqueued until conflicting mutations have completed.</li>
+<li>When the server response is received, one of the callbacks is invoked:
+<ul>
+<li><code>onSuccess</code> is called if the mutation succeeded.</li>
+<li><code>onFailure</code> is called if the mutation failed.</li>
+</ul></li>
+</ul>
+<h4><a class="anchor" aria-hidden="true" id="example"></a><a href="#example" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Example</h4>
+<pre><code class="hljs"><span class="hljs-keyword">var</span> onSuccess = <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {
+  <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'Mutation successful!'</span>);
+};
+<span class="hljs-keyword">var</span> onFailure = <span class="hljs-function">(<span class="hljs-params">transaction</span>) =&gt;</span> {
+  <span class="hljs-keyword">var</span> error = transaction.getError() || <span class="hljs-keyword">new</span> <span class="hljs-built_in">Error</span>(<span class="hljs-string">'Mutation failed.'</span>);
+  <span class="hljs-built_in">console</span>.error(error);
+};
+<span class="hljs-keyword">var</span> mutation = <span class="hljs-keyword">new</span> MyMutation({...});
+
+Relay.Store.commitUpdate(mutation, {onFailure, onSuccess});
+</code></pre>
+<h3><a class="anchor" aria-hidden="true" id="applyupdate-static-method"></a><a href="#applyupdate-static-method" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>applyUpdate (static method)</h3>
+<pre><code class="hljs"><span class="hljs-keyword">static</span> applyUpdate(<span class="hljs-string">mutation:</span> RelayMutation, <span class="hljs-string">callbacks:</span> {
+  onFailure?: (<span class="hljs-string">transaction:</span> RelayMutationTransaction) =&gt; <span class="hljs-keyword">void</span>;
+  onSuccess?: (<span class="hljs-string">response:</span> Object) =&gt; <span class="hljs-keyword">void</span>;
+}): RelayMutationTransaction
+</code></pre>
+<p>The <code>applyUpdate</code> adds a mutation just like <code>update</code>, but does not commit it. It returns a <code>RelayMutationTransaction</code> that can be committed or rollbacked.</p>
+<p>When the transaction is committed and the response is received from the server, one of the callbacks is invoked:</p>
+<ul>
+<li><code>onSuccess</code> is called if the mutation succeeded.</li>
+<li><code>onFailure</code> is called if the mutation failed.</li>
+</ul>
+<h4><a class="anchor" aria-hidden="true" id="example-1"></a><a href="#example-1" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Example</h4>
+<pre><code class="hljs"><span class="hljs-keyword">var</span> onSuccess = <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {
+  <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'Mutation successful!'</span>);
+};
+<span class="hljs-keyword">var</span> onFailure = <span class="hljs-function">(<span class="hljs-params">transaction</span>) =&gt;</span> {
+  <span class="hljs-keyword">var</span> error = transaction.getError() || <span class="hljs-keyword">new</span> <span class="hljs-built_in">Error</span>(<span class="hljs-string">'Mutation failed.'</span>);
+  <span class="hljs-built_in">console</span>.error(error);
+};
+<span class="hljs-keyword">var</span> mutation = <span class="hljs-keyword">new</span> MyMutation({...});
+
+<span class="hljs-keyword">var</span> transaction = Relay.Store.applyUpdate(mutation, {onFailure, onSuccess});
+
+transaction.commit();
+</code></pre>
+</span></div></article></div><div class="docLastUpdate"><em>Last updated on 11/9/2017 by Jan Kassens</em></div><div class="docs-prevnext"></div></div></div><nav class="onPageNav"><ul class="toc-headings"><li><a href="#overview">Overview</a></li><li><a href="#methods">Methods</a><ul class="toc-headings"><li><a href="#commitupdate-static-method">commitUpdate (static method)</a></li><li><a href="#applyupdate-static-method">applyUpdate (static method)</a></li></ul></li></ul></nav></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/" class="nav-home"><img src="/img/relay.svg" alt="Relay" width="66" height="58"/></a><div><h5>Docs</h5><a href="/docs/en/introduction-to-relay.html">Introduction</a></div><div><h5>Community</h5><a href="/en/users.html">User Showcase</a></div><div><h5>More</h5><a href="https://github.com/facebook/relay">GitHub</a><a class="github-button" href="https://github.com/facebook/relay" data-icon="octicon-star" data-count-href="/facebook/relay/stargazers" data-count-api="/repos/facebook/relay#stargazers_count" data-count-aria-label="# stargazers on GitHub" aria-label="Star this project on GitHub">Star</a></div></section><a href="https://code.facebook.com/projects/" target="_blank" class="fbOpenSource"><img src="/img/oss_logo.png" alt="Facebook Open Source" width="170" height="45"/></a><section class="copyright">Copyright © 2020 Facebook Inc.</section></footer></div><script type="text/javascript" src="https://cdn.jsdelivr.net/docsearch.js/1/docsearch.min.js"></script><script>
+                document.addEventListener('keyup', function(e) {
+                  if (e.target !== document.body) {
+                    return;
+                  }
+                  // keyCode for '/' (slash)
+                  if (e.keyCode === 191) {
+                    const search = document.getElementById('search_input_react');
+                    search && search.focus();
+                  }
+                });
+              </script><script>
+              var search = docsearch({
+                
+                apiKey: '3d7d5825d50ea36bca0e6ad06c926f06',
+                indexName: 'relay',
+                inputSelector: '#search_input_react',
+                algoliaOptions: {"facetFilters":["version:v8.0.0"]}
+              });
+            </script></body></html>

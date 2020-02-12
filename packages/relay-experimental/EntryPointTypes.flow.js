@@ -34,7 +34,6 @@ export type PreloadOptions = {|
   +fetchKey?: string | number,
   +fetchPolicy?: ?PreloadFetchPolicy,
   +networkCacheConfig?: ?CacheConfig,
-  +extraOptions?: ?{...},
 |};
 
 // Note: the phantom type parameter here helps ensures that the

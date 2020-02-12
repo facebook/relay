@@ -1,3 +1,4 @@
+compiler/
 dist/
 docs/
 **/node_modules/

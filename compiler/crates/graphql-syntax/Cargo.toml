@@ -1,0 +1,12 @@
+[project]
+name = "graphql-syntax"
+version = "0.0.0"
+edition = "2018"
+
+[dependencies]
+common = { path = "../common" }
+interner = { path = "../interner" }
+thiserror = "1.0.9"
+
+[dev-dependencies]
+fixture-tests = { path = "../fixture-tests" }

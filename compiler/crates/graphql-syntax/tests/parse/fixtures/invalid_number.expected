@@ -1,0 +1,14 @@
+==================================== INPUT ====================================
+# expected-to-throw
+query TestQuery {
+    friends(first: 1.23.4) {
+        count
+    }
+}
+==================================== ERROR ====================================
+Error: Invalid number value, expected an int or float at 2:19:
+    friends(first: 1.23.4) {
+
+
+Error: Expected a end of file at 2:25:
+    friends(first: 1.23.4) {

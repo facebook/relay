@@ -139,7 +139,9 @@ describe('fetchQuery', () => {
   describe('.toPromise()', () => {
     it('fetches request and does not retain query data', async () => {
       const promise = fetchQuery(environment, query, variables).toPromise();
-      expect(environment.mock.isLoading(query, variables)).toEqual(true);
+      expect(
+        environment.mock.isLoading(query, variables, {force: true}),
+      ).toEqual(true);
       environment.mock.nextValue(query, response);
       const data = await promise;
       expect(data).toEqual({
@@ -147,20 +149,26 @@ describe('fetchQuery', () => {
           id: '4',
         },
       });
-      expect(environment.mock.isLoading(query, variables)).toEqual(false);
+      expect(
+        environment.mock.isLoading(query, variables, {force: true}),
+      ).toEqual(false);
       expect(retained.length).toEqual(0);
     });
 
     it('rejects when error occurs', async () => {
       const promise = fetchQuery(environment, query, variables).toPromise();
-      expect(environment.mock.isLoading(query, variables)).toEqual(true);
+      expect(
+        environment.mock.isLoading(query, variables, {force: true}),
+      ).toEqual(true);
       environment.mock.reject(query, new Error('Oops'));
       try {
         await promise;
       } catch (error) {
         expect(error.message).toEqual('Oops');
       }
-      expect(environment.mock.isLoading(query, variables)).toEqual(false);
+      expect(
+        environment.mock.isLoading(query, variables, {force: true}),
+      ).toEqual(false);
       expect(retained.length).toEqual(0);
     });
   });

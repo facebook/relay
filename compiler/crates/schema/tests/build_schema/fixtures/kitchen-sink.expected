@@ -1,0 +1,333 @@
+==================================== INPUT ====================================
+schema {
+  query: Query
+}
+
+type Query {
+  node(id: ID!): Node
+  nodes(ids: [ID!]!): [Node!]!
+}
+
+interface Node {
+  id: ID!
+}
+
+type User implements Node {
+  id: ID!
+  name: String
+}
+
+type Page {
+  id: ID
+}
+
+union Actor = User | Page
+
+# %extensions%
+
+type ClientType {
+  clientName: String
+}
+extend type User {
+  nickname: String
+  client: ClientType
+}
+==================================== OUTPUT ===================================
+Schema {
+query_type: Some(
+    ObjectID(
+        0,
+    ),
+)
+mutation_type: None
+subscription_type: None
+directives: [
+    Directive {
+        name: "include",
+        arguments: [
+            Argument {
+                name: "if",
+                type_: NonNull(
+                    Named(
+                        Scalar(3),
+                    ),
+                ),
+                default_value: None,
+            },
+        ],
+        locations: [
+            Field,
+            FragmentSpread,
+            InlineFragment,
+        ],
+    },
+    Directive {
+        name: "skip",
+        arguments: [
+            Argument {
+                name: "if",
+                type_: NonNull(
+                    Named(
+                        Scalar(3),
+                    ),
+                ),
+                default_value: None,
+            },
+        ],
+        locations: [
+            Field,
+            FragmentSpread,
+            InlineFragment,
+        ],
+    },
+]
+type_map: {
+    "Actor": Union(0),
+    "Boolean": Scalar(3),
+    "ClientType": Object(3),
+    "Float": Scalar(1),
+    "ID": Scalar(4),
+    "Int": Scalar(0),
+    "Node": Interface(0),
+    "Page": Object(2),
+    "Query": Object(0),
+    "String": Scalar(2),
+    "User": Object(1),
+}
+enums: []
+fields: [
+    Field {
+        name: "node",
+        is_extension: false,
+        arguments: [
+            Argument {
+                name: "id",
+                type_: NonNull(
+                    Named(
+                        Scalar(4),
+                    ),
+                ),
+                default_value: None,
+            },
+        ],
+        type_: Named(
+            Interface(0),
+        ),
+    },
+    Field {
+        name: "nodes",
+        is_extension: false,
+        arguments: [
+            Argument {
+                name: "ids",
+                type_: NonNull(
+                    List(
+                        NonNull(
+                            Named(
+                                Scalar(4),
+                            ),
+                        ),
+                    ),
+                ),
+                default_value: None,
+            },
+        ],
+        type_: NonNull(
+            List(
+                NonNull(
+                    Named(
+                        Interface(0),
+                    ),
+                ),
+            ),
+        ),
+    },
+    Field {
+        name: "id",
+        is_extension: false,
+        arguments: [],
+        type_: NonNull(
+            Named(
+                Scalar(4),
+            ),
+        ),
+    },
+    Field {
+        name: "id",
+        is_extension: false,
+        arguments: [],
+        type_: NonNull(
+            Named(
+                Scalar(4),
+            ),
+        ),
+    },
+    Field {
+        name: "name",
+        is_extension: false,
+        arguments: [],
+        type_: Named(
+            Scalar(2),
+        ),
+    },
+    Field {
+        name: "id",
+        is_extension: false,
+        arguments: [],
+        type_: Named(
+            Scalar(4),
+        ),
+    },
+    Field {
+        name: "clientName",
+        is_extension: true,
+        arguments: [],
+        type_: Named(
+            Scalar(2),
+        ),
+    },
+    Field {
+        name: "nickname",
+        is_extension: true,
+        arguments: [],
+        type_: Named(
+            Scalar(2),
+        ),
+    },
+    Field {
+        name: "client",
+        is_extension: true,
+        arguments: [],
+        type_: Named(
+            Object(3),
+        ),
+    },
+    Field {
+        name: "__typename",
+        is_extension: false,
+        arguments: [],
+        type_: Named(
+            Scalar(2),
+        ),
+    },
+    Field {
+        name: "__id",
+        is_extension: false,
+        arguments: [],
+        type_: Named(
+            Scalar(4),
+        ),
+    },
+]
+input_objects: []
+interfaces: [
+    Interface {
+        name: "Node",
+        is_extension: false,
+        implementors: [
+            ObjectID(
+                1,
+            ),
+        ],
+        fields: [
+            FieldID(
+                2,
+            ),
+        ],
+    },
+]
+objects: [
+    Object {
+        name: "Query",
+        is_extension: false,
+        fields: [
+            FieldID(
+                0,
+            ),
+            FieldID(
+                1,
+            ),
+        ],
+        interfaces: [],
+    },
+    Object {
+        name: "User",
+        is_extension: false,
+        fields: [
+            FieldID(
+                3,
+            ),
+            FieldID(
+                4,
+            ),
+            FieldID(
+                7,
+            ),
+            FieldID(
+                8,
+            ),
+        ],
+        interfaces: [
+            InterfaceID(
+                0,
+            ),
+        ],
+    },
+    Object {
+        name: "Page",
+        is_extension: false,
+        fields: [
+            FieldID(
+                5,
+            ),
+        ],
+        interfaces: [],
+    },
+    Object {
+        name: "ClientType",
+        is_extension: true,
+        fields: [
+            FieldID(
+                6,
+            ),
+        ],
+        interfaces: [],
+    },
+]
+scalars: [
+    Scalar {
+        name: "Int",
+        is_extension: false,
+    },
+    Scalar {
+        name: "Float",
+        is_extension: false,
+    },
+    Scalar {
+        name: "String",
+        is_extension: false,
+    },
+    Scalar {
+        name: "Boolean",
+        is_extension: false,
+    },
+    Scalar {
+        name: "ID",
+        is_extension: false,
+    },
+]
+unions: [
+    Union {
+        name: "Actor",
+        is_extension: false,
+        members: [
+            ObjectID(
+                1,
+            ),
+            ObjectID(
+                2,
+            ),
+        ],
+    },
+]
+}

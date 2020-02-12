@@ -1,0 +1,8 @@
+[project]
+name = "test-schema"
+version = "0.0.0"
+edition = "2018"
+
+[dependencies]
+lazy_static = "1.4.0"
+schema = { path = "../schema" }

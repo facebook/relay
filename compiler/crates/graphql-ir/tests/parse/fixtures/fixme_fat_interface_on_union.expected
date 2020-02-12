@@ -1,0 +1,56 @@
+==================================== INPUT ====================================
+query Test {
+  # this is a union
+  maybeNode {
+    id @fixme_fat_interface
+  }
+}
+==================================== OUTPUT ===================================
+[
+    Operation(
+        OperationDefinition {
+            kind: Query,
+            name: Spanned {
+                span: 6:11,
+                item: "Test",
+            },
+            type_: Object(0),
+            variable_definitions: [],
+            directives: [],
+            selections: [
+                LinkedField {
+                    alias: None,
+                    definition: Spanned {
+                        span: 12:45,
+                        item: FieldID(
+                            5,
+                        ),
+                    },
+                    arguments: [],
+                    directives: [],
+                    selections: [
+                        ScalarField {
+                            alias: None,
+                            definition: Spanned {
+                                span: 46:54,
+                                item: FieldID(
+                                    366,
+                                ),
+                            },
+                            arguments: [],
+                            directives: [
+                                Directive {
+                                    name: Spanned {
+                                        span: 55:74,
+                                        item: "fixme_fat_interface",
+                                    },
+                                    arguments: [],
+                                },
+                            ],
+                        },
+                    ],
+                },
+            ],
+        },
+    ),
+]

@@ -1,0 +1,17 @@
+==================================== INPUT ====================================
+# expected-to-throw
+fragment Example on User @match(key: "Example") {
+  friends {
+    edges {
+      node {
+        profilePicture(preset: $preset) {
+          uri
+        }
+      }
+    }
+  }
+}
+==================================== ERROR ====================================
+Directive 'match' not supported in this location:
+directive-match-on-fragment.invalid.graphql:1:26:
+fragment Example on User @match(key: "Example") {

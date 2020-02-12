@@ -1,0 +1,231 @@
+==================================== INPUT ====================================
+# TODO: should fail
+fragment TestFragment on User
+  @argumentDefinitions(
+    id: {type: "ID!"}
+    size: {type: "[Int]", defaultValue: [100]}
+  ) {
+  profilePicture(size: $PictureSize) {
+    uri
+  }
+  withDefaultArg: profilePicture(size: $size) {
+    uri
+  }
+  ...Foo @uncheckedArguments_DEPRECATED(localId: $id)
+}
+
+fragment Foo on User @argumentDefinitions(localId: {type: "ID!"}) {
+  id
+}
+==================================== OUTPUT ===================================
+[
+    Fragment(
+        FragmentDefinition {
+            name: Spanned {
+                span: 29:42,
+                item: "TestFragment",
+            },
+            variable_definitions: [
+                VariableDefinition {
+                    name: Spanned {
+                        span: 73:80,
+                        item: "id",
+                    },
+                    type_: NonNull(
+                        Named(
+                            Scalar(4),
+                        ),
+                    ),
+                    default_value: None,
+                    directives: [],
+                },
+                VariableDefinition {
+                    name: Spanned {
+                        span: 95:104,
+                        item: "size",
+                    },
+                    type_: List(
+                        Named(
+                            Scalar(0),
+                        ),
+                    ),
+                    default_value: Some(
+                        List(
+                            [
+                                Int(
+                                    100,
+                                ),
+                            ],
+                        ),
+                    ),
+                    directives: [],
+                },
+            ],
+            used_global_variables: [
+                VariableDefinition {
+                    name: Spanned {
+                        span: 172:184,
+                        item: "PictureSize",
+                    },
+                    type_: List(
+                        Named(
+                            Scalar(0),
+                        ),
+                    ),
+                    default_value: None,
+                    directives: [],
+                },
+            ],
+            type_condition: Object(65),
+            directives: [],
+            selections: [
+                LinkedField {
+                    alias: None,
+                    definition: Spanned {
+                        span: 148:165,
+                        item: FieldID(
+                            459,
+                        ),
+                    },
+                    arguments: [
+                        Argument {
+                            name: Spanned {
+                                span: 166:170,
+                                item: "size",
+                            },
+                            value: Spanned {
+                                span: 172:184,
+                                item: Variable(
+                                    Variable {
+                                        name: Spanned {
+                                            span: 172:184,
+                                            item: "PictureSize",
+                                        },
+                                        type_: List(
+                                            Named(
+                                                Scalar(0),
+                                            ),
+                                        ),
+                                    },
+                                ),
+                            },
+                        },
+                    ],
+                    directives: [],
+                    selections: [
+                        ScalarField {
+                            alias: None,
+                            definition: Spanned {
+                                span: 187:195,
+                                item: FieldID(
+                                    172,
+                                ),
+                            },
+                            arguments: [],
+                            directives: [],
+                        },
+                    ],
+                },
+                LinkedField {
+                    alias: Some(
+                        Spanned {
+                            span: 199:216,
+                            item: "withDefaultArg",
+                        },
+                    ),
+                    definition: Spanned {
+                        span: 218:232,
+                        item: FieldID(
+                            459,
+                        ),
+                    },
+                    arguments: [
+                        Argument {
+                            name: Spanned {
+                                span: 233:237,
+                                item: "size",
+                            },
+                            value: Spanned {
+                                span: 239:244,
+                                item: Variable(
+                                    Variable {
+                                        name: Spanned {
+                                            span: 239:244,
+                                            item: "size",
+                                        },
+                                        type_: List(
+                                            Named(
+                                                Scalar(0),
+                                            ),
+                                        ),
+                                    },
+                                ),
+                            },
+                        },
+                    ],
+                    directives: [],
+                    selections: [
+                        ScalarField {
+                            alias: None,
+                            definition: Spanned {
+                                span: 247:255,
+                                item: FieldID(
+                                    172,
+                                ),
+                            },
+                            arguments: [],
+                            directives: [],
+                        },
+                    ],
+                },
+                FragmentSpread {
+                    fragment: Spanned {
+                        span: 265:269,
+                        item: "Foo",
+                    },
+                    arguments: [],
+                    directives: [],
+                },
+            ],
+        },
+    ),
+    Fragment(
+        FragmentDefinition {
+            name: Spanned {
+                span: 326:330,
+                item: "Foo",
+            },
+            variable_definitions: [
+                VariableDefinition {
+                    name: Spanned {
+                        span: 359:366,
+                        item: "localId",
+                    },
+                    type_: NonNull(
+                        Named(
+                            Scalar(4),
+                        ),
+                    ),
+                    default_value: None,
+                    directives: [],
+                },
+            ],
+            used_global_variables: [],
+            type_condition: Object(65),
+            directives: [],
+            selections: [
+                ScalarField {
+                    alias: None,
+                    definition: Spanned {
+                        span: 384:389,
+                        item: FieldID(
+                            446,
+                        ),
+                    },
+                    arguments: [],
+                    directives: [],
+                },
+            ],
+        },
+    ),
+]

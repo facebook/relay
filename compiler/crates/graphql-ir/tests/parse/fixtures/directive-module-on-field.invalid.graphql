@@ -1,0 +1,12 @@
+# expected-to-throw
+fragment Example on User {
+  friends {
+    edges {
+      node {
+        profilePicture @module(preset: $preset) {
+          uri
+        }
+      }
+    }
+  }
+}

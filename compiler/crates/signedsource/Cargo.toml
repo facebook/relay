@@ -1,0 +1,9 @@
+[project]
+name = "signedsource"
+version = "0.0.0"
+edition = "2018"
+
+[dependencies]
+lazy_static = "1.4.0"
+rust-crypto = "0.2.36"
+regex = "1"

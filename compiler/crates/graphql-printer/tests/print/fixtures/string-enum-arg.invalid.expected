@@ -1,0 +1,9 @@
+==================================== INPUT ====================================
+# expected-to-throw
+fragment UserFragment on User {
+  checkins(environments: "WEB") {
+    __typename
+  }
+}
+==================================== ERROR ====================================
+ValidationError { message: ExpectedValueMatchingType("Environment"), locations: ["string-enum-arg.invalid.graphql":77:82] }

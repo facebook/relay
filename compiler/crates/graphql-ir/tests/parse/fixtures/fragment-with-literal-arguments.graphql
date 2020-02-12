@@ -1,0 +1,10 @@
+fragment ParentFragment on User {
+  ...ChildFragment @arguments(pictureSize: [42])
+}
+
+fragment ChildFragment on User
+  @argumentDefinitions(pictureSize: {type: "[Int]"}) {
+  profilePicture(size: $pictureSize) {
+    uri
+  }
+}

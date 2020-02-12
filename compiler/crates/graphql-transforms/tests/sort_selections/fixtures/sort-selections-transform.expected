@@ -1,0 +1,60 @@
+==================================== INPUT ====================================
+fragment UserFragment on User {
+  name
+  address {
+    city
+  }
+  ...NestedFragment
+  ... on User {
+    name
+    address {
+      street
+    }
+    ...NestedFragment2
+  }
+}
+
+fragment NestedFragment on User {
+  profile_picture {
+    uri
+  }
+  name
+  body {
+    text
+  }
+}
+
+fragment NestedFragment2 on User {
+  name
+  canViewerLike
+}
+==================================== OUTPUT ===================================
+fragment NestedFragment on User {
+  body {
+    text
+  }
+  profile_picture {
+    uri
+  }
+  name
+}
+
+fragment NestedFragment2 on User {
+  name
+  canViewerLike
+}
+
+fragment UserFragment on User {
+  ...NestedFragment
+  ... on User {
+    ...NestedFragment2
+    address {
+      street
+    }
+    name
+  }
+  address {
+    city
+  }
+  name
+}

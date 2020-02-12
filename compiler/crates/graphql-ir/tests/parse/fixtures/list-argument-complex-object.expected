@@ -1,0 +1,133 @@
+==================================== INPUT ====================================
+query ListArgumentQuery($waypoint: WayPoint!) {
+  route(waypoints: [$waypoint, {lat: "0.0", lon: "0.0"}]) {
+    steps {
+      note
+    }
+  }
+}
+==================================== OUTPUT ===================================
+[
+    Operation(
+        OperationDefinition {
+            kind: Query,
+            name: Spanned {
+                span: 6:23,
+                item: "ListArgumentQuery",
+            },
+            type_: Object(0),
+            variable_definitions: [
+                VariableDefinition {
+                    name: Spanned {
+                        span: 24:33,
+                        item: "waypoint",
+                    },
+                    type_: NonNull(
+                        Named(
+                            InputObject(0),
+                        ),
+                    ),
+                    default_value: None,
+                    directives: [],
+                },
+            ],
+            directives: [],
+            selections: [
+                LinkedField {
+                    alias: None,
+                    definition: Spanned {
+                        span: 47:55,
+                        item: FieldID(
+                            2,
+                        ),
+                    },
+                    arguments: [
+                        Argument {
+                            name: Spanned {
+                                span: 56:65,
+                                item: "waypoints",
+                            },
+                            value: Spanned {
+                                span: 67:104,
+                                item: List(
+                                    [
+                                        Variable(
+                                            Variable {
+                                                name: Spanned {
+                                                    span: 68:79,
+                                                    item: "waypoint",
+                                                },
+                                                type_: NonNull(
+                                                    Named(
+                                                        InputObject(0),
+                                                    ),
+                                                ),
+                                            },
+                                        ),
+                                        Constant(
+                                            Object(
+                                                [
+                                                    ConstantArgument {
+                                                        name: Spanned {
+                                                            span: 80:83,
+                                                            item: "lat",
+                                                        },
+                                                        value: Spanned {
+                                                            span: 85:92,
+                                                            item: String(
+                                                                "0.0",
+                                                            ),
+                                                        },
+                                                    },
+                                                    ConstantArgument {
+                                                        name: Spanned {
+                                                            span: 92:95,
+                                                            item: "lon",
+                                                        },
+                                                        value: Spanned {
+                                                            span: 97:102,
+                                                            item: String(
+                                                                "0.0",
+                                                            ),
+                                                        },
+                                                    },
+                                                ],
+                                            ),
+                                        ),
+                                    ],
+                                ),
+                            },
+                        },
+                    ],
+                    directives: [],
+                    selections: [
+                        LinkedField {
+                            alias: None,
+                            definition: Spanned {
+                                span: 107:118,
+                                item: FieldID(
+                                    27,
+                                ),
+                            },
+                            arguments: [],
+                            directives: [],
+                            selections: [
+                                ScalarField {
+                                    alias: None,
+                                    definition: Spanned {
+                                        span: 119:130,
+                                        item: FieldID(
+                                            30,
+                                        ),
+                                    },
+                                    arguments: [],
+                                    directives: [],
+                                },
+                            ],
+                        },
+                    ],
+                },
+            ],
+        },
+    ),
+]

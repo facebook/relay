@@ -1,0 +1,12 @@
+[project]
+name = "fixture-tests"
+version = "0.0.0"
+edition = "2018"
+
+[dependencies]
+colored = "1.9.1"
+diff = "0.1.12"
+lazy_static = "1.4.0"
+parking_lot = "0.10.0"
+signedsource = { path = "../signedsource" }
+structopt = "0.3.7"

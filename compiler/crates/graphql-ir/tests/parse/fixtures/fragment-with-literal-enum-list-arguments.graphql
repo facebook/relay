@@ -1,0 +1,13 @@
+fragment ParentFragment on User {
+  mobile_checkins: checkins(environments: [MOBILE]) {
+    query
+  }
+  ...ChildFragment @arguments(environments: [WEB])
+}
+
+fragment ChildFragment on User
+  @argumentDefinitions(environments: {type: "[Environment!]!"}) {
+  checkins(environments: $environments) {
+    query
+  }
+}

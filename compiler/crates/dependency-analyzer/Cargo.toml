@@ -1,0 +1,15 @@
+[project]
+name = "dependency-analyzer"
+version = "0.0.0"
+edition = "2018"
+
+[dependencies]
+fnv = "1.0.6"
+interner = { path = "../interner" }
+graphql-ir = { path = "../graphql-ir" }
+graphql-syntax = { path = "../graphql-syntax" }
+
+[dev-dependencies]
+fixture-tests = { path = "../fixture-tests" }
+test-schema = { path = "../test-schema" }
+schema = { path = "../schema" }

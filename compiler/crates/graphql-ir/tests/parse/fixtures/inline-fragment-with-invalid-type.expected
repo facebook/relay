@@ -1,0 +1,11 @@
+==================================== INPUT ====================================
+# expected-to-throw
+fragment InlineFragment on Node {
+  ... on UnkwnownType {
+    name
+  }
+}
+==================================== ERROR ====================================
+Unknown type 'UnkwnownType':
+inline-fragment-with-invalid-type.graphql:2:9:
+  ... on UnkwnownType {

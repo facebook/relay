@@ -1,0 +1,18 @@
+# expected-to-throw
+query NodeWithInvalidClientTypeSpread($id: ID!) {
+  node(id: $id) {
+    ... on Node {
+      ...FooFragment
+    }
+  }
+}
+
+fragment FooFragment on Foo {
+  id
+}
+
+# %extensions%
+
+type Foo {
+  id: ID!
+}

@@ -1,0 +1,9 @@
+==================================== INPUT ====================================
+# expected-to-throw
+fragment Foo on UnknownType {
+  id
+}
+==================================== ERROR ====================================
+Unknown type 'UnknownType':
+unknown-fragment-type.invalid.graphql:1:16:
+fragment Foo on UnknownType {

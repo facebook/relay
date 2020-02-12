@@ -1,0 +1,62 @@
+==================================== INPUT ====================================
+query TestQuery($id: ID!) {
+  node(id: $id) {
+    id
+    ...ProfileWithFriends
+  }
+}
+
+fragment ProfileWithFriends on User {
+  id
+  firstName
+  lastName
+  ...ProfileWithoutFriends
+  friends(first: 10) {
+    edges {
+      node {
+        ...ProfileWithoutFriends
+      }
+    }
+  }
+}
+
+fragment ProfileWithoutFriends on User {
+  firstName
+  lastName
+  profilePicture(size: 128) {
+    uri
+  }
+}
+==================================== OUTPUT ===================================
+query TestQuery(
+  $id: ID!
+) {
+  node(id: $id) {
+    id
+    ... on User {
+      id
+      firstName
+      lastName
+      ... on User {
+        firstName
+        lastName
+        profilePicture(size: 128) {
+          uri
+        }
+      }
+      friends(first: 10) {
+        edges {
+          node {
+            ... on User {
+              firstName
+              lastName
+              profilePicture(size: 128) {
+                uri
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

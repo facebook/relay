@@ -1,0 +1,9 @@
+==================================== INPUT ====================================
+# expected-to-throw
+fragment UserFragment on User {
+  checkins(environments: UNKNOWN_ENUM_VALUE) {
+    __typename
+  }
+}
+==================================== ERROR ====================================
+ValidationError { message: ExpectedValueMatchingType("Environment"), locations: ["unknown-enum-arg.invalid.graphql":77:95] }

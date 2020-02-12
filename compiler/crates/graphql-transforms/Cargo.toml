@@ -1,0 +1,16 @@
+[project]
+name = "graphql-transforms"
+version = "0.0.0"
+edition = "2018"
+
+[dependencies]
+common = { path = "../common" }
+interner = { path = "../interner" }
+graphql-ir = { path = "../graphql-ir" }
+schema = { path = "../schema" }
+
+[dev-dependencies]
+fixture-tests = { path = "../fixture-tests" }
+graphql-syntax = { path = "../graphql-syntax" }
+graphql-printer = { path = "../graphql-printer" }
+test-schema = { path = "../test-schema" }

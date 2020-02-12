@@ -130,6 +130,20 @@ describe('RelayRecordSourceProxy', () => {
         [TYPENAME_KEY]: ROOT_TYPE,
       });
     });
+
+    it('throws if the root is of a different type', () => {
+      const root = baseSource.get(ROOT_ID);
+      expect(root).not.toBeUndefined();
+      if (root != null) {
+        // Flow
+        root.__typename = 'User';
+      }
+      expect(() => {
+        store.getRoot();
+      }).toThrow(
+        'RelayRecordSourceProxy#getRoot(): Expected the source to contain a root record, found a root record of type `User`.',
+      );
+    });
   });
 
   describe('delete()', () => {

@@ -1,0 +1,11 @@
+[project]
+name = "schema"
+version = "0.0.0"
+edition = "2018"
+
+[dependencies]
+interner = { path = "../interner" }
+thiserror = "1.0.9"
+
+[dev-dependencies]
+fixture-tests = { path = "../fixture-tests" }

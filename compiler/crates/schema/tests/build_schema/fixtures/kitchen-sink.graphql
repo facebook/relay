@@ -1,0 +1,33 @@
+schema {
+  query: Query
+}
+
+type Query {
+  node(id: ID!): Node
+  nodes(ids: [ID!]!): [Node!]!
+}
+
+interface Node {
+  id: ID!
+}
+
+type User implements Node {
+  id: ID!
+  name: String
+}
+
+type Page {
+  id: ID
+}
+
+union Actor = User | Page
+
+# %extensions%
+
+type ClientType {
+  clientName: String
+}
+extend type User {
+  nickname: String
+  client: ClientType
+}

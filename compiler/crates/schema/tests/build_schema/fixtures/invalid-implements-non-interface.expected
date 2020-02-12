@@ -1,0 +1,12 @@
+==================================== INPUT ====================================
+# expected-to-throw
+
+type User {
+  id: ID
+}
+
+type Page implements User {
+  id: ID
+}
+==================================== ERROR ====================================
+Expected an interface type for name 'User', got 'Object(0)'.

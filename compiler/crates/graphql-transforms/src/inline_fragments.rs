@@ -80,7 +80,7 @@ impl<'s> Transformer for InlineFragmentsTransform<'s> {
             Selection::FragmentSpread(selection) => Transformed::Replace(
                 Selection::InlineFragment(self.transform_fragment_spread(selection)),
             ),
-            _ => self.super_selection(selection),
+            _ => self.default_transform_selection(selection),
         }
     }
 

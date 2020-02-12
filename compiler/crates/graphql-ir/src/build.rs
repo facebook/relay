@@ -140,7 +140,7 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
             })
             .collect();
         Ok(FragmentDefinition {
-            name: signature.name.clone(),
+            name: signature.name,
             type_condition: signature.type_condition,
             variable_definitions: signature.variable_definitions.clone(),
             used_global_variables,

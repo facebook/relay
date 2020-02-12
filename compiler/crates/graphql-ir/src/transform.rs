@@ -19,10 +19,13 @@ pub trait Transformer {
         &mut self,
         fragment: &FragmentDefinition,
     ) -> Transformed<FragmentDefinition> {
-        self.super_fragment(fragment)
+        self.default_transform_fragment(fragment)
     }
 
-    fn super_fragment(&mut self, fragment: &FragmentDefinition) -> Transformed<FragmentDefinition> {
+    fn default_transform_fragment(
+        &mut self,
+        fragment: &FragmentDefinition,
+    ) -> Transformed<FragmentDefinition> {
         // Special-case for empty selections
         let selections = self.transform_selections(&fragment.selections);
         if let Some(selections) = &selections {
@@ -31,7 +34,7 @@ pub trait Transformer {
             }
         }
         let directives = self.transform_directives(&fragment.directives);
-        if selections.is_none() && directives.is_none() && selections.is_none() {
+        if selections.is_none() && directives.is_none() {
             return Transformed::Keep;
         }
         Transformed::Replace(FragmentDefinition {
@@ -46,14 +49,13 @@ pub trait Transformer {
         &mut self,
         operation: &OperationDefinition,
     ) -> Transformed<OperationDefinition> {
-        self.super_operation(operation)
+        self.default_transform_operation(operation)
     }
 
-    fn super_operation(
+    fn default_transform_operation(
         &mut self,
         operation: &OperationDefinition,
     ) -> Transformed<OperationDefinition> {
-        let directives = self.transform_directives(&operation.directives);
         let selections = self.transform_selections(&operation.selections);
         // Special-case for empty selections
         if let Some(selections) = &selections {
@@ -61,7 +63,8 @@ pub trait Transformer {
                 return Transformed::Delete;
             }
         }
-        if selections.is_none() && directives.is_none() && selections.is_none() {
+        let directives = self.transform_directives(&operation.directives);
+        if selections.is_none() && directives.is_none() {
             return Transformed::Keep;
         }
         Transformed::Replace(OperationDefinition {
@@ -77,10 +80,10 @@ pub trait Transformer {
     }
 
     fn transform_selection(&mut self, selection: &Selection) -> Transformed<Selection> {
-        self.super_selection(selection)
+        self.default_transform_selection(selection)
     }
 
-    fn super_selection(&mut self, selection: &Selection) -> Transformed<Selection> {
+    fn default_transform_selection(&mut self, selection: &Selection) -> Transformed<Selection> {
         match selection {
             Selection::FragmentSpread(selection) => self
                 .transform_fragment_spread(selection)
@@ -99,10 +102,13 @@ pub trait Transformer {
 
     // Selection Kinds
     fn transform_scalar_field(&mut self, field: &ScalarField) -> Transformed<Arc<ScalarField>> {
-        self.super_scalar_field(field)
+        self.default_transform_scalar_field(field)
     }
 
-    fn super_scalar_field(&mut self, field: &ScalarField) -> Transformed<Arc<ScalarField>> {
+    fn default_transform_scalar_field(
+        &mut self,
+        field: &ScalarField,
+    ) -> Transformed<Arc<ScalarField>> {
         let arguments = self.transform_arguments(&field.arguments);
         let directives = self.transform_directives(&field.directives);
         if arguments.is_none() && directives.is_none() {
@@ -116,10 +122,13 @@ pub trait Transformer {
     }
 
     fn transform_linked_field(&mut self, field: &LinkedField) -> Transformed<Arc<LinkedField>> {
-        self.super_linked_field(field)
+        self.default_transform_linked_field(field)
     }
 
-    fn super_linked_field(&mut self, field: &LinkedField) -> Transformed<Arc<LinkedField>> {
+    fn default_transform_linked_field(
+        &mut self,
+        field: &LinkedField,
+    ) -> Transformed<Arc<LinkedField>> {
         // Special-case for empty selections
         let selections = self.transform_selections(&field.selections);
         if let Some(selections) = &selections {
@@ -144,10 +153,10 @@ pub trait Transformer {
         &mut self,
         fragment: &InlineFragment,
     ) -> Transformed<Arc<InlineFragment>> {
-        self.super_inline_fragment(fragment)
+        self.default_transform_inline_fragment(fragment)
     }
 
-    fn super_inline_fragment(
+    fn default_transform_inline_fragment(
         &mut self,
         fragment: &InlineFragment,
     ) -> Transformed<Arc<InlineFragment>> {
@@ -173,9 +182,9 @@ pub trait Transformer {
         &mut self,
         spread: &FragmentSpread,
     ) -> Transformed<Arc<FragmentSpread>> {
-        self.super_fragment_spread(spread)
+        self.default_transform_fragment_spread(spread)
     }
-    fn super_fragment_spread(
+    fn default_transform_fragment_spread(
         &mut self,
         spread: &FragmentSpread,
     ) -> Transformed<Arc<FragmentSpread>> {
@@ -201,10 +210,10 @@ pub trait Transformer {
     }
 
     fn transform_directive(&mut self, directive: &Directive) -> Transformed<Directive> {
-        self.super_directive(directive)
+        self.default_transform_directive(directive)
     }
 
-    fn super_directive(&mut self, directive: &Directive) -> Transformed<Directive> {
+    fn default_transform_directive(&mut self, directive: &Directive) -> Transformed<Directive> {
         let arguments = self.transform_arguments(&directive.arguments);
         match arguments {
             None => Transformed::Keep,
@@ -225,10 +234,10 @@ pub trait Transformer {
     }
 
     fn transform_argument(&mut self, argument: &Argument) -> Transformed<Argument> {
-        self.super_argument(argument)
+        self.default_transform_argument(argument)
     }
 
-    fn super_argument(&mut self, argument: &Argument) -> Transformed<Argument> {
+    fn default_transform_argument(&mut self, argument: &Argument) -> Transformed<Argument> {
         match self.transform_value(&argument.value.item) {
             Transformed::Delete => Transformed::Delete,
             Transformed::Keep => Transformed::Keep,
@@ -241,16 +250,12 @@ pub trait Transformer {
 
     // Values
     fn transform_value(&mut self, value: &Value) -> Transformed<Value> {
-        self.super_value(value)
+        self.default_transform_value(value)
     }
 
-    fn super_value(&mut self, value: &Value) -> Transformed<Value> {
+    fn default_transform_value(&mut self, value: &Value) -> Transformed<Value> {
         match value {
-            Value::Variable(variable) => match self.transform_variable(variable) {
-                Transformed::Delete => Transformed::Delete,
-                Transformed::Keep => Transformed::Keep,
-                Transformed::Replace(variable) => Transformed::Replace(Value::Variable(variable)),
-            },
+            Value::Variable(variable) => self.transform_variable(variable).map(Value::Variable),
             Value::Constant(_) => Transformed::Keep,
             Value::List(items) => match self.transform_list(items, Self::transform_value) {
                 None => Transformed::Keep,

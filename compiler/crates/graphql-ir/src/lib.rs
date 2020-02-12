@@ -8,7 +8,6 @@
 #![deny(warnings)]
 #![deny(rust_2018_idioms)]
 #![deny(clippy::all)]
-#![allow(clippy::clone_on_copy)]
 
 mod build;
 mod error_combinators;

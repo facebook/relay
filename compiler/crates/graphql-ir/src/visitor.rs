@@ -14,20 +14,20 @@ pub trait Visitor {
 
     // Fragment Definition
     fn visit_fragment(&mut self, fragment: &FragmentDefinition) {
-        self.super_fragment(fragment)
+        self.default_visit_fragment(fragment)
     }
 
-    fn super_fragment(&mut self, fragment: &FragmentDefinition) {
+    fn default_visit_fragment(&mut self, fragment: &FragmentDefinition) {
         self.visit_selections(&fragment.selections);
         self.visit_directives(&fragment.directives);
     }
 
     // Operation Definition
     fn visit_operation(&mut self, operation: &OperationDefinition) {
-        self.super_operation(operation)
+        self.default_visit_operation(operation)
     }
 
-    fn super_operation(&mut self, operation: &OperationDefinition) {
+    fn default_visit_operation(&mut self, operation: &OperationDefinition) {
         self.visit_directives(&operation.directives);
         self.visit_selections(&operation.selections);
     }
@@ -38,10 +38,10 @@ pub trait Visitor {
     }
 
     fn visit_selection(&mut self, selection: &Selection) {
-        self.super_selection(selection)
+        self.default_visit_selection(selection)
     }
 
-    fn super_selection(&mut self, selection: &Selection) {
+    fn default_visit_selection(&mut self, selection: &Selection) {
         match selection {
             Selection::FragmentSpread(selection) => self.visit_fragment_spread(selection),
             Selection::InlineFragment(selection) => self.visit_inline_fragment(selection),
@@ -52,37 +52,37 @@ pub trait Visitor {
 
     // Selection Kinds
     fn visit_scalar_field(&mut self, field: &ScalarField) {
-        self.super_scalar_field(field)
+        self.default_visit_scalar_field(field)
     }
 
-    fn super_scalar_field(&mut self, field: &ScalarField) {
+    fn default_visit_scalar_field(&mut self, field: &ScalarField) {
         self.visit_arguments(&field.arguments);
         self.visit_directives(&field.directives);
     }
 
     fn visit_linked_field(&mut self, field: &LinkedField) {
-        self.super_linked_field(field)
+        self.default_visit_linked_field(field)
     }
 
-    fn super_linked_field(&mut self, field: &LinkedField) {
+    fn default_visit_linked_field(&mut self, field: &LinkedField) {
         self.visit_selections(&field.selections);
         self.visit_arguments(&field.arguments);
         self.visit_directives(&field.directives);
     }
 
     fn visit_inline_fragment(&mut self, fragment: &InlineFragment) {
-        self.super_inline_fragment(fragment)
+        self.default_visit_inline_fragment(fragment)
     }
 
-    fn super_inline_fragment(&mut self, fragment: &InlineFragment) {
+    fn default_visit_inline_fragment(&mut self, fragment: &InlineFragment) {
         self.visit_selections(&fragment.selections);
         self.visit_directives(&fragment.directives);
     }
 
     fn visit_fragment_spread(&mut self, spread: &FragmentSpread) {
-        self.super_fragment_spread(spread)
+        self.default_visit_fragment_spread(spread)
     }
-    fn super_fragment_spread(&mut self, spread: &FragmentSpread) {
+    fn default_visit_fragment_spread(&mut self, spread: &FragmentSpread) {
         self.visit_arguments(&spread.arguments);
         self.visit_directives(&spread.directives);
     }
@@ -95,10 +95,10 @@ pub trait Visitor {
     }
 
     fn visit_directive(&mut self, directive: &Directive) {
-        self.super_directive(directive)
+        self.default_visit_directive(directive)
     }
 
-    fn super_directive(&mut self, directive: &Directive) {
+    fn default_visit_directive(&mut self, directive: &Directive) {
         self.visit_arguments(&directive.arguments)
     }
 
@@ -110,19 +110,19 @@ pub trait Visitor {
     }
 
     fn visit_argument(&mut self, argument: &Argument) {
-        self.super_argument(argument)
+        self.default_visit_argument(argument)
     }
 
-    fn super_argument(&mut self, argument: &Argument) {
+    fn default_visit_argument(&mut self, argument: &Argument) {
         self.visit_value(&argument.value.item)
     }
 
     // Values
     fn visit_value(&mut self, value: &Value) {
-        self.super_value(value)
+        self.default_visit_value(value)
     }
 
-    fn super_value(&mut self, value: &Value) {
+    fn default_visit_value(&mut self, value: &Value) {
         match value {
             Value::Variable(variable) => self.visit_variable(variable),
             Value::Constant(_) => (),

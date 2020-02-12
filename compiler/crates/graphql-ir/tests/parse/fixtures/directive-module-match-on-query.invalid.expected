@@ -1,0 +1,16 @@
+==================================== INPUT ====================================
+# expected-to-throw
+query TestQuery($id: ID!) @module @match {
+  foo: node(id: $id) {
+    id
+  }
+}
+==================================== ERROR ====================================
+Directive 'module' not supported in this location:
+directive-module-match-on-query.invalid.graphql:1:27:
+query TestQuery($id: ID!) @module @match {
+
+
+Directive 'match' not supported in this location:
+directive-module-match-on-query.invalid.graphql:1:35:
+query TestQuery($id: ID!) @module @match {

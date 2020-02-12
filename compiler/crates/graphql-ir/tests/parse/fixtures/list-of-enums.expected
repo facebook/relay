@@ -1,0 +1,32 @@
+==================================== INPUT ====================================
+fragment TestFragment on User {
+  traits # This is a list of enums.
+}
+==================================== OUTPUT ===================================
+[
+    Fragment(
+        FragmentDefinition {
+            name: Spanned {
+                span: 9:22,
+                item: "TestFragment",
+            },
+            variable_definitions: [],
+            used_global_variables: [],
+            type_condition: Object(65),
+            directives: [],
+            selections: [
+                ScalarField {
+                    alias: None,
+                    definition: Spanned {
+                        span: 31:67,
+                        item: FieldID(
+                            467,
+                        ),
+                    },
+                    arguments: [],
+                    directives: [],
+                },
+            ],
+        },
+    ),
+]

@@ -1,0 +1,79 @@
+==================================== INPUT ====================================
+fragment ScalarHandleField on User {
+  name
+    @__clientField(handle: "clientName")
+    @__clientField(handle: "clientName2")
+}
+==================================== OUTPUT ===================================
+[
+    Fragment(
+        FragmentDefinition {
+            name: Spanned {
+                span: 9:27,
+                item: "ScalarHandleField",
+            },
+            variable_definitions: [],
+            used_global_variables: [],
+            type_condition: Object(65),
+            directives: [],
+            selections: [
+                ScalarField {
+                    alias: None,
+                    definition: Spanned {
+                        span: 36:43,
+                        item: FieldID(
+                            452,
+                        ),
+                    },
+                    arguments: [],
+                    directives: [
+                        Directive {
+                            name: Spanned {
+                                span: 49:62,
+                                item: "__clientField",
+                            },
+                            arguments: [
+                                Argument {
+                                    name: Spanned {
+                                        span: 63:69,
+                                        item: "handle",
+                                    },
+                                    value: Spanned {
+                                        span: 71:83,
+                                        item: Constant(
+                                            String(
+                                                "clientName",
+                                            ),
+                                        ),
+                                    },
+                                },
+                            ],
+                        },
+                        Directive {
+                            name: Spanned {
+                                span: 90:103,
+                                item: "__clientField",
+                            },
+                            arguments: [
+                                Argument {
+                                    name: Spanned {
+                                        span: 104:110,
+                                        item: "handle",
+                                    },
+                                    value: Spanned {
+                                        span: 112:125,
+                                        item: Constant(
+                                            String(
+                                                "clientName2",
+                                            ),
+                                        ),
+                                    },
+                                },
+                            ],
+                        },
+                    ],
+                },
+            ],
+        },
+    ),
+]

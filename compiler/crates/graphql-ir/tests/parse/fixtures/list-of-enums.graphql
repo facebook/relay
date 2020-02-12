@@ -1,0 +1,3 @@
+fragment TestFragment on User {
+  traits # This is a list of enums.
+}

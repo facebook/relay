@@ -1,0 +1,6 @@
+# expected-to-throw
+fragment InlineFragment on Node {
+  ... on UnkwnownType {
+    name
+  }
+}

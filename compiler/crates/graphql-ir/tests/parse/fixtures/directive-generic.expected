@@ -1,0 +1,55 @@
+==================================== INPUT ====================================
+fragment TestFragment on User {
+  id @customDirective(level: 11)
+}
+==================================== OUTPUT ===================================
+[
+    Fragment(
+        FragmentDefinition {
+            name: Spanned {
+                span: 9:22,
+                item: "TestFragment",
+            },
+            variable_definitions: [],
+            used_global_variables: [],
+            type_condition: Object(65),
+            directives: [],
+            selections: [
+                ScalarField {
+                    alias: None,
+                    definition: Spanned {
+                        span: 31:37,
+                        item: FieldID(
+                            446,
+                        ),
+                    },
+                    arguments: [],
+                    directives: [
+                        Directive {
+                            name: Spanned {
+                                span: 38:53,
+                                item: "customDirective",
+                            },
+                            arguments: [
+                                Argument {
+                                    name: Spanned {
+                                        span: 54:59,
+                                        item: "level",
+                                    },
+                                    value: Spanned {
+                                        span: 61:63,
+                                        item: Constant(
+                                            Int(
+                                                11,
+                                            ),
+                                        ),
+                                    },
+                                },
+                            ],
+                        },
+                    ],
+                },
+            ],
+        },
+    ),
+]

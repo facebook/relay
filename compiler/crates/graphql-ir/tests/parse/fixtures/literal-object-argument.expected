@@ -1,0 +1,75 @@
+==================================== INPUT ====================================
+query LiteralObjectArgument {
+  checkinSearchQuery(query: {query: "Facebook"}) {
+    query
+  }
+}
+==================================== OUTPUT ===================================
+[
+    Operation(
+        OperationDefinition {
+            kind: Query,
+            name: Spanned {
+                span: 6:28,
+                item: "LiteralObjectArgument",
+            },
+            type_: Object(0),
+            variable_definitions: [],
+            directives: [],
+            selections: [
+                LinkedField {
+                    alias: None,
+                    definition: Spanned {
+                        span: 29:50,
+                        item: FieldID(
+                            0,
+                        ),
+                    },
+                    arguments: [
+                        Argument {
+                            name: Spanned {
+                                span: 51:56,
+                                item: "query",
+                            },
+                            value: Spanned {
+                                span: 58:77,
+                                item: Constant(
+                                    Object(
+                                        [
+                                            ConstantArgument {
+                                                name: Spanned {
+                                                    span: 59:64,
+                                                    item: "query",
+                                                },
+                                                value: Spanned {
+                                                    span: 66:76,
+                                                    item: String(
+                                                        "Facebook",
+                                                    ),
+                                                },
+                                            },
+                                        ],
+                                    ),
+                                ),
+                            },
+                        },
+                    ],
+                    directives: [],
+                    selections: [
+                        ScalarField {
+                            alias: None,
+                            definition: Spanned {
+                                span: 80:90,
+                                item: FieldID(
+                                    53,
+                                ),
+                            },
+                            arguments: [],
+                            directives: [],
+                        },
+                    ],
+                },
+            ],
+        },
+    ),
+]

@@ -1,0 +1,27 @@
+# expected-to-throw
+query LiteralObjectArgument1 {
+  checkinSearchQuery(
+    query: {
+      unknownField: "Facebook" # error: unknown field
+    }
+  ) {
+    query
+  }
+}
+
+query LiteralObjectArgument2 {
+  checkinSearchQuery(
+    query: {
+      query: FACEBOOK # error: enum not string
+    }
+  ) {
+    query
+  }
+}
+
+query LiteralObjectArgument3 {
+  checkinSearchQuery(query: FACEBOOK) {
+    # error: enum not object
+    query
+  }
+}

@@ -1,0 +1,185 @@
+==================================== INPUT ====================================
+fragment ParentFragment on User {
+  mobile_checkins: checkins(environments: [MOBILE]) {
+    query
+  }
+  ...ChildFragment @arguments(environments: WEB)
+}
+
+fragment ChildFragment on User
+  @argumentDefinitions(environments: {type: "[Environment!]!"}) {
+  checkins(environments: $environments) {
+    query
+  }
+}
+==================================== OUTPUT ===================================
+[
+    Fragment(
+        FragmentDefinition {
+            name: Spanned {
+                span: 9:24,
+                item: "ParentFragment",
+            },
+            variable_definitions: [],
+            used_global_variables: [],
+            type_condition: Object(65),
+            directives: [],
+            selections: [
+                LinkedField {
+                    alias: Some(
+                        Spanned {
+                            span: 33:51,
+                            item: "mobile_checkins",
+                        },
+                    ),
+                    definition: Spanned {
+                        span: 53:61,
+                        item: FieldID(
+                            437,
+                        ),
+                    },
+                    arguments: [
+                        Argument {
+                            name: Spanned {
+                                span: 62:74,
+                                item: "environments",
+                            },
+                            value: Spanned {
+                                span: 76:84,
+                                item: Constant(
+                                    List(
+                                        [
+                                            Enum(
+                                                "MOBILE",
+                                            ),
+                                        ],
+                                    ),
+                                ),
+                            },
+                        },
+                    ],
+                    directives: [],
+                    selections: [
+                        ScalarField {
+                            alias: None,
+                            definition: Spanned {
+                                span: 87:97,
+                                item: FieldID(
+                                    53,
+                                ),
+                            },
+                            arguments: [],
+                            directives: [],
+                        },
+                    ],
+                },
+                FragmentSpread {
+                    fragment: Spanned {
+                        span: 107:121,
+                        item: "ChildFragment",
+                    },
+                    arguments: [
+                        Argument {
+                            name: Spanned {
+                                span: 132:144,
+                                item: "environments",
+                            },
+                            value: Spanned {
+                                span: 146:149,
+                                item: Constant(
+                                    Enum(
+                                        "WEB",
+                                    ),
+                                ),
+                            },
+                        },
+                    ],
+                    directives: [],
+                },
+            ],
+        },
+    ),
+    Fragment(
+        FragmentDefinition {
+            name: Spanned {
+                span: 163:177,
+                item: "ChildFragment",
+            },
+            variable_definitions: [
+                VariableDefinition {
+                    name: Spanned {
+                        span: 208:220,
+                        item: "environments",
+                    },
+                    type_: NonNull(
+                        List(
+                            NonNull(
+                                Named(
+                                    Enum(1),
+                                ),
+                            ),
+                        ),
+                    ),
+                    default_value: None,
+                    directives: [],
+                },
+            ],
+            used_global_variables: [],
+            type_condition: Object(65),
+            directives: [],
+            selections: [
+                LinkedField {
+                    alias: None,
+                    definition: Spanned {
+                        span: 250:261,
+                        item: FieldID(
+                            437,
+                        ),
+                    },
+                    arguments: [
+                        Argument {
+                            name: Spanned {
+                                span: 262:274,
+                                item: "environments",
+                            },
+                            value: Spanned {
+                                span: 276:289,
+                                item: Variable(
+                                    Variable {
+                                        name: Spanned {
+                                            span: 276:289,
+                                            item: "environments",
+                                        },
+                                        type_: NonNull(
+                                            List(
+                                                NonNull(
+                                                    Named(
+                                                        Enum(1),
+                                                    ),
+                                                ),
+                                            ),
+                                        ),
+                                    },
+                                ),
+                            },
+                        },
+                    ],
+                    directives: [],
+                    selections: [
+                        ScalarField {
+                            alias: None,
+                            definition: Spanned {
+                                span: 292:302,
+                                item: FieldID(
+                                    53,
+                                ),
+                            },
+                            arguments: [],
+                            directives: [],
+                        },
+                    ],
+                },
+            ],
+        },
+    ),
+]

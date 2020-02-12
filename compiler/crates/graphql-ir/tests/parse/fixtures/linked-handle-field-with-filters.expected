@@ -1,0 +1,143 @@
+==================================== INPUT ====================================
+fragment LinkedHandleField on User {
+  friends(first: 10, orderby: $orderby)
+    @__clientField(handle: "clientFriends", filters: ["first", "orderby"]) {
+    count
+  }
+}
+==================================== OUTPUT ===================================
+[
+    Fragment(
+        FragmentDefinition {
+            name: Spanned {
+                span: 9:27,
+                item: "LinkedHandleField",
+            },
+            variable_definitions: [],
+            used_global_variables: [
+                VariableDefinition {
+                    name: Spanned {
+                        span: 67:75,
+                        item: "orderby",
+                    },
+                    type_: List(
+                        Named(
+                            Scalar(2),
+                        ),
+                    ),
+                    default_value: None,
+                    directives: [],
+                },
+            ],
+            type_condition: Object(65),
+            directives: [],
+            selections: [
+                LinkedField {
+                    alias: None,
+                    definition: Spanned {
+                        span: 36:46,
+                        item: FieldID(
+                            444,
+                        ),
+                    },
+                    arguments: [
+                        Argument {
+                            name: Spanned {
+                                span: 47:52,
+                                item: "first",
+                            },
+                            value: Spanned {
+                                span: 54:58,
+                                item: Constant(
+                                    Int(
+                                        10,
+                                    ),
+                                ),
+                            },
+                        },
+                        Argument {
+                            name: Spanned {
+                                span: 58:65,
+                                item: "orderby",
+                            },
+                            value: Spanned {
+                                span: 67:75,
+                                item: Variable(
+                                    Variable {
+                                        name: Spanned {
+                                            span: 67:75,
+                                            item: "orderby",
+                                        },
+                                        type_: List(
+                                            Named(
+                                                Scalar(2),
+                                            ),
+                                        ),
+                                    },
+                                ),
+                            },
+                        },
+                    ],
+                    directives: [
+                        Directive {
+                            name: Spanned {
+                                span: 82:95,
+                                item: "__clientField",
+                            },
+                            arguments: [
+                                Argument {
+                                    name: Spanned {
+                                        span: 96:102,
+                                        item: "handle",
+                                    },
+                                    value: Spanned {
+                                        span: 104:121,
+                                        item: Constant(
+                                            String(
+                                                "clientFriends",
+                                            ),
+                                        ),
+                                    },
+                                },
+                                Argument {
+                                    name: Spanned {
+                                        span: 121:128,
+                                        item: "filters",
+                                    },
+                                    value: Spanned {
+                                        span: 130:150,
+                                        item: Constant(
+                                            List(
+                                                [
+                                                    String(
+                                                        "first",
+                                                    ),
+                                                    String(
+                                                        "orderby",
+                                                    ),
+                                                ],
+                                            ),
+                                        ),
+                                    },
+                                },
+                            ],
+                        },
+                    ],
+                    selections: [
+                        ScalarField {
+                            alias: None,
+                            definition: Spanned {
+                                span: 153:163,
+                                item: FieldID(
+                                    166,
+                                ),
+                            },
+                            arguments: [],
+                            directives: [],
+                        },
+                    ],
+                },
+            ],
+        },
+    ),
+]

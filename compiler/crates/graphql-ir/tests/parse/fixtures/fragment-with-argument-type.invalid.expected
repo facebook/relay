@@ -1,0 +1,7 @@
+==================================== INPUT ====================================
+# expected-to-throw
+fragment Foo on User @argumentDefinitions(user: {type: "User!"}) {
+  id
+}
+==================================== ERROR ====================================
+Expected argument definition to have an input type (scalar, enum, or input object), found type 'User':

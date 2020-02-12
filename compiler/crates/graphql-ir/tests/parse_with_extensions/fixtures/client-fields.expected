@@ -1,0 +1,303 @@
+==================================== INPUT ====================================
+query BestFriendsQuery($id: ID!) {
+  node(id: $id) {
+    ...BestFriends
+  }
+}
+
+fragment BestFriends on User {
+  # this is the only field that is part of the base schema
+  id
+  # fields defined in type extensions are skipped
+  best_friends {
+    edges {
+      cursor
+      node {
+        id
+      }
+    }
+    pageInfo {
+      hasNextPage
+    }
+  }
+  ... on User {
+    foo {
+      # fragments on extension types are skipped
+      ...FooFragment
+      ... on Foo {
+        id
+      }
+    }
+  }
+}
+
+fragment FooFragment on Foo {
+  id
+}
+
+# %extensions%
+
+extend type User {
+  best_friends: FriendsConnection
+  foo: Foo
+}
+
+type Foo {
+  id: ID!
+}
+==================================== OUTPUT ===================================
+[
+    Operation(
+        OperationDefinition {
+            kind: Query,
+            name: Spanned {
+                span: 6:22,
+                item: "BestFriendsQuery",
+            },
+            type_: Object(0),
+            variable_definitions: [
+                VariableDefinition {
+                    name: Spanned {
+                        span: 23:26,
+                        item: "id",
+                    },
+                    type_: NonNull(
+                        Named(
+                            Scalar(4),
+                        ),
+                    ),
+                    default_value: None,
+                    directives: [],
+                },
+            ],
+            directives: [],
+            selections: [
+                LinkedField {
+                    alias: None,
+                    definition: Spanned {
+                        span: 34:41,
+                        item: FieldID(
+                            9,
+                        ),
+                    },
+                    arguments: [
+                        Argument {
+                            name: Spanned {
+                                span: 42:44,
+                                item: "id",
+                            },
+                            value: Spanned {
+                                span: 46:49,
+                                item: Variable(
+                                    Variable {
+                                        name: Spanned {
+                                            span: 46:49,
+                                            item: "id",
+                                        },
+                                        type_: Named(
+                                            Scalar(4),
+                                        ),
+                                    },
+                                ),
+                            },
+                        },
+                    ],
+                    directives: [],
+                    selections: [
+                        FragmentSpread {
+                            fragment: Spanned {
+                                span: 60:71,
+                                item: "BestFriends",
+                            },
+                            arguments: [],
+                            directives: [],
+                        },
+                    ],
+                },
+            ],
+        },
+    ),
+    Fragment(
+        FragmentDefinition {
+            name: Spanned {
+                span: 88:100,
+                item: "BestFriends",
+            },
+            variable_definitions: [],
+            used_global_variables: [],
+            type_condition: Object(65),
+            directives: [],
+            selections: [
+                ScalarField {
+                    alias: None,
+                    definition: Spanned {
+                        span: 109:173,
+                        item: FieldID(
+                            446,
+                        ),
+                    },
+                    arguments: [],
+                    directives: [],
+                },
+                LinkedField {
+                    alias: None,
+                    definition: Spanned {
+                        span: 173:239,
+                        item: FieldID(
+                            495,
+                        ),
+                    },
+                    arguments: [],
+                    directives: [],
+                    selections: [
+                        LinkedField {
+                            alias: None,
+                            definition: Spanned {
+                                span: 240:251,
+                                item: FieldID(
+                                    167,
+                                ),
+                            },
+                            arguments: [],
+                            directives: [],
+                            selections: [
+                                ScalarField {
+                                    alias: None,
+                                    definition: Spanned {
+                                        span: 252:265,
+                                        item: FieldID(
+                                            169,
+                                        ),
+                                    },
+                                    arguments: [],
+                                    directives: [],
+                                },
+                                LinkedField {
+                                    alias: None,
+                                    definition: Spanned {
+                                        span: 265:277,
+                                        item: FieldID(
+                                            170,
+                                        ),
+                                    },
+                                    arguments: [],
+                                    directives: [],
+                                    selections: [
+                                        ScalarField {
+                                            alias: None,
+                                            definition: Spanned {
+                                                span: 278:289,
+                                                item: FieldID(
+                                                    446,
+                                                ),
+                                            },
+                                            arguments: [],
+                                            directives: [],
+                                        },
+                                    ],
+                                },
+                            ],
+                        },
+                        LinkedField {
+                            alias: None,
+                            definition: Spanned {
+                                span: 303:317,
+                                item: FieldID(
+                                    168,
+                                ),
+                            },
+                            arguments: [],
+                            directives: [],
+                            selections: [
+                                ScalarField {
+                                    alias: None,
+                                    definition: Spanned {
+                                        span: 318:336,
+                                        item: FieldID(
+                                            284,
+                                        ),
+                                    },
+                                    arguments: [],
+                                    directives: [],
+                                },
+                            ],
+                        },
+                    ],
+                },
+                InlineFragment {
+                    type_condition: Some(
+                        Object(65),
+                    ),
+                    directives: [],
+                    selections: [
+                        LinkedField {
+                            alias: None,
+                            definition: Spanned {
+                                span: 362:371,
+                                item: FieldID(
+                                    496,
+                                ),
+                            },
+                            arguments: [],
+                            directives: [],
+                            selections: [
+                                FragmentSpread {
+                                    fragment: Spanned {
+                                        span: 431:442,
+                                        item: "FooFragment",
+                                    },
+                                    arguments: [],
+                                    directives: [],
+                                },
+                                InlineFragment {
+                                    type_condition: Some(
+                                        Object(73),
+                                    ),
+                                    directives: [],
+                                    selections: [
+                                        ScalarField {
+                                            alias: None,
+                                            definition: Spanned {
+                                                span: 461:472,
+                                                item: FieldID(
+                                                    497,
+                                                ),
+                                            },
+                                            arguments: [],
+                                            directives: [],
+                                        },
+                                    ],
+                                },
+                            ],
+                        },
+                    ],
+                },
+            ],
+        },
+    ),
+    Fragment(
+        FragmentDefinition {
+            name: Spanned {
+                span: 503:515,
+                item: "FooFragment",
+            },
+            variable_definitions: [],
+            used_global_variables: [],
+            type_condition: Object(73),
+            directives: [],
+            selections: [
+                ScalarField {
+                    alias: None,
+                    definition: Spanned {
+                        span: 523:528,
+                        item: FieldID(
+                            497,
+                        ),
+                    },
+                    arguments: [],
+                    directives: [],
+                },
+            ],
+        },
+    ),
+]

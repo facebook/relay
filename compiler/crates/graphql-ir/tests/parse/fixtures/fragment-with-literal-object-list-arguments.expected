@@ -1,0 +1,234 @@
+==================================== INPUT ====================================
+fragment ParentFragment on Query {
+  mobile_checkins: checkinSearchQuery(query: {query: "mobile"}) {
+    query
+  }
+  ...ChildFragment @arguments(inputs: [{query: "web"}])
+}
+
+fragment ChildFragment on Query
+  @argumentDefinitions(inputs: {type: "[CheckinSearchInput!]!"}) {
+  checkinSearchQuery(query: {query: "foo", inputs: $inputs}) {
+    query
+  }
+}
+==================================== OUTPUT ===================================
+[
+    Fragment(
+        FragmentDefinition {
+            name: Spanned {
+                span: 9:24,
+                item: "ParentFragment",
+            },
+            variable_definitions: [],
+            used_global_variables: [],
+            type_condition: Object(0),
+            directives: [],
+            selections: [
+                LinkedField {
+                    alias: Some(
+                        Spanned {
+                            span: 34:52,
+                            item: "mobile_checkins",
+                        },
+                    ),
+                    definition: Spanned {
+                        span: 54:72,
+                        item: FieldID(
+                            0,
+                        ),
+                    },
+                    arguments: [
+                        Argument {
+                            name: Spanned {
+                                span: 73:78,
+                                item: "query",
+                            },
+                            value: Spanned {
+                                span: 80:97,
+                                item: Constant(
+                                    Object(
+                                        [
+                                            ConstantArgument {
+                                                name: Spanned {
+                                                    span: 81:86,
+                                                    item: "query",
+                                                },
+                                                value: Spanned {
+                                                    span: 88:96,
+                                                    item: String(
+                                                        "mobile",
+                                                    ),
+                                                },
+                                            },
+                                        ],
+                                    ),
+                                ),
+                            },
+                        },
+                    ],
+                    directives: [],
+                    selections: [
+                        ScalarField {
+                            alias: None,
+                            definition: Spanned {
+                                span: 100:110,
+                                item: FieldID(
+                                    53,
+                                ),
+                            },
+                            arguments: [],
+                            directives: [],
+                        },
+                    ],
+                },
+                FragmentSpread {
+                    fragment: Spanned {
+                        span: 120:134,
+                        item: "ChildFragment",
+                    },
+                    arguments: [
+                        Argument {
+                            name: Spanned {
+                                span: 145:151,
+                                item: "inputs",
+                            },
+                            value: Spanned {
+                                span: 153:169,
+                                item: Constant(
+                                    List(
+                                        [
+                                            Object(
+                                                [
+                                                    ConstantArgument {
+                                                        name: Spanned {
+                                                            span: 155:160,
+                                                            item: "query",
+                                                        },
+                                                        value: Spanned {
+                                                            span: 162:167,
+                                                            item: String(
+                                                                "web",
+                                                            ),
+                                                        },
+                                                    },
+                                                ],
+                                            ),
+                                        ],
+                                    ),
+                                ),
+                            },
+                        },
+                    ],
+                    directives: [],
+                },
+            ],
+        },
+    ),
+    Fragment(
+        FragmentDefinition {
+            name: Spanned {
+                span: 183:197,
+                item: "ChildFragment",
+            },
+            variable_definitions: [
+                VariableDefinition {
+                    name: Spanned {
+                        span: 229:235,
+                        item: "inputs",
+                    },
+                    type_: NonNull(
+                        List(
+                            NonNull(
+                                Named(
+                                    InputObject(14),
+                                ),
+                            ),
+                        ),
+                    ),
+                    default_value: None,
+                    directives: [],
+                },
+            ],
+            used_global_variables: [],
+            type_condition: Object(0),
+            directives: [],
+            selections: [
+                LinkedField {
+                    alias: None,
+                    definition: Spanned {
+                        span: 272:293,
+                        item: FieldID(
+                            0,
+                        ),
+                    },
+                    arguments: [
+                        Argument {
+                            name: Spanned {
+                                span: 294:299,
+                                item: "query",
+                            },
+                            value: Spanned {
+                                span: 301:332,
+                                item: Object(
+                                    [
+                                        Argument {
+                                            name: Spanned {
+                                                span: 302:307,
+                                                item: "query",
+                                            },
+                                            value: Spanned {
+                                                span: 309:316,
+                                                item: Constant(
+                                                    String(
+                                                        "foo",
+                                                    ),
+                                                ),
+                                            },
+                                        },
+                                        Argument {
+                                            name: Spanned {
+                                                span: 316:322,
+                                                item: "inputs",
+                                            },
+                                            value: Spanned {
+                                                span: 324:331,
+                                                item: Variable(
+                                                    Variable {
+                                                        name: Spanned {
+                                                            span: 324:331,
+                                                            item: "inputs",
+                                                        },
+                                                        type_: List(
+                                                            Named(
+                                                                InputObject(14),
+                                                            ),
+                                                        ),
+                                                    },
+                                                ),
+                                            },
+                                        },
+                                    ],
+                                ),
+                            },
+                        },
+                    ],
+                    directives: [],
+                    selections: [
+                        ScalarField {
+                            alias: None,
+                            definition: Spanned {
+                                span: 335:345,
+                                item: FieldID(
+                                    53,
+                                ),
+                            },
+                            arguments: [],
+                            directives: [],
+                        },
+                    ],
+                },
+            ],
+        },
+    ),
+]

@@ -1,0 +1,18 @@
+[project]
+name = "graphql-ir"
+version = "0.0.0"
+edition = "2018"
+
+[dependencies]
+common = { path = "../common" }
+fnv = "1.0.6"
+graphql-syntax = { path = "../graphql-syntax" }
+interner = { path = "../interner" }
+lazy_static = "1.4.0"
+rayon = "1.3.0"
+schema = { path = "../schema" }
+thiserror = "1.0.9"
+
+[dev-dependencies]
+fixture-tests = { path = "../fixture-tests" }
+test-schema = { path = "../test-schema" }

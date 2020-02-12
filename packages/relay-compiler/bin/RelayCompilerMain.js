@@ -8,6 +8,8 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const CodegenRunner = require('../codegen/CodegenRunner');
@@ -32,7 +34,7 @@ const {
   fragmentTransforms,
   printTransforms,
   queryTransforms,
-  schemaExtensions,
+  schemaExtensions: relaySchemaExtensions,
 } = RelayIRTransforms;
 
 import type {ScalarTypeMapping} from '../language/javascript/RelayFlowTypeTransformers';
@@ -55,6 +57,7 @@ export type Config = {|
   quiet: boolean,
   persistOutput?: ?string,
   noFutureProofEnums: boolean,
+  eagerESModules?: boolean,
   language: string | PluginInitializer,
   persistFunction?: ?string | ?((text: string) => Promise<string>),
   artifactDirectory?: ?string,
@@ -65,6 +68,7 @@ function buildWatchExpression(config: {
   extensions: Array<string>,
   include: Array<string>,
   exclude: Array<string>,
+  ...
 }) {
   return [
     'allof',
@@ -84,6 +88,7 @@ function getFilepathsFromGlob(
     extensions: Array<string>,
     include: Array<string>,
     exclude: Array<string>,
+    ...
   },
 ): Array<string> {
   const {extensions, include, exclude} = config;
@@ -95,7 +100,7 @@ function getFilepathsFromGlob(
   });
 }
 
-type LanguagePlugin = PluginInitializer | {default: PluginInitializer};
+type LanguagePlugin = PluginInitializer | {default: PluginInitializer, ...};
 
 /**
  * Unless the requested plugin is the builtin `javascript` one, import a
@@ -110,9 +115,14 @@ type LanguagePlugin = PluginInitializer | {default: PluginInitializer};
  */
 function getLanguagePlugin(
   language: string | PluginInitializer,
+  options?: {|
+    eagerESModules: boolean,
+  |},
 ): PluginInterface {
   if (language === 'javascript') {
-    return RelayLanguagePluginJavaScript();
+    return RelayLanguagePluginJavaScript({
+      eagerESModules: Boolean(options && options.eagerESModules),
+    });
   } else {
     let languagePlugin: LanguagePlugin;
     if (typeof language === 'string') {
@@ -232,7 +242,10 @@ async function getWatchConfig(config: Config): Promise<Config> {
 
   if (config.watch) {
     if (!watchman) {
-      throw new Error('Watchman is required to watch for changes.');
+      console.error(
+        'Watchman is required to watch for changes. Running with watch mode disabled.',
+      );
+      return {...config, watch: false, watchman: false};
     }
     if (!module.exports.hasWatchmanRootFile(config.src)) {
       throw new Error(
@@ -262,7 +275,9 @@ function getCodegenRunner(config: Config): CodegenRunner {
     quiet: config.quiet,
   });
   const schema = getSchemaSource(config.schema);
-  const languagePlugin = getLanguagePlugin(config.language);
+  const languagePlugin = getLanguagePlugin(config.language, {
+    eagerESModules: config.eagerESModules === true,
+  });
   const persistQueryFunction = getPersistQueryFunction(config);
   const inputExtensions = config.extensions || languagePlugin.inputExtensions;
   const outputExtension = languagePlugin.outputExtension;
@@ -288,6 +303,12 @@ function getCodegenRunner(config: Config): CodegenRunner {
     include: config.include,
     exclude: [path.relative(config.src, config.schema)].concat(config.exclude),
   };
+  const defaultIsGeneratedFile = (filePath: string) =>
+    filePath.endsWith('.graphql.' + outputExtension) &&
+    filePath.includes(generatedDirectoryName);
+  const schemaExtensions = languagePlugin.schemaExtensions
+    ? [...languagePlugin.schemaExtensions, ...relaySchemaExtensions]
+    : relaySchemaExtensions;
   const parserConfigs = {
     [sourceParserName]: {
       baseDir: config.src,
@@ -326,9 +347,9 @@ function getCodegenRunner(config: Config): CodegenRunner {
         config.customScalars,
         persistQueryFunction,
       ),
-      isGeneratedFile: (filePath: string) =>
-        filePath.endsWith('.graphql.' + outputExtension) &&
-        filePath.includes(generatedDirectoryName),
+      isGeneratedFile: languagePlugin.isGeneratedFile
+        ? languagePlugin.isGeneratedFile
+        : defaultIsGeneratedFile,
       parser: sourceParserName,
       baseParsers: ['graphql'],
     },
@@ -384,6 +405,9 @@ function getRelayFileWriter(
         return id;
       };
     }
+    const schemaExtensions = languagePlugin.schemaExtensions
+      ? [...languagePlugin.schemaExtensions, ...relaySchemaExtensions]
+      : relaySchemaExtensions;
     const results = await RelayFileWriter.writeAll({
       config: {
         baseDir,
@@ -411,6 +435,7 @@ function getRelayFileWriter(
       documents,
       reporter,
       sourceControl,
+      languagePlugin,
     });
     if (queryMap != null && persistedQueryPath != null) {
       let object = {};

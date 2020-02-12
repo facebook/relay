@@ -8,6 +8,8 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const deepFreeze = require('../util/deepFreeze');
@@ -21,7 +23,7 @@ const {
 const {ROOT_ID} = require('./RelayStoreUtils');
 
 import type {ConcreteRequest} from '../util/RelayConcreteNode';
-import type {Variables} from '../util/RelayRuntimeTypes';
+import type {DataID, Variables} from '../util/RelayRuntimeTypes';
 import type {OperationDescriptor, RequestDescriptor} from './RelayStoreTypes';
 
 /**
@@ -33,10 +35,10 @@ import type {OperationDescriptor, RequestDescriptor} from './RelayStoreTypes';
 function createOperationDescriptor(
   request: ConcreteRequest,
   variables: Variables,
+  dataID?: DataID = ROOT_ID,
 ): OperationDescriptor {
   const operation = request.operation;
   const operationVariables = getOperationVariables(operation, variables);
-  const dataID = ROOT_ID;
   const requestDescriptor = createRequestDescriptor(
     request,
     operationVariables,

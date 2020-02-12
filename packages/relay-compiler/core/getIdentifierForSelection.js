@@ -8,13 +8,15 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const invariant = require('invariant');
 
-const {printArguments, printDirectives} = require('./GraphQLIRPrinter');
+const {printArguments, printDirectives} = require('./IRPrinter');
 
-import type {Selection} from './GraphQLIR';
+import type {Selection} from './IR';
 import type {Schema} from './Schema';
 
 /**
@@ -23,16 +25,10 @@ import type {Schema} from './Schema';
  * variable and passing value for conditions.
  */
 function getIdentifierForSelection(schema: Schema, node: Selection): string {
-  if (
-    node.kind === 'LinkedField' ||
-    node.kind === 'ScalarField' ||
-    node.kind === 'ConnectionField'
-  ) {
+  if (node.kind === 'LinkedField' || node.kind === 'ScalarField') {
     return 'Field: ' + node.directives.length === 0
       ? node.alias
       : node.alias + printDirectives(schema, node.directives);
-  } else if (node.kind === 'Connection') {
-    return 'Connection:' + node.label;
   } else if (node.kind === 'FragmentSpread') {
     return 'FragmentSpread:' + node.args.length === 0
       ? node.name

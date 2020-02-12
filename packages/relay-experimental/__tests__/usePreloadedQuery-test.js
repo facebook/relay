@@ -9,16 +9,18 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
-jest.mock('fbjs/lib/ExecutionEnvironment', () => ({
-  canUseDOM: true,
+jest.mock('../ExecutionEnvironment', () => ({
+  isServer: false,
 }));
 
 const React = require('react');
 const TestRenderer = require('react-test-renderer');
 
-const preloadQuery = require('../preloadQuery');
+const {loadQuery} = require('../loadQuery');
 const usePreloadedQuery = require('../usePreloadedQuery');
 const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
 const {
@@ -44,9 +46,7 @@ const query = generateAndCompile(`
   }
 `).TestQuery;
 const params = {
-  getModuleIfRequired: () => {
-    return null;
-  },
+  kind: 'PreloadableConcreteRequest',
   params: query.params,
 };
 
@@ -113,7 +113,7 @@ beforeEach(() => {
 });
 
 it('suspends while the query is pending', () => {
-  const prefetched = preloadQuery(environment, params, {id: '4'});
+  const prefetched = loadQuery(environment, params, {id: '4'});
   let data;
   function Component(props) {
     data = usePreloadedQuery(query, props.prefetched);
@@ -132,7 +132,7 @@ it('suspends while the query is pending', () => {
 });
 
 it('suspends while the query is pending (with default variables)', () => {
-  const prefetched = preloadQuery(environment, params, {});
+  const prefetched = loadQuery(environment, params, {});
   let data;
   function Component(props) {
     data = usePreloadedQuery(query, props.prefetched);
@@ -154,7 +154,7 @@ it('renders synchronously if the query has already completed', () => {
   // TODO(T40983823): Fix usage of timers in tests
   environment.getStore().holdGC();
 
-  const prefetched = preloadQuery(environment, params, {id: '4'});
+  const prefetched = loadQuery(environment, params, {id: '4'});
   dataSource.next(response);
   dataSource.complete();
 
@@ -181,7 +181,7 @@ it('renders synchronously if the query has already completed', () => {
 });
 
 it('renders synchronously if the query has already errored', () => {
-  const prefetched = preloadQuery(environment, params, {id: '4'});
+  const prefetched = loadQuery(environment, params, {id: '4'});
   const error = new Error('wtf');
   dataSource.error(error);
 
@@ -205,7 +205,7 @@ it('renders synchronously if the query has already errored', () => {
 });
 
 it('updates asynchronously when the query completes', () => {
-  const prefetched = preloadQuery(environment, params, {id: '4'});
+  const prefetched = loadQuery(environment, params, {id: '4'});
 
   let data;
   function Component(props) {
@@ -237,14 +237,14 @@ it('updates asynchronously when the query completes', () => {
 });
 
 it('refetches when a different fetchKey is passed', () => {
-  const prefetched = preloadQuery(
+  const prefetched = loadQuery(
     environment,
     params,
     {id: '4'},
     {fetchKey: 'Break Cache 0', fetchPolicy: 'network-only'},
   );
   const dataSourceBreakCache0 = dataSource;
-  const prefetchedWithFetchKey = preloadQuery(
+  const prefetchedWithFetchKey = loadQuery(
     environment,
     params,
     {id: '4'},
@@ -301,7 +301,7 @@ it('refetches when a different fetchKey is passed', () => {
 });
 
 it('refetches when consumed with a different environment', () => {
-  const prefetched = preloadQuery(
+  const prefetched = loadQuery(
     environment,
     params,
     {id: '4'},
@@ -345,14 +345,14 @@ it('refetches when consumed with a different environment', () => {
 });
 
 it('no refetch when the same fetchKey is passed', () => {
-  const prefetched = preloadQuery(
+  const prefetched = loadQuery(
     environment,
     params,
     {id: '4'},
     {fetchKey: 'Break Cache 0', fetchPolicy: 'network-only'},
   );
   const dataSourceBreakCache0 = dataSource;
-  const prefetchedWithFetchKey = preloadQuery(
+  const prefetchedWithFetchKey = loadQuery(
     environment,
     params,
     {id: '4'},
@@ -409,7 +409,7 @@ it('no refetch when the same fetchKey is passed', () => {
 });
 
 it('updates asynchronously when the query errors', () => {
-  const prefetched = preloadQuery(environment, params, {id: '4'});
+  const prefetched = loadQuery(environment, params, {id: '4'});
 
   let data;
   function Component(props) {

@@ -8,11 +8,13 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const ASTConvert = require('../core/ASTConvert');
 const CodegenDirectory = require('./CodegenDirectory');
-const CompilerContext = require('../core/GraphQLCompilerContext');
+const CompilerContext = require('../core/CompilerContext');
 const Profiler = require('../core/GraphQLCompilerProfiler');
 const RelayParser = require('../core/RelayParser');
 
@@ -33,6 +35,7 @@ const {Map: ImmutableMap} = require('immutable');
 import type {Schema} from '../core/Schema';
 import type {
   FormatModule,
+  PluginInterface,
   TypeGenerator,
 } from '../language/RelayLanguagePluginInterface';
 import type {ScalarTypeMapping} from '../language/javascript/RelayFlowTypeTransformers';
@@ -41,6 +44,7 @@ import type {Filesystem} from './CodegenDirectory';
 import type {SourceControl} from './SourceControl';
 import type {RelayCompilerTransforms} from './compileRelayArtifacts';
 import type {DocumentNode, ValidationContext} from 'graphql';
+import type {RequestParameters} from 'relay-runtime';
 
 export type GenerateExtraFiles = (
   getOutputDirectory: (path?: string) => CodegenDirectory,
@@ -60,7 +64,6 @@ export type WriterConfig = {
   outputDir?: ?string,
   generatedDirectories?: $ReadOnlyArray<string>,
   persistQuery?: ?(text: string) => Promise<string>,
-  platform?: string,
   schemaExtensions: $ReadOnlyArray<string>,
   noFutureProofEnums: boolean,
   useHaste: boolean,
@@ -72,6 +75,13 @@ export type WriterConfig = {
   printModuleDependency?: string => string,
   filesystem?: Filesystem,
   repersist?: boolean,
+  writeQueryParameters?: (
+    outputDirectory: CodegenDirectory,
+    filename: string,
+    moduleName: string,
+    requestParams: RequestParameters,
+  ) => void,
+  ...
 };
 
 function compileAll({
@@ -132,6 +142,7 @@ function writeAll({
   schema,
   reporter,
   sourceControl,
+  languagePlugin,
 }: {|
   config: WriterConfig,
   onlyValidate: boolean,
@@ -140,6 +151,7 @@ function writeAll({
   schema: Schema,
   reporter: Reporter,
   sourceControl: ?SourceControl,
+  languagePlugin?: ?PluginInterface,
 |}): Promise<Map<string, CodegenDirectory>> {
   return Profiler.asyncContext('RelayFileWriter.writeAll', async () => {
     const {
@@ -300,11 +312,12 @@ function writeAll({
             formatModule,
             typeText,
             persistQuery,
-            writerConfig.platform,
             sourceHash,
             writerConfig.extension,
             writerConfig.printModuleDependency,
             writerConfig.repersist ?? false,
+            writerConfig.writeQueryParameters ?? function noop() {},
+            languagePlugin,
           );
         }),
       );
@@ -334,7 +347,7 @@ function writeAll({
       }
 
       allOutputDirectories.forEach(dir => {
-        dir.deleteExtraFiles();
+        dir.deleteExtraFiles(languagePlugin?.keepExtraFile);
       });
       if (sourceControl && !onlyValidate) {
         await CodegenDirectory.sourceControlAddRemove(

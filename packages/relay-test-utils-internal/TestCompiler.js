@@ -9,21 +9,21 @@
 
 'use strict';
 
-const RelayTestSchema = require('./RelayTestSchema');
-
 const parseGraphQLText = require('./parseGraphQLText');
 
+const {TestSchema} = require('./TestSchema');
 const {
   CodeMarker,
-  GraphQLCompilerContext,
+  CompilerContext,
   IRTransforms,
   compileRelayArtifacts,
-  transformASTSchema,
-  Schema,
 } = require('relay-compiler');
 
-import type {GraphQLSchema} from 'graphql';
-import type {RelayCompilerTransforms, IRTransform} from 'relay-compiler';
+import type {
+  RelayCompilerTransforms,
+  IRTransform,
+  Schema,
+} from 'relay-compiler';
 import type {GeneratedNode} from 'relay-runtime';
 
 /**
@@ -37,7 +37,7 @@ function generateWithTransforms(
 ): {[key: string]: GeneratedNode} {
   return generate(
     text,
-    RelayTestSchema,
+    TestSchema,
     {
       commonTransforms: transforms || [],
       fragmentTransforms: [],
@@ -56,31 +56,26 @@ function generateWithTransforms(
  */
 function generateAndCompile(
   text: string,
-  schema?: ?GraphQLSchema,
+  schema?: ?Schema,
   moduleMap?: ?{[string]: mixed},
 ): {[key: string]: GeneratedNode} {
-  return generate(
-    text,
-    schema || RelayTestSchema,
-    IRTransforms,
-    moduleMap ?? null,
-  );
+  return generate(text, schema ?? TestSchema, IRTransforms, moduleMap ?? null);
 }
 
 function generate(
   text: string,
-  schema: GraphQLSchema,
+  schema: RelaySchema,
   transforms: RelayCompilerTransforms,
   moduleMap: ?{[string]: mixed},
 ): {[key: string]: GeneratedNode} {
-  const relaySchema = transformASTSchema(schema, IRTransforms.schemaExtensions);
+  const relaySchema = schema.extend(IRTransforms.schemaExtensions);
   const {definitions, schema: extendedSchema} = parseGraphQLText(
     relaySchema,
     text,
   );
-  const compilerContext = new GraphQLCompilerContext(
-    Schema.DEPRECATED__create(schema, extendedSchema),
-  ).addAll(definitions);
+  const compilerContext = new CompilerContext(extendedSchema).addAll(
+    definitions,
+  );
   const documentMap = {};
   compileRelayArtifacts(compilerContext, transforms).forEach(
     ([_definition, node]) => {

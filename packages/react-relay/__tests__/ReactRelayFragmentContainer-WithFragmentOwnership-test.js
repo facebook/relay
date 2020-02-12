@@ -112,7 +112,7 @@ describe('ReactRelayFragmentContainer with fragment ownerhsip', () => {
 
     render = jest.fn(() => <div />);
     spec = {
-      user: () => UserFragment,
+      user: UserFragment,
     };
     variables = {rootVariable: 'root'};
     TestComponent = render;

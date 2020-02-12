@@ -2,7 +2,7 @@
 <!-- Built with spec-md https://spec-md.com -->
 <html>
 <head><meta charset="utf-8">
-<title>Relay Cursor Connections Specification</title>
+<title>GraphQL Cursor Connections Specification</title>
 <style>body {
   color: #333333;
   font: 13pt/18pt Cambria, "Palatino Linotype", Palatino, "Liberation Serif", serif;
@@ -865,14 +865,16 @@ pre[class*="language-"] {
 	cursor: help;
 }
 </style>
-<script>(function(){var e,t=document.getElementsByTagName("style")[0].sheet;function n(){e&&(t.deleteRule(e),e=void 0)}document.documentElement.addEventListener("mouseover",function(a){var u,d=a.target.attributes["data-name"];d&&(u=d.value,n(),e=t.insertRule('*[data-name="'+u+'"] { background: #FBF8D0; }',t.cssRules.length))}),document.documentElement.addEventListener("mouseout",n);})()</script>
-<script>(function(){var e,n,t,o,r="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";function a(e){c(new URL(e.target.href))}function i(){c(window.location)}function c(e){var n=e.hash.match(/^#sel-([A-Za-z0-9-_]+)$/);if(n){o=n[1];var a=(t=function(e){for(var n=new Array(64),t=0;t<64;t++)n[r.charCodeAt(t)]=t;var o=0,a=m(),i=m(),c=m(),d=w(),l=i.pop(),f=u(a.concat(i)),h=c.pop(),g=u(a.concat(c)),v=document.createRange();return v.setStart(f,l),v.setEnd(g,h),v.isOutdated=void 0!==d&&d!==s(v.toString()),v;function w(){for(var t=0,r=0;o<e.length;){var a=n[e.charCodeAt(o++)];if(t|=(31&a)<<r,r+=5,a<32)return t}}function m(){var e=w();if(null!=e){for(var n=new Array(e),t=0;t<e;t++)n[t]=w();return n}}}(o)).getBoundingClientRect(),i=Math.max(20,Math.floor(.4*(window.innerHeight-a.height)));window.scrollTo(0,window.scrollY+a.y-i);var c=document.getSelection();c.empty(),c.addRange(t),d()}}function d(){n||(n=document.getElementsByTagName("article")[0]),e||(e=document.createElement("a"),document.body.appendChild(e)),e.href="#sel-"+o,e.onclick=a,e.className=t.isOutdated?"outdated-selection-link":"selection-link",e.innerText=t.isOutdated?"!":"‟";var r=n.getBoundingClientRect().x,i=t.getBoundingClientRect().y;e.style.left=Math.floor(r+window.scrollX-37)+"px",e.style.top=Math.floor(i+window.scrollY-3)+"px"}function l(e){for(var n=[];e!=document.body;){var t=e.parentNode;n.push(Array.prototype.indexOf.call(t.childNodes,e)),e=t}return n.reverse()}function u(e){for(var n=document.body,t=0;t<e.length&&n;t++)n=n.childNodes[e[t]];return n}function s(e){for(var n=2166136261,t=0;t<e.length;++t)n^=e.charCodeAt(t),n+=(n<<1)+(n<<4)+(n<<7)+(n<<8)+(n<<24);return 32767&(n>>15^n)}document.addEventListener("selectionchange",function(n){var a=document.getSelection();if(a.isCollapsed)e&&(e.parentNode.removeChild(e),e=null);else{var i=a.getRangeAt(0);t&&0===i.compareBoundaryPoints(Range.START_TO_START,t)&&0===i.compareBoundaryPoints(Range.END_TO_END,t)||(o=function(e){var n="",t=l(e.startContainer),o=l(e.endContainer),a=function(e,n){var t=0;for(;t<e.length&&t<n.length&&e[t]===n[t];)t++;return e.slice(0,t)}(t,o);return c(a),c(t.slice(a.length).concat(e.startOffset)),c(o.slice(a.length).concat(e.endOffset)),i(s(e.toString())),n;function i(e){do{n+=r[31&e|(e>31?32:0)],e>>=5}while(e>0)}function c(e){i(e.length);for(var n=0;n<e.length;n++)i(e[n])}}(t=i),d())}}),window.addEventListener("resize",d),window.addEventListener("hashchange",i),window.addEventListener("load",i);})()</script>
+<script>(function(){var e,t=document.getElementsByTagName("style")[0].sheet;function n(){e&&(t.deleteRule(e),e=void 0)}document.documentElement.addEventListener("mouseover",(function(a){var u,d=a.target.attributes["data-name"];d&&(u=d.value,n(),e=t.insertRule('*[data-name="'+u+'"] { background: #FBF8D0; }',t.cssRules.length))})),document.documentElement.addEventListener("mouseout",n);})()</script>
+<script>(function(){var e,n,t,o,r="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";function a(e){c(new URL(e.target.href))}function i(){c(window.location)}function c(e){var n=e.hash.match(/^#sel-([A-Za-z0-9-_]+)$/);if(n){o=n[1];var a=(t=function(e){for(var n=new Array(64),t=0;t<64;t++)n[r.charCodeAt(t)]=t;var o=0,a=m(),i=m(),c=m(),d=w(),l=i.pop(),f=u(a.concat(i)),h=c.pop(),g=u(a.concat(c)),v=document.createRange();return v.setStart(f,l),v.setEnd(g,h),v.isOutdated=void 0!==d&&d!==s(v.toString()),v;function w(){for(var t=0,r=0;o<e.length;){var a=n[e.charCodeAt(o++)];if(t|=(31&a)<<r,r+=5,a<32)return t}}function m(){var e=w();if(null!=e){for(var n=new Array(e),t=0;t<e;t++)n[t]=w();return n}}}(o)).getBoundingClientRect(),i=Math.max(20,Math.floor(.4*(window.innerHeight-a.height)));window.scrollTo(0,window.scrollY+a.y-i);var c=document.getSelection();c.empty(),c.addRange(t),d()}}function d(){n||(n=document.getElementsByTagName("article")[0]),e||(e=document.createElement("a"),document.body.appendChild(e)),e.href="#sel-"+o,e.onclick=a,e.className=t.isOutdated?"outdated-selection-link":"selection-link",e.innerText=t.isOutdated?"!":"‟";var r=n.getBoundingClientRect().x,i=t.getBoundingClientRect().y;e.style.left=Math.floor(r+window.scrollX-37)+"px",e.style.top=Math.floor(i+window.scrollY-3)+"px"}function l(e){for(var n=[];e!=document.body;){var t=e.parentNode;n.push(Array.prototype.indexOf.call(t.childNodes,e)),e=t}return n.reverse()}function u(e){for(var n=document.body,t=0;t<e.length&&n;t++)n=n.childNodes[e[t]];return n}function s(e){for(var n=2166136261,t=0;t<e.length;++t)n^=e.charCodeAt(t),n+=(n<<1)+(n<<4)+(n<<7)+(n<<8)+(n<<24);return 32767&(n>>15^n)}document.addEventListener("selectionchange",(function(n){var a=document.getSelection();if(a.isCollapsed)e&&(e.parentNode.removeChild(e),e=null);else{var i=a.getRangeAt(0);t&&0===i.compareBoundaryPoints(Range.START_TO_START,t)&&0===i.compareBoundaryPoints(Range.END_TO_END,t)||(o=function(e){var n="",t=l(e.startContainer),o=l(e.endContainer),a=function(e,n){var t=0;for(;t<e.length&&t<n.length&&e[t]===n[t];)t++;return e.slice(0,t)}(t,o);return c(a),c(t.slice(a.length).concat(e.startOffset)),c(o.slice(a.length).concat(e.endOffset)),i(s(e.toString())),n;function i(e){do{n+=r[31&e|(e>31?32:0)],e>>=5}while(e>0)}function c(e){i(e.length);for(var n=0;n<e.length;n++)i(e[n])}}(t=i),d())}})),window.addEventListener("resize",d),window.addEventListener("hashchange",i),window.addEventListener("load",i);})()</script>
 </head>
 <body><article>
 <header>
-<h1>Relay Cursor Connections Specification</h1>
+<h1>GraphQL Cursor Connections Specification</h1>
 <section id="intro">
-<p>Relay&rsquo;s support for pagination relies on the GraphQL server exposing connections in a standardized way. In the query, the connection model provides a standard mechanism for slicing and paginating the result set. In the response, the connection model provides a standard way of providing cursors, and a way of telling the client when more results are available.</p>
+<p>This specification aims to provide an option for GraphQL clients to consistently handle <a href="https://graphql.org/learn/pagination/">pagination best practices</a> with support for related metadata via a GraphQL server. This spec proposes calling this pattern &ldquo;Connections&rdquo; and exposing them in a standardized way. </p>
+<p>In the query, the connection model provides a standard mechanism for slicing and paginating the result set.</p>
+<p>In the response, the connection model provides a standard way of providing cursors, and a way of telling the client when more results are available.</p>
 <p>An example of all four of those is the following query:</p>
 <pre><code><span class="token punctuation">{</span>
   user <span class="token punctuation">{</span>
@@ -954,7 +956,7 @@ pre[class*="language-"] {
 </header>
 <section id="sec-Reserved-Types" secid="1">
 <h2><span class="spec-secid" title="link to this section"><a href="#sec-Reserved-Types">1</a></span>Reserved Types</h2>
-<p>A GraphQL Relay server must reserve certain types and type names to support the pagination model used by Relay. In particular, this spec creates guidelines for the following types:</p>
+<p>A GraphQL server which conforms to this spec must reserve certain types and type names to support the pagination model of connections. In particular, this spec creates guidelines for the following types:</p>
 <ul>
 <li>Any object whose name ends in &ldquo;Connection&rdquo;.</li>
 <li>An object named <code>PageInfo</code>.</li>
@@ -962,7 +964,7 @@ pre[class*="language-"] {
 </section>
 <section id="sec-Connection-Types" secid="2">
 <h2><span class="spec-secid" title="link to this section"><a href="#sec-Connection-Types">2</a></span>Connection Types</h2>
-<p>Any type whose name ends in &ldquo;Connection&rdquo; is considered by Relay to be a <em>Connection Type</em>. Connection types must be an &ldquo;Object&rdquo; as defined in the &ldquo;Type System&rdquo; section of the GraphQL Specification.</p>
+<p>Any type whose name ends in &ldquo;Connection&rdquo; is considered by this spec to be a <em>Connection Type</em>. Connection types must be an &ldquo;Object&rdquo; as defined in the &ldquo;Type System&rdquo; section of the GraphQL Specification.</p>
 <section id="sec-Connection-Types.Fields" secid="2.1">
 <h3><span class="spec-secid" title="link to this section"><a href="#sec-Connection-Types.Fields">2.1</a></span>Fields</h3>
 <p>Connection types must have fields named <code>edges</code> and <code>pageInfo</code>. They may have additional fields related to the connection, as the schema designer sees fit.</p>
@@ -1031,22 +1033,22 @@ pre[class*="language-"] {
 </section>
 <section id="sec-Edge-Types" secid="3">
 <h2><span class="spec-secid" title="link to this section"><a href="#sec-Edge-Types">3</a></span>Edge Types</h2>
-<p>A type that is returned in list form by a connection type&rsquo;s <code>edges</code> field is considered by Relay to be an <em>Edge Type</em>. Edge types must be an &ldquo;Object&rdquo; as defined in the &ldquo;Type System&rdquo; section of the GraphQL Specification.</p>
+<p>A type that is returned in list form by a connection type&rsquo;s <code>edges</code> field is considered by this spec to be an <em>Edge Type</em>. Edge types must be an &ldquo;Object&rdquo; as defined in the &ldquo;Type System&rdquo; section of the GraphQL Specification.</p>
 <section id="sec-Edge-Types.Fields" secid="3.1">
 <h3><span class="spec-secid" title="link to this section"><a href="#sec-Edge-Types.Fields">3.1</a></span>Fields</h3>
 <p>Edge types must have fields named <code>node</code> and <code>cursor</code>. They may have additional fields related to the edge, as the schema designer sees fit.</p>
 <section id="sec-Node" secid="3.1.1">
 <h4><span class="spec-secid" title="link to this section"><a href="#sec-Node">3.1.1</a></span>Node</h4>
 <p>An &ldquo;Edge Type&rdquo; must contain a field called <code>node</code>. This field must return either a Scalar, Enum, Object, Interface, Union, or a Non&#8208;Null wrapper around one of those types. Notably, this field <em>cannot</em> return a list.</p>
-<div id="note-f38dd" class="spec-note">
-<a href="#note-f38dd">Note</a>
-The naming echoes that of the &ldquo;Node&rdquo; interface and &ldquo;node&rdquo; root field as described in a later section of this spec. Relay can perform certain optimizations if this field returns an object that implements <code>Node</code>, however, this is not a strict requirement for use of Relay.</div>
+<div id="note-c0d4d" class="spec-note">
+<a href="#note-c0d4d">Note</a>
+The naming echoes that of the &ldquo;Node&rdquo; interface and &ldquo;node&rdquo; root field as described in a later section of this spec. Spec&#8208;compliant clients can perform certain optimizations if this field returns an object that implements <code>Node</code>, however, this is not a strict requirement for conforming.</div>
 </section>
 <section id="sec-Cursor" secid="3.1.2">
 <h4><span class="spec-secid" title="link to this section"><a href="#sec-Cursor">3.1.2</a></span>Cursor</h4>
 <p>An &ldquo;Edge Type&rdquo; must contain a field called <code>cursor</code>. This field must return a type that serializes as a String; this may be a String, a Non&#8208;Null wrapper around a String, a custom scalar that serializes as a String, or a Non&#8208;Null wrapper around a custom scalar that serializes as a String.</p>
 <p>Whatever type this field returns will be referred to as the <em>cursor type</em> in the rest of this spec.</p>
-<p>The result of this field is considered opaque by Relay, but will be passed back to the server as described in the &ldquo;Arguments&rdquo; section below.</p>
+<p>The result of this field should be considered opaque by the client, but will be passed back to the server as described in the &ldquo;Arguments&rdquo; section below.</p>
 </section>
 </section>
 <section id="sec-Edge-Types.Introspection" secid="3.2">
@@ -1231,9 +1233,9 @@ Including a value for both <code>first</code> and <code>last</code> is strongly 
 <a href="#note-95f8a">Note</a>
 When both <code>first</code> and <code>last</code> are included, both of the fields should be set according to the above algorithms, but their meaning as it relates to pagination becomes unclear. This is among the reasons that pagination with both <code>first</code> and <code>last</code> is discouraged.</div>
 <p><code>startCursor</code> and <code>endCursor</code> must be the cursors corresponding to the first and last nodes in <code>edges</code>, respectively.</p>
-<div id="note-4e735" class="spec-note">
-<a href="#note-4e735">Note</a>
-Relay Legacy did not define <code>startCursor</code> and <code>endCursor</code>, and relied on selecting the <code>cursor</code> of each edge; Relay Modern began selecting <code>startCursor</code> and <code>endCursor</code> instead to save bandwidth (since it doesn&rsquo;t use any cursors in between).</div>
+<div id="note-4ca64" class="spec-note">
+<a href="#note-4ca64">Note</a>
+As this spec was created with Relay Classic in mind, it&rsquo;s worth noting that Relay Legacy did not define <code>startCursor</code> and <code>endCursor</code>, and relied on selecting the <code>cursor</code> of each edge; Relay Modern began selecting <code>startCursor</code> and <code>endCursor</code> instead to save bandwidth (since it doesn&rsquo;t use any cursors in between).</div>
 </section>
 <section id="sec-undefined.PageInfo.Introspection" secid="5.2">
 <h3><span class="spec-secid" title="link to this section"><a href="#sec-undefined.PageInfo.Introspection">5.2</a></span>Introspection</h3>
@@ -1317,7 +1319,7 @@ Written in <a href="https://spec-md.com" target="_blank">Spec Markdown</a>.</foo
 <input hidden class="spec-sidebar-toggle" type="checkbox" id="spec-sidebar-toggle" aria-hidden /><label for="spec-sidebar-toggle" aria-hidden>&#x2630;</label>
 <div class="spec-sidebar" aria-hidden>
 <div class="spec-toc">
-<div class="title"><a href="#">Relay Cursor Connections Specification</a></div>
+<div class="title"><a href="#">GraphQL Cursor Connections Specification</a></div>
 <ol><li id="_sidebar_1"><a href="#sec-Reserved-Types"><span class="spec-secid">1</span>Reserved Types</a></li>
 <li id="_sidebar_2"><a href="#sec-Connection-Types"><span class="spec-secid">2</span>Connection Types</a>
 <input hidden class="toggle" type="checkbox" id="_sidebar_toggle_2" /><label for="_sidebar_toggle_2"></label>
@@ -1364,7 +1366,7 @@ Written in <a href="https://spec-md.com" target="_blank">Spec Markdown</a>.</foo
 <li id="_sidebar_index"><a href="#index"><span class="spec-secid">§</span>Index</a></li>
 </ol>
 </div>
-<script>(function(){for(var e,t=[],n=document.getElementsByTagName("section"),o=0;o<n.length;o++)n[o].getAttribute("secid")&&t.push(n[o]);var i=window.scrollY,r=!1;function c(n){for(var o,i=n+document.documentElement.clientHeight/4,r=t.length-1;r>=0;r--)if(t[r].offsetTop<i){o=t[r];break}var c=o&&o.getAttribute("secid");c!==e&&(e&&d(e,!1),c&&d(c,!0),e=c)}function d(e,t){document.getElementById("_sidebar_"+e).className=t?"viewing":"";for(var n=e.split(".");n.length;){var o=document.getElementById("_sidebar_toggle_"+n.join("."));o&&(o.checked=t),n.pop()}}window.addEventListener("scroll",function(e){i=window.scrollY,r||(r=!0,window.requestAnimationFrame(function(){c(i),r=!1}))}),c(window.scrollY);})()</script>
+<script>(function(){for(var e,t=[],n=document.getElementsByTagName("section"),o=0;o<n.length;o++)n[o].getAttribute("secid")&&t.push(n[o]);var i=window.scrollY,r=!1;function c(n){for(var o,i=n+document.documentElement.clientHeight/4,r=t.length-1;r>=0;r--)if(t[r].offsetTop<i){o=t[r];break}var c=o&&o.getAttribute("secid");c!==e&&(e&&d(e,!1),c&&d(c,!0),e=c)}function d(e,t){document.getElementById("_sidebar_"+e).className=t?"viewing":"";for(var n=e.split(".");n.length;){var o=document.getElementById("_sidebar_toggle_"+n.join("."));o&&(o.checked=t),n.pop()}}window.addEventListener("scroll",(function(e){i=window.scrollY,r||(r=!0,window.requestAnimationFrame((function(){c(i),r=!1})))})),c(window.scrollY);})()</script>
 </div>
 </body>
 </html>

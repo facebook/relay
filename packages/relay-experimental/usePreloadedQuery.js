@@ -9,6 +9,8 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const invariant = require('invariant');
@@ -16,17 +18,29 @@ const useLazyLoadQueryNode = require('./useLazyLoadQueryNode');
 const useMemoOperationDescriptor = require('./useMemoOperationDescriptor');
 const useRelayEnvironment = require('./useRelayEnvironment');
 
+const {useTrackLoadQueryInRender} = require('./loadQuery');
 const {
   __internal: {fetchQueryDeduped},
 } = require('relay-runtime');
 
 import type {PreloadedQuery} from './EntryPointTypes.flow';
-import type {GraphQLTaggedNode, OperationType} from 'relay-runtime';
+import type {
+  GraphQLTaggedNode,
+  OperationType,
+  RenderPolicy,
+} from 'relay-runtime';
 
 function usePreloadedQuery<TQuery: OperationType>(
   gqlQuery: GraphQLTaggedNode,
   preloadedQuery: PreloadedQuery<TQuery>,
+  options?: {|
+    UNSTABLE_renderPolicy?: RenderPolicy,
+  |},
 ): $ElementType<TQuery, 'response'> {
+  // We need to use this hook in order to be able to track if
+  // loadQuery was called during render
+  useTrackLoadQueryInRender();
+
   const environment = useRelayEnvironment();
   const {fetchPolicy, fetchKey, source, variables} = preloadedQuery;
   const operation = useMemoOperationDescriptor(gqlQuery, variables);
@@ -50,6 +64,7 @@ function usePreloadedQuery<TQuery: OperationType>(
     }),
     fetchPolicy,
     query: operation,
+    renderPolicy: options?.UNSTABLE_renderPolicy,
   });
   return data;
 }

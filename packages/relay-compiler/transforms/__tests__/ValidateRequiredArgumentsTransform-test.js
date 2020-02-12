@@ -9,33 +9,28 @@
  * @emails oncall+relay
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
-const GraphQLCompilerContext = require('../../core/GraphQLCompilerContext');
+const CompilerContext = require('../../core/CompilerContext');
 const RelayIRTransforms = require('../../core/RelayIRTransforms');
-const Schema = require('../../core/Schema');
 
 const validateRelayRequiredArguments = require('../ValidateRequiredArgumentsTransform');
 
-const {transformASTSchema} = require('../../core/ASTConvert');
 const {
   TestSchema,
   generateTestsFromFixtures,
   parseGraphQLText,
 } = require('relay-test-utils-internal');
 describe('validateRelayRequiredArguments-test', () => {
-  const relaySchema = transformASTSchema(
-    TestSchema,
-    RelayIRTransforms.schemaExtensions,
-  );
+  const relaySchema = TestSchema.extend(RelayIRTransforms.schemaExtensions);
 
   generateTestsFromFixtures(
     `${__dirname}/fixtures/required-arguments`,
     text => {
-      const {definitions} = parseGraphQLText(relaySchema, text);
-      const codegenContext = new GraphQLCompilerContext(
-        Schema.DEPRECATED__create(TestSchema, relaySchema),
-      )
+      const {definitions, schema} = parseGraphQLText(relaySchema, text);
+      const codegenContext = new CompilerContext(schema)
         .addAll(definitions)
         .applyTransforms([
           ...RelayIRTransforms.commonTransforms,

@@ -8,9 +8,11 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
-import type {ConnectionMetadata} from '../handlers/connection/RelayConnectionHandler';
+import type {ConnectionMetadata} from '../handlers/connection/ConnectionHandler';
 import type {ConcreteRequest} from './RelayConcreteNode';
 
 export type ReaderFragmentSpread = {|
@@ -84,7 +86,11 @@ export type ReaderInlineDataFragment = {|
   +name: string,
 |};
 
-export type ReaderArgument = ReaderLiteral | ReaderVariable;
+export type ReaderArgument =
+  | ReaderListValueArgument
+  | ReaderLiteralArgument
+  | ReaderObjectValueArgument
+  | ReaderVariableArgument;
 
 export type ReaderArgumentDefinition = ReaderLocalArgument | ReaderRootArgument;
 
@@ -125,15 +131,6 @@ export type ReaderLinkedField = {|
   +selections: $ReadOnlyArray<ReaderSelection>,
 |};
 
-export type ReaderConnection = {|
-  +kind: 'Connection',
-  +label: string,
-  +name: string,
-  +args: ?$ReadOnlyArray<ReaderArgument>,
-  +edges: ReaderLinkedField,
-  +pageInfo: ReaderLinkedField,
-|};
-
 export type ReaderModuleImport = {|
   +kind: 'ModuleImport',
   +documentName: string,
@@ -141,7 +138,13 @@ export type ReaderModuleImport = {|
   +fragmentName: string,
 |};
 
-export type ReaderLiteral = {|
+export type ReaderListValueArgument = {|
+  +kind: 'ListValue',
+  +name: string,
+  +items: $ReadOnlyArray<ReaderArgument | null>,
+|};
+
+export type ReaderLiteralArgument = {|
   +kind: 'Literal',
   +name: string,
   +type?: ?string,
@@ -153,6 +156,12 @@ export type ReaderLocalArgument = {|
   +name: string,
   +type: string,
   +defaultValue: mixed,
+|};
+
+export type ReaderObjectValueArgument = {|
+  +kind: 'ObjectValue',
+  +name: string,
+  +fields: $ReadOnlyArray<ReaderArgument>,
 |};
 
 export type ReaderNode =
@@ -181,7 +190,6 @@ export type ReaderStream = {|
 
 export type ReaderSelection =
   | ReaderCondition
-  | ReaderConnection
   | ReaderClientExtension
   | ReaderDefer
   | ReaderField
@@ -191,7 +199,7 @@ export type ReaderSelection =
   | ReaderModuleImport
   | ReaderStream;
 
-export type ReaderVariable = {|
+export type ReaderVariableArgument = {|
   +kind: 'Variable',
   +name: string,
   +type?: ?string,

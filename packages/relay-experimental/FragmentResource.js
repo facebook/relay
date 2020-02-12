@@ -9,6 +9,8 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const LRUCache = require('./LRUCache');
@@ -18,7 +20,7 @@ const mapObject = require('mapObject');
 const warning = require('warning');
 
 const {
-  __internal: {getPromiseForRequestInFlight},
+  __internal: {getPromiseForActiveRequest},
   getFragmentIdentifier,
   getSelector,
   isPromise,
@@ -36,14 +38,16 @@ import type {
 
 export type FragmentResource = FragmentResourceImpl;
 
-type FragmentResourceCache = Cache<
-  Error | Promise<mixed> | SingularOrPluralSnapshot,
->;
+type FragmentResourceCache = Cache<Error | Promise<mixed> | FragmentResult>;
+
+const WEAKMAP_SUPPORTED = typeof WeakMap === 'function';
+interface IMap<K, V> {
+  get(key: K): V | void;
+  set(key: K, value: V): IMap<K, V>;
+}
 
 type SingularOrPluralSnapshot = Snapshot | $ReadOnlyArray<Snapshot>;
-opaque type FragmentResult: {
-  data: mixed,
-} = {|
+opaque type FragmentResult: {data: mixed, ...} = {|
   cacheKey: string,
   data: mixed,
   snapshot: SingularOrPluralSnapshot | null,
@@ -156,7 +160,9 @@ class FragmentResourceImpl {
       if (isPromise(cachedValue) || cachedValue instanceof Error) {
         throw cachedValue;
       }
-      return getFragmentResult(fragmentIdentifier, cachedValue);
+      if (cachedValue.snapshot) {
+        return cachedValue;
+      }
     }
 
     // 2. If not, try reading the fragment from the Relay store.
@@ -164,11 +170,21 @@ class FragmentResourceImpl {
     const fragmentSelector = getSelector(fragmentNode, fragmentRef);
     invariant(
       fragmentSelector != null,
-      'Relay: Expected to have received a valid ' +
-        'fragment reference for fragment `%s` declared in `%s`. Make sure ' +
-        "that `%s`'s parent is passing the right fragment reference prop.",
+      'Relay: Expected to receive an object where `...%s` was spread, ' +
+        'but the fragment reference was not found`. This is most ' +
+        'likely the result of:\n' +
+        "- Forgetting to spread `%s` in `%s`'s parent's fragment.\n" +
+        '- Conditionally fetching `%s` but unconditionally passing %s prop ' +
+        'to `%s`. If the parent fragment only fetches the fragment conditionally ' +
+        '- with e.g. `@include`, `@skip`, or inside a `... on SomeType { }` ' +
+        'spread  - then the fragment reference will not exist. ' +
+        'In this case, pass `null` if the conditions for evaluating the ' +
+        'fragment are not met (e.g. if the `@include(if)` value is false.)',
+      fragmentNode.name,
       fragmentNode.name,
       componentDisplayName,
+      fragmentNode.name,
+      fragmentKey == null ? 'a fragment reference' : `the \`${fragmentKey}\``,
       componentDisplayName,
     );
     const snapshot =
@@ -183,8 +199,9 @@ class FragmentResourceImpl {
       fragmentOwner.node.params.name ?? 'Unknown Parent Query';
 
     if (!isMissingData(snapshot)) {
-      this._cache.set(fragmentIdentifier, snapshot);
-      return getFragmentResult(fragmentIdentifier, snapshot);
+      const fragmentResult = getFragmentResult(fragmentIdentifier, snapshot);
+      this._cache.set(fragmentIdentifier, fragmentResult);
+      return fragmentResult;
     }
 
     // 3. If we don't have data in the store, check if a request is in
@@ -223,14 +240,15 @@ class FragmentResourceImpl {
       parentQueryName,
       parentQueryName,
     );
+
     return getFragmentResult(fragmentIdentifier, snapshot);
   }
 
   readSpec(
-    fragmentNodes: {[string]: ReaderFragment},
-    fragmentRefs: {[string]: mixed},
+    fragmentNodes: {[string]: ReaderFragment, ...},
+    fragmentRefs: {[string]: mixed, ...},
     componentDisplayName: string,
-  ): {[string]: FragmentResult} {
+  ): {[string]: FragmentResult, ...} {
     return mapObject(fragmentNodes, (fragmentNode, fragmentKey) => {
       const fragmentRef = fragmentRefs[fragmentKey];
       return this.read(
@@ -273,7 +291,12 @@ class FragmentResourceImpl {
       currentSnapshot.forEach((snapshot, idx) => {
         dataSubscriptions.push(
           environment.subscribe(snapshot, latestSnapshot => {
-            this._updatePluralSnapshot(cacheKey, latestSnapshot, idx);
+            this._updatePluralSnapshot(
+              cacheKey,
+              currentSnapshot,
+              latestSnapshot,
+              idx,
+            );
             callback();
           }),
         );
@@ -286,7 +309,10 @@ class FragmentResourceImpl {
       );
       dataSubscriptions.push(
         environment.subscribe(currentSnapshot, latestSnapshot => {
-          this._cache.set(cacheKey, latestSnapshot);
+          this._cache.set(
+            cacheKey,
+            getFragmentResult(cacheKey, latestSnapshot),
+          );
           callback();
         }),
       );
@@ -301,9 +327,7 @@ class FragmentResourceImpl {
   }
 
   subscribeSpec(
-    fragmentResults: {
-      [string]: FragmentResult,
-    },
+    fragmentResults: {[string]: FragmentResult, ...},
     callback: () => void,
   ): Disposable {
     const disposables = Object.keys(fragmentResults).map(key =>
@@ -344,7 +368,10 @@ class FragmentResourceImpl {
         currentSnapshots[idx] = currentSnapshot;
       });
       if (didMissUpdates) {
-        this._cache.set(cacheKey, currentSnapshots);
+        this._cache.set(
+          cacheKey,
+          getFragmentResult(cacheKey, currentSnapshots),
+        );
       }
       return [didMissUpdates, currentSnapshots];
     }
@@ -354,13 +381,16 @@ class FragmentResourceImpl {
     const updatedData = recycleNodesInto(renderData, currentData);
     if (updatedData !== renderData) {
       currentSnapshot = {...currentSnapshot, data: updatedData};
-      this._cache.set(cacheKey, currentSnapshot);
+      this._cache.set(cacheKey, getFragmentResult(cacheKey, currentSnapshot));
       didMissUpdates = true;
     }
     return [didMissUpdates, currentSnapshot];
   }
 
-  checkMissedUpdatesSpec(fragmentResults: {[string]: FragmentResult}): boolean {
+  checkMissedUpdatesSpec(fragmentResults: {
+    [string]: FragmentResult,
+    ...,
+  }): boolean {
     return Object.keys(fragmentResults).some(
       key => this.checkMissedUpdates(fragmentResults[key])[0],
     );
@@ -372,7 +402,7 @@ class FragmentResourceImpl {
   ): Promise<void> | null {
     const environment = this._environment;
     const networkPromise =
-      getPromiseForRequestInFlight(environment, fragmentOwner) ??
+      getPromiseForActiveRequest(environment, fragmentOwner) ??
       getPromiseForPendingOperationAffectingOwner(environment, fragmentOwner);
 
     if (!networkPromise) {
@@ -397,27 +427,51 @@ class FragmentResourceImpl {
 
   _updatePluralSnapshot(
     cacheKey: string,
+    baseSnapshots: $ReadOnlyArray<Snapshot>,
     latestSnapshot: Snapshot,
     idx: number,
   ): void {
-    const currentSnapshots = this._cache.get(cacheKey);
-    invariant(
-      Array.isArray(currentSnapshots),
-      'Relay: Expected to find cached data for plural fragment when ' +
-        'recieving a subscription. ' +
-        "If you're seeing this, this is likely a bug in Relay.",
-    );
-    const nextSnapshots = [...currentSnapshots];
+    const currentFragmentResult = this._cache.get(cacheKey);
+    if (
+      isPromise(currentFragmentResult) ||
+      currentFragmentResult instanceof Error
+    ) {
+      reportInvalidCachedData(latestSnapshot.selector.node.name);
+      return;
+    }
+
+    const currentSnapshot = currentFragmentResult?.snapshot;
+    if (currentSnapshot && !Array.isArray(currentSnapshot)) {
+      reportInvalidCachedData(latestSnapshot.selector.node.name);
+      return;
+    }
+
+    const nextSnapshots = currentSnapshot
+      ? [...currentSnapshot]
+      : [...baseSnapshots];
     nextSnapshots[idx] = latestSnapshot;
-    this._cache.set(cacheKey, nextSnapshots);
+    this._cache.set(cacheKey, getFragmentResult(cacheKey, nextSnapshots));
   }
+}
+
+function reportInvalidCachedData(nodeName: string): void {
+  invariant(
+    false,
+    'Relay: Expected to find cached data for plural fragment `%s` when ' +
+      'receiving a subscription. ' +
+      "If you're seeing this, this is likely a bug in Relay.",
+    nodeName,
+  );
 }
 
 function createFragmentResource(environment: IEnvironment): FragmentResource {
   return new FragmentResourceImpl(environment);
 }
 
-const dataResources: Map<IEnvironment, FragmentResource> = new Map();
+const dataResources: IMap<IEnvironment, FragmentResource> = WEAKMAP_SUPPORTED
+  ? new WeakMap()
+  : new Map();
+
 function getFragmentResourceForEnvironment(
   environment: IEnvironment,
 ): FragmentResourceImpl {

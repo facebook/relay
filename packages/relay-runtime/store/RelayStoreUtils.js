@@ -8,6 +8,8 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const RelayConcreteNode = require('../util/RelayConcreteNode');
@@ -24,12 +26,37 @@ import type {
 import type {ReaderArgument, ReaderField} from '../util/ReaderNode';
 import type {Variables} from '../util/RelayRuntimeTypes';
 
-export type Arguments = {+[string]: mixed};
+export type Arguments = {+[string]: mixed, ...};
 
-const {VARIABLE} = RelayConcreteNode;
+const {VARIABLE, LITERAL, OBJECT_VALUE, LIST_VALUE} = RelayConcreteNode;
 
 const MODULE_COMPONENT_KEY_PREFIX = '__module_component_';
 const MODULE_OPERATION_KEY_PREFIX = '__module_operation_';
+
+function getArgumentValue(
+  arg: NormalizationArgument | ReaderArgument,
+  variables: Variables,
+): mixed {
+  if (arg.kind === VARIABLE) {
+    // Variables are provided at runtime and are not guaranteed to be stable.
+    return getStableVariableValue(arg.variableName, variables);
+  } else if (arg.kind === LITERAL) {
+    // The Relay compiler generates stable ConcreteArgument values.
+    return arg.value;
+  } else if (arg.kind === OBJECT_VALUE) {
+    const value = {};
+    arg.fields.forEach(field => {
+      value[field.name] = getArgumentValue(field, variables);
+    });
+    return value;
+  } else if (arg.kind === LIST_VALUE) {
+    const value = [];
+    arg.items.forEach(item => {
+      item != null ? value.push(getArgumentValue(item, variables)) : null;
+    });
+    return value;
+  }
+}
 
 /**
  * Returns the values of field/fragment arguments as an object keyed by argument
@@ -41,13 +68,7 @@ function getArgumentValues(
 ): Arguments {
   const values = {};
   args.forEach(arg => {
-    if (arg.kind === VARIABLE) {
-      // Variables are provided at runtime and are not guaranteed to be stable.
-      values[arg.name] = getStableVariableValue(arg.variableName, variables);
-    } else {
-      // The Relay compiler generates stable ConcreteArgument values.
-      values[arg.name] = arg.value;
-    }
+    values[arg.name] = getArgumentValue(arg, variables);
   });
   return values;
 }
@@ -140,8 +161,7 @@ function formatStorageKey(name: string, argValues: ?Arguments): string {
     if (argValues.hasOwnProperty(argName)) {
       const value = argValues[argName];
       if (value != null) {
-        // $FlowFixMe(>=0.95.0) JSON.stringify can return undefined
-        values.push(argName + ':' + JSON.stringify(value));
+        values.push(argName + ':' + (JSON.stringify(value) ?? 'undefined'));
       }
     }
   }
@@ -183,8 +203,10 @@ const RelayStoreUtils = {
   ROOT_ID: 'client:root',
   ROOT_TYPE: '__Root',
   TYPENAME_KEY: '__typename',
+  INVALIDATED_AT_KEY: '__invalidated_at',
 
   formatStorageKey,
+  getArgumentValue,
   getArgumentValues,
   getHandleStorageKey,
   getStorageKey,

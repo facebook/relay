@@ -9,6 +9,8 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 // flowlint untyped-import:off
@@ -27,7 +29,7 @@ const warning = require('warning');
 const {useCallback, useEffect, useState} = require('react');
 const {
   ConnectionInterface,
-  __internal: {fetchQuery, hasRequestInFlight},
+  __internal: {fetchQuery, isRequestActive},
   createOperationDescriptor,
   getSelector,
 } = require('relay-runtime');
@@ -37,17 +39,18 @@ import type {
   Disposable,
   GraphQLResponse,
   Observer,
+  OperationType,
   ReaderFragment,
   ReaderPaginationMetadata,
-  RequestDescriptor,
 } from 'relay-runtime';
 
 export type Direction = 'forward' | 'backward';
 
-export type LoadMoreFn = (
+export type LoadMoreFn<TQuery: OperationType> = (
   count: number,
   options?: {|
     onComplete?: (Error | null) => void,
+    UNSTABLE_extraVariables?: $Shape<$ElementType<TQuery, 'variables'>>,
   |},
 ) => Disposable;
 
@@ -66,9 +69,9 @@ export type UseLoadMoreFunctionArgs = {|
   onReset: () => void,
 |};
 
-function useLoadMoreFunction(
+function useLoadMoreFunction<TQuery: OperationType>(
   args: UseLoadMoreFunctionArgs,
-): [LoadMoreFn, boolean, () => void] {
+): [LoadMoreFn<TQuery>, boolean, () => void] {
   const {
     direction,
     fragmentNode,
@@ -125,7 +128,6 @@ function useLoadMoreFunction(
   const loadMore = useCallback(
     (count, options) => {
       // TODO(T41131846): Fetch/Caching policies for loadMore
-      // TODO(T41140071): Handle loadMore while refetch is in flight and vice-versa
 
       const onComplete = options?.onComplete;
       if (isMountedRef.current !== true) {
@@ -148,7 +150,7 @@ function useLoadMoreFunction(
       const isParentQueryInFlight =
         fragmentSelector != null &&
         fragmentSelector.kind !== 'PluralReaderSelector' &&
-        hasRequestInFlight(environment, fragmentSelector.owner);
+        isRequestActive(environment, fragmentSelector.owner);
       if (
         isFetchingRef.current === true ||
         fragmentData == null ||
@@ -187,9 +189,11 @@ function useLoadMoreFunction(
 
       const parentVariables = fragmentSelector.owner.variables;
       const fragmentVariables = fragmentSelector.variables;
+      const extraVariables = options?.UNSTABLE_extraVariables;
       const baseVariables = {
         ...parentVariables,
         ...fragmentVariables,
+        ...extraVariables,
       };
       const paginationVariables = getPaginationVariables(
         direction,

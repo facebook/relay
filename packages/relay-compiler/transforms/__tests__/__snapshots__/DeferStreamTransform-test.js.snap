@@ -512,6 +512,48 @@ fragment FeedbackFragment on Feedback {
 
 `;
 
+exports[`DeferStreamTransform when streaming is enabled matches expected output: fragment-with-stream-use_customized_batch-arg.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query QueryWithFragmentWithStream($id: ID!, $useCustomizedBatch: Boolean) {
+  node(id: $id) {
+    id
+    ...FeedbackFragment
+  }
+}
+
+fragment FeedbackFragment on Feedback {
+  id
+  actors
+    @stream(
+      if: true
+      initial_count: 1
+      label: "StreamedActorsLabel"
+      use_customized_batch: $useCustomizedBatch
+    ) {
+    name
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+query QueryWithFragmentWithStream(
+  $id: ID!
+  $useCustomizedBatch: Boolean
+) {
+  node(id: $id) {
+    id
+    ...FeedbackFragment
+  }
+}
+
+fragment FeedbackFragment on Feedback {
+  id
+  actors @stream(label: "FeedbackFragment$stream$StreamedActorsLabel", if: true, initial_count: 1, use_customized_batch: $useCustomizedBatch) {
+    name
+  }
+}
+
+`;
+
 exports[`DeferStreamTransform when streaming is enabled matches expected output: fragment-with-stream-variable-label.invalid.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 # expected-to-throw

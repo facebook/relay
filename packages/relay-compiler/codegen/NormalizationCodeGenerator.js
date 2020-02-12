@@ -8,17 +8,12 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
-const {
-  createCompilerError,
-  createUserError,
-} = require('../core/RelayCompilerError');
-const {
-  ConnectionInterface,
-  getStorageKey,
-  stableCopy,
-} = require('relay-runtime');
+const {createCompilerError, createUserError} = require('../core/CompilerError');
+const {getStorageKey, stableCopy} = require('relay-runtime');
 
 import type {
   Argument,
@@ -32,16 +27,13 @@ import type {
   Defer,
   Stream,
   Condition,
-  Connection,
-  ConnectionField,
   InlineFragment,
   LocalArgumentDefinition,
-} from '../core/GraphQLIR';
+} from '../core/IR';
 import type {Schema, TypeID} from '../core/Schema';
 import type {
   NormalizationArgument,
   NormalizationDefer,
-  NormalizationConnection,
   NormalizationField,
   NormalizationLinkedField,
   NormalizationLinkedHandle,
@@ -57,7 +49,7 @@ import type {
 /**
  * @public
  *
- * Converts a GraphQLIR node into a plain JS object representation that can be
+ * Converts an IR node into a plain JS object representation that can be
  * used at runtime.
  */
 declare function generate(schema: Schema, node: Root): NormalizationOperation;
@@ -132,14 +124,6 @@ function generateSelections(
         break;
       case 'LinkedField':
         normalizationSelections.push(...generateLinkedField(schema, selection));
-        break;
-      case 'ConnectionField':
-        normalizationSelections.push(
-          ...generateConnectionField(schema, selection),
-        );
-        break;
-      case 'Connection':
-        normalizationSelections.push(generateConnection(schema, selection));
         break;
       case 'Defer':
         normalizationSelections.push(generateDefer(schema, selection));
@@ -299,97 +283,6 @@ function generateLinkedField(
   return [field].concat(handles);
 }
 
-function generateConnectionField(
-  schema: Schema,
-  node: ConnectionField,
-): $ReadOnlyArray<NormalizationSelection> {
-  return generateLinkedField(schema, {
-    name: node.name,
-    alias: node.alias,
-    loc: node.loc,
-    directives: node.directives,
-    metadata: node.metadata,
-    selections: node.selections,
-    type: node.type,
-    handles: null,
-    connection: false, // this is only on the linked fields with @conneciton
-    args: node.args.filter(
-      arg =>
-        !ConnectionInterface.isConnectionCall({name: arg.name, value: null}),
-    ),
-    kind: 'LinkedField',
-  });
-}
-
-function generateConnection(
-  schema: Schema,
-  node: Connection,
-): NormalizationConnection {
-  const {EDGES, PAGE_INFO} = ConnectionInterface.get();
-  const selections = generateSelections(schema, node.selections);
-  let edges: ?NormalizationLinkedField;
-  let pageInfo: ?NormalizationLinkedField;
-  selections.forEach(selection => {
-    if (selection.kind === 'LinkedField') {
-      if (selection.name === EDGES) {
-        edges = selection;
-      } else if (selection.name === PAGE_INFO) {
-        pageInfo = selection;
-      }
-    } else if (selection.kind === 'Stream') {
-      selection.selections.forEach(subselection => {
-        if (
-          subselection.kind === 'LinkedField' &&
-          subselection.name === EDGES
-        ) {
-          edges = subselection;
-        }
-      });
-    } else if (selection.kind === 'Defer') {
-      selection.selections.forEach(subselection => {
-        if (
-          subselection.kind === 'LinkedField' &&
-          subselection.name === PAGE_INFO
-        ) {
-          pageInfo = subselection;
-        }
-      });
-    }
-  });
-  if (edges == null || pageInfo == null) {
-    throw createUserError(
-      `Invalid connection, expected the '${EDGES}' and '${PAGE_INFO}' fields ` +
-        'to exist.',
-      [node.loc],
-    );
-  }
-  let stream = null;
-  if (node.stream != null) {
-    const trueLiteral: NormalizationArgument = {
-      kind: 'Literal',
-      name: 'if',
-      value: true,
-    };
-    stream = {
-      if:
-        node.stream.if != null
-          ? generateArgumentValue('if', node.stream.if) ?? trueLiteral
-          : trueLiteral,
-      deferLabel: node.stream.deferLabel,
-      streamLabel: node.stream.streamLabel,
-    };
-  }
-  return {
-    kind: 'Connection',
-    label: node.label,
-    name: node.name,
-    args: generateArgs(node.args),
-    edges,
-    pageInfo,
-    stream,
-  };
-}
-
 function generateModuleImport(node, key): NormalizationModuleImport {
   const fragmentName = node.name;
   const regExpMatch = fragmentName.match(
@@ -419,6 +312,7 @@ function generateModuleImport(node, key): NormalizationModuleImport {
 }
 
 function generateScalarField(node): Array<NormalizationSelection> {
+  // flowlint-next-line sketchy-null-mixed:off
   if (node.metadata?.skipNormalizationNode) {
     return [];
   }
@@ -480,6 +374,11 @@ function generateStream(schema: Schema, node: Stream): NormalizationStream {
         ? node.if.variableName
         : null,
     kind: 'Stream',
+    useCustomizedBatch:
+      node.useCustomizedBatch != null &&
+      node.useCustomizedBatch.kind === 'Variable'
+        ? node.useCustomizedBatch.variableName
+        : null,
     label: node.label,
     metadata: node.metadata,
     selections: generateSelections(schema, node.selections),
@@ -505,6 +404,40 @@ function generateArgumentValue(
             name: name,
             value: stableCopy(value.value),
           };
+    case 'ObjectValue': {
+      const objectKeys = value.fields.map(field => field.name).sort();
+      const objectValues = new Map(
+        value.fields.map(field => {
+          return [field.name, field.value];
+        }),
+      );
+      return {
+        kind: 'ObjectValue',
+        name: name,
+        fields: objectKeys.map(fieldName => {
+          const fieldValue = objectValues.get(fieldName);
+          if (fieldValue == null) {
+            throw createCompilerError('Expected to have object field value');
+          }
+          return (
+            generateArgumentValue(fieldName, fieldValue) ?? {
+              kind: 'Literal',
+              name: fieldName,
+              value: null,
+            }
+          );
+        }),
+      };
+    }
+    case 'ListValue': {
+      return {
+        kind: 'ListValue',
+        name: name,
+        items: value.items.map((item, index) => {
+          return generateArgumentValue(`${name}.${index}`, item);
+        }),
+      };
+    }
     default:
       throw createUserError(
         'NormalizationCodeGenerator: Complex argument values (Lists or ' +
@@ -529,7 +462,10 @@ function generateArgs(
     : concreteArguments.sort(nameComparator);
 }
 
-function nameComparator(a: {+name: string}, b: {+name: string}): number {
+function nameComparator(
+  a: {+name: string, ...},
+  b: {+name: string, ...},
+): number {
   return a.name < b.name ? -1 : a.name > b.name ? 1 : 0;
 }
 

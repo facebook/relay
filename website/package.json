@@ -3,7 +3,7 @@
   "license": "MIT",
   "private": true,
   "scripts": {
-    "update-spec": "spec-md spec/Mutations.md > static/graphql/mutations.htm && spec-md spec/Connections.md > static/graphql/connections.htm && spec-md spec/ObjectIdentification.md > static/graphql/objectidentification.htm",
+    "update-spec": "spec-md spec/Connections.md > static/graphql/connections.htm && spec-md spec/ObjectIdentification.md > static/graphql/objectidentification.htm",
     "start": "docusaurus-start",
     "build": "docusaurus-build",
     "examples": "docusaurus-examples",
@@ -12,10 +12,11 @@
     "publish-gh-pages": "docusaurus-publish",
     "write-translations": "docusaurus-write-translations",
     "crowdin-upload": "crowdin-cli --config ../crowdin.yaml upload sources --auto-update -b master",
-    "crowdin-download": "crowdin-cli --config ../crowdin.yaml download -b master"
+    "crowdin-download": "crowdin-cli --config ../crowdin.yaml download -b master",
+    "update-specs":"spec-md spec/Connections.md > static/graphql/connections.htm; spec-md spec/Mutations.md > static/graphql/mutations.htm; spec-md spec/ObjectIdentification.md > static/graphql/objectidentification.htm"
   },
   "dependencies": {
-    "docusaurus": "1.12.0",
+    "docusaurus": "1.14.0",
     "spec-md": "^1.1.1"
   },
   "resolutions": {

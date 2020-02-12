@@ -8,6 +8,8 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const ReactRelayContext = require('./ReactRelayContext');
@@ -27,7 +29,6 @@ export type {
   RelayProp,
   RelayRefetchContainer,
   RelayRefetchProp,
-  FetchPolicy,
 } from './ReactRelayTypes';
 export type {
   DataID,
@@ -44,6 +45,7 @@ export type {
   RelayContext,
   Snapshot,
   Variables,
+  FetchPolicy,
 } from 'relay-runtime';
 
 /**

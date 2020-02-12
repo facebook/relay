@@ -4,9 +4,11 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @flow strict-local
+ * @flow strict
  * @format
  */
+
+// flowlint ambiguous-object-type:error
 
 'use strict';
 
@@ -16,6 +18,8 @@ const crypto = require('crypto');
 const invariant = require('invariant');
 const path = require('path');
 
+// flowlint nonstrict-import:warn
+import type {KeepExtraFileFn} from './CodegenRunner';
 import type {SourceControl} from './SourceControl';
 
 type Changes = {|
@@ -30,11 +34,7 @@ export interface Filesystem {
   mkdirSync(path: string): void;
   readdirSync(path: string): Array<string>;
   readFileSync(path: string, encoding: string): string;
-  statSync(
-    path: string,
-  ): {
-    isDirectory(): boolean,
-  };
+  statSync(path: string): {isDirectory(): boolean, ...};
   unlinkSync(path: string): void;
   writeFileSync(filename: string, data: string, options: string): void;
 }
@@ -150,7 +150,7 @@ class CodegenDirectory {
 
   static formatChanges(
     changes: Changes,
-    options: {onlyValidate: boolean},
+    options: {onlyValidate: boolean, ...},
   ): string {
     const output = [];
     function formatFiles(label, files) {
@@ -177,7 +177,7 @@ class CodegenDirectory {
 
   static printChanges(
     changes: Changes,
-    options: {onlyValidate: boolean},
+    options: {onlyValidate: boolean, ...},
   ): void {
     Profiler.run('CodegenDirectory.printChanges', () => {
       const output = CodegenDirectory.formatChanges(changes, options);
@@ -279,7 +279,7 @@ class CodegenDirectory {
    * Deletes all non-generated files, except for invisible "dot" files (ie.
    * files with names starting with ".").
    */
-  deleteExtraFiles(): void {
+  deleteExtraFiles(keepExtraFile?: KeepExtraFileFn): void {
     Profiler.run('CodegenDirectory.deleteExtraFiles', () => {
       if (this._shards > 1) {
         this._filesystem.readdirSync(this._dir).forEach(firstLevel => {
@@ -295,6 +295,9 @@ class CodegenDirectory {
             return;
           }
           this._filesystem.readdirSync(firstLevelPath).forEach(actualFile => {
+            if (keepExtraFile && keepExtraFile(actualFile)) {
+              return;
+            }
             if (this._files.has(actualFile)) {
               return;
             }
@@ -318,6 +321,9 @@ class CodegenDirectory {
         });
       } else {
         this._filesystem.readdirSync(this._dir).forEach(actualFile => {
+          if (keepExtraFile && keepExtraFile(actualFile)) {
+            return;
+          }
           if (actualFile.startsWith('.') || this._files.has(actualFile)) {
             return;
           }

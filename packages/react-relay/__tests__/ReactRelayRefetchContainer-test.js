@@ -128,7 +128,7 @@ describe('ReactRelayRefetchContainer', () => {
     TestContainer = ReactRelayRefetchContainer.createContainer(
       TestComponent,
       {
-        user: () => UserFragment,
+        user: UserFragment,
       },
       UserQuery,
     );
@@ -994,7 +994,7 @@ describe('ReactRelayRefetchContainer', () => {
     const TestUnwrappingContainer = ReactRelayRefetchContainer.createContainer(
       TestUnwrapping,
       {
-        user: () => UserFragment,
+        user: UserFragment,
       },
     );
 

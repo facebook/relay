@@ -4,14 +4,17 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @flow
+ * @flow strict
  * @format
  */
+
+// flowlint ambiguous-object-type:error
 
 'use strict';
 
 const Profiler = require('./GraphQLCompilerProfiler');
 
+// $FlowFixMe: Immutable is not typed
 const {Map: ImmutableMap} = require('immutable');
 
 import type {File} from '../codegen/CodegenTypes';
@@ -25,7 +28,7 @@ class ASTCache {
   _baseDir: string;
   _parse: ParseFn;
 
-  constructor(config: {baseDir: string, parse: ParseFn}) {
+  constructor(config: {baseDir: string, parse: ParseFn, ...}) {
     this._documents = new Map();
     this._baseDir = config.baseDir;
     this._parse = Profiler.instrument(config.parse, 'ASTCache.parseFn');

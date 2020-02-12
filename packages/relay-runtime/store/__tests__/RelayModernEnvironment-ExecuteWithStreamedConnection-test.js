@@ -9,9 +9,11 @@
  * @emails oncall+relay
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
-const RelayConnectionHandler = require('../../handlers/connection/RelayConnectionHandler');
+const ConnectionHandler = require('../../handlers/connection/ConnectionHandler');
 const RelayModernEnvironment = require('../RelayModernEnvironment');
 const RelayModernStore = require('../RelayModernStore');
 const RelayNetwork = require('../../network/RelayNetwork');
@@ -134,7 +136,7 @@ describe('execute() fetches a @stream-ed @connection', () => {
           case 'name_handler':
             return NameHandler;
           case 'connection':
-            return RelayConnectionHandler;
+            return ConnectionHandler;
         }
       },
     });
@@ -432,6 +434,298 @@ describe('execute() fetches a @stream-ed @connection', () => {
               feedback: {
                 id: 'feedback-2',
                 actors: [{id: 'actor-2', name: 'BOB'}],
+              },
+            },
+          },
+        ],
+        pageInfo: {
+          endCursor: null,
+          hasNextPage: false,
+        },
+      },
+    });
+  });
+
+  it('initializes the connection with subsequent edges (1 => 3 edges) when initial_count=1 with batch response', () => {
+    const initialSnapshot = environment.lookup(selector);
+    callback = jest.fn();
+    environment.subscribe(initialSnapshot, callback);
+
+    environment.execute({operation}).subscribe(callbacks);
+    dataSource.next({
+      data: {
+        viewer: {
+          newsFeed: {
+            edges: [
+              {
+                cursor: 'cursor-1',
+                node: {
+                  __typename: 'Story',
+                  id: '1',
+                  feedback: {
+                    id: 'feedback-1',
+                    actors: [
+                      {
+                        id: 'actor-1',
+                        __typename: 'User',
+                        name: 'Alice',
+                      },
+                    ],
+                  },
+                },
+              },
+            ],
+          },
+        },
+      },
+    });
+    jest.runAllTimers();
+    next.mockClear();
+    callback.mockClear();
+
+    // second edge should be appended, not replace first edge
+    dataSource.next([
+      {
+        data: {
+          cursor: 'cursor-2',
+          node: {
+            __typename: 'Story',
+            id: '2',
+            feedback: {
+              id: 'feedback-2',
+              actors: [
+                {
+                  id: 'actor-2',
+                  __typename: 'User',
+                  name: 'Bob',
+                },
+              ],
+            },
+          },
+        },
+        label: 'FeedFragment$stream$newsFeed',
+        path: ['viewer', 'newsFeed', 'edges', 1],
+      },
+      {
+        data: {
+          cursor: 'cursor-3',
+          node: {
+            __typename: 'Story',
+            id: '3',
+            feedback: {
+              id: 'feedback-3',
+              actors: [
+                {
+                  id: 'actor-3',
+                  __typename: 'User',
+                  name: 'Clair',
+                },
+              ],
+            },
+          },
+        },
+        label: 'FeedFragment$stream$newsFeed',
+        path: ['viewer', 'newsFeed', 'edges', 2],
+      },
+    ]);
+    expect(error.mock.calls.map(call => call[0].stack)).toEqual([]);
+    expect(next).toBeCalledTimes(1);
+    expect(callback).toBeCalledTimes(1);
+    const snapshot = callback.mock.calls[0][0];
+    expect(snapshot.isMissingData).toBe(false);
+    expect(snapshot.data).toEqual({
+      newsFeed: {
+        edges: [
+          {
+            cursor: 'cursor-1',
+            node: {
+              __typename: 'Story',
+              id: '1',
+              feedback: {
+                id: 'feedback-1',
+                actors: [{id: 'actor-1', name: 'ALICE'}],
+              },
+            },
+          },
+          {
+            cursor: 'cursor-2',
+            node: {
+              __typename: 'Story',
+              id: '2',
+              feedback: {
+                id: 'feedback-2',
+                actors: [{id: 'actor-2', name: 'BOB'}],
+              },
+            },
+          },
+          {
+            cursor: 'cursor-3',
+            node: {
+              __typename: 'Story',
+              id: '3',
+              feedback: {
+                id: 'feedback-3',
+                actors: [{id: 'actor-3', name: 'CLAIR'}],
+              },
+            },
+          },
+        ],
+        pageInfo: {
+          endCursor: null,
+          hasNextPage: false,
+        },
+      },
+    });
+  });
+
+  it('initializes the connection with subsequent edges (0 => 2 edges) when edges arrive out of order with batching', () => {
+    const initialSnapshot = environment.lookup(selector);
+    callback = jest.fn();
+    environment.subscribe(initialSnapshot, callback);
+
+    environment.execute({operation}).subscribe(callbacks);
+    dataSource.next({
+      data: {
+        viewer: {
+          newsFeed: {
+            edges: [],
+          },
+        },
+      },
+    });
+    jest.runAllTimers();
+    next.mockClear();
+    callback.mockClear();
+
+    // second edge arrives first
+    dataSource.next({
+      data: {
+        cursor: 'cursor-2',
+        node: {
+          __typename: 'Story',
+          id: '2',
+          feedback: {
+            id: 'feedback-2',
+            actors: [
+              {
+                id: 'actor-2',
+                __typename: 'User',
+                name: 'Bob',
+              },
+            ],
+          },
+        },
+      },
+      label: 'FeedFragment$stream$newsFeed',
+      path: ['viewer', 'newsFeed', 'edges', 1],
+    });
+    // first edge arrives second
+    dataSource.next([
+      {
+        data: {
+          cursor: 'cursor-3',
+          node: {
+            __typename: 'Story',
+            id: '3',
+            feedback: {
+              id: 'feedback-3',
+              actors: [
+                {
+                  id: 'actor-3',
+                  __typename: 'User',
+                  name: 'Clair',
+                },
+              ],
+            },
+          },
+        },
+        label: 'FeedFragment$stream$newsFeed',
+        path: ['viewer', 'newsFeed', 'edges', 2],
+      },
+      {
+        data: {
+          cursor: 'cursor-1',
+          node: {
+            __typename: 'Story',
+            id: '1',
+            feedback: {
+              id: 'feedback-1',
+              actors: [
+                {
+                  id: 'actor-1',
+                  __typename: 'User',
+                  name: 'Alice',
+                },
+              ],
+            },
+          },
+        },
+        label: 'FeedFragment$stream$newsFeed',
+        path: ['viewer', 'newsFeed', 'edges', 0],
+      },
+    ]);
+    expect(error.mock.calls.map(call => call[0].stack)).toEqual([]);
+    expect(next).toBeCalledTimes(2);
+    expect(callback).toBeCalledTimes(2);
+    const snapshot1 = callback.mock.calls[0][0];
+    expect(snapshot1.isMissingData).toBe(false);
+    expect(snapshot1.data).toEqual({
+      newsFeed: {
+        edges: [
+          undefined,
+          {
+            cursor: 'cursor-2',
+            node: {
+              __typename: 'Story',
+              id: '2',
+              feedback: {
+                id: 'feedback-2',
+                actors: [{id: 'actor-2', name: 'BOB'}],
+              },
+            },
+          },
+        ],
+        pageInfo: {
+          endCursor: null,
+          hasNextPage: false,
+        },
+      },
+    });
+    const snapshot2 = callback.mock.calls[1][0];
+    expect(snapshot2.isMissingData).toBe(false);
+    expect(snapshot2.data).toEqual({
+      newsFeed: {
+        edges: [
+          {
+            cursor: 'cursor-1',
+            node: {
+              __typename: 'Story',
+              id: '1',
+              feedback: {
+                id: 'feedback-1',
+                actors: [{id: 'actor-1', name: 'ALICE'}],
+              },
+            },
+          },
+          {
+            cursor: 'cursor-2',
+            node: {
+              __typename: 'Story',
+              id: '2',
+              feedback: {
+                id: 'feedback-2',
+                actors: [{id: 'actor-2', name: 'BOB'}],
+              },
+            },
+          },
+          {
+            cursor: 'cursor-3',
+            node: {
+              __typename: 'Story',
+              id: '3',
+              feedback: {
+                id: 'feedback-3',
+                actors: [{id: 'actor-3', name: 'CLAIR'}],
               },
             },
           },

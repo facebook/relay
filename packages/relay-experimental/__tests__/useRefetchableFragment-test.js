@@ -9,6 +9,8 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const React = require('react');
@@ -140,7 +142,7 @@ describe('useRefetchableFragment', () => {
     // Set up renderers
     Renderer = props => null;
 
-    const Container = (props: {userRef?: {}, fragment: $FlowFixMe}) => {
+    const Container = (props: {userRef?: {...}, fragment: $FlowFixMe, ...}) => {
       // We need a render a component to run a Hook
       const artificialUserRef = useMemo(
         () => ({
@@ -173,10 +175,13 @@ describe('useRefetchableFragment', () => {
       owner?: $FlowFixMe,
       userRef?: $FlowFixMe,
       fragment?: $FlowFixMe,
+      ...
     }) => {
       const {isConcurrent = false, ...props} = args ?? {};
       return TestRenderer.create(
         <React.Suspense fallback="Fallback">
+          {/* $FlowFixMe(site=www,mobile) this comment suppresses an error found improving the
+           * type of React$Node */}
           <ContextProvider>
             <Container owner={query} {...props} />
           </ContextProvider>

@@ -9,6 +9,8 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const {getQueryResourceForEnvironment} = require('../QueryResource');
@@ -17,6 +19,8 @@ const {
   ROOT_ID,
   __internal: {fetchQuery},
   createOperationDescriptor,
+  RecordSource,
+  Store,
 } = require('relay-runtime');
 const {
   createMockEnvironment,
@@ -37,15 +41,17 @@ describe('QueryResource', () => {
   let gqlQueryMissingData;
   let release;
   let renderPolicy;
+  let store;
   const variables = {
     id: '4',
   };
 
   beforeEach(() => {
-    jest.mock('fbjs/lib/ExecutionEnvironment', () => ({
-      canUseDOM: () => true,
+    jest.mock('../ExecutionEnvironment', () => ({
+      isServer: false,
     }));
-    environment = createMockEnvironment();
+    store = new Store(new RecordSource());
+    environment = createMockEnvironment({store});
     QueryResource = getQueryResourceForEnvironment(environment);
     gqlQuery = generateAndCompile(
       `query UserQuery($id: ID!) {
@@ -109,7 +115,10 @@ describe('QueryResource', () => {
           renderPolicy = 'partial';
         });
         it('should return result and not send a network request if all data is locally available', () => {
-          expect(environment.check(query.root)).toEqual(true);
+          expect(environment.check(query)).toEqual({
+            status: 'available',
+            fetchTime: null,
+          });
 
           const result = QueryResource.prepare(
             query,
@@ -139,7 +148,9 @@ describe('QueryResource', () => {
         });
 
         it('should return result and send a network request if data is missing for the query', () => {
-          expect(environment.check(queryMissingData.root)).toEqual(false);
+          expect(environment.check(queryMissingData)).toEqual({
+            status: 'missing',
+          });
 
           const result = QueryResource.prepare(
             queryMissingData,
@@ -161,6 +172,34 @@ describe('QueryResource', () => {
           });
           expect(environment.execute).toBeCalledTimes(1);
           expect(environment.retain).toBeCalledTimes(1);
+
+          // Assert that query is released after enough time has passed without
+          // calling QueryResource.retain
+          jest.runAllTimers();
+          expect(release).toBeCalledTimes(1);
+        });
+
+        it('should suspend and send a network request if data for query is cached but stale', () => {
+          environment.commitUpdate(storeProxy => {
+            storeProxy.invalidateStore();
+          });
+          expect(environment.check(query)).toEqual({status: 'stale'});
+
+          let thrown = false;
+          try {
+            QueryResource.prepare(
+              query,
+              fetchObservableMissingData,
+              fetchPolicy,
+              renderPolicy,
+            );
+          } catch (promise) {
+            expect(typeof promise.then).toBe('function');
+            thrown = true;
+          }
+          expect(environment.execute).toBeCalledTimes(1);
+          expect(environment.retain).toBeCalledTimes(1);
+          expect(thrown).toBe(true);
 
           // Assert that query is released after enough time has passed without
           // calling QueryResource.retain
@@ -256,7 +295,9 @@ describe('QueryResource', () => {
         });
 
         it('should return result and send a network request if data is missing for the query and observable returns synchronously', () => {
-          expect(environment.check(queryMissingData.root)).toEqual(false);
+          expect(environment.check(queryMissingData)).toEqual({
+            status: 'missing',
+          });
 
           const networkExecute = jest.fn();
           const syncFetchObservable = Observable.create(sink => {
@@ -354,7 +395,10 @@ describe('QueryResource', () => {
                 networkCacheConfig: {force: true},
               },
             );
-            expect(environment.check(queryWithFragments.root)).toEqual(true);
+            expect(environment.check(queryWithFragments)).toEqual({
+              status: 'available',
+              fetchTime: null,
+            });
 
             const result = QueryResource.prepare(
               queryWithFragments,
@@ -409,7 +453,9 @@ describe('QueryResource', () => {
                 networkCacheConfig: {force: true},
               },
             );
-            expect(environment.check(queryWithFragments.root)).toEqual(false);
+            expect(environment.check(queryWithFragments)).toEqual({
+              status: 'missing',
+            });
 
             const result = QueryResource.prepare(
               queryWithFragments,
@@ -437,6 +483,67 @@ describe('QueryResource', () => {
             jest.runAllTimers();
             expect(release).toBeCalledTimes(1);
           });
+
+          it('should suspend and send a network request if data for query is cached but stale', () => {
+            const {UserQuery} = generateAndCompile(
+              `
+              fragment UserFragment on User {
+                id
+              }
+              query UserQuery($id: ID!) {
+                node(id: $id) {
+                  __typename
+                  ...UserFragment
+                }
+              }
+            `,
+            );
+            const queryWithFragments = createOperationDescriptor(
+              UserQuery,
+              variables,
+            );
+            environment.commitPayload(queryWithFragments, {
+              node: {
+                __typename: 'User',
+                id: '4',
+              },
+            });
+            const fetchObservableWithFragments = fetchQuery(
+              environment,
+              queryWithFragments,
+              {
+                networkCacheConfig: {force: true},
+              },
+            );
+
+            environment.commitUpdate(storeProxy => {
+              storeProxy.invalidateStore();
+            });
+            expect(environment.check(queryWithFragments)).toEqual({
+              status: 'stale',
+            });
+
+            let thrown = false;
+            try {
+              QueryResource.prepare(
+                queryWithFragments,
+                fetchObservableWithFragments,
+                fetchPolicy,
+                renderPolicy,
+              );
+            } catch (promise) {
+              expect(typeof promise.then).toBe('function');
+              thrown = true;
+            }
+            expect(environment.execute).toBeCalledTimes(1);
+            expect(environment.retain).toBeCalledTimes(1);
+            expect(thrown).toBe(true);
+
+            // Assert that query is released after enough time has passed without
+            // calling QueryResource.retain
+            jest.runAllTimers();
+            expect(release).toBeCalledTimes(1);
+          });
         });
       });
 
@@ -445,7 +552,10 @@ describe('QueryResource', () => {
           renderPolicy = 'full';
         });
         it('should return result and not send a network request if all data is locally available', () => {
-          expect(environment.check(query.root)).toEqual(true);
+          expect(environment.check(query)).toEqual({
+            status: 'available',
+            fetchTime: null,
+          });
 
           const result = QueryResource.prepare(
             query,
@@ -475,7 +585,9 @@ describe('QueryResource', () => {
         });
 
         it('should suspend and send a network request if data is missing for the query', () => {
-          expect(environment.check(queryMissingData.root)).toEqual(false);
+          expect(environment.check(queryMissingData)).toEqual({
+            status: 'missing',
+          });
 
           let thrown = false;
           try {
@@ -594,7 +706,9 @@ describe('QueryResource', () => {
         });
 
         it('should return result and send a network request if data is missing for the query and observable returns synchronously', () => {
-          expect(environment.check(queryMissingData.root)).toEqual(false);
+          expect(environment.check(queryMissingData)).toEqual({
+            status: 'missing',
+          });
 
           const networkExecute = jest.fn();
           const syncFetchObservable = Observable.create(sink => {
@@ -740,7 +854,10 @@ describe('QueryResource', () => {
                 networkCacheConfig: {force: true},
               },
             );
-            expect(environment.check(queryWithFragments.root)).toEqual(true);
+            expect(environment.check(queryWithFragments)).toEqual({
+              status: 'available',
+              fetchTime: null,
+            });
 
             const result = QueryResource.prepare(
               queryWithFragments,
@@ -795,7 +912,9 @@ describe('QueryResource', () => {
                 networkCacheConfig: {force: true},
               },
             );
-            expect(environment.check(queryWithFragments.root)).toEqual(false);
+            expect(environment.check(queryWithFragments)).toEqual({
+              status: 'missing',
+            });
 
             let thrown = false;
             try {
@@ -849,7 +968,9 @@ describe('QueryResource', () => {
                 networkCacheConfig: {force: true},
               },
             );
-            expect(environment.check(queryWithFragments.root)).toEqual(false);
+            expect(environment.check(queryWithFragments)).toEqual({
+              status: 'missing',
+            });
 
             // Should suspend until first payload is received
             let thrown = false;
@@ -879,7 +1000,9 @@ describe('QueryResource', () => {
               },
             });
             // Data should still be missing after first payload
-            expect(environment.check(queryWithFragments.root)).toEqual(false);
+            expect(environment.check(queryWithFragments)).toEqual({
+              status: 'missing',
+            });
 
             // Calling prepare again shouldn't suspend; the fragment with
             // the deferred data would suspend further down the tree
@@ -918,7 +1041,10 @@ describe('QueryResource', () => {
               path: ['node'],
             });
             // Data should not be missing anymore
-            expect(environment.check(queryWithFragments.root)).toEqual(true);
+            expect(environment.check(queryWithFragments)).toEqual({
+              status: 'available',
+              fetchTime: null,
+            });
 
             // Calling prepare again should return same result
             const result2 = QueryResource.prepare(
@@ -949,7 +1075,10 @@ describe('QueryResource', () => {
         });
 
         it('should return result and send a network request even when data is locally available', () => {
-          expect(environment.check(query.root)).toEqual(true);
+          expect(environment.check(query)).toEqual({
+            status: 'available',
+            fetchTime: null,
+          });
 
           const result = QueryResource.prepare(
             query,
@@ -979,7 +1108,9 @@ describe('QueryResource', () => {
         });
 
         it('should return result and send a network request if data is missing for the query', () => {
-          expect(environment.check(queryMissingData.root)).toEqual(false);
+          expect(environment.check(queryMissingData)).toEqual({
+            status: 'missing',
+          });
 
           const result = QueryResource.prepare(
             queryMissingData,
@@ -1001,6 +1132,34 @@ describe('QueryResource', () => {
           });
           expect(environment.execute).toBeCalledTimes(1);
           expect(environment.retain).toBeCalledTimes(1);
+
+          // Assert that query is released after enough time has passed without
+          // calling QueryResource.retain
+          jest.runAllTimers();
+          expect(release).toBeCalledTimes(1);
+        });
+
+        it('should suspend and send a network request if data for query is cached but stale', () => {
+          environment.commitUpdate(storeProxy => {
+            storeProxy.invalidateStore();
+          });
+          expect(environment.check(query)).toEqual({status: 'stale'});
+
+          let thrown = false;
+          try {
+            QueryResource.prepare(
+              query,
+              fetchObservableMissingData,
+              fetchPolicy,
+              renderPolicy,
+            );
+          } catch (promise) {
+            expect(typeof promise.then).toBe('function');
+            thrown = true;
+          }
+          expect(environment.execute).toBeCalledTimes(1);
+          expect(environment.retain).toBeCalledTimes(1);
+          expect(thrown).toBe(true);
 
           // Assert that query is released after enough time has passed without
           // calling QueryResource.retain
@@ -1086,7 +1245,9 @@ describe('QueryResource', () => {
         });
 
         it('should return result and send a network request if data is missing for the query and observable returns synchronously', () => {
-          expect(environment.check(queryMissingData.root)).toEqual(false);
+          expect(environment.check(queryMissingData)).toEqual({
+            status: 'missing',
+          });
 
           const networkExecute = jest.fn();
           const syncFetchObservable = Observable.create(sink => {
@@ -1165,7 +1326,10 @@ describe('QueryResource', () => {
         });
 
         it('should return result and send a network request even when data is locally available', () => {
-          expect(environment.check(query.root)).toEqual(true);
+          expect(environment.check(query)).toEqual({
+            status: 'available',
+            fetchTime: null,
+          });
 
           const result = QueryResource.prepare(
             query,
@@ -1195,7 +1359,9 @@ describe('QueryResource', () => {
         });
 
         it('should suspend and send a network request if data is missing for the query', () => {
-          expect(environment.check(queryMissingData.root)).toEqual(false);
+          expect(environment.check(queryMissingData)).toEqual({
+            status: 'missing',
+          });
 
           let thrown;
           try {
@@ -1312,7 +1478,9 @@ describe('QueryResource', () => {
         });
 
         it('should return result and send a network request if data is missing for the query and observable returns synchronously', () => {
-          expect(environment.check(queryMissingData.root)).toEqual(false);
+          expect(environment.check(queryMissingData)).toEqual({
+            status: 'missing',
+          });
 
           const networkExecute = jest.fn();
           const syncFetchObservable = Observable.create(sink => {
@@ -1396,7 +1564,10 @@ describe('QueryResource', () => {
           renderPolicy = 'partial';
         });
         it('should suspend and send a network request even if data is available locally', () => {
-          expect(environment.check(query.root)).toEqual(true);
+          expect(environment.check(query)).toEqual({
+            status: 'available',
+            fetchTime: null,
+          });
 
           let thrown = false;
           try {
@@ -1421,12 +1592,42 @@ describe('QueryResource', () => {
         });
 
         it('should suspend and send a network request when query has missing data', () => {
-          expect(environment.check(queryMissingData.root)).toEqual(false);
+          expect(environment.check(queryMissingData)).toEqual({
+            status: 'missing',
+          });
 
           let thrown = false;
           try {
             QueryResource.prepare(
               queryMissingData,
+              fetchObservableMissingData,
+              fetchPolicy,
+              renderPolicy,
+            );
+          } catch (promise) {
+            expect(typeof promise.then).toBe('function');
+            thrown = true;
+          }
+          expect(environment.execute).toBeCalledTimes(1);
+          expect(environment.retain).toBeCalledTimes(1);
+          expect(thrown).toBe(true);
+
+          // Assert that query is released after enough time has passed without
+          // calling QueryResource.retain
+          jest.runAllTimers();
+          expect(release).toBeCalledTimes(1);
+        });
+
+        it('should suspend and send a network request if data for query is cached but stale', () => {
+          environment.commitUpdate(storeProxy => {
+            storeProxy.invalidateStore();
+          });
+          expect(environment.check(query)).toEqual({status: 'stale'});
+
+          let thrown = false;
+          try {
+            QueryResource.prepare(
+              query,
               fetchObservableMissingData,
               fetchPolicy,
               renderPolicy,
@@ -1566,7 +1767,10 @@ describe('QueryResource', () => {
           renderPolicy = 'full';
         });
         it('should suspend and send a network request even if data is available locally', () => {
-          expect(environment.check(query.root)).toEqual(true);
+          expect(environment.check(query)).toEqual({
+            status: 'available',
+            fetchTime: null,
+          });
 
           let thrown = false;
           try {
@@ -1591,7 +1795,9 @@ describe('QueryResource', () => {
         });
 
         it('should suspend and send a network request when query has missing data', () => {
-          expect(environment.check(queryMissingData.root)).toEqual(false);
+          expect(environment.check(queryMissingData)).toEqual({
+            status: 'missing',
+          });
 
           let thrown = false;
           try {
@@ -1743,7 +1949,10 @@ describe('QueryResource', () => {
         });
 
         it('should not send network request if data is available locally', () => {
-          expect(environment.check(query.root)).toEqual(true);
+          expect(environment.check(query)).toEqual({
+            status: 'available',
+            fetchTime: null,
+          });
 
           const result = QueryResource.prepare(
             query,
@@ -1773,7 +1982,9 @@ describe('QueryResource', () => {
         });
 
         it('should not send network request even if data is missing', () => {
-          expect(environment.check(queryMissingData.root)).toEqual(false);
+          expect(environment.check(queryMissingData)).toEqual({
+            status: 'missing',
+          });
 
           const result = QueryResource.prepare(
             queryMissingData,
@@ -1801,6 +2012,39 @@ describe('QueryResource', () => {
           jest.runAllTimers();
           expect(release).toBeCalledTimes(1);
         });
+
+        it('should not send a network request if data for query is cached but stale', () => {
+          environment.commitUpdate(storeProxy => {
+            storeProxy.invalidateStore();
+          });
+          expect(environment.check(query)).toEqual({status: 'stale'});
+
+          const result = QueryResource.prepare(
+            query,
+            fetchObservable,
+            fetchPolicy,
+            renderPolicy,
+          );
+          expect(result).toEqual({
+            cacheKey: expect.any(String),
+            fragmentNode: query.fragment.node,
+            fragmentRef: {
+              __id: ROOT_ID,
+              __fragments: {
+                UserQuery: variables,
+              },
+              __fragmentOwner: query.request,
+            },
+            operation: query,
+          });
+          expect(environment.execute).toBeCalledTimes(0);
+          expect(environment.retain).toBeCalledTimes(1);
+
+          // Assert that query is released after enough time has passed without
+          // calling QueryResource.retain
+          jest.runAllTimers();
+          expect(release).toBeCalledTimes(1);
+        });
       });
 
       describe('renderPolicy: full', () => {
@@ -1809,7 +2053,10 @@ describe('QueryResource', () => {
         });
 
         it('should not send network request if data is available locally', () => {
-          expect(environment.check(query.root)).toEqual(true);
+          expect(environment.check(query)).toEqual({
+            status: 'available',
+            fetchTime: null,
+          });
 
           const result = QueryResource.prepare(
             query,
@@ -1839,7 +2086,9 @@ describe('QueryResource', () => {
         });
 
         it('should not send network request even if data is missing', () => {
-          expect(environment.check(queryMissingData.root)).toEqual(false);
+          expect(environment.check(queryMissingData)).toEqual({
+            status: 'missing',
+          });
 
           const result = QueryResource.prepare(
             queryMissingData,
@@ -1885,9 +2134,7 @@ describe('QueryResource', () => {
       );
       expect(environment.execute).toBeCalledTimes(1);
       expect(environment.retain).toBeCalledTimes(1);
-      expect(environment.retain.mock.calls[0][0]).toEqual(
-        queryMissingData.root,
-      );
+      expect(environment.retain.mock.calls[0][0]).toEqual(queryMissingData);
 
       // Data retention ownership is established permanently:
       // - Temporary retain is released
@@ -1895,9 +2142,7 @@ describe('QueryResource', () => {
       const disposable = QueryResource.retain(result);
       expect(release).toBeCalledTimes(0);
       expect(environment.retain).toBeCalledTimes(1);
-      expect(environment.retain.mock.calls[0][0]).toEqual(
-        queryMissingData.root,
-      );
+      expect(environment.retain.mock.calls[0][0]).toEqual(queryMissingData);
 
       // Running timers won't release the query since it has been
       // permanently retained
@@ -1928,9 +2173,7 @@ describe('QueryResource', () => {
       expect(environment.execute).toBeCalledTimes(1);
       expect(release).toBeCalledTimes(0);
       expect(environment.retain).toBeCalledTimes(1);
-      expect(environment.retain.mock.calls[0][0]).toEqual(
-        queryMissingData.root,
-      );
+      expect(environment.retain.mock.calls[0][0]).toEqual(queryMissingData);
 
       // Running timers before calling `retain` auto-releases the query
       // retained during `read`
@@ -1951,9 +2194,7 @@ describe('QueryResource', () => {
       const disposable = QueryResource.retain(result);
       expect(release).toBeCalledTimes(1);
       expect(environment.retain).toBeCalledTimes(2);
-      expect(environment.retain.mock.calls[1][0]).toEqual(
-        queryMissingData.root,
-      );
+      expect(environment.retain.mock.calls[1][0]).toEqual(queryMissingData);
 
       // Assert that disposing releases the query
       disposable.dispose();
@@ -1971,7 +2212,7 @@ describe('QueryResource', () => {
       expect(environment.execute).toBeCalledTimes(0);
       expect(release).toBeCalledTimes(0);
       expect(environment.retain).toBeCalledTimes(1);
-      expect(environment.retain.mock.calls[0][0]).toEqual(query.root);
+      expect(environment.retain.mock.calls[0][0]).toEqual(query);
 
       // Running timers before calling `retain` auto-releases the query
       // retained during `read`
@@ -1982,7 +2223,7 @@ describe('QueryResource', () => {
       const disposable = QueryResource.retain(result);
       expect(release).toBeCalledTimes(1);
       expect(environment.retain).toBeCalledTimes(2);
-      expect(environment.retain.mock.calls[1][0]).toEqual(query.root);
+      expect(environment.retain.mock.calls[1][0]).toEqual(query);
 
       // Assert that disposing releases the query
       disposable.dispose();
@@ -2000,9 +2241,7 @@ describe('QueryResource', () => {
       // Assert query is temporarily retained
       expect(release).toBeCalledTimes(0);
       expect(environment.retain).toBeCalledTimes(1);
-      expect(environment.retain.mock.calls[0][0]).toEqual(
-        queryMissingData.root,
-      );
+      expect(environment.retain.mock.calls[0][0]).toEqual(queryMissingData);
 
       // Assert rerquest was started
       expect(environment.execute).toBeCalledTimes(1);
@@ -2038,9 +2277,7 @@ describe('QueryResource', () => {
         // Assert query is temporarily retained
         expect(release).toBeCalledTimes(0);
         expect(environment.retain).toBeCalledTimes(1);
-        expect(environment.retain.mock.calls[0][0]).toEqual(
-          queryMissingData.root,
-        );
+        expect(environment.retain.mock.calls[0][0]).toEqual(queryMissingData);
 
         // Assert that retain count is 1
         const cacheEntry = QueryResource.getCacheEntry(
@@ -2059,9 +2296,7 @@ describe('QueryResource', () => {
         // Assert query is still temporarily retained
         expect(release).toHaveBeenCalledTimes(0);
         expect(environment.retain).toBeCalledTimes(1);
-        expect(environment.retain.mock.calls[0][0]).toEqual(
-          queryMissingData.root,
-        );
+        expect(environment.retain.mock.calls[0][0]).toEqual(queryMissingData);
         // Assert that retain count is still 1
         expect(cacheEntry && cacheEntry.getRetainCount()).toEqual(1);
 
@@ -2094,9 +2329,7 @@ describe('QueryResource', () => {
         // Assert query is temporarily retained
         expect(release).toBeCalledTimes(0);
         expect(environment.retain).toBeCalledTimes(1);
-        expect(environment.retain.mock.calls[0][0]).toEqual(
-          queryMissingData.root,
-        );
+        expect(environment.retain.mock.calls[0][0]).toEqual(queryMissingData);
 
         // Assert that retain count is 1
         const cacheEntry = QueryResource.getCacheEntry(
@@ -2115,9 +2348,7 @@ describe('QueryResource', () => {
         // Assert query is still temporarily retained
         expect(release).toHaveBeenCalledTimes(0);
         expect(environment.retain).toBeCalledTimes(1);
-        expect(environment.retain.mock.calls[0][0]).toEqual(
-          queryMissingData.root,
-        );
+        expect(environment.retain.mock.calls[0][0]).toEqual(queryMissingData);
         // Assert that retain count is still 1
         expect(cacheEntry && cacheEntry.getRetainCount()).toEqual(1);
 
@@ -2158,9 +2389,7 @@ describe('QueryResource', () => {
         // Assert query is temporarily retained
         expect(release).toBeCalledTimes(0);
         expect(environment.retain).toBeCalledTimes(1);
-        expect(environment.retain.mock.calls[0][0]).toEqual(
-          queryMissingData.root,
-        );
+        expect(environment.retain.mock.calls[0][0]).toEqual(queryMissingData);
 
         // Assert that retain count is 1
         const cacheEntry = QueryResource.getCacheEntry(
@@ -2205,9 +2434,7 @@ describe('QueryResource', () => {
         // Assert query is still retained
         expect(release).toHaveBeenCalledTimes(0);
         expect(environment.retain).toBeCalledTimes(1);
-        expect(environment.retain.mock.calls[0][0]).toEqual(
-          queryMissingData.root,
-        );
+        expect(environment.retain.mock.calls[0][0]).toEqual(queryMissingData);
 
         // Assert that disposing the first disposable doesn't release the query
         disposable.dispose();
@@ -2238,9 +2465,7 @@ describe('QueryResource', () => {
         // Assert query is temporarily retained
         expect(release).toBeCalledTimes(0);
         expect(environment.retain).toBeCalledTimes(1);
-        expect(environment.retain.mock.calls[0][0]).toEqual(
-          queryMissingData.root,
-        );
+        expect(environment.retain.mock.calls[0][0]).toEqual(queryMissingData);
 
         // Assert that retain count is 1
         const cacheEntry = QueryResource.getCacheEntry(
@@ -2259,9 +2484,7 @@ describe('QueryResource', () => {
         // Assert query is still temporarily retained
         expect(release).toHaveBeenCalledTimes(0);
         expect(environment.retain).toBeCalledTimes(1);
-        expect(environment.retain.mock.calls[0][0]).toEqual(
-          queryMissingData.root,
-        );
+        expect(environment.retain.mock.calls[0][0]).toEqual(queryMissingData);
         // Assert that retain count is still 1
         expect(cacheEntry && cacheEntry.getRetainCount()).toEqual(1);
 
@@ -2350,9 +2573,7 @@ describe('QueryResource', () => {
         // Assert query is temporarily retained
         expect(release).toBeCalledTimes(0);
         expect(environment.retain).toBeCalledTimes(1);
-        expect(environment.retain.mock.calls[0][0]).toEqual(
-          queryMissingData.root,
-        );
+        expect(environment.retain.mock.calls[0][0]).toEqual(queryMissingData);
 
         // Assert that retain count is 1
         const cacheEntry = QueryResource.getCacheEntry(
@@ -2371,9 +2592,7 @@ describe('QueryResource', () => {
         // Assert query is still temporarily retained
         expect(release).toHaveBeenCalledTimes(0);
         expect(environment.retain).toBeCalledTimes(1);
-        expect(environment.retain.mock.calls[0][0]).toEqual(
-          queryMissingData.root,
-        );
+        expect(environment.retain.mock.calls[0][0]).toEqual(queryMissingData);
         // Assert that retain count is still 1
         expect(cacheEntry && cacheEntry.getRetainCount()).toEqual(1);
 
@@ -2459,9 +2678,7 @@ describe('QueryResource', () => {
         // Assert query is temporarily retained
         expect(release).toBeCalledTimes(0);
         expect(environment.retain).toBeCalledTimes(1);
-        expect(environment.retain.mock.calls[0][0]).toEqual(
-          queryMissingData.root,
-        );
+        expect(environment.retain.mock.calls[0][0]).toEqual(queryMissingData);
         // Assert that retain count is 1
         let cacheEntry = QueryResource.getCacheEntry(
           queryMissingData,
@@ -2491,9 +2708,7 @@ describe('QueryResource', () => {
         // Assert query is still retained
         expect(release).toHaveBeenCalledTimes(0);
         expect(environment.retain).toBeCalledTimes(1);
-        expect(environment.retain.mock.calls[0][0]).toEqual(
-          queryMissingData.root,
-        );
+        expect(environment.retain.mock.calls[0][0]).toEqual(queryMissingData);
         // Assert that retain count is still 1
         expect(cacheEntry && cacheEntry.getRetainCount()).toEqual(1);
 

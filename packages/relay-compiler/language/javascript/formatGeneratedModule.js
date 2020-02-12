@@ -4,9 +4,11 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @flow
+ * @flow strict-local
  * @format
  */
+
+// flowlint ambiguous-object-type:error
 
 'use strict';
 
@@ -24,8 +26,9 @@ const formatGeneratedModule: FormatModule = ({
   const documentTypeImport = documentType
     ? `import type { ${documentType} } from 'relay-runtime';`
     : '';
-  const docTextComment = docText ? '\n/*\n' + docText.trim() + '\n*/\n' : '';
-  const hashText = hash ? `\n * ${hash}` : '';
+  const docTextComment =
+    docText != null ? '\n/*\n' + docText.trim() + '\n*/\n' : '';
+  const hashText = hash != null ? `\n * ${hash}` : '';
   return `/**
  * ${'@'}flow${hashText}
  */
@@ -43,8 +46,20 @@ ${docTextComment}
 const node/*: ${documentType || 'empty'}*/ = ${concreteText};
 // prettier-ignore
 (node/*: any*/).hash = '${sourceHash}';
+`;
+};
+
+const formatGeneratedCommonjsModule: FormatModule = options => {
+  return `${formatGeneratedModule(options)}
 module.exports = node;
 `;
 };
 
-module.exports = formatGeneratedModule;
+const formatGeneratedESModule: FormatModule = options => {
+  return `${formatGeneratedModule(options)}
+export default node;
+`;
+};
+
+exports.formatGeneratedCommonjsModule = formatGeneratedCommonjsModule;
+exports.formatGeneratedESModule = formatGeneratedESModule;

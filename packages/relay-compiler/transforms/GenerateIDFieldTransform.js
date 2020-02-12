@@ -8,24 +8,24 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
-const IRTransformer = require('../core/GraphQLIRTransformer');
+const IRTransformer = require('../core/IRTransformer');
 const SchemaUtils = require('../core/SchemaUtils');
 
 const {hasUnaliasedSelection} = require('./TransformUtils');
 
-import type CompilerContext from '../core/GraphQLCompilerContext';
-import type {InlineFragment, LinkedField, ScalarField} from '../core/GraphQLIR';
+import type CompilerContext from '../core/CompilerContext';
+import type {InlineFragment, LinkedField, ScalarField} from '../core/IR';
 import type {CompositeTypeID} from '../core/Schema';
 const {generateIDField} = SchemaUtils;
 
 const ID = 'id';
 const NODE_TYPE = 'Node';
 
-type State = {
-  idField: ScalarField,
-};
+type State = {idField: ScalarField, ...};
 
 /**
  * A transform that adds an `id` field on any type that has an id field but

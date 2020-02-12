@@ -9,6 +9,8 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 import type {
@@ -37,36 +39,42 @@ export type AnotherNonNullableData = {|
 declare export var keyNonNullable: {
   +$data?: NonNullableData,
   +$fragmentRefs: FragmentReference,
+  ...
 };
 
 declare export var keyNonNullablePlural: $ReadOnlyArray<{
   +$data?: NonNullablePluralData,
   +$fragmentRefs: FragmentReference,
+  ...
 }>;
 
 declare export var keyNullablePlural: ?$ReadOnlyArray<{
   +$data?: NonNullablePluralData,
   +$fragmentRefs: FragmentReference,
+  ...
 }>;
 
 declare export var keyNullable: ?{
   +$data?: NonNullableData,
   +$fragmentRefs: FragmentReference,
+  ...
 };
 
 declare export var keyAnotherNonNullable: {
   +$data: AnotherNonNullableData,
   +$fragmentRefs: FragmentReference,
+  ...
 };
 
 declare export var keyAnotherNullable: ?{
   +$data: AnotherNonNullableData,
   +$fragmentRefs: FragmentReference,
+  ...
 };
 
 export type QueryOperation = {|
   +variables: QueryVariables,
-  +response: {},
+  +response: {...},
 |};
 
 export type QueryVariables = {|
@@ -77,6 +85,7 @@ export type QueryVariables = {|
 
 export type QueryVariablesSubset = {
   id: string,
+  ...
 };
 
 export type FetchFn<TVars> = (vars: TVars) => Disposable;

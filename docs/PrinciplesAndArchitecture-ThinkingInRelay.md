@@ -62,6 +62,7 @@ In React, rendering a view requires two inputs: the *component* to render, and a
 ```javascript
 ReactDOM.render(
   <QueryRenderer
+    environment={/* defined or imported above... */}
     query={graphql`
       query StoryQuery($storyID: ID!) {
         node(id: $storyID) {

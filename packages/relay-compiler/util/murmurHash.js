@@ -8,6 +8,8 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 /**
  * Based on implementations by Gary Court and Austin Appleby, 2011, MIT.
  * @preserve-header

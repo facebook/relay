@@ -8,6 +8,8 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const inferRootArgumentDefinitions = require('../core/inferRootArgumentDefinitions');
@@ -15,10 +17,10 @@ const inferRootArgumentDefinitions = require('../core/inferRootArgumentDefinitio
 const {
   createUserError,
   eachWithCombinedError,
-} = require('../core/RelayCompilerError');
+} = require('../core/CompilerError');
 
-import type GraphQLCompilerContext from '../core/GraphQLCompilerContext';
-import type {ArgumentDefinition} from '../core/GraphQLIR';
+import type CompilerContext from '../core/CompilerContext';
+import type {ArgumentDefinition} from '../core/IR';
 
 /**
  * Validates that all global variables used in operations are defined at the
@@ -26,8 +28,8 @@ import type {ArgumentDefinition} from '../core/GraphQLIR';
  * has to happen before other transforms strip certain variable usages.
  */
 function validateGlobalVariablesTransform(
-  context: GraphQLCompilerContext,
-): GraphQLCompilerContext {
+  context: CompilerContext,
+): CompilerContext {
   const contextWithUsedArguments = inferRootArgumentDefinitions(context);
   eachWithCombinedError(context.documents(), node => {
     if (node.kind !== 'Root') {

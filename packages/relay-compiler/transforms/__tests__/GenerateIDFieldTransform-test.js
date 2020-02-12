@@ -9,13 +9,14 @@
  * @emails oncall+relay
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
+const CompilerContext = require('../../core/CompilerContext');
 const GenerateIDFieldTransform = require('../GenerateIDFieldTransform');
-const GraphQLCompilerContext = require('../../core/GraphQLCompilerContext');
-const GraphQLIRPrinter = require('../../core/GraphQLIRPrinter');
+const IRPrinter = require('../../core/IRPrinter');
 const RelayParser = require('../../core/RelayParser');
-const Schema = require('../../core/Schema');
 
 const {
   TestSchema,
@@ -26,13 +27,12 @@ describe('GenerateIDFieldTransform', () => {
   generateTestsFromFixtures(
     `${__dirname}/fixtures/generate-id-field-transform`,
     text => {
-      const compilerSchema = Schema.DEPRECATED__create(TestSchema);
-      const ast = RelayParser.parse(compilerSchema, text);
-      return new GraphQLCompilerContext(compilerSchema)
+      const ast = RelayParser.parse(TestSchema, text);
+      return new CompilerContext(TestSchema)
         .addAll(ast)
         .applyTransforms([GenerateIDFieldTransform.transform])
         .documents()
-        .map(doc => GraphQLIRPrinter.print(compilerSchema, doc))
+        .map(doc => IRPrinter.print(TestSchema, doc))
         .join('\n');
     },
   );

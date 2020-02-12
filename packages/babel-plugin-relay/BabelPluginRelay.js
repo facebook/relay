@@ -23,20 +23,23 @@ try {
 export type RelayPluginOptions = {
   // The command to run to compile Relay files, used for error messages.
   buildCommand?: string,
-
   // Use haste style global requires, defaults to false.
   haste?: boolean,
-
   // Check this global variable before validation.
   isDevVariable?: string,
 
+  // enable generating eager es modules for modern runtime
+  eagerESModules?: boolean,
+
   // Directory as specified by artifactDirectory when running relay-compiler
   artifactDirectory?: string,
+  ...
 };
 
 export type BabelState = {
   file?: any,
   opts?: RelayPluginOptions,
+  ...
 };
 
 /**
@@ -48,7 +51,10 @@ export type BabelState = {
  *       ]
  *     }
  */
-module.exports = function BabelPluginRelay(context: {types: $FlowFixMe}): any {
+module.exports = function BabelPluginRelay(context: {
+  types: $FlowFixMe,
+  ...
+}): any {
   const {types: t} = context;
   if (!t) {
     throw new Error(

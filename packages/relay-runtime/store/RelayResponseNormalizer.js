@@ -8,10 +8,10 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
-const RelayConnection = require('./RelayConnection');
-const RelayConnectionInterface = require('../handlers/connection/RelayConnectionInterface');
 const RelayModernRecord = require('./RelayModernRecord');
 const RelayProfiler = require('../util/RelayProfiler');
 
@@ -22,7 +22,6 @@ const {
   CONDITION,
   CLIENT_EXTENSION,
   DEFER,
-  CONNECTION,
   INLINE_FRAGMENT,
   LINKED_FIELD,
   LINKED_HANDLE,
@@ -34,7 +33,6 @@ const {
 const {generateClientID, isClientID} = require('./ClientID');
 const {createNormalizationSelector} = require('./RelayModernSelector');
 const {
-  formatStorageKey,
   getArgumentValues,
   getHandleStorageKey,
   getModuleComponentKey,
@@ -45,7 +43,6 @@ const {
 
 import type {PayloadData} from '../network/RelayNetworkTypes';
 import type {
-  NormalizationConnection,
   NormalizationDefer,
   NormalizationLinkedField,
   NormalizationModuleImport,
@@ -54,7 +51,6 @@ import type {
   NormalizationStream,
 } from '../util/NormalizationNode';
 import type {DataID, Variables} from '../util/RelayRuntimeTypes';
-import type {ConnectionInternalEvent} from './RelayConnection';
 import type {
   HandleFieldPayload,
   IncrementalDataPlaceholder,
@@ -67,7 +63,7 @@ import type {
 } from './RelayStoreTypes';
 
 export type GetDataID = (
-  fieldValue: {[string]: mixed},
+  fieldValue: {[string]: mixed, ...},
   typeName: string,
 ) => mixed;
 
@@ -102,7 +98,6 @@ function normalize(
  * Helper for handling payloads.
  */
 class RelayResponseNormalizer {
-  _connectionEvents: Array<ConnectionInternalEvent>;
   _getDataId: GetDataID;
   _handleFieldPayloads: Array<HandleFieldPayload>;
   _incrementalPlaceholders: Array<IncrementalDataPlaceholder>;
@@ -118,7 +113,6 @@ class RelayResponseNormalizer {
     variables: Variables,
     options: NormalizationOptions,
   ) {
-    this._connectionEvents = [];
     this._getDataId = options.getDataID;
     this._handleFieldPayloads = [];
     this._incrementalPlaceholders = [];
@@ -143,12 +137,12 @@ class RelayResponseNormalizer {
     );
     this._traverseSelections(node, record, data);
     return {
-      connectionEvents: this._connectionEvents,
       errors: null,
       fieldPayloads: this._handleFieldPayloads,
       incrementalPlaceholders: this._incrementalPlaceholders,
       moduleImportPayloads: this._moduleImportPayloads,
       source: this._recordSource,
+      isFinal: false,
     };
   }
 
@@ -224,9 +218,6 @@ class RelayResponseNormalizer {
           this._isClientExtension = true;
           this._traverseSelections(selection, record, data);
           this._isClientExtension = isClientExtension;
-          break;
-        case CONNECTION:
-          this._normalizeConnection(node, selection, record, data);
           break;
         default:
           (selection: empty);
@@ -342,134 +333,6 @@ class RelayResponseNormalizer {
         variables: this._variables,
       });
     }
-  }
-
-  /**
-   * Connections are represented in the AST as a LinkedField (with connection-
-   * specific args like after/first stripped) that wraps any metadata fields
-   * such as count, plus a Connection node that represents the page of data
-   * being fetched (the edges + pageInfo). The outer LinkedField is normalized
-   * like any other, and the Connection field is normalized by synthesizing
-   * a record to represent the page that was fetched and normalizing the edges
-   * and pageInfo into that page record - as well as recording a "fetch" event.
-   */
-  _normalizeConnection(
-    parent: NormalizationNode,
-    selection: NormalizationConnection,
-    record: Record,
-    data: PayloadData,
-  ) {
-    // Normalize the data for the page
-    const parentID = RelayModernRecord.getDataID(record);
-    const args =
-      selection.args != null
-        ? getArgumentValues(selection.args, this._variables)
-        : {};
-    const pageStorageKey = formatStorageKey('__connection_page', args);
-    const pageID = generateClientID(parentID, pageStorageKey);
-    let pageRecord = this._recordSource.get(pageID);
-    if (pageRecord == null) {
-      pageRecord = RelayModernRecord.create(pageID, '__ConnectionPage');
-      this._recordSource.set(pageID, pageRecord);
-    }
-    RelayModernRecord.setLinkedRecordID(record, pageStorageKey, pageID);
-
-    this._normalizeField(parent, selection.edges, pageRecord, data);
-    this._normalizeField(parent, selection.pageInfo, pageRecord, data);
-
-    // Construct a "fetch" connection event
-    const connectionID = RelayConnection.createConnectionID(
-      parentID,
-      selection.label,
-    );
-    const {
-      EDGES,
-      END_CURSOR,
-      HAS_NEXT_PAGE,
-      HAS_PREV_PAGE,
-      PAGE_INFO,
-      START_CURSOR,
-    } = RelayConnectionInterface.get();
-
-    const edgeIDs = RelayModernRecord.getLinkedRecordIDs(pageRecord, EDGES);
-    if (edgeIDs == null) {
-      return;
-    }
-    const pageInfoID = RelayModernRecord.getLinkedRecordID(
-      pageRecord,
-      PAGE_INFO,
-    );
-    const pageInfoRecord =
-      pageInfoID != null ? this._recordSource.get(pageInfoID) : null;
-    let endCursor;
-    let hasNextPage;
-    let hasPrevPage;
-    let startCursor;
-    if (pageInfoRecord != null) {
-      endCursor = RelayModernRecord.getValue(pageInfoRecord, END_CURSOR);
-      hasNextPage = RelayModernRecord.getValue(pageInfoRecord, HAS_NEXT_PAGE);
-      hasPrevPage = RelayModernRecord.getValue(pageInfoRecord, HAS_PREV_PAGE);
-      startCursor = RelayModernRecord.getValue(pageInfoRecord, START_CURSOR);
-    }
-
-    // If streaming is enabled, also emit incremental placeholders for the
-    // edges and pageInfo
-    const stream = selection.stream;
-    const enableStream =
-      stream != null
-        ? stream.if.kind === 'Variable'
-          ? this._variables[stream.if.variableName]
-          : stream.if.value
-        : false;
-    if (stream != null && enableStream === true) {
-      this._incrementalPlaceholders.push({
-        kind: 'connection_edge',
-        args,
-        connectionID,
-        label: stream.streamLabel,
-        path: [...this._path],
-        parentID: pageID,
-        node: selection.edges,
-        variables: this._variables,
-      });
-      this._incrementalPlaceholders.push({
-        kind: 'connection_page_info',
-        args,
-        connectionID,
-        data,
-        label: stream.deferLabel,
-        path: [...this._path],
-        selector: createNormalizationSelector(
-          {
-            alias: null,
-            args: null,
-            concreteType: RelayModernRecord.getType(pageRecord),
-            kind: 'LinkedField',
-            name: '',
-            plural: false,
-            selections: [selection.pageInfo],
-            storageKey: null,
-          },
-          pageID,
-          this._variables,
-        ),
-        typeName: RelayModernRecord.getType(pageRecord),
-      });
-    }
-    this._connectionEvents.push({
-      kind: 'fetch',
-      connectionID,
-      args,
-      edgeIDs,
-      pageInfo: {
-        endCursor: typeof endCursor === 'string' ? endCursor : null,
-        startCursor: typeof startCursor === 'string' ? startCursor : null,
-        hasNextPage: typeof hasNextPage === 'boolean' ? hasNextPage : null,
-        hasPrevPage: typeof hasPrevPage === 'boolean' ? hasPrevPage : null,
-      },
-      request: this._request,
-      stream: enableStream === true,
-    });
   }
 
   _normalizeField(
@@ -680,10 +543,9 @@ class RelayResponseNormalizer {
   }
 }
 
-// eslint-disable-next-line no-func-assign
-normalize = RelayProfiler.instrument(
+const instrumentedNormalize: typeof normalize = RelayProfiler.instrument(
   'RelayResponseNormalizer.normalize',
   normalize,
 );
 
-module.exports = {normalize};
+module.exports = {normalize: instrumentedNormalize};

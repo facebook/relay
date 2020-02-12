@@ -8,14 +8,16 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
-const GraphQLIRTransformer = require('../core/GraphQLIRTransformer');
+const IRTransformer = require('../core/IRTransformer');
 
-const {createUserError} = require('../core/RelayCompilerError');
+const {createUserError} = require('../core/CompilerError');
 
-import type GraphQLCompilerContext from '../core/GraphQLCompilerContext';
-import type {ScalarField, LinkedField} from '../core/GraphQLIR';
+import type CompilerContext from '../core/CompilerContext';
+import type {ScalarField, LinkedField} from '../core/IR';
 
 function visitField<T: ScalarField | LinkedField>(field: T): T {
   if (field.alias === 'id' && field.name !== 'id') {
@@ -26,17 +28,15 @@ function visitField<T: ScalarField | LinkedField>(field: T): T {
       [field.loc],
     );
   }
-  return field;
+  return this.traverse(field);
 }
 
 /**
  * This is not an actual transform (but more a validation)
  * Relay does not allow aliasing fields to `id`.
  */
-function disallowIdAsAlias(
-  context: GraphQLCompilerContext,
-): GraphQLCompilerContext {
-  return GraphQLIRTransformer.transform(context, {
+function disallowIdAsAlias(context: CompilerContext): CompilerContext {
+  return IRTransformer.transform(context, {
     ScalarField: visitField,
     LinkedField: visitField,
   });

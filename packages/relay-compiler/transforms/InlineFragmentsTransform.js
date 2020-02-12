@@ -8,25 +8,25 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
-const GraphQLIRTransformer = require('../core/GraphQLIRTransformer');
+const IRTransformer = require('../core/IRTransformer');
 
 const invariant = require('invariant');
 
-import type GraphQLCompilerContext from '../core/GraphQLCompilerContext';
-import type {InlineFragment, Fragment, FragmentSpread} from '../core/GraphQLIR';
+import type CompilerContext from '../core/CompilerContext';
+import type {InlineFragment, Fragment, FragmentSpread} from '../core/IR';
 
 type FragmentVisitorCache = Map<FragmentSpread, FragmentSpread>;
 type FragmentVisitor = (fragmentSpread: FragmentSpread) => ?FragmentSpread;
 /**
  * A transform that inlines all fragments and removes them.
  */
-function inlineFragmentsTransform(
-  context: GraphQLCompilerContext,
-): GraphQLCompilerContext {
+function inlineFragmentsTransform(context: CompilerContext): CompilerContext {
   const visitFragmentSpread = fragmentSpreadVisitor(new Map());
-  return GraphQLIRTransformer.transform(context, {
+  return IRTransformer.transform(context, {
     Fragment: visitFragment,
     FragmentSpread: visitFragmentSpread,
   });

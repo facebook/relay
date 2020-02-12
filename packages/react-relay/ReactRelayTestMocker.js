@@ -8,6 +8,8 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const areEqual = require('areEqual');
@@ -23,7 +25,7 @@ const {
 import type {
   CacheConfig,
   ConcreteRequest,
-  GraphQLResponse,
+  GraphQLSingularResponse,
   IEnvironment,
   PayloadError,
   RequestParameters,
@@ -33,13 +35,15 @@ import type {
 export type DataWriteConfig = {
   query: ConcreteRequest,
   variables: Variables,
-  payload: GraphQLResponse,
+  payload: GraphQLSingularResponse,
+  ...
 };
 
 export type NetworkWriteConfig = {
   query: ConcreteRequest,
   variables?: Variables,
-  payload: GraphQLResponse | (Variables => GraphQLResponse),
+  payload: GraphQLSingularResponse | (Variables => GraphQLSingularResponse),
+  ...
 };
 
 type PendingFetch = {
@@ -47,7 +51,12 @@ type PendingFetch = {
   variables?: Variables,
   cacheConfig: ?CacheConfig,
   ident: string,
-  deferred: {resolve: Function, reject: Function},
+  deferred: {
+    resolve: Function,
+    reject: Function,
+    ...
+  },
+  ...
 };
 
 /**
@@ -57,7 +66,7 @@ let nextId = 0;
 
 class ReactRelayTestMocker {
   _environment: IEnvironment;
-  _defaults: {[string]: $PropertyType<NetworkWriteConfig, 'payload'>} = {};
+  _defaults: {[string]: $PropertyType<NetworkWriteConfig, 'payload'>, ...} = {};
   _pendingFetches: Array<PendingFetch> = [];
 
   constructor(env: IEnvironment) {
@@ -165,7 +174,7 @@ class ReactRelayTestMocker {
 
     const resolveRawQuery = (
       toResolve: PendingFetch,
-      payload: GraphQLResponse,
+      payload: GraphQLSingularResponse,
     ): void => {
       this._pendingFetches = this._pendingFetches.filter(
         pending => pending !== toResolve,
@@ -177,7 +186,7 @@ class ReactRelayTestMocker {
 
     const rejectQuery = (
       toResolve: PendingFetch,
-      payload: {error: PayloadError},
+      payload: {error: PayloadError, ...},
     ): void => {
       this._pendingFetches = this._pendingFetches.filter(
         pending => pending !== toResolve,

@@ -8,9 +8,11 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
-const RelayConnectionHandler = require('./connection/RelayConnectionHandler');
+const ConnectionHandler = require('./connection/ConnectionHandler');
 
 const invariant = require('invariant');
 
@@ -20,7 +22,7 @@ export type HandlerProvider = (name: string) => ?Handler;
 function RelayDefaultHandlerProvider(handle: string): Handler {
   switch (handle) {
     case 'connection':
-      return RelayConnectionHandler;
+      return ConnectionHandler;
   }
   invariant(
     false,

@@ -8,6 +8,8 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const RelayModernRecord = require('../store/RelayModernRecord');
@@ -16,7 +18,6 @@ const invariant = require('invariant');
 
 const {EXISTENT} = require('../store/RelayRecordState');
 
-import type {ConnectionInternalEvent} from '../store/RelayConnection';
 import type {RecordState} from '../store/RelayRecordState';
 import type {
   MutableRecordSource,
@@ -40,17 +41,11 @@ import type {DataID} from '../util/RelayRuntimeTypes';
 class RelayRecordSourceMutator {
   __sources: Array<RecordSource>;
   _base: RecordSource;
-  _connectionEvents: Array<ConnectionInternalEvent>;
   _sink: MutableRecordSource;
 
-  constructor(
-    base: RecordSource,
-    sink: MutableRecordSource,
-    connectionEvents: Array<ConnectionInternalEvent>,
-  ) {
+  constructor(base: RecordSource, sink: MutableRecordSource) {
     this.__sources = [sink, base];
     this._base = base;
-    this._connectionEvents = connectionEvents;
     this._sink = sink;
   }
 
@@ -237,10 +232,6 @@ class RelayRecordSourceMutator {
   ): void {
     const sinkRecord = this._getSinkRecord(dataID);
     RelayModernRecord.setLinkedRecordIDs(sinkRecord, storageKey, linkedIDs);
-  }
-
-  appendConnectionEvent_UNSTABLE(event: ConnectionInternalEvent): void {
-    this._connectionEvents.push(event);
   }
 }
 

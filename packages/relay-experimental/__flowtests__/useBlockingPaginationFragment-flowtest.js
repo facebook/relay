@@ -9,6 +9,8 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const useBlockingPaginationFragment = require('../useBlockingPaginationFragment');
@@ -29,12 +31,16 @@ import type {
   QueryVariables,
   QueryVariablesSubset,
 } from './utils';
-import type {IEnvironment} from 'relay-runtime';
+import type {IEnvironment, OperationType} from 'relay-runtime';
 
-type ExpectedReturnType<TQueryVariables, TFragmentData> = {|
+type ExpectedReturnType<
+  TQuery: OperationType,
+  TQueryVariables,
+  TFragmentData,
+> = {|
   data: TFragmentData,
-  loadNext: LoadMoreFn,
-  loadPrevious: LoadMoreFn,
+  loadNext: LoadMoreFn<TQuery>,
+  loadPrevious: LoadMoreFn<TQuery>,
   hasNext: boolean,
   hasPrevious: boolean,
   refetch: FetchFn<TQueryVariables>,
@@ -46,29 +52,29 @@ type ExpectedReturnType<TQueryVariables, TFragmentData> = {|
 (useBlockingPaginationFragment<QueryOperation, _>(
   fragmentInput,
   keyNonNullable,
-): ExpectedReturnType<QueryVariablesSubset, NonNullableData>);
+): ExpectedReturnType<QueryOperation, QueryVariablesSubset, NonNullableData>);
 
 (useBlockingPaginationFragment<QueryOperation, _>(
   fragmentInput,
   keyNullable,
-): ExpectedReturnType<QueryVariables, NullableData>);
+): ExpectedReturnType<QueryOperation, QueryVariables, NullableData>);
 
 // $FlowExpectedError: can't cast nullable to non-nullable
 (useBlockingPaginationFragment<QueryOperation, _>(
   fragmentInput,
   keyNullable,
-): ExpectedReturnType<QueryVariables, NonNullableData>);
+): ExpectedReturnType<QueryOperation, QueryVariables, NonNullableData>);
 
 // $FlowExpectedError: actual type of returned data is correct
 (useBlockingPaginationFragment<QueryOperation, _>(
   fragmentInput,
   keyAnotherNonNullable,
-): ExpectedReturnType<QueryVariablesSubset, NonNullableData>);
+): ExpectedReturnType<QueryOperation, QueryVariablesSubset, NonNullableData>);
 // $FlowExpectedError
 (useBlockingPaginationFragment<QueryOperation, _>(
   fragmentInput,
   keyAnotherNullable,
-): ExpectedReturnType<QueryVariables, NullableData>);
+): ExpectedReturnType<QueryOperation, QueryVariables, NullableData>);
 
 // Refetch function options:
 declare var variables: QueryVariables;
@@ -86,4 +92,27 @@ refetch(variables, {
 // $FlowExpectedError: doesn't exist
 refetch(variables, {
   NON_EXIST: 'NON_EXIST',
+});
+
+// LoadMore options
+declare var extraVariables: {|nickname: string|};
+declare var invalidVariables: {|foo: string|};
+
+const {loadNext} = useBlockingPaginationFragment<QueryOperation, _>(
+  fragmentInput,
+  keyNonNullable,
+);
+// Accepts extraVariables
+loadNext(10, {
+  UNSTABLE_extraVariables: extraVariables,
+});
+
+// $FlowExpectedError: doesn't accept variables not available in the Flow type
+loadNext(10, {
+  UNSTABLE_extraVariables: invalidVariables,
+});
+
+// $FlowExpectedError: doesn't exist
+loadNext(10, {
+  UNSTABLE_foo: invalidVariables,
 });

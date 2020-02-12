@@ -8,15 +8,17 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
-const {createUserError} = require('../../core/RelayCompilerError');
+const {createUserError} = require('../../core/CompilerError');
 const {
   buildFragmentSpread,
   buildOperationArgumentDefinitions,
 } = require('./utils');
 
-import type {Fragment} from '../../core/GraphQLIR';
+import type {Fragment} from '../../core/IR';
 import type {Schema} from '../../core/Schema';
 import type {QueryGenerator, RefetchRoot} from '.';
 
@@ -37,12 +39,13 @@ function buildRefetchOperation(
   const viewerField = schema.getFieldConfig(
     schema.expectField(queryType, VIEWER_FIELD_NAME),
   );
+  const viewerFieldType = schema.getNullableType(viewerField.type);
   if (
     !(
       viewerType &&
       schema.isObject(viewerType) &&
-      schema.isObject(viewerField.type) &&
-      schema.areEqualTypes(viewerField.type, viewerType) &&
+      schema.isObject(viewerFieldType) &&
+      schema.areEqualTypes(viewerFieldType, viewerType) &&
       viewerField.args.length === 0 &&
       schema.areEqualTypes(fragment.type, viewerType)
     )
@@ -78,7 +81,7 @@ function buildRefetchOperation(
           metadata: null,
           name: VIEWER_FIELD_NAME,
           selections: [buildFragmentSpread(fragment)],
-          type: schema.assertLinkedFieldType(viewerType),
+          type: schema.assertLinkedFieldType(viewerField.type),
         },
       ],
       type: queryType,

@@ -1,0 +1,8 @@
+[project]
+name = "common"
+version = "0.0.0"
+edition = "2018"
+
+[dependencies]
+colored = "1.9.1"
+interner = { path = "../interner" }

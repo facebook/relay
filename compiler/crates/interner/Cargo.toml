@@ -1,0 +1,10 @@
+[project]
+name = "interner"
+version = "0.0.0"
+edition = "2018"
+
+[dependencies]
+fnv = "1.0.6"
+lazy_static = "1.4.0"
+parking_lot = "0.10.0"
+serde = { version = "1.0.104", features = ["derive"] }

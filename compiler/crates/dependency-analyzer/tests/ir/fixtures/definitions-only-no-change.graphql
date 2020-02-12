@@ -1,0 +1,7 @@
+#
+query Q1 {
+  me {
+    id
+    name
+  }
+}

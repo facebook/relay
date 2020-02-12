@@ -1,0 +1,59 @@
+==================================== INPUT ====================================
+# BUnrelated, B5
+query Q1 {
+  me {
+    ...F1
+  }
+}
+fragment F1 on User {
+  ...F2
+}
+fragment F2 on User {
+  ...B3
+}
+
+# %definitions%
+
+fragment B3 on User {
+  name
+  ...B4
+}
+query BQUnrelated {
+  me {
+    ...B5
+    ...BUnrelated
+  }
+}
+
+fragment BUnrelated on User {
+  name
+}
+
+# %definitions%
+
+fragment B4 on User {
+  name
+  ...B5
+}
+
+fragment B5 on User {
+  ...B6
+}
+
+fragment B6 on User {
+  name
+}
+==================================== OUTPUT ===================================
+Fragment: B3
+
+Fragment: B4
+
+Fragment: B5
+
+Fragment: B6
+
+Fragment: F1
+
+Fragment: F2
+
+Operation: Q1

@@ -1,0 +1,103 @@
+==================================== INPUT ====================================
+# B13, BUnrelated2
+fragment F1 on User {
+  ...F2
+}
+fragment F2 on User {
+  ...B13
+}
+query Q1 {
+  me {
+    ...F1
+  }
+}
+query Q2 {
+  me {
+    ...F4
+  }
+}
+
+query Q3 {
+  me {
+    ...F5
+    ...B21
+    ...F4
+  }
+}
+
+fragment F4 on Node {
+  name
+  ... on User {
+    ...B23
+  }
+}
+
+fragment F5 on User {
+  ...B12
+}
+
+# %definitions%
+
+fragment B14 on User {
+  name
+}
+fragment B11 on User {
+  ...B12
+}
+fragment B13 on User {
+  ...B14
+}
+fragment B12 on User {
+  ...B13
+}
+fragment BUnrelated on User {
+  ...B11
+}
+
+# %definitions%
+
+fragment B21 on User {
+  ...B22
+}
+
+fragment B22 on User {
+  name
+}
+
+fragment BUnrelated2 on User {
+  ...B23
+}
+
+fragment B23 on User {
+  name
+}
+
+query BQ {
+  me {
+    ...B21
+  }
+}
+==================================== OUTPUT ===================================
+Fragment: B12
+
+Fragment: B13
+
+Fragment: B14
+
+Fragment: B21
+
+Fragment: B22
+
+Fragment: B23
+
+Fragment: F1
+
+Fragment: F2
+
+Fragment: F4
+
+Fragment: F5
+
+Operation: Q1
+
+Operation: Q3

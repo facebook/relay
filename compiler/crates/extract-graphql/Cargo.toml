@@ -1,0 +1,7 @@
+[project]
+name = "extract-graphql"
+version = "0.0.0"
+edition = "2018"
+
+[dev-dependencies]
+fixture-tests = { path = "../fixture-tests" }

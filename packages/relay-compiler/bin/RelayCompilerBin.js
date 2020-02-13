@@ -130,6 +130,11 @@ const options = {
       '--customScalars.URL=String)',
     type: ('object': $FlowFixMe),
   },
+  eagerESModules: {
+    describe: 'This option enables emitting es modules artifacts.',
+    type: 'boolean',
+    default: false,
+  },
 };
 
 // Parse CLI args

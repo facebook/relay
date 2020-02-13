@@ -325,7 +325,7 @@ function printHandles(schema: Schema, field: Field): string {
     return '';
   }
   const printed = field.handles.map(handle => {
-    // For backward compatibility and also because this module is shared by ComponentScript.
+    // For backward compatibility.
     const key =
       handle.key === DEFAULT_HANDLE_KEY ? '' : `, key: "${handle.key}"`;
     const filters =

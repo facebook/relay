@@ -5,9 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::compiler_context::CompilerContext;
 use graphql_ir::{
-    FragmentDefinition, FragmentSpread, InlineFragment, LinkedField, OperationDefinition,
+    FragmentDefinition, FragmentSpread, InlineFragment, LinkedField, OperationDefinition, Program,
     ScalarField, Selection, Transformed, Transformer,
 };
 use std::sync::Arc;
@@ -15,28 +14,11 @@ use std::sync::Arc;
 ///
 /// Sorts selections in the fragments and queries (and their selections)
 ///
-pub fn sort_selections<'s>(ctx: &'s CompilerContext<'s>) -> CompilerContext<'s> {
-    let mut next_context = CompilerContext::new(ctx.schema());
+pub fn sort_selections<'s>(program: &'s Program<'s>) -> Program<'s> {
     let mut transform = SortSelectionsTransform::new();
-    for operation in ctx.operations() {
-        match transform.transform_operation(operation) {
-            Transformed::Delete => {}
-            Transformed::Keep => next_context.insert_operation(Arc::clone(operation)),
-            Transformed::Replace(replacement) => {
-                next_context.insert_operation(Arc::new(replacement))
-            }
-        }
-    }
-    for fragment in ctx.fragments() {
-        match transform.transform_fragment(fragment) {
-            Transformed::Delete => {}
-            Transformed::Keep => next_context.insert_fragment(Arc::clone(fragment)),
-            Transformed::Replace(replacement) => {
-                next_context.insert_fragment(Arc::new(replacement))
-            }
-        }
-    }
-    next_context
+    transform
+        .transform_program(program)
+        .unwrap_or_else(|| program.clone())
 }
 
 #[derive(Default)]

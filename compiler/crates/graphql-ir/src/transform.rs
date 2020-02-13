@@ -6,6 +6,7 @@
  */
 
 use crate::ir::*;
+use crate::program::Program;
 use common::Spanned;
 use std::sync::Arc;
 
@@ -13,6 +14,40 @@ pub trait Transformer {
     const NAME: &'static str;
     const VISIT_ARGUMENTS: bool;
     const VISIT_DIRECTIVES: bool;
+
+    fn transform_program<'s>(&mut self, program: &Program<'s>) -> Option<Program<'s>> {
+        self.default_transform_program(program)
+    }
+
+    fn default_transform_program<'s>(&mut self, program: &Program<'s>) -> Option<Program<'s>> {
+        let mut next_program = Program::new(program.schema());
+        let mut has_changes = false;
+        for operation in program.operations() {
+            match self.transform_operation(operation) {
+                Transformed::Delete => has_changes = true,
+                Transformed::Keep => next_program.insert_operation(Arc::clone(operation)),
+                Transformed::Replace(replacement) => {
+                    has_changes = true;
+                    next_program.insert_operation(Arc::new(replacement))
+                }
+            }
+        }
+        for fragment in program.fragments() {
+            match self.transform_fragment(fragment) {
+                Transformed::Delete => has_changes = true,
+                Transformed::Keep => next_program.insert_fragment(Arc::clone(fragment)),
+                Transformed::Replace(replacement) => {
+                    has_changes = true;
+                    next_program.insert_fragment(Arc::new(replacement))
+                }
+            }
+        }
+        if has_changes {
+            Some(next_program)
+        } else {
+            None
+        }
+    }
 
     // Fragment Definition
     fn transform_fragment(

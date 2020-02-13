@@ -5,9 +5,10 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::compiler_context::CompilerContext;
 use crate::util::ArcAddress;
-use graphql_ir::{FragmentDefinition, InlineFragment, LinkedField, OperationDefinition, Selection};
+use graphql_ir::{
+    FragmentDefinition, InlineFragment, LinkedField, OperationDefinition, Program, Selection,
+};
 use graphql_printer::{write_arguments, write_directives};
 use schema::{Schema, Type, TypeReference};
 use std::fmt::Write;
@@ -27,32 +28,29 @@ type SeenLinkedFields = HashMap<ArcAddress, Arc<LinkedField>>;
 /// been set.
 ///
 ///
-pub fn flatten<'s>(
-    ctx: &'s CompilerContext<'s>,
-    should_flatten_abstract_types: bool,
-) -> CompilerContext<'s> {
-    let mut next_context = CompilerContext::new(ctx.schema());
-    let mut transformer = Transformer::new(ctx, should_flatten_abstract_types);
+pub fn flatten<'s>(program: &'s Program<'s>, should_flatten_abstract_types: bool) -> Program<'s> {
+    let mut next_program = Program::new(program.schema());
+    let mut transform = FlattenTransform::new(program, should_flatten_abstract_types);
 
-    for operation in ctx.operations() {
-        next_context.insert_operation(Arc::new(transformer.transform_operation(operation)));
+    for operation in program.operations() {
+        next_program.insert_operation(Arc::new(transform.transform_operation(operation)));
     }
-    for fragment in ctx.fragments() {
-        next_context.insert_fragment(Arc::new(transformer.transform_fragment(fragment)));
+    for fragment in program.fragments() {
+        next_program.insert_fragment(Arc::new(transform.transform_fragment(fragment)));
     }
-    next_context
+    next_program
 }
 
-struct Transformer<'s> {
-    ctx: &'s CompilerContext<'s>,
+struct FlattenTransform<'s> {
+    program: &'s Program<'s>,
     should_flatten_abstract_types: bool,
     seen_linked_fields: SeenLinkedFields,
 }
 
-impl<'s> Transformer<'s> {
-    fn new(ctx: &'s CompilerContext<'s>, should_flatten_abstract_types: bool) -> Self {
+impl<'s> FlattenTransform<'s> {
+    fn new(program: &'s Program<'s>, should_flatten_abstract_types: bool) -> Self {
         Self {
-            ctx,
+            program,
             should_flatten_abstract_types,
             seen_linked_fields: Default::default(),
         }
@@ -113,7 +111,11 @@ impl<'s> Transformer<'s> {
             directives: linked_field.directives.clone(),
             selections: self.tranform_selections(
                 &linked_field.selections,
-                &self.ctx.schema().field(linked_field.definition.item).type_,
+                &self
+                    .program
+                    .schema()
+                    .field(linked_field.definition.item)
+                    .type_,
             ),
         });
         self.seen_linked_fields.insert(key, Arc::clone(&result));
@@ -154,7 +156,7 @@ impl<'s> Transformer<'s> {
         for selection in selections {
             if let Selection::InlineFragment(inline_fragment) = selection {
                 if should_flatten_inline_fragment(
-                    self.ctx.schema(),
+                    self.program.schema(),
                     inline_fragment.type_condition,
                     parent_type,
                     self.should_flatten_abstract_types,
@@ -168,7 +170,7 @@ impl<'s> Transformer<'s> {
                 }
             }
 
-            let node_identifier = get_identifier_for_selection(self.ctx.schema(), &selection);
+            let node_identifier = get_identifier_for_selection(self.program.schema(), &selection);
             let flattened_selection_value = flattened_selections_map.get(&node_identifier);
 
             match flattened_selection_value {
@@ -212,7 +214,7 @@ impl<'s> Transformer<'s> {
                                 &node_selections,
                                 &flattened_node.selections,
                                 &self
-                                    .ctx
+                                    .program
                                     .schema()
                                     .field(flattened_node.definition.item)
                                     .type_,

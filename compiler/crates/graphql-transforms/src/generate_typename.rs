@@ -5,10 +5,10 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::compiler_context::CompilerContext;
 use common::Spanned;
 use graphql_ir::{
-    FragmentSpread, InlineFragment, LinkedField, ScalarField, Selection, Transformed, Transformer,
+    FragmentSpread, InlineFragment, LinkedField, Program, ScalarField, Selection, Transformed,
+    Transformer,
 };
 use schema::{Schema, Type};
 use std::collections::HashMap;
@@ -16,28 +16,11 @@ use std::sync::Arc;
 
 /// Transform to add the `__typename` field to any LinkedField that both a) returns an
 /// abstract type and b) does not already directly query `__typename`.
-pub fn generate_typename<'s>(ctx: &'s CompilerContext<'s>) -> CompilerContext<'s> {
-    let mut next_context = CompilerContext::new(ctx.schema());
-    let mut transform = GenerateTypenameTransform::new(ctx);
-    for operation in ctx.operations() {
-        match transform.transform_operation(operation) {
-            Transformed::Delete => {}
-            Transformed::Keep => next_context.insert_operation(Arc::clone(operation)),
-            Transformed::Replace(replacement) => {
-                next_context.insert_operation(Arc::new(replacement))
-            }
-        }
-    }
-    for fragment in ctx.fragments() {
-        match transform.transform_fragment(fragment) {
-            Transformed::Delete => {}
-            Transformed::Keep => next_context.insert_fragment(Arc::clone(fragment)),
-            Transformed::Replace(replacement) => {
-                next_context.insert_fragment(Arc::new(replacement))
-            }
-        }
-    }
-    next_context
+pub fn generate_typename<'s>(program: &'s Program<'s>) -> Program<'s> {
+    let mut transform = GenerateTypenameTransform::new(program);
+    transform
+        .transform_program(program)
+        .unwrap_or_else(|| program.clone())
 }
 
 // Note on correctness: the PointerAddress here is calculated from addresses of the input
@@ -46,14 +29,14 @@ pub fn generate_typename<'s>(ctx: &'s CompilerContext<'s>) -> CompilerContext<'s
 type Seen = HashMap<PointerAddress, Transformed<Arc<InlineFragment>>>;
 
 struct GenerateTypenameTransform<'s> {
-    ctx: &'s CompilerContext<'s>,
+    program: &'s Program<'s>,
     seen: Seen,
 }
 
 impl<'s> GenerateTypenameTransform<'s> {
-    fn new(ctx: &'s CompilerContext<'s>) -> Self {
+    fn new(program: &'s Program<'s>) -> Self {
         Self {
-            ctx,
+            program,
             seen: Default::default(),
         }
     }
@@ -65,7 +48,7 @@ impl<'s> Transformer for GenerateTypenameTransform<'s> {
     const VISIT_DIRECTIVES: bool = false;
 
     fn transform_linked_field(&mut self, field: &LinkedField) -> Transformed<Arc<LinkedField>> {
-        let schema = self.ctx.schema();
+        let schema = self.program.schema();
         let selections = self.transform_selections(&field.selections);
         let field_definition = schema.field(field.definition.item);
         let is_abstract = match field_definition.type_.inner() {

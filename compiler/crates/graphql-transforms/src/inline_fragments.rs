@@ -5,40 +5,32 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::compiler_context::CompilerContext;
 use graphql_ir::{
-    FragmentSpread, InlineFragment, ScalarField, Selection, Transformed, Transformer,
+    FragmentDefinition, FragmentSpread, InlineFragment, Program, ScalarField, Selection,
+    Transformed, Transformer,
 };
 use interner::StringKey;
 use std::collections::HashMap;
 use std::sync::Arc;
 
-pub fn inline_fragments<'s>(ctx: &'s CompilerContext<'s>) -> CompilerContext<'s> {
-    let mut next_context = CompilerContext::new(ctx.schema());
-    let mut transformer = InlineFragmentsTransform::new(ctx);
-    for operation in ctx.operations() {
-        match transformer.transform_operation(operation) {
-            Transformed::Delete => {}
-            Transformed::Keep => next_context.insert_operation(Arc::clone(operation)),
-            Transformed::Replace(replacement) => {
-                next_context.insert_operation(Arc::new(replacement))
-            }
-        }
-    }
-    next_context
+pub fn inline_fragments<'s>(program: &'s Program<'s>) -> Program<'s> {
+    let mut transform = InlineFragmentsTransform::new(program);
+    transform
+        .transform_program(program)
+        .unwrap_or_else(|| program.clone())
 }
 
 type Seen = HashMap<StringKey, Arc<InlineFragment>>;
 
 struct InlineFragmentsTransform<'s> {
-    ctx: &'s CompilerContext<'s>,
+    program: &'s Program<'s>,
     seen: Seen,
 }
 
 impl<'s> InlineFragmentsTransform<'s> {
-    fn new(ctx: &'s CompilerContext<'s>) -> Self {
+    fn new(program: &'s Program<'s>) -> Self {
         Self {
-            ctx,
+            program,
             seen: Default::default(),
         }
     }
@@ -60,7 +52,7 @@ impl<'s> InlineFragmentsTransform<'s> {
                 selections: Default::default(),
             }),
         );
-        let fragment = self.ctx.fragment(spread.fragment.item).unwrap();
+        let fragment = self.program.fragment(spread.fragment.item).unwrap();
         let selections = self.transform_selections(&fragment.selections);
         let result = Arc::new(InlineFragment {
             type_condition: Some(fragment.type_condition),
@@ -76,6 +68,13 @@ impl<'s> Transformer for InlineFragmentsTransform<'s> {
     const NAME: &'static str = "InlineFragmentsTransform";
     const VISIT_ARGUMENTS: bool = false;
     const VISIT_DIRECTIVES: bool = false;
+
+    fn transform_fragment(
+        &mut self,
+        _fragment: &FragmentDefinition,
+    ) -> Transformed<FragmentDefinition> {
+        Transformed::Delete
+    }
 
     fn transform_selection(&mut self, selection: &Selection) -> Transformed<Selection> {
         match selection {

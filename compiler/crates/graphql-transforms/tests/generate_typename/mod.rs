@@ -6,26 +6,26 @@
  */
 
 use fixture_tests::Fixture;
-use graphql_ir::build;
+use graphql_ir::{build, Program};
 use graphql_printer::{print_fragment, print_operation};
 use graphql_syntax::parse;
-use graphql_transforms::{generate_typename, CompilerContext};
+use graphql_transforms::generate_typename;
 use test_schema::TEST_SCHEMA;
 
 pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
     let ast = parse(fixture.content, fixture.file_name).unwrap();
     let ir = build(&TEST_SCHEMA, ast.definitions).unwrap();
-    let context = CompilerContext::from_definitions(&TEST_SCHEMA, ir);
+    let program = Program::from_definitions(&TEST_SCHEMA, ir);
 
-    let next_context = generate_typename(&context);
+    let next_program = generate_typename(&program);
 
-    assert_eq!(next_context.document_count(), context.document_count());
+    assert_eq!(next_program.document_count(), program.document_count());
 
-    let mut printed = next_context
+    let mut printed = next_program
         .operations()
         .map(|def| print_operation(&TEST_SCHEMA, def))
         .chain(
-            next_context
+            next_program
                 .fragments()
                 .map(|def| print_fragment(&TEST_SCHEMA, def)),
         )

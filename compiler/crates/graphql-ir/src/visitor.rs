@@ -6,11 +6,25 @@
  */
 
 use crate::ir::*;
+use crate::program::Program;
 
 pub trait Visitor {
     const NAME: &'static str;
     const VISIT_ARGUMENTS: bool;
     const VISIT_DIRECTIVES: bool;
+
+    fn visit_program<'s>(&mut self, program: &Program<'s>) {
+        self.default_visit_program(program)
+    }
+
+    fn default_visit_program<'s>(&mut self, program: &Program<'s>) {
+        for operation in program.operations() {
+            self.visit_operation(operation);
+        }
+        for fragment in program.fragments() {
+            self.visit_fragment(fragment);
+        }
+    }
 
     // Fragment Definition
     fn visit_fragment(&mut self, fragment: &FragmentDefinition) {

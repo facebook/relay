@@ -5,21 +5,21 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use graphql_ir::{ExecutableDefinition, FragmentDefinition, OperationDefinition};
+use crate::ir::{ExecutableDefinition, FragmentDefinition, OperationDefinition};
 use interner::StringKey;
 use schema::Schema;
 use std::collections::HashMap;
 use std::sync::Arc;
 
 /// A collection of all documents that are being compiled.
-#[derive(Debug)]
-pub struct CompilerContext<'s> {
+#[derive(Debug, Clone)]
+pub struct Program<'s> {
     schema: &'s Schema,
     fragments: HashMap<StringKey, Arc<FragmentDefinition>>,
     operations: Vec<Arc<OperationDefinition>>,
 }
 
-impl<'s> CompilerContext<'s> {
+impl<'s> Program<'s> {
     pub fn new(schema: &'s Schema) -> Self {
         Self {
             schema,
@@ -28,7 +28,7 @@ impl<'s> CompilerContext<'s> {
         }
     }
 
-    pub fn schema(&self) -> &Schema {
+    pub fn schema(&self) -> &'s Schema {
         &self.schema
     }
 

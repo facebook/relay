@@ -6,26 +6,26 @@
  */
 
 use fixture_tests::Fixture;
-use graphql_ir::build;
+use graphql_ir::{build, Program};
 use graphql_printer::print_operation;
 use graphql_syntax::parse;
-use graphql_transforms::{inline_fragments, CompilerContext};
+use graphql_transforms::inline_fragments;
 use test_schema::TEST_SCHEMA;
 
 pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
     let ast = parse(fixture.content, fixture.file_name).unwrap();
     let ir = build(&TEST_SCHEMA, ast.definitions).unwrap();
-    let context = CompilerContext::from_definitions(&TEST_SCHEMA, ir);
+    let program = Program::from_definitions(&TEST_SCHEMA, ir);
 
-    let next_context = inline_fragments(&context);
+    let next_program = inline_fragments(&program);
 
-    assert_eq!(next_context.fragments().count(), 0);
+    assert_eq!(next_program.fragments().count(), 0);
     assert_eq!(
-        next_context.operations().count(),
-        context.operations().count()
+        next_program.operations().count(),
+        program.operations().count()
     );
 
-    let mut printed = next_context
+    let mut printed = next_program
         .operations()
         .map(|def| print_operation(&TEST_SCHEMA, def))
         .collect::<Vec<_>>();

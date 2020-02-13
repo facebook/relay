@@ -5,8 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use relay_compiler::compiler_state::{ProjectName, SourceSetName};
-use relay_compiler::config::Config;
+use crate::compiler_state::{ProjectName, SourceSetName};
+use crate::config::Config;
 use std::cmp::Reverse;
 use std::collections::HashMap;
 use std::ffi::OsStr;

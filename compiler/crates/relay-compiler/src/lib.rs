@@ -9,5 +9,7 @@
 #![deny(rust_2018_idioms)]
 #![deny(clippy::all)]
 
+pub mod compiler;
 pub mod compiler_state;
 pub mod config;
+mod watchman;

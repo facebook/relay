@@ -11,6 +11,6 @@
 
 mod errors;
 mod file_group;
-mod watchman;
+mod graphql_finder;
 
-pub use watchman::GraphQLFinder;
+pub use graphql_finder::GraphQLFinder;

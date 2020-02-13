@@ -5,27 +5,27 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::errors::{Error, Result};
-use crate::file_group::FileCategorizer;
-use crate::file_group::FileGroup;
+use super::errors::{Error, Result};
+use super::file_group::FileCategorizer;
+use super::file_group::FileGroup;
+use crate::compiler_state::{CompilerState, SourceSet, SourceSetName};
+use crate::config::Config;
 use common::Timer;
 use extract_graphql;
 use rayon::prelude::*;
-use relay_compiler::compiler_state::{CompilerState, SourceSet, SourceSetName};
-use relay_compiler::config::Config;
 use serde::Deserialize;
 use std::collections::HashMap;
 use std::path::PathBuf;
 use watchman_client::prelude::*;
 
-pub struct GraphQLFinder {
+pub struct GraphQLFinder<'config> {
     categorizer: FileCategorizer,
     client: Client,
-    config: Config,
+    config: &'config Config,
     resolved_root: ResolvedRoot,
 }
-impl GraphQLFinder {
-    pub async fn connect(config: Config) -> Result<GraphQLFinder> {
+impl<'config> GraphQLFinder<'config> {
+    pub async fn connect(config: &'config Config) -> Result<GraphQLFinder<'config>> {
         let connect_timer = Timer::new("connect");
         let client = Connector::new().connect().await?;
         let canonical_root = CanonicalPath::canonicalize(&config.root_dir).map_err(|err| {

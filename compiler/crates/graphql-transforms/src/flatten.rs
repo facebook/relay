@@ -35,10 +35,10 @@ pub fn flatten<'s>(
     let mut transformer = Transformer::new(ctx, should_flatten_abstract_types);
 
     for operation in ctx.operations() {
-        next_context.insert_operation(transformer.transform_operation(operation));
+        next_context.insert_operation(Arc::new(transformer.transform_operation(operation)));
     }
     for fragment in ctx.fragments() {
-        next_context.insert_fragment(transformer.transform_fragment(fragment));
+        next_context.insert_fragment(Arc::new(transformer.transform_fragment(fragment)));
     }
     next_context
 }
@@ -104,7 +104,7 @@ impl<'s> Transformer<'s> {
     fn transform_linked_field(&mut self, linked_field: &Arc<LinkedField>) -> Arc<LinkedField> {
         let key = ArcAddress::new(linked_field);
         if let Some(prev) = self.seen_linked_fields.get(&key) {
-            return prev.clone();
+            return Arc::clone(prev);
         }
         let result = Arc::new(LinkedField {
             alias: linked_field.alias,
@@ -116,7 +116,7 @@ impl<'s> Transformer<'s> {
                 &self.ctx.schema().field(linked_field.definition.item).type_,
             ),
         });
-        self.seen_linked_fields.insert(key, result.clone());
+        self.seen_linked_fields.insert(key, Arc::clone(&result));
         result
     }
 
@@ -140,8 +140,8 @@ impl<'s> Transformer<'s> {
             Selection::LinkedField(node) => {
                 Selection::LinkedField(self.transform_linked_field(node))
             }
-            Selection::FragmentSpread(node) => Selection::FragmentSpread(node.clone()),
-            Selection::ScalarField(node) => Selection::ScalarField(node.clone()),
+            Selection::FragmentSpread(node) => Selection::FragmentSpread(Arc::clone(node)),
+            Selection::ScalarField(node) => Selection::ScalarField(Arc::clone(node)),
         }
     }
 
@@ -221,11 +221,11 @@ impl<'s> Transformer<'s> {
                         flattened_selections_map.insert(node_identifier, next_selection);
                     }
                     Selection::ScalarField(node) => {
-                        let next_selection = Selection::ScalarField(node.clone());
+                        let next_selection = Selection::ScalarField(Arc::clone(node));
                         flattened_selections_map.insert(node_identifier, next_selection);
                     }
                     Selection::FragmentSpread(node) => {
-                        let next_selection = Selection::FragmentSpread(node.clone());
+                        let next_selection = Selection::FragmentSpread(Arc::clone(node));
                         flattened_selections_map.insert(node_identifier, next_selection);
                     }
                 },

@@ -9,13 +9,14 @@ use graphql_ir::{ExecutableDefinition, FragmentDefinition, OperationDefinition};
 use interner::StringKey;
 use schema::Schema;
 use std::collections::HashMap;
+use std::sync::Arc;
 
 /// A collection of all documents that are being compiled.
 #[derive(Debug)]
 pub struct CompilerContext<'s> {
     schema: &'s Schema,
-    fragments: HashMap<StringKey, FragmentDefinition>,
-    operations: Vec<OperationDefinition>,
+    fragments: HashMap<StringKey, Arc<FragmentDefinition>>,
+    operations: Vec<Arc<OperationDefinition>>,
 }
 
 impl<'s> CompilerContext<'s> {
@@ -32,15 +33,15 @@ impl<'s> CompilerContext<'s> {
     }
 
     pub fn from_definitions(schema: &'s Schema, definitions: Vec<ExecutableDefinition>) -> Self {
-        let mut operations = vec![];
-        let mut fragments: HashMap<StringKey, FragmentDefinition> = HashMap::new();
+        let mut operations = Vec::new();
+        let mut fragments = HashMap::new();
         for definition in definitions {
             match definition {
                 ExecutableDefinition::Operation(operation) => {
-                    operations.push(operation);
+                    operations.push(Arc::new(operation));
                 }
                 ExecutableDefinition::Fragment(fragment) => {
-                    fragments.insert(fragment.name.item, fragment);
+                    fragments.insert(fragment.name.item, Arc::new(fragment));
                 }
             }
         }
@@ -51,7 +52,7 @@ impl<'s> CompilerContext<'s> {
         }
     }
 
-    pub fn insert_fragment(&mut self, fragment: FragmentDefinition) {
+    pub fn insert_fragment(&mut self, fragment: Arc<FragmentDefinition>) {
         let name = fragment.name.item;
         if let Some(previous) = self.fragments.insert(name, fragment) {
             panic!(
@@ -61,19 +62,19 @@ impl<'s> CompilerContext<'s> {
         };
     }
 
-    pub fn fragment(&self, name: StringKey) -> Option<&FragmentDefinition> {
+    pub fn fragment(&self, name: StringKey) -> Option<&Arc<FragmentDefinition>> {
         self.fragments.get(&name)
     }
 
-    pub fn insert_operation(&mut self, operation: OperationDefinition) {
+    pub fn insert_operation(&mut self, operation: Arc<OperationDefinition>) {
         self.operations.push(operation);
     }
 
-    pub fn operations(&self) -> impl Iterator<Item = &OperationDefinition> {
+    pub fn operations(&self) -> impl Iterator<Item = &Arc<OperationDefinition>> {
         self.operations.iter()
     }
 
-    pub fn fragments(&self) -> impl Iterator<Item = &FragmentDefinition> {
+    pub fn fragments(&self) -> impl Iterator<Item = &Arc<FragmentDefinition>> {
         self.fragments.values()
     }
 

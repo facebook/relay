@@ -8,6 +8,7 @@
 #![deny(warnings)]
 #![deny(rust_2018_idioms)]
 #![deny(clippy::all)]
+#![deny(clippy::clone_on_ref_ptr)]
 
 mod compiler_context;
 mod flatten;

@@ -22,15 +22,19 @@ pub fn generate_typename<'s>(ctx: &'s CompilerContext<'s>) -> CompilerContext<'s
     for operation in ctx.operations() {
         match transform.transform_operation(operation) {
             Transformed::Delete => {}
-            Transformed::Keep => next_context.insert_operation(operation.clone()),
-            Transformed::Replace(replacement) => next_context.insert_operation(replacement),
+            Transformed::Keep => next_context.insert_operation(Arc::clone(operation)),
+            Transformed::Replace(replacement) => {
+                next_context.insert_operation(Arc::new(replacement))
+            }
         }
     }
     for fragment in ctx.fragments() {
         match transform.transform_fragment(fragment) {
             Transformed::Delete => {}
-            Transformed::Keep => next_context.insert_fragment(fragment.clone()),
-            Transformed::Replace(replacement) => next_context.insert_fragment(replacement),
+            Transformed::Keep => next_context.insert_fragment(Arc::clone(fragment)),
+            Transformed::Replace(replacement) => {
+                next_context.insert_fragment(Arc::new(replacement))
+            }
         }
     }
     next_context

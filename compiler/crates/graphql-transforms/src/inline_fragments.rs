@@ -19,8 +19,10 @@ pub fn inline_fragments<'s>(ctx: &'s CompilerContext<'s>) -> CompilerContext<'s>
     for operation in ctx.operations() {
         match transformer.transform_operation(operation) {
             Transformed::Delete => {}
-            Transformed::Keep => next_context.insert_operation(operation.clone()),
-            Transformed::Replace(replacement) => next_context.insert_operation(replacement),
+            Transformed::Keep => next_context.insert_operation(Arc::clone(operation)),
+            Transformed::Replace(replacement) => {
+                next_context.insert_operation(Arc::new(replacement))
+            }
         }
     }
     next_context
@@ -45,7 +47,7 @@ impl<'s> InlineFragmentsTransform<'s> {
         // If we've already created an InlineFragment for this fragment name before,
         // share it
         if let Some(prev) = self.seen.get(&spread.fragment.item) {
-            return prev.clone();
+            return Arc::clone(prev);
         };
         // Otherwise create the InlineFragment equivalent of the fragment (recursively
         // inlining its contents). To guard against cycles, store a dummy value
@@ -65,7 +67,7 @@ impl<'s> InlineFragmentsTransform<'s> {
             directives: fragment.directives.clone(),
             selections: selections.unwrap_or_else(|| fragment.selections.clone()),
         });
-        self.seen.insert(spread.fragment.item, result.clone());
+        self.seen.insert(spread.fragment.item, Arc::clone(&result));
         result
     }
 }

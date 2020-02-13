@@ -27,37 +27,77 @@ pub fn print_ir(schema: &Schema, definitions: &[ExecutableDefinition]) -> Vec<St
 
 pub fn print_definition(schema: &Schema, definition: &ExecutableDefinition) -> String {
     let mut result = String::new();
-    let printer = Printer::new(&schema, &mut result);
-    printer.print_definition(definition).unwrap();
+    write_definition(schema, definition, &mut result).unwrap();
     result
 }
 
 pub fn print_operation(schema: &Schema, operation: &OperationDefinition) -> String {
     let mut result = String::new();
-    let printer = Printer::new(&schema, &mut result);
-    printer.print_operation(operation).unwrap();
+    write_operation(schema, operation, &mut result).unwrap();
     result
 }
 
 pub fn print_fragment(schema: &Schema, fragment: &FragmentDefinition) -> String {
     let mut result = String::new();
-    let printer = Printer::new(&schema, &mut result);
-    printer.print_fragment(fragment).unwrap();
+    write_fragment(schema, fragment, &mut result).unwrap();
     result
 }
 
 pub fn print_arguments(schema: &Schema, arguments: &[Argument]) -> String {
     let mut result = String::new();
-    let mut printer = Printer::new(&schema, &mut result);
-    printer.print_arguments(arguments).unwrap();
+    write_arguments(schema, arguments, &mut result).unwrap();
     result
 }
 
 pub fn print_directives(schema: &Schema, directives: &[Directive]) -> String {
     let mut result = String::new();
-    let mut printer = Printer::new(&schema, &mut result);
-    printer.print_directives(directives).unwrap();
+    write_directives(schema, directives, &mut result).unwrap();
     result
+}
+
+pub fn write_definition(
+    schema: &Schema,
+    definition: &ExecutableDefinition,
+    mut result: &mut impl Write,
+) -> Result {
+    let printer = Printer::new(&schema, &mut result);
+    printer.print_definition(definition)
+}
+
+pub fn write_operation(
+    schema: &Schema,
+    operation: &OperationDefinition,
+    mut result: &mut impl Write,
+) -> Result {
+    let printer = Printer::new(&schema, &mut result);
+    printer.print_operation(operation)
+}
+
+pub fn write_fragment(
+    schema: &Schema,
+    fragment: &FragmentDefinition,
+    mut result: &mut impl Write,
+) -> Result {
+    let printer = Printer::new(&schema, &mut result);
+    printer.print_fragment(fragment)
+}
+
+pub fn write_arguments(
+    schema: &Schema,
+    arguments: &[Argument],
+    mut result: &mut impl Write,
+) -> Result {
+    let mut printer = Printer::new(&schema, &mut result);
+    printer.print_arguments(arguments)
+}
+
+pub fn write_directives(
+    schema: &Schema,
+    directives: &[Directive],
+    mut result: &mut impl Write,
+) -> Result {
+    let mut printer = Printer::new(&schema, &mut result);
+    printer.print_directives(directives)
 }
 
 struct Printer<'schema, 'writer, W: Write> {

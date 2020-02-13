@@ -13,4 +13,5 @@ mod printer;
 
 pub use printer::{
     print_arguments, print_definition, print_directives, print_fragment, print_ir, print_operation,
+    write_arguments, write_directives,
 };

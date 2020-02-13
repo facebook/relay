@@ -8,7 +8,7 @@
 use crate::compiler_context::CompilerContext;
 use crate::util::ArcAddress;
 use graphql_ir::{FragmentDefinition, InlineFragment, LinkedField, OperationDefinition, Selection};
-use graphql_printer::{print_arguments, print_directives};
+use graphql_printer::{write_arguments, write_directives};
 use schema::{Schema, Type, TypeReference};
 use std::fmt::Write;
 
@@ -255,7 +255,7 @@ fn get_identifier_for_selection<'s>(schema: &'s Schema, selection: &Selection) -
                 write!(writer, "{}", schema.get_type_name(type_condition).lookup()).unwrap();
             }
             if !node.directives.is_empty() {
-                write!(writer, "{}", &print_directives(schema, &node.directives)).unwrap();
+                write_directives(schema, &node.directives, &mut writer).unwrap();
             }
         }
         Selection::LinkedField(node) => {
@@ -270,10 +270,10 @@ fn get_identifier_for_selection<'s>(schema: &'s Schema, selection: &Selection) -
             }
             .unwrap();
             if !node.arguments.is_empty() {
-                write!(writer, "{}", &print_arguments(schema, &node.arguments)).unwrap();
+                write_arguments(schema, &node.arguments, &mut writer).unwrap();
             }
             if !node.directives.is_empty() {
-                write!(writer, "{}", &print_directives(schema, &node.directives)).unwrap();
+                write_directives(schema, &node.directives, &mut writer).unwrap();
             }
         }
         Selection::ScalarField(node) => {
@@ -288,19 +288,19 @@ fn get_identifier_for_selection<'s>(schema: &'s Schema, selection: &Selection) -
             }
             .unwrap();
             if !node.arguments.is_empty() {
-                write!(writer, "{}", &print_arguments(schema, &node.arguments)).unwrap();
+                write_arguments(schema, &node.arguments, &mut writer).unwrap();
             }
             if !node.directives.is_empty() {
-                write!(writer, "{}", &print_directives(schema, &node.directives)).unwrap();
+                write_directives(schema, &node.directives, &mut writer).unwrap();
             }
         }
         Selection::FragmentSpread(node) => {
             write!(writer, "FragmentSpread: {}", node.fragment.item.lookup()).unwrap();
-            if !node.directives.is_empty() {
-                write!(writer, "{}", &print_directives(schema, &node.directives)).unwrap();
-            }
             if !node.arguments.is_empty() {
-                write!(writer, "{}", &print_arguments(schema, &node.arguments)).unwrap();
+                write_arguments(schema, &node.arguments, &mut writer).unwrap();
+            }
+            if !node.directives.is_empty() {
+                write_directives(schema, &node.directives, &mut writer).unwrap();
             }
         }
     };

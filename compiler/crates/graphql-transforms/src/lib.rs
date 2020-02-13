@@ -10,11 +10,14 @@
 #![deny(clippy::all)]
 
 mod compiler_context;
+mod flatten;
 mod generate_typename;
 mod inline_fragments;
 mod sort_selections;
+mod util;
 
 pub use compiler_context::CompilerContext;
+pub use flatten::flatten;
 pub use generate_typename::generate_typename;
 pub use inline_fragments::inline_fragments;
 pub use sort_selections::sort_selections;

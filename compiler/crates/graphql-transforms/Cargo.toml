@@ -8,12 +8,12 @@ common = { path = "../common" }
 interner = { path = "../interner" }
 graphql-ir = { path = "../graphql-ir" }
 schema = { path = "../schema" }
+graphql-printer = { path = "../graphql-printer" }
 
 [dev-dependencies]
 criterion = "0.3"
 fixture-tests = { path = "../fixture-tests" }
 graphql-syntax = { path = "../graphql-syntax" }
-graphql-printer = { path = "../graphql-printer" }
 test-schema = { path = "../test-schema" }
 
 [[bench]]

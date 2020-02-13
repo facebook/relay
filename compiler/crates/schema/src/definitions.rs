@@ -147,6 +147,10 @@ impl Schema {
         }
     }
 
+    pub fn is_abstract_type(&self, type_: Type) -> bool {
+        type_.is_abstract_type()
+    }
+
     pub fn get_type_string(&self, type_: &TypeReference) -> String {
         match type_ {
             TypeReference::Named(inner) => self.get_type_name(inner.clone()).lookup().to_string(),
@@ -749,6 +753,13 @@ impl Type {
     pub fn is_input_type(self) -> bool {
         match self {
             Type::Scalar(_) | Type::Enum(_) | Type::InputObject(_) => true,
+            _ => false,
+        }
+    }
+
+    pub fn is_abstract_type(self) -> bool {
+        match self {
+            Type::Union(_) | Type::Interface(_) => true,
             _ => false,
         }
     }

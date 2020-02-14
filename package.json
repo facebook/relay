@@ -48,7 +48,7 @@
     "eslint-plugin-flowtype": "2.50.0",
     "eslint-plugin-jsx-a11y": "6.1.1",
     "eslint-plugin-react": "7.11.1",
-    "eslint-plugin-relay": "1.6.0",
+    "eslint-plugin-relay": "1.7.0",
     "fast-glob": "^2.2.2",
     "fb-watchman": "^2.0.0",
     "fbjs": "^1.0.0",

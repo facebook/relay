@@ -17,7 +17,7 @@ pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
     if let [base, extensions] = parts.as_slice() {
         let ast = parse(base, fixture.file_name).unwrap();
         let schema = test_schema_with_extensions(extensions);
-        let ir = build(&schema, ast.definitions).unwrap();
+        let ir = build(&schema, &ast.definitions).unwrap();
         let context = Program::from_definitions(&schema, ir);
         let next_context = skip_client_extensions(&context);
 

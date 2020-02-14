@@ -8,7 +8,7 @@
 use crate::*;
 
 use interner::Intern;
-use schema::{parse_definitions, AstType};
+use schema::{build_schema, parse_definitions, AstType};
 use std::fmt;
 
 fn diff(current: &str, previous: &str) -> SchemaChange {
@@ -16,6 +16,13 @@ fn diff(current: &str, previous: &str) -> SchemaChange {
     let mut change = detect_changes(&definitions, current, previous);
     sort_change(&mut change);
     change
+}
+
+fn is_safe(current: &str, previous: &str) -> bool {
+    let definitions = parse_definitions(current).unwrap();
+    let schema = build_schema(current).unwrap();
+    let change = detect_changes(&definitions, current, previous);
+    change.is_safe(&schema)
 }
 
 #[test]
@@ -662,6 +669,200 @@ fn test_change_type_enum_union() {
             DefinitionChange::UnionRemoved("B".intern()),
         ])
     );
+}
+
+#[test]
+fn test_add_object_without_id() {
+    assert!(is_safe(
+        r"
+            type A {
+                key: String
+            }
+            type B {
+                key: String
+            }
+            #",
+        r"
+            type A {
+                key: String
+            }
+            #"
+    ))
+}
+
+#[test]
+fn test_change_object_interface() {
+    assert!(!is_safe(
+        r"
+            type A implements B {
+                key: String
+            }
+            interface B {
+                id: ID!
+            }
+            #",
+        r"
+            type A {
+                key: String
+            }
+            interface B {
+                id: ID!
+            }
+            #"
+    ))
+}
+
+#[test]
+fn test_add_object_with_id_node_interface() {
+    assert!(is_safe(
+        r"
+            type A {
+                key: String
+            }
+            type B implements Node {
+                id: ID
+                key: String
+            }
+            interface Node {
+                id: ID!
+            }
+            #",
+        r"
+            type A {
+                key: String
+            }
+            interface Node {
+                id: ID!
+            }
+            #"
+    ))
+}
+
+#[test]
+fn test_add_type_with_id_actor_interface() {
+    assert!(!is_safe(
+        r"
+            type A {
+                key: String
+            }
+            type B implements Actor {
+                id: ID
+                key: String
+            }
+            interface Actor {
+                name: String
+            }
+            #",
+        r"
+            type A {
+                key: String
+            }
+            interface Actor {
+                name: String
+            }
+            #"
+    ))
+}
+
+#[test]
+fn test_add_optional_field_arg() {
+    assert!(is_safe(
+        r"
+            type A {
+                key(a: ID): String
+            }
+
+            #",
+        r"
+            type A {
+                key: String
+            }
+            #"
+    ))
+}
+
+#[test]
+fn test_add_required_field_arg() {
+    assert!(!is_safe(
+        r"
+            type A {
+                key(a: ID!): String
+            }
+
+            #",
+        r"
+            type A {
+                key: String
+            }
+            #"
+    ))
+}
+
+#[test]
+fn test_remove_field_arg() {
+    assert!(!is_safe(
+        r"
+            type A {
+                key: String
+            }
+
+            #",
+        r"
+            type A {
+                key(a: ID): String
+            }
+            #"
+    ))
+}
+
+#[test]
+fn test_add_safe_types() {
+    assert!(is_safe(
+        r"
+            type A {
+                key: String
+            }
+            interface B {
+                key: String
+            }
+            type C {
+                key: String
+            }
+            union D = A
+            enum E {
+                OK
+                NOT_OK
+            }
+            input F {
+                key: String
+            }
+            scalar Mark
+            #",
+        r"
+            type A {
+                key: String
+            }
+            #"
+    ))
+}
+
+#[test]
+fn test_unimplmented_changes() {
+    assert!(!is_safe(
+        r"
+            type A {
+                key: String
+            }
+            extend type A {
+                name: String
+            }
+            #",
+        r"
+            type A {
+                key: String
+            }
+            #"
+    ))
 }
 
 fn sort_change(change: &mut SchemaChange) {

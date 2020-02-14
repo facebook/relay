@@ -7,3 +7,4 @@ edition = "2018"
 schema = { path = "../schema" }
 fnv = "1.0.6"
 interner = { path = "../interner" }
+lazy_static = "1.4.0"

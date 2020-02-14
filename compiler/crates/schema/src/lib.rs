@@ -19,8 +19,9 @@ mod lexer;
 mod parser;
 mod token;
 
-pub use ast::Definition;
-pub use ast::DirectiveLocation;
+pub use ast::{
+    Definition, DirectiveLocation, FieldDefinition, InputValueDefinition, Type as AstType,
+};
 pub use definitions::{
     Argument, ArgumentDefinitions, Enum, EnumID, FieldID, InputObject, InputObjectID, InterfaceID,
     ObjectID, Scalar, ScalarID, Schema, Type, TypeReference, UnionID,

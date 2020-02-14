@@ -9,7 +9,7 @@
 
 use interner::StringKey;
 
-#[derive(PartialEq, Debug)]
+#[derive(PartialEq, Debug, Ord, PartialOrd, Eq, Clone)]
 pub enum Type {
     Named(StringKey),
     List(Box<Type>),

@@ -35,7 +35,44 @@ pub enum DefinitionChange {
     UnionRemoved(StringKey),
     ScalarAdded(StringKey),
     ScalarRemoved(StringKey),
-    // TODO: add other types
+    InputObjectAdded(StringKey),
+    InputObjectChanged {
+        name: StringKey,
+        added: Vec<TypeChange>,
+        removed: Vec<TypeChange>,
+    },
+    InputObjectRemoved(StringKey),
+    InterfaceAdded(StringKey),
+    InterfaceChanged {
+        name: StringKey,
+        added: Vec<TypeChange>,
+        removed: Vec<TypeChange>,
+        changed: Vec<ArgumentChange>,
+    },
+    InterfaceRemoved(StringKey),
+    ObjectAdded(StringKey),
+    ObjectChanged {
+        name: StringKey,
+        added: Vec<TypeChange>,
+        removed: Vec<TypeChange>,
+        changed: Vec<ArgumentChange>,
+        interfaces_added: Vec<StringKey>,
+        interfaces_removed: Vec<StringKey>,
+    },
+    ObjectRemoved(StringKey),
+}
+
+#[derive(Eq, PartialEq, PartialOrd, Ord)]
+pub struct ArgumentChange {
+    name: StringKey,
+    added: Vec<TypeChange>,
+    removed: Vec<TypeChange>,
+}
+
+#[derive(Eq, PartialEq, PartialOrd, Ord)]
+pub struct TypeChange {
+    name: StringKey,
+    type_: AstType,
 }
 
 #[derive(PartialEq, PartialOrd)]
@@ -67,7 +104,11 @@ fn build_curent_map(current: &[Definition]) -> FnvHashMap<&StringKey, &Definitio
             Definition::ScalarTypeDefinition { name, .. } => {
                 current_map.insert(name, def);
             }
-            _ => {}
+            // We skip diffing the following definitions
+            Definition::InterfaceTypeExtension { .. } => {}
+            Definition::ObjectTypeExtension { .. } => {}
+            Definition::SchemaDefinition { .. } => {}
+            Definition::DirectiveDefinition { .. } => {}
         }
     }
     current_map
@@ -110,8 +151,10 @@ fn diff(current: &[Definition], previous: Vec<Definition>) -> SchemaChange {
                         changes.push(DefinitionChange::EnumRemoved(name));
                     }
                     Some(def) => {
+                        if !add_definition(&mut changes, def) {
+                            return SchemaChange::GenericChange;
+                        }
                         changes.push(DefinitionChange::EnumRemoved(name));
-                        changes.push(get_added_definition(def));
                     }
                 }
             }
@@ -124,16 +167,7 @@ fn diff(current: &[Definition], previous: Vec<Definition>) -> SchemaChange {
                 let def = current_map.remove(&name);
                 match def {
                     Some(Definition::UnionTypeDefinition { members, .. }) => {
-                        let mut previous_values =
-                            FnvHashSet::from_iter(previous_members.into_iter());
-
-                        let mut added: Vec<StringKey> = vec![];
-                        for member in members {
-                            if !previous_values.remove(member) {
-                                added.push(*member);
-                            }
-                        }
-                        let removed: Vec<StringKey> = previous_values.drain().collect();
+                        let (added, removed) = compare_string_keys(members, previous_members);
                         if !added.is_empty() || !removed.is_empty() {
                             changes.push(DefinitionChange::UnionChanged {
                                 name,
@@ -146,25 +180,114 @@ fn diff(current: &[Definition], previous: Vec<Definition>) -> SchemaChange {
                         changes.push(DefinitionChange::UnionRemoved(name));
                     }
                     Some(def) => {
+                        if !add_definition(&mut changes, def) {
+                            return SchemaChange::GenericChange;
+                        }
                         changes.push(DefinitionChange::UnionRemoved(name));
-                        changes.push(get_added_definition(def));
                     }
                 }
             }
 
-            Definition::InputObjectTypeDefinition { name, .. } => {
-                // TODO
-                current_map.remove(&name);
+            Definition::InputObjectTypeDefinition {
+                name,
+                fields: previous_fields,
+                ..
+            } => {
+                let def = current_map.remove(&name);
+                match def {
+                    Some(Definition::InputObjectTypeDefinition { fields, .. }) => {
+                        let (added, removed) =
+                            compare_input_value_definition(fields, previous_fields);
+                        if !added.is_empty() || !removed.is_empty() {
+                            changes.push(DefinitionChange::InputObjectChanged {
+                                name,
+                                added,
+                                removed,
+                            });
+                        }
+                    }
+                    None => {
+                        changes.push(DefinitionChange::InputObjectRemoved(name));
+                    }
+                    Some(def) => {
+                        if !add_definition(&mut changes, def) {
+                            return SchemaChange::GenericChange;
+                        }
+                        changes.push(DefinitionChange::InputObjectRemoved(name));
+                    }
+                }
             }
 
-            Definition::InterfaceTypeDefinition { name, .. } => {
-                // TODO
-                current_map.remove(&name);
+            Definition::InterfaceTypeDefinition {
+                name,
+                fields: previous_fields,
+                ..
+            } => {
+                let def = current_map.remove(&name);
+                match def {
+                    Some(Definition::InterfaceTypeDefinition { fields, .. }) => {
+                        let (added, removed, changed) = compare_fields(fields, previous_fields);
+                        if !added.is_empty() || !removed.is_empty() || !changed.is_empty() {
+                            changes.push(DefinitionChange::InterfaceChanged {
+                                name,
+                                added,
+                                removed,
+                                changed,
+                            });
+                        }
+                    }
+                    None => {
+                        changes.push(DefinitionChange::InterfaceRemoved(name));
+                    }
+                    Some(def) => {
+                        if !add_definition(&mut changes, def) {
+                            return SchemaChange::GenericChange;
+                        }
+                        changes.push(DefinitionChange::InterfaceRemoved(name));
+                    }
+                }
             }
 
-            Definition::ObjectTypeDefinition { name, .. } => {
-                // TODO
-                current_map.remove(&name);
+            Definition::ObjectTypeDefinition {
+                name,
+                interfaces: previous_interfaces,
+                fields: previous_fields,
+                ..
+            } => {
+                let def = current_map.remove(&name);
+                match def {
+                    Some(Definition::ObjectTypeDefinition {
+                        interfaces, fields, ..
+                    }) => {
+                        let (added, removed, changed) = compare_fields(fields, previous_fields);
+                        let (interfaces_added, interfaces_removed) =
+                            compare_string_keys(interfaces, previous_interfaces);
+                        if !added.is_empty()
+                            || !removed.is_empty()
+                            || !changed.is_empty()
+                            || !interfaces_added.is_empty()
+                            || !interfaces_removed.is_empty()
+                        {
+                            changes.push(DefinitionChange::ObjectChanged {
+                                name,
+                                added,
+                                removed,
+                                changed,
+                                interfaces_added,
+                                interfaces_removed,
+                            });
+                        }
+                    }
+                    None => {
+                        changes.push(DefinitionChange::ObjectRemoved(name));
+                    }
+                    Some(def) => {
+                        if !add_definition(&mut changes, def) {
+                            return SchemaChange::GenericChange;
+                        }
+                        changes.push(DefinitionChange::ObjectRemoved(name));
+                    }
+                }
             }
 
             Definition::ScalarTypeDefinition { name, .. } => {
@@ -175,13 +298,15 @@ fn diff(current: &[Definition], previous: Vec<Definition>) -> SchemaChange {
                     }
                     Some(Definition::ScalarTypeDefinition { .. }) => {}
                     Some(def) => {
+                        if !add_definition(&mut changes, def) {
+                            return SchemaChange::GenericChange;
+                        }
                         changes.push(DefinitionChange::ScalarRemoved(name));
-                        changes.push(get_added_definition(def));
                     }
                 }
             }
 
-            // We skip diffing the following deifinitions
+            // We skip diffing the following definitions
             Definition::InterfaceTypeExtension { .. } => {}
             Definition::ObjectTypeExtension { .. } => {}
             Definition::SchemaDefinition { .. } => {}
@@ -190,12 +315,12 @@ fn diff(current: &[Definition], previous: Vec<Definition>) -> SchemaChange {
     }
 
     for (_, definition) in current_map.drain().into_iter() {
-        changes.push(get_added_definition(definition));
+        add_definition(&mut changes, definition);
     }
 
     if changes.is_empty() {
-        // The schema has changed, but we currently don't detect definition type changes, directive
-        // definition changes, schema deifinition changes, and we don't parse client extensions.
+        // The schema has changed, but we currently don't detect directive definition changes,
+        // schema deifinition changes, and we don't parse client extensions.
         // But we can add them later if some of the changes don't require full rebuilds.
         return SchemaChange::GenericChange;
     }
@@ -203,13 +328,150 @@ fn diff(current: &[Definition], previous: Vec<Definition>) -> SchemaChange {
     SchemaChange::DefinitionChanges(changes)
 }
 
-fn get_added_definition(def: &Definition) -> DefinitionChange {
-    match def {
-        Definition::ScalarTypeDefinition { name, .. } => DefinitionChange::ScalarAdded(*name),
-        Definition::UnionTypeDefinition { name, .. } => DefinitionChange::UnionAdded(*name),
-        Definition::EnumTypeDefinition { name, .. } => DefinitionChange::EnumAdded(*name),
-        _ => unimplemented!("TODO: get other added type definitions"),
+fn compare_fields(
+    current_fields: &[FieldDefinition],
+    previous_fields: Vec<FieldDefinition>,
+) -> (Vec<TypeChange>, Vec<TypeChange>, Vec<ArgumentChange>) {
+    let mut previous_values =
+        FnvHashMap::from_iter(previous_fields.into_iter().map(|input| (input.name, input)));
+
+    let mut added = vec![];
+    let mut removed: Vec<TypeChange> = vec![];
+    let mut field_changed = vec![];
+    for field in current_fields {
+        match previous_values.remove(&field.name) {
+            None => {
+                added.push(TypeChange {
+                    name: field.name,
+                    type_: field.type_.clone(),
+                });
+            }
+            Some(previous_field) => {
+                if previous_field.type_ != field.type_ {
+                    added.push(TypeChange {
+                        name: field.name,
+                        type_: field.type_.clone(),
+                    });
+                    removed.push(TypeChange {
+                        name: previous_field.name,
+                        type_: previous_field.type_,
+                    })
+                } else {
+                    let (added, removed) =
+                        compare_input_value_definition(&field.arguments, previous_field.arguments);
+                    if !added.is_empty() || !removed.is_empty() {
+                        field_changed.push(ArgumentChange {
+                            name: field.name,
+                            added,
+                            removed,
+                        })
+                    }
+                }
+            }
+        }
     }
+    removed.extend(previous_values.drain().map(|(_, field)| TypeChange {
+        name: field.name,
+        type_: field.type_,
+    }));
+    (added, removed, field_changed)
+}
+
+fn compare_string_keys(
+    current: &[StringKey],
+    previous: Vec<StringKey>,
+) -> (Vec<StringKey>, Vec<StringKey>) {
+    let mut previous_values = FnvHashSet::from_iter(previous.into_iter());
+    let mut added: Vec<StringKey> = vec![];
+    for key in current {
+        if !previous_values.remove(key) {
+            added.push(*key);
+        }
+    }
+    let removed: Vec<StringKey> = previous_values.drain().collect();
+    (added, removed)
+}
+
+fn compare_input_value_definition(
+    current: &[InputValueDefinition],
+    previous: Vec<InputValueDefinition>,
+) -> (Vec<TypeChange>, Vec<TypeChange>) {
+    let mut previous_values = FnvHashMap::from_iter(
+        previous
+            .into_iter()
+            .map(|value_def| (value_def.name, value_def.type_)),
+    );
+
+    let mut added = vec![];
+    let mut removed = vec![];
+
+    for field in current {
+        let previous_type = previous_values.remove(&field.name);
+        match previous_type {
+            None => {
+                added.push(TypeChange {
+                    name: field.name,
+                    type_: field.type_.clone(),
+                });
+            }
+            Some(previous_type) => {
+                if previous_type != field.type_ {
+                    removed.push(TypeChange {
+                        name: field.name,
+                        type_: previous_type,
+                    });
+                    added.push(TypeChange {
+                        name: field.name,
+                        type_: field.type_.clone(),
+                    });
+                }
+            }
+        }
+    }
+    removed.extend(
+        previous_values
+            .drain()
+            .map(|(name, type_)| TypeChange { name, type_ }),
+    );
+    (added, removed)
+}
+
+fn add_definition(changes: &mut Vec<DefinitionChange>, def: &Definition) -> bool {
+    match def {
+        Definition::ScalarTypeDefinition { name, .. } => {
+            changes.push(DefinitionChange::ScalarAdded(*name))
+        }
+        Definition::UnionTypeDefinition { name, .. } => {
+            changes.push(DefinitionChange::UnionAdded(*name))
+        }
+        Definition::EnumTypeDefinition { name, .. } => {
+            changes.push(DefinitionChange::EnumAdded(*name))
+        }
+        Definition::InputObjectTypeDefinition { name, .. } => {
+            changes.push(DefinitionChange::InputObjectAdded(*name))
+        }
+        Definition::InterfaceTypeDefinition { name, .. } => {
+            changes.push(DefinitionChange::InterfaceAdded(*name))
+        }
+        Definition::ObjectTypeDefinition { name, .. } => {
+            changes.push(DefinitionChange::ObjectAdded(*name))
+        }
+        // We currently don't handle changes of unsupported types,
+        // If those type changes occur, we should return early for a full rebuild.
+        Definition::InterfaceTypeExtension { .. } => {
+            return false;
+        }
+        Definition::ObjectTypeExtension { .. } => {
+            return false;
+        }
+        Definition::SchemaDefinition { .. } => {
+            return false;
+        }
+        Definition::DirectiveDefinition { .. } => {
+            return false;
+        }
+    };
+    true
 }
 
 pub fn detect_changes(

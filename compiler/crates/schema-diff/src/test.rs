@@ -8,7 +8,7 @@
 use crate::*;
 
 use interner::Intern;
-use schema::parse_definitions;
+use schema::{parse_definitions, AstType};
 use std::fmt;
 
 fn diff(current: &str, previous: &str) -> SchemaChange {
@@ -279,6 +279,337 @@ fn test_add_remove_scalar_type() {
 }
 
 #[test]
+fn test_add_remove_input_object() {
+    assert_eq!(
+        diff(
+            r"
+        input Add {
+            value: Float
+        }
+         #",
+            r"
+        input Remove {
+            name: String
+        }
+         #",
+        ),
+        SchemaChange::DefinitionChanges(vec![
+            DefinitionChange::InputObjectAdded("Add".intern()),
+            DefinitionChange::InputObjectRemoved("Remove".intern()),
+        ])
+    );
+}
+
+#[test]
+fn test_add_remove_input_object_fields() {
+    assert_eq!(
+        diff(
+            r"
+        input Input {
+            add: String
+            value: Float
+        }
+         #",
+            r"
+        input Input {
+            value: Float
+            remove: Int
+        }
+         #",
+        ),
+        SchemaChange::DefinitionChanges(vec![DefinitionChange::InputObjectChanged {
+            name: "Input".intern(),
+            added: vec![TypeChange {
+                name: "add".intern(),
+                type_: AstType::Named("String".intern()),
+            }],
+            removed: vec![TypeChange {
+                name: "remove".intern(),
+                type_: AstType::Named("Int".intern()),
+            }],
+        },])
+    );
+}
+
+#[test]
+fn test_change_input_object_fields() {
+    assert_eq!(
+        diff(
+            r"
+        input Input {
+           value: Float
+           key: String
+        }
+         #",
+            r"
+        input Input {
+            value: Float
+            key: Int
+        }
+         #",
+        ),
+        SchemaChange::DefinitionChanges(vec![DefinitionChange::InputObjectChanged {
+            name: "Input".intern(),
+            added: vec![TypeChange {
+                name: "key".intern(),
+                type_: AstType::Named("String".intern()),
+            }],
+            removed: vec![TypeChange {
+                name: "key".intern(),
+                type_: AstType::Named("Int".intern()),
+            }],
+        },])
+    );
+}
+
+#[test]
+fn test_add_remove_interface() {
+    assert_eq!(
+        diff(
+            r"
+        interface Add {
+           value: Float
+           key: String
+        }
+         #",
+            r"
+        interface Remove {
+            value: Float
+            key: Int
+        }
+         #",
+        ),
+        SchemaChange::DefinitionChanges(vec![
+            DefinitionChange::InterfaceAdded("Add".intern()),
+            DefinitionChange::InterfaceRemoved("Remove".intern()),
+        ])
+    );
+}
+
+#[test]
+fn test_add_remove_interface_fields() {
+    assert_eq!(
+        diff(
+            r"
+        interface I {
+           value: Float
+           key: String
+        }
+         #",
+            r"
+        interface I {
+            value: Float
+            key: Int
+        }
+         #",
+        ),
+        SchemaChange::DefinitionChanges(vec![DefinitionChange::InterfaceChanged {
+            name: "I".intern(),
+            added: vec![TypeChange {
+                name: "key".intern(),
+                type_: AstType::Named("String".intern()),
+            }],
+            removed: vec![TypeChange {
+                name: "key".intern(),
+                type_: AstType::Named("Int".intern()),
+            }],
+            changed: vec![],
+        },])
+    );
+}
+
+#[test]
+fn test_add_remove_object() {
+    assert_eq!(
+        diff(
+            r"
+        type Add {
+            value: Float
+        }
+         #",
+            r"
+        type Remove {
+            name: String
+        }
+         #",
+        ),
+        SchemaChange::DefinitionChanges(vec![
+            DefinitionChange::ObjectAdded("Add".intern()),
+            DefinitionChange::ObjectRemoved("Remove".intern()),
+        ])
+    );
+}
+
+#[test]
+fn test_change_object_interfaces() {
+    assert_eq!(
+        diff(
+            r"
+        type User implements Node {
+            id: ID
+            value: Float
+        }
+         #",
+            r"
+        type User implements Actor {
+            id: ID
+            value: Float
+        }
+         #",
+        ),
+        SchemaChange::DefinitionChanges(vec![DefinitionChange::ObjectChanged {
+            name: "User".intern(),
+            added: vec![],
+            removed: vec![],
+            changed: vec![],
+            interfaces_removed: vec!["Actor".intern()],
+            interfaces_added: vec!["Node".intern()],
+        }])
+    );
+}
+
+#[test]
+fn test_change_object_fields() {
+    assert_eq!(
+        diff(
+            r"
+        type User implements Actor {
+            id: ID
+            value: Float
+        }
+         #",
+            r"
+        type User implements Actor {
+            id: ID!
+        }
+         #",
+        ),
+        SchemaChange::DefinitionChanges(vec![DefinitionChange::ObjectChanged {
+            name: "User".intern(),
+            added: vec![
+                TypeChange {
+                    name: "id".intern(),
+                    type_: AstType::Named("ID".intern()),
+                },
+                TypeChange {
+                    name: "value".intern(),
+                    type_: AstType::Named("Float".intern()),
+                },
+            ],
+            removed: vec![TypeChange {
+                name: "id".intern(),
+                type_: AstType::NonNull(Box::new(AstType::Named("ID".intern()))),
+            }],
+            changed: vec![],
+            interfaces_removed: vec![],
+            interfaces_added: vec![],
+        }])
+    );
+}
+
+#[test]
+fn test_change_object_field_arguments() {
+    assert_eq!(
+        diff(
+            r"
+        type User implements Actor {
+            key(a: ID): String
+            name: String
+            user(a: ID): String
+        }
+         #",
+            r"
+        type User implements Actor {
+            key: String
+            name(a: ID!): String
+            user(a: ID!): String
+        }
+         #",
+        ),
+        SchemaChange::DefinitionChanges(vec![DefinitionChange::ObjectChanged {
+            name: "User".intern(),
+            added: vec![],
+            removed: vec![],
+            changed: vec![
+                ArgumentChange {
+                    name: "key".intern(),
+                    added: vec![TypeChange {
+                        name: "a".intern(),
+                        type_: AstType::Named("ID".intern()),
+                    }],
+                    removed: vec![],
+                },
+                ArgumentChange {
+                    name: "name".intern(),
+                    added: vec![],
+                    removed: vec![TypeChange {
+                        name: "a".intern(),
+                        type_: AstType::NonNull(Box::new(AstType::Named("ID".intern()))),
+                    }],
+                },
+                ArgumentChange {
+                    name: "user".intern(),
+                    added: vec![TypeChange {
+                        name: "a".intern(),
+                        type_: AstType::Named("ID".intern()),
+                    }],
+                    removed: vec![TypeChange {
+                        name: "a".intern(),
+                        type_: AstType::NonNull(Box::new(AstType::Named("ID".intern()))),
+                    }],
+                }
+            ],
+            interfaces_removed: vec![],
+            interfaces_added: vec![],
+        }])
+    );
+}
+
+#[test]
+fn test_change_type_input_object() {
+    assert_eq!(
+        diff(
+            r"
+        input User {
+            value: Float
+        }
+         #",
+            r"
+        type User {
+            name: String
+        }
+         #",
+        ),
+        SchemaChange::DefinitionChanges(vec![
+            DefinitionChange::InputObjectAdded("User".intern()),
+            DefinitionChange::ObjectRemoved("User".intern()),
+        ])
+    );
+}
+
+#[test]
+fn test_change_type_object_interface() {
+    assert_eq!(
+        diff(
+            r"
+        type User {
+            value: Float
+        }
+         #",
+            r"
+        interface User {
+            name: String
+        }
+         #",
+        ),
+        SchemaChange::DefinitionChanges(vec![
+            DefinitionChange::InterfaceRemoved("User".intern()),
+            DefinitionChange::ObjectAdded("User".intern()),
+        ])
+    );
+}
+
+#[test]
 fn test_change_type_enum_scalar() {
     assert_eq!(
         diff(
@@ -354,6 +685,36 @@ fn sort_change(change: &mut SchemaChange) {
                     added.sort();
                     removed.sort();
                 }
+                DefinitionChange::InputObjectChanged {
+                    ref mut added,
+                    ref mut removed,
+                    ..
+                } => {
+                    added.sort_by(|a, b| a.name.lookup().cmp(b.name.lookup()));
+                    removed.sort_by(|a, b| a.name.lookup().cmp(b.name.lookup()));
+                }
+                DefinitionChange::InterfaceChanged {
+                    ref mut added,
+                    ref mut removed,
+                    ..
+                } => {
+                    added.sort_by(|a, b| a.name.lookup().cmp(b.name.lookup()));
+                    removed.sort_by(|a, b| a.name.lookup().cmp(b.name.lookup()));
+                }
+                DefinitionChange::ObjectChanged {
+                    ref mut added,
+                    ref mut removed,
+                    ref mut changed,
+                    ref mut interfaces_added,
+                    ref mut interfaces_removed,
+                    ..
+                } => {
+                    added.sort_by(|a, b| a.name.lookup().cmp(b.name.lookup()));
+                    removed.sort_by(|a, b| a.name.lookup().cmp(b.name.lookup()));
+                    changed.sort_by(|a, b| a.name.lookup().cmp(b.name.lookup()));
+                    interfaces_added.sort();
+                    interfaces_removed.sort();
+                }
                 _ => {}
             }
         }
@@ -367,6 +728,22 @@ impl fmt::Debug for SchemaChange {
             SchemaChange::GenericChange => write!(f, "GenericChange"),
             SchemaChange::DefinitionChanges(changes) => write!(f, "{:?}", changes),
         }
+    }
+}
+
+impl fmt::Debug for TypeChange {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{:?}: {:?} ", self.name, self.type_)
+    }
+}
+
+impl fmt::Debug for ArgumentChange {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(
+            f,
+            "{:?}: added:{:?} removed:{:?} ",
+            self.name, self.added, self.removed
+        )
     }
 }
 
@@ -391,12 +768,51 @@ impl fmt::Debug for DefinitionChange {
                 "UnionChanged {:?}: added:{:?} removed:{:?}",
                 name, added, removed,
             ),
+            DefinitionChange::InputObjectChanged {
+                added,
+                removed,
+                name,
+            } => write!(
+                f,
+                "InputObjectChanged {:?}: added:{:?} removed:{:?}",
+                name, added, removed
+            ),
+            DefinitionChange::InterfaceChanged {
+                added,
+                removed,
+                name,
+                ..
+            } => write!(
+                f,
+                "InterfaceChanged {:?}: added:{:?} removed:{:?}",
+                name, added, removed,
+            ),
+            DefinitionChange::ObjectChanged {
+                name,
+                added,
+                removed,
+                changed,
+                interfaces_added,
+                interfaces_removed
+            } => write!(
+                f,
+                "ObjectChanged {:?}: added:{:?} removed:{:?} changed: {:?}; interface: added:{:?} removed:{:?}",
+                name, added, removed, changed, interfaces_added, interfaces_removed
+            ),
             DefinitionChange::EnumAdded(name) => write!(f, "EnumAdded {:?}", name),
             DefinitionChange::EnumRemoved(name) => write!(f, "EnumRemoved {:?}", name),
             DefinitionChange::UnionAdded(name) => write!(f, "UnionAdded {:?}", name),
             DefinitionChange::UnionRemoved(name) => write!(f, "UnionRemoved {:?}", name),
             DefinitionChange::ScalarAdded(name) => write!(f, "ScalarAdded {:?}", name),
             DefinitionChange::ScalarRemoved(name) => write!(f, "ScalarRemoved {:?}", name),
+            DefinitionChange::InputObjectAdded(name) => write!(f, "InputObjectAdded {:?}", name),
+            DefinitionChange::InputObjectRemoved(name) => {
+                write!(f, "InputObjectRemoved {:?}", name)
+            }
+            DefinitionChange::InterfaceAdded(name) => write!(f, "InterfaceAdded {:?}", name),
+            DefinitionChange::InterfaceRemoved(name) => write!(f, "InterfaceRemoved {:?}", name),
+            DefinitionChange::ObjectAdded(name) => write!(f, "ObjectAdded {:?}", name),
+            DefinitionChange::ObjectRemoved(name) => write!(f, "ObjectRemoved {:?}", name),
         }
     }
 }

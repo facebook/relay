@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::util::ArcAddress;
+use crate::util::PointerAddress;
 use graphql_ir::{
     FragmentDefinition, InlineFragment, LinkedField, OperationDefinition, Program, Selection,
 };
@@ -17,7 +17,7 @@ use std::collections::HashMap;
 use std::sync::Arc;
 
 type FlattenedSelectionMap = HashMap<String, Selection>;
-type SeenLinkedFields = HashMap<ArcAddress, Arc<LinkedField>>;
+type SeenLinkedFields = HashMap<PointerAddress, Arc<LinkedField>>;
 
 ///
 /// Transform that flattens inline fragments, fragment spreads, merges linked fields selections.
@@ -100,7 +100,7 @@ impl<'s> FlattenTransform<'s> {
     }
 
     fn transform_linked_field(&mut self, linked_field: &Arc<LinkedField>) -> Arc<LinkedField> {
-        let key = ArcAddress::new(linked_field);
+        let key = PointerAddress::new(Arc::as_ref(linked_field));
         if let Some(prev) = self.seen_linked_fields.get(&key) {
             return Arc::clone(prev);
         }

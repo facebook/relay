@@ -10,9 +10,9 @@
 #![deny(clippy::all)]
 
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
-use graphql_ir::build;
+use graphql_ir::{build, Program};
 use graphql_syntax::parse;
-use graphql_transforms::{generate_typename, inline_fragments, sort_selections, CompilerContext};
+use graphql_transforms::{generate_typename, inline_fragments, sort_selections};
 use std::env;
 use std::fs;
 use test_schema::TEST_SCHEMA;
@@ -35,32 +35,32 @@ pub fn criterion_benchmark(c: &mut Criterion) {
         let ir = build(&TEST_SCHEMA, ast.definitions)
             .unwrap_or_else(|error| panic!("failed to build ir: {}: {:?}", file_name, error));
 
-        let context = CompilerContext::from_definitions(&TEST_SCHEMA, ir);
+        let program = Program::from_definitions(&TEST_SCHEMA, ir);
 
         c.bench_function(&format!("inline_fragments::{}", file_name), |b| {
             b.iter(|| {
-                let context = inline_fragments(black_box(&context));
-                black_box(&context);
+                let program = inline_fragments(black_box(&program));
+                black_box(&program);
             })
         });
         c.bench_function(&format!("generate_typename::{}", file_name), |b| {
             b.iter(|| {
-                let context = generate_typename(black_box(&context));
-                black_box(&context);
+                let program = generate_typename(black_box(&program));
+                black_box(&program);
             })
         });
         c.bench_function(&format!("sort_selections::{}", file_name), |b| {
             b.iter(|| {
-                let context = sort_selections(black_box(&context));
-                black_box(&context);
+                let program = sort_selections(black_box(&program));
+                black_box(&program);
             })
         });
         c.bench_function(&format!("combined::{}", file_name), |b| {
             b.iter(|| {
-                let context = inline_fragments(black_box(&context));
-                let context = generate_typename(black_box(&context));
-                let context = sort_selections(black_box(&context));
-                black_box(&context);
+                let program = inline_fragments(black_box(&program));
+                let program = generate_typename(black_box(&program));
+                let program = sort_selections(black_box(&program));
+                black_box(&program);
             })
         });
     }

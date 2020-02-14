@@ -39,6 +39,7 @@ const {
   getModuleOperationKey,
   getStorageKey,
   TYPENAME_KEY,
+  ROOT_ID,
 } = require('./RelayStoreUtils');
 
 import type {PayloadData} from '../network/RelayNetworkTypes';
@@ -528,14 +529,15 @@ class RelayResponseNormalizer {
     payload: Object,
   ): void {
     const typeName = field.concreteType ?? this._getRecordType(payload);
+    const dataID = RelayModernRecord.getDataID(record);
     warning(
-      isClientID(RelayModernRecord.getDataID(record)) ||
+      (isClientID(dataID) && dataID !== ROOT_ID) ||
         RelayModernRecord.getType(record) === typeName,
       'RelayResponseNormalizer: Invalid record `%s`. Expected %s to be ' +
         'consistent, but the record was assigned conflicting types `%s` ' +
         'and `%s`. The GraphQL server likely violated the globally unique ' +
         'id requirement by returning the same id for different objects.',
-      RelayModernRecord.getDataID(record),
+      dataID,
       TYPENAME_KEY,
       RelayModernRecord.getType(record),
       typeName,

@@ -20,7 +20,7 @@ pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
     if let [base, extensions] = parts.as_slice() {
         let ast = parse(base, fixture.file_name).unwrap();
         let schema = test_schema_with_extensions(extensions);
-        build(&schema, ast.definitions)
+        build(&schema, &ast.definitions)
             .map(|x| format!("{:#?}", x))
             .map_err(|errors| {
                 errors

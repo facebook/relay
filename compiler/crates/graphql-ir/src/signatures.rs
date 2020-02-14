@@ -214,7 +214,7 @@ fn get_argument_type(
     };
     if let Some(type_name) = type_name {
         let type_ast = graphql_syntax::parse_type(type_name, "TODO")?;
-        let type_ = build_type_annotation(schema, type_ast, location)?;
+        let type_ = build_type_annotation(schema, &type_ast, location)?;
         Ok(type_)
     } else {
         Err(ValidationError::new(

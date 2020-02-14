@@ -17,7 +17,7 @@ pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
     let mut sources = FnvHashMap::default();
     sources.insert(FileKey::new(fixture.file_name), fixture.content);
 
-    build(&TEST_SCHEMA, ast.definitions)
+    build(&TEST_SCHEMA, &ast.definitions)
         .map(|x| format!("{:#?}", x))
         .map_err(|errors| {
             errors

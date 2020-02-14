@@ -13,7 +13,7 @@ use test_schema::TEST_SCHEMA;
 
 pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
     let ast = parse(fixture.content, fixture.file_name).unwrap();
-    build(&TEST_SCHEMA, ast.definitions)
+    build(&TEST_SCHEMA, &ast.definitions)
         .map(|definitions| print_ir(&TEST_SCHEMA, &definitions).join("\n\n"))
         .map_err(|errors| {
             errors

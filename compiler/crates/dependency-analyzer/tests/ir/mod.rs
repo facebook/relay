@@ -48,7 +48,7 @@ pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
         }
     }
 
-    let definitions = build(&TEST_SCHEMA, asts).unwrap();
+    let definitions = build(&TEST_SCHEMA, &asts).unwrap();
     let result = get_reachable_ir(definitions, base_names, changed_names);
 
     let mut texts = result

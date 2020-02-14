@@ -23,7 +23,7 @@ use schema::{
 /// a list of errors if the corpus is invalid.
 pub fn build_ir(
     schema: &Schema,
-    definitions: Vec<graphql_syntax::ExecutableDefinition>,
+    definitions: &[graphql_syntax::ExecutableDefinition],
 ) -> ValidationResult<Vec<ExecutableDefinition>> {
     let signatures = build_signatures(schema, &definitions)?;
     try_all(definitions, |definition| {
@@ -34,7 +34,7 @@ pub fn build_ir(
 
 pub fn build_type_annotation(
     schema: &Schema,
-    annotation: graphql_syntax::TypeAnnotation,
+    annotation: &graphql_syntax::TypeAnnotation,
     location: Location,
 ) -> ValidationResult<TypeReference> {
     let signatures = Default::default();
@@ -90,7 +90,7 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
 
     pub fn build_definition(
         &mut self,
-        definition: graphql_syntax::ExecutableDefinition,
+        definition: &graphql_syntax::ExecutableDefinition,
     ) -> ValidationResult<ExecutableDefinition> {
         match definition {
             graphql_syntax::ExecutableDefinition::Fragment(node) => {
@@ -104,16 +104,16 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
 
     fn build_fragment(
         &mut self,
-        fragment: graphql_syntax::FragmentDefinition,
+        fragment: &graphql_syntax::FragmentDefinition,
     ) -> ValidationResult<FragmentDefinition> {
         let signature = self
             .signatures
             .get(&fragment.name.value)
             .expect("Expected signature to be created");
         let fragment_type = TypeReference::Named(signature.type_condition);
-        let non_arguments_directives = fragment
+        let non_arguments_directives: Vec<_> = fragment
             .directives
-            .into_iter()
+            .iter()
             .filter(|x| x.name.value.lookup() != "argumentDefinitions")
             .collect();
 
@@ -127,7 +127,7 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
             non_arguments_directives,
             DirectiveLocation::FragmentDefinition,
         );
-        let selections = self.build_selections(fragment.selections.items, &fragment_type);
+        let selections = self.build_selections(&fragment.selections.items, &fragment_type);
         let (directives, selections) = try2(directives, selections)?;
         let used_global_variables = self
             .used_variabales
@@ -151,21 +151,22 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
 
     fn build_operation(
         &mut self,
-        operation: graphql_syntax::OperationDefinition,
+        operation: &graphql_syntax::OperationDefinition,
     ) -> ValidationResult<OperationDefinition> {
-        let name = match operation.name {
+        let name = match &operation.name {
             Some(name) => name,
             None => {
                 return Err(self
                     .record_error(ValidationError::new(
                         ValidationMessage::ExpectedOperationName(),
-                        vec![operation.location],
+                        vec![operation.location.clone()],
                     ))
                     .into())
             }
         };
         let kind = operation
             .operation
+            .as_ref()
             .map(|x| x.1)
             .unwrap_or_else(|| OperationKind::Query);
         let operation_type = match kind {
@@ -179,25 +180,25 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
                 return Err(self
                     .record_error(ValidationError::new(
                         ValidationMessage::UnsupportedOperation(kind),
-                        vec![operation.location],
+                        vec![operation.location.clone()],
                     ))
                     .into())
             }
         };
 
-        let variable_definitions = self.build_variable_definitions(
-            operation
-                .variable_definitions
-                .map(|x| x.items)
-                .unwrap_or_default(),
-        )?;
+        let variable_definitions = match operation.variable_definitions {
+            Some(ref variable_definitions) => {
+                self.build_variable_definitions(&variable_definitions.items)?
+            }
+            None => Default::default(),
+        };
         self.defined_variables = variable_definitions
             .iter()
             .map(|x| (x.name.item, x.clone()))
             .collect();
 
         let directives = self.build_directives(
-            operation.directives,
+            &operation.directives,
             match kind {
                 OperationKind::Query => DirectiveLocation::Query,
                 OperationKind::Mutation => DirectiveLocation::Mutation,
@@ -206,7 +207,7 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
         );
         let operation_type_reference = TypeReference::Named(operation_type);
         let selections =
-            self.build_selections(operation.selections.items, &operation_type_reference);
+            self.build_selections(&operation.selections.items, &operation_type_reference);
         let (directives, selections) = try2(directives, selections)?;
         if !self.used_variabales.is_empty() {
             Err(self
@@ -230,9 +231,9 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
         }
     }
 
-    fn build_variable_definitions(
+    fn build_variable_definitions<'a>(
         &mut self,
-        definitions: Vec<graphql_syntax::VariableDefinition>,
+        definitions: &[graphql_syntax::VariableDefinition],
     ) -> ValidationResult<Vec<VariableDefinition>> {
         try_all(definitions, |definition| {
             self.build_variable_definition(definition)
@@ -241,9 +242,9 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
 
     fn build_variable_definition(
         &mut self,
-        definition: graphql_syntax::VariableDefinition,
+        definition: &graphql_syntax::VariableDefinition,
     ) -> ValidationResult<VariableDefinition> {
-        let type_ = self.build_type_annotation(definition.type_)?;
+        let type_ = self.build_type_annotation(&definition.type_)?;
         if !type_.inner().is_input_type() {
             return Err(self
                 .record_error(ValidationError::new(
@@ -254,7 +255,7 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
                 ))
                 .into());
         }
-        let default_value = match definition.default_value {
+        let default_value = match &definition.default_value {
             Some(default_value) => Some(self.build_constant_value(
                 &default_value.value,
                 &type_,
@@ -262,8 +263,10 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
             )?),
             None => None,
         };
-        let directives =
-            self.build_directives(definition.directives, DirectiveLocation::VariableDefinition)?;
+        let directives = self.build_directives(
+            &definition.directives,
+            DirectiveLocation::VariableDefinition,
+        )?;
         Ok(VariableDefinition {
             name: definition.name.spanned_name(),
             type_,
@@ -274,14 +277,14 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
 
     fn build_type_annotation(
         &mut self,
-        annotation: graphql_syntax::TypeAnnotation,
+        annotation: &graphql_syntax::TypeAnnotation,
     ) -> ValidationResult<TypeReference> {
         self.build_type_annotation_inner(annotation)
     }
 
     fn build_type_annotation_inner(
         &mut self,
-        annotation: graphql_syntax::TypeAnnotation,
+        annotation: &graphql_syntax::TypeAnnotation,
     ) -> ValidationResult<TypeReference> {
         match annotation {
             graphql_syntax::TypeAnnotation::Named(name) => match self.schema.get_type(name.value) {
@@ -294,12 +297,12 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
                     .into()),
             },
             graphql_syntax::TypeAnnotation::NonNull(non_null) => {
-                let inner = self.build_type_annotation_inner(non_null.type_)?;
+                let inner = self.build_type_annotation_inner(&non_null.type_)?;
                 Ok(TypeReference::NonNull(Box::new(inner)))
             }
             graphql_syntax::TypeAnnotation::List(list) => {
                 // TODO: Nested lists is allowed to support existing query variables definitions
-                let inner = self.build_type_annotation_inner(list.type_)?;
+                let inner = self.build_type_annotation_inner(&list.type_)?;
                 Ok(TypeReference::List(Box::new(inner)))
             }
         }
@@ -307,7 +310,7 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
 
     fn build_selections(
         &mut self,
-        selections: Vec<graphql_syntax::Selection>,
+        selections: &[graphql_syntax::Selection],
         parent_type: &TypeReference,
     ) -> ValidationResult<Vec<Selection>> {
         try_all(selections, |selection| {
@@ -317,7 +320,7 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
 
     fn build_selection(
         &mut self,
-        selection: graphql_syntax::Selection,
+        selection: &graphql_syntax::Selection,
         parent_type: &TypeReference,
     ) -> ValidationResult<Selection> {
         match selection {
@@ -338,7 +341,7 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
 
     fn build_fragment_spread(
         &mut self,
-        spread: graphql_syntax::FragmentSpread,
+        spread: &graphql_syntax::FragmentSpread,
         parent_type: &TypeReference,
     ) -> ValidationResult<FragmentSpread> {
         // Exit early if the fragment does not exist
@@ -381,7 +384,7 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
 
         let (mut argument_directives, other_directives) = spread
             .directives
-            .into_iter()
+            .iter()
             .partition::<Vec<_>, _>(|x| x.name.value.lookup() == "arguments");
 
         // TODO: fully handle uncheckedArguments_DEPRECATED
@@ -402,45 +405,50 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
                 .into());
         }
 
-        let argument_values = argument_directives
-            .pop()
-            .map(|x| x.arguments)
-            .unwrap_or_default()
-            .map(|x| x.items)
-            .unwrap_or_default();
-        let arguments: ValidationResult<Vec<Argument>> = argument_values
-            .into_iter()
-            .map(|arg| {
-                let argument_definition = signature
-                    .variable_definitions
+        let argument_directive = argument_directives.pop();
+
+        let arguments: ValidationResult<Vec<Argument>> = match argument_directive {
+            Some(graphql_syntax::Directive {
+                arguments: Some(arg_list),
+                ..
+            }) => {
+                arg_list
+                    .items
                     .iter()
-                    .find(|x| x.name.item == arg.name.value);
-                match argument_definition {
-                    Some(argument_definition) => {
-                        // TODO: We didn't use to enforce types of @args/@argDefs properly, which resulted
-                        // in a lot of code that is technically valid but doesn't type-check. Specifically,
-                        // many fragment @argDefs are typed as non-null but used in places that accept a
-                        // nullable value. Similarly, the corresponding @args pass nullable values. This
-                        // works since ultimately a nullable T flows into a nullable T, but isn't
-                        // technically correct. There are also @argDefs are typed with different types,
-                        // but the persist query allowed them as the types are the same underlyingly.
-                        // NOTE: We keep the same behavior as JS compiler for now, where we don't validate
-                        // types of variables passed to @args at all
-                        Ok(self.build_argument(
-                            arg,
-                            &argument_definition.type_,
-                            ValidationLevel::Loose,
-                        )?)
-                    }
-                    None => Err(self
-                        .record_error(ValidationError::new(
-                            ValidationMessage::UnknownArgument(arg.name.value),
-                            vec![self.location.with_span(arg.span)],
-                        ))
-                        .into()),
-                }
-            })
-            .collect();
+                    .map(|arg| {
+                        let argument_definition = signature
+                            .variable_definitions
+                            .iter()
+                            .find(|x| x.name.item == arg.name.value);
+                        match argument_definition {
+                            Some(argument_definition) => {
+                                // TODO: We didn't use to enforce types of @args/@argDefs properly, which resulted
+                                // in a lot of code that is technically valid but doesn't type-check. Specifically,
+                                // many fragment @argDefs are typed as non-null but used in places that accept a
+                                // nullable value. Similarly, the corresponding @args pass nullable values. This
+                                // works since ultimately a nullable T flows into a nullable T, but isn't
+                                // technically correct. There are also @argDefs are typed with different types,
+                                // but the persist query allowed them as the types are the same underlyingly.
+                                // NOTE: We keep the same behavior as JS compiler for now, where we don't validate
+                                // types of variables passed to @args at all
+                                Ok(self.build_argument(
+                                    arg,
+                                    &argument_definition.type_,
+                                    ValidationLevel::Loose,
+                                )?)
+                            }
+                            None => Err(self
+                                .record_error(ValidationError::new(
+                                    ValidationMessage::UnknownArgument(arg.name.value),
+                                    vec![self.location.with_span(arg.span)],
+                                ))
+                                .into()),
+                        }
+                    })
+                    .collect()
+            }
+            _ => Ok(Default::default()),
+        };
 
         let directives = self.build_directives(other_directives, DirectiveLocation::FragmentSpread);
         let (arguments, directives) = try2(arguments, directives)?;
@@ -453,7 +461,7 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
 
     fn build_inline_fragment(
         &mut self,
-        fragment: graphql_syntax::InlineFragment,
+        fragment: &graphql_syntax::InlineFragment,
         parent_type: &TypeReference,
     ) -> ValidationResult<InlineFragment> {
         // Error early if the type condition is invalid, since we can't correctly build
@@ -518,9 +526,9 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
             .map(TypeReference::Named)
             .unwrap_or_else(|| parent_type.clone());
         let selections =
-            self.build_selections(fragment.selections.items, &type_condition_reference);
+            self.build_selections(&fragment.selections.items, &type_condition_reference);
         let directives =
-            self.build_directives(fragment.directives, DirectiveLocation::InlineFragment);
+            self.build_directives(&fragment.directives, DirectiveLocation::InlineFragment);
         let (directives, selections) = try2(directives, selections)?;
         Ok(InlineFragment {
             type_condition,
@@ -531,7 +539,7 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
 
     fn build_linked_field(
         &mut self,
-        field: graphql_syntax::LinkedField,
+        field: &graphql_syntax::LinkedField,
         parent_type: &TypeReference,
     ) -> ValidationResult<LinkedField> {
         let span = field.name.span;
@@ -567,9 +575,9 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
                 .into());
         }
         let alias = self.build_alias(&field.alias);
-        let arguments = self.build_arguments(field.arguments, &field_definition.arguments);
-        let selections = self.build_selections(field.selections.items, &field_definition.type_);
-        let directives = self.build_directives(field.directives, DirectiveLocation::Field);
+        let arguments = self.build_arguments(&field.arguments, &field_definition.arguments);
+        let selections = self.build_selections(&field.selections.items, &field_definition.type_);
+        let directives = self.build_directives(&field.directives, DirectiveLocation::Field);
         let (arguments, selections, directives) = try3(arguments, selections, directives)?;
         Ok(LinkedField {
             alias,
@@ -582,7 +590,7 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
 
     fn build_scalar_field(
         &mut self,
-        field: graphql_syntax::ScalarField,
+        field: &graphql_syntax::ScalarField,
         parent_type: &TypeReference,
     ) -> ValidationResult<ScalarField> {
         let field_name = field.name.value.lookup();
@@ -625,8 +633,8 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
                 .into());
         }
         let alias = self.build_alias(&field.alias);
-        let arguments = self.build_arguments(field.arguments, &field_definition.arguments);
-        let directives = self.build_directives(field.directives, DirectiveLocation::Field);
+        let arguments = self.build_arguments(&field.arguments, &field_definition.arguments);
+        let directives = self.build_directives(&field.directives, DirectiveLocation::Field);
         let (arguments, directives) = try2(arguments, directives)?;
         Ok(ScalarField {
             alias,
@@ -638,18 +646,18 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
 
     fn build_clientid_field(
         &mut self,
-        field: graphql_syntax::ScalarField,
+        field: &graphql_syntax::ScalarField,
     ) -> ValidationResult<ScalarField> {
         let field_id = self.schema.clientid_field();
         let alias = self.build_alias(&field.alias);
-        if field.arguments.is_some() {
+        if let Some(arguments) = &field.arguments {
             return Err(ValidationError::new(
                 ValidationMessage::InvalidArgumentsOnTypenameField(),
-                vec![self.location.with_span(field.arguments.unwrap().span)],
+                vec![self.location.with_span(arguments.span)],
             )
             .into());
         }
-        let directives = self.build_directives(field.directives, DirectiveLocation::Field)?;
+        let directives = self.build_directives(&field.directives, DirectiveLocation::Field)?;
         Ok(ScalarField {
             alias,
             definition: Spanned::new(field.name.span, field_id),
@@ -660,18 +668,18 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
 
     fn build_typename_field(
         &mut self,
-        field: graphql_syntax::ScalarField,
+        field: &graphql_syntax::ScalarField,
     ) -> ValidationResult<ScalarField> {
         let field_id = self.schema.typename_field();
         let alias = self.build_alias(&field.alias);
-        if field.arguments.is_some() {
+        if let Some(arguments) = &field.arguments {
             return Err(ValidationError::new(
                 ValidationMessage::InvalidArgumentsOnTypenameField(),
-                vec![self.location.with_span(field.arguments.unwrap().span)],
+                vec![self.location.with_span(arguments.span)],
             )
             .into());
         }
-        let directives = self.build_directives(field.directives, DirectiveLocation::Field)?;
+        let directives = self.build_directives(&field.directives, DirectiveLocation::Field)?;
         Ok(ScalarField {
             alias,
             definition: Spanned::new(field.name.span, field_id),
@@ -686,13 +694,13 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
 
     fn build_arguments(
         &mut self,
-        arguments: Option<graphql_syntax::List<graphql_syntax::Argument>>,
+        arguments: &Option<graphql_syntax::List<graphql_syntax::Argument>>,
         argument_definitions: &ArgumentDefinitions,
     ) -> ValidationResult<Vec<Argument>> {
         match arguments {
             Some(arguments) => arguments
                 .items
-                .into_iter()
+                .iter()
                 .map(
                     |argument| match argument_definitions.get(argument.name.value) {
                         Some(argument_definition) => self.build_argument(
@@ -713,9 +721,9 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
         }
     }
 
-    fn build_directives(
+    fn build_directives<'a>(
         &mut self,
-        directives: Vec<graphql_syntax::Directive>,
+        directives: impl IntoIterator<Item = &'a graphql_syntax::Directive>,
         location: DirectiveLocation,
     ) -> ValidationResult<Vec<Directive>> {
         try_all(directives, |directive| {
@@ -725,7 +733,7 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
 
     fn build_directive(
         &mut self,
-        directive: graphql_syntax::Directive,
+        directive: &graphql_syntax::Directive,
         location: DirectiveLocation,
     ) -> ValidationResult<Directive> {
         let directive_definition = match self.schema.get_directive(directive.name.value) {
@@ -747,7 +755,7 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
             .into());
         }
         let arguments =
-            self.build_arguments(directive.arguments, &directive_definition.arguments)?;
+            self.build_arguments(&directive.arguments, &directive_definition.arguments)?;
         Ok(Directive {
             name: directive.name.spanned_name(),
             arguments,
@@ -756,12 +764,12 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
 
     fn build_argument(
         &mut self,
-        argument: graphql_syntax::Argument,
+        argument: &graphql_syntax::Argument,
         type_: &TypeReference,
         validation: ValidationLevel,
     ) -> ValidationResult<Argument> {
         let value_span = argument.value.span();
-        let value = self.build_value(argument.value, type_, validation)?;
+        let value = self.build_value(&argument.value, type_, validation)?;
         Ok(Argument {
             name: argument.name.spanned_name(),
             value: Spanned::new(value_span, value),
@@ -770,7 +778,7 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
 
     fn build_variable(
         &mut self,
-        variable: graphql_syntax::VariableIdentifier,
+        variable: &graphql_syntax::VariableIdentifier,
         used_as_type: &TypeReference,
         validation: ValidationLevel,
     ) -> ValidationResult<Variable> {
@@ -852,7 +860,7 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
 
     fn build_value(
         &mut self,
-        value: graphql_syntax::Value,
+        value: &graphql_syntax::Value,
         type_: &TypeReference,
         validation: ValidationLevel,
     ) -> ValidationResult<Value> {
@@ -875,7 +883,7 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
                 graphql_syntax::Value::List(list) => {
                     let items: ValidationResult<Vec<Value>> = list
                         .items
-                        .into_iter()
+                        .iter()
                         .map(|x| self.build_value(x, item_type, ValidationLevel::Strict))
                         .collect();
                     Ok(Value::List(items?))
@@ -917,7 +925,7 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
 
     fn build_input_object(
         &mut self,
-        value: graphql_syntax::Value,
+        value: &graphql_syntax::Value,
         type_definition: &InputObject,
     ) -> ValidationResult<Value> {
         let object = match value {
@@ -944,7 +952,7 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
 
         let fields: ValidationResult<Vec<Argument>> = object
             .items
-            .into_iter()
+            .iter()
             .map(|x| match type_definition.fields.get(x.name.value) {
                 Some(field_definition) => {
                     required_fields.remove(&x.name.value);
@@ -963,7 +971,7 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
 
                     let value_span = x.value.span();
                     let value = self.build_value(
-                        x.value,
+                        &x.value,
                         &field_definition.type_,
                         ValidationLevel::Strict,
                     )?;

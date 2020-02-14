@@ -14,7 +14,7 @@ use test_schema::TEST_SCHEMA;
 
 pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
     let ast = parse(fixture.content, fixture.file_name).unwrap();
-    let ir = build(&TEST_SCHEMA, ast.definitions).unwrap();
+    let ir = build(&TEST_SCHEMA, &ast.definitions).unwrap();
     let context = Program::from_definitions(&TEST_SCHEMA, ir);
     let flatten_context = flatten(&context, true);
     let next_context = sort_selections(&flatten_context);

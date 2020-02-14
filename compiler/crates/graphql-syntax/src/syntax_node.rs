@@ -54,7 +54,7 @@ pub struct OperationDefinition {
     pub selections: List<Selection>,
 }
 
-#[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub enum OperationKind {
     Query,
     Mutation,

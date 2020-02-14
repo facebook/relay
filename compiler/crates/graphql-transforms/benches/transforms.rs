@@ -32,7 +32,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
         let file_data = fs::read_to_string(&file_path).unwrap();
         let ast = parse(&file_data, file_name)
             .unwrap_or_else(|error| panic!("failed to parse: {}: {:?}", file_name, error));
-        let ir = build(&TEST_SCHEMA, ast.definitions)
+        let ir = build(&TEST_SCHEMA, &ast.definitions)
             .unwrap_or_else(|error| panic!("failed to build ir: {}: {:?}", file_name, error));
 
         let program = Program::from_definitions(&TEST_SCHEMA, ir);

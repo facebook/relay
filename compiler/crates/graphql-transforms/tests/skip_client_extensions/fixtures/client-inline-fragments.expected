@@ -1,0 +1,22 @@
+==================================== INPUT ====================================
+fragment Foo_user on User {
+  id
+  foo {
+    ... on ClientNamed {
+      client_name
+    }
+  }
+}
+
+# %extensions%
+extend type User {
+  foo: ClientNamed
+}
+
+interface ClientNamed {
+  client_name: String
+}
+==================================== OUTPUT ===================================
+fragment Foo_user on User {
+  id
+}

@@ -1068,3 +1068,76 @@ fragment RefetchableFragmentWithConnection__PaginationFragment on Node
     }
   }
 }
+
+query FooQuery($id: ID!) {
+  client_root_field
+
+  node(id: $id) {
+    id
+  }
+}
+
+mutation FooMutation($input: UnfriendInput) {
+  client_root_field
+  unfriend(input: $input) {
+    clientMutationId
+  }
+}
+
+subscription FooSubscription($input: FeedbackLikeInput) {
+  client_root_field
+  feedbackLikeSubscribe(input: $input) {
+    clientSubscriptionId
+  }
+}
+
+fragment Foo_user on User {
+  id
+  client_friends {
+    edges {
+      client_friend_edge_field # nested client field, should not create new ClientExtension node
+      node {
+        id
+      }
+    }
+    pageInfo {
+      hasNextPage
+    }
+  }
+}
+
+fragment Foo_user2 on User {
+  id
+  client_nickname # client field
+  friends {
+    count
+    client_friends_connection_field # nested client field
+  }
+}
+
+# %extensions%
+
+extend type Query {
+  client_root_field: String
+}
+
+extend type Mutation {
+  client_root_field: String
+}
+
+extend type Subscription {
+  client_root_field: String
+}
+
+extend type User {
+  client_friends: FriendsConnection
+  client_nickname: String
+}
+
+extend type FriendsEdge {
+  client_friend_edge_field: String
+}
+
+extend type FriendsConnection {
+  client_friends_connection_field: String
+}

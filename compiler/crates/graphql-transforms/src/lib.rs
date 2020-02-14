@@ -13,10 +13,12 @@
 mod flatten;
 mod generate_typename;
 mod inline_fragments;
+mod skip_client_extensions;
 mod sort_selections;
 mod util;
 
 pub use flatten::flatten;
 pub use generate_typename::generate_typename;
 pub use inline_fragments::inline_fragments;
+pub use skip_client_extensions::skip_client_extensions;
 pub use sort_selections::sort_selections;

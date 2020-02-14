@@ -1,0 +1,61 @@
+==================================== INPUT ====================================
+fragment Foo_user on User {
+  id
+  name
+
+  # Different types of client selections should be grouped under single
+  # ClientExtension node:
+  client_nickname
+  client_foo {
+    client_name
+  }
+  client_friends {
+    edges {
+      client_friend_edge_field # nested client field, should not create new ClientExtension node
+      node {
+        id
+      }
+    }
+  }
+  client_foo {
+    ... on ClientNamed {
+      client_name
+    }
+  }
+  client_type {
+    ...ClientTypeFragment # include fragment on client-only type
+  }
+}
+
+fragment ClientTypeFragment on ClientType {
+  client_field
+}
+
+# %extensions%
+extend type User {
+  client_friends: FriendsConnection
+  client_nickname: String
+  client_foo: Foo
+  client_type: ClientType
+}
+
+extend type FriendsEdge {
+  client_friend_edge_field: String
+}
+
+type ClientType {
+  client_field: String
+}
+
+type Foo implements ClientNamed {
+  client_name: String
+}
+
+interface ClientNamed {
+  client_name: String
+}
+==================================== OUTPUT ===================================
+fragment Foo_user on User {
+  id
+  name
+}

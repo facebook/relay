@@ -170,6 +170,17 @@ impl Schema {
         }
     }
 
+    pub fn is_extension_type(&self, type_: Type) -> bool {
+        match type_ {
+            Type::Enum(id) => self.enums[id.as_usize()].is_extension,
+            Type::Interface(id) => self.interfaces[id.as_usize()].is_extension,
+            Type::Object(id) => self.objects[id.as_usize()].is_extension,
+            Type::Scalar(id) => self.scalars[id.as_usize()].is_extension,
+            Type::Union(id) => self.unions[id.as_usize()].is_extension,
+            Type::InputObject(_) => false,
+        }
+    }
+
     pub fn get_directive(&self, name: StringKey) -> Option<&Directive> {
         self.directives.iter().find(|x| x.name == name)
     }

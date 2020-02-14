@@ -358,6 +358,27 @@ impl Schema {
             }
         }
 
+        // In case the schema doesn't define a query, mutation or subscription
+        // type, but there is a Query, Mutation, or Subscription object type
+        // defined, default to those.
+        // This is not standard GraphQL behavior, and we might want to remove
+        // this at some point.
+        if schema.query_type.is_none() {
+            if let Some(Type::Object(id)) = schema.type_map.get(&"Query".intern()) {
+                schema.query_type = Some(*id);
+            }
+        }
+        if schema.mutation_type.is_none() {
+            if let Some(Type::Object(id)) = schema.type_map.get(&"Mutation".intern()) {
+                schema.mutation_type = Some(*id);
+            }
+        }
+        if schema.query_type.is_none() {
+            if let Some(Type::Object(id)) = schema.type_map.get(&"Query".intern()) {
+                schema.query_type = Some(*id);
+            }
+        }
+
         let typename_field_id = schema.fields.len();
         schema.typename_field = FieldID(typename_field_id.try_into().unwrap());
         schema.fields.push(Field {

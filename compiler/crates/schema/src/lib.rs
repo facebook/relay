@@ -35,15 +35,20 @@ pub const BUILTINS: &str = include_str!("./builtins.graphql");
 pub const RELAY_EXTENSIONS: &str = include_str!("./relay-extensions.graphql");
 
 pub fn build_schema(sdl: &str) -> Result<Schema> {
-    let builtins = parse_definitions(BUILTINS)?;
-    let definitions = parse_definitions(sdl)?;
-    Schema::build(builtins, definitions, Vec::new())
+    build_schema_with_extensions::<&str>(sdl, &[])
 }
 
-pub fn build_schema_with_extensions(sdl: &str, extensions_sdl: &str) -> Result<Schema> {
+pub fn build_schema_with_extensions<T: AsRef<str>>(
+    sdl: &str,
+    extensions_sdls: &[T],
+) -> Result<Schema> {
     let builtins = parse_definitions(BUILTINS)?;
     let definitions = parse_definitions(sdl)?;
-    let extensions = parse_definitions(extensions_sdl)?;
+
+    let mut extensions = Vec::new();
+    for extensions_sdl in extensions_sdls {
+        extensions.extend(parse_definitions(extensions_sdl.as_ref())?);
+    }
     Schema::build(builtins, definitions, extensions)
 }
 

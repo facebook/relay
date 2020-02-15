@@ -12,7 +12,7 @@ pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
     let parts: Vec<_> = fixture.content.split("%extensions%").collect();
     let result = match parts.as_slice() {
         [base] => build_schema(base),
-        [base, extensions] => build_schema_with_extensions(base, extensions),
+        [base, extensions] => build_schema_with_extensions(base, &[extensions]),
         _ => panic!("Expected a single extension block"),
     };
 

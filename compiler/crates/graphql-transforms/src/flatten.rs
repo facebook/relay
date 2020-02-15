@@ -58,7 +58,7 @@ impl<'s> FlattenTransform<'s> {
 
     fn transform_operation(&mut self, operation: &OperationDefinition) -> OperationDefinition {
         OperationDefinition {
-            kind: operation.kind.clone(),
+            kind: operation.kind,
             name: operation.name,
             type_: operation.type_,
             directives: operation.directives.clone(),

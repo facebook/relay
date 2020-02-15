@@ -231,7 +231,7 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
         }
     }
 
-    fn build_variable_definitions<'a>(
+    fn build_variable_definitions(
         &mut self,
         definitions: &[graphql_syntax::VariableDefinition],
     ) -> ValidationResult<Vec<VariableDefinition>> {

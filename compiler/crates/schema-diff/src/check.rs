@@ -45,7 +45,7 @@ impl SchemaChange {
                             }
                         }
                         DefinitionChange::ObjectAdded(name) => {
-                            if !is_object_add_safe(name, schema) {
+                            if !is_object_add_safe(*name, schema) {
                                 return false;
                             }
                         }
@@ -81,8 +81,8 @@ lazy_static! {
 ///   }
 /// But we have a special case for `Node`. The `id` field is automatically
 /// added to the selection for all types that implements `Node`.
-fn is_object_add_safe(name: &StringKey, schema: &Schema) -> bool {
-    if let Type::Object(id) = schema.get_type(*name).unwrap() {
+fn is_object_add_safe(name: StringKey, schema: &Schema) -> bool {
+    if let Type::Object(id) = schema.get_type(name).unwrap() {
         let object = schema.object(id);
         if object
             .fields
@@ -98,7 +98,7 @@ fn is_object_add_safe(name: &StringKey, schema: &Schema) -> bool {
     } else {
         panic!("Object not found in the schema")
     }
-    return true;
+    true
 }
 
 fn is_field_changes_safe(

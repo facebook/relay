@@ -373,9 +373,9 @@ impl Schema {
                 schema.mutation_type = Some(*id);
             }
         }
-        if schema.query_type.is_none() {
-            if let Some(Type::Object(id)) = schema.type_map.get(&"Query".intern()) {
-                schema.query_type = Some(*id);
+        if schema.subscription_type.is_none() {
+            if let Some(Type::Object(id)) = schema.type_map.get(&"Subscription".intern()) {
+                schema.subscription_type = Some(*id);
             }
         }
 

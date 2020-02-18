@@ -251,4 +251,31 @@ describe('commitPayload()', () => {
       'ActorQuery',
     );
   });
+
+  it('applies optional updater function', () => {
+    const callback = jest.fn();
+    const snapshot = environment.lookup(operation.fragment);
+    environment.subscribe(snapshot, callback);
+
+    environment.commitPayload(
+      operation,
+      {
+        me: {
+          id: '4',
+          __typename: 'User',
+          name: 'Zuck',
+        },
+      },
+      proxyStore => {
+        const record = proxyStore.getRootField('me');
+        record.setValue(record.getValue('name').toUpperCase(), 'name');
+      },
+    );
+    expect(callback.mock.calls.length).toBe(1);
+    expect(callback.mock.calls[0][0].data).toEqual({
+      me: {
+        name: 'ZUCK',
+      },
+    });
+  });
 });

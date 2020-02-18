@@ -17,6 +17,7 @@ const ClientExtensionsTransform = require('../transforms/ClientExtensionsTransfo
 const ConnectionTransform = require('../transforms/ConnectionTransform');
 const DeferStreamTransform = require('../transforms/DeferStreamTransform');
 const DisallowIdAsAlias = require('../transforms/DisallowIdAsAlias');
+const DisallowTypenameOnRoot = require('../transforms/DisallowTypenameOnRoot');
 const FieldHandleTransform = require('../transforms/FieldHandleTransform');
 const FilterDirectivesTransform = require('../transforms/FilterDirectivesTransform');
 const FlattenTransform = require('../transforms/FlattenTransform');
@@ -79,6 +80,7 @@ const relayFragmentTransforms: $ReadOnlyArray<IRTransform> = [
 // Transforms applied to queries/mutations/subscriptions that are used for
 // fetching data from the server and parsing those responses.
 const relayQueryTransforms: $ReadOnlyArray<IRTransform> = [
+  DisallowTypenameOnRoot.transform,
   ValidateUnusedVariablesTransform.transform,
   ApplyFragmentArgumentTransform.transform,
   ValidateGlobalVariablesTransform.transform,

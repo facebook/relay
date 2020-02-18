@@ -15,7 +15,17 @@ pub struct DefinitionName(StringKey);
 
 /// Name of a compiler project.
 #[derive(Eq, PartialEq, Hash, Debug, Deserialize, Clone, Copy)]
-pub struct ProjectName(StringKey);
+pub struct ProjectName(pub StringKey);
+impl ProjectName {
+    pub fn as_source_set_name(self) -> SourceSetName {
+        SourceSetName(self.0)
+    }
+}
+impl std::fmt::Display for ProjectName {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        self.0.fmt(f)
+    }
+}
 
 #[derive(Eq, PartialEq, Hash, Debug, Deserialize, Clone, Copy)]
 pub struct SourceSetName(pub StringKey);

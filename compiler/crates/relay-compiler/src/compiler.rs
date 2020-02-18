@@ -7,6 +7,8 @@
 
 use crate::config::Config;
 use crate::watchman::GraphQLFinder;
+use common::Timer;
+use std::collections::HashMap;
 
 pub struct Compiler {
     config: Config,
@@ -33,6 +35,69 @@ impl Compiler {
                 "{} has {} definitions from {} files",
                 source_set_name.0, definition_count, file_count
             );
+        }
+
+        let ast_sets_timer = Timer::new("ast_sets");
+        let ast_sets: HashMap<_, _> = compiler_state
+            .source_sets
+            .iter()
+            .map(|(source_set_name, source_set)| {
+                (
+                    source_set_name,
+                    source_set
+                        .0
+                        .iter()
+                        .flat_map(|(file_name, file_sources)| {
+                            file_sources
+                                .iter()
+                                .enumerate()
+                                .flat_map(move |(index, file_source)| {
+                                    graphql_syntax::parse(
+                                        &file_source,
+                                        &format!("{}:{}", file_name.to_string_lossy(), index),
+                                    )
+                                    .unwrap()
+                                    .definitions
+                                })
+                        })
+                        .collect::<Vec<_>>(),
+                )
+            })
+            .collect();
+        ast_sets_timer.stop();
+
+        for (project_name, _project_config) in &self.config.projects {
+            println!("\n# Compiling {}", project_name);
+            let project_document_asts = &ast_sets[&project_name.as_source_set_name()];
+
+            let empty_extensions = Vec::new();
+            let extensions = compiler_state
+                .extensions
+                .get(&project_name)
+                .unwrap_or_else(|| &empty_extensions);
+
+            let build_schema_timer = Timer::new("build_schema");
+            let schema = schema::build_schema_with_extensions::<&str, _>(
+                &[
+                    &compiler_state.schemas[&project_name],
+                    schema::RELAY_EXTENSIONS,
+                ],
+                &extensions,
+            )
+            .unwrap();
+            build_schema_timer.stop();
+
+            let build_ir_timer = Timer::new("build_ir");
+            let _ir: Vec<_> = match graphql_ir::build(&schema, project_document_asts) {
+                Ok(ir) => ir,
+                Err(errors) => {
+                    println!("{:#?}", errors.errors());
+                    panic!("IR errors: {}", errors.errors().len());
+                }
+            };
+            build_ir_timer.stop();
+
+            println!("{:?}", project_document_asts.len());
         }
     }
 }

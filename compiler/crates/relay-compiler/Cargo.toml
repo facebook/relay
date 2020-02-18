@@ -4,12 +4,14 @@ version = "0.0.0"
 edition = "2018"
 
 [dependencies]
-graphql-syntax = { path = "../graphql-syntax" }
-extract-graphql = { path = "../extract-graphql" }
 common = { path = "../common" }
+extract-graphql = { path = "../extract-graphql" }
+graphql-ir = { path = "../graphql-ir" }
+graphql-syntax = { path = "../graphql-syntax" }
 interner = { path = "../interner" }
+rayon = "1.3.0"
+schema = { path = "../schema" }
 serde = { version = "1.0.104", features = ["derive"] }
 serde_json = "1.0.45"
 thiserror = "1.0.9"
 watchman_client = "0.5.0"
-rayon = "1.3.0"

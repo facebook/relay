@@ -268,7 +268,12 @@ describe('commitPayload()', () => {
       },
       proxyStore => {
         const record = proxyStore.getRootField('me');
-        record.setValue(record.getValue('name').toUpperCase(), 'name');
+        if (record !== null && record !== undefined) {
+          const name = record.getValue('name');
+          if (typeof name === 'string') {
+            record.setValue(name.toUpperCase(), 'name');
+          }
+        }
       },
     );
     expect(callback.mock.calls.length).toBe(1);

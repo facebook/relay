@@ -35,21 +35,25 @@ pub const BUILTINS: &str = include_str!("./builtins.graphql");
 pub const RELAY_EXTENSIONS: &str = include_str!("./relay-extensions.graphql");
 
 pub fn build_schema(sdl: &str) -> Result<Schema> {
-    build_schema_with_extensions::<&str>(sdl, &[])
+    build_schema_with_extensions::<_, &str>(&[sdl], &[])
 }
 
-pub fn build_schema_with_extensions<T: AsRef<str>>(
-    sdl: &str,
-    extensions_sdls: &[T],
+pub fn build_schema_with_extensions<T: AsRef<str>, U: AsRef<str>>(
+    server_sdls: &[T],
+    extension_sdls: &[U],
 ) -> Result<Schema> {
-    let builtins = parse_definitions(BUILTINS)?;
-    let definitions = parse_definitions(sdl)?;
+    let mut server_definitions = parse_definitions(BUILTINS)?;
 
-    let mut extensions = Vec::new();
-    for extensions_sdl in extensions_sdls {
-        extensions.extend(parse_definitions(extensions_sdl.as_ref())?);
+    for server_sdl in server_sdls {
+        server_definitions.extend(parse_definitions(server_sdl.as_ref())?);
     }
-    Schema::build(builtins, definitions, extensions)
+
+    let mut extension_definitions = Vec::new();
+    for extension_sdl in extension_sdls {
+        extension_definitions.extend(parse_definitions(extension_sdl.as_ref())?);
+    }
+
+    Schema::build(&server_definitions, &extension_definitions)
 }
 
 pub fn parse_definitions(input: &str) -> Result<Vec<ast::Definition>> {

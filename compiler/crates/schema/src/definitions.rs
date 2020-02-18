@@ -252,16 +252,12 @@ impl Schema {
     }
 
     pub fn build(
-        builtins: Vec<ast::Definition>,
-        schema_definitions: Vec<ast::Definition>,
-        client_definitions: Vec<ast::Definition>,
+        schema_definitions: &[ast::Definition],
+        client_definitions: &[ast::Definition],
     ) -> Result<Self> {
-        let definitions = builtins.iter().chain(schema_definitions.iter());
-
         // Step 1: build the type_map from type names to type keys
-        let mut type_map = HashMap::with_capacity(
-            builtins.len() + schema_definitions.len() + client_definitions.len(),
-        );
+        let mut type_map =
+            HashMap::with_capacity(schema_definitions.len() + client_definitions.len());
         let mut next_object_id = 0;
         let mut next_interface_id = 0;
         let mut next_union_id = 0;
@@ -270,7 +266,7 @@ impl Schema {
         let mut next_scalar_id = 0;
         let mut field_count = 0;
         let mut directive_count = 0;
-        for definition in definitions.clone().chain(client_definitions.iter()) {
+        for definition in schema_definitions.iter().chain(client_definitions) {
             match definition {
                 ast::Definition::SchemaDefinition { .. } => {}
                 ast::Definition::DirectiveDefinition { .. } => {
@@ -328,15 +324,15 @@ impl Schema {
             unions: Vec::with_capacity(next_union_id.try_into().unwrap()),
         };
 
-        for definition in definitions {
-            schema.add_definition(&definition, false)?;
+        for definition in schema_definitions {
+            schema.add_definition(definition, false)?;
         }
 
-        for definition in client_definitions.iter() {
-            schema.add_definition(&definition, true)?;
+        for definition in client_definitions {
+            schema.add_definition(definition, true)?;
         }
 
-        for definition in schema_definitions.iter().chain(client_definitions.iter()) {
+        for definition in schema_definitions.iter().chain(client_definitions) {
             if let ast::Definition::ObjectTypeDefinition {
                 name, interfaces, ..
             } = definition

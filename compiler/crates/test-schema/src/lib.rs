@@ -16,12 +16,12 @@ const TEST_SCHEMA_DATA: &str = include_str!("testschema.graphql");
 
 lazy_static! {
     pub static ref TEST_SCHEMA: Schema = {
-        build_schema_with_extensions(TEST_SCHEMA_DATA, &[RELAY_EXTENSIONS])
+        build_schema_with_extensions(&[TEST_SCHEMA_DATA], &[RELAY_EXTENSIONS])
             .expect("Expected test schema to be valid")
     };
 }
 
 pub fn test_schema_with_extensions(extensions_sdl: &str) -> Schema {
-    build_schema_with_extensions(TEST_SCHEMA_DATA, &[extensions_sdl, RELAY_EXTENSIONS])
+    build_schema_with_extensions(&[TEST_SCHEMA_DATA], &[extensions_sdl, RELAY_EXTENSIONS])
         .expect("Expected test schema (and extensions) to be valid")
 }

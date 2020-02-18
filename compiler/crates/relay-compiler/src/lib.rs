@@ -12,4 +12,5 @@
 pub mod compiler;
 pub mod compiler_state;
 pub mod config;
+pub mod errors;
 mod watchman;

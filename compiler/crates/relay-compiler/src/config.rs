@@ -6,11 +6,9 @@
  */
 
 use crate::compiler_state::{ProjectName, SourceSetName};
+use crate::errors::{ConfigValidationError, Error, Result};
 use serde::Deserialize;
 use std::collections::HashMap;
-use std::error::Error;
-use std::fs::File;
-use std::io::BufReader;
 use std::path::PathBuf;
 
 /// The full compiler config. This is a combination of:
@@ -27,16 +25,71 @@ pub struct Config {
     pub projects: HashMap<ProjectName, ConfigProject>,
 }
 impl Config {
-    pub fn load(root_dir: PathBuf, config_path: PathBuf) -> Result<Self, Box<dyn Error>> {
-        let file = File::open(config_path)?;
-        let reader = BufReader::new(file);
-        let config_file: ConfigFile = serde_json::from_reader(reader)?;
-        Ok(Self {
+    pub fn load(root_dir: PathBuf, config_path: PathBuf) -> Result<Self> {
+        let config_string =
+            std::fs::read_to_string(&config_path).map_err(|err| Error::ConfigFileRead {
+                config_path: config_path.clone(),
+                source: err,
+            })?;
+        let config_file: ConfigFile =
+            serde_json::from_str(&config_string).map_err(|err| Error::ConfigFileParse {
+                config_path: config_path.clone(),
+                source: err,
+            })?;
+        let config = Self {
             root_dir,
             sources: config_file.sources,
             blacklist: config_file.blacklist,
             projects: config_file.projects,
-        })
+        };
+        let validation_errors = config.validate();
+        if validation_errors.is_empty() {
+            Ok(config)
+        } else {
+            Err(Error::ConfigFileValidation {
+                config_path: config_path.clone(),
+                validation_errors,
+            })
+        }
+    }
+
+    fn validate(&self) -> Vec<ConfigValidationError> {
+        let mut errors = Vec::new();
+
+        if !self.root_dir.is_dir() {
+            errors.push(ConfigValidationError::RootNotDirectory {
+                root_dir: self.root_dir.clone(),
+            });
+            // early return, no point in continuing validation
+            return errors;
+        }
+
+        // each source should point to an existing directory
+        for source_dir in self.sources.keys() {
+            let abs_source_dir = self.root_dir.join(source_dir);
+            if !abs_source_dir.exists() {
+                errors.push(ConfigValidationError::SourceNotExistent {
+                    source_dir: abs_source_dir.clone(),
+                });
+            } else if !abs_source_dir.is_dir() {
+                errors.push(ConfigValidationError::SourceNotDirectory {
+                    source_dir: abs_source_dir.clone(),
+                });
+            }
+        }
+
+        // each project should have at least one source
+        for &project_name in self.projects.keys() {
+            if !self
+                .sources
+                .values()
+                .any(|source_set_name| *source_set_name == project_name.as_source_set_name())
+            {
+                errors.push(ConfigValidationError::ProjectWithoutSource { project_name });
+            }
+        }
+
+        errors
     }
 }
 

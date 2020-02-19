@@ -66,28 +66,28 @@ impl FileCategorizer {
     }
 
     pub fn categorize(&self, path: &PathBuf) -> FileGroup {
-        if self.in_generated_dir(path) {
-            FileGroup::Generated
-        } else {
-            let extension = path
-                .extension()
-                .expect("Got unexpected path without extension.");
-            if extension == "js" {
+        let extension = path
+            .extension()
+            .unwrap_or_else(|| panic!("Got unexpected path without extension: `{:?}`.", path));
+        if extension == "js" {
+            if self.in_relative_generated_dir(path) {
+                FileGroup::Generated
+            } else {
                 let source_set = self.source_mapping.get(path);
                 FileGroup::Source { source_set }
-            } else if extension == "graphql" {
-                if let Some(&project_name) = self.schema_mapping.get(path) {
-                    return FileGroup::Schema { project_name };
-                }
-                let project_name = self.extensions_mapping.get(path);
-                FileGroup::Extension { project_name }
-            } else {
-                panic!("no source mapping found for {:?}", path)
             }
+        } else if extension == "graphql" {
+            if let Some(&project_name) = self.schema_mapping.get(path) {
+                return FileGroup::Schema { project_name };
+            }
+            let project_name = self.extensions_mapping.get(path);
+            FileGroup::Extension { project_name }
+        } else {
+            panic!("no source mapping found for {:?}", path)
         }
     }
 
-    fn in_generated_dir(&self, path: &PathBuf) -> bool {
+    fn in_relative_generated_dir(&self, path: &PathBuf) -> bool {
         path.components().any(|comp| match comp {
             Component::Normal(comp) => comp == self.generated_str,
             _ => false,
@@ -172,11 +172,9 @@ mod tests {
         );
         assert_eq!(
             categorizer.categorize(&"graphql/__generated__/internal.graphql".into()),
-            // TODO: should be schema
-            FileGroup::Generated,
-            // FileGroup::Schema {
-            //     project_name: ProjectName("internal".intern())
-            // },
+            FileGroup::Schema {
+                project_name: ProjectName("internal".intern())
+            },
         );
     }
 }

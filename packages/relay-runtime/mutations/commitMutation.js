@@ -41,7 +41,7 @@ export type DEPRECATED_MutationConfig<T> = {|
   variables: Variables,
   uploadables?: UploadableMap,
   onCompleted?: ?(response: T, errors: ?Array<PayloadError>) => void,
-  onError?: ?(error: Error) => void,
+  onError?: ?(error: Array<PayloadError>) => void,
   onUnsubscribe?: ?() => void,
   optimisticUpdater?: ?SelectorStoreUpdater,
   optimisticResponse?: Object,

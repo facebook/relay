@@ -436,6 +436,42 @@ it('should update when fragment data changes', () => {
   ]);
 });
 
+it('should preserve object identity when fragment data changes', () => {
+  renderSingularFragment();
+  TestRenderer.act(() => jest.runAllImmediates());
+  expect(renderSpy).toBeCalledTimes(1);
+  const prevData = renderSpy.mock.calls[0][0];
+  expect(prevData).toEqual({
+    id: '1',
+    name: 'Alice',
+    profile_picture: null,
+    ...createFragmentRef('1', singularQuery),
+  });
+  renderSpy.mockClear();
+
+  TestRenderer.act(() => {
+    environment.commitPayload(singularQuery, {
+      node: {
+        __typename: 'User',
+        id: '1',
+        // Update name
+        name: 'Alice in Wonderland',
+      },
+    });
+  });
+  TestRenderer.act(() => jest.runAllImmediates());
+  expect(renderSpy).toBeCalledTimes(1);
+  const nextData = renderSpy.mock.calls[0][0];
+  expect(nextData).toEqual({
+    id: '1',
+    // Assert that name is updated
+    name: 'Alice in Wonderland',
+    profile_picture: null,
+    ...createFragmentRef('1', singularQuery),
+  });
+  expect(nextData.__fragments).toBe(prevData.__fragments);
+});
+
 it('should re-read and resubscribe to fragment when environment changes', () => {
   renderSingularFragment();
   assertFragmentResults([

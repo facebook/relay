@@ -196,6 +196,50 @@ describe('useLazyLoadQueryNode', () => {
     expectToBeRendered(renderFn, data);
   });
 
+  it('subscribes to query fragment results and preserves object identity', () => {
+    const instance = render(environment, <Container variables={variables} />);
+
+    expect(instance.toJSON()).toEqual('Fallback');
+    expectToHaveFetched(environment, query);
+    expect(renderFn).not.toBeCalled();
+    expect(environment.retain).toHaveBeenCalledTimes(1);
+
+    environment.mock.resolve(gqlQuery, {
+      data: {
+        node: {
+          __typename: 'User',
+          id: variables.id,
+          name: 'Alice',
+        },
+      },
+    });
+
+    ReactTestRenderer.act(() => {
+      jest.runAllImmediates();
+    });
+    expect(renderFn).toBeCalledTimes(1);
+    const prevData = renderFn.mock.calls[0][0];
+    expect(prevData.node.name).toBe('Alice');
+    renderFn.mockClear();
+    ReactTestRenderer.act(() => {
+      jest.runAllImmediates();
+    });
+
+    environment.commitUpdate(store => {
+      const alice = store.get('1');
+      if (alice != null) {
+        alice.setValue('ALICE', 'name');
+      }
+    });
+    expect(renderFn).toBeCalledTimes(1);
+    const nextData = renderFn.mock.calls[0][0];
+    expect(nextData.node.name).toBe('ALICE');
+    renderFn.mockClear();
+
+    // object identity is preserved for unchanged data such as fragment references
+    expect(nextData.node.__fragments).toBe(prevData.node.__fragments);
+  });
+
   it('fetches and renders correctly even if fetched query data still has missing data', () => {
     // This scenario might happen if for example we are making selections on
     // abstract types which the concrete type doesn't implemenet

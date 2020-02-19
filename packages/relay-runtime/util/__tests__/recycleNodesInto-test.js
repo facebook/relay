@@ -42,6 +42,18 @@ describe('recycleNodesInto', () => {
   });
 
   describe('objects', () => {
+    it('recycles empty objects', () => {
+      const prevData = {};
+      const nextData = {};
+      expect(recycleNodesInto(prevData, nextData)).toBe(prevData);
+    });
+
+    it('recycles nested empty objects', () => {
+      const prevData = {foo: {bar: {}}};
+      const nextData = {foo: {bar: {}}};
+      expect(recycleNodesInto(prevData, nextData)).toBe(prevData);
+    });
+
     it('recycles equal leaf objects', () => {
       const prevData = {foo: 1};
       const nextData = {foo: 1};

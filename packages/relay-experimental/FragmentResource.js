@@ -379,8 +379,13 @@ class FragmentResourceImpl {
     const renderData = renderedSnapshot.data;
     const currentData = currentSnapshot.data;
     const updatedData = recycleNodesInto(renderData, currentData);
+    currentSnapshot = {
+      data: updatedData,
+      isMissingData: currentSnapshot.isMissingData,
+      seenRecords: currentSnapshot.seenRecords,
+      selector: currentSnapshot.selector,
+    };
     if (updatedData !== renderData) {
-      currentSnapshot = {...currentSnapshot, data: updatedData};
       this._cache.set(cacheKey, getFragmentResult(cacheKey, currentSnapshot));
       didMissUpdates = true;
     }

@@ -42,7 +42,7 @@ impl Config {
             blacklist: config_file.blacklist,
             projects: config_file.projects,
         };
-        let validation_errors = config.validate();
+        let validation_errors = config.validate(true);
         if validation_errors.is_empty() {
             Ok(config)
         } else {
@@ -53,28 +53,49 @@ impl Config {
         }
     }
 
-    fn validate(&self) -> Vec<ConfigValidationError> {
+    /// Loads a config file without validation for use in tests.
+    #[cfg(test)]
+    pub fn from_string_for_test(config_string: &str) -> Result<Self> {
+        let config_file: ConfigFile =
+            serde_json::from_str(&config_string).expect("Failed to deserialize ConfigFile.");
+        let config = Self {
+            root_dir: "/virtual/root".into(),
+            sources: config_file.sources,
+            blacklist: config_file.blacklist,
+            projects: config_file.projects,
+        };
+        let validation_errors = config.validate(false);
+        if !validation_errors.is_empty() {
+            panic!("Found validation ")
+        }
+        Ok(config)
+    }
+
+    /// `validate_fs` enables filesystem checks for existence of paths
+    fn validate(&self, validate_fs: bool) -> Vec<ConfigValidationError> {
         let mut errors = Vec::new();
 
-        if !self.root_dir.is_dir() {
-            errors.push(ConfigValidationError::RootNotDirectory {
-                root_dir: self.root_dir.clone(),
-            });
-            // early return, no point in continuing validation
-            return errors;
-        }
+        if validate_fs {
+            if !self.root_dir.is_dir() {
+                errors.push(ConfigValidationError::RootNotDirectory {
+                    root_dir: self.root_dir.clone(),
+                });
+                // early return, no point in continuing validation
+                return errors;
+            }
 
-        // each source should point to an existing directory
-        for source_dir in self.sources.keys() {
-            let abs_source_dir = self.root_dir.join(source_dir);
-            if !abs_source_dir.exists() {
-                errors.push(ConfigValidationError::SourceNotExistent {
-                    source_dir: abs_source_dir.clone(),
-                });
-            } else if !abs_source_dir.is_dir() {
-                errors.push(ConfigValidationError::SourceNotDirectory {
-                    source_dir: abs_source_dir.clone(),
-                });
+            // each source should point to an existing directory
+            for source_dir in self.sources.keys() {
+                let abs_source_dir = self.root_dir.join(source_dir);
+                if !abs_source_dir.exists() {
+                    errors.push(ConfigValidationError::SourceNotExistent {
+                        source_dir: abs_source_dir.clone(),
+                    });
+                } else if !abs_source_dir.is_dir() {
+                    errors.push(ConfigValidationError::SourceNotDirectory {
+                        source_dir: abs_source_dir.clone(),
+                    });
+                }
             }
         }
 

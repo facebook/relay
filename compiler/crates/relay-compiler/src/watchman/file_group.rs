@@ -112,3 +112,71 @@ impl<T: Copy> PathMapping<T> {
         })
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use interner::Intern;
+
+    #[test]
+    fn test_categorize() {
+        let config = Config::from_string_for_test(
+            r#"
+                {
+                    "sources": {
+                        "src/js": "public",
+                        "src/js/internal": "internal",
+                        "src/vendor": "public"
+                    },
+                    "projects": {
+                        "public": {
+                            "schema": "graphql/public.graphql"
+                        },
+                        "internal": {
+                            "schema": "graphql/__generated__/internal.graphql"
+                        }
+                    }
+                }
+            "#,
+        )
+        .unwrap();
+        let categorizer = FileCategorizer::from_config(&config);
+
+        assert_eq!(
+            categorizer.categorize(&"src/js/a.js".into()),
+            FileGroup::Source {
+                source_set: SourceSetName("public".intern()),
+            },
+        );
+        assert_eq!(
+            categorizer.categorize(&"src/js/nested/b.js".into()),
+            FileGroup::Source {
+                source_set: SourceSetName("public".intern()),
+            },
+        );
+        assert_eq!(
+            categorizer.categorize(&"src/js/internal/nested/c.js".into()),
+            FileGroup::Source {
+                source_set: SourceSetName("internal".intern()),
+            },
+        );
+        assert_eq!(
+            categorizer.categorize(&"src/js/internal/nested/__generated__/c.js".into()),
+            FileGroup::Generated,
+        );
+        assert_eq!(
+            categorizer.categorize(&"graphql/public.graphql".into()),
+            FileGroup::Schema {
+                project_name: ProjectName("public".intern())
+            },
+        );
+        assert_eq!(
+            categorizer.categorize(&"graphql/__generated__/internal.graphql".into()),
+            // TODO: should be schema
+            FileGroup::Generated,
+            // FileGroup::Schema {
+            //     project_name: ProjectName("internal".intern())
+            // },
+        );
+    }
+}

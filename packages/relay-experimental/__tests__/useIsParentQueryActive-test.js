@@ -18,7 +18,7 @@ const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
 // $FlowFixMe
 const TestRenderer = require('react-test-renderer');
 
-const useIsParentQueryInFlight = require('../useIsParentQueryInFlight');
+const useIsParentQueryActive = require('../useIsParentQueryActive');
 
 const {
   Environment,
@@ -84,7 +84,7 @@ beforeEach(() => {
 it('returns false when owner is not pending', () => {
   let pending = null;
   function Component() {
-    pending = useIsParentQueryInFlight(fragment, fragmentRef);
+    pending = useIsParentQueryActive(fragment, fragmentRef);
     return null;
   }
   TestRenderer.create(
@@ -105,7 +105,7 @@ it('returns false when an unrelated owner is pending', () => {
   expect(fetch).toBeCalledTimes(1);
   let pending = null;
   function Component() {
-    pending = useIsParentQueryInFlight(fragment, fragmentRef);
+    pending = useIsParentQueryActive(fragment, fragmentRef);
     return null;
   }
   TestRenderer.create(
@@ -121,7 +121,7 @@ it('returns true when owner is started but has not returned payloads', () => {
   expect(fetch).toBeCalledTimes(1);
   let pending = null;
   function Component() {
-    pending = useIsParentQueryInFlight(fragment, fragmentRef);
+    pending = useIsParentQueryActive(fragment, fragmentRef);
     return null;
   }
   TestRenderer.create(
@@ -148,7 +148,7 @@ it('returns true when owner fetch has returned payloads but not completed', () =
   });
   let pending = null;
   function Component() {
-    pending = useIsParentQueryInFlight(fragment, fragmentRef);
+    pending = useIsParentQueryActive(fragment, fragmentRef);
     return null;
   }
   TestRenderer.create(
@@ -176,7 +176,7 @@ it('returns false when owner fetch completed', () => {
   });
   let pending = null;
   function Component() {
-    pending = useIsParentQueryInFlight(fragment, fragmentRef);
+    pending = useIsParentQueryActive(fragment, fragmentRef);
     return null;
   }
   TestRenderer.create(
@@ -205,7 +205,7 @@ it('returns false when owner fetch errored', () => {
   dataSource.error(new Error('wtf'));
   let pending = null;
   function Component() {
-    pending = useIsParentQueryInFlight(fragment, fragmentRef);
+    pending = useIsParentQueryActive(fragment, fragmentRef);
     return null;
   }
   TestRenderer.create(
@@ -220,7 +220,7 @@ it('returns false when owner fetch errored', () => {
 it('does not update the component when the owner is fetched', () => {
   const states = [];
   function Component() {
-    states.push(useIsParentQueryInFlight(fragment, fragmentRef));
+    states.push(useIsParentQueryActive(fragment, fragmentRef));
     return null;
   }
   TestRenderer.create(
@@ -243,7 +243,7 @@ it('does not update the component when a pending owner fetch returns a payload',
   expect(fetch).toBeCalledTimes(1);
   const states = [];
   function Component() {
-    states.push(useIsParentQueryInFlight(fragment, fragmentRef));
+    states.push(useIsParentQueryActive(fragment, fragmentRef));
     return null;
   }
   TestRenderer.create(
@@ -275,7 +275,7 @@ it('updates the component when a pending owner fetch completes', () => {
   expect(fetch).toBeCalledTimes(1);
   const states = [];
   function Component() {
-    states.push(useIsParentQueryInFlight(fragment, fragmentRef));
+    states.push(useIsParentQueryActive(fragment, fragmentRef));
     return null;
   }
   TestRenderer.create(
@@ -302,7 +302,7 @@ it('updates the component when a pending owner fetch errors', () => {
   expect(fetch).toBeCalledTimes(1);
   const states = [];
   function Component() {
-    states.push(useIsParentQueryInFlight(fragment, fragmentRef));
+    states.push(useIsParentQueryActive(fragment, fragmentRef));
     return null;
   }
   TestRenderer.create(
@@ -327,7 +327,7 @@ it('updates the component when a pending owner fetch with multiple payloads comp
   expect(fetch).toBeCalledTimes(1);
   const states = [];
   function Component() {
-    states.push(useIsParentQueryInFlight(fragment, fragmentRef));
+    states.push(useIsParentQueryActive(fragment, fragmentRef));
     return null;
   }
 
@@ -380,7 +380,7 @@ it('should only update if the latest owner completes the query', () => {
   function Component() {
     const [ref, setRefFn] = React.useState(fragmentRef);
     setRef = setRefFn;
-    const pending = useIsParentQueryInFlight(fragment, ref);
+    const pending = useIsParentQueryActive(fragment, ref);
     return <Renderer pending={pending} />;
   }
   TestRenderer.create(

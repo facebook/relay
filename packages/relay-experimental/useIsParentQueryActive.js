@@ -18,16 +18,16 @@ const {getFragment} = require('relay-runtime');
 
 import type {GraphQLTaggedNode} from 'relay-runtime';
 
-function useIsParentQueryInFlight<TKey: ?{+$data?: mixed, ...}>(
+function useIsParentQueryActive<TKey: ?{+$data?: mixed, ...}>(
   fragmentInput: GraphQLTaggedNode,
   fragmentRef: TKey,
 ): boolean {
   const fragmentNode = getFragment(fragmentInput);
   useStaticFragmentNodeWarning(
     fragmentNode,
-    'first argument of useIsParentQueryInFlight()',
+    'first argument of useIsParentQueryActive()',
   );
   return useIsOperationNodeActive(fragmentNode, fragmentRef);
 }
 
-module.exports = useIsParentQueryInFlight;
+module.exports = useIsParentQueryActive;

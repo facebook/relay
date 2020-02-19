@@ -24,7 +24,6 @@ pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
             .map(|x| format!("{:#?}", x))
             .map_err(|errors| {
                 errors
-                    .errors()
                     .into_iter()
                     .map(|error| error.print(&sources))
                     .collect::<Vec<_>>()

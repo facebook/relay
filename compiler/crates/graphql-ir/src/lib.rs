@@ -11,7 +11,6 @@
 #![deny(clippy::clone_on_ref_ptr)]
 
 mod build;
-mod error_combinators;
 mod errors;
 mod ir;
 mod program;
@@ -20,7 +19,6 @@ mod transform;
 mod visitor;
 
 pub use build::build_ir as build;
-pub use errors::{ValidationError, ValidationErrors, ValidationMessage, ValidationResult};
 pub use ir::*;
 pub use program::Program;
 pub use transform::{Transformed, Transformer};

@@ -17,7 +17,6 @@ pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
         .map(|definitions| print_ir(&TEST_SCHEMA, &definitions).join("\n\n"))
         .map_err(|errors| {
             errors
-                .errors()
                 .into_iter()
                 .map(|error| format!("{:?}", error))
                 .collect::<Vec<_>>()

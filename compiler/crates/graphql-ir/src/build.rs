@@ -5,11 +5,11 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::error_combinators::{try2, try3, try_all};
 use crate::errors::{ValidationError, ValidationMessage, ValidationResult};
 use crate::ir::*;
 use crate::signatures::{build_signatures, FragmentSignatures};
 use common::{Location, Span, Spanned};
+use errors::{try2, try3, try_map};
 use fnv::{FnvHashMap, FnvHashSet};
 use graphql_syntax::OperationKind;
 use interner::Intern;
@@ -26,7 +26,7 @@ pub fn build_ir(
     definitions: &[graphql_syntax::ExecutableDefinition],
 ) -> ValidationResult<Vec<ExecutableDefinition>> {
     let signatures = build_signatures(schema, &definitions)?;
-    try_all(definitions, |definition| {
+    try_map(definitions, |definition| {
         let mut builder = Builder::new(schema, &signatures, definition.location());
         builder.build_definition(definition)
     })
@@ -235,7 +235,7 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
         &mut self,
         definitions: &[graphql_syntax::VariableDefinition],
     ) -> ValidationResult<Vec<VariableDefinition>> {
-        try_all(definitions, |definition| {
+        try_map(definitions, |definition| {
             self.build_variable_definition(definition)
         })
     }
@@ -313,7 +313,7 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
         selections: &[graphql_syntax::Selection],
         parent_type: &TypeReference,
     ) -> ValidationResult<Vec<Selection>> {
-        try_all(selections, |selection| {
+        try_map(selections, |selection| {
             self.build_selection(selection, parent_type)
         })
     }
@@ -726,7 +726,7 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
         directives: impl IntoIterator<Item = &'a graphql_syntax::Directive>,
         location: DirectiveLocation,
     ) -> ValidationResult<Vec<Directive>> {
-        try_all(directives, |directive| {
+        try_map(directives, |directive| {
             self.build_directive(directive, location)
         })
     }

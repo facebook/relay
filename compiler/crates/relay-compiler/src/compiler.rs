@@ -66,7 +66,7 @@ impl Compiler {
             .collect();
         ast_sets_timer.stop();
 
-        for (project_name, _project_config) in &self.config.projects {
+        for project_name in self.config.projects.keys() {
             println!("\n# Compiling {}", project_name);
             let project_document_asts = &ast_sets[&project_name.as_source_set_name()];
 
@@ -91,8 +91,8 @@ impl Compiler {
             let _ir: Vec<_> = match graphql_ir::build(&schema, project_document_asts) {
                 Ok(ir) => ir,
                 Err(errors) => {
-                    println!("{:#?}", errors.errors());
-                    panic!("IR errors: {}", errors.errors().len());
+                    println!("{:#?}", errors);
+                    panic!("IR errors: {}", errors.len());
                 }
             };
             build_ir_timer.stop();

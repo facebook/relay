@@ -6,10 +6,10 @@
  */
 
 use crate::build::{build_constant_value, build_type_annotation, ValidationLevel};
-use crate::error_combinators::{try2, try_all};
-use crate::errors::{ValidationError, ValidationErrors, ValidationMessage, ValidationResult};
+use crate::errors::{ValidationError, ValidationMessage, ValidationResult};
 use crate::ir::{ConstantValue, VariableDefinition};
 use common::{Location, Spanned};
+use errors::{try2, try_map};
 use fnv::{FnvHashMap, FnvHashSet};
 use graphql_syntax;
 use interner::Intern;
@@ -49,13 +49,13 @@ pub fn build_signatures(
 ) -> ValidationResult<FragmentSignatures> {
     let mut seen_signatures: FnvHashMap<StringKey, FragmentSignature> =
         FnvHashMap::with_capacity_and_hasher(definitions.len(), Default::default());
-    let signatures = try_all(definitions, |definition| match definition {
+    let signatures = try_map(definitions, |definition| match definition {
         graphql_syntax::ExecutableDefinition::Fragment(fragment) => {
-            Ok(Some(build_fragment_signature(schema, fragment)?))
+            Ok(Some(build_fragment_signature(schema, &fragment)?))
         }
         graphql_syntax::ExecutableDefinition::Operation(_) => Ok(None),
     })?;
-    let mut errors: ValidationErrors = Default::default();
+    let mut errors = Vec::new();
     for signature in signatures {
         if let Some(signature) = signature {
             let previous_signature = seen_signatures.get(&signature.name.item);
@@ -72,7 +72,11 @@ pub fn build_signatures(
             seen_signatures.insert(signature.name.item, signature);
         }
     }
-    errors.ok(seen_signatures)
+    if errors.is_empty() {
+        Ok(seen_signatures)
+    } else {
+        Err(errors)
+    }
 }
 
 fn build_fragment_signature(
@@ -88,14 +92,16 @@ fn build_fragment_signature(
                 vec![fragment
                     .location
                     .with_span(fragment.type_condition.type_.span)],
-            )),
+            )
+            .into()),
         },
         None => Err(ValidationError::new(
             ValidationMessage::UnknownType(type_name),
             vec![fragment
                 .location
                 .with_span(fragment.type_condition.type_.span)],
-        )),
+        )
+        .into()),
     };
     let argument_definition_directives = fragment
         .directives
@@ -213,7 +219,17 @@ fn get_argument_type(
         _ => None,
     };
     if let Some(type_name) = type_name {
-        let type_ast = graphql_syntax::parse_type(type_name, "TODO")?;
+        let type_ast = graphql_syntax::parse_type(type_name, "TODO").map_err(|errors| {
+            errors
+                .into_iter()
+                .map(|x| {
+                    ValidationError::new(
+                        ValidationMessage::SyntaxError(x),
+                        vec![/* TODO: preserve location of error */],
+                    )
+                })
+                .collect::<Vec<_>>()
+        })?;
         let type_ = build_type_annotation(schema, &type_ast, location)?;
         Ok(type_)
     } else {

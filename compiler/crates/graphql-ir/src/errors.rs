@@ -12,73 +12,11 @@ use interner::StringKey;
 use schema::{Type, TypeReference};
 use thiserror::Error;
 
-pub type ValidationResult<T> = Result<T, ValidationErrors>;
+pub type ValidationResult<T> = Result<T, Vec<ValidationError>>;
 
-#[derive(Default, Debug)]
-pub struct ValidationErrors(Vec<ValidationError>);
-
-impl ValidationErrors {
-    pub fn new(errors: Vec<ValidationError>) -> Self {
-        Self(errors)
-    }
-
-    pub fn errors(&self) -> &[ValidationError] {
-        &self.0
-    }
-
-    pub fn ok<T>(self, value: T) -> Result<T, Self> {
-        if !self.0.is_empty() {
-            Err(self)
-        } else {
-            Ok(value)
-        }
-    }
-
-    pub fn is_empty(&self) -> bool {
-        self.0.is_empty()
-    }
-
-    pub fn push(&mut self, error: ValidationError) {
-        self.0.push(error)
-    }
-
-    pub fn extend(&mut self, other: Self) {
-        self.0.extend(other.0)
-    }
-}
-
-impl Extend<ValidationError> for ValidationErrors {
-    #[inline]
-    fn extend<I: IntoIterator<Item = ValidationError>>(&mut self, iter: I) {
-        self.0.extend(iter)
-    }
-}
-
-impl Into<Vec<ValidationError>> for ValidationErrors {
-    fn into(self: Self) -> Vec<ValidationError> {
-        self.0
-    }
-}
-
-impl From<ValidationError> for ValidationErrors {
+impl From<ValidationError> for Vec<ValidationError> {
     fn from(error: ValidationError) -> Self {
-        Self(vec![error])
-    }
-}
-
-impl From<Vec<graphql_syntax::SyntaxError>> for ValidationErrors {
-    fn from(errors: Vec<graphql_syntax::SyntaxError>) -> Self {
-        Self(
-            errors
-                .into_iter()
-                .map(|x| {
-                    ValidationError::new(
-                        ValidationMessage::SyntaxError(x),
-                        vec![/* TODO: preserve location of error */],
-                    )
-                })
-                .collect(),
-        )
+        vec![error]
     }
 }
 

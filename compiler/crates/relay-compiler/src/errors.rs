@@ -19,7 +19,7 @@ pub enum Error {
         source: std::io::Error,
     },
 
-    #[error("Failed to parse config file `{config_path}`.")]
+    #[error("Failed to parse config file `{config_path}`: {source}")]
     ConfigFileParse {
         config_path: PathBuf,
         source: serde_json::Error,

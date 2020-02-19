@@ -9,69 +9,25 @@
  * @format
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
 
-const React = require('react');
-
-const invariant = require('invariant');
-const useRelayEnvironment = require('./useRelayEnvironment');
+const useIsOperationNodeActive = require('./useIsOperationNodeActive');
 const useStaticFragmentNodeWarning = require('./useStaticFragmentNodeWarning');
 
-const {
-  __internal: {getObservableForActiveRequest},
-  getFragment,
-  getSelector,
-} = require('relay-runtime');
+const {getFragment} = require('relay-runtime');
 
 import type {GraphQLTaggedNode} from 'relay-runtime';
-
-const {useEffect, useState, useMemo} = React;
 
 function useIsParentQueryInFlight<TKey: ?{+$data?: mixed, ...}>(
   fragmentInput: GraphQLTaggedNode,
   fragmentRef: TKey,
 ): boolean {
-  const environment = useRelayEnvironment();
   const fragmentNode = getFragment(fragmentInput);
   useStaticFragmentNodeWarning(
     fragmentNode,
     'first argument of useIsParentQueryInFlight()',
   );
-  const observable = useMemo(() => {
-    const selector = getSelector(fragmentNode, fragmentRef);
-    if (selector == null) {
-      return null;
-    }
-    invariant(
-      selector.kind === 'SingularReaderSelector',
-      'useIsParentQueryInFlight: Plural fragments are not supported.',
-    );
-    return getObservableForActiveRequest(environment, selector.owner);
-  }, [environment, fragmentNode, fragmentRef]);
-  const [isInFlight, setIsInFlight] = useState(observable != null);
-
-  useEffect(() => {
-    let subscription;
-    setIsInFlight(observable != null);
-    if (observable != null) {
-      const onCompleteOrError = () => {
-        setIsInFlight(false);
-      };
-      subscription = observable.subscribe({
-        complete: onCompleteOrError,
-        error: onCompleteOrError,
-      });
-    }
-    return () => {
-      if (subscription) {
-        subscription.unsubscribe();
-      }
-    };
-  }, [observable]);
-
-  return isInFlight;
+  return useIsOperationNodeActive(fragmentNode, fragmentRef);
 }
 
 module.exports = useIsParentQueryInFlight;

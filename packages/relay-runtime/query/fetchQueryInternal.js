@@ -308,18 +308,6 @@ function getObservableForActiveRequest(
   );
 }
 
-function isRequestActive(
-  environment: IEnvironment,
-  request: RequestDescriptor,
-): boolean {
-  const requestCache = getRequestCache(environment);
-  const cachedRequest = requestCache.get(request.identifier);
-  return (
-    cachedRequest != null &&
-    environment.isRequestActive(cachedRequest.identifier)
-  );
-}
-
 /**
  * @private
  */
@@ -358,5 +346,4 @@ module.exports = {
   fetchQueryDeduped,
   getPromiseForActiveRequest,
   getObservableForActiveRequest,
-  isRequestActive,
 };

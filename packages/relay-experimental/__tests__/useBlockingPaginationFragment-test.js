@@ -845,13 +845,17 @@ describe('useBlockingPaginationFragment', () => {
         expect(renderSpy).toBeCalledTimes(0);
       });
 
-      it('does not load more if parent query is already in flight (i.e. during streaming)', () => {
+      it('does not load more if parent query is already active (i.e. during streaming)', () => {
         // This prevents console.error output in the test, which is expected
         jest.spyOn(console, 'error').mockImplementationOnce(() => {});
-        jest
-          .spyOn(require('relay-runtime').__internal, 'isRequestActive')
-          .mockImplementationOnce(() => true);
+        const {
+          __internal: {fetchQuery},
+        } = require('relay-runtime');
+
+        fetchQuery(environment, query).subscribe({});
+
         const callback = jest.fn();
+        environment.execute.mockClear();
         renderFragment();
 
         expectFragmentResults([

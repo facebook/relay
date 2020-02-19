@@ -17,7 +17,6 @@ const {
   fetchQuery,
   getPromiseForActiveRequest,
   getObservableForActiveRequest,
-  isRequestActive,
 } = require('../fetchQueryInternal');
 const {createOperationDescriptor} = require('relay-runtime');
 const {
@@ -343,7 +342,7 @@ describe('fetchQuery', () => {
 
 describe('isRequestActive', () => {
   it('returns false if request is not in flight', () => {
-    const isActive = isRequestActive(environment, query.request);
+    const isActive = environment.isRequestActive(query.request.identifier);
     expect(isActive).toEqual(false);
   });
 
@@ -357,14 +356,14 @@ describe('isRequestActive', () => {
     fetchQuery(environment, query).subscribe(observer);
     environment.mock.nextValue(gqlQuery, response);
 
-    const isActive = isRequestActive(environment, query.request);
+    const isActive = environment.isRequestActive(query.request.identifier);
     expect(isActive).toEqual(false);
   });
 
   it('returns true when request is active', () => {
     fetchQuery(environment, query).subscribe({});
 
-    const isActive = isRequestActive(environment, query.request);
+    const isActive = environment.isRequestActive(query.request.identifier);
     expect(isActive).toEqual(true);
   });
 });

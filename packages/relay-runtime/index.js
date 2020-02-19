@@ -313,6 +313,5 @@ module.exports = {
     getPromiseForActiveRequest: fetchQueryInternal.getPromiseForActiveRequest,
     getObservableForActiveRequest:
       fetchQueryInternal.getObservableForActiveRequest,
-    isRequestActive: fetchQueryInternal.isRequestActive,
   },
 };

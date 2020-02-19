@@ -38,12 +38,16 @@ describe('usePaginationFragment', () => {
   let gqlQueryNestedFragment;
   let gqlQueryWithoutID;
   let gqlQueryWithLiteralArgs;
+  let gqlQueryWithStreaming;
   let gqlPaginationQuery;
+  let gqlPaginationQueryWithStreaming;
   let gqlFragment;
+  let gqlFragmentWithStreaming;
   let query;
   let queryNestedFragment;
   let queryWithoutID;
   let queryWithLiteralArgs;
+  let queryWithStreaming;
   let paginationQuery;
   let variables;
   let variablesNestedFragment;
@@ -176,6 +180,39 @@ describe('usePaginationFragment', () => {
           }
         }
 
+        fragment UserFragmentWithStreaming on User
+        @refetchable(queryName: "UserFragmentStreamingPaginationQuery")
+        @argumentDefinitions(
+          isViewerFriendLocal: {type: "Boolean", defaultValue: false}
+          orderby: {type: "[String]"}
+          scale: {type: "Float"}
+        ) {
+          id
+          name
+          friends(
+            after: $after,
+            first: $first,
+            before: $before,
+            last: $last,
+            orderby: $orderby,
+            isViewerFriend: $isViewerFriendLocal
+            scale: $scale
+          ) @stream_connection(
+              initial_count: 1
+              key: "UserFragment_friends",
+              label: "friends"
+              filters: ["orderby", "isViewerFriend"]
+            ) {
+            edges {
+              node {
+                id
+                name
+                ...NestedUserFragment
+              }
+            }
+          }
+        }
+
         query UserQuery(
           $id: ID!
           $after: ID
@@ -232,6 +269,20 @@ describe('usePaginationFragment', () => {
             ...UserFragment @arguments(isViewerFriendLocal: true, orderby: ["name"])
           }
         }
+
+        query UserQueryWithStreaming(
+          $id: ID!
+          $after: ID
+          $first: Int
+          $before: ID
+          $last: Int
+          $orderby: [String]
+          $isViewerFriend: Boolean
+        ) {
+          node(id: $id) {
+            ...UserFragmentWithStreaming @arguments(isViewerFriendLocal: $isViewerFriend, orderby: $orderby)
+          }
+        }
       `,
     );
     variablesWithoutID = {
@@ -254,15 +305,26 @@ describe('usePaginationFragment', () => {
     gqlQueryNestedFragment = generated.UserQueryNestedFragment;
     gqlQueryWithoutID = generated.UserQueryWithoutID;
     gqlQueryWithLiteralArgs = generated.UserQueryWithLiteralArgs;
+    gqlQueryWithStreaming = generated.UserQueryWithStreaming;
     gqlPaginationQuery = generated.UserFragmentPaginationQuery;
+    gqlPaginationQueryWithStreaming =
+      generated.UserFragmentStreamingPaginationQuery;
     gqlFragment = generated.UserFragment;
+    gqlFragmentWithStreaming = generated.UserFragmentWithStreaming;
     invariant(
       gqlFragment.metadata?.refetch?.operation ===
         '@@MODULE_START@@UserFragmentPaginationQuery.graphql@@MODULE_END@@',
       'useRefetchableFragment-test: Expected refetchable fragment metadata to contain operation.',
     );
+    invariant(
+      gqlFragmentWithStreaming.metadata?.refetch?.operation ===
+        '@@MODULE_START@@UserFragmentStreamingPaginationQuery.graphql@@MODULE_END@@',
+      'useRefetchableFragment-test: Expected refetchable fragment metadata to contain operation.',
+    );
     // Manually set the refetchable operation for the test.
     gqlFragment.metadata.refetch.operation = gqlPaginationQuery;
+    // Manually set the refetchable operation for the test.
+    gqlFragmentWithStreaming.metadata.refetch.operation = gqlPaginationQueryWithStreaming;
 
     query = createOperationDescriptor(gqlQuery, variables);
     queryNestedFragment = createOperationDescriptor(
@@ -275,6 +337,10 @@ describe('usePaginationFragment', () => {
     );
     queryWithLiteralArgs = createOperationDescriptor(
       gqlQueryWithLiteralArgs,
+      variables,
+    );
+    queryWithStreaming = createOperationDescriptor(
+      gqlQueryWithStreaming,
       variables,
     );
     paginationQuery = createOperationDescriptor(gqlPaginationQuery, variables);
@@ -382,10 +448,10 @@ describe('usePaginationFragment', () => {
 
       setOwner = _setOwner;
 
-      /* $FlowFixMe(>=0.108.0 site=www,mobile,react_native_fb,oss) This comment suppresses an error found
-       * when Flow v0.108.0 was deployed. To see the error delete this comment
-       * and run Flow. */
-      const {data: userData} = usePaginationFragment(fragment, userRef);
+      const {data: userData} = usePaginationFragment(
+        fragment,
+        (userRef: $FlowFixMe),
+      );
       return <Renderer user={userData} />;
     };
 
@@ -415,8 +481,6 @@ describe('usePaginationFragment', () => {
         renderer = TestRenderer.create(
           <ErrorBoundary fallback={({error}) => `Error: ${error.message}`}>
             <React.Suspense fallback="Fallback">
-              {/* $FlowFixMe(site=www,mobile) this comment suppresses an error found improving the
-               * type of React$Node */}
               <ContextProvider>
                 <Container owner={query} {...props} />
               </ContextProvider>
@@ -837,13 +901,17 @@ describe('usePaginationFragment', () => {
         expect(renderSpy).toBeCalledTimes(0);
       });
 
-      it('does not load more if parent query is already in flight (i.e. during streaming)', () => {
+      it('does not load more if parent query is already active (i.e. during streaming)', () => {
         // This prevents console.error output in the test, which is expected
         jest.spyOn(console, 'error').mockImplementationOnce(() => {});
-        jest
-          .spyOn(require('relay-runtime').__internal, 'isRequestActive')
-          .mockImplementationOnce(() => true);
+        const {
+          __internal: {fetchQuery},
+        } = require('relay-runtime');
+
+        fetchQuery(environment, query).subscribe({});
+
         const callback = jest.fn();
+        environment.execute.mockClear();
         renderFragment();
 
         expectFragmentResults([
@@ -855,6 +923,7 @@ describe('usePaginationFragment', () => {
             hasPrevious: false,
           },
         ]);
+
         TestRenderer.act(() => {
           loadNext(1, {onComplete: callback});
         });
@@ -2477,6 +2546,194 @@ describe('usePaginationFragment', () => {
             paginationVariables,
           });
           expect(renderSpy).toHaveBeenCalledTimes(0);
+        });
+      });
+
+      describe('when parent query is streaming', () => {
+        beforeEach(() => {
+          ({createMockEnvironment} = require('relay-test-utils-internal'));
+          environment = createMockEnvironment({
+            handlerProvider: () => ConnectionHandler,
+          });
+          environment.commitPayload(query, {
+            node: {
+              __typename: 'User',
+              id: '1',
+              name: 'Alice',
+            },
+          });
+        });
+
+        it('does not start pagination request even if query is no longer active but loadNext is bound to snapshot of data while query was active', () => {
+          const {
+            __internal: {fetchQuery},
+          } = require('relay-runtime');
+
+          // Start parent query and assert it is active
+          fetchQuery(environment, queryWithStreaming).subscribe({});
+          expect(
+            environment.isRequestActive(queryWithStreaming.request.identifier),
+          ).toEqual(true);
+
+          // Render initial fragment
+          const instance = renderFragment({
+            fragment: gqlFragmentWithStreaming,
+            owner: queryWithStreaming,
+          });
+          expect(instance.toJSON()).toEqual(null);
+          renderSpy.mockClear();
+
+          // Resolve first payload
+          TestRenderer.act(() => {
+            environment.mock.nextValue(gqlQueryWithStreaming, {
+              data: {
+                node: {
+                  __typename: 'User',
+                  id: '1',
+                  name: 'Alice',
+                  friends: {
+                    edges: [
+                      {
+                        cursor: 'cursor:1',
+                        node: {
+                          __typename: 'User',
+                          id: 'node:1',
+                          name: 'name:node:1',
+                          username: 'username:node:1',
+                        },
+                      },
+                    ],
+                  },
+                },
+              },
+              extensions: {
+                is_final: false,
+              },
+            });
+          });
+          // Ensure request is still active
+          expect(
+            environment.isRequestActive(queryWithStreaming.request.identifier),
+          ).toEqual(true);
+
+          // Assert fragment rendered with correct data
+          expectFragmentResults([
+            {
+              data: {
+                ...initialUser,
+                friends: {
+                  edges: [
+                    {
+                      cursor: 'cursor:1',
+                      node: {
+                        __typename: 'User',
+                        id: 'node:1',
+                        name: 'name:node:1',
+                        ...createFragmentRef('node:1', queryWithStreaming),
+                      },
+                    },
+                  ],
+                  // Assert pageInfo is currently null
+                  pageInfo: {
+                    endCursor: null,
+                    hasNextPage: false,
+                    hasPreviousPage: false,
+                    startCursor: null,
+                  },
+                },
+              },
+              isLoadingNext: false,
+              isLoadingPrevious: false,
+              hasNext: false,
+              hasPrevious: false,
+            },
+          ]);
+
+          // Capture the value of loadNext at this moment, which will
+          // would use the page info from the current fragment snapshot.
+          // At the moment of this snapshot the parent request is still active,
+          // so calling `capturedLoadNext` should be a no-op, otherwise it
+          // would attempt a pagination with the incorrect cursor as null.
+          const capturedLoadNext = loadNext;
+
+          // Resolve page info
+          TestRenderer.act(() => {
+            environment.mock.nextValue(gqlQueryWithStreaming, {
+              data: {
+                pageInfo: {
+                  endCursor: 'cursor:1',
+                  hasNextPage: true,
+                },
+              },
+              label: 'UserFragmentWithStreaming$defer$friends$pageInfo',
+              path: ['node', 'friends'],
+              extensions: {
+                is_final: true,
+              },
+            });
+          });
+          // Ensure request is no longer active since final payload has been
+          // received
+          expect(
+            environment.isRequestActive(queryWithStreaming.request.identifier),
+          ).toEqual(false);
+
+          // Assert fragment rendered with correct data
+          expectFragmentResults([
+            {
+              data: {
+                ...initialUser,
+                friends: {
+                  edges: [
+                    {
+                      cursor: 'cursor:1',
+                      node: {
+                        __typename: 'User',
+                        id: 'node:1',
+                        name: 'name:node:1',
+                        ...createFragmentRef('node:1', queryWithStreaming),
+                      },
+                    },
+                  ],
+                  // Assert pageInfo is updated
+                  pageInfo: {
+                    endCursor: 'cursor:1',
+                    hasNextPage: true,
+                    hasPreviousPage: false,
+                    startCursor: null,
+                  },
+                },
+              },
+              isLoadingNext: false,
+              isLoadingPrevious: false,
+              hasNext: true,
+              hasPrevious: false,
+            },
+          ]);
+
+          environment.execute.mockClear();
+          renderSpy.mockClear();
+          // Call `capturedLoadNext`, which should be a no-op since it's
+          // bound to the snapshot of the fragment taken while the query is
+          // still active and pointing to incomplete page info.
+          TestRenderer.act(() => {
+            capturedLoadNext(1);
+          });
+
+          // Assert that calling `capturedLoadNext` is a no-op
+          expect(environment.execute).toBeCalledTimes(0);
+          expect(renderSpy).toBeCalledTimes(0);
+
+          // Calling `loadNext`, should be fine since it's bound to the
+          // latest fragment snapshot with the latest page info and when
+          // the request is no longer active
+          TestRenderer.act(() => {
+            loadNext(1);
+          });
+
+          // Assert that calling `loadNext` starts the request
+          expect(environment.execute).toBeCalledTimes(1);
+          expect(renderSpy).toBeCalledTimes(1);
         });
       });
     });

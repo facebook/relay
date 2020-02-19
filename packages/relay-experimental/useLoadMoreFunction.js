@@ -23,13 +23,14 @@ const getValueAtPath = require('./getValueAtPath');
 const invariant = require('invariant');
 const useFetchTrackingRef = require('./useFetchTrackingRef');
 const useIsMountedRef = require('./useIsMountedRef');
+const useIsOperationNodeActive = require('./useIsOperationNodeActive');
 const useRelayEnvironment = require('./useRelayEnvironment');
 const warning = require('warning');
 
 const {useCallback, useEffect, useState} = require('react');
 const {
   ConnectionInterface,
-  __internal: {fetchQuery, isRequestActive},
+  __internal: {fetchQuery},
   createOperationDescriptor,
   getSelector,
 } = require('relay-runtime');
@@ -101,6 +102,11 @@ function useLoadMoreFunction<TQuery: OperationType>(
     fragmentIdentifier,
   );
 
+  const isParentQueryActive = useIsOperationNodeActive(
+    fragmentNode,
+    fragmentRef,
+  );
+
   const shouldReset =
     environment !== mirroredEnvironment ||
     fragmentIdentifier !== mirroredFragmentIdentifier;
@@ -147,14 +153,10 @@ function useLoadMoreFunction<TQuery: OperationType>(
       }
 
       const fragmentSelector = getSelector(fragmentNode, fragmentRef);
-      const isParentQueryInFlight =
-        fragmentSelector != null &&
-        fragmentSelector.kind !== 'PluralReaderSelector' &&
-        isRequestActive(environment, fragmentSelector.owner);
       if (
         isFetchingRef.current === true ||
         fragmentData == null ||
-        isParentQueryInFlight
+        isParentQueryActive
       ) {
         if (fragmentSelector == null) {
           warning(
@@ -257,6 +259,7 @@ function useLoadMoreFunction<TQuery: OperationType>(
       disposeFetch,
       completeFetch,
       isFetchingRef,
+      isParentQueryActive,
       fragmentData,
       fragmentNode.name,
       fragmentRef,

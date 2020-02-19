@@ -13,7 +13,7 @@ use criterion::{black_box, criterion_group, criterion_main, Criterion};
 use graphql_ir::{build, Program};
 use graphql_syntax::parse;
 use graphql_transforms::{
-    generate_typename, inline_fragments, skip_client_extensions, sort_selections,
+    generate_id_field, generate_typename, inline_fragments, skip_client_extensions, sort_selections,
 };
 use std::env;
 use std::fs;
@@ -72,8 +72,15 @@ pub fn criterion_benchmark(c: &mut Criterion) {
                 black_box(&program);
             })
         });
+        c.bench_function(&format!("generate_id_field::{}", file_name), |b| {
+            b.iter(|| {
+                let program = generate_id_field(black_box(&program));
+                black_box(&program);
+            })
+        });
         c.bench_function(&format!("combined::{}", file_name), |b| {
             b.iter(|| {
+                let program = generate_id_field(black_box(&program));
                 let program = inline_fragments(black_box(&program));
                 let program = generate_typename(black_box(&program));
                 let program = sort_selections(black_box(&program));

@@ -1112,6 +1112,31 @@ function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
             });
           });
 
+          it('returns available if data is cached and store was invalidated before query was written (query not retained)', () => {
+            store = new RelayModernStore(source, {
+              gcReleaseBufferSize: 1,
+            });
+            environment = createMockEnvironment({store});
+            environment.commitUpdate(storeProxy => {
+              storeProxy.invalidateStore();
+            });
+            const operation = createOperationDescriptor(UserQuery, {
+              id: '4',
+              size: 32,
+            });
+
+            // Write query data and record operation write
+            const fetchTime = Date.now();
+            jest.spyOn(global.Date, 'now').mockImplementation(() => fetchTime);
+            store.publish(source);
+            store.notify(operation);
+
+            expect(store.check(operation)).toEqual({
+              status: 'available',
+              fetchTime,
+            });
+          });
+
           it('returns stale if data is not cached and store was invalidated after query was written', () => {
             const operation = createOperationDescriptor(UserQuery, {
               id: '842472',

@@ -72,9 +72,7 @@ beforeEach(() => {
     });
   });
   environment = new Environment({
-    store: new Store(new RecordSource(), {
-      gcReleaseBufferSize: 1,
-    }),
+    store: new Store(new RecordSource()),
     network: Network.create(fetch),
   });
   const environmentCheck = environment.check;
@@ -259,7 +257,51 @@ describe('store-or-network', () => {
     expect(preloaded.source).toBe(null);
   });
 
+  it('resolves from cache with cacheTime if data and query are available and buffered', () => {
+    environment = new Environment({
+      store: new Store(new RecordSource(), {
+        gcReleaseBufferSize: 1,
+      }),
+      network: Network.create(fetch),
+    });
+    const environmentCheck = environment.check;
+    check = jest.fn((...args) => environmentCheck.apply(environment, args));
+    (environment: $FlowFixMe).check = check;
+
+    // NOTE: operation isn't explicitly retained, but is still buffered
+    const fetchTime = Date.now();
+    jest.spyOn(global.Date, 'now').mockImplementation(() => fetchTime);
+    environment.commitPayload(operation, response.data);
+    expect(environment.check(operation)).toEqual({
+      status: 'available',
+      fetchTime,
+    });
+    check.mockClear();
+    PreloadableQueryRegistry.set(query.params.id, query);
+
+    const preloaded = preloadQuery_DEPRECATED(environment, params, variables);
+    expect(preloaded.source).toBe(null);
+    expect(preloaded.status).toEqual({
+      cacheConfig: {force: true},
+      source: 'cache',
+      cacheTime: fetchTime,
+    });
+    expect(check).toBeCalledTimes(1);
+    expect(fetch).toBeCalledTimes(0);
+    expect(preloaded.source).toBe(null);
+  });
+
   it('resolves from cache with cacheTime if data and query are available and operation is in the release buffer', () => {
+    environment = new Environment({
+      store: new Store(new RecordSource(), {
+        gcReleaseBufferSize: 1,
+      }),
+      network: Network.create(fetch),
+    });
+    const environmentCheck = environment.check;
+    check = jest.fn((...args) => environmentCheck.apply(environment, args));
+    (environment: $FlowFixMe).check = check;
+
     const disposable = environment.retain(operation);
     disposable.dispose();
     const fetchTime = Date.now();

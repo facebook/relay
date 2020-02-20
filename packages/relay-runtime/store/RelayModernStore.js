@@ -306,6 +306,21 @@ class RelayModernStore implements Store {
       if (rootEntry != null) {
         rootEntry.epoch = this._currentWriteEpoch;
         rootEntry.fetchTime = rootEntry.fetchTime ?? Date.now();
+      } else if (
+        sourceOperation.request.node.params.operationKind === 'query' &&
+        this._gcReleaseBufferSize > 0 &&
+        this._releaseBuffer.length < this._gcReleaseBufferSize
+      ) {
+        // The operation isn't retained but there is space in the release buffer:
+        // temporarily track this operation in case the data can be reused soon.
+        const temporaryRootEntry = {
+          operation: sourceOperation,
+          refCount: 0,
+          epoch: this._currentWriteEpoch,
+          fetchTime: Date.now(),
+        };
+        this._releaseBuffer.push(id);
+        this._roots.set(id, temporaryRootEntry);
       }
     }
 

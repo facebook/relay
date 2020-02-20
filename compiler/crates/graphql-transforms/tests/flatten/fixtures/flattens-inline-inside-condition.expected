@@ -27,10 +27,6 @@ fragment NestedFragment2 on User {
 
 fragment UserFragment on User {
   name
-  ... @include(if: $conditional) {
-    ...NestedFragment
-  }
-  ... @skip(if: $conditional) {
-    ...NestedFragment2
-  }
+  ...NestedFragment @include(if: $conditional)
+  ...NestedFragment2 @skip(if: $conditional)
 }

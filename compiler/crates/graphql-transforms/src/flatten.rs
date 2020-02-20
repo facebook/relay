@@ -28,7 +28,6 @@ type SeenLinkedFields = HashMap<PointerAddress, Arc<LinkedField>>;
 /// - The fragment has an abstract type and the `flattenAbstractTypes` option has
 /// been set.
 ///
-///
 pub fn flatten<'s>(program: &'s Program<'s>, should_flatten_abstract_types: bool) -> Program<'s> {
     let mut next_program = Program::new(program.schema());
     let mut transform = FlattenTransform::new(program, should_flatten_abstract_types);
@@ -359,9 +358,11 @@ fn should_flatten_inline_fragment<'s>(
     parent_type: &TypeReference,
     should_flatten_abstract_types: bool,
 ) -> bool {
-    if let Some(type_condition) = inline_fragment_type_condition {
-        return (schema.is_abstract_type(type_condition) && should_flatten_abstract_types)
-            || &TypeReference::Named(type_condition) == parent_type;
-    };
-    false
+    match inline_fragment_type_condition {
+        None => true,
+        Some(type_condition) => {
+            (schema.is_abstract_type(type_condition) && should_flatten_abstract_types)
+                || &TypeReference::Named(type_condition) == parent_type
+        }
+    }
 }

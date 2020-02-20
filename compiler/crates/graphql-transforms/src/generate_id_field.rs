@@ -200,7 +200,7 @@ impl<'s> GenerateIDFieldTransform<'s> {
         let mut next_selections = vec![];
         let mut should_generate_node = false;
 
-        for object_id in concrete_ids.clone() {
+        for object_id in concrete_ids {
             let object = self.program.schema().object(*object_id);
             let implements_node = object
                 .interfaces

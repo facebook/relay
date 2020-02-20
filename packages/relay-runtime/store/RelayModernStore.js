@@ -201,48 +201,50 @@ class RelayModernStore implements Store {
 
   retain(operation: OperationDescriptor): Disposable {
     const id = operation.request.identifier;
+    let disposed = false;
     const dispose = () => {
-      // When disposing, instead of immediately decrementing the refCount and
-      // potentially deleting/collecting the root, move the operation onto
-      // the release buffer. When the operation is extracted from the release
-      // buffer, we will determine if it needs to be collected.
-      this._releaseBuffer.push(id);
+      // Ensure each retain can only dispose once
+      if (disposed) {
+        return;
+      }
+      disposed = true;
+      // For Flow: guard against the entry somehow not existing
+      const rootEntry = this._roots.get(id);
+      if (rootEntry == null) {
+        return;
+      }
+      // Decrement the ref count: if it becomes zero it is eligible
+      // for release
+      rootEntry.refCount--;
+      if (rootEntry.refCount === 0) {
+        this._releaseBuffer.push(id);
+      }
 
-      // Only when the release buffer is full do we actually:
-      // - extract the least recent operation in the release buffer
-      // - attempt to release it and run GC if it's no longer referenced
-      //   (refCount reached 0).
+      // If the release buffer is now over-full, remove the least-recently
+      // added entry and schedule a GC. Note that all items in the release
+      // buffer have a refCount of 0.
       if (this._releaseBuffer.length > this._gcReleaseBufferSize) {
         const _id = this._releaseBuffer.shift();
-
-        const rootEntry = this._roots.get(_id);
-        if (rootEntry == null) {
-          // If operation has already been fully released, we don't need
-          // to do anything.
-          return;
-        }
-
-        if (rootEntry.refCount > 0) {
-          // If the operation is still retained by other callers
-          // decrement the refCount
-          rootEntry.refCount -= 1;
-        } else {
-          // Otherwise fully release the query and run GC.
-          this._roots.delete(_id);
-          this._scheduleGC();
-        }
+        this._roots.delete(_id);
+        this._scheduleGC();
       }
     };
 
     const rootEntry = this._roots.get(id);
     if (rootEntry != null) {
+      if (rootEntry.refCount === 0) {
+        // This entry should be in the release buffer, but it no longer belongs
+        // there since it's retained. Remove it to maintain the invariant that
+        // all release buffer entries have a refCount of 0.
+        this._releaseBuffer = this._releaseBuffer.filter(_id => _id !== id);
+      }
       // If we've previously retained this operation, inrement the refCount
       rootEntry.refCount += 1;
     } else {
       // Otherwise create a new entry for the operation
       this._roots.set(id, {
         operation,
-        refCount: 0,
+        refCount: 1,
         epoch: null,
         fetchTime: null,
       });

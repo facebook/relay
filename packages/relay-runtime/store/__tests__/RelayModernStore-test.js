@@ -1822,6 +1822,23 @@ function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
         expect(source.toJSON()).toEqual(initialData);
       });
 
+      it('keeps the data retained in the release buffer after double-released by caller', () => {
+        const disposable = store.retain(
+          createOperationDescriptor(UserQuery, {id: '4', size: 32}),
+        );
+
+        jest.runAllTimers();
+        // Assert data is not collected
+        expect(source.toJSON()).toEqual(initialData);
+
+        // Assert data is still not collected since it's still
+        // retained in the release buffer
+        disposable.dispose();
+        disposable.dispose(); // <-- Dispose should be idempotent
+        jest.runAllTimers();
+        expect(source.toJSON()).toEqual(initialData);
+      });
+
       it('releases the operation and collects data after release buffer reaches capacity', () => {
         const disposable = store.retain(
           createOperationDescriptor(UserQuery, {id: '4', size: 32}),
@@ -1927,6 +1944,50 @@ function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
             'node(id:"5")': {__ref: '5'},
           },
         });
+      });
+
+      it('does not free data if previously disposed query is retained again', () => {
+        // Disposing and re-retaining an operation should cause that query to *not* count
+        // toward the release buffer capacity.
+        store = new RelayModernStore(source, {gcReleaseBufferSize: 2});
+        const operation1 = createOperationDescriptor(UserQuery, {
+          id: '1',
+          size: 32,
+        });
+        const operation2 = createOperationDescriptor(UserQuery, {
+          id: '2',
+          size: 32,
+        });
+        const operation3 = createOperationDescriptor(UserQuery, {
+          id: '3',
+          size: 32,
+        });
+
+        // Retain and immediately release: this will be the first item in the release buffer
+        const disposable = store.retain(operation1);
+        jest.runAllTimers();
+        expect(source.toJSON()).toEqual(initialData);
+        disposable.dispose();
+
+        // Retain a second operation
+        const disposable2 = store.retain(operation2);
+        jest.runAllTimers();
+        expect(source.toJSON()).toEqual(initialData);
+        disposable2.dispose();
+
+        // Re-retain the second operation: this should remove it from the release buffer
+        store.retain(operation2);
+
+        // Retain and release a third operation
+        const disposable3 = store.retain(operation3);
+        jest.runAllTimers();
+        expect(source.toJSON()).toEqual(initialData);
+        disposable3.dispose();
+
+        // One of the disposed operations was retained again before the buffer size
+        // was exceeded, so no data needs to be freed.
+        jest.runAllTimers();
+        expect(source.toJSON()).toEqual(initialData);
       });
     });
 

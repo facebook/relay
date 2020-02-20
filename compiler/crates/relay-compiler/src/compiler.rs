@@ -77,22 +77,22 @@ impl Compiler {
                 .unwrap_or_else(|| &empty_extensions);
 
             let build_schema_timer = Timer::new("build_schema");
-            let schema = schema::build_schema_with_extensions::<&str, _>(
-                &[
-                    &compiler_state.schemas[&project_name],
-                    schema::RELAY_EXTENSIONS,
-                ],
-                &extensions,
-            )
-            .unwrap();
+            let mut schema_sources = vec![schema::RELAY_EXTENSIONS];
+            schema_sources.extend(
+                compiler_state.schemas[&project_name]
+                    .iter()
+                    .map(String::as_str),
+            );
+            let schema =
+                schema::build_schema_with_extensions(&schema_sources, &extensions).unwrap();
             build_schema_timer.stop();
 
             let build_ir_timer = Timer::new("build_ir");
             let _ir: Vec<_> = match graphql_ir::build(&schema, project_document_asts) {
                 Ok(ir) => ir,
                 Err(errors) => {
-                    println!("{:#?}", errors);
-                    panic!("IR errors: {}", errors.len());
+                    println!("IR errors: {:#?}", errors);
+                    continue;
                 }
             };
             build_ir_timer.stop();

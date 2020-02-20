@@ -31,18 +31,71 @@ impl Config {
                 config_path: config_path.clone(),
                 source: err,
             })?;
+        Self::from_string(root_dir, config_path, &config_string, true)
+    }
+
+    /// Loads a config file without validation for use in tests.
+    #[cfg(test)]
+    pub fn from_string_for_test(config_string: &str) -> Result<Self> {
+        Self::from_string(
+            "/virtual/root".into(),
+            "/virtual/root/virtual_config.json".into(),
+            config_string,
+            false,
+        )
+    }
+
+    /// `validate_fs` disables all filesystem checks for existence of files
+    fn from_string(
+        root_dir: PathBuf,
+        config_path: PathBuf,
+        config_string: &str,
+        validate_fs: bool,
+    ) -> Result<Self> {
         let config_file: ConfigFile =
             serde_json::from_str(&config_string).map_err(|err| Error::ConfigFileParse {
                 config_path: config_path.clone(),
                 source: err,
             })?;
+        let projects = config_file
+            .projects
+            .into_iter()
+            .map(|(project_name, config_file_project)| {
+                let schema_location =
+                    match (config_file_project.schema, config_file_project.schema_dir) {
+                        (Some(schema_file), None) => Ok(SchemaLocation::File(schema_file)),
+                        (None, Some(schema_dir)) => Ok(SchemaLocation::Directory(schema_dir)),
+                        _ => Err(Error::ConfigFileValidation {
+                            config_path: config_path.clone(),
+                            validation_errors: vec![
+                                ConfigValidationError::ProjectNeedsSchemaXorSchemaDir {
+                                    project_name,
+                                },
+                            ],
+                        }),
+                    }?;
+
+                let config_project = ConfigProject {
+                    base: config_file_project.base,
+                    extensions: config_file_project.extensions,
+                    output: config_file_project.output,
+                    schema_location,
+                };
+                Ok((project_name, config_project))
+            })
+            .collect::<Result<HashMap<_, _>>>()?;
         let config = Self {
             root_dir,
             sources: config_file.sources,
             blacklist: config_file.blacklist,
-            projects: config_file.projects,
+            projects,
         };
-        let validation_errors = config.validate(true);
+
+        let mut validation_errors = Vec::new();
+        config.validate_consistency(&mut validation_errors);
+        if validate_fs {
+            config.validate_paths(&mut validation_errors);
+        }
         if validation_errors.is_empty() {
             Ok(config)
         } else {
@@ -53,54 +106,10 @@ impl Config {
         }
     }
 
-    /// Loads a config file without validation for use in tests.
-    #[cfg(test)]
-    pub fn from_string_for_test(config_string: &str) -> Result<Self> {
-        let config_file: ConfigFile =
-            serde_json::from_str(&config_string).expect("Failed to deserialize ConfigFile.");
-        let config = Self {
-            root_dir: "/virtual/root".into(),
-            sources: config_file.sources,
-            blacklist: config_file.blacklist,
-            projects: config_file.projects,
-        };
-        let validation_errors = config.validate(false);
-        if !validation_errors.is_empty() {
-            panic!("Found validation ")
-        }
-        Ok(config)
-    }
-
-    /// `validate_fs` enables filesystem checks for existence of paths
-    fn validate(&self, validate_fs: bool) -> Vec<ConfigValidationError> {
-        let mut errors = Vec::new();
-
-        if validate_fs {
-            if !self.root_dir.is_dir() {
-                errors.push(ConfigValidationError::RootNotDirectory {
-                    root_dir: self.root_dir.clone(),
-                });
-                // early return, no point in continuing validation
-                return errors;
-            }
-
-            // each source should point to an existing directory
-            for source_dir in self.sources.keys() {
-                let abs_source_dir = self.root_dir.join(source_dir);
-                if !abs_source_dir.exists() {
-                    errors.push(ConfigValidationError::SourceNotExistent {
-                        source_dir: abs_source_dir.clone(),
-                    });
-                } else if !abs_source_dir.is_dir() {
-                    errors.push(ConfigValidationError::SourceNotDirectory {
-                        source_dir: abs_source_dir.clone(),
-                    });
-                }
-            }
-        }
-
-        // each project should have at least one source
+    /// Validated internal consistency of the config.
+    fn validate_consistency(&self, errors: &mut Vec<ConfigValidationError>) {
         for &project_name in self.projects.keys() {
+            // each project should have at least one source
             if !self
                 .sources
                 .values()
@@ -109,9 +118,79 @@ impl Config {
                 errors.push(ConfigValidationError::ProjectWithoutSource { project_name });
             }
         }
-
-        errors
     }
+
+    /// Validates that all paths actually exist on disk.
+    fn validate_paths(&self, errors: &mut Vec<ConfigValidationError>) {
+        if !self.root_dir.is_dir() {
+            errors.push(ConfigValidationError::RootNotDirectory {
+                root_dir: self.root_dir.clone(),
+            });
+            // early return, no point in continuing validation
+            return;
+        }
+
+        // each source should point to an existing directory
+        for source_dir in self.sources.keys() {
+            let abs_source_dir = self.root_dir.join(source_dir);
+            if !abs_source_dir.exists() {
+                errors.push(ConfigValidationError::SourceNotExistent {
+                    source_dir: abs_source_dir.clone(),
+                });
+            } else if !abs_source_dir.is_dir() {
+                errors.push(ConfigValidationError::SourceNotDirectory {
+                    source_dir: abs_source_dir.clone(),
+                });
+            }
+        }
+
+        for (&project_name, project) in &self.projects {
+            match &project.schema_location {
+                SchemaLocation::File(schema_file) => {
+                    let abs_schema_file = self.root_dir.join(schema_file);
+                    if !abs_schema_file.exists() {
+                        errors.push(ConfigValidationError::SchemaFileNotExistent {
+                            project_name,
+                            schema_file: abs_schema_file.clone(),
+                        });
+                    } else if !abs_schema_file.is_file() {
+                        errors.push(ConfigValidationError::SchemaFileNotFile {
+                            project_name,
+                            schema_file: abs_schema_file.clone(),
+                        });
+                    }
+                }
+                SchemaLocation::Directory(schema_dir) => {
+                    let abs_schema_dir = self.root_dir.join(schema_dir);
+                    if !abs_schema_dir.exists() {
+                        errors.push(ConfigValidationError::SchemaDirNotExistent {
+                            project_name,
+                            schema_dir: abs_schema_dir.clone(),
+                        });
+                    } else if !abs_schema_dir.is_dir() {
+                        errors.push(ConfigValidationError::SchemaDirNotDirectory {
+                            project_name,
+                            schema_dir: abs_schema_dir.clone(),
+                        });
+                    }
+                }
+            }
+        }
+    }
+}
+
+#[derive(Debug)]
+pub struct ConfigProject {
+    pub base: Vec<SourceSetName>,
+    pub output: Option<PathBuf>,
+    pub extensions: Vec<PathBuf>,
+    pub schema_location: SchemaLocation,
+}
+
+#[derive(Clone, Debug)]
+pub enum SchemaLocation {
+    File(PathBuf),
+    Directory(PathBuf),
 }
 
 /// Schema of the compiler configuration JSON file.
@@ -129,29 +208,32 @@ struct ConfigFile {
     blacklist: Vec<String>,
 
     /// Configuration of projects to compile.
-    projects: HashMap<ProjectName, ConfigProject>,
+    projects: HashMap<ProjectName, ConfigFileProject>,
 }
 
 #[derive(Debug, Deserialize)]
 #[serde(deny_unknown_fields)]
-pub struct ConfigProject {
+struct ConfigFileProject {
     /// Additional source sets that can be referenced from this project, but
     /// are not producing outputs. Another project should be setup to produce
     /// them.
     #[serde(default)]
-    pub base: Vec<SourceSetName>,
+    base: Vec<SourceSetName>,
 
     /// A project without an output directory will put the generated files in
     /// a __generated__ directory next to the input file.
     /// All files in these directories should be generated by the Relay
     /// compiler, so that the compiler can cleanup extra files.
     #[serde(default)]
-    pub output: Option<PathBuf>,
+    output: Option<PathBuf>,
 
     /// Directory containing *.graphql files with schema extensions.
     #[serde(default)]
-    pub extensions: Vec<PathBuf>,
+    extensions: Vec<PathBuf>,
 
-    /// Path to the schema.
-    pub schema: PathBuf,
+    /// Path to the schema.graphql or a directory containing a schema broken up
+    /// in multiple *.graphql files.
+    /// Exactly 1 of these options needs to be defined.
+    schema: Option<PathBuf>,
+    schema_dir: Option<PathBuf>,
 }

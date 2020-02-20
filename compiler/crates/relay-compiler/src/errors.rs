@@ -52,4 +52,39 @@ pub enum ConfigValidationError {
 
     #[error("There is no source for the project `{project_name}`.")]
     ProjectWithoutSource { project_name: ProjectName },
+
+    #[error("Project `{project_name}` needs to define exactly one of `schema` or `schema_dir`.")]
+    ProjectNeedsSchemaXorSchemaDir { project_name: ProjectName },
+
+    #[error(
+        "The `schema` configured for project `{project_name}` does not exist at `{schema_file}`."
+    )]
+    SchemaFileNotExistent {
+        project_name: ProjectName,
+        schema_file: PathBuf,
+    },
+
+    #[error(
+        "The `schema` configured for project `{project_name}` to be `{schema_file}` is not a file."
+    )]
+    SchemaFileNotFile {
+        project_name: ProjectName,
+        schema_file: PathBuf,
+    },
+
+    #[error(
+        "The `schema_dir` configured for project `{project_name}` does not exist at `{schema_dir}`."
+    )]
+    SchemaDirNotExistent {
+        project_name: ProjectName,
+        schema_dir: PathBuf,
+    },
+
+    #[error(
+        "The `schema_dir` configured for project `{project_name}` to be `{schema_dir}` is not a directory."
+    )]
+    SchemaDirNotDirectory {
+        project_name: ProjectName,
+        schema_dir: PathBuf,
+    },
 }

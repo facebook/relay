@@ -6,7 +6,7 @@
  */
 
 use crate::compiler_state::{ProjectName, SourceSetName};
-use crate::config::Config;
+use crate::config::{Config, SchemaLocation};
 use std::cmp::Reverse;
 use std::collections::HashMap;
 use std::ffi::OsStr;
@@ -20,11 +20,15 @@ pub enum FileGroup {
     Source { source_set: SourceSetName },
 }
 
+/// The FileCategorizer is created from a Config and categorizes files found by
+/// Watchman into what kind of files they are, such as source files of a
+/// specific source file group or generated files from some project.
 pub struct FileCategorizer {
     extensions_mapping: PathMapping<ProjectName>,
     generated_str: &'static OsStr,
     source_mapping: PathMapping<SourceSetName>,
-    schema_mapping: HashMap<PathBuf, ProjectName>,
+    schema_file_mapping: HashMap<PathBuf, ProjectName>,
+    schema_dir_mapping: PathMapping<ProjectName>,
 }
 
 impl FileCategorizer {
@@ -46,21 +50,37 @@ impl FileCategorizer {
                 .collect(),
         );
 
-        let schema_mapping: HashMap<PathBuf, ProjectName> = config
+        let schema_file_mapping: HashMap<PathBuf, ProjectName> = config
             .projects
             .iter()
-            .map(|(project_name, project_config)| (project_config.schema.clone(), *project_name))
+            .filter_map(
+                |(&project_name, project_config)| match &project_config.schema_location {
+                    SchemaLocation::File(schema_file) => Some((schema_file.clone(), project_name)),
+                    SchemaLocation::Directory(_) => None,
+                },
+            )
             .collect();
-        assert!(
-            schema_mapping.len() == config.projects.len(),
-            "Multiple projects sharing one schema is currently not supported."
+        let schema_dir_mapping = PathMapping(
+            config
+                .projects
+                .iter()
+                .filter_map(|(&project_name, project_config)| {
+                    match &project_config.schema_location {
+                        SchemaLocation::File(_) => None,
+                        SchemaLocation::Directory(schema_dir) => {
+                            Some((schema_dir.clone(), project_name))
+                        }
+                    }
+                })
+                .collect(),
         );
 
         let generated_str = OsStr::new("__generated__");
         Self {
             extensions_mapping,
             generated_str,
-            schema_mapping,
+            schema_file_mapping,
+            schema_dir_mapping,
             source_mapping: PathMapping(source_mapping),
         }
     }
@@ -77,13 +97,23 @@ impl FileCategorizer {
                 FileGroup::Source { source_set }
             }
         } else if extension == "graphql" {
-            if let Some(&project_name) = self.schema_mapping.get(path) {
-                return FileGroup::Schema { project_name };
+            if let Some(&project_name) = self.schema_file_mapping.get(path) {
+                FileGroup::Schema { project_name }
+            } else if let Some(project_name) = self.extensions_mapping.find(path) {
+                FileGroup::Extension { project_name }
+            } else if let Some(project_name) = self.schema_dir_mapping.find(path) {
+                FileGroup::Schema { project_name }
+            } else {
+                panic!(
+                    "Expected *.graphql file `{:?}` to be either a schema or extension.",
+                    path
+                )
             }
-            let project_name = self.extensions_mapping.get(path);
-            FileGroup::Extension { project_name }
         } else {
-            panic!("no source mapping found for {:?}", path)
+            panic!(
+                "Received file {:?} from watchman with unexpected extension.",
+                path
+            )
         }
     }
 

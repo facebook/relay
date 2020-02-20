@@ -9,7 +9,7 @@ use super::errors::{Error, Result};
 use super::file_group::FileCategorizer;
 use super::file_group::FileGroup;
 use crate::compiler_state::{CompilerState, SourceSet, SourceSetName};
-use crate::config::Config;
+use crate::config::{Config, SchemaLocation};
 use common::Timer;
 use extract_graphql;
 use rayon::prelude::*;
@@ -99,12 +99,11 @@ impl<'config> GraphQLFinder<'config> {
                     extract_timer.stop();
                 }
                 FileGroup::Schema { project_name } => {
-                    assert!(
-                        files.len() == 1,
-                        "Expected exactly one schema file per project."
-                    );
-                    let schema_source = self.read_to_string(&files[0])?;
-                    schemas.insert(project_name, schema_source);
+                    let schema_sources = files
+                        .iter()
+                        .map(|file| self.read_to_string(file))
+                        .collect::<Result<Vec<String>>>()?;
+                    schemas.insert(project_name, schema_sources);
                 }
                 FileGroup::Extension { project_name } => {
                     let extension_sources: Vec<String> = files
@@ -176,9 +175,7 @@ query_result_type! {
 }
 
 fn get_watchman_expr(config: &Config) -> Expr {
-    let mut sources_expr = vec![
-        // regular file
-        Expr::FileType(FileType::Regular),
+    let mut sources_conditions = vec![
         // ending in *.js
         Expr::Suffix(vec!["js".into()]),
         // in one of the source roots
@@ -191,7 +188,7 @@ fn get_watchman_expr(config: &Config) -> Expr {
     ];
     // not blacklisted by any glob
     if !config.blacklist.is_empty() {
-        sources_expr.push(Expr::Not(Box::new(expr_any(
+        sources_conditions.push(Expr::Not(Box::new(expr_any(
             config
                 .blacklist
                 .iter()
@@ -205,34 +202,36 @@ fn get_watchman_expr(config: &Config) -> Expr {
                 .collect(),
         ))));
     }
-    let sources_expr = Expr::All(sources_expr);
+    let sources_expr = Expr::All(sources_conditions);
 
-    let schema_expr = Expr::Name(NameTerm {
-        paths: get_schema_paths(&config),
-        wholename: true,
-    });
+    let mut expressions = vec![sources_expr];
 
-    let mut expressions = vec![sources_expr, schema_expr];
+    let schema_file_paths = get_schema_file_paths(&config);
+    if !schema_file_paths.is_empty() {
+        let schema_file_expr = Expr::Name(NameTerm {
+            paths: get_schema_file_paths(&config),
+            wholename: true,
+        });
+        expressions.push(schema_file_expr);
+    }
+
+    let schema_dir_paths = get_schema_dir_paths(&config);
+    if !schema_dir_paths.is_empty() {
+        let schema_dir_expr = expr_graphql_files_in_dirs(schema_dir_paths);
+        expressions.push(schema_dir_expr);
+    }
 
     let extension_roots = get_extension_roots(&config);
     if !extension_roots.is_empty() {
-        let extensions_expr = Expr::All(vec![
-            // regular file
-            Expr::FileType(FileType::Regular),
-            // ending in *.graphql
-            Expr::Suffix(vec!["graphql".into()]),
-            // in one of the extension directories
-            expr_any(
-                extension_roots
-                    .into_iter()
-                    .map(|path| Expr::DirName(DirNameTerm { path, depth: None }))
-                    .collect(),
-            ),
-        ]);
+        let extensions_expr = expr_graphql_files_in_dirs(extension_roots);
         expressions.push(extensions_expr);
     }
 
-    Expr::Any(expressions)
+    Expr::All(vec![
+        // we generally only care about regular files
+        Expr::FileType(FileType::Regular),
+        Expr::Any(expressions),
+    ])
 }
 
 /// Compute all root paths that we need to query Watchman with. All files
@@ -240,12 +239,14 @@ fn get_watchman_expr(config: &Config) -> Expr {
 fn get_all_roots(config: &Config) -> Vec<PathBuf> {
     let source_roots = get_source_roots(config);
     let extension_roots = get_extension_roots(config);
-    let schema_roots = get_schema_roots(config);
+    let schema_file_roots = get_schema_file_roots(config);
+    let schema_dir_roots = get_schema_dir_paths(config);
     unify_roots(
         source_roots
             .into_iter()
             .chain(extension_roots)
-            .chain(schema_roots)
+            .chain(schema_file_roots)
+            .chain(schema_dir_roots)
             .collect(),
     )
 }
@@ -266,22 +267,53 @@ fn get_extension_roots(config: &Config) -> Vec<PathBuf> {
 }
 
 /// Returns all paths that contain GraphQL schema files for the config.
-fn get_schema_paths(config: &Config) -> Vec<PathBuf> {
+fn get_schema_file_paths(config: &Config) -> Vec<PathBuf> {
     config
         .projects
         .values()
-        .map(|project_config| project_config.schema.clone())
+        .filter_map(|project_config| match &project_config.schema_location {
+            SchemaLocation::File(schema_file) => Some(schema_file.clone()),
+            SchemaLocation::Directory(_) => None,
+        })
+        .collect()
+}
+
+/// Returns all GraphQL schema directories for the config.
+fn get_schema_dir_paths(config: &Config) -> Vec<PathBuf> {
+    config
+        .projects
+        .values()
+        .filter_map(|project_config| match &project_config.schema_location {
+            SchemaLocation::File(_) => None,
+            SchemaLocation::Directory(schema_dir) => Some(schema_dir.clone()),
+        })
         .collect()
 }
 
 /// Returns root directories that contain GraphQL schema files.
-fn get_schema_roots(config: &Config) -> impl Iterator<Item = PathBuf> {
-    get_schema_paths(config).into_iter().map(|schema_path| {
-        schema_path
-            .parent()
-            .expect("A schema in the project root directory is currently not supported.")
-            .to_owned()
-    })
+fn get_schema_file_roots(config: &Config) -> impl Iterator<Item = PathBuf> {
+    get_schema_file_paths(config)
+        .into_iter()
+        .map(|schema_path| {
+            schema_path
+                .parent()
+                .expect("A schema in the project root directory is currently not supported.")
+                .to_owned()
+        })
+}
+
+fn expr_graphql_files_in_dirs(roots: Vec<PathBuf>) -> Expr {
+    Expr::All(vec![
+        // ending in *.graphql
+        Expr::Suffix(vec!["graphql".into()]),
+        // in one of the extension directories
+        expr_any(
+            roots
+                .into_iter()
+                .map(|path| Expr::DirName(DirNameTerm { path, depth: None }))
+                .collect(),
+        ),
+    ])
 }
 
 /// Helper to create an `anyof` expression if multiple items are passed or just

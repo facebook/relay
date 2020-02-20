@@ -39,7 +39,7 @@ pub struct Sha1Hash(String);
 
 pub struct CompilerState {
     pub source_sets: HashMap<SourceSetName, SourceSet>,
-    pub schemas: HashMap<ProjectName, String>,
+    pub schemas: HashMap<ProjectName, Vec<String>>,
     pub extensions: HashMap<ProjectName, Vec<String>>,
     pub artifacts: HashMap<ProjectName, ArtifactMap>,
 }

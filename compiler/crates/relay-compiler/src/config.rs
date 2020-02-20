@@ -8,7 +8,7 @@
 use crate::compiler_state::{ProjectName, SourceSetName};
 use crate::errors::{ConfigValidationError, Error, Result};
 use serde::Deserialize;
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::path::PathBuf;
 
 /// The full compiler config. This is a combination of:
@@ -108,14 +108,22 @@ impl Config {
 
     /// Validated internal consistency of the config.
     fn validate_consistency(&self, errors: &mut Vec<ConfigValidationError>) {
-        for &project_name in self.projects.keys() {
-            // each project should have at least one source
-            if !self
-                .sources
-                .values()
-                .any(|source_set_name| *source_set_name == project_name.as_source_set_name())
-            {
-                errors.push(ConfigValidationError::ProjectWithoutSource { project_name });
+        let source_set_names: HashSet<_> = self.sources.values().collect();
+
+        for (&project_name, project_config) in &self.projects {
+            // there should be a source for each project matching the project name
+            if !source_set_names.contains(&project_name.as_source_set_name()) {
+                errors.push(ConfigValidationError::ProjectSourceMissing { project_name });
+            }
+
+            // every base of the project should exist
+            for base_name in &project_config.base {
+                if !source_set_names.contains(base_name) {
+                    errors.push(ConfigValidationError::ProjectBaseMissing {
+                        project_name,
+                        base_name: *base_name,
+                    })
+                }
             }
         }
     }

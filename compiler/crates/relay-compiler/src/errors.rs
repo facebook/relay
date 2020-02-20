@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::compiler_state::ProjectName;
+use crate::compiler_state::{ProjectName, SourceSetName};
 use std::path::PathBuf;
 use thiserror::Error;
 
@@ -50,8 +50,14 @@ pub enum ConfigValidationError {
     #[error("Source `{source_dir}` is not a directory.")]
     SourceNotDirectory { source_dir: PathBuf },
 
-    #[error("There is no source for the project `{project_name}`.")]
-    ProjectWithoutSource { project_name: ProjectName },
+    #[error("There is no source for the project `{project_name}`, the `sources` map should contain at least one path mapping to this project name.")]
+    ProjectSourceMissing { project_name: ProjectName },
+
+    #[error("The project `{project_name}` defines a base `{base_name}`, but no source directory with this name exist in the `sources` key.")]
+    ProjectBaseMissing {
+        project_name: ProjectName,
+        base_name: SourceSetName,
+    },
 
     #[error("Project `{project_name}` needs to define exactly one of `schema` or `schema_dir`.")]
     ProjectNeedsSchemaXorSchemaDir { project_name: ProjectName },

@@ -29,6 +29,11 @@ impl std::fmt::Display for ProjectName {
 
 #[derive(Eq, PartialEq, Hash, Debug, Deserialize, Clone, Copy)]
 pub struct SourceSetName(pub StringKey);
+impl std::fmt::Display for SourceSetName {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        self.0.fmt(f)
+    }
+}
 
 pub struct SourceSet(pub HashMap<PathBuf, Vec<String>>);
 

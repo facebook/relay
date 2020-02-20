@@ -1,0 +1,7 @@
+fragment UserFragment on User {
+  name @include(if: $condition)
+  ... @skip(if: $condition) {
+    id
+    __typename
+  }
+}

@@ -132,6 +132,9 @@ pub trait Transformer {
             Selection::ScalarField(selection) => self
                 .transform_scalar_field(selection)
                 .map(Selection::ScalarField),
+            Selection::Condition(selection) => self
+                .transform_condition(selection)
+                .map(Selection::Condition),
         }
     }
 
@@ -233,6 +236,61 @@ pub trait Transformer {
             directives: directives.unwrap_or_else(|| spread.directives.clone()),
             ..spread.clone()
         }))
+    }
+
+    // Conditions
+    fn transform_condition(&mut self, condition: &Condition) -> Transformed<Arc<Condition>> {
+        self.default_transform_condition(condition)
+    }
+
+    fn default_transform_condition(
+        &mut self,
+        condition: &Condition,
+    ) -> Transformed<Arc<Condition>> {
+        // Special-case for empty selections
+        let selections = self.transform_selections(&condition.selections);
+        if let Some(selections) = &selections {
+            if selections.is_empty() {
+                return Transformed::Delete;
+            }
+        }
+        let condition_value = self.transform_condition_value(&condition.value);
+        if selections.is_none() && condition_value.is_none() {
+            Transformed::Keep
+        } else {
+            Transformed::Replace(Arc::new(Condition {
+                value: condition_value.unwrap_or_else(|| condition.value.clone()),
+                selections: selections.unwrap_or_else(|| condition.selections.clone()),
+                ..condition.clone()
+            }))
+        }
+    }
+
+    fn transform_condition_value(
+        &mut self,
+        condition_value: &ConditionValue,
+    ) -> Option<ConditionValue> {
+        if Self::VISIT_ARGUMENTS {
+            match self.default_transform_condition_value(condition_value) {
+                Transformed::Delete => None,
+                Transformed::Keep => Some(condition_value.clone()),
+                Transformed::Replace(next_condition_value) => Some(next_condition_value),
+            }
+        } else {
+            None
+        }
+    }
+
+    fn default_transform_condition_value(
+        &mut self,
+        condition_value: &ConditionValue,
+    ) -> Transformed<ConditionValue> {
+        match condition_value {
+            ConditionValue::Variable(variable) => self
+                .transform_variable(variable)
+                .map(ConditionValue::Variable),
+            ConditionValue::Constant(_) => Transformed::Keep,
+        }
     }
 
     // Directives

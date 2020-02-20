@@ -37,91 +37,28 @@ fragment Foo on User {
             type_condition: Object(65),
             directives: [],
             selections: [
-                ScalarField {
-                    alias: None,
-                    definition: Spanned {
-                        span: 31:37,
-                        item: FieldID(
-                            446,
-                        ),
-                    },
-                    arguments: [],
-                    directives: [
-                        Directive {
+                Condition {
+                    value: Variable(
+                        Variable {
                             name: Spanned {
-                                span: 38:45,
-                                item: "include",
+                                span: 50:55,
+                                item: "Cond",
                             },
-                            arguments: [
-                                Argument {
-                                    name: Spanned {
-                                        span: 46:48,
-                                        item: "if",
-                                    },
-                                    value: Spanned {
-                                        span: 50:55,
-                                        item: Variable(
-                                            Variable {
-                                                name: Spanned {
-                                                    span: 50:55,
-                                                    item: "Cond",
-                                                },
-                                                type_: NonNull(
-                                                    Named(
-                                                        Scalar(3),
-                                                    ),
-                                                ),
-                                            },
-                                        ),
-                                    },
-                                },
-                            ],
+                            type_: NonNull(
+                                Named(
+                                    Scalar(3),
+                                ),
+                            ),
                         },
-                    ],
-                },
-                InlineFragment {
-                    type_condition: Some(
-                        Object(65),
                     ),
-                    directives: [
-                        Directive {
-                            name: Spanned {
-                                span: 72:79,
-                                item: "include",
-                            },
-                            arguments: [
-                                Argument {
-                                    name: Spanned {
-                                        span: 80:82,
-                                        item: "if",
-                                    },
-                                    value: Spanned {
-                                        span: 84:89,
-                                        item: Variable(
-                                            Variable {
-                                                name: Spanned {
-                                                    span: 84:89,
-                                                    item: "Cond",
-                                                },
-                                                type_: NonNull(
-                                                    Named(
-                                                        Scalar(3),
-                                                    ),
-                                                ),
-                                            },
-                                        ),
-                                    },
-                                },
-                            ],
-                        },
-                    ],
+                    passing_value: true,
                     selections: [
                         ScalarField {
                             alias: None,
                             definition: Spanned {
-                                span: 92:106,
+                                span: 31:37,
                                 item: FieldID(
-                                    443,
+                                    446,
                                 ),
                             },
                             arguments: [],
@@ -129,42 +66,66 @@ fragment Foo on User {
                         },
                     ],
                 },
-                FragmentSpread {
-                    fragment: Spanned {
-                        span: 116:120,
-                        item: "Foo",
-                    },
-                    arguments: [],
-                    directives: [
-                        Directive {
+                Condition {
+                    value: Variable(
+                        Variable {
                             name: Spanned {
-                                span: 121:128,
-                                item: "include",
+                                span: 84:89,
+                                item: "Cond",
                             },
-                            arguments: [
-                                Argument {
-                                    name: Spanned {
-                                        span: 129:131,
-                                        item: "if",
-                                    },
-                                    value: Spanned {
-                                        span: 133:138,
-                                        item: Variable(
-                                            Variable {
-                                                name: Spanned {
-                                                    span: 133:138,
-                                                    item: "Cond",
-                                                },
-                                                type_: NonNull(
-                                                    Named(
-                                                        Scalar(3),
-                                                    ),
-                                                ),
-                                            },
+                            type_: NonNull(
+                                Named(
+                                    Scalar(3),
+                                ),
+                            ),
+                        },
+                    ),
+                    passing_value: true,
+                    selections: [
+                        InlineFragment {
+                            type_condition: Some(
+                                Object(65),
+                            ),
+                            directives: [],
+                            selections: [
+                                ScalarField {
+                                    alias: None,
+                                    definition: Spanned {
+                                        span: 92:106,
+                                        item: FieldID(
+                                            443,
                                         ),
                                     },
+                                    arguments: [],
+                                    directives: [],
                                 },
                             ],
+                        },
+                    ],
+                },
+                Condition {
+                    value: Variable(
+                        Variable {
+                            name: Spanned {
+                                span: 133:138,
+                                item: "Cond",
+                            },
+                            type_: NonNull(
+                                Named(
+                                    Scalar(3),
+                                ),
+                            ),
+                        },
+                    ),
+                    passing_value: true,
+                    selections: [
+                        FragmentSpread {
+                            fragment: Spanned {
+                                span: 116:120,
+                                item: "Foo",
+                            },
+                            arguments: [],
+                            directives: [],
                         },
                     ],
                 },

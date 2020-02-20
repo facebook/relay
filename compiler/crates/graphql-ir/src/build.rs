@@ -314,7 +314,29 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
         parent_type: &TypeReference,
     ) -> ValidationResult<Vec<Selection>> {
         try_map(selections, |selection| {
-            self.build_selection(selection, parent_type)
+            // Here we've built our normal selections (fragments, linked fields, etc)
+            let mut next_selection = self.build_selection(selection, parent_type)?;
+
+            // If there is no directives on selection return early.
+            if next_selection.directives().is_empty() {
+                return Ok(next_selection);
+            }
+
+            // Now, let's look into selection directives, and split them into two
+            // categories: conditions and other directives
+            let (conditions, directives) =
+                split_conditions_and_directivs(&next_selection.directives());
+
+            // If conditions are empty -> return the original selection
+            if conditions.is_empty() {
+                return Ok(next_selection);
+            }
+
+            // If not, then updated directives
+            next_selection.set_directives(directives);
+
+            // And wrap the original selection with `Selection::Condition`
+            Ok(wrap_selection_with_conditions(&next_selection, &conditions))
         })
     }
 
@@ -636,6 +658,7 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
         let arguments = self.build_arguments(&field.arguments, &field_definition.arguments);
         let directives = self.build_directives(&field.directives, DirectiveLocation::Field);
         let (arguments, directives) = try2(arguments, directives)?;
+
         Ok(ScalarField {
             alias,
             definition: Spanned::new(span, field_id),
@@ -1321,4 +1344,30 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
 pub enum ValidationLevel {
     Strict,
     Loose,
+}
+
+fn split_conditions_and_directivs(directives: &[Directive]) -> (Vec<Directive>, Vec<Directive>) {
+    directives.iter().cloned().partition(|directive| {
+        directive.name.item.lookup() == "skip" || directive.name.item.lookup() == "include"
+    })
+}
+
+fn wrap_selection_with_conditions(selection: &Selection, conditions: &[Directive]) -> Selection {
+    let mut result: Selection = selection.clone();
+    for condition in conditions {
+        result = wrap_selection_with_condition(&result, &condition)
+    }
+    result
+}
+
+fn wrap_selection_with_condition(selection: &Selection, condition: &Directive) -> Selection {
+    Selection::Condition(From::from(Condition {
+        value: match &condition.arguments[0].value.item {
+            Value::Constant(ConstantValue::Boolean(value)) => ConditionValue::Constant(*value),
+            Value::Variable(variable) => ConditionValue::Variable(variable.clone()),
+            _ => unreachable!("Unexpected variable type for the condition directive"),
+        },
+        passing_value: condition.name.item.lookup() == "include",
+        selections: vec![selection.clone()],
+    }))
 }

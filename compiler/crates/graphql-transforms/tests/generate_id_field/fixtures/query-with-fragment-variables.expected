@@ -76,6 +76,7 @@ query ConditionalIDQuery(
   viewer {
     actor {
       id @include(if: $cond)
+      id
     }
   }
 }

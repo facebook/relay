@@ -61,6 +61,7 @@ pub trait Visitor {
             Selection::InlineFragment(selection) => self.visit_inline_fragment(selection),
             Selection::LinkedField(selection) => self.visit_linked_field(selection),
             Selection::ScalarField(selection) => self.visit_scalar_field(selection),
+            Selection::Condition(selection) => self.visit_condition(selection),
         }
     }
 
@@ -99,6 +100,26 @@ pub trait Visitor {
     fn default_visit_fragment_spread(&mut self, spread: &FragmentSpread) {
         self.visit_arguments(&spread.arguments);
         self.visit_directives(&spread.directives);
+    }
+
+    fn visit_condition(&mut self, condition: &Condition) {
+        self.default_visit_condition(condition)
+    }
+    fn default_visit_condition(&mut self, condition: &Condition) {
+        self.visit_condition_value(&condition.value);
+        self.visit_selections(&condition.selections);
+    }
+
+    fn visit_condition_value(&mut self, condition_value: &ConditionValue) {
+        self.default_visit_condition_value(condition_value);
+    }
+    fn default_visit_condition_value(&mut self, condition_value: &ConditionValue) {
+        if Self::VISIT_ARGUMENTS {
+            match condition_value {
+                ConditionValue::Variable(variable) => self.visit_variable(variable),
+                ConditionValue::Constant(_) => (),
+            }
+        }
     }
 
     // Directives

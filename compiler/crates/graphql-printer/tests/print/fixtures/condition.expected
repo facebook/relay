@@ -1,0 +1,16 @@
+==================================== INPUT ====================================
+fragment UserFragment on User {
+  name @include(if: $condition)
+  ... @skip(if: $condition) {
+    id
+    __typename
+  }
+}
+==================================== OUTPUT ===================================
+fragment UserFragment on User {
+  name @include(if: $condition)
+  ... @skip(if: $condition) {
+    id
+    __typename
+  }
+}

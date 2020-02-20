@@ -7,7 +7,8 @@
 
 use crate::util::PointerAddress;
 use graphql_ir::{
-    FragmentDefinition, InlineFragment, LinkedField, OperationDefinition, Program, Selection,
+    Condition, ConditionValue, FragmentDefinition, InlineFragment, LinkedField,
+    OperationDefinition, Program, Selection,
 };
 use graphql_printer::{write_arguments, write_directives};
 use schema::{Schema, Type, TypeReference};
@@ -142,6 +143,11 @@ impl<'s> FlattenTransform<'s> {
             Selection::LinkedField(node) => {
                 Selection::LinkedField(self.transform_linked_field(node))
             }
+            Selection::Condition(node) => Selection::Condition(Arc::new(Condition {
+                value: node.value.clone(),
+                passing_value: node.passing_value,
+                selections: self.tranform_selections(&node.selections, parent_type),
+            })),
             Selection::FragmentSpread(node) => Selection::FragmentSpread(Arc::clone(node)),
             Selection::ScalarField(node) => Selection::ScalarField(Arc::clone(node)),
         }
@@ -218,6 +224,23 @@ impl<'s> FlattenTransform<'s> {
                                     .schema()
                                     .field(flattened_node.definition.item)
                                     .type_,
+                            ),
+                        }));
+                        flattened_selections_map.insert(node_identifier, next_selection);
+                    }
+                    Selection::Condition(flattened_node) => {
+                        let node_selections = match selection {
+                            Selection::Condition(node) => &node.selections,
+                            _ => unreachable!("FlattenTransform: Expected a Condition."),
+                        };
+
+                        let next_selection = Selection::Condition(Arc::new(Condition {
+                            value: flattened_node.value.clone(),
+                            passing_value: flattened_node.passing_value,
+                            selections: self.merge_selections(
+                                &node_selections,
+                                &flattened_node.selections,
+                                parent_type,
                             ),
                         }));
                         flattened_selections_map.insert(node_identifier, next_selection);
@@ -304,6 +327,27 @@ fn get_identifier_for_selection<'s>(schema: &'s Schema, selection: &Selection) -
             if !node.directives.is_empty() {
                 write_directives(schema, &node.directives, &mut writer).unwrap();
             }
+        }
+        Selection::Condition(node) => {
+            write!(writer, "Condition:",).unwrap();
+            match &node.value {
+                ConditionValue::Constant(value) => {
+                    write!(writer, "{}", if *value { "true" } else { "false" }).unwrap();
+                }
+                ConditionValue::Variable(variable) => {
+                    write!(writer, "${}", variable.name.item.lookup()).unwrap();
+                }
+            };
+            write!(
+                writer,
+                "{}",
+                if node.passing_value {
+                    "include"
+                } else {
+                    "skip"
+                }
+            )
+            .unwrap();
         }
     };
     writer

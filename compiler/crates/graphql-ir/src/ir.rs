@@ -69,6 +69,41 @@ pub enum Selection {
     InlineFragment(Arc<InlineFragment>),
     LinkedField(Arc<LinkedField>),
     ScalarField(Arc<ScalarField>),
+    Condition(Arc<Condition>),
+}
+
+impl Selection {
+    /// Get selection directives
+    /// This method will panic if called on the Selection::Condition
+    pub fn directives(&self) -> &[Directive] {
+        match self {
+            Selection::FragmentSpread(node) => &node.directives,
+            Selection::InlineFragment(node) => &node.directives,
+            Selection::ScalarField(node) => &node.directives,
+            Selection::LinkedField(node) => &node.directives,
+            Selection::Condition(_) => unreachable!("Unexpected `Condition` selection."),
+        }
+    }
+
+    /// Update Selection directives
+    /// This method will panic if called on the Selection::Condition
+    pub fn set_directives(&mut self, directives: Vec<Directive>) {
+        match self {
+            Selection::FragmentSpread(node) => {
+                Arc::make_mut(node).directives = directives;
+            }
+            Selection::InlineFragment(node) => {
+                Arc::make_mut(node).directives = directives;
+            }
+            Selection::ScalarField(node) => {
+                Arc::make_mut(node).directives = directives;
+            }
+            Selection::LinkedField(node) => {
+                Arc::make_mut(node).directives = directives;
+            }
+            Selection::Condition(_) => unreachable!("Unexpected `Condition` selection."),
+        };
+    }
 }
 
 impl fmt::Debug for Selection {
@@ -78,6 +113,7 @@ impl fmt::Debug for Selection {
             Selection::InlineFragment(node) => f.write_fmt(format_args!("{:#?}", node)),
             Selection::LinkedField(node) => f.write_fmt(format_args!("{:#?}", node)),
             Selection::ScalarField(node) => f.write_fmt(format_args!("{:#?}", node)),
+            Selection::Condition(node) => f.write_fmt(format_args!("{:#?}", node)),
         }
     }
 }
@@ -116,6 +152,14 @@ pub struct ScalarField {
     pub definition: Spanned<FieldID>,
     pub arguments: Vec<Argument>,
     pub directives: Vec<Directive>,
+}
+
+/// https://spec.graphql.org/June2018/#sec--skip
+#[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
+pub struct Condition {
+    pub value: ConditionValue,
+    pub passing_value: bool,
+    pub selections: Vec<Selection>,
 }
 
 // Associated Types
@@ -178,4 +222,10 @@ impl ConstantValue {
     pub fn is_non_null(&self) -> bool {
         !self.is_null()
     }
+}
+
+#[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
+pub enum ConditionValue {
+    Constant(bool),
+    Variable(Variable),
 }

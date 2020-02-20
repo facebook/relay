@@ -141,6 +141,9 @@ fn visit_selections(
                 visit_selections(trees, &node.selections, parent_name, children);
             }
             Selection::ScalarField(_) => {}
+            Selection::Condition(node) => {
+                visit_selections(trees, &node.selections, parent_name, children);
+            }
         }
     }
 }

@@ -7,9 +7,9 @@
 
 use common::Spanned;
 use graphql_ir::{
-    Argument, ConstantValue, Directive, ExecutableDefinition, FragmentDefinition, FragmentSpread,
-    InlineFragment, LinkedField, OperationDefinition, ScalarField, Selection, Value,
-    VariableDefinition,
+    Argument, Condition, ConditionValue, ConstantValue, Directive, ExecutableDefinition,
+    FragmentDefinition, FragmentSpread, InlineFragment, LinkedField, OperationDefinition,
+    ScalarField, Selection, Value, VariableDefinition,
 };
 use graphql_syntax::OperationKind;
 use interner::StringKey;
@@ -97,7 +97,7 @@ pub fn write_directives(
     mut result: &mut impl Write,
 ) -> Result {
     let mut printer = Printer::new(&schema, &mut result);
-    printer.print_directives(directives)
+    printer.print_directives(directives, None)
 }
 
 struct Printer<'schema, 'writer, W: Write> {
@@ -126,8 +126,8 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
         let operation_name = operation.name.item;
         write!(self.writer, "{} {}", operation_kind, operation_name)?;
         self.print_variable_definitions(&operation.variable_definitions)?;
-        self.print_directives(&operation.directives)?;
-        self.print_selections(&operation.selections, 0)
+        self.print_directives(&operation.directives, None)?;
+        self.print_selections(&operation.selections, None, 0)
     }
 
     fn print_fragment(mut self, fragment: &FragmentDefinition) -> Result {
@@ -140,11 +140,42 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
         )
         .unwrap();
         self.print_argument_definitions(&fragment.variable_definitions)?;
-        self.print_directives(&fragment.directives)?;
-        self.print_selections(&fragment.selections, 0)
+        self.print_directives(&fragment.directives, None)?;
+        self.print_selections(&fragment.selections, None, 0)
     }
 
-    fn print_selections(&mut self, selections: &[Selection], indent_count: usize) -> Result {
+    fn print_selection(
+        &mut self,
+        selection: &Selection,
+        conditions: Option<&[Condition]>,
+        indent_count: usize,
+    ) -> Result {
+        match selection {
+            Selection::ScalarField(field) => {
+                self.print_scalar_field(field, conditions)?;
+            }
+            Selection::LinkedField(field) => {
+                self.print_linked_field(field, conditions, indent_count)?;
+            }
+            Selection::FragmentSpread(field) => {
+                self.print_fragment_spread(field, conditions)?;
+            }
+            Selection::InlineFragment(field) => {
+                self.print_inline_fragment(field, conditions, indent_count)?;
+            }
+            Selection::Condition(field) => {
+                self.print_condition(field, conditions, indent_count)?;
+            }
+        }
+        Ok(())
+    }
+
+    fn print_selections(
+        &mut self,
+        selections: &[Selection],
+        conditions: Option<&[Condition]>,
+        indent_count: usize,
+    ) -> Result {
         let len = selections.len();
         if len > 0 {
             let next_indent_count = indent_count + TAB_SIZE;
@@ -152,20 +183,7 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
             self.print_indentation(next_indent_count)?;
 
             for (i, selection) in selections.iter().enumerate() {
-                match selection {
-                    Selection::ScalarField(field) => {
-                        self.print_scalar_field(field)?;
-                    }
-                    Selection::LinkedField(field) => {
-                        self.print_linked_field(field, next_indent_count)?;
-                    }
-                    Selection::FragmentSpread(field) => {
-                        self.print_fragment_spread(field)?;
-                    }
-                    Selection::InlineFragment(field) => {
-                        self.print_inline_fragment(field, next_indent_count)?;
-                    }
-                }
+                self.print_selection(selection, conditions, next_indent_count)?;
                 if i != len - 1 {
                     writeln!(self.writer)?;
                     self.print_indentation(next_indent_count)?;
@@ -179,32 +197,49 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
         Ok(())
     }
 
-    fn print_scalar_field(&mut self, field: &ScalarField) -> Result {
+    fn print_scalar_field(
+        &mut self,
+        field: &ScalarField,
+        conditions: Option<&[Condition]>,
+    ) -> Result {
         self.print_alias(&field.alias)?;
         let schema_field = self.schema.field(field.definition.item);
         write!(self.writer, "{}", schema_field.name)?;
-
         self.print_arguments(&field.arguments)?;
-        self.print_directives(&field.directives)
+        self.print_directives(&field.directives, conditions)
     }
 
-    fn print_linked_field(&mut self, field: &LinkedField, indent_count: usize) -> Result {
+    fn print_linked_field(
+        &mut self,
+        field: &LinkedField,
+        conditions: Option<&[Condition]>,
+        indent_count: usize,
+    ) -> Result {
         self.print_alias(&field.alias)?;
         let schema_field = self.schema.field(field.definition.item);
         write!(self.writer, "{}", schema_field.name)?;
         self.print_arguments(&field.arguments)?;
-        self.print_directives(&field.directives)?;
-        self.print_selections(&field.selections, indent_count)?;
+        self.print_directives(&field.directives, conditions)?;
+        self.print_selections(&field.selections, None, indent_count)?;
         Ok(())
     }
 
-    fn print_fragment_spread(&mut self, field: &FragmentSpread) -> Result {
+    fn print_fragment_spread(
+        &mut self,
+        field: &FragmentSpread,
+        conditions: Option<&[Condition]>,
+    ) -> Result {
         let fragment_name = field.fragment.item;
         write!(self.writer, "...{}", fragment_name)?;
-        self.print_directives(&field.directives)
+        self.print_directives(&field.directives, conditions)
     }
 
-    fn print_inline_fragment(&mut self, field: &InlineFragment, indent_count: usize) -> Result {
+    fn print_inline_fragment(
+        &mut self,
+        field: &InlineFragment,
+        conditions: Option<&[Condition]>,
+        indent_count: usize,
+    ) -> Result {
         write!(self.writer, "...")?;
         if let Some(type_condition) = field.type_condition {
             write!(
@@ -213,16 +248,64 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
                 self.schema.get_type_name(type_condition).lookup(),
             )?;
         };
-        self.print_directives(&field.directives)?;
-        self.print_selections(&field.selections, indent_count)
+        self.print_directives(&field.directives, conditions)?;
+        self.print_selections(&field.selections, None, indent_count)
     }
 
-    fn print_directives(&mut self, directives: &[Directive]) -> Result {
-        let len = directives.len();
-        if len > 0 {
-            for directive in directives.iter() {
-                write!(self.writer, " @{}", directive.name.item)?;
-                self.print_arguments(&directive.arguments)?;
+    fn print_condition(
+        &mut self,
+        condition: &Condition,
+        parent_conditions: Option<&[Condition]>,
+        indent_count: usize,
+    ) -> Result {
+        for selection in condition.selections.iter() {
+            let next_conditions: Vec<Condition> = match parent_conditions {
+                Some(parent_conditions) => {
+                    let mut next_conditions: Vec<Condition> = vec![condition.clone()];
+                    next_conditions.extend(parent_conditions.iter().cloned());
+                    next_conditions
+                }
+                None => vec![condition.clone()],
+            };
+            self.print_selection(&selection, Some(&next_conditions), indent_count)?;
+        }
+
+        Ok(())
+    }
+
+    fn print_directives(
+        &mut self,
+        directives: &[Directive],
+        conditions: Option<&[Condition]>,
+    ) -> Result {
+        for directive in directives {
+            write!(self.writer, " @{}", directive.name.item)?;
+            self.print_arguments(&directive.arguments)?;
+        }
+        if let Some(conditions) = conditions {
+            self.print_conditions(conditions)?;
+        }
+        Ok(())
+    }
+
+    fn print_conditions(&mut self, conditions: &[Condition]) -> Result {
+        for condition in conditions {
+            write!(
+                self.writer,
+                " @{}",
+                if condition.passing_value {
+                    "include"
+                } else {
+                    "skip"
+                }
+            )?;
+            match &condition.value {
+                ConditionValue::Constant(value) => {
+                    write!(self.writer, "(if: {})", value)?;
+                }
+                ConditionValue::Variable(variable) => {
+                    write!(self.writer, "(if: ${})", variable.name.item)?;
+                }
             }
         }
         Ok(())

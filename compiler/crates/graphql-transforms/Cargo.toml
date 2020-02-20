@@ -9,6 +9,7 @@ interner = { path = "../interner" }
 graphql-ir = { path = "../graphql-ir" }
 schema = { path = "../schema" }
 graphql-printer = { path = "../graphql-printer" }
+fnv = "1.0.6"
 
 [dev-dependencies]
 criterion = "0.3"

@@ -1,0 +1,11 @@
+fragment User_fragment on User {
+  id: name
+}
+
+fragment Page_fragment on Node {
+  ... on Page {
+    id: author {
+      name
+    }
+  }
+}

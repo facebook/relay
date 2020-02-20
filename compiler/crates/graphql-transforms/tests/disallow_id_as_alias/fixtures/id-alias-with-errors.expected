@@ -1,0 +1,17 @@
+==================================== INPUT ====================================
+fragment User_fragment on User {
+  id: name
+}
+
+fragment Page_fragment on Node {
+  ... on Page {
+    id: author {
+      name
+    }
+  }
+}
+==================================== OUTPUT ===================================
+Relay does not allow aliasing fields to `id`. This name is reserved for the globally unique `id` field on `Node`.:
+
+
+Relay does not allow aliasing fields to `id`. This name is reserved for the globally unique `id` field on `Node`.:

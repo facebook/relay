@@ -37,9 +37,9 @@ impl<'a> Lexer<'a> {
         self.skip_leading_trivia();
         let inner_start = self.position.index();
         let kind = self.next_kind();
-        let inner_span = Span::new(inner_start, self.position.index() - inner_start);
+        let inner_span = Span::from_usize(inner_start, self.position.index() - inner_start);
         self.skip_trailing_trivia();
-        let span = Span::new(start, self.position.index() - start);
+        let span = Span::from_usize(start, self.position.index() - start);
         Token {
             span,
             kind,

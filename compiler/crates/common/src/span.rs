@@ -6,12 +6,13 @@
  */
 
 use colored::Colorize;
+use std::convert::TryFrom;
 use std::fmt;
 
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub struct Span {
-    pub length: usize,
-    pub start: usize,
+    pub length: u32,
+    pub start: u32,
 }
 
 impl Span {
@@ -22,13 +23,24 @@ impl Span {
         }
     }
 
-    pub fn new(start: usize, length: usize) -> Self {
+    pub fn new(start: u32, length: u32) -> Self {
         Self { length, start }
     }
 
+    pub fn from_usize(start: usize, length: usize) -> Self {
+        Self {
+            length: u32::try_from(length).unwrap(),
+            start: u32::try_from(start).unwrap(),
+        }
+    }
+
+    pub fn as_usize(&self) -> (usize, usize) {
+        (self.start as usize, self.length as usize)
+    }
+
     pub fn print(&self, source: &str) -> String {
-        let start = self.start;
-        let end = start + self.length;
+        let start = self.start as usize;
+        let end = start + self.length as usize;
 
         let mut index = 0;
         let mut start_line = 0;

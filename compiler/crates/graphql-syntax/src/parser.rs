@@ -650,7 +650,7 @@ impl<'a> Parser<'a> {
     /// Variable : $ Name
     fn parse_variable_identifier(&mut self) -> ParseResult<VariableIdentifier> {
         let token = self.parse_token();
-        let Span { start, length } = token.inner_span;
+        let (start, length) = token.inner_span.as_usize();
         let source = &self.source[start + 1..start + length];
         let span = token.span;
         if token.kind == TokenKind::VariableIdentifier {
@@ -773,7 +773,7 @@ impl<'a> Parser<'a> {
 
     /// A &str for the source of the inner span of the given token.
     fn source(&self, token: &Token) -> &str {
-        let Span { start, length } = token.inner_span;
+        let (start, length) = token.inner_span.as_usize();
         &self.source[start..start + length]
     }
 
@@ -830,7 +830,7 @@ impl<'a> Parser<'a> {
     }
 
     /// Get the byte offset of the *start* of the current token
-    fn index(&self) -> usize {
+    fn index(&self) -> u32 {
         self.current.span.start
     }
 
